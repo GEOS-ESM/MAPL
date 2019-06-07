@@ -1,0 +1,26 @@
+module Test_SimpleMAPLcomp_mod
+   use pfunit_mod
+   use ESMF_TestCase_mod
+   use ESMF_TestMethod_mod
+   use ESMF
+   implicit none
+
+contains
+
+   @test(npes=[1,2,0],type=newESMF_TestMethod)
+   subroutine test_one(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      type (ESMF_VM) :: vm
+      integer :: localPet, petCount
+
+
+      vm = this%getVM()
+      call ESMF_VMGet(vm, localPet=localPet, petCount=petCount)
+
+   end subroutine test_one
+
+
+end module Test_SimpleMAPLcomp_mod
+
+

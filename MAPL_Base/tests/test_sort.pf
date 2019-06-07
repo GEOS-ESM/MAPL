@@ -1,0 +1,34 @@
+@test 
+subroutine test_mapl_sort
+   use pfunit_mod
+   use mapl_sortMod
+   use iso_fortran_env, only: INT32, INT64
+   implicit none
+   
+   integer(kind=INT64) :: a(5), c(5)
+   integer(kind=INT32) :: a4(5)
+   integer(kind=INT32) ::  b1(5,3), b2(3,5)
+   integer(kind=INT32) ::  d1(5,3)
+
+   integer :: i, j
+
+   a = [5,3,8,6,-7]
+   do j=1,3
+      b1(:,j) = a
+      b2(j,:) = a
+   enddo
+   a4 = a
+
+
+   C=A
+   d1=b1
+   call MAPL_SORT(C,d1,dim=1)
+
+   do j=1,3
+      do i = 2, size(d1,dim=1)
+         @assertTrue(d1(i-1,j) <= d1(i,j))
+      end do
+   end do
+
+end subroutine test_mapl_sort
+

@@ -1,0 +1,94 @@
+module test_DirPathMod
+   use pfunit_mod
+   use MAPL_DirPathMod
+
+   @suite(name='DirPath_suite')
+
+contains
+
+   @before
+   subroutine setup()
+      integer :: unit
+
+      call system('mkdir dir1 dir2')
+      call system('mkdir dir1/dir3')
+      open(newunit=unit,file='dir1/exist.dat',status='new')
+      close(unit)
+      open(newunit=unit,file='dir1/dir3/exist3.dat',status='new')
+      close(unit)
+      open(newunit=unit,file='dir2/exist2.dat',status='new')
+      close(unit)
+
+   end subroutine setup
+  
+
+   @after
+   subroutine tearDown()
+      integer :: unit
+
+      open(newunit=unit,file='dir1/exist.dat',status='old')
+      close(unit, status='delete')
+      open(newunit=unit,file='dir1/dir3/exist3.dat',status='old')
+      close(unit, status='delete')
+      open(newunit=unit,file='dir2/exist2.dat',status='old')
+      close(unit, status='delete')
+
+      call system('rmdir dir1/dir3')
+      call system('rmdir dir1 dir2')
+      
+   end subroutine tearDown
+      
+
+   @test
+   subroutine test_empty()
+      type (DirPath) :: path
+      character(len=:), allocatable :: full_name
+      integer :: status
+
+      full_name = path%find('does_not_exist.dat', rc=status)
+      @assertEqual(MAPL_FILE_NOT_FOUND, status)
+      
+   end subroutine test_empty
+
+   @test
+   subroutine test_simple()
+      type (DirPath) :: path
+      character(len=:), allocatable :: full_name
+      integer :: status
+
+      call path%append('dir1')
+      full_name = path%find('exist.dat', rc=status)
+      @assertEqual(0, status)
+      @assertEqual('dir1/exist.dat', full_name)
+
+   end subroutine test_simple
+
+
+   @test
+   subroutine test_complex()
+      type (DirPath) :: path
+      character(len=:), allocatable :: full_name
+      integer :: status
+
+      call path%append('dir1')
+      call path%append('dir1/dir3')
+      call path%append('dir2')
+
+      full_name = path%find('exist.dat', rc=status)
+      @assertEqual(0, status)
+      @assertEqual('dir1/exist.dat', full_name)
+
+      full_name = path%find('exist2.dat', rc=status)
+      @assertEqual(0, status)
+      @assertEqual('dir2/exist2.dat', full_name)
+
+      full_name = path%find('exist3.dat', rc=status)
+      @assertEqual(0, status)
+      @assertEqual('dir1/dir3/exist3.dat', full_name)
+
+
+   end subroutine test_complex
+
+
+
+end module test_DirPathMod

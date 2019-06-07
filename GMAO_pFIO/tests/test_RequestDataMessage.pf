@@ -1,0 +1,41 @@
+module test_RequestDataMessageMod
+   use pfunit_mod
+   use pFIO_RequestDataMessageMod
+   use pFIO_ArrayReferenceMod
+   implicit none
+
+contains
+
+   @test
+   subroutine test_serialize_1d()
+      type (RequestDataMessage) :: msg_in, msg_out
+      type (ArrayReference) :: ref, refb
+
+      integer, target :: n(3)
+      integer, target :: m
+      integer, allocatable :: buffer(:)
+
+      ref = ArrayReference(n)
+
+      msg_in = RequestDataMessage(1, 3, 'foo', 'bar', ref, start=[2])
+      allocate(buffer(msg_in%get_length()))
+      call msg_in%serialize(buffer)
+      call msg_out%deserialize(buffer)
+
+      @assertEqual(1, msg_out%request_id)
+      @assertEqual(3, msg_out%collection_id)
+      @assertEqual('foo', msg_out%file_name)
+      @assertEqual('bar', msg_out%var_name)
+      @assertTrue(ref == msg_out%data_reference)
+      @assertEqual([2], msg_out%start)
+
+      ! Check that data reference is really being tested (paranoia mode)
+      refb = ArrayReference(m)
+      @assertFalse(refb == msg_out%data_reference)
+      
+      
+   end subroutine test_serialize_1d
+
+
+
+end module test_RequestDataMessageMod

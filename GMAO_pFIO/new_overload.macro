@@ -1,0 +1,140 @@
+! $Id$
+
+#ifdef _TYPE
+#undef _TYPE
+#endif
+
+#ifdef _MPITYPE
+#undef _MPITYPE
+#endif
+
+#ifdef _TYPEKIND
+#undef _TYPEKIND
+#endif
+
+#ifdef _TYPEKINDSTR
+#undef _TYPEKINDSTR
+#endif
+
+#ifdef _SUB
+#undef _SUB
+#endif
+
+#ifdef __SUB
+#undef __SUB
+#endif
+
+#ifdef ___SUB
+#undef ___SUB
+#endif
+
+#ifdef _SUBSTR
+#undef _SUBSTR
+#endif
+
+#ifdef __SUBSTR
+#undef __SUBSTR
+#endif
+
+#ifdef ___SUBSTR
+#undef ___SUBSTR
+#endif
+
+#ifdef _EKIND
+#undef _EKIND
+#endif
+
+#ifdef __EKIND
+#undef __EKIND
+#endif
+
+#ifdef ___EKIND
+#undef ___EKIND
+#endif
+
+#if (_VARTYPE == 0)
+#define _MPITYPE MPI_BYTE
+#define _TYPEKIND character(len=*)
+#define _TYPEKINDSTR 'STRING'
+
+#elif (_VARTYPE == 1)
+#define _MPITYPE MPI_INTEGER
+#define _TYPE INTEGER
+#define _TYPEKIND int32
+#define _TYPEDECLARE integer(kind=INT32)
+#define _TYPEKINDSTR 'INT32'
+
+#elif (_VARTYPE == 2)
+#define _MPITYPE MPI_INTEGER16
+#define _TYPE INTEGER
+#define _TYPEKIND int64
+#define _TYPEDECLARE integer(kind=INT64)
+#define _TYPEKINDSTR 'INT64'
+
+
+#elif (_VARTYPE == 3)
+#define _MPITYPE MPI_LOGICAL
+#define _TYPE LOGICAL
+#define _TYPEKIND l32
+#define _TYPEDECLARE logical
+#define _TYPEKINDSTR 'L32'
+
+#elif (_VARTYPE == 4)
+#define _MPITYPE_ MPI_REAL
+#define _TYPE REAL
+#define _TYPEKIND real32
+#define _TYPEDECLARE real(kind=REAL32)
+#define _TYPEKINDSTR 'REAL32'
+
+#elif (_VARTYPE == 5)
+#define _MPITYPE MPI_DOUBLE_PRECISION
+#define _TYPE REAL
+#define _TYPEKIND real64
+#define _TYPEDECLARE real(kind=REAL64)
+#define _TYPEKINDSTR 'REAL64'
+#endif
+
+
+#define _IDENTITY(x)x
+
+#define    _TKR        __TKR(_TYPEKIND,_RANK)
+#define    __TKR(A,B)  ___TKR(A,B)
+#define ___TKR(A,B) _IDENTITY(A)_IDENTITY(_)_IDENTITY(B)
+
+#define    _SUB           __SUB(_NAME,_TYPEKIND,_RANK)
+#define    __SUB(N,A,B)   ___SUB(N,A,B)
+#define ___SUB(N,A,B) _IDENTITY(N)_IDENTITY(_)_IDENTITY(A)_IDENTITY(_)_IDENTITY(B)
+
+#define _SUBSTR __SUBSTR(_NAMESTR, _TYPEKINDSTR,_RANKSTR)
+#define __SUBSTR(N,A,B)  ___SUBSTR(N,A,B)
+#define ___SUBSTR(N,A,B) N // A // B
+
+#define _EKIND __EKIND(_TYPEKIND)  
+#define __EKINDA) ___EKIND(A)
+#define ___EKIND(A) _IDENTITY(_ESMF_KIND)_IDENTITY(A)
+
+#if (_RANK == 0)
+#define _DIMENSIONS
+#define _RANKSTR '0'
+#endif
+
+#if (_RANK == 1)
+#define _DIMENSIONS (:)
+#define _RANKSTR '1'
+#endif
+
+#if (_RANK == 2)
+#define _DIMENSIONS (:,:)
+#define _RANKSTR '2'
+#endif
+
+#if (_RANK == 3)
+#define _DIMENSIONS (:,:,:)
+#define _RANKSTR '3'
+#endif
+
+#if (_RANK == 4)
+#define _DIMENSIONS (:,:,:,:)
+#define _RANKSTR '4'
+#endif
+

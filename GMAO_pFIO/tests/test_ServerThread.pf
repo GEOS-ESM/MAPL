@@ -1,0 +1,197 @@
+module Test_ServerThreadMod
+   use pfunit_mod
+   use, intrinsic :: iso_fortran_env, only: REAL32
+   use pFIO_AbstractMessageMod
+   use pFIO_ArrayReferenceMod
+   use pFIO_ServerThreadMod
+   use pFIO_AbstractSocketMod
+   use MockSocketMod
+
+   use pFIO_ConstantsMod
+   use pFIO_VariableMod
+   use pFIO_NetCDF4_FileFormatterMod
+   use pFIO
+
+   use pFIO_TerminateMessageMod
+   use pFIO_DoneMessageMod
+   use pFIO_AddCollectionMessageMod
+   use pFIO_CollectionIdMessageMod
+   use pFIO_RequestIdMessageMod
+   use pFIO_RequestDataMessageMod
+   use pFIO_WaitRequestDataMessageMod
+   use pFIO_IntegerSocketMapMod
+
+   implicit none
+
+
+   integer, parameter :: NX = 3
+   integer, parameter :: NY = 4
+
+   real(kind=REAL32), parameter :: A_EXPECTED = 5
+   real(kind=REAL32), parameter :: U_EXPECTED(NX,NY) = reshape([1,2,3,1,2,3,1,2,3,1,2,3],[NX,NY])
+   real(kind=REAL32), parameter :: V_EXPECTED(NX,NY) = reshape([1,1,1,2,2,2,3,3,3,4,4,4],[NX,NY])
+
+contains
+
+
+   @before
+   subroutine setUp()
+      type (FileMetadata) :: metadata
+      type (NetCDF4_FileFormatter) :: formatter
+
+      call metadata%add_dimension('i',NX)
+      call metadata%add_dimension('j',NY)
+      call metadata%add_variable('a', Variable(pFIO_REAL32))
+      call metadata%add_variable('u', Variable(pFIO_REAL32, dimensions='i,j'))
+      call metadata%add_variable('v', Variable(pFIO_REAL32, dimensions='i,j'))
+
+      call formatter%create('fake_data.nc4')
+      call formatter%write(metadata)
+
+      call formatter%put_var('a', A_EXPECTED)
+      call formatter%put_var('u', U_EXPECTED)
+      call formatter%put_var('v', V_EXPECTED)
+      
+      call formatter%close()
+
+   end subroutine setUp
+
+   @after
+   subroutine tearDown()
+      integer :: unit
+
+      open(newunit=unit, file='fake_data.nc4', status='old')
+      close(unit, status='delete')
+
+   end subroutine tearDown
+
+
+   ! Failure here is actually a hang.
+   @test
+   subroutine test_return_on_terminate()
+      type (ServerThread) :: s
+
+      type (MockSocketLog), target :: log
+      type (MockSocket) :: client_socket
+
+      client_socket = MockSocket(log)
+      call client_socket%add_message(TerminateMessage())
+
+      s = ServerThread(client_socket)
+      call s%run()
+      @assertEqual('receive<Terminate>', log%log)
+
+   end subroutine test_return_on_terminate
+   
+
+   ! Failure here is actually a hang.
+   @test
+   subroutine test_return_on_terminate_b()
+      type (ServerThread) :: s
+
+      type (MockSocketLog), target :: log
+      type (MockSocket) :: client_socket
+      integer :: i       
+      client_socket = MockSocket(log)
+      call client_socket%add_message(DoneMessage())
+      call client_socket%add_message(TerminateMessage())
+      s = ServerThread(client_socket)
+ 
+      do i = 1,2
+         call s%run()
+      enddo
+      @assertEqual("receive<Done> :: receive<Terminate>", log%log)
+
+   end subroutine test_return_on_terminate_b
+
+   @test
+   subroutine test_handle_AddCollection()
+      type (ServerThread) :: s
+      character(len=:), allocatable :: expected
+      type (MockSocketLog), target :: log
+
+      type (MockSocket) :: client_socket
+      integer :: i
+
+      client_socket = MockSocket(log)
+      call client_socket%add_message(AddCollectionMessage('foo'))
+      call client_socket%add_message(AddCollectionMessage('bar'))
+      call client_socket%add_message(TerminateMessage())
+      s = ServerThread(client_socket)
+
+      do i = 1,3
+        call s%run()
+      enddo
+
+      expected = ""
+      expected = expected // "receive<AddCollection('foo')>"
+      expected = expected // " :: send<CollectionId(001)>"
+      expected = expected // " :: receive<AddCollection('bar')>"
+      expected = expected // " :: send<CollectionId(002)>"
+      expected = expected // " :: receive<Terminate>"
+      
+      @assertEqual(expected, log%log)
+
+   end subroutine test_handle_AddCollection
+
+   @test
+   subroutine test_handle_RequestData()
+      type (ServerThread) :: s
+      character(len=:), allocatable :: expected
+
+      type (ArrayReference) :: reference_a, reference_u, reference_v
+      integer :: empty(0)
+      type (MockSocketLog), target :: log
+      class(AbstractMessage),pointer :: msg
+      type (MockSocket) :: client_socket
+      class(AbstractSocket) , pointer :: sckt_ptr 
+      real(kind=REAL32), target :: a, u(NX,NY), v(NX,NY)
+      integer :: i
+
+      reference_a = ArrayReference(a)
+      reference_u = ArrayReference(u)
+      reference_v = ArrayReference(v)
+
+      client_socket = MockSocket(log)
+      call client_socket%add_message(AddCollectionMessage('foo'))
+      call client_socket%add_message(RequestDataMessage(1, 1, 'fake_data.nc4', 'a', reference_a))
+      call client_socket%add_message(RequestDataMessage(2, 1, 'fake_data.nc4', 'u', reference_u, start=[1,1]))
+      call client_socket%add_message(RequestDataMessage(3, 1, 'fake_data.nc4', 'v', reference_v, start=[1,1]))
+      call client_socket%add_message(DoneMessage())
+      call client_socket%add_message(TerminateMessage())
+
+      s = ServerThread(client_socket)
+
+      do i = 1,5
+         sckt_ptr=>s%get_connection()
+         msg=>sckt_ptr%receive()
+         call msg%dispatch(s)
+      enddo
+
+      do i = 1,3 
+        call s%run()
+      enddo
+
+      expected = ""
+      expected = expected // "receive<AddCollection('foo')>"
+      expected = expected // " :: send<CollectionId(001)>"
+      expected = expected // " :: receive<RequestData('a')>"
+      expected = expected // " :: send<RequestId(1)>"
+      expected = expected // " :: receive<RequestData('u')>"
+      expected = expected // " :: send<RequestId(2)>"
+      expected = expected // " :: receive<RequestData('v')>"
+      expected = expected // " :: send<RequestId(3)>"
+      expected = expected // " :: receive<Done>"
+      expected = expected // " :: put()"
+      expected = expected // " :: put()"
+      expected = expected // " :: put()"
+      expected = expected // " :: receive<Terminate>"
+
+      @assertEqual(expected, log%log)
+      @assertEqual(A_EXPECTED, log%values_a)
+      @assertEqual(U_EXPECTED, log%values_u)
+      @assertEqual(V_EXPECTED, log%values_v)
+   end subroutine test_handle_RequestData
+
+   
+end module Test_ServerThreadMod

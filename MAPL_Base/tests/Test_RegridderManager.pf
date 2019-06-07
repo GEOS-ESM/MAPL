@@ -1,0 +1,124 @@
+module Test_RegridderFactoryRegistryMod
+   use pFUnit_mod
+   use ESMF
+   use MAPL_RegridderFactoryRegistryMod
+   use MAPL_RegridderSpecMod
+   use MAPL_RegridderFactorySpecMod
+   use MAPL_AbstractRegridderMod
+   use MAPL_AbstractRegridderFactoryMod
+   use MockRegridderMod
+   use MockRegridderFactoryMod
+   implicit none
+
+
+contains
+
+   @test
+   subroutine test_retrieve_exists()
+      type (ESMF_Grid), target :: g1_in, g1_out
+      type (RegridderSpec) :: regridder_spec
+      type (RegridderFactorySpec) :: factory_spec
+      type (RegridderFactoryRegistry) :: registry
+
+      class (AbstractRegridderFactory), pointer :: factory
+      class (AbstractRegridder), allocatable :: regridder
+
+
+      g1_in = ESMF_GridEmptyCreate()
+      g1_out = ESMF_GridEmptyCreate()
+
+      call ESMF_AttributeSet(g1_in, name='GridType', value='A')
+      call ESMF_AttributeSet(g1_out, name='GridType', value='B')
+
+      regridder_spec = RegridderSpec(g1_in, g1_out)
+      factory_spec = RegridderFactorySpec(regridder_spec)
+
+      factory => registry%at(factory_spec)
+      @assertFalse(associated(factory))
+
+      call registry%insert(factory_spec, MockRegridderFactory('A to B'))
+      factory => registry%at(factory_spec)
+      @assertTrue(associated(factory))
+
+      allocate(regridder, source=factory%make_regridder(regridder_spec))
+      select type (regridder)
+      type is (MockRegridder)
+         @assertEqual('A to B::A -> B', regridder%get_name())
+      class default
+         call throw('incorrect type of regridder returned')
+      end select
+      
+   end subroutine test_retrieve_exists
+
+   @test
+   subroutine test_retrieve_multi()
+      type (ESMF_Grid), target :: g_A, g_B, g_C
+      type (RegridderSpec) :: regridder_spec
+      type (RegridderFactorySpec) :: spec_AB, spec_BC, spec_CB
+      type (RegridderFactoryRegistry) :: registry
+
+      class (AbstractRegridderFactory), pointer :: factory
+      class (AbstractRegridder), allocatable :: regridder
+
+
+      g_A = ESMF_GridEmptyCreate()
+      g_B = ESMF_GridEmptyCreate()
+      g_C = ESMF_GridEmptyCreate()
+
+      call ESMF_AttributeSet(g_A, name='GridType', value='A')
+      call ESMF_AttributeSet(g_B, name='GridType', value='B')
+      call ESMF_AttributeSet(g_C, name='GridType', value='C')
+
+      regridder_spec = RegridderSpec(g_A, g_B)
+      spec_AB = RegridderFactorySpec(regridder_spec)
+      call registry%insert(spec_AB, MockRegridderFactory('A to B'))
+
+      regridder_spec = RegridderSpec(g_B, g_C)
+      spec_BC = RegridderFactorySpec(regridder_spec)
+      call registry%insert(spec_BC, MockRegridderFactory('B to C'))
+      
+      regridder_spec = RegridderSpec(g_C, g_B)
+      spec_CB = RegridderFactorySpec(regridder_spec)
+      call registry%insert(spec_CB, MockRegridderFactory('C to B'))
+      
+      factory => registry%at(spec_AB)
+      @assertTrue(associated(factory))
+
+      regridder_spec = RegridderSpec(g_C, g_A)
+      allocate(regridder, source=factory%make_regridder(regridder_spec))
+      select type (regridder)
+      type is (MockRegridder)
+         @assertEqual('A to B::C -> A', regridder%get_name())
+      class default
+         call throw('incorrect type of regridder returned')
+      end select
+      deallocate(regridder)
+
+      factory => registry%at(spec_BC)
+      @assertTrue(associated(factory))
+
+      allocate(regridder, source=factory%make_regridder(regridder_spec))
+      select type (regridder)
+      type is (MockRegridder)
+         @assertEqual('B to C::C -> A', regridder%get_name())
+      class default
+         call throw('incorrect type of regridder returned')
+      end select
+      deallocate(regridder)
+
+      factory => registry%at(spec_CB)
+      @assertTrue(associated(factory))
+
+      allocate(regridder, source=factory%make_regridder(regridder_spec))
+      select type (regridder)
+      type is (MockRegridder)
+         @assertEqual('C to B::C -> A', regridder%get_name())
+      class default
+         call throw('incorrect type of regridder returned')
+      end select
+      deallocate(regridder)
+      
+   end subroutine test_retrieve_multi
+
+   
+end module Test_RegridderFactoryRegistryMod

@@ -1,0 +1,361 @@
+module Test_LatLonCornersMod
+   use pfunit_mod
+   use ESMF_TestCase_mod
+   use ESMF_TestMethod_mod
+   use ESMF_TestParameter_mod
+   use MAPL_LatLonGridFactoryMod
+   use MAPL_ConstantsMod, only: MAPL_PI_R8
+   use MAPL_ConstantsMod, only: MAPL_RADIANS_TO_DEGREES
+   use MAPL_ConstantsMod, only: MAPL_DEGREES_TO_RADIANS
+   use MAPL_MinMaxMod
+   use ESMF
+   implicit none
+
+@testParameter
+   type, extends(ESMF_TestParameter) :: GridCase
+      ! always inputs
+      logical :: default_decomposition = .false.
+      character(len=2) :: dateline
+      character(len=2) :: pole
+      type (RealMinMax) :: lon_range
+      type (RealMinMax) :: lat_range
+      ! inputs/outputs depending on toggle
+      integer :: nx
+      integer :: ny
+      integer :: im_world
+      integer :: jm_world
+      integer, allocatable :: ims(:)
+      integer, allocatable :: jms(:)
+      ! outputs
+      real, allocatable :: lons(:)
+      real, allocatable :: lats(:)
+   contains
+      procedure :: toString
+   end type GridCase
+   
+@testCase(constructor=Test_LatLonCorners, testParameters={getParameters()})
+   type, extends(ESMF_TestCase) :: Test_LatLonCorners
+      integer :: numThreads
+      type (LatLonGridFactory) :: factory
+      type (ESMF_Grid) :: grid
+   contains
+      procedure :: setUp
+      procedure :: tearDown
+   end type Test_LatLonCorners
+
+
+   interface GridCase
+      module procedure GridCase_global
+      module procedure GridCase_local
+   end interface GridCase
+
+   interface Test_LatLonCorners
+      module procedure newTest_LatLonCorners
+   end interface Test_LatLonCorners
+
+   character(len=*), parameter :: resource_file = 'Test_LatLonCorners.rc'
+
+contains
+
+
+   function newTest_LatLonCorners(testParameter) result(aTest)
+      type (Test_LatLonCorners) :: aTest
+      class (GridCase), intent(in) :: testParameter
+
+!$$      allocate(aTest%testParameter, source=testParameter)
+      select type (p => aTest%testParameter)
+      class is (GridCase)
+         call p%setNumPETsRequested(p%nx * p%ny)
+      end select
+
+   end function newTest_LatLonCorners
+
+
+   function GridCase_global(nx, ny, im_world, jm_world, dateline, pole, default_decomposition, ims, jms, lons, lats) result(param)
+      integer, intent(in) :: nx, ny
+      integer, intent(in) :: im_world, jm_world
+      character(len=2), intent(in) :: dateline, pole
+      logical, intent(in) :: default_decomposition
+      integer, intent(in) :: ims(:), jms(:)
+      real, intent(in) :: lons(:), lats(:) ! in degrees
+
+      type (GridCase) :: param
+
+      param%nx = nx
+      param%ny = ny
+      param%im_world = im_world
+      param%jm_world = jm_world
+      param%dateline = dateline
+      param%pole = pole
+
+      param%default_decomposition = default_decomposition
+      param%ims = ims
+      param%jms = jms
+
+      param%lons = lons
+      param%lats = lats
+
+      call param%setNumPETsRequested(nx*ny)
+      
+   end function GridCase_global
+
+   function GridCase_local(nx, ny, im_world, jm_world, lon_range, lat_range, default_decomposition, ims, jms, lons, lats) result(param)
+      integer, intent(in) :: nx, ny
+      integer, intent(in) :: im_world, jm_world
+      type (RealMinMax), intent(in) :: lon_range, lat_range
+      logical, intent(in) :: default_decomposition
+      integer, intent(in) :: ims(:), jms(:)
+      real, intent(in) :: lons(:), lats(:) ! in degrees
+
+      type (GridCase) :: param
+
+      param%nx = nx
+      param%ny = ny
+      param%im_world = im_world
+      param%jm_world = jm_world
+      param%pole = 'XY'
+      param%lon_range = lon_range
+      param%lat_range = lat_range
+
+      param%default_decomposition = default_decomposition
+      param%ims = ims
+      param%jms = jms
+
+      param%lons = lons
+      param%lats = lats
+
+      call param%setNumPETsRequested(nx*ny)
+      
+   end function GridCase_local
+
+
+   subroutine setUp(this)
+      class (Test_LatLonCorners), intent(inout) :: this
+
+      integer :: status
+
+      type (ESMF_Config) :: config
+      integer :: unit
+
+      if (this%getLocalPET() == 0) then
+         select type (p => this%testParameter)
+         type is (GridCase)
+            call write_config(resource_file, p)
+         end select
+      end if
+      call this%barrier()
+
+      config = ESMF_ConfigCreate(rc=status)
+      @mpiAssertEqual(ESMF_SUCCESS, 0)
+
+      call ESMF_ConfigLoadFile(config, resource_file, rc=status)
+      @mpiAssertEqual(ESMF_SUCCESS, 0)
+
+      call this%barrier()
+      if (this%getLocalPET() == 0) then
+         open (newunit=unit, file=resource_file)
+         close(unit, status='delete')
+      end if
+
+      call this%factory%initialize(config, rc=status)
+      @mpiAssertEqual(ESMF_SUCCESS, 0)
+
+      call ESMF_ConfigDestroy(config, rc=status)
+      @mpiAssertEqual(ESMF_SUCCESS, 0)
+
+      this%grid = this%factory%make_grid()
+
+   contains
+
+      subroutine write_config(file_name, param)
+         character(len=*), intent(in) :: file_name
+         type (GridCase), intent(in) :: param
+
+         integer :: unit
+
+         open(newunit=unit, file=file_name, form='formatted', status='unknown')
+
+         if (param%default_decomposition) then
+            write(unit,*)'NX: ', param%nx
+            write(unit,*)'NY: ', param%ny
+            write(unit,*)'IM_WORLD: ', param%im_world
+            write(unit,*)'JM_WORLD: ', param%jm_world
+         else
+            write(unit,*)'IMS: ', param%ims
+            write(unit,*)'JMS: ', param%jms
+         end if
+         write(unit,*)"POLE: '", param%pole, "'"
+         if (param%pole == 'XY') then
+            write(unit,*)'LON_RANGE: ', param%lon_range%min, param%lon_range%max
+            write(unit,*)'LAT_RANGE: ', param%lat_range%min, param%lat_range%max
+         else
+            write(unit,*)"DATELINE: '", param%dateline, "'"
+         end if
+         close(unit)
+
+      end subroutine write_config
+
+   end subroutine setUp
+
+
+   subroutine tearDown(this)
+      class (Test_LatLonCorners), intent(inout) :: this
+
+      call ESMF_GridDestroy(this%grid)
+      
+   end subroutine tearDown
+
+
+   function getParameters() result(params)
+      type (GridCase), allocatable :: params(:)
+
+      !              nx ny  im jm pole date    dec   ims   jms      lon range               lat range
+      params = [ &
+           ! Default decomposition
+           & GridCase(1, 1, 4, 2, 'DC', 'PE', .true., [4],   [2],   [-225., -135., -45., 45.],    [-90., 0., 90.]), &
+           & GridCase(2, 1, 4, 2, 'DC', 'PE', .true., [2,2], [2],   [-225., -135., -45., 45.],    [-90., 0., 90.]), & 
+           & GridCase(1, 2, 4, 2, 'DC', 'PE', .true., [4],   [1,1], [-225., -135., -45., 45.],    [-90., 0., 90.]), &
+           & GridCase(1, 1, 4, 3, 'DC', 'PC', .true., [4],   [3],   [-225., -135., -45., 45.],    [-90., -45., 45., 90.]), &
+           & GridCase(1, 1, 4, 2, 'DE', 'PE', .true., [4],   [2],   [-180., -90., 0., 90.], [-90., 0., 90.]), &
+           & GridCase(1, 1, 4, 2, 'GC', 'PE', .true., [4],   [2],   [-45., 45., 135., 225.],     [-90., 0., 90.]), &
+           & GridCase(1, 1, 4, 2, RealMinMax(0.,40.), RealMinMax(10.,30.), .true., [4],[2], [0.,10.,20.,30.], [10.,20., 30.]), &
+!           ! Custom decomposition
+           & GridCase(1, 1, 4, 2, 'DC', 'PE', .false., [4],   [2],   [-225., -135., -45., 45.],    [-90., 0., 90.]), & 
+           & GridCase(2, 1, 4, 2, 'DC', 'PE', .false., [2,2], [2],   [-225., -135., -45., 45.],    [-90., 0., 90.]), &
+           & GridCase(1, 2, 4, 2, 'DC', 'PE', .false., [4],   [1,1], [-225., -135., -45., 45.],    [-90., 0., 90.]), &
+           & GridCase(3, 1, 4, 2, 'DC', 'PE', .false., [1,2,1], [2], [-225., -135., -45., 45.],    [-90., 0., 90.]), &
+           & GridCase(1, 1, 4, 3, 'DC', 'PC', .false., [4],   [3],   [-225., -135., -45., 45.],    [-90., -45., 45., 90.]), &
+           & GridCase(1, 1, 4, 2, 'DE', 'PE', .false., [4],   [2],   [-180., -90., 0., 90.], [-90., 0., 90.]), &
+           & GridCase(1, 1, 4, 2, 'GC', 'PE', .false., [4],   [2],   [-45., 45., 135., 225.],     [-90., 0., 90.]) &
+           & ]
+
+   end function getParameters
+
+
+   @test
+   subroutine test_shape(this)
+      class (Test_LatLonCorners), intent(inout) :: this
+
+      integer :: status
+      integer, parameter :: SUCCESS = 0
+      real(ESMF_KIND_R8), pointer :: corners(:,:)
+
+      integer :: petX, petY
+      integer, allocatable :: imc(:), jmc(:)
+
+      select type (p => this%testParameter)
+      type is (GridCase)
+
+         petX = mod(this%getLocalPET(), p%nx)
+         petY = this%getLocalPET() / p%nx
+
+         allocate(imc(size(p%ims)),jmc(size(p%jms)))
+         imc = p%ims
+         jmc = p%jms
+         if (petY+1 == size(p%jms)) jmc(petY+1)=jmc(petY+1)+1
+
+         @mpiAssertTrue(petX >= 0)
+         @mpiAssertTrue(petX < size(p%ims))
+         @mpiAssertTrue(petY >= 0)
+         @mpiAssertTrue(petY < size(p%jms))
+      end select
+
+      ! X
+      call ESMF_GridGetCoord(this%grid, coordDim=1, staggerLoc=ESMF_STAGGERLOC_CORNER, &
+           & farrayPtr=corners, rc=status)
+      @mpiAssertTrue(status==SUCCESS, message='Failed to get grid x corners.')
+
+      select type (p => this%testparameter)
+      type is (GridCase)
+         @mpiAssertEqual([imc(petX+1),jmc(petY+1)], shape(corners), message='Wrong shape.')
+      end select
+
+      ! Y
+      call ESMF_GridGetCoord(this%grid, coordDim=2, staggerLoc=ESMF_STAGGERLOC_CORNER, &
+           & farrayPtr=corners, rc=status)
+      @mpiAssertTrue(status==SUCCESS, message='Failed to geet grid x corners.')
+
+      select type (p => this%testparameter)
+      type is (GridCase)
+         @mpiAssertEqual([imc(petX+1),jmc(petY+1)], shape(corners), message='Wrong shape.')
+      end select
+
+      select type (p => this%testparameter)
+      type is (GridCase)
+         deallocate(imc,jmc)
+      end select
+      
+   end subroutine test_shape
+
+   @test
+   subroutine test_corners(this)
+      class (Test_LatLonCorners), intent(inout) :: this
+
+      integer :: status
+      integer, parameter :: SUCCESS = 0
+      real(ESMF_KIND_R8), pointer :: corners(:,:)
+
+      integer :: petX, petY
+      integer :: i_1, i_n, j_1, j_n
+
+      select type (p => this%testParameter)
+      type is (GridCase)
+         petX = mod(this%getLocalPET(), p%nx)
+         petY = this%getLocalPET() / p%nx
+
+         @mpiAssertTrue(petX >= 0)
+         @mpiAssertTrue(petX < size(p%ims))
+         @mpiAssertTrue(petY >= 0)
+         @mpiAssertTrue(petY < size(p%jms))
+
+         i_1 = 1 + sum(p%ims(:petX))
+         i_n = sum(p%ims(:petX+1))
+         j_1 = 1 + sum(p%jms(:petY))
+         j_n = sum(p%jms(:petY+1))
+         if (petY+1==size(p%jms)) j_n=j_n+1
+      end select
+
+      ! X
+      call ESMF_GridGetCoord(this%grid, coordDim=1, staggerLoc=ESMF_STAGGERLOC_CORNER, &
+           & farrayPtr=corners, rc=status)
+      @mpiAssertTrue(status==SUCCESS, message='Failed to get grid x corners.')
+
+      select type (p => this%testparameter)
+      type is (GridCase)
+         @mpiAssertEqual(p%lons(i_1:i_n), corners(:,1)*MAPL_RADIANS_TO_DEGREES, message='Wrong corners X.', tolerance=1.d-5)
+      end select
+
+      ! Y
+      call ESMF_GridGetCoord(this%grid, coordDim=2, staggerLoc=ESMF_STAGGERLOC_CORNER, &
+           & farrayPtr=corners, rc=status)
+      @mpiAssertTrue(status==SUCCESS, message='Failed to geet grid x corners.')
+
+      select type (p => this%testparameter)
+      type is (GridCase)
+         @mpiAssertEqual(p%lats(j_1:j_n), corners(1,:)*MAPL_RADIANS_TO_DEGREES, message='Wrong corners Y.', tolerance=1.d-5)
+      end select
+      
+   end subroutine test_corners
+
+
+   function toString(this) result(string)
+      character(len=:), allocatable :: string
+      class (GridCase), intent(in) :: this
+
+      character(len=1) :: buf
+
+      write(buf,'(i1)') this%nx
+      string = '{nx:'//buf
+
+      write(buf,'(i1)') this%ny
+      string = string // ',ny:'//buf
+
+      string = string // ',pole:'//this%pole
+      string = string // ',dateline:'//this%dateline
+
+      string = string // '}'
+
+   end function toString
+
+end module Test_LatLonCornersMod
+

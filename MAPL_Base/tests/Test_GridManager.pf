@@ -1,0 +1,150 @@
+module Test_GridManagerMod
+   use MAPL_GridManager_private
+   use MockGridFactoryMod
+   use pFUnit_mod
+   use ESMF
+   implicit none
+
+   type (ESMF_Config) :: config
+
+contains
+
+   @before
+   subroutine setup()
+      integer :: unit, status
+      
+      open (newunit=unit, file = 'tmp.rc', access='sequential', form='formatted')
+      write (unit,*) 'default.GRID_TYPE: grid_type_1'
+      write (unit,*) 'other.GRID_TYPE: grid_type_2'
+      close (unit)
+
+      config = ESMF_ConfigCreate(rc=status)
+      @assertEqual(0, status)
+      call ESMF_ConfigLoadFile (config, 'tmp.rc', rc=status)
+      @assertEqual(0, status)
+      
+   end subroutine setup
+
+   @after
+   subroutine teardown()
+      integer :: status
+      call ESMF_ConfigDestroy(config, rc=status)
+      @assertEqual(0, status)
+   end subroutine teardown
+   @test
+   subroutine test_add_prototype()
+      type (GridManager) :: grid_manager
+      call grid_manager%add_prototype('mock', MockGridFactory())
+   end subroutine test_add_prototype
+
+   @test
+   subroutine test_make_grid_no_prototype()
+      type (GridManager) :: grid_manager
+      type (ESMF_Grid) :: grid
+
+      integer :: status
+
+      grid = grid_manager%make_grid(config, rc=status)
+      ! should have failed, but need to clean up otherwise
+      if (status == 0) then
+         call grid_manager%delete(grid)
+      end if
+      @assertExceptionRaised('label not found')
+
+      ! Check that it actually failed
+      @assertFalse(0 == status, 'made a grid even though there is no prototype')
+      
+   end subroutine test_make_grid_no_prototype
+
+   @test
+   subroutine test_make_grid_prototype()
+      type (GridManager) :: grid_manager
+      type (ESMF_Grid) :: grid
+
+      integer :: status
+
+      call grid_manager%add_prototype('grid_type_1', MockGridFactory('foo'))
+      grid = grid_manager%make_grid( config, prefix='default.', rc=status)
+      @assertEqual(0, status)
+
+      call grid_manager%delete(grid)
+
+   end subroutine test_make_grid_prototype
+
+   @test
+   subroutine test_grid_type()
+      type (GridManager) :: grid_manager
+      type (ESMF_Grid) :: grid
+
+      integer :: status
+      character(len=40) :: grid_type
+
+      call grid_manager%add_prototype('grid_type_1', MockGridFactory('foo'))
+      grid = grid_manager%make_grid(config, prefix='default.', rc=status)
+      @assertEqual(0, status)
+
+      call ESMF_AttributeGet(grid, 'GridType', grid_type, rc=status)
+      if (status /= 0) then
+         call grid_manager%delete(grid)
+         return
+      end if
+      @assertEqual(0, status)
+      
+      if ('mock' /= trim(grid_type)) then
+         call grid_manager%delete(grid)
+         return
+      end if
+      @assertEqual('grid_type_1', trim(grid_type))
+      
+      call grid_manager%delete(grid)
+
+   end subroutine test_grid_type
+
+   @test
+   subroutine test_make_grid_multi()
+      type (GridManager) :: grid_manager
+      type (ESMF_Grid) :: grid
+
+      integer :: status
+      character(len=40) :: grid_name
+
+      call grid_manager%add_prototype('grid_type_1', MockGridFactory('foo'))
+      call grid_manager%add_prototype('grid_type_2', MockGridFactory('bar'))
+
+      grid = grid_manager%make_grid(config, prefix='default.', rc=status)
+      @assertEqual(0, status)
+
+      call ESMF_AttributeGet(grid, 'GRID_NAME', grid_name, rc=status)
+      if (status /= 0) then
+         call grid_manager%delete(grid)
+      end if
+      @assertEqual(0, status)
+      
+      if ('mock' /= trim(grid_name)) then
+         call grid_manager%delete(grid)
+         return
+      end if
+      @assertEqual('foo', trim(grid_name))
+      
+      call grid_manager%delete(grid)
+
+
+      grid = grid_manager%make_grid(config, prefix='other.', rc=status)
+
+      call ESMF_AttributeGet(grid, 'GRID_NAME', grid_name, rc=status)
+      if (status /= 0) then
+         call grid_manager%delete(grid)
+         return
+      end if
+      @assertEqual(0, status)
+      
+      if ('mock' /= trim(grid_name)) then
+         call grid_manager%delete(grid)
+      end if
+      @assertEqual('bar', trim(grid_name))
+      
+      call grid_manager%delete(grid)
+
+   end subroutine test_make_grid_multi
+
+end module Test_GridManagerMod

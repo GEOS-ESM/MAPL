@@ -1,0 +1,317 @@
+module test_DirectoryServiceMod
+   use pfunit_mod
+   use pFIO_AbstractDirectoryServiceMod
+   use pFIO_DirectoryServiceMod
+   use pFIO_AbstractSocketMod
+   use pFIO_AbstractSocketVectorMod
+   use pFIO_MpiSocketMod
+
+contains
+
+   @test(npes=[1])
+   subroutine test_put_directory(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+      integer :: win
+      type (Directory) :: dir, dir2
+
+      comm = this%getMpiCommunicator()
+      ds = DirectoryService(comm)
+
+      dir%num_entries = 1
+      dir%entries(1) = DirectoryEntry('foo', 1, 5)
+
+      win = ds%get_win('server_directory')
+      call ds%put_directory(dir, win)
+
+      dir2 = ds%get_directory(win)
+
+      @assertEqual(dir%num_entries, dir2%num_entries)
+      @assertEqual(dir%entries(1)%port_name, dir%entries(1)%port_name)
+      @assertEqual(dir%entries(1)%rank, dir%entries(1)%rank)
+      @assertEqual(dir%entries(1)%npes, dir%entries(1)%npes)
+
+   end subroutine test_put_directory
+
+
+   @test(npes=[1])
+   subroutine test_publish(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+
+      comm = this%getMpiCommunicator()
+      ds = DirectoryService(comm)
+
+      call ds%publish(PortInfo('service'),comm)
+
+   end subroutine test_publish
+
+
+   @test(npes=[2])
+   subroutine test_connect(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+
+      integer :: color, key
+      class (AbstractSocket), pointer :: s
+      type (AbstractSocketVector) :: sv
+      logical :: shutdown
+
+      ds = DirectoryService(this%getMpiCommunicator())
+      color = this%getProcessRank()
+      key = 0
+      call MPI_Comm_split(this%getMpiCommunicator(), color, key, comm, ierror)
+      @assertEqual(0, ierror)
+
+      select case (this%getProcessRank())
+      case (0) ! server
+         call ds%publish(PortInfo('input'), comm)
+         call ds%connect_to_client(portinfo('input'), comm,sv,shutdown)
+         s=>sv%at(1)
+
+      case (1) ! client
+         s => ds%connect_to_server(PortInfo('input'), comm)
+      end select
+
+      @assertAssociated(s)
+
+      select type (s)
+      type is (MpiSocket)
+      class default
+         @assertTrue(.false.)
+      end select
+
+   end subroutine test_connect
+
+
+   @test(npes=[2])
+   subroutine test_connect_swap_role(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+
+      integer :: color, key
+      class (AbstractSocket), pointer :: s
+      type (AbstractSocketVector) :: sv
+      logical :: shutdown
+
+      ds = DirectoryService(this%getMpiCommunicator())
+
+      color = this%getProcessRank()
+      key = 0
+      call MPI_Comm_split(this%getMpiCommunicator(), color, key, comm, ierror)
+      @assertEqual(0, ierror)
+
+      select case (this%getProcessRank())
+      case (1) ! server
+         call ds%publish(PortInfo('input'), comm)
+         call ds%connect_to_client(PortInfo('input'), comm,sv,shutdown)
+         s=>sv%at(1)
+      case (0) ! client
+         s => ds%connect_to_server(PortInfo('input'), comm)
+      end select
+
+      @assertAssociated(s)
+
+      select type (s)
+      type is (MpiSocket)
+      class default
+         @assertTrue(.false.)
+      end select
+
+   end subroutine test_connect_swap_role
+
+   ! 3 clients, 2 servers
+   @test(npes=[5])
+   subroutine test_connect_multi(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+      type (AbstractSocketVector) :: sv
+      logical :: shutdown
+
+      integer :: color, key
+      class (AbstractSocket), pointer :: s
+      class (AbstractSocket), pointer :: s1
+      class (AbstractSocket), pointer :: s2
+
+      ds = DirectoryService(this%getMpiCommunicator())
+
+      color = this%getProcessRank()/3
+      key = 0
+      call MPI_Comm_split(this%getMpiCommunicator(), color, key, comm, ierror)
+      @assertEqual(0, ierror)
+
+      select case (color)
+      case (1) ! server
+         call ds%publish(PortInfo('input'), comm)
+
+         select case (this%getProcessRank())
+         case (3) ! have one
+            call ds%connect_to_client(portInfo('input'), comm,sv,shutdown)
+            s1=>sv%at(1)
+            call check(s1)
+         case (4)
+            call ds%connect_to_client(PortInfo('input'), comm,sv,shutdown)
+            s1=>sv%at(1)
+            call check(s1)
+            s2=>sv%at(2)
+            call check(s2)
+         end select
+      case (0) ! client
+         s => ds%connect_to_server(PortInfo('input'), comm)
+         call check(s)
+      end select
+
+   contains
+
+      subroutine check(s)
+         class(AbstractSocket), pointer :: s
+
+         @assertAssociated(s)
+
+         select type (s)
+         type is (MpiSocket)
+         class default
+            @assertTrue(.false.)
+         end select
+      end subroutine check
+
+   end subroutine test_connect_multi
+
+
+   ! 3 clients, 2 servers, 1 unused
+   ! Just making sure that there is no implicit assumption that a process
+   ! is always involved in either a client or a server.
+   @test(npes=[6])
+   subroutine test_connect_with_unused_process(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+      type (AbstractSocketVector) :: sv
+      logical :: shutdown
+
+      integer :: color, key
+      class (AbstractSocket), pointer :: s
+      class (AbstractSocket), pointer :: s1
+      class (AbstractSocket), pointer :: s2
+
+      ds = DirectoryService(this%getMpiCommunicator())
+
+      if (this%getProcessRank() == 3) then
+         color = 5
+      else
+         color = this%getProcessRank()/3
+         key = 0
+      end if
+      call MPI_Comm_split(this%getMpiCommunicator(), color, key, comm, ierror)
+      @assertEqual(0, ierror)
+
+      select case (color)
+      case (1) ! server
+         call ds%publish(portInfo('input'), comm)
+
+         select case (this%getProcessRank())
+         case (4) ! have one
+            call ds%connect_to_client(PortInfo('input'), comm,sv,shutdown)
+            s1=>sv%at(1)
+            call check(s1)
+         case (5)
+            call ds%connect_to_client(PortInfo('input'), comm,sv,shutdown)
+            s1=>sv%at(1)
+            call check(s1)
+            s2=>sv%at(2)
+            call check(s2)
+         end select
+      case (0) ! client
+         s => ds%connect_to_server(PortInfo('input'), comm)
+         call check(s)
+      end select
+
+   contains
+
+      subroutine check(s)
+         class(AbstractSocket), pointer :: s
+
+         @assertAssociated(s)
+
+         select type (s)
+         type is (MpiSocket)
+         class default
+            @assertTrue(.false.)
+         end select
+      end subroutine check
+
+   end subroutine test_connect_with_unused_process
+
+   ! 4 clients, 2 servers
+   @test(npes=[8])
+   subroutine test_stress(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+
+      integer :: color, key
+      class (AbstractSocket), pointer :: s
+      type (AbstractSocketVector) :: sv
+      logical :: shutdown
+
+      integer :: i
+
+      ds = DirectoryService(this%getMpiCommunicator())
+
+      select case (this%getProcessRank())
+      case (0:3)
+         color = 0 ! client
+      case (4:5) ! none
+         color = 2
+      case (6:7)
+         color = 1 ! server
+      end select
+         
+      key = 0
+      call MPI_Comm_split(this%getMpiCommunicator(), color, key, comm, ierror)
+      @assertEqual(0, ierror)
+
+      select case (color)
+      case (1) ! server
+         call ds%publish(portInfo('input'), comm)
+
+         call ds%connect_to_client(PortInfo('input'), comm,sv,shutdown)
+         do i = 1, 2
+            s => sv%at(i)
+            call check(s)
+         end do
+
+      case (0) ! client
+         s => ds%connect_to_server(PortInfo('input'), comm)
+         call check(s)
+      end select
+
+    contains
+      subroutine check(s)
+         class(AbstractSocket), pointer :: s
+
+         @assertAssociated(s)
+
+         select type (s)
+         type is (MpiSocket)
+         class default
+            @assertTrue(.false.)
+         end select
+      end subroutine check
+
+    end subroutine test_stress
+
+
+end module test_DirectoryServiceMod

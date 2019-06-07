@@ -1,0 +1,69 @@
+module test_MAPL_Base_mod
+   use pfunit_mod
+   use MAPL_BaseMod, only: MAPL_Leap
+   use MAPL_BaseMod, only: MAPL_DecomposeDim
+   implicit none
+
+contains
+
+   @test
+   subroutine test_mapl_leap()
+      @assertTrue(mapl_leap(4))
+      @assertTrue(mapl_leap(96))
+      @assertFalse(mapl_leap(100))
+      @assertTrue(mapl_leap(2000))
+      @assertFalse(mapl_leap(1900))
+      @assertTrue(mapl_leap(2004))
+   end subroutine test_mapl_leap
+   
+@test
+   subroutine test_MAPL_decomposeDim_even()
+      integer :: NDEs
+      integer :: dim_world
+      integer, allocatable :: dim(:)
+
+      NDEs = 4
+      allocate(dim(0:NDEs-1))
+      dim_world = 12
+      call MAPL_DecomposeDim(dim_world, dim, NDEs)
+
+      @assertEqual(12/4, dim)
+
+   end subroutine test_MAPL_decomposeDim_even
+
+
+   @test
+   subroutine test_MAPL_decomposeDim_uneven()
+      integer :: NDEs
+      integer :: dim_world
+      integer, allocatable :: dim(:)
+
+      NDEs = 4
+      allocate(dim(0:NDEs-1))
+      dim_world = 11
+      call MAPL_DecomposeDim(dim_world, dim, NDEs)
+
+      @assertEqual(11/4+1, dim(0:2))
+      @assertEqual(11/4, dim(3))
+
+   end subroutine test_MAPL_decomposeDim_uneven
+
+   @test
+   subroutine test_MAPL_decomposeDim_minDE()
+      integer :: NDEs
+      integer :: dim_world
+      integer, allocatable :: dim(:)
+
+      NDEs = 6
+      allocate(dim(0:NDEs-1))
+      dim_world = 9
+      call MAPL_DecomposeDim(dim_world, dim, NDEs, min_DE_extent=2)
+
+      @assertEqual(3, dim(0))
+      @assertEqual(2, dim(1:3))
+      @assertEqual(0, dim(4:))
+
+   end subroutine test_MAPL_decomposeDim_minDE
+
+
+end module test_MAPL_Base_mod

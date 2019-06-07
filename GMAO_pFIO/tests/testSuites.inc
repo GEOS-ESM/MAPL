@@ -1,0 +1,16 @@
+! FIO Tests
+ADD_TEST_SUITE(Test_AttributeMod_suite)
+ADD_TEST_SUITE(Test_VariableMod_suite)
+ADD_TEST_SUITE(Test_FileMetadataMod_suite)
+ADD_TEST_SUITE(Test_NetCDF4_FileFormatterMod_suite)
+
+ADD_TEST_SUITE(test_RequestDataMessageMod_suite)
+ADD_TEST_SUITE(Test_pFIO_UtilitiesMod_suite)
+ADD_TEST_SUITE(test_SimpleSocketMod_suite)
+ADD_TEST_SUITE(MpiSocket_suite)
+ADD_TEST_SUITE(test_ServerThreadMod_suite)
+ADD_TEST_SUITE(test_ClientMod_suite)
+ADD_TEST_SUITE(test_ProtocolParserMod_suite)
+ADD_TEST_SUITE(test_DirectoryServiceMod_suite)
+
+

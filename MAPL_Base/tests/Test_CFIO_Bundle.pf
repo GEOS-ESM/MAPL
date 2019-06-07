@@ -1,0 +1,243 @@
+! Simple unit test for CFIO Read/Write Bundle
+!
+
+#include "MAPL_Generic.h"
+
+module Test_CFIO_Bundle_mod
+   use pfunit_mod
+   use ESMF
+   use MAPL_Mod
+   use ESMF_TestCase_Mod
+   use ESMF_TestMethod_mod
+   implicit none
+
+   type(ESMF_Grid)     :: grid
+   type (ESMF_VM)      :: VM
+
+   integer             :: nymd, nhms
+   type(ESMF_Time)     :: fTime, dTime
+   type(ESMF_TimeInterval)  :: fTimeStep, dTimeStep
+   type(ESMF_Clock)    :: fClock, dClock
+
+   type(ESMF_FieldBundle)   :: fBundle, dBundle
+
+   type(MAPL_CFIO) :: cfio
+
+!   integer :: IM_WORLD = 72, JM_WORLD = 46, KM_WORLD = 26   
+   integer :: IM_WORLD = 540, JM_WORLD = 361, KM_WORLD = 72   
+   integer :: i, j, k, im, jm, km                                      ! local
+
+   character(len=*), parameter :: &
+       dirname = '.',             &
+     fFilename = dirname // '/sample.prs.nc'
+
+   integer :: status, rc
+   logical :: IamRoot
+   integer, pointer :: resolution(:)
+   real,    pointer ::levels(:)
+
+   character(len=*), parameter :: Iam = 'utCFIO'
+
+!                             -----
+
+contains
+
+   @test(npes=[4],type=newESMF_TestMethod)
+   subroutine test_main(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+
+      character(len=ESMF_MAXSTR) :: string
+      type(ESMF_Grid)     :: grid
+      integer                    :: I
+
+
+    vm = this%getVM()
+    IamRoot = MAPL_am_I_root(vm)
+    if (IamRoot) then
+       block
+         integer :: unit
+         open(newunit=unit,file='tmp_CAP.rc', status='unknown',form='formatted')
+         write(unit,*)'NX: 4'
+         write(unit,*)'NY: 1'
+         write(unit,*)"GRIDNAME: 'PC144x91-DC'"
+         close(unit)
+       end block
+    end if
+
+    call MAPL_MemUtilsInit( rc=STATUS )
+    @mpiassertEqual(0, STATUS, Iam)
+
+
+!   Create a grid
+!   -------------
+    grid = MyGridCreate_ ( vm, rc=status )
+    @mpiassertEqual(0, STATUS, Iam)
+!   Create empty bundles
+!   --------------------
+!    fBundle = ESMF_FieldBundleCreate ( name='Francesca', grid=grid, rc=status )
+!    @mpiassertEqual(0, STATUS, Iam)
+    fBundle = ESMF_FieldBundleCreate ( name='PRECIP', rc=status )
+    @mpiassertEqual(0, STATUS, Iam)
+    call ESMF_FieldBundleSet(fBundle, grid=grid, rc=status)
+    @mpiassertEqual(0, STATUS, Iam)
+    dBundle = ESMF_FieldBundleCreate ( name='Denise', rc=status )
+    @mpiassertEqual(0, STATUS, Iam)
+    call ESMF_FieldBundleSet(dBundle, grid=grid, rc=status)
+    @mpiassertEqual(0, STATUS, Iam)
+
+!   Set the time as the one on the hardwired file name
+!   --------------------------------------------------
+    call ESMF_CalendarSetDefault ( ESMF_CALKIND_GREGORIAN, rc=status )
+    @mpiassertEqual(0, STATUS, Iam)
+    call ESMF_TimeSet( fTime, yy=2006, mm=8, dd=9, h=6, m=30, s=0, rc=status )
+    @mpiassertEqual(0, STATUS, Iam)
+    call ESMF_TimeSet( dTime, yy=2006, mm=8, dd=9,  h=6, m=0, s=0, rc=status )
+    @mpiassertEqual(0, STATUS, Iam)
+    call ESMF_TimeIntervalSet( fTimeStep, h=6, m=0, s=0, rc=status )
+    @mpiassertEqual(0, STATUS, Iam)
+    fClock = ESMF_ClockCreate ( name="Clovis", timeStep=fTimeStep, &
+                                startTime=fTime, rc=status )
+    @mpiassertEqual(0, STATUS, Iam)
+
+!   Read Bundle from file on a clean slate
+!   --------------------------------------
+    if ( IamRoot ) print *, 'Reading ' // fFilename
+    call ESMF_TimeGet  ( fTime, TimeString=string  ,rc=STATUS )
+    @mpiassertEqual(0, STATUS, Iam)
+    string(11:11)=" "
+    if ( IamRoot ) print *, 'time ' // trim(string)
+
+
+    DO I = 1, 30
+       call MAPL_CFIORead( fFilename, fTime, fBundle, NOREAD=.true., RC=STATUS)
+       @mpiassertEqual(0, STATUS, Iam)
+
+       if (mod(I,10)==0) then
+          call MAPL_MemUtilsWrite( vm, 'noRead', RC=status )
+          @mpiassertEqual(0, STATUS, Iam)
+       end if
+
+       call MAPL_CFIORead( fFilename, fTime, fBundle, RC=STATUS)
+       @mpiassertEqual(0, STATUS, Iam)
+       if (mod(I,10)==0) then
+          call MAPL_MemUtilsWrite( vm, 'Read', RC=status )
+          @mpiassertEqual(0, STATUS, Iam)
+       end if
+    end DO
+
+
+#if 0
+! this the equivalent of ESMF_ioRead
+    call MAPL_cfioRead  ( fFilename, fTime, fBundle, rc=status, &
+                        verbose=.true., force_regrid=.true.   )
+    @mpiassertEqual(0, STATUS, Iam)
+
+!   Next, create a bundle with same variables as the first one, and use
+!    that to determine which variables to read from the second file
+!   -------------------------------------------------------------------
+
+    call MAPL_cfioRead  ( fFilename, fTime, dBundle, rc=status, &
+                        verbose=.true., noRead = .true.,      &
+                        only_vars = 'phis,qv' )
+
+    @mpiassertEqual(0, STATUS, Iam)
+    if ( IamRoot ) print *, 'Reading ' // fFilename
+    call MAPL_cfioRead  ( fFilename, dTime, dBundle, rc=status, &
+                        verbose=.true., force_regrid=.true. )
+    @mpiassertEqual(0, STATUS, Iam)
+
+!   Setup data types need for write
+!   -------------------------------
+    allocate ( resolution(2), levels(KM_WORLD), stat=status )
+    @mpiassertEqual(0, STATUS, Iam)
+    resolution = (/ IM_WORLD/2, JM_WORLD/2 /)
+    levels     = (/ (k, k=1,KM_WORLD) /)
+
+!   Write the same bundle to a differfent file
+!   ------------------------------------------
+    call MAPL_cfioCreate ( cfio, 'Cindy', fClock, fBundle, fTimeStep, &
+         resolution, levels, descr='Bundle Write Test', rc=status )
+    @mpiassertEqual(0, STATUS, Iam)
+
+    call MAPL_cfioWrite ( cfio, fClock, fBundle, rc=status, &
+                          verbose = .true. )
+    @mpiassertEqual(0, STATUS, Iam)
+
+    call MAPL_cfioDestroy ( cfio )
+#else
+    print *,'calling Finalize'
+#endif
+
+    
+ end subroutine test_main
+
+!........................................................................
+
+  function MyGridCreate_ ( vm, rc) result(grid)
+    
+    type (ESMF_VM),    intent(INOUT) :: VM
+    integer, optional, intent(OUT)   :: rc
+    type (ESMF_Grid)                 :: grid
+
+! Local vars
+    integer                                 :: status
+    character(len=ESMF_MAXSTR), parameter   :: IAm='MyGridCreate'
+
+    type(MAPL_MetaComp)          :: mapl
+    type(ESMF_Config)            :: config
+!    type(ESMF_VM)                :: vm
+    character(len=ESMF_MAXSTR)   :: gridname
+    integer                      :: ndes, nx, ny
+
+! fake MAPL
+    config = ESMF_ConfigCreate (rc=STATUS )
+    VERIFY_(STATUS)
+
+   call ESMF_ConfigLoadFile(config, 'tmp_CAP.rc', rc=STATUS )
+   VERIFY_(STATUS)
+    
+!>>>>>>>>>>>>
+! We will set-up a somewhat realistic resource "file"
+
+    call ESMF_VmGetCurrent(VM, rc=status)
+    VERIFY_(STATUS)
+    call ESMF_VmGet(VM, petCount=ndes, rc=status)
+    VERIFY_(STATUS)
+
+    nx = ndes
+    ny = 1
+    call ESMF_ConfigSetAttribute(config, value=nx, Label='NX:', rc=status)
+    VERIFY_(STATUS)
+    call ESMF_ConfigSetAttribute(config, value=ny, Label='NY:', rc=status)
+    VERIFY_(STATUS)
+!!$    call ESMF_ConfigSetAttribute(config, value=gridname, Label='GRIDNAME:', rc = status )
+    call ESMF_ConfigGetAttribute(config, value=gridname, Label='GRIDNAME:', rc = status )
+    VERIFY_(STATUS)
+    call ESMF_ConfigSetAttribute(config, value=KM_WORLD, Label='LM:', rc = status )
+!    VERIFY_(STATUS)
+
+    call ESMF_ConfigGetAttribute(config, value=nx, Label='NX:', rc=status)
+    VERIFY_(STATUS)
+    call ESMF_ConfigGetAttribute(config, value=ny, Label='NY:', rc=status)
+    VERIFY_(STATUS)
+    print *,'GRIDNAME=',trim(gridname)
+    print *,'NX=',nx
+    print *,'NX=',nY
+
+!<<<<<<<<<<<<   
+!  CAP's MAPL MetaComp
+!---------------------
+
+    call MAPL_Set (mapl, name='CAP', cf=CONFIG,    rc=STATUS )
+    VERIFY_(STATUS)
+
+! grid create
+    call MAPL_GridCreate(MAPLOBJ=mapl, ESMFGRID=grid, rc=status)
+    RETURN_(STATUS)
+
+  end function MyGridCreate_
+
+end module Test_CFIO_Bundle_mod
+
+
+

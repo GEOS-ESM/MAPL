@@ -1,0 +1,53 @@
+module test_SimpleSocketMod
+   use pfunit_mod
+   use pFIO_AbstractMessageMod
+   use pFIO_AbstractSocketMod
+   use pFIO_SimpleSocketMod
+   use pFIO_ArrayReferenceMod
+   use pFIO_ServerThreadMod
+   use pFIO_ClientThreadMod
+   use MockServerThreadMod
+   use MockClientMod
+
+   use pFIO_TerminateMessageMod
+   use pFIO_DoneMessageMod
+   use pFIO_AddCollectionMessageMod
+   use pFIO_CollectionIdMessageMod
+   use pFIO_RequestIdMessageMod
+   use pFIO_RequestDataMessageMod
+   use pFIO_WaitRequestDataMessageMod
+
+   implicit none
+
+contains
+
+
+   @test
+   subroutine test_send_terminate()
+      type (SimpleSocket) :: client_connection
+
+      type (MockServerThread), target :: s
+
+      s = MockServerThread()
+      client_connection = SimpleSocket(s)
+      call client_connection%send(TerminateMessage())
+      @assertEqual('handle_Terminate()', s%log)
+
+   end subroutine test_send_terminate
+
+   @test
+   subroutine test_send_done()
+      type (SimpleSocket) :: client_connection
+
+      type (MockServerThread), target :: s
+
+      s = MockServerThread()
+      client_connection = SimpleSocket(s)
+
+      call client_connection%send(DoneMessage())
+      @assertEqual('handle_Done()', s%log)
+      
+   end subroutine test_send_done
+
+
+end module test_SimpleSocketMod

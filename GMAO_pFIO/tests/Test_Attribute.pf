@@ -1,0 +1,130 @@
+module Test_AttributeMod
+   use pfunit_mod
+   use pFIO_AttributeMod
+   use pFIO_ConstantsMod
+   use, intrinsic :: iso_fortran_env, only: INT32, INT64
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   implicit none
+
+contains
+
+   @test
+   subroutine test_equal_shape()
+      type (Attribute) :: a
+      type (Attribute) :: b
+
+      a = Attribute(1)
+      b = Attribute([1,2])
+
+      @assertTrue(a == a)
+      @assertFalse(a /= a)
+      @assertFalse(a == b)
+      @assertTrue(a /= b)
+
+   end subroutine test_equal_shape
+
+   @test
+   subroutine test_equal_type()
+      type (Attribute) :: a
+      type (Attribute) :: b
+
+      a = Attribute(1)
+      b = Attribute(1.)
+
+      @assertTrue(a == a)
+      @assertFalse(a /= a)
+      @assertFalse(a == b)
+      @assertTrue(a /= b)
+
+   end subroutine test_equal_type
+
+   @test
+   subroutine test_equal_values()
+      type (Attribute) :: a
+      type (Attribute) :: b
+      character(len=:),allocatable :: c1,c2
+
+      a = Attribute(1.)
+      b = Attribute(2.)
+
+      @assertTrue(a == a)
+      @assertFalse(a /= a)
+      @assertFalse(a == b)
+      @assertTrue(a /= b)
+
+      a = Attribute([.true., .false.])
+      b = Attribute([.true., .true.])
+
+      @assertTrue(a == a)
+      @assertFalse(a /= a)
+      @assertFalse(a == b)
+      @assertTrue(a /= b)
+
+      c1 = 'a'
+      c2 = 'a'
+      a = Attribute(c1)
+      b = Attribute(c2)
+
+      @assertTrue(a == a)
+      @assertFalse(a /= a)
+      @assertFalse(a /= b)
+      @assertTrue(a == b)
+
+      c1 = 'abcd'
+      c2 = 'abcde'
+      a = Attribute(c1)
+      b = Attribute(c2)
+
+      @assertTrue(a == a)
+      @assertFalse(a /= a)
+      @assertTrue(a /= b)
+      @assertFalse(a == b)
+
+   end subroutine test_equal_values
+
+   @test
+   subroutine test_serialize()
+      type (Attribute) :: a
+      type (Attribute),allocatable :: b
+
+      integer,allocatable :: buffer(:)
+      integer :: length
+
+      a = Attribute(10)
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+      deallocate(buffer,b)
+
+      a = Attribute([10,20,30])
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+      deallocate(buffer,b)
+
+      a = Attribute([.true.,.false.])
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+      deallocate(buffer,b)
+
+      a = Attribute('abcd')
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+      deallocate(buffer,b)
+
+      a = Attribute('abcdefgh')
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+      deallocate(buffer,b)
+
+   end subroutine test_serialize
+
+end module Test_AttributeMod
