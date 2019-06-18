@@ -1,3 +1,5 @@
+cmake_policy (SET CMP0048 NEW) # VERSION in project()
+
 project (
   MAPL
   VERSION 1.1
