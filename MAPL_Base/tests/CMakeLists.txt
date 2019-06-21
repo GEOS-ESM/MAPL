@@ -48,11 +48,12 @@ include_directories(${include_MAPL_pFUnit})
 
 
 set(EXE MAPL_Base_tests.x)
-add_executable (${EXE} EXCLUDE_FROM_ALL ${PFUNIT_PATH}/include/driver.F90 testSuites.inc)
-target_compile_definitions (${EXE} PRIVATE USE_MPI PFUNIT_EXTRA_INITIALIZE=MAPL_Initialize)
-set_target_properties(${EXE} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
-target_link_libraries(${EXE} MAPL_Base_tests) # ${ESMF_LIBRARIES})
-
+ecbuild_add_executable (
+  TARGET ${EXE} 
+  SOURCES ${PFUNIT_PATH}/include/driver.F90 testSuites.inc
+  PROPERTIES EXCLUDE_FROM_ALL TRUE
+  DEFINITIONS USE_MPI PFUNIT_EXTRA_INITIALIZE=MAPL_Initialize
+  LIBS MAPL_Base_tests)
 
 set(MPI_NPES 8)
 

@@ -83,10 +83,11 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
 endforeach()
 
 
-add_executable (cub2latlon.x cub2latlon_regridder.F90)
-add_executable (Regrid_Util.x Regrid_Util.F90)
+ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90)
 target_link_libraries (cub2latlon.x ${this} GMAO_pFIO ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
 set_target_properties (cub2latlon.x PROPERTIES Fortran_MODULE_DIRECTORY ${esma_include}/${this} LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
+
+ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util.F90)
 target_link_libraries (Regrid_Util.x ${this} GMAO_pFIO ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
 set_target_properties (Regrid_Util.x PROPERTIES Fortran_MODULE_DIRECTORY ${esma_include}/${this} LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 
