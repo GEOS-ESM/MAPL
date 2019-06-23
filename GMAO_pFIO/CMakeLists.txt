@@ -77,16 +77,18 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
 
-add_executable (pfio_server_demo.x pfio_server_demo.F90)
-set_target_properties(pfio_server_demo.x PROPERTIES EXCLUDE_FROM_ALL TRUE)
-target_link_libraries (pfio_server_demo.x ${this} ${ESMF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
+ecbuild_add_executable (
+  TARGET pfio_server_demo.x
+  SOURCES pfio_server_demo.F90
+  LIBS ${this} ${ESMF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
 set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 set_target_properties(pfio_server_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 
 
-add_executable (pfio_collective_demo.x pfio_collective_demo.F90)
-set_target_properties(pfio_collective_demo.x PROPERTIES EXCLUDE_FROM_ALL TRUE)
-target_link_libraries (pfio_collective_demo.x ${this} esmf_fullylinked ${OpenMP_Fortran_LIBRARIES})
+ecbuild_add_executable (
+  TARGET pfio_collective_demo.x
+  SOURCES pfio_collective_demo.F90
+  LIBS ${this} ${ESMF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
 set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 set_target_properties(pfio_collective_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 

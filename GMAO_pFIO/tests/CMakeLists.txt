@@ -1,4 +1,3 @@
-add_definitions(-DUSE_MPI)
 set (TEST_SRCS
     Test_UnlimitedEntity.F90
     Test_LocalMemReference.F90
@@ -39,6 +38,7 @@ endforeach()
 
 add_library(pFIO_tests EXCLUDE_FROM_ALL ${TEST_SRCS} ${SRCS})
 target_link_libraries(pFIO_tests GMAO_pFIO  MAPL_pFUnit ${PFUNIT_LIBRARIES})
+target_compile_definitions (pFIO_tests PUBLIC USE_MPI)
 
 include_directories(
    ${PFUNIT_INCLUDE_DIRS}
@@ -51,10 +51,13 @@ include_directories(${include_GMAO_pFIO})
 include_directories(${include_MAPL_pFUnit})
 
 set(EXE pfio_tests.x)
-add_executable (${EXE} EXCLUDE_FROM_ALL ${PFUNIT_PATH}/include/driver.F90 testSuites.inc)
-target_compile_definitions (${EXE} PRIVATE USE_MPI PFUNIT_EXTRA_INITIALIZE=pFIO_Initialize)
+ecbuild_add_executable (
+  TARGET ${EXE}
+  PROPERTIES EXCLUDE_FROM_ALL TRUE
+  SOURCES ${PFUNIT_PATH}/include/driver.F90 testSuites.inc
+  LIBS pFIO_tests ${ESMF_LIBRARIES}
+  DEFINITIONS USE_MPI PFUNIT_EXTRA_INITIALIZE=pFIO_Initialize)
 set_target_properties(${EXE} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
-target_link_libraries(${EXE} pFIO_tests ${ESMF_LIBRARIES})
 
 
 set(MPI_NPES 8)
@@ -68,10 +71,13 @@ add_test(NAME pFIO_tests_unit
   )
 
 set(TESTO pfio_ctest_io.x)
-add_executable (${TESTO} EXCLUDE_FROM_ALL pfio_ctest_io.F90)
-target_compile_definitions (${TESTO} PRIVATE USE_MPI )
+ecbuild_add_executable (
+  TARGET ${TESTO}
+  PROPERTIES EXCLUDE_FROM_ALL TRUE
+  SOURCES pfio_ctest_io.F90
+  LIBS GMAO_pFIO ${ESMF_LIBRARIES}
+  DEFINITIONS USE_MPI)
 set_target_properties(${TESTO} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
-target_link_libraries(${TESTO} GMAO_pFIO ${ESMF_LIBRARIES})
 
 
 
@@ -90,10 +96,13 @@ add_test(NAME pFIO_tests_hybrid
   )
 
 set(TESTPERF pfio_performance.x)
-add_executable (${TESTPERF} EXCLUDE_FROM_ALL pfio_performance.F90)
-target_compile_definitions (${TESTPERF} PRIVATE USE_MPI )
+ecbuild_add_executable (
+  TARGET ${TESTPERF}
+  PROPERTIES EXCLUDE_FROM_ALL TRUE
+  SOURCES pfio_performance.F90
+  DEFINITIONS USE_MPI
+  LIBS GMAO_pFIO ${ESMF_LIBRARIES})
 set_target_properties(${TESTPERF} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
-target_link_libraries(${TESTPERF} GMAO_pFIO ${ESMF_LIBRARIES})
 
 add_dependencies(tests ${EXE})
 add_dependencies(tests ${TESTO})
