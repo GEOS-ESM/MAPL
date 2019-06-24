@@ -12,3 +12,7 @@ add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 add_subdirectory (GMAO_pFIO)
 add_subdirectory (MAPL_Base)
 
+# Git transition defect:
+# Uncomment the line below once the dev branch of MAPL has been brough it.
+#add_subdirectory (Tests)
+
