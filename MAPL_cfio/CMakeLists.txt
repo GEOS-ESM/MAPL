@@ -30,9 +30,11 @@ include_directories (${INC_ESMF})
 
 set (lib MAPL_cfio_${precision})
 
-esma_add_library (${lib} SRCS ${srcs})
-target_link_libraries (${lib} ${ESMF_LIBRARIES})
-  
+esma_add_library (${lib}
+  SRCS ${srcs}
+  DEPENDENCIES ${ESMF_LIBRARIES}
+  )
+
 if (precision MATCHES "r8")
   string (REPLACE " " ";" flags ${FREAL8})
   foreach (flag ${flags})
