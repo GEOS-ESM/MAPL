@@ -124,3 +124,7 @@ if (PFUNIT)
   add_subdirectory(tests)
 endif ()
 
+install (
+   DIRECTORY Python
+   DESTINATION lib
+   )
