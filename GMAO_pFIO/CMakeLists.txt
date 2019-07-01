@@ -78,21 +78,22 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
 endforeach()
 
 
-# GFortran gives bizarre LD error for the following targets.
-#ecbuild_add_executable (
-#  TARGET pfio_server_demo.x
-#  SOURCES pfio_server_demo.F90
-#  LIBS ${this} ${ESMF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
-#set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-#set_target_properties(pfio_server_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
-
-
-#ecbuild_add_executable (
-#  TARGET pfio_collective_demo.x
-#  SOURCES pfio_collective_demo.F90
-#  LIBS ${this} ${ESMF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
-#set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-#set_target_properties(pfio_collective_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
+if (NOT CMAKE_Fortran_COMPILER_ID MATCHES GNU)
+  # GFortran gives bizarre LD error for the following targets.
+  ecbuild_add_executable (
+    TARGET pfio_server_demo.x
+    SOURCES pfio_server_demo.F90
+    LIBS ${this} ${ESMF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
+  set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+  set_target_properties(pfio_server_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
+    
+  ecbuild_add_executable (
+    TARGET pfio_collective_demo.x
+    SOURCES pfio_collective_demo.F90
+    LIBS ${this} ${ESMF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
+  set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+  set_target_properties(pfio_collective_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
+endif ()
 
 #--------------------
 include_directories (${INC_ESMF})
