@@ -9,7 +9,7 @@
 #define _RETURN(A)   if(present(rc)) rc=A; return
 #include "unused_dummy.H"
 
-module CLI
+module CLI_server
    use pFIO_ThrowMod
    use pFIO_StringVectorMod
    implicit none
@@ -117,10 +117,10 @@ contains
    end subroutine process_command_line
    
 
-end module CLI
+end module CLI_serve
 
-module FakeExtDataMod
-   use CLI
+module FakeExtDataMod_server
+   use CLI_server
    use pFIO
    use pFIO_StringVectorMod
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -262,14 +262,14 @@ contains
       call this%c%terminate()
    end subroutine finalize
 
-end module FakeExtDataMod
+end module FakeExtDataMod_server
 
 program main
    use, intrinsic :: iso_fortran_env, only: REAL32
    use mpi
    use pFIO
-   use CLI
-   use FakeExtDataMod
+   use CLI_server
+   use FakeExtDataMod_server
    use pFIO_ThrowMod
    implicit none
 
