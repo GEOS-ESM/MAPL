@@ -117,7 +117,7 @@ contains
    end subroutine process_command_line
    
 
-end module CLI_serve
+end module CLI_server
 
 module FakeExtDataMod_server
    use CLI_server
