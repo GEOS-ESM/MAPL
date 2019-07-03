@@ -41,10 +41,14 @@ contains
       type (ESMF_Grid), intent(in) :: grid
 
       character(len=60) :: name
+      logical :: isPresent
 
-      call ESMF_AttributeGet(grid, name='GridType', value=name)
+      call ESMF_AttributeGet(grid, name='GridType', isPresent=isPresent)
+      if (isPresent) then
+         call ESMF_AttributeGet(grid, name='GridType', value=name)
 
-      grid_type%name = name
+         grid_type%name = name
+      end if
 
    end function newGridType_mapl
 
@@ -82,16 +86,12 @@ contains
 
       
       if (allocated(a%name)) then
-         print*,__FILE__,__LINE__
          if (allocated(b%name)) then
-            print*,__FILE__,__LINE__
             equals = (a%name == b%name)
          else
-            print*,__FILE__,__LINE__
             equals = .false.
          end if
       else
-         print*,__FILE__,__LINE__
          equals = .false.
       end if
 

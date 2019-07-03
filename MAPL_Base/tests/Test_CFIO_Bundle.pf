@@ -191,35 +191,35 @@ contains
 
 ! fake MAPL
     config = ESMF_ConfigCreate (rc=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
    call ESMF_ConfigLoadFile(config, 'tmp_CAP.rc', rc=STATUS )
-   VERIFY_(STATUS)
+   _VERIFY(STATUS)
     
 !>>>>>>>>>>>>
 ! We will set-up a somewhat realistic resource "file"
 
     call ESMF_VmGetCurrent(VM, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_VmGet(VM, petCount=ndes, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     nx = ndes
     ny = 1
     call ESMF_ConfigSetAttribute(config, value=nx, Label='NX:', rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_ConfigSetAttribute(config, value=ny, Label='NY:', rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 !!$    call ESMF_ConfigSetAttribute(config, value=gridname, Label='GRIDNAME:', rc = status )
     call ESMF_ConfigGetAttribute(config, value=gridname, Label='GRIDNAME:', rc = status )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_ConfigSetAttribute(config, value=KM_WORLD, Label='LM:', rc = status )
-!    VERIFY_(STATUS)
+!    _VERIFY(STATUS)
 
     call ESMF_ConfigGetAttribute(config, value=nx, Label='NX:', rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute(config, value=ny, Label='NY:', rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     print *,'GRIDNAME=',trim(gridname)
     print *,'NX=',nx
     print *,'NX=',nY
@@ -229,11 +229,11 @@ contains
 !---------------------
 
     call MAPL_Set (mapl, name='CAP', cf=CONFIG,    rc=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! grid create
     call MAPL_GridCreate(MAPLOBJ=mapl, ESMFGRID=grid, rc=status)
-    RETURN_(STATUS)
+    _RETURN(STATUS)
 
   end function MyGridCreate_
 

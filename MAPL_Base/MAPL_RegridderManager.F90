@@ -115,9 +115,9 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'make_regridder_from_grids'
       type (RegridderSpec) :: spec
+      integer (kind=ESMF_KIND_I8) :: id_in, id_out
 
       character(len=:), allocatable :: grid_type_in, grid_type_out
-      integer :: id_in,id_out
       type (RegridderTypeSpec) :: type_spec
       class (AbstractRegridder), pointer :: prototype
 
@@ -224,7 +224,6 @@ contains
       type (ESMF_Grid), intent(in) :: grid_in
       type (ESMF_Grid), intent(in) :: grid_out
       integer, intent(in) :: regrid_method
-      integer :: id_in, id_out
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: hints
       integer, optional,  intent(out) :: rc
@@ -232,6 +231,7 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'make_regridder_from_grids'
       type (RegridderSpec) :: spec
+      integer(ESMF_KIND_I8) :: id_in, id_out
 
       type (EsmfRegridder), pointer :: esmf_regridder
 
@@ -241,6 +241,10 @@ contains
         call this%init()
       end if
 
+      id_in = get_factory_id(grid_in,rc=status)
+      _VERIFY(status)
+      id_out = get_factory_id(grid_out,rc=status)
+      _VERIFY(status)
       ! Special case if two grids are the same
       id_in = get_factory_id(grid_in,rc=status)
       _VERIFY(status)

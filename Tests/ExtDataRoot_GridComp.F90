@@ -30,6 +30,7 @@ MODULE ExtDataUtRoot_GridCompMod
       type :: timeVar
          type(ESMF_Time) :: refTime
          character(len=10) :: timeUnits
+         integer :: climYear
       contains
          procedure :: initTime
          procedure :: evaluateTime
@@ -177,6 +178,7 @@ MODULE ExtDataUtRoot_GridCompMod
          real(REAL64), allocatable :: ak(:),bk(:)
          integer :: ls,im,jm,lm,nx,ny,nrows, ncolumn,i
          type(ESMF_Grid) :: grid
+         type(ESMF_Time) :: currTime
          type(SyntheticFieldSupportWrapper) :: synthWrap
          type(SyntheticFieldSupport), pointer :: synth => null()
          character(len=ESMF_MaxStr) :: key, keyVal
@@ -191,11 +193,13 @@ MODULE ExtDataUtRoot_GridCompMod
          call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,status)
          _VERIFY(status)
          synth => synthWrap%ptr
+         call ESMF_ClockGet(Clock,currTime=currTime,rc=status)
+         _VERIFY(STATUS)
 
          call ESMF_ConfigGetDim(cf,nrows,ncolumn,label="FILL_DEF::",rc=status)
-         _VERIFY(status)
-         call ESMF_ConfigFindLabel(cf,label="FILL_DEF::",rc=status)
          if (status==ESMF_SUCCESS) then
+            call ESMF_ConfigFindLabel(cf,label="FILL_DEF::",rc=status)
+            _VERIFY(status)
             do i=1,nrows
                call ESMF_ConfigNextLine(cf,rc=status)
                _VERIFY(status)
@@ -204,7 +208,7 @@ MODULE ExtDataUtRoot_GridCompMod
                call synth%fillDefs%insert(trim(key),trim(keyVal))
             enddo
          end if
-         call synth%tFunc%initTime(cf,rc=status)
+         call synth%tFunc%initTime(cf,currTime,rc=status)
          _VERIFY(status)
 
          call ESMF_ConfigGetAttribute(cf,value=synth%runMode,label="RUN_MODE:",rc=status)
@@ -411,28 +415,39 @@ MODULE ExtDataUtRoot_GridCompMod
 
    end subroutine AddState
 
-   subroutine initTime(this,cf,rc)
+   subroutine initTime(this,cf,currTime,rc)
       class(timeVar), intent(inout) :: this
       type(ESMF_Config), intent(inout) :: cf
+      type(ESMF_Time), intent(inout) :: currTime
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = 'initTime'
       integer :: status
+      logical :: isPresent
 
       integer :: datetime(2), yy,mm,dd,mn,hh,ss
 
-      call ESMF_ConfigGetAttribute(cf,datetime,label='REF_TIME:',rc=status)
-      _VERIFY(status)
-      YY =     datetime(1)/10000
-      MM = mod(datetime(1),10000)/100
-      DD = mod(datetime(1),100)
-      HH =     datetime(2)/10000
-      MN = mod(datetime(2),10000)/100
-      SS = mod(datetime(2),100)
-      call ESMF_TimeSet(this%refTime,yy=yy,mm=mm,dd=dd,h=hh,m=mn,s=ss,rc=status)
-      _VERIFY(status)
+      call ESMF_ConfigFindLabel(cf,'REF_TIME:',isPresent=isPresent,rc=status)
+      if (isPresent) then
+         call ESMF_ConfigGetAttribute(cf,datetime,label='REF_TIME:',rc=status)
+         _VERIFY(status)
+         YY =     datetime(1)/10000
+         MM = mod(datetime(1),10000)/100
+         DD = mod(datetime(1),100)
+         HH =     datetime(2)/10000
+         MN = mod(datetime(2),10000)/100
+         SS = mod(datetime(2),100)
+         call ESMF_TimeSet(this%refTime,yy=yy,mm=mm,dd=dd,h=hh,m=mn,s=ss,rc=status)
+         _VERIFY(status)
+      else
+         this%refTime=currTime
+      end if
       call ESMF_ConfigGetAttribute(cf,this%timeUnits,label='TIME_UNITS:',default='days',rc=status)
       _VERIFY(status)
+
+      call ESMF_ConfigGetAttribute(cf,this%climYear,label='CLIM_YEAR:',default=-1,rc=status)
+      _VERIFY(status)
+      _RETURN(_SUCCESS)
 
    end subroutine initTime
 
@@ -445,8 +460,17 @@ MODULE ExtDataUtRoot_GridCompMod
       character(len=*), parameter :: Iam='evaluateTime'
       integer :: status
 
-      type(ESMF_TimeInterval) :: timeInterval
+      type(ESMF_TimeInterval) :: timeInterval, yearInterval
+      integer :: ycurr,yint
 
+      if (this%climYear > 0) then
+         call ESMF_TimeGet(currTime,yy=ycurr,rc=status)
+         _VERIFY(status)
+         yint=this%climYear-ycurr
+         call ESMF_TimeIntervalSet(yearInterval,yy=yint,rc=status)
+         _VERIFY(status)
+         currTime = currTime+yearInterval
+      end if
       timeInterval = currTime - this%refTime
       status=ESMF_FAILURE
       select case(trim(this%timeUnits))
@@ -492,7 +516,7 @@ MODULE ExtDataUtRoot_GridCompMod
       _VERIFY(status)
       call ESMF_StateGet(outState,itemNameList=outNameList,__RC__)
 
-      ASSERT_(itemCountIn == itemCountOut)
+      _ASSERT(itemCountIn == itemCountOut,'needs informative message')
       call ESMF_StateGet(inState,itemNameList=inNameList,__RC__)
       do i=1,itemCountIn
          call ESMF_StateGet(inState,trim(inNameList(i)),impf,__RC__)
@@ -577,11 +601,13 @@ MODULE ExtDataUtRoot_GridCompMod
       real, pointer                       :: ptr2_2(:,:) => null()
       integer :: itemcount,rank1,rank2
       character(len=ESMF_MAXSTR), allocatable :: NameList(:)
+      logical, allocatable :: foundDiff(:)
       type(ESMF_Field) :: Field1,Field2
-      logical :: foundDiff
     
       call ESMF_StateGet(State1,itemcount=itemCount,__RC__)
          allocate(NameList(itemCount),stat=status)
+         _VERIFY(status)
+         allocate(foundDiff(itemCount),stat=status)
          _VERIFY(status)
          call ESMF_StateGet(State1,itemNameList=NameList,__RC__)
          do ii=1,itemCount
@@ -589,15 +615,15 @@ MODULE ExtDataUtRoot_GridCompMod
             call ESMF_StateGet(State2,trim(nameList(ii)),field2,__RC__)
             call ESMF_FieldGet(field1,rank=rank1,__RC__)
             call ESMF_FieldGet(field1,rank=rank2,__RC__)
-            ASSERT_(rank1==rank2)
-            foundDiff=.false.
+            _ASSERT(rank1==rank2,'needs informative message')
+            foundDiff(ii)=.false.
             if (rank1==2) then
                call MAPL_GetPointer(state1,ptr2_1,trim(nameList(ii)),__RC__)
                call MAPL_GetPointer(state2,ptr2_2,trim(nameList(ii)),__RC__)
                do i=1,size(ptr2_1,1) 
                   do j=1,size(ptr2_1,2)
                      if (abs(ptr2_1(i,j)-ptr2_2(i,j)) .gt. tol) then
-                        foundDiff=.true.
+                        foundDiff(ii)=.true.
                         exit
                      end if
                   enddo
@@ -609,14 +635,16 @@ MODULE ExtDataUtRoot_GridCompMod
                   do j=1,size(ptr3_1,2) 
                      do k=1,size(ptr3_1,3)
                         if (abs(ptr3_1(i,j,k)-ptr3_2(i,j,k)) .gt. tol) then
-                           foundDiff=.true.
+                           foundDiff(ii)=.true.
                            exit
                         end if
                      enddo
                   enddo
                enddo
             end if
-            if (foundDiff) write(*,*)'found diff for ',trim(nameList(ii)) 
+            if (foundDiff(ii)) then 
+               _ASSERT(.false.,'found difference when compare state')
+            end if
          enddo
          
          _RETURN(ESMF_SUCCESS)

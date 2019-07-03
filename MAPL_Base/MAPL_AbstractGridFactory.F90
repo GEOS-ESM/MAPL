@@ -1,13 +1,12 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module MAPL_AbstractGridFactoryMod
    use ESMF
+   use MAPL_ErrorHandlingMod
+   use MAPL_BaseMod, only: MAPL_UNDEF
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   use MAPL_KeywordEnforcerMod
    implicit none
    private
 
@@ -22,7 +21,9 @@ module MAPL_AbstractGridFactoryMod
 
    contains
 
+      procedure, nopass :: make_arbitrary_decomposition
       procedure :: make_grid
+      procedure :: get_grid
       procedure (make_new_grid), deferred :: make_new_grid
 !!$      procedure (make_field), deferred :: make_esmf_field
 
@@ -31,10 +32,12 @@ module MAPL_AbstractGridFactoryMod
       generic :: operator(==) => equals
 
       procedure :: initialize_from_config
+      procedure (initialize_from_file_metadata), deferred :: initialize_from_file_metadata
       procedure (initialize_from_config_with_prefix), deferred :: initialize_from_config_with_prefix
       procedure (initialize_from_esmf_distGrid), deferred :: initialize_from_esmf_distGrid
 
       generic :: initialize => initialize_from_config
+      generic :: initialize => initialize_from_file_metadata
       generic :: initialize => initialize_from_config_with_prefix
       generic :: initialize => initialize_from_esmf_distGrid
 
@@ -47,16 +50,30 @@ module MAPL_AbstractGridFactoryMod
 
       procedure :: get_basis
 
-      generic :: spherical_to_cartesian => spherical_to_cartesian_2d
-      generic :: spherical_to_cartesian => spherical_to_cartesian_3d
-      generic :: cartesian_to_spherical => cartesian_to_spherical_2d
-      generic :: cartesian_to_spherical => cartesian_to_spherical_3d
+      generic :: spherical_to_cartesian => spherical_to_cartesian_2d_real32
+      generic :: spherical_to_cartesian => spherical_to_cartesian_2d_real64
+      generic :: spherical_to_cartesian => spherical_to_cartesian_3d_real32
+      generic :: spherical_to_cartesian => spherical_to_cartesian_3d_real64
+      
+      generic :: cartesian_to_spherical => cartesian_to_spherical_2d_real32
+      generic :: cartesian_to_spherical => cartesian_to_spherical_2d_real64
+      generic :: cartesian_to_spherical => cartesian_to_spherical_3d_real32
+      generic :: cartesian_to_spherical => cartesian_to_spherical_3d_real64
+      
 
-      procedure :: spherical_to_cartesian_2d
-      procedure :: spherical_to_cartesian_3d
-      procedure :: cartesian_to_spherical_2d
-      procedure :: cartesian_to_spherical_3d
+      procedure :: spherical_to_cartesian_2d_real32
+      procedure :: spherical_to_cartesian_2d_real64
+      procedure :: spherical_to_cartesian_3d_real32
+      procedure :: spherical_to_cartesian_3d_real64
+      
+      procedure :: cartesian_to_spherical_2d_real32
+      procedure :: cartesian_to_spherical_2d_real64
+      procedure :: cartesian_to_spherical_3d_real32
+      procedure :: cartesian_to_spherical_3d_real64
 
+      procedure(append_metadata), deferred :: append_metadata
+      procedure(get_grid_vars), deferred :: get_grid_vars
+      procedure(append_variable_metadata), deferred :: append_variable_metadata
    end type AbstractGridFactory
 
    abstract interface
@@ -88,6 +105,19 @@ module MAPL_AbstractGridFactoryMod
          integer, optional, intent(out) :: rc
       end subroutine initialize_from_config_with_prefix
 
+
+      subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
+        use pFIO_FileMetadataMod
+        use pFIO_NetCDF4_FileFormatterMod
+        use MAPL_KeywordEnforcerMod
+        import AbstractGridFactory
+        class (AbstractGridFactory), intent(inout)  :: this
+        type (FileMetadata), target, intent(in) :: file_metadata
+        class (KeywordEnforcer), optional, intent(in) :: unusable
+        integer, optional, intent(out) :: rc
+      end subroutine initialize_from_file_metadata
+
+
       subroutine initialize_from_esmf_distGrid(this, dist_grid, lon_array, lat_array, unusable, rc) 
          use esmf
          use MAPL_KeywordEnforcerMod
@@ -118,6 +148,26 @@ module MAPL_AbstractGridFactoryMod
          character(len=:), allocatable :: name
          class (AbstractGridFactory), intent(in) :: this
       end function generate_grid_name
+
+      subroutine append_metadata(this, metadata)
+         use pFIO
+         import AbstractGridFactory
+         class (AbstractGridFactory), intent(inout) :: this
+         type (FileMetadata), intent(inout) :: metadata
+      end subroutine append_metadata
+
+      function get_grid_vars(this) result(vars)
+         import AbstractGridFactory
+         class (AbstractGridFactory), intent(inout) :: this
+         character(len=:), allocatable :: vars
+      end function get_grid_vars
+
+      subroutine append_variable_metadata(this,var)
+         use pFIO_VariableMod
+         import AbstractGridFactory
+         class (AbstractGridFactory), intent(inout) :: this
+         type(Variable), intent(inout) :: var
+      end subroutine append_variable_metadata
 
    end interface
 
@@ -230,7 +280,9 @@ contains
       
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'make_grid'
-      
+
+      _UNUSED_DUMMY(unusable)
+
       if (allocated(this%grid)) then
          grid = this%grid
       else
@@ -243,7 +295,52 @@ contains
 
    end function make_grid
 
-   subroutine spherical_to_cartesian_2d(this,u,v,xyz,basis,unusable,rc)
+   ! --------------------------------------------------------------------
+   ! This subroutine uses the current ESMF VM to determine an arbitary
+   ! domain decomposition.  The decomposition used for model variables
+   ! is generally not relevant (CS vs LatLon) in those situations, but
+   ! ESMF regridding still requires some decomposition no the same
+   ! number processors.  The algorithm here tries to find a decomp
+   ! that is as close as possible to sqrt(npes)*sqrt(npes) with the
+   ! leading dimension using fewer processes
+   ! --------------------------------------------------------------------
+   subroutine make_arbitrary_decomposition(nx, ny, unusable, reduceFactor, rc)
+      use ESMF
+      use MAPL_KeywordEnforcerMod
+      integer, intent(out) :: nx
+      integer, intent(out) :: ny
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: reduceFactor
+      integer, optional, intent(out) :: rc
+
+      type (ESMF_VM) :: vm
+      integer :: pet_count
+
+      character(len=*), parameter :: Iam= MOD_NAME // 'make_arbitrary_decomposition()'
+      integer :: status
+
+      _UNUSED_DUMMY(unusable)
+
+      call ESMF_VMGetCurrent(vm, rc=status)
+      _VERIFY(status)
+      call ESMF_VMGet(vm, petCount=pet_count, rc=status)
+      _VERIFY(status)
+      if (present(reduceFactor)) pet_count=pet_count/reduceFactor
+
+      ! count down from sqrt(n)
+      ! Note: inal iteration (nx=1) is guaranteed to succeed.
+      do nx = floor(sqrt(real(2*pet_count))), 1, -1
+         if (mod(pet_count, nx) == 0) then ! found a decomposition
+            ny = pet_count / nx
+            exit
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+
+   end subroutine make_arbitrary_decomposition
+
+   subroutine spherical_to_cartesian_2d_real32(this,u,v,xyz,basis,unusable,rc)
       use esmf
       use MAPL_KeywordEnforcerMod
       real(REAL32), intent(IN) :: u(:,:)
@@ -262,26 +359,72 @@ contains
      
       im = size(u,1)
       jm = size(u,2)
-      _ASSERT(im == size(v,1))
-      _ASSERT(jm == size(v,2))
-      _ASSERT(3 == size(xyz,1))
-      _ASSERT(1 == size(xyz,2))
-      _ASSERT(im == size(xyz,3))
-      _ASSERT(jm == size(xyz,4))
+      _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
+      _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
+      _ASSERT(3 == size(xyz,1), 'u-v shape mismatch (LM=1)')
+      _ASSERT(1 == size(xyz,2), 'u-xyz shape mismatch (LM=1)')
+      _ASSERT(im == size(xyz,3), 'u-xyz shape mismatch for IM')
+      _ASSERT(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
       basis_vectors => this%get_basis(basis,rc=status)
       _VERIFY(status)
       do j=1,jm
          do i=1,im
-            uv = [u(i,j),v(i,j)]
-            xyz(:,1,i,j) = matmul(basis_vectors(:,:,i,j), uv)
+            if (u(i,j) == MAPL_UNDEF .or. v(i,j) == MAPL_UNDEF) then
+               xyz(:,1,i,j) = MAPL_UNDEF
+            else
+               uv = [u(i,j),v(i,j)]
+               xyz(:,1,i,j) = matmul(basis_vectors(:,:,i,j), uv)
+            end if
          enddo
       enddo
 
       _RETURN(_SUCCESS)
 
-   end subroutine spherical_to_cartesian_2d
+   end subroutine spherical_to_cartesian_2d_real32
 
-   subroutine spherical_to_cartesian_3d(this,u,v,xyz,basis,unusable,rc)
+   subroutine spherical_to_cartesian_2d_real64(this,u,v,xyz,basis,unusable,rc)
+      use esmf
+      use MAPL_KeywordEnforcerMod
+      real(REAL64), intent(IN) :: u(:,:)
+      real(REAL64), intent(IN) :: v(:,:)
+      real(REAL64), intent(OUT) :: xyz(:,:,:,:)
+      character(len=*), intent(in) :: basis
+      class (AbstractGridFactory), target, intent(inout) :: this
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc 
+
+      real(REAL64), pointer :: basis_vectors(:,:,:,:)
+      real(REAL64) :: uv(2)
+      integer :: i, j, im, jm
+      character(len=*), parameter :: Iam= MOD_NAME // 'spherical_to_cartesian_2d'
+      integer :: status
+     
+      im = size(u,1)
+      jm = size(u,2)
+      _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
+      _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
+      _ASSERT(3 == size(xyz,1), 'u-v shape mismatch (LM=1)')
+      _ASSERT(1 == size(xyz,2), 'u-xyz shape mismatch (LM=1)')
+      _ASSERT(im == size(xyz,3), 'u-xyz shape mismatch for IM')
+      _ASSERT(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
+      basis_vectors => this%get_basis(basis,rc=status)
+      _VERIFY(status)
+      do j=1,jm
+         do i=1,im
+            if (u(i,j) == MAPL_UNDEF .or. v(i,j) == MAPL_UNDEF) then
+               xyz(:,1,i,j) = MAPL_UNDEF
+            else
+               uv = [u(i,j),v(i,j)]
+               xyz(:,1,i,j) = matmul(basis_vectors(:,:,i,j), uv)
+            end if
+         enddo
+      enddo
+
+      _RETURN(_SUCCESS)
+
+    end subroutine spherical_to_cartesian_2d_real64
+   
+   subroutine spherical_to_cartesian_3d_real32(this,u,v,xyz,basis,unusable,rc)
       use esmf
       use MAPL_KeywordEnforcerMod
       real(REAL32), intent(IN) :: u(:,:,:)
@@ -301,28 +444,79 @@ contains
       im = size(u,1)
       jm = size(u,2)
       km = size(u,3)
-      _ASSERT(im == size(v,1))
-      _ASSERT(jm == size(v,2))
-      _ASSERT(km == size(v,3))
-      _ASSERT(3 == size(xyz,1))
-      _ASSERT(km == size(xyz,2))
-      _ASSERT(im == size(xyz,3))
-      _ASSERT(jm == size(xyz,4))
+      _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
+      _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
+      _ASSERT(km == size(v,3), 'u-v shape mismatch for LM')
+      _ASSERT(3 == size(xyz,1), 'u-xyz shape mismatch for')
+      _ASSERT(km == size(xyz,2), 'u-xyz shape mismatch for LM')
+      _ASSERT(im == size(xyz,3), 'u-xyz shape mismatch for IM')
+      _ASSERT(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
       basis_vectors => this%get_basis(basis,rc=status)
       _VERIFY(status)
       do j=1,jm
          do i=1,im
             do k=1,km
-               uv = [u(i,j,k),v(i,j,k)]
-               xyz(:,k,i,j) = matmul(basis_vectors(:,:,i,j), uv)
+               if (u(i,j,k) == MAPL_UNDEF .or. v(i,j,k) == MAPL_UNDEF) then
+                  xyz(:,k,i,j)=MAPL_UNDEF
+               else
+                  uv = [u(i,j,k),v(i,j,k)]
+                  xyz(:,k,i,j) = matmul(basis_vectors(:,:,i,j), uv)
+               end if
             enddo 
          enddo
       enddo
 
       _RETURN(_SUCCESS)
-   end subroutine spherical_to_cartesian_3d
+   end subroutine spherical_to_cartesian_3d_real32
 
-   subroutine cartesian_to_spherical_2d(this,xyz,u,v,basis,unusable,rc)
+
+   subroutine spherical_to_cartesian_3d_real64(this,u,v,xyz,basis,unusable,rc)
+     use esmf
+     use MAPL_KeywordEnforcerMod
+     real(REAL64), intent(IN) :: u(:,:,:)
+     real(REAL64), intent(IN) :: v(:,:,:)
+     real(REAL64), intent(OUT) :: xyz(:,:,:,:)
+     character(len=*), intent(in) :: basis
+     class (AbstractGridFactory), target, intent(inout) :: this
+     class (KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc 
+
+     real(REAL64), pointer :: basis_vectors(:,:,:,:)
+     real(REAL64) :: uv(2)
+     integer :: i, j, k, im, jm, km
+     character(len=*), parameter :: Iam= MOD_NAME // 'spherical_to_cartesian_3d'
+     integer :: status
+
+     im = size(u,1)
+     jm = size(u,2)
+     km = size(u,3)
+     _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
+     _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
+     _ASSERT(km == size(v,3), 'u-v shape mismatch for LM')
+     _ASSERT(3 == size(xyz,1), 'u-xyz shape mismatch for')
+     _ASSERT(km == size(xyz,2), 'u-xyz shape mismatch for LM')
+     _ASSERT(im == size(xyz,3), 'u-xyz shape mismatch for IM')
+     _ASSERT(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
+     basis_vectors => this%get_basis(basis,rc=status)
+     _VERIFY(status)
+     do j=1,jm
+        do i=1,im
+           do k=1,km
+              if (u(i,j,k) == MAPL_UNDEF .or. v(i,j,k) == MAPL_UNDEF) then
+                 xyz(:,k,i,j)=MAPL_UNDEF
+              else
+                 uv = [u(i,j,k),v(i,j,k)]
+                 xyz(:,k,i,j) = matmul(basis_vectors(:,:,i,j), uv)
+              end if
+           enddo
+        enddo
+     enddo
+
+     _RETURN(_SUCCESS)
+   end subroutine spherical_to_cartesian_3d_real64
+   
+   
+   subroutine cartesian_to_spherical_2d_real32(this,xyz,u,v,basis,unusable,rc)
       use esmf
       use MAPL_KeywordEnforcerMod
       real(REAL32), intent(IN) :: xyz(:,:,:,:)
@@ -341,26 +535,80 @@ contains
 
       im = size(u,1)
       jm = size(u,2)
-      _ASSERT(im == size(v,1))
-      _ASSERT(jm == size(v,2))
-      _ASSERT(3 == size(xyz,1))
-      _ASSERT(1 == size(xyz,2))
-      _ASSERT(im == size(xyz,3))
-      _ASSERT(jm == size(xyz,4))
+      _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
+      _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
+      _ASSERT(3 == size(xyz,1), 'u-v shape mismatch')
+      _ASSERT(1 == size(xyz,2), 'u-v shape mismatch')
+      _ASSERT(im == size(xyz,3), 'u-v shape mismatch for IM')
+      _ASSERT(jm == size(xyz,4), 'u-v shape mismatch for JM')
+
       basis_vectors => this%get_basis(basis,rc=status)
       _VERIFY(status)
       do j=1,jm
          do i=1,im
-            uv = matmul(transpose(basis_vectors(:,:,i,j)),xyz(:,1,i,j))
-            u(i,j)=uv(1)
-            v(i,j)=uv(2)
+            if (xyz(1,1,i,j) == MAPL_UNDEF .or. xyz(2,1,i,j) == MAPL_UNDEF .or. &
+                xyz(3,1,i,j) == MAPL_UNDEF) then
+               u(i,j)=MAPL_UNDEF
+               v(i,j)=MAPL_UNDEF
+            else
+               uv = matmul(transpose(basis_vectors(:,:,i,j)),xyz(:,1,i,j))
+               u(i,j)=uv(1)
+               v(i,j)=uv(2)
+            end if
          enddo
       enddo
       _RETURN(_SUCCESS)
 
-   end subroutine cartesian_to_spherical_2d
+   end subroutine cartesian_to_spherical_2d_real32
 
-   subroutine cartesian_to_spherical_3d(this,xyz,u,v,basis,unusable,rc)
+   
+   subroutine cartesian_to_spherical_2d_real64(this,xyz,u,v,basis,unusable,rc)
+     use esmf
+     use MAPL_KeywordEnforcerMod
+     real(REAL64), intent(IN) :: xyz(:,:,:,:)
+     character(len=*), intent(IN) :: basis
+     real(REAL64), intent(OUT) :: u(:,:)
+     real(REAL64), intent(OUT) :: v(:,:)
+     class (AbstractGridFactory), target, intent(inout) :: this
+     class (KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc 
+
+     real(REAL64), pointer :: basis_vectors(:,:,:,:)
+     real(REAL64) :: uv(2)
+     integer :: i, j, im, jm
+     character(len=*), parameter :: Iam= MOD_NAME // 'cartesian_to_spherical_2d'
+     integer :: status
+
+     im = size(u,1)
+     jm = size(u,2)
+     _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
+     _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
+     _ASSERT(3 == size(xyz,1), 'u-v shape mismatch')
+     _ASSERT(1 == size(xyz,2), 'u-v shape mismatch')
+     _ASSERT(im == size(xyz,3), 'u-v shape mismatch for IM')
+     _ASSERT(jm == size(xyz,4), 'u-v shape mismatch for JM')
+
+     basis_vectors => this%get_basis(basis,rc=status)
+     _VERIFY(status)
+     do j=1,jm
+        do i=1,im
+           if (xyz(1,1,i,j) == MAPL_UNDEF .or. xyz(2,1,i,j) == MAPL_UNDEF .or. &
+                xyz(3,1,i,j) == MAPL_UNDEF) then
+              u(i,j)=MAPL_UNDEF
+              v(i,j)=MAPL_UNDEF
+           else
+              uv = matmul(transpose(basis_vectors(:,:,i,j)),xyz(:,1,i,j))
+              u(i,j)=uv(1)
+              v(i,j)=uv(2)
+           end if
+        enddo
+     enddo
+     _RETURN(_SUCCESS)
+
+   end subroutine cartesian_to_spherical_2d_real64
+   
+   
+   subroutine cartesian_to_spherical_3d_real32(this,xyz,u,v,basis,unusable,rc)
       use esmf
       use MAPL_KeywordEnforcerMod
       real(REAL32), intent(IN) :: xyz(:,:,:,:)
@@ -380,28 +628,81 @@ contains
       im = size(u,1)
       jm = size(u,2)
       km = size(u,3)
-      _ASSERT(im == size(v,1))
-      _ASSERT(jm == size(v,2))
-      _ASSERT(km == size(v,3))
-      _ASSERT(3 == size(xyz,1))
-      _ASSERT(km == size(xyz,2))
-      _ASSERT(im == size(xyz,3))
-      _ASSERT(jm == size(xyz,4))
+      _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
+      _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
+      _ASSERT(3 == size(xyz,1), 'u-v shape mismatch (LM=1)')
+      _ASSERT(km == size(xyz,2), 'u-xyz shape mismatch (LM=1)')
+      _ASSERT(im == size(xyz,3), 'u-xyz shape mismatch for IM')
+      _ASSERT(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
       basis_vectors => this%get_basis(basis,rc=status)
       _VERIFY(status)
       do j=1,jm
          do i=1,im
             do k = 1, km
-               uv = matmul(transpose(basis_vectors(:,:,i,j)),xyz(:,k,i,j))
-               u(i,j,k)=uv(1)
-               v(i,j,k)=uv(2)
+               if (xyz(1,k,i,j) == MAPL_UNDEF .or. xyz(2,k,i,j) == MAPL_UNDEF .or. &
+                   xyz(3,k,i,j) == MAPL_UNDEF) then
+                  u(i,j,k)=MAPL_UNDEF
+                  v(i,j,k)=MAPL_UNDEF
+               else
+                  uv = matmul(transpose(basis_vectors(:,:,i,j)),xyz(:,k,i,j))
+                  u(i,j,k)=uv(1)
+                  v(i,j,k)=uv(2)
+               end if
             enddo 
          enddo
       enddo
       _RETURN(_SUCCESS)
 
-   end subroutine cartesian_to_spherical_3d
+   end subroutine cartesian_to_spherical_3d_real32
 
+
+   subroutine cartesian_to_spherical_3d_real64(this,xyz,u,v,basis,unusable,rc)
+     use esmf
+     use MAPL_KeywordEnforcerMod
+     real(REAL64), intent(IN) :: xyz(:,:,:,:)
+     character(len=*), intent(IN) :: basis
+     real(REAL64), intent(OUT) :: u(:,:,:)
+     real(REAL64), intent(OUT) :: v(:,:,:)
+     class (AbstractGridFactory), target, intent(inout) :: this
+     class (KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc 
+
+     real(REAL64), pointer :: basis_vectors(:,:,:,:)
+     real(REAL64) :: uv(2)
+     integer :: i, j, k, im, jm, km
+     character(len=*), parameter :: Iam= MOD_NAME // 'cartesian_to_spherical_3d'
+     integer :: status
+
+     im = size(u,1)
+     jm = size(u,2)
+     km = size(u,3)
+     _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
+     _ASSERT(jm == size(v,2), 'u-v shape mismatch for JM')
+     _ASSERT(3 == size(xyz,1), 'u-v shape mismatch (LM=1)')
+     _ASSERT(km == size(xyz,2), 'u-xyz shape mismatch (LM=1)')
+     _ASSERT(im == size(xyz,3), 'u-xyz shape mismatch for IM')
+     _ASSERT(jm == size(xyz,4), 'u-xyz shape mismatch for JM')
+     basis_vectors => this%get_basis(basis,rc=status)
+     _VERIFY(status)
+     do j=1,jm
+        do i=1,im
+           do k = 1, km
+              if (xyz(1,k,i,j) == MAPL_UNDEF .or. xyz(2,k,i,j) == MAPL_UNDEF .or. &
+                   xyz(3,k,i,j) == MAPL_UNDEF) then
+                 u(i,j,k)=MAPL_UNDEF
+                 v(i,j,k)=MAPL_UNDEF
+              else
+                 uv = matmul(transpose(basis_vectors(:,:,i,j)),xyz(:,k,i,j))
+                 u(i,j,k)=uv(1)
+                 v(i,j,k)=uv(2)
+              end if
+           enddo
+        enddo
+     enddo
+     _RETURN(_SUCCESS)
+
+   end subroutine cartesian_to_spherical_3d_real64
+   
    function get_basis(this,basis,unusable,rc) result(basis_vectors)
       use esmf
       use MAPL_KeywordEnforcerMod
@@ -418,7 +719,7 @@ contains
       real(REAL64), pointer :: Xcoord(:,:) => null()
       real(REAL64), pointer :: Ycoord(:,:) => null()
 
-      _ASSERT(allocated(this%grid))
+      _ASSERT(allocated(this%grid), 'grid not allocated')
       select case (basis)
       case ('north-south')
          if (.not.allocated(this%NS_basis)) then
@@ -642,4 +943,25 @@ contains
 
    end function get_unit_vector
 
+   function get_grid(this, unusable, rc) result(grid)
+      type (ESMF_Grid), pointer :: grid
+      class (AbstractGridFactory), target :: this
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      character(len=*), parameter :: Iam= MOD_NAME // 'get_grid'
+
+      _UNUSED_DUMMY(unusable)
+
+      if (allocated(this%grid)) then
+         grid => this%grid
+         _RETURN(_SUCCESS)
+      else
+         grid => null()
+         _RETURN(_FAILURE)
+      end if
+
+   end function get_grid
+
+      
 end module MAPL_AbstractGridFactoryMod

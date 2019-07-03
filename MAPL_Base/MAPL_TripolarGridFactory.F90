@@ -57,6 +57,7 @@ module MAPL_TripolarGridFactoryMod
       procedure :: halo
       
 
+      procedure :: initialize_from_file_metadata
       procedure :: initialize_from_config_with_prefix
       procedure :: initialize_from_esmf_distGrid
 
@@ -67,6 +68,10 @@ module MAPL_TripolarGridFactoryMod
       procedure :: check_and_fill_consistency
       procedure :: generate_grid_name
       procedure :: to_string
+
+      procedure :: append_metadata
+      procedure :: get_grid_vars
+      procedure :: append_variable_metadata
    end type TripolarGridFactory
    
    character(len=*), parameter :: MOD_NAME = 'MAPL_TripolarGridFactory::'
@@ -228,6 +233,24 @@ contains
    end subroutine add_horz_coordinates
 
 
+   subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
+      use pFIO_FileMetadataMod
+      use pFIO_NetCDF4_FileFormatterMod
+      use MAPL_KeywordEnforcerMod
+
+      class (TripolarGridFactory), intent(inout)  :: this
+      type (FileMetadata), target, intent(in) :: file_metadata
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_file_metadata()'
+      integer :: status
+
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine initialize_from_file_metadata
+
+
    subroutine initialize_from_config_with_prefix(this, config, prefix, unusable, rc)
       use esmf
       class (TripolarGridFactory), intent(inout) :: this
@@ -272,9 +295,11 @@ contains
          integer :: n
          integer :: tmp
          integer :: status
+         logical :: isPresent
          
-         call ESMF_ConfigFindLabel(config, label=prefix//label,rc=status)
-         if (status /= _SUCCESS) then
+         call ESMF_ConfigFindLabel(config, label=prefix//label,isPresent=isPresent,rc=status)
+         _VERIFY(status)
+         if (.not. isPresent) then
             _RETURN(_SUCCESS)
          end if
 
@@ -293,6 +318,7 @@ contains
          allocate(values(n), stat=status) ! no point in checking status
          _VERIFY(status)
          call ESMF_ConfigFindLabel(config, label=prefix//label,rc=status)
+         _VERIFY(status)
          do i = 1, n
             call ESMF_ConfigGetAttribute(config, values(i), rc=status)
             _VERIFY(status)
@@ -619,7 +645,8 @@ contains
       integer :: pet_west
 
       _UNUSED_DUMMY(unusable)
-      
+      ! not yet implmented, default halo_width=1
+      _UNUSED_DUMMY(halo_width)
       associate (nx => this%nx, ny => this%ny, px => this%px, py => this%py)
         ! Nearest neighbors processor' ids
         pet_north = get_pet(px, py+1, nx, ny)
@@ -783,5 +810,32 @@ contains
 
    end subroutine halo
       
+   subroutine append_metadata(this, metadata)
+      use pFIO
+      class (TripolarGridFactory), intent(inout) :: this
+      type (FileMetadata), intent(inout) :: metadata
+
+      call metadata%add_dimension('lon', this%im_world)
+      call metadata%add_dimension('lat', this%jm_world)
+
+
+   end subroutine append_metadata
+
+   function get_grid_vars(this) result(vars)
+      use pFIO
+      class (TripolarGridFactory), intent(inout) :: this
+
+      character(len=:), allocatable :: vars
+
+      vars = 'lon,lat'
+
+   end function get_grid_vars
+
+   subroutine append_variable_metadata(this,var)
+      use pFIO_VariableMod
+      class (TripolarGridFactory), intent(inout) :: this
+      type(Variable), intent(inout) :: var
+   end subroutine append_variable_metadata
+
 
 end module MAPL_TripolarGridFactoryMod

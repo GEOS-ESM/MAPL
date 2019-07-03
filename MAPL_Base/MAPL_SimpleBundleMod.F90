@@ -28,6 +28,7 @@
    use MAPL_MaxMinMod
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    use MAPL_ConstantsMod, only: MAPL_PI
+   use MAPL_ErrorHandlingMod
 
    implicit NONE
    private
@@ -177,6 +178,8 @@ CONTAINS
 
     logical :: strict_match
     logical :: isPresent
+    logical :: isPresentBundle
+    logical :: haveDelp
     integer :: n_vars
     character(len=ESMF_MAXSTR) :: message
     logical, allocatable       :: isRequested(:)
@@ -222,7 +225,7 @@ CONTAINS
 
     if (present(only_vars)) then
        n_vars = csv_tokens_count_(only_vars)
-       ASSERT_(n_vars <= NumVars)
+       _ASSERT(n_vars <= NumVars,'needs informative message')
 
        allocate(var_list(n_vars), __STAT__)
 
@@ -284,7 +287,7 @@ CONTAINS
          self%coords%Levs(:) = Levs(:)
       else
          STATUS = 77
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       end if
    else
       self%coords%Levs(:) = (/ (i, i = 1, km) /)
@@ -303,11 +306,25 @@ CONTAINS
       self%coords%lcv%delp => delp
    else ! Look inside bundle for delp or DELP
       self%coords%lcv%delp => NULL() 
-      call ESMF_FieldBundleGet (Bundle, fieldName='DELP', field=Field, RC=STATUS)
-      if ( STATUS /= 0 ) then
-           call ESMF_FieldBundleGet (Bundle, fieldName='delp', field=Field, RC=STATUS)
+
+      haveDelp = .FALSE.
+      call ESMF_FieldBundleGet (Bundle, fieldName='DELP', isPresent=isPresentBundle, RC=STATUS)
+      _VERIFY(STATUS)
+      if (isPresentBundle) then
+         call ESMF_FieldBundleGet (Bundle, fieldName='DELP', field=Field, RC=STATUS)
+         _VERIFY(STATUS)
+         haveDelp = .TRUE.
+      else
+         call ESMF_FieldBundleGet (Bundle, fieldName='delp', isPresent=isPresentBundle, RC=STATUS)
+         _VERIFY(STATUS)
+         if (isPresentBundle) then
+            call ESMF_FieldBundleGet (Bundle, fieldName='delp', field=Field, RC=STATUS)
+            _VERIFY(STATUS)
+            haveDelp = .TRUE.
+         end if
       end if
-      if ( STATUS == 0 ) then
+
+      if (haveDelp) then
          call ESMF_FieldGet(Field, status=fieldStatus, __RC__)
          if (fieldStatus == ESMF_FIELDSTATUS_COMPLETE) then
             call ESMF_FieldGet(Field, 0, self%coords%lcv%delp, __RC__)
@@ -364,7 +381,7 @@ CONTAINS
              self%r3(n3d)%q => self%r3(n3d)%qr4 ! convenience alias
           else
              STATUS = 77
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           end if
 
 !      Real*8
@@ -387,14 +404,14 @@ CONTAINS
              self%r3(n3d)%myKind = ESMF_KIND_R8
           else
              STATUS = 77
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           end if
 
 !      Unknown kind
 !      ------------
        else
           STATUS = 88
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
 
     end do 
@@ -640,10 +657,9 @@ CONTAINS
 
     __Iam__('MAPL_SimpleBundleRead')
     type(ESMF_FieldBundle),  pointer :: Bundle
-    integer                          :: k,n
 
     allocate(Bundle, stat=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     Bundle = ESMF_FieldBundleCreate ( name=bundle_name, __RC__ )
     call ESMF_FieldBundleSet ( bundle, grid=Grid, __RC__ )
@@ -895,7 +911,7 @@ end subroutine MAPL_SimpleBundlePrint
              __raise__(MAPL_RC_ERROR,message)
           end if
        else
-          RETURN_(ESMF_SUCCESS)
+          _RETURN(ESMF_SUCCESS)
        end if
     end if
 

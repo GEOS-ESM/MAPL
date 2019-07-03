@@ -28,6 +28,7 @@ module MAPL_GenericCplCompMod
   use MAPL_ProfMod
   use MAPL_SunMod
   use MAPL_VarSpecMod
+  use MAPL_ErrorHandlingMod
 
   implicit none
   private
@@ -109,14 +110,14 @@ contains
 ! -----------------------------------------------------
 
     call ESMF_CplCompGet( CC, name=COMP_NAME, RC=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     Iam = trim(COMP_NAME) // "GenericCplSetServices"
 
 ! Allocate this instance of the internal state and put it in wrapper.
 ! -------------------------------------------------------------------
 
     allocate(STATE, STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     CCWRAP%INTERNAL_STATE => STATE
 
@@ -124,30 +125,30 @@ contains
 ! ----------------------------------------------------------------
 
     call ESMF_CplCompSetInternalState(CC, CCWRAP, STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! Register services for this component
 ! ------------------------------------
 
     call ESMF_CplCompSetEntryPoint ( CC, ESMF_METHOD_INITIALIZE,  Initialize, &
                                      rc=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_CplCompSetEntryPoint ( CC, ESMF_METHOD_RUN,   Run,        &
                                      rc=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_CplCompSetEntryPoint ( CC, ESMF_METHOD_FINALIZE, Finalize,   &
                                      rc=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! Put the inherited configuration in the internal state
 ! -----------------------------------------------------
 
 !ALT not_used    call ESMF_CplCompGet( CC, CONFIG=STATE%CF, RC=STATUS )
-!ALT not_used    VERIFY_(STATUS)
+!ALT not_used    _VERIFY(STATUS)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine GenericCplSetServices
 
   subroutine MAPL_CplCompSetVarSpecs ( CC, SRC_SPEC, DST_SPEC, RC )
@@ -177,29 +178,29 @@ contains
 ! -----------------------------------------------------
 
     call ESMF_CplCompGet( CC, name=COMP_NAME, RC=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     Iam = trim(COMP_NAME) // "MAPL_CplCompSetVarSpecs"
 
 ! Retrieve the pointer to the internal state. It comes in a wrapper.
 ! ------------------------------------------------------------------
 
     call ESMF_CplCompGetInternalState ( CC, WRAP, STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     STATE  =>  WRAP%INTERNAL_STATE
 
 ! Make sure the specs match
 !--------------------------
 
-    ASSERT_(size(SRC_SPEC)==size(DST_SPEC))
+    _ASSERT(size(SRC_SPEC)==size(DST_SPEC),'needs informative message')
 
     do I=1,size(SRC_SPEC)
        call MAPL_VarSpecGet(SRC_SPEC(I),SHORT_NAME=SRC_NAME,RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call MAPL_VarSpecGet(DST_SPEC(I),SHORT_NAME=DST_NAME,RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
-!ALT       ASSERT_(SRC_NAME==DST_NAME)
+!ALT       _ASSERT(SRC_NAME==DST_NAME,'needs informative message')
     end do
 
 ! Put miscellaneous info in the internal state
@@ -211,7 +212,7 @@ contains
     STATE%ACTIVE = .true.
     STATE%NAME   = COMP_NAME
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CplCompSetVarSpecs
 
 !=============================================================================
@@ -269,6 +270,7 @@ contains
     logical                               :: has_ungrd
     type(ESMF_Field)                      :: field
     integer                               :: cplfunc
+    logical                               :: isPresent
 
 ! Begin...
 
@@ -281,14 +283,14 @@ contains
 
     Iam = "MAPL_GenericCplCompInitialize"
     call ESMF_CplCompGet( CC, NAME=COMP_NAME, RC=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     Iam = trim(COMP_NAME) // Iam
 
 ! Retrieve the pointer to the internal state. It comes in a wrapper.
 ! ------------------------------------------------------------------
 
     call ESMF_CplCompGetInternalState ( CC, WRAP, STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     STATE  =>  WRAP%INTERNAL_STATE
 
@@ -297,39 +299,39 @@ contains
 
     NCPLS = size(STATE%DST_SPEC)
 
-    ASSERT_(NCPLS == size(STATE%SRC_SPEC))
+    _ASSERT(NCPLS == size(STATE%SRC_SPEC),'needs informative message')
 
 ! Allocate arrays of ESMF arrays for accumulators
 !-------------------------------------------------
 
     allocate(STATE%ACCUMULATORS(NCPLS), STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(STATE%ARRAY_COUNT (NCPLS), STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(STATE%ACCUM_RANK (NCPLS), STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(STATE%couplerType(NCPLS), STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! Allocate internal state objects
 ! -------------------------------
 
     allocate (STATE%CLEAR_INTERVAL (NCPLS), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate (STATE%COUPLE_INTERVAL(NCPLS), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate (STATE%TIME_TO_CLEAR  (NCPLS), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate (STATE%TIME_TO_COUPLE (NCPLS), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(STATE%ACCUM_COUNT     (NCPLS), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! Get clock info
 !---------------
 
     call ESMF_ClockGet(CLOCK, calendar=cal, currTime=currTime, timeStep=TS, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     TM0 = currTime
 
@@ -350,18 +352,18 @@ contains
             OFFSET          = OFFSET, &
             SHORT_NAME      = NAME, &
                                             RC = STATUS )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 ! Initalize COUPLE ALARM from destination properties
 !---------------------------------------------------
 
        call ESMF_TimeIntervalSet(TCPL, S=STATE%COUPLE_INTERVAL(J), &
             calendar=cal, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call ESMF_TimeIntervalSet(TOFF, S=OFFSET, &
             calendar=cal, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        rTime = TM0 + TOFF
 
@@ -372,10 +374,10 @@ contains
             ringTime     = rTime,   &
             sticky       = .false., &
             rc=STATUS   )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(rTime == currTime) then
-          call ESMF_AlarmRingerOn(STATE%TIME_TO_COUPLE(J), rc=status); VERIFY_(STATUS)
+          call ESMF_AlarmRingerOn(STATE%TIME_TO_COUPLE(J), rc=status); _VERIFY(STATUS)
        end if
 
 
@@ -384,7 +386,7 @@ contains
 
        call ESMF_TimeIntervalSet(TCLR, S=STATE%CLEAR_INTERVAL(J), &
             calendar=cal, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if (TCLR < TS) TCLR = TS
 
@@ -401,10 +403,10 @@ contains
             ringTime     = rTime,   &
             sticky       = .false., &
             rc=STATUS   )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(rTime == currTime) then
-          call ESMF_AlarmRingerOn(STATE%TIME_TO_CLEAR(J), rc=status); VERIFY_(STATUS)
+          call ESMF_AlarmRingerOn(STATE%TIME_TO_CLEAR(J), rc=status); _VERIFY(STATUS)
        end if
 
 ! Get info from the SRC spec
@@ -415,7 +417,7 @@ contains
                             SHORT_NAME = NAME,      &
                             UNGRIDDED_DIMS=UNGRD,   &
                                            RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 ! We currently make these d1mension assumptions
 !----------------------------------------------
@@ -427,7 +429,7 @@ contains
        elseif(DIMS==MAPL_DIMSVERTONLY .or. DIMS==MAPL_DIMSTILEONLY) then
           DIMS=1
        else
-          RETURN_(ESMF_FAILURE)
+          _RETURN(ESMF_FAILURE)
        end if
 
 
@@ -435,14 +437,18 @@ contains
        if (has_ungrd) then
           DIMS = DIMS + size(UNGRD)
        end if
-       ASSERT_(DIMS < 4) ! ALT: due to laziness we are supporting only 3 dims
+       _ASSERT(DIMS < 4,'needs informative message') ! ALT: due to laziness we are supporting only 3 dims
 
        STATE%ACCUM_RANK(J) = DIMS
 
        call ESMF_StateGet(src, NAME, field, rc=status)
-       VERIFY_(STATUS)
-       call ESMF_AttributeGet(field, NAME="CPLFUNC", VALUE=cplfunc, RC=STATUS)
-       if (status /= ESMF_SUCCESS) then
+       _VERIFY(STATUS)
+       call ESMF_AttributeGet(field, NAME="CPLFUNC", isPresent=isPresent, RC=STATUS)
+       _VERIFY(STATUS)
+       if (isPresent) then
+          call ESMF_AttributeGet(field, NAME="CPLFUNC", VALUE=cplfunc, RC=STATUS)
+          _VERIFY(STATUS)
+       else
           cplfunc = MAPL_CplAverage
        end if
        state%couplerType(J) = cplfunc
@@ -455,12 +461,12 @@ contains
        case(3)
 ! Get SRC pointer, making sure it is allocated.
           call MAPL_GetPointer(SRC, PTR3, NAME, ALLOC=.TRUE., RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 ! Allocate space for accumulator
           L1 = LBOUND(PTR3,3)
           LN = UBOUND(PTR3,3)
           allocate(PTR30(size(PTR3,1),size(PTR3,2),L1:LN), STAT=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (STATE%couplerType(J) /= MAPL_CplAverage .and. STATE%couplerType(J) /= MAPL_CplAccumulate) then
              PTR30 = MAPL_UNDEF
           else
@@ -469,41 +475,41 @@ contains
           endif
 ! Put pointer in accumulator
           STATE%ACCUMULATORS(J)=ESMF_LocalArrayCreate( PTR30, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           
        case(2)
           call MAPL_GetPointer(SRC, PTR2, NAME, ALLOC=.TRUE., RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(PTR20(size(PTR2,1),size(PTR2,2)), STAT=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (STATE%couplerType(J) /= MAPL_CplAverage .and. STATE%couplerType(J) /= MAPL_CplAccumulate) then
              PTR20 = MAPL_UNDEF
           else
              PTR20 = 0.0
           end if
           STATE%ACCUMULATORS(J)=ESMF_LocalArrayCreate( PTR20, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
        case(1)
           call MAPL_GetPointer(SRC, PTR1, NAME, ALLOC=.TRUE., RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(PTR10(size(PTR1)), STAT=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (STATE%couplerType(J) /= MAPL_CplAverage .and. STATE%couplerType(J) /= MAPL_CplAccumulate) then
              PTR10 = MAPL_UNDEF
           else
              PTR10 = 0.0
           end if
           STATE%ACCUMULATORS(J)=ESMF_LocalArrayCreate( PTR10, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
        case default
-          RETURN_(ESMF_FAILURE)
+          _RETURN(ESMF_FAILURE)
 
        end select
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   end subroutine Initialize
 
@@ -548,14 +554,14 @@ contains
 
     Iam = "MAPL_GenericCplCompRun"
     call ESMF_CplCompGet( CC, NAME=COMP_NAME, RC=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     Iam = trim(COMP_NAME) // Iam
 
 ! Retrieve the pointer to the internal state. It comes in a wrapper.
 ! ------------------------------------------------------------------
 
     call ESMF_CplCompGetInternalState ( CC, WRAP, STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     STATE     =>  WRAP%INTERNAL_STATE
 
@@ -567,29 +573,29 @@ contains
 ! Make sure SRC and DST descriptors exist 
 !----------------------------------------
 
-       ASSERT_(associated(STATE%SRC_SPEC))
-       ASSERT_(associated(STATE%DST_SPEC))
+       _ASSERT(associated(STATE%SRC_SPEC),'needs informative message')
+       _ASSERT(associated(STATE%DST_SPEC),'needs informative message')
 
 ! Update accumulators on SRC grid.
 !---------------------------------
 
        call  ACCUMULATE(SRC, STATE, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 ! Periodically transfer accumulators to DST arrays
 !-------------------------------------------------
 
        call  COUPLE    (DST, STATE, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 ! Zero accumulators when next averaging interval starts
 !------------------------------------------------------
 
        call ZERO_CLEAR_COUNT(STATE, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   contains
 
@@ -629,7 +635,7 @@ contains
 !---------------------------
 
        call MAPL_VarSpecGet(STATE%SRC_SPEC(J), SHORT_NAME=NAME, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        DIMS = STATE%ACCUM_RANK(J)
 
@@ -640,19 +646,19 @@ contains
 
        case(3)
           call MAPL_GetPointer  (SRC, PTR3, NAME,            RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR30,RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           PTR3c => STATE%ARRAY_COUNT(J)%PTR3C
 
           if(.not.associated(PTR3C)) then
              if(  any( PTR3==MAPL_UNDEF ) ) then
                 allocate(PTR3C(size(PTR3,1), size(PTR3,2), size(PTR3,3)),STAT=STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 PTR3C = STATE%ACCUM_COUNT(J)
 !               put it back into array
                 STATE%ARRAY_COUNT(J)%PTR3C => PTR3c
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              end if
           end if
 
@@ -685,19 +691,19 @@ contains
 
        case(2)
           call MAPL_GetPointer  (SRC, PTR2, NAME,            RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR20,RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           PTR2c => STATE%ARRAY_COUNT(J)%PTR2C
 
           if(.not.associated(PTR2C)) then
              if(  any( PTR2==MAPL_UNDEF ) ) then
                 allocate(PTR2C(size(PTR2,1), size(PTR2,2)), STAT=STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 PTR2C = STATE%ACCUM_COUNT(J)
 !               put it back into array
                 STATE%ARRAY_COUNT(J)%PTR2C => PTR2c
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              end if
           end if
 
@@ -728,19 +734,19 @@ contains
 
        case(1)
           call MAPL_GetPointer  (SRC, PTR1, NAME,            RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR10,RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           PTR1c => STATE%ARRAY_COUNT(J)%PTR1C
 
           if(.not.associated(PTR1C)) then
              if(  any( PTR1==MAPL_UNDEF ) ) then
                 allocate(PTR1C(size(PTR1,1)), STAT=STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 PTR1C = STATE%ACCUM_COUNT(J)
 !               put it back into array
                 STATE%ARRAY_COUNT(J)%PTR1C => PTR1c
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              end if
           end if
 
@@ -768,7 +774,7 @@ contains
           endif
 
        case default
-          RETURN_(ESMF_FAILURE)
+          _RETURN(ESMF_FAILURE)
 
        end select
 
@@ -780,7 +786,7 @@ contains
 
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine ACCUMULATE
 
 
@@ -806,11 +812,11 @@ contains
     do J = 1, size(STATE%SRC_SPEC)
 
        RINGING = ESMF_AlarmIsRinging(STATE%TIME_TO_CLEAR(J), RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        
        if (RINGING) then
           call ESMF_AlarmRingerOff(STATE%TIME_TO_CLEAR(J), RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           DIMS = STATE%ACCUM_RANK(J)
 
@@ -821,7 +827,7 @@ contains
 
           case(3)
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR30,RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              if (STATE%couplerType(J) /= MAPL_CplAverage .and. STATE%couplerType(J) /= MAPL_CplAccumulate) then
                 PTR30 = MAPL_UNDEF
              else
@@ -831,7 +837,7 @@ contains
 
           case(2)
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR20,RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              if (STATE%couplerType(J) /= MAPL_CplAverage .and. STATE%couplerType(J) /= MAPL_CplAccumulate) then
                 PTR20 = MAPL_UNDEF
              else
@@ -841,7 +847,7 @@ contains
 
           case(1)
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR10,RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              if (STATE%couplerType(J) /= MAPL_CplAverage .and. STATE%couplerType(J) /= MAPL_CplAccumulate) then
                 PTR10 = MAPL_UNDEF
              else
@@ -850,7 +856,7 @@ contains
              if (associated(STATE%ARRAY_COUNT(J)%PTR1C)) STATE%ARRAY_COUNT(J)%PTR1C = 0
 
           case default
-             RETURN_(ESMF_FAILURE)
+             _RETURN(ESMF_FAILURE)
 
           end select
 
@@ -859,7 +865,7 @@ contains
        end if
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine ZERO_CLEAR_COUNT
 
 
@@ -892,14 +898,14 @@ contains
 
        couplerType = state%couplerType(J)
        RINGING = ESMF_AlarmIsRinging(STATE%TIME_TO_COUPLE(J), RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        
        if (RINGING) then
 
           call ESMF_AlarmRingerOff(STATE%TIME_TO_COUPLE(J), RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MAPL_VarSpecGet(STATE%DST_SPEC(J), SHORT_NAME=NAME, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           DIMS = STATE%ACCUM_RANK(J)
 
@@ -910,9 +916,9 @@ contains
 
           case(3)
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR30,RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MAPL_GetPointer  (DST, PTR3, NAME,            RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              PTR3c => STATE%ARRAY_COUNT(J)%PTR3C
              if(associated(PTR3C)) then
                 if (couplerType /= MAPL_CplAccumulate) then
@@ -944,9 +950,9 @@ contains
 
           case(2)
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR20,RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MAPL_GetPointer  (DST, PTR2, NAME,            RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              PTR2c => STATE%ARRAY_COUNT(J)%PTR2C
              if(associated(PTR2C)) then
                 if (couplerType /= MAPL_CplAccumulate) then
@@ -978,9 +984,9 @@ contains
 
           case(1)
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR10,RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MAPL_GetPointer  (DST, PTR1, NAME,            RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              PTR1c => STATE%ARRAY_COUNT(J)%PTR1C
              if(associated(PTR1C)) then
                 if (couplerType /= MAPL_CplAccumulate) then
@@ -1011,7 +1017,7 @@ contains
              PTR1 = PTR10
 
           case default
-             RETURN_(ESMF_FAILURE)
+             _RETURN(ESMF_FAILURE)
 
           end select
 
@@ -1022,7 +1028,7 @@ contains
 
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine COUPLE
 
  end subroutine Run
@@ -1070,19 +1076,19 @@ contains
 
     IAm = "MAPL_GenericCplCompFinalize"
     call ESMF_CplCompGet( CC, NAME=COMP_NAME, RC=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     Iam = trim(COMP_NAME) // Iam
 
 ! Retrieve the pointer to the internal state. It comes in a wrapper.
 ! ------------------------------------------------------------------
 
     call ESMF_CplCompGetInternalState ( CC, WRAP, STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     STATE     =>  WRAP%INTERNAL_STATE
 
 
     call write_parallel('STUBBED in CPL finalize')
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine Finalize
 end module MAPL_GenericCplCompMod

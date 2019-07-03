@@ -1,3 +1,4 @@
+add_definitions(-DUSE_MPI)
 set (TEST_SRCS
     Test_UnlimitedEntity.F90
     Test_LocalMemReference.F90
@@ -58,6 +59,7 @@ ecbuild_add_executable (
   LIBS pFIO_tests ${ESMF_LIBRARIES}
   DEFINITIONS USE_MPI PFUNIT_EXTRA_INITIALIZE=pFIO_Initialize)
 set_target_properties(${EXE} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
+target_link_libraries(${EXE} pFIO_tests ${ESMF_LIBRARIES})
 
 
 set(MPI_NPES 8)
@@ -78,6 +80,7 @@ ecbuild_add_executable (
   LIBS GMAO_pFIO ${ESMF_LIBRARIES}
   DEFINITIONS USE_MPI)
 set_target_properties(${TESTO} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
+target_link_libraries(${TESTO} GMAO_pFIO ${ESMF_LIBRARIES})
 
 
 
@@ -103,6 +106,7 @@ ecbuild_add_executable (
   DEFINITIONS USE_MPI
   LIBS GMAO_pFIO ${ESMF_LIBRARIES})
 set_target_properties(${TESTPERF} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
+target_link_libraries(${TESTPERF} GMAO_pFIO ${ESMF_LIBRARIES})
 
 add_dependencies(tests ${EXE})
 add_dependencies(tests ${TESTO})

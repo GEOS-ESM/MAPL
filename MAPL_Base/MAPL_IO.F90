@@ -1,7 +1,7 @@
 !  $Id$
 
 #include "MAPL_ErrLog.h"
-#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;VERIFY_(STATUS);NULLIFY(A);endif
+#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
 
 !BOP
 
@@ -17,91 +17,38 @@ module MAPL_IOMod
   use MAPL_CommsMod
   use MAPL_SortMod
   use MAPL_ShmemMod
+  use MAPL_RangeMod
+  use MAPL_ErrorHandlingMod
   use netcdf
+  use pFIO_CoordinateVariableMod
+  use pFIO_ConstantsMod
+  use pFIO_FileMetadataMod
+  use pFIO_ClientManagerMod
+  use pFIO_NetCDF4_FileFormatterMod
+  use pFIO_AttributeMod
+  use pFIO_StringAttributeMapMod
+  use pFIO_VariableMod
+  use pFIO_StringVariableMapMod
+  use pFIO_StringVectorMod
+  use pFIO_StringIntegerMapMod
+  use pFIO_StringVariableMapMod
+  use pFIO_ArrayReferenceMod
+  use pFIO_LocalMemReferenceMod
+  use pFIO_UtilitiesMod, only: i_to_string
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
-
   implicit none
   private
 
-  type NCIO_Var
-     character(len=ESMF_MAXSTR)      :: Name
-     integer                    :: VarId
-     integer                    :: ndims ! total number of dimensions
-     integer, allocatable       :: dimids(:) ! this is the number of the NCIO_Dim dimension (it might not be the same as the acutal dimid returned by netcdf)
-     character(len=ESMF_MAXSTR) :: long_name
-     character(len=ESMF_MAXSTR) :: units
-     integer                    :: spatialDims ! number of non-time dimensions
-     integer                    :: ncDataType
-  end type NCIO_Var
-
-  type NCIO_Dim
-     character(len=ESMF_MAXSTR)       :: Name
-     integer                     :: len
-     integer                     :: dimid ! this is the actual dimid returned by netcdf
-     integer                     :: varid
-     integer                     :: dimType
-     integer                     :: ncDataType
-     logical                     :: hasVar
-     real(ESMF_KIND_R4), allocatable :: dimPtrR4(:)
-     real(ESMF_KIND_R8), allocatable :: dimPtrR8(:)
-     integer,            allocatable :: dimPtrI4(:)
-     character(len=ESMF_MAXSTR)  :: units
-     character(len=ESMF_MAXSTR)  :: long_name
-     character(len=ESMF_MAXSTR)  :: standard_name
-     character(len=ESMF_MAXSTR)  :: coordinate
-     character(len=ESMF_MAXSTR)  :: formulaTerms
-     character(len=ESMF_MAXSTR)  :: positive
-  end type NCIO_Dim
-
-  type MAPL_NCIO
-    character(len=ESMF_MAXSTR)     :: name
-    character(len=ESMF_MAXPATHLEN) :: filename
-    integer                        :: ncid
-    integer                        :: nVars    ! number of variables on file
-    integer                        :: nDimVars ! number of dimension variables
-    integer                        :: nDims    ! number of dimensions defined on file
-    integer                        :: gridType
-    integer                        :: date
-    integer                        :: time
-    integer                        :: time_increment = -999
-    type (NCIO_Var), allocatable :: vars(:)
-    type (NCIO_Dim), allocatable :: dims(:)
-    logical                        :: isOpen = .false.
-    logical                        :: fparallel
-  end type MAPL_NCIO
-
-  integer, public, parameter :: MAPL_NCIODimLon = 0
-  integer, public, parameter :: MAPL_NCIODimLat = 1
-  integer, public, parameter :: MAPL_NCIODimLev = 2
-  integer, public, parameter :: MAPL_NCIODimEdge = 3
-  integer, public, parameter :: MAPL_NCIODimTime = 4
-  integer, public, parameter :: MAPL_NCIODimTile = 5
-  integer, public, parameter :: MAPL_NCIODimSubTile = 6
-  integer, public, parameter :: MAPL_NCIODimExtraDim =7
-  integer, public, parameter :: MAPL_NCIODimUnknown = 8
-
-  integer, parameter :: MAPL_NCIOGridUnknown = 0
-  integer, parameter :: MAPL_NCIOGridLL = 1
-  integer, parameter :: MAPL_NCIOGridCS = 2
-  integer, parameter :: MAPL_NCIOGridTile = 3
-
   ! public types
-  public MAPL_NCIO
-  ! public routines
-  public MAPL_NCIOOpen
-  public MAPL_NCIOClose
-  public MAPL_NCIOCreateFile
-  public MAPL_NCIOChangeRes
-  public MAPL_NCIOSet
-  public MAPL_NCIOAddVar
-  public MAPL_NCIOAddDim
-  public MAPL_NCIOVarGetDims
-  public MAPL_NCIOGetDimSizes
+  public MAPL_IOChangeRes
+  public MAPL_IOCountNonDimVars
+  public MAPL_IOGetNonDimVars
+  public MAPL_IOCountLevels
+  public MAPL_IOGetTime
   public MAPL_NCIOGetFileType
-  public MAPL_NCIOGetVarid
-  public MAPL_NCIOGetVarName
   public MAPL_NCIOParseTimeUnits
+  ! public routines
 
   ! public routines
   public GETFILEUNIT
@@ -119,6 +66,7 @@ module MAPL_IOMod
   public ArrDescr
   public ArrDescrSet
   public ArrDescrInit
+  public get_fname_by_face
   public MAPL_TileMaskGet
   public MAPL_VarReadNCPar
   public MAPL_VarWriteNCPar
@@ -259,15 +207,24 @@ module MAPL_IOMod
   type ArrDescr
      integer(kind=MPI_OFFSET_KIND) :: offset
      character(len=MPI_MAX_INFO_VAL) :: romio_cb_read,cb_buffer_size,romio_cb_write
-     integer :: Xcomm, Ycomm
+     integer :: Xcomm, Ycomm, NX0, NY0
      integer :: readers_comm, IOscattercomm
      integer :: writers_comm, IOgathercomm
+     integer :: face_writers_comm
+     integer :: face_readers_comm
+     integer :: face_index
+     logical :: write_restart_by_face = .false.
+     logical :: read_restart_by_face = .false.
      integer, pointer :: i1(:), in(:), j1(:), jn(:)
      integer :: im_world, jm_world, lm_world
      type (ESMF_Grid) :: grid
      logical :: tile
      integer :: num_readers = 1
      integer :: num_writers = 1
+     ! only used when writing though o_server
+     logical :: write_restart_by_oserver = .false.
+     integer :: collection_id = -1
+     character(LEN=ESMF_MAXSTR) :: filename
   end type ArrDescr
 
 !#define TIME_MPIIO
@@ -303,13 +260,12 @@ module MAPL_IOMod
          integer, allocatable :: iminw(:),imaxw(:),jminw(:),jmaxw(:)
          integer :: imincnt,jmincnt,imaxcnt,jmaxcnt,i
 
-         character(len=ESMF_MAXSTR) :: Iam
          integer :: status
 
          call MPI_Comm_Rank(comm,myid,status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          call MPI_COMM_Size(comm,npes,status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
 
          allocate(iminw(npes),imaxw(npes),jminw(npes),jmaxw(npes),stat=status)
          iminw=-1
@@ -320,10 +276,10 @@ module MAPL_IOMod
          imaxw(myid+1)=ie
          jminw(myid+1)=js
          jmaxw(myid+1)=je
-         call MPI_AllReduce(MPI_IN_PLACE,iminw,npes,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,status)
-         call MPI_AllReduce(MPI_IN_PLACE,imaxw,npes,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,status)
-         call MPI_AllReduce(MPI_IN_PLACE,jminw,npes,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,status)
-         call MPI_AllReduce(MPI_IN_PLACE,jmaxw,npes,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,status)
+         call MPI_AllReduce(MPI_IN_PLACE,iminw,npes,MPI_INTEGER,MPI_MAX,comm,status)
+         call MPI_AllReduce(MPI_IN_PLACE,imaxw,npes,MPI_INTEGER,MPI_MAX,comm,status)
+         call MPI_AllReduce(MPI_IN_PLACE,jminw,npes,MPI_INTEGER,MPI_MAX,comm,status)
+         call MPI_AllReduce(MPI_IN_PLACE,jmaxw,npes,MPI_INTEGER,MPI_MAX,comm,status)
 
          call MAPL_Sort(iminw)
          call MAPL_Sort(imaxw)
@@ -363,13 +319,13 @@ module MAPL_IOMod
          NY0 = myid/nx + 1
          color = nx0
          call MPI_Comm_Split(comm,color,myid,ycomm,status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          color = ny0
          call MPI_Comm_Split(comm,color,myid,xcomm,status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          ! reader communicators
          if (num_readers > ny .or. mod(ny,num_readers) /= 0) then
-            RETURN_(ESMF_FAILURE)
+            _RETURN(ESMF_FAILURE)
          end if
          ny_by_readers = ny/num_readers
          if (mod(myid,nx*ny/num_readers) ==0) then
@@ -378,17 +334,17 @@ module MAPL_IOMod
             color = MPI_UNDEFINED
          end if
          call MPI_COMM_SPLIT(comm,color,myid,readers_comm,status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          if (num_readers==ny) then
             IOscattercomm = xcomm
          else
             j = ny0 - mod(ny0-1,ny_by_readers)
             call MPI_Comm_Split(comm,j,myid,IOScattercomm,status)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
          endif
          ! writer communicators
          if (num_writers > ny .or. mod(ny,num_writers) /= 0) then
-            RETURN_(ESMF_FAILURE)
+            _RETURN(ESMF_FAILURE)
          end if
          ny_by_writers = ny/num_writers
          if (mod(myid,nx*ny/num_writers) ==0) then
@@ -397,13 +353,13 @@ module MAPL_IOMod
             color = MPI_UNDEFINED
          end if
          call MPI_COMM_SPLIT(comm,color,myid,writers_comm,status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          if (num_writers==ny) then
             IOgathercomm = xcomm
          else
             j = ny0 - mod(ny0-1,ny_by_writers)
             call MPI_Comm_Split(comm,j,myid,IOgathercomm,status)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
          endif
 
          ArrDes%im_world=im_world
@@ -417,19 +373,19 @@ module MAPL_IOMod
          ArrDes%ycomm = ycomm
 
          allocate(arrdes%i1(size(i1)),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          arrdes%i1=i1
          allocate(arrdes%in(size(in)),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          arrdes%in=in
          allocate(arrdes%j1(size(j1)),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          arrdes%j1=j1
          allocate(arrdes%jn(size(jn)),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          arrdes%jn=jn
 
-         RETURN_(ESMF_SUCCESS)
+         _RETURN(ESMF_SUCCESS)
 
       end subroutine ArrDescrInit
 
@@ -574,20 +530,19 @@ module MAPL_IOMod
     INTEGER I
     integer :: DO_OPEN_
     logical :: ALL_PES_
-    character(len=ESMF_MAXSTR)     :: Iam="GETFILE"
     integer          :: status
     
     LOGICAL FILEOPEN, UNITOPEN, FOUND 
 
     if(INDEX(NAME,'*') /= 0) then
         getfile = getfilemem(name,rc=status)
-	VERIFY_(STATUS)
-        RETURN_(ESMF_SUCCESS) 
+	_VERIFY(STATUS)
+        _RETURN(ESMF_SUCCESS) 
     endif
 
     if (NAME == "stdout" .or. NAME== "STDOUT") then
        GETFILE = STD_OUT_UNIT_NUMBER
-       RETURN_(ESMF_SUCCESS) 
+       _RETURN(ESMF_SUCCESS) 
     end if
 
     if (.not. present(DO_OPEN)) then
@@ -603,7 +558,7 @@ module MAPL_IOMod
       
     if (.not. MAPL_AM_I_ROOT() .and. .not. ALL_PES_) then
        GETFILE = UNDEF
-       RETURN_(ESMF_SUCCESS) 
+       _RETURN(ESMF_SUCCESS) 
     end if
 
 !   Check if the file is already open
@@ -631,7 +586,7 @@ module MAPL_IOMod
                 if ( status /= 0 ) then
                    write (0,*) 'ERROR opening "',trim(Name),'" using GETFILE'
                    write (0,*) ' IOSTAT = ',status
-                   RETURN_(ESMF_FAILURE)
+                   _RETURN(ESMF_FAILURE)
                 endif
                
                 GETFILE = I
@@ -648,12 +603,12 @@ module MAPL_IOMod
 !  
        IF ( .NOT. FOUND ) THEN
           WRITE (0,*) ' COULD NOT FIND ANY AVAILABLE UNITS '
-          RETURN_(ESMF_FAILURE)
+          _RETURN(ESMF_FAILURE)
        ENDIF
 
     ENDIF ! the file isnt already open 
 
-    RETURN_(ESMF_SUCCESS) 
+    _RETURN(ESMF_SUCCESS) 
   END FUNCTION GETFILE
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -661,13 +616,12 @@ module MAPL_IOMod
     implicit none
     integer         , intent(out), OPTIONAL :: RC
 
-    character(len=ESMF_MAXSTR)     :: Iam="FREE_FILE"
     integer :: UNIT
 
     if(UNIT < 0) then
 
-      ASSERT_(-UNIT<=LAST_UNIT)
-      ASSERT_(MTAKEN(-UNIT))
+      _ASSERT(-UNIT<=LAST_UNIT, 'illegal io unit')
+      _ASSERT(MTAKEN(-UNIT), 'illegal io unit')
       MEM_units(-unit)%PREVREC=0
 
     ELSE
@@ -678,7 +632,7 @@ module MAPL_IOMod
 
        IF (UNIT.LT.1 .OR. UNIT.GT.LAST_UNIT) THEN
           WRITE (0,*) ' BAD UNIT NUMBER  ZFILCLR  UNIT = ', UNIT
-          RETURN_(ESMF_FAILURE)
+          _RETURN(ESMF_FAILURE)
        ELSE
           TAKEN(UNIT) = .FALSE.
           MTAKEN(UNIT) = .FALSE. 
@@ -687,7 +641,7 @@ module MAPL_IOMod
 
     END IF
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   END SUBROUTINE FREE_FILE
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -728,7 +682,6 @@ module MAPL_IOMod
     character(LEN=*),           intent(in) :: FILE
     character(LEN=*), optional, intent(in) :: FORM
     integer,          optional, intent(in) :: BLOCKSIZE, NUMBUFFERS
-    character(len=ESMF_MAXSTR)     :: Iam="MAPL_OPEN"
     integer          :: status
 
     character(LEN=ESMF_MAXSTR) :: usableFORM
@@ -748,9 +701,9 @@ module MAPL_IOMod
     end if
 
     open(UNIT,FILE=FILE,FORM=usableFORM,IOSTAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_OPEN
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -865,7 +818,6 @@ module MAPL_IOMod
     type (ESMF_Grid)                     :: grid
     integer                              :: status
     integer                              :: I
-    character(len=ESMF_MAXSTR)           :: IAm='MAPL_StateVarRead'
     integer                              :: ITEMCOUNT
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
     character(len=ESMF_MAXSTR ), pointer :: ITEMNAMES(:)
@@ -878,6 +830,7 @@ module MAPL_IOMod
     integer                            :: dna
     logical                            :: ignoreEOF
     logical                            :: bootstrapable_
+    logical                            :: isPresent
 
     integer, allocatable :: orderlist(:)
     integer :: jj
@@ -886,41 +839,41 @@ module MAPL_IOMod
     integer                                 :: natt
     
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    ASSERT_(ITEMCOUNT>0)
+    _ASSERT(ITEMCOUNT>0, 'itemcount must be > 0')
 
     allocate(ITEMNAMES(ITEMCOUNT),STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(ITEMTYPES(ITEMCOUNT),STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(     DOIT(ITEMCOUNT),STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_StateGet(STATE,ITEMNAMELIST=ITEMNAMES,&
                        ITEMTYPELIST=ITEMTYPES,RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if(present(NAME)) then
        DOIT = ITEMNAMES==NAME
-       ASSERT_(count(DOIT)/=0)
+       _ASSERT(count(DOIT)/=0, 'cont(doit) must be > 0')
     else
        DOIT = .true.
     endif
 
     attrName = MAPL_StateItemOrderList
     call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    ASSERT_(natt > 0)
+    _ASSERT(natt > 0, 'natt not > 0')
     allocate(orderlist(natt), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(currList(natt), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     ! get the current list
     call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     orderList = -1 ! not found
     do i = 1, natt
@@ -953,11 +906,15 @@ module MAPL_IOMod
 
           if (ITEMTYPES(I) == ESMF_StateItem_FieldBundle) then
              call ESMF_StateGet(state, itemnames(i), bundle, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              skipReading = .false.
-             call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
-             if (STATUS /= ESMF_SUCCESS) then
+             call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+             _VERIFY(STATUS)
+             if (isPresent) then
+                call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                _VERIFY(STATUS)
+             else
                 RST = MAPL_RestartOptional
              end if
              skipReading = (RST == MAPL_RestartSkip)
@@ -968,22 +925,29 @@ module MAPL_IOMod
              end if
              call MAPL_BundleRead(unit, bundle, arrdes=arrdes, &
                   bootstrapable=bootstrapable_, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
           else if (ITEMTYPES(I) == ESMF_StateItem_Field) then
              call ESMF_StateGet(state, itemnames(i), field, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              skipReading = .false.
-             call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
-             if (STATUS /= ESMF_SUCCESS) then
+             call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+             _VERIFY(STATUS)
+             if (isPresent) then
+                call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                _VERIFY(STATUS)
+             else
                 RST = MAPL_RestartOptional
              end if
              skipReading = (RST == MAPL_RestartSkip)
 
              if (skipReading) cycle
-             call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
-             if (STATUS == ESMF_SUCCESS) then
+             call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
+             _VERIFY(STATUS)
+             if (isPresent) then
+                call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
+                _VERIFY(STATUS)
                 skipReading = (dna /= 0)
              end if
              if (skipReading) cycle
@@ -995,22 +959,22 @@ module MAPL_IOMod
 
              if(.not.associated(MASK)) then
                 call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call ESMF_FieldGet   (field, grid=grid, rc=status)
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
                    call MAPL_TileMaskGet(grid,  mask, rc=status)
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
 !@                else
 !@                   allocate(Mask(1))
                 endif
              endif
       
              call MAPL_FieldRead(unit, field, arrdes=arrdes, HomePE=Mask, ignoreEOF=ignoreEOF, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
 !ALT          else
-!ALT             ASSERT_(.false.)
+!ALT             _ASSERT(.false.,'failed mapl_statevarread')
 
           end if
 
@@ -1026,7 +990,7 @@ module MAPL_IOMod
        DEALOC_(MASK)
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_StateVarRead
 !---------------------------
 
@@ -1040,7 +1004,6 @@ module MAPL_IOMod
 
     integer                            :: status
     integer                            :: J, N, fieldCount
-    character(len=ESMF_MAXSTR)         :: IAm='MAPL_BundleRead'
     type (ESMF_Field)                  :: field
     character(len=ESMF_MAXSTR),allocatable  :: nameList(:)
     character(len=ESMF_MAXSTR)              :: BundleName
@@ -1048,14 +1011,15 @@ module MAPL_IOMod
     logical                            :: ignoreEOF
     logical                            :: skipReading
     logical                            :: bootstrapable_
+    logical                            :: isPresent
 
     call ESMF_FieldBundleGet(bundle, fieldCount=N, name=BundleName, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(namelist(N), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_FieldBundleGet(bundle, fieldNameList=nameList, fieldCount=FieldCount,  rc=STATUS)
-    VERIFY_(STATUS)
-    ASSERT_(N==fieldCount)
+    _VERIFY(STATUS)
+    _ASSERT(N==fieldCount, 'inconsistent fieldCount')
 
     if (present(bootstrapable)) then
        bootstrapable_ = bootstrapable
@@ -1065,10 +1029,14 @@ module MAPL_IOMod
 
     do J = 1, N
        call MAPL_FieldBundleGet(bundle, fieldIndex=J, field=field, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
-       call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
-       if (STATUS /= ESMF_SUCCESS) then
+       call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+       _VERIFY(STATUS)
+       if (isPresent) then
+          call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+          _VERIFY(STATUS)
+       else
           RST = MAPL_RestartOptional
        end if
        skipReading = (RST == MAPL_RestartSkip)
@@ -1080,15 +1048,15 @@ module MAPL_IOMod
        end if
        
        call MAPL_FieldRead(unit, field, arrdes=ARRDES,  ignoreEOF=ignoreEOF, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_BundleRead
 
-  subroutine MAPL_FieldReadNCPar(ncioObj,name,FIELD, ARRDES, HomePE, RC)
-    type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
+  subroutine MAPL_FieldReadNCPar(formatter,name,FIELD, ARRDES, HomePE, RC)
+    type(Netcdf4_Fileformatter) , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     type (ESMF_Field)           , intent(INOUT) :: field
     type(ArrDescr),     optional, intent(INOUT) :: ARRDES
@@ -1112,138 +1080,137 @@ module MAPL_IOMod
     integer                            :: dims
     integer                            :: J, K
     integer, pointer                   :: mask(:)
-    character(len=ESMF_MAXSTR)         :: IAm='MAPL_FieldReadNCPar'
     type (ESMF_DistGrid)               :: distGrid
 
     call ESMF_FieldGet(field, grid=grid, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then
           mask => HomePE
        else
           call MAPL_TileMaskGet(grid, mask, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
     end if
 
     call ESMF_FieldGet(field, Array=array, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_ArrayGet(array, typekind=tk, rank=rank, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (rank == 1) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_1d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(var_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                call MAPL_VarRead(ncioObj, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
-                VERIFY_(STATUS)
+                call MAPL_VarRead(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
+                _VERIFY(STATUS)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
-                call MAPL_VarRead(ncioObj, name, var_1d, layout=layout, arrdes=arrdes, rc=status)
-                VERIFY_(STATUS)
+                call MAPL_VarRead(formatter, name, var_1d, layout=layout, arrdes=arrdes, rc=status)
+                _VERIFY(STATUS)
              else 
-                RETURN_(ESMF_FAILURE)
+                _RETURN(ESMF_FAILURE)
              endif
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_1d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(vr8_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                call MAPL_VarRead(ncioObj, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
-                VERIFY_(STATUS)
+                call MAPL_VarRead(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
+                _VERIFY(STATUS)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
-                call MAPL_VarRead(ncioObj, name, vr8_1d, layout=layout, arrdes=arrdes, rc=status)
-                VERIFY_(STATUS)
+                call MAPL_VarRead(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, rc=status)
+                _VERIFY(STATUS)
              else 
-                RETURN_(ESMF_FAILURE)
+                _RETURN(ESMF_FAILURE)
              endif
           end if
        end if
     else if (rank == 2) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_2d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(var_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
                 do J = 1,size(var_2d,2)
-                   call MAPL_VarRead(ncioObj, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
-                   VERIFY_(STATUS)
+                   call MAPL_VarRead(formatter, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                   _VERIFY(STATUS)
                 end do
              else if (DIMS == MAPL_DimsTileTile) then
                 do j=1,size(var_2d,2)
-                   call MAPL_VarRead(ncioObj, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
-                   VERIFY_(STATUS)
+                   call MAPL_VarRead(formatter, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                   _VERIFY(STATUS)
                 enddo
              else
-                call MAPL_VarRead(ncioObj, name, var_2d, arrdes=arrdes, rc=status)
-                VERIFY_(STATUS)
+                call MAPL_VarRead(formatter, name, var_2d, arrdes=arrdes, rc=status)
+                _VERIFY(STATUS)
              end if
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_2d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
                 do J = 1,size(vr8_2d,2)
-                   call MAPL_VarRead(ncioObj, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                   call MAPL_VarRead(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                 end do
              else if (DIMS == MAPL_DimsTileTile) then
                 do j=1,size(var_2d,2)
-                   call MAPL_VarRead(ncioObj, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
-                   VERIFY_(STATUS)
+                   call MAPL_VarRead(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                   _VERIFY(STATUS)
                 enddo
              else
-                call MAPL_VarRead(ncioObj, name, vr8_2d, arrdes=arrdes, rc=status)
-                VERIFY_(STATUS)
+                call MAPL_VarRead(formatter, name, vr8_2d, arrdes=arrdes, rc=status)
+                _VERIFY(STATUS)
              end if
           end if
        endif
     else if (rank == 3) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_3d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(var_3d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
                 do J = 1,size(var_3d,2)
                    do K = 1,size(var_3d,3)
-                      call MAPL_VarRead(ncioObj, name, var_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, offset1=j, &
+                      call MAPL_VarRead(formatter, name, var_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, offset1=j, &
                            & offset2=k, rc=status)
                    end do
                 end do
              else
-                call MAPL_VarRead(ncioObj, name, var_3d, arrdes=arrdes, rc=status)
+                call MAPL_VarRead(formatter, name, var_3d, arrdes=arrdes, rc=status)
              end if
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_3d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(vr8_3d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
                 do J = 1,size(vr8_3d,2)
                    do K = 1,size(vr8_3d,3)
-                      call MAPL_VarRead(ncioObj, name, vr8_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
+                      call MAPL_VarRead(formatter, name, vr8_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
                            & offset1=j, offset2=k, rc=status)
                    end do
                 end do
              else
-                call MAPL_VarRead(ncioObj, name, vr8_3d, arrdes=arrdes, rc=status)
+                call MAPL_VarRead(formatter, name, vr8_3d, arrdes=arrdes, rc=status)
              end if
           end if
        endif
     else
        print *, "ERROR: unsupported RANK"
-       RETURN_(ESMF_FAILURE)
+       _RETURN(ESMF_FAILURE)
     endif
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(.not.present(HomePE)) then
@@ -1251,7 +1218,7 @@ module MAPL_IOMod
        end if
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldReadNCPar
 
 
@@ -1283,7 +1250,6 @@ module MAPL_IOMod
     integer                            :: dims
     integer                            :: J, K
     integer, pointer                   :: mask(:)
-    character(len=ESMF_MAXSTR)         :: IAm='MAPL_FieldRead'
     type (ESMF_DistGrid)               :: distGrid
     integer                            :: stat
     logical                            :: ignoreEOF_
@@ -1301,11 +1267,11 @@ module MAPL_IOMod
     end if
 
     call ESMF_FieldGet(field, grid=grid, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (ignoreEOF_ .and. (unit > 0)) then
        ! test for end-of-file by 
@@ -1315,64 +1281,64 @@ module MAPL_IOMod
           read (UNIT, IOSTAT=status)
        end if
        call MAPL_CommsBcast(layout, status, n=1, ROOT=MAPL_Root, rc=stat)
-       VERIFY_(STAT)
+       _VERIFY(STAT)
 
        if (status == IOSTAT_END) then
-          RETURN_(ESMF_SUCCESS)
+          _RETURN(ESMF_SUCCESS)
        end if
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call MAPL_Backspace(UNIT, layout, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
     call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then
           mask => HomePE
        else
           call MAPL_TileMaskGet(grid, mask, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
     end if
 
     call ESMF_FieldGet(field, Array=array, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_ArrayGet(array, typekind=tk, rank=rank, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (rank == 1) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_1d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(var_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                 call MAPL_VarRead(unit, grid, var_1d, arrdes=arrdes, mask=mask, rc=status)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call READ_PARALLEL(layout, var_1d, unit, arrdes=arrdes, rc=status)
              else 
-                RETURN_(ESMF_FAILURE)
+                _RETURN(ESMF_FAILURE)
              endif
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_1d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(vr8_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                 call MAPL_VarRead(unit, grid, vr8_1d, arrdes=arrdes, mask=mask, rc=status)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call READ_PARALLEL(layout, vr8_1d, unit, arrdes=arrdes, rc=status)
              else 
-                RETURN_(ESMF_FAILURE)
+                _RETURN(ESMF_FAILURE)
              endif
           end if
        end if
     else if (rank == 2) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_2d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(var_2d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call READ_PARALLEL(layout, &
@@ -1391,7 +1357,7 @@ module MAPL_IOMod
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_2d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call READ_PARALLEL(layout, &
@@ -1412,7 +1378,7 @@ module MAPL_IOMod
     else if (rank == 3) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_3d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(var_3d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call READ_PARALLEL(layout, &
@@ -1431,7 +1397,7 @@ module MAPL_IOMod
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_3d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(vr8_3d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call READ_PARALLEL(layout, &
@@ -1452,18 +1418,18 @@ module MAPL_IOMod
     else if (rank == 4) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MAPL_VarRead(unit, grid, var_4d, rc=status)
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_4d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MAPL_VarRead(unit, grid, vr8_4d, rc=status)
        end if
     else
        print *, "ERROR: unsupported RANK"
-       RETURN_(ESMF_FAILURE)
+       _RETURN(ESMF_FAILURE)
     endif
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(.not.present(HomePE)) then
@@ -1471,7 +1437,7 @@ module MAPL_IOMod
        end if
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldRead
 
 !---------------------------
@@ -1492,7 +1458,6 @@ module MAPL_IOMod
     integer                               :: DIMS(ESMF_MAXGRIDDIM)
     type (ESMF_DELayout)                  :: layout
     type (ESMF_DistGrid)                  :: distgrid
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarRead_R4_1d'
     integer, allocatable                  :: msk(:), sendcounts(:), displs(:)
     integer, allocatable                  :: idx(:)
     integer                               :: nrdrs, mype,  npes, recvcount
@@ -1517,24 +1482,24 @@ module MAPL_IOMod
     logical :: amIRoot
 
     if(present(arrdes)) then
-       ASSERT_(present(mask))
+       _ASSERT(present(mask), 'mask must be present if arrdes is present')
 
        IM_WORLD = arrdes%im_world
 
        call mpi_comm_size(arrdes%ioscattercomm,npes ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%readers_comm,mypeRd ,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call mpi_comm_size(arrdes%readers_comm,nrdrs,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
           mypeRd = -1
        endif
        call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call MAPL_CommsBcast(layout, nrdrs, 1, 0, rc = status)
 
        Rsize = im_world/nrdrs + 1
@@ -1550,13 +1515,13 @@ module MAPL_IOMod
 #endif
 
        allocate(VAR(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(msk(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (sendcounts(0:npes-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (r2g(0:nrdrs-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           if(arrdes%offset<=0) then
@@ -1568,20 +1533,20 @@ module MAPL_IOMod
           loffset = offset + (first-1)*4
           cnt = Rsize
           call MPI_FILE_READ_AT_ALL(UNIT, loffset, VAR, cnt, MPI_REAL, mpistatus, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GET_COUNT( mpistatus, MPI_REAL, numread, STATUS )
-          VERIFY_(STATUS)
-          ASSERT_(cnt == numread)
+          _VERIFY(STATUS)
+          _ASSERT(cnt == numread, 'inconsistent numread')
 #ifdef DEBUG_MPIIO
           write(*,'(3i,1f)') IM_WORLD, loffset, numread, VAR(1)
 #endif
 
-          ASSERT_( (lbound(mask,1) <= first) )
-          ASSERT_( (ubound(mask,1) >= last ) )
+          _ASSERT( (lbound(mask,1) <= first), 'location not in bounds')
+          _ASSERT( (ubound(mask,1) >= last ), 'location not in bounds')
           msk = mask(first:last)
 
           allocate(idx(Rsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           do i=1,Rsize
              idx(i) = i
@@ -1595,25 +1560,25 @@ module MAPL_IOMod
        endif
 
        call mpi_comm_rank(arrdes%ioscattercomm,mype ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call MPI_COMM_GROUP (arrdes%ioscattercomm, GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 #if 1
        if (arrdes%readers_comm /= MPI_COMM_NULL) then
           allocate(rpes(0:nrdrs-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           call MPI_COMM_GROUP (arrdes%readers_comm, NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           do n=0,nrdrs-1
              rpes(n) = n
           end do
           call MPI_Group_translate_ranks(newgroup, nrdrs, rpes, group, r2g, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
@@ -1647,11 +1612,11 @@ module MAPL_IOMod
              nactive = nactive + 1
           end if
           allocate (activeranks(0:nactive-1), activesendcounts(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(pes(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate (displs(0:nactive), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           k = 0
           do i=0, npes-1
              if (sendcounts(i) > 0) then
@@ -1661,18 +1626,18 @@ module MAPL_IOMod
           enddo
           if (k /= nactive) then
              k = k+1
-             ASSERT_(k == nactive)
-             ASSERT_(sendcounts(r2g(n)) == 0)
+             _ASSERT(k == nactive, 'inconsistent nactive')
+             _ASSERT(sendcounts(r2g(n)) == 0, 'sendcounts should be 0')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_COMM_CREATE(arrdes%ioscattercomm, newgroup, thiscomm, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_Group_translate_ranks(group, nactive, pes, newgroup, activeranks, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           if (thiscomm /= MPI_COMM_NULL) then
              activesendcounts = 0
@@ -1706,9 +1671,9 @@ module MAPL_IOMod
                                    a(offset),   recvcount,  MPI_REAL, &
                                    ntransl, thiscomm,    status )
              endif
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_Comm_Free(thiscomm, status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              offset = offset + recvcount
           end if
           deallocate (displs)
@@ -1718,9 +1683,9 @@ module MAPL_IOMod
        enddo
 
        call MPI_Barrier(arrdes%ioscattercomm, status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call MPI_GROUP_FREE (GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate(var,msk)
        deallocate (r2g)
        deallocate(sendcounts)
@@ -1730,22 +1695,22 @@ module MAPL_IOMod
 
     elseif(unit < 0) then
 
-       ASSERT_(-UNIT<=LAST_UNIT)
+       _ASSERT(-UNIT<=LAST_UNIT, 'illegal unit')
        munit => MEM_units(-unit)
        munit%prevrec = munit%prevrec + 1
-       ASSERT_(associated(munit%Records(munit%prevrec)%R4_1))
-       ASSERT_(size(A)==size(munit%Records(munit%prevrec)%R4_1))
+       _ASSERT(associated(munit%Records(munit%prevrec)%R4_1), 'unassociated pointer')
+       _ASSERT(size(A)==size(munit%Records(munit%prevrec)%R4_1), 'inconsistent array size')
        A = munit%Records(munit%prevrec)%R4_1
 
     else
 
        call MAPL_GridGet(grid, globalCellCountPerDim=DIMS, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        amIRoot = MAPL_am_i_root(layout)
        IM_WORLD = DIMS(1)
@@ -1753,35 +1718,35 @@ module MAPL_IOMod
        if (.not. MAPL_ShmInitialized) then
           if (amIRoot) then
              allocate(VAR(IM_WORLD), stat=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           else
              allocate(VAR(0), stat=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           end if
        else
           call MAPL_AllocNodeArray(var,(/IM_WORLD/),rc=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
 
        if (amIRoot) then
           read (UNIT, IOSTAT=status) VAR
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
 
        if (.not. MAPL_ShmInitialized) then
           call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
     
           deallocate(VAR)
        else
           call ArrayScatterShm(A, VAR, grid, mask=mask, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MAPL_DeAllocNodeArray(VAR,rc=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
     end if
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_1d
 
 !---------------------------
@@ -1805,7 +1770,6 @@ module MAPL_IOMod
     integer                               :: DIMS(ESMF_MAXGRIDDIM)
     type (ESMF_DELayout)                  :: layout
     type (ESMF_DistGrid)                  :: distGRID
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarRead_R4_2d'
 
     real(kind=ESMF_KIND_R4),  allocatable :: buf(:)
     integer                               :: I,J,N,K,L,myrow,myiorank,ndes_x
@@ -1823,9 +1787,9 @@ module MAPL_IOMod
 
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   itime_beg = MPI_Wtime(STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 #endif
 
     if(present(arrdes)) then
@@ -1850,15 +1814,15 @@ module MAPL_IOMod
        JM_WORLD = arrdes%jm_world
 
        call mpi_comm_rank(arrdes%ycomm,myrow,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_rank(arrdes%ioscattercomm,myiorank,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_size(arrdes%ioscattercomm,num_io_rows,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -1876,9 +1840,9 @@ module MAPL_IOMod
              jsize=jsize + (arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(buf(IM_WORLD*jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           if(arrdes%offset<=0) then
              offset = 4 
@@ -1889,10 +1853,10 @@ module MAPL_IOMod
           offset = offset + (arrdes%j1(myrow+1)-1)*IM_WORLD*4
           cnt = IM_WORLD*jsize
           call MPI_FILE_READ_AT_ALL(UNIT, offset, VAR, cnt, MPI_REAL, mpistatus, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GET_COUNT( mpistatus, MPI_REAL, numread, STATUS ) 
-          VERIFY_(STATUS)
-          ASSERT_(cnt == numread)
+          _VERIFY(STATUS)
+          _ASSERT(cnt == numread, 'inconsistent numread')
           offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*4
 
           arrdes%offset = offset + IM_WORLD*JM_WORLD*4 + 8
@@ -1921,91 +1885,91 @@ module MAPL_IOMod
 !DSK avoid "Attempt to fetch from allocatable variable BUF when it is not allocated"
        if(myiorank/=0) then
           allocate(buf(0), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
 
        call mpi_scatterv( buf, sendcounts, displs, MPI_REAL, &
             a,  size(a),  MPI_REAL, &
             0, arrdes%ioscattercomm, status )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then 
           deallocate(VAR, stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 !          deallocate(buf, stat=status)
-!          VERIFY_(STATUS)
+!          _VERIFY(STATUS)
        endif
        deallocate(buf, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate (sendcounts, displs, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        end if
 
     elseif(unit < 0) then
 
-      ASSERT_(-UNIT<=LAST_UNIT)
+      _ASSERT(-UNIT<=LAST_UNIT, 'illegal unit')
       munit => MEM_units(-unit)
       munit%prevrec = munit%prevrec + 1
-      ASSERT_(associated(munit%Records(munit%prevrec)%R4_2))
-      ASSERT_(size(A)==size(munit%Records(munit%prevrec)%R4_2))
+      _ASSERT(associated(munit%Records(munit%prevrec)%R4_2), 'pointer not associated')
+      _ASSERT(size(A)==size(munit%Records(munit%prevrec)%R4_2), 'inconsistent array size')
       A = munit%Records(munit%prevrec)%R4_2
 
     else
 
     call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     IM_WORLD = DIMS(1)
     JM_WORLD = DIMS(2)
     if (present(MASK)) JM_WORLD=size(A,2)
 
     call ESMF_GridGet(grid, distGrid=distGrid, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     am_i_root = MAPL_am_i_root(layout)
     if (am_i_root) then
        allocate(VAR(IM_WORLD,JM_WORLD), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        read (UNIT, IOSTAT=status) VAR
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     else
        allocate(VAR(0,JM_WORLD), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
     if (MAPL_ShmInitialized .and. present(mask)) then
        call MAPL_AllocNodeArray(var1d,(/IM_WORLD/),rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        do j=1,JM_WORLD
           if (am_i_root) then
              var1d = var(:,j)
           end if
           call ArrayScatterShm(A(:,j), VAR1d, grid, mask=mask, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end do
        call MAPL_DeAllocNodeArray(VAR1d,rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
     else
        call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
     deallocate(VAR)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     END IF
 
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   itime_end = MPI_Wtime(STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   bwidth = REAL(IM_WORLD*JM_WORLD*4/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_ioread_bandwidth) peak_ioread_bandwidth = bwidth
@@ -2016,7 +1980,7 @@ module MAPL_IOMod
   endif
 #endif
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_2d
 
 !---------------------------
@@ -2031,16 +1995,15 @@ module MAPL_IOMod
 ! Local variables
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarRead_R4_3d'
 
     integer :: L
 
     do L = 1, size(A,3)
        call MAPL_VarRead(UNIT, GRID, A(:,:,L), ARRDES=arrdes, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_3d
   
 !---------------------------
@@ -2055,16 +2018,15 @@ module MAPL_IOMod
 ! Local variables
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarRead_R4_4d'
 
     integer :: L
 
     do L = 1, size(A,4)
        call MAPL_VarRead(UNIT, GRID, A(:,:,:,L), ARRDES=arrdes, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_4d
   
 !---------------------------
@@ -2084,7 +2046,6 @@ module MAPL_IOMod
     integer                               :: DIMS(ESMF_MAXGRIDDIM)
     type (ESMF_DELayout)                  :: layout
     type (ESMF_DistGrid)                  :: distGRID
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarRead_R8_1d'
     integer, allocatable                  :: msk(:), sendcounts(:), displs(:)
     integer, allocatable                  :: idx(:)
     integer                               :: nrdrs, mype,  npes, recvcount
@@ -2108,24 +2069,24 @@ module MAPL_IOMod
     integer :: cnt
 
     if(present(arrdes)) then
-       ASSERT_(present(mask))
+       _ASSERT(present(mask), 'mask must be present if arrdes is present')
 
        IM_WORLD = arrdes%im_world
 
        call mpi_comm_size(arrdes%ioscattercomm,npes ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%readers_comm,mypeRd ,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call mpi_comm_size(arrdes%readers_comm,nrdrs,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
           mypeRd = -1
        endif
        call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call MAPL_CommsBcast(layout, nrdrs, 1, 0, rc = status)
 
        Rsize = im_world/nrdrs + 1
@@ -2141,13 +2102,13 @@ module MAPL_IOMod
 #endif
 
        allocate(VAR(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(msk(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (sendcounts(0:npes-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (r2g(0:nrdrs-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           if(arrdes%offset<=0) then
@@ -2160,20 +2121,20 @@ module MAPL_IOMod
           cnt = Rsize
           call MPI_FILE_READ_AT_ALL(UNIT, loffset, VAR, cnt, &
                MPI_DOUBLE_PRECISION, mpistatus, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GET_COUNT( mpistatus, MPI_DOUBLE_PRECISION, numread, STATUS )
-          VERIFY_(STATUS)
-          ASSERT_(cnt == numread)
+          _VERIFY(STATUS)
+          _ASSERT(cnt == numread, 'inconsistent numread')
 #ifdef DEBUG_MPIIO
           write(*,'(3i,1f)') IM_WORLD, loffset, numread, VAR(1)
 #endif
 
-          ASSERT_( (lbound(mask,1) <= first) )
-          ASSERT_( (ubound(mask,1) >= last ) )
+          _ASSERT( (lbound(mask,1) <= first), 'out of bounds' )
+          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
           msk = mask(first:last)
 
           allocate(idx(Rsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           do i=1,Rsize
              idx(i) = i
@@ -2187,25 +2148,25 @@ module MAPL_IOMod
        endif
 
        call mpi_comm_rank(arrdes%ioscattercomm,mype ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call MPI_COMM_GROUP (arrdes%ioscattercomm, GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 #if 1
        if (arrdes%readers_comm /= MPI_COMM_NULL) then
           allocate(rpes(0:nrdrs-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           call MPI_COMM_GROUP (arrdes%readers_comm, NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           do n=0,nrdrs-1
              rpes(n) = n
           end do
           call MPI_Group_translate_ranks(newgroup, nrdrs, rpes, group, r2g, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
@@ -2239,11 +2200,11 @@ module MAPL_IOMod
              nactive = nactive + 1
           end if
           allocate (activeranks(0:nactive-1), activesendcounts(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(pes(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate (displs(0:nactive), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           k = 0
           do i=0, npes-1
              if (sendcounts(i) > 0) then
@@ -2253,18 +2214,18 @@ module MAPL_IOMod
           enddo
           if (k /= nactive) then
              k = k+1
-             ASSERT_(k == nactive)
-             ASSERT_(sendcounts(r2g(n)) == 0)
+             _ASSERT(k == nactive, 'inconsistent nactive')
+             _ASSERT(sendcounts(r2g(n)) == 0, 'sendcounts should be 0')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_COMM_CREATE(arrdes%ioscattercomm, newgroup, thiscomm, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_Group_translate_ranks(group, nactive, pes, newgroup, activeranks, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           if (thiscomm /= MPI_COMM_NULL) then
              activesendcounts = 0
@@ -2300,9 +2261,9 @@ module MAPL_IOMod
                                    a(offset),   recvcount,  MPI_DOUBLE_PRECISION, &
                                    ntransl, thiscomm,    status )
              endif
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_Comm_Free(thiscomm, status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              offset = offset + recvcount
           end if
           deallocate (displs)
@@ -2312,7 +2273,7 @@ module MAPL_IOMod
        enddo
 
        call MPI_GROUP_FREE (GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate(var,msk)
        deallocate (r2g)
        deallocate(sendcounts)
@@ -2322,41 +2283,41 @@ module MAPL_IOMod
 
     elseif(unit < 0) then
 
-       ASSERT_(-UNIT<=LAST_UNIT)
+       _ASSERT(-UNIT<=LAST_UNIT, 'illegal unit')
        munit => MEM_units(-unit)
        munit%prevrec = munit%prevrec + 1
-       ASSERT_(associated(munit%Records(munit%prevrec)%R8_1))
-       ASSERT_(size(A)==size(munit%Records(munit%prevrec)%R8_1))
+       _ASSERT(associated(munit%Records(munit%prevrec)%R8_1), 'pointer not associated')
+       _ASSERT(size(A)==size(munit%Records(munit%prevrec)%R8_1), 'inconsistent array size')
        A = munit%Records(munit%prevrec)%R8_1
 
     else
 
 
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     IM_WORLD = DIMS(1)
 
     allocate(VAR(IM_WORLD), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_GridGet(grid, distGrid=distGrid, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (MAPL_am_i_root(layout)) then
        read (UNIT, IOSTAT=status) VAR
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
     call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     
     deallocate(VAR)
 
     end if
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_1d
 
 !---------------------------
@@ -2380,7 +2341,6 @@ module MAPL_IOMod
     integer                               :: gridRank
     type (ESMF_DELayout)                  :: layout
     type (ESMF_DistGrid)                  :: distGRID
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarRead_R8_2d'
 
     real(kind=ESMF_KIND_R8),  allocatable :: buf(:)
     integer                               :: I,J,N,K,L,myrow,myiorank,ndes_x
@@ -2398,9 +2358,9 @@ module MAPL_IOMod
 #endif
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   itime_beg = MPI_Wtime(STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 #endif
 
     if(present(arrdes)) then
@@ -2424,15 +2384,15 @@ module MAPL_IOMod
        JM_WORLD = arrdes%jm_world
 
        call mpi_comm_rank(arrdes%ycomm,myrow,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_rank(arrdes%ioscattercomm,myiorank,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_size(arrdes%ioscattercomm,num_io_rows,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -2450,9 +2410,9 @@ module MAPL_IOMod
              jsize=jsize + (arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(buf(IM_WORLD*jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           if(arrdes%offset<=0) then
              offset = 4
@@ -2463,10 +2423,10 @@ module MAPL_IOMod
           offset = offset + (arrdes%j1(myrow+1)-1)*IM_WORLD*8
           cnt = IM_WORLD*jsize
           call MPI_FILE_READ_AT_ALL(UNIT, offset, VAR, cnt, MPI_DOUBLE_PRECISION, mpistatus, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GET_COUNT( mpistatus, MPI_DOUBLE_PRECISION, numread, STATUS )
-          VERIFY_(STATUS)
-          ASSERT_(cnt == numread)
+          _VERIFY(STATUS)
+          _ASSERT(cnt == numread, 'inconsistent numread')
           offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*8
 
           arrdes%offset = offset + IM_WORLD*JM_WORLD*8 + 8
@@ -2495,43 +2455,43 @@ module MAPL_IOMod
 !DSK avoid "Attempt to fetch from allocatable variable BUF when it is not allocated"
        if(myiorank/=0) then
           allocate(buf(0), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
 
        call mpi_scatterv( buf, sendcounts, displs, MPI_DOUBLE_PRECISION, &
                           a,  size(a),  MPI_DOUBLE_PRECISION, &
                           0, arrdes%ioscattercomm, status )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
           deallocate(VAR, stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 !          deallocate(buf, stat=status)
-!          VERIFY_(STATUS)
+!          _VERIFY(STATUS)
        endif
        deallocate(buf, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate (sendcounts, displs, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        endif
 
     elseif(unit < 0) then
 
-      ASSERT_(-UNIT<=LAST_UNIT)
+      _ASSERT(-UNIT<=LAST_UNIT, 'illegal unit')
       munit => MEM_units(-unit)
       munit%prevrec = munit%prevrec + 1
-      ASSERT_(associated(munit%Records(munit%prevrec)%R8_2))
-      ASSERT_(size(A)==size(munit%Records(munit%prevrec)%R8_2))
+      _ASSERT(associated(munit%Records(munit%prevrec)%R8_2), 'pointer not associated')
+      _ASSERT(size(A)==size(munit%Records(munit%prevrec)%R8_2), 'array size mismatch')
       A = munit%Records(munit%prevrec)%R8_2
 
     else
 
 
     call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     IM_WORLD = DIMS(1)
     JM_WORLD = DIMS(2)
@@ -2539,19 +2499,19 @@ module MAPL_IOMod
 
 
     allocate(VAR(IM_WORLD,JM_WORLD), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_GridGet(grid, distGrid=distGrid, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (MAPL_am_i_root(layout)) then
        read (UNIT, IOSTAT=status) VAR
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
     call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     
     deallocate(VAR)
 
@@ -2559,9 +2519,9 @@ module MAPL_IOMod
 
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   itime_end = MPI_Wtime(STATUS)
-  VERIFY_(STATUS) 
+  _VERIFY(STATUS) 
   bwidth = REAL(IM_WORLD*JM_WORLD*8/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_ioread_bandwidth) peak_ioread_bandwidth = bwidth
@@ -2572,7 +2532,7 @@ module MAPL_IOMod
   endif
 #endif 
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_2d
 
 !---------------------------
@@ -2587,16 +2547,15 @@ module MAPL_IOMod
 ! Local variables
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarRead_R8_3d'
 
     integer :: L
 
     do L = 1, size(A,3)
        call MAPL_VarRead(UNIT, GRID, A(:,:,L), ARRDES=arrdes, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_3d
   
 !---------------------------
@@ -2611,16 +2570,15 @@ module MAPL_IOMod
 ! Local variables
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarRead_R8_4d'
 
     integer :: L
 
     do L = 1, size(A,4)
        call MAPL_VarRead(UNIT, GRID, A(:,:,:,L), ARRDES=arrdes, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_4d
   
 !---------------------------
@@ -2644,7 +2602,6 @@ module MAPL_IOMod
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
     character(len=ESMF_MAXSTR ), pointer :: ITEMNAMES(:)
     logical, pointer                     :: DOIT(:)
-    character(len=ESMF_MAXSTR)           :: IAm='MAPL_StateVarWrite'
     logical                              :: skipWriting
     integer                              :: RST, dna
     logical                              :: forceWriteNoRestart_
@@ -2656,21 +2613,22 @@ module MAPL_IOMod
     character(len=ESMF_MAXSTR)           :: attrName
     character(len=ESMF_MAXSTR), allocatable :: currList(:)
     integer                                 :: natt
+    logical                                 :: isPresent
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    ASSERT_(ITEMCOUNT>0)
+    _ASSERT(ITEMCOUNT>0, 'itemcount must be > 0')
 
     allocate(ITEMNAMES(ITEMCOUNT),STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(ITEMTYPES(ITEMCOUNT),STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(DOIT     (ITEMCOUNT),STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_StateGet(STATE,ITEMNAMELIST=ITEMNAMES,itemTypeList=ITEMTYPES,RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     forceWriteNoRestart_ = .false.
     if(present(forceWriteNoRestart)) then
@@ -2679,24 +2637,24 @@ module MAPL_IOMod
 
     if(present(NAME)) then
        DOIT = ITEMNAMES==NAME
-       ASSERT_(count(DOIT)/=0)
+       _ASSERT(count(DOIT)/=0, 'count(doit) should not be 0')
     else
        DOIT = .true.
     endif
 
     attrName = MAPL_StateItemOrderList
     call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    ASSERT_(natt > 0)
+    _ASSERT(natt > 0, 'natt not > 0')
     allocate(orderlist(natt), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(currList(natt), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     ! get the current list
     call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     orderList = -1 ! not found
     do i = 1, natt
@@ -2722,52 +2680,61 @@ module MAPL_IOMod
 
           IF (ITEMTYPES(I) == ESMF_StateItem_FieldBundle) then
              call ESMF_StateGet(state, itemnames(i), bundle, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
-                if (STATUS == ESMF_SUCCESS) then
+                call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+                _VERIFY(STATUS)
+                if (isPresent) then
+                   call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                   _VERIFY(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
              end if
              if (skipWriting) cycle
 
              call MAPL_BundleWrite(unit, bundle, arrdes=arrdes, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
           ELSE IF (ITEMTYPES(I) == ESMF_StateItem_Field) THEN
              call ESMF_StateGet(state, itemnames(i), field, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
-                if (STATUS == ESMF_SUCCESS) then
+                call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+                _VERIFY(STATUS)
+                if (isPresent) then
+                   call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                   _VERIFY(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
              end if
              if (skipWriting) cycle
 
-             call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
-             if (STATUS == ESMF_SUCCESS) then
+             call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
+             _VERIFY(STATUS)
+             if (isPresent) then
+                call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
+                _VERIFY(STATUS)
                 skipWriting = (dna /= 0)
              endif
              if (skipWriting) cycle
 
              if(.not.associated(MASK)) then
                 call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call ESMF_FieldGet   (field, grid=grid, rc=status)
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
                    call MAPL_TileMaskGet(grid,  mask, rc=status)
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
                 endif
              endif
 
              call MAPL_FieldWrite(unit, field, arrdes=arrdes, HomePE=mask, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
           end IF
        END IF
@@ -2782,7 +2749,7 @@ module MAPL_IOMod
        DEALOC_(MASK)
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_StateVarWrite
 !---------------------------
 
@@ -2796,41 +2763,41 @@ module MAPL_IOMod
 
     integer                                 :: status
     integer                                 :: J, N, fieldCount
-    character(len=ESMF_MAXSTR)              :: IAm='MAPL_BundleWrite'
     type (ESMF_Field)                       :: field
     character(len=ESMF_MAXSTR),allocatable  :: nameList(:)
     character(len=ESMF_MAXSTR)              :: BundleName
 
     call ESMF_FieldBundleGet(bundle, fieldCount=N, name=BundleName, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(namelist(N), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_FieldBundleGet(bundle, fieldNameList=nameList, fieldCount=FieldCount, rc=STATUS)
-    VERIFY_(STATUS)
-    ASSERT_(N==fieldCount)
+    _VERIFY(STATUS)
+    _ASSERT(N==fieldCount, 'inconsistent fieldcount')
 
     DO J = 1, N
        call MAPL_FieldBundleGet(bundle, fieldIndex=J, field=field, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call MAPL_FieldWrite(unit, field, arrdes=ARRDES, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
     END DO
 
     deallocate(nameList)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_BundleWrite
 
 !---------------------------
 
-  subroutine MAPL_FieldWriteNCPar(ncioObj, name, FIELD, ARRDES, HomePE, RC)
-    type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
+  subroutine MAPL_FieldWriteNCPar(formatter, name, FIELD, ARRDES, HomePE, oClients, RC)
+    type(Netcdf4_fileformatter) , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     type (ESMF_Field)           , intent(INOUT) :: field  !ALT: intent(in)
     type(ArrDescr)              , intent(INOUT) :: ARRDES
     integer, target,   optional , intent(IN   ) :: HomePE(:)
+    type (ClientManager), optional, intent(inout)  :: oClients
     integer,           optional , intent(  OUT) :: RC
 
 ! Local vars
@@ -2844,134 +2811,255 @@ module MAPL_IOMod
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)      :: var_2d
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:)    :: var_3d
 
+    real(KIND=ESMF_KIND_R4), pointer, dimension(:)        :: gvar_1d
+    real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)      :: gvar_2d
+    real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:)    :: gvar_3d
+
     real(KIND=ESMF_KIND_R8), pointer, dimension(:)        :: vr8_1d
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:)      :: vr8_2d
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:)    :: vr8_3d
+
+    real(KIND=ESMF_KIND_R8), pointer, dimension(:)        :: gvr8_1d
+    real(KIND=ESMF_KIND_R8), pointer, dimension(:,:)      :: gvr8_2d
+    real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:)    :: gvr8_3d
+
     type(ESMF_TypeKind_Flag)           :: tk
     integer, pointer                   :: mask(:)
     integer                            :: J,K
-    character(len=ESMF_MAXSTR)         :: IAm='MAPL_FieldWriteNCPar'
     type (ESMF_DistGrid)               :: distGrid
+    type (LocalMemReference) :: lMemRef
+    integer :: request_id, size_1d
     
+ 
     call ESMF_FieldGet(field, grid=grid, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
+
+    if( arrdes%write_restart_by_oserver) then
+      _ASSERT(present(oClients), "output server is needed")
+    endif
 
     call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then
           mask => HomePE
        else
           call MAPL_TileMaskGet(grid, mask, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
     end if
 
     call ESMF_FieldGet(field, Array=array, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_ArrayGet(array, typekind=tk, rank=rank, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if (rank == 1) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_1d, rc=status)
-          VERIFY_(STATUS)
-          if (associated(var_1d)) then 
+          _VERIFY(STATUS)
+          if (associated(var_1d)) then
+
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                call MAPL_VarWrite(ncioObj, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
+                size_1d = arrdes%im_world
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
-                call MAPL_VarWrite(ncioObj, name, var_1d, layout=layout, arrdes=arrdes, rc=status)
+                size_1d = size(var_1d,1)
+             endif
+ 
+             if (arrdes%write_restart_by_oserver) then
+                if(arrdes%writers_comm /= MPI_COMM_NULL) then
+                   lMemRef = LocalMemReference(pFIO_REAL32,[size_1d])
+                   call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[size_1d])
+                else
+                   lMemRef = LocalMemReference(pFIO_REAL32,[0])
+                   call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[0])
+                endif
+             endif
+
+             if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
+                call MAPL_VarWrite(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, gvar_out = gvar_1d, rc=status)
+             else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
+                call MAPL_VarWrite(formatter, name, var_1d, layout=layout, arrdes=arrdes,gvar_out = gvar_1d, rc=status)
              else
-                RETURN_(ESMF_FAILURE)
+                _RETURN(ESMF_FAILURE)
              end if
+
+             if (arrdes%write_restart_by_oserver) then
+                call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1], &
+                             global_start=[1], global_count=[size_1d])
+             endif
+
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_1d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(vr8_1d)) then
+
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                call MAPL_VarWrite(ncioObj, name, vr8_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
+                size_1d = arrdes%im_world
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
-                call MAPL_VarWrite(ncioObj, name, vr8_1d, layout=layout, arrdes=arrdes, rc=status)
+                size_1d = size(vr8_1d,1)
+             endif
+
+             if (arrdes%write_restart_by_oserver) then
+                if(arrdes%writers_comm /= MPI_COMM_NULL) then
+                   lMemRef = LocalMemReference(pFIO_REAL64,[size_1d])
+                   call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[size_1d])
+                else
+                   lMemRef = LocalMemReference(pFIO_REAL64,[0])
+                   call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[0])
+                endif
+             endif
+
+             if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
+                call MAPL_VarWrite(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, mask=mask, gvar_out = gvr8_1d, rc=status)
+             else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
+                call MAPL_VarWrite(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, gvar_out = gvr8_1d, rc=status)
              else
-                RETURN_(ESMF_FAILURE)
+                _RETURN(ESMF_FAILURE)
              end if
+
+             if (arrdes%write_restart_by_oserver) then
+                call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1], &
+                             global_start=[1], global_count=[size_1d])
+             endif
+
           end if
        endif
     else if (rank == 2) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_2d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(var_2d)) then !ALT: temp kludge
-                if (DIMS == MAPL_DimsTileOnly) then
-                   do J = 1,size(var_2d,2)
-                      call MAPL_VarWrite(ncioObj, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
-                   end do
-                else if (DIMS == MAPL_DimsTileTile) then
-                   do j=1,size(var_2d,2)
-                      call MAPL_VarWrite(ncioObj, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
-                   enddo
-                else
-                   call MAPL_VarWrite(ncioObj, name, var_2d, arrdes=arrdes, rc=status)
-                end if
-          end if
+             if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
+
+                if (arrdes%write_restart_by_oserver) then
+                   if(arrdes%writers_comm /= MPI_COMM_NULL) then
+                      lMemRef = LocalMemReference(pFIO_REAL32,[arrdes%im_world, size(var_2d,2)])
+                      call c_f_pointer(lMemRef%base_address, gvar_2d, shape=[arrdes%im_world, size(var_2d,2)])
+                   else
+                      lMemRef = LocalMemReference(pFIO_REAL32,[0,size(var_2d,2)])
+                      call c_f_pointer(lMemRef%base_address, gvar_2d, shape=[0, size(var_2d,2)])
+                   endif
+                endif
+
+                do J = 1,size(var_2d,2)
+                   call MAPL_VarWrite(formatter, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, gvar_out=gvar_2d(:,j), rc=status)
+                end do
+
+                if (arrdes%write_restart_by_oserver) then
+                     call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1], &
+                                 global_start=[1,1], global_count=[arrdes%im_world,size(var_2d,2)])
+                endif
+
+             else
+               call MAPL_VarWrite(formatter, name, var_2d, arrdes=arrdes, oClients=oClients, rc=status)
+             endif ! dims
+          endif ! associated 
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_2d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(vr8_2d)) then !ALT: temp kludge
-             if (DIMS == MAPL_DimsTileOnly) then
+             if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
+
+                if (arrdes%write_restart_by_oserver) then
+                   if(arrdes%writers_comm /= MPI_COMM_NULL) then
+                      lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_2d,2)])
+                      call c_f_pointer(lMemRef%base_address, gvr8_2d, shape=[arrdes%im_world,size(vr8_2d,2)])
+                   else
+                      lMemRef = LocalMemReference(pFIO_REAL64,[0,size(vr8_2d,2)])
+                      call c_f_pointer(lMemRef%base_address, gvr8_2d, shape=[0,size(vr8_2d,2)])
+                   endif
+                endif
+
                 do J = 1,size(vr8_2d,2)
-                   call MAPL_VarWrite(ncioObj, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                   call MAPL_VarWrite(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, gvar_out=gvr8_2d(:,j), rc=status)
                 end do
-             else if (DIMS == MAPL_DimsTileTile) then
-                do j=1,size(var_2d,2)
-                   call MAPL_VarWrite(ncioObj, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
-                enddo
+
+                if (arrdes%write_restart_by_oserver) then
+                     call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1], &
+                                 global_start=[1,1], global_count=[arrdes%im_world,size(vr8_2d,2)])
+                endif
+
              else
-                call MAPL_VarWrite(ncioObj, name, vr8_2d, arrdes=arrdes, rc=status)
+                call MAPL_VarWrite(formatter, name, vr8_2d, arrdes=arrdes, oClients=oClients, rc=status)
              end if
           end if
        endif
     else if (rank == 3) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_3d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(var_3d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
+
+                if (arrdes%write_restart_by_oserver) then
+                   if(arrdes%writers_comm /= MPI_COMM_NULL) then
+                      lMemRef = LocalMemReference(pFIO_REAL32,[arrdes%im_world, size(var_3d,2), size(var_3d,3)])
+                      call c_f_pointer(lMemRef%base_address, gvar_3d, shape=[arrdes%im_world, size(var_3d,2), size(var_3d,3)])
+                   else
+                      lMemRef = LocalMemReference(pFIO_REAL32,[0,size(var_3d,2), size(var_3d,3)])
+                      call c_f_pointer(lMemRef%base_address, gvar_3d, shape=[0, size(var_3d,2), size(var_3d,3)])
+                   endif
+                endif
+
                 do J = 1,size(var_3d,2)
                    do K = 1,size(var_3d,3)
-                      call MAPL_VarWrite(ncioObj, name, var_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
-                           & offset1=j, offset2=k, rc=status)
+                      call MAPL_VarWrite(formatter, name, var_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
+                           & offset1=j, offset2=k, gvar_out=gvar_3d(:,J,K), rc=status)
                    end do
                 end do
+
+                if (arrdes%write_restart_by_oserver) then
+                   call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1,1], &
+                                 global_start=[1,1,1], global_count=[arrdes%im_world,size(var_3d,2),size(var_3d,3)])
+                endif
+
              else
-                call MAPL_VarWrite(ncioObj, name, var_3d, arrdes=arrdes, rc=status)
+                call MAPL_VarWrite(formatter, name, var_3d, arrdes=arrdes, oClients=oClients, rc=status)
              endif
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_3d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(vr8_3d)) then !ALT: temp kludge
              if (DIMS == MAPL_DimsTileOnly) then
+
+                if (arrdes%write_restart_by_oserver) then
+                   if(arrdes%writers_comm /= MPI_COMM_NULL) then
+                      lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_3d,2), size(vr8_3d,3)])
+                      call c_f_pointer(lMemRef%base_address, gvr8_3d, shape=[arrdes%im_world,size(vr8_3d,2), size(vr8_3d,3)])
+                   else
+                      lMemRef = LocalMemReference(pFIO_REAL64,[0,size(vr8_3d,2), size(vr8_3d,3)])
+                      call c_f_pointer(lMemRef%base_address, gvr8_3d, shape=[0,size(vr8_3d,2), size(vr8_3d,3)])
+                   endif
+                endif
+
                 do J = 1,size(vr8_3d,2)
                    do K = 1,size(vr8_3d,3)
-                      call MAPL_VarWrite(ncioObj, name, vr8_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
-                           & offset1=j, offset2=k, rc=status)
+                      call MAPL_VarWrite(formatter, name, vr8_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
+                           & offset1=j, offset2=k, gvar_out=gvr8_3d(:,J,K), rc=status)
                    end do
                 end do
+
+                if (arrdes%write_restart_by_oserver) then
+                     call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1,1], &
+                                 global_start=[1,1,1], global_count=[arrdes%im_world, size(vr8_3d,2), size(vr8_3d,3)])
+                endif
+
              else
-                call MAPL_VarWrite(ncioObj, name, vr8_3d, arrdes=arrdes, rc=status)
+                call MAPL_VarWrite(formatter, name, vr8_3d, arrdes=arrdes, oClients=oClients, rc=status)
              end if
           end if
        endif
     else
        print *, "ERROR: unsupported RANK"
-       RETURN_(ESMF_FAILURE)
+       _RETURN(ESMF_FAILURE)
     endif
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(.not.present(HomePE)) then
@@ -2979,7 +3067,7 @@ module MAPL_IOMod
        end if
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldWriteNCPar
 
 
@@ -3010,7 +3098,6 @@ module MAPL_IOMod
     integer, pointer                   :: mask(:) => NULL()
     character(len=ESMF_MAXSTR)         :: FORMATTED
     integer                            :: J,K
-    character(len=ESMF_MAXSTR)         :: IAm='MAPL_FieldWrite'
     type (ESMF_DistGrid)               :: distGrid
     
     if (unit < 0 .or. present(arrdes)) then
@@ -3020,57 +3107,57 @@ module MAPL_IOMod
     end if
 
     call ESMF_FieldGet(field, grid=grid, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then
           mask => HomePE
        else
           call MAPL_TileMaskGet(grid, mask, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
     end if
 
     call ESMF_FieldGet(field, Array=array, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_ArrayGet(array, typekind=tk, rank=rank, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if (rank == 1) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_1d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(var_1d)) then 
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                 call MAPL_VarWrite(unit, grid, var_1d, arrdes=arrdes, mask=mask, rc=status)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call WRITE_PARALLEL(var_1d, unit, arrdes=arrdes, rc=status)
              else
-                RETURN_(ESMF_FAILURE)
+                _RETURN(ESMF_FAILURE)
              end if
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_1d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(vr8_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                 call MAPL_VarWrite(unit, grid, vr8_1d, arrdes=arrdes, mask=mask, rc=status)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call WRITE_PARALLEL(vr8_1d, unit, arrdes=arrdes, rc=status)
              else
-                RETURN_(ESMF_FAILURE)
+                _RETURN(ESMF_FAILURE)
              end if
           end if
        endif
     else if (rank == 2) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_2d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(var_2d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call WRITE_PARALLEL( &
@@ -3089,7 +3176,7 @@ module MAPL_IOMod
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_2d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(vr8_2d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call WRITE_PARALLEL( &
@@ -3110,7 +3197,7 @@ module MAPL_IOMod
     else if (rank == 3) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_3d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(var_3d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call WRITE_PARALLEL( &
@@ -3129,7 +3216,7 @@ module MAPL_IOMod
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_3d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (associated(vr8_3d)) then !ALT: temp kludge
              if (FORMATTED=="YES") THEN
                 call WRITE_PARALLEL( &
@@ -3150,18 +3237,18 @@ module MAPL_IOMod
     else if (rank == 4) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MAPL_VarWrite(unit, grid, var_4d, rc=status)
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_4d, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MAPL_VarWrite(unit, grid, vr8_4d, rc=status)
        endif
     else
        print *, "ERROR: unsupported RANK"
-       RETURN_(ESMF_FAILURE)
+       _RETURN(ESMF_FAILURE)
     endif
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(.not.present(HomePE)) then
@@ -3169,7 +3256,7 @@ module MAPL_IOMod
        end if
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldWrite
 
 
@@ -3181,37 +3268,36 @@ module MAPL_IOMod
     integer, optional, intent(out)   :: rc
 
     integer :: status
-    character(len=ESMF_MAXSTR)         :: IAm='alloc_'
 
     call dealloc_(A,RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     select case (type)
     case (R4_2)
-       ASSERT_(present(jm))
+       _ASSERT(present(jm), 'jm not present for 2d')
        allocate(A%r4_2(IM,JM))
     case (R4_1)
-       ASSERT_(.not.present(jm))
+       _ASSERT(.not.present(jm), 'jm is present for 1d')
        allocate(A%r4_1(IM))
     case (R8_2) 
-       ASSERT_(present(jm))
+       _ASSERT(present(jm), 'jm not present for 2d')
        allocate(A%r8_2(IM,JM))
     case (R8_1) 
-       ASSERT_(.not.present(jm))
+       _ASSERT(.not.present(jm),'jm is present for 1d')
        allocate(A%r8_1(IM))
     case (i4_1) 
-       ASSERT_(.not.present(jm))
+       _ASSERT(.not.present(jm), 'jm present for 1d')
        allocate(A%I4_1(IM))
     case (i4_2) 
-       ASSERT_(present(jm))
+       _ASSERT(present(jm), 'jm not present for 2d')
        allocate(A%I4_2(IM,JM))
     case default
-       ASSERT_(.false.)
+       _ASSERT(.false., 'unsupported tkr')
     end select
 
     a%allocated=type
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine alloc_
 
 
@@ -3219,7 +3305,6 @@ module MAPL_IOMod
     type (Ptr), intent(INOUT)        :: A
     integer, optional, intent(out)   :: rc
 
-    character(len=ESMF_MAXSTR)         :: IAm='dealloc_'
 
     if(a%allocated/=not_allocated) then
        select case (a%allocated)
@@ -3254,12 +3339,12 @@ module MAPL_IOMod
              nullify(A%i4_2)
           end if
        case default
-          ASSERT_(.false.)
+          _ASSERT(.false., 'unsupported tkr')
        end select
        a%allocated=not_allocated
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine dealloc_
 
 !---------------------------
@@ -3278,7 +3363,6 @@ module MAPL_IOMod
     integer                               :: DIMS(ESMF_MAXGRIDDIM)
     type (ESMF_DELayout)                  :: layout
     type (ESMF_DistGrid)                  :: distGrid
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWrite_I4_1d'
 
     if(unit < 0) then
 
@@ -3286,45 +3370,45 @@ module MAPL_IOMod
       munit%prevrec = munit%prevrec + 1
       if(.not.associated(munit%Records)) then
          allocate(munit%Records(16),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       elseif(size(munit%Records)< munit%prevrec) then
          allocate(REC(munit%prevrec*2),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          REC(:munit%prevrec-1) = munit%Records
          deallocate(munit%Records)
          munit%Records => REC
       endif
       call alloc_(munit%Records(munit%prevrec),i4_1,size(A),rc=status)	
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       munit%Records(munit%prevrec)%I4_1  = A
 
     else
 
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     IM_WORLD = DIMS(1)
 
     allocate(VAR(IM_WORLD), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ArrayGather(A, VAR, grid, mask=mask, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if (MAPL_am_i_root(layout)) then
        write (UNIT, IOSTAT=status) VAR
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
     
     deallocate(VAR)
 
     endif
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_I4_1d
 
 !---------------------------
@@ -3346,7 +3430,6 @@ module MAPL_IOMod
     integer                               :: DIMS(ESMF_MAXGRIDDIM)
     type (ESMF_DELayout)                  :: layout
     type (ESMF_DistGrid)                  :: distGrid
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWrite_R4_1d'
 
     integer, allocatable                  :: msk(:), recvcounts(:), displs(:)
     integer                               :: nwrts, mype,  npes, sendcount
@@ -3380,25 +3463,25 @@ module MAPL_IOMod
     end if
 
     if(present(arrdes)) then
-       ASSERT_(present(mask))
+       _ASSERT(present(mask), 'mask must be present if arrdes is present')
 
        IM_WORLD = arrdes%im_world
        recl = IM_WORLD*4
 
        call mpi_comm_size(arrdes%iogathercomm,npes ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%writers_comm,mypeWr ,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call mpi_comm_size(arrdes%writers_comm,nwrts,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
           mypeWr = -1
        endif
        call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call MAPL_CommsBcast(layout, nwrts, 1, 0, rc = status)
 
        Rsize = im_world/nwrts + 1
@@ -3415,39 +3498,39 @@ module MAPL_IOMod
 
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(GVAR(Rsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
        allocate(VAR(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(msk(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (recvcounts(0:npes-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (r2g(0:nwrts-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(inv_pes(0:npes-1),stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call mpi_comm_rank(arrdes%iogathercomm,mype ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call MPI_COMM_GROUP (arrdes%iogathercomm, GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 #if 1
        if (arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(rpes(0:nwrts-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           call MPI_COMM_GROUP (arrdes%writers_comm, NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           do n=0,nwrts-1
              rpes(n) = n
           end do
           call MPI_Group_translate_ranks(newgroup, nwrts, rpes, group, r2g, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
@@ -3480,11 +3563,11 @@ module MAPL_IOMod
              nactive = nactive + 1
           end if
           allocate (activeranks(0:nactive-1), activerecvcounts(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(pes(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate (displs(0:nactive), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           k = 0
           do i=0, npes-1
              if (recvcounts(i) > 0) then
@@ -3494,18 +3577,18 @@ module MAPL_IOMod
           enddo
           if (k /= nactive) then
              k = k+1
-             ASSERT_(k == nactive)
-             ASSERT_(recvcounts(r2g(n)) == 0)
+             _ASSERT(k == nactive, 'inconsistent nactive')
+             _ASSERT(recvcounts(r2g(n)) == 0, 'recvcounts must be 0')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_COMM_CREATE(arrdes%iogathercomm, newgroup, thiscomm, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_Group_translate_ranks(group, nactive, pes, newgroup, activeranks, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           inv_pes = -1 ! initialized to invalid
           do i=0,nactive-1
              inv_pes(pes(i)) = i
@@ -3533,9 +3616,9 @@ module MAPL_IOMod
                                   var, activerecvcounts, displs, MPI_REAL, &
                                   ntransl, thiscomm, status )
              endif
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_Comm_Free(thiscomm, status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              if(n==mypeWr) then
                 msk = mask(first:last)
@@ -3562,9 +3645,9 @@ module MAPL_IOMod
           endif
           if(useWriteFCtrl .and. mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset-4, MPI_SEEK_SET, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
 
           Rsize = im_world/nwrts + 1
@@ -3575,30 +3658,30 @@ module MAPL_IOMod
           endif
           last  = first + Rsize - 1
 
-          ASSERT_( (lbound(mask,1) <= first) )
-          ASSERT_( (ubound(mask,1) >= last ) )
+          _ASSERT( (lbound(mask,1) <= first), 'out of bounds' )
+          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
 
           loffset = offset + (first-1)*4
           call MPI_FILE_WRITE_AT_ALL(UNIT, loffset, GVAR, Rsize, MPI_REAL, mpistatus, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
 #ifdef DEBUG_MPIIO
           call MPI_GET_COUNT( mpistatus, MPI_REAL, numwrite, STATUS )
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           write(*,'(4i,1f)') IM_WORLD, loffset, numwrite, GVAR(1)
 #endif
 
           if(useWriteFCtrl .and. mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset+recl, MPI_SEEK_SET, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
           arrdes%offset = offset + recl + 8
        endif
 
        call MPI_GROUP_FREE (GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate(var,msk)
        deallocate (inv_pes)
        deallocate (r2g)
@@ -3613,52 +3696,52 @@ module MAPL_IOMod
       munit%prevrec = munit%prevrec + 1
       if(.not.associated(munit%Records)) then
          allocate(munit%Records(16),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       elseif(size(munit%Records)< munit%prevrec) then
          allocate(REC(munit%prevrec*2),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          REC(:munit%prevrec-1) = munit%Records
          deallocate(munit%Records)
          munit%Records => REC
       endif
       call alloc_(munit%Records(munit%prevrec),R4_1,size(A),rc=status)	
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       munit%Records(munit%prevrec)%R4_1  = A
 
     else
 
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     IM_WORLD = DIMS(1)
 
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     amIRoot = MAPL_am_i_root(layout)
 
     if (amIRoot) then
        allocate(VAR(IM_WORLD), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     else
        allocate(VAR(0), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
     call ArrayGather(A, VAR, grid, mask=mask, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if (MAPL_am_i_root(layout)) then
        write (UNIT, IOSTAT=status) VAR
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
     
     deallocate(VAR)
 
     end if
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_1d
 
 !---------------------------
@@ -3682,7 +3765,6 @@ module MAPL_IOMod
     integer                               :: gridRank
     type (ESMF_DELayout)                  :: layout
     type (ESMF_DistGrid)                  :: distGrid
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWrite_R4_2d'
 
     real(kind=ESMF_KIND_R4),  allocatable :: buf(:)
     integer                               :: I,J,N,K,L,myrow,myiorank,ndes_x
@@ -3702,9 +3784,9 @@ module MAPL_IOMod
 
 #ifdef TIME_MPIIO
     call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     itime_beg = MPI_Wtime(STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 #endif
 
@@ -3715,7 +3797,7 @@ module MAPL_IOMod
        mypeWr = -1 !mark it invalid
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%writers_comm,mypeWr ,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
 
        if(present(mask)) then
@@ -3735,9 +3817,9 @@ module MAPL_IOMod
 
              if(mypeWr==0) then
                 call MPI_FILE_SEEK(UNIT, offset-4, MPI_SEEK_SET, STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              endif
           end if
 
@@ -3752,9 +3834,9 @@ module MAPL_IOMod
           if(arrdes%writers_comm /= MPI_COMM_NULL) then
              if(mypeWr==0) then
                 call MPI_FILE_SEEK(UNIT, offset+recl, MPI_SEEK_SET, STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              endif
           end if
 
@@ -3763,15 +3845,15 @@ module MAPL_IOMod
        ndes_x = size(arrdes%in)
 
        call mpi_comm_rank(arrdes%ycomm,myrow,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_rank(arrdes%iogathercomm,myiorank,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_size(arrdes%iogathercomm,num_io_rows,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -3789,20 +3871,20 @@ module MAPL_IOMod
              jsize=jsize + (arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(buf(IM_WORLD*jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
 
 !DSK avoid "Attempt to fetch from allocatable variable BUF when it is not allocated"
        if(myiorank/=0) then
           allocate(buf(0), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
 
        call mpi_gatherv( a, size(a), MPI_REAL, buf, sendcounts, displs, MPI_REAL, &
             0, arrdes%iogathercomm, status )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then 
 
@@ -3834,23 +3916,23 @@ module MAPL_IOMod
                 print*, offset, recl, offset + IM_WORLD*JM_WORLD*4 + 8
 #endif
              call MPI_FILE_SEEK(UNIT, offset, MPI_SEEK_SET, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
           offset = offset + 4
 
           offset = offset + (arrdes%j1(myrow+1)-1)*IM_WORLD*4
           call MPI_FILE_WRITE_AT_ALL(UNIT, offset, VAR, IM_WORLD*jsize, MPI_REAL, mpistatus, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*4
 
           offset = offset + IM_WORLD*JM_WORLD*4
           if (mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset, MPI_SEEK_SET, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
 
           arrdes%offset = offset + 4
@@ -3859,14 +3941,14 @@ module MAPL_IOMod
 
        if(myiorank==0) then
           deallocate(VAR, stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 !          deallocate(buf, stat=status)
-!          VERIFY_(STATUS)
+!          _VERIFY(STATUS)
        endif
        deallocate(buf, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate (sendcounts, displs, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     endif
 
     elseif(unit < 0) then
@@ -3875,49 +3957,49 @@ module MAPL_IOMod
       munit%prevrec = munit%prevrec + 1
       if(.not.associated(munit%Records)) then
          allocate(munit%Records(16),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       elseif(size(munit%Records)< munit%prevrec) then
          allocate(REC(munit%prevrec*2),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          REC(:munit%prevrec-1) = munit%Records
          deallocate(munit%Records)
          munit%Records => REC
       endif
       call alloc_(munit%Records(munit%prevrec),r4_2,size(A,1),size(a,2),rc=status)	
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       munit%Records(munit%prevrec)%R4_2  = A
 
     else
 
       call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       IM_WORLD = DIMS(1)
       JM_WORLD = DIMS(2)
       if(present(MASK)) JM_WORLD=size(a,2)
 
       call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       amIRoot = MAPL_am_i_root(layout)
       if (amIRoot) then
          allocate(VAR(IM_WORLD,JM_WORLD), stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       else
          allocate(VAR(0,JM_WORLD), stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       end if
 
       call ArrayGather(A, VAR, grid, mask=mask, rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       if (amIRoot) then
 
          write (UNIT, IOSTAT=status) VAR
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       end if
     
       deallocate(VAR)
@@ -3926,9 +4008,9 @@ module MAPL_IOMod
 
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   itime_end = MPI_Wtime(STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   bwidth = REAL(IM_WORLD*JM_WORLD*4/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_iowrite_bandwidth) peak_iowrite_bandwidth = bwidth
@@ -3939,7 +4021,7 @@ module MAPL_IOMod
   endif
 #endif 
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_2d
 
 !---------------------------
@@ -3954,16 +4036,15 @@ module MAPL_IOMod
 ! Local variables
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWrite_R4_3d'
 
     integer :: L
 
     do L = 1, size(A,3)
        call MAPL_VarWrite(UNIT, GRID, A(:,:,L), ARRDES=ARRDES, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_3d
   
 !---------------------------
@@ -3978,16 +4059,15 @@ module MAPL_IOMod
 ! Local variables
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWrite_R4_4d'
 
     integer :: L
 
     do L = 1, size(A,4)
        call MAPL_VarWrite(UNIT, GRID, A(:,:,:,L), ARRDES=ARRDES, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_4d
   
 !---------------------------
@@ -4009,7 +4089,6 @@ module MAPL_IOMod
     integer                               :: DIMS(ESMF_MAXGRIDDIM)
     type (ESMF_DELayout)                  :: layout
     type (ESMF_DistGrid)                  :: distGrid
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWrite_R8_1d'
 
     integer, allocatable                  :: msk(:), recvcounts(:), displs(:)
     integer                               :: nwrts, mype,  npes, sendcount
@@ -4042,25 +4121,25 @@ module MAPL_IOMod
     end if
 
     if(present(arrdes)) then
-       ASSERT_(present(mask))
+       _ASSERT(present(mask), 'mask must be present if arrdes is present')
 
        IM_WORLD = arrdes%im_world
        recl = IM_WORLD*8
 
        call mpi_comm_size(arrdes%iogathercomm,npes ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%writers_comm,mypeWr ,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call mpi_comm_size(arrdes%writers_comm,nwrts,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
           mypeWr = -1
        endif
        call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call MAPL_CommsBcast(layout, nwrts, 1, 0, rc = status)
 
        Rsize = im_world/nwrts + 1
@@ -4077,39 +4156,39 @@ module MAPL_IOMod
 
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(GVAR(Rsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
        allocate(VAR(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(msk(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (recvcounts(0:npes-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (r2g(0:nwrts-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(inv_pes(0:npes-1),stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call mpi_comm_rank(arrdes%iogathercomm,mype ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call MPI_COMM_GROUP (arrdes%iogathercomm, GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 #if 1
        if (arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(rpes(0:nwrts-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           call MPI_COMM_GROUP (arrdes%writers_comm, NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           do n=0,nwrts-1
              rpes(n) = n
           end do
           call MPI_Group_translate_ranks(newgroup, nwrts, rpes, group, r2g, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
@@ -4142,11 +4221,11 @@ module MAPL_IOMod
              nactive = nactive + 1
           end if
           allocate (activeranks(0:nactive-1), activerecvcounts(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(pes(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate (displs(0:nactive), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           k = 0
           do i=0, npes-1
              if (recvcounts(i) > 0) then
@@ -4156,18 +4235,18 @@ module MAPL_IOMod
           enddo
           if (k /= nactive) then
              k = k+1
-             ASSERT_(k == nactive)
-             ASSERT_(recvcounts(r2g(n)) == 0)
+             _ASSERT(k == nactive, 'inconsistent nactive')
+             _ASSERT(recvcounts(r2g(n)) == 0, 'recvcounts must be 0')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_COMM_CREATE(arrdes%iogathercomm, newgroup, thiscomm, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_Group_translate_ranks(group, nactive, pes, newgroup, activeranks, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           inv_pes = -1 ! initialized to invalid
           do i=0,nactive-1
              inv_pes(pes(i)) = i
@@ -4195,9 +4274,9 @@ module MAPL_IOMod
                                   var, activerecvcounts, displs, MPI_DOUBLE_PRECISION, &
                                   ntransl, thiscomm, status )
              endif
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_Comm_Free(thiscomm, status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              if(n==mypeWr) then
                 msk = mask(first:last)
@@ -4224,9 +4303,9 @@ module MAPL_IOMod
           endif
           if(useWriteFCtrl .and. mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset-4, MPI_SEEK_SET, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
 
           Rsize = im_world/nwrts + 1
@@ -4237,30 +4316,30 @@ module MAPL_IOMod
           endif
           last  = first + Rsize - 1
 
-          ASSERT_( (lbound(mask,1) <= first) )
-          ASSERT_( (ubound(mask,1) >= last ) )
+          _ASSERT( (lbound(mask,1) <= first), 'out of bounds')
+          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
 
           loffset = offset + (first-1)*8
           call MPI_FILE_WRITE_AT_ALL(UNIT, loffset, GVAR, Rsize, MPI_DOUBLE_PRECISION, mpistatus, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
 #ifdef DEBUG_MPIIO
           call MPI_GET_COUNT( mpistatus, MPI_DOUBLE_PRECISION, numwrite, STATUS )
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           write(*,'(4i,1f)') IM_WORLD, loffset, numwrite, GVAR(1)
 #endif
 
           if(useWriteFCtrl .and. mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset+recl, MPI_SEEK_SET, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
           arrdes%offset = offset + recl + 8
        endif
 
        call MPI_GROUP_FREE (GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate(var,msk)
        deallocate (inv_pes)
        deallocate (r2g)
@@ -4275,45 +4354,45 @@ module MAPL_IOMod
       munit%prevrec = munit%prevrec + 1
       if(.not.associated(munit%Records)) then
          allocate(munit%Records(16),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       elseif(size(munit%Records)< munit%prevrec) then
          allocate(REC(munit%prevrec*2),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          REC(:munit%prevrec-1) = munit%Records
          deallocate(munit%Records)
          munit%Records => REC
       endif
       call alloc_(munit%Records(munit%prevrec),R8_1,size(A),rc=status)	
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       munit%Records(munit%prevrec)%R8_1  = A
 
     else
 
     call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     IM_WORLD = DIMS(1)
 
     allocate(VAR(IM_WORLD), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ArrayGather(A, VAR, grid, mask=mask, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if (MAPL_am_i_root(layout)) then
        write (UNIT, IOSTAT=status) VAR
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
     
     deallocate(VAR)
 
     end if
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_1d
 
 !---------------------------
@@ -4336,7 +4415,6 @@ module MAPL_IOMod
     integer                               :: gridRank
     type (ESMF_DELayout)                  :: layout
     type (ESMF_DistGrid)                  :: distGrid
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWrite_R8_2d'
 
     real(kind=ESMF_KIND_R8),  allocatable :: buf(:)
     integer                               :: I,J,N,K,L,myrow,myiorank,ndes_x
@@ -4354,9 +4432,9 @@ module MAPL_IOMod
 
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   itime_beg = MPI_Wtime(STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 #endif
 
     if(present(arrdes)) then
@@ -4366,11 +4444,11 @@ module MAPL_IOMod
        mypeWr = -1 !mark it invalid
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%writers_comm,mypeWr ,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
 
        if(present(mask)) then
-          ASSERT_(JM_WORLD==size(A,2))
+          _ASSERT(JM_WORLD==size(A,2), 'inconsistent array shape')
 
 !          arrdes%offset = 0
 
@@ -4386,9 +4464,9 @@ module MAPL_IOMod
 
              if(mypeWr==0) then
                 call MPI_FILE_SEEK(UNIT, offset-4, MPI_SEEK_SET, STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              endif
           end if
 
@@ -4403,9 +4481,9 @@ module MAPL_IOMod
           if(arrdes%writers_comm /= MPI_COMM_NULL) then
              if(mypeWr==0) then
                 call MPI_FILE_SEEK(UNIT, offset+recl, MPI_SEEK_SET, STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              endif
           end if
 
@@ -4414,15 +4492,15 @@ module MAPL_IOMod
        ndes_x = size(arrdes%in)
 
        call mpi_comm_rank(arrdes%ycomm,myrow,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_rank(arrdes%iogathercomm,myiorank,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_size(arrdes%iogathercomm,num_io_rows,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -4440,20 +4518,20 @@ module MAPL_IOMod
              jsize=jsize + (arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(buf(IM_WORLD*jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
 
 !DSK avoid "Attempt to fetch from allocatable variable BUF when it is not allocated"
        if(myiorank/=0) then
           allocate(buf(0), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
 
        call mpi_gatherv( a, size(a), MPI_DOUBLE_PRECISION, buf, sendcounts, displs, MPI_DOUBLE_PRECISION, &
             0, arrdes%iogathercomm, status )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then 
 
@@ -4485,23 +4563,23 @@ module MAPL_IOMod
 		print*, offset, recl, offset + IM_WORLD*JM_WORLD*8 + 8
 #endif
              call MPI_FILE_SEEK(UNIT, offset, MPI_SEEK_SET, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
           offset = offset + 4
 
           offset = offset + (arrdes%j1(myrow+1)-1)*IM_WORLD*8
           call MPI_FILE_WRITE_AT_ALL(UNIT, offset, VAR, IM_WORLD*jsize, MPI_DOUBLE_PRECISION, mpistatus, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*8 
 
           offset = offset + IM_WORLD*JM_WORLD*8 
           if (mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset, MPI_SEEK_SET, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_FILE_WRITE(UNIT, recl, 1, MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
 
           arrdes%offset = offset + 4
@@ -4510,14 +4588,14 @@ module MAPL_IOMod
 
        if(myiorank==0) then
           deallocate(VAR, stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 !          deallocate(buf, stat=status)
-!          VERIFY_(STATUS)
+!          _VERIFY(STATUS)
        endif
        deallocate(buf, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate (sendcounts, displs, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     endif
 
     elseif(unit < 0) then
@@ -4526,43 +4604,43 @@ module MAPL_IOMod
       munit%prevrec = munit%prevrec + 1
       if(.not.associated(munit%Records)) then
          allocate(munit%Records(16),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       elseif(size(munit%Records)< munit%prevrec) then
          allocate(REC(munit%prevrec*2),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          REC(:munit%prevrec-1) = munit%Records
          deallocate(munit%Records)
          munit%Records => REC
       endif
       call alloc_(munit%Records(munit%prevrec),r8_2,size(A,1),size(a,2),rc=status)	
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       munit%Records(munit%prevrec)%R8_2  = A
 
     else
 
       call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call MAPL_GridGet(GRID, globalCellCountPerDim=DIMS, RC=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       IM_WORLD = DIMS(1)
       JM_WORLD = DIMS(2)
       if (present(MASK)) JM_WORLD=size(A,2)
 
       allocate(VAR(IM_WORLD,JM_WORLD), stat=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call ArrayGather(A, VAR, grid, mask=mask, rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       if (MAPL_am_i_root(layout)) then
 
          write (UNIT, IOSTAT=status) VAR
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       end if
     
       deallocate(VAR)
@@ -4571,9 +4649,9 @@ module MAPL_IOMod
 
 #ifdef TIME_MPIIO
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   itime_end = MPI_Wtime(STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   bwidth = REAL(IM_WORLD*JM_WORLD*8/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_iowrite_bandwidth) peak_iowrite_bandwidth = bwidth
@@ -4584,7 +4662,7 @@ module MAPL_IOMod
   endif
 #endif 
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_2d
 
 !---------------------------
@@ -4599,16 +4677,15 @@ module MAPL_IOMod
 ! Local variables
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWrite_R8_3d'
 
     integer :: L
 
     do L = 1, size(A,3)
        call MAPL_VarWrite(UNIT, GRID, A(:,:,L), ARRDES=ARRDES, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_3d
   
 !---------------------------
@@ -4623,16 +4700,15 @@ module MAPL_IOMod
 ! Local variables
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWrite_R8_4d'
 
     integer :: L
 
     do L = 1, size(A,4)
        call MAPL_VarWrite(UNIT, GRID, A(:,:,:,L), ARRDES=ARRDES, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_4d
   
 !---------------------------
@@ -4694,7 +4770,6 @@ module MAPL_IOMod
         integer,  optional,     intent(  out) :: RC
 
         integer :: STATUS
-        character(len=ESMF_MAXSTR) :: IAm = 'MAPL_ClimUpdate'
 
 
         integer          :: I, M, M1, M2
@@ -4714,12 +4789,12 @@ module MAPL_IOMod
     ! --------------------------------------------------------------------------
 
         NFLD = size(NAMES)
-        ASSERT_(NFLD>0)
+        _ASSERT(NFLD>0, 'NFLD must be > 0')
 
         allocate(PREV(NFLD),stat=STATUS)
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
         allocate(NEXT(NFLD),stat=STATUS)
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
 
     ! --------------------------------------------------------------------------
     ! get the fields from the state
@@ -4727,26 +4802,26 @@ module MAPL_IOMod
 
         do I=1,NFLD
            call ESMF_StateGet ( STATE, trim(NAMES(I))//'_PREV', PREV(I), RC=STATUS )
-           VERIFY_(STATUS)
+           _VERIFY(STATUS)
            call ESMF_StateGet ( STATE, trim(NAMES(I))//'_NEXT', NEXT(I), RC=STATUS )
-           VERIFY_(STATUS)
+           _VERIFY(STATUS)
         end do
 
         call ESMF_FieldGet(PREV(1), GRID=GRID,    RC=STATUS)
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
         call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS)
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
         call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS)
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
 
     ! --------------------------------------------------------------------------
     ! Find out the times of next, prev from the field attributes
     ! --------------------------------------------------------------------------
 
         call MAPL_FieldGetTime ( PREV(1), BEFORE, RC=STATUS )
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
         call MAPL_FieldGetTime ( NEXT(1), AFTER , RC=STATUS )
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
 
     ! --------------------------------------------------------------------------
     ! check to see if albedos need to be refreshed in the
@@ -4755,7 +4830,7 @@ module MAPL_IOMod
     ! --------------------------------------------------------------------------
 
         call ESMF_TimeGet ( BEFORE, yy=I, rc=STATUS )
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
 
         DONE = 0
         if( I > 0) then
@@ -4771,39 +4846,39 @@ module MAPL_IOMod
     ! --------------------------------------------------------------------------
 
            call MAPL_GetClimMonths ( CURRENT_TIME, BEFORE, AFTER,  RC=STATUS )
-           VERIFY_(STATUS)
+           _VERIFY(STATUS)
 
            call ESMF_TimeGet ( BEFORE, MM=M1, rc=STATUS )
-           VERIFY_(STATUS)
+           _VERIFY(STATUS)
            call ESMF_TimeGet ( AFTER , MM=M2, rc=STATUS )
-           VERIFY_(STATUS)
+           _VERIFY(STATUS)
 
     ! --------------------------------------------------------------------------
     !  Read the albedo climatologies from file
     ! --------------------------------------------------------------------------
 
            UNIT = GETFILE(FILE, form="unformatted",  RC=STATUS)
-           VERIFY_(STATUS)
+           _VERIFY(STATUS)
 
            DONE = 0
            do M=1,12
               if    (M==M1) then
                  do I=1,NFLD
                     call MAPL_VarRead(UNIT, PREV(I), RC=STATUS)
-                    VERIFY_(STATUS)
+                    _VERIFY(STATUS)
                  end do
                  if(DONE==1) exit
                  DONE = DONE + 1
               elseif(M==M2) then
                  do I=1,NFLD
                     call MAPL_VarRead(UNIT, NEXT(I), RC=STATUS)
-                    VERIFY_(STATUS)
+                    _VERIFY(STATUS)
                  end do
                  if(DONE==1) exit
                  DONE = DONE + 1
               else
                  call MAPL_Skip(UNIT,LAYOUT,COUNT=NFLD,rc=status)
-                 VERIFY_(STATUS)
+                 _VERIFY(STATUS)
               end if
            end do
 
@@ -4815,9 +4890,9 @@ module MAPL_IOMod
 
            do I=1,NFLD
               call MAPL_FieldSetTime (  PREV(I), BEFORE, rc=STATUS )
-              VERIFY_(STATUS)
+              _VERIFY(STATUS)
               call MAPL_FieldSetTime (  NEXT(I), AFTER , rc=STATUS )
-              VERIFY_(STATUS)
+              _VERIFY(STATUS)
            end do
    
         endif
@@ -4825,7 +4900,7 @@ module MAPL_IOMod
         deallocate(NEXT)
         deallocate(PREV)
 
-        RETURN_(ESMF_SUCCESS)
+        _RETURN(ESMF_SUCCESS)
       end subroutine MAPL_ClimUpdate
 
 
@@ -4835,30 +4910,29 @@ module MAPL_IOMod
         integer,optional,intent(out) :: RC
 
         integer :: STATUS
-        character(len=ESMF_MAXSTR) :: IAm = 'MAPL_GetClimMonths'
 
         integer                 :: MonthCurr
         type(ESMF_Time        ) :: midMonth
         type(ESMF_TimeInterval) :: oneMonth
 
         call ESMF_TimeIntervalSet(oneMonth, MM = 1, RC=STATUS )
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
         call ESMF_TimeGet(CURRENT_TIME, midMonth=midMonth, mm=MonthCurr, RC=STATUS )
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
 
         if( CURRENT_TIME < midMonth ) then
            AFTER    = midMonth
            midMonth = midMonth - oneMonth
            call ESMF_TimeGet (midMonth, midMonth=BEFORE, rc=STATUS )
-           VERIFY_(STATUS)
+           _VERIFY(STATUS)
         else
            BEFORE   = midMonth
            midMonth = midMonth + oneMonth
            call ESMF_TimeGet (midMonth, midMonth=AFTER , rc=STATUS )
-           VERIFY_(STATUS)
+           _VERIFY(STATUS)
         endif
 
-        RETURN_(ESMF_SUCCESS)
+        _RETURN(ESMF_SUCCESS)
     end subroutine MAPL_GetClimMonths
     
   subroutine MAPL_Skip(UNIT, LAYOUT, COUNT, RC)
@@ -4871,7 +4945,6 @@ module MAPL_IOMod
 ! Local variables
 
     integer                               :: STATUS
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_Skip'
     integer                               :: N, NN
 
     if(present(COUNT)) then
@@ -4883,18 +4956,18 @@ module MAPL_IOMod
     if (unit < 0) then
        munit => MEM_units(-unit)
        munit%prevrec = munit%prevrec + NN
-       RETURN_(ESMF_SUCCESS)
+       _RETURN(ESMF_SUCCESS)
     endif
 
     if (MAPL_AM_I_ROOT(LAYOUT)) then
 
        do N=1,NN
           read (unit=UNIT, IOSTAT=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end do
     end if
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_Skip
 
   subroutine MAPL_Backspace(UNIT, LAYOUT, COUNT, RC)
@@ -4907,7 +4980,6 @@ module MAPL_IOMod
 ! Local variables
 
     integer                               :: STATUS
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_Backspace'
     integer                               :: N, NN
 
     if (MAPL_AM_I_ROOT(LAYOUT)) then
@@ -4919,11 +4991,11 @@ module MAPL_IOMod
 
        do N=1,NN
           backspace(unit=UNIT, IOSTAT=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end do
     end if
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_Backspace
 
   subroutine MAPL_Rewind(UNIT, LAYOUT, RC)
@@ -4935,14 +5007,13 @@ module MAPL_IOMod
 ! Local variables
 
     integer                               :: STATUS
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_Rewind'
 
     if (MAPL_AM_I_ROOT(LAYOUT)) then
        rewind(unit=UNIT, IOSTAT=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_Rewind
 
   subroutine MAPL_TileMaskGet(grid, mask, rc)
@@ -4953,7 +5024,6 @@ module MAPL_IOMod
 ! Local variables
 
     integer                               :: STATUS
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_TileMaskGet'
     integer, pointer                      :: tileIndex(:)
     integer                               :: gcount(2), lcount(2)
     integer                               :: gsize, lsize
@@ -4971,72 +5041,69 @@ module MAPL_IOMod
     integer                               :: I
     integer                               :: I1, IN
     integer, allocatable                  :: var(:)
-    integer                               :: deList(1)
     type (ESMF_DELayout)                  :: layout
 
     type(ESMF_VM) :: vm
     logical :: amIRoot
 
     call ESMF_GridGet(grid, dimCount=gridRank, distGrid=distGrid, rc=status)
-    VERIFY_(STATUS)
-    ASSERT_(gridRank == 1)
+    _VERIFY(STATUS)
+    _ASSERT(gridRank == 1, 'gridRank must be 1')
 
     call MAPL_GridGet(grid, globalCellCountPerDim=gcount, &
          localCellCountPerDim=lcount, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     gsize = gcount(1)
     lsize = lcount(1)
 
     call ESMF_DistGridGet(distgrid, localDe=0, elementCount=n, rc=status)
-    ASSERT_(lsize == n)
+    _ASSERT(lsize == n, ' inconsistent lsize')
 
     allocate(tileIndex(lsize), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_DistGridGet(distgrid, localDe=0, seqIndexList=tileIndex, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS)
-    VERIFY_(STATUS)
-    call ESMF_DELayoutGet(layout, deCount =nDEs, localDeList=deList, rc=status)
-    VERIFY_(STATUS)
-    deId = deList(1)
-
+    _VERIFY(STATUS)
     call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
+    call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status)
+    _VERIFY(STATUS)
 
     amIRoot = MAPL_AM_I_Root(vm)
 
     call ESMF_VmBarrier(vm, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (.not. MAPL_ShmInitialized) then
        allocate(mask(gsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     else
        call MAPL_AllocNodeArray(mask,(/gsize/),rc=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
     allocate (AL(gridRank,0:nDEs-1),  stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate (AU(gridRank,0:nDEs-1),  stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call MAPL_DistGridGet(distgrid, &
          minIndex=AL, maxIndex=AU, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     allocate (recvcounts(0:nDEs-1), displs(0:nDEs), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (.not. MAPL_ShmInitialized .or. amIRoot) then
        allocate(VAR(0:gsize-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     else
        allocate(VAR(0), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
     
     displs(0) = 0
@@ -5054,7 +5121,7 @@ module MAPL_IOMod
     enddo
 
 #ifdef NEW
-    ASSERT_(.false.) !ALT this section is questionable
+    _ASSERT(.false., 'unsupported code block') !ALT this section is questionable
     do I = 0,nDEs-1
        de = I
        I1 = AL(1,I)
@@ -5066,18 +5133,18 @@ module MAPL_IOMod
        do II=I1,IN
           mmax=var(II)
           call MAPL_CommsAllReduceMax(vm, mmax, var(II), 1, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        enddo
     end do
 #else
     if (MAPL_ShmInitialized) then
        call MAPL_CommsGatherV(layout, tileindex, sendcount, &
                               var, recvcounts, displs, MAPL_Root, status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     else
        call MAPL_CommsAllGatherV(layout, tileindex, sendcount, &
                                  var, recvcounts, displs, status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     endif
 #endif
 
@@ -5098,122 +5165,157 @@ module MAPL_IOMod
 
 ! mask is deallocated in the caller routine
        call MAPL_BroadcastToNodes(MASK, N=gsize, ROOT=MAPL_Root, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
     call MAPL_SyncSharedMemory(rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_TileMaskGet
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R4_3d(ncioObj, name, A, ARRDES, RC)
+  subroutine MAPL_VarWriteNCpar_R4_3d(formatter, name, A, ARRDES, oClients, RC)
 
-    type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
+    type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(IN   ) :: A(:,:,:)
     type(ArrDescr)              , intent(INOUT) :: ARRDES
+    type (ClientManager), optional, intent(inout)  :: oClients
     integer,           optional , intent(  OUT) :: RC
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWriteNCpar_R4_3d'
-
     integer :: l
+    integer ::  i1, j1, in, jn,  global_dim(3), request_id
+    type(ArrayReference)     :: ref
+
+    if (arrdes%write_restart_by_oserver) then
+       _ASSERT(present(oClients), "output server is needed")
+       call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
+        _VERIFY(status)
+       call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
+       _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i not match")
+       _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j not match")
+       ref = ArrayReference(A)
+       _ASSERT( size(a,1) == in-i1+1, "size not match")
+       _ASSERT( size(a,2) == jn-j1+1, "size not match")
+       call oClients%collective_stage_data(arrdes%collection_id,trim(arrdes%filename),trim(name), &
+                      ref,start=[i1,j1,1], &
+                      global_start=[1,1,1], global_count=[global_dim(1),global_dim(2),size(a,3)])
+       _RETURN(_SUCCESS)
+    endif
+
     do l=1,size(a,3)
-       call MAPL_VarWrite(ncioObj,name,A(:,:,l),arrdes,lev=l, rc=status)
-       VERIFY_(status)
+       call MAPL_VarWrite(formatter,name,A(:,:,l),arrdes,lev=l, rc=status)
+       _VERIFY(status)
     enddo
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWriteNCpar_R4_3d
 
 !---------------------------
 
-  subroutine MAPL_VarReadNCpar_R4_3d(ncioObj, name, A, ARRDES, RC)
+  subroutine MAPL_VarReadNCpar_R4_3d(formatter, name, A, ARRDES, RC)
   
-    type (MAPL_NCIO)          , intent(IN   ) :: ncioObj
+    type (Netcdf4_Fileformatter)          , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(INOUT) :: A(:,:,:)
     type(ArrDescr)              , intent(INOUT) :: ARRDES
     integer,           optional , intent(  OUT) :: RC
 
-! Local variables
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarReadNCpar_R4_3d'
     integer :: l
 
     do l=1,size(a,3)
-       call MAPL_VarRead(ncioObj,name,A(:,:,l),arrdes,lev=l, rc=status)
-       VERIFY_(status)
+       call MAPL_VarRead(formatter,name,A(:,:,l),arrdes,lev=l, rc=status)
+       _VERIFY(status)
     enddo
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarReadNCpar_R4_3d
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R8_3d(ncioObj, name, A, ARRDES, RC)
+  subroutine MAPL_VarWriteNCpar_R8_3d(formatter, name, A, ARRDES, oClients, RC)
 
-    type (MAPL_NCIO)          , intent(IN   ) :: ncioObj
+    type (Netcdf4_Fileformatter), intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:,:)
     type(ArrDescr)              , intent(INOUT) :: ARRDES
+    type (ClientManager), optional, intent(inout)  :: oClients
     integer,           optional , intent(  OUT) :: RC
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWriteNCpar_R8_3d'
 
     integer :: l
+
+    integer ::  i1, j1, in, jn,  global_dim(3), request_id
+    type(ArrayReference)     :: ref
+
+
+    if (arrdes%write_restart_by_oserver) then
+       _ASSERT(present(oClients), "outpur server is needed")
+       call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
+        _VERIFY(status)
+       call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
+       _ASSERT( i1 == arrdes%i1(arrdes%NX0), "interior starting i not match")
+       _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j not match")
+       ref = ArrayReference(A)
+       _ASSERT( size(a,1) == in-i1+1, "size not match")
+       _ASSERT( size(a,2) == jn-j1+1, "size not match")
+       call oClients%collective_stage_data(arrdes%collection_id,trim(arrdes%filename),trim(name), &
+                      ref,start=[i1,j1,1], &
+                      global_start=[1,1,1], global_count=[global_dim(1),global_dim(2),size(a,3)])
+       _RETURN(_SUCCESS)
+    endif
+
     do l=1,size(a,3)
-       call MAPL_VarWrite(ncioObj,name,A(:,:,l),arrdes,lev=l, rc=status)
-       VERIFY_(status)
+       call MAPL_VarWrite(formatter,name,A(:,:,l),arrdes,lev=l, rc=status)
+       _VERIFY(status)
     enddo
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_VarWriteNCpar_R8_3d
 
 !---------------------------
 
-  subroutine MAPL_VarReadNCpar_R8_3d(ncioObj, name, A, ARRDES, RC)
+  subroutine MAPL_VarReadNCpar_R8_3d(formatter, name, A, ARRDES, RC)
   
-    type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
+    type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
-    real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:,:)
+    real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:,:)
     type(ArrDescr)              , intent(INOUT) :: ARRDES
     integer,           optional , intent(  OUT) :: RC
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarReadNCpar_R8_3d'
     integer :: l
 
     do l=1,size(a,3)
-       call MAPL_VarRead(ncioObj,name,A(:,:,l),arrdes,lev=l, rc=status)
-       VERIFY_(status)
+       call MAPL_VarRead(formatter,name,A(:,:,l),arrdes,lev=l, rc=status)
+       _VERIFY(status)
     enddo
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarReadNCpar_R8_3d
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R4_2d(ncioObj, name, A, ARRDES, lev, RC)
+  subroutine MAPL_VarWriteNCpar_R4_2d(formatter, name, A, ARRDES, lev, oClients, RC)
 
-    type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
+    type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(IN   ) :: A(:,:)
     type(ArrDescr),    optional , intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: lev
+    type (ClientManager), optional, intent(inout) :: oClients
     integer,           optional , intent(  OUT) :: RC
 
 ! Local variables
-    integer                               :: fid, varid
     real(kind=ESMF_KIND_R4),  allocatable :: VAR(:,:)
     integer                               :: IM_WORLD
     integer                               :: JM_WORLD
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWriteNCpar_R4_2d'
 
     real(kind=ESMF_KIND_R4),  allocatable :: recvbuf(:)
     integer                               :: I,J,N,K,L,myrow,myiorank,ndes_x
@@ -5222,6 +5324,27 @@ module MAPL_IOMod
     integer, allocatable                  :: recvcounts(:), displs(:)
 
     logical :: AM_WRITER
+    type (ArrayReference) :: ref
+    integer ::  i1, j1, in, jn,  global_dim(3), request_id
+
+    if (present(arrdes)) then
+       if(arrdes%write_restart_by_oserver) then
+          _ASSERT(present(oClients), "output server is needed")
+          call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
+           _VERIFY(status)
+          call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
+          _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
+          _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
+       
+          ref = ArrayReference(A)
+          _ASSERT( size(a,1) == in-i1+1, "size not match")
+          _ASSERT( size(a,2) == jn-j1+1, "size not match")
+          call oClients%collective_stage_data(arrdes%collection_id,trim(arrdes%filename),trim(name), &
+                      ref,start=[i1,j1], &
+                      global_start=[1,1], global_count=[global_dim(1),global_dim(2)])
+          _RETURN(_SUCCESS)
+       endif
+    endif
 
     AM_WRITER = .false.
     if (present(arrdes)) then
@@ -5232,12 +5355,6 @@ module MAPL_IOMod
        AM_WRITER = .true.
     end if
 
-    if (AM_WRITER) then
-       varid = MAPL_NCIOGetVarid(ncioObj,name,rc=status)
-       VERIFY_(STATUS)
-       fid = ncioObj%ncid
-    end if
-
     if (present(arrdes)) then
 
        IM_WORLD = arrdes%im_world
@@ -5246,15 +5363,15 @@ module MAPL_IOMod
        ndes_x = size(arrdes%in)
 
        call mpi_comm_rank(arrdes%ycomm,myrow,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_rank(arrdes%iogathercomm,myiorank,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_size(arrdes%iogathercomm,num_io_rows,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (recvcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -5272,19 +5389,19 @@ module MAPL_IOMod
              jsize=jsize + (arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(recvbuf(IM_WORLD*jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
 
        if(myiorank/=0) then
           allocate(recvbuf(0), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
 
        call mpi_gatherv( a, size(a), MPI_REAL, recvbuf, recvcounts, displs, MPI_REAL, &
                       0, arrdes%iogathercomm, status )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
 
@@ -5314,21 +5431,25 @@ module MAPL_IOMod
           cnt(3) = 1
           cnt(4) = 1
 
-          STATUS = NF_PUT_VARA_REAL(fid, varid, start, cnt, VAR)
+          if(arrdes%write_restart_by_face) then
+             start(2) = start(2) - (arrdes%face_index-1)*IM_WORLD
+          endif
+
+          call formatter%put_var(trim(name),VAR,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,'Error writing variable ',status
              print*, NF_STRERROR(status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
           deallocate(VAR, stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
        endif ! myiorank
 
        deallocate(recvbuf, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate (recvcounts, displs, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
     else
 
@@ -5342,23 +5463,23 @@ module MAPL_IOMod
           cnt(3) = 1
           cnt(4) = 1
 
-          STATUS = NF_PUT_VARA_REAL(fid, varid, start, cnt, a)
+          call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,'Error writing variable ',status
              print*, NF_STRERROR(status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
 
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWriteNCpar_R4_2d
 
 !---------------------------
 
-  subroutine MAPL_VarReadNCpar_R4_2d(ncioObj, name, A, ARRDES, lev, RC)
+  subroutine MAPL_VarReadNCpar_R4_2d(formatter, name, A, ARRDES, lev, RC)
   
-    type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
+    type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(INOUT) :: A(:,:)
     type(ArrDescr), optional    , intent(INOUT) :: ARRDES
@@ -5366,12 +5487,10 @@ module MAPL_IOMod
     integer,           optional , intent(  OUT) :: RC
 
 ! Local variables
-    integer                               :: varid,unit
     real(kind=ESMF_KIND_R4),  allocatable :: VAR(:,:)
     integer                               :: IM_WORLD
     integer                               :: JM_WORLD
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarReadNCpar_R4_2d'
 
     real(kind=ESMF_KIND_R4),  allocatable :: buf(:)
     integer                               :: I,J,N,K,L,myrow,myiorank,ndes_x
@@ -5390,12 +5509,6 @@ module MAPL_IOMod
        AM_READER = .true.
     end if
       
-    if (AM_READER) then 
-       varid = MAPL_NCIOGetVarid(ncioObj,name,rc=status)
-       VERIFY_(STATUS)
-       unit = ncioObj%ncid
-    end if
-
     if (present(arrdes) ) then
 
        IM_WORLD = arrdes%im_world
@@ -5403,15 +5516,15 @@ module MAPL_IOMod
 
        ndes_x = size(arrdes%in)
        call mpi_comm_rank(arrdes%ycomm,myrow,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_rank(arrdes%ioscattercomm,myiorank,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_size(arrdes%ioscattercomm,num_io_rows,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -5429,9 +5542,9 @@ module MAPL_IOMod
              jsize=jsize + (arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(buf(IM_WORLD*jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           start(1) = 1
           start(2) = arrdes%j1(myrow+1)
@@ -5442,12 +5555,16 @@ module MAPL_IOMod
           cnt(2) = jsize
           cnt(3) = 1
           cnt(4) = 1
-       
-          STATUS = NF_GET_VARA_REAL(UNIT, varid, start, cnt, VAR)
+    
+          if(arrdes%read_restart_by_face) then
+             start(2) = start(2) - (arrdes%face_index-1)*IM_WORLD
+          endif
+
+          call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)   
           if(status /= nf_noerr) then
              print*,'Error reading variable ',status
              print*, NF_STRERROR(status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
 
           jprev = 0
@@ -5466,23 +5583,23 @@ module MAPL_IOMod
           end do
 
           deallocate(VAR, stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if ! myiorank
 
        if(myiorank/=0) then
           allocate(buf(0), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
 
        call mpi_scatterv( buf, sendcounts, displs, MPI_REAL, &
                a,  size(a),  MPI_REAL, &
                0, arrdes%ioscattercomm, status )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        deallocate(buf, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate (sendcounts, displs, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
     else
 
@@ -5495,24 +5612,24 @@ module MAPL_IOMod
        cnt(2) = size(a,2)
        cnt(3) = 1
        cnt(4) = 1
-  
-       STATUS = NF_GET_VARA_REAL(UNIT, varid, start, cnt, a)
+ 
+       call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status) 
        if(status /= nf_noerr) then
           print*,'Error reading variable ',status
           print*, NF_STRERROR(status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
 
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarReadNCpar_R4_2d
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R4_1d(ncioObj, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
+  subroutine MAPL_VarWriteNCpar_R4_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2,gvar_out, RC)
 
-    type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
+    type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(IN   ) :: A(:)
     type (ESMF_DELayout), optional, intent(IN   ) :: layout
@@ -5520,10 +5637,10 @@ module MAPL_IOMod
     integer,           optional , intent(IN   ) :: MASK(:)
     integer,           optional,  intent(IN   ) :: offset1
     integer,           optional,  intent(IN   ) :: offset2
+    real(kind=ESMF_KIND_R4),optional, intent(inout  ) :: gvar_out(:)
     integer,           optional , intent(  OUT) :: RC
 
 ! Local variables
-    integer                               :: varid, unit
     real(kind=ESMF_KIND_R4),  allocatable :: VAR(:)
     real(kind=ESMF_KIND_R4),  allocatable :: GVAR(:)
     integer                               :: IM_WORLD
@@ -5561,24 +5678,17 @@ module MAPL_IOMod
        AM_WRITER = .true.
     end if
 
-    if (AM_WRITER) then
-       varid = MAPL_NCIOGetVarid(ncioObj,name,rc=status)
-       VERIFY_(STATUS)
-       unit = ncioObj%ncid
-    end if
-
-
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
        IM_WORLD = arrdes%im_world
 
        call mpi_comm_size(arrdes%iogathercomm,npes ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%writers_comm,mypeWr ,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call mpi_comm_size(arrdes%writers_comm,nwrts,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
           mypeWr = -1
        endif
@@ -5598,39 +5708,39 @@ module MAPL_IOMod
 
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(GVAR(Rsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
        allocate(VAR(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(msk(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (recvcounts(0:npes-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (r2g(0:nwrts-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(inv_pes(0:npes-1),stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call mpi_comm_rank(arrdes%iogathercomm,mype ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call MPI_COMM_GROUP (arrdes%iogathercomm, GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 #if 1
        if (arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(rpes(0:nwrts-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           call MPI_COMM_GROUP (arrdes%writers_comm, NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           do n=0,nwrts-1
              rpes(n) = n
           end do
           call MPI_Group_translate_ranks(newgroup, nwrts, rpes, group, r2g, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
@@ -5663,11 +5773,11 @@ module MAPL_IOMod
              nactive = nactive + 1
           end if
           allocate (activeranks(0:nactive-1), activerecvcounts(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(pes(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate (displs(0:nactive), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           k = 0
           do i=0, npes-1
              if (recvcounts(i) > 0) then
@@ -5677,18 +5787,18 @@ module MAPL_IOMod
           enddo
           if (k /= nactive) then
              k = k+1
-             ASSERT_(k == nactive)
-             ASSERT_(recvcounts(r2g(n)) == 0)
+             _ASSERT(k == nactive, 'inconsistent nactive')
+             _ASSERT(recvcounts(r2g(n)) == 0, 'recvcounts must be 0')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_COMM_CREATE(arrdes%iogathercomm, newgroup, thiscomm, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_Group_translate_ranks(group, nactive, pes, newgroup, activeranks, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           inv_pes = -1 ! initialized to invalid
           do i=0,nactive-1
              inv_pes(pes(i)) = i
@@ -5716,9 +5826,9 @@ module MAPL_IOMod
                                   var, activerecvcounts, displs, MPI_REAL, &
                                   ntransl, thiscomm, status )
              endif
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_Comm_Free(thiscomm, status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              if(n==mypeWr) then
                 msk = mask(first:last)
@@ -5747,8 +5857,8 @@ module MAPL_IOMod
           endif
           last  = first + Rsize - 1
 
-          ASSERT_( (lbound(mask,1) <= first) )
-          ASSERT_( (ubound(mask,1) >= last ) )
+          _ASSERT( (lbound(mask,1) <= first), 'out of bounds' )
+          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
 ! lon, lat, lev, time
           start(1) = first
           start(2) = 1
@@ -5763,17 +5873,25 @@ module MAPL_IOMod
 !          print*,'start values are ',start
 !          print*,'count values are ',cnt
 
-          STATUS = NF_PUT_VARA_REAL(UNIT, varid, start, cnt, GVAR)
-          if(status /= nf_noerr) then
-             print*,'Error writing variable ', status
-             print*, NF_STRERROR(status)
-             VERIFY_(STATUS)
-          endif
+          if (arrdes%write_restart_by_oserver) then
+             if(present(gvar_out)) then
+               gvar_out = gvar
+             else
+               _ASSERT(.false., "gvar_out should be present")
+             endif
+          else
+             call formatter%put_var(trim(name),gvar,start=start,count=cnt,rc=status)
+             if(status /= nf_noerr) then
+                print*,'Error writing variable ', status
+                print*, NF_STRERROR(status)
+                _VERIFY(STATUS)
+             endif
+          endif ! write_restart_by_oserver
 
        endif
 
        call MPI_GROUP_FREE (GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate(var,msk)
        deallocate (inv_pes)
        deallocate (r2g)
@@ -5801,37 +5919,52 @@ module MAPL_IOMod
        if (present(arrdes)) then
 
           if (arrdes%writers_comm/=MPI_COMM_NULL) then
-             call MPI_COMM_RANK(arrdes%writers_comm, io_rank, STATUS)
-             VERIFY_(STATUS)
-             if (io_rank == 0) then
-                STATUS = NF_PUT_VARA_REAL(UNIT, varid, start, cnt, A)
-                if(status /= nf_noerr) then
-                   print*,trim(IAm),'Error writing variable ',status
-                   print*, NF_STRERROR(status)
-                   VERIFY_(STATUS)
-                endif
+
+             if (arrdes%write_restart_by_face) then
+                call MPI_COMM_RANK(arrdes%face_writers_comm, io_rank, STATUS)
+                _VERIFY(STATUS)
+             else
+                call MPI_COMM_RANK(arrdes%writers_comm, io_rank, STATUS)
+                _VERIFY(STATUS)
              endif
-           endif
 
-       else
+             if (io_rank == 0) then
 
-          STATUS = NF_PUT_VARA_REAL(UNIT, varid, start, cnt, A)
+                if (arrdes%write_restart_by_oserver) then
+                   if(present(gvar_out)) then
+                      gvar_out = A
+                   else
+                      _ASSERT(.false., "gvar_out should be present")
+                   endif
+                else
+                   call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
+                   if(status /= nf_noerr) then
+                      print*,trim(IAm),'Error writing variable ',status
+                      print*, NF_STRERROR(status)
+                      _VERIFY(STATUS)
+                   endif
+                endif !write_restart_by_oserver
+             endif ! io_rank = 0
+          endif ! arrdes%writers_comm/=MPI_COMM_NULL
+       else ! not present(arrdes)
+          ! WY notes : it doesnot seem to get this branch
+          call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,trim(IAm),'Error writing variable ',status
              print*, NF_STRERROR(status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
 
        end if
 
     end if
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWriteNCpar_R4_1d
 
-  subroutine MAPL_VarWriteNCpar_R8_1d(ncioObj, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
+  subroutine MAPL_VarWriteNCpar_R8_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, gvar_out, RC)
 
-    type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
+    type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:)
     type (ESMF_DELayout), optional, intent(IN   ) :: layout
@@ -5839,10 +5972,10 @@ module MAPL_IOMod
     integer,           optional , intent(IN   ) :: MASK(:)
     integer,           optional,  intent(IN   ) :: offset1
     integer,           optional,  intent(IN   ) :: offset2
+    real(kind=ESMF_KIND_R8), optional, intent(INOUT  ) :: gvar_out(:)
     integer,           optional , intent(  OUT) :: RC
 
 ! Local variables
-    integer                               :: varid, unit
     real(kind=ESMF_KIND_R8),  allocatable :: VAR(:)
     real(kind=ESMF_KIND_R8),  allocatable :: GVAR(:)
     integer                               :: IM_WORLD
@@ -5880,23 +6013,17 @@ module MAPL_IOMod
        AM_WRITER = .true.
     end if
 
-    if (AM_WRITER) then
-       varid = MAPL_NCIOGetVarid(ncioObj,name,rc=status)
-       VERIFY_(STATUS)
-       unit = ncioObj%ncid
-    end if
-
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
        IM_WORLD = arrdes%im_world
 
        call mpi_comm_size(arrdes%iogathercomm,npes ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%writers_comm,mypeWr ,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call mpi_comm_size(arrdes%writers_comm,nwrts,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
           mypeWr = -1
        endif
@@ -5916,39 +6043,39 @@ module MAPL_IOMod
 
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(GVAR(Rsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
        allocate(VAR(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(msk(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (recvcounts(0:npes-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (r2g(0:nwrts-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(inv_pes(0:npes-1),stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call mpi_comm_rank(arrdes%iogathercomm,mype ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call MPI_COMM_GROUP (arrdes%iogathercomm, GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 #if 1
        if (arrdes%writers_comm /= MPI_COMM_NULL) then
           allocate(rpes(0:nwrts-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           call MPI_COMM_GROUP (arrdes%writers_comm, NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           do n=0,nwrts-1
              rpes(n) = n
           end do
           call MPI_Group_translate_ranks(newgroup, nwrts, rpes, group, r2g, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
@@ -5981,11 +6108,11 @@ module MAPL_IOMod
              nactive = nactive + 1
           end if
           allocate (activeranks(0:nactive-1), activerecvcounts(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(pes(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate (displs(0:nactive), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           k = 0
           do i=0, npes-1
              if (recvcounts(i) > 0) then
@@ -5995,18 +6122,18 @@ module MAPL_IOMod
           enddo
           if (k /= nactive) then
              k = k+1
-             ASSERT_(k == nactive)
-             ASSERT_(recvcounts(r2g(n)) == 0)
+             _ASSERT(k == nactive, 'inconsistent nactive')
+             _ASSERT(recvcounts(r2g(n)) == 0, 'recvcounts should be 0')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_COMM_CREATE(arrdes%iogathercomm, newgroup, thiscomm, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_Group_translate_ranks(group, nactive, pes, newgroup, activeranks, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           inv_pes = -1 ! initialized to invalid
           do i=0,nactive-1
              inv_pes(pes(i)) = i
@@ -6034,9 +6161,9 @@ module MAPL_IOMod
                                   var, activerecvcounts, displs, MPI_DOUBLE_PRECISION, &
                                   ntransl, thiscomm, status )
              endif
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_Comm_Free(thiscomm, status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              if(n==mypeWr) then
                 msk = mask(first:last)
@@ -6065,8 +6192,8 @@ module MAPL_IOMod
           endif
           last  = first + Rsize - 1
 
-          ASSERT_( (lbound(mask,1) <= first) )
-          ASSERT_( (ubound(mask,1) >= last ) )
+          _ASSERT( (lbound(mask,1) <= first), 'out of bounds' )
+          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
 ! lon, lat, lev, time
           start(1) = first
           start(2) = 1
@@ -6080,18 +6207,27 @@ module MAPL_IOMod
           cnt(4) = 1
 !          print*,'start values are ',start
 !          print*,'count values are ',cnt
-
-          STATUS = NF_PUT_VARA_DOUBLE(UNIT, varid, start, cnt, GVAR)
-          if(status /= nf_noerr) then
-             print*,'Error writing variable ', status
-             print*, NF_STRERROR(status)
-             VERIFY_(STATUS)
-          endif
+ 
+          if (arrdes%write_restart_by_oserver) then
+             ! WJ note: only one writer, so size(gvar) == size(gvar_out)  
+             if (present(gvar_out)) then
+                gvar_out = gvar
+             else
+                _ASSERT(.false., "gvar_out should be present")
+             endif
+          else
+             call formatter%put_var(trim(name),gvar,start=start,count=cnt,rc=status)
+             if(status /= nf_noerr) then
+                print*,'Error writing variable ', status
+                print*, NF_STRERROR(status)
+                _VERIFY(STATUS)
+             endif
+          endif !write_restart_by_oserver
 
        endif
 
        call MPI_GROUP_FREE (GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate(var,msk)
        deallocate (inv_pes)
        deallocate (r2g)
@@ -6119,41 +6255,57 @@ module MAPL_IOMod
        if (present(arrdes)) then
 
           if (arrdes%writers_comm/=MPI_COMM_NULL) then
-             call MPI_COMM_RANK(arrdes%writers_comm, io_rank, STATUS)
-             VERIFY_(STATUS)
-             if (io_rank == 0) then
-                STATUS = NF_PUT_VARA_DOUBLE(UNIT, varid, start, cnt, A)
-                if(status /= nf_noerr) then
-                   print*,trim(IAm),'Error writing variable ',status
-                   print*, NF_STRERROR(status)
-                   VERIFY_(STATUS)
-                endif
+
+             if(arrdes%write_restart_by_face) then
+                call MPI_COMM_RANK(arrdes%face_writers_comm, io_rank, STATUS)
+                _VERIFY(STATUS)
+             else
+                call MPI_COMM_RANK(arrdes%writers_comm, io_rank, STATUS)
+                _VERIFY(STATUS)
              endif
+
+             if (io_rank == 0) then
+                if (arrdes%write_restart_by_oserver) then
+                   ! WJ note: only one writer, so size(gvar) == size(gvar_out)  
+                   if (present(gvar_out)) then
+                      gvar_out = A
+                   else
+                      _ASSERT(.false., "gvar_out should be present")
+                  endif
+               else
+                  call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
+                  if(status /= nf_noerr) then
+                     print*,trim(IAm),'Error writing variable ',status
+                     print*, NF_STRERROR(status)
+                     _VERIFY(STATUS)
+                  endif
+               endif ! write_restart_by_oserver
+             endif ! io_rank
            endif
 
        else
-
-          STATUS = NF_PUT_VARA_DOUBLE(UNIT, varid, start, cnt, A)
+          !WJ notes : not here
+          call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,trim(IAm),'Error writing variable ',status
              print*, NF_STRERROR(status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
 
        end if
 
     end if
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWriteNCpar_R8_1d
 
 !----------------------------------------------------------------------------
 
-  subroutine MAPL_VarReadNCpar_R4_1d(ncioObj, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
+  subroutine MAPL_VarReadNCpar_R4_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
 
-    type(MAPL_NCIO)             , intent(in   ) :: ncioObj
+    type(Netcdf4_Fileformatter)             , intent(in   ) :: formatter
     character(len=*)              , intent(in   ) :: name
-    real(kind=ESMF_KIND_R4)       , intent(  OUT) :: A(:)
+    real(kind=ESMF_KIND_R4)       , intent(inOUT) :: A(:)
     type (ESMF_DELayout), optional, intent(IN   ) :: layout
     type(ArrDescr), optional,  intent(INOUT) :: ARRDES
     integer,           optional   , intent(IN   ) :: MASK(:)
@@ -6162,7 +6314,6 @@ module MAPL_IOMod
     integer,           optional   , intent(  OUT) :: RC
 
 ! Local variables
-    integer                               :: unit, varid
     real(kind=ESMF_KIND_R4),  allocatable :: VAR(:)
     integer                               :: IM_WORLD
     integer                               :: status
@@ -6197,30 +6348,23 @@ module MAPL_IOMod
        AM_READER = .true.
     end if
 
-    if (AM_READER) then
-       varid = MAPL_NCIOGetVarid(ncioObj,name,rc=status)
-       VERIFY_(STATUS)
-       unit = ncioObj%ncid
-    end if
-
-
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
        IM_WORLD = arrdes%im_world
 
        call mpi_comm_size(arrdes%ioscattercomm,npes ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%readers_comm,mypeRd ,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call mpi_comm_size(arrdes%readers_comm,nrdrs,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
           mypeRd = -1
        endif
 
        call MAPL_CommsBcast(layout, nrdrs, 1, 0, rc = status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        Rsize = im_world/nrdrs + 1
        first = mypeRd*Rsize + 1
        if(mypeRd >=  mod(im_world,nrdrs)) then
@@ -6234,13 +6378,13 @@ module MAPL_IOMod
 #endif
 
        allocate(VAR(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(msk(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (sendcounts(0:npes-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (r2g(0:nrdrs-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           start(1) = first
@@ -6256,19 +6400,19 @@ module MAPL_IOMod
 !          print*,'start values are ',start
 !          print*,'count values are ',count
 
-          STATUS = NF_GET_VARA_REAL(UNIT, varid, start, cnt, VAR)
+          call formatter%get_var(trim(name),var,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,'Error reading variable ',status
              print*, NF_STRERROR(status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
 
-          ASSERT_( (lbound(mask,1) <= first) )
-          ASSERT_( (ubound(mask,1) >= last ) )
+          _ASSERT( (lbound(mask,1) <= first), 'out of bounds' )
+          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
           msk = mask(first:last)
 
           allocate(idx(Rsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           do i=1,Rsize
              idx(i) = i
@@ -6280,29 +6424,29 @@ module MAPL_IOMod
        endif
 
        call mpi_comm_rank(arrdes%ioscattercomm,mype ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call MPI_COMM_GROUP (arrdes%ioscattercomm, GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 #if 1
        if (arrdes%readers_comm /= MPI_COMM_NULL) then
           allocate(rpes(0:nrdrs-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           call MPI_COMM_GROUP (arrdes%readers_comm, NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           do n=0,nrdrs-1
              rpes(n) = n
           end do
           call MPI_Group_translate_ranks(newgroup, nrdrs, rpes, group, r2g, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        
 #else
        do n=0,nrdrs-1
@@ -6333,11 +6477,11 @@ module MAPL_IOMod
              nactive = nactive + 1
           end if
           allocate (activeranks(0:nactive-1), activesendcounts(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(pes(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate (displs(0:nactive), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           k = 0
           do i=0, npes-1
              if (sendcounts(i) > 0) then
@@ -6347,18 +6491,18 @@ module MAPL_IOMod
           enddo
           if (k /= nactive) then
              k = k+1
-             ASSERT_(k == nactive)
-             ASSERT_(sendcounts(r2g(n)) == 0)
+             _ASSERT(k == nactive, 'inconsistent nactive')
+             _ASSERT(sendcounts(r2g(n)) == 0, 'sendcounts should be 0')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_COMM_CREATE(arrdes%ioscattercomm, newgroup, thiscomm, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_Group_translate_ranks(group, nactive, pes, newgroup, activeranks, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           if (thiscomm /= MPI_COMM_NULL) then
              activesendcounts = 0
@@ -6392,9 +6536,9 @@ module MAPL_IOMod
                                    a(offset),   recvcount,  MPI_REAL, &
                                    ntransl, thiscomm,    status )
              endif
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_Comm_Free(thiscomm, status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              offset = offset + recvcount
           end if
           deallocate (displs)
@@ -6404,7 +6548,7 @@ module MAPL_IOMod
        enddo
 
        call MPI_GROUP_FREE (GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate(var,msk)
        deallocate (r2g)
        deallocate(sendcounts)
@@ -6424,34 +6568,35 @@ module MAPL_IOMod
        cnt(2) = 1
        cnt(3) = 1
        cnt(4) = 1
+
        if (present(layout) ) then
           if (MAPL_am_i_root(layout)) then
-             STATUS = NF_GET_VARA_REAL(UNIT, varid, start, cnt, A)
+             call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
              if(status /= nf_noerr) then
                 print*,trim(IAm),'Error reading variable ',status
                 print*, NF_STRERROR(status)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              endif
           endif
           call MAPL_CommsBcast(layout, A, size(A), MAPL_Root, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
-          STATUS = NF_GET_VARA_REAL(UNIT, varid, start, cnt, A)
+          call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,trim(IAm),'Error reading variable ',status
              print*, NF_STRERROR(status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
        end if
 
     end if
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarReadNCpar_R4_1d
 
-  subroutine MAPL_VarReadNCpar_R8_1d(ncioObj, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
+  subroutine MAPL_VarReadNCpar_R8_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
 
-    type(MAPL_NCIO)             , intent(IN   ) :: ncioObj
+    type(Netcdf4_Fileformatter)             , intent(IN   ) :: formatter
     character(len=*)              , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)       , intent(  OUT) :: A(:)
     type (ESMF_DELayout), optional, intent(IN   ) :: layout
@@ -6462,7 +6607,6 @@ module MAPL_IOMod
     integer,           optional   , intent(  OUT) :: RC
 
 ! Local variables
-    integer                               :: varid, unit
     real(kind=ESMF_KIND_R8),  allocatable :: VAR(:)
     integer                               :: IM_WORLD
     integer                               :: status
@@ -6497,29 +6641,23 @@ module MAPL_IOMod
        AM_READER = .true.
     end if
 
-    if (AM_READER) then
-       varid = MAPL_NCIOGetVarid(ncioObj,name,rc=status)
-       VERIFY_(STATUS)
-       unit = ncioObj%ncid
-    end if
-
     if(present(mask) .and. present(layout) .and. present(arrdes) ) then
 
        IM_WORLD = arrdes%im_world
 
        call mpi_comm_size(arrdes%ioscattercomm,npes ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           call mpi_comm_rank(arrdes%readers_comm,mypeRd ,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call mpi_comm_size(arrdes%readers_comm,nrdrs,status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
           mypeRd = -1
        endif
 
        call MAPL_CommsBcast(layout, nrdrs, 1, 0, rc = status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        Rsize = im_world/nrdrs + 1
        first = mypeRd*Rsize + 1
        if(mypeRd >=  mod(im_world,nrdrs)) then
@@ -6533,13 +6671,13 @@ module MAPL_IOMod
 #endif
 
        allocate(VAR(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(msk(Rsize), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (sendcounts(0:npes-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate (r2g(0:nrdrs-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           start(1) = first
@@ -6555,19 +6693,19 @@ module MAPL_IOMod
 !          print*,'start values are ',start
 !          print*,'count values are ',count
 
-          STATUS = NF_GET_VARA_DOUBLE(UNIT, varid, start, cnt, VAR)
+          call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,'Error reading variable ',status
              print*, NF_STRERROR(status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
 
-          ASSERT_( (lbound(mask,1) <= first) )
-          ASSERT_( (ubound(mask,1) >= last ) )
+          _ASSERT( (lbound(mask,1) <= first), 'out of bounds' )
+          _ASSERT( (ubound(mask,1) >= last ), 'out of bounds' )
           msk = mask(first:last)
 
           allocate(idx(Rsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           do i=1,Rsize
              idx(i) = i
@@ -6579,29 +6717,29 @@ module MAPL_IOMod
        endif
 
        call mpi_comm_rank(arrdes%ioscattercomm,mype ,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call MPI_COMM_GROUP (arrdes%ioscattercomm, GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 #if 1
        if (arrdes%readers_comm /= MPI_COMM_NULL) then
           allocate(rpes(0:nrdrs-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           call MPI_COMM_GROUP (arrdes%readers_comm, NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           do n=0,nrdrs-1
              rpes(n) = n
           end do
           call MPI_Group_translate_ranks(newgroup, nrdrs, rpes, group, r2g, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        
 #else
        do n=0,nrdrs-1
@@ -6632,11 +6770,11 @@ module MAPL_IOMod
              nactive = nactive + 1
           end if
           allocate (activeranks(0:nactive-1), activesendcounts(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(pes(0:nactive-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate (displs(0:nactive), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           k = 0
           do i=0, npes-1
              if (sendcounts(i) > 0) then
@@ -6646,18 +6784,18 @@ module MAPL_IOMod
           enddo
           if (k /= nactive) then
              k = k+1
-             ASSERT_(k == nactive)
-             ASSERT_(sendcounts(r2g(n)) == 0)
+             _ASSERT(k == nactive, 'inconsistent nactive')
+             _ASSERT(sendcounts(r2g(n)) == 0, 'sendcounts should be 0')
              pes(nactive-1) = r2g(n)
           end if
           call MPI_GROUP_INCL (GROUP, nactive, PES, newgroup, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_COMM_CREATE(arrdes%ioscattercomm, newgroup, thiscomm, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_Group_translate_ranks(group, nactive, pes, newgroup, activeranks, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MPI_GROUP_FREE (NEWGROUP, STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           if (thiscomm /= MPI_COMM_NULL) then
              activesendcounts = 0
@@ -6691,9 +6829,9 @@ module MAPL_IOMod
                                    a(offset),   recvcount,  MPI_DOUBLE_PRECISION, &
                                    ntransl, thiscomm,    status )
              endif
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MPI_Comm_Free(thiscomm, status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              offset = offset + recvcount
           end if
           deallocate (displs)
@@ -6703,7 +6841,7 @@ module MAPL_IOMod
        enddo
 
        call MPI_GROUP_FREE (GROUP, STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate(var,msk)
        deallocate (r2g)
        deallocate(sendcounts)
@@ -6725,47 +6863,46 @@ module MAPL_IOMod
        cnt(4) = 1
        if (present(layout) ) then
           if (MAPL_am_i_root(layout)) then
-             STATUS = NF_GET_VARA_DOUBLE(UNIT, varid, start, cnt, A)
+             call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
              if(status /= nf_noerr) then
                 print*,trim(IAm),'Error reading variable ',status
                 print*, NF_STRERROR(status)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              endif
           endif
           call MAPL_CommsBcast(layout, A, size(A), MAPL_Root, status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
-          STATUS = NF_GET_VARA_DOUBLE(UNIT, varid, start, cnt, A)
+          call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,trim(IAm),'Error reading variable ',status
              print*, NF_STRERROR(status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
        end if
 
     end if
     
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarReadNCpar_R8_1d
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R8_2d(ncioObj, name, A, ARRDES, lev, RC)
+  subroutine MAPL_VarWriteNCpar_R8_2d(formatter, name, A, ARRDES, lev, oClients, RC)
 
-    type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
+    type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:)
     type(ArrDescr),    optional , intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: lev
+    type (ClientManager), optional, intent(inout) :: oClients
     integer,           optional , intent(  OUT) :: RC
 
 ! Local variables
-    integer                               :: fid, varid
     real(kind=ESMF_KIND_R8),  allocatable :: VAR(:,:)
     integer                               :: IM_WORLD
     integer                               :: JM_WORLD
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarWriteNCpar_R8_2d'
 
     real(kind=ESMF_KIND_R8),  allocatable :: recvbuf(:)
     integer                               :: I,J,N,K,L,myrow,myiorank,ndes_x
@@ -6774,6 +6911,27 @@ module MAPL_IOMod
     integer, allocatable                  :: recvcounts(:), displs(:)
 
     logical :: AM_WRITER
+    type (ArrayReference) :: ref
+    integer ::  i1, j1, in, jn,  global_dim(3), request_id
+
+    if (present(arrdes)) then
+       if( arrdes%write_restart_by_oserver) then
+          _ASSERT(present(oClients), "output server is needed")
+          call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
+           _VERIFY(status)
+          call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
+          _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting not match")
+          _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting not match")
+          ref = ArrayReference(A)
+          _ASSERT( size(a,1) == in-i1+1, "size not match")
+          _ASSERT( size(a,2) == jn-j1+1, "size not match")
+          call oClients%collective_stage_data(arrdes%collection_id,trim(arrdes%filename),trim(name), &
+                      ref,start=[i1,j1], &
+                      global_start=[1,1], global_count=[global_dim(1),global_dim(2)])
+          _RETURN(_SUCCESS)
+       endif
+    endif
+
 
     AM_WRITER = .false.
     if (present(arrdes)) then
@@ -6784,12 +6942,6 @@ module MAPL_IOMod
        AM_WRITER = .true.
     end if
 
-    if (AM_WRITER) then
-       varid = MAPL_NCIOGetVarid(ncioObj,name,rc=status)
-       VERIFY_(STATUS)
-       fid = ncioObj%ncid
-    end if
-
     if (present(arrdes)) then
 
        IM_WORLD = arrdes%im_world
@@ -6797,15 +6949,15 @@ module MAPL_IOMod
        ndes_x = size(arrdes%in)
 
        call mpi_comm_rank(arrdes%ycomm,myrow,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_rank(arrdes%iogathercomm,myiorank,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_size(arrdes%iogathercomm,num_io_rows,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (recvcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -6823,19 +6975,19 @@ module MAPL_IOMod
              jsize=jsize + (arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(recvbuf(IM_WORLD*jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
 
        if(myiorank/=0) then
           allocate(recvbuf(0), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
 
        call mpi_gatherv( a, size(a), MPI_DOUBLE_PRECISION, recvbuf, recvcounts, displs, &
                          MPI_DOUBLE_PRECISION, 0, arrdes%iogathercomm, status )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
 
@@ -6866,21 +7018,25 @@ module MAPL_IOMod
           cnt(3) = 1
           cnt(4) = 1
 
-          STATUS = NF_PUT_VARA_DOUBLE(fid, varid, start, cnt, VAR)
+          if(arrdes%write_restart_by_face) then
+             start(2) = start(2) - (arrdes%face_index-1)*IM_WORLD
+          endif
+
+          call formatter%put_var(trim(name),VAR,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,'Error writing variable ',status
              print*, NF_STRERROR(status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
           deallocate(VAR, stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
        endif ! myiorank
 
        deallocate(recvbuf, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate (recvcounts, displs, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
     else
 
@@ -6894,31 +7050,30 @@ module MAPL_IOMod
        cnt(3) = 1
        cnt(4) = 1
 
-       STATUS = NF_PUT_VARA_DOUBLE(fid, varid, start, cnt, a)
+       call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status) 
        if(status /= nf_noerr) then
           print*,'Error writing variable ',status
           print*, NF_STRERROR(status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
 
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWriteNCpar_R8_2d
 
 !---------------------------
 
-  subroutine MAPL_VarReadNCpar_R8_2d(ncioObj, name, A, ARRDES, lev, RC)
+  subroutine MAPL_VarReadNCpar_R8_2d(formatter, name, A, ARRDES, lev, RC)
   
-    type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
+    type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
-    real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:)
+    real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:)
     type(ArrDescr),    optional , intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: lev
     integer,           optional , intent(  OUT) :: RC
 
 ! Local variables
-    integer                               :: fid, varid
     real(kind=ESMF_KIND_R8),  allocatable :: VAR(:,:)
     integer                               :: IM_WORLD
     integer                               :: JM_WORLD
@@ -6942,12 +7097,6 @@ module MAPL_IOMod
        AM_READER = .true.
     end if
 
-    if (AM_READER) then
-       varid = MAPL_NCIOGetVarid(ncioObj,name,rc=status)
-       VERIFY_(STATUS)
-       fid = ncioObj%ncid
-    end if
-
     if (present(arrdes)) then
 
        ndes_x = size(arrdes%in)
@@ -6955,15 +7104,15 @@ module MAPL_IOMod
        JM_WORLD = arrdes%jm_world
 
        call mpi_comm_rank(arrdes%ycomm,myrow,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_rank(arrdes%ioscattercomm,myiorank,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call mpi_comm_size(arrdes%ioscattercomm,num_io_rows,status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if(myiorank==0) then
           do j=1,num_io_rows
@@ -6981,9 +7130,9 @@ module MAPL_IOMod
              jsize=jsize + (arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(buf(IM_WORLD*jsize), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           start(1) = 1
           start(2) = arrdes%j1(myrow+1)
@@ -6994,12 +7143,16 @@ module MAPL_IOMod
           cnt(2) = jsize
           cnt(3) = 1
           cnt(4) = 1
-          
-          STATUS = NF_GET_VARA_DOUBLE(fid, varid, start, cnt, VAR)
+         
+          if(arrdes%read_restart_by_face) then
+             start(2) = start(2) - (arrdes%face_index-1)*IM_WORLD
+          endif
+
+          call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status) 
           if(status /= nf_noerr) then
                   print*,'Error reading variable ',status
                   print*, NF_STRERROR(status)
-                  VERIFY_(STATUS)
+                  _VERIFY(STATUS)
           endif
 
           jprev = 0
@@ -7018,23 +7171,23 @@ module MAPL_IOMod
           end do
 
           deallocate(VAR, stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if ! myiorank
 
        if(myiorank/=0) then
           allocate(buf(0), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
 
        call mpi_scatterv( buf, sendcounts, displs, MPI_DOUBLE_PRECISION, &
                  a,  size(a),  MPI_DOUBLE_PRECISION, &
                  0, arrdes%ioscattercomm, status )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        deallocate(buf, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate (sendcounts, displs, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
     else
 
@@ -7047,17 +7200,17 @@ module MAPL_IOMod
        cnt(2) = size(a,2)
        cnt(3) = 1
        cnt(4) = 1
-       
-       STATUS = NF_GET_VARA_DOUBLE(fid, varid, start, cnt, a)
+
+       call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status) 
        if(status /= nf_noerr) then
                print*,'Error reading variable ',status
                print*, NF_STRERROR(status)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
        endif
 
     endif
 
-  RETURN_(ESMF_SUCCESS)
+  _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarReadNCpar_R8_2d
 
 !---------------------------
@@ -7078,40 +7231,46 @@ module MAPL_IOMod
     integer                            :: info
 
     integer                            :: STATUS
-    character(len=ESMF_MAXSTR)         :: IAm='MAPL_BundleReadNCPar'
 
     integer                            :: ind
     type(ESMF_Grid)                    :: grid
 
     integer                            :: MAPL_DIMS
     integer, pointer                   :: MASK(:) => null()
-    type(MAPL_NCIO)                  :: ncioObj
+    type(Netcdf4_Fileformatter)        :: formatter
+    character(len=:), allocatable      :: fname_by_face
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars,rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     !open the file for parallel reading
     if (arrdes%readers_comm/=MPI_COMM_NULL) then
        call MPI_Info_create(info,STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call MPI_Info_set(info,"romio_cb_read", trim(arrdes%romio_cb_read),STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call MPI_Info_set(info,"cb_buffer_size", trim(arrdes%cb_buffer_size),STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if (arrdes%num_readers == 1) then
-          ncioObj= MAPL_NCIOOpen(filename,rc=STATUS)
-          VERIFY_(STATUS)
+          call formatter%open(filename,pFIO_READ,rc=status)
+          _VERIFY(STATUS)
        else
-          ncioObj= MAPL_NCIOOpen(filename,comm=arrdes%readers_comm,info=info,rc=STATUS)
-          VERIFY_(STATUS)
+          if(arrdes%read_restart_by_face) then
+             fname_by_face = get_fname_by_face(trim(filename),arrdes%face_index)
+             call formatter%open(trim(fname_by_face),pFIO_READ,comm=arrdes%face_readers_comm,info=info,rc=status)
+             _VERIFY(STATUS)
+          else
+             call formatter%open(filename,pFIO_READ,comm=arrdes%readers_comm,info=info,rc=status)
+             _VERIFY(STATUS)
+          endif
        end if
     endif
 
     do l=1,nVars
       call ESMF_FieldBundleGet(bundle, fieldIndex=l, field=field, rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call ESMF_FieldGet(field,name=FieldName,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 ! Check for old style aerosol names
       ind= index(FieldName, '::')
       if (ind> 0) then
@@ -7120,19 +7279,19 @@ module MAPL_IOMod
 
       if(.not.associated(MASK)) then
          call ESMF_AttributeGet(field, name='DIMS', value=MAPL_DIMS, rc=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          if (MAPL_DIMS == MAPL_DimsTileOnly .or. MAPL_DIMS == MAPL_DimsTileTile) then
             call ESMF_FieldGet   (field, grid=grid, rc=status)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             call MAPL_TileMaskGet(grid,  mask, rc=status)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
 !@         else
 !@            allocate(Mask(1))
          endif
       endif
 
-      call MAPL_FieldReadNCPar(ncioObj, FieldName, field, arrdes=arrdes, HomePE=mask, rc=status)
-      VERIFY_(STATUS)
+      call MAPL_FieldReadNCPar(formatter, FieldName, field, arrdes=arrdes, HomePE=mask, rc=status)
+      _VERIFY(STATUS)
         
     enddo
 
@@ -7141,13 +7300,13 @@ module MAPL_IOMod
     end if
  
     if (arrdes%readers_comm/=MPI_COMM_NULL) then
-       call MAPL_NCIOClose(ncioObj,destroy=.true.,rc=status)
-       VERIFY_(STATUS)
+       call formatter%close()
+       _VERIFY(STATUS)
        call MPI_Info_free(info, status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
   
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_BundleReadNCPar
 
@@ -7186,68 +7345,75 @@ module MAPL_IOMod
     logical                            :: foundInFile
     integer                            :: dna
     logical                            :: bootstrapable_
-    
+    logical                            :: isPresent
+    character(len=:), allocatable      :: fname_by_face 
     ! get a list of variables in the file so we can skip if the 
     ! variable in the state is not in the file and it is bootstrapable
     ! will just let root do this since everybody will need it
     ! and avoid complications with doing later on when only readers_comm has opened file
 
     call ESMF_VMGetCurrent(VM,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (MAPL_AM_I_Root()) then
-       status = nf_open(trim(filename),NF_NOWRITE, ncid)
-       VERIFY_(STATUS)
+       if(arrdes%read_restart_by_face) then
+          fname_by_face = get_fname_by_face(filename, 1)
+          status = nf_open(trim(fname_by_face),NF_NOWRITE, ncid) ! just pick one
+          _VERIFY(STATUS)
+       else
+          status = nf_open(trim(filename),NF_NOWRITE, ncid)
+          _VERIFY(STATUS)
+       endif
        status = nf_inq_nvars(ncid, nVarFile)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
     call MAPL_CommsBcast(vm, nVarFile, n=1, ROOT=MAPL_Root, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(VarNamesFile(nVarFile),stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (MAPL_AM_I_Root()) then
        do i=1,nVarFile
           status = nf_inq_varname(ncid, i, VarNamesFile(i))
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end do
        status = nf_close(ncid)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
     do i=1,nVarFile
        call MAPL_CommsBcast(vm, VarNamesFile(i), N=ESMF_MAXSTR, ROOT=MAPL_Root, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end do
     
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    ASSERT_(ITEMCOUNT>0)
+    _ASSERT(ITEMCOUNT>0, 'itemcount should be > 0')
 
     allocate(ITEMNAMES(ITEMCOUNT),STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(ITEMTYPES(ITEMCOUNT),STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(     DOIT(ITEMCOUNT),STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_StateGet(STATE,ITEMNAMELIST=ITEMNAMES,&
                        ITEMTYPELIST=ITEMTYPES,RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if(present(NAME)) then
        DOIT = ITEMNAMES==NAME
-       ASSERT_(count(DOIT)/=0)
+       _ASSERT(count(DOIT)/=0, 'count(DOIT) should not be 0')
     else
        DOIT = .true.
     endif
 
     bundle_read = ESMF_FieldBundleCreate(rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_FieldBundleSet(bundle_read,grid=arrdes%grid,rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     do I = 1, ITEMCOUNT
 
@@ -7256,11 +7422,15 @@ module MAPL_IOMod
 
           if (ITEMTYPES(I) == ESMF_StateItem_FieldBundle) then
              call ESMF_StateGet(state, itemnames(i), bundle, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              skipReading = .false.
-             call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
-             if (STATUS /= ESMF_SUCCESS) then
+             call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+             _VERIFY(STATUS)
+             if (isPresent) then
+                call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                _VERIFY(STATUS)
+             else
                 RST = MAPL_RestartOptional
              end if
              skipReading = (RST == MAPL_RestartSkip)
@@ -7268,18 +7438,22 @@ module MAPL_IOMod
              bootstrapable_ = bootstrapable .and. (RST == MAPL_RestartOptional)
 
              call ESMF_FieldBundleGet(bundle, fieldCount=nBundle, rc=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call ESMF_FieldBundleGet(bundle, name=BundleName, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              DO J = 1,nBundle
                call ESMF_FieldBundleGet(bundle, fieldIndex=J, field=field, rc=status)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
                call ESMF_FieldGet(field,name=FieldName,rc=status)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
 
                skipReading = .false.
-               call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
-               if (STATUS /= ESMF_SUCCESS) then
+               call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+               _VERIFY(STATUS)
+               if (isPresent) then
+                  call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                  _VERIFY(STATUS)
+               else
                   RST = MAPL_RestartOptional
                end if
                skipReading = (RST == MAPL_RestartSkip)
@@ -7305,22 +7479,21 @@ module MAPL_IOMod
                
                if (foundInFile) then
                   new_field = MAPL_FieldCreate(Field,FieldName,rc=status)
-                  VERIFY_(STATUS)
+                  _VERIFY(STATUS)
                   call MAPL_FieldBundleAdd(bundle_read,new_field,rc=status)
-                  VERIFY_(STATUS)
+                  _VERIFY(STATUS)
                else
                   if (bootStrapable_ .and. (RST == MAPL_RestartOptional)) then
                      call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
                   else
-                     call WRITE_PARALLEL("  Could not find field "//trim(FieldName)//" in "//trim(filename))
-                     ASSERT_(.false.)
+                     _ASSERT(.false., "  Could not find field "//trim(FieldName)//" in "//trim(filename))
                   end if
                end if
 
              ENDDO
           else if (ITEMTYPES(I) == ESMF_StateItem_Field) then
              call ESMF_StateGet(state, itemnames(i), field, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              FieldName = trim(itemnames(i))
 
                ind= index(FieldName, '::')
@@ -7329,14 +7502,21 @@ module MAPL_IOMod
                end if
 
              skipReading = .false.
-             call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
-             if (STATUS /= ESMF_SUCCESS) then
+             call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+             _VERIFY(STATUS)
+             if (isPresent) then
+                call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                _VERIFY(STATUS)
+             else
                 RST = MAPL_RestartOptional
              end if
              skipReading = (RST == MAPL_RestartSkip)
              if (skipReading) cycle
-             call ESMF_AttributeGet(field, name='doNotAllocate', value=DNA, rc=status)
-             if (STATUS == ESMF_SUCCESS) then
+             call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
+             _VERIFY(STATUS)
+             if (isPresent) then
+                call ESMF_AttributeGet(field, name='doNotAllocate', value=DNA, rc=status)
+                _VERIFY(STATUS)
                 skipReading = (DNA /= 0)
              end if
              if (skipReading) cycle
@@ -7353,13 +7533,12 @@ module MAPL_IOMod
 
              if (foundInFile) then
                 call MAPL_FieldBundleAdd(bundle_read,field,rc=status)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              else
                 if (bootStrapable .and. (RST == MAPL_RestartOptional)) then
                     call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
                 else
-                    call WRITE_PARALLEL("  Could not find field "//trim(Fieldname)//" in "//trim(filename))
-                    ASSERT_(.false.)
+                    _ASSERT(.false., "  Could not find field "//trim(Fieldname)//" in "//trim(filename))
                 end if
              end if
 
@@ -7372,14 +7551,14 @@ module MAPL_IOMod
     tile = arrdes%tile
 
     call MAPL_VarReadNCPar(Bundle_Read, arrdes, filename, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     deallocate(ITEMNAMES)
     deallocate(ITEMTYPES)
     deallocate(     DOIT)
     deallocate(VarNamesFile)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_StateVarReadNCPar
 
@@ -7397,27 +7576,27 @@ module MAPL_IOMod
 
   FIELD = ESMF_FieldCreate(grid=arrDes%grid, datacopyflag=ESMF_DATACOPY_VALUE, &
          farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   if (arrDes%tile) then
      call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsTileOnly,rc=status)
-     VERIFY_(STATUS)
+     _VERIFY(STATUS)
   endif
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   call ESMF_FieldBundleSet ( bundle, grid=arrDes%grid, rc=STATUS )
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   call MAPL_FieldBundleAdd(BUNDLE, FIELD, rc=STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 
   call MAPL_VarReadNCPar(Bundle, arrdes, filename, rc=status)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 
   call ESMF_FieldBundleDestroy(bundle,rc=status)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   call ESMF_FieldDestroy(field,rc=status)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 
-  RETURN_(ESMF_SUCCESS)
+  _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ArrayReadNCpar_1d
 
   subroutine MAPL_ArrayReadNCpar_2d(varn,filename,farrayPtr,arrDes,rc)
@@ -7434,30 +7613,30 @@ module MAPL_IOMod
 
   FIELD = ESMF_FieldCreate(grid=arrDes%grid, datacopyflag=ESMF_DATACOPY_VALUE, &
          farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   if (arrDes%tile) then
      call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsTileTile,rc=status)
-     VERIFY_(STATUS)
+     _VERIFY(STATUS)
   else
      call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzOnly,rc=status)
-     VERIFY_(STATUS)
+     _VERIFY(STATUS)
   endif
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   call ESMF_FieldBundleSet ( bundle, grid=arrDes%grid, rc=STATUS )
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   call MAPL_FieldBundleAdd(BUNDLE, FIELD, rc=STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 
   call MAPL_VarReadNCPar(Bundle, arrdes, filename, rc=status)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 
   call ESMF_FieldBundleDestroy(bundle,rc=status)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   call ESMF_FieldDestroy(field,rc=status)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 
-  RETURN_(ESMF_SUCCESS)
+  _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ArrayReadNCpar_2d
 
   subroutine MAPL_ArrayReadNCpar_3d(varn,filename,farrayPtr,arrDes,rc)
@@ -7475,31 +7654,32 @@ module MAPL_IOMod
   FIELD = ESMF_FieldCreate(grid=arrDes%grid, datacopyflag=ESMF_DATACOPY_VALUE, &
          farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
   call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzVert,rc=status)
-  VERIFY_(STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
+  _VERIFY(STATUS)
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   call ESMF_FieldBundleSet ( bundle, grid=arrDes%grid, rc=STATUS )
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   call MAPL_FieldBundleAdd(BUNDLE, FIELD, rc=STATUS)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 
   call MAPL_VarReadNCPar(Bundle, arrdes, filename, rc=status)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 
   call ESMF_FieldBundleDestroy(bundle,rc=status)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
   call ESMF_FieldDestroy(field,rc=status)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 
-  RETURN_(ESMF_SUCCESS)
+  _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ArrayReadNCpar_3d
 
-  subroutine MAPL_BundleWriteNCPar(Bundle, arrdes, CLOCK, filename, rc)
+  subroutine MAPL_BundleWriteNCPar(Bundle, arrdes, CLOCK, filename, oClients, rc)
     type(ESMF_FieldBundle), intent(inout)   :: Bundle
     type(ArrDescr), intent(inout)           :: arrdes
     type(ESMF_Clock), intent(in)            :: CLOCK
     character(len=*), intent(in  )         :: filename
+    type (ClientManager), optional, intent(inout) :: oClients
     integer, optional, intent(out)          :: rc
 
 
@@ -7514,18 +7694,19 @@ module MAPL_IOMod
 
     type(ESMF_TypeKind_Flag)              :: tk
     integer                               :: ind
-    integer                               :: londim, latdim, levdim, edgedim
-    integer                               :: tiledim, subtiledim, tdim
     logical                               :: Have_HorzOnly, Have_HorzVert, Have_VertOnly, Have_TileOnly
     logical                               :: Have_TileTile, Have_VLocationCenter, Have_VLocationEdge
-    real(KIND=ESMF_KIND_R8),  allocatable :: lon(:), lat(:), lev(:), edges(:)
+    real(KIND=REAL64),  allocatable :: lon(:), lat(:), lev(:), edges(:)
     integer, allocatable                  :: LOCATION(:), DIMS(:), UNGRID_DIMS(:,:)
     integer, allocatable                  :: UNIQUE_UNGRID_DIMS(:), ungriddim(:)
     integer                               :: myungriddim1, myungriddim2
-    real(KIND=ESMF_KIND_R8)               :: dlon, dlat
+    real(KIND=REAL64)                     :: x0,x1
     integer                               :: arrayRank, KM_WORLD, DataType
     integer                               :: ungrid_dim_max_size, n_unique_ungrid_dims
     character(len=ESMF_MAXSTR)            :: ungrid_dim_name
+    character(len=ESMF_MAXSTR), allocatable :: unique_ungrid_dim_name(:)
+    character(len=ESMF_MAXSTR)            :: myUngridDimName1, myUngridDimName2
+    character(len=ESMF_MAXSTR)            :: BundleName
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:)  :: var_3d => null()
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:)  :: var8_3d => null()
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)    :: var_2d => null()
@@ -7533,7 +7714,7 @@ module MAPL_IOMod
     real(KIND=ESMF_KIND_R4), pointer, dimension(:)      :: var_1d => null()
     real(KIND=ESMF_KIND_R8), pointer, dimension(:)      :: var8_1d => null()
     character(len=ESMF_MAXSTR )           :: LONG_NAME, UNITS
-
+    character(100) :: buffer
     integer                               :: info
 
     integer                               :: MAPL_DIMS
@@ -7541,30 +7722,38 @@ module MAPL_IOMod
     integer, pointer                      :: MASK(:) => null()
     logical                               :: isCubed
     logical                               :: found
+    logical                               :: isPresent
 
-    type(MAPL_NCIO)                     :: ncioObj
+    type(Netcdf4_Fileformatter)           :: formatter
+    type(FileMetadata) :: cf
+    class (Variable), allocatable :: var
+    class(*), allocatable :: coordinate_data(:)
+    integer :: pfDataType
+    character(len=:), allocatable         :: fname_by_face
 
     integer                            :: STATUS
-    character(len=ESMF_MAXSTR)         :: IAm='MAPL_BundleWriteNCPar'
+    type (StringIntegerMap), save      :: RstCollections
+    type (StringIntegerMapIterator)    :: iter
+    type (StringVariableMap) :: var_map
 
-    call ESMF_FieldBundleGet(Bundle,FieldCount=nVars,rc=STATUS)
-    VERIFY_(STATUS)
+    call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
+    _VERIFY(STATUS)
+
 
     ! verify that file is compatible with fields in bundle we are reading
 
     if (nVars == 0) then
-       if (MAPL_AM_I_root()) WRITE(*,*)"The bundle you are trying to write is empty"
-       ASSERT_(.FALSE.)
+       _ASSERT(.false., "The bundle you are trying to write is empty")
     endif 
 
     ! first we need to prep the netcdf file for writing
     allocate(LOCATION(nVars), stat=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(DIMS(nVars), stat=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     allocate(UNGRID_DIMS(nVars,2),stat=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     UNGRID_DIMS = 0
 
     ! now determine the dimensionality and vertical structure of each field
@@ -7572,66 +7761,66 @@ module MAPL_IOMod
     DO I = 1, nVars
 
        call ESMF_FieldBundleGet(Bundle,fieldIndex=I, field=field, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_AttributeGet(field, NAME='DIMS', VALUE=DIMS(I), rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_AttributeGet(field, NAME='VLOCATION', VALUE=LOCATION(I), rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        ! now check if we have an ungridded dimension
        call ESMF_FieldGet(field,array=array,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_ArrayGet(array, typekind=tk, rank=arrayRank,  RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if (arrayRank == 3 .and. DIMS(I) == MAPL_DimsHorzOnly) then
           if (tk == ESMF_TYPEKIND_R4) then
              call ESMF_ArrayGet(array, localDE=0, farrayptr=var_3d, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var_3d,3)
           elseif (tk == ESMF_TYPEKIND_R8) then
              call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_3d, rc=status) 
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_3d,3)
           endif
        else if (arrayRank == 2 .and. DIMS(I) == MAPL_DimsTileOnly) then
           if (tk == ESMF_TYPEKIND_R4) then
              call ESMF_ArrayGet(array, localDE=0, farrayptr=var_2d, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var_2d,2)
           elseif (tk == ESMF_TYPEKIND_R8) then
              call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_2d, rc=status) 
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_2d,2)
           endif
        else if (arrayRank == 2 .and. DIMS(I) == MAPL_DimsTileTile) then
           if (tk == ESMF_TYPEKIND_R4) then
              call ESMF_ArrayGet(array, localDE=0, farrayptr=var_2d, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              JM_WORLD = max(JM_WORLD,size(var_2d,2))
           elseif (tk == ESMF_TYPEKIND_R8) then
              call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_2d, rc=status) 
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              JM_WORLD = max(JM_WORLD,size(var_2d,2))
           endif
        else if (arrayRank == 1 .and. DIMS(I) == MAPL_DimsNone) then
           if (tk == ESMF_TYPEKIND_R4) then
              call ESMF_ArrayGet(array, localDE=0, farrayptr=var_1d, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var_1d)
           elseif (tk == ESMF_TYPEKIND_R8) then
              call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_1d, rc=status) 
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_1d)
           endif
        else if (arrayRank == 3 .and. DIMS(I) == MAPL_DimsTileOnly) then
           if (tk == ESMF_TYPEKIND_R4) then
              call ESMF_ArrayGet(array, localDE=0, farrayptr=var_3d, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var_3d,2)
              UNGRID_DIMS(I,2) = size(var_3d,3)
           elseif (tk == ESMF_TYPEKIND_R8) then
              call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_3d, rc=status) 
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_3d,2)
              UNGRID_DIMS(I,2) = size(var8_3d,3)
           endif
@@ -7658,9 +7847,11 @@ module MAPL_IOMod
        end do
  
        allocate(unique_ungrid_dims(n_unique_ungrid_dims),stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
+       allocate(unique_ungrid_dim_name(n_unique_ungrid_dims),stat=status)
+       _VERIFY(STATUS)
        allocate(ungriddim(n_unique_ungrid_dims),stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
  
        n_unique_ungrid_dims = 0 
        do i = 1,ungrid_dim_max_size
@@ -7691,46 +7882,65 @@ module MAPL_IOMod
     ndims = ndims + n_unique_ungrid_dims
     ! add 1 for time
     ndims = ndims + 1
-    call MAPL_NCIOSet(ncioObj,filename=filename,nvars=nvars,ndims=ndims)
 
-    if (arrdes%writers_comm/=MPI_COMM_NULL) then
+    !WJ note: if arrdes%write_restart_by_oserver is true, all processors will participate
+    if (arrdes%writers_comm/=MPI_COMM_NULL .or. arrdes%write_restart_by_oserver) then
 
        ! Create dimensions as needed
        if (Have_HorzVert .or. Have_HorzOnly) then
 
           if (arrdes%IM_WORLD*6 == arrdes%JM_WORLD) then
              isCubed = .true.
+             x0=1.0d0
+             x1=dble(arrdes%IM_WORLD)
           else
              isCubed = .false.
+             x0=-180.0d0
+             x1=180.0d0-360.d0/dble(arrdes%IM_WORLD)
           endif
-          dlon = 360.d0/dble(arrdes%IM_WORLD)
-          allocate(lon(arrdes%IM_WORLD))
-          do i =1, arrdes%IM_WORLD
-             if (isCubed) then
-                lon(i) = i
-             else
-                lon(i) = -180.d0 + (i-1)*dlon
-             end if
-          end do
+          lon = MAPL_Range(x0,x1,arrdes%IM_WORLD)
 
-          call MAPL_NCIOAddDim(ncioObj,"lon",arrdes%IM_World,londim,dimType=MAPL_NCIODimLon,varR8=lon,units="degrees_east",&
-               & long_name="Longitude",rc=status)
-          VERIFY_(STATUS)
+          call cf%add_dimension('lon',arrdes%im_world,rc=status)
+          _VERIFY(status)
+          allocate(coordinate_data,source=lon)
+          allocate(var,source=CoordinateVariable(Variable(type=pFIO_REAL64,dimensions='lon'),coordinate_data))
+          call var%add_attribute('units','degrees_east')
+          call var%add_attribute('long_name','Longitude')
+          call cf%add_variable('lon',var,rc=status)
+          _VERIFY(status)
+          deallocate(var,coordinate_data)
+          
+          if (isCubed) then
+             x0=1.0d0
+             x1=dble(arrdes%JM_WORLD)
+          else
+             x0=-90.0d0
+             x1=90.0d0
+          endif
+          lat = MAPL_Range(x0,x1,arrdes%JM_WORLD)
+          
+          if (arrdes%write_restart_by_face) then
+             call cf%add_dimension('lat',arrdes%im_world,rc=status)
+             _VERIFY(status)
+             block
+                integer :: j0, j1
+                j0 = (arrdes%face_index -1)*arrdes%im_world+1
+                j1 = arrdes%face_index * arrdes%im_world
+                allocate(coordinate_data,source=lat(j0:j1))
+             end block
+             allocate(var,source=CoordinateVariable(Variable(type=pFIO_REAL64,dimensions='lat'),coordinate_data))
+          else
+             call cf%add_dimension('lat',arrdes%jm_world,rc=status)
+             _VERIFY(status)
+             allocate(coordinate_data,source=lat)
+             allocate(var,source=CoordinateVariable(Variable(type=pFIO_REAL64,dimensions='lat'),coordinate_data))
+          endif
+          call var%add_attribute('units','degrees_north')
+          call var%add_attribute('long_name','Latitude')
+          call cf%add_variable('lat',var,rc=status)
+          _VERIFY(status)
+          deallocate(var,coordinate_data)
 
-          dlat = 180.d0/dble(arrdes%JM_WORLD-1)
-          allocate(lat(arrdes%JM_WORLD))
-
-          do j =1, arrdes%JM_WORLD
-             if (isCubed) then
-                lat(j) = j
-             else
-                lat(j) =  -90.d0 + (j-1)*dlat
-             end if
-          end do
-
-          call MAPL_NCIOAddDim(ncioObj,"lat",arrdes%JM_World,latdim,dimType=MAPL_NCIODimLat,varR8=lat,units="degrees_north",&
-               & long_name="Latitude",rc=status)
-          VERIFY_(STATUS)
        endif
 
        if (Have_HorzVert .or. Have_VertOnly) then
@@ -7739,12 +7949,21 @@ module MAPL_IOMod
              KM_World = arrdes%lm_World
              allocate(lev(KM_WORLD))
              lev = (/(L, L=1,KM_WORLD)/)
-             call MAPL_NCIOAddDim(ncioObj,'lev',KM_World,levdim,dimType=MAPL_NCIODimLev,varR8=lev,units="layer",&
-                  & long_name="sigma at layer midpoints", &
-                  & standard_name="atmosphere_hybrid_sigma_pressure_coordinate",coordinate="eta",&
-                  & formulaTerms="ap: ak b: bk ps: ps p0: p00", &
-                  & positive="down",rc=status)
-             VERIFY_(STATUS)
+
+             call cf%add_dimension('lev',km_world,rc=status)
+             _VERIFY(status)
+             allocate(coordinate_data,source=lev)
+             allocate(var,source=CoordinateVariable(Variable(type=pFIO_REAL64,dimensions='lev'),coordinate_data))
+             call var%add_attribute('units','layer')
+             call var%add_attribute('long_name','sigma at layer midpoints')
+             call var%add_attribute('standard_name','atmosphere_hybrid_sigma_pressure_coordinate')
+             call var%add_attribute('positive','down')
+             call var%add_attribute('coordinate','eta')
+             call var%add_attribute('formulaTerms','ap: ak b: bk ps: ps p0: p00')
+             call cf%add_variable('lev',var,rc=status)
+             _VERIFY(status)
+             deallocate(var,coordinate_data)
+
              deallocate(lev)
           endif
           if (Have_VLocationEdge) then
@@ -7752,22 +7971,31 @@ module MAPL_IOMod
              KM_World = arrdes%lm_World
              allocate(edges(KM_WORLD+1))
              edges = (/(L, L=1,KM_WORLD+1)/)
-             call MAPL_NCIOAddDim(ncioObj,'edge',KM_World+1,edgedim,dimType=MAPL_NCIODimEdge,varR8=edges,units="level",&
-                  & long_name="sigma at layer edges", &
-                  & standard_name="atmosphere_hybrid_sigma_pressure_coordinate",coordinate="eta",&
-                  & formulaTerms="ap: ak b: bk ps: ps p0: p00", &
-                  & positive="down",rc=status)
-             VERIFY_(STATUS)
+
+             call cf%add_dimension('edge',km_world+1,rc=status)
+             _VERIFY(status)
+             allocate(coordinate_data,source=edges)
+             allocate(var,source=CoordinateVariable(Variable(type=pFIO_REAL64,dimensions='edge'),coordinate_data))
+             call var%add_attribute('units','level')
+             call var%add_attribute('long_name','sigma at layer edges')
+             call var%add_attribute('standard_name','atmosphere_hybrid_sigma_pressure_coordinate')
+             call var%add_attribute('positive','down')
+             call var%add_attribute('coordinate','eta')
+             call var%add_attribute('formulaTerms','ap: ak b: bk ps: ps p0: p00')
+             call cf%add_variable('edge',var,rc=status)
+             _VERIFY(status)
+             deallocate(var,coordinate_data)
+
              deallocate(edges)
           endif
        endif
 
        if (Have_TileOnly .or. Have_TileTile) then
-          call MAPL_NCIOAddDim(ncioObj,'tile',arrdes%IM_World,tiledim,rc=status)
-          VERIFY_(STATUS)
+          call cf%add_dimension('tile',arrdes%im_world,rc=status)
+          _VERIFY(status)
           if(Have_TileTile) then
-            call MAPL_NCIOAddDim(ncioObj,'subtile',arrdes%JM_World,subtiledim,rc=status)
-            VERIFY_(STATUS)
+            call cf%add_dimension('subtile',arrdes%jm_world,rc=status)
+            _VERIFY(status)
           endif
        endif
 
@@ -7780,40 +8008,55 @@ module MAPL_IOMod
              else if (i > 99 .and. i < 1000) then
                 write(ungrid_dim_name, '(A11,I3)')"unknown_dim",i
              end if
-             call MAPL_NCIOAddDim(ncioObj,trim(ungrid_dim_name),unique_ungrid_dims(i),ungriddim(i),rc=status)
-             VERIFY_(STATUS)
+             unique_ungrid_dim_name(i)=ungrid_dim_name
+             call cf%add_dimension(trim(ungrid_dim_name),unique_ungrid_dims(i),rc=status)
+             _VERIFY(status)
           end do 
        endif
 
        ! Time variable
        call ESMF_ClockGet ( clock,  currTime=CurrentTime ,rc=STATUS )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_TimeGet  ( CurrentTime, timeString=TimeString, rc=status )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 
        TimeUnits = "minutes since "//timestring( 1: 10)//" "//timestring(12:19)
-       call MAPL_NCIOAddDim(ncioObj,'time',1,tdim,dimType=MAPL_NCIODimTime,varR8=(/0.d0/),units=TimeUnits,rc=status)
-       VERIFY_(STATUS)
+
+       call cf%add_dimension('time',1,rc=status)
+       _VERIFY(status)
+       allocate(coordinate_data,source=(/0.d0/))
+       allocate(var,source=CoordinateVariable(Variable(type=pFIO_REAL64,dimensions='time'),coordinate_data))
+       call var%add_attribute('units',trim(timeUnits))
+       call cf%add_variable('time',var,rc=status)
+       _VERIFY(status)
+       call var_map%insert('time', var)
+       deallocate(var,coordinate_data)
 
        allocate(DIMS(1), stat=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(LOCATION(1), stat=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        do i=1,nVars
           call ESMF_FieldBundleGet(Bundle,fieldIndex=I, field=field, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_AttributeGet(FIELD, NAME='LONG_NAME'   , VALUE=LONG_NAME , rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_AttributeGet(FIELD, NAME='UNITS'       , VALUE=UNITS     , rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_AttributeGet(field, NAME='DIMS'        , VALUE=DIMS(1)      , rc=status)
-          VERIFY_(STATUS)
-          call ESMF_AttributeGet(field, NAME="VLOCATION" , VALUE=LOCATION(1)  , RC=STATUS)
-          if ( status /= 0 ) LOCATION(1) = MAPL_VLocationNone
+          _VERIFY(STATUS)
+          call ESMF_AttributeGet(field, NAME="VLOCATION" , isPresent=isPresent, RC=STATUS)
+          _VERIFY(STATUS)
+          if ( isPresent ) then
+             call ESMF_AttributeGet(field, NAME="VLOCATION" , VALUE=LOCATION(1)  , RC=STATUS)
+             _VERIFY(STATUS)
+          else
+             LOCATION(1) = MAPL_VLocationNone
+          end if
           call ESMF_FieldGet    (FIELD, ARRAY=array, name=FieldName,  RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           ! Check for old style aerosol names
           ind= index(FieldName, '::')
           if (ind> 0) then
@@ -7821,115 +8064,112 @@ module MAPL_IOMod
           end if
           ! Extract some info from the array and define variables accordingly
           call ESMF_ArrayGet    (array, typekind=tk, rank=arrayRank,  RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
    !ALT                if (tk .eq. ESMF_TYPEKIND_I1) DataType = NF_BYTE
    !ALT                if (tk .eq. ESMF_TYPEKIND_I2) DataType = NF_SHORT
           if (tk .eq. ESMF_TYPEKIND_I4) DataType = NF_INT
           if (tk .eq. ESMF_TYPEKIND_R4) DataType = NF_FLOAT
           if (tk .eq. ESMF_TYPEKIND_R8) DataType = NF_DOUBLE
+          if (tk .eq. ESMF_TYPEKIND_I4) pfDataType = pFIO_INT32
+          if (tk .eq. ESMF_TYPEKIND_R4) pfDataType = pFIO_REAL32
+          if (tk .eq. ESMF_TYPEKIND_R8) pfDataType = pFIO_REAL64
 
           if (arrayRank == 1) then
              if (DIMS(1)==MAPL_DimsVertOnly) then
                 if (LOCATION(1) == MAPL_VLocationCenter) then
-                   call MAPL_NCIOAddVar(ncioObj,trim(fieldname),(/levdim/),DataType,units=units,long_name=long_name,rc=status)
-                   VERIFY_(STATUS)
+                   call add_fvar(cf,trim(fieldname),pfDataType,'lev',units,long_name,rc=status)
+                   _VERIFY(status)
                 elseif(LOCATION(1) == MAPL_VLocationEdge) then
-                   call MAPL_NCIOAddVar(ncioObj,trim(fieldname),(/edgedim/),DataType,units=units,long_name=long_name,rc=status)
-                   VERIFY_(STATUS)
+                   call add_fvar(cf,trim(fieldname),pfDataType,'edge',units,long_name,rc=status)
+                   _VERIFY(status)
                 else
-                   print *, 'ERROR: LOCATION not recognized for rank 1'
-                   ASSERT_(.false.)
+                   _ASSERT(.false., 'ERROR: LOCATION not recognized for rank 1')
                 endif
              elseif(DIMS(1)==MAPL_DimsTileOnly) then
-                call MAPL_NCIOAddVar(ncioObj,trim(fieldname),(/tiledim/),DataType,units=units,long_name=long_name,rc=status)
-                VERIFY_(STATUS)
+                call add_fvar(cf,trim(fieldname),pfDataType,'tile',units,long_name,rc=status)
+                _VERIFY(status)
              elseif(DIMS(1)==MAPL_DimsNone) then
                 found = .false.
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
                       myungriddim1 = j
+                      myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       found = .true.
                       exit
                    end if
                 end do
-                ASSERT_(found)
-                call MAPL_NCIOAddVar(ncioObj,trim(fieldname),(/ungriddim(myungriddim1)/),DataType,units=units,&
-                     & long_name=long_name,rc=status)
-                VERIFY_(STATUS)
+                _ASSERT(found, 'search failed')
+                call add_fvar(cf,trim(fieldname),pfDataType,'tile,'//myUngridDimName1,units,long_name,rc=status)
+                _VERIFY(status)
              else
-                print *, 'ERROR: blah blah blah'
-                ASSERT_(.false.)
+                _ASSERT(.false., 'unsupported Dims case')
              endif
           else if(arrayRank == 2) then
              if (DIMS(1)==MAPL_DimsHorzOnly) then
-                call MAPL_NCIOAddVar(ncioObj,trim(fieldname),(/londim,latdim/),DataType,units=units,long_name=long_name,rc=status)
-                VERIFY_(STATUS)
+                call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat',units,long_name,rc=status)
+                _VERIFY(status)
              else if(DIMS(1)==MAPL_DimsTileTile) then
-                call MAPL_NCIOAddVar(ncioObj,trim(fieldname),(/tiledim,subtiledim/),DataType,units=units,&
-                     & long_name=long_name,rc=status)
-                VERIFY_(STATUS)
+                call add_fvar(cf,trim(fieldname),pfDataType,'tile,subtile',units,long_name,rc=status)
+                _VERIFY(status)
              elseif(DIMS(1)==MAPL_DimsTileOnly) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
                       myungriddim1 = j
+                      myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
                 end do
-                call MAPL_NCIOAddVar(ncioObj,trim(fieldname),(/tiledim,ungriddim(myungriddim1)/),DataType,units=units,&
-                     & long_name=long_name,rc=status)
-                VERIFY_(STATUS)
+                call add_fvar(cf,trim(fieldname),pfDataType,'tile,'//myUngridDimName1,units,long_name,rc=status)
+                _VERIFY(status)
              else
-                print *, 'ERROR: DIMS not recognized for rank 2 variable ',trim(FieldName), DIMS(1)
-                ASSERT_(.false.)
+                write(buffer,*)'ERROR: DIMS not recognized for rank 2 variable ',trim(FieldName), DIMS(1)
+                _ASSERT(.false., trim(buffer))
              endif
 
           else if(arrayRank == 3) then
              if (DIMS(1)==MAPL_DimsHorzVert) then
                 if (LOCATION(1) == MAPL_VLocationCenter) then
-                   call MAPL_NCIOAddVar(ncioObj,trim(fieldname),(/londim,latdim,levdim/),DataType,units=units,&
-                        & long_name=long_name,rc=status)
-                   VERIFY_(STATUS)
+                   call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,lev',units,long_name,rc=status)
+                   _VERIFY(status)
                 else if(LOCATION(1) == MAPL_VLocationEdge) then
-                   call MAPL_NCIOAddVar(ncioObj,trim(fieldname),(/londim,latdim,edgedim/),DataType,units=units,&
-                        & long_name=long_name,rc=status)
-                   VERIFY_(STATUS)
+                   call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,edge',units,long_name,rc=status)
+                   _VERIFY(status)
                 else
-                   print *, 'ERROR: LOCATION not recognized for rank 3'
-                   ASSERT_(.false.)
+                   _ASSERT(.false., 'ERROR: LOCATION not recognized for rank 3')
                 endif
              else if(DIMS(1)==MAPL_DimsHorzOnly) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
                       myungriddim1 = j
+                      myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
                 end do
-                call MAPL_NCIOAddVar(ncioObj,trim(fieldname),(/londim,latdim,ungriddim(myungriddim1)/),DataType,units=units,&
-                     & long_name=long_name,rc=status)
-                VERIFY_(STATUS)
+                call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,'//myUngridDimName1,units,long_name,rc=status)
+                _VERIFY(status)
              else if (DIMS(1)==MAPL_DimsTileOnly) then
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
                       myungriddim1 = j
+                      myUngridDimName1 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
                 end do
                 do j=1,n_unique_ungrid_dims
                    if (ungrid_dims(i,2) == unique_ungrid_dims(j) ) then
                       myungriddim2 = j
+                      myUngridDimName2 = trim(unique_ungrid_dim_name(j))
                       exit
                    end if
                 end do
-                call MAPL_NCIOAddVar(ncioObj,trim(fieldname),(/tiledim,ungriddim(myungriddim1),ungriddim(myungriddim2)/), &
-                     DataType,units=units,long_name=long_name,rc=status)
-                VERIFY_(STATUS)
+                call add_fvar(cf,trim(fieldname),pfDataType,'tile,'//myUngridDimName1//','//myUngridDimName2,units,long_name,rc=status)
+                _VERIFY(status)
              else if(DIMS(1)/=MAPL_DimsHorzVert .and. DIMS(1)/=MAPL_DimsHorzOnly) then
-                print *, 'ERROR: What else could it be'
-                ASSERT_(.false.)
+                _ASSERT(.false., 'ERROR: What else could it be')
              endif
           else
-             print *, 'ERROR: arrayRank ',arrayRank, ' not supported'
-             ASSERT_(.false.)
+             write(buffer,*) 'ERROR: arrayRank ',arrayRank, ' not supported'
+             _ASSERT(.false., trim(buffer))
           endif
 
        enddo
@@ -7941,28 +8181,53 @@ module MAPL_IOMod
        deallocate(ungrid_dims)
 
        call MPI_Info_create(info,STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call MPI_Info_set(info,"romio_cb_write", trim(arrdes%romio_cb_write),STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call MPI_Info_set(info,"cb_buffer_size", trim(arrdes%cb_buffer_size),STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
-       call MAPL_NCIOSet( ncioObj,filename=filename )
-       if (arrdes%num_writers == 1) then
-          call MAPL_NCIOCreateFile(ncioObj,rc=status)
-          VERIFY_(STATUS)
-       else
-          call MAPL_NCIOCreateFile(ncioObj,comm=arrdes%writers_comm,info=info,rc=status)
-          VERIFY_(STATUS)
-       end if
 
-    endif !am writer
+       if (arrdes%write_restart_by_oserver) then
+          _ASSERT(present(oClients), 'output server is needed')
+          iter = RstCollections%find(trim(BundleName))
+          if (iter == RstCollections%end()) then
+             arrdes%collection_id = oClients%add_hist_collection(cf)
+             call RstCollections%insert(trim(BundleName), arrdes%collection_id)
+          else
+             arrdes%collection_id = iter%value()
+             call oClients%modify_metadata(arrdes%collection_id, var_map = var_map, rc=status)
+             _VERIFY(status)
+          endif
+          arrdes%filename = trim(filename)
+       else ! not written by oserver
+
+          if (arrdes%num_writers == 1) then
+             call formatter%create(trim(filename), rc=status)
+             _VERIFY(status)
+             call formatter%write(cf,rc=status)
+             _VERIFY(STATUS)
+          else
+             if (arrdes%write_restart_by_face) then
+                fname_by_face = get_fname_by_face(trim(filename),arrdes%face_index)
+                call formatter%create_par(trim(fname_by_face),comm=arrdes%face_writers_comm,info=info,rc=status)
+                _VERIFY(status)
+             else
+                call formatter%create_par(trim(filename),comm=arrdes%writers_comm,info=info,rc=status)
+                _VERIFY(status)
+             endif
+             call formatter%write(cf,rc=status)
+             _VERIFY(STATUS)
+          end if
+       endif ! write_restart_by_oserver 
+
+    endif !am writer or write_restart_by_oserver
 
     do l=1,nVars
        call ESMF_FieldBundleGet(bundle, fieldIndex=l, field=field, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_FieldGet(field,name=FieldName,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        ! Check for old style aerosol names
        ind= index(FieldName, '::')
        if (ind> 0) then
@@ -7971,42 +8236,72 @@ module MAPL_IOMod
 
        if (.not.associated(MASK)) then
           call ESMF_AttributeGet(field, name='DIMS', value=MAPL_DIMS, rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (MAPL_DIMS == MAPL_DimsTileOnly .or. MAPL_DIMS == MAPL_DimsTileTile) then
              call ESMF_FieldGet   (field, grid=grid, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call MAPL_TileMaskGet(grid,  mask, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
        endif
 
-       call MAPL_FieldWriteNCPar(ncioObj, fieldName, field, arrdes, HomePE=mask, rc=status)
-       VERIFY_(STATUS)
-          
+       call MAPL_FieldWriteNCPar(formatter, fieldName, field, arrdes, HomePE=mask, oClients=oClients, rc=status)
+       _VERIFY(STATUS)
+       
     enddo
 
-    if (arrdes%writers_comm/=MPI_COMM_NULL) then
-       call MAPL_NCIOClose(ncioObj,destroy=.true.,rc=status)
-       VERIFY_(STATUS)
+    
+    if (arrdes%write_restart_by_oserver) then
+       call oClients%done_collective_stage()
+       call oClients%wait()
+       call oClients%next()
        call MPI_Info_free(info, status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
+    elseif (arrdes%writers_comm/=MPI_COMM_NULL) then
+       call formatter%close()
+       _VERIFY(STATUS)
+       call MPI_Info_free(info, status)
+       _VERIFY(STATUS)
     end if
 
     if(associated(MASK)) then
        DEALOC_(MASK)
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
+
+    contains
+
+    subroutine add_fvar(cf,vname,vtype,dims,units,long_name,rc)
+       type(FileMetadata), intent(inout) :: cf
+       integer, intent(in) :: vtype
+       character(len=*), intent(in) :: vname
+       character(len=*), intent(in) :: dims
+       character(len=*), intent(in) :: units
+       character(len=*), intent(in) :: long_name
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+       type(Variable) :: fvar
+
+       fvar = Variable(type=vtype,dimensions=dims)
+       call fvar%add_attribute('units',trim(units))
+       call fvar%add_attribute('long_name',trim(long_name)) 
+       call cf%add_variable(trim(vname),fvar,rc=status)
+       _VERIFY(status)
+       
+       end subroutine add_fvar 
 
   end subroutine MAPL_BundleWriteNCPar
 
-  subroutine MAPL_StateVarWriteNCPar(filename, STATE, ARRDES, CLOCK, NAME, forceWriteNoRestart, RC)
+  subroutine MAPL_StateVarWriteNCPar(filename, STATE, ARRDES, CLOCK, NAME, forceWriteNoRestart, oClients, RC)
     character(len=*)            , intent(IN   ) :: filename
     type (ESMF_State)           , intent(IN   ) :: STATE
     type(ArrDescr)              , intent(INOUT) :: ARRDES
     type(ESMF_Clock)            , intent(IN   ) :: CLOCK
     character(len=*),   optional, intent(IN   ) :: NAME
     logical,            optional, intent(IN   ) :: forceWriteNoRestart
+    type (ClientManager), optional, intent(inout) :: oClients
     integer,            optional, intent(  OUT) :: RC
 
 ! Local vars
@@ -8017,7 +8312,6 @@ module MAPL_IOMod
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
     character(len=ESMF_MAXSTR ), pointer :: ITEMNAMES(:)
     logical, pointer                     :: DOIT(:)
-    character(len=ESMF_MAXSTR)           :: IAm='MAPL_StateVarWriteNCPar'
     logical                              :: skipWriting
     integer                              :: RST, dna
     character(len=ESMF_MAXSTR)           :: FieldName,BundleName,StateName
@@ -8026,23 +8320,24 @@ module MAPL_IOMod
     type (ESMF_Field)                  :: new_field
     type (ESMF_FieldBundle)            :: bundle_write
     integer                            :: nBundle
+    logical                            :: isPresent
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    ASSERT_(ITEMCOUNT>0)
+    _ASSERT(ITEMCOUNT>0, 'itemcount must be > 0')
 
     allocate(ITEMNAMES(ITEMCOUNT),STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(ITEMTYPES(ITEMCOUNT),STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(DOIT     (ITEMCOUNT),STAT=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_StateGet(STATE,ITEMNAMELIST=ITEMNAMES,ITEMTYPELIST=ITEMTYPES,RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_StateGet(STATE,name=StateName,RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     forceWriteNoRestart_ = .false.
     if(present(forceWriteNoRestart)) then
@@ -8051,15 +8346,15 @@ module MAPL_IOMod
 
     if(present(NAME)) then
        DOIT = ITEMNAMES==NAME
-       ASSERT_(count(DOIT)/=0)
+       _ASSERT(count(DOIT)/=0, 'count(DOIT) must not be 0')
     else
        DOIT = .true.
     endif
 
     bundle_write = ESMF_FieldBundleCreate(name=trim(StateName),rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_FieldBundleSet(bundle_write,grid=arrdes%grid,rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     DO I = 1, ITEMCOUNT
 
@@ -8068,12 +8363,15 @@ module MAPL_IOMod
 
           IF (ITEMTYPES(I) == ESMF_StateItem_FieldBundle) then
              call ESMF_StateGet(state, itemnames(i), bundle, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
-                if (STATUS == ESMF_SUCCESS) then
+                call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+                _VERIFY(STATUS)
+                if (isPresent) then
+                   call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                   _VERIFY(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
              else
@@ -8081,30 +8379,33 @@ module MAPL_IOMod
              end if
              if (skipWriting) cycle
              call ESMF_FieldBundleGet(bundle, fieldCount=nBundle, rc=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call ESMF_FieldBundleGet(bundle, name=BundleName, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              DO J = 1,nBundle
                call ESMF_FieldBundleGet(bundle, fieldIndex=J, field=field, rc=status)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
                call ESMF_FieldGet(field,name=FieldName,rc=status)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
                ! Tack on BundleName to distiguish duplicate FieldNames in different Bundles (PCHEM for instance)
                FieldName = trim(BundleName) //'_'// trim(FieldName)
                new_field = MAPL_FieldCreate(Field,FieldName,rc=status)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
                call MAPL_FieldBundleAdd(bundle_write,new_field,rc=status)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
              ENDDO
 
           ELSE IF (ITEMTYPES(I) == ESMF_StateItem_Field) THEN
              call ESMF_StateGet(state, itemnames(i), field, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
-                if (STATUS == ESMF_SUCCESS) then
+                call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+                _VERIFY(STATUS)
+                if (isPresent) then
+                   call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                   _VERIFY(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
              else
@@ -8112,14 +8413,17 @@ module MAPL_IOMod
              end if
              if (skipWriting) cycle
 
-             call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
-             if (STATUS == ESMF_SUCCESS) then
+             call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
+             _VERIFY(STATUS) 
+             if (isPresent) then
+                call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
+                _VERIFY(STATUS)
                 skipWriting = (dna /= 0)
              endif
              if (skipWriting) cycle
 
              call MAPL_FieldBundleAdd(bundle_write,field,rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
           end IF
        END IF
@@ -8130,1103 +8434,12 @@ module MAPL_IOMod
     deallocate(ITEMTYPES)
     deallocate(DOIT     )
 
-    call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, rc=status)
-    VERIFY_(STATUS)
+    call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, oClients=oClients, rc=status)
+    _VERIFY(STATUS)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_StateVarWriteNCPar
-
-   function MAPL_NCIOOpen(filename,writing,comm,info,rc) result(NCIO)
-
-   character(len=*),           intent(in   ) :: filename
-   logical, optional,          intent(in   ) :: writing
-   integer, optional,          intent(inout) :: comm
-   integer, optional,          intent(inout) :: info
-   integer, optional,          intent(out  ) :: rc
-
-   type(MAPL_NCIO)                  :: NCIO
-
-   character(len=ESMF_MAXSTR)         :: Iam
-   integer                            :: i, j, status, nVars ,nDims, ncid, varid
-   integer                            :: vDims, totVars, dimNum, dimid
-   integer                            :: nAttr
-   integer                            :: vdimids(7)
-   character(len=ESMF_MAXSTR)         :: vname,ctemp
-   character(len=ESMF_MAXSTR)         :: dname, dunits
-   logical                            :: foundDimName
-   integer                            :: status_var,status_units,ncDataType
-   logical                            :: writing_
-   logical                            :: fparallel
-   integer                            :: writeMode
-   integer                            :: year, month, day, hour, min, sec
-
-   Iam = "MAPL_NCIOOpen"
-  
-   if (present(comm)) then
-      ASSERT_(present(info))
-   end if
-   if (present(info)) then
-      ASSERT_(present(comm))
-   end if
-   if (present(writing)) then
-      writing_=writing
-   else
-      writing_=.false.
-   end if
-
-   if (writing_) then
-      writeMode = NF90_CLOBBER
-   else
-      writeMode = NF90_NOWRITE
-   end if
-   NCIO%filename = filename
-   fparallel = .false.
-   if (present(comm) .and. present(info) ) then 
-      status = nf90_open(filename,IOR(writeMode,NF90_MPIIO),ncid,comm=comm,info=info)
-      fparallel = .true.
-   else
-      status = nf90_open(filename,writeMode,ncid)
-      fparallel = .false.
-   end if
-   NCIO%fparallel=fparallel
-   VERIFY_(STATUS)
-   NCIO%ncid = ncid
-   NCIO%isOpen = .true.
-   VERIFY_(STATUS)
-
-   if (writing_) then
-      RETURN_(ESMF_SUCCESS)
-   end if
-
-   ! get numbers of dimensions and variables on file
-   status = nf90_inquire(ncid, nDimensions = nDims, nVariables = totVars, nAttributes = nAttr)
-   VERIFY_(STATUS)
-
-   ! set number of dimensions
-   NCIO%ncid = ncid
-   NCIO%nDims = nDims
-   !NCIO%nAttr = nAttr
-   allocate(NCIO%dims(nDims))
-
-   ! add dimension info to NCIO object and determine the type
-   do i=1,NCIO%nDims
-      status = nf90_inquire_dimension(ncid,i,NCIO%dims(i)%name,NCIO%dims(i)%len)
-      VERIFY_(STATUS)
-      status = nf90_inq_dimid(ncid,trim(NCIO%dims(i)%name),NCIO%dims(i)%dimid)
-      VERIFY_(STATUS)
-      dname = NCIO%dims(i)%name
-      status_var = NF90_inq_varid(ncid,dname,varid)
-      if (status_var == nf90_NoErr) then
-         status_units = NF90_get_att(NCIO%ncid,varid,"units",dUnits)
-         NCIO%dims(i)%hasVar = .true.
-      else
-         dUnits=" "
-         varId = -1
-         NCIO%dims(i)%hasVar = .false.
-      end if
-      NCIO%dims(i)%dimType = MAPL_NCIOIdentifyDim(dname,dunits)
-   end do
-
-   ! find non-dimension variables by checking whether variable has the same name as a dimension
-   nVars = 0
-   do i=1,totVars
-      foundDimName = .false.
-      varid = i
-      status = nf90_inquire_variable(ncid, varid, name = vname)
-      VERIFY_(STATUS)
-      do j=1, nDims
-         if (trim(NCIO%dims(j)%name ) == trim(vname)) then
-            foundDimName = .true.
-         end if
-      end do
-      if (.not.foundDimName) then
-         nVars = nVars + 1
-      end if
-   end do
-
-   ! allocate space now that we know how many non-dimension variables we have in file
-   NCIO%nVars = nVars
-   allocate(NCIO%vars(nVars))
-
-   ! now that we have allocated space get variable information, repeat
-   nVars = 0
-   do i=1,totVars
-      foundDimName = .false.
-      varid = i
-      status = nf90_inquire_variable(ncid, varid, name = vname)
-      VERIFY_(STATUS)
-      ! check if the variable is a dimension variable
-      do j=1, nDims
-         if (trim(NCIO%dims(j)%name ) == trim(vname)) then
-            foundDimName = .true.
-            NCIO%dims(j)%varid = varid
-            status = nf90_inquire_variable(ncid,varid,xtype = NCIO%dims(j)%ncDataType)
-            VERIFY_(STATUS)
-            if (NCIO%dims(j)%ncDataType == NF90_FLOAT) then
-               allocate(NCIO%dims(j)%dimPtrR4(NCIO%dims(j)%len),stat=status)
-               VERIFY_(STATUS)
-               status = NF90_Get_Var(ncid,varid,NCIO%dims(j)%dimPtrR4)
-               VERIFY_(STATUS)
-            else if (NCIO%dims(j)%ncDataType == NF90_DOUBLE) then
-               allocate(NCIO%dims(j)%dimPtrR8(NCIO%dims(j)%len),stat=status)
-               VERIFY_(STATUS)
-               status = NF90_Get_Var(ncid,varid,NCIO%dims(j)%dimPtrR8)
-               VERIFY_(STATUS)
-            else if (NCIO%dims(j)%ncDataType == NF90_INT) then
-               allocate(NCIO%dims(j)%dimPtrI4(NCIO%dims(j)%len),stat=status)
-               VERIFY_(STATUS)
-               status = NF90_Get_Var(ncid,varid,NCIO%dims(j)%dimPtrI4)
-               VERIFY_(STATUS)
-            end if
-
-            if (NCIO%dims(j)%dimType == MAPL_NCIODimLon .or. NCIO%dims(j)%dimType == MAPL_NCIODimLat) then
-               status = nf90_get_att(ncid,varid,"units",ctemp)
-               if (status == NF90_NoErr) then
-                  NCIO%dims(j)%units = ctemp
-               end if
-               status = nf90_get_att(ncid,varid,"long_name",ctemp)
-               if (status == NF90_NoErr) then
-                  NCIO%dims(j)%long_name = ctemp
-               end if
-
-            else if (NCIO%dims(j)%dimType == MAPL_NCIODimLev .or. NCIO%dims(j)%dimType == MAPL_NCIODimEdge) then
-               status = nf90_get_att(ncid,varid,"units",ctemp)
-               if (status == NF90_NoErr) then
-                  NCIO%dims(j)%units = ctemp
-               end if
-               status = nf90_get_att(ncid,varid,"long_name",ctemp)
-               if (status == NF90_NoErr) then
-                  NCIO%dims(j)%long_name = ctemp
-               end if
-               status = nf90_get_att(ncid,varid,"standard_name",ctemp)
-               if (status == NF90_NoErr) then
-                  NCIO%dims(j)%standard_name = ctemp
-               end if
-               status = nf90_get_att(ncid,varid,"coordinate",ctemp)
-               if (status == NF90_NoErr) then
-                  NCIO%dims(j)%coordinate = ctemp
-               end if
-               status = nf90_get_att(ncid,varid,"formulaTerms",ctemp)
-               if (status == NF90_NoErr) then
-                  NCIO%dims(j)%formulaTerms = ctemp
-               end if
-               status = nf90_get_att(ncid,varid,"positive",ctemp)
-               if (status == NF90_NoErr) then
-                  NCIO%dims(j)%positive = ctemp
-               end if
-
-            else if (NCIO%dims(j)%dimType == MAPL_NCIODimTime) then
-               status = nf90_get_att(ncid,varid,"units",ctemp)
-               if (status == NF90_NoErr) then
-                  NCIO%dims(j)%units = ctemp
-                  call MAPL_NCIOParseTimeUnits(ctemp,year,month,day,hour,min,sec,status)
-                  NCIO%date = year*10000 + month*100 + day
-                  NCIO%time = hour*10000 + min*100   + sec
-               end if
-               status = nf90_get_att(ncid,varid,"time_increment",sec)
-               if (status == NF90_NoErr) then
-                  NCIO%time_increment = sec
-               end if
-            end if
-
-         end if
-      end do
-      ! if it is not a dimension variable then get the info
-      if (.not.foundDimName) then
-         nVars = nVars + 1
-         NCIO%vars(nVars)%varid = i
-         status = nf90_inquire_variable(ncid, varid, name = vname, xtype = ncDataType, ndims = vDims, dimids = vDimids)
-         VERIFY_(STATUS)
-         NCIO%vars(nVars)%name = trim(vname)
-         NCIO%vars(nVars)%varid = varid
-         NCIO%vars(nVars)%ndims = vDims
-         NCIO%vars(nVars)%ncDataType = ncDataType
-         allocate(NCIO%vars(nVars)%dimids(vDims))
-         do j=1,vDims
-            NCIO%vars(nVars)%dimids(j)=vDimids(j)
-         end do
-     
-         ! units and long name would be nice to make this more general
-         status = nf90_get_att(ncid,varid,"units",ctemp)
-         if (status == NF90_NoErr) then 
-            NCIO%vars(nVars)%units = ctemp
-         end if
-         status = nf90_get_att(ncid,varid,"long_name",ctemp)
-         if (status == NF90_NoErr) then 
-            NCIO%vars(nVars)%long_name = ctemp
-         end if
-      end if
-   end do
-
-   ! now find number of non-time dimension of each non-dimension variable
-   do i=1,NCIO%nVars
-      NCIO%vars(i)%spatialDims = NCIO%vars(i)%ndims 
-      do j=1,NCIO%vars(i)%ndims
-         dimid = NCIO%vars(i)%dimids(j)
-         dname = NCIO%dims(dimid)%Name
-         dunits = " "
-         dimNum = MAPL_NCIOIdentifyDim(dname,dunits)
-         if (dimNum == MAPL_NCIODimTime) then
-            NCIO%vars(i)%spatialDims = NCIO%vars(i)%SpatialDims - 1
-            exit
-         end if
-       end do 
-   end do
-
-   call MAPL_NCIOGetGridType(NCIO,rc=status)
-
-   RETURN_(ESMF_SUCCESS)
-
-   end function MAPL_NCIOOpen
-
-   integer function MAPL_NCIOIdentifyDim(dimName,dimUnits)
-
-   character(len=*), intent(in) :: dimName
-   character(len=*), intent(in) :: dimUnits
-
-     if (TRIM(dimUnits) .EQ. "hPa" ) then
-         MAPL_NCIOIdentifyDim = MAPL_NCIODimLev
-         return
-     end if
-
-     if ( trim(dimName) .eq. "time" ) then
-         MAPL_NCIOIdentifyDim = MAPL_NCIODimTime
-         return
-     end if
-
-     if (TRIM(dimUnits) .EQ. "degrees_east" .OR.            &
-         trim(dimName)  .eq. "longitude"    .OR.           &
-         trim(dimName)  .eq. "lon"  ) then
-
-         MAPL_NCIOIdentifyDim = MAPL_NCIODimLon
-
-     else if (TRIM(dimUnits) .EQ. "degrees_north" ) then
-
-         MAPL_NCIOIdentifyDim = MAPL_NCIODimLat
-
-     else if (  trim(dimName)  .eq. "latitude"    .OR.      &
-               trim(dimName)  .eq. "lat"  ) then
-
-         MAPL_NCIOIdentifyDim = MAPL_NCIODimLat
-
-     else if (INDEX(dimName,"lev") .NE. 0 .OR.              &
-             INDEX(dimName,"Height") .NE. 0) then
-
-       MAPL_NCIOIdentifyDim = MAPL_NCIODimLev
-
-     else if (INDEX(dimName,"edge") /= 0 .OR. INDEX(dimName,"EDGE") /= 0) then
-
-       MAPL_NCIOIdentifyDim = MAPL_NCIODimEdge
-
-     else if (TRIM(dimUnits) .EQ. "mb" .OR.                 &
-             TRIM(dimUnits) .EQ. "millibar" .OR.           &
-             TRIM(dimUnits) .EQ. "sigma_level" .OR.        &
-             TRIM(dimUnits) .EQ. "hPa") then
-
-       MAPL_NCIOIdentifyDim = MAPL_NCIODimLev
-
-     else if (trim(dimName) .eq. "TIME" .OR.            &
-             trim(dimName) .eq. "TIME:EOSGRID" .OR.     &
-             trim(dimName) .eq. "time" .OR.             &
-             trim(dimName) .eq. "Time") then
-
-       MAPL_NCIOIdentifyDim = MAPL_NCIODimTime
-     else if (dimName(1:11) .eq. "unknown_dim") then
-
-       MAPL_NCIOIdentifyDim = MAPL_NCIODimExtraDim
-
-     else if (trim(dimName) .eq. "tile") then
-
-       MAPL_NCIOIdentifyDim = MAPL_NCIODimTile
-
-     else if (trim(dimName) .eq. "subtile") then
-
-       MAPL_NCIOIdentifyDim = MAPL_NCIODimSubTile
-
-     else
-
-       MAPL_NCIOIdentifyDim = MAPL_NCIODimUnknown
-
-     endif
-
-   end function MAPL_NCIOIdentifyDim
-
-   subroutine MAPL_NCIOGetGridType(NCIO,rc)
-
-     type(MAPL_NCIO), intent(inout)  :: NCIO
-     integer, optional, intent(out  ) :: rc
-
-     integer :: gridType
-     integer :: i,dim_Type,lonSize,latSize,latVarid,lonVarid
-     logical :: foundLon,foundLat,foundTile
-
-     foundLon  = .false.
-     foundLat  = .false.
-     foundTile = .false.
-     do i =1,NCIO%nDims
-        dim_Type = NCIO%dims(i)%dimType
-        if (dim_Type == MAPL_NCIODimLon) then
-           foundLon = .true.
-           lonSize = NCIO%Dims(i)%len
-           LonVarId = i
-        end if
-        if (dim_Type == MAPL_NCIODimLat) then
-           foundLat = .true.
-           latSize = NCIO%Dims(i)%len
-           LatVarId = i
-        end if
-        if (dim_Type == MAPL_NCIODimTile) then
-           foundTile = .true.
-        end if
-     end do
-
-     if (foundTile) then
-        gridType = MAPL_NCIOGridTile
-     else if (foundLat .and. foundLon) then
-        if (latSize == 6*lonSize) then
-           gridType = MAPL_NCIOGridCS
-        else
-           gridType = MAPL_NCIOGridLL
-        end if
-     else
-        gridType = MAPL_NCIOGridUnknown
-     endif
-
-     NCIO%gridType = gridType
-      
-     rc = 0
-
-   end subroutine MAPL_NCIOGetGridType
-
-   subroutine MAPL_NCIOClose(NCIO,destroy,rc)
-
-     type(MAPL_NCIO), intent(inout) :: NCIO
-     logical, optional, intent(in   ) :: destroy
-     integer, optional, intent(out  ) :: rc
-
-     integer :: status
-     character(len=ESMF_MAXSTR) :: Iam
-
-     integer :: i
-
-     Iam = "MAPL_NCIOClose"
-
-     if (NCIO%isOpen) then
-    
-        status = NF90_Close(NCIO%ncid)
-        NCIO%isOpen = .false.
-        VERIFY_(STATUS)
-
-     end if
-
-     if (present(destroy)) then
-
-        do i=1,NCIO%ndims
-           if (allocated(NCIO%dims(i)%dimPtrR4)) deallocate(NCIO%dims(i)%dimPtrR4)
-           if (allocated(NCIO%dims(i)%dimPtrR8)) deallocate(NCIO%dims(i)%dimPtrR8)
-        enddo
-
-        do i=1,NCIO%nvars
-           if (allocated(NCIO%vars(i)%dimids)) deallocate(NCIO%vars(i)%dimids)
-        enddo
-
-        deallocate(NCIO%dims)
-        deallocate(NCIO%vars)
-
-     end if
-
-     RETURN_(ESMF_SUCCESS)
-   
-   end subroutine MAPL_NCIOClose
-
-   subroutine MAPL_NCIOCreateFile(NCIO,comm,info,rc)
-
-     type(MAPL_NCIO), intent(inout) :: NCIO
-     integer, optional, intent(inout) :: comm
-     integer, optional, intent(inout) :: info
-     integer, optional, intent(out  ) :: rc
-
-     integer :: status
-     character(len=ESMF_MAXSTR) :: Iam
-
-     integer :: i,j,tindex
-     integer :: year, month, day, hour, min, sec, date, time
-     integer, allocatable :: dimids(:)
-
-     Iam = "MAPL_NCIOCreateFile"
-     if (present(comm)) then
-        ASSERT_(present(info))
-     end if
-     if (present(info)) then 
-        ASSERT_(present(comm))
-     end if
-
-     if (.not.NCIO%isOpen) then
-        if (present(comm) .and. present(info)) then
-           status = NF90_Create(NCIO%filename,IOR(NF90_NETCDF4,IOR(NF90_CLOBBER,NF90_MPIIO)), &
-                                NCIO%ncid,comm=comm,info=info)
-           VERIFY_(STATUS)
-        else
-           status = NF90_Create(NCIO%filename,IOR(NF90_NETCDF4,NF90_CLOBBER),NCIO%ncid)
-           VERIFY_(STATUS)
-        end if
-        NCIO%isOpen=.true.
-     end if
-
-     ! define dimensions
-     do i=1,NCIO%nDims
-        status = nf90_def_dim(NCIO%ncid,NCIO%dims(i)%name,NCIO%dims(i)%len,NCIO%dims(i)%dimid)
-        VERIFY_(STATUS)
-     enddo
-     ! define any dimension variables, lat, lon, etc
-     do i=1,NCIO%nDims
-        if (NCIO%dims(i)%hasVar) then
-           status = nf90_def_var(NCIO%ncid,NCIO%dims(i)%name,NCIO%dims(i)%ncDataType, &
-                    (/NCIO%dims(i)%dimid/),NCIO%dims(i)%varid)
-           VERIFY_(STATUS)
-           if (NCIO%dims(i)%dimType == MAPL_NCIODimLon) then
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"units",NCIO%dims(i)%units)
-              VERIFY_(STATUS)
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"long_name",NCIO%dims(i)%long_name)
-              VERIFY_(STATUS)
-           else if (NCIO%dims(i)%dimType == MAPL_NCIODimLat) then
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"units",NCIO%dims(i)%units)
-              VERIFY_(STATUS)
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"long_name",NCIO%dims(i)%long_name)
-              VERIFY_(STATUS)
-           else if (NCIO%dims(i)%dimType == MAPL_NCIODimLev .or. NCIO%dims(i)%dimType == MAPL_NCIODimEdge) then
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"units",NCIO%dims(i)%units)
-              VERIFY_(STATUS)
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"long_name",NCIO%dims(i)%long_name)
-              VERIFY_(STATUS)
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"standard_name",NCIO%dims(i)%standard_name)
-              VERIFY_(STATUS)
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"coordinate",NCIO%dims(i)%coordinate)
-              VERIFY_(STATUS)
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"positive",NCIO%dims(i)%positive)
-              VERIFY_(STATUS)
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"formulaTerms",NCIO%dims(i)%formulaTerms)
-              VERIFY_(STATUS)
-
-           else if (NCIO%dims(i)%dimType == MAPL_NCIODimTime) then
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"units",NCIO%dims(i)%units)
-              VERIFY_(STATUS)
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"long_name","time")
-              VERIFY_(STATUS) 
-              call MAPL_NCIOParseTimeUnits(trim(NCIO%dims(i)%units),year,month,day,hour,min,sec,status)
-              VERIFY_(STATUS)
-              date = year*10000 + month*100 + day
-              time = hour*10000 + min*100   + sec
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"begin_date",date)
-              VERIFY_(STATUS)
-              status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"begin_time",time)
-              VERIFY_(STATUS)
-              if (NCIO%time_increment /= -999) then
-                 status = nf90_put_att(NCIO%ncid,NCIO%dims(i)%varid,"time_increment",NCIO%time_increment)
-                 VERIFY_(STATUS)
-              end if 
-           end if
-        end if
-     enddo
-
-     ! define regular, non-dimension variables
-     do i=1,NCIO%nVars
-        allocate(dimids(NCIO%vars(i)%ndims),stat=status)
-        VERIFY_(STATUS)
-        do j=1,NCIO%vars(i)%ndims
-           tindex = NCIO%vars(i)%dimids(j)
-           dimids(j) = NCIO%dims(tindex)%dimid
-        enddo
-        status = nf90_def_var(NCIO%ncid,NCIO%vars(i)%name,NCIO%vars(i)%ncDataType, &
-                 dimids,NCIO%vars(i)%VarId,contiguous=.true.)
-        VERIFY_(STATUS)
-        status = nf90_def_var_fill(NCIO%ncid,NCIO%vars(i)%VarId,NF90_NOFILL,0)
-        VERIFY_(STATUS)
-        deallocate(dimids)
-        status = nf90_put_att(NCIO%ncid,NCIO%vars(i)%VarId,"long_name",NCIO%vars(i)%long_name)
-        VERIFY_(STATUS)
-        status = nf90_put_att(NCIO%ncid,NCIO%vars(i)%VarId,"units",NCIO%vars(i)%units)
-        VERIFY_(STATUS)
-     enddo
-
-     status = NF90_ENDDEF(NCIO%ncid)
-     VERIFY_(STATUS)
-
-     ! fill in lats/lons
-     do i=1,NCIO%nDims
-        if (NCIO%dims(i)%hasVar) then
-           if (NCIO%dims(i)%ncDataType == NF90_FLOAT) then
-              status = nf90_put_var(NCIO%ncid,NCIO%dims(i)%varid,NCIO%dims(i)%dimPtrR4)
-              VERIFY_(STATUS)
-           else if (NCIO%dims(i)%ncDataType == NF90_DOUBLE) then
-              status = nf90_put_var(NCIO%ncid,NCIO%dims(i)%varid,NCIO%dims(i)%dimPtrR8)
-              VERIFY_(STATUS)
-           else if (NCIO%dims(i)%ncDataType == NF90_INT) then
-              status = nf90_put_var(NCIO%ncid,NCIO%dims(i)%varid,NCIO%dims(i)%dimPtrI4)
-              VERIFY_(STATUS)
-           end if
-        end if
-     enddo
-
-     RETURN_(ESMF_SUCCESS)
-
-   end subroutine MAPL_NCIOCreateFile
-
-   subroutine MAPL_NCIOChangeRes(NCIOOld,NCIONew,tileSize,latSize,lonSize,levSize,rc)
-     type(MAPL_NCIO), intent(inout) :: NCIOOld
-     type(MAPL_NCIO), intent(inout) :: NCIONew
-     integer, optional, intent(in   ) :: tileSize
-     integer, optional, intent(in   ) :: latSize
-     integer, optional, intent(in   ) :: lonSize
-     integer, optional, intent(in   ) :: levSize
-     integer, optional, intent(out  ) :: rc
-
-     integer :: status
-     character(len=ESMF_MAXSTR) :: Iam
-
-     logical :: presentTile,presentLat,presentLon,presentLev
-     integer :: i,tileDim,lonDim,latDim,levDim,EdgeDim
-     real(kind=ESMF_KIND_R4) :: flon,flat
-     real(kind=ESMF_KIND_R8) :: dlon,dlat
-
-     Iam = "MAPL_NCIOChangeRes"
-
-     NCIONew = NCIOOld
-     NCIONew%isOpen=.false.
-
-     presentTile = present(tileSize)
-     presentLon = present(lonSize)
-     presentLat = present(latSize)
-     presentLev = present(levSize)
-
-     if (presentLon .and. presentLat) then
-        if (latSize == 6*lonSize) then
-           NCIONew%gridType = MAPL_NCIOGridCS
-        else
-           NCIONew%gridTYpe = MAPL_NCIOGridLL
-        end if
-     end if
-
-     if (NCIONew%gridType == MAPL_NCIOGridTile) then
-
-        ASSERT_(presentTile)
-        do i=1,NCIONew%ndims
-           if (NCIONew%dims(i)%dimType == MAPL_NCIODimTile) then
-              tileDim = i
-              exit
-           end if
-        end do
-        NCIONew%dims(tileDim)%len = tileSize
-
-     else if (NCIONew%gridType == MAPL_NCIOGridLL .or. NCIONew%gridType == MAPL_NCIOGridCS) then
-
-        ASSERT_(presentLon)
-        ASSERT_(presentLat)
-        do i=1,NCIONew%ndims
-           if (NCIONew%dims(i)%dimType == MAPL_NCIODimLon) then
-              lonDim = i
-              exit
-           end if
-        end do
-        do i=1,NCIONew%ndims
-           if (NCIONew%dims(i)%dimType == MAPL_NCIODimLat) then
-              latDim = i
-              exit
-           end if
-        end do
-        levDim = -1
-        do i=1,NCIONew%ndims
-           if (NCIONew%dims(i)%dimType == MAPL_NCIODimLev) then
-              levDim = i
-              exit
-           end if
-        end do
-        edgeDim = -1
-        do i=1,NCIONew%ndims
-           if (NCIONew%dims(i)%dimType == MAPL_NCIODimEdge) then
-              edgeDim = i
-              exit
-           end if
-        end do
-
-        NCIONew%dims(lonDim)%len = lonSize
-        NCIONew%dims(latDim)%len = latSize
-        if (NCIONew%dims(lonDim)%ncDataType == NF90_FLOAT) then
-           deallocate(NCIONew%dims(lonDim)%dimPtrR4,stat=status)
-           VERIFY_(status)
-           allocate(NCIONew%dims(lonDim)%dimPtrR4(lonSize),stat=status)
-           VERIFY_(status)
-           if (NCIONew%gridtype == MAPL_NCIOGridCS) then
-              do i=1,lonSize
-                 NCIONew%dims(lonDim)%dimPtrR4(i)=i
-              enddo
-           else
-              flon = 360.0/NCIONew%dims(lonDim)%len
-              do i=1,lonSize
-                 NCIONew%dims(lonDim)%dimPtrR4(i)=-180.0+(i-1)*flon
-              enddo
-           end if
-        else if (NCIONew%dims(lonDim)%ncDataType == NF90_DOUBLE) then
-           deallocate(NCIONew%dims(lonDim)%dimPtrR8,stat=status)
-           VERIFY_(status)
-           allocate(NCIONew%dims(lonDim)%dimPtrR8(lonSize),stat=status)
-           VERIFY_(status)
-           if (NCIONew%gridtype == MAPL_NCIOGridCS) then
-              do i=1,lonSize
-                 NCIONew%dims(lonDim)%dimPtrR8(i)=i
-              enddo
-           else
-              dlon = 360.d0/NCIONew%dims(lonDim)%len
-              do i=1,lonSize
-                 NCIONew%dims(lonDim)%dimPtrR8(i)=-180.d0+(i-1)*dlon
-              enddo
-           end if
-        endif
-        
-        if (NCIONew%dims(latDim)%ncDataType == NF90_FLOAT) then
-           deallocate(NCIONew%dims(latDim)%dimPtrR4,stat=status)
-           VERIFY_(status)
-           allocate(NCIONew%dims(latDim)%dimPtrR4(latSize),stat=status)
-           VERIFY_(status)
-           if (NCIONew%gridtype == MAPL_NCIOGridCS) then
-              do i=1,latSize
-                 NCIONew%dims(latDim)%dimPtrR4(i)=i
-              enddo
-           else
-              flat = 180.d0/(NCIONew%dims(latDim)%len-1)
-              do i=1,latSize
-                 NCIONew%dims(latDim)%dimPtrR4(i)=-90.0+(i-1)*flat
-              enddo
-           end if
-        else if (NCIONew%dims(latDim)%ncDataType == NF90_DOUBLE) then
-           deallocate(NCIONew%dims(latDim)%dimPtrR8,stat=status)
-           VERIFY_(status)
-           allocate(NCIONew%dims(latDim)%dimPtrR8(latSize),stat=status)
-           VERIFY_(status)
-           if (NCIONew%gridtype == MAPL_NCIOGridCS) then
-              do i=1,latSize
-                 NCIONew%dims(latDim)%dimPtrR8(i)=i
-              enddo
-           else
-              dlat = 180.d0/(NCIONew%dims(latDim)%len-1)
-              do i=1,latSize
-                 NCIONew%dims(latDim)%dimPtrR8(i)=-90.d0+(i-1)*dlat
-              enddo
-           end if
-        endif
-
-        if (presentLev) then
-
-           if (levDim /= -1) then
-              NCIONew%dims(levDim)%len = levSize
-              if (NCIONew%dims(levDim)%ncDataType == NF90_FLOAT) then
-                 deallocate(NCIONew%dims(levDim)%dimPtrR4,stat=status)
-                 VERIFY_(status)
-                 allocate(NCIONew%dims(levDim)%dimPtrR4(levSize),stat=status)
-                 VERIFY_(status)
-                 do i=1,levSize
-                    NCIONew%dims(levDim)%dimPtrR4(i)=i
-                 enddo
-               else if (NCIONew%dims(levDim)%ncDataType == NF90_DOUBLE) then
-                 deallocate(NCIONew%dims(levDim)%dimPtrR8,stat=status)
-                 VERIFY_(status)
-                 allocate(NCIONew%dims(levDim)%dimPtrR8(levSize),stat=status)
-                 VERIFY_(status)
-                 do i=1,levSize
-                    NCIONew%dims(levDim)%dimPtrR8(i)=i
-                 enddo
-               end if
-           end if
-           if (edgeDim /= -1) then
-              NCIONew%dims(EdgeDim)%len = levSize+1
-              if (NCIONew%dims(EdgeDim)%ncDataType == NF90_FLOAT) then
-                 deallocate(NCIONew%dims(edgeDim)%dimPtrR4,stat=status)
-                 VERIFY_(status)
-                 allocate(NCIONew%dims(edgeDim)%dimPtrR4(levSize+1),stat=status)
-                 VERIFY_(status)
-                 do i=1,levSize+1
-                    NCIONew%dims(edgeDim)%dimPtrR4(i)=i
-                 enddo
-               else if (NCIONew%dims(edgeDim)%ncDataType == NF90_DOUBLE) then
-                 deallocate(NCIONew%dims(edgeDim)%dimPtrR8,stat=status)
-                 VERIFY_(status)
-                 allocate(NCIONew%dims(edgeDim)%dimPtrR8(levSize+1),stat=status)
-                 VERIFY_(status)
-                 do i=1,levSize+1
-                    NCIONew%dims(edgeDim)%dimPtrR8(i)=i
-                 enddo
-               end if
-           end if
-        end if
-
-     else
-        write(*,*)"No grid found, do not know what rescale"
-     end if           
-     
-     RETURN_(ESMF_SUCCESS)
-
-  end subroutine MAPL_NCIOChangeRes
-
-  subroutine MAPL_NCIOSet(NCIO,filename,ncid,nvars,ndims,overwriteVars,rc)
-     type(MAPL_NCIO),          intent(inout) :: NCIO
-     character(len=*), optional, intent(in   ) :: filename
-     integer, optional,          intent(in   ) :: ncid
-     integer, optional,          intent(in   ) :: nvars
-     integer, optional,          intent(in   ) :: ndims
-     logical, optional,          intent(in   ) :: overwriteVars
-     integer, optional,          intent(out  ) :: rc
-
-     integer :: status
-     character(len=ESMF_MAXSTR) :: Iam
-
-     integer :: i
-
-     Iam = "MAPL_NCIOSet"
-
-     if (present(filename)) then
-        NCIO%filename = filename
-     end if
-     if (present(ncid)) then
-        NCIO%isOpen = .true.
-        NCIO%ncid = ncid
-     end if
-     if (present(overWriteVars)) then
-        ASSERT_(present(nVars))
-        ASSERT_(allocated(NCIO%vars))
-        do i=1,NCIO%nVars
-           deallocate(NCIO%vars(i)%dimids,stat=status)
-           VERIFY_(STATUS)
-        enddo
-        deallocate(NCIO%vars,stat=status)
-     end if
-     if (present(nvars)) then
-        NCIO%nVars = nVars
-        allocate(NCIO%vars(nVars),stat=status)
-        VERIFY_(STATUS)
-        do i=1,nVars
-           NCIO%vars(i)%name="null"
-        enddo 
-     end if
-     if (present(ndims)) then
-        NCIO%nDims = nDims
-        allocate(NCIO%dims(nDims),stat=status)
-        VERIFY_(STATUS)
-        do i=1,nDims
-           NCIO%dims(i)%name="null"
-        enddo 
-     end if
-
-     RETURN_(ESMF_SUCCESS)
-
-  end subroutine MAPL_NCIOSet
-
-  subroutine MAPL_NCIOAddDim(NCIO,name,len,dimid,dimType,varR4,varR8,units,long_name,standard_name, &
-                               coordinate,formulaTerms,positive,rc)
-     type(MAPL_NCIO),     intent(inout) :: NCIO
-     character(len=*),      intent(in   ) :: name
-     integer,               intent(in   ) :: len
-     integer,               intent(out  ) :: dimid
-     integer,            optional, intent(in   ) :: dimType
-     real(kind=ESMF_KIND_R4), optional, intent(in   ) :: varR4(:)
-     real(kind=ESMF_KIND_R8), optional, intent(in   ) :: varR8(:)
-     character(len=*),   optional, intent(in   ) :: units
-     character(len=*),   optional, intent(in   ) :: long_name
-     character(len=*),   optional, intent(in   ) :: standard_name
-     character(len=*),   optional, intent(in   ) :: coordinate
-     character(len=*),   optional, intent(in   ) :: formulaTerms
-     character(len=*),   optional, intent(in   ) :: positive
-     integer,            optional, intent(out  ) :: rc
-
-     integer :: status
-     character(len=ESMF_MAXSTR) :: Iam
-
-     integer :: i, idx
-
-     Iam = "MAPL_NCIOAddDim"
-
-     ! find free dimension
-     idx = -1
-     do i=1,NCIO%nDims
-        if (trim(NCIO%dims(i)%name) == "null" ) then
-           idx = i
-           exit
-        end if
-     enddo
-     ASSERT_(idx /= -1)
-     NCIO%dims(idx)%name = name
-     NCIO%dims(idx)%len = len
-     dimid = idx
-     if (present(dimType)) then
-        NCIO%dims(idx)%dimType=dimType
-     else
-        NCIO%dims(idx)%dimType=MAPL_NCIODimUnknown
-     end if
-     if (present(varR4)) then
-        allocate(NCIO%dims(idx)%dimPtrR4(len),stat=status)
-        VERIFY_(STATUS)
-        NCIO%dims(idx)%dimPtrR4 = varR4
-        NCIO%dims(idx)%ncDataType = NF90_FLOAT
-        NCIO%dims(idx)%hasVar = .true.
-     else if (present(varR8)) then
-        allocate(NCIO%dims(idx)%dimPtrR8(len),stat=status)
-        VERIFY_(STATUS)
-        NCIO%dims(idx)%dimPtrR8 = varR8
-        NCIO%dims(idx)%ncDataType = NF90_DOUBLE
-        NCIO%dims(idx)%hasVar = .true.
-     else
-        NCIO%dims(idx)%hasVar = .false.
-     end if
-     if (present(units)) then
-        NCIO%dims(idx)%units = units
-     end if
-     if (present(long_name)) then
-        NCIO%dims(idx)%long_name = long_name
-     end if
-     if (present(standard_name)) then
-        NCIO%dims(idx)%standard_name = standard_name
-     end if
-     if (present(coordinate)) then
-        NCIO%dims(idx)%coordinate = coordinate
-     end if
-     if (present(formulaTerms)) then
-        NCIO%dims(idx)%formulaTerms = formulaTerms
-     end if
-     if (present(positive)) then
-        NCIO%dims(idx)%positive = positive
-     end if
-
-     RETURN_(ESMF_SUCCESS)
-
-  end subroutine MAPL_NCIOAddDim
-
-  subroutine MAPL_NCIOAddVar(NCIO,name,dimids,dataType,long_name,units,rc)
-     type(MAPL_NCIO),     intent(inout) :: NCIO
-     character(len=*),      intent(in   ) :: name
-     integer,               intent(in   ) :: dimids(:)
-     integer,               intent(in   ) :: dataType
-     character(len=*),   optional, intent(in   ) :: units
-     character(len=*),   optional, intent(in   ) :: long_name
-     integer,            optional, intent(out  ) :: rc
-
-     integer :: status
-     character(len=ESMF_MAXSTR) :: Iam
-
-     integer :: i,idx
-      
-     Iam = "MAPL_NCIOAddVar"
-
-     ! find variable that has not been used yet
-     idx = -1
-     do i=1,NCIO%nVars
-        if (trim(NCIO%vars(i)%name) == "null" ) then
-           idx = i
-           exit
-        end if
-     enddo
-     ASSERT_(idx /= -1)
-
-     NCIO%vars(idx)%name=name
-     allocate(NCIO%vars(idx)%dimids(size(dimids)),stat=status)
-     VERIFY_(STATUS)
-     NCIO%vars(idx)%ndims = size(dimids)
-     NCIO%vars(idx)%dimids=dimids
-     NCIO%vars(idx)%ncDataType = dataType
-     if (present(units)) then
-        NCIO%vars(idx)%units = units
-     end if
-     if (present(long_name)) then
-        NCIO%vars(idx)%long_name = long_name
-     end if
-
-     RETURN_(ESMF_SUCCESS)
-
-  end subroutine MAPL_NCIOAddVar
-
-  subroutine MAPL_NCIOGetDimSizes(NCIO,lon,lat,lev,edges,tile,nvars,date,time,slices,lonid,latid,levid,edgeid,rc)
-     type(MAPL_NCIO), intent(inout) :: NCIO
-     integer, optional, intent(out  ) :: lon
-     integer, optional, intent(out  ) :: lat
-     integer, optional, intent(out  ) :: lev
-     integer, optional, intent(out  ) :: edges
-     integer, optional, intent(out  ) :: tile
-     integer, optional, intent(out  ) :: nvars
-     integer, optional, intent(out  ) :: date
-     integer, optional, intent(out  ) :: time
-     integer, optional, intent(inout) :: slices
-     integer, optional, intent(out  ) :: lonid
-     integer, optional, intent(out  ) :: latid
-     integer, optional, intent(out  ) :: levid
-     integer, optional, intent(out  ) :: edgeid
-     integer, optional, intent(out  ) :: rc
-
-     character(len=ESMF_MAXSTR) :: Iam
-
-     integer :: i,j,vertDim
-     logical :: found,foundLev
-     integer :: nDims,dimSizes(4),dimType(4)
-
-     Iam = "MAPL_NCIOGetDimSizes"
-
-     if (present(slices)) then
-        slices = 0
-        if (NCIO%gridType == MAPL_NCIOGridLL .or. NCIO%gridType == MAPL_NCIOGridCS) then
-           do i=1,NCIO%nVars
-              call MAPL_NCIOVarGetDims(NCIO,NCIO%vars(i)%name,nDims,dimSizes,dimType)
-              foundLev = .false.
-              do j=1,nDims
-                 if (dimType(j) == MAPL_NCIODimLev .or. dimType(j) == MAPL_NCIODimEdge) then
-                    foundLev = .true.
-                    vertDim = j
-                    exit
-                 end if
-              enddo
-              if (foundLev) then
-                 slices = slices + dimSizes(vertDim)
-              else
-                 slices = slices + 1
-              end if
-           enddo
-        end if
-     end if
-     if (present(lon)) then
-        lon = 0
-        do i=1,NCIO%ndims
-           if (NCIO%dims(i)%dimType == MAPL_NCIODimLon) then
-              lon = NCIO%dims(i)%len
-              exit
-           end if
-        enddo
-     endif
-     if (present(lat)) then
-        lat = 0
-        do i=1,NCIO%ndims
-           if (NCIO%dims(i)%dimType == MAPL_NCIODimLat) then
-              lat = NCIO%dims(i)%len
-              exit
-           end if
-        enddo
-     endif
-     if (present(lev)) then
-        lev = 0
-        do i=1,NCIO%ndims
-           if (NCIO%dims(i)%dimType == MAPL_NCIODimLev) then
-              lev = NCIO%dims(i)%len
-              exit
-           end if
-        enddo
-     endif
-     if (present(edges)) then
-        edges = 0
-        do i=1,NCIO%ndims
-           if (NCIO%dims(i)%dimType == MAPL_NCIODimEdge) then
-              edges = NCIO%dims(i)%len
-              exit
-           end if
-        enddo
-     endif
-     if (present(tile)) then
-        tile = 0
-        do i=1,NCIO%ndims
-           if (NCIO%dims(i)%dimType == MAPL_NCIODimTile) then
-              tile = NCIO%dims(i)%len
-              exit
-           end if
-        enddo
-     endif
-     if (present(nvars)) then
-        nvars = NCIO%nvars
-     end if
-     if (present(date)) then
-        date = NCIO%date
-     end if
-     if (present(time)) then
-        time = NCIO%time
-     end if
-     if (present(lonid)) then
-        lonid = -1
-        do i=1,NCIO%ndims
-           if (NCIO%dims(i)%dimType == MAPL_NCIODimLon) then
-              lonid = i
-              exit
-           end if
-        enddo
-     endif
-     if (present(latid)) then
-        latid = -1
-        do i=1,NCIO%ndims
-           if (NCIO%dims(i)%dimType == MAPL_NCIODimLat) then
-              latid = i
-              exit
-           end if
-        enddo
-     endif
-     if (present(levid)) then
-        levid = -1
-        do i=1,NCIO%ndims
-           if (NCIO%dims(i)%dimType == MAPL_NCIODimLev) then
-              levid = i
-              exit
-           end if
-        enddo
-     endif
-     if (present(edgeid)) then
-        edgeid = -1
-        do i=1,NCIO%ndims
-           if (NCIO%dims(i)%dimType == MAPL_NCIODimEdge) then
-              edgeid = i
-              exit
-           end if
-        enddo
-     endif
-
-  end subroutine MAPL_NCIOGetDimSizes
-
-
-  subroutine MAPL_NCIOVarGetDims(NCIO,name,ndims,dimSize,dimType,nSpatialDims,rc)
-     type(MAPL_NCIO), intent(inout) :: NCIO
-     character(len=*), intent(in   ) :: name
-     integer, intent(out  ) :: ndims
-     integer, intent(out  ) :: dimSize(:)
-     integer, optional, intent(out) :: dimType(:)
-     integer, optional, intent(out) :: nSpatialDims
-     integer, optional, intent(out  ) :: rc
-
-     character(len=ESMF_MAXSTR) :: Iam
-
-     integer :: i,j,dimid
-     logical :: found
-
-     Iam = "MAPL_NCIOVarGetDims"
-
-     dimSize = 0
-     found = .false.
-     
-     do i=1,NCIO%nVars
-        if (trim(name) == trim(NCIO%vars(i)%name)) then
-           ndims = NCIO%vars(i)%ndims
-           ASSERT_(size(dimSize) >= ndims)
-           if (present(dimType)) then
-              ASSERT_(size(dimType) >= ndims)
-           end if
-           do j=1,NCIO%vars(i)%ndims
-              dimid = NCIO%vars(i)%dimids(j)
-              dimSize(j) = NCIO%dims(dimid)%len
-              if (present(dimType)) dimType(j) = NCIO%dims(dimid)%dimType
-           enddo
-           if (present(nSpatialDims)) nSpatialDims = NCIO%vars(i)%spatialDims
-           found = .true.
-           exit
-        end if
-     enddo
-
-     if (found) then
-        RETURN_(ESMF_SUCCESS)
-     else
-        RETURN_(ESMF_FAILURE)
-     end if
-
-  end subroutine MAPL_NCIOVarGetDims 
 
   subroutine MAPL_NCIOGetFileType(filename,filetype,rc)
    implicit none
@@ -9241,7 +8454,6 @@ module MAPL_IOMod
    !-----------------
 
    integer                      :: STATUS
-   character(len=128)           :: Iam="GuessFileType"
 
    character(len=1)             :: word(4)
    character(len=1)             :: TwoWords(8)
@@ -9255,7 +8467,7 @@ module MAPL_IOMod
    UNIT = 10
    INQUIRE(IOLENGTH=IREC) WORD
    open (UNIT=UNIT, FILE=FILENAME, FORM='unformatted', ACCESS='DIRECT', RECL=IREC, IOSTAT=status)
-   VERIFY_(STATUS)
+   _VERIFY(STATUS)
 
 ! Read first 8 characters and compare with HDF5 signature
    read (UNIT, REC=1, ERR=100) TwoWords(1:4)
@@ -9265,7 +8477,7 @@ module MAPL_IOMod
    typehdf5 = .true.
    filetype = -1 ! Unknown
 
-   do i = 1, size(hdf5)
+   do i = 1, 8
       if (iachar(TwoWords(i)) /= hdf5(i)) then
          typehdf5 = .false.
          exit
@@ -9273,7 +8485,7 @@ module MAPL_IOMod
    end do
    if (typehdf5) then
       filetype = 0 ! HDF5
-      RETURN_(ESMF_SUCCESS)
+      _RETURN(ESMF_SUCCESS)
 
    end if
    ! Attempt to identify as fortran binary
@@ -9282,57 +8494,441 @@ module MAPL_IOMod
    irec = cwrd/4
    filetype = irec
    if (cwrd /= 4*irec) then
-      RETURN_(ESMF_FAILURE)
+      _RETURN(ESMF_FAILURE)
    end if
 
    filetype = -1
-   RETURN_(ESMF_SUCCESS)
+   _RETURN(ESMF_SUCCESS)
 
 100   continue
-   RETURN_(ESMF_FAILURE)
+   _RETURN(ESMF_FAILURE)
 
    end subroutine MAPL_NCIOGetFileType
 
-   subroutine MAPL_NCIOGetVarName(ncioObj,idx,name,rc)
+  subroutine ArrayScatterShmR4D1(local_array, global_array, grid, mask, rc)
 
-   type(MAPL_NCIO),            intent(in   ) :: ncioObj
-   integer,                    intent(in   ) :: idx
-   character(len=*),           intent(out  ) :: name
-   integer, optional,          intent(out  ) :: rc
+! Mask is really a permutation on the first dimension
 
-   character(len=ESMF_MAXSTR) :: Iam
+    real,         intent(  OUT) :: local_array(:)
+!    TYPE_(kind=EKIND_), target, intent(IN   ) :: global_array DIMENSIONS_
+    real, target                :: global_array(:)
+    type (ESMF_Grid)                          :: grid
+    integer, optional,          intent(IN   ) :: mask(:)
+    integer, optional,          intent(  OUT) :: rc
+    
+! Local variables
 
-   Iam = "MAPL_NCIOGetVarName"
+    integer                               :: status
 
-   ASSERT_(idx <= ncioObj%nVars)
-   name = ncioObj%Vars(idx)%name
+    real,    pointer        :: myglob(:) => null()
+    real,    pointer        :: VAR(:)
+    type (ESMF_DistGrid)                  :: distGrid
+    type(ESMF_DELayout)                   :: LAYOUT
+    type (ESMF_VM)                        :: vm
+    integer,               allocatable    :: AL(:,:)
+    integer,               allocatable    :: AU(:,:)
+    integer, dimension(:), allocatable    :: SENDCOUNTS, DISPLS
+    integer                               :: KK
+    integer                               :: nDEs
+    integer                               :: recvcount
+    integer                               :: I, K, II, deId
+    integer                               :: gridRank
+    integer                               :: LX
+    integer                               :: srcPE
+    integer                               :: ISZ
+    logical                               :: alloc_var
+    logical                               :: use_shmem
+
+! Works only on 1D and 2D arrays
+! Note: for tile variables the gridRank is 1 
+! and the case RANK_=2 needs additional attention 
+
+! use_shmem controls communication (bcastToNodes+local copy vs scatterv)
+    use_shmem = .true.
+
+    ! temporary Shmem restricted only to 1d and tile vars
+    if (.not.present(mask)) use_shmem = .false.
+
+! Optional change of source PE. Default=MAPL_Root
+
+    srcPE = MAPL_Root
  
-   RETURN_(ESMF_SUCCESS)
+! Initialize
+    alloc_var = .true.
 
-   end subroutine MAPL_NCIOGetVarName
+! Get grid and layout information
 
-   function MAPL_NCIOGetVarid(ncioObj,name,rc) result(varid)
+    call ESMF_GridGet    (GRID,   dimCount=gridRank, rc=STATUS);_VERIFY(STATUS)
+    call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS);_VERIFY(STATUS)
+    call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS);_VERIFY(STATUS)
+    call ESMF_DELayoutGet(layout, vm=vm, rc=status);_VERIFY(STATUS)
+    call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status);_VERIFY(STATUS)
 
-   type(MAPL_NCIO),          intent(in   ) :: ncioObj
-   character(len=*),           intent(in   ) :: name
-   integer, optional,          intent(out  ) :: rc
+    if (use_shmem) then
+       srcPE = deId
+    end if
 
-   integer                                   :: varid
+    allocate (AL(gridRank,0:nDEs-1),  stat=status)
+    _VERIFY(STATUS)
+    allocate (AU(gridRank,0:nDEs-1),  stat=status)
+    _VERIFY(STATUS)
+    allocate (sendcounts(0:nDEs-1), stat=status)
+    _VERIFY(STATUS)
+    call MAPL_DistGridGet(distgrid, &
+         minIndex=AL, maxIndex=AU, rc=status)
+    _VERIFY(STATUS)
 
-   character(len=ESMF_MAXSTR) :: Iam
-   integer :: i
+    ISZ = size(GLOBAL_ARRAY,1)
 
-   Iam = "MAPL_NCIOGetVarid"
+    if (use_shmem) then
+       call MAPL_SyncSharedMemory(rc=STATUS)
+       _VERIFY(STATUS)
+       call MAPL_BroadcastToNodes(global_array, N=ISZ, ROOT=MAPL_Root, rc=status)
+       _VERIFY(STATUS)
+       call MAPL_SyncSharedMemory(rc=STATUS)
+       _VERIFY(STATUS)
+    end if
 
-   do i=1,ncioObj%nVars
-      if (trim(name) == trim(ncioObj%vars(i)%name)) then
-         varid = ncioObj%vars(i)%varid
-         RETURN_(ESMF_SUCCESS)
-      end if
-   enddo
-   RETURN_(ESMF_FAILURE)
+! Compute count to be sent to each PE
 
-   end function MAPL_NCIOGetVarid
+    if(present(mask)) then
+       sendcounts = 0
+       do II = 1,ISZ
+          sendcounts(mask(ii)) = sendcounts(mask(ii)) + 1
+       enddo
+    else
+       do I = 0,nDEs-1
+          LX = AU(1,I) - AL(1,I) + 1
+          sendcounts(I) = LX
+       end do
+    end if
+
+! Count I will recieve
+
+    recvcount = sendcounts(deId)
+
+! Put VAR together at the srcPE 
+
+    if (deId == srcPE) then
+
+       allocate(DISPLS(0:nDEs          ), stat=status)
+       _VERIFY(STATUS)
+
+! Compute displacements into the VAR vector
+
+       displs(0) = 0
+       do I = 1,nDEs
+          displs(I) = displs(I-1) + sendcounts(I-1)
+       end do
+
+       myglob => global_array
+       
+! Fill the VAR vector
+       
+       if (present(mask)) then
+          allocate(VAR(displs(deId):displs(deId+1)-1), stat=status)
+          _VERIFY(STATUS)
+          KK = DISPLS(deId)
+
+          do I=1,ISZ
+             K = MASK(I)
+             if(K == deId) then
+                II = KK
+                VAR(II) = MYGLOB(I)
+                KK = KK + 1 
+             end if
+          end do
+
+       else
+
+          var => myglob
+          alloc_var = .false.
+
+       endif !  present(mask)
+
+     else
+        allocate(var(0:1), stat=status)
+        _VERIFY(STATUS)
+        allocate(DISPLS(0:nDEs), stat=status)
+        _VERIFY(STATUS)
+     end if !  I am srcPEa
+
+
+! Do the communications
+    if (use_shmem) then
+       ! copy my piece from var (var is local but was filled from shared array)
+       call MAPL_SyncSharedMemory(rc=STATUS)
+       _VERIFY(STATUS)
+       local_array = var(displs(deId):displs(deId+1)-1)
+       call MAPL_SyncSharedMemory(rc=STATUS)
+       _VERIFY(STATUS)
+    else
+       call MAPL_CommsScatterV(layout, var, sendcounts, displs, &
+                               local_array, recvcount, srcPE, status)
+       _VERIFY(STATUS)
+    end if
+
+! Clean-up
+
+    deallocate(displs, stat=status)
+    _VERIFY(STATUS)
+    if(alloc_var) then
+       deallocate(VAR, stat=status)
+       _VERIFY(STATUS)
+    end if
+
+    deallocate(sendcounts, stat=status)
+    _VERIFY(STATUS)
+    deallocate(AU,         stat=status)
+    _VERIFY(STATUS)
+    deallocate(AL,         stat=status)
+    _VERIFY(STATUS)
+
+! All done
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine ArrayScatterShmR4D1
+
+  subroutine MAPL_IOChangeRes(cfIn,cfOut,dimNames,dimSizes,rc)
+  type(FileMetadata), intent(inout) :: cfIn
+  type(Filemetadata), intent(inout) :: cfOut
+  character(len=*) :: dimNames(:)
+  integer, intent(in) :: dimSizes(:)
+  integer, intent(out), optional :: rc
+
+  integer :: status
+  type(StringIntegerMap) :: newDims
+  integer :: i
+
+  do i=1,size(dimNames)
+     call newDims%insert(trim(dimNames(i)),dimSizes(i))
+  enddo
+
+  cfOut = cfIn
+  call modify_grid_dimensions(rc=status)
+  _VERIFY(status)
+  call modify_coordinate_vars(rc=status)
+
+  _RETURN(ESMF_SUCCESS)
+
+  contains
+ 
+      subroutine modify_grid_dimensions(rc)
+         integer, optional, intent(out) :: rc
+         integer :: status
+         type(StringIntegerMap), pointer :: dims
+         type(StringIntegerMapIterator) :: iter
+         character(len=:), pointer :: name
+         integer, pointer :: newExtent => null()
+
+         dims => cfIn%get_dimensions()
+
+         iter = dims%begin()
+         do while (iter /= dims%end())
+            name => iter%key()
+            newExtent => newDims%at(trim(name))
+            if (associated(newExtent)) then
+               call cfOut%modify_dimension(trim(name),newExtent,rc=status)
+               nullify(newExtent)
+            end if
+            call iter%next()
+         enddo
+
+         _RETURN(ESMF_SUCCESS)
+
+      end subroutine modify_grid_dimensions
+
+      subroutine modify_coordinate_vars(rc)
+         integer, optional, intent(out) :: rc
+         integer :: status
+         type(StringVariableMap), pointer :: vars
+         type(StringVariableMapIterator) :: iter
+         type(CoordinateVariable), pointer :: cvar
+         character(len=:), pointer :: name
+         real(kind=REAL32) :: r32_x1,r32_x0
+         real(kind=REAL64) :: r64_x1,r64_x0
+         real(kind=REAL32), allocatable :: var32(:)
+         real(kind=REAL64), allocatable :: var64(:)
+         integer, pointer :: newExtent => null()
+         class(*), pointer :: dim_var_values(:)
+         class(*), allocatable :: coordinate_data(:)
+
+         vars => cfIn%get_variables()
+
+         iter = vars%begin()
+         do while (iter /= vars%end())
+            name => iter%key()
+            newExtent => newDims%at(trim(name))
+            if (associated(newExtent)) then
+               cvar => cfOut%get_coordinate_variable(trim(name),rc=status)
+               if (status==ESMF_SUCCESS) then
+                  dim_var_values => cvar%get_coordinate_data()
+                  select type(q => dim_var_values)
+                  type is (real(REAL32))
+                     r32_x0=1.0d0
+                     r32_x1=dble(newExtent)
+                     var32 = MAPL_Range(r32_x0,r32_x1,newExtent)
+                     allocate(coordinate_data,source=var32)
+                     call cvar%replace_coordinate_data(coordinate_data)
+                     deallocate(coordinate_data,var32)
+                  type is (real(REAL64))
+                     r64_x0=1.0d0
+                     r64_x1=dble(newExtent)
+                     var64 = MAPL_Range(r64_x0,r64_x1,newExtent)
+                     allocate(coordinate_data,source=var64)
+                     call cvar%replace_coordinate_data(coordinate_data)
+                     deallocate(coordinate_data,var64)
+                  class default
+                     status = ESMF_FAILURE
+                  end select
+
+               end if
+
+               nullify(newExtent)
+            end if
+           call iter%next()
+         enddo
+
+         _RETURN(ESMF_SUCCESS)
+
+      end subroutine modify_coordinate_vars
+
+  end subroutine MAPL_IOChangeRes
+
+  subroutine MAPL_IOCountNonDimVars(cf,nvars,rc)
+  type(FileMetadata), intent(inout) :: cf
+  integer, intent(out) :: nvars
+  integer, intent(out), optional :: rc
+
+  integer :: status
+  type(StringVariableMap), pointer :: vars
+  type(StringVariableMapIterator) :: iter
+  type(StringIntegerMap), pointer :: dims
+  integer, pointer :: dimsize => null()
+  character(len=:), pointer :: name
+
+  nvars = 0
+  dims => cf%get_dimensions()
+  vars => cf%get_variables()
+  iter = vars%begin()
+  do while(iter/=vars%end())
+     
+     name =>  iter%key()
+     dimsize => dims%at(trim(name))
+     if (.not.associated(dimsize)) nvars=nvars+1
+     if (associated(dimsize)) nullify(dimsize)
+
+     call iter%next()
+  end do
+
+  _RETURN(ESMF_SUCCESS)
+
+  end subroutine MAPL_IOCountNonDimVars
+
+  function MAPL_IOGetNonDimVars(cf,rc) result(nondim_vars)
+  type(FileMetadata), intent(inout) :: cf
+  integer, intent(out), optional :: rc
+
+  integer :: status
+  type(StringVector) :: nondim_vars
+  type(StringVariableMap), pointer :: vars
+  type(StringVariableMapIterator) :: iter
+  type(StringIntegerMap), pointer :: dims
+  integer, pointer :: dimsize => null()
+  character(len=:), pointer :: name
+
+  dims => cf%get_dimensions()
+  vars => cf%get_variables()
+  iter = vars%begin()
+  do while(iter/=vars%end())
+     
+     name =>  iter%key()
+     dimsize => dims%at(trim(name))
+     if (.not.associated(dimsize)) call nondim_vars%push_back(trim(name))
+     if (associated(dimsize)) nullify(dimsize)
+
+     call iter%next()
+  end do
+
+  _RETURN(ESMF_SUCCESS)
+
+  end function MAPL_IOGetNonDimVars
+
+  subroutine MAPL_IOCountLevels(cf,nlev,rc)
+  type(FileMetadata), intent(inout) :: cf
+  integer, intent(out) :: nlev
+  integer, intent(out), optional :: rc
+
+  integer :: status
+  type(StringVariableMap), pointer :: vars
+  type(StringVariableMapIterator) :: iter
+  type(StringIntegerMap), pointer :: dims
+  integer, pointer :: dimsize => null()
+  character(len=:), pointer :: name
+  type(StringVector), pointer :: vdims
+  type(Variable), pointer :: var
+  integer :: levsize
+
+  nlev = 0
+  dims => cf%get_dimensions()
+  vars => cf%get_variables()
+  iter = vars%begin()
+  do while(iter/=vars%end())
+     
+     name => iter%key()
+     var => iter%value()
+     dimsize => dims%at(trim(name))
+     if (.not.associated(dimsize)) then
+        vdims => var%get_dimensions()
+        if (vdims%get_index('lev') /=0) then
+           levsize = cf%get_dimension('lev',rc=status)
+           _VERIFY(status)
+           nlev=nlev+levsize
+        else if (vdims%get_index('edge') /=0) then
+           levsize = cf%get_dimension('edge',rc=status)
+           _VERIFY(status)
+           nlev=nlev+levsize
+        else
+           nlev=nlev+1
+        end if
+     end if
+     if (associated(dimsize)) nullify(dimsize)
+
+     call iter%next()
+  end do
+
+  _RETURN(ESMF_SUCCESS)
+
+  end subroutine MAPL_IOCountLevels
+
+  subroutine MAPL_IOGetTime(cf,nymd,nhms,rc)
+  type(FileMetadata), intent(inout) :: cf
+  integer, intent(out) :: nymd,nhms
+  integer, intent(out), optional :: rc
+
+  integer :: status
+  
+  class(Variable), pointer :: var
+  type(Attribute), pointer :: attr
+  class(*), pointer :: units
+  integer :: year,month,day,hour,min,sec
+ 
+  var => cf%get_variable('time',rc=status)
+  _VERIFY(status)
+  attr => var%get_attribute('units')
+  units => attr%get_value()
+  select type(units)
+  type is (character(*))
+     call MAPL_NCIOParseTimeUnits(units,year,month,day,hour,min,sec,status)
+  class default
+     _ASSERT(.false., 'unsupported subclass for units')
+  end select
+  nymd = year*10000 + month*100 + day
+  nhms = hour*10000 + min*100   + sec
+
+  _RETURN(ESMF_SUCCESS)
+
+  end subroutine MAPL_IOGetTime
 
       subroutine MAPL_NCIOParseTimeUnits ( TimeUnits, year, month, day, hour, min, sec, rc )
 
@@ -9431,191 +9027,25 @@ module MAPL_IOMod
       return
       end subroutine MAPL_NCIOParseTimeUnits
 
+   ! WJ notes: To avoid changing gcm_run.j script, insert "_face_x_", not append
+   function get_fname_by_face(fname, face) result(name)
+     character(len=:), allocatable :: name
+     character(len=*), intent(in) :: fname
+     integer, intent(in) :: face
+     integer :: i
 
-  subroutine ArrayScatterShmR4D1(local_array, global_array, grid, mask, rc)
+     i= index(fname,'_checkpoint')
+     if (i /= 0) then
+        name = fname(1:i-1)//'_face_'//i_to_string(face)//trim(fname(i:))
+        return
+     end if
+     i= index(fname,'_rst')
+     if (i /= 0) then
+        name = fname(1:i-1)//'_face_'//i_to_string(face)//trim(fname(i:))
+        return
+     endif
+     name = trim(fname)//'_face_'//i_to_string(face)
 
-! Mask is really a permutation on the first dimension
-
-    real,         intent(  OUT) :: local_array(:)
-!    TYPE_(kind=EKIND_), target, intent(IN   ) :: global_array DIMENSIONS_
-    real, target                :: global_array(:)
-    type (ESMF_Grid)                          :: grid
-    integer, optional,          intent(IN   ) :: mask(:)
-    integer, optional,          intent(  OUT) :: rc
-    
-! Local variables
-
-    integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='ArrayScatterShmR4D1'
-
-    real,    pointer        :: myglob(:) => null()
-    real,    pointer        :: VAR(:)
-    type (ESMF_DistGrid)                  :: distGrid
-    type(ESMF_DELayout)                   :: LAYOUT
-    integer,               allocatable    :: AL(:,:)
-    integer,               allocatable    :: AU(:,:)
-    integer, dimension(:), allocatable    :: SENDCOUNTS, DISPLS
-    integer                               :: KK
-    integer                               :: nDEs
-    integer                               :: recvcount
-    integer                               :: I, K, II, deId
-    integer                               :: gridRank
-    integer                               :: LX
-    integer                               :: srcPE
-    integer                               :: ISZ
-    integer                               :: deList(1)
-    logical                               :: alloc_var
-    logical                               :: use_shmem
-
-! Works only on 1D and 2D arrays
-! Note: for tile variables the gridRank is 1 
-! and the case RANK_=2 needs additional attention 
-
-! use_shmem controls communication (bcastToNodes+local copy vs scatterv)
-    use_shmem = .true.
-
-    ! temporary Shmem restricted only to 1d and tile vars
-    if (.not.present(mask)) use_shmem = .false.
-
-! Optional change of source PE. Default=MAPL_Root
-
-    srcPE = MAPL_Root
- 
-! Initialize
-    alloc_var = .true.
-
-! Get grid and layout information
-
-    call ESMF_GridGet    (GRID,   dimCount=gridRank, rc=STATUS);VERIFY_(STATUS)
-    call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS);VERIFY_(STATUS)
-    call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS);VERIFY_(STATUS)
-    call ESMF_DELayoutGet(layout, deCount =nDEs, localDeList=deList, rc=status)
-    VERIFY_(STATUS)
-    deId = deList(1)
-
-    if (use_shmem) then
-       srcPE = deId
-    end if
-
-    allocate (AL(gridRank,0:nDEs-1),  stat=status)
-    VERIFY_(STATUS)
-    allocate (AU(gridRank,0:nDEs-1),  stat=status)
-    VERIFY_(STATUS)
-    allocate (sendcounts(0:nDEs-1), stat=status)
-    VERIFY_(STATUS)
-    call MAPL_DistGridGet(distgrid, &
-         minIndex=AL, maxIndex=AU, rc=status)
-    VERIFY_(STATUS)
-
-    ISZ = size(GLOBAL_ARRAY,1)
-
-    if (use_shmem) then
-       call MAPL_SyncSharedMemory(rc=STATUS)
-       VERIFY_(STATUS)
-       call MAPL_BroadcastToNodes(global_array, N=ISZ, ROOT=MAPL_Root, rc=status)
-       VERIFY_(STATUS)
-       call MAPL_SyncSharedMemory(rc=STATUS)
-       VERIFY_(STATUS)
-    end if
-
-! Compute count to be sent to each PE
-
-    if(present(mask)) then
-       sendcounts = 0
-       do II = 1,ISZ
-          sendcounts(mask(ii)) = sendcounts(mask(ii)) + 1
-       enddo
-    else
-       do I = 0,nDEs-1
-          LX = AU(1,I) - AL(1,I) + 1
-          sendcounts(I) = LX
-       end do
-    end if
-
-! Count I will recieve
-
-    recvcount = sendcounts(deId)
-
-! Put VAR together at the srcPE 
-
-    if (deId == srcPE) then
-
-       allocate(DISPLS(0:nDEs          ), stat=status)
-       VERIFY_(STATUS)
-
-! Compute displacements into the VAR vector
-
-       displs(0) = 0
-       do I = 1,nDEs
-          displs(I) = displs(I-1) + sendcounts(I-1)
-       end do
-
-       myglob => global_array
-       
-! Fill the VAR vector
-       
-       if (present(mask)) then
-          allocate(VAR(displs(deId):displs(deId+1)-1), stat=status)
-          VERIFY_(STATUS)
-          KK = DISPLS(deId)
-
-          do I=1,ISZ
-             K = MASK(I)
-             if(K == deId) then
-                II = KK
-                VAR(II) = MYGLOB(I)
-                KK = KK + 1 
-             end if
-          end do
-
-       else
-
-          var => myglob
-          alloc_var = .false.
-
-       endif !  present(mask)
-
-     else
-        allocate(var(0:1), stat=status)
-        VERIFY_(STATUS)
-        allocate(DISPLS(0:nDEs), stat=status)
-        VERIFY_(STATUS)
-     end if !  I am srcPEa
-
-
-! Do the communications
-    if (use_shmem) then
-       ! copy my piece from var (var is local but was filled from shared array)
-       call MAPL_SyncSharedMemory(rc=STATUS)
-       VERIFY_(STATUS)
-       local_array = var(displs(deId):displs(deId+1)-1)
-       call MAPL_SyncSharedMemory(rc=STATUS)
-       VERIFY_(STATUS)
-    else
-       call MAPL_CommsScatterV(layout, var, sendcounts, displs, &
-                               local_array, recvcount, srcPE, status)
-       VERIFY_(STATUS)
-    end if
-
-! Clean-up
-
-    deallocate(displs, stat=status)
-    VERIFY_(STATUS)
-    if(alloc_var) then
-       deallocate(VAR, stat=status)
-       VERIFY_(STATUS)
-    end if
-
-    deallocate(sendcounts, stat=status)
-    VERIFY_(STATUS)
-    deallocate(AU,         stat=status)
-    VERIFY_(STATUS)
-    deallocate(AL,         stat=status)
-    VERIFY_(STATUS)
-
-! All done
-
-    RETURN_(ESMF_SUCCESS)
-  end subroutine ArrayScatterShmR4D1
+   end function get_fname_by_face
 
 end module MAPL_IOMod

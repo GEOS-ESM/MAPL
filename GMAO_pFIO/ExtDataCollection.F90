@@ -102,19 +102,19 @@ contains
 end module pFIO_ExtDataCollectionMod
 
 
-module pFIO_CollectionVectorMod
+module pFIO_ExtCollectionVectorMod
    use pFIO_ThrowMod
    use pFIO_ExtDataCollectionMod
    
    ! Create a map (associative array) between names and pFIO_Attributes.
    
 #define _type type (ExtDataCollection)
-#define _vector CollectionVector
-#define _iterator CollectionVectorIterator
+#define _vector ExtCollectionVector
+#define _iterator ExtCollectionVectorIterator
 
 #define _FTL_THROW pFIO_throw_exception
 
 #include "templates/vector.inc"
    
-end module pFIO_CollectionVectorMod
+end module pFIO_ExtCollectionVectorMod
 
