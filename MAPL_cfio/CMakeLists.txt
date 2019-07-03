@@ -25,15 +25,13 @@ endif ()
 
 set (EOS )
 
-include_directories (${INC_NETCDF})
-include_directories (${INC_ESMF})
-
 set (lib MAPL_cfio_${precision})
 
 esma_add_library (${lib}
   SRCS ${srcs}
   DEPENDENCIES ${ESMF_LIBRARIES}
   )
+target_include_directories (${lib} PUBLIC ${INC_NETCDF} ${INC_ESMF})
 
 if (precision MATCHES "r8")
   string (REPLACE " " ";" flags ${FREAL8})
