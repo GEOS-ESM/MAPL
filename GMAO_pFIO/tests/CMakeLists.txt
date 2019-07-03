@@ -54,7 +54,7 @@ include_directories(${include_MAPL_pFUnit})
 set(EXE pfio_tests.x)
 ecbuild_add_executable (
   TARGET ${EXE}
-  PROPERTIES EXCLUDE_FROM_ALL TRUE
+  PROPERTIES EXCLUDE_FROM_ALL=TRUE
   SOURCES ${PFUNIT_PATH}/include/driver.F90 testSuites.inc
   LIBS pFIO_tests ${ESMF_LIBRARIES}
   DEFINITIONS USE_MPI PFUNIT_EXTRA_INITIALIZE=pFIO_Initialize)
@@ -75,7 +75,7 @@ add_test(NAME pFIO_tests_unit
 set(TESTO pfio_ctest_io.x)
 ecbuild_add_executable (
   TARGET ${TESTO}
-  PROPERTIES EXCLUDE_FROM_ALL TRUE
+  PROPERTIES EXCLUDE_FROM_ALL=TRUE
   SOURCES pfio_ctest_io.F90
   LIBS GMAO_pFIO ${ESMF_LIBRARIES}
   DEFINITIONS USE_MPI)
@@ -101,7 +101,7 @@ add_test(NAME pFIO_tests_hybrid
 set(TESTPERF pfio_performance.x)
 ecbuild_add_executable (
   TARGET ${TESTPERF}
-  PROPERTIES EXCLUDE_FROM_ALL TRUE
+  PROPERTIES EXCLUDE_FROM_ALL=TRUE
   SOURCES pfio_performance.F90
   DEFINITIONS USE_MPI
   LIBS GMAO_pFIO ${ESMF_LIBRARIES})
