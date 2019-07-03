@@ -8,8 +8,8 @@
 #ifndef MAPL_ErrLogMain_DONE
 #define MAPL_ErrLogMain_DONE
 
-#ifdef VERIFY_
-#undef VERIFY_
+#ifdef _VERIFY
+#undef _VERIFY
 #endif
 
 #ifdef _VERIFY
@@ -20,10 +20,10 @@
 #undef ASSERT_
 #endif
 
-#define VERIFY_(A) if(MAPL_VRFY(A,Iam,__LINE__,RC))call MAPL_Abort
+#define _VERIFY(A) if(MAPL_VRFY(A,Iam,__LINE__,RC))call MAPL_Abort
 
 #define _VERIFY(A) if(MAPL_VRFY(A,Iam,__LINE__,RC))call MAPL_Abort
 
-#define ASSERT_(A) if(MAPL_ASRT(A,Iam,__LINE__,RC))call MAPL_Abort
+#define _ASSERT(A) if(MAPL_ASRT(A,Iam,__LINE__,RC),'needs informative message')call MAPL_Abort
 
 #endif

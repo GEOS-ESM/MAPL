@@ -1,4 +1,8 @@
+#include "pFIO_ErrLog.h"
+#include "unused_dummy.H"
+
 module pFIO_WaitRequestDataMessageMod
+   use pFIO_ErrorHandlingMod
    use pFIO_AbstractMessageMod
    implicit none
    private
@@ -36,23 +40,26 @@ contains
    integer function get_length(this) result(length)
       class (WaitRequestDataMessage), intent(in) :: this
       length = 1
+      return
+      _UNUSED_DUMMY(this)
    end function get_length
 
-   subroutine serialize(this, buffer)
+   subroutine serialize(this, buffer, rc)
       class (WaitRequestDataMessage), intent(in) :: this
-      integer, intent(inout) :: buffer(:) ! no-op
-
+      integer, intent(inout) :: buffer(:) 
+      integer, optional, intent(out) :: rc
       buffer = [this%request_id]
+      _RETURN(_SUCCESS)
 
    end subroutine serialize
 
-   subroutine deserialize(this, buffer)
+   subroutine deserialize(this, buffer, rc)
       class (WaitRequestDataMessage), intent(inout) :: this
-      class (AbstractMessage), allocatable :: message
       integer, intent(in) :: buffer(:)
+      integer, optional, intent(out) :: rc
 
       this%request_id = buffer(1)
-
+      _RETURN(_SUCCESS)
    end subroutine deserialize
    
 end module pFIO_WaitRequestDataMessageMod

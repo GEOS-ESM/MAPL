@@ -1,12 +1,16 @@
+#include "pFIO_ErrLog.h"
+#include "unused_dummy.H"
+
 module pFIO_AbstractServerMod
+   use pFIO_ErrorHandlingMod
    use pFIO_ConstantsMod
-   use pFIO_AbstractDirectoryServiceMod
-   use pFIO_MemReferenceMod
+   use pFIO_AbstractDataReferenceMod
+   use pFIO_AbstractDataReferenceVectorMod
    use pFIO_ShmemReferenceMod
-   use pFIO_IntegerShmemReferenceMapMod
-   use pFIO_IntegerIntegerMapMod
+   use pFIO_StringInt64MapMod
    use pFIO_AbstractMessageMod
    use pFIO_DummyMessageMod
+   use pFIO_MessageVectorMod
    use mpi
 
    implicit none
@@ -19,13 +23,12 @@ module pFIO_AbstractServerMod
    integer,parameter,public :: PENDING     = -200
 
    type,abstract :: AbstractServer
-      class (AbstractDirectoryService), pointer :: directory_service => null()
       integer :: comm   ! of all server processes
       integer :: rank   ! rank in all server processes
       integer :: npes   ! number of processes of the server
       integer :: status ! counter, UNALLOCATED, PENDING
-      logical :: all_backlog_is_empty 
-      integer :: num_clients
+      logical :: all_backlog_is_empty = .true. 
+      integer :: num_clients = 0
       logical :: terminate
       integer :: InNode_Comm  ! communicator in a node
       integer :: InNode_npes  ! number of processes in a node, it may differ across server nodes
@@ -36,31 +39,66 @@ module pFIO_AbstractServerMod
 
       ! save info about which process belongs to which node 
       ! all processes keep this info
-      integer,allocatable :: Node_Ranks(:)
-      type(ShmemReference) :: shmem_reference
-      type (IntegerIntegerMap) :: request_offset
-
+      integer,allocatable    :: Node_Ranks(:)
+      type(StringInt64Map) :: prefetch_offset
+      type(StringInt64Map) :: stage_offset
+      logical , allocatable :: serverthread_done_msgs(:)
+      type(AbstractDataReferenceVector) :: dataRefPtrs
    contains
       procedure :: init
       procedure(start),deferred :: start
+      procedure(get_dmessage), deferred :: get_dmessage
+      procedure(clear_RequestHandle), deferred :: clear_RequestHandle
+      procedure(set_collective_request), deferred :: set_collective_request
       procedure :: get_status
       procedure :: set_status
       procedure :: get_and_set_status
       procedure :: update_status
+      procedure :: clean_up
       procedure :: set_AllBacklogIsEmpty
       procedure :: get_AllBacklogIsEmpty
-      procedure :: get_shmemReference
-      procedure :: set_shmemReference
-      procedure :: get_dmessage
+      procedure :: get_DataReference
+      procedure :: add_DataReference
+      procedure :: clear_DataReference
       procedure :: I_am_NodeRoot
+      procedure :: I_am_ServerRoot
+      procedure :: receive_output_data
+      procedure :: put_DataToFile
+      procedure :: get_DataFromMem
+      procedure :: am_I_reading_PE
+      procedure :: am_I_writing_PE
+      procedure :: get_writing_PE
+      procedure :: distribute_task
+      procedure :: get_communicator
+
    end type AbstractServer
 
    abstract interface 
 
       subroutine start(this)
+         use pFIO_AbstractSocketVectorMod
          import AbstractServer
          class(AbstractServer),target,intent(inout) :: this
       end subroutine start
+
+      subroutine clear_RequestHandle(this)
+         import AbstractServer
+         class(AbstractServer),target,intent(inout) :: this
+      end subroutine clear_RequestHandle
+
+      subroutine set_collective_request(this, request, have_done)
+         import AbstractServer
+         class(AbstractServer),target,intent(inout) :: this
+         logical, intent(in) :: request, have_done
+      end subroutine set_collective_request
+
+      function get_dmessage(this, rc) result(dmessage) 
+         import AbstractServer
+         import AbstractMessage
+         class (AbstractServer), target, intent(in) :: this
+         integer, optional, intent(out) :: rc
+         class(AbstractMessage), pointer :: dmessage
+      end function
 
    end interface
 
@@ -71,6 +109,7 @@ contains
       integer, intent(in) :: comm
 
       integer :: ierror, MyColor
+      integer :: i
 
       call MPI_Comm_dup(comm, this%comm, ierror)
       call MPI_Comm_rank(this%comm, this%rank, ierror)
@@ -106,8 +145,9 @@ contains
 
    end subroutine init
 
-   function get_and_set_status(this) result(status)
+   function get_and_set_status(this, rc) result(status)
       class(AbstractServer),intent(inout) :: this
+      integer, optional, intent(out) :: rc
       integer :: status
 
       !$omp critical (counter_status)
@@ -117,6 +157,7 @@ contains
       endif
       !$omp flush (this)
       !$omp end critical (counter_status)
+      _RETURN(_SUCCESS)
    end function get_and_set_status
 
    function get_status(this) result(status)
@@ -138,23 +179,66 @@ contains
       !$omp end critical (counter_status)
    end subroutine  set_status
 
-   subroutine update_status(this) 
+   subroutine update_status(this, rc) 
       class(AbstractServer),intent(inout) :: this
+      integer, optional, intent(out) :: rc
       integer :: status
-
+      type(StringInt64MapIterator) :: iter
       !$omp critical (counter_status)
       this%status = this%status -1
       status = this%status
       !$omp flush (this)
       !$omp end critical (counter_status)
-      if (status /= 0) return
+      if (status /= 0) then
+        _RETURN(_SUCCESS)
+      endif
       ! status ==0, means the last server thread in the backlog
-      call this%shmem_reference%deallocate()
+      
+      call this%clear_DataReference()
+      call this%clear_RequestHandle()
       call this%set_status(UNALLOCATED)
       call this%set_AllBacklogIsEmpty(.true.)
-      call this%request_offset%clear()
 
+      iter = this%prefetch_offset%begin()
+      do while (iter /= this%prefetch_offset%end()) 
+         call this%prefetch_offset%erase(iter)
+         iter = this%prefetch_offset%begin()
+      enddo
+
+      iter = this%stage_offset%begin()
+      do while (iter /= this%stage_offset%end()) 
+         call this%stage_offset%erase(iter)
+         iter = this%stage_offset%begin()
+      enddo
+      this%serverthread_done_msgs(:) = .false.
+
+      _RETURN(_SUCCESS)
    end subroutine update_status
+
+   subroutine clean_up(this, rc) 
+      class(AbstractServer),intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      type(StringInt64MapIterator) :: iter
+      
+      call this%clear_DataReference()
+      call this%clear_RequestHandle()
+      call this%set_AllBacklogIsEmpty(.true.)
+      this%serverthread_done_msgs(:) = .false.
+
+      iter = this%prefetch_offset%begin()
+      do while (iter /= this%prefetch_offset%end()) 
+         call this%prefetch_offset%erase(iter)
+         iter = this%prefetch_offset%begin()
+      enddo
+
+      iter = this%stage_offset%begin()
+      do while (iter /= this%stage_offset%end()) 
+         call this%stage_offset%erase(iter)
+         iter = this%stage_offset%begin()
+      enddo
+
+      _RETURN(_SUCCESS)
+   end subroutine clean_up
 
    function get_AllBacklogIsEmpty(this) result(status)
       class(AbstractServer),intent(in) :: this
@@ -175,34 +259,134 @@ contains
       !$omp end critical (backlog_status)
    end subroutine set_AllBacklogIsEmpty
 
-   function get_shmemReference(this) result(shmemRef)
-      class (AbstractServer),target, intent(in) :: this
-      type(ShmemReference),pointer :: shmemRef
-
-      shmemRef => this%shmem_reference
-
-   end function get_shmemReference
-
-   subroutine set_shmemReference(this,shmemRef)
-      class (AbstractServer), intent(inout) :: this
-      type(ShmemReference),intent(in) :: shmemRef
-
-      this%shmem_reference = shmemRef
-      call this%set_status(this%num_clients)
-
-   end subroutine set_shmemReference
-
-   ! if it is dummy, the server will not loop the open_requests. Instead, it loops over the servertheads first.
-   function get_dmessage(this) result(dmessage) 
-      class (AbstractServer), target, intent(in) :: this
-      class(AbstractMessage), pointer :: dmessage
-      allocate(dmessage,source = DummyMessage())
-   end function
-
    function I_am_NodeRoot(this) result (yes)
       class (AbstractServer), intent(in) :: this
       logical :: yes
       yes = (this%NodeRoot_Comm /= MPI_COMM_NULL) 
    end function
+
+   function I_am_ServerRoot(this) result (yes)
+      class (AbstractServer), intent(in) :: this
+      logical :: yes
+      yes = (this%rank == 0) 
+   end function I_am_ServerRoot
+
+   subroutine receive_output_data(this, rc)
+     class (AbstractServer),target, intent(inout) :: this
+     integer, optional, intent(out) :: rc
+
+     _ASSERT(.false.," no action of receive_output_data")
+   end subroutine receive_output_data
+
+   subroutine put_DataToFile(this, rc)
+     class (AbstractServer),target, intent(inout) :: this
+     integer, optional, intent(out) :: rc
+     _ASSERT(.false.," no action of server_put_DataToFile")
+   end subroutine put_DataToFile
+
+   subroutine get_DataFromMem(this,multi, rc)
+     class (AbstractServer),target, intent(inout) :: this
+     logical, intent(in) :: multi
+     integer, optional, intent(out) :: rc
+     _ASSERT(.false.," no action of server_get_DataFromMem")
+   end subroutine get_DataFromMem
+
+   function am_I_reading_PE(this,id) result (yes)
+      class(AbstractServer),intent(in) :: this
+      integer, intent(in) :: id
+      integer :: node_rank,innode_rank
+      logical :: yes
+
+      call this%distribute_task(id, node_rank,innode_rank)
+      yes = (node_rank   == this%Node_Rank) .and. &
+            (innode_rank == this%InNode_Rank)
+   end function am_I_reading_PE
+
+   ! for output writing, each node will chose one innode rank write
+   function am_I_writing_PE(this,id) result (yes)
+      class(AbstractServer),intent(in) :: this
+      integer, intent(in) :: id
+      integer :: node_rank,innode_rank
+      logical :: yes
+
+      call this%distribute_task(id, node_rank,innode_rank)
+      yes = (innode_rank == this%InNode_Rank)
+   end function am_I_writing_PE
+
+   ! distribute the task (id) to a specific process (node_rank, innode_rank)
+   subroutine distribute_task(this,id, node_rank, innode_rank)
+      class(AbstractServer),intent(in) :: this
+      integer, intent(in)   :: id
+      integer,intent(out) :: node_rank,innode_rank
+      integer :: rank
+
+      innode_rank = mod(id, this%InNode_npes)
+      rank        = mod(id, this%npes)
+      node_rank   = this%Node_Ranks(rank)
+
+   end subroutine distribute_task
+
+   function get_writing_PE(this,id) result (rank)
+      class(AbstractServer),intent(in) :: this
+      integer, intent(in) :: id
+      integer :: rank
+      integer :: rank_tmp, ierror
+
+      integer :: node_rank,innode_rank
+      logical :: yes
+
+      node_rank   = mod(id,this%node_num)
+      innode_rank = mod(id,this%innode_npes)
+
+      yes = (node_rank   == this%Node_Rank) .and. &
+            (innode_rank == this%InNode_Rank)
+      rank_tmp = 0
+      rank = 0
+      if (yes) rank_tmp = this%rank
+      call Mpi_Allreduce(rank_tmp,rank,1, MPI_INTEGER, MPI_SUM, this%comm, ierror)
+
+   end function get_writing_PE
+
+   function get_DataReference(this, ith) result(DataRef)
+      class (AbstractServer),target, intent(in) :: this
+      integer,optional, intent(in) :: ith
+      class(AbstractDataReference),pointer :: DataRef
+      integer :: i    
+      i=1
+      if(present(ith)) i = ith
+      DataRef => this%dataRefPtrs%at(i)
+
+   end function get_DataReference
+
+   subroutine add_DataReference(this,DataRef)
+      class (AbstractServer), intent(inout) :: this
+      class(AbstractDataReference),target,intent(in) :: DataRef
+
+      call this%dataRefPtrs%push_back(DataRef)
+      call this%set_status(this%num_clients)
+
+   end subroutine add_DataReference
+
+   subroutine clear_DataReference(this)
+      class (AbstractServer), intent(inout) :: this
+      class (AbstractDataReference), pointer :: datarefPtr
+      integer :: n, i
+       
+      n = this%dataRefPtrs%size()
+      do i = 1, n
+         dataRefPtr => this%dataRefPtrs%at(i)
+         call dataRefPtr%deallocate()
+         deallocate(dataRefPtr)
+      enddo
+      call this%dataRefPtrs%erase(this%dataRefPtrs%begin(), this%dataRefPtrs%end())      
+
+   end subroutine clear_DataReference
+
+   integer function get_communicator(this) result(communicator)
+      class (AbstractServer), intent(in) :: this
+
+      communicator = this%comm
+
+   end function get_communicator
 
 end module pFIO_AbstractServerMod

@@ -1,17 +1,16 @@
 !  $Id$
 
 #include "MAPL_Generic.h"
-
 #define MPI_NULL_TAG 99
 
-#define DEALOC_(A) if(associated(A)) then; A=0; call MAPL_DeAllocNodeArray(A,rc=STATUS); if(STATUS==MAPL_NoShm) deallocate(A, stat=STATUS); VERIFY_(STATUS); NULLIFY(A); endif
+#define DEALOC_(A) if(associated(A))then;A=0;if(MAPL_ShmInitialized)then; call MAPL_DeAllocNodeArray(A,rc=STATUS);else; deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
 
-#define DEALOC2_(A) if(associated(A)) then; deallocate(A, stat=STATUS); VERIFY_(STATUS); NULLIFY(A); endif
+#define DEALOC2_(A) if(associated(A)) then; deallocate(A, stat=STATUS); _VERIFY(STATUS); NULLIFY(A); endif
 
 #include "unused_dummy.H"
 
 module MAPL_CFIOMod
-
+   use MAPL_ErrorHandlingMod
 !BOP
 
 ! !MODULE: MAPL_CFIO --- CF Compliant I/O for ESMF
@@ -23,80 +22,82 @@ module MAPL_CFIOMod
 
 ! !USES:
 !
-use ESMF
-use MAPL_BaseMod
-use MAPL_CommsMod
-use MAPL_ConstantsMod
-use ESMF_CFIOMod  
-use ESMF_CFIOUtilMod
-use ESMF_CFIOFileMod
-use MAPL_IOMod
-use ESMFL_Mod
-use MAPL_ShmemMod
-use MAPL_CFIOServerMod
-use MAPL_SortMod
-use MAPL_GridManagerMod
-use MAPL_RegridderManagerMod
-use MAPL_AbstractRegridderMod
-use MAPL_ConfigMod
-use MAPL_AbstractRegridderMod
-use MAPL_RegridderSpecMod
-use MAPL_MemUtilsMod
-use MAPL_StringVectorMod
-use MAPL_IntegerVectorMod
-use ESMF_CFIOCollectionVectorMod
-use ESMF_CFIOCollectionMod
+  use ESMF
+  use MAPL_BaseMod
+  use MAPL_CommsMod
+  use MAPL_ConstantsMod
+  use ESMF_CFIOMod  
+  use ESMF_CFIOUtilMod
+  use ESMF_CFIOFileMod
+  use MAPL_IOMod
+  use ESMFL_Mod
+  use MAPL_ShmemMod
+  use MAPL_CFIOServerMod
+  use MAPL_SortMod
+  use MAPL_GridManagerMod
+  use MAPL_RegridderManagerMod
+  use MAPL_AbstractRegridderMod
+  use MAPL_ConfigMod
+  use MAPL_RegridderSpecMod
+  use MAPL_MemUtilsMod
+  use MAPL_IntegerVectorMod
+  use ESMF_CFIOCollectionVectorMod
+  use ESMF_CFIOCollectionMod
+  use PFIO
+  use MAPL_ioClientsMod
 
-use, intrinsic :: ISO_C_BINDING
+  use, intrinsic :: ISO_C_BINDING
 
-use, intrinsic :: iso_fortran_env, only: REAL64
-
-implicit none
-private
+  use, intrinsic :: iso_fortran_env, only: REAL64
+  
+  implicit none
+  private
 
 ! !PUBLIC MEMBER FUNCTIONS:
 
-! MAPL-style names
-! ----------------
-public MAPL_CFIOCreate
-public MAPL_CFIOSet
-public MAPL_CFIOGet
-public MAPL_CFIOSetKrank
-public MAPL_CFIOOpenWrite
-public MAPL_CFIOCreateWrite
-public MAPL_CFIOClose
-public MAPL_CFIOWrite
-public MAPL_CFIOWriteBundlePost
-public MAPL_CFIOWriteBundleWait
-public MAPL_CFIOWriteBundleWrite
-public MAPL_CFIORead
-public MAPL_CFIODestroy
-public MAPL_GetCurrentFile
-public MAPL_CFIOIsCreated
-public MAPL_CFIOGetFilename
-public MAPL_CFIOGetTimeString
-public MAPL_CFIOStartAsyncColl
-public MAPL_CFIOBcastIONode
+  ! MAPL-style names
+  ! ----------------
+  public MAPL_CFIOCreate
+  public MAPL_CFIOSet
+  public MAPL_CFIOGet
+  public MAPL_CFIOSetKrank
+  public MAPL_CFIOOpenWrite
+  public MAPL_CFIOCreateWrite
+  public MAPL_CFIOClose
+  public MAPL_CFIOWrite
+  public MAPL_CFIOWriteBundlePost
+  public MAPL_CFIOWriteBundleWait
+  public MAPL_CFIOWriteBundleWrite
+  public MAPL_CFIORead
+  public MAPL_CFIODestroy
+  public MAPL_GetCurrentFile
+  public MAPL_CFIOIsCreated
+  public MAPL_CFIOGetFilename
+  public MAPL_CFIOGetTimeString
+  public MAPL_CFIOStartAsyncColl
+  public MAPL_CFIOBcastIONode
 
-public MAPL_CFIOPartition
-public MAPL_CFIOCreateFromFile
-public MAPL_CFIOReadBundleRead
-public MAPL_CFIOReadBundleWait
-public MAPL_CFIOReadParallel
-public MAPL_CFIOAddCollection
-public MAPL_CFIOGetTimeFromIndex
+  public MAPL_CFIOPartition
+  public MAPL_CFIOCreateFromFile
+  public MAPL_CFIOReadBundleRead
+  public MAPL_CFIOReadBundleWait
+  public MAPL_CFIOReadParallel
+  public MAPL_CFIOAddCollection
+  public MAPL_CFIOReadBundlePrefetch
+  public MAPL_CFIOReadBundleReadPrefetch
+  public MAPL_CFIOGetTimeFromIndex
 
-! ESMF-style names
-! ----------------
-public ESMF_ioRead     ! another name for MAPL_CFIORead
-public ESMF_ioCreate   ! another name for MAPL_CFIOCreate
-public ESMF_ioWrite    ! another name for MAPL_CFIOWrite
-public ESMF_ioDestroy  ! another name for MAPL_CFIODestroy 
+  ! ESMF-style names
+  ! ----------------
+  public ESMF_ioRead     ! another name for MAPL_CFIORead
+  public ESMF_ioCreate   ! another name for MAPL_CFIOCreate
+  public ESMF_ioWrite    ! another name for MAPL_CFIOWrite
+  public ESMF_ioDestroy  ! another name for MAPL_CFIODestroy 
 
 ! !PUBLIC TYPES:
 !
-public MAPL_CFIO
-public collections
+  public MAPL_CFIO
+  public collections
 
 !EOP
 
@@ -105,151 +106,175 @@ public collections
 !                     MAPL Consistent Naming Convention
 !                     ---------------------------------
 
-interface MAPL_CFIOStartAsyncColl
-module procedure MAPL_CFIOStartAsyncColl
-end interface
+  interface MAPL_CFIOStartAsyncColl
+     module procedure MAPL_CFIOStartAsyncColl
+  end interface
 
-interface MAPL_CFIOBcastIONode
-module procedure MAPL_CFIOBcastIONode
-end interface
+  interface MAPL_CFIOBcastIONode
+     module procedure MAPL_CFIOBcastIONode
+  end interface
 
-interface MAPL_CFIOCreate
-module procedure MAPL_CFIOCreateFromBundle
-module procedure MAPL_CFIOCreateFromState
-end interface
+  interface MAPL_CFIOCreate
+     module procedure MAPL_CFIOCreateFromBundle
+     module procedure MAPL_CFIOCreateFromState
+  end interface
 
-interface MAPL_CFIOWrite
-module procedure MAPL_CFIOWriteState
-module procedure MAPL_CFIOWriteBundle
-end interface
+  interface MAPL_CFIOWrite
+     module procedure MAPL_CFIOWriteState
+     module procedure MAPL_CFIOWriteBundle
+  end interface
 
-interface MAPL_CFIORead
-module procedure MAPL_CFIOReadState
-module procedure MAPL_CFIOReadBundle
-module procedure MAPL_CFIOReadField
-module procedure MAPL_CFIOReadArray3D
-module procedure MAPL_CFIOReadArray2D
-end interface
+  interface MAPL_CFIORead
+     module procedure MAPL_CFIOReadState
+     module procedure MAPL_CFIOReadBundle
+     module procedure MAPL_CFIOReadField
+     module procedure MAPL_CFIOReadArray3D
+     module procedure MAPL_CFIOReadArray2D
+  end interface
 
 !                     ESMF Consistent Naming Convention
 !                     ---------------------------------
 
-interface ESMF_ioCreate
-module procedure MAPL_CFIOCreateFromBundle
-module procedure MAPL_CFIOCreateFromState
-end interface
+  interface ESMF_ioCreate
+     module procedure MAPL_CFIOCreateFromBundle
+     module procedure MAPL_CFIOCreateFromState
+  end interface
 
-interface ESMF_ioRead
-module procedure MAPL_CFIOReadState
-module procedure MAPL_CFIOReadBundle
-module procedure MAPL_CFIOReadField
-module procedure MAPL_CFIOReadArray3D
-module procedure MAPL_CFIOReadArray2D
-end interface
+  interface ESMF_ioRead
+     module procedure MAPL_CFIOReadState
+     module procedure MAPL_CFIOReadBundle
+     module procedure MAPL_CFIOReadField
+     module procedure MAPL_CFIOReadArray3D
+     module procedure MAPL_CFIOReadArray2D
+  end interface
 
-interface ESMF_ioWrite
-module procedure MAPL_CFIOWriteState
-module procedure MAPL_CFIOWriteBundle
-end interface
+  interface ESMF_ioWrite
+     module procedure MAPL_CFIOWriteState
+     module procedure MAPL_CFIOWriteBundle
+  end interface
 
-interface ESMF_ioDestroy
-module procedure MAPL_CFIODestroy
-end interface
+  interface ESMF_ioDestroy
+     module procedure MAPL_CFIODestroy
+  end interface
 
-type Ptr3Arr
-real, pointer              :: Ptr(:,:,:)
-end type Ptr3Arr
+  type Ptr3Arr
+     real, pointer              :: Ptr(:,:,:)
+  end type Ptr3Arr
 
-type Ptr2Arr
-real, pointer              :: Ptr(:,:)
-end type Ptr2Arr
+  type Ptr2Arr
+     real, pointer              :: Ptr(:,:)
+  end type Ptr2Arr
 
-integer, parameter :: maxStoredCoords = 10
-type StoredGlobalCoords
-real(KIND=8), pointer :: LONS2D(:) => NULL()
-real(KIND=8), pointer :: LATS2D(:) => NULL()
-logical               :: created = .false.
-integer               :: IM = 0 
-integer               :: JM = 0 
-end type StoredGlobalCoords
+  integer, parameter :: maxStoredCoords = 10
+  type StoredGlobalCoords
+     real(KIND=REAL64), pointer :: LONS2D(:) => NULL()
+     real(KIND=REAL64), pointer :: LATS2D(:) => NULL()
+     logical               :: created = .false.
+     integer               :: IM = 0 
+     integer               :: JM = 0 
+  end type StoredGlobalCoords
+     
+  !BOP
+  !BOC
 
-!BOP
-!BOC
-type MAPL_CFIO
-private 
-logical                    :: CREATED=.false.
-character(len=ESMF_MAXSTR) :: NAME
-character(len=ESMF_MAXPATHLEN) :: fNAME
-character(len=ESMF_MAXSTR) :: format
-character(len=ESMF_MAXSTR) :: expid
-type(ESMF_CFIO)            :: CFIO
-integer                    :: XYOFFSET
-real                       :: VSCALE
-type(ESMF_TIMEINTERVAL)    :: OFFSET
-type(ESMF_CLOCK)           :: CLOCK
-type(ESMF_FIELDBUNDLE)     :: BUNDLE
-type(ESMF_GridComp)        :: GC
-type(ESMF_Grid)            :: Grid
-integer                    :: Root=1
-integer                    :: PartSize=1
-integer                    :: myPE
-integer                    :: numcores
-integer                    :: comm
-integer                    :: Order=-1
-integer                    :: Nbits=1000
-integer                    :: IM, JM, LM
-integer, pointer           :: VarDims(:)=>null()
-integer, pointer           :: VarType(:)=>null()
-integer, pointer           :: needVar(:)=>null()
-integer, pointer           :: pairList(:)=>null()
-character(len=ESMF_MAXSTR), &
-		pointer :: vectorList(:,:)=>null()
-logical                    :: Vinterp=.false.
-real                       :: pow=0.0
-character(len=ESMF_MAXSTR) :: Vvar
-character(len=3          ) :: Func
-character(len=ESMF_MAXSTR), &
-		pointer :: VarName(:)=>null()
-integer, pointer           :: Krank(:)=>null()
-integer                    :: rootRank = 0
-real,    pointer           :: levs(:)=>null()
-type(MAPL_CommRequest), &
-		pointer :: reqs(:)=>null()
-class (AbstractRegridder), pointer :: regridder => null()
-type (ESMF_Grid)           :: output_grid  
-logical                    :: async
-integer                    :: AsyncWorkRank
-integer                    :: globalComm
-logical                    :: regridConservative
-logical                    :: newFormat = .false.
-logical                    :: useFaceDim = .false.
-type(Ptr2Arr), pointer     :: Buffer(:) => null()
-logical                    :: gsiMode = .false.
-integer, pointer           :: varID(:) => null()
-logical                    :: kreverse,xshift
-integer                    :: collection_id
-integer                    :: fraction
-integer                    :: regrid_type
-end type MAPL_CFIO
-!EOC
-!EOP
-integer, parameter :: trans_tag=9999
+  type :: MCFIO_Variable
+     integer :: request_id
+     integer :: num_dimensions
+     real, allocatable :: data(:,:,:)
+  end type MCFIO_VARIABLE
 
-integer, parameter :: CFIOMaxAge=60
-integer,dimension(CFIOMaxAge) :: CFIOAge
-type(ESMF_CFIO),dimension(CFIOMaxAge),target :: CFIORegister
+  type :: MAPL_CFIO
+     private 
+     logical                    :: CREATED=.false.
+     character(len=ESMF_MAXSTR) :: NAME
+     character(len=ESMF_MAXPATHLEN) :: fNAME
+     character(len=ESMF_MAXSTR) :: format
+     character(len=ESMF_MAXSTR) :: expid
+     type(ESMF_CFIO)            :: CFIO
+     integer                    :: XYOFFSET
+     real                       :: VSCALE
+     type(ESMF_TIMEINTERVAL)    :: OFFSET
+     type(ESMF_CLOCK)           :: CLOCK
+     type(ESMF_FIELDBUNDLE)     :: BUNDLE
+     type(ESMF_GridComp)        :: GC
+     type(ESMF_Grid)            :: Grid
+     integer                    :: Root=1
+     integer                    :: PartSize=1
+     integer                    :: myPE
+     integer                    :: numcores
+     integer                    :: comm
+     integer                    :: Order=-1
+     integer                    :: Nbits=1000
+     integer                    :: IM, JM, LM
+     integer, pointer           :: VarDims(:)=>null()
+     integer, pointer           :: VarType(:)=>null()
+     integer, pointer           :: needVar(:)=>null()
+     integer, pointer           :: pairList(:)=>null()
+     character(len=ESMF_MAXSTR), &
+                        pointer :: vectorList(:,:)=>null()
+     logical                    :: Vinterp=.false.
+     real                       :: pow=0.0
+     character(len=ESMF_MAXSTR) :: Vvar
+     character(len=3          ) :: Func
+     character(len=ESMF_MAXSTR), &
+                        pointer :: VarName(:)=>null()
+     integer, pointer           :: Krank(:)=>null()
+     integer                    :: rootRank = 0
+     real,    pointer           :: levs(:)=>null()
+     real,    pointer           :: unmodifiedLevs(:)=>null()
+     type(MAPL_CommRequest), &
+                        pointer :: reqs(:)=>null()
+     class (AbstractRegridder), pointer :: regridder => null()
+     class (AbstractRegridder), pointer :: new_regridder => null()
+     integer :: regrid_method
+     type (ESMF_Grid)           :: output_grid  
+     logical                    :: async
+     integer                    :: AsyncWorkRank
+     integer                    :: globalComm
+     logical                    :: regridConservative
+     logical                    :: newFormat = .false.
+     logical                    :: useFaceDim = .false.
+     type(Ptr2Arr), pointer     :: Buffer(:) => null()
+     logical                    :: gsiMode = .false.
+     integer, pointer           :: varID(:) => null()
+     logical                    :: kreverse,xshift
+     integer                    :: collection_id
+     ! new stuff for server
+     integer                    :: scollection_id
+     integer, pointer           :: request_ids(:) => null()
+     type(Ptr2Arr), pointer     :: rBuffer(:)
+     character(len=ESMF_MAXSTR), &
+                        pointer :: levVarName(:)=>null()
+     integer                    :: fraction
+     integer                    :: regrid_type
+     real, pointer              :: surfaceLayer(:,:) => null()
+     logical                    :: ascending
 
-type(StoredGlobalCoords)    :: storedCoords(maxStoredCoords)
+     ! TLC components used in the new ESMF regrid variant
+     integer :: n_vars
+     type (MCFIO_Variable), allocatable :: variables(:)
+     
+     
+  end type MAPL_CFIO
+  !EOC
+  !EOP
+  integer, parameter :: trans_tag=9999
 
-type(CFIOCollectionVector) :: collections
+  integer, parameter :: CFIOMaxAge=60
+  integer,dimension(CFIOMaxAge) :: CFIOAge
+  type(ESMF_CFIO),dimension(CFIOMaxAge),target :: CFIORegister
 
-include "mpif.h"
+  type(StoredGlobalCoords)    :: storedCoords(maxStoredCoords)
+
+  type(CFIOCollectionVector) :: collections
+
+  include "mpif.h"
 
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !BOP
-
+ 
 ! !IROUTINE: MAPL_CFIOCreate --- Creates a MAPL CFIO Object
 !
 ! !IIROUTINE: MAPL_CFIOCreateFromBundle --- Creates MAPL CFIO Object from a Bundle
@@ -257,78 +282,78 @@ contains
 !
 ! !INTERFACE:
 !
-subroutine MAPL_CFIOCreateFromBundle ( MCFIO, NAME, CLOCK, BUNDLE, OFFSET,      &
-				 OUTPUT_GRID, CHUNKSIZE, FREQUENCY, LEVELS, DESCR,    &
-				 XYOFFSET, VCOORD, VUNIT, VSCALE,         &
-				 SOURCE, INSTITUTION, COMMENT, CONTACT,   &
-				 FORMAT, EXPID, DEFLATE, GC,  ORDER, &
-				 NumCores, nbits, TM, Conservative,  &
-				 Async, VectorList, itemOrder, RC )
+  subroutine MAPL_CFIOCreateFromBundle ( MCFIO, NAME, CLOCK, BUNDLE, OFFSET,      &
+                                         OUTPUT_GRID, CHUNKSIZE, FREQUENCY, LEVELS, DESCR,    &
+                                         XYOFFSET, VCOORD, VUNIT, VSCALE,         &
+                                         SOURCE, INSTITUTION, COMMENT, CONTACT,   &
+                                         FORMAT, EXPID, DEFLATE, GC,  ORDER, &
+                                         NumCores, nbits, TM, Conservative,  &
+                                         Async, VectorList, itemOrder, RC )
 ! !ARGUMENTS:
 !
-type(MAPL_CFIO),             intent(OUT) :: MCFIO
-character(LEN=*),            intent(IN)  :: NAME
-type(ESMF_FIELDBUNDLE),      intent(INout)  :: BUNDLE
-type(ESMF_CLOCK),            intent(INout):: CLOCK
-type(ESMF_TIMEINTERVAL), &
- optional,   intent(INout):: OFFSET
-type (ESMF_Grid), optional, pointer :: OUTPUT_GRID
-integer,         optional,   pointer     :: CHUNKSIZE(:)
-integer,         optional,   intent(IN)  :: FREQUENCY
-real,            optional,   pointer     :: LEVELS(:)
-character(LEN=*),optional,   intent(IN)  :: DESCR
-integer,         optional,   intent(IN)  :: XYOFFSET
-real,            optional,   intent(IN)  :: VSCALE
-integer,         optional,   intent(IN)  :: DEFLATE
-character(len=*),optional,   intent(IN)  :: VUNIT     
-character(len=*),optional,   intent(IN)  :: VCOORD     
-character(len=*),optional,   intent(IN)  :: source
-character(len=*),optional,   intent(IN)  :: institution     
-character(len=*),optional,   intent(IN)  :: comment
-character(len=*),optional,   intent(IN)  :: contact     
-character(len=*),optional,   intent(IN)  :: format
-character(len=*),optional,   intent(IN)  :: EXPID
-integer,         optional,   intent(IN)  :: Conservative
-type(ESMF_GridComp),optional,intent(IN)  :: GC
-integer,         optional,   intent(IN)  :: Order
-integer,         optional,   intent(IN)  :: Nbits
-integer,         optional,   intent(IN)  :: NumCores
-integer,         optional,   intent(IN)  :: TM
-logical,         optional,   intent(IN)  :: Async
-character(len=*),optional,   pointer     :: vectorList(:,:)
-type(ESMF_ItemOrder_Flag),   optional,   intent(IN)  :: itemOrder
-integer,         optional,   intent(OUT) :: RC
+    type(MAPL_CFIO),             intent(OUT) :: MCFIO
+    character(LEN=*),            intent(IN)  :: NAME
+    type(ESMF_FIELDBUNDLE),      intent(INout)  :: BUNDLE
+    type(ESMF_CLOCK),            intent(INout):: CLOCK
+    type(ESMF_TIMEINTERVAL), &
+         optional,   intent(INout):: OFFSET
+    type (ESMF_Grid), optional, pointer :: OUTPUT_GRID
+    integer,         optional,   pointer     :: CHUNKSIZE(:)
+    integer,         optional,   intent(IN)  :: FREQUENCY
+    real,            optional,   pointer     :: LEVELS(:)
+    character(LEN=*),optional,   intent(IN)  :: DESCR
+    integer,         optional,   intent(IN)  :: XYOFFSET
+    real,            optional,   intent(IN)  :: VSCALE
+    integer,         optional,   intent(IN)  :: DEFLATE
+    character(len=*),optional,   intent(IN)  :: VUNIT     
+    character(len=*),optional,   intent(IN)  :: VCOORD     
+    character(len=*),optional,   intent(IN)  :: source
+    character(len=*),optional,   intent(IN)  :: institution     
+    character(len=*),optional,   intent(IN)  :: comment
+    character(len=*),optional,   intent(IN)  :: contact     
+    character(len=*),optional,   intent(IN)  :: format
+    character(len=*),optional,   intent(IN)  :: EXPID
+    integer,         optional,   intent(IN)  :: Conservative
+    type(ESMF_GridComp),optional,intent(IN)  :: GC
+    integer,         optional,   intent(IN)  :: Order
+    integer,         optional,   intent(IN)  :: Nbits
+    integer,         optional,   intent(IN)  :: NumCores
+    integer,         optional,   intent(IN)  :: TM
+    logical,         optional,   intent(IN)  :: Async
+    character(len=*),optional,   pointer     :: vectorList(:,:)
+    type(ESMF_ItemOrder_Flag),   optional,   intent(IN)  :: itemOrder
+    integer,         optional,   intent(OUT) :: RC
 
 #ifdef ___PROTEX___
 !
-!DESCRIPTION:
+   !DESCRIPTION:
 
-Creates a MAPL\_CFIO object from a Bundle. The MAPL\_CFIO objects
-is opaque and its properties can only be set by this method at
-creation. Currently, its properties cannot be queried. The object
-is used only as a handle in write operations. It is not needed for
-reading. 
+   Creates a MAPL\_CFIO object from a Bundle. The MAPL\_CFIO objects
+   is opaque and its properties can only be set by this method at
+   creation. Currently, its properties cannot be queried. The object
+   is used only as a handle in write operations. It is not needed for
+   reading. 
+  
+   Its non-optional arguments associate a {\tt NAME}, an ESMF {\tt
+   BUNDLE}, and a {\tt CLOCK} with the object. An ESMF TimeInterval
+   {\tt OFFSET} is an optional argument that sets an offset between the
+   time on the clock when eriting and the time stamp used for the data
+   (defaults to no offset).
 
-Its non-optional arguments associate a {\tt NAME}, an ESMF {\tt
-BUNDLE}, and a {\tt CLOCK} with the object. An ESMF TimeInterval
-{\tt OFFSET} is an optional argument that sets an offset between the
-time on the clock when eriting and the time stamp used for the data
-(defaults to no offset).
+   The {\tt format} optional argument determines whether the write
+   will use the linked self-describing format (SDF) library (HDF or
+   netcdf) or write GrADS readable flat files. Currently only the SDF
+   library option is supported.
 
-The {\tt format} optional argument determines whether the write
-will use the linked self-describing format (SDF) library (HDF or
-netcdf) or write GrADS readable flat files. Currently only the SDF
-library option is supported.
+   The remaining (optional) arguments are especialized and used
+   primarily to support MAPL\_History, or to provide documentation in
+   the form of character strings that will be placed in corresponding
+   attributes in the SDF file.
 
-The remaining (optional) arguments are especialized and used
-primarily to support MAPL\_History, or to provide documentation in
-the form of character strings that will be placed in corresponding
-attributes in the SDF file.
-
-!REVISION HISTORY:
-
-19Apr2007 Todling  - Added ability to write out ak/bk
-	       - Added experiment ID as optional argument
+  !REVISION HISTORY:
+ 
+    19Apr2007 Todling  - Added ability to write out ak/bk
+                       - Added experiment ID as optional argument
 
 #endif
 !
@@ -337,536 +362,545 @@ attributes in the SDF file.
 ! Locals
 !-------
 
-character(len=ESMF_MAXSTR) :: Iam="MAPL_CFIOCreateFromBundle"
-integer                    :: STATUS
+    integer                    :: STATUS
 
 
-type(ESMF_FIELD)    :: FIELD
-type(ESMF_GRID)     :: ESMFGRID
-type(ESMF_DELayout) :: LAYOUT
-type(ESMF_DistGrid) :: DISTGRID
-type(ESMF_TIME)     :: TIME
-type(ESMF_ALARM)    :: PERPETUAL
-type(ESMF_VM)       :: VM
+    type(ESMF_FIELD)    :: FIELD
+    type(ESMF_GRID)     :: ESMFGRID
+    type(ESMF_DELayout) :: LAYOUT
+    type(ESMF_DistGrid) :: DISTGRID
+    type(ESMF_TIME)     :: TIME
+    type(ESMF_ALARM)    :: PERPETUAL
+    type(ESMF_VM)       :: VM
 
-type(ESMF_CFIOVarInfo), pointer :: vars(:)
-type(ESMF_CFIOGrid),    pointer :: cfiogrid
+    type(ESMF_CFIOVarInfo), pointer :: vars(:)
+    type(ESMF_CFIOGrid),    pointer :: cfiogrid
 
-real, pointer  :: lats(:,:)
-real, pointer  :: lons(:,:)
-real, pointer  :: lats1d(:)
-real, pointer  :: lons1d(:)
-real, pointer  :: Local(:,:)
-real, pointer  :: lev (:  )
-real, pointer  :: ak  (:  )
-real, pointer  :: bk  (:  )
-real, pointer  :: ulevels(:  )
-real           :: range(2)
+    real, pointer  :: lats(:,:)
+    real, pointer  :: lons(:,:)
+    real, pointer  :: lats1d(:)
+    real, pointer  :: lons1d(:)
+    real, pointer  :: Local(:,:)
+    real, pointer  :: lev (:  )
+    real, pointer  :: ak  (:  )
+    real, pointer  :: bk  (:  )
+    real, pointer  :: ulevels(:  )
+    real           :: range(2)
 
-real(KIND=REAL64), pointer  :: R8D2(:,:)
+    real(KIND=REAL64), pointer  :: R8D2(:,:)
 
-integer        :: L, WriteInterval, counts(5), dims(3)
-integer        :: NumVars
-integer        :: IM,JM,LM
-integer        :: gridRank
-integer        :: fieldRank
-integer        :: Comm, nPEs
-integer        :: hours, mins, secs, timeInc
-integer        :: I, J, II, LL, LT, K, LEN, IMO, JMO, LMG, IML, JML
-integer        :: IMSUB, JMSUB, IMBEG, IMEND, JMBEG, JMEND
-integer        :: Field_Type
-integer        :: Df
-integer        :: Num2DVars, Num3dVars
-integer        :: YY,MM,DD,H,M,S
-integer        :: noffset
+    integer        :: L, WriteInterval, counts(5), dims(3)
+    integer        :: NumVars
+    integer        :: IM,JM,LM
+    integer        :: gridRank
+    integer        :: fieldRank
+    integer        :: Comm, nPEs
+    integer        :: hours, mins, secs, timeInc
+    integer        :: I, J, LT, K, IMO, JMO, LMG, IML, JML
+    integer        :: IMSUB, JMSUB, IMBEG, IMEND, JMBEG, JMEND
+    integer        :: Field_Type
+    integer        :: Df
+    integer        :: Num2DVars, Num3dVars
+    integer        :: YY,MM,DD,H,M,S
+    integer        :: noffset
 
-integer, allocatable :: Location(:)
-integer        :: CNT
+    integer, allocatable :: Location(:)
+    integer        :: CNT
 
-logical        :: Have2D, Have3D, HAVE_center, HAVE_edge, HAVE_ungrd
-logical        :: LPERP
+    logical        :: Have2D, Have3D, HAVE_center, HAVE_edge, HAVE_ungrd
+    logical        :: LPERP
 
-character(len=ESMF_MAXSTR)  :: Vunits
-character(len=ESMF_MAXSTR)  :: LongName
-character(len=ESMF_MAXSTR)  :: Units
-character(len=ESMF_MAXSTR)  :: StartTime
-character(len=esmf_maxstr)  :: Usource
-character(len=esmf_maxstr)  :: Uinstitution     
-character(len=esmf_maxstr)  :: Ucomment
-character(len=esmf_maxstr)  :: Ucontact     
-character(len=esmf_maxstr)  :: Utitle
-character(len=esmf_maxstr)  :: GridTypeAttribute
+    character(len=ESMF_MAXSTR)  :: Vunits
+    character(len=ESMF_MAXSTR)  :: LongName
+    character(len=ESMF_MAXSTR)  :: Units
+    character(len=ESMF_MAXSTR)  :: StartTime
+    character(len=esmf_maxstr)  :: Usource
+    character(len=esmf_maxstr)  :: Uinstitution     
+    character(len=esmf_maxstr)  :: Ucomment
+    character(len=esmf_maxstr)  :: Ucontact     
+    character(len=esmf_maxstr)  :: Utitle
+    character(len=esmf_maxstr)  :: GridTypeAttribute
 
-character(len=ESMF_MAXSTR)  :: ClockName
-character(len=ESMF_MAXSTR)  :: Gridname
-character(len=ESMF_MAXSTR)  :: GridnameIn
-character(len=ESMF_MAXSTR)  :: GridnameOut
-character(len=2)            :: date
-character(len=2)            :: pole
-integer                     :: nn
-logical                     :: isGridRectilinear
-real, pointer               :: ptr3d(:,:,:)
-integer, allocatable        :: vsize(:)
-logical, allocatable        :: HasUngrid(:)
-character(len=ESMF_MAXSTR), pointer :: ungridded_units(:) => null()
-character(len=ESMF_MAXSTR), pointer :: ungridded_names(:) => null()
-character(len=ESMF_MAXSTR)  :: ungridded_unit, ungridded_name
-integer                     :: ungrdsize
-real, allocatable           :: ungridded_coord(:)
-real, allocatable           :: ungridded_coords(:,:)
-logical                     :: unGrdNameCheck, unGrdUnitCheck, unGrdCoordCheck
-logical                     :: found
-integer                     :: vectorListSize
+    character(len=ESMF_MAXSTR)  :: ClockName
+    character(len=ESMF_MAXSTR)  :: Gridname
+    character(len=ESMF_MAXSTR)  :: GridnameIn
+    character(len=ESMF_MAXSTR)  :: GridnameOut
+    character(len=2)            :: date
+    character(len=2)            :: pole
+    integer                     :: nn
+    logical                     :: isGridRectilinear
+    real, pointer               :: ptr3d(:,:,:)
+    integer, allocatable        :: vsize(:)
+    logical, allocatable        :: HasUngrid(:)
+    character(len=ESMF_MAXSTR), pointer :: ungridded_units(:) => null()
+    character(len=ESMF_MAXSTR), pointer :: ungridded_names(:) => null()
+    character(len=ESMF_MAXSTR)  :: ungridded_unit, ungridded_name
+    integer                     :: ungrdsize
+    real, allocatable           :: ungridded_coord(:)
+    real, allocatable           :: ungridded_coords(:,:)
+    logical                     :: unGrdNameCheck, unGrdUnitCheck, unGrdCoordCheck
+    logical                     :: found
+    integer                     :: vectorListSize
 
-logical                     :: prevStored
-logical                     :: foundEmpty
-real(KIND=8), pointer       :: LONS2D(:) => NULL()
-real(KIND=8), pointer       :: LATS2D(:) => NULL()
-character(len=ESMF_MAXSTR), allocatable :: names(:)
-type(ESMF_ItemOrder_Flag) :: itemOrder_
+    logical                     :: prevStored
+    logical                     :: foundEmpty
+    real(KIND=REAL64), pointer       :: LONS2D(:) => NULL()
+    real(KIND=REAL64), pointer       :: LATS2D(:) => NULL()
+    character(len=ESMF_MAXSTR), allocatable :: names(:)
+    type(ESMF_ItemOrder_Flag) :: itemOrder_
+
+    logical                     :: isPresent
 
 ! Begin
 !------
 
-MCFIO%NAME   = NAME 
-MCFIO%CLOCK  = CLOCK
-MCFIO%BUNDLE = BUNDLE
+    MCFIO%NAME   = NAME 
+    MCFIO%CLOCK  = CLOCK
+    MCFIO%BUNDLE = BUNDLE
 
 ! Number of variables in the bundle
 !----------------------------------
 
-call ESMF_FieldBundleGet (BUNDLE, FieldCount=NumVars,    RC=STATUS)
-VERIFY_(STATUS)
+    call ESMF_FieldBundleGet (BUNDLE, FieldCount=NumVars,    RC=STATUS)
+    _VERIFY(STATUS)
 
-ASSERT_(NumVars>0)
+    _ASSERT(NumVars>0, 'numVars must be > 0')
 
 ! Process optionals
 !------------------
 
-if(present(NBITS)) then
-MCFIO%Nbits = NBITS
-else
-MCFIO%nBits = 1000
-end if
+    if(present(NBITS)) then
+       MCFIO%Nbits = NBITS
+    else
+       MCFIO%nBits = 1000
+    end if
 
-if(present(deflate)) then
-df = deflate
-else
-df = 0
-endif
+    if(present(deflate)) then
+       df = deflate
+    else
+       df = 0
+    endif
 
-if(present(Order)) then
-print*,'WARNING:   CFIO parameter "order" is no longer used.'
-print*,'           The new regrid facility uses ESMF parameters to'
-print*,'           specify the type of regridding to perform.'
-ASSERT_(.false.)
-MCFIO%Order = Order
-else
-MCFIO%Order = -1
-endif
+    if(present(Order)) then
+       print*,'WARNING:   CFIO parameter "order" is no longer used.'
+       print*,'           The new regrid facility uses ESMF parameters to'
+       print*,'           specify the type of regridding to perform.'
+       _ASSERT(.false., 'Order must be present')
+       MCFIO%Order = Order
+    else
+       MCFIO%Order = -1
+    endif
 
-if(present(source)) then
-Usource = source
-else
-Usource = "unknown"
-endif
+    if(present(source)) then
+       Usource = source
+    else
+       Usource = "unknown"
+    endif
 
-if(present(institution)) then
-Uinstitution = institution
-else
-Uinstitution = "unknown"
-endif
+    if(present(institution)) then
+       Uinstitution = institution
+    else
+       Uinstitution = "unknown"
+    endif
 
-if(present(comment)) then
-Ucomment = comment
-else
-Ucomment = "unknown"
-endif
+    if(present(comment)) then
+       Ucomment = comment
+    else
+       Ucomment = "unknown"
+    endif
 
-if(present(contact)) then
-Ucontact = contact
-else
-Ucontact = "unknown"
-endif
+    if(present(contact)) then
+       Ucontact = contact
+    else
+       Ucontact = "unknown"
+    endif
 
-if(present(format)) then
-MCFIO%format = format
-else
-MCFIO%format = "SDF"
-endif
+    if(present(format)) then
+       MCFIO%format = format
+    else
+       MCFIO%format = "SDF"
+    endif
 
-if(present(expid)) then
-MCFIO%expid = expid
-else
-MCFIO%expid = "No_ExpId"
-endif
+    if(present(expid)) then
+       MCFIO%expid = expid
+    else
+       MCFIO%expid = "No_ExpId"
+    endif
 
-if(present(descr )) then
-Utitle  = descr 
-else
-Utitle  = "unknown"
-endif
+    if(present(descr )) then
+       Utitle  = descr 
+    else
+       Utitle  = "unknown"
+    endif
 
-if(present(LEVELS)) then
-ulevels => LEVELS
-else
-nullify(ulevels)
-endif
+    if(present(LEVELS)) then
+       ulevels => LEVELS
+    else
+       nullify(ulevels)
+    endif
 
-if(present(GC)) then
-MCFIO%GC   = GC
-else
+    if(present(GC)) then
+       MCFIO%GC   = GC
+    else
 !ALT       MCFIO%GC   = ESMF_GridCompCreate("NULL")
-endif
+    endif
 
-if(present(VUNIT)) then
-vunits = trim(vunit)
-else
-vunits = ""
-endif
+    if(present(VUNIT)) then
+       vunits = trim(vunit)
+    else
+       vunits = ""
+    endif
 
-if (present(Async)) then
-mcfio%async = async
-else
-mcfio%async = .false.
-end if
+    if (present(Async)) then
+       mcfio%async = async
+    else
+       mcfio%async = .false.
+    end if
 
-if (present(vectorList)) then
-if (associated(vectorList)) then
-  mcfio%vectorList => vectorList
-else
-  mcfio%vectorList => null()
-end if
-else
-mcfio%vectorList => null()
-end if
+    if (present(vectorList)) then
+       if (associated(vectorList)) then
+          mcfio%vectorList => vectorList
+       else
+          mcfio%vectorList => null()
+       end if
+    else
+       mcfio%vectorList => null()
+    end if
 
 ! Get CommBndl, the communicator that is spanned by fields in the bundle
 !-----------------------------------------------------------------------
 
-call ESMF_FieldBundleGet(BUNDLE, 1, FIELD,               RC=STATUS)
-VERIFY_(STATUS)
-call ESMF_FieldGet       (FIELD, grid=ESMFGRID,          RC=STATUS)
-VERIFY_(STATUS)
-call ESMF_GridGet        (ESMFGRID, dimCount=gridRank,   rc=STATUS)
-VERIFY_(STATUS)
-call ESMF_GridGet        (ESMFGRID, NAME=Gridname, rc=status )
-VERIFY_(STATUS)
-call ESMF_GridGet        (ESMFGRID, distgrid=DISTGRID,   RC=STATUS)
-VERIFY_(STATUS)
-call ESMF_DistGridGet    (DISTGRID, delayout=LAYOUT,     RC=STATUS)
-VERIFY_(STATUS)
-call ESMF_DELayoutGet    (LAYOUT,   vm=VM,               RC=STATUS)
-VERIFY_(STATUS)
-call ESMF_VMGet          (VM, mpiCommunicator=Comm,      RC=STATUS)
-VERIFY_(STATUS)
-call ESMF_VMGet          (VM, localpet=mCFIO%MYPE,       RC=STATUS)
-VERIFY_(STATUS)
-call ESMF_VMGet          (VM, petcount=NPES,             RC=STATUS)
-VERIFY_(STATUS)
+    call ESMF_FieldBundleGet(BUNDLE, 1, FIELD,               RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_FieldGet       (FIELD, grid=ESMFGRID,          RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_GridGet        (ESMFGRID, dimCount=gridRank,   rc=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_GridGet        (ESMFGRID, NAME=Gridname, rc=status )
+    _VERIFY(STATUS)
+    call ESMF_GridGet        (ESMFGRID, distgrid=DISTGRID,   RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_DistGridGet    (DISTGRID, delayout=LAYOUT,     RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_DELayoutGet    (LAYOUT,   vm=VM,               RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_VMGet          (VM, mpiCommunicator=Comm,      RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_VMGet          (VM, localpet=mCFIO%MYPE,       RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_VMGet          (VM, petcount=NPES,             RC=STATUS)
+    _VERIFY(STATUS)
 
 ! Save the ESMFGrid in the object
 !--------------------------------
 
-mCFIO%comm = comm
-mCFIO%Grid = ESMFGRID
+    mCFIO%comm = comm
+    mCFIO%Grid = ESMFGRID
 
 ! Set the partition size to size of VM. Can be overridden later to call to MAPL_CFIOSet
 ! -------------------------------------------------------------------------------------
 
-if(present(NumCores)) then
-mcfio%Numcores = NumCores
-else
-mcfio%Numcores = MAPL_CoresPerNodeGet(comm,rc=status)
-VERIFY_(STATUS)
-end if
+    if(present(NumCores)) then
+       mcfio%Numcores = NumCores
+    else
+       mcfio%Numcores = MAPL_CoresPerNodeGet(comm,rc=status)
+       _VERIFY(STATUS)
+    end if
 
-mCFIO%partsize = size(MAPL_NodeRankList)
+    mCFIO%partsize = size(MAPL_NodeRankList)
 
-MCFIO%regridConservative = .false.
-if (present(Conservative)) then
-if (Conservative /= 0) then
-  MCFIO%regridConservative = .true.
-end if
-end if
+    MCFIO%regridConservative = .false.
+    if (present(Conservative)) then
+       if (Conservative /= 0) then
+          MCFIO%regridConservative = .true.
+       end if
+    end if
 
 ! Vertical interpolation info
 !----------------------------
 
-if(present(Vcoord)) then
-MCFIO%VVAR = adjustl(vcoord)
-MCFIO%Func = MCFIO%Vvar(1:3)
-if    (MCFIO%Func=='log') then
-  MCFIO%Vvar = adjustl(MCFIO%Vvar(index(MCFIO%Vvar,'(')+1:index(MCFIO%Vvar,')')-1))
-elseif(MCFIO%Func=='pow') then
-  read( MCFIO%Vvar(index(MCFIO%Vvar,',')+1:index(MCFIO%Vvar,')')-1) , *) mCFIO%pow 
-  MCFIO%Vvar = adjustl(MCFIO%Vvar(index(MCFIO%Vvar,'(')+1:index(MCFIO%Vvar,',')-1))
-endif
-else
-MCFIO%VVAR = ""
-MCFIO%Func = ""
-end if
+    if(present(Vcoord)) then
+       MCFIO%VVAR = adjustl(vcoord)
+       MCFIO%Func = MCFIO%Vvar(1:3)
+       if    (MCFIO%Func=='log') then
+          MCFIO%Vvar = adjustl(MCFIO%Vvar(index(MCFIO%Vvar,'(')+1:index(MCFIO%Vvar,')')-1))
+       elseif(MCFIO%Func=='pow') then
+          read( MCFIO%Vvar(index(MCFIO%Vvar,',')+1:index(MCFIO%Vvar,')')-1) , *) mCFIO%pow 
+          MCFIO%Vvar = adjustl(MCFIO%Vvar(index(MCFIO%Vvar,'(')+1:index(MCFIO%Vvar,',')-1))
+       endif
+    else
+       MCFIO%VVAR = ""
+       MCFIO%Func = ""
+    end if
 
-if(present(vscale)) then
-MCFIO%Vscale = Vscale
-else
-MCFIO%Vscale = 1.0
-endif
+    if(present(vscale)) then
+       MCFIO%Vscale = Vscale
+    else
+       MCFIO%Vscale = 1.0
+    endif
 
 ! Determine the rank and vertical Location (Mid or Edge) of Fields within Bundle.
 !   Note: If User-Defined ULEVELS is not present, ALL levels are written.
 !   In this case, vertical Location must be consistent for ALL variables.
 ! ---------------------------------------------------------------------------------------
 
-allocate(MCFIO%VarDims(NumVars), stat=STATUS)
-VERIFY_(STATUS)
-allocate(MCFIO%VarName(NumVars), stat=STATUS)
-VERIFY_(STATUS)
-allocate(location     (NumVars), stat=STATUS)
-VERIFY_(STATUS)
-allocate(vsize        (NumVars), stat=STATUS)
-VERIFY_(STATUS)
-allocate(hasUngrid    (NumVars), stat=STATUS)
-VERIFY_(STATUS)
-allocate(MCFIO%VarType(NumVars), stat=STATUS)
-VERIFY_(STATUS)
-allocate(MCFIO%needVar(NumVars), stat=STATUS)
-VERIFY_(STATUS)
-allocate(ungridded_names(NumVars), stat=STATUS)
-VERIFY_(STATUS)
-ungridded_names=""
-allocate(ungridded_units(NumVars), stat=STATUS)
-VERIFY_(STATUS)
-ungridded_units=""
+    allocate(MCFIO%VarDims(NumVars), stat=STATUS)
+    _VERIFY(STATUS)
+    allocate(MCFIO%VarName(NumVars), stat=STATUS)
+    _VERIFY(STATUS)
+    allocate(location     (NumVars), stat=STATUS)
+    _VERIFY(STATUS)
+    allocate(vsize        (NumVars), stat=STATUS)
+    _VERIFY(STATUS)
+    allocate(hasUngrid    (NumVars), stat=STATUS)
+    _VERIFY(STATUS)
+    allocate(MCFIO%VarType(NumVars), stat=STATUS)
+    _VERIFY(STATUS)
+    allocate(MCFIO%needVar(NumVars), stat=STATUS)
+    _VERIFY(STATUS)
+    allocate(ungridded_names(NumVars), stat=STATUS)
+    _VERIFY(STATUS)
+    ungridded_names=""
+    allocate(ungridded_units(NumVars), stat=STATUS)
+    _VERIFY(STATUS)
+    ungridded_units=""
 
-allocate(names(NumVars),stat=status)
-VERIFY_(status)
-if (present(itemOrder)) then
-   itemOrder_ = itemOrder
-else
-   itemOrder_ = ESMF_ITEMORDER_ABC
-end if
-call ESMF_FieldBundleGet(bundle,itemorderflag=itemOrder_,fieldNameList=Names,rc=status)
-VERIFY_(status)
+    allocate(names(NumVars),stat=status)
+    _VERIFY(status)
+    if (present(itemOrder)) then
+       itemOrder_ = itemOrder
+    else
+       itemOrder_ = ESMF_ITEMORDER_ABC
+    end if
+    call ESMF_FieldBundleGet(bundle,itemorderflag=itemOrder_,fieldNameList=Names,rc=status)
+    _VERIFY(status)
 
-VARIABLES_1: DO I = 1, NumVars
+    VARIABLES_1: DO I = 1, NumVars
 
-call ESMF_FieldBundleGet(BUNDLE, names(i), field=FIELD,              RC=STATUS)
-VERIFY_(STATUS)
-call ESMF_FieldGet      (FIELD, NAME= mCFIO%VarName(I), RC=STATUS)
-VERIFY_(STATUS)
+       call ESMF_FieldBundleGet(BUNDLE, names(i), field=FIELD,              RC=STATUS)
+       _VERIFY(STATUS)
+       call ESMF_FieldGet      (FIELD, NAME= mCFIO%VarName(I), RC=STATUS)
+       _VERIFY(STATUS)
 
-vsize(i) = 1
-hasUngrid(I) = .false.
-if(mCFIO%VarName(I)==MCFIO%Vvar) then
-  MCFIO%VarDims(I) = -1
-  LOCATION(i)      = MAPL_VLocationNone
-else
-  call ESMF_FieldGet(FIELD, dimCount=fieldRank, RC=STATUS)
-  VERIFY_(STATUS)
-  ASSERT_(fieldRank <= 3)
+       vsize(i) = 1
+       hasUngrid(I) = .false.
+       if(mCFIO%VarName(I)==MCFIO%Vvar) then
+          MCFIO%VarDims(I) = -1
+          LOCATION(i)      = MAPL_VLocationNone
+       else
+          call ESMF_FieldGet(FIELD, dimCount=fieldRank, RC=STATUS)
+          _VERIFY(STATUS)
+          _ASSERT(fieldRank <= 3, 'fieldRank > 3')
 
-  MCFIO%VarDims(I) = fieldRank
+          MCFIO%VarDims(I) = fieldRank
 
-  call ESMF_AttributeGet(FIELD, NAME="VLOCATION", VALUE=LOCATION(I), RC=STATUS)
-  if ( status /= ESMF_SUCCESS ) LOCATION(I) = MAPL_VLocationNone
+          call ESMF_AttributeGet(FIELD, NAME="VLOCATION", isPresent=isPresent, RC=STATUS)
+          _VERIFY(STATUS)
+          if ( isPresent ) then
+             call ESMF_AttributeGet(FIELD, NAME="VLOCATION", VALUE=LOCATION(I), RC=STATUS)
+             _VERIFY(STATUS)
+          else
+             LOCATION(I) = MAPL_VLocationNone
+          end if
 
-  if (fieldRank == 3) then
-     call ESMF_FieldGet(field, farrayPtr=ptr3d, rc=status)
-     VERIFY_(STATUS)
-     vsize(i) = size(ptr3d,3)
-  end if
+          if (fieldRank == 3) then
+             call ESMF_FieldGet(field, farrayPtr=ptr3d, rc=status)
+             _VERIFY(STATUS)
+             vsize(i) = size(ptr3d,3)
+          end if
 
-  if (fieldRank >= 3 .and. location(I) == MAPL_VLocationNone) then
-     hasUngrid(I) = .true.
-     call ESMF_AttributeGet(field,NAME="UNGRIDDED_UNIT",value=ungridded_unit,rc=status)
-     VERIFY_(STATUS)
-     call ESMF_AttributeGet(field,NAME="UNGRIDDED_NAME",value=ungridded_name,rc=status)
-     VERIFY_(STATUS)
-     ungridded_names(i) = ungridded_name
-     ungridded_units(i) = ungridded_unit
-     call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",itemcount=ungrdsize,rc=status)
-     if (status==ESMF_SUCCESS .and. (ungrdsize/=0) ) then
-	ASSERT_(vsize(i)==ungrdsize)
-	if (.not.allocated(ungridded_coord)) allocate(ungridded_coord(ungrdsize),stat=status)
-	if (.not.allocated(ungridded_coords)) allocate(ungridded_coords(NumVars,ungrdsize),stat=status)
-	VERIFY_(STATUS)
-	call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",valuelist=ungridded_coord,rc=status)
-	VERIFY_(STATUS)
-	ungridded_coords(i,:) = ungridded_coord
-     end if
-  end if
+          if (fieldRank >= 3 .and. location(I) == MAPL_VLocationNone) then
+             hasUngrid(I) = .true.
+             call ESMF_AttributeGet(field,NAME="UNGRIDDED_UNIT",value=ungridded_unit,rc=status)
+             _VERIFY(STATUS)
+             call ESMF_AttributeGet(field,NAME="UNGRIDDED_NAME",value=ungridded_name,rc=status)
+             _VERIFY(STATUS)
+             ungridded_names(i) = ungridded_name
+             ungridded_units(i) = ungridded_unit
+             call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",isPresent=isPresent,rc=status)
+             _VERIFY(STATUS)
+             if (isPresent) then
+                call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",itemcount=ungrdsize,rc=status)
+                _VERIFY(STATUS)
+             else
+                ungrdsize=0
+             end if
+             if (ungrdsize/=0) then
+                _ASSERT(vsize(i)==ungrdsize,'inconsistent ungrdsize')
+                if (.not.allocated(ungridded_coord)) allocate(ungridded_coord(ungrdsize),stat=status)
+                if (.not.allocated(ungridded_coords)) allocate(ungridded_coords(NumVars,ungrdsize),stat=status)
+                _VERIFY(STATUS)
+                call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",valuelist=ungridded_coord,rc=status)
+                _VERIFY(STATUS)
+                ungridded_coords(i,:) = ungridded_coord
+             end if
+          end if
 
-endif
+       endif
 
-end do VARIABLES_1
-! now put a check in that we aren't trying to do something like have two different
-! ungridded units if we have any ungridded dimensions, compare ungridded info for
-! each variable to the last values retrieved, if any differ then obviously user
-! is trying to put 2 different ungridded variables in a collection that have
-! different attributes
-if (any(hasUngrid)) then
-do i=1,NumVars
-  if (hasUngrid(i)) then
-     unGrdUnitCheck = ungridded_units(i) /= ungridded_unit
-     unGrdNameCheck = ungridded_names(i) /= ungridded_name
-     if ( allocated(ungridded_coords) .and. allocated(ungridded_coords) ) then
-	unGrdCoordCheck = any(ungridded_coords(i,:) /= ungridded_coord)
-     else
-	unGrdCoordCheck = .false.
-     end if
-     if ( unGrdUnitCheck .or. unGrdNameCheck .or. unGrdCoordCheck) then
-	if (mapl_am_i_root()) write(*,*)'Ungridded attributes for variables in collection do not match'
-	ASSERT_(.false.) 
-     end if    
-  end if
-end do
-end if
+    end do VARIABLES_1
+    ! now put a check in that we aren't trying to do something like have two different
+    ! ungridded units if we have any ungridded dimensions, compare ungridded info for
+    ! each variable to the last values retrieved, if any differ then obviously user
+    ! is trying to put 2 different ungridded variables in a collection that have
+    ! different attributes
+    if (any(hasUngrid)) then
+       do i=1,NumVars
+          if (hasUngrid(i)) then
+             unGrdUnitCheck = ungridded_units(i) /= ungridded_unit
+             unGrdNameCheck = ungridded_names(i) /= ungridded_name
+             if ( allocated(ungridded_coords) .and. allocated(ungridded_coords) ) then
+                unGrdCoordCheck = any(ungridded_coords(i,:) /= ungridded_coord)
+             else
+                unGrdCoordCheck = .false.
+             end if
+             if ( unGrdUnitCheck .or. unGrdNameCheck .or. unGrdCoordCheck) then
+                _ASSERT(.false., 'Ungridded attributes for variables in collection do not match') 
+             end if    
+          end if
+       end do
+    end if
 
 
 !ALT: next segment is here only for initial testing
 ! we need a better logic how to prepare needVar list
 ! possibilities are: add staggering, vector pair to spec
 ! special key words in collection, etc.
-mCFIO%needVar = 0
-vectorListSize = 0
-if (associated(mCFIO%vectorList)) then
-vectorListSize = size(mCFIO%vectorList,2)
-end if
-VARLOOP: DO I = 1, NumVars
-DO k = 1, vectorListSize
-  if (mCFIO%varName(I) == mCFIO%vectorList(1,k)) then
-     ! this is first component of a vector (i.e. U)
-     ! find the index of the V component
-     found = .false.
-     DO J = 1, NumVars
-	if (trim(mCFIO%varName(J)) == mCFIO%vectorList(2,k)) then
-	   found = .true.
-	   exit
-	end if
-     end DO
-     ASSERT_(found)
-     mCFIO%needVar(I) = J ! I am first component of the vector
-  else if(mCFIO%varName(I) == mCFIO%vectorList(2,k)) then
-     ! find the index of the U component
-     ! store it as negative number by convension suggested by Max
-     found = .false.
-     DO J = 1, NumVars
-	if (trim(mCFIO%varName(J)) == mCFIO%vectorList(1,k)) then
-	   found = .true.
-	   exit
-	end if
-     end DO
-     ASSERT_(found)
-     mCFIO%needVar(I) = -J ! I am second component of the vector
-  end if
-end DO
-end DO VARLOOP
+    mCFIO%needVar = 0
+    vectorListSize = 0
+    if (associated(mCFIO%vectorList)) then
+       vectorListSize = size(mCFIO%vectorList,2)
+    end if
+    VARLOOP: DO I = 1, NumVars
+       DO k = 1, vectorListSize
+          if (mCFIO%varName(I) == mCFIO%vectorList(1,k)) then
+             ! this is first component of a vector (i.e. U)
+             ! find the index of the V component
+             found = .false.
+             DO J = 1, NumVars
+                if (trim(mCFIO%varName(J)) == mCFIO%vectorList(2,k)) then
+                   found = .true.
+                   exit
+                end if
+             end DO
+             _ASSERT(found, 'search failed')
+             mCFIO%needVar(I) = J ! I am first component of the vector
+          else if(mCFIO%varName(I) == mCFIO%vectorList(2,k)) then
+             ! find the index of the U component
+             ! store it as negative number by convension suggested by Max
+             found = .false.
+             DO J = 1, NumVars
+                if (trim(mCFIO%varName(J)) == mCFIO%vectorList(1,k)) then
+                   found = .true.
+                   exit
+                end if
+             end DO
+             _ASSERT(found, 'search failed')
+             mCFIO%needVar(I) = -J ! I am second component of the vector
+          end if
+       end DO
+    end DO VARLOOP
 
 ! Sizes of global grid in the bundle. Sizes in the SDF may be different.
 !----------------------------------------------------------------------
 
-call MAPL_GridGet( MCFIO%GRID, globalCellCountPerDim=COUNTS,  &
-	       localCellCountPerDim=DIMS,     RC=STATUS)
-VERIFY_(STATUS)
+    call MAPL_GridGet( MCFIO%GRID, globalCellCountPerDim=COUNTS,  &
+                       localCellCountPerDim=DIMS,     RC=STATUS)
+    _VERIFY(STATUS)
 
-IML = DIMS(1)
-JML = DIMS(2)
+    IML = DIMS(1)
+    JML = DIMS(2)
 
-IM = COUNTS(1)
-JM = COUNTS(2)
-LMG = COUNTS(3)
+    IM = COUNTS(1)
+    JM = COUNTS(2)
+    LMG = COUNTS(3)
 
-HAVE_center = any(LOCATION==MAPL_VLocationCenter)
-HAVE_edge   = any(LOCATION==MAPL_VLocationEdge  )
-HAVE_ungrd  = any(hasUngrid)
+    HAVE_center = any(LOCATION==MAPL_VLocationCenter)
+    HAVE_edge   = any(LOCATION==MAPL_VLocationEdge  )
+    HAVE_ungrd  = any(hasUngrid)
 
-if     ( associated(ULEVELS)  ) then
-LM = size(ULEVELS)
-HAVE_edge = .false.
-if (HAVE_ungrd) then
-  print *, 'ERROR: Specifying LEVELS is not allowed for UNGRIDDED vars'
-  ASSERT_(.false.)
-end if
-else 
+    if     ( associated(ULEVELS)  ) then
+       LM = size(ULEVELS)
+       HAVE_edge = .false.
+       if (HAVE_ungrd) then
+          _ASSERT(.false., 'ERROR: Specifying LEVELS is not allowed for UNGRIDDED vars')
+       end if
+    else 
 
 !      Check on proper levels
 !      -----------------------
-if(HAVE_center .and.  HAVE_edge) then
-  DO I = 1, NumVars
-     IF (LOCATION(I)==MAPL_VLocationEdge) print*, mCFIO%VarName(I)
-  ENDDO
-  print *, 'ERROR: Mixed Vlocation in CFIO not allowed unless LEVELS is specified'
-  ASSERT_(.false.)
-endif
+       if(HAVE_center .and.  HAVE_edge) then
+          DO I = 1, NumVars
+             IF (LOCATION(I)==MAPL_VLocationEdge) print*, mCFIO%VarName(I)
+          ENDDO
+          _ASSERT(.false., 'ERROR: Mixed Vlocation in CFIO not allowed unless LEVELS is specified')
+       endif
 
-if( all(MCFIO%VarDims==2)) then
-  LM = 1
-else if (HAVE_ungrd) then
-  if (HAVE_center .or. HAVE_edge) then
-     print *, 'ERROR: Mixed 3d and UNGRIDDED in CFIO not allowed'
-     ASSERT_(.false.)
-  end if
-  if (minval(vsize) /= maxval(vsize)) then
-     print *, 'ERROR: Outputting variables with different ungridded sizes in one collection'
-     ASSERT_(.false.)
-  end if 
-  LM = maxval(vsize)
-else
-  LM = COUNTS(3)
-  if (HAVE_edge) LM = LM+1
-endif
-end if
+       if( all(MCFIO%VarDims==2)) then
+          LM = 1
+       else if (HAVE_ungrd) then
+          if (HAVE_center .or. HAVE_edge) then
+             _ASSERT(.false., 'ERROR: Mixed 3d and UNGRIDDED in CFIO not allowed')
+          end if
+          if (minval(vsize) /= maxval(vsize)) then
+             _ASSERT(.false., 'ERROR: Outputting variables with different ungridded sizes in one collection')
+          end if 
+          LM = maxval(vsize)
+       else
+          LM = COUNTS(3)
+          if (HAVE_edge) LM = LM+1
+       endif
+    end if
 
-mCFIO%LM   = LM
+    mCFIO%LM   = LM
 
 ! Allocate request arrays for non-blocking gathers of bundle variables
 !  Each 2D variable and each level of each 3D variable needs a request
 !---------------------------------------------------------------------
 
-Num2DVars = count(MCFIO%VarDims==2)
-Num3DVars = count(MCFIO%VarDims==3)
+    Num2DVars = count(MCFIO%VarDims==2)
+    Num3DVars = count(MCFIO%VarDims==3)
 
-Have2D    = Num2DVars > 0
-Have3D    = Num3DVars > 0
+    Have2D    = Num2DVars > 0
+    Have3D    = Num3DVars > 0
 
-ASSERT_(HAVE2D .or. HAVE3D)
+    _ASSERT(HAVE2D .or. HAVE3D, 'must be 2D or 3D')
 
-LT        = Num2DVars + Num3DVars*LM
+    LT        = Num2DVars + Num3DVars*LM
 
-allocate( MCFIO%reqs (LT),stat=STATUS)
-VERIFY_(STATUS)
-allocate( MCFIO%Krank(LT),stat=STATUS)
-VERIFY_(STATUS)
-mcfio%krank=0
-allocate(MCFIO%pairList(LT), stat=STATUS)
-VERIFY_(STATUS)
+    allocate( MCFIO%reqs (LT),stat=STATUS)
+    _VERIFY(STATUS)
+    allocate( MCFIO%Krank(LT),stat=STATUS)
+    _VERIFY(STATUS)
+    mcfio%krank=0
+    allocate(MCFIO%pairList(LT), stat=STATUS)
+    _VERIFY(STATUS)
 
-MCFIO%pairList = 0
+    MCFIO%pairList = 0
 
 ! Horizontal dimensions of output fields
 !---------------------------------------
 
-if (present(OUTPUT_GRID)) then
-if (associated(OUTPUT_GRID)) then
-  mcfio%output_grid = OUTPUT_GRID
-else
-  mcfio%output_grid = mCFIO%grid
-end if
+    if (present(OUTPUT_GRID)) then
+       if (associated(OUTPUT_GRID)) then
+          mcfio%output_grid = OUTPUT_GRID
+       else
+          mcfio%output_grid = mCFIO%grid
+       end if
+       
+       call MAPL_GridGet(mcfio%output_grid, globalCellCountPerDim=dims, rc=status)
+       _VERIFY(status)
+       IMO = dims(1)
+       JMO = dims(2)
 
-call MAPL_GridGet(mcfio%output_grid, globalCellCountPerDim=dims, rc=status)
-VERIFY_(status)
-IMO = dims(1)
-JMO = dims(2)
+    else
+       mcfio%output_grid = mCFIO%grid
+       IMO = IM
+       JMO = JM
+    end if
 
-else
-mcfio%output_grid = mCFIO%grid
-IMO = IM
-JMO = JM
-end if
-
-MCFIO%IM = IMO
-MCFIO%JM = JMO
+    MCFIO%IM = IMO
+    MCFIO%JM = JMO
 
 !ALT: this is first attempt to guess if the grid is rectilinear
 !     i.e. if we need could use 1d LAT/LONs
@@ -895,12 +929,12 @@ MCFIO%JM = JMO
 
     if (isGridRectilinear) then
        allocate(LONS1D(IMO), STAT=status)
-       VERIFY_(status)
+       _VERIFY(status)
        allocate(LATS1D(JMO), STAT=status)
-       VERIFY_(status)
+       _VERIFY(status)
     else
        allocate(LONS1D(0), LATS1D(0), STAT=status)
-       VERIFY_(status)
+       _VERIFY(status)
        ! the above 2 lines need to be replaced with:
        ! table search + set logical prevStored
        prevStored = .false.
@@ -918,10 +952,10 @@ MCFIO%JM = JMO
        if (.not.prevStored) then
           call MAPL_AllocateShared(LONS2D, (/IMO*JMO/), &
                TransRoot=.true., RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MAPL_AllocateShared(LATS2D, (/IMO*JMO/), &
                TransRoot=.true., RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           foundEmpty = .false.
 !          call Write_Parallel("DEBUG:Storing LAT/LONs")
@@ -936,8 +970,7 @@ MCFIO%JM = JMO
              exit
           end do
           if (.not.foundEmpty) then
-             print *,'ERROR: Need bigger table with storedCoords'
-             ASSERT_(.false.)
+             _ASSERT(.false., 'ERROR: Need bigger table with storedCoords')
           end if
        end if
     endif
@@ -955,7 +988,7 @@ MCFIO%JM = JMO
        if (present(output_grid)) then
 
             call get_latlon_from_factory(output_grid, lons1d, lats1d, rc=status)
-            VERIFY_(status)
+            _VERIFY(status)
 
        else
 
@@ -974,7 +1007,7 @@ MCFIO%JM = JMO
                 lons1d = MAPL_Range(-180.+(180./IMO), 180.-(180./IMO), IMO)
                 lats1d = MAPL_Range(-90.+(90./JMO), +90.-(90./JMO), JMO)
              case default
-                ASSERT_(.false.)
+                _ASSERT(.false.,'needs informative message')
              end select
              mcfio%xyoffset = xyoffset
           else
@@ -985,8 +1018,12 @@ MCFIO%JM = JMO
 
        endif
 
-       call ESMF_AttributeGet(ESMFGRID, name="GridType", value=GridTypeAttribute, rc=STATUS)
-       if (STATUS /= ESMF_SUCCESS) then
+       call ESMF_AttributeGet(ESMFGRID, name="GridType", isPresent=isPresent, rc=STATUS)
+       _VERIFY(STATUS)
+       if (isPresent) then
+          call ESMF_AttributeGet(ESMFGRID, name="GridType", value=GridTypeAttribute, rc=STATUS)
+          _VERIFY(STATUS)
+       else
           GridTypeAttribute = 'UNKNOWN'
        endif
 
@@ -1014,34 +1051,34 @@ MCFIO%JM = JMO
     !if (JMO /= 6*IMO) then
 
        allocate(LONS (IM ,JM ),STAT=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(LATS (IM ,JM ),STAT=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(LOCAL(IML,JML),STAT=STATUS)
-       VERIFY_(STATUS) 
+       _VERIFY(STATUS) 
 
        call ESMF_GridGetCoord(esmfgrid, localDE=0, coordDim=1, &
             staggerloc=ESMF_STAGGERLOC_CENTER, &
             farrayPtr=R8D2, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        LOCAL = R8D2*(180._REAL64/MAPL_PI_R8)
        call ArrayGather(LOCAL, LONS, ESMFGRID, RC=STATUS)
-       VERIFY_(STATUS) 
+       _VERIFY(STATUS) 
 
        call ESMF_GridGetCoord(esmfgrid, localDE=0, coordDim=2, &
             staggerloc=ESMF_STAGGERLOC_CENTER, &
             farrayPtr=R8D2, rc=status)
-       VERIFY_(STATUS) 
+       _VERIFY(STATUS) 
 
        LOCAL = R8D2*(180._REAL64/MAPL_PI_R8)
        call ArrayGather(LOCAL, LATS, ESMFGRID, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call MAPL_CommsBcast (layout, lons, size(lons), 0, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call MAPL_CommsBcast (layout, lats, size(lats), 0, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if (isGridRectilinear) then
           LONS1D = LONS(:,1)
@@ -1058,7 +1095,7 @@ MCFIO%JM = JMO
              end do
           end if
           call MAPL_SyncSharedMemory(rc=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        endif
 
        DEALLOCATE(LOCAL)
@@ -1079,13 +1116,13 @@ MCFIO%JM = JMO
 
           mCFIO%regridder => regridder_manager%make_regridder(mCFIO%grid, mCFIO%output_grid, &
                & REGRID_METHOD_CONSERVE, rc=status)
-          VERIFY_(status)
+          _VERIFY(status)
 
        else
 
           mCFIO%regridder => regridder_manager%make_regridder(mCFIO%grid, mCFIO%output_grid, &
                & REGRID_METHOD_BILINEAR, rc=status)
-          VERIFY_(status)
+          _VERIFY(status)
 
        end if
 
@@ -1096,13 +1133,13 @@ MCFIO%JM = JMO
     allocate(CFIOGRID)
 
     CFIOGRID = ESMF_CFIOGridCreate(gName=trim(NAME)//"Grid", RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! Horizontal grid info
 !---------------------
     if (isGridRectilinear) then
        call ESMF_CFIOGridSet(CFIOGRID, LON=LONS1D(IMBEG:IMEND), LAT=LATS1D(JMBEG:JMEND),  TM=TM,  RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     else
        !ALT: new approach
        ! create 2DR8 shared memory coordinate arrays
@@ -1112,7 +1149,7 @@ MCFIO%JM = JMO
        ! pass them down
        call ESMF_CFIOGridSet(CFIOGRID, twoDimLat=.true., IM=IMO, JM=JMO, TM=TM,  &
             LON2=LONS2D, LAT2=LATS2D,  RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
     deallocate(LONS1D)
@@ -1125,7 +1162,7 @@ MCFIO%JM = JMO
     mCFIO%Vinterp = MCFIO%Vvar/=""
     VERTGRID: if(HAVE3D) THEN
        allocate(LEV(LM), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        
        if (associated(ULEVELS)) then
           if (mCFIO%Vinterp .or. (size(ulevels) < LMG)) then
@@ -1145,16 +1182,17 @@ MCFIO%JM = JMO
           LEV = (/(L, L=1,LM)/)
        end if
 
-       allocate(mCFIO%levs(size(lev)), stat=status)
-       VERIFY_(STATUS)
+       allocate(mCFIO%levs(size(lev)),mcfio%unmodifiedLevs(size(lev)), stat=status)
+       _VERIFY(STATUS)
        mCFIO%levs = lev
+       mCFIO%unmodifiedLevs = lev
        if (HAVE_ungrd) then
           call ESMF_CFIOGridSet(cfiogrid, levUnit=ungridded_unit, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_CFIOGridSet(cfiogrid, standardName =ungridded_name, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_CFIOGridSet(cfiogrid, coordinate ='N/A', RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           mCFIO%levs = -mCFIO%levs
        else if(mCFIO%Vinterp) then
           if    (mCFIO%Func=='log') then
@@ -1164,40 +1202,41 @@ MCFIO%JM = JMO
           else
              mCFIO%levs = lev* MCFIO%vscale
           end if
+          mCFIO%unmodifiedLevs=mCFIO%unmodifiedLevs*MCFIO%vscale
 
           if( trim(vunits).eq."" ) then
              call ESMF_AttributeGet(FIELD, NAME="UNITS", VALUE=units,         RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call ESMF_CFIOGridSet(cfiogrid, levUnit=trim(units),             RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           else
              call ESMF_CFIOGridSet(cfiogrid, levUnit=trim(vunits),            RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           endif
           call ESMF_CFIOGridSet(cfiogrid, standardName =trim(MCFIO%Vvar)//'_level', RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_CFIOGridSet(cfiogrid, coordinate   =trim(MCFIO%Vvar),           RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
           if (present(vunit) .and. trim(vunits) .ne. "") then
              call ESMF_CFIOGridSet(cfiogrid, levUnit      =trim(vunits),         RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           else 
              call ESMF_CFIOGridSet(cfiogrid, levUnit      ='layer',              RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           end if
           call ESMF_CFIOGridSet(cfiogrid, standardName ='model_layers',       RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_CFIOGridSet(cfiogrid, coordinate   ='eta',                RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
 
        if (associated(ulevels)) then
           call ESMF_CFIOGridSet(cfiogrid, lev=ulevels,  RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
           call ESMF_CFIOGridSet(cfiogrid, lev=abs(lev),  RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
 
        deallocate(LEV)
@@ -1205,11 +1244,11 @@ MCFIO%JM = JMO
     else
 
        call ESMF_CFIOGridSet(cfiogrid, levUnit      ='none',         RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_CFIOGridSet(cfiogrid, standardName ='2d_fields',    RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_CFIOGridSet(cfiogrid, coordinate   ='N/A',          RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
     end if VERTGRID
 
@@ -1217,7 +1256,7 @@ MCFIO%JM = JMO
 !------------------------
 
     allocate(vars(Num2DVars+Num3dVars), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! Disable range checking
 !-----------------------
@@ -1235,17 +1274,39 @@ MCFIO%JM = JMO
        K = K + 1
 
        call ESMF_FieldBundleGet(BUNDLE, mCFIO%varName(L), field=FIELD,                       RC=STATUS)
-       VERIFY_(STATUS)
-       call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=LongName, RC=STATUS)
-       if ( status /= 0 ) LongName = mCFIO%VarName(L)
-       call ESMF_AttributeGet  (FIELD, NAME="UNITS"    ,VALUE=Units,    RC=STATUS)
-       if ( status /= 0 ) Units = 'unknown'
-       call ESMF_AttributeGet  (FIELD, NAME="FIELD_TYPE",VALUE=Field_Type, RC=STATUS)
-       if ( status /= 0 ) Field_Type = MAPL_ScalarField
+       _VERIFY(STATUS)
+
+       call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",isPresent=isPresent, RC=STATUS)
+       _VERIFY(STATUS)
+       if ( isPresent ) then
+          call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=LongName, RC=STATUS)
+          _VERIFY(STATUS)
+       else
+          LongName = mCFIO%VarName(L)
+       endif
+
+       call ESMF_AttributeGet  (FIELD, NAME="UNITS"    ,isPresent=isPresent, RC=STATUS)
+       _VERIFY(STATUS)
+       if ( isPresent ) then
+          call ESMF_AttributeGet  (FIELD, NAME="UNITS"    ,VALUE=Units, RC=STATUS)
+          _VERIFY(STATUS)
+       else
+          Units = 'unknown'
+       end if
+
+       call ESMF_AttributeGet  (FIELD, NAME="FIELD_TYPE",isPresent=isPresent, RC=STATUS)
+       _VERIFY(STATUS)
+       if ( isPresent ) then
+          call ESMF_AttributeGet  (FIELD, NAME="FIELD_TYPE",VALUE=Field_Type, RC=STATUS)
+          _VERIFY(STATUS)
+       else
+          Field_Type = MAPL_ScalarField
+       end if
+
        mCFIO%vartype(L) = Field_Type
 
        VARS(K) = ESMF_CFIOVarInfoCreate(vName=trim(mCFIO%VarName(L)),   RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call ESMF_CFIOVarInfoSet(VARS(K),           &
             vName        = mCFIO%VarName(L),       &
@@ -1259,7 +1320,7 @@ MCFIO%JM = JMO
             validRange   = RANGE,                  &
             vUnits       = UNITS,                  &
                                          RC=STATUS )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if (present(CHUNKSIZE)) then
           if (associated(CHUNKSIZE)) then
@@ -1275,17 +1336,17 @@ MCFIO%JM = JMO
 !-------------------------------------------------------
 
     call ESMF_ClockGet(CLOCK, name=clockname, CurrTime =TIME, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if(present(OFFSET)) then
 
         call ESMF_TimeIntervalGet( OFFSET, S=noffset, rc=status )
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
         if( noffset /= 0 ) then
             LPERP = ( index( trim(clockname),'_PERPETUAL' ).ne.0 )
         if( LPERP ) then
             call ESMF_ClockGetAlarm ( clock, alarmname='PERPETUAL', alarm=PERPETUAL, rc=status )
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             if( ESMF_AlarmIsRinging(PERPETUAL) ) then
                 call ESMF_TimeGet ( Time, YY = YY, &
                                           MM = MM, &
@@ -1310,11 +1371,11 @@ MCFIO%JM = JMO
        MCFIO%OFFSET = OFFSET
     else
       call ESMF_TimeIntervalSet( MCFIO%OFFSET, S=0, rc=status )
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
     endif
 
     call ESMF_TimeGet (TIME,  timeString=StartTime, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! Create CFIO object
 !-------------------
@@ -1328,7 +1389,7 @@ MCFIO%JM = JMO
 ! ------------------------------------------------------------------------------
 
     if (present(FREQUENCY)) then
-       !ASSERT_(FREQUENCY <= 4*86400)
+       !_ASSERT(FREQUENCY <= 4*86400,'bad frequency')
        if (frequency == 0 ) then
           writeInterval = 21600
        else
@@ -1366,23 +1427,30 @@ MCFIO%JM = JMO
          prec        = 0,                                         &
          deflate     = df,                                        &
          RC=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! Create AK/BKs
 ! -------------
 
     if(HAVE3D) then
-       call ESMF_AttributeGet(ESMFGRID, NAME='ak', itemcount=CNT, RC=STATUS)
-       if (STATUS==ESMF_SUCCESS .and. CNT>0) then
+       call ESMF_AttributeGet(ESMFGRID, NAME='ak', isPresent=isPresent, RC=STATUS)
+       _VERIFY(STATUS)
+       if (isPresent) then
+          call ESMF_AttributeGet(ESMFGRID, NAME='ak', itemcount=CNT, RC=STATUS)
+          _VERIFY(STATUS)
+       else
+          CNT=0
+       endif
+       if (CNT>0) then
           allocate ( ak(CNT), bk(CNT), stat=status )
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           call ESMF_AttributeGet(ESMFGRID, name='ak', valueList=ak, rc=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_CFIOSet(MCFIO%cfio, attRealName='ak', attReal=ak )
 
           call ESMF_AttributeGet(ESMFGRID, name='bk', valuelist=bk, rc=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_CFIOSet(MCFIO%cfio, attRealName='bk', attReal=bk )
 
           deallocate ( ak, bk )
@@ -1410,7 +1478,7 @@ MCFIO%JM = JMO
        deallocate(ungridded_coords)
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIOCreateFromBundle
 
 
@@ -1425,7 +1493,6 @@ MCFIO%JM = JMO
     character(len=ESMF_MAXSTR)     :: StartTime
     character(len=ESMF_MAXSTR)     :: ClockName
 
-    character(len=ESMF_MAXSTR)     :: Iam="MAPL_CFIOCreatewrite"
     logical                        :: LPERP
     integer                        :: YY,MM,DD,H,M,S
     integer                        :: noffset
@@ -1434,25 +1501,25 @@ MCFIO%JM = JMO
 
     if(present(nsteps)) then
        call ESMF_CFIOSet(MCFIO%CFIO, nsteps=nsteps, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     else
        call ESMF_CFIOSet(MCFIO%CFIO, nsteps=1, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     endif 
 
 ! Get time info from the clock. Note the optional offset
 !-------------------------------------------------------
     
     call ESMF_ClockGet(mCFIO%CLOCK, name=clockname, CurrTime=CurrTime, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
         call ESMF_TimeIntervalGet( mCFIO%OFFSET, S=noffset, rc=status )
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
         if( noffset /= 0 ) then
             LPERP = ( index( trim(clockname),'_PERPETUAL' ).ne.0 )
         if( LPERP ) then
             call ESMF_ClockGetAlarm ( mCFIO%CLOCK, alarmName='PERPETUAL', alarm=PERPETUAL, rc=status )
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             if( ESMF_AlarmIsRinging(PERPETUAL) ) then
                 call ESMF_TimeGet ( CurrTime, YY = YY, &
                                               MM = MM, &
@@ -1474,18 +1541,18 @@ MCFIO%JM = JMO
     CurrTime = CurrTime - mCFIO%OFFSET
 
     call ESMF_TimeGet (CurrTime,  timeString=StartTime, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_CFIOSet(MCFIO%CFIO, TimeString=trim(StartTime), RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_CFIOSet(MCFIO%CFIO, fName=trim(mCFIO%fName),     RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (MCFIO%JM == 6 * MCFIO%IM) then
        if (MCFIO%newFormat) then
           call ESMF_CFIOSet(MCFIO%CFIO, formatVersion=2.90, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           MCFIO%useFaceDim = .true.
        end if
     end if
@@ -1497,12 +1564,12 @@ MCFIO%JM = JMO
 
        call ESMF_CFIOFileCreate(MCFIO%CFIO, format=MCFIO%format, &
                                 expid=MCFIO%EXPID,      RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 !      print *, ' Created CFIO File: ', trim(mCFIO%fName)
 
     end if AMROOT
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIOCreateWrite
 
 
@@ -1512,7 +1579,6 @@ MCFIO%JM = JMO
     type(MAPL_CFIO),           intent(INOUT) :: MCFIO
     integer,         optional, intent(  OUT) :: RC
 
-    character(len=ESMF_MAXSTR)     :: Iam="MAPL_CFIOOpenWrite"
     integer                        :: STATUS
 
 
@@ -1521,11 +1587,11 @@ MCFIO%JM = JMO
 
     AMROOT: if (mCFIO%MYPE==mCFIO%RootRank) then
        call ESMF_CFIOFileOpen(MCFIO%CFIO, fmode=0, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 !      print *, ' Opened CFIO File: ', trim(mCFIO%fName)
     end if AMROOT
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIOOpenWrite
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1626,13 +1692,13 @@ MCFIO%JM = JMO
 !   ----------------------
 
     tBUNDLE = ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     
 !   Serialize the state
 !   -------------------
 
     call ESMFL_BundleAddState ( tBUNDLE, STATE, rc=STATUS, VALIDATE=.true. )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 !   Create the mapl_CFIO object
 !   ----------------------
@@ -1662,13 +1728,13 @@ MCFIO%JM = JMO
                                      TM      = TM,                       &
                                      CONSERVATIVE=CONSERVATIVE,          &
                                                                RC=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if ( present(BUNDLE) ) then
          BUNDLE => tBUNDLE
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_CFIOCreateFromState
     
@@ -1725,7 +1791,6 @@ MCFIO%JM = JMO
 
 !EOP
 
-    character(len=*), parameter:: Iam="MAPL_CFIOWriteBundlePost"
     integer                    :: status
 
     type(ESMF_FIELD)           :: FIELD
@@ -1735,13 +1800,14 @@ MCFIO%JM = JMO
     real, target, allocatable  :: Ple3d(:,:,:)
     real,         allocatable  :: Pl3d(:,:,:)
     real,         allocatable  :: Ptrx(:,:,:)
-    real,             pointer  :: layer(:,:)
+    real,             pointer  :: layer(:,:),ps0(:,:)
     logical                    :: PrePost_
-    
+    integer                    :: globalcount(3)
+    type(ESMF_VM)              :: vm 
 
 !                              ---
 
-    ASSERT_(MCFIO%CREATED)
+    _ASSERT(MCFIO%CREATED, 'MCFIO%CREATED is false')
 
     if (present(PrePost)) then
        PrePost_ = PrePost
@@ -1754,22 +1820,35 @@ MCFIO%JM = JMO
 
     if(mCFIO%Vinterp) then
        call ESMF_FieldBundleGet(mCFIO%bundle, fieldName=mCFIO%Vvar, Field=Field,  RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        nullify (ptr3)
        call ESMF_FieldGet(Field, localDE=0, farrayPtr=Ptr3, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        allocate( LAYER(size(Ptr3,1),size(Ptr3,2) ), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
+
+       if (associated(mcfio%regridder)) then
+          call ESMF_VMGetCurrent(vm,rc=status)
+          _VERIFY(status)
+          call MAPL_GridGet(mcfio%grid,globalCellCountPerDim=globalCount,rc=status)
+          _VERIFY(status)
+          call MAPL_AllocNodeArray(ps0,[globalCount(1),globalCount(2)],rc=status)
+          if(STATUS==MAPL_NoShm) allocate(ps0(globalCount(1),globalCount(2)),stat=status)
+          _VERIFY(status)
+          call MAPL_AllocNodeArray(mcfio%surfaceLayer,[mcfio%im,mcfio%jm],rc=status)
+          if(STATUS==MAPL_NoShm) allocate(mcfio%surfaceLayer(mcfio%im,mcfio%jm),stat=status)
+          _VERIFY(STATUS)
+       end if
 
 ! The Ptr3 interpolating variable is a zero-based (0-LM) edge variable
 !---------------------------------------------------------------------
        if(lbound(PTR3,3)==0) then
           allocate( ple3D(size(Ptr3,1),size(Ptr3,2),size(Ptr3,3)  ), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(  pl3D(size(Ptr3,1),size(Ptr3,2),size(Ptr3,3)-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           if    (mCFIO%Func=='log') then
              ple3D = log(Ptr3)
@@ -1781,17 +1860,22 @@ MCFIO%JM = JMO
              ple3D = Ptr3
              pl3D  =    ( 0.5*(Ptr3(:,:,1:)+Ptr3(:,:,0:ubound(Ptr3,3)-1)) )
           end if
+          if (associated(mCFIO%regridder)) then
+             mcfio%ascending = (ptr3(1,1,0)<ptr3(1,1,1))
+             call ArrayGather(ptr3(:,:,ubound(ptr3,3)),ps0,mcfio%grid,rc=status)
+             _VERIFY(status) 
+          end if
 
        else
 
 ! The Ptr3 interpolating variable is a (1-LM) mid-layer variable
 !---------------------------------------------------------------
           allocate(  Ptrx(size(Ptr3,1),size(Ptr3,2),0:size(Ptr3,3)  ), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate( ple3D(size(Ptr3,1),size(Ptr3,2),0:size(Ptr3,3)  ), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(  pl3D(size(Ptr3,1),size(Ptr3,2),  size(Ptr3,3)  ), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           Ptrx(:,:,0               ) = 0.5*( 3* Ptr3(:,:,1)             -Ptr3(:,:,2)                )
           Ptrx(:,:,1:size(Ptr3,3)-1) = 0.5*(    Ptr3(:,:,2:size(Ptr3,3))+Ptr3(:,:,1:size(Ptr3,3)-1) )
@@ -1808,13 +1892,35 @@ MCFIO%JM = JMO
              pl3D  =    ( 0.5*(Ptrx(:,:,1:)+Ptrx(:,:,0:ubound(Ptrx,3)-1)) )
           end if
 
+          if (associated(mCFIO%regridder)) then
+             mcfio%ascending = (ptrx(1,1,0)<ptrx(1,1,1))
+             call ArrayGather(ptrx(:,:,ubound(ptrx,3)),ps0,mcfio%grid,rc=status)
+             _VERIFY(status) 
+             
+          end if
           deallocate(Ptrx)
+       end if
+
+       if (associated(mCFIO%regridder)) then
+          call MAPL_BcastShared(vm,data=ps0,N=globalCount(1)*globalCount(2),root=0,RootOnly=.false.,rc=status)
+          _VERIFY(status)
+          if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+             call mCFIO%regridder%regrid(ps0,mcfio%surfaceLayer,rc=status)
+             _VERIFY(status)
+          end if
+         
+          if (MAPL_ShmInitialized) then 
+             call MAPL_DeAllocNodeArray(ps0,rc=status)
+             _VERIFY(status)
+          else
+             deallocate(ps0)
+          end if
        end if
 
     end if
 
     call MAPL_CFIOSetVectorPairs(mCFIO,rc=status) 
-    VERIFY_(status)
+    _VERIFY(status)
 
 ! Cycle through all variables posting receives.
 !----------------------------------------------
@@ -1834,7 +1940,7 @@ MCFIO%JM = JMO
           nn    = nn + 1
           call MAPL_CreateRequest(MCFIO%GRID, MCFIO%Krank(nn), MCFIO%reqs(nn), &
                                   tag=nn, RequestType=MAPL_IsGather, PrePost = PrePost_, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        enddo
     end do POSTRECV
 
@@ -1846,7 +1952,7 @@ MCFIO%JM = JMO
     VARIABLES: do L=1, size(MCFIO%VarDims)
 
        call ESMF_FieldBundleGet(MCFIO%BUNDLE, MCFIO%VARNAME(L), FIELD=FIELD,                  RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 ! We treat only fields with rank 2 (horizontal 2D) and 
 !  rank 3 (first 2 dimension are horz, third is vert).
@@ -1858,16 +1964,16 @@ MCFIO%JM = JMO
           ptr2  =>null()
 
           call ESMF_FieldGet      (FIELD, localDE=0, farrayPtr=PTR2, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MAPL_ArrayIGather  (Ptr2, MCFIO%reqs(NN), RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
        elseif(MCFIO%VarDims(L)==3) then ! Rank == 3
 
           ptr3 =>null()
 
           call ESMF_FieldGet      (FIELD, localDE=0, farrayPtr=PTR3, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           K0  = lbound(PTR3,3) - 1
 
@@ -1877,7 +1983,7 @@ MCFIO%JM = JMO
           LAYERS: do K=1,MCFIO%LM
              VINTERP: if(mCFIO%Vinterp) then
                 call VertInterp(LAYER, PTR3, MCFIO%LEVS(K), ple3d, pl3d, rc=status)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              else if (MCFIO%LEVS(K)<0) then
                 LAYER => PTR3(:,:,K+K0)
              else
@@ -1887,7 +1993,7 @@ MCFIO%JM = JMO
              nn    = nn + 1
 
              call MAPL_ArrayIGather(LAYER, MCFIO%reqs(nn), rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           enddo LAYERS
 
        end if RANK
@@ -1903,14 +2009,14 @@ MCFIO%JM = JMO
 
     if(mCFIO%Vinterp) then
        deallocate( ple3D, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate( pl3D , stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        deallocate( Layer, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIOWriteBundlePost
 
   subroutine MAPL_CFIOWriteBundleWait( MCFIO, CLOCK, RC )
@@ -1922,7 +2028,6 @@ MCFIO%JM = JMO
 ! Locals
 !-------
 
-    character(len=*), parameter:: Iam="MAPL_CFIOWriteBundleWait"
     integer                    :: status
 
     integer                    :: L, K, NN
@@ -1944,21 +2049,21 @@ MCFIO%JM = JMO
 ! Space for global arrays is allocated everywhere, even if not used.
 !------------------------------------------------------------------
 
-    ASSERT_(MCFIO%CREATED)
+    _ASSERT(MCFIO%CREATED, 'MCFIO%CREATED is false')
 
 ! Allocate global 2d and 3d arrays at the writing resolution
 !  Note that everybody allocated these.
 !-----------------------------------------------------------
 
     call MAPL_GridGet( MCFIO%GRID, globalCellCountPerDim=COUNTS, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     IM0 = COUNTS(1)
     JM0 = COUNTS(2)
 
     !if(any(mCFIO%myPE==mCFIO%Krank)) then
        !allocate(Gptr3Out(Mcfio%IM, Mcfio%JM,1), stat=STATUS)
-       !VERIFY_(STATUS)
+       !_VERIFY(STATUS)
 
        !Gptr2Out => Gptr3Out(:,:,1)
        !Gptr2Out(:,:) = 0.0
@@ -1969,12 +2074,12 @@ MCFIO%JM = JMO
     AmRoot     = mCFIO%myPE==MCFIO%RootRank
 
     allocate(globPtrArr(size(mCFIO%reqs)), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     COLCTVWAIT: do nn=1,size(mCFIO%reqs)
        ! Wait on request for slice nn
        !-----------------------------
        call MAPL_CollectiveWait(MCFIO%reqs(nn), DstArray=PtrGlob,  rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        globPtrArr(nn)%ptr => PtrGlob ! this is valid only if myGlobal is .true.
     end do COLCTVWAIT
 
@@ -2006,49 +2111,49 @@ MCFIO%JM = JMO
              VECTORTEST: if (nv == 0) then
                 ! scalar
                 allocate( MCFIO%reqs(nn)%Trans_Array(Mcfio%IM, Mcfio%JM, 1), stat=STATUS )
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 Gptr2Out => MCFIO%reqs(nn)%Trans_Array(:,:,1)
                 PtrTypeIn (1)%ptr => globPtrArr(nn)%ptr
                 PtrTypeOut(1)%ptr => Gptr2Out
                 call TransShaveAndSend(PtrTypeIn(1:1),PtrTypeOut(1:1),MCFIO%reqs(nn)%s_rqst,doTrans=.true.,IdxOut=1)
-                VERIFY_(status)
+                _VERIFY(status)
              else if (nv > 0) then 
                 ! I am U part of vector
                 if (associated(MCFIO%reqs(nn)%Trans_Array)) then
-                   ASSERT_(associated(MCFIO%reqs(nv)%Trans_Array))
+                   _ASSERT(associated(MCFIO%reqs(nv)%Trans_Array), 'Trans_Array not associated')
                    TransAlreadyDone = .true.
                 else
                    TransAlreadyDone = .false.
                    allocate( MCFIO%reqs(nn)%Trans_Array(Mcfio%IM, Mcfio%JM, 1), stat=STATUS )
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
                    allocate( MCFIO%reqs(nv)%Trans_Array(Mcfio%IM, Mcfio%JM, 1), stat=STATUS )
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
                 endif
                 PtrTypeIn (1)%ptr => globPtrArr(nn)%ptr
                 PtrTypeIn (2)%ptr => globPtrArr(nv)%ptr
                 PtrTypeOut(1)%ptr => MCFIO%reqs(nn)%Trans_Array(:,:,1)
                 PtrTypeOut(2)%ptr => MCFIO%reqs(nv)%Trans_Array(:,:,1)
                 call TransShaveAndSend(PtrTypeIn(1:2),PtrTypeOut(1:2),MCFIO%reqs(nn)%s_rqst,doTrans=.not.TransAlreadyDone,IdxOut=1)
-                VERIFY_(status)
+                _VERIFY(status)
              else 
                 ! I am V part of vector
                 nv = abs(nv)
                 if (associated(MCFIO%reqs(nn)%Trans_Array)) then
-                   ASSERT_(associated(MCFIO%reqs(nv)%Trans_Array))
+                   _ASSERT(associated(MCFIO%reqs(nv)%Trans_Array), 'Trans_Array not associated')
                    TransAlreadyDone = .true.
                 else
                    TransAlreadyDone = .false.
                    allocate( MCFIO%reqs(nn)%Trans_Array(Mcfio%IM, Mcfio%JM, 1), stat=STATUS )
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
                    allocate( MCFIO%reqs(nv)%Trans_Array(Mcfio%IM, Mcfio%JM, 1), stat=STATUS )
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
                 endif
                 PtrTypeIn (1)%ptr => globPtrArr(nv)%ptr
                 PtrTypeIn (2)%ptr => globPtrArr(nn)%ptr
                 PtrTypeOut(1)%ptr => MCFIO%reqs(nv)%Trans_Array(:,:,1)
                 PtrTypeOut(2)%ptr => MCFIO%reqs(nn)%Trans_Array(:,:,1)
                 call TransShaveAndSend(PtrTypeIn(1:2),PtrTypeOut(1:2),MCFIO%reqs(nn)%s_rqst,doTrans=.not.TransAlreadyDone,IdxOut=2)
-                VERIFY_(status)
+                _VERIFY(status)
              end if VECTORTEST
           endif
        end do LEVELS
@@ -2071,10 +2176,10 @@ MCFIO%JM = JMO
 
     !if (any(mCFIO%myPE==mCFIO%Krank)) then
        !deallocate(Gptr3Out, stat=STATUS)
-       !VERIFY_(STATUS)
+       !_VERIFY(STATUS)
     !end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   contains
     
@@ -2093,21 +2198,28 @@ MCFIO%JM = JMO
       type(c_ptr)   :: cptr
 
       if (size(PtrIn) == 1) then
-         ASSERT_(idxOut ==1)
+         _ASSERT(idxOut ==1, 'idxOut /= 1')
          Gin => PtrIn(1)%ptr
          Gout => PtrOut(1)%ptr
 
          if (associated(mCFIO%regridder)) then
             if (mCFIO%regridConservative) then
                call mCFIO%regridder%regrid(Gin, Gout, rc=status)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
             else
                call mCFIO%regridder%set_undef_value(MAPL_undef)
                call mCFIO%regridder%regrid(Gin, Gout, rc=status)
-               VERIFY_(status)
+               _VERIFY(status)
+            end if
+            if (mcfio%vinterp .and. (lm .ne. 1) ) then
+               if (mcfio%ascending) then
+                  where(mcfio%surfaceLayer<mcfio%unmodifiedLevs(k)) gout=MAPL_UNDEF
+               else
+                  where(mcfio%surfaceLayer>mcfio%unmodifiedLevs(k)) gout=MAPL_UNDEF
+               endif
             end if
          else
-            ASSERT_( all(shape(gout)==shape(gin)) )
+            _ASSERT( all(shape(gout)==shape(gin)), 'in-out shape mismatch')
             gout=gin
          end if
 
@@ -2132,12 +2244,12 @@ MCFIO%JM = JMO
          deallocate(Gin)
          nullify   (Gin)
       else
-         ASSERT_(size(PtrIn) == 2) 
-         ASSERT_(size(PtrOut) == 2) 
+         _ASSERT(size(PtrIn) == 2, 'if not scalar, ptrIn must be 2-vector') 
+         _ASSERT(size(PtrOut) == 2, 'if not scalar, ptrOut must be 2-vector') 
          Gout => PtrOut(idxOut)%ptr
          ! TLC: Probably do not need this conditional now that there are identity regridders
          if (doTrans) then 
-            ASSERT_(associated(mcfio%regridder))
+            _ASSERT(associated(mcfio%regridder), 'mcfio%regridder not associated')
             im = size(PtrIn(1)%ptr,1)
             jm = size(PtrIn(1)%ptr,2)
 
@@ -2165,7 +2277,16 @@ MCFIO%JM = JMO
             
             call mCFIO%regridder%set_undef_value(MAPL_undef)
             call mCFIO%regridder%regrid(uin, vin, uout, vout, rc=status)
-            VERIFY_(status)
+            _VERIFY(status)
+            if (mcfio%vinterp .and. (lm .ne. 1) ) then
+               if (mcfio%ascending) then
+                  where(mcfio%surfaceLayer<mcfio%unmodifiedLevs(k)) uout(:,:,1)=MAPL_UNDEF
+                  where(mcfio%surfaceLayer<mcfio%unmodifiedLevs(k)) vout(:,:,1)=MAPL_UNDEF
+               else
+                  where(mcfio%surfaceLayer>mcfio%unmodifiedLevs(k)) uout(:,:,1)=MAPL_UNDEF
+                  where(mcfio%surfaceLayer>mcfio%unmodifiedLevs(k)) vout(:,:,1)=MAPL_UNDEF
+               endif
+            end if
 
             deallocate(PtrIn(1)%ptr)
             nullify(PtrIn(1)%ptr)
@@ -2176,18 +2297,18 @@ MCFIO%JM = JMO
 
       if(mCFIO%NBITS < 24) then
          call ESMF_CFIODownBit ( Gout, Gout, mCFIO%NBITS, undef=MAPL_undef, rc=STATUS )
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       end if
 
       if (mcfio%async) then
          levsize = mcfio%im*mcfio%jm
          call MPI_ISend(Gout,levsize,MPI_REAL,mcfio%asyncWorkRank, &
               MAPL_TAG_SHIPDATA,mCFIO%globalComm,request,status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       else
          call MPI_ISend(Gout, size(Gout), MPI_REAL, MCFIO%RootRank, &
                  trans_tag, mCFIO%comm, request,         STATUS)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
 
       end if
 
@@ -2206,7 +2327,6 @@ MCFIO%JM = JMO
 ! Locals
 !-------
 
-    character(len=*), parameter:: Iam="MAPL_CFIOWriteBundleWrite"
     integer                    :: status
 
     integer                    :: L, K, NN
@@ -2226,7 +2346,7 @@ MCFIO%JM = JMO
 ! Space for global arrays is allocated everywhere, even if not used.
 !------------------------------------------------------------------
 
-    ASSERT_(MCFIO%CREATED)
+    _ASSERT(MCFIO%CREATED, 'MCFIO%CREATED is false')
 
 ! Set the time at which we will be writing from the clock
 !--------------------------------------------------------
@@ -2234,15 +2354,15 @@ MCFIO%JM = JMO
     ASYNCIF: if (.not.mcfio%async) then
 
        call ESMF_ClockGet       (CLOCK, name=ClockName, CurrTime =TIME, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
            call ESMF_TimeIntervalGet( MCFIO%OFFSET, S=noffset, rc=status )
-           VERIFY_(STATUS)
+           _VERIFY(STATUS)
            if( noffset /= 0 ) then
                LPERP = ( index( trim(clockname),'_PERPETUAL' ).ne.0 )
            if( LPERP ) then
                call ESMF_ClockGetAlarm ( clock, alarmName='PERPETUAL', alarm=PERPETUAL, rc=status )
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
                if( ESMF_AlarmIsRinging(PERPETUAL) ) then
                    call ESMF_TimeGet ( Time, YY = YY, &
                                              MM = MM, &
@@ -2264,21 +2384,21 @@ MCFIO%JM = JMO
        TIME = TIME - MCFIO%OFFSET
 
        call ESMF_TimeGet        (TIME,     timeString=DATE,     RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
    ! Allocate global 2d and 3d arrays at the writing resolution
    !  Note that everybody allocated these.
    !-----------------------------------------------------------
 
        call MAPL_GridGet( MCFIO%GRID, globalCellCountPerDim=COUNTS, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        IM0 = COUNTS(1)
        JM0 = COUNTS(2)
 
        if(any(mCFIO%myPE==mCFIO%Krank)) then
           allocate(Gptr3Out(Mcfio%IM, Mcfio%JM,1), stat=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           Gptr2Out => Gptr3Out(:,:,1)
           Gptr2Out(:,:) = 0.0
@@ -2303,12 +2423,12 @@ MCFIO%JM = JMO
                 Gptr2Out => Gptr3Out(:,:,1)
                 call MPI_Recv(Gptr2Out,size(Gptr2Out),MPI_REAL, mCFIO%Krank(nn), &
                               trans_tag,  mCFIO%comm, MPI_STATUS_IGNORE, STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
 
                 call StrToInt(date,nymd,nhms)
                 call ESMF_CFIOVarWrite(MCFIO%CFIO, trim(MCFIO%VARNAME(L)), &
                                        Gptr2Out, timeString=DATE,  RC=STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
 
              end if IAMVARROOT
 
@@ -2326,13 +2446,13 @@ MCFIO%JM = JMO
                    Gptr2Out => Gptr3Out(:,:,1)
                    call MPI_Recv(Gptr2Out, size(Gptr2Out), MPI_REAL, mCFIO%Krank(nn), &
                                  trans_tag,  mCFIO%comm, MPI_STATUS_IGNORE,   STATUS)
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
 
                    call StrToInt(date,nymd,nhms)
                    call ESMF_CFIOVarWrite(MCFIO%CFIO, trim(MCFIO%VARNAME(L)), &
                                           Gptr3Out, kbeg=K, kount=1,          &
                                           timeString=DATE,           RC=STATUS)
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
 
                 end if IAMLEVROOT
              end do LEVELSW
@@ -2358,9 +2478,9 @@ MCFIO%JM = JMO
 
              if( MyGlobal ) then
                 call MPI_Wait(MCFIO%reqs(nn)%s_rqst, MPI_STATUS_IGNORE, STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 deallocate( MCFIO%reqs(nn)%Trans_Array, stat=STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 nullify( MCFIO%reqs(nn)%Trans_Array )
              endif
 
@@ -2372,9 +2492,9 @@ MCFIO%JM = JMO
 
              if( MyGlobal ) then
                 call MPI_Wait(MCFIO%reqs(nn)%s_rqst, MPI_STATUS_IGNORE, STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 deallocate( MCFIO%reqs(nn)%Trans_Array, stat=STATUS)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 nullify( MCFIO%reqs(nn)%Trans_Array )
              endif
 
@@ -2391,12 +2511,12 @@ MCFIO%JM = JMO
 
        if (any(mCFIO%myPE==mCFIO%Krank)) then
           deallocate(Gptr3Out, stat=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
 
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_CFIOWriteBundleWrite
 
@@ -2458,14 +2578,13 @@ MCFIO%JM = JMO
 
 !EOP
 
-    character(len=*), parameter:: Iam="MAPL_CFIOWriteBundle"
     integer                    :: status
     logical                    :: isCreated
 
     _UNUSED_DUMMY(VERBOSE)
 
-    ASSERT_(present(CLOCK))
-    ASSERT_(present(BUNDLE))
+    _ASSERT(present(CLOCK), 'CLOCK argument must be present')
+    _ASSERT(present(BUNDLE), 'BUNDLE argument must be present')
 
 ! for backward compatibility
 !---------------------------
@@ -2477,7 +2596,7 @@ MCFIO%JM = JMO
 ! DSK fName is set in History during runtime, but the G5 tutorial does not, so we must set it here
     if (IACHAR(MCFIO%fName(1:1)) == 0) then
        call MAPL_CFIOSet( MCFIO, fName=MCFIO%Name, RC=status )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     endif
 
     if (present(created)) then
@@ -2487,19 +2606,19 @@ MCFIO%JM = JMO
     end if
     if (.not.isCreated) then
        call MAPL_CFIOCreateWrite    ( MCFIO,         RC=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
     call MAPL_CFIOWriteBundlePost( MCFIO,         RC=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call MAPL_CFIOWriteBundleWait( MCFIO, CLOCK,  RC=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call MAPL_CFIOWriteBundleWrite( MCFIO, CLOCK, RC=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIOWriteBundle
 
 
@@ -2570,9 +2689,9 @@ MCFIO%JM = JMO
 
 !!ALT    if(present(STATE)) then
        tBUNDLE = ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMFL_BundleAddState ( tBUNDLE, STATE, rc=STATUS, VALIDATE=.true. )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 !!ALT    else
 !!ALT       tBUNDLE = MCFIO%BUNDLE
 !!ALT    end if
@@ -2582,17 +2701,17 @@ MCFIO%JM = JMO
 
     call MAPL_CFIOWriteBundle ( MCFIO, CLOCK=CLOCK, BUNDLE=tBUNDLE, &
                                 VERBOSE=VERBOSE, NBITS=NBITS, RC=STATUS   )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 !!ALT    if(present(STATE)) then
        call ESMF_FieldBundleDestroy ( tBUNDLE, rc=STATUS )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 !!ALT    endif
 
 !   All done
 !   --------
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
  end subroutine MAPL_CFIOWriteState
 
@@ -2757,7 +2876,7 @@ MCFIO%JM = JMO
     integer                 :: gridRank
     integer                 :: comm
     logical                 :: found
-    character(len=ESMF_MAXSTR) :: gridnamef, gridname
+    character(len=ESMF_MAXSTR) :: gridname
     logical :: RegridCnv
     logical :: Voting_, ldoFrac
     logical :: runParallel
@@ -2842,29 +2961,29 @@ MCFIO%JM = JMO
 ! Transform ESMF time to string for use in CFIO
 !----------------------------------------------
     call ESMF_TimeGet(TIME, timeString=DATE, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call strToInt(DATE, nymd, nhms)
     call ESMF_CFIOstrTemplate ( filename, filetmpl, 'GRADS', &
                                 xid=EXPID, nymd=nymd, nhms=nhms, stat=status )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     !call WRITE_PARALLEL("CFIO: Reading " // trim(filename))
     if (mapl_am_i_root()) write(*,*)"CFIO: Reading ",trim(filename)," at ",nymd," ",nhms
 
-   
-    cfioIsCreated = .false.
+  
+    cfioIsCreated = .false. 
     if (present(collection_id)) then
        collection => collections%at(collection_id)
        cfio => collection%find(filename) 
     else
        allocate(CFIO)
        cfio=ESMF_CFIOCreate(RC=status)
-       VERIFY_(status)
+       _VERIFY(status)
        cfioIsCreated = .true.
        call ESMF_CFIOSet(CFIO, fName=trim(fileName), RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_CFIOFileOpen  (CFIO, FMODE=1, cyclic=TIME_IS_CYCLIC_, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
        
     
@@ -2872,43 +2991,43 @@ MCFIO%JM = JMO
 ! Get info from the bundle
 !-------------------------
     call ESMF_VMGetCurrent(VM, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_FieldBundleGet     (Bundle, FieldCount=NUMVARS, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     IamRoot = MAPL_AM_I_ROOT(VM)
     call ESMF_VMGet(VM, mpiCommunicator=comm, localPet=myPET, PETcount=nPet, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     amOnFirstNode = MAPL_ShmemAmOnFirstNode(comm=comm, RC=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     CoresPerNode = MAPL_CoresPerNodeGet(comm,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     ! Get lat/lons of input bundle
     ! ----------------------------
     call ESMF_FieldBundleGet     (Bundle,   Grid=ESMFGRID, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call GridGetLatLons_ ( ESMFGRID, LONSbundle, LATSbundle, rc=status )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 ! Get info from the CFIO object
 !------------------------------
     call ESMF_CFIOGet       (CFIO,     grid=CFIOGRID,                     RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_CFIOGridGet   (CFIOGRID, IM=IM, JM=JM, KM=LM,               RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if(selectedLevels) then
        LM_FILE = LM
        LM = size(ONLY_LEVS)
-       ASSERT_(LM <= LM_FILE)
+       _ASSERT(LM <= LM_FILE, 'LM > LM_FILE')
     end if
 
     call ESMF_CFIOGridGet    (CFIOGRID, LON=LONSFILE, LAT=LATSFILE, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     deallocate(CFIOGRID)
 
     call ESMF_CFIOGet (CFIO,varObjs=VARS, nVars=nVars, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 
 ! If the bundle is empty, read entire varlist from file
@@ -2918,13 +3037,13 @@ MCFIO%JM = JMO
 
        call MAPL_GridGet(ESMFGRID, globalCellCountPerDim=COUNTS, &
             localCellCountPerDim=DIMS, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_GridGet(ESMFGRID, name=gridname, rc=rc)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        ! Assert compatibility of file and bundle
        !----------------------------------------
-       ASSERT_( LM==0 .or. counts(3) == 0 .or. LM==counts(3) .or. LM==(counts(3)+1) )
+       _ASSERT( LM==0 .or. counts(3) == 0 .or. LM==counts(3) .or. LM==(counts(3)+1), 'file and bundle are incompatible')
 
        ! Get lat/lons of input bundle
        ! ----------------------------
@@ -2936,7 +3055,7 @@ MCFIO%JM = JMO
 
           call ESMF_CFIOVarInfoGet(VARS(L),vname=CFIOVARNAME, vtitle=LONG_NAME, vunits=UNITS, twoDimVar=twoD, &
                & grid=varsGrid, RC=STATUS)   
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           if ( present(ONLY_VARS) ) then
                if ( index(','//trim(ONLY_VARS)  //',', &
@@ -2949,13 +3068,13 @@ MCFIO%JM = JMO
           BundleVarName = CFIOVARNAME
           if(twoD) then
             allocate(PTR2(1-HW:DIMS(1)+HW,1-HW:DIMS(2)+HW),stat=STATUS)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             PTR2  = 0.0
 
             call ESMF_GridGet(ESMFGRID, dimCount=gridRank, rc=status)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             allocate(gridToFieldMap(gridRank), stat=status)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             if(gridRank == 2) then
                gridToFieldMap(1) = 1
                gridToFieldMap(2) = 2
@@ -2964,7 +3083,7 @@ MCFIO%JM = JMO
                gridToFieldMap(2) = 2
                gridToFieldMap(3) = 0
             else
-               RETURN_(ESMF_FAILURE)
+               _RETURN(ESMF_FAILURE)
             end if
 
             FIELD = ESMF_FieldCreate(grid=ESMFGRID, &
@@ -2975,31 +3094,31 @@ MCFIO%JM = JMO
                             totalUWidth=haloWidth(1:2),     &
                             rc = status)
 
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
 
             deallocate(gridToFieldMap)
 
 !ALT: for now we add only HorzOnly (no tiles)
             call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzOnly, RC=STATUS)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
                                         VALUE=MAPL_VLocationNone, RC=STATUS)
-            VERIFY_(STATUS) 
+            _VERIFY(STATUS) 
 
           else
             ! 3-d case
              call ESMF_CFIOGridGet (varsGrid, lev=levsfile, rc=status)
-             VERIFY_(STATUS) 
+             _VERIFY(STATUS) 
              if (levsfile(1) > levsfile(lm)) kreverse = .true.
 
              if (selectedLevels) then
                 if (.not. allocated(levidx)) then
                    allocate(levidx(LM), stat=status)
-                   VERIFY_(STATUS) 
+                   _VERIFY(STATUS) 
                    ! build level index
                    DO K = 1, LM
                       found = .false.
@@ -3010,7 +3129,7 @@ MCFIO%JM = JMO
                             exit
                          end if
                       END DO
-                      ASSERT_(found)
+                      _ASSERT(found, 'search failed')
                    END DO
 
                 end if
@@ -3020,10 +3139,10 @@ MCFIO%JM = JMO
 
             if (lm == counts(3)) then 
                allocate(PTR3(1-HW:DIMS(1)+HW,1-HW:DIMS(2)+HW,LM),stat=STATUS)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
             else if (lm == (counts(3)+1)) then
                allocate(PTR3(1-HW:DIMS(1)+HW,1-HW:DIMS(2)+HW,0:LM-1),stat=STATUS)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
             endif
             PTR3  = 0.0
             FIELD = ESMF_FieldCreate(grid=ESMFGRID, &
@@ -3032,14 +3151,14 @@ MCFIO%JM = JMO
                             totalLWidth=haloWidth(1:2),     &
                             totalUWidth=haloWidth(1:2),     &
                             rc = status)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
 !ALT: for now we add only HorzVert (no tiles)
             call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzVert, RC=STATUS)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             if (lm == counts(3)) then
                call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
                                            VALUE=MAPL_VLocationCenter, RC=STATUS)
@@ -3048,10 +3167,10 @@ MCFIO%JM = JMO
                                            VALUE=MAPL_VLocationEdge, RC=STATUS)
             end if
 
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
           end if
           call MAPL_FieldBundleAdd(BUNDLE, FIELD, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
        end do
        NUMVARS = L1  ! could be less than on file if user chooses to
@@ -3060,38 +3179,38 @@ MCFIO%JM = JMO
        
        do L=1,NumVars
           call ESMF_FieldBundleGet (BUNDLE, L, FIELD,                     RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_FieldGet(FIELD,NAME=BundleVarName, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MAPL_GridGet(ESMFGRID, globalCellCountPerDim=COUNTS, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_GridGet(ESMFGRID, name=gridname, rc=rc)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           ! Assert compatibility of file and bundle
           !----------------------------------------
-          ASSERT_( LM==0 .or. counts(3) == 0 .or. LM==counts(3) .or. lm == (counts(3)+1) )
+          _ASSERT( LM==0 .or. counts(3) == 0 .or. LM==counts(3) .or. lm == (counts(3)+1), 'incompatible file and bundle')
 
           found = .false.
           do K=1,size(VARS)
              call ESMF_CFIOVarInfoGet(VARS(K),vname=CFIOVARNAME,          RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              if (ignoreCase_) then
                 BUNDLEVARNAME = ESMF_UtilStringUpperCase(BUNDLEVARNAME,RC=status)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 CFIOVARNAME   = ESMF_UtilStringUpperCase(CFIOVARNAME,RC=status)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              end if
              if(trim(BUNDLEVARNAME)==trim(CFIOVARNAME)) then
                found = .true.
                exit
              end if
           end do
-          ASSERT_(found)
+          _ASSERT(found, 'search failed')
           call ESMF_CFIOVarInfoGet(VARS(K), twoDimVar=twoD, grid=varsGrid, RC=STATUS)   
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (.not. twoD) then
              call ESMF_CFIOGridGet (varsGrid, lev=levsfile, rc=status)
-             VERIFY_(STATUS) 
+             _VERIFY(STATUS) 
              if (levsfile(1) > levsfile(lm)) kreverse = .true.
           end if
           if (selectedLevels) then
@@ -3099,7 +3218,7 @@ MCFIO%JM = JMO
                 ! 3-d case
                 if (.not. allocated(levidx)) then
                    allocate(levidx(LM), stat=status)
-                   VERIFY_(STATUS) 
+                   _VERIFY(STATUS) 
                    ! build level index
                    DO K = 1, LM
                       found = .false.
@@ -3110,7 +3229,7 @@ MCFIO%JM = JMO
                             exit
                          end if
                       END DO
-                      ASSERT_(found)
+                      _ASSERT(found, 'search failed')
                    END DO
 
                 end if
@@ -3183,16 +3302,16 @@ MCFIO%JM = JMO
          method = REGRID_METHOD_CONSERVE
        end if
        regridder => make_regridder(ESMFGRID, method, LONSfile, LATSfile, IM, JM, counts(3), runparallel, localTiles=.true., rc=status)
-       VERIFY_(status)
+       _VERIFY(status)
 
 
     else if ( change_resolution .and. (.not.RegridCnv)) then
        method = REGRID_METHOD_BILINEAR
        regridder => make_regridder(ESMFGRID, method, LONSfile, LATSfile, IM, JM, counts(3), runparallel, rc=status)
-       VERIFY_(status)
+       _VERIFY(status)
     end if
     call MAPL_SyncSharedMemory(rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! Allocate space for global arrays. If non-conservative perform
 ! parallel transform distributed across levels
@@ -3203,16 +3322,21 @@ MCFIO%JM = JMO
     if (RegridCnv .and. change_resolution) then
 
        call MAPL_GRID_INTERIOR(ESMFGRID,I1w,INw,J1w,JNw)
-       call MAPL_AllocNodeArray(Gptr2file,(/im,jm/),rc=STATUS)
-       if(STATUS==MAPL_NoShm) allocate(Gptr2file(im,jm),stat=status)
-       VERIFY_(STATUS)
-       call MAPL_AllocNodeArray(Gptr3file,(/im,jm,1/),rc=STATUS)
-       if(STATUS==MAPL_NoShm) allocate(Gptr3file(im,jm,1),stat=status)
-       VERIFY_(STATUS)
+       if(MAPL_ShmInitialized) then
+          call MAPL_AllocNodeArray(Gptr2file,(/im,jm/),rc=STATUS)
+          _VERIFY(STATUS)
+          call MAPL_AllocNodeArray(Gptr3file,(/im,jm,1/),rc=STATUS)
+          _VERIFY(STATUS)
+       else
+          allocate(Gptr2file(im,jm),stat=status)
+          _VERIFY(STATUS)
+          allocate(Gptr3file(im,jm,1),stat=status)
+          _VERIFY(STATUS)
+       endif
        Allocate(Gptr2bundle(inw-i1w+1,jnw-j1w+1),stat=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        allocate(Gptr3bundle(0,0,0), stat=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if (LM > 0) then
           allocate(krank(LM),stat=status)
        else
@@ -3226,18 +3350,18 @@ MCFIO%JM = JMO
        JM0 = counts(2)
 
        CoresPerNode = MAPL_CoresPerNodeGet(comm,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if (LM > 0) then
           allocate(krank(LM),stat=status)
        else
           allocate(krank(1) ,stat=status)
        end if
 
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if (runParallel .and. (LM > 0) ) then
           numNodes = size(MAPL_NodeRankList)
           call MAPL_RoundRobinPEList(krank,numNodes,rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
           krank = 0
        end if
@@ -3246,24 +3370,24 @@ MCFIO%JM = JMO
        if (nn > 0) then
 
           allocate(Gptr2bundle(IM0,JM0   ), stat=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(Gptr3bundle(IM0,JM0,nn), stat=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(Gptr2file  (IM ,JM    ), stat=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(Gptr3file  (IM ,JM , 1), stat=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
        else
 
           allocate(Gptr2bundle(0,0   ), stat=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(Gptr3bundle(0,0,0), stat=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(Gptr2file  (0,0    ), stat=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(Gptr3file  (0,0,0), stat=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
        end if
 
@@ -3291,17 +3415,17 @@ MCFIO%JM = JMO
     do L=1,NumVars
 
        call ESMF_FieldBundleGet (BUNDLE, L, FIELD,                       RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_FieldGet       (FIELD, NAME=BundleVarName, array=ARRAY, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        
        if (ignoreCase_) call getVarNameIgnoreCase(BundleVarName,vars,RC=status)
 
        call ESMF_FieldGet(FIELD,   Grid=ESMFGRID, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_ArrayGet       (array, rank=arrayRank,                  RC=STATUS)
  
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if ( VERB .and. IamRoot ) &
             print *, Iam // ': Reading '//trim(BundleVARNAME)// &
@@ -3311,7 +3435,7 @@ MCFIO%JM = JMO
        case (2)
 
           call ESMF_ArrayGet(Array, localDE=0, farrayPtr=PTR2, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           
           ! read the data on root
           if (IamRoot) then
@@ -3324,7 +3448,7 @@ MCFIO%JM = JMO
                                        timeString=DATE, RC=STATUS)
                 if (ldofrac) GPTR2file=GPTR2file-getfrac
              endif
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              if ( do_xshift ) then
                  if ( VERB ) print *, Iam // &
                       ': shifting input longitudes by 180 degrees'
@@ -3336,28 +3460,28 @@ MCFIO%JM = JMO
           if (change_resolution) then  
               if (RegridCnv) then 
                  call MAPL_SyncSharedMemory(rc=status)
-                 VERIFY_(STATUS)
+                 _VERIFY(STATUS)
                  call MAPL_BcastShared(VM, Data=Gptr2file, N=im*jm, Root=0, RootOnly=.false., rc=status)
-                 VERIFY_(STATUS)
+                 _VERIFY(STATUS)
                  call MAPL_SyncSharedMemory(rc=STATUS)
-                 VERIFY_(STATUS)
+                 _VERIFY(STATUS)
                  call regridder%regrid(Gptr2file, Gptr2bundle, rc=status)
-                 VERIFY_(status)
+                 _VERIFY(status)
                  call MAPL_SyncSharedMemory(rc=status)
-                 VERIFY_(STATUS)
+                 _VERIFY(STATUS)
                  ptr2 = Gptr2bundle
                  call MAPL_SyncSharedMemory(rc=STATUS)
-                 VERIFY_(STATUS)
+                 _VERIFY(STATUS)
               else
 
                  if (IamRoot) then
                     call regridder%set_undef_value(MAPL_undef)
                     call regridder%regrid(Gptr2file, Gptr2bundle, rc=status)
-                    VERIFY_(status)
+                    _VERIFY(status)
                     if (GSImode_) call shift180Lon2D_ ( Gptr2bundle, im0, jm0 )
                  end if
                  call ArrayScatter(PTR2, GPTR2bundle, ESMFGRID, hw=hw, RC=STATUS)
-                 VERIFY_(STATUS)
+                 _VERIFY(STATUS)
               end if
           else if ( single_point ) then
              Gptr2bundle(1,1) = Gptr2file(ISTAR,JSTAR)
@@ -3365,7 +3489,7 @@ MCFIO%JM = JMO
           else
              if (IamRoot) Gptr2bundle = Gptr2file
              call ArrayScatter(PTR2, GPTR2bundle, ESMFGRID, hw=hw, RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
           end if ! change resolution
 
        case(3)
@@ -3374,7 +3498,7 @@ MCFIO%JM = JMO
 
 
           call ESMF_FieldGet(Field, localDE=0, farrayPtr=PTR3, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           nn=0
 
@@ -3383,11 +3507,11 @@ MCFIO%JM = JMO
              MyGlobal = Krank(k) == myPet
 
              call MAPL_SyncSharedMemory(rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              if (MyGlobal) then
                 nn=nn+1
                 if (selectedLevels) then
-                   ASSERT_(allocated(levidx))
+                   _ASSERT(allocated(levidx), 'levidx not allocated')
                    klev = levidx(k)
                 else
                    klev = k
@@ -3402,7 +3526,7 @@ MCFIO%JM = JMO
                         kbeg=klev, kount=1, timeString=DATE, RC=STATUS)
                         if (ldofrac) GPTR3file=GPTR3file-getfrac
                 end if
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 GPTR2file = GPTR3file(:,:,1)
                 if ( do_xshift ) then
                    call shift180Lon2D_ ( Gptr2file, im, jm )
@@ -3412,27 +3536,27 @@ MCFIO%JM = JMO
              if (change_resolution) then 
                 if (RegridCnv) then
                    call MAPL_SyncSharedMemory(rc=status)
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
                    call MAPL_BcastShared(VM, Data=Gptr2file, N=im*jm, Root=0, RootOnly=.false., rc=status)
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
                    call MAPL_SyncSharedMemory(rc=STATUS)
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
 
                    call regridder%regrid(Gptr2file, Gptr2bundle, rc=status)
-                   VERIFY_(status)
+                   _VERIFY(status)
 
                    call MAPL_SyncSharedMemory(rc=status)
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
                    L1 = LBOUND(PTR3,3)-1
                    ptr3(:,:,K+L1) = Gptr2bundle
                    call MAPL_SyncSharedMemory(rc=STATUS)
-                   VERIFY_(STATUS) 
+                   _VERIFY(STATUS) 
 
                  else
                     if (MyGlobal) then
                        call regridder%set_undef_value(MAPL_undef)
                        call regridder%regrid(Gptr2file, Gptr2bundle, rc=status)
-                       VERIFY_(status)
+                       _VERIFY(status)
                        if (GSImode_) call shift180Lon2D_ ( Gptr2bundle, im0, jm0 )
                        Gptr3bundle(:,:,nn)=Gptr2bundle
                     end if
@@ -3450,12 +3574,12 @@ MCFIO%JM = JMO
           else
              if ( (.not.RegridCnv) .and. runParallel) then
                 call MAPL_CollectiveScatter3D(esmfgrid,Gptr3bundle(:,:,:nn),ptr3,hw=hw,rc=status)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
              else if ( (.not.RegridCnv) .and. (.not.RunParallel) ) then
                 do K=1,LM
                    L1 = LBOUND(PTR3,3)-1
                    call ArrayScatter(PTR3(:,:,K+L1), Gptr3bundle(:,:,K), ESMFGRID, hw=hw, RC=STATUS)
-                   VERIFY_(STATUS)
+                   _VERIFY(STATUS)
                 end do
              end if
              if (GSImode_) call SwapV_(PTR3)
@@ -3472,7 +3596,7 @@ MCFIO%JM = JMO
     if (RegridCnv .and. change_resolution) then
        ! make sure everyone is done before potentially releasing shared memory
        call MAPL_SyncSharedMemory(rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        DEALOC_(GPtr2file  )
        DEALOC_(GPtr3file  )
     else
@@ -3496,10 +3620,10 @@ MCFIO%JM = JMO
 
     if (cfioIsCreated) then
        call ESMF_CFIODestroy(CFIO, rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
-    
-    RETURN_(ESMF_SUCCESS)
+
+    _RETURN(ESMF_SUCCESS)
 
 CONTAINS
 
@@ -3539,26 +3663,24 @@ CONTAINS
     integer, optional, intent(out)  :: rc
 
     integer :: status
-    character(len=ESMF_MAXSTR) :: Iam
     integer j
     character(len=ESMF_MAXSTR) :: cfiovarname,tname,tcfioname
-    Iam = "getVarNameIgnoreCase"
 
     tname = vname
     tname = ESMF_UtilStringUpperCase(tname,rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     do j=1,size(vars)
         call ESMF_CFIOVarInfoGet(vars(j),vname=cfiovarname,RC=STATUS)
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
         tcfioname = cfiovarname
         tcfioname = ESMF_UtilStringUpperCase(tcfioname,rc=STATUS)
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
         if (trim(tname) == trim(tcfioname)) then
            vname = cfiovarname
            exit
         end if
     enddo
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
     end subroutine getVarNameIgnoreCase
 
   end subroutine MAPL_CFIOReadBundle
@@ -3676,12 +3798,12 @@ CONTAINS
 !   Create an empty bundle
 !   ----------------------
     tBUNDLE = ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     
 !   Serialize the state
 !   -------------------
     call ESMFL_BundleAddState ( tBUNDLE, STATE, rc=STATUS, VALIDATE=.true. )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 !   Read the Bundle
 !   ---------------
@@ -3699,14 +3821,14 @@ CONTAINS
                               getFrac = getFrac,               &
                               RC = STATUS )
 
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 !   All done
 !   --------
     call ESMF_FieldBundleDestroy ( tBUNDLE, rc=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
  end subroutine MAPL_CFIOReadState
 
@@ -3816,16 +3938,16 @@ CONTAINS
 !   Create a temporary empty bundle
 !   -------------------------------
     call ESMF_FieldGet(Field, grid=Grid, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_FieldBundleSet ( bundle, grid=GRID, rc=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 !   Add the input field to the bundle
 !   ---------------------------------
     call MAPL_FieldBundleAdd ( BUNDLE, FIELD, rc=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 !   Now, we read the variable into the bundle, which in turn will put
 !    the data inside the input array
@@ -3840,15 +3962,15 @@ CONTAINS
                               voting = voting, ignoreCase = ignoreCase,  &
                               doParallel = doParallel, getFrac=getFrac,  &
                               RC=STATUS)
-    VERIFY_(STATUS)    
+    _VERIFY(STATUS)    
 
 
 !   Destroy temporary bundle; field data will be preserved
 !   ------------------------------------------------------
     call ESMF_FieldBundleDestroy ( BUNDLE, rc=STATUS )
-    VERIFY_(STATUS)    
+    _VERIFY(STATUS)    
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_CFIOReadField
 
@@ -3970,7 +4092,7 @@ CONTAINS
          if ( MAPL_am_I_root() ) &
             print *, Iam // ': setting variable ' // trim(varn) // &
                             ' to constant = ', const
-         RETURN_(ESMF_SUCCESS)
+         _RETURN(ESMF_SUCCESS)
     end if
 
 !   Create Field with input array
@@ -3978,7 +4100,7 @@ CONTAINS
     FIELD = ESMF_FieldCreate(grid=GRID,   &
             datacopyFlag = ESMF_DATACOPY_REFERENCE,   &
             farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
    
 !   Read array data from file
@@ -3991,14 +4113,14 @@ CONTAINS
                               voting=voting, ignoreCase = ignoreCase,     &
                               doParallel = doParallel, getFrac=getFrac,   &
                               RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 !   Destroy the ESMF array (data will be preserved since we own it)
 !   --------------------------------------------------------------
     call ESMF_FieldDestroy ( FIELD, RC=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_CFIOReadArray3D
 
@@ -4122,16 +4244,16 @@ CONTAINS
          if ( MAPL_am_I_root() ) &
             print *, Iam // ': setting variable ' // trim(varn) // &
                             ' to constant = ', const
-         RETURN_(ESMF_SUCCESS)
+         _RETURN(ESMF_SUCCESS)
     end if
 
 !   Create Field with input array
 !   -----------------------------
 
     call ESMF_GridGet(GRID, dimCount=gridRank, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(gridToFieldMap(gridRank), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if(gridRank == 2) then
        gridToFieldMap(1) = 1
        gridToFieldMap(2) = 2
@@ -4140,13 +4262,13 @@ CONTAINS
        gridToFieldMap(2) = 2
        gridToFieldMap(3) = 0
     else
-       RETURN_(ESMF_FAILURE)
+       _RETURN(ESMF_FAILURE)
     end if
 
     FIELD = ESMF_FieldCreate(grid=GRID, &
             datacopyFlag = ESMF_DATACOPY_REFERENCE,   &
             farrayPtr=farrayPtr, name=trim(varn), gridToFieldMap=gridToFieldMap, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
    
     deallocate(gridToFieldMap)
 
@@ -4160,14 +4282,14 @@ CONTAINS
                               voting = voting, ignoreCase = ignoreCase,   &
                               doParallel = doParallel, getFrac=getFrac,   &
                               RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 !   Destroy the ESMF array (data will be preserved since we own it)
 !   --------------------------------------------------------------
     call ESMF_FieldDestroy ( FIELD, RC=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_CFIOReadArray2D
 
@@ -4193,7 +4315,6 @@ CONTAINS
 !EOP
 
   integer :: status
-  character(len=*), parameter  :: Iam="MAPL_CFIODestroy"
 
   if(associated(MCFIO%Krank     )) deallocate(MCFIO%Krank     )   
   if(associated(MCFIO%reqs      )) deallocate(MCFIO%reqs      )
@@ -4217,16 +4338,16 @@ CONTAINS
   if (MCFIO%Root > 0) then
      if (MCFIO%myPE == mCFIO%RootRank) then
         call ESMF_CFIOFileClose(MCFIO%CFIO,rc=status)
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
      end if
   end if
 
   call ESMF_CFIODestroy(MCFIO%CFIO,rc=status)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 
   MCFIO%created = .false.
 
-  RETURN_(ESMF_SUCCESS)
+  _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIODestroy
 
 
@@ -4250,11 +4371,10 @@ CONTAINS
 !EOP
 
   integer :: status
-  character(len=*), parameter  :: Iam="MAPL_CFIOClose"
 
   if (MCFIO%myPE == mCFIO%RootRank) then
      call ESMF_CFIOFileClose(MCFIO%CFIO,rc=status)
-     VERIFY_(STATUS)
+     _VERIFY(STATUS)
      if (present(filename)) then
         close(99)
         open (99,file=trim(filename)//".done",form='formatted')
@@ -4262,7 +4382,7 @@ CONTAINS
      end if
   end if
 
-  RETURN_(ESMF_SUCCESS)
+  _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIOClose
 
 
@@ -4288,7 +4408,6 @@ CONTAINS
 
 !EOP
 
-  character(len=*), parameter  :: Iam="MAPL_CFIOSet"
 
   if(present(Root)) then
      mCFIO%Root = Root
@@ -4326,20 +4445,19 @@ CONTAINS
      mCFIO%fraction = fraction
   end if
 
-  RETURN_(ESMF_SUCCESS)
+  _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIOSet
 
   subroutine MAPL_CFIOSetKrank( MCFIO, RC )
   type(MAPL_CFIO),             intent(INOUT) :: MCFIO
   integer, optional,           intent(  OUT) :: RC
 
-  character(len=*), parameter  :: Iam="MAPL_CFIOSetKrank"
   integer :: status
 
   call MAPL_RoundRobinPEList(MCFIO%Krank,MCFIO%PartSize,root=MCFIO%ROOT,firstRank=MCFIO%RootRank,rc=status)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 
-  RETURN_(ESMF_SUCCESS)
+  _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIOSetKrank
 
   subroutine MAPL_CFIOGet(mcfio,RootRank,krank,collection_id,rc)
@@ -4349,8 +4467,6 @@ CONTAINS
   integer, optional,           intent(  OUT) :: collection_id
   integer, optional,           intent(  OUT) :: RC
 
-  character(len=*), parameter  :: Iam="MAPL_CFIOSetKrank"
-  integer :: status
 
   if (present(RootRank)) RootRank = MCFIO%RootRank
 
@@ -4358,7 +4474,7 @@ CONTAINS
 
   if (present(collection_id)) collection_id=MCFIO%collection_id
 
-  RETURN_(ESMF_SUCCESS)
+  _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CFIOGet
 
 
@@ -4377,7 +4493,6 @@ CONTAINS
 
 !                     ---
 
-    character(len=*), parameter :: Iam = 'GridGetLatLons'
 
     integer                :: IM_WORLD, JM_WORLD, dims(3), STATUS
 
@@ -4386,7 +4501,7 @@ CONTAINS
 !      Get world dimensions
 !      --------------------
        call MAPL_GridGet ( grid, globalCellCountPerDim=DIMS, RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        IM_WORLD = dims(1)
        JM_WORLD = dims(2)
@@ -4398,22 +4513,22 @@ CONTAINS
        else
             if(size(LONS,1) /= IM_WORLD) STATUS = 1
        end if
-       VERIFY_(status)
+       _VERIFY(status)
        if ( .not. associated(lats) ) then
             allocate(lats(JM_WORLD), stat=STATUS)
        else
             if(size(LATS,1) /= JM_WORLD) STATUS = 1
        end if
-       VERIFY_(status)
+       _VERIFY(status)
 
        call MAPL_GetLatLonCoord(grid,1,lons,rc=status)
-       VERIFY_(status)
+       _VERIFY(status)
        call MAPL_GetLatLonCoord(grid,2,lats,rc=status)
-       VERIFY_(status)
+       _VERIFY(status)
        lons = lons*(180._REAL64/MAPL_PI_R8)
        lats = lats*(180._REAL64/MAPL_PI_R8)
        
-       RETURN_(ESMF_SUCCESS)
+       _RETURN(ESMF_SUCCESS)
      end subroutine GridGetLatLons_
 
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -4435,7 +4550,6 @@ CONTAINS
     real, pointer   :: plx(:,:,:),pl(:,:,:),ps(:,:)
 
     integer        :: status
-    character*(10) :: Iam='VertInterp'
 
     if(size(v3,3)==size(ple_,3)) then
        pl => ple_
@@ -4451,7 +4565,7 @@ CONTAINS
 
     if(flip) then
        allocate(plx(size(pl,1),size(pl,2),size(pl,3)),stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        plx = -pl
        ppx = -pp
        msn = -1
@@ -4488,10 +4602,10 @@ CONTAINS
 
     if(flip) then
        deallocate(plx,stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine VertInterp
 
   subroutine MAPL_GetCurrentFile(FileTmpl, Time, Filename, RC, EXPID)
@@ -4502,20 +4616,19 @@ CONTAINS
     character(len=*), optional, intent(  in) :: EXPID
 
     integer :: status
-    character(len=ESMF_MAXSTR), parameter:: IAm='MAPL_GetCurrentFile'
 
     character(len=ESMF_MAXSTR)          :: DATE
     integer                             :: nymd
     integer                             :: nhms
 
     call ESMF_TimeGet(Time, timeString=DATE, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     
     call strToInt(DATE, nymd, nhms)
     call ESMF_CFIOstrTemplate ( Filename, FileTmpl, 'GRADS', &
                                 xid=EXPID, nymd=nymd, nhms=nhms, stat=status )
-    VERIFY_(STATUS)
-    RETURN_(ESMF_SUCCESS)
+    _VERIFY(STATUS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GetCurrentFile
 
   logical function MAPL_CFIOIsCreated(MCFIO)
@@ -4536,7 +4649,6 @@ CONTAINS
     integer, optional,          intent(out  ) :: rc
 
     integer :: status
-    character(len=ESMF_MAXSTR) :: Iam
 
     type(ESMF_Time) :: time
     integer :: YY,MM,DD,H,M,S
@@ -4545,18 +4657,17 @@ CONTAINS
     type(ESMF_Alarm)           :: PERPETUAL
     character(len=ESMF_MAXSTR) :: ClockName
 
-    Iam = "MAPL_CFIOGetTimeString"
 
     call ESMF_ClockGet       (CLOCK, name=ClockName, CurrTime =TIME, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
      call ESMF_TimeIntervalGet( MCFIO%OFFSET, S=noffset, rc=status )
-     VERIFY_(STATUS)
+     _VERIFY(STATUS)
      if( noffset /= 0 ) then
          LPERP = ( index( trim(clockname),'_PERPETUAL' ).ne.0 )
         if( LPERP ) then
             call ESMF_ClockGetAlarm ( clock, alarmName='PERPETUAL', alarm=PERPETUAL, rc=status )
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             if( ESMF_AlarmIsRinging(PERPETUAL) ) then
                 call ESMF_TimeGet ( Time, YY = YY, &
                                           MM = MM, &
@@ -4578,9 +4689,9 @@ CONTAINS
     TIME = TIME - MCFIO%OFFSET
 
     call ESMF_TimeGet        (TIME,     timeString=DATE,     RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
     end subroutine MAPL_CFIOGetTimeString
     
@@ -4593,7 +4704,6 @@ CONTAINS
     integer, optional       ,   intent(out  ) :: rc
 
     integer :: status
-    character(len=ESMF_MAXSTR) :: Iam
 
     integer :: slices
     character(len=ESMF_MAXSTR) :: TimeString,filename
@@ -4602,7 +4712,6 @@ CONTAINS
     character(len=esmf_maxstr), allocatable ::  levname(:)
     logical :: useFaceDim
 
-    Iam = "MAPL_CFIOstartAsyncColl"
     im = mcfio%im
     jm = mcfio%jm
     useFaceDim = mcfio%useFaceDim
@@ -4620,20 +4729,20 @@ CONTAINS
     enddo
  
     call MAPL_CFIOServerGetFreeNode(mapl_comm,IOnode,im,jm,slices,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call MAPL_CFIOSet(mcfio,IOWorker=IOnode,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call MAPL_CFIOGetTimeString(mcfio,clock,timeString,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     filename = MAPL_CFIOGetFilename(mcfio)
     call MAPL_CFIOAsyncSendCollInfo(filename,IM,JM,timeString,slices &
            ,IOnode,markdone,mapl_comm,useFaceDim,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     allocate(levindex(slices),stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(levname(slices),stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     nn = 0
 
     VARIABLES: do L=1,size(MCFIO%VarDims)
@@ -4658,19 +4767,19 @@ CONTAINS
 
     call MPI_Send(mcfio%krank, slices, MPI_INTEGER, IONODE, MAPL_TAG_SHIPINFO, &
      mapl_comm%mapl%comm,status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call MPI_Send(levindex, slices, MPI_INTEGER , IONODE, MAPL_TAG_SHIPINFO, &
      mapl_comm%mapl%comm,status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     csize=slices*ESMF_MAXSTR
     call MPI_Send(levname,csize,MPI_CHARACTER, IONODE, MAPL_TAG_SHIPINFO, &
      mapl_comm%mapl%comm,status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     deallocate(levindex)
     deallocate(levname)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
     end subroutine
 
@@ -4682,13 +4791,11 @@ CONTAINS
     integer, optional,          intent(out  ) :: rc
 
     integer :: status
-    character(len=ESMF_MAXSTR) :: Iam
-    Iam = "MAPL_CFIOBcastIONode"
 
     call mpi_bcast(mcfio%AsyncWorkRank,1,MPI_INTEGER,root,comm,status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
     end subroutine
 
   subroutine MAPL_CFIOAsyncSendCollInfo(filename,IM,JM,timeString,nlevs,workRank,markdone,mapl_comm,useFaceDim,rc)
@@ -4704,11 +4811,9 @@ CONTAINS
   integer, optional,          intent(out) :: rc
 
   integer :: status
-  character(len=ESMF_MAXSTR) :: Iam
   type(MAPL_CFIOServerIOinfo) :: ServerInfo
   integer :: nymd,nhms
 
-  Iam = "MAPL_CFIOAsyncSendCollInfo"
 
   ServerInfo%filename = filename
   ServerInfo%lons = IM
@@ -4722,13 +4827,14 @@ CONTAINS
 
   call MPI_Send(ServerInfo, 1, mpi_io_server_info_type, workRank, MAPL_TAG_SHIPINFO, &
      mapl_comm%mapl%comm,status)
-  VERIFY_(STATUS)
+  _VERIFY(STATUS)
 
-  RETURN_(ESMF_SUCCESS)
+  _RETURN(ESMF_SUCCESS)
 
   end subroutine
   subroutine MAPL_CFIOPartition(Slices, NumColls, NumNodes, Writing, Psize,Root)
-    integer, intent(IN ) :: Slices(NumColls), NumColls, NumNodes
+    integer, intent(IN ) :: NumColls
+    integer, intent(IN ) :: Slices(NumColls), NumNodes
     logical, intent(IN ) :: Writing(NumColls)
     integer, intent(OUT) :: Psize(NumColls), Root(NumColls)
 
@@ -4841,7 +4947,6 @@ CONTAINS
      integer, optional, intent(out) :: rc
 
 
-     character(len=ESMF_MAXSTR) :: IAM="MAPL_CFIOReadParallel"
      integer                    :: status
 
      type(MAPL_CFIO), pointer :: cfio(:)
@@ -4858,11 +4963,10 @@ CONTAINS
      type(ESMF_CFIO), pointer :: pcfio
      type(CFIOCollection), pointer :: collection => null()
      type(ESMF_VM) :: vm
-     IAM = "MAPL_CFIOReadParallel"
 
 
      allocate(cfio(size(filelist)),stat=status)
-     VERIFY_(status)
+     _VERIFY(status)
 
      do n=1,size(filelist)
         cfio(n)%collection_id = MAPL_CFIOAddCollection(filelist(n))
@@ -4870,7 +4974,7 @@ CONTAINS
         collection => collections%at(cfio(n)%collection_id)
         pcfio => collection%find(cfio(n)%fname)
         call getTIndex(pcfio,time,nn,rc=status)
-        VERIFY_(status)
+        _VERIFY(status)
         call tindex%push_back(nn)
      enddo
 
@@ -4891,15 +4995,16 @@ CONTAINS
            call regridMethod_%set(n,REGRID_METHOD_BILINEAR)
         enddo
      end if
+
      call ESMF_VMGetCurrent(vm,rc=status)
-     VERIFY_(status)
+     _VERIFY(status)
      call ESMF_VMGet(vm,petCount=nPet,rc=status)
-     VERIFY_(status)
+     _VERIFY(status)
 
      nfiles = size(bundlelist)
      blocksize_ = min(nfiles,blocksize_) 
      allocate(slices(blocksize_),psize(blocksize_),root(blocksize_),reading(blocksize_),gslices(nfiles),stat=status)
-     VERIFY_(STATUS)
+     _VERIFY(STATUS)
      reading=.false.
      hw=0
      if (present(gsiMode)) then 
@@ -4917,7 +5022,7 @@ CONTAINS
         myregridmethod = regrid_iter%get()
         collection_id = cfio(n)%collection_id
         call MAPL_CFIOCreateFromFile(cfio(n),bundlelist(n),regridmethod=myRegridMethod,hw=hw,rc=status)
-        VERIFY_(status)
+        _VERIFY(status)
         if (mapl_am_i_root()) write(*,'(A,A)')'Parallel read file: ',trim(fname)
         call regrid_iter%next()
         gslices(n)=size(cfio(n)%krank)
@@ -4950,15 +5055,15 @@ CONTAINS
            nn=nn+1
            tdx = time_iter%get()
            call MAPL_CFIOSet(cfio(n),root=root(nn),psize=psize(nn),rc=status)
-           VERIFY_(status)
+           _VERIFY(status)
            call MAPL_CFIOReadBundleRead(cfio(n),tdx,hw=hw,rc=status)
-           VERIFY_(status)
+           _VERIFY(status)
            call time_iter%next()
         enddo
 
         do n=n1,n2
            call MAPL_CFIOReadBundleWait(cfio(n),rc=status)
-           VERIFY_(status)
+           _VERIFY(status)
         enddo
 
         n1=n2+1
@@ -4967,7 +5072,7 @@ CONTAINS
 
      deallocate(slices,psize,root,reading,gslices)
 
-     RETURN_(ESMF_SUCCESS)
+     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_CFIOReadParallel
 
@@ -4997,31 +5102,31 @@ CONTAINS
     type(ESMF_Field) :: field
     integer          :: status
     logical          :: found
+    logical          :: isPresent
     real, pointer    :: lonsfile(:) => null()
     real, pointer    :: latsfile(:) => null()
     real, pointer    :: levsfile(:) => null()
     type(ESMF_CFIO), pointer :: cfiop
     type(CFIOCollection), pointer :: collection
-    Character(len=ESMF_MAXSTR), parameter :: Iam = "MAPL_CFIOCreateFromFile"
 
     call ESMF_VMGetCurrent(vm,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_VMGet(vm,localPet=mcfio%myPE,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     collection => collections%at(mcfio%collection_ID)
     cfiop => collection%find(mcfio%fname)
 
     call ESMF_CFIOGet       (cfiop,     grid=CFIOGRID,                     RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_CFIOGridGet   (CFIOGRID, IM=IM, JM=JM, KM=LM,               RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_CFIOGridGet    (CFIOGRID, LON=LONSFILE, LAT=LATSFILE, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     deallocate(CFIOGRID)
 
     call ESMF_CFIOGet (cfiop,varObjs=VARS, nVars=fVars, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (present(hw)) then
        hw_=hw
@@ -5036,7 +5141,7 @@ CONTAINS
     end if
 
     call ESMF_FieldbundleGet(bundlein,grid=esmfgrid,rc=status)
-    VERIFY_(status)
+    _VERIFY(status)
     call MAPL_GridGet(esmfgrid, globalCellCountPerDim=COUNTS, &
          localCellCountPerDim=DIMS, RC=STATUS)
     img=counts(1)
@@ -5044,7 +5149,7 @@ CONTAINS
    
     ! Get the number of variables we will be reading
     call ESMF_FieldBundleGet(bundlein,fieldCount=bvars,rc=status)
-    VERIFY_(status)
+    _VERIFY(status)
     if (bvars>0) then
        fillbundle=.false.
        nvars=bvars
@@ -5061,50 +5166,50 @@ CONTAINS
     end if
 
     allocate(MCFIO%VarDims(NVars), stat=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(MCFIO%VarName(NVars), stat=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate(MCFIO%VarID(NVars), stat=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if (.not.fillbundle) then
        do i=1,nvars
           call ESMF_FieldBundleGet(bundlein,i,field,rc=status)
-          VERIFY_(status)
+          _VERIFY(status)
           call ESMF_FieldGet(field,name=bundlevarname,rc=status)
-          VERIFY_(status)
+          _VERIFY(status)
           found=.false.
           do k=1,fvars
              call ESMF_CFIOVarInfoGet(VARS(K),vname=CFIOVARNAME,twoDimVar=twoD,RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              ctemp1 = ESMF_UtilStringLowerCase(cfiovarname,rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              ctemp2 = ESMF_UtilStringLowerCase(bundlevarname,rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              if (trim(ctemp1)==trim(ctemp2)) then
                 found=.true.
                 kv=k
                 exit
              endif
           enddo
-          ASSERT_(found)
+          _ASSERT(found, 'search failed')
           mcfio%varname(i)=bundleVarName
           if (twoD) then
              mcfio%vardims(i)=2
           else
              mcfio%vardims(i)=3
              call ESMF_CFIOVarinfoGet(Vars(kv),grid=varsgrid,rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call ESMF_CFIOGridGet (varsGrid, lev=levsfile, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              if (levsfile(1) > levsfile(lm)) mcfio%kreverse = .true.
           end if
           status = nf90_inq_varid(cfiop%fid,cfiovarname,mcfio%varid(i))
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call ESMF_FieldGet(FIELD,   Grid=ESMFGRID, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MAPL_GridGet(ESMFGRID, globalCellCountPerDim=COUNTS, RC=STATUS)
-          VERIFY_(STATUS)
-          ASSERT_( LM==0 .or. counts(3) == 0 .or. LM==counts(3) .or. lm == (counts(3)+1) )
+          _VERIFY(STATUS)
+          _ASSERT( LM==0 .or. counts(3) == 0 .or. LM==counts(3) .or. lm == (counts(3)+1), 'incompatible file and bundle' )
        enddo
 
     else
@@ -5112,7 +5217,7 @@ CONTAINS
        do i=1,fvars
 
           call ESMF_CFIOVarInfoGet(VARS(i),vname=CFIOVARNAME, vtitle=LONG_NAME, vunits=UNITS, twoDimVar=twoD, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if ( present(ONLY_VARS) ) then
              if ( index(','//trim(ONLY_VARS)  //',', &
                         ','//trim(CFIOVARNAME)//',') < 1 ) cycle
@@ -5124,13 +5229,13 @@ CONTAINS
              MCFIO%VarDims(nvars) = 2
 
              allocate(PTR2(1-hw_:DIMS(1)+hw_,1-hw_:DIMS(2)+hw_),stat=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              PTR2  = 0.0
 
              call ESMF_GridGet(esmfgrid, dimCount=gridRank, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              allocate(gridToFieldMap(gridRank), stat=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              if(gridRank == 2) then
                 gridToFieldMap(1) = 1
                 gridToFieldMap(2) = 2
@@ -5139,7 +5244,7 @@ CONTAINS
                 gridToFieldMap(2) = 2
                 gridToFieldMap(3) = 0
              else
-                RETURN_(ESMF_FAILURE)
+                _RETURN(ESMF_FAILURE)
              end if
              FIELD = ESMF_FieldCreate(grid=esmfgrid, &
                              datacopyFlag = ESMF_DATACOPY_REFERENCE,   &
@@ -5148,33 +5253,33 @@ CONTAINS
                              totalLWidth=haloWidth(1:2),     &
                              totalUWidth=haloWidth(1:2),     &
                              rc = status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              deallocate(gridToFieldMap)
 
              call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzOnly, RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
                                         VALUE=MAPL_VLocationNone, RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
           else
              call ESMF_CFIOVarinfoGet(Vars(i),grid=varsgrid,rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call ESMF_CFIOGridGet (varsGrid, lev=levsfile, rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              if (levsfile(1) > levsfile(lm)) mcfio%kreverse = .true.
                MCFIO%VarDims(nvars) = 3
                if (lm == counts(3)) then
                   allocate(PTR3(1-hw_:DIMS(1)+hw_,1-hw_:DIMS(2)+hw_,LM),stat=STATUS)
-                  VERIFY_(STATUS)
+                  _VERIFY(STATUS)
                else if (lm == (counts(3)+1)) then
                   allocate(PTR3(1-hw_:DIMS(1)+hw_,1-hw_:DIMS(2)+hw_,0:LM-1),stat=STATUS)
-                  VERIFY_(STATUS)
+                  _VERIFY(STATUS)
                endif
                PTR3  = 0.0
                FIELD = ESMF_FieldCreate(grid=esmfgrid, &
@@ -5183,14 +5288,14 @@ CONTAINS
                                totalLWidth=haloWidth(1:2),     &
                                totalUWidth=haloWidth(1:2),     &
                                rc = status)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
    !ALT: for now we add only HorzVert (no tiles)
                call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
                call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
                call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzVert, RC=STATUS)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
                if (lm == counts(3)) then
                   call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
                                               VALUE=MAPL_VLocationCenter, RC=STATUS)
@@ -5199,14 +5304,14 @@ CONTAINS
                                               VALUE=MAPL_VLocationEdge, RC=STATUS)
                end if
 
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
 
           end if
 
           call MAPL_FieldBundleAdd(bundlein,field,rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           status = nf90_inq_varid(cfiop%fid,cfiovarname,mcfio%varid(i))
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
        enddo
     end if
@@ -5221,27 +5326,24 @@ CONTAINS
     Num3DVars = count(MCFIO%VarDims==3)
     LT  = Num2DVars + Num3DVars*LM
     allocate( MCFIO%reqs (LT),stat=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate( MCFIO%Krank(LT),stat=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
+    mcfio%krank = -1
     allocate( MCFIO%pairList(LT),stat=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (present(regridmethod)) then
        regridmethod_=regridmethod
     else
        regridmethod_=REGRID_METHOD_BILINEAR
     endif
+    mcfio%regrid_method = regridmethod_
 
     mcfio%regrid_type=-1
     if ( (img /= im .or. jmg /= jm) .and. (regridMethod_ /= -1) ) then
        if (regridmethod_==REGRID_METHOD_VOTE .or. regridmethod_==REGRID_METHOD_CONSERVE .or. regridmethod_==REGRID_METHOD_FRACTION) then
           mcfio%regridConservative = .true.
-          mcfio%regridder => make_regridder(esmfgrid,regridMethod_,lonsfile,latsfile,im,jm,counts(3),.false.,localTiles=.false.,rc=status)
-          VERIFY_(status)
-       else if (regridmethod_==REGRID_METHOD_BILINEAR) then
-          mcfio%regridder => make_regridder(ESMFGRID, regridMethod_, LONSfile, LATSfile, IM, JM, counts(3), .false., rc=status)
-          VERIFY_(status)
        end if
        mcfio%regrid_type=regridmethod_
     end if
@@ -5252,10 +5354,13 @@ CONTAINS
        logical :: found
        integer :: j
        allocate(mCFIO%needVar(size(mCFIO%varname)),stat=status)
-       VERIFY_(status)
+       _VERIFY(status)
        mCFIO%needVar=0
-       call ESMF_AttributeGet(bundlein,name="VectorList:",valuelist=vectorlist,rc=status)
-       if (status == ESMF_SUCCESS) then
+       call ESMF_AttributeGet(bundlein,name="VectorList:",isPresent=isPresent,rc=status)
+       _VERIFY(STATUS)
+       if (isPresent) then
+          call ESMF_AttributeGet(bundlein,name="VectorList:",valuelist=vectorlist,rc=status)
+          _VERIFY(STATUS)
 
           do i=1,size(mCFIO%varname)
              if (mCFIO%varname(i) == vectorList(1)) then
@@ -5266,7 +5371,7 @@ CONTAINS
                       exit
                    end if
                 end do
-                ASSERT_(found)
+                _ASSERT(found, 'search failed')
                 mCFIO%needvar(i)=j
              else if (mCFIO%varname(i) == vectorList(2)) then
                 found=.false.
@@ -5276,7 +5381,7 @@ CONTAINS
                       exit
                    end if
                 end do
-                ASSERT_(found)
+                _ASSERT(found, 'search failed')
                 mCFIO%needvar(i)=-j
              end if
           end do
@@ -5290,9 +5395,415 @@ CONTAINS
        nullify(levsfile)
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    mCFIO%PartSize=-1
+    mCFIO%root=-1
+
+    _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_CFIOCreateFromFile
+
+  subroutine MAPL_CFIOReadBundlePrefetch(MCFIO,time_index,filetemplate,state,init, rc)
+     use MAPL_GenericMod, only: MAPL_MetaComp, MAPL_TimerOn, MAPL_TimerOff
+    type(MAPL_CFIO  ),   target,     intent(INOUT) :: MCFIO
+    integer,                         intent(INOUT) :: time_index
+    character(len=*),                intent(IN   ) :: filetemplate
+    type (MAPL_MetaComp), optional, intent(inout) :: state
+    logical, optional, intent(in) :: init
+    integer,               optional, intent(  OUT) :: RC
+
+    integer          :: status
+
+    type(ESMF_CFIO), pointer :: cfiop
+    type(CFIOCollection), pointer :: collection
+    type (ESMF_VM) :: vm
+    integer :: pet
+
+    type (CFIOCollectionVectorIterator) :: iter
+
+    _UNUSED_DUMMY(filetemplate)
+    
+    call ESMF_VMGetCurrent(vm,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_VMGet(vm,localPet=pet,rc=status)
+    _VERIFY(STATUS)
+
+    if (.not. init) then
+       call MAPL_TimerOn(state,"----add-collection")
+       iter = collections%begin()
+       do while (iter /= collections%end())
+          collection => iter%get()
+          collection%scollection_id = i_Clients%add_ext_collection(trim(collection%template))
+          call iter%next()
+       end do
+       call MAPL_TimerOff(state,"----add-collection")
+    end if
+
+    collection => collections%at(mcfio%collection_id)
+    mcfio%scollection_id = collection%scollection_id
+    cfiop => collection%find(trim(mcfio%fname))
+
+    ! TODO: n_vars should be a more obvious thing here
+    mcfio%n_vars = size(mcfio%varDims)
+    allocate(mcfio%variables(mcfio%n_vars), stat=status)
+    _VERIFY(status)
+
+    mcfio%variables(:)%num_dimensions = mcfio%VarDims(:)
+    
+    call request_file_data(mcfio, rc=status)
+    _VERIFY(status)
+
+    _RETURN(ESMF_SUCCESS)
+
+  contains
+
+
+    ! Use IO client to request distributed data for each field.
+    subroutine request_file_data(mcfio, rc)
+      type (MAPL_CFIO), target, intent(inout) :: mcfio
+      integer, optional, intent(out) :: rc
+
+      integer :: i_var
+      integer :: n_dims_var
+      type (MCFIO_Variable), pointer :: variable
+      integer :: LM_src
+      integer :: i1, in, j1, jn ! local bounds on src grid
+      integer, allocatable :: start(:)
+      integer, allocatable :: global_start(:)
+      integer, allocatable :: global_count(:)
+      type (ArrayReference) :: ref
+      logical :: HasDE
+
+      call MAPL_TimerOn(state,"----request")
+      do i_var = 1, mcfio%n_vars
+
+         variable => mcfio%variables(i_var)
+         n_dims_var = variable%num_dimensions
+         select case (n_dims_var)
+         case (2)
+            LM_src = 1
+         case (3)
+            LM_src = MCFIO%lm
+         case default
+            LM_src = 0
+         end select
+
+         ! Note: src_grid is mcfio%grid   (This is apparently not true.)
+         ! Note: Too bad that ESMF_GridGetFieldBounds does not accept an
+         !       option for returning global indices unless it was constructed
+         !       that way.
+
+         call MAPL_grid_interior(collection%src_grid, i1, in, j1, jn)
+         
+         hasDE = MAPL_GridHasDE(collection%src_grid,rc=status)
+         _VERIFY(status)
+         if (hasDE) then
+            allocate(variable%data(i1:in, j1:jn, LM_src))
+            _VERIFY(status)
+         else
+            allocate(variable%data(0,0,0))
+         end if
+
+         select case (n_dims_var)
+         case (2)
+            start = [i1, j1, time_index] ! (i,j,t)
+            global_start = [1, 1, time_index] ! (i,j,t)
+            global_count = [mcfio%IM, mcfio%JM, 1]
+         case (3)
+            start = [i1, j1, 1, time_index] ! (i,j,k,t)
+            global_start = [1, 1, 1, time_index] ! (i,j,t)
+            global_count = [mcfio%IM, mcfio%JM, MCFIO%LM, 1]
+         end select
+
+         ! Request data from the server via the I-Client.
+         call MAPL_TimerOn(state,"----make-reference")
+         ref = ArrayReference(variable%data)
+         call MAPL_TimerOff(state,"----make-reference")
+!!$         variable%request_id = i_Clients%request_subset_data_reference( &
+!!$              mcfio%scollection_id, mcfio%fname, trim(mcfio%varName(i_var)), &
+!!$              & ref, start=start)
+         !variable%request_id = i_Clients%collective_prefetch_data( &
+         call i_Clients%collective_prefetch_data( &
+              mcfio%scollection_id, mcfio%fname, trim(mcfio%varName(i_var)), &
+              & ref, start=start, global_start=global_start, global_count=global_count)
+      end do
+      call MAPL_TimerOff(state,"----request")
+       
+
+      _RETURN(ESMF_SUCCESS)
+
+    end subroutine request_file_data
+
+  end subroutine MAPL_CFIOReadBundlePrefetch
+
+
+  subroutine MAPL_CFIOReadBundleReadPrefetch(MCFIO,hw,state,rc)
+     use MAPL_GenericMod, only: MAPL_MetaComp, MAPL_TimerOn, MAPL_TimerOff
+    type(MAPL_CFIO  ),  target,   intent(INOUT) :: MCFIO
+    integer,               optional, intent(IN   ) :: hw
+    type (MAPL_MetaComp), optional, intent(inout) :: state
+    integer,               optional, intent(  OUT) :: RC
+
+    integer          :: status
+
+    integer   :: hw_
+    type(ESMF_CFIO), pointer :: cfiop
+    type(CFIOCollection), pointer :: collection
+
+    type (ESMF_Grid) :: src_grid ! from file
+    type (ESMF_Grid) :: dst_grid ! from bundle
+
+    if (present(hw)) then
+       hw_=hw
+       _ASSERT(.false., 'halo not supported - sorry')
+    else
+       hw_=0
+    end if
+
+    ! TODO: "collections" is a global variable.  Fix.
+    collection => collections%at(mcfio%collection_id)
+    cfiop => collection%find(trim(mcfio%fname))
+
+    if (present(state)) call MAPL_TimerOn(state,"----RegridStore")
+    mcfio%new_regridder => make_esmf_regridder(mcfio, rc=status)
+    _VERIFY(status)
+    if (present(state)) call MAPL_TimerOff(state,"----RegridStore")
+
+    if (present(state)) call MAPL_TimerOn(state,"----RegridApply")
+    call regrid_data(mcfio, rc=status)
+    _VERIFY(status)
+    if (present(state)) call MAPL_TimerOff(state,"----RegridApply")
+
+    deallocate(mcfio%variables, stat=status)
+    _VERIFY(status)
+
+    _RETURN(ESMF_SUCCESS)
+
+  contains
+
+     function make_esmf_regridder(mcfio, rc) result(regridder)
+        class (AbstractRegridder), pointer :: regridder
+        type (MAPL_CFIO), intent(inout) :: mcfio
+        integer, optional, intent(out) :: rc
+
+        ! Local variables
+        type(ESMF_Field) :: tmp_field
+        
+        ! TODO: Add check that the grid is a "2 D" grid.  Someday,
+        !       someone clever may pass a grid from a component that
+        !       treats the levels as actually gridded.  We should fail
+        !       with a message rather than bungling the logic below.
+        
+        ! Determine the src and dst grids
+        src_grid = collection%src_grid
+           
+        call ESMF_FieldBundleGet(mcfio%bundle, 1, tmp_field, rc=status)
+        _VERIFY(status)
+        call ESMF_FieldGet(tmp_field, grid=dst_grid,  rc=status)
+        _VERIFY(status)
+        
+        regridder => new_regridder_manager%make_regridder(src_grid, dst_grid, regrid_method=mcfio%regrid_method, rc=status)
+        _VERIFY(status)
+
+        _RETURN(ESMF_SUCCESS)
+        
+     end function make_esmf_regridder
+     
+     
+     ! Wait for data to arrive for each field.  Then use established regridder to
+     ! to regrid onto model grid.
+     subroutine regrid_data(mcfio, rc)
+        type (MAPL_CFIO), target, intent(inout) :: mcfio
+        integer, optional, intent(out) :: rc
+
+        type (MCFIO_Variable), pointer :: variable
+        type (ESMF_Field) :: bundle_field
+        type (ESMF_Field) :: bundle_vector_fields(2)
+        integer :: i_var, j_var
+        
+        ! Loop over variables and regrid each one.
+        do i_var = 1, mcfio%n_vars
+           variable => mcfio%variables(i_var)
+           
+           j_var = mcfio%needVar(i_var)
+           select case (j_var)
+           case (:-1)
+              ! Field is northward component of tangent vector
+              ! Skip - is processed with Eastward component
+              cycle
+           case (1:)
+              ! Field is eastward component of tangent vector
+              ! regrid with northward component
+              ! Extract fields from bundle
+              call ESMF_FieldBundleGet(mcfio%bundle, i_var, bundle_vector_fields(1), rc=status)
+              _VERIFY(status)
+              call ESMF_FieldBundleGet(mcfio%bundle, j_var, bundle_vector_fields(2), rc=status)
+              _VERIFY(status)
+              call regrid_vector(mcfio, mcfio%variables([i_var,j_var]), bundle_vector_fields, rc=status)
+              _VERIFY(status)
+           case (0)
+            ! Field is a scalar quantity
+              ! Get a Fortran pointer to the field in the bundle:
+              call ESMF_FieldBundleGet(mcfio%bundle, i_var, bundle_field, rc=status)
+              _VERIFY(status)
+              
+              call regrid_scalar(mcfio, variable, bundle_field, rc=status)
+              _VERIFY(status)
+           end select
+           
+        end do
+        
+        _RETURN(ESMF_SUCCESS)
+        
+     end subroutine regrid_data
+     
+     
+     subroutine regrid_scalar(mcfio, variable, bundle_field, rc)
+        type (MAPL_CFIO), intent(inout) :: mcfio
+        type (MCFIO_Variable), target :: variable
+        type (ESMF_Field), intent(inout) :: bundle_field
+        integer, optional, intent(out) :: rc
+        
+        type (ESMF_DynamicMask) :: dynamic_mask
+        integer :: n_dims_var
+        
+        real(kind=REAL32), pointer :: src_data_2d(:,:)
+        real(kind=REAL32), pointer :: src_data_3d(:,:,:)
+        
+        real(kind=REAL32), pointer :: bundle_data_2d(:,:)
+        real(kind=REAL32), pointer :: bundle_data_3d(:,:,:)
+        
+        ! Has the data arrived from the server.
+        if (present(state)) call MAPL_TimerOn(state,"--IclientWait")
+        !call i_Clients%wait(variable%request_id)
+        call i_Clients%wait()
+        if (present(state)) call MAPL_TimerOff(state,"--IclientWait")
+       
+        n_dims_var = variable%num_dimensions
+        select case (n_dims_var)
+        case (2)
+           src_data_2d => variable%data(:,:,1)
+           if (mcfio%regrid_method == REGRID_METHOD_FRACTION) src_data_2d=src_data_2d-mcfio%fraction
+           call ESMF_FieldGet(bundle_field, farrayPtr=bundle_data_2d, rc=status)
+           _VERIFY(status)
+           call mcfio%new_regridder%regrid(src_data_2d, bundle_data_2d, rc=status)
+           _VERIFY(status)
+        case (3)
+           src_data_3d => variable%data(:,:,:)
+           if (mcfio%regrid_method == REGRID_METHOD_FRACTION) src_data_3d=src_data_3d-mcfio%fraction
+           call ESMF_FieldGet(bundle_field, farrayPtr=bundle_data_3d, rc=status)
+           _VERIFY(status)
+           call mcfio%new_regridder%regrid(src_data_3d, bundle_data_3d, rc=status)
+           _VERIFY(status)
+        end select
+
+        _RETURN(ESMF_SUCCESS)
+
+     end subroutine regrid_scalar
+
+
+     subroutine regrid_vector(mcfio, variables, bundle_fields, rc)
+        use MAPL_AbstractGridFactoryMod
+        type (MAPL_CFIO), intent(inout) :: mcfio
+        type (MCFIO_Variable) :: variables(2)
+        type (ESMF_Field), intent(inout) :: bundle_fields(2)
+        integer, optional, intent(out) :: rc
+
+        type (ESMF_DynamicMask) :: dynamic_mask
+        integer :: n_dims_var
+
+        real(kind=REAL32), pointer :: ew_bundle_data_2d(:,:)
+        real(kind=REAL32), pointer :: ns_bundle_data_2d(:,:)
+        real(kind=REAL32), pointer :: ew_bundle_data_3d(:,:,:)
+        real(kind=REAL32), pointer :: ns_bundle_data_3d(:,:,:)
+        type (ESMF_Field) :: src_field
+        type (ESMF_Field) :: dst_field
+
+        class (AbstractGridFactory), pointer :: factory
+
+        ! Has the data arrived from the server.
+        !call i_Clients%wait(variables(1)%request_id)
+        !call i_Clients%wait(variables(2)%request_id)
+        call i_Clients%wait()
+
+        n_dims_var = variables(1)%num_dimensions
+        _ASSERT(n_dims_var == variables(2)%num_dimensions, 'inconsistent number of dimensions')
+
+        select case (n_dims_var)
+        case (2)
+           call ESMF_FieldGet(bundle_fields(1), farrayPtr=ew_bundle_data_2d, rc=status)
+           _VERIFY(status)
+           call ESMF_FieldGet(bundle_fields(2), farrayPtr=ns_bundle_data_2d, rc=status)
+           _VERIFY(status)
+
+           call mcfio%new_regridder%regrid( &
+                & variables(1)%data(:,:,1), variables(2)%data(:,:,1), &
+                & ew_bundle_data_2d, ns_bundle_data_2d, rc=status)
+           _VERIFY(status)
+        case (3)
+           call ESMF_FieldGet(bundle_fields(1), farrayPtr=ew_bundle_data_3d, rc=status)
+           _VERIFY(status)
+           call ESMF_FieldGet(bundle_fields(2), farrayPtr=ns_bundle_data_3d, rc=status)
+           _VERIFY(status)
+
+           call mcfio%new_regridder%regrid( &
+                & variables(1)%data, variables(2)%data, &
+                & ew_bundle_data_3d, ns_bundle_data_3d, rc=status)
+           _VERIFY(status)
+        case default
+           _RETURN(ESMF_FAILURE)
+        end select
+
+        _RETURN(ESMF_SUCCESS)
+
+     end subroutine regrid_vector
+
+
+     subroutine simpleDynMaskProcV(dynamicMaskList, dynamicSrcMaskValue, &
+          dynamicDstMaskValue, rc)
+        type(ESMF_DynamicMaskElementR4R8R4V), pointer              :: dynamicMaskList(:)
+        real(ESMF_KIND_R4),            intent(in), optional :: dynamicSrcMaskValue
+        real(ESMF_KIND_R4),            intent(in), optional :: dynamicDstMaskValue
+        integer,                       intent(out)          :: rc
+        integer :: i, j, k, n
+        real(ESMF_KIND_R4), allocatable  :: renorm(:)
+
+        if (associated(dynamicMaskList)) then
+           n = size(dynamicMaskList(1)%srcElement(1)%ptr)
+           allocate(renorm(n))
+
+           do i=1, size(dynamicMaskList)
+              dynamicMaskList(i)%dstElement = 0.0 ! set to zero
+
+              renorm = 0.d0 ! reset
+              do j=1, size(dynamicMaskList(i)%factor)
+                 do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
+                    if (.not. &
+                         match(dynamicSrcMaskValue,dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                       dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) & 
+                            + dynamicMaskList(i)%factor(j) &
+                            * dynamicMaskList(i)%srcElement(j)%ptr(k)
+                       renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
+                    endif
+                 end do
+              end do
+              where (renorm > 0.d0)
+                 dynamicMaskList(i)%dstElement = dynamicMaskList(i)%dstElement / renorm
+              elsewhere
+                 dynamicMaskList(i)%dstElement = dynamicSrcMaskValue
+              end where
+           enddo
+        endif
+        ! return successfully
+        rc = ESMF_SUCCESS
+     end subroutine simpleDynMaskProcV
+
+     logical function match(missing,b)
+        real(kind=REAL32), intent(in) :: missing, b
+        match = (missing==b) 
+     end function match
+  
+end subroutine MAPL_CFIOReadBundleReadPrefetch
+
 
   subroutine MAPL_CFIOReadBundleRead(MCFIO,tindex,hw,rc)
 
@@ -5302,7 +5813,6 @@ CONTAINS
     integer,               optional, intent(  OUT) :: RC
 
     integer          :: status
-    Character(len=ESMF_MAXSTR), parameter :: Iam = "MAPL_CFIOReadBundleRead"
 
     integer   :: nn,l,k,klev,lm,nv,lb
     integer   :: img,jmg,lt,hw_
@@ -5332,48 +5842,51 @@ CONTAINS
     cfiop => collection%find(trim(mcfio%fname))
 
     call MAPL_GridGet( MCFIO%GRID, globalCellCountPerDim=COUNTS, RC=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
+
+    call MAPL_RoundRobinPEList(MCFIO%Krank,MCFIO%PartSize,root=MCFIO%ROOT,rc=status)
+    _VERIFY(STATUS)
 
     if (mapL_am_i_root()) write(*,*)"CFIO Read Parallel Processing: ",trim(mcfio%fname)
 
     call MAPL_RoundRobinPEList(MCFIO%Krank,MCFIO%PartSize,root=MCFIO%ROOT,useFirstRank=.false.,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call MAPL_CFIOSetVectorPairs(MCFIO,rc=status)
-    VERIFY_(Status)
+    _VERIFY(Status)
 
     img = COUNTS(1)
     jmg = COUNTS(2)
 
     lt = size(mcfio%reqs)
     allocate(mcfio%buffer(lt),stat=status)
-    VERIFY_(status)
+    _VERIFY(status)
     allocate(globPtrArr(lt),stat=status)
-    VERIFY_(status)
+    _VERIFY(status)
     allocate(varids(lt),stat=status)
-    VERIFY_(status)
+    _VERIFY(status)
     allocate(transDone(lt),source=.false.,stat=status)
-    VERIFY_(status)
+    _VERIFY(status)
     
     nn = 0
     VARS1: do L=1,size(MCFIO%VarDims)
 
        call ESMF_FieldBundleGet(MCFIO%BUNDLE, trim(MCFIO%VARNAME(L)), field=FIELD,                  RC=STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        CREATE_REQ: if (MCFIO%VarDims(L)==2) then
 
           nn=nn+1
           varids(nn)=mcfio%varid(L)
           call ESMF_FieldGet(Field,localDE=0, farrayPtr=PTR2, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MAPL_CreateRequest(MCFIO%GRID, MCFIO%Krank(nn), MCFIO%reqs(nn), &
                tag=nn, RequestType=MAPL_IsScatter, DstArray = ptr2 , prepost=.true., hw=hw_, RC=STATUS)
 
        else if (MCFIO%VarDims(L)==3) then
 
           call ESMF_FieldGet(Field,localDE=0, farrayPtr=PTR3, RC=STATUS)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           do k = 1,MCFIO%lm
              nn=nn+1
@@ -5420,20 +5933,21 @@ CONTAINS
              VECTORTEST: if (nv ==0) then
                 alloc_ra = 1
                 allocate(mcfio%reqs(nn)%read_array(mcfio%im,mcfio%jm),stat=status)
-                VERIFY_(status)
+                _VERIFY(status)
                 globPtrArr(nn)%ptr => mcfio%reqs(nn)%read_array
                 ptrTypeIn(1)%ptr => globPtrArr(nn)%ptr
                 allocate(mcfio%buffer(nn)%ptr(img,jmg),stat=status)
-                VERIFY_(STATUS)
+                _VERIFY(STATUS)
                 ptrTypeOut(1)%ptr => mcfio%buffer(nn)%ptr
                 if (lm == 1) then
                    call readlevel(ptrtypein(1)%ptr,cfiop%fid,varids(nn),cfiop%formatVersion,mcfio%im,mcfio%jm,tindex,rc=status)
                 else
                    call readlevel(ptrtypein(1)%ptr,cfiop%fid,varids(nn),cfiop%formatVersion,mcfio%im,mcfio%jm,tindex,lev=klev,rc=status)
                 end if
-                VERIFY_(STATUS)
-                if (mcfio%xshift) call shift180Lon2D_(ptrtypein(1)%ptr,size(ptrtypein(1)%ptr,1),size(ptrtypein(1)%ptr,2))
-                call TransAndSave(ptrTypein(1:1),ptrtypeout(1:1),mcfio%reqs(nn),doTrans=.true.,IdxOut=1)
+                _VERIFY(STATUS)
+                if (mcfio%xshift) call shift180Lon2D_(ptrtypein(1)%ptr)
+                call TransAndSave(mcfio,ptrTypein(1:1),ptrtypeout(1:1),mcfio%reqs(nn),.true.,1,hw,rc=status)
+                _VERIFY(status)
              else if (nv > 0) then
                 ! I am U part of vector
                 if (transDone(nn)) then
@@ -5444,13 +5958,13 @@ CONTAINS
                    TransAlreadyDone = .false.
                    alloc_ra = 2
                    allocate(MCFIO%reqs(nn)%read_array(mcfio%im,mcfio%jm),stat=status)
-                   VERIFY_(status)
+                   _VERIFY(status)
                    allocate(MCFIO%reqs(nv)%read_array(mcfio%im,mcfio%jm),stat=status)
-                   VERIFY_(status)
+                   _VERIFY(status)
                    allocate(mcfio%buffer(nn)%ptr(img,jmg),stat=status)
-                   VERIFY_(status)
+                   _VERIFY(status)
                    allocate(mcfio%buffer(nv)%ptr(img,jmg),stat=status)
-                   VERIFY_(status)
+                   _VERIFY(status)
                 end if
                 globPtrArr(nn)%ptr => mcfio%reqs(nn)%read_array
                 globPtrArr(nv)%ptr => mcfio%reqs(nv)%read_array
@@ -5466,12 +5980,12 @@ CONTAINS
                       call readlevel(ptrtypein(1)%ptr,cfiop%fid,varids(nn),cfiop%formatVersion,mcfio%im,mcfio%jm,tindex,lev=klev,rc=status1)
                       call readlevel(ptrtypein(2)%ptr,cfiop%fid,varids(nv),cfiop%formatVersion,mcfio%im,mcfio%jm,tindex,lev=klev,rc=status2)
                    end if
-                   VERIFY_(status1)
-                   VERIFY_(status2)
-                   if (mcfio%xshift) call shift180Lon2D_(ptrtypein(1)%ptr,size(ptrtypein(1)%ptr,1),size(ptrtypein(1)%ptr,2))
-                   if (mcfio%xshift) call shift180Lon2D_(ptrtypein(2)%ptr,size(ptrtypein(2)%ptr,1),size(ptrtypein(2)%ptr,2))
+                   _VERIFY(status1)
+                   _VERIFY(status2)
+                   if (mcfio%xshift) call shift180Lon2D_(ptrtypein(1)%ptr)
+                   if (mcfio%xshift) call shift180Lon2D_(ptrtypein(2)%ptr)
                 end if
-                call TransAndSave(ptrTypein(1:2),ptrtypeout(1:2),mcfio%reqs(nn),doTrans =.not.TransAlreadyDone,IdxOut=1)
+                call TransAndSave(mcfio,ptrTypein(1:2),ptrtypeout(1:2),mcfio%reqs(nn),.not.TransAlreadyDone,1,hw_,rc=status)
              else
                 ! I am V part of vector
                 nv = abs(nv)
@@ -5483,13 +5997,13 @@ CONTAINS
                    TransAlreadyDone = .false.
                    alloc_ra = 2
                    allocate(MCFIO%reqs(nn)%read_array(mcfio%im,mcfio%jm),stat=status)
-                   VERIFY_(status)
+                   _VERIFY(status)
                    allocate(MCFIO%reqs(nv)%read_array(mcfio%im,mcfio%jm),stat=status)
-                   VERIFY_(status)
+                   _VERIFY(status)
                    allocate(mcfio%buffer(nn)%ptr(img,jmg),stat=status)
-                   VERIFY_(status)
+                   _VERIFY(status)
                    allocate(mcfio%buffer(nv)%ptr(img,jmg),stat=status)
-                   VERIFY_(status)
+                   _VERIFY(status)
                 end if
                 globPtrArr(nn)%ptr => mcfio%reqs(nn)%read_array
                 globPtrArr(nv)%ptr => mcfio%reqs(nv)%read_array
@@ -5505,12 +6019,12 @@ CONTAINS
                       call readlevel(ptrtypein(1)%ptr,cfiop%fid,varids(nv),cfiop%formatVersion,mcfio%im,mcfio%jm,tindex,lev=klev,rc=status1)
                       call readlevel(ptrtypein(2)%ptr,cfiop%fid,varids(nn),cfiop%formatVersion,mcfio%im,mcfio%jm,tindex,lev=klev,rc=status2)
                    end if
-                   VERIFY_(status1)
-                   VERIFY_(status2)
-                   if (mcfio%xshift) call shift180Lon2D_(ptrtypein(1)%ptr,size(ptrtypein(1)%ptr,1),size(ptrtypein(1)%ptr,2))
-                   if (mcfio%xshift) call shift180Lon2D_(ptrtypein(2)%ptr,size(ptrtypein(2)%ptr,1),size(ptrtypein(2)%ptr,2))
+                   _VERIFY(status1)
+                   _VERIFY(status2)
+                   if (mcfio%xshift) call shift180Lon2D_(ptrtypein(1)%ptr)
+                   if (mcfio%xshift) call shift180Lon2D_(ptrtypein(2)%ptr)
                 end if
-                call TransAndSave(ptrTypein(1:2),ptrtypeout(1:2),mcfio%reqs(nn),doTrans =.not.TransAlreadyDone,IdxOut=2)
+                call TransAndSave(mcfio,ptrTypein(1:2),ptrtypeout(1:2),mcfio%reqs(nn),.not.TransAlreadyDone,2,hw_,rc=status)
              end if VECTORTEST
              if (alloc_ra > 0) then
                 deallocate(mcfio%reqs(nn)%read_array)
@@ -5528,93 +6042,106 @@ CONTAINS
 
     deallocate(varids,globptrarr,transDone)
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
     contains
  
-    subroutine TransAndSave(ptrin,ptrout,req,doTrans,idxOut)
-       type(Ptr2Arr) :: PtrIn(:)
-       type(Ptr2Arr) :: PtrOut(:)
-       type(MAPL_CommRequest) :: req
-       logical :: doTrans
-       integer :: idxOut
+  subroutine TransAndSave(mcfio,ptrin,ptrout,req,doTrans,idxOut,hw,rc)
+     type(MAPL_CFIO), intent(inout) :: mcfio
+     type(Ptr2Arr), intent(inout) :: PtrIn(:)
+     type(Ptr2Arr), intent(inout)  :: PtrOut(:)
+     type(MAPL_CommRequest), intent(inout)  :: req
+     logical, intent(in)  :: doTrans
+     integer, intent(in)  :: idxOut
+     integer, intent(in)     :: hw
+     integer, optional, intent(out) :: rc
+ 
+     __Iam__('TransAndSave')
+     real, pointer  :: gin(:,:)
+     real , pointer :: gout(:,:)
+     real, dimension(:,:,:), pointer :: uin, uout, vin, vout
+     integer :: im, jm
+     type(c_ptr) :: cptr
 
-       real, pointer  :: gin(:,:)
-       real , pointer :: gout(:,:)
-       real, dimension(:,:,:), pointer :: uin, uout, vin, vout
-       integer :: im, jm
-       type(c_ptr) :: cptr
+     if (size(ptrin)==1) then
 
-       if (size(ptrin)==1) then
+        _ASSERT(idxOut ==1, 'input is scalar, output is not')
+        Gin => PtrIn(1)%ptr
+        Gout => PtrOut(1)%ptr
+        if ( all(shape(gin) == shape(gout)) ) then
+           gout = gin
+        else
+           _ASSERT(associated(mCFIO%regridder), 'mCFIO%regridder is not associated')
+           if (mCFIO%regridConservative) then
+              call mCFIO%regridder%regrid(gin, gout, rc=status)
+              _VERIFY(STATUS)
+           else
+              call mCFIO%regridder%set_undef_value(MAPL_undef)
+              call mCFIO%regridder%regrid(gin,gout,rc=status)
+              _VERIFY(STATUS)
+           end if
+        end if
+        deallocate(gin)
+        nullify(gin)
+        if (mcfio%gsiMode) call shift180Lon2D_(gout)
+     else
+ 
+        _ASSERT(size(PtrIn) == 2, 'input is neither a scalar nor a tangent (2d) vector')
+        _ASSERT(size(PtrOut) == 2, 'input is a vector, but output is not')
+        gout => PtrOut(idxOut)%ptr
+        if (doTrans) then
+ 
+           im = size(PtrIn(1)%ptr,1)
+           jm = size(PtrIn(1)%ptr,2)
+ 
+           cptr = C_loc(PtrIn(1)%ptr(1,1))
+           call C_F_pointer (cptr, uin,[im,jm,1])
+ 
+           cptr = C_loc(PtrIn(2)%ptr(1,1))
+           call C_F_pointer (cptr, vin,[im,jm,1])
+ 
+           im = size(PtrOut(1)%ptr,1)
+           jm = size(PtrOut(1)%ptr,2)
+ 
+           cptr = C_loc(PtrOut(1)%ptr(1,1))
+           call C_F_pointer (cptr, uout,[im,jm,1])
+ 
+           cptr = C_loc(PtrOut(2)%ptr(1,1))
+           call C_F_pointer (cptr, vout,[im,jm,1])
 
-          ASSERT_(idxOut ==1)
-          Gin => PtrIn(1)%ptr
-          Gout => PtrOut(1)%ptr
-          if ( all(shape(gin) == shape(gout)) ) then
-             gout = gin
-          else
-             ASSERT_(associated(mCFIO%regridder))
-             if (mCFIO%regridConservative) then
-                if (mcfio%regrid_type==REGRID_METHOD_FRACTION) gin=gin-mcfio%fraction
-                call mCFIO%regridder%regrid(gin, gout, rc=status)
-                VERIFY_(STATUS)
-             else
-                call mCFIO%regridder%set_undef_value(MAPL_undef)
-                call mCFIO%regridder%regrid(gin,gout,rc=status)
-                VERIFY_(STATUS)
-             end if
-          end if
-          if (mcfio%gsiMode) call shift180Lon2D_(gout,img,jmg)
-       else
+           call mCFIO%regridder%set_undef_value(MAPL_undef)
+           call mCFIO%regridder%regrid(uin, vin, uout, vout, rc=status)
+           _VERIFY(status)
 
-          ASSERT_(size(PtrIn) == 2)
-          ASSERT_(size(PtrOut) == 2)
-          gout => PtrOut(idxOut)%ptr
-          if (doTrans) then
+           deallocate(PtrIn(1)%ptr)
+           nullify(PtrIn(1)%ptr)
+           deallocate(PtrIn(2)%ptr)
+           nullify(PtrIn(2)%ptr)
 
-             im = size(PtrIn(1)%ptr,1)
-             jm = size(PtrIn(1)%ptr,2)
+        end if
 
-             cptr = C_loc(PtrIn(1)%ptr(1,1))
-             call C_F_pointer (cptr, uin,[im,jm,1])
+     end if
+     call MAPL_ArrayIScatter(gout,req,hw=hw,rc=status)
+     _VERIFY(STATUS)
 
-             cptr = C_loc(PtrIn(2)%ptr(1,1))
-             call C_F_pointer (cptr, vin,[im,jm,1])
+  end subroutine TransAndSave
 
-             im = size(PtrOut(1)%ptr,1)
-             jm = size(PtrOut(1)%ptr,2)
-
-             cptr = C_loc(PtrOut(1)%ptr(1,1))
-             call C_F_pointer (cptr, uout,[im,jm,1])
-
-             cptr = C_loc(PtrOut(2)%ptr(1,1))
-             call C_F_pointer (cptr, vout,[im,jm,1])
-
-             call mCFIO%regridder%set_undef_value(MAPL_undef)
-             call mCFIO%regridder%regrid(uin, vin, uout, vout, rotate=doRotate, rc=status)
-             VERIFY_(status)
-
-          end if
-
-       end if
-       call MAPL_ArrayIScatter(gout,req,hw=hw_,rc=status)
-       VERIFY_(STATUS)
-
-    end subroutine TransAndSave
-
-    subroutine shift180Lon2D_ ( c, im, jm )
-    integer, intent(in) :: im, jm
-    real, intent(inout) :: c(im,jm)
-    real :: cj(im)
-    integer :: m(4), n(4), imh, j
+    subroutine shift180Lon2D_ ( c  )
+    real, intent(inout) :: c(:,:)
+    real, allocatable :: cj(:)
+    integer :: m(4), n(4), imh, j, im ,jm
+    im = size(c,1)
+    jm = size(c,2)
+    allocate(cj(im))
     imh = nint(im/2.)
-    m = (/ 1,      imh, 1+imh,    im   /)
-    n = (/ 1,   im-imh, 1+im-imh, im   /)
+    m = [ 1,      imh, 1+imh,    im  ]
+    n = [ 1,   im-imh, 1+im-imh, im  ]
     do j = 1, jm
        cj(n(1):n(2)) = c(m(3):m(4),j)
        cj(n(3):n(4)) = c(m(1):m(2),j)
        c(:,j) = cj
     end do
+    deallocate(cj)
     return
     end subroutine shift180Lon2D_
 
@@ -5630,7 +6157,6 @@ CONTAINS
        integer, optional, intent(out) :: rc
 
        integer :: status
-       character(len=ESMF_MAXSTR) :: Iam="readlevel"
 
        if (present(lev)) then
           if (cfiop%formatVersion > 2.0) then
@@ -5638,16 +6164,16 @@ CONTAINS
           else
              status = nf90_get_var(fid,varid,var_array,start=(/1,1,lev,tindex/),count=(/im,jm,1,1/))
           end if
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
           if (cfiop%formatVersion > 2.0) then
              status = nf90_get_var(fid,varid,var_array,start=(/1,1,1,tindex/),count=(/im,jm/6,6,1/))
           else
              status = nf90_get_var(fid,varid,var_array,start=(/1,1,tindex/),count=(/im,jm,1/))
           end if
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
-       RETURN_(ESMF_SUCCESS)
+       _RETURN(ESMF_SUCCESS)
     end subroutine readlevel
 
   end subroutine MAPL_CFIOReadBundleRead
@@ -5663,7 +6189,6 @@ CONTAINS
     type(ESMF_Field) :: field
     real, pointer    :: ptr3d(:,:,:) => null()
     integer          :: status
-    Character(len=ESMF_MAXSTR), parameter :: Iam = "MAPL_CFIOReadBundleWait"
 
     nn = 0
     VARS: do L=1,size(MCFIO%VarDims)
@@ -5674,7 +6199,7 @@ CONTAINS
           myGlobal = (mcfio%mype == mcfio%krank(nn))
 
           call MAPL_CollectiveWait(mcfio%reqs(nn),rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           if (myGlobal) then
              deallocate(mcfio%buffer(nn)%ptr)
           end if
@@ -5685,11 +6210,11 @@ CONTAINS
              nn=nn+1
              myGlobal = (mcfio%mype == mcfio%krank(nn))
              call MAPL_CollectiveWait(mcfio%reqs(nn),rc=status)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
 
              if (myGlobal) then
                 deallocate(mcfio%buffer(nn)%ptr)
-                !ALT these two have been cleaned earlier 
+                !ALT these two have been cleaned earlier
                 ! deallocate(mcfio%reqs(nn)%read_array)
                 ! nullify(mcfio%reqs(nn)%read_array)
              end if
@@ -5697,7 +6222,7 @@ CONTAINS
 
           if (mcfio%gsiMode) then
              call ESMF_FieldBundleGet(MCFIO%BUNDLE, trim(mcfio%varname(L)), field=FIELD, RC=STATUS)
-             VERIFY_(STATUS)
+             _VERIFY(STATUS)
              call ESMF_FieldGet(field,0,farrayptr=ptr3d,rc=status)
              call SwapV_(ptr3d)
           end if
@@ -5706,7 +6231,7 @@ CONTAINS
 
     end do VARS
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
     contains
 
@@ -5733,14 +6258,12 @@ CONTAINS
 
     integer, allocatable       :: varStart(:)
     integer                    :: l,lm,nn,nv,sgn,k,np
-    character(len=ESMF_MAXSTR) :: Iam
     integer                    :: status
-    Iam = "MAPL_CFIOSetVectorPairs"
 
 
     ! adjust if we have vector pairs
     allocate(varStart(size(MCFIO%VarDims)),stat=status)
-    VERIFY_(status)
+    _VERIFY(status)
 
     nn=0
 
@@ -5798,7 +6321,7 @@ CONTAINS
        end if
     enddo
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_CFIOSetVectorPairs
 
@@ -5814,12 +6337,11 @@ CONTAINS
     integer, optional, intent(out) :: rc
   
     integer :: status
-    character(len=ESMF_MAXSTR) :: Iam="MAPL_CFIO::get_latlon_from_factory()"
 
     class (AbstractGridFactory), pointer :: factory
     
     factory => get_factory(grid, rc=status)
-    VERIFY_(status)
+    _VERIFY(status)
     select type (factory)
     type is (LatLonGridFactory)
       lons = MAPL_RADIANS_TO_DEGREES * factory%get_longitudes()
@@ -5852,7 +6374,6 @@ CONTAINS
     integer, optional, intent(out) :: rc
 
     integer :: status
-    character(len=ESMF_MAXSTR) :: Iam="MAPL_CFIO::make_regridder()"
 
     type (ESMF_Grid) :: grid
     
@@ -5882,11 +6403,11 @@ CONTAINS
     else
       allocate(krank(1) ,stat=status)
     end if
-    VERIFY_(status)
+    _VERIFY(status)
     if (runParallel .and. (LM > 0) ) then
       numNodes = size(MAPL_NodeRankList)
       call MAPL_RoundRobinPEList(krank,numNodes,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
     else
       krank = 0
     end if
@@ -5898,40 +6419,40 @@ CONTAINS
     lats_radians = MAPL_DEGREES_TO_RADIANS * lats
     
     lon_array = ESMF_LocalArrayCreate(lons_radians, rc=status)
-    VERIFY_(status)
+    _VERIFY(status)
     lat_array = ESMF_LocalArrayCreate(lats_radians, rc=status)
-    VERIFY_(status)
+    _VERIFY(status)
     
     
     layout = ESMF_DELayoutCreate(petMap=krank, rc=status)
-    VERIFY_(status)
+    _VERIFY(status)
     dist_grid = ESMF_DistGridCreate([1,1,1],[IM,JM,LM], &
          & deBlockList=reshape([([[1,1,k],[IM,JM,k]],k=1,LM)],[3,2,LM]), &
          & deLayout = layout, rc=status)
-    VERIFY_(status)
+    _VERIFY(status)
     grid = grid_manager%make_grid('LatLon', dist_grid, lon_array, lat_array, rc=status)
-    VERIFY_(status)
+    _VERIFY(status)
     
     call ESMF_DistGridDestroy(dist_grid, rc=status)
-    VERIFY_(status)
+    _VERIFY(status)
     deallocate(lons_radians, lats_radians)
     call ESMF_LocalArrayDestroy(lon_array)
-    VERIFY_(status)
+    _VERIFY(status)
     call ESMF_LocalArrayDestroy(lat_array)
-    VERIFY_(status)
+    _VERIFY(status)
 
     if (method == REGRID_METHOD_CONSERVE .or. method == REGRID_METHOD_VOTE .or. & 
         method == REGRID_METHOD_FRACTION) then    
        regridder => regridder_manager%make_regridder(grid, ESMFGRID, &
             & method, hints=regrid_hints, rc=status)
-       VERIFY_(status)
+       _VERIFY(status)
     else
        regridder => regridder_manager%make_regridder(grid, ESMFGRID, &
             & method, hints=regrid_hints, rc=status)
-       VERIFY_(status)
+       _VERIFY(status)
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
     
   end function make_regridder
 
@@ -5998,8 +6519,8 @@ CONTAINS
      enddo
 
      deallocate(tSeriesInt)
-     ASSERT_(tindex/=-1)
-     RETURN_(ESMF_SUCCESS)
+     _ASSERT(tindex/=-1, 'tindex should not be -1')
+     _RETURN(ESMF_SUCCESS)
 
   end subroutine GetTIndex
 
@@ -6044,8 +6565,8 @@ CONTAINS
      enddo
 
      deallocate(tSeriesInt)
-     ASSERT_(found)
-     RETURN_(ESMF_SUCCESS)
+     _ASSERT(found, 'search failed')
+     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_CFIOGetTimeFromIndex
   

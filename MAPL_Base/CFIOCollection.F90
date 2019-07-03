@@ -1,10 +1,15 @@
 module ESMF_CFIOCollectionMod
-  use pFIO_StringIntegerMapMod
+   use pFIO_StringIntegerMapMod
+   use ESMF
   use ESMF_CFIOMod
+  use MAPL_BaseMod, only : MAPL_GridGet
   use ESMF_CFIOUtilMod
   use ESMF_CFIOFileMod
   use ESMF_CFIOPtrVectorMod
-  use pFIO_ConstantsMod
+  use PFIO_VectorMod
+  use pFIO
+  use MAPL_GridManagerMod
+  use MAPL_AbstractGridFactoryMod
   implicit none
   private
 
@@ -12,11 +17,14 @@ module ESMF_CFIOCollectionMod
   public :: new_CFIOCollection
 
   type :: CFIOCollection
-    character(len=:), allocatable :: template
-    type (ESMF_CFIOPtrVector) :: formatters
-    type (StringIntegerMap) :: file_ids
-
-    type (ESMF_CFIO), pointer :: formatter => null()
+     type (ESMF_Grid), allocatable :: src_grid ! filled in on first use
+     character(len=:), allocatable :: template
+     type (ESMF_CFIOPtrVector) :: formatters
+     type (PFIO_Vector) :: files
+     type (StringIntegerMap) :: file_ids
+     integer :: scollection_id = -1
+     type (ESMF_CFIO), pointer :: formatter => null()
+     type (FileMetadata), pointer :: file => null()
   contains
     procedure :: find
     procedure :: unfind
@@ -50,9 +58,13 @@ contains
     integer, pointer :: file_id
     type (StringIntegerMapIterator) :: iter
 
+    type (NetCDF4_FileFormatter) :: fmtr
+    class (AbstractGridFactory), pointer :: factory
+
     file_id => this%file_ids%at(trim(file_name))
     if (associated(file_id)) then
        formatter => this%formatters%at(file_id)
+       this%file => this%files%at(file_id)
     else
        if (this%formatters%size() >= MAX_FORMATTERS) then
           formatter => this%formatters%front()
@@ -60,6 +72,8 @@ contains
           call this%formatters%erase(this%formatters%begin())
           deallocate(formatter)
           nullify(formatter) 
+
+          call this%files%erase(this%files%begin())
 
           iter = this%file_ids%begin()
           do while (iter /= this%file_ids%end())
@@ -89,6 +103,21 @@ contains
        call this%formatters%push_back(formatter)
        ! size() returns 64-bit integer;  cast to 32 bit for this usage.
        call this%file_ids%insert(trim(file_name), int(this%formatters%size()))
+
+       call fmtr%open(trim(file_name), mode=pFIO_READ)
+       ! file is the metadata, not the file name
+       call this%files%push_back(fmtr%read())
+       call fmtr%close()
+       this%file => this%files%back()
+       if (allocated(this%src_grid)) then
+       end if
+
+       if (.not. allocated(this%src_grid)) then
+          ! First file access can be used to generate the grid
+          allocate(factory, source=grid_manager%make_factory(trim(file_name)))
+          this%src_grid = grid_manager%make_grid(factory)
+       end if
+       
     end if
 
   end function find

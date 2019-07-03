@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 1.1
+  VERSION 1.1.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 if (NOT COMMAND esma) # build as standalone project
@@ -31,6 +31,11 @@ add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 
 add_subdirectory (GMAO_pFIO)
 add_subdirectory (MAPL_Base)
+
+if (PFUNIT)
+  add_subdirectory (MAPL_pFUnit EXCLUDE_FROM_ALL)
+endif ()
+
 
 # Git transition defect:
 # Uncomment the line below once the dev branch of MAPL has been brought in.

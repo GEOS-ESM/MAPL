@@ -5,73 +5,53 @@ module pFIO_MpiServerMod
    use pFIO_ServerThreadVectorMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractSocketVectorMod
+   use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractServerMod
-   use pFIO_IntegerIntegerMapMod
-!   use pfio_base
+   use pFIO_BaseServerMod
 
    implicit none
    private
 
    public :: MpiServer
 
-   type,extends (AbstractServer) :: MpiServer
+   type,extends (BaseServer) :: MpiServer
+      character(len=:), allocatable :: port_name 
    contains
       procedure :: start
    end type MpiServer
-
 
    interface MpiServer
       module procedure new_MpiServer
    end interface MpiServer
 
-
 contains
 
-   function new_MpiServer(comm, directory_service) result(s)
+   function new_MpiServer(comm, port_name) result(s)
       type (MpiServer) :: s
       integer, intent(in) :: comm
-      class (AbstractDirectoryService), target, optional :: directory_service
+      character(*), intent(in) :: port_name
 
       call s%init(comm)
-!      call pfio_init()
 
-      if (present(Directory_Service)) then
-         s%directory_service => directory_service
-      else
-         s%directory_service => chosen_directory_service
-      end if
-
-      call s%directory_service%publish(PortInfo('i_server'), s%comm)
+      s%port_name = trim(port_name)
+      s%threads = ServerThreadVector()
 
    end function new_MpiServer
 
    subroutine start(this)
-      class (MpiServer),target, intent(inout) :: this
-      class (AbstractSocket), pointer :: sckt
-      type (AbstractSocketVector) :: sockets
-      type (ServerThreadVector) :: threads
-      class (ServerThread),pointer :: threadPtr=>null()
-      integer :: i,k,client_size
+      class (MpiServer), target, intent(inout) :: this
+
+      class (ServerThread), pointer :: thread_ptr => null()
+      integer :: i,client_size
       logical, allocatable :: mask(:)
 
-      ! disribute server at the beginnig, blocking
-      threads = ServerThreadVector()
+      client_size = this%threads%size()
 
-      ! initialize the server thread at the very begining
-      call this%directory_service%connect_to_client(PortInfo('i_server'),this%comm,sockets,this%terminate)
-      this%num_clients = this%num_clients+sockets%size()
-      nullify(threadPtr)
-      do k=1, sockets%size()
-         sckt => sockets%at(k)
-         allocate(threadPtr,source = ServerThread(sckt,this))
-         call threads%push_back(threadPtr)
-         nullify(threadPtr)
-      enddo
+      allocate(this%serverthread_done_msgs(client_size))
+      this%serverthread_done_msgs(:) = .false.
 
-      client_size = threads%size()
       allocate(mask(client_size))
       mask = .false.
-      
       ! loop untill terminate
       do while (.true.)
 
@@ -79,11 +59,11 @@ contains
 
             if ( mask(i)) cycle
 
-            threadPtr=>threads%at(i)
+            thread_ptr=>this%threads%at(i)
             !handle the message
-            call threadPtr%run()
+            call thread_ptr%run()
             !delete the thread object if it terminates 
-            if(threadPtr%do_terminate()) then
+            if(thread_ptr%do_terminate()) then
                mask(i) = .true.
             endif
          enddo
@@ -92,10 +72,8 @@ contains
 
       enddo
 
-      call threads%clear()
+      call this%threads%clear()
       deallocate(mask)
-
-      print*, "terminated successfully"
 
    end subroutine start
 

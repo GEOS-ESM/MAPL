@@ -1,0 +1,305 @@
+module Test_LocalMemReferenceMod
+   use pfunit_mod
+   use pFIO_AbstractDataReferenceMod
+   use pFIO_LocalMemReferenceMod
+   use pFIO_ConstantsMod
+   use pFIO_UtilitiesMod
+
+   use, intrinsic :: iso_c_binding, only: c_f_pointer
+   use, intrinsic :: iso_fortran_env, only: INT32, INT64
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
+   use, intrinsic :: iso_c_binding, only: c_associated
+   implicit none
+
+contains
+
+   @test
+   subroutine test_scalar()
+      type (LocalMemReference) :: a
+      integer (kind=INT32) :: i
+      integer (kind=INT64) :: j
+      real (kind=REAL32) :: r
+      real (kind=REAL64) :: d
+
+      integer ( kind=INT32), pointer :: iPtr
+      integer ( kind=INT64), pointer :: jPtr
+      real ( kind=REAL32), pointer :: rPtr
+      real ( kind=REAL64), pointer :: dPtr
+      i = 100
+      a = LocalMemReference(i)
+      call c_f_pointer(a%base_address, iptr)
+      @assertTrue(iptr == i)
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+      
+      j = 10000
+      a = LocalMemReference(j)
+      call c_f_pointer(a%base_address, jptr)
+      @assertTrue(jptr == j)
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      r = 100.0
+      a = LocalMemReference(r)
+      call c_f_pointer(a%base_address, rptr)
+      @assertTrue(nearlyEqual(rptr, r))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      d = 100.0d0
+      a = LocalMemReference(d)
+      call c_f_pointer(a%base_address, dptr)
+      @assertTrue(nearlyEqual(dptr, d))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+   end subroutine test_scalar
+
+   @test
+   subroutine test_1d()
+      type (LocalMemReference) :: a
+      integer (kind=INT32),allocatable :: i(:)
+      integer (kind=INT64),allocatable :: j(:)
+      real (kind=REAL32), allocatable  :: r(:)
+      real (kind=REAL64), allocatable  :: d(:)
+
+      integer ( kind=INT32), pointer :: iPtr(:)
+      integer ( kind=INT64), pointer :: jPtr(:)
+      real ( kind=REAL32), pointer :: rPtr(:)
+      real ( kind=REAL64), pointer :: dPtr(:)
+     
+      allocate(i(10))
+      i = 100
+      a = LocalMemReference(i)
+      call c_f_pointer(a%base_address, iptr,shape(i))
+      @assertTrue(all(iptr == i))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+      
+      allocate(j(10))
+      j = 10000
+      a = LocalMemReference(j)
+      call c_f_pointer(a%base_address, jptr,shape(j))
+      @assertTrue(all(jptr == j))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      allocate(r(10))
+      r = 100.0
+      a = LocalMemReference(r)
+      call c_f_pointer(a%base_address, rptr,shape(r))
+      @assertTrue(nearlyEqual(rptr, r))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      allocate(d(10))
+      d = 100.0d0
+      a = LocalMemReference(d)
+      call c_f_pointer(a%base_address, dptr,shape(d))
+      @assertTrue(nearlyEqual(dptr, d))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      deallocate(i)
+      allocate(i(0))
+      a = LocalMemReference(i)
+      call c_f_pointer(a%base_address, iptr,a%shape)
+      @assertTrue(associated(iptr))
+      @assertTrue( size(a%i_ptr) ==0)
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+      
+   end subroutine test_1d
+
+   @test
+   subroutine test_2d()
+      type (LocalMemReference) :: a
+      integer (kind=INT32),allocatable :: i(:,:)
+      integer (kind=INT64),allocatable :: j(:,:)
+      real (kind=REAL32), allocatable  :: r(:,:)
+      real (kind=REAL64), allocatable  :: d(:,:)
+
+      integer ( kind=INT32), pointer :: iPtr(:,:)
+      integer ( kind=INT64), pointer :: jPtr(:,:)
+      real ( kind=REAL32), pointer :: rPtr(:,:)
+      real ( kind=REAL64), pointer :: dPtr(:,:)
+
+      allocate(i(10,2))
+      i = 100
+      a = LocalMemReference(i)
+      call c_f_pointer(a%base_address, iptr,a%shape)
+      @assertTrue(all(iptr == i))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      allocate(j(10,5))
+      j = 10000
+      a = LocalMemReference(j)
+      call c_f_pointer(a%base_address, jptr,shape(j))
+      @assertTrue(all(jptr == j))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      allocate(r(10,3))
+      r = 100.0
+      a = LocalMemReference(r)
+      call c_f_pointer(a%base_address, rptr, a%shape)
+      @assertTrue(nearlyEqual(rptr(:,1), r(:,1)))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      allocate(d(2,3))
+      d = 100.0d0
+      a = LocalMemReference(d)
+      call c_f_pointer(a%base_address, dptr,shape(d))
+      @assertTrue(nearlyEqual(dptr(:,1), d(:,1)))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      deallocate(i)
+      allocate(i(0,2))
+      a = LocalMemReference(i)
+      call c_f_pointer(a%base_address, iptr,shape(i))
+      @assertTrue(associated(iptr))
+      @assertTrue( size(a%i_ptr) ==0)
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+   end subroutine test_2d
+
+   @test
+   subroutine test_3d()
+      type (LocalMemReference) :: a
+      class (AbstractDataReference), allocatable :: b
+      integer (kind=INT32),allocatable :: i(:,:,:)
+      integer (kind=INT64),allocatable :: j(:,:,:)
+      real (kind=REAL32), allocatable  :: r(:,:,:)
+      real (kind=REAL64), allocatable  :: d(:,:,:)
+
+      integer ( kind=INT32), pointer :: iPtr(:,:,:)
+      integer ( kind=INT64), pointer :: jPtr(:,:,:)
+      real ( kind=REAL32), pointer :: rPtr(:,:,:)
+      real ( kind=REAL64), pointer :: dPtr(:,:,:)
+
+      allocate(i(10,2,2))
+      i = 100
+      a = LocalMemReference(i)
+      call c_f_pointer(a%base_address, iptr,shape(i))
+      @assertTrue(all(iptr == i))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      allocate(j(10,5,2))
+      j = 10000
+      a = LocalMemReference(j)
+      call c_f_pointer(a%base_address, jptr,shape(j))
+      @assertTrue(all(jptr == j))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      allocate(r(10,3,2))
+      r = 100.0
+      a = LocalMemReference(r)
+      allocate(b, source = a)
+      @assertTrue(c_associated(b%base_address, a%base_address))
+      call c_f_pointer(b%base_address, rptr,shape(r))
+      @assertTrue(nearlyEqual(rptr(:,1,2), r(:,1,2)))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      allocate(d(2,3,3))
+      d = 100.0d0
+      a = LocalMemReference(d)
+      call c_f_pointer(a%base_address, dptr,shape(d))
+      @assertTrue(nearlyEqual(dptr(:,2,3), d(:,2,3)))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      deallocate(i)
+      allocate(i(0,2,1))
+      a = LocalMemReference(i)
+      call c_f_pointer(a%base_address, iptr,shape(i))
+      @assertTrue(associated(iptr))
+      @assertTrue( size(a%i_ptr) ==0)
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+   end subroutine test_3d
+
+   @test
+   subroutine test_4d()
+      type (LocalMemReference) :: a
+      integer (kind=INT32),allocatable :: i(:,:,:,:)
+      integer (kind=INT64),allocatable :: j(:,:,:,:)
+      real (kind=REAL32), allocatable  :: r(:,:,:,:)
+      real (kind=REAL64), allocatable  :: d(:,:,:,:)
+
+      integer ( kind=INT32), pointer :: iPtr(:,:,:,:)
+      integer ( kind=INT64), pointer :: jPtr(:,:,:,:)
+      real ( kind=REAL32), pointer :: rPtr(:,:,:,:)
+      real ( kind=REAL64), pointer :: dPtr(:,:,:,:)
+
+      allocate(i(10,2,2,3))
+      i = 100
+      a = LocalMemReference(i)
+      call c_f_pointer(a%base_address, iptr,shape(i))
+      @assertTrue(all(iptr == i))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      allocate(j(10,5,2,3))
+      j = 10000
+      a = LocalMemReference(j)
+      call c_f_pointer(a%base_address, jptr,shape(j))
+      @assertTrue(all(jptr == j))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      allocate(r(10,3,2,2))
+      r = 100.0
+      a = LocalMemReference(r)
+      call c_f_pointer(a%base_address, rptr,shape(r))
+      @assertTrue(nearlyEqual(rptr(:,1,2,1), r(:,1,2,1)))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      allocate(d(2,3,3,2))
+      d = 100.0d0
+      a = LocalMemReference(d)
+      call c_f_pointer(a%base_address, dptr,shape(d))
+      @assertTrue(nearlyEqual(dptr(:,2,3,1), d(:,2,3,1)))
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+      deallocate(i)
+      allocate(i(0,2,1,0))
+      a = LocalMemReference(i)
+      call c_f_pointer(a%base_address, iptr,shape(i))
+      @assertTrue(associated(iptr))
+      @assertTrue( size(a%i_ptr) ==0)
+      call a%deallocate()
+      @assertTrue(.not. associated(a%i_ptr))
+
+   end subroutine test_4d
+
+   @test
+   subroutine test_serialize()
+      type (LocalMemReference) :: a
+      type (LocalMemReference) :: b
+      integer, allocatable :: buffer(:)
+
+      !empty
+      a = LocalMemReference(pFIO_REAL64, [0,1,1,1])
+      @assertTrue( associated(a%i_ptr))
+      @assertTrue( size(a%i_ptr) == 0 )
+      
+      call a%serialize(buffer)
+      call b%deserialize(buffer)
+
+      @assertTrue( all(a%shape == b%shape))
+      @assertTrue( a%type_kind == b%type_kind)
+
+   end subroutine test_serialize 
+  
+end module Test_LocalMemReferenceMod

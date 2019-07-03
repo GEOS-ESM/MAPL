@@ -127,6 +127,7 @@ contains
            help='# MPI processes used by input server', &
            required=.false., &
            def='0', &
+           nargs ='*', &
            exclude = '--nodes_input_server', &
            act='store', &
            error=status)
@@ -136,6 +137,7 @@ contains
            help='# MPI processes used by output server', &
            required=.false., &
            def='0', &
+           nargs ='*', &
            exclude = '--nodes_output_server', &
            act='store', &
            error=status)
@@ -145,6 +147,7 @@ contains
            help='# NCCS nodes (28 or more processors ) used by input server', &
            required=.false., &
            def='0', &
+           nargs ='*', &
            exclude = '--npes_input_server', &
            act='store', &
            error=status)
@@ -154,11 +157,11 @@ contains
            help='# NCCS nodes (28 or more processors) used by output server', &
            required=.false., &
            def='0', &
+           nargs ='*', &
            exclude = '--npes_output_server', &
            act='store', &
            error=status)
       _VERIFY(status)
-
 
       _RETURN(_SUCCESS)
 
@@ -191,10 +194,13 @@ contains
       endif
  
       call this%cli_options%get(val=this%npes_model, switch='--npes_model', error=status); _VERIFY(status)
-      call this%cli_options%get(val=this%npes_input_server, switch='--npes_input_server', error=status); _VERIFY(status)
-      call this%cli_options%get(val=this%npes_output_server, switch='--npes_output_server', error=status); _VERIFY(status)
-      call this%cli_options%get(val=this%nodes_input_server, switch='--nodes_input_server', error=status); _VERIFY(status)
-      call this%cli_options%get(val=this%nodes_output_server, switch='--nodes_output_server', error=status); _VERIFY(status)
+      call this%cli_options%get_varying(val=this%npes_input_server, switch='--npes_input_server', error=status); _VERIFY(status)
+      call this%cli_options%get_varying(val=this%npes_output_server, switch='--npes_output_server', error=status); _VERIFY(status)
+      call this%cli_options%get_varying(val=this%nodes_input_server, switch='--nodes_input_server', error=status); _VERIFY(status)
+      call this%cli_options%get_varying(val=this%nodes_output_server, switch='--nodes_output_server', error=status); _VERIFY(status)
+
+      this%n_iserver_group = max(size(this%npes_input_server),size(this%nodes_input_server))
+      this%n_oserver_group = max(size(this%npes_output_server),size(this%nodes_output_server))
 
       call this%cli_options%get(val=buffer, switch='--esmf_logtype', error=status); _VERIFY(status)
       call this%set_esmf_logging_mode(trim(buffer), rc=status); _VERIFY(status)
