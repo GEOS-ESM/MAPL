@@ -22,7 +22,6 @@ set (srcs
   MAPL_Range.F90
   MAPL_Config.F90
   MAPL_CFIO.F90
-#***DAS***#  MAPL_newCFIO.F90
   MAPL_IO.F90
   MAPL_Comms.F90           MAPL_LocStreamMod.F90  MAPL_Mod.F90
   MAPL_Constants.F90       MAPL_Profiler.F90      sort.c
@@ -34,10 +33,7 @@ set (srcs
   MAPL_CapGridComp.F90
   MAPL_GridType.F90 
   MAPL_GridSpec.F90
-#***DAS***#  MAPL_VerticalMethods.F90
-#***DAS***#  MAPL_newCFIOitem.F90
   MAPL_VerticalInterpMod.F90 
-#***DAS***#  MAPL_ESMFTimeVectorMod.F90  MAPL_TimeMethods.F90 MAPL_ioClients.F90
   MAPL_DefGridName.F90
   MAPL_DirPath.F90
   MAPL_AbstractRegridder.F90 MAPL_IdentityRegridder.F90
@@ -66,12 +62,9 @@ set (srcs
   memuse.c                 MAPL_MemUtils.F90      MAPL_Hash.F90 
   MAPL_MaxMinMod.F90     MAPL_SimpleBundleMod.F90 
   MAPL_OrbGridCompMod.F90  MAPL_NominalOrbitsMod.F90 MAPL_ExtDataGridCompMod.F90 
-#***DAS***#  MAPL_ExtData_IOBundleMod.F90
-#***DAS***#  MAPL_ExtData_IOBundleVectorMod.F90
   MAPL_NewArthParser.F90   MAPL_ShmemMod.F90      MAPL_LoadBalance.F90 MAPL_CFIOServer.F90
   CFIOCollection.F90 ESMF_CFIOPtrVectorMod.F90
   MAPL_TransposeRegridder.F90 MAPL_GetLatLonCoord.F90 MAPL_EsmfRegridder.F90
-#***DAS***#  MAPL_NUOPCWrapperMod.F90
   )
 
 esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4)
@@ -127,4 +120,11 @@ endif ()
 install (
    DIRECTORY Python
    DESTINATION lib
+   USE_SOURCE_PERMISSIONS
    )
+
+install (
+   PROGRAMS red_ma.pl
+   DESTINATION bin
+   )
+
