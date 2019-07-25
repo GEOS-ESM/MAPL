@@ -106,8 +106,7 @@ file (COPY mapl_acg.pl DESTINATION ${esma_include}/${this})
 file (COPY mapl_stub.pl DESTINATION ${esma_include}/${this})
 
 # Users guide 
-if ($ENV{USE_LATEX} MATCHES NO)
-else ()
+if (LATEX_FOUND)
   add_subdirectory (TeX)
 endif ()
 
