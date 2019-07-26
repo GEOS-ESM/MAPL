@@ -427,6 +427,7 @@ contains
          
       ! Next we search for a tempest ".nc4" file
       trial_name = make_tile_file_name(grid_name_in, grid_name_out,'.nc4')
+      inquire(file=trial_name, exist=exists)
       if (exists) then
          swap = .false.
       else ! swap
@@ -440,9 +441,10 @@ contains
       if (exists) then
          file_name = trial_name
          this%file_type = TEMPEST
+         _RETURN(_SUCCESS)
       end if
 
-      _RETURN(_SUCCESS)
+      _RETURN(_FAILURE)
 
 
    contains
