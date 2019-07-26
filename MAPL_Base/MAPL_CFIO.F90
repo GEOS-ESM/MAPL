@@ -213,6 +213,7 @@ character(len=ESMF_MAXSTR), &
 integer, pointer           :: Krank(:)=>null()
 integer                    :: rootRank = 0
 real,    pointer           :: levs(:)=>null()
+real,    pointer           :: unmodifiedLevs(:)=>null()
 type(MAPL_CommRequest), &
 		pointer :: reqs(:)=>null()
 class (AbstractRegridder), pointer :: regridder => null()
@@ -230,6 +231,8 @@ logical                    :: kreverse,xshift
 integer                    :: collection_id
 integer                    :: fraction
 integer                    :: regrid_type
+real, pointer              :: surfaceLayer(:,:) => null()
+logical                    :: ascending
 end type MAPL_CFIO
 !EOC
 !EOP
@@ -1145,9 +1148,10 @@ MCFIO%JM = JMO
           LEV = (/(L, L=1,LM)/)
        end if
 
-       allocate(mCFIO%levs(size(lev)), stat=status)
+       allocate(mCFIO%levs(size(lev)),mcfio%unmodifiedLevs(size(lev)), stat=status)
        VERIFY_(STATUS)
        mCFIO%levs = lev
+       mCFIO%unmodifiedLevs = lev
        if (HAVE_ungrd) then
           call ESMF_CFIOGridSet(cfiogrid, levUnit=ungridded_unit, RC=STATUS)
           VERIFY_(STATUS)
@@ -1164,6 +1168,7 @@ MCFIO%JM = JMO
           else
              mCFIO%levs = lev* MCFIO%vscale
           end if
+          mCFIO%unmodifiedLevs=mCFIO%unmodifiedLevs*MCFIO%vscale
 
           if( trim(vunits).eq."" ) then
              call ESMF_AttributeGet(FIELD, NAME="UNITS", VALUE=units,         RC=STATUS)
@@ -1735,9 +1740,10 @@ MCFIO%JM = JMO
     real, target, allocatable  :: Ple3d(:,:,:)
     real,         allocatable  :: Pl3d(:,:,:)
     real,         allocatable  :: Ptrx(:,:,:)
-    real,             pointer  :: layer(:,:)
+    real,             pointer  :: layer(:,:),ps0(:,:)
     logical                    :: PrePost_
-    
+    integer                    :: globalcount(3)
+    type(ESMF_VM)              :: vm 
 
 !                              ---
 
@@ -1763,6 +1769,19 @@ MCFIO%JM = JMO
        allocate( LAYER(size(Ptr3,1),size(Ptr3,2) ), stat=status)
        VERIFY_(STATUS)
 
+       if (associated(mcfio%regridder)) then
+          call ESMF_VMGetCurrent(vm,rc=status)
+          VERIFY_(status)
+          call MAPL_GridGet(mcfio%grid,globalCellCountPerDim=globalCount,rc=status)
+          VERIFY_(status)
+          call MAPL_AllocNodeArray(ps0,[globalCount(1),globalCount(2)],rc=status)
+          if(STATUS==MAPL_NoShm) allocate(ps0(globalCount(1),globalCount(2)),stat=status)
+          VERIFY_(status)
+          call MAPL_AllocNodeArray(mcfio%surfaceLayer,[mcfio%im,mcfio%jm],rc=status)
+          if(STATUS==MAPL_NoShm) allocate(mcfio%surfaceLayer(mcfio%im,mcfio%jm),stat=status)
+          VERIFY_(STATUS)
+       end if
+
 ! The Ptr3 interpolating variable is a zero-based (0-LM) edge variable
 !---------------------------------------------------------------------
        if(lbound(PTR3,3)==0) then
@@ -1780,6 +1799,11 @@ MCFIO%JM = JMO
           else
              ple3D = Ptr3
              pl3D  =    ( 0.5*(Ptr3(:,:,1:)+Ptr3(:,:,0:ubound(Ptr3,3)-1)) )
+          end if
+          if (associated(mCFIO%regridder)) then
+             mcfio%ascending = (ptr3(1,1,0)<ptr3(1,1,1))
+             call ArrayGather(ptr3(:,:,ubound(ptr3,3)),ps0,mcfio%grid,rc=status)
+             VERIFY_(status) 
           end if
 
        else
@@ -1808,7 +1832,29 @@ MCFIO%JM = JMO
              pl3D  =    ( 0.5*(Ptrx(:,:,1:)+Ptrx(:,:,0:ubound(Ptrx,3)-1)) )
           end if
 
+          if (associated(mCFIO%regridder)) then
+             mcfio%ascending = (ptrx(1,1,0)<ptrx(1,1,1))
+             call ArrayGather(ptrx(:,:,ubound(ptrx,3)),ps0,mcfio%grid,rc=status)
+             VERIFY_(status) 
+             
+          end if
           deallocate(Ptrx)
+       end if
+
+       if (associated(mCFIO%regridder)) then
+          call MAPL_BcastShared(vm,data=ps0,N=globalCount(1)*globalCount(2),root=0,RootOnly=.false.,rc=status)
+          VERIFY_(status)
+          if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+             call mCFIO%regridder%regrid(ps0,mcfio%surfaceLayer,rc=status)
+             VERIFY_(status)
+          end if
+         
+          if (MAPL_ShmInitialized) then 
+             call MAPL_DeAllocNodeArray(ps0,rc=status)
+             VERIFY_(status)
+          else
+             deallocate(ps0)
+          end if
        end if
 
     end if
@@ -2106,6 +2152,13 @@ MCFIO%JM = JMO
                call mCFIO%regridder%regrid(Gin, Gout, rc=status)
                VERIFY_(status)
             end if
+            if (mcfio%vinterp .and. (lm .ne. 1) ) then
+               if (mcfio%ascending) then
+                  where(mcfio%surfaceLayer<mcfio%unmodifiedLevs(k)) gout=MAPL_UNDEF
+               else
+                  where(mcfio%surfaceLayer>mcfio%unmodifiedLevs(k)) gout=MAPL_UNDEF
+               endif
+            end if
          else
             ASSERT_( all(shape(gout)==shape(gin)) )
             gout=gin
@@ -2166,6 +2219,15 @@ MCFIO%JM = JMO
             call mCFIO%regridder%set_undef_value(MAPL_undef)
             call mCFIO%regridder%regrid(uin, vin, uout, vout, rc=status)
             VERIFY_(status)
+            if (mcfio%vinterp .and. (lm .ne. 1)) then
+               if (mcfio%ascending) then
+                  where(mcfio%surfaceLayer<mcfio%unmodifiedLevs(k)) uout(:,:,1)=MAPL_UNDEF
+                  where(mcfio%surfaceLayer<mcfio%unmodifiedLevs(k)) vout(:,:,1)=MAPL_UNDEF
+               else
+                  where(mcfio%surfaceLayer>mcfio%unmodifiedLevs(k)) uout(:,:,1)=MAPL_UNDEF
+                  where(mcfio%surfaceLayer>mcfio%unmodifiedLevs(k)) vout(:,:,1)=MAPL_UNDEF
+               end if
+            end if
 
             deallocate(PtrIn(1)%ptr)
             nullify(PtrIn(1)%ptr)
