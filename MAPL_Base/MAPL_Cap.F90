@@ -5,7 +5,9 @@
 module MAPL_CapMod
    use MPI
    use ESMF
+#ifdef USE_FLAP
    use FLAP
+#endif
    use MAPL_SimpleCommSplitterMod
    use MAPL_SplitCommunicatorMod
    use MAPL_KeywordEnforcerMod

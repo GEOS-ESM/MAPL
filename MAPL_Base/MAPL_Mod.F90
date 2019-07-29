@@ -26,7 +26,9 @@ module MAPL_Mod
   use MAPL_HeapMod
   use MAPL_SatVaporMod
   use MAPL_CapOptionsMod
+#ifdef USE_FLAP
   use MAPL_FlapCapOptionsMod
+#endif
   use MAPL_CapMod
   use MAPL_MemUtilsMod
   use MAPL_HashMod
