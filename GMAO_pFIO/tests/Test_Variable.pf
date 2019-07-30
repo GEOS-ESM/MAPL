@@ -1,0 +1,231 @@
+! CFIO is mostly a container composed of FTL containers.  As such,
+! most of the tests here are just to drive the formulation of the
+! interface, not the algorithms.
+
+module Test_VariableMod
+   use pfunit_mod
+   use pFIO_UnlimitedEntityMod
+   use pFIO_AttributeMod
+   use pFIO_VariableMod
+   use pFIO_StringVectorMod
+   use pFIO_ConstantsMod
+   use, intrinsic :: iso_fortran_env, only: INT32, INT64
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   implicit none
+
+   ! Need an empty integer array for some tests
+   integer :: empty(0)
+
+contains
+
+   @test
+   subroutine test_get_type()
+      type (Variable) :: var
+
+      var = Variable(pFIO_INT32)
+      @assertEqual(pFIO_INT32, var%get_type())
+
+      var = Variable(pFIO_INT64)
+      @assertEqual(pFIO_INT64, var%get_type())
+
+      var = Variable(pFIO_REAL32, dimensions='x,y')
+      @assertEqual(pFIO_REAL32, var%get_type())
+      
+   end subroutine test_get_type
+
+   @test
+   subroutine test_get_ith_dimension()
+      type (Variable) :: var
+
+
+      var = Variable(pFIO_INT32, dimensions='x')
+      @assertEqual('x', var%get_ith_dimension(1))
+
+      var = Variable(pFIO_INT32, dimensions='x,yz,qqq')
+      @assertEqual('yz', var%get_ith_dimension(2))
+      @assertEqual('qqq', var%get_ith_dimension(3))
+      
+   end subroutine test_get_ith_dimension
+
+   @test
+   subroutine test_get_attribute_scalar_int()
+      type (Variable) :: var
+      type (Attribute), pointer :: attr
+      class (*), pointer :: value
+      
+      var = Variable(pFIO_INT32, dimensions='x')
+      call var%add_attribute('pet_age', 15)
+
+      attr => var%get_attribute('pet_age')
+      @assertEqual(EMPTY, attr%get_shape())
+
+      value => attr%get_value()
+      select type (value)
+      type is (integer(INT32))
+         @assertEqual(15, value)
+      class default
+         @assertTrue(1==2)
+      end select
+
+   end subroutine test_get_attribute_scalar_int
+
+   @test
+   subroutine test_get_attribute_real_double()
+      type (Variable) :: var
+      type (Attribute), pointer :: attr
+      class (*), pointer :: values(:)
+
+      var = Variable(pFIO_INT32, dimensions='x')
+      call var%add_attribute('pet_size', [15._REAL64,24._REAL64])
+
+      attr => var%get_attribute('pet_size')
+      @assertEqual([2], attr%get_shape())
+
+      values => attr%get_values()
+      select type (values)
+      type is (real(REAL64))
+         @assertEqual([15,24], values)
+      class default
+         @assertTrue(1==2)
+      end select
+
+   end subroutine test_get_attribute_real_double
+
+   @test
+   subroutine test_get_attribute_string()
+      type (Variable) :: var
+      type (Attribute), pointer :: attr
+      class (*), pointer :: value
+
+      !integer :: EMPTY(0)
+      var = Variable(pFIO_INT32, dimensions='x')
+      call var%add_attribute('pet_name', 'kitty')
+
+      attr => var%get_attribute('pet_name')
+      @assertEqual(empty, attr%get_shape())
+
+      value => attr%get_value()
+      select type (value)
+      type is (character(len=*))
+         @assertEqual('kitty', value)
+      type is (StringWrap)
+         @assertEqual('kitty', value%value)
+      class default
+         @assertTrue(1==2)
+      end select
+
+   end subroutine test_get_attribute_string
+
+
+   @test
+   subroutine test_equal_diff_dims()
+      type (Variable) :: v1, v2
+
+      v1 = Variable(pFIO_INT32, dimensions='x')
+      v2 = v1
+      @assertTrue(v1 == v2)
+      @assertFalse(v1 /= v2)
+      
+      v2 = Variable(pFIO_INT32, dimensions='y')
+
+      @assertTrue(v1 == v1)
+      @assertFalse(v1 == v2)
+
+      ! dimension order matters
+      v1 = Variable(pFIO_INT32, dimensions='x,y')
+      v2 = Variable(pFIO_INT32, dimensions='y,x')
+      @assertFalse(v1 == v2)
+      
+   end subroutine test_equal_diff_dims
+
+   @test
+   subroutine test_equal_diff_attributes()
+      type (Variable)  :: v1, v2
+      type (UnlimitedEntity) :: const
+
+      ! no init equal?
+      @assertTrue(v1 == v2)
+
+      const = UnlimitedEntity([0,1])
+      v1 = Variable(pFIO_INT32, dimensions='x', const_value = const)
+      v2 = v1
+
+      call v1%add_attribute('attr1', 1)
+      @assertFalse(v1 == v2)
+      ! guard against missing extra items in v2
+      @assertFalse(v2 == v1)
+
+      call v1%add_attribute('attr2', 2.)
+      call v2%add_attribute('attr2', 2.)
+      call v2%add_attribute('attr1', 1)
+      @assertTrue(v1 == v2)
+
+      call v1%add_attribute('attr3', 'cat')
+      call v2%add_attribute('attr3', 'dog')
+      @assertFalse(v1 == v2)
+
+   end subroutine test_equal_diff_attributes
+
+   @test
+   subroutine test_serialize()
+      type (Variable) :: v1
+      type (Variable), allocatable :: v2
+      integer,allocatable :: buffer(:)
+      real, dimension(2,3)     :: r2d
+      real(kind=real64),  dimension(2,3,4)    ::  r3d
+      integer(kind=INT64), dimension(2,3,4,5) :: i4d
+
+      v1 = Variable(pFIO_INT32, dimensions='x,y')
+      call v1%add_attribute('attr2', 2.)
+      call v1%add_attribute('attr1', 1.)
+      call v1%add_attribute('attr3', 'cat')
+
+      call v1%serialize(buffer)
+      allocate(v2)
+      call v2%deserialize(buffer)
+      @assertTrue(v1 == v2)     
+      deallocate(v2,buffer)
+
+      v1 = Variable(pFIO_real32, dimensions='x,y')
+      call v1%add_attribute('attr2', 2.)
+      call v1%add_attribute('attr1', 1.)
+      call v1%add_attribute('attr3', 'cat')
+
+      r2d = 2.0
+      call v1%add_const_value(UnlimitedEntity(r2d))
+      call v1%serialize(buffer)
+      allocate(v2)
+      call v2%deserialize(buffer)
+      @assertTrue(v1 == v2)     
+      deallocate(v2,buffer)
+      
+      v1 = Variable(pFIO_real64, dimensions='x,y,z')
+      call v1%add_attribute('attr2', 2.)
+      call v1%add_attribute('attr1', 1.)
+      call v1%add_attribute('attr3', 'cat')
+
+      r3d = 1.0_real64
+      call v1%add_const_value(UnlimitedEntity(r3d))
+      call v1%serialize(buffer)
+      allocate(v2)
+      call v2%deserialize(buffer)
+      @assertTrue(v1 == v2)     
+      deallocate(v2,buffer)
+
+      v1 = Variable(pFIO_INT64, dimensions='x,y,z,i')
+      call v1%add_attribute('attr2', 2.)
+      call v1%add_attribute('attr1', 1.)
+      call v1%add_attribute('attr3', 'cat')
+
+      i4d = 10
+      call v1%add_const_value(UnlimitedEntity(i4d))
+      call v1%serialize(buffer)
+      allocate(v2)
+      call v2%deserialize(buffer)
+      @assertTrue(v1 == v2)     
+      deallocate(v2,buffer)
+
+   end subroutine
+end module Test_VariableMod
+
+

@@ -1,0 +1,49 @@
+module Test_StringGridFactoryMapMod
+   use pFUnit_mod
+   use ESMF
+   use MAPL_StringGridFactoryMapMod
+   use MAPL_AbstractGridFactoryMod
+   use MockGridFactoryMod
+   implicit none
+
+
+contains
+
+   ! Tests here just verify basic functionality that FTL provides for
+   ! the registry
+
+   @test
+   subroutine test_retrieve_exists()
+      class (AbstractGridFactory), pointer :: factory
+      type (StringGridFactoryMap) :: registry
+
+      @assertFalse(associated(registry%at('a')))
+      
+      call registry%insert('a', MockGridFactory('A'))
+      @assertTrue(associated(registry%at('a')))
+
+      factory => registry%at('a')
+      @assertEqual('A', factory%to_string())
+
+   end subroutine test_retrieve_exists
+      
+      
+   @test
+   subroutine test_retrieve_multi()
+      class (AbstractGridFactory), pointer :: factory
+      type (StringGridFactoryMap) :: registry
+
+      call registry%insert('a', MockGridFactory('A'))
+      call registry%insert('b', MockGridFactory('B'))
+      call registry%insert('c', MockGridFactory('C'))
+
+      factory => registry%at('c')
+      @assertEqual('C', factory%to_string())
+
+      factory => registry%at('a')
+      @assertEqual('A', factory%to_string())
+      
+   end subroutine test_retrieve_multi
+      
+   
+end module Test_StringGridFactoryMapMod

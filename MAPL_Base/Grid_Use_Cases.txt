@@ -1,0 +1,205 @@
+------------------------------------------------------------------
+Use Case 1:   ExtData input grid
+================================
+
+Here most/all of the grid detail is intended to be derived from the
+specified netcdf file.  These grids are transitory in nature - used to
+create a single field and can then be disposed of.  OTOH, each such
+grid is likely to be the same used for other quantities in a given
+time step, and for the initial quantity on subsequent steps Thus, the
+design should allow grids to be saved, but perhaps not require it.
+
+
+Inputs:
+  * file_name (string) - NetCDF file name
+  * grid_type (string) - default is lat lon
+
+
+Outputs:
+
+  * (GEOS) ESMF_Grid which is used to define a field which is
+    subsequently filled from CFIO and regridded.
+
+
+
+Sequence:
+
+  0. prototypes are registered during model initialization
+  1. file_name and grid_type are determined from ExtData resource file
+  (or equivalent).
+
+  2. grid_type is used to retrieve and clone a grid gridprototype:
+
+     class (AbstractGridFactory), pointer :: grid_factory
+     ! Next line retrieves a new object and registers it with a unique index
+     grid_factory => grid_prototypes%clone(grid_type)
+
+  3. GEOS grid is generated from netCDF information
+  
+     call grid_factory%initialize(netcdf_file=file_name)  ! init from netcdf metadata
+     grid = grid_factory%make_geos_grid()
+
+
+Design issues:
+
+  1.  Do we add the grid itself into a registry?
+      Pros:
+         - saves computation if same grid comes up again
+      Cons:
+         - wastes storage if grid is just used once
+
+  2.  Do we want the clone() method to return a pointer?
+      Pros:
+      Cons:
+
+------------------------------------------------------------------
+Use Case 2:   History output grid
+=================================
+
+Here, all of the grid details must be provided by a resource file (or
+equivalent).  As with extData the grid created is transitory in nature,
+but is likely to frequently occur and as such could/should be saved.
+Perhaps reuse is even more likely, as a bundle will often share a
+single grid among multiple quantities being written to disk.
+
+Inputs:
+   * file_name (string) - NetCDF output file name
+   * grid_type (string) - default is native??
+   * grid_resolution (integers)
+   * grid details (pole, dateline, ...)
+
+Outputs:
+    * (GEOS) ESMF_Grid which is used to define an output field for subsequent
+      regridding from export quantities.
+
+Sequence:
+
+  0. prototypes are registered during model initialization
+  1. file_name and grid_type are determined from History resource file
+     (or equivalent).
+
+     Note: A convention _must_ be established for specifying the grid_type
+     such that the next step is deterministic.
+
+  2. grid_type is used to retrieve and clone a grid gridprototype:
+
+     class (AbstractGridFactory), pointer :: grid_factory
+     ! Next line retrieves a new object and registers it with a unique index
+     grid_factory => grid_prototypes%clone(grid_type)
+
+  3. GEOS grid is generated from additional details in resource file.
+     Options (not mutually exclusive):
+         A) decode a single string - must establish a convention.
+	 B) retrieve from config;  optional prefix allows multiple grid specs
+	    to be in same config;  requires conventions.
+  
+     ! option A
+     call grid_factory%initialize(string)
+     grid = grid_factory%make_geos_grid()
+
+     ! option B
+     call grid_factory%initialize(config, prefx)
+     grid = grid_factory%make_geos_grid()
+     
+
+
+Design issues:
+
+  1.  Do we add the grid itself into a registry?
+      Pros:
+         - saves computation if same grid comes up again
+      Cons:
+         - wastes storage if grid is just used once
+
+
+
+
+------------------------------------------------------------------
+Use Case 3:   Main model grids
+===============================================
+
+Here, the relevant grids are generally created during model
+initialization and persist for the remainder of the execution.
+Multiple Fields will be associated with each grid.  Design must not
+only allow definition of new types of grids, but also provide a simple
+mechanism for retrieving a defined grid for reuse.  Possibly by
+global variables ("atmos_grid", "ocn_grid", etc.)
+
+
+
+Sequence:
+
+	0) Initialization phase:  register prototypes
+
+           call prototypes%register('LatLon', LatLonGridFactory())
+	   ...
+	   call prototypes%register('CubedSphere', CubedSphereGridFactory())
+	   ...
+	   call prototypes%register('TriPolar, TripolarGridFactory())
+	   ...
+	   call prototypes%register('LocStream', LocStreamFactory())
+	   ...
+
+        1) Define main model grids.  Components "know" which grid_type
+           they are using as well as relevant parameters.
+
+	   ! Grid is made globally accessible, but unmodifiable:
+	   type (ESMF_Grid), public, save, protected :: atmos_grid
+	   atmos_grid_type = 'CubedSphere'
+
+
+	   Option A:  using abstraction and generic config
+	   -----------------------------------------------
+	   class (AbstractGridFactory), pointer :: factory
+
+	   factory => prototypes%clone(atmos_grid_type)
+	   call factory%initialize(config=specs) ! or encoded_string
+	   atmos_grid = factory%make_geos_grid()
+
+
+	   Option B:  hard coded - manual registration
+	   Possibly desirable, as it allows explicit parameters to be
+	   used in defining the grid and avoids the need for a config obj.
+	   ----------------------------------------------------------------
+
+	   class (AbstractGridFactory), pointer :: factory
+
+	   factory => prototypes%clone(atmos_grid_type)
+	   select type (factory)
+	   type is (CubedSphereGridFactory)
+              call factory%initialize(im_world, jm_world, ...)
+           end select type
+	   atmos_grid = factory%make_geos_grid()
+
+           ...
+
+	   Ocean case - uses tripolar grid
+	   ----------
+
+	   type (ESMF_Grid), public, save, protected :: ocean_grid
+	   ocean_grid_type = 'Tripolar'
+	   class (AbstractGridFactory), pointer :: factory
+
+	   factory => prototypes%clone(ocean_grid_type)
+	   call factory%initialize(config) ! or encoded_string
+	   ocean_grid = factory%make_geos_grid()
+
+
+	   LocStream
+	   ----------
+
+	   type (ESMF_Grid), public, save, protected :: other_grid
+	   class (AbstractGridFactory), pointer :: factory
+
+	   factory => prototypes%clone('LocStream')
+	   call factory%initialize(config) ! or encoded_string
+	   ocean_grid = factory%make_geos_grid()
+
+	   
+
+	
+
+
+
+
+

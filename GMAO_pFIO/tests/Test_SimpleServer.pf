@@ -1,0 +1,17 @@
+module Test_SimpleServerMod
+   use pfunit_mod
+   use pFIO_SimpleServerMod
+   implicit none
+
+contains
+
+   @test
+   subroutine test_prefetch()
+
+      client = MockClient()
+      server = SimpleServer()
+      call server%prefetch(collection, file, var_name)
+
+   end subroutine test_prefetch
+
+end module Test_SimpleServerMod

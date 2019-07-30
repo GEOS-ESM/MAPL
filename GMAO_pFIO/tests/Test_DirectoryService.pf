@@ -1,0 +1,269 @@
+module Test_DirectoryServiceMod
+   use pfunit_mod
+   use pFIO_AbstractDirectoryServiceMod
+   use pFIO_DirectoryServiceMod
+   use pFIO_AbstractSocketMod
+   use pFIO_AbstractSocketVectorMod
+   use pFIO_MpiSocketMod
+   use MockServerMod
+   use MockClientMod
+
+   implicit none
+
+contains
+
+   @test(npes=[1])
+   subroutine test_put_directory(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+      integer :: win
+      type (Directory) :: dir, dir2
+
+      comm = this%getMpiCommunicator()
+      ds = DirectoryService(comm)
+
+      dir%num_entries = 1
+      dir%entries(1) = DirectoryEntry('foo', 1)
+
+      win = ds%get_win('server_directory')
+      call ds%put_directory(dir, win)
+
+      dir2 = ds%get_directory(win)
+
+      @assertEqual(dir%num_entries, dir2%num_entries)
+      @assertEqual(dir%entries(1)%port_name, dir%entries(1)%port_name)
+      @assertEqual(dir%entries(1)%partner_root_rank, dir%entries(1)%partner_root_rank)
+
+   end subroutine test_put_directory
+
+
+   @test(npes=[1])
+   subroutine test_publish(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+      type (MockServer) :: mock_server
+
+      comm = this%getMpiCommunicator()
+      ds = DirectoryService(comm)
+
+      mock_server = MockServer(comm)
+      call ds%publish(PortInfo('service', mock_server), mock_server)
+
+   end subroutine test_publish
+
+
+   @test(npes=[2])
+   subroutine test_connect(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+
+      integer :: color, key, ierror
+      type (MockServer), target :: mock_server
+      type (MockClient) :: mock_client
+
+      ds = DirectoryService(this%getMpiCommunicator())
+      color = this%getProcessRank()
+      key = 0
+      call MPI_Comm_split(this%getMpiCommunicator(), color, key, comm, ierror)
+      @assertEqual(0, ierror)
+
+      select case (this%getProcessRank())
+      case (0) ! server
+         mock_server = MockServer(comm)
+         call ds%publish(PortInfo('input', mock_server), mock_server)
+         call ds%connect_to_client('input', mock_server)
+      case (1) ! client
+         mock_client = MockClient()
+         call ds%connect_to_server('input', mock_client, comm)
+      end select
+
+!!$      select type (s)
+!!$      type is (MpiSocket)
+!!$      class default
+!!$         @assertTrue(.false.)
+!!$      end select
+
+   end subroutine test_connect
+
+
+   @test(npes=[2])
+   subroutine test_connect_swap_role(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+
+      integer :: color, key, ierror
+      type (MockServer) :: mock_server
+      type (MockClient) :: mock_client
+
+      ds = DirectoryService(this%getMpiCommunicator())
+
+      color = this%getProcessRank()
+      key = 0
+      call MPI_Comm_split(this%getMpiCommunicator(), color, key, comm, ierror)
+      @assertEqual(0, ierror)
+
+      select case (this%getProcessRank())
+      case (1) ! server
+         mock_server = MockServer(comm)
+         call ds%publish(PortInfo('input', mock_server), mock_server)
+         call ds%connect_to_client('input', mock_server)
+      case (0) ! client
+         mock_client = MockClient()
+         call ds%connect_to_server('input', mock_client, comm)
+      end select
+
+!!$      select type (s)
+!!$      type is (MpiSocket)
+!!$      class default
+!!$         @assertTrue(.false.)
+!!$      end select
+!!$
+   end subroutine test_connect_swap_role
+
+   ! 3 clients, 2 servers
+   @test(npes=[5])
+   subroutine test_connect_multi(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+      integer :: ierror
+      type (AbstractSocketVector) :: sv
+
+      integer :: color, key
+      class (AbstractSocket), pointer :: s
+      class (AbstractSocket), pointer :: s1
+      class (AbstractSocket), pointer :: s2
+      type (MockServer) :: mock_server
+      type (MockClient) :: mock_client
+
+      ds = DirectoryService(this%getMpiCommunicator())
+
+      color = this%getProcessRank()/3
+      key = 0
+      call MPI_Comm_split(this%getMpiCommunicator(), color, key, comm, ierror)
+      @assertEqual(0, ierror)
+
+      select case (color)
+      case (1) ! server
+         mock_server = MockServer(comm)
+         call ds%publish(PortInfo('input', mock_server), mock_server)
+
+         select case (this%getProcessRank())
+         case (3) ! have one
+            call ds%connect_to_client('input', mock_server)
+         case (4)
+            call ds%connect_to_client('input', mock_server)
+         end select
+      case (0) ! client
+         mock_client = MockClient()
+         call ds%connect_to_server('input', mock_client, comm)
+      end select
+
+
+   end subroutine test_connect_multi
+
+
+   ! 3 clients, 2 servers, 1 unused
+   ! Just making sure that there is no implicit assumption that a process
+   ! is always involved in either a client or a server.
+   @test(npes=[6])
+   subroutine test_connect_with_unused_process(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+      type (AbstractSocketVector) :: sv
+
+      integer :: color, key
+      integer :: ierror
+      class (AbstractSocket), pointer :: s
+      class (AbstractSocket), pointer :: s1
+      class (AbstractSocket), pointer :: s2
+      type (MockServer) :: mock_server
+      type (MockClient) :: mock_client
+
+      ds = DirectoryService(this%getMpiCommunicator())
+
+      if (this%getProcessRank() == 3) then
+         color = 5
+      else
+         color = this%getProcessRank()/3
+         key = 0
+      end if
+      call MPI_Comm_split(this%getMpiCommunicator(), color, key, comm, ierror)
+      @assertEqual(0, ierror)
+
+      select case (color)
+      case (1) ! server
+         mock_server = MockServer(comm)
+         call ds%publish(PortInfo('input', mock_server), mock_server)
+
+         select case (this%getProcessRank())
+         case (4) ! have one
+            call ds%connect_to_client('input', mock_server)
+         case (5)
+            call ds%connect_to_client('input', mock_server)
+         end select
+      case (0) ! client
+         mock_client = MockClient()
+         call ds%connect_to_server('input', mock_client, comm)
+      end select
+
+
+   end subroutine test_connect_with_unused_process
+
+   ! 4 clients, 2 servers
+   @test(npes=[8])
+   subroutine test_stress(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (DirectoryService) :: ds
+      integer :: comm
+
+      integer :: color, key
+      class (AbstractSocket), pointer :: s
+      type (MockServer) :: mock_server
+      type (MockClient) :: mock_client
+
+      integer :: i
+      integer :: ierror
+
+      ds = DirectoryService(this%getMpiCommunicator())
+
+      select case (this%getProcessRank())
+      case (0:3)
+         color = 0 ! client
+      case (4:5) ! none
+         color = 2
+      case (6:7)
+         color = 1 ! server
+      end select
+         
+      key = 0
+      call MPI_Comm_split(this%getMpiCommunicator(), color, key, comm, ierror)
+      @assertEqual(0, ierror)
+
+      select case (color)
+      case (1) ! server
+         mock_server = MockServer(comm)
+         call ds%publish(portInfo('input', mock_server), mock_server)
+         call ds%connect_to_client('input', mock_server)
+      case (0) ! client
+         mock_client = MockClient()
+         call ds%connect_to_server('input', mock_client, comm)
+      end select
+
+
+    end subroutine test_stress
+
+
+end module Test_DirectoryServiceMod

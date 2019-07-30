@@ -1,0 +1,20 @@
+module Test_MAPL_ConfigMod
+   use pfunit_mod
+   use MAPL_ConfigMod
+   use ESMF
+
+contains
+
+@test
+   subroutine test_SetAttribute_string
+      type (ESMF_Config) :: config
+      integer :: status
+      character(len=ESMF_MAXSTR) :: str
+
+      
+      config = MAPL_ConfigCreate()
+      call MAPL_ConfigSetAttribute(config, 'LatLon', 'GRID_TYPE:', rc=status)
+      call ESMF_ConfigGetAttribute(config, value=str, label='GRID_TYPE:', rc=status)
+   end subroutine test_SetAttribute_string
+
+end module Test_MAPL_ConfigMod

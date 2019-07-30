@@ -1,0 +1,435 @@
+! CFIO is mostly a container composed of FTL containers.  As such,
+! most of the tests here are just to drive the formulation of the
+! interface, not the algorithms.
+
+module Test_FileMetadataMod
+   use pfunit_mod
+   use pFIO_FileMetadataMod
+   use pFIO_StringIntegerMapMod
+   use pFIO_StringAttributeMapMod
+!   use pFIO_UnlimitedEntityMod
+   use pFIO_AttributeMod
+   use pFIO_ConstantsMod
+   use pFIO_VariableMod
+   use iso_fortran_env, only: INT32, INT64
+   use iso_fortran_env, only: REAL32, REAL64
+   implicit none
+
+   integer :: EMPTY(0)
+
+contains
+
+   @test
+   subroutine test_get_dimension_missing()
+      type (FileMetadata) :: cf
+      integer :: status
+      integer :: extent
+
+      !W.Y notes: If missing, crash
+
+      !extent = cf%get_dimension('x',rc=status)
+      !@assertEqual(status, pFIO_DIMENSION_NOT_FOUND)
+      !extent = cf%get_dimension('x') ! without rc
+      !@assertExceptionRaised('FileMetadata::get_dimension() - no such dimension <x>.')
+      !@assertEqual(pFIO_DIMENSION_NOT_FOUND, status)
+
+   end subroutine test_get_dimension_missing
+
+
+   @test
+   subroutine test_get_dimension()
+      type (FileMetadata) :: cf
+
+      call cf%add_dimension('x', 10)
+      call cf%add_dimension('y', 11)
+
+      @assertEqual(10, cf%get_dimension('x'))
+      @assertEqual(11, cf%get_dimension('y'))
+      
+   end subroutine test_get_dimension
+
+   @test
+   subroutine test_get_dimensions()
+      type (FileMetadata), target :: cf
+      type (StringIntegerMap), pointer :: dimensions
+
+      call cf%add_dimension('x', 10)
+      call cf%add_dimension('y', 11)
+
+      dimensions => cf%get_dimensions()
+      @assertEqual(2, dimensions%size())
+
+   end subroutine test_get_dimensions
+
+   @test
+   subroutine test_get_attribute_missing()
+      type (FileMetadata) :: cf
+      integer :: status
+      class (*), pointer :: attr
+! no missing any more
+     ! attr => cf%get_attribute('x',rc=status)
+     ! @assertExceptionRaised('FileMetadata::get_attribute() - no such attribute <x>.')
+     ! @assertEqual(pFIO_ATTRIBUTE_NOT_FOUND, status)
+     ! @assertTrue(.not. associated(attr))
+
+   end subroutine test_get_attribute_missing
+
+
+   @test
+   subroutine test_get_attribute_scalar()
+      type (FileMetadata), target :: cf
+
+      type (Attribute), pointer :: attr
+      integer, allocatable :: shape(:)
+
+      class (*), pointer :: value
+      integer :: i = 4
+      real(REAL32) :: x32 = 1.234
+      real(REAL64) :: x64 = 2.345_REAL64
+      logical :: flag = .true.
+      character(len=*), parameter :: str = 'kitty'
+
+      call cf%add_attribute('i', i)
+      call cf%add_attribute('x32', x32)
+      call cf%add_attribute('x64', x64)
+      call cf%add_attribute('flag', flag)
+      call cf%add_attribute('string', str)
+
+      attr => cf%get_attribute('i')
+      @assertTrue(associated(attr))
+      shape = attr%get_shape()
+      @assertEqual(EMPTY, shape)
+      value => attr%get_value()
+      @assertTrue(associated(value))
+      select type (v => value)
+      type is (integer)
+         @assertEqual(i, v)
+      class default
+         @assertTrue(.false., 'incorrect type')
+      end select
+
+      attr => cf%get_attribute('x32')
+      @assertTrue(associated(attr))
+      shape = attr%get_shape()
+      @assertEqual(EMPTY, shape)
+      value => attr%get_value()
+      @assertTrue(associated(value))
+      select type (v => value)
+      type is (real(REAL32))
+         @assertEqual(x32, v)
+      class default
+         @assertTrue(.false., 'incorrect type')
+      end select
+
+      attr => cf%get_attribute('x64')
+      @assertTrue(associated(attr))
+      shape = attr%get_shape()
+      @assertEqual(EMPTY, shape)
+      value => attr%get_value()
+      @assertTrue(associated(value))
+      select type (v => value)
+      type is (real(REAL64))
+         @assertEqual(x64, v)
+      class default
+         @assertTrue(.false., 'incorrect type')
+      end select
+
+      attr => cf%get_attribute('flag')
+      @assertTrue(associated(attr))
+      shape = attr%get_shape()
+      @assertEqual(EMPTY, shape)
+      value => attr%get_value()
+      @assertTrue(associated(value))
+      select type (v => value)
+      type is (logical)
+         @assertTrue(flag .eqv. v)
+      class default
+         @assertTrue(.false., 'incorrect type')
+      end select
+
+      attr => cf%get_attribute('string')
+      @assertTrue(associated(attr))
+      shape = attr%get_shape()
+      @assertEqual(EMPTY, shape)
+      value => attr%get_value()
+      @assertTrue(associated(value))
+      select type (v => value)
+      type is (character(len=*))
+         @assertEqual(str, v)
+      type is (StringWrap)
+         @assertEqual(str, v%value)
+      class default
+         @assertTrue(.false., 'incorrect type')
+      end select
+
+
+   end subroutine test_get_attribute_scalar
+
+   @test
+   subroutine test_get_attribute_vector()
+      type (FileMetadata), target :: cf
+
+      integer(INT32) :: i32(2) = [3,4]
+      integer(INT64) :: i64(3) = [5,6,7]
+      real(REAL32) :: x32(3) = 1.234
+      real(REAL64) :: x64(2) = 2.345_REAL64
+      logical :: flag(2) = [.true.,.false.]
+
+      type (Attribute), pointer :: attr
+      
+      call cf%add_attribute('i32', i32)
+      call cf%add_attribute('i64', i64)
+      call cf%add_attribute('x32', x32)
+      call cf%add_attribute('x64', x64)
+      call cf%add_attribute('flag', flag)
+
+      call check_has_attr('i32')
+      if (anyexceptions()) return
+      call check_has_attr('i64')
+      if (anyexceptions()) return
+      call check_has_attr('x32')
+      if (anyexceptions()) return
+      call check_has_attr('x64')
+      if (anyexceptions()) return
+      call check_has_attr('flag')
+      if (anyexceptions()) return
+
+      call check_shape('i32', i32)
+      if (anyexceptions()) return
+      call check_shape('i64', i64)
+      if (anyexceptions()) return
+      call check_shape('x32', x32)
+      if (anyexceptions()) return
+      call check_shape('x64', x64)
+      if (anyexceptions()) return
+      call check_shape('flag', flag)
+      if (anyexceptions()) return
+      
+      call check_equal('i32', i32)
+      if (anyexceptions()) return
+      call check_equal('i64', i64)
+      if (anyexceptions()) return
+      call check_equal('x32', x32)
+      if (anyexceptions()) return
+      call check_equal('x64', x64)
+      if (anyexceptions()) return
+      call check_equal('flag', flag)
+      if (anyexceptions()) return
+
+
+   contains
+
+      subroutine check_has_attr(attr_name)
+         character(len=*), intent(in) :: attr_name
+         attr => cf%get_attribute(attr_name)
+         @assertTrue(associated(attr))
+      end subroutine check_has_attr
+
+      subroutine check_shape(attr_name, values)
+         character(len=*), intent(in) :: attr_name
+         class (*), intent(in) :: values(:)
+         
+         attr => cf%get_attribute(attr_name)
+         @assertEqual(attr%get_shape(), shape(values))
+      end subroutine check_shape
+
+      subroutine check_equal(attr_name, expected)
+         character(len=*), intent(in) :: attr_name
+         class (*), intent(in) :: expected(:)
+
+         class (*), pointer :: found(:)
+         
+         attr => cf%get_attribute(attr_name)
+         found => attr%get_values()
+
+         select type (expected)
+         type is (integer(INT32))
+            select type (found)
+            type is (integer(INT32))
+               @assertEqual(expected, found)
+            class default
+               @assertTrue(1==2, 'incorrect type ' // attr_name)
+            end select
+         type is (integer(INT64))
+            select type (found)
+            type is (integer(INT64))
+               @assertEqual(expected, found)
+            class default
+               @assertTrue(1==2, 'incorrect type ' // attr_name)
+            end select
+         type is (real(REAL32))
+            select type (found)
+            type is (real(REAL32))
+               @assertEqual(expected, found)
+            class default
+               @assertTrue(1==2, 'incorrect type ' // attr_name)
+            end select
+         type is (real(REAL64))
+            select type (found)
+            type is (real(REAL64))
+               @assertEqual(expected, found)
+            class default
+               @assertTrue(1==2, 'incorrect type ' // attr_name)
+            end select
+         type is (logical)
+            select type (found)
+            type is (logical)
+               @assertAll(expected .eqv. found)
+            class default
+               @assertTrue(1==2, 'incorrect type ' // attr_name)
+            end select
+         end select
+
+      end subroutine check_equal
+
+
+
+   end subroutine test_get_attribute_vector
+
+
+   @test
+   subroutine test_get_attributes()
+      type (FileMetadata), target :: cf
+      type (StringAttributeMap), pointer :: attributes
+
+      call cf%add_attribute('x', 10)
+      call cf%add_attribute('y', 11)
+
+      attributes => cf%get_attributes()
+      @assertEqual(2, attributes%size())
+
+   end subroutine test_get_attributes
+
+
+   @test
+   subroutine test_equal_dims()
+
+      type (FileMetadata) :: cf1
+      type (FileMetadata) :: cf2
+
+      @assertTrue(cf1 == cf2)
+      @assertFalse(cf1 /= cf2)
+
+      call cf1%add_dimension('x', 10)
+      call cf1%add_dimension('t', pFIO_UNLIMITED)
+
+      call cf2%add_dimension('t', pFIO_UNLIMITED)
+      call cf2%add_dimension('x', 10)
+      @assertTrue(cf1 == cf2)
+      @assertFalse(cf1 /= cf2)
+
+      call cf1%add_dimension('z', 5)
+      @assertFalse(cf1 == cf2)
+      @assertFalse(cf2 == cf1)
+
+   end subroutine test_equal_dims
+
+   @test
+   subroutine test_equal_diff_attributes()
+      type (FileMetadata) :: cf1, cf2
+
+
+      call cf1%add_attribute('attr1', 1)
+      @assertFalse(cf1 == cf2)
+      ! guard against missing extra items in cf2
+      @assertFalse(cf2 == cf1)
+
+      call cf1%add_attribute('attr2', 2.)
+      call cf2%add_attribute('attr2', 2.)
+      call cf2%add_attribute('attr1', 1)
+      @assertTrue(cf1 == cf2)
+
+      call cf1%add_attribute('attr3', 'cat')
+      call cf2%add_attribute('attr3', 'dog')
+      @assertFalse(cf1 == cf2)
+
+   end subroutine test_equal_diff_attributes
+
+   @test
+   subroutine test_var_dims_defined()
+      type (FileMetadata) :: cf
+      type (Variable) :: v
+      integer :: status
+
+      call cf%add_dimension('x', 10)
+      call cf%add_dimension('y', 20)
+
+      v = Variable(pFIO_REAL64, dimensions='x,y')
+      call cf%add_variable('mass', v, rc=status)
+      !@assertExceptionRaised("FileMetadata::add_variable() - undefined dimension 'z'.")
+      @assertEqual(0, status)
+      
+   end subroutine test_var_dims_defined
+      
+   @test
+   subroutine test_equal_diff_variables()
+      type (FileMetadata) :: cf1, cf2
+      type (Variable) :: v1, v2, v3
+
+      call cf1%add_dimension('x', 10)
+      call cf1%add_dimension('y', 20)
+      call cf1%add_dimension('z', 30)
+      cf2 = cf1
+
+      v1 = Variable(pFIO_INT32, dimensions='x')
+      v2 = Variable(pFIO_REAL64, dimensions='x,y,z')
+      call v3%add_attribute('flag', .true.)
+
+      call cf1%add_variable('v1', v1)
+      @assertTrue(cf1 == cf1)
+      @assertFalse(cf1 /= cf1)
+      
+      call cf1%add_variable('v2', v2)
+      @assertFalse(cf1 == cf2)
+      @assertFalse(cf2 == cf1)
+
+      call cf2%add_variable('v2', v2)
+      @assertFalse(cf1 == cf2)
+      @assertFalse(cf2 == cf1)
+
+      call cf2%add_variable('v1', v1)
+      @assertTrue(cf1 == cf2)
+
+      v3 = v1
+      call cf1%add_variable('v3', v3)
+      ! Modify v3 before adding to cf2
+      ! Deep copy means v3 in cf1 is not affected.
+      call v3%add_attribute('other', [1,2,3])
+      call cf2%add_variable('v3', v3)
+      @assertFalse(cf1 == cf2)
+
+      ! get back to v1 
+      call cf2%modify_variable('v3',v1)
+      @assertTrue(cf1 == cf2)
+      
+   end subroutine test_equal_diff_variables
+
+   @test
+   subroutine test_serialize()
+     type (FileMetadata) :: cf1, cf2
+     type (Variable) :: v1, v2
+     integer,allocatable :: buffer(:)
+
+     call cf1%add_dimension('x', 10)
+     call cf1%add_dimension('y', 20)
+     call cf1%add_dimension('z', 30) 
+
+     v1 = Variable(pFIO_INT32, dimensions='x')
+
+     v2 = Variable(pFIO_REAL32, dimensions='y')
+     call v2%add_attribute('flag', .false.)
+
+     call cf1%add_variable('v1',v1)
+     call cf1%add_variable('v2',v2)
+     call cf1%add_attribute('flag', .true.)
+ 
+     call cf1%serialize(buffer)
+     call cf2%deserialize(buffer)
+     @assertTrue(cf1 == cf2 )
+
+     call cf1%add_dimension('w', 10) 
+     @assertFalse(cf1 == cf2 )
+
+   end subroutine test_serialize
+
+end module Test_FileMetadataMod

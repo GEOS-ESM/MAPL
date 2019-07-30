@@ -1,0 +1,237 @@
+module Test_UnlimitedEntityMod
+   use pfunit_mod
+   use pFIO_UnlimitedEntityMod
+   use pFIO_ConstantsMod
+   use, intrinsic :: iso_fortran_env, only: INT32, INT64
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   implicit none
+
+contains
+
+   @test
+   subroutine test_equal_shape()
+      type (UnlimitedEntity) :: a
+      type (UnlimitedEntity) :: b
+      integer, dimension(2*3*4*5) :: array
+      integer, dimension(2*3,4*5) :: a2d
+      integer, dimension(2,3,4*5) :: a3d
+      integer, dimension(2,3,4,5) :: a4d
+
+      array = 5
+
+      a = UnlimitedEntity(1)
+      b = UnlimitedEntity([1,2])
+
+      @assertTrue(a == a)
+      @assertFalse(a /= a)
+      @assertFalse(a == b)
+      @assertTrue(a /= b)
+
+      a2d = reshape(array,(/2*3,4*5/))
+      a = UnlimitedEntity(a2d)
+      b = UnlimitedEntity(a2d)
+      @assertTrue(a == b)
+
+      a3d = reshape(array,(/2,3,4*5/))
+      a = UnlimitedEntity(a3d)
+      b = UnlimitedEntity(a3d)
+      @assertTrue(a == b)
+
+      a4d = reshape(array,(/2,3,4,5/))
+      a = UnlimitedEntity(a4d)
+      b = UnlimitedEntity(a4d)
+      @assertTrue(a == b)
+
+   end subroutine test_equal_shape
+
+   @test
+   subroutine test_equal_type()
+      type (UnlimitedEntity) :: a
+      type (UnlimitedEntity) :: b
+
+      a = UnlimitedEntity(1)
+      b = UnlimitedEntity(1.)
+
+      @assertTrue(a == a)
+      @assertFalse(a /= a)
+      @assertFalse(a == b)
+      @assertTrue(a /= b)
+
+   end subroutine test_equal_type
+
+   @test
+   subroutine test_is_empty()
+      type (UnlimitedEntity) :: a
+      character(len=:), allocatable:: str
+      logical :: is
+      
+      ! not initialized
+      is = a%is_empty()
+      @assertTrue(is)
+     
+      ! empty string
+      a = UnlimitedEntity('')
+      is = a%is_empty()
+      @assertTrue(is)
+
+      ! unallocated string
+      a = UnlimitedEntity(str)
+      is = a%is_empty()
+      @assertTrue(is)
+
+      a = UnlimitedEntity('no')
+      is = a%is_empty()
+      @assertFalse(is)
+
+      a = UnlimitedEntity(0)
+      is = a%is_empty()
+      @assertFalse(is)
+
+      a = UnlimitedEntity([0])
+      is = a%is_empty()
+      @assertFalse(is)
+
+   end subroutine test_is_empty
+
+   @test
+   subroutine test_equal_values()
+      type (UnlimitedEntity) :: a
+      type (UnlimitedEntity) :: b
+      character(len=:),allocatable :: c1,c2
+     
+      ! test without initialization
+      @assertTrue(a == b)
+
+      a = UnlimitedEntity(1.)
+      b = UnlimitedEntity(2.)
+
+      @assertTrue(a == a)
+      @assertFalse(a /= a)
+      @assertFalse(a == b)
+      @assertTrue(a /= b)
+
+      a = UnlimitedEntity([.true., .false.])
+      b = UnlimitedEntity([.true., .true.])
+
+      @assertTrue(a == a)
+      @assertFalse(a /= a)
+      @assertFalse(a == b)
+      @assertTrue(a /= b)
+
+      c1 = 'a'
+      c2 = 'a'
+      a = UnlimitedEntity(c1)
+      b = UnlimitedEntity(c2)
+
+      @assertTrue(a == a)
+      @assertFalse(a /= a)
+      @assertFalse(a /= b)
+      @assertTrue(a == b)
+
+      c1 = 'abcd'
+      c2 = 'abcde'
+      a = UnlimitedEntity(c1)
+      b = UnlimitedEntity(c2)
+
+      @assertTrue(a == a)
+      @assertFalse(a /= a)
+      @assertTrue(a /= b)
+      @assertFalse(a == b)
+
+      a = UnlimitedEntity('N')
+      b = UnlimitedEntity('N')
+      @assertTrue(a == b)
+
+   end subroutine test_equal_values
+
+   @test
+   subroutine test_serialize()
+      type (UnlimitedEntity) :: a
+      type (UnlimitedEntity),allocatable :: b
+      integer,allocatable :: buffer(:)
+
+      real, dimension(2*3*4*5) :: array
+      real, dimension(2*3,4*5) :: a2d
+      real, dimension(2*3,4,5) :: a3d
+      real, dimension(2,3,4,5) :: a4d
+      integer :: i
+
+
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(b%is_empty())
+      deallocate(buffer,b)
+      
+      a = UnlimitedEntity('')
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(b%is_empty())
+      deallocate(buffer,b)
+
+      do i = 1, 2*3*4*5
+         array(i) = i*1.0
+      enddo  
+
+      a = UnlimitedEntity(10)
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+      deallocate(buffer,b)
+
+      a = UnlimitedEntity([10,20,30])
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+      deallocate(buffer,b)
+
+      a = UnlimitedEntity([.true.,.false.])
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+      deallocate(buffer,b)
+
+      a = UnlimitedEntity('abcd')
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+      deallocate(buffer,b)
+
+      a = UnlimitedEntity('abcdefgh')
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+      deallocate(buffer,b)
+
+      a2d = reshape(array,(/2*3,4*5/))
+      a = UnlimitedEntity(a2d)
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+      deallocate(buffer,b)
+
+      a3d = reshape(array,(/2*3,4,5/))
+      a = UnlimitedEntity(a3d)
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+      deallocate(buffer,b)
+
+      a4d = reshape(array,(/2,3,4,5/))
+      a = UnlimitedEntity(a4d)
+      call a%serialize(buffer)
+      allocate(b)
+      call b%deserialize(buffer)
+      @assertTrue(a==b)
+
+   end subroutine test_serialize
+
+end module Test_UnlimitedEntityMod

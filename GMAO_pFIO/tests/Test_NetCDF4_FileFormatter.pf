@@ -1,0 +1,141 @@
+module Test_NetCDF4_FileFormatterMod
+   use pfunit_mod
+   use pFIO_NetCDF4_FileFormatterMod
+   use pFIO_FileMetadataMod
+   use pFIO_VariableMod
+   use pFIO_ConstantsMod
+   use netcdf
+   implicit none
+
+
+contains
+
+   @before
+   subroutine setup()
+   end subroutine setup
+
+   @after
+   subroutine tearDown()
+      integer :: unit
+
+      open(newunit=unit, file='test.nc', status='old')
+      close(unit, status='delete')
+      
+   end subroutine tearDown
+
+   @test
+   subroutine test_write_read_trivial()
+      type (NetCDF4_FileFormatter) :: formatter
+      type (FileMetadata) :: cf_expected
+      type (FileMetadata) :: cf_found
+      integer :: status
+
+      call cf_expected%add_dimension('x',1)
+
+      call formatter%create('test.nc', rc=status)
+      @assertEqual(NF90_NOERR, status)
+      call formatter%write(cf_expected, rc=status)
+      @assertEqual(0, NF90_NOERR)
+      call formatter%close(rc=status)
+      @assertEqual(0, NF90_NOERR)
+
+      call formatter%open('test.nc', mode=NF90_NOWRITE, rc=status)
+      @assertEqual(0, NF90_NOERR)
+      cf_found = formatter%read(rc=status)
+      call formatter%close(rc=status)
+      @assertEqual(0, NF90_NOERR)
+
+      @assertTrue(cf_expected == cf_found)
+
+   end subroutine test_write_read_trivial
+
+   @test
+   subroutine test_write_read_simple_variable()
+      type (NetCDF4_FileFormatter) :: formatter
+      type (FileMetadata) :: cf_expected
+      type (FileMetadata) :: cf_found
+      integer :: status
+
+      call cf_expected%add_dimension('x',1)
+      call cf_expected%add_dimension('y',2)
+      call cf_expected%add_variable('var', Variable(pFIO_INT32, dimensions='x,y'))
+
+      call formatter%create('test.nc', rc=status)
+      @assertEqual(NF90_NOERR, status)
+      call formatter%write(cf_expected, rc=status)
+      @assertEqual(0, NF90_NOERR)
+      call formatter%close(rc=status)
+      @assertEqual(0, NF90_NOERR)
+
+      call formatter%open('test.nc', mode=NF90_NOWRITE, rc=status)
+      @assertEqual(0, NF90_NOERR)
+      cf_found = formatter%read(rc=status)
+      call formatter%close(rc=status)
+      @assertEqual(0, NF90_NOERR)
+
+      @assertTrue(cf_expected == cf_found)
+
+   end subroutine test_write_read_simple_variable
+
+   @test
+   subroutine test_write_read_simple_attribute()
+      type (NetCDF4_FileFormatter) :: formatter
+      type (FileMetadata) :: cf_expected
+      type (FileMetadata) :: cf_found
+      integer :: status
+
+      call cf_expected%add_dimension('x',1)
+      call cf_expected%add_dimension('y',2)
+      call cf_expected%add_attribute('attr', [1,2])
+
+      call formatter%create('test.nc', rc=status)
+      @assertEqual(NF90_NOERR, status)
+      call formatter%write(cf_expected, rc=status)
+      @assertEqual(0, NF90_NOERR)
+      call formatter%close(rc=status)
+      @assertEqual(0, NF90_NOERR)
+
+      call formatter%open('test.nc', mode=NF90_NOWRITE, rc=status)
+      @assertEqual(0, NF90_NOERR)
+      cf_found = formatter%read(rc=status)
+      call formatter%close(rc=status)
+      @assertEqual(0, NF90_NOERR)
+
+      @assertTrue(cf_expected == cf_found)
+
+   end subroutine test_write_read_simple_attribute
+
+   @test
+   subroutine test_write_read_variable_attribute()
+      type (NetCDF4_FileFormatter) :: formatter
+      type (FileMetadata) :: cf_expected
+      type (FileMetadata) :: cf_found
+      type (Variable) :: v
+      integer :: status
+
+      call cf_expected%add_dimension('x',1)
+      call cf_expected%add_dimension('y',2)
+
+      v = Variable(pFIO_INT32, dimensions='x,y')
+      call v%add_attribute('attr', [1.,2.,3.])
+      call cf_expected%add_variable('var', v)
+
+      call formatter%create('test.nc', rc=status)
+      @assertEqual(NF90_NOERR, status)
+      call formatter%write(cf_expected, rc=status)
+      @assertEqual(0, NF90_NOERR)
+      call formatter%close(rc=status)
+      @assertEqual(0, NF90_NOERR)
+
+      call formatter%open('test.nc', mode=NF90_NOWRITE, rc=status)
+      @assertEqual(0, NF90_NOERR)
+      cf_found = formatter%read(rc=status)
+      call formatter%close(rc=status)
+      @assertEqual(0, NF90_NOERR)
+
+      @assertTrue(cf_expected == cf_found)
+
+   end subroutine test_write_read_variable_attribute
+
+end module Test_NetCDF4_FileFormatterMod
+   

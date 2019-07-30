@@ -1,0 +1,314 @@
+module test_pFIO_UtilitiesMod
+   use iso_fortran_env, only: INT32,REAL32,INT64 
+   use pfunit_mod
+   use pFIO_UtilitiesMod
+   implicit none
+
+contains
+
+   @test
+   subroutine test_serialize_buffer_length_string()
+
+      call check('a',3); if (anyExceptions()) return
+      call check('ab',3); if (anyExceptions()) return
+      call check('abc',3); if (anyExceptions()) return
+      call check('abcd',3); if (anyExceptions()) return
+      call check('abcde',4); if (anyExceptions()) return
+
+   contains
+
+      subroutine check(str, expected)
+         character(len=*), intent(in) :: str
+         integer, intent(in) :: expected
+
+         @assertEqual(expected, serialize_buffer_length(str))
+
+      end subroutine check
+
+   end subroutine test_serialize_buffer_length_string
+
+
+   @test
+   subroutine test_serialize_buffer_length_int_0d()
+      
+      @assertEqual(1, serialize_buffer_length(1))
+      @assertEqual(1, serialize_buffer_length(2))
+
+
+   end subroutine test_serialize_buffer_length_int_0d
+
+
+   @test
+   subroutine test_serialize_buffer_length_int_1d()
+      integer :: empty(0)
+      
+      @assertEqual(1, serialize_buffer_length(empty))
+      @assertEqual(2, serialize_buffer_length([1]))
+      @assertEqual(5, serialize_buffer_length([1,2,3,4]))
+
+
+   end subroutine test_serialize_buffer_length_int_1d
+
+   @test
+   subroutine test_serialize_buffer_length_int64_0d()
+      integer(kind=INT64) :: i,j,L
+      L = 10
+      i = L**15
+      j = L**16
+      @assertEqual(2, serialize_buffer_length(i))
+      @assertEqual(2, serialize_buffer_length(j))
+
+
+   end subroutine test_serialize_buffer_length_int64_0d
+
+
+   @test
+   subroutine test_serialize_buffer_length_int64_1d()
+      integer(kind=INT64) :: empty(0)
+      integer(kind=INT64) :: i,j,k,l,m
+      m = 10
+      i = m**14; j = i+1; k = i+2; l = i+3
+      @assertEqual(1, serialize_buffer_length(empty))
+      @assertEqual(3, serialize_buffer_length([i]))
+      @assertEqual(9, serialize_buffer_length([i,j,k,l]))
+
+
+   end subroutine test_serialize_buffer_length_int64_1d
+
+   @test
+   subroutine test_serialize_buffer_length_real_0d()
+      
+      @assertEqual(1, serialize_buffer_length(1.0))
+      @assertEqual(1, serialize_buffer_length(2.0))
+
+
+   end subroutine test_serialize_buffer_length_real_0d
+
+   @test
+   subroutine test_serialize_buffer_length_real_1d()
+      real :: empty(0)
+      
+      @assertEqual(1, serialize_buffer_length(empty))
+      @assertEqual(2, serialize_buffer_length([1.0]))
+      @assertEqual(5, serialize_buffer_length([1.0,2.0,3.0,4.0]))
+
+   end subroutine test_serialize_buffer_length_real_1d
+
+
+   @test
+   subroutine test_serialize_buffer_length_logical_0d()
+      
+      @assertEqual(1, serialize_buffer_length(.true.))
+      @assertEqual(1, serialize_buffer_length(.false.))
+
+
+   end subroutine test_serialize_buffer_length_logical_0d
+
+   @test
+   subroutine test_serialize_buffer_length_logical_1d()
+      logical :: empty(0)
+      
+      @assertEqual(1, serialize_buffer_length(empty))
+      @assertEqual(2, serialize_buffer_length([.true.]))
+      @assertEqual(5, serialize_buffer_length([.true.,.false.,.true.,.false.]))
+
+   end subroutine test_serialize_buffer_length_logical_1d
+
+
+   @test
+   subroutine test_serialize_string()
+      character(len=:), allocatable :: str
+      integer, allocatable :: array(:)
+
+      call check(str); if (anyExceptions()) return
+      call check(''); if (anyExceptions()) return
+      call check('a'); if (anyExceptions()) return
+      call check('ab'); if (anyExceptions()) return
+      call check('abc'); if (anyExceptions()) return
+      call check('abcd'); if (anyExceptions()) return
+      call check('abcde'); if (anyExceptions()) return
+      call check('some very long string '); if (anyExceptions()) return
+
+   contains
+
+      subroutine check(expected)
+         character(len=*), intent(in) :: expected
+         character(len=:), allocatable :: found
+
+         call deserialize_intrinsic(serialize_intrinsic(expected),found)
+         @assertEqual(expected, found)
+
+      end subroutine check
+
+   end subroutine test_serialize_string
+
+   @test
+   subroutine test_serialize_int_scalar()
+
+      call check(1); if (anyExceptions()) return
+      call check(2); if (anyExceptions()) return
+
+   contains
+
+      subroutine check(expected)
+         integer, intent(in) :: expected
+         integer :: found
+
+         call deserialize_intrinsic(serialize_intrinsic(expected),found)
+         @assertEqual(expected, found)
+
+      end subroutine check
+      
+   end subroutine test_serialize_int_scalar
+
+
+   @test
+   subroutine test_serialize_int_array()
+
+      call check([1]); if (anyExceptions()) return
+      call check([2]); if (anyExceptions()) return
+      call check([1,2]); if (anyExceptions()) return
+      call check([1,2,3]); if (anyExceptions()) return
+
+   contains
+
+      subroutine check(expected)
+         integer, intent(in) :: expected(:)
+         integer, allocatable :: found(:)
+
+         call deserialize_intrinsic(serialize_intrinsic(expected),found)
+         @assertEqual(expected, found)
+
+      end subroutine check
+      
+   end subroutine test_serialize_int_array
+
+
+   @test
+   subroutine test_serialize_int64_scalar()
+      integer(kind=INT64) :: i,j,L
+      L = 10
+      i = L**15; j = i+1
+      call check(i); if (anyExceptions()) return
+      call check(j); if (anyExceptions()) return
+
+   contains
+
+      subroutine check(expected)
+         integer(kind=INT64), intent(in) :: expected
+         integer(kind=INT64) :: found
+
+         call deserialize_intrinsic(serialize_intrinsic(expected),found)
+         @assertEqual(expected, found)
+
+      end subroutine check
+      
+   end subroutine test_serialize_int64_scalar
+
+
+   @test
+   subroutine test_serialize_int64_array()
+      integer(kind=INT64):: i,j,k,L
+      L = 10
+      i = L**15; j = i+1; k = i+2
+      call check([i]);     if (anyExceptions()) return
+      call check([j]);     if (anyExceptions()) return
+      call check([i,j]);   if (anyExceptions()) return
+      call check([i,j,k]); if (anyExceptions()) return
+   contains
+
+      subroutine check(expected)
+         integer(kind=INT64), intent(in) :: expected(:)
+         integer(kind=INT64), allocatable :: found(:)
+
+         call deserialize_intrinsic(serialize_intrinsic(expected),found)
+         @assertEqual(expected, found)
+      end subroutine check
+      
+   end subroutine test_serialize_int64_array
+
+
+   @test
+   subroutine test_serialize_real_scalar()
+
+      call check(1.0); if (anyExceptions()) return
+      call check(2.0); if (anyExceptions()) return
+
+   contains
+
+      subroutine check(expected)
+         real, intent(in) :: expected
+         real :: found
+
+         call deserialize_intrinsic(serialize_intrinsic(expected),found)
+         @assertEqual(expected, found)
+
+      end subroutine check
+      
+   end subroutine test_serialize_real_scalar
+
+
+   @test
+   subroutine test_serialize_real_array()
+
+      call check([1.0]); if (anyExceptions()) return
+      call check([2.0]); if (anyExceptions()) return
+      call check([1.0,2.0]); if (anyExceptions()) return
+      call check([1.0,2.0,3.0]); if (anyExceptions()) return
+
+   contains
+
+      subroutine check(expected)
+         real, intent(in) :: expected(:)
+         real, allocatable :: found(:)
+
+         call deserialize_intrinsic(serialize_intrinsic(expected),found)
+         @assertEqual(expected, found)
+
+      end subroutine check
+      
+   end subroutine test_serialize_real_array
+
+   @test
+   subroutine test_serialize_logical_scalar()
+
+      call check(.true.); if (anyExceptions()) return
+      call check(.false.); if (anyExceptions()) return
+
+   contains
+
+      subroutine check(expected)
+         logical, intent(in) :: expected
+         logical :: found
+
+         call deserialize_intrinsic(serialize_intrinsic(expected),found)
+         @assertEqual(expected, found)
+
+      end subroutine check
+      
+   end subroutine test_serialize_logical_scalar
+
+
+   @test
+   subroutine test_serialize_logical_array()
+
+      call check([.true.]); if (anyExceptions()) return
+      call check([.false.]); if (anyExceptions()) return
+      call check([.true.,.false.]); if (anyExceptions()) return
+
+   contains
+
+      subroutine check(expected)
+         logical, intent(in) :: expected(:)
+         logical, allocatable :: found(:)
+         integer :: i
+         call deserialize_intrinsic(serialize_intrinsic(expected),found)
+         do i = 1,size(expected)
+            @assertEqual(expected(i), found(i))
+         enddo
+
+      end subroutine check
+      
+   end subroutine test_serialize_logical_array
+
+end module test_pFIO_UtilitiesMod

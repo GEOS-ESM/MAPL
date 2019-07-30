@@ -1,0 +1,204 @@
+module Test_ServerThreadMod
+   use pfunit_mod
+   use, intrinsic :: iso_fortran_env, only: REAL32
+   use pFIO_AbstractMessageMod
+   use pFIO_ArrayReferenceMod
+   use pFIO_ServerThreadMod
+   use pFIO_AbstractSocketMod
+   use MockSocketMod
+   use MockServerMod
+
+   use pFIO_ConstantsMod
+   use pFIO_VariableMod
+   use pFIO_NetCDF4_FileFormatterMod
+   use pFIO
+
+   use pFIO_TerminateMessageMod
+   use pFIO_DoneMessageMod
+   use pFIO_AddExtCollectionMessageMod
+   use pFIO_IdMessageMod
+   use pFIO_PrefetchDataMessageMod
+   use pFIO_WaitRequestDataMessageMod
+   use pFIO_IntegerSocketMapMod
+
+   implicit none
+
+
+   integer, parameter :: NX = 3
+   integer, parameter :: NY = 4
+
+   real(kind=REAL32), parameter :: A_EXPECTED = 5
+   real(kind=REAL32), parameter :: U_EXPECTED(NX,NY) = reshape([1,2,3,1,2,3,1,2,3,1,2,3],[NX,NY])
+   real(kind=REAL32), parameter :: V_EXPECTED(NX,NY) = reshape([1,1,1,2,2,2,3,3,3,4,4,4],[NX,NY])
+
+contains
+
+
+   @before
+   subroutine setUp()
+      type (FileMetadata) :: metadata
+      type (NetCDF4_FileFormatter) :: formatter
+
+      call metadata%add_dimension('i',NX)
+      call metadata%add_dimension('j',NY)
+      call metadata%add_variable('a', Variable(pFIO_REAL32))
+      call metadata%add_variable('u', Variable(pFIO_REAL32, dimensions='i,j'))
+      call metadata%add_variable('v', Variable(pFIO_REAL32, dimensions='i,j'))
+
+      call formatter%create('fake_data.nc4')
+      call formatter%write(metadata)
+
+      call formatter%put_var('a', A_EXPECTED)
+      call formatter%put_var('u', U_EXPECTED)
+      call formatter%put_var('v', V_EXPECTED)
+      
+      call formatter%close()
+
+   end subroutine setUp
+
+   @after
+   subroutine tearDown()
+      integer :: unit
+
+      open(newunit=unit, file='fake_data.nc4', status='old')
+      close(unit, status='delete')
+
+   end subroutine tearDown
+
+
+   ! Failure here is actually a hang.
+   @test
+   subroutine test_return_on_terminate()
+      type (ServerThread) :: s
+
+      type (MockSocketLog), target :: log
+      type (MockSocket) :: client_socket
+      type (MockServer) :: mock_server
+
+      client_socket = MockSocket(log)
+      call client_socket%add_message(TerminateMessage())
+      mock_server = MockServer()
+      call s%init(client_socket, mock_server)
+      call s%set_rank(1)
+      call s%run()
+      @assertEqual('receive<Terminate>', log%log)
+
+   end subroutine test_return_on_terminate
+   
+
+   ! Failure here is actually a hang.
+   @test
+   subroutine test_return_on_terminate_b()
+      type (ServerThread) :: s
+
+      type (MockSocketLog), target :: log
+      type (MockSocket) :: client_socket
+      type (MockServer) :: mock_server
+      integer :: i       
+
+      client_socket = MockSocket(log)
+      call client_socket%add_message(DoneMessage())
+      call client_socket%add_message(TerminateMessage())
+      mock_server = MockServer()
+      call s%init(client_socket, mock_server)
+      call s%set_rank(1)
+ 
+      do i = 1,3 ! NOT 2. when done is issued, need one more run to receive terminate
+         call s%run()
+      enddo
+      @assertEqual("receive<Done> :: receive<Terminate>", log%log)
+
+   end subroutine test_return_on_terminate_b
+
+   @test
+   subroutine test_handle_AddExtCollection()
+      type (ServerThread) :: s
+      character(len=:), allocatable :: expected
+      type (MockSocketLog), target :: log
+      type (MockSocket) :: client_socket
+      type (MockServer) :: mock_server
+      integer :: i
+
+      client_socket = MockSocket(log)
+      call client_socket%add_message(AddExtCollectionMessage('foo'))
+      call client_socket%add_message(AddExtCollectionMessage('bar'))
+      call client_socket%add_message(TerminateMessage())
+      mock_server = MockServer()
+      call s%init(client_socket, mock_server)
+      call s%set_rank(1)
+
+      do i = 1,3
+        call s%run()
+      enddo
+
+      expected = ""
+      expected = expected // "receive<AddExtCollection('foo')>"
+      expected = expected // " :: send<Id(001)>"
+      expected = expected // " :: receive<AddExtCollection('bar')>"
+      expected = expected // " :: send<Id(002)>"
+      expected = expected // " :: receive<Terminate>"
+      
+      @assertEqual(expected, log%log)
+
+   end subroutine test_handle_AddExtCollection
+
+   @test
+   subroutine test_handle_PrefetchData()
+      type (ServerThread) :: s
+      character(len=:), allocatable :: expected
+
+      type (ArrayReference) :: reference_a, reference_u, reference_v
+      type (MockSocketLog), target :: log
+      type (MockSocket) :: client_socket
+      real(kind=REAL32), target :: a, u(NX,NY), v(NX,NY)
+      type (MockServer) :: mock_server
+      integer :: i
+
+      reference_a = ArrayReference(a)
+      reference_u = ArrayReference(u)
+      reference_v = ArrayReference(v)
+
+      client_socket = MockSocket(log)
+      call client_socket%add_message(AddExtCollectionMessage('foo'))
+      call client_socket%add_message(PrefetchDataMessage(1, 1, 'fake_data.nc4', 'a', reference_a))
+      call client_socket%add_message(PrefetchDataMessage(2, 1, 'fake_data.nc4', 'u', reference_u, start=[1,1]))
+      call client_socket%add_message(PrefetchDataMessage(3, 1, 'fake_data.nc4', 'v', reference_v, start=[1,1]))
+      call client_socket%add_message(DoneMessage())
+      call client_socket%add_message(TerminateMessage())
+
+      mock_server = MockServer()
+      call s%init(client_socket, mock_server)
+      !s = ServerThread(client_socket,mock_server)
+      call s%set_rank(1)
+
+      ! run to 5th, done
+      ! add 3 to deal with backlog
+      ! add 1 to terminate
+      ! 5+3+1 = 9
+      do i = 1,9
+         call s%run()
+      enddo
+
+      expected = ""
+      expected = expected // "receive<AddExtCollection('foo')>"
+      expected = expected // " :: send<Id(001)>"
+      expected = expected // " :: receive<PrefetchData('a')>"
+      expected = expected // " :: send<Dummy>"
+      expected = expected // " :: receive<PrefetchData('u')>"
+      expected = expected // " :: send<Dummy>"
+      expected = expected // " :: receive<PrefetchData('v')>"
+      expected = expected // " :: send<Dummy>"
+      expected = expected // " :: receive<Done>"
+      expected = expected // " :: put()"
+      expected = expected // " :: put()"
+      expected = expected // " :: put()"
+      expected = expected // " :: receive<Terminate>"
+
+      @assertEqual(expected, log%log)
+      @assertEqual(A_EXPECTED, log%values_a)
+      @assertEqual(U_EXPECTED, log%values_u)
+      @assertEqual(V_EXPECTED, log%values_v)
+   end subroutine test_handle_PrefetchData
+
+   
+end module Test_ServerThreadMod
