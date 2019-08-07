@@ -105,6 +105,7 @@ module MAPL_GenericMod
 
   use ESMF
   use ESMFL_Mod
+  use ESMF_CFIOMod, only: ESMF_CFIOStrTemplate
   use MAPL_BaseMod
   use MAPL_IOMod
   use MAPL_ProfMod
@@ -865,9 +866,12 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   logical                          :: ChldGridValid
   integer                          :: reference_date
   integer                          :: reference_time
-  integer                          :: yyyymmdd
+  integer                          :: yyyymmdd, hhmmss
   integer                          :: year, month, day, hh, mm, ss
   character(len=ESMF_MAXSTR)       :: gridTypeAttribute
+  character(len=ESMF_MAXSTR)       :: tmp_label, FILEtpl
+  character(len=:),allocatable     :: ens_id
+  integer                          :: ens_id_width
   real(ESMF_KIND_R8)               :: fixedLons, fixedLats
   type(ESMF_GridComp)              :: GCCS ! this is needed as a workaround 
                                            ! for recursive ESMF method within method
@@ -1182,10 +1186,11 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
    VERIFY_(STATUS)
 
    ! get current time from clock and create a reference time with optonal override
-   call ESMF_TimeGet( currTime, YY = YEAR, MM = MONTH, DD = DAY, rc = STATUS  )
+   call ESMF_TimeGet( currTime, YY = YEAR, MM = MONTH, DD = DAY, H=HH, M=MM, S=SS, rc = STATUS  )
    VERIFY_(STATUS)
 
    yyyymmdd = year*10000 + month*100 + day
+   hhmmss   = HH*10000 + MM*100 + SS
 
 !  Get Alarm reference date and time from resouce, it defaults to midnight of the current day
    call MAPL_GetResource (STATE, reference_date, label='REFERENCE_DATE:', &
@@ -1332,6 +1337,10 @@ endif
       deallocate(R_FILETYPE, R_ALARM)
    endif
 
+   call MAPL_GetResource( STATE, ens_id_width,         &
+                             LABEL="ENS_ID_WIDTH:", default=0, &
+                             RC=STATUS)
+   allocate(character(len=ens_id_width):: ens_id)
    if (associated(STATE%RECORD)) then
       call MAPL_GetResource( STATE, FILENAME,         &
                              LABEL="IMPORT_CHECKPOINT_FILE:", &
@@ -1342,11 +1351,26 @@ endif
       else
          STATE%RECORD%IMP_LEN = 0
       end if
-         
-      call MAPL_GetResource( STATE, FILENAME,         &
-                             LABEL="INTERNAL_CHECKPOINT_FILE:", &
-                             RC=STATUS)
+
+      ens_id=""
+      tmp_label = "INTERNAL_CHECKPOINT_FILE:"
+      call MAPL_GetResource( STATE   , FILEtpl,         &
+                                 LABEL=trim(tmp_label), &
+                           RC=STATUS)
+      if((STATUS /= ESMF_SUCCESS) .and. ens_id_width > 0) then
+         i = len(trim(COMP_NAME))
+         ens_id = COMP_NAME(i-ens_id_width+1:i)
+         read(ens_id,*,IOSTAT=status) j
+         !if is a ensemble number
+         if(status == 0) tmp_label =COMP_NAME(1:i-ens_id_width)//"_"//trim(tmp_label)
+         call MAPL_GetResource( STATE   , FILEtpl,      &
+                                 LABEL=trim(tmp_label), &
+                           RC=STATUS)
+      endif
+
       if(STATUS==ESMF_SUCCESS) then
+         ! if the filename is tempate
+         call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = ens_id, nymd=yyyymmdd,nhms=hhmmss,stat=status)
          STATE%RECORD%INT_FNAME = FILENAME
          STATE%RECORD%INT_LEN = LEN_TRIM(FILENAME)
       else
@@ -1491,10 +1515,25 @@ endif
       end if
       VERIFY_(STATUS)
 
-      call MAPL_GetResource( STATE   , FILENAME,         &
-                                 LABEL="INTERNAL_RESTART_FILE:", &
+      ens_id = ""
+      tmp_label = "INTERNAL_RESTART_FILE:"
+      call MAPL_GetResource( STATE   , FILEtpl,         &
+                                 LABEL=trim(tmp_label), &
                                  RC=STATUS)
+      if((STATUS /=ESMF_SUCCESS) .and. ens_id_width >0) then
+         i = len(trim(COMP_NAME))
+         ens_id = COMP_NAME(i-ens_id_width+1:i)
+         read(ens_id,*,IOSTAT=status) j
+         !if is a ensemble number
+         if(status == 0) tmp_label =COMP_NAME(1:i-ens_id_width)//"_"//trim(tmp_label)
+         call MAPL_GetResource( STATE   , FILEtpl,         &
+                                 LABEL=trim(tmp_label), &
+                                 RC=STATUS)
+      endif
+
       if(STATUS==ESMF_SUCCESS) then
+        ! if the filename is tempate
+         call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = ens_id, nymd=yyyymmdd,nhms=hhmmss,stat=status)
          call MAPL_GetResource( STATE   , hdr,         &
                                  default=0, &
                                  LABEL="INTERNAL_HEADER:", &
@@ -1730,7 +1769,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   character(len=ESMF_MAXSTR)                  :: CHILD_NAME
   character(len=ESMF_MAXSTR)                  :: RECFIN
   type (MAPL_MetaComp), pointer               :: STATE
-  integer                                     :: I
+  integer                                     :: I,j
   logical                                     :: final_checkpoint
   integer                                     :: NC
   integer                                     :: PHASE
@@ -1738,7 +1777,12 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   integer                                     :: MAXPHASES
   type (MAPL_MetaPtr), allocatable            :: CHLDMAPL(:)
   integer                                     :: hdr
-
+  integer                                     :: yyyymmdd, hhmmss
+  integer                                     :: year, month, day, hh, mm, ss
+  character(len=ESMF_MAXSTR)                  :: tmp_label, FILEtpl
+  character(len=:), allocatable               :: ens_id
+  integer                                     :: ens_id_width
+  type(ESMF_Time)                             :: CurrTime 
 !=============================================================================
 
 !  Begin...
@@ -1806,8 +1850,38 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 ! Checkpoint the internal state if required.
 !------------------------------------------
 
-     call       MAPL_GetResource( STATE, FILENAME, LABEL="INTERNAL_CHECKPOINT_FILE:",                RC=STATUS )
+     call ESMF_ClockGet (clock, currTime=currTime, rc=status)
+     VERIFY_(STATUS)
+     call ESMF_TimeGet( currTime, YY = YEAR, MM = MONTH, DD = DAY, H=HH, M=MM, S=SS, rc = STATUS  )
+     VERIFY_(STATUS)
+
+     yyyymmdd = year*10000 + month*100 + day
+     hhmmss   = HH*10000 + MM*100 + SS
+
+     call MAPL_GetResource( STATE, ens_id_width,         &
+                             LABEL="ENS_ID_WIDTH:", default=0, &
+                             RC=STATUS)
+     allocate(character(len=ens_id_width):: ens_id)
+
+     ens_id=""
+     tmp_label = "INTERNAL_CHECKPOINT_FILE:"
+     call MAPL_GetResource( STATE   , FILEtpl,         &
+                                 LABEL=trim(tmp_label), &
+                                 RC=STATUS)
+     if((STATUS /= ESMF_SUCCESS) .and. ens_id_width>0) then
+        i = len(trim(COMP_NAME))
+        ens_id = COMP_NAME(i-ens_id_width+1:i)
+        read(ens_id,*,IOSTAT=status) j
+           !if is a ensemble number
+        if(status == 0) tmp_label =COMP_NAME(1:i-ens_id_width)//"_"//trim(tmp_label)
+        call MAPL_GetResource( STATE   , FILEtpl,       &
+                                 LABEL=trim(tmp_label), &
+                                 RC=STATUS)
+     endif
+
      if(STATUS==ESMF_SUCCESS) then
+        ! if the filename is tempate
+        call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = ens_id, nymd=yyyymmdd,nhms=hhmmss,stat=status)
         call    MAPL_GetResource( STATE, FILETYPE, LABEL="INTERNAL_CHECKPOINT_TYPE:",                RC=STATUS )
         if ( STATUS/=ESMF_SUCCESS  .or.  FILETYPE == "default" ) then
            call MAPL_GetResource( STATE, FILETYPE, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
