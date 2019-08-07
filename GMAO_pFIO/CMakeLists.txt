@@ -142,8 +142,7 @@ include_directories (${INC_NETCDF})
 file (COPY unused_dummy.H DESTINATION ${include_${this}})
 
 # Users guide 
-if ($ENV{USE_LATEX} MATCHES NO)
-else ()
+if (LATEX_FOUND)
 #  add_subdirectory (TeX)
 endif ()
 

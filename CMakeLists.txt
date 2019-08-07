@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 1.1.0
+  VERSION 1.1.1
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 if (NOT COMMAND esma) # build as standalone project

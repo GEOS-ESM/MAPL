@@ -31,6 +31,7 @@ module MAPL_TripolarGridFactoryMod
    character(len=*), parameter :: UNDEFINED_CHAR = '**'
 
    character(len=*), parameter :: GRID_NAME_DEFAULT = 'UNKNOWN'
+   character(len=*), parameter :: GRID_FILE_NAME_DEFAULT = 'UNKNOWN'
 
    type, extends(AbstractGridFactory) :: TripolarGridFactory
       private
@@ -162,16 +163,17 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      grid = ESMF_GridCreate( &
-           & name = this%grid_name, &
-           & countsPerDEDim1=this%ims, &
-           & countsPerDEDim2=this%jms, &
-           & indexFlag=ESMF_INDEX_DELOCAL, &
-           & gridEdgeLWidth=[0,0], &
-           & gridEdgeUWidth=[0,0], &
-           & coordDep1=[1,2], &
-           & coordDep2=[1,2], &
-           & rc=status)
+       grid = ESMF_GridCreate1PeriDim( &
+            name=trim(this%grid_name) ,&
+            countsPerDEDim1=this%ims, &
+            countsPerDEDim2=this%jms, &
+            indexFlag=ESMF_INDEX_DELOCAL, &
+            gridEdgeLWidth=[0,0], &
+            gridEdgeUWidth=[0,1], &
+            coordDep1=[1,2], &
+            coordDep2=[1,2], &
+            poleKindFlag=[ESMF_POLEKIND_MONOPOLE,ESMF_POLEKIND_BIPOLE], &
+            coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
       _VERIFY(status)
       
       ! Allocate coords at default stagger location
@@ -363,10 +365,51 @@ contains
       _ASSERT(mod(this%jm_world, this%ny) == 0)
 
       ! local extents
-      this%ims = spread(this%im_world / this%nx, 1, this%nx)
-      this%jms = spread(this%jm_world / this%ny, 1, this%ny)
+      call verify(this%nx, this%im_world, this%ims, rc=status)
+      call verify(this%ny, this%jm_world, this%jms, rc=status)
+      !this%ims = spread(this%im_world / this%nx, 1, this%nx)
+      !this%jms = spread(this%jm_world / this%ny, 1, this%ny)
       
       _RETURN(_SUCCESS)
+
+   contains
+
+      subroutine verify(n, m_world, ms, rc)
+         integer, intent(inout) :: n
+         integer, intent(inout) :: m_world
+         integer, allocatable, intent(inout) :: ms(:)
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         if (allocated(ms)) then
+            _ASSERT(size(ms) > 0)
+
+            if (n == UNDEFINED_INTEGER) then
+               n = size(ms)
+            else
+               _ASSERT(n == size(ms))
+            end if
+
+            if (m_world == UNDEFINED_INTEGER) then
+               m_world = sum(ms)
+            else
+               _ASSERT(m_world == sum(ms))
+            end if
+
+         else
+
+            _ASSERT(n /= UNDEFINED_INTEGER)
+            _ASSERT(m_world /= UNDEFINED_INTEGER)
+            allocate(ms(n), stat=status)
+            _VERIFY(status)
+            call MAPL_DecomposeDim(m_world, ms, n)
+
+         end if
+
+         _RETURN(_SUCCESS)
+
+      end subroutine verify
          
    end subroutine check_and_fill_consistency
 
