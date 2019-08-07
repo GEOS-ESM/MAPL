@@ -1,16 +1,16 @@
 module test_ClientMod
    use pfunit_mod
-   use pFIO_ClientThreadMod
+   use pFIO_MockClientThreadMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractMessageMod
    use MockSocketMod
 
+   use pFIO_ArrayReferenceMod
    use pFIO_TerminateMessageMod
    use pFIO_DoneMessageMod
-   use pFIO_AddCollectionMessageMod
-   use pFIO_CollectionIdMessageMod
-   use pFIO_RequestIdMessageMod
-   use pFIO_RequestDataMessageMod
+   use pFIO_AddExtCollectionMessageMod
+   use pFIO_IdMessageMod
+   use pFIO_PrefetchDataMessageMod
    use pFIO_WaitRequestDataMessageMod
 
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -19,50 +19,50 @@ module test_ClientMod
 contains
 
    @test
-   subroutine test_addCollection_send_message()
-      type (ClientThread) :: c
+   subroutine test_addExtCollection_send_message()
+      type (MockClientThread) :: c
       class (AbstractSocket), pointer :: connection
       integer :: handle_foo
       type (MockSocketLog), target :: log
 
-      c = ClientThread(MockSocket(log))
+      call c%set_connection(MockSocket(log))
       connection => c%get_connection()
 
-      handle_foo = c%add_collection(template='foo')
+      handle_foo = c%add_ext_collection(template='foo')
 
       select type (connection)
       type is (MockSocket)
-         @assertEqual("send<AddCollection('foo')>", log%log)
+         @assertEqual("send<AddExtCollection('foo')>", log%log)
       end select
 
-   end subroutine test_addCollection_send_message
+   end subroutine test_addExtCollection_send_message
 
 
    @test
-   subroutine test_addCollection_unique_handle()
-      type (ClientThread) :: c
+   subroutine test_addExtCollection_unique_handle()
+      type (MockClientThread) :: c
       class (AbstractSocket), pointer :: connection
       integer :: handle_foo
       integer :: handle_bar
       type (MockSocketLog), target :: log
 
-      c = ClientThread(MockSocket(log))
+      call c%set_connection(MockSocket(log))
       connection => c%get_connection()
       select type (connection)
       type is (MockSocket)
-         call connection%add_message(CollectionIdMessage(1))
-         call connection%add_message(CollectionIdMessage(2))
+         call connection%add_message(IdMessage(1))
+         call connection%add_message(IdMessage(2))
       end select
 
-      handle_foo = c%add_collection(template='foo')
-      handle_bar = c%add_collection(template='bar')
+      handle_foo = c%add_ext_collection(template='foo')
+      handle_bar = c%add_ext_collection(template='bar')
       @assertFalse(handle_foo == handle_bar)
       
-   end subroutine test_addCollection_unique_handle
+   end subroutine test_addExtCollection_unique_handle
    
    @test
-   subroutine test_request_subset()
-      type (ClientThread) :: c
+   subroutine test_prefetch_data()
+      type (MockClientThread) :: c
       class (AbstractSocket), pointer :: connection
       integer :: collection_id
 
@@ -71,31 +71,31 @@ contains
       character(len=:), allocatable :: expected_log
       type (MockSocketLog), target :: log
 
-      c = ClientThread(MockSocket(log))
+      call c%set_connection(MockSocket(log))
       connection => c%get_connection()
       select type (connection)
       type is (MockSocket)
-         call connection%add_message(CollectionIdMessage(1))
-         call connection%add_message(RequestIdMessage(1))
+         call connection%add_message(IdMessage(1))
+         call connection%add_message(IdMessage(2))
          connection%q1 = q
       end select
 
-      collection_id = c%add_collection(template='foo')
-      request_id = c%request_subset(collection_id, 'foo', 'q', q)
+      collection_id = c%add_ext_collection(template='foo')
+      request_id = c%prefetch_data(collection_id, 'foo', 'q', ArrayReference(q))
 
-      expected_log = "send<AddCollection('foo')>"
-      expected_log = expected_log // " :: send<RequestData('q')> :: get()"
+      expected_log = "send<AddExtCollection('foo')>"
+      expected_log = expected_log // " :: send<PrefetchData('q')> :: get()"
 
       select type (connection)
       type is (MockSocket)
          @assertEqual(expected_log, log%log)
       end select
          
-   end subroutine test_request_subset
+   end subroutine test_prefetch_data
    
    @test
    subroutine test_wait()
-      type (ClientThread) :: c
+      type (MockClientThread) :: c
       class (AbstractSocket), pointer :: connection
       integer :: collection_id
 
@@ -108,39 +108,38 @@ contains
       real(kind=REAL32) :: q2_expected(3) = [1,2,3]
 
       character(len=:), allocatable :: expected_log
-      character(len=16) :: str
       type (MockSocketLog), target :: log
 
-      c = ClientThread(MockSocket(log))
+      call c%set_connection(MockSocket(log))
       connection => c%get_connection()
       select type (connection)
       type is (MockSocket)
-         call connection%add_message(CollectionIdMessage(1))
-         call connection%add_message(RequestIdMessage(1)) ! note value not used
-         call connection%add_message(RequestIdMessage(2))
+         call connection%add_message(IdMessage(1))
+         call connection%add_message(IdMessage(1)) ! note value not used
+         call connection%add_message(IdMessage(2))
          connection%q1 = q1_expected
          connection%q2 = q2_expected
       end select
 
-      collection_id = c%add_collection(template='foo')
-      request_id1 = c%request_subset(collection_id, 'foo', 'q1', q1)
-      request_id2 = c%request_subset(collection_id, 'foo', 'q2', q2)
+      collection_id = c%add_ext_collection(template='foo')
+      request_id1 = c%prefetch_data(collection_id, 'foo', 'q1', ArrayReference(q1))
+      request_id2 = c%prefetch_data(collection_id, 'foo', 'q2', ArrayReference(q2))
 
       call c%wait(request_id1)
       call c%wait(request_id2)
 
       @assertTrue (request_id1 /= request_id2)
 
-      expected_log = "send<AddCollection('foo')>"
-      expected_log = expected_log // " :: send<RequestData('q1')>"
+      expected_log = "send<AddExtCollection('foo')>"
+      expected_log = expected_log // " :: send<PrefetchData('q1')>"
       expected_log = expected_log // " :: get()"
-      expected_log = expected_log // " :: send<RequestData('q2')>"
+      expected_log = expected_log // " :: send<PrefetchData('q2')>"
       expected_log = expected_log // " :: get()"
-      write(str,'(i0)') request_id1
-      expected_log = expected_log // " :: send<Wait("//trim(str)//")>"
-      write(str,'(i0)') request_id2
+      !write(str,'(i0)') request_id1
+      !expected_log = expected_log // " :: send<Wait("//trim(str)//")>"
+      !write(str,'(i0)') request_id2
       expected_log = expected_log // " :: wait()"
-      expected_log = expected_log // " :: send<Wait("//trim(str)//")>"
+      !expected_log = expected_log // " :: send<Wait("//trim(str)//")>"
       expected_log = expected_log // " :: wait()"
 
       select type (connection)

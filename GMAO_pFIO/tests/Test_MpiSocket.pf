@@ -3,8 +3,8 @@ module test_MpiSocketMod
    use pFIO_MpiSocketMod
    use pFIO_AbstractMessageMod
    use pFIO_TerminateMessageMod
-   use pFIO_RequestDataMessageMod
-   use pFIO_RequestIdMessageMod
+   use pFIO_PrefetchDataMessageMod
+   use pFIO_IdMessageMod
    use pFIO_ProtocolParserMod
    implicit none
 
@@ -75,21 +75,21 @@ contains
          s2 = MpiSocket(comm, 3, parser)
 
          allocate(message, source=s1%receive())
-         @assertEqual(RequestData_ID, message%get_type_id())
+         @assertEqual(PrefetchData_ID, message%get_type_id())
          select type (message)
-         type is (RequestDataMessage)
+         type is (PrefetchDataMessage)
             @assertEqual(collection1,  message%collection_id)
          end select
-         call s1%send(RequestIdMessage(request_B))
+         call s1%send(IdMessage(request_B))
 
          deallocate(message)
          allocate(message, source=s2%receive())
-         @assertEqual(RequestData_ID, message%get_type_id())
+         @assertEqual(PrefetchData_ID, message%get_type_id())
          select type (message)
-         type is (RequestDataMessage)
+         type is (PrefetchDataMessage)
             @assertEqual(collection2,  message%collection_id)
          end select
-         call s2%send(RequestIdMessage(REQUEST_C))
+         call s2%send(IdMessage(REQUEST_C))
 
          deallocate(message)
          allocate(message, source=s1%receive())
@@ -101,12 +101,12 @@ contains
       case (1)
          s1 = MpiSocket(comm, 4, parser)
          allocate(message, source=s1%receive())
-         @assertEqual(RequestData_ID, message%get_type_id())
+         @assertEqual(PrefetchData_ID, message%get_type_id())
          select type (message)
-         type is (RequestDataMessage)
+         type is (PrefetchDataMessage)
             @assertEqual(collection1,  message%collection_id)
          end select
-         call s1%send(RequestIdMessage(request_A))
+         call s1%send(IdMessage(request_A))
 
          deallocate(message)
          allocate(message, source=s1%receive())
@@ -114,37 +114,37 @@ contains
 
       case (2)
          s1 = MpiSocket(comm, 0, parser)
-         !call s1%send(RequestDataMessage(1, collection1,'foo','u', ref, start=[]))
-         call s1%send(RequestDataMessage(1, collection1,'foo','u', ref))
+         !call s1%send(PrefetchDataMessage(1, collection1,'foo','u', ref, start=[]))
+         call s1%send(PrefetchDataMessage(1, collection1,'foo','u', ref))
          allocate(message, source=s1%receive())
-         @assertEqual(REQUESTID_ID, message%get_type_id())
+         @assertEqual(ID_ID, message%get_type_id())
          select type (message)
-         type is (RequestIdMessage)
-            @assertEqual(request_B, message%request_id)
+         type is (IdMessage)
+            @assertEqual(request_B, message%id)
          end select
          call s1%send(TerminateMessage())
 
       case (3)
          s1 = MpiSocket(comm, 0, parser)
-         !call s1%send(RequestDataMessage(2, collection2,'foo','v', ref, start=[]))
-         call s1%send(RequestDataMessage(2, collection2,'foo','v', ref))
+         !call s1%send(PrefetchDataMessage(2, collection2,'foo','v', ref, start=[]))
+         call s1%send(PrefetchDataMessage(2, collection2,'foo','v', ref))
          allocate(message, source=s1%receive())
-         @assertEqual(REQUESTID_ID, message%get_type_id())
+         @assertEqual(ID_ID, message%get_type_id())
          select type (message)
-         type is (RequestIdMessage)
-            @assertEqual(request_C, message%request_id)
+         type is (IdMessage)
+            @assertEqual(request_C, message%id)
          end select
          call s1%send(TerminateMessage())
 
       case (4)
          s1 = MpiSocket(comm, 1, parser)
-         !call s1%send(RequestDataMessage(3, collection1,'foo','w', ref, start=[]))
-         call s1%send(RequestDataMessage(3, collection1,'foo','w', ref))
+         !call s1%send(PrefetchDataMessage(3, collection1,'foo','w', ref, start=[]))
+         call s1%send(PrefetchDataMessage(3, collection1,'foo','w', ref))
          allocate(message, source=s1%receive())
-         @assertEqual(REQUESTID_ID, message%get_type_id())
+         @assertEqual(ID_ID, message%get_type_id())
          select type (message)
-         type is (RequestIdMessage)
-            @assertEqual(request_A, message%request_id)
+         type is (IdMessage)
+            @assertEqual(request_A, message%id)
          end select
          call s1%send(TerminateMessage())
       end select

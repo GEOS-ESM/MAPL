@@ -1,10 +1,14 @@
-module test_DirectoryServiceMod
+module Test_DirectoryServiceMod
    use pfunit_mod
    use pFIO_AbstractDirectoryServiceMod
    use pFIO_DirectoryServiceMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractSocketVectorMod
    use pFIO_MpiSocketMod
+   use MockServerMod
+   use MockClientMod
+
+   implicit none
 
 contains
 
@@ -21,7 +25,7 @@ contains
       ds = DirectoryService(comm)
 
       dir%num_entries = 1
-      dir%entries(1) = DirectoryEntry('foo', 1, 5)
+      dir%entries(1) = DirectoryEntry('foo', 1)
 
       win = ds%get_win('server_directory')
       call ds%put_directory(dir, win)
@@ -30,8 +34,7 @@ contains
 
       @assertEqual(dir%num_entries, dir2%num_entries)
       @assertEqual(dir%entries(1)%port_name, dir%entries(1)%port_name)
-      @assertEqual(dir%entries(1)%rank, dir%entries(1)%rank)
-      @assertEqual(dir%entries(1)%npes, dir%entries(1)%npes)
+      @assertEqual(dir%entries(1)%partner_root_rank, dir%entries(1)%partner_root_rank)
 
    end subroutine test_put_directory
 
@@ -42,11 +45,13 @@ contains
 
       type (DirectoryService) :: ds
       integer :: comm
+      type (MockServer) :: mock_server
 
       comm = this%getMpiCommunicator()
       ds = DirectoryService(comm)
 
-      call ds%publish(PortInfo('service'),comm)
+      mock_server = MockServer(comm)
+      call ds%publish(PortInfo('service', mock_server), mock_server)
 
    end subroutine test_publish
 
@@ -58,10 +63,9 @@ contains
       type (DirectoryService) :: ds
       integer :: comm
 
-      integer :: color, key
-      class (AbstractSocket), pointer :: s
-      type (AbstractSocketVector) :: sv
-      logical :: shutdown
+      integer :: color, key, ierror
+      type (MockServer), target :: mock_server
+      type (MockClient) :: mock_client
 
       ds = DirectoryService(this%getMpiCommunicator())
       color = this%getProcessRank()
@@ -71,21 +75,19 @@ contains
 
       select case (this%getProcessRank())
       case (0) ! server
-         call ds%publish(PortInfo('input'), comm)
-         call ds%connect_to_client(portinfo('input'), comm,sv,shutdown)
-         s=>sv%at(1)
-
+         mock_server = MockServer(comm)
+         call ds%publish(PortInfo('input', mock_server), mock_server)
+         call ds%connect_to_client('input', mock_server)
       case (1) ! client
-         s => ds%connect_to_server(PortInfo('input'), comm)
+         mock_client = MockClient()
+         call ds%connect_to_server('input', mock_client, comm)
       end select
 
-      @assertAssociated(s)
-
-      select type (s)
-      type is (MpiSocket)
-      class default
-         @assertTrue(.false.)
-      end select
+!!$      select type (s)
+!!$      type is (MpiSocket)
+!!$      class default
+!!$         @assertTrue(.false.)
+!!$      end select
 
    end subroutine test_connect
 
@@ -97,10 +99,9 @@ contains
       type (DirectoryService) :: ds
       integer :: comm
 
-      integer :: color, key
-      class (AbstractSocket), pointer :: s
-      type (AbstractSocketVector) :: sv
-      logical :: shutdown
+      integer :: color, key, ierror
+      type (MockServer) :: mock_server
+      type (MockClient) :: mock_client
 
       ds = DirectoryService(this%getMpiCommunicator())
 
@@ -111,21 +112,20 @@ contains
 
       select case (this%getProcessRank())
       case (1) ! server
-         call ds%publish(PortInfo('input'), comm)
-         call ds%connect_to_client(PortInfo('input'), comm,sv,shutdown)
-         s=>sv%at(1)
+         mock_server = MockServer(comm)
+         call ds%publish(PortInfo('input', mock_server), mock_server)
+         call ds%connect_to_client('input', mock_server)
       case (0) ! client
-         s => ds%connect_to_server(PortInfo('input'), comm)
+         mock_client = MockClient()
+         call ds%connect_to_server('input', mock_client, comm)
       end select
 
-      @assertAssociated(s)
-
-      select type (s)
-      type is (MpiSocket)
-      class default
-         @assertTrue(.false.)
-      end select
-
+!!$      select type (s)
+!!$      type is (MpiSocket)
+!!$      class default
+!!$         @assertTrue(.false.)
+!!$      end select
+!!$
    end subroutine test_connect_swap_role
 
    ! 3 clients, 2 servers
@@ -135,13 +135,11 @@ contains
 
       type (DirectoryService) :: ds
       integer :: comm
-      type (AbstractSocketVector) :: sv
-      logical :: shutdown
+      integer :: ierror
 
       integer :: color, key
-      class (AbstractSocket), pointer :: s
-      class (AbstractSocket), pointer :: s1
-      class (AbstractSocket), pointer :: s2
+      type (MockServer) :: mock_server
+      type (MockClient) :: mock_client
 
       ds = DirectoryService(this%getMpiCommunicator())
 
@@ -152,38 +150,20 @@ contains
 
       select case (color)
       case (1) ! server
-         call ds%publish(PortInfo('input'), comm)
+         mock_server = MockServer(comm)
+         call ds%publish(PortInfo('input', mock_server), mock_server)
 
          select case (this%getProcessRank())
          case (3) ! have one
-            call ds%connect_to_client(portInfo('input'), comm,sv,shutdown)
-            s1=>sv%at(1)
-            call check(s1)
+            call ds%connect_to_client('input', mock_server)
          case (4)
-            call ds%connect_to_client(PortInfo('input'), comm,sv,shutdown)
-            s1=>sv%at(1)
-            call check(s1)
-            s2=>sv%at(2)
-            call check(s2)
+            call ds%connect_to_client('input', mock_server)
          end select
       case (0) ! client
-         s => ds%connect_to_server(PortInfo('input'), comm)
-         call check(s)
+         mock_client = MockClient()
+         call ds%connect_to_server('input', mock_client, comm)
       end select
 
-   contains
-
-      subroutine check(s)
-         class(AbstractSocket), pointer :: s
-
-         @assertAssociated(s)
-
-         select type (s)
-         type is (MpiSocket)
-         class default
-            @assertTrue(.false.)
-         end select
-      end subroutine check
 
    end subroutine test_connect_multi
 
@@ -197,13 +177,11 @@ contains
 
       type (DirectoryService) :: ds
       integer :: comm
-      type (AbstractSocketVector) :: sv
-      logical :: shutdown
 
       integer :: color, key
-      class (AbstractSocket), pointer :: s
-      class (AbstractSocket), pointer :: s1
-      class (AbstractSocket), pointer :: s2
+      integer :: ierror
+      type (MockServer) :: mock_server
+      type (MockClient) :: mock_client
 
       ds = DirectoryService(this%getMpiCommunicator())
 
@@ -218,38 +196,20 @@ contains
 
       select case (color)
       case (1) ! server
-         call ds%publish(portInfo('input'), comm)
+         mock_server = MockServer(comm)
+         call ds%publish(PortInfo('input', mock_server), mock_server)
 
          select case (this%getProcessRank())
          case (4) ! have one
-            call ds%connect_to_client(PortInfo('input'), comm,sv,shutdown)
-            s1=>sv%at(1)
-            call check(s1)
+            call ds%connect_to_client('input', mock_server)
          case (5)
-            call ds%connect_to_client(PortInfo('input'), comm,sv,shutdown)
-            s1=>sv%at(1)
-            call check(s1)
-            s2=>sv%at(2)
-            call check(s2)
+            call ds%connect_to_client('input', mock_server)
          end select
       case (0) ! client
-         s => ds%connect_to_server(PortInfo('input'), comm)
-         call check(s)
+         mock_client = MockClient()
+         call ds%connect_to_server('input', mock_client, comm)
       end select
 
-   contains
-
-      subroutine check(s)
-         class(AbstractSocket), pointer :: s
-
-         @assertAssociated(s)
-
-         select type (s)
-         type is (MpiSocket)
-         class default
-            @assertTrue(.false.)
-         end select
-      end subroutine check
 
    end subroutine test_connect_with_unused_process
 
@@ -262,11 +222,10 @@ contains
       integer :: comm
 
       integer :: color, key
-      class (AbstractSocket), pointer :: s
-      type (AbstractSocketVector) :: sv
-      logical :: shutdown
+      type (MockServer) :: mock_server
+      type (MockClient) :: mock_client
 
-      integer :: i
+      integer :: ierror
 
       ds = DirectoryService(this%getMpiCommunicator())
 
@@ -285,33 +244,16 @@ contains
 
       select case (color)
       case (1) ! server
-         call ds%publish(portInfo('input'), comm)
-
-         call ds%connect_to_client(PortInfo('input'), comm,sv,shutdown)
-         do i = 1, 2
-            s => sv%at(i)
-            call check(s)
-         end do
-
+         mock_server = MockServer(comm)
+         call ds%publish(portInfo('input', mock_server), mock_server)
+         call ds%connect_to_client('input', mock_server)
       case (0) ! client
-         s => ds%connect_to_server(PortInfo('input'), comm)
-         call check(s)
+         mock_client = MockClient()
+         call ds%connect_to_server('input', mock_client, comm)
       end select
 
-    contains
-      subroutine check(s)
-         class(AbstractSocket), pointer :: s
-
-         @assertAssociated(s)
-
-         select type (s)
-         type is (MpiSocket)
-         class default
-            @assertTrue(.false.)
-         end select
-      end subroutine check
 
     end subroutine test_stress
 
 
-end module test_DirectoryServiceMod
+end module Test_DirectoryServiceMod

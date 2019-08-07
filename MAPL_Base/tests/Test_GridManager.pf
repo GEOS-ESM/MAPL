@@ -22,19 +22,22 @@ contains
       @assertEqual(0, status)
       call ESMF_ConfigLoadFile (config, 'tmp.rc', rc=status)
       @assertEqual(0, status)
-      
+ 
    end subroutine setup
 
    @after
    subroutine teardown()
-      integer :: status
+      integer :: unit,status
       call ESMF_ConfigDestroy(config, rc=status)
       @assertEqual(0, status)
+      open (newunit=unit, file = 'tmp.rc')
+      close(unit, status='delete')
+     
    end subroutine teardown
    @test
    subroutine test_add_prototype()
       type (GridManager) :: grid_manager
-      call grid_manager%add_prototype('mock', MockGridFactory())
+      call grid_manager%add_prototype('mock', MockGridFactory('foo'))
    end subroutine test_add_prototype
 
    @test

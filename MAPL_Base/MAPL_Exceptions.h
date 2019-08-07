@@ -45,10 +45,6 @@
 #undef __raise__
 #endif
 
-#ifdef  VERIFY_
-#undef VERIFY_
-#endif
-
 #ifdef  _VERIFY
 #undef _VERIFY
 #endif
@@ -127,12 +123,12 @@
 ! Automatic exception hanler
 !
 
-#define __RC__         RC=STATUS); VERIFY_(STATUS
-#define __STAT__       STAT=STATUS); VERIFY_(STATUS
+#define __RC__         RC=STATUS); _VERIFY(STATUS
+#define __STAT__       STAT=STATUS); _VERIFY(STATUS
 
 !
 ! Try & catch exception functionality; the __rc__ macro is similar 
-! to the __RC__ macro above but it does not invole the VERIFY_(STATUS)
+! to the __RC__ macro above but it does not invole the _VERIFY(STATUS)
 ! macro. Instead, it jumps out of the TRY block.
 !
 
@@ -152,7 +148,7 @@
 ! Raising exceptions
 !
 
-#define __raise__(exception,description) print '(a,'': '',a)', "exception", description; RETURN_(exception)  
+#define __raise__(exception,description) print '(a,'': '',a)', "exception", description; _RETURN(exception)  
 
 !
 ! ESMF Error codes are defined here

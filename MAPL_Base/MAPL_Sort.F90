@@ -1,6 +1,5 @@
 
-#define ASSERT_(A) if(.not.(A))call exit(1)
-
+#include "MAPL_ErrLog.h"
 
 !  $Id$
 
@@ -12,6 +11,10 @@
 ! !INTERFACE:
 
 module MAPL_SortMod
+   use, intrinsic :: ISO_FORTRAN_ENV, only: REAL32, REAL64
+   use, intrinsic :: ISO_FORTRAN_ENV, only: INT32, INT64
+
+   use MAPL_ErrorHandlingMod
 
   implicit none
   private
@@ -74,8 +77,8 @@ end interface
 contains
 
 subroutine SORT1SS(A,B)
-  integer(kind=4),           intent(INOUT) :: A(:)
-  integer(kind=4), optional, intent(INOUT) :: B(:)
+  integer(kind=INT32),           intent(INOUT) :: A(:)
+  integer(kind=INT32), optional, intent(INOUT) :: B(:)
   if(present(B)) then
      call QSORTS(A,B,size(A),1)
   else
@@ -84,20 +87,20 @@ subroutine SORT1SS(A,B)
 end subroutine SORT1SS
 
 subroutine SORT1SR(A,B)
-  integer(kind=4),           intent(INOUT) :: A(:)
-  real   (kind=4),           intent(INOUT) :: B(:)
+  integer(kind=INT32),           intent(INOUT) :: A(:)
+  real   (kind=REAL32),           intent(INOUT) :: B(:)
   call QSORTS(A,B,size(A),1)
 end subroutine SORT1SR
 
 subroutine SORT1SD(A,B)
-  integer(kind=4),           intent(INOUT) :: A(:)
-  real   (kind=8),           intent(INOUT) :: B(:)
+  integer(kind=INT32),           intent(INOUT) :: A(:)
+  real   (kind=REAL64),           intent(INOUT) :: B(:)
   call QSORTS(A,B,size(A),2)
 end subroutine SORT1SD
 
 subroutine SORT1LS(A,B)
-  integer(kind=8), intent(INOUT) :: A(:)
-  integer(kind=4), optional, intent(INOUT) :: B(:)
+  integer(kind=INT64), intent(INOUT) :: A(:)
+  integer(kind=INT32), optional, intent(INOUT) :: B(:)
   if(present(B)) then
      call QSORTL(A,B,size(A),1)
   else
@@ -106,32 +109,32 @@ subroutine SORT1LS(A,B)
 end subroutine SORT1LS
 
 subroutine SORT1LR(A,B)
-  integer(kind=8),           intent(INOUT) :: A(:)
-  real   (kind=4),           intent(INOUT) :: B(:)
+  integer(kind=INT64),           intent(INOUT) :: A(:)
+  real   (kind=REAL32),           intent(INOUT) :: B(:)
   call QSORTL(A,B,size(A),1)
 end subroutine SORT1LR
 
 subroutine SORT1LD(A,B)
-  integer(kind=8),           intent(INOUT) :: A(:)
-  real   (kind=8),           intent(INOUT) :: B(:)
+  integer(kind=INT64),           intent(INOUT) :: A(:)
+  real   (kind=REAL64),           intent(INOUT) :: B(:)
   call QSORTL(A,B,size(A),2)
 end subroutine SORT1LD
 
 
 subroutine SORT2SS(A,B,DIM)
-  integer(kind=4),   intent(INOUT) :: A(:)
-  integer(kind=4),   intent(INOUT) :: B(:,:)
+  integer(kind=INT32),   intent(INOUT) :: A(:)
+  integer(kind=INT32),   intent(INOUT) :: B(:,:)
   integer, optional, intent(IN   ) :: DIM
 
-  integer :: uDIM
+  integer :: uDIM, rc
 
   if(present(DIM)) then
      uDIM = DIM
   else
      uDIM = 2
   end if
-  ASSERT_(uDIM>0 .and. uDIM<3)
-  ASSERT_(size(A)==size(B,uDIM))
+  _ASSERT(uDIM>0 .and. uDIM<3,'needs informative message')
+  _ASSERT(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTS(A,B,size(A),-size(B,2))
   else
@@ -141,19 +144,19 @@ subroutine SORT2SS(A,B,DIM)
 end subroutine SORT2SS
 
 subroutine SORT2SR(A,B,DIM)
-  integer(kind=4),   intent(INOUT) :: A(:)
-  real   (kind=4),   intent(INOUT) :: B(:,:)
+  integer(kind=INT32),   intent(INOUT) :: A(:)
+  real   (kind=REAL32),   intent(INOUT) :: B(:,:)
   integer, optional, intent(IN   ) :: DIM
 
-  integer :: uDIM
+  integer :: uDIM, rc
 
   if(present(DIM)) then
      uDIM = DIM
   else
      uDIM = 2
   end if
-  ASSERT_(uDIM>0 .and. uDIM<3)
-  ASSERT_(size(A)==size(B,uDIM))
+  _ASSERT(uDIM>0 .and. uDIM<3,'needs informative message')
+  _ASSERT(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTS(A,B,size(A),-size(B,2))
   else
@@ -163,19 +166,19 @@ subroutine SORT2SR(A,B,DIM)
 end subroutine SORT2SR
 
 subroutine SORT2SD(A,B,DIM)
-  integer(kind=4),   intent(INOUT) :: A(:)
-  real   (kind=8),   intent(INOUT) :: B(:,:)
+  integer(kind=INT32),   intent(INOUT) :: A(:)
+  real   (kind=REAL64),   intent(INOUT) :: B(:,:)
   integer, optional, intent(IN   ) :: DIM
 
-  integer :: uDIM
+  integer :: uDIM, rc
 
   if(present(DIM)) then
      uDIM = DIM
   else
      uDIM = 2
   end if
-  ASSERT_(uDIM>0 .and. uDIM<3)
-  ASSERT_(size(A)==size(B,uDIM))
+  _ASSERT(uDIM>0 .and. uDIM<3,'needs informative message')
+  _ASSERT(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTS(A,B,size(A),-size(B,2)*2)
   else
@@ -185,19 +188,19 @@ subroutine SORT2SD(A,B,DIM)
 end subroutine SORT2SD
 
 subroutine SORT2LS(A,B,DIM)
-  integer(kind=8),   intent(INOUT) :: A(:)
-  integer(kind=4),   intent(INOUT) :: B(:,:)
+  integer(kind=INT64),   intent(INOUT) :: A(:)
+  integer(kind=INT32),   intent(INOUT) :: B(:,:)
   integer, optional, intent(IN   ) :: DIM
 
-  integer :: uDIM
+  integer :: uDIM, rc
 
   if(present(DIM)) then
      uDIM = DIM
   else
      uDIM = 2
   end if
-  ASSERT_(uDIM>0 .and. uDIM<3)
-  ASSERT_(size(A)==size(B,uDIM))
+  _ASSERT(uDIM>0 .and. uDIM<3,'needs informative message')
+  _ASSERT(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTL(A,B,size(A),-size(B,2))
   else
@@ -206,19 +209,19 @@ subroutine SORT2LS(A,B,DIM)
 end subroutine SORT2LS
 
 subroutine SORT2LR(A,B,DIM)
-  integer(kind=8),   intent(INOUT) :: A(:)
-  real   (kind=4),   intent(INOUT) :: B(:,:)
+  integer(kind=INT64),   intent(INOUT) :: A(:)
+  real   (kind=REAL32),   intent(INOUT) :: B(:,:)
   integer, optional, intent(IN   ) :: DIM
 
-  integer :: uDIM
+  integer :: uDIM, rc
 
   if(present(DIM)) then
      uDIM = DIM
   else
      uDIM = 2
   end if
-  ASSERT_(uDIM>0 .and. uDIM<3)
-  ASSERT_(size(A)==size(B,uDIM))
+  _ASSERT(uDIM>0 .and. uDIM<3,'needs informative message')
+  _ASSERT(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTL(A,B,size(A),-size(B,2))
   else
@@ -227,19 +230,19 @@ subroutine SORT2LR(A,B,DIM)
 end subroutine SORT2LR
 
 subroutine SORT2LD(A,B,DIM)
-  integer(kind=8),   intent(INOUT) :: A(:)
-  real   (kind=8),   intent(INOUT) :: B(:,:)
+  integer(kind=INT64),   intent(INOUT) :: A(:)
+  real   (kind=REAL64),   intent(INOUT) :: B(:,:)
   integer, optional, intent(IN   ) :: DIM
 
-  integer :: uDIM
+  integer :: uDIM, rc
 
   if(present(DIM)) then
      uDIM = DIM
   else
      uDIM = 2
   end if
-  ASSERT_(uDIM>0 .and. uDIM<3)
-  ASSERT_(size(A)==size(B,uDIM))
+  _ASSERT(uDIM>0 .and. uDIM<3,'needs informative message')
+  _ASSERT(size(A)==size(B,uDIM),'needs informative message')
   if(uDIM==1) then
      call QSORTL(A,B,size(A),-size(B,2)*2)
   else
@@ -248,10 +251,10 @@ subroutine SORT2LD(A,B,DIM)
 end subroutine SORT2LD
 
 subroutine SORT2AS(B,DIM)
-  integer(kind=4),   intent(INOUT) :: B(:,:)
+  integer(kind=INT32),   intent(INOUT) :: B(:,:)
   integer, optional, intent(IN   ) :: DIM
 
-  integer :: uDIM
+  integer :: uDIM, rc
 
   if(present(DIM)) then
      uDIM = DIM
@@ -259,7 +262,7 @@ subroutine SORT2AS(B,DIM)
      uDIM = 2
   end if
 
-  ASSERT_(uDIM>0 .and. uDIM<3)
+  _ASSERT(uDIM>0 .and. uDIM<3,'needs informative message')
 
   if(uDIM==1) then
      call QSORTS(B(:,1),B(:,2:),size(B,1),-(size(B,2)-1))
@@ -269,10 +272,10 @@ subroutine SORT2AS(B,DIM)
 end subroutine SORT2AS
 
 subroutine SORT2AL(B,DIM)
-  integer(kind=8),   intent(INOUT) :: B(:,:)
+  integer(kind=INT64),   intent(INOUT) :: B(:,:)
   integer, optional, intent(IN   ) :: DIM
 
-  integer :: uDIM
+  integer :: uDIM, rc
 
   if(present(DIM)) then
      uDIM = DIM
@@ -280,7 +283,7 @@ subroutine SORT2AL(B,DIM)
      uDIM = 2
   end if
 
-  ASSERT_(uDIM>0 .and. uDIM<3)
+  _ASSERT(uDIM>0 .and. uDIM<3,'needs informative message')
 
   if(uDIM==1) then
      call QSORTL(B(:,1),B(:,2:),size(B,1),-(size(B,2)-1)*2)

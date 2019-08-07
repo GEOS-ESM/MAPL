@@ -15,6 +15,7 @@
 ! !USES:
 !
       Use netcdf
+      use, intrinsic :: ISO_FORTRAN_ENV, only: INT64
 
       Implicit None
       Private
@@ -65,10 +66,10 @@
 
       ! Tile file variables
       Integer                      :: nWeight
-      Integer(Kind=8), Allocatable :: II_In(:)
-      Integer(Kind=8), Allocatable :: JJ_In(:)
-      Integer(Kind=8), Allocatable :: II_Out(:)
-      Integer(Kind=8), Allocatable :: JJ_Out(:)
+      integer(kind=INT64), Allocatable :: II_In(:)
+      integer(kind=INT64), Allocatable :: JJ_In(:)
+      integer(kind=INT64), Allocatable :: II_Out(:)
+      integer(kind=INT64), Allocatable :: JJ_Out(:)
       Real(Kind=sp), Allocatable   :: W(:)
       Real(Kind=sp), Allocatable   :: outSum(:,:)
 
@@ -136,7 +137,7 @@
          Call Cleanup(RC=status)
          Write(6,'(a)')   '================ FAILURE ================'
          Status=RC
-         Call Exit(Status)
+         stop 1
       End If
 
       End Subroutine Assert
@@ -555,11 +556,11 @@
       end subroutine readTileFileNC_file
 !EOC
       Subroutine transposeCS(II,JJ,nX,nY,nVal,iFace)
+         Integer, Intent(In)     :: nVal
          Integer, Intent(InOut)  :: II(nVal)
          Integer, Intent(InOut)  :: JJ(nVal)
          Integer, Intent(In)     :: nX
          Integer, Intent(In)     :: nY
-         Integer, Intent(In)     :: nVal
          Integer, Intent(In)     :: iFace
          Integer                 :: minJJ, maxJJ
          Integer                 :: II0(nVal)
@@ -582,11 +583,11 @@
 
       End Subroutine transposeCS
       Subroutine flipCS(II,JJ,nX,nY,nVal,iFace,iDir)
+         Integer, Intent(In)     :: nVal
          Integer, Intent(InOut)  :: II(nVal)
          Integer, Intent(InOut)  :: JJ(nVal)
          Integer, Intent(In)     :: nX
          Integer, Intent(In)     :: nY
-         Integer, Intent(In)     :: nVal
          Integer, Intent(In)     :: iFace
          Integer, Intent(In)     :: iDir
          Integer                 :: minII, maxII
@@ -616,11 +617,11 @@
 
       End Subroutine flipCS
       Subroutine swapCS(II,JJ,nX,nY,nVal)
+         Integer, Intent(In)     :: nVal
          Integer, Intent(InOut)  :: II(nVal)
          Integer, Intent(InOut)  :: JJ(nVal)
          Integer, Intent(In)     :: nX
          Integer, Intent(In)     :: nY
-         Integer, Intent(In)     :: nVal
          Integer                 :: iFace
          Integer                 :: xFace
          Integer                 :: minJJ, maxJJ, minJJOut

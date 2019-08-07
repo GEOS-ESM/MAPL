@@ -1,14 +1,18 @@
+#include "pFIO_ErrLog.h"
+#include "unused_dummy.H"
+
 module pFIO_MpiSocketMod
    use iso_c_binding
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: INT64
+   use pFIO_ErrorHandlingMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_AbstractMessageMod
    use pFIO_ProtocolParserMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_ConstantsMod
-   use pFIO_UtilitiesMod, only: word_size
+   use pFIO_UtilitiesMod, only: word_size, i_to_string
    use mpi
    implicit none
    private
@@ -30,7 +34,6 @@ module pFIO_MpiSocketMod
       procedure :: put
       procedure :: get
       procedure :: to_string
-      procedure :: has_message=>MpiIprobe
    end type MpiSocket
 
    interface MpiSocket
@@ -58,11 +61,12 @@ module pFIO_MpiSocketMod
 
 contains
 
-   function new_MpiSocket(comm, remote_rank, parser) result(s)
+   function new_MpiSocket(comm, remote_rank, parser, rc) result(s)
       type (MpiSocket) :: s
       integer, intent(in) :: comm
       integer, intent(in) :: remote_rank
       type (ProtocolParser), target, intent(in) :: parser
+      integer, optional, intent(out) :: rc
 
       integer :: ierror
       integer :: local_rank
@@ -91,24 +95,13 @@ contains
       end if
       call MPI_Group_incl(world_group, 2, ranks, pair_group, ierror)
       call MPI_Comm_create_group(comm, pair_group, PAIR_TAG, s%pair_comm, ierror)
-      
+      _RETURN(_SUCCESS)
    end function new_MpiSocket
 
-   function MpiIprobe(this) result(has)
-      class (MpiSocket), intent(inout) :: this
-      logical :: has
-
-      integer :: ierror
-      integer :: status(MPI_STATUS_SIZE)
-      
-      has = .false.
-      call MPI_iProbe(this%pair_remote_rank, MESSAGE_TAG, this%pair_comm,has, status, ierror)
-
-   end function MpiIprobe
-
-   function receive(this) result(message)
+   function receive(this, rc) result(message)
       class (AbstractMessage), pointer :: message
       class (MpiSocket), intent(inout) :: this
+      integer, optional, intent(out) :: rc
 
       integer, allocatable :: buffer(:)
       integer :: ierror
@@ -123,13 +116,13 @@ contains
            & status, ierror)
 
       allocate(message, source=this%parser%decode(buffer))
-
+      _RETURN(_SUCCESS)
    end function receive
 
-
-   subroutine send(this, message)
+   subroutine send(this, message, rc)
       class (MpiSocket), intent(inout) :: this
       class (AbstractMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
 
       integer, allocatable :: buffer(:)
       integer :: ierror
@@ -137,7 +130,7 @@ contains
       buffer = this%parser%encode(message)
       call MPI_Send(buffer, size(buffer), MPI_INTEGER, this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, &
            & ierror)
-      
+      _RETURN(_SUCCESS)      
    end subroutine send
 
 
@@ -150,11 +143,12 @@ contains
       handle%mpi_request = mpi_request
    end function new_MpiRequestHandle
 
-   function put(this, request_id, local_reference) result(handle)
+   function put(this, request_id, local_reference, rc) result(handle)
       class (AbstractRequestHandle), allocatable :: handle
       class (MpiSocket), intent(inout) :: this
       integer, intent(in) :: request_id
       class (AbstractDatareference), intent(in) :: local_reference
+      integer, optional, intent(out) :: rc
 
       integer :: request
       integer :: ierror
@@ -169,15 +163,15 @@ contains
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
       call MPI_Isend(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
       allocate(handle, source=MpiRequestHandle(local_reference, request))
-
+      _RETURN(_SUCCESS)
    end function put
 
-   
-   function get(this, request_id, local_reference) result(handle)
+   function get(this, request_id, local_reference, rc) result(handle)
       class (AbstractRequestHandle), allocatable :: handle
       class (MpiSocket), intent(inout) :: this
       integer, intent(in) :: request_id
       class (AbstractDataReference), intent(in) :: local_reference
+      integer, optional, intent(out) :: rc
 
       integer :: tag
       integer :: ierror
@@ -192,13 +186,12 @@ contains
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
       call MPI_Irecv(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
       allocate(handle, source=MpiRequestHandle(local_reference, request))
-
+      _RETURN(_SUCCESS)
    end function get
 
-
-   
-   subroutine wait(this)
+   subroutine wait(this, rc)
       class (MpiRequestHandle), intent(inout) :: this
+      integer, optional, intent(out) :: rc
 
       integer :: ierror
       integer :: status(MPI_STATUS_SIZE)
@@ -206,31 +199,17 @@ contains
 
       save_request = this%mpi_request
       call MPI_Wait(this%mpi_request, status, ierror)
-
-      block
-        integer :: count, tag
-        call MPI_Get_count(status, MPI_INTEGER, count, ierror)
-      end block
-
-      if (ierror /= 0) then
-         print*,__FILE__,__LINE__, '********************'
-         print*,__FILE__,__LINE__, 'ierror: ', ierror
-         print*,__FILE__,__LINE__, '********************'
-      end if
-         
-
+      _VERIFY(ierror)
+      _RETURN(_SUCCESS)
    end subroutine wait
-
 
    integer function get_next_tag() result(tag)
       integer, save :: global_tag = MIN_NONBLOCKING_TAG
 
       tag = global_tag
       global_tag = MIN_NONBLOCKING_TAG + mod(global_tag + 1 - MIN_NONBLOCKING_TAG, MAX_NONBLOCKING_TAG - MIN_NONBLOCKING_TAG + 1)
-      
 
    end function get_next_tag
-
 
    integer function make_tag(request_id) result(tag)
       integer, intent(in) :: request_id
@@ -239,25 +218,13 @@ contains
 
    end function make_tag
       
-
    function to_string(this) result(string)
       class (MpiSocket), intent(in) :: this
       character(len=:), allocatable :: string
       
       string = 'MpiSocket::info' // new_line('a')
-      string = string // '... world local rank:  ' // to_string_int(this%world_local_rank) // new_line('a')
-      string = string // '... world remote rank: ' // to_string_int(this%world_remote_rank) // new_line('a')
-
-   contains
-
-      function to_string_int(i) result(str)
-         character(len=:), allocatable :: str
-         integer, intent(in) :: i
-
-         character(len=16) :: buffer
-         write(buffer,'(i0)') i
-         str = trim(buffer)
-      end function to_string_int
+      string = string // '... world local rank:  ' // i_to_string(this%world_local_rank) // new_line('a')
+      string = string // '... world remote rank: ' // i_to_string(this%world_remote_rank) // new_line('a')
 
    end function to_string
 

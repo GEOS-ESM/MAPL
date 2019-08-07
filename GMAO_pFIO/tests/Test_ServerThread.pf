@@ -6,6 +6,7 @@ module Test_ServerThreadMod
    use pFIO_ServerThreadMod
    use pFIO_AbstractSocketMod
    use MockSocketMod
+   use MockServerMod
 
    use pFIO_ConstantsMod
    use pFIO_VariableMod
@@ -14,10 +15,10 @@ module Test_ServerThreadMod
 
    use pFIO_TerminateMessageMod
    use pFIO_DoneMessageMod
-   use pFIO_AddCollectionMessageMod
-   use pFIO_CollectionIdMessageMod
-   use pFIO_RequestIdMessageMod
-   use pFIO_RequestDataMessageMod
+   use pFIO_PrefetchDoneMessageMod
+   use pFIO_AddExtCollectionMessageMod
+   use pFIO_IdMessageMod
+   use pFIO_PrefetchDataMessageMod
    use pFIO_WaitRequestDataMessageMod
    use pFIO_IntegerSocketMapMod
 
@@ -73,11 +74,13 @@ contains
 
       type (MockSocketLog), target :: log
       type (MockSocket) :: client_socket
+      type (MockServer) :: mock_server
 
       client_socket = MockSocket(log)
       call client_socket%add_message(TerminateMessage())
-
-      s = ServerThread(client_socket)
+      mock_server = MockServer()
+      call s%init(client_socket, mock_server)
+      call s%set_rank(1)
       call s%run()
       @assertEqual('receive<Terminate>', log%log)
 
@@ -91,13 +94,17 @@ contains
 
       type (MockSocketLog), target :: log
       type (MockSocket) :: client_socket
+      type (MockServer) :: mock_server
       integer :: i       
+
       client_socket = MockSocket(log)
       call client_socket%add_message(DoneMessage())
       call client_socket%add_message(TerminateMessage())
-      s = ServerThread(client_socket)
+      mock_server = MockServer()
+      call s%init(client_socket, mock_server)
+      call s%set_rank(1)
  
-      do i = 1,2
+      do i = 1,3 ! NOT 2. when done is issued, need one more run to receive terminate
          call s%run()
       enddo
       @assertEqual("receive<Done> :: receive<Terminate>", log%log)
@@ -105,47 +112,47 @@ contains
    end subroutine test_return_on_terminate_b
 
    @test
-   subroutine test_handle_AddCollection()
+   subroutine test_handle_AddExtCollection()
       type (ServerThread) :: s
       character(len=:), allocatable :: expected
       type (MockSocketLog), target :: log
-
       type (MockSocket) :: client_socket
+      type (MockServer) :: mock_server
       integer :: i
 
       client_socket = MockSocket(log)
-      call client_socket%add_message(AddCollectionMessage('foo'))
-      call client_socket%add_message(AddCollectionMessage('bar'))
+      call client_socket%add_message(AddExtCollectionMessage('foo'))
+      call client_socket%add_message(AddExtCollectionMessage('bar'))
       call client_socket%add_message(TerminateMessage())
-      s = ServerThread(client_socket)
+      mock_server = MockServer()
+      call s%init(client_socket, mock_server)
+      call s%set_rank(1)
 
       do i = 1,3
         call s%run()
       enddo
 
       expected = ""
-      expected = expected // "receive<AddCollection('foo')>"
-      expected = expected // " :: send<CollectionId(001)>"
-      expected = expected // " :: receive<AddCollection('bar')>"
-      expected = expected // " :: send<CollectionId(002)>"
+      expected = expected // "receive<AddExtCollection('foo')>"
+      expected = expected // " :: send<Id(001)>"
+      expected = expected // " :: receive<AddExtCollection('bar')>"
+      expected = expected // " :: send<Id(002)>"
       expected = expected // " :: receive<Terminate>"
       
       @assertEqual(expected, log%log)
 
-   end subroutine test_handle_AddCollection
+   end subroutine test_handle_AddExtCollection
 
    @test
-   subroutine test_handle_RequestData()
+   subroutine test_handle_PrefetchData()
       type (ServerThread) :: s
       character(len=:), allocatable :: expected
 
       type (ArrayReference) :: reference_a, reference_u, reference_v
-      integer :: empty(0)
       type (MockSocketLog), target :: log
-      class(AbstractMessage),pointer :: msg
       type (MockSocket) :: client_socket
-      class(AbstractSocket) , pointer :: sckt_ptr 
       real(kind=REAL32), target :: a, u(NX,NY), v(NX,NY)
+      type (MockServer) :: mock_server
       integer :: i
 
       reference_a = ArrayReference(a)
@@ -153,45 +160,44 @@ contains
       reference_v = ArrayReference(v)
 
       client_socket = MockSocket(log)
-      call client_socket%add_message(AddCollectionMessage('foo'))
-      call client_socket%add_message(RequestDataMessage(1, 1, 'fake_data.nc4', 'a', reference_a))
-      call client_socket%add_message(RequestDataMessage(2, 1, 'fake_data.nc4', 'u', reference_u, start=[1,1]))
-      call client_socket%add_message(RequestDataMessage(3, 1, 'fake_data.nc4', 'v', reference_v, start=[1,1]))
-      call client_socket%add_message(DoneMessage())
+      call client_socket%add_message(AddExtCollectionMessage('foo'))
+      call client_socket%add_message(PrefetchDataMessage(1, 1, 'fake_data.nc4', 'a', reference_a))
+      call client_socket%add_message(PrefetchDataMessage(2, 1, 'fake_data.nc4', 'u', reference_u, start=[1,1]))
+      call client_socket%add_message(PrefetchDataMessage(3, 1, 'fake_data.nc4', 'v', reference_v, start=[1,1]))
+      call client_socket%add_message(PrefetchDoneMessage())
       call client_socket%add_message(TerminateMessage())
 
-      s = ServerThread(client_socket)
+      mock_server = MockServer()
+      call s%init(client_socket, mock_server)
+      call s%set_rank(1)
 
-      do i = 1,5
-         sckt_ptr=>s%get_connection()
-         msg=>sckt_ptr%receive()
-         call msg%dispatch(s)
-      enddo
-
-      do i = 1,3 
-        call s%run()
+      do i = 1,6
+         call s%run()
       enddo
 
       expected = ""
-      expected = expected // "receive<AddCollection('foo')>"
-      expected = expected // " :: send<CollectionId(001)>"
-      expected = expected // " :: receive<RequestData('a')>"
-      expected = expected // " :: send<RequestId(1)>"
-      expected = expected // " :: receive<RequestData('u')>"
-      expected = expected // " :: send<RequestId(2)>"
-      expected = expected // " :: receive<RequestData('v')>"
-      expected = expected // " :: send<RequestId(3)>"
-      expected = expected // " :: receive<Done>"
+      expected = expected // "receive<AddExtCollection('foo')>"
+      expected = expected // " :: send<Id(001)>"
+      expected = expected // " :: receive<PrefetchData('a')>"
+      expected = expected // " :: send<Dummy>"
+      expected = expected // " :: receive<PrefetchData('u')>"
+      expected = expected // " :: send<Dummy>"
+      expected = expected // " :: receive<PrefetchData('v')>"
+      expected = expected // " :: send<Dummy>"
+      expected = expected // " :: receive<Done_prefetch>"
       expected = expected // " :: put()"
       expected = expected // " :: put()"
       expected = expected // " :: put()"
+      expected = expected // " :: wait()"
+      expected = expected // " :: wait()"
+      expected = expected // " :: wait()"
       expected = expected // " :: receive<Terminate>"
 
       @assertEqual(expected, log%log)
       @assertEqual(A_EXPECTED, log%values_a)
       @assertEqual(U_EXPECTED, log%values_u)
       @assertEqual(V_EXPECTED, log%values_v)
-   end subroutine test_handle_RequestData
+   end subroutine test_handle_PrefetchData
 
    
 end module Test_ServerThreadMod

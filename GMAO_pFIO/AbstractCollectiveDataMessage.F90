@@ -1,50 +1,49 @@
-module pFIO_CollectiveRequestDataMessageMod
+#include "pFIO_ErrLog.h"
+#include "unused_dummy.H"
+
+module pFIO_AbstractCollectiveDataMessageMod
+   use pFIO_ErrorHandlingMod
    use pFIO_AbstractMessageMod
-   use pFIO_RequestDataMessageMod
+   use pFIO_AbstractDataMessageMod
    use pFIO_UtilitiesMod
-   use pFIO_ArrayReferenceMod
+   use pFIO_AbstractDataReferenceMod
    use pFIO_KeywordEnforcerMod
    implicit none
    private
 
-   public :: CollectiveRequestDataMessage
+   public :: AbstractCollectiveDataMessage
 
-   type, extends(RequestDataMessage) :: CollectiveRequestDataMessage
+   type, extends(AbstractDataMessage),abstract :: AbstractCollectiveDataMessage
       integer, allocatable :: global_start(:)
       integer, allocatable :: global_count(:)
    contains
-      procedure, nopass :: get_type_id
+      procedure :: initCollective
       procedure :: get_length
       procedure :: serialize
       procedure :: deserialize
-   end type CollectiveRequestDataMessage
-
-   interface CollectiveRequestDataMessage
-      module procedure new_CollectiveRequestDataMessage
-   end interface CollectiveRequestDataMessage
+   end type AbstractCollectiveDataMessage
 
 contains
 
-
-   function new_CollectiveRequestDataMessage( &
+   subroutine initCollective( message, &
         & request_id, collection_id, file_name, var_name, &
-        & data_reference, unusable, start,global_start,global_count) result(message)
-      type (CollectiveRequestDataMessage) :: message
+        & data_reference, unusable, start,global_start,global_count, rc)
+      class (AbstractCollectiveDataMessage) :: message
       integer, intent(in) :: request_id
       integer, intent(in) :: collection_id
       character(len=*), intent(in) :: file_name
       character(len=*), intent(in) :: var_name
-      type (ArrayReference), intent(in) :: data_reference
+      class (AbstractDataReference), intent(in) :: data_reference
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: start(:)
       integer, optional, intent(in) :: global_start(:)
       integer, optional, intent(in) :: global_count(:)
+      integer, optional, intent(out) :: rc
 
+      integer, allocatable :: st(:)
 
-      integer :: i
+      integer :: i,k, status
 
-      message%RequestDataMessage=RequestDataMessage(request_id,collection_id, &
-          file_name,var_name,data_reference,start=start)
 
       if (present(global_start)) then
          message%global_start = global_start
@@ -58,18 +57,23 @@ contains
          message%global_count = data_reference%shape
       end if
 
-      if( size(message%global_start) /= size(message%global_count)) print*, "WARNING: global count and global start should mactch"
-      if( size(message%global_start) /= size(message%start)) stop "global start and local start shoudl be in the same rank"
+      _ASSERT(size(message%global_start) == size(message%global_count),"global count and global start should mactch")
 
-   end function new_CollectiveRequestDataMessage
+      if(present(start)) then
+         k = size(message%global_start) - size(start)
+         st = [start,[(1,i=1,k)]]
+      else
+         st = message%global_start
+      endif 
+              
+      call message%init(request_id,collection_id, &
+          file_name,var_name,data_reference,unusable=unusable,start=st, rc=status)
+      _VERIFY(status)
+      _RETURN(_SUCCESS)
+   end subroutine initCollective
  
-
-   integer function get_type_id() result(type_id)
-      type_id = CollectiveRequestData_ID
-   end function get_type_id
-
    integer function get_length(this) result(length)
-      class (CollectiveRequestDataMessage), intent(in) :: this
+      class (AbstractCollectiveDataMessage), intent(in) :: this
 
       length = &
            & serialize_buffer_length(this%request_id) + &
@@ -80,17 +84,14 @@ contains
            & serialize_buffer_length(this%start) + &
            & serialize_buffer_length(this%count) + &
            & serialize_buffer_length(this%global_start) + &
-           & serialize_buffer_length(this%global_count) + &
-           & this%data_reference%get_length()
+           & serialize_buffer_length(this%global_count)
 
    end function get_length
 
-   subroutine serialize(this, buffer)
-      class (CollectiveRequestDataMessage), intent(in) :: this
-      integer, intent(inout) :: buffer(:) ! no-op
-      integer, allocatable :: data_buf(:)
-
-      call this%data_reference%serialize(data_buf)
+   subroutine serialize(this, buffer, rc)
+      class (AbstractCollectiveDataMessage), intent(in) :: this
+      integer, intent(inout) :: buffer(:)
+      integer, optional, intent(out) :: rc
 
       buffer = [ &
            & serialize_intrinsic(this%request_id), &
@@ -101,14 +102,14 @@ contains
            & serialize_intrinsic(this%start), &
            & serialize_intrinsic(this%count), &
            & serialize_intrinsic(this%global_start), &
-           & serialize_intrinsic(this%global_count), &
-           & data_buf ]
-
+           & serialize_intrinsic(this%global_count)]
+       _RETURN(_SUCCESS)
    end subroutine serialize
 
-   subroutine deserialize(this, buffer)
-      class (CollectiveRequestDataMessage), intent(inout) :: this
+   subroutine deserialize(this, buffer, rc)
+      class (AbstractCollectiveDataMessage), intent(inout) :: this
       integer, intent(in) :: buffer(:)
+      integer, optional, intent(out) :: rc
 
       integer :: n
 
@@ -130,9 +131,7 @@ contains
       call deserialize_intrinsic(buffer(n:), this%global_start)
       n = n + serialize_buffer_length(this%global_start)
       call deserialize_intrinsic(buffer(n:), this%global_count)
-      n = n + serialize_buffer_length(this%global_count)
-      call this%data_reference%deserialize(buffer(n:))
+      _RETURN(_SUCCESS)
    end subroutine deserialize
    
-end module pFIO_CollectiveRequestDataMessageMod
-
+end module pFIO_AbstractCollectiveDataMessageMod
