@@ -1548,8 +1548,6 @@ CONTAINS
       _VERIFY(status)
       call MAPL_ExtDataVerticalInterpolate(self,item,bracket_side,rc=status)
       _VERIFY(status)
-      call MAPL_ExtDataRestagger(self,item,bracket_side,rc=status)
-      _VERIFY(status)
       call bundle_iter%next()
    enddo
    call MAPL_ExtDataDestroyCFIO(IOBundles,rc=status)
@@ -3426,77 +3424,6 @@ CONTAINS
  
      _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ExtDataVerticalInterpolate
-
-  subroutine MAPL_ExtDataRestagger(ExtState,item,filec,rc)
-     use MAPL_GridManagerMod
-     type(MAPL_ExtData_State), intent(inout) :: ExtState
-     type(PrimaryExport), intent(inout) :: item
-     integer,             intent(in   ) :: filec
-     integer, optional,   intent(out  ) :: rc
-
-     character(len=ESMF_MAXSTR) :: Iam = "MAPL_ExtDataRestagger"
-     integer                    :: status
-     logical                    :: isPresent
-     integer          :: fieldRank,gridStagger,lm
-     type(ESMF_Field) :: field
-     type(ESMF_Grid)  :: grid
-     real, pointer    :: v1_ptr2d(:,:) => null()
-     real, pointer    :: v1_ptr3d(:,:,:) => null()
-     real, pointer    :: v2_ptr2d(:,:) => null()
-     real, pointer    :: v2_ptr3d(:,:,:) => null()
-
-     if (item%vartype == MAPL_ExtDataVectorItem) then
-   
-        call MAPL_ExtDataGetBracket(ExtState,item,filec,field,vcomp=1,rc=status)
-        _VERIFY(status)
-        call ESMF_AttributeGet(field,name='STAGGERING',isPresent=isPresent,rc=status)
-        _VERIFY(STATUS)
-        if (isPresent) then
-           call ESMF_AttributeGet(field,name='STAGGERING',value=gridstagger,rc=status)
-           _VERIFY(STATUS) 
-           call ESMF_FieldGet(field,grid=grid,dimCount=fieldRank,rc=status)
-           _VERIFY(status)
-           if (fieldRank == 2) then
-              call ESMF_FieldGet(field,0,farrayptr=v1_ptr2d,rc=status)
-              _VERIFY(status)
-              call MAPL_ExtDataGetBracket(ExtState,item,filec,field,vcomp=2,rc=status)
-              _VERIFY(status)
-              call ESMF_FieldGet(field,0,farrayptr=v2_ptr2d,rc=status)
-              _VERIFY(status)
-              allocate(v1_ptr3d(size(v1_ptr2d,1),size(v1_ptr2d,2),1),stat=status)
-              _VERIFY(status)
-              allocate(v2_ptr3d(size(v2_ptr2d,1),size(v2_ptr2d,2),1),stat=status)
-              _VERIFY(status)
-              v1_ptr3d(:,:,1)=v1_ptr2d
-              v2_ptr3d(:,:,1)=v2_ptr2d
-              if (gridStagger == MAPL_CGrid) then 
-                 call A2D2C(grid,v1_ptr3d,v2_ptr3d,1,getC=.true.)
-              else if (gridStagger == MAPL_DGrid) then
-                 call A2D2C(grid,v1_ptr3d,v2_ptr3d,1,getC=.false.)
-              end if
-              v1_ptr2d = v1_ptr3d(:,:,1)
-              v2_ptr2d = v2_ptr3d(:,:,1)
-              deallocate(v1_ptr3d,v2_ptr3d)
-           else if (fieldRank ==3) then
-              call ESMF_FieldGet(field,0,farrayptr=v1_ptr3d,rc=status)
-              _VERIFY(status)
-              call MAPL_ExtDataGetBracket(ExtState,item,filec,field,vcomp=2,rc=status)
-              _VERIFY(status)
-              call ESMF_FieldGet(field,0,farrayptr=v2_ptr3d,rc=status)
-              _VERIFY(status)
-              lm = size(v1_ptr3d,3)
-              if (gridStagger == MAPL_CGrid) then 
-                 call A2D2C(grid,v1_ptr3d,v2_ptr3d,lm,getC=.true.)
-              else if (gridStagger == MAPL_DGrid) then
-                 call A2D2C(grid,v1_ptr3d,v2_ptr3d,lm,getC=.false.)
-              end if
-           end if
-        end if
-     end if
-
-     _RETURN(ESMF_SUCCESS)
-
-  end subroutine MAPL_ExtDataRestagger
 
   subroutine GetMaskName(FuncStr,Var,Needed,rc)
      character(len=*),               intent(in)    :: FuncStr

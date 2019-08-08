@@ -66,7 +66,7 @@ set (srcs
   MAPL_NewArthParser.F90   MAPL_ShmemMod.F90      MAPL_LoadBalance.F90 MAPL_CFIOServer.F90
   CFIOCollection.F90 ESMF_CFIOPtrVectorMod.F90
   MAPL_TransposeRegridder.F90 MAPL_GetLatLonCoord.F90 MAPL_EsmfRegridder.F90
-  MAPL_NUOPCWrapperMod.F90
+  MAPL_NUOPCWrapperMod.F90 MAPL_CubedSphereGridFactory.F90
   )
 
 esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4)
