@@ -870,7 +870,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   integer                          :: year, month, day, hh, mm, ss
   character(len=ESMF_MAXSTR)       :: gridTypeAttribute
   character(len=ESMF_MAXSTR)       :: tmp_label, FILEtpl
-  character(len=:),allocatable     :: ens_id
+  character(len=ESMF_MAXSTR)       :: id_string
   integer                          :: ens_id_width
   real(ESMF_KIND_R8)               :: fixedLons, fixedLats
   type(ESMF_GridComp)              :: GCCS ! this is needed as a workaround 
@@ -1340,7 +1340,7 @@ endif
    call MAPL_GetResource( STATE, ens_id_width,         &
                              LABEL="ENS_ID_WIDTH:", default=0, &
                              RC=STATUS)
-   allocate(character(len=ens_id_width):: ens_id)
+
    if (associated(STATE%RECORD)) then
       call MAPL_GetResource( STATE, FILENAME,         &
                              LABEL="IMPORT_CHECKPOINT_FILE:", &
@@ -1352,17 +1352,15 @@ endif
          STATE%RECORD%IMP_LEN = 0
       end if
 
-      ens_id=""
+      id_string=""
       tmp_label = "INTERNAL_CHECKPOINT_FILE:"
       call MAPL_GetResource( STATE   , FILEtpl,         &
                                  LABEL=trim(tmp_label), &
                            RC=STATUS)
       if((STATUS /= ESMF_SUCCESS) .and. ens_id_width > 0) then
          i = len(trim(COMP_NAME))
-         ens_id = COMP_NAME(i-ens_id_width+1:i)
-         read(ens_id,*,IOSTAT=status) j
-         !if is a ensemble number
-         if(status == 0) tmp_label =COMP_NAME(1:i-ens_id_width)//"_"//trim(tmp_label)
+         id_string = COMP_NAME(i-ens_id_width+1:i)
+         tmp_label =COMP_NAME(1:i-ens_id_width)//"_"//trim(tmp_label)
          call MAPL_GetResource( STATE   , FILEtpl,      &
                                  LABEL=trim(tmp_label), &
                            RC=STATUS)
@@ -1370,7 +1368,7 @@ endif
 
       if(STATUS==ESMF_SUCCESS) then
          ! if the filename is tempate
-         call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = ens_id, nymd=yyyymmdd,nhms=hhmmss,stat=status)
+         call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = trim(id_string), nymd=yyyymmdd,nhms=hhmmss,stat=status)
          STATE%RECORD%INT_FNAME = FILENAME
          STATE%RECORD%INT_LEN = LEN_TRIM(FILENAME)
       else
@@ -1515,17 +1513,15 @@ endif
       end if
       VERIFY_(STATUS)
 
-      ens_id = ""
+      id_string = ""
       tmp_label = "INTERNAL_RESTART_FILE:"
       call MAPL_GetResource( STATE   , FILEtpl,         &
                                  LABEL=trim(tmp_label), &
                                  RC=STATUS)
       if((STATUS /=ESMF_SUCCESS) .and. ens_id_width >0) then
          i = len(trim(COMP_NAME))
-         ens_id = COMP_NAME(i-ens_id_width+1:i)
-         read(ens_id,*,IOSTAT=status) j
-         !if is a ensemble number
-         if(status == 0) tmp_label =COMP_NAME(1:i-ens_id_width)//"_"//trim(tmp_label)
+         id_string = COMP_NAME(i-ens_id_width+1:i)
+         tmp_label =COMP_NAME(1:i-ens_id_width)//"_"//trim(tmp_label)
          call MAPL_GetResource( STATE   , FILEtpl,         &
                                  LABEL=trim(tmp_label), &
                                  RC=STATUS)
@@ -1533,7 +1529,7 @@ endif
 
       if(STATUS==ESMF_SUCCESS) then
         ! if the filename is tempate
-         call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = ens_id, nymd=yyyymmdd,nhms=hhmmss,stat=status)
+         call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = trim(id_string), nymd=yyyymmdd,nhms=hhmmss,stat=status)
          call MAPL_GetResource( STATE   , hdr,         &
                                  default=0, &
                                  LABEL="INTERNAL_HEADER:", &
@@ -1780,7 +1776,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   integer                                     :: yyyymmdd, hhmmss
   integer                                     :: year, month, day, hh, mm, ss
   character(len=ESMF_MAXSTR)                  :: tmp_label, FILEtpl
-  character(len=:), allocatable               :: ens_id
+  character(len=ESMF_MAXSTR)                  :: id_string
   integer                                     :: ens_id_width
   type(ESMF_Time)                             :: CurrTime 
 !=============================================================================
@@ -1861,19 +1857,16 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
      call MAPL_GetResource( STATE, ens_id_width,         &
                              LABEL="ENS_ID_WIDTH:", default=0, &
                              RC=STATUS)
-     allocate(character(len=ens_id_width):: ens_id)
 
-     ens_id=""
+     id_string=""
      tmp_label = "INTERNAL_CHECKPOINT_FILE:"
      call MAPL_GetResource( STATE   , FILEtpl,         &
                                  LABEL=trim(tmp_label), &
                                  RC=STATUS)
      if((STATUS /= ESMF_SUCCESS) .and. ens_id_width>0) then
         i = len(trim(COMP_NAME))
-        ens_id = COMP_NAME(i-ens_id_width+1:i)
-        read(ens_id,*,IOSTAT=status) j
-           !if is a ensemble number
-        if(status == 0) tmp_label =COMP_NAME(1:i-ens_id_width)//"_"//trim(tmp_label)
+        id_string = COMP_NAME(i-ens_id_width+1:i)
+        tmp_label =COMP_NAME(1:i-ens_id_width)//"_"//trim(tmp_label)
         call MAPL_GetResource( STATE   , FILEtpl,       &
                                  LABEL=trim(tmp_label), &
                                  RC=STATUS)
@@ -1881,7 +1874,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 
      if(STATUS==ESMF_SUCCESS) then
         ! if the filename is tempate
-        call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = ens_id, nymd=yyyymmdd,nhms=hhmmss,stat=status)
+        call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = trim(id_string), nymd=yyyymmdd,nhms=hhmmss,stat=status)
         call    MAPL_GetResource( STATE, FILETYPE, LABEL="INTERNAL_CHECKPOINT_TYPE:",                RC=STATUS )
         if ( STATUS/=ESMF_SUCCESS  .or.  FILETYPE == "default" ) then
            call MAPL_GetResource( STATE, FILETYPE, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
