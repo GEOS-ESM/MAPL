@@ -2810,6 +2810,7 @@ ENDDO PARSER
             end if
 
             if(  MAPL_AM_I_ROOT() ) then
+                 if (index(list(n)%format,'flat') == 0 ) &
                  write(6,'(1X,"Writing: ",i6," Slices (",i4," Nodes, ",i4," PartitionRoot) to File:  ",a)') &
                        list(n)%Slices,list(n)%Psize,list(n)%Root, &
                        trim(MAPL_CFIOGetFilename(list(n)%MCFIO))
