@@ -351,6 +351,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'check_and_fill_consistency'
 
       _UNUSED_DUMMY(unusable)
