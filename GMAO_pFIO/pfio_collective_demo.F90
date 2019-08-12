@@ -119,7 +119,7 @@ contains
 
 end module collective_demo_CLI
 
-module FakeExtDataMod
+module FakeExtDataMod_collective
    use collective_demo_CLI
    use pFIO
    use pFIO_StringVectorMod
@@ -294,14 +294,14 @@ contains
       call this%c%terminate()
    end subroutine finalize
 
-end module FakeExtDataMod
+end module FakeExtDataMod_collective
 
 program main
    use, intrinsic :: iso_fortran_env, only: REAL32
    use mpi
    use pFIO
    use collective_demo_CLI
-   use FakeExtDataMod
+   use FakeExtDataMod_collective
    use pFIO_ThrowMod
    implicit none
 
