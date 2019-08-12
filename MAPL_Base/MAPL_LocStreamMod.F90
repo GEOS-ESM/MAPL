@@ -491,6 +491,14 @@ contains
           VERIFY_(STATUS)
        end do
 
+       ! adjust EASE grid index from tile file
+       do N=1,STREAM%N_GRIDS
+         if(index(STREAM%TILING(N)%NAME,'EASE') /=0 ) then
+             AVR(:,NumGlobalVars+1+NumLocalVars*(N-1)) = AVR(:,NumGlobalVars+1+NumLocalVars*(N-1))+1
+             AVR(:,NumGlobalVars+2+NumLocalVars*(N-1)) = AVR(:,NumGlobalVars+2+NumLocalVars*(N-1))+1
+         endif
+       enddo
+
        call FREE_FILE(UNIT)
 
 ! Allocate msk for which tiles to include in the stream being created.
