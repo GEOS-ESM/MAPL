@@ -154,7 +154,7 @@
 ! ESMF Error codes are defined here
 !                     
 
-#include "ESMF_ErrReturnCodes.inc"
+#include "ESMC_ReturnCodes.h"
 
 !
 ! Pre-defined MAPL error codes
