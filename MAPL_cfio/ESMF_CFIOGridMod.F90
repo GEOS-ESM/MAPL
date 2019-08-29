@@ -17,6 +17,7 @@
 !------------------------------------------------------------------------------
 ! !USES:
       use ESMF_CFIOUtilMod, only : MLEN, MVARLEN
+      use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64
       implicit none
 
 !------------------------------------------------------------------------------
@@ -145,8 +146,8 @@
       real, intent(in), OPTIONAL :: lon(:) ! longitude 
       real, intent(in), OPTIONAL :: lat(:) ! latitude 
       real, intent(in), OPTIONAL :: lev(:) ! Level   
-      real(KIND=8), pointer, OPTIONAL :: lon2(:) ! longitude 2d 
-      real(KIND=8), pointer, OPTIONAL :: lat2(:) ! latitude 2d
+      real(KIND=REAL64), pointer, OPTIONAL :: lon2(:) ! longitude 2d 
+      real(KIND=REAL64), pointer, OPTIONAL :: lat2(:) ! latitude 2d
       character(len=*), intent(in), OPTIONAL :: levUnit   
                                  ! units of level dimension, e.g., "hPa".
       character(len=*), intent(in), OPTIONAL :: coordinate

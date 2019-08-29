@@ -24,6 +24,11 @@ module MockGridFactoryMod
       procedure :: generate_grid_name
       procedure :: equals
       procedure :: to_string
+      procedure :: initialize_from_file_metadata
+      procedure :: get_grid_vars
+
+      procedure :: append_metadata
+      procedure :: append_variable_metadata
    end type MockGridFactory
 
    interface MockGridFactory
@@ -142,6 +147,45 @@ contains
       name = 'MockGridFactory'
       _UNUSED_DUMMY(this)
    end function generate_grid_name
+
+   subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
+      use pFIO_FileMetadataMod
+      use pFIO_NetCDF4_FileFormatterMod
+      use MAPL_KeywordEnforcerMod
+      class (MockGridFactory), intent(inout)  :: this
+      type (FileMetadata), target, intent(in) :: file_metadata
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+   end subroutine initialize_from_file_metadata
+
+
+   subroutine append_metadata(this, metadata)
+      use pFIO
+      class (MockGridFactory), intent(inout) :: this
+      type (FileMetadata), intent(inout) :: metadata
+
+      type (Variable) :: v
+      
+!!$      ! Horizontal grid dimensions
+!!$      call metadata%add_dimension('lon', this%im_world)
+!!$      call metadata%add_dimension('lat', this%jm_world)
+   end subroutine append_metadata
+
+   function get_grid_vars(this) result(vars)
+      use pFIO
+      class (MockGridFactory), intent(inout) :: this
+
+      character(len=:), allocatable :: vars
+
+      vars = 'lon,lat, mock'
+
+   end function get_grid_vars
+
+   subroutine append_variable_metadata(this,var)
+      use pFIO_VariableMod
+      class (MockGridFactory), intent(inout) :: this
+      type(Variable), intent(inout) :: var
+   end subroutine append_variable_metadata
 
 
 end module MockGridFactoryMod

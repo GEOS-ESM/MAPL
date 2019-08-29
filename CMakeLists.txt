@@ -32,6 +32,11 @@ add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 add_subdirectory (GMAO_pFIO)
 add_subdirectory (MAPL_Base)
 
+if (PFUNIT)
+  add_subdirectory (MAPL_pFUnit EXCLUDE_FROM_ALL)
+endif ()
+
+
 # Git transition defect:
 # Uncomment the line below once the dev branch of MAPL has been brought in.
 #add_subdirectory (Tests)

@@ -1,0 +1,236 @@
+#include "unused_dummy.H"
+
+module Test_SphericalToCartesianMod
+   use pfunit_mod
+   use ESMF_TestMethod_mod
+   use, intrinsic :: iso_fortran_env, only: REAL64
+   use MAPL_AbstractGridFactoryMod
+   use MAPL_LatLonGridFactoryMod
+   use ESMF
+
+   ! Note the tests here use a static method on the abstract class
+   ! AbstractGridFactory.  Unfortunately we need to declare an object
+   ! of some concrete subclass.  So we leverage the already existing
+   ! LatLonGridFactory class.  We're not using the "mock" aspect here.
+
+contains
+
+   @test(npes=[1],type=newESMF_TestMethod)
+   subroutine test_spherical_to_cartesian_east_wind(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+      type (LatLonGridFactory) :: factory
+      real, allocatable :: east_wind_u(:,:)
+      real, allocatable :: east_wind_v(:,:)
+      real, allocatable :: xyz(:,:,:,:)
+      real, allocatable :: longitudes(:)
+
+      integer, parameter :: IM=12, JM=6
+      type (ESMF_Grid) :: grid
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      factory = LatLonGridFactory(im_world=IM, jm_world=JM, lm=1, nx=1, ny=1, pole='PE', dateline='GC')
+      grid = factory%make_grid()
+
+      allocate(east_wind_u(IM,JM))
+      allocate(east_wind_v(IM,JM))
+      allocate(xyz(3,1,IM,JM))
+
+      east_wind_u = 1
+      east_wind_v = 0
+      call factory%spherical_to_cartesian(east_wind_u, east_wind_v, xyz, basis='north-south',rc=status)
+      @assertEqual(0, status)
+
+      ! z component is 0
+      @assertEqual(0, xyz(3,1,:,:))
+
+      ! Note: longitudes return as REAL64.
+      longitudes = real(factory%get_longitudes())
+      do j = 1, JM
+         @assertEqual(-sin(longitudes), xyz(1,1,:,j), 10*epsilon(1.))
+         @assertEqual(+cos(longitudes), xyz(2,1,:,j), 10*epsilon(1.))
+      end do
+
+   end subroutine test_spherical_to_cartesian_east_wind
+
+
+   @test(npes=[1],type=newESMF_TestMethod)
+   subroutine test_spherical_to_cartesian_north_wind(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+      type (LatLonGridFactory) :: factory
+      real, allocatable :: north_wind_u(:,:)
+      real, allocatable :: north_wind_v(:,:)
+      real, allocatable :: xyz(:,:,:,:)
+      real, allocatable :: longitudes(:)
+      real, allocatable :: latitudes(:)
+
+      integer, parameter :: IM=12, JM=6
+      integer :: status
+      type (ESMF_Grid) :: grid
+      
+      _UNUSED_DUMMY(this)
+      factory = LatLonGridFactory(im_world=IM, jm_world=JM, lm=1, nx=1, ny=1, pole='PE', dateline='GC')
+      grid = factory%make_grid()
+
+      allocate(north_wind_u(IM,JM))
+      allocate(north_wind_v(IM,JM))
+      allocate(xyz(3,1,IM,JM))
+
+      north_wind_u = 0
+      north_wind_v = 1
+      call factory%spherical_to_cartesian(north_wind_u, north_wind_v, xyz, basis='north-south', rc=status)
+      @assertEqual(0, status)
+
+      ! Note: longitudes return as REAL64.
+      longitudes = real(factory%get_longitudes())
+      latitudes = real(factory%get_latitudes())
+      do j = 1, JM
+         @assertEqual(-cos(longitudes)*sin(latitudes(j)), xyz(1,1,:,j), 10*epsilon(1.))
+         @assertEqual(-sin(longitudes)*sin(latitudes(j)), xyz(2,1,:,j), 10*epsilon(1.))
+         @assertEqual(+cos(latitudes(j)), xyz(3,1,:,j), 10*epsilon(1.))
+      end do
+
+   end subroutine test_spherical_to_cartesian_north_wind
+
+   @test(npes=[1],type=newESMF_TestMethod)
+   subroutine test_cartesian_to_spherical_X(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+      type (LatLonGridFactory) :: factory
+      real, allocatable :: u(:,:)
+      real, allocatable :: v(:,:)
+      real, allocatable :: xyz(:,:,:,:)
+      real, allocatable :: longitudes(:)
+      real, allocatable :: latitudes(:)
+
+      integer, parameter :: IM=12, JM=6
+      type (ESMF_Grid) :: grid
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+      factory = LatLonGridFactory(im_world=IM, jm_world=JM, lm=1, nx=1, ny=1, pole='PE', dateline='GC')
+      grid = factory%make_grid()
+
+      allocate(u(IM,JM))
+      allocate(v(IM,JM))
+      allocate(xyz(3,1,IM,JM))
+
+      XYZ(1,1,:,:) = 1
+      XYZ(2:3,1,:,:) = 0
+
+      call factory%cartesian_to_spherical(xyz, u, v, basis='north-south', rc=status)
+      @assertEqual(0,status)
+
+      ! Note: longitudes return as REAL64.
+      longitudes = real(factory%get_longitudes())
+      latitudes = real(factory%get_latitudes())
+      do j = 1, JM
+         @assertEqual(-sin(longitudes), u(:,j), 10*epsilon(1.))
+         @assertEqual(-cos(longitudes)*sin(latitudes(j)), v(:,j), 10*epsilon(1.))
+      end do
+
+   end subroutine test_cartesian_to_spherical_X
+
+
+   @test(npes=[1],type=newESMF_TestMethod)
+   subroutine test_cartesian_to_spherical_Y(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+      type (LatLonGridFactory) :: factory
+      real, allocatable :: u(:,:)
+      real, allocatable :: v(:,:)
+      real, allocatable :: xyz(:,:,:,:)
+      real, allocatable :: longitudes(:)
+      real, allocatable :: latitudes(:)
+
+      integer, parameter :: IM=12, JM=6
+      type (ESMF_Grid) :: grid
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      factory = LatLonGridFactory(im_world=IM, jm_world=JM, lm=1, nx=1, ny=1, pole='PE', dateline='GC')
+      grid = factory%make_grid()
+
+      allocate(u(IM,JM))
+      allocate(v(IM,JM))
+      allocate(xyz(3,1,IM,JM))
+
+      XYZ(1,1,:,:) = 0
+      XYZ(2,1,:,:) = 1
+      XYZ(3,1,:,:) = 0
+
+      call factory%cartesian_to_spherical(xyz, u, v, basis='north-south',rc=status)
+      @assertEqual(0,status)
+
+      ! Note: longitudes return as REAL64.
+      longitudes = real(factory%get_longitudes())
+      latitudes = real(factory%get_latitudes())
+      do j = 1, JM
+         @assertEqual(+cos(longitudes), u(:,j), 10*epsilon(1.))
+         @assertEqual(-sin(longitudes)*sin(latitudes(j)), v(:,j), 10*epsilon(1.))
+      end do
+
+   end subroutine test_cartesian_to_spherical_Y
+
+   @test(npes=[1],type=newESMF_TestMethod)
+   subroutine test_cartesian_to_spherical_Z(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+      type (LatLonGridFactory) :: factory
+      real, allocatable :: u(:,:)
+      real, allocatable :: v(:,:)
+      real, allocatable :: xyz(:,:,:,:)
+      real, allocatable :: longitudes(:)
+      real, allocatable :: latitudes(:)
+
+      integer, parameter :: IM=12, JM=6
+      type (ESMF_Grid) :: grid
+      integer :: status
+
+      _UNUSED_DUMMY(this)
+
+      factory = LatLonGridFactory(im_world=IM, jm_world=JM, lm=1, nx=1, ny=1, pole='PE', dateline='GC')
+      grid = factory%make_grid()
+
+      allocate(u(IM,JM))
+      allocate(v(IM,JM))
+      allocate(xyz(3,1,IM,JM))
+
+      XYZ(1,1,:,:) = 0
+      XYZ(2,1,:,:) = 0
+      XYZ(3,1,:,:) = 1
+
+      call factory%cartesian_to_spherical(xyz, u, v, basis='north-south',rc=status)
+      @assertEqual(0, status)
+
+      ! Note: longitudes return as REAL64.
+      longitudes = real(factory%get_longitudes())
+      latitudes = real(factory%get_latitudes())
+      do j = 1, JM
+         @assertEqual(0., u(:,j), 10*epsilon(1.))
+         @assertEqual(cos(latitudes(j)), v(:,j), 10*epsilon(1.))
+      end do
+
+   end subroutine test_cartesian_to_spherical_Z
+
+
+   ! No good place to put this test, so putting it here for now.
+   ! Testing a static method on abstract class (AbstractGridFactory)
+   @test(npes=[1,2,3,4,6],type=newESMF_TestMethod)
+   subroutine test_make_arbitrary_decomposition(this)
+      class (ESMF_TestMethod), intent(inout) :: this
+      type (LatLonGridFactory) :: factory
+
+      integer :: nx, ny
+
+      call factory%make_arbitrary_decomposition(nx, ny)
+      @assertTrue(nx > 0)
+      @assertTrue(ny > 0)
+      @assertEqual(this%getPetCount(), nx*ny)
+
+   end subroutine test_make_arbitrary_decomposition
+
+
+end module Test_SphericalToCartesianMod
+      
+      
+      

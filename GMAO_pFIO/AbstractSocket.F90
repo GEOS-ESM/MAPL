@@ -4,9 +4,6 @@ module pFIO_AbstractSocketMod
 
    public :: AbstractSocket
 
-   type, abstract :: AbstractPort
-   end type AbstractPort
-
    type, abstract :: AbstractSocket
    contains
       procedure (receive), deferred :: receive
@@ -15,31 +12,32 @@ module pFIO_AbstractSocketMod
       procedure (put), deferred :: put
       procedure (get), deferred :: get
       procedure (to_string), deferred :: to_string
-      procedure :: has_message =>dummy_probe
    end type AbstractSocket
 
    abstract interface
 
 
-      function receive(this) result(message)
+      function receive(this, rc) result(message)
          use pFIO_AbstractMessageMod
          import AbstractSocket
          implicit none
          class (AbstractMessage), pointer :: message
          class (AbstractSocket), intent(inout) :: this
+         integer, optional, intent(out) :: rc
       end function receive
 
 
-      subroutine send(this, message)
+      subroutine send(this, message, rc)
          use pFIO_AbstractMessageMod
          import AbstractSocket
          implicit none
          class (AbstractSocket), intent(inout) :: this
          class (AbstractMessage), intent(in) :: message
+         integer, optional, intent(out) :: rc
       end subroutine send
 
 
-      function put(this, request_id, local_reference) result(handle)
+      function put(this, request_id, local_reference, rc) result(handle)
          use pFIO_AbstractDataReferenceMod
          use pFIO_AbstractRequestHandleMod
          import AbstractSocket
@@ -47,10 +45,11 @@ module pFIO_AbstractSocketMod
          class (AbstractSocket), intent(inout) :: this
          integer, intent(in) :: request_id
          class (AbstractDataReference), intent(in) :: local_reference
+         integer, optional, intent(out) :: rc
       end function put
 
       
-      function get(this, request_id, local_reference) result(handle)
+      function get(this, request_id, local_reference, rc) result(handle)
          use pFIO_AbstractDataReferenceMod
          use pFIO_AbstractRequestHandleMod
          import AbstractSocket
@@ -58,6 +57,7 @@ module pFIO_AbstractSocketMod
          class (AbstractSocket), intent(inout) :: this
          integer, intent(in) :: request_id
          class (AbstractDataReference), intent(in) :: local_reference
+         integer, optional, intent(out) :: rc
       end function get
 
 
@@ -68,13 +68,6 @@ module pFIO_AbstractSocketMod
       end function to_string
 
    end interface
-contains
-
-   function dummy_probe(this) result(has)
-      class(AbstractSocket), intent(inout) :: this
-      logical :: has
-      has = .true.
-   end function 
 
 end module pFIO_AbstractSocketMod
 

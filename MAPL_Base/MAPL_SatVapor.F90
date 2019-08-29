@@ -9,6 +9,7 @@ module MAPL_SatVaporMod
   use MAPL_ConstantsMod
 #endif
 
+  use, intrinsic :: iso_fortran_env, only: REAL64
 !BOP
 
 ! !MODULE: MAPL_SatVaporMod -- A module for saturation humidity calculations
@@ -267,8 +268,8 @@ contains
 ! Set the formulation dependent limits
     
     if(TYPE==MurphyKoop)  then
-       TMIN(ICE  ) =  max(TMINTBL,110._8)
-       TMIN(WATER) =  max(TMINTBL,123._8)
+       TMIN(ICE  ) =  max(TMINTBL,110._REAL64)
+       TMIN(WATER) =  max(TMINTBL,123._REAL64)
     else
        TMIN(WATER) =  TMINLQU
        TMIN(ICE  ) =  TMINICE

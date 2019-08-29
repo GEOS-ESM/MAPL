@@ -34,6 +34,7 @@ module MAPL_IdentityRegridderMod
       procedure :: initialize_subclass
       procedure :: regrid_scalar_2d_real32
       procedure :: regrid_scalar_3d_real32
+      procedure :: regrid_vector_2d_real32
       procedure :: regrid_vector_3d_real32
    end type IdentityRegridder
 
@@ -89,6 +90,28 @@ contains
       _RETURN(_SUCCESS)
       
    end subroutine regrid_scalar_3d_real32
+
+   subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rc)
+      use MAPL_CommsMod
+      use MAPL_BaseMod
+      use, intrinsic :: iso_fortran_env, only: REAL32
+      class (IdentityRegridder), intent(in) :: this
+      real(kind=REAL32), intent(in) :: u_in(:,:)
+      real(kind=REAL32), intent(in) :: v_in(:,:)
+      real(kind=REAL32), intent(out) :: u_out(:,:)
+      real(kind=REAL32), intent(out) :: v_out(:,:)
+      integer, optional, intent(out) :: rc
+
+      character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real32'
+
+      _UNUSED_DUMMY(this)
+
+      u_out = u_in
+      v_out = v_in
+
+     _RETURN(_SUCCESS)
+
+   end subroutine regrid_vector_2d_real32
 
 
    subroutine regrid_vector_3d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)

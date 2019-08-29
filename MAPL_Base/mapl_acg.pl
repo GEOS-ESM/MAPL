@@ -345,11 +345,23 @@ EOF
 EOF
      }
 
+     $stagger  = $r{stagger};
+     if ( "$stagger" ne "" ) {
+        print FILE <<EOF;
+        STAGGERING = $stagger,     &
+EOF
+     }
+     $rot  = $r{rotation};
+     if ( "$rot" ne "" ) {
+        print FILE <<EOF;
+        ROTATION = $rot,     &
+EOF
+     }
 #    End of item
 #    -----------
      print FILE <<EOF
                                                        RC=STATUS  )
-     VERIFY_(STATUS)
+     _VERIFY(STATUS)
 
 EOF
 
@@ -456,7 +468,7 @@ EOF
 #    -----------
      print FILE <<EOF
                                                        RC=STATUS  )
-     VERIFY_(STATUS)
+     _VERIFY(STATUS)
 
 EOF
 
@@ -561,12 +573,12 @@ EOF
 !       Get my MAPL Meta Component
 !       --------------------------
         call MAPL_GetObjectFromGC ( GC, MetaComp, RC=STATUS)
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
 
 !       Associate the Internal State fields with our legacy state 
 !       ---------------------------------------------------------
         call MAPL_Get ( MetaComp, INTERNAL_ESMF_STATE=INTERNAL, RC=STATUS  )
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
 
 !       Get pointers to data in state
 !       -----------------------------
@@ -589,13 +601,13 @@ EOF
           if ( $long =~ / __ENSEMBLE__/ ) {
 	    print FILE <<EOF;
         call MAPL_GetPointer ( $Type, $name,  '$name'//iNAME, RC=STATUS )
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
 EOF
 	  }
         } else {
 	  print FILE <<EOF;
         call MAPL_GetPointer ( $Type, $name,  '$name', RC=STATUS )
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
 EOF
 	}
     }
@@ -805,12 +817,12 @@ EOF
 !       Get my MAPL Meta Component
 !       --------------------------
         call MAPL_GetObjectFromGC ( GC, MetaComp, RC=STATUS)
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
 
 !       Associate the Internal State fields with our legacy state 
 !       ---------------------------------------------------------
         call MAPL_Get ( MetaComp, INTERNAL_ESMF_STATE=INTERNAL, RC=STATUS  )
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
 
 !       Get pointers to data in state
 !       -----------------------------
@@ -850,7 +862,7 @@ EOF
                                                        if ( $xBin[$i] == 1 ); 
 	      print FILE <<EOF;
       call MAPL_GetPointer ( $Type, $xName[$i]($xBin[$i])%data$rank,  '$name'//iNAME, RC=STATUS )
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 EOF
 
 #         If desired, even non-binned variables are Chem Arrays
@@ -860,13 +872,13 @@ EOF
 
       ptr$xName[$i] => $xName[$i]   ! $long
       call MAPL_GetPointer ( $Type, $xName[$i]%data$rank,  '$name'//iNAME, RC=STATUS )
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 EOF
 
           } else {
             print FILE <<EOF;
       call MAPL_GetPointer ( Type, $name,  '$name'//iNAME, RC=STATUS )
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 EOF
           }
 
@@ -882,7 +894,7 @@ EOF
                                                        if ( $xBin[$i] == 1 ); 
 	      print FILE <<EOF;
       call MAPL_GetPointer ( $Type, $xName[$i]($xBin[$i])%data$rank,  '$name', RC=STATUS )
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 EOF
 
 #         If desired, even non-binned variables are Chem Arrays
@@ -892,13 +904,13 @@ EOF
 
       ptr$xName[$i] => $xName[$i]   ! $long
       call MAPL_GetPointer ( $Type, $xName[$i]%data$rank,  '$name', RC=STATUS )
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 EOF
 
           } else {
             print FILE <<EOF;
       call MAPL_GetPointer ( $Type, $name,  '$name', RC=STATUS )
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 EOF
           }
 
@@ -1130,13 +1142,13 @@ CONTAINS
 !   Wrap internal legacy state for storing in GC
 !   --------------------------------------------
     allocate ( myState, stat=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     wrap%ptr => myState
 
 !   Store internal state in GC
 !   --------------------------
     call ESMF_UserCompSetInternalState ( GC, 'GCNAME_State', wrap, STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 
 !                         ------------------
@@ -1159,16 +1171,16 @@ CONTAINS
 !   Set the Profiling timers
 !   ------------------------
     call MAPL_GenericStateClockAdd ( GC, name = "RUN", RC=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 !   Generic Set Services
 !   --------------------
     call MAPL_GenericSetServices ( GC, RC=STATUS )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 !   All done
 !   --------
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   
   end subroutine SetServices
 
@@ -1236,7 +1248,7 @@ CONTAINS
 !  Get my internal legacy state
 !  ----------------------------
    call ESMF_UserCompGetInternalState (GC, 'GCNAME_State', WRAP, STATUS)
-   VERIFY_(STATUS)
+   _VERIFY(STATUS)
    myState => wrap%ptr
 
 !  Initialize MAPL Generic
@@ -1249,7 +1261,7 @@ CONTAINS
 
 !  Add your code here...
 
-   RETURN_(ESMF_SUCCESS)
+   _RETURN(ESMF_SUCCESS)
 
    end subroutine Initialize_
 
@@ -1317,12 +1329,12 @@ CONTAINS
 !  Get my internal legacy state
 !  ----------------------------
    call ESMF_UserCompGetInternalState (GC, 'GCNAME_State', WRAP, STATUS)
-   VERIFY_(STATUS)
+   _VERIFY(STATUS)
    myState => wrap%ptr
 
 !  Run MAPL Generic
 !  ----------------
-   call MAPL_GenericRun ( GC, IMPORT, EXPORT, CLOCK,  __RC__ )
+   call MAPL_GenericRunChildren ( GC, IMPORT, EXPORT, CLOCK,  __RC__ )
 
 !  Get pointer to states
 !  ---------------------
@@ -1330,7 +1342,7 @@ CONTAINS
 
 !  Add your code here...
 
-   RETURN_(ESMF_SUCCESS)
+   _RETURN(ESMF_SUCCESS)
 
    end subroutine Run_
 
@@ -1396,7 +1408,7 @@ CONTAINS
 !  Get my internal legacy state
 !  ----------------------------
    call ESMF_UserCompGetInternalState (GC, 'GCNAME_State', WRAP, STATUS)
-   VERIFY_(STATUS)
+   _VERIFY(STATUS)
    myState => wrap%ptr
 
 !  Run MAPL Generic
@@ -1405,7 +1417,7 @@ CONTAINS
 
 !  Add your code here...
 
-   RETURN_(ESMF_SUCCESS)
+   _RETURN(ESMF_SUCCESS)
 
    end subroutine Finalize_
 
