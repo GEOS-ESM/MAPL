@@ -9,13 +9,15 @@
 module MAPL_ExtData_IOBundleMod
   use ESMF
   use MAPL_BaseMod
-  use MAPL_CFIOMod
+  use MAPL_newCFIOMod
   use MAPL_ErrorHandlingMod
+  use MAPL_newCFIOItemMod
+  use MAPL_newCFIOItemVectorMod
 
   public :: ExtData_IoBundle
 
   type ExtData_IoBundle
-     type (MAPL_CFIO) :: cfio
+     type (MAPL_newCFIO) :: cfio
      type (ESMF_FieldBundle) :: pbundle
      character(:), allocatable :: template
      integer :: regrid_method
@@ -27,6 +29,9 @@ module MAPL_ExtData_IOBundleMod
      integer :: fraction
      logical :: distributed_trans = .false.
      logical :: parallel_skip
+     integer :: metadata_coll_id
+     integer :: server_coll_id
+     type(newCFIOItemVector) :: items
      
    contains
      
@@ -41,7 +46,7 @@ module MAPL_ExtData_IOBundleMod
 
 contains
 
-  function new_ExtData_IoBundle(bracket_side, entry_index, file_name, time_index, regrid_method, fraction, template, rc) result(io_bundle)
+  function new_ExtData_IoBundle(bracket_side, entry_index, file_name, time_index, regrid_method, fraction, template, metadata_coll_id,server_coll_id,items,rc) result(io_bundle)
     type (ExtData_IoBundle) :: io_bundle
 
      __Iam__('new_ExtData_IoBundle')
@@ -53,6 +58,9 @@ contains
     integer, intent(in) :: regrid_method
     integer, intent(in) :: fraction
     character(len=*), intent(in) :: template
+    integer, intent(in) :: metadata_coll_id
+    integer, intent(in) :: server_coll_id
+    type(newCFIOItemVector) :: items
     integer, optional, intent(out) :: rc
 
     io_bundle%bracket_side = bracket_side
@@ -64,6 +72,9 @@ contains
     io_bundle%template = trim(template)
 
     io_bundle%parallel_skip = .false.
+    io_bundle%metadata_coll_id=metadata_coll_id
+    io_bundle%server_coll_id=server_coll_id
+    io_bundle%items=items
 
     _RETURN(ESMF_SUCCESS)
   end function new_ExtData_IoBundle
@@ -74,8 +85,6 @@ contains
     integer, optional, intent(out) :: rc
 
      __Iam__('clean')
-    call MAPL_CFIOSet(this%cfio, root=-1, __RC__)
-    call MAPL_CFIODestroy(this%cfio, __RC__)
     call ESMF_FieldBundleDestroy(this%pbundle, __RC__)
     
      _RETURN(ESMF_SUCCESS)
@@ -90,8 +99,10 @@ contains
 
      __Iam__('make_cfio')
 
-     call MAPL_CFIOCreateFromFile(this%cfio, this%pbundle, regridMethod=this%regrid_method, __RC__)
-     if (this%regrid_method==REGRID_METHOD_FRACTION) call MAPL_CFIOSet(this%cfio,fraction=this%fraction,__RC__)
+     this%cfio = MAPL_NewCFIO(output_bundle=this%pbundle,regrid_method=this%regrid_method, &
+                        read_collection_id=this%server_coll_id, &
+                        metadata_collection_id = this%metadata_coll_id, fraction = this%fraction, &
+                        items=this%items)
 
      _RETURN(ESMF_SUCCESS)
 

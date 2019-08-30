@@ -666,13 +666,14 @@ contains
 
       character(:), allocatable :: lon_name
       character(:), allocatable :: lat_name
-      logical :: hasLon, hasLat, hasLongitude, hasLatitude
+      character(:), allocatable :: lev_name
+      logical :: hasLon, hasLat, hasLongitude, hasLatitude, hasLev,hasLevel
       _UNUSED_DUMMY(unusable)
 
       ! Cannot assume that lats and lons are evenly spaced
       this%is_regular = .false.
       
-      associate (im => this%im_world, jm => this%jm_world)
+      associate (im => this%im_world, jm => this%jm_world, lm => this%lm)
          lon_name = 'lon'
          hasLon = file_metadata%has_dimension(lon_name)
          if (hasLon) then
@@ -703,7 +704,22 @@ contains
                _ASSERT(.false.)
             end if
          end if
-
+         hasLev=.false.
+         hasLevel=.false.
+         lev_name = 'lev'
+         hasLev = file_metadata%has_dimension(lev_name)
+         if (hasLev) then
+            lm = file_metadata%get_dimension(lev_name,rc=status)
+            _VERIFY(status)
+         else
+            lev_name = 'levels'
+            hasLevel = file_metadata%has_dimension(lev_name)
+            if (hasLevel) then
+               lm = file_metadata%get_dimension(lev_name,rc=status)
+               _VERIFY(status)
+            end if
+         end if   
+         
         ! TODO: if 'lat' and 'lon' are not present then
         ! assume ... pole/dateline are ?
         

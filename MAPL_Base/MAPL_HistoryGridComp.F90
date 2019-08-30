@@ -413,7 +413,7 @@ contains
     character(len=:), pointer :: key
     type(StringFieldSetMapIterator) :: field_set_iter
     character(ESMF_MAXSTR) :: field_set_name
-    integer :: nfields
+    integer :: nfields,collection_id
 
 ! Begin
 !------
@@ -2342,7 +2342,8 @@ ENDDO PARSER
              call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
              _VERIFY(status)
           end if
-          list(n)%mNewCFIO%collection_id = o_Clients%add_hist_collection(list(n)%mNewCFIO%metadata)
+          collection_id = o_Clients%add_hist_collection(list(n)%mNewCFIO%metadata)
+          call list(n)%mNewCFIO%set_param(write_collection_id=collection_id)
        end if
    end do
 

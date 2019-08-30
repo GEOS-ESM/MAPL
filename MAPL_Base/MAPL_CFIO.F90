@@ -83,6 +83,7 @@ module MAPL_CFIOMod
   public MAPL_CFIOReadBundleWait
   public MAPL_CFIOReadParallel
   public MAPL_CFIOAddCollection
+  !public MAPL_ExtDataAddCollection
   public MAPL_CFIOReadBundlePrefetch
   public MAPL_CFIOReadBundleReadPrefetch
   public MAPL_CFIOGetTimeFromIndex
