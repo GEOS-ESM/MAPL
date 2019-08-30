@@ -239,11 +239,12 @@ module MAPL_IOMod
 
   contains
 
-      subroutine ArrDescrInit(ArrDes,comm,im_world,jm_world,nx,ny,num_readers,num_writers,is,ie,js,je,rc)
+      subroutine ArrDescrInit(ArrDes,comm,im_world,jm_world,lm_world,nx,ny,num_readers,num_writers,is,ie,js,je,rc)
          type(ArrDescr), intent(INOUT) :: ArrDes
          integer, intent(in) :: comm
          integer, intent(in) :: IM_World
          integer, intent(in) :: JM_World
+         integer, intent(in) :: lm_world
          integer, intent(in) :: nx
          integer, intent(in) :: ny
          integer, intent(in) :: num_readers
@@ -364,6 +365,7 @@ module MAPL_IOMod
 
          ArrDes%im_world=im_world
          ArrDes%jm_world=jm_world
+         ArrDes%lm_world=lm_world
 
          ArrDes%readers_comm  = readers_comm
          ArrDes%ioscattercomm = ioscattercomm
