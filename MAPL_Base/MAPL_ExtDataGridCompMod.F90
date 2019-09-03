@@ -2138,7 +2138,13 @@ CONTAINS
            if (trim(item%levUnit) == 'hPa') then
               item%havePressure = .true.
            end if
-           item%units = metadata%get_variable_units(trim(item%var),rc=status)
+           if (item%isVector) then
+              item%units = metadata%get_variable_units(trim(item%fcomp1),rc=status)
+              _VERIFY(status)
+           else
+              item%units = metadata%get_variable_units(trim(item%var),rc=status)
+              _VERIFY(status)
+           end if
 
         else
            item%LM=0
