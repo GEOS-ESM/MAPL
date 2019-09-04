@@ -1,4 +1,4 @@
-! $Id$
+! $Id: sun.H,v 1.14.6.2 2017/08/14 17:05:14 mathomp4 Exp $
 
 
       type(MAPL_SunOrbit),               intent(IN ) :: ORBIT
@@ -15,6 +15,7 @@
       real,                    optional, intent(OUT) :: ZTHD DIMENSIONS
       real,                    optional, intent(OUT) :: ZTH1 DIMENSIONS
       real,                    optional, intent(OUT) :: ZTHN DIMENSIONS
+      real,                    optional, intent(IN)  :: STEPSIZE
       integer,                 optional, intent(OUT) :: RC
 
 !     Locals
@@ -177,8 +178,10 @@
 
          call ESMF_TimeIntervalGet (INTV, S_R8=SECS, rc=STATUS)
          VERIFY_(STATUS)
-
-         if(SECS>1500.) then
+         
+         if(present(STEPSIZE)) then ! interval for integration
+            NT = nint(SECS/STEPSIZE)
+         else if(SECS>1500.) then
             NT = nint(SECS/300.0)
          else
             NT = 5
