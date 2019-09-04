@@ -459,7 +459,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 #define DIMENSIONS (:)
 #define THE_SIZE   (size(LONS,1))
       recursive subroutine SOLAR_1D(LONS, LATS, ORBIT,ZTH,SLR,INTV,CLOCK, &
-                                    TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN,RC)
+                                    TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN,STEPSIZE,RC)
 #include "sun.H"
       end subroutine SOLAR_1D
 
@@ -470,7 +470,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 #define DIMENSIONS (:,:)
 #define THE_SIZE   (size(LONS,1),size(LONS,2))
       recursive subroutine SOLAR_2D(LONS, LATS, ORBIT,ZTH,SLR,INTV,CLOCK, &
-                                    TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN,RC)
+                                    TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN,STEPSIZE,RC)
 #include "sun.H"
       end subroutine SOLAR_2D
 #undef  DIMENSIONS
