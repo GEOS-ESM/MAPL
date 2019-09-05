@@ -15,6 +15,7 @@
       real,                    optional, intent(OUT) :: ZTHD DIMENSIONS
       real,                    optional, intent(OUT) :: ZTH1 DIMENSIONS
       real,                    optional, intent(OUT) :: ZTHN DIMENSIONS
+      real,                    optional, intent(IN)  :: STEPSIZE
       integer,                 optional, intent(OUT) :: RC
 
 !     Locals
@@ -177,8 +178,10 @@
 
          call ESMF_TimeIntervalGet (INTV, S_R8=SECS, rc=STATUS)
          VERIFY_(STATUS)
-
-         if(SECS>1500.) then
+         
+         if(present(STEPSIZE)) then ! interval for integration
+            NT = nint(SECS/STEPSIZE)
+         else if(SECS>1500.) then
             NT = nint(SECS/300.0)
          else
             NT = 5
