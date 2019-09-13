@@ -182,12 +182,13 @@ contains
    end subroutine regrid_scalar_3d_real64
 
 
-   subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rc)
+   subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (AbstractRegridder), intent(in) :: this
       real(kind=REAL32), intent(in) :: u_in(:,:)
       real(kind=REAL32), intent(in) :: v_in(:,:)
       real(kind=REAL32), intent(out) :: u_out(:,:)
       real(kind=REAL32), intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_2d_real32'
 
@@ -202,12 +203,13 @@ contains
    end subroutine regrid_vector_2d_real32
 
 
-   subroutine regrid_vector_2d_real64(this, u_in, v_in, u_out, v_out, rc)
+   subroutine regrid_vector_2d_real64(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (AbstractRegridder), intent(in) :: this
       real(kind=REAL64), intent(in) :: u_in(:,:)
       real(kind=REAL64), intent(in) :: v_in(:,:)
       real(kind=REAL64), intent(out) :: u_out(:,:)
       real(kind=REAL64), intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_2d_real64'
 
@@ -564,12 +566,13 @@ contains
    end subroutine transpose_regrid_scalar_3d_real64
 
    
-   subroutine transpose_regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rc)
+   subroutine transpose_regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (AbstractRegridder), intent(in) :: this
       real(kind=REAL32), intent(in) :: u_in(:,:)
       real(kind=REAL32), intent(in) :: v_in(:,:)
       real(kind=REAL32), intent(out) :: u_out(:,:)
       real(kind=REAL32), intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_2d_real32'
@@ -587,12 +590,13 @@ contains
    end subroutine transpose_regrid_vector_2d_real32
 
 
-   subroutine transpose_regrid_vector_2d_real64(this, u_in, v_in, u_out, v_out, rc)
+   subroutine transpose_regrid_vector_2d_real64(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (AbstractRegridder), intent(in) :: this
       real(kind=REAL64), intent(in) :: u_in(:,:)
       real(kind=REAL64), intent(in) :: v_in(:,:)
       real(kind=REAL64), intent(out) :: u_out(:,:)
       real(kind=REAL64), intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_2d_real64'

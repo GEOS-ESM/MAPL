@@ -59,7 +59,7 @@ contains
     type (StringIntegerMapIterator) :: iter
 
     type (NetCDF4_FileFormatter) :: fmtr
-    class (AbstractGridFactory), pointer :: factory
+    class (AbstractGridFactory), allocatable :: factory
 
     file_id => this%file_ids%at(trim(file_name))
     if (associated(file_id)) then
