@@ -56,7 +56,7 @@ contains
     type (FileMetadata) :: basic_metadata
     integer, pointer :: file_id
     type (StringIntegerMapIterator) :: iter
-    class (AbstractGridFactory), pointer :: factory
+    class (AbstractGridFactory), allocatable :: factory
     integer :: status
 
 
