@@ -91,7 +91,7 @@ contains
       
    end subroutine regrid_scalar_3d_real32
 
-   subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rc)
+   subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       use MAPL_CommsMod
       use MAPL_BaseMod
       use, intrinsic :: iso_fortran_env, only: REAL32
@@ -100,6 +100,7 @@ contains
       real(kind=REAL32), intent(in) :: v_in(:,:)
       real(kind=REAL32), intent(out) :: u_out(:,:)
       real(kind=REAL32), intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real32'

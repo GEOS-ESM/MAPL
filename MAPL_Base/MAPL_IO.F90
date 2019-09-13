@@ -239,11 +239,12 @@ module MAPL_IOMod
 
   contains
 
-      subroutine ArrDescrInit(ArrDes,comm,im_world,jm_world,nx,ny,num_readers,num_writers,is,ie,js,je,rc)
+      subroutine ArrDescrInit(ArrDes,comm,im_world,jm_world,lm_world,nx,ny,num_readers,num_writers,is,ie,js,je,rc)
          type(ArrDescr), intent(INOUT) :: ArrDes
          integer, intent(in) :: comm
          integer, intent(in) :: IM_World
          integer, intent(in) :: JM_World
+         integer, intent(in) :: lm_world
          integer, intent(in) :: nx
          integer, intent(in) :: ny
          integer, intent(in) :: num_readers
@@ -364,6 +365,7 @@ module MAPL_IOMod
 
          ArrDes%im_world=im_world
          ArrDes%jm_world=jm_world
+         ArrDes%lm_world=lm_world
 
          ArrDes%readers_comm  = readers_comm
          ArrDes%ioscattercomm = ioscattercomm
@@ -7433,7 +7435,8 @@ module MAPL_IOMod
              else
                 RST = MAPL_RestartOptional
              end if
-             skipReading = (RST == MAPL_RestartSkip)
+             skipReading = (RST == MAPL_RestartSkip .or.   &
+                            RST == MAPL_RestartSkipInitial)
              if (skipReading) cycle
              bootstrapable_ = bootstrapable .and. (RST == MAPL_RestartOptional)
 
@@ -7485,6 +7488,9 @@ module MAPL_IOMod
                else
                   if (bootStrapable_ .and. (RST == MAPL_RestartOptional)) then
                      call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
+                     call ESMF_AttributeSet ( field, name='RESTART', &
+                             value=MAPL_RestartBootstrap, rc=status)
+
                   else
                      _ASSERT(.false., "  Could not find field "//trim(FieldName)//" in "//trim(filename))
                   end if
@@ -7537,6 +7543,8 @@ module MAPL_IOMod
              else
                 if (bootStrapable .and. (RST == MAPL_RestartOptional)) then
                     call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
+                    call ESMF_AttributeSet ( field, name='RESTART', &
+                            value=MAPL_RestartBootstrap, rc=status)
                 else
                     _ASSERT(.false., "  Could not find field "//trim(Fieldname)//" in "//trim(filename))
                 end if
