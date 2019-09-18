@@ -101,7 +101,6 @@ set (srcs
 esma_add_library (${this} SRCS ${srcs})
 target_link_libraries (${this} PUBLIC Baselibs)
 
-target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
