@@ -193,6 +193,7 @@ module MAPL_GenericMod
   public MAPL_DoNotAllocateInternal
   public MAPL_GCGet
   public MAPL_CheckpointState
+  public MAPL_ESMFStateReadFromFile
 
 !BOP  
   ! !PUBLIC TYPES:
