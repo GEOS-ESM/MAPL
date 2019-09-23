@@ -892,7 +892,8 @@ CONTAINS
                    VarName = trim(derived%item(i)%name)
                    call ESMF_StateGet(self%ExtDataState,VarName,field,__RC__)
                    VarName=trim(primary%item(j)%name)
-                   fieldnew = MAPL_FieldCreate(field,varname,doCopy=.true.,__RC__) 
+                   fieldnew = MAPL_FieldCreate(field,varname,doCopy=.true.,__RC__)
+                   primary%item(j)%fileVars%xname=trim(primary%item(j)%var) 
                    call MAPL_StateAdd(self%ExtDataState,fieldnew,__RC__)
                    PrimaryVarNeeded(j) = .true.
                    primary%item(j)%ExtDataAlloc = .true.
@@ -4420,7 +4421,6 @@ CONTAINS
          _VERIFY(STATUS)
          call MAPL_FieldBundleAdd(pbundle,Field2,rc=status)
          _VERIFY(STATUS)
-
 
          !block
             !character(len=ESMF_MAXSTR) :: vectorlist(2)

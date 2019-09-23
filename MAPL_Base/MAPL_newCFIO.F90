@@ -873,16 +873,12 @@ module MAPL_newCFIOMod
         if (item%itemType == ItemTypeScalar) then
            call this%regridScalar(trim(item%xname),rc=status)
            _VERIFY(status)
-        else if (item%itemTYpe == ItemTypeVector) then
+        else if (item%itemType == ItemTypeVector) then
            call this%regridVector(trim(item%xname),trim(item%yname),rc=status)
            _VERIFY(status)
         end if
         call iter%next()
      enddo
-     !do i=1,numVars
-        !call this%regridScalar(trim(names(i)),rc=status)
-        !_VERIFY(status)
-     !enddo
 
      do i=1,numVars
         call ESMF_FieldBundleGet(this%input_bundle,trim(names(i)),field=field,rc=status)
