@@ -5048,11 +5048,11 @@ end function MAPL_AddChildFromGC
     end if
     
     if (filetype == 'binary' .or. filetype == 'BINARY') then
-       UNIT = GETFILE(FNAME, form="unformatted", rc=status)
+       UNIT = GETFILE(FNAME, form="unformatted", all_pes=.true., rc=status)
        VERIFY_(STATUS)
 
     elseif(filetype=="formatted".or.filetype=="FORMATTED") then
-       UNIT = GETFILE(FNAME, form="formatted", rc=status)
+       UNIT = GETFILE(FNAME, form="formatted", all_pes=.true., rc=status)
        VERIFY_(STATUS)
 
     elseif(filetype=='pbinary') then
