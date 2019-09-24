@@ -1214,7 +1214,6 @@ module pFIO_FormatterPtrVectorMod
   use pFIO_NetCDF4_FileFormatterMod
 
 #define _type type(NetCDF4_FileFormatter)
-#define _pointer
 
 #define _vector FormatterPtrVector
 #define _iterator FormatterPtrVectorIterator
@@ -1223,7 +1222,6 @@ module pFIO_FormatterPtrVectorMod
 #undef _iterator
 #undef _vector
 #undef _type
-#undef _pointer
 end module pFIO_FormatterPtrVectorMod
 
 module pFIO_StringNetCDF4_FileFormatterMapMod
