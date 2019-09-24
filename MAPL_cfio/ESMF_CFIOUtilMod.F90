@@ -746,22 +746,22 @@
                 corner(1) = i
                 rc = NF90_GET_VAR(fid,timeID,rtime_array,corner,(/1/))
                 rtime = rtime_array(1)
-                incVecLong(i) = int(rtime,8) 
+                incVecLong(i) = int(rtime,INT64) 
            else if ( type .eq. NF90_DOUBLE ) then
                 corner(1) = i
                 rc = NF90_GET_VAR(fid,timeID,dtime_array,corner,(/1/))
                 dtime = dtime_array(1)
-                incVecLong(i) = int(dtime,8)
+                incVecLong(i) = int(dtime,INT64)
            else if ( type .eq. NF90_SHORT  ) then
                 corner(1) = i
                 rc = NF90_GET_VAR(fid,timeID,itime_array,corner,(/1/))
                 itime = itime_array(1)
-                incVecLong(i) = int(itime,8)
+                incVecLong(i) = int(itime,INT64)
            else if ( type .eq. NF90_INT   ) then
                 corner(1) = i
                 rc = NF90_GET_VAR(fid,timeID,ltime_array,corner,(/1/))
                 ltime = ltime_array(1)
-                incVecLong(i) = int(ltime,8)
+                incVecLong(i) = int(ltime,INT64)
            else
                 if (err("GetDateTimeVec: invalid time data type",&
                    1,-44) .NE. 0) return
@@ -4754,7 +4754,7 @@ subroutine genv_(tmpl,lnt,i,istp,str,lns,k,ier)
 
   istp=j-i
 
-  call getenv(tmpl(jb:je),env)
+  call get_environment_variable(tmpl(jb:je),env)
   l=len_trim(env)
   m=min(k+l-1,lns)
   str(k:m)=env

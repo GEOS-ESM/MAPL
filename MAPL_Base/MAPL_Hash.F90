@@ -1,6 +1,7 @@
 
-#define ASSERT_(A) if(.not.(A))call exit(1)
 #define INT_MAX 2147483647
+
+#include "MAPL_ErrLog.h"
 
 !  $Id$
 
@@ -12,6 +13,8 @@
 ! !INTERFACE:
 
 module MAPL_HashMod
+
+  use MAPL_ErrorHandlingMod
 
   implicit none
   private
@@ -83,10 +86,10 @@ module MAPL_HashMod
 !           latest   = k
 !           isnew    = .true.
 !           FoundOrder(k) = ii(i)
-!           ASSERT_(k==MAPL_HashSize(Hash))
+!           _ASSERT(k==MAPL_HashSize(Hash),'needs informative message')
 !         else
 !           isnew = .false.
-!           ASSERT_(FoundOrder(k)==ii(i))
+!           _ASSERT(FoundOrder(k)==ii(i),'needs informative message')
 !         endif
 !       enddo
 !
@@ -114,10 +117,10 @@ integer function MAPL_HashIncrement(Hash,i,j,k)
   integer, optional, intent(IN) :: j
   integer, optional, intent(IN) :: k
 
-  integer INCREMENTHASH
+  integer :: INCREMENTHASH, rc
 
   if    (present(k)) then
-     ASSERT_(present(j))
+     _ASSERT(present(j),'needs informative message')
      MAPL_HashIncrement = INCREMENTHASH(HASH,I,J,K)
   elseif(present(j)) then
      MAPL_HashIncrement = INCREMENTHASH(HASH,I,J,INT_MAX)
@@ -145,6 +148,8 @@ integer function MAPL_HashDump(Hash,i,j)
 
   integer, allocatable :: jj(:)
 
+  integer :: rc
+
   MAPL_HashDump = MAPL_HashSize(HASH)
 
   if(size(i) < MAPL_HashSize(HASH)) then
@@ -153,7 +158,7 @@ integer function MAPL_HashDump(Hash,i,j)
   end if
 
   if(present(j)) then
-     ASSERT_(size(i) == size(j))
+     _ASSERT(size(i) == size(j),'needs informative message')
      call DUMPHASH(HASH,I,J)
   else
      allocate(jj(size(i)))

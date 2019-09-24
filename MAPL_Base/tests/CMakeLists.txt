@@ -51,7 +51,7 @@ set(EXE MAPL_Base_tests.x)
 ecbuild_add_executable (
   TARGET ${EXE} 
   SOURCES ${PFUNIT_PATH}/include/driver.F90 testSuites.inc
-  PROPERTIES EXCLUDE_FROM_ALL TRUE
+  PROPERTIES EXCLUDE_FROM_ALL=TRUE
   DEFINITIONS USE_MPI PFUNIT_EXTRA_INITIALIZE=MAPL_Initialize
   LIBS MAPL_Base_tests)
 

@@ -1,8 +1,4 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module MAPL_AbstractRegridderMod
@@ -10,6 +6,7 @@ module MAPL_AbstractRegridderMod
    use MAPL_RegridderSpecMod
    use ESMF
    use MAPL_MemUtilsMod
+   use MAPL_ErrorHandlingMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none
    private
@@ -128,7 +125,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_2d_real32'
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -144,7 +141,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_2d_real64'
 
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -160,7 +157,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_3d_real32'
 
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -176,7 +173,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_3d_real64'
 
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -185,16 +182,17 @@ contains
    end subroutine regrid_scalar_3d_real64
 
 
-   subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rc)
+   subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (AbstractRegridder), intent(in) :: this
       real(kind=REAL32), intent(in) :: u_in(:,:)
       real(kind=REAL32), intent(in) :: v_in(:,:)
       real(kind=REAL32), intent(out) :: u_out(:,:)
       real(kind=REAL32), intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_2d_real32'
 
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -205,16 +203,17 @@ contains
    end subroutine regrid_vector_2d_real32
 
 
-   subroutine regrid_vector_2d_real64(this, u_in, v_in, u_out, v_out, rc)
+   subroutine regrid_vector_2d_real64(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (AbstractRegridder), intent(in) :: this
       real(kind=REAL64), intent(in) :: u_in(:,:)
       real(kind=REAL64), intent(in) :: v_in(:,:)
       real(kind=REAL64), intent(out) :: u_out(:,:)
       real(kind=REAL64), intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_2d_real64'
 
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -234,7 +233,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real32'
 
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -254,7 +253,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real64'
 
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -288,8 +287,8 @@ contains
       call ESMF_FieldGet(f_out, rank=rank_out, typekind=typekind_out, rc=status)
       _VERIFY(status)
 
-      _ASSERT(rank_in == rank_out)
-      _ASSERT(typekind_in%dkind == typekind_out%dkind)
+      _ASSERT(rank_in == rank_out, 'in-out rank mismatch')
+      _ASSERT(typekind_in%dkind == typekind_out%dkind, 'in-out typekind mismatch')
 
       select case (rank_in)
 
@@ -323,8 +322,8 @@ contains
               _VERIFY(status)
             end block
 
-         case default ! unsupported typekind
-            _ASSERT(.false.)
+         case default
+            _ASSERT(.false., 'unsupported typekind')
          end select
 
       case (3)
@@ -338,7 +337,7 @@ contains
               _VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
               _VERIFY(status)
-              _ASSERT(size(q_in,3) == size(q_out,3))
+              _ASSERT(size(q_in,3) == size(q_out,3), 'array bounds mismatch')
               call this%regrid(q_in, q_out,rc=status)
               _VERIFY(status)
             end block
@@ -352,16 +351,16 @@ contains
               _VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
               _VERIFY(status)
-              _ASSERT(size(q_in,3) == size(q_out,3))
+              _ASSERT(size(q_in,3) == size(q_out,3), 'array bounds mismatch')
               call this%regrid(q_in, q_out, rc=status)
               _VERIFY(status)
             end block
          case default ! unsupported type/kind
-            _ASSERT(.false.)
+            _ASSERT(.false., 'unsupported type kind')
          end select
       
       case default ! unsupported rank
-         _ASSERT(.false.)
+         _ASSERT(.false., 'unsupported rank')
       end select
 
       _RETURN(_SUCCESS)
@@ -397,13 +396,13 @@ contains
       end do
 
       ! Check consistent type/kind/rank for all arguments
-      _ASSERT(all(rank_in == rank_in(1)))
-      _ASSERT(all(typekind_in%dkind == typekind_in(1)%dkind))
-      _ASSERT(all(rank_out == rank_out(1)))
-      _ASSERT(all(typekind_out%dkind == typekind_out(1)%dkind))
+      _ASSERT(all(rank_in == rank_in(1)), 'rank mismatch across input vector components')
+      _ASSERT(all(typekind_in%dkind == typekind_in(1)%dkind), 'typekind mismatch across input vector components')
+      _ASSERT(all(rank_out == rank_out(1)),'rank mismatch across output vectory components')
+      _ASSERT(all(typekind_out%dkind == typekind_out(1)%dkind),'typekind mismatch across output vector coomponents')
 
-      _ASSERT(rank_in(1) == rank_out(1))
-      _ASSERT(typekind_in(1)%dkind == typekind_out(1)%dkind)
+      _ASSERT(rank_in(1) == rank_out(1), 'in-out rank mismatch')
+      _ASSERT(typekind_in(1)%dkind == typekind_out(1)%dkind,'in-out typekind mismatch')
 
       select case (rank_in(1))
 
@@ -448,7 +447,7 @@ contains
             end block
 
          case default ! unsupported typekind
-            _ASSERT(.false.)
+            _ASSERT(.false., 'unsupported typekind')
          end select
 
       case (3)
@@ -490,11 +489,11 @@ contains
             end block
 
          case default ! unsupported type/kind
-            _ASSERT(.false.)
+            _ASSERT(.false., 'unsupported type-kind')
          end select
       
       case default ! unsupported rank
-         _ASSERT(.false.)
+         _ASSERT(.false., 'unsupported rank')
       end select
 
       _RETURN(_SUCCESS)
@@ -512,7 +511,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_scalar_2d_real32'
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -527,7 +526,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_scalar_2d_real64'
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -542,7 +541,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_scalar_3d_real32'
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -558,7 +557,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_scalar_3d_real64'
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -567,17 +566,18 @@ contains
    end subroutine transpose_regrid_scalar_3d_real64
 
    
-   subroutine transpose_regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rc)
+   subroutine transpose_regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (AbstractRegridder), intent(in) :: this
       real(kind=REAL32), intent(in) :: u_in(:,:)
       real(kind=REAL32), intent(in) :: v_in(:,:)
       real(kind=REAL32), intent(out) :: u_out(:,:)
       real(kind=REAL32), intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_2d_real32'
 
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -590,17 +590,18 @@ contains
    end subroutine transpose_regrid_vector_2d_real32
 
 
-   subroutine transpose_regrid_vector_2d_real64(this, u_in, v_in, u_out, v_out, rc)
+   subroutine transpose_regrid_vector_2d_real64(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (AbstractRegridder), intent(in) :: this
       real(kind=REAL64), intent(in) :: u_in(:,:)
       real(kind=REAL64), intent(in) :: v_in(:,:)
       real(kind=REAL64), intent(out) :: u_out(:,:)
       real(kind=REAL64), intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_2d_real64'
 
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -624,7 +625,7 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_3d_real32'
 
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -647,7 +648,7 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_3d_real64'
 
-      _ASSERT(.false.)
+      _ASSERT(.false., 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -683,8 +684,8 @@ contains
       call ESMF_FieldGet(f_out, rank=rank_out, typekind=typekind_out, rc=status)
       _VERIFY(status)
 
-      _ASSERT(rank_in == rank_out)
-      _ASSERT(typekind_in%dkind == typekind_out%dkind)
+      _ASSERT(rank_in == rank_out, 'in-out rank mismatch')
+      _ASSERT(typekind_in%dkind == typekind_out%dkind, 'in-out typekind mismatch')
 
       select case (rank_in)
 
@@ -719,7 +720,7 @@ contains
             end block
 
          case default ! unsupported typekind
-            _ASSERT(.false.)
+            _ASSERT(.false., 'unsupported typekind')
          end select
 
       case (3)
@@ -733,7 +734,7 @@ contains
               _VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
               _VERIFY(status)
-              _ASSERT(size(q_in,3) == size(q_out,3))
+              _ASSERT(size(q_in,3) == size(q_out,3), 'in-out shape mismatch')
               call this%transpose_regrid(q_in, q_out,rc=status)
               _VERIFY(status)
             end block
@@ -747,16 +748,16 @@ contains
               _VERIFY(status)
               call ESMF_FieldGet(f_out , 0, q_out, rc=status)
               _VERIFY(status)
-              _ASSERT(size(q_in,3) == size(q_out,3))
+              _ASSERT(size(q_in,3) == size(q_out,3), 'in-out shape mismatch')
               call this%transpose_regrid(q_in, q_out, rc=status)
               _VERIFY(status)
             end block
          case default ! unsupported type/kind
-            _ASSERT(.false.)
+            _ASSERT(.false., 'unsupported typekind')
          end select
       
       case default ! unsupported rank
-         _ASSERT(.false.)
+         _ASSERT(.false., 'unsupported rank')
       end select
 
       _RETURN(_SUCCESS)
@@ -792,13 +793,13 @@ contains
       end do
 
       ! Check consistent type/kind/rank for all arguments
-      _ASSERT(all(rank_in == rank_in(1)))
-      _ASSERT(all(typekind_in%dkind == typekind_in(1)%dkind))
-      _ASSERT(all(rank_out == rank_out(1)))
-      _ASSERT(all(typekind_out%dkind == typekind_out(1)%dkind))
+      _ASSERT(all(rank_in == rank_in(1)), 'rank mismatch across input vector components')
+      _ASSERT(all(typekind_in%dkind == typekind_in(1)%dkind), 'typekind mismatch across input vector components')
+      _ASSERT(all(rank_out == rank_out(1)),'rank mismatch across output vectory components')
+      _ASSERT(all(typekind_out%dkind == typekind_out(1)%dkind),'typekind mismatch across output vector coomponents')
 
-      _ASSERT(rank_in(1) == rank_out(1))
-      _ASSERT(typekind_in(1)%dkind == typekind_out(1)%dkind)
+      _ASSERT(rank_in(1) == rank_out(1), 'in-out rank mismatch')
+      _ASSERT(typekind_in(1)%dkind == typekind_out(1)%dkind,'in-out typekind mismatch')
 
       select case (rank_in(1))
 
@@ -843,7 +844,7 @@ contains
             end block
 
          case default ! unsupported typekind
-            _ASSERT(.false.)
+            _ASSERT(.false., 'unsupported typekind')
          end select
 
       case (3)
@@ -885,11 +886,11 @@ contains
             end block
 
          case default ! unsupported type/kind
-            _ASSERT(.false.)
+            _ASSERT(.false., 'unsupported typekind')
          end select
       
       case default ! unsupported rank
-         _ASSERT(.false.)
+         _ASSERT(.false., 'unsupported rank')
       end select
 
       _RETURN(_SUCCESS)

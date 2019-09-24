@@ -1,0 +1,63 @@
+module test_SimpleSocketMod
+   use pfunit_mod
+   use pFIO_AbstractMessageMod
+   use pFIO_AbstractSocketMod
+   use pFIO_SimpleSocketMod
+   use pFIO_ArrayReferenceMod
+   use pFIO_BaseThreadMod
+   use pFIO_ServerThreadMod
+   use pFIO_ClientThreadMod
+   use MockServerThreadMod
+   use MockClientMod
+
+   use pFIO_TerminateMessageMod
+   use pFIO_DoneMessageMod
+   use pFIO_AddExtCollectionMessageMod
+   use pFIO_IdMessageMod
+
+   implicit none
+
+contains
+
+
+   @test
+   subroutine test_send_terminate()
+      type (SimpleSocket) :: client_connection
+      type (MockServerThread), target :: s
+      type (SimpleSocket),target :: server_connection
+      class(BaseThread), pointer :: visitor
+      class(AbstractSocket), pointer :: connection
+      class(AbstractMessage), pointer :: msg
+     
+      server_connection = SimpleSocket()
+      call s%set_connection(server_connection)
+      call client_connection%set_visitor(s)
+      call client_connection%send(TerminateMessage())
+      @assertEqual('handle_Terminate()', s%log)
+      visitor =>client_connection%visitor
+      connection=>visitor%get_connection()
+      msg => connection%receive()
+      @assertEqual(TERMINATE_ID,msg%get_type_id())
+   end subroutine test_send_terminate
+
+   @test
+   subroutine test_send_done()
+      type (SimpleSocket) :: client_connection
+      type (MockServerThread), target :: s
+      type (SimpleSocket) :: server_connection
+      class(BaseThread), pointer :: visitor
+      class(AbstractSocket), pointer :: connection
+      class(AbstractMessage), pointer :: msg
+
+      call s%set_connection(server_connection)
+      call client_connection%set_visitor(s)
+      call client_connection%send(DoneMessage())
+      @assertEqual('handle_Done()', s%log)
+      visitor =>client_connection%visitor
+      connection=>visitor%get_connection()
+      msg => connection%receive()
+      @assertEqual(DONE_ID,msg%get_type_id())
+   end subroutine test_send_done
+
+
+end module test_SimpleSocketMod

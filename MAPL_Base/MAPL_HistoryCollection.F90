@@ -3,10 +3,21 @@
 module MAPL_HistoryCollectionMod
   use ESMF
   use MAPL_CFIOMod
+  use MAPL_newCFIOMod
+  use MAPL_ErrorHandlingMod
+  use MAPL_newCFIOitemVectorMod
+  use MAPL_VerticalDataMod
+  use MAPL_TimeDataMod
   implicit none
   
   private
-  
+
+  type, public :: FieldSet
+     character(len=ESMF_MAXSTR), pointer :: fields(:,:) => null()
+     character(len=ESMF_MAXSTR), pointer :: vector_list(:,:) => null()
+     integer :: nfields = 0
+  end type FieldSet
+
   type, public :: HistoryCollection
      character(len=ESMF_MAXSTR)         :: collection
      character(len=ESMF_MAXSTR)         :: filename
@@ -14,7 +25,6 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: format
      character(len=ESMF_MAXSTR)         :: mode
      character(len=ESMF_MAXSTR)         :: descr
-     character(len=ESMF_MAXSTR),pointer :: fields (:,:)
      integer                            :: frequency
      integer                            :: acc_interval
      integer                            :: ref_date
@@ -28,9 +38,11 @@ module MAPL_HistoryCollectionMod
      type(ESMF_Alarm)                   :: end_alarm
      integer,pointer                    :: expSTATE (:)
      integer                            :: unit
-     integer                            :: nfield
      type(ESMF_FieldBundle)             :: bundle
      type(MAPL_CFIO)                    :: MCFIO
+     type(MAPL_newCFIO)                    :: mNewCFIO
+     type(VerticalData) :: vdata
+     type(TimeData) :: timeInfo
      real   , pointer                   :: levels(:)     => null()
      integer, pointer                   :: resolution(:) => null()
      real,    pointer                   :: subset(:) => null()
@@ -59,12 +71,15 @@ module MAPL_HistoryCollectionMod
      logical, pointer                   :: ReWrite(:) => null()
      integer                            :: nPExtraFields
      character(len=ESMF_MAXSTR),pointer :: PExtraFields(:) => null()
-     character(len=ESMF_MAXSTR),pointer :: PExtraGridComp(:) => null() 
-     character(len=ESMF_MAXSTR),pointer :: vectorList(:,:) => null() 
+     character(len=ESMF_MAXSTR),pointer :: PExtraGridComp(:) => null()
+     type (FieldSet), pointer :: field_set
      logical, pointer                   :: r8_to_r4(:) => null()
      type(ESMF_FIELD), pointer          :: r8(:) => null()
      type(ESMF_FIELD), pointer          :: r4(:) => null()
      character(len=ESMF_MAXSTR)         :: output_grid_label
+     type(newCFIOItemVector)            :: items
+     character(len=ESMF_MAXSTR)         :: currentFile
+     character(len=ESMF_MAXPATHLEN)     :: trackFile
      contains
         procedure :: AddGrid
   end type HistoryCollection
@@ -97,43 +112,43 @@ module MAPL_HistoryCollectionMod
         jm_world=resolution(2)
 
         cfg = MAPL_ConfigCreate(rc=status)
-        VERIFY_(status)
+        _VERIFY(status)
         if (resolution(2)==resolution(1)*6) then
            call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,rc=status)
-           VERIFY_(status)
+           _VERIFY(status)
         else
            call MAPL_MakeDecomposition(nx,ny,rc=status)
-           VERIFY_(status)
+           _VERIFY(status)
         end if
         call MAPL_ConfigSetAttribute(cfg,value=nx, label=trim(tlabel)//".NX:",rc=status)
-        VERIFY_(status)
+        _VERIFY(status)
         call MAPL_ConfigSetAttribute(cfg,value=ny, label=trim(tlabel)//".NY:",rc=status)
-        VERIFY_(status)
+        _VERIFY(status)
        
         if (resolution(2)==resolution(1)*6) then
           call MAPL_ConfigSetAttribute(cfg,value="Cubed-Sphere", label=trim(tlabel)//".GRID_TYPE:",rc=status)
-          VERIFY_(status)
+          _VERIFY(status)
           call MAPL_ConfigSetAttribute(cfg,value=6, label=trim(tlabel)//".NF:",rc=status)
-          VERIFY_(status)
+          _VERIFY(status)
           call MAPL_ConfigSetAttribute(cfg,value=im_world,label=trim(tlabel)//".IM_WORLD:",rc=status)
-          VERIFY_(status)
+          _VERIFY(status)
         else
           call MAPL_ConfigSetAttribute(cfg,value="LatLon", label=trim(tlabel)//".GRID_TYPE:",rc=status)
-          VERIFY_(status)
+          _VERIFY(status)
           call MAPL_ConfigSetAttribute(cfg,value=im_world,label=trim(tlabel)//".IM_WORLD:",rc=status)
-          VERIFY_(status)
+          _VERIFY(status)
           call MAPL_ConfigSetAttribute(cfg,value=jm_world,label=trim(tlabel)//".JM_WORLD:",rc=status)
-          VERIFY_(status)
+          _VERIFY(status)
           call MAPL_ConfigSetAttribute(cfg,value='PC', label=trim(tlabel)//".POLE:",rc=status)
-          VERIFY_(status)
+          _VERIFY(status)
           call MAPL_ConfigSetAttribute(cfg,value='DC', label=trim(tlabel)//".DATELINE:",rc=status)
-          VERIFY_(status)
+          _VERIFY(status)
         end if
         output_grid = grid_manager%make_grid(cfg,prefix=trim(tlabel)//'.',rc=status)
-        VERIFY_(status)
+        _VERIFY(status)
         
         factory => grid_manager%get_factory(output_grid,rc=status)
-        VERIFY_(status)
+        _VERIFY(status)
         this%output_grid_label = factory%generate_grid_name()
         lgrid => output_grids%at(trim(this%output_grid_label))
         if (.not.associated(lgrid)) call output_grids%insert(this%output_grid_label,output_grid) 
@@ -150,5 +165,27 @@ module MAPL_HistoryCollectionVectorMod
 #define _iterator HistoryCollectionVectorIterator
 
 #include "templates/vector.inc"
+
+#undef _iterator
+#undef _vector
+#undef _type
   
 end module MAPL_HistoryCollectionVectorMod
+
+module MAPL_StringFieldSetMapMod
+  use MAPL_HistoryCollectionMod
+
+#include "types/key_deferredLengthString.inc"
+#define _value type (FieldSet)
+#define _map StringFieldSetMap
+#define _iterator StringFieldSetMapIterator
+
+#include "templates/map.inc"
+
+
+#undef _iterator
+#undef _map
+#undef _value
+#undef _key
+  
+end module MAPL_StringFieldSetMapMod

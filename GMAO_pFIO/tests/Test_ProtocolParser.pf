@@ -1,0 +1,32 @@
+module test_ProtocolParserMod
+   use pfunit_mod
+   use pFIO_ProtocolParserMod
+   use pFIO_AbstractMessageMod
+
+   use pFIO_TerminateMessageMod
+   use pFIO_DoneMessageMod
+   use pFIO_AddExtCollectionMessageMod
+   use pFIO_IdMessageMod
+   use pFIO_PrefetchDataMessageMod
+   use pFIO_WaitRequestDataMessageMod
+
+contains
+
+   @test
+   subroutine test_parse_terminate()
+      type (ProtocolParser) :: parser
+      type (TerminateMessage) :: expected_message
+
+      integer, allocatable :: buffer(:)
+      class (AbstractMessage), allocatable :: found_message
+
+      parser = ProtocolParser()
+      
+      buffer = parser%encode(expected_message)
+      allocate(found_message, source=parser%decode(buffer))
+
+      @assertTrue(same_type_as(expected_message, found_message))
+      
+   end subroutine test_parse_terminate
+
+end module test_ProtocolParserMod

@@ -6,8 +6,8 @@ module pFIO_ThrowMod
    public :: pFIO_set_throw_method
 
    abstract interface
-      subroutine throw(file_name, line_number, message)
-         character(len=*), intent(in) :: file_name
+      subroutine throw(filename, line_number, message)
+         character(len=*), intent(in) :: filename
          integer, intent(in) :: line_number
          character(len=*), optional, intent(in) :: message
       end subroutine throw
@@ -25,13 +25,13 @@ contains
    end subroutine pFIO_set_throw_method
 
    subroutine initialize()
-      throw_method => throw_print
+      throw_method => pFIO_Fail
       initialized = .true.
    end subroutine initialize
 
    
-   subroutine pFIO_throw_exception(file_name, line_number, message)
-      character(len=*), intent(in) :: file_name
+   subroutine pFIO_throw_exception(filename, line_number, message)
+      character(len=*), intent(in) :: filename
       integer, intent(in) :: line_number
       character(len=*), optional, intent(in) :: message
 
@@ -39,23 +39,91 @@ contains
          call initialize()
       end if
 
-      call throw_method(file_name, line_number, message=message)
+      call throw_method(filename, line_number, message=message)
       
    end subroutine pFIO_throw_exception
 
 
-   subroutine throw_print(file_name, line_number, message)
-      character(len=*), intent(in) :: file_name
-      integer, intent(in) :: line_number
-      character(len=*), optional, intent(in) :: message
+   subroutine pFIO_Fail(filename, line, message)
+      use MPI
+      use, intrinsic :: iso_fortran_env, only: ERROR_UNIT
+      character(*), intent(in) :: filename
+      integer, intent(in) :: line
+      character(*), optional, intent(in) :: message
 
-      print*,' '
-      print*,'Found problem in file: < ',file_name,' >'
-      print*,'              at line: < ',line_number,' >'
-      if (present(message)) then
-         print*,'              message: < ',message,' >'
+      integer, parameter :: FIELD_WIDTH=40
+      character(FIELD_WIDTH) :: use_name
+      character(3) :: prefix
+      character(:), allocatable :: base_name
+      
+      integer :: rank, ierror
+      logical :: is_mpi_initialized
+
+      call MPI_Initialized(is_mpi_initialized,ierror)
+  
+      base_name = get_base_name(filename)
+      if (len(base_name) > FIELD_WIDTH) then
+         prefix = '...'
+         use_name = base_name(2:)
+      else
+         prefix = '   '
+         use_name = base_name
       end if
 
-   end subroutine throw_print
+      ! Could use ADVANCE='no', but this may increase the chance
+      ! that the output lines are not interrupted by messages from
+      ! other PEs
+      if (is_mpi_initialized) then
+         call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
+         write(ERROR_UNIT,'(a,i5.5,x,a,i5.5,x,a3,a40,x,a)') &
+              & 'pe=', rank, 'FAIL at line=', line, prefix, use_name, &
+              & '<'//adjustl(trim(message))//'>'
+      else
+         write(ERROR_UNIT,'(a,i5.5,x,a,i5.5,x,a3,a40,x,a)') &
+              & 'FAIL at line=', line, prefix, use_name, &
+              & '<'//adjustl(trim(message))//'>'
+      end if
+
+
+      
+   end subroutine pFIO_Fail
+
+
+
+   ! TODO: Rather than taking the last N characters, it might make
+   ! more sense for the following procedure to omit just the middle
+   ! characters in a long string.  The trick is to intelligently split on
+   ! directories.    Maybe specify a max depth at both ends?
+   function get_short_name(filename, maxlen) result(short_name)
+      character(:), allocatable :: short_name
+      character(*), intent(in) :: filename
+      integer, optional, intent(in) :: maxlen
+      integer, parameter :: MAX_LEN_SHORT_NAME = 60
+
+      integer :: maxlen_
+      integer :: n
+
+      maxlen_ = MAX_LEN_SHORT_NAME
+      if (present(maxlen)) maxlen_ = maxlen
+      
+      n = len_trim(filename)
+      short_name = filename(max(1,n+1-maxlen_):)
+
+   end function get_short_name
+
+
+   function get_base_name(filename) result(base_name)
+      character(:), allocatable :: base_name
+      character(*), intent(in) :: filename
+
+      integer :: idx
+
+      idx = scan(filename, '/', back=.true.)
+
+      base_name = filename(idx+1:)
+
+   end function get_base_name
+
+
 
 end module pFIO_ThrowMod
