@@ -1,4 +1,4 @@
-!  $Id: MAPL_Generic.F90,v 1.113.2.1.4.15.2.2.4.2.8.1 2019/07/23 15:33:21 mmanyin Exp $
+!  $Id$
 
 #include "MAPL_ErrLog.h"
 #define GET_POINTER ESMFL_StateGetPointerToData
