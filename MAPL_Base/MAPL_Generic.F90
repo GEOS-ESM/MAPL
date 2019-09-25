@@ -1,4 +1,4 @@
-!  $Id$
+!  $Id: MAPL_Generic.F90,v 1.113.2.1.4.15.2.2.4.2.8.1 2019/07/23 15:33:21 mmanyin Exp $
 
 #include "MAPL_ErrLog.h"
 #define GET_POINTER ESMFL_StateGetPointerToData
@@ -105,7 +105,6 @@ module MAPL_GenericMod
 
   use ESMF
   use ESMFL_Mod
-  use ESMF_CFIOMod, only: ESMF_CFIOStrTemplate
   use MAPL_BaseMod
   use MAPL_IOMod
   use MAPL_ProfMod
@@ -193,7 +192,6 @@ module MAPL_GenericMod
   public MAPL_DoNotAllocateInternal
   public MAPL_GCGet
   public MAPL_CheckpointState
-  public MAPL_ESMFStateReadFromFile
 
 !BOP  
   ! !PUBLIC TYPES:
@@ -867,12 +865,9 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   logical                          :: ChldGridValid
   integer                          :: reference_date
   integer                          :: reference_time
-  integer                          :: yyyymmdd, hhmmss
+  integer                          :: yyyymmdd
   integer                          :: year, month, day, hh, mm, ss
   character(len=ESMF_MAXSTR)       :: gridTypeAttribute
-  character(len=ESMF_MAXSTR)       :: tmp_label, FILEtpl
-  character(len=ESMF_MAXSTR)       :: id_string
-  integer                          :: ens_id_width
   real(ESMF_KIND_R8)               :: fixedLons, fixedLats
   type(ESMF_GridComp)              :: GCCS ! this is needed as a workaround 
                                            ! for recursive ESMF method within method
@@ -1187,11 +1182,10 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
    VERIFY_(STATUS)
 
    ! get current time from clock and create a reference time with optonal override
-   call ESMF_TimeGet( currTime, YY = YEAR, MM = MONTH, DD = DAY, H=HH, M=MM, S=SS, rc = STATUS  )
+   call ESMF_TimeGet( currTime, YY = YEAR, MM = MONTH, DD = DAY, rc = STATUS  )
    VERIFY_(STATUS)
 
    yyyymmdd = year*10000 + month*100 + day
-   hhmmss   = HH*10000 + MM*100 + SS
 
 !  Get Alarm reference date and time from resouce, it defaults to midnight of the current day
    call MAPL_GetResource (STATE, reference_date, label='REFERENCE_DATE:', &
@@ -1338,10 +1332,6 @@ endif
       deallocate(R_FILETYPE, R_ALARM)
    endif
 
-   call MAPL_GetResource( STATE, ens_id_width,         &
-                             LABEL="ENS_ID_WIDTH:", default=0, &
-                             RC=STATUS)
-
    if (associated(STATE%RECORD)) then
       call MAPL_GetResource( STATE, FILENAME,         &
                              LABEL="IMPORT_CHECKPOINT_FILE:", &
@@ -1352,24 +1342,11 @@ endif
       else
          STATE%RECORD%IMP_LEN = 0
       end if
-
-      id_string=""
-      tmp_label = "INTERNAL_CHECKPOINT_FILE:"
-      call MAPL_GetResource( STATE   , FILEtpl,         &
-                                 LABEL=trim(tmp_label), &
-                           RC=STATUS)
-      if((STATUS /= ESMF_SUCCESS) .and. ens_id_width > 0) then
-         i = len(trim(COMP_NAME))
-         id_string = COMP_NAME(i-ens_id_width+1:i)
-         tmp_label =COMP_NAME(1:i-ens_id_width)//"_"//trim(tmp_label)
-         call MAPL_GetResource( STATE   , FILEtpl,      &
-                                 LABEL=trim(tmp_label), &
-                           RC=STATUS)
-      endif
-
+         
+      call MAPL_GetResource( STATE, FILENAME,         &
+                             LABEL="INTERNAL_CHECKPOINT_FILE:", &
+                             RC=STATUS)
       if(STATUS==ESMF_SUCCESS) then
-         ! if the filename is tempate
-         call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = trim(id_string), nymd=yyyymmdd,nhms=hhmmss,stat=status)
          STATE%RECORD%INT_FNAME = FILENAME
          STATE%RECORD%INT_LEN = LEN_TRIM(FILENAME)
       else
@@ -1514,23 +1491,10 @@ endif
       end if
       VERIFY_(STATUS)
 
-      id_string = ""
-      tmp_label = "INTERNAL_RESTART_FILE:"
-      call MAPL_GetResource( STATE   , FILEtpl,         &
-                                 LABEL=trim(tmp_label), &
+      call MAPL_GetResource( STATE   , FILENAME,         &
+                                 LABEL="INTERNAL_RESTART_FILE:", &
                                  RC=STATUS)
-      if((STATUS /=ESMF_SUCCESS) .and. ens_id_width >0) then
-         i = len(trim(COMP_NAME))
-         id_string = COMP_NAME(i-ens_id_width+1:i)
-         tmp_label =COMP_NAME(1:i-ens_id_width)//"_"//trim(tmp_label)
-         call MAPL_GetResource( STATE   , FILEtpl,         &
-                                 LABEL=trim(tmp_label), &
-                                 RC=STATUS)
-      endif
-
       if(STATUS==ESMF_SUCCESS) then
-        ! if the filename is tempate
-         call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = trim(id_string), nymd=yyyymmdd,nhms=hhmmss,stat=status)
          call MAPL_GetResource( STATE   , hdr,         &
                                  default=0, &
                                  LABEL="INTERNAL_HEADER:", &
@@ -1766,7 +1730,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   character(len=ESMF_MAXSTR)                  :: CHILD_NAME
   character(len=ESMF_MAXSTR)                  :: RECFIN
   type (MAPL_MetaComp), pointer               :: STATE
-  integer                                     :: I,j
+  integer                                     :: I
   logical                                     :: final_checkpoint
   integer                                     :: NC
   integer                                     :: PHASE
@@ -1774,12 +1738,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   integer                                     :: MAXPHASES
   type (MAPL_MetaPtr), allocatable            :: CHLDMAPL(:)
   integer                                     :: hdr
-  integer                                     :: yyyymmdd, hhmmss
-  integer                                     :: year, month, day, hh, mm, ss
-  character(len=ESMF_MAXSTR)                  :: tmp_label, FILEtpl
-  character(len=ESMF_MAXSTR)                  :: id_string
-  integer                                     :: ens_id_width
-  type(ESMF_Time)                             :: CurrTime 
+
 !=============================================================================
 
 !  Begin...
@@ -1847,35 +1806,8 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 ! Checkpoint the internal state if required.
 !------------------------------------------
 
-     call ESMF_ClockGet (clock, currTime=currTime, rc=status)
-     VERIFY_(STATUS)
-     call ESMF_TimeGet( currTime, YY = YEAR, MM = MONTH, DD = DAY, H=HH, M=MM, S=SS, rc = STATUS  )
-     VERIFY_(STATUS)
-
-     yyyymmdd = year*10000 + month*100 + day
-     hhmmss   = HH*10000 + MM*100 + SS
-
-     call MAPL_GetResource( STATE, ens_id_width,         &
-                             LABEL="ENS_ID_WIDTH:", default=0, &
-                             RC=STATUS)
-
-     id_string=""
-     tmp_label = "INTERNAL_CHECKPOINT_FILE:"
-     call MAPL_GetResource( STATE   , FILEtpl,         &
-                                 LABEL=trim(tmp_label), &
-                                 RC=STATUS)
-     if((STATUS /= ESMF_SUCCESS) .and. ens_id_width>0) then
-        i = len(trim(COMP_NAME))
-        id_string = COMP_NAME(i-ens_id_width+1:i)
-        tmp_label =COMP_NAME(1:i-ens_id_width)//"_"//trim(tmp_label)
-        call MAPL_GetResource( STATE   , FILEtpl,       &
-                                 LABEL=trim(tmp_label), &
-                                 RC=STATUS)
-     endif
-
+     call       MAPL_GetResource( STATE, FILENAME, LABEL="INTERNAL_CHECKPOINT_FILE:",                RC=STATUS )
      if(STATUS==ESMF_SUCCESS) then
-        ! if the filename is tempate
-        call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = trim(id_string), nymd=yyyymmdd,nhms=hhmmss,stat=status)
         call    MAPL_GetResource( STATE, FILETYPE, LABEL="INTERNAL_CHECKPOINT_TYPE:",                RC=STATUS )
         if ( STATUS/=ESMF_SUCCESS  .or.  FILETYPE == "default" ) then
            call MAPL_GetResource( STATE, FILETYPE, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
@@ -6726,13 +6658,14 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
 !....................................................................................
 
-  subroutine MAPL_GridCompGetFriendlies0 ( GC, TO, BUNDLE, RC )
+  subroutine MAPL_GridCompGetFriendlies0 ( GC, TO, BUNDLE, AddGCPrefix, RC )
 
 ! !ARGUMENTS:
 
     type(ESMF_GridComp),           intent(INOUT)  :: GC
     character(len=*),              intent(IN   )  :: TO(:)
-    type(ESMF_FieldBundle  ),           intent(INOUT)  :: BUNDLE
+    type(ESMF_FieldBundle  ),      intent(INOUT)  :: BUNDLE
+    logical, optional,             intent(IN   )  :: AddGCPrefix
     integer,             optional, intent(  OUT)  :: RC
 
 !=============================================================================
@@ -6747,7 +6680,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
     type (MAPL_MetaComp),        pointer  :: STATE 
     type (ESMF_State)                     :: INTERNAL
-    type (ESMF_Field)                     :: FIELD
+    type (ESMF_Field)                     :: FIELD, TempField
     character (len=ESMF_MAXSTR), allocatable  :: itemNameList(:)
     type(ESMF_StateItem_Flag),   allocatable  :: itemtypeList(:)
     type(ESMF_FieldBundle)                     :: B
@@ -6760,8 +6693,16 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     character(len=ESMF_MAXSTR), allocatable :: currList(:)
     integer                                 :: natt
 
+    logical                                 :: AddPrefix_
+    character(len=ESMF_MAXSTR)              :: GC_NAME, fieldname
+
 ! Get my MAPL_Generic state
 !--------------------------
+
+    AddPrefix_ = .false.
+    if (present(AddGCPrefix) ) then
+       AddPrefix_ = AddGCPrefix
+    end if
 
     call MAPL_InternalStateGet ( GC, STATE, RC=STATUS)
     VERIFY_(STATUS)
@@ -6817,8 +6758,23 @@ recursive subroutine MAPL_WireComponent(GC, RC)
           VERIFY_(STATUS)
           call Am_I_Friendly_ ( FIELD, TO, RC=STATUS ) 
           if(STATUS==ESMF_SUCCESS) then
-             call MAPL_FieldBundleAdd(BUNDLE, FIELD, RC=STATUS )
-             VERIFY_(STATUS)
+            if (AddPrefix_) then
+              call ESMF_GridCompGet(GC, NAME=GC_NAME, RC=status)
+              VERIFY_(STATUS)
+                if (scan(itemNameList(I),"::")==0) then
+                  TempField = MAPL_FieldCreate(FIELD, name=(trim(GC_NAME)//'::'//trim(itemNameList(I))), RC=STATUS)
+                  VERIFY_(STATUS)
+                  call MAPL_FieldBundleAdd(BUNDLE, TempField, RC=STATUS)
+                  VERIFY_(STATUS)
+                else
+                  call MAPL_FieldBundleAdd(BUNDLE, FIELD, RC=STATUS )
+                  VERIFY_(STATUS)
+                end if
+              else
+                call MAPL_FieldBundleAdd(BUNDLE, FIELD, RC=STATUS )
+                VERIFY_(STATUS)
+!              end if
+            end if ! (AddPrefix_)
           end if
        else if(itemtypeList(I)==ESMF_STATEITEM_FieldBundle) then
           call ESMF_StateGet(INTERNAL,itemNameList(I), B, RC=STATUS)
@@ -6829,21 +6785,64 @@ recursive subroutine MAPL_WireComponent(GC, RC)
           if(STATUS==ESMF_SUCCESS) then
 ! if the bundle is "friendly", copy every single field
              DO J=1,NF
-                call MAPL_FieldBundleGet(B,   J,   FIELD,  RC=STATUS)
-                VERIFY_(STATUS)
-                call MAPL_FieldBundleAdd (BUNDLE, FIELD, RC=STATUS )
-                VERIFY_(STATUS)
+               if (AddPrefix_) then
+                 call ESMF_GridCompGet(GC, NAME=GC_NAME, RC=status)
+                 VERIFY_(STATUS)
+                 call MAPL_FieldBundleGet(B,   J,   FIELD,  RC=STATUS)
+                 VERIFY_(STATUS)
+                 call ESMF_FieldGet (FIELD, name=fieldname, RC=STATUS)
+                 VERIFY_(STATUS)
+                 if (scan(fieldname,"::")==0) then
+                   TempField = MAPL_FieldCreate(FIELD, name=(trim(GC_NAME)//'::'//trim(fieldname)), RC=STATUS)
+                   VERIFY_(STATUS)
+                   call MAPL_FieldBundleAdd(BUNDLE, TempField, RC=STATUS)
+                   VERIFY_(STATUS)
+                 else
+                   call MAPL_FieldBundleGet(B,   J,   FIELD,  RC=STATUS)
+                   VERIFY_(STATUS)
+                   call MAPL_FieldBundleAdd(BUNDLE, FIELD, RC=STATUS )
+                   VERIFY_(STATUS)
+                 end if
+               else
+                 call MAPL_FieldBundleGet(B,   J,   FIELD,  RC=STATUS)
+                 VERIFY_(STATUS)
+                 call MAPL_FieldBundleAdd (BUNDLE, FIELD, RC=STATUS )
+                 VERIFY_(STATUS)
+               end if ! (AddPrefix_)
              END DO
           else
 ! check the fields for "friendliness"
              DO J=1,NF
-                call MAPL_FieldBundleGet(B,   J,   FIELD,  RC=STATUS)
-                VERIFY_(STATUS)
-                call Am_I_Friendly_ ( FIELD, TO, RC=STATUS ) 
-                if(STATUS==ESMF_SUCCESS) then
-                   call MAPL_FieldBundleAdd  (BUNDLE, FIELD, RC=STATUS )
+               if (AddPrefix_) then
+                 call ESMF_GridCompGet(GC, NAME=GC_NAME, RC=status)
+                 VERIFY_(STATUS)
+                 call MAPL_FieldBundleGet(B,   J,   FIELD,  RC=STATUS)
+                 VERIFY_(STATUS)
+                 call ESMF_FieldGet (FIELD, name=fieldname, RC=STATUS)
+                 VERIFY_(STATUS)
+                 if (scan(fieldname,"::")==0) then
+                   TempField = MAPL_FieldCreate(FIELD, name=(trim(GC_NAME)//'::'//trim(fieldname)), RC=STATUS)
                    VERIFY_(STATUS)
-                END if
+                   call MAPL_FieldBundleAdd(BUNDLE, TempField, RC=STATUS)
+                   VERIFY_(STATUS)
+                 else
+                   call MAPL_FieldBundleGet(B,   J,   FIELD,  RC=STATUS)
+                   VERIFY_(STATUS)
+                    call Am_I_Friendly_ ( FIELD, TO, RC=STATUS )
+                    if(STATUS==ESMF_SUCCESS) then
+                      call MAPL_FieldBundleAdd  (BUNDLE, FIELD, RC=STATUS )
+                      VERIFY_(STATUS)
+                    end if
+                 end if
+               else
+                 call MAPL_FieldBundleGet(B,   J,   FIELD,  RC=STATUS)
+                 VERIFY_(STATUS)
+                  call Am_I_Friendly_ ( FIELD, TO, RC=STATUS )  
+                  if(STATUS==ESMF_SUCCESS) then
+                     call MAPL_FieldBundleAdd  (BUNDLE, FIELD, RC=STATUS )
+                     VERIFY_(STATUS)
+                  END if
+               end if ! (AddPrefix_)
              END DO
           end if
        end if
@@ -6896,13 +6895,14 @@ recursive subroutine MAPL_WireComponent(GC, RC)
    end subroutine Am_I_Friendly__
 
 
-  subroutine MAPL_GridCompGetFriendlies1 ( GC, TO, BUNDLE, RC )
+  subroutine MAPL_GridCompGetFriendlies1 ( GC, TO, BUNDLE, AddGCPrefix, RC )
 
 ! !ARGUMENTS:
 
     type(ESMF_GridComp),           intent(INOUT)  :: GC
     character(len=*),              intent(IN   )  :: TO
     type(ESMF_FieldBundle  ),      intent(INOUT)  :: BUNDLE
+    logical, optional,             intent(IN   )  :: AddGCPrefix
     integer,             optional, intent(  OUT)  :: RC
 
 !=============================================================================
@@ -6913,17 +6913,18 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     character(len=ESMF_MAXSTR)            :: TO_(1)
 
     TO_(1) = TO
-    call MAPL_GridCompGetFriendlies0 ( GC, TO_, BUNDLE, RC )
+    call MAPL_GridCompGetFriendlies0 ( GC, TO_, BUNDLE, AddGCPrefix, RC )
 
   end subroutine MAPL_GridCompGetFriendlies1
 
-  subroutine MAPL_GridCompGetFriendlies2 ( GC, TO, BUNDLE, RC )
+  subroutine MAPL_GridCompGetFriendlies2 ( GC, TO, BUNDLE, AddGCPrefix, RC )
 
 ! !ARGUMENTS:
 
     type(ESMF_GridComp),           intent(INOUT)  :: GC(:)
     character(len=*),              intent(IN   )  :: TO
     type(ESMF_FieldBundle  ),      intent(INOUT)  :: BUNDLE
+    logical, optional,             intent(IN   )  :: AddGCPrefix
     integer,             optional, intent(  OUT)  :: RC
 
 !=============================================================================
@@ -6936,20 +6937,21 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
     TO_(1) = TO
     do I=1,size(GC)
-       call MAPL_GridCompGetFriendlies0(GC(I), TO_, BUNDLE, RC=STATUS)
+       call MAPL_GridCompGetFriendlies0(GC(I), TO_, BUNDLE, AddGCPrefix, RC=STATUS)
        VERIFY_(STATUS)
     end do
 
     RETURN_(ESMF_SUCCESS)
   end subroutine MAPL_GridCompGetFriendlies2
 
-  subroutine MAPL_GridCompGetFriendlies3 ( GC, TO, BUNDLE, RC )
+  subroutine MAPL_GridCompGetFriendlies3 ( GC, TO, BUNDLE, AddGCPrefix, RC )
 
 ! !ARGUMENTS:
 
     type(ESMF_GridComp),           intent(INOUT)  :: GC(:)
     character(len=*),              intent(IN   )  :: TO(:)
     type(ESMF_FieldBundle  ),      intent(INOUT)  :: BUNDLE
+    logical, optional,             intent(IN   )  :: AddGCPrefix
     integer,             optional, intent(  OUT)  :: RC
 
 !=============================================================================
@@ -6960,7 +6962,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     integer                               :: STATUS, I
 
     do I=1,size(GC)
-       call MAPL_GridCompGetFriendlies0(GC(I), TO, BUNDLE, RC=STATUS)
+       call MAPL_GridCompGetFriendlies0(GC(I), TO, BUNDLE, AddGCPrefix, RC=STATUS)
        VERIFY_(STATUS)
     end do
 
