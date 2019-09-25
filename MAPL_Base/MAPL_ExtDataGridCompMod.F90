@@ -2979,7 +2979,7 @@ CONTAINS
               LExact  =  (cLimTime == tSeries(1))
               RExact  =  (cLimTime == tSeries(nsteps))
               If (Mapl_Am_I_Root().and.(Ext_Debug > 19)) Then
-                 Write(*,'(a,4(L1,x),a,a)') ' DEBUG: Extrapolation flags (2) are ',LExact,RExact,LExtrap,RExtrap,'for file ', trim(fdata%get_file_name)
+                 Write(*,'(a,4(L1,x),a,a)') ' DEBUG: Extrapolation flags (2) are ',LExact,RExact,LExtrap,RExtrap,'for file ', trim(fdata%get_file_name())
               End If
 
            End IF
