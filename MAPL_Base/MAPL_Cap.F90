@@ -228,6 +228,12 @@ contains
            allocate(this%i_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name))
            call this%directory_service%publish(PortInfo(s_name,this%i_server), this%i_server)
            call this%directory_service%connect_to_client(s_name, this%i_server)
+           call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
+           if (rank == 0 .and. this%cap_options%nodes_input_server(1) /=0 ) then
+              write(*,'(A,I0,A)')"Starting pFIO input server on ",this%cap_options%nodes_input_server(i)," nodes"
+           else if (rank==0 .and. this%cap_options%npes_input_server(1) /=0 ) then
+              write(*,'(A,I0,A)')"Starting pFIO input server on ",this%cap_options%npes_input_server(i)," pes"
+           end if
         endif
 
         if ( index(s_name, 'model') /=0 ) then
