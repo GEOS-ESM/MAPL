@@ -1491,6 +1491,7 @@ CONTAINS
    call MAPL_TimerOn(MAPLSTATE,"---IclientDone")
 
    call i_Clients%done_collective_prefetch()
+   call i_Clients%wait()
 
    call MAPL_TimerOff(MAPLSTATE,"---IclientDone")
    _VERIFY(STATUS)
