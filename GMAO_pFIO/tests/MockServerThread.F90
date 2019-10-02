@@ -1,5 +1,7 @@
+#include "pFIO_ErrLog.h"
 #include "unused_dummy.H"
 module MockServerThreadMod
+   use pFIO_ErrorHandlingMod
    use pFIO_ServerThreadMod
    use pFIO_AbstractMessageMod
    use pFIO_MessageVisitorMod
@@ -7,10 +9,10 @@ module MockServerThreadMod
 
    use pFIO_TerminateMessageMod
    use pFIO_DoneMessageMod
-   use pFIO_AddCollectionMessageMod
-   use pFIO_CollectionIdMessageMod
-   use pFIO_RequestIdMessageMod
-   use pFIO_RequestDataMessageMod
+   use pFIO_PrefetchDoneMessageMod
+   use pFIO_AddExtCollectionMessageMod
+   use pFIO_IdMessageMod
+   use pFIO_PrefetchDataMessageMod
    use pFIO_WaitRequestDataMessageMod
 
    implicit none
@@ -24,9 +26,9 @@ module MockServerThreadMod
       procedure :: prefix
       procedure :: handle_Terminate
       procedure :: handle_Done
-      procedure :: handle_AddCollection
-      procedure :: handle_RequestData
-      procedure :: print
+      procedure :: handle_Done_prefetch
+      procedure :: handle_AddExtCollection
+      procedure :: handle_PrefetchData
    end type MockServerThread
 
    interface MockServerThread
@@ -35,9 +37,10 @@ module MockServerThreadMod
 
 contains
 
-   function new_MockServerThread() result(s)
+   function new_MockServerThread(sckt) result(s)
       type (MockServerThread) :: s
-      _UNUSED_DUMMY(s)
+      class (AbstractSocket), target, intent(in) :: sckt
+      call s%set_connection(sckt)
    end function new_MockServerThread
 
    subroutine prefix(this, string)
@@ -52,48 +55,56 @@ contains
 
    end subroutine prefix
 
-  subroutine print(this)
-    class(MockServerThread), intent(in) :: this
-    print*,'Visitor type: mock'
-  end subroutine print
-
-
-   subroutine handle_Terminate(this, message)
+   subroutine handle_Terminate(this, message, rc)
       class (MockServerThread), intent(inout) :: this
       type (TerminateMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
 
       _UNUSED_DUMMY(message)
       call this%prefix('handle_Terminate()')
       call this%set_terminate()
-
+      _RETURN(_SUCCESS)
    end subroutine handle_Terminate
 
-   subroutine handle_Done(this, message)
+   subroutine handle_Done(this, message, rc)
       class (MockServerThread), target, intent(inout) :: this
       type (DoneMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
 
       _UNUSED_DUMMY(message)
       call this%prefix('handle_Done()')
-
+      _RETURN(_SUCCESS)
    end subroutine handle_Done
 
-   subroutine handle_AddCollection(this, message)
+   subroutine handle_Done_prefetch(this, message, rc)
       class (MockServerThread), target, intent(inout) :: this
-      type (AddCollectionMessage), intent(in) :: message
+      type (PrefetchDoneMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(message)
+      call this%prefix('handle_Done_prefetch()')
+      _RETURN(_SUCCESS)
+   end subroutine handle_Done_prefetch
+
+   subroutine handle_AddExtCollection(this, message, rc)
+      class (MockServerThread), target, intent(inout) :: this
+      type (AddExtCollectionMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
 
       _UNUSED_DUMMY(message)
 
-      call this%prefix('handle_AddCollection()')
+      call this%prefix('handle_AddExtCollection()')
+      _RETURN(_SUCCESS)
+   end subroutine handle_AddExtCollection
 
-   end subroutine handle_AddCollection
-
-   subroutine handle_RequestData(this, message)
+   subroutine handle_PrefetchData(this, message, rc)
       class (MockServerThread), intent(inout) :: this
-      type (RequestDataMessage), intent(in) :: message
+      type (PrefetchDataMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
 
       _UNUSED_DUMMY(message)
-      call this%prefix('handle_RequestData()')
-
-   end subroutine handle_RequestData
+      call this%prefix('handle_PrefetchData()')
+      _RETURN(_SUCCESS)
+   end subroutine handle_PrefetchData
 
 end module MockServerThreadMod

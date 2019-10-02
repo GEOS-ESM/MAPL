@@ -4,7 +4,7 @@
 module pFIO_MpiMutexMod
    use mpi
    use iso_fortran_env, only: INT64
-   use iso_c_binding, only: c_ptr, c_f_pointer
+   use iso_c_binding, only: c_ptr, c_f_pointer, c_sizeof
    implicit none
    private
 
@@ -39,7 +39,6 @@ contains
       integer, intent(in) :: comm
 
       integer :: ierror
-      integer :: sizeof_logical
       integer(kind=MPI_ADDRESS_KIND) :: sz
 
       call MPI_Comm_dup(comm, lock%comm, ierror)
@@ -63,8 +62,9 @@ contains
          block
            logical, pointer :: scratchpad(:)
            integer :: sizeof_logical
-
-           call MPI_Type_extent(MPI_LOGICAL, sizeof_logical, ierror)
+           logical :: one_logical
+           
+           sizeof_logical = c_sizeof(one_logical)
            sz = lock%npes * sizeof_logical
            call MPI_Alloc_mem(sz, MPI_INFO_NULL, lock%locks_ptr, ierror)
 
@@ -107,7 +107,7 @@ contains
          block
            integer :: buffer ! unused
            call MPI_Recv(buffer, 0, MPI_LOGICAL, MPI_ANY_SOURCE, &
-                & LOCK_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierror)
+                & LOCK_TAG, this%comm, MPI_STATUS_IGNORE, ierror)
          end block
       end if
 
@@ -149,7 +149,7 @@ contains
         
         if (next_rank /= -1) then
            call MPI_Send(buffer, 0, MPI_LOGICAL, next_rank, &
-                & LOCK_TAG, MPI_COMM_WORLD, ierror)
+                & LOCK_TAG, this%comm, ierror)
         end if
       end block
 

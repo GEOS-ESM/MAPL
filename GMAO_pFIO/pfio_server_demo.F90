@@ -1,5 +1,5 @@
 !usage
-!mpirun -np 8 ./pfio_server_demo.x -nc 6 -ns 6 -f1 xxx1.nc4 -f2 xxx2.nc4 -v T -s mpi
+!mpirun -np 8 ./pfio_server_demo.x -nc 6 -ns 2 -f1 xxx1.nc4 -f2 xxx2.nc4 -v T -s mpi
 !The variable should be 4d with lavel>=20
 
 #define _SUCCESS      0
@@ -9,7 +9,7 @@
 #define _RETURN(A)   if(present(rc)) rc=A; return
 #include "unused_dummy.H"
 
-module CLI_server
+module server_demo_CLI
    use pFIO_ThrowMod
    use pFIO_StringVectorMod
    implicit none
@@ -117,10 +117,10 @@ contains
    end subroutine process_command_line
    
 
-end module CLI_server
+end module server_demo_CLI
 
 module FakeExtDataMod_server
-   use CLI_server
+   use server_demo_CLI
    use pFIO
    use pFIO_StringVectorMod
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -160,11 +160,12 @@ module FakeExtDataMod_server
 contains
    
 
-   subroutine init(this, options, comm)
+   subroutine init(this, options, comm, d_s)
       use pFIO_StringIntegerMapMod
       class (FakeExtData), intent(inout) :: this
       type (CommandLineOptions), intent(in) :: options
       integer, intent(in) :: comm
+      class (AbstractDirectoryService), target,intent(inout) :: d_s
 
       integer :: ierror
       type (FileMetadata) :: file_metadata
@@ -172,7 +173,7 @@ contains
       type (StringIntegerMap) :: dims
 
       this%c = ClientThread()
-      call this%c%init_connection(chosen_directory_service,comm)
+      call d_s%connect_to_server('i_server', this%c, comm)
 
       this%file_1 = options%file_1
       this%file_2 = options%file_2
@@ -216,9 +217,9 @@ contains
       !do i = 1,9999
       !   tmp= ''
       !   write(tmp,'(I4.4)') i
-      !collection_id = this%c%add_collection('collection-name'//tmp)
+      !collection_id = this%c%add_ext_collection('collection-name'//tmp)
       !enddo
-      collection_id = this%c%add_collection('collection-name')
+      collection_id = this%c%add_ext_collection('collection-name')
 
       select case (step)
       case (1) ! read 1st file; prefetch 2nd
@@ -228,9 +229,9 @@ contains
             this%bundle(i_var)%x = -1
             ref = ArrayReference(this%bundle(i_var)%x)
             this%bundle(i_var)%request_id = &
-                 & this%c%request_subset_data_reference(collection_id, this%file_1, this%vars%at(i_var), ref, start=[1,lat0,20,1])
+                 & this%c%prefetch_data(collection_id, this%file_1, this%vars%at(i_var), ref, start=[1,lat0,20,1])
          end do
-         call this%c%done()
+         call this%c%done_prefetch()
 
          do i_var = 1, this%vars%size()
             call this%c%wait(this%bundle(i_var)%request_id)
@@ -240,9 +241,9 @@ contains
             this%bundle(i_var)%x = -1
             ref = ArrayReference(this%bundle(i_var)%x)
             this%bundle(i_var)%request_id = &
-                 & this%c%request_subset_data_reference(collection_id, this%file_2, this%vars%at(i_var), ref, start=[1,lat0,20,1])
+                 & this%c%prefetch_data(collection_id, this%file_2, this%vars%at(i_var), ref, start=[1,lat0,20,1])
          end do
-         call this%c%done()
+         call this%c%done_prefetch()
 
       case (2) ! wait for 2nd file to complete
 
@@ -268,14 +269,14 @@ program main
    use, intrinsic :: iso_fortran_env, only: REAL32
    use mpi
    use pFIO
-   use CLI_server
+   use server_demo_CLI
    use FakeExtDataMod_server
    use pFIO_ThrowMod
    implicit none
 
    integer :: rank, npes, ierror, provided
    integer :: status, color, key
-   class(AbstractServer),allocatable :: s
+   class(BaseServer),allocatable :: s
 
 
    type (CommandLineOptions) :: options
@@ -284,6 +285,7 @@ program main
 
    integer :: comm,num_threads
    type (FakeExtData), target :: extData
+   class(AbstractDirectoryService), pointer :: d_s=>null()
 
    call MPI_init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
    call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
@@ -302,24 +304,25 @@ program main
    call MPI_Comm_split(MPI_COMM_WORLD, color, key, comm, ierror)
 
    num_threads = 20
-   directory_service = DirectoryService(MPI_COMM_WORLD)
-   chosen_directory_service =>directory_service
+   allocate(d_s, source = DirectoryService(MPI_COMM_WORLD))
 
    if (color == SERVER_COLOR) then
       if(trim(options%server_type) == 'mpi') then
-         allocate(s, source=MpiServer(comm))
+         allocate(s, source=MpiServer(comm, 'i_server'))
+         call d_s%publish(PortInfo('i_server', s),s)
+         call d_s%connect_to_client('i_server', s)
          print*, "using MpiServer"
       else if(trim(options%server_type) == 'openmp') then
-         call omp_set_num_threads(num_threads)
-         allocate(s, source=OpenMPServer(comm))
-         print*, "using OpenMPServer"
+!!$         call omp_set_num_threads(num_threads)
+!!$         allocate(s, source=OpenMPServer(comm,d_s))
+!!$         print*, "using OpenMPServer"
       else
          print*, options%server_type // '  not implemented'
          stop
       endif    
       call s%start()
    else ! client
-      call extData%init(options, comm)
+      call extData%init(options, comm, d_s)
       call extData%run(step=1)
       call extData%run(step=2)
       call extData%finalize()

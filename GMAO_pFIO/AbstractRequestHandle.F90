@@ -12,9 +12,10 @@ module pFIO_AbstractRequestHandleMod
    end type AbstractRequestHandle
 
    abstract interface
-      subroutine wait(this)
+      subroutine wait(this, rc)
          import AbstractRequestHandle
          class (AbstractRequestHandle), intent(inout) :: this
+         integer, optional, intent(out) :: rc      
       end subroutine wait
    end interface
 

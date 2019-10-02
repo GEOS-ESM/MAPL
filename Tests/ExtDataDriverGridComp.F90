@@ -247,7 +247,7 @@ contains
        case("MINMAX")
           timerMode = MAPL_TimerModeMinMax      ! this is the default
        case default
-          ASSERT_(.false.)
+          _ASSERT(.false.,'needs informative message')
        end select TestTimerMode
        call MAPL_TimerModeSet(timerMode, RC=status)
        _VERIFY(status)
@@ -557,10 +557,11 @@ contains
     integer, optional, intent(out) :: rc
 
     integer :: status
+    integer :: userRc
     character(len=ESMF_MAXSTR)   :: Iam="run"
 
-    call ESMF_GridCompRun(this%gc, rc=status)
-    _VERIFY(status)
+    call ESMF_GridCompRun(this%gc, userRC=userRC,rc=status)
+    _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'run failed')
     _RETURN(ESMF_SUCCESS)
 
   end subroutine run
@@ -751,7 +752,7 @@ contains
        call ESMF_CalendarSetDefault(ESMF_CALKIND_NOLEAP, RC=STATUS)
        _VERIFY(STATUS)
     else
-       ASSERT_(.false.)
+       _ASSERT(.false.,'needs informative message')
     endif
 
     call ESMF_ConfigGetAttribute(cf, datetime, label='BEG_DATE:',rc=status)

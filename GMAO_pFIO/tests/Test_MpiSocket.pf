@@ -1,0 +1,154 @@
+module test_MpiSocketMod
+   use pfunit_mod
+   use pFIO_MpiSocketMod
+   use pFIO_AbstractMessageMod
+   use pFIO_TerminateMessageMod
+   use pFIO_PrefetchDataMessageMod
+   use pFIO_IdMessageMod
+   use pFIO_ProtocolParserMod
+   implicit none
+
+   @suite(name='MpiSocket_suite')
+
+contains
+
+   @test(npes=[2])
+   subroutine test_send_terminate(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      integer :: comm
+      type (MpiSocket) :: s
+      class (AbstractMessage), allocatable :: message
+      type (ProtocolParser), target :: parser
+
+      comm = this%getMpiCommunicator()
+      parser = ProtocolParser()
+
+      select case (this%getProcessRank())
+      case (0) ! server
+         s = MpiSocket(comm, 1, parser)
+         allocate(message, source=s%receive())
+         @assertEqual(TERMINATE_ID, message%get_type_id())
+      case (1) ! client
+         s = MpiSocket(comm, 0, parser)
+         call s%send(TerminateMessage())
+      end select
+
+   end subroutine test_send_terminate
+
+   ! This test creates 3 client processes and 2 server processes
+   ! and all appropriate sockets connecting them.
+   ! It verifies that communication goes both ways _and_
+   ! that a process can have 2 independent sockets.
+   @test(npes=[5])
+   subroutine test_back_and_forth(this)
+      use pFIO_ArrayReferenceMod
+      class (MpiTestMethod), intent(inout) :: this
+
+      integer :: comm
+      type (MpiSocket) :: s1, s2
+      class (AbstractMessage), allocatable :: message
+      type (ProtocolParser), target :: parser
+
+      integer :: rank
+
+      type (ArrayReference) :: ref
+      integer, target :: fake_data
+
+      enum, bind(c)
+         enumerator :: collection1, collection2
+      end enum
+      enum, bind(c)
+         enumerator :: request_A, request_B, request_C
+      end enum
+      
+      comm = this%getMpiCommunicator()
+      parser = ProtocolParser()
+
+      rank = this%getProcessRank()
+
+      ref = ArrayReference(fake_data)
+      
+      select case (rank)
+      case (0) ! server
+         s1 = MpiSocket(comm, 2, parser)
+         s2 = MpiSocket(comm, 3, parser)
+
+         allocate(message, source=s1%receive())
+         @assertEqual(PrefetchData_ID, message%get_type_id())
+         select type (message)
+         type is (PrefetchDataMessage)
+            @assertEqual(collection1,  message%collection_id)
+         end select
+         call s1%send(IdMessage(request_B))
+
+         deallocate(message)
+         allocate(message, source=s2%receive())
+         @assertEqual(PrefetchData_ID, message%get_type_id())
+         select type (message)
+         type is (PrefetchDataMessage)
+            @assertEqual(collection2,  message%collection_id)
+         end select
+         call s2%send(IdMessage(REQUEST_C))
+
+         deallocate(message)
+         allocate(message, source=s1%receive())
+         @assertEqual(TERMINATE_ID, message%get_type_id())
+         deallocate(message)
+         allocate(message, source=s2%receive())
+         @assertEqual(TERMINATE_ID, message%get_type_id())
+
+      case (1)
+         s1 = MpiSocket(comm, 4, parser)
+         allocate(message, source=s1%receive())
+         @assertEqual(PrefetchData_ID, message%get_type_id())
+         select type (message)
+         type is (PrefetchDataMessage)
+            @assertEqual(collection1,  message%collection_id)
+         end select
+         call s1%send(IdMessage(request_A))
+
+         deallocate(message)
+         allocate(message, source=s1%receive())
+         @assertEqual(TERMINATE_ID, message%get_type_id())
+
+      case (2)
+         s1 = MpiSocket(comm, 0, parser)
+         !call s1%send(PrefetchDataMessage(1, collection1,'foo','u', ref, start=[]))
+         call s1%send(PrefetchDataMessage(1, collection1,'foo','u', ref))
+         allocate(message, source=s1%receive())
+         @assertEqual(ID_ID, message%get_type_id())
+         select type (message)
+         type is (IdMessage)
+            @assertEqual(request_B, message%id)
+         end select
+         call s1%send(TerminateMessage())
+
+      case (3)
+         s1 = MpiSocket(comm, 0, parser)
+         !call s1%send(PrefetchDataMessage(2, collection2,'foo','v', ref, start=[]))
+         call s1%send(PrefetchDataMessage(2, collection2,'foo','v', ref))
+         allocate(message, source=s1%receive())
+         @assertEqual(ID_ID, message%get_type_id())
+         select type (message)
+         type is (IdMessage)
+            @assertEqual(request_C, message%id)
+         end select
+         call s1%send(TerminateMessage())
+
+      case (4)
+         s1 = MpiSocket(comm, 1, parser)
+         !call s1%send(PrefetchDataMessage(3, collection1,'foo','w', ref, start=[]))
+         call s1%send(PrefetchDataMessage(3, collection1,'foo','w', ref))
+         allocate(message, source=s1%receive())
+         @assertEqual(ID_ID, message%get_type_id())
+         select type (message)
+         type is (IdMessage)
+            @assertEqual(request_A, message%id)
+         end select
+         call s1%send(TerminateMessage())
+      end select
+
+   end subroutine test_back_and_forth
+   
+end module test_MpiSocketMod

@@ -1,3 +1,4 @@
+#include "unused_dummy.H"
 module pFIO_ProtocolParserMod
    use pFIO_AbstractMessageMod
    use pFIO_AbstractMessageMod
@@ -5,12 +6,20 @@ module pFIO_ProtocolParserMod
 
    use pFIO_TerminateMessageMod
    use pFIO_DoneMessageMod
-   use pFIO_AddCollectionMessageMod
-   use pFIO_CollectionIdMessageMod
-   use pFIO_RequestIdMessageMod
-   use pFIO_RequestDataMessageMod
-   use pFIO_CollectiveRequestDataMessageMod
+   use pFIO_PrefetchDoneMessageMod
+   use pFIO_CollectivePrefetchDoneMessageMod
+   use pFIO_StageDoneMessageMod
+   use pFIO_CollectiveStageDoneMessageMod
+   use pFIO_AddExtCollectionMessageMod
+   use pFIO_AddHistCollectionMessageMod
+   use pFIO_IdMessageMod
+   use pFIO_PrefetchDataMessageMod
+   use pFIO_StageDataMessageMod
+   use pFIO_CollectivePrefetchDataMessageMod
+   use pFIO_CollectiveStageDataMessageMod
    use pFIO_WaitRequestDataMessageMod
+   use pFIO_ModifyMetadataMessageMod
+   use pFIO_HandShakeMessageMod
    use pFIO_DummyMessageMod
 
    implicit none
@@ -46,25 +55,41 @@ contains
       class (ProtocolParser), intent(inout) :: this
 
       type (TerminateMessage) :: terminate
-      type (DoneMessage) :: done
-      type (AddCollectionMessage) :: addCollection
-      type (CollectionIdMessage):: collectionId
-      type (RequestIdMessage) :: requestId
-      type (RequestDataMessage) :: RequestData
+      type (DoneMessage)                   :: done
+      type (PrefetchDoneMessage)           :: pdone
+      type (CollectivePrefetchDoneMessage) :: cpdone
+      type (StageDoneMessage)              :: sdone
+      type (CollectiveStageDoneMessage)    :: csdone
+      type (AddExtCollectionMessage)  :: addExtCollection
+      type (AddHistCollectionMessage) :: addHistCollection
+      type (IdMessage):: IDid
       type (WaitRequestDataMessage) :: WaitRequestData
-      type (CollectiveRequestDataMessage) :: CollectiveRequestData
+      type (PrefetchDataMessage)    :: PrefetchData
+      type (StageDataMessage) :: StageData
+      type (CollectivePrefetchDataMessage) :: CollectivePrefetchData
+      type (CollectiveStageDataMessage)    :: CollectiveStageData
+      type (ModifyMetadataMessage) :: ModifyMetadata
+      type (HandShakeMessage) :: handshake
       type (DummyMessage) :: dummy
 
       if (this%initialized) return
 
       call add_prototype(terminate)
       call add_prototype(done)
-      call add_prototype(addCollection)
-      call add_prototype(collectionId)
-      call add_prototype(requestId)
-      call add_prototype(RequestData)
+      call add_prototype(pdone)
+      call add_prototype(cpdone)
+      call add_prototype(sdone)
+      call add_prototype(csdone)
+      call add_prototype(addExtCollection)
+      call add_prototype(addHistCollection)
+      call add_prototype(IDId)
       call add_prototype(WaitRequestData)
-      call add_prototype(CollectiveRequestData)
+      call add_prototype(PrefetchData)
+      call add_prototype(CollectivePrefetchData)
+      call add_prototype(StageData)
+      call add_prototype(CollectiveStageData)
+      call add_prototype(ModifyMetadata)
+      call add_prototype(handshake)
       call add_prototype(dummy)
 
       this%initialized = .true.
@@ -106,7 +131,8 @@ contains
 
       buffer(1) = message%get_type_id()
       call message%serialize(buffer(2:))
-      
+      return 
+      _UNUSED_DUMMY(this)
    end function encode
 
    

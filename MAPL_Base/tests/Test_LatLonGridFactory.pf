@@ -113,8 +113,9 @@ contains
       param%ny = ny
       param%im_world = im_world
       param%jm_world = jm_world
-      param%pole = 'XY'
+      param%dateline = 'XY'
       param%lon_range = lon_range
+      param%pole = 'XY'
       param%lat_range = lat_range
 
       param%default_decomposition = default_decomposition
@@ -152,6 +153,7 @@ contains
       @mpiAssertEqual(ESMF_SUCCESS, 0)
 
       call this%barrier()
+
       if (this%getLocalPET() == 0) then
          open (newunit=unit, file=resource_file)
          close(unit, status='delete')
@@ -186,11 +188,13 @@ contains
          end if
          write(unit,*)"POLE: '", param%pole, "'"
          if (param%pole == 'XY') then
-            write(unit,*)'LON_RANGE: ', param%lon_range%min, param%lon_range%max
             write(unit,*)'LAT_RANGE: ', param%lat_range%min, param%lat_range%max
-         else
-            write(unit,*)"DATELINE: '", param%dateline, "'"
          end if
+         write(unit,*)"DATELINE: '", param%dateline, "'"
+         if (param%dateline == 'XY') then
+            write(unit,*)'LON_RANGE: ', param%lon_range%min, param%lon_range%max
+         end if
+
          close(unit)
 
       end subroutine write_config
@@ -214,7 +218,7 @@ contains
            ! Default decomposition
            & GridCase(1, 1, 4, 2, 'DC', 'PE', .true., [4],   [2],   [-180., -90., 0., 90.],    [-45., 45.]), & 
            & GridCase(2, 1, 4, 2, 'DC', 'PE', .true., [2,2], [2],   [-180., -90., 0., 90.],    [-45., 45.]), &
-           & GridCase(1, 2, 4, 2, 'DC', 'PE', .true., [4],   [1,1], [-180., -90., 0., 90.],    [-45., 45.]), &
+           & GridCase(1, 2, 4, 6, 'DC', 'PE', .true., [4],   [3,3], [-180., -90., 0., 90.],    [-75., -45., -15., 15., 45., 75.]), &
            & GridCase(1, 1, 4, 3, 'DC', 'PC', .true., [4],   [3],   [-180., -90., 0., 90.],    [-90., 0., 90.]), &
            & GridCase(1, 1, 4, 2, 'DE', 'PE', .true., [4],   [2],   [-135., -45., +45., 135.], [-45., 45.]), &
            & GridCase(1, 1, 4, 2, 'GC', 'PE', .true., [4],   [2],   [0., 90., 180., 270.],     [-45., 45.]), &
@@ -222,8 +226,8 @@ contains
            ! Custom decomposition
            & GridCase(1, 1, 4, 2, 'DC', 'PE', .false., [4],   [2],   [-180., -90., 0., 90.],    [-45., 45.]), & 
            & GridCase(2, 1, 4, 2, 'DC', 'PE', .false., [2,2], [2],   [-180., -90., 0., 90.],    [-45., 45.]), &
-           & GridCase(1, 2, 4, 2, 'DC', 'PE', .false., [4],   [1,1], [-180., -90., 0., 90.],    [-45., 45.]), &
-           & GridCase(3, 1, 4, 2, 'DC', 'PE', .false., [1,2,1], [2], [-180., -90., 0., 90.],    [-45., 45.]), &
+           & GridCase(1, 2, 4, 6, 'DC', 'PE', .false., [4],   [3,3], [-180., -90., 0., 90.],    [-75., -45., -15., 15., 45., 75.]), &
+           & GridCase(3, 1, 8, 2, 'DC', 'PE', .false., [2,4,2], [2], [-180.,-135.,-90.,-45., 0., 45., 90.,135.],    [-45., 45.]), &
            & GridCase(1, 1, 4, 3, 'DC', 'PC', .false., [4],   [3],   [-180., -90., 0., 90.],    [-90., 0., 90.]), &
            & GridCase(1, 1, 4, 2, 'DE', 'PE', .false., [4],   [2],   [-135., -45., +45., 135.], [-45., 45.]), &
            & GridCase(1, 1, 4, 2, 'GC', 'PE', .false., [4],   [2],   [0., 90., 180., 270.],     [-45., 45.]) &

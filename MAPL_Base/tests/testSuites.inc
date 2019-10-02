@@ -10,6 +10,7 @@ ADD_TEST_SUITE(Test_SimpleMAPLcomp_mod_suite)
 ! Grids and Regridders
 ADD_TEST_SUITE(Test_StringGridFactoryMapMod_suite)
 ADD_TEST_SUITE(Test_LatLonGridFactoryMod_suite)
+ADD_TEST_SUITE(Test_SphericalToCartesianMod_suite)
 ADD_TEST_SUITE(Test_LatLonCornersMod_suite)
 ADD_TEST_SUITE(Test_GridManagerMod_suite)
 
@@ -17,4 +18,7 @@ ADD_TEST_SUITE(Test_GridManagerMod_suite)
 ! program.  Unfortunately it is not currently working.  Possibly
 ! it just needs appropriate input files.
 !ADD_TEST_SUITE(Test_CFIO_Bundle_mod_suite)
+
+ADD_TEST_SUITE(Test_VarSpecMod_suite)
+!ADD_TEST_SUITE(Test_SimpleCommSplitterMod_suite)
 

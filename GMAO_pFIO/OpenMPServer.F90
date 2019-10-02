@@ -1,9 +1,11 @@
 module pFIO_OpenMPServerMod
    use pFIO_AbstractDirectoryServiceMod
    use pFIO_ServerThreadMod
+   use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractSocketVectorMod
    use pFIO_AbstractServerMod
+   use pFIO_BaseServerMod
    use pFIO_IntegerIntegerMapMod
 
    implicit none
@@ -11,7 +13,7 @@ module pFIO_OpenMPServerMod
 
    public :: OpenMPServer
 
-   type,extends(AbstractServer) :: OpenMPServer
+   type,extends(BaseServer) :: OpenMPServer
    contains
       procedure :: start
    end type OpenMPServer
@@ -26,16 +28,11 @@ contains
    function new_OpenMPServer(comm,directory_service) result(s)
       type (OpenMPServer) :: s
       integer, intent(in) :: comm
-      class(AbstractDirectoryService), target, optional :: directory_service
+      class(AbstractDirectoryService), target, intent(inout) :: directory_service
 
       call s%init(comm)
      
-      if (present(Directory_Service)) then
-         s%directory_service => directory_service
-      else
-         s%directory_service => chosen_directory_service
-      end if
-
+      s%directory_service => directory_service
       call s%directory_service%publish(PortInfo('i_server'), s%comm)
 
    end function new_OpenMPServer

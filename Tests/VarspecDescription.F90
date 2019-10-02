@@ -101,7 +101,7 @@ contains
   
       integer :: status
       character(len=*), parameter :: Iam = "addNewSpec"
- 
+
       if (specType == "IMPORT") then
          call MAPL_AddImportSpec(GC, &
               SHORT_NAME = this%short_name, &
