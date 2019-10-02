@@ -2726,7 +2726,7 @@ and so on.
 
          globalCellCountPerDim = 1
          call ESMF_GridGet(grid, tileCount=tileCount,rc=status)
-         VERIFY_(status)
+         _VERIFY(status)
 
          call ESMF_GridGet(grid, tile=1, staggerLoc=ESMF_STAGGERLOC_CENTER, &
               minIndex=mincounts, &
