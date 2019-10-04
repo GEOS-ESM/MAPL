@@ -18,7 +18,7 @@ module MAPL_FileMetadataUtilsMod
       character(len=:), allocatable :: filename 
    contains
       procedure :: get_coordinate_info
-      procedure :: get_variable_units
+      procedure :: get_variable_attribute
       procedure :: get_time_units
       procedure :: get_time_vec
       procedure :: get_level_name
@@ -233,9 +233,10 @@ module MAPL_FileMetadataUtilsMod
 
    end function is_var_present
 
-   function get_variable_units(this,var_name,rc) result(units)
+   function get_variable_attribute(this,var_name,attr_name,rc) result(units)
       class (FileMetadataUtils), intent(inout) :: this
       character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
 
       character(len=:), pointer :: units
@@ -246,7 +247,7 @@ module MAPL_FileMetadataUtilsMod
     
       var => this%get_variable(var_name,rc=status)
       _VERIFY(status)
-      attr => var%get_attribute('units')
+      attr => var%get_attribute(trim(attr_name))
       if (associated(attr)) then
          vunits => attr%get_value()
          select type(vunits)
@@ -258,7 +259,7 @@ module MAPL_FileMetadataUtilsMod
       end if
       _RETURN(_SUCCESS)
 
-   end function get_variable_units
+   end function get_variable_attribute
 
    subroutine get_coordinate_info(this,coordinate_name,coordSize,coordUnits,coords,rc)
       class (FileMetadataUtils), intent(inout) :: this
@@ -334,7 +335,7 @@ module MAPL_FileMetadataUtilsMod
                lev_name=var_name
                _RETURN(_SUCCESS)
             else
-               units => this%get_variable_units(var_name)
+               units => this%get_variable_attribute(var_name,'units')
                if (associated(units)) then
                   if (trim(units) .eq. 'hPa' .or. trim(units) .eq. 'sigma_level' .or. &
                       trim(units) .eq. 'mb'  .or. trim(units) .eq. 'millibar') then
