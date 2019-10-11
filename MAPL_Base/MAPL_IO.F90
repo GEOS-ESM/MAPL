@@ -5952,7 +5952,7 @@ module MAPL_IOMod
           ! WY notes : it doesnot seem to get this branch
           call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
-             print*,trim(IAm),'Error writing variable ',status
+             print*,trim(IAm),' :Error writing variable: '// trim(name)
              print*, NF_STRERROR(status)
              _VERIFY(STATUS)
           endif
@@ -8107,7 +8107,7 @@ module MAPL_IOMod
                    end if
                 end do
                 _ASSERT(found, 'search failed')
-                call add_fvar(cf,trim(fieldname),pfDataType,'tile,'//myUngridDimName1,units,long_name,rc=status)
+                call add_fvar(cf,trim(fieldname),pfDataType,myUngridDimName1,units,long_name,rc=status)
                 _VERIFY(status)
              else
                 _ASSERT(.false., 'unsupported Dims case')
