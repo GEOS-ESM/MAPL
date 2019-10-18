@@ -2046,10 +2046,11 @@ CONTAINS
         integer                    :: nymd, nhms
         type(ESMF_Time)            :: fTime
         real, allocatable          :: levFile(:) 
-        character(len=ESMF_MAXSTR) :: cfiovarname,units,varname,buff
+        character(len=ESMF_MAXSTR) :: buff
         logical                    :: found,lFound,intOK
         integer                    :: maxOffset
         character(len=:), allocatable :: levname
+        character(len=:), pointer :: positive
         type(FileMetadataUtils), pointer :: metadata
         type(ESMF_Grid) :: fileGrid
 
@@ -2126,14 +2127,19 @@ CONTAINS
         _VERIFY(status)
         if (trim(levName) /='') then
            call metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=item%levUnit,coords=levFile,__RC__)
+           positive = metadata%get_variable_attribute(levName,'positive',__RC__)
+           item%flip=.false.
+           if (associated(positive)) then
+              if (trim(positive)=='up') item%flip=.true.
+           else
+              if (levFile(1)>levFile(size(levFile))) item%flip=.true.
+           end if
            allocate(item%levs(item%lm),__STAT__)
-           if (levFile(1)>levFile(size(levFile))) then
-              item%flip = .true.
+           item%levs=levFile
+           if (item%flip) then
               do i=1,size(levFile)
                  item%levs(i)=levFile(size(levFile)-i+1)
               enddo
-           else
-              item%levs=levFile
            end if
            if (trim(item%levUnit)=='hPa') item%levs=item%levs*100.0
            ! check if the level unit matches something that is pressure
@@ -2141,10 +2147,10 @@ CONTAINS
               item%havePressure = .true.
            end if
            if (item%isVector) then
-              item%units = metadata%get_variable_units(trim(item%fcomp1),rc=status)
+              item%units = metadata%get_variable_attribute(trim(item%fcomp1),"units",rc=status)
               _VERIFY(status)
            else
-              item%units = metadata%get_variable_units(trim(item%var),rc=status)
+              item%units = metadata%get_variable_attribute(trim(item%var),"units",rc=status)
               _VERIFY(status)
            end if
 
