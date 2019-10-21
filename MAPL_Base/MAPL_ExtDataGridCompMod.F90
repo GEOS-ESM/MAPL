@@ -2050,7 +2050,7 @@ CONTAINS
         logical                    :: found,lFound,intOK
         integer                    :: maxOffset
         character(len=:), allocatable :: levname
-        character(len=:), pointer :: positive
+        character(len=:), pointer :: positive => null()
         type(FileMetadataUtils), pointer :: metadata
         type(ESMF_Grid) :: fileGrid
 
