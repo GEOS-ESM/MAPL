@@ -239,9 +239,9 @@ module MAPL_FileMetadataUtilsMod
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
 
-      character(len=:), pointer :: units
-      type(Attribute), pointer :: attr
-      class(Variable), pointer :: var
+      character(len=:), pointer :: units 
+      type(Attribute), pointer :: attr => null()
+      class(Variable), pointer :: var => null()
       class(*), pointer :: vunits
       integer :: status
     
