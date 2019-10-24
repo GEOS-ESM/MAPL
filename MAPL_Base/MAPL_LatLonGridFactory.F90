@@ -794,6 +794,8 @@ contains
             this%pole = 'XY'
             this%lat_range = RealMinMax(this%lat_centers(1), this%lat_centers(jm))
          end if
+         if (this%lat_corners(1) < -90) this%lat_corners(1)=-90
+         if (this%lat_corners(jm+1) > 90) this%lat_corners(jm+1)=90
 
          ! Convert to radians
          this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
