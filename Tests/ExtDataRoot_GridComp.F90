@@ -502,7 +502,6 @@ MODULE ExtDataUtRoot_GridCompMod
          else if (rank==3) then
             call MAPL_GetPointer(inState,IMptr3,inNameList(i),__RC__)
             call MAPL_GetPointer(outState,EXptr3,inNameList(i),alloc=.true.,__RC__)
-            write(*,*)'bma minmax ',minval(imptr3),maxval(imptr3)
             EXptr3=IMptr3
          end if
       end do
