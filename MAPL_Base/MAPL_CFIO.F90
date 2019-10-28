@@ -844,6 +844,7 @@ VERIFY_(STATUS)
 mcfio%krank=0
 allocate(MCFIO%pairList(LT), stat=STATUS)
 VERIFY_(STATUS)
+call MAPL_RoundRobinPEList(mcfio%krank,size(MAPL_NodeRankList),rc=status)
 
 MCFIO%pairList = 0
 
