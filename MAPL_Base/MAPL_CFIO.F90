@@ -878,7 +878,7 @@ contains
     _VERIFY(STATUS)
     if (allocated(MAPL_NodeRankList)) then
        call MAPL_RoundRobinPEList(mcfio%krank,size(MAPL_NodeRankList),rc=status)
-       VERIFY_(status)
+       _VERIFY(status)
     end if
 
     MCFIO%pairList = 0
