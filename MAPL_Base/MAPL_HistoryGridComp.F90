@@ -2805,7 +2805,7 @@ ENDDO PARSER
                   VERIFY_(STATUS)
                   list(n)%unit = -2
                else
-                  list(n)%unit = GETFILE( trim(filename(n)))
+                  list(n)%unit = GETFILE( trim(filename(n)),all_pes=.true.)
                end if
             end if
 
