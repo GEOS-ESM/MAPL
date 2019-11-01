@@ -108,7 +108,7 @@ abnormal STATUS (really, {\tt STATUS/=ESMF\_SUCCESS)}, prints out the line
 number and the contents of the string {\tt Iam}, returning to the caller, e.g.,
 \begin{verbatim}
    call ESMF_ConfigGetAttribute(CF, provider, Label=Label, RC=STATUS)
-   VERIFY_(STATUS)
+   _VERIFY(STATUS)
 \end{verbatim}
 This error code {\em bubbles up} to the the main program, producing a
 traceback in the process.
@@ -128,7 +128,7 @@ Another convenience macro is \m{STAT} which can be used with {\tt
 as a short-hand for
 \begin{verbatim}
    call allocate(uwnd(im,jm,lm), stat=STATUS)
-   VERIFY_(STATUS)
+   _VERIFY(STATUS)
 \end{verbatim}
 
 

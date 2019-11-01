@@ -8,11 +8,12 @@ set (srcs
 
 include_directories (${include_MAPL_Base} ${include_GMAO_pFIO} ${INC_ESMF} ${include_GMAO_hermes})
 
-ecbuild_add_executable (
-  TARGET ExtDataDriver.x 
-  SOURCES ${srcs}
-  LIBS MAPL_Base GMAO_pFIO ${MKL_LIBRARIES} ${OpenMP_Fortran_LIBRARIES}
-  )
+#add_executable (ExtDataDriver.x ${srcs})
+ecbuild_add_executable (TARGET ExtDataDriver.x SOURCES ${srcs})
 
+#install(PROGRAMS ExtDataDriver.x DESTINATION bin)
+
+target_link_libraries (ExtDataDriver.x MAPL_Base GMAO_pFIO ${MKL_LIBRARIES} ${OpenMP_Fortran_LIBRARIES} GMAO_hermes)
 set_target_properties(ExtDataDriver.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
+#install(TARGETS ExtDataDriver.x DESTINATION bin)
     

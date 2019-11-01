@@ -54,50 +54,50 @@ CONTAINS
 !   Initialize framework
 !   --------------------
     call ESMF_Initialize (vm=vm, rc=status)
-    VERIFY_(status)
+    _VERIFY(status)
 
     IamRoot = MAPL_am_I_root()
 
 !   Get the global vm
 !   -----------------
     call ESMF_VMGetGlobal(vm, rc=status)
-    VERIFY_(status)
+    _VERIFY(status)
 
 !   Create a grid
 !   -------------
     grid = MyGridCreate_ ( vm, rc=status )
-    VERIFY_(status)
+    _VERIFY(status)
 
 !   Create empty bundles
 !   --------------------
     fBundle = ESMF_BundleCreate ( name='Francesca', grid=grid, rc=status )
-    VERIFY_(status)
+    _VERIFY(status)
     dBundle = ESMF_BundleCreate ( name='Denise',    grid=grid, rc=status )
-    VERIFY_(status)
+    _VERIFY(status)
 
 !   Set the time as the one on the hardwired file name
 !   --------------------------------------------------
     call ESMF_CalendarSetDefault ( ESMF_CAL_GREGORIAN, rc=status )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_TimeSet( fTime, yy=2002, mm=7, dd=15, h=12, m=0, s=0, rc=status )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_TimeIntervalSet( fTimeStep, h=6, m=0, s=0, rc=status )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     fClock = ESMF_ClockCreate ( name="Clovis", timeStep=fTimeStep, &
                                 startTime=fTime, rc=status )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 !   Read Bundle from file on a clean slate
 !   --------------------------------------
     if ( IamRoot ) print *, 'Reading ' // fFilename
     call ESMF_ioRead  ( fFilename, fTime, fBundle, rc=status, &
                         verbose=.true., force_regrid=.true.   )
-    VERIFY_(status)
+    _VERIFY(status)
 
 !   Setup data types need for write
 !   -------------------------------
     allocate ( resolution(2), levels(KM_WORLD), stat=status )
-    VERIFY_(status)
+    _VERIFY(status)
     resolution = (/ IM_WORLD/2, JM_WORLD/2 /)
     levels     = (/ (k, k=1,KM_WORLD) /)
 
@@ -109,11 +109,11 @@ CONTAINS
 
      call ESMF_ioCreate ( cfio, fname, fClock, fBundle, fTimeStep, &
                           resolution, levels, 'Bundle Write Test', rc=status )
-     VERIFY_(status)
+     _VERIFY(status)
 
      call ESMF_ioWrite ( cfio, fClock, fBundle, fTimeStep, levels, rc=status, &
                          verbose = .true. ) ! omit nbits
-     VERIFY_(status)
+     _VERIFY(status)
 
      call ESMF_ioDestroy ( cfio )
 
@@ -123,11 +123,11 @@ CONTAINS
 
      call ESMF_ioCreate ( cfio, fname, fClock, fBundle, fTimeStep, &
                           resolution, levels, 'Bundle Write Test', rc=status )
-     VERIFY_(status)
+     _VERIFY(status)
 
      call ESMF_ioWrite ( cfio, fClock, fBundle, fTimeStep, levels, rc=status, &
                          nbits = nbits, verbose = .true. )
-     VERIFY_(status)
+     _VERIFY(status)
 
      call ESMF_ioDestroy ( cfio )
 
@@ -136,7 +136,7 @@ CONTAINS
 !   All done
 !   --------
     call ESMF_Finalize ( rc=status )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     
   end subroutine test_main
 
@@ -200,7 +200,7 @@ CONTAINS
     minCoord(3) = deltaZ/2.
 
     layout = ESMF_DELayoutCreate(vm, deCountList=(/NX, NY/), rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     grid = ESMF_GridCreateHorzLatLonUni(         &
          counts = (/IM_WORLD, JM_WORLD/),        &
@@ -209,24 +209,24 @@ CONTAINS
          horzStagger=ESMF_Grid_Horz_Stagger_A,   &
          periodic=(/ESMF_TRUE, ESMF_FALSE/),     &
          name='Beatrice', rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_GridAddVertHeight(grid,            &
          delta=(/(deltaZ, L=1,LM) /),            &
          rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_GridDistribute(grid,               &
          deLayout=layout,                        &
          countsPerDEDim1=imxy,                   &
          countsPerDEDim2=jmxy,                   &
          rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     deallocate(imxy)
     deallocate(jmxy)
 
-    RETURN_(STATUS)
+    _RETURN(STATUS)
 
   end function MyGridCreate_
 

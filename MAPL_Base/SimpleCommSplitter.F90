@@ -71,7 +71,7 @@ contains
 
       splitter = SimpleCommSplitter(communicator, base_name=base_name)
       do i = 1, n_members
-         call splitter%add_group(npes_member, isolate_nodes=isolate_nodes)
+         call splitter%add_group(npes=npes_member, isolate_nodes=isolate_nodes)
       end do
       
    end function ensemble_comm_splitter
@@ -111,10 +111,10 @@ contains
       _RETURN(_SUCCESS)
    end function split
 
-   subroutine add_group_simple(this, npes, unusable, nnodes, isolate_nodes, name, rc)
+   subroutine add_group_simple(this, unusable, npes, nnodes, isolate_nodes, name, rc)
       class (SimpleCommSplitter), intent(inout) :: this
-      integer, intent(in) :: npes
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: npes
       integer, optional, intent(in) :: nnodes
       logical, optional, intent(in) :: isolate_nodes
       character(*), optional, intent(in) :: name
@@ -122,7 +122,7 @@ contains
 
       character(:), allocatable :: name_
       logical :: isolate_nodes_
-      integer :: n, nnodes_, status
+      integer :: n, npes_,nnodes_, status
 
       character(24) :: buffer
 
@@ -141,17 +141,20 @@ contains
          isolate_nodes_ = isolate_nodes
       endif
  
+      npes_ = 0
+      if (present(npes)) npes_ = npes
+
       nnodes_ = 0
       if (present(nnodes)) then
-         _ASSERT( nnodes ==0 .or. npes == 0, "npes and nnodes are exclusive")
          nnodes_ = nnodes
+         _ASSERT( nnodes_ ==0 .or. npes_ == 0, "npes and nnodes are exclusive")
       endif
 
       if (nnodes_ > 0) then
          _ASSERT(isolate_nodes, " nnodes should be isolated")
       endif
 
-      call this%group_descriptions%push_back(CommGroupDescription(npes, nnodes_, isolate_nodes_, name_, rc=status))
+      call this%group_descriptions%push_back(CommGroupDescription(npes_, nnodes_, isolate_nodes_, name_, rc=status))
       _VERIFY(status)
 
       _RETURN(_SUCCESS)

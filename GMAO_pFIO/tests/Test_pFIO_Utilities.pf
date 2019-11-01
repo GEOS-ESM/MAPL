@@ -1,4 +1,5 @@
 module test_pFIO_UtilitiesMod
+   use iso_fortran_env, only: INT32,REAL32,INT64 
    use pfunit_mod
    use pFIO_UtilitiesMod
    implicit none
@@ -29,7 +30,6 @@ contains
 
    @test
    subroutine test_serialize_buffer_length_int_0d()
-      integer :: empty(0)
       
       @assertEqual(1, serialize_buffer_length(1))
       @assertEqual(1, serialize_buffer_length(2))
@@ -48,6 +48,32 @@ contains
 
 
    end subroutine test_serialize_buffer_length_int_1d
+
+   @test
+   subroutine test_serialize_buffer_length_int64_0d()
+      integer(kind=INT64) :: i,j,L
+      L = 10
+      i = L**15
+      j = L**16
+      @assertEqual(2, serialize_buffer_length(i))
+      @assertEqual(2, serialize_buffer_length(j))
+
+
+   end subroutine test_serialize_buffer_length_int64_0d
+
+
+   @test
+   subroutine test_serialize_buffer_length_int64_1d()
+      integer(kind=INT64) :: empty(0)
+      integer(kind=INT64) :: i,j,k,l,m
+      m = 10
+      i = m**14; j = i+1; k = i+2; l = i+3
+      @assertEqual(1, serialize_buffer_length(empty))
+      @assertEqual(3, serialize_buffer_length([i]))
+      @assertEqual(9, serialize_buffer_length([i,j,k,l]))
+
+
+   end subroutine test_serialize_buffer_length_int64_1d
 
    @test
    subroutine test_serialize_buffer_length_real_0d()
@@ -91,7 +117,10 @@ contains
 
    @test
    subroutine test_serialize_string()
+      character(len=:), allocatable :: str
 
+      !call check(str); if (anyExceptions()) return
+      call check(''); if (anyExceptions()) return
       call check('a'); if (anyExceptions()) return
       call check('ab'); if (anyExceptions()) return
       call check('abc'); if (anyExceptions()) return
@@ -152,6 +181,50 @@ contains
       end subroutine check
       
    end subroutine test_serialize_int_array
+
+
+   @test
+   subroutine test_serialize_int64_scalar()
+      integer(kind=INT64) :: i,j,L
+      L = 10
+      i = L**15; j = i+1
+      call check(i); if (anyExceptions()) return
+      call check(j); if (anyExceptions()) return
+
+   contains
+
+      subroutine check(expected)
+         integer(kind=INT64), intent(in) :: expected
+         integer(kind=INT64) :: found
+
+         call deserialize_intrinsic(serialize_intrinsic(expected),found)
+         @assertEqual(expected, found)
+
+      end subroutine check
+      
+   end subroutine test_serialize_int64_scalar
+
+
+   @test
+   subroutine test_serialize_int64_array()
+      integer(kind=INT64):: i,j,k,L
+      L = 10
+      i = L**15; j = i+1; k = i+2
+      call check([i]);     if (anyExceptions()) return
+      call check([j]);     if (anyExceptions()) return
+      call check([i,j]);   if (anyExceptions()) return
+      call check([i,j,k]); if (anyExceptions()) return
+   contains
+
+      subroutine check(expected)
+         integer(kind=INT64), intent(in) :: expected(:)
+         integer(kind=INT64), allocatable :: found(:)
+
+         call deserialize_intrinsic(serialize_intrinsic(expected),found)
+         @assertEqual(expected, found)
+      end subroutine check
+      
+   end subroutine test_serialize_int64_array
 
 
    @test

@@ -9,6 +9,7 @@
       use ESMF
       use MAPL_BaseMod
       use MAPL_ConstantsMod, only: MAPL_KAPPA, MAPL_RGAS, MAPL_CP, MAPL_GRAV
+      use MAPL_ErrorHandlingMod
       use, intrinsic :: iso_fortran_env, only: REAL64
 !
       implicit none
@@ -74,45 +75,45 @@ CONTAINS
 
       ! get dimensions, allocate
       call ESMF_FieldGet(fModel,grid=grid,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call ESMF_AttributeGet(fModel,name='UNITS',value=units,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call ESMF_AttributeGet(fModel,name='LONG_NAME',value=vname,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       vname = ESMF_UtilStringLowerCase(vname,rc=status)
       call MAPL_GridGet(grid, localCellCountPerDim=dims,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       im = dims(1)
       jm = dims(2)
       lmMod = dims(3)
       allocate(ak(lmMod+1),stat=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       allocate(bk(lmMod+1),stat=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       allocate(pl_mod(im,jm,lmMod),stat=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       allocate(ple_mod(im,jm,lmMod+1),stat=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       allocate(kbeg(im,jm),stat=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       allocate(kend(im,jm),stat=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call ESMF_FieldGet(fPres,grid=grid,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call MAPL_GridGet(grid, localCellCountPerDim=dims,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       lmPres = dims(3)
 
       ! given PS, get AK, BK from the grid to get ple
       call ESMF_FieldGet(PS,0,farrayPtr=vPS,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call ESMF_FieldGet(PS,grid=grid,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call ESMF_AttributeGet(grid,name="GridAK",valuelist=ak,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call ESMF_AttributeGet(grid,name="GridBK",valuelist=bk,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       do i=1,lmmod+1
          ple_mod(:,:,i)=ak(i)+bk(i)*vPS(:,:)
       enddo
@@ -121,9 +122,9 @@ CONTAINS
       enddo
       
       call ESMF_FieldGet(fModel,0,farrayPtr=vMod,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call ESMF_FieldGet(fPres,0,farrayPtr=vPres,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       !---------------------------------------------------------------
       ! For each grid point (i,j), determine the range of model levels
@@ -171,7 +172,7 @@ CONTAINS
                            END DO SEARCH_DEF4
                         END IF
                         if (vdef == undef) then
-                           RETURN_(ESMF_FAILURE)
+                           _RETURN(ESMF_FAILURE)
                         end if
                         vmod(i,j,L) = vdef
                      END IF
@@ -218,10 +219,10 @@ CONTAINS
          varType = 'T'
       else if (index(vname,"height")/=0) then
          varType = 'H'
-         ASSERT_(present(PHIS))
+         _ASSERT(present(PHIS),'needs informative message')
          call ESMF_FieldGet(PHIS,0,farrayPtr=vPHIS,rc=status)
-         VERIFY_(STATUS)
-         ASSERT_(present(phis_units))
+         _VERIFY(STATUS)
+         _ASSERT(present(phis_units),'needs informative message')
          if (trim(units)=="m" .and. trim(phis_units)=="m+2 s-2") then
             gfactor = MAPL_GRAV
          else
@@ -276,7 +277,7 @@ CONTAINS
       deallocate(kbeg)
       deallocate(kend)
 
-      RETURN_(ESMF_SUCCESS)
+      _RETURN(ESMF_SUCCESS)
 
       end subroutine vertInterpolation_pressKappa
 !EOC

@@ -1,0 +1,62 @@
+module Test_VarSpecMod
+   use pfunit_mod
+   use MAPL_VarSpecMod
+   use esmf
+   implicit none
+
+contains
+
+   @test
+   subroutine test_simple_constructor()
+      integer :: status
+      type (MAPL_VarSpec), pointer :: specs(:) => null()
+      character(:), allocatable :: units
+      character(ESMF_MAXSTR) :: found_short_name, found_units
+
+      units='barn'
+      call MAPL_VarSpecCreateInList(specs, &
+           short_name='fred', &
+           units = units, &
+           rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(1, size(specs))
+
+      call MAPL_VarSpecGet(specs(1), short_name=found_short_name, units=found_units)
+      @assertEqual('fred', trim(found_short_name))
+      @assertEqual(units, found_units)
+
+   end subroutine test_simple_constructor
+
+
+   @test
+   subroutine test_add_spec_grows_container()
+      integer :: status
+      type (MAPL_VarSpec), pointer :: specs(:) => null()
+      character(:), allocatable :: units
+      integer :: idx
+
+      units='barn'
+      call MAPL_VarSpecCreateInList(specs, &
+           short_name='fred', &
+           units = units, &
+           rc=status)
+      units='barn'
+      call MAPL_VarSpecCreateInList(specs, &
+           short_name='barney', &
+           units = units, &
+           rc=status)
+
+      @assertEqual(2, size(specs))
+
+      idx = MAPL_VarSpecGetIndex(specs, name='fred', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, idx)
+
+      idx = MAPL_VarSpecGetIndex(specs, name='barney', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, idx)
+      
+   end subroutine test_add_spec_grows_container
+   
+end module Test_VarSpecMod

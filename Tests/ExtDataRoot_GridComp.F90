@@ -30,6 +30,7 @@ MODULE ExtDataUtRoot_GridCompMod
       type :: timeVar
          type(ESMF_Time) :: refTime
          character(len=10) :: timeUnits
+         integer :: climYear
       contains
          procedure :: initTime
          procedure :: evaluateTime
@@ -177,6 +178,7 @@ MODULE ExtDataUtRoot_GridCompMod
          real(REAL64), allocatable :: ak(:),bk(:)
          integer :: ls,im,jm,lm,nx,ny,nrows, ncolumn,i
          type(ESMF_Grid) :: grid
+         type(ESMF_Time) :: currTime
          type(SyntheticFieldSupportWrapper) :: synthWrap
          type(SyntheticFieldSupport), pointer :: synth => null()
          character(len=ESMF_MaxStr) :: key, keyVal
@@ -191,11 +193,13 @@ MODULE ExtDataUtRoot_GridCompMod
          call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,status)
          _VERIFY(status)
          synth => synthWrap%ptr
+         call ESMF_ClockGet(Clock,currTime=currTime,rc=status)
+         _VERIFY(STATUS)
 
          call ESMF_ConfigGetDim(cf,nrows,ncolumn,label="FILL_DEF::",rc=status)
-         _VERIFY(status)
-         call ESMF_ConfigFindLabel(cf,label="FILL_DEF::",rc=status)
          if (status==ESMF_SUCCESS) then
+            call ESMF_ConfigFindLabel(cf,label="FILL_DEF::",rc=status)
+            _VERIFY(status)
             do i=1,nrows
                call ESMF_ConfigNextLine(cf,rc=status)
                _VERIFY(status)
@@ -204,7 +208,7 @@ MODULE ExtDataUtRoot_GridCompMod
                call synth%fillDefs%insert(trim(key),trim(keyVal))
             enddo
          end if
-         call synth%tFunc%initTime(cf,rc=status)
+         call synth%tFunc%initTime(cf,currTime,rc=status)
          _VERIFY(status)
 
          call ESMF_ConfigGetAttribute(cf,value=synth%runMode,label="RUN_MODE:",rc=status)
@@ -226,7 +230,6 @@ MODULE ExtDataUtRoot_GridCompMod
          _VERIFY(STATUS)
          !if (jm == 6*im) call GetWeights_init(6,1,IM,IM,LM,NX,NY,.true.,.false.,MPI_COMM_WORLD)
 
-         call register_grid()
          call MAPL_GridCreate(GC, rc=status)
          _VERIFY(STATUS)
          call ESMF_GridCompGet(GC, grid=grid, rc=status)
@@ -274,8 +277,12 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_State), intent(inout) :: EXPORT     ! Export State
          integer, intent(out) ::  rc                   ! Error return code:
 
+         type (ESMF_GridComp),      pointer  :: GCS(:)
+         type (ESMF_State),         pointer  :: GIM(:)
+         type (ESMF_State),         pointer  :: GEX(:)
+
          character(len=ESMF_MAXSTR)    :: Iam
-         integer                       :: STATUS
+         integer                       :: STATUS,i
          type(MAPL_MetaComp), pointer :: MAPL
          character(len=ESMF_MAXSTR)    :: comp_name
          type(SyntheticFieldSupportWrapper) :: synthWrap
@@ -295,6 +302,8 @@ MODULE ExtDataUtRoot_GridCompMod
          Iam = trim(comp_name) // '::' // trim(Iam)
 
          call MAPL_GetObjectFromGC ( GC, MAPL, RC=STATUS )
+         _VERIFY(STATUS)
+         call MAPL_Get ( MAPL, GCS=GCS, GIM=GIM, GEX=GEX,rc=status)
          _VERIFY(STATUS)
          call MAPL_Get ( MAPL, internal_esmf_state=internal, cf=cf, RC=STATUS )
          _VERIFY(STATUS)
@@ -323,42 +332,10 @@ MODULE ExtDataUtRoot_GridCompMod
 
          end select
 
-
-!  All done
 !  --------
          _RETURN(ESMF_SUCCESS)
 
       END SUBROUTINE Run_
-
-      subroutine register_grid()
-         use MAPL_GridManagerMod, only: grid_manager
-         use CubedSphereGridFactoryMod, only: CubedSphereGridFactory
-         use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
-         use MAPL_RegridderManagerMod, only: regridder_manager
-         use MAPL_RegridderSpecMod, only: REGRID_METHOD_BILINEAR
-         use LatLonToCubeRegridderMod
-         use MAPL_LatLonToLatLonRegridderMod
-         use CubeToLatLonRegridderMod
-         use CubeToCubeRegridderMod
-
-         type (CubedSphereGridFactory) :: factory
-         type (LatLonGridFactory) :: ll_factory
-
-         type (CubeToLatLonRegridder) :: cube_to_latlon_prototype
-         type (LatLonToCubeRegridder) :: latlon_to_cube_prototype
-         type (CubeToCubeRegridder) :: cube_to_cube_prototype
-         type (LatLonToLatLonRegridder) :: latlon_to_latlon_prototype
-
-         call grid_manager%add_prototype('Cubed-Sphere',factory)
-         call grid_manager%add_prototype('LatLon',ll_factory)
-         associate (method => REGRID_METHOD_BILINEAR, mgr => regridder_manager)
-            call mgr%add_prototype('Cubed-Sphere', 'LatLon', method, cube_to_latlon_prototype)
-            call mgr%add_prototype('LatLon', 'Cubed-Sphere', method, latlon_to_cube_prototype)
-            call mgr%add_prototype('Cubed-Sphere', 'Cubed-Sphere', method, cube_to_cube_prototype)
-            call mgr%add_prototype('LatLon', 'LatLon', method, latlon_to_latlon_prototype)
-         end associate
-
-   end subroutine register_grid
 
    subroutine AddState(gc,cf,stateType,rc)
       type(ESMF_GridComp), intent(inout) :: gc
@@ -411,28 +388,39 @@ MODULE ExtDataUtRoot_GridCompMod
 
    end subroutine AddState
 
-   subroutine initTime(this,cf,rc)
+   subroutine initTime(this,cf,currTime,rc)
       class(timeVar), intent(inout) :: this
       type(ESMF_Config), intent(inout) :: cf
+      type(ESMF_Time), intent(inout) :: currTime
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = 'initTime'
       integer :: status
+      logical :: isPresent
 
       integer :: datetime(2), yy,mm,dd,mn,hh,ss
 
-      call ESMF_ConfigGetAttribute(cf,datetime,label='REF_TIME:',rc=status)
-      _VERIFY(status)
-      YY =     datetime(1)/10000
-      MM = mod(datetime(1),10000)/100
-      DD = mod(datetime(1),100)
-      HH =     datetime(2)/10000
-      MN = mod(datetime(2),10000)/100
-      SS = mod(datetime(2),100)
-      call ESMF_TimeSet(this%refTime,yy=yy,mm=mm,dd=dd,h=hh,m=mn,s=ss,rc=status)
-      _VERIFY(status)
+      call ESMF_ConfigFindLabel(cf,'REF_TIME:',isPresent=isPresent,rc=status)
+      if (isPresent) then
+         call ESMF_ConfigGetAttribute(cf,datetime,label='REF_TIME:',rc=status)
+         _VERIFY(status)
+         YY =     datetime(1)/10000
+         MM = mod(datetime(1),10000)/100
+         DD = mod(datetime(1),100)
+         HH =     datetime(2)/10000
+         MN = mod(datetime(2),10000)/100
+         SS = mod(datetime(2),100)
+         call ESMF_TimeSet(this%refTime,yy=yy,mm=mm,dd=dd,h=hh,m=mn,s=ss,rc=status)
+         _VERIFY(status)
+      else
+         this%refTime=currTime
+      end if
       call ESMF_ConfigGetAttribute(cf,this%timeUnits,label='TIME_UNITS:',default='days',rc=status)
       _VERIFY(status)
+
+      call ESMF_ConfigGetAttribute(cf,this%climYear,label='CLIM_YEAR:',default=-1,rc=status)
+      _VERIFY(status)
+      _RETURN(_SUCCESS)
 
    end subroutine initTime
 
@@ -445,8 +433,17 @@ MODULE ExtDataUtRoot_GridCompMod
       character(len=*), parameter :: Iam='evaluateTime'
       integer :: status
 
-      type(ESMF_TimeInterval) :: timeInterval
+      type(ESMF_TimeInterval) :: timeInterval, yearInterval
+      integer :: ycurr,yint
 
+      if (this%climYear > 0) then
+         call ESMF_TimeGet(currTime,yy=ycurr,rc=status)
+         _VERIFY(status)
+         yint=this%climYear-ycurr
+         call ESMF_TimeIntervalSet(yearInterval,yy=yint,rc=status)
+         _VERIFY(status)
+         currTime = currTime+yearInterval
+      end if
       timeInterval = currTime - this%refTime
       status=ESMF_FAILURE
       select case(trim(this%timeUnits))
@@ -492,7 +489,7 @@ MODULE ExtDataUtRoot_GridCompMod
       _VERIFY(status)
       call ESMF_StateGet(outState,itemNameList=outNameList,__RC__)
 
-      ASSERT_(itemCountIn == itemCountOut)
+      _ASSERT(itemCountIn == itemCountOut,'needs informative message')
       call ESMF_StateGet(inState,itemNameList=inNameList,__RC__)
       do i=1,itemCountIn
          call ESMF_StateGet(inState,trim(inNameList(i)),impf,__RC__)
@@ -577,11 +574,13 @@ MODULE ExtDataUtRoot_GridCompMod
       real, pointer                       :: ptr2_2(:,:) => null()
       integer :: itemcount,rank1,rank2
       character(len=ESMF_MAXSTR), allocatable :: NameList(:)
+      logical, allocatable :: foundDiff(:)
       type(ESMF_Field) :: Field1,Field2
-      logical :: foundDiff
     
       call ESMF_StateGet(State1,itemcount=itemCount,__RC__)
          allocate(NameList(itemCount),stat=status)
+         _VERIFY(status)
+         allocate(foundDiff(itemCount),stat=status)
          _VERIFY(status)
          call ESMF_StateGet(State1,itemNameList=NameList,__RC__)
          do ii=1,itemCount
@@ -589,15 +588,15 @@ MODULE ExtDataUtRoot_GridCompMod
             call ESMF_StateGet(State2,trim(nameList(ii)),field2,__RC__)
             call ESMF_FieldGet(field1,rank=rank1,__RC__)
             call ESMF_FieldGet(field1,rank=rank2,__RC__)
-            ASSERT_(rank1==rank2)
-            foundDiff=.false.
+            _ASSERT(rank1==rank2,'needs informative message')
+            foundDiff(ii)=.false.
             if (rank1==2) then
                call MAPL_GetPointer(state1,ptr2_1,trim(nameList(ii)),__RC__)
                call MAPL_GetPointer(state2,ptr2_2,trim(nameList(ii)),__RC__)
                do i=1,size(ptr2_1,1) 
                   do j=1,size(ptr2_1,2)
                      if (abs(ptr2_1(i,j)-ptr2_2(i,j)) .gt. tol) then
-                        foundDiff=.true.
+                        foundDiff(ii)=.true.
                         exit
                      end if
                   enddo
@@ -609,14 +608,16 @@ MODULE ExtDataUtRoot_GridCompMod
                   do j=1,size(ptr3_1,2) 
                      do k=1,size(ptr3_1,3)
                         if (abs(ptr3_1(i,j,k)-ptr3_2(i,j,k)) .gt. tol) then
-                           foundDiff=.true.
+                           foundDiff(ii)=.true.
                            exit
                         end if
                      enddo
                   enddo
                enddo
             end if
-            if (foundDiff) write(*,*)'found diff for ',trim(nameList(ii)) 
+            if (foundDiff(ii)) then 
+               _ASSERT(.false.,'found difference when compare state')
+            end if
          enddo
          
          _RETURN(ESMF_SUCCESS)
@@ -635,22 +636,27 @@ MODULE ExtDataUtRoot_GridCompMod
          integer       :: ii
          integer :: itemcount,dims
          character(len=ESMF_MAXSTR), allocatable :: NameList(:)
+         type (ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
          type(ESMF_Field) :: Field
 
          call ESMF_StateGet(State,itemcount=itemCount,__RC__)
          allocate(NameList(itemCount),stat=status)
          _VERIFY(status)
-         call ESMF_StateGet(State,itemNameList=NameList,__RC__)
+         allocate(itemTypeList(itemCount),stat=status)
+         _VERIFY(status)
+         call ESMF_StateGet(State,itemNameList=NameList,itemTypeList=itemTypeList,__RC__)
          if (itemCount == 0) then
             _RETURN(ESMF_SUCCESS)
          end if
          do ii=1,itemCount
-            call ESMF_StateGet(State,trim(nameList(ii)),field,__RC__)
-            call ESMF_AttributeGet(field,name='DIMS',value=dims,__RC__)
-            if (dims==MAPL_DimsHorzOnly) then
-               call MAPL_GetPointer(state,ptr2d,trim(nameList(ii)),alloc=.true.,__RC__)
-            else if (dims==MAPL_DimsHorzVert) then
-               call MAPL_GetPointer(state,ptr3d,trim(nameList(ii)),alloc=.true.,__RC__)
+            if (itemTypeList(ii)==ESMF_STATEITEM_FIELD) then
+               call ESMF_StateGet(State,trim(nameList(ii)),field,__RC__)
+               call ESMF_AttributeGet(field,name='DIMS',value=dims,__RC__)
+               if (dims==MAPL_DimsHorzOnly) then
+                  call MAPL_GetPointer(state,ptr2d,trim(nameList(ii)),alloc=.true.,__RC__)
+               else if (dims==MAPL_DimsHorzVert) then
+                  call MAPL_GetPointer(state,ptr3d,trim(nameList(ii)),alloc=.true.,__RC__)
+               end if
             end if
          enddo
          _RETURN(ESMF_SUCCESS)

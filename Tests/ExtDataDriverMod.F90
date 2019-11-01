@@ -13,7 +13,7 @@ module ExtDataDriverMod
    use ESMFL_Mod
    use MAPL_ShmemMod
    use MAPL_CFIOServerMod
-   use MAPL_CFIOMod, only: ioc, init_cfio
+   use MAPL_ioClientsMod
    use ExtData_DriverGridCompMod, only: ExtData_DriverGridComp, new_ExtData_DriverGridComp
    use MAPL_ConfigMod
    use PFIO
@@ -54,11 +54,10 @@ contains
       driver%set_services => set_services
    end function newExtDataDriver
 
-   subroutine run(this,options,CommIn, RC)
+   subroutine run(this,options, RC)
 
       class(ExtDataDriver), intent(inout) :: this
       type (command_line_interface), intent(inout) :: options
-      integer,       optional, intent(IN ) :: CommIn
       integer,       optional, intent(OUT) :: rc
 
       type(ESMF_Config)            :: config
@@ -75,29 +74,28 @@ contains
 
       type(ExtData_DriverGridComp), target :: cap
 
-      integer :: lineCount, columnCount,i
+      integer :: lineCount, columnCount,i,rank
       character(len=ESMF_MAXSTR) :: ctemp
       character(len=:), pointer :: cname
       type(StringVector) :: cases
       type(StringVectorIterator) :: iter   
 
 !  Server stuff
-      type(MPIserver), target :: i_server
+      type(MPIserver), pointer :: i_server => null()
+      type(MPIserver), pointer :: o_server => null()
       type(DirectoryService), target :: directory_service
 
-      CommCap = MPI_COMM_WORLD
+      type(ClientThread), pointer :: clientPtr => null()
+
       call this%parse_command_line_arguments(options,rc=status)
       _VERIFY(status)
 
-      if (.not.present(CommIn)) then
-         call mpi_init_thread(MPI_THREAD_MULTIPLE,mpi_thread_support,status)
-!call mpi_init(status)
-         _VERIFY(STATUS) 
-      end if
+      call mpi_init(status)
+       _VERIFY(STATUS) 
+      CommCap = MPI_COMM_WORLD
 
       call ESMF_Initialize (vm=vm, logKindFlag=this%esmf_logging_mode, mpiCommunicator=commCap, rc=status)
       _VERIFY(STATUS)
-
 
       directory_service = DirectoryService(CommCap)
 
@@ -119,10 +117,18 @@ contains
       call ESMF_ConfigDestroy(config, rc=status)
       _VERIFY(status)
 
-      i_server = mpiServer(commCap,'i_server')
-      call directory_service%publish(PortInfo('i_server',i_server),i_server)
-      call init_cfio()
-      call directory_service%connect_to_server('i_server', ioc, commCap)
+      allocate(i_server, source = MpiServer(commCap, 'i_server'))
+      call directory_service%publish(PortInfo('i_server',i_server), i_server)
+      allocate(o_server, source = MpiServer(commCap, 'o_server'))
+      call directory_service%publish(PortInfo('o_server',o_server), o_server)
+
+
+      call io_client%init_io_clients()
+      clientPtr => i_Clients%current()
+      call directory_service%connect_to_server('i_server', clientPtr, commCap)
+
+      clientPtr => o_Clients%current()
+      call directory_service%connect_to_server('o_server', clientPtr, commCap)
 
       iter = cases%begin()
       do while (iter /= cases%end())
@@ -144,7 +150,8 @@ contains
          call iter%next()
       enddo
 
-      call ioc%terminate()
+      call i_Clients%terminate()
+      call o_Clients%terminate()
 
 
       call MPI_Barrier(CommCap,status)
@@ -152,17 +159,16 @@ contains
 !  Finalize framework
 !  ------------------
 
-      if (.not.present(CommIn)) then   
-#if 0
-!ALT due to a bug in MAPL (or in the garbage collection of ESMF_VMFinalize)
-!we have to bypass next line
-         call ESMF_Finalize (RC=status)
-         _VERIFY(STATUS)
-#else
-         call mpi_finalize(status)
-         _VERIFY(STATUS)
-#endif
-      end if
+     call MPI_Comm_Rank(CommCap,rank,status)
+     _VERIFY(status)
+     if (rank==0) then
+        close(99)
+        open(99,file='egress',form='formatted')
+        close(99)
+     end if
+     
+      call mpi_finalize(status)
+      _VERIFY(STATUS)
 
       _RETURN(ESMF_SUCCESS)
 

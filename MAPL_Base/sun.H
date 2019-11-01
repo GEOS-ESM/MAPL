@@ -54,7 +54,7 @@
          else
             call ESMF_ClockGet(ORBIT%CLOCK, currTime=CURRENTTIME, RC=STATUS)
          end if
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       end if
 
       if (ORBIT%FIX_SUN) then
@@ -67,7 +67,7 @@
 
          call ESMF_TimeGet(CURRENTTIME, YY=YEAR, S=SEC_OF_DAY, &
               dayOfYear=DAY_OF_YEAR, RC=STATUS)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
 
       if (ORBIT%FIX_SUN) then
          TIME_=10
@@ -141,7 +141,7 @@
                AA  = ORBIT%PP(IDAYP1)*FAC + ORBIT%PP(IDAY)*(1.-FAC)
             else
                call GETIDAY(IDAY,TIME_,ORBIT,RC=STATUS)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
 
                ZS  = ORBIT%ZS(IDAY)
                ZC  = ORBIT%ZC(IDAY)
@@ -177,8 +177,8 @@
        else ! Return Time-Interval-Mean present(INTV)
 
          call ESMF_TimeIntervalGet (INTV, S_R8=SECS, rc=STATUS)
-         VERIFY_(STATUS)
-         
+         _VERIFY(STATUS)
+
          if(present(STEPSIZE)) then ! interval for integration
             NT = nint(SECS/STEPSIZE)
          else if(SECS>1500.) then
@@ -194,7 +194,7 @@
               StartTime = CURRENTTIME          , &
               StopTime  = CURRENTTIME + INTV   , &
               rc        = STATUS                 )
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
 
          SLR = 0.0
          ZTH = 0.0
@@ -209,7 +209,7 @@
 
          call MAPL_SunGetInsolation( LONS, LATS, ORBIT, ZTT, SLT, &
               CLOCK=MYCLOCK, TIME=TIME, DIST=DD, RC=STATUS)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
 
          if(present(ZTH1)) ZTH1 = max(ZTT,0.0)
 
@@ -228,11 +228,11 @@
             if(present(DIST)) DIST = DIST + 0.5*DD
 
             call ESMF_ClockAdvance    ( MYCLOCK, RC=STATUS )
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
 
             call MAPL_SunGetInsolation( LONS, LATS, ORBIT, ZTT, SLT, &
                  CLOCK=MYCLOCK, TIME=TIME, ZTHB=ZTB, ZTHD=ZTD, DIST=DD, RC=STATUS)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
 
             SLR = SLR +     SLT*0.5
             ZTH = ZTH + ZTT*SLT*0.5
@@ -270,10 +270,10 @@
          if(present(DIST)) DIST = DIST/dble(NT)
 
          call ESMF_ClockDestroy(myclock, rc=STATUS)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
 
       endif MEAN_OR_INST
 
 
-      RETURN_(ESMF_SUCCESS)
+      _RETURN(ESMF_SUCCESS)
 
