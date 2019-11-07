@@ -4336,7 +4336,7 @@ CONTAINS
 
      if (trim(item%fileVDir)=="down") then
         do i=1,lm_in
-           ptrF(:,:,lm_out-lm_in+1)=ptrR(:,:,i)
+           ptrF(:,:,lm_out-lm_in+i)=ptrR(:,:,i)
         enddo
      else if (trim(item%fileVDir)=="up") then
         do i=1,lm_in
@@ -4346,11 +4346,11 @@ CONTAINS
   else if (trim(item%importVDir)=="up") then
      if (trim(item%fileVDir)=="down") then
         do i=1,lm_in
-           ptrF(:,:,i)=ptrR(:,:,i)
+           ptrF(:,:,lm_in-i+1)=ptrR(:,:,i)
         enddo
      else if (trim(item%fileVDir)=="up") then
         do i=1,lm_in
-           ptrF(:,:,lm_out-i+1)=ptrR(:,:,i)
+           ptrF(:,:,i)=ptrR(:,:,i)
         enddo
      end if
   end if
