@@ -71,7 +71,7 @@ set (srcs
   FileMetadataUtilities.F90 FileMetadataUtilitiesVector.F90
   )
 
-esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4)
+esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 FLAP::FLAP)
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
@@ -94,8 +94,8 @@ esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})
 endif()
 
 #--------------------
-target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF} ${INC_FLAP})
-target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${LIB_FLAP})
+target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF})
+target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES})
 
 #--------------------
 # Copy include files that are used by other libraries.
