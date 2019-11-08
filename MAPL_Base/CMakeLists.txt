@@ -71,7 +71,9 @@ set (srcs
   FileMetadataUtilities.F90 FileMetadataUtilitiesVector.F90
   )
 
-esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 FLAP::FLAP)
+# Until FLAP's find_package() is fixed we have to handle the library by hand.
+#esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 FLAP::FLAP)
+esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4)
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
@@ -94,8 +96,9 @@ esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})
 endif()
 
 #--------------------
-target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF})
-target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES})
+# MAT When FLAP find_package() is fixed, the two FLAP entries below should be removed
+target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF} ${FLAP_INCLUDE_DIR})
+target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${FLAP_LIBRARIES})
 
 #--------------------
 # Copy include files that are used by other libraries.
