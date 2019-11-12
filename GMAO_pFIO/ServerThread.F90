@@ -37,7 +37,6 @@ module pFIO_ServerThreadMod
    use pFIO_AbstractDataMessageMod
    use pFIO_PrefetchDataMessageMod
    use pFIO_CollectivePrefetchDataMessageMod
-   use pFIO_WaitRequestDataMessageMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
    use pFIO_ModifyMetadataMessageMod
@@ -94,7 +93,6 @@ module pFIO_ServerThreadMod
       procedure :: handle_CollectivePrefetchData
       procedure :: handle_StageData
       procedure :: handle_CollectiveStageData
-      procedure :: handle_WaitRequestData
       procedure :: handle_ModifyMetadata
       procedure :: handle_HandShake
 
@@ -262,7 +260,7 @@ contains
 
       select type (q=>msg)
       type is (PrefetchDataMessage)
-
+          _ASSERT(.false., "please use done_prefetch")
           mem_data_reference=LocalMemReference(q%type_kind,q%count)
 
           call this%get_DataFromFile(q,mem_data_reference%base_address, status)
@@ -275,6 +273,7 @@ contains
 
       type is (CollectivePrefetchDataMessage)
 
+         _ASSERT(.false., "please use done_collective_prefetch")
          this%there_is_collective_request = .true.
 
          _ASSERT(associated(this%containing_server), "need server")
@@ -329,6 +328,7 @@ contains
 
       type is (StageDataMessage)
 
+         _ASSERT(.false., "please use done_stage")
          handle => this%get_RequestHandle(q%request_id)
          call handle%wait()
 
@@ -338,7 +338,7 @@ contains
          call this%request_backlog%erase(iter)
 
       type is (CollectiveStageDataMessage)
-
+         _ASSERT(.false., "please use done_collective_stage")
          if (.not. all(this%containing_server%serverthread_done_msgs)) then
             _RETURN(_SUCCESS)
          endif
@@ -762,22 +762,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine handle_ModifyMetadata
-
-   subroutine handle_WaitRequestData(this, message, rc)
-      class (ServerThread), target, intent(inout) :: this
-      type (WaitRequestDataMessage), intent(in) :: message
-      integer, optional, intent(out) :: rc
-      integer :: status
-      class (AbstractRequestHandle), pointer :: handle
- 
-      handle => this%get_RequestHandle(message%request_id)
-      call handle%wait()
-      call handle%data_reference%deallocate(rc=status)
-      _VERIFY(status)
-      call this%erase_RequestHandle(message%request_id)
-
-      _RETURN(_SUCCESS)
-   end subroutine handle_WaitRequestData
 
    subroutine handle_HandShake(this, message, rc)
       class (ServerThread), target, intent(inout) :: this

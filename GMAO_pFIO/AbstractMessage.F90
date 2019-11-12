@@ -18,7 +18,6 @@ module pFIO_AbstractMessageMod
    public :: ADDEXTCOLLECTION_ID
    public :: ADDHISTCOLLECTION_ID
    public :: ID_ID
-   public :: WAITREQUESTDATA_ID
    public :: PrefetchData_ID
    public :: StageData_ID
    public :: COLLECTIVEPrefetchData_ID
@@ -37,7 +36,6 @@ module pFIO_AbstractMessageMod
       enumerator :: ADDEXTCOLLECTION_ID
       enumerator :: ADDHISTCOLLECTION_ID
       enumerator :: ID_ID
-      enumerator :: WAITREQUESTDATA_ID
       enumerator :: PrefetchData_ID
       enumerator :: COLLECTIVEPrefetchData_ID
       enumerator :: StageData_ID

@@ -23,7 +23,6 @@ module pFIO_MockClientThreadMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectivePrefetchDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
-   use pFIO_WaitRequestDataMessageMod
    use pFIO_ModifyMetadataMessageMod
    use pFIO_StringVariableMapMod
    use pFIO_ClientThreadMod

@@ -61,7 +61,6 @@ ecbuild_add_executable (
 set_target_properties(${EXE} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 target_link_libraries(${EXE} pFIO_tests ${ESMF_LIBRARIES})
 
-
 set(MPI_NPES 8)
 
 if (CMAKE_SYSTEM_NAME STREQUAL Darwin)
@@ -69,7 +68,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL Darwin)
 endif()
 
 add_test(NAME pFIO_tests_unit
-  COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${MPI_NPES} ${MPIEXEC_PREFLAGS} ./${EXE} ${MPIEXEC_POSTFLAGS}
+  COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${MPI_NPES} ${MPIEXEC_PREFLAGS} ${CMAKE_BINARY_DIR}/bin/${EXE} ${MPIEXEC_POSTFLAGS}
   )
 
 set(TESTO pfio_ctest_io.x)
@@ -87,15 +86,15 @@ target_link_libraries(${TESTO} GMAO_pFIO ${ESMF_LIBRARIES})
 set(TESTO_FLAGS
   -nc 6 -nsi 6 -nso 6 -ngo 1 -ngi 1 -v T,U )
 add_test(NAME pFIO_tests_mpi
-  COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ./${TESTO} ${TESTO_FLAGS} -s mpi
+  COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_BINARY_DIR}/bin/${TESTO} ${TESTO_FLAGS} -s mpi
   )
 
 add_test(NAME pFIO_tests_simple
-  COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 24 ${MPIEXEC_PREFLAGS} ./${TESTO} ${TESTO_FLAGS} -s simple
+  COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 24 ${MPIEXEC_PREFLAGS} ${CMAKE_BINARY_DIR}/bin/${TESTO} ${TESTO_FLAGS} -s simple
   )
 
 add_test(NAME pFIO_tests_hybrid
-  COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ./${TESTO} ${TESTO_FLAGS} -s hybrid
+  COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_BINARY_DIR}/bin/${TESTO} ${TESTO_FLAGS} -s hybrid
   )
 
 set(TESTPERF pfio_performance.x)

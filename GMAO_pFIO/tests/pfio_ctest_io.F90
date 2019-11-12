@@ -11,11 +11,11 @@ module ctest_io_CLI
    implicit none
    private
 
-   public :: CommandLineOptions
+   public :: CommandLineOptions0
    public :: process_command_line
    public :: DirectoryServicePointer
  
-   type CommandLineOptions
+   type CommandLineOptions0
       character(len=:), allocatable :: file_1, file_2
       type (StringVector) :: requested_variables
 
@@ -28,7 +28,7 @@ module ctest_io_CLI
 
       logical :: debug
       character(len=:),allocatable :: server_type ! 'mpi' or 'openmp'
-   end type CommandLineOptions
+   end type CommandLineOptions0
 
    type DirectoryServicePointer
      class(AbstractDirectoryService),pointer :: dsPtr=>null()
@@ -41,7 +41,7 @@ contains
    ! The following procedure parses the command line to find various
    ! arguments for file names, target grid resolution, etc.
    subroutine process_command_line(options, rc)
-      type (CommandLineOptions), intent(inout) :: options
+      type (CommandLineOptions0), intent(inout) :: options
       integer, optional, intent(out) :: rc
 
       integer :: n_args
@@ -138,7 +138,7 @@ contains
 
 end module ctest_io_CLI
 
-module FakeHistDataMod
+module FakeHistData0Mod
    use pFIO_ErrorHandlingMod
    use ctest_io_CLI
    use pFIO
@@ -147,14 +147,14 @@ module FakeHistDataMod
    implicit none
    private
 
-   public :: FakeHistData
+   public :: FakeHistData0
 
    type FakeBundle
       real(kind=REAL32), allocatable :: x(:,:,:,:,:)
       integer :: request_id
    end type FakeBundle
 
-   type FakeHistData
+   type FakeHistData0
       type (ClientThread) :: i_c
       type (ClientThread) :: o_c
       type (ClientThreadVector) :: ic_vec
@@ -184,15 +184,15 @@ module FakeHistDataMod
       procedure :: run
       procedure :: finalize
 
-   end type FakeHistData
+   end type FakeHistData0
 
 contains
    
 
    subroutine init(this, options, comms,app_ds, N_iclient_g, N_oclient_g, rc)
       use pFIO_StringIntegerMapMod
-      class (FakeHistData),target, intent(inout) :: this
-      type (CommandLineOptions), intent(in) :: options
+      class (FakeHistData0),target, intent(inout) :: this
+      type (CommandLineOptions0), intent(in) :: options
       integer, intent(in), dimension(:) :: comms
       class(AbstractDirectoryService), target,intent(inout) :: app_ds
       integer, intent(in) :: N_iclient_g, N_oclient_g
@@ -294,7 +294,7 @@ contains
    end subroutine init
 
    subroutine run(this, step, rc)
-      class (FakeHistData), target, intent(inout) :: this
+      class (FakeHistData0), target, intent(inout) :: this
       integer, intent(in) :: step
       integer, optional, intent(out) :: rc
 
@@ -425,7 +425,7 @@ contains
 
 
    subroutine finalize(this)
-      class (FakeHistData), intent(inout) :: this
+      class (FakeHistData0), intent(inout) :: this
       integer :: ierror
       class(ClientThread), pointer :: icPtr=>null()
       class(ClientThread), pointer :: ocPtr=>null()
@@ -442,7 +442,7 @@ contains
       !call this%o_c%terminate()
    end subroutine finalize
 
-end module FakeHistDataMod
+end module FakeHistData0Mod
 
 program main
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -450,7 +450,7 @@ program main
    use pFIO
    use ctest_io_CLI
    use pFIO_ErrorHandlingMod
-   use FakeHistDataMod
+   use FakeHistData0Mod
    use pFIO_ThrowMod
    implicit none
 
@@ -460,7 +460,7 @@ program main
    class(BaseServer),allocatable :: iserver,oserver
    class(AbstractDirectoryService), allocatable, target :: directory_service
 
-   type (CommandLineOptions) :: options
+   type (CommandLineOptions0) :: options
    integer, parameter :: NO_COLOR     = 0
    integer, parameter :: iSERVER_COLOR = 1
    integer, parameter :: oSERVER_COLOR = 4
@@ -468,7 +468,7 @@ program main
    integer, parameter :: BOTH_COLOR    = 3
 
    integer :: comm,num_threads
-   type (FakeHistData), target :: HistData
+   type (FakeHistData0), target :: HistData
 
    integer :: my_comm_world, my_iComm, my_oComm, my_appcomm
 
@@ -640,16 +640,16 @@ program main
    if ( rank == 0) then
       do md_id = 1, 2
          out_file = 'test_out'//i_to_string(md_id)//'.nc4'
-         call execute_command_line('diff test_in.nc4 '//trim(out_file), exitstat = status )
+         call execute_command_line('/usr/bin/diff test_in.nc4 '//trim(out_file), exitstat = status )
          if (status == 0) then
             print*, 'test_in.nc4 and '//trim(out_file)//' are the same and thus removed'
-            call execute_command_line('rm -f '//trim(out_file))
+            call execute_command_line('/bin/rm -f '//trim(out_file))
          else
             print*, 'test_in.nc4 and '//trim(out_file)//' differ'
             stop 1
          endif
       enddo
-      call execute_command_line('rm -f test_in.nc4')
+      call execute_command_line('/bin/rm -f test_in.nc4')
    endif
 
    call MPI_finalize(ierror)

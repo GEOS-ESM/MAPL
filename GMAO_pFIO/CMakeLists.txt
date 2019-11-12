@@ -45,10 +45,7 @@ set (srcs
   DummyMessage.F90
   HandShakeMessage.F90
   AddExtCollectionMessage.F90
-  #CollectionIdMessage.F90
   IDMessage.F90
-  #RequestIdMessage.F90
-  WaitRequestDataMessage.F90
   AbstractDataMessage.F90
   AbstractCollectiveDataMessage.F90
   PrefetchDataMessage.F90

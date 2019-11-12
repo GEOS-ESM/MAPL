@@ -17,7 +17,6 @@ module pFIO_ProtocolParserMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectivePrefetchDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
-   use pFIO_WaitRequestDataMessageMod
    use pFIO_ModifyMetadataMessageMod
    use pFIO_HandShakeMessageMod
    use pFIO_DummyMessageMod
@@ -63,7 +62,6 @@ contains
       type (AddExtCollectionMessage)  :: addExtCollection
       type (AddHistCollectionMessage) :: addHistCollection
       type (IdMessage):: IDid
-      type (WaitRequestDataMessage) :: WaitRequestData
       type (PrefetchDataMessage)    :: PrefetchData
       type (StageDataMessage) :: StageData
       type (CollectivePrefetchDataMessage) :: CollectivePrefetchData
@@ -83,7 +81,6 @@ contains
       call add_prototype(addExtCollection)
       call add_prototype(addHistCollection)
       call add_prototype(IDId)
-      call add_prototype(WaitRequestData)
       call add_prototype(PrefetchData)
       call add_prototype(CollectivePrefetchData)
       call add_prototype(StageData)
