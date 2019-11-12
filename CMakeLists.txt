@@ -39,6 +39,6 @@ endif ()
 
 # Git transition defect:
 # Uncomment the line below once the dev branch of MAPL has been brought in.
-#add_subdirectory (Tests)
+add_subdirectory (Tests)
 
 ecbuild_install_project (NAME MAPL)

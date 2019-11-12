@@ -127,7 +127,6 @@ endif ()
 #--------------------
 include_directories (${INC_ESMF})
 include_directories (${INC_gFTL})
-include_directories (${INC_FLAP})
 include_directories (${INC_NETCDF})
 
 #--------------------

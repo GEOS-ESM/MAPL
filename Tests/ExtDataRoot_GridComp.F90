@@ -230,7 +230,6 @@ MODULE ExtDataUtRoot_GridCompMod
          _VERIFY(STATUS)
          !if (jm == 6*im) call GetWeights_init(6,1,IM,IM,LM,NX,NY,.true.,.false.,MPI_COMM_WORLD)
 
-         call register_grid()
          call MAPL_GridCreate(GC, rc=status)
          _VERIFY(STATUS)
          call ESMF_GridCompGet(GC, grid=grid, rc=status)
@@ -278,8 +277,12 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_State), intent(inout) :: EXPORT     ! Export State
          integer, intent(out) ::  rc                   ! Error return code:
 
+         type (ESMF_GridComp),      pointer  :: GCS(:)
+         type (ESMF_State),         pointer  :: GIM(:)
+         type (ESMF_State),         pointer  :: GEX(:)
+
          character(len=ESMF_MAXSTR)    :: Iam
-         integer                       :: STATUS
+         integer                       :: STATUS,i
          type(MAPL_MetaComp), pointer :: MAPL
          character(len=ESMF_MAXSTR)    :: comp_name
          type(SyntheticFieldSupportWrapper) :: synthWrap
@@ -299,6 +302,8 @@ MODULE ExtDataUtRoot_GridCompMod
          Iam = trim(comp_name) // '::' // trim(Iam)
 
          call MAPL_GetObjectFromGC ( GC, MAPL, RC=STATUS )
+         _VERIFY(STATUS)
+         call MAPL_Get ( MAPL, GCS=GCS, GIM=GIM, GEX=GEX,rc=status)
          _VERIFY(STATUS)
          call MAPL_Get ( MAPL, internal_esmf_state=internal, cf=cf, RC=STATUS )
          _VERIFY(STATUS)
@@ -327,42 +332,10 @@ MODULE ExtDataUtRoot_GridCompMod
 
          end select
 
-
-!  All done
 !  --------
          _RETURN(ESMF_SUCCESS)
 
       END SUBROUTINE Run_
-
-      subroutine register_grid()
-         use MAPL_GridManagerMod, only: grid_manager
-         use CubedSphereGridFactoryMod, only: CubedSphereGridFactory
-         use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
-         use MAPL_RegridderManagerMod, only: regridder_manager
-         use MAPL_RegridderSpecMod, only: REGRID_METHOD_BILINEAR
-         use LatLonToCubeRegridderMod
-         use MAPL_LatLonToLatLonRegridderMod
-         use CubeToLatLonRegridderMod
-         use CubeToCubeRegridderMod
-
-         type (CubedSphereGridFactory) :: factory
-         type (LatLonGridFactory) :: ll_factory
-
-         type (CubeToLatLonRegridder) :: cube_to_latlon_prototype
-         type (LatLonToCubeRegridder) :: latlon_to_cube_prototype
-         type (CubeToCubeRegridder) :: cube_to_cube_prototype
-         type (LatLonToLatLonRegridder) :: latlon_to_latlon_prototype
-
-         call grid_manager%add_prototype('Cubed-Sphere',factory)
-         call grid_manager%add_prototype('LatLon',ll_factory)
-         associate (method => REGRID_METHOD_BILINEAR, mgr => regridder_manager)
-            call mgr%add_prototype('Cubed-Sphere', 'LatLon', method, cube_to_latlon_prototype)
-            call mgr%add_prototype('LatLon', 'Cubed-Sphere', method, latlon_to_cube_prototype)
-            call mgr%add_prototype('Cubed-Sphere', 'Cubed-Sphere', method, cube_to_cube_prototype)
-            call mgr%add_prototype('LatLon', 'LatLon', method, latlon_to_latlon_prototype)
-         end associate
-
-   end subroutine register_grid
 
    subroutine AddState(gc,cf,stateType,rc)
       type(ESMF_GridComp), intent(inout) :: gc
@@ -663,22 +636,27 @@ MODULE ExtDataUtRoot_GridCompMod
          integer       :: ii
          integer :: itemcount,dims
          character(len=ESMF_MAXSTR), allocatable :: NameList(:)
+         type (ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
          type(ESMF_Field) :: Field
 
          call ESMF_StateGet(State,itemcount=itemCount,__RC__)
          allocate(NameList(itemCount),stat=status)
          _VERIFY(status)
-         call ESMF_StateGet(State,itemNameList=NameList,__RC__)
+         allocate(itemTypeList(itemCount),stat=status)
+         _VERIFY(status)
+         call ESMF_StateGet(State,itemNameList=NameList,itemTypeList=itemTypeList,__RC__)
          if (itemCount == 0) then
             _RETURN(ESMF_SUCCESS)
          end if
          do ii=1,itemCount
-            call ESMF_StateGet(State,trim(nameList(ii)),field,__RC__)
-            call ESMF_AttributeGet(field,name='DIMS',value=dims,__RC__)
-            if (dims==MAPL_DimsHorzOnly) then
-               call MAPL_GetPointer(state,ptr2d,trim(nameList(ii)),alloc=.true.,__RC__)
-            else if (dims==MAPL_DimsHorzVert) then
-               call MAPL_GetPointer(state,ptr3d,trim(nameList(ii)),alloc=.true.,__RC__)
+            if (itemTypeList(ii)==ESMF_STATEITEM_FIELD) then
+               call ESMF_StateGet(State,trim(nameList(ii)),field,__RC__)
+               call ESMF_AttributeGet(field,name='DIMS',value=dims,__RC__)
+               if (dims==MAPL_DimsHorzOnly) then
+                  call MAPL_GetPointer(state,ptr2d,trim(nameList(ii)),alloc=.true.,__RC__)
+               else if (dims==MAPL_DimsHorzVert) then
+                  call MAPL_GetPointer(state,ptr3d,trim(nameList(ii)),alloc=.true.,__RC__)
+               end if
             end if
          enddo
          _RETURN(ESMF_SUCCESS)

@@ -167,15 +167,8 @@ contains
         close(99)
      end if
      
-#if 0
-!ALT due to a bug in MAPL (or in the garbage collection of ESMF_VMFinalize)
-!we have to bypass next line
-      call ESMF_Finalize (RC=status)
-      _VERIFY(STATUS)
-#else
       call mpi_finalize(status)
       _VERIFY(STATUS)
-#endif
 
       _RETURN(ESMF_SUCCESS)
 
