@@ -2906,7 +2906,7 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             else
-               list(n)%unit = GETFILE( trim(filename(n)))
+               list(n)%unit = GETFILE( trim(filename(n)),all_pes=.true.)
             end if
          end if
 

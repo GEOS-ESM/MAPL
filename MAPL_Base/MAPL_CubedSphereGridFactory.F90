@@ -190,7 +190,7 @@ contains
       integer :: i,nTile
       integer, allocatable :: ims(:,:), jms(:,:)
       real(kind=ESMF_KIND_R8), pointer :: lats(:,:),lons(:,:)
-      type(ESMF_CS_Arguments) :: transformArgument
+      type(ESMF_CubedSphereTransform_Args) :: transformArgument
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
 
@@ -223,7 +223,7 @@ contains
             grid = ESMF_GridCreateCubedSPhere(this%im_world,countsPerDEDim1PTile=ims, &
                       countsPerDEDim2PTile=jms ,name=this%grid_name, &
                       staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, & 
-                      transformArgument=transformArgument,rc=status)
+                      transformArgs=transformArgument,rc=status)
             _VERIFY(status)
             call ESMF_AttributeSet(grid, name='STRETCH_FACTOR', value=this%stretch_factor,rc=status)
             _VERIFY(status)
