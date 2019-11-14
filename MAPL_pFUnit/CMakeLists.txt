@@ -13,6 +13,6 @@ include_directories (${INC_ESMF})
 include_directories (${INC_NETCDF})
 include_directories (${PFUNIT_INCLUDE_DIRS})
 
-target_link_libraries (${this} ${ESMF_LIBRARIES} ${PFUNIT_LIBRARIES})
+target_link_libraries (${this} ${ESMF_LIBRARIES} pfunit)
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
