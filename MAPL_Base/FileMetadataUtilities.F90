@@ -17,6 +17,7 @@ module MAPL_FileMetadataUtilsMod
    private
       character(len=:), allocatable :: filename 
    contains
+      procedure :: create
       procedure :: get_coordinate_info
       procedure :: get_variable_attribute
       procedure :: get_time_units
@@ -40,6 +41,15 @@ module MAPL_FileMetadataUtilsMod
       metadata_utils%filename = fName
       
    end function new_FilemetadataUtils
+
+   subroutine create(this,metadata,fname)
+      class(FileMetadataUtils), intent(inout) :: this
+      type (FileMetadata), intent(in) :: metadata
+      character(len=*), intent(in) :: fName
+      this%Filemetadata = metadata
+      this%filename = fName
+   end subroutine create
+
 
    subroutine get_time_units(this,startTime,startyear,startmonth,startday,starthour,startmin,startsec,units,rc)
       class (FileMetadataUtils), intent(inout) :: this

@@ -67,7 +67,6 @@ contains
        if (this%metadatas%size() >= MAX_FORMATTERS) then
           metadata => this%metadatas%front()
           call this%metadatas%erase(this%metadatas%begin())
-          !deallocate(metadata)
           nullify(metadata)
 
           iter = this%file_ids%begin()
@@ -97,7 +96,8 @@ contains
        _VERIFY(status)
        call formatter%close(rc=status)
        _VERIFY(status)
-       metadata = FileMetadataUtils(basic_metadata,file_name)
+       !metadata = FileMetadataUtils(basic_metadata,file_name)
+       call metadata%create(basic_metadata,file_name)
        call this%metadatas%push_back(metadata)
        deallocate(metadata)
        metadata => this%metadatas%back()
