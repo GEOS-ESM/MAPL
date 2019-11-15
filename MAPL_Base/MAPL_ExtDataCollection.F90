@@ -96,7 +96,6 @@ contains
        _VERIFY(status)
        call formatter%close(rc=status)
        _VERIFY(status)
-       !metadata = FileMetadataUtils(basic_metadata,file_name)
        call metadata%create(basic_metadata,file_name)
        call this%metadatas%push_back(metadata)
        deallocate(metadata)
