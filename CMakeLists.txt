@@ -32,7 +32,7 @@ add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 add_subdirectory (GMAO_pFIO)
 add_subdirectory (MAPL_Base)
 
-if (PFUNIT)
+if (PFUNIT_FOUND)
   add_subdirectory (MAPL_pFUnit EXCLUDE_FROM_ALL)
 endif ()
 
