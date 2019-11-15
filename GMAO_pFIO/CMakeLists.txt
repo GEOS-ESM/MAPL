@@ -45,10 +45,7 @@ set (srcs
   DummyMessage.F90
   HandShakeMessage.F90
   AddExtCollectionMessage.F90
-  #CollectionIdMessage.F90
   IDMessage.F90
-  #RequestIdMessage.F90
-  WaitRequestDataMessage.F90
   AbstractDataMessage.F90
   AbstractCollectiveDataMessage.F90
   PrefetchDataMessage.F90
@@ -147,7 +144,7 @@ endif ()
 
 
 # Unit testing
-if (PFUNIT)
-  add_subdirectory(tests)
+if (PFUNIT_FOUND)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 

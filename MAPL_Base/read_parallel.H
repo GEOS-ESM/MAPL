@@ -120,7 +120,17 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
               else;    read(USABLE_UNIT, *, IOSTAT=IOSTAT) DATA
               end if
            elseif(FORMATTED == "NO") then
-	      read(USABLE_UNIT, IOSTAT=IOSTAT) DATA
+#if (RANK_ == 2)
+              block
+                 integer :: dim2,i
+                 dim2 = size(data,2)
+                 do i = 1, dim2
+	                 read(USABLE_UNIT, IOSTAT=IOSTAT) DATA(:,i)
+                 enddo
+              end block
+#else
+	           read(USABLE_UNIT, IOSTAT=IOSTAT) DATA
+#endif
            end if
 #if (RANK_ == 1 && VARTYPE_ == 4)
            if (iostat /= 0) then
@@ -152,7 +162,7 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
      call MAPL_CommsBcast(layout, data, 1, MAPL_Root, status)
 #endif
 #else
-     call MAPL_CommsBcast(layout, data, size(data), MAPL_Root, status)
+     call MAPL_CommsBcast(layout, data, product(shape(data)), MAPL_Root, status)
 #endif
      _VERIFY(status)
 

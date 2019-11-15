@@ -16,7 +16,6 @@ module pFIO_MessageVisitorMod
    use pFIO_CollectivePrefetchDataMessageMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
-   use pFIO_WaitRequestDataMessageMod
    use pFIO_TerminateMessageMod
    use pFIO_DummyMessageMod
    use pFIO_HandShakeMessageMod
@@ -44,7 +43,6 @@ module pFIO_MessageVisitorMod
       procedure :: handle_StageData
       procedure :: handle_CollectivePrefetchData
       procedure :: handle_CollectiveStageData
-      procedure :: handle_WaitRequestData   
       procedure :: handle_Terminate
       procedure :: handle_ModifyMetadata
       procedure :: handle_HandShake
@@ -61,7 +59,6 @@ module pFIO_MessageVisitorMod
       generic :: handle_cmd => handle_CollectivePrefetchData
       generic :: handle_cmd => handle_StageData
       generic :: handle_cmd => handle_CollectiveStageData
-      generic :: handle_cmd => handle_WaitRequestData
       generic :: handle_cmd => handle_Terminate
       generic :: handle_cmd => handle_ModifyMetadata
       generic :: handle_cmd => handle_HandShake
@@ -114,9 +111,6 @@ contains
         call this%handle_cmd(cmd,rc=status)
         _VERIFY(status)
       type is (CollectiveStageDataMessage)
-        call this%handle_cmd(cmd,rc=status)
-        _VERIFY(status)
-      type is (WaitRequestDataMessage)
         call this%handle_cmd(cmd,rc=status)
         _VERIFY(status)
       type is (ModifyMetadataMessage)
@@ -253,15 +247,6 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_StageData
-
-   subroutine handle_WaitRequestData(this, message, rc)
-      class (MessageVisitor), target, intent(inout) :: this
-      type (WaitRequestDataMessage), intent(in) :: message
-      integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_WaitRequestData should not be called")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(message)
-   end subroutine handle_WaitRequestData
 
    subroutine handle_ModifyMetadata(this, message, rc)
       class (MessageVisitor), intent(inout) :: this

@@ -368,7 +368,7 @@ contains
     integer                           :: UNIT
     integer                           :: N, I, K, L, NT
     type(MAPL_LocStreamType), pointer :: STREAM
-    real,    pointer                  :: AVR(:,:)
+    real,    pointer                  :: AVR(:,:), AVR_transpose(:,:)
     logical, pointer                  :: MSK(:)
     real                              :: X, Y, X0, Y0, XE, DX, DY
     integer                           :: II, JJ
@@ -483,14 +483,20 @@ contains
 
 ! Read location stream file into AVR
 !---------------------------------------
-
-       allocate(AVR(NT,NumGlobalVars+NumLocalVars*STREAM%N_GRIDS), STAT=STATUS)
-       _VERIFY(STATUS)
-
-       do I=1, NT
-          call READ_PARALLEL(layout, AVR(I,:), unit=UNIT, rc=status)
+       if(index(STREAM%TILING(1)%NAME,'EASE') /=0 ) then
+          allocate(AVR(NT,9), STAT=STATUS) ! 9 columns for EASE grid
           _VERIFY(STATUS)
-       end do
+          allocate(AVR_transpose(9,NT))
+       else
+          allocate(AVR(NT,NumGlobalVars+NumLocalVars*STREAM%N_GRIDS), STAT=STATUS)
+          _VERIFY(STATUS)
+          allocate(AVR_transpose(NumGlobalVars+NumLocalVars*STREAM%N_GRIDS,NT), STAT=STATUS)
+          _VERIFY(STATUS)
+       endif
+
+       call READ_PARALLEL(layout, AVR_transpose(:,:), unit=UNIT, rc=status)
+       AVR= transpose(AVR_transpose)
+       deallocate(AVR_transpose)
 
        ! adjust EASE grid starting index.  Internally, the starting index is 1 instead of 0. 
        do N=1,STREAM%N_GRIDS
