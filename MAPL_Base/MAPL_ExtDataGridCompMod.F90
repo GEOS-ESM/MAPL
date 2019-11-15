@@ -2043,11 +2043,13 @@ CONTAINS
         logical                    :: found,lFound,intOK
         integer                    :: maxOffset
         character(len=:), allocatable :: levname
-        character(len=:), pointer :: positive => null()
+        character(len=:), pointer :: positive 
         type(FileMetadataUtils), pointer :: metadata
         type(ESMF_Grid) :: fileGrid
 
         type(ESMF_TimeInterval)    :: zero
+
+        positive=>null()
 
         call ESMF_TimeIntervalSet(zero,__RC__)
 
@@ -2129,7 +2131,7 @@ CONTAINS
            if (item%havePressure) then
               if (levFile(1)>levFile(size(levFile))) item%fileVDir="up"
            else
-              positive = metadata%get_variable_attribute(levName,'positive',__RC__)
+              positive => metadata%get_variable_attribute(levName,'positive',__RC__)
               if (associated(positive)) then
                  if (trim(positive)=='up') item%fileVDir="up"
               end if

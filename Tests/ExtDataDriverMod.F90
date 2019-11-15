@@ -118,7 +118,6 @@ contains
       call ESMF_ConfigDestroy(config, rc=status)
       _VERIFY(status)
 
-      write(*,*)'bma get name ',this%split_comm%get_name()
       select case(this%split_comm%get_name())
       case('model')
          iter = cases%begin()
