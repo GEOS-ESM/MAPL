@@ -476,6 +476,7 @@ program main
    integer :: local_rank, local_size, i,k, size_iclient, size_oclient
    integer :: app_start_rank, app_end_rank
    character(len = 20) :: out_file
+   character(len = 100):: cmd
    integer :: N_iclient_group, N_oclient_group,N_groups
    integer,allocatable :: local_comm_world(:), app_comms(:)
    integer :: md_id
@@ -639,8 +640,11 @@ program main
 
    if ( rank == 0) then
       do md_id = 1, 2
+         cmd=''
          out_file = 'test_out'//i_to_string(md_id)//'.nc4'
-         call execute_command_line('/usr/bin/diff test_in.nc4 '//trim(out_file), exitstat = status )
+         cmd = '/usr/bin/diff test_in.nc4 '//trim(out_file)
+         print*, "execute_command_line: ", cmd
+         call execute_command_line(trim(cmd), exitstat = status )
          if (status == 0) then
             print*, 'test_in.nc4 and '//trim(out_file)//' are the same and thus removed'
             call execute_command_line('/bin/rm -f '//trim(out_file))
