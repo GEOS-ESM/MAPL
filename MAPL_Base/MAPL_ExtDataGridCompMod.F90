@@ -2172,9 +2172,13 @@ CONTAINS
      else if (trim(buffer) == 'single') then
 
         _RETURN(ESMF_SUCCESS)
-     else if (trim(buffer) == 'y') then
+     else if (trim(buffer) == 'y' .or. trim(buffer) == 'd') then
 
-        item%cyclic = "y"
+        if (trim(buffer) == 'y') then
+            item%cyclic = "y"
+        else if (trim(buffer) == 'd') then
+            item%cyclic = "d"
+        endif
 
         call ESMF_TimeIntervalSet(zero,__RC__)
 
@@ -2370,10 +2374,12 @@ CONTAINS
      type(ESMF_Time)                            :: newTime
      integer                                    :: curDate,curTime,n,tindex
      integer(ESMF_KIND_I4)                      :: iyr, imm, idd, ihr, imn, isc, oldYear
+     integer(ESMF_KIND_I4)                      :: cYear, cMonth
      integer(ESMF_KIND_I4)                      :: fyr, fmm, fdd, fhr, fmn, fsc
      type(ESMF_TimeInterval)                    :: zero
      type(ESMF_Time)                            :: fTime
      logical                                    :: UniFileClim
+     logical                                    :: UniFileDOW
      type(ESMF_Time)                            :: readTime
 
      ! Allow for extrapolation.. up to a limit
@@ -2404,6 +2410,8 @@ CONTAINS
         ! but it was marked as cyclic we must have a year long climatology
         ! on one file, set UniFileClim to true
         if (trim(item%cyclic)=='y') UniFileClim = .true.
+        ! If file is constant and marked as DOW, set UniFileDOW to true
+        UniFileDOW = (trim(item%cyclic)=='d')
         file_processed = item%file
         ! Generate CFIO if needed
         call MakeCFIO(file_processed,item%collection_id,xCFIO,rc=status)
@@ -2416,7 +2424,7 @@ CONTAINS
            end if
            _RETURN(ESMF_FAILURE)
         end if
-        call GetBracketTimeOnSingleFile(xCFIO,xTSeries,cTime,bSide,UniFileClim,interpTime,fileTime,tindex,allowExtrap,item%climYear,rc=status)
+        call GetBracketTimeOnSingleFile(xCFIO,xTSeries,cTime,bSide,UniFileClim,UniFileDOW,interpTime,fileTime,tindex,allowExtrap,item%climYear,rc=status)
         if (status /= ESMF_SUCCESS) then
            if (mapl_am_I_root()) Then
               write(*,'(a,a,a,a)') ' ERROR: Bracket timing request failed on fixed file ',trim(item%file),' for side ',bSide
@@ -2439,6 +2447,11 @@ CONTAINS
            call ESMF_TimeGet(cTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
            yrOffset = item%climYear - iyr
            call OffsetTimeYear(cTime,yrOffset,fTime,rc)
+        elseif (trim(item%cyclic)=='d') then
+           ! Forbidden
+           Write(*,'(a,a,a)') 'ERROR: Day-of-week scaling factors must be given in a single file, but ',&
+              Trim(file_processed),' uses a refresh template'
+           _ASSERT(.False.,'needs informative message')
         else
            yrOffset = 0
            if (item%reff_time > cTime) then
@@ -2919,12 +2932,13 @@ CONTAINS
 
   end subroutine OffsetTimeYear
 
-  subroutine GetBracketTimeOnSingleFile(cfio,tSeries,cTime,bSide,UniFileClim,interpTime,fileTime,tindex,allowExtrap,climyear,rc)
+  subroutine GetBracketTimeOnSingleFile(cfio,tSeries,cTime,bSide,UniFileClim,UniFileDOW,interpTime,fileTime,tindex,allowExtrap,climyear,rc)
      type(ESMF_CFIO),                     intent(in   ) :: cfio
      type(ESMF_Time),                     intent(in   ) :: tSeries(:)
      type(ESMF_Time),                     intent(inout) :: cTime
      character(len=1),                    intent(in   ) :: bSide
      logical,                             intent(in   ) :: UniFileClim
+     logical,                             intent(in   ) :: UniFileDOW
      type(ESMF_TIME),                     intent(inout) :: interpTime
      type(ESMF_TIME),                     intent(inout) :: fileTime
      integer,                             intent(inout) :: tindex
@@ -2942,6 +2956,8 @@ CONTAINS
      logical                            :: LSide, RSide
      integer                            :: yrOffset, yrOffsetNeg, targYear
      integer                            :: iEntry
+     integer                            :: yrAdjust, yCentury, yRem, TargDOW
+     integer                            :: monthOffset
      type(ESMF_Time), allocatable       :: tSeriesC(:)
      logical                            :: foundYear
      integer                            :: tSteps, curYear
@@ -2951,10 +2967,63 @@ CONTAINS
      yrOffset=0
      call ESMF_TimeGet(cTime,yy=targYear,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
 
-     ! Debug output
-     If (Mapl_Am_I_Root().and.(Ext_Debug > 15)) Then
-        Write(6,'(a,a)') ' DEBUG: GetBracketTimeOnSingleFile called for ', trim(cfio%fName)
-     End If
+     ! If getting DOW, get the target day of the week
+     If (UniFileDOW) Then
+        ! DOW calculator
+        ! Tested for Jan 1st 1000 AD through Dec 31st 2199
+        ! Gives Sunday = 0 and Saturday = 6
+        yrAdjust = targYear
+        if (imm .lt. 3) yrAdjust = yrAdjust - 1
+        yCentury = floor(real(yrAdjust)/100.0)
+        yRem = yrAdjust - (yCentury*100)
+        targDOW = idd + floor(2.6*(real(mod(imm-3,12)+1)) - 0.2) - 2*yCentury + yRem + floor(real(yRem)/4.0) + floor(real(yCentury/4.0))
+        targDOW = mod(targDOW,7)
+        ! Fortran will allow a negative DOW
+        if (targDOW < 0) targDOW = targDOW + 7
+        ! Different behavior for different brackets
+        LSide = (bSide == "L")
+        If (LSide) Then
+           ! Straight-forward
+           call ESMF_TimeSet(interpTime,yy=targYear,mm=imm,dd=idd,h=0,m=0,s=0,__RC__)
+        Else
+           ! Change DOW to be the next day
+           targDOW = targDOW + 1
+           if (targDOW > 6) targDOW = targDOW - 7
+           ! Also set the target date to be the next day
+           call ESMF_TimeSet(interpTime,yy=targYear,mm=imm,dd=idd+1,h=0,m=0,s=0,__RC__)
+           ! Tricky: increasing the day may put us into a new month, so retrieve
+           ! the target month from the updated time
+           call ESMF_TimeGet(interpTime,yy=targYear,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+        End If
+        ! Do we have an individual set for each month?
+        if (cfio%tSteps == 7) then
+           monthOffset = 0
+        elseif (cfio%tSteps == 84) then
+           ! Separate scaling factors for each month
+           monthOffset = ((imm-1)*7)
+        else
+           write(*,'(a,a,a,I5)') ' ERROR: DOW files must have either 7 or 84 entries but ',trim(cfio%fname),' contains ', cfio%tSteps
+           rc = ESMF_FAILURE
+           return
+        end if
+        iEntry = targDOW + 1 + monthOffset
+        fileTime = tSeries(iEntry)
+        tindex = iEntry
+        if (Mapl_Am_I_Root().and.(Ext_Debug > 0)) then
+           write(*,'(a,I4,a,I4,4(a))') '               GetBracketTimeOnSingleFile: Reading data for DOW ',targDOW,' (entry ', iEntry, ') into bracket ', trim(bSide)
+           write(*,'(a,a)') &
+              '                  ==> File: ', trim(cfio%fName)
+           call ESMF_TimeGet(fileTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+           write(*,'(a,I0.2,a,I0.2,a)') &
+              '                  ==> Data from: month ', iMm, ', day-of-week ', iDd, ' (01=Sunday)'
+           call ESMF_TimeGet(interpTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+           write(*,'(a,I0.4,a,I0.2,a,I0.2,a,I0.2,a,I0.2)') &
+              '                  ==> Mapped to: ', iYr, '-', iMm, '-', iDd, &
+              ' ', iHr, ':', iMn
+        end if
+        rc = esmf_success
+        return
+     end if
 
      ! debugging
      if (Mapl_Am_I_Root().and.(Ext_Debug > 0)) then
