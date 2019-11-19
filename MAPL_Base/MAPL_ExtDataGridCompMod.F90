@@ -85,6 +85,7 @@
      integer                      :: Trans
      real                         :: scale, offset
      logical                      :: do_offset, do_scale
+     logical                      :: levPosAttrUp = .false.
      character(len=ESMF_MAXSTR)   :: var
      character(len=ESMF_MAXPATHLEN)   :: file
      logical                      :: hasFileReffTime
@@ -2174,11 +2175,23 @@ CONTAINS
         call ESMF_CFIOGridGet   (CFIOGRID,lev=levFile,levUnit=item%levUnit,__RC__)
         allocate(item%levs(size(levFile)),__STAT__)
 
-        if (levFile(1)>levFile(size(levFile))) then
+        if ( cfio%vdir > 0 ) then
+           item%levPosAttrUp = .true.
+        endif
+
+        ! Level 1 is defined as TOA in MAPL. Flip imports with first level
+        ! greater than last level in lev array, e.g. [72,71,...,1],
+        ! or if positive attribute 'up' (ewl, 11/1/19)
+        if ( (levFile(1)>levFile(size(levFile))).or.(item%levPosAttrUp) ) then
            item%flip = .true.
            do i=1,size(levFile)
               item%levs(i)=levFile(size(levFile)-i+1)
            enddo
+
+           if ( Ext_Debug > 0 .and. mapl_am_i_root()) then
+              print *, "GetLevs: Flipping lev dimension for PrimaryExport ", &
+                       trim(item%name), ' with # levels: ', size(levFile)
+           endif
         else
            item%levs=levFile
         end if
@@ -3404,20 +3417,20 @@ CONTAINS
            _VERIFY(STATUS)
            call MAPL_ExtDataGetBracket(ExtState,item,filec,Field,rc=status)
            _VERIFY(STATUS)
-           call MAPL_ExtDataFillField(field,newfield,rc=status)
+           call MAPL_ExtDataFillField(field,newfield,item,rc=status)
            _VERIFY(STATUS)
         else if (item%vartype == MAPL_ExtDataVectorItem) then
            call MAPL_ExtDataGetBracket(ExtState,item,filec,newField,getRL=.true.,vcomp=1,rc=status)
            _VERIFY(STATUS)
            call MAPL_ExtDataGetBracket(ExtState,item,filec,Field,vcomp=1,rc=status)
            _VERIFY(STATUS)
-           call MAPL_ExtDataFillField(field,newfield,rc=status)
+           call MAPL_ExtDataFillField(field,newfield,item,rc=status)
            _VERIFY(STATUS)
            call MAPL_ExtDataGetBracket(ExtState,item,filec,newField,getRL=.true.,vcomp=2,rc=status)
            _VERIFY(STATUS)
            call MAPL_ExtDataGetBracket(ExtState,item,filec,Field,vcomp=2,rc=status)
            _VERIFY(STATUS)
-           call MAPL_ExtDataFillField(field,newfield,rc=status)
+           call MAPL_ExtDataFillField(field,newfield,item,rc=status)
            _VERIFY(STATUS)
         end if
      end if
@@ -4334,10 +4347,11 @@ CONTAINS
 
   end subroutine MAPL_ExtDataGetBracket
 
-  subroutine MAPL_ExtDataFillField(FieldF,FieldR,rc)
+  subroutine MAPL_ExtDataFillField(FieldF,FieldR,item,rc)
 
   type(ESMF_Field), intent(inout) :: FieldF
   type(ESMF_Field), intent(inout) :: FieldR
+  type(PrimaryExport), intent(inout) :: item
   integer, optional, intent(out)  :: rc
 
   character(len=ESMF_MAXSTR) :: Iam
@@ -4345,6 +4359,7 @@ CONTAINS
 
   real, pointer :: ptrF(:,:,:),ptrR(:,:,:)
   integer :: lm_in,lm_out,i
+  integer :: lb_in,lb_out,ub_in,ub_out
 
   Iam = "MAPL_ExtDataFillField"
 
@@ -4354,13 +4369,34 @@ CONTAINS
   _VERIFY(STATUS)
   ptrF = 0.0
   lm_in= size(ptrR,3)
+  lb_in=lbound(ptrR,3)
+  ub_in=ubound(ptrR,3)
   lm_out = size(ptrF,3)
+  lb_out=lbound(ptrF,3)
+  ub_out=ubound(ptrF,3)
+
   do i=1,lm_in
-     ptrF(:,:,lm_out-i+1)=ptrR(:,:,i)
+     if ( item%levPosAttrUp ) then
+        ! if positive attribute present and 'up' then do not flip during fill;
+        ! flip will be done later on 72-level array in MAPL_ExtDataFlipVertical.
+        ptrF(:,:,ub_out-lm_in+i)=ptrR(:,:,lb_in+i-1)
+     else
+        ! if positive attribute missing or not up, flip the array during fill
+        ! for compatibility with GCHP. This default behavior will result in
+        ! mishandling of reduced level files in GEOS and is GCHP-only.
+        !ptrF(:,:,lm_out-i+1)=ptrR(:,:,i)
+        ptrF(:,:,ub_out-i+1)=ptrR(:,:,lb_in+i-1)
+     endif
   enddo
 
+  ! debugging
+  if ( Ext_Debug > 0 .and. mapl_am_i_root() ) then
+     write(*,'(2(a,I4),3a,6(x,I4))') '   --> MAPL_ExtDataFillField: filling ', lm_in, ' level input to ', lm_out, ' levels for ', &
+          trim(item%name), ' with bounds', lb_in, ub_in, lb_out, ub_out
+  endif
+
   _RETURN(ESMF_SUCCESS)
-  
+
   end subroutine MAPL_ExtDataFillField
 
   subroutine MAPL_ExtDataFlipVertical(ExtState,item,filec,rc)
@@ -4375,7 +4411,8 @@ CONTAINS
       type(ESMF_Field) :: Field,field1,field2
       real, pointer    :: ptr(:,:,:)
       real, allocatable :: ptemp(:,:,:)
-      integer :: i,lm
+      integer :: i,lm,lb,ub
+
 
       if (item%flip) then
 
@@ -4394,12 +4431,16 @@ CONTAINS
             allocate(ptemp,source=ptr,stat=status)
             _VERIFY(status)
             lm = size(ptr,3)
-            ptr(:,:,lm:1:-1) = ptemp(:,:,1:lm:+1)
+            lb = lbound(ptr,3)
+            ub = ubound(ptr,3)
+            !ptr(:,:,lm:1:-1) = ptemp(:,:,1:lm:+1)
+            ptr(:,:,ub:lb:-1) = ptemp(:,:,lb:ub:+1)
 
             call ESMF_FieldGet(Field2,0,farrayPtr=ptr,rc=status)
             _VERIFY(STATUS)
             ptemp=ptr
-            ptr(:,:,lm:1:-1) = ptemp(:,:,1:lm:+1)
+            !ptr(:,:,lm:1:-1) = ptemp(:,:,1:lm:+1)
+            ptr(:,:,ub:lb:-1) = ptemp(:,:,lb:ub:+1)
 
             deallocate(ptemp)
 
@@ -4416,8 +4457,17 @@ CONTAINS
             allocate(ptemp,source=ptr,stat=status)
             _VERIFY(status)
             lm = size(ptr,3)
-            ptr(:,:,lm:1:-1) = ptemp(:,:,1:lm:+1)
+            lb = lbound(ptr,3)
+            ub = ubound(ptr,3)
+            !ptr(:,:,lm:1:-1) = ptemp(:,:,1:lm:+1)
+            ptr(:,:,ub:lb:-1) = ptemp(:,:,lb:ub:+1)
             deallocate(ptemp)
+         end if
+
+         ! debugging
+         if ( Ext_Debug > 0 .and. mapl_am_i_root() ) then
+            write(*,'(3a,2(x,I4))') '   --> MAPL_ExtDataFlipVertical: vertically flipping all levels for ', &
+               trim(item%name), ' with bounds', lb, ub
          end if
 
       end if
