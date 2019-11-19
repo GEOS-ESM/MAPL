@@ -2966,7 +2966,6 @@ CONTAINS
 
      yrOffset=0
      ! Store the target time which was actually requested
-     yrOffset=0
      call ESMF_TimeGet(cTime,yy=targYear,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
 
      ! If getting DOW, get the target day of the week
