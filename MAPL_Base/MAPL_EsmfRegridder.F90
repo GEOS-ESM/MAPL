@@ -121,9 +121,9 @@ contains
 
       if (HasDE) q_out = p_dst
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
       
       _RETURN(ESMF_SUCCESS)
