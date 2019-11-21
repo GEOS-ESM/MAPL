@@ -27,8 +27,6 @@ module MAPL_ExtData_IOBundleMod
      character(:), allocatable :: file_name
      integer :: time_index
      integer :: fraction
-     logical :: distributed_trans = .false.
-     logical :: parallel_skip
      integer :: metadata_coll_id
      integer :: server_coll_id
      type(newCFIOItemVector) :: items
@@ -37,6 +35,8 @@ module MAPL_ExtData_IOBundleMod
      
      procedure :: clean
      procedure :: make_cfio
+     procedure :: assign
+     generic :: assignment(=) => assign
   end type ExtData_IoBundle
   
 
@@ -71,7 +71,6 @@ contains
     io_bundle%fraction = fraction
     io_bundle%template = trim(template)
 
-    io_bundle%parallel_skip = .false.
     io_bundle%metadata_coll_id=metadata_coll_id
     io_bundle%server_coll_id=server_coll_id
     io_bundle%items=items
@@ -85,7 +84,7 @@ contains
     integer, optional, intent(out) :: rc
 
      __Iam__('clean')
-    call ESMF_FieldBundleDestroy(this%pbundle, __RC__)
+    call ESMF_FieldBundleDestroy(this%pbundle, noGarbage=.true.,__RC__)
     
      _RETURN(ESMF_SUCCESS)
 
@@ -107,6 +106,26 @@ contains
      _RETURN(ESMF_SUCCESS)
 
    end subroutine make_cfio
+
+   subroutine assign(to,from)
+      class(ExtData_IOBundle), intent(out) :: to
+      type(ExtData_IOBundle), intent(in) :: from
+    
+    to%bracket_side = from%bracket_side
+    to%entry_index = from%entry_index
+    to%file_name = from%file_name
+    to%time_index = from%time_index
+    to%regrid_method = from%regrid_method
+    to%fraction = from%fraction
+    to%template = from%template
+
+    to%metadata_coll_id=from%metadata_coll_id
+    to%server_coll_id=from%server_coll_id
+    to%items=from%items 
+    to%pbundle=from%pbundle 
+    to%CFIO=from%CFIO 
+ 
+   end subroutine assign
 
 end module MAPL_ExtData_IOBundleMod
 

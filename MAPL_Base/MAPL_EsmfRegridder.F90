@@ -176,9 +176,9 @@ contains
 
       if (HasDE) q_out = p_dst
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
       
       _RETURN(ESMF_SUCCESS)
@@ -228,9 +228,9 @@ contains
 
       if (hasDE) q_out = p_dst
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -311,9 +311,9 @@ contains
 
       if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -394,9 +394,9 @@ contains
 
       if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -483,9 +483,9 @@ contains
  
       if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -577,9 +577,9 @@ contains
          _VERIFY(status)
       end if
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -671,9 +671,9 @@ contains
         _VERIFY(status)
      end if
 
-     call ESMF_FieldDestroy(src_field, rc=status)
+     call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
      _VERIFY(status)
-     call ESMF_FieldDestroy(dst_field, rc=status)
+     call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
      _VERIFY(status)
 
      _RETURN(ESMF_SUCCESS)
@@ -761,9 +761,9 @@ contains
          _VERIFY(status)
       end if
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -875,9 +875,9 @@ contains
          _VERIFY(status)
       end if
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -982,9 +982,9 @@ contains
         _VERIFY(status)
      end if
 
-     call ESMF_FieldDestroy(src_field, rc=status)
+     call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
      _VERIFY(status)
-     call ESMF_FieldDestroy(dst_field, rc=status)
+     call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
      _VERIFY(status)
 
      _RETURN(ESMF_SUCCESS)
@@ -1097,9 +1097,9 @@ contains
          _VERIFY(status)
       end if
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       deallocate(p_src)

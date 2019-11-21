@@ -883,10 +883,10 @@ module MAPL_newCFIOMod
      do i=1,numVars
         call ESMF_FieldBundleGet(this%input_bundle,trim(names(i)),field=field,rc=status)
         _VERIFY(status)
-        call ESMF_FieldDestroy(field,rc=status)
+        call ESMF_FieldDestroy(field,noGarbage=.true., rc=status)
         _VERIFY(status)
      enddo
-     call ESMF_FieldBundleDestroy(this%input_bundle,rc=status)
+     call ESMF_FieldBundleDestroy(this%input_bundle,noGarbage=.true.,rc=status)
      _VERIFY(status)
      _RETURN(_SUCCESS)
 
