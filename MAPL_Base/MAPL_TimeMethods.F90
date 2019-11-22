@@ -60,7 +60,6 @@ contains
     character(len=ESMF_MAXSTR) :: startTime,timeUnits
     type(ESMF_Time) :: currTime
     integer :: i1,i2,i3,i123,ipos1,ipos2,isc,imn,ihr,ifreq
-    character(4) :: c4
 
     call ESMF_CLockGet(this%clock,currTime=currTime,rc=status)
     _VERIFY(status)
