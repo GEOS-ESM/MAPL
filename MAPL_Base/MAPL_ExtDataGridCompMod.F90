@@ -1475,7 +1475,7 @@ CONTAINS
 
    call MAPL_TimerOn(MAPLSTATE,"--PRead")
    call MAPL_TimerOn(MAPLSTATE,"---CreateCFIO")
-   call MAPL_ExtDataCreateCFIO(IOBundles,self%distributed_trans, rc=status)
+   call MAPL_ExtDataCreateCFIO(IOBundles, rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---CreateCFIO")
 
@@ -2045,7 +2045,6 @@ CONTAINS
         character(len=:), allocatable :: levname
         character(len=:), pointer :: positive 
         type(FileMetadataUtils), pointer :: metadata
-        type(ESMF_Grid) :: fileGrid
 
         type(ESMF_TimeInterval)    :: zero
 
@@ -2084,7 +2083,6 @@ CONTAINS
 
         if (found) then
            call MakeMetadata(file,item%pfioCollection_id,metadata,__RC__)
-           call makeGridFromCollection(file,item%pfioCollection_id,fileGrid,__RC__)
         else
            if (allowExtrap .and. (item%cyclic == 'n') ) then
 
@@ -2106,7 +2104,6 @@ CONTAINS
                     ftime = ftime + item%frequency
                  else
                     call MakeMetadata(file,item%pfioCollection_id,metadata,__RC__)
-                    call makeGridFromCollection(file,item%pfioCollection_id,fileGrid,__RC__)
                  end if
               enddo
 
@@ -2694,21 +2691,6 @@ CONTAINS
         _RETURN(_SUCCESS)
 
      end subroutine makeMetadata
-
-     subroutine makeGridFromCollection(file,collection_id,grid,rc)
-        character(len=*), intent(in   ) :: file
-        integer, intent(in)                       :: collection_id
-        type(ESMF_Grid), intent(inout) :: grid
-        integer, optional,          intent(out  ) :: rc
-        type(MAPLExtDataCollection), pointer :: collection => null()
-
-        Collection => ExtDataCollections%at(collection_id)
-        grid = collection%src_grid
-        If (Mapl_Am_I_Root().and.(Ext_Debug > 9)) Then
-           Write(6,'(a,a)') ' DEBUG: Retrieving grid for: ', Trim(file)
-        End If
-
-     end subroutine makeGridFromCollection
 
      subroutine GetTimesOnFile(cfio,tSeries,rc)
         type(ESMF_CFIO)                           :: cfio
@@ -4481,9 +4463,8 @@ CONTAINS
 
   end subroutine MAPL_ExtDataPopulateBundle
 
-  subroutine MAPL_ExtDataCreateCFIO(IOBundles, distribute_trans, rc)
+  subroutine MAPL_ExtDataCreateCFIO(IOBundles, rc)
     type(IOBundleVector), target, intent(inout) :: IOBundles
-    logical, intent(in) :: distribute_trans
     integer, optional,      intent(out  ) :: rc
 
      type (IoBundleVectorIterator) :: bundle_iter
@@ -4493,13 +4474,7 @@ CONTAINS
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
         io_bundle => bundle_iter%get()
-        if (io_bundle%distributed_trans .and. &
-             any(io_bundle%regrid_method == [REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION, REGRID_METHOD_CONSERVE])) then
-           io_bundle%parallel_skip = .true.
-           io_bundle%regrid_method = -1
-        end if
         call io_bundle%make_cfio(__RC__)
-
         call bundle_iter%next()
      enddo
 
