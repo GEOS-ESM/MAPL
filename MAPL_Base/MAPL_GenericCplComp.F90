@@ -860,8 +860,20 @@ contains
 
           end select
 
-          STATE%ACCUM_COUNT(J) = 0.0
-          
+          STATE%ACCUM_COUNT(J) = 0
+          if (associated(STATE%ARRAY_COUNT(J)%PTR1C)) then
+             deallocate(STATE%ARRAY_COUNT(J)%PTR1C)
+             nullify(STATE%ARRAY_COUNT(J)%PTR1C)
+          end if
+          if (associated(STATE%ARRAY_COUNT(J)%PTR2C)) then
+             deallocate(STATE%ARRAY_COUNT(J)%PTR2C)
+             nullify(STATE%ARRAY_COUNT(J)%PTR2C)
+          end if
+          if (associated(STATE%ARRAY_COUNT(J)%PTR3C)) then
+             deallocate(STATE%ARRAY_COUNT(J)%PTR3C)
+             nullify(STATE%ARRAY_COUNT(J)%PTR3C)
+          end if
+
        end if
     end do
 
