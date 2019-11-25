@@ -73,17 +73,17 @@ contains
   
     ipos1=index(startTime,"-")
     ipos2=index(startTime,"-",back=.true.)
-    read(startTime(1:ipos1-1),'(i)')i1
-    read(startTime(ipos1+1:ipos2-1),'(i)')i2
-    read(startTime(ipos2+1:10),'(i)')i3
+    read(startTime(1:ipos1-1),'(i4)')i1
+    read(startTime(ipos1+1:ipos2-1),'(i2)')i2
+    read(startTime(ipos2+1:10),'(i2)')i3
     i123=10000*i1+100*i2+i3
     call v%add_attribute('begin_date',i123)
 
     ipos1=index(startTime,":")
     ipos2=index(startTime,":",back=.true.)
-    read(startTime(12:ipos1-1),'(i)')i1
-    read(startTime(ipos1+1:ipos2-1),'(i)')i2
-    read(startTime(ipos2+1:19),'(i)')i3
+    read(startTime(12:ipos1-1),'(i2)')i1
+    read(startTime(ipos1+1:ipos2-1),'(i2)')i2
+    read(startTime(ipos2+1:19),'(i2)')i3
     i123=10000*i1+100*i2+i3
     call v%add_attribute('begin_time',i123)
 
