@@ -16,7 +16,7 @@ if (NOT COMMAND esma) # build as standalone project
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
       )
   endif ()
-  set(SKIP_MANAGE_EXTERNALS ON CACHE BOOL "Set to skip manage externals step")
+  option (SKIP_MANAGE_EXTERNALS "Set to skip manage externals step" ON)
 
   list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/@cmake")
   include (esma)
