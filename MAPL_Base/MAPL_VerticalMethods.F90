@@ -4,7 +4,6 @@ module MAPL_VerticalDataMod
   use ESMF
   use MAPL_GenericMod
   use MAPL_BaseMod
-  use pFIO_IntegerVectorMod
   use pFIO
   use MAPL_AbstractRegridderMod
   use MAPL_ErrorHandlingMod

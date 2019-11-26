@@ -40,7 +40,6 @@ module MAPL_CFIOMod
   use MAPL_ConfigMod
   use MAPL_RegridderSpecMod
   use MAPL_MemUtilsMod
-  use pFIO_IntegerVectorMod
   use ESMF_CFIOCollectionVectorMod
   use ESMF_CFIOCollectionMod
   use PFIO

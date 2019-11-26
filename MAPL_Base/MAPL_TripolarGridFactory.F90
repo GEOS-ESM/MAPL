@@ -19,6 +19,7 @@ module MAPL_TripolarGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_KeywordEnforcerMod
    use ESMF
+   use pFIO
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -236,8 +237,6 @@ contains
 
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
-      use pFIO_FileMetadataMod
-      use pFIO_NetCDF4_FileFormatterMod
       use MAPL_KeywordEnforcerMod
 
       class (TripolarGridFactory), intent(inout)  :: this
@@ -855,7 +854,6 @@ contains
    end subroutine halo
       
    subroutine append_metadata(this, metadata)
-      use pFIO
       class (TripolarGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
 
@@ -866,7 +864,6 @@ contains
    end subroutine append_metadata
 
    function get_grid_vars(this) result(vars)
-      use pFIO
       class (TripolarGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
@@ -876,7 +873,6 @@ contains
    end function get_grid_vars
 
    subroutine append_variable_metadata(this,var)
-      use pFIO_VariableMod
       class (TripolarGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
    end subroutine append_variable_metadata

@@ -108,7 +108,7 @@ module MAPL_GenericMod
   use ESMFL_Mod
 
   use ESMF_CFIOMod, only: ESMF_CFIOStrTemplate
-  use pFIO_UtilitiesMod, only: i_to_string
+  use pFIO
   use pFIO_ClientManagerMod
   use MAPL_ioClientsMod, only: i_Clients, o_Clients
   use MAPL_BaseMod
@@ -7723,7 +7723,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
   
   subroutine print_resource(printrc, label, val, default)
-    use pFIO_StringVectorMod
     integer, intent(in) :: printrc
     character(len=*), intent(in) :: label
     class(*), intent(in) :: val

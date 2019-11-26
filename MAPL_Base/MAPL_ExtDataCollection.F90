@@ -1,16 +1,11 @@
 #include "pFIO_ErrLog.h"
 
 module MAPL_ExtDataCollectionMod
-  use pFIO_StringIntegerMapMod
-  use pFIO_NetCDF4_FileFormatterMod
-  use pFIO_FormatterPtrVectorMod
-  use pFIO_ConstantsMod
-  use pFIO_FileMetaDataMod
+  use pFIO
   use MAPL_FileMetadataUtilsVectorMod
   use MAPL_FileMetadataUtilsMod
   use MAPL_GridManagerMod
   use MAPL_AbstractGridFactoryMod
-  use pFIO_ErrorHandlingMod
   implicit none
   private
 
@@ -114,7 +109,7 @@ end module MAPL_ExtDataCollectionMod
 
 
 module MAPL_CollectionVectorMod
-   use pFIO_ThrowMod
+   use pFIO
    use MAPL_ExtDataCollectionMod
    
    ! Create a map (associative array) between names and pFIO_Attributes.

@@ -19,6 +19,7 @@ module MAPL_LatLonGridFactoryMod
    use MAPL_KeywordEnforcerMod
    use MAPL_ConstantsMod
    use ESMF
+   use pFIO
    use MAPL_CommsMod
    use MAPL_IOMod, only : GETFILE, FREE_FILE
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -649,7 +650,6 @@ contains
 
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
-      use pFIO
       use MAPL_KeywordEnforcerMod
       use MAPL_BaseMod, only: MAPL_DecomposeDim
 
@@ -1631,7 +1631,6 @@ contains
 
 
    subroutine append_metadata(this, metadata)
-      use pFIO
       use MAPL_ConstantsMod
       class (LatLonGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
@@ -1658,7 +1657,6 @@ contains
    end subroutine append_metadata
 
    function get_grid_vars(this) result(vars)
-      use pFIO
       class (LatLonGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
@@ -1668,7 +1666,6 @@ contains
    end function get_grid_vars
 
    subroutine append_variable_metadata(this,var)
-      use pFIO_VariableMod
       class (LatLonGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
    end subroutine append_variable_metadata
