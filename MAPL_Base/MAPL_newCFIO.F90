@@ -819,7 +819,6 @@ module MAPL_newCFIOMod
      _VERIFY(status)
      call ESMF_FieldBundleGet(this%output_bundle,grid=output_grid,rc=status)
      _VERIFY(status)
-     write(*,*)'bma grids ',filegrid==output_grid
      if (filegrid/=output_grid) then
         this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
