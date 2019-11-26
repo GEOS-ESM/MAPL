@@ -403,6 +403,7 @@ module MAPL_newCFIOMod
         real, pointer :: ptr3d(:,:,:),outptr3d(:,:,:)
         real, pointer :: ptr2d(:,:), outptr2d(:,:)
         real, allocatable, target :: ptr3d_inter(:,:,:)
+        type(ESMF_Grid) :: gridIn,gridOut
 
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
         _VERIFY(status)
@@ -430,6 +431,10 @@ module MAPL_newCFIOMod
            if (associated(ptr3d)) nullify(ptr3d)
         end if
 
+        call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
+        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
+        _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
         _VERIFY(status)
         call ESMF_FieldGet(field,rank=fieldRank,rc=status)
@@ -439,9 +444,13 @@ module MAPL_newCFIOMod
            _VERIFY(status)
            call MAPL_FieldGetPointer(OutField,outptr2d,rc=status)
            _VERIFY(status)
-           if (this%regrid_method==REGRID_METHOD_FRACTION) ptr2d=ptr2d-this%fraction
-           call this%regrid_handle%regrid(ptr2d,outPtr2d,rc=status)
-           _VERIFY(status)
+           if (gridIn==gridOut) then
+              outPtr2d=ptr2d
+           else
+              if (this%regrid_method==REGRID_METHOD_FRACTION) ptr2d=ptr2d-this%fraction
+              call this%regrid_handle%regrid(ptr2d,outPtr2d,rc=status)
+              _VERIFY(status)
+           end if
         else if (fieldRank==3) then
            if (.not.associated(ptr3d)) then
               call MAPL_FieldGetPointer(field,ptr3d,rc=status)
@@ -449,9 +458,13 @@ module MAPL_newCFIOMod
            end if
            call MAPL_FieldGetPointer(OutField,outptr3d,rc=status)
            _VERIFY(status)
-           if (this%regrid_method==REGRID_METHOD_FRACTION) ptr3d=ptr3d-this%fraction
-           call this%regrid_handle%regrid(ptr3d,outPtr3d,rc=status)
-           _VERIFY(status)
+           if (gridIn==gridOut) then
+              outPtr3d=outPtr3d
+           else
+              if (this%regrid_method==REGRID_METHOD_FRACTION) ptr3d=ptr3d-this%fraction
+              call this%regrid_handle%regrid(ptr3d,outPtr3d,rc=status)
+              _VERIFY(status)
+           end if
         end if
 
         if (allocated(ptr3d_inter)) deallocate(ptr3d_inter)
@@ -475,6 +488,7 @@ module MAPL_newCFIOMod
         real, pointer :: yptr3d(:,:,:),youtptr3d(:,:,:)
         real, pointer :: yptr2d(:,:), youtptr2d(:,:)
         real, allocatable, target :: yptr3d_inter(:,:,:)
+        type(ESMF_Grid) :: gridIn, gridOut
 
         call ESMF_FieldBundleGet(this%output_bundle,xName,field=xoutField,rc=status)
         _VERIFY(status)
@@ -523,6 +537,10 @@ module MAPL_newCFIOMod
            if (associated(yptr3d)) nullify(yptr3d)
         end if
 
+        call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
+        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
+        _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,xname,field=xfield,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,yname,field=yfield,rc=status)
@@ -540,8 +558,13 @@ module MAPL_newCFIOMod
            call MAPL_FieldGetPointer(yOutField,youtptr2d,rc=status)
            _VERIFY(status)
 
-           call this%regrid_handle%regrid(xptr2d,yptr2d,xoutPtr2d,youtPtr2d,rc=status)
-           _VERIFY(status)
+           if (gridIn==gridOut) then
+              xoutPtr2d=xptr2d
+              youtPtr2d=yptr2d
+           else
+              call this%regrid_handle%regrid(xptr2d,yptr2d,xoutPtr2d,youtPtr2d,rc=status)
+              _VERIFY(status)
+           end if
         else if (fieldRank==3) then
            if (.not.associated(xptr3d)) then
               call MAPL_FieldGetPointer(xfield,xptr3d,rc=status)
@@ -557,8 +580,13 @@ module MAPL_newCFIOMod
            call MAPL_FieldGetPointer(yOutField,youtptr3d,rc=status)
            _VERIFY(status)
 
-           call this%regrid_handle%regrid(xptr3d,yptr3d,xoutPtr3d,youtptr3d,rc=status)
-           _VERIFY(status)
+           if (gridIn==gridOut) then
+              xoutPtr3d=xptr3d
+              youtPtr3d=yptr3d
+           else
+              call this%regrid_handle%regrid(xptr3d,yptr3d,xoutPtr3d,youtPtr3d,rc=status)
+              _VERIFY(status)
+           end if
         end if
 
         if (allocated(xptr3d_inter)) deallocate(xptr3d_inter)
@@ -791,8 +819,10 @@ module MAPL_newCFIOMod
      _VERIFY(status)
      call ESMF_FieldBundleGet(this%output_bundle,grid=output_grid,rc=status)
      _VERIFY(status)
-     this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,rc=status)
-     _VERIFY(status)
+     if (filegrid/=output_grid) then
+        this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,rc=status)
+        _VERIFY(status)
+     end if
      call MAPL_Grid_Interior(filegrid,i1,in,j1,jn)
      call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
      _VERIFY(status)

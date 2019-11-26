@@ -667,7 +667,9 @@ contains
       character(:), allocatable :: lon_name
       character(:), allocatable :: lat_name
       character(:), allocatable :: lev_name
-      logical :: hasLon, hasLat, hasLongitude, hasLatitude, hasLev,hasLevel
+      integer :: i
+      logical :: hasLon, hasLat, hasLongitude, hasLatitude, hasLev,hasLevel,regLat,regLon
+      real(kind=REAL64) :: del12,delij
       _UNUSED_DUMMY(unusable)
 
       ! Cannot assume that lats and lons are evenly spaced
@@ -796,6 +798,21 @@ contains
          end if
          if (this%lat_corners(1) < -90) this%lat_corners(1)=-90
          if (this%lat_corners(jm+1) > 90) this%lat_corners(jm+1)=90
+
+         ! check if evenly spaced
+         regLon=.true.
+         do i=2,size(this%lon_centers)
+            del12=this%lon_centers(2)-this%lon_centers(1)
+            delij=this%lon_centers(i)-this%lon_centers(i-1)
+            if ((del12-delij)>epsilon(1.0)) regLon=.false.
+         end do
+         regLat=.true.
+         do i=2,size(this%lat_centers)
+            del12=this%lat_centers(2)-this%lat_centers(1)
+            delij=this%lat_centers(i)-this%lat_centers(i-1)
+            if ((del12-delij)>epsilon(1.0)) regLat=.false.
+         end do
+         this%is_regular = (regLat .and. regLon) 
 
          ! Convert to radians
          this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
@@ -1288,7 +1305,7 @@ contains
       class (LatLonGridFactory), intent(in) :: a
       class (AbstractGridFactory), intent(in) :: b
 
-      
+     
       select type (b)
          class default
          equals = .false.
