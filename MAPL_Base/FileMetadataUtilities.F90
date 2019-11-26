@@ -22,7 +22,6 @@ module MAPL_FileMetadataUtilsMod
       procedure :: get_level_name
       procedure :: is_var_present
       procedure :: get_file_name
-      procedure :: create_bundle_from_metadata
    end type FileMetadataUtils
 
    interface FileMetadataUtils
@@ -370,30 +369,6 @@ module MAPL_FileMetadataUtilsMod
 
       _RETURN(_SUCCESS)
    end function get_file_name
-
-   function create_bundle_from_metadata(this,grid,variables,rc) result(bundle)
-      class (FileMetadataUtils), intent(inout) :: this
-      type(ESMF_Grid), intent(in), optional :: grid
-      type(StringVector), intent(in), optional :: variables
-      integer, optional, intent(out) :: rc
-      type(ESMF_FieldBundle) :: bundle
-      integer :: status
-      logical :: exists
-
-      type(ESMF_Grid) :: mygrid
-      class (AbstractGridFactory), allocatable :: factory
- 
-      if (present(grid)) then
-         mygrid=grid
-      else
-         inquire(file=trim(this%filename),exist=exists)
-         _ASSERT(exists,trim(this%filename)//" you are trying to make grid from does not exist")
-         allocate(factory, source=grid_manager%make_factory(trim(this%filename)))
-         mygrid = grid_manager%make_grid(factory)
-      end if
-
-
-   end function create_bundle_from_metadata
 
 end module MAPL_FileMetadataUtilsMod
 
