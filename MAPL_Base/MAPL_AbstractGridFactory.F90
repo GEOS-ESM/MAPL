@@ -109,6 +109,7 @@ module MAPL_AbstractGridFactoryMod
 
       subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
         use MAPL_KeywordEnforcerMod
+        use pFIO
         import AbstractGridFactory
         class (AbstractGridFactory), intent(inout)  :: this
         type (FileMetadata), target, intent(in) :: file_metadata
@@ -149,6 +150,7 @@ module MAPL_AbstractGridFactoryMod
       end function generate_grid_name
 
       subroutine append_metadata(this, metadata)
+         use pFIO
          import AbstractGridFactory
          class (AbstractGridFactory), intent(inout) :: this
          type (FileMetadata), intent(inout) :: metadata
@@ -161,6 +163,7 @@ module MAPL_AbstractGridFactoryMod
       end function get_grid_vars
 
       subroutine append_variable_metadata(this,var)
+         use pFIO
          import AbstractGridFactory
          class (AbstractGridFactory), intent(inout) :: this
          type(Variable), intent(inout) :: var
