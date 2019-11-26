@@ -495,7 +495,7 @@ contains
    ! ------------------------------------------------------------------------
    subroutine copy_global_to_local(this)
       use MAPL_BaseMod, only: MAPL_Grid_interior
-      use MAPL_IntegerVectorMod
+      use pFIO_IntegerVectorMod
       class (TilingRegridder), intent(inout) :: this
 
       type (IntegerVector) :: local_indices

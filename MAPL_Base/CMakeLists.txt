@@ -43,9 +43,6 @@ set (srcs
   MAPL_KeywordEnforcer.F90
   MAPL_MinMax.F90  
   MAPL_AbstractGridFactory.F90 
-  MAPL_IntegerVector.F90 
-  MAPL_StringVector.F90 
-  MAPL_StringIntegerMap.F90 
   MAPL_Integer64GridFactoryMap.F90 
   MAPL_StringGridFactoryMap.F90 
   MAPL_StringGridMap.F90

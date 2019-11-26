@@ -7723,7 +7723,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
   
   subroutine print_resource(printrc, label, val, default)
-    use MAPL_StringVectorMod
+    use pFIO_StringVectorMod
     integer, intent(in) :: printrc
     character(len=*), intent(in) :: label
     class(*), intent(in) :: val
