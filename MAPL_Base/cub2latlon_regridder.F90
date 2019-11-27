@@ -18,14 +18,7 @@ module SupportMod
    use ESMF
    use MAPL_ThrowMod
    use MAPL_BaseMod
-   use pFIO_FileMetadataMod
-   use pFIO_ConstantsMod
-   use pFIO_NetCDF4_FileFormatterMod
-   use pFIO_AttributeMod
-   use pFIO_StringAttributeMapMod
-   use pFIO_VariableMod
-   use pFIO_StringVariableMapMod
-   use pFIO_StringVectorMod
+   use pFIO
    use MAPL_ConstantsMod
    use MAPL_RangeMod
    use MAPL_StringRouteHandleMapMod
@@ -209,7 +202,6 @@ contains
    contains      
 
       subroutine add_grid_dimensions()
-         use pFIO_StringIntegerMapMod
          integer :: status
          type (StringIntegerMap), pointer :: dims
 
@@ -1205,8 +1197,7 @@ end module SupportMod
 program main
    use ESMF
    use SupportMod
-   use pFIO_FileMetadataMod
-   use pFIO_NetCDF4_FileFormatterMod
+   use pFIO
    implicit none
 
    integer :: c00, c0, c1, crate

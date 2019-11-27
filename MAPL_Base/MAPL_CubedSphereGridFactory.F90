@@ -19,6 +19,7 @@ module MAPL_CubedSphereGridFactoryMod
    use MAPL_MinMaxMod
    use MAPL_KeywordEnforcerMod
    use ESMF
+   use pFIO
    use MAPL_CommsMod
    use MAPL_ConstantsMod
    use MAPL_IOMod, only : GETFILE, FREE_FILE 
@@ -282,8 +283,6 @@ contains
    end function create_basic_grid
    
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
-      use pFIO_FileMetadataMod
-      use pFIO_NetCDF4_FileFormatterMod
       use MAPL_KeywordEnforcerMod
       use MAPL_BaseMod, only: MAPL_DecomposeDim
 
@@ -801,7 +800,6 @@ contains
    end function generate_grid_name
 
    subroutine append_metadata(this, metadata)!, unusable, rc)
-      use pFIO
       class (CubedSphereGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
 !!$      class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -948,7 +946,6 @@ contains
    end subroutine append_metadata
 
    function get_grid_vars(this) result(vars)
-      use pFIO
       class (CubedSphereGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
@@ -958,7 +955,6 @@ contains
    end function get_grid_vars
 
    subroutine append_variable_metadata(this,var)
-      use pFIO
       class (CubedSphereGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
 

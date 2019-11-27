@@ -3,6 +3,7 @@
 
 module MAPL_AbstractGridFactoryMod
    use ESMF
+   use pFIO
    use MAPL_ErrorHandlingMod
    use MAPL_BaseMod, only: MAPL_UNDEF
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
@@ -107,9 +108,8 @@ module MAPL_AbstractGridFactoryMod
 
 
       subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
-        use pFIO_FileMetadataMod
-        use pFIO_NetCDF4_FileFormatterMod
         use MAPL_KeywordEnforcerMod
+        use pFIO
         import AbstractGridFactory
         class (AbstractGridFactory), intent(inout)  :: this
         type (FileMetadata), target, intent(in) :: file_metadata
@@ -163,7 +163,7 @@ module MAPL_AbstractGridFactoryMod
       end function get_grid_vars
 
       subroutine append_variable_metadata(this,var)
-         use pFIO_VariableMod
+         use pFIO
          import AbstractGridFactory
          class (AbstractGridFactory), intent(inout) :: this
          type(Variable), intent(inout) :: var

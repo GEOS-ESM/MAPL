@@ -20,21 +20,8 @@ module MAPL_IOMod
   use MAPL_RangeMod
   use MAPL_ErrorHandlingMod
   use netcdf
-  use pFIO_CoordinateVariableMod
-  use pFIO_ConstantsMod
-  use pFIO_FileMetadataMod
+  use pFIO
   use pFIO_ClientManagerMod
-  use pFIO_NetCDF4_FileFormatterMod
-  use pFIO_AttributeMod
-  use pFIO_StringAttributeMapMod
-  use pFIO_VariableMod
-  use pFIO_StringVariableMapMod
-  use pFIO_StringVectorMod
-  use pFIO_StringIntegerMapMod
-  use pFIO_StringVariableMapMod
-  use pFIO_ArrayReferenceMod
-  use pFIO_LocalMemReferenceMod
-  use pFIO_UtilitiesMod, only: i_to_string
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   implicit none

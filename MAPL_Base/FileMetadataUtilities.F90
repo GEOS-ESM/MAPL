@@ -1,12 +1,9 @@
 #include "MAPL_ErrLog.h"
 
 module MAPL_FileMetadataUtilsMod
-   use pFIO_FileMetadataMod
-   use pFIO_VariableMod
-   use pFIO_AttributeMod
-   use pFIO_CoordinateVariableMod
-   use pFIO_StringVariableMapMod
-   use pFIO_ThrowMod
+   use pFIO
+   use MAPL_GridManagerMod
+   use MAPL_AbstractGridFactoryMod
    use ESMF
    use MAPL_ErrorHandlingMod
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32,INT64,INT32

@@ -1,7 +1,6 @@
 #include "pFIO_ErrLog.h"
 
 module ESMF_CFIOCollectionMod
-   use pFIO_StringIntegerMapMod
    use ESMF
   use ESMF_CFIOMod
   use MAPL_BaseMod, only : MAPL_GridGet
@@ -12,7 +11,6 @@ module ESMF_CFIOCollectionMod
   use pFIO
   use MAPL_GridManagerMod
   use MAPL_AbstractGridFactoryMod
-  use pFIO_ErrorHandlingMod
   implicit none
   private
 
@@ -142,7 +140,7 @@ end module ESMF_CFIOCollectionMod
 
 
 module ESMF_CFIOCollectionVectorMod
-   use pFIO_ThrowMod
+   use pFIO
    use ESMF_CFIOCollectionMod
    
    ! Create a map (associative array) between names and pFIO_Attributes.
