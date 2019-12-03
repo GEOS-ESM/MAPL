@@ -7,7 +7,7 @@ program ExtData_Driver
   use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
   use FLAP
   use ExtDataDriverMod
-  use MAPL_Mod
+  use MAPL
 
   implicit none
 

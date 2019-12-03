@@ -4,26 +4,10 @@ module ExtDataDriverMod
 
    use MPI  
    use ESMF
-   use MAPL_BaseMod
-   use MAPL_ConstantsMod
-   use MAPL_ProfMod
-   use MAPL_MemUtilsMod
-   use MAPL_CommsMod
-   use MAPL_GenericMod
-   use ESMFL_Mod
-   use MAPL_ShmemMod
-   use MAPL_CFIOServerMod
-   use MAPL_ioClientsMod
+   use MAPL
    use ExtData_DriverGridCompMod, only: ExtData_DriverGridComp, new_ExtData_DriverGridComp
-   use MAPL_ConfigMod
-   use PFIO
    use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
    use FLAP
-   use MAPL_KeywordEnforcerMod
-   use MAPL_ErrorHandlingMod
-   use MAPL_SimpleCommSplitterMod
-   use MAPL_SplitCommunicatorMod
-   use MAPL_CapOptionsMod
    use, intrinsic :: iso_fortran_env, only: output_unit, REAL64, INT64
    implicit none
 

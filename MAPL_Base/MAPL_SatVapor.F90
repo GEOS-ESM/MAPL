@@ -5,7 +5,7 @@
 module MAPL_SatVaporMod
 
 
-#ifdef MAPL
+#ifdef MAPL_MODE
   use MAPL_ConstantsMod
 #endif
 
@@ -23,7 +23,7 @@ module MAPL_SatVaporMod
 !  $\frac{d r_s}{dT}$, or $\frac{d e_s}{dT}$ through an optional argument.
 !  The module does not depend on ESMF and its only dependence
 !  on the rest of MAPL is for the definition
-!  of gas constants. If the preprocessor macro MAPL is not defined,
+!  of gas constants. If the preprocessor macro MAPL_MODE is not defined,
 !  these are assigned standard values and the build becomes
 !  independent of the rest of MAPL.
 !  \newline
@@ -77,7 +77,7 @@ module MAPL_SatVaporMod
      module procedure QSATd3
   end interface
 
-#ifndef MAPL
+#ifndef MAPL_MODE
   real*8,    parameter :: ESFAC      = 0.622
   real*8,    parameter :: ZEROC      = 273.16  ! K
 #else

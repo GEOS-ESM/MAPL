@@ -1,10 +1,5 @@
 esma_set_this ()
 
-add_definitions(-DMAPL)
-add_definitions(-DDO_COMMAS)
-add_definitions(-DTWO_SIDED_COMM)
-add_definitions(-DHAVE_SHMEM)
-
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 20)
     if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 17)

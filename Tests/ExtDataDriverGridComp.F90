@@ -3,21 +3,9 @@
 
 module ExtData_DriverGridCompMod
   use ESMF
-  use MAPL_BaseMod
-  use MAPL_ConstantsMod
-  use MAPL_ProfMod
-  use MAPL_MemUtilsMod
-  use MAPL_IOMod
-  use MAPL_ShmemMod
-  use MAPL_CommsMod
-  use MAPL_GenericMod
-  use MAPL_LocStreamMod
-  use ESMFL_Mod
+  use MAPL
   use MAPL_ExtDataGridCompMod, only : ExtData_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
-  use MAPL_DirPathMod
-  use MAPL_ConfigMod
-  use MAPL_ErrorHandlingMod
 
   implicit none
   private

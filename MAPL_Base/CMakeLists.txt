@@ -1,10 +1,5 @@
 esma_set_this ()
 
-add_definitions(-DMAPL)
-add_definitions(-DDO_COMMAS)
-add_definitions(-DTWO_SIDED_COMM)
-add_definitions(-DUSE_CUBEDSPHERE)
-
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 20)
     if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 17)
@@ -70,6 +65,7 @@ set (srcs
 
 esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 FLAP::FLAP)
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
+target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
 
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
