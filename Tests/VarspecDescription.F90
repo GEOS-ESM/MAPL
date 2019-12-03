@@ -5,9 +5,7 @@
 #define _RETURN(A)   if(present(rc)) rc=A; return
 
 module VarspecDescriptionMod
-   use MAPL_Mod
-   use MAPL_VarspecMod
-   use pFIO
+   use MAPL
    use ESMF
    implicit none
    private

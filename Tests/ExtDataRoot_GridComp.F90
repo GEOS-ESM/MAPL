@@ -10,9 +10,7 @@ MODULE ExtDataUtRoot_GridCompMod
 ! !USES:
 !
       use ESMF
-      use MAPL_Mod
-      use MAPL_GenericMod
-      use MAPL_NewArthParserMod
+      use MAPL
       use VarspecDescriptionMod
       use VarspecDescriptionVectorMod
       use netcdf
