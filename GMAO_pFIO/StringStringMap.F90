@@ -1,6 +1,5 @@
 module pFIO_StringStringMapMod
    use pFIO_ThrowMod
-   use ESMF
 
    ! Create a map (associative array) between names and integers.
 
