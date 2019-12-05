@@ -2,6 +2,7 @@
 
 module MAPL_ExtDataCollectionMod
   use pFIO
+  use gFTL_StringIntegerMap
   use MAPL_FileMetadataUtilsVectorMod
   use MAPL_FileMetadataUtilsMod
   use MAPL_GridManagerMod

@@ -14,6 +14,7 @@ module MAPL_newCFIOMod
   use MAPL_VerticalDataMod
   use MAPL_ConstantsMod
   use pFIO
+  use gFTL_StringVector
   use MAPL_newCFIOItemVectorMod
   use MAPL_newCFIOItemMod
   use MAPL_ErrorHandlingMod

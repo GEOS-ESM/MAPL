@@ -3,7 +3,7 @@
 
 module pFIO_FileMetadataMod
    use pFIO_KeywordEnforcerMod
-   use pFIO_StringIntegerMapMod
+   use gFTL_StringIntegerMap
    use pFIO_StringIntegerMapUtilMod
    use pFIO_ThrowMod
    use pFIO_ConstantsMod
@@ -16,7 +16,7 @@ module pFIO_FileMetadataMod
    use pFIO_StringVariableMapMod
    use pFIO_StringVariableMapUtilMod
    use pFIO_StringAttributeMapMod
-   use pFIO_StringVectorMod
+   use gFTL_StringVector
    use pFIO_StringVectorUtilMod
    implicit none
    private

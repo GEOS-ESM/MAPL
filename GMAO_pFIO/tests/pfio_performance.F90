@@ -13,6 +13,7 @@
 module performace_CLI
    use pFIO_ThrowMod
    use pFIO
+   use gFTL_StringVector
    implicit none
    private
 
@@ -135,6 +136,8 @@ end module performace_CLI
 module FakeHistDataMod
    use performace_CLI
    use pFIO
+   use gFTL_StringVector
+   use gFTL_StringIntegerMap
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use mpi
@@ -184,7 +187,7 @@ contains
    
 
    subroutine init(this, options, comm,app_ds)
-      use pFIO_StringIntegerMapMod
+      use gFTL_StringIntegerMap
       class (FakeHistData),target, intent(inout) :: this
       type (CommandLineOptions), intent(in) :: options
       integer, intent(in) :: comm

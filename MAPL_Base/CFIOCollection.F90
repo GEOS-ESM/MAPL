@@ -9,6 +9,7 @@ module ESMF_CFIOCollectionMod
   use ESMF_CFIOPtrVectorMod
   use PFIO_VectorMod
   use pFIO
+  use gFTL_StringIntegerMap
   use MAPL_GridManagerMod
   use MAPL_AbstractGridFactoryMod
   implicit none

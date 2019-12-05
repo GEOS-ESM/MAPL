@@ -1,6 +1,6 @@
 #include "pFIO_ErrLog.h"
 module pFIO_ExtDataCollectionMod
-  use pFIO_StringIntegerMapMod
+  use gFTL_StringIntegerMap
   use pFIO_NetCDF4_FileFormatterMod
   use pFIO_FormatterPtrVectorMod
   use pFIO_ConstantsMod

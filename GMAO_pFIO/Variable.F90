@@ -4,7 +4,7 @@
 module pFIO_VariableMod
    use pFIO_UtilitiesMod
    use pFIO_ErrorHandlingMod
-   use pFIO_StringVectorMod
+   use gFTL_StringVector
    use pFIO_StringVectorUtilMod
    use pFIO_KeywordEnforcerMod
    use pFIO_ConstantsMod

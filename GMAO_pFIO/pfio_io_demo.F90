@@ -11,7 +11,7 @@
 
 module io_demo_CLI
    use pFIO_ThrowMod
-   use pFIO_StringVectorMod
+   use gFTL_StringVector
    implicit none
    private
 
@@ -127,7 +127,7 @@ end module io_demo_CLI
 module FakeExtDataMod
    use io_demo_CLI
    use pFIO
-   use pFIO_StringVectorMod
+   use gFTL_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private

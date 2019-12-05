@@ -73,7 +73,8 @@ set (srcs
   ExtDataCollection.F90
   HistoryCollection.F90
 
-  IntegerVector.F90
+  StringVectorUtil.F90
+  StringIntegerMapUtil.F90
   IntegerMessageMap.F90
   IntegerRequestMap.F90
   MessageVector.F90
@@ -83,15 +84,10 @@ set (srcs
   ShmemReference.F90
   RDMAReference.F90
   AbstractRequestHandle.F90
-  IntegerIntegerMap.F90
-  StringIntegerMap.F90
-  StringInt64Map.F90
-  StringVector.F90
-  StringStringMap.F90
   )
 
 esma_add_library (${this} SRCS ${srcs})
-target_link_libraries (${this} gftl ${NETCDF_LIBRARIES})
+target_link_libraries (${this} gftl gftl-shared ${NETCDF_LIBRARIES})
 
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})

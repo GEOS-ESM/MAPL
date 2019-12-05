@@ -19,6 +19,8 @@ module SupportMod
    use MAPL_ThrowMod
    use MAPL_BaseMod
    use pFIO
+   use gFTL_StringVector
+   use gFTL_StringIntegerMap
    use MAPL_ConstantsMod
    use MAPL_RangeMod
    use MAPL_StringRouteHandleMapMod
@@ -1198,6 +1200,7 @@ program main
    use ESMF
    use SupportMod
    use pFIO
+   use gFTL_StringVector
    implicit none
 
    integer :: c00, c0, c1, crate
