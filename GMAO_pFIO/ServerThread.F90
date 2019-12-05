@@ -20,7 +20,7 @@ module pFIO_ServerThreadMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_IntegerRequestMapMod
    use pFIO_IntegerSocketMapMod
-   use pFIO_IntegerVectorMod
+   use gFTL_IntegerVector
    use pFIO_FileMetadataMod
 
    use pFIO_TerminateMessageMod
@@ -51,7 +51,7 @@ module pFIO_ServerThreadMod
    use pFIO_ConstantsMod
    use pFIO_MessageVectorMod
    use pFIO_MessageVectorUtilMod
-   use pFIO_StringInt64MapMod
+   use gFTL_StringInteger64Map
    use mpi
 
    implicit none
@@ -410,7 +410,7 @@ contains
       integer(kind=MPI_OFFSET_KIND),allocatable :: offsets(:),g_offsets(:)
       integer,allocatable :: locals(:)
       type (MessageVectorIterator)  :: iter
-      type (StringInt64MapIterator) :: request_iter
+      type (StringInteger64MapIterator) :: request_iter
       class (AbstractMessage), pointer :: msg
       integer,pointer :: i_ptr(:)
       type(c_ptr) :: address
@@ -421,7 +421,7 @@ contains
       allocate(g_offsets(0:this%containing_server%Node_Num-1))
       offsets   = 0
       g_offsets = 0
-      this%containing_server%prefetch_offset = StringInt64map()
+      this%containing_server%prefetch_offset = StringInteger64map()
 
       !(1) loop to get the total size and offset of each request
       iter = this%request_backlog%begin()
@@ -516,13 +516,13 @@ contains
       integer :: node_rank, innode_rank, status
       integer(KIND=INT64) :: offset, msize_word
       type (MessageVectorIterator) :: iter
-      type (StringInt64MapIterator) :: request_iter
+      type (StringInteger64MapIterator) :: request_iter
       class (AbstractMessage), pointer :: msg
       integer,pointer :: i_ptr(:)
       type(c_ptr) :: address
       character(len=*),parameter :: Iam = 'read_and_share'
 
-      this%containing_server%prefetch_offset = StringInt64map()
+      this%containing_server%prefetch_offset = StringInteger64map()
 
       !(1) loop to get the total size and offset of each request
       offset = 0
@@ -591,12 +591,12 @@ contains
       integer(KIND=INT64) :: offset, msize_word
       integer(KIND=INT64),allocatable :: offsets(:), msize_words(:)
       type (MessageVectorIterator) :: iter
-      type (StringInt64MapIterator) :: request_iter
+      type (StringInteger64MapIterator) :: request_iter
       class (AbstractMessage), pointer :: msg
       integer :: collection_counter, collection_total
       character(len=*),parameter :: Iam = 'create_remote_win'
 
-      this%containing_server%stage_offset = StringInt64map()
+      this%containing_server%stage_offset = StringInteger64map()
 
       collection_counter = 0
       collection_total   = 0

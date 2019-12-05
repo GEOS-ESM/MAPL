@@ -15,7 +15,7 @@ module pFIO_BaseServerMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractSocketVectorMod
    use pFIO_AbstractServerMod
-   use pFIO_StringInt64MapMod
+   use gFTL_StringInteger64Map
    use pFIO_AbstractMessageMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_ShmemReferenceMod
@@ -87,7 +87,7 @@ contains
      type (ServerThread),pointer :: threadPtr
      class (AbstractMessage),pointer :: msg
      type (MessageVectorIterator) :: iter
-     type (StringInt64MapIterator) :: request_iter
+     type (StringInteger64MapIterator) :: request_iter
      integer,pointer :: i_ptr(:)
      type(c_ptr) :: offset_address
      integer :: collection_counter
