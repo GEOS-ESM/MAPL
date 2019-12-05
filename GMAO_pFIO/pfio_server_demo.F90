@@ -11,7 +11,7 @@
 
 module server_demo_CLI
    use pFIO_ThrowMod
-   use pFIO_StringVectorMod
+   use gFTL_StringVector
    implicit none
    private
 
@@ -122,7 +122,7 @@ end module server_demo_CLI
 module FakeExtDataMod_server
    use server_demo_CLI
    use pFIO
-   use pFIO_StringVectorMod
+   use gFTL_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
@@ -161,7 +161,7 @@ contains
    
 
    subroutine init(this, options, comm, d_s)
-      use pFIO_StringIntegerMapMod
+      use gFTL_StringIntegerMap
       class (FakeExtData), intent(inout) :: this
       type (CommandLineOptions), intent(in) :: options
       integer, intent(in) :: comm

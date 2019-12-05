@@ -7,6 +7,7 @@ module MAPL_ioClientsMod
    use MAPL_KeywordEnforcerMod
    use pFIO_ClientManagerMod
    use PFIO
+   use gFTL_IntegerVector
 
    implicit none
    private

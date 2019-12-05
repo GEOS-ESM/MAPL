@@ -63,7 +63,7 @@ set (srcs
   FileMetadataUtilities.F90 FileMetadataUtilitiesVector.F90
   )
 
-esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 FLAP::FLAP)
+esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 gftl-shared FLAP::FLAP)
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
 

@@ -1,7 +1,7 @@
 #include "pFIO_ErrLog.h"
 
 module ESMF_CFIOCollectionMod
-   use ESMF
+  use ESMF
   use ESMF_CFIOMod
   use MAPL_BaseMod, only : MAPL_GridGet
   use ESMF_CFIOUtilMod
@@ -11,6 +11,7 @@ module ESMF_CFIOCollectionMod
   use pFIO
   use MAPL_GridManagerMod
   use MAPL_AbstractGridFactoryMod
+  use gFTL_StringIntegerMap
   implicit none
   private
 

@@ -3,7 +3,7 @@
 
 module pFIO_HistoryCollectionMod
   use pFIO_ErrorHandlingMod
-  use pFIO_StringIntegerMapMod
+  use gFTL_StringIntegerMap
   use pFIO_NetCDF4_FileFormatterMod
   use pFIO_StringNetCDF4_FileFormatterMapMod
   use pFIO_FileMetadataMod

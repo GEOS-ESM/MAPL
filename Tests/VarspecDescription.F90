@@ -7,6 +7,7 @@
 module VarspecDescriptionMod
    use MAPL
    use ESMF
+   use gFTL_StringVector
    implicit none
    private
 
