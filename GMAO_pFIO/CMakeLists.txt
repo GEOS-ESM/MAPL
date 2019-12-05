@@ -107,21 +107,19 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES GNU)
   ecbuild_add_executable (
     TARGET pfio_server_demo.x
     SOURCES pfio_server_demo.F90
-    LIBS ${this} ${ESMF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
+    LIBS ${this} ${NETCDF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
   set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
   set_target_properties(pfio_server_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
     
   ecbuild_add_executable (
     TARGET pfio_collective_demo.x
     SOURCES pfio_collective_demo.F90
-    LIBS ${this} ${ESMF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
+    LIBS ${this} ${NETCDF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
   set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
   set_target_properties(pfio_collective_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 endif ()
 
 #--------------------
-include_directories (${INC_ESMF})
-include_directories (${INC_gFTL})
 include_directories (${INC_NETCDF})
 
 #--------------------

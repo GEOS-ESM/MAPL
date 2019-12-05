@@ -1,7 +1,6 @@
 module pFIO_StringInt64MapMod
    use, intrinsic :: iso_fortran_env, only: INT64
    use pFIO_ThrowMod
-   use ESMF
 
    ! Create a map (associative array) between names and integers.
 
