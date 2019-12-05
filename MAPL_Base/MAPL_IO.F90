@@ -5157,7 +5157,7 @@ module MAPL_IOMod
 
     type (MAPL_NCIO)          , intent(IN   ) :: ncioObj
     character(len=*)            , intent(IN   ) :: name
-    real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:,:)
+    real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:,:)
     type(ArrDescr)              , intent(INOUT) :: ARRDES
     integer,           optional , intent(  OUT) :: RC
 
@@ -5180,7 +5180,7 @@ module MAPL_IOMod
   
     type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
     character(len=*)            , intent(IN   ) :: name
-    real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:,:)
+    real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:,:)
     type(ArrDescr)              , intent(INOUT) :: ARRDES
     integer,           optional , intent(  OUT) :: RC
 
@@ -5514,7 +5514,7 @@ module MAPL_IOMod
 
     type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
     character(len=*)            , intent(IN   ) :: name
-    real(kind=ESMF_KIND_R4)     , intent(IN   ) :: A(:)
+    real(kind=ESMF_KIND_R4)     , intent(INOUT) :: A(:)
     type (ESMF_DELayout), optional, intent(IN   ) :: layout
     type(ArrDescr), optional, intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: MASK(:)
@@ -6153,7 +6153,7 @@ module MAPL_IOMod
 
     type(MAPL_NCIO)             , intent(in   ) :: ncioObj
     character(len=*)              , intent(in   ) :: name
-    real(kind=ESMF_KIND_R4)       , intent(  OUT) :: A(:)
+    real(kind=ESMF_KIND_R4)       , intent(INOUT) :: A(:)
     type (ESMF_DELayout), optional, intent(IN   ) :: layout
     type(ArrDescr), optional,  intent(INOUT) :: ARRDES
     integer,           optional   , intent(IN   ) :: MASK(:)
@@ -6453,7 +6453,7 @@ module MAPL_IOMod
 
     type(MAPL_NCIO)             , intent(IN   ) :: ncioObj
     character(len=*)              , intent(IN   ) :: name
-    real(kind=ESMF_KIND_R8)       , intent(  OUT) :: A(:)
+    real(kind=ESMF_KIND_R8)       , intent(INOUT) :: A(:)
     type (ESMF_DELayout), optional, intent(IN   ) :: layout
     type(ArrDescr), optional,  intent(INOUT) :: ARRDES
     integer,           optional   , intent(IN   ) :: MASK(:)
@@ -6754,7 +6754,7 @@ module MAPL_IOMod
 
     type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
     character(len=*)            , intent(IN   ) :: name
-    real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:)
+    real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:)
     type(ArrDescr),    optional , intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: lev
     integer,           optional , intent(  OUT) :: RC
@@ -6912,7 +6912,7 @@ module MAPL_IOMod
   
     type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
     character(len=*)            , intent(IN   ) :: name
-    real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:)
+    real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:)
     type(ArrDescr),    optional , intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: lev
     integer,           optional , intent(  OUT) :: RC
@@ -7474,8 +7474,8 @@ module MAPL_IOMod
 
   FIELD = ESMF_FieldCreate(grid=arrDes%grid, datacopyflag=ESMF_DATACOPY_VALUE, &
          farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
-  call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzVert,rc=status)
   VERIFY_(STATUS)
+  call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzVert,rc=status)
   VERIFY_(STATUS)
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
   VERIFY_(STATUS)
