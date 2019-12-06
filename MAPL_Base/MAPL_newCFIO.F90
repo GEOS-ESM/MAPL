@@ -458,7 +458,7 @@ module MAPL_newCFIOMod
            call MAPL_FieldGetPointer(OutField,outptr3d,rc=status)
            _VERIFY(status)
            if (gridIn==gridOut) then
-              outPtr3d=outPtr3d
+              outPtr3d=Ptr3d
            else
               if (this%regrid_method==REGRID_METHOD_FRACTION) ptr3d=ptr3d-this%fraction
               call this%regrid_handle%regrid(ptr3d,outPtr3d,rc=status)
