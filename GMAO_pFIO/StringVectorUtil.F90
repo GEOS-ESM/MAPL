@@ -1,15 +1,7 @@
-module pFIO_StringVectorMod
-#  include "types/deferredLengthString.inc"
-
-#  define _vector StringVector
-#  define _iterator StringVectorIterator
-#  include "templates/vector.inc"
-end module pFIO_StringVectorMod
-
 module pFIO_StringVectorUtilMod
    use pFIO_UtilitiesMod
    use pFIO_AttributeMod
-   use pFIO_StringVectorMod
+   use gFTL_StringVector
    implicit none
    private
    public :: StringVector_serialize

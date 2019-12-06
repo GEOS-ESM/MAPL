@@ -7,7 +7,7 @@ module pFIO_AbstractServerMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractDataReferenceVectorMod
    use pFIO_ShmemReferenceMod
-   use pFIO_StringInt64MapMod
+   use gFTL_StringInteger64Map
    use pFIO_AbstractMessageMod
    use pFIO_DummyMessageMod
    use pFIO_MessageVectorMod
@@ -40,8 +40,8 @@ module pFIO_AbstractServerMod
       ! save info about which process belongs to which node 
       ! all processes keep this info
       integer,allocatable    :: Node_Ranks(:)
-      type(StringInt64Map) :: prefetch_offset
-      type(StringInt64Map) :: stage_offset
+      type(StringInteger64Map) :: prefetch_offset
+      type(StringInteger64Map) :: stage_offset
       logical , allocatable :: serverthread_done_msgs(:)
       type(AbstractDataReferenceVector) :: dataRefPtrs
    contains
@@ -183,7 +183,7 @@ contains
       class(AbstractServer),intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
-      type(StringInt64MapIterator) :: iter
+      type(StringInteger64MapIterator) :: iter
       !$omp critical (counter_status)
       this%status = this%status -1
       status = this%status
@@ -218,7 +218,7 @@ contains
    subroutine clean_up(this, rc) 
       class(AbstractServer),intent(inout) :: this
       integer, optional, intent(out) :: rc
-      type(StringInt64MapIterator) :: iter
+      type(StringInteger64MapIterator) :: iter
       
       call this%clear_DataReference()
       call this%clear_RequestHandle()

@@ -21,6 +21,7 @@ module MAPL_newCFIOMod
   use MAPL_ExtDataCollectionMod
   use MAPL_ExtDataCOllectionManagerMod
   use MAPL_ioClientsMod
+  use gFTL_StringVector
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
