@@ -5157,7 +5157,7 @@ module MAPL_IOMod
 
     type (MAPL_NCIO)          , intent(IN   ) :: ncioObj
     character(len=*)            , intent(IN   ) :: name
-    real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:,:)
+    real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:,:)
     type(ArrDescr)              , intent(INOUT) :: ARRDES
     integer,           optional , intent(  OUT) :: RC
 
@@ -5514,7 +5514,7 @@ module MAPL_IOMod
 
     type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
     character(len=*)            , intent(IN   ) :: name
-    real(kind=ESMF_KIND_R4)     , intent(INOUT) :: A(:)
+    real(kind=ESMF_KIND_R4)     , intent(IN   ) :: A(:)
     type (ESMF_DELayout), optional, intent(IN   ) :: layout
     type(ArrDescr), optional, intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: MASK(:)
@@ -6754,7 +6754,7 @@ module MAPL_IOMod
 
     type(MAPL_NCIO)           , intent(IN   ) :: ncioObj
     character(len=*)            , intent(IN   ) :: name
-    real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:)
+    real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:)
     type(ArrDescr),    optional , intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: lev
     integer,           optional , intent(  OUT) :: RC
