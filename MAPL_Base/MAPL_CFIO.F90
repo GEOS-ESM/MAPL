@@ -5420,7 +5420,7 @@ CONTAINS
     type(Ptr2Arr)        :: PtrTypeOut(2)
     integer, allocatable :: varids(:)
     logical, allocatable :: transDone(:)
-    integer :: status1,status2,rotation,gridStagger
+    integer :: status1,status2
     integer :: alloc_ra
 
     if (present(hw)) then
