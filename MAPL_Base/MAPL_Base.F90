@@ -75,6 +75,7 @@ public MAPL_Range
 public MAPL_DistGridGet
 public MAPL_GridGetCorners
 public MAPL_GridGetInterior
+public MAPL_TrimString
 
 ! !PUBLIC PARAMETERS
 !
@@ -4293,6 +4294,25 @@ and so on.
      end if
 
  end subroutine MAPL_DistGridGet
+
+ function MAPL_TrimString(istring,rc) result(ostring)
+    character(len=*), intent(in) :: istring
+    integer, optional, intent(out) :: rc
+
+    character(len=:), allocatable :: ostring
+    integer :: strlen
+    integer :: status
+
+    strlen = len_trim(istring)
+    if (istring(strlen:strlen)==char(0)) then
+       allocate(ostring,source=istring(1:strlen-1),stat=status)
+       _VERIFY(status)
+    else
+       allocate(ostring,source=istring(1:strlen),stat=status)
+       _VERIFY(status)
+    end if
+    _RETURN(_SUCCESS)
+ end function MAPL_TrimString
 
 end module MAPL_BaseMod
 

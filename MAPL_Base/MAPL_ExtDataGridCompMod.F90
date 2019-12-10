@@ -2039,13 +2039,13 @@ CONTAINS
         integer                    :: nymd, nhms
         type(ESMF_Time)            :: fTime
         real, allocatable          :: levFile(:) 
-        character(len=ESMF_MAXSTR) :: buff,levunits
+        character(len=ESMF_MAXSTR) :: buff,levunits,tlevunits
         logical                    :: found,lFound,intOK
         integer                    :: maxOffset
         character(len=:), allocatable :: levname
         character(len=:), pointer :: positive 
         type(FileMetadataUtils), pointer :: metadata
-
+        type(Variable), pointer :: variable
         type(ESMF_TimeInterval)    :: zero
 
         positive=>null()
@@ -2116,13 +2116,26 @@ CONTAINS
 
         end if
 
+        variable => null()
+        if (item%isVector) then
+           variable=>metadata%get_variable(trim(item%fcomp1))
+           _ASSERT(associated(variable),"Variable not found in file")
+           variable => null()
+           variable=>metadata%get_variable(trim(item%fcomp2))
+           _ASSERT(associated(variable),"Variable not found in file")
+        else
+           variable=>metadata%get_variable(trim(item%var))
+           _ASSERT(associated(variable),"Variable not found in file")
+        end if
+    
         levName = metadata%get_level_name(rc=status)
         _VERIFY(status)
         if (trim(levName) /='') then
-           call metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=item%levUnit,coords=levFile,__RC__)
+           call metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits,coords=levFile,__RC__)
+           levUnits=MAPL_TrimString(tlevUnits)
            ! check if pressure
-           levunits = ESMF_UtilStringLowerCase(item%levUnit)
-           if (trim(levUnits) == 'hpa' .or. trim(levunits)=='pa') then
+           item%levUnit = ESMF_UtilStringLowerCase(levUnits)
+           if (trim(item%levUnit) == 'hpa' .or. trim(item%levUnit)=='pa') then
               item%havePressure = .true.
            end if
            if (item%havePressure) then
@@ -2130,7 +2143,7 @@ CONTAINS
            else
               positive => metadata%get_variable_attribute(levName,'positive',__RC__)
               if (associated(positive)) then
-                 if (trim(positive)=='up') item%fileVDir="up"
+                 if (MAPL_TrimString(positive)=='up') item%fileVDir="up"
               end if
            end if
 
@@ -2141,7 +2154,7 @@ CONTAINS
                  item%levs(i)=levFile(size(levFile)-i+1)
               enddo
            end if
-           if (trim(levunits)=='hpa') item%levs=item%levs*100.0
+           if (trim(item%levunit)=='hpa') item%levs=item%levs*100.0
            if (item%isVector) then
               item%units = metadata%get_variable_attribute(trim(item%fcomp1),"units",rc=status)
               _VERIFY(status)
@@ -3433,9 +3446,9 @@ CONTAINS
            _VERIFY(STATUS)
         end if
      else
-        if (trim(item%importVDir)/=trim(item%fileVDir)) then 
+        if (trim(item%importVDir)/=trim(item%fileVDir)) then
            call MAPL_ExtDataFlipVertical(ExtState,item,filec,rc=status)
-           _VERIFY(status) 
+           _VERIFY(status)
         end if
      end if
  
