@@ -44,6 +44,7 @@ module MAPL_CFIOMod
   use ESMF_CFIOCollectionMod
   use PFIO
   use MAPL_ioClientsMod
+  use gFTL_IntegerVector
 
   use, intrinsic :: ISO_C_BINDING
 

@@ -8,6 +8,8 @@ module ctest_io_CLI
    use pFIO_ErrorHandlingMod
    use pFIO_ThrowMod
    use pFIO
+   use gFTL_StringVector
+   use gFTL_StringIntegerMap
    implicit none
    private
 
@@ -142,6 +144,8 @@ module FakeHistData0Mod
    use pFIO_ErrorHandlingMod
    use ctest_io_CLI
    use pFIO
+   use gFTL_StringVector
+   use gFTL_StringIntegerMap
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
@@ -190,7 +194,6 @@ contains
    
 
    subroutine init(this, options, comms,app_ds, N_iclient_g, N_oclient_g, rc)
-      use pFIO_StringIntegerMapMod
       class (FakeHistData0),target, intent(inout) :: this
       type (CommandLineOptions0), intent(in) :: options
       integer, intent(in), dimension(:) :: comms

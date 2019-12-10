@@ -6,6 +6,7 @@ module MAPL_ExtDataCollectionMod
   use MAPL_FileMetadataUtilsMod
   use MAPL_GridManagerMod
   use MAPL_AbstractGridFactoryMod
+  use gFTL_StringIntegerMap
   implicit none
   private
 

@@ -2,7 +2,6 @@ module pFIO_pFUNIT_Initialize
 
 contains
   subroutine Initialize()
-     use ESMF
      use MAPL_pFUnit_ThrowMod
      use pFIO_ThrowMod
    

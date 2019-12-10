@@ -52,10 +52,10 @@ ecbuild_add_executable (
   TARGET ${TESTO}
   PROPERTIES EXCLUDE_FROM_ALL=TRUE
   SOURCES pfio_ctest_io.F90
-  LIBS GMAO_pFIO ${ESMF_LIBRARIES}
+  LIBS GMAO_pFIO ${NETCDF_LIBRARIES}
   DEFINITIONS USE_MPI)
 set_target_properties(${TESTO} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
-target_link_libraries(${TESTO} GMAO_pFIO ${ESMF_LIBRARIES})
+target_link_libraries(${TESTO} GMAO_pFIO ${NETCDF_LIBRARIES})
 
 
 
@@ -79,9 +79,9 @@ ecbuild_add_executable (
   PROPERTIES EXCLUDE_FROM_ALL=TRUE
   SOURCES pfio_performance.F90
   DEFINITIONS USE_MPI
-  LIBS GMAO_pFIO ${ESMF_LIBRARIES})
+  LIBS GMAO_pFIO ${NETCDF_LIBRARIES})
 set_target_properties(${TESTPERF} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
-target_link_libraries(${TESTPERF} GMAO_pFIO ${ESMF_LIBRARIES})
+target_link_libraries(${TESTPERF} GMAO_pFIO ${NETCDF_LIBRARIES})
 
 add_dependencies(tests pFIO_tests)
 add_dependencies(tests ${TESTO})

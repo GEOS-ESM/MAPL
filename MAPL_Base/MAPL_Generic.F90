@@ -109,6 +109,7 @@ module MAPL_GenericMod
 
   use ESMF_CFIOMod, only: ESMF_CFIOStrTemplate
   use pFIO
+  use gFTL_StringVector
   use pFIO_ClientManagerMod
   use MAPL_ioClientsMod, only: i_Clients, o_Clients
   use MAPL_BaseMod

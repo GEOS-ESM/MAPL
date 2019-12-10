@@ -15,6 +15,7 @@ module MAPL_TilingRegridderMod
    use MAPL_ShmemMod
    use Regrid_Functions_Mod, only: readTileFileNC_file 
    use ESMF
+   use gFTL_IntegerVector
    use, intrinsic :: ISO_C_BINDING
    use, intrinsic :: iso_fortran_env, only: REAL32,INT32
    implicit none

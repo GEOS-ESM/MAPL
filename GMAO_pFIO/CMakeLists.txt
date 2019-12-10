@@ -73,7 +73,6 @@ set (srcs
   ExtDataCollection.F90
   HistoryCollection.F90
 
-  IntegerVector.F90
   IntegerMessageMap.F90
   IntegerRequestMap.F90
   MessageVector.F90
@@ -83,15 +82,12 @@ set (srcs
   ShmemReference.F90
   RDMAReference.F90
   AbstractRequestHandle.F90
-  IntegerIntegerMap.F90
-  StringIntegerMap.F90
-  StringInt64Map.F90
-  StringVector.F90
-  StringStringMap.F90
+  StringIntegerMapUtil.F90
+  StringVectorUtil.F90
   )
 
 esma_add_library (${this} SRCS ${srcs})
-target_link_libraries (${this} gftl ${NETCDF_LIBRARIES})
+target_link_libraries (${this} gftl gftl-shared ${NETCDF_LIBRARIES})
 
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
@@ -107,21 +103,19 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES GNU)
   ecbuild_add_executable (
     TARGET pfio_server_demo.x
     SOURCES pfio_server_demo.F90
-    LIBS ${this} ${ESMF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
+    LIBS ${this} ${NETCDF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
   set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
   set_target_properties(pfio_server_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
     
   ecbuild_add_executable (
     TARGET pfio_collective_demo.x
     SOURCES pfio_collective_demo.F90
-    LIBS ${this} ${ESMF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
+    LIBS ${this} ${NETCDF_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
   set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
   set_target_properties(pfio_collective_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 endif ()
 
 #--------------------
-include_directories (${INC_ESMF})
-include_directories (${INC_gFTL})
 include_directories (${INC_NETCDF})
 
 #--------------------
