@@ -15,7 +15,7 @@ MODULE ExtDataUtRoot_GridCompMod
       use VarspecDescriptionVectorMod
       use netcdf
       use gFTL_StringStringMap
-      use m_set_eta, only: set_eta
+      !use m_set_eta, only: set_eta
       use, intrinsic :: iso_fortran_env, only: REAL64
 
       IMPLICIT NONE
@@ -173,7 +173,7 @@ MODULE ExtDataUtRoot_GridCompMod
          character(len=ESMF_MAXSTR)  :: comp_name
 
          real(REAL64) :: ptop, pint
-         real(REAL64), allocatable :: ak(:),bk(:)
+         !real(REAL64), allocatable :: ak(:),bk(:)
          integer :: ls,im,jm,lm,nx,ny,nrows, ncolumn,i
          type(ESMF_Grid) :: grid
          type(ESMF_Time) :: currTime
@@ -232,18 +232,17 @@ MODULE ExtDataUtRoot_GridCompMod
          _VERIFY(STATUS)
          call ESMF_GridCompGet(GC, grid=grid, rc=status)
          _VERIFY(STATUS)
-         allocate(ak(lm+1),stat=status)
-         _VERIFY(STATUS)
-         allocate(bk(lm+1),stat=status)
-         _VERIFY(STATUS)
-         call set_eta(lm,ls,ptop,pint,ak,bk)
-         call ESMF_AttributeSet(grid,name='GridAK', itemCount=LM+1, &
-               valuelist=ak,rc=status)
-         _VERIFY(STATUS)
-         call ESMF_AttributeSet(grid,name='GridBK', itemCount=LM+1, &
-               valuelist=bk,rc=status)
-         _VERIFY(STATUS)
-!deallocate(ak,bk)
+         !allocate(ak(lm+1),stat=status)
+         !_VERIFY(STATUS)
+         !allocate(bk(lm+1),stat=status)
+         !_VERIFY(STATUS)
+         !call set_eta(lm,ls,ptop,pint,ak,bk)
+         !call ESMF_AttributeSet(grid,name='GridAK', itemCount=LM+1, &
+               !valuelist=ak,rc=status)
+         !_VERIFY(STATUS)
+         !call ESMF_AttributeSet(grid,name='GridBK', itemCount=LM+1, &
+               !valuelist=bk,rc=status)
+         !_VERIFY(STATUS)
 
 !  Initialize MAPL Generic
 !  -----------------------
