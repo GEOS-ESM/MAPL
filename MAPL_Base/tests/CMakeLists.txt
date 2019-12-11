@@ -2,7 +2,7 @@ add_definitions(-DUSE_MPI)
 set (TEST_SRCS
     test_Mapl_Base.pf
     test_sort.pf
-    Test_CFIO_Bundle.pf
+#    Test_CFIO_Bundle.pf
     Test_SimpleMAPLcomp.pf
     Test_StringGridFactoryMap.pf
     Test_GridManager.pf
@@ -31,11 +31,6 @@ add_pfunit_ctest(MAPL_Base_tests
                 MAX_PES 8
                 )
 
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
-#include_directories(${CMAKE_CURRENT_BINARY_DIR}/..)
-#include_directories(${include_GMAO_pFIO})
-#include_directories(${include_MAPL_Base})
-#include_directories(${include_MAPL_pFUnit})
-
+add_dependencies(tests MAPL_Base_tests)
 
 
