@@ -1,19 +1,21 @@
+#include "pFIO_ErrLog.h"
 #include "unused_dummy.H"
 module MockSocketMod
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_c_binding, only: c_f_pointer
+   use pFIO_ErrorHandlingMod
    use pFIO_AbstractMessageMod
    use pFIO_AbstractRequestHandleMod
-   use pFIO_MessageQueueMod
+   use pFIO_MessageVectorMod
    use pFIO_AbstractSocketMod
 
    use pFIO_TerminateMessageMod
    use pFIO_DoneMessageMod
-   use pFIO_AddCollectionMessageMod
-   use pFIO_CollectionIdMessageMod
-   use pFIO_RequestIdMessageMod
-   use pFIO_RequestDataMessageMod
-   use pFIO_WaitRequestDataMessageMod
+   use pFIO_PrefetchDoneMessageMod
+   use pFIO_DummyMessageMod
+   use pFIO_AddExtCollectionMessageMod
+   use pFIO_IdMessageMod
+   use pFIO_PrefetchDataMessageMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_ArrayReferenceMod
 
@@ -34,7 +36,7 @@ module MockSocketMod
    end type MockSocketLog
 
    type, extends(AbstractSocket) :: MockSocket
-      type (MessageQueue) :: messages
+      type (MessageVector) :: messages
       type (MockSocketLog), pointer :: log
       integer :: collection_counter = 0
       real(kind=REAL32), allocatable :: q1
@@ -101,11 +103,12 @@ contains
 
    end subroutine add_message
 
-   function receive(this) result(message)
+   function receive(this, rc) result(message)
       class (AbstractMessage), pointer :: message
       class (MockSocket), intent(inout) :: this
+      integer, optional, intent(out) :: rc
 
-      type (MessageQueueIterator) :: iter
+      type (MessageVectorIterator) :: iter
 
       if (this%messages%size() > 0) then
          allocate(message, source= this%messages%front())
@@ -117,52 +120,52 @@ contains
             call this%prefix('receive<Terminate>')
          type is (DoneMessage)
             call this%prefix('receive<Done>')
-         type is (AddCollectionMessage)
-            call this%prefix("receive<AddCollection('"//message%template//"')>")  
-         type is (RequestDataMessage)
-            call this%prefix("receive<RequestData('"//message%var_name//"')>")  
+         type is (PrefetchDoneMessage)
+            call this%prefix('receive<Done_prefetch>')
+         type is (AddExtCollectionMessage)
+            call this%prefix("receive<AddExtCollection('"//message%template//"')>")  
+         type is (PrefetchDataMessage)
+            call this%prefix("receive<PrefetchData('"//message%var_name//"')>")  
          end select
       else
          message => null()
       end if
-      
+      _RETURN(_SUCCESS)
    end function receive
 
 
-   subroutine send(this, message)
+   subroutine send(this, message, rc)
       class (MockSocket), intent(inout) :: this
       class (AbstractMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
 
       character(len=100) :: buffer
 
       select type (message)
-      type is (CollectionIdMessage)
-         write(buffer,'("(",i3.3,")")') message%collection_id
-         call this%prefix('send<CollectionId'//trim(buffer)//'>')
-      type is (RequestIdMessage)
-         write(buffer,'("(",i0,")")') message%request_id
-         call this%prefix('send<RequestId'//trim(buffer)//'>')
-      type is (AddCollectionMessage)
-         call this%prefix("send<AddCollection('" // message%template // "')>")
+      type is (IdMessage)
+         write(buffer,'("(",i3.3,")")') message%id
+         call this%prefix('send<Id'//trim(buffer)//'>')
+      type is (AddExtCollectionMessage)
+         call this%prefix("send<AddExtCollection('" // message%template // "')>")
          this%collection_counter = this%collection_counter + 1
-         call this%messages%push_back(CollectionIdMessage(this%collection_counter))
-      type is (RequestDataMessage)
-         call this%prefix("send<RequestData('"//message%var_name//"')>")  
-      type is (WaitRequestDataMessage)
-         write(buffer,'("(",i0,")")') message%request_id
-         call this%prefix('send<Wait'//trim(buffer)//'>')
+         call this%messages%push_back(IdMessage(this%collection_counter))
+      type is (PrefetchDataMessage)
+         call this%prefix("send<PrefetchData('"//message%var_name//"')>")  
+      type is (DummyMessage)
+         call this%prefix("send<Dummy>")  
       class default
          call this%prefix('send<unknown>')
       end select
-
+      _RETURN(_SUCCESS)
    end subroutine send
 
    
-   function put(this, request_id, local_reference) result(handle)
+   function put(this, request_id, local_reference, rc) result(handle)
       class (AbstractRequestHandle), allocatable :: handle
       class (MockSocket), intent(inout) :: this
       integer, intent(in) :: request_id
       Class(AbstractDataReference), intent(in) :: local_reference
+      integer, optional, intent(out) :: rc
 
       real(kind=REAL32), pointer :: values_0d
       real(kind=REAL32), pointer :: values_2d(:,:)
@@ -183,18 +186,21 @@ contains
       end select
 
       allocate(handle, source=MockHandle(this))
-
+      allocate(handle%data_reference , source=local_reference)
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(request_id)
    end function put
       
-   function get(this, request_id, local_reference) result(handle)
+   function get(this, request_id, local_reference, rc) result(handle)
       class (AbstractRequestHandle), allocatable :: handle
       class (MockSocket), intent(inout) :: this
       integer, intent(in) :: request_id
       class (AbstractDataReference), intent(in) :: local_reference
+      integer, optional, intent(out) :: rc
 
       real(kind=REAL32), pointer :: values_0d
       real(kind=REAL32), pointer :: values_1d(:)
-      real(kind=REAL32), pointer :: values_2d(:,:)
+      !real(kind=REAL32), pointer :: values_2d(:,:)
 
 
       call this%prefix('get()')
@@ -209,18 +215,22 @@ contains
          call c_f_pointer(local_reference%base_address, values_1d, shape=local_reference%shape)
          values_1d = this%q2
       end select
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(request_id)
 
    end function get
 
-   subroutine wait(this)
+   subroutine wait(this, rc)
       class (MockHandle), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       call this%owner%prefix('wait()')
+      _RETURN(_SUCCESS)
    end subroutine wait
 
    function to_string(this) result(string)
       class (MockSocket), intent(in) :: this
       character(len=:), allocatable :: string
-
+      _UNUSED_DUMMY(this)
       string = 'MockSocket::info'
    end function to_string
 

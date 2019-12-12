@@ -1,10 +1,5 @@
 esma_set_this ()
 
-add_definitions(-DMAPL)
-add_definitions(-DDO_COMMAS)
-add_definitions(-DTWO_SIDED_COMM)
-add_definitions(-DUSE_CUBEDSPHERE)
-
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 20)
     if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 17)
@@ -21,8 +16,7 @@ set (srcs
   MAPL_Throw.F90
   MAPL_Range.F90
   MAPL_Config.F90
-  MAPL_CFIO.F90
-  MAPL_IO.F90
+  MAPL_CFIO.F90            MAPL_newCFIO.F90       MAPL_IO.F90
   MAPL_Comms.F90           MAPL_LocStreamMod.F90  MAPL_Mod.F90
   MAPL_Constants.F90       MAPL_Profiler.F90      sort.c
   MAPL_GenericCplComp.F90  MAPL_Sort.F90
@@ -32,9 +26,9 @@ set (srcs
   MAPL_Cap.F90         hash.c
   MAPL_CapGridComp.F90
   MAPL_GridType.F90 
-  MAPL_GridSpec.F90
-  MAPL_VerticalInterpMod.F90 
-  MAPL_DefGridName.F90
+  MAPL_GridSpec.F90        MAPL_VerticalMethods.F90 MAPL_newCFIOitem.F90
+  MAPL_VerticalInterpMod.F90 MAPL_ESMFTimeVectorMod.F90  MAPL_TimeMethods.F90 MAPL_ioClients.F90
+
   MAPL_DirPath.F90
   MAPL_AbstractRegridder.F90 MAPL_IdentityRegridder.F90
   Regrid_Functions_Mod.F90
@@ -44,9 +38,6 @@ set (srcs
   MAPL_KeywordEnforcer.F90
   MAPL_MinMax.F90  
   MAPL_AbstractGridFactory.F90 
-  MAPL_IntegerVector.F90 
-  MAPL_StringVector.F90 
-  MAPL_StringIntegerMap.F90 
   MAPL_Integer64GridFactoryMap.F90 
   MAPL_StringGridFactoryMap.F90 
   MAPL_StringGridMap.F90
@@ -62,13 +53,19 @@ set (srcs
   memuse.c                 MAPL_MemUtils.F90      MAPL_Hash.F90 
   MAPL_MaxMinMod.F90     MAPL_SimpleBundleMod.F90 
   MAPL_OrbGridCompMod.F90  MAPL_NominalOrbitsMod.F90 MAPL_ExtDataGridCompMod.F90 
+  MAPL_ExtData_IOBundleMod.F90
+  MAPL_ExtData_IOBundleVectorMod.F90
   MAPL_NewArthParser.F90   MAPL_ShmemMod.F90      MAPL_LoadBalance.F90 MAPL_CFIOServer.F90
   CFIOCollection.F90 ESMF_CFIOPtrVectorMod.F90
   MAPL_TransposeRegridder.F90 MAPL_GetLatLonCoord.F90 MAPL_EsmfRegridder.F90
+  MAPL_NUOPCWrapperMod.F90 MAPL_CubedSphereGridFactory.F90
+  MAPL_ExtDataCollection.F90 MAPL_ExtDataCollectionManager.F90
+  FileMetadataUtilities.F90 FileMetadataUtilitiesVector.F90
   )
 
-esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4)
+esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 gftl-shared FLAP::FLAP)
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
+target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
 
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
@@ -90,8 +87,8 @@ esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})
 endif()
 
 #--------------------
-target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF} ${INC_FLAP})
-target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${LIB_FLAP})
+target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF})
+target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES})
 
 #--------------------
 # Copy include files that are used by other libraries.
@@ -112,8 +109,8 @@ endif ()
 
 
 # Unit testing
-if (PFUNIT)
-  add_subdirectory(tests)
+if (PFUNIT_FOUND)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 
 install (

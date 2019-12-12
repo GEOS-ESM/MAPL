@@ -18,6 +18,7 @@
   use MAPL_BaseMod
   use MAPL_IOMod
   use MAPL_CommsMod
+  use MAPL_ErrorHandlingMod
 #ifdef _CUDA
   use cudafor
 #endif
@@ -93,7 +94,7 @@
 
          if(I>NN) then
             print *, 'ERROR: Timer '//trim(NAME)//' needs to be set first'
-            RETURN_(ESMF_FAILURE)
+            _RETURN(ESMF_FAILURE)
          end if
      
 #ifdef _CUDA
@@ -106,7 +107,7 @@
 
       end if
 
-      RETURN_(ESMF_SUCCESS)
+      _RETURN(ESMF_SUCCESS)
     
     end subroutine MAPL_ProfClockOn
 
@@ -137,7 +138,7 @@
 
          if(I>NN) then
             print *, 'ERROR: Timer '//trim(NAME)//' needs to be set first'
-            RETURN_(ESMF_FAILURE)
+            _RETURN(ESMF_FAILURE)
          end if
 
 #ifdef _CUDA
@@ -158,7 +159,7 @@
 
       end if
 
-      RETURN_(ESMF_SUCCESS)
+      _RETURN(ESMF_SUCCESS)
 
       
     end subroutine MAPL_ProfClockOff
@@ -177,7 +178,7 @@
       if (FIRSTTIME) then
          FIRSTTIME = .false.
          call ESMF_VMGetCurrent(VM, rc=STATUS)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          call SYSTEM_CLOCK(COUNT_RATE=COUNT_RATE,COUNT_MAX=COUNT_MAX)
          CRI = 1.d0/real(COUNT_RATE,kind=REAL64)
       end if
@@ -196,7 +197,7 @@
       TMP(I+1) = MAPL_Prof(trim(NAME),0,0.D0)
       TIMES => TMP
 
-      RETURN_(ESMF_SUCCESS)
+      _RETURN(ESMF_SUCCESS)
       
     end subroutine MAPL_ProfSet
 
@@ -221,7 +222,7 @@
 
       amIroot = MAPL_AM_I_Root(vm)
       call ESMF_VMGet(VM,petCount=nPet,rc=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
 !ALT: Currently, only root PE writes the Prof report
 !     If we adopt other modes, we need to change next line
@@ -232,24 +233,24 @@
             N=size(TIMES)
             allocate(MAX_CUMM_TIME(N), stat=status, source=0.0_REAL64)
             allocate(TEMP_TIME(N), stat=status, source=0.0_REAL64)
-            VERIFY_(status)
+            _VERIFY(status)
 
             TEMP_TIME = TIMES(:)%CUMM_TIME
             call ESMF_VmReduce(vm, sendData=TEMP_TIME, &
                  recvData=MAX_CUMM_TIME, count=size(TIMES), &
                  reduceFlag=ESMF_Reduce_Max, RootPet=MAPL_Root, RC=status)
-            VERIFY_(STATUS)
+            _VERIFY(STATUS)
             if (timerMode == MAPL_TimerModeMinMax) then
                allocate(MIN_CUMM_TIME(N), stat=status, source=0.0_REAL64)
                allocate(MEAN_CUMM_TIME(N), stat=status, source=0.0_REAL64)
                call ESMF_VmReduce(vm, sendData=TEMP_TIME, &
                     recvData=MIN_CUMM_TIME, count=size(TIMES), &
                     reduceFlag=ESMF_Reduce_Min, RootPet=MAPL_Root, RC=status)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
                call ESMF_VmReduce(vm, sendData=TEMP_TIME, &
                     recvData=MEAN_CUMM_TIME, count=size(TIMES), &
                     reduceFlag=ESMF_Reduce_Sum, RootPet=MAPL_Root, RC=status)
-               VERIFY_(STATUS)
+               _VERIFY(STATUS)
                MEAN_CUMM_TIME=MEAN_CUMM_TIME/real(nPet)
             end if
             DEALLOCATE(TEMP_TIME)
@@ -312,7 +313,7 @@
          end if
       end if
 
-      RETURN_(ESMF_SUCCESS)
+      _RETURN(ESMF_SUCCESS)
       
     end subroutine MAPL_ProfWrite
 
@@ -325,7 +326,7 @@
 
       DISABLED = .true.
 
-      RETURN_(ESMF_SUCCESS)
+      _RETURN(ESMF_SUCCESS)
       
     end subroutine MAPL_ProfDisable
 
@@ -338,7 +339,7 @@
 
       DISABLED = .false.
 
-      RETURN_(ESMF_SUCCESS)
+      _RETURN(ESMF_SUCCESS)
       
     end subroutine MAPL_ProfEnable
 
@@ -351,10 +352,10 @@
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ProfModeSet"
 
       ! Sanity check
-      ASSERT_(timerMode >= MAPL_TimerModeOld .and. timerMode <= MAPL_TimerModeMax)
+      _ASSERT(timerMode >= MAPL_TimerModeOld .and. timerMode <= MAPL_TimerModeMax,'needs informative message')
       timerMode = mode
 
-      RETURN_(ESMF_SUCCESS)
+      _RETURN(ESMF_SUCCESS)
       
     end subroutine MAPL_TimerModeSet
 

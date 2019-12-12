@@ -3,7 +3,7 @@
 #define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
 #define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
 #define _RETURN(A)   if(present(rc)) rc=A; return
-#define _DEALOCS(A) if(associated(A)) then;call MAPL_DeAllocNodeArray(A,rc=status);if(status==MAPL_NoShm) deallocate(A);NULLIFY(A);endif
+#define _DEALOCS(A) if(associated(A)) then;if(MAPL_ShmInitialized) then; call MAPL_DeAllocNodeArray(A,rc=status);else; deallocate(A);endif;NULLIFY(A);endif
 #include "unused_dummy.H"
 
 module MAPL_TilingRegridderMod
@@ -11,10 +11,11 @@ module MAPL_TilingRegridderMod
    use MAPL_KeywordEnforcerMod
    use MAPL_RegridderSpecMod
    use MAPL_DirPathMod
-   use MAPL_BaseMod, only: MAPL_UNDEF
+   use MAPL_BaseMod, only: MAPL_UNDEF, MAPL_TileNameLength
    use MAPL_ShmemMod
    use Regrid_Functions_Mod, only: readTileFileNC_file 
    use ESMF
+   use gFTL_IntegerVector
    use, intrinsic :: ISO_C_BINDING
    use, intrinsic :: iso_fortran_env, only: REAL32,INT32
    implicit none
@@ -47,8 +48,7 @@ module MAPL_TilingRegridderMod
 
    ! An XTile contains only the information neeeded
    ! to regrid at a single tile.
-   type XTile
-      sequence
+   type, bind(c) :: XTile
       integer(INT32) :: idx_i_in
       integer(INT32) :: idx_j_in
       integer(INT32) :: idx_i_out
@@ -142,9 +142,13 @@ contains
       end if
 
       ! Copy tile_file into global_x_tiles
-      call MAPL_AllocNodeArray( this%global_x_tiles,(/tile_file%n_tiles/),rc=status)
-      if (status==MAPL_noShm) allocate(this%global_x_tiles(tile_file%n_tiles),stat=status)
-      _VERIFY(STATUS)
+      if(MAPL_ShmInitialized) then
+         call MAPL_AllocNodeArray( this%global_x_tiles,(/tile_file%n_tiles/),rc=status)
+         _VERIFY(STATUS)
+      else
+         allocate(this%global_x_tiles(tile_file%n_tiles),stat=status)
+         _VERIFY(STATUS)
+      end if
       if (.not. MAPL_ShmInitialized  .or. MAPL_AmNodeRoot) then
          associate (tiles => this%global_x_tiles)
            tiles(:)%idx_i_in = tile_file%grid_tiles(idx_tiling_in)%i_indices(:)
@@ -259,7 +263,7 @@ contains
          class (KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
-         character(len=ESMF_MAXSTR) :: buffer
+         character(len=MAPL_TileNameLength) :: buffer
          integer :: length
          character(len=*), parameter :: Iam = 'read_tiling_metadata'
          integer :: status
@@ -456,7 +460,7 @@ contains
          class (KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
          
-         character(len=ESMF_MAXSTR) :: buffer
+         character(len=MAPL_TileNameLength) :: buffer
          
          call ESMF_GridGet(grid, name=buffer, rc=status)
          _VERIFY(status)
@@ -492,7 +496,7 @@ contains
    ! ------------------------------------------------------------------------
    subroutine copy_global_to_local(this)
       use MAPL_BaseMod, only: MAPL_Grid_interior
-      use MAPL_IntegerVectorMod
+      use pFIO
       class (TilingRegridder), intent(inout) :: this
 
       type (IntegerVector) :: local_indices

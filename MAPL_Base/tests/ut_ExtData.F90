@@ -154,7 +154,7 @@ CONTAINS
 !   All done
 !   --------
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
   END SUBROUTINE SetServices
 
@@ -221,7 +221,7 @@ CONTAINS
 
 !  All done
 !  --------
-   RETURN_(ESMF_SUCCESS)
+   _RETURN(ESMF_SUCCESS)
 
    END SUBROUTINE Initialize_
 
@@ -277,12 +277,12 @@ CONTAINS
 
 !   Call Run for every Child
 !   -------------------------
-    call MAPL_GenericRun ( GC, IMPORT, EXPORT, CLOCK,  __RC__)
+    call MAPL_GenericRunChildren ( GC, IMPORT, EXPORT, CLOCK,  __RC__)
 
 
 !  All done
 !  --------
-   RETURN_(ESMF_SUCCESS)
+   _RETURN(ESMF_SUCCESS)
 
    END SUBROUTINE Run_
 
@@ -340,7 +340,7 @@ CONTAINS
 
 !  All done
 !  --------
-   RETURN_(ESMF_SUCCESS)
+   _RETURN(ESMF_SUCCESS)
 
  end SUBROUTINE Finalize_
 

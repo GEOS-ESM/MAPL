@@ -41,7 +41,7 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
   if (MAPL_AM_I_ROOT(layout)) then
    if(arrdes%offset>0) then 
       call MPI_FILE_SEEK(UNIT, arrdes%offset, MPI_SEEK_SET, STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
    endif
 
 #if (RANK_ == 0) 
@@ -53,7 +53,7 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
 #else
    call MPI_FILE_READ(UNIT, data, size(data), MPITYPE_, MPI_STATUS_IGNORE, STATUS)
 #endif
-   VERIFY_(STATUS)
+   _VERIFY(STATUS)
   endif
 
 #if (RANK_ == 0)
@@ -65,7 +65,7 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
 #else
    call MAPL_CommsBcast(layout, data, size(data), MAPL_Root, status)
 #endif
-   VERIFY_(status)
+   _VERIFY(status)
 
 #if (RANK_ == 0) 
 #if (VARTYPE_ == 0)
@@ -77,7 +77,7 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
    arrdes%offset = arrdes%offset + size(data)*EKIND_ + 8
 #endif
 
-   RETURN_(ESMF_SUCCESS)
+   _RETURN(ESMF_SUCCESS)
  endif
 
 
@@ -92,15 +92,15 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
 
 #if (RANK_ > 2 || VARTYPE_ <= 0)
 
-     ASSERT_(.FALSE.)
+     _ASSERT(.FALSE.,'needs informative message')
 
 #else
 
-     ASSERT_(-USABLE_UNIT<=LAST_UNIT)
+     _ASSERT(-USABLE_UNIT<=LAST_UNIT,'needs informative message')
      munit => MEM_units(-USABLE_UNIT)
      munit%prevrec = munit%prevrec + 1
 #if (RANK_ > 0)
-     ASSERT_(associated(munit%Records(munit%prevrec)%TKR_))
+     _ASSERT(associated(munit%Records(munit%prevrec)%TKR_),'needs informative message')
 #endif
      data = munit%Records(munit%prevrec)%TKR_
 
@@ -120,7 +120,17 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
               else;    read(USABLE_UNIT, *, IOSTAT=IOSTAT) DATA
               end if
            elseif(FORMATTED == "NO") then
-	      read(USABLE_UNIT, IOSTAT=IOSTAT) DATA
+#if (RANK_ == 2)
+              block
+                 integer :: dim2,i
+                 dim2 = size(data,2)
+                 do i = 1, dim2
+	                 read(USABLE_UNIT, IOSTAT=IOSTAT) DATA(:,i)
+                 enddo
+              end block
+#else
+	           read(USABLE_UNIT, IOSTAT=IOSTAT) DATA
+#endif
            end if
 #if (RANK_ == 1 && VARTYPE_ == 4)
            if (iostat /= 0) then
@@ -136,7 +146,7 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
                  FILENAME = 'UNNAMED'
               end if
               print *, "Premature end of file ",FILENAME
-              RETURN_(ESMF_FAILURE)
+              _RETURN(ESMF_FAILURE)
            end if
         else
            if (present(FORMAT)) then; read(*, FORMAT ) DATA
@@ -152,13 +162,13 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
      call MAPL_CommsBcast(layout, data, 1, MAPL_Root, status)
 #endif
 #else
-     call MAPL_CommsBcast(layout, data, size(data), MAPL_Root, status)
+     call MAPL_CommsBcast(layout, data, product(shape(data)), MAPL_Root, status)
 #endif
-     VERIFY_(status)
+     _VERIFY(status)
 
   end if
 
-  RETURN_(ESMF_SUCCESS)
+  _RETURN(ESMF_SUCCESS)
 END SUBROUTINE SUB_
 
 !---------------------------

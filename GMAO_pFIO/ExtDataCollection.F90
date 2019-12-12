@@ -1,8 +1,10 @@
+#include "pFIO_ErrLog.h"
 module pFIO_ExtDataCollectionMod
-  use pFIO_StringIntegerMapMod
+  use gFTL_StringIntegerMap
   use pFIO_NetCDF4_FileFormatterMod
   use pFIO_FormatterPtrVectorMod
   use pFIO_ConstantsMod
+  use pFIO_ErrorHandlingMod
   implicit none
   private
 
@@ -40,13 +42,15 @@ contains
 
 
 
-  function find(this, file_name) result(formatter)
+  function find(this, file_name, rc) result(formatter)
     type (NetCDF4_FileFormatter), pointer :: formatter
     class (ExtDataCollection), intent(inout) :: this
     character(len=*), intent(in) :: file_name
+    integer, optional, intent(out) :: rc
 
     integer, pointer :: file_id
     type (StringIntegerMapIterator) :: iter
+    integer :: status
 
 
     file_id => this%file_ids%at(file_name)
@@ -55,9 +59,10 @@ contains
     else
        if (this%formatters%size() >= MAX_FORMATTERS) then
           formatter => this%formatters%front()
-          call formatter%close()
+          call formatter%close(rc=status)
+          _VERIFY(status)
           call this%formatters%erase(this%formatters%begin())
-          deallocate(formatter)
+          !deallocate(formatter)
           nullify(formatter)
 
           iter = this%file_ids%begin()
@@ -84,6 +89,8 @@ contains
        
        call formatter%open(file_name, pFIO_READ)
        call this%formatters%push_back(formatter)
+       deallocate(formatter)
+       formatter => this%formatters%back()
        ! size() returns 64-bit integer;  cast to 32 bit for this usage.
        call this%file_ids%insert(file_name, int(this%formatters%size()))
     end if
@@ -102,19 +109,19 @@ contains
 end module pFIO_ExtDataCollectionMod
 
 
-module pFIO_CollectionVectorMod
+module pFIO_ExtCollectionVectorMod
    use pFIO_ThrowMod
    use pFIO_ExtDataCollectionMod
    
    ! Create a map (associative array) between names and pFIO_Attributes.
    
 #define _type type (ExtDataCollection)
-#define _vector CollectionVector
-#define _iterator CollectionVectorIterator
+#define _vector ExtCollectionVector
+#define _iterator ExtCollectionVectorIterator
 
 #define _FTL_THROW pFIO_throw_exception
 
 #include "templates/vector.inc"
    
-end module pFIO_CollectionVectorMod
+end module pFIO_ExtCollectionVectorMod
 

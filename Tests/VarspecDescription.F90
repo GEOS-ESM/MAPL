@@ -5,10 +5,9 @@
 #define _RETURN(A)   if(present(rc)) rc=A; return
 
 module VarspecDescriptionMod
-   use MAPL_Mod
-   use MAPL_VarspecMod
-   use pFIO
+   use MAPL
    use ESMF
+   use gFTL_StringVector
    implicit none
    private
 
@@ -101,7 +100,7 @@ contains
   
       integer :: status
       character(len=*), parameter :: Iam = "addNewSpec"
- 
+
       if (specType == "IMPORT") then
          call MAPL_AddImportSpec(GC, &
               SHORT_NAME = this%short_name, &

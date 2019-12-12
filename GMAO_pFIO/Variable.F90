@@ -1,12 +1,15 @@
+#include "pFIO_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_VariableMod
    use pFIO_UtilitiesMod
-   use pFIO_StringVectorMod
+   use pFIO_ErrorHandlingMod
+   use gFTL_StringVector
    use pFIO_StringVectorUtilMod
    use pFIO_KeywordEnforcerMod
    use pFIO_ConstantsMod
    use pFIO_ThrowMod
+   use pFIO_UnlimitedEntityMod
    use pFIO_AttributeMod
    use pFIO_StringAttributeMapMod
    use pFIO_StringAttributeMapUtilMod
@@ -16,26 +19,34 @@ module pFIO_VariableMod
    private
 
    public :: Variable
-
+   public :: Variable_SERIALIZE_TYPE
+   integer, parameter :: Variable_SERIALIZE_TYPE = 100
+ 
    type :: Variable
       private
-      integer :: type
+      integer :: type = -1
       type (StringVector) :: dimensions
       type (StringAttributeMap) :: attributes
+      type (UnlimitedEntity) :: const_value
+      integer :: deflation = 0 ! default no compression
       integer, allocatable :: chunksizes(:)
    contains
       procedure :: get_type
       procedure :: get_ith_dimension
       procedure :: get_dimensions
       procedure :: get_attributes
+      procedure :: get_const_value
 
       procedure :: get_attribute
       generic :: add_attribute => add_attribute_0d
       generic :: add_attribute => add_attribute_1d
       procedure :: add_attribute_0d
       procedure :: add_attribute_1d
+      procedure :: add_const_value
 
       procedure :: get_chunksizes
+      procedure :: get_deflation
+      procedure :: is_attribute_present
 
       generic :: operator(==) => equal
       generic :: operator(/=) => not_equal
@@ -55,15 +66,16 @@ module pFIO_VariableMod
 contains
 
 
-   function new_Variable(type, unusable, dimensions, chunksizes, rc) result(var)
+   function new_Variable(type, unusable, dimensions, chunksizes,const_value, deflation, rc) result(var)
       type (Variable) :: var
       integer, intent(in) :: type
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: dimensions
       integer, optional, intent(in) :: chunksizes(:)
+      type (UnlimitedEntity), optional, intent(in) :: const_value
+      integer, optional, intent(in) :: deflation
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
 
       var%type = type
 
@@ -73,20 +85,26 @@ contains
 
       if (present(chunksizes)) then
          var%chunksizes = chunksizes
+      else
+         allocate(var%chunksizes(0))
       end if
+
+      if (present(const_value)) then
+         var%const_value = const_value
+      endif
  
-     if (present(rc)) then
-         rc = pFIO_SUCCESS
-      end if
-
-      return
-
+      if (present(deflation)) then
+         var%deflation = deflation
+      endif
+ 
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    contains
 
       subroutine parse_dimensions()
          character(len=:), allocatable :: dim_string
          integer :: idx
-      
+
          dim_string = dimensions // pFIO_DIMENSION_SEPARATOR
          do
             idx = index(dim_string, pFIO_DIMENSION_SEPARATOR)
@@ -115,18 +133,14 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
       if (i <= 0 .or. i > this%dimensions%size()) then
-         if (present(rc)) then
-            rc = pFIO_ILLEGAL_DIMENSION_INDEX
-         end if
          dimension_name => null()
+         _RETURN(pFIO_ILLEGAL_DIMENSION_INDEX)
       else
          dimension_name => this%dimensions%at(i)
-         if (present(rc)) then
-            rc = pFIO_SUCCESS
-         end if
+         _RETURN(_SUCCESS)
       end if
+      _UNUSED_DUMMY(unusable)
 
    end function get_ith_dimension
    
@@ -148,10 +162,11 @@ contains
    end function get_attributes
 
 
-   subroutine add_attribute_0d(this, attr_name, attr_value)
+   subroutine add_attribute_0d(this, attr_name, attr_value, rc)
       class (Variable), target, intent(inout) :: this
       character(len=*), intent(in) :: attr_name
       class (*), intent(in) :: attr_value
+      integer, optional, intent(out) :: rc
 
       type (Attribute) :: attr
 
@@ -160,33 +175,71 @@ contains
          call this%attributes%insert(attr_name, q)
       class default
          call attr%set(q)
-!$$         attr = Attribute(attr_value)
          call this%attributes%insert(attr_name, attr)
       end select
          
-
+      _RETURN(_SUCCESS)
    end subroutine add_attribute_0d
 
-   subroutine add_attribute_1d(this, attr_name, attr_values)
+   subroutine add_attribute_1d(this, attr_name, attr_values, rc)
       class (Variable), target, intent(inout) :: this
       character(len=*), intent(in) :: attr_name
       class (*), intent(in) :: attr_values(:)
+      integer, optional, intent(out) :: rc
 
       call this%attributes%insert(attr_name, Attribute(attr_values))
-
+      _RETURN(_SUCCESS)
    end subroutine add_attribute_1d
 
 
-   function get_attribute(this, attr_name) result(attr)
+   function is_attribute_present(this, attr_name, rc) result(isPresent)
       type (Attribute), pointer :: attr
       class (Variable), target, intent(in) :: this
       character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+      logical :: isPresent
 
       attr => this%attributes%at(attr_name)
+      isPresent = associated(attr)
+      _RETURN(_SUCCESS)
 
+   end function is_attribute_present
+
+   function get_attribute(this, attr_name, rc) result(attr)
+      type (Attribute), pointer :: attr
+      class (Variable), target, intent(in) :: this
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      attr => this%attributes%at(attr_name)
+      _ASSERT(associated(attr), "no such attribute : " // trim(attr_name))
+      _RETURN(_SUCCESS)
    end function get_attribute
 
-   
+   subroutine add_const_value(this, const_value, rc)
+      class (Variable), target, intent(inout) :: this
+      type (UnlimitedEntity), intent(in) :: const_value
+      integer, optional, intent(out) :: rc
+      integer :: rank, dims
+      !integer,allocatable :: shp(:), dims(:)
+
+      rank = const_value%get_rank()
+      dims = this%dimensions%size()
+
+      _ASSERT( dims == rank, "dimensions and rank don't match.  Add dimension first")
+
+      this%const_value = const_value
+      _RETURN(_SUCCESS)
+   end subroutine add_const_value
+
+   function get_const_value(this) result(const_value)
+      class (Variable), target, intent(in) :: this
+      type (UnlimitedEntity), pointer :: const_value
+
+      const_value =>this%const_value
+
+   end function get_const_value 
+ 
    function get_chunksizes(this) result(chunksizes)
       class (Variable), target, intent(in) :: this
       integer, pointer :: chunksizes(:)
@@ -199,14 +252,31 @@ contains
 
    end function get_chunksizes
 
+   function get_deflation(this) result(deflateLevel)
+      class (Variable), target, intent(In) :: this
+      integer :: deflateLevel
+
+      deflateLevel=this%deflation
+   end function get_deflation
 
    logical function equal(a, b)
       class (Variable), target, intent(in) :: a
-      class (Variable), target, intent(in) :: b
+      type (Variable), target, intent(in) :: b
 
       type (StringAttributeMapIterator) :: iter
       type (Attribute), pointer :: attr_a, attr_b
       character(len=:), pointer :: attr_name
+
+      ! special case : both are empty
+      equal = (a%const_value == b%const_value)
+      if (.not. equal) return
+
+      equal = ( a%dimensions%size() == 0 .and. &
+                b%dimensions%size() == 0 .and. &
+                a%attributes%size() == 0 .and. &
+                b%attributes%size() == 0 ) 
+
+      if (equal) return
 
       equal = (a%type == b%type)      
       if (.not. equal) return
@@ -232,40 +302,63 @@ contains
 
          call iter%next()
       end do
+
       
    end function equal
 
    logical function not_equal(a, b)
       class (Variable), intent(in) :: a
-      class (Variable), intent(in) :: b
+      type (Variable), intent(in) :: b
 
       not_equal = .not. (a == b)
    end function not_equal
 
-   subroutine serialize(this, buffer)
+   subroutine serialize(this, buffer, rc)
       class (Variable), intent(in) :: this
-      integer, allocatable,intent(inout) :: buffer(:)
+      integer, allocatable, intent(inout) :: buffer(:)
+      integer, optional, intent(out) :: rc
       integer, allocatable :: tmp_buffer(:)
       integer :: length
+      integer :: status
 
       if(allocated(buffer)) deallocate(buffer)
       
-      call StringVector_serialize(this%dimensions,tmp_buffer)
-      buffer =[serialize_intrinsic(this%type),tmp_buffer]
-      call StringAttributeMap_serialize(this%attributes,tmp_buffer)
-      buffer =[buffer,tmp_buffer,serialize_intrinsic(this%chunksizes)]
-      length = serialize_buffer_length(length) + size(buffer)
-      buffer = [serialize_intrinsic(length),buffer]
-      
+      call StringVector_serialize(this%dimensions, tmp_buffer)
+      buffer =[serialize_intrinsic(this%type), tmp_buffer]
+      call StringAttributeMap_serialize(this%attributes, tmp_buffer, status)
+      _VERIFY(status)
+      buffer = [buffer, tmp_buffer] 
+      call this%const_value%serialize(tmp_buffer, status)
+      _VERIFY(status)
+      buffer = [buffer, tmp_buffer,serialize_intrinsic(this%deflation)] 
+
+      if( .not. allocated(this%chunksizes)) then
+        buffer =[buffer,[1]]
+      else
+        buffer =[buffer,serialize_intrinsic(this%chunksizes)]
+      endif
+
+      length = serialize_buffer_length(length) + serialize_buffer_length(Variable_SERIALIZE_TYPE) + size(buffer)
+      buffer = [serialize_intrinsic(length), serialize_intrinsic(Variable_SERIALIZE_TYPE), buffer]
+      _RETURN(_SUCCESS) 
    end subroutine
 
-   subroutine deserialize(this, buffer)
+   subroutine deserialize(this, buffer, rc)
       class (Variable), intent(inout) :: this
       integer,intent(in) :: buffer(:)
-      integer :: n,length
-
+      integer, optional, intent(out) :: rc
+      integer :: n,length, v_type
+      type (UnlimitedEntity),allocatable :: const
+      integer :: status
+ 
       n = 1
+      call deserialize_intrinsic(buffer(n:),length)
+      _ASSERT(length == size(buffer), "length does not match")
+
       length = serialize_buffer_length(length)
+      n = n+length
+      call deserialize_intrinsic(buffer(n:),v_type)
+      length = serialize_buffer_length(v_type)
       n = n+length
       call deserialize_intrinsic(buffer(n:),this%type)
       length = serialize_buffer_length(this%type)
@@ -273,100 +366,22 @@ contains
       this%dimensions = StringVector_deserialize(buffer(n:))
       call deserialize_intrinsic(buffer(n:),length)
       n = n + length
-      this%attributes = StringAttributeMap_deserialize(buffer(n:))
       call deserialize_intrinsic(buffer(n:),length)
+      this%attributes = StringAttributeMap_deserialize(buffer(n:n+length-1), status)
+      _VERIFY(status)
+
+      n = n + length
+      allocate(const)
+      call deserialize_intrinsic(buffer(n:),length)
+      call const%deserialize(buffer(n:(n+length-1)), status)
+      _VERIFY(status)
+      this%const_value = const
+      n = n + length
+      call deserialize_intrinsic(buffer(n:),this%deflation)
+      length = serialize_buffer_length(this%deflation)
       n = n + length
       call deserialize_intrinsic(buffer(n:),this%chunksizes)
-
+      _RETURN(_SUCCESS)
    end subroutine deserialize
 
 end module pFIO_VariableMod
-
-
-module pFIO_StringVariableMapMod
-   use pFIO_ThrowMod
-   use ESMF
-   use pFIO_VariableMod
-   
-   ! Create a map (associative array) between names and pFIO_Variables.
-   
-#include "types/key_deferredLengthString.inc"   
-#define _value class (Variable)
-#define _value_allocatable
-
-#define _map StringVariableMap
-#define _iterator StringVariableMapIterator
-
-#define _alt
-#define _FTL_THROW pFIO_throw_exception
-
-#include "templates/map.inc"
-   
-end module pFIO_StringVariableMapMod
-
-module pFIO_StringVariableMapUtilMod
-   use pFIO_UtilitiesMod
-   use pFIO_VariableMod
-   use pFIO_StringVariableMapMod
-   implicit none
-   private
-   public :: StringVariableMap_serialize
-   public :: StringVariableMap_deserialize
-
-contains
-
-    subroutine StringVariableMap_serialize(map,buffer)
-       type (StringVariableMap) ,intent(in):: map
-       integer, allocatable,intent(inout) :: buffer(:)
-       type (StringVariableMapIterator) :: iter
-       character(len=:),pointer :: key
-       type(Variable),pointer :: var_ptr
-       integer :: length
-       integer, allocatable :: tmp_buffer(:)
-
-       if (allocated(buffer)) deallocate(buffer)
-       allocate(buffer(0))
-       iter = map%begin()
-       do while (iter /= map%end())
-          key => iter%key()
-          buffer=[buffer,serialize_intrinsic(key)]
-          var_ptr => iter%value()
-          call var_ptr%serialize(tmp_buffer)
-          buffer = [buffer, tmp_buffer]
-          deallocate(tmp_buffer)
-          call iter%next()
-       enddo
-       length = serialize_buffer_length(length)+size(buffer)
-       buffer = [serialize_intrinsic(length),buffer]
-    end subroutine StringVariableMap_serialize
-
-    function StringVariableMap_deserialize(buffer) result(map)
-       type (StringVariableMap) :: map
-       integer, intent(in) :: buffer(:)
-
-       character(len=:),allocatable :: key
-       integer :: length,n,n0,n1,n2
-       type (Variable), allocatable :: var
-
-       n = 1
-       call deserialize_intrinsic(buffer(n:),length)
-       n0 = serialize_buffer_length(length)
-       n = n + n0
-       length = length - n0
-
-       do while (length > 0)
-          call deserialize_intrinsic(buffer(n:),key)
-          n1 = serialize_buffer_length(key)
-          n = n + n1
-          allocate(var)
-          call var%deserialize(buffer(n:))
-          call deserialize_intrinsic(buffer(n:),n2)
-          n = n + n2
-          length = length - n1 - n2
-          call map%insert(key,var)
-          deallocate(key)
-          deallocate(var)
-       enddo
-    end function StringVariableMap_deserialize
-
-end module pFIO_StringVariableMapUtilMod

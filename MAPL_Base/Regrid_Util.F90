@@ -14,6 +14,7 @@
    use ESMF_CFIOFileMod
    use MAPL_LatLonGridFactoryMod
    use MAPL_ConstantsMod, only: MAPL_PI_R8
+   use MAPL_ErrorHandlingMod
 
    implicit NONE
 
@@ -94,7 +95,7 @@ CONTAINS
 !    to turn OFF ESMF's automatic logging feature
 !   -------------------------------------------------------------
     call ESMF_Initialize (LogKindFlag=ESMF_LOGKIND_NONE, vm=vm, rc=STATUS)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_VMGet(vm, localPET=myPET, petCount=nPet)
 
 
@@ -155,14 +156,14 @@ CONTAINS
     if (trim(regridMth) .ne. 'bilinear' .and. trim(regridMth ) .ne. 'conservative' .and. trim(regridMth ) .ne. 'conservative2' .and. &
          trim(regridMth).ne.'patch') then
        if (MAPL_AM_I_Root()) write(*,*)'invalid regrid method choose bilinear or conservative'
-       ASSERT_(.false.)
+       _ASSERT(.false.,'needs informative message')
     end if
 
     call MAPL_GetNodeInfo (comm=MPI_COMM_WORLD, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_CalendarSetDefault ( ESMF_CALKIND_GREGORIAN, rc=status )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if (.not.allTimes) then
        call UnpackDateTIme(itime,year,month,day,hour,minute,second)
     end if
@@ -197,13 +198,13 @@ CONTAINS
 
     if (tSteps == 1) then
        call ESMF_TimeIntervalSet( TimeInterval, h=6, m=0, s=0, rc=status )
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     else
        TimeInterval=tSeries(2)-tSeries(1)
     end if
     Clock = ESMF_ClockCreate ( name="Eric", timeStep=TimeInterval, &
                                startTime=tSeries(1), rc=status )
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call UnpackGridName(Gridname,im_world_new,jm_world_new,dateline_new,pole_new)
 !   Lat lon or cubed sphere?
@@ -223,9 +224,9 @@ CONTAINS
     if (mapl_am_i_root()) write(*,*)'done making grid'
 
     bundle_cfio=ESMF_FieldBundleCreate(name="cfio_bundle",rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_FieldBundleSet(bundle_cfio,grid=grid_old,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     fileCreated=.false.
     do i=1,tsteps
@@ -238,21 +239,21 @@ CONTAINS
        else
           call MAPL_CFIORead(filename,time,bundle_cfio,rc=status)
        end if
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        if (Mapl_AM_I_Root()) write(*,*)'done reading file ',trim(filename)
 
        if (.not.fileCreated) bundle_esmf = BundleClone(bundle_cfio,grid_new,__RC__)
 
        call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        itime_beg = MPI_Wtime(STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call RunESMFRegridding(regridMth,bundle_cfio,bundle_esmf,__RC__)
 
        call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        itime_end = MPI_Wtime(STATUS)
        if (mapl_am_I_root()) write(*,*)'MAPL TIME: ',itime_end-itime_beg
 
@@ -263,17 +264,17 @@ CONTAINS
        if (.not.fileCreated) then
           call ESMF_TimeIntervalGet(timeInterval,s=freq,__RC__)
           call MAPL_CFIOCreate ( cfio_esmf, outputFile, clock, Bundle_esmf,frequency=freq,vunit = "layer", rc=status )
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           call MAPL_CFIOSet(cfio_esmf,newFormat=newCube,rc=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
        call MAPL_CFIOWrite(cfio_esmf,clock,bundle_esmf,created=fileCreated,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        if (.not.fileCreated) fileCreated=.true.
  
     end do
     call MAPL_CFIOClose(cfio_esmf,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 !   All done
 !   --------
@@ -281,7 +282,7 @@ CONTAINS
 
     call MPI_Finalize(status)
 !    call ESMF_Finalize ( rc=status )
-!    VERIFY_(STATUS)
+!    _VERIFY(STATUS)
 
     end subroutine main
 
@@ -307,30 +308,30 @@ CONTAINS
 
 
     call ESMF_FieldBundleGet(bundle_old,fieldCount=bcount,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     bundle_new = ESMF_FieldBundleCreate(name="newBundle",rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call ESMF_FieldBundleSet(bundle_new,grid=grid_new,__RC__)
 
     do i=1,bcount
        ! get info about original fields in bundle
        call ESMF_FieldBundleGet(bundle_old,i,field=field_old,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_FieldGet(field_old,name=FieldName,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call ESMF_AttributeGet(field_old,NAME='DIMS',value=dims_orig,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        field = MAPL_FieldCreate(field_old,grid_new,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_AttributeSet(field,NAME='DIMS',value=dims_orig,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call MAPL_FieldBundleAdd(bundle_new,field,__RC__)
 
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
     end function BundleClone
 
@@ -357,20 +358,20 @@ CONTAINS
 
 
     call ESMF_FieldBundleGet(bundle_old,fieldCount=bcount,rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 
     do i=1,bcount
        ! get info about original fields in bundle
        call ESMF_FieldBundleGet(bundle_old,i,field=field_old,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_AttributeGet(field_old,NAME='DIMS',value=dims,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
        call ESMF_AttributeGet(field_old,NAME='VLOCATION',value=vloc,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
        call ESMF_FieldBundleGet(bundle_new,i,field=field_new,rc=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
       
        if (dims==MAPL_DimsHorzOnly) then
           call ESMF_FieldGet(field_old,0,ptr2d_old,__RC__)
@@ -384,7 +385,7 @@ CONTAINS
 
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
     end subroutine BundleCopy
 
@@ -466,7 +467,7 @@ CONTAINS
        call ESMF_FieldBundleGet(bundle_new,i,field=field_new,__RC__)
        call ESMF_FieldGet(field_new,rank=newRank,__RC__)
 
-       ASSERT_(newRank == oldRank)
+       _ASSERT(newRank == oldRank,'needs informative message')
 
        if (oldRank == 3) then
 
@@ -497,7 +498,7 @@ CONTAINS
        end if
     end do
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
 
     end subroutine RunESMFRegridding
 
@@ -619,16 +620,16 @@ CONTAINS
        enddo
        grid = ESMF_GridCreateCubedSPhere(im_world,regDecompPTile=ijms,name=grid_name, &
                 staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
-      VERIFY_(status)
+      _VERIFY(status)
 
       call ESMF_AttributeSet(grid, name='GRID_LM', value=lm, rc=status)
-      VERIFY_(status)
+      _VERIFY(status)
 
       call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
-      VERIFY_(status)
+      _VERIFY(status)
       call ESMF_AttributeSet(grid, name='NEW_CUBE', value=1,rc=status)
-      VERIFY_(status)
-      RETURN_(ESMF_SUCCESS)
+      _VERIFY(status)
+      _RETURN(ESMF_SUCCESS)
 
      end function cs_gridcreate
  
@@ -672,15 +673,15 @@ CONTAINS
        call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER,__RC__)
        call MAPL_Grid_Interior(grid, i_1, i_n, j_1, j_n)
        status = nf90_open(gridspec,NF90_NOWRITE,ncid)
-       VERIFY_(status)
+       _VERIFY(status)
 
        allocate(centers(im_world,jm_world),__STAT__)
 
        ! do longitudes
        status = nf90_inq_varid(ncid,'x_T',varid)
-       VERIFY_(status)
+       _VERIFY(status)
        status = nf90_get_var(ncid,varid,centers)
-       VERIFY_(status)
+       _VERIFY(status)
        centers=centers*MAPL_PI_R8/180.d0
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CENTER, &
@@ -688,9 +689,9 @@ CONTAINS
        fptr=centers(i_1:i_n,j_1:j_n)
        ! do latitudes
        status = nf90_inq_varid(ncid,'y_T',varid)
-       VERIFY_(status)
+       _VERIFY(status)
        status = nf90_get_var(ncid,varid,centers)
-       VERIFY_(status)
+       _VERIFY(status)
        centers=centers*MAPL_PI_R8/180.d0
        call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CENTER, &
@@ -702,9 +703,9 @@ CONTAINS
 
        ! do longitudes
        status = nf90_inq_varid(ncid,'x_vert_T',varid)
-       VERIFY_(status)
+       _VERIFY(status)
        status = nf90_get_var(ncid,varid,corners)
-       VERIFY_(status)
+       _VERIFY(status)
        corners=corners*MAPL_PI_R8/180.d0
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CORNER, &
@@ -719,9 +720,9 @@ CONTAINS
        end if
        ! do latitudes
        status = nf90_inq_varid(ncid,'y_vert_T',varid)
-       VERIFY_(status)
+       _VERIFY(status)
        status = nf90_get_var(ncid,varid,corners)
-       VERIFY_(status)
+       _VERIFY(status)
        corners=corners*MAPL_PI_R8/180.d0
        call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CORNER, &
@@ -736,7 +737,7 @@ CONTAINS
 
        call ESMF_AttributeSet(grid,name='GRID_LM',value=lm,__RC__)
 
-       RETURN_(ESMF_SUCCESS)
+       _RETURN(ESMF_SUCCESS)
 
      end function tripolar_gridcreate 
 
@@ -764,7 +765,7 @@ CONTAINS
              grid = tripolar_gridcreate(gname,im_world,jm_world,nx,ny,lm,tp_file,__RC__)
        end select
        
-       RETURN_(ESMF_SUCCESS)
+       _RETURN(ESMF_SUCCESS)
     end function create_grid
         
     end program ut_ReGridding 

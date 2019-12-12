@@ -1,8 +1,9 @@
 module ESMF_TestCase_mod
    use ESMF
    use ESMF_TestParameter_mod
-   use pfunit_mod, only: MpiTestCase
-   use pfunit_mod, only: anyExceptions
+   use pfunit, only: MpiTestCase, anyExceptions, catch
+   use pfunit, only: throw
+   use pf_exceptionlist, only: gatherExceptions
    implicit none
 
    private
@@ -39,9 +40,6 @@ contains
 
 
    recursive subroutine runBare(this)
-      use Exception_mod
-      use ParallelException_mod
-      use ESMF
       class (ESMF_TestCase), intent(inout) :: this
 
       logical :: discard
@@ -78,7 +76,7 @@ contains
          end if
       end if
 
-      call gather(this%parentContext)
+      call gatherExceptions(this%parentContext)
 
       call this%clearInternalState(gc)
 
@@ -278,7 +276,6 @@ contains
 
    
    integer function getNumPETsRequested(this) result(numPETsRequested)
-      use Exception_mod
       class (ESMF_TestCase), intent(in) :: this
       select type (p => this%testParameter)
       class is (ESMF_TestParameter)

@@ -7,8 +7,8 @@ module MAPL_pFUnit_ThrowMod
 contains
 
    subroutine throw(file_name, line_number, message)
-      use pFUnit_mod, only: SourceLocation
-      use pFUnit_mod, only: pFUnit_throw => throw
+      use pFUnit, only: SourceLocation
+      use pFUnit, only: pFUnit_throw => throw
       character(len=*), intent(in) :: file_name
       integer, intent(in) :: line_number
       character(len=*), optional, intent(in) :: message

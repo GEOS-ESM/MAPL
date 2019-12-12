@@ -13,7 +13,7 @@ module MAPL_EsmfRegridderMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_AbstractRegridderMod
    use MAPL_GridManagerMod
-   use MAPL_BaseMod, only: MAPL_undef
+   use MAPL_BaseMod, only: MAPL_undef, MAPL_GridGet, MAPL_GridHasDE
    use MAPL_RegridderSpecRouteHandleMapMod
    implicit none
    private
@@ -24,22 +24,29 @@ module MAPL_EsmfRegridderMod
 
    ! Singleton container to avoid unnecessary duplication of
    ! ESMF Route handles
-   type (RegridderSpecRouteHandleMap), save, target :: route_handles
-   type (RegridderSpecRouteHandleMap), save, target :: transpose_route_handles
+   type (RegridderSpecRouteHandleMap), save, target :: route_handles_r4
+   type (RegridderSpecRouteHandleMap), save, target :: route_handles_r8
+   
+   type (RegridderSpecRouteHandleMap), save, target :: transpose_route_handles_r4
+   type (RegridderSpecRouteHandleMap), save, target :: transpose_route_handles_r8
+   
 
    type, extends(AbstractRegridder) :: EsmfRegridder
-!!$      private
-      integer, public :: id = -1
-      type (ESMF_RouteHandle) :: route_handle
-      type (ESMF_RouteHandle) :: transpose_route_handle
       integer :: regrid_method
       type (ESMF_DynamicMask) :: dynamic_mask
    contains
-      procedure :: initialize_subclass
+     procedure :: initialize_subclass
+     
       procedure :: regrid_scalar_2d_real32
+      procedure :: regrid_scalar_2d_real64
       procedure :: regrid_scalar_3d_real32
+      procedure :: regrid_scalar_3d_real64
+      
       procedure :: regrid_vector_2d_real32
+      procedure :: regrid_vector_2d_real64
       procedure :: regrid_vector_3d_real32
+      procedure :: regrid_vector_3d_real64
+      
       procedure :: transpose_regrid_scalar_2d_real32
       procedure :: transpose_regrid_scalar_3d_real32
       procedure :: transpose_regrid_vector_2d_real32
@@ -47,6 +54,8 @@ module MAPL_EsmfRegridderMod
 
       ! internal
       procedure :: do_regrid
+      procedure :: create_route_handle
+      procedure :: select_route_handle
  
    end type EsmfRegridder
 
@@ -79,43 +88,103 @@ contains
 
       real, pointer :: p_src(:,:), p_dst(:,:)
       type (ESMF_Field) :: src_field, dst_field
+      logical :: HasDE
 
       spec = this%get_spec()
       
-!!$      allocate(p_src, source=q_in)
-!!$      allocate(p_dst, source=q_out)
-      allocate(p_src(size(q_in,1),size(q_in,2)))
-      allocate(p_dst(size(q_out,1),size(q_out,2)))
-      p_src = q_in
-      
       ! TODO support other staggerings
-      src_field = ESMF_FieldCreate(spec%grid_in, farrayPtr=p_src, &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, rc=status)
+      src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
+                  gridToFieldMap=[1,2],&
+                  rc=status)
+      HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
       _VERIFY(status)
+      if (HasDE) then
+         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
+         _VERIFY(status)
+         p_src = q_in
+      end if
 
 
-      p_dst = 0
-      dst_field = ESMF_FieldCreate(spec%grid_out, farrayPtr=p_dst, &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, rc=status)
+      dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R4, &
+                  gridToFieldMap=[1,2],&
+                  rc=status)
+      HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
+      if (HasDE) then
+         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
+         _VERIFY(status)
+         p_dst = 0
+      end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
       _VERIFY(status)
 
-      q_out = p_dst
+      if (HasDE) q_out = p_dst
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-
-      deallocate(p_src)
-      deallocate(p_dst)
       
       _RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_scalar_2d_real32
 
+   subroutine regrid_scalar_2d_real64(this, q_in, q_out, rc)
+      class (EsmfRegridder), intent(in) :: this
+      real(kind=REAL64), intent(in) :: q_in(:,:)
+      real(kind=REAL64), intent(out) :: q_out(:,:)
+      integer, optional, intent(out) :: rc
+
+      character(*), parameter :: Iam = 'MAPL_EsmfRegridder::regrid_scalar_2d_real32()'
+      integer :: status
+
+      type (RegridderSpec) :: spec
+
+      real, pointer :: p_src(:,:), p_dst(:,:)
+      type (ESMF_Field) :: src_field, dst_field
+      logical :: HasDE
+
+      spec = this%get_spec()
+      
+      ! TODO support other staggerings
+      src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R8, &
+                  gridToFieldMap=[1,2],&
+                  rc=status)
+      HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
+      _VERIFY(status)
+      if (HasDE) then
+         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
+         _VERIFY(status)
+         p_src = q_in
+      end if
+
+
+      dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R8, &
+                  gridToFieldMap=[1,2],&
+                  rc=status)
+      HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
+      _VERIFY(status)
+      if (HasDE) then
+         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
+         _VERIFY(status)
+         p_dst = 0
+      end if
+
+      call this%do_regrid(src_field, dst_field, rc=status)
+      _VERIFY(status)
+
+      if (HasDE) q_out = p_dst
+
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
+      _VERIFY(status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
+      _VERIFY(status)
+      
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine regrid_scalar_2d_real64
+   
    subroutine transpose_regrid_scalar_2d_real32(this, q_in, q_out, rc)
       class (EsmfRegridder), intent(in) :: this
       real(kind=REAL32), intent(in) :: q_in(:,:)
@@ -129,39 +198,41 @@ contains
 
       real, pointer :: p_src(:,:), p_dst(:,:)
       type (ESMF_Field) :: src_field, dst_field
+      logical :: HasDE
 
       spec = this%get_spec()
-      
-!!$      allocate(p_src, source=q_in)
-!!$      allocate(p_dst, source=q_out)
-      allocate(p_src(size(q_in,1),size(q_in,2)))
-      allocate(p_dst(size(q_out,1),size(q_out,2)))
-      p_src = q_in
-      
-      ! TODO support other staggerings
-      src_field = ESMF_FieldCreate(spec%grid_out, farrayPtr=p_src, &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, rc=status)
+      src_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R4, &
+                  gridToFieldMap=[1,2],&
+                  rc=status)
+      HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
-
-
-      p_dst = 0
-      dst_field = ESMF_FieldCreate(spec%grid_in, farrayPtr=p_dst, &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, rc=status)
+      if (HasDE) then
+         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
+         _VERIFY(status)
+         p_src = q_in
+      end if
+      
+      dst_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
+                  gridToFieldMap=[1,2],&
+                  rc=status)
+      HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
       _VERIFY(status)
+      if (HasDE) then
+         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
+         _VERIFY(status)
+         p_dst = 0
+      end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
       _VERIFY(status)
 
-      q_out = p_dst
+      if (hasDE) q_out = p_dst
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
-      deallocate(p_src)
-      deallocate(p_dst)
-      
       _RETURN(ESMF_SUCCESS)
 
    end subroutine transpose_regrid_scalar_2d_real32
@@ -180,57 +251,158 @@ contains
       real, pointer :: p_src(:,:,:), p_dst(:,:,:)
       type (ESMF_Field) :: src_field, dst_field
 
-      integer :: km
-      integer :: im_src, jm_src
-      integer :: im_dst, jm_dst
+      integer :: kin,kout,km
+      logical :: hasDE
+      type(ESMF_VM) :: vm
 
       spec = this%get_spec()
 
-      km = size(q_in,3)
-      _ASSERT(km == size(q_out,3))
-
-      im_src = size(q_in,1)
-      jm_src = size(q_in,2)
-
-      im_dst = size(q_out,1)
-      jm_dst = size(q_out,2)
-
       ! Note: tranposing km to leading index
-      allocate(p_src(km,im_src,jm_src))
-      allocate(p_dst(km,im_dst,jm_dst))
-
-      p_src = reshape(q_in,shape(p_src), order=[2,3,1])
-      ! TODO support other staggerings
-      src_field = ESMF_FieldCreate(spec%grid_in, farrayPtr=p_src, &
-           & gridToFieldMap=[2,3], &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, &
-           & rc=status)
+      call ESMF_VMGetCurrent(vm,rc=status)
       _VERIFY(status)
+      HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
+      _VERIFY(status)
+      if (hasDE) then
+         km = size(q_in,3)
+      else
+         km = 0
+      end if
+      call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceflag=ESMF_REDUCE_MAX,rc=status)
+      _VERIFY(status)
+      
+      if (hasDE) then
+          _ASSERT(kin == size(q_in,3))
+      end if
+      src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
+                  gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kin],&
+                  rc=status)
+      _VERIFY(status)
+      if (HasDE) then
+         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
+         _VERIFY(status)
+         p_src = reshape(q_in,shape(p_src), order=[2,3,1])
+      end if
 
       
-      p_dst = 0
-      dst_field = ESMF_FieldCreate(spec%grid_out, farrayPtr=p_dst, &
-           & gridToFieldMap=[2,3], &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, rc=status)
+      HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
+      if (hasDE) then
+         km = size(q_out,3)
+      else
+         km = 0
+      end if
+      call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceflag=ESMF_REDUCE_MAX,rc=status)
+      _VERIFY(status)
+      if (hasDE) then
+          _ASSERT(km == size(q_out,3))
+      end if
+      dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R4, &
+                  gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kout],&
+                  rc=status)
+      _VERIFY(status)
+      if (HasDE) then
+         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
+         _VERIFY(status)
+         p_dst = 0
+      end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
       _VERIFY(status)
 
-      q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
+      if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
-      deallocate(p_src)
-      deallocate(p_dst)
-      
       _RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_scalar_3d_real32
 
+   subroutine regrid_scalar_3d_real64(this, q_in, q_out, rc)
+      class (EsmfRegridder), intent(in) :: this
+      real(real64), intent(in) :: q_in(:,:,:)
+      real(real64), intent(out) :: q_out(:,:,:)
+      integer, optional, intent(out) :: rc
+
+      character(*), parameter :: Iam = 'MAPL_EsmfRegridder::regrid_scalar_3d_real32()'
+      integer :: status
+
+      type (RegridderSpec) :: spec
+
+      real(real64), pointer :: p_src(:,:,:), p_dst(:,:,:)
+      type (ESMF_Field) :: src_field, dst_field
+
+      integer :: kin,kout,km
+      logical :: hasDE
+      type(ESMF_VM) :: vm
+
+      spec = this%get_spec()
+
+      ! Note: tranposing km to leading index
+      call ESMF_VMGetCurrent(vm,rc=status)
+      _VERIFY(status)
+      HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
+      _VERIFY(status)
+      if (hasDE) then
+         km = size(q_in,3)
+      else
+         km = 0
+      end if
+      call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceflag=ESMF_REDUCE_MAX,rc=status)
+      _VERIFY(status)
+      
+      if (hasDE) then
+          _ASSERT(kin == size(q_in,3))
+      end if
+      src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R8, &
+                  gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kin],&
+                  rc=status)
+      _VERIFY(status)
+      if (HasDE) then
+         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
+         _VERIFY(status)
+         p_src = reshape(q_in,shape(p_src), order=[2,3,1])
+      end if
+
+      
+      HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
+      _VERIFY(status)
+      if (hasDE) then
+         km = size(q_out,3)
+      else
+         km = 0
+      end if
+      call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceflag=ESMF_REDUCE_MAX,rc=status)
+      _VERIFY(status)
+      if (hasDE) then
+          _ASSERT(km == size(q_out,3))
+      end if
+      dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R8, &
+                  gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kout],&
+                  rc=status)
+      _VERIFY(status)
+      if (HasDE) then
+         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
+         _VERIFY(status)
+         p_dst = 0
+      end if
+
+      call this%do_regrid(src_field, dst_field, rc=status)
+      _VERIFY(status)
+
+      if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
+
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
+      _VERIFY(status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
+      _VERIFY(status)
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine regrid_scalar_3d_real64
+      
    subroutine transpose_regrid_scalar_3d_real32(this, q_in, q_out, rc)
       class (EsmfRegridder), intent(in) :: this
       real, intent(in) :: q_in(:,:,:)
@@ -245,10 +417,14 @@ contains
       real, pointer :: p_src(:,:,:), p_dst(:,:,:)
       type (ESMF_Field) :: src_field, dst_field
 
-      integer :: km
+      integer :: km,kin,kout
       integer :: im_src, jm_src
       integer :: im_dst, jm_dst
+      logical :: hasDE
+      type(ESMF_VM) :: vm
 
+      call ESMF_VMGetCurrent(vm,rc=status)
+      _VERIFY(status)
       spec = this%get_spec()
 
       km = size(q_in,3)
@@ -260,49 +436,70 @@ contains
       im_dst = size(q_out,1)
       jm_dst = size(q_out,2)
 
-      ! Note: tranposing km to leading index
-      allocate(p_src(km,im_src,jm_src))
-      allocate(p_dst(km,im_dst,jm_dst))
-
-      p_src = reshape(q_in,shape(p_src), order=[2,3,1])
-      ! TODO support other staggerings
-      src_field = ESMF_FieldCreate(spec%grid_out, farrayPtr=p_src, &
-           & gridToFieldMap=[2,3], &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, &
-           & rc=status)
+      HasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
-
+      if (hasDE) then
+         km = size(q_in,3)
+      else
+         km = 0
+      end if
+      call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceFlag=ESMF_REDUCE_MAX,rc=status)
+      _VERIFY(status)
+      if (hasDE) then
+          _ASSERT(kin == size(q_in,3))
+      end if
+      src_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R4, &
+                  gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kin],&
+                  rc=status)
+      if (HasDE) then
+         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
+         _VERIFY(status)
+         p_src = reshape(q_in,shape(p_src), order=[2,3,1])
+      end if
       
-      p_dst = 0
-      dst_field = ESMF_FieldCreate(spec%grid_in, farrayPtr=p_dst, &
-           & gridToFieldMap=[2,3], &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, rc=status)
+      HasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
+      _VERIFY(status) 
+      if (hasDE) then
+         km = size(q_out,3)
+      else
+         km = 0
+      end if
+      call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceFlag=ESMF_REDUCE_MAX,rc=status)
       _VERIFY(status)
+      if (hasDE) then
+          _ASSERT(kout == size(q_out,3))
+      end if
+      dst_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
+                  gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kout],&
+                  rc=status)
+      if (HasDE) then
+         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
+         _VERIFY(status)
+         p_dst = 0
+      end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
       _VERIFY(status)
+ 
+      if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
 
-      q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
-
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
-      deallocate(p_src)
-      deallocate(p_dst)
-      
       _RETURN(ESMF_SUCCESS)
 
    end subroutine transpose_regrid_scalar_3d_real32
 
 
-   subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rc)
+   subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (EsmfRegridder), intent(in) :: this
       real, intent(in) :: u_in(:,:)
       real, intent(in) :: v_in(:,:)
       real, intent(out) :: u_out(:,:)
       real, intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
 
       character(*), parameter :: Iam = 'MAPL_EsmfRegridder::regrid_vector_2d_real32()'
@@ -310,12 +507,14 @@ contains
 
       type (RegridderSpec) :: spec
       class (AbstractGridFactory), pointer :: factory
+      character(len=ESMF_MAXSTR) :: grid_axis_in, grid_axis_out
 
       real, pointer :: p_src(:,:,:,:), p_dst(:,:,:,:)
       type (ESMF_Field) :: src_field, dst_field
 
       integer :: im_src, jm_src
       integer :: im_dst, jm_dst
+      logical :: HasDE
 
       spec = this%get_spec()
 
@@ -329,54 +528,166 @@ contains
       _ASSERT(im_dst == size(v_out,1))
       _ASSERT(jm_dst == size(v_out,2))
 
-      allocate(p_src(3,1,im_src,jm_src))
-      allocate(p_dst(3,1,im_dst,jm_dst))
+      grid_axis_in = 'north-south'
+      grid_axis_out = 'north-south'
+      if (present(rotate)) then
+         if (rotate) then
+            grid_axis_in = 'xyz'
+            grid_axis_out = 'grid'
+         end if
+      end if
 
       factory => grid_manager%get_factory(spec%grid_in,rc=status)
       _VERIFY(status)
-      call factory%spherical_to_cartesian(u_in, v_in, p_src, 'north-south', rc=status)
-      _VERIFY(status)
       
       ! TODO support other staggerings
-      src_field = ESMF_FieldCreate(spec%grid_in, farrayPtr=p_src, &
-           & gridToFieldMap=[3,4], &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, &
+      src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
+           & gridToFieldMap=[3,4], UngriddedLBound=[1,1], ungriddedUBound=[3,1], &
            & rc=status)
       _VERIFY(status)
-
-      
-      p_dst = 0
-      dst_field = ESMF_FieldCreate(spec%grid_out, farrayPtr=p_dst, &
-           & gridToFieldMap=[3,4], &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, rc=status)
+      hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
       _VERIFY(status)
+      if (hasDE) then
+         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
+         _VERIFY(status)
+         call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
+         _VERIFY(status)
+      end if
+      
+
+      dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R4, &
+           & gridToFieldMap=[3,4], UngriddedLBound=[1,1], ungriddedUBound=[3,1], &
+           & rc=status)
+      _VERIFY(status)
+      hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
+      _VERIFY(status)
+      if (hasDE) then
+         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
+         _VERIFY(status)
+         p_dst = 0
+      end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
       _VERIFY(status)
 
       factory => grid_manager%get_factory(spec%grid_out,rc=status)
       _VERIFY(status)
-      call factory%cartesian_to_spherical(p_dst, u_out, v_out, 'north-south', rc=status)
+      if (hasDE) then
+         call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out, rc=status)
+         _VERIFY(status)
+      end if
+
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
+      _VERIFY(status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
-      call ESMF_FieldDestroy(src_field, rc=status)
-      _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
-      _VERIFY(status)
-
-      deallocate(p_src)
-      deallocate(p_dst)
-      
       _RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_vector_2d_real32
 
-   subroutine transpose_regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rc)
+
+   subroutine regrid_vector_2d_real64(this, u_in, v_in, u_out, v_out, rotate, rc)
+     class (EsmfRegridder), intent(in) :: this
+     real(real64), intent(in) :: u_in(:,:)
+     real(real64), intent(in) :: v_in(:,:)
+     real(real64), intent(out) :: u_out(:,:)
+     real(real64), intent(out) :: v_out(:,:)
+     logical, optional, intent(in) :: rotate
+     integer, optional, intent(out) :: rc
+
+     character(*), parameter :: Iam = 'MAPL_EsmfRegridder::regrid_vector_2d_real64()'
+     integer :: status
+
+     type (RegridderSpec) :: spec
+     class (AbstractGridFactory), pointer :: factory
+
+     real(real64), pointer :: p_src(:,:,:,:), p_dst(:,:,:,:)
+     type (ESMF_Field) :: src_field, dst_field
+     character(len=ESMF_MAXSTR) :: grid_axis_in, grid_axis_out
+
+     integer :: im_src, jm_src
+     integer :: im_dst, jm_dst
+     logical :: HasDE
+
+     spec = this%get_spec()
+
+     im_src = size(u_in,1)
+     jm_src = size(u_in,2)
+     _ASSERT(im_src == size(v_in,1))
+     _ASSERT(jm_src == size(v_in,2))
+
+     im_dst = size(u_out,1)
+     jm_dst = size(u_out,2)
+     _ASSERT(im_dst == size(v_out,1))
+     _ASSERT(jm_dst == size(v_out,2))
+
+      grid_axis_in = 'north-south'
+      grid_axis_out = 'north-south'
+      if (present(rotate)) then
+         if (rotate) then
+            grid_axis_in = 'xyz'
+            grid_axis_out = 'grid'
+         end if
+      end if
+
+     factory => grid_manager%get_factory(spec%grid_in,rc=status)
+     _VERIFY(status)
+
+     ! TODO support other staggerings
+     src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R8, &
+          & gridToFieldMap=[3,4], UngriddedLBound=[1,1], ungriddedUBound=[3,1], &
+          & rc=status)
+     _VERIFY(status)
+     hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
+     _VERIFY(status)
+     if (hasDE) then
+        call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
+        _VERIFY(status)
+        call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
+        _VERIFY(status)
+     end if
+
+
+     dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R8, &
+          & gridToFieldMap=[3,4], UngriddedLBound=[1,1], ungriddedUBound=[3,1], &
+          & rc=status)
+     _VERIFY(status)
+     hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
+     _VERIFY(status)
+     if (hasDE) then
+        call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
+        _VERIFY(status)
+        p_dst = 0
+     end if
+
+     call this%do_regrid(src_field, dst_field, rc=status)
+     _VERIFY(status)
+
+     factory => grid_manager%get_factory(spec%grid_out,rc=status)
+     _VERIFY(status)
+     if (hasDE) then
+        call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out, rc=status)
+        _VERIFY(status)
+     end if
+
+     call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
+     _VERIFY(status)
+     call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
+     _VERIFY(status)
+
+     _RETURN(ESMF_SUCCESS)
+
+   end subroutine regrid_vector_2d_real64
+
+   
+   subroutine transpose_regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (EsmfRegridder), intent(in) :: this
       real, intent(in) :: u_in(:,:)
       real, intent(in) :: v_in(:,:)
       real, intent(out) :: u_out(:,:)
       real, intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
 
       character(*), parameter :: Iam = 'MAPL_EsmfRegridder::transpose_regrid_vector_2d_real32()'
@@ -387,9 +698,11 @@ contains
 
       real, pointer :: p_src(:,:,:,:), p_dst(:,:,:,:)
       type (ESMF_Field) :: src_field, dst_field
+      character(len=ESMF_MAXSTR) :: grid_axis_in, grid_axis_out
 
       integer :: im_src, jm_src
       integer :: im_dst, jm_dst
+      logical :: HasDE
 
       spec = this%get_spec()
 
@@ -403,44 +716,56 @@ contains
       _ASSERT(im_dst == size(v_out,1))
       _ASSERT(jm_dst == size(v_out,2))
 
-      allocate(p_src(3,1,im_src,jm_src))
-      allocate(p_dst(3,1,im_dst,jm_dst))
+      grid_axis_in = 'north-south'
+      grid_axis_out = 'north-south'
+      if (present(rotate)) then
+         if (rotate) then
+            grid_axis_in = 'grid'
+            grid_axis_out = 'xyz'
+         end if
+      end if
 
       factory => grid_manager%get_factory(spec%grid_out,rc=status)
       _VERIFY(status)
-      call factory%spherical_to_cartesian(u_in, v_in, p_src, 'north-south', rc=status)
+      hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
+      src_field = ESMF_FieldCreate(spec%grid_out, typekind = ESMF_TYPEKIND_R4, &
+           & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,1],rc=status)
+      _VERIFY(status)
+      if (hasDE) then
+         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
+         _VERIFY(status)
+         call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
+         _VERIFY(status)
+      end if
       
-      ! TODO support other staggerings
-      src_field = ESMF_FieldCreate(spec%grid_out, farrayPtr=p_src, &
-           & gridToFieldMap=[3,4], &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, &
-           & rc=status)
-      _VERIFY(status)
 
-      
-      p_dst = 0
-      dst_field = ESMF_FieldCreate(spec%grid_in, farrayPtr=p_dst, &
-           & gridToFieldMap=[3,4], &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, rc=status)
+      hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
+      _VERIFY(status)      
+      dst_field = ESMF_FieldCreate(spec%grid_in, typekind = ESMF_TYPEKIND_R4, &
+           & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,1],rc=status)
       _VERIFY(status)
+      if (hasDE) then
+         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
+         _VERIFY(status)
+         p_dst = 0
+      end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true., rc=status)
       _VERIFY(status)
 
       factory => grid_manager%get_factory(spec%grid_in,rc=status)
       _VERIFY(status)
-      call factory%cartesian_to_spherical(p_dst, u_out, v_out, 'north-south', rc=status)
+      if (hasDE) then
+         call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out, rc=status)
+         _VERIFY(status)
+      end if
+
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
+      _VERIFY(status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
-      call ESMF_FieldDestroy(src_field, rc=status)
-      _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
-      _VERIFY(status)
-
-      deallocate(p_src)
-      deallocate(p_dst)
-      
       _RETURN(ESMF_SUCCESS)
 
    end subroutine transpose_regrid_vector_2d_real32
@@ -465,10 +790,14 @@ contains
       type (ESMF_Field) :: src_field, dst_field
       character(len=ESMF_MAXSTR) :: grid_axis_in, grid_axis_out
 
-      integer :: km
+      integer :: km,kin,kout
       integer :: im_src, jm_src
       integer :: im_dst, jm_dst
+      logical :: hasDE
+      type(ESMF_VM) :: vm
 
+      call ESMF_VMGetCurrent(vm,rc=status)
+      _VERIFY(status)
       spec = this%get_spec()
 
       km = size(u_in,3)
@@ -486,9 +815,6 @@ contains
       _ASSERT(im_dst == size(v_out,1))
       _ASSERT(jm_dst == size(v_out,2))
 
-      allocate(p_src(3,km,im_src,jm_src))
-      allocate(p_dst(3,km,im_dst,jm_dst))
-
       grid_axis_in = 'north-south'
       grid_axis_out = 'north-south'
       if (present(rotate)) then
@@ -500,43 +826,172 @@ contains
 
       factory => grid_manager%get_factory(spec%grid_in,rc=status)
       _VERIFY(status)
-      call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
+      hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
       _VERIFY(status)
+      if (hasDE) then
+         km = size(u_in,3)
+      else
+         km = 0
+      end if
+      call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceFlag=ESMF_REDUCE_MAX,rc=status)
+      _VERIFY(status)
+      src_field = ESMF_FieldCreate(spec%grid_in, typekind = ESMF_TYPEKIND_R4, &
+           & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,kin],rc=status)
+      _VERIFY(status)
+      if (hasDE) then
+         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
+         _VERIFY(status)
+         call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
+         _VERIFY(status)
+      end if
       
-      ! TODO support other staggerings
-      src_field = ESMF_FieldCreate(spec%grid_in, farrayPtr=p_src, &
-           & gridToFieldMap=[3,4], &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, &
-           & rc=status)
+      hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
+      _VERIFY(status) 
+      hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
-
-      
-      p_dst = 0
-      dst_field = ESMF_FieldCreate(spec%grid_out, farrayPtr=p_dst, &
-           & gridToFieldMap=[3,4], &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, rc=status)
+      if (hasDE) then
+         km = size(u_out,3)
+      else
+         km = 0
+      end if
+      call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceFlag=ESMF_REDUCE_MAX,rc=status)
       _VERIFY(status)
+      dst_field = ESMF_FieldCreate(spec%grid_out, typekind = ESMF_TYPEKIND_R4, &
+           & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,kout],rc=status)
+      _VERIFY(status)
+      if (hasDE) then
+         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
+         _VERIFY(status)
+         p_dst = 0
+      end if
 
       call this%do_regrid(src_field, dst_field, rc=status)
       _VERIFY(status)
 
       factory => grid_manager%get_factory(spec%grid_out,rc=status)
       _VERIFY(status)
-      call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out,rc=status)
+      if (hasDE) then
+         call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out,rc=status)
+         _VERIFY(status)
+      end if
+
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
+      _VERIFY(status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
-      call ESMF_FieldDestroy(src_field, rc=status)
-      _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
-      _VERIFY(status)
-
-      deallocate(p_src)
-      deallocate(p_dst)
-      
       _RETURN(ESMF_SUCCESS)
 
    end subroutine regrid_vector_3d_real32
 
+
+   subroutine regrid_vector_3d_real64(this, u_in, v_in, u_out, v_out, rc)
+     class (EsmfRegridder), intent(in) :: this
+     real(real64), intent(in) :: u_in(:,:,:)
+     real(real64), intent(in) :: v_in(:,:,:)
+     real(real64), intent(out) :: u_out(:,:,:)
+     real(real64), intent(out) :: v_out(:,:,:)
+     integer, optional, intent(out) :: rc
+
+     character(*), parameter :: Iam = 'MAPL_EsmfRegridder::regrid_vector_3d_real64()'
+     integer :: status
+
+     type (RegridderSpec) :: spec
+     class (AbstractGridFactory), pointer :: factory
+
+     real(real64), pointer :: p_src(:,:,:,:), p_dst(:,:,:,:)
+     type (ESMF_Field) :: src_field, dst_field
+     character(len=ESMF_MAXSTR) :: grid_axis_in, grid_axis_out
+
+     integer :: km,kin,kout
+     integer :: im_src, jm_src
+     integer :: im_dst, jm_dst
+     logical :: hasDE
+     type(ESMF_VM) :: vm
+
+     call ESMF_VMGetCurrent(vm,rc=status)
+     _VERIFY(status)
+     spec = this%get_spec()
+
+     km = size(u_in,3)
+     _ASSERT(km == size(v_in,3))
+     _ASSERT(km == size(u_out,3))
+     _ASSERT(km == size(v_out,3))
+
+     im_src = size(u_in,1)
+     jm_src = size(u_in,2)
+     _ASSERT(im_src == size(v_in,1))
+     _ASSERT(jm_src == size(v_in,2))
+
+     im_dst = size(u_out,1)
+     jm_dst = size(u_out,2)
+     _ASSERT(im_dst == size(v_out,1))
+     _ASSERT(jm_dst == size(v_out,2))
+
+     grid_axis_in = 'north-south'
+     grid_axis_out = 'north-south'
+
+     factory => grid_manager%get_factory(spec%grid_in,rc=status)
+     _VERIFY(status)
+     hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
+     _VERIFY(status)
+     if (hasDE) then
+        km = size(u_in,3)
+     else
+        km = 0
+     end if
+     call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceFlag=ESMF_REDUCE_MAX,rc=status)
+     _VERIFY(status)
+     src_field = ESMF_FieldCreate(spec%grid_in, typekind = ESMF_TYPEKIND_R8, &
+          & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,kin],rc=status)
+     _VERIFY(status)
+     if (hasDE) then
+        call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
+        _VERIFY(status)
+        call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
+        _VERIFY(status)
+     end if
+
+     hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
+     _VERIFY(status) 
+     hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
+     _VERIFY(status)
+     if (hasDE) then
+        km = size(u_out,3)
+     else
+        km = 0
+     end if
+     call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceFlag=ESMF_REDUCE_MAX,rc=status)
+     _VERIFY(status)
+     dst_field = ESMF_FieldCreate(spec%grid_out, typekind = ESMF_TYPEKIND_R8, &
+          & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,kout],rc=status)
+     _VERIFY(status)
+     if (hasDE) then
+        call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
+        _VERIFY(status)
+        p_dst = 0
+     end if
+
+     call this%do_regrid(src_field, dst_field, rc=status)
+     _VERIFY(status)
+
+     factory => grid_manager%get_factory(spec%grid_out,rc=status)
+     _VERIFY(status)
+     if (hasDE) then
+        call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out,rc=status)
+        _VERIFY(status)
+     end if
+
+     call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
+     _VERIFY(status)
+     call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
+     _VERIFY(status)
+
+     _RETURN(ESMF_SUCCESS)
+
+   end subroutine regrid_vector_3d_real64
+    
+   
    subroutine transpose_regrid_vector_3d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (EsmfRegridder), intent(in) :: this
       real, intent(in) :: u_in(:,:,:)
@@ -555,12 +1010,16 @@ contains
       real, pointer :: p_src(:,:,:,:), p_dst(:,:,:,:)
       type (ESMF_Field) :: src_field, dst_field
 
-      integer :: km
+      integer :: km,kin,kout
       integer :: im_src, jm_src
       integer :: im_dst, jm_dst
       character(len=ESMF_MAXSTR) :: grid_axis_in, grid_axis_out
+      logical :: hasDE
+      type(ESMF_VM) :: vm
 
       spec = this%get_spec()
+      call ESMF_VMGetCurrent(vm,rc=status)
+      _VERIFY(status)
 
       km = size(u_in,3)
       _ASSERT(km == size(v_in,3))
@@ -591,34 +1050,56 @@ contains
 
       factory => grid_manager%get_factory(spec%grid_out,rc=status)
       _VERIFY(status)
-      call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
+      hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
       _VERIFY(status)
+      if (hasDE) then
+         km = size(u_in,3)
+      else
+         km = 0
+      end if
+      call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceFlag=ESMF_REDUCE_MAX,rc=status)
+      _VERIFY(status)
+      src_field = ESMF_FieldCreate(spec%grid_out, typekind = ESMF_TYPEKIND_R4, &
+           & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,kin],rc=status)
+      _VERIFY(status)
+      if (hasDE) then
+         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
+         _VERIFY(status)
+         call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
+         _VERIFY(status)
+      end if
       
-      ! TODO support other staggerings
-      src_field = ESMF_FieldCreate(spec%grid_out, farrayPtr=p_src, &
-           & gridToFieldMap=[3,4], &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, &
-           & rc=status)
+      hasDE = MAPL_GridHasDE(spec%grid_in,rc=status)
+      _VERIFY(status) 
+      if (hasDE) then
+         km = size(u_out,3)
+      else
+         km = 0
+      end if
+      call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceFlag=ESMF_REDUCE_MAX,rc=status)
       _VERIFY(status)
-
-      
-      p_dst = 0
-      dst_field = ESMF_FieldCreate(spec%grid_in, farrayPtr=p_dst, &
-           & gridToFieldMap=[3,4], &
-           & staggerloc=ESMF_STAGGERLOC_CENTER, datacopyFlag=ESMF_DATACOPY_REFERENCE, rc=status)
+      dst_field = ESMF_FieldCreate(spec%grid_in, typekind = ESMF_TYPEKIND_R4, &
+           & gridToFieldMap=[3,4],ungriddedLBound=[1,1],ungriddedUBound=[3,kout],rc=status)
       _VERIFY(status)
+      if (hasDE) then
+         call ESMF_FieldGet(dst_field,localDE=0,farrayPtr=p_dst,rc=status)
+         _VERIFY(status)
+         p_dst = 0
+      end if
 
       call this%do_regrid(src_field, dst_field, doTranspose=.true.,rc=status)
       _VERIFY(status)
 
       factory => grid_manager%get_factory(spec%grid_in,rc=status)
       _VERIFY(status)
-      call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out,rc=status)
-      _VERIFY(status)
+      if (hasDE) then
+         call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out,rc=status)
+         _VERIFY(status)
+      end if
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       deallocate(p_src)
@@ -767,145 +1248,280 @@ contains
       integer, optional, intent(out) :: rc
 
       type (ESMF_RouteHandle) :: route_handle
+      type (RegridderSpec) :: spec
+      type(ESMF_TypeKind_Flag) :: src_kind, dst_kind
       character(*), parameter :: Iam = 'MAPL_EsmfRegridder::do_regrid()'
       integer :: status
 
-
       _UNUSED_DUMMY(unusable)
-      route_handle = this%route_handle ! Allows "this" to be intent(in)
-      if (present(doTranspose)) then
-         if (doTranspose) then
-            route_handle = this%transpose_route_handle
-         end if
-      end if
-         
-      call ESMF_FieldRegrid(src_field, dst_field, &
-           & routeHandle=route_handle, &
-           & dynamicMask=this%dynamic_mask, &
-           & termorderflag=ESMF_TERMORDER_SRCSEQ, &
-           & zeroregion=ESMF_REGION_SELECT, &
-           & rc=status)
+
+      call ESMF_FieldGet(src_field, typekind = src_kind, rc = status)
       _VERIFY(status)
+      call ESMF_FieldGet(dst_field, typekind = dst_kind, rc = status)
+      _VERIFY(status)
+
+      _ASSERT(src_kind == dst_kind)
+
+      route_handle = this%select_route_handle(src_kind, do_transpose = doTranspose, rc = status)
+      _VERIFY(status)     
+
+      spec = this%get_spec()
+      
+      if (spec%regrid_method /= REGRID_METHOD_NEAREST_STOD) then
+         call ESMF_FieldRegrid(src_field, dst_field, &
+              & routeHandle=route_handle, &
+              & dynamicMask=this%dynamic_mask, &
+              & termorderflag=ESMF_TERMORDER_SRCSEQ, &
+              & zeroregion=ESMF_REGION_SELECT, &
+              & rc=status)
+         _VERIFY(status)
+      else
+         call ESMF_FieldRegrid(src_field, dst_field, &
+              & routeHandle=route_handle, &
+              & termorderflag=ESMF_TERMORDER_SRCSEQ, &
+              & zeroregion=ESMF_REGION_SELECT, &
+              & rc=status)
+         _VERIFY(status)
+      end if
 
    end subroutine do_regrid
 
    subroutine initialize_subclass(this, unusable, rc)
-      use MAPL_KeywordEnforcerMod
-      use MAPL_RegridderSpecMod
-      use MAPL_BaseMod, only: MAPL_grid_interior
-      class (EsmfRegridder), intent(inout) :: this
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
+     use MAPL_KeywordEnforcerMod
+     use MAPL_RegridderSpecMod
+     use MAPL_BaseMod, only: MAPL_grid_interior
+     class (EsmfRegridder), intent(inout) :: this
+     class (KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc
 
 
-      integer :: status      
-      character(len=*), parameter :: Iam = 'initialize_subclass'
+     integer :: status      
+     character(len=*), parameter :: Iam = 'initialize_subclass'
+     type (RegridderSpec) :: spec
+    
+     _UNUSED_DUMMY(unusable)
 
-      type (RegridderSpec) :: spec
-      real, pointer :: src_dummy(:,:), dst_dummy(:,:)
-      type (ESMF_Field) :: src_field, dst_field
+     spec = this%get_spec()
 
-    type (ESMF_VM) :: vm
-    integer :: pet,srcTermProcessing
-    integer, pointer :: factorIndexList(:,:)
-    real(ESMF_KIND_R8), pointer :: factorList(:)
-    type(ESMF_RouteHandle) :: dummy_rh
+     this%regrid_method = spec%regrid_method
 
-    call ESMF_VMGetCurrent(vm, rc=status)
-    _VERIFY(status)
-    call ESMF_VMGet(vm, localPet=pet, rc=status)
-    _VERIFY(status)
+     call this%create_route_handle(ESMF_TYPEKIND_R4, rc = status)     
+     _VERIFY(status)
 
-      _UNUSED_DUMMY(unusable)
+     ! TODO: should get missing value from source file
+     select case (spec%regrid_method)
+     case (REGRID_METHOD_BILINEAR, REGRID_METHOD_CONSERVE, REGRID_METHOD_CONSERVE_2ND, REGRID_METHOD_PATCH)
+        call ESMF_DynamicMaskSetR4R8R4V(this%dynamic_mask, &
+             & dynamicSrcMaskValue=MAPL_undef, &
+             & dynamicMaskRoutine=simpleDynMaskProcV, &
+             & rc=rc)
+        _VERIFY(rc)
+     case (REGRID_METHOD_VOTE)
+        call ESMF_DynamicMaskSetR4R8R4V(this%dynamic_mask, &
+             & dynamicSrcMaskValue=MAPL_undef, &
+             & dynamicMaskRoutine=voteDynMaskProcV, &
+             & handleAllElements=.true., &
+             & rc=rc)
+        _VERIFY(rc)
+     case (REGRID_METHOD_FRACTION)
+        call ESMF_DynamicMaskSetR4R8R4V(this%dynamic_mask, &
+             & dynamicSrcMaskValue=MAPL_undef, &
+             & dynamicMaskRoutine=fractionDynMaskProcV, &
+             & handleAllElements=.true., &
+             & rc=rc)
+        _VERIFY(rc)
+     end select
 
-      spec = this%get_spec()
-
-      this%regrid_method = spec%regrid_method
-
-      if (route_handles%count(spec) == 0) then  ! new route_handle
-         src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
-              & indexflag=ESMF_INDEX_DELOCAL, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
-         _VERIFY(status) 
-         call ESMF_FieldGet(src_field, localDe=0, farrayPtr=src_dummy, rc=status)
-         _VERIFY(status)
-         src_dummy = 0
-         
-         dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R4, &
-              & indexflag=ESMF_INDEX_DELOCAL, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
-         _VERIFY(status) 
-         call ESMF_FieldGet(dst_field, localDe=0, farrayPtr=dst_dummy, rc=status)
-         _VERIFY(status)
-         dst_dummy = 0
-
-         counter = counter + 1
-         this%id = counter
-
-         srcTermProcessing=0
-         select case (spec%regrid_method)
-         case (REGRID_METHOD_BILINEAR)
-
-            call ESMF_FieldRegridStore(src_field, dst_field, &
-                 & regridmethod=ESMF_REGRIDMETHOD_BILINEAR, &
-                 & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
-                 & srcTermProcessing = srcTermProcessing, &
-                 & factorList=factorList, factorIndexList=factorIndexList, &
-                 & routehandle=this%route_handle, rc=status)
-            _VERIFY(status)
-         case (REGRID_METHOD_CONSERVE, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
-            call ESMF_FieldRegridStore(src_field, dst_field, &
-                 & regridmethod=ESMF_REGRIDMETHOD_CONSERVE, &
-                 & srcTermProcessing = srcTermProcessing, &
-                 & factorList=factorList, factorIndexList=factorIndexList, &
-                 & routehandle=this%route_handle, rc=status)
-            _VERIFY(status)
-         end select
-         call ESMF_FieldSMMStore(src_field,dst_field,dummy_rh,this%transpose_route_handle, &
-              & factorList,factorIndexList,srcTermProcessing=srcTermProcessing, &
-              & rc=status)
-         _VERIFY(status)
-
-         call route_handles%insert(spec, this%route_handle)
-         call transpose_route_handles%insert(spec, this%transpose_route_handle)
-         ! Free resources
-         deallocate(factorList,factorIndexList)
-         call ESMF_FieldDestroy(src_field, rc=status)
-         _VERIFY(status)
-         call ESMF_FieldDestroy(dst_field, rc=status)
-         _VERIFY(status)
-      else
-         ! _NOT_ pointer assignment - location may float
-         this%route_handle = route_handles%at(spec)
-         this%transpose_route_handle = transpose_route_handles%at(spec)
-      end if
-
-      ! TODO: should get missing value from source file
-      select case (spec%regrid_method)
-      case (REGRID_METHOD_BILINEAR, REGRID_METHOD_CONSERVE)
-         call ESMF_DynamicMaskSetR4R8R4V(this%dynamic_mask, &
-              & dynamicSrcMaskValue=MAPL_undef, &
-              & dynamicMaskRoutine=simpleDynMaskProcV, &
-              & rc=rc)
-         _VERIFY(status)
-      case (REGRID_METHOD_VOTE)
-         call ESMF_DynamicMaskSetR4R8R4V(this%dynamic_mask, &
-              & dynamicSrcMaskValue=MAPL_undef, &
-              & dynamicMaskRoutine=voteDynMaskProcV, &
-              & handleAllElements=.true., &
-              & rc=rc)
-         _VERIFY(status)
-      case (REGRID_METHOD_FRACTION)
-         call ESMF_DynamicMaskSetR4R8R4V(this%dynamic_mask, &
-              & dynamicSrcMaskValue=MAPL_undef, &
-              & dynamicMaskRoutine=fractionDynMaskProcV, &
-              & handleAllElements=.true., &
-              & rc=rc)
-         _VERIFY(status)
-      case default
-         _ASSERT(.false.)
-      end select
-
-      _RETURN(_SUCCESS)
+     _RETURN(_SUCCESS)
 
    end subroutine initialize_subclass
+   
 
+   subroutine create_route_handle(this, kind, rc)
+     class (EsmfRegridder), intent(in) :: this
+     type(ESMF_TypeKind_Flag), intent(in) :: kind
+     integer, optional, intent(out) :: rc
+
+     integer :: status      
+     character(len=*), parameter :: Iam = 'create_route_handle'
+
+     type (RegridderSpec) :: spec
+     real, pointer :: src_dummy_r4(:,:), dst_dummy_r4(:,:)
+     real(real64), pointer :: src_dummy_r8(:,:), dst_dummy_r8(:,:)
+     type (ESMF_Field) :: src_field, dst_field
+
+     integer :: srcTermProcessing
+     integer, pointer :: factorIndexList(:,:)
+     real(ESMF_KIND_R8), pointer :: factorList(:)
+     type(ESMF_RouteHandle) :: dummy_rh
+     type(ESMF_UnmappedAction_Flag) :: unmappedaction
+     logical :: global, isPresent
+     type(RegridderSpecRouteHandleMap), pointer :: route_handles, transpose_route_handles
+     type(ESMF_RouteHandle) :: route_handle, transpose_route_handle
+    
+     if (kind == ESMF_TYPEKIND_R4) then
+        route_handles => route_handles_r4
+        transpose_route_handles => transpose_route_handles_r4
+     else if(kind == ESMF_TYPEKIND_R8) then
+        route_handles => route_handles_r8
+        transpose_route_handles => transpose_route_handles_r8
+     else
+        _ASSERT(.false.)
+     end if
+
+     unmappedaction = ESMF_UNMAPPEDACTION_ERROR
+
+     spec = this%get_spec()
+
+     if (route_handles%count(spec) == 0) then  ! new route_handle
+        src_field = ESMF_FieldCreate(spec%grid_in, typekind=kind, &
+             & indexflag=ESMF_INDEX_DELOCAL, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+        _VERIFY(status)
+
+        if (MAPL_GridHasDE(spec%grid_in)) then
+           if (kind == ESMF_TYPEKIND_R4) then
+              call ESMF_FieldGet(src_field, localDe=0, farrayPtr=src_dummy_r4, rc=status)
+              _VERIFY(status)
+              src_dummy_r4 = 0
+           else if (kind == ESMF_TYPEKIND_R8) then
+              call ESMF_FieldGet(src_field, localDe=0, farrayPtr=src_dummy_r8, rc=status)
+              _VERIFY(status)
+              src_dummy_r8 = 0
+           end if
+        end if
+
+        dst_field = ESMF_FieldCreate(spec%grid_out, typekind=kind, &
+             & indexflag=ESMF_INDEX_DELOCAL, staggerloc=ESMF_STAGGERLOC_CENTER, rc=status)
+        _VERIFY(status) 
+        if (MAPL_GridHasDE(spec%grid_out)) then
+           if (kind == ESMF_TYPEKIND_R4) then
+              call ESMF_FieldGet(dst_field, localDe=0, farrayPtr=dst_dummy_r4, rc=status)
+              _VERIFY(status)
+              dst_dummy_r4 = 0
+           else if (kind == ESMF_TYPEKIND_R8) then
+              call ESMF_FieldGet(dst_field, localDe=0, farrayPtr=dst_dummy_r8, rc=status)
+              _VERIFY(status)
+              dst_dummy_r8 = 0
+           end if
+        end if
+
+        counter = counter + 1
+
+        srcTermProcessing=0
+        call ESMF_AttributeGet(spec%grid_in, name='Global',isPresent=isPresent,rc=status)
+        if (isPresent) then
+           call ESMF_AttributeGet(spec%grid_in, name='Global',value=global,rc=status)
+           if (.not.global) unmappedaction=ESMF_UNMAPPEDACTION_IGNORE
+        end if
+        select case (spec%regrid_method)
+        case (REGRID_METHOD_BILINEAR)
+
+           call ESMF_FieldRegridStore(src_field, dst_field, &
+                & regridmethod=ESMF_REGRIDMETHOD_BILINEAR, &
+                & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
+                & srcTermProcessing = srcTermProcessing, &
+                & factorList=factorList, factorIndexList=factorIndexList, &
+                & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
+           _VERIFY(status)
+        case (REGRID_METHOD_PATCH)
+
+           call ESMF_FieldRegridStore(src_field, dst_field, &
+                & regridmethod=ESMF_REGRIDMETHOD_PATCH, &
+                & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
+                & srcTermProcessing = srcTermProcessing, &
+                & factorList=factorList, factorIndexList=factorIndexList, &
+                & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
+           _VERIFY(status)
+        case (REGRID_METHOD_CONSERVE_2ND)
+
+           call ESMF_FieldRegridStore(src_field, dst_field, &
+                & regridmethod=ESMF_REGRIDMETHOD_CONSERVE_2ND, &
+                & linetype=ESMF_LINETYPE_GREAT_CIRCLE, & ! closer to SJ Lin interpolation weights?
+                & srcTermProcessing = srcTermProcessing, &
+                & factorList=factorList, factorIndexList=factorIndexList, &
+                & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
+           _VERIFY(status)
+        case (REGRID_METHOD_CONSERVE, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
+           call ESMF_FieldRegridStore(src_field, dst_field, &
+                & regridmethod=ESMF_REGRIDMETHOD_CONSERVE, &
+                & srcTermProcessing = srcTermProcessing, &
+                & factorList=factorList, factorIndexList=factorIndexList, &
+                & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
+           _VERIFY(status)
+        case (REGRID_METHOD_NEAREST_STOD)
+           call ESMF_FieldRegridStore(src_field, dst_field, &
+                & regridmethod=ESMF_REGRIDMETHOD_NEAREST_STOD, &
+                & factorList=factorList, factorIndexList=factorIndexList, &
+                & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
+           _VERIFY(status)
+        case default
+           _ASSERT(.false.)
+        end select
+        call ESMF_FieldSMMStore(src_field,dst_field,dummy_rh,transpose_route_handle, &
+             & factorList,factorIndexList,srcTermProcessing=srcTermProcessing, &
+             & rc=status)
+        _VERIFY(status)
+
+        call route_handles%insert(spec, route_handle)
+        call transpose_route_handles%insert(spec, transpose_route_handle)
+        ! Free resources
+        deallocate(factorList,factorIndexList)
+
+        call ESMF_FieldDestroy(src_field, rc=status)
+        _VERIFY(status)
+        call ESMF_FieldDestroy(dst_field, rc=status)
+        _VERIFY(status)
+     end if
+
+     _RETURN(_SUCCESS)
+   end subroutine create_route_handle
+
+   
+   function select_route_handle(this, kind, do_transpose, rc) result(route_handle)
+     type(ESMF_RouteHandle) :: route_handle
+     class (EsmfRegridder), intent(in) :: this
+     type(ESMF_TypeKind_Flag), intent(in) :: kind
+     logical, optional, intent(in) :: do_transpose
+     integer, optional, intent(out) :: rc
+     character(*), parameter :: Iam = "select_route_handle"
+
+     type(RegridderSpecRouteHandleMap), pointer :: route_handles, transpose_route_handles
+     type (RegridderSpec) :: spec
+     integer :: status
+     logical :: transpose
+
+     spec = this%get_spec()
+
+     if (kind == ESMF_TYPEKIND_R4) then
+        route_handles => route_handles_r4
+        transpose_route_handles => transpose_route_handles_r4
+     else if(kind == ESMF_TYPEKIND_R8) then
+        route_handles => route_handles_r8
+        transpose_route_handles => transpose_route_handles_r8
+     else
+        _ASSERT(.false.)
+     end if
+
+     ! Create route-handle if none exist
+     if (route_handles%count(spec) == 0) then
+        call this%create_route_handle(kind, rc = status) 
+        _VERIFY(status)
+     end if
+
+     ! select proper route-handle
+     transpose = .false.
+     if (present(do_transpose)) then
+        transpose = do_transpose
+     end if
+             
+     if (.not. transpose) then
+        route_handle = route_handles%at(spec)
+     else
+        route_handle = transpose_route_handles%at(spec)
+     end if
+
+     _RETURN(_SUCCESS)
+
+   end function select_route_handle
+   
 end module MAPL_EsmfRegridderMod
