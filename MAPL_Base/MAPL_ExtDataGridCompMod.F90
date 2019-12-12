@@ -2045,7 +2045,7 @@ CONTAINS
         character(len=:), allocatable :: levname
         character(len=:), pointer :: positive 
         type(FileMetadataUtils), pointer :: metadata
-        type(Variable), pointer :: variable
+        type(Variable), pointer :: var
         type(ESMF_TimeInterval)    :: zero
 
         positive=>null()
@@ -2116,16 +2116,16 @@ CONTAINS
 
         end if
 
-        variable => null()
+        var => null()
         if (item%isVector) then
-           variable=>metadata%get_variable(trim(item%fcomp1))
-           _ASSERT(associated(variable),"Variable not found in file")
-           variable => null()
-           variable=>metadata%get_variable(trim(item%fcomp2))
-           _ASSERT(associated(variable),"Variable not found in file")
+           var=>metadata%get_variable(trim(item%fcomp1))
+           _ASSERT(associated(var),"Variable not found in file")
+           var => null()
+           var=>metadata%get_variable(trim(item%fcomp2))
+           _ASSERT(associated(var),"Variable not found in file")
         else
-           variable=>metadata%get_variable(trim(item%var))
-           _ASSERT(associated(variable),"Variable not found in file")
+           var=>metadata%get_variable(trim(item%var))
+           _ASSERT(associated(var),"Variable not found in file")
         end if
     
         levName = metadata%get_level_name(rc=status)
