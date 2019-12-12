@@ -211,6 +211,7 @@ module MAPL_CFIOMod
      integer, pointer           :: VarType(:)=>null()
      integer, pointer           :: needVar(:)=>null()
      integer, pointer           :: pairList(:)=>null()
+     logical                    :: doRotate
      character(len=ESMF_MAXSTR), &
                         pointer :: vectorList(:,:)=>null()
      logical                    :: Vinterp=.false.
@@ -5358,6 +5359,8 @@ CONTAINS
        character(len=ESMF_MAXSTR) :: vectorlist(2)
        logical :: found
        integer :: j
+       integer :: rotation,gridstagger,rotation1,rotation2,gridStagger1,gridStagger2
+       type(ESMF_Field) :: field1,field2
        allocate(mCFIO%needVar(size(mCFIO%varname)),stat=status)
        _VERIFY(status)
        mCFIO%needVar=0
@@ -5390,6 +5393,39 @@ CONTAINS
                 mCFIO%needvar(i)=-j
              end if
           end do
+
+          call ESMF_FieldBundleGet(MCFIO%BUNDLE, trim(vectorList(1)), field=FIELD1,RC=STATUS)
+          _VERIFY(STATUS)
+          call ESMF_FieldBundleGet(MCFIO%BUNDLE, trim(vectorList(2)), field=FIELD2,RC=STATUS)
+          _VERIFY(STATUS)
+          mCFIO%doRotate=.false.
+          call ESMF_AttributeGet(field1,name='ROTATION',value=rotation1,rc=status)
+          call ESMF_AttributeGet(field1,name='STAGGERING',value=gridStagger1,rc=status)
+          call ESMF_AttributeGet(field2,name='ROTATION',value=rotation2,rc=status)
+          call ESMF_AttributeGet(field2,name='STAGGERING',value=gridStagger2,rc=status)
+          _ASSERT(rotation1==rotation2,'rotation does not match')
+          _ASSERT(gridStagger1==gridStagger2,'stagger does not match')
+          rotation=rotation1
+          gridStagger=gridStagger1
+          if (gridStagger == MAPL_AGrid) then
+             if (rotation == MAPL_RotateLL) then
+                mCFIO%doRotate = .false.
+             else if (rotation == MAPL_RotateCube) then
+                mCFIO%doRotate = .true.
+             end if
+          else if (gridStagger == MAPL_DGrid) then
+             if (rotation /= MAPL_RotateCube) then
+                _ASSERT(.false.,'must rotate LL')
+             else
+                mCFIO%doRotate = .false.
+             end if
+          else if (gridStagger == MAPL_CGrid) then
+             if (rotation /= MAPL_RotateCube) then
+               _ASSERT(.false.,'must rotate LL')
+             else
+                mCFIO%doRotate = .false.
+             end if
+          end if
        end if
     end block
 !@    call ESMF_CFIOVarInfoDestroy(vars, __RC__)
@@ -5833,8 +5869,7 @@ end subroutine MAPL_CFIOReadBundleReadPrefetch
     type(Ptr2Arr)        :: PtrTypeOut(2)
     integer, allocatable :: varids(:)
     logical, allocatable :: transDone(:)
-    integer :: status1,status2,rotation
-    logical :: doRotate
+    integer :: status1,status2
     integer :: alloc_ra
 
     if (present(hw)) then
@@ -5902,13 +5937,6 @@ end subroutine MAPL_CFIOReadBundleReadPrefetch
           end do
 
        end if CREATE_REQ
-
-       doRotate=.false.
-       call ESMF_AttributeGet(field,name='ROTATION',value=rotation,rc=status)
-       if (status==ESMF_SUCCESS) then
-          if (rotation==MAPL_RotateCube) doRotate=.true.
-       end if
-       
 
     end do VARS1
 
@@ -6115,7 +6143,7 @@ end subroutine MAPL_CFIOReadBundleReadPrefetch
            call C_F_pointer (cptr, vout,[im,jm,1])
 
            call mCFIO%regridder%set_undef_value(MAPL_undef)
-           call mCFIO%regridder%regrid(uin, vin, uout, vout, rc=status)
+           call mCFIO%regridder%regrid(uin, vin, uout, vout, rotate=mCFIO%doRotate, rc=status)
            _VERIFY(status)
 
            deallocate(PtrIn(1)%ptr)
