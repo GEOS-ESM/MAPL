@@ -96,6 +96,10 @@ contains
 !  ESMF clock passed as an argument. This becomes the orbit`s
 !  attached clock. Currently we assume a single intercalation.
 !
+!  A good introduction to celestial mechanics for understanding this
+!  code can be found in Blanco & McCuskey, 1961: "Basic Physics of the
+!  Solar System", hereafter BM.
+!
 !% \begin{itemize}
 !%   \item[]
 !\makebox[2in][l]{\bf \em CLOCK}
@@ -126,23 +130,24 @@ contains
 
 ! !INTERFACE:
 
-type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,       &
-                                                 ECCENTRICITY,&
-                                                 OBLIQUITY,   &
-                                                 PERIHELION,  &
-                                                 EQUINOX,     &
-                                                 FIX_SUN,     &
-                                                           RC )
+type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,            &
+                                                 OLD_ECCENTRICITY, &
+                                                 OLD_OBLIQUITY,    &
+                                                 OLD_PERIHELION,   &
+                                                 OLD_EQUINOX,      &
+                                                 FIX_SUN,          &
+                                                                RC )
 
 ! !ARGUMENTS:
 
  type(ESMF_Clock)  , intent(IN ) :: CLOCK
- real              , intent(IN ) :: ECCENTRICITY
- real              , intent(IN ) :: OBLIQUITY
- real              , intent(IN ) :: PERIHELION
- integer           , intent(IN ) :: EQUINOX
+ real              , intent(IN ) :: OLD_ECCENTRICITY
+ real              , intent(IN ) :: OLD_OBLIQUITY
+ real              , intent(IN ) :: OLD_PERIHELION
+ integer           , intent(IN ) :: OLD_EQUINOX
  logical, optional , intent(IN ) :: FIX_SUN
  integer, optional , intent(OUT) :: RC
+! TEMP pmn: remove OLD after test
 
 !EOPI
 
@@ -150,26 +155,49 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,       &
 
       character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitCreate"
 
-      integer :: YEARS_PER_CYCLE, DAYS_PER_CYCLE
-      integer :: K, KP
-      real*8  :: T1, T2, T3, T4, dTHdDAY, TH, SOB, OMG, PRH, TT
+      integer :: K, KP, YEARS_PER_CYCLE, DAYS_PER_CYCLE
+      real*8  :: TREL, T1, T2, T3, T4, dTRELdDAY, SOB, OMG, PRH
       real*8  :: YEARLEN
       integer :: STATUS
       type(MAPL_SunOrbit) :: ORBIT
 
       real    :: D2R, OMECC, OPECC, OMSQECC, EAFAC
-      real*8  :: TA, EA, MA, PRHV, TREL, M1EL, COB
-      real*8  :: TRRA, M1RA, OMG0, M2RA
+      real*8  :: TA, EA, MA, PRHV, M1EL, COB
+      real*8  :: TRRA, M1RA, OMG0, MNRA
 
 ! TEMP pmn
       type(ESMF_VM) :: VM
       logical :: amIRoot
       integer :: deId, npes
+      real :: ECCENTRICITY, OBLIQUITY, PERIHELION
+      integer :: EQUINOX
 ! end TEMP pmn
 
-!  STATEMENT FUNCTION, dTH/dDAY(TH) (see below)
+! STATEMENT FUNC: dTREL/dDAY(TREL),
+! where TREL is ecliptic longitude of true Sun
 
-      dTHdDAY(TH) = OMG*(1.0-ECCENTRICITY*cos(TH-PRH))**2
+      dTRELdDAY(TREL) = OMG*(1.0-ECCENTRICITY*cos(TREL-PRH))**2
+
+! TEMP pmn
+! Change orbital parameters to compare with Tom
+! These are for year 2000.
+ECCENTRICITY = 0.01671022	! 0.0167
+OBLIQUITY    = 23.44
+PERIHELION   = 102.94719	! 102.947
+EQUINOX      = 80
+! @ Toms's equinox is: 80 + 7.5/24
+! but this method requires an integer so we'll use 80.
+! Actually in THIS code, EQUINOX is only used to set the KP
+! at which the TREL is zero. So although its 80 here, outside
+! this code, namely in SunGetInsolation where we interpolate
+! between days, we should regard the daily value as at 7h30m
+! AM. But thats an external issue and wont affect this test.
+! But when doing diagnostic tests, we must regard index 80 as
+! being 80d7h30m = Mar 20, 7:30 AM UTC (2000 IS a leap year).
+! @ Similarly, it is assumed EXTERNALLY that the first three
+! years of the cycle are non-leap, and the last leap. This
+! won't affect this test.
+! end TEMP pmn
 
 ! TEMP pmn
       call ESMF_VMGetCurrent(vm, rc=status)
@@ -181,9 +209,8 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,       &
 
       YEARLEN = 365.25
 
-!  Factors involving the orbital parameters
-!------------------------------------------
-
+      ! Factors involving the orbital parameters
+      !-----------------------------------------
       OMECC = 1. - ECCENTRICITY
       OPECC = 1. + ECCENTRICITY
       OMSQECC = 1. - ECCENTRICITY**2 ! pmn: consider changing to line below when zero-diff not issue
@@ -197,9 +224,11 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,       &
       SOB  = sin(OBLIQUITY*D2R)
       COB  = cos(OBLIQUITY*D2R)
 
-      ! The above PRH is wrt to autumnal equinox. For EOT calculations we
-      ! will reference the perihelion wrt to the vernal equinox. Of course,
-      ! the difference is just PI.
+      ! PRH is the ecliptic longitude of the perihelion, measured (at the Sun)
+      ! from the autumnal equinox in the direction of the Earth`s orbital motion
+      ! (counterclockwise as viewed from ecliptic north pole).
+      ! For EOT calculations we will reference the perihelion wrt to the vernal
+      ! equinox, PRHV. Of course, the difference is just PI.
       ! pmn: once the EOT code is established and zero-diff not an issue, 
       !   consider removing original PRH and changing the original (non-EOT),
       !   code, which employs
@@ -208,9 +237,8 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,       &
       !       -cos(Y-PRH) = cos(Y-PRH-PI) = cos(Y-PRHV)
       PRHV = PRH + MAPL_PI_R8
 
-!  Compute length of leap cycle
-!------------------------------
-
+      ! Compute length of leap cycle
+      ! ----------------------------
       if(YEARLEN-int(YEARLEN) > 0.) then
        YEARS_PER_CYCLE = nint(1./(YEARLEN-int(YEARLEN)))
       else
@@ -218,6 +246,26 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,       &
       endif
 
       DAYS_PER_CYCLE=nint(YEARLEN*YEARS_PER_CYCLE)
+
+      ! save inputs and intercalculation details
+      ! ----------------------------------------
+      ORBIT%CLOCK           = CLOCK
+      ORBIT%OB              = OBLIQUITY
+      ORBIT%ECC             = ECCENTRICITY
+      ORBIT%PER             = PERIHELION
+      ORBIT%EQNX            = EQUINOX
+      ORBIT%YEARLEN         = YEARLEN
+      ORBIT%YEARS_PER_CYCLE = YEARS_PER_CYCLE
+      ORBIT%DAYS_PER_CYCLE  = DAYS_PER_CYCLE
+
+      ! Allocate orbital cycle outputs
+      ! ------------------------------
+      ! TH: Ecliptic longitude of the true Sun, TREL [radians]
+      ! ZS: Sine of declination
+      ! ZC: Cosine of declination
+      ! PP: Inverse of square of earth-sun distance [1/(AU**2)]
+      ! ET: Equation of time [radians] =
+      !     True solar hour angle - Mean solar hour angle
 
       if(associated(ORBIT%TH)) deallocate(ORBIT%TH)
       allocate(ORBIT%TH(DAYS_PER_CYCLE), stat=status)
@@ -239,91 +287,261 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,       &
       allocate(ORBIT%ET(DAYS_PER_CYCLE), stat=status)
       VERIFY_(STATUS)
 
-      ORBIT%CLOCK           = CLOCK
-      ORBIT%OB              = OBLIQUITY
-      ORBIT%ECC             = ECCENTRICITY
-      ORBIT%PER             = PERIHELION
-      ORBIT%EQNX            = EQUINOX
-      ORBIT%YEARLEN         = YEARLEN
-      ORBIT%YEARS_PER_CYCLE = YEARS_PER_CYCLE
-      ORBIT%DAYS_PER_CYCLE  = DAYS_PER_CYCLE
+! =======================================
+! PMN Dec 2019: Notes on Equation of Time
+! =======================================
+! (Part of a more complete analysis available from PMN)
+!
+! @ Introduction:
+!
+! The Earth rotates on its axis with a period T_S called the sidereal
+! day (after the Latin for "star", since it is the rotation period of
+! the Earth with respect to distant stars). T_S is slightly shorter
+! than the so-called mean solar day, or clock day, of duration T_M =
+! 86400 seconds. This is because the Earth is a prograde planet, i.e.,
+! it rotates about its axis in the same sense (counterclockwise look-
+! ing down on the North Pole) as it orbits the sun. Specifically, say
+! the sun crosses the meridian of some location at a particular time.
+! And imagine there is a distant star directly behind the sun at that
+! moment. After one sidereal day the location will rotate 360 degrees
+! about the earth's axis and the distant star will again cross its
+! merdian. But during that period the earth will have moved a small
+! counterclockwise distance around its orbit and so it will take a
+! small additional rotation of the earth for the sun to also cross
+! the meridian and thereby complete a solar day.
+!
+! Put another way, a solar day is slightly longer than a sidereal day
+! because the sun appears to move slowly eastward across the celestial
+! sphere with respect to distant stars as the year passes. The path
+! of this motion is called the ecliptic. And clearly what governs the
+! length of a solar day is the apparent velocity of the sun along the
+! ecliptic, or, more particularly, the equatorial component of that
+! velocity. But both the magnitude and equatorial component of the solar
+! ecliptic velocity change during the year, the former because the earth's
+! orbit is elliptical, not circular, and the latter because the earth's
+! axis of rotation is tilted with respect to the orbital (ecliptic) plane.
+! Thus the length of a solar day changes during the year. While these
+! factors cause only a small perturbation to the length of the solar 
+! day (less than 30 seconds), the perturbations accumulate so that at
+! different times of the year apparent solar time ("sundial time") and
+! mean solar time ("clock time") can differ by as much as ~15 minutes. 
+! This difference is called the Equation of Time.
+! 
+! To be more rigorous, consider a fictitious "Mean Sun" that moves at
+! constant eastward speed around the celestial equator, completing a
+! full revolution in a year, namely in the period Y * T_M, where Y is
+! the number of mean solar days in a year (e.g., 365.25). Thus, in one
+! mean solar day, T_M, the mean sun has moved an angle 2*PI/Y eastward.
+! Hence, beyond one full earth revolution, period T_S, an additional
+! earth rotation of (T_M-T_S) * 2*PI/T_S = 2*PI/Y is required to "catch
+! up with the moving sun", as described earlier. Hence T_M - T_S = T_S / Y
+! and so 
+!
+!	T_M = T_S (Y+1)/Y,	..... (1)
+!
+! a constant (near unity) multiple of the fixed sidereal day. T_M is
+! the length of the solar day for the "mean sun", or the "mean solar
+! day". Because it is invariant during the year, it is convenient for
+! timekeeping, and forms the basis for "mean solar time", which at
+! Greenwich is essentially UTC. By *definition*, T_M = 24h = 86400s.
+! That is, what we know as "hours", "minutes" and "seconds", are just 
+! convenient integer fractions of the mean solar day. In these units,
+! the sidereal day T_S is approximately 23h 56m 4s.
+!
+! The solar zenith angle calculation (in MAPL_SunGetInsolation) needs
+! the true local solar hour angle, h_T, which is the angle, measured
+! westward along the equator, from the local meridian to the true sun.
+! This is just the Greenwich solar hour angle, H_T, plus the longitude,
+! so we will henceforth work exclusively with Greenwich hour angles.
+! We should use the hour angle of the *true* sun, H_T, but a common
+! approximation replaces this with the hour angle of the mean sun
+!
+! 	H_M = 2*PI*(u-0.5),		..... (2)
+!
+! where u is UTC time (in days) and the offset is needed because the mean
+! solar hour angle is zero at "noon". If more accuracy is required, the
+! hour angle of the true sun is typically obtained as a small correction
+! to H_M called the Equation of time, EOT:
+!
+! 	H_T = H_M + EOT,  where  EOT = H_T - H_M.
+!
+! As discussed above, EOT corrects for two factors:
+! (a) the variable speed of the earth in its elliptical orbit about
+!     the sun (e.g., moving fastest at perihelion), and
+! (b) the tilt of the earth's axis of rotation wrt its orbital plane
+!     (the "obliquity"), which causes the equatorial projection of
+!     the sun's apparent ecliptic motion to vary with the season
+!     (e.g., being parallel to the equator at the solstices.)
+!
+! @ Derivation of Equation of Time:
+!
+! We can write
+!
+! 	H_T  = H_1 - (H_1 - H_T) = H_1 - a_T,
+!
+! where H_1 is the Greenwich hour angle of the First Point of Aries (the
+! location of the vernal equinox, denoted "1PoA"), and is also known as the
+! Greenwich Sidereal hour angle, and where a_T is the right ascension of the
+! true sun (since the right ascension of any object is just the difference
+! between the hour angles of 1PoA and the object). Hence,
+!
+! 	EOT = H_1 - H_M - a_T.		..... (3)
+!
+! All three terms on the right of (3) are time variable: a_T changes slowly
+! throughout the year, and is known from the earth-sun two-body elliptical
+! orbit solution, while H_1 and H_M vary rapidly with earth's rotation. H_M
+! has a period of one mean solar day, T_M, and H_1 has a period of one
+! sidereal day, T_S.
+!
+! It may seem from from (2) that the mean sun and its hour angle are fully
+! specified. That, in fact, is not yet the case: (2) is really just a def-
+! inition of UTC, namely, that one UTC day is one mean solar day and that
+! the time of culmination of the mean sun, what we call "noon", occurs at
+! UTC 12h00m. What we are still at liberty to do is specify the phasing of
+! the mean sun in its equatorial orbit, e.g., by specifying the time u_R
+! at which the mean sun passes through 1PoA (both on the equator). At this
+! time, H_1(u_R) = H_M(u_R), and so
+!
+! 	H_1(u) - H_M(u) = 2*PI*(u-u_R)*(Y+1)/Y - 2*PI*(u-u_R)
+! 	                = 2*PI * (u-u_R) / Y
+!                       = MA(u) - MA(u_R),	... (4)
+!
+! where MA(u) = 2*PI * (u-u_P) / Y is the so-called "mean anomaly", known
+! from the earth-sun two-body orbital solution, and u_P is the time of
+! perihelion. Thus, to fully determine EOT, through (3) and (4), we need
+! only to specify MA(u_R).
+!
+! To understand the mean anomaly MA, consider the standard two-body earth-
+! sun problem in which the earth E moves in an elliptical orbit about the
+! sun S at one focus, all in the ecliptic plane. The point on the ellipse
+! closest to S is called the perihelion P. Obviously, the center of the
+! ellipse O, the focus S and the perihelion P are co-linear, the so-called
+! major axis of the ellipse. Additionally, let C be the circumscribing circle
+! of the ellipse, with center O and passing through P (and the corresponding
+! aphelion A). By Kepler's Second Law, the sun-earth vector sweeps out equal
+! areas in equal times, so the fractional area of the elliptical sector PSE
+! is a linear function of time, being zero at perihelion and one a year later.
+! Specifically, this fractional area is none other than the scaled mean anomaly
+! MA(u)/(2*PI) = (u - u_P) / Y. Clearly MA(u) can also be interpreted as an
+! angle, the angle POQ of a point Q orbiting on the circumcircle C at constant
+! speed in the same direction as the earth, also with a yearly period, and
+! passing through P at the same time u_P as the earth. Thus the point Q can
+! be conceptualized as a sort of "mean earth" orbiting a "second mean sun"
+! (different from M above) at O. Note that while the angle MA(u) = angle POQ
+! of this mean earth at time u is a linear function of time, the corresponding
+! angle of the real earth, namely TA(u) = angle PSE, called the true anomaly,
+! is a non-linear function of time, since the real earth has a variable speed
+! in its elliptical orbit, e.g., moving faster at perihelion, so that its areal
+! fraction is linear in time. The relationship between MA(u) and TA(u) is known
+! from the orbital solution. Finally, the ecliptic longitude of the earth,
+! lambda = angle 1SE is the angle at the sun, measured in the same direction
+! as the earth's motion, from the First Point of Aries to the earth. Then
+!
+!    TA(u) = angle PSE(u) = angle PS1 + angle 1SE(u) = lambda(u) - lambda_P,
+!
+! where lambda_P = lambda(u_P) = angle 1SP = -angle PS1 is known as the
+! longitude of perihelion, and is currently about 283 deg, or equivalently
+! -77 deg.
+!
+! With this background, we can understand the quantity MA(u_R) we are trying
+! to specify. If we *choose*
+!
+!                      MA(u_R) = -lambda_P = angle PS1		... (5)
+!                      <==> angle POQ(u_R) = angle PS1,
+!
+! then at u_R, viewed from the mean earth Q, the second (ecliptic) mean sun
+! O is in direction of 1PoA. And at that same time, by definition of u_R,
+! the first (equatorial) mean sun M, as seen from the real earth E, is also
+! in direction of 1PoA.
+!
+! I (PMN) have verified that the choice (5) for MA(u_R) leads to zero mean
+! EOT to first order in the eccentricity, e. I cannot say, at this point,
+! that it is generally true for any order in e. I add below a final explicit
+! enforcement of zero mean EOT to the code. [I found that the order e^2 term
+! for the mean EOT was NOT zero, and was larger than the mean EOT produced
+! by this code (which is valid for all orders in e) before any explicity
+! correction of the mean to zero. This suggests: (a) that I made a mistake
+! in my calculations, or (b) that higer order e terms provide some cancel-
+! ation.]
+!
+! Hence, finally,
+!
+! 	EOT(u) = MA(u) + PRHV - a_T(u)	... (6)
+!
+! where PRHV is the name for lamba_P in the code.
+!
+! =========================
 
-!   TH: Ecliptic longitude of the true Sun (radians)
-!   ZS: Sine of declination
-!   ZC: Cosine of declination
-!   PP: Inverse of square of earth-sun distance (1/(AU**2))
-!   ET: Equation of time = True solar time - Mean solar time (radians)
-
-!  From Meeus, J. (1998). Astronomical Algorithms. 2nd ed. p183:
-!    Consider a first fictitious Sun [M1] travelling along the ecliptic
-!  with a constant speed and coinciding with the true sun at the perigee
-!  and apogee (when the Earth is in perihelion and aphelion, respectively).
-!  Then consider a second fictitious Sun [M2] travelling along the celestial
-!  equator at a constant speed and coinciding with the first fictitious Sun
-!  at the equinoxes. This second fictitious sun is the mean Sun..."
-!  pmn: [M1] and [M2] are my additions for reference to code below.
-
-!  Begin integration at vernal equinox (K=1, KP = EQUINOX)
-
+      ! Begin integration at the vernal equinox (K=1, KP = EQUINOX), at
+      ! which, by defn, the ecliptic longitude of the true sun is zero
+      ! ---------------------------------------------------------------
       KP           = EQUINOX
-      TT           = 0.
-      ORBIT%ZS(KP) = sin(TT)*SOB
+      TREL         = 0.
+      ORBIT%ZS(KP) = sin(TREL)*SOB
       ORBIT%ZC(KP) = sqrt(1.-ORBIT%ZS(KP)**2)
-      ORBIT%PP(KP) = ( (1.-ECCENTRICITY*cos(TT-PRH)) / OMSQECC )**2
-      ORBIT%TH(KP) = TT
+      ORBIT%PP(KP) = ( (1.-ECCENTRICITY*cos(TREL-PRH)) / OMSQECC )**2
+      ORBIT%TH(KP) = TREL
 
       ! pmn: 2019-10-29
       ! Calculation of True (TA), Eccentric (EA), and Mean Anomaly (MA),
       ! after Blanco & McCuskey, 1961: "Basic Physics of the Solar System",
       ! hereafter BM.
-      TA = TT - PRHV                      ! by defn of TA and PRHV
+      TA = TREL - PRHV                    ! by defn of TA and PRHV
       EA = 2.d0*atan(EAFAC*tan(TA/2.d0))  ! BM 4-55
       MA = EA - ECCENTRICITY*sin(EA)      ! Kepler's eqn (BM 4-49 ff.)
+
+MA = OMG0 * time since perihelion
+! Note that MA(u) is linearly proportional to the mean (UTC) time
+! since perihelion and only needs to be evaluated once during the
+! orbit, for example at the equinox, since it simply increases at
+! a rate of 2*PI/Y per mean solar day thereafter.
 
       ! These anomalies are angles in the ecliptic. We now have to convert
       ! to equatorial angles, i.e., right ascensions. The first step is to
       ! convert the anomalies (wrt to perihelion) to ecliptic longitudes
       ! (wrt to vernal equinox). Clearly the ecliptic longitude of the true
-      ! sun, TREL, is just TT. The ecliptic longitude of the first mean sun,
-      ! M1EL, is PRHV + MA. 
-      TREL = TT; M1EL = PRHV + MA
+      ! sun is just TREL. The ecliptic longitude of the first mean sun, M1EL,
+      ! is PRHV + MA. 
+      M1EL = PRHV + MA
 
       ! Now right ascensions ...
       ! From BM 1-15 and 1-16 with beta=0 (Sun is on ecliptic),
       ! and dividing through by common cos(dec) since it does not
       ! affect the ratio of sin(RA) to cos(RA).
-      TRRA = atan2(sin(TREL)*COB,cos(TREL))
+      TRRA = atan2(sin(TREL)*COB,cos(TREL)) <--- zero at EQNX since TREL=0
       M1RA = atan2(sin(M1EL)*COB,cos(M1EL))
 
       ! By Meeus quote above M2RA = M1RA at Equinox
       ! and increases by a constant rate thereafter
-      M2RA = M1RA
+!     MNRA = M1RA
+      MNRA = M1EL
 
       ! Finally, Equation of Time, ET [radians]
       ! True Solar hour angle = Mean Solar hour angle + ET
       ! (hour angle and right ascension are in reverse direction)
-      ORBIT%ET(KP) = M2RA - TRRA
-      if (amIRoot) write(*,'("pmn: ",i4,4(x,f10.6))') &
-        KP, TT, TRRA, M2RA, ORBIT%ET(KP)
+      ORBIT%ET(KP) = MNRA - TRRA
+      if (amIRoot) write(*,'("pmn: ",i4,4(x,f12.8))') &
+        KP, TREL, TRRA, MNRA, ORBIT%ET(KP)
 
 !  Integrate orbit for entire leap cycle using Runge-Kutta
+!  Mean sun moves at constant speed around Celestial Equator
 
       do K=2,DAYS_PER_CYCLE
-        T1 = dTHdDAY(TT       )
-        T2 = dTHdDAY(TT+T1*0.5)
-        T3 = dTHdDAY(TT+T2*0.5)
-        T4 = dTHdDAY(TT+T3    )
+        T1 = dTRELdDAY(TREL       )
+        T2 = dTRELdDAY(TREL+T1*0.5)
+        T3 = dTRELdDAY(TREL+T2*0.5)
+        T4 = dTRELdDAY(TREL+T3    )
         KP = mod(KP,DAYS_PER_CYCLE) + 1
-        TT = TT + (T1 + 2.0*(T2 + T3) + T4) / 6.0
-        ORBIT%ZS(KP) = sin(TT)*SOB
+        TREL = TREL + (T1 + 2.0*(T2 + T3) + T4) / 6.0
+        ORBIT%ZS(KP) = sin(TREL)*SOB
         ORBIT%ZC(KP) = sqrt(1.-ORBIT%ZS(KP)**2)
-        ORBIT%PP(KP) = ( (1.-ECCENTRICITY*cos(TT-PRH)) / OMSQECC )**2
-        ORBIT%TH(KP) = TT
-        TRRA = atan2(sin(TT)*COB,cos(TT))
-        M2RA = M2RA + OMG0
-        ORBIT%ET(KP) = M2RA - TRRA
-        if (amIRoot) write(*,'("pmn: ",i4,4(x,f10.6))') &
-          KP, TT, TRRA, M2RA, ORBIT%ET(KP)
+        ORBIT%PP(KP) = ( (1.-ECCENTRICITY*cos(TREL-PRH)) / OMSQECC )**2
+        ORBIT%TH(KP) = TREL
+        TRRA = atan2(sin(TREL)*COB,cos(TREL))
+        MNRA = MNRA + OMG0
+        ORBIT%ET(KP) = MNRA - TRRA
+        if (amIRoot) write(*,'("pmn: ",i4,4(x,f12.8))') &
+          KP, TREL, TRRA, MNRA, ORBIT%ET(KP)
       enddo
 
       if (present(FIX_SUN)) then
