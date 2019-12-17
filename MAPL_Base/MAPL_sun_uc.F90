@@ -469,54 +469,28 @@ EQUINOX      = 80
 ! 	EOT(u) = MA(u) + PRHV - a_T(u)	... (6)
 !
 ! where PRHV is the name for lamba_P in the code.
-!
-! =========================
+! ===========================================================================
 
-      ! Begin integration at the vernal equinox (K=1, KP = EQUINOX), at
-      ! which, by defn, the ecliptic longitude of the true sun is zero
-      ! ---------------------------------------------------------------
+      ! Begin integration at the vernal equinox (K=1, KP=EQUINOX), at
+      ! which, by defn, the ecliptic longitude of the true sun is zero.
+      ! Right ascension at true sun at EQUINOX is also zero by defn.
+      ! --------------------------------------------------------------
       KP           = EQUINOX
       TREL         = 0.
       ORBIT%ZS(KP) = sin(TREL)*SOB
       ORBIT%ZC(KP) = sqrt(1.-ORBIT%ZS(KP)**2)
       ORBIT%PP(KP) = ( (1.-ECCENTRICITY*cos(TREL-PRH)) / OMSQECC )**2
       ORBIT%TH(KP) = TREL
+      TRRA = 0.
 
-      ! pmn: 2019-10-29
-      ! Calculation of True (TA), Eccentric (EA), and Mean Anomaly (MA),
-      ! after Blanco & McCuskey, 1961: "Basic Physics of the Solar System",
-      ! hereafter BM.
+      ! Right ascension of "mean sun" = MA(u) + PRHV [eqn (6) above].
+      ! Calcn of True (TA), Eccentric (EA), and Mean Anomaly (MA).
       TA = TREL - PRHV                    ! by defn of TA and PRHV
       EA = 2.d0*atan(EAFAC*tan(TA/2.d0))  ! BM 4-55
       MA = EA - ECCENTRICITY*sin(EA)      ! Kepler's eqn (BM 4-49 ff.)
+      MNRA = MA + PRHV
 
-MA = OMG0 * time since perihelion
-! Note that MA(u) is linearly proportional to the mean (UTC) time
-! since perihelion and only needs to be evaluated once during the
-! orbit, for example at the equinox, since it simply increases at
-! a rate of 2*PI/Y per mean solar day thereafter.
-
-      ! These anomalies are angles in the ecliptic. We now have to convert
-      ! to equatorial angles, i.e., right ascensions. The first step is to
-      ! convert the anomalies (wrt to perihelion) to ecliptic longitudes
-      ! (wrt to vernal equinox). Clearly the ecliptic longitude of the true
-      ! sun is just TREL. The ecliptic longitude of the first mean sun, M1EL,
-      ! is PRHV + MA. 
-      M1EL = PRHV + MA
-
-      ! Now right ascensions ...
-      ! From BM 1-15 and 1-16 with beta=0 (Sun is on ecliptic),
-      ! and dividing through by common cos(dec) since it does not
-      ! affect the ratio of sin(RA) to cos(RA).
-      TRRA = atan2(sin(TREL)*COB,cos(TREL)) <--- zero at EQNX since TREL=0
-      M1RA = atan2(sin(M1EL)*COB,cos(M1EL))
-
-      ! By Meeus quote above M2RA = M1RA at Equinox
-      ! and increases by a constant rate thereafter
-!     MNRA = M1RA
-      MNRA = M1EL
-
-      ! Finally, Equation of Time, ET [radians]
+      ! Equation of Time, ET [radians]
       ! True Solar hour angle = Mean Solar hour angle + ET
       ! (hour angle and right ascension are in reverse direction)
       ORBIT%ET(KP) = MNRA - TRRA
@@ -537,6 +511,9 @@ MA = OMG0 * time since perihelion
         ORBIT%ZC(KP) = sqrt(1.-ORBIT%ZS(KP)**2)
         ORBIT%PP(KP) = ( (1.-ECCENTRICITY*cos(TREL-PRH)) / OMSQECC )**2
         ORBIT%TH(KP) = TREL
+        ! From BM 1-15 and 1-16 with beta=0 (Sun is on ecliptic),
+        ! and dividing through by common cos(dec) since it does not
+        ! affect the ratio of sin(RA) to cos(RA).
         TRRA = atan2(sin(TREL)*COB,cos(TREL))
         MNRA = MNRA + OMG0
         ORBIT%ET(KP) = MNRA - TRRA
