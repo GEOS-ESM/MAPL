@@ -569,7 +569,7 @@ MODULE ExtDataUtRoot_GridCompMod
       real, pointer                       :: ptr3_2(:,:,:) => null()
       real, pointer                       :: ptr2_1(:,:) => null()
       real, pointer                       :: ptr2_2(:,:) => null()
-      integer :: itemcount,rank1,rank2
+      integer :: itemcount,rank1,rank2,lb(3),ub(3)
       character(len=ESMF_MAXSTR), allocatable :: NameList(:)
       logical, allocatable :: foundDiff(:)
       type(ESMF_Field) :: Field1,Field2
@@ -601,9 +601,11 @@ MODULE ExtDataUtRoot_GridCompMod
             else if (rank1==3) then
                call MAPL_GetPointer(state1,ptr3_1,trim(nameList(ii)),__RC__)
                call MAPL_GetPointer(state2,ptr3_2,trim(nameList(ii)),__RC__)
+               lb=lbound(ptr3_1)
+               ub=ubound(ptr3_1) 
                do i=1,size(ptr3_1,1) 
                   do j=1,size(ptr3_1,2) 
-                     do k=1,size(ptr3_1,3)
+                     do k=lb(3),ub(3)
                         if (abs(ptr3_1(i,j,k)-ptr3_2(i,j,k)) .gt. tol) then
                            foundDiff(ii)=.true.
                            exit
