@@ -828,7 +828,6 @@ module MAPL_newCFIOMod
      _VERIFY(status)
      img=dims(1)
      jmg=dims(2)
-     lm=dims(3)
      ! create input bundle
      call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,rc=status)
      _VERIFY(status)
@@ -857,6 +856,7 @@ module MAPL_newCFIOMod
         else if (rank==3) then
            call ESMF_FieldGet(output_field,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
            _VERIFY(status)
+           lm=ub(1)-lb(1)+1
            input_fields(i) = ESMF_FieldCreate(filegrid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2], &
               ungriddedLBound=lb,ungriddedUBound=ub,name=trim(names(i)),rc=status)
            _VERIFY(status)
