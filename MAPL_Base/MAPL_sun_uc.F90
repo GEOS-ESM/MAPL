@@ -156,14 +156,15 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,            &
       character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitCreate"
 
       integer :: K, KP, YEARS_PER_CYCLE, DAYS_PER_CYCLE
-      real*8  :: TREL, T1, T2, T3, T4, dTRELdDAY, SOB, OMG, PRH
+      real*8  :: TREL, T1, T2, T3, T4, dTRELdDAY, SOB, OMG, PRH, Y
       real*8  :: YEARLEN
       integer :: STATUS
       type(MAPL_SunOrbit) :: ORBIT
 
       real    :: D2R, OMECC, OPECC, OMSQECC, EAFAC
-      real*8  :: TA, EA, MA, PRHV, M1EL, COB
-      real*8  :: TRRA, M1RA, OMG0, MNRA
+      real*8  :: TA, EA, MA, PRHV, COB
+      real*8  :: TRRA, OMG0, MNRA
+      real    :: rect_pmpi, meanEOT
 
 ! TEMP pmn
       type(ESMF_VM) :: VM
@@ -177,6 +178,9 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,            &
 ! where TREL is ecliptic longitude of true Sun
 
       dTRELdDAY(TREL) = OMG*(1.0-ECCENTRICITY*cos(TREL-PRH))**2
+
+! STATEMENT FUNC: rectify to real [-pi,+pi)
+      rect_pmpi(y) = MODULO( REAL(y) + MAPL_PI, 2*MAPL_PI ) - MAPL_PI
 
 ! TEMP pmn
 ! Change orbital parameters to compare with Tom
@@ -290,7 +294,7 @@ EQUINOX      = 80
 ! =======================================
 ! PMN Dec 2019: Notes on Equation of Time
 ! =======================================
-! (Part of a more complete analysis available from PMN)
+! (Part of a more complete analysis available in orbit.pdf)
 !
 ! @ Introduction:
 !
@@ -493,9 +497,7 @@ EQUINOX      = 80
       ! Equation of Time, ET [radians]
       ! True Solar hour angle = Mean Solar hour angle + ET
       ! (hour angle and right ascension are in reverse direction)
-      ORBIT%ET(KP) = MNRA - TRRA
-      if (amIRoot) write(*,'("pmn: ",i4,4(x,f12.8))') &
-        KP, TREL, TRRA, MNRA, ORBIT%ET(KP)
+      ORBIT%ET(KP) = rect_pmpi(MNRA - TRRA)
 
 !  Integrate orbit for entire leap cycle using Runge-Kutta
 !  Mean sun moves at constant speed around Celestial Equator
@@ -516,9 +518,21 @@ EQUINOX      = 80
         ! affect the ratio of sin(RA) to cos(RA).
         TRRA = atan2(sin(TREL)*COB,cos(TREL))
         MNRA = MNRA + OMG0
-        ORBIT%ET(KP) = MNRA - TRRA
-        if (amIRoot) write(*,'("pmn: ",i4,4(x,f12.8))') &
-          KP, TREL, TRRA, MNRA, ORBIT%ET(KP)
+        ORBIT%ET(KP) = rect_pmpi(MNRA - TRRA)
+      enddo
+
+      ! enforce zero mean EOT (just in case)
+      meanEOT = sum(ORBIT%ET)/DAYS_PER_CYCLE
+      print *, 'mean EOT [mins]: ', meanEOT / D2R / 15. * 60.
+      ORBIT%ET = ORBIT%ET - meanEOT
+      print *, 'mean EOT enforced to zero'
+
+      ! report
+      KP = EQUINOX
+      do K=1,DAYS_PER_CYCLE
+        if (amIRoot) write(*,'("pmn: ",i4,2(x,f12.8))') &
+          KP, ORBIT%TH(KP), ORBIT%ET(KP)
+        KP = mod(KP,DAYS_PER_CYCLE) + 1
       enddo
 
       if (present(FIX_SUN)) then
