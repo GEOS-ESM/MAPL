@@ -3,7 +3,6 @@
 
 module pFIO_StringVariableMapMod
    use pFIO_ThrowMod
-   use ESMF
    use pFIO_VariableMod
    use pFIO_CoordinateVariableMod 
 

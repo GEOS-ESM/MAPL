@@ -3,7 +3,7 @@
 
 module pFIO_HistoryCollectionMod
   use pFIO_ErrorHandlingMod
-  use pFIO_StringIntegerMapMod
+  use gFTL_StringIntegerMap
   use pFIO_NetCDF4_FileFormatterMod
   use pFIO_StringNetCDF4_FileFormatterMapMod
   use pFIO_FileMetadataMod
@@ -96,12 +96,14 @@ contains
     type(NetCDF4_FileFormatter), pointer :: f_ptr
     type(StringNetCDF4_FileFormatterMapIterator) :: iter
     character(:),pointer :: file_name
+    integer :: status
 
     iter = this%formatters%begin()
     do while (iter /= this%formatters%end())
       file_name => iter%key()
       f_ptr => this%formatters%at(file_name)
-      call f_ptr%close()
+      call f_ptr%close(rc=status)
+      _VERIFY(status)
       ! remove the files
       call this%formatters%erase(iter)
       iter = this%formatters%begin()

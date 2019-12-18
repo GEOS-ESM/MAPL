@@ -4,7 +4,6 @@ module MAPL_VerticalDataMod
   use ESMF
   use MAPL_GenericMod
   use MAPL_BaseMod
-  use MAPL_IntegerVectorMod
   use pFIO
   use MAPL_AbstractRegridderMod
   use MAPL_ErrorHandlingMod
@@ -428,7 +427,7 @@ module MAPL_VerticalDataMod
                  call metadata%add_variable('lev',v,rc=status)
               end if
 
-           else if (this%regrid_type == VERTICAL_METHOD_ETA2LEV .or. this%regrid_type == VERTICAL_METHOD_SELECT) then
+           else if (this%regrid_type == VERTICAL_METHOD_ETA2LEV) then
               call metadata%add_dimension('lev', size(this%levs), rc=status)
               v = Variable(PFIO_REAL64, dimensions='lev')
               call v%add_attribute('long_name','vertical level')
@@ -438,9 +437,12 @@ module MAPL_VerticalDataMod
               else
                  call v%add_attribute('positive','up')
               end if
-              call v%add_attribute('coordinate','eta')
-              call v%add_attribute('standard_name','model_layer')
+              call v%add_attribute('coordinate',trim(this%vvar))
+              call v%add_attribute('standard_name',trim(this%vvar)//"_level")
               call v%add_const_value(UnlimitedEntity(this%levs))
+              call metadata%add_variable('lev',v,rc=status)
+
+           else if (this%regrid_type == VERTICAL_METHOD_SELECT) then
               call metadata%add_dimension('lev', lm, rc=status)
               v = Variable(PFIO_REAL64, dimensions='lev')
               call v%add_attribute('long_name','vertical level')

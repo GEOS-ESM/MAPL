@@ -4,7 +4,6 @@ module MAPL_TimeDataMod
   use ESMF
   use MAPL_GenericMod
   use MAPL_BaseMod
-  use MAPL_IntegerVectorMod
   use pFIO
   use MAPL_ErrorHandlingMod
   use MAPL_ESMFTimeVectorMod
@@ -59,6 +58,7 @@ contains
     integer :: status
     character(len=ESMF_MAXSTR) :: startTime,timeUnits
     type(ESMF_Time) :: currTime
+    integer :: i1,i2,i3,i123,ipos1,ipos2,isc,imn,ihr,ifreq
 
     call ESMF_CLockGet(this%clock,currTime=currTime,rc=status)
     _VERIFY(status)
@@ -69,6 +69,32 @@ contains
     v = Variable(PFIO_REAL32,dimensions='time')
     call v%add_attribute('long_name','time')
     call v%add_attribute('units',trim(timeUnits))
+  
+    ipos1=index(startTime,"-")
+    ipos2=index(startTime,"-",back=.true.)
+    read(startTime(1:ipos1-1),'(i4)')i1
+    read(startTime(ipos1+1:ipos2-1),'(i2)')i2
+    read(startTime(ipos2+1:10),'(i2)')i3
+    i123=10000*i1+100*i2+i3
+    call v%add_attribute('begin_date',i123)
+
+    ipos1=index(startTime,":")
+    ipos2=index(startTime,":",back=.true.)
+    read(startTime(12:ipos1-1),'(i2)')i1
+    read(startTime(ipos1+1:ipos2-1),'(i2)')i2
+    read(startTime(ipos2+1:19),'(i2)')i3
+    i123=10000*i1+100*i2+i3
+    call v%add_attribute('begin_time',i123)
+
+    isc=mod(this%frequency,60)
+    i2=this%frequency-isc
+    i2=i2/60
+    imn=mod(i2,60)
+    i2=i2-imn
+    ihr=i2/60
+    ifreq=10000*ihr+100*imn+isc 
+    call v%add_attribute('time_increment',ifreq)
+
     call this%tvec%clear()
     this%tcount=0
     

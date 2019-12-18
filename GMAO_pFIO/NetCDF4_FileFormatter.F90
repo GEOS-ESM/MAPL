@@ -13,8 +13,8 @@ module pFIO_NetCDF4_FileFormatterMod
    use pFIO_CoordinateVariableMod
    use pFIO_FileMetadataMod
    use pFIO_KeywordEnforcerMod
-   use pFIO_StringVectorMod
-   use pFIO_StringIntegerMapMod
+   use gFTL_StringVector
+   use gFTL_StringIntegerMap
    use pFIO_StringVariableMapMod
    use pFIO_StringAttributeMapMod
    use netcdf
@@ -1214,7 +1214,6 @@ module pFIO_FormatterPtrVectorMod
   use pFIO_NetCDF4_FileFormatterMod
 
 #define _type type(NetCDF4_FileFormatter)
-#define _pointer
 
 #define _vector FormatterPtrVector
 #define _iterator FormatterPtrVectorIterator
@@ -1223,12 +1222,10 @@ module pFIO_FormatterPtrVectorMod
 #undef _iterator
 #undef _vector
 #undef _type
-#undef _pointer
 end module pFIO_FormatterPtrVectorMod
 
 module pFIO_StringNetCDF4_FileFormatterMapMod
    use pFIO_ThrowMod
-   use ESMF
    use pFIO_NetCDF4_FileFormatterMod
 
 #include "types/key_deferredLengthString.inc"

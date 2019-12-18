@@ -3,21 +3,9 @@
 
 module ExtData_DriverGridCompMod
   use ESMF
-  use MAPL_BaseMod
-  use MAPL_ConstantsMod
-  use MAPL_ProfMod
-  use MAPL_MemUtilsMod
-  use MAPL_IOMod
-  use MAPL_ShmemMod
-  use MAPL_CommsMod
-  use MAPL_GenericMod
-  use MAPL_LocStreamMod
-  use ESMFL_Mod
+  use MAPL
   use MAPL_ExtDataGridCompMod, only : ExtData_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
-  use MAPL_DirPathMod
-  use MAPL_ConfigMod
-  use MAPL_ErrorHandlingMod
 
   implicit none
   private
@@ -657,6 +645,7 @@ contains
     integer :: status
 
     type(ESMF_Time) :: currTime
+    real            :: mem_total, mem_commit, mem_percent
 
     call ESMF_ClockGet(this%clock, CurrTime = currTime, rc = status)
     _VERIFY(status)
@@ -667,8 +656,6 @@ contains
          M  = AGCM_M , &
          S  = AGCM_S, rc=status)
     _VERIFY(status)
-    if (this%AmIRoot) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S
-1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2)
 
     call ESMF_GridCompGet(this%gc, vm = this%vm)
     ! Run the ExtData Component
@@ -697,6 +684,10 @@ contains
             clock = this%clock, userrc = status)
        _VERIFY(status)
     end if
+    call MAPL_MemCommited ( mem_total, mem_commit, mem_percent, RC=STATUS )
+    if (this%AmIRoot) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,mem_percent
+1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2,2x,f5.1,'%Memory Committed')
+    
 
     _RETURN(ESMF_SUCCESS)
   end subroutine run_one_step

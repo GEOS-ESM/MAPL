@@ -121,9 +121,9 @@ contains
 
       if (HasDE) q_out = p_dst
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
       
       _RETURN(ESMF_SUCCESS)
@@ -176,9 +176,9 @@ contains
 
       if (HasDE) q_out = p_dst
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
       
       _RETURN(ESMF_SUCCESS)
@@ -228,9 +228,9 @@ contains
 
       if (hasDE) q_out = p_dst
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -311,9 +311,9 @@ contains
 
       if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -394,9 +394,9 @@ contains
 
       if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -483,9 +483,9 @@ contains
  
       if (HasDE) q_out = reshape(p_dst, shape(q_out), order=[3,1,2])
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -493,12 +493,13 @@ contains
    end subroutine transpose_regrid_scalar_3d_real32
 
 
-   subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rc)
+   subroutine regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (EsmfRegridder), intent(in) :: this
       real, intent(in) :: u_in(:,:)
       real, intent(in) :: v_in(:,:)
       real, intent(out) :: u_out(:,:)
       real, intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
 
       character(*), parameter :: Iam = 'MAPL_EsmfRegridder::regrid_vector_2d_real32()'
@@ -506,6 +507,7 @@ contains
 
       type (RegridderSpec) :: spec
       class (AbstractGridFactory), pointer :: factory
+      character(len=ESMF_MAXSTR) :: grid_axis_in, grid_axis_out
 
       real, pointer :: p_src(:,:,:,:), p_dst(:,:,:,:)
       type (ESMF_Field) :: src_field, dst_field
@@ -526,9 +528,17 @@ contains
       _ASSERT(im_dst == size(v_out,1))
       _ASSERT(jm_dst == size(v_out,2))
 
+      grid_axis_in = 'north-south'
+      grid_axis_out = 'north-south'
+      if (present(rotate)) then
+         if (rotate) then
+            grid_axis_in = 'xyz'
+            grid_axis_out = 'grid'
+         end if
+      end if
+
       factory => grid_manager%get_factory(spec%grid_in,rc=status)
       _VERIFY(status)
-      
       
       ! TODO support other staggerings
       src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
@@ -540,7 +550,7 @@ contains
       if (hasDE) then
          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
          _VERIFY(status)
-         call factory%spherical_to_cartesian(u_in, v_in, p_src, 'north-south', rc=status)
+         call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
          _VERIFY(status)
       end if
       
@@ -563,13 +573,13 @@ contains
       factory => grid_manager%get_factory(spec%grid_out,rc=status)
       _VERIFY(status)
       if (hasDE) then
-         call factory%cartesian_to_spherical(p_dst, u_out, v_out, 'north-south', rc=status)
+         call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out, rc=status)
          _VERIFY(status)
       end if
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -577,12 +587,13 @@ contains
    end subroutine regrid_vector_2d_real32
 
 
-   subroutine regrid_vector_2d_real64(this, u_in, v_in, u_out, v_out, rc)
+   subroutine regrid_vector_2d_real64(this, u_in, v_in, u_out, v_out, rotate, rc)
      class (EsmfRegridder), intent(in) :: this
      real(real64), intent(in) :: u_in(:,:)
      real(real64), intent(in) :: v_in(:,:)
      real(real64), intent(out) :: u_out(:,:)
      real(real64), intent(out) :: v_out(:,:)
+     logical, optional, intent(in) :: rotate
      integer, optional, intent(out) :: rc
 
      character(*), parameter :: Iam = 'MAPL_EsmfRegridder::regrid_vector_2d_real64()'
@@ -593,6 +604,7 @@ contains
 
      real(real64), pointer :: p_src(:,:,:,:), p_dst(:,:,:,:)
      type (ESMF_Field) :: src_field, dst_field
+     character(len=ESMF_MAXSTR) :: grid_axis_in, grid_axis_out
 
      integer :: im_src, jm_src
      integer :: im_dst, jm_dst
@@ -610,9 +622,17 @@ contains
      _ASSERT(im_dst == size(v_out,1))
      _ASSERT(jm_dst == size(v_out,2))
 
+      grid_axis_in = 'north-south'
+      grid_axis_out = 'north-south'
+      if (present(rotate)) then
+         if (rotate) then
+            grid_axis_in = 'xyz'
+            grid_axis_out = 'grid'
+         end if
+      end if
+
      factory => grid_manager%get_factory(spec%grid_in,rc=status)
      _VERIFY(status)
-
 
      ! TODO support other staggerings
      src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R8, &
@@ -624,7 +644,7 @@ contains
      if (hasDE) then
         call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
         _VERIFY(status)
-        call factory%spherical_to_cartesian(u_in, v_in, p_src, 'north-south', rc=status)
+        call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
         _VERIFY(status)
      end if
 
@@ -647,13 +667,13 @@ contains
      factory => grid_manager%get_factory(spec%grid_out,rc=status)
      _VERIFY(status)
      if (hasDE) then
-        call factory%cartesian_to_spherical(p_dst, u_out, v_out, 'north-south', rc=status)
+        call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out, rc=status)
         _VERIFY(status)
      end if
 
-     call ESMF_FieldDestroy(src_field, rc=status)
+     call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
      _VERIFY(status)
-     call ESMF_FieldDestroy(dst_field, rc=status)
+     call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
      _VERIFY(status)
 
      _RETURN(ESMF_SUCCESS)
@@ -661,12 +681,13 @@ contains
    end subroutine regrid_vector_2d_real64
 
    
-   subroutine transpose_regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rc)
+   subroutine transpose_regrid_vector_2d_real32(this, u_in, v_in, u_out, v_out, rotate, rc)
       class (EsmfRegridder), intent(in) :: this
       real, intent(in) :: u_in(:,:)
       real, intent(in) :: v_in(:,:)
       real, intent(out) :: u_out(:,:)
       real, intent(out) :: v_out(:,:)
+      logical, optional, intent(in) :: rotate
       integer, optional, intent(out) :: rc
 
       character(*), parameter :: Iam = 'MAPL_EsmfRegridder::transpose_regrid_vector_2d_real32()'
@@ -677,6 +698,7 @@ contains
 
       real, pointer :: p_src(:,:,:,:), p_dst(:,:,:,:)
       type (ESMF_Field) :: src_field, dst_field
+      character(len=ESMF_MAXSTR) :: grid_axis_in, grid_axis_out
 
       integer :: im_src, jm_src
       integer :: im_dst, jm_dst
@@ -694,6 +716,15 @@ contains
       _ASSERT(im_dst == size(v_out,1))
       _ASSERT(jm_dst == size(v_out,2))
 
+      grid_axis_in = 'north-south'
+      grid_axis_out = 'north-south'
+      if (present(rotate)) then
+         if (rotate) then
+            grid_axis_in = 'grid'
+            grid_axis_out = 'xyz'
+         end if
+      end if
+
       factory => grid_manager%get_factory(spec%grid_out,rc=status)
       _VERIFY(status)
       hasDE = MAPL_GridHasDE(spec%grid_out,rc=status)
@@ -704,7 +735,7 @@ contains
       if (hasDE) then
          call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
          _VERIFY(status)
-         call factory%spherical_to_cartesian(u_in, v_in, p_src, 'north-south', rc=status)
+         call factory%spherical_to_cartesian(u_in, v_in, p_src, grid_axis_in, rc=status)
          _VERIFY(status)
       end if
       
@@ -726,13 +757,13 @@ contains
       factory => grid_manager%get_factory(spec%grid_in,rc=status)
       _VERIFY(status)
       if (hasDE) then
-         call factory%cartesian_to_spherical(p_dst, u_out, v_out, 'north-south', rc=status)
+         call factory%cartesian_to_spherical(p_dst, u_out, v_out, grid_axis_out, rc=status)
          _VERIFY(status)
       end if
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -844,9 +875,9 @@ contains
          _VERIFY(status)
       end if
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
@@ -951,9 +982,9 @@ contains
         _VERIFY(status)
      end if
 
-     call ESMF_FieldDestroy(src_field, rc=status)
+     call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
      _VERIFY(status)
-     call ESMF_FieldDestroy(dst_field, rc=status)
+     call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
      _VERIFY(status)
 
      _RETURN(ESMF_SUCCESS)
@@ -1066,9 +1097,9 @@ contains
          _VERIFY(status)
       end if
 
-      call ESMF_FieldDestroy(src_field, rc=status)
+      call ESMF_FieldDestroy(src_field, noGarbage=.true., rc=status)
       _VERIFY(status)
-      call ESMF_FieldDestroy(dst_field, rc=status)
+      call ESMF_FieldDestroy(dst_field, noGarbage=.true., rc=status)
       _VERIFY(status)
 
       deallocate(p_src)

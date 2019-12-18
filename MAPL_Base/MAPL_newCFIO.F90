@@ -8,7 +8,6 @@ module MAPL_newCFIOMod
   use MAPL_GridManagerMod
   use MAPL_GenericMod
   use MAPL_BaseMod
-  use MAPL_IntegerVectorMod
   use MAPL_RegridderManagerMod
   use MAPL_RegridderSpecMod
   use MAPL_TimeDataMod
@@ -19,6 +18,10 @@ module MAPL_newCFIOMod
   use MAPL_newCFIOItemMod
   use MAPL_ErrorHandlingMod
   use pFIO_ClientManagerMod
+  use MAPL_ExtDataCollectionMod
+  use MAPL_ExtDataCOllectionManagerMod
+  use MAPL_ioClientsMod
+  use gFTL_StringVector
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
@@ -27,12 +30,14 @@ module MAPL_newCFIOMod
 
   type, public :: MAPL_newCFIO
      type(FileMetaData) :: metadata
-     integer :: collection_id
+     integer :: write_collection_id
+     integer :: read_collection_id
+     integer :: metadata_collection_id
      class (AbstractRegridder), pointer :: regrid_handle => null()
      type(ESMF_Grid) :: output_grid
-     logical :: doVertRegrid
+     logical :: doVertRegrid = .false.
      type(ESMF_FieldBundle) :: output_bundle
-     type(ESMF_FieldBundle) :: bundle
+     type(ESMF_FieldBundle) :: input_bundle
      type(ESMF_Time) :: startTime
      integer :: regrid_method = REGRID_METHOD_BILINEAR
      integer :: nbits = 1000
@@ -44,6 +49,7 @@ module MAPL_newCFIOMod
      integer :: deflateLevel = 0
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
+     integer :: fraction
      contains
         procedure :: CreateFileMetaData
         procedure :: CreateVariable
@@ -56,9 +62,42 @@ module MAPL_newCFIOMod
         procedure :: set_param
         procedure :: set_default_chunking
         procedure :: alphabatize_variables
+        procedure :: request_data_from_file
+        procedure :: process_data_from_file
   end type MAPL_newCFIO
 
+  interface MAPL_newCFIO
+     module procedure new_MAPL_newCFIO
+  end interface MAPL_newCFIO
+
   contains
+
+     function new_MAPL_newCFIO(metadata,input_bundle,output_bundle,write_collection_id,read_collection_id, &
+             metadata_collection_id,regrid_method,fraction,items,rc) result(newCFIO)
+        type(MAPL_newCFIO) :: newCFIO
+        type(Filemetadata), intent(in), optional :: metadata
+        type(ESMF_FieldBundle), intent(in), optional :: input_bundle
+        type(ESMF_FieldBundle), intent(in), optional :: output_bundle
+        integer, intent(in), optional :: write_collection_id
+        integer, intent(in), optional :: read_collection_id
+        integer, intent(in), optional :: metadata_collection_id
+        integer, intent(in), optional :: regrid_method
+        integer, intent(in), optional :: fraction
+        type(newCFIOitemVector), intent(in), optional :: items
+        integer, intent(out), optional :: rc
+
+        integer :: status
+      
+        if (present(metadata)) newCFIO%metadata=metadata 
+        if (present(input_bundle)) newCFIO%input_bundle=input_bundle
+        if (present(output_bundle)) newCFIO%output_bundle=output_bundle
+        if (present(regrid_method)) newCFIO%regrid_method=regrid_method
+        if (present(write_collection_id)) newCFIO%write_collection_id=write_collection_id
+        if (present(read_collection_id)) newCFIO%read_collection_id=read_collection_id
+        if (present(metadata_collection_id)) newCFIO%metadata_collection_id=metadata_collection_id
+        if (present(items)) newCFIO%items=items
+        _RETURN(ESMF_SUCCESS)
+     end function new_MAPL_newCFIO
 
      subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,rc)
         class (MAPL_newCFIO), intent(inout) :: this
@@ -80,16 +119,16 @@ module MAPL_newCFIOMod
         integer :: status
 
         this%items = items
-        this%bundle = bundle
+        this%input_bundle = bundle
         this%output_bundle = ESMF_FieldBundleCreate(rc=status)
         _VERIFY(status)
         this%timeInfo = timeInfo
-        call ESMF_FieldBundleGet(this%bundle,grid=input_grid,rc=status)
+        call ESMF_FieldBundleGet(this%input_bundle,grid=input_grid,rc=status)
         _VERIFY(status)
         if (present(ogrid)) then
            this%output_grid=ogrid
         else
-           call ESMF_FieldBundleGet(this%bundle,grid=this%output_grid,rc=status)
+           call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,rc=status)
            _VERIFY(status)
         end if
         this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
@@ -106,10 +145,10 @@ module MAPL_newCFIOMod
            this%vdata=VerticalData(rc=status)
            _VERIFY(status)
         end if
-        call this%vdata%append_vertical_metadata(this%metadata,this%bundle,rc=status)
+        call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,rc=status)
         _VERIFY(status)
         this%doVertRegrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
-        if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,rc=status)
+        if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,rc=status)
         _VERIFY(status)
 
         call this%timeInfo%add_time_to_metadata(this%metadata,rc=status)
@@ -146,13 +185,14 @@ module MAPL_newCFIOMod
        
      end subroutine CreateFileMetaData
 
-     subroutine set_param(this,deflation,chunking,nbits,regrid_method,itemOrder,rc)
+     subroutine set_param(this,deflation,chunking,nbits,regrid_method,itemOrder,write_collection_id,rc)
         class (MAPL_newCFIO), intent(inout) :: this
         integer, optional, intent(in) :: deflation
         integer, optional, intent(in) :: chunking(:)
         integer, optional, intent(in) :: nbits
         integer, optional, intent(in) :: regrid_method
         logical, optional, intent(in) :: itemOrder
+        integer, optional, intent(in) :: write_collection_id
         integer, optional, intent(out) :: rc
 
         integer :: status
@@ -165,6 +205,7 @@ module MAPL_newCFIOMod
            _VERIFY(status)
         end if
         if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder
+        if (present(write_collection_id)) this%write_collection_id=write_collection_id
         _RETURN(ESMF_SUCCESS)
 
      end subroutine set_param
@@ -213,7 +254,7 @@ module MAPL_newCFIOMod
         character(len=:), allocatable :: vdims
         type(Variable) :: v
 
-        call ESMF_FieldBundleGet(this%bundle,itemName,field=field,rc=status)
+        call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
         _VERIFY(status)
         factory => get_factory(this%output_grid,rc=status)
         _VERIFY(status)
@@ -280,7 +321,7 @@ module MAPL_newCFIOMod
         call this%metadata%modify_variable('time',v,rc=status)
         _VERIFY(status)
         call var_map%insert('time',v)
-        call oClients%modify_metadata(this%collection_id, var_map=var_map, rc=status)
+        call oClients%modify_metadata(this%write_collection_id, var_map=var_map, rc=status)
         _VERIFY(status)
         _RETURN(ESMF_SUCCESS)
 
@@ -303,7 +344,7 @@ module MAPL_newCFIOMod
         this%times = this%timeInfo%compute_time_vector(this%metadata,rc=status)
         _VERIFY(status)
         ref = ArrayReference(this%times)
-        call oClients%stage_nondistributed_data(this%collection_id,trim(filename),'time',ref) 
+        call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref) 
 
         tindex = size(this%times)
         if (tindex==1) then
@@ -362,12 +403,13 @@ module MAPL_newCFIOMod
         real, pointer :: ptr3d(:,:,:),outptr3d(:,:,:)
         real, pointer :: ptr2d(:,:), outptr2d(:,:)
         real, allocatable, target :: ptr3d_inter(:,:,:)
+        type(ESMF_Grid) :: gridIn,gridOut
 
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
         _VERIFY(status)
 
         if (this%doVertRegrid) then
-           call ESMF_FieldBundleGet(this%bundle,itemName,field=field,rc=status)
+           call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
            _VERIFY(status)
            call ESMF_FieldGet(Field,rank=fieldRank,rc=status)
            _VERIFY(status)
@@ -389,26 +431,40 @@ module MAPL_newCFIOMod
            if (associated(ptr3d)) nullify(ptr3d)
         end if
 
-        call ESMF_FieldBundleGet(this%bundle,itemName,field=field,rc=status)
+        call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
+        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
+        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
         _VERIFY(status)
         call ESMF_FieldGet(field,rank=fieldRank,rc=status)
         _VERIFY(status)
         if (fieldRank==2) then
-           call ESMF_FieldGet(field,farrayPtr=ptr2d,rc=status)
+           call MAPL_FieldGetPointer(field,ptr2d,rc=status)
            _VERIFY(status)
            call MAPL_FieldGetPointer(OutField,outptr2d,rc=status)
            _VERIFY(status)
-           call this%regrid_handle%regrid(ptr2d,outPtr2d,rc=status)
-           _VERIFY(status)
+           if (gridIn==gridOut) then
+              outPtr2d=ptr2d
+           else
+              if (this%regrid_method==REGRID_METHOD_FRACTION) ptr2d=ptr2d-this%fraction
+              call this%regrid_handle%regrid(ptr2d,outPtr2d,rc=status)
+              _VERIFY(status)
+           end if
         else if (fieldRank==3) then
            if (.not.associated(ptr3d)) then
-              call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
+              call MAPL_FieldGetPointer(field,ptr3d,rc=status)
               _VERIFY(status)
            end if
            call MAPL_FieldGetPointer(OutField,outptr3d,rc=status)
            _VERIFY(status)
-           call this%regrid_handle%regrid(ptr3d,outPtr3d,rc=status)
-           _VERIFY(status)
+           if (gridIn==gridOut) then
+              outPtr3d=Ptr3d
+           else
+              if (this%regrid_method==REGRID_METHOD_FRACTION) ptr3d=ptr3d-this%fraction
+              call this%regrid_handle%regrid(ptr3d,outPtr3d,rc=status)
+              _VERIFY(status)
+           end if
         end if
 
         if (allocated(ptr3d_inter)) deallocate(ptr3d_inter)
@@ -432,6 +488,7 @@ module MAPL_newCFIOMod
         real, pointer :: yptr3d(:,:,:),youtptr3d(:,:,:)
         real, pointer :: yptr2d(:,:), youtptr2d(:,:)
         real, allocatable, target :: yptr3d_inter(:,:,:)
+        type(ESMF_Grid) :: gridIn, gridOut
 
         call ESMF_FieldBundleGet(this%output_bundle,xName,field=xoutField,rc=status)
         _VERIFY(status)
@@ -439,7 +496,7 @@ module MAPL_newCFIOMod
         _VERIFY(status)
 
         if (this%doVertRegrid) then
-           call ESMF_FieldBundleGet(this%bundle,xName,field=xfield,rc=status)
+           call ESMF_FieldBundleGet(this%input_bundle,xName,field=xfield,rc=status)
            _VERIFY(status)
            call ESMF_FieldGet(xField,rank=fieldRank,rc=status)
            _VERIFY(status)
@@ -457,7 +514,7 @@ module MAPL_newCFIOMod
               end if
               xptr3d => xptr3d_inter
            end if
-           call ESMF_FieldBundleGet(this%bundle,yName,field=yfield,rc=status)
+           call ESMF_FieldBundleGet(this%input_bundle,yName,field=yfield,rc=status)
            _VERIFY(status)
            call ESMF_FieldGet(yField,rank=fieldRank,rc=status)
            _VERIFY(status)
@@ -480,42 +537,56 @@ module MAPL_newCFIOMod
            if (associated(yptr3d)) nullify(yptr3d)
         end if
 
-        call ESMF_FieldBundleGet(this%bundle,xname,field=xfield,rc=status)
+        call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
         _VERIFY(status)
-        call ESMF_FieldBundleGet(this%bundle,yname,field=yfield,rc=status)
+        call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
+        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%input_bundle,xname,field=xfield,rc=status)
+        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%input_bundle,yname,field=yfield,rc=status)
         _VERIFY(status)
         call ESMF_FieldGet(xfield,rank=fieldRank,rc=status)
         _VERIFY(status)
         if (fieldRank==2) then
-           call ESMF_FieldGet(xfield,farrayPtr=xptr2d,rc=status)
+           call MAPL_FieldGetPointer(xfield,xptr2d,rc=status)
            _VERIFY(status)
            call MAPL_FieldGetPointer(xOutField,xoutptr2d,rc=status)
            _VERIFY(status)
 
-           call ESMF_FieldGet(yfield,farrayPtr=yptr2d,rc=status)
+           call MAPL_FieldGetPointer(yfield,yptr2d,rc=status)
            _VERIFY(status)
            call MAPL_FieldGetPointer(yOutField,youtptr2d,rc=status)
            _VERIFY(status)
 
-           call this%regrid_handle%regrid(xptr2d,yptr2d,xoutPtr2d,youtPtr2d,rc=status)
-           _VERIFY(status)
+           if (gridIn==gridOut) then
+              xoutPtr2d=xptr2d
+              youtPtr2d=yptr2d
+           else
+              call this%regrid_handle%regrid(xptr2d,yptr2d,xoutPtr2d,youtPtr2d,rc=status)
+              _VERIFY(status)
+           end if
         else if (fieldRank==3) then
            if (.not.associated(xptr3d)) then
-              call ESMF_FieldGet(xfield,farrayPtr=xptr3d,rc=status)
+              call MAPL_FieldGetPointer(xfield,xptr3d,rc=status)
               _VERIFY(status)
            end if
            call MAPL_FieldGetPointer(xOutField,xoutptr3d,rc=status)
            _VERIFY(status)
 
            if (.not.associated(yptr3d)) then
-              call ESMF_FieldGet(yfield,farrayPtr=yptr3d,rc=status)
+              call MAPL_FieldGetPointer(yfield,yptr3d,rc=status)
               _VERIFY(status)
            end if
            call MAPL_FieldGetPointer(yOutField,youtptr3d,rc=status)
            _VERIFY(status)
 
-           call this%regrid_handle%regrid(xptr3d,yptr3d,xoutPtr3d,youtptr3d,rc=status)
-           _VERIFY(status)
+           if (gridIn==gridOut) then
+              xoutPtr3d=xptr3d
+              youtPtr3d=yptr3d
+           else
+              call this%regrid_handle%regrid(xptr3d,yptr3d,xoutPtr3d,youtPtr3d,rc=status)
+              _VERIFY(status)
+           end if
         end if
 
         if (allocated(xptr3d_inter)) deallocate(xptr3d_inter)
@@ -553,7 +624,7 @@ module MAPL_newCFIOMod
         if (.not.allocated(this%lons)) allocate(this%lons(size(ptr2d,1),size(ptr2d,2)))
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lons)
-        call oClients%collective_stage_data(this%collection_id,trim(filename),'lons', &
+        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
                      ref,start=[i1,j1-tile*global_dim(1),tile+1], &
                      global_start=[1,1,1], global_count=[global_dim(1),global_dim(1),6])
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
@@ -564,7 +635,7 @@ module MAPL_newCFIOMod
         !ref = ArrayReference(ptr2d)
         this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lats)
-        call oClients%collective_stage_data(this%collection_id,trim(filename),'lats', &
+        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
                      ref,start=[i1,j1-tile*global_dim(1),tile+1], &
                      global_start=[1,1,1], global_count=[global_dim(1),global_dim(1),6])
      end if
@@ -616,7 +687,7 @@ module MAPL_newCFIOMod
               end if
            end if
            ref = ArrayReference(ptr2d)
-           call oClients%collective_stage_data(this%collection_id,trim(filename),trim(fieldName), &
+           call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
                         ref,start=[i1,j1-tile*global_dim(1),tile+1,1], &
                         global_start=[1,1,1,tindex], global_count=[global_dim(1),global_dim(1),6,1])
         else if (fieldRank==3) then
@@ -631,7 +702,7 @@ module MAPL_newCFIOMod
            cptr = c_loc(ptr3d)
            call C_F_pointer(cptr,ptr_ref_3d,[size(ptr3d,1),size(ptr3d,2),1,size(ptr3d,3),1])
            ref = ArrayReference(ptr_ref_3d)
-           call oClients%collective_stage_data(this%collection_id,trim(filename),trim(fieldName), &
+           call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
                         ref,start=[i1,j1-tile*global_dim(1),tile+1,1,1], &
                         global_start=[1,1,1,1,tindex], global_count=[global_dim(1),global_dim(1),6,lm,1])
         end if
@@ -646,7 +717,7 @@ module MAPL_newCFIOMod
               end if
            end if
            ref = ArrayReference(Ptr2D)
-           call oClients%collective_stage_data(this%collection_id,trim(filename),trim(fieldName), &
+           call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
                         ref,start=[i1,j1,1], &
                         global_start=[1,1,tindex], global_count=[global_dim(1),global_dim(2),1])
          else if (fieldRank==3) then
@@ -659,7 +730,7 @@ module MAPL_newCFIOMod
                end if
             end if
             ref = ArrayReference(Ptr3D)
-            call oClients%collective_stage_data(this%collection_id,trim(filename),trim(fieldName), &
+            call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
                       ref,start=[i1,j1,1,1], &
                       global_start=[1,1,1,tindex], global_count=[global_dim(1),global_dim(2),lm,1])
          end if
@@ -718,5 +789,137 @@ module MAPL_newCFIOMod
      _RETURN(_SUCCESS)
  
   end subroutine alphabatize_variables
+
+  subroutine request_data_from_file(this,filename,timeindex,rc)
+     class(mapl_newcfio), intent(inout) :: this
+     character(len=*), intent(in) :: filename
+     integer, intent(in) :: timeindex
+     integer, intent(out), optional :: rc
+
+     integer :: status
+     type(esmf_grid) :: filegrid
+     type(maplextdatacollection), pointer :: collection
+     integer :: i,numVars
+     character(len=ESMF_MAXSTR), allocatable :: names(:)
+     type(ESMF_Field) :: output_field
+     type(ESMF_Field), allocatable :: input_fields(:)
+     integer :: ub(1),lb(1),i1,in,j1,jn,img,jmg,dims(3),lm,rank
+     type(ArrayReference) :: ref
+     real, pointer :: ptr2d(:,:) => null()
+     real, pointer :: ptr3d(:,:,:) => null()
+     integer, allocatable :: start(:)
+     integer, allocatable :: global_start(:)
+     integer, allocatable :: global_count(:)
+     type(ESMF_Grid) :: output_grid
+     logical :: hasDE
+
+     collection => extdatacollections%at(this%metadata_collection_id)
+     filegrid = collection%src_grid
+     hasDE=MAPL_GridHasDE(filegrid,rc=status)
+     _VERIFY(status)
+     call ESMF_FieldBundleGet(this%output_bundle,grid=output_grid,rc=status)
+     _VERIFY(status)
+     if (filegrid/=output_grid) then
+        this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,rc=status)
+        _VERIFY(status)
+     end if
+     call MAPL_Grid_Interior(filegrid,i1,in,j1,jn)
+     call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
+     _VERIFY(status)
+     img=dims(1)
+     jmg=dims(2)
+     ! create input bundle
+     call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,rc=status)
+     _VERIFY(status)
+     allocate(names(numVars),stat=status)
+     _VERIFY(status)
+     allocate(input_fields(numVars),stat=status)
+     _VERIFY(status)
+     call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,rc=status)
+     _VERIFY(status)
+     do i=1,numVars
+        call ESMF_FieldBundleGet(this%output_bundle,names(i),field=output_field,rc=status)
+        _VERIFY(status)
+        call ESMF_FieldGet(output_field,rank=rank,rc=status)
+        _VERIFY(status)
+        if (rank==2) then
+           input_fields(i) = ESMF_FieldCreate(filegrid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2],name=trim(names(i)),rc=status)
+           _VERIFY(status)
+           if (hasDE) then
+              call ESMF_FieldGet(input_fields(I),0,farrayPtr=ptr2d,rc=status)
+              _VERIFY(status)
+           end if
+           ref=ArrayReference(ptr2d)
+           start = [i1, j1, timeIndex] ! (i,j,t)
+           global_start = [1, 1, timeIndex] ! (i,j,t)
+           global_count = [img, jmg, 1]           
+        else if (rank==3) then
+           call ESMF_FieldGet(output_field,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
+           _VERIFY(status)
+           lm=ub(1)-lb(1)+1
+           input_fields(i) = ESMF_FieldCreate(filegrid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2], &
+              ungriddedLBound=lb,ungriddedUBound=ub,name=trim(names(i)),rc=status)
+           _VERIFY(status)
+           if (hasDE) then
+              call ESMF_FieldGet(input_fields(I),0,farrayPtr=ptr3d,rc=status)
+              _VERIFY(status)
+           end if
+           ref=ArrayReference(ptr3d)
+           start = [i1, j1, 1, timeIndex] ! (i,j,t)
+           global_start = [1, 1, 1, timeIndex] ! (i,j,t)
+           global_count = [img, jmg, lm, 1]           
+        end if
+        call i_Clients%collective_prefetch_data( &
+             this%read_collection_id, fileName, trim(names(i)), &
+             & ref, start=start, global_start=global_start, global_count=global_count)
+        deallocate(start,global_start,global_count)
+     enddo
+     this%input_bundle = ESMF_FieldBundleCreate(fieldList=input_fields,rc=status)
+     _VERIFY(status)
+     _RETURN(_SUCCESS)
+
+  end subroutine request_data_from_file
+
+  subroutine process_data_from_file(this,rc)
+     class(mapl_newcfio), intent(inout) :: this
+     integer, intent(out), optional :: rc
+
+     integer :: status     
+     integer :: i,numVars
+     character(len=ESMF_MAXSTR), allocatable :: names(:)
+     type(ESMF_Field) :: field
+     type(newCFIOitem), pointer :: item
+     type(newCFIOitemVectorIterator) :: iter
+
+     call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,rc=status)
+     _VERIFY(status)
+     allocate(names(numVars),stat=status)
+     _VERIFY(status)
+     call ESMF_FieldBundleGet(this%output_bundle,fieldNameList=names,rc=status)
+     _VERIFY(status)
+     iter = this%items%begin()
+     do while(iter /= this%items%end())
+        item => iter%get()
+        if (item%itemType == ItemTypeScalar) then
+           call this%regridScalar(trim(item%xname),rc=status)
+           _VERIFY(status)
+        else if (item%itemType == ItemTypeVector) then
+           call this%regridVector(trim(item%xname),trim(item%yname),rc=status)
+           _VERIFY(status)
+        end if
+        call iter%next()
+     enddo
+
+     do i=1,numVars
+        call ESMF_FieldBundleGet(this%input_bundle,trim(names(i)),field=field,rc=status)
+        _VERIFY(status)
+        call ESMF_FieldDestroy(field,noGarbage=.true., rc=status)
+        _VERIFY(status)
+     enddo
+     call ESMF_FieldBundleDestroy(this%input_bundle,noGarbage=.true.,rc=status)
+     _VERIFY(status)
+     _RETURN(_SUCCESS)
+
+  end subroutine process_data_from_file
 
 end module MAPL_newCFIOMod

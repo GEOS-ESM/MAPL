@@ -647,7 +647,6 @@ end module pFIO_UnlimitedEntityMod
 
 module pFIO_StringUnlimitedEntityMapMod
    use pFIO_ThrowMod
-   use ESMF
    use pFIO_UnlimitedEntityMod
    
 #include "types/key_deferredLengthString.inc"   

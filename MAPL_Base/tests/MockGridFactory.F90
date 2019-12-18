@@ -8,6 +8,7 @@
 module MockGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_KeywordEnforcerMod
+   use pFIO
    implicit none
    private
 
@@ -149,8 +150,6 @@ contains
    end function generate_grid_name
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
-      use pFIO_FileMetadataMod
-      use pFIO_NetCDF4_FileFormatterMod
       use MAPL_KeywordEnforcerMod
       class (MockGridFactory), intent(inout)  :: this
       type (FileMetadata), target, intent(in) :: file_metadata
@@ -160,7 +159,6 @@ contains
 
 
    subroutine append_metadata(this, metadata)
-      use pFIO
       class (MockGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
 
@@ -172,7 +170,6 @@ contains
    end subroutine append_metadata
 
    function get_grid_vars(this) result(vars)
-      use pFIO
       class (MockGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
@@ -182,7 +179,6 @@ contains
    end function get_grid_vars
 
    subroutine append_variable_metadata(this,var)
-      use pFIO_VariableMod
       class (MockGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
    end subroutine append_variable_metadata

@@ -26,9 +26,11 @@ module pFIO
    use pFIO_AttributeMod
    use pFIO_StringAttributeMapMod
    use pFIO_StringVariableMapMod
-   use pFIO_StringVectorMod
-   use pFIO_StringIntegerMapMod
    use pFIO_DownBitMod
+   use pFIO_ErrorHandlingMod
+   use pFIO_ThrowMod
+   use pFIO_LocalMemReferenceMod
+   use pFIO_FormatterPtrVectorMod
 
    integer, save :: debug_unit = 0
 

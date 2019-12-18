@@ -77,7 +77,6 @@ end module pFIO_AttributeMod
 
 module pFIO_StringAttributeMapMod
    use pFIO_ThrowMod
-   use ESMF
    use pFIO_AttributeMod
    
 #include "types/key_deferredLengthString.inc"   

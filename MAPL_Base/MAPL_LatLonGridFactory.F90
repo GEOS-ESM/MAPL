@@ -19,6 +19,7 @@ module MAPL_LatLonGridFactoryMod
    use MAPL_KeywordEnforcerMod
    use MAPL_ConstantsMod
    use ESMF
+   use pFIO
    use MAPL_CommsMod
    use MAPL_IOMod, only : GETFILE, FREE_FILE
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -649,7 +650,6 @@ contains
 
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
-      use pFIO
       use MAPL_KeywordEnforcerMod
       use MAPL_BaseMod, only: MAPL_DecomposeDim
 
@@ -666,13 +666,16 @@ contains
 
       character(:), allocatable :: lon_name
       character(:), allocatable :: lat_name
-      logical :: hasLon, hasLat, hasLongitude, hasLatitude
+      character(:), allocatable :: lev_name
+      integer :: i
+      logical :: hasLon, hasLat, hasLongitude, hasLatitude, hasLev,hasLevel,regLat,regLon
+      real(kind=REAL64) :: del12,delij
       _UNUSED_DUMMY(unusable)
 
       ! Cannot assume that lats and lons are evenly spaced
       this%is_regular = .false.
       
-      associate (im => this%im_world, jm => this%jm_world)
+      associate (im => this%im_world, jm => this%jm_world, lm => this%lm)
          lon_name = 'lon'
          hasLon = file_metadata%has_dimension(lon_name)
          if (hasLon) then
@@ -703,7 +706,22 @@ contains
                _ASSERT(.false.)
             end if
          end if
-
+         hasLev=.false.
+         hasLevel=.false.
+         lev_name = 'lev'
+         hasLev = file_metadata%has_dimension(lev_name)
+         if (hasLev) then
+            lm = file_metadata%get_dimension(lev_name,rc=status)
+            _VERIFY(status)
+         else
+            lev_name = 'levels'
+            hasLevel = file_metadata%has_dimension(lev_name)
+            if (hasLevel) then
+               lm = file_metadata%get_dimension(lev_name,rc=status)
+               _VERIFY(status)
+            end if
+         end if   
+         
         ! TODO: if 'lat' and 'lon' are not present then
         ! assume ... pole/dateline are ?
         
@@ -778,6 +796,23 @@ contains
             this%pole = 'XY'
             this%lat_range = RealMinMax(this%lat_centers(1), this%lat_centers(jm))
          end if
+         if (this%lat_corners(1) < -90) this%lat_corners(1)=-90
+         if (this%lat_corners(jm+1) > 90) this%lat_corners(jm+1)=90
+
+         ! check if evenly spaced
+         regLon=.true.
+         do i=2,size(this%lon_centers)
+            del12=this%lon_centers(2)-this%lon_centers(1)
+            delij=this%lon_centers(i)-this%lon_centers(i-1)
+            if ((del12-delij)>epsilon(1.0)) regLon=.false.
+         end do
+         regLat=.true.
+         do i=2,size(this%lat_centers)
+            del12=this%lat_centers(2)-this%lat_centers(1)
+            delij=this%lat_centers(i)-this%lat_centers(i-1)
+            if ((del12-delij)>epsilon(1.0)) regLat=.false.
+         end do
+         this%is_regular = (regLat .and. regLon) 
 
          ! Convert to radians
          this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
@@ -1270,7 +1305,7 @@ contains
       class (LatLonGridFactory), intent(in) :: a
       class (AbstractGridFactory), intent(in) :: b
 
-      
+     
       select type (b)
          class default
          equals = .false.
@@ -1596,7 +1631,6 @@ contains
 
 
    subroutine append_metadata(this, metadata)
-      use pFIO
       use MAPL_ConstantsMod
       class (LatLonGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
@@ -1623,7 +1657,6 @@ contains
    end subroutine append_metadata
 
    function get_grid_vars(this) result(vars)
-      use pFIO
       class (LatLonGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
@@ -1633,7 +1666,6 @@ contains
    end function get_grid_vars
 
    subroutine append_variable_metadata(this,var)
-      use pFIO_VariableMod
       class (LatLonGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
    end subroutine append_variable_metadata

@@ -16,7 +16,6 @@ module MockSocketMod
    use pFIO_AddExtCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
-   use pFIO_WaitRequestDataMessageMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_ArrayReferenceMod
 
@@ -152,9 +151,6 @@ contains
          call this%messages%push_back(IdMessage(this%collection_counter))
       type is (PrefetchDataMessage)
          call this%prefix("send<PrefetchData('"//message%var_name//"')>")  
-      type is (WaitRequestDataMessage)
-         write(buffer,'("(",i0,")")') message%request_id
-         call this%prefix('send<Wait'//trim(buffer)//'>')
       type is (DummyMessage)
          call this%prefix("send<Dummy>")  
       class default

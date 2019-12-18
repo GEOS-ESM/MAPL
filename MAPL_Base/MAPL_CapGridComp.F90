@@ -21,7 +21,8 @@ module MAPL_CapGridCompMod
   use MAPL_CFIOServerMod
   use MAPL_ConfigMod
   use MAPL_DirPathMod
-  use MAPL_StringVectorMod
+  use pFIO
+  use gFTL_StringVector
 
   use iso_fortran_env
   

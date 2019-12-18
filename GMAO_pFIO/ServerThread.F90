@@ -20,7 +20,7 @@ module pFIO_ServerThreadMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_IntegerRequestMapMod
    use pFIO_IntegerSocketMapMod
-   use pFIO_IntegerVectorMod
+   use gFTL_IntegerVector
    use pFIO_FileMetadataMod
 
    use pFIO_TerminateMessageMod
@@ -37,7 +37,6 @@ module pFIO_ServerThreadMod
    use pFIO_AbstractDataMessageMod
    use pFIO_PrefetchDataMessageMod
    use pFIO_CollectivePrefetchDataMessageMod
-   use pFIO_WaitRequestDataMessageMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
    use pFIO_ModifyMetadataMessageMod
@@ -52,7 +51,7 @@ module pFIO_ServerThreadMod
    use pFIO_ConstantsMod
    use pFIO_MessageVectorMod
    use pFIO_MessageVectorUtilMod
-   use pFIO_StringInt64MapMod
+   use gFTL_StringInteger64Map
    use mpi
 
    implicit none
@@ -94,7 +93,6 @@ module pFIO_ServerThreadMod
       procedure :: handle_CollectivePrefetchData
       procedure :: handle_StageData
       procedure :: handle_CollectiveStageData
-      procedure :: handle_WaitRequestData
       procedure :: handle_ModifyMetadata
       procedure :: handle_HandShake
 
@@ -262,7 +260,7 @@ contains
 
       select type (q=>msg)
       type is (PrefetchDataMessage)
-
+          _ASSERT(.false., "please use done_prefetch")
           mem_data_reference=LocalMemReference(q%type_kind,q%count)
 
           call this%get_DataFromFile(q,mem_data_reference%base_address, status)
@@ -275,6 +273,7 @@ contains
 
       type is (CollectivePrefetchDataMessage)
 
+         _ASSERT(.false., "please use done_collective_prefetch")
          this%there_is_collective_request = .true.
 
          _ASSERT(associated(this%containing_server), "need server")
@@ -329,6 +328,7 @@ contains
 
       type is (StageDataMessage)
 
+         _ASSERT(.false., "please use done_stage")
          handle => this%get_RequestHandle(q%request_id)
          call handle%wait()
 
@@ -338,7 +338,7 @@ contains
          call this%request_backlog%erase(iter)
 
       type is (CollectiveStageDataMessage)
-
+         _ASSERT(.false., "please use done_collective_stage")
          if (.not. all(this%containing_server%serverthread_done_msgs)) then
             _RETURN(_SUCCESS)
          endif
@@ -410,7 +410,7 @@ contains
       integer(kind=MPI_OFFSET_KIND),allocatable :: offsets(:),g_offsets(:)
       integer,allocatable :: locals(:)
       type (MessageVectorIterator)  :: iter
-      type (StringInt64MapIterator) :: request_iter
+      type (StringInteger64MapIterator) :: request_iter
       class (AbstractMessage), pointer :: msg
       integer,pointer :: i_ptr(:)
       type(c_ptr) :: address
@@ -421,7 +421,7 @@ contains
       allocate(g_offsets(0:this%containing_server%Node_Num-1))
       offsets   = 0
       g_offsets = 0
-      this%containing_server%prefetch_offset = StringInt64map()
+      this%containing_server%prefetch_offset = StringInteger64map()
 
       !(1) loop to get the total size and offset of each request
       iter = this%request_backlog%begin()
@@ -516,13 +516,13 @@ contains
       integer :: node_rank, innode_rank, status
       integer(KIND=INT64) :: offset, msize_word
       type (MessageVectorIterator) :: iter
-      type (StringInt64MapIterator) :: request_iter
+      type (StringInteger64MapIterator) :: request_iter
       class (AbstractMessage), pointer :: msg
       integer,pointer :: i_ptr(:)
       type(c_ptr) :: address
       character(len=*),parameter :: Iam = 'read_and_share'
 
-      this%containing_server%prefetch_offset = StringInt64map()
+      this%containing_server%prefetch_offset = StringInteger64map()
 
       !(1) loop to get the total size and offset of each request
       offset = 0
@@ -591,12 +591,12 @@ contains
       integer(KIND=INT64) :: offset, msize_word
       integer(KIND=INT64),allocatable :: offsets(:), msize_words(:)
       type (MessageVectorIterator) :: iter
-      type (StringInt64MapIterator) :: request_iter
+      type (StringInteger64MapIterator) :: request_iter
       class (AbstractMessage), pointer :: msg
       integer :: collection_counter, collection_total
       character(len=*),parameter :: Iam = 'create_remote_win'
 
-      this%containing_server%stage_offset = StringInt64map()
+      this%containing_server%stage_offset = StringInteger64map()
 
       collection_counter = 0
       collection_total   = 0
@@ -762,22 +762,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine handle_ModifyMetadata
-
-   subroutine handle_WaitRequestData(this, message, rc)
-      class (ServerThread), target, intent(inout) :: this
-      type (WaitRequestDataMessage), intent(in) :: message
-      integer, optional, intent(out) :: rc
-      integer :: status
-      class (AbstractRequestHandle), pointer :: handle
- 
-      handle => this%get_RequestHandle(message%request_id)
-      call handle%wait()
-      call handle%data_reference%deallocate(rc=status)
-      _VERIFY(status)
-      call this%erase_RequestHandle(message%request_id)
-
-      _RETURN(_SUCCESS)
-   end subroutine handle_WaitRequestData
 
    subroutine handle_HandShake(this, message, rc)
       class (ServerThread), target, intent(inout) :: this

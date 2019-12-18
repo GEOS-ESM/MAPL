@@ -495,7 +495,7 @@ contains
 
      call factory%initialize(file_metadata, rc=status)
      _VERIFY(status)
-     call file_formatter%close()
+     call file_formatter%close(rc=status)
 
      _RETURN(_SUCCESS)
      

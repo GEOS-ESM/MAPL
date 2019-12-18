@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 1.1.1
+  VERSION 2.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 if (NOT COMMAND esma) # build as standalone project
@@ -16,7 +16,7 @@ if (NOT COMMAND esma) # build as standalone project
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
       )
   endif ()
-  set(SKIP_MANAGE_EXTERNALS ON CACHE BOOL "Set to skip manage externals step")
+  option (SKIP_MANAGE_EXTERNALS "Set to skip manage externals step" ON)
 
   list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/@cmake")
   include (esma)
@@ -31,14 +31,15 @@ add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 
 add_subdirectory (GMAO_pFIO)
 add_subdirectory (MAPL_Base)
+add_subdirectory (MAPL)
 
-if (PFUNIT)
+if (PFUNIT_FOUND)
   add_subdirectory (MAPL_pFUnit EXCLUDE_FROM_ALL)
 endif ()
 
 
 # Git transition defect:
 # Uncomment the line below once the dev branch of MAPL has been brought in.
-#add_subdirectory (Tests)
+add_subdirectory (Tests)
 
 ecbuild_install_project (NAME MAPL)

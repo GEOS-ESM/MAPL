@@ -1,6 +1,7 @@
+#include "pFIO_ErrLog.h"
+
 module ESMF_CFIOCollectionMod
-   use pFIO_StringIntegerMapMod
-   use ESMF
+  use ESMF
   use ESMF_CFIOMod
   use MAPL_BaseMod, only : MAPL_GridGet
   use ESMF_CFIOUtilMod
@@ -10,6 +11,7 @@ module ESMF_CFIOCollectionMod
   use pFIO
   use MAPL_GridManagerMod
   use MAPL_AbstractGridFactoryMod
+  use gFTL_StringIntegerMap
   implicit none
   private
 
@@ -50,16 +52,18 @@ contains
 
 
 
-  function find(this, file_name) result(formatter)
+  function find(this, file_name, rc) result(formatter)
     type (ESMF_CFIO), pointer :: formatter
     class (CFIOCollection), target, intent(inout) :: this
     character(len=*), intent(in) :: file_name
+    integer, optional, intent(out) :: rc
 
     integer, pointer :: file_id
     type (StringIntegerMapIterator) :: iter
 
     type (NetCDF4_FileFormatter) :: fmtr
-    class (AbstractGridFactory), pointer :: factory
+    integer :: status
+    class (AbstractGridFactory), allocatable :: factory
 
     file_id => this%file_ids%at(trim(file_name))
     if (associated(file_id)) then
@@ -104,10 +108,12 @@ contains
        ! size() returns 64-bit integer;  cast to 32 bit for this usage.
        call this%file_ids%insert(trim(file_name), int(this%formatters%size()))
 
-       call fmtr%open(trim(file_name), mode=pFIO_READ)
+       call fmtr%open(trim(file_name), mode=pFIO_READ, rc=status)
+       _VERIFY(status)
        ! file is the metadata, not the file name
        call this%files%push_back(fmtr%read())
-       call fmtr%close()
+       call fmtr%close(rc=status)
+       _VERIFY(status)
        this%file => this%files%back()
        if (allocated(this%src_grid)) then
        end if
@@ -135,7 +141,7 @@ end module ESMF_CFIOCollectionMod
 
 
 module ESMF_CFIOCollectionVectorMod
-   use pFIO_ThrowMod
+   use pFIO
    use ESMF_CFIOCollectionMod
    
    ! Create a map (associative array) between names and pFIO_Attributes.

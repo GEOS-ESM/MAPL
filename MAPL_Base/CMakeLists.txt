@@ -1,10 +1,5 @@
 esma_set_this ()
 
-add_definitions(-DMAPL)
-add_definitions(-DDO_COMMAS)
-add_definitions(-DTWO_SIDED_COMM)
-add_definitions(-DUSE_CUBEDSPHERE)
-
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 20)
     if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 17)
@@ -43,9 +38,6 @@ set (srcs
   MAPL_KeywordEnforcer.F90
   MAPL_MinMax.F90  
   MAPL_AbstractGridFactory.F90 
-  MAPL_IntegerVector.F90 
-  MAPL_StringVector.F90 
-  MAPL_StringIntegerMap.F90 
   MAPL_Integer64GridFactoryMap.F90 
   MAPL_StringGridFactoryMap.F90 
   MAPL_StringGridMap.F90
@@ -67,9 +59,13 @@ set (srcs
   CFIOCollection.F90 ESMF_CFIOPtrVectorMod.F90
   MAPL_TransposeRegridder.F90 MAPL_GetLatLonCoord.F90 MAPL_EsmfRegridder.F90
   MAPL_NUOPCWrapperMod.F90 MAPL_CubedSphereGridFactory.F90
+  MAPL_ExtDataCollection.F90 MAPL_ExtDataCollectionManager.F90
+  FileMetadataUtilities.F90 FileMetadataUtilitiesVector.F90
   )
 
-esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4)
+esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 gftl-shared FLAP::FLAP)
+#target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
+target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
 
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
@@ -91,8 +87,8 @@ esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})
 endif()
 
 #--------------------
-target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF} ${INC_FLAP})
-target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${LIB_FLAP})
+target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF})
+target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES})
 if(FLAP_FOUND)
   target_compile_definitions(${this} PRIVATE USE_FLAP)
 endif()
@@ -116,8 +112,8 @@ endif ()
 
 
 # Unit testing
-if (PFUNIT)
-  add_subdirectory(tests)
+if (PFUNIT_FOUND)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
 
 install (

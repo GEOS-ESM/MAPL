@@ -20,21 +20,10 @@ module MAPL_IOMod
   use MAPL_RangeMod
   use MAPL_ErrorHandlingMod
   use netcdf
-  use pFIO_CoordinateVariableMod
-  use pFIO_ConstantsMod
-  use pFIO_FileMetadataMod
+  use pFIO
   use pFIO_ClientManagerMod
-  use pFIO_NetCDF4_FileFormatterMod
-  use pFIO_AttributeMod
-  use pFIO_StringAttributeMapMod
-  use pFIO_VariableMod
-  use pFIO_StringVariableMapMod
-  use pFIO_StringVectorMod
-  use pFIO_StringIntegerMapMod
-  use pFIO_StringVariableMapMod
-  use pFIO_ArrayReferenceMod
-  use pFIO_LocalMemReferenceMod
-  use pFIO_UtilitiesMod, only: i_to_string
+  use gFTL_StringIntegerMap
+  use gFTL_StringVector
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   implicit none
@@ -239,11 +228,12 @@ module MAPL_IOMod
 
   contains
 
-      subroutine ArrDescrInit(ArrDes,comm,im_world,jm_world,nx,ny,num_readers,num_writers,is,ie,js,je,rc)
+      subroutine ArrDescrInit(ArrDes,comm,im_world,jm_world,lm_world,nx,ny,num_readers,num_writers,is,ie,js,je,rc)
          type(ArrDescr), intent(INOUT) :: ArrDes
          integer, intent(in) :: comm
          integer, intent(in) :: IM_World
          integer, intent(in) :: JM_World
+         integer, intent(in) :: lm_world
          integer, intent(in) :: nx
          integer, intent(in) :: ny
          integer, intent(in) :: num_readers
@@ -364,6 +354,7 @@ module MAPL_IOMod
 
          ArrDes%im_world=im_world
          ArrDes%jm_world=jm_world
+         ArrDes%lm_world=lm_world
 
          ArrDes%readers_comm  = readers_comm
          ArrDes%ioscattercomm = ioscattercomm
@@ -5950,7 +5941,7 @@ module MAPL_IOMod
           ! WY notes : it doesnot seem to get this branch
           call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
-             print*,trim(IAm),'Error writing variable ',status
+             print*,trim(IAm),' :Error writing variable: '// trim(name)
              print*, NF_STRERROR(status)
              _VERIFY(STATUS)
           endif
@@ -8105,7 +8096,7 @@ module MAPL_IOMod
                    end if
                 end do
                 _ASSERT(found, 'search failed')
-                call add_fvar(cf,trim(fieldname),pfDataType,'tile,'//myUngridDimName1,units,long_name,rc=status)
+                call add_fvar(cf,trim(fieldname),pfDataType,myUngridDimName1,units,long_name,rc=status)
                 _VERIFY(status)
              else
                 _ASSERT(.false., 'unsupported Dims case')

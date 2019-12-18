@@ -13,7 +13,6 @@ module MockServerThreadMod
    use pFIO_AddExtCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
-   use pFIO_WaitRequestDataMessageMod
 
    implicit none
    private

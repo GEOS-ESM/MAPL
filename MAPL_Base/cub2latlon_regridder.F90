@@ -18,17 +18,12 @@ module SupportMod
    use ESMF
    use MAPL_ThrowMod
    use MAPL_BaseMod
-   use pFIO_FileMetadataMod
-   use pFIO_ConstantsMod
-   use pFIO_NetCDF4_FileFormatterMod
-   use pFIO_AttributeMod
-   use pFIO_StringAttributeMapMod
-   use pFIO_VariableMod
-   use pFIO_StringVariableMapMod
-   use pFIO_StringVectorMod
+   use pFIO
    use MAPL_ConstantsMod
    use MAPL_RangeMod
    use MAPL_StringRouteHandleMapMod
+   use gFTL_StringVector
+   use gFTL_StringIntegerMap
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use mpi
    implicit none
@@ -209,7 +204,6 @@ contains
    contains      
 
       subroutine add_grid_dimensions()
-         use pFIO_StringIntegerMapMod
          integer :: status
          type (StringIntegerMap), pointer :: dims
 
@@ -1205,8 +1199,7 @@ end module SupportMod
 program main
    use ESMF
    use SupportMod
-   use pFIO_FileMetadataMod
-   use pFIO_NetCDF4_FileFormatterMod
+   use pFIO
    implicit none
 
    integer :: c00, c0, c1, crate
