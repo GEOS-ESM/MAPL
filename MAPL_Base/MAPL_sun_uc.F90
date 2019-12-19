@@ -96,9 +96,9 @@ contains
 !  ESMF clock passed as an argument. This becomes the orbit`s
 !  attached clock. Currently we assume a single intercalation.
 !
-!  A good introduction to celestial mechanics for understanding this
-!  code can be found in Blanco & McCuskey, 1961: "Basic Physics of the
-!  Solar System", hereafter BM.
+!  A good introduction to celestial mechanics for understanding
+!  this code can be found in Blanco & McCuskey, 1961: "Basic
+!  Physics of the Solar System", hereafter BM.
 !
 !% \begin{itemize}
 !%   \item[]
@@ -130,24 +130,23 @@ contains
 
 ! !INTERFACE:
 
-type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,            &
-                                                 OLD_ECCENTRICITY, &
-                                                 OLD_OBLIQUITY,    &
-                                                 OLD_PERIHELION,   &
-                                                 OLD_EQUINOX,      &
-                                                 FIX_SUN,          &
-                                                                RC )
+type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,        &
+                                                 ECCENTRICITY, &
+                                                 OBLIQUITY,    &
+                                                 PERIHELION,   &
+                                                 EQUINOX,      &
+                                                 FIX_SUN,      &
+                                                            RC )
 
 ! !ARGUMENTS:
 
  type(ESMF_Clock)  , intent(IN ) :: CLOCK
- real              , intent(IN ) :: OLD_ECCENTRICITY
- real              , intent(IN ) :: OLD_OBLIQUITY
- real              , intent(IN ) :: OLD_PERIHELION
- integer           , intent(IN ) :: OLD_EQUINOX
+ real              , intent(IN ) :: ECCENTRICITY
+ real              , intent(IN ) :: OBLIQUITY
+ real              , intent(IN ) :: PERIHELION
+ integer           , intent(IN ) :: EQUINOX
  logical, optional , intent(IN ) :: FIX_SUN
  integer, optional , intent(OUT) :: RC
-! TEMP pmn: remove OLD after test
 
 !EOPI
 
@@ -155,24 +154,15 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,            &
 
       character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitCreate"
 
-      integer :: K, KP, YEARS_PER_CYCLE, DAYS_PER_CYCLE
-      real*8  :: TREL, T1, T2, T3, T4, dTRELdDAY, SOB, OMG, PRH, Y
       real*8  :: YEARLEN
-      integer :: STATUS
-      type(MAPL_SunOrbit) :: ORBIT
-
+      integer :: K, KP, YEARS_PER_CYCLE, DAYS_PER_CYCLE
+      real*8  :: TREL, T1, T2, T3, T4, dTRELdDAY
+      real*8  :: SOB, COB, OMG0, OMG, PRH, PRHV
       real    :: D2R, OMECC, OPECC, OMSQECC, EAFAC
-      real*8  :: TA, EA, MA, PRHV, COB
-      real*8  :: TRRA, OMG0, MNRA
+      real*8  :: X, TA, EA, MA, TRRA, MNRA
       real    :: rect_pmpi, meanEOT
-
-! TEMP pmn
-      type(ESMF_VM) :: VM
-      logical :: amIRoot
-      integer :: deId, npes
-      real :: ECCENTRICITY, OBLIQUITY, PERIHELION
-      integer :: EQUINOX
-! end TEMP pmn
+      type(MAPL_SunOrbit) :: ORBIT
+      integer :: STATUS
 
 ! STATEMENT FUNC: dTREL/dDAY(TREL),
 ! where TREL is ecliptic longitude of true Sun
@@ -180,33 +170,24 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,            &
       dTRELdDAY(TREL) = OMG*(1.0-ECCENTRICITY*cos(TREL-PRH))**2
 
 ! STATEMENT FUNC: rectify to real [-pi,+pi)
-      rect_pmpi(y) = MODULO( REAL(y) + MAPL_PI, 2*MAPL_PI ) - MAPL_PI
+      rect_pmpi(X) = MODULO( REAL(X) + MAPL_PI, 2*MAPL_PI ) - MAPL_PI
 
 ! TEMP pmn
-! Change orbital parameters to compare with Tom
-! These are for year 2000.
-ECCENTRICITY = 0.01671022	! 0.0167
-OBLIQUITY    = 23.44
-PERIHELION   = 102.94719	! 102.947
-EQUINOX      = 80
 ! @ Toms's equinox is: 80 + 7.5/24
 ! but this method requires an integer so we'll use 80.
 ! Actually in THIS code, EQUINOX is only used to set the KP
 ! at which the TREL is zero. So although its 80 here, outside
 ! this code, namely in SunGetInsolation where we interpolate
 ! between days, we should regard the daily value as at 7h30m
-! AM. But thats an external issue and wont affect this test.
+! AM. But thats an external issue and wont affect this code.
 ! But when doing diagnostic tests, we must regard index 80 as
 ! being 80d7h30m = Mar 20, 7:30 AM UTC (2000 IS a leap year).
 ! @ Similarly, it is assumed EXTERNALLY that the first three
 ! years of the cycle are non-leap, and the last leap. This
-! won't affect this test.
-! end TEMP pmn
-
-! TEMP pmn
-      call ESMF_VMGetCurrent(vm, rc=status)
-      call ESMF_VmGet(VM, localPet=deId, petCount=npes, rc=status); VERIFY_(STATUS)
-      amIRoot = (deId == 0)
+! won't affect this code.
+! TODO: add real EQUINOX_FRAC, fractional day past 0Z,
+! defaulting to zero in the resource read. Above case
+! would be EQUINOX_FRAC = 0.3125
 ! end TEMP pmn
 
 !MJS:  This needs to come from the calendar when the time manager works right.
@@ -523,17 +504,7 @@ EQUINOX      = 80
 
       ! enforce zero mean EOT (just in case)
       meanEOT = sum(ORBIT%ET)/DAYS_PER_CYCLE
-      print *, 'mean EOT [mins]: ', meanEOT / D2R / 15. * 60.
       ORBIT%ET = ORBIT%ET - meanEOT
-      print *, 'mean EOT enforced to zero'
-
-      ! report
-      KP = EQUINOX
-      do K=1,DAYS_PER_CYCLE
-        if (amIRoot) write(*,'("pmn: ",i4,2(x,f12.8))') &
-          KP, ORBIT%TH(KP), ORBIT%ET(KP)
-        KP = mod(KP,DAYS_PER_CYCLE) + 1
-      enddo
 
       if (present(FIX_SUN)) then
          ORBIT%FIX_SUN=FIX_SUN
