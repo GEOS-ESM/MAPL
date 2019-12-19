@@ -3227,7 +3227,7 @@ CONTAINS
         If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then
            call ESMF_TimeGet(cLimTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
            Write(6,'(a,I2,3a,I0.4,5(a,I0.2))') '               GetBracketTimeOnFile: Year offset of ',yrOffset,&
-           ' applied while scanning ', trim(),&
+           ' applied while scanning ', trim(fdata%get_file_name()),&
            ' to give target time ',iYr,'-',iMm,'-',iDd,' ',iHr,':',iMn,':',iSc
         End If
 
