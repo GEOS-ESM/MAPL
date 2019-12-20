@@ -1,5 +1,7 @@
-module Test_AttributeMod
-   use pfunit_mod
+module Test_Attribute
+   use funit
+   !use pfunit for mpi
+  
    use pFIO_AttributeMod
    use pFIO_ConstantsMod
    use, intrinsic :: iso_fortran_env, only: INT32, INT64
@@ -88,7 +90,6 @@ contains
       type (Attribute),allocatable :: b
 
       integer,allocatable :: buffer(:)
-      integer :: length
 
       a = Attribute(10)
       call a%serialize(buffer)
@@ -127,4 +128,4 @@ contains
 
    end subroutine test_serialize
 
-end module Test_AttributeMod
+end module Test_Attribute

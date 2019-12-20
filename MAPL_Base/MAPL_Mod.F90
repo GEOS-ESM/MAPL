@@ -2,7 +2,7 @@
 
 
 module MAPL_Mod
-  
+
   use MAPL_ErrorHandlingMod
   use ESMFL_Mod         !  Stopgap
   use MAPL_ThrowMod
@@ -38,6 +38,17 @@ module MAPL_Mod
   use MAPL_RegridderSpecMod
   use MAPL_GridManagerMod
   use MAPL_LatLonGridFactoryMod
+  use MAPL_CubedSphereGridFactoryMod
+  use MAPL_ShmemMod
+  use MAPL_MaxMinMod
+  use MAPL_SimpleBundleMod
+  use MAPL_NewArthParserMod
+  use MAPL_DirPathMod
+  use MAPL_ioClientsMod
+  use MAPL_KeywordEnforcerMod
+  use MAPL_SimpleCommSplitterMod
+  use MAPL_SplitCommunicatorMod
+
   logical, save, private :: mapl_is_initialized = .false.
 
 end module MAPL_Mod

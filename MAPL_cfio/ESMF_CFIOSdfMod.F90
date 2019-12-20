@@ -23,6 +23,7 @@
       use ESMF_CFIOVarInfoMod
       use ESMF_CFIOFileMod
       use netcdf
+      use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64
 
       implicit none
 !------------------------------------------------------------------------------
@@ -3163,7 +3164,7 @@
                lon2_64(i) = i ! index
             else
                lon2_64(i) = cfio%grids(ig)%lon(i+xOffset) ! lons at first face
-               if (lon2_64(i) > 180.0_8 ) lon2_64(i) = lon2_64(i) - 360.0_8
+               if (lon2_64(i) > 180.0d0 ) lon2_64(i) = lon2_64(i) - 360.0d0
             end if
          enddo
          do i=1,jm

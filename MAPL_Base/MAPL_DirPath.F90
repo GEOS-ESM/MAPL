@@ -1,6 +1,7 @@
 module MAPL_DirPathMod
    use MAPL_KeywordEnforcerMod
-   use MAPL_StringVectorMod
+   use pFIO
+   use gFTL_StringVector
    private
 
    public :: DirPath

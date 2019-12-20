@@ -1,13 +1,14 @@
 
 #define SHM_SUCCESS  0
-#define VERIFY_(A)   if((A)/=SHM_SUCCESS) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define ASSERT_(A)   if(.not.(A)) then; if(present(rc)) rc=1; PRINT *, Iam, __LINE__; return; endif
-#define RETURN_(A)   if(present(rc)) rc=A; return
 #include "unused_dummy.H"
+#include "MAPL_ErrLog.h"
 
   module MAPL_ShmemMod
 
     use, intrinsic :: ISO_C_BINDING
+    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64
+    use MAPL_ErrorHandlingMod
+
     implicit none
     private
 
@@ -176,15 +177,15 @@
 
       if (MAPL_NodeComm == -1) then ! make sure that we do this only once
          MAPL_NodeComm = getNodeComm(comm, rc=STATUS)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       end if
 
       if (MAPL_NodeRootsComm == -1) then ! make sure that we do this only once
          MAPL_NodeRootsComm = getNodeRootsComm(comm, rc=STATUS)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       end if
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_GetNodeInfo
 
     subroutine MAPL_InitializeShmem(rc)
@@ -192,10 +193,10 @@
 
       integer :: STATUS
 
-      ASSERT_(MAPL_NodeComm /= -1)
+      _ASSERT(MAPL_NodeComm /= -1,'needs informative message')
 
       allocate(Segs(CHUNK),stat=STATUS)
-      ASSERT_(STATUS==0)
+      _ASSERT(STATUS==0,'needs informative message')
 
       MAPL_ShmInitialized=.true.
 
@@ -204,7 +205,7 @@
            print *, "MAPL_Shmem initialized for node ", MAPL_MyNodeNum
 #endif
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_InitializeShmem
 
     subroutine MAPL_FinalizeShmem(rc)
@@ -230,23 +231,23 @@
 !!! Everyone detaches address from shared segment
 
             STATUS = shmdt(Segs(i)%addr)
-            ASSERT_(STATUS /= -1)
+            _ASSERT(STATUS /= -1,'needs informative message')
 
 !!! Make sure everyone has finished detaching
 
             call MPI_Barrier(MAPL_NodeComm, STATUS)
-            ASSERT_(STATUS==MPI_SUCCESS)
+            _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
 !!! The root processor destroys the segment
 
             if (MAPL_AmNodeRoot) then
                STATUS = shmctl(Segs(i)%shmid, IPC_RMID, buf)
-               ASSERT_(STATUS /= -1)
+               _ASSERT(STATUS /= -1,'needs informative message')
             end if
          end do
 
          deallocate(Segs,stat=STATUS)
-         ASSERT_(STATUS==0)
+         _ASSERT(STATUS==0,'needs informative message')
       end if
 
       MAPL_ShmInitialized=.false.
@@ -257,12 +258,12 @@
 #endif
 
       call MPI_Comm_free(MAPL_NodeComm, status)
-      ASSERT_(STATUS==MPI_SUCCESS)
+      _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
       MAPL_NodeComm = -1
 
       if (MAPL_NodeRootsComm /= MPI_COMM_NULL) then
          call MPI_Comm_free(MAPL_NodeRootsComm, status)
-         ASSERT_(STATUS==MPI_SUCCESS)
+         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
       end if
       MAPL_NodeRootsComm = -1
 
@@ -274,7 +275,7 @@
       MAPL_CoresPerNodeMax=-1
       MAPL_NumNodes=-1
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_FinalizeShmem
 
     subroutine MAPL_DeAllocNodeArray_1DL4(Ptr,rc)
@@ -285,15 +286,15 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1)))
 
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_1DL4
 
     subroutine MAPL_DeAllocNodeArray_1DI4(Ptr,rc)
@@ -304,15 +305,15 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1)))
 
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_1DI4
 
     subroutine MAPL_DeAllocNodeArray_2DI4(Ptr,rc)
@@ -323,15 +324,15 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1),lbound(Ptr,2)))
 
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_2DI4
 
     subroutine MAPL_DeAllocNodeArray_3DI4(Ptr,rc)
@@ -342,15 +343,15 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1),lbound(Ptr,2),lbound(Ptr,3)))
 
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_3DI4
 
     subroutine MAPL_DeAllocNodeArray_4DI4(Ptr,rc)
@@ -361,15 +362,15 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1),lbound(Ptr,2),lbound(Ptr,3),lbound(Ptr,4)))
 
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_4DI4
 
 
@@ -381,15 +382,15 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1)))
 
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_1DR4
 
     subroutine MAPL_DeAllocNodeArray_2DR4(Ptr,rc)
@@ -400,15 +401,15 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1),lbound(Ptr,2)))
 
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_2DR4
 
     subroutine MAPL_DeAllocNodeArray_3DR4(Ptr,rc)
@@ -419,15 +420,15 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1),lbound(Ptr,2),lbound(Ptr,3)))
 
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_3DR4
 
     subroutine MAPL_DeAllocNodeArray_4DR4(Ptr,rc)
@@ -438,14 +439,14 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1),lbound(Ptr,2),lbound(Ptr,3),lbound(Ptr,4)))
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_4DR4
 
 
@@ -457,15 +458,15 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1)))
 
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_1DR8
 
     subroutine MAPL_DeAllocNodeArray_2DR8(Ptr,rc)
@@ -476,15 +477,15 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1),lbound(Ptr,2)))
 
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_2DR8
 
     subroutine MAPL_DeAllocNodeArray_3DR8(Ptr,rc)
@@ -495,15 +496,15 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1),lbound(Ptr,2),lbound(Ptr,3)))
 
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_3DR8
 
     subroutine MAPL_DeAllocNodeArray_4DR8(Ptr,rc)
@@ -514,14 +515,14 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1),lbound(Ptr,2),lbound(Ptr,3),lbound(Ptr,4)))
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_4DR8
 
     subroutine MAPL_DeAllocNodeArray_5DR8(Ptr,rc)
@@ -532,14 +533,14 @@
       integer     :: STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       Caddr = C_Loc(Ptr(lbound(Ptr,1),lbound(Ptr,2),lbound(Ptr,3),lbound(Ptr,4),lbound(Ptr,5)))
       call ReleaseSharedMemory(Caddr,rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_DeAllocNodeArray_5DR8    
 
     subroutine MAPL_AllocNodeArray_1DL4(Ptr, Shp, lbd, rc)
@@ -552,20 +553,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len = shp(1)
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(size(Ptr)==len)
+      _ASSERT(size(Ptr)==len,'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_1DL4
 
     subroutine MAPL_AllocNodeArray_1DI4(Ptr, Shp, lbd, rc)
@@ -578,20 +579,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len = shp(1)
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(size(Ptr)==len)
+      _ASSERT(size(Ptr)==len,'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_1DI4
 
 
@@ -605,20 +606,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len=product(Shp)
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(all(shape(Ptr)==Shp))
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):,lbd(2):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_2DI4
 
     subroutine MAPL_AllocNodeArray_3DI4(Ptr, Shp, lbd, rc)
@@ -631,20 +632,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len=product(Shp)
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(all(shape(Ptr)==Shp))
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_3DI4
 
     subroutine MAPL_AllocNodeArray_4DI4(Ptr, Shp, lbd, rc)
@@ -657,20 +658,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len=product(Shp)
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(all(shape(Ptr)==Shp))
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_4DI4
 
 
@@ -684,20 +685,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len = shp(1)
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(size(Ptr)==len)
+      _ASSERT(size(Ptr)==len,'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_1DR4
 
 
@@ -711,20 +712,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len=product(Shp)
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(all(shape(Ptr)==Shp))
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):,lbd(2):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_2DR4
 
     subroutine MAPL_AllocNodeArray_3DR4(Ptr, Shp, lbd, rc)
@@ -737,20 +738,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len=product(Shp)
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(all(shape(Ptr)==Shp))
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_3DR4
 
     subroutine MAPL_AllocNodeArray_4DR4(Ptr, Shp, lbd, rc)
@@ -763,20 +764,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len=product(Shp)
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(all(shape(Ptr)==Shp))
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_4DR4
 
 
@@ -790,20 +791,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len = shp(1)*2
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-!      ASSERT_(size(Ptr)==len)   ! Thomas Clune suggested that this ASSERT is unnecessary.
+!      _ASSERT(size(Ptr)==len,'needs informative message')   ! Thomas Clune suggested that this ASSERT is unnecessary.
 
       if(present(lbd)) Ptr(lbd(1):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_1DR8
 
 
@@ -817,20 +818,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len=product(Shp)*2
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(all(shape(Ptr)==Shp))
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):,lbd(2):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_2DR8
 
     subroutine MAPL_AllocNodeArray_3DR8(Ptr, Shp, lbd, rc)
@@ -843,20 +844,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len=product(Shp)*2
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(all(shape(Ptr)==Shp))
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_3DR8
 
     subroutine MAPL_AllocNodeArray_4DR8(Ptr, Shp, lbd, rc)
@@ -869,20 +870,20 @@
       integer len, STATUS
 
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len=product(Shp)*2
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(all(shape(Ptr)==Shp))
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_4DR8
 
     subroutine MAPL_AllocNodeArray_5DR8(Ptr, Shp, lbd, rc)
@@ -896,20 +897,20 @@
 
       _UNUSED_DUMMY(lbd)
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(MAPL_NoShm)
+         _RETURN(MAPL_NoShm)
       endif
 
       len=product(Shp)*2
 
       call GetSharedMemory(Caddr, len, rc=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      ASSERT_(all(shape(Ptr)==Shp))
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
 
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):,lbd(5):) => Ptr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_AllocNodeArray_5DR8    
 
 
@@ -923,17 +924,19 @@
 
       integer :: status
 
-      call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
-      if(STATUS==MAPL_NoShm) then
+      if(MAPL_ShmInitialized) then
+         call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
+         _VERIFY(STATUS)
+      else
          if (TransRoot) then
             allocate(Ptr(Shp(1)),stat=status)
          else
             allocate(Ptr(0),stat=status)
          end if
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       endif
 
-      RETURN_(STATUS)
+      _RETURN(STATUS)
 
     end subroutine MAPL_AllocateShared_1DL4
 
@@ -947,17 +950,19 @@
 
       integer :: status
 
-      call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
-      if(STATUS==MAPL_NoShm) then 
+      if(MAPL_ShmInitialized) then
+         call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
+         _VERIFY(STATUS)
+      else
          if (TransRoot) then
             allocate(Ptr(Shp(1)),stat=status)
          else
             allocate(Ptr(0),stat=status)
          end if
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       endif
 
-      RETURN_(STATUS)
+      _RETURN(STATUS)
 
     end subroutine MAPL_AllocateShared_1DI4
 
@@ -971,22 +976,24 @@
 
       integer :: status
 
-      call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
-      if(STATUS==MAPL_NoShm) then 
+      if(MAPL_ShmInitialized) then
+         call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
+         _VERIFY(STATUS)
+      else
          if (TransRoot) then
             allocate(Ptr(Shp(1)),stat=status)
          else
             allocate(Ptr(0),stat=status)
          end if
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       endif
 
-      RETURN_(STATUS)
+      _RETURN(STATUS)
 
     end subroutine MAPL_AllocateShared_1DR4
 
     subroutine MAPL_AllocateShared_1DR8(Ptr, Shp, lbd, TransRoot, rc)
-      real(KIND=8), pointer,     intent(INOUT) :: Ptr(:)
+      real(KIND=REAL64), pointer,     intent(INOUT) :: Ptr(:)
       integer,           intent(IN   ) :: Shp(1)
       integer, optional, intent(IN   ) :: lbd(1)
       logical,           intent(IN   ) :: TransRoot
@@ -995,17 +1002,19 @@
 
       integer :: status
 
-      call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
-      if(STATUS==MAPL_NoShm) then 
+      if(MAPL_ShmInitialized) then
+         call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
+         _VERIFY(STATUS)
+      else 
          if (TransRoot) then
             allocate(Ptr(Shp(1)),stat=status)
          else
             allocate(Ptr(0),stat=status)
          end if
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       endif
 
-      RETURN_(STATUS)
+      _RETURN(STATUS)
 
     end subroutine MAPL_AllocateShared_1DR8
 
@@ -1019,22 +1028,24 @@
 
       integer :: status
 
-      call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
-      if(STATUS==MAPL_NoShm) then 
+      if(MAPL_ShmInitialized) then
+         call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
+         _VERIFY(STATUS)
+      else
          if (TransRoot) then
             allocate(Ptr(Shp(1),Shp(2)),stat=status)
          else
             allocate(Ptr(0,0),stat=status)
          end if
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       endif
 
-      RETURN_(STATUS)
+      _RETURN(STATUS)
 
     end subroutine MAPL_AllocateShared_2DR4
 
     subroutine MAPL_AllocateShared_2DR8(Ptr, Shp, lbd, TransRoot, rc)
-      real(KIND=8), pointer, intent(INOUT) :: Ptr(:,:)
+      real(KIND=REAL64), pointer, intent(INOUT) :: Ptr(:,:)
       integer,           intent(IN   ) :: Shp(2)
       integer, optional, intent(IN   ) :: lbd(2)
       logical,           intent(IN   ) :: TransRoot
@@ -1043,17 +1054,19 @@
 
       integer :: status
 
-      call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
-      if(STATUS==MAPL_NoShm) then 
+      if(MAPL_ShmInitialized) then
+         call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
+         _VERIFY(STATUS)
+      else
          if (TransRoot) then
             allocate(Ptr(Shp(1),Shp(2)),stat=status)
          else
             allocate(Ptr(0,0),stat=status)
          end if
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
       endif
 
-      RETURN_(STATUS)
+      _RETURN(STATUS)
 
     end subroutine MAPL_AllocateShared_2DR8
 
@@ -1075,37 +1088,37 @@
 
 !!! Everyone exits if it is not there
 
-      ASSERT_(pos<=size(Segs))
+      _ASSERT(pos<=size(Segs),'needs informative message')
 
 !!! The root processor destroys the segment
 
       if (MAPL_AmNodeRoot) then
          STATUS = shmctl(Segs(pos)%shmid, IPC_RMID, buf)
-         ASSERT_(STATUS /= -1)
+         _ASSERT(STATUS /= -1,'needs informative message')
       end if
 
 !!! Everyone detaches address from shared segment
 
       status = shmdt(Caddr)
-      ASSERT_(status /= -1)
+      _ASSERT(status /= -1,'needs informative message')
 
 !!! Make sure everyone has finished detaching
 
       call MPI_Barrier(MAPL_NodeComm, STATUS)
-      ASSERT_(STATUS==MPI_SUCCESS)
+      _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
 !!! The root processor destroys the segment
 !
 !     if (MAPL_AmNodeRoot) then
 !        STATUS = shmctl(Segs(pos)%shmid, IPC_RMID, buf)
-!        ASSERT_(STATUS /= -1)
+!        _ASSERT(STATUS /= -1,'needs informative message')
 !     end if
 
 !!! Free the position in the segment list
 
       Segs(pos)%shmid=-1
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine ReleaseSharedMemory
 
 
@@ -1133,12 +1146,12 @@
 
          if(pos==size(Segs)) then ! Expand the segment list
             allocate(SegsNew(size(Segs)+CHUNK),stat=STATUS)
-            ASSERT_(STATUS==0)
+            _ASSERT(STATUS==0,'needs informative message')
 
             SegsNew(1:size(Segs)) = Segs
 
             deallocate(Segs,stat=STATUS)
-            ASSERT_(STATUS==0)
+            _ASSERT(STATUS==0,'needs informative message')
 
             Segs=>SegsNew
             nullify(SegsNew)
@@ -1158,15 +1171,15 @@
          Segs(pos)%shmid = shmget(key, numBytes, shmflg)
          if (Segs(pos)%shmid < 0) then
             call perror('server shmget():'//C_NULL_CHAR)
-            ASSERT_(.false.)
+            _ASSERT(.false.,'needs informative message')
          end if
          call MPI_Barrier(MAPL_NodeComm, STATUS)
-         ASSERT_(STATUS==MPI_SUCCESS)
+         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
       else                 ! wait for create on root & get segment
          call MPI_Barrier(MAPL_NodeComm, STATUS)
-         ASSERT_(STATUS==MPI_SUCCESS)
+         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
          Segs(pos)%shmid = shmget(key, numBytes, myflg)
-         ASSERT_(Segs(pos)%shmid /= -1)
+         _ASSERT(Segs(pos)%shmid /= -1,'needs informative message')
       end if
 
 !!! Everyone attaches the memory to their own C pointer
@@ -1175,14 +1188,14 @@
 
 !!! Check that we have valid shared memory
 
-      ASSERT_(c_associated(Segs(pos)%addr))
+      _ASSERT(c_associated(Segs(pos)%addr),'needs informative message')
 
 !!! Return C address. It will be attached to a Fortran pointer
 !!!  with rank overloads 
 
       Caddr = Segs(pos)%addr
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine GetSharedMemory
 
     subroutine MAPL_BroadcastToNodes_1DR4(DATA,N,ROOT,rc)
@@ -1195,18 +1208,18 @@
       real*4, allocatable :: ldata(:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
-         RETURN_(SHM_SUCCESS)
+         _RETURN(SHM_SUCCESS)
       end if
 
       allocate(ldata(size(data,1)),stat=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       ldata = data
       call MPI_Bcast(LDATA, N, MPI_REAL, ROOT, MAPL_NodeRootsComm, STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       data = ldata
       deallocate(ldata)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_BroadcastToNodes_1DR4
 
     subroutine MAPL_BroadcastToNodes_2DR4(DATA,N,ROOT,rc)
@@ -1219,18 +1232,18 @@
       real*4, allocatable :: ldata(:,:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
-         RETURN_(SHM_SUCCESS)
+         _RETURN(SHM_SUCCESS)
       end if
 
       allocate(ldata(size(data,1),size(data,2)),stat=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       ldata = data
       call MPI_Bcast(LDATA, N, MPI_REAL, ROOT, MAPL_NodeRootsComm, STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       data = ldata
       deallocate(ldata)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_BroadcastToNodes_2DR4
 
     subroutine MAPL_BroadcastToNodes_3DR4(DATA,N,ROOT,rc)
@@ -1243,18 +1256,18 @@
       real, allocatable :: ldata(:,:,:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
-         RETURN_(SHM_SUCCESS)
+         _RETURN(SHM_SUCCESS)
       endif
 
       allocate(ldata(size(data,1),size(data,2),size(data,3)),stat=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       ldata = data
       call MPI_Bcast(LDATA, N, MPI_REAL, ROOT, MAPL_NodeRootsComm, STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       data = ldata
       deallocate(ldata)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_BroadcastToNodes_3DR4
 
     subroutine MAPL_BroadcastToNodes_4DR4(DATA,N,ROOT,rc)
@@ -1267,18 +1280,18 @@
       real, allocatable :: ldata(:,:,:,:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
-         RETURN_(SHM_SUCCESS)
+         _RETURN(SHM_SUCCESS)
       endif
 
       allocate(ldata(size(data,1),size(data,2),size(data,3),size(data,4)),stat=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       ldata = data
       call MPI_Bcast(LDATA, N, MPI_REAL, ROOT, MAPL_NodeRootsComm, STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       data = ldata
       deallocate(ldata)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_BroadcastToNodes_4DR4
 
     subroutine MAPL_BroadcastToNodes_1DR8(DATA,N,ROOT,rc)
@@ -1291,18 +1304,18 @@
       real*8, allocatable :: ldata(:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
-         RETURN_(SHM_SUCCESS)
+         _RETURN(SHM_SUCCESS)
       endif
 
       allocate(ldata(size(data,1)),stat=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       ldata = data
       call MPI_Bcast(LDATA, N, MPI_DOUBLE_PRECISION, ROOT, MAPL_NodeRootsComm, STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       data = ldata
       deallocate(ldata)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_BroadcastToNodes_1DR8
 
     subroutine MAPL_BroadcastToNodes_2DR8(DATA,N,ROOT,rc)
@@ -1315,18 +1328,18 @@
       real*8, allocatable :: ldata(:,:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
-         RETURN_(SHM_SUCCESS)
+         _RETURN(SHM_SUCCESS)
       endif
 
       allocate(ldata(size(data,1),size(data,2)),stat=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       ldata = data
       call MPI_Bcast(LDATA, N, MPI_DOUBLE_PRECISION, ROOT, MAPL_NodeRootsComm, STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       data = ldata
       deallocate(ldata)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_BroadcastToNodes_2DR8
 
     subroutine MAPL_BroadcastToNodes_3DR8(DATA,N,ROOT,rc)
@@ -1339,18 +1352,18 @@
       real*8, allocatable :: ldata(:,:,:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
-         RETURN_(SHM_SUCCESS)
+         _RETURN(SHM_SUCCESS)
       endif
 
       allocate(ldata(size(data,1),size(data,2),size(data,3)),stat=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       ldata = data
       call MPI_Bcast(LDATA, N, MPI_DOUBLE_PRECISION, ROOT, MAPL_NodeRootsComm, STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       data = ldata
       deallocate(ldata)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_BroadcastToNodes_3DR8
 
     subroutine MAPL_BroadcastToNodes_4DR8(DATA,N,ROOT,rc)
@@ -1363,18 +1376,18 @@
       real*8, allocatable :: ldata(:,:,:,:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
-         RETURN_(SHM_SUCCESS)
+         _RETURN(SHM_SUCCESS)
       endif
 
       allocate(ldata(size(data,1),size(data,2),size(data,3),size(data,4)),stat=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       ldata = data
       call MPI_Bcast(LDATA, N, MPI_DOUBLE_PRECISION, ROOT, MAPL_NodeRootsComm, STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       data = ldata
       deallocate(ldata)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_BroadcastToNodes_4DR8
 
     subroutine MAPL_BroadcastToNodes_1DI4(DATA,N,ROOT,rc)
@@ -1387,18 +1400,18 @@
       integer, allocatable :: ldata(:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
-         RETURN_(SHM_SUCCESS)
+         _RETURN(SHM_SUCCESS)
       endif
 
       allocate(ldata(size(data,1)),stat=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       ldata = data
       call MPI_Bcast(LDATA, N, MPI_INTEGER, ROOT, MAPL_NodeRootsComm, STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       data = ldata
       deallocate(ldata)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_BroadcastToNodes_1DI4
 
     subroutine MAPL_BroadcastToNodes_2DI4(DATA,N,ROOT,rc)
@@ -1411,18 +1424,18 @@
       integer, allocatable :: ldata(:,:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
-         RETURN_(SHM_SUCCESS)
+         _RETURN(SHM_SUCCESS)
       endif
 
       allocate(ldata(size(data,1),size(data,2)),stat=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       ldata = data
       call MPI_Bcast(LDATA, N, MPI_INTEGER, ROOT, MAPL_NodeRootsComm, STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       data = ldata
       deallocate(ldata)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_BroadcastToNodes_2DI4
 
     subroutine MAPL_BroadcastToNodes_3DI4(DATA,N,ROOT,rc)
@@ -1435,30 +1448,30 @@
       integer, allocatable :: ldata(:,:,:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
-         RETURN_(SHM_SUCCESS)
+         _RETURN(SHM_SUCCESS)
       endif
 
       allocate(ldata(size(data,1),size(data,2),size(data,3)),stat=STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       ldata = data
       call MPI_Bcast(LDATA, N, MPI_INTEGER, ROOT, MAPL_NodeRootsComm, STATUS)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       data = ldata
       deallocate(ldata)
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_BroadcastToNodes_3DI4
 
     subroutine MAPL_SyncSharedMemory(rc)
       integer, optional, intent(  OUT) :: rc
       integer :: STATUS
       if(.not.MAPL_ShmInitialized) then
-         RETURN_(SHM_SUCCESS)
+         _RETURN(SHM_SUCCESS)
       endif
 !!! Make sure everyone on a node syncs
       call MPI_Barrier(MAPL_NodeComm, STATUS)
-      ASSERT_(STATUS==MPI_SUCCESS)
-      RETURN_(SHM_SUCCESS)
+      _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+      _RETURN(SHM_SUCCESS)
     end subroutine MAPL_SyncSharedMemory
 
     function MAPL_GetNewRank(node,rc) result(rank)
@@ -1475,7 +1488,7 @@
       end if
       MAPL_NodeRankList(node)%rankLastUsed=rank
  
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
 
     end function MAPL_GetNewRank
 
@@ -1502,45 +1515,45 @@
       NodeComm=MPI_COMM_NULL
       
       call MPI_Get_processor_name(name,len,STATUS)
-      ASSERT_(STATUS==MPI_SUCCESS)
+      _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
       call MPI_COMM_RANK(Comm, rank, STATUS)
-      ASSERT_(STATUS==MPI_SUCCESS)
+      _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
       call MPI_COMM_SIZE(Comm, npes, STATUS)
-      ASSERT_(STATUS==MPI_SUCCESS)
+      _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
       allocate(names(npes),stat=STATUS)
-      ASSERT_(STATUS==0)
+      _ASSERT(STATUS==0,'needs informative message')
 
       call MPI_AllGather(name ,MPI_MAX_PROCESSOR_NAME,MPI_CHARACTER,&
                          names,MPI_MAX_PROCESSOR_NAME,MPI_CHARACTER,Comm,status)
-      ASSERT_(STATUS==MPI_SUCCESS)
+      _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
       myColor = getColor(name, names)
 
       ! We are ready to split communicators
 
       call MPI_COMM_SPLIT(Comm, MyColor, rank, NodeComm, STATUS)
-      ASSERT_(NodeComm/=MPI_COMM_NULL)
+      _ASSERT(NodeComm/=MPI_COMM_NULL,'needs informative message')
 
       call MPI_COMM_SIZE(NodeComm, NumCores, STATUS)
-      ASSERT_(STATUS==MPI_SUCCESS)
+      _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
       allocate(colors(npes), ranks(npes), stat=STATUS)
-      ASSERT_(STATUS==0)
+      _ASSERT(STATUS==0,'needs informative message')
       do i=1,npes
          ranks(i) = i-1
       end do
       
       call MPI_AllGather(myColor, 1, MPI_INTEGER,&
                          colors,  1, MPI_INTEGER,Comm,status)
-      ASSERT_(STATUS==MPI_SUCCESS)
+      _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
       call MAPL_Sort(COLORS,ranks)
       last = 0
       n = 0
       allocate(newNode(npes+1),stat=status)
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       newNode = 0
       do i=1,npes
          if(last /= colors(i)) then 
@@ -1562,12 +1575,12 @@
 
       newNode(NumColors+1) = npes+1
       allocate(MAPL_NodeRankList(NumColors), stat=status)
-      VERIFY_(STATUS) 
+      _VERIFY(STATUS) 
       do i=1,NumColors
          i1=newNode(i)
          i2=newNode(i+1)-1
          allocate(MAPL_NodeRankList(i)%rank(i2-i1+1),stat=status)
-         VERIFY_(STATUS)
+         _VERIFY(STATUS)
          MAPL_NodeRankList(i)%rank=ranks(i1:i2)
          call MAPL_Sort(MAPL_NodeRankList(i)%rank)
       end do
@@ -1583,21 +1596,21 @@
       MAPL_CoresPerNodeUsed = NumCores
 
       call MPI_Comm_rank(NodeComm, nodeRank, STATUS)
-      ASSERT_(STATUS==MPI_SUCCESS)
+      _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
       MAPL_AmNodeRoot = nodeRank==0
 
       if (MAPL_AmNodeRoot) then
-         ASSERT_(MAPL_NodeRankList(MAPL_MyNodeNum)%rank(1) == rank)
+         _ASSERT(MAPL_NodeRankList(MAPL_MyNodeNum)%rank(1) == rank,'needs informative message')
       end if
 
 !     we store the global Min and Max of CoresPerNode
       call MPI_AllReduce (MAPL_CoresPerNodeUsed, MAPL_CoresPerNodeMin, &
                           1, MPI_INTEGER, MPI_MIN, comm, status )
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
       call MPI_AllReduce (MAPL_CoresPerNodeUsed, MAPL_CoresPerNodeMax, &
                           1, MPI_INTEGER, MPI_MAX, comm, status )
-      VERIFY_(STATUS)
+      _VERIFY(STATUS)
 
       if(rank==0) then
          print *
@@ -1614,9 +1627,9 @@
       end if
 
       deallocate(names,stat=STATUS)
-      ASSERT_(STATUS==0)
+      _ASSERT(STATUS==0,'needs informative message')
     
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     contains
       function getColor(name, sampleNames) result(color)
         character(len=*), intent(in) :: name
@@ -1647,9 +1660,9 @@
       NodeRootsComm=MPI_COMM_NULL
 
       call MPI_COMM_RANK(Comm, rank, STATUS)
-      ASSERT_(STATUS==MPI_SUCCESS)
+      _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
       call MPI_COMM_SIZE(Comm, npes, STATUS)
-      ASSERT_(STATUS==MPI_SUCCESS)
+      _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
       myColor = 0
       if (MAPL_AmNodeRoot) myColor = 1
@@ -1657,7 +1670,7 @@
       ! We are ready to split communicators
 
       call MPI_COMM_SPLIT(Comm, MyColor, rank, NodeRootsComm, STATUS)
-      ASSERT_(NodeRootsComm/=MPI_COMM_NULL)
+      _ASSERT(NodeRootsComm/=MPI_COMM_NULL,'needs informative message')
 
       if (myColor==0) then
       ! Set nodes outside of this comm back to null
@@ -1665,12 +1678,12 @@
       else
       ! Confirm we have the proper communicator
          call MPI_COMM_SIZE(NodeRootsComm, NumNodes, STATUS)
-         ASSERT_(STATUS==MPI_SUCCESS)
+         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
          ! additional sanity checks
-         ASSERT_(MAPL_NumNodes == NumNodes)
+         _ASSERT(MAPL_NumNodes == NumNodes,'needs informative message')
          call MPI_COMM_RANK(NodeRootsComm, rank, STATUS)
-         ASSERT_(STATUS==MPI_SUCCESS)
-         ASSERT_(MAPL_MyNodeNum == rank+1)
+         _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+         _ASSERT(MAPL_MyNodeNum == rank+1,'needs informative message')
       endif
 
       if(rank==0) then
@@ -1680,7 +1693,7 @@
          print *
       end if
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
 
     end function getNodeRootsComm
 
@@ -1695,7 +1708,7 @@
 
       if ( MAPL_NodeComm == -1 ) then
            call MAPL_GetNodeInfo(comm, rc=STATUS )
-           VERIFY_(STATUS)
+           _VERIFY(STATUS)
       end if
 
       a = .false.
@@ -1704,12 +1717,12 @@
             a = .true.
          else
             call MPI_Comm_rank(comm, rank, STATUS)
-            ASSERT_(STATUS==MPI_SUCCESS)
+            _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
             a = (rank == 0)
          end if
       end if
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end function MAPL_ShmemAmOnFirstNode
 
     integer function MAPL_CoresPerNodeGet(comm, rc)
@@ -1720,12 +1733,12 @@
 
       if ( MAPL_NodeComm == -1 ) then
            call MAPL_GetNodeInfo(comm, rc=STATUS )
-           VERIFY_(STATUS)
+           _VERIFY(STATUS)
       end if
 
       MAPL_CoresPerNodeGet = MAPL_CoresPerNodeUsed
 
-      RETURN_(SHM_SUCCESS)
+      _RETURN(SHM_SUCCESS)
     end function MAPL_CoresPerNodeGet
 
   end module MAPL_ShmemMod

@@ -54,14 +54,14 @@
 #endif
     integer                               :: srcPE
     integer                               :: MYHW, ISZ, JSZ
-    integer                               :: deList(1)
     logical                               :: alloc_var
+    type(ESMF_VM)                         :: vm
 
 ! Works only on 1D and 2D arrays
 ! Note: for tile variables the gridRank is 1 
 ! and the case RANK_=2 needs additional attention 
 
-    ASSERT_(RANK_ <= 2)
+    _ASSERT(RANK_ <= 2, 'rank must be <= 2')
 
 ! Optional change of source PE. Default=MAPL_Root
 
@@ -82,8 +82,8 @@
 ! Some halo limitations
 
     if(myhw > 0) then
-       ASSERT_(RANK_ == 2        ) ! No halo allowed on 1D
-       ASSERT_(.not.present(MASK)) ! No halo allowed if 1st dim is permutted
+       _ASSERT(RANK_ == 2, 'no halo on 1d')
+       _ASSERT(.not.present(MASK), 'No halo allowed if 1st dim is permutted')
     end if
  
 ! Initialize
@@ -91,22 +91,21 @@
 
 ! Get grid and layout information
 
-    call ESMF_GridGet    (GRID,   dimCount=gridRank, rc=STATUS);VERIFY_(STATUS)
-    call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS);VERIFY_(STATUS)
-    call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS);VERIFY_(STATUS)
-    call ESMF_DELayoutGet(layout, deCount =nDEs, localDeList=deList, rc=status)
-    VERIFY_(STATUS)
-    deId = deList(1)
+    call ESMF_GridGet    (GRID,   dimCount=gridRank, rc=STATUS);_VERIFY(STATUS)
+    call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS);_VERIFY(STATUS)
+    call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS);_VERIFY(STATUS)
+    call ESMF_DELayoutGet(layout, vm=vm, rc=status);_VERIFY(STATUS)
+    call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status);_VERIFY(STATUS)
 
     allocate (AL(gridRank,0:nDEs-1),  stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate (AU(gridRank,0:nDEs-1),  stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate (sendcounts(0:nDEs-1), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     call MAPL_DistGridGet(distgrid, &
          minIndex=AL, maxIndex=AU, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! Compute count to be sent to each PE
 
@@ -146,7 +145,7 @@
     if (deId == srcPE) then
 
        allocate(DISPLS(0:nDEs          ), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
 
 ! Compute displacements into the VAR vector
 
@@ -154,7 +153,7 @@
        do I = 1,nDEs
           displs(I) = displs(I-1) + sendcounts(I-1)
        end do
-!ALT       ASSERT_(displs(nDEs) == (ISZ+2*myhw)*(JSZ+2*myhw))
+!ALT       _ASSERT(displs(nDEs) == (ISZ+2*myhw)*(JSZ+2*myhw),'needs informative message')
 
 ! If there is a halo, make a haloed copy of the global array.
 !   otherwise just copy the pointer.
@@ -166,7 +165,7 @@
           ISZ = size(GLOBAL_ARRAY,1)
           JSZ = size(GLOBAL_ARRAY,2)
           allocate(myglob(1-myhw:isz+myhw,1-myhw:jsz+myhw), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           myglob(1:isz,1:jsz) = GLOBAL_ARRAY
 
 ! Fill the halo (I is cyclic)
@@ -185,9 +184,9 @@
        if (present(mask)) then
           alloc_var = .true.
           allocate(VAR(0:displs(nDEs)-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           allocate(KK (0:nDEs-1        ), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           KK = DISPLS(0:nDEs-1)
 
           do I=1,ISZ
@@ -205,7 +204,7 @@
           end do
 
           deallocate(KK, stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
        else
 
@@ -215,7 +214,7 @@
 #else
           alloc_var = .true.
           allocate(VAR(0:displs(nDEs)-1), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
 
           if (gridRank == 1) then
              J1 = lbound(local_array,2)
@@ -243,15 +242,15 @@
 
        if (myhw > 0) then
           deallocate(myglob, stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        end if
     
      else
         alloc_var = .true.
         allocate(var(0:1), stat=status)
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
         allocate(DISPLS(0:nDEs), stat=status)
-        VERIFY_(STATUS)
+        _VERIFY(STATUS)
      end if !  I am srcPEa
 
 
@@ -259,27 +258,27 @@
     
     call MAPL_CommsScatterV(layout, var, sendcounts, displs, &
                             local_array, recvcount, srcPE, status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! Clean-up
 
     deallocate(displs, stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     if(alloc_var) then
        deallocate(VAR, stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
     deallocate(sendcounts, stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     deallocate(AU,         stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     deallocate(AL,         stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
 ! All done
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine SUB_
 
 #undef NAME_

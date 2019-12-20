@@ -18,12 +18,15 @@ module MAPL_CapOptionsMod
       character(:), allocatable :: cap_rc_file
       type (ESMF_LogKind_Flag) :: esmf_logging_mode = ESMF_LOGKIND_NONE
       integer :: npes_model = -1
-      ! only one of the next two options can be nonzero
-      integer :: npes_input_server  = 0
-      integer :: nodes_input_server = 0
-      ! only one of the next two options can be nonzero
-      integer :: npes_output_server = 0
-      integer :: nodes_output_server= 0
+      ! only one of the next two options can have nonzero values
+      integer, allocatable :: npes_input_server(:)
+      integer, allocatable :: nodes_input_server(:)
+      ! only one of the next two options can have nonzero values
+      integer, allocatable :: npes_output_server(:)
+      integer, allocatable :: nodes_output_server(:)
+      ! server groups
+      integer :: n_iserver_group = 1
+      integer :: n_oserver_group = 1
       ! ensemble options
       integer :: n_members = 1
       character(:), allocatable :: ensemble_subdir_prefix
@@ -51,6 +54,11 @@ contains
       cap_options%cap_rc_file = 'CAP.rc'
       cap_options%egress_file = 'EGRESS'
       cap_options%ensemble_subdir_prefix = 'mem'
+
+      cap_options%npes_input_server  =[0]
+      cap_options%nodes_input_server =[0]
+      cap_options%npes_output_server =[0]
+      cap_options%nodes_output_server=[0]
 
       if (present(cap_rc_file)) cap_options%cap_rc_file = cap_rc_file
       if (present(egress_file)) cap_options%egress_file = egress_file

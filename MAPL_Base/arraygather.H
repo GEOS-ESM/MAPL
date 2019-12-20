@@ -50,14 +50,13 @@
     integer                                       :: ISZ, JSZ
     integer                                       :: destPE, myhw
     TYPE_(kind=EKIND_), allocatable               :: var(:)
-    integer                               :: deList(1)
     type(ESMF_VM) :: vm
     
 ! Works only on 1D and 2D arrays
 ! Note: for tile variables the gridRank is 1 
 ! and the case RANK_=2 needs additional attention 
 
-    ASSERT_(RANK_ <= 2)
+    _ASSERT(RANK_ <= 2, 'rank must be <= 2')
 
     if(present(depe)) then
       destPE = depe 
@@ -71,33 +70,30 @@
       myhw = 0
     end if
 
-    call ESMF_GridGet    (GRID,   dimCount=gridRank, rc=STATUS);VERIFY_(STATUS)
-    call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS);VERIFY_(STATUS)
-    call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS);VERIFY_(STATUS)
-    call ESMF_DELayoutGet(layout, deCount =nDEs, localDeList=deList, rc=status)
-    VERIFY_(STATUS)
-    deId = deList(1)
-    call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-    VERIFY_(STATUS)
+    call ESMF_GridGet    (GRID,   dimCount=gridRank, rc=STATUS);_VERIFY(STATUS)
+    call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS);_VERIFY(STATUS)
+    call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS);_VERIFY(STATUS)
+    call ESMF_DELayoutGet(layout, vm=vm, rc=status);_VERIFY(STATUS)
+    call ESMF_VmGet(vm, localPet=deId, petCount=nDEs, rc=status);_VERIFY(STATUS)
 
     allocate (AL(gridRank,0:nDEs-1),  stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     allocate (AU(gridRank,0:nDEs-1),  stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call MAPL_DistGridGet(distgrid, &
          minIndex=AL, maxIndex=AU, rc=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     allocate (recvcounts(nDEs), displs(0:nDEs), stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (deId == destPE) then
        allocate(VAR(0:size(GLOBAL_ARRAY)-1), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     else
        allocate(VAR(0), stat=status)
-       VERIFY_(STATUS)
+       _VERIFY(STATUS)
     end if
 
     displs(0) = 0
@@ -146,7 +142,7 @@
                               var, recvcounts, displs, destPE, status)
 #endif
     end if
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     if (deId == destPE) then
        if (present(mask)) then
@@ -159,7 +155,7 @@
 #endif
 
           allocate(KK (0:nDEs-1        ), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
           KK = DISPLS(0:nDEs-1)
 
           do I=1,ISZ
@@ -177,7 +173,7 @@
           end do
 
           deallocate(KK, stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
        else
 #if (RANK_ == 1)
           global_array = var ! ALT: I am not sure if this is correct
@@ -201,13 +197,13 @@
     end if
 
     deallocate(VAR, stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
     deallocate(recvcounts, displs, AU, AL, stat=status)
-    VERIFY_(STATUS)
+    _VERIFY(STATUS)
 
     call ESMF_VmBarrier(vm, rc=status)
-    VERIFY_(STATUS)
-    RETURN_(ESMF_SUCCESS)
+    _VERIFY(STATUS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine SUB_
 
 #undef NAME_
