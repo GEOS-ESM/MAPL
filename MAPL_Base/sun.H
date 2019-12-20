@@ -225,7 +225,7 @@
 
             ! ---%---
 
-! pmn: Andrea said the following fixed cases are for single column tests,
+! pmn: Andrea Molod said the following fixed cases are for single column tests,
 !      which are run at the same start date near or at the equinox. Technic-
 !      ally, the value of DIST should also be set consistent with these cases,
 !      since RRTMG uses SC and DIST (not SLR) during the solar REFRESH phase.
