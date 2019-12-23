@@ -2127,7 +2127,7 @@ CONTAINS
            var=>metadata%get_variable(trim(item%var))
            _ASSERT(associated(var),"Variable not found in file")
         end if
-    
+   
         levName = metadata%get_level_name(rc=status)
         _VERIFY(status)
         if (trim(levName) /='') then
