@@ -96,6 +96,9 @@ module MAPL_LatLonGridFactoryMod
       procedure :: append_variable_metadata
       procedure :: check_decomposition
       procedure :: generate_newnxy
+      procedure :: generate_file_bounds
+      procedure :: generate_file_reference2D
+      procedure :: generate_file_reference3D
    end type LatLonGridFactory
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_LatLonGridFactory::'
@@ -1669,5 +1672,46 @@ contains
       class (LatLonGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
    end subroutine append_variable_metadata
+
+   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+      use MAPL_BaseMod
+      class(LatLonGridFactory), intent(inout) :: this
+      type(ESMF_Grid),      intent(inout) :: grid
+      integer, allocatable, intent(inout) :: local_start(:)
+      integer, allocatable, intent(inout) :: global_start(:)
+      integer, allocatable, intent(inout) :: global_count(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: global_dim(3), i1,j1,in,jn
+      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
+
+      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
+      _VERIFY(status)
+      call MAPL_GridGetInterior(grid,i1,in,j1,jn)
+      allocate(local_start,source=[i1,j1])
+      allocate(global_start,source=[1,1])
+      allocate(global_count,source=[global_dim(1),global_dim(2)])
+       
+      _RETURN(_SUCCESS) 
+
+   end subroutine generate_file_bounds
+
+   function generate_file_reference2D(this,fpointer) result(ref)
+      use pFIO
+      type(ArrayReference) :: ref
+      class(LatLonGridFactory), intent(inout) :: this
+      real, pointer, intent(in) :: fpointer(:,:)
+      ref = ArrayReference(fpointer)
+   end function generate_file_reference2D
+      
+   function generate_file_reference3D(this,fpointer) result(ref)
+      use pFIO
+      type(ArrayReference) :: ref
+      class(LatLonGridFactory), intent(inout) :: this
+      real, pointer, intent(in) :: fpointer(:,:,:)
+      ref = ArrayReference(fpointer)
+   end function generate_file_reference3D
+      
 
 end module MAPL_LatLonGridFactoryMod
