@@ -793,7 +793,6 @@ module MAPL_newCFIOMod
      end if
      call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
      _VERIFY(status)
-     lm=dims(3)
      call factory%generate_file_bounds(fileGrid,gridLocalStart,gridGlobalStart,gridGlobalCount,rc=status)
      _VERIFY(status)
      ! create input bundle
@@ -824,6 +823,7 @@ module MAPL_newCFIOMod
         else if (rank==3) then
            call ESMF_FieldGet(output_field,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
            _VERIFY(status)
+           lm=ub(1)-lb(1)+1
            input_fields(i) = ESMF_FieldCreate(filegrid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2], &
               ungriddedLBound=lb,ungriddedUBound=ub,name=trim(names(i)),rc=status)
            _VERIFY(status)
