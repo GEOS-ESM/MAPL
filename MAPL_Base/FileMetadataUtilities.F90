@@ -232,7 +232,6 @@ module MAPL_FileMetadataUtilsMod
       integer, optional, intent(out) :: rc
 
       logical :: isPresent
-      integer :: status
       class(Variable), pointer :: var
 
       var => this%get_variable(var_name)
