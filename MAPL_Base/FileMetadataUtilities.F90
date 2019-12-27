@@ -182,7 +182,11 @@ module MAPL_FileMetadataUtilsMod
          _ASSERT(.false.,"unsupported time variable type")
       end select
       do i=1,tsize
-        select case(trim(tUnits))
+        select case (trim(tUnits))
+        case ("days")
+           call ESMF_TimeIntervalSet(tint,d_r8=tr_r64(i),rc=status)
+           _VERIFY(status)
+           tvec(i)=unmodStartTime+tint
         case ("hours")
            call ESMF_TimeIntervalSet(tint,h_r8=tr_r64(i),rc=status)
            _VERIFY(status)
