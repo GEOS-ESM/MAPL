@@ -65,7 +65,7 @@ module MAPL_FileMetadataUtilsMod
       class(CoordinateVariable), pointer :: var
       type(Attribute), pointer :: attr
       class(*), pointer :: pTimeUnits
-      character(len=ESMF_MAXSTR) :: timeUnits
+      character(len=ESMF_MAXSTR) :: timeUnits,tUnits
       integer :: i,tsize
 
       integer ypos(2), mpos(2), dpos(2), hpos(2), spos(2)
@@ -89,7 +89,8 @@ module MAPL_FileMetadataUtilsMod
          strlen = LEN_TRIM (TimeUnits)
 
          since_pos = index(TimeUnits, 'since')
-         if (present(units)) units = trim(TimeUnits(:since_pos-1))
+         tUnits = trim(TimeUnits(:since_pos-1))
+         if (present(units)) units = trim(tUnits)
 
          firstdash = index(TimeUnits, '-')
          lastdash  = index(TimeUnits, '-', BACK=.TRUE.)
@@ -181,7 +182,7 @@ module MAPL_FileMetadataUtilsMod
          _ASSERT(.false.,"unsupported time variable type")
       end select
       do i=1,tsize
-        select case(trim(Units))
+        select case(trim(tUnits))
         case ("hours")
            call ESMF_TimeIntervalSet(tint,h_r8=tr_r64(i),rc=status)
            _VERIFY(status)
