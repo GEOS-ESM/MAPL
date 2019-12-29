@@ -4685,17 +4685,21 @@ CONTAINS
      character(len=ESMF_MAXSTR) :: Iam = "createFileLevBracket"
      type (ESMF_Grid) :: grid, newgrid
 
-     if (item%vartype==MAPL_FieldItem .or. item%vartype==MAPL_ExtDataVectorItem) then
+     if (item%vartype==MAPL_FieldItem) then
+        call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
+        newGrid = MAPL_ExtDataGridChangeLev(grid,cf,item%lm,__RC__)
+        call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
+        item%modelGridFields%v1_faux1 = MAPL_FieldCreate(item%modelGridFields%v1_finterp1,newGrid,lm=item%lm,newName=trim(item%var),__RC__)
+        item%modelGridFields%v1_faux2 = MAPL_FieldCreate(item%modelGridFields%v1_finterp2,newGrid,lm=item%lm,newName=trim(item%var),__RC__)
+     else if (item%vartype==MAPL_ExtDataVectorItem) then
         call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
         newGrid = MAPL_ExtDataGridChangeLev(grid,cf,item%lm,__RC__)
         call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
         item%modelGridFields%v1_faux1 = MAPL_FieldCreate(item%modelGridFields%v1_finterp1,newGrid,lm=item%lm,newName=trim(item%fcomp1),__RC__)
         item%modelGridFields%v1_faux2 = MAPL_FieldCreate(item%modelGridFields%v1_finterp2,newGrid,lm=item%lm,newName=trim(item%fcomp1),__RC__)
-     end if
-     if (item%vartype==MAPL_ExtDataVectorItem) then
         call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
-        item%modelGridFields%v2_faux1 = MAPL_FieldCreate(item%modelGridFields%v2_finterp1,newGrid,lm=item%lm,newName=trim(item%fcomp1),__RC__)
-        item%modelGridFields%v2_faux2 = MAPL_FieldCreate(item%modelGridFields%v2_finterp2,newGrid,lm=item%lm,newName=trim(item%fcomp1),__RC__)
+        item%modelGridFields%v2_faux1 = MAPL_FieldCreate(item%modelGridFields%v2_finterp1,newGrid,lm=item%lm,newName=trim(item%fcomp2),__RC__)
+        item%modelGridFields%v2_faux2 = MAPL_FieldCreate(item%modelGridFields%v2_finterp2,newGrid,lm=item%lm,newName=trim(item%fcomp2),__RC__)
      end if
      _RETURN(_SUCCESS)
 
