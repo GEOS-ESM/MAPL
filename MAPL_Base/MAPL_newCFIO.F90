@@ -96,6 +96,7 @@ module MAPL_newCFIOMod
         if (present(read_collection_id)) newCFIO%read_collection_id=read_collection_id
         if (present(metadata_collection_id)) newCFIO%metadata_collection_id=metadata_collection_id
         if (present(items)) newCFIO%items=items
+        if (present(fraction)) newCFIO%fraction=fraction
         _RETURN(ESMF_SUCCESS)
      end function new_MAPL_newCFIO
 
