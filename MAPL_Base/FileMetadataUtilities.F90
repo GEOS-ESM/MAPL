@@ -17,8 +17,7 @@ module MAPL_FileMetadataUtilsMod
       procedure :: create
       procedure :: get_coordinate_info
       procedure :: get_variable_attribute
-      procedure :: get_time_units
-      procedure :: get_time_vec
+      procedure :: get_time_info
       procedure :: get_level_name
       procedure :: is_var_present
       procedure :: get_file_name
@@ -48,7 +47,7 @@ module MAPL_FileMetadataUtilsMod
    end subroutine create
 
 
-   subroutine get_time_units(this,startTime,startyear,startmonth,startday,starthour,startmin,startsec,units,rc)
+   subroutine get_time_info(this,startTime,startyear,startmonth,startday,starthour,startmin,startsec,units,timeVector,rc)
       class (FileMetadataUtils), intent(inout) :: this
       type(ESMF_Time), optional, intent(inout) :: startTime
       integer,optional,intent(out) ::        startYear 
@@ -57,14 +56,17 @@ module MAPL_FileMetadataUtilsMod
       integer,optional,intent(out) ::        startHour
       integer,optional,intent(out) ::        startMin 
       integer,optional,intent(out) ::        startSec
+      type(ESMF_Time), allocatable, optional :: timeVector(:)
+      type(ESMF_Time), allocatable :: tVec(:)
       character(len=*), optional, intent(out) :: units
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(Variable), pointer :: var
+      class(CoordinateVariable), pointer :: var
       type(Attribute), pointer :: attr
       class(*), pointer :: pTimeUnits
-      character(len=ESMF_MAXSTR) :: timeUnits
+      character(len=ESMF_MAXSTR) :: timeUnits,tUnits
+      integer :: i,tsize
 
       integer ypos(2), mpos(2), dpos(2), hpos(2), spos(2)
       integer strlen
@@ -72,8 +74,12 @@ module MAPL_FileMetadataUtilsMod
       integer firstcolon, lastcolon
       integer lastspace,since_pos
       integer year,month,day,hour,min,sec
+      type(ESMF_Time) :: unmodStartTime
+      class(*), pointer :: ptr(:)
+      real(REAL64), allocatable :: tr_r64(:)
+      type(ESMF_TimeInterval) :: tint
 
-      var => this%get_variable('time',rc=status)
+      var => this%get_coordinate_variable('time',rc=status)
       _VERIFY(status)
       attr => var%get_attribute('units')
       ptimeUnits => attr%get_value()
@@ -83,7 +89,8 @@ module MAPL_FileMetadataUtilsMod
          strlen = LEN_TRIM (TimeUnits)
 
          since_pos = index(TimeUnits, 'since')
-         if (present(units)) units = trim(TimeUnits(:since_pos-1))
+         tUnits = trim(TimeUnits(:since_pos-1))
+         if (present(units)) units = trim(tUnits)
 
          firstdash = index(TimeUnits, '-')
          lastdash  = index(TimeUnits, '-', BACK=.TRUE.)
@@ -124,7 +131,6 @@ module MAPL_FileMetadataUtilsMod
              min  = 0
              sec  = 0
            else
-             print *, 'ParseTimeUnits: Assuming a starting time of 00z'
              hour = 0
              min  = 0
              sec  = 0
@@ -153,44 +159,13 @@ module MAPL_FileMetadataUtilsMod
       class default
          _ASSERT(.false.,"Time unit must be character")
       end select
-
-      if (present(startYear)) startYear=year
-      if (present(startMonth)) startMonth=month
-      if (present(startDay)) startDay=day
-      if (present(startHour)) startHour=hour
-      if (present(startmin)) startMin=min
-      if (present(startsec)) startSec=sec
-      if (present(startTime)) then
-         call ESMF_TimeSet(startTime,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,rc=status)
-         _VERIFY(status)
-      end if
-
-   end subroutine get_time_units
- 
-   subroutine get_time_vec(this,tvec,rc)
-      class (FileMetadataUtils), intent(inout) :: this
-      type(ESMF_Time), allocatable :: tvec(:)
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      class(CoordinateVariable), pointer :: var
-      type(Attribute), pointer :: attr
-      integer :: tsize,i
-      type(ESMF_Time) :: startTime
-      character(len=10) :: timeUnits
-      class(*), pointer :: ptr(:)
-      real(REAL64), allocatable :: tr_r64(:)
-      type(ESMF_TimeInterval) :: tint
-      
-
-      var => this%get_coordinate_variable('time',rc=status)
+      call ESMF_TimeSet(unmodStartTime,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,rc=status)
       _VERIFY(status)
+
       call this%get_coordinate_info('time',coordSize=tsize,rc=status)
       _VERIFY(status)
       allocate(tr_r64(tsize))
       allocate(tvec(tsize))
-      call this%get_time_units(startTime=startTime,units=timeUnits,rc=status)
-      _VERIFY(status)
       ptr => var%get_coordinate_data()
       _ASSERT(associated(ptr),"time variable coordinate data not found")
       select type (ptr)
@@ -206,26 +181,46 @@ module MAPL_FileMetadataUtilsMod
          _ASSERT(.false.,"unsupported time variable type")
       end select
       do i=1,tsize
-        select case(trim(timeUnits))
+        select case (trim(tUnits))
+        case ("days")
+           call ESMF_TimeIntervalSet(tint,d_r8=tr_r64(i),rc=status)
+           _VERIFY(status)
+           tvec(i)=unmodStartTime+tint
         case ("hours")
            call ESMF_TimeIntervalSet(tint,h_r8=tr_r64(i),rc=status)
            _VERIFY(status)
-           tvec(i)=startTime+tint
+           tvec(i)=unmodStartTime+tint
         case ("minutes")
            call ESMF_TimeIntervalSet(tint,m_r8=tr_r64(i),rc=status)
            _VERIFY(status)
-           tvec(i)=startTime+tint
+           tvec(i)=unmodStartTime+tint
         case ("seconds")
            call ESMF_TimeIntervalSet(tint,s_r8=tr_r64(i),rc=status)
            _VERIFY(status)
-           tvec(i)=startTime+tint
+           tvec(i)=unmodStartTime+tint
         case default
            _ASSERT(.false.,"unsupported time unit")
         end select
       enddo
 
-   end subroutine get_time_vec
+      call ESMF_TimeGet(tVec(1),yy=year,mm=month,dd=day,h=hour,m=min,s=sec,rc=status)
+      _VERIFY(status)
+      if (present(startYear)) startYear=year
+      if (present(startMonth)) startMonth=month
+      if (present(startDay)) startDay=day
+      if (present(startHour)) startHour=hour
+      if (present(startmin)) startMin=min
+      if (present(startsec)) startSec=sec
+      if (present(startTime)) then
+          startTime=tVec(1)
+      end if
+      if (present(timeVector)) then
+         allocate(timeVector,source=tVec,stat=status)
+         _VERIFY(status)
+      end if
 
+   end subroutine get_time_info
+ 
    function is_var_present(this,var_name,rc) result(isPresent)
       class (FileMetadataUtils), intent(inout) :: this
       character(len=*), intent(in) :: var_name
@@ -250,12 +245,15 @@ module MAPL_FileMetadataUtilsMod
       type(Attribute), pointer :: attr => null()
       class(Variable), pointer :: var => null()
       class(*), pointer :: vunits
+      logical :: isPresent
       integer :: status
     
       var => this%get_variable(var_name,rc=status)
       _VERIFY(status)
-      attr => var%get_attribute(trim(attr_name))
-      if (associated(attr)) then
+      isPresent = var%is_attribute_present(trim(attr_name))
+      if (isPresent) then
+         attr => var%get_attribute(trim(attr_name))
+      !if (associated(attr)) then
          vunits => attr%get_value()
          select type(vunits)
          type is (character(*))
