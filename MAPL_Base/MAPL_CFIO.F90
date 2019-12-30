@@ -399,7 +399,7 @@ contains
     integer        :: Comm, nPEs
     integer        :: hours, mins, secs, timeInc
     integer        :: I, J, LT, K, IMO, JMO, LMG, IML, JML
-    integer        :: IMSUB, JMSUB, IMBEG, IMEND, JMBEG, JMEND
+    integer        :: IMBEG, IMEND, JMBEG, JMEND
     integer        :: Field_Type
     integer        :: Df
     integer        :: Num2DVars, Num3dVars
