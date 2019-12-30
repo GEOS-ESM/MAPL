@@ -2108,7 +2108,7 @@ CONTAINS
               call ESMF_CFIOStrTemplate(file,item%file,'GRADS',nymd=nymd,nhms=nhms,__STAT__)
            end if
            call MakeMetadata(file,item%pfioCollection_id,metadata,__RC__)
-           call metadata%get_time_units(startYear=iyr)
+           call metadata%get_time_info(startYear=iyr)
            item%climYear=iYr
            _RETURN(ESMF_SUCCESS)
         else
@@ -2326,7 +2326,7 @@ CONTAINS
            file_processed = item%file
            call MakeMetadata(file_processed,item%pfioCollection_id,fdata,__RC__)
            ! Retrieve the time series
-           call fdata%get_time_vec(xTSeries,rc=status)
+           call fdata%get_time_info(timeVector=xTSeries,rc=status)
            If (status /= ESMF_SUCCESS) then
               if (mapl_am_I_root()) Then
                  write(*,'(a,a)') ' ERROR: Time vector retrieval failed on fixed file ',trim(item%file)
@@ -2456,7 +2456,7 @@ CONTAINS
               call MakeMetadata(file_processed,item%pfioCollection_id,fdata,__RC__)
               ! Retrieve the time series
               if (allocated(xTseries)) deallocate(xTseries)
-              call fdata%get_time_vec(xTseries,__RC__)
+              call fdata%get_time_info(timeVector=xTseries,__RC__)
               ! Is this before or after our target time?
               LSide   = (bSide == "L")
               RSide   = (.not.LSide)
@@ -2550,7 +2550,7 @@ CONTAINS
            call MakeMetadata(file_processed,item%pfioCOllection_id,fdata,__RC__)
            ! Retrieve the time series
            if (allocated(xTseries)) deallocate(xTseries)
-           call fdata%get_time_vec(xTSeries,__RC__)
+           call fdata%get_time_info(timeVector=xTSeries,__RC__)
 
            ! We now have a time which, when passed to the FILE TEMPLATE, returns a valid file
            ! However, if the file template does not include a year token, then the file in
@@ -2675,7 +2675,7 @@ CONTAINS
               ! fTime is now ALWAYS the time which was applied to the file template to get the current file
               call MakeMetadata(file_processed,item%pfioCollection_id,fdata,rc=status)
               if (allocated(xTSeries)) deallocate(xTSeries)
-              call fdata%get_time_vec(xTSeries,__RC__)
+              call fdata%get_time_info(timeVector=xTSeries,__RC__)
 
               !If (Mapl_Am_I_Root()) Write (*,'(a,a,x,a)') ' SUPERDEBUG: File/template: ',Trim(file_processed),Trim(item%refresh_template)
               ! The file template may be "hiding" a year offset from us
@@ -4106,7 +4106,7 @@ CONTAINS
      type(FileMetadataUtils), pointer :: metadata => null()
 
      call MakeMetadata(fname,item%pfiocollection_id,metadata,__RC__)
-     call Metadata%get_time_units(startyear=iyr,startmonth=imm,startday=idd,starthour=ihr,startmin=imn,startsec=isc,rc=status)
+     call Metadata%get_time_info(startyear=iyr,startmonth=imm,startday=idd,starthour=ihr,startmin=imn,startsec=isc,rc=status)
      _VERIFY(status)
      call ESMF_TimeSet(sTime, yy=iyr, mm=imm, dd=idd,  h=ihr,  m=imn, s=isc, __RC__)
      nullify(metadata)
@@ -4685,17 +4685,21 @@ CONTAINS
      character(len=ESMF_MAXSTR) :: Iam = "createFileLevBracket"
      type (ESMF_Grid) :: grid, newgrid
 
-     if (item%vartype==MAPL_FieldItem .or. item%vartype==MAPL_ExtDataVectorItem) then
+     if (item%vartype==MAPL_FieldItem) then
+        call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
+        newGrid = MAPL_ExtDataGridChangeLev(grid,cf,item%lm,__RC__)
+        call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
+        item%modelGridFields%v1_faux1 = MAPL_FieldCreate(item%modelGridFields%v1_finterp1,newGrid,lm=item%lm,newName=trim(item%var),__RC__)
+        item%modelGridFields%v1_faux2 = MAPL_FieldCreate(item%modelGridFields%v1_finterp2,newGrid,lm=item%lm,newName=trim(item%var),__RC__)
+     else if (item%vartype==MAPL_ExtDataVectorItem) then
         call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
         newGrid = MAPL_ExtDataGridChangeLev(grid,cf,item%lm,__RC__)
         call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
         item%modelGridFields%v1_faux1 = MAPL_FieldCreate(item%modelGridFields%v1_finterp1,newGrid,lm=item%lm,newName=trim(item%fcomp1),__RC__)
         item%modelGridFields%v1_faux2 = MAPL_FieldCreate(item%modelGridFields%v1_finterp2,newGrid,lm=item%lm,newName=trim(item%fcomp1),__RC__)
-     end if
-     if (item%vartype==MAPL_ExtDataVectorItem) then
         call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
-        item%modelGridFields%v2_faux1 = MAPL_FieldCreate(item%modelGridFields%v2_finterp1,newGrid,lm=item%lm,newName=trim(item%fcomp1),__RC__)
-        item%modelGridFields%v2_faux2 = MAPL_FieldCreate(item%modelGridFields%v2_finterp2,newGrid,lm=item%lm,newName=trim(item%fcomp1),__RC__)
+        item%modelGridFields%v2_faux1 = MAPL_FieldCreate(item%modelGridFields%v2_finterp1,newGrid,lm=item%lm,newName=trim(item%fcomp2),__RC__)
+        item%modelGridFields%v2_faux2 = MAPL_FieldCreate(item%modelGridFields%v2_finterp2,newGrid,lm=item%lm,newName=trim(item%fcomp2),__RC__)
      end if
      _RETURN(_SUCCESS)
 
