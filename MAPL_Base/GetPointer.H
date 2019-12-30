@@ -19,7 +19,6 @@
    logical, optional, intent(IN   ) :: notFoundOK
    integer, optional, intent(  OUT) :: RC
    
-   character(len=ESMF_MAXSTR)      :: IAm=SUBSTR_
    integer                         :: STATUS
 
    type (ESMF_FieldBundle)         :: bundle
