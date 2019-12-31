@@ -292,7 +292,8 @@
          if(present(DIST)) DIST = 0.0
 
          call MAPL_SunGetInsolation( LONS, LATS, ORBIT, ZTT, SLT, &
-              CLOCK=MYCLOCK, TIME=TIME, DIST=DD, RC=STATUS)
+              CLOCK=MYCLOCK, TIME=TIME, DIST=DD, &
+              EOT=apply_EOT, RC=STATUS)
          _VERIFY(STATUS)
 
          if(present(ZTH1)) ZTH1 = max(ZTT,0.0)
@@ -315,7 +316,8 @@
             _VERIFY(STATUS)
 
             call MAPL_SunGetInsolation( LONS, LATS, ORBIT, ZTT, SLT, &
-                 CLOCK=MYCLOCK, TIME=TIME, ZTHB=ZTB, ZTHD=ZTD, DIST=DD, RC=STATUS)
+                 CLOCK=MYCLOCK, TIME=TIME, ZTHB=ZTB, ZTHD=ZTD, DIST=DD, &
+                 EOT=apply_EOT, RC=STATUS)
             _VERIFY(STATUS)
 
             SLR = SLR +     SLT*0.5
