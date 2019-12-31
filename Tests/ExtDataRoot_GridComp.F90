@@ -121,6 +121,12 @@ MODULE ExtDataUtRoot_GridCompMod
                units = 'na', &
                dims = MAPL_DimsHorzOnly, &
                vlocation = MAPL_VLocationCenter, rc=status)
+         call MAPL_AddInternalSpec(GC,&
+               short_name='dow', &
+               long_name='na' , &
+               units = 'na', &
+               dims = MAPL_DimsHorzOnly, &
+               vlocation = MAPL_VLocationCenter, rc=status)
 
 !   Generic Set Services
 !   --------------------
@@ -524,9 +530,10 @@ MODULE ExtDataUtRoot_GridCompMod
       real, pointer                       :: Exptr2(:,:) => null()
       integer :: itemcount
       character(len=ESMF_MAXSTR), allocatable :: outNameList(:)
-      type(ESMF_Field) :: expf,farray(1)
+      type(ESMF_Field) :: expf,farray(2)
       type(ESMF_State) :: pstate
       character(len=:), pointer :: fexpr
+      integer :: dayOfWeek
 
       call ESMF_StateGet(outState,itemcount=itemCount,__RC__)
       allocate(outNameList(itemCount),stat=status)
@@ -537,7 +544,16 @@ MODULE ExtDataUtRoot_GridCompMod
       _VERIFY(status)
       exPtr2=synth%tFunc%evaluateTime(Time,rc=status)
       _VERIFY(status)
+
+      call MAPL_GetPointer(inState,exPtr2,'dow',rc=status)
+      _VERIFY(status)
+      call ESMF_TimeGet(time,dayOfWeek=dayOfWeek,rc=status)
+      _VERIFY(status)
+      exPtr2=real(dayOfWeek)
+
       call ESMF_StateGet(inState,'time',farray(1),rc=status)
+      _VERIFY(status)
+      call ESMF_StateGet(inState,'dow',farray(2),rc=status)
       _VERIFY(status)
       pstate = ESMF_StateCreate(rc=status)
       _VERIFY(status)
