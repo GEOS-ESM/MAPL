@@ -1146,7 +1146,7 @@ contains
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
       _VERIFY(status)
       call MAPL_GridGetInterior(grid,i1,in,j1,jn)
-      tile=j1/global_dim(1)
+      tile=(j1-1)/global_dim(1)
       allocate(local_start,source=[i1,j1-tile*global_dim(1),tile+1])
       allocate(global_start,source=[1,1,1])
       allocate(global_count,source=[global_dim(1),global_dim(1),6])

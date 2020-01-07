@@ -617,7 +617,7 @@ module MAPL_newCFIOMod
      if (isCubed) then
 
         call MAPL_Grid_interior(this%output_grid,i1,in,j1,jn)
-        tile = j1/global_dim(1)
+        tile = (j1-1)/global_dim(1)
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
