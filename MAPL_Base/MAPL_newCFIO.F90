@@ -617,7 +617,7 @@ module MAPL_newCFIOMod
      if (isCubed) then
 
         call MAPL_Grid_interior(this%output_grid,i1,in,j1,jn)
-        tile = (j1-1)/global_dim(1)
+        tile = 1 + (j1-1)/global_dim(1)
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
@@ -626,7 +626,7 @@ module MAPL_newCFIOMod
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lons)
         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
-                     ref,start=[i1,j1-tile*global_dim(1),tile+1], &
+                     ref,start=[i1,j1-(tile-1)*global_dim(1),tile], &
                      global_start=[1,1,1], global_count=[global_dim(1),global_dim(1),6])
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
         staggerloc=ESMF_STAGGERLOC_CENTER, &
@@ -637,7 +637,7 @@ module MAPL_newCFIOMod
         this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lats)
         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
-                     ref,start=[i1,j1-tile*global_dim(1),tile+1], &
+                     ref,start=[i1,j1-(tile-1)*global_dim(1),tile], &
                      global_start=[1,1,1], global_count=[global_dim(1),global_dim(1),6])
      end if
 
