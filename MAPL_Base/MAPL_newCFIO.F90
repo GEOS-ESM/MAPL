@@ -336,7 +336,7 @@ module MAPL_newCFIOMod
 
         integer :: status
         type(ESMF_Field) :: outField
-        integer :: tindex,request_id
+        integer :: tindex
         type(ArrayReference) :: ref
 
         type(newCFIOitemVectorIterator) :: iter
@@ -601,45 +601,36 @@ module MAPL_newCFIOMod
      type (ClientManager), optional, intent(inout) :: oClients
      integer, optional, intent(out) :: rc
 
-     integer :: request_id
      integer :: status
-     logical :: isCubed
      real(REAL64), pointer :: ptr2d(:,:)
      type(ArrayReference) :: ref
-     integer :: i1,in,j1,jn,tile
-     integer :: global_dim(3)
+     class (AbstractGridFactory), pointer :: factory
+     integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
 
-     call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
+     factory => get_factory(this%output_grid,rc=status)
      _VERIFY(status)
-     isCubed=.false.
-     if (global_dim(1)*6 == global_dim(2)) isCubed=.true.
 
-     if (isCubed) then
+     call factory%generate_file_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
+     _VERIFY(status)
+     call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
+     staggerloc=ESMF_STAGGERLOC_CENTER, &
+     farrayPtr=ptr2d, rc=status)
+     _VERIFY(STATUS)
+     if (.not.allocated(this%lons)) allocate(this%lons(size(ptr2d,1),size(ptr2d,2)))
+     this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
+     ref = ArrayReference(this%lons)
+      call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
+           ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+     call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
+     staggerloc=ESMF_STAGGERLOC_CENTER, &
+     farrayPtr=ptr2d, rc=status)
+     _VERIFY(STATUS)
+     if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
+     this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
+     ref = ArrayReference(this%lats)
+      call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
+           ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
 
-        call MAPL_Grid_interior(this%output_grid,i1,in,j1,jn)
-        tile = j1/global_dim(1)
-        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
-        staggerloc=ESMF_STAGGERLOC_CENTER, &
-        farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
-        if (.not.allocated(this%lons)) allocate(this%lons(size(ptr2d,1),size(ptr2d,2)))
-        this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%lons)
-        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
-                     ref,start=[i1,j1-tile*global_dim(1),tile+1], &
-                     global_start=[1,1,1], global_count=[global_dim(1),global_dim(1),6])
-        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
-        staggerloc=ESMF_STAGGERLOC_CENTER, &
-        farrayPtr=ptr2d, rc=status)
-        _VERIFY(STATUS)
-        if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
-        !ref = ArrayReference(ptr2d)
-        this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%lats)
-        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
-                     ref,start=[i1,j1-tile*global_dim(1),tile+1], &
-                     global_start=[1,1,1], global_count=[global_dim(1),global_dim(1),6])
-     end if
 
   end subroutine stage2DLatLon
   
@@ -651,7 +642,6 @@ module MAPL_newCFIOMod
      type (ClientManager), optional, intent(inout) :: oClients
      integer, optional, intent(out) :: rc
 
-     integer :: request_id
      integer :: status
      integer :: fieldRank
      character(len=ESMF_MAXSTR) :: fieldName
@@ -771,7 +761,7 @@ module MAPL_newCFIOMod
      character(len=ESMF_MAXSTR), allocatable :: names(:)
      type(ESMF_Field) :: output_field
      type(ESMF_Field), allocatable :: input_fields(:)
-     integer :: ub(1),lb(1),i1,in,j1,jn,img,jmg,dims(3),lm,rank
+     integer :: ub(1),lb(1),dims(3),lm,rank
      type(ArrayReference) :: ref
      real, pointer :: ptr2d(:,:) => null()
      real, pointer :: ptr3d(:,:,:) => null()
