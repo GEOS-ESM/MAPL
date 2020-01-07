@@ -1031,9 +1031,7 @@ contains
 
       j_mid = 1 + this%im_world/2
 
-      ! it is not necessary evenly distributed
-      !tile = 1 + pet/(npes/this%nTiles)
-      tile = 1 + j_1/this%im_world
+      tile = 1 + (j_1-1)/this%im_world
       if (tile == 1 .and. (j_1 <= j_mid) .and. (j_mid <= j_n)) then
          allocate(piece(i_1:i_n))
          piece(:) = centers(:,j_mid-(j_1-1))
@@ -1103,8 +1101,7 @@ contains
 
       j_mid = 1 + this%im_world/2
 
-      !tile = 1 + pet/(npes/this%nTiles)
-      tile = 1 + j_1/this%im_world
+      tile = 1 + (j_1-1)/this%im_world
       if (tile == 1 .and. (i_1 <= j_mid) .and. (j_mid <= i_n)) then
          allocate(piece(j_1:j_n))
          piece(:) = centers(j_mid-(i_1-1),:)
