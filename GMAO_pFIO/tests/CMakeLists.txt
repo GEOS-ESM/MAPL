@@ -57,7 +57,12 @@ ecbuild_add_executable (
 set_target_properties(${TESTO} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 target_link_libraries(${TESTO} GMAO_pFIO ${NETCDF_LIBRARIES})
 
-
+# Detect if we are using Open MPI and add oversubscribe
+string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST ${MPI_Fortran_LIBRARY_VERSION_STRING})
+list(GET MPI_Fortran_LIBRARY_VERSION_LIST 0 MPI_Fortran_LIBRARY_VERSION_FIRSTWORD)
+if(MPI_Fortran_LIBRARY_VERSION_FIRSTWORD MATCHES "Open")
+   list(APPEND MPIEXEC_PREFLAGS "-oversubscribe")
+endif()
 
 set(TESTO_FLAGS
   -nc 6 -nsi 6 -nso 6 -ngo 1 -ngi 1 -v T,U )
