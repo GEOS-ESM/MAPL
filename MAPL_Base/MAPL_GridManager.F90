@@ -516,7 +516,6 @@ module MAPL_GridManagerMod
    public :: get_instance
    public :: get_factory_id
    public :: get_factory
-   public :: a2d2c
 
    ! singleton instance
    type (GridManager), target, save :: grid_manager
@@ -569,30 +568,4 @@ contains
 
    end function get_factory
 
-   subroutine A2D2C(grid, u, v, lm, getC, unusable, rc)
-      type (ESMF_Grid), intent(in) :: grid
-      real, intent(inout) :: u(:,:,:)
-      real, intent(inout) :: v(:,:,:)
-      integer, intent(in) :: lm
-      logical, intent(in) :: getC
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(len=*), parameter :: Iam= MOD_NAME // 'get_a2d2c'
-      class (AbstractGridFactory), pointer :: factory
-
-      _UNUSED_DUMMY(unusable)
-      factory => grid_manager%get_factory(grid, rc=status)
-      _VERIFY(status)
-
-      call factory%a2d2c(u, v, lm, getC, rc=status)
-      _VERIFY(status)
-
-      _RETURN(_SUCCESS)
-
-   end subroutine A2D2C
-
-
-      
 end module MAPL_GridManagerMod
