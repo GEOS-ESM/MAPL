@@ -1957,7 +1957,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   character(len=ESMF_MAXSTR)                  :: CHILD_NAME
   character(len=ESMF_MAXSTR)                  :: RECFIN
   type (MAPL_MetaComp), pointer               :: STATE
-  integer                                     :: I
+  integer                                     :: I,j
   logical                                     :: final_checkpoint
   integer                                     :: NC
   integer                                     :: PHASE
@@ -2867,6 +2867,7 @@ end subroutine MAPL_DateStampGet
 
 ! ErrLog Variables
 
+    character(len=ESMF_MAXSTR)        :: IAm="MAPL_InternalStateRetrieve"
     integer                           :: STATUS
 
 ! Local variables
@@ -3527,9 +3528,11 @@ end subroutine MAPL_DateStampGet
     !EOPI
 
     integer                               :: status
+    character(len=ESMF_MAXSTR)            :: IAm
 
     type (MAPL_MetaComp),     pointer     :: META 
     integer                               :: phase
+    integer                               :: phase0, phase1
 
     call MAPL_InternalStateRetrieve( GC, META, RC=STATUS)
     _VERIFY(STATUS)
@@ -3740,6 +3743,14 @@ end subroutine MAPL_DateStampGet
     logical                               :: FIX_SUN
     character(len=ESMF_MAXSTR)            :: gname
 
+    logical :: EOT, ORBIT_ANAL2B
+    integer :: ORB2B_REF_YYYYMMDD, ORB2B_REF_HHMMSS, &
+      ORB2B_EQUINOX_YYYYMMDD, ORB2B_EQUINOX_HHMMSS
+    real :: ORB2B_YEARLEN, &
+      ORB2B_ECC_REF, ORB2B_ECC_RATE, &
+      ORB2B_OBQ_REF, ORB2B_OBQ_RATE, &
+      ORB2B_LAMBDAP_REF, ORB2B_LAMBDAP_RATE
+
      if(present(IM)) then
       IM=STATE%GRID%IM
      endif
@@ -3792,23 +3803,116 @@ end subroutine MAPL_DateStampGet
               FIX_SUN=.false.
            end if 
 
+           ! Fixed parameters of standard orbital system (tabularized intercalation cycle)
+           ! -----------------------------------------------------------------------------
+
            call MAPL_GetResource(STATE, ECC, Label="ECCENTRICITY:", default=0.0167, &
                   RC=STATUS)
            _VERIFY(STATUS)
 
-           call MAPL_GetResource(STATE, OB, Label="OBLIQUITY:"   , default=23.45 , &
+           call MAPL_GetResource(STATE, OB, Label="OBLIQUITY:", default=23.45, &
                 RC=STATUS)
            _VERIFY(STATUS)
 
-           call MAPL_GetResource(STATE, PER, Label="PERIHELION:"  , default=102.0 , &
+           call MAPL_GetResource(STATE, PER, Label="PERIHELION:", default=102.0, &
                 RC=STATUS)
            _VERIFY(STATUS)
 
-           call MAPL_GetResource(STATE, EQNX, Label="EQUINOX:"     , default=80    , &
+           call MAPL_GetResource(STATE, EQNX, Label="EQUINOX:", default=80, &
                 RC=STATUS)
            _VERIFY(STATUS)
 
-           STATE%ORBIT = MAPL_SunOrbitCreate(STATE%CLOCK,ECC,OB,PER,EQNX,FIX_SUN=FIX_SUN,RC=STATUS)
+           ! Apply Equation of Time correction by default?
+           ! (Can be overridden in MAPL_SunGetInsolation call)
+           ! -------------------------------------------------
+           call MAPL_GetResource(STATE, EOT, Label="EOT:", default=.FALSE., &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! New orbital system (analytic two-body) allows some time-varying behavior,
+           !   namely, linear variation in LAMBDAP, ECC, and OBQ.
+           ! -------------------------------------------------------------------------
+
+           call MAPL_GetResource(STATE, &
+                ORB_ANAL2B, Label="ORBIT_ANAL2B:", default=.FALSE., &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Fixed anomalistic year length in mean solar days
+           call MAPL_GetResource(STATE, &
+                ORB2B_YEARLEN, Label="ORB2B_YEARLEN:", default=365.2596, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Reference date and time for orbital parameters
+           ! (defaults to J2000 = 01Jan2000 12:00:00 TT = 11:58:56 UTC)
+           call MAPL_GetResource(STATE, &
+                ORB2B_REF_YYYYMMDD, Label="ORB2B_REF_YYYYMMDD:", default=20000101, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+           call MAPL_GetResource(STATE, &
+                ORB2B_REF_HHMMSS, Label="ORB2B_REF_HHMMSS:", default=115856, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Orbital eccentricity at reference date
+           call MAPL_GetResource(STATE, &
+                ORB2B_ECC_REF, Label="ORB2B_ECC_REF:", default=0.016710, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Rate of change of orbital eccentricity per Julian century
+           call MAPL_GetResource(STATE, &
+                ORB2B_ECC_RATE, Label="ORB2B_ECC_RATE:", default=-4.2e-5, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Earth's obliquity (axial tilt) at reference date [degrees]
+           call MAPL_GetResource(STATE, &
+                ORB2B_OBQ_REF, Label="ORB2B_OBQ_REF:", default=23.44, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Rate of change of obliquity [degrees per Julian century]
+           call MAPL_GetResource(STATE, &
+                ORB2B_OBQ_RATE, Label="ORB2B_OBQ_RATE:", default=-1.3e-2, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Longitude of perihelion at reference date [degrees]
+           !   (from March equinox to perihelion in direction of earth's motion)
+           call MAPL_GetResource(STATE, &
+                ORB2B_LAMBDAP_REF, Label="ORB2B_LAMBDAP_REF:", default=282.947, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Rate of change of LAMBDAP [degrees per Julian century]
+           !   (Combines both equatorial and ecliptic precession)
+           call MAPL_GetResource(STATE, &
+                ORB2B_LAMBDAP_RATE, Label="ORB2B_LAMBDAP_RATE:", default=1.7195, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! March Equinox date and time
+           ! (defaults to March 20, 2000 at 07:35:00 UTC)
+           call MAPL_GetResource(STATE, &
+                ORB2B_EQUINOX_YYYYMMDD, Label="ORB2B_EQUINOX_YYYYMMDD:", default=20000320, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+           call MAPL_GetResource(STATE, &
+                ORB2B_EQUINOX_HHMMSS, Label="ORB2B_EQUINOX_HHMMSS:", default=073500, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! create the orbit object
+           STATE%ORBIT = MAPL_SunOrbitCreate(STATE%CLOCK, ECC, OB, PER, EQNX, &
+                                             EOT, ORBIT_ANAL2B, ORB2B_YEARLEN, &
+                                             ORB2B_REF_YYYYMMDD, ORB2B_REF_HHMMSS, &
+                                             ORB2B_ECC_REF, ORB2B_ECC_RATE, &
+                                             ORB2B_OBQ_REF, ORB2B_OBQ_RATE, &
+                                             ORB2B_LAMBDAP_REF, ORB2B_LAMBDAP_RATE, &
+                                             ORB2B_EQUINOX_YYYYMMDD, ORB2B_EQUINOX_HHMMSS, &
+                                             FIX_SUN=FIX_SUN,RC=STATUS)
            _VERIFY(STATUS)
 
         end if
@@ -4189,6 +4293,7 @@ end subroutine MAPL_DateStampGet
     integer,           optional  , intent(  OUT) :: rc
     !EOPI
 
+  character(len=ESMF_MAXSTR)                  :: IAm='MAPL_AddChildFromMeta'
   integer                                     :: STATUS
 
   integer                                     :: I
@@ -6087,6 +6192,8 @@ subroutine MAPL_StateGetVarSpecs(STATE,IMPORT,EXPORT,INTERNAL,RC)
 !
 ! ErrLog Variables
 
+    character(len=ESMF_MAXSTR)            :: IAm='MAPL_StateGetVarSpec'
+
 ! Begin
 
 ! Get the specs for the 3 ESMF states
@@ -6889,6 +6996,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 !
 ! ErrLog Variables
 
+    character(len=ESMF_MAXSTR)            :: IAm='MAPL_FriendlyGet'
     integer                               :: STATUS
 
 ! Local variables
@@ -7004,6 +7112,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 !
 ! ErrLog Variables
 
+    character(len=ESMF_MAXSTR)            :: IAm='MAPL_GridCompGetFriendlies0'
     integer                               :: STATUS
 
 ! Local variables
@@ -7280,6 +7389,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 !
 ! ErrLog Variables
 
+    character(len=ESMF_MAXSTR)            :: IAm='MAPL_GridCompGetFriendlies2'
     integer                               :: STATUS, I
     character(len=ESMF_MAXSTR)            :: TO_(1)
 
@@ -7306,6 +7416,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 !
 ! ErrLog Variables
 
+    character(len=ESMF_MAXSTR)            :: IAm='MAPL_GridCompGetFriendlies3'
     integer                               :: STATUS, I
 
     do I=1,size(GC)
@@ -7326,6 +7437,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     integer, optional,   intent(  out) :: RC     ! Error code:
 
 ! Local vars
+    character(len=ESMF_MAXSTR)   :: Iam="MAPL_SetVarSpecForCC"
     character(len=ESMF_MAXSTR)   :: NAME
     integer                      :: STATUS
     integer                      :: I, N, STAT
@@ -8369,6 +8481,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     integer, optional,        intent(  OUT)   :: RC
     !EOPI
 
+    character(len=ESMF_MAXSTR)        :: IAm = "MAPL_ReadForcing1"
     integer                           :: STATUS
     
     call MAPL_ReadForcingX(STATE,NAME,DATAFILE,CURRENTTIME,      &
@@ -8398,6 +8511,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     integer, optional,        intent(  OUT)   :: RC
     !EOPI
 
+   character(len=ESMF_MAXSTR)        :: IAm = "MAPL_ReadForcing2"
    integer                           :: STATUS
 
    call MAPL_ReadForcingX(STATE,NAME,DATAFILE,CURRENTTIME,      &
@@ -8425,6 +8539,7 @@ subroutine MAPL_ReadForcingX(MPL,NAME,DATAFILE,CURRTIME,  &
 
 ! ErrLog Variables
 
+   character(len=ESMF_MAXSTR)        :: IAm = "MAPL_ReadForcing"
    integer                           :: STATUS
 
 ! Locals
@@ -9162,6 +9277,7 @@ end subroutine MAPL_READFORCINGX
 
 ! ErrLog Variables
 
+    character(len=ESMF_MAXSTR)        :: IAm = "MAPL_StateGetTimeStamp"
     integer                           :: STATUS
 
 ! Locals
@@ -9201,6 +9317,7 @@ end subroutine MAPL_READFORCINGX
 
 ! ErrLog Variables
 
+    character(len=ESMF_MAXSTR)        :: IAm = "MAPL_StateSetTimeStamp"
     integer                           :: STATUS
 
 ! Locals
@@ -9230,6 +9347,7 @@ end subroutine MAPL_READFORCINGX
 
 ! ErrLog Variables
 
+    character(len=ESMF_MAXSTR)        :: IAm = "MAPL_GenericMakeXchgNatural"
 
     STATE%LOCSTREAM = STATE%ExchangeGrid
 
@@ -9255,6 +9373,7 @@ end subroutine MAPL_READFORCINGX
     integer                               :: nn,ny
     character(len=ESMF_MAXSTR)            :: GridName
     character(len=2)                      :: dateline
+    real(ESMF_KIND_R8), pointer :: R8D2(:,:)
 #ifdef CREATE_REGULAR_GRIDS
     logical                               :: isRegular
 #endif
@@ -9370,6 +9489,7 @@ end subroutine MAPL_READFORCINGX
 
 ! local vars
 !------------ 
+    character(len=ESMF_MAXSTR) :: IAm='MAPL_GridCoordAdjustFromFile'
     integer                    :: STATUS
     integer :: UNIT
     integer :: IM, JM
@@ -9452,6 +9572,7 @@ end subroutine MAPL_READFORCINGX
     integer, optional,      intent(OUT)   :: rc
 
     integer                               :: status
+    character(len=ESMF_MAXSTR)            :: IAm
     type (MAPL_MetaComp),     pointer     :: META 
 
     call MAPL_GetObjectFromGC(GC, META, RC=STATUS)
@@ -9631,6 +9752,7 @@ end subroutine MAPL_READFORCINGX
     character(len=ESMF_MAXSTR)       :: name
 
     integer              :: status
+    character(len=ESMF_MAXSTR)  :: Iam="MAPL_GridGetSection"
 
     call ESMF_GridGet(GRID, Name=Name, DistGrid=distgrid, dimCount=dimCount, RC=STATUS)
     _VERIFY(STATUS)
@@ -9730,6 +9852,7 @@ end subroutine MAPL_READFORCINGX
     type(ESMF_VM)                    :: vm
 
     integer              :: status
+    character(len=ESMF_MAXSTR)  :: Iam="MAPL_InternalGridSet"
 
     ! At this point, this component must have a valid grid!
     !------------------------------------------------------
@@ -9865,6 +9988,7 @@ end subroutine MAPL_READFORCINGX
 
 
      integer :: status
+     character(len=ESMF_MAXSTR)   :: Iam="MAPL_GetAllExchangeGrids"
 
      type (MAPL_MetaComp),              pointer  :: MAPLOBJ 
      type (MAPL_LocStream)                       :: LocStream
@@ -9934,6 +10058,7 @@ end subroutine MAPL_READFORCINGX
      integer, optional,    intent(  OUT) :: RC         ! Return code
 
      integer                       :: status
+     character(len=ESMF_MAXSTR)    :: Iam="MAPL_DoNotAllocateImport"
 
      type (MAPL_MetaComp), pointer :: MAPLOBJ 
      type (MAPL_VarSpec),  pointer :: SPEC(:) => null()
@@ -9959,6 +10084,7 @@ end subroutine MAPL_READFORCINGX
      integer,              intent(  OUT) :: RC         ! Return code
 
      integer                       :: status
+     character(len=ESMF_MAXSTR)    :: Iam="MAPL_DoNotAllocateInternal"
 
      type (MAPL_MetaComp), pointer :: MAPLOBJ 
      type (MAPL_VarSpec),  pointer :: SPEC(:)
@@ -9982,6 +10108,7 @@ end subroutine MAPL_READFORCINGX
      integer, optional,    intent(  OUT) :: RC         ! Return code
 
      integer                       :: status
+     character(len=ESMF_MAXSTR)    :: Iam="MAPL_DoNotAllocateVar"
 
      integer                       :: I
      logical                       :: notFoundOK_
@@ -10020,6 +10147,7 @@ end subroutine MAPL_READFORCINGX
      logical                       :: tile_loc
      type(ESMF_Grid)               :: TILEGRID
      character(len=MPI_MAX_INFO_VAL) :: romio_cb_read,cb_buffer_size,romio_cb_write
+     character(len=ESMF_MAXSTR)    :: Iam="ArrDescrSetNCPar"
  
      if (present(tile)) then
         tile_loc=tile
