@@ -847,7 +847,7 @@ CONTAINS
 
     ! we have better found all the items in the export in either a primary or derived item
     if (itemCounter /= ItemCount) then
-       write(error_msg_str, '(A,I0,A)') 'Found ', ItemCount-itemCounter,' unfullfilled imports in extdata'
+       write(error_msg_str, '(A6,I3,A31)') 'Found ', ItemCount-itemCounter,' unfullfilled imports in extdata'
        _ASSERT(.false., error_msg_str)
     end if
 
@@ -948,7 +948,6 @@ CONTAINS
 
       item => self%primary%item(i)
 
-      ! debugging
       IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
          Write(*,*) 'ExtData Initialize_: PrimaryLoop: ', trim(item%name)
       ENDIF
@@ -1356,7 +1355,7 @@ CONTAINS
    _VERIFY(STATUS)
 
    call MAPL_TimerOn(MAPLSTATE,"-Read_Loop")
-
+ 
    ! debugging
    IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Run_: Start'
@@ -1367,7 +1366,6 @@ CONTAINS
 
       item => self%primary%item(self%primaryOrder(i))
 
-      ! debugging
       IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
          Write(*,*) ' '
          Write(*,'(a,I0.3,a,I0.3,a,a)') 'ExtData Run_: READ_LOOP: variable ', i, ' of ', self%primary%nItems, ': ', trim(item%var)
@@ -1377,12 +1375,12 @@ CONTAINS
       ENDIF
 
       if (item%isConst) then
-         ! debugging
          IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
             Write(*,*) '   ==> Break loop since isConst is true'
          ENDIF
          cycle
       endif
+
 
       NotSingle = .true.
       if (trim(item%cyclic) == 'single') NotSingle = .false.
@@ -1395,14 +1393,12 @@ CONTAINS
 
       DO_UPDATE: if (doUpdate_) then
 
-         ! debugging
          IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
             Write(*,*) '   ExtData Run_: DO_UPDATE: Start. doUpdate_ is true.'
          ENDIF
 
          HAS_RUN: if ( hasRun .eqv. .false.) then
 
-            ! debugging
             IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
                Write(*,*) '      ExtData Run_: HAS_RUN: Start. hasRun is false. Update time.'
             ENDIF
@@ -1410,23 +1406,23 @@ CONTAINS
             call MAPL_TimerOn(MAPLSTATE,"--Bracket")
             if (NotSingle) then
 
-               ! debugging
+               ! update left time
                IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
                   Write(*,*) '      ExtData Run_: HAS_RUN: NotSingle is true. Update left time (bracket L)'
                ENDIF
-
-               ! update left time
-               call UpdateBracketTime(item,time,"L",item%interp_time1, &
+               call UpdateBracketTime(item,time,"L",item%interp_time1, & 
                     item%time1,file_processed1,self%allowExtrap,rc=status)
                _VERIFY(status)
                call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed1,MAPL_ExtDataLeft,item%tindex1,__RC__)
 
-               ! debugging
                IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-                  Write(*,*) '      ExtData Run_: HAS_RUN: NotSingle is true. Update right time (bracket R)'
+                  Write(*,*) '      ExtData Run_: HAS_RUN: NotSingle is true. Update right time (bracket R)'    
                ENDIF
 
                ! update right time
+               IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+                  Write(*,*) '      ExtData Run_: HAS_RUN: NotSingle is true. Update right time (bracket R)'    
+               ENDIF
                call UpdateBracketTime(item,time,"R",item%interp_time2, &
                     item%time2,file_processed2,self%allowExtrap,rc=status)
                _VERIFY(STATUS)
@@ -1434,7 +1430,6 @@ CONTAINS
 
             else
 
-               ! debugging
                IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
                   Write(*,*) '      ExtData Run_: HAS_RUN: NotSingle is false. Just get time on file.'
                ENDIF
@@ -1447,7 +1442,6 @@ CONTAINS
             end if
             call MAPL_TimerOff(MAPLSTATE,"--Bracket")
 
-            ! debugging
             IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
                Write(*,*) '      ExtData Run_: HAS_RUN: End'
             ENDIF
@@ -1458,7 +1452,6 @@ CONTAINS
 
          NOT_SINGLE: if (NotSingle) then
 
-            ! debugging
             IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
                Write(*,*) '      ExtData Run_: NOT_SINGLE: Start. Update bracketing times?'
             ENDIF
@@ -1479,7 +1472,6 @@ CONTAINS
                swap    = .false.
             end if
 
-            ! debugging
             IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
                Write(*,*) '         ==> updateR: ', updateR
                Write(*,*) '         ==> updateL: ', updateL
@@ -1489,10 +1481,10 @@ CONTAINS
             call MAPL_TimerOn(MAPLSTATE,'--Swap')
             DO_SWAP: if (swap) then
 
-               ! debugging
                IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
                   Write(*,*) '            DO_SWAP: Swapping prev and next'
                ENDIF
+
                call swapBracketInformation(item,__RC__)
 
             end if DO_SWAP
@@ -1501,8 +1493,7 @@ CONTAINS
 
             UPDATE_R: if (updateR) then
 
-               ! debugging
-               IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+              IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
                   Write(*,*) '         UPDATE_R: updating right bracket'
                ENDIF
 
@@ -1519,7 +1510,6 @@ CONTAINS
 
             UPDATE_L: if (updateL) then
 
-               ! debugging
                IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
                   Write(*,*) '         UPDATE_L: updating left bracket'
                ENDIF
@@ -1535,7 +1525,6 @@ CONTAINS
 
             end if UPDATE_L
 
-            ! debugging
             IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
                Write(*,*) '      ExtData Run_: NOT_SINGLE: End'
             ENDIF
@@ -1544,7 +1533,6 @@ CONTAINS
 
          useTime(i) = time
 
-         ! debugging
          IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
             Write(*,*) '   ExtData Run_: DO_UPDATE: End'
          ENDIF
@@ -1558,7 +1546,6 @@ CONTAINS
 
    end do READ_LOOP
 
-   ! debugging
    IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Run_: READ_LOOP: Done'
    ENDIF
@@ -1620,8 +1607,7 @@ CONTAINS
    call MAPL_TimerOff(MAPLSTATE,"-Read_Loop")
 
    call MAPL_TimerOn(MAPLSTATE,"-Interpolate")
-
-   ! debugging
+ 
    IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Run_: INTERP_LOOP: Start'
    ENDIF
@@ -1632,14 +1618,13 @@ CONTAINS
 
       if (doUpdate(i)) then
 
-         ! debugging
          IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
             Write(*,*) ' '
             Write(*,'(a)') 'ExtData Run_: INTERP_LOOP: interpolating between bracket times'
             Write(*,*) '   ==> variable: ', trim(item%var)
             Write(*,*) '   ==> file: ', trim(item%file)
          ENDIF
-
+        
          ! finally interpolate between bracketing times
 
          if (item%vartype == MAPL_FieldItem) then
@@ -1674,7 +1659,6 @@ CONTAINS
 
    end do INTERP_LOOP
 
-   ! debugging
    IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Run_: INTERP_LOOP: Done'
    ENDIF
@@ -1702,7 +1686,6 @@ CONTAINS
 
    end do
 
-   ! debugging
    IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Run_: End'
    ENDIF
@@ -2082,7 +2065,7 @@ CONTAINS
            _VERIFY(STATUS) 
         end if
 
-        If (Mapl_Am_I_Root().and.(Ext_Debug > 19)) Then
+        If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then
            Write(*,'(5(a))') ' >> REFFTIME for ',trim(item%file),': ',trim(item%FileReffTime)
            call ESMF_TimeGet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=isc,rc=status)
            Write(*,'(a,I0.4,5(a,I0.2))') ' >> Reference time: ',iYy,'-',iMm,'-',iDd,' ',iHh,':',iMn,':',iSc
@@ -2141,7 +2124,7 @@ CONTAINS
               call ESMF_CFIOStrTemplate(file,item%file,'GRADS',nymd=nymd,nhms=nhms,__STAT__)
            end if
            call MakeMetadata(file,item%pfioCollection_id,metadata,__RC__)
-           call metadata%get_time_units(startYear=iyr)
+           call metadata%get_time_info(startYear=iyr)
            item%climYear=iYr
            _RETURN(ESMF_SUCCESS)
         else
@@ -2365,7 +2348,7 @@ CONTAINS
            file_processed = item%file
            call MakeMetadata(file_processed,item%pfioCollection_id,fdata,__RC__)
            ! Retrieve the time series
-           call fdata%get_time_vec(xTSeries,rc=status)
+           call fdata%get_time_info(timeVector=xTSeries,rc=status)
            If (status /= ESMF_SUCCESS) then
               if (mapl_am_I_root()) Then
                  write(*,'(a,a)') ' ERROR: Time vector retrieval failed on fixed file ',trim(item%file)
@@ -2441,12 +2424,12 @@ CONTAINS
            call gx_(file_processed,item%file,nymd=curDate,nhms=curTime,__STAT__)
            Inquire(FILE=trim(file_processed),EXIST=found)
            If (found) Then
-              if (mapl_am_I_root().and.(Ext_Debug > 19)) Then 
+              if (mapl_am_I_root().and.(Ext_Debug > 0)) Then 
                  write(*,'(a,a,a,a)') ' DEBUG: Target file for ',trim(item%file),' found and is ',trim(file_processed)
               end if
               !yrOffset = 0
-           Else if (allowExtrap) then
- 
+           Else if (allowExtrap) then 
+
               if (mapl_am_I_root().and.(Ext_Debug > 0)) Then
                  write(*,'(a)') '            UpdateBracketTime: Target file not found: ', trim(item%file)
                  write(*,'(a,a,a)') '            ==> Propagating forwards in file from reference time'
@@ -2498,7 +2481,7 @@ CONTAINS
               call MakeMetadata(file_processed,item%pfioCollection_id,fdata,__RC__)
               ! Retrieve the time series
               if (allocated(xTseries)) deallocate(xTseries)
-              call fdata%get_time_vec(xTseries,__RC__)
+              call fdata%get_time_info(timeVector=xTseries,__RC__)
               ! Is this before or after our target time?
               LSide   = (bSide == "L")
               RSide   = (.not.LSide)
@@ -2591,7 +2574,7 @@ CONTAINS
            call MakeMetadata(file_processed,item%pfioCOllection_id,fdata,__RC__)
            ! Retrieve the time series
            if (allocated(xTseries)) deallocate(xTseries)
-           call fdata%get_time_vec(xTSeries,__RC__)
+           call fdata%get_time_info(timeVector=xTSeries,__RC__)
 
            ! We now have a time which, when passed to the FILE TEMPLATE, returns a valid file
            ! However, if the file template does not include a year token, then the file in
@@ -2716,7 +2699,7 @@ CONTAINS
               ! fTime is now ALWAYS the time which was applied to the file template to get the current file
               call MakeMetadata(file_processed,item%pfioCollection_id,fdata,rc=status)
               if (allocated(xTSeries)) deallocate(xTSeries)
-              call fdata%get_time_vec(xTSeries,__RC__)
+              call fdata%get_time_info(timeVector=xTSeries,__RC__)
 
               !If (Mapl_Am_I_Root()) Write (*,'(a,a,x,a)') ' SUPERDEBUG: File/template: ',Trim(file_processed),Trim(item%refresh_template)
               ! The file template may be "hiding" a year offset from us
@@ -2725,7 +2708,7 @@ CONTAINS
               buff = ESMF_UtilStringLowerCase(buff, __RC__)
               If (buff /= "0" .and. index(buff,"p")==0 ) Then
                  newTime = timestamp_(fTime,item%refresh_template,__RC__)
-                 If (Mapl_Am_I_Root().and.Ext_Debug > 24) Then
+                 If (Mapl_Am_I_Root().and.Ext_Debug > 0) Then
                     call ESMF_TimeGet(fTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
                     call ESMF_TimeGet(newTime,yy=fyr,mm=fmm,dd=fdd,h=fhr,m=fmn,s=fsc,__RC__)
 
@@ -3054,7 +3037,7 @@ CONTAINS
            Write(*,'(a,L1,a,a)') '               GetBracketTimeOnSingleFile: Reading times from fixed (',UniFileClim,') file ', Trim(fdata%get_file_name())
            call ESMF_TimeGet(tSeries(1),yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
            Write(*,'(a,I0.4,5(a,I0.2))') '                  ==> File start    : ',iYr,'-',iMM,'-',iDD,' ',iHr,':',iMn,':',iSc
-           call ESMF_TimeGet(tSeries(nSteps),yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+           call ESMF_TimeGet(tSeries(nsteps),yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
            Write(*,'(a,I0.4,5(a,I0.2))') '                  ==> File end      : ',iYr,'-',iMM,'-',iDD,' ',iHr,':',iMn,':',iSc
            call ESMF_TimeGet(cTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
            Write(*,'(a,I0.4,5(a,I0.2))') '                  ==> Time requested: ',iYr,'-',iMM,'-',iDD,' ',iHr,':',iMn,':',iSc
@@ -3384,7 +3367,7 @@ CONTAINS
 
         if (found) then
 
-           If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then 
+           If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then
               call ESMF_TimeGet(fileTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
               Write(*,'(a,I0.4,a,I0.2,a,I0.2,a,I0.2,a,I0.2,a,a,a,a)') &
                  '               GetBracketTimeOnFile:: Data from time ', iYr, '-', iMm, '-', iDd, &
@@ -4209,7 +4192,7 @@ CONTAINS
      type(FileMetadataUtils), pointer :: metadata => null()
 
      call MakeMetadata(fname,item%pfiocollection_id,metadata,__RC__)
-     call Metadata%get_time_units(startyear=iyr,startmonth=imm,startday=idd,starthour=ihr,startmin=imn,startsec=isc,rc=status)
+     call Metadata%get_time_info(startyear=iyr,startmonth=imm,startday=idd,starthour=ihr,startmin=imn,startsec=isc,rc=status)
      _VERIFY(status)
      call ESMF_TimeSet(sTime, yy=iyr, mm=imm, dd=idd,  h=ihr,  m=imn, s=isc, __RC__)
      nullify(metadata)
@@ -4803,17 +4786,21 @@ CONTAINS
      character(len=ESMF_MAXSTR) :: Iam = "createFileLevBracket"
      type (ESMF_Grid) :: grid, newgrid
 
-     if (item%vartype==MAPL_FieldItem .or. item%vartype==MAPL_ExtDataVectorItem) then
+     if (item%vartype==MAPL_FieldItem) then
+        call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
+        newGrid = MAPL_ExtDataGridChangeLev(grid,cf,item%lm,__RC__)
+        call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
+        item%modelGridFields%v1_faux1 = MAPL_FieldCreate(item%modelGridFields%v1_finterp1,newGrid,lm=item%lm,newName=trim(item%var),__RC__)
+        item%modelGridFields%v1_faux2 = MAPL_FieldCreate(item%modelGridFields%v1_finterp2,newGrid,lm=item%lm,newName=trim(item%var),__RC__)
+     else if (item%vartype==MAPL_ExtDataVectorItem) then
         call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
         newGrid = MAPL_ExtDataGridChangeLev(grid,cf,item%lm,__RC__)
         call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
         item%modelGridFields%v1_faux1 = MAPL_FieldCreate(item%modelGridFields%v1_finterp1,newGrid,lm=item%lm,newName=trim(item%fcomp1),__RC__)
         item%modelGridFields%v1_faux2 = MAPL_FieldCreate(item%modelGridFields%v1_finterp2,newGrid,lm=item%lm,newName=trim(item%fcomp1),__RC__)
-     end if
-     if (item%vartype==MAPL_ExtDataVectorItem) then
         call ESMF_FieldGet(item%modelGridFields%v1_finterp1,grid=grid,__RC__)
-        item%modelGridFields%v2_faux1 = MAPL_FieldCreate(item%modelGridFields%v2_finterp1,newGrid,lm=item%lm,newName=trim(item%fcomp1),__RC__)
-        item%modelGridFields%v2_faux2 = MAPL_FieldCreate(item%modelGridFields%v2_finterp2,newGrid,lm=item%lm,newName=trim(item%fcomp1),__RC__)
+        item%modelGridFields%v2_faux1 = MAPL_FieldCreate(item%modelGridFields%v2_finterp1,newGrid,lm=item%lm,newName=trim(item%fcomp2),__RC__)
+        item%modelGridFields%v2_faux2 = MAPL_FieldCreate(item%modelGridFields%v2_finterp2,newGrid,lm=item%lm,newName=trim(item%fcomp2),__RC__)
      end if
      _RETURN(_SUCCESS)
 

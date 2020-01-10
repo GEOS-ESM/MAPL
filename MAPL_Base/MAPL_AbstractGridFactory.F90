@@ -44,7 +44,6 @@ module MAPL_AbstractGridFactoryMod
 
       ! from MAPL_stubs
       procedure(halo), deferred :: halo
-      procedure :: A2D2C
 
       procedure (generate_grid_name), deferred :: generate_grid_name
       procedure :: to_string
@@ -247,28 +246,6 @@ contains
       allocate(clone, source=this)
 
    end function clone
-
-   subroutine A2D2C(this, u, v, lm, getC, unusable, rc)
-      use MAPL_KeywordEnforcerMod
-      class (AbstractGridFactory), intent(in) :: this
-      real, intent(inout) :: u(:,:,:)
-      real, intent(inout) :: v(:,:,:)
-      integer, intent(in) :: lm
-      logical, intent(in) :: getC
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      character(len=*), parameter :: Iam= MOD_NAME // 'A2D2C'
-
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(u)
-      _UNUSED_DUMMY(v)
-      _UNUSED_DUMMY(lm)
-      _UNUSED_DUMMY(getC)
-      _UNUSED_DUMMY(unusable)
-      _RETURN(_FAILURE)
-
-   end subroutine A2D2C
 
    function make_grid(this, unusable, rc) result(grid)
       use esmf
