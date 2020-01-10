@@ -3050,11 +3050,11 @@ CONTAINS
         end if
 
         If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then
-           Write(6,'(a,a)') '               GetBracketTimeOnSingleFile called for ', trim(cfio%fName)
-           Write(*,'(a,L1,a,a)') '               GetBracketTimeOnSingleFile: Reading times from fixed (',UniFileClim,') file ', Trim(cfio%fName)
+           Write(6,'(a,a)') '               GetBracketTimeOnSingleFile called for ', trim(fdata%get_file_name())
+           Write(*,'(a,L1,a,a)') '               GetBracketTimeOnSingleFile: Reading times from fixed (',UniFileClim,') file ', Trim(fdata%get_file_name())
            call ESMF_TimeGet(tSeries(1),yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
            Write(*,'(a,I0.4,5(a,I0.2))') '                  ==> File start    : ',iYr,'-',iMM,'-',iDD,' ',iHr,':',iMn,':',iSc
-           call ESMF_TimeGet(tSeries(cfio%tSteps),yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+           call ESMF_TimeGet(tSeries(nSteps),yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
            Write(*,'(a,I0.4,5(a,I0.2))') '                  ==> File end      : ',iYr,'-',iMM,'-',iDD,' ',iHr,':',iMn,':',iSc
            call ESMF_TimeGet(cTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
            Write(*,'(a,I0.4,5(a,I0.2))') '                  ==> Time requested: ',iYr,'-',iMM,'-',iDD,' ',iHr,':',iMn,':',iSc
@@ -3158,14 +3158,14 @@ CONTAINS
            found = .false.
 
            If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then
-              Write(*,'(a,4(L1,x),a,a)') '               GetBracketTimeOnSingleFile: Extrapolation flags (0) are ',LExact,RExact,LExtrap,RExtrap,'for file ', trim(cfio%fName)
+              Write(*,'(a,4(L1,x),a,a)') '               GetBracketTimeOnSingleFile: Extrapolation flags (0) are ',LExact,RExact,LExtrap,RExtrap,'for file ', trim(fdata%get_file_name())
            End If
 
            if (allowExtrap) then
               If (LExtrap) Then
 
                  If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then
-                    Write(6,'(a,a)') '               GetBracketTimeOnSingleFile: Requested time is before first available sample in file ', trim(cfio%fName)
+                    Write(6,'(a,a)') '               GetBracketTimeOnSingleFile: Requested time is before first available sample in file ', trim(fdata%get_file_name())
                  End If
 
                  ! Increase the target time until it is within range
@@ -3189,7 +3189,7 @@ CONTAINS
               Else If (RExtrap.or.(RExact.and.RSide)) Then
 
                  If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then
-                    Write(6,'(a,a)') '               GetBracketTimeOnSingleFile: Requested time is after or on last available sample in file ', trim(cfio%fName)
+                    Write(6,'(a,a)') '               GetBracketTimeOnSingleFile: Requested time is after or on last available sample in file ', trim(fdata%get_file_name())
                  End If
 
                  Do While (RExtrap.or.(RExact.and.RSide))
@@ -3210,7 +3210,7 @@ CONTAINS
               RExact  =  (cLimTime == tSeries(nsteps))
 
               If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then
-                 Write(*,'(a,4(L1,x),a,a)') '            GetBracketTimeOnSingleFile: Extrapolation flags (2) are ',LExact,RExact,LExtrap,RExtrap,'for file ', trim(cfio%fName)
+                 Write(*,'(a,4(L1,x),a,a)') '            GetBracketTimeOnSingleFile: Extrapolation flags (2) are ',LExact,RExact,LExtrap,RExtrap,'for file ', trim(fdata%get_file_name())
               End If
 
            End IF
@@ -3260,7 +3260,7 @@ CONTAINS
               Write(*,'(a,I0.4,a,I0.2,a,I0.2,a,I0.2,a,I0.2,a,a,a,a)') &
               '               GetBracketTimeOnSingleFile: Data from time ', iYr, '-', iMm, '-', iDd, &
               ' ', iHr, ':', iMn, ' set for bracket ', bSide,&
-              ' of file ', Trim(cfio%fName)
+              ' of file ', Trim(fdata%get_file_name())
               If (yrOffset .ne. 0) Then
                  call ESMF_TimeGet(interpTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
                  Write(*,'(a,I0.4,a,I0.2,a,I0.2,a,I0.2,a,I0.2)') &
@@ -3315,7 +3315,7 @@ CONTAINS
         end if
 
         If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then
-           Write(6,'(4a)') '               GetBracketTimeOnFile: (',Trim(bSide),') called for ', trim(cfio%fName)
+           Write(6,'(4a)') '               GetBracketTimeOnFile: (',Trim(bSide),') called for ', trim(fdata%get_file_name())
         End If
 
         if (yrOffset.ne.0) then
@@ -3330,7 +3330,7 @@ CONTAINS
         If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then
            call ESMF_TimeGet(cLimTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
            Write(6,'(a,I2,3a,I0.4,5(a,I0.2))') '               GetBracketTimeOnFile: Year offset of ',yrOffset,&
-           ' applied while scanning ', trim(cfio%fName),&
+           ' applied while scanning ', trim(fdata%get_file_name()),&
            ' to give target time ',iYr,'-',iMm,'-',iDd,' ',iHr,':',iMn,':',iSc
         End If
 
@@ -3389,7 +3389,7 @@ CONTAINS
               Write(*,'(a,I0.4,a,I0.2,a,I0.2,a,I0.2,a,I0.2,a,a,a,a)') &
                  '               GetBracketTimeOnFile:: Data from time ', iYr, '-', iMm, '-', iDd, &
                  ' ', iHr, ':', iMn, ' set for bracket ', bSide,&
-                 ' of file ', Trim(cfio%fName)
+                 ' of file ', Trim(fdata%get_file_name())
               If (yrOffset .ne. 0) Then
                  call ESMF_TimeGet(interpTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
                  !Write(*,'(a,I0.4,a,I0.2,a,I0.2,a,I0.2,a,I0.2)') &
@@ -4534,7 +4534,6 @@ CONTAINS
   type(PrimaryExport), intent(inout) :: item
   type(ESMF_Field), intent(inout) :: FieldF
   type(ESMF_Field), intent(inout) :: FieldR
-  type(PrimaryExport), intent(inout) :: item
   integer, optional, intent(out)  :: rc
 
   character(len=ESMF_MAXSTR) :: Iam
@@ -4645,8 +4644,7 @@ CONTAINS
 
       ! debugging
       if ( Ext_Debug > 0 .and. mapl_am_i_root() ) then
-         write(*,'(3a,2(x,I4))') '   --> MAPL_ExtDataFlipVertical: vertically flipping all levels for ', &
-            trim(item%name), ' with bounds', lb, ub
+         write(*,'(3a,2(x,I4))') '   --> MAPL_ExtDataFlipVertical: vertically flipping all levels for ', trim(item%name)
       end if
 
 
