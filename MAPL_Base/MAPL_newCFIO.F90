@@ -606,30 +606,38 @@ module MAPL_newCFIOMod
      type(ArrayReference) :: ref
      class (AbstractGridFactory), pointer :: factory
      integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
+     logical :: hasll
+     class(Variable), pointer :: var_lat,var_lon
+ 
+     var_lon => this%metadata%get_variable('lons')
+     var_lat => this%metadata%get_variable('lats')
+     
+     hasll = associated(var_lon) .and. associated(var_lat)
+     if (hasll) then
+        factory => get_factory(this%output_grid,rc=status)
+        _VERIFY(status)
 
-     factory => get_factory(this%output_grid,rc=status)
-     _VERIFY(status)
-
-     call factory%generate_file_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
-     _VERIFY(status)
-     call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
-     staggerloc=ESMF_STAGGERLOC_CENTER, &
-     farrayPtr=ptr2d, rc=status)
-     _VERIFY(STATUS)
-     if (.not.allocated(this%lons)) allocate(this%lons(size(ptr2d,1),size(ptr2d,2)))
-     this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
-     ref = ArrayReference(this%lons)
-      call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
-           ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
-     call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
-     staggerloc=ESMF_STAGGERLOC_CENTER, &
-     farrayPtr=ptr2d, rc=status)
-     _VERIFY(STATUS)
-     if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
-     this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
-     ref = ArrayReference(this%lats)
-      call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
-           ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+        call factory%generate_file_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
+        _VERIFY(status)
+        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
+        staggerloc=ESMF_STAGGERLOC_CENTER, &
+        farrayPtr=ptr2d, rc=status)
+        _VERIFY(STATUS)
+        if (.not.allocated(this%lons)) allocate(this%lons(size(ptr2d,1),size(ptr2d,2)))
+        this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
+        ref = ArrayReference(this%lons)
+         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
+              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
+        staggerloc=ESMF_STAGGERLOC_CENTER, &
+        farrayPtr=ptr2d, rc=status)
+        _VERIFY(STATUS)
+        if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
+        this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
+        ref = ArrayReference(this%lats)
+         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
+              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+     end if
 
 
   end subroutine stage2DLatLon
