@@ -3791,6 +3791,20 @@ end subroutine MAPL_DateStampGet
       CF=STATE%CF
      endif
 
+     ! pmn: There is one orbit is per STATE, so, for example, the MAPL states of the
+     ! solar and land gridded components can potentially have independent solar orbits.
+     ! Usually these "independent orbits" will be IDENTICAL because the configuration
+     ! resources such as "ECCENTRICITY:" or "EOT:" will not be qualified by the name
+     ! of the gridded component. But for example, if the resource file specifies
+     !   "EOT: .FALSE."
+     ! but
+     !   "SOLAR_EOT: .TRUE."
+     ! then only SOLAR will have an EOT correction. The same goes for the new orbital
+     ! system choice ORBIT_ANAL2B.
+     !   A state's orbit is actually created in this routine by requesting the ORBIT
+     ! object. If its not already created then it will be made below. GridComps that
+     ! don't needed an orbit and dont request one will not have one.
+
      if(present(ORBIT)) then
 
         if(.not.MAPL_SunOrbitCreated(STATE%ORBIT)) then
@@ -3822,19 +3836,18 @@ end subroutine MAPL_DateStampGet
                 RC=STATUS)
            _VERIFY(STATUS)
 
-           ! Apply Equation of Time correction by default?
-           ! (Can be overridden in MAPL_SunGetInsolation call)
-           ! -------------------------------------------------
+           ! Apply Equation of Time correction?
+           ! ----------------------------------
            call MAPL_GetResource(STATE, EOT, Label="EOT:", default=.FALSE., &
                 RC=STATUS)
            _VERIFY(STATUS)
 
-           ! New orbital system (analytic two-body) allows some time-varying behavior,
-           !   namely, linear variation in LAMBDAP, ECC, and OBQ.
-           ! -------------------------------------------------------------------------
+           ! New orbital system (analytic two-body) allows some time-varying
+           ! behavior, namely, linear variation in LAMBDAP, ECC, and OBQ.
+           ! ---------------------------------------------------------------
 
            call MAPL_GetResource(STATE, &
-                ORB_ANAL2B, Label="ORBIT_ANAL2B:", default=.FALSE., &
+                ORBIT_ANAL2B, Label="ORBIT_ANAL2B:", default=.FALSE., &
                 RC=STATUS)
            _VERIFY(STATUS)
 
