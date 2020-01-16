@@ -544,7 +544,6 @@ CONTAINS
    call ESMF_ConfigDestroy(CFtemp,rc=status)
    _VERIFY(STATUS)
 
-   ! debugging
    IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Initialize_: Start'
    ENDIF
@@ -1232,7 +1231,6 @@ CONTAINS
 !  All done
 !  --------
 
-   ! debugging
    IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Initialize_: End'
    ENDIF
@@ -1356,7 +1354,6 @@ CONTAINS
 
    call MAPL_TimerOn(MAPLSTATE,"-Read_Loop")
  
-   ! debugging
    IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Run_: Start'
       Write(*,*) 'ExtData Run_: READ_LOOP: Start'
@@ -1493,7 +1490,7 @@ CONTAINS
 
             UPDATE_R: if (updateR) then
 
-              IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+               IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
                   Write(*,*) '         UPDATE_R: updating right bracket'
                ENDIF
 
@@ -2324,7 +2321,7 @@ CONTAINS
         type(ESMF_Time), allocatable               :: xTSeries(:)
         type(FileMetaDataUtils), pointer           :: fdata
       
-        !call ESMF_TimeIntervalSet(zero,__RC__)
+        call ESMF_TimeIntervalSet(zero,__RC__)
         call ESMF_TimeIntervalSet(yrTimeStep, yy=1, rc=rc)
 
         ! Default
@@ -2519,7 +2516,10 @@ CONTAINS
                  call MAPL_PackTime(curDate,iyr,imm,idd)
                  call MAPL_PackTime(curTime,ihr,imn,isc)
                  call gx_(file_processed,item%file,nymd=curDate,nhms=curTime,__STAT__)
-                 If (MAPL_Am_I_Root().and.(Ext_Debug > 0)) Write(*,'(a,a,a,I0.4,5(a,I0.2))') '            UpdateBracketTime: Testing for file ', trim(file_processed), ' for target time ',iYr,'-',iMm,'-',iDd,' ',iHr,':',iMn,':',iSc
+                 If (MAPL_Am_I_Root().and.(Ext_Debug > 0)) Then
+                    Write(*,'(a,a,a,I0.4,5(a,I0.2))') '            UpdateBracketTime: Testing for file ', &
+                    trim(file_processed), ' for target time ',iYr,'-',iMm,'-',iDd,' ',iHr,':',iMn,':',iSc
+                 End If
                  Inquire(FILE=trim(file_processed),EXIST=found)
                  If (.not.found) Then
                     if (mapl_am_I_root()) Then
@@ -2559,12 +2559,16 @@ CONTAINS
                  End Do
                  If (.not.found) Then
                     if (mapl_am_I_root()) Then
-                       write(*,'(a,a,a,a)') ' ERROR: Could not determine upper bounds on ',trim(item%file),' for side ',bSide
+                       write(*,'(a,a,a,a)') ' ERROR: Could not determine upper bounds on ', &
+                       trim(item%file),' for side ',bSide
                     end if
                     _RETURN(ESMF_FAILURE)
                  End If
               Else
-                 if (mapl_am_I_root()) write(*,*) 'ExtData could not find appropriate file from file template ',trim(item%file),' for side ',bSide
+                 If (mapl_am_I_root()) Then
+                    write(*,*) 'ERROR: Could not find appropriate file from file template ', &
+                    trim(item%file),' for side ',bSide
+                 End If
                  _RETURN(ESMF_FAILURE)
               End If
            End If
@@ -2588,7 +2592,7 @@ CONTAINS
            buff = ESMF_UtilStringLowerCase(buff, __RC__)
            If (buff /= "0" .and. index(buff,"p")==0) Then
               newTime = timestamp_(fTime,item%refresh_template,__RC__)
-              If (Mapl_Am_I_Root().and.Ext_Debug > 0) Then
+              if (newTime .ne. fTime) Then
                  call ESMF_TimeGet(fTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
                  call ESMF_TimeGet(newTime,yy=fyr,mm=fmm,dd=fdd,h=fhr,m=fmn,s=fsc,__RC__)
                  yrOffsetStamp = fYr - iYr
