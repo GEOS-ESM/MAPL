@@ -2795,4 +2795,198 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
    end subroutine MAPL_SunGetSolarConstantFromNRLFile
 
+!==========================================================================
+
+!BOPI
+
+! !IROUTINE:  MAPL_SunGetDaylightDuration
+
+! !DESCRIPTION:
+
+! Return the daylight duration in seconds (i.e, the time between sunrise and sunset) for
+! a day around the specified time. The routine is accurate enough for most purposes, but
+! does not solve for precise sunrise/sunset times influenced by changes in the orbital
+! parameters between those times. The time input does NOT need to be noon --- it is used
+! simply to evaluate the solar declination needed for the daylight duration calculation.
+! In order of preference, time is taken from currTime, if present, or else the currTime
+! of CLOCK, if present, or else the currTime of the ORBIT's associated clock. 
+
+! !INTERFACE:
+
+   subroutine MAPL_SunGetDaylightDuration(ORBIT,LATS,DAYL,currTime,CLOCK,RC)
+
+! !ARGUMENTS:
+
+      type(MAPL_SunOrbit),           intent(IN ) :: ORBIT
+      real, dimension(:) ,           intent(IN ) :: LATS
+      real, dimension(:) ,           intent(OUT) :: DAYL
+      type(ESMF_Time)    , optional, intent(IN ) :: currTime
+      type(ESMF_Clock)   , optional, intent(IN ) :: CLOCK
+      integer,             optional, intent(OUT) :: RC
+
+!EOPI
+
+!     Locals
+
+      character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_SunGetDaylightDuration"
+      integer                               :: STATUS
+
+      type(ESMF_Time) :: CURRENTTIME
+      integer         :: YEAR, SEC_OF_DAY, DAY_OF_YEAR, IDAY, IDAYP1
+      real            :: FAC, ZS, ZC
+
+      real(ESMF_KIND_R8) :: days
+      real :: ECC, OBQ, LAMBDAP
+      real :: OMECC, OPECC, OMSQECC, EAFAC
+      real :: MA, EA, dE, TA, LAMBDA
+      integer :: nits
+
+!     Begin
+      
+      _ASSERT(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+      
+      ! which current time?
+      if (present(currTime)) then
+         CURRENTTIME = CURRTIME
+      else
+         if (present(CLOCK)) then
+            call ESMF_ClockGet(      CLOCK, currTime=CURRENTTIME, RC=STATUS)
+         else
+            call ESMF_ClockGet(ORBIT%CLOCK, currTime=CURRENTTIME, RC=STATUS)
+         end if
+         _VERIFY(STATUS)
+      end if
+
+      if (ORBIT%ANAL2B) then
+
+         ! include time variation in orbit from reference time
+         call ESMF_TimeIntervalGet( &
+           CURRENTTIME - ORBIT%ORB2B_TIME_REF, &
+           d_r8=days, rc=STATUS)
+         _VERIFY(STATUS)
+         ECC     = ORBIT%ORB2B_ECC_REF     + days * ORBIT%ORB2B_ECC_RATE
+         OBQ     = ORBIT%ORB2B_OBQ_REF     + days * ORBIT%ORB2B_OBQ_RATE
+         LAMBDAP = ORBIT%ORB2B_LAMBDAP_REF + days * ORBIT%ORB2B_LAMBDAP_RATE
+         ! derived quantities
+         OMECC = 1. - ECC
+         OPECC = 1. + ECC
+         OMSQECC = OMECC * OPECC
+         EAFAC = sqrt(OMECC/OPECC)
+         ! time interval since perhelion in days
+         call ESMF_TimeIntervalGet( &
+           CURRENTTIME - ORBIT%ORB2B_TIME_PERI, &
+           d_r8=days, rc=STATUS)
+         _VERIFY(STATUS)
+         ! mean anomaly
+         MA = ORBIT%ORB2B_OMG0 * days
+         ! eccentric anomaly
+         call invert_Keplers_Newton(MA,ECC,EA,dE,nits)
+         ! true anomaly
+         TA = calcTAfromEA(EA,EAFAC)
+         ! celestial longitude
+         LAMBDA = TA + LAMBDAP
+         ! sin and cos of solar declination
+         ZS = sin(LAMBDA) * sin(OBQ)
+         ZC = sqrt(1. - ZS**2)
+
+      else
+
+         call ESMF_TimeGet(CURRENTTIME, YY=YEAR, S=SEC_OF_DAY, &
+            dayOfYear=DAY_OF_YEAR, RC=STATUS)
+         _VERIFY(STATUS)
+
+         YEAR = mod(YEAR-1,ORBIT%YEARS_PER_CYCLE)
+         IDAY = YEAR*int(ORBIT%YEARLEN)+DAY_OF_YEAR
+         IDAYP1 = mod(IDAY,ORBIT%DAYS_PER_CYCLE) + 1
+
+         FAC = real(SEC_OF_DAY)/86400.
+         ZS = ORBIT%ZS(IDAYP1)*FAC + ORBIT%ZS(IDAY)*(1.-FAC)
+         ZC = ORBIT%ZC(IDAYP1)*FAC + ORBIT%ZC(IDAY)*(1.-FAC)
+
+      endif
+
+      ! dayligt duration [secs]
+      DAYL = (86400./MAPL_PI)*acos(min(1.,max(-1.,-tan(LATS)*ZS/ZC)))
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_SunGetDaylightDuration
+
+!==========================================================================
+
+!BOPI
+
+! !IROUTINE:  MAPL_SunGetDaylightDurationMax
+
+! !DESCRIPTION:
+
+! Return the daylight duration in seconds (i.e, the time between sunrise and sunset) for
+! its MAXIMUM at the summer solstice. The routine is accurate enough for most purposes,
+! but does not solve for precise sunrise/sunset times influenced by changes in the orbital
+! parameters between those times. The time input does NOT need to be noon --- it is used
+! simply to evaluate the obliquity needed for the maximum daylight duration calculation.
+! In order of preference, time is taken from currTime, if present, or else the currTime
+! of CLOCK, if present, or else the currTime of the ORBIT's associated clock. 
+! Note: Unless ORBIT_ANAL2B, the obliquity is fixed and the time is irrelevant.
+
+! !INTERFACE:
+
+   subroutine MAPL_SunGetDaylightDurationMax(ORBIT,LATS,DAYL,currTime,CLOCK,RC)
+
+! !ARGUMENTS:
+
+      type(MAPL_SunOrbit),           intent(IN ) :: ORBIT
+      real, dimension(:) ,           intent(IN ) :: LATS
+      real, dimension(:) ,           intent(OUT) :: DAYL
+      type(ESMF_Time)    , optional, intent(IN ) :: currTime
+      type(ESMF_Clock)   , optional, intent(IN ) :: CLOCK
+      integer,             optional, intent(OUT) :: RC
+
+!EOPI
+
+      character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_SunGetDaylightDurationMax"
+      integer                               :: STATUS
+
+      type(ESMF_Time) :: CURRENTTIME
+      real(ESMF_KIND_R8) :: days
+      real :: OBQ
+
+      _ASSERT(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+      
+      ! Which time?
+      if (present(currTime)) then
+         CURRENTTIME = CURRTIME
+      else
+         if (present(CLOCK)) then
+            call ESMF_ClockGet(      CLOCK, currTime=CURRENTTIME, RC=STATUS)
+         else
+            call ESMF_ClockGet(ORBIT%CLOCK, currTime=CURRENTTIME, RC=STATUS)
+         end if
+         _VERIFY(STATUS)
+      end if
+
+      if (ORBIT%ANAL2B) then
+         ! time variation in obliquity from ref time
+         call ESMF_TimeIntervalGet( &
+           CURRENTTIME - ORBIT%ORB2B_TIME_REF, &
+           d_r8=days, rc=STATUS)
+         _VERIFY(STATUS)
+         OBQ = ORBIT%ORB2B_OBQ_REF + days * ORBIT%ORB2B_OBQ_RATE
+      else
+         ! obliquity fixed in this case
+         OBQ = ORBIT%OB * (MAPL_PI/180.)
+      endif
+      _ASSERT(0. <= OBQ .and. OBQ < MAPL_PI, 'Strange obliquity!')
+
+      ! Maximum daylight duration at summer solstice [secs]
+      !   (an even function of latitude)
+      DAYL = (86400./MAPL_PI)*acos(min(1.,max(-1., &
+                -tan(ABS(LATS))*tan(OBQ))))
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_SunGetDaylightDurationMax
+
+!==========================================================================
+
 end module MAPL_SunMod
