@@ -543,6 +543,10 @@ CONTAINS
    call ESMF_ConfigDestroy(CFtemp,rc=status)
    _VERIFY(STATUS)
 
+   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'ExtData Initialize_: Start'
+   ENDIF
+
    primary%nItems = totalPrimaryEntries
    if (totalPrimaryEntries > 0) then
       allocate (PrimaryVarNames(totalPrimaryEntries), stat=STATUS)
@@ -1225,6 +1229,11 @@ CONTAINS
    call MAPL_TimerOff(MAPLSTATE,"TOTAL")
 !  All done
 !  --------
+
+   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'ExtData Initialize_: End'
+   ENDIF
+
    _RETURN(ESMF_SUCCESS)
 
    END SUBROUTINE Initialize_
@@ -1344,7 +1353,6 @@ CONTAINS
 
    call MAPL_TimerOn(MAPLSTATE,"-Read_Loop")
  
-   ! debugging
    IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Run_: Start'
       Write(*,*) 'ExtData Run_: READ_LOOP: Start'
@@ -2494,6 +2502,10 @@ CONTAINS
                  call MAPL_PackTime(curDate,iyr,imm,idd)
                  call MAPL_PackTime(curTime,ihr,imn,isc)
                  call gx_(file_processed,item%file,nymd=curDate,nhms=curTime,__STAT__)
+                 If (MAPL_Am_I_Root().and.(Ext_Debug > 0)) Then
+                    Write(*,'(a,a,a,I0.4,5(a,I0.2))') '            UpdateBracketTime: Testing for file ', &
+                    trim(file_processed), ' for target time ',iYr,'-',iMm,'-',iDd,' ',iHr,':',iMn,':',iSc
+                 End If
                  Inquire(FILE=trim(file_processed),EXIST=found)
                  If (.not.found) Then
                     if (mapl_am_I_root()) Then
@@ -2533,14 +2545,16 @@ CONTAINS
                  End Do
                  If (.not.found) Then
                     if (mapl_am_I_root()) Then
-                       write(*,'(a,a,a,a)') ' ERROR: Could not determine upper bounds on ',trim(item%file),' for side ',bSide
+                       write(*,'(a,a,a,a)') ' ERROR: Could not determine upper bounds on ', &
+                       trim(item%file),' for side ',bSide
                     end if
                     _RETURN(ESMF_FAILURE)
                  End If
               Else
-                 if (mapl_am_I_root()) Then
-                    write(*,'(a,a,a,a)') ' ERROR: Unkown error while scanning ',trim(item%file),' for side ',bSide
-                 end if
+                 If (mapl_am_I_root()) Then
+                    write(*,*) 'ERROR: Could not find appropriate file from file template ', &
+                    trim(item%file),' for side ',bSide
+                 End If
                  _RETURN(ESMF_FAILURE)
               End If
            End If
@@ -3378,7 +3392,7 @@ CONTAINS
               nymd2=0
            End If
 
-           If (.not.(item%doInterpolate)) Then
+           If (.not.(item%doInterpolate) .and. Ext_Debug > 0 ) Then
               Write(*,'(a,a,a,I0.8,x,I0.6)') '   MAPL_ExtDataInterpField: Uninterpolated field ', Trim(item%name), ' set to sample L: ', nymd1, nhms1
            Else If (time == item%interp_time1) Then
               Write(*,'(a,a,a,I0.8,x,I0.6)') '   MAPL_ExtDataInterpField: Interpolated field ', Trim(item%name), ' set to sample L: ', nymd1, nhms1
