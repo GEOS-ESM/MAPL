@@ -38,6 +38,8 @@ module MAPL_SunMod
   public MAPL_SunOrbitQuery
   public MAPL_SunGetInsolation
   public MAPL_SunGetSolarConstant
+  public MAPL_SunGetDaylightDuration
+  public MAPL_SunGetDaylightDurationMax
 
 ! !PUBLIC TYPES:
 
