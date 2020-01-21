@@ -7,7 +7,7 @@ project (
   VERSION 2.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
-option(USE_MEPO "Set to use mepo to get external dependencies" OFF)
+option(USE_MEPO "Set to use mepo to get external dependencies" ON)
 
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/@cmake)
   list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/@cmake")
