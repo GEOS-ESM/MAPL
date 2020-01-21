@@ -1306,6 +1306,10 @@ CONTAINS
    type(IOBundleVector), target     :: IOBundles
    type(IOBundleVectorIterator) :: bundle_iter
    type(ExtData_IOBundle), pointer :: io_bundle
+
+   _UNUSED_DUMMY(IMPORT)
+   _UNUSED_DUMMY(EXPORT)
+
 !  Declare pointers to IMPORT/EXPORT/INTERNAL states 
 !  -------------------------------------------------
 !  #include "MAPL_ExtData_DeclarePointer___.h"

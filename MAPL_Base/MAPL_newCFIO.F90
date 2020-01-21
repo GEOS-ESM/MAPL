@@ -86,8 +86,6 @@ module MAPL_newCFIOMod
         type(newCFIOitemVector), intent(in), optional :: items
         integer, intent(out), optional :: rc
 
-        integer :: status
-      
         if (present(metadata)) newCFIO%metadata=metadata 
         if (present(input_bundle)) newCFIO%input_bundle=input_bundle
         if (present(output_bundle)) newCFIO%output_bundle=output_bundle

@@ -65,6 +65,9 @@ set (srcs
 
 esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 gftl-shared FLAP::FLAP)
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
+if(DISABLE_GLOBAL_NAME_WARNING)
+   set_target_properties (${this} PROPERTIES COMPILE_FLAGS ${DISABLE_GLOBAL_NAME_WARNING})
+endif()
 target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
 
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...

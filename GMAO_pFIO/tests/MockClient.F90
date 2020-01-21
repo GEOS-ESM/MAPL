@@ -1,3 +1,5 @@
+#include "unused_dummy.H"
+
 module MockClientMod
    use pFIO_ClientThreadMod
    implicit none
@@ -16,6 +18,7 @@ contains
 
    function new_MockClient() result(c)
       type (MockClient) :: c
+      _UNUSED_DUMMY(c)
    end function new_MockClient
    
    

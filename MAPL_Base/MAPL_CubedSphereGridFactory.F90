@@ -178,6 +178,8 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'make_grid'
 
+      _UNUSED_DUMMY(unusable)
+
       grid = this%create_basic_grid(rc=status)
       _VERIFY(status)
 
@@ -199,6 +201,8 @@ contains
       type(ESMF_CubedSphereTransform_Args) :: transformArgument
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
+
+      _UNUSED_DUMMY(unusable)
 
       if (this%grid_type <=3) then
          nTile=6
@@ -579,6 +583,7 @@ contains
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'check_and_fill_consistency'
 
+      _UNUSED_DUMMY(unusable)
 
       if (.not. allocated(this%grid_name)) then
          this%grid_name = GRID_NAME_DEFAULT
@@ -760,9 +765,14 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'CubedSphereGridFactory_initialize_from_esmf_distGrid'
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(dist_grid)
+      _UNUSED_DUMMY(lon_array)
+      _UNUSED_DUMMY(lat_array)
+      _UNUSED_DUMMY(unusable)
+      
       ! not implemented
       _ASSERT(.false.)
 
@@ -783,6 +793,8 @@ contains
       real, pointer :: ptr(:,:)
       integer :: useableHalo_width
 
+      _UNUSED_DUMMY(unusable)
+      
       if (.not. this%halo_initialized) then
          call this%halo_init(halo_width = halo_width)
          this%halo_initialized = .true.
@@ -973,6 +985,7 @@ contains
       class (CubedSphereGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
+      _UNUSED_DUMMY(this)
 
       vars = 'Xdim,Ydim,nf'
 
@@ -981,6 +994,7 @@ contains
    subroutine append_variable_metadata(this,var)
       class (CubedSphereGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
+      _UNUSED_DUMMY(this)
 
       call var%add_attribute('coordinates','lons lats')
       call var%add_attribute('grid_mapping','cubed_sphere')
@@ -1013,6 +1027,8 @@ contains
       integer :: status
       
       character(len=*), parameter :: Iam = MOD_NAME // 'get_fake_longitudes()'
+      
+      _UNUSED_DUMMY(unusable)
       
       grid = this%make_grid()
 
@@ -1083,6 +1099,8 @@ contains
       integer :: status
       
       character(len=*), parameter :: Iam = MOD_NAME // 'get_fake_latitudes()'
+
+      _UNUSED_DUMMY(unusable)
       
       grid = this%make_grid()
 
@@ -1142,6 +1160,7 @@ contains
       integer :: status
       integer :: global_dim(3),i1,j1,in,jn,tile
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
+      _UNUSED_DUMMY(this)
 
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
       _VERIFY(status)
@@ -1160,6 +1179,7 @@ contains
       type(ArrayReference) :: ref
       class(CubedSphereGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:)
+      _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
 
@@ -1171,6 +1191,7 @@ contains
       real, pointer, intent(in) :: fpointer(:,:,:)
       type(c_ptr) :: cptr
       real, pointer :: ptr_ref(:,:,:,:,:)
+      _UNUSED_DUMMY(this)
       cptr = c_loc(fpointer)
       call C_F_pointer(cptr,ptr_ref,[size(fpointer,1),size(fpointer,2),1,size(fpointer,3),1])
       ref = ArrayReference(ptr_ref)
