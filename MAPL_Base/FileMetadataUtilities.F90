@@ -228,6 +228,7 @@ module MAPL_FileMetadataUtilsMod
 
       logical :: isPresent
       class(Variable), pointer :: var
+      _UNUSED_DUMMY(rc)
 
       var => this%get_variable(var_name)
       isPresent = associated(var)

@@ -365,6 +365,8 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'spherical_to_cartesian_2d'
       integer :: status
      
+      _UNUSED_DUMMY(unusable)
+
       im = size(u,1)
       jm = size(u,2)
       _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
@@ -407,6 +409,8 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'spherical_to_cartesian_2d'
       integer :: status
      
+      _UNUSED_DUMMY(unusable)
+
       im = size(u,1)
       jm = size(u,2)
       _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
@@ -449,6 +453,8 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'spherical_to_cartesian_3d'
       integer :: status
     
+      _UNUSED_DUMMY(unusable)
+
       im = size(u,1)
       jm = size(u,2)
       km = size(u,3)
@@ -494,6 +500,8 @@ contains
      integer :: i, j, k, im, jm, km
      character(len=*), parameter :: Iam= MOD_NAME // 'spherical_to_cartesian_3d'
      integer :: status
+
+     _UNUSED_DUMMY(unusable)
 
      im = size(u,1)
      jm = size(u,2)
@@ -541,6 +549,8 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'cartesian_to_spherical_2d'
       integer :: status
 
+      _UNUSED_DUMMY(unusable)
+
       im = size(u,1)
       jm = size(u,2)
       _ASSERT(im == size(v,1), 'u-v shape mismatch for IM')
@@ -586,6 +596,8 @@ contains
      integer :: i, j, im, jm
      character(len=*), parameter :: Iam= MOD_NAME // 'cartesian_to_spherical_2d'
      integer :: status
+
+     _UNUSED_DUMMY(unusable)
 
      im = size(u,1)
      jm = size(u,2)
@@ -633,6 +645,8 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'cartesian_to_spherical_3d'
       integer :: status
      
+      _UNUSED_DUMMY(unusable)
+
       im = size(u,1)
       jm = size(u,2)
       km = size(u,3)
@@ -681,6 +695,8 @@ contains
      character(len=*), parameter :: Iam= MOD_NAME // 'cartesian_to_spherical_3d'
      integer :: status
 
+     _UNUSED_DUMMY(unusable)
+
      im = size(u,1)
      jm = size(u,2)
      km = size(u,3)
@@ -726,6 +742,8 @@ contains
       real(REAL64), pointer :: temp_vect(:,:,:,:)
       real(REAL64), pointer :: Xcoord(:,:) => null()
       real(REAL64), pointer :: Ycoord(:,:) => null()
+
+      _UNUSED_DUMMY(unusable)
 
       _ASSERT(allocated(this%grid), 'grid not allocated')
       select case (basis)
@@ -802,6 +820,8 @@ contains
       real(REAL64) :: p1(2),p2(2),p3(2),p4(2),c1(2)
       integer :: i, j, im, jm, counts(3)
 
+      _UNUSED_DUMMY(unusable)
+
       call MAPL_GridGet(grid,localCellCountPerDim=counts,rc=status)
       _VERIFY(status)
       im=counts(1)
@@ -852,6 +872,8 @@ contains
       integer :: status
       integer :: im, jm, i, j
       real(real64) :: dp,fac
+
+      _UNUSED_DUMMY(unusable)
 
       im = size(grid_basis,3)
       jm = size(grid_basis,4)

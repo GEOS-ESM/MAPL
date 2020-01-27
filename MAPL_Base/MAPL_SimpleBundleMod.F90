@@ -188,7 +188,7 @@ CONTAINS
     character(len=ESMF_MAXSTR) :: bundleName
     character(len=ESMF_MAXSTR) :: fieldName
 
-                                __Iam__('MAPL_SimpleBundleCreate')
+    integer :: status
 
     self%Bundle => Bundle ! remember where it came from
 
@@ -561,7 +561,7 @@ CONTAINS
     character(len=ESMF_MAXSTR) :: message
     type (ESMF_FieldBundle)    :: Bundle
 
-                   __Iam__('MAPL_SimpleBundleCreateFromState')
+    integer :: status
 
     call ESMF_StateGet(State, name=stateName, __RC__)
 
@@ -608,7 +608,7 @@ CONTAINS
 !EOP
 !-----------------------------------------------------------------------------
 
-    __Iam__('MAPL_SimpleBundleDestroy')
+    integer :: status
 
     deallocate(self%coords%Lons, self%coords%Lats, self%coords%Levs, __STAT__) 
     deallocate(self%r1, self%r2, self%r3, __STAT__)
@@ -655,7 +655,7 @@ CONTAINS
 !EOP
 !-----------------------------------------------------------------------------
 
-    __Iam__('MAPL_SimpleBundleRead')
+    integer :: status
     type(ESMF_FieldBundle),  pointer :: Bundle
 
     allocate(Bundle, stat=STATUS)
@@ -700,7 +700,7 @@ CONTAINS
 
 !                                ---
     type(MAPL_CFIO)            :: cfio
-    __Iam__ ('MAPL_SimpleBundleWrite0')
+    integer                    :: status
 
     call MAPL_CFIOCreate ( cfio, filename, clock, self%Bundle, __RC__)
     call MAPL_CFIOWrite  ( cfio, Clock, self%Bundle, verbose=verbose, __RC__)
@@ -738,7 +738,7 @@ CONTAINS
     type(ESMF_TimeInterval)    :: TimeStep 
     type(ESMF_Clock)           :: Clock
     type(MAPL_CFIO)            :: cfio
-    __Iam__ ('MAPL_SimpleBundleWrite1')
+    integer                    :: status
 
     call ESMF_TimeIntervalSet( TimeStep, h=0, m=30, s=0, __RC__ )
     CLOCK = ESMF_ClockCreate ( name="Clock", timeStep=TimeStep, startTime=Time, __RC__ )
@@ -863,8 +863,6 @@ end subroutine MAPL_SimpleBundlePrint
     character(len=ESMF_MAXSTR) :: message
     logical :: quiet_
     integer :: i
-
-                     _Iam_("MAPL_SimpleBundleGetIndex")
 
     if ( present(quiet) ) then
        quiet_ = quiet

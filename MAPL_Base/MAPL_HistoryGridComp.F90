@@ -2676,7 +2676,7 @@ ENDDO PARSER
     type(ESMF_State)               :: state_out
     integer                        :: nymd, nhms
     character(len=ESMF_MAXSTR)     :: DateStamp
-    integer                        :: nn, CollBlock, scount
+    integer                        :: CollBlock
     type(MAPL_Communicators)       :: mapl_Comm
 
 !   variables for "backwards" mode

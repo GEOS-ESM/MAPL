@@ -450,7 +450,6 @@ contains
       integer :: sz
       
       integer :: sizeof_char, sizeof_integer, sizeof_DirectoryEntry
-      integer :: ierror
       integer :: one_integer
       character :: one_char
 

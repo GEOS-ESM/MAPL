@@ -87,11 +87,10 @@ set (srcs
   )
 
 esma_add_library (${this} SRCS ${srcs})
-target_link_libraries (${this} gftl gftl-shared ${NETCDF_LIBRARIES})
+target_link_libraries (${this} PUBLIC gftl gftl-shared 
+                               PRIVATE ${NETCDF_LIBRARIES} OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
 
-target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-target_link_libraries (${this} ${MPI_Fortran_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} "-Xlinker -rpath -Xlinker ${dir}")

@@ -106,11 +106,10 @@
 !EOP
 !------------------------------------------------------------------------------
        integer :: i, rtcode
-       integer :: maxLen
+       !integer :: maxLen
        character(len=MLEN) :: fNameTmp     ! file name 
        integer :: date, begTime
        character(len=MLEN) :: fName
-       character(len=MLEN) :: string
 
        call ESMF_CFIOGet(cfio, date=date, begTime=begTime, fName=fName, rc=rtcode)
        if (rtcode .ne. 0) print *, "Problems in ESMF_CFIOGet"
@@ -372,9 +371,7 @@
       integer :: nvatts           ! number of attributes
       real*4, pointer :: rtmp(:)
       integer, pointer :: itmp(:)
-      character(len=MVARLEN), pointer :: ctmp(:)
       logical :: esmf_file = .false.
-      logical :: tmpLog
       logical :: new_grid
       integer :: nDims, allVars, recdim
       integer :: im, jm, km
@@ -3802,7 +3799,7 @@ contains
       integer rtcode
       integer begDate, begTime, incSecs, timeIndex1, timeIndex2
       integer secs, secs1, secs2, nymd1, nymd2, nhms1, nhms2
-      integer i, j, k
+      integer i, j
       integer im, jm, km
                                                                                          
       real    alpha, amiss

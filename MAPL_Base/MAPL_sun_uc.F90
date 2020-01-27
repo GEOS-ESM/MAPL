@@ -539,7 +539,6 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,        &
 !EOP
 
        character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitDestroy"
-       integer :: STATUS
 
        if(associated(ORBIT%TH)) deallocate(ORBIT%TH)
        if(associated(ORBIT%ZC)) deallocate(ORBIT%ZC)
@@ -575,7 +574,6 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,        &
 !EOPI
 
        character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitCreated"
-       integer :: STATUS
 
        MAPL_SunOrbitCreated = associated(ORBIT%TH)
        _RETURN(ESMF_SUCCESS)
@@ -892,9 +890,6 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       type(MAPL_SunORBIT),  intent(IN ) :: ORBIT
       integer, optional,    intent(OUT) :: RC
 
-      character(len=ESMF_MAXSTR)      :: IAm = "GetIDAY"
-      integer                         :: STATUS
-
       real :: ANOMALY
 
       select case(TIME)
@@ -929,7 +924,6 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
       integer    :: YY, DOY
       integer    :: STATUS
-      character(len=ESMF_MAXSTR) :: IAm = "MAPL_SunGetSolarConstantByTime"
 
       call ESMF_TimeGet (TIME, YY=YY, DayOfYear=DOY, RC=STATUS)
       _VERIFY(STATUS)
@@ -976,8 +970,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
    integer, optional, intent(OUT) :: rc
 
    real    :: F
-   integer :: i1,i2,Current, STATUS
-   character(len=ESMF_MAXSTR) :: IAm = "MAPL_SunGetSolarConstantByYearDoY"
+   integer :: i1,i2,Current
 
    integer, parameter :: firstYear = 1610
    integer, parameter :: finalYear = 2008
@@ -1799,9 +1792,8 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       real, optional, intent(out)            :: JCALC4(:)
       integer, optional, intent(out)         :: rc
 
-      type(ESMF_VM)              :: VM
       type(ESMF_Time)            :: time
-      integer                    :: i, k, N
+      integer                    :: N
       integer                    :: begYear, endYear
       integer                    :: INDX1, INDX2
       integer                    :: MM, YY, DD, CCYY
@@ -1835,7 +1827,6 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       real,    dimension(:,:), allocatable :: coef_jcalc4
       integer                              :: varid_coef_jcalc4
 
-      character(len=ESMF_MAXSTR) :: shortName
       character(len=ESMF_MAXSTR) :: IAm = "MAPL_SunGetSolarConstantFromNetcdfFile"
 
       ! Open the file
@@ -2190,8 +2181,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       type(ESMF_Time)            :: startCycle23, startCycle24
       type(ESMF_TimeInterval)    :: timeSinceStartOfCycle24
 
-      integer :: currentYear, currentMon, currentDay, currentDOY, &
-                 prevDay, nextDay
+      integer :: currentYear, currentMon, currentDay, currentDOY
       integer :: prevDOY, nextDOY, prevNoonYear, nextNoonYear
       integer :: originalYear, originalMon, originalDay, origDOY
 
@@ -2219,8 +2209,6 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       integer, save, allocatable, dimension(:) :: yearTable, doyTable
       real,    save, allocatable, dimension(:) :: tsi, mgindex, sbindex
       integer, save :: numlines
-
-      character(len=ESMF_MAXSTR) :: IAm = "MAPL_SunGetSolarConstantFromNRLFile"
 
       if (present(PersistSolar)) then
          PersistSolar_ = PersistSolar

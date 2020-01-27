@@ -96,7 +96,7 @@ contains
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
       type (ClientThread), pointer :: clientPtr
-      integer :: i, i1,i2
+      integer :: i
       
       do i = 1, this%size()
          ClientPtr => this%clients%at(i)
@@ -138,7 +138,7 @@ contains
       integer, optional, intent(out) :: rc
 
       type (ClientThread), pointer :: clientPtr
-      integer :: request_id, ith, status
+      integer :: request_id, status
 
       clientPtr =>this%current()
       request_id = clientPtr%prefetch_data(collection_id, file_name, var_name, data_reference, start=start, rc=status)
