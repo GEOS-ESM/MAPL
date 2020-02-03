@@ -106,6 +106,7 @@ contains
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real32'
 
       _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(rotate)
 
       u_out = u_in
       v_out = v_in
@@ -130,6 +131,7 @@ contains
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real32'
 
       _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(rotate)
 
       _ASSERT(size(u_in,3) == size(u_out,3))
       _ASSERT(size(v_in,3) == size(v_out,3))

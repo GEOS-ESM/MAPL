@@ -2302,7 +2302,6 @@ and so on.
     real                            :: LastOut(2)
 
     integer                         :: STATUS
-    character(len=ESMF_MAXSTR)      :: IAm='MAPL_LatLonGridCreate'
 
 !                                ------
 
@@ -2584,7 +2583,6 @@ and so on.
 
     type (ESMF_DistGrid)                  :: distGrid
     type(ESMF_DELayout)                   :: LAYOUT
-    type (ESMF_VM)                        :: vm
     integer,               allocatable    :: AL(:,:)
     integer,               allocatable    :: AU(:,:)
     integer                               :: nDEs,localDECount
@@ -2626,7 +2624,6 @@ and so on.
       real(ESMF_KIND_R8), intent(INOUT) :: gridCornerLats(:,:)
       integer, optional, intent(  OUT) :: RC
       integer :: status
-      character(len=ESMF_MAXSTR) :: Iam="MAPL_GridGetCorners"
 
       type(ESMF_RouteHandle) :: rh
       type(ESMF_Field) :: field
@@ -2685,7 +2682,6 @@ and so on.
 
 ! local vars
       integer :: status
-      character(len=ESMF_MAXSTR) :: Iam="MAPL_GridGet"
 
       integer :: mincounts(ESMF_MAXDIM)
       integer :: maxcounts(ESMF_MAXDIM)
@@ -2920,7 +2916,6 @@ and so on.
     integer, allocatable :: Im0(:), Jm0(:)
     integer              :: minI,minJ ! in case the starting index is zero    
     integer              :: status
-    character*(14)       :: Iam="MAPL_GetImsJms"
     
     _ASSERT(.not.associated(Ims), 'Ims is associated and should not be.')
     _ASSERT(.not.associated(Jms), 'Jms is associated and should not be.')
@@ -3451,7 +3446,6 @@ and so on.
 !    Currently the lat/lon grid is asumed to go from -180 to 180
      !EOPI
 
-     character(len=ESMF_MAXSTR) :: Iam
      integer                    :: status
 
      integer                         :: IM_World, JM_World, dims(3)

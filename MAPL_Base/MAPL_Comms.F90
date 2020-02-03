@@ -291,7 +291,7 @@ module MAPL_CommsMod
 ! Local variables
 
     integer                    :: status
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_CreateRequest'
+
 
     type (ESMF_VM)             :: VM
     type (ESMF_DistGrid)       :: distGrid
@@ -479,7 +479,7 @@ module MAPL_CommsMod
 ! Local variables
 
     integer                    :: status
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_ArrayIGather2d'
+
 
     integer  :: i1, in, j1, jn
 
@@ -517,7 +517,7 @@ module MAPL_CommsMod
 ! Local variables
 
     integer                    :: status
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_ArrayIScatter2d'
+
 
 
     integer                    :: i1,in,j1,jn
@@ -586,7 +586,7 @@ module MAPL_CommsMod
     integer, optional,       intent(  OUT) :: rc
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_CollectiveWait'
+
 
     integer               :: i,j,k,n
     integer               :: count
@@ -699,7 +699,7 @@ module MAPL_CommsMod
 !-------
 
     integer                       :: status
-    character(len=ESMF_MAXSTR)    :: IAm='MAPL_CollectiveGather3D'
+
 
     type (MAPL_CommRequest)       :: reqs(size(LocArray,3))
     integer                       :: root(size(LocArray,3))
@@ -788,7 +788,7 @@ module MAPL_CommsMod
 !-------
 
     integer                       :: status
-    character(len=ESMF_MAXSTR)    :: IAm='MAPL_CollectiveScatter3D'
+
 
     type (MAPL_CommRequest)       :: reqs(size(LocArray,3))
     integer                       :: root(size(LocArray,3))
@@ -863,7 +863,7 @@ module MAPL_CommsMod
     integer, optional, intent(  OUT) :: RC
 
     integer                    :: status
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_RoundRobinPEList'
+
     integer, allocatable :: filled(:),nPerNode(:)
     integer :: i,n,nlist,locRoot
     logical :: gotFirstRank,lUseFirstRank
@@ -963,7 +963,7 @@ module MAPL_CommsMod
     integer,            intent(in   )            :: ROOT
     integer         ,   intent(  out),  optional :: RC
 
-    character(len=ESMF_MAXSTR), parameter :: IAM='MAPL_Bcast'
+
     integer                               :: status
 
     type(ESMF_VM)                         :: vm
@@ -986,7 +986,7 @@ module MAPL_CommsMod
     integer,            intent(in   )            :: ROOT
     integer         ,   intent(  out),  optional :: RC
 
-    character(len=ESMF_MAXSTR), parameter :: IAM='MAPL_BcastVM'
+
     character(len=N)                      :: tmpString
     integer                               :: slen
     integer                               :: status
@@ -1026,7 +1026,7 @@ module MAPL_CommsMod
 
 
     integer :: status
-    character(len=ESMF_MAXSTR), parameter :: IAM='MAPL_BcastShared'
+
 
 
     if(.not.MAPL_ShmInitialized) then
@@ -1058,7 +1058,7 @@ module MAPL_CommsMod
 
 
     integer :: status
-    character(len=ESMF_MAXSTR), parameter :: IAM='MAPL_BcastShared'
+
 
 
     if(.not.MAPL_ShmInitialized) then

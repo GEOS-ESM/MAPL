@@ -327,6 +327,8 @@ contains
     ! at the future stopTime, as it does its forward stepping from currentTime
     ! to stopTime.
 
+    _UNUSED_DUMMY(model)
+
     rc = ESMF_SUCCESS
 
   end subroutine CheckImport
@@ -338,10 +340,10 @@ contains
 
     type(ESMF_State) :: import_state, export_state
     type(ESMF_Clock) :: clock
-    type(ESMF_Field) :: field
+    !type(ESMF_Field) :: field
 
     integer :: num_items
-    character(len=ESMF_MAXSTR), allocatable :: item_names(:)
+    !character(len=ESMF_MAXSTR), allocatable :: item_names(:)
 
     call ESMF_GridCompGet(model, clock = clock, importState = import_state, &
          exportState = export_state, rc = rc)

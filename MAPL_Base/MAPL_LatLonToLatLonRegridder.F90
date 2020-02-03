@@ -284,6 +284,9 @@ contains
       real :: q, w, f
 
       real(kind=REAL32) :: undef
+
+      _UNUSED_DUMMY(rc)
+
       undef = -HUGE(1.)
 
       do j = 1, this%num_points_out(2)
@@ -344,6 +347,9 @@ contains
       real :: q, w, f
 
       real(kind=REAL64) :: undef
+
+      _UNUSED_DUMMY(rc)
+
       undef = -HUGE(1.d0)
 
       do j = 1, this%num_points_out(2)
@@ -479,14 +485,13 @@ contains
       type (RegridderSpec) :: spec
 
       logical :: cyclic_dim,hasPoles,stagger
-      integer :: dim,nsize,nin,j
+      integer :: dim,nsize,nin
       type(Weights), pointer :: WeightList(:) => null()
       real(kind=REAL64), allocatable :: xg_in(:),xg_out(:)
       real(kind=REAL32), allocatable :: xf_in(:),xf_out(:)
-      real(kind=REAL64) :: xMaxIn,xMaxOut,xMinIn,xMinOut,rngIn,rngOut,dx_in,dx_out
+      real(kind=REAL64) :: xMaxIn,xMaxOut,xMinIn,xMinOut,rngIn,rngOut
       type(dimensionSpec) :: dimspec
       character(len=ESMF_MAXSTR) :: grid_type
-      character(len=1024) :: error_msg
 
       _UNUSED_DUMMY(unusable)
 

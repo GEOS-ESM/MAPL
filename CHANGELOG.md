@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Corrected handling of Equation of Time in orbit (off by default)
+
 ## [2.0.0]
 - New IO server implemented in PFIO library.
 - History and ExtData component use the PFIO IO server for all file access. Default mode is to run the IO servers on the same resources as the application.

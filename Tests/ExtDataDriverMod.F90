@@ -46,6 +46,9 @@ contains
       procedure() :: set_services
       class (KeywordEnforcer),  optional, intent(in) :: unusable
       class ( MAPL_CapOptions), optional, intent(in) :: cap_options
+     
+      _UNUSED_DUMMY(unusable)
+
       driver%name = name
       driver%set_services => set_services
       if (present(cap_options)) then
@@ -65,7 +68,6 @@ contains
 
 
       integer                      :: STATUS
-      character(len=ESMF_MAXSTR)   :: Iam="ExtData_Driver"
 
       integer                  :: CommCap
 

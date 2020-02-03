@@ -1480,7 +1480,6 @@
       integer, optional, intent(out) :: rc
 
       integer :: rank
-      integer :: status
 
       rank = MAPL_NodeRankList(node)%RankLastUsed+1
       if (rank > size(MAPL_NodeRankList(node)%rank)) then

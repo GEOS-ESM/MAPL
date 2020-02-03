@@ -2819,7 +2819,7 @@ module MAPL_IOMod
     integer                            :: J,K
     type (ESMF_DistGrid)               :: distGrid
     type (LocalMemReference) :: lMemRef
-    integer :: request_id, size_1d
+    integer :: size_1d
     
  
     call ESMF_FieldGet(field, grid=grid, rc=status)
@@ -5177,7 +5177,7 @@ module MAPL_IOMod
 
     integer                               :: status
     integer :: l
-    integer ::  i1, j1, in, jn,  global_dim(3), request_id
+    integer ::  i1, j1, in, jn,  global_dim(3)
     type(ArrayReference)     :: ref
 
     if (arrdes%write_restart_by_oserver) then
@@ -5240,7 +5240,7 @@ module MAPL_IOMod
 
     integer :: l
 
-    integer ::  i1, j1, in, jn,  global_dim(3), request_id
+    integer ::  i1, j1, in, jn,  global_dim(3)
     type(ArrayReference)     :: ref
 
 
@@ -5316,7 +5316,7 @@ module MAPL_IOMod
 
     logical :: AM_WRITER
     type (ArrayReference) :: ref
-    integer ::  i1, j1, in, jn,  global_dim(3), request_id
+    integer ::  i1, j1, in, jn,  global_dim(3)
 
     if (present(arrdes)) then
        if(arrdes%write_restart_by_oserver) then
@@ -6903,7 +6903,7 @@ module MAPL_IOMod
 
     logical :: AM_WRITER
     type (ArrayReference) :: ref
-    integer ::  i1, j1, in, jn,  global_dim(3), request_id
+    integer ::  i1, j1, in, jn,  global_dim(3)
 
     if (present(arrdes)) then
        if( arrdes%write_restart_by_oserver) then
@@ -7069,7 +7069,6 @@ module MAPL_IOMod
     integer                               :: IM_WORLD
     integer                               :: JM_WORLD
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_VarReadNCpar_R8_2d'
 
     real(kind=ESMF_KIND_R8),  allocatable :: buf(:)
     integer                               :: I,J,N,K,L,myrow,myiorank,ndes_x
@@ -7314,7 +7313,6 @@ module MAPL_IOMod
     type (ESMF_Field)                    :: field
     integer                              :: status
     integer                              :: I, K
-    character(len=ESMF_MAXSTR)           :: IAm='MAPL_StateVarReadNCPar'
     integer                              :: J, ITEMCOUNT
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
     character(len=ESMF_MAXSTR ), pointer :: ITEMNAMES(:)
@@ -8797,7 +8795,6 @@ module MAPL_IOMod
   integer, intent(out) :: nvars
   integer, intent(out), optional :: rc
 
-  integer :: status
   type(StringVariableMap), pointer :: vars
   type(StringVariableMapIterator) :: iter
   type(StringIntegerMap), pointer :: dims
@@ -8826,7 +8823,6 @@ module MAPL_IOMod
   type(FileMetadata), intent(inout) :: cf
   integer, intent(out), optional :: rc
 
-  integer :: status
   type(StringVector) :: nondim_vars
   type(StringVariableMap), pointer :: vars
   type(StringVariableMapIterator) :: iter

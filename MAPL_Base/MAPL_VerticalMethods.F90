@@ -62,8 +62,6 @@ module MAPL_VerticalDataMod
         character(len=*), optional, intent(in) :: vunit
         integer, optional, intent(Out) :: rc
 
-        integer :: status
-
         if (.not.present(levels)) then
            vdata%regrid_type = VERTICAL_METHOD_NONE
            _RETURN(ESMF_SUCCESS)

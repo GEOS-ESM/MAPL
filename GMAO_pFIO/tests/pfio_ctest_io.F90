@@ -470,13 +470,12 @@ program main
    integer, parameter :: CLIENT_COLOR  = 2
    integer, parameter :: BOTH_COLOR    = 3
 
-   integer :: comm,num_threads
    type (FakeHistData0), target :: HistData
 
    integer :: my_comm_world, my_iComm, my_oComm, my_appcomm
 
-   integer :: client_start, size_group,low_rank,up_rank
-   integer :: local_rank, local_size, i,k, size_iclient, size_oclient
+   integer :: client_start, low_rank,up_rank
+   integer :: i,k, size_iclient, size_oclient
    integer :: app_start_rank, app_end_rank
    character(len = 20) :: out_file
    character(len = 100):: cmd
