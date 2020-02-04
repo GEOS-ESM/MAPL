@@ -9,7 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Corrected handling of Equation of Time in orbit (off by default)
-	
+
+## [2.0.0]
+- New IO server implemented in PFIO library.
+- History and ExtData component use the PFIO IO server for all file access. Default mode is to run the IO servers on the same resources as the application.
+- New command line arguments to the MAPL_Cap to run multiple input and output servers on dedicated resources.
+- The ExtData and History components use ESMF regridding for all operations and replace the FV3 regridding routines used for bilinear regridding and the MAPL tiling regridder for conservative regridding.
+
 ## [1.1.13] - 2019-12-09
 
 ### Fixed
