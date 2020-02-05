@@ -33,7 +33,7 @@
    use ESMF_CFIOUtilMod
    use MAPL_CFIOMod
    use MAPL_NewArthParserMod
-   use MAPL_ConstantsMod, only: MAPL_PI,MAPL_PI_R8
+   use MAPL_ConstantsMod, only: MAPL_PI,MAPL_PI_R8,MAPL_RADIANS_TO_DEGREES
    use MAPL_IOMod, only: MAPL_NCIOParseTimeUnits
    use MAPL_regridderSpecMod
    use, intrinsic :: iso_fortran_env, only: REAL64
@@ -4368,6 +4368,7 @@ CONTAINS
      type(ESMF_Grid)           :: newGrid
      type(ESMF_Config)         :: cflocal
      character(len=*), parameter :: CF_COMPONENT_SEPARATOR = '.'
+     real :: temp_real
 
      IAM = "MAPL_ExtDataGridChangeLev"
 
@@ -4395,6 +4396,21 @@ CONTAINS
         _VERIFY(status)
         call MAPL_ConfigSetAttribute(cflocal,value=trim(gname), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"GRIDNAME:",rc=status)
         _VERIFY(status)
+        call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', value=temp_real, rc=status)
+        if (status == ESMF_SUCCESS) then
+           call MAPL_ConfigSetAttribute(cflocal,value=temp_real, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"STRETCH_FACTOR:",rc=status)
+           _VERIFY(status)
+        endif
+        call ESMF_AttributeGet(grid, name='TARGET_LON', value=temp_real, rc=status)
+        if (status == ESMF_SUCCESS) then
+           call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"TARGET_LON:",rc=status)
+           _VERIFY(status)
+        endif
+        call ESMF_AttributeGet(grid, name='TARGET_LAT', value=temp_real, rc=status)
+        if (status == ESMF_SUCCESS) then
+           call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"TARGET_LAT:",rc=status)
+           _VERIFY(status)
+        endif
      else
         call MAPL_ConfigSetAttribute(cflocal,value=counts(1), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"IM_WORLD:",rc=status)
         _VERIFY(status)
