@@ -150,8 +150,10 @@
 
             ZTH =         ZS*SIN(LATS) +       ZC*COS(LATS) &
                  * (sin(ANG)*SIN(LONS) - cos(ANG)*COS(LONS))
-            ZTH = max(ZTH, 0.0)
-            SLR = ZTH*AA
+            ! Modify to permit negative SZA > 90 in GCHP
+            !ZTH = max(ZTH, 0.0)
+            !SLR = ZTH*AA
+            SLR = max(ZTH,0.0)*AA
 
             if(present(DIST)) DIST = AA
 
@@ -211,7 +213,9 @@
               CLOCK=MYCLOCK, TIME=TIME, DIST=DD, RC=STATUS)
          _VERIFY(STATUS)
 
-         if(present(ZTH1)) ZTH1 = max(ZTT,0.0)
+         ! Modify to permit negative SZA > 90 in GCHP
+         !if(present(ZTH1)) ZTH1 = max(ZTT,0.0)
+         if(present(ZTH1)) ZTH1 = ZTT
 
          do L=1,NT
             SLR = SLR +     SLT*0.5
