@@ -21,7 +21,8 @@ module MAPL_CapGridCompMod
   use MAPL_CFIOServerMod
   use MAPL_ConfigMod
   use MAPL_DirPathMod
-  use MAPL_StringVectorMod
+  use pFIO
+  use gFTL_StringVector
 
   use iso_fortran_env
   
@@ -201,7 +202,7 @@ contains
 
     !  CAP's MAPL MetaComp
     !---------------------
-    call MAPL_Set(MAPLOBJ, maplComm = cap%mapl_Comm, rc = status)
+    call MAPL_Set(MAPLOBJ, mapl_comm = cap%mapl_Comm, rc = status)
     _VERIFY(STATUS)
 
     call MAPL_Set(MAPLOBJ, name = cap%name, cf = cap%config, rc = status)

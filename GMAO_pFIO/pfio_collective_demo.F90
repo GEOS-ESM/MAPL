@@ -9,9 +9,9 @@
 #define _RETURN(A)   if(present(rc)) rc=A; return
 #include "unused_dummy.H"
 
-module CLI_collective
+module collective_demo_CLI
    use pFIO_ThrowMod
-   use pFIO_StringVectorMod
+   use gFTL_StringVector
    implicit none
    private
 
@@ -117,12 +117,12 @@ contains
    end subroutine process_command_line
    
 
-end module CLI_collective
+end module collective_demo_CLI
 
 module FakeExtDataMod_collective
-   use CLI_collective
+   use collective_demo_CLI
    use pFIO
-   use pFIO_StringVectorMod
+   use gFTL_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
@@ -160,11 +160,13 @@ module FakeExtDataMod_collective
 contains
    
 
-   subroutine init(this, options, comm)
-      use pFIO_StringIntegerMapMod
+   subroutine init(this, options, comm, d_s, port_name)
+      use gFTL_StringIntegerMap
       class (FakeExtData),target, intent(inout) :: this
       type (CommandLineOptions), intent(in) :: options
       integer, intent(in) :: comm
+      class (AbstractDirectoryService), target,intent(inout) :: d_s
+      character(*), intent(in) :: port_name
 
       integer :: ierror
       type (FileMetadata) :: file_metadata
@@ -172,8 +174,7 @@ contains
       type (StringIntegerMap) :: dims
 
       this%c = ClientThread()
-
-      call this%c%init_connection(chosen_directory_service,comm)
+      call d_s%connect_to_server(port_name, this%c, comm)
 
       this%file_1 = options%file_1
       this%file_2 = options%file_2
@@ -227,11 +228,11 @@ contains
       do i = 1,num_request
          tmp= ''
          write(tmp,'(I5.5)') i
-         collection_id = this%c%add_collection('collection-name'//tmp)
+         collection_id = this%c%add_ext_collection('collection-name'//tmp)
          !print*,"collection_id: ",collection_id
       enddo
       call system_clock(c2)
-      !print*," step  1 : add_collection"
+      !print*," step  1 : add_ext_collection"
 
       allocate(request_ids(this%vars%size(),num_request))      
 
@@ -247,7 +248,7 @@ contains
                  !& this%c%request_subset_data_reference(collection_id, this%file_1, this%vars%at(i_var), ref, start=[1,lat0,20,1])
             do i =1, num_request
             request_ids(i_var,i) = &
-                 & this%c%collective_request_data(collection_id, this%file_1, this%vars%at(i_var), ref,&
+                 & this%c%collective_prefetch_data(collection_id, this%file_1, this%vars%at(i_var), ref,&
                  & start=[1,lat0,20,1], &
                  & global_start=[1,1,20,1],global_count=[this%nlon,this%nlat,1,1])
             enddo
@@ -255,7 +256,7 @@ contains
          end do
          !call system_clock(c2)
         ! print*," step 1 send collective message"
-         call this%c%done()
+         call this%c%done_collective_prefetch()
          !print*," step 1 first done"
 
          do i_var = 1, this%vars%size()
@@ -269,11 +270,11 @@ contains
             ref = ArrayReference(this%bundle(i_var)%x)
             this%bundle(i_var)%request_id = &
                  !& this%c%request_subset_data_reference(collection_id, this%file_2, this%vars%at(i_var), ref, start=[1,lat0,20,1])
-                 & this%c%collective_request_data(collection_id, this%file_1, this%vars%at(i_var), ref,&
+                 & this%c%collective_prefetch_data(collection_id, this%file_1, this%vars%at(i_var), ref,&
                  & start=[1,lat0,20,1], &
                  & global_start=[1,1,20,1],global_count=[this%nlon,this%nlat,1,1])
          end do
-         call this%c%done()
+         call this%c%done_collective_prefetch()
 
       case (2) ! wait for 2nd file to complete
 
@@ -299,7 +300,7 @@ program main
    use, intrinsic :: iso_fortran_env, only: REAL32
    use mpi
    use pFIO
-   use CLI_collective
+   use collective_demo_CLI
    use FakeExtDataMod_collective
    use pFIO_ThrowMod
    implicit none
@@ -308,7 +309,7 @@ program main
    integer :: status, color, key
    class(AbstractServer),allocatable,target :: s
    class(AbstractServer),pointer :: server
-
+   class(AbstractDirectoryService), pointer :: d_s => null()
 
    type (CommandLineOptions) :: options
    integer, parameter :: NO_COLOR     = 0
@@ -334,7 +335,7 @@ program main
      call omp_set_num_threads(num_threads) 
    endif
 
-   call set_directory_service(options%server_type)
+   d_s => get_directory_service(options%server_type)
 
    color = split_color(options%server_type,options%npes_server)
    key = 0
@@ -343,15 +344,14 @@ program main
 
    if (color == SERVER_COLOR .or. color == BOTH_COLOR) then ! server
       
-      server=>get_server(options%server_type,comm)
-
-      call server%start()
+      server=>get_server(options%server_type,comm,d_s,'i_server')
+      if (color == SERVER_COLOR) call server%start()
 
    endif
 
    if (color == CLIENT_COLOR .or. color == BOTH_COLOR) then ! client
 
-      call extData%init(options, comm)
+      call extData%init(options, comm, d_s, 'i_server')
       call extData%run(step=1)
       call extData%run(step=2)
       call extData%finalize()
@@ -362,19 +362,13 @@ program main
 
 contains
 
-   subroutine set_directory_service(stype)
+   function get_directory_service(stype) result(d_s)
       character(*),intent(in) :: stype
-      select case (stype)
-      case ('openmp','mpi')
-         directory_service = DirectoryService(MPI_COMM_WORLD)
-         chosen_directory_service =>directory_service
-      case ('simple')
-         simple_directory_service = SimpleDirectoryService(MPI_COMM_WORLD)
-         chosen_directory_service =>simple_directory_service
-      case default
-         stop "not known server type"
-      end select 
-   end subroutine
+      class(AbstractDirectoryService),pointer :: d_s
+
+      allocate(d_s, source=DirectoryService(MPI_COMM_WORLD))
+
+   end function
 
    function split_color(stype,split_rank) result(color)
       character(*),intent(in) :: stype
@@ -396,23 +390,32 @@ contains
 
    end function
 
-   function get_server(stype,comm) result(server)
+   function get_server(stype, comm, d_s, port_name) result(server)
       character(*),intent(in) :: stype
       integer,intent(in) :: comm
-      class(AbstractServer),pointer :: server
+      class (AbstractDirectoryService), target, intent(inout) :: d_s
+      character(*), intent(in) :: port_name
+
+      class(BaseServer), pointer :: server
 
       select case (stype)
       case('mpi')
-        allocate(server,source=MpiServer(comm))
-        print*,"using MpiServer"
+         allocate(server,source=MpiServer(comm, port_name))
+         call d_s%publish(PortInfo(port_name, server),server)
+         call d_s%connect_to_client(port_name, server)
+         print*,"using MpiServer"
       case('openmp')
-        allocate(server,source=OpenmpServer(comm))
-        print*,"using OpenMpServer"
+!!$        allocate(server,source=OpenmpServer(comm,d_s))
+!!$        print*,"using OpenMpServer"
       case('simple')
-        allocate(server,source=SimpleServer(comm))
-        print*,"using SimpleMpServer"
+         allocate(server,source=MpiServer(comm, port_name))
+         call d_s%publish(PortInfo(port_name, server), server)
+!!         call d_s%connect_to_client(port_name, server)
+         print*,"using simple server"
       end select
 
-    end function  
-       
+     
+
+    end function
+
 end program main

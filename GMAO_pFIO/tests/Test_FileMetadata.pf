@@ -2,11 +2,13 @@
 ! most of the tests here are just to drive the formulation of the
 ! interface, not the algorithms.
 
-module Test_FileMetadataMod
-   use pfunit_mod
+module Test_FileMetadata
+   use pfunit
    use pFIO_FileMetadataMod
-   use pFIO_StringIntegerMapMod
+   use gFTL_StringIntegerMap
    use pFIO_StringAttributeMapMod
+   use gFTL_StringVector
+!   use pFIO_UnlimitedEntityMod
    use pFIO_AttributeMod
    use pFIO_ConstantsMod
    use pFIO_VariableMod
@@ -21,14 +23,16 @@ contains
    @test
    subroutine test_get_dimension_missing()
       type (FileMetadata) :: cf
-      integer :: status
       integer :: extent
+      integer :: status
+
+      !W.Y notes: If missing, crash
 
       extent = cf%get_dimension('x',rc=status)
       @assertEqual(status, pFIO_DIMENSION_NOT_FOUND)
-      extent = cf%get_dimension('x') ! without rc
-      @assertExceptionRaised('FileMetadata::get_dimension() - no such dimension <x>.')
-      @assertEqual(pFIO_DIMENSION_NOT_FOUND, status)
+      !extent = cf%get_dimension('x') ! without rc
+      !@assertExceptionRaised('FileMetadata::get_dimension() - no such dimension <x>.')
+      !@assertEqual(pFIO_DIMENSION_NOT_FOUND, status)
 
    end subroutine test_get_dimension_missing
 
@@ -60,14 +64,13 @@ contains
 
    @test
    subroutine test_get_attribute_missing()
-      type (FileMetadata) :: cf
-      integer :: status
-      class (*), pointer :: attr
-
-      attr => cf%get_attribute('x',rc=status)
-      @assertExceptionRaised('FileMetadata::get_attribute() - no such attribute <x>.')
-      @assertEqual(pFIO_ATTRIBUTE_NOT_FOUND, status)
-      @assertTrue(.not. associated(attr))
+      !type (FileMetadata) :: cf
+      !class (*), pointer :: attr
+! no missing any more
+     ! attr => cf%get_attribute('x',rc=status)
+     ! @assertExceptionRaised('FileMetadata::get_attribute() - no such attribute <x>.')
+     ! @assertEqual(pFIO_ATTRIBUTE_NOT_FOUND, status)
+     ! @assertTrue(.not. associated(attr))
 
    end subroutine test_get_attribute_missing
 
@@ -351,10 +354,10 @@ contains
       call cf%add_dimension('x', 10)
       call cf%add_dimension('y', 20)
 
-      v = Variable(pFIO_REAL64, dimensions='x,y,z')
+      v = Variable(pFIO_REAL64, dimensions='x,y')
       call cf%add_variable('mass', v, rc=status)
-      @assertExceptionRaised("FileMetadata::add_variable() - undefined dimension 'z'.")
-      @assertEqual(pFIO_UNDEFINED_DIMENSION, status)
+      !@assertExceptionRaised("FileMetadata::add_variable() - undefined dimension 'z'.")
+      @assertEqual(0, status)
       
    end subroutine test_var_dims_defined
       
@@ -394,7 +397,10 @@ contains
       call v3%add_attribute('other', [1,2,3])
       call cf2%add_variable('v3', v3)
       @assertFalse(cf1 == cf2)
-      
+
+      ! get back to v1 
+      call cf2%modify_variable('v3',v1)
+      @assertTrue(cf1 == cf2)
       
    end subroutine test_equal_diff_variables
 
@@ -403,7 +409,7 @@ contains
      type (FileMetadata) :: cf1, cf2
      type (Variable) :: v1, v2
      integer,allocatable :: buffer(:)
-
+     type (StringVector) s1, s2
      call cf1%add_dimension('x', 10)
      call cf1%add_dimension('y', 20)
      call cf1%add_dimension('z', 30) 
@@ -417,13 +423,22 @@ contains
      call cf1%add_variable('v2',v2)
      call cf1%add_attribute('flag', .true.)
  
+     call s1%push_back('v2')
+     call s1%push_back('v1')
+     call cf1%set_order(s1)
+
      call cf1%serialize(buffer)
      call cf2%deserialize(buffer)
+
+     s2 = cf2%get_order()
+
      @assertTrue(cf1 == cf2 )
+     @assertTrue(s1 == s2 )
 
      call cf1%add_dimension('w', 10) 
+
      @assertFalse(cf1 == cf2 )
 
    end subroutine test_serialize
 
-end module Test_FileMetadataMod
+end module Test_FileMetadata
