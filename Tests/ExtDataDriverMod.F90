@@ -84,29 +84,29 @@ contains
       CommCap = MPI_COMM_WORLD
 
       call this%initialize_io_clients_servers(commCap, rc = status); _VERIFY(status)
-      call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=this%mapl_comm%esmf%comm, rc=status)
-      _VERIFY(STATUS)
-
-      config = ESMF_ConfigCreate(rc=status)
-      _VERIFY(status)
-      call ESMF_ConfigLoadFile   ( config, 'CAP.rc', rc=STATUS )
-      _VERIFY(status)
-      call ESMF_ConfigGetDim(config,lineCount,columnCount,label='CASES::',rc=status)
-      _VERIFY(status)
-      call ESMF_ConfigFindLabel(config,label='CASES::',rc=status)
-      _VERIFY(status)
-      do i=1,lineCount
-         call ESMF_ConfigNextLine(config,rc=status)
-         _VERIFY(status)
-         call ESMF_ConfigGetAttribute(config,ctemp,rc=status)
-         _VERIFY(status)
-         call cases%push_back(trim(ctemp))
-      enddo
-      call ESMF_ConfigDestroy(config, rc=status)
-      _VERIFY(status)
-
       select case(this%split_comm%get_name())
       case('model')
+         call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=this%mapl_comm%esmf%comm, rc=status)
+         _VERIFY(STATUS)
+
+         config = ESMF_ConfigCreate(rc=status)
+         _VERIFY(status)
+         call ESMF_ConfigLoadFile   ( config, 'CAP.rc', rc=STATUS )
+         _VERIFY(status)
+         call ESMF_ConfigGetDim(config,lineCount,columnCount,label='CASES::',rc=status)
+         _VERIFY(status)
+         call ESMF_ConfigFindLabel(config,label='CASES::',rc=status)
+         _VERIFY(status)
+         do i=1,lineCount
+            call ESMF_ConfigNextLine(config,rc=status)
+            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(config,ctemp,rc=status)
+            _VERIFY(status)
+            call cases%push_back(trim(ctemp))
+         enddo
+         call ESMF_ConfigDestroy(config, rc=status)
+         _VERIFY(status)
+
          iter = cases%begin()
          do while (iter /= cases%end())
 
