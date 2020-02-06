@@ -1,7 +1,7 @@
 import csv
 import pandas as pd
 
-def read(specs_filename):
+def read_specs(specs_filename):
     
     def csv_record_reader(csv_reader):
         """ Read a csv reader iterator until a blank line is found. """
