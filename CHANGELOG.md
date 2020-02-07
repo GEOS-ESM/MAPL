@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Code that uses MAPL should now `use MAPL` instead of `use MAPL_Mod`.
+- CMakeLists.txt using MAPL should now have dependencies to `MAPL` and not `MAPL_Base`.
 - History and ExtData component use the PFIO IO server for all file access. Default mode is to run the IO servers on the same resources as the application.
 - The ExtData and History components use ESMF regridding for all operations and replace the FV3 regridding routines used for bilinear regridding and the MAPL tiling regridder for conservative regridding.
 
