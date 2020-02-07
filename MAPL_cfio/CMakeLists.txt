@@ -31,7 +31,7 @@ esma_add_library (${lib}
   SRCS ${srcs}
   DEPENDENCIES ${ESMF_LIBRARIES}
   )
-target_include_directories (${lib} PUBLIC ${INC_NETCDF} ${INC_ESMF})
+target_link_libraries(${lib} PUBLIC Baselibs)
 
 if (precision MATCHES "r8")
   string (REPLACE " " ";" flags ${FREAL8})

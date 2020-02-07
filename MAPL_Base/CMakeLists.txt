@@ -22,7 +22,7 @@ set (srcs
   MAPL_GenericCplComp.F90  MAPL_Sort.F90
   MAPL_Generic.F90         MAPL_sun_uc.F90        MAPL_SatVapor.F90
   MAPL_HistoryCollection.F90
-  MAPL_HistoryGridComp.F90 MAPL_CapOptions.F90    MAPL_FlapCapOptions.F90 
+  MAPL_HistoryGridComp.F90 MAPL_CapOptions.F90    $<$<BOOL:${FLAP_FOUND}>:MAPL_FlapCapOptions.F90> 
   MAPL_Cap.F90         hash.c
   MAPL_CapGridComp.F90
   MAPL_GridType.F90 
@@ -63,8 +63,7 @@ set (srcs
   FileMetadataUtilities.F90 FileMetadataUtilitiesVector.F90
   )
 
-esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 gftl-shared FLAP::FLAP)
-target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
+esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 gftl-shared $<$<BOOL:${FLAP_IS_REQUIRED}>:FLAP::FLAP>)
 target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
 
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
@@ -89,6 +88,9 @@ endif()
 #--------------------
 target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF})
 target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES})
+if(FLAP_FOUND)
+  target_compile_definitions(${this} PRIVATE USE_FLAP)
+endif()
 
 #--------------------
 # Copy include files that are used by other libraries.
