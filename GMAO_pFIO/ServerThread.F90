@@ -160,9 +160,7 @@ contains
       integer, optional, intent(out) :: rc
 
       class (AbstractMessage), pointer :: message
-      type(DoneMessage) :: dMessage
       class(AbstractSocket),pointer :: connection
-      logical :: all_backlog_is_empty
       integer :: status
 
       connection=>this%get_connection()
@@ -770,7 +768,8 @@ contains
      
       class(AbstractSocket),pointer :: connection
       type (DummyMessage) :: handshake_msg
-      integer :: status
+
+      _UNUSED_DUMMY(message)
  
       connection=>this%get_connection()
       call connection%send(handshake_msg)
@@ -1119,18 +1118,9 @@ contains
       type (CollectiveStageDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      type (LocalMemReference) :: mem_data_reference
-      class(AbstractDataReference),pointer :: dataRefPtr
-      class(AbstractMessage),pointer :: dMessage
-      integer :: data_status, node_rank, innode_rank
-      integer(kind=INT64) :: g_offset, offset,msize_word
-      type(c_ptr) :: offset_address
-      integer,pointer :: i_ptr(:)
-      type (MessageVectorIterator) :: iter
-      class (AbstractMessage), pointer :: msg
-      class(AbstractSocket),pointer :: connection
-      class (AbstractRequestHandle), pointer :: handle
       integer :: status
+
+      _UNUSED_DUMMY(message)
 
       this%containing_server%serverthread_done_msgs(this%thread_rank) = .true. 
       if ( .not. all(this%containing_server%serverthread_done_msgs)) then
@@ -1158,18 +1148,13 @@ contains
       type (StageDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      type (LocalMemReference) :: mem_data_reference
-      class(AbstractDataReference),pointer :: dataRefPtr
-      class(AbstractMessage),pointer :: dMessage
-      integer :: data_status, node_rank, innode_rank
-      integer(kind=INT64) :: g_offset, offset,msize_word
-      type(c_ptr) :: offset_address
-      integer,pointer :: i_ptr(:)
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
       class(AbstractSocket),pointer :: connection
       class (AbstractRequestHandle), pointer :: handle
       integer :: status
+
+      _UNUSED_DUMMY(message)
 
       if ( this%request_backlog%empty()) then
          _RETURN(_SUCCESS)
@@ -1209,16 +1194,9 @@ contains
       integer, optional, intent(out) :: rc
 
       type (LocalMemReference) :: mem_data_reference
-      class(AbstractDataReference),pointer :: dataRefPtr
-      class(AbstractMessage),pointer :: dMessage
-      integer :: data_status, node_rank, innode_rank
-      integer(kind=INT64) :: g_offset, offset,msize_word
-      type(c_ptr) :: offset_address
-      integer,pointer :: i_ptr(:)
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
       class(AbstractSocket),pointer :: connection
-      class (AbstractRequestHandle), pointer :: handle
       integer :: status
 
       iter = this%request_backlog%begin()
@@ -1255,17 +1233,7 @@ contains
       type (CollectivePrefetchDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      type (LocalMemReference) :: mem_data_reference
       class(AbstractDataReference),pointer :: dataRefPtr
-      class(AbstractMessage),pointer :: dMessage
-      integer :: data_status, node_rank, innode_rank
-      integer(kind=INT64) :: g_offset, offset,msize_word
-      type(c_ptr) :: offset_address
-      integer,pointer :: i_ptr(:)
-      type (MessageVectorIterator) :: iter
-      class (AbstractMessage), pointer :: msg
-      class(AbstractSocket),pointer :: connection
-      class (AbstractRequestHandle), pointer :: handle
       integer :: status
 
       ! first time handling the "Done" message, simple return
@@ -1299,15 +1267,13 @@ contains
       integer, optional, intent(out) :: rc
       type (LocalMemReference) :: mem_data_reference
       class(AbstractDataReference),pointer :: dataRefPtr
-      class(AbstractMessage),pointer :: dMessage
-      integer :: data_status, node_rank, innode_rank
+      integer :: node_rank, innode_rank
       integer(kind=INT64) :: g_offset, offset,msize_word
       type(c_ptr) :: offset_address
       integer,pointer :: i_ptr(:)
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
       class(AbstractSocket),pointer :: connection
-      class (AbstractRequestHandle), pointer :: handle
       integer :: status      
 
       connection=>this%get_connection(status)

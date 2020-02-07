@@ -86,8 +86,6 @@ module MAPL_newCFIOMod
         type(newCFIOitemVector), intent(in), optional :: items
         integer, intent(out), optional :: rc
 
-        integer :: status
-      
         if (present(metadata)) newCFIO%metadata=metadata 
         if (present(input_bundle)) newCFIO%input_bundle=input_bundle
         if (present(output_bundle)) newCFIO%output_bundle=output_bundle
@@ -336,7 +334,7 @@ module MAPL_newCFIOMod
 
         integer :: status
         type(ESMF_Field) :: outField
-        integer :: tindex,request_id
+        integer :: tindex
         type(ArrayReference) :: ref
 
         type(newCFIOitemVectorIterator) :: iter
@@ -601,23 +599,24 @@ module MAPL_newCFIOMod
      type (ClientManager), optional, intent(inout) :: oClients
      integer, optional, intent(out) :: rc
 
-     integer :: request_id
      integer :: status
-     logical :: isCubed
      real(REAL64), pointer :: ptr2d(:,:)
      type(ArrayReference) :: ref
-     integer :: i1,in,j1,jn,tile
-     integer :: global_dim(3)
+     class (AbstractGridFactory), pointer :: factory
+     integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
+     logical :: hasll
+     class(Variable), pointer :: var_lat,var_lon
+ 
+     var_lon => this%metadata%get_variable('lons')
+     var_lat => this%metadata%get_variable('lats')
+     
+     hasll = associated(var_lon) .and. associated(var_lat)
+     if (hasll) then
+        factory => get_factory(this%output_grid,rc=status)
+        _VERIFY(status)
 
-     call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
-     _VERIFY(status)
-     isCubed=.false.
-     if (global_dim(1)*6 == global_dim(2)) isCubed=.true.
-
-     if (isCubed) then
-
-        call MAPL_Grid_interior(this%output_grid,i1,in,j1,jn)
-        tile = j1/global_dim(1)
+        call factory%generate_file_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
+        _VERIFY(status)
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
@@ -625,21 +624,19 @@ module MAPL_newCFIOMod
         if (.not.allocated(this%lons)) allocate(this%lons(size(ptr2d,1),size(ptr2d,2)))
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lons)
-        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
-                     ref,start=[i1,j1-tile*global_dim(1),tile+1], &
-                     global_start=[1,1,1], global_count=[global_dim(1),global_dim(1),6])
+         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
+              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
         if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
-        !ref = ArrayReference(ptr2d)
         this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lats)
-        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
-                     ref,start=[i1,j1-tile*global_dim(1),tile+1], &
-                     global_start=[1,1,1], global_count=[global_dim(1),global_dim(1),6])
+         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
+              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
      end if
+
 
   end subroutine stage2DLatLon
   
@@ -651,91 +648,57 @@ module MAPL_newCFIOMod
      type (ClientManager), optional, intent(inout) :: oClients
      integer, optional, intent(out) :: rc
 
-     integer :: request_id
      integer :: status
      integer :: fieldRank
      character(len=ESMF_MAXSTR) :: fieldName
-     logical :: isCubed
      real, pointer :: ptr3d(:,:,:) => null()
      real, pointer :: ptr2d(:,:) => null()
      type(ArrayReference) :: ref
-     integer :: i1,in,j1,jn,tile,lm
-     integer :: global_dim(3)
-     type(c_ptr) :: cptr
-     real, pointer :: ptr_ref_3d(:,:,:,:,:)
+     integer :: lm
      logical :: hasDE
+     integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
+     integer, allocatable :: gridLocalStart(:),gridGlobalStart(:),gridGlobalCount(:)
+     class (AbstractGridFactory), pointer :: factory
 
-     call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
+     factory => get_factory(this%output_grid,rc=status)
      _VERIFY(status)
      hasDE = MAPL_GridHasDE(this%output_grid,rc=status)
      _VERIFY(status)
-     isCubed=.false.
-     if (global_dim(1)*6 == global_dim(2)) isCubed=.true.
      lm = this%vdata%lm
-     call MAPL_Grid_interior(this%output_grid,i1,in,j1,jn)
      call ESMF_FieldGet(field,rank=fieldRank,name=fieldName,rc=status)
      _VERIFY(status)
 
-     if (isCubed) then
-        tile = j1/global_dim(1)
-        if (fieldRank==2) then
-           if (hasDE) then
-              call ESMF_FieldGet(field,farrayPtr=ptr2d,rc=status)
+     call factory%generate_file_bounds(this%output_grid,gridLocalStart,gridGlobalStart,gridGlobalCount,rc=status)
+     _VERIFY(status)
+     if (fieldRank==2) then
+        if (hasDE) then
+           call ESMF_FieldGet(Field,farrayPtr=ptr2d,rc=status)
+           _VERIFY(status)
+           if (this%nbits < 24) then
+              call pFIO_DownBit(ptr2d,ptr2d,this%nbits,undef=MAPL_undef,rc=status)
               _VERIFY(status)
-              if (this%nbits < 24) then
-                 call pFIO_DownBit(ptr2d,ptr2d,this%nbits,undef=MAPL_undef,rc=status)
-                 _VERIFY(status)
-              end if
            end if
-           ref = ArrayReference(ptr2d)
-           call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
-                        ref,start=[i1,j1-tile*global_dim(1),tile+1,1], &
-                        global_start=[1,1,1,tindex], global_count=[global_dim(1),global_dim(1),6,1])
-        else if (fieldRank==3) then
-           if (hasDE) then
-              call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
-              _VERIFY(status)
-              if (this%nbits < 24) then
-                 call pFIO_DownBit(ptr3d,ptr3d,this%nbits,undef=MAPL_undef,rc=status)
-                 _VERIFY(status)
-              end if
-           end if
-           cptr = c_loc(ptr3d)
-           call C_F_pointer(cptr,ptr_ref_3d,[size(ptr3d,1),size(ptr3d,2),1,size(ptr3d,3),1])
-           ref = ArrayReference(ptr_ref_3d)
-           call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
-                        ref,start=[i1,j1-tile*global_dim(1),tile+1,1,1], &
-                        global_start=[1,1,1,1,tindex], global_count=[global_dim(1),global_dim(1),6,lm,1])
         end if
-     else
-        if (fieldRank==2) then
-           if (hasDE) then
-              call ESMF_FieldGet(Field,farrayPtr=ptr2d,rc=status)
-              _VERIFY(status)
-              if (this%nbits < 24) then
-                 call pFIO_DownBit(ptr2d,ptr2d,this%nbits,undef=MAPL_undef,rc=status)
-                 _VERIFY(status)
-              end if
-           end if
-           ref = ArrayReference(Ptr2D)
-           call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
-                        ref,start=[i1,j1,1], &
-                        global_start=[1,1,tindex], global_count=[global_dim(1),global_dim(2),1])
-         else if (fieldRank==3) then
-            if (HasDE) then
-               call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
+        ref = factory%generate_file_reference2D(Ptr2D)
+        allocate(localStart,source=[gridLocalStart,1])
+        allocate(globalStart,source=[gridGlobalStart,tindex])
+        allocate(globalCount,source=[gridGlobalCount,1])
+      else if (fieldRank==3) then
+         if (HasDE) then
+            call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
+            _VERIFY(status)
+            if (this%nbits < 24) then
+               call pFIO_DownBit(ptr3d,ptr3d,this%nbits,undef=MAPL_undef,rc=status)
                _VERIFY(status)
-               if (this%nbits < 24) then
-                  call pFIO_DownBit(ptr3d,ptr3d,this%nbits,undef=MAPL_undef,rc=status)
-                  _VERIFY(status)
-               end if
             end if
-            ref = ArrayReference(Ptr3D)
-            call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
-                      ref,start=[i1,j1,1,1], &
-                      global_start=[1,1,1,tindex], global_count=[global_dim(1),global_dim(2),lm,1])
          end if
-     end if
+         ref = factory%generate_file_reference3D(Ptr3D)
+         allocate(localStart,source=[gridLocalStart,1,1])
+         allocate(globalStart,source=[gridGlobalStart,1,tindex])
+         allocate(globalCount,source=[gridGlobalCount,lm,1])
+      end if
+      call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
+           ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
 
   end subroutine stageData
 
@@ -804,18 +767,19 @@ module MAPL_newCFIOMod
      character(len=ESMF_MAXSTR), allocatable :: names(:)
      type(ESMF_Field) :: output_field
      type(ESMF_Field), allocatable :: input_fields(:)
-     integer :: ub(1),lb(1),i1,in,j1,jn,img,jmg,dims(3),lm,rank
+     integer :: ub(1),lb(1),dims(3),lm,rank
      type(ArrayReference) :: ref
      real, pointer :: ptr2d(:,:) => null()
      real, pointer :: ptr3d(:,:,:) => null()
-     integer, allocatable :: start(:)
-     integer, allocatable :: global_start(:)
-     integer, allocatable :: global_count(:)
+     integer, allocatable :: localStart(:), globalStart(:), globalCount(:)
+     integer, allocatable :: gridLocalStart(:), gridGlobalStart(:), gridGlobalCount(:)
      type(ESMF_Grid) :: output_grid
      logical :: hasDE
+     class(AbstractGridFactory), pointer :: factory
 
      collection => extdatacollections%at(this%metadata_collection_id)
      filegrid = collection%src_grid
+     factory => get_factory(filegrid)
      hasDE=MAPL_GridHasDE(filegrid,rc=status)
      _VERIFY(status)
      call ESMF_FieldBundleGet(this%output_bundle,grid=output_grid,rc=status)
@@ -824,11 +788,10 @@ module MAPL_newCFIOMod
         this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,rc=status)
         _VERIFY(status)
      end if
-     call MAPL_Grid_Interior(filegrid,i1,in,j1,jn)
      call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
      _VERIFY(status)
-     img=dims(1)
-     jmg=dims(2)
+     call factory%generate_file_bounds(fileGrid,gridLocalStart,gridGlobalStart,gridGlobalCount,rc=status)
+     _VERIFY(status)
      ! create input bundle
      call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,rc=status)
      _VERIFY(status)
@@ -850,10 +813,10 @@ module MAPL_newCFIOMod
               call ESMF_FieldGet(input_fields(I),0,farrayPtr=ptr2d,rc=status)
               _VERIFY(status)
            end if
-           ref=ArrayReference(ptr2d)
-           start = [i1, j1, timeIndex] ! (i,j,t)
-           global_start = [1, 1, timeIndex] ! (i,j,t)
-           global_count = [img, jmg, 1]           
+           ref=factory%generate_file_reference2D(ptr2d)
+           allocate(localStart,source=[gridLocalStart,timeIndex])
+           allocate(globalStart,source=[gridGlobalStart,timeIndex])
+           allocate(globalCount,source=[gridGlobalCount,1]) 
         else if (rank==3) then
            call ESMF_FieldGet(output_field,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
            _VERIFY(status)
@@ -865,15 +828,16 @@ module MAPL_newCFIOMod
               call ESMF_FieldGet(input_fields(I),0,farrayPtr=ptr3d,rc=status)
               _VERIFY(status)
            end if
-           ref=ArrayReference(ptr3d)
-           start = [i1, j1, 1, timeIndex] ! (i,j,t)
-           global_start = [1, 1, 1, timeIndex] ! (i,j,t)
-           global_count = [img, jmg, lm, 1]           
+           ref=factory%generate_file_reference3D(ptr3d)
+           allocate(localStart,source=[gridLocalStart,1,timeIndex])
+           allocate(globalStart,source=[gridGlobalStart,1,timeIndex])
+           allocate(globalCount,source=[gridGlobalCount,lm,1]) 
         end if
         call i_Clients%collective_prefetch_data( &
              this%read_collection_id, fileName, trim(names(i)), &
-             & ref, start=start, global_start=global_start, global_count=global_count)
-        deallocate(start,global_start,global_count)
+             & ref, start=localStart, global_start=globalStart, global_count=globalCount)
+        deallocate(localStart,globalStart,globalCount)
+        deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)
      enddo
      this%input_bundle = ESMF_FieldBundleCreate(fieldList=input_fields,rc=status)
      _VERIFY(status)

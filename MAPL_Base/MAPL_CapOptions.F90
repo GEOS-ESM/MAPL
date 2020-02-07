@@ -47,7 +47,6 @@ contains
       character(*), optional, intent(in) :: ensemble_subdir_prefix 
 
       integer, optional, intent(out) :: rc
-      integer :: status
 
       _UNUSED_DUMMY(unusable)
 
