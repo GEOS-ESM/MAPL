@@ -8,10 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+
 - Corrected handling of Equation of Time in orbit (off by default)
 	
 ### Fixed
-- Corrected Python code generator scripts for component import/export specs.	
+
+- Corrected Python code generator scripts for component import/export specs.
+- Add directories to `.gitignore` for building with `mepo`
 	
 ## [2.0.0] - 2019-02-07
 
