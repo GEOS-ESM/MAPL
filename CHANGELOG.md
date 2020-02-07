@@ -8,15 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+
 - Corrected handling of Equation of Time in orbit (off by default)
 	
 ### Fixed
-- Corrected Python code generator scripts for component import/export specs.	
+
+- Corrected Python code generator scripts for component import/export specs.
+- Add directories to `.gitignore` for building with `mepo`
 	
-## [2.0.0]
+## [2.0.0] - 2019-02-07
+
+### Added
+
 - New IO server implemented in PFIO library.
-- History and ExtData component use the PFIO IO server for all file access. Default mode is to run the IO servers on the same resources as the application.
 - New command line arguments to the MAPL_Cap to run multiple input and output servers on dedicated resources.
+
+### Changed
+
+- Code that uses MAPL should now `use MAPL` instead of `use MAPL_Mod`.
+- CMakeLists.txt using MAPL should now have dependencies to `MAPL` and not `MAPL_Base`.
+- History and ExtData component use the PFIO IO server for all file access. Default mode is to run the IO servers on the same resources as the application.
 - The ExtData and History components use ESMF regridding for all operations and replace the FV3 regridding routines used for bilinear regridding and the MAPL tiling regridder for conservative regridding.
 
 ## [1.1.13] - 2019-12-09
