@@ -1,4 +1,3 @@
-!  $Id$
 
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"

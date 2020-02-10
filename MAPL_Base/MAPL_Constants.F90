@@ -1,6 +1,5 @@
 module MAPL_ConstantsMod
 
-!  $Id$
 use, intrinsic :: iso_fortran_env, only: REAL64, REAL32
 implicit none
 private

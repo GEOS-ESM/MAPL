@@ -1,5 +1,4 @@
 
-!  $Id$
 
 #include "MAPL_ErrLog.h"
 #define ADDRS_POSITION 1

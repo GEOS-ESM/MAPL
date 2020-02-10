@@ -1,4 +1,3 @@
-!  $Id$
 
 #include "MAPL_ErrLog.h"
 #define GET_POINTER ESMFL_StateGetPointerToData
