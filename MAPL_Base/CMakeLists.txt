@@ -22,7 +22,8 @@ set (srcs
   MAPL_GenericCplComp.F90  MAPL_Sort.F90
   MAPL_Generic.F90         MAPL_sun_uc.F90        MAPL_SatVapor.F90
   MAPL_HistoryCollection.F90
-  MAPL_HistoryGridComp.F90 MAPL_CapOptions.F90    $<$<BOOL:${FLAP_FOUND}>:MAPL_FlapCapOptions.F90> 
+  MAPL_HistoryGridComp.F90 MAPL_CapOptions.F90    
+  $<$<BOOL:${FLAP_FOUND}>:MAPL_FlapCapOptions.F90> 
   MAPL_Cap.F90         hash.c
   MAPL_CapGridComp.F90
   MAPL_GridType.F90 
