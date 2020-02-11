@@ -2,11 +2,11 @@ class MAPL_DataSpec:
     """Declare and manipulate an import/export/internal specs for a 
        MAPL Gridded component"""
 
-    stringlike_options = ['SHORT_NAME', 'LONG_NAME', 'UNITS']
-    literal_options = ['DIMS', 'VLOCATION', 'NUM_SUBTILES',
-                       'REFRESH_INTERVAL', 'AVERAGING_INTERVAL', 'HALOWIDTH',
-                       'PRECISION','DEFAULT','RESTART', 'UNGRIDDED_DIMS',
-                       'FIELD_TYPE', 'STAGGERING', 'ROTATION']
+    stringlike_options = ['short_name', 'long_name', 'units']
+    literal_options = ['dims', 'vlocation', 'num_subtiles',
+                       'refresh_interval', 'averaging_interval', 'halowidth',
+                       'precision','default','restart', 'ungridded_dims',
+                       'field_type', 'staggering', 'rotation']
     all_options = stringlike_options + literal_options
 
 
@@ -31,7 +31,7 @@ class MAPL_DataSpec:
             extra_rank = len(extra_dims)
         else:
             extra_rank = 0
-        return ranks[self.args['DIMS']] + extra_rank
+        return ranks[self.args['dims']] + extra_rank
         
     def emit_declare_local(self):
         text = self.emit_header()
@@ -39,13 +39,13 @@ class MAPL_DataSpec:
         kind = 'REAL32'
         rank = self.get_rank()
         dimension = 'dimension(:' + ',:'*(rank-1) + ')'
-        text = text + type + '(kind=' + str(kind) + '), ' + dimension + ' :: ' + self.args['LOCAL_NAME'] + ' => null()'
+        text = text + type + '(kind=' + str(kind) + '), ' + dimension + ' :: ' + self.args['short_name'] + ' => null()'
         text = text + self.emit_trailer()
         return text
 
     def emit_get_pointer(self):
         text = self.emit_header()
-        text = text + "call MAPL_GetPointer(" + self.category + ', ' + self.args['LOCAL_NAME'] + ", '" + self.args['SHORT_NAME'] + "', rc=status); VERIFY_(status)" 
+        text = text + "call MAPL_GetPointer(" + self.category + ', ' + self.args['short_name'] + ", '" + self.args['short_name'] + "', rc=status); VERIFY_(status)" 
         text = text + self.emit_trailer()
         return text
 
