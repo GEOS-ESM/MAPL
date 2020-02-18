@@ -2227,13 +2227,13 @@ CONTAINS
         var => null()
         if (item%isVector) then
            var=>metadata%get_variable(trim(item%fcomp1))
-           _ASSERT(associated(var),"Variable not found in file")
+           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file))
            var => null()
            var=>metadata%get_variable(trim(item%fcomp2))
-           _ASSERT(associated(var),"Variable not found in file")
+           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp2)//" not found in file "//TRIM(item%file))
         else
            var=>metadata%get_variable(trim(item%var))
-           _ASSERT(associated(var),"Variable not found in file")
+           _ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file))
         end if
    
         levName = metadata%get_level_name(rc=status)
