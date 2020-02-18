@@ -11,11 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Corrected handling of Equation of Time in orbit (off by default)
 - Made ASSERT in ExtData more explicit in case of missing variables.
-
+- (re) Introduced MAPL Profiling package
+	
 ### Fixed
 
 - Corrected Python code generator scripts for component import/export specs.
 - Add directories to `.gitignore` for building with `mepo`
+- Implemented workaround to cmake error that happens when building tests in parallel.	
 	
 ## [2.0.0] - 2019-02-07
 
