@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Corrected Python code generator scripts for component import/export specs.
 - Add directories to `.gitignore` for building with `mepo`
+- Set correct ESMA_env tag in `components.yaml`
+
+### Removed
+
+- Removed support for `checkout_externals` and moved solely to `mepo`
+  - Removed `Externals.cfg`
+  - Removed `checkout_externals` code in `CMakeLists.txt`
 	
 ## [2.0.0] - 2019-02-07
 
