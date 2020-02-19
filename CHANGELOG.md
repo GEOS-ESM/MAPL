@@ -17,7 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Corrected Python code generator scripts for component import/export specs.
 - Add directories to `.gitignore` for building with `mepo`
+- Bug building with mixed Intel/GCC compilers
 - Implemented workaround to cmake error that happens when building tests in parallel.	
+
 	
 ## [2.0.0] - 2019-02-07
 
