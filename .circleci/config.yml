@@ -10,7 +10,7 @@ executors:
          OMPI_MCA_btl_vader_single_copy_mechanism: none
 
 jobs:
-   build-and-test-gcc:
+   build-and-test-GNU:
       executor: gcc-build-env
       working_directory: /root/project
       steps:
@@ -35,14 +35,21 @@ jobs:
             command: |
                cd build
                make -j2 install
-         #- run:
-            #name: Run MAPL tests
-            #command: |
-               #cd build
-               #make -j2 tests || ctest -VV
+         - run:
+            name: Run pFIO Unit tests
+            command: |
+               cd build
+               make -j2 pFIO_tests
+               ctest -R 'pFIO_tests$' || ctest -R 'pFIO_tests$' -VV
+         - run:
+            name: Run MAPL_Base Unit tests
+            command: |
+               cd build
+               make -j2 MAPL_Base_tests
+               ctest -R 'MAPL_Base_tests$' || ctest -R 'MAPL_Base_tests$' -VV
 
 workflows:
    version: 2.1
    pull_request_tests:
       jobs:
-         - build-and-test-gcc
+         - build-and-test-GNU
