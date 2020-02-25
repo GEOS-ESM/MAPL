@@ -1,0 +1,71 @@
+version: 2.1
+jobs:
+  clone-from-git:
+    docker:
+      - image: gmao/geos-build-env-gcc-source:6.0.4
+    working_directory: /root/project
+    steps:
+      - checkout
+      - run:
+          name: Versions, etc.
+          command: mpirun --version && gfortran --version && echo $BASEDIR && pwd && ls
+  run-mepo:
+    docker:
+      - image: gmao/geos-build-env-gcc-source:6.0.4
+    working_directory: /root/project/GEOSgcm
+    steps:
+      - run:
+          name: Mepo clone external repos
+          command: |
+            mepo init
+            mepo clone
+            mepo status
+  run-cmake:
+    docker:
+      - image: gmao/geos-build-env-gcc-source:6.0.4
+    working_directory: /root/project/GEOSgcm
+      - run:
+          name: CMake
+          command: |
+            mkdir build
+            cd build
+            cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug
+  make-install:
+    docker:
+      - image: gmao/geos-build-env-gcc-source:6.0.4
+    working_directory: /root/project/GEOSgcm
+      - run:
+          name: Build and install
+          command: |
+            cd build
+            make -j2 install
+  make-tests:
+    docker:
+      - image: gmao/geos-build-env-gcc-source:6.0.4
+    working_directory: /root/project/GEOSgcm
+      - run:
+          name: Run tests
+          command: |
+            cd build
+            make -j2 tests
+
+workflows:
+   version: 2.1
+   pull_request_tests:
+      jobs:
+         - clone-from-git
+         - run-mepo:
+            requires:
+               - clone-from-git
+         - run-cmake:
+            requires:
+               - run-mepo
+         - make-install:
+            requires:
+               - run-cmake
+         - make-tests:
+            requires:
+               - make-install
+
+
+
