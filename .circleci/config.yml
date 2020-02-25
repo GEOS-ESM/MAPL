@@ -1,56 +1,55 @@
 version: 2.1
+executors:
+   gcc-build-env:
+      docker:
+         - image: gmao/geos-build-env-gcc-source:6.0.4
 jobs:
-  clone-from-git:
-    docker:
-      - image: gmao/geos-build-env-gcc-source:6.0.4
-    working_directory: /root/project
-    steps:
-      - checkout
-      - run:
-          name: Versions, etc.
-          command: mpirun --version && gfortran --version && echo $BASEDIR && pwd && ls
-  run-mepo:
-    docker:
-      - image: gmao/geos-build-env-gcc-source:6.0.4
-    working_directory: /root/project/GEOSgcm
-    steps:
-      - run:
-          name: Mepo clone external repos
-          command: |
-            mepo init
-            mepo clone
-            mepo status
-  run-cmake:
-    docker:
-      - image: gmao/geos-build-env-gcc-source:6.0.4
-    working_directory: /root/project/GEOSgcm
-    steps:
-      - run:
-          name: CMake
-          command: |
-            mkdir build
-            cd build
-            cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug
-  make-install:
-    docker:
-      - image: gmao/geos-build-env-gcc-source:6.0.4
-    working_directory: /root/project/GEOSgcm
-    steps:
-      - run:
-          name: Build and install
-          command: |
-            cd build
-            make -j2 install
-  make-tests:
-    docker:
-      - image: gmao/geos-build-env-gcc-source:6.0.4
-    working_directory: /root/project/GEOSgcm
-    steps:
-      - run:
-          name: Run MAPL tests
-          command: |
-            cd build
-            make -j2 tests
+   clone-from-git:
+      executor: gcc-build-env
+      working_directory: /root/project
+      steps:
+         - checkout
+         - run:
+            name: Versions, etc.
+            command: mpirun --version && gfortran --version && echo $BASEDIR && pwd && ls
+   run-mepo:
+      executor: gcc-build-env
+      working_directory: /root/project/GEOSgcm
+      steps:
+         - run:
+            name: Mepo clone external repos
+            command: |
+               mepo init
+               mepo clone
+               mepo status
+   run-cmake:
+      executor: gcc-build-env
+      working_directory: /root/project/GEOSgcm
+      steps:
+         - run:
+            name: CMake
+            command: |
+               mkdir build
+               cd build
+               cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug
+   make-install:
+      executor: gcc-build-env
+      working_directory: /root/project/GEOSgcm
+      steps:
+         - run:
+            name: Build and install
+            command: |
+               cd build
+               make -j2 install
+   make-tests:
+      executor: gcc-build-env
+      working_directory: /root/project/GEOSgcm
+      steps:
+         - run:
+            name: Run MAPL tests
+            command: |
+               cd build
+               make -j2 tests
 
 workflows:
    version: 2.1
