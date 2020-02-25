@@ -1,8 +1,10 @@
 version: 2.1
+
 executors:
    gcc-build-env:
       docker:
          - image: gmao/geos-build-env-gcc-source:6.0.4
+
 jobs:
    build-and-test-gcc:
       executor: gcc-build-env
@@ -35,3 +37,8 @@ jobs:
                cd build
                make -j2 tests
 
+workflows:
+   version: 2.1
+   pull_request_tests:
+      jobs:
+         - build-and-test-gcc
