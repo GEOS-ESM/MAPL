@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed support for `checkout_externals` and moved solely to `mepo`
   - Removed `Externals.cfg`
   - Removed `checkout_externals` code in `CMakeLists.txt`
+
+### Added
+
+- Added configuration for CircleCI (build only)
 	
 ## [2.0.0] - 2019-02-07
 
