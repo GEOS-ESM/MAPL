@@ -87,6 +87,7 @@ contains
    function make_clone(this, grid_type, unusable, rc) result(factory)
      use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
      use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
+     use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
       class (AbstractGridFactory), allocatable :: factory
       class (GridManager), intent(inout) :: this
       character(len=*), intent(in) :: grid_type
@@ -106,12 +107,14 @@ contains
       logical, save :: initialized = .false.
       type (LatLonGridFactory) :: latlon_factory
       type (CubedSphereGridFactory) :: cubed_factory
+      type (TripolarGridFactory) :: tripolar_factory
 
       _UNUSED_DUMMY(unusable)
 
       if (.not. initialized) then
            call this%prototypes%insert('LatLon', latlon_factory)
            call this%prototypes%insert('Cubed-Sphere', cubed_factory)
+           call this%prototypes%insert('Tripolar',  tripolar_factory)
            initialized = .true.
       end if
 
