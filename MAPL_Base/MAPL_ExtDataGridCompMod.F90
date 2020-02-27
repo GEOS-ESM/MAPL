@@ -1564,30 +1564,51 @@ CONTAINS
    enddo
 
    call MAPL_TimerOn(MAPLSTATE,"--PRead")
+
+   ! CreateCFIO
    call MAPL_TimerOn(MAPLSTATE,"---CreateCFIO")
+   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'ExtData Run_: ---CreateCFIO'
+   ENDIF
    call MAPL_ExtDataCreateCFIO(IOBundles, rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---CreateCFIO")
 
+   ! prefetch
    call MAPL_TimerOn(MAPLSTATE,"---prefetch")
+   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'ExtData Run_: ---prefetch'
+   ENDIF
    call MAPL_ExtDataPrefetch(IOBundles, rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---prefetch")
    _VERIFY(STATUS)
-   call MAPL_TimerOn(MAPLSTATE,"---IclientDone")
 
+   ! IclientDone
+   call MAPL_TimerOn(MAPLSTATE,"---IclientDone")
+   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'ExtData Run_: ---IclientDone'
+   ENDIF
    call i_Clients%done_collective_prefetch()
    call i_Clients%wait()
-
    call MAPL_TimerOff(MAPLSTATE,"---IclientDone")
    _VERIFY(STATUS)
   
+   ! read-prefetch
    call MAPL_TimerOn(MAPLSTATE,"---read-prefetch")
+   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'ExtData Run_: ---read-prefetch'
+   ENDIF
    call MAPL_ExtDataReadPrefetch(IOBundles,rc=status) 
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---read-prefetch")
+
    call MAPL_TimerOff(MAPLSTATE,"--PRead")
 
+   ! vertical interpolate
+   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'ExtData Run_: Vertical interpolation'
+   ENDIF
    bundle_iter = IOBundles%begin()
    do while (bundle_iter /= IOBundles%end())
       io_bundle => bundle_iter%get()
@@ -1663,6 +1684,9 @@ CONTAINS
    call MAPL_TimerOff(MAPLSTATE,"-Interpolate")
 
    ! now take care of derived fields
+   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'ExtData Run_: Calculating derived fields'
+   ENDIF
    do i=1,self%derived%nItems
 
       derivedItem => self%derived%item(i)
@@ -4584,8 +4608,7 @@ CONTAINS
 
   ! debugging
   if ( Ext_Debug > 0 .and. mapl_am_i_root() ) then
-     write(*,'(2(a,I4),3a,6(x,I4))') '   --> MAPL_ExtDataFillField: filling ', lm_in, ' level input to ', lm_out, ' levels for ', &
-          trim(item%name), ' with bounds', lb_in, ub_in, lb_out, ub_out
+     write(*,'(2(a,I4),3a)') '   --> MAPL_ExtDataFillField: filling ', lm_in, ' level input to ', lm_out, ' levels for ', trim(item%name)
   endif
 
   _RETURN(ESMF_SUCCESS)
