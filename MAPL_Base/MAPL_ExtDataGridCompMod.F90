@@ -76,6 +76,7 @@
   integer, parameter         :: MAPL_ExtDataLeft          = 1
   integer, parameter         :: MAPL_ExtDataRight         = 2
   logical                    :: hasRun
+  logical, SAVE              :: firstRun
   character(len=ESMF_MAXSTR) :: error_msg_str
 
   type BracketingFields
@@ -443,6 +444,10 @@ CONTAINS
    call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, __RC__ )
    Iam = trim(comp_name) // '::' // trim(Iam)
 
+!  Initialize firstRun to true
+!  ---------------------------------------
+   firstRun = .true.
+ 
 !  Extract relevant runtime information
 !  ------------------------------------
    call extract_ ( GC, self, CF_master, __RC__)
@@ -544,8 +549,8 @@ CONTAINS
    call ESMF_ConfigDestroy(CFtemp,rc=status)
    _VERIFY(STATUS)
 
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'ExtData Initialize_: Start'
+   IF ( MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'Initializing MAPL ExtData'
    ENDIF
 
    primary%nItems = totalPrimaryEntries
@@ -1231,8 +1236,8 @@ CONTAINS
 !  All done
 !  --------
 
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'ExtData Initialize_: End'
+   IF ( MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'MAPL ExtData initialization complete'
    ENDIF
 
    _RETURN(ESMF_SUCCESS)
@@ -1354,9 +1359,11 @@ CONTAINS
 
    call MAPL_TimerOn(MAPLSTATE,"-Read_Loop")
  
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'ExtData Run_: Start'
-      Write(*,*) 'ExtData Run_: READ_LOOP: Start'
+   IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
+      Write(*,*) 'Calling MAPL ExtData Run_'
+   endif
+   IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
+      Write(*,*) 'ExtData Run_: READ_LOOP'
    ENDIF
 
    READ_LOOP: do i = 1, self%primary%nItems
@@ -1543,10 +1550,14 @@ CONTAINS
 
    end do READ_LOOP
 
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'ExtData Run_: READ_LOOP: Done'
+   IF ( MAPL_Am_I_Root() .and. Ext_Debug > 0 ) THEN
+      Write(*,*) 'ExtData Run_: READ_LOOP: Complete'
    ENDIF
 
+   ! Populate bundle
+   IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
+      Write(*,*) 'ExtData Run_: ---PopulateBundle'
+   ENDIF
    bundle_iter = IOBundles%begin()
    do while (bundle_iter /= IoBundles%end())
       io_bundle => bundle_iter%get()
@@ -1567,7 +1578,7 @@ CONTAINS
 
    ! CreateCFIO
    call MAPL_TimerOn(MAPLSTATE,"---CreateCFIO")
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+   IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
       Write(*,*) 'ExtData Run_: ---CreateCFIO'
    ENDIF
    call MAPL_ExtDataCreateCFIO(IOBundles, rc=status)
@@ -1576,7 +1587,7 @@ CONTAINS
 
    ! prefetch
    call MAPL_TimerOn(MAPLSTATE,"---prefetch")
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+   IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
       Write(*,*) 'ExtData Run_: ---prefetch'
    ENDIF
    call MAPL_ExtDataPrefetch(IOBundles, rc=status)
@@ -1586,7 +1597,7 @@ CONTAINS
 
    ! IclientDone
    call MAPL_TimerOn(MAPLSTATE,"---IclientDone")
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+   IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
       Write(*,*) 'ExtData Run_: ---IclientDone'
    ENDIF
    call i_Clients%done_collective_prefetch()
@@ -1596,7 +1607,7 @@ CONTAINS
   
    ! read-prefetch
    call MAPL_TimerOn(MAPLSTATE,"---read-prefetch")
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+   IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
       Write(*,*) 'ExtData Run_: ---read-prefetch'
    ENDIF
    call MAPL_ExtDataReadPrefetch(IOBundles,rc=status) 
@@ -1606,7 +1617,7 @@ CONTAINS
    call MAPL_TimerOff(MAPLSTATE,"--PRead")
 
    ! vertical interpolate
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+   IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0)  ) THEN
       Write(*,*) 'ExtData Run_: Vertical interpolation'
    ENDIF
    bundle_iter = IOBundles%begin()
@@ -1677,14 +1688,14 @@ CONTAINS
 
    end do INTERP_LOOP
 
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+   IF ( (Ext_Debug > 0 .or. firstRun) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Run_: INTERP_LOOP: Done'
    ENDIF
 
    call MAPL_TimerOff(MAPLSTATE,"-Interpolate")
 
    ! now take care of derived fields
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+   IF ( (Ext_Debug > 0 .or. firstRun) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Run_: Calculating derived fields'
    ENDIF
    do i=1,self%derived%nItems
@@ -1707,8 +1718,8 @@ CONTAINS
 
    end do
 
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'ExtData Run_: End'
+   IF ( MAPL_Am_I_Root() .and. (Ext_Debug > 0 .or. firstRun) ) THEN
+      Write(*,*) 'MAPL ExtData Run_ complete'
    ENDIF
 
 !  All done
@@ -1716,6 +1727,7 @@ CONTAINS
    deallocate(doUpdate)
    deallocate(useTime)
 
+   if (firstRun) firstRun = .false.
    if (hasRun .eqv. .false.) hasRun = .true.
    call MAPL_TimerOff(MAPLSTATE,"Run")
    call MAPL_TimerOff(MAPLSTATE,"TOTAL")
