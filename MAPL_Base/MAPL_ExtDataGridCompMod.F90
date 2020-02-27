@@ -2156,7 +2156,8 @@ CONTAINS
         logical                    :: found,lFound,intOK
         integer                    :: maxOffset
         character(len=:), allocatable :: levname
-        character(len=:), pointer :: positive 
+        character(len=:), pointer :: positive
+        character(len=64)         :: posStr
         type(FileMetadataUtils), pointer :: metadata
         type(Variable), pointer :: var
         type(ESMF_TimeInterval)    :: zero
@@ -2256,7 +2257,8 @@ CONTAINS
            else
               positive => metadata%get_variable_attribute(levName,'positive',__RC__)
               if (associated(positive)) then
-                 if (MAPL_TrimString(positive)=='up') item%fileVDir="up"
+                 posStr = positive
+                 if (MAPL_TrimString(posStr)=='up') item%fileVDir="up"
               end if
            end if
 
