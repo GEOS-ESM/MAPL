@@ -17,6 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected Python code generator scripts for component import/export specs.
 - Add directories to `.gitignore` for building with `mepo`
 - Bug building with mixed Intel/GCC compilers
+- Set correct ESMA_env tag in `components.yaml`
+
+### Removed
+
+- Removed support for `checkout_externals` and moved solely to `mepo`
+  - Removed `Externals.cfg`
+  - Removed `checkout_externals` code in `CMakeLists.txt`
+
+### Added
+
+- Added configuration for CircleCI
+  - Builds MAPL using GCC 9.2.0 and Open MPI 4.0.2
+  - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
 	
 ## [2.0.0] - 2019-02-07
 
