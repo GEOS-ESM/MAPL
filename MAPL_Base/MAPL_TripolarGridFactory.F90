@@ -90,15 +90,17 @@ module MAPL_TripolarGridFactoryMod
 
 contains
 
-
    function TripolarGridFactory_from_parameters(unusable, grid_file_name, grid_name, &
-        & nx, ny, rc) result(factory)
+        & im_world,jm_world,lm,nx, ny, rc) result(factory)
       type (TripolarGridFactory) :: factory
       class (KeywordEnforcer), optional, intent(in) :: unusable
 
       ! grid details:
       character(len=*), intent(in) :: grid_file_name ! required
       character(len=*), optional, intent(in) :: grid_name
+      integer, optional, intent(in) :: im_world
+      integer, optional, intent(in) :: jm_world
+      integer, optional, intent(in) :: lm
 
       ! decomposition:
       integer, optional, intent(in) :: nx
@@ -107,20 +109,21 @@ contains
 
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'TripolarGridFactory_from_parameters'
-      logical :: exists
+
       
       if (present(unusable)) print*,shape(unusable)
 
       call set_with_default(factory%grid_name, grid_name, GRID_NAME_DEFAULT)
+      call set_with_default(factory%grid_file_name, grid_file_name, GRID_FILE_NAME_DEFAULT)
 
       call set_with_default(factory%ny, nx, UNDEFINED_INTEGER)
       call set_with_default(factory%nx, ny, UNDEFINED_INTEGER)
+      call set_with_default(factory%im_world, im_world, UNDEFINED_INTEGER)
+      call set_with_default(factory%jm_world, jm_world, UNDEFINED_INTEGER)
+      call set_with_default(factory%lm, lm, UNDEFINED_INTEGER)
 
-      factory%grid_file_name = grid_file_name
-      inquire(file=grid_file_name, exist=exists)
-      _ASSERT(exists)
 
-      call factory%read_grid_dimensions()
+
 
       call factory%check_and_fill_consistency(rc=status)
       _VERIFY(status)
@@ -193,48 +196,86 @@ contains
    end function create_basic_grid
 
    subroutine add_horz_coordinates(this, grid, unusable, rc)
-      use MAPL_BaseMod, only: MAPL_grid_interior
+      use MAPL_BaseMod, only: MAPL_grid_interior, MAPL_gridget
       use MAPL_CommsMod
+      use MAPL_IOMod
+      use MAPL_ConstantsMod
       class (TripolarGridFactory), intent(in) :: this
       type (ESMF_Grid), intent(inout) :: grid
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       
-      integer :: i_1, i_n, j_1, j_n ! regional array bounds
-      real(kind=ESMF_KIND_R8), pointer :: centers(:,:)
-      real(kind=ESMF_KIND_R8), allocatable :: longitudes(:,:)
-      real(kind=ESMF_KIND_R8), allocatable :: latitudes(:,:)
+
+
+
+
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'add_horz_coordinates'
+
+      integer :: UNIT
+      integer :: IM, JM
+      integer :: IMSTART, JMSTART
+      integer :: IM_WORLD, JM_WORLD
+      integer :: DUMMYI, DUMMYJ
+
+      integer :: COUNTS(3), DIMS(3)
+      type(ESMF_DELayout) :: LAYOUT
+      type(ESMF_DistGrid) :: DISTGRID
+      real(ESMF_KIND_R8), allocatable :: x(:,:), y(:,:)
+      real(ESMF_KIND_R8), pointer :: gridx(:,:), gridy(:,:)
       
       _UNUSED_DUMMY(unusable)
+! get IM, JM and IM_WORLD, JM_WORLD
+     call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, globalCellCountPerDim=DIMS, RC=STATUS)
+     _VERIFY(STATUS)
 
-      call this%read_grid_coordinates(longitudes, latitudes)
+     IM = COUNTS(1)
+     JM = COUNTS(2)
+     IM_WORLD = DIMS(1)
+     JM_WORLD = DIMS(2)
 
-      call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
+! get global index of the lower left corner
+!------------------------------------------
+     call MAPL_GRID_INTERIOR(GRID,IMSTART,DUMMYI,JMSTART,DUMMYJ)
+ 
+     call ESMF_GridGetCoord(grid, localDE=0, coordDim=1, &
+          staggerloc=ESMF_STAGGERLOC_CENTER, &
+          farrayPtr=gridx, rc=status)
+     _VERIFY(STATUS)
 
-      ! First we handle longitudes:
-      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-           staggerloc=ESMF_STAGGERLOC_CENTER, &
-           farrayPtr=centers, rc=status)
-      _VERIFY(status)
+     call ESMF_GridGetCoord(grid, localDE=0, coordDim=2, &
+          staggerloc=ESMF_STAGGERLOC_CENTER, &
+          farrayPtr=gridy, rc=status)
+     _VERIFY(STATUS)
 
-      call ArrayScatter(centers, longitudes, grid, rc=status)
-      _VERIFY(status)
+     allocate(x(IM_WORLD, JM_WORLD), stat=status)
+     _VERIFY(STATUS)
+     allocate(y(IM_WORLD, JM_WORLD), stat=status)
+     _VERIFY(STATUS)
 
-      ! Now latitudes
-      call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-           staggerloc=ESMF_STAGGERLOC_CENTER, &
-           farrayPtr=centers, rc=status)
-      _VERIFY(status)
-      call ArrayScatter(centers, latitudes, grid, rc=status)
-      _VERIFY(status)
+     call ESMF_GridGet    (GRID,   distGrid=distGrid, rc=STATUS)
+     _VERIFY(STATUS)
+     call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS)
+     _VERIFY(STATUS)
 
-      deallocate(longitudes, latitudes)
+     UNIT = GETFILE(this%grid_file_name, form="formatted", rc=status)
+     call READ_PARALLEL(LAYOUT, X, unit=UNIT)
+     call READ_PARALLEL(LAYOUT, Y, unit=UNIT)
+     call FREE_FILE(UNIT)
+
+     X = X * (MAPL_PI_R8)/180._8
+     Y = Y * (MAPL_PI_R8)/180._8
+
+
+     GRIDX = X(IMSTART:IMSTART+IM-1,JMSTART:JMSTART+JM-1)
+     GRIDY = Y(IMSTART:IMSTART+IM-1,JMSTART:JMSTART+JM-1)
+
+     deallocate(y)
+     deallocate(x)
+
       _RETURN(_SUCCESS)
 
    end subroutine add_horz_coordinates
-
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
       use MAPL_KeywordEnforcerMod
@@ -250,7 +291,6 @@ contains
       _UNUSED_DUMMY(unusable)
 
    end subroutine initialize_from_file_metadata
-
 
    subroutine initialize_from_config_with_prefix(this, config, prefix, unusable, rc)
       use esmf
@@ -269,14 +309,14 @@ contains
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
 
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRID_FILE_NAME:', rc=status)
+      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDSPEC:', rc=status)
       _VERIFY(status)
       this%grid_file_name = trim(tmp)
-      call this%read_grid_dimensions()
 
       call ESMF_ConfigGetAttribute(config, this%nx, label=prefix//'NX:', default=UNDEFINED_INTEGER)
       call ESMF_ConfigGetAttribute(config, this%ny, label=prefix//'NY:', default=UNDEFINED_INTEGER)
-
+      call ESMF_ConfigGetAttribute(config, this%im_world, label=prefix//'IM_WORLD:', default=UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%jm_world, label=prefix//'JM_WORLD:', default=UNDEFINED_INTEGER)
       call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=UNDEFINED_INTEGER)
 
       call this%check_and_fill_consistency(rc=status)
