@@ -31,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Builds MAPL using GCC 9.2.0 and Open MPI 4.0.2
   - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
 	
+## [2.0.1] - 2019-03-02
+
+### Fixed
+
+- Restoring functionality with the tripolar grid that was lost when the develop branch was merged into master for version 2.0.0
+
 ## [2.0.0] - 2019-02-07
 
 ### Added
