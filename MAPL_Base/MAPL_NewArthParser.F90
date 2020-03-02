@@ -759,7 +759,6 @@ CONTAINS
     INTEGER                                     :: ParCnt, & ! Parenthesis counter
                                                    j,ib,in,lFunc
     LOGICAL                                     :: isUndef
-    INTEGER                                     :: status
     character(len=ESMF_MAXPATHLEN)              :: func
     integer, allocatable                        :: ipos(:)
     character(len=ESMF_MAXSTR), parameter       :: IAm="CheckSyntax"

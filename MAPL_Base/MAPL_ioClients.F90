@@ -51,6 +51,7 @@ contains
       i_Clients = ClientManager(n_client=n_i)
       o_Clients = ClientManager(n_client=n_o)
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
    end subroutine
 

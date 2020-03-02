@@ -196,6 +196,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
+      _UNUSED_DUMMY(rotate)
       u_out = 0
       v_out = 0
       _RETURN(_FAILURE)
@@ -217,6 +218,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
+      _UNUSED_DUMMY(rotate)
       u_out = 0
       v_out = 0
       _RETURN(_FAILURE)
@@ -237,6 +239,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
+      _UNUSED_DUMMY(rotate)
       u_out = 0
       v_out = 0
       _RETURN(_FAILURE)
@@ -583,6 +586,7 @@ contains
       _UNUSED_DUMMY(v_in)
       _UNUSED_DUMMY(u_out)
       _UNUSED_DUMMY(v_out)
+      _UNUSED_DUMMY(rotate)
       u_out = 0
       v_out = 0
       _RETURN(_FAILURE)
@@ -607,6 +611,7 @@ contains
       _UNUSED_DUMMY(v_in)
       _UNUSED_DUMMY(u_out)
       _UNUSED_DUMMY(v_out)
+      _UNUSED_DUMMY(rotate)
       u_out = 0
       v_out = 0
       _RETURN(_FAILURE)
@@ -631,6 +636,7 @@ contains
       _UNUSED_DUMMY(v_in)
       _UNUSED_DUMMY(u_out)
       _UNUSED_DUMMY(v_out)
+      _UNUSED_DUMMY(rotate)
       u_out = 0
       v_out = 0
       _RETURN(_FAILURE)
@@ -943,6 +949,7 @@ contains
    function isTranspose(this) result(amTranspose)
       logical :: amTranspose
       class (AbstractRegridder), intent(in) :: this
+      _UNUSED_DUMMY(this)
       amTranspose = .false.
    end function isTranspose
 

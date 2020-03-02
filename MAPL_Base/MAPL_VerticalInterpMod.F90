@@ -63,7 +63,6 @@ CONTAINS
       character(len=1) :: vartype
       real(REAL64), allocatable :: ak(:),bk(:)
       integer :: status
-      character(len=ESMF_MAXSTR) :: Iam = "MAPL_VerticalInterp"
       real    :: gfactor
       type(ESMF_Grid) :: grid
       real, pointer   :: vMod(:,:,:), vPres(:,:,:), vPS(:,:), vPHIS(:,:)

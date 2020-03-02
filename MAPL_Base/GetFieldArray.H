@@ -16,7 +16,6 @@
    real(KIND=EKIND_), pointer :: PTR DIMENSIONS_
    integer, optional, intent(  OUT) :: RC
    
-   character(len=ESMF_MAXSTR)      :: IAm=SUBSTR_
    integer                         :: STATUS
 
    logical :: hasDE

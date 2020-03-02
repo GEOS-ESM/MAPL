@@ -74,6 +74,9 @@ module MAPL_TripolarGridFactoryMod
       procedure :: append_metadata
       procedure :: get_grid_vars
       procedure :: append_variable_metadata
+      procedure :: generate_file_bounds
+      procedure :: generate_file_reference2D
+      procedure :: generate_file_reference3D
    end type TripolarGridFactory
    
    character(len=*), parameter :: MOD_NAME = 'MAPL_TripolarGridFactory::'
@@ -286,9 +289,10 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_file_metadata()'
-      integer :: status
 
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(rc)
 
    end subroutine initialize_from_file_metadata
 
@@ -545,8 +549,8 @@ contains
       class (TripolarGridFactory), intent(in) :: this
 
       _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(name)
 
+      name = ''
       ! needs to be implemented
       error stop -1
 
@@ -907,6 +911,7 @@ contains
       class (TripolarGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
+      _UNUSED_DUMMY(this)
 
       vars = 'lon,lat'
 
@@ -915,7 +920,44 @@ contains
    subroutine append_variable_metadata(this,var)
       class (TripolarGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(var)
    end subroutine append_variable_metadata
 
+   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+      use MAPL_BaseMod
+      class(TripolarGridFactory), intent(inout) :: this
+      type(ESMF_Grid),      intent(inout) :: grid
+      integer, allocatable, intent(inout) :: local_start(:)
+      integer, allocatable, intent(inout) :: global_start(:)
+      integer, allocatable, intent(inout) :: global_count(:)
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(grid)
+      _UNUSED_DUMMY(local_start)
+      _UNUSED_DUMMY(global_start)
+      _UNUSED_DUMMY(global_count)
+      _UNUSED_DUMMY(rc)
+
+   end subroutine generate_file_bounds
+
+   function generate_file_reference2D(this,fpointer) result(ref)
+      use pFIO
+      type(ArrayReference) :: ref
+      class(TripolarGridFactory), intent(inout) :: this
+      real, pointer, intent(in) :: fpointer(:,:)
+      _UNUSED_DUMMY(this)
+      ref = ArrayReference(fpointer)
+   end function generate_file_reference2D
+
+   function generate_file_reference3D(this,fpointer) result(ref)
+      use pFIO
+      type(ArrayReference) :: ref
+      class(TripolarGridFactory), intent(inout) :: this
+      real, pointer, intent(in) :: fpointer(:,:,:)
+      _UNUSED_DUMMY(this)
+      ref = ArrayReference(fpointer)
+   end function generate_file_reference3D
 
 end module MAPL_TripolarGridFactoryMod
