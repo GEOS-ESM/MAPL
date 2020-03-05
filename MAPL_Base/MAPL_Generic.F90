@@ -1957,7 +1957,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   character(len=ESMF_MAXSTR)                  :: CHILD_NAME
   character(len=ESMF_MAXSTR)                  :: RECFIN
   type (MAPL_MetaComp), pointer               :: STATE
-  integer                                     :: I,j
+  integer                                     :: I
   logical                                     :: final_checkpoint
   integer                                     :: NC
   integer                                     :: PHASE
@@ -2867,7 +2867,6 @@ end subroutine MAPL_DateStampGet
 
 ! ErrLog Variables
 
-    character(len=ESMF_MAXSTR)        :: IAm="MAPL_InternalStateRetrieve"
     integer                           :: STATUS
 
 ! Local variables
@@ -3528,11 +3527,9 @@ end subroutine MAPL_DateStampGet
     !EOPI
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm
 
     type (MAPL_MetaComp),     pointer     :: META 
     integer                               :: phase
-    integer                               :: phase0, phase1
 
     call MAPL_InternalStateRetrieve( GC, META, RC=STATUS)
     _VERIFY(STATUS)
@@ -4306,7 +4303,6 @@ end subroutine MAPL_DateStampGet
     integer,           optional  , intent(  OUT) :: rc
     !EOPI
 
-  character(len=ESMF_MAXSTR)                  :: IAm='MAPL_AddChildFromMeta'
   integer                                     :: STATUS
 
   integer                                     :: I
@@ -6205,8 +6201,6 @@ subroutine MAPL_StateGetVarSpecs(STATE,IMPORT,EXPORT,INTERNAL,RC)
 !
 ! ErrLog Variables
 
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_StateGetVarSpec'
-
 ! Begin
 
 ! Get the specs for the 3 ESMF states
@@ -7009,7 +7003,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 !
 ! ErrLog Variables
 
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_FriendlyGet'
     integer                               :: STATUS
 
 ! Local variables
@@ -7125,7 +7118,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 !
 ! ErrLog Variables
 
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_GridCompGetFriendlies0'
     integer                               :: STATUS
 
 ! Local variables
@@ -7402,7 +7394,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 !
 ! ErrLog Variables
 
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_GridCompGetFriendlies2'
     integer                               :: STATUS, I
     character(len=ESMF_MAXSTR)            :: TO_(1)
 
@@ -7429,7 +7420,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 !
 ! ErrLog Variables
 
-    character(len=ESMF_MAXSTR)            :: IAm='MAPL_GridCompGetFriendlies3'
     integer                               :: STATUS, I
 
     do I=1,size(GC)
@@ -7450,7 +7440,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     integer, optional,   intent(  out) :: RC     ! Error code:
 
 ! Local vars
-    character(len=ESMF_MAXSTR)   :: Iam="MAPL_SetVarSpecForCC"
     character(len=ESMF_MAXSTR)   :: NAME
     integer                      :: STATUS
     integer                      :: I, N, STAT
@@ -8494,7 +8483,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     integer, optional,        intent(  OUT)   :: RC
     !EOPI
 
-    character(len=ESMF_MAXSTR)        :: IAm = "MAPL_ReadForcing1"
     integer                           :: STATUS
     
     call MAPL_ReadForcingX(STATE,NAME,DATAFILE,CURRENTTIME,      &
@@ -8524,7 +8512,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     integer, optional,        intent(  OUT)   :: RC
     !EOPI
 
-   character(len=ESMF_MAXSTR)        :: IAm = "MAPL_ReadForcing2"
    integer                           :: STATUS
 
    call MAPL_ReadForcingX(STATE,NAME,DATAFILE,CURRENTTIME,      &
@@ -8552,7 +8539,6 @@ subroutine MAPL_ReadForcingX(MPL,NAME,DATAFILE,CURRTIME,  &
 
 ! ErrLog Variables
 
-   character(len=ESMF_MAXSTR)        :: IAm = "MAPL_ReadForcing"
    integer                           :: STATUS
 
 ! Locals
@@ -9290,7 +9276,6 @@ end subroutine MAPL_READFORCINGX
 
 ! ErrLog Variables
 
-    character(len=ESMF_MAXSTR)        :: IAm = "MAPL_StateGetTimeStamp"
     integer                           :: STATUS
 
 ! Locals
@@ -9330,7 +9315,6 @@ end subroutine MAPL_READFORCINGX
 
 ! ErrLog Variables
 
-    character(len=ESMF_MAXSTR)        :: IAm = "MAPL_StateSetTimeStamp"
     integer                           :: STATUS
 
 ! Locals
@@ -9360,7 +9344,6 @@ end subroutine MAPL_READFORCINGX
 
 ! ErrLog Variables
 
-    character(len=ESMF_MAXSTR)        :: IAm = "MAPL_GenericMakeXchgNatural"
 
     STATE%LOCSTREAM = STATE%ExchangeGrid
 
@@ -9386,7 +9369,6 @@ end subroutine MAPL_READFORCINGX
     integer                               :: nn,ny
     character(len=ESMF_MAXSTR)            :: GridName
     character(len=2)                      :: dateline
-    real(ESMF_KIND_R8), pointer :: R8D2(:,:)
 #ifdef CREATE_REGULAR_GRIDS
     logical                               :: isRegular
 #endif
@@ -9502,7 +9484,6 @@ end subroutine MAPL_READFORCINGX
 
 ! local vars
 !------------ 
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_GridCoordAdjustFromFile'
     integer                    :: STATUS
     integer :: UNIT
     integer :: IM, JM
@@ -9585,7 +9566,6 @@ end subroutine MAPL_READFORCINGX
     integer, optional,      intent(OUT)   :: rc
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm
     type (MAPL_MetaComp),     pointer     :: META 
 
     call MAPL_GetObjectFromGC(GC, META, RC=STATUS)
@@ -9765,7 +9745,6 @@ end subroutine MAPL_READFORCINGX
     character(len=ESMF_MAXSTR)       :: name
 
     integer              :: status
-    character(len=ESMF_MAXSTR)  :: Iam="MAPL_GridGetSection"
 
     call ESMF_GridGet(GRID, Name=Name, DistGrid=distgrid, dimCount=dimCount, RC=STATUS)
     _VERIFY(STATUS)
@@ -9865,7 +9844,6 @@ end subroutine MAPL_READFORCINGX
     type(ESMF_VM)                    :: vm
 
     integer              :: status
-    character(len=ESMF_MAXSTR)  :: Iam="MAPL_InternalGridSet"
 
     ! At this point, this component must have a valid grid!
     !------------------------------------------------------
@@ -10001,7 +9979,6 @@ end subroutine MAPL_READFORCINGX
 
 
      integer :: status
-     character(len=ESMF_MAXSTR)   :: Iam="MAPL_GetAllExchangeGrids"
 
      type (MAPL_MetaComp),              pointer  :: MAPLOBJ 
      type (MAPL_LocStream)                       :: LocStream
@@ -10071,7 +10048,6 @@ end subroutine MAPL_READFORCINGX
      integer, optional,    intent(  OUT) :: RC         ! Return code
 
      integer                       :: status
-     character(len=ESMF_MAXSTR)    :: Iam="MAPL_DoNotAllocateImport"
 
      type (MAPL_MetaComp), pointer :: MAPLOBJ 
      type (MAPL_VarSpec),  pointer :: SPEC(:) => null()
@@ -10097,7 +10073,6 @@ end subroutine MAPL_READFORCINGX
      integer,              intent(  OUT) :: RC         ! Return code
 
      integer                       :: status
-     character(len=ESMF_MAXSTR)    :: Iam="MAPL_DoNotAllocateInternal"
 
      type (MAPL_MetaComp), pointer :: MAPLOBJ 
      type (MAPL_VarSpec),  pointer :: SPEC(:)
@@ -10121,7 +10096,6 @@ end subroutine MAPL_READFORCINGX
      integer, optional,    intent(  OUT) :: RC         ! Return code
 
      integer                       :: status
-     character(len=ESMF_MAXSTR)    :: Iam="MAPL_DoNotAllocateVar"
 
      integer                       :: I
      logical                       :: notFoundOK_
@@ -10160,7 +10134,6 @@ end subroutine MAPL_READFORCINGX
      logical                       :: tile_loc
      type(ESMF_Grid)               :: TILEGRID
      character(len=MPI_MAX_INFO_VAL) :: romio_cb_read,cb_buffer_size,romio_cb_write
-     character(len=ESMF_MAXSTR)    :: Iam="ArrDescrSetNCPar"
  
      if (present(tile)) then
         tile_loc=tile
