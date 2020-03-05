@@ -20,14 +20,13 @@ module MAPL_VerticalGrid
       real(kind=REAL64), allocatable :: bk(:)
       integer :: ks
       integer :: num_levels = 0
-      logical :: use_sigma_levels = .false.
-      logical :: use_ncep_levels  = .false.
+      real(kind=REAL64) :: ref_pressure
    contains
-      procedure :: set_eta_r8
-      procedure :: set_eta_r4
+      procedure :: get_eta_r8
+      procedure :: get_eta_r4
       procedure :: get_pressure_levels_r8
       procedure :: get_pressure_levels_r4
-      generic :: set_eta =>set_eta_r8, set_eta_r4
+      generic :: get_eta =>get_eta_r8, get_eta_r4
       generic :: get_pressure_levels=>get_pressure_levels_r8, get_pressure_levels_r4
    end type VerticalGrid
 
@@ -36,19 +35,18 @@ module MAPL_VerticalGrid
       module procedure new_VerticalGrid_by_cfg
    end interface
 
-   real(kind=REAL64), parameter :: DEFAULT_REFENCE_PRESSURE = 98400.d0 ! Pa
+   real(kind=REAL64), parameter :: DEFAULT_REFERENCE_PRESSURE = 98400.d0 ! default reference pressure
 
 contains
 
 
-   function new_VerticalGrid_by_ak_bk(ak, bk, ks, unused, use_sigma_levels, use_ncep_levels, rc) result(grid)
+   function new_VerticalGrid_by_ak_bk(ak, bk, ks, unused, ref_pressure, rc) result(grid)
       type (VerticalGrid) :: grid
       real(kind=REAL64), intent(in) :: ak(:)
       real(kind=REAL64), intent(in) :: bk(:)
       integer, intent(in) :: ks
       class(KeywordEnforcer), optional, intent(in) :: unused
-      logical, optional,intent(in) :: use_sigma_levels
-      logical, optional,intent(in) :: use_ncep_levels
+      real(kind=REAL64),optional, intent(in) :: ref_pressure
       integer, optional, intent(inout) :: rc
 
       character(len=*), parameter :: Iam="new_VerticalGrid_by_ak_bk"
@@ -59,60 +57,35 @@ contains
       grid%ak = ak
       grid%bk = bk
       grid%ks = ks
-
-      if (present(use_sigma_levels)) then
-         grid%use_sigma_levels = use_sigma_levels
-      else
-         grid%use_sigma_levels = .false.
-      end if
-
-      if (present(use_ncep_levels)) then
-         grid%use_ncep_levels = use_ncep_levels
-      else
-         grid%use_ncep_levels = .false.
-      end if
-
       grid%num_levels = size(ak) - 1
+
+      if (present(ref_pressure)) then
+         grid%ref_pressure = ref_pressure
+      else
+         grid%ref_pressure = DEFAULT_REFERENCE_PRESSURE
+      end if
+
       
    end function new_VerticalGrid_by_ak_bk
 
-   function new_VerticalGrid_by_cfg(config, unused, reference_pressure, rc) result(grid)
+   function new_VerticalGrid_by_cfg(config, unused, rc) result(grid)
       type (VerticalGrid) :: grid
       type (ESMF_Config) :: config
       class (KeywordEnforcer), optional, intent(in) :: unused
-      real(kind=REAL64), optional, intent(in) :: reference_pressure
       integer, optional, intent(inout) :: rc
-      logical :: use_sigma_levels
-      logical :: use_ncep_levels
       real(kind=REAL64), allocatable :: ak(:)
       real(kind=REAL64), allocatable :: bk(:)
 
       integer :: k,ks, num_levels
-      real(kind=REAL64) :: ptop, pint
+      real(kind=REAL64) :: ptop, pint, ref_pressure
       character(len=32) :: data_label
       character(len=*), parameter :: Iam="new_VerticalGrid_by_cfg"
  
-      call ESMF_ConfigGetAttribute(config, num_levels,label='NUM_LEVELS:', default = 0, rc=rc)
-      call ESMF_ConfigGetAttribute(config, use_sigma_levels, label='USE_SIGMA_LEVELS:', default=.false., rc=rc)
-      call ESMF_ConfigGetAttribute(config, use_ncep_levels, label='USE_NCEP_LEVELS:',   default=.false., rc=rc)
+      call ESMF_ConfigGetAttribute(config, num_levels,label='NUM_LEVELS:', rc=rc)
+      call ESMF_ConfigGetAttribute(config, ref_pressure,label='REF_PRESSURE:', default = DEFAULT_REFERENCE_PRESSURE, rc=rc)
+      call ESMF_ConfigGetAttribute(config, ks,label='TRANSIT_TO_P:', rc=rc)
 
-      data_label = "levels_"//i_to_string(num_levels)//":"
-      if(use_sigma_levels) then
-         _ASSERT(num_levels==64, "sigma only 64 levels")
-         data_label = "sigma_levels_64:"
-         _ASSERT( .not. use_ncep_levels, "64 .or. 72")
-      endif
-
-      if(use_ncep_levels) then
-         _ASSERT(num_levels==72, "ncep_gmao 72 levels")
-         data_label = "ncep_levels_72:"
-      endif
-#ifdef _BETA3P1_N_EARLIER_
-      _ASSERT( .not. use_ncep_levels, " not ncep grid")
-      _ASSERT( .not. use_sigma_levels, " not sigma grid")
-      _ASSERT(num_levels==72, " _BETA3P1_N_EARLIER_ is defines")
-      eta_lable = "BETA3P1_levels_72:"
-#endif
+      data_label = "ak-bk:"
 
       allocate(ak(num_levels+1), bk(num_levels+1))
 
@@ -124,15 +97,12 @@ contains
          call ESMF_ConfigGetAttribute(config, ak(k), rc=rc)
          call ESMF_ConfigGetAttribute(config, bk(k), rc=rc)
       enddo
-      ! the last row is ks for pint = ak(ks+1)
-      call ESMF_ConfigNextLine(config, rc=rc) 
-      call ESMF_ConfigGetAttribute(config, ks, rc=rc)
 
-      grid = VerticalGrid(ak, bk, ks, use_sigma_levels, use_ncep_levels)
+      grid = VerticalGrid(ak, bk, ks, ref_pressure=ref_pressure)
 
    end function new_VerticalGrid_by_cfg
 
-   subroutine set_eta_r8(this, km, ks, ptop, pint, ak, bk, unused,rc)
+   subroutine get_eta_r8(this, km, ks, ptop, pint, ak, bk, unused,rc)
       class(VerticalGrid), intent(in) :: this
       integer, intent(in)  :: km
       integer, intent(out) :: ks
@@ -155,9 +125,9 @@ contains
 
      _RETURN(_SUCCESS)
 
-   end subroutine set_eta_r8
+   end subroutine get_eta_r8
 
-   subroutine set_eta_r4(this, km, ks, ptop, pint, ak, bk, unused,rc)
+   subroutine get_eta_r4(this, km, ks, ptop, pint, ak, bk, unused,rc)
       class(VerticalGrid), intent(in) :: this
       integer, intent(in)  :: km
       integer, intent(out) :: ks
@@ -180,7 +150,7 @@ contains
      allocate(ak8(km+1))
      allocate(bk8(km+1))
 
-     call this%set_eta(km, ks, ptop8, pint8, ak8, bk8)
+     call this%get_eta(km, ks, ptop8, pint8, ak8, bk8)
 
      ak = real(ak8, kind=REAL32)
      bk = real(bk8, kind=REAL32)
@@ -190,7 +160,7 @@ contains
      deallocate(ak8,bk8)
 
      _RETURN(_SUCCESS)
-   end subroutine set_eta_r4
+   end subroutine get_eta_r4
 
    subroutine get_pressure_levels_r8(this, pressure_levels, unused, reference_pressure, rc)
       class(VerticalGrid), intent(in) :: this
@@ -208,7 +178,7 @@ contains
       if (present(reference_pressure)) then
          p0 = reference_pressure
       else
-         p0 = DEFAULT_REFENCE_PRESSURE
+         p0 = DEFAULT_REFERENCE_PRESSURE 
       end if
 
       pressure_levels(1) = this%ak(1) + 0.50d0 * dpref_(1,p0)
@@ -246,7 +216,7 @@ contains
       if (present(reference_pressure)) then
          p0 = reference_pressure
       else
-         p0 = DEFAULT_REFENCE_PRESSURE
+         p0 = DEFAULT_REFERENCE_PRESSURE
       end if
 
       allocate(plevels(n_levels))
