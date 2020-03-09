@@ -1,4 +1,6 @@
 <!--- These lines are comments. You can delete or ignore them -->
+<!--- NOTE: If your PR is trivial, feel free to delete the "Related Issue" -->
+<!---       "Testing" or other sections. -->
 
 <!--- Provide a general summary of your changes in the Title above -->
 
