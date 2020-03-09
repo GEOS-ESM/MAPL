@@ -849,6 +849,9 @@ module MAPL_newCFIOMod
            if (hasDE) then
               call ESMF_FieldGet(input_fields(I),0,farrayPtr=ptr2d,rc=status)
               _VERIFY(status)
+           else
+              allocate(ptr2d(0,0),stat=status)
+              _VERIFY(status)
            end if
            ref=ArrayReference(ptr2d)
            start = [i1, j1, timeIndex] ! (i,j,t)
@@ -863,6 +866,9 @@ module MAPL_newCFIOMod
            _VERIFY(status)
            if (hasDE) then
               call ESMF_FieldGet(input_fields(I),0,farrayPtr=ptr3d,rc=status)
+              _VERIFY(status)
+           else
+              allocate(ptr3d(0,0,0),stat=status)
               _VERIFY(status)
            end if
            ref=ArrayReference(ptr3d)
