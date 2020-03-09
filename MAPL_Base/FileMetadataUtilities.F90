@@ -340,8 +340,8 @@ module MAPL_FileMetadataUtilsMod
                lev_name=var_name
                _RETURN(_SUCCESS)
             else
+               if (var%is_attribute_present('units')) then
                units => this%get_variable_attribute(var_name,'units')
-               if (associated(units)) then
                   if (trim(units) .eq. 'hPa' .or. trim(units) .eq. 'sigma_level' .or. &
                       trim(units) .eq. 'mb'  .or. trim(units) .eq. 'millibar') then
                      lev_name=var_name

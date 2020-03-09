@@ -74,6 +74,9 @@ module MAPL_TripolarGridFactoryMod
       procedure :: append_metadata
       procedure :: get_grid_vars
       procedure :: append_variable_metadata
+      procedure :: generate_file_bounds
+      procedure :: generate_file_reference2D
+      procedure :: generate_file_reference3D
    end type TripolarGridFactory
    
    character(len=*), parameter :: MOD_NAME = 'MAPL_TripolarGridFactory::'
@@ -917,5 +920,33 @@ contains
       type(Variable), intent(inout) :: var
    end subroutine append_variable_metadata
 
+   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+      use MAPL_BaseMod
+      class(TripolarGridFactory), intent(inout) :: this
+      type(ESMF_Grid),      intent(inout) :: grid
+      integer, allocatable, intent(inout) :: local_start(:)
+      integer, allocatable, intent(inout) :: global_start(:)
+      integer, allocatable, intent(inout) :: global_count(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+   end subroutine generate_file_bounds
+
+   function generate_file_reference2D(this,fpointer) result(ref)
+      use pFIO
+      type(ArrayReference) :: ref
+      class(TripolarGridFactory), intent(inout) :: this
+      real, pointer, intent(in) :: fpointer(:,:)
+      ref = ArrayReference(fpointer)
+   end function generate_file_reference2D
+
+   function generate_file_reference3D(this,fpointer) result(ref)
+      use pFIO
+      type(ArrayReference) :: ref
+      class(TripolarGridFactory), intent(inout) :: this
+      real, pointer, intent(in) :: fpointer(:,:,:)
+      ref = ArrayReference(fpointer)
+   end function generate_file_reference3D
 
 end module MAPL_TripolarGridFactoryMod

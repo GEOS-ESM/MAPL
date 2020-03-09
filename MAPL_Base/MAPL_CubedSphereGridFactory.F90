@@ -60,7 +60,9 @@ module MAPL_CubedSphereGridFactoryMod
       ! rectangle decomposition
       integer, allocatable :: jms_2d(:,:)
       ! stretching parameters
-      real :: stretch_factor, target_lon, target_lat
+      real :: stretch_factor = UNDEFINED_REAL
+      real :: target_lon = UNDEFINED_REAL
+      real :: target_lat = UNDEFINED_REAL
       logical :: stretched_cube = .false.
 
       ! For halo
@@ -88,6 +90,9 @@ module MAPL_CubedSphereGridFactoryMod
       procedure :: append_metadata
       procedure :: get_grid_vars
       procedure :: append_variable_metadata
+      procedure :: generate_file_bounds
+      procedure :: generate_file_reference2D
+      procedure :: generate_file_reference3D
       procedure :: get_fake_longitudes
       procedure :: get_fake_latitudes
    end type CubedSphereGridFactory
@@ -293,6 +298,8 @@ contains
 
       character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_file_metadata()'
       integer :: status
+      logical :: hasLev,hasLevel
+      character(:), allocatable :: lev_name
 
       associate(im => this%im_world)
          im = file_metadata%get_dimension('Xdim',rc=status)
@@ -300,6 +307,23 @@ contains
       end associate
       call this%make_arbitrary_decomposition(this%nx, this%ny, reduceFactor=6, rc=status)
       _VERIFY(status)
+
+      hasLev=.false.
+      hasLevel=.false.
+      lev_name = 'lev'
+      hasLev = file_metadata%has_dimension(lev_name)
+      if (hasLev) then
+         this%lm = file_metadata%get_dimension(lev_name,rc=status)
+         _VERIFY(status)
+      else
+         lev_name = 'levels'
+         hasLevel = file_metadata%has_dimension(lev_name)
+         if (hasLevel) then
+            this%lm = file_metadata%get_dimension(lev_name,rc=status)
+            _VERIFY(status)
+         end if
+      end if
+
       allocate(this%ims(0:this%nx-1))
       allocate(this%jms(0:this%ny-1))
       call MAPL_DecomposeDim(this%im_world, this%ims, this%nx, min_DE_extent=2)
@@ -1105,5 +1129,51 @@ contains
       latitudes = latitudes * MAPL_RADIANS_TO_DEGREES
       
    end function get_fake_latitudes
+
+   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+      use MAPL_BaseMod
+      class(CubedSphereGridFactory), intent(inout) :: this
+      type(ESMF_Grid),      intent(inout) :: grid
+      integer, allocatable, intent(inout) :: local_start(:)
+      integer, allocatable, intent(inout) :: global_start(:)
+      integer, allocatable, intent(inout) :: global_count(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: global_dim(3),i1,j1,in,jn,tile
+      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
+
+      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
+      _VERIFY(status)
+      call MAPL_GridGetInterior(grid,i1,in,j1,jn)
+      tile=j1/global_dim(1)
+      allocate(local_start,source=[i1,j1-tile*global_dim(1),tile+1])
+      allocate(global_start,source=[1,1,1])
+      allocate(global_count,source=[global_dim(1),global_dim(1),6])
+
+      _RETURN(_SUCCESS)
+
+   end subroutine generate_file_bounds
+
+   function generate_file_reference2D(this,fpointer) result(ref)
+      use pFIO
+      type(ArrayReference) :: ref
+      class(CubedSphereGridFactory), intent(inout) :: this
+      real, pointer, intent(in) :: fpointer(:,:)
+      ref = ArrayReference(fpointer)
+   end function generate_file_reference2D
+
+   function generate_file_reference3D(this,fpointer) result(ref)
+      use pFIO
+      use, intrinsic :: ISO_C_BINDING
+      type(ArrayReference) :: ref
+      class(CubedSphereGridFactory), intent(inout) :: this
+      real, pointer, intent(in) :: fpointer(:,:,:)
+      type(c_ptr) :: cptr
+      real, pointer :: ptr_ref(:,:,:,:,:)
+      cptr = c_loc(fpointer)
+      call C_F_pointer(cptr,ptr_ref,[size(fpointer,1),size(fpointer,2),1,size(fpointer,3),1])
+      ref = ArrayReference(ptr_ref)
+   end function generate_file_reference3D
  
 end module MAPL_CubedSphereGridFactoryMod
