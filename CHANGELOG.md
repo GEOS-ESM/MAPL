@@ -31,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Builds MAPL using GCC 9.2.0 and Open MPI 4.0.2
   - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
 	
+## [2.0.2] - 2020-03-10
+
+### Fixed
+
+- Fix for handling coarse grids at high-resolution in ExtData
+
 ## [2.0.1] - 2019-03-02
 
 ### Fixed
