@@ -42,7 +42,7 @@ module MAPL_CapGridCompMod
      type (MAPL_Communicators)     :: mapl_comm
 !!$     integer     :: mapl_comm
      integer :: nsteps, heartbeat_dt, perpetual_year, perpetual_month, perpetual_day
-     logical :: amiroot, lperp
+     logical :: amiroot, lperp, started_loop_timer
      integer :: extdata_id, history_id, root_id, printspec
      type(ESMF_Clock) :: clock, clock_hist
      type(ESMF_Config) :: cf_ext, cf_root, cf_hist, config
@@ -360,6 +360,7 @@ contains
        call MAPL_TimerModeSet(timerMode, RC=status)
        _VERIFY(status)
     end if
+    cap%started_loop_timer=.false.
 
     enableMemUtils = ESMF_UtilStringUpperCase(enableMemUtils, rc=STATUS)
     _VERIFY(STATUS)
@@ -985,6 +986,7 @@ contains
        call ESMF_VMBarrier(cap%vm,rc=status)
        _VERIFY(status)
        cap%loop_start_timer = MPI_WTime(status)
+       cap%started_loop_timer = .true.
        TIME_LOOP: do n = 1, cap%nsteps
 
           call MAPL_MemUtilsWrite(cap%vm, 'MAPL_Cap:TimeLoop', rc = status)
@@ -1028,6 +1030,10 @@ contains
 
     call ESMF_GridCompGet(this%gc, vm = this%vm)
 
+    if (.not.this%started_loop_timer) then
+       this%loop_start_timer = MPI_WTime(status)
+       this%started_loop_timer=.true.
+    end if
     start_timer = MPI_Wtime(status)
     ! Run the ExtData Component
     ! --------------------------
@@ -1122,9 +1128,9 @@ contains
          call MAPL_MemCommited ( mem_total, mem_commit, mem_percent, RC=STATUS )
          _VERIFY(STATUS)
 
-         if( mapl_am_I_Root(this%vm) ) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
+         if( mapl_am_I_Root(this%vm) ) write(6,1000) trim(ESMF_UtilStringUpperCase(this%name)),AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
                                       LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,mem_percent
-    1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
+    1000 format(1x,a,' Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
                 2x,'Throughput(days/day)[Avg Tot Run]: ',f6.1,1x,f6.1,1x,f6.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x,f5.1,'% Memory Committed')
 
     _RETURN(ESMF_SUCCESS)

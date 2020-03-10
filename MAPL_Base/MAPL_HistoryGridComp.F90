@@ -140,7 +140,6 @@ contains
     integer, optional               :: rc     ! return code
     
     integer                         :: status
-    character(len=ESMF_MAXSTR)      :: IAm="History:SetServices" 
     type (HISTORY_wrap)             :: wrap
     type (HISTORY_STATE), pointer   :: internal_state
 
@@ -260,7 +259,6 @@ contains
 ! EOP
 
     integer                         :: status
-    character(len=ESMF_MAXSTR)      :: IAm="History:Initalize" 
 
     logical                         :: errorFound
     logical                         :: found
@@ -376,14 +374,13 @@ contains
 
 !   Async cfio option
     type(MAPL_Communicators)       :: mapl_comm
-    logical                        :: Async, doAsync
+    logical                        :: doAsync
 
 !   Single colum flag used to set different defalut for TM
     integer                        :: snglcol
     integer                        :: tm_default
 
 !   variable for vector handling
-    logical                        :: vectorDone
     integer                        :: idx, nvec
     character(len=ESMF_MAXSTR)     :: f1copy, f3copy
     character(len=ESMF_MAXSTR), pointer :: vectorList(:,:) => null() 
@@ -413,7 +410,7 @@ contains
     character(len=:), pointer :: key
     type(StringFieldSetMapIterator) :: field_set_iter
     character(ESMF_MAXSTR) :: field_set_name
-    integer :: nfields,collection_id
+    integer :: collection_id
 
 ! Begin
 !------
@@ -2679,17 +2676,14 @@ ENDDO PARSER
     type(ESMF_State)               :: state_out
     integer                        :: nymd, nhms
     character(len=ESMF_MAXSTR)     :: DateStamp
-    integer                        :: n1, n2, nn, CollBlock, scount
+    integer                        :: CollBlock
     type(MAPL_Communicators)       :: mapl_Comm
-    integer                        :: nNodes,RootRank
-    logical                        :: PrePost_
 
 !   variables for "backwards" mode
     logical                        :: fwd
     logical, allocatable           :: Ignore(:)
 
 !   ErrLog vars
-    character(len=ESMF_MAXSTR)     :: IAm="HistoryRun" 
     integer                        :: status
 
 !=============================================================================
@@ -3067,14 +3061,12 @@ ENDDO PARSER
                                                      ! = 0 all is well
                                                      ! otherwise, error
 
-    character(len=ESMF_MAXSTR)      :: IAm="Finalize" 
     integer                         :: status
     type(HistoryCollection), pointer     :: list(:)
     type(HISTORY_wrap)              :: wrap
     type (HISTORY_STATE), pointer   :: IntState
     integer                         :: nlist, n
     type (MAPL_MetaComp), pointer :: GENSTATE
-    type(MAPL_Communicators)      :: mapl_Comm
  
 
 ! Begin...
@@ -3176,7 +3168,6 @@ ENDDO PARSER
                 'JUL','AUG','SEP','OCT','NOV','DEC'/
    
    integer      :: unit,nfield
-   character(len=ESMF_MAXSTR)      :: IAm="MAPL_GradsCtlWrite" 
    integer      :: k,m,rank,status
    integer      :: year,month,day,hour,minute
    real(kind=REAL64)   LONBEG,DLON
@@ -3447,7 +3438,6 @@ ENDDO PARSER
     character*2 second
 
     integer                    :: STATUS
-    character(len=ESMF_MAXSTR) :: Iam="get_DateStamp"
 
     equivalence ( string(01),TimeString )
     equivalence ( string(01),year       )
@@ -3514,7 +3504,6 @@ ENDDO PARSER
     integer, optional        , intent(  OUT) :: RC
 
     integer                    :: STATUS
-    character(len=ESMF_MAXSTR), parameter :: Iam='RegridTransform'
 
     integer                         :: L, LM
     integer                         :: LL, LU
@@ -3646,7 +3635,6 @@ ENDDO PARSER
     integer, optional        , intent(  OUT) :: RC
 
     integer                    :: STATUS
-    character(len=ESMF_MAXSTR), parameter :: Iam='RegridTransformT2G2G'
 
     integer                         :: L, LM, K, KM
     integer                         :: I
@@ -3868,7 +3856,6 @@ ENDDO PARSER
     integer, optional        , intent(  OUT) :: RC
 
     integer                    :: STATUS
-    character(len=ESMF_MAXSTR), parameter :: Iam = "RegridTransformT2G"
 
     integer                         :: I, L, K, LM, KM
     integer                         :: rank_in
@@ -4144,7 +4131,6 @@ ENDDO PARSER
 
   integer:: i,j,m,k,status,largest_rank,iRepField,ivLoc
   logical :: ifound_vloc
-  character(len=ESMF_MAXSTR) :: Iam='MAPL_SetExpression'
   character(len=ESMF_MAXSTR) :: tmpList
   character(len=ESMF_MAXSTR) :: VarName
   integer                    :: idx
@@ -4417,7 +4403,6 @@ ENDDO PARSER
   integer, optional, intent(out) :: rc
 
 ! Local variables:
-  character(len=ESMF_MAXSTR)     :: Iam='MAPL_RunExpression'
   character(len=ESMF_MAXSTR)     :: fname,fexpr
   integer:: m,STATUS
   type(ESMF_Field) :: field
@@ -4443,7 +4428,6 @@ ENDDO PARSER
     integer, optional,intent(  out) :: rc
 
 ! Local variables:
-    character(len=ESMF_MAXSTR) :: Iam='MAPL_StateDestroy'
     integer                    :: STATUS
 
     type(ESMF_Field)                      :: field
@@ -4505,7 +4489,6 @@ ENDDO PARSER
     type(ESMF_Field), intent(inout) :: field
     integer, optional, intent(out  ) :: rc
 
-    character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_StateGet'
     integer :: status
     character(len=ESMF_MAXSTR) :: bundlename, fieldname
     type(ESMF_FieldBundle) :: bundle
