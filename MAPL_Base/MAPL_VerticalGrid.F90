@@ -100,6 +100,7 @@ contains
 
       grid = VerticalGrid(ak, bk, ks, ref_pressure=ref_pressure)
 
+      deallocate(ak, bk)
    end function new_VerticalGrid_by_cfg
 
    subroutine get_eta_r8(this, km, ks, ptop, pint, ak, bk, unused,rc)
@@ -224,6 +225,8 @@ contains
       call get_pressure_levels_r8(this, plevels, reference_pressure=p0)
 
       pressure_levels = real(plevels,kind=REAL32)
+     
+      deallocate(plevels)
 
    end subroutine get_pressure_levels_r4
 
