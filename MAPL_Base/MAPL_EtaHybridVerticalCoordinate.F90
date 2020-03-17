@@ -1,7 +1,8 @@
+#include "MAPL_Generic.h"
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
-module MAPL_VerticalGrid
+module MAPL_EtaHybridVerticalCoordinate
    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
    use ESMF
    use ESMFL_Mod
@@ -11,52 +12,50 @@ module MAPL_VerticalGrid
    implicit none
    private
 
-   public :: VerticalGrid
+   public :: EtaHybridVerticalCoordinate
 
 
-   type :: VerticalGrid
+   type :: EtaHybridVerticalCoordinate
       private
       real(kind=REAL64), allocatable :: ak(:)
       real(kind=REAL64), allocatable :: bk(:)
-      integer :: ks
       integer :: num_levels = 0
       real(kind=REAL64) :: ref_pressure
    contains
       procedure :: get_eta_r8
       procedure :: get_eta_r4
       procedure :: get_pressure_levels_r8
+      procedure :: get_pressure_levels_r8_3d
       procedure :: get_pressure_levels_r4
+      procedure :: get_pressure_levels_r4_3d
       generic :: get_eta =>get_eta_r8, get_eta_r4
-      generic :: get_pressure_levels=>get_pressure_levels_r8, get_pressure_levels_r4
-   end type VerticalGrid
+      generic :: get_pressure_levels=>get_pressure_levels_r8,   get_pressure_levels_r4, &
+                                      get_pressure_levels_r8_3d,get_pressure_levels_r4_3d
+   end type EtaHybridVerticalCoordinate
 
-   interface newVerticalGrid
-      module procedure new_VerticalGrid_by_ak_bk
-      module procedure new_VerticalGrid_by_cfg
+   interface newEtaHybridVerticalCoordinate
+      module procedure new_EtaHybridVerticalCoordinate_by_ak_bk
+      module procedure new_EtaHybridVerticalCoordinate_by_cfg
    end interface
 
-   real(kind=REAL64), parameter :: DEFAULT_REFERENCE_PRESSURE = 98400.d0 ! default reference pressure
+   real(kind=REAL64), parameter :: DEFAULT_REFERENCE_PRESSURE = 98400.d0 ! (Pa) default reference pressure
 
 contains
 
 
-   function new_VerticalGrid_by_ak_bk(ak, bk, ks, unused, ref_pressure, rc) result(grid)
-      type (VerticalGrid) :: grid
+   function new_EtaHybridVerticalCoordinate_by_ak_bk(ak, bk, unused, ref_pressure, rc) result(grid)
+      type (EtaHybridVerticalCoordinate) :: grid
       real(kind=REAL64), intent(in) :: ak(:)
       real(kind=REAL64), intent(in) :: bk(:)
-      integer, intent(in) :: ks
       class(KeywordEnforcer), optional, intent(in) :: unused
       real(kind=REAL64),optional, intent(in) :: ref_pressure
       integer, optional, intent(inout) :: rc
-
-      character(len=*), parameter :: Iam="new_VerticalGrid_by_ak_bk"
 
       _ASSERT(size(ak) >= 2, 'size of ak should be >=2')
       _ASSERT(size(ak) == size(bk), ' size of ak should be the same as that of bk')
 
       grid%ak = ak
       grid%bk = bk
-      grid%ks = ks
       grid%num_levels = size(ak) - 1
 
       if (present(ref_pressure)) then
@@ -64,63 +63,67 @@ contains
       else
          grid%ref_pressure = DEFAULT_REFERENCE_PRESSURE
       end if
-
       
-   end function new_VerticalGrid_by_ak_bk
+   end function new_EtaHybridVerticalCoordinate_by_ak_bk
 
-   function new_VerticalGrid_by_cfg(config, unused, rc) result(grid)
-      type (VerticalGrid) :: grid
+   function new_EtaHybridVerticalCoordinate_by_cfg(config, unused, rc) result(grid)
+      type (EtaHybridVerticalCoordinate) :: grid
       type (ESMF_Config) :: config
       class (KeywordEnforcer), optional, intent(in) :: unused
       integer, optional, intent(inout) :: rc
       real(kind=REAL64), allocatable :: ak(:)
       real(kind=REAL64), allocatable :: bk(:)
-
-      integer :: k,ks, num_levels
+      integer :: status
+      integer :: k, num_levels
       real(kind=REAL64) :: ptop, pint, ref_pressure
       character(len=32) :: data_label
-      character(len=*), parameter :: Iam="new_VerticalGrid_by_cfg"
  
-      call ESMF_ConfigGetAttribute(config, num_levels,label='NUM_LEVELS:', rc=rc)
-      call ESMF_ConfigGetAttribute(config, ref_pressure,label='REF_PRESSURE:', default = DEFAULT_REFERENCE_PRESSURE, rc=rc)
-      call ESMF_ConfigGetAttribute(config, ks,label='TRANSIT_TO_P:', rc=rc)
+      call ESMF_ConfigGetAttribute(config, num_levels,label='NUM_LEVELS:', __RC__ )
+      call ESMF_ConfigGetAttribute(config, ref_pressure,label='REF_PRESSURE:', default = DEFAULT_REFERENCE_PRESSURE, __RC__ )
 
       data_label = "ak-bk:"
 
       allocate(ak(num_levels+1), bk(num_levels+1))
 
-      call ESMF_ConfigFindLabel(config, trim(data_label), rc=rc)
+      call ESMF_ConfigFindLabel(config, trim(data_label), __RC__ )
 
       ! get ak and bk
       do k = 1, num_levels+1
-         call ESMF_ConfigNextLine(config, rc=rc) 
-         call ESMF_ConfigGetAttribute(config, ak(k), rc=rc)
-         call ESMF_ConfigGetAttribute(config, bk(k), rc=rc)
+         call ESMF_ConfigNextLine(config, __RC__ ) 
+         call ESMF_ConfigGetAttribute(config, ak(k), __RC__ )
+         call ESMF_ConfigGetAttribute(config, bk(k), __RC__ )
       enddo
 
-      grid = VerticalGrid(ak, bk, ks, ref_pressure=ref_pressure)
+      grid = EtaHybridVerticalCoordinate(ak, bk, ref_pressure=ref_pressure)
 
       deallocate(ak, bk)
-   end function new_VerticalGrid_by_cfg
+   end function new_EtaHybridVerticalCoordinate_by_cfg
 
-   subroutine get_eta_r8(this, km, ks, ptop, pint, ak, bk, unused,rc)
-      class(VerticalGrid), intent(in) :: this
-      integer, intent(in)  :: km
-      integer, intent(out) :: ks
+   subroutine get_eta_r8(this, ptop, pint, ak, bk, unused,rc)
+      class(EtaHybridVerticalCoordinate), intent(in) :: this
       real(kind=REAL64), intent(out) :: ak(:)
       real(kind=REAL64), intent(out) :: bk(:)
       real(kind=REAL64), intent(out) :: ptop ! model top (Pa)
       real(kind=REAL64), intent(out) :: pint ! transition to p (Pa)
       class(KeywordEnforcer), optional, intent(in) :: unused
       integer, optional, intent(out) :: rc
-    
-     _ASSERT(km == size(ak)-1 ,"size ak should be consistent")      
-     _ASSERT(km == size(bk)-1 ,"size ak should be consistent")      
-     _ASSERT(km == this%num_levels,"size vertical grid should be consistent")      
+      integer :: num_levels, k, ks
+
+     _ASSERT(this%num_levels == size(ak) - 1 ,"size vertical grid should be consistent")      
 
      ak = this%ak
      bk = this%bk
-     ks = this%ks
+     do k = 1, num_levels+1
+        if (num_levels == 1) then
+           ks = 1
+           exit
+        endif
+
+        if ( bk(k) > 0.0d0) then
+           ks = k -2
+           exit
+        endif
+     enddo
      ptop = this%ak(1)
      pint = this%ak(ks+1)
 
@@ -128,10 +131,8 @@ contains
 
    end subroutine get_eta_r8
 
-   subroutine get_eta_r4(this, km, ks, ptop, pint, ak, bk, unused,rc)
-      class(VerticalGrid), intent(in) :: this
-      integer, intent(in)  :: km
-      integer, intent(out) :: ks
+   subroutine get_eta_r4(this, ptop, pint, ak, bk, unused,rc)
+      class(EtaHybridVerticalCoordinate), intent(in) :: this
       real(kind=REAL32), intent(out) :: ak(:)
       real(kind=REAL32), intent(out) :: bk(:)
       real(kind=REAL32), intent(out) :: ptop ! model top (Pa)
@@ -143,38 +144,36 @@ contains
       real(kind=REAL64), allocatable :: bk8(:)
       real(kind=REAL64) :: ptop8 ! model top (Pa)
       real(kind=REAL64) :: pint8 ! transition to p (Pa)
-    
-     _ASSERT(km == size(ak)-1 ,"size ak should be consistent")      
-     _ASSERT(km == size(bk)-1 ,"size ak should be consistent")      
-     _ASSERT(km == this%num_levels,"size vertical grid should be consistent")      
+      integer :: num_levels     
 
-     allocate(ak8(km+1))
-     allocate(bk8(km+1))
+      num_levels = this%num_levels
+      allocate(ak8(num_levels+1))
+      allocate(bk8(num_levels+1))
 
-     call this%get_eta(km, ks, ptop8, pint8, ak8, bk8)
+      call this%get_eta(ptop8, pint8, ak8, bk8)
 
-     ak = real(ak8, kind=REAL32)
-     bk = real(bk8, kind=REAL32)
-     ptop = ak(1)
-     pint = ak(ks+1)
+      ak = real(ak8, kind=REAL32)
+      bk = real(bk8, kind=REAL32)
+     
+      ptop = ptop8
+      pint = pint8
 
-     deallocate(ak8,bk8)
+      deallocate(ak8,bk8)
 
      _RETURN(_SUCCESS)
    end subroutine get_eta_r4
 
    subroutine get_pressure_levels_r8(this, pressure_levels, unused, reference_pressure, rc)
-      class(VerticalGrid), intent(in) :: this
+      class(EtaHybridVerticalCoordinate), intent(in) :: this
       real(kind=REAL64), intent(out) :: pressure_levels(:)
       class(KeywordEnforcer), optional, intent(in) :: unused
       real(kind=REAL64), optional, intent(in) :: reference_pressure
       integer, optional, intent(out) :: rc
       real(kind=REAL64) :: p0
-      integer :: k, n_levels
-      character(len=*), parameter :: Iam="get_pressure_levels"
+      integer :: k, num_levels
 
-      n_levels = this%num_levels
-      _ASSERT(size(pressure_levels) == n_levels, 'incorrect array size for pressure_levels dummy argument')
+      num_levels = this%num_levels
+      _ASSERT(size(pressure_levels) == num_levels, 'incorrect array size for pressure_levels dummy argument')
 
       if (present(reference_pressure)) then
          p0 = reference_pressure
@@ -184,7 +183,7 @@ contains
 
       pressure_levels(1) = this%ak(1) + 0.50d0 * dpref_(1,p0)
 
-      do k = 2, n_levels
+      do k = 2, num_levels
          pressure_levels(k) = pressure_levels(k-1) + 0.5d0 * (dpref_(k-1, p0) + dpref_(k,p0))
       end do
 
@@ -200,19 +199,37 @@ contains
 
    end subroutine get_pressure_levels_r8
 
+   subroutine get_pressure_levels_r8_3d(this, pressure_levels, unused, reference_pressure, rc)
+      class(EtaHybridVerticalCoordinate), intent(in) :: this
+      real(kind=REAL64), intent(out) :: pressure_levels(:,:,:)
+      class(KeywordEnforcer), optional, intent(in) :: unused
+      real(kind=REAL64), optional, intent(in) :: reference_pressure(:,:)
+      integer, optional, intent(out) :: rc
+      integer :: i,j, isize, jsize
+      
+      isize = size(pressure_levels,2)
+      jsize = size(pressure_levels,3)
+
+      do j = 1, jsize
+         do i = 1, isize
+           call this%get_pressure_levels(pressure_levels(:,i,j), reference_pressure = reference_pressure(i,j))
+         enddo
+      enddo
+   end subroutine
+
    subroutine get_pressure_levels_r4(this, pressure_levels, unused, reference_pressure, rc)
-      class(VerticalGrid), intent(in) :: this
+      class(EtaHybridVerticalCoordinate), intent(in) :: this
       real(kind=REAL32), intent(out) :: pressure_levels(:)
       class(KeywordEnforcer), optional, intent(in) :: unused
       real(kind=REAL32), optional, intent(in) :: reference_pressure
       integer, optional, intent(out) :: rc
       real(kind=REAL64) :: p0
-      integer :: k, n_levels
+      integer :: k, num_levels
       real(kind=REAL64), allocatable :: plevels(:)
       character(len=*), parameter :: Iam="get_pressure_levels"
 
-      n_levels = this%num_levels
-      _ASSERT(size(pressure_levels) == n_levels, 'incorrect array size for pressure_levels dummy argument')
+      num_levels = this%num_levels
+      _ASSERT(size(pressure_levels) == num_levels, 'incorrect array size for pressure_levels dummy argument')
 
       if (present(reference_pressure)) then
          p0 = reference_pressure
@@ -220,9 +237,9 @@ contains
          p0 = DEFAULT_REFERENCE_PRESSURE
       end if
 
-      allocate(plevels(n_levels))
+      allocate(plevels(num_levels))
 
-      call get_pressure_levels_r8(this, plevels, reference_pressure=p0)
+      call this%get_pressure_levels(plevels, reference_pressure=p0)
 
       pressure_levels = real(plevels,kind=REAL32)
      
@@ -230,4 +247,19 @@ contains
 
    end subroutine get_pressure_levels_r4
 
-end module MAPL_VerticalGrid
+   subroutine get_pressure_levels_r4_3d(this, pressure_levels, unused, reference_pressure, rc)
+      class(EtaHybridVerticalCoordinate), intent(in) :: this
+      real(kind=REAL32), intent(out) :: pressure_levels(:,:,:)
+      class(KeywordEnforcer), optional, intent(in) :: unused
+      real(kind=REAL32), optional, intent(in) :: reference_pressure(:,:)
+      integer, optional, intent(out) :: rc
+      integer :: i,j
+      
+      do j = 1, size(pressure_levels,3)
+         do i = 1, size(pressure_levels,2)
+           call this%get_pressure_levels(pressure_levels(:,i,j), reference_pressure = reference_pressure(i,j))
+         enddo
+      enddo
+   end subroutine
+
+end module MAPL_EtaHybridVerticalCoordinate
