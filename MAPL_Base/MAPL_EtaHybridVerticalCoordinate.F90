@@ -178,7 +178,7 @@ contains
       if (present(reference_pressure)) then
          p0 = reference_pressure
       else
-         p0 = DEFAULT_REFERENCE_PRESSURE 
+         p0 = this%ref_pressure
       end if
 
       pressure_levels(1) = this%ak(1) + 0.50d0 * dpref_(1,p0)
@@ -234,7 +234,7 @@ contains
       if (present(reference_pressure)) then
          p0 = reference_pressure
       else
-         p0 = DEFAULT_REFERENCE_PRESSURE
+         p0 = this%ref_pressure
       end if
 
       allocate(plevels(num_levels))
