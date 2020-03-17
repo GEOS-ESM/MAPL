@@ -5,10 +5,8 @@
 module MAPL_EtaHybridVerticalCoordinate
    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
    use ESMF
-   use ESMFL_Mod
    use MAPL_ErrorHandlingMod
    use MAPL_KeywordEnforcerMod
-   use pFIO
    implicit none
    private
 
@@ -25,12 +23,12 @@ module MAPL_EtaHybridVerticalCoordinate
       procedure :: get_eta_r8
       procedure :: get_eta_r4
       procedure :: get_pressure_levels_r8
-      procedure :: get_pressure_levels_r8_3d
       procedure :: get_pressure_levels_r4
-      procedure :: get_pressure_levels_r4_3d
+      procedure :: get_pressures_r8_3d
+      procedure :: get_pressures_r4_3d
       generic :: get_eta =>get_eta_r8, get_eta_r4
-      generic :: get_pressure_levels=>get_pressure_levels_r8,   get_pressure_levels_r4, &
-                                      get_pressure_levels_r8_3d,get_pressure_levels_r4_3d
+      generic :: get_pressure_levels=>get_pressure_levels_r8,   get_pressure_levels_r4
+      generic :: get_pressures      =>get_pressures_r8_3d,get_pressures_r4_3d
    end type EtaHybridVerticalCoordinate
 
    interface newEtaHybridVerticalCoordinate
@@ -41,7 +39,6 @@ module MAPL_EtaHybridVerticalCoordinate
    real(kind=REAL64), parameter :: DEFAULT_REFERENCE_PRESSURE = 98400.d0 ! (Pa) default reference pressure
 
 contains
-
 
    function new_EtaHybridVerticalCoordinate_by_ak_bk(ak, bk, unused, ref_pressure, rc) result(grid)
       type (EtaHybridVerticalCoordinate) :: grid
@@ -199,24 +196,6 @@ contains
 
    end subroutine get_pressure_levels_r8
 
-   subroutine get_pressure_levels_r8_3d(this, pressure_levels, unused, reference_pressure, rc)
-      class(EtaHybridVerticalCoordinate), intent(in) :: this
-      real(kind=REAL64), intent(out) :: pressure_levels(:,:,:)
-      class(KeywordEnforcer), optional, intent(in) :: unused
-      real(kind=REAL64), optional, intent(in) :: reference_pressure(:,:)
-      integer, optional, intent(out) :: rc
-      integer :: i,j, isize, jsize
-      
-      isize = size(pressure_levels,2)
-      jsize = size(pressure_levels,3)
-
-      do j = 1, jsize
-         do i = 1, isize
-           call this%get_pressure_levels(pressure_levels(:,i,j), reference_pressure = reference_pressure(i,j))
-         enddo
-      enddo
-   end subroutine
-
    subroutine get_pressure_levels_r4(this, pressure_levels, unused, reference_pressure, rc)
       class(EtaHybridVerticalCoordinate), intent(in) :: this
       real(kind=REAL32), intent(out) :: pressure_levels(:)
@@ -226,7 +205,6 @@ contains
       real(kind=REAL64) :: p0
       integer :: k, num_levels
       real(kind=REAL64), allocatable :: plevels(:)
-      character(len=*), parameter :: Iam="get_pressure_levels"
 
       num_levels = this%num_levels
       _ASSERT(size(pressure_levels) == num_levels, 'incorrect array size for pressure_levels dummy argument')
@@ -247,19 +225,52 @@ contains
 
    end subroutine get_pressure_levels_r4
 
-   subroutine get_pressure_levels_r4_3d(this, pressure_levels, unused, reference_pressure, rc)
+   subroutine get_pressures_r8_3d(this, pressures, surface_pressure, unused, rc)
       class(EtaHybridVerticalCoordinate), intent(in) :: this
-      real(kind=REAL32), intent(out) :: pressure_levels(:,:,:)
+      real(kind=REAL64), intent(out) :: pressures(:,:,:)
       class(KeywordEnforcer), optional, intent(in) :: unused
-      real(kind=REAL32), optional, intent(in) :: reference_pressure(:,:)
+      real(kind=REAL64), optional, intent(in) :: surface_pressure(:,:)
       integer, optional, intent(out) :: rc
-      integer :: i,j
-      
-      do j = 1, size(pressure_levels,3)
-         do i = 1, size(pressure_levels,2)
-           call this%get_pressure_levels(pressure_levels(:,i,j), reference_pressure = reference_pressure(i,j))
+      integer :: i,j, isize, jsize, ksize
+      real(kind=REAL64), allocatable :: tmp_pressures(:)
+
+      isize = size(pressures,1)
+      jsize = size(pressures,2)
+      ksize = size(pressures,3)
+      allocate(tmp_pressures(ksize))
+
+      do i = 1, isize
+         do j = 1, jsize
+           call this%get_pressure_levels(tmp_pressures(:), reference_pressure = surface_pressure(i,j))
+           pressures(i,j,:) = tmp_pressures(:)
          enddo
       enddo
-   end subroutine
+      deallocate(tmp_pressures)
+
+   end subroutine get_pressures_r8_3d
+
+   subroutine get_pressures_r4_3d(this, pressures, surface_pressure, unused, rc)
+      class(EtaHybridVerticalCoordinate), intent(in) :: this
+      real(kind=REAL32), intent(out) :: pressures(:,:,:)
+      class(KeywordEnforcer), optional, intent(in) :: unused
+      real(kind=REAL32), optional, intent(in) :: surface_pressure(:,:)
+      integer, optional, intent(out) :: rc
+      integer :: i,j, isize, jsize, ksize
+      real(kind=REAL32), allocatable :: tmp_pressures(:)
+
+      isize = size(pressures,1)
+      jsize = size(pressures,2)
+      ksize = size(pressures,3)
+      allocate(tmp_pressures(ksize))
+
+      do i = 1, isize
+         do j = 1, jsize
+           call this%get_pressure_levels(tmp_pressures(:), reference_pressure = surface_pressure(i,j))
+           pressures(i,j,:) = tmp_pressures(:)
+         enddo
+      enddo
+      deallocate(tmp_pressures)
+
+   end subroutine get_pressures_r4_3d
 
 end module MAPL_EtaHybridVerticalCoordinate
