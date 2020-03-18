@@ -231,21 +231,24 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unused
       real(kind=REAL64), optional, intent(in) :: surface_pressure(:,:)
       integer, optional, intent(out) :: rc
-      integer :: i,j, isize, jsize, ksize
-      real(kind=REAL64), allocatable :: tmp_pressures(:)
+      integer :: i, j, k, isize, jsize, ksize
+      real(kind=REAL64), allocatable :: levels(:)
 
       isize = size(pressures,1)
       jsize = size(pressures,2)
       ksize = size(pressures,3)
-      allocate(tmp_pressures(ksize))
+      _ASSERT(this%num_levels == ksize, "pressure levels should match") 
+      allocate(levels(ksize))
+      call this%get_pressure_levels(levels(:), reference_pressure = 0._REAL64)
 
-      do i = 1, isize
-         do j = 1, jsize
-           call this%get_pressure_levels(tmp_pressures(:), reference_pressure = surface_pressure(i,j))
-           pressures(i,j,:) = tmp_pressures(:)
-         enddo
+      do k = 1, ksize
+        do j = 1, jsize
+          do i = 1, isize
+             pressures(i,j,k) = surface_pressure(i,j) + levels(k)
+          enddo
+        enddo
       enddo
-      deallocate(tmp_pressures)
+      deallocate(levels)
 
    end subroutine get_pressures_r8_3d
 
@@ -255,21 +258,24 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unused
       real(kind=REAL32), optional, intent(in) :: surface_pressure(:,:)
       integer, optional, intent(out) :: rc
-      integer :: i,j, isize, jsize, ksize
-      real(kind=REAL32), allocatable :: tmp_pressures(:)
+      integer :: i, j, k, isize, jsize, ksize
+      real(kind=REAL32), allocatable :: levels(:)
 
       isize = size(pressures,1)
       jsize = size(pressures,2)
       ksize = size(pressures,3)
-      allocate(tmp_pressures(ksize))
+      _ASSERT(this%num_levels == ksize, "pressure levels should match") 
+      allocate(levels(ksize))
+      call this%get_pressure_levels(levels(:), reference_pressure = 0._REAL32)
 
-      do i = 1, isize
-         do j = 1, jsize
-           call this%get_pressure_levels(tmp_pressures(:), reference_pressure = surface_pressure(i,j))
-           pressures(i,j,:) = tmp_pressures(:)
-         enddo
+      do k = 1, ksize
+        do j = 1, jsize
+          do i = 1, isize
+             pressures(i,j,k) = surface_pressure(i,j) + levels(k)
+          enddo
+        enddo
       enddo
-      deallocate(tmp_pressures)
+      deallocate(levels)
 
    end subroutine get_pressures_r4_3d
 
