@@ -26,7 +26,8 @@ set (srcs
   MAPL_Cap.F90         hash.c
   MAPL_CapGridComp.F90
   MAPL_GridType.F90 
-  MAPL_GridSpec.F90        MAPL_VerticalMethods.F90 MAPL_newCFIOitem.F90 MAPL_EtaHybridVerticalCoordinate.F90
+  MAPL_GridSpec.F90        MAPL_VerticalMethods.F90 MAPL_newCFIOitem.F90
+  MAPL_EtaHybridVerticalCoordinate.F90
   MAPL_VerticalInterpMod.F90 MAPL_ESMFTimeVectorMod.F90  MAPL_TimeMethods.F90 MAPL_ioClients.F90
 
   MAPL_DirPath.F90

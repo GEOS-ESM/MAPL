@@ -1,6 +1,4 @@
 #include "MAPL_Generic.h"
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
 
 module MAPL_EtaHybridVerticalCoordinate
    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
@@ -11,7 +9,7 @@ module MAPL_EtaHybridVerticalCoordinate
    private
 
    public :: EtaHybridVerticalCoordinate
-
+   public :: get_eta
 
    type :: EtaHybridVerticalCoordinate
       private
@@ -31,9 +29,15 @@ module MAPL_EtaHybridVerticalCoordinate
       generic :: get_pressures      =>get_pressures_r8_3d,get_pressures_r4_3d
    end type EtaHybridVerticalCoordinate
 
-   interface newEtaHybridVerticalCoordinate
+   interface EtaHybridVerticalCoordinate
       module procedure new_EtaHybridVerticalCoordinate_by_ak_bk
       module procedure new_EtaHybridVerticalCoordinate_by_cfg
+      module procedure new_EtaHybridVerticalCoordinate_by_file
+   end interface
+
+   interface get_eta
+      module procedure get_eta_onestep_r4
+      module procedure get_eta_onestep_r8
    end interface
 
    real(kind=REAL64), parameter :: DEFAULT_REFERENCE_PRESSURE = 98400.d0 ! (Pa) default reference pressure
@@ -76,7 +80,8 @@ contains
       character(len=32) :: data_label
  
       call ESMF_ConfigGetAttribute(config, num_levels,label='NUM_LEVELS:', __RC__ )
-      call ESMF_ConfigGetAttribute(config, ref_pressure,label='REF_PRESSURE:', default = DEFAULT_REFERENCE_PRESSURE, __RC__ )
+      call ESMF_ConfigGetAttribute(config, ref_pressure,label='REF_PRESSURE:', &
+                                   default = DEFAULT_REFERENCE_PRESSURE, __RC__ )
 
       data_label = "ak-bk:"
 
@@ -95,6 +100,20 @@ contains
 
       deallocate(ak, bk)
    end function new_EtaHybridVerticalCoordinate_by_cfg
+
+   function new_EtaHybridVerticalCoordinate_by_file(filename, unused, rc) result(grid)
+      type (EtaHybridVerticalCoordinate) :: grid
+      character(len=*), intent(in) :: filename
+      class (KeywordEnforcer), optional, intent(in) :: unused
+      integer, optional, intent(inout) :: rc
+      type (ESMF_Config) :: config
+      integer :: status
+
+      call ESMF_ConfigLoadFile (config, filename, __RC__) 
+ 
+      grid = EtaHybridVerticalCoordinate(config)
+
+   end function new_EtaHybridVerticalCoordinate_by_file
 
    subroutine get_eta_r8(this, ptop, pint, ak, bk, unused,rc)
       class(EtaHybridVerticalCoordinate), intent(in) :: this
@@ -159,6 +178,38 @@ contains
 
      _RETURN(_SUCCESS)
    end subroutine get_eta_r4
+
+   subroutine get_eta_onestep_r4(filename, ptop, pint, ak, bk, unused, rc)
+      character(len=*), intent(in) :: filename
+      real(kind=REAL32), intent(out) :: ak(:)
+      real(kind=REAL32), intent(out) :: bk(:)
+      real(kind=REAL32), intent(out) :: ptop ! model top (Pa)
+      real(kind=REAL32), intent(out) :: pint ! transition to p (Pa)
+      class(KeywordEnforcer), optional, intent(in) :: unused
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type (EtaHybridVerticalCoordinate) :: vgrid
+
+      vgrid = EtaHybridVerticalCoordinate(filename)
+      call vgrid%get_eta(ptop, pint, ak, bk, __RC__ )
+
+   end subroutine get_eta_onestep_r4
+
+   subroutine get_eta_onestep_r8(filename, ptop, pint, ak, bk, unused, rc)
+      character(len=*), intent(in) :: filename
+      real(kind=REAL64), intent(out) :: ak(:)
+      real(kind=REAL64), intent(out) :: bk(:)
+      real(kind=REAL64), intent(out) :: ptop ! model top (Pa)
+      real(kind=REAL64), intent(out) :: pint ! transition to p (Pa)
+      class(KeywordEnforcer), optional, intent(in) :: unused
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type (EtaHybridVerticalCoordinate) :: vgrid
+
+      vgrid = EtaHybridVerticalCoordinate(filename)
+      call vgrid%get_eta(ptop, pint, ak, bk, __RC__ )
+
+   end subroutine get_eta_onestep_r8
 
    subroutine get_pressure_levels_r8(this, pressure_levels, unused, reference_pressure, rc)
       class(EtaHybridVerticalCoordinate), intent(in) :: this
