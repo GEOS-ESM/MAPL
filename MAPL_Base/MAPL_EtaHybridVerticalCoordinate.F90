@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module MAPL_EtaHybridVerticalCoordinate
+module MAPL_EtaHybridVerticalCoordinateMod
    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
    use ESMF
    use MAPL_ErrorHandlingMod
@@ -330,4 +330,4 @@ contains
 
    end subroutine get_pressures_r4_3d
 
-end module MAPL_EtaHybridVerticalCoordinate
+end module MAPL_EtaHybridVerticalCoordinateMod
