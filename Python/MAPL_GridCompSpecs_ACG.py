@@ -11,15 +11,11 @@ import reader
 # command line arguments
 parser = argparse.ArgumentParser(description='Generate import/export/internal specs for MAPL Gridded Component')
 parser.add_argument('-i','--input', action='store')
-parser.add_argument('--declare_specs', action='store', default='declare_specs.h')
-parser.add_argument('--declare_local', action='store', default='declare_local.h')
+parser.add_argument('--declare_specs', action='store', default='specs.h')
+parser.add_argument('--declare_pointer', action='store', default='declare_pointer.h')
 parser.add_argument('--get_pointer', action='store', default='get_pointer.h')
 args = parser.parse_args()
 
-
-f_spec = open(args.declare_specs,'w')
-f_local = open(args.declare_local,'w') 
-f_get_pointer = open(args.get_pointer,'w') 
 
 def header():
     return """
@@ -34,21 +30,31 @@ def header():
 !
     """
 
-f_spec.write(header())
-f_local.write(header())
-f_get_pointer.write(header())
-
 specs = reader.read_specs(args.input)
+
+def open_with_header(filename):
+    f = open(filename,'w')
+    f.write(header())
+    return f
+
+f_specs = {}
+for category in ('IMPORT','EXPORT','INTERNAL'):
+    f_specs[category] = open_with_header(category.lower()+'_'+args.declare_specs)
+    
+f_declare_pointers = open_with_header(args.declare_pointer)
+f_get_pointers = open_with_header(args.get_pointer)
+
 for category in ('IMPORT','EXPORT','INTERNAL'):
     for item in specs[category].to_dict('records'):
         spec = MAPL_DataSpec.MAPL_DataSpec(category.lower(), item)
-        f_spec.write(spec.emit_spec())
-        f_local.write(spec.emit_declare_local())
-        f_get_pointer.write(spec.emit_get_pointer())
+        f_specs[category].write(spec.emit_specs())
+        f_declare_pointers.write(spec.emit_declare_pointers())
+        f_get_pointers.write(spec.emit_get_pointers())
 
-f_spec.close()
-f_local.close()
-f_get_pointer.close()
+for category, f in f_specs.items():
+    f.close()
+f_declare_pointers.close()
+f_get_pointers.close()
 
 
 

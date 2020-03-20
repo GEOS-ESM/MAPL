@@ -21,7 +21,7 @@ class MAPL_DataSpec:
     def continue_line(self):
         return "&" + self.newline() + "& "
 
-    def emit_spec(self):
+    def emit_specs(self):
         return self.emit_header() + self.emit_args() + self.emit_trailer()
 
     def get_rank(self):
@@ -33,17 +33,17 @@ class MAPL_DataSpec:
             extra_rank = 0
         return ranks[self.args['dims']] + extra_rank
         
-    def emit_declare_local(self):
+    def emit_declare_pointers(self):
         text = self.emit_header()
         type = 'real'
         kind = 'REAL32'
         rank = self.get_rank()
         dimension = 'dimension(:' + ',:'*(rank-1) + ')'
-        text = text + type + '(kind=' + str(kind) + '), ' + dimension + ' :: ' + self.args['short_name'] + ' => null()'
+        text = text + type + '(kind=' + str(kind) + '), pointer, ' + dimension + ' :: ' + self.args['short_name'] + ' => null()'
         text = text + self.emit_trailer()
         return text
 
-    def emit_get_pointer(self):
+    def emit_get_pointers(self):
         text = self.emit_header()
         text = text + "call MAPL_GetPointer(" + self.category + ', ' + self.args['short_name'] + ", '" + self.args['short_name'] + "', rc=status); VERIFY_(status)" 
         text = text + self.emit_trailer()
@@ -58,7 +58,7 @@ class MAPL_DataSpec:
 
     def emit_args(self):
         self.indent = self.indent + 5
-        text = "call MAPL_Add" + self.category + "Spec(" + self.continue_line()
+        text = "call MAPL_Add" + self.category.capitalize() + "Spec(gc," + self.continue_line()
         for option in MAPL_DataSpec.all_options:
             text = text + self.emit_arg(option)
         text = text + 'rc=status)' + self.newline()
