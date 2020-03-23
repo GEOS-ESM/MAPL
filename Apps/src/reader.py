@@ -22,6 +22,7 @@ def read_specs(specs_filename):
         'UNITS'     : 'units',
         'DIMS'      : 'dims',
         'UNGRIDDED' : 'ungridded_dims',
+        'PREC'      : 'precision',
         'COND'      : 'condition'
     }
 

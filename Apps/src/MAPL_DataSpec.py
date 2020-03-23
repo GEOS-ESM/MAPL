@@ -26,8 +26,8 @@ class MAPL_DataSpec:
 
     def get_rank(self):
         ranks = {'MAPL_DimsHorzVert':3, 'MAPL_DimsHorzOnly':2, 'MAPL_DimsVertOnly':1}
-        if 'UNGRIDDED_DIMS' in self.args:
-            extra_dims = self.args['UNGRIDDED_DIMS'].strip('][').split(',')
+        if 'ungridded_dims' in self.args:
+            extra_dims = self.args['ungridded_dims'].strip('][').split(',')
             extra_rank = len(extra_dims)
         else:
             extra_rank = 0
@@ -36,10 +36,16 @@ class MAPL_DataSpec:
     def emit_declare_pointers(self):
         text = self.emit_header()
         type = 'real'
-        kind = 'REAL32'
+        if 'precision' in self.args:
+            kind = self.args['precision']
+        else:
+            kind = None
         rank = self.get_rank()
         dimension = 'dimension(:' + ',:'*(rank-1) + ')'
-        text = text + type + '(kind=' + str(kind) + '), pointer, ' + dimension + ' :: ' + self.args['short_name'] + ' => null()'
+        text = text + type
+        if kind:
+            text = text + '(kind=' + str(kind) + ')'
+        text = text +', pointer, ' + dimension + ' :: ' + self.args['short_name'] + ' => null()'
         text = text + self.emit_trailer()
         return text
 
@@ -73,6 +79,8 @@ class MAPL_DataSpec:
             text = text + option + "="
             if option in MAPL_DataSpec.stringlike_options:
                 value = "'" + value + "'"
+            elif option == 'ungridded_dims':
+                value = '[' + value + ']' # convert to Fortran 1D array
             text = text + value + ", " + self.continue_line()
         return text
 
