@@ -11,7 +11,7 @@ import reader
 # command line arguments
 parser = argparse.ArgumentParser(description='Generate import/export/internal specs for MAPL Gridded Component')
 parser.add_argument('-i','--input', action='store')
-parser.add_argument('--declare_specs', action='store', default='Spec.h')
+parser.add_argument('--add_specs', action='store', default='Spec.h')
 parser.add_argument('--declare_pointers', action='store', default='DeclarePointer.h')
 parser.add_argument('--get_pointers', action='store', default='GetPointer.h')
 args = parser.parse_args()
@@ -39,7 +39,7 @@ def open_with_header(filename):
 
 f_specs = {}
 for category in ('IMPORT','EXPORT','INTERNAL'):
-    f_specs[category] = open_with_header(category.lower()+args.declare_specs)
+    f_specs[category] = open_with_header(category.capitalize()+args.add_specs)
     
 f_declare_pointers = open_with_header(args.declare_pointers)
 f_get_pointers = open_with_header(args.get_pointers)
