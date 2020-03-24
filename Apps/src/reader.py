@@ -58,7 +58,7 @@ def read_specs(specs_filename):
                      'xyz*' : 'MAPL_DimsHorzVert',
                      'C'    : 'MAPL_VlocationCenter',
                      'E'    : 'MAPL_VlocationEdge',
-                     ''     : 'MAPL_VlocationNone'
+                     'N'    : 'MAPL_VlocationNone'
     }
 
     specs['IMPORT'].replace(entry_aliases,inplace=True)

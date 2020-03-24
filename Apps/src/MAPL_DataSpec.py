@@ -2,12 +2,18 @@ class MAPL_DataSpec:
     """Declare and manipulate an import/export/internal specs for a 
        MAPL Gridded component"""
 
+    all_options = ['short_name', 'long_name', 'units',
+                   'dims', 'vlocation', 'num_subtiles',
+                   'refresh_interval', 'averaging_interval', 'halowidth',
+                   'precision','default','restart', 'ungridded_dims',
+                   'field_type', 'staggering', 'rotation']
+
+    # The following options require quotes in generated code
     stringlike_options = ['short_name', 'long_name', 'units']
-    literal_options = ['dims', 'vlocation', 'num_subtiles',
-                       'refresh_interval', 'averaging_interval', 'halowidth',
-                       'precision','default','restart', 'ungridded_dims',
-                       'field_type', 'staggering', 'rotation']
-    all_options = stringlike_options + literal_options
+    # The following arguments are skipped if value is empty string
+    optional_options = ['ungridded_dims']
+    # The following arguments must be placed within array brackets.
+    arraylike_options = ['ungridded_dims']
 
 
     def __init__(self, category, args, indent=3):
@@ -26,11 +32,12 @@ class MAPL_DataSpec:
 
     def get_rank(self):
         ranks = {'MAPL_DimsHorzVert':3, 'MAPL_DimsHorzOnly':2, 'MAPL_DimsVertOnly':1}
+        extra_rank = 0 # unless
         if 'ungridded_dims' in self.args:
-            extra_dims = self.args['ungridded_dims'].strip('][').split(',')
-            extra_rank = len(extra_dims)
-        else:
-            extra_rank = 0
+            ungridded = self.args['ungridded_dims']
+            if ungridded:
+                extra_dims = ungridded.strip('][').split(',')
+                extra_rank = len(extra_dims)
         return ranks[self.args['dims']] + extra_rank
         
     def emit_declare_pointers(self):
@@ -76,10 +83,13 @@ class MAPL_DataSpec:
         text = ''
         if option in self.args:
             value = self.args[option]
+            if option in MAPL_DataSpec.optional_options:
+                if self.args[option] == '':
+                    return ''
             text = text + option + "="
             if option in MAPL_DataSpec.stringlike_options:
                 value = "'" + value + "'"
-            elif option == 'ungridded_dims':
+            elif option in MAPL_DataSpec.arraylike_options:
                 value = '[' + value + ']' # convert to Fortran 1D array
             text = text + value + ", " + self.continue_line()
         return text
