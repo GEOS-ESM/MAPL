@@ -47,6 +47,7 @@ if (PFUNIT_FOUND)
   add_subdirectory (MAPL_pFUnit EXCLUDE_FROM_ALL)
 endif ()
 
+add_subdirectory (Apps)
 
 # Git transition defect:
 # Uncomment the line below once the dev branch of MAPL has been brought in.
