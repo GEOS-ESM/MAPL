@@ -18,10 +18,17 @@ class MAPL_DataSpec:
                    'field_type', 'staggering', 'rotation',
                    'friendlyto']
 
+    # The following arguments are skipped if value is empty string
+    optional_options = [ 'dims', 'vlocation', 'num_subtiles',
+                         'refresh_interval', 'averaging_interval', 'halowidth',
+                         'precision','default','restart', 'ungridded_dims',
+                         'field_type', 'staggering', 'rotation',
+                         'friendlyto']
+
     # The following options require quotes in generated code
     stringlike_options = ['short_name', 'long_name', 'units', 'friendlyto']
-    # The following arguments are skipped if value is empty string
-    optional_options = ['ungridded_dims']
+
+
     # The following arguments must be placed within array brackets.
     arraylike_options = ['ungridded_dims']
 
@@ -132,14 +139,17 @@ def read_specs(specs_filename):
                 return
 
     column_aliases = {
-        'NAME'      : 'short_name',
-        'LONG NAME' : 'long_name',
-        'VLOC'      : 'vlocation',
-        'UNITS'     : 'units',
-        'DIMS'      : 'dims',
-        'UNGRIDDED' : 'ungridded_dims',
-        'PREC'      : 'precision',
-        'COND'      : 'condition'
+        'NAME'       : 'short_name',
+        'LONG NAME'  : 'long_name',
+        'VLOC'       : 'vlocation',
+        'UNITS'      : 'units',
+        'DIMS'       : 'dims',
+        'UNGRIDDED'  : 'ungridded_dims',
+        'PREC'       : 'precision',
+        'COND'       : 'condition',
+        'DEFAULT'    : 'default',
+        'RESTART'    : 'restart',
+        'FRIENDLYTO' : 'friendlyto'
     }
 
     specs = {}
@@ -166,15 +176,18 @@ def read_specs(specs_filename):
             except StopIteration:
                 break
 
-    entry_aliases = {'z'    : 'MAPL_DimsVertOnly',
-                     'z*'   : 'MAPL_DimsVertOnly',
-                     'xy'   : 'MAPL_DimsHorzOnly',
-                     'xy*'  : 'MAPL_DimsHorzOnly',
-                     'xyz'  : 'MAPL_DimsHorzVert',
-                     'xyz*' : 'MAPL_DimsHorzVert',
-                     'C'    : 'MAPL_VlocationCenter',
-                     'E'    : 'MAPL_VlocationEdge',
-                     'N'    : 'MAPL_VlocationNone'
+    entry_aliases = {'z'     : 'MAPL_DimsVertOnly',
+                     'xy'    : 'MAPL_DimsHorzOnly',
+                     'xyz'   : 'MAPL_DimsHorzVert',
+                     'C'     : 'MAPL_VlocationCenter',
+                     'E'     : 'MAPL_VlocationEdge',
+                     'N'     : 'MAPL_VlocationNone',
+                     'OPT'   : 'MAPL_RestartOptional',
+                     'SKIP'  : 'MAPL_RestartSkip',
+                     'REQ'   : 'MAPL_RestartRequired',
+                     'BOOT'  : 'MAPL_RestartBoot',
+                     'SKIPI' : 'MAPL_RestartSkipInitial'
+
     }
 
     specs['IMPORT'].replace(entry_aliases,inplace=True)
