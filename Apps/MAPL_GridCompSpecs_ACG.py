@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import argparse
 import sys
 import os
@@ -15,10 +15,11 @@ class MAPL_DataSpec:
                    'dims', 'vlocation', 'num_subtiles',
                    'refresh_interval', 'averaging_interval', 'halowidth',
                    'precision','default','restart', 'ungridded_dims',
-                   'field_type', 'staggering', 'rotation']
+                   'field_type', 'staggering', 'rotation',
+                   'friendlyto']
 
     # The following options require quotes in generated code
-    stringlike_options = ['short_name', 'long_name', 'units']
+    stringlike_options = ['short_name', 'long_name', 'units', 'friendlyto']
     # The following arguments are skipped if value is empty string
     optional_options = ['ungridded_dims']
     # The following arguments must be placed within array brackets.
