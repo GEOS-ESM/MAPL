@@ -153,6 +153,7 @@ contains
     integer :: my_rank, npes, mpi_comm, dup_comm, status, subcommunicator
 
     type(MAPL_CapOptions) :: cap_options
+    logical, save :: first = .true.
     
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -182,7 +183,10 @@ contains
     call cap%initialize_mpi(rc = status); _VERIFY(status)
 
     subcommunicator = cap%create_member_subcommunicator(cap%get_comm_world(), rc=status); _VERIFY(status)
-    call cap%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
+    if (first) then
+        call cap%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
+        first = .false.
+    end if
 
     call cap%initialize_cap_gc(cap%get_mapl_comm())
     
@@ -327,8 +331,6 @@ contains
     ! at the future stopTime, as it does its forward stepping from currentTime
     ! to stopTime.
 
-    _UNUSED_DUMMY(model)
-
     rc = ESMF_SUCCESS
 
   end subroutine CheckImport
@@ -340,10 +342,10 @@ contains
 
     type(ESMF_State) :: import_state, export_state
     type(ESMF_Clock) :: clock
-    !type(ESMF_Field) :: field
+    type(ESMF_Field) :: field
 
     integer :: num_items
-    !character(len=ESMF_MAXSTR), allocatable :: item_names(:)
+    character(len=ESMF_MAXSTR), allocatable :: item_names(:)
 
     call ESMF_GridCompGet(model, clock = clock, importState = import_state, &
          exportState = export_state, rc = rc)

@@ -140,12 +140,16 @@ contains
 
       integer :: status
       integer :: subcommunicator
+      logical, save :: first = .true.
 
       _UNUSED_DUMMY(unusable)
       
       subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _VERIFY(status)
       if (subcommunicator /= MPI_COMM_NULL) then
-         call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
+         if (first) then
+           call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
+           first = .false.
+         end if
          call this%run_member(rc=status); _VERIFY(status)
       end if
 
