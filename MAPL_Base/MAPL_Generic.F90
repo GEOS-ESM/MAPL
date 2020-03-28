@@ -111,7 +111,7 @@ module MAPL_GenericMod
   use pFIO
   use gFTL_StringVector
   use pFIO_ClientManagerMod
-  use MAPL_ioClientsMod, only: i_Clients, o_Clients
+  use MAPL_ioClientsMod
   use MAPL_BaseMod
   use MAPL_IOMod
   use MAPL_ProfMod
@@ -1971,6 +1971,9 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   character(len=ESMF_MAXSTR)                  :: id_string
   integer                                     :: ens_id_width
   type(ESMF_Time)                             :: CurrTime 
+  character(len=ESMF_MAXSTR)                  :: cap_name
+  type(ClientManager), pointer                :: client_manager
+
 !=============================================================================
 
 !  Begin...
@@ -2046,6 +2049,11 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
      yyyymmdd = year*10000 + month*100 + day
      hhmmss   = HH*10000 + MM*100 + SS
 
+     call MAPL_GetResource( STATE, cap_name,         &
+                             LABEL="CAP_NAME:", default='GCM', &
+                             RC=STATUS)
+     client_manager => oclient_managers_map%at(trim(cap_name))
+
      call MAPL_GetResource( STATE, ens_id_width,         &
                              LABEL="ENS_ID_WIDTH:", default=0, &
                              RC=STATUS)
@@ -2087,7 +2095,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
                                RC=STATUS)
         _VERIFY(STATUS)
         call MAPL_ESMFStateWriteToFile(STATE%INTERNAL,CLOCK,FILENAME, &
-             FILETYPE, STATE, hdr/=0, oClients = o_Clients, RC=STATUS)
+             FILETYPE, STATE, hdr/=0, oClients = client_manager, RC=STATUS)
         _VERIFY(STATUS)
      endif
 
@@ -2111,7 +2119,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
          endif
 #endif
         call MAPL_ESMFStateWriteToFile(IMPORT,CLOCK,FILENAME, &
-             FILETYPE, STATE, .FALSE., oClients = o_Clients, RC=STATUS)
+             FILETYPE, STATE, .FALSE., oClients = client_manager, RC=STATUS)
         _VERIFY(STATUS)
      endif
   end if
@@ -2316,6 +2324,8 @@ subroutine MAPL_StateRecord( GC, IMPORT, EXPORT, CLOCK, RC )
   type (MAPL_MetaComp), pointer               :: STATE
   integer                                     :: hdr
   character(len=ESMF_MAXSTR)                  :: FILETYPE
+  character(len=ESMF_MAXSTR)                  :: cap_name
+  type(ClientManager), pointer                :: client_manager
 
 !=============================================================================
 
@@ -2339,6 +2349,9 @@ subroutine MAPL_StateRecord( GC, IMPORT, EXPORT, CLOCK, RC )
      _RETURN(ESMF_SUCCESS)
   end if
 
+  call MAPL_GetResource( STATE, cap_name, LABEL="CAP_NAME:", default='GCM',   RC=STATUS )
+  client_manager => oclient_managers_map%at(trim(cap_name))
+
   if (STATE%RECORD%IMP_LEN > 0) then
      call    MAPL_GetResource( STATE, FILETYPE, LABEL="IMPORT_CHECKPOINT_TYPE:",                  RC=STATUS )
      if ( STATUS/=ESMF_SUCCESS  .or.  FILETYPE == "default" ) then
@@ -2347,7 +2360,7 @@ subroutine MAPL_StateRecord( GC, IMPORT, EXPORT, CLOCK, RC )
      end if
      call MAPL_ESMFStateWriteToFile(IMPORT, CLOCK, &
                                     STATE%RECORD%IMP_FNAME, &
-                                    FILETYPE, STATE, .FALSE., oClients = o_Clients, &
+                                    FILETYPE, STATE, .FALSE., oClients = client_manager,  &
                                     RC=STATUS)
      _VERIFY(STATUS)
   end if
@@ -2362,7 +2375,7 @@ subroutine MAPL_StateRecord( GC, IMPORT, EXPORT, CLOCK, RC )
      end if
      call MAPL_ESMFStateWriteToFile(STATE%INTERNAL, CLOCK, &
                                     STATE%RECORD%INT_FNAME, &
-                                    FILETYPE, STATE, hdr/=0, oClients = o_Clients, &
+                                    FILETYPE, STATE, hdr/=0, oClients = client_manager, &
                                     RC=STATUS)
      _VERIFY(STATUS)
   end if

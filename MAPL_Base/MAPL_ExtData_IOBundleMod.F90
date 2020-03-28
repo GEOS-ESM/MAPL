@@ -13,6 +13,7 @@ module MAPL_ExtData_IOBundleMod
   use MAPL_ErrorHandlingMod
   use MAPL_newCFIOItemMod
   use MAPL_newCFIOItemVectorMod
+  use pFIO_ClientManagerMod
 
   public :: ExtData_IoBundle
 
@@ -30,7 +31,7 @@ module MAPL_ExtData_IOBundleMod
      integer :: metadata_coll_id
      integer :: server_coll_id
      type(newCFIOItemVector) :: items
-     
+     type(ClientManager), pointer :: client_manager =>null() 
    contains
      
      procedure :: clean
@@ -46,7 +47,8 @@ module MAPL_ExtData_IOBundleMod
 
 contains
 
-  function new_ExtData_IoBundle(bracket_side, entry_index, file_name, time_index, regrid_method, fraction, template, metadata_coll_id,server_coll_id,items,rc) result(io_bundle)
+  function new_ExtData_IoBundle(bracket_side, entry_index, file_name, time_index, regrid_method, fraction, &
+              template, metadata_coll_id,server_coll_id,items,client_manager,rc) result(io_bundle)
     type (ExtData_IoBundle) :: io_bundle
 
     integer, intent(in) :: bracket_side
@@ -59,6 +61,7 @@ contains
     integer, intent(in) :: metadata_coll_id
     integer, intent(in) :: server_coll_id
     type(newCFIOItemVector) :: items
+    type(ClientManager),pointer, intent(in) :: client_manager
     integer, optional, intent(out) :: rc
 
     io_bundle%bracket_side = bracket_side
@@ -72,6 +75,7 @@ contains
     io_bundle%metadata_coll_id=metadata_coll_id
     io_bundle%server_coll_id=server_coll_id
     io_bundle%items=items
+    io_bundle%client_manager => client_manager
 
     _RETURN(ESMF_SUCCESS)
   end function new_ExtData_IoBundle
@@ -82,9 +86,12 @@ contains
     integer, optional, intent(out) :: rc
 
     integer :: status
+
     call ESMF_FieldBundleDestroy(this%pbundle, noGarbage=.true.,rc=status)
     _VERIFY(status)
-    
+   
+    this%client_manager =>null() 
+    this%cfio%client_manager =>null() 
      _RETURN(ESMF_SUCCESS)
 
   end subroutine clean
@@ -98,7 +105,7 @@ contains
      this%cfio = MAPL_NewCFIO(output_bundle=this%pbundle,regrid_method=this%regrid_method, &
                         read_collection_id=this%server_coll_id, &
                         metadata_collection_id = this%metadata_coll_id, fraction = this%fraction, &
-                        items=this%items)
+                        items=this%items, client_manager = this%client_manager)
 
      _RETURN(ESMF_SUCCESS)
 
@@ -121,7 +128,8 @@ contains
     to%items=from%items 
     to%pbundle=from%pbundle 
     to%CFIO=from%CFIO 
- 
+    to%client_manager => from%client_manager
+
    end subroutine assign
 
 end module MAPL_ExtData_IOBundleMod

@@ -14,6 +14,7 @@ module MAPL_CapMod
    use MAPL_BaseMod
    use MAPL_ErrorHandlingMod
    use pFIO
+   use pFIO_ClientManagerMod
    use MAPL_ioClientsMod
    use MAPL_CapOptionsMod
    implicit none
@@ -162,11 +163,13 @@ contains
      integer, optional, intent(out) :: rc
 
      type (SimpleCommSplitter) :: splitter
-     integer :: status, i, rank
+     integer :: status, i, rank, server_size
      logical :: running_old_o_server ! relevant only for "old" o-server
      character(len=:), allocatable :: s_name
 
      type(ClientThread), pointer :: clientPtr
+     type(ClientManager) :: iclient_manager
+     type(ClientManager) :: oclient_manager
 
      _UNUSED_DUMMY(unusable)
 
@@ -218,7 +221,8 @@ contains
            allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), 'o_server'//trim(i_to_string(1))))
            call this%directory_service%publish(PortInfo('o_server'//trim(i_to_string(1)), this%o_server), this%o_server)
         end if
-        call io_client%init_io_clients(ni = this%cap_options%n_iserver_group, no = this%cap_options%n_oserver_group )
+        iclient_manager = ClientManager(n_client=this%cap_options%n_iserver_group)
+        oclient_manager = ClientManager(n_client=this%cap_options%n_oserver_group)
      endif
 
      ! establish i_server group one by one
@@ -237,9 +241,11 @@ contains
         endif
 
         if ( index(s_name, 'model') /=0 ) then
-           clientPtr => i_Clients%current()
-           call this%directory_service%connect_to_server('i_server'//trim(i_to_string(i)), clientPtr, this%split_comm%get_subcommunicator())
-           call i_Clients%next()
+           clientPtr => iclient_manager%current()
+           call this%directory_service%connect_to_server('i_server'//trim(i_to_string(i)), clientPtr, &
+                                         this%split_comm%get_subcommunicator(), server_size = server_size)
+           call iclient_manager%set_server_size(server_size) 
+           call iclient_manager%next()
         endif 
 
         call mpi_barrier(comm, status) 
@@ -262,9 +268,11 @@ contains
         endif
 
         if ( index(s_name, 'model') /=0 ) then
-           clientPtr => o_Clients%current()
-           call this%directory_service%connect_to_server('o_server'//trim(i_to_string(i)), clientPtr, this%split_comm%get_subcommunicator())
-           call o_Clients%next()
+           clientPtr => oclient_manager%current()
+           call this%directory_service%connect_to_server('o_server'//trim(i_to_string(i)), clientPtr, &
+                                                         this%split_comm%get_subcommunicator(), server_size = server_size)
+           call oclient_manager%set_server_size(server_size)
+           call oclient_manager%next()
         endif 
 
         call mpi_barrier(comm, status) 
@@ -280,14 +288,12 @@ contains
      endif
 
      if ( index(s_name, 'model') /=0 ) then
-        call i_Clients%set_current(1) ! set current to be the first
-        call o_Clients%set_current(1) ! set current to be the first
-        if (this%cap_options%npes_output_server(1) >0) then
-           call io_client%set_size(no = this%cap_options%npes_output_server,rc=status)
-        else if (this%cap_options%nodes_output_server(1)>0) then
-           call io_client%set_size(no = this%cap_options%nodes_output_server,rc=status)
-        endif
-        _VERIFY(status)
+        call iclient_manager%set_current(ith = 1) ! set current to be the first
+        call oclient_manager%set_current(ith = 1) ! set current to be the first
+
+        call iclient_managers_map%insert(trim(this%name), iclient_manager)
+        call oclient_managers_map%insert(trim(this%name), oclient_manager)
+        
      end if
      
    end subroutine initialize_io_clients_servers
@@ -299,14 +305,17 @@ contains
       use MAPL_CFIOMod
       class (MAPL_Cap), intent(inout) :: this
       integer, optional, intent(out) :: rc
-      
+      type(ClientManager), pointer :: iclient_manager 
+      type(ClientManager), pointer :: oclient_manager 
       integer :: status
 
       select case(this%split_comm%get_name())
       case('model')
          call this%run_model(this%mapl_comm, rc=status); _VERIFY(status)
-         call i_Clients%terminate()
-         call o_Clients%terminate()
+         iclient_manager=>iclient_managers_map%at(trim(this%name))
+         call iclient_manager%terminate()
+         oclient_manager=>oclient_managers_map%at(trim(this%name))
+         call oclient_manager%terminate()
       end select
                   
    end subroutine run_member

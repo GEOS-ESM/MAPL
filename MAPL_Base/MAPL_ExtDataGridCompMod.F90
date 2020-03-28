@@ -49,6 +49,7 @@
    use MAPL_CollectionVectorMod
    use MAPL_ExtDataCollectionManagerMod
    use MAPL_FileMetadataUtilsMod
+   use pFIO_ClientManagerMod
    use MAPL_ioClientsMod
    use MAPL_newCFIOItemMod
    use MAPL_newCFIOItemVectorMod
@@ -199,6 +200,7 @@
      integer              :: blocksize
      logical              :: prefetch
      logical              :: distributed_trans
+     type (ClientManager), pointer :: client_manager =>null()
   end type MAPL_ExtData_State
 
 ! Hook for the ESMF
@@ -434,6 +436,7 @@ CONTAINS
    type(ESMF_VM) :: vm
    type(MAPL_MetaComp),pointer :: MAPLSTATE
    type(ESMF_StateItem_Flag)   :: itemType
+   character(len=ESMF_MAXSTR)     :: cap_name
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
@@ -453,6 +456,8 @@ CONTAINS
    call MAPL_TimerOn(MAPLSTATE,"TOTAL")
    call MAPL_TimerOn(MAPLSTATE,"Initialize")
 
+   call ESMF_ConfigGetAttribute(CF_master, cap_name, label='CAP_NAME:', default='GCM', __RC__)
+   self%client_manager => iclient_managers_map%at(trim(cap_name))
 ! Get information from export state
 !----------------------------------
     call ESMF_StateGet(EXPORT, ITEMCOUNT=ItemCount, RC=STATUS)
@@ -1043,7 +1048,7 @@ CONTAINS
       call GetLevs(item,time,self%allowExtrap,__RC__)
       call ESMF_VMBarrier(vm)
       ! register collections
-      item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file))
+      item%iclient_collection_id=self%client_manager%add_ext_collection(trim(item%file))
       ! create interpolating fields, check if the vertical levels match the file
       if (item%vartype == MAPL_FieldItem) then
 
@@ -1409,7 +1414,8 @@ CONTAINS
                call UpdateBracketTime(item,time,"L",item%interp_time1, & 
                     item%time1,file_processed1,self%allowExtrap,rc=status)
                _VERIFY(status)
-               call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed1,MAPL_ExtDataLeft,item%tindex1,__RC__)
+               call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed1,MAPL_ExtDataLeft, &
+                                       item%tindex1,self%client_manager,__RC__)
 
                IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
                   Write(*,*) '      ExtData Run_: HAS_RUN: NotSingle is true. Update right time (bracket R)'    
@@ -1422,7 +1428,8 @@ CONTAINS
                call UpdateBracketTime(item,time,"R",item%interp_time2, &
                     item%time2,file_processed2,self%allowExtrap,rc=status)
                _VERIFY(STATUS)
-               call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed2,MAPL_ExtDataRight,item%tindex2,__RC__)
+               call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed2,MAPL_ExtDataRight, &
+                                       item%tindex2, self%client_manager,__RC__)
 
             else
 
@@ -1434,7 +1441,8 @@ CONTAINS
                item%time1 = MAPL_ExtDataGetFStartTime(item,trim(item%file),__RC__)
                item%interp_time1 = item%time1
                file_processed1 = item%file
-               call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed1,MAPL_ExtDataLeft,1,__RC__)
+               call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed1,MAPL_ExtDataLeft,1, &
+                                       self%client_manager,__RC__)
             end if
             call MAPL_TimerOff(MAPLSTATE,"--Bracket")
 
@@ -1498,7 +1506,8 @@ CONTAINS
                call UpdateBracketTime(item,time,"R",item%interp_time2, &
                     item%time2,file_processed,self%allowExtrap,rc=status)
                _VERIFY(STATUS)
-               call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed,MAPL_ExtDataRight,item%tindex2,__RC__)
+               call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed,MAPL_ExtDataRight, &
+                                       item%tindex2,self%client_manager,__RC__)
 
                call MAPL_TimerOff(MAPLSTATE,'--Bracket')
 
@@ -1515,7 +1524,8 @@ CONTAINS
                call UpdateBracketTime(item,time,"L",item%interp_time1, &
                     item%time1,file_processed,self%allowExtrap,rc=status)
                _VERIFY(STATUS)
-               call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed,MAPL_ExtDataLeft,item%tindex1,__RC__)
+               call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i),file_processed,MAPL_ExtDataLeft, &
+                                       item%tindex1,self%client_manager,__RC__)
 
                call MAPL_TimerOff(MAPLSTATE,'--Bracket')
 
@@ -1575,8 +1585,8 @@ CONTAINS
    _VERIFY(STATUS)
    call MAPL_TimerOn(MAPLSTATE,"---IclientDone")
 
-   call i_Clients%done_collective_prefetch()
-   call i_Clients%wait()
+   call self%client_manager%done_collective_prefetch()
+   call self%client_manager%wait()
 
    call MAPL_TimerOff(MAPLSTATE,"---IclientDone")
    _VERIFY(STATUS)
@@ -4720,14 +4730,15 @@ CONTAINS
   end subroutine createFileLevBracket
 
 
-  subroutine IOBundle_Add_Entry(IOBundles,item,entry_num,file,bside,time_index,rc)
+  subroutine IOBundle_Add_Entry(IOBundles,item,entry_num,file,bside,time_index, client_manager, rc)
      type(Iobundlevector), intent(inout) :: IOBundles
      type(primaryExport), intent(in)        :: item 
      integer, intent(in)                    :: entry_num
      character(len=*), intent(in)           :: file
      integer, intent(in)                    :: bside
      integer, intent(in)                    :: time_index
-     integer, intent(out), optional         :: rc
+     type(ClientManager), pointer, intent(in) :: client_manager
+     integer, intent(out), optional           :: rc
 
      integer :: status
 
@@ -4736,7 +4747,7 @@ CONTAINS
 
      call items%push_back(item%fileVars)
      io_bundle = ExtData_IOBundle(bside, entry_num, file, time_index, item%trans, item%fracval, item%file, &
-         item%pfioCollection_id,item%iclient_collection_id,items,rc=status)
+         item%pfioCollection_id,item%iclient_collection_id,items,client_manager, rc=status)
      _VERIFY(status)
 
      call IOBundles%push_back(io_bundle)

@@ -400,6 +400,8 @@ contains
     call ESMF_ConfigLoadFile(cap%cf_root, ROOT_CF, rc=STATUS )
     _VERIFY(STATUS)
 
+    call MAPL_ConfigSetAttribute(cap%cf_root, value=trim(cap%name), Label="CAP_NAME:", rc=status)
+    _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute(cap%cf_root, value=RUN_DT, Label="RUN_DT:", rc=status)
     if (STATUS == ESMF_SUCCESS) then
        if (heartbeat_dt /= run_dt) then
@@ -419,6 +421,9 @@ contains
     cap%cf_hist = ESMF_ConfigCreate(rc=STATUS )
     _VERIFY(STATUS)
     call ESMF_ConfigLoadFile(cap%cf_hist, HIST_CF, rc=STATUS )
+    _VERIFY(STATUS)
+
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value=trim(cap%name), Label="CAP_NAME:", rc=status)
     _VERIFY(STATUS)
 
     call MAPL_ConfigSetAttribute(cap%cf_hist, value=HIST_CF, Label="HIST_CF:", rc=status)
@@ -509,6 +514,8 @@ contains
        call MAPL_ConfigSetAttribute(cap%cf_ext, value=heartbeat_dt, Label="RUN_DT:", rc=status)
        _VERIFY(STATUS)
     endif
+    call MAPL_ConfigSetAttribute(cap%cf_ext, value=trim(cap%name), Label="CAP_NAME:", rc=status)
+    _VERIFY(STATUS)
 
     call MAPL_Set(MAPLOBJ, CF=CAP%CF_EXT, RC=STATUS)
     _VERIFY(STATUS)

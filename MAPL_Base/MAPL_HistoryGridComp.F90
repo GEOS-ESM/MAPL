@@ -40,7 +40,8 @@ module MAPL_HistoryGridCompMod
   use MAPL_RegridderSpecMod
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
-  use MAPL_ioClientsMod, only: io_client, o_Clients
+  use pFIO_ClientManagerMod
+  use MAPL_ioClientsMod, only: oclient_managers_map
   !use ESMF_CFIOMOD
 
   implicit none
@@ -96,6 +97,7 @@ module MAPL_HistoryGridCompMod
      logical,                    pointer :: average(:)    => null()
      type (SpecWrapper),         pointer :: SRCS(:)       => null()
      type (SpecWrapper),         pointer :: DSTS(:)       => null()
+     type (CLientManager),       pointer :: oclient_manager => null()
      type (StringGridMap)                :: output_grids
      type (StringFieldSetMap)           :: field_sets
      character(len=ESMF_MAXSTR)          :: expsrc
@@ -410,6 +412,7 @@ contains
     character(len=:), pointer :: key
     type(StringFieldSetMapIterator) :: field_set_iter
     character(ESMF_MAXSTR) :: field_set_name
+    character(ESMF_MAXSTR) :: cap_name
     integer :: collection_id
 
 ! Begin
@@ -519,8 +522,12 @@ contains
     call ESMF_ConfigGetAttribute(config, value=IntState%serverSizeSplit, &
          label = 'ServerSizeSplit:', default=1, rc=status)
     _VERIFY(status)
+
+    call ESMF_ConfigGetAttribute(config, value=cap_name, &
+         label = 'CAP_NAME:', default='GCM', rc=status)
+    IntState%oclient_manager => oclient_managers_map%at(trim(cap_name))
     if (IntState%serverSizeSplit .gt. 1) then
-       call io_client%split_oclient_pool(IntState%serverSizeSplit,IntState%collectionWriteSplit,rc=status)
+       call IntState%oclient_manager%split_clients(IntState%serverSizeSplit,IntState%collectionWriteSplit,rc=status)
        _VERIFY(status)
     end if
 
@@ -2339,7 +2346,7 @@ ENDDO PARSER
              call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
              _VERIFY(status)
           end if
-          collection_id = o_Clients%add_hist_collection(list(n)%mNewCFIO%metadata)
+          collection_id = IntState%oclient_manager%add_hist_collection(list(n)%mNewCFIO%metadata)
           call list(n)%mNewCFIO%set_param(write_collection_id=collection_id)
        end if
    end do
@@ -2865,7 +2872,7 @@ ENDDO PARSER
 
    call MAPL_TimerOn(GENSTATE,"----IO Create")
 
-   if (any(writing)) call io_client%set_oClient(count(writing))
+   if (any(writing))  call IntState%oclient_manager%set_ideal_client(count(writing))
 
    OPENLOOP: do n=1,nlist
       if( Writing(n) ) then
@@ -2895,7 +2902,7 @@ ENDDO PARSER
 
          if( list(n)%unit.eq.0 ) then
             if (list(n)%format == 'CFIO') then
-               call list(n)%mNewCFIO%modifyTime(oClients=o_Clients,rc=status)
+               call list(n)%mNewCFIO%modifyTime(oClients = IntState%oclient_manager, rc=status)
                _VERIFY(status)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
@@ -2969,7 +2976,7 @@ ENDDO PARSER
 
          IOTYPE: if (list(n)%unit < 0) then    ! CFIO
 
-            call list(n)%mNewCFIO%bundlepost(list(n)%currentFile,oClients=o_Clients,rc=status)
+            call list(n)%mNewCFIO%bundlepost(list(n)%currentFile, oClients=IntState%oclient_manager, rc=status)
             _VERIFY(status)
 
          else
@@ -2995,8 +3002,8 @@ ENDDO PARSER
 
    enddo POSTLOOP
 
-   call o_Clients%done_collective_stage()
-   call o_Clients%wait() 
+   call IntState%oclient_manager%done_collective_stage()
+   call IntState%oclient_manager%wait() 
 
    call MAPL_TimerOff(GENSTATE,"-----IO Post")
    call MAPL_TimerOff(GENSTATE,"----IO Write")

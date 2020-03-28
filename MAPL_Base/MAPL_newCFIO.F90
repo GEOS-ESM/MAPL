@@ -17,10 +17,8 @@ module MAPL_newCFIOMod
   use MAPL_newCFIOItemVectorMod
   use MAPL_newCFIOItemMod
   use MAPL_ErrorHandlingMod
-  use pFIO_ClientManagerMod
   use MAPL_ExtDataCollectionMod
   use MAPL_ExtDataCOllectionManagerMod
-  use MAPL_ioClientsMod
   use gFTL_StringVector
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
@@ -50,6 +48,7 @@ module MAPL_newCFIOMod
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
      integer :: fraction
+     type( ClientManager), pointer :: client_manager=>null()
      contains
         procedure :: CreateFileMetaData
         procedure :: CreateVariable
@@ -73,7 +72,7 @@ module MAPL_newCFIOMod
   contains
 
      function new_MAPL_newCFIO(metadata,input_bundle,output_bundle,write_collection_id,read_collection_id, &
-             metadata_collection_id,regrid_method,fraction,items,rc) result(newCFIO)
+             metadata_collection_id,regrid_method,fraction,items,client_manager,rc) result(newCFIO)
         type(MAPL_newCFIO) :: newCFIO
         type(Filemetadata), intent(in), optional :: metadata
         type(ESMF_FieldBundle), intent(in), optional :: input_bundle
@@ -84,6 +83,7 @@ module MAPL_newCFIOMod
         integer, intent(in), optional :: regrid_method
         integer, intent(in), optional :: fraction
         type(newCFIOitemVector), intent(in), optional :: items
+        type(ClientManager), pointer, optional, intent(in) :: client_manager
         integer, intent(out), optional :: rc
 
         if (present(metadata)) newCFIO%metadata=metadata 
@@ -95,6 +95,7 @@ module MAPL_newCFIOMod
         if (present(metadata_collection_id)) newCFIO%metadata_collection_id=metadata_collection_id
         if (present(items)) newCFIO%items=items
         if (present(fraction)) newCFIO%fraction=fraction
+        if (present(client_manager) ) newCFIO%client_manager=>client_manager
         _RETURN(ESMF_SUCCESS)
      end function new_MAPL_newCFIO
 
@@ -839,7 +840,7 @@ module MAPL_newCFIOMod
            allocate(globalStart,source=[gridGlobalStart,1,timeIndex])
            allocate(globalCount,source=[gridGlobalCount,lm,1]) 
         end if
-        call i_Clients%collective_prefetch_data( &
+        call this%client_manager%collective_prefetch_data( &
              this%read_collection_id, fileName, trim(names(i)), &
              & ref, start=localStart, global_start=globalStart, global_count=globalCount)
         deallocate(localStart,globalStart,globalCount)

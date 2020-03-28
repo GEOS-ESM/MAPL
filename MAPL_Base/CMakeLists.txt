@@ -28,7 +28,9 @@ set (srcs
   MAPL_GridType.F90 
   MAPL_GridSpec.F90        MAPL_VerticalMethods.F90 MAPL_newCFIOitem.F90
   MAPL_EtaHybridVerticalCoordinate.F90
-  MAPL_VerticalInterpMod.F90 MAPL_ESMFTimeVectorMod.F90  MAPL_TimeMethods.F90 MAPL_ioClients.F90
+  MAPL_VerticalInterpMod.F90 MAPL_ESMFTimeVectorMod.F90  MAPL_TimeMethods.F90
+  MAPL_StringClientManagerMap.F90
+  MAPL_ioClients.F90
 
   MAPL_DirPath.F90
   MAPL_AbstractRegridder.F90 MAPL_IdentityRegridder.F90
