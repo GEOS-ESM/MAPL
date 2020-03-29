@@ -157,9 +157,8 @@ def read_specs(specs_filename):
         specs_reader = csv.reader(specs_file, skipinitialspace=True,delimiter='|')
         gen = csv_record_reader(specs_reader)
         schema_version = next(gen)[0].split(' ')[1]
-        print("version: ",schema_version)
         component = next(gen)[0].split(' ')[1]
-        print("component: ",component)
+#        print("Generating specification code for component: ",component)
         while True:
             try:
                 gen = csv_record_reader(specs_reader)
