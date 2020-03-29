@@ -156,9 +156,9 @@ def read_specs(specs_filename):
     with open(specs_filename, 'r') as specs_file:
         specs_reader = csv.reader(specs_file, skipinitialspace=True,delimiter='|')
         gen = csv_record_reader(specs_reader)
-        schema_version = next(gen)[0]
+        schema_version = next(gen)[0].split(' ')[1]
         print("version: ",schema_version)
-        component = next(gen)[0]
+        component = next(gen)[0].split(' ')[1]
         print("component: ",component)
         while True:
             try:
@@ -230,37 +230,76 @@ def open_with_header(filename):
 
 # Process command line arguments
 parser = argparse.ArgumentParser(description='Generate import/export/internal specs for MAPL Gridded Component')
-parser.add_argument('-i','--input', action='store')
-parser.add_argument('--add_specs', action='store', default='Spec.h')
-parser.add_argument('--declare_pointers', action='store', default='DeclarePointer.h')
-parser.add_argument('--get_pointers', action='store', default='GetPointer.h')
+parser.add_argument("input", action='store',
+                    help="input filename")
+parser.add_argument("-n", "--name", action="store",
+                    help="override default grid component name derived from input filename")
+parser.add_argument("-i", "--import_specs", action="store", nargs='?',
+                    default=None, const="{component}_Import___.h",
+                    help="override default output filename for AddImportSpec() code")
+parser.add_argument("-x", "--export_specs", action="store", nargs='?',
+                    default=None, const="{component}_Export___.h",
+                    help="override default output filename for AddExternalSpec() code")
+parser.add_argument("-p", "--internal_specs", action="store", nargs='?',
+                    default=None, const="{component}_Internal___.h", 
+                    help="override default output filename for AddImportSpec() code")
+parser.add_argument("-g", "--get-pointers", action="store", nargs='?',
+                    default=None, const="{component}_GetPointer___.h", 
+                    help="override default output filename for get_pointer() code")
+parser.add_argument("-d", "--declare-pointers", action="store", nargs='?',
+                    const="{component}_DeclarePointer___.h", default=None,
+                    help="override default output filename for AddSpec code")
 args = parser.parse_args()
 
 
 # Process blocked CSV input file using pandas
 specs = read_specs(args.input)
 
+if args.name:
+    component = args.name
+else:
+    component = os.path.splitext(os.path.basename(args.input))[0]
+    component = component.replace('_Registry','')
+    component = component.replace('_StateSpecs','')
+
 # open all output files
 f_specs = {}
-for category in ('IMPORT','EXPORT','INTERNAL'):
-    f_specs[category] = open_with_header(category.capitalize()+args.add_specs)
-f_declare_pointers = open_with_header(args.declare_pointers)
-f_get_pointers = open_with_header(args.get_pointers)
+for category in ("IMPORT","EXPORT","INTERNAL"):
+    option = args.__dict__[category.lower()+"_specs"]
+    if option:
+        fname = option.format(component=component)
+        f_specs[category] = open_with_header(fname)
+    else:
+        f_specs[category] = None
 
+if args.declare_pointers:
+    f_declare_pointers = open_with_header(args.declare_pointers.format(component=component))
+else:
+    f_declare_pointers = None
+if args.get_pointers:    
+    f_get_pointers = open_with_header(args.get_pointers.format(component=component))
+else:
+    f_get_pointers = None
 
 # Generate code from specs (processed above with pandas)
-for category in ('IMPORT','EXPORT','INTERNAL'):
-    for item in specs[category].to_dict('records'):
+for category in ("IMPORT","EXPORT","INTERNAL"):
+    for item in specs[category].to_dict("records"):
         spec = MAPL_DataSpec(category.lower(), item)
-        f_specs[category].write(spec.emit_specs())
-        f_declare_pointers.write(spec.emit_declare_pointers())
-        f_get_pointers.write(spec.emit_get_pointers())
+        if f_specs[category]:
+            f_specs[category].write(spec.emit_specs())
+        if f_declare_pointers:
+            f_declare_pointers.write(spec.emit_declare_pointers())
+        if f_get_pointers:
+            f_get_pointers.write(spec.emit_get_pointers())
 
 # Close output files
 for category, f in f_specs.items():
-    f.close()
-f_declare_pointers.close()
-f_get_pointers.close()
+    if f:
+        f.close()
+if f_declare_pointers:
+    f_declare_pointers.close()
+if f_get_pointers:
+    f_get_pointers.close()
 
 
 
