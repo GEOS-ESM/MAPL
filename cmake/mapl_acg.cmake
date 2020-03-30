@@ -7,11 +7,11 @@
 #    mapl_acg (target specs_file <options>)
 #
 # Options:
-#       IMPORT_SPECS [file]  filename for AddImportSpec() code (default <gc>_Import___.h)
-#       EXPORT_SPECS [file]  filename for AddExportSpec() code (default <gc>_Export___.h)
-#       INTERNAL_SPECS [file]  filename for AddInternalSpec() code (default <gc>_Internal___.h)
-#       GET_POINTERS [file]  filename for GetPointer() code (default <gc>_GetPointer___.h)
-#       GET_POINTERS [file]  filename for GetPointer() code (default <gc>_DeclarePointer___.h)
+#       IMPORT_SPECS [file]  include file for AddImportSpec() code (default <gc>_Import___.h)
+#       EXPORT_SPECS [file]  include file for AddExportSpec() code (default <gc>_Export___.h)
+#       INTERNAL_SPECS [file]  include file for AddInternalSpec() code (default <gc>_Internal___.h)
+#       GET_POINTERS [file]  include file for GetPointer() code (default <gc>_GetPointer___.h)
+#       DECLARE_POINTERS [file]  include file for declaring local pointers (default <gc>_DeclarePointer___.h)
 #
 ################################################################################################
 
@@ -28,7 +28,7 @@ function (mapl_acg target specs_file)
   string (REPLACE "_GridComp" "" component_name ${target})
 
   if (ARGS_UNPARSED_ARGUMENTS)
-    ecbuild_error ("esma_set_this unparsed arguments: ${ARGS_UNPARSED_ARGUMENTS}")
+    ecbuild_error ("maple_acg() - unparsed arguments: ${ARGS_UNPARSED_ARGUMENTS}")
   endif ()
 
   set (generated) # empty unless
