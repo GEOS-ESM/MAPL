@@ -7,40 +7,26 @@ project (
   VERSION 2.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
-option(USE_MEPO "Set to use mepo to get external dependencies" ON)
-
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/@cmake)
   list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/@cmake")
   include (esma)
 else ()
   if (NOT COMMAND esma) # build as standalone project
 
-    if (USE_MEPO)
-      if (NOT SKIP_MEPO)
-        set (MEPO_INIT_COMMAND mepo init)
-        execute_process (
+    if (NOT SKIP_MEPO)
+       set (MEPO_INIT_COMMAND mepo init)
+       execute_process (
           COMMAND ${MEPO_INIT_COMMAND}
           WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
           )
 
-        set (MEPO_CLONE_COMMAND mepo clone)
-        execute_process (
+       set (MEPO_CLONE_COMMAND mepo clone)
+       execute_process (
           COMMAND ${MEPO_CLONE_COMMAND}
           WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
           )
-      endif()
-      option (SKIP_MEPO "Set to skip mepo steps" ON)
-    else()
-      # Invoke checkout_externals, but only the first time we
-      # configure.
-      if (NOT SKIP_MANAGE_EXTERNALS)
-        execute_process (
-          COMMAND "checkout_externals"
-          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-          )
-      endif ()
-      option (SKIP_MANAGE_EXTERNALS "Set to skip manage externals step" ON)
     endif()
+    option (SKIP_MEPO "Set to skip mepo steps" ON)
 
     list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/@cmake")
     include (esma)
@@ -48,7 +34,6 @@ else ()
 endif()
 
 ecbuild_declare_project()
-
 
 # Special case - MAPL_cfio is built twice with two different precisions.
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)
