@@ -14,6 +14,7 @@ module MAPL_CapMod
    use MAPL_BaseMod
    use MAPL_ErrorHandlingMod
    use pFIO
+   use MAPL_Profiler
    use MAPL_ioClientsMod
    use MAPL_CapOptionsMod
    implicit none
@@ -34,7 +35,7 @@ module MAPL_CapMod
       logical :: mpi_already_initialized = .false.
 
       type(MAPL_CapGridComp), public :: cap_gc
-      type (SplitCommunicator) :: split_comm
+      type(SplitCommunicator)  :: split_comm
       type(MAPL_Communicators) :: mapl_comm
       type(MpiServer), pointer :: i_server=>null()
       type(MpiServer), pointer :: o_server=>null()
@@ -119,13 +120,15 @@ contains
       class (MAPL_Cap), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-
       integer :: status
+!
+   
 
       _UNUSED_DUMMY(unusable)
 
       call this%run_ensemble(rc=status); _VERIFY(status)
       call this%finalize_mpi(rc=status); _VERIFY(status)
+
       _RETURN(_SUCCESS)
 
     end subroutine run
@@ -416,8 +419,25 @@ contains
       type (ESMF_VM) :: vm
       integer :: start_tick, stop_tick, tick_rate
       integer :: status
+
+!     profiler
+!  
+      type (ProfileReporter) :: reporter
+      type (ProfileReporter) :: mem_reporter
+      integer :: i
+      character(:), allocatable :: report_lines(:)
+      type (MultiColumn) :: inclusive
+      type (MultiColumn) :: exclusive
+      class (BaseProfiler), pointer :: t_p, m_p
+      integer :: npes, my_rank, rank, ierror
+
       _UNUSED_DUMMY(unusable)
 
+
+      t_p => get_global_time_profiler()
+      m_p => get_global_memory_profiler()
+      t_p = TimeProfiler('All')
+      m_p = MemoryProfiler('All')
 
       call start_timer()
       call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=mapl_comm%esmf%comm, rc=status)
@@ -439,6 +459,52 @@ contains
 
       call stop_timer()
       call report_throughput()
+      call t_p%finalize()
+      call m_p%finalize()
+      print*,__FILE__,__LINE__,t_p%get_num_meters()
+      call reporter%add_column(NameColumn(50))
+      call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn(),separator='-'))
+
+      inclusive = MultiColumn(['Inclusive'], separator='=')
+      call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))
+      call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn(),'MAX'),separator='-'))
+      call reporter%add_column(inclusive)
+
+      exclusive = MultiColumn(['Exclusive'], separator='=')
+      call exclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, ExclusiveColumn(), separator='-'))
+      call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
+      call reporter%add_column(exclusive)
+
+!!$   call reporter%add_column(FormattedTextColumn('  std. dev ','(f12.4)', 12, StdDevColumn()))
+!!$   call reporter%add_column(FormattedTextColumn('  rel. dev ','(f12.4)', 12, StdDevColumn(relative=.true.)))
+!!$   call reporter%add_column(FormattedTextColumn('  max cyc ','(f12.8)', 12, MaxCycleColumn()))
+!!$   call reporter%add_column(FormattedTextColumn('  min cyc ','(f12.8)', 12, MinCycleColumn()))
+!!$   call reporter%add_column(FormattedTextColumn(' mean cyc','(f12.8)', 12, MeanCycleColumn()))
+      call mem_reporter%add_column(NameColumn(50,separator='-'))
+      call mem_reporter%add_column(MemoryTextColumn(['RSS'],'(i10,1x,a2)',13, InclusiveColumn(),separator='-'))
+      call mem_reporter%add_column(MemoryTextColumn(['Cyc RSS'],'(i10,1x,a2)',13, MeanCycleColumn(),separator='-'))
+
+!!$      report_lines = reporter%generate_report(get_global_time_profiler())
+
+      call MPI_Comm_size(mapl_comm%esmf%comm, npes, ierror)
+      call MPI_Comm_Rank(mapl_comm%esmf%comm, my_rank, ierror)
+
+      do rank = 0, npes-1
+!!$      if (this%rank == 0) then
+         if (rank == my_rank) then
+            report_lines = reporter%generate_report(t_p)
+            write(*,'(a,1x,i0)')'Report on process: ', rank
+            do i = 1, size(report_lines)
+               write(*,'(a)') report_lines(i)
+            end do
+            print*,'       '
+            report_lines = mem_reporter%generate_report(m_p)
+            do i = 1, size(report_lines)
+               write(*,'(a)') report_lines(i)
+            end do
+         end if
+         call MPI_Barrier(mapl_comm%esmf%comm, ierror)
+      end do
 
       _RETURN(_SUCCESS)
    contains

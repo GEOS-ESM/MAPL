@@ -115,6 +115,7 @@ module MAPL_GenericMod
   use MAPL_BaseMod
   use MAPL_IOMod
   use MAPL_ProfMod
+  use MAPL_Profiler
   use MAPL_MemUtilsMod
   use MAPL_CommsMod
   use MAPL_ConstantsMod
@@ -126,6 +127,7 @@ module MAPL_GenericMod
   use MAPL_ErrorHandlingMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
+  use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
 
   ! !PUBLIC MEMBER FUNCTIONS:
   
@@ -395,6 +397,8 @@ type  MAPL_MetaComp
    integer                        , pointer :: phase_coldstart(:)=> null()
    real                                     :: HEARTBEAT
    type (MAPL_Communicators)                :: mapl_comm
+   type (TimeProfiler) :: t_profiler
+   type (MemoryProfiler) :: m_profiler
 !!$   integer :: comm
 end type MAPL_MetaComp
 !EOC
@@ -888,6 +892,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   logical                          :: isPresent
   logical                          :: isCreated
   logical                          :: gridIsPresent
+  class(BaseProfiler), pointer     :: t_p, m_p
   character(len=ESMF_MAXSTR)       :: write_restart_by_face
   character(len=ESMF_MAXSTR)       :: read_restart_by_face
   character(len=ESMF_MAXSTR)       :: write_restart_by_oserver
@@ -912,6 +917,12 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
 
 ! Start my timer
 !---------------
+  t_p => get_global_time_profiler()
+  m_p => get_global_memory_profiler()
+  call t_p%start(trim(state%compname))
+  call m_p%start(trim(state%compname))
+  call state%t_profiler%start('Initialize')
+  call state%m_profiler%start('Initialize')
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenInitTot")
@@ -1669,6 +1680,11 @@ endif
   call MAPL_GenericStateClockOff(STATE,"GenInitTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
+  call state%m_profiler%stop('Initialize')
+  call state%t_profiler%stop('Initialize')
+  call m_p%stop(trim(state%compname))
+  call t_p%stop(trim(state%compname))
+
 ! Write Memory Use Statistics.
 ! -------------------------------------------
   call MAPL_MemUtilsWrite(VM, Iam, RC=STATUS )
@@ -1711,6 +1727,8 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
   integer                          :: I
   type(ESMF_Method_Flag)           :: method
   type(ESMF_VM) :: VM
+  class(BaseProfiler), pointer :: t_p, m_p
+  character(1) :: char_phase
 
   character(len=12), pointer :: timers(:) => NULL()
 ! the next declaration assumes all 5 methods have the same signature
@@ -1747,6 +1765,21 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
   phase_ = MAPL_MAX_PHASES+phase ! this is the "actual" phase, i.e. the one user registered
 
 ! TIMERS on
+
+  t_p => get_global_time_profiler()
+  m_p => get_global_memory_profiler()
+  if (phase > 1) then
+     write(char_phase,'(i1)')phase
+     call t_p%start(trim(state%compname)//'_'//char_phase)
+     call m_p%start(trim(state%compname)//'_'//char_phase)
+     call state%t_profiler%start('Run'//char_phase)
+     call state%m_profiler%start('Run'//char_phase)
+  else
+     call t_p%start(trim(state%compname))
+     call m_p%start(trim(state%compname))
+     call state%t_profiler%start('Run')
+     call state%m_profiler%start('Run')
+  end if
 
   MethodBlock: if (method == ESMF_METHOD_RUN) then
      func_ptr => ESMF_GridCompRun
@@ -1806,6 +1839,18 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
      do i = size(timers),1,-1
         call MAPL_TimerOff (STATE,timers(i))
      end do
+  end if
+
+  if (phase > 1) then
+     call state%m_profiler%stop('Run'//char_phase)
+     call state%t_profiler%stop('Run'//char_phase)
+     call m_p%stop(trim(state%compname)//'_'//char_phase)
+     call t_p%stop(trim(state%compname)//'_'//char_phase)
+  else
+     call state%m_profiler%stop('Run')
+     call state%t_profiler%stop('Run')
+     call m_p%stop(trim(state%compname))
+     call t_p%stop(trim(state%compname))
   end if
 
   _RETURN(ESMF_SUCCESS)
@@ -1971,6 +2016,8 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   character(len=ESMF_MAXSTR)                  :: id_string
   integer                                     :: ens_id_width
   type(ESMF_Time)                             :: CurrTime 
+  class(BaseProfiler), pointer                :: t_p, m_p
+
 !=============================================================================
 
 !  Begin...
@@ -1991,6 +2038,13 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 
 ! Finalize the children
 ! ---------------------
+
+  t_p => get_global_time_profiler()
+  m_p => get_global_memory_profiler()
+  call t_p%start(trim(state%compname))
+  call m_p%start(trim(state%compname))
+  call state%t_profiler%start('Final')
+  call state%m_profiler%start('Final')
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenFinalTot")
@@ -2122,8 +2176,57 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 
 ! Write summary of profiled times
 !--------------------------------
+  
+  call state%m_profiler%stop('Final')
+  call state%t_profiler%stop('Final')
+  call state%m_profiler%finalize()
+  call state%t_profiler%finalize()
 
   if (.not. MAPL_ProfIsDisabled()) then
+
+     block
+       character(:), allocatable :: report(:)
+       type (ProfileReporter) :: reporter, mem_reporter
+       type (MultiColumn) :: inclusive, exclusive
+       type (ESMF_VM) :: vm
+
+       call ESMF_VmGetCurrent(vm, rc=status)
+       _VERIFY(STATUS)
+       if  (MAPL_AM_I_Root(vm)) then
+
+          call mem_reporter%add_column(NameColumn(50,separator='-'))
+          call mem_reporter%add_column(MemoryTextColumn(['RSS'],'(i10,1x,a2)', 13, InclusiveColumn(),separator='-'))
+          call mem_reporter%add_column(MemoryTextColumn(['Cyc RSS'],'(i10,1x,a2)', 13, MeanCycleColumn(),separator='-'))
+
+          report = mem_reporter%generate_report(state%m_profiler)
+          write(OUTPUT_UNIT,*)''
+          write(OUTPUT_UNIT,*)'Memory for ' // trim(comp_name)
+          do i = 1, size(report)
+             write(OUTPUT_UNIT,'(a)')report(i)
+          end do
+          write(OUTPUT_UNIT,*)''
+
+          call reporter%add_column(NameColumn(50))
+          call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn(),separator='-'))
+          inclusive = MultiColumn(['Inclusive'], separator='=')
+          call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))
+          call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn(),'MAX'),separator='-'))
+          call reporter%add_column(inclusive)
+          exclusive = MultiColumn(['Exclusive'], separator='=')
+          call exclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, ExclusiveColumn(), separator='-'))
+          call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
+          call reporter%add_column(exclusive)
+
+          report = reporter%generate_report(state%t_profiler)
+          write(OUTPUT_UNIT,*)''
+          write(OUTPUT_UNIT,*)'Time for ' // trim(comp_name)
+          do i = 1, size(report)
+             write(OUTPUT_UNIT,'(a)')report(i)
+          end do
+          write(OUTPUT_UNIT,*)''
+       end if
+     end block
+
      call WRITE_PARALLEL(" ")
      call WRITE_PARALLEL(" Times for "//trim(COMP_NAME))
 
@@ -2132,6 +2235,9 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 
      call WRITE_PARALLEL(" ")
   end if
+
+  call m_p%stop(trim(state%compname))
+  call t_p%stop(trim(state%compname))
 
 ! Clean-up
 !---------
@@ -2184,6 +2290,7 @@ end subroutine MAPL_GenericFinalize
 
   integer                                     :: K
   logical                                     :: ftype(0:1)
+  class(BaseProfiler), pointer                :: t_p, m_p
 !=============================================================================
 
 !  Begin...
@@ -2198,6 +2305,13 @@ end subroutine MAPL_GenericFinalize
 
   call MAPL_InternalStateRetrieve(GC, STATE, RC=STATUS)
   _VERIFY(STATUS)
+
+  t_p => get_global_time_profiler()
+  m_p => get_global_memory_profiler()
+  call t_p%start(trim(state%compname))
+  call m_p%start(trim(state%compname))
+  call state%t_profiler%start('Record')
+  call state%m_profiler%start('Record')
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenRecordTot")
@@ -2290,6 +2404,10 @@ end subroutine MAPL_GenericFinalize
   call MAPL_GenericStateClockOff(STATE,"GenRecordTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
+  call state%m_profiler%stop('Record')
+  call state%t_profiler%stop('Record')
+  call m_p%stop(trim(state%compname))
+  call t_p%stop(trim(state%compname))
 
   _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_GenericRecord
@@ -2397,7 +2515,7 @@ end subroutine MAPL_StateRecord
   character(len=ESMF_MAXSTR)                  :: filetypechar
   character(len=4)                            :: extension
   integer                                     :: hdr
-
+  class(BaseProfiler), pointer                :: t_p, m_p
 !=============================================================================
 
 !  Begin...
@@ -2412,6 +2530,13 @@ end subroutine MAPL_StateRecord
 
   call MAPL_InternalStateRetrieve(GC, STATE, RC=STATUS)
   _VERIFY(STATUS)
+
+  t_p => get_global_time_profiler()
+  m_p => get_global_memory_profiler()
+  call t_p%start(trim(state%compname))
+  call m_p%start(trim(state%compname))
+  call state%t_profiler%start('Refresh')
+  call state%m_profiler%start('Refresh')
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenRefreshTot")
@@ -2493,6 +2618,10 @@ end subroutine MAPL_StateRecord
   call MAPL_GenericStateClockOff(STATE,"GenRefreshTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
+  call state%m_profiler%stop('Refresh')
+  call state%t_profiler%stop('Refresh')
+  call m_p%stop(trim(state%compname))
+  call t_p%stop(trim(state%compname))
 
   _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_GenericRefresh
@@ -4820,6 +4949,9 @@ end function MAPL_AddChildFromGC
 
     call MAPL_ProfSet(STATE%TIMES,NAME=NAME,RC=STATUS)
     _VERIFY(STATUS)
+
+    state%t_profiler = TimeProfiler(trim(state%compname))
+    state%m_profiler = MemoryProfiler(trim(state%compname))
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GenericStateClockAdd
