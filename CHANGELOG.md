@@ -30,7 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added configuration for CircleCI
   - Builds MAPL using GCC 9.2.0 and Open MPI 4.0.2
   - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
-  - Python automatic code generator for grid comp include files	
+ - Imported Python/MAPL subdir (old, but never imported to GitHub)
+ - Python automatic code generator for grid comp include files	
 	
 ## [2.0.2] - 2020-03-10
 
