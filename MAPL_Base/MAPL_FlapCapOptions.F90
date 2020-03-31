@@ -163,6 +163,36 @@ contains
            error=status)
       _VERIFY(status)
 
+      call options%add(switch='--nx_face', &
+           help='# face topology (same as NX in AGCM.rc)', &
+           required=.true., &
+           act='store', &
+           error=status)
+      _VERIFY(status)
+
+      call options%add(switch='--ny_face', &
+           help='# face topology (same as Ny/6 in AGCM.rc)', &
+           required=.true., &
+           act='store', &
+           error=status)
+      _VERIFY(status)
+
+      call options%add(switch='--nx_node', &
+           help='# node topology (NNX)', &
+           required=.false., &
+           def='1', &
+           act='store', &
+           error=status)
+      _VERIFY(status)
+
+      call options%add(switch='--ny_node', &
+           help='# node topology (NNY)', &
+           required=.false., &
+           def='1', &
+           act='store', &
+           error=status)
+      _VERIFY(status)
+
       _RETURN(_SUCCESS)
 
    end subroutine add_command_line_options
@@ -212,6 +242,14 @@ contains
       
       call this%cli_options%get(val=buffer, switch='--cap_rc', error=status); _VERIFY(status)
       this%cap_rc_file = trim(buffer)
+
+      call this%cli_options%get(val=this%nx_face, switch='--nx_face', error=status); _VERIFY(status)
+
+      call this%cli_options%get(val=this%ny_face, switch='--ny_face', error=status); _VERIFY(status)
+
+      call this%cli_options%get(val=this%nx_node, switch='--nx_node', error=status); _VERIFY(status)
+
+      call this%cli_options%get(val=this%ny_node, switch='--ny_node', error=status); _VERIFY(status)
 
     end subroutine parse_command_line_arguments
 

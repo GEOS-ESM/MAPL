@@ -413,14 +413,35 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) ::rc
 
+
       type (ESMF_VM) :: vm
       integer :: start_tick, stop_tick, tick_rate
       integer :: status
+
+      ! begin for compact communicator
+      integer :: newcomm
+      integer :: face_topology(2), node_topology(2)
+      !integer, parameter :: nnx = 5, nny = 8
+      !integer, parameter :: nx = 20, ny = 120
+      ! end for compact communicator
+
       _UNUSED_DUMMY(unusable)
 
-
       call start_timer()
-      call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=mapl_comm%esmf%comm, rc=status)
+
+      ! begin for compact communicator
+      face_topology(1)  = this%cap_options%nx_face
+      face_topology(2)  = this%cap_options%ny_face
+      node_topology(1)  = this%cap_options%nx_node
+      node_topology(2)  = this%cap_options%ny_node
+      print *, __FILE__, __LINE__, "face topology", face_topology
+      print *, __FILE__, __LINE__, "node topology", node_topology
+      call compute_compact_communicator(mapl_comm%esmf%comm, &
+               face_topology, node_topology, newcomm, rc=status)
+      _VERIFY(status)
+      ! end for compact communicator
+
+      call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=newcomm, rc=status)
       _VERIFY(status)
 
       call this%initialize_cap_gc(mapl_comm)
@@ -471,6 +492,93 @@ contains
          end if
          
       end subroutine report_throughput
+
+      subroutine compute_compact_communicator(comm, face_topology, node_topology, newcomm, rc)
+      !---------------------------------------------------------------------
+      !
+      ! Each face has  nx  *  ny domains
+      ! Each node has  nnx * nny domains (will relax later for remainders)
+      ! Requirement:   nnx exactly divides nx and nny exactly divides ny
+      !
+      ! Given a procss of rank p, we wish to assign a new rank pp such
+      ! that processes on a node are compact in the face
+      !
+      !---------------------------------------------------------------------
+   
+         implicit none
+         integer, intent(in) :: comm
+         integer, intent(in) :: face_topology(2) ! [nx, ny]
+         integer, intent(in) :: node_topology(2) ! [nnx, nny]
+         integer, intent(out) :: newcomm
+         integer, optional, intent(out) :: rc
+   
+         ! Local variables
+         integer :: p, npes, ierror
+         integer :: face, p_face
+         integer :: nx, ny
+         integer :: nnx, nny, node_size, n_nodes_x, n_nodes_y
+         integer :: node, node_x, node_y
+         integer :: p_node, px_node, py_node
+   
+         integer :: pp_x, pp_y, pp
+         integer :: status
+   
+         call MPI_Comm_rank(comm, p, ierror);_VERIFY(ierror)
+         call MPI_Comm_size(comm, npes, ierror); _VERIFY(ierror)
+   
+         ! (0) useful intermediate values
+         nx = face_topology(1)
+         ny = face_topology(2)
+         nnx = node_topology(1)
+         nny = node_topology(2)
+   
+         _ASSERT(mod(npes,6) == 0, 'faces have different numbers of processes')
+         _ASSERT(product(face_topology) == npes/6, 'inconsistent input: face_topology')
+         _ASSERT(mod(nx,nnx) == 0, 'inconsistent input: node_topology x-coordinate')
+         _ASSERT(mod(ny,nny) == 0, 'inconsistent input: node_topology y-coordinate')
+   
+   
+         node_size = nnx*nny
+         n_nodes_x = nx / nnx
+         n_nodes_y = ny / nny
+   
+         ! (1) Determine the node in which p resides
+         face = p / (nx*ny)
+         p_face = mod(p, nx*ny)
+         node = p_face / node_size
+   
+         ! (2) determine node position in the face
+         node_x = mod(node, n_nodes_x)
+         node_y = node / n_nodes_x
+   
+         ! (3) Determine the rank of p within the node 
+         p_node = mod(p_face, node_size)
+         px_node = mod(p_node, nnx)
+         py_node = p_node / nnx
+   
+         ! (4) Compute the location of p within the face
+         pp_x = node_x * nnx + px_node
+         pp_y = node_y * nny + py_node
+   
+         ! (5) compute the absolute rank pp
+         pp = pp_x + nx * pp_y + face*(nx*ny)
+   
+         !print*,''
+         !print*,'p:                ', p
+         !print*,'node:             ', node, face
+         !print*,'n_nodes_x:        ', n_nodes_x, n_nodes_y
+         !print*,'node_x, node_y:   ', node_x, node_y
+         !print*,'p_face, node_size, p_node: ', p_face, node_size, p_node, nnx
+         !print*,'px_node, py_node: ', px_node, py_node
+         !print*,'pp_x, pp_y:       ', pp_x,pp_y
+         !print*,'pp:               ', pp
+         ! Now construct a communicator that permutes rank p into rank pp
+         call MPI_Comm_split(comm, 0, pp, newcomm, ierror)
+         _VERIFY(ierror)
+   
+         _RETURN(_SUCCESS)
+
+      end subroutine compute_compact_communicator
 
    end subroutine run_model
 

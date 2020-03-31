@@ -30,6 +30,8 @@ module MAPL_CapOptionsMod
       ! ensemble options
       integer :: n_members = 1
       character(:), allocatable :: ensemble_subdir_prefix
+      ! compact communicator layout
+      integer :: nx_face, ny_face, nx_node = 1, ny_node = 1
 
    end type MAPL_CapOptions
 
