@@ -328,7 +328,7 @@ contains
       integer :: status
       integer :: grank
       integer :: source
-      integer, parameter :: MAPL_TAG_GLOBAL_IOROOT_RANK = 987654
+      integer, parameter :: MAPL_TAG_GLOBAL_IOROOT_RANK = 987
       integer :: stat(MPI_STATUS_SIZE)
       character(len=:), allocatable :: s_name
 
