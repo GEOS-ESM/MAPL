@@ -62,7 +62,7 @@ contains
       write(buffer,'(i0)')pid
       pid_str = trim(buffer)
       tmp_file = 'tmp.pid'//pid_str
-      call execute_command_line("ps -p " // pid_str // " -ocommand='',rss='' | awk '{ print $2 }'> " // tmp_file)
+      call execute_command_line("ps -p " // pid_str // " -ocommand='',rss='' | awk '{ print $NF }'> " // tmp_file)
       
       open(newunit=unit, file=tmp_file, form='formatted', access='sequential', status='old')
       read(unit,*) mem_use
