@@ -848,8 +848,8 @@ module MAPL_newCFIOMod
              this%read_collection_id, fileName, trim(names(i)), &
              & ref, start=localStart, global_start=globalStart, global_count=globalCount)
         deallocate(localStart,globalStart,globalCount)
-        deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)
      enddo
+     deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)
      this%input_bundle = ESMF_FieldBundleCreate(fieldList=input_fields,rc=status)
      _VERIFY(status)
      _RETURN(_SUCCESS)
