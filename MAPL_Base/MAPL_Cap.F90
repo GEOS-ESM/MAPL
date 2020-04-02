@@ -419,20 +419,12 @@ contains
       type (ESMF_VM) :: vm
       integer :: start_tick, stop_tick, tick_rate
       integer :: status
-
+!
 !     profiler
 !  
-      type (ProfileReporter) :: reporter
-      type (ProfileReporter) :: mem_reporter
-      integer :: i
-      character(:), allocatable :: report_lines(:)
-      type (MultiColumn) :: inclusive
-      type (MultiColumn) :: exclusive
       class (BaseProfiler), pointer :: t_p, m_p
-      integer :: npes, my_rank, rank, ierror
 
       _UNUSED_DUMMY(unusable)
-
 
       t_p => get_global_time_profiler()
       m_p => get_global_memory_profiler()
@@ -453,58 +445,14 @@ contains
       _VERIFY(status)
       call this%cap_gc%finalize(rc=status)
       _VERIFY(status)
-!!$      call ESMF_Finalize(rc=status)
-!!$      _VERIFY(status)
-      
 
+      call ESMF_Finalize(rc=status)
+      _VERIFY(status)
       call stop_timer()
-      call report_throughput()
+
       call t_p%finalize()
       call m_p%finalize()
-      print*,__FILE__,__LINE__,t_p%get_num_meters()
-      call reporter%add_column(NameColumn(50))
-      call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn(),separator='-'))
-
-      inclusive = MultiColumn(['Inclusive'], separator='=')
-      call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))
-      call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn(),'MAX'),separator='-'))
-      call reporter%add_column(inclusive)
-
-      exclusive = MultiColumn(['Exclusive'], separator='=')
-      call exclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, ExclusiveColumn(), separator='-'))
-      call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
-      call reporter%add_column(exclusive)
-
-!!$   call reporter%add_column(FormattedTextColumn('  std. dev ','(f12.4)', 12, StdDevColumn()))
-!!$   call reporter%add_column(FormattedTextColumn('  rel. dev ','(f12.4)', 12, StdDevColumn(relative=.true.)))
-!!$   call reporter%add_column(FormattedTextColumn('  max cyc ','(f12.8)', 12, MaxCycleColumn()))
-!!$   call reporter%add_column(FormattedTextColumn('  min cyc ','(f12.8)', 12, MinCycleColumn()))
-!!$   call reporter%add_column(FormattedTextColumn(' mean cyc','(f12.8)', 12, MeanCycleColumn()))
-      call mem_reporter%add_column(NameColumn(50,separator='-'))
-      call mem_reporter%add_column(MemoryTextColumn(['RSS'],'(i10,1x,a2)',13, InclusiveColumn(),separator='-'))
-      call mem_reporter%add_column(MemoryTextColumn(['Cyc RSS'],'(i10,1x,a2)',13, MeanCycleColumn(),separator='-'))
-
-!!$      report_lines = reporter%generate_report(get_global_time_profiler())
-
-      call MPI_Comm_size(mapl_comm%esmf%comm, npes, ierror)
-      call MPI_Comm_Rank(mapl_comm%esmf%comm, my_rank, ierror)
-
-      do rank = 0, npes-1
-!!$      if (this%rank == 0) then
-         if (rank == my_rank) then
-            report_lines = reporter%generate_report(t_p)
-            write(*,'(a,1x,i0)')'Report on process: ', rank
-            do i = 1, size(report_lines)
-               write(*,'(a)') report_lines(i)
-            end do
-            print*,'       '
-            report_lines = mem_reporter%generate_report(m_p)
-            do i = 1, size(report_lines)
-               write(*,'(a)') report_lines(i)
-            end do
-         end if
-         call MPI_Barrier(mapl_comm%esmf%comm, ierror)
-      end do
+      call report_profiling()
 
       _RETURN(_SUCCESS)
    contains
@@ -538,8 +486,63 @@ contains
          
       end subroutine report_throughput
 
-   end subroutine run_model
+      subroutine report_profiling(rc)
+         integer, optional, intent(out) :: rc
+         type (ProfileReporter) :: reporter
+         type (ProfileReporter) :: mem_reporter
+         integer :: i
+         character(:), allocatable :: report_lines(:)
+         type (MultiColumn) :: inclusive
+         type (MultiColumn) :: exclusive
+         integer :: npes, my_rank, rank, ierror
 
+         call reporter%add_column(NameColumn(50))
+         call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn(),separator='-'))
+
+         inclusive = MultiColumn(['Inclusive'], separator='=')
+         call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))
+         call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn(),'MAX'),separator='-'))
+         call reporter%add_column(inclusive)
+
+         exclusive = MultiColumn(['Exclusive'], separator='=')
+         call exclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, ExclusiveColumn(), separator='-'))
+         call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
+         call reporter%add_column(exclusive)
+
+!!$      call reporter%add_column(FormattedTextColumn('  std. dev ','(f12.4)', 12, StdDevColumn()))
+!!$      call reporter%add_column(FormattedTextColumn('  rel. dev ','(f12.4)', 12, StdDevColumn(relative=.true.)))
+!!$      call reporter%add_column(FormattedTextColumn('  max cyc ','(f12.8)', 12, MaxCycleColumn()))
+!!$      call reporter%add_column(FormattedTextColumn('  min cyc ','(f12.8)', 12, MinCycleColumn()))
+!!$      call reporter%add_column(FormattedTextColumn(' mean cyc','(f12.8)', 12, MeanCycleColumn()))
+         call mem_reporter%add_column(NameColumn(50,separator='-'))
+         call mem_reporter%add_column(MemoryTextColumn(['RSS'],'(i10,1x,a2)',13, InclusiveColumn(),separator='-'))
+         call mem_reporter%add_column(MemoryTextColumn(['Cyc RSS'],'(i10,1x,a2)',13, MeanCycleColumn(),separator='-'))
+
+!!$         report_lines = reporter%generate_report(get_global_time_profiler())
+
+         call MPI_Comm_size(mapl_comm%esmf%comm, npes, ierror)
+         call MPI_Comm_Rank(mapl_comm%esmf%comm, my_rank, ierror)
+
+         do rank = 0, npes-1
+!!$         if (this%rank == 0) then
+            if (rank == my_rank) then
+               report_lines = reporter%generate_report(t_p)
+               write(*,'(a,1x,i0)')'Report on process: ', rank
+               do i = 1, size(report_lines)
+                  write(*,'(a)') report_lines(i)
+               end do
+               print*,'       '
+               report_lines = mem_reporter%generate_report(m_p)
+               do i = 1, size(report_lines)
+                  write(*,'(a)') report_lines(i)
+               end do
+            end if
+            call MPI_Barrier(mapl_comm%esmf%comm, ierror)
+         end do
+
+      end subroutine report_profiling
+
+   end subroutine run_model
    
    subroutine initialize_cap_gc(this, mapl_comm)
      class(MAPL_Cap), intent(inout) :: this
