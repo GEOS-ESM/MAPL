@@ -1214,7 +1214,7 @@ contains
           UNIT = GETFILE(filename, rc=status)
           _VERIFY(status)
           read(unit) n_vars
-          ASSERT_(size(state%src_spec) == n_vars)
+          _ASSERT(size(state%src_spec) == n_vars, "Number of variables on the restart does not agree with spec")
        end if
 
        ! for each var
@@ -1310,7 +1310,7 @@ contains
                 deallocate(buf1)
              end if
           case default
-             ASSERT_(.false.)
+             _ASSERT(.false., "Unsupported rank")
           end select
           if(associated(mask)) deallocate(mask)
        end do
@@ -1322,7 +1322,7 @@ contains
        return
     end if
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine ReadRestart
 
   subroutine WriteRestart(CC, SRC, DST, CLOCK, RC)
@@ -1415,7 +1415,6 @@ contains
           call MAPL_TileMaskGet(grid,  mask, rc=status)
           _VERIFY(STATUS)
        end if
-       ! ALT note: calling a procedure with optional argument, and passing NULL pointer to indicate "absent", needs ifort16 or newer
 
        !we need to get the MAX n_count         
        call MAPL_CommsAllReduceMax(vm, sendbuf=state%accum_count(i), &
@@ -1432,7 +1431,7 @@ contains
           case(3)
              local_undefs = associated(state%array_count(i)%ptr3c)
           case default
-             ASSERT_(.false.)
+             _ASSERT(.false., "Unsupported rank")
           end select
        have_undefs = 0
        n_undefs = 0
@@ -1503,7 +1502,7 @@ contains
                 deallocate(buf1)
              end if
           case default
-             ASSERT_(.false.)
+             _ASSERT(.false.," Unsupported rank")
           end select
           if(associated(mask)) deallocate(mask)
        end do
@@ -1511,7 +1510,7 @@ contains
        if(am_i_root) call Free_File(unit = UNIT, rc=STATUS)
 
 
-    RETURN_(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS)
   end subroutine WriteRestart
 
   subroutine MAPL_CplCompSetAlarm ( CC, ALARM, RC )
@@ -1551,8 +1550,9 @@ contains
     if (.not.associated(STATE%TIME2CPL_ALARM)) then
        STATE%TIME2CPL_ALARM => ALARM
     else
-       ASSERT_(.false.)
+       _ASSERT(.false., "Alarm is already associated! Cannot set it again!")
     end if
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CplCompSetAlarm
 
 end module MAPL_GenericCplCompMod
