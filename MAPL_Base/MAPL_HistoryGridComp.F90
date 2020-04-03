@@ -288,7 +288,7 @@ contains
     character(len=ESMF_MAXSTR)     :: tmpstring
     character(len=ESMF_MAXSTR)     :: tilefile
     character(len=ESMF_MAXSTR)     :: gridname
-    character(len=ESMF_MAXSTR), pointer :: gnames(:)
+    character(len=MAPL_TileNameLength), pointer :: gnames(:)
     integer                        :: L, LM
     integer                        :: NG
     integer                        :: NGRIDS
