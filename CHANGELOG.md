@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add directories to `.gitignore` for building with `mepo`
 - Bug building with mixed Intel/GCC compilers
 - Set correct ESMA_env tag in `components.yaml`
+- Updated `components.yaml` to be inline with GEOSgcm
 
 ### Removed
 
@@ -27,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added configuration for CircleCI
+- Added configuration for CircleCI and Github Actions
   - Builds MAPL using GCC 9.2.0 and Open MPI 4.0.2
   - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
 - Imported Python/MAPL subdir (old, but never imported to GitHub)
