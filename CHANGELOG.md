@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Corrected handling of Equation of Time in orbit (off by default)
 - Made ASSERT in ExtData more explicit in case of missing variables.
+- Improved diagnostic message in HistoryGridComp for misspelled fields/bundles
 
 ### Fixed
 
