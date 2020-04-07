@@ -31,12 +31,12 @@ module MAPL_MemoryProfiler_private
 contains
 
 
-   function new_MemoryProfiler(name) result(prof)
+   function new_MemoryProfiler(name, comm_world) result(prof)
       type(MemoryProfiler), target :: prof
       character(*), intent(in) :: name
+      integer, optional, intent(in) :: comm_world
 
-      class(AbstractMeter), pointer :: t
-
+      call prof%set_comm_world(comm_world = comm_world)
       call prof%set_node(MeterNode(name, prof%make_meter()))
       call prof%start()
 

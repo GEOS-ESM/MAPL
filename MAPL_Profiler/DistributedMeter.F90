@@ -54,9 +54,9 @@ module MAPL_DistributedMeter
       private
       type(DistributedStatistics) :: statistics
    contains
-      procedure :: reduce_global
+      !procedure :: reduce_global
       procedure :: reduce_mpi
-      generic :: reduce => reduce_global, reduce_mpi
+      generic :: reduce => reduce_mpi !,reduce_global
 
       procedure :: get_statistics
       procedure :: get_stats_total

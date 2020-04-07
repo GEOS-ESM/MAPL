@@ -21,6 +21,7 @@ module MAPL_BaseProfiler
       type(MeterNode) :: node
       type(MeterNodeStack) :: stack
       integer :: status = 0
+      integer :: comm_world
    contains
       procedure :: start_name
       procedure :: stop_name
@@ -49,6 +50,7 @@ module MAPL_BaseProfiler
       procedure :: begin
       procedure :: end
       procedure :: get_depth
+      procedure :: set_comm_world
       
    end type BaseProfiler
 
@@ -145,7 +147,7 @@ contains
       block
         use MPI
         integer :: rank, ierror
-        call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
+        call MPI_Comm_rank(this%comm_world, rank, ierror)
         if (rank == 0) then
          print*,__FILE__,__LINE__,'stop called on non-bottom timer'//name
         end if
@@ -186,6 +188,7 @@ contains
       character(:), pointer :: name
 
       new%node = old%node
+      new%comm_world = old%comm_world
       subnode => new%node
 
       ! Stack always starts with root node of node
@@ -335,6 +338,19 @@ contains
       class(BaseProfiler), intent(in) :: this
       depth = this%stack%size()
    end function get_depth
+
+   subroutine set_comm_world(this, comm_world)
+      use MPI
+      class(BaseProfiler), intent(inout) :: this
+      integer, optional, intent(in) :: comm_world
+      integer :: status
+
+      if(present(comm_world)) then
+        call MPI_Comm_dup(comm_world, this%comm_world, status)
+      else
+        this%comm_world =  MPI_COMM_WORLD
+      endif
+   end subroutine set_comm_world
 
 end module MAPL_BaseProfiler
 

@@ -428,8 +428,8 @@ contains
 
       t_p => get_global_time_profiler()
       m_p => get_global_memory_profiler()
-      t_p = TimeProfiler('All')
-      m_p = MemoryProfiler('All')
+      t_p = TimeProfiler('All', comm_world = mapl_comm%esmf%comm)
+      m_p = MemoryProfiler('All', comm_world = mapl_comm%esmf%comm)
 
       call start_timer()
       call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=mapl_comm%esmf%comm, rc=status)
@@ -446,8 +446,8 @@ contains
       call this%cap_gc%finalize(rc=status)
       _VERIFY(status)
 
-      call ESMF_Finalize(rc=status)
-      _VERIFY(status)
+      !call ESMF_Finalize(rc=status)
+      !_VERIFY(status)
       call stop_timer()
 
       call t_p%finalize()

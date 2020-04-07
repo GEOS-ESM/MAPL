@@ -31,15 +31,17 @@ module MAPL_DistributedProfiler
 contains
 
 
-   function new_DistributedProfiler(name, gauge, comm) result(distributed_profiler)
+   function new_DistributedProfiler(name, gauge, comm, comm_world) result(distributed_profiler)
       type(DistributedProfiler), target :: distributed_profiler
       character(*), intent(in) :: name
       class(AbstractGauge), intent(in) :: gauge
       integer, intent(in) :: comm
+      integer, optional, intent(in) :: comm_world
 
       distributed_profiler%gauge = gauge
       distributed_profiler%comm = comm
       
+      call distributed_profiler%set_comm_world(comm_world = comm_world)
       call distributed_profiler%set_node(MeterNode(name, distributed_profiler%make_meter()))
       call distributed_profiler%start()
       
