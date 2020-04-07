@@ -452,6 +452,7 @@ contains
 
       call t_p%finalize()
       call m_p%finalize()
+      !call report_throughput()
       call report_profiling()
 
       _RETURN(_SUCCESS)

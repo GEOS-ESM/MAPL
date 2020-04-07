@@ -2198,8 +2198,8 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   
   call state%m_profiler%stop('Final')
   call state%t_profiler%stop('Final')
-  !call state%m_profiler%finalize()
-  !call state%t_profiler%finalize()
+  call state%m_profiler%finalize()
+  call state%t_profiler%finalize()
 
   if (.not. MAPL_ProfIsDisabled()) then
 
