@@ -5,7 +5,7 @@ on: pull_request
 jobs:
   build_mapl:
     runs-on: ubuntu-latest
-    container: gmao/geos-build-env-gcc-source:6.0.4
+    container: gmao/geos-build-env-gcc-source:6.0.10
     env:
       LANGUAGE: en_US.UTF-8
       LC_ALL: en_US.UTF-8
@@ -32,7 +32,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug
+          cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe'
       - name: Build
         run: |
           cd build
