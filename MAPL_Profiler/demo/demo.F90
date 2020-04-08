@@ -16,7 +16,9 @@ program main
 
    call MPI_Init(ierror)
    main_prof = TimeProfiler('TOTAL')   ! timer 1
+   call main_prof%start()
    lap_prof = TimeProfiler('Lap')
+   call lap_prof%start()
    !mem_prof = MemoryProfiler('TOTAL')
    
    call main_prof%start('init reporter')
@@ -42,7 +44,7 @@ program main
 
    !call mem_prof%start('lap')
    call do_lap(lap_prof) ! lap 1
-   call lap_prof%finalize()
+   call lap_prof%stop()
    call main_prof%accumulate(lap_prof)
    !call mem_prof%stop('lap')
 
@@ -60,7 +62,7 @@ program main
    !call mem_prof%start('lap')
    call lap_prof%reset()
    call do_lap(lap_prof) ! lap 2
-   call lap_prof%finalize()
+   call lap_prof%stop()
    call main_prof%accumulate(lap_prof)
    call main_prof%start('use reporter')
    report_lines = reporter%generate_report(lap_prof)
@@ -73,7 +75,7 @@ program main
    call main_prof%stop('use reporter')
    !call mem_prof%stop('lap')
 
-   call main_prof%finalize()
+   call main_prof%stop()
    report_lines = reporter%generate_report(main_prof)
    write(*,'(a)')'Final profile'
    write(*,'(a)')'============='

@@ -36,7 +36,6 @@ contains
 
       call prof%set_comm_world(comm_world = comm_world)
       call prof%set_node(MeterNode(name, prof%make_meter()))
-      call prof%start()
 
    end function new_TimeProfiler
 

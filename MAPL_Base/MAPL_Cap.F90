@@ -428,6 +428,7 @@ contains
 
       t_p => get_global_time_profiler()
       t_p = TimeProfiler('All', comm_world = mapl_comm%esmf%comm)
+      call t_p%start()
 
       call start_timer()
       call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=mapl_comm%esmf%comm, rc=status)
@@ -448,7 +449,7 @@ contains
       !_VERIFY(status)
       call stop_timer()
 
-      call t_p%finalize()
+      call t_p%stop()
       !call report_throughput()
       call report_profiling()
 

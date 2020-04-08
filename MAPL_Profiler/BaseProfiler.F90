@@ -26,9 +26,11 @@ module MAPL_BaseProfiler
       procedure :: start_name
       procedure :: stop_name
       procedure :: start_self
+      procedure :: stop_self
       generic :: start => start_name
       generic :: start => start_self
       generic :: stop => stop_name
+      generic :: stop => stop_self
       generic :: zeit_ci => start_name
       generic :: zeit_co => stop_name
       procedure :: get_num_meters
@@ -159,6 +161,32 @@ contains
 
    end subroutine stop_name
 
+   subroutine stop_self(this)
+      class(BaseProfiler), intent(inout) :: this
+
+      class(AbstractMeter), pointer :: t
+      class(AbstractMeterNode), pointer :: node
+
+      if( .not. this%stack%size() == 1) then
+         block
+           use MPI
+           integer :: rank, ierror
+           call MPI_Comm_rank(this%comm_world, rank, ierror)
+           if (rank == 0) then
+             print*,__FILE__,__LINE__,'stop called on self timer'
+           end if
+         end block
+           return
+      end if
+
+      node => this%stack%back()
+      t => node%get_meter()
+      call t%stop()
+      call this%stack%pop_back()
+
+   end subroutine stop_self
+
+
    integer function get_num_meters(this) result(num_meters)
       class(BaseProfiler), intent(in) :: this
 
@@ -192,6 +220,9 @@ contains
       subnode => new%node
 
       ! Stack always starts with root node of node
+
+      if (old%stack%empty()) return
+ 
       iter = old%stack%begin()
       call new%stack%push_back(subnode)
       call iter%next()
