@@ -56,6 +56,7 @@ set (srcs
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared gftl MPI::MPI_Fortran)
 target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
 
+add_subdirectory (demo)
 if (PFUNIT_FOUND)
   add_subdirectory (tests)
 endif ()

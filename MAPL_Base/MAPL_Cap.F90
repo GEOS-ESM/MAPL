@@ -422,14 +422,12 @@ contains
 !
 !     profiler
 !  
-      class (BaseProfiler), pointer :: t_p, m_p
+      class (BaseProfiler), pointer :: t_p
 
       _UNUSED_DUMMY(unusable)
 
       t_p => get_global_time_profiler()
-      m_p => get_global_memory_profiler()
       t_p = TimeProfiler('All', comm_world = mapl_comm%esmf%comm)
-      m_p = MemoryProfiler('All', comm_world = mapl_comm%esmf%comm)
 
       call start_timer()
       call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=mapl_comm%esmf%comm, rc=status)
@@ -451,7 +449,6 @@ contains
       call stop_timer()
 
       call t_p%finalize()
-      call m_p%finalize()
       !call report_throughput()
       call report_profiling()
 
@@ -490,7 +487,6 @@ contains
       subroutine report_profiling(rc)
          integer, optional, intent(out) :: rc
          type (ProfileReporter) :: reporter
-         type (ProfileReporter) :: mem_reporter
          integer :: i
          character(:), allocatable :: report_lines(:)
          type (MultiColumn) :: inclusive
@@ -515,31 +511,23 @@ contains
 !!$      call reporter%add_column(FormattedTextColumn('  max cyc ','(f12.8)', 12, MaxCycleColumn()))
 !!$      call reporter%add_column(FormattedTextColumn('  min cyc ','(f12.8)', 12, MinCycleColumn()))
 !!$      call reporter%add_column(FormattedTextColumn(' mean cyc','(f12.8)', 12, MeanCycleColumn()))
-         call mem_reporter%add_column(NameColumn(50,separator='-'))
-         call mem_reporter%add_column(MemoryTextColumn(['RSS'],'(i10,1x,a2)',13, InclusiveColumn(),separator='-'))
-         call mem_reporter%add_column(MemoryTextColumn(['Cyc RSS'],'(i10,1x,a2)',13, MeanCycleColumn(),separator='-'))
+!!$         call mem_reporter%add_column(NameColumn(50,separator='-'))
+!!$         call mem_reporter%add_column(MemoryTextColumn(['RSS'],'(i10,1x,a2)',13, InclusiveColumn(),separator='-'))
+!!$         call mem_reporter%add_column(MemoryTextColumn(['Cyc RSS'],'(i10,1x,a2)',13, MeanCycleColumn(),separator='-'))
 
 !!$         report_lines = reporter%generate_report(get_global_time_profiler())
 
          call MPI_Comm_size(mapl_comm%esmf%comm, npes, ierror)
          call MPI_Comm_Rank(mapl_comm%esmf%comm, my_rank, ierror)
 
-         do rank = 0, npes-1
-!!$         if (this%rank == 0) then
-            if (rank == my_rank) then
+         if (my_rank == 0) then
                report_lines = reporter%generate_report(t_p)
                write(*,'(a,1x,i0)')'Report on process: ', rank
                do i = 1, size(report_lines)
                   write(*,'(a)') report_lines(i)
                end do
-               print*,'       '
-               report_lines = mem_reporter%generate_report(m_p)
-               do i = 1, size(report_lines)
-                  write(*,'(a)') report_lines(i)
-               end do
-            end if
-            call MPI_Barrier(mapl_comm%esmf%comm, ierror)
-         end do
+          end if
+          call MPI_Barrier(mapl_comm%esmf%comm, ierror)
 
       end subroutine report_profiling
 
