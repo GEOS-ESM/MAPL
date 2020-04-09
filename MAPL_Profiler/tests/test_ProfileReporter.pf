@@ -16,6 +16,7 @@ contains
       character(:), allocatable :: report_lines(:)
 
       prof = TimeProfiler('top')   ! timer 1
+      call prof%start()
       call prof%start('timer_1') ! 2
       call prof%start('timer_1a')! 3
       call prof%stop('timer_1a')
@@ -69,7 +70,7 @@ contains
       character(:), allocatable :: report_lines(:)
 
       prof = TimeProfiler('top')   ! timer 1
-
+      call prof%start()
       call prof%start('timer_1') ! 2
       call prof%start('timer_1a')! 3
       call prof%stop('timer_1a')
