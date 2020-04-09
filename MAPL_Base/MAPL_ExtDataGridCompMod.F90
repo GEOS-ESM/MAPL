@@ -1089,9 +1089,9 @@ CONTAINS
 
          ! check that we are not asking for conservative regridding
 !!$         if (item%Trans /= MAPL_HorzTransOrderBilinear) then
-         if (item%Trans /= REGRID_METHOD_BILINEAR) then
-            _ASSERT(.false.,'No conservative re-gridding with vectors')
-         end if
+         !if (item%Trans /= REGRID_METHOD_BILINEAR) then
+         !   _ASSERT(.false.,'No conservative re-gridding with vectors')
+         !end if
 
          block
             integer :: gridRotation1, gridRotation2
