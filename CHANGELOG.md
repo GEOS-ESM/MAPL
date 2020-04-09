@@ -11,12 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Corrected handling of Equation of Time in orbit (off by default)
 - Made ASSERT in ExtData more explicit in case of missing variables.
-
+- (re) Introduced MAPL Profiling package
+	
 ### Fixed
 
 - Corrected Python code generator scripts for component import/export specs.
 - Add directories to `.gitignore` for building with `mepo`
 - Bug building with mixed Intel/GCC compilers
+- Implemented workaround to cmake error that happens when building tests in parallel.	
 - Set correct ESMA_env tag in `components.yaml`
 - Updated `components.yaml` to be inline with GEOSgcm
 
