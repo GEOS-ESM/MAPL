@@ -66,6 +66,8 @@ module MAPL_HistoryCollectionMod
      integer                            :: Psize
      integer                            :: tm
      logical                            :: ForceOffsetZero
+     logical                            :: monthly
+     logical                            :: partial = .false.
      ! Adding Arithemtic Field Rewrite
      character(len=ESMF_MAXSTR),pointer :: tmpfields(:) => null()
      logical, pointer                   :: ReWrite(:) => null()
