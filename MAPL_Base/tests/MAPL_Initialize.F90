@@ -1,4 +1,4 @@
-module MAPL_pFUNIT_Initialize
+module MAPL_pFUnit_Initialize
 contains
    subroutine Initialize()
       use ESMF
@@ -9,4 +9,4 @@ contains
       call MAPL_set_throw_method(throw)
 
    end subroutine Initialize
-end module
+end module MAPL_pFUnit_Initialize

@@ -133,7 +133,7 @@ contains
       integer :: status
 
       !$omp critical
-      status = nf90_create(file, NF90_NOCLOBBER + NF90_HDF5, this%ncid)
+      status = nf90_create(file, NF90_NOCLOBBER + NF90_NETCDF4, this%ncid)
       !$omp end critical
       _VERIFY(status)
 
