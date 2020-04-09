@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add directories to `.gitignore` for building with `mepo`
 - Bug building with mixed Intel/GCC compilers
 - Set correct ESMA_env tag in `components.yaml`
+- Minor problem in GMAO_pFIO Cmakelists (consistency with PRIVATE)
 
 ### Removed
 
@@ -31,7 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Builds MAPL using GCC 9.2.0 and Open MPI 4.0.2
   - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
 - Imported Python/MAPL subdir (old, but never imported to GitHub)
-
+- Added support to use pFlogger for logging
+  - Command line option: --logging_config=<file>
 	
 ## [2.0.2] - 2020-03-10
 

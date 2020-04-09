@@ -93,7 +93,7 @@ target_link_libraries (${this} PUBLIC gftl gftl-shared
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
-  target_link_libraries(${this} "-Xlinker -rpath -Xlinker ${dir}")
+  target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
 
 
