@@ -549,10 +549,10 @@ class(BaseProfiler), pointer      :: t_p
    _VERIFY(STATUS)
    MAPLOBJ%COMPNAME = COMP_NAME
 
-   t_p => get_global_time_profiler()
-   call t_p%start(trim(COMP_Name))
+   !t_p => get_global_time_profiler()
+   !call t_p%start(trim(COMP_Name))
    call MAPLOBJ%t_profiler%start()
-   call MAPLOBJ%t_profiler%start('SetService')
+   call MAPLOBJ%t_profiler%start('GenSetService')
 
 ! Set the Component's Total timer
 ! -------------------------------
@@ -790,9 +790,9 @@ class(BaseProfiler), pointer      :: t_p
 
 ! All done
 !---------
-   call MAPLOBJ%t_profiler%stop('SetService')
+   call MAPLOBJ%t_profiler%stop('GenSetService')
    call MAPLOBJ%t_profiler%stop()
-   call t_p%stop(trim(COMP_NAME))
+   !call t_p%stop(trim(COMP_NAME))
 
    _RETURN(ESMF_SUCCESS)
 
@@ -924,10 +924,10 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
 ! Start my timer
 !---------------
   t_p => get_global_time_profiler()
-  call t_p%start(trim(state%compname))
+  if (state%compname /= 'EXTDATA') call t_p%start(trim(state%compname))
   
   call state%t_profiler%start()
-  call state%t_profiler%start('Initialize')
+  call state%t_profiler%start('GenInitialize')
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenInitTot")
@@ -1685,9 +1685,9 @@ endif
   call MAPL_GenericStateClockOff(STATE,"GenInitTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
-  call state%t_profiler%stop('Initialize')
+  call state%t_profiler%stop('GenInitialize')
   call state%t_profiler%stop()
-  call t_p%stop(trim(state%compname))
+  if (state%compname /= 'EXTDATA') call t_p%stop(trim(state%compname))
 
 ! Write Memory Use Statistics.
 ! -------------------------------------------
@@ -1772,21 +1772,14 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
 
   t_p => get_global_time_profiler()
 
-  if ( method == ESMF_METHOD_RUN ) then
-     call t_p%start(trim(state%compname))
-     call state%t_profiler%start()
-     if (phase > 1) then
-        write(char_phase,'(i1)')phase
-        call state%t_profiler%start('Run'//char_phase)
-     else
-        call state%t_profiler%start('Run')
-     end if
-  endif
-
   MethodBlock: if (method == ESMF_METHOD_RUN) then
      func_ptr => ESMF_GridCompRun
      timers => timers_run
      sbrtn = 'Run'
+     if (phase > 1) then
+        write(char_phase,'(i1)')phase
+        sbrtn = 'Run'//char_phase
+     end if
   else if (method == ESMF_METHOD_INITIALIZE) then
      func_ptr => ESMF_GridCompInitialize
 !ALT: enable this when fully implemented (for now NULLIFY)
@@ -1814,6 +1807,12 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
   endif MethodBlock
 
 ! TIMERS on
+  if (method == ESMF_METHOD_RUN ) then
+    call t_p%start(trim(state%compname))
+    call state%t_profiler%start()
+    call state%t_profiler%start(trim(sbrtn))
+  endif
+
   if (associated(timers)) then
      do i = 1, size(timers)
         call MAPL_TimerOn (STATE,timers(i))
@@ -1843,15 +1842,12 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
      end do
   end if
 
-  if ( method == ESMF_METHOD_RUN ) then
-     if (phase > 1) then
-        call state%t_profiler%stop('Run'//char_phase)
-     else
-        call state%t_profiler%stop('Run')
-     end if
+  if (method == ESMF_METHOD_RUN) then 
+     call state%t_profiler%stop(trim(sbrtn))
      call state%t_profiler%stop()
      call t_p%stop(trim(state%compname))
   endif
+
 
   _RETURN(ESMF_SUCCESS)
 
@@ -2191,13 +2187,13 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
      !call WRITE_PARALLEL(" ")
   end if
 
-  call t_p%stop(trim(state%compname))
-
 ! Clean-up
 !---------
 !ALT
- call MAPL_GenericStateDestroy (STATE,  RC=STATUS)
- _VERIFY(STATUS)
+  call MAPL_GenericStateDestroy (STATE,  RC=STATUS)
+  _VERIFY(STATUS)
+
+  call t_p%stop(trim(state%compname))
 
   _RETURN(ESMF_SUCCESS)
 
