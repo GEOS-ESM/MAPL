@@ -112,7 +112,7 @@ contains
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
 
-      call initialize_pflogger()
+         call initialize_pflogger()
       if (cap%cap_options%logging_config /= '') then
          call logging%load_file(cap%cap_options%logging_config)
       else
