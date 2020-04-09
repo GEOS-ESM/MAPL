@@ -41,6 +41,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
   use MAPL_ioClientsMod, only: io_client, o_Clients
+  use HistoryTrajectoryMod
   !use ESMF_CFIOMOD
 
   implicit none
@@ -819,6 +820,7 @@ contains
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%trackFile, default="", &
                                     label=trim(string) // 'track_file:', rc=status)
+       if (trim(list(n)%trackfile) /= '') list(n)%timeseries_output = .true.
 
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
@@ -2408,16 +2410,23 @@ ENDDO PARSER
           call list(n)%mNewCFIO%set_param(itemOrder=intState%fileOrderAlphabetical,rc=status)
           _VERIFY(status)
           list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n))
-          if (trim(list(n)%output_grid_label)/='') then
-             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label)) 
-             call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,rc=status)
+          if (list(n)%timeseries_output) then
+             list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),rc=status)
+             _VERIFY(status)
+             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,rc=status)
              _VERIFY(status)
           else
-             call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
-             _VERIFY(status)
+             if (trim(list(n)%output_grid_label)/='') then
+                pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label)) 
+                call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,rc=status)
+                _VERIFY(status)
+             else
+                call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
+                _VERIFY(status)
+             end if
+             collection_id = o_Clients%add_hist_collection(list(n)%mNewCFIO%metadata)
+             call list(n)%mNewCFIO%set_param(write_collection_id=collection_id)
           end if
-          collection_id = o_Clients%add_hist_collection(list(n)%mNewCFIO%metadata)
-          call list(n)%mNewCFIO%set_param(write_collection_id=collection_id)
        end if
    end do
 
@@ -2747,6 +2756,7 @@ ENDDO PARSER
     integer                        :: nlist
     character(len=ESMF_MAXSTR)     :: fntmpl
     character(len=ESMF_MAXSTR),pointer     :: filename(:)
+    character(len=ESMF_MAXSTR)     :: last_file
     integer                        :: n,m
     logical                        :: NewSeg
     logical, allocatable           :: Writing(:)
@@ -2755,6 +2765,7 @@ ENDDO PARSER
     character(len=ESMF_MAXSTR)     :: DateStamp
     integer                        :: CollBlock
     type(MAPL_Communicators)       :: mapl_Comm
+    type(ESMF_Time)                :: current_time
 
 !   variables for "backwards" mode
     logical                        :: fwd
@@ -2881,6 +2892,8 @@ ENDDO PARSER
       if (list(n)%disabled .or. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
          list(n)%disabled = .true.
          Writing(n) = .false.
+      else if (list(n)%timeseries_output) then
+         Writing(n) = .true.
       else
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
       endif
@@ -2979,19 +2992,34 @@ ENDDO PARSER
             list(n)%partial = .false.
          endif
 
-         if( list(n)%unit.eq.0 ) then
-            if (list(n)%format == 'CFIO') then
-               call list(n)%mNewCFIO%modifyTime(oClients=o_Clients,rc=status)
+         if (list(n)%timeseries_output) then
+            call list(n)%trajectory%get(file_name=last_file,rc=status)
+            _VERIFY(status)
+            if (list(n)%unit.eq.0) then
+               if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))
+               call list(n)%trajectory%close_file_handle(rc=status)
+               _VERIFY(status)
+               call list(n)%trajectory%create_file_handle(filename(n),rc=status) 
                _VERIFY(status)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
-            else
-               list(n)%unit = GETFILE( trim(filename(n)),all_pes=.true.)
+            end if
+            list(n)%currentFile = filename(n)
+         else
+            if( list(n)%unit.eq.0 ) then
+               if (list(n)%format == 'CFIO') then
+                  call list(n)%mNewCFIO%modifyTime(oClients=o_Clients,rc=status)
+                  _VERIFY(status)
+                  list(n)%currentFile = filename(n)
+                  list(n)%unit = -1
+               else
+                  list(n)%unit = GETFILE( trim(filename(n)),all_pes=.true.)
+               end if
             end if
          end if
 
          if(  MAPL_AM_I_ROOT() ) then
-              if (index(list(n)%format,'flat') == 0 ) &
+              if (index(list(n)%format,'flat') == 0 .and. (.not.list(n)%timeseries_output)) &
               write(6,'(1X,"Writing: ",i6," Slices to File:  ",a)') &
                     list(n)%slices,trim(list(n)%currentFile)
          endif
@@ -3053,29 +3081,31 @@ ENDDO PARSER
             state_out = INTSTATE%GIM(n)
          end if
 
-         IOTYPE: if (list(n)%unit < 0) then    ! CFIO
+         if (.not.list(n)%timeseries_output) then
+            IOTYPE: if (list(n)%unit < 0) then    ! CFIO
 
-            call list(n)%mNewCFIO%bundlepost(list(n)%currentFile,oClients=o_Clients,rc=status)
-            _VERIFY(status)
+               call list(n)%mNewCFIO%bundlepost(list(n)%currentFile,oClients=o_Clients,rc=status)
+               _VERIFY(status)
 
-         else
+            else
 
-            if( INTSTATE%LCTL(n) ) then
-               call MAPL_GradsCtlWrite ( clock, state_out, list(n), &
-                    filename(n), INTSTATE%expid, &
-                    list(n)%descr, intstate%output_grids,rc )
-               INTSTATE%LCTL(n) = .false.
-            endif
+               if( INTSTATE%LCTL(n) ) then
+                  call MAPL_GradsCtlWrite ( clock, state_out, list(n), &
+                       filename(n), INTSTATE%expid, &
+                       list(n)%descr, intstate%output_grids,rc )
+                  INTSTATE%LCTL(n) = .false.
+               endif
 
-            do m=1,list(n)%field_set%nfields
-               call MAPL_VarWrite ( list(n)%unit, STATE=state_out, &
-                    NAME=trim(list(n)%field_set%fields(3,m)), &
-                    forceWriteNoRestart=.true., rc=status )
-               _VERIFY(STATUS)
-            enddo
-            call WRITE_PARALLEL("Wrote GrADS Output for File: "//trim(filename(n)))
+               do m=1,list(n)%field_set%nfields
+                  call MAPL_VarWrite ( list(n)%unit, STATE=state_out, &
+                       NAME=trim(list(n)%field_set%fields(3,m)), &
+                       forceWriteNoRestart=.true., rc=status )
+                  _VERIFY(STATUS)
+               enddo
+               call WRITE_PARALLEL("Wrote GrADS Output for File: "//trim(filename(n)))
 
-         end if IOTYPE
+            end if IOTYPE
+         end if
 
       endif OUTTIME
 
@@ -3107,6 +3137,13 @@ ENDDO PARSER
 
    WRITELOOP: do n=1,nlist
 
+      if (list(n)%timeseries_output) then
+         call ESMF_ClockGet(clock,currTime=current_time,rc=status)
+         _VERIFY(status)
+         call list(n)%trajectory%append_file(current_time,rc=status)
+         _VERIFY(status)
+      end if
+         
       if( Writing(n) .and. list(n)%unit < 0) then
 
          list(n)%unit = -2

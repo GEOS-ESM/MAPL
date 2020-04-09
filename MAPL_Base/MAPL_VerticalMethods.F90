@@ -41,11 +41,14 @@ module MAPL_VerticalDataMod
      contains
         procedure :: append_vertical_metadata
         procedure :: get_interpolating_variable
-        procedure :: regrid_eta_to_pressure
+        procedure :: regrid_eta_to_pressure_2d
+        procedure :: regrid_eta_to_pressure_1d
         procedure :: regrid_select_level
         procedure :: skip_var
         procedure :: correct_topo
         procedure :: setup_eta_to_pressure
+        generic :: regrid_eta_to_pressure => regrid_eta_to_pressure_2d
+        generic :: regrid_eta_to_pressure => regrid_eta_to_pressure_1d
   end type verticalData
 
   interface verticalData

@@ -62,6 +62,8 @@ set (srcs
   MAPL_NUOPCWrapperMod.F90 MAPL_CubedSphereGridFactory.F90
   MAPL_ExtDataCollection.F90 MAPL_ExtDataCollectionManager.F90
   FileMetadataUtilities.F90 FileMetadataUtilitiesVector.F90
+  MAPL_LocStreamFactoryMod.F90 MAPL_HistoryTrajectoryMod.F90 
+  MAPL_LocstreamRegridder.F90
   )
 
 esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 gftl-shared FLAP::FLAP MPI::MPI_Fortran)
@@ -75,7 +77,6 @@ target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PUBLIC "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
-
 
 ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90)
 target_link_libraries (cub2latlon.x ${this} GMAO_pFIO ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
