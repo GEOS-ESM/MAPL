@@ -105,11 +105,17 @@ contains
       class(AbstractMeterNode), pointer :: node
       class(AbstractMeter), allocatable :: m
 
-      node => this%stack%back()
-      if (.not. node%has_child(name)) then
+      if (this%stack%empty()) then
          m = this%make_meter()
          call node%add_child(name, m) !this%make_meter())
-      end if
+      else
+         node => this%stack%back()
+         if (.not. node%has_child(name)) then
+           m = this%make_meter()
+           call node%add_child(name, m) !this%make_meter())
+         end if
+      endif
+
       node => node%get_child(name)
       call this%stack%push_back(node)
       

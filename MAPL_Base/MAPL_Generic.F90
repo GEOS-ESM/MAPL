@@ -552,7 +552,7 @@ class(BaseProfiler), pointer      :: t_p
    !t_p => get_global_time_profiler()
    !call t_p%start(trim(COMP_Name))
    call MAPLOBJ%t_profiler%start()
-   call MAPLOBJ%t_profiler%start('GenSetService')
+   call MAPLOBJ%t_profiler%start('SetService')
 
 ! Set the Component's Total timer
 ! -------------------------------
@@ -790,7 +790,7 @@ class(BaseProfiler), pointer      :: t_p
 
 ! All done
 !---------
-   call MAPLOBJ%t_profiler%stop('GenSetService')
+   call MAPLOBJ%t_profiler%stop('SetService')
    call MAPLOBJ%t_profiler%stop()
    !call t_p%stop(trim(COMP_NAME))
 
@@ -927,7 +927,8 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   if (state%compname /= 'EXTDATA') call t_p%start(trim(state%compname))
   
   call state%t_profiler%start()
-  call state%t_profiler%start('GenInitialize')
+  call state%t_profiler%start('Initialize')
+  call state%t_profiler%start('Initialize_self')
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenInitTot")
@@ -1454,6 +1455,7 @@ endif
       end if
    end if
    call MAPL_GenericStateClockOff(STATE,"--GenInitMine")
+   call state%t_profiler%stop('Initialize_self')
 
 ! Initialize the children
 ! -----------------------
@@ -1529,6 +1531,7 @@ endif
       enddo
    endif
    call MAPL_GenericStateClockOn(STATE,"--GenInitMine")
+   call state%t_profiler%start('Initialize_self')
 
 ! Create import and initialize state variables
 ! --------------------------------------------
@@ -1676,6 +1679,7 @@ endif
    end if
 
    call MAPL_GenericStateClockOff(STATE,"--GenInitMine")
+   call state%t_profiler%stop('Initialize_self')
 
    if (.not. associated(STATE%parentGC)) then
       call MAPL_AdjustIsNeeded(GC, EXPORT, RC=STATUS)
@@ -1685,7 +1689,7 @@ endif
   call MAPL_GenericStateClockOff(STATE,"GenInitTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
-  call state%t_profiler%stop('GenInitialize')
+  call state%t_profiler%stop('Initialize')
   call state%t_profiler%stop()
   if (state%compname /= 'EXTDATA') call t_p%stop(trim(state%compname))
 
@@ -2074,6 +2078,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
    endif
 
   call MAPL_GenericStateClockOn(STATE,"--GenFinalMine")
+  call state%t_profiler%start('Final_self')
 
   call MAPL_GetResource( STATE, RECFIN, LABEL="RECORD_FINAL:", &
        RC=STATUS )
@@ -2171,6 +2176,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 ! Write summary of profiled times
 !--------------------------------
   
+  call state%t_profiler%stop('Final_self')
   call state%t_profiler%stop('Final')
   call state%t_profiler%stop()
 
@@ -2178,13 +2184,14 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 
      call report_generic_profile()
 
-     !call WRITE_PARALLEL(" ")
-     !call WRITE_PARALLEL(" Times for "//trim(COMP_NAME))
+     ! WJ node: the old report will be removed
+     call WRITE_PARALLEL(" ")
+     call WRITE_PARALLEL(" Times for "//trim(COMP_NAME))
 
-     !call MAPL_ProfWrite(STATE%TIMES,RC=STATUS)
-     !_VERIFY(STATUS)
+     call MAPL_ProfWrite(STATE%TIMES,RC=STATUS)
+     _VERIFY(STATUS)
 
-     !call WRITE_PARALLEL(" ")
+     call WRITE_PARALLEL(" ")
   end if
 
 ! Clean-up
@@ -2317,6 +2324,7 @@ end subroutine MAPL_GenericFinalize
 ! Do my "own" record
 ! ------------------
   call MAPL_GenericStateClockOn(STATE,"--GenRecordMine")
+  call state%t_profiler%start('Record_self')
 
   if (associated(STATE%RECORD)) then
 
@@ -2384,10 +2392,10 @@ end subroutine MAPL_GenericFinalize
      END DO
   endif
   call MAPL_GenericStateClockOff(STATE,"--GenRecordMine")
-
   call MAPL_GenericStateClockOff(STATE,"GenRecordTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
+  call state%t_profiler%stop('Record_self')
   call state%t_profiler%stop('Record')
   call state%t_profiler%stop()
   call t_p%stop(trim(state%compname))
@@ -2538,6 +2546,7 @@ end subroutine MAPL_StateRecord
 ! Do my "own" refresh
 ! ------------------
   call MAPL_GenericStateClockOn(STATE,"--GenRefreshMine")
+  call state%t_profiler%start('Refresh_self')
 
   if (associated(STATE%RECORD)) then
 
@@ -2596,10 +2605,10 @@ end subroutine MAPL_StateRecord
      _VERIFY(STATUS)
   endif
   call MAPL_GenericStateClockOff(STATE,"--GenRefreshMine")
-
   call MAPL_GenericStateClockOff(STATE,"GenRefreshTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
+  call state%t_profiler%stop('Refresh_self')
   call state%t_profiler%stop('Refresh')
   call state%t_profiler%stop()
   call t_p%stop(trim(state%compname))
@@ -4825,15 +4834,17 @@ end function MAPL_AddChildFromGC
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOn"
-    integer :: STATUS
-
+    integer :: STATUS, n
+   
     call MAPL_ProfClockOn(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
+    
+    ! WJ notes : will replace above code with below
+    !n = index(NAME,'-',.true.)+1
+    !call state%t_profiler%start(trim(Name(n:)))
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GenericStateClockOn
-
-
 
   subroutine MAPL_StateAlarmAdd(STATE,ALARM,RC)
 
@@ -4894,10 +4905,14 @@ end function MAPL_AddChildFromGC
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOff"
-    integer :: STATUS
+    integer :: STATUS, n
 
     call MAPL_ProfClockOff(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
+
+    ! WJ notes : will replace above code with below
+    !n = index(NAME,'-',.true.)+1
+    !call state%t_profiler%stop(trim(Name(n:)))
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GenericStateClockOff

@@ -450,8 +450,9 @@ contains
       call stop_timer()
 
       call t_p%stop()
-      !call report_throughput()
       call report_profiling()
+      ! W.J note : below reporting will be remove soon
+      call report_throughput()
 
       _RETURN(_SUCCESS)
    contains
