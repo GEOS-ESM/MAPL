@@ -12,6 +12,7 @@ contains
       type (TimeProfiler), target :: prof
       
       prof = TimeProfiler('top')
+      call Prof%start()
 
       call prof%start('timer_1')
       call prof%stop('timer_1')
@@ -28,6 +29,7 @@ contains
       type (TimeProfiler), target :: prof
       
       prof = TimeProfiler('top')
+      call prof%start()
 
       call prof%start('timer_1')
       call prof%start('timer_2')
@@ -45,7 +47,9 @@ contains
       class(AbstractMeterNode), pointer :: main_node
 
       main = TimeProfiler('main')
+      call main%start()
       lap = TimeProfiler('lap')
+      call lap%start()
       call lap%finalize()
       call main%accumulate(lap)
 
@@ -66,7 +70,9 @@ contains
       class(AbstractMeter), pointer :: t
 
       main = TimeProfiler('main')
+      call main%start()
       lap = TimeProfiler('lap')
+      call lap%start()
       call lap%start('A')
       call lap%stop('A')
       call lap%finalize()
@@ -100,7 +106,9 @@ contains
       type(TimeProfiler), target :: main, lap
 
       main = TimeProfiler('main')
+      call main%start()
       lap = TimeProfiler('lap')
+      call lap%start()
       call lap%start('A')
       call lap%stop('A')
       call lap%finalize()
