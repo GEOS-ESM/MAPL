@@ -30,6 +30,8 @@ module MAPL_CapOptionsMod
       ! ensemble options
       integer :: n_members = 1
       character(:), allocatable :: ensemble_subdir_prefix
+      ! logging options
+      character(:), allocatable :: logging_config
 
    end type MAPL_CapOptions
 
