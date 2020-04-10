@@ -48,6 +48,10 @@ if (PFUNIT_FOUND)
   add_subdirectory (MAPL_pFUnit EXCLUDE_FROM_ALL)
 endif ()
 
+# Support for automated code generation
+list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+include(mapl_acg)
+add_subdirectory (Apps)
 
 # Git transition defect:
 # Uncomment the line below once the dev branch of MAPL has been brought in.
