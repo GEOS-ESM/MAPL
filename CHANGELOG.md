@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Corrected handling of Equation of Time in orbit (off by default)
 - Made ASSERT in ExtData more explicit in case of missing variables.
+- (re) Introduced MAPL Profiling package
 - Improved diagnostic message in HistoryGridComp for misspelled fields/bundles
 
 ### Fixed
@@ -18,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected Python code generator scripts for component import/export specs.
 - Add directories to `.gitignore` for building with `mepo`
 - Bug building with mixed Intel/GCC compilers
+- Implemented workaround to cmake error that happens when building tests in parallel.	
 - Set correct ESMA_env tag in `components.yaml`
 - Updated `components.yaml` to be inline with GEOSgcm
 
@@ -32,8 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added configuration for CircleCI and Github Actions
   - Builds MAPL using GCC 9.2.0 and Open MPI 4.0.2
   - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
-- Imported Python/MAPL subdir (old, but never imported to GitHub)
-
+ - Imported Python/MAPL subdir (old, but never imported to GitHub)
+ - Python automatic code generator for grid comp include files	
 	
 ## [2.0.2] - 2020-03-10
 

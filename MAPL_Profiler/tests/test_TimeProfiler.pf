@@ -1,0 +1,126 @@
+module test_TimeProfiler
+   use funit
+   use MAPL_Profiler
+   implicit none
+   
+
+contains
+
+
+   @test
+   subroutine test_start_one()
+      type (TimeProfiler), target :: prof
+      
+      prof = TimeProfiler('top')
+      call Prof%start()
+
+      call prof%start('timer_1')
+      call prof%stop('timer_1')
+
+      call prof%finalize()
+      
+      @assertEqual(2, prof%get_num_meters())
+      
+   end subroutine test_start_one
+
+
+   @test
+   subroutine test_stop_wrong_meter()
+      type (TimeProfiler), target :: prof
+      
+      prof = TimeProfiler('top')
+      call prof%start()
+
+      call prof%start('timer_1')
+      call prof%start('timer_2')
+      @assertEqual(0, prof%get_status())
+      call prof%stop('timer_1') ! not the current timer
+
+      @assertEqual(INCORRECTLY_NESTED_METERS, prof%get_status())
+      call prof%finalize()
+      
+   end subroutine test_stop_wrong_meter
+
+   @test
+   subroutine test_accumulate_sub()
+      type(TimeProfiler), target :: main, lap
+      class(AbstractMeterNode), pointer :: main_node
+
+      main = TimeProfiler('main')
+      call main%start()
+      lap = TimeProfiler('lap')
+      call lap%start()
+      call lap%finalize()
+      call main%accumulate(lap)
+
+      ! should now have 'lap' as a subtimer of 'main'
+      @assertEqual(2, main%get_num_meters())
+
+      main_node => main%get_root_node()
+      @assertTrue(main_node%has_child('lap'))
+      
+   end subroutine test_accumulate_sub
+
+
+   @test
+   subroutine test_accumulate_nested()
+      type(TimeProfiler), target :: main, lap
+      class(AbstractMeterNode), pointer :: main_node
+      class(AbstractMeterNode), pointer :: child
+      class(AbstractMeter), pointer :: t
+
+      main = TimeProfiler('main')
+      call main%start()
+      lap = TimeProfiler('lap')
+      call lap%start()
+      call lap%start('A')
+      call lap%stop('A')
+      call lap%finalize()
+      call main%accumulate(lap)
+
+      ! should now have 'lap' as a subtimer of 'main'
+      @assertEqual(3, main%get_num_meters())
+
+      main_node => main%get_root_node()
+      @assertTrue(main_node%has_child('lap'))
+
+      child => main_node%get_child('lap')
+      t => child%get_meter()
+      select type (t)
+      class is (AdvancedMeter)
+         @assertEqual(1, t%get_num_cycles())
+      end select
+
+      @assertTrue(child%has_child('A'))
+      child => child%get_child('A')
+      t => child%get_meter()
+      select type (t)
+      class is (AdvancedMeter)
+         @assertEqual(1, t%get_num_cycles())
+      end select
+
+   end subroutine test_accumulate_nested
+
+   @test
+   subroutine test_accumulate_multi()
+      type(TimeProfiler), target :: main, lap
+
+      main = TimeProfiler('main')
+      call main%start()
+      lap = TimeProfiler('lap')
+      call lap%start()
+      call lap%start('A')
+      call lap%stop('A')
+      call lap%finalize()
+      call main%accumulate(lap)
+
+      call lap%reset()
+      call lap%start('A')
+      call lap%stop('A')
+      call lap%finalize()
+      call main%accumulate(lap)
+      
+      
+   end subroutine test_accumulate_multi
+
+end module test_TimeProfiler

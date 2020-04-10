@@ -6,6 +6,7 @@ module MAPL_CapGridCompMod
   use MAPL_ErrorHandlingMod
   use MAPL_BaseMod
   use MAPL_ConstantsMod
+  use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler, get_global_memory_profiler
   use MAPL_ProfMod
   use MAPL_MemUtilsMod
   use MAPL_IOMod
@@ -169,6 +170,7 @@ contains
     type (MAPL_MetaComp), pointer :: MAPLOBJ
     procedure(), pointer :: root_set_services
     type(MAPL_CapGridComp), pointer :: cap
+    class(BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -176,6 +178,9 @@ contains
 
     cap => get_CapGridComp_from_gc(gc)
     maplobj => get_MetaComp_from_gc(gc) 
+
+    t_p => get_global_time_profiler()
+    call t_p%start('Initialize')
 
     call ESMF_GridCompGet(gc, vm = cap%vm, rc = status)
     _VERIFY(status)
@@ -553,10 +558,15 @@ contains
             exportState = cap%child_exports(cap%root_id), clock = cap%clock, userRC = status)
        _VERIFY(status)
 
+       call t_p%start('HIST')
        call cap%initialize_history(rc=status)
        _VERIFY(status)
+       call t_p%stop('HIST')
+
+       call t_p%start('EXTDATA')
        call cap%initialize_extdata(rc=status)
        _VERIFY(status)
+       call t_p%stop('EXTDATA')
 
        ! Finally check is this is a regular replay
        ! If so stuff gc and input state for ExtData in GCM internal state
@@ -574,6 +584,9 @@ contains
           ExtData_internal_state%expState = CAP%CHILD_EXPORTS(cap%extdata_id) 
        end if
     end if
+
+    call t_p%stop('Initialize')
+
     _RETURN(ESMF_SUCCESS)
   end subroutine initialize_gc
 
@@ -588,7 +601,6 @@ contains
     if (present(rc)) rc = ESMF_SUCCESS
     ! All the EXPORTS of the Hierachy are made IMPORTS of History
     !------------------------------------------------------------
-
     call ESMF_StateAdd(cap%child_imports(cap%history_id), [cap%child_exports(cap%root_id)], rc = status)
     _VERIFY(STATUS)
 
@@ -714,13 +726,20 @@ contains
     integer, intent(out) :: RC     ! Error code:
 
     integer :: status
+    class (BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import)
     _UNUSED_DUMMY(export)
     _UNUSED_DUMMY(clock)
 
+    t_p => get_global_time_profiler()
+    call t_p%start('Run')
+
     call run_MAPL_GridComp(gc, rc=status)
     _VERIFY(status)
+
+    call t_p%stop('Run')
+
     _RETURN(ESMF_SUCCESS)
 
   end subroutine run_gc
@@ -736,6 +755,7 @@ contains
 
     type(MAPL_CapGridComp), pointer :: cap
     type(MAPL_MetaComp), pointer :: MAPLOBJ
+    class (BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -743,6 +763,9 @@ contains
     
     cap => get_CapGridComp_from_gc(gc)
     MAPLOBJ => get_MetaComp_from_gc(gc)
+
+    t_p => get_global_time_profiler()
+    call t_p%start('Finalize')
 
     if (.not. cap%printspec > 0) then
        
@@ -786,6 +809,9 @@ contains
           end if
        end if
     end if
+
+    call t_p%stop('Finalize')
+
     _RETURN(ESMF_SUCCESS)
   end subroutine finalize_gc
 
@@ -844,7 +870,6 @@ contains
 
   end subroutine run
 
-
   subroutine finalize(this, rc)
     class(MAPL_CapGridComp), intent(inout) :: this
     integer, optional, intent(out) :: rc
@@ -855,7 +880,6 @@ contains
     _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
   end subroutine finalize
-
 
   function get_model_duration(this, rc) result (duration)
     class (MAPL_CapGridComp) :: this
