@@ -351,8 +351,8 @@
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ProfModeSet"
 
       ! Sanity check
-      _ASSERT(timerMode >= MAPL_TimerModeOld .and. timerMode <= MAPL_TimerModeMax,'needs informative message')
       timerMode = mode
+      _ASSERT(timerMode >= MAPL_TimerModeOld .and. timerMode <= MAPL_TimerModeMinMax,'needs informative message')
 
       _RETURN(ESMF_SUCCESS)
       

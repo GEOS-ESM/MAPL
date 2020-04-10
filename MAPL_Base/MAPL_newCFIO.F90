@@ -812,6 +812,9 @@ module MAPL_newCFIOMod
            if (hasDE) then
               call ESMF_FieldGet(input_fields(I),0,farrayPtr=ptr2d,rc=status)
               _VERIFY(status)
+           else
+              allocate(ptr2d(0,0),stat=status)
+              _VERIFY(status)
            end if
            ref=factory%generate_file_reference2D(ptr2d)
            allocate(localStart,source=[gridLocalStart,timeIndex])
@@ -827,6 +830,9 @@ module MAPL_newCFIOMod
            if (hasDE) then
               call ESMF_FieldGet(input_fields(I),0,farrayPtr=ptr3d,rc=status)
               _VERIFY(status)
+           else
+              allocate(ptr3d(0,0,0),stat=status)
+              _VERIFY(status)
            end if
            ref=factory%generate_file_reference3D(ptr3d)
            allocate(localStart,source=[gridLocalStart,1,timeIndex])
@@ -837,8 +843,8 @@ module MAPL_newCFIOMod
              this%read_collection_id, fileName, trim(names(i)), &
              & ref, start=localStart, global_start=globalStart, global_count=globalCount)
         deallocate(localStart,globalStart,globalCount)
-        deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)
      enddo
+     deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)
      this%input_bundle = ESMF_FieldBundleCreate(fieldList=input_fields,rc=status)
      _VERIFY(status)
      _RETURN(_SUCCESS)

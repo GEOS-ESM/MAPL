@@ -1,0 +1,180 @@
+module test_MeterNodeIterator
+   use, intrinsic :: iso_fortran_env, only: REAL64
+   use MAPL_Profiler
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_next_trivial()
+      type (MeterNode), target :: node
+
+      class (AbstractMeterNodeIterator), allocatable :: iter_1
+      class (AbstractMeterNodeIterator), allocatable :: iter_2
+
+      node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
+
+      iter_1 = node%begin()
+      iter_2 = node%begin()
+      @assertTrue(iter_1 == iter_2)
+      @assertFalse(iter_1 /= iter_2)
+      @assertTrue(iter_1 /= node%end())
+      @assertFalse(iter_1 == node%end())
+
+      call iter_1%next()
+      @assertTrue(iter_1 == node%end())
+      @assertFalse(iter_1 == iter_2)
+      @assertFalse(iter_1 == iter_2)
+      @assertFalse(iter_2 == iter_1)
+      @assertTrue(iter_1 /= iter_2)
+      @assertTrue(iter_2 /= iter_1)
+      
+      call iter_2%next()
+      @assertTrue(iter_2 == node%end())
+      @assertFalse(iter_2 /= node%end())
+      @assertTrue(iter_1 == iter_2)
+      @assertFalse(iter_1 /= iter_2)
+
+   end subroutine test_next_trivial
+
+   @test
+   subroutine test_next_one_child()
+      type (MeterNode) :: node
+
+      class (AbstractMeterNodeIterator), allocatable :: iter_1
+      class (AbstractMeterNodeIterator), allocatable :: iter_2
+
+      node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
+      iter_1 = node%begin()
+      iter_2 = node%begin()
+
+      call node%add_child('a', AdvancedMeter(MpiTimerGauge()))
+
+      call iter_1%next()
+      call iter_2%next()
+      @assertTrue(iter_1 == iter_2)
+      @assertFalse(iter_1 /= iter_2)
+
+      call iter_1%next()
+      call iter_2%next()
+      @assertTrue(iter_1 == iter_2)
+      @assertFalse(iter_1 /= iter_2)
+
+   end subroutine test_next_one_child
+
+   @test
+   subroutine test_count_nodes_depth_0()
+      type (MeterNode), target :: node
+
+      class (AbstractMeterNodeIterator), allocatable :: iter
+      integer :: count
+
+      node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
+
+      count = 0
+      iter = node%begin()
+      do while (iter /= node%end())
+         count = count + 1
+         call iter%next()
+      end do
+
+      @assertEqual(node%get_num_nodes(), count)
+
+      
+   end subroutine test_count_nodes_depth_0
+
+
+   @test
+   subroutine test_count_nodes_depth_1()
+      type (MeterNode), target :: node
+
+      class (AbstractMeterNodeIterator), allocatable :: iter
+      integer :: count
+
+      node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
+      call node%add_child('a', AdvancedMeter(MpiTimerGauge()))
+      call node%add_child('b', AdvancedMeter(MpiTimerGauge()))
+      call node%add_child('c', AdvancedMeter(MpiTimerGauge()))
+
+      count = 0
+      iter = node%begin()
+      do while (iter /= node%end())
+         count = count + 1
+         call iter%next()
+      end do
+
+      @assertEqual(node%get_num_nodes(), count)
+
+      
+   end subroutine test_count_nodes_depth_1
+
+
+   ! The next test verifies that the desired pointer is retrieved at each level.
+   
+   @test
+   subroutine test_depth_2()
+      type (MeterNode), target :: node
+
+      class (AbstractMeterNodeIterator), allocatable :: iter
+      class (AbstractMeterNode), pointer :: child, child_2
+      class (AbstractMeter), pointer :: t
+      integer :: count
+
+      node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
+      t => node%get_meter()
+      call t%add_cycle(1.0_REAL64)
+
+      call node%add_child('a', AdvancedMeter(MpiTimerGauge()))
+      child => node%get_child('a')
+      t => child%get_meter()
+      call t%add_cycle(2.0_REAL64)
+
+      call child%add_child('a_1', AdvancedMeter(MpiTimerGauge()))
+      child_2 => child%get_child('a_1')
+      t => child_2%get_meter()
+      call t%add_cycle(3.0_REAL64)
+
+      call child%add_child('a_2', AdvancedMeter(MpiTimerGauge()))
+      child_2 => child%get_child('a_2')
+      t => child_2%get_meter()
+      call t%add_cycle(4.0_REAL64)
+
+      call node%add_child('b', AdvancedMeter(MpiTimerGauge()))
+      child => node%get_child('b')
+      t => child%get_meter()
+      call t%add_cycle(5.0_REAL64)
+
+      call child%add_child('b_1', AdvancedMeter(MpiTimerGauge()))
+      child_2 => child%get_child('b_1')
+      t => child_2%get_meter()
+      call t%add_cycle(6.0_REAL64)
+
+      call child%add_child('b_2', AdvancedMeter(MpiTimerGauge()))
+      child_2 => child%get_child('b_2')
+      t => child_2%get_meter()
+      call t%add_cycle(7.0_REAL64)
+
+      call node%add_child('c', AdvancedMeter(MpiTimerGauge()))
+      child => node%get_child('c')
+      t => child%get_meter()
+      call t%add_cycle(8.0_REAL64)
+
+
+      count = 0
+      iter = node%begin()
+      do while (iter /= node%end())
+         count = count + 1
+         t => iter%get_meter()
+         @assertEqual(count, t%get_total())
+         call iter%next()
+      end do
+
+      @assertEqual(8, count)
+      
+   end subroutine test_depth_2
+
+
+
+end module test_MeterNodeIterator
+   
