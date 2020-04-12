@@ -203,7 +203,7 @@ module MAPL_GenericMod
   public MAPL_GCGet
   public MAPL_CheckpointState
   public MAPL_ESMFStateReadFromFile
-
+  public MAPL_InternalStateRetrieve
 !BOP  
   ! !PUBLIC TYPES:
 
@@ -397,7 +397,7 @@ type  MAPL_MetaComp
    integer                        , pointer :: phase_coldstart(:)=> null()
    real                                     :: HEARTBEAT
    type (MAPL_Communicators)                :: mapl_comm
-   type (TimeProfiler) :: t_profiler
+   type (TimeProfiler), public :: t_profiler
 !!$   integer :: comm
 end type MAPL_MetaComp
 !EOC
@@ -527,7 +527,6 @@ type (MAPL_VarSpec),      pointer :: EX_SPECS(:)
 type (MAPL_VarSpecPtr),   pointer :: ImSpecPtr(:)
 type (MAPL_VarSpecPtr),   pointer :: ExSpecPtr(:)
 type(ESMF_GridComp)               :: rootGC
-class(BaseProfiler), pointer      :: t_p
 
 !=============================================================================
 
@@ -549,10 +548,7 @@ class(BaseProfiler), pointer      :: t_p
    _VERIFY(STATUS)
    MAPLOBJ%COMPNAME = COMP_NAME
 
-   !t_p => get_global_time_profiler()
-   !call t_p%start(trim(COMP_Name))
-   call MAPLOBJ%t_profiler%start()
-   call MAPLOBJ%t_profiler%start('SetService')
+   call MAPLOBJ%t_profiler%start('GenSetService')
 
 ! Set the Component's Total timer
 ! -------------------------------
@@ -790,9 +786,7 @@ class(BaseProfiler), pointer      :: t_p
 
 ! All done
 !---------
-   call MAPLOBJ%t_profiler%stop('SetService')
-   call MAPLOBJ%t_profiler%stop()
-   !call t_p%stop(trim(COMP_NAME))
+   call MAPLOBJ%t_profiler%stop('GenSetService')
 
    _RETURN(ESMF_SUCCESS)
 
@@ -923,16 +917,13 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
 
 ! Start my timer
 !---------------
-  t_p => get_global_time_profiler()
-  if (state%compname /= 'EXTDATA') call t_p%start(trim(state%compname))
   
-  call state%t_profiler%start()
-  call state%t_profiler%start('Initialize')
-  call state%t_profiler%start('Initialize_self')
+  call state%t_profiler%start('GenInitialize')
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenInitTot")
   call MAPL_GenericStateClockOn(STATE,"--GenInitMine")
+  call state%t_profiler%start('GenInitialize_self')
 
 ! Put the inherited grid in the generic state
 !--------------------------------------------
@@ -1454,8 +1445,8 @@ endif
          STATE%RECORD%INT_LEN = 0
       end if
    end if
+   call state%t_profiler%stop('GenInitialize_self')
    call MAPL_GenericStateClockOff(STATE,"--GenInitMine")
-   call state%t_profiler%stop('Initialize_self')
 
 ! Initialize the children
 ! -----------------------
@@ -1487,14 +1478,21 @@ endif
                call ESMF_GridCompGet( STATE%GCS(I), NAME=CHILD_NAME, RC=STATUS )
                _VERIFY(STATUS)
       
+               t_p => get_global_time_profiler()
+               call t_p%start(trim(CHILD_NAME))
                call MAPL_GenericStateClockOn (STATE,trim(CHILD_NAME))
+               call CHLDMAPL(I)%ptr%t_profiler%start()
+               call CHLDMAPL(I)%ptr%t_profiler%start('Initialize')
                call ESMF_GridCompInitialize (STATE%GCS(I), &
                     importState=STATE%GIM(I), &
                     exportState=STATE%GEX(I), &
                     clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_INIT(PHASE), &
                     userRC=userRC, RC=STATUS )
                _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
+               call CHLDMAPL(I)%ptr%t_profiler%stop('Initialize')
+               call CHLDMAPL(I)%ptr%t_profiler%stop()
                call MAPL_GenericStateClockOff(STATE,trim(CHILD_NAME))
+               call t_p%stop(trim(CHILD_NAME))
             end if
          end do
          deallocate(CHLDMAPL)
@@ -1531,7 +1529,7 @@ endif
       enddo
    endif
    call MAPL_GenericStateClockOn(STATE,"--GenInitMine")
-   call state%t_profiler%start('Initialize_self')
+   call state%t_profiler%start('GenInitialize_self')
 
 ! Create import and initialize state variables
 ! --------------------------------------------
@@ -1678,8 +1676,8 @@ endif
       _VERIFY(STATUS)
    end if
 
+   call state%t_profiler%stop('GenInitialize_self')
    call MAPL_GenericStateClockOff(STATE,"--GenInitMine")
-   call state%t_profiler%stop('Initialize_self')
 
    if (.not. associated(STATE%parentGC)) then
       call MAPL_AdjustIsNeeded(GC, EXPORT, RC=STATUS)
@@ -1689,9 +1687,7 @@ endif
   call MAPL_GenericStateClockOff(STATE,"GenInitTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
-  call state%t_profiler%stop('Initialize')
-  call state%t_profiler%stop()
-  if (state%compname /= 'EXTDATA') call t_p%stop(trim(state%compname))
+  call state%t_profiler%stop('GenInitialize')
 
 ! Write Memory Use Statistics.
 ! -------------------------------------------
@@ -2169,6 +2165,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
      endif
   end if
 
+  call state%t_profiler%stop('Final_self')
   call MAPL_GenericStateClockOff(STATE,"--GenFinalMine")
   call MAPL_GenericStateClockOff(STATE,"GenFinalTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
@@ -2176,7 +2173,6 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 ! Write summary of profiled times
 !--------------------------------
   
-  call state%t_profiler%stop('Final_self')
   call state%t_profiler%stop('Final')
   call state%t_profiler%stop()
 
@@ -2391,11 +2387,11 @@ end subroutine MAPL_GenericFinalize
         end if
      END DO
   endif
+  call state%t_profiler%stop('Record_self')
   call MAPL_GenericStateClockOff(STATE,"--GenRecordMine")
   call MAPL_GenericStateClockOff(STATE,"GenRecordTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
-  call state%t_profiler%stop('Record_self')
   call state%t_profiler%stop('Record')
   call state%t_profiler%stop()
   call t_p%stop(trim(state%compname))
@@ -4318,6 +4314,7 @@ end subroutine MAPL_DateStampGet
   character(len=ESMF_MAXSTR)                  :: FNAME, PNAME
   type(ESMF_GridComp)                         :: pGC
   type(ESMF_Context_Flag)                     :: contextFlag
+  class(BaseProfiler), pointer                :: t_p
 
   if (.not.associated(META%GCS)) then
      ! this is the first child to be added
@@ -4330,6 +4327,7 @@ end subroutine MAPL_DateStampGet
      allocate(META%GCNameList(0), stat=status)
      _VERIFY(STATUS)
   end if
+
   I = size(META%GCS) + 1
   MAPL_AddChildFromMeta = I
 ! realloc GCS, gcnamelist 
@@ -4422,7 +4420,16 @@ end subroutine MAPL_DateStampGet
   CHILD_META%mapl_comm = META%mapl_comm
   CHILD_META%t_profiler = TimeProfiler(trim(NAME), comm_world = META%mapl_comm%esmf%comm )
 
+  t_p => get_global_time_profiler()
+
+  call t_p%start(trim(NAME))
+  call CHILD_META%t_profiler%start()
+  call CHILD_META%t_profiler%start('SetService')
   call ESMF_GridCompSetServices ( META%GCS(I), SS, RC=status )
+  call CHILD_META%t_profiler%stop('SetService')
+  call CHILD_META%t_profiler%stop()
+  call t_p%stop(trim(NAME))
+  
   _VERIFY(STATUS)
 
   _RETURN(ESMF_SUCCESS)
@@ -4835,13 +4842,16 @@ end function MAPL_AddChildFromGC
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOn"
     integer :: STATUS, n
+    type(ESMF_VM)                     :: VM
    
     call MAPL_ProfClockOn(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
     
     ! WJ notes : will replace above code with below
-    !n = index(NAME,'-',.true.)+1
-    !call state%t_profiler%start(trim(Name(n:)))
+    !call ESMF_VmGetCurrent(VM, rc=status)
+    !if (MAPL_AM_I_Root(VM))print*, trim(state%compname) //"::"//trim(name) //  "::clock on "
+    n = index(NAME,'-',.true.)+1
+    call state%t_profiler%start(trim(Name(n:)))
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GenericStateClockOn
@@ -4906,13 +4916,16 @@ end function MAPL_AddChildFromGC
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOff"
     integer :: STATUS, n
+    type(ESMF_VM)                     :: VM
 
     call MAPL_ProfClockOff(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
 
     ! WJ notes : will replace above code with below
-    !n = index(NAME,'-',.true.)+1
-    !call state%t_profiler%stop(trim(Name(n:)))
+    n = index(NAME,'-',.true.)+1
+    call state%t_profiler%stop(trim(Name(n:)))
+    !call ESMF_VmGetCurrent(VM, rc=status)
+    !if (MAPL_AM_I_Root(VM))print*, trim(state%compname) //"::"//trim(name) //  "::clock off "
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GenericStateClockOff
