@@ -91,22 +91,11 @@ contains
       class(AbstractMeter), pointer :: t
 
       call this%stack%push_back(this%node)
-
-      if( .not. this%stack%size() == 1) then
-         block
-           use MPI
-           integer :: rank, ierror
-           call MPI_Comm_rank(this%comm_world, rank, ierror)
-           if (rank == 0) then
-             print*,__FILE__,__LINE__,'nesting start called on self timer'
-           end if
-         end block
-      end if
-
       t => this%node%get_meter()
       call t%start()
 
    end subroutine start_self
+
 
    subroutine start_name(this, name)
       class(BaseProfiler), target, intent(inout) :: this
@@ -163,14 +152,14 @@ contains
       t => node%get_meter()
       if (name /= node%get_name()) then
          this%status = INCORRECTLY_NESTED_METERS
-         block
-           use MPI
-           integer :: rank, ierror
-           call MPI_Comm_rank(this%comm_world, rank, ierror)
-           if (rank == 0) then
-             print*,__FILE__,__LINE__,'stop called on non-bottom timer'//name
-           end if
-         end block
+      block
+        use MPI
+        integer :: rank, ierror
+        call MPI_Comm_rank(this%comm_world, rank, ierror)
+        if (rank == 0) then
+         print*,__FILE__,__LINE__,'stop called on non-bottom timer'//name
+        end if
+      end block
          return
       end if
       call t%stop()
@@ -193,6 +182,7 @@ contains
              print*,__FILE__,__LINE__,'stop called on self timer'
            end if
          end block
+           return
       end if
 
       node => this%stack%back()

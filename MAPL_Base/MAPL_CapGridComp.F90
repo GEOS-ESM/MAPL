@@ -168,7 +168,6 @@ contains
 
 
     type (MAPL_MetaComp), pointer :: MAPLOBJ
-    type (MAPL_MetaComp), pointer :: CHILD_MAPLOBJ
     procedure(), pointer :: root_set_services
     type(MAPL_CapGridComp), pointer :: cap
     class(BaseProfiler), pointer :: t_p
@@ -181,6 +180,7 @@ contains
     maplobj => get_MetaComp_from_gc(gc) 
 
     t_p => get_global_time_profiler()
+    call t_p%start('Initialize')
 
     call ESMF_GridCompGet(gc, vm = cap%vm, rc = status)
     _VERIFY(status)
@@ -481,7 +481,6 @@ contains
 
     root_set_services => cap%root_set_services
 
-    call t_p%start('SetService')
     cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)  
     _VERIFY(status)
 
@@ -521,7 +520,6 @@ contains
 
     cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData_SetServices, rc = status)
     _VERIFY(status)
-    call t_p%stop('SetService')
 
     ! Add NX and NY from AGCM.rc to ExtData.rc as well as name of ExtData rc file
     call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", rc=status)
@@ -556,17 +554,9 @@ contains
        !  Initialize the Computational Hierarchy
        !----------------------------------------
 
-       call t_p%start('Initialize')
-       call t_p%start(trim(root_name))
-       call MAPL_InternalStateRetrieve(cap%gcs(cap%root_id), CHILD_MAPLOBJ, RC=status)
-       call CHILD_MAPLOBJ%t_profiler%start()
-       call CHILD_MAPLOBJ%t_profiler%start('Intialize')
        call ESMF_GridCompInitialize(cap%gcs(cap%root_id), importState = cap%child_imports(cap%root_id), &
             exportState = cap%child_exports(cap%root_id), clock = cap%clock, userRC = status)
        _VERIFY(status)
-       call CHILD_MAPLOBJ%t_profiler%stop('Intialize')
-       call CHILD_MAPLOBJ%t_profiler%stop()
-       call t_p%stop(trim(root_name))
 
        call t_p%start('HIST')
        call cap%initialize_history(rc=status)
@@ -593,9 +583,9 @@ contains
           ExtData_internal_state%gc = CAP%GCS(cap%extdata_id)
           ExtData_internal_state%expState = CAP%CHILD_EXPORTS(cap%extdata_id) 
        end if
-       call t_p%stop('Initialize')
     end if
 
+    call t_p%stop('Initialize')
 
     _RETURN(ESMF_SUCCESS)
   end subroutine initialize_gc
@@ -606,8 +596,7 @@ contains
     integer, optional, intent(out) :: rc
     integer :: status
     type(HISTORY_ExchangeListWrap) :: lswrap
-    integer*8, pointer             :: LSADDR(:) => null()
-    type (MAPL_MetaComp), pointer  :: CHILD_MAPLOBJ
+    integer*8, pointer           :: LSADDR(:) => null()
 
     if (present(rc)) rc = ESMF_SUCCESS
     ! All the EXPORTS of the Hierachy are made IMPORTS of History
@@ -627,16 +616,9 @@ contains
     ! Initialize the History
     !------------------------
 
-    call MAPL_InternalStateRetrieve(cap%gcs(cap%history_id), CHILD_MAPLOBJ, RC=status)
-    call CHILD_MAPLOBJ%t_profiler%start()
-    call CHILD_MAPLOBJ%t_profiler%start('Intialize')
-
     call ESMF_GridCompInitialize (CAP%GCS(cap%history_id), importState=CAP%CHILD_IMPORTS(cap%history_id), &
          exportState=CAP%CHILD_EXPORTS(cap%history_id), clock=CAP%CLOCK_HIST, userRC=STATUS )
     _VERIFY(STATUS)
-
-    call CHILD_MAPLOBJ%t_profiler%stop('Intialize')
-    call CHILD_MAPLOBJ%t_profiler%stop()
 
     _RETURN(ESMF_SUCCESS)
   end subroutine initialize_history
@@ -655,7 +637,6 @@ contains
     integer :: i
     type(ESMF_State) :: state, root_imports, component_state
     character(len=:), allocatable :: component_name, field_name
-    type (MAPL_MetaComp), pointer :: CHILD_MAPLOBJ
 
     ! Prepare EXPORTS for ExtData
     ! ---------------------------
@@ -726,18 +707,10 @@ contains
 
     ! Initialize the ExtData
     !------------------------
-
-    call MAPL_InternalStateRetrieve(cap%gcs(cap%extdata_id), CHILD_MAPLOBJ, RC=status)
-    call CHILD_MAPLOBJ%t_profiler%start()
-    call CHILD_MAPLOBJ%t_profiler%start('Intialize')
-
     call ESMF_GridCompInitialize (cap%gcs(cap%extdata_id), importState = cap%child_imports(cap%extdata_id), &
          exportState = cap%child_exports(cap%extdata_id), & 
          clock = cap%clock, userRc = status)
     _VERIFY(status)
-
-    call CHILD_MAPLOBJ%t_profiler%stop('Intialize')
-    call CHILD_MAPLOBJ%t_profiler%stop()
 
     _RETURN(ESMF_SUCCESS)
 
