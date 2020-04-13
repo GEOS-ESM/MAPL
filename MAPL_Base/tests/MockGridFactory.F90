@@ -30,6 +30,9 @@ module MockGridFactoryMod
 
       procedure :: append_metadata
       procedure :: append_variable_metadata
+      procedure :: generate_file_bounds
+      procedure :: generate_file_reference2D
+      procedure :: generate_file_reference3D
    end type MockGridFactory
 
    interface MockGridFactory
@@ -155,6 +158,10 @@ contains
       type (FileMetadata), target, intent(in) :: file_metadata
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(file_metadata)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(rc)
    end subroutine initialize_from_file_metadata
 
 
@@ -162,7 +169,8 @@ contains
       class (MockGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
 
-      type (Variable) :: v
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(metadata)
       
 !!$      ! Horizontal grid dimensions
 !!$      call metadata%add_dimension('lon', this%im_world)
@@ -173,6 +181,7 @@ contains
       class (MockGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
+      _UNUSED_DUMMY(this)
 
       vars = 'lon,lat, mock'
 
@@ -181,7 +190,45 @@ contains
    subroutine append_variable_metadata(this,var)
       class (MockGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(var)
    end subroutine append_variable_metadata
 
+   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+      use MAPL_BaseMod
+      use ESMF
+      class(MockGridFactory), intent(inout) :: this
+      type(ESMF_Grid),      intent(inout) :: grid
+      integer, allocatable, intent(inout) :: local_start(:)
+      integer, allocatable, intent(inout) :: global_start(:)
+      integer, allocatable, intent(inout) :: global_count(:)
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(grid)
+      _UNUSED_DUMMY(local_start)
+      _UNUSED_DUMMY(global_start)
+      _UNUSED_DUMMY(global_count)
+      _UNUSED_DUMMY(rc)
+
+   end subroutine generate_file_bounds
+
+   function generate_file_reference2D(this,fpointer) result(ref)
+      use pFIO
+      type(ArrayReference) :: ref
+      class(MockGridFactory), intent(inout) :: this
+      real, pointer, intent(in) :: fpointer(:,:)
+      _UNUSED_DUMMY(this)
+      ref = ArrayReference(fpointer)
+   end function generate_file_reference2D
+
+   function generate_file_reference3D(this,fpointer) result(ref)
+      use pFIO
+      type(ArrayReference) :: ref
+      class(MockGridFactory), intent(inout) :: this
+      real, pointer, intent(in) :: fpointer(:,:,:)
+      _UNUSED_DUMMY(this)
+      ref = ArrayReference(fpointer)
+   end function generate_file_reference3D
 
 end module MockGridFactoryMod

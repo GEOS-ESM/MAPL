@@ -6,6 +6,7 @@ module MAPL_CapGridCompMod
   use MAPL_ErrorHandlingMod
   use MAPL_BaseMod
   use MAPL_ConstantsMod
+  use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler, get_global_memory_profiler
   use MAPL_ProfMod
   use MAPL_MemUtilsMod
   use MAPL_IOMod
@@ -42,7 +43,7 @@ module MAPL_CapGridCompMod
      type (MAPL_Communicators)     :: mapl_comm
 !!$     integer     :: mapl_comm
      integer :: nsteps, heartbeat_dt, perpetual_year, perpetual_month, perpetual_day
-     logical :: amiroot, lperp
+     logical :: amiroot, lperp, started_loop_timer
      integer :: extdata_id, history_id, root_id, printspec
      type(ESMF_Clock) :: clock, clock_hist
      type(ESMF_Config) :: cf_ext, cf_root, cf_hist, config
@@ -169,6 +170,7 @@ contains
     type (MAPL_MetaComp), pointer :: MAPLOBJ
     procedure(), pointer :: root_set_services
     type(MAPL_CapGridComp), pointer :: cap
+    class(BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -176,6 +178,9 @@ contains
 
     cap => get_CapGridComp_from_gc(gc)
     maplobj => get_MetaComp_from_gc(gc) 
+
+    t_p => get_global_time_profiler()
+    call t_p%start('Initialize')
 
     call ESMF_GridCompGet(gc, vm = cap%vm, rc = status)
     _VERIFY(status)
@@ -360,6 +365,7 @@ contains
        call MAPL_TimerModeSet(timerMode, RC=status)
        _VERIFY(status)
     end if
+    cap%started_loop_timer=.false.
 
     enableMemUtils = ESMF_UtilStringUpperCase(enableMemUtils, rc=STATUS)
     _VERIFY(STATUS)
@@ -552,10 +558,15 @@ contains
             exportState = cap%child_exports(cap%root_id), clock = cap%clock, userRC = status)
        _VERIFY(status)
 
+       call t_p%start('HIST')
        call cap%initialize_history(rc=status)
        _VERIFY(status)
+       call t_p%stop('HIST')
+
+       call t_p%start('EXTDATA')
        call cap%initialize_extdata(rc=status)
        _VERIFY(status)
+       call t_p%stop('EXTDATA')
 
        ! Finally check is this is a regular replay
        ! If so stuff gc and input state for ExtData in GCM internal state
@@ -573,6 +584,9 @@ contains
           ExtData_internal_state%expState = CAP%CHILD_EXPORTS(cap%extdata_id) 
        end if
     end if
+
+    call t_p%stop('Initialize')
+
     _RETURN(ESMF_SUCCESS)
   end subroutine initialize_gc
 
@@ -587,7 +601,6 @@ contains
     if (present(rc)) rc = ESMF_SUCCESS
     ! All the EXPORTS of the Hierachy are made IMPORTS of History
     !------------------------------------------------------------
-
     call ESMF_StateAdd(cap%child_imports(cap%history_id), [cap%child_exports(cap%root_id)], rc = status)
     _VERIFY(STATUS)
 
@@ -713,13 +726,20 @@ contains
     integer, intent(out) :: RC     ! Error code:
 
     integer :: status
+    class (BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import)
     _UNUSED_DUMMY(export)
     _UNUSED_DUMMY(clock)
 
+    t_p => get_global_time_profiler()
+    call t_p%start('Run')
+
     call run_MAPL_GridComp(gc, rc=status)
     _VERIFY(status)
+
+    call t_p%stop('Run')
+
     _RETURN(ESMF_SUCCESS)
 
   end subroutine run_gc
@@ -735,6 +755,7 @@ contains
 
     type(MAPL_CapGridComp), pointer :: cap
     type(MAPL_MetaComp), pointer :: MAPLOBJ
+    class (BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -742,6 +763,9 @@ contains
     
     cap => get_CapGridComp_from_gc(gc)
     MAPLOBJ => get_MetaComp_from_gc(gc)
+
+    t_p => get_global_time_profiler()
+    call t_p%start('Finalize')
 
     if (.not. cap%printspec > 0) then
        
@@ -785,6 +809,9 @@ contains
           end if
        end if
     end if
+
+    call t_p%stop('Finalize')
+
     _RETURN(ESMF_SUCCESS)
   end subroutine finalize_gc
 
@@ -843,7 +870,6 @@ contains
 
   end subroutine run
 
-
   subroutine finalize(this, rc)
     class(MAPL_CapGridComp), intent(inout) :: this
     integer, optional, intent(out) :: rc
@@ -854,7 +880,6 @@ contains
     _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
   end subroutine finalize
-
 
   function get_model_duration(this, rc) result (duration)
     class (MAPL_CapGridComp) :: this
@@ -985,6 +1010,7 @@ contains
        call ESMF_VMBarrier(cap%vm,rc=status)
        _VERIFY(status)
        cap%loop_start_timer = MPI_WTime(status)
+       cap%started_loop_timer = .true.
        TIME_LOOP: do n = 1, cap%nsteps
 
           call MAPL_MemUtilsWrite(cap%vm, 'MAPL_Cap:TimeLoop', rc = status)
@@ -1028,6 +1054,10 @@ contains
 
     call ESMF_GridCompGet(this%gc, vm = this%vm)
 
+    if (.not.this%started_loop_timer) then
+       this%loop_start_timer = MPI_WTime(status)
+       this%started_loop_timer=.true.
+    end if
     start_timer = MPI_Wtime(status)
     ! Run the ExtData Component
     ! --------------------------
@@ -1122,9 +1152,9 @@ contains
          call MAPL_MemCommited ( mem_total, mem_commit, mem_percent, RC=STATUS )
          _VERIFY(STATUS)
 
-         if( mapl_am_I_Root(this%vm) ) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
+         if( mapl_am_I_Root(this%vm) ) write(6,1000) trim(ESMF_UtilStringUpperCase(this%name)),AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
                                       LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,mem_percent
-    1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
+    1000 format(1x,a,' Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
                 2x,'Throughput(days/day)[Avg Tot Run]: ',f6.1,1x,f6.1,1x,f6.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x,f5.1,'% Memory Committed')
 
     _RETURN(ESMF_SUCCESS)

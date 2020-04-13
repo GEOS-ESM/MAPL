@@ -1,3 +1,5 @@
+#include "unused_dummy.H"
+
 !-----------------------------------------------------------------------
 !                 GEOS-Chem Global Chemical Transport Model            !
 !-----------------------------------------------------------------------
@@ -180,8 +182,6 @@
 !
 ! !LOCAL VARIABLES:
 !
-      Character(Len=255) :: OutMsg
-
       !=================================================================
       ! Set_fID starts here!
       !=================================================================
@@ -241,8 +241,6 @@
 !
 ! !LOCAL VARIABLES:
 !
-      Character(Len=255) :: OutMsg
-
       !=================================================================
       ! Cleanup starts here!
       !=================================================================
@@ -307,7 +305,7 @@
 !
 ! !LOCAL VARIABLES:
 !
-      Character(Len=255)        :: fName, errMsg
+      Character(Len=255)        :: fName
       Logical                   :: Found
       Integer                   :: status
 
@@ -354,7 +352,7 @@
 
 
       ! Expected grid sizes
-      Integer                   :: resIn(2), resOut(2)
+      !Integer                   :: resIn(2), resOut(2)
 
       ! Grid sizes on file
       integer                   :: resInFile(2), resOutFile(2)
@@ -567,6 +565,8 @@
          Integer                 :: JJ0(nVal)
          Integer                 :: I
 
+         _UNUSED_DUMMY(nY)
+
          ! Copy input
          II0 = II
          JJ0 = JJ
@@ -596,6 +596,8 @@
          Integer                 :: JJ0(nVal)
          Integer                 :: I
          Logical                 :: flipII, flipJJ
+
+         _UNUSED_DUMMY(nY)
 
          ! Copy input
          II0 = II
@@ -628,8 +630,9 @@
          Integer                 :: II0(nVal)
          Integer                 :: JJ0(nVal)
          Integer                 :: I
-         Logical                 :: flipII, flipJJ
          Integer, Parameter      :: faceMap(6) = (/4,5,1,2,6,3/)
+
+         _UNUSED_DUMMY(nY)
 
          ! Copy input
          II0 = II
@@ -922,6 +925,8 @@
       Logical                  :: isDE_
       Logical                  :: isPC_
 
+      _UNUSED_DUMMY(rc)
+
       !=================================================================
       ! genGridName starts here!
       !=================================================================
@@ -1169,7 +1174,7 @@
 !
       Integer     :: nX, nY
       Integer     :: I, RC_
-      Real(sp)    :: fTemp, fMin, fMax, fStride
+      Real(sp)    :: fMin, fStride
 
       !=================================================================
       ! nXYtoVec starts here!
@@ -1328,7 +1333,7 @@
 ! !LOCAL VARIABLES:
 !
       Integer                  :: I, iX, iY
-      Real(kind=sp)            :: wVal, inVal, outVal, rCount
+      Real(kind=sp)            :: wVal, inVal, outVal
       Real(kind=sp), Parameter :: missingVal=0.0
 
       !=================================================================
@@ -1406,9 +1411,9 @@
 !
 ! !LOCAL VARIABLES:
 !
-      Integer            :: fIDGCHP, RC_, IOS, nRead, I
+      Integer            :: fIDGCHP, RC_, I
       Integer            :: resTemp(2)
-      Character(Len=255) :: currLine, strRead, leftStr, rightStr
+      Character(Len=255) :: currLine, strRead 
       Logical            :: Found, logRead
 
       !=================================================================

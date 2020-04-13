@@ -40,13 +40,13 @@ contains
     type(ESMF_TimeInterval) :: offset
     integer, optional, intent(Out) :: rc
 
-    integer :: status
-
     tdata%clock=clock
     tdata%ntime=ntime
     tdata%frequency=frequency
     tdata%offset=offset
     tdata%funits="minutes"
+
+    _RETURN(ESMF_SUCCESS)
 
   end function new_time_data
 
@@ -110,10 +110,11 @@ contains
     real, allocatable :: times(:)
     integer :: status
     
-    real :: scaleFactor
+    !real :: scaleFactor
     type(ESMF_Time) :: currTime,startTime
     type(ESMF_TimeInterval) :: tint
-    integer :: tindex,i
+    integer :: i
+    !integer :: tindex
     real(ESMF_KIND_R8) :: tint_s
     type(ESMFTimeVectorIterator) :: iter
     type(ESMF_Time), pointer :: tptr
@@ -216,6 +217,9 @@ contains
     class(Variable), pointer :: v
     type(Attribute), pointer :: attr
     class(*), pointer :: units
+
+    _UNUSED_DUMMY(this)
+
     v => metadata%get_variable('time',rc=status)
     _VERIFY(status)
     attr => v%get_attribute('units')
