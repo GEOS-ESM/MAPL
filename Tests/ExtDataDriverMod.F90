@@ -316,7 +316,7 @@ contains
 
       integer :: comm
       integer :: status
-      integer, parameter :: MAPL_TAG_GLOBAL_IOROOT_RANK = 987654
+      integer, parameter :: MAPL_TAG_GLOBAL_IOROOT_RANK = 987
       character(len=:), allocatable :: s_name
 
       _UNUSED_DUMMY(unusable)
