@@ -4842,15 +4842,11 @@ end function MAPL_AddChildFromGC
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOn"
     integer :: STATUS, n
-    type(ESMF_VM)                     :: VM
    
     call MAPL_ProfClockOn(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
     
-    ! WJ notes : will replace above code with below
-    !call ESMF_VmGetCurrent(VM, rc=status)
-    !if (MAPL_AM_I_Root(VM))print*, trim(state%compname) //"::"//trim(name) //  "::clock on "
-    n = index(NAME,'-',.true.)+1
+    n = index(NAME,'-',.true.) + 1
     call state%t_profiler%start(trim(Name(n:)))
 
     _RETURN(ESMF_SUCCESS)
@@ -4916,16 +4912,12 @@ end function MAPL_AddChildFromGC
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOff"
     integer :: STATUS, n
-    type(ESMF_VM)                     :: VM
 
     call MAPL_ProfClockOff(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
 
-    ! WJ notes : will replace above code with below
-    n = index(NAME,'-',.true.)+1
+    n = index(NAME,'-',.true.) + 1
     call state%t_profiler%stop(trim(Name(n:)))
-    !call ESMF_VmGetCurrent(VM, rc=status)
-    !if (MAPL_AM_I_Root(VM))print*, trim(state%compname) //"::"//trim(name) //  "::clock off "
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GenericStateClockOff
