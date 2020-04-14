@@ -165,8 +165,10 @@ contains
 
     type (MAPL_MetaComp), pointer :: maplobj
     type (MAPL_MetaComp), pointer :: CHILD_MAPLOBJ
+
     procedure(), pointer :: root_set_services
     type(MAPL_CapGridComp), pointer :: cap
+    class(Logger), pointer :: lgr
     class(BaseProfiler), pointer :: t_p
     class(Logger), pointer :: lgr
 

@@ -20,8 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bug building with mixed Intel/GCC compilers
 - Implemented workaround to cmake error that happens when building tests in parallel.	
 - Set correct ESMA_env tag in `components.yaml`
+- Minor problem in GMAO_pFIO Cmakelists (consistency with PRIVATE)
 - Updated `components.yaml` to be inline with GEOSgcm
 - Minor problem in GMAO_pFIO Cmakelists (consistency with PRIVATE)
+
 
 ### Removed
 

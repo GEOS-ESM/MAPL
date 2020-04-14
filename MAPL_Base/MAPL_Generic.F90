@@ -400,9 +400,15 @@ type  MAPL_MetaComp
    integer                        , pointer :: phase_coldstart(:)=> null()
    real                                     :: HEARTBEAT
    type (MAPL_Communicators)                :: mapl_comm
+<<<<<<< HEAD
    type (TimeProfiler), public :: t_profiler
    character(:), allocatable :: full_name ! Period separated list of ancestor names
    class(Logger), pointer :: lgr
+=======
+   character(:), allocatable :: full_name ! Period separated list of ancestor names
+   class(Logger), pointer :: lgr
+   type (TimeProfiler) :: t_profiler
+>>>>>>> 790f4487cb2858cb5cecc99afd81cc7f7a51e512
 
 !!$   integer :: comm
 end type MAPL_MetaComp
@@ -553,8 +559,15 @@ type(ESMF_GridComp)               :: rootGC
 
    call MAPL_InternalStateRetrieve( GC, MAPLOBJ, RC=STATUS)
    _VERIFY(STATUS)
+<<<<<<< HEAD
 
    call MAPLOBJ%t_profiler%start('GenSetService')
+=======
+   !t_p => get_global_time_profiler()
+   !call t_p%start(trim(COMP_Name))
+   call MAPLOBJ%t_profiler%start()
+   call MAPLOBJ%t_profiler%start('SetService')
+>>>>>>> 790f4487cb2858cb5cecc99afd81cc7f7a51e512
 
 ! Set the Component's Total timer
 ! -------------------------------
@@ -4332,6 +4345,10 @@ end subroutine MAPL_DateStampGet
   type(ESMF_GridComp)                         :: pGC
   type(ESMF_Context_Flag)                     :: contextFlag
   class(BaseProfiler), pointer                :: t_p
+
+  class(Logger), pointer :: lgr
+
+  lgr => logging%get_logger('MAPL.GENERIC')
 
   class(Logger), pointer :: lgr
 
