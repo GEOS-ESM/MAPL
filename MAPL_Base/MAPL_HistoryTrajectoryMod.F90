@@ -325,6 +325,11 @@ module HistoryTrajectoryMod
                else if (rank==3) then
                   call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
                   _VERIFY(status)
+                  if (this%vdata%lm/=(ub(1)-lb(1)+1)) then
+                     lb(1)=1
+                     ub(1)=this%vdata%lm
+                  end if
+
                   dst_field = ESMF_FieldCreate(this%root_locstream,name=trim(item%xname), &
                      typekind=ESMF_TYPEKIND_R4,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
                   _VERIFY(status)
@@ -399,6 +404,10 @@ module HistoryTrajectoryMod
             number_to_write=number_to_write+1
             rtimes = this%compute_times_for_interval(interval,rc=status)
             _VERIFY(status)
+            if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+               call this%vdata%setup_eta_to_pressure(rc=status)
+               _VERIFY(status)
+            end if
             if (mapl_am_i_root()) then
                call this%file_handle%put_var('time',rtimes,&
                  start=[this%number_written+1],count=[number_to_write],rc=status)
@@ -437,11 +446,19 @@ module HistoryTrajectoryMod
                      _VERIFY(status)
                      call ESMF_FieldGet(dst_field,farrayptr=p_dst_3d,rc=status)
                      _VERIFY(status)
-                     call this%regridder%regrid(p_src_3d,p_dst_3d,rc=status)
-                     _VERIFY(status)
+                     if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+                        allocate(p_new_lev(size(p_src_3d,1),size(p_src_3d,2),this%vdata%lm),stat=status)
+                        _VERIFY(status)
+                        call this%vdata%regrid_eta_to_pressure(p_src_3d,p_new_lev,rc=status)
+                        call this%regridder%regrid(p_new_lev,p_dst_3d,rc=status)
+                        _VERIFY(status)
+                     else
+                        call this%regridder%regrid(p_src_3d,p_dst_3d,rc=status)
+                        _VERIFY(status)
+                     end if
                      if (mapl_am_i_root()) then
                         call this%file_handle%put_var(trim(item%xname),p_dst_3d(interval(1):interval(2),:),&
-                          start=[this%number_written+1,1],count=[number_to_write,size(p_dst_3d,2)]) 
+                          start=[this%number_written+1,1],count=[number_to_write,size(p_dst_3d,2)])                          
                      end if
                   end if
                else if (item%itemType == ItemTypeVector) then

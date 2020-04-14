@@ -351,7 +351,7 @@ module MAPL_newCFIOMod
         end if
 
         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-           call this%vdata%setup_eta_to_pressure(this%regrid_handle,this%output_grid,rc=status)
+           call this%vdata%setup_eta_to_pressure(regrid_handle=this%regrid_handle,output_grid=this%output_grid,rc=status)
            _VERIFY(status)
         end if
 
@@ -363,8 +363,10 @@ module MAPL_newCFIOMod
               _VERIFY(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
               _VERIFY(status)
-              call this%vdata%correct_topo(outField,rc=status)
-              _VERIFY(status)
+              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+                 call this%vdata%correct_topo(outField,rc=status)
+                 _VERIFY(status)
+              end if
               call this%stageData(outField,filename,tIndex, oClients=oClients,rc=status)
               _VERIFY(status)
            else if (item%itemType == ItemTypeVector) then
@@ -372,8 +374,10 @@ module MAPL_newCFIOMod
               _VERIFY(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
               _VERIFY(status)
-              call this%vdata%correct_topo(outField,rc=status)
-              _VERIFY(status)
+              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+                 call this%vdata%correct_topo(outField,rc=status)
+                 _VERIFY(status)
+              end if
               call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
               _VERIFY(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%yname,field=outField,rc=status)

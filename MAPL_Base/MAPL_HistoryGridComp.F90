@@ -2413,7 +2413,7 @@ ENDDO PARSER
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),rc=status)
              _VERIFY(status)
-             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,rc=status)
+             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
              _VERIFY(status)
           else
              if (trim(list(n)%output_grid_label)/='') then

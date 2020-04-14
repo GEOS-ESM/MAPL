@@ -111,10 +111,10 @@ contains
       lm = size(q_in,3)
     
       dst_field=ESMF_FieldCreate(this%locstream,typekind=ESMF_TYPEKIND_R4, &
-           gridToFieldMap=[1],ungriddedLBound=[1],ungriddedUBound=[lm],rc=status)
+           gridToFieldMap=[2],ungriddedLBound=[1],ungriddedUBound=[lm],rc=status)
       _VERIFY(status)      
       src_field=ESMF_FieldCreate(this%grid,typekind=ESMF_TYPEKIND_R4, &
-           gridToFieldMap=[1,2],ungriddedLBound=[1],ungriddedUBound=[lm],rc=status)
+           gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[lm],rc=status)
       _VERIFY(status)      
 
       call ESMF_FieldGet(src_field,localDE=0,farrayPtr=p_src,rc=status)
