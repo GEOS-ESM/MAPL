@@ -535,7 +535,7 @@ contains
 
          if (my_rank == 0) then
                report_lines = reporter%generate_report(t_p)
-               write(*,'(a,1x,i0)')'Report on process: ', rank
+               write(*,'(a,1x,i0)')'Report on process: ', my_rank
                do i = 1, size(report_lines)
                   write(*,'(a)') report_lines(i)
                end do
