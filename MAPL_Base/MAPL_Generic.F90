@@ -4853,8 +4853,8 @@ end function MAPL_AddChildFromGC
     call MAPL_ProfClockOn(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
     
-    n = index(NAME,'-',.true.) + 1
-    call state%t_profiler%start(trim(Name(n:)))
+    !n = index(NAME,'-',.true.) + 1
+    !call state%t_profiler%start(trim(Name(n:)))
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GenericStateClockOn
@@ -4923,8 +4923,8 @@ end function MAPL_AddChildFromGC
     call MAPL_ProfClockOff(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
 
-    n = index(NAME,'-',.true.) + 1
-    call state%t_profiler%stop(trim(Name(n:)))
+    !n = index(NAME,'-',.true.) + 1
+    !call state%t_profiler%stop(trim(Name(n:)))
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GenericStateClockOff
