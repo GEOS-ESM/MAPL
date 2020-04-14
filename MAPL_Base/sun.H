@@ -16,6 +16,7 @@
       real,                    optional, intent(OUT) :: ZTH1 DIMENSIONS
       real,                    optional, intent(OUT) :: ZTHN DIMENSIONS
       real,                    optional, intent(IN)  :: STEPSIZE
+      logical,                 optional, intent(IN)  :: EOT
       integer,                 optional, intent(OUT) :: RC
 
 !     Locals
@@ -25,8 +26,9 @@
 
       integer           :: IDAY, IDAYP1, TIME_
       integer           :: NT
-      real              :: FAC, ZS, ZC, ANG, AA, DD
+      real              :: FAC, ZS, ZC, ANG, AA, DD, ET
       real*8            :: SECS
+      logical           :: apply_EOT
 
       integer           :: YEAR
       integer           :: SEC_OF_DAY
@@ -45,7 +47,6 @@
          TIME_ = 0
       endif
 
-
       if (present(currTime)) then
          CURRENTTIME = CURRTIME
       else
@@ -56,6 +57,13 @@
          end if
          _VERIFY(STATUS)
       end if
+
+      ! apply Equation of Time correction?
+      if (present(EOT)) then
+         apply_EOT = EOT
+      else
+         apply_EOT = .FALSE.
+      endif
 
       if (ORBIT%FIX_SUN) then
             call WRITE_PARALLEL('--- WARNING --- sun.H --- Doubly Periodic Using Daily Mean Solar Insolation')
@@ -84,6 +92,10 @@
          select case (TIME_)
 
          case(MAPL_SunDailyMean)
+! pmn: EOT will just displace sunlit period wrt mean noon,
+!      but the daily mean values will not change
+
+            ASSERT_(.FALSE.) ! pmn: this routine probably in error (see below)
 
             SLR  = sin(LATS)*ORBIT%ZS(IDAY)
             ZTH  = cos(LATS)*ORBIT%ZC(IDAY)
@@ -92,13 +104,35 @@
             where (Y < 1.0)
                Y   = ACOS(Y)
                SLR = (4.0*ORBIT%PP(IDAY)/MAPL_PI) * (Y *SLR + SIN(Y)*ZTH)
+                  ! pmn: I get this without factor of 4.0
                ZTH = SLR*MAPL_PI / (4.0*Y)
+                  ! pmn: If remove factor of 4 above, remove it here too.
+                  ! pmn: This is also wrong because includes the ORBIT%PP(IDAY) factor
+
+! pmn: I think these lines should read:
+!              SLR = Y * SLR + SIN(Y) * ZTH
+!              ZTH = SLR / Y
+!              SLR = ORBIT%PP(IDAY) * SLR / MAPL_PI
+!      On the assumption that ZTH is meant to be the linear average
+!        of cos(sza) over the sunlit part of the day, or what we call ZTHD
+!      This routine should also produce an insolation-weighted mean ZTH.
+!      After end select, all these different ZTHs are set to ZTH, since this
+!      branch is the instantaneous branch, which is clearly not appropriate
+!      for a daily or annual mean.
+
             elsewhere
                SLR = 0.0
                ZTH = 0.0
             endwhere
 
          case(MAPL_SunAnnualMean)
+
+!pmn: consistent with above (and erroneous) SunDailyMean,
+!     but unlike MAPL sun_uc.F90 comment:
+!       "annual-mean insolation for the year on the clock"
+!     its a mean over the whole currently fixed 4-year cycle.
+
+            ASSERT_(.FALSE.) ! pmn: this routine probably in error (see above)
 
             SLR  = 0.0
             ZTH  = 0.0
@@ -131,29 +165,79 @@
                MAPL_SunSummerSolstice   ) 
 
             FAC = real(SEC_OF_DAY)/86400.
-            ANG = 2.0*MAPL_PI*FAC
 
             if(TIME_==0) then
                IDAYP1 = mod(IDAY,ORBIT%DAYS_PER_CYCLE) + 1
 
-               ZS  = ORBIT%ZS(IDAYP1)*FAC + ORBIT%ZS(IDAY)*(1.-FAC)
-               ZC  = ORBIT%ZC(IDAYP1)*FAC + ORBIT%ZC(IDAY)*(1.-FAC)
-               AA  = ORBIT%PP(IDAYP1)*FAC + ORBIT%PP(IDAY)*(1.-FAC)
+               ZS = ORBIT%ZS(IDAYP1)*FAC + ORBIT%ZS(IDAY)*(1.-FAC)
+               ZC = ORBIT%ZC(IDAYP1)*FAC + ORBIT%ZC(IDAY)*(1.-FAC)
+               AA = ORBIT%PP(IDAYP1)*FAC + ORBIT%PP(IDAY)*(1.-FAC)
+               if (apply_EOT) &
+                 ET = ORBIT%ET(IDAYP1)*FAC + ORBIT%ET(IDAY)*(1.-FAC)
             else
                call GETIDAY(IDAY,TIME_,ORBIT,RC=STATUS)
                _VERIFY(STATUS)
 
-               ZS  = ORBIT%ZS(IDAY)
-               ZC  = ORBIT%ZC(IDAY)
-               AA  = ORBIT%PP(IDAY)
+               ZS = ORBIT%ZS(IDAY)
+               ZC = ORBIT%ZC(IDAY)
+               AA = ORBIT%PP(IDAY)
+               if (apply_EOT) ET = ORBIT%ET(IDAY)
             endif
 
-            ZTH =         ZS*SIN(LATS) +       ZC*COS(LATS) &
-                 * (sin(ANG)*SIN(LONS) - cos(ANG)*COS(LONS))
+            ! Greenwich MEAN solar hour angle OFFSET by PI
+            ! (since FAC is zero at mignight)
+            ANG = 2.0*MAPL_PI*FAC
+
+            ! apply equation of time correction?
+            if (apply_EOT) then
+
+              ! the real (zero at noon) Greenwich MEAN solar hour angle
+              ANG = ANG + MAPL_PI
+
+              ! Greenwich TRUE solar hour angle
+              ANG = ANG + ET
+
+              ! LOCAL solar zenith angle
+              ZTH = ZS*SIN(LATS) + ZC*COS(LATS)*COS(ANG+LONS)
+
+            else
+
+              ! the historical GEOS-5 calculation based on mean solar time,
+              ! i.e., lacking the required equation of time correction
+
+              ! pmn: this branch can eventually go if EOT becomes default
+              ! pmn: the sin*sin-cos*cos is less clear and probably less
+              !      efficient than the EOT branch anyway
+
+              ! solar zenith angle (based on MEAN solar time)
+              ZTH = ZS*SIN(LATS) + &
+                    ZC*COS(LATS) * (sin(ANG)*SIN(LONS) - cos(ANG)*COS(LONS))
+
+            end if
+
+            ! enforce zero insolation for sun below horizon
             ZTH = max(ZTH, 0.0)
+
+            ! normalized downward solar flux at TOA
             SLR = ZTH*AA
 
             if(present(DIST)) DIST = AA
+
+            ! ---%---
+
+! pmn: Andrea Molod said the following fixed cases are for single column tests,
+!      which are run at the same start date near or at the equinox. Technic-
+!      ally, the value of DIST should also be set consistent with these cases,
+!      since RRTMG uses SC and DIST (not SLR) during the solar REFRESH phase.
+!      But since the single column test runs always use the same cap_restart
+!      and so get the same set of default DIST values from above the current
+!      select statement, at least we are using a CONSISTENT wrong DIST values!
+!      In fact, the RRTMG REFRESH uses the DIST to multiply the solar input
+!      at TOA, which is then divided through by again at the end of REFRESH
+!      to get the required NORMALIZED fluxes. So this is probably only a small
+!      non-linear effect. In the solar UPDATE_EXPORT() at the heartbeat the
+!      normalized fluxes are always re-multiplied by SLR, and so the SLR 
+!      values below will be used directly (without reference to DIST.)
 
          case(10)
             SLR = 0.3278
@@ -208,7 +292,8 @@
          if(present(DIST)) DIST = 0.0
 
          call MAPL_SunGetInsolation( LONS, LATS, ORBIT, ZTT, SLT, &
-              CLOCK=MYCLOCK, TIME=TIME, DIST=DD, RC=STATUS)
+              CLOCK=MYCLOCK, TIME=TIME, DIST=DD, &
+              EOT=apply_EOT, RC=STATUS)
          _VERIFY(STATUS)
 
          if(present(ZTH1)) ZTH1 = max(ZTT,0.0)
@@ -231,7 +316,8 @@
             _VERIFY(STATUS)
 
             call MAPL_SunGetInsolation( LONS, LATS, ORBIT, ZTT, SLT, &
-                 CLOCK=MYCLOCK, TIME=TIME, ZTHB=ZTB, ZTHD=ZTD, DIST=DD, RC=STATUS)
+                 CLOCK=MYCLOCK, TIME=TIME, ZTHB=ZTB, ZTHD=ZTD, DIST=DD, &
+                 EOT=apply_EOT, RC=STATUS)
             _VERIFY(STATUS)
 
             SLR = SLR +     SLT*0.5

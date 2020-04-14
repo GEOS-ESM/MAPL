@@ -109,7 +109,6 @@ contains
       integer, intent(in) :: comm
 
       integer :: ierror, MyColor
-      integer :: i
 
       call MPI_Comm_dup(comm, this%comm, ierror)
       call MPI_Comm_rank(this%comm, this%rank, ierror)
@@ -289,6 +288,7 @@ contains
      logical, intent(in) :: multi
      integer, optional, intent(out) :: rc
      _ASSERT(.false.," no action of server_get_DataFromMem")
+     _UNUSED_DUMMY(multi)
    end subroutine get_DataFromMem
 
    function am_I_reading_PE(this,id) result (yes)

@@ -24,7 +24,6 @@
 ! Local variables
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='ArrayGatherRcvCnt'
 
     integer, allocatable, dimension(:)    :: displs
     integer                               :: nDEs

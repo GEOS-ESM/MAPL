@@ -25,7 +25,6 @@
 ! Local variables
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='ArrayGather'
 
     type (ESMF_DELayout)  :: layout
     type (ESMF_DistGrid)  :: distGrid

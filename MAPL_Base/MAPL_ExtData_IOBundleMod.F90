@@ -49,8 +49,6 @@ contains
   function new_ExtData_IoBundle(bracket_side, entry_index, file_name, time_index, regrid_method, fraction, template, metadata_coll_id,server_coll_id,items,rc) result(io_bundle)
     type (ExtData_IoBundle) :: io_bundle
 
-     __Iam__('new_ExtData_IoBundle')
-
     integer, intent(in) :: bracket_side
     integer, intent(in) :: entry_index
     character(len=*), intent(in) :: file_name
@@ -83,8 +81,9 @@ contains
     class (ExtData_IoBundle), intent(inout) :: this
     integer, optional, intent(out) :: rc
 
-     __Iam__('clean')
-    call ESMF_FieldBundleDestroy(this%pbundle, noGarbage=.true.,__RC__)
+    integer :: status
+    call ESMF_FieldBundleDestroy(this%pbundle, noGarbage=.true.,rc=status)
+    _VERIFY(status)
     
      _RETURN(ESMF_SUCCESS)
 
@@ -95,8 +94,6 @@ contains
     use MAPL_RegridderSpecMod
     class (ExtData_IoBundle), intent(inout) :: this
     integer, optional, intent(out) :: rc
-
-     __Iam__('make_cfio')
 
      this%cfio = MAPL_NewCFIO(output_bundle=this%pbundle,regrid_method=this%regrid_method, &
                         read_collection_id=this%server_coll_id, &

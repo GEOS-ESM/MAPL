@@ -307,7 +307,6 @@ program main
 
    integer :: rank, npes, ierror, provided,required
    integer :: status, color, key
-   class(AbstractServer),allocatable,target :: s
    class(AbstractServer),pointer :: server
    class(AbstractDirectoryService), pointer :: d_s => null()
 
@@ -367,6 +366,8 @@ contains
       class(AbstractDirectoryService),pointer :: d_s
 
       allocate(d_s, source=DirectoryService(MPI_COMM_WORLD))
+
+      _UNUSED_DUMMY(stype)
 
    end function
 

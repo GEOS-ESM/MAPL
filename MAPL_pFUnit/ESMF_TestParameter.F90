@@ -1,3 +1,5 @@
+#include "unused_dummy.H"
+
 module ESMF_TestParameter_mod
    use pfunit, only: MpiTestParameter
    implicit none
@@ -67,6 +69,7 @@ contains
    function toString(this) result(string)
       class (ESMF_TestParameter), intent(in) :: this
       character(:), allocatable :: string
+      _UNUSED_DUMMY(this)
 
       string = ''
 

@@ -399,7 +399,7 @@ contains
     integer        :: Comm, nPEs
     integer        :: hours, mins, secs, timeInc
     integer        :: I, J, LT, K, IMO, JMO, LMG, IML, JML
-    integer        :: IMSUB, JMSUB, IMBEG, IMEND, JMBEG, JMEND
+    integer        :: IMBEG, IMEND, JMBEG, JMEND
     integer        :: Field_Type
     integer        :: Df
     integer        :: Num2DVars, Num3dVars
@@ -6528,10 +6528,8 @@ end subroutine MAPL_CFIOReadBundleReadPrefetch
      integer                                   :: tindex
      integer, optional,          intent(out  ) :: rc
 
-     __Iam__('GetTindex')
-
      integer(ESMF_KIND_I4)              :: iyr,imm,idd,ihr,imn,isc
-     integer                            :: i
+     integer                            :: i,status
      integer(ESMF_KIND_I8)              :: iCurrInterval
      integer                            :: nhmsB, nymdB
      integer                            :: begDate, begTime
@@ -6563,10 +6561,8 @@ end subroutine MAPL_CFIOReadBundleReadPrefetch
      integer, intent(in)                       :: tindex
      integer, optional,          intent(out  ) :: rc
 
-     __Iam__('MAPL_CFIOGetTimeFromIndex')
-
      integer(ESMF_KIND_I4)              :: iyr,imm,idd,ihr,imn,isc
-     integer                            :: i
+     integer                            :: i,status
      integer(ESMF_KIND_I8)              :: iCurrInterval
      integer                            :: nhmsB, nymdB
      integer                            :: begDate, begTime

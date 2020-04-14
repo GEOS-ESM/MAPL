@@ -510,6 +510,9 @@ CONTAINS
       integer,                       intent(out)          :: rc
       integer :: i, j
       real(ESMF_KIND_R8)  :: renorm
+
+      _UNUSED_DUMMY(dynamicDstMaskValue)
+
       if (associated(dynamicMaskList)) then
         do i=1, size(dynamicMaskList)
           dynamicMaskList(i)%dstElement = 0.d0 ! set to zero
@@ -751,7 +754,6 @@ CONTAINS
        integer, optional, intent(out) :: rc
 
        integer :: status
-       character(len=ESMF_MAXSTR) :: Iam = "create_grid"
        type(LatLonGridFactory) :: ll_factory
 
        select case(grid_type)

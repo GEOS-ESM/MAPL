@@ -71,6 +71,8 @@ contains
       use MAPL_BaseMod
       type (EsmfRegridder) :: regridder
 
+      _UNUSED_DUMMY(regridder)
+
       ! Nothing to do here
    end function new_EsmfRegridder
    
