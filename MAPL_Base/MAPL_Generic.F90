@@ -1813,6 +1813,13 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
     call state%t_profiler%start(trim(sbrtn))
   endif
 
+  if (method == ESMF_METHOD_FINALIZE ) then
+    call t_p%start(trim(state%compname))
+    call state%t_profiler%start()
+    call state%t_profiler%start('Finalize')
+  endif
+
+
   if (associated(timers)) then
      do i = 1, size(timers)
         call MAPL_TimerOn (STATE,timers(i))
@@ -2036,9 +2043,9 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 ! ---------------------
 
   t_p => get_global_time_profiler()
-  call t_p%start(trim(state%compname))
-  call state%t_profiler%start()
-  call state%t_profiler%start('Final')
+  !call t_p%start(trim(state%compname))
+  !call state%t_profiler%start()
+  !call state%t_profiler%start('Final')
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenFinalTot")
@@ -2173,7 +2180,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 ! Write summary of profiled times
 !--------------------------------
   
-  call state%t_profiler%stop('Final')
+  call state%t_profiler%stop('Finalize')
   call state%t_profiler%stop()
 
   if (.not. MAPL_ProfIsDisabled()) then
@@ -2190,13 +2197,13 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
      call WRITE_PARALLEL(" ")
   end if
 
+  call t_p%stop(trim(state%compname))
+
 ! Clean-up
 !---------
 !ALT
   call MAPL_GenericStateDestroy (STATE,  RC=STATUS)
   _VERIFY(STATUS)
-
-  call t_p%stop(trim(state%compname))
 
   _RETURN(ESMF_SUCCESS)
 
