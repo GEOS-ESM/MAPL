@@ -999,6 +999,16 @@ contains
           call cap%step(status)
           _VERIFY(status)
 
+          ! Reset loop average timer to get a better
+          ! estimate of true run time left by ignoring
+          ! initialization costs in the averageing.
+          !-------------------------------------------
+          if (n == 1) then
+             call ESMF_VMBarrier(cap%vm,rc=status)
+             _VERIFY(status)
+             cap%loop_start_timer = MPI_WTime(status)
+          endif
+
        enddo TIME_LOOP ! end of time loop
 
     end if
@@ -1019,7 +1029,8 @@ contains
       real(kind=REAL64) ::  LOOP_THROUGHPUT=0.0_REAL64
       real(kind=REAL64) ::  INST_THROUGHPUT=0.0_REAL64
       real(kind=REAL64) ::   RUN_THROUGHPUT=0.0_REAL64
-      real              :: mem_total, mem_commit, mem_percent
+      real              :: mem_total, mem_commit, mem_committed_percent
+      real              :: mem_used, mem_used_percent
     
     type(ESMF_Time) :: currTime
     type(ESMF_TimeInterval) :: delt
@@ -1118,14 +1129,19 @@ contains
          SEC_R = FLOOR(TIME_REMAINING       - 3600.0*HRS_R - 60.0*MIN_R)
        ! Reset Inst timer
          START_TIMER=END_TIMER
+       ! Get percent of used memory
+         call MAPL_MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
        ! Get percent of committed memory
-         call MAPL_MemCommited ( mem_total, mem_commit, mem_percent, RC=STATUS )
+         call MAPL_MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
          _VERIFY(STATUS)
 
          if( mapl_am_I_Root(this%vm) ) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
-                                      LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,mem_percent
+                                      LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
+                                      mem_committed_percent,mem_used_percent
     1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
-                2x,'Throughput(days/day)[Avg Tot Run]: ',f6.1,1x,f6.1,1x,f6.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x,f5.1,'% Memory Committed')
+                2x,'Throughput(days/day)[Avg Tot Run]: ',f6.1,1x,f6.1,1x,f6.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x, &
+                f5.1,'% : ',f5.1,'% Mem Comm:Used')
 
     _RETURN(ESMF_SUCCESS)
   end subroutine step
