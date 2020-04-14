@@ -126,7 +126,7 @@ contains
 
       header(1:n_shared) = this%shared_header
       call this%center(header(1:n_shared))
-      call this%get_separator(header(n_shared+1:shared_height))
+      call this%get_separator(header(n_shared+1), shared_height - n_shared)
 
       c => this%columns%at(1)
       column_height = c%get_num_rows_header()

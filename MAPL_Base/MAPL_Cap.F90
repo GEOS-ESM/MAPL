@@ -494,8 +494,10 @@ contains
          type (MultiColumn) :: inclusive
          type (MultiColumn) :: exclusive
          integer :: npes, my_rank, rank, ierror
+         character(1) :: empty(0)
 
-         call reporter%add_column(NameColumn(50))
+         reporter = ProfileReporter(empty)
+         call reporter%add_column(NameColumn(50, separator= " "))
          call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn(),separator='-'))
 
          inclusive = MultiColumn(['Inclusive'], separator='=')

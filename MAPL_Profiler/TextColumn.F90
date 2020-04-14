@@ -101,9 +101,10 @@ contains
 
    ! Would be a function, but this is a workaround for gfortran 8.2
    ! issue with allocatable arrays of deferred length strings.
-   subroutine get_separator(this, separator)
+   subroutine get_separator(this, separator, k)
       class(TextColumn), intent(in) :: this
-      character(*), intent(inout) :: separator(:)
+      character(*), intent(inout) :: separator(k)
+      integer, intent(in) :: k
 
       integer :: w
       character(1) :: c
