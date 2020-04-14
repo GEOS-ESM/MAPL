@@ -40,13 +40,13 @@ jobs:
             command: |
                cd build
                make -j2 pFIO_tests
-               ctest -R 'pFIO_tests$' || ctest -R 'pFIO_tests$' -VV
+               ctest -R 'pFIO_tests$' --output-on-failure
          - run:
             name: Run MAPL_Base Unit tests
             command: |
                cd build
                make -j2 MAPL_Base_tests
-               ctest -R 'MAPL_Base_tests$' || ctest -R 'MAPL_Base_tests$' -VV
+               ctest -R 'MAPL_Base_tests$' --output-on-failure
 
 workflows:
    version: 2.1
