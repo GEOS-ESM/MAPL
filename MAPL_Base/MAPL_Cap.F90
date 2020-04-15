@@ -582,6 +582,13 @@ contains
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then
+#ifdef NOT_BUILD_TYPE_IS_DEBUG
+         ! Intel MPI at NCCS seems to have spurious MPI_Finalize errors that do
+         ! not affect the answer or even the finalize step. This call suppresses
+         ! the errors.
+         call MPI_Comm_set_errhandler(this%comm_world,MPI_ERRORS_RETURN,ierror)
+         _VERIFY(ierror)
+#endif
          call MPI_Finalize(ierror)
          _VERIFY(ierror)
       end if

@@ -67,6 +67,10 @@ esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 gftl-s
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
 
+if (NOT (CMAKE_BUILD_TYPE MATCHES Debug))
+   target_compile_definitions(${this} PRIVATE NOT_BUILD_TYPE_IS_DEBUG)
+endif ()
+
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PUBLIC "-Xlinker -rpath -Xlinker ${dir}")
