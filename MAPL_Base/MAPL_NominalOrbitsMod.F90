@@ -1,4 +1,3 @@
-!  $Id$
 #include "unused_dummy.H"
   MODULE MAPL_NominalOrbitsMod 
      IMPLICIT NONE

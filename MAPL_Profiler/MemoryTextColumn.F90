@@ -76,7 +76,7 @@ contains
       do i = 1, size(this%header)
          header(i)(:) = this%header(i)%string
       end do
-      call this%get_separator(header(size(this%header)+1:))
+      call this%get_separator(header(size(this%header)+1), n - size(this%header))
       call this%center(header)
 
    end subroutine get_header

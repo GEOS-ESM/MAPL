@@ -53,7 +53,8 @@ contains
 
       allocate(character(len=w) :: header(h))
       header(1) = 'Name'
-      call this%get_separator(header(2:))
+      if ( h <=1 ) return ! when separator is not in the constructor
+      call this%get_separator(header(2), h-1)
       
    end subroutine get_header
 

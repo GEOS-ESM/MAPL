@@ -1,4 +1,3 @@
-! $Id$
 
 #ifdef NAME_
 #undef NAME_

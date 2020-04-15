@@ -52,6 +52,7 @@ module MAPL_MemUtilsMod
   public MAPL_MemUtilsIsDisabled
   public MAPL_MemUtilsFree
   public MAPL_MemCommited
+  public MAPL_MemUsed
 
 #ifdef _CRAY
   public :: hplen
@@ -448,6 +449,56 @@ module MAPL_MemUtilsMod
   end subroutine MAPL_MemUtilsWriteComm
 
 !#######################################################################
+
+subroutine MAPL_MemUsed ( memtotal, used, percent_used, RC )
+
+real, intent(out) :: memtotal, used, percent_used
+integer, optional, intent(OUT  ) :: RC
+
+! This routine returns the memory usage on Linux systems.
+! It does this by querying a system file (file_name below).
+
+character(len=32) :: meminfo   = '/proc/meminfo'
+character(len=32) :: string
+integer :: mem_unit
+real    :: multiplier, available
+
+character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_MemUtils:MAPL_MemUsed"
+integer :: status
+
+#ifdef sysDarwin
+  memtotal = 0.0
+  used = 0.0
+  percent_used = 0.0
+  RETURN_(ESMF_SUCCESS)
+#endif
+
+  multiplier = 1.0
+
+  call get_unit(mem_unit)
+  open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',IOSTAT=STATUS)
+  VERIFY_(STATUS)
+  do; read (mem_unit,'(a)', end=20) string
+    if ( INDEX ( string, 'MemTotal:' ) == 1 ) then  ! High Water Mark
+      read (string(10:LEN_TRIM(string)-2),*) memtotal
+      if (TRIM(string(LEN_TRIM(string)-1:)) == "kB" ) &
+        multiplier = 1.0/1024. ! Convert from kB to MB
+      memtotal = memtotal * multiplier
+    endif
+    if ( INDEX ( string, 'MemAvailable:' ) == 1 ) then  ! Resident Memory
+      read (string(14:LEN_TRIM(string)-2),*) available
+      if (TRIM(string(LEN_TRIM(string)-1:)) == "kB" ) &
+        multiplier = 1.0/1024. ! Convert from kB to MB
+      available = available * multiplier
+    endif
+  enddo
+20 close(mem_unit)
+
+           used = memtotal-available
+   percent_used = 100.0*(used/memtotal)
+
+   RETURN_(ESMF_SUCCESS)
+end subroutine MAPL_MemUsed
 
 subroutine MAPL_MemCommited ( memtotal, committed_as, percent_committed, RC )
 

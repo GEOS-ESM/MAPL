@@ -1,4 +1,3 @@
-!  $Id$
 
 #include "MAPL_ErrLog.h"
 #define GET_POINTER ESMFL_StateGetPointerToData
@@ -2221,13 +2220,15 @@ contains
       type (ProfileReporter) :: reporter
       type (MultiColumn) :: inclusive, exclusive
       type (ESMF_VM) :: vm
+      character(1) :: empty(0)
 
       call ESMF_VmGetCurrent(vm, rc=status)
       _VERIFY(STATUS)
 
       if  (MAPL_AM_I_Root(vm)) then
 
-          call reporter%add_column(NameColumn(50))
+          reporter = ProfileReporter(empty)
+          call reporter%add_column(NameColumn(50 , separator=" "))
           call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn(),separator='-'))
           inclusive = MultiColumn(['Inclusive'], separator='=')
           call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))
@@ -3867,6 +3868,14 @@ end subroutine MAPL_DateStampGet
     logical                               :: FIX_SUN
     character(len=ESMF_MAXSTR)            :: gname
 
+    logical :: EOT, ORBIT_ANAL2B
+    integer :: ORB2B_REF_YYYYMMDD, ORB2B_REF_HHMMSS, &
+      ORB2B_EQUINOX_YYYYMMDD, ORB2B_EQUINOX_HHMMSS
+    real :: ORB2B_YEARLEN, &
+      ORB2B_ECC_REF, ORB2B_ECC_RATE, &
+      ORB2B_OBQ_REF, ORB2B_OBQ_RATE, &
+      ORB2B_LAMBDAP_REF, ORB2B_LAMBDAP_RATE
+
      if(present(IM)) then
       IM=STATE%GRID%IM
      endif
@@ -3907,6 +3916,20 @@ end subroutine MAPL_DateStampGet
       CF=STATE%CF
      endif
 
+     ! pmn: There is one orbit is per STATE, so, for example, the MAPL states of the
+     ! solar and land gridded components can potentially have independent solar orbits.
+     ! Usually these "independent orbits" will be IDENTICAL because the configuration
+     ! resources such as "ECCENTRICITY:" or "EOT:" will not be qualified by the name
+     ! of the gridded component. But for example, if the resource file specifies
+     !   "EOT: .FALSE."
+     ! but
+     !   "SOLAR_EOT: .TRUE."
+     ! then only SOLAR will have an EOT correction. The same goes for the new orbital
+     ! system choice ORBIT_ANAL2B.
+     !   A state's orbit is actually created in this routine by requesting the ORBIT
+     ! object. If its not already created then it will be made below. GridComps that
+     ! don't needed an orbit and dont request one will not have one.
+
      if(present(ORBIT)) then
 
         if(.not.MAPL_SunOrbitCreated(STATE%ORBIT)) then
@@ -3919,23 +3942,115 @@ end subroutine MAPL_DateStampGet
               FIX_SUN=.false.
            end if 
 
+           ! Fixed parameters of standard orbital system (tabularized intercalation cycle)
+           ! -----------------------------------------------------------------------------
+
            call MAPL_GetResource(STATE, ECC, Label="ECCENTRICITY:", default=0.0167, &
                   RC=STATUS)
            _VERIFY(STATUS)
 
-           call MAPL_GetResource(STATE, OB, Label="OBLIQUITY:"   , default=23.45 , &
+           call MAPL_GetResource(STATE, OB, Label="OBLIQUITY:", default=23.45, &
                 RC=STATUS)
            _VERIFY(STATUS)
 
-           call MAPL_GetResource(STATE, PER, Label="PERIHELION:"  , default=102.0 , &
+           call MAPL_GetResource(STATE, PER, Label="PERIHELION:", default=102.0, &
                 RC=STATUS)
            _VERIFY(STATUS)
 
-           call MAPL_GetResource(STATE, EQNX, Label="EQUINOX:"     , default=80    , &
+           call MAPL_GetResource(STATE, EQNX, Label="EQUINOX:", default=80, &
                 RC=STATUS)
            _VERIFY(STATUS)
 
-           STATE%ORBIT = MAPL_SunOrbitCreate(STATE%CLOCK,ECC,OB,PER,EQNX,FIX_SUN=FIX_SUN,RC=STATUS)
+           ! Apply Equation of Time correction?
+           ! ----------------------------------
+           call MAPL_GetResource(STATE, EOT, Label="EOT:", default=.FALSE., &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! New orbital system (analytic two-body) allows some time-varying
+           ! behavior, namely, linear variation in LAMBDAP, ECC, and OBQ.
+           ! ---------------------------------------------------------------
+
+           call MAPL_GetResource(STATE, &
+                ORBIT_ANAL2B, Label="ORBIT_ANAL2B:", default=.FALSE., &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Fixed anomalistic year length in mean solar days
+           call MAPL_GetResource(STATE, &
+                ORB2B_YEARLEN, Label="ORB2B_YEARLEN:", default=365.2596, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Reference date and time for orbital parameters
+           ! (defaults to J2000 = 01Jan2000 12:00:00 TT = 11:58:56 UTC)
+           call MAPL_GetResource(STATE, &
+                ORB2B_REF_YYYYMMDD, Label="ORB2B_REF_YYYYMMDD:", default=20000101, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+           call MAPL_GetResource(STATE, &
+                ORB2B_REF_HHMMSS, Label="ORB2B_REF_HHMMSS:", default=115856, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Orbital eccentricity at reference date
+           call MAPL_GetResource(STATE, &
+                ORB2B_ECC_REF, Label="ORB2B_ECC_REF:", default=0.016710, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Rate of change of orbital eccentricity per Julian century
+           call MAPL_GetResource(STATE, &
+                ORB2B_ECC_RATE, Label="ORB2B_ECC_RATE:", default=-4.2e-5, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Earth's obliquity (axial tilt) at reference date [degrees]
+           call MAPL_GetResource(STATE, &
+                ORB2B_OBQ_REF, Label="ORB2B_OBQ_REF:", default=23.44, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Rate of change of obliquity [degrees per Julian century]
+           call MAPL_GetResource(STATE, &
+                ORB2B_OBQ_RATE, Label="ORB2B_OBQ_RATE:", default=-1.3e-2, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Longitude of perihelion at reference date [degrees]
+           !   (from March equinox to perihelion in direction of earth's motion)
+           call MAPL_GetResource(STATE, &
+                ORB2B_LAMBDAP_REF, Label="ORB2B_LAMBDAP_REF:", default=282.947, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! Rate of change of LAMBDAP [degrees per Julian century]
+           !   (Combines both equatorial and ecliptic precession)
+           call MAPL_GetResource(STATE, &
+                ORB2B_LAMBDAP_RATE, Label="ORB2B_LAMBDAP_RATE:", default=1.7195, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! March Equinox date and time
+           ! (defaults to March 20, 2000 at 07:35:00 UTC)
+           call MAPL_GetResource(STATE, &
+                ORB2B_EQUINOX_YYYYMMDD, Label="ORB2B_EQUINOX_YYYYMMDD:", default=20000320, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+           call MAPL_GetResource(STATE, &
+                ORB2B_EQUINOX_HHMMSS, Label="ORB2B_EQUINOX_HHMMSS:", default=073500, &
+                RC=STATUS)
+           _VERIFY(STATUS)
+
+           ! create the orbit object
+           STATE%ORBIT = MAPL_SunOrbitCreate(STATE%CLOCK, ECC, OB, PER, EQNX, &
+                                             EOT, ORBIT_ANAL2B, ORB2B_YEARLEN, &
+                                             ORB2B_REF_YYYYMMDD, ORB2B_REF_HHMMSS, &
+                                             ORB2B_ECC_REF, ORB2B_ECC_RATE, &
+                                             ORB2B_OBQ_REF, ORB2B_OBQ_RATE, &
+                                             ORB2B_LAMBDAP_REF, ORB2B_LAMBDAP_RATE, &
+                                             ORB2B_EQUINOX_YYYYMMDD, ORB2B_EQUINOX_HHMMSS, &
+                                             FIX_SUN=FIX_SUN,RC=STATUS)
            _VERIFY(STATUS)
 
         end if
