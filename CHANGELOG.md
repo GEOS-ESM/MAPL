@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Made ASSERT in ExtData more explicit in case of missing variables.
 - (re) Introduced MAPL Profiling package
 - Improved diagnostic message in HistoryGridComp for misspelled fields/bundles
+- Removed CVS keywords
 
 ### Fixed
 
@@ -37,6 +38,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Imported Python/MAPL subdir (old, but never imported to GitHub)
  - Python automatic code generator for grid comp include files	
 	
+## [2.0.5] - 2020-04-13
+
+### Fixed
+
+- Fixes an issue with a too-large MPI tag.
+
+## [2.0.4] - 2020-04-03 
+
+### Fixed
+
+- Fixes an issue when regridding thru the locstream in the history component.
+
+## [2.0.3] - 2020-03-19
+
+### Fixed
+
+- Fixed a logic bug in the MAPL Profilers that make affect certain runs when using NUOPC.
+
 ## [2.0.2] - 2020-03-10
 
 ### Fixed

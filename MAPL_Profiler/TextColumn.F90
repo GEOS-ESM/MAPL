@@ -103,7 +103,7 @@ contains
    ! issue with allocatable arrays of deferred length strings.
    subroutine get_separator(this, separator)
       class(TextColumn), intent(in) :: this
-      character(*), intent(out) :: separator(:)
+      character(*), intent(inout) :: separator(:)
 
       integer :: w
       character(1) :: c
