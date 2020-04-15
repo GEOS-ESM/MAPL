@@ -1,4 +1,3 @@
-!  $Id$
 
 #include "MAPL_ErrLog.h"
 
@@ -156,7 +155,7 @@ contains
     type(MAPL_LocStream),                 intent(IN   ) :: LocStream
     integer, optional,                    intent(  OUT) :: RC  
     
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamIsAssocited'
+
 
     MAPL_LocStreamIsAssociated = associated(LocStream%Ptr)
 
@@ -169,7 +168,7 @@ contains
     type(MAPL_LocStreamXform),            intent(IN   ) :: Xform
     integer, optional,                    intent(  OUT) :: RC  
     
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamXformIsAssocited'
+
 
     MAPL_LocStreamXformIsAssociated = associated(Xform%Ptr)
 
@@ -204,7 +203,7 @@ contains
     
 ! Local variables
 
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamGet'
+
 #ifdef __GFORTRAN__
     integer                    :: i
     integer, pointer           :: tmp_iptr(:) => null()
@@ -362,7 +361,7 @@ contains
 
 ! Local variables
 
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamCreateFromFile'
+
     integer                    :: STATUS
 
     integer                           :: UNIT
@@ -1106,7 +1105,7 @@ contains
       real,              intent(  OUT)  :: D(-1:,-1:)
       integer, optional, intent(  OUT)  :: RC
 
-      character(len=ESMF_MAXSTR) :: IAm='GetBilinearCoeffs'
+
       integer                    :: STATUS
       real                       :: DX0, DY0
       real                       :: X00, Y00
@@ -1155,7 +1154,7 @@ contains
     real,              intent(  OUT)  :: D(-1:,-1:)
     integer, optional, intent(  OUT)  :: RC
     
-    character(len= ESMF_MAXSTR) :: IAm='GetBilinearCoeffs'
+
     integer                    :: STATUS
     
     real, dimension(3)         :: pp, p0, dp, dpx, dpy
@@ -1337,7 +1336,7 @@ contains
 
 ! Local variables
 
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamCreateFromStream'
+
     integer                    :: STATUS
 
     integer                           :: N, I, K, NT
@@ -1474,7 +1473,7 @@ contains
     
 ! Local variables
 
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamAttachGrid'
+
     integer                    :: STATUS
 
     type(MAPL_LocStreamType), pointer :: STREAM
@@ -1558,7 +1557,7 @@ contains
     
 ! Local variables
 
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamCreateTileGrid'
+
     integer                    :: STATUS
 
 
@@ -1648,7 +1647,7 @@ contains
     
 ! Local variables
 
-    character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamAdjustNsubtiles'
+
     integer                    :: STATUS
 
     type(MAPL_LocStreamType), pointer :: STREAM
@@ -1695,7 +1694,7 @@ contains
 
 ! Local variables
 
-  character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamTransform'
+
   integer                    :: STATUS
 
   integer                    :: N, NT
@@ -1779,7 +1778,7 @@ subroutine MAPL_LocStreamFracArea (LocStream, TYPE, AREA, RC )
 
 ! Local variables
 
-  character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamFracArea'
+
 
   integer                    :: II, JJ, N
 
@@ -1829,7 +1828,7 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
   
 ! Local variables
 
-  character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamTransformT2G'
+
   integer                    :: STATUS
   real,         allocatable  :: FF(:,:)
   integer                    :: II, JJ, N, I1, IN, J1, JN
@@ -1970,7 +1969,7 @@ subroutine MAPL_LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
 
 ! Local variables
 
-  character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamTransformG2T'
+
   integer                    :: STATUS
 
   integer                    :: N, I1, IN, J1, JN, I, J, IM, JM
@@ -2129,7 +2128,7 @@ subroutine MAPL_LocStreamTileWeight ( LocStream, OUTPUT, INPUT, RC )
 
   integer                    :: N
 
-  character(len=ESMF_MAXSTR) :: IAm='MAPL_LocStreamTileWeight'
+
 
 
 ! Fill output subject to mask
@@ -2162,7 +2161,7 @@ subroutine MAPL_LocStreamTransformT2T ( OUTPUT, XFORM, INPUT, RC )
 
 ! Local variables
 
-  character(len=ESMF_MAXSTR)  :: IAm='MAPL_LocStreamTransformT2T'
+
   integer                     :: STATUS
 
   integer                     :: N, offset
@@ -2314,7 +2313,7 @@ subroutine MAPL_LocStreamTransformT2TR4R8 ( OUTPUT, XFORM, INPUT, RC )
 
 ! Local variables
 
-  character(len=ESMF_MAXSTR)  :: IAm='MAPL_LocStreamTransformT2TR4R8'
+
   integer                     :: STATUS
 
 #ifdef OLD_RUN
@@ -2381,7 +2380,7 @@ subroutine MAPL_LocStreamTransformT2TR8R4 ( OUTPUT, XFORM, INPUT, RC )
 
 ! Local variables
 
-  character(len=ESMF_MAXSTR)  :: IAm='MAPL_LocStreamTransformT2TR8R4'
+
   integer                     :: STATUS
 
 #ifdef OLD_RUN
@@ -2442,7 +2441,7 @@ subroutine MAPL_LocStreamCreateXform ( Xform, LocStreamOut, LocStreamIn, NAME, M
 
 ! Local variables
 
-  character(len=ESMF_MAXSTR)  :: IAm='MAPL_LocStreamCreateXform'
+
   integer                     :: STATUS
 
   integer                     :: N, M, MM
@@ -2763,7 +2762,7 @@ integer function GRIDINDEX(STREAM,GRID,RC)
   type(ESMF_Grid),               intent(IN ) :: Grid
   integer, optional,             intent(OUT) :: RC  
 
-  character(len=ESMF_MAXSTR) :: IAm='GridIndex'
+
   integer                    :: STATUS
   integer                    :: N
 
@@ -2797,7 +2796,7 @@ subroutine MAPL_GridCoordAdjust(GRID, LOCSTREAM, RC)
 
 ! local vars
 !------------ 
-  character(len=ESMF_MAXSTR) :: IAm='MAPL_GridCoordAdjust'
+
   integer                    :: STATUS
   
   integer :: NGRIDS

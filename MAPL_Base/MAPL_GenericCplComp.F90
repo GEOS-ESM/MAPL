@@ -1,4 +1,3 @@
-!  $Id$
 
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
@@ -25,6 +24,7 @@ module MAPL_GenericCplCompMod
   use MAPL_BaseMod
   use MAPL_ConstantsMod
   use MAPL_IOMod
+  use MAPL_CommsMod
   use MAPL_ProfMod
   use MAPL_SunMod
   use MAPL_VarSpecMod
@@ -37,6 +37,7 @@ module MAPL_GenericCplCompMod
 
   public GenericCplSetServices
   public MAPL_CplCompSetVarSpecs
+  public MAPL_CplCompSetAlarm
 
 !EOP
 
@@ -51,6 +52,7 @@ module MAPL_GenericCplCompMod
 ! These are done in set services
      type (ESMF_Config)           :: CF
      logical                      :: ACTIVE
+     type (ESMF_Alarm), pointer   :: TIME2CPL_ALARM => null()
      character(LEN=ESMF_MAXSTR)   :: NAME
      type (MAPL_VarSpec), pointer :: SRC_SPEC(:) => null()
      type (MAPL_VarSpec), pointer :: DST_SPEC(:) => null()
@@ -142,6 +144,14 @@ contains
                                      rc=STATUS )
     _VERIFY(STATUS)
 
+!ALT: Add these 2 IO methods to facilitate transparent checkpointing
+!     to support monthly averages
+    call ESMF_CplCompSetEntryPoint ( CC, ESMF_METHOD_READRESTART, ReadRestart,   &
+                                     rc=STATUS )
+    _VERIFY(STATUS)
+    call ESMF_CplCompSetEntryPoint ( CC, ESMF_METHOD_WRITERESTART, WriteRestart,   &
+                                     rc=STATUS )
+    _VERIFY(STATUS)
 ! Put the inherited configuration in the internal state
 ! -----------------------------------------------------
 
@@ -367,46 +377,50 @@ contains
 
        rTime = TM0 + TOFF
 
-       STATE%TIME_TO_COUPLE(J) = ESMF_AlarmCreate(NAME='TIME2COUPLE_' // trim(COMP_NAME) &
-            // '_' // trim(NAME),   &
-            clock        = CLOCK,   &
-            ringInterval = TCPL,    &
-            ringTime     = rTime,   &
-            sticky       = .false., &
-            rc=STATUS   )
-       _VERIFY(STATUS)
+       if (associated(STATE%TIME2CPL_ALARM)) then
+          STATE%TIME_TO_COUPLE(J) = STATE%TIME2CPL_ALARM
+          STATE%TIME_TO_CLEAR(J) = STATE%TIME2CPL_ALARM
+       else
+          STATE%TIME_TO_COUPLE(J) = ESMF_AlarmCreate(NAME='TIME2COUPLE_' // trim(COMP_NAME) &
+               // '_' // trim(NAME),   &
+               clock        = CLOCK,   &
+               ringInterval = TCPL,    &
+               ringTime     = rTime,   &
+               sticky       = .false., &
+               rc=STATUS   )
+          _VERIFY(STATUS)
 
-       if(rTime == currTime) then
-          call ESMF_AlarmRingerOn(STATE%TIME_TO_COUPLE(J), rc=status); _VERIFY(STATUS)
-       end if
-
+          if(rTime == currTime) then
+             call ESMF_AlarmRingerOn(STATE%TIME_TO_COUPLE(J), rc=status); _VERIFY(STATUS)
+          end if
 
 ! initalize CLEAR ALARM from destination properties
 !--------------------------------------------------
 
-       call ESMF_TimeIntervalSet(TCLR, S=STATE%CLEAR_INTERVAL(J), &
-            calendar=cal, RC=STATUS)
-       _VERIFY(STATUS)
+          call ESMF_TimeIntervalSet(TCLR, S=STATE%CLEAR_INTERVAL(J), &
+               calendar=cal, RC=STATUS)
+          _VERIFY(STATUS)
 
-       if (TCLR < TS) TCLR = TS
+          if (TCLR < TS) TCLR = TS
 
-       rTime = TM0 + TOFF - TCLR
+          rTime = TM0 + TOFF - TCLR
 
-       do while (rTime < currTime) 
-          rTime = rTime + TCPL
-       end do
+          do while (rTime < currTime) 
+             rTime = rTime + TCPL
+          end do
 
-       STATE%TIME_TO_CLEAR(J) = ESMF_AlarmCreate(NAME='TIME2CLEAR_' // trim(COMP_NAME) &
-            // '_' // trim(NAME),   &
-            clock        = CLOCK,   &
-            ringInterval = TCPL,    & 
-            ringTime     = rTime,   &
-            sticky       = .false., &
-            rc=STATUS   )
-       _VERIFY(STATUS)
+          STATE%TIME_TO_CLEAR(J) = ESMF_AlarmCreate(NAME='TIME2CLEAR_' // trim(COMP_NAME) &
+               // '_' // trim(NAME),   &
+               clock        = CLOCK,   &
+               ringInterval = TCPL,    & 
+               ringTime     = rTime,   &
+               sticky       = .false., &
+               rc=STATUS   )
+          _VERIFY(STATUS)
 
-       if(rTime == currTime) then
-          call ESMF_AlarmRingerOn(STATE%TIME_TO_CLEAR(J), rc=status); _VERIFY(STATUS)
+          if(rTime == currTime) then
+             call ESMF_AlarmRingerOn(STATE%TIME_TO_CLEAR(J), rc=status); _VERIFY(STATUS)
+          end if
        end if
 
 ! Get info from the SRC spec
@@ -815,8 +829,10 @@ contains
        _VERIFY(STATUS)
        
        if (RINGING) then
-          call ESMF_AlarmRingerOff(STATE%TIME_TO_CLEAR(J), RC=STATUS)
-          _VERIFY(STATUS)
+          if(.not.associated(STATE%TIME2CPL_ALARM)) then
+             call ESMF_AlarmRingerOff(STATE%TIME_TO_CLEAR(J), RC=STATUS)
+             _VERIFY(STATUS)
+          end if
 
           DIMS = STATE%ACCUM_RANK(J)
 
@@ -914,8 +930,10 @@ contains
        
        if (RINGING) then
 
-          call ESMF_AlarmRingerOff(STATE%TIME_TO_COUPLE(J), RC=STATUS)
-          _VERIFY(STATUS)
+          if(.not.associated(STATE%TIME2CPL_ALARM)) then
+             call ESMF_AlarmRingerOff(STATE%TIME_TO_COUPLE(J), RC=STATUS)
+             _VERIFY(STATUS)
+          end if
           call MAPL_VarSpecGet(STATE%DST_SPEC(J), SHORT_NAME=NAME, RC=STATUS)
           _VERIFY(STATUS)
 
@@ -1103,4 +1121,437 @@ contains
     call write_parallel('STUBBED in CPL finalize')
     _RETURN(ESMF_SUCCESS)
   end subroutine Finalize
+
+  subroutine ReadRestart(CC, SRC, DST, CLOCK, RC)
+
+! !ARGUMENTS:
+
+    type (ESMF_CplComp)      :: CC
+    type (ESMF_State)        :: SRC
+    type (ESMF_State)        :: DST
+    type (ESMF_Clock)        :: CLOCK
+    integer, intent(  OUT)   :: RC
+
+!EOPI
+! ErrLog Variables
+
+    character(len=ESMF_MAXSTR)    :: IAm
+    character(len=ESMF_MAXSTR)    :: COMP_NAME
+    integer                       :: STATUS
+
+! Locals
+
+    type (MAPL_GenericCplState), pointer  :: STATE
+    type (MAPL_GenericCplWrap )           :: WRAP
+    type(ESMF_VM)                         :: VM
+    type(ESMF_Grid)                       :: grid
+    type(ESMF_Field)                      :: field
+    character(len=ESMF_MAXSTR)            :: name
+    character(len=ESMF_MAXSTR)            :: filename
+    logical                               :: file_exists
+    logical                               :: am_i_root
+    integer                               :: unit
+    integer                               :: n_vars
+    integer                               :: n_count
+    integer                               :: n_undefs
+    integer                               :: rank
+    integer                               :: i
+    integer                               :: dims
+    integer, pointer                      :: mask(:) => null()
+    real, allocatable                     :: buf1(:), buf2(:,:), buf3(:,:,:)
+    real, pointer                         :: ptr1(:), ptr2(:,:), ptr3(:,:,:)
+
+! Begin...
+
+! Get the target components name and set-up traceback handle.
+! -----------------------------------------------------------
+
+    IAm = "MAPL_GenericCplComReadRestart"
+    call ESMF_CplCompGet( CC, NAME=COMP_NAME, RC=STATUS )
+    _VERIFY(STATUS)
+    Iam = trim(COMP_NAME) // Iam
+
+! Retrieve the pointer to the internal state. It comes in a wrapper.
+! ------------------------------------------------------------------
+
+    call ESMF_CplCompGetInternalState ( CC, WRAP, STATUS )
+    _VERIFY(STATUS)
+
+    STATE     =>  WRAP%INTERNAL_STATE
+
+
+!ALT remove this line when done
+    call write_parallel('STUBBED in CPL ReadRestart')
+!ALT: Uncomment when done
+!strategy
+!root tries to open the restart (or inquire)
+!if the file is there 
+! read the restart:
+!==================
+!    call ESMF_CplCompGet(CC, vm=vm, name=name, rc=status)
+!    _VERIFY(STATUS)
+
+!    filename = trim(name) // '_rst' ! following Andrea's suggestion
+
+    call ESMF_CplCompGet(CC, vm=vm, rc=status)
+    _VERIFY(STATUS)
+    filename = trim(state%name) // '_rst' ! following Andrea's suggestion
+    am_i_root = MAPL_AM_I_ROOT(vm)
+    if (am_i_root) then
+       ! check if file exists
+       inquire(file=filename, exist=file_exists)
+    end if
+
+    call MAPL_CommsBcast(vm, file_exists, n=1, ROOT=MAPL_Root, rc=status)
+    _VERIFY(status)
+
+    if (file_exists) then
+       !ALT: ideally, we should check the monthly alarm: read only when not ringing.
+       ! read metadata: grid info, number of vars
+       unit=0 ! just to initialize
+       if (am_i_root) then
+          UNIT = GETFILE(filename, rc=status)
+          _VERIFY(status)
+          read(unit) n_vars
+          _ASSERT(size(state%src_spec) == n_vars, "Number of variables on the restart does not agree with spec")
+       end if
+
+       ! for each var
+       n_vars = size(state%src_spec)
+       do i = 1, n_vars
+          ! varname we can get from query SHORT_NAME in state%src_spec(i)
+          call MAPL_VarSpecGet(state%src_spec(i), SHORT_NAME=name, rc=status)
+          _VERIFY(status)
+          call ESMF_StateGet(SRC, name, field=field, rc=status) 
+          _VERIFY(status)
+          call ESMF_FieldGet(field, grid=grid, rc=status)
+          _VERIFY(status)
+
+          rank = state%accum_rank(i)
+          call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+          _VERIFY(STATUS)
+          mask => null()
+          if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
+             call MAPL_TileMaskGet(grid,  mask, rc=status)
+             _VERIFY(STATUS)
+          end if
+          ! ALT note: calling a procedure with optional argument, and passing NULL pointer to indicate "absent", needs ifort16 or newer
+          
+          if (am_i_root) then
+             read(unit) n_count
+          end if
+          call MAPL_CommsBcast(vm, n_count, n=1, ROOT=MAPL_Root, rc=status)
+          _VERIFY(status)
+          state%accum_count(i) = n_count
+
+          if (am_i_root) then
+             read(unit) n_undefs
+          end if
+          call MAPL_CommsBcast(vm, n_undefs, n=1, ROOT=MAPL_Root, rc=status)
+          _VERIFY(status)
+
+          select case(rank)
+          case (3)
+             call ESMF_LocalArrayGet(STATE%ACCUMULATORS(i), &
+                  farrayPtr=ptr3, RC=status)
+             _VERIFY(status)
+             
+             call MAPL_VarRead(unit, grid, ptr3, rc=status)
+             _VERIFY(STATUS)
+             if (n_undefs /=0) then
+                allocate(buf3(size(ptr3,1),size(ptr3,2),size(ptr3,3)), stat=status)
+                _VERIFY(STATUS)
+                call MAPL_VarRead(unit, grid, buf3, rc=status)
+                _VERIFY(STATUS)
+                if (.not. associated(state%array_count(i)%ptr3c)) then
+                   allocate(state%array_count(i)%ptr3c(size(ptr3,1),size(ptr3,2),size(ptr3,3)), stat=status)
+                   _VERIFY(STATUS)
+                end if
+                state%array_count(i)%ptr3c = buf3
+                deallocate(buf3)
+             end if
+          case (2)
+             call ESMF_LocalArrayGet(STATE%ACCUMULATORS(i), &
+                  farrayPtr=ptr2, RC=status)
+             _VERIFY(status)
+             
+             call MAPL_VarRead(unit, grid, ptr2, mask=mask, rc=status)
+             _VERIFY(STATUS)
+             if (n_undefs /=0) then
+                allocate(buf2(size(ptr2,1),size(ptr2,2)), stat=status)
+                _VERIFY(STATUS)
+                call MAPL_VarRead(unit, grid, buf2, mask=mask, rc=status)
+                _VERIFY(STATUS)
+                if (.not. associated(state%array_count(i)%ptr2c)) then
+                   allocate(state%array_count(i)%ptr2c(size(ptr2,1),size(ptr2,2)), stat=status)
+                   _VERIFY(STATUS)
+                end if
+                state%array_count(i)%ptr2c = buf2
+                deallocate(buf2)
+             end if
+          case (1)
+             call ESMF_LocalArrayGet(STATE%ACCUMULATORS(i), &
+                  farrayPtr=ptr1, RC=status)
+             _VERIFY(status)
+             
+             call MAPL_VarRead(unit, grid, ptr1, mask=mask, rc=status)
+             _VERIFY(STATUS)
+             if (n_undefs /=0) then
+                allocate(buf1(size(ptr1,1)), stat=status)
+                _VERIFY(STATUS)
+                call MAPL_VarRead(unit, grid, buf1, mask=mask, rc=status)
+                _VERIFY(STATUS)
+                if (.not. associated(state%array_count(i)%ptr1c)) then
+                   allocate(state%array_count(i)%ptr1c(size(ptr1,1)), stat=status)
+                   _VERIFY(STATUS)
+                end if
+                state%array_count(i)%ptr1c = buf1
+                deallocate(buf1)
+             end if
+          case default
+             _ASSERT(.false., "Unsupported rank")
+          end select
+          if(associated(mask)) deallocate(mask)
+       end do
+
+       if (am_i_root) call Free_File(unit = UNIT, rc=STATUS)
+
+    else
+       RC = ESMF_RC_FILE_READ
+       return
+    end if
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine ReadRestart
+
+  subroutine WriteRestart(CC, SRC, DST, CLOCK, RC)
+
+! !ARGUMENTS:
+
+    type (ESMF_CplComp)      :: CC
+    type (ESMF_State)        :: SRC
+    type (ESMF_State)        :: DST
+    type (ESMF_Clock)        :: CLOCK
+    integer, intent(  OUT)   :: RC
+
+!EOPI
+! ErrLog Variables
+
+    character(len=ESMF_MAXSTR)    :: IAm
+    character(len=ESMF_MAXSTR)    :: COMP_NAME
+    integer                       :: STATUS
+
+! Locals
+
+    type (MAPL_GenericCplState), pointer  :: STATE
+    type (MAPL_GenericCplWrap )           :: WRAP
+    type(ESMF_VM)                         :: VM
+    type(ESMF_Grid)                       :: grid
+    type(ESMF_Field)                      :: field
+    character(len=ESMF_MAXSTR)            :: name
+    character(len=ESMF_MAXSTR)            :: filename
+    logical                               :: am_i_root
+    logical                               :: local_undefs
+    integer                               :: unit
+    integer                               :: n_vars
+    integer                               :: n_count
+    integer                               :: n_undefs
+    integer                               :: rank
+    integer                               :: i
+    integer                               :: dims
+    integer                               :: have_undefs
+    integer, pointer                      :: mask(:) => null()
+    real, allocatable                     :: buf1(:), buf2(:,:), buf3(:,:,:)
+    real, pointer                         :: ptr1(:), ptr2(:,:), ptr3(:,:,:)
+
+! Begin...
+
+! Get the target components name and set-up traceback handle.
+! -----------------------------------------------------------
+
+    IAm = "MAPL_GenericCplComWriteRestart"
+    call ESMF_CplCompGet( CC, NAME=COMP_NAME, RC=STATUS )
+    _VERIFY(STATUS)
+    Iam = trim(COMP_NAME) // Iam
+
+! Retrieve the pointer to the internal state. It comes in a wrapper.
+! ------------------------------------------------------------------
+
+    call ESMF_CplCompGetInternalState ( CC, WRAP, STATUS )
+    _VERIFY(STATUS)
+
+    STATE     =>  WRAP%INTERNAL_STATE
+
+    call ESMF_CplCompGet(CC, vm=vm, rc=status)
+    _VERIFY(STATUS)
+
+    filename = trim(state%name) // '_chk' ! following Andrea's suggestion
+    am_i_root = MAPL_AM_I_ROOT(vm)
+
+    unit=0 ! just to initialize
+    n_vars = size(state%src_spec)
+    if (am_i_root) then
+       UNIT = GETFILE(filename, rc=status)
+       _VERIFY(status)
+       write(unit) n_vars
+    end if
+
+       ! for each var
+    do i = 1, n_vars
+       ! varname we can get from query SHORT_NAME in state%src_spec(i)
+       call MAPL_VarSpecGet(state%src_spec(i), SHORT_NAME=name, rc=status)
+       _VERIFY(status)
+       call ESMF_StateGet(SRC, name, field=field, rc=status) 
+       _VERIFY(status)
+       call ESMF_FieldGet(field, grid=grid, rc=status)
+       _VERIFY(status)
+
+       rank = state%accum_rank(i)
+       call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+       _VERIFY(STATUS)
+       mask => null()
+       if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
+          call MAPL_TileMaskGet(grid,  mask, rc=status)
+          _VERIFY(STATUS)
+       end if
+
+       !we need to get the MAX n_count         
+       call MAPL_CommsAllReduceMax(vm, sendbuf=state%accum_count(i), &
+            recvbuf=n_count, cnt=1, RC=status)
+       _VERIFY(status)
+       if (am_i_root) then
+          write(unit) n_count
+       end if
+       select case (rank)
+          case(1)
+             local_undefs = associated(state%array_count(i)%ptr1c)
+          case(2)
+             local_undefs = associated(state%array_count(i)%ptr2c)
+          case(3)
+             local_undefs = associated(state%array_count(i)%ptr3c)
+          case default
+             _ASSERT(.false., "Unsupported rank")
+          end select
+       have_undefs = 0
+       n_undefs = 0
+       if (local_undefs) have_undefs = 1
+       call MAPL_CommsAllReduceMax(vm, sendbuf=have_undefs, &
+            recvbuf=n_undefs, cnt=1, RC=status)
+       _VERIFY(status)
+       if (am_i_root) then
+          write(unit) n_undefs
+       end if
+
+       select case(rank)
+          case (3)
+             call ESMF_LocalArrayGet(STATE%ACCUMULATORS(i), &
+                  farrayPtr=ptr3, RC=status)
+             _VERIFY(status)
+             
+             call MAPL_VarWrite(unit, grid, ptr3, rc=status)
+             _VERIFY(STATUS)
+             if (n_undefs /=0) then
+                allocate(buf3(size(ptr3,1),size(ptr3,2),size(ptr3,3)), stat=status)
+                _VERIFY(STATUS)
+                if (associated(state%array_count(i)%ptr3c)) then
+                   buf3 = state%array_count(i)%ptr3c
+                else
+                   buf3 = state%accum_count(i)
+                end if
+                call MAPL_VarWrite(unit, grid, buf3, rc=status)
+                _VERIFY(STATUS)
+                deallocate(buf3)
+             end if
+          case (2)
+             call ESMF_LocalArrayGet(STATE%ACCUMULATORS(i), &
+                  farrayPtr=ptr2, RC=status)
+             _VERIFY(status)
+             
+             call MAPL_VarWrite(unit, grid, ptr2, mask=mask, rc=status)
+             _VERIFY(STATUS)
+             if (n_undefs /=0) then
+                allocate(buf2(size(ptr2,1),size(ptr2,2)), stat=status)
+                _VERIFY(STATUS)
+                if (associated(state%array_count(i)%ptr2c)) then
+                   buf2 = state%array_count(i)%ptr2c
+                else
+                   buf2 = state%accum_count(i)
+                end if
+                call MAPL_VarWrite(unit, grid, buf2, mask=mask, rc=status)
+                _VERIFY(STATUS)
+                deallocate(buf2)
+             end if
+          case (1)
+             call ESMF_LocalArrayGet(STATE%ACCUMULATORS(i), &
+                  farrayPtr=ptr1, RC=status)
+             _VERIFY(status)
+             
+             call MAPL_VarWrite(unit, grid, ptr1, mask=mask, rc=status)
+             _VERIFY(STATUS)
+             if (n_undefs /=0) then
+                allocate(buf1(size(ptr1,1)), stat=status)
+                _VERIFY(STATUS)
+                if (associated(state%array_count(i)%ptr1c)) then
+                   buf1 = state%array_count(i)%ptr1c
+                else
+                   buf1 = state%accum_count(i)
+                end if
+                call MAPL_VarWrite(unit, grid, buf1, mask=mask, rc=status)
+                _VERIFY(STATUS)
+                deallocate(buf1)
+             end if
+          case default
+             _ASSERT(.false.," Unsupported rank")
+          end select
+          if(associated(mask)) deallocate(mask)
+       end do
+
+       if(am_i_root) call Free_File(unit = UNIT, rc=STATUS)
+
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine WriteRestart
+
+  subroutine MAPL_CplCompSetAlarm ( CC, ALARM, RC )
+    type (ESMF_CplComp  ),           intent(INOUT) :: CC  
+    type (ESMF_Alarm), target,       intent(IN   ) :: ALARM
+    integer, optional,               intent(  OUT) :: RC
+    
+! ErrLog Variables
+
+    character(len=ESMF_MAXSTR)    :: IAm
+    character(len=ESMF_MAXSTR)    :: COMP_NAME
+    integer                       :: STATUS
+
+! Locals
+
+    type (MAPL_GenericCplState), pointer :: STATE
+    type (MAPL_GenericCplWrap )          :: WRAP
+
+
+! Begin...
+
+! Get this instance's name and set-up traceback handle.
+! -----------------------------------------------------
+
+    call ESMF_CplCompGet( CC, name=COMP_NAME, RC=STATUS )
+    _VERIFY(STATUS)
+    Iam = trim(COMP_NAME) // "MAPL_CplCompSetAlarm"
+
+! Retrieve the pointer to the internal state. It comes in a wrapper.
+! ------------------------------------------------------------------
+
+    call ESMF_CplCompGetInternalState ( CC, WRAP, STATUS )
+    _VERIFY(STATUS)
+
+    STATE  =>  WRAP%INTERNAL_STATE
+
+    if (.not.associated(STATE%TIME2CPL_ALARM)) then
+       STATE%TIME2CPL_ALARM => ALARM
+    else
+       _ASSERT(.false., "Alarm is already associated! Cannot set it again!")
+    end if
+    _RETURN(ESMF_SUCCESS)
+  end subroutine MAPL_CplCompSetAlarm
+
 end module MAPL_GenericCplCompMod

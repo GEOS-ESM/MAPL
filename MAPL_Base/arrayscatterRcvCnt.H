@@ -1,4 +1,3 @@
-! $Id$
 
 #ifdef NAME_
 #undef NAME_
@@ -24,7 +23,6 @@
 ! Local variables
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='ArrayScatterRcvCnt'
 
     integer, allocatable, dimension(:)    :: displs
     integer                               :: nDEs

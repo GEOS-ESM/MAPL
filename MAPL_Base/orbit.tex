@@ -1,0 +1,533 @@
+\documentclass[]{AGUJournal}
+
+\usepackage{amsmath,amssymb}
+\usepackage[mathcal]{euscript}
+
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\earth}{{\mathcal{E}}}
+\newcommand{\sun}{{\mathcal{S}}}
+\newcommand{\mqsun}{{\mathcal{M}}}
+\newcommand{\mearth}{{\mathcal{Q}}}
+\renewcommand{\center}{{\mathcal{O}}}
+\newcommand{\peri}{{\mathcal{P}}}
+\newcommand{\aphe}{{\mathcal{A}}}
+\newcommand{\fpoa}{\Upsilon}
+\newcommand{\Tsid}{T_*}
+\newcommand{\Tmsol}{T_\mqsun}
+\newcommand{\al}{\alpha}
+\newcommand{\la}{\lambda}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\cob}{{\cos\eps}}
+\newcommand{\sob}{{\sin\eps}}
+\DeclareMathOperator{\atan2}{atan2}
+\DeclareMathOperator{\artanh}{artanh}
+\DeclareMathOperator{\sgn}{sgn}
+\newcommand{\dee}{\text{d}}
+\newcommand{\du}{\dee u}
+\newcommand{\dE}{\dee E}
+\newcommand{\dM}{\dee M}
+\newcommand{\dla}{\dee \la}
+\newcommand{\dnu}{\dee \nu}
+\newcommand{\MA}{M\!A}
+\newcommand{\TA}{T\!A}
+\renewcommand{\circle}{{\mathcal{C}}}
+\newcommand{\commentout}[1]{}
+
+\begin{document}
+
+\title{Equation of Time}
+
+\authors{Peter M. Norris\affil{1,2}}
+
+\affiliation{1}{University Space Research Association, 
+Columbia, Maryland, USA}
+\affiliation{2}{Global Modeling and Assimilation Office,
+NASA GSFC, Greenbelt, Maryland, USA}
+
+\correspondingauthor{P. M. Norris,
+Global Modeling and Assimilation Office,
+NASA/GSFC, Code 610.1, Greenbelt, MD 20771,
+USA}{peter.m.norris@nasa.gov}
+
+\section{Introduction}
+
+The earth rotates on its axis with a period $\Tsid$ called the {\em sidereal day} (after the Latin for ``star'', since it is the rotation period 
+of the earth with respect to distant stars). $\Tsid$ is slightly shorter than the so-called {\em mean solar day}, or clock day, of duration 
+$\Tmsol =$ 86400 seconds. This is because the earth is a prograde planet, that is, it rotates about its axis in the same sense 
+(counterclockwise looking down on the North Pole) as it orbits the sun. Specifically, say the sun crosses the meridian of some location 
+at a particular time. And imagine there is a distant star directly behind the sun at that moment. After one sidereal day the location will 
+rotate 360$^\circ$ about the earth's axis and the distant star will again cross its meridian. But during that time the earth will have 
+moved a small counterclockwise  distance around its orbit and so it will take a small additional rotation of the earth for the sun to also 
+cross the meridian and thereby complete a {\em solar day}.
+
+Put another way, a solar day is slightly longer than a sidereal day because the sun appears to move slowly eastward across the 
+celestial sphere with respect to distant stars as the year passes. The path of this motion is called the {\em ecliptic}. Clearly, what 
+governs the length of a solar day is the apparent velocity of the sun along the ecliptic, or, more particularly, the equatorial component 
+of that velocity. But both the magnitude and equatorial component of the solar ecliptic velocity change during the year, the former 
+because the earth's orbit is elliptical, not circular, and the latter because the earth's axis of rotation is tilted with respect to the orbital 
+(ecliptic) plane. Thus the length of a solar day changes during the year. While these factors cause only a small perturbation to the 
+length of the solar day (less than 30 seconds), the perturbations accumulate so that, at different times of the year, apparent solar time 
+(``sundial time'') and mean solar time (``clock time'') can differ by as much as about 15 minutes. This difference is called the Equation 
+of Time.
+
+To be more rigorous, in the sequel, let $\earth$ denote the earth, $\sun$ the true sun, and $\mqsun$ a fictitious ``mean sun'' that moves 
+{\em at constant eastward speed around the celestial equator}, completing a full orbit in a year, namely in the period $Y \,\Tmsol$, where $Y$ 
+is the number of mean solar days in a year (e.g., 365.25). Thus, in one mean solar day, $\Tmsol$, the mean sun has moved an angle $2\pi/Y$ 
+eastward. Hence, beyond one full earth revolution, period $\Tsid$, an additional earth rotation of $(\Tmsol-\Tsid) \, 2\pi/\Tsid = 2\pi/Y$ is required 
+to ``catch up with the moving sun'', as described earlier. Hence $\Tmsol - \Tsid = \Tsid / Y$ and so
+\beq
+\Tmsol = \Tsid \, \frac{Y+1}{Y},
+\label{eq:TMTS}
+\eeq
+a constant (near unity) multiple of the fixed sidereal day. $\Tmsol$ is the length of the solar day for the ``mean sun'', or the ``mean solar day''. 
+Because it is invariant during the year, it is convenient for timekeeping, and forms the basis for ``mean solar time'', which at Greenwich is 
+essentially UTC. By {\em definition}, $\Tmsol$ = 24h = 86400s. That is, what we know as ``hours'', ``minutes'' and ``seconds'',  are just 
+convenient integer fractions of the mean solar day. In these units, the sidereal day $\Tsid$ is approximately 23h 56m 4s.
+
+The solar zenith angle calculation (in {\tt MAPL\_sunGetInsolation}) needs the {\em local solar hour angle}, $h_\sun$, which is the angle, 
+measured westward along the equator, from the local meridian to the sun. This is just the {\em Greenwich solar hour angle}, $H_\sun$, 
+plus the longitude, so we will henceforth work exclusively with Greenwich hour angles. We should use the hour angle of the true sun, 
+$H_\sun$, but a common approximation replaces this with the hour angle of the mean sun
+\beq
+H_\mqsun = 2\pi\,(u - 1/2),
+\label{eq:HM}
+\eeq
+where $u$ is UTC time (in days) and the offset is needed because the mean solar hour angle is zero at ``noon''. If more accuracy is 
+required, the hour angle of the true sun is typically obtained as a small correction to $H_\mqsun$ called the Equation of time, $EOT$:
+\beq
+H_\sun = H_\mqsun + EOT,  \quad\text{where}\quad  EOT = H_\sun - H_\mqsun.
+\label{eq:EOT-def}
+\eeq
+As discussed above, EOT corrects for two factors:
+\begin{itemize}
+\item[(a)]{} the variable speed of the earth in its elliptical orbit about the sun (e.g., moving fastest at perihelion), and
+\item[(b)]{} the tilt of the earth's axis of rotation with respect to its orbital plane (the ``obliquity''), which causes the equatorial projection 
+of the sun's apparent ecliptic motion to vary with the season (e.g., being parallel to the equator at the solstices.)
+\end{itemize}
+
+\section{Derivation of Equation of Time}
+
+We can write
+\beq
+H_\sun  = H_\fpoa - (H_\fpoa - H_\sun) = H_\fpoa - \al_\sun,
+\eeq
+where $H_\fpoa$ is the Greenwich hour angle of the First Point of Aries (the location of the vernal equinox, denoted $\fpoa$) and is also 
+known as the Greenwich sidereal hour angle, and where $\al_\sun$ is the right ascension of the true sun (since the right ascension of 
+any object is just the difference between the hour angles of $\fpoa$ and the object). Hence,
+\beq
+EOT = H_\fpoa - H_\mqsun - \al_\sun.
+\label{eq:EOT}
+\eeq
+All three terms on the right of (\ref{eq:EOT}) are time variable: $\al_\sun$ changes slowly throughout the year, and is known from the earth-sun 
+two-body elliptical orbit solution, while $H_\fpoa$ and $H_\mqsun$ vary rapidly with Earth's rotation. $H_\mqsun$ has a period of one mean solar 
+day, $\Tmsol$, and $H_\fpoa$ has a period of one sidereal day, $T_S$.
+
+It may seem from from (\ref{eq:HM}) that the mean sun and its hour angle are fully specified. That, in fact, is not yet the case: (\ref{eq:HM}) is really 
+just a definition of UTC, namely, that one UTC day is one mean solar day and that the time of culmination of the mean sun, what we call ``noon'', 
+occurs at UTC 12h00m. What we are still at liberty to do is specify the phasing of the mean sun in its equatorial orbit, e.g., by specifying the time 
+$u_R$ at which the mean sun passes through $\fpoa$ (both on the equator). At this time, $H_\fpoa(u_R) = H_\mqsun(u_R)$, and so
+\beq
+\begin{split}
+H_\fpoa(u) - H_\mqsun(u) 
+& = 2\pi\, (u - u_R)\,(Y+1)/Y - 2\pi\, (u - u_R) \\
+& = 2\pi\, (u - u_R) / Y\\
+& = \MA(u) - \MA(u_R),
+\end{split}
+\label{eq:EOT-h}
+\eeq
+where 
+\beq
+\MA(u) \equiv 2\pi\, (u - u_\peri) / Y
+\label{eq:MA}
+\eeq
+is the so-called ``mean anomaly'', known from the earth-sun two-body orbital solution, and $u_\peri$ is the time of perihelion. 
+Thus, to fully determine $EOT$, through (\ref{eq:EOT}) and (\ref{eq:EOT-h}), we need only to specify $\MA(u_R)$.
+
+To understand the mean anomaly $\MA$, consider the standard two-body earth-sun problem in which the earth $\earth$ moves in an elliptical 
+orbit about the sun $\sun$ at one focus, all in the {\em ecliptic plane}. The point on the ellipse closest to $\sun$ is called the perihelion $\peri$. 
+Obviously, the center of the ellipse $\center$, the focus $\sun$ and the perihelion $\peri$ are co-linear, the so-called major axis of the ellipse. 
+Additionally, let $\circle$ be the circumscribing circle of the ellipse, with center $\center$ and passing through $\peri$ (and the corresponding 
+aphelion $\aphe$). By Kepler's Second Law, the sun-earth vector sweeps out equal areas in equal times, so the {\em fractional area\/} of the 
+elliptical sector $\peri\sun\earth$ is a linear function of time, being zero at perihelion and one a year later. Specifically, this fractional area is 
+none other than the scaled mean anomaly $\MA(u) / (2\pi) = (u - u_\peri) / Y$ from (\ref{eq:MA}). Clearly $\MA(u)$ can also be interpreted as 
+an angle, the angle $\angle\peri\center\mearth$ of a point $\mearth$ orbiting on the circumcircle $\circle$ at constant speed in the same direction 
+as the earth, also with a yearly period, and passing through $\peri$ at the same time $u_\peri$ as the earth. Thus the point $\mearth$ can be 
+conceptualized as a sort of ``mean earth'' orbiting a ``second mean sun'' (different from $\mqsun$ above) at $\center$. Note that while the 
+angle $\MA(u) = \angle\peri\center\mearth$ of this mean earth at time $u$ is a linear function of time, the corresponding angle of the real earth, 
+namely $\TA(u) \equiv \angle\peri\sun\earth$, called the {\em true anomaly}, is a non-linear function of time, since the real earth has a variable 
+speed in its elliptical orbit, e.g., moving faster at perihelion, so that its {\em areal fraction\/} is linear in time. The relationship between $\MA(u)$ 
+and $\TA(u)$ is known from the orbital solution and will be discussed later. Finally, the {\em ecliptic longitude of the earth}, 
+$\la \equiv \angle\fpoa\sun\earth$ is the angle at the sun, measured in the same direction as the earth's motion, from the 
+First Point of Aries $\fpoa$ to the earth. Then
+\beq
+\TA(u) \equiv \angle\peri\sun\earth(u) =  \angle\peri\sun\fpoa +  \angle\fpoa\sun\earth(u) = \la(u) - \la_\peri,
+\eeq
+where $\la_\peri = \la(u_\peri) \equiv \angle\fpoa\sun\peri = -\angle\peri\sun\fpoa$ is known as the {\em longitude of perihelion}, and is currently about
+$283^\circ$, or equivalently $-77^\circ$.
+
+With this background, we can understand the quantity $\MA(u_R)$ we are trying to specify. If we \textbf{\textit{choose}}
+\beq
+\MA(u_R) = - \la_\peri = \angle\peri\sun\fpoa \iff \angle\peri\center\mearth(u_R) = \angle\peri\sun\fpoa,
+\label{eq:uR-choice}
+\eeq
+then at $u_R$, viewed from the mean earth $\mearth$, the second (ecliptic) mean sun $\center$ is in direction of $\fpoa$.
+And at that same time, by definition of $u_R$, the first (equatorial) mean sun $\mqsun$, as seen from the real earth $\earth$,
+is also in direction of $\fpoa$.
+
+\section{Integrals}
+
+Does this particular choice of $u_R$ gives zero mean $EOT$, as required for a {\em mean\/} solar time? 
+Let $\langle\cdot\rangle$ denote a time average over one orbit (one year), so that (\ref{eq:EOT}), (\ref{eq:EOT-h}) and (\ref{eq:uR-choice}) yield
+\beq
+\langle EOT \rangle 
+= \langle  \MA(u) \rangle + \la_\peri - \langle \al_\sun \rangle 
+= \MA(\langle u \rangle) + \la_\peri - \langle \al_\sun \rangle,
+\eeq
+since $\MA$ is a linear function of $u$.
+In particular, let
+\beq
+{\langle f \rangle}_X \equiv Y^{-1} \int_{X-Y/2}^{X+Y/2} f(u) \,\du,
+\label{eq:tavg-def}
+\eeq
+whence
+\beq
+\langle EOT \rangle_{u_X} = \MA(u_X) + \la_\peri - \langle \al_\sun \rangle_{u_X}.
+\label{eq:mEOT-gen}
+\eeq
+For example,
+\beq
+\langle EOT \rangle_{u_\peri} = \la_\peri - \langle \al_\sun \rangle_{u_\peri}, \quad\text{and}\quad
+\langle EOT \rangle_{u_\fpoa} = \MA(u_\fpoa) + \la_\peri - \langle \al_\sun \rangle_{u_\fpoa}.
+\label{eq:mEOT-eg}
+\eeq
+The right ascension of the true sun, $\al_\sun \in (-\pi,+\pi]$, is given by
+\beq
+\al_\sun = \atan2\,(\sin\la\,\cob, \cos\la),
+\eeq
+where $\eps$ be the earth's obliquity ($\approx 23.5^\circ$). Both $\la$ and $\al_\sun$ are zero at $\fpoa$. 
+To proceed, we will use the following rate of change of $\la$ from the two-body theory:
+\beq
+\frac{\dla}{\du} = \frac{\dnu}{\du}
+  = \frac{2\pi}{Y}\,(1-e^2)^{-3/2}\,(1 + e\cos\nu)^2,
+\eeq
+where $e$ is the eccentricity and $\nu \equiv \la(u) - \la_\peri$ is shorthand for the true anomaly of the earth, $\TA(u)$.
+Then, without being precise on limits for now,
+\beq
+\langle \al_\sun \rangle
+= Y^{-1} \int \frac{\al_\sun \dla}{\dla / \du} 
+= \int \frac{\atan2\,(\sin\la\,\cob, \cos\la)}{(1-e^2)^{-3/2}\,[1+e\cos(\la-\la_\peri)]^2} \frac{\dla}{2\pi}.
+\eeq
+Finally, just as $\fpoa$ denotes the location of the vernal equinox, $\la = \al_\sun = 0$, we will also use $\fpoa'$ to denote 
+the location of the autumnal equinox, $\la =  \al_\sun = \pm \pi$. In general, $u_\fpoa - u_{\fpoa'}$ is not exactly half a year.
+
+\subsection{Zero obliquity}
+
+For the simple case where the obliquity is zero, $\cob=1$ and $\al_\sun = \la = \nu + \la_\peri$, and so
+\beq
+\begin{split}
+\langle \al_\sun \rangle_{u_\peri}
+= & \int_{-\pi}^{+\pi} \frac{\nu+\la_\peri}{(1-e^2)^{-3/2}\,[1+e\cos\nu]^2} \frac{\dnu}{2\pi} \\
+= & \frac{\la_\peri}{2\pi} \int_{-\pi}^{+\pi} \frac{\dnu}{(1-e^2)^{-3/2}\,[1+e\cos\nu]^2},
+\end{split}
+\eeq
+since perihelion and aphelion are half a year apart by symmetry and since the $\nu$ term is odd.
+The true anomaly can be expressed in terms of the {\em eccentric anomaly\/} $E \in (-\pi,+\pi]$:
+\beq
+\cos\nu = \frac{\cos E - e}{1 - e \cos E}
+\quad\text{and}\quad
+\sin\nu = \frac{\sqrt{1 - e^2} \sin E}{1 - e \cos E},
+\eeq
+whence
+\beq
+1 + e\cos\nu = \frac{1 - e^2}{1 - e \cos E}.
+\eeq
+and
+\beq
+-\sin\nu \frac{\dnu}{\dE} = -\sin E \frac{1 - e^2}{(1 - e \cos E)^2}
+\implies \frac{\dnu}{\dE} = \frac{\sqrt{1 - e^2}}{1 - e \cos E}
+\eeq
+Hence,
+\beq
+\langle \al_\sun \rangle_{u_\peri}
+= \frac{\la_\peri}{2\pi} \int_{-\pi}^{+\pi} (1 - e \cos E) \,\dE  = \frac{\la_\peri}{2\pi} \int_{-\pi}^{+\pi} \,\dM
+= \la_\peri.
+\eeq
+where $M \equiv E - e \sin E$. Hence, as required, $\langle EOT \rangle_{u_\peri} = 0$ by (\ref{eq:mEOT-eg}).
+Note that $M(u)$ is none other than $\MA(u)$, as per Kepler's Equation of the two-body solution.
+
+\subsection{Zero eccentricity}
+
+For zero eccentricity, $e=0$, we get the simple form
+\beq
+\langle \al_\sun \rangle = \int \atan2\,(\sin\la\,\cob, \cos\la) \frac{\dla}{2\pi},
+\eeq
+and, in particular,
+\beq
+\langle\al_\sun\rangle_{u_{\fpoa'}+Y/2} 
+= \int_{u_{\fpoa'}}^{u_{\fpoa'}+Y} \hspace{-1em} \al_\sun(u) \frac{\du}{Y} 
+= \int_{-\pi}^{+\pi} \!\! \atan2\,(\sin\la\,\cob, \cos\la) \frac{\dla}{2\pi} 
+= 0,
+\eeq
+since since $\atan2$ is odd in $\la$. Then, by (\ref{eq:mEOT-gen}),
+\beq
+\langle EOT \rangle_{u_{\fpoa'}+Y/2} = \MA(u_{\fpoa'}+Y/2) + \la_\peri - \langle \al_\sun \rangle_{u_{\fpoa'}+Y/2} =  \MA(u_\fpoa) + \la_\peri,
+\eeq
+since $\fpoa'$ and $\fpoa$ {\em are\/} a half year apart for a circular ($e=0$) orbit. But also for a circular orbit, $\MA(u) = \TA(u) = \la(u) - \la_\peri$, 
+so 
+\beq
+\langle EOT \rangle_{u_{\fpoa'}+Y/2} =  (\la(u_\fpoa) - \la_\peri) + \la_\peri = \la(u_\fpoa) \equiv 0,
+\eeq
+as required.
+
+\subsection{General case}
+
+For the general general case, 
+\beq
+\begin{split}
+\langle\al_\sun\rangle_{u_{\fpoa'}+Y/2} 
+& = \int_{u_{\fpoa'}}^{u_{\fpoa'}+Y} \hspace{-1em} \al_\sun \frac{\du}{Y} 
+  = \int_{-\pi}^{+\pi} \!\! \frac{\atan2\,(\sin\la\,\cob, \cos\la)}{(1-e^2)^{-3/2}\,[1+e\cos(\la-\la_\peri)]^2} \frac{\dla}{2\pi} \\
+& = \int_0^{\pi} \frac{\atan2\,(\sin\la\,\cob, \cos\la)}{(1-e^2)^{-3/2}}D(\la; \la_\peri) \frac{\dla}{2\pi},
+\end{split}
+\eeq
+since $\atan2$ is odd in $\la$, where
+\beq
+\begin{split}
+D(\la; \la_\peri) 
+& \equiv \frac{1}{[1+e\cos(\la - \la_\peri)]^2}  - \frac{1}{[1+e\cos(\la + \la_\peri)]^2} \\
+& = \frac{[1+e\cos(\la + \la_\peri)]^2 - [1+e\cos(\la - \la_\peri)]^2}{[(1+e\cos(\la - \la_\peri))(1+e\cos(\la + \la_\peri))]^2} \\
+& = \frac{2e(\cos(\la + \la_\peri) - \cos(\la - \la_\peri)) + e^2(\cos^2(\la + \la_\peri) - \cos^2(\la - \la_\peri))}{[1 + e(\cos(\la - \la_\peri) + \cos(\la + \la_\peri)) + e^2 \cos(\la - \la_\peri) \cos(\la + \la_\peri)]^2} \\
+& = \frac{-4e\sin\la\sin\la_\peri - 4\,e^2\cos\la\cos\la_\peri\sin\la\sin\la_\peri }{[1 + 2e\cos\la\cos\la_\peri + e^2 (\cos^2\!\la\,\cos^2\!\la_\peri - \sin^2\!\la\,\sin^2\!\la_\peri)]^2} \\
+%& = \frac{ -4 e \sin\la\sin\la_\peri (1 + e\cos\la\cos\la_\peri) }{[1 + 2e\cos\la\cos\la_\peri + e^2 (\cos^2\!\la\,\cos^2\!\la_\peri - \sin^2\!\la\,\sin^2\!\la_\peri)]^2}. \\
+& = \frac{ -4 e \sin\la\sin\la_\peri (1 + e\cos\la\cos\la_\peri) }{[(1 + e\cos\la\cos\la_\peri)^2 - e^2 \sin^2\!\la\,\sin^2\!\la_\peri)]^2}.
+\end{split}
+\eeq
+%\[ \cos(\la \pm \la_\peri) = \cos\la\cos\la_\peri \mp \sin\la\sin\la_\peri \]
+%\[ \cos^2(\la \pm \la_\peri) = \cos^2\!\la\,\cos^2\!\la_\peri \mp 2\cos\la\cos\la_\peri\sin\la\sin\la_\peri + \sin^2\!\la\,\sin^2\!\la_\peri \]
+%\[ \cos(\la + \la_\peri)\cos(\la - \la_\peri) = \cos^2\!\la\,\cos^2\!\la_\peri - \sin^2\!\la\,\sin^2\!\la_\peri \]
+Continuing with the reduction,
+\beq
+\begin{split}
+\langle& \al_\sun\rangle_{u_{\fpoa'}+Y/2} = \int_0^{\pi/2} \frac{\atan2\,(\sin\la\,\cob, \cos\la)}{(1-e^2)^{-3/2}}D(\la; \la_\peri) \\
+& \hspace{3cm} + \frac{\atan2\,(\cos\la\,\cob, -\sin\la)}{(1-e^2)^{-3/2}}D(\la\!+\!\pi/2; \la_\peri) \:\frac{\dla}{2\pi} \\
+& = \int_0^{\pi/2} \hspace{-1em} \arctan(\tan\la\,\cob) \frac{D(\la; \la_\peri)}{(1-e^2)^{-3/2}} + [\pi-\arctan(\cot\la\,\cob)] \frac{D(\la\!+\!\pi/2; \la_\peri)}{(1-e^2)^{-3/2}} \:\frac{\dla}{2\pi},
+\end{split}
+\eeq
+where
+\beq
+D(\la+\pi/2; \la_\peri) = \frac{ -4 e \cos\la\sin\la_\peri (1 - e\sin\la\cos\la_\peri) }{[(1 - e\sin\la\cos\la_\peri)^2  - e^2 \cos^2\!\la\,\sin^2\!\la_\peri)]^2}.
+\eeq
+
+We will attempt a solution by expanding in powers of $e$, since $e \approx 0.0167 \ll 1$. 
+Clearly for $e=0$ both $D$ terms are zero and we get our earlier special case result. 
+
+\subsubsection{First order in $e$}
+
+To {\em first\/} order in $e$:
+\beq
+\frac{D(\la; \la_\peri)}{(1-e^2)^{-3/2}} \approx -4 e \sin\la\sin\la_\peri, \quad
+\frac{D(\la+\pi/2; \la_\peri)}{(1-e^2)^{-3/2}} \approx -4 e \cos\la\sin\la_\peri,
+\eeq
+and so
+\beq
+\begin{split}
+\langle& \al_\sun\rangle_{u_{\fpoa'}+Y/2} \\
+& \approx -4 \, e \sin\la_\peri \int_0^{\pi/2} \hspace{-1em} \arctan(\tan\la\,\cob) \sin\la + [\pi-\arctan(\cot\la\,\cob)] \cos\la \:\frac{\dla}{2\pi} \\
+& = \frac{-e \sin\la_\peri}{\pi/2} \Big[ 
+\cot\eps \artanh(\sin\la\,\sob) - \cos\la \arctan(\tan\la\,\cob) \\
+& \hspace{1.75cm} + \cot\eps \artanh(\cos\la\,\sob) - \sin\la \arctan(\cot\la\,\cob) + \pi \sin\la \Big]_0^{\pi/2} \\
+& = \frac{-e \sin\la_\peri}{\pi/2} \Big[ \cot\eps [\artanh(\sob) - \artanh(0)] - \{ 0 \arctan(\infty) - \arctan(0) \} \\
+& \hspace{2cm} + \cot\eps [\artanh(0) - \artanh(\sob)] - \{ \arctan(0) - 0 \arctan(\infty) \} + \pi \Big] \\
+& = -2e \sin\la_\peri.
+\end{split}
+\eeq
+Now, by (\ref{eq:mEOT-gen}),
+\beq
+\begin{split}
+\langle EOT & \rangle_{u_{\fpoa'}+Y/2} \\
+& = \MA(u_{\fpoa'}+Y/2) + \la_\peri - \langle \al_\sun \rangle_{u_{\fpoa'}+Y/2} \\
+& = \MA(u_{\fpoa'}) + \pi + \la_\peri + 2e \sin\la_\peri \\
+& = E(u_{\fpoa'})  - e \sin E(u_{\fpoa'}) + \pi + \la_\peri + 2e \sin\la_\peri \\
+& = 2\arctan\left[ \sqrt{\frac{1-e}{1+e}}\tan\left(\frac{\nu(u_{\fpoa'})}{2}\right) \right]  - \frac{e\sqrt{1-e^2}\sin\nu(u_{\fpoa'})}{1 + e\cos\nu(u_{\fpoa'})} + \pi + \la_\peri + 2e \sin\la_\peri \\
+& = -2\arctan\left[ \sqrt{\frac{1-e}{1+e}}\tan\left(\frac{\la_\peri + \pi}{2}\right) \right] + \frac{e\sqrt{1-e^2}\sin(\la_\peri + \pi)}{1 + e\cos(\la_\peri + \pi)} + \pi + \la_\peri + 2e \sin\la_\peri \\
+& = -2\arctan\left[ \sqrt{\frac{1-e}{1+e}}\tan\left(\frac{\la_\peri + \pi}{2}\right) \right] - \frac{e\sqrt{1-e^2}\sin\la_\peri}{1 - e\cos\la_\peri} + \pi + \la_\peri + 2e \sin\la_\peri,
+\end{split}
+\eeq
+since $\MA = E - e\sin E$ and since the eccentric anomaly $E$ obeys the following relations from the two-body solution,
+\beq
+\sin E = \frac{\sqrt{1-e^2}\sin\nu}{1 + e\cos\nu}, \quad
+\tan(E/2) = \sqrt{\frac{1-e}{1+e}}\tan(\nu/2),
+\eeq
+with $\nu = \la - \la_\peri$, and since $\nu(u_{\fpoa'}) = \la(u_{\fpoa'}) - \la_\peri = -(\la_\peri + \pi)$.
+Hence, to our first order in $e$ approximation,
+\beq
+\begin{split}
+\langle EOT & \rangle_{u_{\fpoa'}+Y/2} 
+   \approx -2\arctan\left[ (1-e)\tan\left(\frac{\la_\peri + \pi}{2} \right) \right] - e\sin\la_\peri + \pi + \la_\peri + 2e \sin\la_\peri \\
+& \approx -2 \arctan\left[ \tan\left(\frac{\la_\peri + \pi}{2} \right) \right] + \frac{2e\tan\left(\frac{\la_\peri + \pi}{2} \right)}{1+\tan^2\left(\frac{\la_\peri + \pi}{2} \right)} + \pi + \la_\peri + e \sin\la_\peri \\
+& =  e\sin2\left(\frac{\la_\peri + \pi}{2} \right) + e \sin\la_\peri = e [ \sin(\la_\peri + \pi) + \sin\la_\peri ] = 0,
+\end{split}
+\eeq
+as required.
+%\[ E = 2\arctan\left( \sqrt{\frac{1-e}{1+e}}\tan(\nu/2) \right) \]
+We could proceed to higher order in $e$ by this method, but first we will try a slightly different approach, 
+using integration by parts, which will be turn out to be easier \ldots
+
+\subsection{General case using integration by parts}
+
+Alternatively, we can integrate by parts:
+\beq
+\begin{split}
+\langle\al_\sun\rangle_{u_{\fpoa'}+Y/2} 
+& = \int_{M(u_{\fpoa'})}^{M(u_{\fpoa'})+2\pi} \hspace{-1em} \al_\sun \frac{\dM}{2\pi} 
+ = \frac{1}{2\pi}\! \left( \left[\al_\sun M \right]_{u_{\fpoa'}}^{u_{\fpoa'}+Y}  - \int_{-\pi}^{+\pi} M \,\text{d}\al_\sun \right) \\
+& = M(u_{\fpoa'})+\pi -  \frac{1}{2\pi} \int_{-\pi}^{+\pi} M \,\frac{\text{d}\al_\sun}{\dla} \,\dla \\
+& = M(u_{\fpoa'})+\pi -  \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{(E - e \sin E) \,\cob\; \dla} {1 - \sin^2\!\la \,\sin^2\eps},
+\end{split}
+\eeq
+where (again) $M \equiv \MA = E - e \sin E$, and since $\al_\sun(u_{\fpoa'}) = \pm \pi$ and
+\beq
+\frac{\partial}{\partial x} \atan2(y,x) = \frac{-y}{x^2 + y^2} \quad\text{and}\quad
+\frac{\partial}{\partial y} \atan2(y,x) = \frac{x}{x^2 + y^2},
+\eeq
+and so
+\beq
+\frac{\dee \al_\sun}{\dla} 
+= \frac{\dee}{\dla} \atan2\,(\sin\la\,\cob, \cos\la) = \ldots
+% = \frac{-\sin\la\,\cob \cdot -\sin\la + \cos\la \cdot \cos\la\,\cob} {\cos^2\!\la + \sin^2\!\la \,\cos^2\eps} \\
+% = \frac{\cob} {\cos^2\!\la + \sin^2\!\la \,\cos^2\eps} 
+= .\frac{\cob} {1 - \sin^2\!\la \,\sin^2\eps}
+\label{eq;dasdla}
+\eeq
+Hence, before making any approximation in the order of $e$, we have
+\beq
+\begin{split}
+\langle EOT & \rangle_{u_{\fpoa'}+Y/2} = \MA(u_{\fpoa'}) + \pi +  \la_\peri - \langle \al_\sun \rangle_{u_{\fpoa'}+Y/2} \\
+& = \la_\peri + \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{(E - e \sin E) \,\cob\; \dla} {1 - \sin^2\!\la \,\sin^2\eps} \\
+& = \la_\peri + \frac{1}{2\pi} \int_{-\pi}^{+\pi} 
+\frac{\left[2\arctan\left( \sqrt{\frac{1-e}{1+e}}\tan\left(\frac{\nu}{2}\right) \right) - \frac{e\sqrt{1-e^2}\sin\nu}{1 + e\cos\nu} \right] \cob\; \dla}{1 - \sin^2\!\la \,\sin^2\eps},
+\end{split}
+\eeq
+with $\nu = \la - \la_\peri$. Clearly this method avoids explicit calculation of $ \MA(u_{\fpoa'})$.
+
+\subsubsection{First order in $e$}
+
+To {\em first\/} order in $e$:
+\beq
+\begin{split}
+\langle EOT & \rangle_{u_{\fpoa'}+Y/2} \\
+& \approx \la_\peri + \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{\left[2\arctan\left( (1-e)\tan\left(\frac{\la - \la_\peri}{2}\right) \right) - e\sin(\la - \la_\peri) \right] \cob\; \dla} {1 - \sin^2\!\la \,\sin^2\eps} \\
+& \approx \la_\peri + \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{\left[\la - \la_\peri - \frac{2e \tan\left(\frac{\la - \la_\peri}{2}\right)}{1 +  \tan^2\left(\frac{\la - \la_\peri}{2}\right)}
+  - e\sin(\la - \la_\peri) \right] \cob\; \dla} {1 - \sin^2\!\la \,\sin^2\eps} \\
+& = \la_\peri + \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{\left[\la - \la_\peri - 2e\sin(\la - \la_\peri) \right] \cob\; \dla} {1 - \sin^2\!\la \,\sin^2\eps} \\ 
+& = \la_\peri + \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{\left[\la - \la_\peri - 2e(\sin\la\cos\la_\peri - \cos\la\sin\la_\peri) \right] \cob\; \dla} {1 - \sin^2\!\la \,\sin^2\eps} \\ 
+& = \la_\peri - \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{\left[\la_\peri - 2e\sin\la_\peri\,\cos\la \right] \cob\; \dla} {1 - \sin^2\!\la \,\sin^2\eps},
+\end{split}
+\eeq
+after removing odd functions of $\la$ in the last line. By (\ref{eq;dasdla}) we can simplify this to
+\beq
+\begin{split}
+\langle EOT & \rangle_{u_{\fpoa'}+Y/2}
+= \la_\peri - \frac{\la_\peri}{2\pi} \int_{-\pi}^{+\pi} \dee \al_\sun + \frac{2e\sin\la_\peri}{2\pi} \int_{-\pi}^{+\pi} \frac{\cos\la \,\cob\; \dla} {1 - \sin^2\!\la \,\sin^2\eps} \\
+& = \frac{2e\sin\la_\peri}{2\pi} \int_0^0 \frac{\cob\; \dee Y} {1 - Y^2 \,\sin^2\eps} = 0, \quad \text{where}\;Y \equiv \sin\la,
+\end{split}
+\eeq
+so again we have our required result to first order in $e$.
+
+\subsubsection{Higher orders in $e$}
+
+At this point we have not been able to go to higher orders in $e$. 
+Can cannot say whether these orders will yield zero contributions to mean $EOT$ or not.
+Here's where I got so far, which perhaps suggest that the mean $EOT$ is only zero to first order \ldots
+
+The following binomial series converge absolutely since $e \ll 1$:
+\beq
+(1-e^2)^{1/2} = 1 + A, \quad A \equiv \sum_{k=1}^{\infty} {1/2 \choose k} (-1)^k e^{2k} \sim O(e^2),
+\eeq
+
+\beq
+(1-e^2)^{-1/2} = 1 + B, \quad B \equiv \sum_{k=1}^{\infty} {-1/2 \choose k} (-1)^k e^{2k} \sim O(e^2),
+\eeq
+and
+\beq
+(1 + e\cos\nu)^{-1} = 1 + C, \quad C \equiv \sum_{k=1}^{\infty} {-1\choose k} e^k\cos^k\nu \sim O(e).
+\eeq
+Then
+\beq
+\sqrt{\frac{1-e}{1+e}} = (1-e) (1 + B) = 1 - e + D, \quad D \equiv (1-e) B \sim O(e^2),
+\eeq
+and, 
+\beq
+\frac{\sqrt{1-e^2}}{1 + e\cos\nu} = (1 + A) (1 + C) = 1 + C + A + AC.
+\eeq
+So, to general order in $e$, 
+\beq
+\begin{split}
+Q &\equiv 2\arctan\left( \sqrt{\frac{1-e}{1+e}}\tan\left(\frac{\nu}{2}\right) \right) - \frac{e\sqrt{1-e^2}\sin\nu}{1 + e\cos\nu} \\
+& = 2\arctan\left( \tan\left(\frac{\nu}{2}\right) + (D - e) \tan\left(\frac{\nu}{2}\right) \right) - e(1 + C + A + AC)\sin\nu = \ldots \\
+& = \nu + (D - 2e - eA) \sin\nu - e(1 + A)C\sin\nu \\
+& \quad\quad + 2 \sum_{n=2}^{\infty} \arctan^{(n)} \left( \tan\left(\frac{\nu}{2}\right) \right) \frac{(D - e)^n}{n!} \tan^n \left(\frac{\nu}{2}\right).
+\end{split}
+\eeq
+Hence,
+\beq
+\begin{split}
+\langle & EOT \rangle_{u_{\fpoa'}+Y/2} = \la_\peri + \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{Q \,\cob\; \dla}{1 - \sin^2\!\la \,\sin^2\eps} = \ldots \\
+& = \frac{1}{2\pi} \sum_{n=2}^{\infty}  \frac{(D - e)^n}{n!} \int_{-\pi}^{+\pi} \frac{2\arctan^{(n)} \left( \tan\left(\frac{\la-\la_\peri}{2}\right) \right) \tan^n \left(\frac{\la-\la_\peri}{2}\right) \,\cob\; \dla}{1 - \sin^2\!\la \,\sin^2\eps} \\
+& \quad\quad - \frac{e(1 + A)}{2\pi} \sum_{k=1}^{\infty} {-1\choose k} e^k \int_{-\pi}^{+\pi} \frac{ \cos^k(\la-\la_\peri) \sin(\la-\la_\peri) \,\cob\; \dla}{1 - \sin^2\!\la \,\sin^2\eps}.
+\label{eq:mEOT-high}
+\end{split}
+\eeq
+First look at the $\cos^k(\la-\la_\peri) \sin(\la-\la_\peri)$ terms:
+\beq
+\cos^k(\la-\la_\peri) \sin(\la-\la_\peri) = (C_1C_{1p} + S_1S_{1p})^k (S_1C_{1p} - C_1S_{1p}).
+\eeq
+where $C_n \equiv \cos(n\la)$, $S_n \equiv \sin(n\la)$ and the $p$ subscripts are for the $\la_\peri$ versions.
+For $k=1$,
+\beq
+(C_1C_{1p} + S_1S_{1p})(S_1C_{1p} - C_1S_{1p}).
+%S_1C_1(C_{1p}^2 - S_{1p}^2) - (C_1^2  - S_1^2) S_{1p} C_{1p} 
+=  (S_2 C_{2p} - C_2 S_{2p}) / 2.
+\eeq
+The first term is odd in $\la$ and will integrate to zero, but the second term is even and will not be zero! So perhaps our result 
+is only good to first order in $e$? The order $e^2$ component from (\ref{eq:mEOT-high}) for these terms is then:
+\beq
+\begin{split}
+\frac{e^2}{2\pi} & \int_{-\pi}^{+\pi} \frac{ \cos(\la-\la_\peri) \sin(\la-\la_\peri) \,\cob\; \dla}{1 - \sin^2\!\la \,\sin^2\eps} \\
+& -\frac{e^2\sin(2\la_\peri)}{4\pi} \int_{-\pi}^{+\pi} \frac{ \cos(2\la) \,\cob\; \dla}{1 - \sin^2\!\la \,\sin^2\eps}  \\
+& \quad = \frac{e^2\sin(2\la_\peri)}{8\pi\sin^2\eps} \Big[ (\cos(2\eps) + 3) \arctan(\cob \tan\la) - 4 \la\,\cob \Big]_{-\pi}^{+\pi} \\
+& \quad = -e^2 \cot\eps \csc\eps \sin(2\la_\peri).
+\label{eq:mEOT-2nd-a}
+\end{split}
+\eeq
+Likewise, the derivatives of $\arctan$ term of  (\ref{eq:mEOT-high}) for order $e^2$ is:
+\beq
+\begin{split}
+ \frac{e^2}{2} & \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{2\arctan^{(2)} \left( \tan\left(\frac{\la-\la_\peri}{2}\right) \right) \tan^2 \left(\frac{\la-\la_\peri}{2}\right) \cob\; \dla}{1 - \sin^2\!\la \,\sin^2\eps} \\
+% & = -\frac{e^2}{2} \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{\left[ \frac{2\tan\left(\frac{\la-\la_\peri}{2}\right)}{1+\tan^2\left(\frac{\la-\la_\peri}{2}\right)}  \right]^2 \tan \left(\frac{\la-\la_\peri}{2}\right) \,\cob\; \dla}{1 - \sin^2\!\la \,\sin^2\eps} \\
+& = -\frac{e^2}{2} \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{\sin^2(\la-\la_\peri) \tan \left(\frac{\la-\la_\peri}{2}\right) \cob\; \dla}{1 - \sin^2\!\la \,\sin^2\eps} \\
+& = -\frac{e^2}{2} \frac{1}{2\pi} \int_{-\pi}^{+\pi} \frac{\sin(\la-\la_\peri) [1 - \cos(\la-\la_\peri)] \,\cob\; \dla}{1 - \sin^2\!\la \,\sin^2\eps} \\
+& = \frac{1}{2} \frac{e^2}{2\pi} \int_{-\pi}^{+\pi} \frac{\sin(\la-\la_\peri) \cos(\la-\la_\peri) \,\cob\; \dla}{1 - \sin^2\!\la \,\sin^2\eps},
+\label{eq:mEOT-2nd-b}
+\end{split}
+\eeq
+which is exactly half of (\ref{eq:mEOT-2nd-a}). So, we conclude that to second order in $e$, 
+\beq
+\langle EOT \rangle_{u_{\fpoa'}+Y/2} = -\tfrac{3}{2} e^2 \cot\eps \csc\eps \sin(2\la_\peri)
+\eeq
+We will not pursue any higher order terms. For typical J2000 values $e \approx 0.0167$, $\eps \approx 23.44^\circ$, 
+and $\la_\peri \approx 102.95^\circ - 180^\circ = -77.05^\circ$,
+the above formula gives
+\beq
+\langle EOT \rangle_{u_{\fpoa'}+Y/2} 
+%\approx -1.5\, (0.0167)^2 \times5.798 \times -0.4368 
+\approx 0.00106 \,\text{rad} \approx 15\,\text{sec}.
+\eeq
+
+Thus, we conclude that our simple choice of $u_R$ in (\ref{eq:uR-choice}) leads to zero mean $EOT$ only to first order in $e$.
+
+\end{document}
+
+
+

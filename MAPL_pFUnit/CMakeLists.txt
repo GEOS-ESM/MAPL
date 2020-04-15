@@ -9,8 +9,8 @@ set (srcs
 
 esma_add_library (${this} EXCLUDE_FROM_ALL SRCS ${srcs})
 
-include_directories (${INC_ESMF})
-include_directories (${INC_NETCDF})
+target_include_directories (${this} PRIVATE ${INC_ESMF})
+target_include_directories (${this} PRIVATE ${INC_NETCDF})
 
 target_link_libraries (${this} ${ESMF_LIBRARIES} pfunit)
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
