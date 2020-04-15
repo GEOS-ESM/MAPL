@@ -40,7 +40,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Python automatic code generator for grid comp include files	
 - Added support to use pFlogger for logging
   - Command line option: --logging_config=<file>
-	
+
+## [2.0.6] - 2020-04-15
+
+### Fixed
+
+- Added code to suppress (seemingly) spurious MPI_Finalize errors at end
+  of model run. Suppression does not happen if built with
+  `-DCMAKE_BUILD_TYPE=Debug`
+
 ## [2.0.5] - 2020-04-13
 
 ### Fixed
