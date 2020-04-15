@@ -2214,13 +2214,15 @@ contains
       type (ProfileReporter) :: reporter
       type (MultiColumn) :: inclusive, exclusive
       type (ESMF_VM) :: vm
+      character(1) :: empty(0)
 
       call ESMF_VmGetCurrent(vm, rc=status)
       _VERIFY(STATUS)
 
       if  (MAPL_AM_I_Root(vm)) then
 
-          call reporter%add_column(NameColumn(50))
+          reporter = ProfileReporter(empty)
+          call reporter%add_column(NameColumn(50 , separator=" "))
           call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn(),separator='-'))
           inclusive = MultiColumn(['Inclusive'], separator='=')
           call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))

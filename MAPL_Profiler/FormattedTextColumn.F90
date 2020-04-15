@@ -80,7 +80,7 @@ contains
       do i = 1, n0
          header(i)(:) = this%header(i)
       end do
-      call this%get_separator(header(n0+1:n))
+      call this%get_separator(header(n0+1), n-n0)
       call this%center(header)
 
    end subroutine get_header
