@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.6] - 2020-04-15
+
+### Fixed
+
+- Added code to suppress (seemingly) spurious MPI_Finalize errors at end
+  of model run. Suppression does not happen if built with
+  `-DCMAKE_BUILD_TYPE=Debug`
+
 ## [2.0.5] - 2020-04-13
 
 ### Fixed
