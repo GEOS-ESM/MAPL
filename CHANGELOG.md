@@ -11,13 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Corrected handling of Equation of Time in orbit (off by default)
 - Made ASSERT in ExtData more explicit in case of missing variables.
+- (re) Introduced MAPL Profiling package
+- Removed CVS keywords
 
 ### Fixed
 
 - Corrected Python code generator scripts for component import/export specs.
 - Add directories to `.gitignore` for building with `mepo`
 - Bug building with mixed Intel/GCC compilers
+- Implemented workaround to cmake error that happens when building tests in parallel.	
 - Set correct ESMA_env tag in `components.yaml`
+- Updated `components.yaml` to be inline with GEOSgcm
 
 ### Removed
 
@@ -27,11 +31,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added configuration for CircleCI
+- Added configuration for CircleCI and Github Actions
   - Builds MAPL using GCC 9.2.0 and Open MPI 4.0.2
   - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
 - Add precession of equinox (not on by default)
+- Imported Python/MAPL subdir (old, but never imported to GitHub)
+- Python automatic code generator for grid comp include files	
+
 	
+## [2.0.5] - 2020-04-13
+
+### Fixed
+
+- Fixes an issue with a too-large MPI tag.
+
+## [2.0.4] - 2020-04-03 
+
+### Fixed
+
+- Fixes an issue when regridding thru the locstream in the history component.
+
+## [2.0.3] - 2020-03-19
+
+### Fixed
+
+- Fixed a logic bug in the MAPL Profilers that make affect certain runs when using NUOPC.
+
+## [2.0.2] - 2020-03-10
+
+### Fixed
+
+- Fix for handling coarse grids at high-resolution in ExtData
+
 ## [2.0.1] - 2019-03-02
 
 ### Fixed

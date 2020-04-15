@@ -1,0 +1,49 @@
+name: Build MAPL
+
+on: pull_request
+
+jobs:
+  build_mapl:
+    runs-on: ubuntu-latest
+    container: gmao/geos-build-env-gcc-source:6.0.10
+    env:
+      LANGUAGE: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+      LANG: en_US.UTF-8
+      LC_TYPE: en_US.UTF-8 
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Versions etc.
+        run: |
+          gfortran --version
+          mpirun --version
+          echo $BASEDIR
+      - name: Mepo clone external repos
+        run: |
+          mepo init
+          mepo clone
+          mepo status
+      - name: CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe'
+      - name: Build
+        run: |
+          cd build
+          make -j4 install
+      - name: Run pFIO Unit tests
+        run: |
+          cd build
+          make -j4 pFIO_tests
+          ctest -R 'pFIO_tests$' --output-on-failure
+      - name: Run MAPL_Base Unit tests
+        run: |
+          cd build
+          make -j4 MAPL_Base_tests
+          ctest -R 'MAPL_Base_tests$' --output-on-failure

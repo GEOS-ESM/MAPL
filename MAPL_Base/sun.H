@@ -1,4 +1,3 @@
-! $Id$
 
 
       type(MAPL_SunOrbit),               intent(IN ) :: ORBIT
