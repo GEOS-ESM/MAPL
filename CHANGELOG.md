@@ -38,7 +38,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Imported Python/MAPL subdir (old, but never imported to GitHub)
 - Python automatic code generator for grid comp include files	
 
-	
+## [2.0.6] - 2020-04-15
+
+### Fixed
+
+- Added code to suppress (seemingly) spurious MPI_Finalize errors at end
+  of model run. Suppression does not happen if built with
+  `-DCMAKE_BUILD_TYPE=Debug`
+
 ## [2.0.5] - 2020-04-13
 
 ### Fixed
