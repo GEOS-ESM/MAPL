@@ -68,7 +68,7 @@ target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_F
 target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
 
 if (NOT (CMAKE_BUILD_TYPE MATCHES Debug))
-   target_compile_definitions(${this} PRIVATE NOT_BUILD_TYPE_IS_DEBUG)
+   target_compile_definitions(${this} PRIVATE BUILD_TYPE_IS_NOT_DEBUG)
 endif ()
 
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
