@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected handling of Equation of Time in orbit (off by default)
 - Made ASSERT in ExtData more explicit in case of missing variables.
 - (re) Introduced MAPL Profiling package
-	
+- Removed CVS keywords
+
 ### Fixed
 
 - Corrected Python code generator scripts for component import/export specs.
