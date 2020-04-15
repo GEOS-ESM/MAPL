@@ -382,8 +382,10 @@ module MAPL_newCFIOMod
               _VERIFY(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%yname,field=outField,rc=status)
               _VERIFY(status)
-              call this%vdata%correct_topo(outField,rc=status)
-              _VERIFY(status)
+              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+                 call this%vdata%correct_topo(outField,rc=status)
+                 _VERIFY(status)
+              end if
               call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
               _VERIFY(status)
            end if
