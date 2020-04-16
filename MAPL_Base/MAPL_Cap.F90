@@ -112,12 +112,14 @@ contains
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
 
-         call initialize_pflogger()
+      call initialize_pflogger()
       if (cap%cap_options%logging_config /= '') then
          call logging%load_file(cap%cap_options%logging_config)
       else
-         lgr => logging%get_logger('MAPL')
-         call lgr%warning('No configure file specified for logging layer.  Using defaults.')
+         if (cap%rank == 0) then
+            lgr => logging%get_logger('MAPL')
+            call lgr%warning('No configure file specified for logging layer.  Using defaults.')
+         end if
       end if
 
       _RETURN(_SUCCESS)     

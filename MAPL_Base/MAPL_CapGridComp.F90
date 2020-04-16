@@ -97,16 +97,20 @@ contains
        allocate(cap%final_file, source=final_file)
     end if
 
-    allocate(cap%name, source=name)
+    cap%config = ESMF_ConfigCreate(rc=status)
+    _VERIFY(status)
+    call ESMF_ConfigLoadFile(cap%config,cap%cap_rc_file,rc=STATUS)
+    _VERIFY(STATUS)
 
-    cap%gc = ESMF_GridCompCreate(name='MAPL_CapGridComp', rc=status)
+    allocate(cap%name, source=name)
+    cap%gc = ESMF_GridCompCreate(name='MAPL_CapGridComp', config=cap%config, rc=status)
+    _VERIFY(status)
+
+    call MAPL_InternalStateCreate(cap%gc, meta, rc=status)
     _VERIFY(status)
 
     cap_wrapper%ptr => cap
     call ESMF_UserCompSetInternalState(cap%gc, internal_cap_name, cap_wrapper, status)
-    _VERIFY(status)
-
-    call MAPL_InternalStateCreate(cap%gc, meta, rc=status)
     _VERIFY(status)
 
   end subroutine MAPL_CapGridCompCreate
@@ -194,22 +198,10 @@ contains
 
     cap%AmIRoot = AmIRoot_
 
-    !  Open the CAP's configuration from CAP.rc
-    !------------------------------------------
-
-    cap%config = ESMF_ConfigCreate(rc = status)
-    _VERIFY(status)
-
-    call ESMF_ConfigLoadFile(cap%config, cap%cap_rc_file, rc = status)
-    _VERIFY(status)
-
     !  CAP's MAPL MetaComp
     !---------------------
     call MAPL_Set(MAPLOBJ, mapl_comm = cap%mapl_Comm, rc = status)
     _VERIFY(STATUS)
-
-    call MAPL_Set(MAPLOBJ, name='CAP', cf = cap%config, rc = status)
-    _VERIFY(status)
 
     ! Note the call to GetLogger must be _after_ the call to MAPL_Set().
     ! That call establishes the name of this component which is used in
