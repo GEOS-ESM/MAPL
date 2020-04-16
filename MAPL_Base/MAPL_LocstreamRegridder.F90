@@ -37,18 +37,23 @@ contains
       type(ESMF_RegridMethod_Flag), optional, intent(in) :: regrid_method
       integer, optional, intent(out) :: rc
 
-    
+      type(ESMF_RegridMethod_Flag) :: local_regrid_method
       type(ESMF_Field) :: src_field, dst_field
       integer :: status
 
       _UNUSED_DUMMY(unusable)
+      if (present(regrid_method)) then
+         local_regrid_method = regrid_method
+      else
+         local_regrid_method = ESMF_REGRIDMETHOD_NEAREST_STOD
+      end if
 
       src_field = ESMF_FieldCreate(grid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2],rc=status)
       _VERIFY(status)
       dst_field = ESMF_FieldCreate(locstream,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1],rc=status)
       _VERIFY(status)
       call ESMF_FieldRegridStore(srcField=src_field,dstField=dst_field, &
-           routeHandle=regridder%route_handle,regridmethod=ESMF_REGRIDMETHOD_NEAREST_STOD,rc=status)
+           routeHandle=regridder%route_handle,regridmethod=local_regrid_method,rc=status)
       _VERIFY(status)
       call ESMF_FieldDestroy(src_field,noGarbage=.true.,rc=status)
       _VERIFY(status)
