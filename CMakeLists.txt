@@ -40,6 +40,7 @@ add_subdirectory (MAPL_cfio MAPL_cfio_r4)
 add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 
 add_subdirectory (GMAO_pFIO)
+add_subdirectory (MAPL_Profiler)
 add_subdirectory (MAPL_Base)
 add_subdirectory (MAPL)
 
@@ -47,6 +48,10 @@ if (PFUNIT_FOUND)
   add_subdirectory (MAPL_pFUnit EXCLUDE_FROM_ALL)
 endif ()
 
+# Support for automated code generation
+list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+include(mapl_acg)
+add_subdirectory (Apps)
 
 # Git transition defect:
 # Uncomment the line below once the dev branch of MAPL has been brought in.

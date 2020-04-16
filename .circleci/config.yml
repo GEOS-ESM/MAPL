@@ -3,7 +3,7 @@ version: 2.1
 executors:
    gcc-build-env:
       docker:
-         - image: gmao/geos-build-env-gcc-source:6.0.4
+         - image: gmao/geos-build-env-gcc-source:6.0.10
       environment:
          OMPI_ALLOW_RUN_AS_ROOT: 1
          OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
@@ -29,7 +29,7 @@ jobs:
             command: |
                mkdir build
                cd build
-               cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug
+               cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe'
          - run:
             name: Build and install
             command: |
@@ -40,13 +40,13 @@ jobs:
             command: |
                cd build
                make -j2 pFIO_tests
-               ctest -R 'pFIO_tests$' || ctest -R 'pFIO_tests$' -VV
+               ctest -R 'pFIO_tests$' --output-on-failure
          - run:
             name: Run MAPL_Base Unit tests
             command: |
                cd build
                make -j2 MAPL_Base_tests
-               ctest -R 'MAPL_Base_tests$' || ctest -R 'MAPL_Base_tests$' -VV
+               ctest -R 'MAPL_Base_tests$' --output-on-failure
 
 workflows:
    version: 2.1
