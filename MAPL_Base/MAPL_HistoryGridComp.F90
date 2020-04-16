@@ -4598,11 +4598,12 @@ ENDDO PARSER
         bundlename = name(:i-1)
         fieldname = name(i+1:)
         call ESMF_StateGet(state,trim(bundlename),bundle,rc=status)
-        _VERIFY(STATUS)
+        _ASSERT(status==ESMF_SUCCESS,'Bundle '//trim(bundlename)//' not found')
         call ESMF_FieldBundleGet(bundle,trim(fieldname),field=field,rc=status)
-        _VERIFY(STATUS)
+        _ASSERT(status==ESMF_SUCCESS,'Field '//trim(fieldname)//' not found')
     else
        call ESMF_StateGet(state,trim(name),field,rc=status)
+        _ASSERT(status==ESMF_SUCCESS,'Field '//trim(name)//' not found')
        _VERIFY(STATUS)
     end if
 
