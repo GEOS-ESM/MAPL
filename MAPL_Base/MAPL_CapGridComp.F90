@@ -24,6 +24,7 @@ module MAPL_CapGridCompMod
   use MAPL_DirPathMod
   use pFIO
   use gFTL_StringVector
+  use pflogger, only: logging, Logger
 
   use iso_fortran_env
   
@@ -31,7 +32,6 @@ module MAPL_CapGridCompMod
   private
 
   character(*), parameter :: internal_cap_name = "InternalCapGridComp"
-  character(*), parameter :: internal_meta_comp_name = "InternalCapMetaComp"
 
   public :: MAPL_CapGridComp, MAPL_CapGridCompCreate, MAPL_CapGridComp_Wrapper
 
@@ -70,10 +70,6 @@ module MAPL_CapGridCompMod
      type(MAPL_CapGridComp), pointer :: ptr => null()
   end type MAPL_CapGridComp_Wrapper
 
-  type :: MAPL_MetaComp_Wrapper
-     type(MAPL_MetaComp), pointer :: ptr => null()
-  end type MAPL_MetaComp_Wrapper
-
   include "mpif.h"
 
   character(len=*), parameter :: Iam = __FILE__
@@ -90,7 +86,7 @@ contains
     character(len=*), optional, intent(in) :: final_file
 
     type(MAPL_CapGridComp_Wrapper) :: cap_wrapper
-    type(MAPL_MetaComp_Wrapper) :: meta_comp_wrapper
+    type(MAPL_MetaComp), pointer :: meta
     integer :: status, rc
 
     
@@ -101,18 +97,22 @@ contains
        allocate(cap%final_file, source=final_file)
     end if
 
-    allocate(cap%name, source=name)
+    cap%config = ESMF_ConfigCreate(rc=status)
+    _VERIFY(status)
+    call ESMF_ConfigLoadFile(cap%config,cap%cap_rc_file,rc=STATUS)
+    _VERIFY(STATUS)
 
-    cap%gc = ESMF_GridCompCreate(name='MAPL_CapGridComp', rc=status)
+    allocate(cap%name, source=name)
+    cap%gc = ESMF_GridCompCreate(name='MAPL_CapGridComp', config=cap%config, rc=status)
+    _VERIFY(status)
+
+    call MAPL_InternalStateCreate(cap%gc, meta, rc=status)
     _VERIFY(status)
 
     cap_wrapper%ptr => cap
     call ESMF_UserCompSetInternalState(cap%gc, internal_cap_name, cap_wrapper, status)
     _VERIFY(status)
 
-    allocate(meta_comp_wrapper%ptr)
-    call ESMF_UserCompSetInternalState(cap%gc, internal_meta_comp_name, meta_comp_wrapper, status)
-    _VERIFY(status)
   end subroutine MAPL_CapGridCompCreate
 
 
@@ -167,18 +167,20 @@ contains
     logical                      :: tend,foundPath
 
 
-    type (MAPL_MetaComp), pointer :: MAPLOBJ
+    type (MAPL_MetaComp), pointer :: maplobj
     type (MAPL_MetaComp), pointer :: CHILD_MAPLOBJ
     procedure(), pointer :: root_set_services
     type(MAPL_CapGridComp), pointer :: cap
     class(BaseProfiler), pointer :: t_p
+    class(Logger), pointer :: lgr
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
 
     cap => get_CapGridComp_from_gc(gc)
-    maplobj => get_MetaComp_from_gc(gc) 
+    call MAPL_GetObjectFromGC(gc, maplobj, rc=status)
+    _VERIFY(status)
 
     t_p => get_global_time_profiler()
 
@@ -196,23 +198,17 @@ contains
 
     cap%AmIRoot = AmIRoot_
 
-    !  Open the CAP's configuration from CAP.rc
-    !------------------------------------------
-
-    cap%config = ESMF_ConfigCreate(rc = status)
-    _VERIFY(status)
-
-    call ESMF_ConfigLoadFile(cap%config, cap%cap_rc_file, rc = status)
-    _VERIFY(status)
-
     !  CAP's MAPL MetaComp
     !---------------------
     call MAPL_Set(MAPLOBJ, mapl_comm = cap%mapl_Comm, rc = status)
     _VERIFY(STATUS)
 
-    call MAPL_Set(MAPLOBJ, name = cap%name, cf = cap%config, rc = status)
+    ! Note the call to GetLogger must be _after_ the call to MAPL_Set().
+    ! That call establishes the name of this component which is used in
+    ! retrieving this component's logger.
+    call MAPL_GetLogger(gc, lgr, rc=status)
     _VERIFY(status)
-
+    
     ! Check if user wants to use node shared memory (default is no)
     !--------------------------------------------------------------
     call MAPL_GetResource(MAPLOBJ, useShmem,  label = 'USE_SHMEM:',  default = 0, rc = status)
@@ -286,11 +282,9 @@ contains
     endif
 
     if (cap%lperp) then
-       if (AmIRoot_) then
-          if (cap%perpetual_year  /= -999 ) print *, 'Using Perpetual  Year: ', cap%perpetual_year
-          if (cap%perpetual_month /= -999 ) print *, 'Using Perpetual Month: ', cap%perpetual_month
-          if (cap%perpetual_day   /= -999 ) print *, 'Using Perpetual   Day: ', cap%perpetual_day
-       endif
+       if (cap%perpetual_year  /= -999) call lgr%info('Using Perpetual  Year: %i0', cap%perpetual_year)
+       if (cap%perpetual_month /= -999) call lgr%info('Using Perpetual Month: %i0', cap%perpetual_month)
+       if (cap%perpetual_day   /= -999) call lgr%info('Using Perpetual   Day: %i0', cap%perpetual_day)
 
        call ESMF_ClockGet(cap%clock, name = clockname, rc = status)
        clockname = trim(clockname) // '_PERPETUAL'
@@ -408,11 +402,8 @@ contains
     call ESMF_ConfigGetAttribute(cap%cf_root, value=RUN_DT, Label="RUN_DT:", rc=status)
     if (STATUS == ESMF_SUCCESS) then
        if (heartbeat_dt /= run_dt) then
-          if (AmIRoot_) then
-             print *, "ERROR: inconsistent values of HEARTBEAT_DT and RUN_DT"
-          end if
-          call ESMF_VMBarrier(CAP%VM)
-          _RETURN(ESMF_FAILURE)
+          call lgr%error('inconsistent values of HEARTBEAT_DT (%g0) and root RUN_DT (%g0)', heartbeat_dt, run_dt)
+          _FAIL('inconsistent values of HEARTBEAT_DT and RUN_DT')
        end if
     else
        call MAPL_ConfigSetAttribute(cap%cf_root, value=heartbeat_dt, Label="RUN_DT:", rc=status)
@@ -505,11 +496,8 @@ contains
     call ESMF_ConfigGetAttribute(cap%cf_ext, value=RUN_DT, Label="RUN_DT:", rc=status)
     if (STATUS == ESMF_SUCCESS) then
        if (heartbeat_dt /= run_dt) then
-          if (AmIRoot_) then
-             print *, "ERROR: inconsistent values of HEATBEAT_DT and RUN_DT", heartbeat_dt, run_dt
-          end if
-          call ESMF_VMBarrier(CAP%VM)
-          _RETURN(ESMF_FAILURE)
+          call lgr%error('inconsistent values of HEARTBEAT_DT (%g0) and ExtData RUN_DT (%g0)', heartbeat_dt, run_dt)
+          _FAIL('inconsistent values of HEARTBEAT_DT and RUN_DT')
        end if
     else
        call MAPL_ConfigSetAttribute(cap%cf_ext, value=heartbeat_dt, Label="RUN_DT:", rc=status)
@@ -781,7 +769,7 @@ contains
     integer :: status
 
     type(MAPL_CapGridComp), pointer :: cap
-    type(MAPL_MetaComp), pointer :: MAPLOBJ
+    type(MAPL_MetaComp), pointer :: maplobj
     class (BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import_state)
@@ -789,7 +777,8 @@ contains
     _UNUSED_DUMMY(clock)
     
     cap => get_CapGridComp_from_gc(gc)
-    MAPLOBJ => get_MetaComp_from_gc(gc)
+    call MAPL_GetObjectFromGC(gc, maplobj, rc=status)
+    _VERIFY(status)
 
     t_p => get_global_time_profiler()
     call t_p%start('Finalize')
@@ -958,15 +947,6 @@ contains
   end function get_CapGridComp_from_gc
 
   
-  function get_MetaComp_from_gc(gc) result(meta_comp)
-    type(ESMF_GridComp), intent(inout) :: gc
-    type(MAPL_MetaComp), pointer :: meta_comp
-    type(MAPL_MetaComp_Wrapper) :: meta_comp_wrapper
-    integer :: rc
-    call ESMF_UserCompGetInternalState(gc, internal_meta_comp_name, meta_comp_wrapper, rc)
-    meta_comp => meta_comp_wrapper%ptr
-  end function get_MetaComp_from_gc
-
   
   function get_vec_from_config(config, key) result(vec)
     type(ESMF_Config), intent(inout) :: config
@@ -1028,7 +1008,8 @@ contains
     procedure(), pointer :: root_set_services
 
     cap => get_CapGridComp_from_gc(gc)
-    MAPLOBJ => get_MetaComp_from_gc(gc)
+    call MAPL_GetObjectFromGC(gc, maplobj, rc=status)
+    _VERIFY(status)
 
     if (.not. cap%printspec > 0) then
 

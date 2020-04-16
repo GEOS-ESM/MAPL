@@ -17,6 +17,9 @@ module MAPL_CapMod
    use MAPL_Profiler
    use MAPL_ioClientsMod
    use MAPL_CapOptionsMod
+   use pflogger, only: initialize_pflogger => initialize
+   use pflogger, only: logging
+   use pflogger, only: Logger
    implicit none
    private
 
@@ -88,6 +91,7 @@ contains
       class ( MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
       integer :: status
+      type(Logger), pointer :: lgr
 
       cap%name = name
       cap%set_services => set_services
@@ -106,8 +110,17 @@ contains
       endif
 
       call cap%initialize_mpi(rc=status)
-
       _VERIFY(status)
+
+      call initialize_pflogger()
+      if (cap%cap_options%logging_config /= '') then
+         call logging%load_file(cap%cap_options%logging_config)
+      else
+         if (cap%rank == 0) then
+            lgr => logging%get_logger('MAPL')
+            call lgr%warning('No configure file specified for logging layer.  Using defaults.')
+         end if
+      end if
 
       _RETURN(_SUCCESS)     
       _UNUSED_DUMMY(unusable)
@@ -526,7 +539,7 @@ contains
 
          if (my_rank == 0) then
                report_lines = reporter%generate_report(t_p)
-               write(*,'(a,1x,i0)')'Report on process: ', rank
+               write(*,'(a,1x,i0)')'Report on process: ', my_rank
                do i = 1, size(report_lines)
                   write(*,'(a)') report_lines(i)
                end do

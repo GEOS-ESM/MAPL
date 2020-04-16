@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented workaround to cmake error that happens when building tests in parallel.	
 - Set correct ESMA_env tag in `components.yaml`
 - Updated `components.yaml` to be inline with GEOSgcm
+- Minor problem in GMAO_pFIO Cmakelists (consistency with PRIVATE)
 
 ### Removed
 
@@ -37,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add precession of equinox (not on by default)
 - Imported Python/MAPL subdir (old, but never imported to GitHub)
 - Python automatic code generator for grid comp include files	
+- Added support to use pFlogger for logging
+  - Command line option: --logging_config=<file>
 
 ## [2.0.6] - 2020-04-15
 

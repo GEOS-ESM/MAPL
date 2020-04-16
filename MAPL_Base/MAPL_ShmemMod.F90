@@ -8,6 +8,7 @@
     use, intrinsic :: ISO_C_BINDING
     use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64
     use MAPL_ErrorHandlingMod
+    use pflogger, only: logging, Logger
 
     implicit none
     private
@@ -1510,6 +1511,7 @@
 
       integer :: i1, i2
       integer, allocatable :: newNode(:)
+      class(Logger), pointer :: lgr
 
       NodeComm=MPI_COMM_NULL
       
@@ -1611,18 +1613,17 @@
                           1, MPI_INTEGER, MPI_MAX, comm, status )
       _VERIFY(STATUS)
 
+      lgr => logging%get_logger('MAPL.SHMEM')
+      
       if(rank==0) then
-         print *
-         print *, "In MAPL_Shmem:"
          if (MAPL_CoresPerNodeMin == MAPL_CoresPerNodeMax) then
-            print *, "    NumCores per Node = ", NumCores
+            call lgr%info("NumCores per Node = %i0", NumCores)
          else
-            print *, "    NumCores per Node varies from ", &
-                 MAPL_CoresPerNodeMin, " to ", MAPL_CoresPerNodeMax
+            call lgr%info("NumCores per Node varies from %i0 to %i0", &
+                 MAPL_CoresPerNodeMin, MAPL_CoresPerNodeMax)
          end if
-         print *, "    NumNodes in use   = ", NumColors
-         print *, "    Total PEs         = ", npes
-         print *
+         call lgr%info("NumNodes in use   = %i0", NumColors)
+         call lgr%info("Total PEs         = %i0", npes)
       end if
 
       deallocate(names,stat=STATUS)
@@ -1655,6 +1656,7 @@
       integer                        :: NodeRootsComm
 
       integer :: STATUS, MyColor, NumNodes, npes, rank
+      class(Logger), pointer :: lgr
 
       NodeRootsComm=MPI_COMM_NULL
 
@@ -1685,11 +1687,10 @@
          _ASSERT(MAPL_MyNodeNum == rank+1,'needs informative message')
       endif
 
+      lgr => logging%get_logger('MAPL.SHMEM')
+      
       if(rank==0) then
-         print *
-         print *, "In MAPL_InitializeShmem (NodeRootsComm):"
-         print *, "    NumNodes in use   = ", NumNodes
-         print *
+         call lgr%info("NumNodes in use  = %i0", NumNodes)
       end if
 
       _RETURN(SHM_SUCCESS)
