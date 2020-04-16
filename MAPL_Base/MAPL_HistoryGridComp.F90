@@ -2366,39 +2366,6 @@ ENDDO PARSER
              list(n)%vdata = VerticalData(rc=status)
              _VERIFY(status)
           end if
-          !async = .false.
-          !if (list(n)%format == 'CFIOasync') async = .true.
-          !pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label)) 
-          !call MAPL_CFIOCreate(                        &
-               !MCFIO      = list(n)%MCFIO,             &
-               !NAME       = trim(list(n)%filename),    &
-               !CLOCK      = clock,                     &
-               !BUNDLE     = list(n)%bundle,            &
-               !OFFSET     = IntState%stampoffset(n),   &
-               !INSTITUTION= "NASA Global Modeling and Assimilation Office", &
-               !CONTACT    = "http://gmao.gsfc.nasa.gov", &
-               !EXPID      = IntState%expid,            &
-               !SOURCE     = IntState%expsrc,           &
-               !COMMENT    = IntState%expdsc,           &
-               !OUTPUT_GRID= pgrid,       &
-               !CHUNKSIZE  = list(n)%chunksize,         &
-               !FREQUENCY  = MAPL_nsecf(list(n)%frequency),  &
-               !LEVELS     = list(n)%levels,            &
-               !DESCR      = list(n)%descr,             &
-               !XYOFFSET   = list(n)%xyoffset,          &
-               !VCOORD     = list(n)%VVARS(1),          &
-               !VUNIT      = list(n)%VUNIT,             &
-               !VSCALE     = list(n)%VSCALE,            &
-               !DEFLATE    = list(n)%deflate,           &
-               !NBITS      = list(n)%nbits,             &
-               !NUMCORES   = IntState%CoresPerNode,     &
-               !TM         = TM,                        &
-               !Conservative = list(n)%conservative,    &
-               !async      = async,                     &
-               !vectorList = list(n)%field_set%vector_list,        &
-               !itemOrder  = IntState%fileOrder,       &
-                                             !RC=status )
-          !_VERIFY(STATUS)
           call list(n)%mNewCFIO%set_param(deflation=list(n)%deflate,rc=status)
           _VERIFY(status)
           call list(n)%mNewCFIO%set_param(chunking=list(n)%chunkSize,rc=status)
@@ -2756,7 +2723,6 @@ ENDDO PARSER
     integer                        :: nlist
     character(len=ESMF_MAXSTR)     :: fntmpl
     character(len=ESMF_MAXSTR),pointer     :: filename(:)
-    character(len=ESMF_MAXSTR)     :: last_file
     integer                        :: n,m
     logical                        :: NewSeg
     logical, allocatable           :: Writing(:)
@@ -2993,8 +2959,6 @@ ENDDO PARSER
          endif
 
          if (list(n)%timeseries_output) then
-            call list(n)%trajectory%get(file_name=last_file,rc=status)
-            _VERIFY(status)
             if (list(n)%unit.eq.0) then
                if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))
                call list(n)%trajectory%close_file_handle(rc=status)
