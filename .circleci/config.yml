@@ -47,6 +47,12 @@ jobs:
                cd build
                make -j2 MAPL_Base_tests
                ctest -R 'MAPL_Base_tests$' --output-on-failure
+         - run:
+            name: Run MAPL_Profiler Unit tests
+            command: |
+               cd build
+               make -j2 MAPL_Profiler_tests
+               ctest -R 'MAPL_Profiler_tests$' --output-on-failure
 
 workflows:
    version: 2.1
