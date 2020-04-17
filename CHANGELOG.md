@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+### Fixed
+### Removed
+### Added
+
+## [2.1.0]  2020-04-16
+
+### Changed
+
+- Corrected handling of Equation of Time in orbit (off by default)
+- Made ASSERT in ExtData more explicit in case of missing variables.
+- (re) Introduced MAPL Profiling package
+- Improved diagnostic message in HistoryGridComp for misspelled fields/bundles
+- Removed CVS keywords
+
+### Fixed
+
+- Corrected Python code generator scripts for component import/export specs.
+- Add directories to `.gitignore` for building with `mepo`
+- Bug building with mixed Intel/GCC compilers
+- Implemented workaround to cmake error that happens when building tests in parallel.	
+- Set correct ESMA_env tag in `components.yaml`
+- Updated `components.yaml` to be inline with GEOSgcm
+- Minor problem in GMAO_pFIO Cmakelists (consistency with PRIVATE)
+
+### Removed
+
+- Removed support for `checkout_externals` and moved solely to `mepo`
+  - Removed `Externals.cfg`
+  - Removed `checkout_externals` code in `CMakeLists.txt`
+
+### Added
+
+- Added configuration for CircleCI and Github Actions
+  - Builds MAPL using GCC 9.2.0 and Open MPI 4.0.2
+  - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
+- Add precession of equinox (not on by default)
+- Imported Python/MAPL subdir (old, but never imported to GitHub)
+- Python automatic code generator for grid comp include files	
+- Added support to use pFlogger for logging
+  - Command line option: --logging_config=<file>
+
 ## [2.0.6] - 2020-04-15
 
 ### Fixed

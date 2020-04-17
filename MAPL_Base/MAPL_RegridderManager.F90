@@ -233,8 +233,6 @@ contains
       type (RegridderSpec) :: spec
       integer(ESMF_KIND_I8) :: id_in, id_out
 
-      type (EsmfRegridder), pointer :: esmf_regridder
-
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%initialized) then

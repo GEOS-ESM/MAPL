@@ -96,6 +96,9 @@ module MAPL_LatLonGridFactoryMod
       procedure :: append_variable_metadata
       procedure :: check_decomposition
       procedure :: generate_newnxy
+      procedure :: generate_file_bounds
+      procedure :: generate_file_reference2D
+      procedure :: generate_file_reference3D
    end type LatLonGridFactory
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_LatLonGridFactory::'
@@ -137,6 +140,8 @@ contains
 
       integer :: status
       character(*), parameter :: IAM = __FILE__
+
+      _UNUSED_DUMMY(unusable)
 
       factory%is_regular = .false.
       
@@ -333,6 +338,8 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      _UNUSED_DUMMY(unusable)
+
       longitudes = this%lon_centers
       _RETURN(_SUCCESS)
    end function get_longitudes
@@ -345,6 +352,8 @@ contains
       real(kind=REAL64), allocatable :: latitudes(:)
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(unusable)
 
       latitudes = this%lat_centers
       _RETURN(_SUCCESS)
@@ -454,6 +463,8 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      _UNUSED_DUMMY(unusable)
+
       lon_corners = this%lon_corners
       _RETURN(_SUCCESS)
 
@@ -467,6 +478,8 @@ contains
       real(kind=REAL64), allocatable :: lat_corners(:)
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(unusable)
 
       lat_corners = this%lat_corners
       _RETURN(_SUCCESS)
@@ -1376,6 +1389,8 @@ contains
       integer, optional, intent(out) :: rc
       logical :: can_decomp
       integer :: n
+      _UNUSED_DUMMY(unusable)
+
       can_decomp = .true.
       if (this%im_world==1 .and. this%jm_world==1) then
          _RETURN(_SUCCESS)
@@ -1393,6 +1408,8 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: n
+
+      _UNUSED_DUMMY(unusable)
 
       n = this%im_world/this%nx
       if (n < 2) then
@@ -1660,6 +1677,7 @@ contains
       class (LatLonGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
+      _UNUSED_DUMMY(this)
 
       vars = 'lon,lat'
 
@@ -1668,6 +1686,52 @@ contains
    subroutine append_variable_metadata(this,var)
       class (LatLonGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(var)
    end subroutine append_variable_metadata
+
+   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+      use MAPL_BaseMod
+      class(LatLonGridFactory), intent(inout) :: this
+      type(ESMF_Grid),      intent(inout) :: grid
+      integer, allocatable, intent(inout) :: local_start(:)
+      integer, allocatable, intent(inout) :: global_start(:)
+      integer, allocatable, intent(inout) :: global_count(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: global_dim(3), i1,j1,in,jn
+      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
+      _UNUSED_DUMMY(this)
+
+      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
+      _VERIFY(status)
+      call MAPL_GridGetInterior(grid,i1,in,j1,jn)
+      allocate(local_start,source=[i1,j1])
+      allocate(global_start,source=[1,1])
+      allocate(global_count,source=[global_dim(1),global_dim(2)])
+       
+      _RETURN(_SUCCESS) 
+
+   end subroutine generate_file_bounds
+
+   function generate_file_reference2D(this,fpointer) result(ref)
+      use pFIO
+      type(ArrayReference) :: ref
+      class(LatLonGridFactory), intent(inout) :: this
+      real, pointer, intent(in) :: fpointer(:,:)
+      _UNUSED_DUMMY(this)
+      ref = ArrayReference(fpointer)
+   end function generate_file_reference2D
+      
+   function generate_file_reference3D(this,fpointer) result(ref)
+      use pFIO
+      type(ArrayReference) :: ref
+      class(LatLonGridFactory), intent(inout) :: this
+      real, pointer, intent(in) :: fpointer(:,:,:)
+      _UNUSED_DUMMY(this)
+      ref = ArrayReference(fpointer)
+   end function generate_file_reference3D
+      
 
 end module MAPL_LatLonGridFactoryMod

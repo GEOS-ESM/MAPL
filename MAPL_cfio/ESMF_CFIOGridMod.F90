@@ -191,7 +191,7 @@
 !------------------------------------------------------------------------------
        integer :: rtcode  = 0
        integer :: i, j
-       integer :: sz
+       !integer :: sz
 
        _UNUSED_DUMMY(sigma)
        _UNUSED_DUMMY(reduceGrid)

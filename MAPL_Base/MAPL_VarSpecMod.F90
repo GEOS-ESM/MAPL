@@ -1,4 +1,3 @@
-!  $Id$
 
 #include "MAPL_ErrLog.h"
 
@@ -220,7 +219,7 @@ contains
     integer            , optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecCreateInList"
+
     integer                               :: STATUS
 
     type (MAPL_VarSpec ), pointer         :: TMP(:) => null()
@@ -582,7 +581,7 @@ contains
     integer, optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecAddRefFromItem"
+
     integer                               :: STATUS
 
     type (MAPL_VarSpec ), pointer         :: TMP(:) => null()
@@ -649,7 +648,7 @@ contains
     integer, optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecAddRefFromList"
+
     integer                               :: STATUS
 
     integer I
@@ -672,7 +671,7 @@ contains
     integer, optional               , intent(OUT)  :: RC
     integer                                        :: INDEX
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecGetIndexByName"
+
     integer :: I
 
 
@@ -701,7 +700,7 @@ contains
     real,    optional, pointer                     :: PTR3(:,:,:)
     integer, optional               , intent(OUT)  :: RC
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecGetDataByName"
+
     integer :: STATUS
 
     integer :: I
@@ -730,7 +729,7 @@ contains
     real,    optional, pointer                     :: PTR3(:,:,:)
     integer, optional               , intent(OUT)  :: RC
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecGetData"
+
     integer :: STATUS
 
     type(ESMF_Array) :: ARRAY
@@ -773,7 +772,7 @@ contains
     integer, optional               , intent(OUT)  :: RC
     integer                                        :: INDEX
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecGetIndexOfItem"
+
 
     integer :: I
 
@@ -803,7 +802,7 @@ contains
     integer, optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecAddFromItem"
+
     integer                               :: STATUS
 
      
@@ -851,7 +850,7 @@ contains
     integer, optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecAddFromList"
+
     integer                               :: STATUS
 
     integer I
@@ -872,7 +871,7 @@ contains
     integer            , optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecDestroy"
+
 
       if(associated(SPEC%SPECPtr)) then
        deallocate(SPEC%SPECPtr)
@@ -888,7 +887,7 @@ contains
     integer            , optional   , intent(OUT)  :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecDestroy"
+
     integer :: i
 
     if (associated(SPEC)) then
@@ -940,7 +939,7 @@ contains
     integer            , optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecSet"
+
 
       if(.not.associated(SPEC%SPECPtr)) then
        _RETURN(ESMF_FAILURE)
@@ -1038,7 +1037,7 @@ contains
     integer            , optional   , intent(  OUT)   :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecSetFieldPtr"
+
 
       if(.not.associated(SPEC%SPECPtr)) then
        _RETURN(ESMF_FAILURE)
@@ -1057,7 +1056,7 @@ contains
       integer            , optional   , intent(  OUT)   :: RC
 
 
-      character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecSetBundlePtr"
+
 
       if(.not.associated(SPEC%SPECPtr)) then
          _RETURN(ESMF_FAILURE)
@@ -1076,7 +1075,7 @@ contains
       integer            , optional   , intent(  OUT)   :: RC
 
 
-      character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecSetStatePtr"
+
 
       if(.not.associated(SPEC%SPECPtr)) then
          _RETURN(ESMF_FAILURE)
@@ -1151,7 +1150,7 @@ contains
     integer            , optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecGet"
+
 
       if(.not.associated(SPEC%SPECPtr)) then
        _RETURN(ESMF_FAILURE)
@@ -1304,7 +1303,7 @@ contains
     integer            , optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecGetFieldPtr"
+
 
       if(.not.associated(SPEC%SPECPtr)) then
        _RETURN(ESMF_FAILURE)
@@ -1323,7 +1322,7 @@ contains
     integer            , optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecGetBundlePtr"
+
 
       if(.not.associated(SPEC%SPECPtr)) then
        _RETURN(ESMF_FAILURE)
@@ -1342,7 +1341,7 @@ contains
     integer            , optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecGetStatePtr"
+
 
 
       if(.not.associated(SPEC%SPECPtr)) then
@@ -1363,7 +1362,7 @@ contains
     integer, optional   , intent(OUT)       :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecAddChildName"
+
 
     integer K
 
@@ -1383,7 +1382,7 @@ contains
     integer, optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecReconnect"
+
     integer                               :: STATUS
 
     type(ESMF_Field), pointer             :: FIELD
@@ -1502,7 +1501,7 @@ contains
     
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarConnCreate"
+
     integer                               :: STATUS
 
     type (MAPL_VarConn ), pointer         :: TMP(:) => null()
@@ -1581,7 +1580,7 @@ contains
     
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarConnGet"
+
 
 
     if(.not.associated(CONN%CONNPtr)) then
@@ -1621,7 +1620,7 @@ contains
     integer,               intent(  OUT) :: RC     ! Error code:
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarIsConnectedEE"
+
     integer                               :: I
     integer                               :: FI, TI, FE, TE
 
@@ -1677,7 +1676,7 @@ contains
     integer,           optional, intent(  OUT) :: RC     ! Error code:
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarIsConnectedIE"
+
     integer                               :: I
     integer                               :: FI, TI, FE, TE
 
@@ -1748,7 +1747,7 @@ contains
     integer,              optional, intent(OUT) :: RC     ! Error code:
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarIsListed"
+
     integer                               :: I
     integer                               :: FI, TI, FE, TE
 
@@ -1793,7 +1792,7 @@ contains
     integer            , optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecPrint"
+
     character(len=3) :: tmp
     character(len=ESMF_MAXSTR)            :: string
 
@@ -1824,7 +1823,7 @@ contains
     integer            , optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecPrintMany"
+
     integer                               :: STATUS
     integer                               :: I
 
@@ -1848,7 +1847,7 @@ contains
     integer            , optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecPrint1CSV"
+
     character(len=3)                      :: dimensions
     character(len=ESMF_MAXSTR)            :: specInfo
 
@@ -1872,7 +1871,7 @@ contains
     integer            , optional   , intent(OUT)     :: RC
 
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VarSpecPrintCSV"
+
     integer                               :: STATUS
     integer                               :: I
 
@@ -1915,7 +1914,7 @@ contains
     type (MAPL_VarSpecPtr),     pointer   :: ExSpecPtr(:)
     integer, optional,        intent(OUT) :: RC
 
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ConnCheckReq"
+
     integer                               :: I, J
     integer                               :: IMP
     integer                               :: FI

@@ -1,4 +1,3 @@
-! $Id$
 
 #ifdef NAME_
 #undef NAME_
@@ -27,7 +26,6 @@ subroutine SUB_ ( data, UNIT, ARRDES, format, RC)
   integer         ,    intent(  out),  optional :: RC
 
   character(len=ESMF_MAXSTR) :: FORMATTED
-  character(len=ESMF_MAXSTR) :: IAM='WRITE_PARALLEL'
   integer :: recl, status
 
  if(present(arrdes)) then

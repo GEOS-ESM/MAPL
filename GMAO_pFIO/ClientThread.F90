@@ -444,9 +444,6 @@ contains
    subroutine wait_all(this)
       use pFIO_AbstractRequestHandleMod
       class (ClientThread), target, intent(inout) :: this
-      integer :: request_id
-      type (IntegerRequestMapIterator) :: iter
-      integer :: status
 
       call this%clear_RequestHandle() 
       !call this%shake_hand()
