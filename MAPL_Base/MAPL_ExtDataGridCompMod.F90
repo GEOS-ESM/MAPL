@@ -2282,7 +2282,9 @@ CONTAINS
         _VERIFY(status)
         if (trim(levName) /='') then
            call metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits,coords=levFile,__RC__)
-           levUnits=MAPL_TrimString(tlevUnits)
+           ! ewl: gfortran has a problem with this function
+           !levUnits=MAPL_TrimString(tlevUnits)
+           levUnits=trim(tlevUnits)
            ! check if pressure
            item%levUnit = ESMF_UtilStringLowerCase(levUnits)
            if (trim(item%levUnit) == 'hpa' .or. trim(item%levUnit)=='pa') then
@@ -2294,7 +2296,9 @@ CONTAINS
               positive => metadata%get_variable_attribute(levName,'positive',__RC__)
               if (associated(positive)) then
                  posStr = positive
-                 if (MAPL_TrimString(posStr)=='up') item%fileVDir="up"
+                 ! ewl: gfortran has a problem with this function
+                 !if (MAPL_TrimString(posStr)=='up') item%fileVDir="up"
+                 if (trim(posStr)=='up') item%fileVDir="up"
               end if
            end if
 
