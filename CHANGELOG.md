@@ -13,11 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ## [2.1.1]  2020-04-20
-## [2.1.0]  2020-04-16
-	
+
 ### Fixed
+
 - Added a default initialization clause for pFlogger
   so that INFO messages go to console.
+
+## [2.1.0]  2020-04-16
 
 ### Changed
 
