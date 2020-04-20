@@ -578,15 +578,18 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: ierror
+      integer :: ierror, local_comm_world
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then
 #ifdef BUILD_TYPE_IS_NOT_DEBUG
+         ! MPT 2.17 has a bug with its interface to MPI_Comm_set_errhandler
+         ! defining comm as inout instead of in.
+         local_comm_world = this%comm_world
          ! Intel MPI at NCCS seems to have spurious MPI_Finalize errors that do
          ! not affect the answer or even the finalize step. This call suppresses
          ! the errors.
-         call MPI_Comm_set_errhandler(this%comm_world,MPI_ERRORS_RETURN,ierror)
+         call MPI_Comm_set_errhandler(local_comm_world,MPI_ERRORS_RETURN,ierror)
          _VERIFY(ierror)
 #endif
          call MPI_Finalize(ierror)
