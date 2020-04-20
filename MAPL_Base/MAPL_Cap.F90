@@ -119,14 +119,17 @@ contains
     contains
 
        subroutine initialize_pflogger()
-          use pflogger
+          use pflogger, only: pfl_initialize => initialize
+          use pflogger, only: StreamHandler, FileHandler, HandlerVector
+          use pflogger, only: MpiLock, MpiFormatter
+          use pflogger, only: INFO, WARNING
           use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
           type (HandlerVector) :: handlers
           type (StreamHandler) :: console
           type (FileHandler) :: file_handler
           integer :: level
           
-          call initialize()
+          call pfl_initialize_pflogger()
 
           if (cap%cap_options%logging_config /= '') then
              call logging%load_file(cap%cap_options%logging_config)
