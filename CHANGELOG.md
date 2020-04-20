@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 ### Fixed
+
+- Workaround for MPT 2.17 build bug with `MPI_Comm_set_errhandler`
+
 ### Removed
 ### Added
 
