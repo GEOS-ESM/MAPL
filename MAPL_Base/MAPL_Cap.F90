@@ -17,7 +17,6 @@ module MAPL_CapMod
    use MAPL_Profiler
    use MAPL_ioClientsMod
    use MAPL_CapOptionsMod
-   use pflogger, only: initialize_pflogger => initialize
    use pflogger, only: logging
    use pflogger, only: Logger
    implicit none
@@ -113,17 +112,55 @@ contains
       _VERIFY(status)
 
       call initialize_pflogger()
-      if (cap%cap_options%logging_config /= '') then
-         call logging%load_file(cap%cap_options%logging_config)
-      else
-         if (cap%rank == 0) then
-            lgr => logging%get_logger('MAPL')
-            call lgr%warning('No configure file specified for logging layer.  Using defaults.')
-         end if
-      end if
 
       _RETURN(_SUCCESS)     
       _UNUSED_DUMMY(unusable)
+
+    contains
+
+       subroutine initialize_pflogger()
+          use pflogger
+          use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
+          type (HandlerVector) :: handlers
+          type (StreamHandler) :: console
+          type (FileHandler) :: file_handler
+          integer :: level
+          
+          call initialize()
+
+          if (cap%cap_options%logging_config /= '') then
+             call logging%load_file(cap%cap_options%logging_config)
+          else
+
+             console = StreamHandler(OUTPUT_UNIT)
+             call console%set_level(INFO)
+             call console%set_formatter(MpiFormatter(cap%comm_world, fmt='%(short_name)a10~: %(message)a'))
+             call handlers%push_back(console)
+
+             file_handler = FileHandler('warnings_and_errors.log')
+             call file_handler%set_level(WARNING)
+             call file_handler%set_formatter(MpiFormatter(cap%comm_world, fmt='pe=%(mpi_rank)i5.5~: %(short_name)a~: %(message)a'))
+             call file_handler%set_lock(MpiLock(cap%comm_world))
+             call handlers%push_back(file_handler)
+             
+             if (cap%rank == 0) then
+                level = INFO
+             else
+                level = WARNING
+             end if
+
+             call logging%basic_config(level=level, handlers=handlers, rc=status)
+             _VERIFY(status)
+             
+             if (cap%rank == 0) then
+                lgr => logging%get_logger('MAPL')
+                call lgr%warning('No configure file specified for logging layer.  Using defaults.')
+             end if
+
+          end if
+
+       end subroutine initialize_pflogger
+     
     end function new_MAPL_Cap
 
    
