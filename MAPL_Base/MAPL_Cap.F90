@@ -129,7 +129,7 @@ contains
           type (FileHandler) :: file_handler
           integer :: level
           
-          call pfl_initialize_pflogger()
+          call pfl_initialize()
 
           if (cap%cap_options%logging_config /= '') then
              call logging%load_file(cap%cap_options%logging_config)
