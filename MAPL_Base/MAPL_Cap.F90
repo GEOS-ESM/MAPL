@@ -14,7 +14,7 @@ module MAPL_CapMod
    use MAPL_BaseMod
    use MAPL_ErrorHandlingMod
    use pFIO
-   use MAPL_Profiler
+   use MAPL_Profiler, only: get_global_time_profiler, BaseProfiler, TimeProfiler
    use MAPL_ioClientsMod
    use MAPL_CapOptionsMod
    use pflogger, only: logging
@@ -540,6 +540,7 @@ contains
       end subroutine report_throughput
 
       subroutine report_profiling(rc)
+         use MAPL_Profiler
          integer, optional, intent(out) :: rc
          type (ProfileReporter) :: reporter
          integer :: i
