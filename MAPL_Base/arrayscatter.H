@@ -1,4 +1,3 @@
-! $Id$
 
 #ifdef NAME_
 #undef NAME_
@@ -28,7 +27,6 @@
 ! Local variables
 
     integer                               :: status
-    character(len=ESMF_MAXSTR)            :: IAm='ArrayScatter'
 
     TYPE_(kind=EKIND_),    pointer        :: myglob DIMENSIONS_ => null()
     TYPE_(kind=EKIND_),    pointer        :: VAR(:)

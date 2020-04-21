@@ -8,6 +8,7 @@ module MAPL_FlapCapOptionsMod
    use MAPL_KeywordEnforcerMod
    use MAPL_ErrorHandlingMod
    use MAPL_CapOptionsMod
+   use pflogger
    implicit none
    private
 
@@ -163,6 +164,14 @@ contains
            error=status)
       _VERIFY(status)
 
+      call options%add(switch='--logging_config', &
+           help='Configuration file for logging', &
+           required=.false., &
+           def='', &
+           act='store', &
+           error=status)
+      _VERIFY(status)
+
       _RETURN(_SUCCESS)
 
    end subroutine add_command_line_options
@@ -213,6 +222,10 @@ contains
       call this%cli_options%get(val=buffer, switch='--cap_rc', error=status); _VERIFY(status)
       this%cap_rc_file = trim(buffer)
 
+      ! Logging options
+      call this%cli_options%get(val=buffer, switch='--logging_config', error=status); _VERIFY(status)
+      this%logging_config = trim(buffer)
+
     end subroutine parse_command_line_arguments
 
     subroutine set_esmf_logging_mode(this, flag_name, unusable, rc)
@@ -238,4 +251,5 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_esmf_logging_mode
+
 end module MAPL_FlapCapOptionsMod

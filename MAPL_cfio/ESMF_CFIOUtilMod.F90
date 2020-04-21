@@ -655,9 +655,11 @@
 !EOP
 !-------------------------------------------------------------------------
 
-      integer i, timeId, hour, min, sec, corner(1), timInc, incSecs
+      integer i, timeId, hour, min, sec, corner(1)
+      !integer incSecs
       integer year, month, day
-      character(len=MAXCHR) timeUnits, strTmp, dimUnits
+      character(len=MAXCHR) timeUnits, dimUnits
+      !character(len=MAXCHR) strTmp
 
       character*(MAXCHR) varName, dimName, stdName
       integer type, nvDims, vdims(MAXVDIMS), nvAtts, dimSize
@@ -668,10 +670,11 @@
       real*8    dtime, dtime_array(1)
       integer*2 itime, itime_array(1)
       integer*4 ltime, ltime_array(1)
-      integer   t1, t2, tMult, newDate, newTime
+      !integer   t1
+      integer   newDate, newTime
 
 !     We now have the possibility of a very large interval
-      integer(Kind=INT64) :: t1Long, t2Long, tMax, tMultLong, incSecsLong
+      integer(Kind=INT64) :: t1Long, t2Long, tMultLong, incSecsLong
       integer(Kind=INT64),allocatable :: incVecLong(:) ! Vector of offsets (seconds)
 
 !     Get the starting date and time
@@ -1325,8 +1328,6 @@
 !
 !EOP
 !-------------------------------------------------------------------------
-
-      integer i
 
       call ncclos (fid, rc)
       if (err("Close: error closing file",rc,-54) .NE. 0) return
@@ -2311,8 +2312,8 @@
  
       ! Local variables
  
-      integer ypos(2), mpos(2), dpos(2), hpos(2), minpos(2), spos(2)
-      integer inew, strlen
+      integer ypos(2), mpos(2), dpos(2), hpos(2), spos(2)
+      integer strlen
       integer firstdash, lastdash
       integer firstcolon, lastcolon
       integer lastspace
@@ -2865,7 +2866,7 @@
       integer corner(3), edges(3), timeIndex
       integer vid
       integer i,j,k
-      integer incSecs
+      !integer incSecs
       logical stationFile
       integer(INT64), allocatable :: incVec(:)
 
@@ -2878,7 +2879,7 @@
       integer dimSize, dimId
       integer nDims,nvars,ngatts
       integer varType, myIndex
-      integer timeShift
+      !integer timeShift
 
 ! Variables for dealing with precision
 
@@ -3240,11 +3241,11 @@
 !-------------------------------------------------------------------------
 
       integer begDate, begTime, seconds, minutes
-      integer timeShift
+      !integer timeShift
       integer corner(5), edges(5), timeIndex
       integer vid
       integer i,j,k
-      integer incSecs
+      !integer incSecs
       integer(INT64), allocatable :: incVec(:)
 
 ! Variables for working with dimensions
@@ -4049,10 +4050,9 @@
 !-------------------------------------------------------------------------
       integer year1,mon1,day1,hour1,min1,sec1
       integer year2,mon2,day2,hour2,min2,sec2
-      integer seconds1, seconds2
-      integer(kind=INT64) julian1, julian2
+      integer(kind=INT64) julian1
       integer(kind=INT64) julsec, remainder
-      character*8 dateString
+      !character*8 dateString
 
 ! Error checking.
 
@@ -4207,7 +4207,6 @@
       character*(MAXCHR) vnameTemp
       integer i
       logical surfaceOnly
-      logical noTimeInfo
       integer attType, attLen
       integer allVars            ! all variables - includes dimension vars
 

@@ -172,9 +172,10 @@ MODULE ExtDataUtRoot_GridCompMod
          integer                     :: status
          character(len=ESMF_MAXSTR)  :: comp_name
 
-         real(REAL64) :: ptop, pint
+         !real(REAL64) :: ptop, pint
          !real(REAL64), allocatable :: ak(:),bk(:)
-         integer :: ls,im,jm,lm,nx,ny,nrows, ncolumn,i
+         integer :: im,jm,lm,nx,ny,nrows, ncolumn,i
+         !integer :: ls
          type(ESMF_Grid) :: grid
          type(ESMF_Time) :: currTime
          type(SyntheticFieldSupportWrapper) :: synthWrap
@@ -279,7 +280,7 @@ MODULE ExtDataUtRoot_GridCompMod
          type (ESMF_State),         pointer  :: GEX(:)
 
          character(len=ESMF_MAXSTR)    :: Iam
-         integer                       :: STATUS,i
+         integer                       :: STATUS
          type(MAPL_MetaComp), pointer :: MAPL
          character(len=ESMF_MAXSTR)    :: comp_name
          type(SyntheticFieldSupportWrapper) :: synthWrap
@@ -518,9 +519,6 @@ MODULE ExtDataUtRoot_GridCompMod
       integer :: status
       character(len=*), parameter :: Iam=__FILE__//"::FillState"
       integer                             :: I
-      real, pointer                       :: IMptr3(:,:,:) => null()
-      real, pointer                       :: Exptr3(:,:,:) => null()
-      real, pointer                       :: IMptr2(:,:) => null()
       real, pointer                       :: Exptr2(:,:) => null()
       integer :: itemcount
       character(len=ESMF_MAXSTR), allocatable :: outNameList(:)

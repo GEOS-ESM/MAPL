@@ -19,7 +19,6 @@ set (TEST_SRCS
 
 # SRCS are mostly mocks to facilitate tests
 set (SRCS
-  pFIO_Initialize.F90
   MockServerThread.F90
   MockClientThread.F90
   MockClient.F90
@@ -27,10 +26,19 @@ set (SRCS
   MockSocket.F90
   )
 
+# This file needs to be in a library because CMake cannot detect the
+# dependency of the pFUnit driver on it.  This is due to the use of
+# preprocesor in the driver for specifying the include file.
+add_library (pfio_extras
+  pFIO_Initialize.F90
+  )
+target_link_libraries (pfio_extras PUBLIC MAPL_pFUnit)
+
+
 add_pfunit_ctest(pFIO_tests 
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
-                LINK_LIBRARIES GMAO_pFIO MAPL_pFUnit
+                LINK_LIBRARIES GMAO_pFIO pfio_extras MAPL_pFUnit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE pFIO_pFUNIT_Initialize
                 MAX_PES 8
@@ -44,7 +52,6 @@ include_directories(
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/..)
 include_directories(${include_GMAO_pFIO})
-include_directories(${include_MAPL_pFUnit})
 
 
 set(TESTO pfio_ctest_io.x)
@@ -52,7 +59,7 @@ ecbuild_add_executable (
   TARGET ${TESTO}
   PROPERTIES EXCLUDE_FROM_ALL=TRUE
   SOURCES pfio_ctest_io.F90
-  LIBS GMAO_pFIO ${NETCDF_LIBRARIES}
+  LIBS GMAO_pFIO ${NETCDF_LIBRARIES} MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
 set_target_properties(${TESTO} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 target_link_libraries(${TESTO} GMAO_pFIO ${NETCDF_LIBRARIES})
@@ -84,7 +91,7 @@ ecbuild_add_executable (
   PROPERTIES EXCLUDE_FROM_ALL=TRUE
   SOURCES pfio_performance.F90
   DEFINITIONS USE_MPI
-  LIBS GMAO_pFIO ${NETCDF_LIBRARIES})
+  LIBS GMAO_pFIO ${NETCDF_LIBRARIES} MPI::MPI_Fortran)
 set_target_properties(${TESTPERF} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 target_link_libraries(${TESTPERF} GMAO_pFIO ${NETCDF_LIBRARIES})
 

@@ -39,7 +39,6 @@ contains
       type(ESMF_DeLayout) :: layout
       type(ESMF_VM) :: vm
       integer :: status
-      character(len=ESMF_MAXSTR) :: Iam = "MAPL_GetLatLonCoord_REAL64"
 
       call ESMF_GridGetCoord (grid, coordDim=dim, localDE=0, &
                staggerloc=ESMF_STAGGERLOC_CENTER, &
@@ -87,7 +86,6 @@ contains
       type(ESMF_DeLayout) :: layout
       type(ESMF_VM) :: vm
       integer :: status
-      character(len=ESMF_MAXSTR) :: Iam = "MAPL_GetLatLonCoord_REAL32"
 
       call ESMF_GridGetCoord (grid, coordDim=dim, localDE=0, &
                staggerloc=ESMF_STAGGERLOC_CENTER, &

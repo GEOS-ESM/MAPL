@@ -133,7 +133,7 @@ contains
       integer :: status
 
       !$omp critical
-      status = nf90_create(file, NF90_NOCLOBBER + NF90_HDF5, this%ncid)
+      status = nf90_create(file, IOR(NF90_NOCLOBBER, NF90_NETCDF4), this%ncid)
       !$omp end critical
       _VERIFY(status)
 
@@ -153,6 +153,7 @@ contains
       integer :: comm_
       integer :: info_
       integer :: status
+      integer :: mode
 
       if (present(comm)) then
          comm_ = comm
@@ -170,8 +171,13 @@ contains
       this%comm = comm_
       this%info = info_
 
+      mode = NF90_NOCLOBBER
+      mode = IOR(mode, NF90_NETCDF4)
+      mode = IOR(mode, NF90_SHARE)
+      mode = IOR(mode, NF90_MPIIO)
+
       !$omp critical
-      status = nf90_create(file, NF90_NOCLOBBER + NF90_NETCDF4 + NF90_SHARE + NF90_MPIIO, comm=comm_, info=info_, ncid=this%ncid)
+      status = nf90_create(file, mode, comm=comm_, info=info_, ncid=this%ncid)
       !$omp end critical
       _VERIFY(status)
 
@@ -214,12 +220,12 @@ contains
 
       if (this%parallel) then
          !$omp critical
-         status = nf90_open(file, omode + NF90_MPIIO, comm=this%comm, info=this%info, ncid=this%ncid)
+         status = nf90_open(file, IOR(omode, NF90_MPIIO), comm=this%comm, info=this%info, ncid=this%ncid)
          !$omp end critical
          _VERIFY(status)
       else
          !$omp critical
-         status = nf90_open(file, omode + NF90_SHARE, this%ncid)
+         status = nf90_open(file, IOR(omode, NF90_SHARE), this%ncid)
          !$omp end critical
          _VERIFY(status)
       end if

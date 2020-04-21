@@ -201,10 +201,11 @@ contains
       
       type (ArrayReference) :: ref
 
-      integer :: i_var,i
+      integer :: i_var
+      !integer :: i
       integer :: lat0, lat1, nlats
       integer :: collection_id
-      character(len=4) :: tmp    
+      !character(len=4) :: tmp    
  
       lat0 = 1 + (this%rank*this%nlat)/this%npes
       lat1 = (this%rank+1)*this%nlat/this%npes
@@ -258,7 +259,6 @@ contains
 
    subroutine finalize(this)
       class (FakeExtData), intent(inout) :: this
-      integer :: ierror
       deallocate(this%bundle)
       call this%c%terminate()
    end subroutine finalize

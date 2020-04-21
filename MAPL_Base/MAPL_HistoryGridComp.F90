@@ -1,4 +1,3 @@
-! $Id$
 
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
@@ -140,7 +139,6 @@ contains
     integer, optional               :: rc     ! return code
     
     integer                         :: status
-    character(len=ESMF_MAXSTR)      :: IAm="History:SetServices" 
     type (HISTORY_wrap)             :: wrap
     type (HISTORY_STATE), pointer   :: internal_state
 
@@ -260,7 +258,6 @@ contains
 ! EOP
 
     integer                         :: status
-    character(len=ESMF_MAXSTR)      :: IAm="History:Initalize" 
 
     logical                         :: errorFound
     logical                         :: found
@@ -361,6 +358,7 @@ contains
     logical                                   :: isPresent
     real                                      :: lvl
 
+    integer                                   :: mntly
     integer                                   :: unitr, unitw
     integer                                   :: tm,resolution(2)
     logical                                   :: match, contLine
@@ -376,14 +374,13 @@ contains
 
 !   Async cfio option
     type(MAPL_Communicators)       :: mapl_comm
-    logical                        :: Async, doAsync
+    logical                        :: doAsync
 
 !   Single colum flag used to set different defalut for TM
     integer                        :: snglcol
     integer                        :: tm_default
 
 !   variable for vector handling
-    logical                        :: vectorDone
     integer                        :: idx, nvec
     character(len=ESMF_MAXSTR)     :: f1copy, f3copy
     character(len=ESMF_MAXSTR), pointer :: vectorList(:,:) => null() 
@@ -413,7 +410,7 @@ contains
     character(len=:), pointer :: key
     type(StringFieldSetMapIterator) :: field_set_iter
     character(ESMF_MAXSTR) :: field_set_name
-    integer :: nfields,collection_id
+    integer :: collection_id
 
 ! Begin
 !------
@@ -664,6 +661,8 @@ contains
     _VERIFY(STATUS)
     allocate(          Vvarn(nlist), stat=STATUS)
     _VERIFY(STATUS)
+    allocate(INTSTATE%STAMPOFFSET(nlist), stat=status)
+    _VERIFY(STATUS)
 
 ! We are parsing HISTORY config file to split each collection into separate RC
 ! ----------------------------------------------------------------------------
@@ -737,6 +736,8 @@ contains
           list(n)%disabled = .false.
        end if
        
+       list(n)%monthly = .false.
+
        cfg = ESMF_ConfigCreate(rc=STATUS)
        _VERIFY(STATUS)
 
@@ -756,6 +757,10 @@ contains
                                       label=trim(string) // 'descr:' ,rc=status )
        _VERIFY(STATUS)
 
+       call ESMF_ConfigGetAttribute ( cfg, mntly, default=0, &
+	                              label=trim(string) // 'monthly:',rc=status )
+       _VERIFY(STATUS)
+       list(n)%monthly = (mntly /= 0)
        call ESMF_ConfigGetAttribute ( cfg, list(n)%frequency, default=060000, &
 	                              label=trim(string) // 'frequency:',rc=status )
        _VERIFY(STATUS)
@@ -1152,6 +1157,9 @@ contains
        REF_TIME(4) =     list(n)%ref_time/10000
        REF_TIME(5) = mod(list(n)%ref_time,10000)/100
        REF_TIME(6) = mod(list(n)%ref_time,100)
+
+       !ALT if monthly, modify ref_time(4:6)=0
+       if (list(n)%monthly) REF_TIME(4:6) = 0
        
        call ESMF_TimeSet( RefTime, YY = REF_TIME(1), &
                                    MM = REF_TIME(2), &
@@ -1160,6 +1168,8 @@ contains
                                    M  = REF_TIME(5), &
                                    S  = REF_TIME(6), calendar=cal, rc=rc )
 
+       ! ALT if monthly, set interval "Frequncy" to 1 month
+       ! also in this case sec should be set to non-zero
        sec = MAPL_nsecf( list(n)%frequency )
        call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
        RingTime = RefTime
@@ -1179,11 +1189,21 @@ contains
           list(n)%his_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., rc=status )
        endif
        _VERIFY(STATUS)
-       
+
+       !ALT if monthly overwrite duration and frequency
+       if (list(n)%monthly) then
+          list(n)%duration = 1 !ALT simply non-zero
+       end if
        if( list(n)%duration.ne.0 ) then
-          sec = MAPL_nsecf( list(n)%duration )
-          call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
-          RingTime = RefTime + IntState%StampOffset(n)
+          if (.not.list(n)%monthly) then
+             sec = MAPL_nsecf( list(n)%duration )
+             call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
+             RingTime = RefTime
+          else
+             !ALT keep the values from above
+             ! and for debugging print
+             call WRITE_PARALLEL("DEBUG: monthly averaging is active for collection "//trim(list(n)%collection))
+          end if
           if (RingTime < currTime) then
               RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
           endif
@@ -1193,6 +1213,11 @@ contains
              list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., rc=status )
           endif
           _VERIFY(STATUS)
+          if (list(n)%monthly .and. (currTime == RingTime)) then
+             call ESMF_AlarmRingerOn( list(n)%his_alarm,rc=status )
+             _VERIFY(STATUS)
+          end if
+
        else
           ! this alarm should never ring, but it is checked if ringing
           list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, enabled=.false., &
@@ -1227,7 +1252,15 @@ contains
           list(n)%mon_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., rc=status )
        endif
        _VERIFY(STATUS)
-       
+       if(list(n)%monthly) then
+          !ALT this is temporary workaround. It has a memory leak
+          ! we need to at least destroy his_alarm before assignment
+          ! better yet, create it like this one in the first place
+          call ESMF_AlarmDestroy(list(n)%his_alarm)
+          list(n)%his_alarm = list(n)%mon_alarm
+          intState%stampOffset(n) = Frequency ! we go to the beginning of the month
+       end if
+
 ! End Alarm based on end_date and end_time
 ! ----------------------------------------
        if( list(n)%end_date.ne.-999 .and. list(n)%end_time.ne.-999 ) then
@@ -1539,6 +1572,23 @@ ENDDO PARSER
     enddo
 
     _ASSERT(.not. errorFound,'needs informative message')
+
+    allocate(INTSTATE%AVERAGE    (nlist), stat=status)
+    _VERIFY(STATUS)
+
+    IntState%average = .false.
+    do n=1, nlist
+       if (list(n)%disabled) cycle
+       if(list(n)%mode == "instantaneous" .or. list(n)%ForceOffsetZero) then
+          sec = 0
+       else
+          IntState%average(n) = .true.
+          sec = MAPL_nsecf(list(n)%acc_interval) / 2
+          if(list(n)%monthly) cycle
+       endif
+       call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, rc=status )
+       _VERIFY(STATUS)
+    end do
 
    nactual = npes
    if (.not. disableSubVmChecks) then
@@ -2155,13 +2205,13 @@ ENDDO PARSER
 !         create CC
          if (nactual == npes) then
             IntState%CCS(n) = ESMF_CplCompCreate (                  &
-                 NAME       = 'History', & 
+                 NAME       = list(n)%collection, & 
                  contextFlag = ESMF_CONTEXT_PARENT_VM,              &
                  RC=STATUS )
             _VERIFY(STATUS)
          else
             IntState%CCS(n) = ESMF_CplCompCreate (                  &
-                 NAME       = 'History', & 
+                 NAME       = list(n)%collection, & 
                  petList    = list(n)%peAve, &
                  contextFlag = ESMF_CONTEXT_OWN_VM,              &
                  RC=STATUS )
@@ -2178,6 +2228,12 @@ ENDDO PARSER
                                       INTSTATE%DSTS(n)%SPEC,RC=STATUS)
          _VERIFY(STATUS)
 
+         if (list(n)%monthly) then
+            call MAPL_CplCompSetAlarm(IntState%CCS(n), &
+                 list(n)%his_alarm, RC=STATUS)
+            _VERIFY(STATUS)
+         end if
+
 !         CCInitialize
          call ESMF_CplCompInitialize (INTSTATE%CCS(n), &
                                       importState=INTSTATE%CIM(n), &
@@ -2185,6 +2241,23 @@ ENDDO PARSER
                                       clock=CLOCK,           &
                                       userRC=STATUS)
          _VERIFY(STATUS)
+
+         if(list(n)%monthly) then
+            ! check if alarm is ringing
+            if (.not. ESMF_AlarmIsRinging ( list(n)%his_alarm )) then
+               call ESMF_CplCompReadRestart (INTSTATE%CCS(n), &
+                                             importState=INTSTATE%CIM(n), &
+                                             exportState=INTSTATE%GIM(n), &
+                                             clock=CLOCK,           &
+                                             userRC=STATUS)
+               if (status == ESMF_RC_FILE_READ) then
+                  list(n)%partial = .true.
+                  STATUS = ESMF_SUCCESS
+                  call WRITE_PARALLEL("DEBUG: no cpl restart found, producing partial month")
+               end if
+               _VERIFY(STATUS)
+            end if
+         end if
       end if
 
    end do
@@ -2679,17 +2752,14 @@ ENDDO PARSER
     type(ESMF_State)               :: state_out
     integer                        :: nymd, nhms
     character(len=ESMF_MAXSTR)     :: DateStamp
-    integer                        :: n1, n2, nn, CollBlock, scount
+    integer                        :: CollBlock
     type(MAPL_Communicators)       :: mapl_Comm
-    integer                        :: nNodes,RootRank
-    logical                        :: PrePost_
 
 !   variables for "backwards" mode
     logical                        :: fwd
     logical, allocatable           :: Ignore(:)
 
 !   ErrLog vars
-    character(len=ESMF_MAXSTR)     :: IAm="HistoryRun" 
     integer                        :: status
 
 !=============================================================================
@@ -2899,6 +2969,15 @@ ENDDO PARSER
               nymd=nymd, nhms=nhms, stat=status ) ! here is where we get the actual filename of file we will write
          _VERIFY(STATUS)
 
+         if(list(n)%monthly .and. list(n)%partial) then
+            filename(n)=trim(filename(n)) // '-partial'
+            list(n)%currentFile = filename(n)
+         end if
+
+         if( NewSeg) then 
+            list(n)%partial = .false.
+         endif
+
          if( list(n)%unit.eq.0 ) then
             if (list(n)%format == 'CFIO') then
                call list(n)%mNewCFIO%modifyTime(oClients=o_Clients,rc=status)
@@ -3067,14 +3146,12 @@ ENDDO PARSER
                                                      ! = 0 all is well
                                                      ! otherwise, error
 
-    character(len=ESMF_MAXSTR)      :: IAm="Finalize" 
     integer                         :: status
     type(HistoryCollection), pointer     :: list(:)
     type(HISTORY_wrap)              :: wrap
     type (HISTORY_STATE), pointer   :: IntState
     integer                         :: nlist, n
     type (MAPL_MetaComp), pointer :: GENSTATE
-    type(MAPL_Communicators)      :: mapl_Comm
  
 
 ! Begin...
@@ -3107,6 +3184,19 @@ ENDDO PARSER
       ELSE
          if( list(n)%unit.ne.0 ) call FREE_FILE( list(n)%unit )
       END if
+      if(list(n)%monthly) then
+         !ALT need some logic if alarm if not ringing
+         if (.not. ESMF_AlarmIsRinging ( list(n)%his_alarm )) then
+            if (.not. list(n)%partial) then
+               call ESMF_CplCompWriteRestart (INTSTATE%CCS(n), &
+                    importState=INTSTATE%CIM(n), &
+                    exportState=INTSTATE%GIM(n), &
+                    clock=CLOCK,           &
+                    userRC=STATUS)
+               _VERIFY(STATUS)
+            end if
+         end if
+      end if
    enddo
 
 #if 0
@@ -3176,7 +3266,6 @@ ENDDO PARSER
                 'JUL','AUG','SEP','OCT','NOV','DEC'/
    
    integer      :: unit,nfield
-   character(len=ESMF_MAXSTR)      :: IAm="MAPL_GradsCtlWrite" 
    integer      :: k,m,rank,status
    integer      :: year,month,day,hour,minute
    real(kind=REAL64)   LONBEG,DLON
@@ -3447,7 +3536,6 @@ ENDDO PARSER
     character*2 second
 
     integer                    :: STATUS
-    character(len=ESMF_MAXSTR) :: Iam="get_DateStamp"
 
     equivalence ( string(01),TimeString )
     equivalence ( string(01),year       )
@@ -3514,7 +3602,6 @@ ENDDO PARSER
     integer, optional        , intent(  OUT) :: RC
 
     integer                    :: STATUS
-    character(len=ESMF_MAXSTR), parameter :: Iam='RegridTransform'
 
     integer                         :: L, LM
     integer                         :: LL, LU
@@ -3646,7 +3733,6 @@ ENDDO PARSER
     integer, optional        , intent(  OUT) :: RC
 
     integer                    :: STATUS
-    character(len=ESMF_MAXSTR), parameter :: Iam='RegridTransformT2G2G'
 
     integer                         :: L, LM, K, KM
     integer                         :: I
@@ -3868,7 +3954,6 @@ ENDDO PARSER
     integer, optional        , intent(  OUT) :: RC
 
     integer                    :: STATUS
-    character(len=ESMF_MAXSTR), parameter :: Iam = "RegridTransformT2G"
 
     integer                         :: I, L, K, LM, KM
     integer                         :: rank_in
@@ -4144,7 +4229,6 @@ ENDDO PARSER
 
   integer:: i,j,m,k,status,largest_rank,iRepField,ivLoc
   logical :: ifound_vloc
-  character(len=ESMF_MAXSTR) :: Iam='MAPL_SetExpression'
   character(len=ESMF_MAXSTR) :: tmpList
   character(len=ESMF_MAXSTR) :: VarName
   integer                    :: idx
@@ -4417,7 +4501,6 @@ ENDDO PARSER
   integer, optional, intent(out) :: rc
 
 ! Local variables:
-  character(len=ESMF_MAXSTR)     :: Iam='MAPL_RunExpression'
   character(len=ESMF_MAXSTR)     :: fname,fexpr
   integer:: m,STATUS
   type(ESMF_Field) :: field
@@ -4443,7 +4526,6 @@ ENDDO PARSER
     integer, optional,intent(  out) :: rc
 
 ! Local variables:
-    character(len=ESMF_MAXSTR) :: Iam='MAPL_StateDestroy'
     integer                    :: STATUS
 
     type(ESMF_Field)                      :: field
@@ -4505,7 +4587,6 @@ ENDDO PARSER
     type(ESMF_Field), intent(inout) :: field
     integer, optional, intent(out  ) :: rc
 
-    character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_StateGet'
     integer :: status
     character(len=ESMF_MAXSTR) :: bundlename, fieldname
     type(ESMF_FieldBundle) :: bundle
@@ -4517,11 +4598,12 @@ ENDDO PARSER
         bundlename = name(:i-1)
         fieldname = name(i+1:)
         call ESMF_StateGet(state,trim(bundlename),bundle,rc=status)
-        _VERIFY(STATUS)
+        _ASSERT(status==ESMF_SUCCESS,'Bundle '//trim(bundlename)//' not found')
         call ESMF_FieldBundleGet(bundle,trim(fieldname),field=field,rc=status)
-        _VERIFY(STATUS)
+        _ASSERT(status==ESMF_SUCCESS,'Field '//trim(fieldname)//' not found')
     else
        call ESMF_StateGet(state,trim(name),field,rc=status)
+        _ASSERT(status==ESMF_SUCCESS,'Field '//trim(name)//' not found')
        _VERIFY(STATUS)
     end if
 
