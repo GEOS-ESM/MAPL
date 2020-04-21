@@ -3180,9 +3180,10 @@ and so on.
 
   end subroutine MAPL_FieldBundleDestroy
          
-  subroutine MAPL_StateAddField(State, Field, RC)
+  recursive subroutine MAPL_StateAddField(State, Field, splitField, RC)
     type(ESMF_State),  intent(inout) :: State
     type(ESMF_Field),  intent(in   ) :: Field
+    logical, optional, intent(in   ) :: splitField ! only in the 4-th dim
     integer, optional, intent(  out) :: rc
 
 ! ErrLog vars
@@ -3199,7 +3200,33 @@ and so on.
     type(ESMF_Field)                        :: Fields(1)
     logical                                 :: haveAttr
 
+    type(ESMF_Field), pointer               :: splitFields(:)
+    integer                                 :: fieldRank
+    integer                                 :: k
 
+    if (present(splitField)) then
+       if (splitField) then
+          ! check if the field rank is actually 4
+          call ESMF_FieldGet(field, dimCount=fieldRank, rc=status)
+          _VERIFY(STATUS)
+          if (fieldRank > 4) then
+             _ASSERT(.false., "Unsupported field rank")
+          end if
+          if (fieldRank == 4) then
+             call MAPL_FieldSplit(field, splitFields, RC=status)
+             _VERIFY(STATUS)
+             do k=1, size(splitFields)
+                call MAPL_StateAddField(state, splitFields(k), rc=status)
+                _VERIFY(STATUS)
+             end do
+             deallocate(splitFields)
+             _RETURN(ESMF_SUCCESS)
+          end if
+       end if
+    end if
+    !ALT: if we are here, either splitField was not present, or was .false.
+    !     or the field rank was <= 3
+    
     fields(1) = field
     call ESMF_StateAdd(state, fields, RC=status)
     _VERIFY(STATUS)
@@ -3317,10 +3344,12 @@ and so on.
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_StateAddBundle
 
-  subroutine MAPL_FieldBundleAddField(Bundle, Field, multiflag, RC)
+  recursive subroutine MAPL_FieldBundleAddField(Bundle, Field, multiflag, &
+       splitField, RC)
     type(ESMF_FieldBundle),  intent(inout) :: Bundle
     type(ESMF_Field),  intent(in   ) :: Field
     logical, optional, intent(in   ) :: multiflag
+    logical, optional, intent(in   ) :: splitField ! only in the 4-th dim
     integer, optional, intent(  out) :: rc
 
 ! ErrLog vars
@@ -3337,6 +3366,32 @@ and so on.
     type(ESMF_Field)                        :: Fields(1)
     logical                                 :: haveAttr
 
+    type(ESMF_Field), pointer               :: splitFields(:)
+    integer                                 :: fieldRank
+    integer                                 :: k
+    
+    if (present(splitField)) then
+       if (splitField) then
+          ! check if the field rank is actually 4
+          call ESMF_FieldGet(field, dimCount=fieldRank, rc=status)
+          _VERIFY(STATUS)
+          if (fieldRank > 4) then
+             _ASSERT(.false., "Unsupported field rank")
+          end if
+          if (fieldRank == 4) then
+             call MAPL_FieldSplit(field, splitFields, RC=status)
+             _VERIFY(STATUS)
+             do k=1, size(splitFields)
+                call MAPL_FieldBundleAdd(bundle, splitFields(k), rc=status)
+                _VERIFY(STATUS)
+             end do
+             deallocate(splitFields)
+             _RETURN(ESMF_SUCCESS)
+          end if
+       end if
+    end if
+    !ALT: if we are here, either splitField was not present, or was .false.
+    !     or the field rank was <= 3
 
     fields(1) = field
     call ESMF_FieldBundleAdd(Bundle, fields, multiflag=multiflag, RC=status)
@@ -4314,5 +4369,102 @@ and so on.
     _RETURN(_SUCCESS)
  end function MAPL_TrimString
 
+ subroutine MAPL_FieldSplit(field, fields, rc)
+   type(ESMF_Field),          intent(IN   ) :: field
+   type(ESMF_Field), pointer, intent(  out) :: fields(:)
+   integer, optional,         intent(  out) :: rc
+
+   ! local vars
+   integer :: status
+   integer :: k, n
+   integer :: gridRank
+
+   logical                    :: has_ungrd
+   integer                    :: ungrd_cnt
+   integer, allocatable       :: gridToFieldMap(:)
+   integer, allocatable       :: ungrd(:)
+   real, pointer              :: ptr4d(:,:,:,:) => null()
+   real, pointer              :: ptr3d(:,:,:) => null()
+   type(ESMF_Field)           :: f, fld
+   type(ESMF_Grid)            :: grid
+   type(ESMF_TypeKind_Flag)   :: tk
+   character(len=ESMF_MAXSTR) :: name
+   character(len=ESMF_MAXSTR) :: splitName
+
+   ! get ptr
+   ! loop over 4-d dim
+   ! create 3d field
+   ! put in state/bundle
+   ! end-of-loop
+   call ESMF_FieldGet(field, name=name, grid=grid, typekind=tk, rc=status)
+   _VERIFY(STATUS)
+
+   call ESMF_GridGet(GRID, dimCount=gridRank, rc=status)
+   _VERIFY(STATUS)
+   allocate(gridToFieldMap(gridRank), stat=status)
+   _VERIFY(STATUS)
+   call ESMF_FieldGet(field, gridToFieldMap=gridToFieldMap, rc=status)
+   _VERIFY(STATUS)
+
+   if (tk == ESMF_TYPEKIND_R4) then
+      !ALT: assumes 1 DE per PET
+      call ESMF_FieldGet(Field,0,ptr4D,rc=status)
+      _VERIFY(STATUS)
+      n = size(ptr4d,4)
+      allocate(fields(n), stat=status)
+      _VERIFY(STATUS)
+      n = 0
+      do k=lbound(ptr4d,4),ubound(ptr4d,4)
+         n = n+1
+         ptr3d => ptr4d(:,:,:,k)
+         ! create a new field
+         write(splitName,'(A,I3.3)') trim(name) // '_', n
+         f = MAPL_FieldCreateEmpty(name=NAME, grid=grid, rc=status)
+         _VERIFY(STATUS)
+         call ESMF_FieldEmptyComplete(F, farrayPtr=ptr3D,    &
+              datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
+              gridToFieldMap=gridToFieldMap,                      &
+              rc = status)
+         _VERIFY(STATUS)
+         ! copy attributes and adjust as necessary
+         fld = field ! shallow copy to get around intent(in/out)
+         call MAPL_FieldCopyAttributes(FIELD_IN=fld, FIELD_OUT=f, RC=status)
+         _VERIFY(STATUS)
+
+         ! adjust ungridded dims attribute (if any)
+         call ESMF_AttributeGet(F, NAME='HAS_UNGRIDDED_DIMS', value=has_ungrd, RC=STATUS)
+         _VERIFY(STATUS)
+         if (has_ungrd) then
+            call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+            _VERIFY(STATUS)
+            allocate(ungrd(UNGRD_CNT), stat=status)
+            _VERIFY(STATUS)
+            call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+            _VERIFY(STATUS)
+            call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
+            _VERIFY(STATUS)
+            if (ungrd_cnt > 1) then
+               ungrd_cnt = ungrd_cnt - 1
+               call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', &
+                    valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+               _VERIFY(STATUS)
+            else
+               has_ungrd = .false.
+               call ESMF_AttributeSet(F, NAME='HAS_UNGRIDDED_DIMS', value=has_ungrd, RC=STATUS)
+               _VERIFY(STATUS)
+            end if
+            deallocate(ungrd)
+         end if
+            
+         fields(n) = f
+      end do
+   else if (tk == ESMF_TYPEKIND_R8) then
+      _ASSERT(.false., "R8 overload not implemented yet")
+   end if
+
+   deallocate(gridToFieldMap)
+   ! fields SHOULD be deallocated by the caller!!!
+   _RETURN(ESMF_SUCCESS)
+ end subroutine MAPL_FieldSplit
 end module MAPL_BaseMod
 
