@@ -245,8 +245,10 @@ module HistoryTrajectoryMod
             end if
             if (this%times(i) .gt. current_time) exit
          enddo
-         if (found) interval(2) = interval(1)+nfound-1
-         this%previous_index = interval(2)
+         if (found) then
+            interval(2) = interval(1)+nfound-1
+            this%previous_index = interval(2)
+         end if
          _RETURN(_SUCCESS)
 
       end function get_current_interval
