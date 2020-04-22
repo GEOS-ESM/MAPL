@@ -6,6 +6,7 @@ module LocStreamFactoryMod
    use ESMF
    use MAPL_ErrorHandlingMod
    use MAPL_KeywordEnforcerMod
+   use MAPL_ConstantsMod
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -67,6 +68,8 @@ module LocStreamFactoryMod
             _VERIFY(status)
             allocate(tlats(size(this%lats)),source=this%lats,stat=status)
             _VERIFY(status)
+            tlons=tlons*MAPL_PI_R8/180.0d0
+            tlats=tlats*MAPL_PI_R8/180.0d0
          else
             local_count = 0
             allocate(tlons(0),stat=status)

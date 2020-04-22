@@ -167,8 +167,8 @@ module HistoryTrajectoryMod
          enddo
          
          call ESMF_FieldBundleGet(this%bundle,grid=grid,rc=status)
-         this%dist_locstream = this%locstream_factory%create_locstream(grid=grid,rc=status)
-         _VERIFY(status)
+         !this%dist_locstream = this%locstream_factory%create_locstream(grid=grid,rc=status)
+         !_VERIFY(status)
 
          this%number_written = 0
          this%previous_index = lbound(this%times,1)-1
@@ -364,6 +364,7 @@ module HistoryTrajectoryMod
             call this%file_handle%write(this%metadata,rc=status)
             _VERIFY(status)
          end if
+         this%number_written = 0
 
       end subroutine create_file_handle
 
