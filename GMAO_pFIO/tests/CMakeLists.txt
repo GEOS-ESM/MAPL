@@ -19,7 +19,6 @@ set (TEST_SRCS
 
 # SRCS are mostly mocks to facilitate tests
 set (SRCS
-  pFIO_Initialize.F90
   MockServerThread.F90
   MockClientThread.F90
   MockClient.F90
@@ -27,10 +26,19 @@ set (SRCS
   MockSocket.F90
   )
 
+# This file needs to be in a library because CMake cannot detect the
+# dependency of the pFUnit driver on it.  This is due to the use of
+# preprocesor in the driver for specifying the include file.
+add_library (pfio_extras
+  pFIO_Initialize.F90
+  )
+target_link_libraries (pfio_extras PUBLIC MAPL_pFUnit)
+
+
 add_pfunit_ctest(pFIO_tests 
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
-                LINK_LIBRARIES GMAO_pFIO MAPL_pFUnit
+                LINK_LIBRARIES GMAO_pFIO pfio_extras MAPL_pFUnit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE pFIO_pFUNIT_Initialize
                 MAX_PES 8
@@ -44,7 +52,6 @@ include_directories(
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/..)
 include_directories(${include_GMAO_pFIO})
-include_directories(${include_MAPL_pFUnit})
 
 
 set(TESTO pfio_ctest_io.x)

@@ -471,6 +471,8 @@ CONTAINS
     end if
 
     if (.not.self%active) then
+       call MAPL_TimerOff(MAPLSTATE,"Initialize")
+       call MAPL_TimerOff(MAPLSTATE,"TOTAL")
        _RETURN(ESMF_SUCCESS)
     end if
 
@@ -4506,7 +4508,7 @@ CONTAINS
       type(ESMF_Field) :: Field,field1,field2
       real, pointer    :: ptr(:,:,:)
       real, allocatable :: ptemp(:,:,:)
-      integer :: lm
+      integer :: ls, le
 
       if (item%isVector) then
 
@@ -4522,13 +4524,14 @@ CONTAINS
          _VERIFY(STATUS)
          allocate(ptemp,source=ptr,stat=status)
          _VERIFY(status)
-         lm = size(ptr,3)
-         ptr(:,:,lm:1:-1) = ptemp(:,:,1:lm:+1)
+         ls = lbound(ptr,3)
+         le = ubound(ptr,3)
+         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
          call ESMF_FieldGet(Field2,0,farrayPtr=ptr,rc=status)
          _VERIFY(STATUS)
          ptemp=ptr
-         ptr(:,:,lm:1:-1) = ptemp(:,:,1:lm:+1)
+         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
          deallocate(ptemp)
 
@@ -4544,8 +4547,9 @@ CONTAINS
          _VERIFY(STATUS)
          allocate(ptemp,source=ptr,stat=status)
          _VERIFY(status)
-         lm = size(ptr,3)
-         ptr(:,:,lm:1:-1) = ptemp(:,:,1:lm:+1)
+         ls = lbound(ptr,3)
+         le = ubound(ptr,3)
+         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
          deallocate(ptemp)
       end if
 

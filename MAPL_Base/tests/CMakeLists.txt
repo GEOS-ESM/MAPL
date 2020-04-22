@@ -17,17 +17,27 @@ set (TEST_SRCS
 
 # SRCS are mostly mocks to facilitate tests
 set (SRCS
-  MAPL_Initialize.F90
   MockGridFactory.F90
   MockRegridder.F90
   )
 
+# This file needs to be in a library because CMake cannot detect the
+# dependency of the pFUnit driver on it.  This is due to the use of
+# preprocesor in the driver for specifying the include file.
+add_library (base_extras
+  MAPL_Initialize.F90
+  )
+target_link_libraries (base_extras PUBLIC ${ESMF_LIBRARIES} MAPL_Base MAPL_pFUnit)
+target_include_directories (base_extras PUBLIC ${INC_ESMF})
+target_include_directories (base_extras PUBLIC ${INC_NETCDF})
+
+
 add_pfunit_ctest(MAPL_Base_tests 
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
-                LINK_LIBRARIES MAPL_Base GMAO_pFIO MAPL_pFUnit
+                LINK_LIBRARIES MAPL_Base GMAO_pFIO base_extras MAPL_pFUnit
                 EXTRA_INITIALIZE Initialize
-                EXTRA_USE MAPL_pFUNIT_Initialize
+                EXTRA_USE MAPL_pFUnit_Initialize
                 MAX_PES 8
                 )
 

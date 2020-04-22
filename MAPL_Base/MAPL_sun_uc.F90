@@ -1,4 +1,3 @@
-! $Id$
 
 #include "MAPL_ErrLog.h"
 
@@ -38,6 +37,8 @@ module MAPL_SunMod
   public MAPL_SunOrbitQuery
   public MAPL_SunGetInsolation
   public MAPL_SunGetSolarConstant
+  public MAPL_SunGetDaylightDuration
+  public MAPL_SunGetDaylightDurationMax
 
 ! !PUBLIC TYPES:
 
@@ -68,6 +69,7 @@ module MAPL_SunMod
 
   type MAPL_SunOrbit
      private
+     logical                          :: CREATED = .FALSE.
      type(ESMF_Clock)                 :: CLOCK
      real                             :: OB, ECC, PER, YEARLEN
      integer                          :: EQNX, YEARS_PER_CYCLE, DAYS_PER_CYCLE
@@ -76,10 +78,99 @@ module MAPL_SunMod
      real, pointer, dimension(:)      :: PP => null()
      real, pointer, dimension(:)      :: TH => null()
      real, pointer, dimension(:)      :: ET => null()
+     logical                          :: EOT
      logical                          :: FIX_SUN
+     logical                          :: ANAL2B
+     real                             :: ORB2B_YEARLEN
+     type(ESMF_Time)                  :: ORB2B_TIME_REF
+     real                             :: ORB2B_ECC_REF
+     real                             :: ORB2B_ECC_RATE
+     real                             :: ORB2B_OBQ_REF
+     real                             :: ORB2B_OBQ_RATE
+     real                             :: ORB2B_LAMBDAP_REF
+     real                             :: ORB2B_LAMBDAP_RATE
+     type(ESMF_Time)                  :: ORB2B_TIME_EQUINOX
+     real                             :: ORB2B_OMG0
+     type(ESMF_Time)                  :: ORB2B_TIME_PERI
   end type MAPL_SunOrbit
 
 contains
+
+!==========================================================================
+      ! utlity functions
+
+      ! rectify to [-pi,+pi)
+      function RECT_PMPI(X) 
+        real :: X, RECT_PMPI
+        RECT_PMPI = MODULO( X + MAPL_PI, 2*MAPL_PI ) - MAPL_PI
+      end function
+
+      ! true anomaly from eccentric anomaly
+      function calcTAfromEA(EA,EAFAC) result(TA)
+        real :: EA, EAFAC, TA
+        TA = 2. * atan( tan(EA / 2.) / EAFAC)
+      end function 
+
+      ! eccentric anomaly from true anomaly
+      function calcEAfromTA(TA,EAFAC) result(EA)
+        real :: TA, EAFAC, EA
+        EA = 2. * atan( EAFAC * tan(TA / 2.))
+      end function 
+
+      ! mean anomaly from eccentric anomaly (Kepler's equation)
+      function calcMAfromEA(EA,ECC) result(MA)
+        real :: EA, ECC, MA
+        MA = EA - ECC * sin(EA)
+      end function 
+
+      ! eccentric anomaly from mean anomaly
+      ! (invert Kepler's equation by Newton-Raphson)
+      subroutine invert_Keplers_Newton( &
+          MA, ECC, &
+          EA, dE, nits, &
+          tol, max_its)
+
+        real,              intent(in ) :: MA
+        real,              intent(in ) :: ECC
+
+        real,              intent(out) :: EA
+        real,              intent(out) :: dE
+        integer,           intent(out) :: nits
+
+        real,    optional, intent(in ) :: tol
+        integer, optional, intent(in ) :: max_its
+
+        real :: f, df, tol_
+        integer :: max_its_
+
+        if (present(tol)) then
+          tol_ = tol
+        else
+          tol_ = 1.e-10
+        endif
+
+        if (present(max_its)) then
+          max_its_ = max_its
+        else
+          max_its_ = 10
+        endif
+
+        EA = MA
+        do nits = 1, max_its_
+          f = EA - ECC * sin(EA) - MA
+          df = 1. - ECC * cos(EA)
+          dE = -f / df
+          EA = EA + dE
+          if (abs(dE) < tol_) exit
+        enddo
+
+      end subroutine
+
+      ! Earth-Sun distance from true anomaly
+      function calcRadfromTA(TA,ECC,OMSQECC) result(Rad)
+        real :: TA, ECC, OMSQECC, Rad
+        Rad = OMSQECC / (1. + ECC * cos(TA))
+      end function
 
 !==========================================================================
 
@@ -124,20 +215,92 @@ contains
 !%   \item[]
 !\makebox[2in][l]{\bf \em EQUINOX}
 !                   \parbox[t]{4in}{Day of year of vernal equinox.
-!                   Equinox is assumed to occur at 0Z on this day
-!                   on the first year of the cycle.}
+!                   Equinox is assumed to occur at 0Z on this day on the
+!                   first year of the cycle.}
+!%   \item[]
+!\makebox[2in][l]{\bf \em EOT}
+!                   \parbox[t]{4in}{Apply Equation of Time correction?}
+!
+!%   \item[]
+!\makebox[2in][l]{\bf \em ORBIT\_ANAL2B}
+!                   \parbox[t]{4in}{New orbital system (analytic two-body) allows some
+!                   time-varying behavior, namely, linear time variation in LAMBDAP,
+!                   ECC, and OBQ. If .TRUE., the following ORB2B parameters are used
+!                   and only CLOCK and EOT above are used, i.e., the ECCENTRICITY,
+!                   OBLIQUITY, PERIHELION and EQUINOX above are NOT used and are
+!                   replaced by the relevant ORB2B parameters below.}
+!
+!%   \item[]
+!\makebox[2in][l]{\bf \em ORB2B\_YEARLEN}
+!                   \parbox[t]{4in}{Fixed anomalistic year length in mean solar days.}
+!
+!%   \item[]
+!\makebox[2in][l]{\bf \em ORB2B\_REF\_YYYYMMDD}
+!                   \parbox[t]{4in}{Reference date for orbital parameters.}
+!
+!%   \item[]
+!\makebox[2in][l]{\bf \em ORB2B\_REF\_HHMMSS}
+!                   \parbox[t]{4in}{Reference time for orbital parameters.}
+!
+!%   \item[]
+!\makebox[2in][l]{\bf \em ORB2B\_ECC\_REF}
+!                   \parbox[t]{4in}{Orbital eccentricity at reference date.}
+!
+!%   \item[]
+!\makebox[2in][l]{\bf \em ORB2B\_ECC\_RATE}
+!                   \parbox[t]{4in}{Rate of change of orbital eccentricity per Julian century.}
+!
+!%   \item[]
+!\makebox[2in][l]{\bf \em ORB2B\_OBQ\_REF}
+!                   \parbox[t]{4in}{Earth's obliquity (axial tilt) at reference date [degrees].}
+!
+!%   \item[]
+!\makebox[2in][l]{\bf \em ORB2B\_OBQ\_RATE}
+!                   \parbox[t]{4in}{Rate of change of obliquity [degrees per Julian century].}
+!
+!%   \item[]
+!\makebox[2in][l]{\bf \em ORB2B\_LAMBDAP\_REF}
+!                   \parbox[t]{4in}{Longitude of perihelion at reference date [degrees]
+!                   (from March equinox to perihelion in direction of earth's motion).}
+!
+!%   \item[]
+!\makebox[2in][l]{\bf \em ORB2B\_LAMBDAP\_RATE}
+!                   \parbox[t]{4in}{Rate of change of LAMBDAP [degrees per Julian century]
+!                   (Combines both equatorial and ecliptic precession).}
+!
+!%   \item[]
+!\makebox[2in][l]{\bf \em ORB2B\_EQUINOX\_YYYYMMDD}
+!                   \parbox[t]{4in}{March equinox date.}
+!
+!%   \item[]
+!\makebox[2in][l]{\bf \em ORB2B\_EQUINOX\_HHMMSS}
+!                   \parbox[t]{4in}{March equinox time.}
+!
 !% \end{itemize}
 !
 
 ! !INTERFACE:
 
-type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,        &
-                                                 ECCENTRICITY, &
-                                                 OBLIQUITY,    &
-                                                 PERIHELION,   &
-                                                 EQUINOX,      &
-                                                 FIX_SUN,      &
-                                                            RC )
+type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
+                                                 ECCENTRICITY,           &
+                                                 OBLIQUITY,              &
+                                                 PERIHELION,             &
+                                                 EQUINOX,                &
+                                                 EOT,                    &
+                                                 ORBIT_ANAL2B,           &
+                                                 ORB2B_YEARLEN,          &
+                                                 ORB2B_REF_YYYYMMDD,     &
+                                                 ORB2B_REF_HHMMSS,       &
+                                                 ORB2B_ECC_REF,          &
+                                                 ORB2B_ECC_RATE,         &
+                                                 ORB2B_OBQ_REF,          &
+                                                 ORB2B_OBQ_RATE,         &
+                                                 ORB2B_LAMBDAP_REF,      &
+                                                 ORB2B_LAMBDAP_RATE,     &
+                                                 ORB2B_EQUINOX_YYYYMMDD, &
+                                                 ORB2B_EQUINOX_HHMMSS,   &
+                                                 FIX_SUN,                &
+                                                                      RC )
 
 ! !ARGUMENTS:
 
@@ -146,132 +309,23 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,        &
  real              , intent(IN ) :: OBLIQUITY
  real              , intent(IN ) :: PERIHELION
  integer           , intent(IN ) :: EQUINOX
+ logical           , intent(IN ) :: EOT
+ logical           , intent(IN ) :: ORBIT_ANAL2B
+ real              , intent(IN ) :: ORB2B_YEARLEN
+ integer           , intent(IN ) :: ORB2B_REF_YYYYMMDD
+ integer           , intent(IN ) :: ORB2B_REF_HHMMSS
+ real              , intent(IN ) :: ORB2B_ECC_REF
+ real              , intent(IN ) :: ORB2B_ECC_RATE
+ real              , intent(IN ) :: ORB2B_OBQ_REF
+ real              , intent(IN ) :: ORB2B_OBQ_RATE
+ real              , intent(IN ) :: ORB2B_LAMBDAP_REF
+ real              , intent(IN ) :: ORB2B_LAMBDAP_RATE
+ integer           , intent(IN ) :: ORB2B_EQUINOX_YYYYMMDD
+ integer           , intent(IN ) :: ORB2B_EQUINOX_HHMMSS
  logical, optional , intent(IN ) :: FIX_SUN
  integer, optional , intent(OUT) :: RC
 
 !EOPI
-
-! Locals
-
-      character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitCreate"
-
-      real*8  :: YEARLEN
-      integer :: K, KP, YEARS_PER_CYCLE, DAYS_PER_CYCLE
-      real*8  :: TREL, T1, T2, T3, T4, dTRELdDAY
-      real*8  :: SOB, COB, OMG0, OMG, PRH, PRHV
-      real    :: D2R, OMECC, OPECC, OMSQECC, EAFAC
-      real*8  :: X, TA, EA, MA, TRRA, MNRA
-      real    :: rect_pmpi, meanEOT
-      type(MAPL_SunOrbit) :: ORBIT
-      integer :: STATUS
-
-! STATEMENT FUNC: dTREL/dDAY(TREL),
-! where TREL is ecliptic longitude of true Sun
-
-      dTRELdDAY(TREL) = OMG*(1.0-ECCENTRICITY*cos(TREL-PRH))**2
-
-! STATEMENT FUNC: rectify to real [-pi,+pi)
-      rect_pmpi(X) = MODULO( REAL(X) + MAPL_PI, 2*MAPL_PI ) - MAPL_PI
-
-! TEMP pmn
-! @ Toms's equinox is: 80 + 7.5/24
-! but this method requires an integer so we'll use 80.
-! Actually in THIS code, EQUINOX is only used to set the KP
-! at which the TREL is zero. So although its 80 here, outside
-! this code, namely in SunGetInsolation where we interpolate
-! between days, we should regard the daily value as at 7h30m
-! AM. But thats an external issue and wont affect this code.
-! But when doing diagnostic tests, we must regard index 80 as
-! being 80d7h30m = Mar 20, 7:30 AM UTC (2000 IS a leap year).
-! @ Similarly, it is assumed EXTERNALLY that the first three
-! years of the cycle are non-leap, and the last leap. This
-! won't affect this code.
-! TODO: add real EQUINOX_FRAC, fractional day past 0Z,
-! defaulting to zero in the resource read. Above case
-! would be EQUINOX_FRAC = 0.3125
-! end TEMP pmn
-
-!MJS:  This needs to come from the calendar when the time manager works right.
-
-      YEARLEN = 365.25
-
-      ! Factors involving the orbital parameters
-      !-----------------------------------------
-      OMECC = 1. - ECCENTRICITY
-      OPECC = 1. + ECCENTRICITY
-      OMSQECC = 1. - ECCENTRICITY**2 ! pmn: consider changing to line below when zero-diff not issue
-!     OMSQECC = OMECC * OPECC
-      EAFAC = sqrt(OMECC/OPECC)
-
-      D2R  = MAPL_PI/180.
-      OMG0 = 2.*MAPL_PI/YEARLEN
-      OMG  = OMG0/sqrt(OMSQECC)**3
-      PRH  = PERIHELION*D2R
-      SOB  = sin(OBLIQUITY*D2R)
-      COB  = cos(OBLIQUITY*D2R)
-
-      ! PRH is the ecliptic longitude of the perihelion, measured (at the Sun)
-      ! from the autumnal equinox in the direction of the Earth`s orbital motion
-      ! (counterclockwise as viewed from ecliptic north pole).
-      ! For EOT calculations we will reference the perihelion wrt to the vernal
-      ! equinox, PRHV. Of course, the difference is just PI.
-      ! pmn: once the EOT code is established and zero-diff not an issue, 
-      !   consider removing original PRH and changing the original (non-EOT),
-      !   code, which employs
-      !       cos(Y \pm PI) = -COS(Y)
-      ! to use PRHV, namely
-      !       -cos(Y-PRH) = cos(Y-PRH-PI) = cos(Y-PRHV)
-      PRHV = PRH + MAPL_PI_R8
-
-      ! Compute length of leap cycle
-      ! ----------------------------
-      if(YEARLEN-int(YEARLEN) > 0.) then
-       YEARS_PER_CYCLE = nint(1./(YEARLEN-int(YEARLEN)))
-      else
-       YEARS_PER_CYCLE = 1
-      endif
-
-      DAYS_PER_CYCLE=nint(YEARLEN*YEARS_PER_CYCLE)
-
-      ! save inputs and intercalculation details
-      ! ----------------------------------------
-      ORBIT%CLOCK           = CLOCK
-      ORBIT%OB              = OBLIQUITY
-      ORBIT%ECC             = ECCENTRICITY
-      ORBIT%PER             = PERIHELION
-      ORBIT%EQNX            = EQUINOX
-      ORBIT%YEARLEN         = YEARLEN
-      ORBIT%YEARS_PER_CYCLE = YEARS_PER_CYCLE
-      ORBIT%DAYS_PER_CYCLE  = DAYS_PER_CYCLE
-
-      ! Allocate orbital cycle outputs
-      ! ------------------------------
-      ! TH: Ecliptic longitude of the true Sun, TREL [radians]
-      ! ZS: Sine of declination
-      ! ZC: Cosine of declination
-      ! PP: Inverse of square of earth-sun distance [1/(AU**2)]
-      ! ET: Equation of time [radians] =
-      !     True solar hour angle - Mean solar hour angle
-
-      if(associated(ORBIT%TH)) deallocate(ORBIT%TH)
-      allocate(ORBIT%TH(DAYS_PER_CYCLE), stat=status)
-      _VERIFY(STATUS)
- 
-      if(associated(ORBIT%ZC)) deallocate(ORBIT%ZC)
-      allocate(ORBIT%ZC(DAYS_PER_CYCLE), stat=status)
-      _VERIFY(STATUS)
-
-      if(associated(ORBIT%ZS)) deallocate(ORBIT%ZS)
-      allocate(ORBIT%ZS(DAYS_PER_CYCLE), stat=status)
-      _VERIFY(STATUS)
-
-      if(associated(ORBIT%PP)) deallocate(ORBIT%PP)
-      allocate(ORBIT%PP(DAYS_PER_CYCLE), stat=status)
-      _VERIFY(STATUS)
-
-      if(associated(ORBIT%ET)) deallocate(ORBIT%ET)
-      allocate(ORBIT%ET(DAYS_PER_CYCLE), stat=status)
-      VERIFY_(STATUS)
 
 ! =======================================
 ! PMN Dec 2019: Notes on Equation of Time
@@ -457,55 +511,233 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,        &
 ! where PRHV is the name for lamba_P in the code.
 ! ===========================================================================
 
-      ! Begin integration at the vernal equinox (K=1, KP=EQUINOX), at
-      ! which, by defn, the ecliptic longitude of the true sun is zero.
-      ! Right ascension at true sun at EQUINOX is also zero by defn.
-      ! --------------------------------------------------------------
-      KP           = EQUINOX
-      TREL         = 0.
-      ORBIT%ZS(KP) = sin(TREL)*SOB
-      ORBIT%ZC(KP) = sqrt(1.-ORBIT%ZS(KP)**2)
-      ORBIT%PP(KP) = ( (1.-ECCENTRICITY*cos(TREL-PRH)) / OMSQECC )**2
-      ORBIT%TH(KP) = TREL
-      TRRA = 0.
+! Locals
 
-      ! Right ascension of "mean sun" = MA(u) + PRHV [eqn (6) above].
-      ! Calcn of True (TA), Eccentric (EA), and Mean Anomaly (MA).
-      TA = TREL - PRHV                    ! by defn of TA and PRHV
-      EA = 2.d0*atan(EAFAC*tan(TA/2.d0))  ! BM 4-55
-      MA = EA - ECCENTRICITY*sin(EA)      ! Kepler's eqn (BM 4-49 ff.)
-      MNRA = MA + PRHV
+      character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitCreate"
 
-      ! Equation of Time, ET [radians]
-      ! True Solar hour angle = Mean Solar hour angle + ET
-      ! (hour angle and right ascension are in reverse direction)
-      ORBIT%ET(KP) = rect_pmpi(MNRA - TRRA)
+      real*8  :: YEARLEN
+      integer :: K, KP, YEARS_PER_CYCLE, DAYS_PER_CYCLE
+      real*8  :: TREL, T1, T2, T3, T4, dTRELdDAY
+      real*8  :: SOB, COB, OMG0, OMG, PRH, PRHV
+      real    :: D2R, OMECC, OPECC, OMSQECC, EAFAC
+      real*8  :: X, TA, EA, MA, TRRA, MNRA
+      real    :: meanEOT
+      type(MAPL_SunOrbit) :: ORBIT
+      integer :: STATUS
 
-!  Integrate orbit for entire leap cycle using Runge-Kutta
-!  Mean sun moves at constant speed around Celestial Equator
+      integer :: year, month, day, hour, minute, second
+      real(ESMF_KIND_R8) :: days
+      real :: ECC_EQNX, LAMBDAP_EQNX, EAFAC_EQNX
+      real :: TA_EQNX, EA_EQNX, MA_EQNX
+      type(ESMF_TimeInterval) :: DT
 
-      do K=2,DAYS_PER_CYCLE
-        T1 = dTRELdDAY(TREL       )
-        T2 = dTRELdDAY(TREL+T1*0.5)
-        T3 = dTRELdDAY(TREL+T2*0.5)
-        T4 = dTRELdDAY(TREL+T3    )
-        KP = mod(KP,DAYS_PER_CYCLE) + 1
-        TREL = TREL + (T1 + 2.0*(T2 + T3) + T4) / 6.0
+      ! STATEMENT FUNC: dTREL/dDAY(TREL),
+      !   where TREL is ecliptic longitude of true Sun
+      dTRELdDAY(TREL) = OMG*(1.0-ECCENTRICITY*cos(TREL-PRH))**2
+
+      ! useful constants
+      D2R  = MAPL_PI / 180.
+
+      ! record inputs needed by both orbit methods
+      ORBIT%CLOCK  = CLOCK
+      ORBIT%EOT    = EOT
+      ORBIT%ANAL2B = ORBIT_ANAL2B
+
+      ! Analytic two-body orbit?
+      if (ORBIT_ANAL2B) then
+
+        ! record inputs in ORBIT type
+        ORBIT%ORB2B_YEARLEN      = ORB2B_YEARLEN
+        ORBIT%ORB2B_ECC_REF      = ORB2B_ECC_REF
+        ORBIT%ORB2B_OBQ_REF      = ORB2B_OBQ_REF      * D2R           ! radians
+        ORBIT%ORB2B_LAMBDAP_REF  = ORB2B_LAMBDAP_REF  * D2R           ! radians
+        ORBIT%ORB2B_ECC_RATE     = ORB2B_ECC_RATE           / 36525.  ! per day
+        ORBIT%ORB2B_OBQ_RATE     = ORB2B_OBQ_RATE     * D2R / 36525.  ! radians per day
+        ORBIT%ORB2B_LAMBDAP_RATE = ORB2B_LAMBDAP_RATE * D2R / 36525.  ! radians per day
+        ! record MAPL Time object for REFerence time
+        year   = ORB2B_REF_YYYYMMDD / 10000
+        month  = mod(ORB2B_REF_YYYYMMDD, 10000) / 100
+        day    = mod(ORB2B_REF_YYYYMMDD, 100)
+        hour   = ORB2B_REF_HHMMSS / 10000
+        minute = mod(ORB2B_REF_HHMMSS, 10000) / 100
+        second = mod(ORB2B_REF_HHMMSS, 100)
+        call ESMF_TimeSet(ORBIT%ORB2B_TIME_REF, &
+          yy=year, mm=month, dd=day, h=hour, m=minute, s=second, rc=STATUS)
+        _VERIFY(STATUS)
+        ! record MAPL Time object for EQUINOX
+        year   = ORB2B_EQUINOX_YYYYMMDD / 10000
+        month  = mod(ORB2B_EQUINOX_YYYYMMDD, 10000) / 100
+        day    = mod(ORB2B_EQUINOX_YYYYMMDD, 100)
+        hour   = ORB2B_EQUINOX_HHMMSS / 10000
+        minute = mod(ORB2B_EQUINOX_HHMMSS, 10000) / 100
+        second = mod(ORB2B_EQUINOX_HHMMSS, 100)
+        call ESMF_TimeSet(ORBIT%ORB2B_TIME_EQUINOX, &
+          yy=year, mm=month, dd=day, h=hour, m=minute, s=second, rc=STATUS)
+        _VERIFY(STATUS)
+
+        ! time-invariant precalculations
+        ORBIT%ORB2B_OMG0 = 2. * MAPL_PI / ORB2B_YEARLEN
+
+        ! at provided ORB2B_TIME_EQUINOX LAMBDA=0 by definition
+        call ESMF_TimeIntervalGet( &
+          ORBIT%ORB2B_TIME_EQUINOX - ORBIT%ORB2B_TIME_REF, &
+          d_r8=days, rc=STATUS)
+        _VERIFY(STATUS)
+        ECC_EQNX = ORBIT%ORB2B_ECC_REF + days * ORBIT%ORB2B_ECC_RATE
+        LAMBDAP_EQNX = ORBIT%ORB2B_LAMBDAP_REF + days * ORBIT%ORB2B_LAMBDAP_RATE
+        EAFAC_EQNX = sqrt((1.-ECC_EQNX)/(1.+ECC_EQNX))
+        TA_EQNX = -LAMBDAP_EQNX  ! since LAMBDA=0
+        EA_EQNX = calcEAfromTA(TA_EQNX,EAFAC_EQNX)
+        MA_EQNX = calcMAfromEA(EA_EQNX,ECC_EQNX)
+
+        ! Time of one perihelion (all subsequent ORB2B_YEARLEN apart)
+        call ESMF_TimeIntervalSet(DT, d_r8 = dble(MA_EQNX / ORBIT%ORB2B_OMG0))
+        ORBIT%ORB2B_TIME_PERI = ORBIT%ORB2B_TIME_EQUINOX - DT
+
+      else
+
+        ! ==================================
+        ! Standard tabularized intercalation
+        ! ==================================
+
+        ! MJS:  This needs to come from the calendar when the time manager works right.
+        YEARLEN = 365.25
+
+        ! Factors involving the orbital parameters
+        !-----------------------------------------
+        OMECC = 1. - ECCENTRICITY
+        OPECC = 1. + ECCENTRICITY
+        OMSQECC = 1. - ECCENTRICITY**2 ! pmn: consider changing to line below when zero-diff not issue
+!       OMSQECC = OMECC * OPECC
+        EAFAC = sqrt(OMECC/OPECC)
+
+        OMG0 = 2.*MAPL_PI/YEARLEN
+        OMG  = OMG0/sqrt(OMSQECC)**3
+        PRH  = PERIHELION*D2R
+        SOB  = sin(OBLIQUITY*D2R)
+        COB  = cos(OBLIQUITY*D2R)
+
+        ! PRH is the ecliptic longitude of the perihelion, measured (at the Sun)
+        ! from the autumnal equinox in the direction of the Earth`s orbital motion
+        ! (counterclockwise as viewed from ecliptic north pole).
+        ! For EOT calculations we will reference the perihelion wrt to the vernal
+        ! equinox, PRHV. Of course, the difference is just PI.
+        ! pmn: once the EOT code is established and zero-diff not an issue, 
+        !   consider removing original PRH and changing the original (non-EOT),
+        !   code, which employs
+        !       cos(Y \pm PI) = -COS(Y)
+        ! to use PRHV, namely
+        !       -cos(Y-PRH) = cos(Y-PRH-PI) = cos(Y-PRHV)
+        PRHV = PRH + MAPL_PI_R8
+
+        ! Compute length of leap cycle
+        ! ----------------------------
+        if(YEARLEN-int(YEARLEN) > 0.) then
+         YEARS_PER_CYCLE = nint(1./(YEARLEN-int(YEARLEN)))
+        else
+         YEARS_PER_CYCLE = 1
+        endif
+
+        DAYS_PER_CYCLE=nint(YEARLEN*YEARS_PER_CYCLE)
+
+        ! save inputs and intercalculation details
+        ! ----------------------------------------
+        ORBIT%OB              = OBLIQUITY
+        ORBIT%ECC             = ECCENTRICITY
+        ORBIT%PER             = PERIHELION
+        ORBIT%EQNX            = EQUINOX
+        ORBIT%YEARLEN         = YEARLEN
+        ORBIT%YEARS_PER_CYCLE = YEARS_PER_CYCLE
+        ORBIT%DAYS_PER_CYCLE  = DAYS_PER_CYCLE
+
+        ! Allocate orbital cycle outputs
+        ! ------------------------------
+        ! TH: Ecliptic longitude of the true Sun, TREL [radians]
+        ! ZS: Sine of declination
+        ! ZC: Cosine of declination
+        ! PP: Inverse of square of earth-sun distance [1/(AU**2)]
+        ! ET: Equation of time [radians] =
+        !     True solar hour angle - Mean solar hour angle
+
+        if(associated(ORBIT%TH)) deallocate(ORBIT%TH)
+        allocate(ORBIT%TH(DAYS_PER_CYCLE), stat=status)
+        _VERIFY(STATUS)
+ 
+        if(associated(ORBIT%ZC)) deallocate(ORBIT%ZC)
+        allocate(ORBIT%ZC(DAYS_PER_CYCLE), stat=status)
+        _VERIFY(STATUS)
+
+        if(associated(ORBIT%ZS)) deallocate(ORBIT%ZS)
+        allocate(ORBIT%ZS(DAYS_PER_CYCLE), stat=status)
+        _VERIFY(STATUS)
+
+        if(associated(ORBIT%PP)) deallocate(ORBIT%PP)
+        allocate(ORBIT%PP(DAYS_PER_CYCLE), stat=status)
+        _VERIFY(STATUS)
+
+        if (ORBIT%EOT) then
+          if(associated(ORBIT%ET)) deallocate(ORBIT%ET)
+          allocate(ORBIT%ET(DAYS_PER_CYCLE), stat=status)
+          VERIFY_(STATUS)
+        end if
+
+        ! Begin integration at the vernal equinox (K=1, KP=EQUINOX), at
+        ! which, by defn, the ecliptic longitude of the true sun is zero.
+        ! Right ascension of true sun at EQUINOX is also zero by defn.
+        ! --------------------------------------------------------------
+        KP           = EQUINOX
+        TREL         = 0.
         ORBIT%ZS(KP) = sin(TREL)*SOB
         ORBIT%ZC(KP) = sqrt(1.-ORBIT%ZS(KP)**2)
         ORBIT%PP(KP) = ( (1.-ECCENTRICITY*cos(TREL-PRH)) / OMSQECC )**2
         ORBIT%TH(KP) = TREL
-        ! From BM 1-15 and 1-16 with beta=0 (Sun is on ecliptic),
-        ! and dividing through by common cos(dec) since it does not
-        ! affect the ratio of sin(RA) to cos(RA).
-        TRRA = atan2(sin(TREL)*COB,cos(TREL))
-        MNRA = MNRA + OMG0
-        ORBIT%ET(KP) = rect_pmpi(MNRA - TRRA)
-      enddo
 
-      ! enforce zero mean EOT (just in case)
-      meanEOT = sum(ORBIT%ET)/DAYS_PER_CYCLE
-      ORBIT%ET = ORBIT%ET - meanEOT
+        if (ORBIT%EOT) then
+          ! Right ascension of "mean sun" = MA(u) + PRHV [eqn (6) above].
+          ! Calcn of True (TA), Eccentric (EA), and Mean Anomaly (MA).
+          TA = TREL - PRHV                    ! by defn of TA and PRHV
+          EA = 2.d0*atan(EAFAC*tan(TA/2.d0))  ! BM 4-55
+          MA = EA - ECCENTRICITY*sin(EA)      ! Kepler's eqn (BM 4-49 ff.)
+          MNRA = MA + PRHV                    ! see EOT notes above
+          TRRA = 0.                           ! because TREL=0 at Equinox
+
+          ! Equation of Time, ET [radians]
+          ! True Solar hour angle = Mean Solar hour angle + ET
+          ! (hour angle and right ascension are in reverse direction)
+          ORBIT%ET(KP) = rect_pmpi(real(MNRA - TRRA))
+        end if
+
+        ! Integrate orbit for entire leap cycle using Runge-Kutta
+        ! Mean sun moves at constant speed around Celestial Equator
+        ! ---------------------------------------------------------
+        do K=2,DAYS_PER_CYCLE
+          T1 = dTRELdDAY(TREL       )
+          T2 = dTRELdDAY(TREL+T1*0.5)
+          T3 = dTRELdDAY(TREL+T2*0.5)
+          T4 = dTRELdDAY(TREL+T3    )
+          KP = mod(KP,DAYS_PER_CYCLE) + 1
+          TREL = TREL + (T1 + 2.0*(T2 + T3) + T4) / 6.0
+          ORBIT%ZS(KP) = sin(TREL)*SOB
+          ORBIT%ZC(KP) = sqrt(1.-ORBIT%ZS(KP)**2)
+          ORBIT%PP(KP) = ( (1.-ECCENTRICITY*cos(TREL-PRH)) / OMSQECC )**2
+          ORBIT%TH(KP) = TREL
+          if (ORBIT%EOT) then
+            ! From BM 1-15 and 1-16 with beta=0 (Sun is on ecliptic),
+            ! and dividing through by common cos(dec) since it does not
+            ! affect the ratio of sin(RA) to cos(RA).
+            TRRA = atan2(sin(TREL)*COB,cos(TREL))
+            MNRA = MNRA + OMG0
+            ORBIT%ET(KP) = rect_pmpi(real(MNRA - TRRA))
+          end if
+        enddo
+
+        ! enforce zero mean EOT (just in case)
+        if (ORBIT%EOT) then
+          meanEOT = sum(ORBIT%ET)/DAYS_PER_CYCLE
+          ORBIT%ET = ORBIT%ET - meanEOT
+        end if
+
+      end if
 
       if (present(FIX_SUN)) then
          ORBIT%FIX_SUN=FIX_SUN
@@ -513,6 +745,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,        &
          ORBIT%FIX_SUN=.FALSE.
       end if
 
+      ORBIT%CREATED = .TRUE.
       MAPL_SunOrbitCreate = ORBIT
 
       _RETURN(ESMF_SUCCESS)
@@ -545,6 +778,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,        &
        if(associated(ORBIT%ZS)) deallocate(ORBIT%ZS)
        if(associated(ORBIT%PP)) deallocate(ORBIT%PP)
        if(associated(ORBIT%ET)) deallocate(ORBIT%ET)
+       ORBIT%CREATED = .FALSE.
 
        _RETURN(ESMF_SUCCESS)
 
@@ -575,7 +809,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,        &
 
        character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitCreated"
 
-       MAPL_SunOrbitCreated = associated(ORBIT%TH)
+       MAPL_SunOrbitCreated = ORBIT%CREATED
        _RETURN(ESMF_SUCCESS)
        return
 
@@ -629,13 +863,17 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
        real,                optional, pointer, dimension(:) :: ET
        integer,             optional, intent(OUT) :: RC
 
+! BUGS:
+!   Not updated for ORBIT_ANAL2B option, which does not precalc
+!   many of the above outputs.
+
 !EOPI
 
 
        character(len=ESMF_MAXSTR), parameter :: IAm = "SunOrbitQuery"
        integer :: STATUS
 
-       _ASSERT(MAPL_SunOrbitCreated(ORBIT,RC=STATUS),'needs informative message')
+       _ASSERT(MAPL_SunOrbitCreated(ORBIT,RC=STATUS),'MAPL_SunOrbit not yet created!')
 
        if(present(CLOCK          )) CLOCK           = ORBIT%CLOCK
        if(present(OBLIQUITY      )) OBLIQUITY       = ORBIT%OB
@@ -702,17 +940,16 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 !      MAPL_SunAnnualMean      
 !\end{verbatim}
 !
-! The {\tt EOT} optional logical argument, if present and .TRUE.,
-! will apply the Equation of Time correction, which shifts the actual
-! daylight period w.r.t. to mean solar noon, to account for small 
-! but cumulative eccentricity and oblquity effects on the actual
-! length of the solar day.
+! Note: if ORBIT%EOT is .TRUE., an Equation of Time correction will be
+! applied. This shifts the actual daylight period w.r.t. to mean solar
+! noon, to account for small but cumulative eccentricity and obliquity
+! effects on the actual length of the solar day. 
 
 ! !INTERFACE:
 
 !   subroutine MAPL_SunGetInsolation(LONS, LATS, ORBIT,ZTH,SLR,INTV,CLOCK, &
 !                                    TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN, &
-!                                    EOT, RC)
+!                                    RC)
 
 ! !ARGUMENTS:
 
@@ -730,7 +967,6 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 !      TYPE             ,        optional, intent(OUT) :: ZTHD
 !      TYPE             ,        optional, intent(OUT) :: ZTH1
 !      TYPE             ,        optional, intent(OUT) :: ZTHN
-!      logical          ,        optional, INTENT(IN ) :: EOT
 !      integer,                  optional, intent(OUT) :: RC
 !\end{verbatim}
 ! where we currently support three overloads for {\tt TYPE} : 
@@ -745,7 +981,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 #define THE_SIZE   (size(LONS,1))
       recursive subroutine SOLAR_1D(LONS, LATS, ORBIT,ZTH,SLR,INTV,CLOCK, &
                                     TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN,&
-                                    STEPSIZE,EOT,RC)
+                                    STEPSIZE,RC)
 #include "sun.H"
       end subroutine SOLAR_1D
 
@@ -757,7 +993,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 #define THE_SIZE   (size(LONS,1),size(LONS,2))
       recursive subroutine SOLAR_2D(LONS, LATS, ORBIT,ZTH,SLR,INTV,CLOCK, &
                                     TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN,&
-                                    STEPSIZE,EOT,RC)
+                                    STEPSIZE,RC)
 #include "sun.H"
       end subroutine SOLAR_2D
 #undef  DIMENSIONS
@@ -1751,9 +1987,9 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          HK(6) = ChouBand6(i1)*(1.-F) + ChouBand6(i2)*F
          HK(7) = ChouBand7(i1)*(1.-F) + ChouBand7(i2)*F
          HK(8) = ChouBand8(i1)*(1.-F) + ChouBand8(i2)*F
-         _ASSERT(abs(1.0-sum(HK))<1.e-4,'needs informative message')
+         _ASSERT(abs(1.0-sum(HK))<1.e-4,'Chou Solar band weightings do not sum to unity!')
       else
-         _ASSERT(.false.,'needs informative message')
+         _ASSERT(.false.,'HK: Solar band weightings only available for Chou')
       endif
    end if
 
@@ -2559,5 +2795,199 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
 
    end subroutine MAPL_SunGetSolarConstantFromNRLFile
+
+!==========================================================================
+
+!BOPI
+
+! !IROUTINE:  MAPL_SunGetDaylightDuration
+
+! !DESCRIPTION:
+
+! Return the daylight duration in seconds (i.e, the time between sunrise and sunset) for
+! a day around the specified time. The routine is accurate enough for most purposes, but
+! does not solve for precise sunrise/sunset times influenced by changes in the orbital
+! parameters between those times. The time input does NOT need to be noon --- it is used
+! simply to evaluate the solar declination needed for the daylight duration calculation.
+! In order of preference, time is taken from currTime, if present, or else the currTime
+! of CLOCK, if present, or else the currTime of the ORBIT's associated clock. 
+
+! !INTERFACE:
+
+   subroutine MAPL_SunGetDaylightDuration(ORBIT,LATS,DAYL,currTime,CLOCK,RC)
+
+! !ARGUMENTS:
+
+      type(MAPL_SunOrbit),           intent(IN ) :: ORBIT
+      real, dimension(:) ,           intent(IN ) :: LATS
+      real, dimension(:) ,           intent(OUT) :: DAYL
+      type(ESMF_Time)    , optional, intent(IN ) :: currTime
+      type(ESMF_Clock)   , optional, intent(IN ) :: CLOCK
+      integer,             optional, intent(OUT) :: RC
+
+!EOPI
+
+!     Locals
+
+      character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_SunGetDaylightDuration"
+      integer                               :: STATUS
+
+      type(ESMF_Time) :: CURRENTTIME
+      integer         :: YEAR, SEC_OF_DAY, DAY_OF_YEAR, IDAY, IDAYP1
+      real            :: FAC, ZS, ZC
+
+      real(ESMF_KIND_R8) :: days
+      real :: ECC, OBQ, LAMBDAP
+      real :: OMECC, OPECC, OMSQECC, EAFAC
+      real :: MA, EA, dE, TA, LAMBDA
+      integer :: nits
+
+!     Begin
+      
+      _ASSERT(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+      
+      ! which current time?
+      if (present(currTime)) then
+         CURRENTTIME = CURRTIME
+      else
+         if (present(CLOCK)) then
+            call ESMF_ClockGet(      CLOCK, currTime=CURRENTTIME, RC=STATUS)
+         else
+            call ESMF_ClockGet(ORBIT%CLOCK, currTime=CURRENTTIME, RC=STATUS)
+         end if
+         _VERIFY(STATUS)
+      end if
+
+      if (ORBIT%ANAL2B) then
+
+         ! include time variation in orbit from reference time
+         call ESMF_TimeIntervalGet( &
+           CURRENTTIME - ORBIT%ORB2B_TIME_REF, &
+           d_r8=days, rc=STATUS)
+         _VERIFY(STATUS)
+         ECC     = ORBIT%ORB2B_ECC_REF     + days * ORBIT%ORB2B_ECC_RATE
+         OBQ     = ORBIT%ORB2B_OBQ_REF     + days * ORBIT%ORB2B_OBQ_RATE
+         LAMBDAP = ORBIT%ORB2B_LAMBDAP_REF + days * ORBIT%ORB2B_LAMBDAP_RATE
+         ! derived quantities
+         OMECC = 1. - ECC
+         OPECC = 1. + ECC
+         OMSQECC = OMECC * OPECC
+         EAFAC = sqrt(OMECC/OPECC)
+         ! time interval since perhelion in days
+         call ESMF_TimeIntervalGet( &
+           CURRENTTIME - ORBIT%ORB2B_TIME_PERI, &
+           d_r8=days, rc=STATUS)
+         _VERIFY(STATUS)
+         ! mean anomaly
+         MA = ORBIT%ORB2B_OMG0 * days
+         ! eccentric anomaly
+         call invert_Keplers_Newton(MA,ECC,EA,dE,nits)
+         ! true anomaly
+         TA = calcTAfromEA(EA,EAFAC)
+         ! celestial longitude
+         LAMBDA = TA + LAMBDAP
+         ! sin and cos of solar declination
+         ZS = sin(LAMBDA) * sin(OBQ)
+         ZC = sqrt(1. - ZS**2)
+
+      else
+
+         call ESMF_TimeGet(CURRENTTIME, YY=YEAR, S=SEC_OF_DAY, &
+            dayOfYear=DAY_OF_YEAR, RC=STATUS)
+         _VERIFY(STATUS)
+
+         YEAR = mod(YEAR-1,ORBIT%YEARS_PER_CYCLE)
+         IDAY = YEAR*int(ORBIT%YEARLEN)+DAY_OF_YEAR
+         IDAYP1 = mod(IDAY,ORBIT%DAYS_PER_CYCLE) + 1
+
+         FAC = real(SEC_OF_DAY)/86400.
+         ZS = ORBIT%ZS(IDAYP1)*FAC + ORBIT%ZS(IDAY)*(1.-FAC)
+         ZC = ORBIT%ZC(IDAYP1)*FAC + ORBIT%ZC(IDAY)*(1.-FAC)
+
+      endif
+
+      ! dayligt duration [secs]
+      DAYL = (86400./MAPL_PI)*acos(min(1.,max(-1.,-tan(LATS)*ZS/ZC)))
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_SunGetDaylightDuration
+
+!==========================================================================
+
+!BOPI
+
+! !IROUTINE:  MAPL_SunGetDaylightDurationMax
+
+! !DESCRIPTION:
+
+! Return the daylight duration in seconds (i.e, the time between sunrise and sunset) for
+! its MAXIMUM at the summer solstice. The routine is accurate enough for most purposes,
+! but does not solve for precise sunrise/sunset times influenced by changes in the orbital
+! parameters between those times. The time input does NOT need to be noon --- it is used
+! simply to evaluate the obliquity needed for the maximum daylight duration calculation.
+! In order of preference, time is taken from currTime, if present, or else the currTime
+! of CLOCK, if present, or else the currTime of the ORBIT's associated clock. 
+! Note: Unless ORBIT_ANAL2B, the obliquity is fixed and the time is irrelevant.
+
+! !INTERFACE:
+
+   subroutine MAPL_SunGetDaylightDurationMax(ORBIT,LATS,DAYL,currTime,CLOCK,RC)
+
+! !ARGUMENTS:
+
+      type(MAPL_SunOrbit),           intent(IN ) :: ORBIT
+      real, dimension(:) ,           intent(IN ) :: LATS
+      real, dimension(:) ,           intent(OUT) :: DAYL
+      type(ESMF_Time)    , optional, intent(IN ) :: currTime
+      type(ESMF_Clock)   , optional, intent(IN ) :: CLOCK
+      integer,             optional, intent(OUT) :: RC
+
+!EOPI
+
+      character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_SunGetDaylightDurationMax"
+      integer                               :: STATUS
+
+      type(ESMF_Time) :: CURRENTTIME
+      real(ESMF_KIND_R8) :: days
+      real :: OBQ
+
+      _ASSERT(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+      
+      ! Which time?
+      if (present(currTime)) then
+         CURRENTTIME = CURRTIME
+      else
+         if (present(CLOCK)) then
+            call ESMF_ClockGet(      CLOCK, currTime=CURRENTTIME, RC=STATUS)
+         else
+            call ESMF_ClockGet(ORBIT%CLOCK, currTime=CURRENTTIME, RC=STATUS)
+         end if
+         _VERIFY(STATUS)
+      end if
+
+      if (ORBIT%ANAL2B) then
+         ! time variation in obliquity from ref time
+         call ESMF_TimeIntervalGet( &
+           CURRENTTIME - ORBIT%ORB2B_TIME_REF, &
+           d_r8=days, rc=STATUS)
+         _VERIFY(STATUS)
+         OBQ = ORBIT%ORB2B_OBQ_REF + days * ORBIT%ORB2B_OBQ_RATE
+      else
+         ! obliquity fixed in this case
+         OBQ = ORBIT%OB * (MAPL_PI/180.)
+      endif
+      _ASSERT(0. <= OBQ .and. OBQ < MAPL_PI, 'Strange obliquity!')
+
+      ! Maximum daylight duration at summer solstice [secs]
+      !   (an even function of latitude)
+      DAYL = (86400./MAPL_PI)*acos(min(1.,max(-1., &
+                -tan(ABS(LATS))*tan(OBQ))))
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_SunGetDaylightDurationMax
+
+!==========================================================================
 
 end module MAPL_SunMod

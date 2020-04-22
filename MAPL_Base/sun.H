@@ -1,4 +1,3 @@
-! $Id$
 
 
       type(MAPL_SunOrbit),               intent(IN ) :: ORBIT
@@ -16,7 +15,6 @@
       real,                    optional, intent(OUT) :: ZTH1 DIMENSIONS
       real,                    optional, intent(OUT) :: ZTHN DIMENSIONS
       real,                    optional, intent(IN)  :: STEPSIZE
-      logical,                 optional, intent(IN)  :: EOT
       integer,                 optional, intent(OUT) :: RC
 
 !     Locals
@@ -28,7 +26,6 @@
       integer           :: NT
       real              :: FAC, ZS, ZC, ANG, AA, DD, ET
       real*8            :: SECS
-      logical           :: apply_EOT
 
       integer           :: YEAR
       integer           :: SEC_OF_DAY
@@ -37,16 +34,26 @@
       type (ESMF_Time)  :: CURRENTTIME
       type (ESMF_Clock) :: MYCLOCK
       type (ESMF_TimeInterval)  :: ts
-      real,    dimension THE_SIZE :: ZTT, SLT, Y, ZTB, ZTD, NCC
+      real, dimension THE_SIZE :: ZTT, SLT, Y, ZTB, ZTD, NCC
+
+      real(ESMF_KIND_R8) :: days
+      real :: ECC, OBQ, LAMBDAP
+      real :: OMECC, OPECC, OMSQECC, EAFAC
+      real :: MA, EA, dE, TA, LAMBDA, RT, RM
+      integer :: nits
 
 !     Begin
       
+      _ASSERT(MAPL_SunOrbitCreated(ORBIT),'MAPL_SunOrbit not yet created!')
+      
+      ! which time mode?
       if (present(TIME)) then
          TIME_ = TIME
       else
          TIME_ = 0
       endif
 
+      ! which current time?
       if (present(currTime)) then
          CURRENTTIME = CURRTIME
       else
@@ -58,44 +65,47 @@
          _VERIFY(STATUS)
       end if
 
-      ! apply Equation of Time correction?
-      if (present(EOT)) then
-         apply_EOT = EOT
-      else
-         apply_EOT = .FALSE.
-      endif
-
+      ! fixed sun option
       if (ORBIT%FIX_SUN) then
-            call WRITE_PARALLEL('--- WARNING --- sun.H --- Doubly Periodic Using Daily Mean Solar Insolation')
-            TIME_=MAPL_SunDailyMean
+         call WRITE_PARALLEL('--- WARNING --- sun.H --- Doubly Periodic Using Daily Mean Solar Insolation')
+         TIME_=MAPL_SunDailyMean
       end if
+
+      ! analytic two-body currently only works with TIME_=0 currently
+      _ASSERT(.NOT.(ORBIT%ANAL2B.AND.TIME_/=0),'analytic two-body orbit currently requires TIME_=0') 
 
       MEAN_OR_INST: if(.not.present(INTV) .or. TIME_==MAPL_SunDailyMean &
                        .or.  TIME_==MAPL_SunAnnualMean) then
 
          call ESMF_TimeGet(CURRENTTIME, YY=YEAR, S=SEC_OF_DAY, &
-              dayOfYear=DAY_OF_YEAR, RC=STATUS)
+             dayOfYear=DAY_OF_YEAR, RC=STATUS)
          _VERIFY(STATUS)
 
-      if (ORBIT%FIX_SUN) then
-         TIME_=10
-         YEAR=2005
-         SEC_OF_DAY=86400/2
-         DAY_OF_YEAR=31*7
-      end if
+         if (.NOT. ORBIT%ANAL2B) then
 
-         YEAR = mod(YEAR-1,ORBIT%YEARS_PER_CYCLE)
-         IDAY = YEAR*int(ORBIT%YEARLEN)+DAY_OF_YEAR
+            if (ORBIT%FIX_SUN) then
+               TIME_=10
+               YEAR=2005
+               SEC_OF_DAY=86400/2
+               DAY_OF_YEAR=31*7
+            end if
 
-         if(present(DIST)) DIST = ORBIT%PP(IDAY)
+            YEAR = mod(YEAR-1,ORBIT%YEARS_PER_CYCLE)
+            IDAY = YEAR*int(ORBIT%YEARLEN)+DAY_OF_YEAR
+
+            if(present(DIST)) DIST = ORBIT%PP(IDAY)
+
+         endif
 
          select case (TIME_)
 
          case(MAPL_SunDailyMean)
-! pmn: EOT will just displace sunlit period wrt mean noon,
-!      but the daily mean values will not change
 
-            ASSERT_(.FALSE.) ! pmn: this routine probably in error (see below)
+            ! pmn: EOT will just displace sunlit period wrt mean noon,
+            !      but the daily mean values will not change
+
+            _ASSERT(.FALSE.,'pmn: MAPL_SunDailyMean probably in error!') 
+            _ASSERT(.NOT.ORBIT%ANAL2B,'not implemented for analytic two-body orbit') 
 
             SLR  = sin(LATS)*ORBIT%ZS(IDAY)
             ZTH  = cos(LATS)*ORBIT%ZC(IDAY)
@@ -109,16 +119,16 @@
                   ! pmn: If remove factor of 4 above, remove it here too.
                   ! pmn: This is also wrong because includes the ORBIT%PP(IDAY) factor
 
-! pmn: I think these lines should read:
-!              SLR = Y * SLR + SIN(Y) * ZTH
-!              ZTH = SLR / Y
-!              SLR = ORBIT%PP(IDAY) * SLR / MAPL_PI
-!      On the assumption that ZTH is meant to be the linear average
-!        of cos(sza) over the sunlit part of the day, or what we call ZTHD
-!      This routine should also produce an insolation-weighted mean ZTH.
-!      After end select, all these different ZTHs are set to ZTH, since this
-!      branch is the instantaneous branch, which is clearly not appropriate
-!      for a daily or annual mean.
+               ! pmn: I think these lines should read:
+               !   SLR = Y * SLR + SIN(Y) * ZTH
+               !   ZTH = SLR / Y
+               !   SLR = ORBIT%PP(IDAY) * SLR / MAPL_PI
+               ! On the assumption that ZTH is meant to be the linear average
+               !   of cos(sza) over the sunlit part of the day, or what we call ZTHD
+               ! This routine should also produce an insolation-weighted mean ZTH.
+               ! After end select, all these different ZTHs are set to ZTH, since this
+               ! branch is the instantaneous branch, which is clearly not appropriate
+               ! for a daily or annual mean.
 
             elsewhere
                SLR = 0.0
@@ -127,12 +137,14 @@
 
          case(MAPL_SunAnnualMean)
 
-!pmn: consistent with above (and erroneous) SunDailyMean,
-!     but unlike MAPL sun_uc.F90 comment:
-!       "annual-mean insolation for the year on the clock"
-!     its a mean over the whole currently fixed 4-year cycle.
+            !pmn: consistent with above (and erroneous) SunDailyMean,
+            !     but unlike MAPL sun_uc.F90 comment:
+            !       "annual-mean insolation for the year on the clock"
+            !     its a mean over the whole currently fixed 4-year cycle.
 
-            ASSERT_(.FALSE.) ! pmn: this routine probably in error (see above)
+            ! see above
+            _ASSERT(.FALSE.,'pmn: MAPL_SunAnnualMean probably in error!') 
+            _ASSERT(.NOT.ORBIT%ANAL2B,'not implemented for analytic two-body orbit') 
 
             SLR  = 0.0
             ZTH  = 0.0
@@ -164,32 +176,76 @@
                MAPL_SunVernalEquinox  , & 
                MAPL_SunSummerSolstice   ) 
 
-            FAC = real(SEC_OF_DAY)/86400.
-
-            if(TIME_==0) then
-               IDAYP1 = mod(IDAY,ORBIT%DAYS_PER_CYCLE) + 1
-
-               ZS = ORBIT%ZS(IDAYP1)*FAC + ORBIT%ZS(IDAY)*(1.-FAC)
-               ZC = ORBIT%ZC(IDAYP1)*FAC + ORBIT%ZC(IDAY)*(1.-FAC)
-               AA = ORBIT%PP(IDAYP1)*FAC + ORBIT%PP(IDAY)*(1.-FAC)
-               if (apply_EOT) &
-                 ET = ORBIT%ET(IDAYP1)*FAC + ORBIT%ET(IDAY)*(1.-FAC)
-            else
-               call GETIDAY(IDAY,TIME_,ORBIT,RC=STATUS)
-               _VERIFY(STATUS)
-
-               ZS = ORBIT%ZS(IDAY)
-               ZC = ORBIT%ZC(IDAY)
-               AA = ORBIT%PP(IDAY)
-               if (apply_EOT) ET = ORBIT%ET(IDAY)
-            endif
-
             ! Greenwich MEAN solar hour angle OFFSET by PI
             ! (since FAC is zero at mignight)
+            FAC = real(SEC_OF_DAY)/86400.
             ANG = 2.0*MAPL_PI*FAC
 
+            if (ORBIT%ANAL2B) then
+
+               ! include time variation in orbit from reference time
+               call ESMF_TimeIntervalGet( &
+                 CURRENTTIME - ORBIT%ORB2B_TIME_REF, &
+                 d_r8=days, rc=STATUS)
+               _VERIFY(STATUS)
+               ECC     = ORBIT%ORB2B_ECC_REF     + days * ORBIT%ORB2B_ECC_RATE
+               OBQ     = ORBIT%ORB2B_OBQ_REF     + days * ORBIT%ORB2B_OBQ_RATE
+               LAMBDAP = ORBIT%ORB2B_LAMBDAP_REF + days * ORBIT%ORB2B_LAMBDAP_RATE
+               ! derived quantities
+               OMECC = 1. - ECC
+               OPECC = 1. + ECC
+               OMSQECC = OMECC * OPECC
+               EAFAC = sqrt(OMECC/OPECC)
+               ! time interval since perhelion in days
+               call ESMF_TimeIntervalGet( &
+                 CURRENTTIME - ORBIT%ORB2B_TIME_PERI, &
+                 d_r8=days, rc=STATUS)
+               _VERIFY(STATUS)
+               ! mean anomaly
+               MA = ORBIT%ORB2B_OMG0 * days
+               ! eccentric anomaly
+               call invert_Keplers_Newton(MA,ECC,EA,dE,nits)
+               ! true anomaly
+               TA = calcTAfromEA(EA,EAFAC)
+               ! inverse distance to sun squared
+               AA = 1. / calcRadfromTA(TA,ECC,OMSQECC) ** 2
+               ! celestial longitude
+               LAMBDA = TA + LAMBDAP
+               ! sin and cos of solar declination
+               ZS = sin(LAMBDA) * sin(OBQ)
+               ZC = sqrt(1. - ZS**2)
+               if (ORBIT%EOT) then
+                 ! solar right ascension (true and mean)
+                 RT = atan2(sin(LAMBDA)*cos(OBQ),cos(LAMBDA))
+                 RM = MA + LAMBDAP
+                 ! equation of time
+                 ET = RECT_PMPI(RM - RT)
+               end if
+
+            else
+
+               if(TIME_==0) then
+                  IDAYP1 = mod(IDAY,ORBIT%DAYS_PER_CYCLE) + 1
+
+                  ZS = ORBIT%ZS(IDAYP1)*FAC + ORBIT%ZS(IDAY)*(1.-FAC)
+                  ZC = ORBIT%ZC(IDAYP1)*FAC + ORBIT%ZC(IDAY)*(1.-FAC)
+                  AA = ORBIT%PP(IDAYP1)*FAC + ORBIT%PP(IDAY)*(1.-FAC)
+                  if (ORBIT%EOT) &
+                    ET = ORBIT%ET(IDAYP1)*FAC + ORBIT%ET(IDAY)*(1.-FAC)
+               else
+                  call GETIDAY(IDAY,TIME_,ORBIT,RC=STATUS)
+                  _VERIFY(STATUS)
+
+                  ZS = ORBIT%ZS(IDAY)
+                  ZC = ORBIT%ZC(IDAY)
+                  AA = ORBIT%PP(IDAY)
+                  if (ORBIT%EOT) ET = ORBIT%ET(IDAY)
+               endif
+
+            endif
+
             ! apply equation of time correction?
-            if (apply_EOT) then
+            if (ORBIT%EOT) then
 
               ! the real (zero at noon) Greenwich MEAN solar hour angle
               ANG = ANG + MAPL_PI
@@ -293,7 +349,7 @@
 
          call MAPL_SunGetInsolation( LONS, LATS, ORBIT, ZTT, SLT, &
               CLOCK=MYCLOCK, TIME=TIME, DIST=DD, &
-              EOT=apply_EOT, RC=STATUS)
+              RC=STATUS)
          _VERIFY(STATUS)
 
          if(present(ZTH1)) ZTH1 = max(ZTT,0.0)
@@ -317,7 +373,7 @@
 
             call MAPL_SunGetInsolation( LONS, LATS, ORBIT, ZTT, SLT, &
                  CLOCK=MYCLOCK, TIME=TIME, ZTHB=ZTB, ZTHD=ZTD, DIST=DD, &
-                 EOT=apply_EOT, RC=STATUS)
+                 RC=STATUS)
             _VERIFY(STATUS)
 
             SLR = SLR +     SLT*0.5

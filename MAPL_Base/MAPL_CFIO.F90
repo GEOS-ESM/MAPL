@@ -1,4 +1,3 @@
-!  $Id$
 
 #include "MAPL_Generic.h"
 #define MPI_NULL_TAG 99

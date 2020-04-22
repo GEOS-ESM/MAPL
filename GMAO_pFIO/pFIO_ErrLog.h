@@ -1,5 +1,4 @@
 
-!  $Id$ 
 
 ! The error logging may eventually evolve into a module based
 ! on the ESMF logger.  For now these macros provide simple
