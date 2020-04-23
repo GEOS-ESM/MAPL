@@ -1916,10 +1916,10 @@ ENDDO PARSER
             f = MAPL_FieldCreate(parser_field, name=list(n)%PExtraFields(m), rc=status)
             _VERIFY(STATUS)
             if (IntState%average(n)) then
-               call MAPL_StateAdd(IntState%CIM(N), f, splitField=.true., rc=status)
+               call MAPL_StateAdd(IntState%CIM(N), f, splitField=.false., rc=status)
                _VERIFY(STATUS)
             else
-               call MAPL_StateAdd(IntState%GIM(N), f, splitField=.true., rc=status)
+               call MAPL_StateAdd(IntState%GIM(N), f, splitField=.false., rc=status)
                _VERIFY(STATUS)
             end if                  
          end do
@@ -1970,7 +1970,7 @@ ENDDO PARSER
          end if
 
          if (IntState%average(n)) then
-            call MAPL_StateAdd(IntState%CIM(N), f, splitField=.true., rc=status)
+            call MAPL_StateAdd(IntState%CIM(N), f, splitField=.false., rc=status)
             _VERIFY(STATUS)
 
             ! borrow SPEC from FIELD
@@ -2172,7 +2172,7 @@ ENDDO PARSER
             _VERIFY(STATUS)
             call ESMF_AttributeSet(F, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, RC=STATUS)
             _VERIFY(STATUS)
-            call MAPL_StateAdd(IntState%GIM(N), f, splitField=.true., rc=status)
+            call MAPL_StateAdd(IntState%GIM(N), f, splitField=.false., rc=status)
             _VERIFY(STATUS)
 
          endif
@@ -2185,7 +2185,7 @@ ENDDO PARSER
             _VERIFY(STATUS)
 ! add field to state_out
             call MAPL_StateAdd(IntState%Regrid(N)%PTR%state_out, &
-                 field, splitField=.true., rc=status)
+                 field, splitField=.false., rc=status)
             _VERIFY(STATUS)
          endif
 
