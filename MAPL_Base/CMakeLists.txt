@@ -62,7 +62,7 @@ set (srcs
   MAPL_NUOPCWrapperMod.F90 MAPL_CubedSphereGridFactory.F90
   MAPL_ExtDataCollection.F90 MAPL_ExtDataCollectionManager.F90
   FileMetadataUtilities.F90 FileMetadataUtilitiesVector.F90
-  )
+  MAPL_SimpleAlarm.F90)
 
 esma_add_library(
   ${this} SRCS ${srcs}
