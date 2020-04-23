@@ -243,7 +243,7 @@ module HistoryTrajectoryMod
                end if
                nfound = nfound + 1
             end if
-            if (this%times(i) .gt. current_time) exit
+            if (this%times(i) .ge. current_time) exit
          enddo
          if (found) then
             interval(2) = interval(1)+nfound-1
@@ -402,9 +402,12 @@ module HistoryTrajectoryMod
          real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
 
          interval = this%get_current_interval(current_time)
-         number_to_write = interval(2)-interval(1) 
+         if (all(interval==0)) then
+            number_to_write = 0
+         else
+            number_to_write = interval(2)-interval(1)+1
+         end if 
          if (number_to_write>0) then
-            number_to_write=number_to_write+1
             rtimes = this%compute_times_for_interval(interval,rc=status)
             _VERIFY(status)
             if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
