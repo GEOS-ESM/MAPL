@@ -124,6 +124,7 @@ module MAPL_GenericMod
   use MAPL_LocStreamMod
   use MAPL_ConfigMod
   use MAPL_ErrorHandlingMod
+  use pFlogger, only: logging, Logger
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
   use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
@@ -148,6 +149,7 @@ module MAPL_GenericMod
   public MAPL_GetObjectFromGC
   public MAPL_Get
   public MAPL_Set
+  public MAPL_InternalStateCreate
   public MAPL_GenericRunCouplers
   
   public MAPL_ChildAddAttribToImportSpec
@@ -203,6 +205,7 @@ module MAPL_GenericMod
   public MAPL_CheckpointState
   public MAPL_ESMFStateReadFromFile
   public MAPL_InternalStateRetrieve
+  public :: MAPL_GetLogger
 !BOP  
   ! !PUBLIC TYPES:
 
@@ -397,6 +400,9 @@ type  MAPL_MetaComp
    real                                     :: HEARTBEAT
    type (MAPL_Communicators)                :: mapl_comm
    type (TimeProfiler), public :: t_profiler
+   character(:), allocatable :: full_name ! Period separated list of ancestor names
+   class(Logger), pointer :: lgr
+
 !!$   integer :: comm
 end type MAPL_MetaComp
 !EOC
@@ -430,6 +436,7 @@ type MAPL_MetaPtr
    type(MAPL_MetaComp), pointer  :: PTR
 end type MAPL_MetaPtr
 
+character(*), parameter :: SEPARATOR = '.'
 include "netcdf.inc"
 contains
 
@@ -545,7 +552,6 @@ type(ESMF_GridComp)               :: rootGC
 
    call MAPL_InternalStateRetrieve( GC, MAPLOBJ, RC=STATUS)
    _VERIFY(STATUS)
-   MAPLOBJ%COMPNAME = COMP_NAME
 
    call MAPLOBJ%t_profiler%start('GenSetService')
 
@@ -4217,6 +4223,10 @@ end subroutine MAPL_DateStampGet
 
      if(present(NAME)) then
         STATE%COMPNAME=NAME
+        if (.not. allocated(state%full_name)) then
+           state%full_name = trim(name)
+           state%lgr => logging%get_logger(trim(name))
+        end if
      endif
 
      if(present(Cf)) then
@@ -4438,6 +4448,10 @@ end subroutine MAPL_DateStampGet
   type(ESMF_Context_Flag)                     :: contextFlag
   class(BaseProfiler), pointer                :: t_p
 
+  class(Logger), pointer :: lgr
+
+  lgr => logging%get_logger('MAPL.GENERIC')
+
   if (.not.associated(META%GCS)) then
      ! this is the first child to be added
      allocate(META%GCS(0), stat=status)
@@ -4537,6 +4551,12 @@ end subroutine MAPL_DateStampGet
      _VERIFY(STATUS)
      CHILD_META%parentGC = parentGC
   end if
+
+  
+  call lgr%debug('Adding logger for component %a ',trim(fname))
+  child_meta%full_name = meta%full_name // SEPARATOR // trim(fname)
+  child_meta%compname = trim(fname)
+  child_meta%lgr => logging%get_logger(child_meta%full_name)
 
 ! copy communicator to childs mapl_metacomp
   CHILD_META%mapl_comm = META%mapl_comm
@@ -10371,5 +10391,20 @@ end subroutine MAPL_READFORCINGX
         end subroutine set_arrdes_by_face
 
    end subroutine ArrDescrSetNCPar
+
+   subroutine MAPL_GetLogger(gc, lgr, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      class(Logger), pointer :: lgr
+      integer, optional, intent(out) :: rc
+      type (MAPL_MetaComp), pointer :: meta
+
+      integer :: status
+      
+      call MAPL_GetObjectFromGC(gc, meta, rc=status)
+      _VERIFY(status)
+
+      lgr => meta%lgr
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_GetLogger
 
 end module MAPL_GenericMod

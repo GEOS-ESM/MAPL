@@ -175,7 +175,7 @@ contains
       
       if (b%max > a%max) then
          c%max_pe = b%max_pe
-      elseif (a%max < b%max) then
+      elseif (a%max > b%max) then
          c%max_pe = a%max_pe
       else ! tie
          c%max_pe = min(a%max_pe, b%max_pe)
@@ -205,7 +205,7 @@ contains
       
       if (b%max > a%max) then
          c%max_pe = b%max_pe
-      elseif (a%max < b%max) then
+      elseif (a%max > b%max) then
          c%max_pe = a%max_pe
       else ! tie
          c%max_pe = min(a%max_pe, b%max_pe)

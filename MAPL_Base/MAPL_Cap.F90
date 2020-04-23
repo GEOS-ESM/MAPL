@@ -14,9 +14,11 @@ module MAPL_CapMod
    use MAPL_BaseMod
    use MAPL_ErrorHandlingMod
    use pFIO
-   use MAPL_Profiler
+   use MAPL_Profiler, only: get_global_time_profiler, BaseProfiler, TimeProfiler
    use MAPL_ioClientsMod
    use MAPL_CapOptionsMod
+   use pflogger, only: logging
+   use pflogger, only: Logger
    implicit none
    private
 
@@ -88,6 +90,7 @@ contains
       class ( MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
       integer :: status
+      type(Logger), pointer :: lgr
 
       cap%name = name
       cap%set_services => set_services
@@ -106,11 +109,61 @@ contains
       endif
 
       call cap%initialize_mpi(rc=status)
-
       _VERIFY(status)
+
+      call initialize_pflogger()
 
       _RETURN(_SUCCESS)     
       _UNUSED_DUMMY(unusable)
+
+    contains
+
+       subroutine initialize_pflogger()
+          use pflogger, only: pfl_initialize => initialize
+          use pflogger, only: StreamHandler, FileHandler, HandlerVector
+          use pflogger, only: MpiLock, MpiFormatter
+          use pflogger, only: INFO, WARNING
+          use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
+          type (HandlerVector) :: handlers
+          type (StreamHandler) :: console
+          type (FileHandler) :: file_handler
+          integer :: level
+          
+          call pfl_initialize()
+
+          if (cap%cap_options%logging_config /= '') then
+             call logging%load_file(cap%cap_options%logging_config)
+          else
+
+             console = StreamHandler(OUTPUT_UNIT)
+             call console%set_level(INFO)
+             call console%set_formatter(MpiFormatter(cap%comm_world, fmt='%(short_name)a10~: %(message)a'))
+             call handlers%push_back(console)
+
+             file_handler = FileHandler('warnings_and_errors.log')
+             call file_handler%set_level(WARNING)
+             call file_handler%set_formatter(MpiFormatter(cap%comm_world, fmt='pe=%(mpi_rank)i5.5~: %(short_name)a~: %(message)a'))
+             call file_handler%set_lock(MpiLock(cap%comm_world))
+             call handlers%push_back(file_handler)
+             
+             if (cap%rank == 0) then
+                level = INFO
+             else
+                level = WARNING
+             end if
+
+             call logging%basic_config(level=level, handlers=handlers, rc=status)
+             _VERIFY(status)
+             
+             if (cap%rank == 0) then
+                lgr => logging%get_logger('MAPL')
+                call lgr%warning('No configure file specified for logging layer.  Using defaults.')
+             end if
+
+          end if
+
+       end subroutine initialize_pflogger
+     
     end function new_MAPL_Cap
 
    
@@ -487,6 +540,7 @@ contains
       end subroutine report_throughput
 
       subroutine report_profiling(rc)
+         use MAPL_Profiler
          integer, optional, intent(out) :: rc
          type (ProfileReporter) :: reporter
          integer :: i
@@ -526,7 +580,7 @@ contains
 
          if (my_rank == 0) then
                report_lines = reporter%generate_report(t_p)
-               write(*,'(a,1x,i0)')'Report on process: ', rank
+               write(*,'(a,1x,i0)')'Report on process: ', my_rank
                do i = 1, size(report_lines)
                   write(*,'(a)') report_lines(i)
                end do
@@ -640,15 +694,18 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: ierror
+      integer :: ierror, local_comm_world
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then
 #ifdef BUILD_TYPE_IS_NOT_DEBUG
+         ! MPT 2.17 has a bug with its interface to MPI_Comm_set_errhandler
+         ! defining comm as inout instead of in.
+         local_comm_world = this%comm_world
          ! Intel MPI at NCCS seems to have spurious MPI_Finalize errors that do
          ! not affect the answer or even the finalize step. This call suppresses
          ! the errors.
-         call MPI_Comm_set_errhandler(this%comm_world,MPI_ERRORS_RETURN,ierror)
+         call MPI_Comm_set_errhandler(local_comm_world,MPI_ERRORS_RETURN,ierror)
          _VERIFY(ierror)
 #endif
          call MPI_Finalize(ierror)

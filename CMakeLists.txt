@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.0
+  VERSION 2.1.1
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/@cmake)
@@ -34,6 +34,8 @@ else ()
 endif()
 
 ecbuild_declare_project()
+
+find_package(PFLOGGER REQUIRED)
 
 # Special case - MAPL_cfio is built twice with two different precisions.
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)

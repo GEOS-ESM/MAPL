@@ -3,7 +3,7 @@ version: 2.1
 executors:
    gcc-build-env:
       docker:
-         - image: gmao/geos-build-env-gcc-source:6.0.10
+         - image: gmao/geos-build-env-gcc-source:6.0.11
       environment:
          OMPI_ALLOW_RUN_AS_ROOT: 1
          OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
@@ -47,6 +47,12 @@ jobs:
                cd build
                make -j2 MAPL_Base_tests
                ctest -R 'MAPL_Base_tests$' --output-on-failure
+         - run:
+            name: Run MAPL_Profiler Unit tests
+            command: |
+               cd build
+               make -j2 MAPL_Profiler_tests
+               ctest -R 'MAPL_Profiler_tests$' --output-on-failure
 
 workflows:
    version: 2.1

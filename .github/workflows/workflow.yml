@@ -5,7 +5,7 @@ on: pull_request
 jobs:
   build_mapl:
     runs-on: ubuntu-latest
-    container: gmao/geos-build-env-gcc-source:6.0.10
+    container: gmao/geos-build-env-gcc-source:6.0.11
     env:
       LANGUAGE: en_US.UTF-8
       LC_ALL: en_US.UTF-8
@@ -47,3 +47,8 @@ jobs:
           cd build
           make -j4 MAPL_Base_tests
           ctest -R 'MAPL_Base_tests$' --output-on-failure
+      - name: Run MAPL_Profiler Unit tests
+        run: |
+          cd build
+          make -j4 MAPL_Profiler_tests
+          ctest -R 'MAPL_Profiler_tests$' --output-on-failure
