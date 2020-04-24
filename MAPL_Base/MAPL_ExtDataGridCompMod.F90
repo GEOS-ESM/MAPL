@@ -52,6 +52,7 @@
    use MAPL_ioClientsMod
    use MAPL_newCFIOItemMod
    use MAPL_newCFIOItemVectorMod
+   use MAPL_SimpleAlarm
 
    IMPLICIT NONE
    PRIVATE
@@ -129,6 +130,7 @@
      ! the corresponding names of the two vector components on file
      character(len=ESMF_MAXSTR)   :: fcomp1, fcomp2
      type(newCFIOitem)            :: fileVars
+     type(SimpleAlarm)            :: update_alarm 
 
      integer                      :: collection_id
      integer                      :: pfioCollection_id
@@ -137,7 +139,6 @@
      logical                      :: ExtDataAlloc
      ! time shifting during continuous update
      type(ESMF_TimeInterval)      :: tshift
-     type(ESMF_Alarm)             :: update_alarm
      logical                      :: alarmIsEnabled = .false.
      integer                      :: FracVal = MAPL_ExtDataNullFrac
      ! do we have to do vertical interpolation
@@ -168,7 +169,7 @@
      type(ESMF_Time), pointer       :: refresh_time => null()
      ! time shifting during continuous update
      type(ESMF_TimeInterval)      :: tshift
-     type(ESMF_Alarm)             :: update_alarm
+     type(SimpleAlarm)            :: update_alarm
      logical                      :: alarmIsEnabled = .false.
   end type DerivedExport
 
@@ -4176,7 +4177,7 @@ CONTAINS
      if (present(primaryItem)) then
        
         if (primaryItem%AlarmIsEnabled) then
-           doUpdate = ESMF_AlarmIsRinging(primaryItem%update_alarm,__RC__)
+           doUpdate = primaryItem%update_alarm%is_ringing(currTime,__RC__)
            if (hasRun .eqv. .false.) doUpdate = .true.
            updateTime = currTime
         else if (trim(primaryItem%cyclic) == 'single') then
@@ -4203,7 +4204,7 @@ CONTAINS
         end if
      else if (present(derivedItem)) then
         if (DerivedItem%AlarmIsEnabled) then
-           doUpdate = ESMF_AlarmIsRinging(derivedItem%update_alarm,__RC__)
+           doUpdate = derivedItem%update_alarm%is_ringing(currTime,__RC__)
            updateTime = currTime
         else
            if (derivedItem%refresh_template == "0") then
@@ -4240,6 +4241,7 @@ CONTAINS
      character(len=ESMF_MAXSTR) :: refresh_template,ctInt
      character(len=ESMF_MAXSTR) :: Iam
      type(ESMF_TimeInterval)    :: tInterval
+     type(ESMF_Time)            :: current_time
      integer                    :: status
      Iam = "SetRefreshAlarms"
 
@@ -4250,6 +4252,8 @@ CONTAINS
      end if
      pindex = index(refresh_template,'P')
      if (pindex > 0) then
+        call ESMF_ClockGet(Clock,currTime=current_time,rc=status)
+        _VERIFY(status)
         ! now get time interval. Put 0000-00-00 in front if not there so parsetimeunits doesn't complain
         ctInt = refresh_template(pindex+1:)
         cindex = index(ctInt,'T')
@@ -4258,13 +4262,13 @@ CONTAINS
         _VERIFY(STATUS)
         call ESMF_TimeIntervalSet(tInterval,yy=iyy,mm=imm,d=idd,h=ihh,m=imn,s=isc,rc=status)
         _VERIFY(STATUS) 
-        if (present(primaryItem)) then 
-           primaryItem%update_alarm = ESMF_AlarmCreate(clock=clock,ringInterval=tInterval,sticky=.false.,rc=status)
-           _VERIFY(STATUS)
+        if (present(primaryItem)) then
+           primaryItem%update_alarm = simpleAlarm(current_time,tInterval,rc=status)
+           _VERIFY(status)
            primaryItem%alarmIsEnabled = .true.
         else if (present(derivedItem)) then
-           DerivedItem%update_alarm = ESMF_AlarmCreate(clock=clock,ringInterval=tInterval,sticky=.false.,rc=status)
-           _VERIFY(STATUS)
+           DerivedItem%update_alarm = simpleAlarm(current_time,tInterval,rc=status)
+           _VERIFY(status)
            derivedItem%alarmIsEnabled = .true.
         end if
      end if

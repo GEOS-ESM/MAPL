@@ -9,11 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 ### Fixed
-
-- Workaround for MPT 2.17 build bug with `MPI_Comm_set_errhandler`
-
+- Fixed bug during replay when the refresh template in ExtData is a time interval
 ### Removed
 ### Added
+
+## [2.1.1]  2020-04-20
+
+### Fixed
+
+- Added a default initialization clause for pFlogger
+  so that INFO messages go to console.
+- Workaround for MPT 2.17 build bug with `MPI_Comm_set_errhandler`
+
 
 ## [2.1.0]  2020-04-16
 
