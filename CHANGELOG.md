@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 ### Fixed
+- Fixed bug when output fields on tripolar grid in History
 - Fixed bug during replay when the refresh template in ExtData is a time interval
 ### Removed
 ### Added
