@@ -359,6 +359,7 @@ contains
     real                                      :: lvl
 
     integer                                   :: mntly
+    integer                                   :: spltFld
     integer                                   :: unitr, unitw
     integer                                   :: tm,resolution(2)
     logical                                   :: match, contLine
@@ -737,6 +738,7 @@ contains
        end if
        
        list(n)%monthly = .false.
+       list(n)%splitField = .false.
 
        cfg = ESMF_ConfigCreate(rc=STATUS)
        _VERIFY(STATUS)
@@ -761,6 +763,10 @@ contains
 	                              label=trim(string) // 'monthly:',rc=status )
        _VERIFY(STATUS)
        list(n)%monthly = (mntly /= 0)
+       call ESMF_ConfigGetAttribute ( cfg, spltFld, default=0, &
+	                              label=trim(string) // 'splitField:',rc=status )
+       _VERIFY(STATUS)
+       list(n)%splitField = (spltFld /= 0)
        call ESMF_ConfigGetAttribute ( cfg, list(n)%frequency, default=060000, &
 	                              label=trim(string) // 'frequency:',rc=status )
        _VERIFY(STATUS)
@@ -1916,10 +1922,10 @@ ENDDO PARSER
             f = MAPL_FieldCreate(parser_field, name=list(n)%PExtraFields(m), rc=status)
             _VERIFY(STATUS)
             if (IntState%average(n)) then
-               call MAPL_StateAdd(IntState%CIM(N), f, splitField=.false., rc=status)
+               call MAPL_StateAdd(IntState%CIM(N), f, splitField=list(n)%splitField, rc=status)
                _VERIFY(STATUS)
             else
-               call MAPL_StateAdd(IntState%GIM(N), f, splitField=.false., rc=status)
+               call MAPL_StateAdd(IntState%GIM(N), f, splitField=list(n)%splitField, rc=status)
                _VERIFY(STATUS)
             end if                  
          end do
@@ -1970,7 +1976,7 @@ ENDDO PARSER
          end if
 
          if (IntState%average(n)) then
-            call MAPL_StateAdd(IntState%CIM(N), f, splitField=.false., rc=status)
+            call MAPL_StateAdd(IntState%CIM(N), f, splitField=list(n)%splitField, rc=status)
             _VERIFY(STATUS)
 
             ! borrow SPEC from FIELD
@@ -2172,7 +2178,7 @@ ENDDO PARSER
             _VERIFY(STATUS)
             call ESMF_AttributeSet(F, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, RC=STATUS)
             _VERIFY(STATUS)
-            call MAPL_StateAdd(IntState%GIM(N), f, splitField=.false., rc=status)
+            call MAPL_StateAdd(IntState%GIM(N), f, splitField=list(n)%splitField, rc=status)
             _VERIFY(STATUS)
 
          endif
@@ -2185,7 +2191,7 @@ ENDDO PARSER
             _VERIFY(STATUS)
 ! add field to state_out
             call MAPL_StateAdd(IntState%Regrid(N)%PTR%state_out, &
-                 field, splitField=.false., rc=status)
+                 field, splitField=list(n)%splitField, rc=status)
             _VERIFY(STATUS)
          endif
 
@@ -2304,7 +2310,7 @@ ENDDO PARSER
                   trim(list(n)%field_set%fields(3,m)), field, rc=status )
              _VERIFY(STATUS)
 
-             call MAPL_FieldBundleAdd( list(n)%bundle, field, splitField=.true., rc=status )
+             call MAPL_FieldBundleAdd( list(n)%bundle, field, splitField=list(n)%splitField, rc=status )
              _VERIFY(STATUS)
 
              call ESMF_FieldGet(field, Array=array, grid=bgrid, rc=status)

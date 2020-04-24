@@ -132,6 +132,7 @@ module MAPL_IOMod
      module procedure MAPL_VarWrite_R4_3D
      module procedure MAPL_VarWriteNCpar_R4_3d
      module procedure MAPL_VarWrite_R4_4D
+     module procedure MAPL_VarWriteNCpar_R4_4d
      module procedure MAPL_VarWrite_R8_1D
      module procedure MAPL_VarWriteNCpar_R8_1d
      module procedure MAPL_VarWrite_R8_2D
@@ -139,6 +140,7 @@ module MAPL_IOMod
      module procedure MAPL_VarWrite_R8_3D
      module procedure MAPL_VarWriteNCpar_R8_3d
      module procedure MAPL_VarWrite_R8_4D
+     module procedure MAPL_VarWriteNCpar_R8_4d
   end interface
 
   interface ArrayScatterShm
@@ -1203,7 +1205,7 @@ module MAPL_IOMod
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
           _VERIFY(STATUS)
           if (.not.associated(var_4d)) then
-             _ASSERT(.false., "Variable not assocoated")
+             _ASSERT(.false., "Cannot read unassociated variable")
           end if
           if (DIMS == MAPL_DimsHorzOnly) then
              do L = 1,size(var_4d,3)
@@ -2824,11 +2826,11 @@ module MAPL_IOMod
     real(KIND=ESMF_KIND_R4), pointer, dimension(:)        :: gvar_1d
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)      :: gvar_2d
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:)    :: gvar_3d
-    real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:,:)  :: gvar_4d
 
     real(KIND=ESMF_KIND_R8), pointer, dimension(:)        :: vr8_1d
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:)      :: vr8_2d
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:)    :: vr8_3d
+    real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:,:)  :: vr8_4d
 
     real(KIND=ESMF_KIND_R8), pointer, dimension(:)        :: gvr8_1d
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:)      :: gvr8_2d
@@ -3068,74 +3070,25 @@ module MAPL_IOMod
        endif
 
     else if (rank == 4) then
-       _ASSERT(.false., "work in progress...")
-#if 0       
+       if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
+          _ASSERT(.false., "Unsupported tile/ungrid variable")
+       end if
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
           _VERIFY(STATUS)
-          if (associated(var_4d)) then !ALT: temp kludge
-             if (DIMS == MAPL_DimsTileOnly) then
-
-                if (arrdes%write_restart_by_oserver) then
-                   if(arrdes%writers_comm /= MPI_COMM_NULL) then
-                      lMemRef = LocalMemReference(pFIO_REAL32,[arrdes%im_world, size(var_4d,2), size(var_4d,3), size(var_4d,4)])
-                      call c_f_pointer(lMemRef%base_address, gvar_4d, shape=[arrdes%im_world, size(var_4d,2), size(var_4d,3), size(var_4d,4)])
-                   else
-                      lMemRef = LocalMemReference(pFIO_REAL32,[0,size(var_4d,2), size(var_4d,3), size(var_4d,4)])
-                      call c_f_pointer(lMemRef%base_address, gvar_4d, shape=[0, size(var_4d,2), size(var_4d,3), size(var_4d,4)])
-                   endif
-                endif
-
-                do L = 1,size(var_4d,3)
-                   do K = 1,size(var_4d,4)
-                      call MAPL_VarWrite(formatter, name, var_4d(:,:,L,K), layout=layout, arrdes=arrdes, mask=mask, &
-                           & lev=l, offset2=k, gvar_out=gvar_4d(:,:,L,K), rc=status)
-                   end do
-                end do
-
-                if (arrdes%write_restart_by_oserver) then
-                   call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1,1,1], &
-                                 global_start=[1,1,1,1], global_count=[arrdes%im_world,size(var_4d,2),size(var_4d,3), size(var_4d,4)])
-                endif
-
-             else
-                call MAPL_VarWrite(formatter, name, var_4d, arrdes=arrdes, oClients=oClients, rc=status)
-             endif
+          if (.not.associated(var_4d)) then
+             _ASSERT(.false., "Cannot write unassociated vars")
           end if
+             call MAPL_VarWrite(formatter, name, var_4d, arrdes=arrdes, oClients=oClients, rc=status)
        else
-          call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_3d, rc=status)
+          call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_4d, rc=status)
           _VERIFY(STATUS)
-          if (associated(vr8_3d)) then !ALT: temp kludge
-             if (DIMS == MAPL_DimsTileOnly) then
-
-                if (arrdes%write_restart_by_oserver) then
-                   if(arrdes%writers_comm /= MPI_COMM_NULL) then
-                      lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_3d,2), size(vr8_3d,3)])
-                      call c_f_pointer(lMemRef%base_address, gvr8_3d, shape=[arrdes%im_world,size(vr8_3d,2), size(vr8_3d,3)])
-                   else
-                      lMemRef = LocalMemReference(pFIO_REAL64,[0,size(vr8_3d,2), size(vr8_3d,3)])
-                      call c_f_pointer(lMemRef%base_address, gvr8_3d, shape=[0,size(vr8_3d,2), size(vr8_3d,3)])
-                   endif
-                endif
-
-                do J = 1,size(vr8_3d,2)
-                   do K = 1,size(vr8_3d,3)
-                      call MAPL_VarWrite(formatter, name, vr8_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
-                           & offset1=j, offset2=k, gvar_out=gvr8_3d(:,J,K), rc=status)
-                   end do
-                end do
-
-                if (arrdes%write_restart_by_oserver) then
-                     call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1,1], &
-                                 global_start=[1,1,1], global_count=[arrdes%im_world, size(vr8_3d,2), size(vr8_3d,3)])
-                endif
-
-             else
-                call MAPL_VarWrite(formatter, name, vr8_3d, arrdes=arrdes, oClients=oClients, rc=status)
-             end if
+          if (.not.associated(vr8_4d)) then
+             _ASSERT(.false., "Cannot write unassociated vars")
           end if
+
+          call MAPL_VarWrite(formatter, name, vr8_4d, arrdes=arrdes, oClients=oClients, rc=status)
        endif
-#endif       
     else
        print *, "ERROR: unsupported RANK"
        _RETURN(ESMF_FAILURE)
@@ -5255,6 +5208,55 @@ module MAPL_IOMod
   end subroutine MAPL_TileMaskGet
 
 !---------------------------
+  subroutine MAPL_VarWriteNCpar_R4_4d(formatter, name, A, ARRDES, oClients, RC)
+
+    type(Netcdf4_Fileformatter) , intent(IN   ) :: formatter
+    character(len=*)            , intent(IN   ) :: name
+    real(kind=ESMF_KIND_R4)     , intent(IN   ) :: A(:,:,:,:)
+    type(ArrDescr)              , intent(INOUT) :: ARRDES
+    type (ClientManager), optional, intent(inout)  :: oClients
+    integer,           optional , intent(  OUT) :: RC
+
+    integer                               :: status
+    integer :: K, L
+
+    !    MORE HERE
+    do K = 1,size(A,4)
+       do L = 1,size(A,3)
+          call MAPL_VarWrite(formatter, name, A(:,:,L,K), arrdes=arrdes, &
+               & oClients=oClients, lev=l, offset2=k, rc=status)
+          _VERIFY(status)
+       end do
+    end do
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine MAPL_VarWriteNCpar_R4_4d
+!---------------------------
+  subroutine MAPL_VarWriteNCpar_R8_4d(formatter, name, A, ARRDES, oClients, RC)
+
+    type(Netcdf4_Fileformatter) , intent(IN   ) :: formatter
+    character(len=*)            , intent(IN   ) :: name
+    real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:,:,:)
+    type(ArrDescr)              , intent(INOUT) :: ARRDES
+    type (ClientManager), optional, intent(inout)  :: oClients
+    integer,           optional , intent(  OUT) :: RC
+
+    integer                               :: status
+    integer :: K, L
+
+    !    MORE HERE
+    do K = 1,size(A,4)
+       do L = 1,size(A,3)
+          call MAPL_VarWrite(formatter, name, A(:,:,L,K), arrdes=arrdes, &
+               & oClients=oClients, lev=l, offset2=k, rc=status)
+          _VERIFY(status)
+       end do
+    end do
+    _RETURN(ESMF_SUCCESS)
+    
+    !    MORE HERE
+  end subroutine MAPL_VarWriteNCpar_R8_4d
+!---------------------------
 
   subroutine MAPL_VarWriteNCpar_R4_3d(formatter, name, A, ARRDES, oClients, RC)
 
@@ -6975,13 +6977,14 @@ module MAPL_IOMod
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R8_2d(formatter, name, A, ARRDES, lev, oClients, RC)
+  subroutine MAPL_VarWriteNCpar_R8_2d(formatter, name, A, ARRDES, lev, offset2, oClients, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:)
     type(ArrDescr),    optional , intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: lev
+    integer,           optional , intent(IN   ) :: offset2
     type (ClientManager), optional, intent(inout) :: oClients
     integer,           optional , intent(  OUT) :: RC
 
@@ -7100,6 +7103,7 @@ module MAPL_IOMod
           start(3) = 1
           if (present(lev)) start(3) = lev
           start(4) = 1
+          if (present(offset2)) start(4) = offset2
           cnt(1) = IM_WORLD
           cnt(2) = jsize
           cnt(3) = 1

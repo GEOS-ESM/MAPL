@@ -82,8 +82,9 @@ module MAPL_HistoryCollectionMod
      type(newCFIOItemVector)            :: items
      character(len=ESMF_MAXSTR)         :: currentFile
      character(len=ESMF_MAXPATHLEN)     :: trackFile
-     contains
-        procedure :: AddGrid
+     logical                            :: splitField
+   contains
+     procedure :: AddGrid
   end type HistoryCollection
 
   contains
@@ -104,6 +105,7 @@ module MAPL_HistoryCollectionMod
         character(len=ESMF_MAXSTR), parameter :: Iam = "AddGrid" 
         type(ESMF_Config) :: cfg
         integer :: nx,ny,im_world,jm_world
+        integer :: splt4d
         character(len=ESMF_MAXSTR) :: tlabel
         type(ESMF_Grid) :: output_grid
         type(ESMF_Grid), pointer :: lgrid
