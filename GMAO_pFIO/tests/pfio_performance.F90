@@ -613,7 +613,7 @@ program main
 !         call execute_command_line('rm -f test_out'//i_to_string(i)//'.nc4')
       enddo
    endif
-
+   call directory_service%free_directory_resources()
    call MPI_finalize(ierror)
 
 end program main

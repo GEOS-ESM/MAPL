@@ -657,7 +657,7 @@ program main
       enddo
       call execute_command_line('/bin/rm -f test_in.nc4')
    endif
-
+   call directory_service%free_directory_resources()
    call Mpi_Barrier(MPI_COMM_WORLD,ierror)
    call MPI_finalize(ierror)
 end program main
