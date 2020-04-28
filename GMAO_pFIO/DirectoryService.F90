@@ -560,8 +560,9 @@ contains
 
    end subroutine terminate_servers
 
-   subroutine free_directory_resources(this)
+   subroutine free_directory_resources(this, rc)
       class (DirectoryService), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       type (Directory), pointer :: dir
       integer :: ierror
       ! Release resources
