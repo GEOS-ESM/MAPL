@@ -60,6 +60,8 @@ module pFIO_DirectoryServiceMod
       type (MpiMutex) :: mutex
       integer :: win_server_directory
       integer :: win_client_directory
+      type(c_ptr) :: server_dir
+      type(c_ptr) :: client_dir
       type (ProtocolParser) :: parser
       ! TODO: make vector
       type (PortInfo) :: local_ports(MAX_NUM_PORTS)
@@ -74,6 +76,7 @@ module pFIO_DirectoryServiceMod
       procedure :: get_win
       procedure :: get_directory
       procedure :: put_directory
+      procedure :: free_directory_resources
    end type DirectoryService
 
    interface DirectoryService
@@ -99,8 +102,8 @@ contains
       ! Create windows that will be used for coordination
       ! 1. lock - control modification of other windows
       ds%mutex = MpiMutex(ds%comm)
-      ds%win_server_directory = make_directory_window(ds%comm)
-      ds%win_client_directory = make_directory_window(ds%comm)
+      ds%win_server_directory = make_directory_window(ds%comm, ds%server_dir)
+      ds%win_client_directory = make_directory_window(ds%comm, ds%client_dir)
 
       if(ds%rank == 0) then
          call ds%put_directory(empty_dir, ds%win_client_directory)
@@ -116,18 +119,27 @@ contains
    end function new_DirectoryService
 
    
-   integer function make_directory_window(comm) result(win)
+   integer function make_directory_window(comm, addr) result(win)
       integer, intent(in) :: comm
-      
+      type (c_ptr), intent(out) :: addr
+
       type (Directory), pointer :: dir
+      type (Directory), target  :: dirnull
       integer(kind=MPI_ADDRESS_KIND) :: sz
-      type (c_ptr) :: addr
-      integer :: ierror
-      
-      sz = sizeof_directory()
-      
-      call MPI_Alloc_mem(sz, MPI_INFO_NULL, addr, ierror)
-      call c_f_pointer(addr, dir)
+      integer :: ierror, rank
+
+      call MPI_Comm_Rank(comm, rank, ierror)
+
+      if (rank == 0)  then
+         sz = sizeof_directory()
+         call MPI_Alloc_mem(sz, MPI_INFO_NULL, addr, ierror)
+         call c_f_pointer(addr, dir)
+         call MPI_Win_create(dir, sz, 1, MPI_INFO_NULL, comm, win, ierror)
+      else
+         sz  = 0
+         dir =>dirnull
+      endif
+
       call MPI_Win_create(dir, sz, 1, MPI_INFO_NULL, comm, win, ierror)
 
    end function make_directory_window
@@ -547,5 +559,25 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine terminate_servers
+
+   subroutine free_directory_resources(this)
+      class (DirectoryService), intent(inout) :: this
+      type (Directory), pointer :: dir
+      integer :: ierror
+      ! Release resources
+
+      call MPI_Barrier(this%comm, ierror)
+
+      call MPI_Win_free(this%win_server_directory, ierror)
+      call MPI_Win_free(this%win_client_directory, ierror)
+
+      if (this%rank == 0) then
+         call c_f_pointer(this%server_dir, dir)
+         call MPI_Free_mem(dir, ierror)
+         call c_f_pointer(this%client_dir, dir)
+         call MPI_Free_mem(dir, ierror)
+      end if
+
+   end subroutine free_directory_resources
 
 end module pFIO_DirectoryServiceMod
