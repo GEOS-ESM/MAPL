@@ -283,6 +283,10 @@ module MAPL_newCFIOMod
            vdims=grid_dims//",time"
         else if (fieldRank==3) then
            vdims=grid_dims//",lev,time"
+        else if (fieldRank==4) then
+           vdims=grid_dims//",lev,ungrid,time"
+        else 
+           _ASSERT(.false., 'Unsupported field rank')
         end if
         v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel)
         call v%add_attribute('units',trim(units))
@@ -399,6 +403,8 @@ module MAPL_newCFIOMod
 
         type(ESMF_Field) :: field,outField
         integer :: fieldRank
+
+        real, pointer, dimension(:,:,:,:) :: ptr4d=>null(), outptr4d=>null()
         real, pointer :: ptr3d(:,:,:),outptr3d(:,:,:)
         real, pointer :: ptr2d(:,:), outptr2d(:,:)
         real, allocatable, target :: ptr3d_inter(:,:,:)
@@ -463,6 +469,19 @@ module MAPL_newCFIOMod
               if (this%regrid_method==REGRID_METHOD_FRACTION) ptr3d=ptr3d-this%fraction
               call this%regrid_handle%regrid(ptr3d,outPtr3d,rc=status)
               _VERIFY(status)
+           end if
+        else if (fieldRank==4) then
+         if (.not.associated(ptr3d)) then
+              call MAPL_FieldGetPointer(field,ptr3d,rc=status)
+              _VERIFY(status)
+           end if
+           call MAPL_FieldGetPointer(OutField,outptr4d,rc=status)
+           _VERIFY(status)
+           if (gridIn==gridOut) then
+              outPtr4d=Ptr4d
+           else
+              outPtr4d= 0.0
+!           _ASSERT(.false.,'4d support needed')
            end if
         end if
 
@@ -651,9 +670,11 @@ module MAPL_newCFIOMod
      integer :: status
      integer :: fieldRank
      character(len=ESMF_MAXSTR) :: fieldName
+     real, pointer :: ptr4d(:,:,:,:) => null()
      real, pointer :: ptr3d(:,:,:) => null()
      real, pointer :: ptr2d(:,:) => null()
      type(ArrayReference) :: ref
+     integer :: km
      integer :: lm
      logical :: hasDE
      integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
@@ -665,6 +686,7 @@ module MAPL_newCFIOMod
      hasDE = MAPL_GridHasDE(this%output_grid,rc=status)
      _VERIFY(status)
      lm = this%vdata%lm
+!     print *,"DEBUG:stage_data::LM from vdata ",lm
      call ESMF_FieldGet(field,rank=fieldRank,name=fieldName,rc=status)
      _VERIFY(status)
 
@@ -696,6 +718,22 @@ module MAPL_newCFIOMod
          allocate(localStart,source=[gridLocalStart,1,1])
          allocate(globalStart,source=[gridGlobalStart,1,tindex])
          allocate(globalCount,source=[gridGlobalCount,lm,1])
+      else if (fieldRank==4) then
+         if (HasDE) then
+            call ESMF_FieldGet(field,farrayPtr=ptr4d,rc=status)
+            _VERIFY(status)
+            if (this%nbits < 24) then
+               call pFIO_DownBit(ptr4d,ptr4d,this%nbits,undef=MAPL_undef,rc=status)
+               _VERIFY(status)
+            end if
+         end if
+         ref = factory%generate_file_reference4D(Ptr4D)
+        lm = size(ptr4d,3)
+        km = size(ptr4d,4)
+!         _ASSERT(lm == size(ptr4d,3), "Illegal value for LM")
+         allocate(localStart,source=[gridLocalStart,1,1,1])
+         allocate(globalStart,source=[gridGlobalStart,1,1,tindex])
+         allocate(globalCount,source=[gridGlobalCount,lm,km,1])
       end if
       call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
