@@ -134,7 +134,6 @@ contains
          sz = sizeof_directory()
          call MPI_Alloc_mem(sz, MPI_INFO_NULL, addr, ierror)
          call c_f_pointer(addr, dir)
-         call MPI_Win_create(dir, sz, 1, MPI_INFO_NULL, comm, win, ierror)
       else
          sz  = 0
          dir =>dirnull
