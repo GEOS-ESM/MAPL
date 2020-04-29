@@ -16,6 +16,7 @@ module MAPL_NUOPCWrapperMod
        model_label_SetClock => label_SetClock, &
        model_label_SetRunClock => label_SetRunClock
   use MAPL_Mod
+  use pflogger, only: pfl_initialize => initialize
 
   implicit none
 
@@ -192,6 +193,8 @@ contains
     
     call cap%cap_gc%set_services(rc = status); _VERIFY(status)
     call cap%cap_gc%initialize(rc = status); _VERIFY(status)
+
+    call pfl_initialize()
         
     _RETURN(ESMF_SUCCESS)
 
