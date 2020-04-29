@@ -580,6 +580,7 @@ contains
          call MPI_Free_mem(dir, ierror)
       end if
 
+      _RETURN(_SUCCESS)
    end subroutine free_directory_resources
 
 end module pFIO_DirectoryServiceMod
