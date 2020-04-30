@@ -203,6 +203,7 @@ contains
       if (subcommunicator /= MPI_COMM_NULL) then
          call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
          call this%run_member(rc=status); _VERIFY(status)
+         call this%directory_service%free_directory_resources()
       end if
 
       _RETURN(_SUCCESS)
