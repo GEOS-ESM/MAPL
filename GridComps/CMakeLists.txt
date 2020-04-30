@@ -27,6 +27,7 @@ set (srcs
     MAPL_newCFIO.F90
     MAPL_newCFIOitem.F90
     MAPL_OrbGridCompMod.F90
+    MAPL_SimpleBundleMod.F90
 )
 
 esma_add_library(

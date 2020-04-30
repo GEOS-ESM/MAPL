@@ -20,14 +20,11 @@ MAPL_ioClients.F90
 MAPL_LocStreamMod.F90
 MAPL_MaxMinMod.F90
 MAPL_MemUtils.F90
-MAPL_Mod.F90
 MAPL_NewArthParser.F90
 MAPL_NominalOrbitsMod.F90
-MAPL_NUOPCWrapperMod.F90
 MAPL_Profiler.F90
 MAPL_SatVapor.F90
 MAPL_SimpleAlarm.F90
-MAPL_SimpleBundleMod.F90
 MAPL_sun_uc.F90
 MAPL_TimeMethods.F90
 MAPL_VarSpecMod.F90
@@ -73,7 +70,6 @@ target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES}
 # used.
 file (COPY ${MAPL_SOURCE_DIR}/include/unused_dummy.H DESTINATION ${esma_include}/${this})
 file (COPY ${MAPL_SOURCE_DIR}/include/MAPL_Generic.h DESTINATION ${esma_include}/${this})
-file (COPY mapl_acg.pl DESTINATION ${esma_include}/${this})
 file (COPY mapl_stub.pl DESTINATION ${esma_include}/${this})
 
 # Users guide 
