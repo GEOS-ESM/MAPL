@@ -1,6 +1,8 @@
 esma_set_this ()
 
 set (srcs
+  MAPL_Config.F90
+  MAPL_Base.F90
   MAPL_Comms.F90
   )
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES ${ESMF_LIBRARIES} Shared pflogger  gftl-shared gftl MPI::MPI_Fortran)

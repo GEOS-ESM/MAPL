@@ -3,8 +3,6 @@ esma_set_this ()
 set (srcs
     hash.c
     hinterp.F
-    MAPL_Base.F90
-    MAPL_Config.F90
     MAPL_Constants.F90
     MAPL_DirPath.F90
     MAPL_ErrorHandling.F90
@@ -21,8 +19,7 @@ set (srcs
     sort.c
   )
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES ${ESMF_LIBRARIES} pflogger  gftl-shared gftl MPI::MPI_Fortran)
-target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include ${INC_ESMF} ${INC_NETCDF})
+target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
 message( ${esma_include}/${this})
 message( ${MAPL_SOURCE_DIR}/include)
-file (COPY MAPL_Exceptions.h DESTINATION ${esma_include}/${this})
 file (COPY MAPL_ErrLog.h DESTINATION ${esma_include}/${this})

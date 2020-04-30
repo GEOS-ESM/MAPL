@@ -134,7 +134,7 @@
 
 #define __try__        do 
 #define __endtry__     exit; end do
-#define __except__     exit; end do; do; if(STATUS==ESMF_SUCCESS) exit
+#define __except__     exit; end do; do; if(STATUS==0) exit
 #define __rc__         RC=STATUS); if(STATUS/=0) exit; IGNORE_(STATUS
 
 #define __catch__      select case(STATUS)
@@ -142,7 +142,7 @@
 
 #define __Try__(label)     label: do 
 #define __endTry__(label)  exit label; end do
-#define __Rc__(label)      RC=STATUS); if(STATUS/=ESMF_SUCCESS)exit label; IGNORE_(STATUS
+#define __Rc__(label)      RC=STATUS); if(STATUS/=0)exit label; IGNORE_(STATUS
 
 !
 ! Raising exceptions

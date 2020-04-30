@@ -1,8 +1,7 @@
 
 module MAPL_InterpMod
 
-  use ESMF
-
+use, intrinsic :: iso_fortran_env, only: REAL64
 implicit none
 private
 
@@ -60,10 +59,10 @@ subroutine INTERP_LIN_0011_2( OY, OX, IY, IX)
 
 ! !ARGUMENTS:
 
-  real(kind=ESMF_KIND_R8),     intent(OUT) :: OY
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: OX
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: IY(:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: IX(:)
+  real(kind=REAL64),     intent(OUT) :: OY
+  real(kind=REAL64),     intent(IN ) :: OX
+  real(kind=REAL64),     intent(IN ) :: IY(:)
+  real(kind=REAL64),     intent(IN ) :: IX(:)
 
 !EOP
 
@@ -101,10 +100,10 @@ end subroutine INTERP_LIN_1111_1
 
 subroutine INTERP_LIN_1111_2( OY, OX, IY, IX)
 
-  real(kind=ESMF_KIND_R8),     intent(OUT) :: OY(:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: OX(:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: IY(:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: IX(:)
+  real(kind=REAL64),     intent(OUT) :: OY(:)
+  real(kind=REAL64),     intent(IN ) :: OX(:)
+  real(kind=REAL64),     intent(IN ) :: IY(:)
+  real(kind=REAL64),     intent(IN ) :: IX(:)
 
   integer J
 
@@ -135,10 +134,10 @@ end subroutine INTERP_LIN_2121_1
 !=========================================================================
 
 subroutine INTERP_LIN_2121_2( OY, OX, IY, IX)
-  real(kind=ESMF_KIND_R8),     intent(OUT) :: OY(:,:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: OX(:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: IY(:,:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: IX(:)
+  real(kind=REAL64),     intent(OUT) :: OY(:,:)
+  real(kind=REAL64),     intent(IN ) :: OX(:)
+  real(kind=REAL64),     intent(IN ) :: IY(:,:)
+  real(kind=REAL64),     intent(IN ) :: IX(:)
 
   integer J
   
@@ -171,10 +170,10 @@ end subroutine INTERP_LIN_2111_1
 
 subroutine INTERP_LIN_2111_2( OY, OX, IY, IX)
 
-  real(kind=ESMF_KIND_R8),     intent(OUT) :: OY(:,:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: OX(:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: IY(:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: IX(:)
+  real(kind=REAL64),     intent(OUT) :: OY(:,:)
+  real(kind=REAL64),     intent(IN ) :: OX(:)
+  real(kind=REAL64),     intent(IN ) :: IY(:)
+  real(kind=REAL64),     intent(IN ) :: IX(:)
 
   integer J
 
@@ -209,10 +208,10 @@ end subroutine INTERP_LIN_3321_1
 
 subroutine INTERP_LIN_3321_2( OY, OX, IY, IX)
 
-  real(kind=ESMF_KIND_R8),     intent(OUT) :: OY(:,:,:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: OX(:,:,:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: IY(:,:)
-  real(kind=ESMF_KIND_R8),     intent(IN ) :: IX(:)
+  real(kind=REAL64),     intent(OUT) :: OY(:,:,:)
+  real(kind=REAL64),     intent(IN ) :: OX(:,:,:)
+  real(kind=REAL64),     intent(IN ) :: IY(:,:)
+  real(kind=REAL64),     intent(IN ) :: IX(:)
 
   integer I,J
 
