@@ -709,6 +709,7 @@ contains
          call MPI_Comm_set_errhandler(local_comm_world,MPI_ERRORS_RETURN,ierror)
          _VERIFY(ierror)
 #endif
+         call logging%free()
          call MPI_Finalize(ierror)
          _VERIFY(ierror)
       end if
