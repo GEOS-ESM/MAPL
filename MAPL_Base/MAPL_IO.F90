@@ -384,8 +384,8 @@ module MAPL_IOMod
          ArrDes%cb_buffer_size = "16777216"
          ArrDes%romio_cb_write = "enable"
 
-         ArrDes%face_readers_comm = 0
-         ArrDes%face_writers_comm = 0
+         ArrDes%face_readers_comm = MPI_COMM_NULL
+         ArrDes%face_writers_comm = MPI_COMM_NULL
          ArrDes%face_index        = 0
 
          ArrDes%tile = .false.
