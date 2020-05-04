@@ -75,10 +75,6 @@ target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
 target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
 
 
-if (NOT (CMAKE_BUILD_TYPE MATCHES Debug))
-   target_compile_definitions(${this} PRIVATE BUILD_TYPE_IS_NOT_DEBUG)
-endif ()
-
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PUBLIC "-Xlinker -rpath -Xlinker ${dir}")

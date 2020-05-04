@@ -8,8 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+
+- Update CI to use Baselibs 6.0.12
+- Update `components.yaml`
+  - ESMA_env v2.1.2
+  - ESMA_cmake v3.0.2
+
 ### Fixed
+
+- Fix for `MPI_Finalize` error with Intel MPI
+
 ### Removed
+
+- Remove `MPI_comm_set_errhandler` workaround
+
 ### Added
 
 ## [2.1.2]  2020-04-24
