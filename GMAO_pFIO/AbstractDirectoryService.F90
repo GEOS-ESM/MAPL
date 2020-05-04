@@ -25,6 +25,7 @@ module pFIO_AbstractDirectoryServiceMod
       procedure(connect_to_server), deferred :: connect_to_server
       procedure(connect_to_client), deferred :: connect_to_client
       procedure(publish),deferred :: publish
+      procedure(free_directory_resources), deferred :: free_directory_resources
    end type AbstractDirectoryService
 
    abstract interface
@@ -59,6 +60,12 @@ module pFIO_AbstractDirectoryServiceMod
          class (AbstractDirectoryService), intent(inout) :: this
          type(PortInfo), target, intent(in) :: port
          class (BaseServer), intent(inout) :: server
+         integer, optional, intent(out) :: rc
+      end subroutine
+
+      subroutine free_directory_resources(this, rc)
+         import AbstractDirectoryService
+         class (AbstractDirectoryService), intent(inout) :: this
          integer, optional, intent(out) :: rc
       end subroutine
 

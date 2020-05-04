@@ -203,6 +203,7 @@ contains
       if (subcommunicator /= MPI_COMM_NULL) then
          call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
          call this%run_member(rc=status); _VERIFY(status)
+         call this%directory_service%free_directory_resources()
       end if
 
       _RETURN(_SUCCESS)
@@ -698,16 +699,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then
-#ifdef BUILD_TYPE_IS_NOT_DEBUG
-         ! MPT 2.17 has a bug with its interface to MPI_Comm_set_errhandler
-         ! defining comm as inout instead of in.
-         local_comm_world = this%comm_world
-         ! Intel MPI at NCCS seems to have spurious MPI_Finalize errors that do
-         ! not affect the answer or even the finalize step. This call suppresses
-         ! the errors.
-         call MPI_Comm_set_errhandler(local_comm_world,MPI_ERRORS_RETURN,ierror)
-         _VERIFY(ierror)
-#endif
+         call logging%free()
          call MPI_Finalize(ierror)
          _VERIFY(ierror)
       end if
