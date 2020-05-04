@@ -55,8 +55,13 @@ list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 include(mapl_acg)
 add_subdirectory (Apps)
 
-# Git transition defect:
-# Uncomment the line below once the dev branch of MAPL has been brought in.
 add_subdirectory (Tests)
+
+# Install the Python directory
+install (
+   DIRECTORY Python
+   DESTINATION lib
+   USE_SOURCE_PERMISSIONS
+   )
 
 ecbuild_install_project (NAME MAPL)

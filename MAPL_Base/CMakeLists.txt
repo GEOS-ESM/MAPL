@@ -122,12 +122,6 @@ if (PFUNIT_FOUND)
 endif ()
 
 install (
-   DIRECTORY Python
-   DESTINATION lib
-   USE_SOURCE_PERMISSIONS
-   )
-
-install (
    PROGRAMS red_ma.pl
    DESTINATION bin
    )
