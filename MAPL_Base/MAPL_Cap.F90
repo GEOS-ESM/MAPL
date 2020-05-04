@@ -207,6 +207,7 @@ contains
            first = .false.
          end if
          call this%run_member(rc=status); _VERIFY(status)
+         call this%directory_service%free_directory_resources()
       end if
 
       _RETURN(_SUCCESS)
