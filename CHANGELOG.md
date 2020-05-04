@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 ### Removed
+
+- Removed duplicate `Python` directory
+
 ### Added
 
 ## [2.1.3] - 2020-05-04
