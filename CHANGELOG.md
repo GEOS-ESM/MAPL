@@ -8,21 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+### Fixed
+### Removed
+### Added
 
-- Update CI to use Baselibs 6.0.12
-- Update `components.yaml`
-  - ESMA_env v2.1.2
-  - ESMA_cmake v3.0.2
+## [Unreleased]
+
+### Changed
+
+- MAPL now requires Baselibs 6.0.12 (pFlogger v1.4.1)
+  - Update CI to use Baselibs 6.0.12
+  - Update `components.yaml`
+    - ESMA_env v2.1.2
+    - ESMA_cmake v3.0.2
 
 ### Fixed
 
 - Fix for `MPI_Finalize` error with Intel MPI
+- Fix `ArrDescrInit` routine
+- Fixes for ESMF logging (when run with MULTI)
 
 ### Removed
 
 - Remove `MPI_comm_set_errhandler` workaround
-
-### Added
 
 ## [2.1.2]  2020-04-24
 

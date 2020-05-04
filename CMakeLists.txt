@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.1.1
+  VERSION 2.1.3
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/@cmake)
