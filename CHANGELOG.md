@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 
-## [Unreleased]
+## [2.1.3] - 2020-05-04
 
 ### Changed
 
@@ -32,14 +32,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove `MPI_comm_set_errhandler` workaround
 
-## [2.1.2]  2020-04-24
+## [2.1.2] - 2020-04-24
 
 ### Fixed
 
 - Fixed bug when output fields on tripolar grid in History
 - Fixed bug during replay when the refresh template in ExtData is a time interval
 
-## [2.1.1]  2020-04-20
+## [2.1.1] - 2020-04-20
 
 ### Fixed
 
@@ -48,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Workaround for MPT 2.17 build bug with `MPI_Comm_set_errhandler`
 
 
-## [2.1.0]  2020-04-16
+## [2.1.0] - 2020-04-16
 
 ### Changed
 
