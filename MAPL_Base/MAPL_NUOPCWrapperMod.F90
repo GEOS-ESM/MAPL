@@ -65,40 +65,31 @@ contains
 
     rc = ESMF_SUCCESS
 
-    print*,__FILE__,__LINE__
     ! the NUOPC model component will register the generic methods
     call NUOPC_CompDerive(model, model_routine_SS, rc=rc)
-    print*,__FILE__,__LINE__
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
          line=__LINE__, file=__FILE__)) return  ! bail out
 
-    print*,__FILE__,__LINE__
     call ESMF_GridCompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
          userRoutine = initialize_p0, phase = 0, rc = rc)
-    print*,__FILE__,__LINE__
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
          line=__LINE__, file=__FILE__)) return  ! bail out
-    print*,__FILE__,__LINE__
 
 
     ! set entry point for methods that require specific implementation
     call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
          phaseLabelList=["IPDv05p1"], userRoutine=advertise_fields, rc=rc)
-    print*,__FILE__,__LINE__
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
          line=__LINE__, file=__FILE__)) return  ! bail out
 
-    print*,__FILE__,__LINE__
     call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
          phaseLabelList=["IPDv05p4"], userRoutine=realize_fields, rc=rc)
-    print*,__FILE__,__LINE__
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
          line=__LINE__, file=__FILE__)) return  ! bail out
 
 
 
     ! attach specializing method(s)
-    print*,__FILE__,__LINE__
     call NUOPC_CompSpecialize(model, specLabel = model_label_DataInitialize, &
          specRoutine = initialize_data, rc=rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
@@ -106,7 +97,6 @@ contains
          file=__FILE__)) &
          return  ! bail out
 
-    print*,__FILE__,__LINE__
     call NUOPC_CompSpecialize(model, specLabel=model_label_Advance, &
          specRoutine = model_advance, rc=rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
@@ -118,7 +108,6 @@ contains
          file=__FILE__)) &
          return  ! bail out
 
-    print*,__FILE__,__LINE__
     call NUOPC_CompSpecialize(model, specLabel=model_label_CheckImport, &
          specRoutine=CheckImport, rc=rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
@@ -127,7 +116,6 @@ contains
          return  ! bail out
 
 
-    print*,__FILE__,__LINE__
     call NUOPC_CompSpecialize(model, specLabel = model_label_SetClock, &
          specRoutine = set_clock, rc = rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
@@ -142,15 +130,12 @@ contains
     !      file=__FILE__)) &
     !      return  ! bail out
 
-    print*,__FILE__,__LINE__
     call NUOPC_CompSpecialize(model, specLabel = label_Finalize, &
          specRoutine = model_finalize, rc = rc)
-    print*,__FILE__,__LINE__
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
          line=__LINE__, &
          file=__FILE__)) &
          return  ! bail out
-    print*,__FILE__,__LINE__
 
   end subroutine SetServices
 
@@ -175,49 +160,35 @@ contains
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
     
-print*,__FILE__,__LINE__
     call NUOPC_CompFilterPhaseMap(model, ESMF_METHOD_INITIALIZE, &
          acceptStringList=(/"IPDv05p"/), rc=rc)
 
-print*,__FILE__,__LINE__
     call ESMF_GridCompGet(model, vm = vm, rc = status); _VERIFY(status)
-print*,__FILE__,__LINE__
     call ESMF_VMGet(vm, localPet = my_rank, petCount  = npes, mpiCommunicator = mpi_comm, rc = status); _VERIFY(status)
       
-print*,__FILE__,__LINE__
     call MPI_Comm_dup(mpi_comm, dup_comm, status); _VERIFY(status)
 
-print*,__FILE__,__LINE__
     cap_params = get_cap_parameters_from_gc(model, rc)
 
-print*,__FILE__,__LINE__
     cap_options = MAPL_CapOptions(cap_rc_file = cap_params%cap_rc_file, rc = rc)
     cap_options%use_comm_world = .false.
     cap_options%comm = dup_comm
-print*,__FILE__,__LINE__
     call MPI_Comm_size(dup_comm, cap_options%npes_model, rc)
 
-print*,__FILE__,__LINE__
     allocate(cap)
-print*,__FILE__,__LINE__
     call init_MAPL_Cap(cap,cap_params%name, cap_params%set_services, cap_options = cap_options, rc = rc)
-print*,__FILE__,__LINE__
 !!$    cap = MAPL_Cap(cap_params%name, cap_params%set_services, cap_options = cap_options, rc = rc)
     wrapped_cap%ptr => cap
-print*,__FILE__,__LINE__
 
     call ESMF_UserCompSetInternalState(model, "MAPL_Cap", wrapped_cap, status); _VERIFY(status)
 
-print*,__FILE__,__LINE__
     call cap%initialize_mpi(rc = status); _VERIFY(status)
 
-print*,__FILE__,__LINE__
     subcommunicator = cap%create_member_subcommunicator(cap%get_comm_world(), rc=status); _VERIFY(status)
     if (first) then
         call cap%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
         first = .false.
     end if
-print*,__FILE__,__LINE__
 
     call cap%initialize_cap_gc(cap%get_mapl_comm())
     
@@ -567,17 +538,13 @@ print*,__FILE__,__LINE__
     type(cap_parameters_wrapper) :: wrapper
 
     rc = ESMF_SUCCESS
-      print*,__FILE__,__LINE__
 
     allocate(wrapper%ptr)
     wrapper%ptr = cap_parameters(name, cap_rc_file, root_set_services)    
-      print*,__FILE__,__LINE__
 
     call ESMF_UserCompSetInternalState(wrapper_gc, internal_parameters_name, wrapper, rc)
-      print*,__FILE__,__LINE__
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
          line=__LINE__, file=__FILE__)) return
-      print*,__FILE__,__LINE__
   end subroutine init_wrapper
 
 end module MAPL_NUOPCWrapperMod

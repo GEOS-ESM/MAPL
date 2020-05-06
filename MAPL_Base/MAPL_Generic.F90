@@ -5243,13 +5243,11 @@ end function MAPL_AddChildFromGC
        arrdes%offset = 0
        if (AmWriter) then
 
-          print*,"MPI_Info_create",__FILE__,__LINE__
           call MPI_Info_create(info, STATUS)
           _VERIFY(STATUS)
 ! disable works best on GPFS but remains TBD for Lustre
           call MAPL_GetResource(MPL, romio_cb_write, Label="ROMIO_CB_WRITE:", default="disable", RC=STATUS) 
           _VERIFY(STATUS)
-          print*,"MPI_Info_set",__FILE__,__LINE__
           call MPI_Info_set(info, "romio_cb_write", trim(romio_cb_write), STATUS)
           _VERIFY(STATUS)
           if (io_rank == 0) then
@@ -5646,13 +5644,11 @@ end function MAPL_AddChildFromGC
 
        offset = 0
        if (AmReader) then
-             print*,"MPI_Info_create",__FILE__,__LINE__
              call MPI_Info_create(info, STATUS)
              _VERIFY(STATUS)
 ! This need to be tested on GPFS and Lustre to determine best performance
              call MAPL_GetResource(MPL, romio_cb_read, Label="ROMIO_CB_READ:", default="automatic", RC=STATUS)
              _VERIFY(STATUS)
-             print*,"MPI_Info_set",__FILE__,__LINE__
              call MPI_Info_set(info, "romio_cb_read", trim(romio_cb_read), STATUS)
              _VERIFY(STATUS)
              if (io_rank == 0) then
@@ -10358,7 +10354,6 @@ end subroutine MAPL_READFORCINGX
      arrdes%romio_cb_write = romio_cb_write
      call MAPL_GetResource(MPL, cb_buffer_size, Label="CB_BUFFER_SIZE:", default="16777216", RC=STATUS)
      _VERIFY(STATUS)
-     print*,__FILE__,__LINE__,"cb_buffer_size:    ", cb_buffer_size
      arrdes%cb_buffer_size = cb_buffer_size
      if (present(num_readers)) arrdes%num_readers=num_readers
      if (present(num_writers)) arrdes%num_writers=num_writers

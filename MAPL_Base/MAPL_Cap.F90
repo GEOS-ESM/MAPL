@@ -112,9 +112,7 @@ contains
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
 
-      print*,__FILE__,__LINE__
       call initialize_pflogger()
-      print*,__FILE__,__LINE__
 
       _RETURN(_SUCCESS)     
       _UNUSED_DUMMY(unusable)
@@ -137,24 +135,14 @@ contains
           call pfl_initialize()
 
           has_logging_config = .false. ! unless
-          print*,__FILE__,__LINE__,allocated(cap%cap_options%logging_config)
-          print*,__FILE__,__LINE__,has_logging_config
 
           if (allocated(cap%cap_options%logging_config)) then
-             print*,__FILE__,__LINE__, has_logging_config
              if(cap%cap_options%logging_config /= '') then
-                print*,__FILE__,__LINE__, has_logging_config
                 has_logging_config = .true.
-                print*,__FILE__,__LINE__, has_logging_config
              end if
-             print*,__FILE__,__LINE__, has_logging_config
           end if
 
-          print*,__FILE__,__LINE__, has_logging_config
           if (has_logging_config) then
-             print*,__FILE__,__LINE__,allocated(cap%cap_options%logging_config)
-             print*,__FILE__,__LINE__,cap%cap_options%logging_config
-
              call logging%load_file(cap%cap_options%logging_config)
           else
 
@@ -218,9 +206,7 @@ contains
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
 
-      print*,__FILE__,__LINE__
       call initialize_pflogger()
-      print*,__FILE__,__LINE__
 
       _RETURN(_SUCCESS)     
       _UNUSED_DUMMY(unusable)
@@ -243,24 +229,14 @@ contains
           call pfl_initialize()
 
           has_logging_config = .false. ! unless
-          print*,__FILE__,__LINE__,allocated(cap%cap_options%logging_config)
-          print*,__FILE__,__LINE__,has_logging_config
 
           if (allocated(cap%cap_options%logging_config)) then
-             print*,__FILE__,__LINE__, has_logging_config
              if(cap%cap_options%logging_config /= '') then
-                print*,__FILE__,__LINE__, has_logging_config
                 has_logging_config = .true.
-                print*,__FILE__,__LINE__, has_logging_config
              end if
-             print*,__FILE__,__LINE__, has_logging_config
           end if
 
-          print*,__FILE__,__LINE__, has_logging_config
           if (has_logging_config) then
-             print*,__FILE__,__LINE__,allocated(cap%cap_options%logging_config)
-             print*,__FILE__,__LINE__,cap%cap_options%logging_config
-
              call logging%load_file(cap%cap_options%logging_config)
           else
 

@@ -7252,19 +7252,12 @@ module MAPL_IOMod
 
     !open the file for parallel reading
     if (arrdes%readers_comm/=MPI_COMM_NULL) then
-       print*,"MPI_Info_create",__FILE__,__LINE__
        call MPI_Info_create(info,STATUS)
        _VERIFY(STATUS)
-       print*,"MPI_Info_set",__FILE__,__LINE__
        ! print*,"romio_cb_read:    ",trim(arrdes%romio_cb_read)
        call MPI_Info_set(info,"romio_cb_read", trim(arrdes%romio_cb_read),STATUS)
-       print*,"STATUS",STATUS
        _VERIFY(STATUS)
-       print*,"MPI_Info_set",__FILE__,__LINE__
-       print*,"cb_buffer_size:    ",arrdes%cb_buffer_size
-       print*,"cb_buffer_size:    ",trim(arrdes%cb_buffer_size)
        call MPI_Info_set(info,"cb_buffer_size", trim(arrdes%cb_buffer_size),STATUS)
-       print*,"STATUS: 0",STATUS
        _VERIFY(STATUS)
        if (arrdes%num_readers == 1) then
           call formatter%open(filename,pFIO_READ,rc=status)
@@ -8200,13 +8193,10 @@ module MAPL_IOMod
        end if
        deallocate(ungrid_dims)
 
-       print*,"MPI_Info_create",__FILE__,__LINE__
        call MPI_Info_create(info,STATUS)
        _VERIFY(STATUS)
-       print*,"MPI_Info_set",__FILE__,__LINE__
        call MPI_Info_set(info,"romio_cb_write", trim(arrdes%romio_cb_write),STATUS)
        _VERIFY(STATUS)
-       print*,"MPI_Info_set",__FILE__,__LINE__
        call MPI_Info_set(info,"cb_buffer_size", trim(arrdes%cb_buffer_size),STATUS)
        _VERIFY(STATUS)
 
