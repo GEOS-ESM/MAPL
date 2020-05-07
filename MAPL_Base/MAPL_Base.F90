@@ -24,7 +24,6 @@ private
 public MAPL_AllocateCoupling    ! Atanas: please provide 1-line for each
 public MAPL_FieldAllocCommit
 !public MAPL_FieldF90Deallocate
-public MAPL_Asrt
 public MAPL_ClimInterpFac
 !public MAPL_ConnectCoupling
 public MAPL_DecomposeDim
@@ -45,12 +44,10 @@ public MAPL_Nsecf2
 public MAPL_PackTime
 public MAPL_PackDateTime
 public MAPL_RemapBounds
-public MAPL_Rtrn
 public MAPL_Tick
 public MAPL_TimeStringGet
 public MAPL_UnpackTime
 public MAPL_UnpackDateTime
-public MAPL_Vrfy
 public MAPL_RmQualifier
 public MAPL_GetImsJms
 public MAPL_AttributeSet
@@ -215,21 +212,6 @@ interface MAPL_RemapBounds
    module procedure MAPL_RemapBoundsFull_3dr4
    module procedure MAPL_RemapBounds_3dr4
    module procedure MAPL_RemapBounds_3dr8
-end interface
-
-interface MAPL_VRFY
-   module procedure MAPL_VRFY
-   module procedure MAPL_VRFYt
-end interface
-
-interface MAPL_ASRT
-   module procedure MAPL_ASRT
-   module procedure MAPL_ASRTt
-end interface
-
-interface MAPL_RTRN
-   module procedure MAPL_RTRN
-   module procedure MAPL_RTRNt
 end interface
 
 interface MAPL_AttributeSet
@@ -1250,78 +1232,6 @@ subroutine MAPL_tick (nymd,nhms,ndt)
       ENDIF   
       RETURN  
 end subroutine MAPL_tick    
-
-logical function MAPL_RTRN(A,iam,line,rc)
-   integer,           intent(IN ) :: A
-   character*(*),     intent(IN ) :: iam
-   integer,           intent(IN ) :: line
-   integer, optional, intent(OUT) :: RC
-
-     MAPL_RTRN = .true.
-     if(A/=ESMF_SUCCESS) print '(A40,I10)',Iam,line
-     if(present(RC)) RC=A
-end function MAPL_RTRN
-
-logical function MAPL_VRFY(A,iam,line,rc)
-   integer,           intent(IN ) :: A
-   character*(*),     intent(IN ) :: iam
-   integer,           intent(IN ) :: line
-   integer, optional, intent(OUT) :: RC
-     MAPL_VRFY = A/=ESMF_SUCCESS 
-     if(MAPL_VRFY)then
-       if(present(RC)) then
-         print '(A40,I10)',Iam,line
-         RC=A
-       endif
-     endif
-end function MAPL_VRFY
-
-logical function MAPL_ASRT(A,iam,line,rc)
-   logical,           intent(IN ) :: A
-   character*(*),     intent(IN ) :: iam
-   integer,           intent(IN ) :: line
-   integer, optional, intent(OUT) :: RC
-     MAPL_ASRT = .not.A 
-     if(MAPL_ASRT)then
-       if(present(RC))then
-         print '(A40,I10)',Iam,LINE
-         RC=ESMF_FAILURE
-       endif
-     endif
-end function MAPL_ASRT
-
-logical function MAPL_RTRNt(A,text,iam,line,rc)
-   integer,           intent(IN ) :: A
-   character*(*),     intent(IN ) :: text,iam
-   integer,           intent(IN ) :: line
-   integer, optional, intent(OUT) :: RC
-
-     MAPL_RTRNt = .true.
-     if(A/=ESMF_SUCCESS)then
-        print '(A40,I10)',Iam,line
-        print *, text
-     end if
-     if(present(RC)) RC=A
-
-end function MAPL_RTRNT
-
-logical function MAPL_VRFYt(A,text,iam,line,rc)
-   integer,           intent(IN ) :: A
-   character*(*),     intent(IN ) :: iam,text
-   integer,           intent(IN ) :: line
-   integer, optional, intent(OUT) :: RC
-     MAPL_VRFYt =  MAPL_VRFY(A,iam,line,rc)
-     if(MAPL_VRFYt) print *, text
-end function MAPL_VRFYT
-
-logical function MAPL_ASRTt(A,text,iam,line,rc)
-   logical,           intent(IN ) :: A
-   character*(*),     intent(IN ) :: iam,text
-   integer,           intent(IN ) :: line
-   integer, optional, intent(OUT) :: RC
-     MAPL_ASRTt =   MAPL_ASRT(A,iam,line,rc)
-     if(MAPL_ASRTt) print *, text
-end function MAPL_ASRTT
 
 integer function MAPL_nsecf2 (nhhmmss,nmmdd,nymd)
       integer nhhmmss,nmmdd,nymd,nday,month

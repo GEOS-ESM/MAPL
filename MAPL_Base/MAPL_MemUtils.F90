@@ -479,7 +479,7 @@ module MAPL_MemUtilsMod
 
      call get_unit(mem_unit)
      open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',IOSTAT=STATUS)
-     VERIFY_(STATUS)
+     _VERIFY(STATUS)
      do
         read (mem_unit,'(a)', end=20) string
         if ( index ( string, 'MemTotal:' ) == 1 ) then  ! High Water Mark
@@ -508,7 +508,7 @@ module MAPL_MemUtilsMod
         percent_used = -1
      end if
 
-     RETURN_(ESMF_SUCCESS)
+     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_MemUsed
 
 subroutine MAPL_MemCommited ( memtotal, committed_as, percent_committed, RC )
