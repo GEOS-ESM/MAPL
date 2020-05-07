@@ -377,6 +377,23 @@ module MAPL_IOMod
          _VERIFY(STATUS)
          arrdes%jn=jn
 
+         ArrDes%NX0 = NY0
+         ArrDes%NY0 = NX0
+
+         ArrDes%offset = 0
+
+         ArrDes%romio_cb_read  = "automatic"
+         ArrDes%cb_buffer_size = "16777216"
+         ArrDes%romio_cb_write = "enable"
+
+         ArrDes%face_readers_comm = MPI_COMM_NULL
+         ArrDes%face_writers_comm = MPI_COMM_NULL
+         ArrDes%face_index        = 0
+
+         ArrDes%tile = .false.
+
+         ArrDes%filename = ''
+
          _RETURN(ESMF_SUCCESS)
 
       end subroutine ArrDescrInit
