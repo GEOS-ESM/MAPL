@@ -1,13 +1,5 @@
 esma_set_this ()
 
-if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-  if(CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 20)
-    if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 17)
-      add_definitions(-D__ifort_18)
-    endif()
-  endif()
-endif()
-
 set (srcs
     hash.c
     hinterp.F
