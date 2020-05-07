@@ -14,7 +14,6 @@ module MAPL_HistoryCollectionMod
 
   type, public :: FieldSet
      character(len=ESMF_MAXSTR), pointer :: fields(:,:) => null()
-     character(len=ESMF_MAXSTR), pointer :: vector_list(:,:) => null()
      integer :: nfields = 0
   end type FieldSet
 

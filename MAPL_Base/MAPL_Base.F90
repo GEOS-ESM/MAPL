@@ -75,6 +75,7 @@ public MAPL_DistGridGet
 public MAPL_GridGetCorners
 public MAPL_GridGetInterior
 public MAPL_TrimString
+public MAPL_FieldSplit
 
 ! !PUBLIC PARAMETERS
 !
