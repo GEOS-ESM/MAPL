@@ -413,18 +413,8 @@ contains
     type(StringFieldSetMapIterator) :: field_set_iter
     character(ESMF_MAXSTR) :: field_set_name
     integer :: collection_id
-    integer, pointer :: newExpState(:) => null()
-    type(newCFIOitemVectorIterator) :: iter
-    type(newCFIOitem), pointer :: item
     logical, allocatable :: needSplit(:)
     type(ESMF_Field), allocatable :: fldList(:)
-    integer :: nfields
-    integer :: nfield4d
-    type(ESMF_Field), pointer :: splitFields(:) => null()
-    type(ESMF_State) :: expState
-    type(newCFIOItemVector), pointer  :: newItems
-    character(ESMF_MAXSTR) :: fldName, stateName
-    logical :: split
     
 ! Begin
 !------
@@ -1426,121 +1416,8 @@ contains
 
     ! Deal with split 4d field
     !--------------------------
-             ! Caution: do not split vectors
-             ! caution2: use alias for split-field name base
-             ! caution3: items refer to output names; order is not the same as in fields
-             ! caution4: adjust expState!!!
-    do n = 1, nlist
-       if (.not.list(n)%splitField) cycle
-       fld_set => list(n)%field_set
-       nfields = fld_set%nfields
-       allocate(needSplit(nfields), fldList(nfields), stat=status)
-       _VERIFY(status)
-
-       allocate(newItems, stat=status); _VERIFY(status)
-
-       needSplit = .false.
-       
-       iter = list(n)%items%begin()
-       m = 0 ! m is the "old" field-index
-       split = .false.
-       do while(iter /= list(n)%items%end())
-          item => iter%get()
-          if (item%itemType == ItemTypeScalar) then
-             split = check4d(fldName=item%xname, rc=status)
-!@@             print *,'DEBUG: split=',split
-             _VERIFY(status)
-             if (.not.split) call newItems%push_back(item)
-          else if (item%itemType == ItemTypeVector) then
-             ! Lets' not allow 4d split for vectors (at least for now);
-             ! it is easy to implement; just tedious
-
-             split = check4d(fldName=item%xname, rc=status)
-             _VERIFY(status)
-             split = split.or.check4d(fldName=item%yname, rc=status)
-             _VERIFY(status)
-             if (.not.split) call newItems%push_back(item)
-             
-             _ASSERT(.not. split, 'vectors of 4d fields not allowed yet')
-             
-          end if
-!          if (split) call list(n)%items%erase(iter)
-   
-          call iter%next()
-       end do
-
-       ! re-pack field_set
-       nfield4d = count(needSplit)
-
-       if (nfield4d /= 0) then
-          nfields = nfields - nfield4d
-          allocate(newExpState(nfields), stat=status)
-          _VERIFY(status)
-          ! do the same for statename
-          !create/if_needed newFieldSet (nfields=0;allocate%fields)
-!          if (associated(newFieldSet%fields)) deallocate(newFieldSet%fields) 
-!          items = list(n)%items
-          allocate(newFieldSet, stat=status); _VERIFY(status)
-          allocate(fields(4,nfields), stat=status); _VERIFY(status)
-          do k = 1, size(fld_set%fields,1) ! 4
-             fields(k,:) = pack(fld_set%fields(k,:), mask=.not.needSplit)
-          end do
-          newFieldSet%fields => fields
-          newFieldSet%nfields = nfields
-
-          newExpState = pack(list(n)%expState, mask=.not.needSplit)
-
-          ! split and add the splitted fields to the list
-
-          do k = 1, size(needSplit) ! loop over "old" fld_set
-             if (.not. needSplit(k)) cycle
-
-             call MAPL_FieldSplit(fldList(k), splitFields, RC=status)
-             _VERIFY(STATUS)
-             stateName = fld_set%fields(2,k)
-
-             expState = export(list(n)%expSTATE(k))
-
-             do i=1,size(splitFields)
-                call ESMF_FieldGet(splitFields(i), name=fldName, &
-                     rc=status)
-                _VERIFY(status)
-
-                call appendFieldSet(newFieldSet, fldName, stateName=stateName, &
-                     aliasName=fldName, specialName='', rc=status)
-
-                _VERIFY(status)
-                ! append expState
-                call appendArray(newExpState,idx=list(n)%expState(k),rc=status)
-                _VERIFY(status)
-
-                call MAPL_StateAdd(expState, field=splitFields(i), rc=status)
-                _VERIFY(status)
-
-                item%itemType = ItemTypeScalar
-                item%xname = trim(fldName)
-                item%yname = ''
-
-                call newItems%push_back(item)
-
-             end do
-
-             deallocate(splitFields)
-             NULLIFY(splitFields)
-          end do
-
-          ! set nfields to ...
-
-          list(n)%field_set => newFieldSet
-          deallocate(list(n)%expState)
-          list(n)%expState => newExpState
-          list(n)%items = newItems
-       end if
-       ! clean-up
-       deallocate(needSplit, fldList)
-    enddo
-
-   ! end of 4d split section
+    call split4dFields(rc=status)
+    _VERIFY(status)
 
     do n=1,nlist
        m=list(n)%field_set%nfields
@@ -2671,8 +2548,142 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
 
   contains
+    subroutine split4dFields(rc)
+      integer, optional, intent(out) :: rc
 
-    function check4d(fldName, rc) result(have4d)
+      ! local vars
+      integer :: status
+      
+      integer, pointer :: newExpState(:) => null()
+      type(newCFIOitemVectorIterator) :: iter
+      type(newCFIOitem), pointer :: item
+      integer :: nfields
+      integer :: nfield4d
+      type(ESMF_Field), pointer :: splitFields(:) => null()
+      type(ESMF_State) :: expState
+      type(newCFIOItemVector), pointer  :: newItems
+      character(ESMF_MAXSTR) :: fldName, stateName
+      logical :: split
+      integer :: m, k, i
+      
+      ! Restrictions:
+      ! 1) we do not split 4d vectors
+      ! 2) use alias for split-field name base
+      do n = 1, nlist
+         if (.not.list(n)%splitField) cycle
+         fld_set => list(n)%field_set
+         nfields = fld_set%nfields
+         allocate(needSplit(nfields), fldList(nfields), stat=status)
+         _VERIFY(status)
+
+         allocate(newItems, stat=status); _VERIFY(status)
+
+         needSplit = .false.
+       
+         iter = list(n)%items%begin()
+         m = 0 ! m is the "old" field-index
+         split = .false.
+         do while(iter /= list(n)%items%end())
+            item => iter%get()
+            if (item%itemType == ItemTypeScalar) then
+               split = has4dField(fldName=item%xname, rc=status)
+               !@@             print *,'DEBUG: split=',split
+               _VERIFY(status)
+               if (.not.split) call newItems%push_back(item)
+            else if (item%itemType == ItemTypeVector) then
+               ! Lets' not allow 4d split for vectors (at least for now);
+               ! it is easy to implement; just tedious
+
+               split = has4dField(fldName=item%xname, rc=status)
+               _VERIFY(status)
+               split = split.or.has4dField(fldName=item%yname, rc=status)
+               _VERIFY(status)
+               if (.not.split) call newItems%push_back(item)
+             
+               _ASSERT(.not. split, 'vectors of 4d fields not allowed yet')
+             
+            end if
+   
+            call iter%next()
+         end do
+
+         ! re-pack field_set
+         nfield4d = count(needSplit)
+
+         if (nfield4d /= 0) then
+            nfields = nfields - nfield4d
+            allocate(newExpState(nfields), stat=status)
+            _VERIFY(status)
+            ! do the same for statename
+            !create/if_needed newFieldSet (nfields=0;allocate%fields)
+            !          if (associated(newFieldSet%fields)) deallocate(newFieldSet%fields) 
+            !          items = list(n)%items
+            allocate(newFieldSet, stat=status); _VERIFY(status)
+            allocate(fields(4,nfields), stat=status); _VERIFY(status)
+            do k = 1, size(fld_set%fields,1) ! 4
+               fields(k,:) = pack(fld_set%fields(k,:), mask=.not.needSplit)
+            end do
+            newFieldSet%fields => fields
+            newFieldSet%nfields = nfields
+
+            newExpState = pack(list(n)%expState, mask=.not.needSplit)
+
+            ! split and add the splitted fields to the list
+
+            do k = 1, size(needSplit) ! loop over "old" fld_set
+               if (.not. needSplit(k)) cycle
+
+               call MAPL_FieldSplit(fldList(k), splitFields, RC=status)
+               _VERIFY(STATUS)
+               stateName = fld_set%fields(2,k)
+
+               expState = export(list(n)%expSTATE(k))
+
+               do i=1,size(splitFields)
+                  call ESMF_FieldGet(splitFields(i), name=fldName, &
+                       rc=status)
+                  _VERIFY(status)
+
+                  call appendFieldSet(newFieldSet, fldName, &
+                       stateName=stateName, &
+                       aliasName=fldName, &
+                       specialName='', rc=status)
+
+                  _VERIFY(status)
+                  ! append expState
+                  call appendArray(newExpState,idx=list(n)%expState(k),rc=status)
+                  _VERIFY(status)
+
+                  call MAPL_StateAdd(expState, field=splitFields(i), rc=status)
+                  _VERIFY(status)
+
+                  item%itemType = ItemTypeScalar
+                  item%xname = trim(fldName)
+                  item%yname = ''
+
+                  call newItems%push_back(item)
+
+               end do
+
+               deallocate(splitFields)
+               NULLIFY(splitFields)
+            end do
+
+            ! set nfields to ...
+
+            list(n)%field_set => newFieldSet
+            deallocate(list(n)%expState)
+            list(n)%expState => newExpState
+            list(n)%items = newItems
+         end if
+         ! clean-up
+         deallocate(needSplit, fldList)
+      enddo
+
+      _RETURN(ESMF_SUCCESS)
+    end subroutine split4dFields
+
+    function has4dField(fldName, rc) result(have4d)
       logical :: have4d
       character(len=*),  intent(in)   :: fldName
       integer, optional, intent(out) :: rc
@@ -2723,7 +2734,7 @@ ENDDO PARSER
 
       _RETURN(ESMF_SUCCESS)
      
-    end function check4d
+    end function has4dField
 
     subroutine appendArray(array, idx, rc)
       integer, pointer,  intent(inout)   :: array(:)
