@@ -12,7 +12,7 @@ module MAPL_CapMod
    use MAPL_CapGridCompMod
    use MAPL_CFIOServerMod
    use MAPL_BaseMod
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO
    use MAPL_Profiler, only: get_global_time_profiler, BaseProfiler, TimeProfiler
    use MAPL_ioClientsMod

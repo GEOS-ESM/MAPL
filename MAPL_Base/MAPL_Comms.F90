@@ -15,7 +15,7 @@ module MAPL_CommsMod
   use MAPL_BaseMod
   use MAPL_ShmemMod
   use MAPL_ConstantsMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   implicit none
   private
 

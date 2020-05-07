@@ -33,7 +33,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_HistoryCollectionVectorMod, only: HistoryCollectionVector
   use MAPL_StringFieldSetMapMod, only: StringFieldSetMap
   use MAPL_StringFieldSetMapMod, only: StringFieldSetMapIterator
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
   use MAPL_RegridderSpecMod

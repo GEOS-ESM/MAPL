@@ -15,7 +15,7 @@ use MAPL_ConstantsMod, only: MAPL_PI, MAPL_PI_R8
 use MAPL_RangeMod
 use, intrinsic :: iso_fortran_env, only: REAL32
 use, intrinsic :: iso_fortran_env, only: REAL64
-use MAPL_ErrorHandlingMod
+use MAPL_ExceptionHandling
 implicit NONE
 private
 

@@ -6,7 +6,7 @@
 module MAPL_LoadBalanceMod
 
   use MAPL_SortMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
 
   implicit none
   private

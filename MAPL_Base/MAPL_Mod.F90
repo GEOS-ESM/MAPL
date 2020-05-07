@@ -2,9 +2,9 @@
 
 module MAPL_Mod
 
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use ESMFL_Mod         !  Stopgap
-  use MAPL_ThrowMod
+  use MAPL_ExceptionHandling
   use MAPL_BaseMod
   use MAPL_BaseMod, only: MAPL_GRID_INTERIOR
 ! For temporary backward compatibility after moving/renaming:
