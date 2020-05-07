@@ -3233,10 +3233,9 @@ and so on.
 
   end subroutine MAPL_FieldBundleDestroy
          
-  recursive subroutine MAPL_StateAddField(State, Field, splitField, RC)
+  subroutine MAPL_StateAddField(State, Field, RC)
     type(ESMF_State),  intent(inout) :: State
     type(ESMF_Field),  intent(in   ) :: Field
-    logical, optional, intent(in   ) :: splitField ! only in the 4-th dim
     integer, optional, intent(  out) :: rc
 
 ! ErrLog vars
@@ -3253,33 +3252,7 @@ and so on.
     type(ESMF_Field)                        :: Fields(1)
     logical                                 :: haveAttr
 
-    type(ESMF_Field), pointer               :: splitFields(:)
-    integer                                 :: fieldRank
-    integer                                 :: k
 
-    if (present(splitField)) then
-       if (splitField) then
-          ! check if the field rank is actually 4
-          call ESMF_FieldGet(field, dimCount=fieldRank, rc=status)
-          _VERIFY(STATUS)
-          if (fieldRank > 4) then
-             _ASSERT(.false., "Unsupported field rank")
-          end if
-          if (fieldRank == 4) then
-             call MAPL_FieldSplit(field, splitFields, RC=status)
-             _VERIFY(STATUS)
-             do k=1, size(splitFields)
-                call MAPL_StateAddField(state, splitFields(k), rc=status)
-                _VERIFY(STATUS)
-             end do
-             deallocate(splitFields)
-             _RETURN(ESMF_SUCCESS)
-          end if
-       end if
-    end if
-    !ALT: if we are here, either splitField was not present, or was .false.
-    !     or the field rank was <= 3
-    
     fields(1) = field
     call ESMF_StateAdd(state, fields, RC=status)
     _VERIFY(STATUS)
@@ -3397,12 +3370,10 @@ and so on.
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_StateAddBundle
 
-  recursive subroutine MAPL_FieldBundleAddField(Bundle, Field, multiflag, &
-       splitField, RC)
+  subroutine MAPL_FieldBundleAddField(Bundle, Field, multiflag, RC)
     type(ESMF_FieldBundle),  intent(inout) :: Bundle
     type(ESMF_Field),  intent(in   ) :: Field
     logical, optional, intent(in   ) :: multiflag
-    logical, optional, intent(in   ) :: splitField ! only in the 4-th dim
     integer, optional, intent(  out) :: rc
 
 ! ErrLog vars
@@ -3419,32 +3390,6 @@ and so on.
     type(ESMF_Field)                        :: Fields(1)
     logical                                 :: haveAttr
 
-    type(ESMF_Field), pointer               :: splitFields(:)
-    integer                                 :: fieldRank
-    integer                                 :: k
-    
-    if (present(splitField)) then
-       if (splitField) then
-          ! check if the field rank is actually 4
-          call ESMF_FieldGet(field, dimCount=fieldRank, rc=status)
-          _VERIFY(STATUS)
-          if (fieldRank > 4) then
-             _ASSERT(.false., "Unsupported field rank")
-          end if
-          if (fieldRank == 4) then
-             call MAPL_FieldSplit(field, splitFields, RC=status)
-             _VERIFY(STATUS)
-             do k=1, size(splitFields)
-                call MAPL_FieldBundleAdd(bundle, splitFields(k), rc=status)
-                _VERIFY(STATUS)
-             end do
-             deallocate(splitFields)
-             _RETURN(ESMF_SUCCESS)
-          end if
-       end if
-    end if
-    !ALT: if we are here, either splitField was not present, or was .false.
-    !     or the field rank was <= 3
 
     fields(1) = field
     call ESMF_FieldBundleAdd(Bundle, fields, multiflag=multiflag, RC=status)

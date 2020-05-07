@@ -104,7 +104,6 @@ module MAPL_HistoryCollectionMod
         character(len=ESMF_MAXSTR), parameter :: Iam = "AddGrid" 
         type(ESMF_Config) :: cfg
         integer :: nx,ny,im_world,jm_world
-        integer :: splt4d
         character(len=ESMF_MAXSTR) :: tlabel
         type(ESMF_Grid) :: output_grid
         type(ESMF_Grid), pointer :: lgrid

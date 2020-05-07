@@ -1933,10 +1933,10 @@ ENDDO PARSER
             f = MAPL_FieldCreate(parser_field, name=list(n)%PExtraFields(m), rc=status)
             _VERIFY(STATUS)
             if (IntState%average(n)) then
-               call MAPL_StateAdd(IntState%CIM(N), f, splitField=list(n)%splitField, rc=status)
+               call MAPL_StateAdd(IntState%CIM(N), f, rc=status)
                _VERIFY(STATUS)
             else
-               call MAPL_StateAdd(IntState%GIM(N), f, splitField=list(n)%splitField, rc=status)
+               call MAPL_StateAdd(IntState%GIM(N), f, rc=status)
                _VERIFY(STATUS)
             end if                  
          end do
@@ -1987,7 +1987,7 @@ ENDDO PARSER
          end if
 
          if (IntState%average(n)) then
-            call MAPL_StateAdd(IntState%CIM(N), f, splitField=list(n)%splitField, rc=status)
+            call MAPL_StateAdd(IntState%CIM(N), f, rc=status)
             _VERIFY(STATUS)
 
             ! borrow SPEC from FIELD
@@ -2189,7 +2189,7 @@ ENDDO PARSER
             _VERIFY(STATUS)
             call ESMF_AttributeSet(F, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, RC=STATUS)
             _VERIFY(STATUS)
-            call MAPL_StateAdd(IntState%GIM(N), f, splitField=list(n)%splitField, rc=status)
+            call MAPL_StateAdd(IntState%GIM(N), f, rc=status)
             _VERIFY(STATUS)
 
          endif
@@ -2202,7 +2202,7 @@ ENDDO PARSER
             _VERIFY(STATUS)
 ! add field to state_out
             call MAPL_StateAdd(IntState%Regrid(N)%PTR%state_out, &
-                 field, splitField=list(n)%splitField, rc=status)
+                 field, rc=status)
             _VERIFY(STATUS)
          endif
 
@@ -2321,7 +2321,7 @@ ENDDO PARSER
                   trim(list(n)%field_set%fields(3,m)), field, rc=status )
              _VERIFY(STATUS)
 
-             call MAPL_FieldBundleAdd( list(n)%bundle, field, splitField=list(n)%splitField, rc=status )
+             call MAPL_FieldBundleAdd( list(n)%bundle, field, rc=status )
              _VERIFY(STATUS)
 
              call ESMF_FieldGet(field, Array=array, grid=bgrid, rc=status)
@@ -2564,7 +2564,7 @@ ENDDO PARSER
       type(newCFIOItemVector), pointer  :: newItems
       character(ESMF_MAXSTR) :: fldName, stateName
       logical :: split
-      integer :: m, k, i
+      integer :: k, i
       
       ! Restrictions:
       ! 1) we do not split 4d vectors
