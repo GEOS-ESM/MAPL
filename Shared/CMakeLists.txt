@@ -19,7 +19,5 @@ set (srcs
     sort.c
   )
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES ${ESMF_LIBRARIES} pflogger  gftl-shared gftl MPI::MPI_Fortran)
-target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
-message( ${esma_include}/${this})
-message( ${MAPL_SOURCE_DIR}/include)
 file (COPY MAPL_ErrLog.h DESTINATION ${esma_include}/${this})
+file (COPY unused_dummy.H DESTINATION ${esma_include}/${this})

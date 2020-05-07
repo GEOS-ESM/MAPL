@@ -54,6 +54,6 @@ target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES}
 # We could leave these in the source directory, and just broaden the search path
 # in the other libaries, but this make it explicit which aspects are externally
 # used.
-file (COPY ${MAPL_SOURCE_DIR}/include/unused_dummy.H DESTINATION ${esma_include}/${this})
+#file (COPY ${MAPL_SOURCE_DIR}/include/unused_dummy.H DESTINATION ${esma_include}/${this})
 file (COPY ${MAPL_SOURCE_DIR}/include/MAPL_Generic.h DESTINATION ${esma_include}/${this})
 
