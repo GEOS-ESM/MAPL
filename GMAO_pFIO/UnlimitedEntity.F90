@@ -70,6 +70,7 @@ module pFIO_UnlimitedEntityMod
       module procedure new_UnlimitedEntity_2d ! vector constructor
       module procedure new_UnlimitedEntity_3d ! vector constructor
       module procedure new_UnlimitedEntity_4d ! vector constructor
+      module procedure new_UnlimitedEntity_5d ! vector constructor
    end interface UnlimitedEntity
 
    integer :: EMPTY(0)
@@ -195,6 +196,34 @@ contains
       deallocate(values1d)      
       _RETURN(_SUCCESS)
    end function new_UnlimitedEntity_4d
+
+   function new_UnlimitedEntity_5d(values, rc) result(attr)
+      type (UnlimitedEntity) :: attr
+      class (*), intent(in) :: values(:,:,:,:,:)
+      integer, optional, intent(out) :: rc
+      class (*), allocatable :: values1d(:)
+
+      select type (values)
+      type is (integer(INT32))
+         allocate(values1d, source = reshape(values, [product(shape(values))]))
+      type is (integer(INT64))
+         allocate(values1d, source = reshape(values, [product(shape(values))]))
+      type is (real(real32))
+         allocate(values1d, source = reshape(values, [product(shape(values))]))
+      type is (real(real64))
+         allocate(values1d, source = reshape(values, [product(shape(values))]))
+      type is (logical)
+         allocate(values1d, source = reshape(values, [product(shape(values))]))
+      class default
+        _ASSERT(.false., 'not support type')
+      end select
+
+      attr = UnlimitedEntity(values1d)
+      attr%shape = shape(values)
+
+      deallocate(values1d)      
+      _RETURN(_SUCCESS)
+   end function new_UnlimitedEntity_5d
 
    ! set string or scalar
    subroutine set(this, value, rc)
