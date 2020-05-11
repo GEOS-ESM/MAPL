@@ -16,7 +16,7 @@ module MAPL_newCFIOMod
   use pFIO
   use MAPL_newCFIOItemVectorMod
   use MAPL_newCFIOItemMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use pFIO_ClientManagerMod
   use MAPL_ExtDataCollectionMod
   use MAPL_ExtDataCOllectionManagerMod

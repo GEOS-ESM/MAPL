@@ -5,7 +5,7 @@ module MAPL_FileMetadataUtilsMod
    use MAPL_GridManagerMod
    use MAPL_AbstractGridFactoryMod
    use ESMF
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32,INT64,INT32
    
    public :: FileMetadataUtils

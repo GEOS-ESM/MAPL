@@ -17,7 +17,7 @@ module MAPL_IOMod
   use MAPL_SortMod
   use MAPL_ShmemMod
   use MAPL_RangeMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use netcdf
   use pFIO
   use pFIO_ClientManagerMod

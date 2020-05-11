@@ -16,7 +16,7 @@ use ESMF
 use MAPL_BaseMod
 use MAPL_IOMod
 use MAPL_CommsMod, only: MAPL_AM_I_ROOT
-use MAPL_ErrorHandlingMod
+use MAPL_ExceptionHandling
 
 ! !PUBLIC MEMBER FUNCTIONS:
 

@@ -12,8 +12,6 @@ endif()
 set (srcs
   ESMFL_Mod.F90            MAPL_HeapMod.F90       MAPL_VarSpecMod.F90
   MAPL_Base.F90            MAPL_InterpMod.F90     hinterp.F
-  MAPL_ErrorHandling.F90
-  MAPL_Throw.F90
   MAPL_Range.F90
   MAPL_Config.F90
   MAPL_CFIO.F90            MAPL_newCFIO.F90       MAPL_IO.F90
@@ -66,7 +64,7 @@ set (srcs
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL_Profiler GMAO_pFIO MAPL_cfio_r4 pflogger gftl-shared FLAP::FLAP MPI::MPI_Fortran)
+  DEPENDENCIES MAPL_Profiler MAPL_Shared GMAO_pFIO MAPL_cfio_r4 pflogger gftl-shared FLAP::FLAP MPI::MPI_Fortran)
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 if(DISABLE_GLOBAL_NAME_WARNING)
    target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${DISABLE_GLOBAL_NAME_WARNING}>)
@@ -105,8 +103,6 @@ target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES}
 # used.
 file (COPY ${MAPL_SOURCE_DIR}/include/unused_dummy.H DESTINATION ${esma_include}/${this})
 file (COPY MAPL_Generic.h DESTINATION ${esma_include}/${this})
-file (COPY MAPL_Exceptions.h DESTINATION ${esma_include}/${this})
-file (COPY MAPL_ErrLog.h DESTINATION ${esma_include}/${this})
 file (COPY mapl_acg.pl DESTINATION ${esma_include}/${this})
 file (COPY mapl_stub.pl DESTINATION ${esma_include}/${this})
 

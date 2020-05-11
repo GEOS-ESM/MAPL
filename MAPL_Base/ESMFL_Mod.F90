@@ -22,7 +22,7 @@ module ESMFL_MOD
   use MAPL_ConstantsMod
   use MAPL_BaseMod
   use MAPL_CommsMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
   private

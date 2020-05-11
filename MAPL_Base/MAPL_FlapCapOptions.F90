@@ -6,7 +6,7 @@ module MAPL_FlapCapOptionsMod
    use ESMF
    use FLAP
    use MAPL_KeywordEnforcerMod
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use MAPL_CapOptionsMod
    use pflogger
    implicit none

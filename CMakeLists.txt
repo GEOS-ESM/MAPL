@@ -43,6 +43,8 @@ add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 
 add_subdirectory (GMAO_pFIO)
 add_subdirectory (MAPL_Profiler)
+add_subdirectory (MAPL_Shared)
+add_subdirectory (include)
 add_subdirectory (MAPL_Base)
 add_subdirectory (MAPL)
 

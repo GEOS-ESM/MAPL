@@ -1,7 +1,7 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 module MAPL_CommGroupDescriptionMod
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
    implicit none
    private

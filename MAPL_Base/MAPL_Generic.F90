@@ -123,7 +123,7 @@ module MAPL_GenericMod
   use MAPL_GenericCplCompMod
   use MAPL_LocStreamMod
   use MAPL_ConfigMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use pFlogger, only: logging, Logger
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
