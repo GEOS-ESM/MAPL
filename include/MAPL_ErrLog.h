@@ -54,7 +54,7 @@
 #  define IGNORE_(a) continue
 
 #  ifdef I_AM_MAIN
-#    define __return call MAPL_abort_comm_world()
+#    define __return call MAPL_abort()
 #    define __rc(rc) 
 #  else
 #    define __return return

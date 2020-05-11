@@ -19,7 +19,6 @@ module MAPL_CommsMod
   implicit none
   private
 
-  public MAPL_Abort
   public MAPL_CommsBcast
   public MAPL_CommsScatterV
   public MAPL_CommsGatherV
@@ -1455,15 +1454,6 @@ module MAPL_CommsMod
 #define RANK_ 2
 #define VARTYPE_ 4
 #include "sendrecv.H"
-
-    subroutine MAPL_Abort
-   
-   integer :: status 
-   call MPI_Abort(MPI_COMM_WORLD,status)
-    end subroutine MAPL_Abort
-
-!---------------------------
-!---------------------------
 
 !---------------------------
 #define RANK_ 1

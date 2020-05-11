@@ -10,7 +10,7 @@ module MAPL_ErrorHandlingMod
    public :: MAPL_RTRN
    public :: MAPL_Vrfy
    public :: MAPL_ASRT
-   public :: MAPL_abort_comm_world
+   public :: MAPL_abort
 
 interface MAPL_VRFY
    module procedure MAPL_VRFY
@@ -165,10 +165,10 @@ contains
         if(MAPL_VRFYt) print *, text
    end function MAPL_VRFYT
 
-   subroutine MAPL_Abort_comm_world
+   subroutine MAPL_abort
       integer :: status
       integer :: error_code
       call MPI_Abort(MPI_COMM_WORLD,error_code,status)
-  end subroutine MAPL_Abort_comm_world
+  end subroutine MAPL_abort
 
 end module MAPL_ErrorHandlingMod

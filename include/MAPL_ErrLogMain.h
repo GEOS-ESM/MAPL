@@ -15,8 +15,8 @@
 #undef ASSERT_
 #endif
 
-#define VERIFY_(A) if(MAPL_VRFY(A,Iam,__LINE__,RC))call MAPL_abort_comm_world
+#define VERIFY_(A) if(MAPL_VRFY(A,Iam,__LINE__,RC))call MAPL_abort
 
-#define ASSERT_(A) if(MAPL_ASRT(A,Iam,__LINE__,RC),'needs informative message')call MAPL_abort_comm_world
+#define ASSERT_(A) if(MAPL_ASRT(A,Iam,__LINE__,RC),'needs informative message')call MAPL_abort
 
 #endif
