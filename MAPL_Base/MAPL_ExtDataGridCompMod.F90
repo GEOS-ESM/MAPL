@@ -44,7 +44,7 @@
    use MAPL_GridManagerMod
    use MAPL_ExtData_IOBundleMod
    use MAPL_ExtData_IOBundleVectorMod
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use MAPL_ExtDataCollectionMod
    use MAPL_CollectionVectorMod
    use MAPL_ExtDataCollectionManagerMod

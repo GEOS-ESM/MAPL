@@ -2,7 +2,7 @@ module MAPL_pFUnit_Initialize
 contains
    subroutine Initialize()
       use ESMF
-      use MAPL_ThrowMod
+      use MAPL_ExceptionHandling
       use MAPL_pFUnit_ThrowMod
    
       call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE)

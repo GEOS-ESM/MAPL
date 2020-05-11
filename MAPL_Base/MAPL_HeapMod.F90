@@ -15,7 +15,7 @@
 
   use ESMF
   use MAPL_BaseMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use, intrinsic :: iso_fortran_env, only: INT64
   implicit none
   private

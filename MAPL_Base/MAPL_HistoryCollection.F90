@@ -4,7 +4,7 @@ module MAPL_HistoryCollectionMod
   use ESMF
   use MAPL_CFIOMod
   use MAPL_newCFIOMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use MAPL_newCFIOitemVectorMod
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod

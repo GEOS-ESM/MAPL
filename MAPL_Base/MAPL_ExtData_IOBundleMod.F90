@@ -10,7 +10,7 @@ module MAPL_ExtData_IOBundleMod
   use ESMF
   use MAPL_BaseMod
   use MAPL_newCFIOMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use MAPL_newCFIOItemMod
   use MAPL_newCFIOItemVectorMod
 
