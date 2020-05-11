@@ -79,7 +79,7 @@ contains
               & 'pe=', rank, 'FAIL at line=', line, prefix, use_name, &
               & '<'//adjustl(trim(message))//'>'
       else
-         write(ERROR_UNIT,'(a,i5.5,x,a,i5.5,x,a3,a40,x,a)') &
+         write(ERROR_UNIT,'(a,i5.5,x,a3,a40,x,a)') &
               & 'FAIL at line=', line, prefix, use_name, &
               & '<'//adjustl(trim(message))//'>'
       end if
