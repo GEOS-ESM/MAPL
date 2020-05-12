@@ -308,7 +308,7 @@ contains
           _VERIFY(STATUS)
        end if
 
-       call ESMF_AttributeGet(FIELD, NAME='HAS_UNGRIDDED_DIMS', value=has_ungrd, RC=STATUS)
+       call ESMF_AttributeGet(FIELD, NAME="UNGRIDDED_DIMS", isPresent=has_ungrd, RC=STATUS)
        _VERIFY(STATUS)
        if (has_ungrd) then
           call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
@@ -4429,7 +4429,7 @@ and so on.
          _VERIFY(STATUS)
 
          ! adjust ungridded dims attribute (if any)
-         call ESMF_AttributeGet(F, NAME='HAS_UNGRIDDED_DIMS', value=has_ungrd, RC=STATUS)
+         call ESMF_AttributeGet(FIELD, NAME="UNGRIDDED_DIMS", isPresent=has_ungrd, RC=STATUS)
          _VERIFY(STATUS)
          if (has_ungrd) then
             call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
@@ -4447,8 +4447,6 @@ and so on.
                _VERIFY(STATUS)
             else
                has_ungrd = .false.
-               call ESMF_AttributeSet(F, NAME='HAS_UNGRIDDED_DIMS', value=has_ungrd, RC=STATUS)
-               _VERIFY(STATUS)
             end if
             deallocate(ungrd)
          end if

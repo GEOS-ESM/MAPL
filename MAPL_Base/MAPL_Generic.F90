@@ -6085,9 +6085,6 @@ end function MAPL_AddChildFromGC
          else
             call ESMF_AttributeSet(FIELD, NAME='PRECISION', VALUE=KND, RC=STATUS)
             _VERIFY(STATUS)
-            call ESMF_AttributeSet(FIELD, NAME='HAS_UNGRIDDED_DIMS', &
-                 value=has_ungrd, RC=STATUS)
-            _VERIFY(STATUS)
             call ESMF_AttributeSet(FIELD, NAME='DEFAULT_PROVIDED', &
                  value=defaultProvided, RC=STATUS)
             _VERIFY(STATUS)
