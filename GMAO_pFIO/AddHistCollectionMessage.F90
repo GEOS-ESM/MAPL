@@ -1,8 +1,8 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_AddHistCollectionMessageMod
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_UtilitiesMod
    use pFIO_AbstractMessageMod
    use pFIO_FileMetadataMod

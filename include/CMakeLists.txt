@@ -1,3 +1,5 @@
-file (COPY MAPL_ErrLog.h DESTINATION ${esma_include}/MAPL)
-file (COPY MAPL_ErrLogMain.h DESTINATION ${esma_include}/MAPL)
-file (COPY MAPL_Exceptions.h DESTINATION ${esma_include}/MAPL)
+file(GLOB MAPL_PUBLIC_HEADERS_h  "*.h" )
+file(GLOB MAPL_PUBLIC_HEADERS_H  "*.H" )
+file(COPY ${MAPL_PUBLIC_HEADERS_h} DESTINATION ${esma_include}/MAPL)
+file(COPY ${MAPL_PUBLIC_HEADERS_H} DESTINATION ${esma_include}/MAPL)
+

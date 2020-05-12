@@ -1,8 +1,8 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_BaseThreadMod
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_AbstractSocketMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_IntegerRequestMapMod

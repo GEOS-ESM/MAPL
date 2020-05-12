@@ -1,11 +1,10 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_NetCDF4_FileFormatterMod
    use, intrinsic :: iso_fortran_env, only: INT32, INT64
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-   use pFIO_ErrorHandlingMod
-   use pFIO_ThrowMod
+   use MAPL_ExceptionHandling
    use pFIO_ConstantsMod
    use pFIO_UnlimitedEntityMod
    use pFIO_AttributeMod
@@ -1263,7 +1262,6 @@ module pFIO_FormatterPtrVectorMod
 end module pFIO_FormatterPtrVectorMod
 
 module pFIO_StringNetCDF4_FileFormatterMapMod
-   use pFIO_ThrowMod
    use pFIO_NetCDF4_FileFormatterMod
 
 #include "types/key_deferredLengthString.inc"
@@ -1274,7 +1272,6 @@ module pFIO_StringNetCDF4_FileFormatterMapMod
 #define _iterator StringNetCDF4_FileFormatterMapIterator
 
 #define _alt
-#define _FTL_THROW pFIO_throw_exception
 
 #include "templates/map.inc"
 
