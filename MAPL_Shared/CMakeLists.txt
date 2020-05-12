@@ -17,14 +17,17 @@ set (srcs
     MAPL_Sort.F90
     MAPL_Throw.F90
     sort.c
+    MAPL_ExceptionHandling.F90
   )
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES ${ESMF_LIBRARIES} pflogger  gftl-shared gftl MPI::MPI_Fortran)
-target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared pflogger MPI::MPI_Fortran)
+#target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
+target_include_directories (${this} PUBLIC
+          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
-set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-# Kludge for OSX security and DYLD_LIBRARY_PATH ...
-foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
-  target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
-endforeach()
+#file (COPY MAPL_ErrLogMain.h DESTINATION ${esma_include}/${this})
+#file (COPY MAPL_ErrLog.h DESTINATION ${esma_include}/${this})
+#file (COPY MAPL_Exceptions.h DESTINATION ${esma_include}/${this})
 
-
+#if (PFUNIT_FOUND)
+  #add_subdirectory (tests)
+#endif ()

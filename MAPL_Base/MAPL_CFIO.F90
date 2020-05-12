@@ -9,7 +9,7 @@
 #include "unused_dummy.H"
 
 module MAPL_CFIOMod
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
 !BOP
 
 ! !MODULE: MAPL_CFIO --- CF Compliant I/O for ESMF

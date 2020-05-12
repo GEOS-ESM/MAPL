@@ -44,7 +44,7 @@
    use MAPL_GridManagerMod
    use MAPL_ExtData_IOBundleMod
    use MAPL_ExtData_IOBundleVectorMod
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use MAPL_ExtDataCollectionMod
    use MAPL_CollectionVectorMod
    use MAPL_ExtDataCollectionManagerMod
@@ -2925,7 +2925,7 @@ CONTAINS
         if (targLeap.and.(.not.srcLeap)) idd=28
         call ESMF_TimeSet(outTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
 
-        RETURN_(ESMF_SUCCESS)
+        _RETURN(ESMF_SUCCESS)
 
      end subroutine OffsetTimeYear
 
@@ -3184,10 +3184,10 @@ CONTAINS
                  ' ', iHr, ':', iMn
               End If
            End If
-           RETURN_(ESMF_SUCCESS)
+           _RETURN(ESMF_SUCCESS)
         else
            Write(6,'(a,a)') 'WARNING: Requested sample not found in file ', trim(fdata%get_file_name())
-           RETURN_(ESMF_FAILURE)
+           _RETURN(ESMF_FAILURE)
         endif
 
      end subroutine GetBracketTimeOnSingleFile
@@ -3223,7 +3223,7 @@ CONTAINS
 
         if (UniFileClim) then
            If (MAPL_Am_I_Root()) Write(*,'(a)') '               GetBracketTimeOnFile: called with UniFileClim true'
-           RETURN_(ESMF_FAILURE)
+           _RETURN(ESMF_FAILURE)
         end if
 
         If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then
@@ -3313,10 +3313,10 @@ CONTAINS
               End If
            End If
 
-           RETURN_(ESMF_SUCCESS)
+           _RETURN(ESMF_SUCCESS)
         else
            Write(6,'(a,a)') 'WARNING: Requested sample not found in file ', trim(fdata%get_file_name())
-        RETURN_(ESMF_FAILURE)
+        _RETURN(ESMF_FAILURE)
      endif
      !end if 
 

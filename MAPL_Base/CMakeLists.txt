@@ -50,8 +50,9 @@ if(DISABLE_GLOBAL_NAME_WARNING)
    target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${DISABLE_GLOBAL_NAME_WARNING}>)
 endif()
 target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
-target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
-
+#target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
+target_include_directories (${this} PUBLIC
+          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
@@ -81,10 +82,7 @@ target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES}
 # We could leave these in the source directory, and just broaden the search path
 # in the other libaries, but this make it explicit which aspects are externally
 # used.
-file (COPY ${MAPL_SOURCE_DIR}/include/unused_dummy.H DESTINATION ${esma_include}/${this})
-file (COPY ${MAPL_SOURCE_DIR}/include/MAPL_Generic.h DESTINATION ${esma_include}/${this})
-file (COPY ${MAPL_SOURCE_DIR}/include/MAPL_Exceptions.h DESTINATION ${esma_include}/${this})
-file (COPY ${MAPL_SOURCE_DIR}/include/MAPL_ErrLog.h DESTINATION ${esma_include}/${this})
+
 file (COPY mapl_acg.pl DESTINATION ${esma_include}/${this})
 file (COPY mapl_stub.pl DESTINATION ${esma_include}/${this})
 

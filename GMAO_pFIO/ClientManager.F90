@@ -1,9 +1,9 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_ClientManagerMod
 
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_KeywordEnforcerMod
    use PFIO
 

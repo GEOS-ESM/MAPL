@@ -1,16 +1,11 @@
 !usage
 !mpirun -np 8 ./pfio_collective_demo.x -nc 4 -nsi 2 -nso 2  -f1 xxx1.nc4 -f2 xxx2.nc4 -v T -s mpi
 !The variable should be 4d with lavel>=20
-
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  (A)/=0) then; call pFIO_throw_exception(__FILE__,__LINE__); return; endif
-#define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; call pFIO_throw_exception(__FILE__,__LINE__); return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module io_demo_CLI
-   use pFIO_ThrowMod
+   use MAPL_ExceptionHandling
    use pFIO_StringVectorMod
    implicit none
    private
@@ -385,7 +380,7 @@ program main
    use pFIO
    use io_demo_CLI
    use FakeExtDataMod
-   use pFIO_ThrowMod
+   use MAPL_ExceptionHandling
    implicit none
 
    integer :: rank, npes, ierror, provided,required

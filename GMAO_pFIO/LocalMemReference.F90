@@ -1,4 +1,4 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_LocalMemReferenceMod
@@ -11,7 +11,7 @@ module pFIO_LocalMemReferenceMod
    use, intrinsic :: iso_fortran_env, only: INT64
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_UtilitiesMod, only: word_size
    use pFIO_ConstantsMod
    use pFIO_AbstractDataReferenceMod
@@ -39,6 +39,7 @@ module pFIO_LocalMemReferenceMod
       module procedure new_LocalMemReference_2d
       module procedure new_LocalMemReference_3d
       module procedure new_LocalMemReference_4d
+      module procedure new_LocalMemReference_5d
    end interface LocalMemReference
 
 contains
@@ -252,6 +253,45 @@ contains
       _RETURN(_SUCCESS)
 
    end function new_LocalMemReference_4d
+
+   function new_LocalMemReference_5d(array, rc) result(reference)
+      type (LocalMemReference) :: reference
+      class(*), target, intent(in) :: array(:,:,:,:,:)
+      integer, optional, intent(out) :: rc
+      integer (kind=INT32), pointer :: int32Ptr(:,:,:,:,:)
+      integer (kind=INT64), pointer :: int64Ptr(:,:,:,:,:)
+      real (kind=REAL32)  , pointer :: real32Ptr(:,:,:,:,:)
+      real (kind=REAL64)  , pointer :: real64Ptr(:,:,:,:,:)
+      integer :: status
+
+      select type (array)
+      type is (integer(kind=INT32))
+         reference = LocalMemReference( pFIO_INT32, shape(array), rc=status)
+         _VERIFY(status)
+         call c_f_pointer(reference%base_address, int32Ptr, shape=shape(array))
+         int32Ptr = array
+      type is (integer(kind=INT64))
+         reference = LocalMemReference( pFIO_INT64, shape(array), rc=status)
+         _VERIFY(status)
+         call c_f_pointer(reference%base_address, int64Ptr, shape=shape(array))
+         int64Ptr = array
+      type is (real(kind=REAL32))
+         reference = LocalMemReference( pFIO_REAL32, shape(array), rc=status)
+         _VERIFY(status)
+         call c_f_pointer(reference%base_address, real32Ptr, shape=shape(array))
+         real32Ptr = array
+      type is (real(kind=REAL64))
+         reference = LocalMemReference( pFIO_REAL64, shape(array), rc=status)
+         _VERIFY(status)
+         call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
+         real64Ptr = array
+      class default
+         _ASSERT(.false., "LocalMemRef does not support this type")
+      end select
+
+      _RETURN(_SUCCESS)
+
+   end function new_LocalMemReference_5d
 
    subroutine allocate(this, rc)
       class (LocalMemReference), intent(inout) :: this

@@ -22,7 +22,7 @@ module MAPL_GridManager_private
    use MAPL_StringGridFactoryMapMod
    use MAPL_KeywordEnforcerMod
    use ESMF
-   use MAPL_ThrowMod, only: MAPL_throw_exception
+   use MAPL_ExceptionHandling, only: MAPL_throw_exception
    implicit none
    private
 
@@ -510,7 +510,7 @@ module MAPL_GridManagerMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_GridManager_private
    use MAPL_KeywordEnforcerMod
-   use MAPL_ThrowMod, only: MAPL_throw_exception
+   use MAPL_ExceptionHandling, only: MAPL_throw_exception
    use ESMF
    implicit none
    private

@@ -1,10 +1,10 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 module pFIO_ExtDataCollectionMod
   use gFTL_StringIntegerMap
   use pFIO_NetCDF4_FileFormatterMod
   use pFIO_FormatterPtrVectorMod
   use pFIO_ConstantsMod
-  use pFIO_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   implicit none
   private
 
@@ -110,7 +110,6 @@ end module pFIO_ExtDataCollectionMod
 
 
 module pFIO_ExtCollectionVectorMod
-   use pFIO_ThrowMod
    use pFIO_ExtDataCollectionMod
    
    ! Create a map (associative array) between names and pFIO_Attributes.
@@ -118,8 +117,6 @@ module pFIO_ExtCollectionVectorMod
 #define _type type (ExtDataCollection)
 #define _vector ExtCollectionVector
 #define _iterator ExtCollectionVectorIterator
-
-#define _FTL_THROW pFIO_throw_exception
 
 #include "templates/vector.inc"
    

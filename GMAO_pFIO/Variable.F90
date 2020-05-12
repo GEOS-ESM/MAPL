@@ -1,14 +1,13 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_VariableMod
    use pFIO_UtilitiesMod
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use gFTL_StringVector
    use pFIO_StringVectorUtilMod
    use pFIO_KeywordEnforcerMod
    use pFIO_ConstantsMod
-   use pFIO_ThrowMod
    use pFIO_UnlimitedEntityMod
    use pFIO_AttributeMod
    use pFIO_StringAttributeMapMod

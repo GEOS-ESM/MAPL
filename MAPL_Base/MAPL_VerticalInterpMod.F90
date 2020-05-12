@@ -9,7 +9,7 @@
       use ESMF
       use MAPL_BaseMod
       use MAPL_ConstantsMod, only: MAPL_KAPPA, MAPL_RGAS, MAPL_CP, MAPL_GRAV
-      use MAPL_ErrorHandlingMod
+      use MAPL_ExceptionHandling
       use, intrinsic :: iso_fortran_env, only: REAL64
 !
       implicit none

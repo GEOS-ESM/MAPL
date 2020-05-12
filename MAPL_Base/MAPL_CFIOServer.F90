@@ -8,7 +8,7 @@
    use MAPL_MemUtilsMod
    use MAPL_ShmemMod
    use netcdf
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
 
    implicit none
    private

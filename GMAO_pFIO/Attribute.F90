@@ -1,4 +1,4 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_AttributeMod
@@ -6,7 +6,7 @@ module pFIO_AttributeMod
 ! limit the dimesion to 0 or 1
 !
    use pFIO_UnlimitedEntityMod
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
 
    implicit none
    private
@@ -76,7 +76,6 @@ end module pFIO_AttributeMod
 ! length strings and values that are Attributes.
 
 module pFIO_StringAttributeMapMod
-   use pFIO_ThrowMod
    use pFIO_AttributeMod
    
 #include "types/key_deferredLengthString.inc"   
@@ -87,8 +86,6 @@ module pFIO_StringAttributeMapMod
 #define _iterator StringAttributeMapIterator
 
 #define _alt
-#define _FTL_THROW pFIO_throw_exception
-
 #include "templates/map.inc"
    
 end module pFIO_StringAttributeMapMod
@@ -97,7 +94,7 @@ module pFIO_StringAttributeMapUtilMod
    use pFIO_UtilitiesMod
    use pFIO_AttributeMod
    use pFIO_StringAttributeMapMod
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    implicit none
    private
 
