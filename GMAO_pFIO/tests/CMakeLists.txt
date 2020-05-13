@@ -63,7 +63,6 @@ ecbuild_add_executable (
   LIBS MAPL_Shared GMAO_pFIO ${NETCDF_LIBRARIES} MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
 set_target_properties(${TESTO} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
-#target_link_libraries(${TESTO} MAPL_Shared GMAO_pFIO ${NETCDF_LIBRARIES})
 
 # Detect if we are using Open MPI and add oversubscribe
 string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST ${MPI_Fortran_LIBRARY_VERSION_STRING})
