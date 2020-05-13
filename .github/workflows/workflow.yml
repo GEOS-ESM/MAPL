@@ -20,6 +20,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
+          path: /root/project/MAPLtest
       - name: Versions etc.
         run: |
           gfortran --version
@@ -55,6 +56,7 @@ jobs:
           make -j4 MAPL_Profiler_tests
           ctest -R 'MAPL_Profiler_tests$' --output-on-failure
   build_gcm:
+    name: Build GEOSgcm
     runs-on: ubuntu-latest
     container: gmao/geos-build-env-gcc-source:6.0.12
     env:
@@ -71,27 +73,30 @@ jobs:
         with:
           repository: GEOS-ESM/GEOSgcm
           fetch-depth: 1
+          path: /root/project/GCMtest
       - name: Versions etc.
         run: |
           gfortran --version
           mpirun --version
           echo $BASEDIR
-      - name: Mepo clone external repos
-        run: |
-          mepo init
-          mepo clone
-          mepo status
-      # Found this GITHUB_REF from https://stackoverflow.com/a/58034787/1876449
-      - name: Mepo checkout MAPL branch
-        run: |
-          mepo checkout ${GITHUB_REF##*/} MAPL
-          mepo status
-      - name: CMake
-        run: |
-          mkdir build
-          cd build
-          cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe'
-      - name: Build
-        run: |
-          cd build
-          make -j4 install
+          echo ${GITHUB_REF}
+          echo ${GITHUB_REF##*/}
+      #- name: Mepo clone external repos
+        #run: |
+          #mepo init
+          #mepo clone
+          #mepo status
+      ## Found this GITHUB_REF from https://stackoverflow.com/a/58034787/1876449
+      #- name: Mepo checkout MAPL branch
+        #run: |
+          #mepo checkout ${GITHUB_REF##*/} MAPL
+          #mepo status
+      #- name: CMake
+        #run: |
+          #mkdir build
+          #cd build
+          #cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe'
+      #- name: Build
+        #run: |
+          #cd build
+          #make -j4 install
