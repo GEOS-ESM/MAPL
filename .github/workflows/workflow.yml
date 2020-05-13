@@ -15,12 +15,14 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
+    defaults:
+      run:
+        working-directory: MAPLtest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
-          path: /root/project/MAPLtest
       - name: Versions etc.
         run: |
           gfortran --version
@@ -67,13 +69,15 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
+    defaults:
+      run:
+        working-directory: GCMtest
     steps:
       - name: Checkout GCM
         uses: actions/checkout@v2
         with:
           repository: GEOS-ESM/GEOSgcm
           fetch-depth: 1
-          path: /root/project/GCMtest
       - name: Versions etc.
         run: |
           gfortran --version
