@@ -1,9 +1,10 @@
-name: Build MAPL
+name: Build Tests
 
-on: pull_request
+on: [pull_request]
 
 jobs:
-  build_mapl:
+  build_test_mapl:
+    name: Build and Test MAPL
     runs-on: ubuntu-latest
     container: gmao/geos-build-env-gcc-source:6.0.12
     env:
@@ -15,7 +16,8 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
           fetch-depth: 1
       - name: Versions etc.
@@ -52,3 +54,45 @@ jobs:
           cd build
           make -j4 MAPL_Profiler_tests
           ctest -R 'MAPL_Profiler_tests$' --output-on-failure
+  build_gcm:
+    name: Build GEOSgcm
+    runs-on: ubuntu-latest
+    container: gmao/geos-build-env-gcc-source:6.0.12
+    env:
+      LANGUAGE: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+      LANG: en_US.UTF-8
+      LC_TYPE: en_US.UTF-8 
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+    steps:
+      - name: Checkout GCM
+        uses: actions/checkout@v2
+        with:
+          repository: GEOS-ESM/GEOSgcm
+          fetch-depth: 1
+      - name: Versions etc.
+        run: |
+          gfortran --version
+          mpirun --version
+          echo $BASEDIR
+          echo ${GITHUB_HEAD_REF}
+      - name: Mepo clone external repos
+        run: |
+          mepo init
+          mepo clone
+          mepo status
+      - name: Mepo checkout MAPL branch
+        run: |
+          mepo checkout ${GITHUB_HEAD_REF} MAPL
+          mepo status
+      - name: CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe'
+      - name: Build
+        run: |
+          cd build
+          make -j4 install

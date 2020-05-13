@@ -1,11 +1,31 @@
 module MAPL_ErrorHandlingMod
    use MAPL_ThrowMod
+   use MPI
    implicit none
    private
 
    public :: MAPL_Assert
    public :: MAPL_Verify
    public :: MAPL_Return
+   public :: MAPL_RTRN
+   public :: MAPL_Vrfy
+   public :: MAPL_ASRT
+   public :: MAPL_abort
+
+interface MAPL_VRFY
+   module procedure MAPL_VRFY
+   module procedure MAPL_VRFYt
+end interface
+
+interface MAPL_ASRT
+   module procedure MAPL_ASRT
+   module procedure MAPL_ASRTt
+end interface
+
+interface MAPL_RTRN
+   module procedure MAPL_RTRN
+   module procedure MAPL_RTRNt
+end interface
 
 contains
 
@@ -72,7 +92,83 @@ contains
       if (present(rc)) rc = status 
       
    end subroutine MAPL_Return
-   
-   
+
+   logical function MAPL_RTRN(A,iam,line,rc)
+      integer,           intent(IN ) :: A
+      character*(*),     intent(IN ) :: iam
+      integer,           intent(IN ) :: line
+      integer, optional, intent(OUT) :: RC
+
+        MAPL_RTRN = .true.
+        if(A/=0) print '(A40,I10)',Iam,line
+        if(present(RC)) RC=A
+   end function MAPL_RTRN
+
+   logical function MAPL_VRFY(A,iam,line,rc)
+      integer,           intent(IN ) :: A
+      character*(*),     intent(IN ) :: iam
+      integer,           intent(IN ) :: line
+      integer, optional, intent(OUT) :: RC
+        MAPL_VRFY = A/=0
+        if(MAPL_VRFY)then
+          if(present(RC)) then
+            print '(A40,I10)',Iam,line
+            RC=A
+          endif
+        endif
+   end function MAPL_VRFY
+
+   logical function MAPL_ASRT(A,iam,line,rc)
+      logical,           intent(IN ) :: A
+      character*(*),     intent(IN ) :: iam
+      integer,           intent(IN ) :: line
+      integer, optional, intent(OUT) :: RC
+        MAPL_ASRT = .not.A
+        if(MAPL_ASRT)then
+          if(present(RC))then
+            print '(A40,I10)',Iam,LINE
+            RC=1
+          endif
+        endif
+   end function MAPL_ASRT   
+
+   logical function MAPL_ASRTt(A,text,iam,line,rc)
+      logical,           intent(IN ) :: A
+      character*(*),     intent(IN ) :: iam,text
+      integer,           intent(IN ) :: line
+      integer, optional, intent(OUT) :: RC
+        MAPL_ASRTt =   MAPL_ASRT(A,iam,line,rc)
+        if(MAPL_ASRTt) print *, text
+   end function MAPL_ASRTT
+
+   logical function MAPL_RTRNt(A,text,iam,line,rc)
+      integer,           intent(IN ) :: A
+      character*(*),     intent(IN ) :: text,iam
+      integer,           intent(IN ) :: line
+      integer, optional, intent(OUT) :: RC
+
+        MAPL_RTRNt = .true.
+        if(A/=0)then
+           print '(A40,I10)',Iam,line
+           print *, text
+        end if
+        if(present(RC)) RC=A
+
+   end function MAPL_RTRNT
+
+   logical function MAPL_VRFYt(A,text,iam,line,rc)
+      integer,           intent(IN ) :: A
+      character*(*),     intent(IN ) :: iam,text
+      integer,           intent(IN ) :: line
+      integer, optional, intent(OUT) :: RC
+        MAPL_VRFYt =  MAPL_VRFY(A,iam,line,rc)
+        if(MAPL_VRFYt) print *, text
+   end function MAPL_VRFYT
+
+   subroutine MAPL_abort
+      integer :: status
+      integer :: error_code
+      call MPI_Abort(MPI_COMM_WORLD,error_code,status)
+  end subroutine MAPL_abort
 
 end module MAPL_ErrorHandlingMod
