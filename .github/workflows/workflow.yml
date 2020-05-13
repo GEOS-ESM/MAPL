@@ -76,9 +76,21 @@ jobs:
         run: |
           gfortran --version
           mpirun --version
+          printenv
           echo $BASEDIR
           echo ${GITHUB_REF}
           echo ${GITHUB_REF##*/}
+          echo "github.event_path is ${{ github.event_path }}"
+          echo "github.workflow is ${{ github.workflow }}"
+          echo "github.job is ${{ github.job }}"
+          echo "github.run_id is ${{ github.run_id }}"
+          echo "github.run_number is ${{ github.run_number }}"
+          echo "github.repository is ${{ github.repository }}"
+          echo "github.ref is ${{ github.ref }}"
+          echo "github.head_ref is ${{ github.head_ref }}"
+          echo "github.base_ref is ${{ github.base_ref }}"
+          echo "github.workspace is ${{ github.workspace }}"
+          echo "github.action is ${{ github.action }}"
       #- name: Mepo clone external repos
         #run: |
           #mepo init
