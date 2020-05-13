@@ -80,6 +80,8 @@ jobs:
           echo $BASEDIR
           echo ${GITHUB_REF}
           echo ${GITHUB_REF##*/}
+          echo ${GITHUB_HEAD_REF}
+          echo ${GITHUB_HEAD_REF##*/}
           echo "github.event_path is ${{ github.event_path }}"
           echo "github.workflow is ${{ github.workflow }}"
           echo "github.job is ${{ github.job }}"
@@ -91,22 +93,22 @@ jobs:
           echo "github.base_ref is ${{ github.base_ref }}"
           echo "github.workspace is ${{ github.workspace }}"
           echo "github.action is ${{ github.action }}"
-      #- name: Mepo clone external repos
-        #run: |
-          #mepo init
-          #mepo clone
-          #mepo status
-      ## Found this GITHUB_REF from https://stackoverflow.com/a/58034787/1876449
-      #- name: Mepo checkout MAPL branch
-        #run: |
-          #mepo checkout ${GITHUB_REF##*/} MAPL
-          #mepo status
-      #- name: CMake
-        #run: |
-          #mkdir build
-          #cd build
-          #cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe'
-      #- name: Build
-        #run: |
-          #cd build
-          #make -j4 install
+      - name: Mepo clone external repos
+        run: |
+          mepo init
+          mepo clone
+          mepo status
+      # Found this GITHUB_REF from https://stackoverflow.com/a/58034787/1876449
+      - name: Mepo checkout MAPL branch
+        run: |
+          mepo checkout ${GITHUB_HEAD_REF##*/} MAPL
+          mepo status
+      - name: CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe'
+      - name: Build
+        run: |
+          cd build
+          make -j4 install
