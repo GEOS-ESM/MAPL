@@ -11,8 +11,6 @@ endif()
 set (srcs
   # pFIO Files
   KeywordEnforcer.F90
-  Throw.F90
-  pFIO_ErrorHandling.F90
   pFIO_ShaveMantissa.c
   DownBit.F90
   pFIO_Constants.F90
@@ -86,9 +84,11 @@ set (srcs
   StringVectorUtil.F90
   )
 
-esma_add_library (${this} SRCS ${srcs})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL_Shared )
 target_link_libraries (${this} PUBLIC gftl gftl-shared 
                                PRIVATE ${NETCDF_LIBRARIES} OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
+target_include_directories (${this} PUBLIC
+          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
@@ -122,8 +122,6 @@ include_directories (${INC_NETCDF})
 # We could leave these in the source directory, and just broaden the search path
 # in the other libaries, but this make it explicit which aspects are externally
 # used.
-
-file (COPY unused_dummy.H DESTINATION ${include_${this}})
 
 # Users guide 
 if (LATEX_FOUND)

@@ -3,7 +3,7 @@
 
 module MAPL_SimpleAlarm
    use ESMF
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
 
    implicit none
    private

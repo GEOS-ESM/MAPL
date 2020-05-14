@@ -8,7 +8,7 @@
 
 module MAPL_ConfigMod
    use ESMF
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    implicit none
    private
 

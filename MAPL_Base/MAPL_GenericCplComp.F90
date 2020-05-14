@@ -28,7 +28,7 @@ module MAPL_GenericCplCompMod
   use MAPL_ProfMod
   use MAPL_SunMod
   use MAPL_VarSpecMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
 
   implicit none
   private

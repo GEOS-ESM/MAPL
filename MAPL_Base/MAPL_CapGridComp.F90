@@ -3,7 +3,7 @@
 
 module MAPL_CapGridCompMod
   use ESMF
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use MAPL_BaseMod
   use MAPL_ConstantsMod
   use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler, get_global_memory_profiler

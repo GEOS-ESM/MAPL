@@ -9,8 +9,7 @@
 module MAPL_RangeMod
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
-  use MAPL_ThrowMod
-  use esmf
+  use MAPL_ExceptionHandling
   implicit none
   private
 
@@ -39,7 +38,6 @@ contains
 
      integer :: i
      real(kind=REAL64) :: delta
-     character(len=ESMF_MAXSTR), parameter :: IAm='MAPL_Range_REAL64'
 
      _ASSERT(((n /= 1) .or. (x0 == x1)))
      allocate(range(n))
@@ -58,7 +56,7 @@ contains
         range = range * conversion_factor
      end if
 
-     _RETURN(ESMF_SUCCESS)
+     _RETURN(_SUCCESS)
         
   end function MAPL_Range_REAL64
 
@@ -72,7 +70,6 @@ contains
 
      integer :: i
      real(kind=REAL64) :: delta
-     character(len=ESMF_MAXSTR), parameter :: IAm='MAPL_Range_REAL64'
 
      _ASSERT((n /= 1) .or. (x0 == x1))
      allocate(range(n))
@@ -91,7 +88,7 @@ contains
         range = range * conversion_factor
      end if
 
-     _RETURN(ESMF_SUCCESS)
+     _RETURN(_SUCCESS)
         
   end function MAPL_Range_REAL32
 

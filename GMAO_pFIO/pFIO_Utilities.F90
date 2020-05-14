@@ -1,11 +1,11 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_UtilitiesMod
    use, intrinsic :: iso_c_binding, only: c_sizeof 
    use, intrinsic :: iso_fortran_env, only: INT32,REAL32,INT64,REAL64
    use pFIO_ConstantsMod
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    implicit none
    private
 

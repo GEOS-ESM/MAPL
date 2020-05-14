@@ -13,7 +13,7 @@ module MAPL_SortMod
    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL32, REAL64
    use, intrinsic :: ISO_FORTRAN_ENV, only: INT32, INT64
 
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
 
   implicit none
   private

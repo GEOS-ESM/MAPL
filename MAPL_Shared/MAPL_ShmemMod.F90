@@ -7,7 +7,7 @@
 
     use, intrinsic :: ISO_C_BINDING
     use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64
-    use MAPL_ErrorHandlingMod
+    use MAPL_ExceptionHandling
     use pflogger, only: logging, Logger
 
     implicit none
