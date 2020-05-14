@@ -1224,15 +1224,15 @@ module MAPL_IOMod
           if (.not.associated(var_4d)) then
              _ASSERT(.false., "Cannot read unassociated variable")
           end if
-          if (DIMS == MAPL_DimsHorzOnly) then
-             do L = 1,size(var_4d,3)
-                do K = 1,size(var_4d,4)
-                   call MAPL_VarRead(formatter, name, var_4d(:,:,L,K), &
-                        arrdes=arrdes, lev=l, &
-                        & offset2=k, rc=status)
-                end do
+
+          do L = 1,size(var_4d,3)
+             do K = 1,size(var_4d,4)
+                call MAPL_VarRead(formatter, name, var_4d(:,:,L,K), &
+                     arrdes=arrdes, lev=l, &
+                     & offset2=k, rc=status)
+                _VERIFY(status)
              end do
-          end if
+          end do
        else
           _ASSERT(.false., "ERROR: unsupported RANK/KIND")
        endif
@@ -7765,8 +7765,8 @@ module MAPL_IOMod
 
   FIELD = ESMF_FieldCreate(grid=arrDes%grid, datacopyflag=ESMF_DATACOPY_VALUE, &
          farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
-  call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzVert,rc=status)
   _VERIFY(STATUS)
+  call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzVert,rc=status)
   _VERIFY(STATUS)
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
   _VERIFY(STATUS)
@@ -7819,6 +7819,7 @@ module MAPL_IOMod
     character(len=ESMF_MAXSTR), allocatable :: unique_ungrid_dim_name(:)
     character(len=ESMF_MAXSTR)            :: myUngridDimName1, myUngridDimName2
     character(len=ESMF_MAXSTR)            :: BundleName
+    real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:,:):: var_4d => null()
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:)  :: var_3d => null()
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:)  :: var8_3d => null()
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)    :: var_2d => null()
@@ -7935,6 +7936,21 @@ module MAPL_IOMod
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_3d,2)
              UNGRID_DIMS(I,2) = size(var8_3d,3)
+          endif
+       else if (arrayRank == 4) then
+          if (tk == ESMF_TYPEKIND_R4) then
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
+             _VERIFY(STATUS)
+             if (DIMS(I) == MAPL_DimsHorzVert) then
+                UNGRID_DIMS(I,1) = size(var_4d,4)
+             else if (DIMS(I) == MAPL_DimsHorzOnly) then
+                UNGRID_DIMS(I,1) = size(var_4d,3)
+                UNGRID_DIMS(I,2) = size(var_4d,4)
+             else
+                _ASSERT(.false., "Unsupported DIMS type")
+             end if
+          else
+             _ASSERT(.false., "Unsupported type/rank")
           endif
        endif
 
@@ -8277,6 +8293,47 @@ module MAPL_IOMod
                 call add_fvar(cf,trim(fieldname),pfDataType,'tile,'//myUngridDimName1//','//myUngridDimName2,units,long_name,rc=status)
                 _VERIFY(status)
              else if(DIMS(1)/=MAPL_DimsHorzVert .and. DIMS(1)/=MAPL_DimsHorzOnly) then
+                _ASSERT(.false., 'ERROR: What else could it be')
+             endif
+          else if(arrayRank == 4) then
+             if (DIMS(1)==MAPL_DimsHorzVert) then
+                do j=1,n_unique_ungrid_dims
+                   if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
+                      myungriddim1 = j
+                      myUngridDimName1 = trim(unique_ungrid_dim_name(j))
+                      exit
+                   end if
+                end do
+                if (LOCATION(1) == MAPL_VLocationCenter) then
+                   call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,lev,'//myUngridDimName1,units,long_name,rc=status)
+                   _VERIFY(status)
+                else if(LOCATION(1) == MAPL_VLocationEdge) then
+                   call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,edge,'//myUngridDimName1,units,long_name,rc=status)
+                   _VERIFY(status)
+                else
+                   _ASSERT(.false., 'ERROR: LOCATION not recognized for rank 4')
+                endif
+             else if(DIMS(1)==MAPL_DimsHorzOnly) then
+                do j=1,n_unique_ungrid_dims
+                   if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
+                      myungriddim1 = j
+                      myUngridDimName1 = trim(unique_ungrid_dim_name(j))
+                      exit
+                   end if
+                end do
+                do j=1,n_unique_ungrid_dims
+                   if (ungrid_dims(i,2) == unique_ungrid_dims(j) ) then
+                      myungriddim2 = j
+                      myUngridDimName2 = trim(unique_ungrid_dim_name(j))
+                      exit
+                   end if
+                end do
+                call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,'//myUngridDimName1//','//myUngridDimName2,units,long_name,rc=status)
+                _VERIFY(status)
+             else if (DIMS(1)==MAPL_DimsTileOnly .or. &
+                  DIMS(1)==MAPL_DimsTileTile) then
+                _ASSERT(.false., 'ERROR: tiles with 2 or more UNGRIDDED dims not supported')
+             else
                 _ASSERT(.false., 'ERROR: What else could it be')
              endif
           else
