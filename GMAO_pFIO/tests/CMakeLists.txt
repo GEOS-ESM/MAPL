@@ -38,7 +38,7 @@ target_link_libraries (pfio_extras PUBLIC MAPL_pFUnit MAPL_Shared)
 add_pfunit_ctest(pFIO_tests 
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
-                LINK_LIBRARIES GMAO_pFIO pfio_extras MAPL_pFUnit
+                LINK_LIBRARIES GMAO_pFIO pfio_extras 
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE pFIO_pFUNIT_Initialize
                 MAX_PES 8
