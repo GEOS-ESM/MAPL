@@ -2855,7 +2855,7 @@ module MAPL_IOMod
 
     type(ESMF_TypeKind_Flag)           :: tk
     integer, pointer                   :: mask(:)
-    integer                            :: J,K,L
+    integer                            :: J,K
     type (ESMF_DistGrid)               :: distGrid
     type (LocalMemReference) :: lMemRef
     integer :: size_1d
@@ -7820,6 +7820,7 @@ module MAPL_IOMod
     character(len=ESMF_MAXSTR)            :: myUngridDimName1, myUngridDimName2
     character(len=ESMF_MAXSTR)            :: BundleName
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:,:):: var_4d => null()
+    real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:,:):: var8_4d => null()
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:)  :: var_3d => null()
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:)  :: var8_3d => null()
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)    :: var_2d => null()
@@ -7946,6 +7947,17 @@ module MAPL_IOMod
              else if (DIMS(I) == MAPL_DimsHorzOnly) then
                 UNGRID_DIMS(I,1) = size(var_4d,3)
                 UNGRID_DIMS(I,2) = size(var_4d,4)
+             else
+                _ASSERT(.false., "Unsupported DIMS type")
+             end if
+          elseif (tk == ESMF_TYPEKIND_R8) then
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_4d, rc=status)
+             _VERIFY(STATUS)
+             if (DIMS(I) == MAPL_DimsHorzVert) then
+                UNGRID_DIMS(I,1) = size(var8_4d,4)
+             else if (DIMS(I) == MAPL_DimsHorzOnly) then
+                UNGRID_DIMS(I,1) = size(var8_4d,3)
+                UNGRID_DIMS(I,2) = size(var8_4d,4)
              else
                 _ASSERT(.false., "Unsupported DIMS type")
              end if
