@@ -14,7 +14,6 @@ module MAPL_HistoryCollectionMod
 
   type, public :: FieldSet
      character(len=ESMF_MAXSTR), pointer :: fields(:,:) => null()
-     character(len=ESMF_MAXSTR), pointer :: vector_list(:,:) => null()
      integer :: nfields = 0
   end type FieldSet
 
@@ -82,8 +81,9 @@ module MAPL_HistoryCollectionMod
      type(newCFIOItemVector)            :: items
      character(len=ESMF_MAXSTR)         :: currentFile
      character(len=ESMF_MAXPATHLEN)     :: trackFile
-     contains
-        procedure :: AddGrid
+     logical                            :: splitField
+   contains
+     procedure :: AddGrid
   end type HistoryCollection
 
   contains

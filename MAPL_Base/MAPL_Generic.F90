@@ -4927,7 +4927,7 @@ end function MAPL_AddChildFromGC
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOn"
-    integer :: STATUS, n
+    integer :: STATUS !, n
    
     call MAPL_ProfClockOn(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
@@ -4997,13 +4997,10 @@ end function MAPL_AddChildFromGC
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOff"
-    integer :: STATUS, n
+    integer :: STATUS
 
     call MAPL_ProfClockOff(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
-
-    !n = index(NAME,'-',.true.) + 1
-    !call state%t_profiler%stop(trim(Name(n:)))
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GenericStateClockOff
@@ -5781,8 +5778,8 @@ end function MAPL_AddChildFromGC
     type (ESMF_FieldBundle) :: BUNDLE
     type (ESMF_Field)       :: SPEC_FIELD
     type (ESMF_FieldBundle) :: SPEC_BUNDLE
-    real(kind=ESMF_KIND_R4), pointer         :: VAR_1D(:), VAR_2D(:,:), VAR_3D(:,:,:)
-    real(kind=ESMF_KIND_R8), pointer         :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:)
+    real(kind=ESMF_KIND_R4), pointer         :: VAR_1D(:), VAR_2D(:,:), VAR_3D(:,:,:), VAR_4d(:,:,:,:)
+    real(kind=ESMF_KIND_R8), pointer         :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
     logical               :: usableDEFER
     logical               :: deferAlloc
     integer               :: DIMS
@@ -6002,6 +5999,16 @@ end function MAPL_AddChildFromGC
                      end if
                      var_3d = default_value
                      initStatus = MAPL_InitialDefault
+                  else if (fieldRank == 4) then
+                     call ESMF_FieldGet(field, farrayPtr=var_4d, rc=status)
+                     _VERIFY(STATUS)
+                     if (initStatus == MAPL_InitialDefault) then
+                        if (any(var_4d /= default_value)) then
+                           _RETURN(ESMF_FAILURE)
+                        endif
+                     end if
+                     var_4d = default_value
+                     initStatus = MAPL_InitialDefault
                   end if
                else if (typeKind == ESMF_TYPEKIND_R8) then
                   def_val_8 = real(default_value,kind=ESMF_KIND_R8)
@@ -6034,6 +6041,16 @@ end function MAPL_AddChildFromGC
                         endif
                      end if
                      vr8_3d = def_val_8
+                     initStatus = MAPL_InitialDefault
+                  else if (fieldRank == 4) then
+                     call ESMF_FieldGet(field, farrayPtr=vr8_4d, rc=status)
+                     _VERIFY(STATUS)
+                     if (initStatus == MAPL_InitialDefault) then
+                        if (any(vr8_4d /= default_value)) then
+                           _RETURN(ESMF_FAILURE)
+                        endif
+                     end if
+                     vr8_4d = default_value
                      initStatus = MAPL_InitialDefault
                   end if
                end if
@@ -6084,9 +6101,6 @@ end function MAPL_AddChildFromGC
             end if
          else
             call ESMF_AttributeSet(FIELD, NAME='PRECISION', VALUE=KND, RC=STATUS)
-            _VERIFY(STATUS)
-            call ESMF_AttributeSet(FIELD, NAME='HAS_UNGRIDDED_DIMS', &
-                 value=has_ungrd, RC=STATUS)
             _VERIFY(STATUS)
             call ESMF_AttributeSet(FIELD, NAME='DEFAULT_PROVIDED', &
                  value=defaultProvided, RC=STATUS)
