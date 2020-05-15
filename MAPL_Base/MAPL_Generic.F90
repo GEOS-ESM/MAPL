@@ -4997,13 +4997,10 @@ end function MAPL_AddChildFromGC
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOff"
-    integer :: STATUS !, n
+    integer :: STATUS
 
     call MAPL_ProfClockOff(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
-
-    !n = index(NAME,'-',.true.) + 1
-    !call state%t_profiler%stop(trim(Name(n:)))
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GenericStateClockOff

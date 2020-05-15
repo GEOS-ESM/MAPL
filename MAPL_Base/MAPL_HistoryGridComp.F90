@@ -863,16 +863,6 @@ contains
 
        list(n)%field_set => field_set
 
-! Check if field list had a vector pair and collection marked as conservative
-! Abort if this is the case as this is not supported
-! ---------------------------------------------------------------------------
-!@@       if (associated(list(n)%field_set%vector_list)) then
-!@@          if (list(n)%conservative /= 0) then
-!@@             call WRITE_PARALLEL('Can not have a vector pair in a conservative collection')
-!@@             _ASSERT(.false.,'needs informative message')
-!@@          end if
-!@@       end if
-
 ! Get an optional list of output levels
 ! -------------------------------------
 
@@ -2587,7 +2577,6 @@ ENDDO PARSER
             item => iter%get()
             if (item%itemType == ItemTypeScalar) then
                split = has4dField(fldName=item%xname, rc=status)
-               !@@             print *,'DEBUG: split=',split
                _VERIFY(status)
                if (.not.split) call newItems%push_back(item)
             else if (item%itemType == ItemTypeVector) then
@@ -2709,7 +2698,6 @@ ENDDO PARSER
       k = list(n)%expSTATE(m)
       exp_state = export(k)
    
-!@@      print *,'debug fldname ',trim(fldname)
       call MAPL_StateGet(exp_state,fldName,fld,rc=status )
       _VERIFY(status)
 
