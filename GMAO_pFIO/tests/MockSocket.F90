@@ -1,9 +1,9 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 module MockSocketMod
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_AbstractMessageMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_MessageVectorMod

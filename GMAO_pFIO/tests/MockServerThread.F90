@@ -1,7 +1,7 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 module MockServerThreadMod
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_ServerThreadMod
    use pFIO_AbstractMessageMod
    use pFIO_MessageVisitorMod
