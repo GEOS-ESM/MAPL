@@ -2,16 +2,11 @@
 !mpirun -np 84 ./pfio_performace.x -nc 54 -nso 1 -ncol 4 -v T,U,V -s mpi
 !  54 + 1*28 < 84 . The left over if for i-server
 !The variable should be 4d with lavel>=20
-
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  (A)/=0) then; call pFIO_throw_exception(__FILE__,__LINE__); return; endif
-#define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; call pFIO_throw_exception(__FILE__,__LINE__); return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module performace_CLI
-   use pFIO_ThrowMod
+   use MAPL_ExceptionHandling
    use pFIO
    use gFTL_StringVector
    use gFTL_StringIntegerMap
@@ -64,29 +59,29 @@ contains
          select case (argument)
          case ('-nc', '--npes_client')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-')
+            _ASSERT(buffer /= '-', "too many -")
             read(buffer,*) options%npes_client
          case ('-nso', '--nodes_oserver')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-')
+            _ASSERT(buffer /= '-',"too many -")
             read(buffer,*) options%nodes_oserver
          case ('-ncol', '--num_collection')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-')
+            _ASSERT(buffer /= '-',"too many -")
             read(buffer,*) options%num_collection
          case ('-f1', '--file_1')
             options%file_1 = get_next_argument()
-            _ASSERT(options%file_1(1:1) /= '-')
+            _ASSERT(options%file_1(1:1) /= '-',"too many -")
          case ('-f2', '--file_2')
             options%file_2 = get_next_argument()
-            _ASSERT(options%file_2(1:1) /= '-')
+            _ASSERT(options%file_2(1:1) /= '-',"too many -")
          case ('-v', '--var')
             buffer = get_next_argument()
-            _ASSERT(buffer(1:1) /= '-')
+            _ASSERT(buffer(1:1) /= '-',"too many -")
             options%requested_variables = parse_vars(buffer)
          case ('-s', '--server_type')
             options%server_type = get_next_argument()
-            _ASSERT(options%server_type /= '-')
+            _ASSERT(options%server_type /= '-',"too many -")
          case ('-d', '--debug')
             options%debug = .true.
          case default
@@ -472,7 +467,7 @@ program main
    use pFIO
    use performace_CLI
    use FakeHistDataMod
-   use pFIO_ThrowMod
+   use MAPL_ExceptionHandling
    implicit none
 
    integer :: rank, npes, ierror
