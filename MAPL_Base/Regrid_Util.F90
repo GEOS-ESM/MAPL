@@ -14,7 +14,7 @@
    use ESMF_CFIOFileMod
    use MAPL_LatLonGridFactoryMod
    use MAPL_ConstantsMod, only: MAPL_PI_R8
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
 
    implicit NONE
 

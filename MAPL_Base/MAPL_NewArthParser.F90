@@ -54,7 +54,7 @@ MODULE MAPL_NewArthParserMod
   use ESMF
   use MAPL_BaseMod
   use MAPL_CommsMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
 
   IMPLICIT NONE
   !------- -------- --------- --------- --------- --------- --------- --------- -------

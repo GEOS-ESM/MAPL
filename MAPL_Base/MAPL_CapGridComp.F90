@@ -3,7 +3,7 @@
 
 module MAPL_CapGridCompMod
   use ESMF
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use MAPL_BaseMod
   use MAPL_ConstantsMod
   use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler, get_global_memory_profiler
@@ -179,7 +179,7 @@ contains
     _UNUSED_DUMMY(clock)
 
     cap => get_CapGridComp_from_gc(gc)
-    call MAPL_GetObjectFromGC(gc, maplobj, rc=status)
+    call MAPL_InternalStateCreate(gc, maplobj, rc=status)
     _VERIFY(status)
 
     t_p => get_global_time_profiler()

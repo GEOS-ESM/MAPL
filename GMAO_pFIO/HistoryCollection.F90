@@ -1,8 +1,8 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_HistoryCollectionMod
-  use pFIO_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use gFTL_StringIntegerMap
   use pFIO_NetCDF4_FileFormatterMod
   use pFIO_StringNetCDF4_FileFormatterMapMod
@@ -115,7 +115,6 @@ end module pFIO_HistoryCollectionMod
 
 
 module pFIO_HistoryCollectionVectorMod
-   use pFIO_ThrowMod
    use pFIO_HistoryCollectionMod
    
    ! Create a map (associative array) between names and pFIO_Attributes.
@@ -123,8 +122,6 @@ module pFIO_HistoryCollectionVectorMod
 #define _type type (HistoryCollection)
 #define _vector HistoryCollectionVector
 #define _iterator HistoryCollectionVectorIterator
-
-#define _FTL_THROW pFIO_throw_exception
 
 #include "templates/vector.inc"
    

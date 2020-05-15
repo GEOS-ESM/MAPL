@@ -1,8 +1,8 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_PrefetchDoneMessageMod
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_AbstractMessageMod
    use, intrinsic :: iso_fortran_env, only: INT32
    implicit none

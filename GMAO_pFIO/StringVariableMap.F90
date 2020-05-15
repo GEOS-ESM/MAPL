@@ -1,8 +1,7 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_StringVariableMapMod
-   use pFIO_ThrowMod
    use pFIO_VariableMod
    use pFIO_CoordinateVariableMod 
 
@@ -21,8 +20,6 @@ module pFIO_StringVariableMapMod
 #define _iterator StringVariableMapIterator
 
 #define _alt
-#define _FTL_THROW pFIO_throw_exception
-
 #include "templates/map.inc"
 
 #undef _alt
@@ -34,7 +31,7 @@ module pFIO_StringVariableMapMod
 end module pFIO_StringVariableMapMod
 
 module pFIO_StringVariableMapUtilMod
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_UtilitiesMod
    use pFIO_VariableMod
    use pFIO_CoordinateVariableMod

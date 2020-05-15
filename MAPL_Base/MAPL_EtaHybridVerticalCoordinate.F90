@@ -3,7 +3,7 @@
 module MAPL_EtaHybridVerticalCoordinateMod
    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
    use ESMF
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
    implicit none
    private

@@ -6,7 +6,7 @@ module MAPL_AbstractRegridderMod
    use MAPL_RegridderSpecMod
    use ESMF
    use MAPL_MemUtilsMod
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none
    private

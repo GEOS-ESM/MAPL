@@ -1,4 +1,4 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 !
@@ -26,7 +26,7 @@ module pFIO_CoordinateVariableMod
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    use pFIO_ConstantsMod
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_UtilitiesMod
    use pFIO_VariableMod
    use pFIO_KeywordEnforcerMod

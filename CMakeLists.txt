@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.1.0
+  VERSION 2.1.3
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/@cmake)
@@ -43,6 +43,8 @@ add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 
 add_subdirectory (GMAO_pFIO)
 add_subdirectory (MAPL_Profiler)
+add_subdirectory (MAPL_Shared)
+add_subdirectory (include)
 add_subdirectory (MAPL_Base)
 add_subdirectory (MAPL)
 
@@ -55,8 +57,13 @@ list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 include(mapl_acg)
 add_subdirectory (Apps)
 
-# Git transition defect:
-# Uncomment the line below once the dev branch of MAPL has been brought in.
 add_subdirectory (Tests)
+
+# Install the Python directory
+install (
+   DIRECTORY Python
+   DESTINATION lib
+   USE_SOURCE_PERMISSIONS
+   )
 
 ecbuild_install_project (NAME MAPL)
