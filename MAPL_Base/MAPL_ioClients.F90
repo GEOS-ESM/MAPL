@@ -3,7 +3,7 @@
 
 module MAPL_ioClientsMod
 
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
    use pFIO_ClientManagerMod
    use PFIO

@@ -13,8 +13,6 @@
 
 ! !USES:
 
-  use ESMF
-  use MAPL_BaseMod
   use MAPL_ErrorHandlingMod
   use, intrinsic :: iso_fortran_env, only: INT64
   implicit none
@@ -34,7 +32,7 @@
 
   type :: MAPL_Heap
      private
-     character(len=ESMF_MAXSTR) :: NAME=""
+     character(len=256) :: NAME=""
      integer :: HP_start(NumSegments)   = -1
      integer :: HP_end  (NumSegments)   = -1
      real, pointer  :: BUFFER(:)=>null()
@@ -69,7 +67,6 @@
       integer, optional, intent(IN   ) :: HeapSize      
       integer, optional, intent(OUT  ) :: RC
 
-      character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_Heapset"
       integer :: status
 
       _ASSERT(.not.associated(HEAP%BUFFER),'needs informative message')
@@ -80,7 +77,7 @@
          _VERIFY(STATUS)
       end if
 
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
     
     end subroutine MAPL_HeapSet
 
@@ -90,13 +87,12 @@
       integer, optional, intent(OUT  ) :: HeapSize
       integer, optional, intent(OUT  ) :: RC
 
-      character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_HeapGet"
 
       if(present(HeapSize)) then
          HeapSize = size(heap%buffer)
       end if
 
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
     
     end subroutine MAPL_HeapGet
     
@@ -112,7 +108,6 @@
 
       integer :: gap, len, i, j
 
-      character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_Alloc_R_2D"
       integer :: status
 
       interface loadr2d
@@ -187,7 +182,7 @@
       a => loadr2d(heap%buffer(heap%HP_start(i)),im,jm)
 
 
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
     end subroutine MAPL_Alloc_R_2D
 
 
@@ -211,7 +206,6 @@
 
       integer :: i
 
-      character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_DeAlloc_R_2D"
 
 ! Look for the pointer in the list of allocated segments
 !-------------------------------------------------------
@@ -245,7 +239,7 @@
       heap%HP_start(I) = -1
       heap%HP_end  (I) = -1
 
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
     end subroutine MAPL_DeAlloc_R_2D
 
 

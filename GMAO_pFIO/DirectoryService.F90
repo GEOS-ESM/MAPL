@@ -1,4 +1,4 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 ! Motivation 1:   Server calls connect once per collective client.
@@ -14,7 +14,7 @@
 
 module pFIO_DirectoryServiceMod
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_ptr, c_sizeof
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_KeywordEnforcerMod
    use pFIO_AbstractServerMod
    use pFIO_ServerThreadMod

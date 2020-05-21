@@ -12,7 +12,7 @@ executors:
 jobs:
    build-and-test-GNU:
       executor: gcc-build-env
-      working_directory: /root/project
+      working_directory: /root/project/MAPLtest
       steps:
          - checkout
          - run:
@@ -53,9 +53,40 @@ jobs:
                cd build
                make -j2 MAPL_Profiler_tests
                ctest -R 'MAPL_Profiler_tests$' --output-on-failure
+   build-GEOSgcm:
+      executor: gcc-build-env
+      working_directory: /root/project/GCMtest
+      steps:
+         - run:
+            name: "MAPL branch"
+            command: echo ${CIRCLE_BRANCH}
+         - checkout
+         - run:
+            name: "Checkout GEOSgcm fixture and update MAPL branch"
+            command: |
+              cd ${CIRCLE_WORKING_DIRECTORY}
+              git clone git@github.com:GEOS-ESM/GEOSgcm.git
+              cd GEOSgcm
+              mepo init
+              mepo clone
+              mepo checkout ${CIRCLE_BRANCH} MAPL
+              mepo status
+         - run:
+            name: CMake
+            command: |
+               cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm
+               mkdir build
+               cd build
+               cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe'
+         - run:
+            name: Build
+            command: |
+               cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm/build
+               make -j2 install
 
 workflows:
    version: 2.1
    pull_request_tests:
       jobs:
          - build-and-test-GNU
+         - build-GEOSgcm
