@@ -820,6 +820,8 @@ contains
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%trackFile, default="", &
                                     label=trim(string) // 'track_file:', rc=status)
        if (trim(list(n)%trackfile) /= '') list(n)%timeseries_output = .true.
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
+                                    label=trim(string) // 'recycle_track:', rc=status)
 
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
@@ -2379,7 +2381,8 @@ ENDDO PARSER
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),rc=status)
              _VERIFY(status)
-             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
+             if (mapl_am_I_root()) write(*,*)'bmaa recycle: ',n,list(n)%recycle_track
+             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,rc=status)
              _VERIFY(status)
           else
              if (trim(list(n)%output_grid_label)/='') then

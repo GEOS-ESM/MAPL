@@ -84,6 +84,7 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: currentFile
      character(len=ESMF_MAXPATHLEN)     :: trackFile
      logical                            :: timeseries_output = .false.
+     logical                            :: recycle_track = .false.
      type(HistoryTrajectory)            :: trajectory
      contains
         procedure :: AddGrid

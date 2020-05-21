@@ -42,6 +42,7 @@ module HistoryTrajectoryMod
       type(ESMF_Time) :: previous_time
       character(LEN=ESMF_MAXPATHLEN) :: file_name
       type(TimeData) :: time_info
+      logical :: recycle_track
       contains
          procedure :: initialize
          procedure :: create_variable
@@ -53,6 +54,7 @@ module HistoryTrajectoryMod
          procedure :: create_output_bundle
          procedure :: get_file_start_time
          procedure :: get
+         procedure :: reset_times_to_current_day
    end type
 
    interface HistoryTrajectory
@@ -104,13 +106,14 @@ module HistoryTrajectoryMod
  
       end function HistoryTrajectory_from_file
 
-      subroutine initialize(this,items,bundle,timeInfo,unusable,vdata,rc)
+      subroutine initialize(this,items,bundle,timeInfo,unusable,vdata,recycle_track,rc)
          class(HistoryTrajectory), intent(inout) :: this
          type(newCFIOitemVector), target, intent(inout) :: items
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(TimeData), intent(inout) :: timeInfo
          class (KeywordEnforcer), optional, intent(in) :: unusable
          type(VerticalData), optional, intent(inout) :: vdata
+         logical, optional, intent(inout) :: recycle_track
          integer, optional, intent(out) :: rc
 
          integer :: status,nobs
@@ -182,6 +185,15 @@ module HistoryTrajectoryMod
          call this%create_output_bundle(rc=status)
          _VERIFY(status)
          this%file_name = ''
+    
+         this%recycle_track=.false.
+         if (present(recycle_track)) then
+            this%recycle_track=recycle_track
+         end if
+         if (this%recycle_track) then
+            call this%reset_times_to_current_day(rc=status)
+            _VERIFY(status)
+         end if
          _RETURN(_SUCCESS)
 
       end subroutine initialize
@@ -395,7 +407,7 @@ module HistoryTrajectoryMod
          type(newCFIOitemVectorIterator) :: iter
          type(newCFIOitem), pointer :: item
          type(ESMF_Field) :: src_field,dst_field
-         integer :: rank,interval(2),number_to_write
+         integer :: rank,interval(2),number_to_write,previous_day,current_day
          real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
          real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
          real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
@@ -475,6 +487,16 @@ module HistoryTrajectoryMod
             enddo
             this%number_written=this%number_written+number_to_write
          endif
+
+         call ESMF_TimeGet(this%previous_time,dd=previous_day,rc=status)
+         _VERIFY(status)
+         call ESMF_TimeGet(current_time,dd=current_day,rc=status)
+         _VERIFY(status)
+         if (this%recycle_track .and. (current_day/=previous_day)) then
+            call this%reset_times_to_current_day(rc=status)
+            _VERIFY(status)
+            this%previous_index = lbound(this%times,1)-1
+         end if
          this%previous_time=current_time
 
       end subroutine append_file
@@ -591,5 +613,29 @@ module HistoryTrajectoryMod
          if (present(file_name)) file_name = trim(this%file_name)
          _RETURN(_SUCCESS)
       end subroutine get
+
+      subroutine reset_times_to_current_day(this,rc)
+         class(HistoryTrajectory), intent(Inout) :: this
+         integer, intent(out), optional :: rc
+
+         integer :: i,status,yy,mm,dd,h,m,yp,mp,dp,s,ms,us,ns
+         real(ESMF_KIND_R8) :: s_r8,d_r8,h_r8,m_r8
+         type(ESMF_Clock) :: clock
+         type(ESMF_Time) :: current_time
+         integer :: year,month,day
+
+         call this%time_info%get(clock=clock,rc=status) 
+         _VERIFY(status)
+         call ESMF_ClockGet(clock,currtime=current_time,rc=status)
+         _VERIFY(status)
+         call ESMF_TimeGet(current_time,yy=year,mm=month,dd=day,rc=status)
+         _VERIFY(status)
+         do i=1,size(this%times)
+            call ESMF_TimeGet(this%times(i),yy=yp,mm=mp,dd=dp,h=h,m=m,s=s,ms=ms,us=us,ns=ns,rc=status)
+            _VERIFY(status)
+            call ESMF_TimeSet(this%times(i),yy=year,mm=month,dd=day,h=h,m=m,s=s,ms=ms,us=us,ns=ns,rc=status)
+         enddo
+
+      end subroutine reset_times_to_current_day
 
 end module HistoryTrajectoryMod
