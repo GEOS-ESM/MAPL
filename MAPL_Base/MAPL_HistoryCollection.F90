@@ -8,6 +8,7 @@ module MAPL_HistoryCollectionMod
   use MAPL_newCFIOitemVectorMod
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
+  use HistoryTrajectoryMod
   implicit none
   
   private
@@ -82,8 +83,11 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: currentFile
      character(len=ESMF_MAXPATHLEN)     :: trackFile
      logical                            :: splitField
-   contains
-     procedure :: AddGrid
+     logical                            :: timeseries_output = .false.
+     logical                            :: recycle_track = .false.
+     type(HistoryTrajectory)            :: trajectory
+     contains
+        procedure :: AddGrid
   end type HistoryCollection
 
   contains
