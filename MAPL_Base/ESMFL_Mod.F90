@@ -2879,7 +2879,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
    if (present(lm)) then
-     if ( thisrank == 3 ) then
+     if ( thisrank >= 3 ) then
        lm = globalCPD(3)
      else
        lm = 1
@@ -2929,10 +2929,11 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    type(ESMF_Field)        :: dstFLD
    type(ESMF_Field)        :: srcFLD
    type(ESMF_Grid)         :: grid3D
-   real(kind=REAL32), dimension(:,:  ), pointer   :: sptr2d, dptr2d
-   real(kind=REAL32), dimension(:,:,:), pointer   :: sptr3d, dptr3d
+   real(kind=REAL32), dimension(:,:    ), pointer   :: sptr2d, dptr2d
+   real(kind=REAL32), dimension(:,:,:  ), pointer   :: sptr3d, dptr3d
+   real(kind=REAL32), dimension(:,:,:,:), pointer   :: sptr4d, dptr4d
    real(kind=REAL32), allocatable, dimension(:,:) :: srcBuf, dstBuf, diff
-   integer :: rank, k, mype, kmax, status, L, numVars
+   integer :: rank, k, mype, kmax, status, L, numVars, u, umax ! umax is the 4th dimension
    integer :: globalCPD(3)
    character(len=ESMF_MAXSTR)            :: srcName
    character(len=ESMF_MAXSTR), parameter :: fname = 'aleph'
@@ -2983,7 +2984,16 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
      ! allocate f90 pointer to hold data
      ! note halo width = 0
-     if(rank==3) then
+     umax = 1 ! by default, no 4th dimension
+     if(rank==4) then
+       call ESMF_FieldGet (srcFLD, localDE=0, farrayPtr=sptr4d, rc = status)
+       if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+       if (present(dstBUN)) then
+         call ESMF_FieldGet (dstFLD, localDE=0, farrayPtr=dptr4d, rc = status)
+         if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+       endif
+       umax = size(sptr4d,4)
+     else if(rank==3) then
        call ESMF_FieldGet (srcFLD, localDE=0, farrayPtr=sptr3d, rc = status)
        if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
        if (present(dstBUN)) then
@@ -2997,53 +3007,66 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
           call ESMF_FieldGet (dstFLD, localDE=0, farrayPtr=dptr2d, rc = status)
           if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
        endif
-    end if
+     end if
 
     ! loop over field's vertical levels
 
      call ESMFL_FieldGetDims(srcFLD, lm=kmax)
 
-     do k=1, kmax
+     do u = 1, umax ! loop 4th ungrid dimension
 
-       if (rank==3) then
-         call ArrayGather(sptr3d(:,:,k), srcBuf, grid3D, RC=STATUS)
-         if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-         if (present(dstBUN)) then 
-            call ArrayGather(dptr3d(:,:,k), dstBuf, grid3D, RC=STATUS)
+        if ( umax > 1) then
+          srcName = trim(srcName)//'_'//trim(ESMF_UtilStringInt2String (u))
+        endif
+
+        do k=1, kmax
+
+          if (rank==4) then
+            call ArrayGather(sptr4d(:,:,k,u), srcBuf, grid3D, RC=STATUS)
             if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-         endif
-       else
-         call ArrayGather(sptr2d, srcBuf, grid3D, RC=STATUS)
-         if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-         if (present(dstBUN)) then 
-           call ArrayGather(dptr2d, dstBuf, grid3D, RC=STATUS)
-           if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-         endif
-       end if
-       call ESMF_VMBarrier(vm, rc=status)
-       if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+            if (present(dstBUN)) then 
+               call ArrayGather(dptr4d(:,:,k,u), dstBuf, grid3D, RC=STATUS)
+               if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+            endif
+          elseif (rank==3) then
+            call ArrayGather(sptr3d(:,:,k), srcBuf, grid3D, RC=STATUS)
+            if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+            if (present(dstBUN)) then 
+               call ArrayGather(dptr3d(:,:,k), dstBuf, grid3D, RC=STATUS)
+               if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+            endif
+          else
+            call ArrayGather(sptr2d, srcBuf, grid3D, RC=STATUS)
+            if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+            if (present(dstBUN)) then 
+              call ArrayGather(dptr2d, dstBuf, grid3D, RC=STATUS)
+              if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+            endif
+          end if
+          call ESMF_VMBarrier(vm, rc=status)
+          if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
-       if(verbose .and. mype==MAPL_Root) then
-         ! stats on level-by-level basis
-         if(present(dstBUN)) then
-            call stats_ ( 6, globalCPD(1), globalCPD(2), k, &
-                      srcBuf,                    &
-                      trim(srcName), 'lev', MAPL_undef , &
-                      trim(srcName)//' diff statistics', 1, &
-                      dstBuf )
-         else
-            call stats_ ( 6, globalCPD(1), globalCPD(2), k, &
-                      srcBuf,                    &
-                      trim(srcName), 'lev', MAPL_undef , &
-                      trim(srcName)//' statistics', 1 &
-                      )
+          if(verbose .and. mype==MAPL_Root) then
+            ! stats on level-by-level basis
+            if(present(dstBUN)) then
+               call stats_ ( 6, globalCPD(1), globalCPD(2), k, &
+                         srcBuf,                    &
+                         trim(srcName), 'lev', MAPL_undef , &
+                         trim(srcName)//' diff statistics', 1, &
+                         dstBuf )
+            else
+               call stats_ ( 6, globalCPD(1), globalCPD(2), k, &
+                         srcBuf,                    &
+                         trim(srcName), 'lev', MAPL_undef , &
+                         trim(srcName)//' statistics', 1 &
+                         )
 
-         endif
+            endif
 
-       end if
+          end if
 
-     end do ! k
-
+        end do ! k
+     end do ! u, ungrid fourth
    end do ! L
 
    if(present(dstBUN)) deallocate(dstBuf)
