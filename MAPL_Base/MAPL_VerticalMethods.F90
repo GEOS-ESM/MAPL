@@ -6,7 +6,7 @@ module MAPL_VerticalDataMod
   use MAPL_BaseMod
   use pFIO
   use MAPL_AbstractRegridderMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none

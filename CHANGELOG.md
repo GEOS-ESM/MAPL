@@ -9,11 +9,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 ### Fixed
-- Fixed bug during replay when the refresh template in ExtData is a time interval
 ### Removed
+
+- Removed duplicate `Python` directory
+
 ### Added
 
-## [2.1.1]  2020-04-20
+- Added new CI test for building GCM on pull request
+
+## [2.1.4] - 2020-05-21
+
+### Fixed
+
+- Initialize pFlogger in `Regrid_Util.x`
+
+## [2.1.3] - 2020-05-04
+
+### Changed
+
+- MAPL now requires Baselibs 6.0.12 (pFlogger v1.4.1)
+  - Update CI to use Baselibs 6.0.12
+  - Update `components.yaml`
+    - ESMA_env v2.1.2
+    - ESMA_cmake v3.0.2
+
+### Fixed
+
+- Fix for `MPI_Finalize` error with Intel MPI
+- Fix `ArrDescrInit` routine
+- Fixes for ESMF logging (when run with MULTI)
+
+### Removed
+
+- Remove `MPI_comm_set_errhandler` workaround
+
+## [2.1.2] - 2020-04-24
+
+### Fixed
+
+- Fixed bug when output fields on tripolar grid in History
+- Fixed bug during replay when the refresh template in ExtData is a time interval
+
+## [2.1.1] - 2020-04-20
 
 ### Fixed
 
@@ -22,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Workaround for MPT 2.17 build bug with `MPI_Comm_set_errhandler`
 
 
-## [2.1.0]  2020-04-16
+## [2.1.0] - 2020-04-16
 
 ### Changed
 

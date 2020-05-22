@@ -9,7 +9,7 @@
 module MAPL_SimpleCommSplitterMod
    use MAPL_CommGroupDescriptionMod
    use MAPL_CommGroupDescriptionVectorMod
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use MAPL_AbstractCommSplitterMod
    use pFIO
    use MAPL_KeywordEnforcerMod

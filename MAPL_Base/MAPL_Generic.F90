@@ -123,7 +123,7 @@ module MAPL_GenericMod
   use MAPL_GenericCplCompMod
   use MAPL_LocStreamMod
   use MAPL_ConfigMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use pFlogger, only: logging, Logger
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
@@ -359,6 +359,26 @@ type MAPL_GenericRecordType
    integer                                  :: INT_LEN
 end type  MAPL_GenericRecordType
 
+type MAPL_Connectivity
+   type (MAPL_VarConn), pointer :: CONNECT(:)       => null()
+   type (MAPL_VarConn), pointer :: DONOTCONN(:)     => null()
+end type MAPL_Connectivity
+
+type MAPL_LinkType
+   type (ESMF_GridComp) :: GC
+   integer              :: StateType
+   integer              :: SpecId
+end type MAPL_LinkType
+
+type MAPL_LinkForm
+   type (MAPL_LinkType) :: FROM
+   type (MAPL_LinkType) :: TO
+end type MAPL_LinkForm
+
+type MAPL_Link
+   type (MAPL_LinkForm), pointer :: PTR
+end type MAPL_Link
+
 !BOP
 !BOC
 type  MAPL_MetaComp
@@ -392,6 +412,7 @@ type  MAPL_MetaComp
    character(len=ESMF_MAXSTR)               :: COMPNAME
    type (MAPL_GenericRecordType)  , pointer :: RECORD           => null()
    type (ESMF_State)                        :: FORCING
+   type (MAPL_Connectivity)                 :: connectList
    integer                        , pointer :: phase_init (:)    => null()
    integer                        , pointer :: phase_run  (:)    => null()
    integer                        , pointer :: phase_final(:)    => null()
@@ -407,30 +428,6 @@ type  MAPL_MetaComp
 end type MAPL_MetaComp
 !EOC
 !EOP
-
-type MAPL_Connectivity
-   type (MAPL_VarConn), pointer :: CONNECT(:)       => null()
-   type (MAPL_VarConn), pointer :: DONOTCONN(:)     => null()
-end type MAPL_Connectivity
-
-type MAPL_ConnectivityWrap
-   type(MAPL_Connectivity), pointer :: PTR
-end type MAPL_ConnectivityWrap
-
-type MAPL_LinkType
-   type (ESMF_GridComp) :: GC
-   integer              :: StateType
-   integer              :: SpecId
-end type MAPL_LinkType
-
-type MAPL_LinkForm
-   type (MAPL_LinkType) :: FROM
-   type (MAPL_LinkType) :: TO
-end type MAPL_LinkForm
-
-type MAPL_Link
-   type (MAPL_LinkForm), pointer :: PTR
-end type MAPL_Link
 
 type MAPL_MetaPtr
    type(MAPL_MetaComp), pointer  :: PTR
@@ -526,7 +523,6 @@ type(ESMF_FieldBundle), pointer   :: BUNDLE
 type(ESMF_State), pointer         :: STATE
 type(ESMF_VM)                     :: VM
 
-type (MAPL_ConnectivityWrap)      :: connwrap
 type (MAPL_VarConn),      pointer :: CONNECT(:)
 type (MAPL_VarSpec),      pointer :: IM_SPECS(:)
 type (MAPL_VarSpec),      pointer :: EX_SPECS(:)
@@ -594,13 +590,8 @@ type(ESMF_GridComp)               :: rootGC
 
 ! Relax connectivity for non-existing imports
       if (NC > 0) then
-         call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-              connwrap, status)
-         if (STATUS == ESMF_FAILURE) then
-            NULLIFY(CONNECT)
-         else
-            CONNECT => connwrap%ptr%CONNECT
-         end if
+         
+         CONNECT => MAPLOBJ%connectList%CONNECT
 
          allocate (ImSpecPtr(NC), ExSpecPtr(NC), stat=status)
          _VERIFY(STATUS)
@@ -2784,8 +2775,6 @@ end subroutine MAPL_DateStampGet
 #if defined(ABSOFT) || defined(sysIRIX64)
     WRAP%MAPLOBJ => DUMMY
 #endif
-    call ESMF_UserCompGetInternalState(GC, "MAPL_GenericInternalState", WRAP, STATUS)
-    _ASSERT(STATUS == ESMF_FAILURE,'needs informative message')
 
 ! Allocate this instance of the internal state and put it in wrapper.
 ! -------------------------------------------------------------------
@@ -4625,22 +4614,11 @@ end function MAPL_AddChildFromGC
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_AddConnectivity"
     integer                               :: STATUS
-    type (MAPL_ConnectivityWrap)          :: connwrap
     type (MAPL_Connectivity), pointer     :: conn
 
 
-    call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-                                       connwrap, status)
-    if (STATUS == ESMF_FAILURE) then
-       allocate(conn, STAT=STATUS)
-       _VERIFY(STATUS)
-       connwrap%ptr => conn
-       call ESMF_UserCompSetInternalState(gc, 'MAPL_Connectivity', &
-                                          connwrap, status)
-       _VERIFY(STATUS)
-    else
-       conn => connwrap%ptr
-    end if
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    _VERIFY(STATUS)
 
     call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME, TO_NAME=TO_NAME,        &
                             FROM_IMPORT=FROM_IMPORT, FROM_EXPORT=FROM_EXPORT, &
@@ -4661,22 +4639,10 @@ end function MAPL_AddChildFromGC
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_AddConnectivityE2E"
     integer                               :: STATUS
-    type (MAPL_ConnectivityWrap)          :: connwrap
     type (MAPL_Connectivity), pointer     :: conn
 
-
-    call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-                                       connwrap, status)
-    if (STATUS == ESMF_FAILURE) then
-       allocate(conn, STAT=STATUS)
-       _VERIFY(STATUS)
-       connwrap%ptr => conn
-       call ESMF_UserCompSetInternalState(gc, 'MAPL_Connectivity', &
-                                          connwrap, status)
-       _VERIFY(STATUS)
-    else
-       conn => connwrap%ptr
-    end if
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    _VERIFY(STATUS)
 
     call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME, &
                             FROM_EXPORT=SRC_ID, &
@@ -4707,22 +4673,12 @@ end function MAPL_AddChildFromGC
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_AddConnectivityRename"
     integer                               :: STATUS
-    type (MAPL_ConnectivityWrap)          :: connwrap
+
     type (MAPL_Connectivity), pointer     :: conn
 
 
-    call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-                                       connwrap, status)
-    if (STATUS == ESMF_FAILURE) then
-       allocate(conn, STAT=STATUS)
-       _VERIFY(STATUS)
-       connwrap%ptr => conn
-       call ESMF_UserCompSetInternalState(gc, 'MAPL_Connectivity', &
-                                          connwrap, status)
-       _VERIFY(STATUS)
-    else
-       conn => connwrap%ptr
-    end if
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    _VERIFY(STATUS)
 
     call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME=SRC_NAME, TO_NAME=DST_NAME,        &
                             FROM_EXPORT=SRC_ID, TO_IMPORT=DST_ID, RC=STATUS  )
@@ -4808,22 +4764,10 @@ end function MAPL_AddChildFromGC
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_DoNotConnect"
     integer                               :: STATUS
-    type (MAPL_ConnectivityWrap)          :: connwrap
     type (MAPL_Connectivity), pointer     :: conn
 
-
-    call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-                                       connwrap, status)
-    if (STATUS == ESMF_FAILURE) then
-       allocate(conn, STAT=STATUS)
-       _VERIFY(STATUS)
-       connwrap%ptr => conn
-       call ESMF_UserCompSetInternalState(gc, 'MAPL_Connectivity', &
-                                          connwrap, status)
-       _VERIFY(STATUS)
-    else
-       conn => connwrap%ptr
-    end if
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    _VERIFY(STATUS)
 
     call MAPL_VarConnCreate(CONN%DONOTCONN, SHORT_NAME, &
        FROM_IMPORT=CHILD, RC=STATUS  )
@@ -4983,7 +4927,7 @@ end function MAPL_AddChildFromGC
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOn"
-    integer :: STATUS, n
+    integer :: STATUS !, n
    
     call MAPL_ProfClockOn(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
@@ -5053,13 +4997,10 @@ end function MAPL_AddChildFromGC
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOff"
-    integer :: STATUS, n
+    integer :: STATUS
 
     call MAPL_ProfClockOff(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
-
-    !n = index(NAME,'-',.true.) + 1
-    !call state%t_profiler%stop(trim(Name(n:)))
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GenericStateClockOff
@@ -5837,8 +5778,8 @@ end function MAPL_AddChildFromGC
     type (ESMF_FieldBundle) :: BUNDLE
     type (ESMF_Field)       :: SPEC_FIELD
     type (ESMF_FieldBundle) :: SPEC_BUNDLE
-    real(kind=ESMF_KIND_R4), pointer         :: VAR_1D(:), VAR_2D(:,:), VAR_3D(:,:,:)
-    real(kind=ESMF_KIND_R8), pointer         :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:)
+    real(kind=ESMF_KIND_R4), pointer         :: VAR_1D(:), VAR_2D(:,:), VAR_3D(:,:,:), VAR_4d(:,:,:,:)
+    real(kind=ESMF_KIND_R8), pointer         :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
     logical               :: usableDEFER
     logical               :: deferAlloc
     integer               :: DIMS
@@ -6058,6 +5999,16 @@ end function MAPL_AddChildFromGC
                      end if
                      var_3d = default_value
                      initStatus = MAPL_InitialDefault
+                  else if (fieldRank == 4) then
+                     call ESMF_FieldGet(field, farrayPtr=var_4d, rc=status)
+                     _VERIFY(STATUS)
+                     if (initStatus == MAPL_InitialDefault) then
+                        if (any(var_4d /= default_value)) then
+                           _RETURN(ESMF_FAILURE)
+                        endif
+                     end if
+                     var_4d = default_value
+                     initStatus = MAPL_InitialDefault
                   end if
                else if (typeKind == ESMF_TYPEKIND_R8) then
                   def_val_8 = real(default_value,kind=ESMF_KIND_R8)
@@ -6090,6 +6041,16 @@ end function MAPL_AddChildFromGC
                         endif
                      end if
                      vr8_3d = def_val_8
+                     initStatus = MAPL_InitialDefault
+                  else if (fieldRank == 4) then
+                     call ESMF_FieldGet(field, farrayPtr=vr8_4d, rc=status)
+                     _VERIFY(STATUS)
+                     if (initStatus == MAPL_InitialDefault) then
+                        if (any(vr8_4d /= default_value)) then
+                           _RETURN(ESMF_FAILURE)
+                        endif
+                     end if
+                     vr8_4d = default_value
                      initStatus = MAPL_InitialDefault
                   end if
                end if
@@ -6140,9 +6101,6 @@ end function MAPL_AddChildFromGC
             end if
          else
             call ESMF_AttributeSet(FIELD, NAME='PRECISION', VALUE=KND, RC=STATUS)
-            _VERIFY(STATUS)
-            call ESMF_AttributeSet(FIELD, NAME='HAS_UNGRIDDED_DIMS', &
-                 value=has_ungrd, RC=STATUS)
             _VERIFY(STATUS)
             call ESMF_AttributeSet(FIELD, NAME='DEFAULT_PROVIDED', &
                  value=defaultProvided, RC=STATUS)
@@ -6443,7 +6401,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     integer                                     :: STAT
     logical                                     :: SATISFIED
     logical                                     :: PARENTIMPORT
-    type (MAPL_ConnectivityWrap)                :: connwrap
     type (MAPL_Connectivity), pointer           :: conn
     type (MAPL_VarConn), pointer                :: CONNECT(:)
     type (MAPL_VarConn), pointer                :: DONOTCONN(:)
@@ -6475,16 +6432,11 @@ recursive subroutine MAPL_WireComponent(GC, RC)
        _RETURN(ESMF_SUCCESS)
     end if
 
-    call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-                                       connwrap, status)
-    if (STATUS == ESMF_FAILURE) then
-       NULLIFY(CONNECT)
-       NULLIFY(DONOTCONN)
-    else
-       conn => connwrap%ptr
-       CONNECT => CONN%CONNECT
-       DONOTCONN => CONN%DONOTCONN
-    end if
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    _VERIFY(STATUS)
+
+    CONNECT => CONN%CONNECT
+    DONOTCONN => CONN%DONOTCONN
 
     NC = size(GCS)
 
@@ -7677,9 +7629,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
     integer                                     :: I
     logical                                     :: err
-    type (MAPL_ConnectivityWrap)          :: connwrap
-    type (MAPL_Connectivity), pointer     :: conn
-
+    type (MAPL_Connectivity), pointer           :: conn
 
 
 !EOP
@@ -7697,19 +7647,8 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     call MAPL_InternalStateRetrieve ( GC, STATE, RC=STATUS )
     _VERIFY(STATUS)
 
-    call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-                                       connwrap, status)
-    if (STATUS == ESMF_FAILURE) then
-       allocate(conn, STAT=STATUS)
-       _VERIFY(STATUS)
-       connwrap%ptr => conn
-       call ESMF_UserCompSetInternalState(gc, 'MAPL_Connectivity', &
-                                          connwrap, status)
-       _VERIFY(STATUS)
-    else
-       conn => connwrap%ptr
-    end if
-
+    conn => state%connectList
+      
     err = .false.
     if (.not. MAPL_ConnCheckUnused(CONN%CONNECT)) then
        err = .true.
@@ -10406,5 +10345,21 @@ end subroutine MAPL_READFORCINGX
       lgr => meta%lgr
       _RETURN(_SUCCESS)
    end subroutine MAPL_GetLogger
+
+   subroutine MAPL_ConnectivityGet(gc, connectivityPtr, RC)
+      type(ESMF_GridComp), intent(inout) :: gc
+      integer, optional, intent(out) :: rc
+      type (MAPL_Connectivity), pointer :: connectivityPtr
+
+      type (MAPL_MetaComp), pointer :: meta
+      integer                       :: status
+      
+      call MAPL_GetObjectFromGC(gc, meta, rc=status)
+      _VERIFY(status)
+
+      connectivityPtr => meta%connectList
+      
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_ConnectivityGet
 
 end module MAPL_GenericMod

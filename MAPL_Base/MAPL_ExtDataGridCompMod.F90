@@ -44,7 +44,7 @@
    use MAPL_GridManagerMod
    use MAPL_ExtData_IOBundleMod
    use MAPL_ExtData_IOBundleVectorMod
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use MAPL_ExtDataCollectionMod
    use MAPL_CollectionVectorMod
    use MAPL_ExtDataCollectionManagerMod
@@ -1982,7 +1982,7 @@ CONTAINS
         integer                    :: iyy,imm,idd,ihh,imn,isc
         integer                    :: lasttoken
         character(len=2)           :: token
-        type(ESMF_Time)            :: time
+        type(ESMF_Time)            :: time,start_time
         integer                    :: cindex,pindex
         character(len=ESMF_MAXSTR) :: creffTime, ctInt
        
@@ -1990,7 +1990,7 @@ CONTAINS
  
         creffTime = ''
         ctInt     = ''
-        call ESMF_ClockGet (CLOCK, currTIME=time, __RC__)
+        call ESMF_ClockGet (CLOCK, currTIME=time, startTime=start_time, __RC__)
         if (.not.item%hasFileReffTime) then
            ! if int_frequency is less than zero than try to guess it from the file template
            ! if that fails then it must be a single file or a climatology 
@@ -2012,21 +2012,21 @@ CONTAINS
            if (lasttoken.gt.0) then
               token = item%file(lasttoken+1:lasttoken+2)
               select case(token)
-              case("y4") 
+              case("y4")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=1,dd=1,h=0,m=0,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,yy=1,__RC__)
-              case("m2") 
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,yy=1,__RC__)
+              case("m2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=1,h=0,m=0,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,mm=1,__RC__)
-              case("d2") 
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,mm=1,__RC__)
+              case("d2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=0,m=0,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,d=1,__RC__)
-              case("h2") 
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,d=1,__RC__)
+              case("h2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,h=1,__RC__)
-              case("n2") 
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,h=1,__RC__)
+              case("n2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,m=1,__RC__)
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,m=1,__RC__)
               end select
            else
               ! couldn't find any tokens so all the data must be on one file
@@ -2925,7 +2925,7 @@ CONTAINS
         if (targLeap.and.(.not.srcLeap)) idd=28
         call ESMF_TimeSet(outTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
 
-        RETURN_(ESMF_SUCCESS)
+        _RETURN(ESMF_SUCCESS)
 
      end subroutine OffsetTimeYear
 
@@ -3184,10 +3184,10 @@ CONTAINS
                  ' ', iHr, ':', iMn
               End If
            End If
-           RETURN_(ESMF_SUCCESS)
+           _RETURN(ESMF_SUCCESS)
         else
            Write(6,'(a,a)') 'WARNING: Requested sample not found in file ', trim(fdata%get_file_name())
-           RETURN_(ESMF_FAILURE)
+           _RETURN(ESMF_FAILURE)
         endif
 
      end subroutine GetBracketTimeOnSingleFile
@@ -3223,7 +3223,7 @@ CONTAINS
 
         if (UniFileClim) then
            If (MAPL_Am_I_Root()) Write(*,'(a)') '               GetBracketTimeOnFile: called with UniFileClim true'
-           RETURN_(ESMF_FAILURE)
+           _RETURN(ESMF_FAILURE)
         end if
 
         If (Mapl_Am_I_Root().and.(Ext_Debug > 0)) Then
@@ -3313,10 +3313,10 @@ CONTAINS
               End If
            End If
 
-           RETURN_(ESMF_SUCCESS)
+           _RETURN(ESMF_SUCCESS)
         else
            Write(6,'(a,a)') 'WARNING: Requested sample not found in file ', trim(fdata%get_file_name())
-        RETURN_(ESMF_FAILURE)
+        _RETURN(ESMF_FAILURE)
      endif
      !end if 
 

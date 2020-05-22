@@ -1,16 +1,11 @@
 !usage
 !mpirun -np 8 ./pfio_collective_demo.x -nc 6 -ns 2 -f1 xxx1.nc4 -f2 xxx2.nc4 -v T -s mpi
 !The variable should be 4d with lavel>=20
-
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  (A)/=0) then; call pFIO_throw_exception(__FILE__,__LINE__); return; endif
-#define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; call pFIO_throw_exception(__FILE__,__LINE__); return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module collective_demo_CLI
-   use pFIO_ThrowMod
+   use MAPL_ExceptionHandling
    use gFTL_StringVector
    implicit none
    private
@@ -53,25 +48,25 @@ contains
          select case (argument)
          case ('-nc', '--npes_client')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-')
+            _ASSERT(buffer /= '-', "no -")
             read(buffer,*) options%npes_client
          case ('-ns', '--npes_server')
             buffer = get_next_argument()
-            _ASSERT(buffer /= '-')
+            _ASSERT(buffer /= '-', "no -")
             read(buffer,*) options%npes_server
          case ('-f1', '--file_1')
             options%file_1 = get_next_argument()
-            _ASSERT(options%file_1(1:1) /= '-')
+            _ASSERT(options%file_1(1:1) /= '-', "too many ")
          case ('-f2', '--file_2')
             options%file_2 = get_next_argument()
-            _ASSERT(options%file_2(1:1) /= '-')
+            _ASSERT(options%file_2(1:1) /= '-', "too many -")
          case ('-v', '--var')
             buffer = get_next_argument()
-            _ASSERT(buffer(1:1) /= '-')
+            _ASSERT(buffer(1:1) /= '-', "too many -")
             options%requested_variables = parse_vars(buffer)
          case ('-s', '--server_type')
             options%server_type = get_next_argument()
-            _ASSERT(options%server_type /= '-')
+            _ASSERT(options%server_type /= '-', "too many -")
          case ('-d', '--debug')
             options%debug = .true.
          case default
@@ -120,6 +115,7 @@ contains
 end module collective_demo_CLI
 
 module FakeExtDataMod_collective
+   use MAPL_ExceptionHandling
    use collective_demo_CLI
    use pFIO
    use gFTL_StringVector
@@ -300,9 +296,9 @@ program main
    use, intrinsic :: iso_fortran_env, only: REAL32
    use mpi
    use pFIO
+   use MAPL_ExceptionHandling
    use collective_demo_CLI
    use FakeExtDataMod_collective
-   use pFIO_ThrowMod
    implicit none
 
    integer :: rank, npes, ierror, provided,required

@@ -16,7 +16,7 @@ module MAPL_newCFIOMod
   use pFIO
   use MAPL_newCFIOItemVectorMod
   use MAPL_newCFIOItemMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use pFIO_ClientManagerMod
   use MAPL_ExtDataCollectionMod
   use MAPL_ExtDataCOllectionManagerMod
@@ -283,6 +283,8 @@ module MAPL_newCFIOMod
            vdims=grid_dims//",time"
         else if (fieldRank==3) then
            vdims=grid_dims//",lev,time"
+        else 
+           _ASSERT(.false., 'Unsupported field rank')
         end if
         v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel)
         call v%add_attribute('units',trim(units))
@@ -470,6 +472,8 @@ module MAPL_newCFIOMod
               call this%regrid_handle%regrid(ptr3d,outPtr3d,rc=status)
               _VERIFY(status)
            end if
+        else
+           _ASSERT(.false.,'rank not supported')
         end if
 
         if (allocated(ptr3d_inter)) deallocate(ptr3d_inter)
@@ -702,6 +706,8 @@ module MAPL_newCFIOMod
          allocate(localStart,source=[gridLocalStart,1,1])
          allocate(globalStart,source=[gridGlobalStart,1,tindex])
          allocate(globalCount,source=[gridGlobalCount,lm,1])
+      else
+         _ASSERT(.false., "Rank not supported")
       end if
       call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)

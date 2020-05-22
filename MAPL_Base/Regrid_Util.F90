@@ -14,8 +14,9 @@
    use ESMF_CFIOFileMod
    use MAPL_LatLonGridFactoryMod
    use MAPL_ConstantsMod, only: MAPL_PI_R8
-   use MAPL_ErrorHandlingMod
-
+   use MAPL_ExceptionHandling
+   use pflogger, only: pfl_initialize => initialize
+ 
    implicit NONE
 
    type(ESMF_RouteHandle) :: regrid_rh
@@ -97,8 +98,8 @@ CONTAINS
     call ESMF_Initialize (LogKindFlag=ESMF_LOGKIND_NONE, vm=vm, rc=STATUS)
     _VERIFY(STATUS)
     call ESMF_VMGet(vm, localPET=myPET, petCount=nPet)
-
-
+    call pfl_initialize()
+ 
     createdHandle=.false.
     nx=1
     ny=6
