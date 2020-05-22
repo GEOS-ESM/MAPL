@@ -48,7 +48,7 @@ set (srcs
   MAPL_RegridderSpec.F90 
   MAPL_RegridderVector.F90 
   MAPL_RegridderTypeSpecRegridderMap.F90
-  MAPL_LatLonGridFactory.F90  MAPL_LatLonToLatLonRegridder.F90 MAPL_TripolarGridFactory.F90 
+  MAPL_LatLonGridFactory.F90  MAPL_LatLonToLatLonRegridder.F90 MAPL_TripolarGridFactory.F90 MAPL_LlcGridFactory.F90
   AbstractCommSplitter.F90 SimpleCommSplitter.F90 SplitCommunicator.F90 CommGroupDescription.F90
   c_mapl_locstream_F.c
   memuse.c                 MAPL_MemUtils.F90      MAPL_Hash.F90 
