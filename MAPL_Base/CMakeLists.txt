@@ -10,7 +10,6 @@ endif()
 
 
 set (srcs
-
 AbstractCommSplitter.F90              MAPL_ExtData_IOBundleMod.F90        MAPL_Profiler.F90
 CFIOCollection.F90                    MAPL_ExtData_IOBundleVectorMod.F90  MAPL_RegridderManager.F90
 CommGroupDescription.F90              MAPL_FlapCapOptions.F90             MAPL_RegridderSpec.F90
@@ -39,8 +38,10 @@ MAPL_EtaHybridVerticalCoordinate.F90  MAPL_newCFIOitem.F90
 MAPL_ExtDataCollection.F90            MAPL_NominalOrbitsMod.F90           SimpleCommSplitter.F90
 MAPL_ExtDataCollectionManager.F90     MAPL_NUOPCWrapperMod.F90            SplitCommunicator.F90
 MAPL_ExtDataGridCompMod.F90           MAPL_OrbGridCompMod.F90             tstqsat.F90
+MAPL_LocStreamFactoryMod.F90          MAPL_HistoryTrajectoryMod.F90       MAPL_LocstreamRegridder.F90
 c_mapl_locstream_F.c  getrss.c  memuse.c
 )
+
 
 esma_add_library(
   ${this} SRCS ${srcs}
@@ -58,7 +59,6 @@ target_include_directories (${this} PUBLIC
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PUBLIC "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
-
 
 ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90)
 target_link_libraries (cub2latlon.x ${this} GMAO_pFIO ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
