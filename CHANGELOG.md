@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added support for sampling along a 1-D timeseries in History
+
 ### Changed
 ### Fixed
 ### Removed
@@ -92,7 +96,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
 - Add precession of equinox (not on by default)
 - Imported Python/MAPL subdir (old, but never imported to GitHub)
-- Added support for sampling along a 1-D timeseries in History
 - Python automatic code generator for grid comp include files	
 - Added support to use pFlogger for logging
   - Command line option: --logging_config=<file>
