@@ -38,7 +38,6 @@ MAPL_EtaHybridVerticalCoordinate.F90  MAPL_newCFIOitem.F90
 MAPL_ExtDataCollection.F90            MAPL_NominalOrbitsMod.F90           SimpleCommSplitter.F90
 MAPL_ExtDataCollectionManager.F90     MAPL_NUOPCWrapperMod.F90            SplitCommunicator.F90
 MAPL_ExtDataGridCompMod.F90           MAPL_OrbGridCompMod.F90             tstqsat.F90
-IOServers.F90
 MAPL_LocStreamFactoryMod.F90          MAPL_HistoryTrajectoryMod.F90       MAPL_LocstreamRegridder.F90
 IOServers.F90
 c_mapl_locstream_F.c  getrss.c  memuse.c
