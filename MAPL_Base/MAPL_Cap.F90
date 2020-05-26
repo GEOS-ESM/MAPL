@@ -17,7 +17,7 @@ module MAPL_CapMod
    use MAPL_Profiler, only: get_global_time_profiler, BaseProfiler, TimeProfiler
    use MAPL_ioClientsMod
    use MAPL_CapOptionsMod
-   use MAPL_ioServer
+   use MAPL_ServerManager
    use pflogger, only: logging
    use pflogger, only: Logger
    implicit none
@@ -39,7 +39,7 @@ module MAPL_CapMod
 
       type(MAPL_CapGridComp), public :: cap_gc
       type(MAPL_Communicators) :: mapl_comm
-      type(io_server) :: cap_server
+      type(ServerManager) :: cap_server
 
    contains
       procedure :: run
@@ -204,7 +204,7 @@ contains
          call this%cap_server%get(split_comm=split_comm)
          call fill_mapl_comm(split_comm, subcommunicator, .false., this%mapl_comm, rc=status)
          call this%run_member(rc=status); _VERIFY(status)
-         call this%cap_server%finalize_io_server()
+         call this%cap_server%finalize()
       end if
 
       _RETURN(_SUCCESS)
@@ -220,7 +220,7 @@ contains
      integer :: status
 
      _UNUSED_DUMMY(unusable)
-     call this%cap_server%init_io_server(comm, &
+     call this%cap_server%initialize(comm, &
          application_size=this%cap_options%npes_model, &
          nodes_input_server=this%cap_options%nodes_input_server, &
          nodes_output_server=this%cap_options%nodes_output_server, &

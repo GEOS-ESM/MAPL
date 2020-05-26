@@ -1,7 +1,7 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
-module MAPL_ioServer
+module MAPL_ServerManager
 
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
@@ -14,21 +14,21 @@ module MAPL_ioServer
    private
 
 
-   type, public :: io_server
+   type, public :: ServerManager
       type(SplitCommunicator)  :: split_comm
       type(MpiServer), pointer :: i_server=>null()
       type(MpiServer), pointer :: o_server=>null()
       type(DirectoryService) :: directory_service
       contains
-         procedure :: init_io_server
-         procedure :: finalize_io_server
+         procedure :: initialize
+         procedure :: finalize
          procedure :: get
    end type
 
 contains
 
    subroutine get(this, unusable, split_comm, rc)
-      class (io_server), intent(inout) :: this
+      class (ServerManager), intent(inout) :: this
       class (KeywordEnforcer),  optional, intent(in) :: unusable
       type(SplitCommunicator), intent(out), optional :: split_comm
       integer, intent(out), optional :: rc
@@ -40,8 +40,8 @@ contains
 
    end subroutine get
 
-   subroutine init_io_server(this, comm, unusable, application_size, nodes_input_server, nodes_output_server, npes_input_server,npes_output_server, rc)
-      class (io_server), intent(inout) :: this
+   subroutine initialize(this, comm, unusable, application_size, nodes_input_server, nodes_output_server, npes_input_server,npes_output_server, rc)
+      class (ServerManager), intent(inout) :: this
       integer, intent(in) :: comm
       class (KeywordEnforcer),  optional, intent(in) :: unusable
       integer, optional, intent(in) :: application_size
@@ -205,14 +205,14 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
-   end subroutine init_io_server
+   end subroutine initialize
 
-   subroutine finalize_io_server(this,rc)
-      class(io_server), intent(inout) :: this
+   subroutine finalize(this,rc)
+      class(ServerManager), intent(inout) :: this
       integer, optional, intent(out) :: rc
  
       call this%directory_service%free_directory_resources()
       _RETURN(_SUCCESS)
-   end subroutine finalize_io_server
+   end subroutine finalize
 
-end module MAPL_ioServer
+end module MAPL_ServerManager
