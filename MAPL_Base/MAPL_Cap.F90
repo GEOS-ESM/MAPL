@@ -14,12 +14,10 @@ module MAPL_CapMod
    use MAPL_BaseMod
    use MAPL_ExceptionHandling
    use pFIO
-   use MAPL_Profiler, only: get_global_time_profiler, BaseProfiler, TimeProfiler
    use MAPL_ioClientsMod
    use MAPL_CapOptionsMod
    use MAPL_ServerManager
-   use pflogger, only: logging
-   use pflogger, only: Logger
+   use MAPL_ApplicationSupport
    implicit none
    private
 
@@ -88,7 +86,6 @@ contains
       class ( MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
       integer :: status
-      type(Logger), pointer :: lgr
 
       cap%name = name
       cap%set_services => set_services
@@ -109,59 +106,14 @@ contains
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
 
-      call initialize_pflogger()
+      call MAPL_Initialize(comm=cap%comm_world, &
+                           logging_config=cap%cap_options%logging_config, &
+                           rc=status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)     
       _UNUSED_DUMMY(unusable)
 
-    contains
-
-       subroutine initialize_pflogger()
-          use pflogger, only: pfl_initialize => initialize
-          use pflogger, only: StreamHandler, FileHandler, HandlerVector
-          use pflogger, only: MpiLock, MpiFormatter
-          use pflogger, only: INFO, WARNING
-          use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
-          type (HandlerVector) :: handlers
-          type (StreamHandler) :: console
-          type (FileHandler) :: file_handler
-          integer :: level
-          
-          call pfl_initialize()
-
-          if (cap%cap_options%logging_config /= '') then
-             call logging%load_file(cap%cap_options%logging_config)
-          else
-
-             console = StreamHandler(OUTPUT_UNIT)
-             call console%set_level(INFO)
-             call console%set_formatter(MpiFormatter(cap%comm_world, fmt='%(short_name)a10~: %(message)a'))
-             call handlers%push_back(console)
-
-             file_handler = FileHandler('warnings_and_errors.log')
-             call file_handler%set_level(WARNING)
-             call file_handler%set_formatter(MpiFormatter(cap%comm_world, fmt='pe=%(mpi_rank)i5.5~: %(short_name)a~: %(message)a'))
-             call file_handler%set_lock(MpiLock(cap%comm_world))
-             call handlers%push_back(file_handler)
-             
-             if (cap%rank == 0) then
-                level = INFO
-             else
-                level = WARNING
-             end if
-
-             call logging%basic_config(level=level, handlers=handlers, rc=status)
-             _VERIFY(status)
-             
-             if (cap%rank == 0) then
-                lgr => logging%get_logger('MAPL')
-                call lgr%warning('No configure file specified for logging layer.  Using defaults.')
-             end if
-
-          end if
-
-       end subroutine initialize_pflogger
-     
     end function new_MAPL_Cap
 
    
@@ -201,7 +153,7 @@ contains
       subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _VERIFY(status)
       if (subcommunicator /= MPI_COMM_NULL) then
          call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
-         call this%cap_server%get(split_comm=split_comm)
+         call this%cap_server%get_splitcomm(split_comm)
          call fill_mapl_comm(split_comm, subcommunicator, .false., this%mapl_comm, rc=status)
          call this%run_member(rc=status); _VERIFY(status)
          call this%cap_server%finalize()
@@ -241,7 +193,7 @@ contains
       integer :: status
       type(SplitCommunicator) :: split_comm
 
-      call this%cap_server%get(split_comm=split_comm)
+      call this%cap_server%get_splitcomm(split_comm)
       select case(split_comm%get_name())
       case('model')
          call this%run_model(this%mapl_comm, rc=status); _VERIFY(status)
@@ -356,16 +308,8 @@ contains
       type (ESMF_VM) :: vm
       integer :: start_tick, stop_tick, tick_rate
       integer :: status
-!
-!     profiler
-!  
-      class (BaseProfiler), pointer :: t_p
 
       _UNUSED_DUMMY(unusable)
-
-      t_p => get_global_time_profiler()
-      t_p = TimeProfiler('All', comm_world = mapl_comm%esmf%comm)
-      call t_p%start()
 
       call start_timer()
       call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=mapl_comm%esmf%comm, rc=status)
@@ -386,8 +330,6 @@ contains
       !_VERIFY(status)
       call stop_timer()
 
-      call t_p%stop()
-      call report_profiling()
       ! W.J note : below reporting will be remove soon
       call report_throughput()
 
@@ -422,56 +364,6 @@ contains
          end if
          
       end subroutine report_throughput
-
-      subroutine report_profiling(rc)
-         use MAPL_Profiler
-         integer, optional, intent(out) :: rc
-         type (ProfileReporter) :: reporter
-         integer :: i
-         character(:), allocatable :: report_lines(:)
-         type (MultiColumn) :: inclusive
-         type (MultiColumn) :: exclusive
-         integer :: npes, my_rank, rank, ierror
-         character(1) :: empty(0)
-
-         reporter = ProfileReporter(empty)
-         call reporter%add_column(NameColumn(50, separator= " "))
-         call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn(),separator='-'))
-
-         inclusive = MultiColumn(['Inclusive'], separator='=')
-         call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))
-         call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn(),'MAX'),separator='-'))
-         call reporter%add_column(inclusive)
-
-         exclusive = MultiColumn(['Exclusive'], separator='=')
-         call exclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, ExclusiveColumn(), separator='-'))
-         call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
-         call reporter%add_column(exclusive)
-
-!!$      call reporter%add_column(FormattedTextColumn('  std. dev ','(f12.4)', 12, StdDevColumn()))
-!!$      call reporter%add_column(FormattedTextColumn('  rel. dev ','(f12.4)', 12, StdDevColumn(relative=.true.)))
-!!$      call reporter%add_column(FormattedTextColumn('  max cyc ','(f12.8)', 12, MaxCycleColumn()))
-!!$      call reporter%add_column(FormattedTextColumn('  min cyc ','(f12.8)', 12, MinCycleColumn()))
-!!$      call reporter%add_column(FormattedTextColumn(' mean cyc','(f12.8)', 12, MeanCycleColumn()))
-!!$         call mem_reporter%add_column(NameColumn(50,separator='-'))
-!!$         call mem_reporter%add_column(MemoryTextColumn(['RSS'],'(i10,1x,a2)',13, InclusiveColumn(),separator='-'))
-!!$         call mem_reporter%add_column(MemoryTextColumn(['Cyc RSS'],'(i10,1x,a2)',13, MeanCycleColumn(),separator='-'))
-
-!!$         report_lines = reporter%generate_report(get_global_time_profiler())
-
-         call MPI_Comm_size(mapl_comm%esmf%comm, npes, ierror)
-         call MPI_Comm_Rank(mapl_comm%esmf%comm, my_rank, ierror)
-
-         if (my_rank == 0) then
-               report_lines = reporter%generate_report(t_p)
-               write(*,'(a,1x,i0)')'Report on process: ', my_rank
-               do i = 1, size(report_lines)
-                  write(*,'(a)') report_lines(i)
-               end do
-          end if
-          call MPI_Barrier(mapl_comm%esmf%comm, ierror)
-
-      end subroutine report_profiling
 
    end subroutine run_model
    
@@ -582,7 +474,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then
-         call logging%free()
+         call MAPL_Finalize(this%comm_world)
          call MPI_Finalize(ierror)
          _VERIFY(ierror)
       end if
