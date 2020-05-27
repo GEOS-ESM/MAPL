@@ -63,6 +63,8 @@ module ESMFL_MOD
   public ESMFL_HALO
   public ESMFL_BundleAddState
   public MAPL_AreaMean
+  public ESMFL_Diff
+  public ESMFL_statistics
   !EOP
 
   ! regridding
