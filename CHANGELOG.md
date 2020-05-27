@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added new CI test for building GCM on pull request
+## [2.1.4] - 2020-05-21
+
+### Fixed
+
+- Initialize pFlogger in `Regrid_Util.x`
 
 ## [2.1.3] - 2020-05-04
 
