@@ -106,9 +106,9 @@ contains
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
 
-      call initialize_pflogger(comm=cap%comm_world, &
-                               logging_config=cap%cap_options%logging_config, &
-                               rc=status)
+      call MAPL_Initialize(comm=cap%comm_world, &
+                           logging_config=cap%cap_options%logging_config, &
+                           rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)     
@@ -311,8 +311,6 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call start_global_profiler(comm=mapl_comm%esmf%comm)
-
       call start_timer()
       call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=mapl_comm%esmf%comm, rc=status)
       _VERIFY(status)
@@ -332,8 +330,6 @@ contains
       !_VERIFY(status)
       call stop_timer()
 
-      call stop_global_profiler
-      call report_global_profiler(comm=mapl_comm%esmf%comm)
       ! W.J note : below reporting will be remove soon
       call report_throughput()
 
@@ -478,8 +474,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then
-         call finalize_pflogger()
-         !call logging%free()
+         call MAPL_Finalize(this%comm_world)
          call MPI_Finalize(ierror)
          _VERIFY(ierror)
       end if

@@ -5,14 +5,54 @@ module MAPL_ApplicationSupport
  use pflogger, only: logging
  use pflogger, only: Logger
  use MAPL_Profiler
+ implicit none
+ private
 
- public initialize_pflogger
- public finalize_pflogger
- public start_global_profiler
- public stop_global_profiler
- public report_global_profiler
+ public MAPL_Initialize
+ public MAPL_Finalize
 
  contains
+
+   subroutine MAPL_Initialize(comm,logging_config,rc)
+      integer, optional, intent(in) :: comm
+      character(len=*), optional,intent(in) :: logging_config
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: logging_configuration_file
+      integer :: comm_world,status
+      
+      if (present(logging_config)) then
+         logging_configuration_file=logging_config
+      else
+         logging_configuration_file=''
+      end if
+      if (present(comm)) then
+         comm_world=comm
+      else
+         comm_world=MPI_COMM_WORLD
+      end if
+      call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file,rc=status)
+      _VERIFY(status)
+      call start_global_profiler(comm=comm_world)
+
+   end subroutine MAPL_Initialize
+
+   subroutine MAPL_Finalize(comm,rc)
+      integer, optional, intent(in) :: comm
+      integer, optional, intent(out) :: rc
+
+      integer :: comm_world
+      
+      if (present(comm)) then
+         comm_world=comm
+      else
+         comm_world=MPI_COMM_WORLD
+      end if
+      call stop_global_profiler()
+      call report_global_profiler(comm=comm_world)
+      call finalize_pflogger()
+
+   end subroutine MAPL_Finalize
 
    subroutine finalize_pflogger()
       call logging%free()
