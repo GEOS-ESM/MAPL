@@ -83,7 +83,8 @@ module MAPL_ApplicationSupport
          logging_configuration_file=''
       end if
       if (present(comm)) then
-         comm_world=comm
+         call MPI_Comm_dup(comm,comm_world,status)
+         _VERIFY(status)
       else
          comm_world=MPI_COMM_WORLD
       end if
@@ -121,16 +122,19 @@ module MAPL_ApplicationSupport
          end if
 
       end if
+      _RETURN(_SUCCESS)
 
    end subroutine initialize_pflogger
 
-   subroutine start_global_profiler(comm)
+   subroutine start_global_profiler(comm,rc)
       integer, optional, intent(in) :: comm
+      integer, optional, intent(out) :: rc
       class (BaseProfiler), pointer :: t_p
-      integer :: world_comm
+      integer :: world_comm,status
 
       if (present(comm)) then
-         world_comm=comm
+         call MPI_Comm_dup(comm,world_comm,status)
+         _VERIFY(status)
       else
          world_comm=MPI_COMM_WORLD
       end if
@@ -143,7 +147,7 @@ module MAPL_ApplicationSupport
       class (BaseProfiler), pointer :: t_p
 
       t_p => get_global_time_profiler()
-      call t_p%stop()
+      call t_p%stop('All')
    end subroutine stop_global_profiler
 
    subroutine report_global_profiler(comm,rc)
@@ -159,7 +163,8 @@ module MAPL_ApplicationSupport
       class (BaseProfiler), pointer :: t_p
 
       if (present(comm)) then
-         world_comm=comm
+         call MPI_comm_dup(comm,world_comm,ierror)
+         _VERIFY(ierror)
       else
          world_comm=MPI_COMM_WORLD
       end if
