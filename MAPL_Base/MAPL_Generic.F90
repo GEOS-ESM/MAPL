@@ -1477,16 +1477,12 @@ endif
                t_p => get_global_time_profiler()
                call t_p%start(trim(CHILD_NAME))
                call MAPL_GenericStateClockOn (STATE,trim(CHILD_NAME))
-               call CHLDMAPL(I)%ptr%t_profiler%start()
-               call CHLDMAPL(I)%ptr%t_profiler%start('Initialize')
                call ESMF_GridCompInitialize (STATE%GCS(I), &
                     importState=STATE%GIM(I), &
                     exportState=STATE%GEX(I), &
                     clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_INIT(PHASE), &
                     userRC=userRC, RC=STATUS )
                _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
-               call CHLDMAPL(I)%ptr%t_profiler%stop('Initialize')
-               call CHLDMAPL(I)%ptr%t_profiler%stop()
                call MAPL_GenericStateClockOff(STATE,trim(CHILD_NAME))
                call t_p%stop(trim(CHILD_NAME))
             end if
@@ -1803,17 +1799,10 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
   endif MethodBlock
 
 ! TIMERS on
-  if (method == ESMF_METHOD_RUN ) then
-    call t_p%start(trim(state%compname))
-    call state%t_profiler%start()
-    call state%t_profiler%start(trim(sbrtn))
-  endif
+  call t_p%start(trim(state%compname))
+  call state%t_profiler%start()
+  call state%t_profiler%start(trim(sbrtn))
 
-  if (method == ESMF_METHOD_FINALIZE ) then
-    call t_p%start(trim(state%compname))
-    call state%t_profiler%start()
-    call state%t_profiler%start('Finalize')
-  endif
 
 
   if (associated(timers)) then
@@ -1845,7 +1834,8 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
      end do
   end if
 
-  if (method == ESMF_METHOD_RUN) then 
+  !if (method == ESMF_METHOD_RUN) then 
+  if (method /= ESMF_METHOD_FINALIZE) then 
      call state%t_profiler%stop(trim(sbrtn))
      call state%t_profiler%stop()
      call t_p%stop(trim(state%compname))
@@ -2039,9 +2029,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 ! ---------------------
 
   t_p => get_global_time_profiler()
-  !call t_p%start(trim(state%compname))
-  !call state%t_profiler%start()
-  !call state%t_profiler%start('Final')
+  call t_p%start(trim(state%compname))
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenFinalTot")
@@ -2300,7 +2288,6 @@ end subroutine MAPL_GenericFinalize
 
   t_p => get_global_time_profiler()
   call t_p%start(trim(state%compname))
-  call state%t_profiler%start()
   call state%t_profiler%start('Record')
 
 
@@ -2398,7 +2385,6 @@ end subroutine MAPL_GenericFinalize
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
   call state%t_profiler%stop('Record')
-  call state%t_profiler%stop()
   call t_p%stop(trim(state%compname))
 
   _RETURN(ESMF_SUCCESS)
@@ -2525,7 +2511,6 @@ end subroutine MAPL_StateRecord
 
   t_p => get_global_time_profiler()
   call t_p%start(trim(state%compname))
-  call state%t_profiler%start()
   call state%t_profiler%start('Refresh')
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
@@ -2611,7 +2596,6 @@ end subroutine MAPL_StateRecord
 
   call state%t_profiler%stop('Refresh_self')
   call state%t_profiler%stop('Refresh')
-  call state%t_profiler%stop()
   call t_p%stop(trim(state%compname))
 
   _RETURN(ESMF_SUCCESS)
