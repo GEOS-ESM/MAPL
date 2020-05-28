@@ -27,13 +27,15 @@ module MAPL_ApplicationSupport
          logging_configuration_file=''
       end if
       if (present(comm)) then
-         comm_world=comm
+         call MPI_comm_dup(comm,comm_world,status)
+         _VERIFY(status)
       else
          comm_world=MPI_COMM_WORLD
       end if
       call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file,rc=status)
       _VERIFY(status)
-      call start_global_profiler(comm=comm_world)
+      call start_global_profiler(comm=comm_world,rc=status)
+      _VERIFY(status)
 
    end subroutine MAPL_Initialize
 
@@ -41,10 +43,11 @@ module MAPL_ApplicationSupport
       integer, optional, intent(in) :: comm
       integer, optional, intent(out) :: rc
 
-      integer :: comm_world
+      integer :: comm_world,status
       
       if (present(comm)) then
-         comm_world=comm
+         call MPI_comm_dup(comm,comm_world,status)
+         _VERIFY(status)
       else
          comm_world=MPI_COMM_WORLD
       end if

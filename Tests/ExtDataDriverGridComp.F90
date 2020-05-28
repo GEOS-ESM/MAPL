@@ -6,6 +6,7 @@ module ExtData_DriverGridCompMod
   use MAPL
   use MAPL_ExtDataGridCompMod, only : ExtData_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
+  use MAPL_Profiler
 
   implicit none
   private
@@ -30,6 +31,7 @@ module ExtData_DriverGridCompMod
      type(ESMF_State),    pointer :: imports(:) => null(), exports(:) => null()
      type(ESMF_VM) :: vm
      type(ESMF_Time), allocatable :: times(:)
+     type(MAPL_Communicators) :: mapl_comm
    contains
      procedure :: set_services
      procedure :: initialize
@@ -53,8 +55,9 @@ module ExtData_DriverGridCompMod
 
 contains
 
-  function new_ExtData_DriverGridComp(root_set_services, configFileName, name) result(cap)
+  function new_ExtData_DriverGridComp(root_set_services, mapl_comm, configFileName, name) result(cap)
     procedure() :: root_set_services
+    type (MAPL_Communicators) :: mapl_comm
     character(len=*), optional, intent(in) :: name
     character(len=*), optional, intent(in) :: configFileName
     type(ExtData_DriverGridComp) :: cap
@@ -80,6 +83,7 @@ contains
 
     cap%gc = ESMF_GridCompCreate(name='ExtData_DriverGridComp', rc = status)
     _VERIFY(status)
+    cap%mapl_comm=mapl_comm
 
     allocate(cap_wrapper%ptr)
     cap_wrapper%ptr = cap
@@ -140,10 +144,13 @@ contains
     type (MAPL_MetaComp), pointer :: MAPLOBJ
     procedure(), pointer :: root_set_services
     type(ExtData_DriverGridComp), pointer :: cap
+    class(BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
+
+    t_p => get_global_time_profiler()
 
     cap => get_CapGridComp_from_gc(gc)
     maplobj => get_MetaComp_from_gc(gc) 
@@ -173,7 +180,7 @@ contains
     !  CAP's MAPL MetaComp
     !---------------------
 
-    call MAPL_Set(MAPLOBJ, rc = status)
+    call MAPL_Set(MAPLOBJ, mapl_comm=cap%mapl_comm,rc = status)
     _VERIFY(STATUS)
 
     call MAPL_Set(MAPLOBJ, name = cap%name, cf = cap%config, rc = status)
