@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for sampling along a 1-D timeseries in History
 
 ### Changed
+
+- Move to use Baselibs 6.0.13
+  - Update CI to use Baselibs 6.0.13 (GCC 9.3.0)
+  - Update `components.yaml`
+    - ESMA_env v2.1.5
+    - ESMA_cmake v3.0.3
+
 ### Fixed
 ### Removed
 
