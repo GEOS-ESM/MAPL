@@ -2029,7 +2029,6 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 ! ---------------------
 
   t_p => get_global_time_profiler()
-  call t_p%start(trim(state%compname))
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenFinalTot")
