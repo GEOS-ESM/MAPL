@@ -8,10 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-
 - Added support for sampling along a 1-D timeseries in History
 
 ### Changed
+
+- Refactored aliases in python automatic code generator.  Now aliases
+  are tailored per column.  This allows T/F to be safely used as
+  aliases for .true./.false. without risking things like the short
+  name of Temperature.
+
 ### Fixed
 ### Removed
 
