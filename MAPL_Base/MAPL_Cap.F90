@@ -474,7 +474,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then
-         call MAPL_Finalize(this%comm_world)
+         call MAPL_Finalize(comm=this%comm_world)
          call MPI_Finalize(ierror)
          _VERIFY(ierror)
       end if
