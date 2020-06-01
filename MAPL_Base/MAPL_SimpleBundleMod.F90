@@ -28,7 +28,7 @@
    use MAPL_MaxMinMod
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    use MAPL_ConstantsMod, only: MAPL_PI
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
 
    implicit NONE
    private

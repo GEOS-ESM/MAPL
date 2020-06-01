@@ -6,7 +6,7 @@ module MAPL_VerticalDataMod
   use MAPL_BaseMod
   use pFIO
   use MAPL_AbstractRegridderMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
@@ -114,8 +114,8 @@ module MAPL_VerticalDataMod
 
      subroutine setup_eta_to_pressure(this,regrid_handle,output_grid,rc)
         class(verticaldata), intent(inout) :: this
-        class(abstractRegridder), intent(inout) :: regrid_handle
-        type(ESMF_Grid), intent(inout) :: output_grid
+        class(abstractRegridder), optional, intent(inout) :: regrid_handle
+        type(ESMF_Grid), optional, intent(inout) :: output_grid
         integer, optional, intent(out) :: rc
 
         integer :: status
@@ -181,14 +181,19 @@ module MAPL_VerticalDataMod
           orig_surface_level = ptrx(:,:,ubound(ptrx,3))
           deallocate(ptrx)
        end if
-       call MAPL_GridGet(output_grid,localCellCountPerDim=counts,rc=status)
-       _VERIFY(status)
-       if (.not.allocated(this%surface_level)) then 
-           allocate(this%surface_level(counts(1),counts(2)),stat=status)
+       if (present(output_grid)) then
+          _ASSERT(present(regrid_handle),"Must provide regridding handle")
+          call MAPL_GridGet(output_grid,localCellCountPerDim=counts,rc=status)
+          _VERIFY(status)
+          if (.not.allocated(this%surface_level)) then 
+              allocate(this%surface_level(counts(1),counts(2)),stat=status)
+             _VERIFY(status)
+          end if
+       end if
+       if (present(regrid_handle)) then
+          call regrid_handle%regrid(orig_surface_level,this%surface_level,rc=status)
           _VERIFY(status)
        end if
-       call regrid_handle%regrid(orig_surface_level,this%surface_level,rc=status)
-       _VERIFY(status)
        deallocate(orig_surface_level)
        _RETURN(_SUCCESS)
 
@@ -219,6 +224,7 @@ module MAPL_VerticalDataMod
         integer :: rank,k,status
         real, pointer :: ptr(:,:,:)
 
+        _ASSERT(allocated(this%surface_level),"class not setup to do topography correction")
         if (this%regrid_type == VERTICAL_METHOD_ETA2LEV) then
            call ESMF_FieldGet(field,rank=rank,rc=status)
            _VERIFY(status)
@@ -452,6 +458,7 @@ module MAPL_VerticalDataMod
               call metadata%add_variable('lev',v,rc=status)
            end if
         end if
+        _RETURN(_SUCCESS)
 
      end subroutine append_vertical_metadata
 

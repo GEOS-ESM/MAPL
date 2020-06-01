@@ -1,11 +1,10 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_NetCDF4_FileFormatterMod
    use, intrinsic :: iso_fortran_env, only: INT32, INT64
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-   use pFIO_ErrorHandlingMod
-   use pFIO_ThrowMod
+   use MAPL_ExceptionHandling
    use pFIO_ConstantsMod
    use pFIO_UnlimitedEntityMod
    use pFIO_AttributeMod
@@ -42,67 +41,83 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(get_var,int32,0)
       procedure :: ___SUB(get_var,int32,1)
       procedure :: ___SUB(get_var,int32,2)
+      procedure :: ___SUB(get_var,int32,3)
       procedure :: ___SUB(get_var,int64,0)
       procedure :: ___SUB(get_var,int64,1)
       procedure :: ___SUB(get_var,int64,2)
+      procedure :: ___SUB(get_var,int64,3)
       procedure :: ___SUB(get_var,real32,0)
       procedure :: ___SUB(get_var,real32,1)
       procedure :: ___SUB(get_var,real32,2)
       procedure :: ___SUB(get_var,real32,3)
       procedure :: ___SUB(get_var,real32,4)
+      procedure :: ___SUB(get_var,real32,5)
       procedure :: ___SUB(get_var,real64,0)
       procedure :: ___SUB(get_var,real64,1)
       procedure :: ___SUB(get_var,real64,2)
       procedure :: ___SUB(get_var,real64,3)
+      procedure :: ___SUB(get_var,real64,4)
 
       procedure :: ___SUB(put_var,int32,0)
       procedure :: ___SUB(put_var,int32,1)
       procedure :: ___SUB(put_var,int32,2)
+      procedure :: ___SUB(put_var,int32,3)
       procedure :: ___SUB(put_var,int64,0)
       procedure :: ___SUB(put_var,int64,1)
       procedure :: ___SUB(put_var,int64,2)
+      procedure :: ___SUB(put_var,int64,3)
       procedure :: ___SUB(put_var,real32,0)
       procedure :: ___SUB(put_var,real32,1)
       procedure :: ___SUB(put_var,real32,2)
       procedure :: ___SUB(put_var,real32,3)
       procedure :: ___SUB(put_var,real32,4)
+      procedure :: ___SUB(put_var,real32,5)
       procedure :: ___SUB(put_var,real64,0)
       procedure :: ___SUB(put_var,real64,1)
       procedure :: ___SUB(put_var,real64,2)
       procedure :: ___SUB(put_var,real64,3)
+      procedure :: ___SUB(put_var,real64,4)
       
 
       generic :: get_var => ___SUB(get_var,int32,0)
       generic :: get_var => ___SUB(get_var,int32,1)
       generic :: get_var => ___SUB(get_var,int32,2)
+      generic :: get_var => ___SUB(get_var,int32,3)
       generic :: get_var => ___SUB(get_var,int64,0)
       generic :: get_var => ___SUB(get_var,int64,1)
       generic :: get_var => ___SUB(get_var,int64,2)
+      generic :: get_var => ___SUB(get_var,int64,3)
       generic :: get_var => ___SUB(get_var,real32,0)
       generic :: get_var => ___SUB(get_var,real32,1)
       generic :: get_var => ___SUB(get_var,real32,2)
       generic :: get_var => ___SUB(get_var,real32,3)
       generic :: get_var => ___SUB(get_var,real32,4)
+      generic :: get_var => ___SUB(get_var,real32,5)
       generic :: get_var => ___SUB(get_var,real64,0)
       generic :: get_var => ___SUB(get_var,real64,1)
       generic :: get_var => ___SUB(get_var,real64,2)
       generic :: get_var => ___SUB(get_var,real64,3)
+      generic :: get_var => ___SUB(get_var,real64,4)
 
       generic :: put_var => ___SUB(put_var,int32,0)
       generic :: put_var => ___SUB(put_var,int32,1)
       generic :: put_var => ___SUB(put_var,int32,2)
+      generic :: put_var => ___SUB(put_var,int32,3)
       generic :: put_var => ___SUB(put_var,int64,0)
       generic :: put_var => ___SUB(put_var,int64,1)
       generic :: put_var => ___SUB(put_var,int64,2)
+      generic :: put_var => ___SUB(put_var,int64,3)
       generic :: put_var => ___SUB(put_var,real32,0)
       generic :: put_var => ___SUB(put_var,real32,1)
       generic :: put_var => ___SUB(put_var,real32,2)
       generic :: put_var => ___SUB(put_var,real32,3)
       generic :: put_var => ___SUB(put_var,real32,4)
+      generic :: put_var => ___SUB(put_var,real32,5)
       generic :: put_var => ___SUB(put_var,real64,0)
       generic :: put_var => ___SUB(put_var,real64,1)
       generic :: put_var => ___SUB(put_var,real64,2)
       generic :: put_var => ___SUB(put_var,real64,3)
+      generic :: put_var => ___SUB(put_var,real64,4)
 
 #include "undo_overload.macro"
       
@@ -1103,6 +1118,10 @@ contains
 #    include "NetCDF4_get_var.H"
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
+#  define _RANK 3
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
 #undef _VARTYPE
 
    ! INT64
@@ -1116,6 +1135,10 @@ contains
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
 #  define _RANK 2
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 3
 #    include "NetCDF4_get_var.H"
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
@@ -1144,6 +1167,10 @@ contains
 #    include "NetCDF4_get_var.H"
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
+#  define _RANK 5
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
 #undef _VARTYPE
    
    ! REAL64
@@ -1161,6 +1188,10 @@ contains
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
 #  define _RANK 3
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 4
 #    include "NetCDF4_get_var.H"
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
@@ -1231,7 +1262,6 @@ module pFIO_FormatterPtrVectorMod
 end module pFIO_FormatterPtrVectorMod
 
 module pFIO_StringNetCDF4_FileFormatterMapMod
-   use pFIO_ThrowMod
    use pFIO_NetCDF4_FileFormatterMod
 
 #include "types/key_deferredLengthString.inc"
@@ -1242,7 +1272,6 @@ module pFIO_StringNetCDF4_FileFormatterMapMod
 #define _iterator StringNetCDF4_FileFormatterMapIterator
 
 #define _alt
-#define _FTL_THROW pFIO_throw_exception
 
 #include "templates/map.inc"
 

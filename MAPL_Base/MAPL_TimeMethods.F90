@@ -5,7 +5,7 @@ module MAPL_TimeDataMod
   use MAPL_GenericMod
   use MAPL_BaseMod
   use pFIO
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use MAPL_ESMFTimeVectorMod
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
@@ -25,6 +25,7 @@ module MAPL_TimeDataMod
      procedure :: define_time_variable
      procedure :: compute_time_vector
      procedure :: get_start_time
+     procedure :: get
   end type timeData
 
   interface timeData
@@ -49,6 +50,17 @@ contains
     _RETURN(ESMF_SUCCESS)
 
   end function new_time_data
+
+  subroutine get(this,clock,rc)
+     class(TimeData) :: this
+     type(ESMF_Clock), optional, intent(inout) :: clock
+     integer, optional, intent(out) :: rc
+     if (present(clock)) then
+        clock = this%clock
+     end if
+     _RETURN(_SUCCESS)
+  end subroutine get
+       
 
   function define_time_variable(this,rc) result(v)
     class(TimeData), intent(inout) :: this
@@ -110,18 +122,16 @@ contains
     real, allocatable :: times(:)
     integer :: status
     
-    !real :: scaleFactor
     type(ESMF_Time) :: currTime,startTime
     type(ESMF_TimeInterval) :: tint
     integer :: i
-    !integer :: tindex
     real(ESMF_KIND_R8) :: tint_s
     type(ESMFTimeVectorIterator) :: iter
     type(ESMF_Time), pointer :: tptr
     ! for now return minutes, this should be optional argument in future
   
     this%tcount=this%tcount+1 
-    call ESMF_CLockGet(this%clock,currTime=currTime,rc=status)
+    call ESMF_ClockGet(this%clock,currTime=currTime,rc=status)
     _VERIFY(status)
     startTime = this%get_start_time(metadata,rc=status)
     _VERIFY(status)
@@ -155,32 +165,6 @@ contains
        end select
        call iter%next()
     enddo
-
-
-    !tint = currTime-startTime
-    !call ESMF_TimeIntervalGet(tint,s=tint_s,rc=status)
-    !_VERIFY(status)
-    !if (mod(tint_s,this%frequency)/=0) then
-       !_ASSERT(.false.,"history writing time not even multiple of frequency")
-    !end if
-    !select case(trim(this%funits))
-    !case('seconds') 
-       !scaleFactor = 1.0
-    !case('minutes')
-       !scaleFactor = 60.0
-    !case('hours')
-       !scaleFactor = 3600.0
-    !case('days')
-       !scaleFactor = 86400.0
-    !case default
-       !_ASSERT(.false.,"invalid time units")
-    !end select
-    !tindex = 1+(tint_s/this%frequency)
-    !allocate(times(tindex))
-    !times(1)=0
-    !do i=2,size(times)
-       !times(i)=times(i-1)+(real(this%frequency)/scaleFactor)
-    !enddo
     _RETURN(ESMF_SUCCESS) 
 
   end function compute_time_vector 

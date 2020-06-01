@@ -17,7 +17,7 @@
   use MAPL_BaseMod
   use MAPL_IOMod
   use MAPL_CommsMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
 #ifdef _CUDA
   use cudafor
 #endif

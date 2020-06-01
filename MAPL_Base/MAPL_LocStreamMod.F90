@@ -23,7 +23,7 @@ use MAPL_IOMod
 use MAPL_CommsMod
 use MAPL_HashMod
 use MAPL_ShmemMod
-use MAPL_ErrorHandlingMod
+use MAPL_ExceptionHandling
 use, intrinsic :: iso_fortran_env, only: REAL64
 
 implicit none

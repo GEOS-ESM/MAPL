@@ -4,7 +4,7 @@
 module MAPL_CapOptionsMod
    use ESMF
    use MAPL_KeywordEnforcerMod
-   use MAPL_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    implicit none
    private
 

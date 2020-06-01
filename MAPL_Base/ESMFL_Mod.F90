@@ -22,7 +22,7 @@ module ESMFL_MOD
   use MAPL_ConstantsMod
   use MAPL_BaseMod
   use MAPL_CommsMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   implicit none
   private
@@ -80,6 +80,11 @@ module ESMFL_MOD
   interface ESMFL_Diff
     module procedure StateDiff
     module procedure BundleDiff
+  end interface
+
+  interface ESMFL_statistics
+    module procedure StateStatistics
+    module procedure BundleStatistics
   end interface
 
   ! Extract fields from a State and place them in a Bundle
@@ -2874,7 +2879,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
    if (present(lm)) then
-     if ( thisrank == 3 ) then
+     if ( thisrank >= 3 ) then
        lm = globalCPD(3)
      else
        lm = 1
@@ -2904,7 +2909,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 ! !ARGUMENTS:
    
    type(ESMF_FieldBundle), intent(inout) :: srcBUN
-   type(ESMF_FieldBundle), intent(inout) :: dstBUN
+   type(ESMF_FieldBundle), optional, intent(inout) :: dstBUN
    integer, optional, intent(out)   :: rc     ! return code
 
 ! !DESCRIPTION:
@@ -2924,10 +2929,11 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    type(ESMF_Field)        :: dstFLD
    type(ESMF_Field)        :: srcFLD
    type(ESMF_Grid)         :: grid3D
-   real(kind=REAL32), dimension(:,:  ), pointer   :: sptr2d, dptr2d
-   real(kind=REAL32), dimension(:,:,:), pointer   :: sptr3d, dptr3d
+   real(kind=REAL32), dimension(:,:    ), pointer   :: sptr2d, dptr2d
+   real(kind=REAL32), dimension(:,:,:  ), pointer   :: sptr3d, dptr3d
+   real(kind=REAL32), dimension(:,:,:,:), pointer   :: sptr4d, dptr4d
    real(kind=REAL32), allocatable, dimension(:,:) :: srcBuf, dstBuf, diff
-   integer :: rank, k, mype, kmax, status, L, numVars
+   integer :: rank, k, mype, kmax, status, L, numVars, u, umax ! umax is the 4th dimension
    integer :: globalCPD(3)
    character(len=ESMF_MAXSTR)            :: srcName
    character(len=ESMF_MAXSTR), parameter :: fname = 'aleph'
@@ -2969,66 +2975,111 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
      if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
      call ESMF_FieldGet           (srcFLD, NAME=srcName, RC=STATUS)
      if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-     call ESMF_FieldBundleGet     (dstBUN, L, dstFLD, RC=STATUS)
-     if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+     if(present(dstBUN)) then
+        call ESMF_FieldBundleGet     (dstBUN, L, dstFLD, RC=STATUS)
+        if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+     endif
      ! get rank from any field
      call ESMFL_FieldGetDims(srcFLD, ar=rank)
 
      ! allocate f90 pointer to hold data
      ! note halo width = 0
-     if(rank==3) then
+     umax = 1 ! by default, no 4th dimension
+     if(rank==4) then
+       call ESMF_FieldGet (srcFLD, localDE=0, farrayPtr=sptr4d, rc = status)
+       if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+       if (present(dstBUN)) then
+         call ESMF_FieldGet (dstFLD, localDE=0, farrayPtr=dptr4d, rc = status)
+         if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+       endif
+       umax = size(sptr4d,4)
+     else if(rank==3) then
        call ESMF_FieldGet (srcFLD, localDE=0, farrayPtr=sptr3d, rc = status)
        if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-       call ESMF_FieldGet (dstFLD, localDE=0, farrayPtr=dptr3d, rc = status)
-       if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+       if (present(dstBUN)) then
+         call ESMF_FieldGet (dstFLD, localDE=0, farrayPtr=dptr3d, rc = status)
+         if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+       endif
      else
        call ESMF_FieldGet (srcFLD, localDE=0, farrayPtr=sptr2d, rc = status)
        if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-       call ESMF_FieldGet (dstFLD, localDE=0, farrayPtr=dptr2d, rc = status)
-       if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-    end if
+       if (present(dstBUN)) then
+          call ESMF_FieldGet (dstFLD, localDE=0, farrayPtr=dptr2d, rc = status)
+          if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+       endif
+     end if
 
     ! loop over field's vertical levels
 
      call ESMFL_FieldGetDims(srcFLD, lm=kmax)
 
-     do k=1, kmax
+     do u = 1, umax ! loop 4th ungrid dimension
 
-       if (rank==3) then
-         call ArrayGather(sptr3d(:,:,k), srcBuf, grid3D, RC=STATUS)
-         if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-         call ArrayGather(dptr3d(:,:,k), dstBuf, grid3D, RC=STATUS)
-         if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-       else
-         call ArrayGather(sptr2d, srcBuf, grid3D, RC=STATUS)
-         if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-         call ArrayGather(dptr2d, dstBuf, grid3D, RC=STATUS)
-         if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-       end if
-       call ESMF_VMBarrier(vm, rc=status)
-       if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+        if ( umax > 1) then
+          srcName = trim(srcName)//'_'//trim(ESMF_UtilStringInt2String (u))
+        endif
 
-       if(verbose .and. mype==MAPL_Root) then
-         ! stats on level-by-level basis
-         call stats_ ( 6, globalCPD(1), globalCPD(2), k, &
-                      srcBuf, dstBuf                   , &
-                      trim(srcName), 'lev', MAPL_undef , &
-                      trim(srcName)//' diff statistics', 1 )
-       end if
+        do k=1, kmax
 
-     end do ! k
+          if (rank==4) then
+            call ArrayGather(sptr4d(:,:,k,u), srcBuf, grid3D, RC=STATUS)
+            if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+            if (present(dstBUN)) then 
+               call ArrayGather(dptr4d(:,:,k,u), dstBuf, grid3D, RC=STATUS)
+               if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+            endif
+          elseif (rank==3) then
+            call ArrayGather(sptr3d(:,:,k), srcBuf, grid3D, RC=STATUS)
+            if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+            if (present(dstBUN)) then 
+               call ArrayGather(dptr3d(:,:,k), dstBuf, grid3D, RC=STATUS)
+               if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+            endif
+          else
+            call ArrayGather(sptr2d, srcBuf, grid3D, RC=STATUS)
+            if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+            if (present(dstBUN)) then 
+              call ArrayGather(dptr2d, dstBuf, grid3D, RC=STATUS)
+              if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+            endif
+          end if
+          call ESMF_VMBarrier(vm, rc=status)
+          if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
+          if(verbose .and. mype==MAPL_Root) then
+            ! stats on level-by-level basis
+            if(present(dstBUN)) then
+               call stats_ ( 6, globalCPD(1), globalCPD(2), k, &
+                         srcBuf,                    &
+                         trim(srcName), 'lev', MAPL_undef , &
+                         trim(srcName)//' diff statistics', 1, &
+                         dstBuf )
+            else
+               call stats_ ( 6, globalCPD(1), globalCPD(2), k, &
+                         srcBuf,                    &
+                         trim(srcName), 'lev', MAPL_undef , &
+                         trim(srcName)//' statistics', 1 &
+                         )
+
+            endif
+
+          end if
+
+        end do ! k
+     end do ! u, ungrid fourth
    end do ! L
 
-   deallocate(srcbuf, dstbuf, diff, stat=status)
+   if(present(dstBUN)) deallocate(dstBuf)
+
+   deallocate(srcbuf, diff, stat=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
    _RETURN(ESMF_SUCCESS)
 
 CONTAINS
 
-        subroutine stats_ (lu,mx,my,k,a1,a2,&
-                           atype,htype,amiss,header,inc)
+        subroutine stats_ (lu,mx,my,k,a1,&
+                           atype,htype,amiss,header,inc, a2)
 
 !       Print statistics of one 3-d variable. This is from the PSAS library.
 !       with some simplifications
@@ -3039,12 +3090,12 @@ CONTAINS
         integer mx,my           ! Array sizes
         integer k               ! level
         real a1(mx,my)          ! The array1
-        real a2(mx,my)          ! The array2
         character(*), intent(in) :: atype       ! Type of the variable
         character(*), intent(in) :: htype       ! Typf of the levels
         real amiss              ! missing value flag of a
         character*(*) header    ! A header message
         integer inc             ! order of the listing
+        real,optional :: a2(mx,my)        ! The array2
 !
         integer i,j
         integer imx,imn,jmx,jmn
@@ -3069,23 +3120,30 @@ CONTAINS
         spv(aspv)=abs((aspv-amiss)/amiss).le.rfrcval
 
 !       compute diff
-
-        a = a1 - a2
-
+        if (present(a2)) then
+           a = a1 - a2
+        else
+           a = a1
+        endif
         ! only print header when k==1
 
         if (k==1) then
 
-        do i = 1, 255
-           dash(i:i) = '-'
-        end do
-        i = len(trim(header))
+           do i = 1, 255
+              dash(i:i) = '-'
+           end do
+           i = len(trim(header))
 
-        write(lu,'(//a)') trim(header)
-        write(lu,'(a/)')  dash(1:i)
-        write(lu,'(a,1x,a,5x,a,6x,a,9x,a,9x,a,15x,a)') 'lvl',&
-            'count','mean','rmse','rele','maxi','mini'
-               
+           write(lu,'(//a)') trim(header)
+           write(lu,'(a/)')  dash(1:i)
+           if(present(a2)) then
+              write(lu,'(a,1x,a,5x,a,6x,a,9x,a,9x,a,15x,a)') 'lvl',&
+               'count','mean','rmse','rele','maxi','mini'
+           else
+              write(lu,'(a,1x,a,5x,a,6x,a,9x,a,15x,a)') 'lvl',&
+               'count','mean','stdev','maxi','mini'
+
+           endif ! present 
         end if ! k==1
 
 ! compute some statistics on diff
@@ -3098,15 +3156,20 @@ CONTAINS
               if(.not.spv(a(i,j))) then
                 cnt=cnt+1
                 avg=avg+a(i,j)
-                sumsq = sumsq + a(i,j)*a(i,j)
-                relerr = relerr + (a1(i,j) - a2(i,j)) !/a1(i,j)
+                if(present(a2)) then
+                   sumsq = sumsq + a(i,j)*a(i,j)
+                   relerr = relerr + (a1(i,j) - a2(i,j)) !/a1(i,j)
+                endif
               endif
             end do
           end do
+
           avg=avg/max(1,cnt)
-          sumsq=sumsq/max(1,cnt)
-          rms = sqrt(sumsq)
-          relerr=relerr/max(1,cnt)
+          if(present(a2)) then
+             sumsq=sumsq/max(1,cnt)
+             rms = sqrt(sumsq)
+             relerr=relerr/max(1,cnt)
+          endif
 
           dev=0.
           do j=1,my
@@ -3149,13 +3212,20 @@ CONTAINS
             end do
           end do
 
-
-          write(lu,'(i3,1p,i7,1p,3e10.3e1,0p,'// &
+          if(present(a2)) then
+             write(lu,'(i3,1p,i7,1p,3e10.3e1,0p,'// &
                 '2(1p,e10.3e1,0p,a,i3,a,i3,a))') &
                 k,cnt,avg,rms,relerr, &
                 amx,'(',imx,',',jmx,')', &
                 amn,'(',imn,',',jmn,')'
+           else
+             write(lu,'(i3,1p,i7,1p,2e10.3e1,0p,'// &
+                '2(1p,e10.3e1,0p,a,i3,a,i3,a))') &
+                k,cnt,avg,dev, &
+                amx,'(',imx,',',jmx,')', &
+                amn,'(',imn,',',jmn,')'
 
+           endif
       end  subroutine stats_
 
    end subroutine BundleDiff
@@ -3179,7 +3249,7 @@ CONTAINS
 ! !ARGUMENTS:
    
    type(ESMF_State), intent(inout)  :: srcSTA
-   type(ESMF_State), intent(inout)  :: dstSTA
+   type(ESMF_State),optional, intent(inout)  :: dstSTA
    integer, optional, intent(out)   :: rc     ! return code
 
 ! !DESCRIPTION:
@@ -3240,25 +3310,58 @@ CONTAINS
 ! ----------------------------------------------------
    call State2Bundle (srcSTA, srcBun)
 
-   call ESMF_StateGet(dstSTA, itemnamelist=itemnamelist, &
-                      itemtypelist=itemtypelist, rc=status)
-   if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+   if(present(dstSTA)) then
 
-   do i=1,itemcount
-      if(itemtypelist(i)/=ESMF_STATEITEM_FIELD) then
-        call ESMFL_FailedRC(mype,Iam//': State item is not a field.')
-      end if
-   end do
-   call State2Bundle (dstSTA, dstBun)
+      call ESMF_StateGet(dstSTA, itemnamelist=itemnamelist, &
+                      itemtypelist=itemtypelist, rc=status)
+      if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+
+      do i=1,itemcount
+         if(itemtypelist(i)/=ESMF_STATEITEM_FIELD) then
+           call ESMFL_FailedRC(mype,Iam//': State item is not a field.')
+         end if
+      end do
+      call State2Bundle (dstSTA, dstBun)
 
    ! now call BundleDiff
-   call BundleDiff (srcBUN, dstBUN, rc=status)
-   if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+      call BundleDiff (srcBUN, dstBUN, rc=status)
+      if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+    else
+
+      call BundleDiff (srcBUN, rc=status)
+      if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
+
+    endif  
 
    _RETURN(ESMF_SUCCESS)
 
    end subroutine StateDiff
 
+   subroutine StateStatistics(srcSTA, rc)
+     implicit NONE
+     type(ESMF_State), intent(inout)  :: srcSTA
+     integer, optional, intent(out)   :: rc     ! return code
+     integer :: status
+
+     call StateDiff(srcSTA, rc=status)
+     _VERIFY(status)
+     _RETURN(ESMF_SUCCESS)
+
+   end subroutine StateStatistics
+
+   subroutine BundleStatistics(srcBUN, rc)
+     implicit NONE
+     type(ESMF_FieldBundle), intent(inout) :: srcBUN
+     integer, optional, intent(out)   :: rc     ! return code
+
+     integer :: status
+
+     call Bundlediff(srcBUN, rc=status)
+     _VERIFY(status)
+     _RETURN(ESMF_SUCCESS)
+
+   end subroutine BundleStatistics
+!-------------------------------------------------------------------------
 !-------------------------------------------------------------------------
 !  NASA/GSFC, Global Modeling and Assimilation Office, Code 610.3, GMAO  !
 !-------------------------------------------------------------------------

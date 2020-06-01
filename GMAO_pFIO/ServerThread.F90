@@ -1,4 +1,4 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_ServerThreadMod
@@ -7,7 +7,7 @@ module pFIO_ServerThreadMod
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_UtilitiesMod, only: word_size, i_to_string 
    use pFIO_AbstractSocketMod
    use pFIO_AbstractMessageMod

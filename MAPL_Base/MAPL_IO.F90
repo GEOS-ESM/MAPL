@@ -17,7 +17,7 @@ module MAPL_IOMod
   use MAPL_SortMod
   use MAPL_ShmemMod
   use MAPL_RangeMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use netcdf
   use pFIO
   use pFIO_ClientManagerMod
@@ -132,6 +132,7 @@ module MAPL_IOMod
      module procedure MAPL_VarWrite_R4_3D
      module procedure MAPL_VarWriteNCpar_R4_3d
      module procedure MAPL_VarWrite_R4_4D
+     module procedure MAPL_VarWriteNCpar_R4_4d
      module procedure MAPL_VarWrite_R8_1D
      module procedure MAPL_VarWriteNCpar_R8_1d
      module procedure MAPL_VarWrite_R8_2D
@@ -139,6 +140,7 @@ module MAPL_IOMod
      module procedure MAPL_VarWrite_R8_3D
      module procedure MAPL_VarWriteNCpar_R8_3d
      module procedure MAPL_VarWrite_R8_4D
+     module procedure MAPL_VarWriteNCpar_R8_4d
   end interface
 
   interface ArrayScatterShm
@@ -374,6 +376,23 @@ module MAPL_IOMod
          allocate(arrdes%jn(size(jn)),stat=status)
          _VERIFY(STATUS)
          arrdes%jn=jn
+
+         ArrDes%NX0 = NY0
+         ArrDes%NY0 = NX0
+
+         ArrDes%offset = 0
+
+         ArrDes%romio_cb_read  = "automatic"
+         ArrDes%cb_buffer_size = "16777216"
+         ArrDes%romio_cb_write = "enable"
+
+         ArrDes%face_readers_comm = MPI_COMM_NULL
+         ArrDes%face_writers_comm = MPI_COMM_NULL
+         ArrDes%face_index        = 0
+
+         ArrDes%tile = .false.
+
+         ArrDes%filename = ''
 
          _RETURN(ESMF_SUCCESS)
 
@@ -1062,13 +1081,14 @@ module MAPL_IOMod
     real(KIND=ESMF_KIND_R4), pointer, dimension(:)        :: var_1d
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)      :: var_2d
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:)    :: var_3d
+    real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:,:)  :: var_4d
 
     real(KIND=ESMF_KIND_R8), pointer, dimension(:)        :: vr8_1d
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:)      :: vr8_2d
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:)    :: vr8_3d
     type(ESMF_TypeKind_Flag)           :: tk
     integer                            :: dims
-    integer                            :: J, K
+    integer                            :: J, K, L
     integer, pointer                   :: mask(:)
     type (ESMF_DistGrid)               :: distGrid
 
@@ -1196,9 +1216,28 @@ module MAPL_IOMod
              end if
           end if
        endif
+       
+    else if (rank == 4) then
+       if (tk == ESMF_TYPEKIND_R4) then
+          call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
+          _VERIFY(STATUS)
+          if (.not.associated(var_4d)) then
+             _ASSERT(.false., "Cannot read unassociated variable")
+          end if
+
+          do L = 1,size(var_4d,3)
+             do K = 1,size(var_4d,4)
+                call MAPL_VarRead(formatter, name, var_4d(:,:,L,K), &
+                     arrdes=arrdes, lev=l, &
+                     & offset2=k, rc=status)
+                _VERIFY(status)
+             end do
+          end do
+       else
+          _ASSERT(.false., "ERROR: unsupported RANK/KIND")
+       endif
     else
-       print *, "ERROR: unsupported RANK"
-       _RETURN(ESMF_FAILURE)
+       _ASSERT(.false., "ERROR: unsupported RANK")
     endif
     _VERIFY(STATUS)
 
@@ -1416,8 +1455,7 @@ module MAPL_IOMod
           call MAPL_VarRead(unit, grid, vr8_4d, rc=status)
        end if
     else
-       print *, "ERROR: unsupported RANK"
-       _RETURN(ESMF_FAILURE)
+       _ASSERT(.false., "ERROR: unsupported RANK")
     endif
     _VERIFY(STATUS)
 
@@ -2800,6 +2838,7 @@ module MAPL_IOMod
     real(KIND=ESMF_KIND_R4), pointer, dimension(:)        :: var_1d
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)      :: var_2d
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:)    :: var_3d
+    real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:,:)  :: var_4d
 
     real(KIND=ESMF_KIND_R4), pointer, dimension(:)        :: gvar_1d
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)      :: gvar_2d
@@ -2808,6 +2847,7 @@ module MAPL_IOMod
     real(KIND=ESMF_KIND_R8), pointer, dimension(:)        :: vr8_1d
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:)      :: vr8_2d
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:)    :: vr8_3d
+    real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:,:)  :: vr8_4d
 
     real(KIND=ESMF_KIND_R8), pointer, dimension(:)        :: gvr8_1d
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:)      :: gvr8_2d
@@ -3044,6 +3084,27 @@ module MAPL_IOMod
                 call MAPL_VarWrite(formatter, name, vr8_3d, arrdes=arrdes, oClients=oClients, rc=status)
              end if
           end if
+       endif
+
+    else if (rank == 4) then
+       if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
+          _ASSERT(.false., "Unsupported tile/ungrid variable")
+       end if
+       if (tk == ESMF_TYPEKIND_R4) then
+          call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
+          _VERIFY(STATUS)
+          if (.not.associated(var_4d)) then
+             _ASSERT(.false., "Cannot write unassociated vars")
+          end if
+             call MAPL_VarWrite(formatter, name, var_4d, arrdes=arrdes, oClients=oClients, rc=status)
+       else
+          call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_4d, rc=status)
+          _VERIFY(STATUS)
+          if (.not.associated(vr8_4d)) then
+             _ASSERT(.false., "Cannot write unassociated vars")
+          end if
+
+          call MAPL_VarWrite(formatter, name, vr8_4d, arrdes=arrdes, oClients=oClients, rc=status)
        endif
     else
        print *, "ERROR: unsupported RANK"
@@ -5164,6 +5225,55 @@ module MAPL_IOMod
   end subroutine MAPL_TileMaskGet
 
 !---------------------------
+  subroutine MAPL_VarWriteNCpar_R4_4d(formatter, name, A, ARRDES, oClients, RC)
+
+    type(Netcdf4_Fileformatter) , intent(IN   ) :: formatter
+    character(len=*)            , intent(IN   ) :: name
+    real(kind=ESMF_KIND_R4)     , intent(IN   ) :: A(:,:,:,:)
+    type(ArrDescr)              , intent(INOUT) :: ARRDES
+    type (ClientManager), optional, intent(inout)  :: oClients
+    integer,           optional , intent(  OUT) :: RC
+
+    integer                               :: status
+    integer :: K, L
+
+    !    MORE HERE
+    do K = 1,size(A,4)
+       do L = 1,size(A,3)
+          call MAPL_VarWrite(formatter, name, A(:,:,L,K), arrdes=arrdes, &
+               & oClients=oClients, lev=l, offset2=k, rc=status)
+          _VERIFY(status)
+       end do
+    end do
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine MAPL_VarWriteNCpar_R4_4d
+!---------------------------
+  subroutine MAPL_VarWriteNCpar_R8_4d(formatter, name, A, ARRDES, oClients, RC)
+
+    type(Netcdf4_Fileformatter) , intent(IN   ) :: formatter
+    character(len=*)            , intent(IN   ) :: name
+    real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:,:,:)
+    type(ArrDescr)              , intent(INOUT) :: ARRDES
+    type (ClientManager), optional, intent(inout)  :: oClients
+    integer,           optional , intent(  OUT) :: RC
+
+    integer                               :: status
+    integer :: K, L
+
+    !    MORE HERE
+    do K = 1,size(A,4)
+       do L = 1,size(A,3)
+          call MAPL_VarWrite(formatter, name, A(:,:,L,K), arrdes=arrdes, &
+               & oClients=oClients, lev=l, offset2=k, rc=status)
+          _VERIFY(status)
+       end do
+    end do
+    _RETURN(ESMF_SUCCESS)
+    
+    !    MORE HERE
+  end subroutine MAPL_VarWriteNCpar_R8_4d
+!---------------------------
 
   subroutine MAPL_VarWriteNCpar_R4_3d(formatter, name, A, ARRDES, oClients, RC)
 
@@ -5291,13 +5401,14 @@ module MAPL_IOMod
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R4_2d(formatter, name, A, ARRDES, lev, oClients, RC)
+  subroutine MAPL_VarWriteNCpar_R4_2d(formatter, name, A, ARRDES, lev, offset2, oClients, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(IN   ) :: A(:,:)
     type(ArrDescr),    optional , intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: lev
+    integer,           optional , intent(IN   ) :: offset2
     type (ClientManager), optional, intent(inout) :: oClients
     integer,           optional , intent(  OUT) :: RC
 
@@ -5416,6 +5527,7 @@ module MAPL_IOMod
           start(3) = 1
           if (present(lev)) start(3)=lev
           start(4) = 1
+          if (present(offset2)) start(4) = offset2
           cnt(1) = IM_WORLD
           cnt(2) = jsize
           cnt(3) = 1
@@ -5448,6 +5560,7 @@ module MAPL_IOMod
           start(3) = 1
           if (present(lev)) start(3)=lev
           start(4) = 1
+          if (present(offset2)) start(4) = offset2
           cnt(1) = size(a,1)
           cnt(2) = size(a,2)
           cnt(3) = 1
@@ -5467,13 +5580,14 @@ module MAPL_IOMod
 
 !---------------------------
 
-  subroutine MAPL_VarReadNCpar_R4_2d(formatter, name, A, ARRDES, lev, RC)
+  subroutine MAPL_VarReadNCpar_R4_2d(formatter, name, A, ARRDES, lev, offset2, RC)
   
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(INOUT) :: A(:,:)
     type(ArrDescr), optional    , intent(INOUT) :: ARRDES
     integer, optional           , intent(IN   ) :: lev
+    integer, optional           , intent(IN   ) :: offset2
     integer,           optional , intent(  OUT) :: RC
 
 ! Local variables
@@ -5541,6 +5655,7 @@ module MAPL_IOMod
           start(3) = 1
           if (present(lev)) start(3) = lev
           start(4) = 1
+          if (present(offset2)) start(4) = offset2
           cnt(1) = IM_WORLD
           cnt(2) = jsize
           cnt(3) = 1
@@ -5598,6 +5713,7 @@ module MAPL_IOMod
        start(3) = 1
        if (present(lev) ) start(3)=lev
        start(4) = 1
+       if (present(offset2)) start(4) = offset2
        cnt(1) = size(a,1)
        cnt(2) = size(a,2)
        cnt(3) = 1
@@ -6878,13 +6994,14 @@ module MAPL_IOMod
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R8_2d(formatter, name, A, ARRDES, lev, oClients, RC)
+  subroutine MAPL_VarWriteNCpar_R8_2d(formatter, name, A, ARRDES, lev, offset2, oClients, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)     , intent(IN   ) :: A(:,:)
     type(ArrDescr),    optional , intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: lev
+    integer,           optional , intent(IN   ) :: offset2
     type (ClientManager), optional, intent(inout) :: oClients
     integer,           optional , intent(  OUT) :: RC
 
@@ -7003,6 +7120,7 @@ module MAPL_IOMod
           start(3) = 1
           if (present(lev)) start(3) = lev
           start(4) = 1
+          if (present(offset2)) start(4) = offset2
           cnt(1) = IM_WORLD
           cnt(2) = jsize
           cnt(3) = 1
@@ -7647,8 +7765,8 @@ module MAPL_IOMod
 
   FIELD = ESMF_FieldCreate(grid=arrDes%grid, datacopyflag=ESMF_DATACOPY_VALUE, &
          farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
-  call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzVert,rc=status)
   _VERIFY(STATUS)
+  call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzVert,rc=status)
   _VERIFY(STATUS)
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
   _VERIFY(STATUS)
@@ -7701,6 +7819,8 @@ module MAPL_IOMod
     character(len=ESMF_MAXSTR), allocatable :: unique_ungrid_dim_name(:)
     character(len=ESMF_MAXSTR)            :: myUngridDimName1, myUngridDimName2
     character(len=ESMF_MAXSTR)            :: BundleName
+    real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:,:):: var_4d => null()
+    real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:,:):: var8_4d => null()
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:,:)  :: var_3d => null()
     real(KIND=ESMF_KIND_R8), pointer, dimension(:,:,:)  :: var8_3d => null()
     real(KIND=ESMF_KIND_R4), pointer, dimension(:,:)    :: var_2d => null()
@@ -7817,6 +7937,32 @@ module MAPL_IOMod
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_3d,2)
              UNGRID_DIMS(I,2) = size(var8_3d,3)
+          endif
+       else if (arrayRank == 4) then
+          if (tk == ESMF_TYPEKIND_R4) then
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
+             _VERIFY(STATUS)
+             if (DIMS(I) == MAPL_DimsHorzVert) then
+                UNGRID_DIMS(I,1) = size(var_4d,4)
+             else if (DIMS(I) == MAPL_DimsHorzOnly) then
+                UNGRID_DIMS(I,1) = size(var_4d,3)
+                UNGRID_DIMS(I,2) = size(var_4d,4)
+             else
+                _ASSERT(.false., "Unsupported DIMS type")
+             end if
+          elseif (tk == ESMF_TYPEKIND_R8) then
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_4d, rc=status)
+             _VERIFY(STATUS)
+             if (DIMS(I) == MAPL_DimsHorzVert) then
+                UNGRID_DIMS(I,1) = size(var8_4d,4)
+             else if (DIMS(I) == MAPL_DimsHorzOnly) then
+                UNGRID_DIMS(I,1) = size(var8_4d,3)
+                UNGRID_DIMS(I,2) = size(var8_4d,4)
+             else
+                _ASSERT(.false., "Unsupported DIMS type")
+             end if
+          else
+             _ASSERT(.false., "Unsupported type/rank")
           endif
        endif
 
@@ -8159,6 +8305,47 @@ module MAPL_IOMod
                 call add_fvar(cf,trim(fieldname),pfDataType,'tile,'//myUngridDimName1//','//myUngridDimName2,units,long_name,rc=status)
                 _VERIFY(status)
              else if(DIMS(1)/=MAPL_DimsHorzVert .and. DIMS(1)/=MAPL_DimsHorzOnly) then
+                _ASSERT(.false., 'ERROR: What else could it be')
+             endif
+          else if(arrayRank == 4) then
+             if (DIMS(1)==MAPL_DimsHorzVert) then
+                do j=1,n_unique_ungrid_dims
+                   if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
+                      myungriddim1 = j
+                      myUngridDimName1 = trim(unique_ungrid_dim_name(j))
+                      exit
+                   end if
+                end do
+                if (LOCATION(1) == MAPL_VLocationCenter) then
+                   call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,lev,'//myUngridDimName1,units,long_name,rc=status)
+                   _VERIFY(status)
+                else if(LOCATION(1) == MAPL_VLocationEdge) then
+                   call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,edge,'//myUngridDimName1,units,long_name,rc=status)
+                   _VERIFY(status)
+                else
+                   _ASSERT(.false., 'ERROR: LOCATION not recognized for rank 4')
+                endif
+             else if(DIMS(1)==MAPL_DimsHorzOnly) then
+                do j=1,n_unique_ungrid_dims
+                   if (ungrid_dims(i,1) == unique_ungrid_dims(j) ) then
+                      myungriddim1 = j
+                      myUngridDimName1 = trim(unique_ungrid_dim_name(j))
+                      exit
+                   end if
+                end do
+                do j=1,n_unique_ungrid_dims
+                   if (ungrid_dims(i,2) == unique_ungrid_dims(j) ) then
+                      myungriddim2 = j
+                      myUngridDimName2 = trim(unique_ungrid_dim_name(j))
+                      exit
+                   end if
+                end do
+                call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,'//myUngridDimName1//','//myUngridDimName2,units,long_name,rc=status)
+                _VERIFY(status)
+             else if (DIMS(1)==MAPL_DimsTileOnly .or. &
+                  DIMS(1)==MAPL_DimsTileTile) then
+                _ASSERT(.false., 'ERROR: tiles with 2 or more UNGRIDDED dims not supported')
+             else
                 _ASSERT(.false., 'ERROR: What else could it be')
              endif
           else

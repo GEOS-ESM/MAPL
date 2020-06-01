@@ -53,7 +53,7 @@ set (srcs
   MAPL_Profiler.F90
 
   )
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared gftl MPI::MPI_Fortran)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared gftl MAPL_Shared MPI::MPI_Fortran)
 target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
 
 add_subdirectory (demo)

@@ -23,7 +23,7 @@ module MAPL_SunMod
   use MAPL_BaseMod
   use MAPL_IOMod
   use MAPL_CommsMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use netcdf
 
   implicit none
@@ -678,7 +678,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
         if (ORBIT%EOT) then
           if(associated(ORBIT%ET)) deallocate(ORBIT%ET)
           allocate(ORBIT%ET(DAYS_PER_CYCLE), stat=status)
-          VERIFY_(STATUS)
+          _VERIFY(STATUS)
         end if
 
         ! Begin integration at the vernal equinox (K=1, KP=EQUINOX), at
@@ -1038,7 +1038,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
 !   Begin
 
-      ASSERT_(.FALSE.) ! pmn: this routine is not up to date, is it even used anywhere?
+      _ASSERT(.FALSE.," pmn: this routine is not up to date, is it even used anywhere?")
 
       call ESMF_ArrayGet(LONS, RANK=RANK, RC=STATUS)
       _VERIFY(STATUS)

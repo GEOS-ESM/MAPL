@@ -1,4 +1,4 @@
-
+#include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 #define GET_POINTER ESMFL_StateGetPointerToData
 #define MAPL_MAX_PHASES 10
@@ -123,7 +123,7 @@ module MAPL_GenericMod
   use MAPL_GenericCplCompMod
   use MAPL_LocStreamMod
   use MAPL_ConfigMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use pFlogger, only: logging, Logger
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
@@ -359,6 +359,26 @@ type MAPL_GenericRecordType
    integer                                  :: INT_LEN
 end type  MAPL_GenericRecordType
 
+type MAPL_Connectivity
+   type (MAPL_VarConn), pointer :: CONNECT(:)       => null()
+   type (MAPL_VarConn), pointer :: DONOTCONN(:)     => null()
+end type MAPL_Connectivity
+
+type MAPL_LinkType
+   type (ESMF_GridComp) :: GC
+   integer              :: StateType
+   integer              :: SpecId
+end type MAPL_LinkType
+
+type MAPL_LinkForm
+   type (MAPL_LinkType) :: FROM
+   type (MAPL_LinkType) :: TO
+end type MAPL_LinkForm
+
+type MAPL_Link
+   type (MAPL_LinkForm), pointer :: PTR
+end type MAPL_Link
+
 !BOP
 !BOC
 type  MAPL_MetaComp
@@ -392,6 +412,7 @@ type  MAPL_MetaComp
    character(len=ESMF_MAXSTR)               :: COMPNAME
    type (MAPL_GenericRecordType)  , pointer :: RECORD           => null()
    type (ESMF_State)                        :: FORCING
+   type (MAPL_Connectivity)                 :: connectList
    integer                        , pointer :: phase_init (:)    => null()
    integer                        , pointer :: phase_run  (:)    => null()
    integer                        , pointer :: phase_final(:)    => null()
@@ -407,30 +428,6 @@ type  MAPL_MetaComp
 end type MAPL_MetaComp
 !EOC
 !EOP
-
-type MAPL_Connectivity
-   type (MAPL_VarConn), pointer :: CONNECT(:)       => null()
-   type (MAPL_VarConn), pointer :: DONOTCONN(:)     => null()
-end type MAPL_Connectivity
-
-type MAPL_ConnectivityWrap
-   type(MAPL_Connectivity), pointer :: PTR
-end type MAPL_ConnectivityWrap
-
-type MAPL_LinkType
-   type (ESMF_GridComp) :: GC
-   integer              :: StateType
-   integer              :: SpecId
-end type MAPL_LinkType
-
-type MAPL_LinkForm
-   type (MAPL_LinkType) :: FROM
-   type (MAPL_LinkType) :: TO
-end type MAPL_LinkForm
-
-type MAPL_Link
-   type (MAPL_LinkForm), pointer :: PTR
-end type MAPL_Link
 
 type MAPL_MetaPtr
    type(MAPL_MetaComp), pointer  :: PTR
@@ -526,7 +523,6 @@ type(ESMF_FieldBundle), pointer   :: BUNDLE
 type(ESMF_State), pointer         :: STATE
 type(ESMF_VM)                     :: VM
 
-type (MAPL_ConnectivityWrap)      :: connwrap
 type (MAPL_VarConn),      pointer :: CONNECT(:)
 type (MAPL_VarSpec),      pointer :: IM_SPECS(:)
 type (MAPL_VarSpec),      pointer :: EX_SPECS(:)
@@ -553,7 +549,7 @@ type(ESMF_GridComp)               :: rootGC
    call MAPL_InternalStateRetrieve( GC, MAPLOBJ, RC=STATUS)
    _VERIFY(STATUS)
 
-   call MAPLOBJ%t_profiler%start('GenSetService')
+   call MAPLOBJ%t_profiler%start('GenSetService',__RC__)
 
 ! Set the Component's Total timer
 ! -------------------------------
@@ -594,13 +590,8 @@ type(ESMF_GridComp)               :: rootGC
 
 ! Relax connectivity for non-existing imports
       if (NC > 0) then
-         call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-              connwrap, status)
-         if (STATUS == ESMF_FAILURE) then
-            NULLIFY(CONNECT)
-         else
-            CONNECT => connwrap%ptr%CONNECT
-         end if
+         
+         CONNECT => MAPLOBJ%connectList%CONNECT
 
          allocate (ImSpecPtr(NC), ExSpecPtr(NC), stat=status)
          _VERIFY(STATUS)
@@ -791,7 +782,7 @@ type(ESMF_GridComp)               :: rootGC
 
 ! All done
 !---------
-   call MAPLOBJ%t_profiler%stop('GenSetService')
+   call MAPLOBJ%t_profiler%stop('GenSetService',__RC__)
 
    _RETURN(ESMF_SUCCESS)
 
@@ -923,12 +914,12 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
 ! Start my timer
 !---------------
   
-  call state%t_profiler%start('GenInitialize')
+  call state%t_profiler%start('GenInitialize',__RC__)
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenInitTot")
   call MAPL_GenericStateClockOn(STATE,"--GenInitMine")
-  call state%t_profiler%start('GenInitialize_self')
+  call state%t_profiler%start('GenInitialize_self',__RC__)
 
 ! Put the inherited grid in the generic state
 !--------------------------------------------
@@ -1450,7 +1441,7 @@ endif
          STATE%RECORD%INT_LEN = 0
       end if
    end if
-   call state%t_profiler%stop('GenInitialize_self')
+   call state%t_profiler%stop('GenInitialize_self',__RC__)
    call MAPL_GenericStateClockOff(STATE,"--GenInitMine")
 
 ! Initialize the children
@@ -1484,20 +1475,16 @@ endif
                _VERIFY(STATUS)
       
                t_p => get_global_time_profiler()
-               call t_p%start(trim(CHILD_NAME))
+               call t_p%start(trim(CHILD_NAME),__RC__)
                call MAPL_GenericStateClockOn (STATE,trim(CHILD_NAME))
-               call CHLDMAPL(I)%ptr%t_profiler%start()
-               call CHLDMAPL(I)%ptr%t_profiler%start('Initialize')
                call ESMF_GridCompInitialize (STATE%GCS(I), &
                     importState=STATE%GIM(I), &
                     exportState=STATE%GEX(I), &
                     clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_INIT(PHASE), &
                     userRC=userRC, RC=STATUS )
                _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
-               call CHLDMAPL(I)%ptr%t_profiler%stop('Initialize')
-               call CHLDMAPL(I)%ptr%t_profiler%stop()
                call MAPL_GenericStateClockOff(STATE,trim(CHILD_NAME))
-               call t_p%stop(trim(CHILD_NAME))
+               call t_p%stop(trim(CHILD_NAME),__RC__)
             end if
          end do
          deallocate(CHLDMAPL)
@@ -1534,7 +1521,7 @@ endif
       enddo
    endif
    call MAPL_GenericStateClockOn(STATE,"--GenInitMine")
-   call state%t_profiler%start('GenInitialize_self')
+   call state%t_profiler%start('GenInitialize_self',__RC__)
 
 ! Create import and initialize state variables
 ! --------------------------------------------
@@ -1681,7 +1668,7 @@ endif
       _VERIFY(STATUS)
    end if
 
-   call state%t_profiler%stop('GenInitialize_self')
+   call state%t_profiler%stop('GenInitialize_self',__RC__)
    call MAPL_GenericStateClockOff(STATE,"--GenInitMine")
 
    if (.not. associated(STATE%parentGC)) then
@@ -1692,7 +1679,7 @@ endif
   call MAPL_GenericStateClockOff(STATE,"GenInitTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
-  call state%t_profiler%stop('GenInitialize')
+  call state%t_profiler%stop('GenInitialize',__RC__)
 
 ! Write Memory Use Statistics.
 ! -------------------------------------------
@@ -1812,17 +1799,12 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
   endif MethodBlock
 
 ! TIMERS on
-  if (method == ESMF_METHOD_RUN ) then
-    call t_p%start(trim(state%compname))
-    call state%t_profiler%start()
-    call state%t_profiler%start(trim(sbrtn))
-  endif
+  call t_p%start(trim(state%compname),__RC__)
+  if (method /= ESMF_METHOD_READRESTART .and. method /= ESMF_METHOD_WRITERESTART) then
+     call state%t_profiler%start(__RC__)
+     call state%t_profiler%start(trim(sbrtn),__RC__)
+  end if
 
-  if (method == ESMF_METHOD_FINALIZE ) then
-    call t_p%start(trim(state%compname))
-    call state%t_profiler%start()
-    call state%t_profiler%start('Finalize')
-  endif
 
 
   if (associated(timers)) then
@@ -1854,10 +1836,13 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
      end do
   end if
 
-  if (method == ESMF_METHOD_RUN) then 
-     call state%t_profiler%stop(trim(sbrtn))
-     call state%t_profiler%stop()
-     call t_p%stop(trim(state%compname))
+  if (method /= ESMF_METHOD_FINALIZE) then 
+      if (method /= ESMF_METHOD_WRITERESTART .and. &
+          method /= ESMF_METHOD_READRESTART) then 
+        call state%t_profiler%stop(trim(sbrtn),__RC__)
+        call state%t_profiler%stop(__RC__)
+      end if
+     call t_p%stop(trim(state%compname),__RC__)
   endif
 
 
@@ -2048,9 +2033,6 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 ! ---------------------
 
   t_p => get_global_time_profiler()
-  !call t_p%start(trim(state%compname))
-  !call state%t_profiler%start()
-  !call state%t_profiler%start('Final')
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenFinalTot")
@@ -2086,7 +2068,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
    endif
 
   call MAPL_GenericStateClockOn(STATE,"--GenFinalMine")
-  call state%t_profiler%start('Final_self')
+  call state%t_profiler%start('Final_self',__RC__)
 
   call MAPL_GetResource( STATE, RECFIN, LABEL="RECORD_FINAL:", &
        RC=STATUS )
@@ -2177,7 +2159,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
      endif
   end if
 
-  call state%t_profiler%stop('Final_self')
+  call state%t_profiler%stop('Final_self',__RC__)
   call MAPL_GenericStateClockOff(STATE,"--GenFinalMine")
   call MAPL_GenericStateClockOff(STATE,"GenFinalTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
@@ -2185,8 +2167,8 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 ! Write summary of profiled times
 !--------------------------------
   
-  call state%t_profiler%stop('Finalize')
-  call state%t_profiler%stop()
+  call state%t_profiler%stop('Finalize',__RC__)
+  call state%t_profiler%stop(__RC__)
 
   if (.not. MAPL_ProfIsDisabled()) then
 
@@ -2202,7 +2184,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
      call WRITE_PARALLEL(" ")
   end if
 
-  call t_p%stop(trim(state%compname))
+  call t_p%stop(trim(state%compname),__RC__)
 
 ! Clean-up
 !---------
@@ -2308,9 +2290,9 @@ end subroutine MAPL_GenericFinalize
   _VERIFY(STATUS)
 
   t_p => get_global_time_profiler()
-  call t_p%start(trim(state%compname))
-  call state%t_profiler%start()
-  call state%t_profiler%start('Record')
+  call t_p%start(trim(state%compname),__RC__)
+  call state%t_profiler%start(__RC__)
+  call state%t_profiler%start('Record',__RC__)
 
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
@@ -2334,7 +2316,7 @@ end subroutine MAPL_GenericFinalize
 ! Do my "own" record
 ! ------------------
   call MAPL_GenericStateClockOn(STATE,"--GenRecordMine")
-  call state%t_profiler%start('Record_self')
+  call state%t_profiler%start('Record_self',__RC__)
 
   if (associated(STATE%RECORD)) then
 
@@ -2401,14 +2383,14 @@ end subroutine MAPL_GenericFinalize
         end if
      END DO
   endif
-  call state%t_profiler%stop('Record_self')
+  call state%t_profiler%stop('Record_self',__RC__)
   call MAPL_GenericStateClockOff(STATE,"--GenRecordMine")
   call MAPL_GenericStateClockOff(STATE,"GenRecordTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
-  call state%t_profiler%stop('Record')
-  call state%t_profiler%stop()
-  call t_p%stop(trim(state%compname))
+  call state%t_profiler%stop('Record',__RC__)
+  call state%t_profiler%stop(__RC__)
+  call t_p%stop(trim(state%compname),__RC__)
 
   _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_GenericRecord
@@ -2533,9 +2515,9 @@ end subroutine MAPL_StateRecord
   _VERIFY(STATUS)
 
   t_p => get_global_time_profiler()
-  call t_p%start(trim(state%compname))
-  call state%t_profiler%start()
-  call state%t_profiler%start('Refresh')
+  call t_p%start(trim(state%compname),__RC__)
+  call state%t_profiler%start(__RC__)
+  call state%t_profiler%start('Refresh',__RC__)
 
   call MAPL_GenericStateClockOn(STATE,"TOTAL")
   call MAPL_GenericStateClockOn(STATE,"GenRefreshTot")
@@ -2556,7 +2538,7 @@ end subroutine MAPL_StateRecord
 ! Do my "own" refresh
 ! ------------------
   call MAPL_GenericStateClockOn(STATE,"--GenRefreshMine")
-  call state%t_profiler%start('Refresh_self')
+  call state%t_profiler%start('Refresh_self',__RC__)
 
   if (associated(STATE%RECORD)) then
 
@@ -2618,10 +2600,10 @@ end subroutine MAPL_StateRecord
   call MAPL_GenericStateClockOff(STATE,"GenRefreshTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
-  call state%t_profiler%stop('Refresh_self')
-  call state%t_profiler%stop('Refresh')
-  call state%t_profiler%stop()
-  call t_p%stop(trim(state%compname))
+  call state%t_profiler%stop('Refresh_self',__RC__)
+  call state%t_profiler%stop('Refresh',__RC__)
+  call state%t_profiler%stop(__RC__)
+  call t_p%stop(trim(state%compname),__RC__)
 
   _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_GenericRefresh
@@ -2784,8 +2766,6 @@ end subroutine MAPL_DateStampGet
 #if defined(ABSOFT) || defined(sysIRIX64)
     WRAP%MAPLOBJ => DUMMY
 #endif
-    call ESMF_UserCompGetInternalState(GC, "MAPL_GenericInternalState", WRAP, STATUS)
-    _ASSERT(STATUS == ESMF_FAILURE,'needs informative message')
 
 ! Allocate this instance of the internal state and put it in wrapper.
 ! -------------------------------------------------------------------
@@ -4564,13 +4544,13 @@ end subroutine MAPL_DateStampGet
 
   t_p => get_global_time_profiler()
 
-  call t_p%start(trim(NAME))
-  call CHILD_META%t_profiler%start()
-  call CHILD_META%t_profiler%start('SetService')
+  call t_p%start(trim(NAME),__RC__)
+  call CHILD_META%t_profiler%start(__RC__)
+  call CHILD_META%t_profiler%start('SetService',__RC__)
   call ESMF_GridCompSetServices ( META%GCS(I), SS, RC=status )
-  call CHILD_META%t_profiler%stop('SetService')
-  call CHILD_META%t_profiler%stop()
-  call t_p%stop(trim(NAME))
+  call CHILD_META%t_profiler%stop('SetService',__RC__)
+  call CHILD_META%t_profiler%stop(__RC__)
+  call t_p%stop(trim(NAME),__RC__)
   
   _VERIFY(STATUS)
 
@@ -4625,22 +4605,11 @@ end function MAPL_AddChildFromGC
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_AddConnectivity"
     integer                               :: STATUS
-    type (MAPL_ConnectivityWrap)          :: connwrap
     type (MAPL_Connectivity), pointer     :: conn
 
 
-    call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-                                       connwrap, status)
-    if (STATUS == ESMF_FAILURE) then
-       allocate(conn, STAT=STATUS)
-       _VERIFY(STATUS)
-       connwrap%ptr => conn
-       call ESMF_UserCompSetInternalState(gc, 'MAPL_Connectivity', &
-                                          connwrap, status)
-       _VERIFY(STATUS)
-    else
-       conn => connwrap%ptr
-    end if
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    _VERIFY(STATUS)
 
     call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME, TO_NAME=TO_NAME,        &
                             FROM_IMPORT=FROM_IMPORT, FROM_EXPORT=FROM_EXPORT, &
@@ -4661,22 +4630,10 @@ end function MAPL_AddChildFromGC
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_AddConnectivityE2E"
     integer                               :: STATUS
-    type (MAPL_ConnectivityWrap)          :: connwrap
     type (MAPL_Connectivity), pointer     :: conn
 
-
-    call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-                                       connwrap, status)
-    if (STATUS == ESMF_FAILURE) then
-       allocate(conn, STAT=STATUS)
-       _VERIFY(STATUS)
-       connwrap%ptr => conn
-       call ESMF_UserCompSetInternalState(gc, 'MAPL_Connectivity', &
-                                          connwrap, status)
-       _VERIFY(STATUS)
-    else
-       conn => connwrap%ptr
-    end if
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    _VERIFY(STATUS)
 
     call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME, &
                             FROM_EXPORT=SRC_ID, &
@@ -4707,22 +4664,12 @@ end function MAPL_AddChildFromGC
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_AddConnectivityRename"
     integer                               :: STATUS
-    type (MAPL_ConnectivityWrap)          :: connwrap
+
     type (MAPL_Connectivity), pointer     :: conn
 
 
-    call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-                                       connwrap, status)
-    if (STATUS == ESMF_FAILURE) then
-       allocate(conn, STAT=STATUS)
-       _VERIFY(STATUS)
-       connwrap%ptr => conn
-       call ESMF_UserCompSetInternalState(gc, 'MAPL_Connectivity', &
-                                          connwrap, status)
-       _VERIFY(STATUS)
-    else
-       conn => connwrap%ptr
-    end if
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    _VERIFY(STATUS)
 
     call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME=SRC_NAME, TO_NAME=DST_NAME,        &
                             FROM_EXPORT=SRC_ID, TO_IMPORT=DST_ID, RC=STATUS  )
@@ -4808,22 +4755,10 @@ end function MAPL_AddChildFromGC
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_DoNotConnect"
     integer                               :: STATUS
-    type (MAPL_ConnectivityWrap)          :: connwrap
     type (MAPL_Connectivity), pointer     :: conn
 
-
-    call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-                                       connwrap, status)
-    if (STATUS == ESMF_FAILURE) then
-       allocate(conn, STAT=STATUS)
-       _VERIFY(STATUS)
-       connwrap%ptr => conn
-       call ESMF_UserCompSetInternalState(gc, 'MAPL_Connectivity', &
-                                          connwrap, status)
-       _VERIFY(STATUS)
-    else
-       conn => connwrap%ptr
-    end if
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    _VERIFY(STATUS)
 
     call MAPL_VarConnCreate(CONN%DONOTCONN, SHORT_NAME, &
        FROM_IMPORT=CHILD, RC=STATUS  )
@@ -4983,7 +4918,7 @@ end function MAPL_AddChildFromGC
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOn"
-    integer :: STATUS, n
+    integer :: STATUS !, n
    
     call MAPL_ProfClockOn(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
@@ -5053,13 +4988,10 @@ end function MAPL_AddChildFromGC
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateClockOff"
-    integer :: STATUS, n
+    integer :: STATUS
 
     call MAPL_ProfClockOff(STATE%TIMES,NAME,RC=STATUS)
     _VERIFY(STATUS)
-
-    !n = index(NAME,'-',.true.) + 1
-    !call state%t_profiler%stop(trim(Name(n:)))
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GenericStateClockOff
@@ -5837,8 +5769,8 @@ end function MAPL_AddChildFromGC
     type (ESMF_FieldBundle) :: BUNDLE
     type (ESMF_Field)       :: SPEC_FIELD
     type (ESMF_FieldBundle) :: SPEC_BUNDLE
-    real(kind=ESMF_KIND_R4), pointer         :: VAR_1D(:), VAR_2D(:,:), VAR_3D(:,:,:)
-    real(kind=ESMF_KIND_R8), pointer         :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:)
+    real(kind=ESMF_KIND_R4), pointer         :: VAR_1D(:), VAR_2D(:,:), VAR_3D(:,:,:), VAR_4d(:,:,:,:)
+    real(kind=ESMF_KIND_R8), pointer         :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
     logical               :: usableDEFER
     logical               :: deferAlloc
     integer               :: DIMS
@@ -6058,6 +5990,16 @@ end function MAPL_AddChildFromGC
                      end if
                      var_3d = default_value
                      initStatus = MAPL_InitialDefault
+                  else if (fieldRank == 4) then
+                     call ESMF_FieldGet(field, farrayPtr=var_4d, rc=status)
+                     _VERIFY(STATUS)
+                     if (initStatus == MAPL_InitialDefault) then
+                        if (any(var_4d /= default_value)) then
+                           _RETURN(ESMF_FAILURE)
+                        endif
+                     end if
+                     var_4d = default_value
+                     initStatus = MAPL_InitialDefault
                   end if
                else if (typeKind == ESMF_TYPEKIND_R8) then
                   def_val_8 = real(default_value,kind=ESMF_KIND_R8)
@@ -6090,6 +6032,16 @@ end function MAPL_AddChildFromGC
                         endif
                      end if
                      vr8_3d = def_val_8
+                     initStatus = MAPL_InitialDefault
+                  else if (fieldRank == 4) then
+                     call ESMF_FieldGet(field, farrayPtr=vr8_4d, rc=status)
+                     _VERIFY(STATUS)
+                     if (initStatus == MAPL_InitialDefault) then
+                        if (any(vr8_4d /= default_value)) then
+                           _RETURN(ESMF_FAILURE)
+                        endif
+                     end if
+                     vr8_4d = default_value
                      initStatus = MAPL_InitialDefault
                   end if
                end if
@@ -6140,9 +6092,6 @@ end function MAPL_AddChildFromGC
             end if
          else
             call ESMF_AttributeSet(FIELD, NAME='PRECISION', VALUE=KND, RC=STATUS)
-            _VERIFY(STATUS)
-            call ESMF_AttributeSet(FIELD, NAME='HAS_UNGRIDDED_DIMS', &
-                 value=has_ungrd, RC=STATUS)
             _VERIFY(STATUS)
             call ESMF_AttributeSet(FIELD, NAME='DEFAULT_PROVIDED', &
                  value=defaultProvided, RC=STATUS)
@@ -6443,7 +6392,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     integer                                     :: STAT
     logical                                     :: SATISFIED
     logical                                     :: PARENTIMPORT
-    type (MAPL_ConnectivityWrap)                :: connwrap
     type (MAPL_Connectivity), pointer           :: conn
     type (MAPL_VarConn), pointer                :: CONNECT(:)
     type (MAPL_VarConn), pointer                :: DONOTCONN(:)
@@ -6475,16 +6423,11 @@ recursive subroutine MAPL_WireComponent(GC, RC)
        _RETURN(ESMF_SUCCESS)
     end if
 
-    call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-                                       connwrap, status)
-    if (STATUS == ESMF_FAILURE) then
-       NULLIFY(CONNECT)
-       NULLIFY(DONOTCONN)
-    else
-       conn => connwrap%ptr
-       CONNECT => CONN%CONNECT
-       DONOTCONN => CONN%DONOTCONN
-    end if
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    _VERIFY(STATUS)
+
+    CONNECT => CONN%CONNECT
+    DONOTCONN => CONN%DONOTCONN
 
     NC = size(GCS)
 
@@ -7677,9 +7620,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
     integer                                     :: I
     logical                                     :: err
-    type (MAPL_ConnectivityWrap)          :: connwrap
-    type (MAPL_Connectivity), pointer     :: conn
-
+    type (MAPL_Connectivity), pointer           :: conn
 
 
 !EOP
@@ -7697,19 +7638,8 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     call MAPL_InternalStateRetrieve ( GC, STATE, RC=STATUS )
     _VERIFY(STATUS)
 
-    call ESMF_UserCompGetInternalState(gc, 'MAPL_Connectivity', &
-                                       connwrap, status)
-    if (STATUS == ESMF_FAILURE) then
-       allocate(conn, STAT=STATUS)
-       _VERIFY(STATUS)
-       connwrap%ptr => conn
-       call ESMF_UserCompSetInternalState(gc, 'MAPL_Connectivity', &
-                                          connwrap, status)
-       _VERIFY(STATUS)
-    else
-       conn => connwrap%ptr
-    end if
-
+    conn => state%connectList
+      
     err = .false.
     if (.not. MAPL_ConnCheckUnused(CONN%CONNECT)) then
        err = .true.
@@ -10406,5 +10336,21 @@ end subroutine MAPL_READFORCINGX
       lgr => meta%lgr
       _RETURN(_SUCCESS)
    end subroutine MAPL_GetLogger
+
+   subroutine MAPL_ConnectivityGet(gc, connectivityPtr, RC)
+      type(ESMF_GridComp), intent(inout) :: gc
+      integer, optional, intent(out) :: rc
+      type (MAPL_Connectivity), pointer :: connectivityPtr
+
+      type (MAPL_MetaComp), pointer :: meta
+      integer                       :: status
+      
+      call MAPL_GetObjectFromGC(gc, meta, rc=status)
+      _VERIFY(status)
+
+      connectivityPtr => meta%connectList
+      
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_ConnectivityGet
 
 end module MAPL_GenericMod

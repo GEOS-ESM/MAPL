@@ -1,12 +1,11 @@
 !usage
 !mpirun -np 8 ./pfio_collective_demo.x -nc 4 -nsi 2 -nso 2  -f1 xxx1.nc4 -f2 xxx2.nc4 -v T -s mpi
 !The variable should be 4d with lavel>=20
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module ctest_io_CLI
-   use pFIO_ErrorHandlingMod
-   use pFIO_ThrowMod
+   use MAPL_ExceptionHandling
    use pFIO
    use gFTL_StringVector
    use gFTL_StringIntegerMap
@@ -141,7 +140,7 @@ contains
 end module ctest_io_CLI
 
 module FakeHistData0Mod
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use ctest_io_CLI
    use pFIO
    use gFTL_StringVector
@@ -452,9 +451,8 @@ program main
    use mpi
    use pFIO
    use ctest_io_CLI
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use FakeHistData0Mod
-   use pFIO_ThrowMod
    implicit none
 
    integer :: rank, npes, ierror, provided,required
@@ -657,7 +655,7 @@ program main
       enddo
       call execute_command_line('/bin/rm -f test_in.nc4')
    endif
-
+   call directory_service%free_directory_resources()
    call Mpi_Barrier(MPI_COMM_WORLD,ierror)
    call MPI_finalize(ierror)
 end program main

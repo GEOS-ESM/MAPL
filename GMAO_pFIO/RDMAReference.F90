@@ -1,10 +1,10 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_RDMAReferenceMod
    use, intrinsic :: iso_c_binding, only: c_ptr, c_sizeof
    use, intrinsic :: iso_fortran_env, only: INT64
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_UtilitiesMod
    use pFIO_AbstractDataReferenceMod
    use mpi

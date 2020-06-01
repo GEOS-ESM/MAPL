@@ -1,4 +1,4 @@
-#include "pFIO_ErrLog.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 ! Implements a socket with direct procedure call.
 ! 
@@ -7,7 +7,7 @@
 ! checking completion.
 
 module pFIO_SimpleSocketMod
-   use pFIO_ErrorHandlingMod
+   use MAPL_ExceptionHandling
    use pFIO_AbstractSocketMod
    use pFIO_AbstractMessageMod
    use pFIO_DummyMessageMod

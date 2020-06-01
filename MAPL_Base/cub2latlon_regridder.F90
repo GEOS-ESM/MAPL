@@ -16,7 +16,7 @@
 
 module SupportMod
    use ESMF
-   use MAPL_ThrowMod
+   use MAPL_ExceptionHandling
    use MAPL_BaseMod
    use pFIO
    use MAPL_ConstantsMod
