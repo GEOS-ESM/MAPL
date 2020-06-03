@@ -451,7 +451,7 @@ module MAPL_MemUtilsMod
 !#######################################################################
 
   subroutine MAPL_MemUsed ( memtotal, used, percent_used, RC )
-
+     use MAPL_ErrorHandlingMod, only: MAPL_RTRN
      real, intent(out) :: memtotal, used, percent_used
      integer, optional, intent(OUT  ) :: RC
 

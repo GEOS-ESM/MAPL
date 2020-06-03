@@ -1,4 +1,4 @@
-esma_set_this ()
+esma_set_this (OVERRIDE MAPL.shared)
 
 set (srcs
     hash.c
@@ -18,6 +18,8 @@ set (srcs
     MAPL_Throw.F90
     sort.c
     MAPL_ExceptionHandling.F90
+
+    String.F90
   )
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared pflogger MPI::MPI_Fortran)
 #target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
@@ -31,3 +33,5 @@ target_include_directories (${this} PUBLIC
 #if (PFUNIT_FOUND)
   #add_subdirectory (tests)
 #endif ()
+
+add_subdirectory(tests EXCLUDE_FROM_ALL)

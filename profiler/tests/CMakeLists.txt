@@ -12,12 +12,12 @@ set (TEST_SRCS
 
 
 add_pfunit_ctest (
-  MAPL_Profiler_tests
+  MAPL.profiler.tests
   TEST_SOURCES ${TEST_SRCS}
-  LINK_LIBRARIES MAPL_Profiler
+  LINK_LIBRARIES MAPL.profiler
   MAX_PES 8
   )
   
 
-add_dependencies (tests MAPL_Profiler_tests)
+add_dependencies (tests MAPL.profiler.tests)
 

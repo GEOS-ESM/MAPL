@@ -32,13 +32,13 @@ set (SRCS
 add_library (pfio_extras
   pFIO_Initialize.F90
   )
-target_link_libraries (pfio_extras PUBLIC MAPL_pFUnit MAPL_Shared)
+target_link_libraries (pfio_extras PUBLIC MAPL_pFUnit MAPL.shared)
 
 
-add_pfunit_ctest(pFIO_tests 
+add_pfunit_ctest(MAPL.pfio.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
-                LINK_LIBRARIES GMAO_pFIO pfio_extras 
+                LINK_LIBRARIES MAPL.pfio pfio_extras 
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE pFIO_pFUNIT_Initialize
                 MAX_PES 8
@@ -51,7 +51,7 @@ include_directories(
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/..)
-include_directories(${include_GMAO_pFIO})
+include_directories(${include_MAPL.pfio})
 include_directories(${MAPL_SOURCE_DIR}/include)
 
 
@@ -60,7 +60,7 @@ ecbuild_add_executable (
   TARGET ${TESTO}
   NOINSTALL
   SOURCES pfio_ctest_io.F90
-  LIBS MAPL_Shared GMAO_pFIO ${NETCDF_LIBRARIES} MPI::MPI_Fortran
+  LIBS MAPL.shared MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
 set_target_properties(${TESTO} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 
@@ -91,10 +91,10 @@ ecbuild_add_executable (
   NOINSTALL
   SOURCES pfio_performance.F90
   DEFINITIONS USE_MPI
-  LIBS GMAO_pFIO ${NETCDF_LIBRARIES} MPI::MPI_Fortran)
+  LIBS MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran)
 set_target_properties(${TESTPERF} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
-target_link_libraries(${TESTPERF} GMAO_pFIO ${NETCDF_LIBRARIES})
+target_link_libraries(${TESTPERF} MAPL.pfio ${NETCDF_LIBRARIES})
 
-add_dependencies(tests pFIO_tests)
+add_dependencies(tests MAPL.pfio.tests)
 add_dependencies(tests ${TESTO})
 add_dependencies(tests ${TESTPERF})
