@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added support for sampling along a 1-D timeseries in History
+- Introduced generic subdirectory
+- String.F90 - encapsulates deferred length strings
 
 ### Changed
 
@@ -26,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Update `components.yaml` to use `NOINSTALL`
     - ESMA_cmake v3.0.4
     - ecbuild geos/v1.0.5
+- Renamed directories.   Sub-libraries now named MAPL.<sub>
+  ./MAPL_Base => ./base (MAPL.base)
+  ./GMAO_pFIO => ./pfio  
+  ./MAPL_Profiler => ./profiler
+  ./MAPL_Shared => ./shared  
 
 ### Fixed
 ### Removed
