@@ -134,9 +134,9 @@ contains
                    trim(flags)//C_NULL_char, status_)
     if (present(status)) then
       status=status_
-    else if (status_/=0) then
-
-      stop 'Regex runtime error: regcomp failed.'
+!    else if (status_/=0) then
+!ALT: STOP is not-a-good-idea
+!      stop 'Regex runtime error: regcomp failed.'
     end if
   end subroutine regcomp
   logical function regexec(this,string,matches,flags,status) &
@@ -150,11 +150,11 @@ contains
     integer(C_int) :: status_, matches_(2,1)
     character(len=10,kind=C_char) :: flags_
 ! begin
-    matches = NO_MATCH   !! m.m. added to allow for the extension nmatch > 1
     flags_=' '
     if (present(flags)) flags_=flags
 !    write(*,*) 'calling C, nmatches=',size(matches,2)
     if (present(matches)) then
+      matches = NO_MATCH   !! m.m. added to allow for the extension nmatch > 1
       call C_regexec(this%preg, trim(string)//C_NULL_char, &
                    size(matches,2),matches, &
                    trim(flags_)//C_NULL_char, status_)
@@ -164,10 +164,12 @@ contains
                    trim(flags_)//C_NULL_char, status_)
     end if
     match = status_==0
-    if (present(status)) then
+    if (status_ == 1 ) status_ = 0 ! value "1" is not an error
+   if (present(status)) then
       status=status_
-    else if (status_/=0.and.status_/=1) then
-      stop 'Regex runtime error: regexec failed.'
+!    else if (status_/=0.and.status_/=1) then
+!ALT: STOP is not-a-good-idea
+!      stop 'Regex runtime error: regexec failed.'
     end if
   end function regexec
   function regmatch(match,string,matches)

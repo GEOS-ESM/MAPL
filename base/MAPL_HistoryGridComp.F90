@@ -1323,7 +1323,8 @@ contains
     do n=1,nlist
        do m=1,list(n)%field_set%nfields
           k=1
-          if (scan(trim(list(n)%field_set%fields(1,m)),'()^/*+-')==0)then
+          if (list(n)%regex .or. &
+              scan(trim(list(n)%field_set%fields(1,m)),'()^/*+-')==0)then
              do while ( k.le.nstatelist )
                 if (statelist(k) == '') statelist(k) = list(n)%field_set%fields(2,m)
                 if( statelist(k).ne.list(n)%field_set%fields(2,m)) then
@@ -1402,7 +1403,9 @@ contains
        allocate( list(n)%expSTATE(list(n)%field_set%nfields), stat=status )
        _VERIFY(STATUS)
        do m=1,list(n)%field_set%nfields
-       if (scan(trim(list(n)%field_set%fields(1,m)),'()^/*+-')==0)then
+! when we allow regex; some syntax resembles math expressions
+        if (list(n)%regex .or. &
+            scan(trim(list(n)%field_set%fields(1,m)),'()^/*+-')==0)then
           do k=1,nstatelist
              if( trim(list(n)%field_set%fields(2,m)) .eq. trim(statelist(k)) ) then
                 if (.not. stateListAvail(k)) then
@@ -1412,7 +1415,7 @@ contains
                 list(n)%expSTATE(m) = k
              end if
           enddo
-       endif 
+        endif 
        enddo
     enddo
 
@@ -2658,8 +2661,8 @@ ENDDO PARSER
       integer :: k
       integer :: status
       character(len=ESMF_MAXSTR) :: tmpString
-      character(len=1), parameter :: BOR = "'"
-      character(len=1), parameter :: EOR = "'"
+      character(len=1), parameter :: BOR = "`"
+      character(len=1), parameter :: EOR = "`"
       
       ! and these vars are declared in the caller
       ! fld_set
@@ -2680,12 +2683,12 @@ ENDDO PARSER
 
       if (haveIt) then
          ! search for end-of-regex
-         k = index(tmpString(1:), EOR)
+         k = index(tmpString(2:), EOR)
          _ASSERT(k>1, "No EOR (end-of-regex)")
          ! strip BOR and EOR
-         fld_set%fields(1,m) = tmpStr(2:k)
-         fld_set%fields(3,m) = tmpStr(2:k)
-         regexList(m) = tmpStr(2:k)
+         fld_set%fields(1,m) = tmpString(2:k)
+         fld_set%fields(3,m) = tmpString(2:k)
+         regexList(m) = tmpString(2:k)
       end if
 
 
@@ -2700,21 +2703,26 @@ ENDDO PARSER
       integer, optional, intent(out) :: rc
 
       ! local vars
-      integer :: n, i, count
+      integer :: nitems, i, count
       integer :: status
       character (len=ESMF_MAXSTR), allocatable  :: itemNameList(:)
       type(ESMF_StateItem_Flag),   allocatable  :: itemtypeList(:)
       type(regex_type) :: regex
       logical :: match
+      integer :: nmatches(2, ESMF_MAXSTR)
       character(len=ESMF_MAXSTR), allocatable :: tmpFldNames(:)
 
-      call ESMF_StateGet(state, itemcount=n,  rc=status)
+      call ESMF_StateGet(state, itemcount=nitems,  rc=status)
       _VERIFY(status)
 
-      allocate(itemNameList(n), itemtypeList(n), stat=status)
+      allocate(itemNameList(nitems), itemtypeList(nitems), stat=status)
       _VERIFY(status)
 
-      call regcomp(regex,trim(regexStr),'xmi')
+      call ESMF_StateGet(state,itemNameList=itemNameList,&
+                       itemTypeList=itemTypeList,RC=STATUS)
+    _VERIFY(STATUS)
+      call regcomp(regex,trim(regexStr),'xmi',status=status)
+    _VERIFY(STATUS)
 
       if (.not.allocated(fieldNames)) then
          allocate(fieldNames(0), stat=status)
@@ -2722,18 +2730,23 @@ ENDDO PARSER
       end if
       count = size(fieldNames)
       
-      do i=1,n
+      do i=1,nitems
          if (itemTypeList(i) /= ESMF_STATEITEM_FIELD) cycle
          
-         match = regexec(regex,trim(itemNameList(i)),status=status)
-         _VERIFY(status)
+         match = regexec(regex,trim(itemNameList(i)),nmatches,status=status)
+!non-zero indicate no match         _VERIFY(status)
          if (match) then
+            ! debugging print
+            if (MAPL_AM_I_ROOT()) then
+               print *,'DEBUG:adding field to the list '//trim(itemNameList(i))
+            end if
+
             count = count + 1
             ! logic to grow the list
             allocate(tmpFldNames(count), stat=status)
             _VERIFY(status)
             tmpFldNames(1:count-1) = fieldNames
-            call move_alloc(fieldNames, tmpFldNames)
+            call move_alloc(tmpFldNames, fieldNames)
 
             fieldNames(count) = itemNameList(i)
          end if

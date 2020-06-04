@@ -28,11 +28,7 @@ void C_regexec(const regex_t *preg, const char *string, int nmatch,
                int matches[nmatch][2], const char *flags,
                int *status_return) {
   int i, eflags=0;
-  int j=0;
-  const char * p = string;
   regmatch_t *pmatch;
-  int start;
-  int finish;
   for (i=0;flags[i];i++) {
     switch (flags[i]) {
       case 'b': eflags |= REG_NOTBOL; break;
@@ -41,22 +37,15 @@ void C_regexec(const regex_t *preg, const char *string, int nmatch,
       default: *status_return=-2; return;
     }
   }
-   // Added by Trurl The Constructor
-   // Elkin Arroyo
-   pmatch = malloc(sizeof(regmatch_t));              // m.m. modified
-   for(j=0;j<nmatch;j++) {                           // m.m. modified
-   *status_return = regexec(preg,p,1,pmatch,eflags); // m.m. modified
-   if (status_return[0] == REG_NOMATCH) {            // m.m. modified
-       break;
-   }
-// m.m some lines removed
-   start  = pmatch[0].rm_so + (p - string);
-   finish = pmatch[0].rm_eo + (p - string);
-   matches[j][0]=start;
-   matches[j][1]=finish;
-   p +=  pmatch[0].rm_eo;
+  if (nmatch>0 && sizeof(pmatch->rm_so)!=sizeof(matches[0][0])) {
+    pmatch = malloc(sizeof(regmatch_t)*nmatch);
+    *status_return = regexec(preg,string,nmatch,pmatch,eflags);
+    for (i=0;i<nmatch;i++) {
+      matches[i][0]=pmatch[i].rm_so;
+      matches[i][1]=pmatch[i].rm_eo;
+    }
+    free(pmatch);
+  } else {
+    *status_return = regexec(preg,string,nmatch,(regmatch_t*)&(matches[0][0]),eflags);
   }
-  free(pmatch);
 }
-
-
