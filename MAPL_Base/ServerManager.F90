@@ -22,23 +22,21 @@ module MAPL_ServerManager
       contains
          procedure :: initialize
          procedure :: finalize
-         procedure :: get
+         procedure :: get_splitcomm
    end type
 
 contains
 
-   subroutine get(this, unusable, split_comm, rc)
+   subroutine get_splitcomm(this, split_comm, rc)
       class (ServerManager), intent(inout) :: this
-      class (KeywordEnforcer),  optional, intent(in) :: unusable
-      type(SplitCommunicator), intent(out), optional :: split_comm
+      type(SplitCommunicator), intent(out) :: split_comm
       integer, intent(out), optional :: rc
 
-      _UNUSED_DUMMY(unusable)
 
-      if (present(split_comm)) split_comm=this%split_comm
+      split_comm=this%split_comm
       _RETURN(_SUCCESS)
 
-   end subroutine get
+   end subroutine get_splitcomm
 
    subroutine initialize(this, comm, unusable, application_size, nodes_input_server, nodes_output_server, npes_input_server,npes_output_server, rc)
       class (ServerManager), intent(inout) :: this
