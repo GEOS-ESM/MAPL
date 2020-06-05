@@ -40,6 +40,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
   use MAPL_ioClientsMod, only: io_client, o_Clients
+  use HistoryTrajectoryMod
   !use ESMF_CFIOMOD
 
   implicit none
@@ -266,7 +267,7 @@ contains
     type (HISTORY_STATE), pointer   :: IntState
     type(HISTORY_ExchangeListWrap)  :: lswrap
 
-    type(ESMF_State), pointer      :: export (:)
+    type(ESMF_State), pointer      :: export (:) => null()
     type(ESMF_State), pointer      :: exptmp (:)
     type(ESMF_Time)                :: StartTime
     type(ESMF_Time)                :: CurrTime
@@ -359,6 +360,7 @@ contains
     real                                      :: lvl
 
     integer                                   :: mntly
+    integer                                   :: spltFld
     integer                                   :: unitr, unitw
     integer                                   :: tm,resolution(2)
     logical                                   :: match, contLine
@@ -381,9 +383,8 @@ contains
     integer                        :: tm_default
 
 !   variable for vector handling
-    integer                        :: idx, nvec
+    integer                        :: idx
     character(len=ESMF_MAXSTR)     :: f1copy, f3copy
-    character(len=ESMF_MAXSTR), pointer :: vectorList(:,:) => null() 
 
 !   variables for "backwards" mode
     integer                        :: reverse
@@ -407,11 +408,15 @@ contains
     type(HistoryCollection) :: collection
     character(len=ESMF_MAXSTR) :: cFileOrder
     type(FieldSet), pointer :: field_set
+    type(FieldSet), pointer :: fld_set
+    type(FieldSet), pointer :: newFieldSet => null()
     character(len=:), pointer :: key
     type(StringFieldSetMapIterator) :: field_set_iter
     character(ESMF_MAXSTR) :: field_set_name
     integer :: collection_id
-
+    logical, allocatable :: needSplit(:)
+    type(ESMF_Field), allocatable :: fldList(:)
+    
 ! Begin
 !------
 
@@ -737,6 +742,7 @@ contains
        end if
        
        list(n)%monthly = .false.
+       list(n)%splitField = .false.
 
        cfg = ESMF_ConfigCreate(rc=STATUS)
        _VERIFY(STATUS)
@@ -761,6 +767,10 @@ contains
 	                              label=trim(string) // 'monthly:',rc=status )
        _VERIFY(STATUS)
        list(n)%monthly = (mntly /= 0)
+       call ESMF_ConfigGetAttribute ( cfg, spltFld, default=0, &
+	                              label=trim(string) // 'splitField:',rc=status )
+       _VERIFY(STATUS)
+       list(n)%splitField = (spltFld /= 0)
        call ESMF_ConfigGetAttribute ( cfg, list(n)%frequency, default=060000, &
 	                              label=trim(string) // 'frequency:',rc=status )
        _VERIFY(STATUS)
@@ -818,6 +828,9 @@ contains
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%trackFile, default="", &
                                     label=trim(string) // 'track_file:', rc=status)
+       if (trim(list(n)%trackfile) /= '') list(n)%timeseries_output = .true.
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%recycle_track, default=.false., &
+                                    label=trim(string) // 'recycle_track:', rc=status)
 
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
@@ -853,16 +866,6 @@ contains
        end if
 
        list(n)%field_set => field_set
-
-! Check if field list had a vector pair and collection marked as conservative
-! Abort if this is the case as this is not supported
-! ---------------------------------------------------------------------------
-       if (associated(list(n)%field_set%vector_list)) then
-          if (list(n)%conservative /= 0) then
-             call WRITE_PARALLEL('Can not have a vector pair in a conservative collection')
-             _ASSERT(.false.,'needs informative message')
-          end if
-       end if
 
 ! Get an optional list of output levels
 ! -------------------------------------
@@ -1310,9 +1313,6 @@ contains
 
 
     do n=1,nlist
-       m=list(n)%field_set%nfields
-       allocate(list(n)%r4(m), list(n)%r8(m), list(n)%r8_to_r4(m), stat=status)  
-       _VERIFY(STATUS)
        do m=1,list(n)%field_set%nfields
           k=1
           if (scan(trim(list(n)%field_set%fields(1,m)),'()^/*+-')==0)then
@@ -1351,7 +1351,6 @@ contains
     allocate ( exptmp (size0), stat=status )
     _VERIFY(STATUS)
     exptmp(1) = import
-!    deallocate ( export )
     allocate ( export(nstatelist), stat=status )
     _VERIFY(STATUS)
     errorFound = .false.
@@ -1409,6 +1408,17 @@ contains
        enddo
     enddo
 
+    ! Deal with split 4d field
+    !--------------------------
+    call split4dFields(rc=status)
+    _VERIFY(status)
+
+    do n=1,nlist
+       m=list(n)%field_set%nfields
+       allocate(list(n)%r4(m), list(n)%r8(m), list(n)%r8_to_r4(m), stat=status)  
+       _VERIFY(STATUS)
+    end do
+    
 PARSER: do n=1,nlist
 
        do m=1,list(n)%field_set%nfields
@@ -1572,6 +1582,7 @@ ENDDO PARSER
     enddo
 
     _ASSERT(.not. errorFound,'needs informative message')
+
 
     allocate(INTSTATE%AVERAGE    (nlist), stat=status)
     _VERIFY(STATUS)
@@ -2363,39 +2374,6 @@ ENDDO PARSER
              list(n)%vdata = VerticalData(rc=status)
              _VERIFY(status)
           end if
-          !async = .false.
-          !if (list(n)%format == 'CFIOasync') async = .true.
-          !pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label)) 
-          !call MAPL_CFIOCreate(                        &
-               !MCFIO      = list(n)%MCFIO,             &
-               !NAME       = trim(list(n)%filename),    &
-               !CLOCK      = clock,                     &
-               !BUNDLE     = list(n)%bundle,            &
-               !OFFSET     = IntState%stampoffset(n),   &
-               !INSTITUTION= "NASA Global Modeling and Assimilation Office", &
-               !CONTACT    = "http://gmao.gsfc.nasa.gov", &
-               !EXPID      = IntState%expid,            &
-               !SOURCE     = IntState%expsrc,           &
-               !COMMENT    = IntState%expdsc,           &
-               !OUTPUT_GRID= pgrid,       &
-               !CHUNKSIZE  = list(n)%chunksize,         &
-               !FREQUENCY  = MAPL_nsecf(list(n)%frequency),  &
-               !LEVELS     = list(n)%levels,            &
-               !DESCR      = list(n)%descr,             &
-               !XYOFFSET   = list(n)%xyoffset,          &
-               !VCOORD     = list(n)%VVARS(1),          &
-               !VUNIT      = list(n)%VUNIT,             &
-               !VSCALE     = list(n)%VSCALE,            &
-               !DEFLATE    = list(n)%deflate,           &
-               !NBITS      = list(n)%nbits,             &
-               !NUMCORES   = IntState%CoresPerNode,     &
-               !TM         = TM,                        &
-               !Conservative = list(n)%conservative,    &
-               !async      = async,                     &
-               !vectorList = list(n)%field_set%vector_list,        &
-               !itemOrder  = IntState%fileOrder,       &
-                                             !RC=status )
-          !_VERIFY(STATUS)
           call list(n)%mNewCFIO%set_param(deflation=list(n)%deflate,rc=status)
           _VERIFY(status)
           call list(n)%mNewCFIO%set_param(chunking=list(n)%chunkSize,rc=status)
@@ -2407,16 +2385,24 @@ ENDDO PARSER
           call list(n)%mNewCFIO%set_param(itemOrder=intState%fileOrderAlphabetical,rc=status)
           _VERIFY(status)
           list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n))
-          if (trim(list(n)%output_grid_label)/='') then
-             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label)) 
-             call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,rc=status)
+          if (list(n)%timeseries_output) then
+             list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),rc=status)
+             _VERIFY(status)
+             if (mapl_am_I_root()) write(*,*)'bmaa recycle: ',n,list(n)%recycle_track
+             call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,rc=status)
              _VERIFY(status)
           else
-             call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
-             _VERIFY(status)
+             if (trim(list(n)%output_grid_label)/='') then
+                pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label)) 
+                call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,rc=status)
+                _VERIFY(status)
+             else
+                call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
+                _VERIFY(status)
+             end if
+             collection_id = o_Clients%add_hist_collection(list(n)%mNewCFIO%metadata)
+             call list(n)%mNewCFIO%set_param(write_collection_id=collection_id)
           end if
-          collection_id = o_Clients%add_hist_collection(list(n)%mNewCFIO%metadata)
-          call list(n)%mNewCFIO%set_param(write_collection_id=collection_id)
        end if
    end do
 
@@ -2530,9 +2516,258 @@ ENDDO PARSER
 
     _RETURN(ESMF_SUCCESS)
 
- contains
+  contains
+    subroutine split4dFields(rc)
+      integer, optional, intent(out) :: rc
 
+      ! local vars
+      integer :: status
+      
+      integer, pointer :: newExpState(:) => null()
+      type(newCFIOitemVectorIterator) :: iter
+      type(newCFIOitem), pointer :: item
+      integer :: nfields
+      integer :: nfield4d
+      type(ESMF_Field), pointer :: splitFields(:) => null()
+      type(ESMF_State) :: expState
+      type(newCFIOItemVector), pointer  :: newItems
+      character(ESMF_MAXSTR) :: fldName, stateName
+      logical :: split
+      integer :: k, i
+      
+      ! Restrictions:
+      ! 1) we do not split 4d vectors
+      ! 2) use alias for split-field name base
+      do n = 1, nlist
+         if (.not.list(n)%splitField) cycle
+         fld_set => list(n)%field_set
+         nfields = fld_set%nfields
+         allocate(needSplit(nfields), fldList(nfields), stat=status)
+         _VERIFY(status)
 
+         allocate(newItems, stat=status); _VERIFY(status)
+
+         needSplit = .false.
+       
+         iter = list(n)%items%begin()
+         m = 0 ! m is the "old" field-index
+         split = .false.
+         do while(iter /= list(n)%items%end())
+            item => iter%get()
+            if (item%itemType == ItemTypeScalar) then
+               split = has4dField(fldName=item%xname, rc=status)
+               _VERIFY(status)
+               if (.not.split) call newItems%push_back(item)
+            else if (item%itemType == ItemTypeVector) then
+               ! Lets' not allow 4d split for vectors (at least for now);
+               ! it is easy to implement; just tedious
+
+               split = has4dField(fldName=item%xname, rc=status)
+               _VERIFY(status)
+               split = split.or.has4dField(fldName=item%yname, rc=status)
+               _VERIFY(status)
+               if (.not.split) call newItems%push_back(item)
+             
+               _ASSERT(.not. split, 'vectors of 4d fields not allowed yet')
+             
+            end if
+   
+            call iter%next()
+         end do
+
+         ! re-pack field_set
+         nfield4d = count(needSplit)
+
+         if (nfield4d /= 0) then
+            nfields = nfields - nfield4d
+            allocate(newExpState(nfields), stat=status)
+            _VERIFY(status)
+            ! do the same for statename
+            !create/if_needed newFieldSet (nfields=0;allocate%fields)
+            !          if (associated(newFieldSet%fields)) deallocate(newFieldSet%fields) 
+            !          items = list(n)%items
+            allocate(newFieldSet, stat=status); _VERIFY(status)
+            allocate(fields(4,nfields), stat=status); _VERIFY(status)
+            do k = 1, size(fld_set%fields,1) ! 4
+               fields(k,:) = pack(fld_set%fields(k,:), mask=.not.needSplit)
+            end do
+            newFieldSet%fields => fields
+            newFieldSet%nfields = nfields
+
+            newExpState = pack(list(n)%expState, mask=.not.needSplit)
+
+            ! split and add the splitted fields to the list
+
+            do k = 1, size(needSplit) ! loop over "old" fld_set
+               if (.not. needSplit(k)) cycle
+
+               call MAPL_FieldSplit(fldList(k), splitFields, RC=status)
+               _VERIFY(STATUS)
+               stateName = fld_set%fields(2,k)
+
+               expState = export(list(n)%expSTATE(k))
+
+               do i=1,size(splitFields)
+                  call ESMF_FieldGet(splitFields(i), name=fldName, &
+                       rc=status)
+                  _VERIFY(status)
+
+                  call appendFieldSet(newFieldSet, fldName, &
+                       stateName=stateName, &
+                       aliasName=fldName, &
+                       specialName='', rc=status)
+
+                  _VERIFY(status)
+                  ! append expState
+                  call appendArray(newExpState,idx=list(n)%expState(k),rc=status)
+                  _VERIFY(status)
+
+                  call MAPL_StateAdd(expState, field=splitFields(i), rc=status)
+                  _VERIFY(status)
+
+                  item%itemType = ItemTypeScalar
+                  item%xname = trim(fldName)
+                  item%yname = ''
+
+                  call newItems%push_back(item)
+
+               end do
+
+               deallocate(splitFields)
+               NULLIFY(splitFields)
+            end do
+
+            ! set nfields to ...
+
+            list(n)%field_set => newFieldSet
+            deallocate(list(n)%expState)
+            list(n)%expState => newExpState
+            list(n)%items = newItems
+         end if
+         ! clean-up
+         deallocate(needSplit, fldList)
+      enddo
+
+      _RETURN(ESMF_SUCCESS)
+    end subroutine split4dFields
+
+    function has4dField(fldName, rc) result(have4d)
+      logical :: have4d
+      character(len=*),  intent(in)   :: fldName
+      integer, optional, intent(out) :: rc
+
+      ! local vars
+      integer :: k
+      integer :: fldRank
+      integer :: status
+      type(ESMF_State) :: exp_state
+      type(ESMF_Field) :: fld
+      type(ESMF_FieldStatus_Flag) :: fieldStatus
+      
+      ! and these vars are declared in the caller
+      ! fld_set
+      ! m
+
+      have4d = .false.
+      fldRank = 0
+
+      m = m + 1
+      _ASSERT(fldName == fld_set%fields(3,m), 'Incorrect order') ! we got "m" right
+      
+      k = list(n)%expSTATE(m)
+      exp_state = export(k)
+   
+      call MAPL_StateGet(exp_state,fldName,fld,rc=status )
+      _VERIFY(status)
+
+      call ESMF_FieldGet(fld, status=fieldStatus, rc=status)
+      _VERIFY(STATUS)
+
+      if (fieldStatus /= ESMF_FIELDSTATUS_COMPLETE) then
+         call MAPL_AllocateCoupling(fld, rc=status)
+         _VERIFY(STATUS)
+      end if
+
+      call ESMF_FieldGet(fld,dimCount=fldRank,rc=status)
+      _VERIFY(status)
+
+      _ASSERT(fldRank < 5, "unsupported rank")
+      
+      have4d = (fldRank == 4)
+      if (have4d) then
+         fldList(m) = fld
+      end if
+      needSplit(m) = have4d
+
+      _RETURN(ESMF_SUCCESS)
+     
+    end function has4dField
+
+    subroutine appendArray(array, idx, rc)
+      integer, pointer,  intent(inout)   :: array(:)
+      integer, intent(in) :: idx
+      integer, optional, intent(out) :: rc
+
+     ! local vars
+     integer :: n
+     integer :: k
+     integer :: status
+     integer, pointer :: tmp(:)
+     
+     if (.not.associated(array)) then
+        _RETURN(ESMF_FAILURE)
+     end if
+
+     k = size(array)
+     n = k + 1
+     allocate(tmp(n), stat=status) ; _VERIFY(status)
+     tmp(1:k) = array
+     tmp(n) = idx
+     
+     deallocate(array)
+     array => tmp
+     
+     _RETURN(ESMF_SUCCESS)
+     
+   end subroutine appendArray
+   
+   subroutine appendFieldSet(fldset, fldName, stateName, aliasName, specialName, rc)
+     type(FieldSet),  intent(inout)   :: fldset
+     character(len=*), intent(in) :: fldName, stateName
+     character(len=*), intent(in) :: aliasName, specialName
+     integer, optional, intent(out) :: rc
+     
+     ! local vars
+     integer :: nn, mm
+     integer :: k
+     integer :: status
+     character(len=ESMF_MAXSTR), pointer :: flds(:,:) => null()
+     
+    ! if (.not.associated(fldset%fields)) then
+    !    _RETURN(ESMF_FAILURE)
+    ! end if
+     
+     mm = size(fldset%fields, 1)
+     _ASSERT(mm == 4, 'wrong size for fields')
+     k = size(fldset%fields, 2)
+     nn = k + 1
+     allocate(flds(mm,nn), stat=status) ; _VERIFY(status)
+     flds(:,1:k) = fldset%fields
+     flds(1,nn) = fldName
+     flds(2,nn) = stateName
+     flds(3,nn) = aliasName
+     flds(4,nn) = specialName
+     
+     deallocate( fldSet%fields, stat=status )
+     _VERIFY(STATUS)
+     fldset%fields => flds
+
+     fldSet%nfields = nn
+     
+     _RETURN(ESMF_SUCCESS)
+     
+   end subroutine appendFieldSet
+   
     function extract_unquoted_item(string_list) result(item)
        character(:), allocatable :: item
        character(*), intent(in) :: string_list
@@ -2691,19 +2926,6 @@ ENDDO PARSER
 !     The logic of construction the vectorList is somewhat flawed
 !     it works for vectors with two components (i.e. U;V), 
 !     but ideally should be more general
-                if (.not.associated(field_set%vector_list)) then
-                   allocate(field_set%vector_list(2,0), stat=status)
-                   _VERIFY(STATUS)
-                end if
-                nvec = size(field_set%vector_list,2)
-                allocate(vectorList(2,nvec+1), stat=status)
-                _VERIFY(STATUS)
-                vectorList(:,1:nvec) = field_set%vector_list(:,:)
-                deallocate(field_set%vector_list)
-                nvec = nvec+1
-                vectorList(1,nvec)=export_alias
-                vectorList(2,nvec)=f3copy
-                field_set%vector_list => vectorList
 
                 item%xname = trim(export_alias)
                 item%yname = trim(f3copy)
@@ -2714,7 +2936,7 @@ ENDDO PARSER
 
              end if
           end do VECTORPAIR
-          call items%push_back(item)
+          if(present(items)) call items%push_back(item)
        enddo
        field_set%nfields = m
 
@@ -2754,6 +2976,7 @@ ENDDO PARSER
     character(len=ESMF_MAXSTR)     :: DateStamp
     integer                        :: CollBlock
     type(MAPL_Communicators)       :: mapl_Comm
+    type(ESMF_Time)                :: current_time
 
 !   variables for "backwards" mode
     logical                        :: fwd
@@ -2880,6 +3103,8 @@ ENDDO PARSER
       if (list(n)%disabled .or. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
          list(n)%disabled = .true.
          Writing(n) = .false.
+      else if (list(n)%timeseries_output) then
+         Writing(n) = .true.
       else
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
       endif
@@ -2978,19 +3203,32 @@ ENDDO PARSER
             list(n)%partial = .false.
          endif
 
-         if( list(n)%unit.eq.0 ) then
-            if (list(n)%format == 'CFIO') then
-               call list(n)%mNewCFIO%modifyTime(oClients=o_Clients,rc=status)
+         if (list(n)%timeseries_output) then
+            if (list(n)%unit.eq.0) then
+               if (mapl_am_i_root()) write(6,*)"Sampling to new file: ",trim(filename(n))
+               call list(n)%trajectory%close_file_handle(rc=status)
+               _VERIFY(status)
+               call list(n)%trajectory%create_file_handle(filename(n),rc=status) 
                _VERIFY(status)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
-            else
-               list(n)%unit = GETFILE( trim(filename(n)),all_pes=.true.)
+            end if
+            list(n)%currentFile = filename(n)
+         else
+            if( list(n)%unit.eq.0 ) then
+               if (list(n)%format == 'CFIO') then
+                  call list(n)%mNewCFIO%modifyTime(oClients=o_Clients,rc=status)
+                  _VERIFY(status)
+                  list(n)%currentFile = filename(n)
+                  list(n)%unit = -1
+               else
+                  list(n)%unit = GETFILE( trim(filename(n)),all_pes=.true.)
+               end if
             end if
          end if
 
          if(  MAPL_AM_I_ROOT() ) then
-              if (index(list(n)%format,'flat') == 0 ) &
+              if (index(list(n)%format,'flat') == 0 .and. (.not.list(n)%timeseries_output)) &
               write(6,'(1X,"Writing: ",i6," Slices to File:  ",a)') &
                     list(n)%slices,trim(list(n)%currentFile)
          endif
@@ -3052,29 +3290,31 @@ ENDDO PARSER
             state_out = INTSTATE%GIM(n)
          end if
 
-         IOTYPE: if (list(n)%unit < 0) then    ! CFIO
+         if (.not.list(n)%timeseries_output) then
+            IOTYPE: if (list(n)%unit < 0) then    ! CFIO
 
-            call list(n)%mNewCFIO%bundlepost(list(n)%currentFile,oClients=o_Clients,rc=status)
-            _VERIFY(status)
+               call list(n)%mNewCFIO%bundlepost(list(n)%currentFile,oClients=o_Clients,rc=status)
+               _VERIFY(status)
 
-         else
+            else
 
-            if( INTSTATE%LCTL(n) ) then
-               call MAPL_GradsCtlWrite ( clock, state_out, list(n), &
-                    filename(n), INTSTATE%expid, &
-                    list(n)%descr, intstate%output_grids,rc )
-               INTSTATE%LCTL(n) = .false.
-            endif
+               if( INTSTATE%LCTL(n) ) then
+                  call MAPL_GradsCtlWrite ( clock, state_out, list(n), &
+                       filename(n), INTSTATE%expid, &
+                       list(n)%descr, intstate%output_grids,rc )
+                  INTSTATE%LCTL(n) = .false.
+               endif
 
-            do m=1,list(n)%field_set%nfields
-               call MAPL_VarWrite ( list(n)%unit, STATE=state_out, &
-                    NAME=trim(list(n)%field_set%fields(3,m)), &
-                    forceWriteNoRestart=.true., rc=status )
-               _VERIFY(STATUS)
-            enddo
-            call WRITE_PARALLEL("Wrote GrADS Output for File: "//trim(filename(n)))
+               do m=1,list(n)%field_set%nfields
+                  call MAPL_VarWrite ( list(n)%unit, STATE=state_out, &
+                       NAME=trim(list(n)%field_set%fields(3,m)), &
+                       forceWriteNoRestart=.true., rc=status )
+                  _VERIFY(STATUS)
+               enddo
+               call WRITE_PARALLEL("Wrote GrADS Output for File: "//trim(filename(n)))
 
-         end if IOTYPE
+            end if IOTYPE
+         end if
 
       endif OUTTIME
 
@@ -3106,6 +3346,13 @@ ENDDO PARSER
 
    WRITELOOP: do n=1,nlist
 
+      if (list(n)%timeseries_output) then
+         call ESMF_ClockGet(clock,currTime=current_time,rc=status)
+         _VERIFY(status)
+         call list(n)%trajectory%append_file(current_time,rc=status)
+         _VERIFY(status)
+      end if
+         
       if( Writing(n) .and. list(n)%unit < 0) then
 
          list(n)%unit = -2

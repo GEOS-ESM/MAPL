@@ -7,7 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added support for sampling along a 1-D timeseries in History
+
 ### Changed
+
+- Refactored aliases in python automatic code generator.  Now aliases
+  are tailored per column.  This allows T/F to be safely used as
+  aliases for .true./.false. without risking things like the short
+  name of Temperature.
+- Move to use Baselibs 6.0.13
+  - Update CI to use Baselibs 6.0.13 (GCC 9.3.0)
+  - Update `components.yaml`
+    - ESMA_env v2.1.5
+    - ESMA_cmake v3.0.3
+
 ### Fixed
 ### Removed
 
@@ -16,6 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added new CI test for building GCM on pull request
+
+## [2.1.4] - 2020-05-21
+
+### Fixed
+
+- Initialize pFlogger in `Regrid_Util.x`
 
 ## [2.1.3] - 2020-05-04
 

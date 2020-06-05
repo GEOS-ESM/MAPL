@@ -8,13 +8,13 @@ module MAPL_HistoryCollectionMod
   use MAPL_newCFIOitemVectorMod
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
+  use HistoryTrajectoryMod
   implicit none
   
   private
 
   type, public :: FieldSet
      character(len=ESMF_MAXSTR), pointer :: fields(:,:) => null()
-     character(len=ESMF_MAXSTR), pointer :: vector_list(:,:) => null()
      integer :: nfields = 0
   end type FieldSet
 
@@ -82,6 +82,10 @@ module MAPL_HistoryCollectionMod
      type(newCFIOItemVector)            :: items
      character(len=ESMF_MAXSTR)         :: currentFile
      character(len=ESMF_MAXPATHLEN)     :: trackFile
+     logical                            :: splitField
+     logical                            :: timeseries_output = .false.
+     logical                            :: recycle_track = .false.
+     type(HistoryTrajectory)            :: trajectory
      contains
         procedure :: AddGrid
   end type HistoryCollection

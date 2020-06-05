@@ -15,7 +15,8 @@
    use MAPL_LatLonGridFactoryMod
    use MAPL_ConstantsMod, only: MAPL_PI_R8
    use MAPL_ExceptionHandling
-
+   use MAPL_ApplicationSupport
+ 
    implicit NONE
 
    type(ESMF_RouteHandle) :: regrid_rh
@@ -97,8 +98,8 @@ CONTAINS
     call ESMF_Initialize (LogKindFlag=ESMF_LOGKIND_NONE, vm=vm, rc=STATUS)
     _VERIFY(STATUS)
     call ESMF_VMGet(vm, localPET=myPET, petCount=nPet)
-
-
+    call MAPL_Initialize(__RC__)
+ 
     createdHandle=.false.
     nx=1
     ny=6
@@ -280,6 +281,7 @@ CONTAINS
 !   --------
     call ESMF_VMBarrier(VM,__RC__)
 
+    call MAPL_Finalize(__RC__)
     call MPI_Finalize(status)
 !    call ESMF_Finalize ( rc=status )
 !    _VERIFY(STATUS)

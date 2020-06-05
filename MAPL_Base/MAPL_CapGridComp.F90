@@ -88,6 +88,7 @@ contains
     type(MAPL_CapGridComp_Wrapper) :: cap_wrapper
     type(MAPL_MetaComp), pointer :: meta
     integer :: status, rc
+    character(*), parameter :: cap_name = "CAP"
 
     
     cap%cap_rc_file = cap_rc
@@ -103,10 +104,13 @@ contains
     _VERIFY(STATUS)
 
     allocate(cap%name, source=name)
-    cap%gc = ESMF_GridCompCreate(name='MAPL_CapGridComp', config=cap%config, rc=status)
+    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, rc=status)
     _VERIFY(status)
 
     call MAPL_InternalStateCreate(cap%gc, meta, rc=status)
+    _VERIFY(status)
+
+    call MAPL_Set(meta, name=cap_name, rc=status)
     _VERIFY(status)
 
     cap_wrapper%ptr => cap
@@ -168,7 +172,6 @@ contains
 
 
     type (MAPL_MetaComp), pointer :: maplobj
-    type (MAPL_MetaComp), pointer :: CHILD_MAPLOBJ
     procedure(), pointer :: root_set_services
     type(MAPL_CapGridComp), pointer :: cap
     class(BaseProfiler), pointer :: t_p
@@ -179,7 +182,7 @@ contains
     _UNUSED_DUMMY(clock)
 
     cap => get_CapGridComp_from_gc(gc)
-    call MAPL_InternalStateCreate(gc, maplobj, rc=status)
+    call MAPL_InternalStateRetrieve(gc, maplobj, rc=status)
     _VERIFY(status)
 
     t_p => get_global_time_profiler()
@@ -208,7 +211,7 @@ contains
     ! retrieving this component's logger.
     call MAPL_GetLogger(gc, lgr, rc=status)
     _VERIFY(status)
-    
+
     ! Check if user wants to use node shared memory (default is no)
     !--------------------------------------------------------------
     call MAPL_GetResource(MAPLOBJ, useShmem,  label = 'USE_SHMEM:',  default = 0, rc = status)
@@ -546,14 +549,9 @@ contains
 
        call t_p%start('Initialize')
        call t_p%start(trim(root_name))
-       call MAPL_InternalStateRetrieve(cap%gcs(cap%root_id), CHILD_MAPLOBJ, RC=status)
-       call CHILD_MAPLOBJ%t_profiler%start()
-       call CHILD_MAPLOBJ%t_profiler%start('Intialize')
        call ESMF_GridCompInitialize(cap%gcs(cap%root_id), importState = cap%child_imports(cap%root_id), &
             exportState = cap%child_exports(cap%root_id), clock = cap%clock, userRC = status)
        _VERIFY(status)
-       call CHILD_MAPLOBJ%t_profiler%stop('Intialize')
-       call CHILD_MAPLOBJ%t_profiler%stop()
        call t_p%stop(trim(root_name))
 
        call t_p%start('HIST')
@@ -595,7 +593,6 @@ contains
     integer :: status
     type(HISTORY_ExchangeListWrap) :: lswrap
     integer*8, pointer             :: LSADDR(:) => null()
-    type (MAPL_MetaComp), pointer  :: CHILD_MAPLOBJ
 
     if (present(rc)) rc = ESMF_SUCCESS
     ! All the EXPORTS of the Hierachy are made IMPORTS of History
@@ -615,16 +612,9 @@ contains
     ! Initialize the History
     !------------------------
 
-    call MAPL_InternalStateRetrieve(cap%gcs(cap%history_id), CHILD_MAPLOBJ, RC=status)
-    call CHILD_MAPLOBJ%t_profiler%start()
-    call CHILD_MAPLOBJ%t_profiler%start('Intialize')
-
     call ESMF_GridCompInitialize (CAP%GCS(cap%history_id), importState=CAP%CHILD_IMPORTS(cap%history_id), &
          exportState=CAP%CHILD_EXPORTS(cap%history_id), clock=CAP%CLOCK_HIST, userRC=STATUS )
     _VERIFY(STATUS)
-
-    call CHILD_MAPLOBJ%t_profiler%stop('Intialize')
-    call CHILD_MAPLOBJ%t_profiler%stop()
 
     _RETURN(ESMF_SUCCESS)
   end subroutine initialize_history
@@ -643,7 +633,6 @@ contains
     integer :: i
     type(ESMF_State) :: state, root_imports, component_state
     character(len=:), allocatable :: component_name, field_name
-    type (MAPL_MetaComp), pointer :: CHILD_MAPLOBJ
 
     ! Prepare EXPORTS for ExtData
     ! ---------------------------
@@ -715,17 +704,10 @@ contains
     ! Initialize the ExtData
     !------------------------
 
-    call MAPL_InternalStateRetrieve(cap%gcs(cap%extdata_id), CHILD_MAPLOBJ, RC=status)
-    call CHILD_MAPLOBJ%t_profiler%start()
-    call CHILD_MAPLOBJ%t_profiler%start('Intialize')
-
     call ESMF_GridCompInitialize (cap%gcs(cap%extdata_id), importState = cap%child_imports(cap%extdata_id), &
          exportState = cap%child_exports(cap%extdata_id), & 
          clock = cap%clock, userRc = status)
     _VERIFY(status)
-
-    call CHILD_MAPLOBJ%t_profiler%stop('Intialize')
-    call CHILD_MAPLOBJ%t_profiler%stop()
 
     _RETURN(ESMF_SUCCESS)
 
