@@ -21,6 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Update `components.yaml`
     - ESMA_env v2.1.5
     - ESMA_cmake v3.0.3
+- Updates for JEDI/ecbuild compatibility
+  - Updates to CMake to use `NOINSTALL`
+  - Update `components.yaml` to use `NOINSTALL`
+    - ESMA_cmake v3.0.4
+    - ecbuild geos/v1.0.5
 
 ### Fixed
 ### Removed
