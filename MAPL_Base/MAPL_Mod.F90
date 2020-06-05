@@ -48,6 +48,7 @@ module MAPL_Mod
   use MAPL_SimpleCommSplitterMod
   use MAPL_SplitCommunicatorMod
   use MAPL_EtaHybridVerticalCoordinateMod
+  use MAPL_ApplicationSupport
   logical, save, private :: mapl_is_initialized = .false.
 
 end module MAPL_Mod

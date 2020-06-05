@@ -80,14 +80,14 @@ module MAPL_MemoryProfiler
    public :: MemoryProfiler
    public :: MemoryProfilerIterator
    public :: get_global_memory_profiler
-   public :: initialize
-   public :: finalize
-   public :: start
-   public :: stop
+   public :: initialize_global_memory_profiler
+   public :: finalize_global_memory_profiler
+   public :: start_global_memory_profiler
+   public :: stop_global_memory_profiler
 
 contains
 
-   subroutine initialize(name)
+   subroutine initialize_global_memory_profiler(name)
       character(*), optional, intent(in) :: name
 
       type(MemoryProfiler), pointer :: memory_profiler
@@ -102,20 +102,20 @@ contains
       memory_profiler => get_global_memory_profiler()
       memory_profiler = MemoryProfiler(name_)
 
-   end subroutine initialize
+   end subroutine initialize_global_memory_profiler
 
 
-   subroutine finalize()
+   subroutine finalize_global_memory_profiler()
 
       type(MemoryProfiler), pointer :: memory_profiler
 
       memory_profiler => get_global_memory_profiler()
       call memory_profiler%finalize()
 
-   end subroutine finalize
+   end subroutine finalize_global_memory_profiler
 
 
-   subroutine start(name)
+   subroutine start_global_memory_profiler(name)
       character(*), intent(in) :: name
       
       type(MemoryProfiler), pointer :: memory_profiler
@@ -123,10 +123,10 @@ contains
       memory_profiler => get_global_memory_profiler()
       call memory_profiler%start(name)
 
-   end subroutine start
+   end subroutine start_global_memory_profiler
 
    
-   subroutine stop(name)
+   subroutine stop_global_memory_profiler(name)
       character(*), intent(in) :: name
 
       type(MemoryProfiler), pointer :: memory_profiler
@@ -134,7 +134,7 @@ contains
       memory_profiler => get_global_memory_profiler()
       call memory_profiler%stop(name)
 
-   end subroutine stop
+   end subroutine stop_global_memory_profiler
 
 
 
