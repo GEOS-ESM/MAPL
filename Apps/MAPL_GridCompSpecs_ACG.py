@@ -69,7 +69,8 @@ class MAPL_DataSpec:
             if ungridded:
                 extra_dims = ungridded.strip('][').split(',')
                 extra_rank = len(extra_dims)
-        return ranks[self.args['dims']] + extra_rank
+        dims = MAPL_DataSpec.entry_aliases['dims'][self.args['dims']]
+        return ranks[dims] + extra_rank
         
     def emit_declare_pointers(self):
         text = self.emit_header()
