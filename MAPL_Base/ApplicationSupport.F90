@@ -40,6 +40,7 @@ module MAPL_ApplicationSupport
       _VERIFY(status)
       call start_global_profiler(comm=comm_world,rc=status)
       _VERIFY(status)
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_Initialize
 
