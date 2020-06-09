@@ -8,7 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added "public" for 2 interfaces: ESMFL_Diff, and ESMFL_statistics
+
 - Added support for sampling along a 1-D timeseries in History
+
+- Added ability of MAPL_GridCompGetFrindlies to recurse its children 
 
 ### Changed
 
