@@ -8,11 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added "public" for 2 interfaces: ESMFL_Diff, and ESMFL_statistics
+
 - Added support for sampling along a 1-D timeseries in History
 - Introduced generic subdirectory
 - String.F90 - encapsulates deferred length strings
 - Added target "build-tests" that will build all tests.  This will enable
   ctest to be more selective about which tests.
+
+- Added ability of MAPL_GridCompGetFrindlies to recurse its children 
 
 ### Changed
 - Refactored aliases in python automatic code generator.  Now aliases

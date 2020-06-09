@@ -55,7 +55,6 @@ module ESMFL_MOD
 
   public ESMFL_RegridStore ! only used for regridding using ESMF_FieldRegrid
   public ESMFL_Regrid      
-  public ESMFL_Diff      
   public ESMFL_State2Bundle
   public ESMFL_Bundle2State
   public ESMFL_Bundles2Bundle
@@ -63,6 +62,8 @@ module ESMFL_MOD
   public ESMFL_HALO
   public ESMFL_BundleAddState
   public MAPL_AreaMean
+  public ESMFL_Diff
+  public ESMFL_statistics
   !EOP
 
   ! regridding
