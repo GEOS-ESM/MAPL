@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 ### Fixed
+Fixed logger creation (similar fix was already applied to develop branch to fix issue #397)
 ### Removed
 ### Added
 

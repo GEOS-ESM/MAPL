@@ -88,6 +88,7 @@ contains
     type(MAPL_CapGridComp_Wrapper) :: cap_wrapper
     type(MAPL_MetaComp), pointer :: meta
     integer :: status, rc
+    character(*), parameter :: cap_name = "CAP"
 
     
     cap%cap_rc_file = cap_rc
@@ -103,10 +104,13 @@ contains
     _VERIFY(STATUS)
 
     allocate(cap%name, source=name)
-    cap%gc = ESMF_GridCompCreate(name='MAPL_CapGridComp', config=cap%config, rc=status)
+    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, rc=status)
     _VERIFY(status)
 
     call MAPL_InternalStateCreate(cap%gc, meta, rc=status)
+    _VERIFY(status)
+
+    call MAPL_Set(meta, name=cap_name, rc=status)
     _VERIFY(status)
 
     cap_wrapper%ptr => cap
@@ -179,7 +183,7 @@ contains
     _UNUSED_DUMMY(clock)
 
     cap => get_CapGridComp_from_gc(gc)
-    call MAPL_InternalStateCreate(gc, maplobj, rc=status)
+    call MAPL_InternalStateRetrieve(gc, maplobj, rc=status)
     _VERIFY(status)
 
     t_p => get_global_time_profiler()
