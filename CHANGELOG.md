@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updates for JEDI/ecbuild compatibility
   - Updates to CMake to use `NOINSTALL`
   - Update `components.yaml` to use `NOINSTALL`
-    - ESMA_cmake v3.0.4
+    - ESMA_cmake v3.0.6
     - ecbuild geos/v1.0.5
 - Renamed directories.   Sub-libraries now named MAPL.<sub>
   ./MAPL_Base => ./base (MAPL.base)
