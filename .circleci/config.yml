@@ -36,23 +36,28 @@ jobs:
                cd build
                make -j2 install
          - run:
-            name: Run pFIO Unit tests
+            name: Run MAPL.pfio Unit tests
             command: |
                cd build
-               make -j2 pFIO_tests
-               ctest -R 'pFIO_tests$' --output-on-failure
+               make -j2 MAPL.pfio.tests
+               ctest -R 'MAPL.pfio.tests$' --output-on-failure
          - run:
-            name: Run MAPL_Base Unit tests
+            name: Run MAPL.base Unit tests
             command: |
                cd build
-               make -j2 MAPL_Base_tests
-               ctest -R 'MAPL_Base_tests$' --output-on-failure
+               make -j2 MAPL.base.tests
+               ctest -R 'MAPL.base.tests$' --output-on-failure
          - run:
-            name: Run MAPL_Profiler Unit tests
+            name: Run MAPL.profiler Unit tests
             command: |
                cd build
-               make -j2 MAPL_Profiler_tests
-               ctest -R 'MAPL_Profiler_tests$' --output-on-failure
+               make -j2 MAPL.profiler.tests
+               ctest -R 'MAPL.profiler.tests$' --output-on-failure
+            name: Run MAPL.shared Unit tests
+            command: |
+               cd build
+               make -j2 MAPL.shared.tests
+               ctest -R 'MAPL.shared.tests$' --output-on-failure
    build-GEOSgcm:
       executor: gcc-build-env
       working_directory: /root/project/GCMtest
