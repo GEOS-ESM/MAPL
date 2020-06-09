@@ -7,7 +7,7 @@ set (srcs
   MAPL_pFUnit_Throw.F90
 )  
 
-esma_add_library (${this} EXCLUDE_FROM_ALL SRCS ${srcs})
+esma_add_library (${this} EXCLUDE_FROM_ALL SRCS ${srcs} NOINSTALL)
 
 target_include_directories (${this} PRIVATE ${INC_ESMF})
 target_include_directories (${this} PRIVATE ${INC_NETCDF})

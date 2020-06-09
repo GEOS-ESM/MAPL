@@ -2,6 +2,7 @@
 module MAPL_ApplicationSupport
  use MPI
  use MAPL_ExceptionHandling
+ use MAPL_KeywordEnforcerMod
  use pflogger, only: logging
  use pflogger, only: Logger
  use MAPL_Profiler
@@ -13,38 +14,48 @@ module MAPL_ApplicationSupport
 
  contains
 
-   subroutine MAPL_Initialize(comm,logging_config,rc)
+   subroutine MAPL_Initialize(unusable,comm,logging_config,rc)
+      class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: comm
       character(len=*), optional,intent(in) :: logging_config
       integer, optional, intent(out) :: rc
 
       character(:), allocatable :: logging_configuration_file
       integer :: comm_world,status
-      
+     
+      _UNUSED_DUMMY(unusable)
+
       if (present(logging_config)) then
          logging_configuration_file=logging_config
       else
          logging_configuration_file=''
       end if
       if (present(comm)) then
-         comm_world=comm
+         call MPI_comm_dup(comm,comm_world,status)
+         _VERIFY(status)
       else
          comm_world=MPI_COMM_WORLD
       end if
       call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file,rc=status)
       _VERIFY(status)
-      call start_global_profiler(comm=comm_world)
+      call start_global_profiler(comm=comm_world,rc=status)
+      _VERIFY(status)
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_Initialize
 
-   subroutine MAPL_Finalize(comm,rc)
+   subroutine MAPL_Finalize(unusable,comm,rc)
+      class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: comm
       integer, optional, intent(out) :: rc
 
-      integer :: comm_world
+      integer :: comm_world,status
+
+      _UNUSED_DUMMY(unusable)
       
       if (present(comm)) then
-         comm_world=comm
+         call MPI_comm_dup(comm,comm_world,status)
+         _VERIFY(status)
       else
          comm_world=MPI_COMM_WORLD
       end if
@@ -58,13 +69,14 @@ module MAPL_ApplicationSupport
       call logging%free()
    end subroutine finalize_pflogger
 
-   subroutine initialize_pflogger(comm,logging_config,rc)
+   subroutine initialize_pflogger(unusable,comm,logging_config,rc)
       use pflogger, only: pfl_initialize => initialize
       use pflogger, only: StreamHandler, FileHandler, HandlerVector
       use pflogger, only: MpiLock, MpiFormatter
       use pflogger, only: INFO, WARNING
       use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
 
+      class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: comm
       character(len=*), optional,intent(in) :: logging_config
       integer, optional, intent(out) :: rc
@@ -77,6 +89,7 @@ module MAPL_ApplicationSupport
       integer :: comm_world
       type(Logger), pointer :: lgr
 
+      _UNUSED_DUMMY(unusable)
       if (present(logging_config)) then
          logging_configuration_file=logging_config
       else
@@ -126,12 +139,14 @@ module MAPL_ApplicationSupport
 
    end subroutine initialize_pflogger
 
-   subroutine start_global_profiler(comm,rc)
+   subroutine start_global_profiler(unusable,comm,rc)
+      class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: comm
       integer, optional, intent(out) :: rc
       class (BaseProfiler), pointer :: t_p
       integer :: world_comm,status
 
+      _UNUSED_DUMMY(unusable)
       if (present(comm)) then
          call MPI_Comm_dup(comm,world_comm,status)
          _VERIFY(status)
@@ -150,7 +165,8 @@ module MAPL_ApplicationSupport
       call t_p%stop('All')
    end subroutine stop_global_profiler
 
-   subroutine report_global_profiler(comm,rc)
+   subroutine report_global_profiler(unusable,comm,rc)
+      class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: comm
       integer, optional, intent(out) :: rc
       type (ProfileReporter) :: reporter
@@ -162,6 +178,7 @@ module MAPL_ApplicationSupport
       character(1) :: empty(0)
       class (BaseProfiler), pointer :: t_p
 
+      _UNUSED_DUMMY(unusable)
       if (present(comm)) then
          call MPI_comm_dup(comm,world_comm,ierror)
          _VERIFY(ierror)
