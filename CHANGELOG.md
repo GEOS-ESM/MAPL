@@ -11,9 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for sampling along a 1-D timeseries in History
 - Introduced generic subdirectory
 - String.F90 - encapsulates deferred length strings
+- Added target "build-tests" that will build all tests.  This will enable
+  ctest to be more selective about which tests.
 
 ### Changed
-
 - Refactored aliases in python automatic code generator.  Now aliases
   are tailored per column.  This allows T/F to be safely used as
   aliases for .true./.false. without risking things like the short

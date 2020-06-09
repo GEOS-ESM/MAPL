@@ -18,6 +18,5 @@ add_pfunit_ctest (
   MAX_PES 8
   )
   
-
-add_dependencies (tests MAPL.profiler.tests)
+add_dependencies (build-tests MAPL.profiler.tests)
 

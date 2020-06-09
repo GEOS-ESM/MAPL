@@ -41,6 +41,6 @@ add_pfunit_ctest(MAPL.base.tests
                 MAX_PES 8
                 )
 
-add_dependencies(tests MAPL.base.tests)
+add_dependencies(build-tests MAPL.base.tests)
 
 

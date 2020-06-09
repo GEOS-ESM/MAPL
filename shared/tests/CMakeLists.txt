@@ -8,6 +8,6 @@ add_pfunit_ctest(MAPL.shared.tests
                 LINK_LIBRARIES MAPL.shared
                 )
 
-add_dependencies(tests MAPL.shared.tests)
+add_dependencies(build-tests MAPL.shared.tests)
 
 

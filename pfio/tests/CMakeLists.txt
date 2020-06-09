@@ -74,18 +74,18 @@ endif()
 set(TESTO_FLAGS
   -nc 6 -nsi 6 -nso 6 -ngo 1 -ngi 1 -v T,U )
 add_test(NAME pFIO_tests_mpi
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_BINARY_DIR}/bin/${TESTO} ${TESTO_FLAGS} -s mpi
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${TESTO} ${TESTO_FLAGS} -s mpi
   )
-
 add_test(NAME pFIO_tests_simple
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 24 ${MPIEXEC_PREFLAGS} ${CMAKE_BINARY_DIR}/bin/${TESTO} ${TESTO_FLAGS} -s simple
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 24 ${MPIEXEC_PREFLAGS} ${TESTO} ${TESTO_FLAGS} -s simple
   )
-
 add_test(NAME pFIO_tests_hybrid
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_BINARY_DIR}/bin/${TESTO} ${TESTO_FLAGS} -s hybrid
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${TESTO} ${TESTO_FLAGS} -s hybrid
   )
+set_tests_properties (pFIO_tests_mpi pFIO_tests_simple pFIO_tests_hybrid PROPERTIES LABELS "PERFORMANCE")
 
 set(TESTPERF pfio_performance.x)
+
 ecbuild_add_executable (
   TARGET ${TESTPERF}
   NOINSTALL
@@ -94,7 +94,12 @@ ecbuild_add_executable (
   LIBS MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran)
 set_target_properties(${TESTPERF} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 target_link_libraries(${TESTPERF} MAPL.pfio ${NETCDF_LIBRARIES})
+add_test(NAME pFIO_performance
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${TESTO} ${TESTO_FLAGS} -s hybrid
+  )
+set_tests_properties (pFIO_performance PROPERTIES LABELS "PERFORMANCE")
 
-add_dependencies(tests MAPL.pfio.tests)
-add_dependencies(tests ${TESTO})
-add_dependencies(tests ${TESTPERF})
+add_dependencies(build-tests MAPL.pfio.tests)
+add_dependencies(build-tests ${TESTO})
+add_dependencies(build-tests ${TESTPERF})
+
