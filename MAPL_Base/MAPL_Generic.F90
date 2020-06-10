@@ -10015,11 +10015,12 @@ end subroutine MAPL_READFORCINGX
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_InternalGridSet
 
-  logical function MAPL_RecordAlarmIsRinging(META, RC)
+  logical function MAPL_RecordAlarmIsRinging(META, MODE, RC)
 
 ! !ARGUMENTS:
 
     type (MAPL_MetaComp), intent(inout) :: META
+    integer,              intent(in   ) :: MODE  ! Writing file mode: disk or ram
     integer, optional,    intent(  out) :: RC     ! Error code:
                                                  ! = 0 all is well
                                                  ! otherwise, error
@@ -10041,13 +10042,15 @@ end subroutine MAPL_READFORCINGX
 ! ------------------
     if (associated(META%RECORD)) then
 
-       DO I = 1, size(META%RECORD%ALARM)
-          if ( ESMF_AlarmIsRinging(META%RECORD%ALARM(I), RC=STATUS) ) then
-             _VERIFY(STATUS)
-             MAPL_RecordAlarmIsRinging = .true.
-             exit
+       RECORDLOOP: DO I = 1, size(META%RECORD%ALARM)
+          if ( ESMF_AlarmIsRinging(META%RECORD%ALARM(I), RC=status) ) then
+             _VERIFY(status)
+             if (META%RECORD%FILETYPE(I) == MODE) then
+                MAPL_RecordAlarmIsRinging = .true.
+                exit RECORDLOOP
+             end if
           end if
-       end DO
+       end DO RECORDLOOP
     end if
     _RETURN(ESMF_SUCCESS)
   end function MAPL_RecordAlarmIsRinging
