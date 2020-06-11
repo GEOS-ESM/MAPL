@@ -683,6 +683,11 @@ contains
       integer :: i
       logical :: hasLon, hasLat, hasLongitude, hasLatitude, hasLev,hasLevel,regLat,regLon
       real(kind=REAL64) :: del12,delij
+      
+      integer :: i_min, i_max
+      real(kind=REAL64) :: d_lat, d_lat_temp, extrap_lat
+      logical :: is_valid
+      
       _UNUSED_DUMMY(unusable)
 
       ! Cannot assume that lats and lons are evenly spaced
@@ -774,6 +779,38 @@ contains
         class default
            _ASSERT(.false.)
         end select
+
+
+        ! Check: is this a "mis-specified" pole-centered grid?
+        if (size(this%lat_centers) >= 4) then
+           ! Assume lbound=1 and ubound=size for now
+           i_min = 1 !lbound(this%lat_centers)
+           i_max = size(this%lat_centers) !ubound(this%lat_centers)
+           d_lat = (this%lat_centers(i_max-1) - this%lat_centers(i_min+1))/&
+                    (size(this%lat_centers)-3)
+           is_valid = .True.
+           ! Check: is this a regular grid (i.e. constant spacing away from the poles)?
+           do i=(i_min+1),(i_max-2)
+              d_lat_temp = this%lat_centers(i+1) - this%lat_centers(i)
+              is_valid = (is_valid.and.(abs((d_lat_temp/d_lat)-1.0) < 1.0e-5))
+              if (.not. is_valid) then
+                 exit
+              end if
+           end do
+           if (is_valid) then
+              ! Should the southernmost point actually be at the pole?
+              extrap_lat = this%lat_centers(i_min+1) - d_lat
+              if (extrap_lat <= ((d_lat/20.0)-90.0)) then
+                 this%lat_centers(i_min) = -90.0
+              end if
+              ! Should the northernmost point actually be at the pole?
+              extrap_lat = this%lat_centers(i_max-1) + d_lat
+              if (extrap_lat >= (90.0-(d_lat/20.0))) then
+                 this%lat_centers(i_max) =  90.0
+              end if
+           end if
+        end if
+        
 
          ! Corners are the midpoints of centers (and extrapolated at the
          ! poles for lats.)

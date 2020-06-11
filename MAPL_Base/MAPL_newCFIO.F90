@@ -16,7 +16,7 @@ module MAPL_newCFIOMod
   use pFIO
   use MAPL_newCFIOItemVectorMod
   use MAPL_newCFIOItemMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   use pFIO_ClientManagerMod
   use MAPL_ExtDataCollectionMod
   use MAPL_ExtDataCOllectionManagerMod
@@ -283,6 +283,8 @@ module MAPL_newCFIOMod
            vdims=grid_dims//",time"
         else if (fieldRank==3) then
            vdims=grid_dims//",lev,time"
+        else 
+           _ASSERT(.false., 'Unsupported field rank')
         end if
         v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel)
         call v%add_attribute('units',trim(units))
@@ -351,7 +353,7 @@ module MAPL_newCFIOMod
         end if
 
         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-           call this%vdata%setup_eta_to_pressure(this%regrid_handle,this%output_grid,rc=status)
+           call this%vdata%setup_eta_to_pressure(regrid_handle=this%regrid_handle,output_grid=this%output_grid,rc=status)
            _VERIFY(status)
         end if
 
@@ -363,8 +365,10 @@ module MAPL_newCFIOMod
               _VERIFY(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
               _VERIFY(status)
-              call this%vdata%correct_topo(outField,rc=status)
-              _VERIFY(status)
+              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+                 call this%vdata%correct_topo(outField,rc=status)
+                 _VERIFY(status)
+              end if
               call this%stageData(outField,filename,tIndex, oClients=oClients,rc=status)
               _VERIFY(status)
            else if (item%itemType == ItemTypeVector) then
@@ -372,14 +376,18 @@ module MAPL_newCFIOMod
               _VERIFY(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%xname,field=outField,rc=status)
               _VERIFY(status)
-              call this%vdata%correct_topo(outField,rc=status)
-              _VERIFY(status)
+              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+                 call this%vdata%correct_topo(outField,rc=status)
+                 _VERIFY(status)
+              end if
               call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
               _VERIFY(status)
               call ESMF_FieldBundleGet(this%output_bundle,item%yname,field=outField,rc=status)
               _VERIFY(status)
-              call this%vdata%correct_topo(outField,rc=status)
-              _VERIFY(status)
+              if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
+                 call this%vdata%correct_topo(outField,rc=status)
+                 _VERIFY(status)
+              end if
               call this%stageData(outField,filename,tIndex,oClients=oClients,rc=status)
               _VERIFY(status)
            end if
@@ -464,6 +472,8 @@ module MAPL_newCFIOMod
               call this%regrid_handle%regrid(ptr3d,outPtr3d,rc=status)
               _VERIFY(status)
            end if
+        else
+           _ASSERT(.false.,'rank not supported')
         end if
 
         if (allocated(ptr3d_inter)) deallocate(ptr3d_inter)
@@ -696,6 +706,8 @@ module MAPL_newCFIOMod
          allocate(localStart,source=[gridLocalStart,1,1])
          allocate(globalStart,source=[gridGlobalStart,1,tindex])
          allocate(globalCount,source=[gridGlobalCount,lm,1])
+      else
+         _ASSERT(.false., "Rank not supported")
       end if
       call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)

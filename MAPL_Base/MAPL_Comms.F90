@@ -15,11 +15,10 @@ module MAPL_CommsMod
   use MAPL_BaseMod
   use MAPL_ShmemMod
   use MAPL_ConstantsMod
-  use MAPL_ErrorHandlingMod
+  use MAPL_ExceptionHandling
   implicit none
   private
 
-  public MAPL_Abort
   public MAPL_CommsBcast
   public MAPL_CommsScatterV
   public MAPL_CommsGatherV
@@ -32,6 +31,7 @@ module MAPL_CommsMod
   public MAPL_CommsRecv
   public MAPL_CommsSendRecv
   public MAPL_AM_I_ROOT
+  public MAPL_AM_I_RANK
   public MAPL_NPES
   public ArrayGather
   public ArrayScatter
@@ -78,6 +78,12 @@ module MAPL_CommsMod
   interface MAPL_Am_I_Root
      module procedure MAPL_Am_I_Root_Layout
      module procedure MAPL_Am_I_Root_Vm
+  end interface
+
+  interface MAPL_Am_I_Rank
+     module procedure MAPL_Am_I_Rank_Only
+     module procedure MAPL_Am_I_Rank_Layout
+     module procedure MAPL_Am_I_Rank_Vm
   end interface
 
   interface MAPL_NPES
@@ -247,19 +253,11 @@ module MAPL_CommsMod
     type (ESMF_VM), optional :: VM
     logical                  :: R
 
-    integer        :: deId
-    integer        :: status
-    type (ESMF_VM) :: VM_
-
-    R = .false.
     if (present(VM)) then
-       VM_ = VM
+       R = MAPL_Am_I_Rank(VM)
     else
-       call ESMF_VMGetCurrent(vm_, rc=status)
+       R = MAPL_Am_I_Rank()
     end if
-
-    call ESMF_VMGet(vm_, localPet=deId, rc=status)
-    if (deId == MAPL_Root) R = .true.
 
   end function MAPL_Am_I_Root_Vm
 
@@ -270,10 +268,62 @@ module MAPL_CommsMod
     integer       :: status
     type (ESMF_VM) :: vm
 
-    call ESMF_DELayoutGet(layout, vm=vm, rc=status)
-    R = MAPL_Am_I_Root(vm)
+    R = MAPL_Am_I_Rank(layout)
 
   end function MAPL_Am_I_Root_Layout
+
+
+  function MAPL_Am_I_Rank_Vm(VM, rank) result(R)
+    type (ESMF_VM)    :: VM
+    integer, optional :: rank
+    logical           :: R
+
+    integer        :: deId
+    integer        :: status
+    integer        :: rank_
+
+    rank_ = MAPL_Root
+    if (present(rank)) rank_ = rank
+
+    call ESMF_VMGet(VM, localPet=deId, rc=status)
+    R = .false.
+    if (deId == rank_) R = .true.
+
+  end function MAPL_Am_I_Rank_Vm
+
+  function MAPL_Am_I_Rank_Layout(layout, rank) result(R)
+    type (ESMF_DELayout) :: layout
+    integer, optional    :: rank
+    logical              :: R
+
+    integer       :: status
+    type (ESMF_VM) :: vm
+
+    call ESMF_DELayoutGet(layout, vm=vm, rc=status)
+
+    if (present(rank)) then
+        R = MAPL_Am_I_Rank(vm, rank)
+    else
+        R = MAPL_Am_I_Rank(vm)
+    end if
+
+  end function MAPL_Am_I_Rank_Layout
+
+  function MAPL_Am_I_Rank_Only(rank) result(R)
+    integer, optional :: rank
+    logical           :: R
+
+    integer        :: status
+    type (ESMF_VM) :: vm
+
+    call ESMF_VMGetCurrent(vm, rc=status)
+    if (present(rank)) then
+       R = MAPL_Am_I_Rank(vm, rank)
+    else
+       R = MAPL_Am_I_Rank(vm)
+    end if
+
+  end function
 
 
   subroutine MAPL_CreateRequest(grid, Root, request, tag, RequestType, &
@@ -1455,15 +1505,6 @@ module MAPL_CommsMod
 #define RANK_ 2
 #define VARTYPE_ 4
 #include "sendrecv.H"
-
-    subroutine MAPL_Abort
-   
-   integer :: status 
-   call MPI_Abort(MPI_COMM_WORLD,status)
-    end subroutine MAPL_Abort
-
-!---------------------------
-!---------------------------
 
 !---------------------------
 #define RANK_ 1

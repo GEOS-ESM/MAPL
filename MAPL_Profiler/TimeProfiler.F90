@@ -76,14 +76,14 @@ module MAPL_TimeProfiler
    public :: TimeProfiler
    public :: TimeProfilerIterator
    public :: get_global_time_profiler
-   public :: initialize
-   public :: finalize
-   public :: start
-   public :: stop
+   public :: initialize_global_time_profiler
+   public :: finalize_global_time_profiler
+   public :: start_global_time_profiler
+   public :: stop_global_time_profiler
 
 contains
 
-   subroutine initialize(name)
+   subroutine initialize_global_time_profiler(name)
       character(*), optional, intent(in) :: name
 
       type(TimeProfiler), pointer :: time_profiler
@@ -98,20 +98,20 @@ contains
       time_profiler => get_global_time_profiler()
       time_profiler = TimeProfiler(name_)
 
-   end subroutine initialize
+   end subroutine initialize_global_time_profiler
 
 
-   subroutine finalize()
+   subroutine finalize_global_time_profiler()
 
       type(TimeProfiler), pointer :: time_profiler
 
       time_profiler => get_global_time_profiler()
       call time_profiler%finalize()
 
-   end subroutine finalize
+   end subroutine finalize_global_time_profiler
 
 
-   subroutine start(name)
+   subroutine start_global_time_profiler(name)
       character(*), intent(in) :: name
       
       type(TimeProfiler), pointer :: time_profiler
@@ -119,10 +119,10 @@ contains
       time_profiler => get_global_time_profiler()
       call time_profiler%start(name)
 
-   end subroutine start
+   end subroutine start_global_time_profiler
 
    
-   subroutine stop(name)
+   subroutine stop_global_time_profiler(name)
       character(*), intent(in) :: name
 
       type(TimeProfiler), pointer :: time_profiler
@@ -130,7 +130,7 @@ contains
       time_profiler => get_global_time_profiler()
       call time_profiler%stop(name)
 
-   end subroutine stop
+   end subroutine stop_global_time_profiler
 
 
 end module MAPL_TimeProfiler

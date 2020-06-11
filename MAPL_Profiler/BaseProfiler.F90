@@ -1,9 +1,12 @@
+#include"MAPL_ErrLog.h"
+
 module MAPL_BaseProfiler
    use MAPL_AdvancedMeter
    use MAPL_AbstractMeter
    use MAPL_AbstractMeterNode
    use MAPL_MeterNode
    use MAPL_MeterNodeStack
+   use MAPL_ExceptionHandling
    implicit none
    private
 
@@ -85,9 +88,9 @@ module MAPL_BaseProfiler
 contains
 
 
-   subroutine start_self(this)
+   subroutine start_self(this, rc)
       class(BaseProfiler), target, intent(inout) :: this
-
+      integer, optional, intent(out) :: rc
       class(AbstractMeter), pointer :: t
 
       call this%stack%push_back(this%node)
@@ -98,19 +101,20 @@ contains
            integer :: rank, ierror
            call MPI_Comm_rank(this%comm_world, rank, ierror)
            if (rank == 0) then
-             print*,__FILE__,__LINE__,'nesting start called on self timer'
+             _ASSERT(.false., "Timer "//this%node%get_name()// ' is not a fresh self start')
            end if
          end block
       end if
 
       t => this%node%get_meter()
       call t%start()
-
+      _RETURN(_SUCCESS)
    end subroutine start_self
 
-   subroutine start_name(this, name)
+   subroutine start_name(this, name, rc)
       class(BaseProfiler), target, intent(inout) :: this
       character(*), intent(in) :: name
+      integer, optional, intent(out) :: rc
 
       class(AbstractMeter), pointer :: t
       class(AbstractMeterNode), pointer :: node
@@ -122,7 +126,7 @@ contains
            integer :: rank, ierror
            call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
            if (rank == 0) then
-             print*,'start name should not be empty: ', __FILE__,__LINE__,name
+             _ASSERT(.false., "Timer "//name//' should not start when empty: ')
            end if
          end block
          return
@@ -140,12 +144,14 @@ contains
       t => node%get_meter()
       call t%start()
 
+      _RETURN(_SUCCESS)
    end subroutine start_name
 
 
-   subroutine stop_name(this, name)
+   subroutine stop_name(this, name, rc)
       class(BaseProfiler), intent(inout) :: this
       character(*), intent(in) :: name
+      integer, optional, intent(out) :: rc
 
       class(AbstractMeter), pointer :: t
       class(AbstractMeterNode), pointer :: node
@@ -159,7 +165,7 @@ contains
            integer :: rank, ierror
            call MPI_Comm_rank(this%comm_world, rank, ierror)
            if (rank == 0) then
-             print*,__FILE__,__LINE__,'stop called on non-bottom timer'//name
+             _ASSERT(.false., "Timer "//name// " likely does not find its pair")
            end if
          end block
          return
@@ -167,10 +173,12 @@ contains
       call t%stop()
       call this%stack%pop_back()
 
+      _RETURN(_SUCCESS)
    end subroutine stop_name
 
-   subroutine stop_self(this)
+   subroutine stop_self(this, rc)
       class(BaseProfiler), intent(inout) :: this
+      integer, optional, intent(out) :: rc
 
       class(AbstractMeter), pointer :: t
       class(AbstractMeterNode), pointer :: node
@@ -181,7 +189,7 @@ contains
            integer :: rank, ierror
            call MPI_Comm_rank(this%comm_world, rank, ierror)
            if (rank == 0) then
-             print*,__FILE__,__LINE__,'stop called on self timer'
+             _ASSERT(.false., "There are still something on the stack when stop timer")
            end if
          end block
       end if
@@ -191,6 +199,7 @@ contains
       call t%stop()
       call this%stack%pop_back()
 
+      _RETURN(_SUCCESS)
    end subroutine stop_self
 
 
