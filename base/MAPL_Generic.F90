@@ -124,6 +124,7 @@ module MAPL_GenericMod
   use MAPL_LocStreamMod
   use MAPL_ConfigMod
   use MAPL_ExceptionHandling
+  use MAPL_KeywordEnforcerMod
   use pFlogger, only: logging, Logger
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
@@ -10084,11 +10085,13 @@ end subroutine MAPL_READFORCINGX
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_InternalGridSet
 
-  logical function MAPL_RecordAlarmIsRinging(META, RC)
+  logical function MAPL_RecordAlarmIsRinging(META, unusable, MODE, RC)
 
 ! !ARGUMENTS:
 
     type (MAPL_MetaComp), intent(inout) :: META
+    class (KeywordEnforcer), optional, intent(in) :: unusable
+    integer, optional,    intent(in   ) :: MODE  ! Writing file mode: disk or ram
     integer, optional,    intent(  out) :: RC     ! Error code:
                                                  ! = 0 all is well
                                                  ! otherwise, error
@@ -10100,6 +10103,8 @@ end subroutine MAPL_READFORCINGX
     integer                                     :: STATUS
 
     integer                                     :: I
+    integer                                     :: mode_
+    logical                                     :: modePresent
 !=============================================================================
 
 !  Begin...
@@ -10107,16 +10112,30 @@ end subroutine MAPL_READFORCINGX
     Iam = "MAPL_RecordIsAlarmRinging"
 
     MAPL_RecordAlarmIsRinging  = .false.
+    if (present(MODE)) then
+       mode_ = mode
+       modePresent = .true.
+    else
+       mode_ = MAPL_Write2Disk
+       modePresent = .false.
+    end if
+
 ! ------------------
     if (associated(META%RECORD)) then
 
-       DO I = 1, size(META%RECORD%ALARM)
-          if ( ESMF_AlarmIsRinging(META%RECORD%ALARM(I), RC=STATUS) ) then
-             _VERIFY(STATUS)
-             MAPL_RecordAlarmIsRinging = .true.
-             exit
+       RECORDLOOP: DO I = 1, size(META%RECORD%ALARM)
+          if ( ESMF_AlarmIsRinging(META%RECORD%ALARM(I), RC=status) ) then
+             _VERIFY(status)
+             if (.not. modePresent) then
+                MAPL_RecordAlarmIsRinging = .true.
+                exit RECORDLOOP
+             end if
+             if (META%RECORD%FILETYPE(I) == mode_) then
+                MAPL_RecordAlarmIsRinging = .true.
+                exit RECORDLOOP
+             end if
           end if
-       end DO
+       end DO RECORDLOOP
     end if
     _RETURN(ESMF_SUCCESS)
   end function MAPL_RecordAlarmIsRinging
