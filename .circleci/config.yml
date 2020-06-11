@@ -36,23 +36,11 @@ jobs:
                cd build
                make -j2 install
          - run:
-            name: Run pFIO Unit tests
+            name: Run Unit tests
             command: |
                cd build
-               make -j2 pFIO_tests
-               ctest -R 'pFIO_tests$' --output-on-failure
-         - run:
-            name: Run MAPL_Base Unit tests
-            command: |
-               cd build
-               make -j2 MAPL_Base_tests
-               ctest -R 'MAPL_Base_tests$' --output-on-failure
-         - run:
-            name: Run MAPL_Profiler Unit tests
-            command: |
-               cd build
-               make -j2 MAPL_Profiler_tests
-               ctest -R 'MAPL_Profiler_tests$' --output-on-failure
+               make -j2 build-tests
+               ctest -R MAPL -LE PERFORMANCE --output-on-failure
    build-GEOSgcm:
       executor: gcc-build-env
       working_directory: /root/project/GCMtest
@@ -70,6 +58,8 @@ jobs:
               mepo init
               mepo clone
               mepo checkout ${CIRCLE_BRANCH} MAPL
+              mepo status
+              mepo develop GEOSgcm_GridComp GEOSgcm_App
               mepo status
          - run:
             name: CMake

@@ -39,21 +39,12 @@ jobs:
         run: |
           cd build
           make -j4 install
-      - name: Run pFIO Unit tests
+      - name: Run MAPL unit tests
         run: |
           cd build
-          make -j4 pFIO_tests
-          ctest -R 'pFIO_tests$' --output-on-failure
-      - name: Run MAPL_Base Unit tests
-        run: |
-          cd build
-          make -j4 MAPL_Base_tests
-          ctest -R 'MAPL_Base_tests$' --output-on-failure
-      - name: Run MAPL_Profiler Unit tests
-        run: |
-          cd build
-          make -j4 MAPL_Profiler_tests
-          ctest -R 'MAPL_Profiler_tests$' --output-on-failure
+          make -j4 build-tests
+          # skip performance tests
+          ctest -R MAPL -LE PERFORMANCE --output-on-failure
   build_gcm:
     name: Build GEOSgcm
     runs-on: ubuntu-latest
@@ -82,6 +73,8 @@ jobs:
         run: |
           mepo init
           mepo clone
+          mepo status
+          mepo develop GEOSgcm_GridComp GEOSgcm_App
           mepo status
       - name: Mepo checkout MAPL branch
         run: |
