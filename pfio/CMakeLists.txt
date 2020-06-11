@@ -1,4 +1,4 @@
-esma_set_this ()
+esma_set_this (OVERRIDE MAPL.pfio)
 
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 20)
@@ -84,7 +84,7 @@ set (srcs
   StringVectorUtil.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL_Shared )
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared )
 target_link_libraries (${this} PUBLIC gftl gftl-shared 
                                PRIVATE ${NETCDF_LIBRARIES} OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
 target_include_directories (${this} PUBLIC
@@ -130,7 +130,5 @@ endif ()
 
 
 # Unit testing
-if (PFUNIT_FOUND)
-  add_subdirectory(tests EXCLUDE_FROM_ALL)
-endif ()
+add_subdirectory(tests EXCLUDE_FROM_ALL)
 

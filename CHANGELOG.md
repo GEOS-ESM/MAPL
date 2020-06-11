@@ -11,11 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added "public" for 2 interfaces: ESMFL_Diff, and ESMFL_statistics
 
 - Added support for sampling along a 1-D timeseries in History
+- Introduced generic subdirectory
+- String.F90 - encapsulates deferred length strings
+- Added target "build-tests" that will build all tests.  This will enable
+  ctest to be more selective about which tests.
 
-- Added ability of MAPL_GridCompGetFrindlies to recurse its children 
+- Added ability of MAPL_GridCompGetFriendlies to recurse its children 
 
 ### Changed
-
 - Refactored aliases in python automatic code generator.  Now aliases
   are tailored per column.  This allows T/F to be safely used as
   aliases for .true./.false. without risking things like the short
@@ -28,8 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updates for JEDI/ecbuild compatibility
   - Updates to CMake to use `NOINSTALL`
   - Update `components.yaml` to use `NOINSTALL`
-    - ESMA_cmake v3.0.4
+    - ESMA_cmake v3.0.6
     - ecbuild geos/v1.0.5
+- Renamed directories.   Sub-libraries now named MAPL.<sub>
+  ./MAPL_Base => ./base (MAPL.base)
+  ./GMAO_pFIO => ./pfio  
+  ./MAPL_Profiler => ./profiler
+  ./MAPL_Shared => ./shared  
 
 ### Fixed
 ### Removed
