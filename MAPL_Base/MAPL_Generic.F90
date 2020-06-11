@@ -7204,7 +7204,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
 !....................................................................................
 
-  subroutine MAPL_GridCompGetFriendlies0 ( GC, TO, BUNDLE, AddGCPrefix, RC )
+  recursive subroutine MAPL_GridCompGetFriendlies0 ( GC, TO, BUNDLE, AddGCPrefix, RC )
 
 ! !ARGUMENTS:
 
@@ -7228,7 +7228,8 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     type (ESMF_Field)                     :: FIELD, TempField
     character (len=ESMF_MAXSTR), allocatable  :: itemNameList(:)
     type(ESMF_StateItem_Flag),   allocatable  :: itemtypeList(:)
-    type(ESMF_FieldBundle)                     :: B
+    type(ESMF_FieldBundle)                    :: B
+    type(ESMF_GridComp), pointer              :: GCS(:) => null()
  
     integer                               :: I, N
     integer                               :: J, NF
@@ -7244,7 +7245,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
 ! Get my MAPL_Generic state
 !--------------------------
-
+    
     AddPrefix_ = .false.
     if (present(AddGCPrefix) ) then
        AddPrefix_ = AddGCPrefix
@@ -7253,6 +7254,29 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     call MAPL_InternalStateGet ( GC, STATE, RC=STATUS)
     _VERIFY(STATUS)
 
+    ! Call recursively the children
+    !==============================OB
+    ! as a consequence of some assuptions in CHEM
+    ! we are going to allow recursing ONLY
+    ! when addGCPrefix is passed in and it is set to .true.
+    ! Physics does not pass this agrument
+
+    if (AddPrefix_ .and. associated(state%GCnamelist)) then
+       do I = 1, size(state%GCnamelist)
+          call write_parallel("Executing getFriendlies for " // &
+               trim(state%GCnamelist(I)))
+          call MAPL_GridCompGetFriendlies( state%GCS(I), TO, BUNDLE, &
+               AddGCPrefix, RC=status)
+          _VERIFY(status)
+       end do
+    end if
+
+!    _RETURN(0)
+! now call itself
+
+    if (.not.associated(state%internal_spec)) then
+       _RETURN(ESMF_SUCCESS)
+    end if
     INTERNAL = STATE%INTERNAL
 
     call ESMF_StateGet(INTERNAL, ITEMCOUNT=N,  RC=STATUS)
@@ -7324,14 +7348,14 @@ recursive subroutine MAPL_WireComponent(GC, RC)
                 if (scan(itemNameList(I),"::")==0) then
                   TempField = MAPL_FieldCreate(FIELD, name=(trim(GC_NAME)//'::'//trim(itemNameList(I))), RC=STATUS)
                   _VERIFY(STATUS)
-                  call MAPL_FieldBundleAdd(BUNDLE, TempField, RC=STATUS)
+                  call PutFieldInBundle__(BUNDLE, TempField, RC=STATUS)
                   _VERIFY(STATUS)
                 else
-                  call MAPL_FieldBundleAdd(BUNDLE, FIELD, RC=STATUS )
+                  call PutFieldInBundle__(BUNDLE, FIELD, RC=STATUS )
                   _VERIFY(STATUS)
                 end if
               else
-                call MAPL_FieldBundleAdd(BUNDLE, FIELD, RC=STATUS )
+                call PutFieldInBundle__(BUNDLE, FIELD, RC=STATUS )
                 _VERIFY(STATUS)
             end if ! (AddPrefix_)
           end if
@@ -7354,18 +7378,18 @@ recursive subroutine MAPL_WireComponent(GC, RC)
                  if (scan(fieldname,"::")==0) then
                    TempField = MAPL_FieldCreate(FIELD, name=(trim(GC_NAME)//'::'//trim(fieldname)), RC=STATUS)
                    _VERIFY(STATUS)
-                   call MAPL_FieldBundleAdd(BUNDLE, TempField, RC=STATUS)
+                   call PutFieldInBundle__(BUNDLE, TempField, RC=STATUS)
                    _VERIFY(STATUS)
                  else
                    call MAPL_FieldBundleGet(B,   J,   FIELD,  RC=STATUS)
                    _VERIFY(STATUS)
-                   call MAPL_FieldBundleAdd(BUNDLE, FIELD, RC=STATUS )
+                   call PutFieldInBundle__(BUNDLE, FIELD, RC=STATUS )
                    _VERIFY(STATUS)
                  end if
                else
                  call MAPL_FieldBundleGet(B,   J,   FIELD,  RC=STATUS)
                  _VERIFY(STATUS)
-                 call MAPL_FieldBundleAdd (BUNDLE, FIELD, RC=STATUS )
+                 call PutFieldInBundle__ (BUNDLE, FIELD, RC=STATUS )
                  _VERIFY(STATUS)
                end if ! (AddPrefix_)
              END DO
@@ -7382,14 +7406,14 @@ recursive subroutine MAPL_WireComponent(GC, RC)
                  if (scan(fieldname,"::")==0) then
                    TempField = MAPL_FieldCreate(FIELD, name=(trim(GC_NAME)//'::'//trim(fieldname)), RC=STATUS)
                    _VERIFY(STATUS)
-                   call MAPL_FieldBundleAdd(BUNDLE, TempField, RC=STATUS)
+                   call PutFieldInBundle__(BUNDLE, TempField, RC=STATUS)
                    _VERIFY(STATUS)
                  else
                    call MAPL_FieldBundleGet(B,   J,   FIELD,  RC=STATUS)
                    _VERIFY(STATUS)
                     call Am_I_Friendly_ ( FIELD, TO, RC=STATUS )
                     if(STATUS==ESMF_SUCCESS) then
-                      call MAPL_FieldBundleAdd  (BUNDLE, FIELD, RC=STATUS )
+                      call PutFieldInBundle__  (BUNDLE, FIELD, RC=STATUS )
                       _VERIFY(STATUS)
                     end if
                  end if
@@ -7398,7 +7422,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
                  _VERIFY(STATUS)
                  call Am_I_Friendly_ ( FIELD, TO, RC=STATUS )
                  if(STATUS==ESMF_SUCCESS) then
-                   call MAPL_FieldBundleAdd  (BUNDLE, FIELD, RC=STATUS )
+                   call PutFieldInBundle__  (BUNDLE, FIELD, RC=STATUS )
                    _VERIFY(STATUS)
                  END if
                end if ! (AddPrefix_)
@@ -7418,6 +7442,46 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
   end subroutine MAPL_GridCompGetFriendlies0
 
+  subroutine PutFieldInBundle__(Bundle, Field, multiflag, RC)
+    type(ESMF_FieldBundle),  intent(inout) :: Bundle
+    type(ESMF_Field),  intent(in   ) :: Field
+    logical, optional, intent(in   ) :: multiflag
+    integer, optional, intent(  out) :: rc
+
+! ErrLog vars
+    integer                   :: STATUS
+
+    ! Local var
+    integer                   :: DIMS, I
+    integer                   :: fieldRank
+    type(ESMF_Field), pointer :: splitFields(:) => null()
+    
+    call ESMF_FieldGet(FIELD, dimCount=fieldRank, rc=status)
+    _VERIFY(status)
+    if (fieldRank == 4) then
+       call ESMF_AttributeGet(FIELD, NAME='DIMS', VALUE=DIMS, rc=status)
+       _VERIFY(status)
+       if (DIMS == MAPL_DimsHorzVert) then
+          call MAPL_FieldSplit(field, splitFields, RC=status)
+          _VERIFY(STATUS)
+
+          do I=1, size(splitFields)
+             call MAPL_FieldBundleAdd(BUNDLE, splitFields(I), rc=status )
+             _VERIFY(status)
+          end do
+          deallocate(splitFields)
+       else
+          call MAPL_FieldBundleAdd(BUNDLE, FIELD, rc=status )
+          _VERIFY(status)
+       end if
+    else
+       call MAPL_FieldBundleAdd(BUNDLE, FIELD, rc=status )
+       _VERIFY(status)
+    end if
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine PutFieldInBundle__
+  
    subroutine Am_I_Friendly_ ( FIELD, TO, RC ) 
      type(ESMF_Field),  intent(INout)  :: FIELD
      character(len=*),  intent(IN)  :: TO(:)
@@ -7458,7 +7522,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
    end subroutine Am_I_Friendly__
 
 
-  subroutine MAPL_GridCompGetFriendlies1 ( GC, TO, BUNDLE, AddGCPrefix, RC )
+   subroutine MAPL_GridCompGetFriendlies1 ( GC, TO, BUNDLE, AddGCPrefix, RC )
 
 ! !ARGUMENTS:
 
