@@ -8,11 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-Added MODE argument to MAPL_RecordAlarmIsNeeded. This is in sync with "yuri-s2s3-unstable-SLES12" CVS tag. Needed for "dual ocean"
 ### Fixed
-Fixed logger creation (similar fix was already applied to develop branch to fix issue #397)
 ### Removed
 ### Added
+
+## [2.1.5] - 2020-06-11
+
+### Changed
+
+- Added MODE argument to MAPL_RecordAlarmIsNeeded. This is in sync with "yuri-s2s3-unstable-SLES12" CVS tag. Needed for "dual ocean"
+
+### Fixed
+
+- Fixed logger creation (similar fix was already applied to develop branch to fix issue #397)
 
 ## [2.1.4] - 2020-05-21
 
