@@ -32,13 +32,13 @@ set (SRCS
 add_library (pfio_extras
   pFIO_Initialize.F90
   )
-target_link_libraries (pfio_extras PUBLIC MAPL_pFUnit MAPL_Shared)
+target_link_libraries (pfio_extras PUBLIC MAPL_pFUnit MAPL.shared)
 
 
-add_pfunit_ctest(pFIO_tests 
+add_pfunit_ctest(MAPL.pfio.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
-                LINK_LIBRARIES GMAO_pFIO pfio_extras 
+                LINK_LIBRARIES MAPL.pfio pfio_extras 
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE pFIO_pFUNIT_Initialize
                 MAX_PES 8
@@ -51,16 +51,16 @@ include_directories(
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/..)
-include_directories(${include_GMAO_pFIO})
+include_directories(${include_MAPL.pfio})
 include_directories(${MAPL_SOURCE_DIR}/include)
 
 
 set(TESTO pfio_ctest_io.x)
 ecbuild_add_executable (
   TARGET ${TESTO}
-  PROPERTIES EXCLUDE_FROM_ALL=TRUE
+  NOINSTALL
   SOURCES pfio_ctest_io.F90
-  LIBS MAPL_Shared GMAO_pFIO ${NETCDF_LIBRARIES} MPI::MPI_Fortran
+  LIBS MAPL.shared MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
 set_target_properties(${TESTO} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 
@@ -74,27 +74,32 @@ endif()
 set(TESTO_FLAGS
   -nc 6 -nsi 6 -nso 6 -ngo 1 -ngi 1 -v T,U )
 add_test(NAME pFIO_tests_mpi
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_BINARY_DIR}/bin/${TESTO} ${TESTO_FLAGS} -s mpi
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${TESTO} ${TESTO_FLAGS} -s mpi
   )
-
 add_test(NAME pFIO_tests_simple
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 24 ${MPIEXEC_PREFLAGS} ${CMAKE_BINARY_DIR}/bin/${TESTO} ${TESTO_FLAGS} -s simple
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 24 ${MPIEXEC_PREFLAGS} ${TESTO} ${TESTO_FLAGS} -s simple
   )
-
 add_test(NAME pFIO_tests_hybrid
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_BINARY_DIR}/bin/${TESTO} ${TESTO_FLAGS} -s hybrid
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${TESTO} ${TESTO_FLAGS} -s hybrid
   )
+set_tests_properties (pFIO_tests_mpi pFIO_tests_simple pFIO_tests_hybrid PROPERTIES LABELS "PERFORMANCE")
 
 set(TESTPERF pfio_performance.x)
+
 ecbuild_add_executable (
   TARGET ${TESTPERF}
-  PROPERTIES EXCLUDE_FROM_ALL=TRUE
+  NOINSTALL
   SOURCES pfio_performance.F90
   DEFINITIONS USE_MPI
-  LIBS GMAO_pFIO ${NETCDF_LIBRARIES} MPI::MPI_Fortran)
+  LIBS MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran)
 set_target_properties(${TESTPERF} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
-target_link_libraries(${TESTPERF} GMAO_pFIO ${NETCDF_LIBRARIES})
+target_link_libraries(${TESTPERF} MAPL.pfio ${NETCDF_LIBRARIES})
+add_test(NAME pFIO_performance
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${TESTO} ${TESTO_FLAGS} -s hybrid
+  )
+set_tests_properties (pFIO_performance PROPERTIES LABELS "PERFORMANCE")
 
-add_dependencies(tests pFIO_tests)
-add_dependencies(tests ${TESTO})
-add_dependencies(tests ${TESTPERF})
+add_dependencies(build-tests MAPL.pfio.tests)
+add_dependencies(build-tests ${TESTO})
+add_dependencies(build-tests ${TESTPERF})
+

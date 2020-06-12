@@ -1,4 +1,4 @@
-esma_set_this ()
+esma_set_this (OVERRIDE MAPL.base)
 
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 20)
@@ -46,7 +46,7 @@ c_mapl_locstream_F.c  getrss.c  memuse.c
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL_Shared MAPL_Profiler GMAO_pFIO MAPL_cfio_r4 pflogger gftl-shared FLAP::FLAP MPI::MPI_Fortran)
+  DEPENDENCIES MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 pflogger gftl-shared FLAP::FLAP MPI::MPI_Fortran)
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 if(DISABLE_GLOBAL_NAME_WARNING)
    target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${DISABLE_GLOBAL_NAME_WARNING}>)
@@ -62,11 +62,11 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
 endforeach()
 
 ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90)
-target_link_libraries (cub2latlon.x ${this} GMAO_pFIO ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
+target_link_libraries (cub2latlon.x ${this} MAPL.pfio ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
 set_target_properties (cub2latlon.x PROPERTIES Fortran_MODULE_DIRECTORY ${esma_include}/${this} LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 
 ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util.F90)
-target_link_libraries (Regrid_Util.x ${this} GMAO_pFIO ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
+target_link_libraries (Regrid_Util.x ${this} MAPL.pfio ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
 set_target_properties (Regrid_Util.x PROPERTIES Fortran_MODULE_DIRECTORY ${esma_include}/${this} LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 
 if (EXTENDED_SOURCE)
@@ -77,15 +77,6 @@ endif()
 #--------------------
 target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF})
 target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES})
-
-#--------------------
-# Copy include files that are used by other libraries.
-# We could leave these in the source directory, and just broaden the search path
-# in the other libaries, but this make it explicit which aspects are externally
-# used.
-
-file (COPY mapl_acg.pl DESTINATION ${esma_include}/${this})
-file (COPY mapl_stub.pl DESTINATION ${esma_include}/${this})
 
 # Users guide 
 if (LATEX_FOUND)
