@@ -3009,7 +3009,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
           if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
        endif
      else
-       print*, "WARNING: rank=1 field not implmented yet"
+       if (MAPL_AM_I_Root()) print*, "WARNING: rank=1 field not implmented yet"
        cycle
      end if
 
@@ -3293,7 +3293,7 @@ CONTAINS
 
    if(itemcount==0) then
       !call ESMFL_FailedRC(mype,Iam//': ESMF_state is empty')
-      print*, "WARNING: "//Iam//': ESMF_state is empty'
+      if (MAPL_AM_I_Root()) print*, "WARNING: "//Iam//': ESMF_state is empty'
       _RETURN(_SUCCESS)
    end if
 
@@ -3309,7 +3309,7 @@ CONTAINS
    do i=1,itemcount
       if(itemtypelist(i)/=ESMF_STATEITEM_FIELD) then
         !call ESMFL_FailedRC(mype,Iam//': State item is not a field.')
-        print*, "WARNING: "//Iam//':  State item is not a field'
+        if (MAPL_AM_I_Root()) print*, "WARNING: "//Iam//':  State item is not a field'
       end if
    end do
 
@@ -3326,7 +3326,7 @@ CONTAINS
       do i=1,itemcount
          if(itemtypelist(i)/=ESMF_STATEITEM_FIELD) then
           ! call ESMFL_FailedRC(mype,Iam//': State item is not a field.')
-           print*, "WARNING: "//Iam//':  State item is not a field'
+            if (MAPL_AM_I_Root()) print*, "WARNING: "//Iam//':  State item is not a field'
          end if
       end do
       call State2Bundle (dstSTA, dstBun)
