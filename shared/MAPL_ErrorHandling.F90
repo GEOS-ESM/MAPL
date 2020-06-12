@@ -13,34 +13,34 @@ module MAPL_ErrorHandlingMod
    public :: MAPL_abort
 
 
-   public :: UNKNOWN_ERROR
-   public :: SUCCESS
+   public :: MAPL_UNKNOWN_ERROR
+   public :: MAPL_SUCCESS
 
-   public :: NO_SUCH_PROPERTY
-   public :: NO_SUCH_VARIABLE
-   public :: TYPE_MISMATCH
-   public :: UNSUPPORTED_TYPE
-   public :: VALUE_NOT_SUPPORTED
+   public :: MAPL_NO_SUCH_PROPERTY
+   public :: MAPL_NO_SUCH_VARIABLE
+   public :: MAPL_TYPE_MISMATCH
+   public :: MAPL_UNSUPPORTED_TYPE
+   public :: MAPL_VALUE_NOT_SUPPORTED
 
-   public :: NO_DEFAULT_VALUE
-   public :: DUPLICATE_KEY
-   public :: STRING_TOO_SHORT
+   public :: MAPL_NO_DEFAULT_VALUE
+   public :: MAPL_DUPLICATE_KEY
+   public :: MAPL_STRING_TOO_SHORT
 
    enum, bind(c)
-      enumerator :: UNKNOWN_ERROR = -1
-      enumerator :: SUCCESS       = 0
+      enumerator :: MAPL_UNKNOWN_ERROR = -1
+      enumerator :: MAPL_SUCCESS       = 0
 
       ! 001-005
-      enumerator :: NO_SUCH_PROPERTY
-      enumerator :: NO_SUCH_VARIABLE
-      enumerator :: TYPE_MISMATCH
-      enumerator :: UNSUPPORTED_TYPE
-      enumerator :: VALUE_NOT_SUPPORTED
+      enumerator :: MAPL_NO_SUCH_PROPERTY
+      enumerator :: MAPL_NO_SUCH_VARIABLE
+      enumerator :: MAPL_TYPE_MISMATCH
+      enumerator :: MAPL_UNSUPPORTED_TYPE
+      enumerator :: MAPL_VALUE_NOT_SUPPORTED
 
       ! 006-010
-      enumerator :: NO_DEFAULT_VALUE
-      enumerator :: DUPLICATE_KEY
-      enumerator :: STRING_TOO_SHORT
+      enumerator :: MAPL_NO_DEFAULT_VALUE
+      enumerator :: MAPL_DUPLICATE_KEY
+      enumerator :: MAPL_STRING_TOO_SHORT
    end enum
 
 interface MAPL_VRFY
@@ -213,7 +213,7 @@ contains
      if (error_messages%count(error_code) > 0) then
         description = error_messages%at(error_code)
      else
-        description = error_messages%at(UNKNOWN_ERROR)
+        description = error_messages%at(MAPL_UNKNOWN_ERROR)
      end if
 
   contains
@@ -223,18 +223,18 @@ contains
         !$OMP serial
         if (.not. initialized) then
            initialized = .true.
-           call error_messages%insert(UNKNOWN_ERROR, 'unknown error')
-           call error_messages%insert(SUCCESS, 'success')
+           call error_messages%insert(MAPL_UNKNOWN_ERROR, 'unknown error')
+           call error_messages%insert(MAPL_SUCCESS, 'success')
 
-           call error_messages%insert(NO_SUCH_PROPERTY, 'no such property')
-           call error_messages%insert(NO_SUCH_VARIABLE, 'no such variable')
-           call error_messages%insert(TYPE_MISMATCH,    'passed argument does match expected type')
-           call error_messages%insert(UNSUPPORTED_TYPE, 'provided data type is not supported by this subclass')
-           call error_messages%insert(VALUE_NOT_SUPPORTED, 'provided value is not supported by this subclass')
+           call error_messages%insert(MAPL_NO_SUCH_PROPERTY, 'no such property')
+           call error_messages%insert(MAPL_NO_SUCH_VARIABLE, 'no such variable')
+           call error_messages%insert(MAPL_TYPE_MISMATCH,    'passed argument does match expected type')
+           call error_messages%insert(MAPL_UNSUPPORTED_TYPE, 'provided data type is not supported by this subclass')
+           call error_messages%insert(MAPL_VALUE_NOT_SUPPORTED, 'provided value is not supported by this subclass')
 
-           call error_messages%insert(NO_DEFAULT_VALUE, 'no default value has been provided for this property')
-           call error_messages%insert(DUPLICATE_KEY, 'map container already has the specified key')
-           call error_messages%insert(STRING_TOO_SHORT, 'fixed length string is not long enough to contain requested data')
+           call error_messages%insert(MAPL_NO_DEFAULT_VALUE, 'no default value has been provided for this property')
+           call error_messages%insert(MAPL_DUPLICATE_KEY, 'map container already has the specified key')
+           call error_messages%insert(MAPL_STRING_TOO_SHORT, 'fixed length string is not long enough to contain requested data')
         end if
         !$OMP end serial
      end subroutine initialize_err
