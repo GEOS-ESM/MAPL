@@ -1,4 +1,3 @@
-! $Id$
 
 #ifdef NAME_
 #undef NAME_
@@ -32,9 +31,9 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
  integer                :: USABLE_UNIT
  integer                :: IOSTAT
  integer                :: status
- character(len=ESMF_MAXSTR) :: IAM='READ_PARALLEL'
 #if (RANK_ == 1 && VARTYPE_ == 4)
  integer                               :: nretries
+ character(len=ESMF_MAXSTR) :: IAM='READ_PARALLEL'
 #endif
 
  if(present(arrdes)) then

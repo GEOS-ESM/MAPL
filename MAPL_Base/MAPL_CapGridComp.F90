@@ -6,6 +6,7 @@ module MAPL_CapGridCompMod
   use MAPL_ErrorHandlingMod
   use MAPL_BaseMod
   use MAPL_ConstantsMod
+  use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler, get_global_memory_profiler
   use MAPL_ProfMod
   use MAPL_MemUtilsMod
   use MAPL_IOMod
@@ -23,6 +24,7 @@ module MAPL_CapGridCompMod
   use MAPL_DirPathMod
   use pFIO
   use gFTL_StringVector
+  use pflogger, only: logging, Logger
 
   use iso_fortran_env
   
@@ -30,7 +32,6 @@ module MAPL_CapGridCompMod
   private
 
   character(*), parameter :: internal_cap_name = "InternalCapGridComp"
-  character(*), parameter :: internal_meta_comp_name = "InternalCapMetaComp"
 
   public :: MAPL_CapGridComp, MAPL_CapGridCompCreate, MAPL_CapGridComp_Wrapper
 
@@ -42,7 +43,7 @@ module MAPL_CapGridCompMod
      type (MAPL_Communicators)     :: mapl_comm
 !!$     integer     :: mapl_comm
      integer :: nsteps, heartbeat_dt, perpetual_year, perpetual_month, perpetual_day
-     logical :: amiroot, lperp
+     logical :: amiroot, lperp, started_loop_timer
      integer :: extdata_id, history_id, root_id, printspec
      type(ESMF_Clock) :: clock, clock_hist
      type(ESMF_Config) :: cf_ext, cf_root, cf_hist, config
@@ -69,10 +70,6 @@ module MAPL_CapGridCompMod
      type(MAPL_CapGridComp), pointer :: ptr => null()
   end type MAPL_CapGridComp_Wrapper
 
-  type :: MAPL_MetaComp_Wrapper
-     type(MAPL_MetaComp), pointer :: ptr => null()
-  end type MAPL_MetaComp_Wrapper
-
   include "mpif.h"
 
   character(len=*), parameter :: Iam = __FILE__
@@ -89,8 +86,9 @@ contains
     character(len=*), optional, intent(in) :: final_file
 
     type(MAPL_CapGridComp_Wrapper) :: cap_wrapper
-    type(MAPL_MetaComp_Wrapper) :: meta_comp_wrapper
+    type(MAPL_MetaComp), pointer :: meta
     integer :: status, rc
+    character(*), parameter :: cap_name = "CAP"
 
     
     cap%cap_rc_file = cap_rc
@@ -100,18 +98,25 @@ contains
        allocate(cap%final_file, source=final_file)
     end if
 
-    allocate(cap%name, source=name)
+    cap%config = ESMF_ConfigCreate(rc=status)
+    _VERIFY(status)
+    call ESMF_ConfigLoadFile(cap%config,cap%cap_rc_file,rc=STATUS)
+    _VERIFY(STATUS)
 
-    cap%gc = ESMF_GridCompCreate(name='MAPL_CapGridComp', rc=status)
+    allocate(cap%name, source=name)
+    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, rc=status)
+    _VERIFY(status)
+
+    call MAPL_InternalStateCreate(cap%gc, meta, rc=status)
+    _VERIFY(status)
+
+    call MAPL_Set(meta, name=cap_name, rc=status)
     _VERIFY(status)
 
     cap_wrapper%ptr => cap
     call ESMF_UserCompSetInternalState(cap%gc, internal_cap_name, cap_wrapper, status)
     _VERIFY(status)
 
-    allocate(meta_comp_wrapper%ptr)
-    call ESMF_UserCompSetInternalState(cap%gc, internal_meta_comp_name, meta_comp_wrapper, status)
-    _VERIFY(status)
   end subroutine MAPL_CapGridCompCreate
 
 
@@ -166,16 +171,22 @@ contains
     logical                      :: tend,foundPath
 
 
-    type (MAPL_MetaComp), pointer :: MAPLOBJ
+    type (MAPL_MetaComp), pointer :: maplobj
+    type (MAPL_MetaComp), pointer :: CHILD_MAPLOBJ
     procedure(), pointer :: root_set_services
     type(MAPL_CapGridComp), pointer :: cap
+    class(BaseProfiler), pointer :: t_p
+    class(Logger), pointer :: lgr
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
 
     cap => get_CapGridComp_from_gc(gc)
-    maplobj => get_MetaComp_from_gc(gc) 
+    call MAPL_InternalStateRetrieve(gc, maplobj, rc=status)
+    _VERIFY(status)
+
+    t_p => get_global_time_profiler()
 
     call ESMF_GridCompGet(gc, vm = cap%vm, rc = status)
     _VERIFY(status)
@@ -191,23 +202,17 @@ contains
 
     cap%AmIRoot = AmIRoot_
 
-    !  Open the CAP's configuration from CAP.rc
-    !------------------------------------------
-
-    cap%config = ESMF_ConfigCreate(rc = status)
-    _VERIFY(status)
-
-    call ESMF_ConfigLoadFile(cap%config, cap%cap_rc_file, rc = status)
-    _VERIFY(status)
-
     !  CAP's MAPL MetaComp
     !---------------------
     call MAPL_Set(MAPLOBJ, mapl_comm = cap%mapl_Comm, rc = status)
     _VERIFY(STATUS)
 
-    call MAPL_Set(MAPLOBJ, name = cap%name, cf = cap%config, rc = status)
+    ! Note the call to GetLogger must be _after_ the call to MAPL_Set().
+    ! That call establishes the name of this component which is used in
+    ! retrieving this component's logger.
+    call MAPL_GetLogger(gc, lgr, rc=status)
     _VERIFY(status)
-
+    
     ! Check if user wants to use node shared memory (default is no)
     !--------------------------------------------------------------
     call MAPL_GetResource(MAPLOBJ, useShmem,  label = 'USE_SHMEM:',  default = 0, rc = status)
@@ -281,11 +286,9 @@ contains
     endif
 
     if (cap%lperp) then
-       if (AmIRoot_) then
-          if (cap%perpetual_year  /= -999 ) print *, 'Using Perpetual  Year: ', cap%perpetual_year
-          if (cap%perpetual_month /= -999 ) print *, 'Using Perpetual Month: ', cap%perpetual_month
-          if (cap%perpetual_day   /= -999 ) print *, 'Using Perpetual   Day: ', cap%perpetual_day
-       endif
+       if (cap%perpetual_year  /= -999) call lgr%info('Using Perpetual  Year: %i0', cap%perpetual_year)
+       if (cap%perpetual_month /= -999) call lgr%info('Using Perpetual Month: %i0', cap%perpetual_month)
+       if (cap%perpetual_day   /= -999) call lgr%info('Using Perpetual   Day: %i0', cap%perpetual_day)
 
        call ESMF_ClockGet(cap%clock, name = clockname, rc = status)
        clockname = trim(clockname) // '_PERPETUAL'
@@ -360,6 +363,7 @@ contains
        call MAPL_TimerModeSet(timerMode, RC=status)
        _VERIFY(status)
     end if
+    cap%started_loop_timer=.false.
 
     enableMemUtils = ESMF_UtilStringUpperCase(enableMemUtils, rc=STATUS)
     _VERIFY(STATUS)
@@ -402,11 +406,8 @@ contains
     call ESMF_ConfigGetAttribute(cap%cf_root, value=RUN_DT, Label="RUN_DT:", rc=status)
     if (STATUS == ESMF_SUCCESS) then
        if (heartbeat_dt /= run_dt) then
-          if (AmIRoot_) then
-             print *, "ERROR: inconsistent values of HEARTBEAT_DT and RUN_DT"
-          end if
-          call ESMF_VMBarrier(CAP%VM)
-          _RETURN(ESMF_FAILURE)
+          call lgr%error('inconsistent values of HEARTBEAT_DT (%g0) and root RUN_DT (%g0)', heartbeat_dt, run_dt)
+          _FAIL('inconsistent values of HEARTBEAT_DT and RUN_DT')
        end if
     else
        call MAPL_ConfigSetAttribute(cap%cf_root, value=heartbeat_dt, Label="RUN_DT:", rc=status)
@@ -475,6 +476,7 @@ contains
 
     root_set_services => cap%root_set_services
 
+    call t_p%start('SetService')
     cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)  
     _VERIFY(status)
 
@@ -498,11 +500,8 @@ contains
     call ESMF_ConfigGetAttribute(cap%cf_ext, value=RUN_DT, Label="RUN_DT:", rc=status)
     if (STATUS == ESMF_SUCCESS) then
        if (heartbeat_dt /= run_dt) then
-          if (AmIRoot_) then
-             print *, "ERROR: inconsistent values of HEATBEAT_DT and RUN_DT", heartbeat_dt, run_dt
-          end if
-          call ESMF_VMBarrier(CAP%VM)
-          _RETURN(ESMF_FAILURE)
+          call lgr%error('inconsistent values of HEARTBEAT_DT (%g0) and ExtData RUN_DT (%g0)', heartbeat_dt, run_dt)
+          _FAIL('inconsistent values of HEARTBEAT_DT and RUN_DT')
        end if
     else
        call MAPL_ConfigSetAttribute(cap%cf_ext, value=heartbeat_dt, Label="RUN_DT:", rc=status)
@@ -514,6 +513,7 @@ contains
 
     cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData_SetServices, rc = status)
     _VERIFY(status)
+    call t_p%stop('SetService')
 
     ! Add NX and NY from AGCM.rc to ExtData.rc as well as name of ExtData rc file
     call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", rc=status)
@@ -548,14 +548,27 @@ contains
        !  Initialize the Computational Hierarchy
        !----------------------------------------
 
+       call t_p%start('Initialize')
+       call t_p%start(trim(root_name))
+       call MAPL_InternalStateRetrieve(cap%gcs(cap%root_id), CHILD_MAPLOBJ, RC=status)
+       call CHILD_MAPLOBJ%t_profiler%start()
+       call CHILD_MAPLOBJ%t_profiler%start('Intialize')
        call ESMF_GridCompInitialize(cap%gcs(cap%root_id), importState = cap%child_imports(cap%root_id), &
             exportState = cap%child_exports(cap%root_id), clock = cap%clock, userRC = status)
        _VERIFY(status)
+       call CHILD_MAPLOBJ%t_profiler%stop('Intialize')
+       call CHILD_MAPLOBJ%t_profiler%stop()
+       call t_p%stop(trim(root_name))
 
+       call t_p%start('HIST')
        call cap%initialize_history(rc=status)
        _VERIFY(status)
+       call t_p%stop('HIST')
+
+       call t_p%start('EXTDATA')
        call cap%initialize_extdata(rc=status)
        _VERIFY(status)
+       call t_p%stop('EXTDATA')
 
        ! Finally check is this is a regular replay
        ! If so stuff gc and input state for ExtData in GCM internal state
@@ -572,7 +585,10 @@ contains
           ExtData_internal_state%gc = CAP%GCS(cap%extdata_id)
           ExtData_internal_state%expState = CAP%CHILD_EXPORTS(cap%extdata_id) 
        end if
+       call t_p%stop('Initialize')
     end if
+
+
     _RETURN(ESMF_SUCCESS)
   end subroutine initialize_gc
 
@@ -582,12 +598,12 @@ contains
     integer, optional, intent(out) :: rc
     integer :: status
     type(HISTORY_ExchangeListWrap) :: lswrap
-    integer*8, pointer           :: LSADDR(:) => null()
+    integer*8, pointer             :: LSADDR(:) => null()
+    type (MAPL_MetaComp), pointer  :: CHILD_MAPLOBJ
 
     if (present(rc)) rc = ESMF_SUCCESS
     ! All the EXPORTS of the Hierachy are made IMPORTS of History
     !------------------------------------------------------------
-
     call ESMF_StateAdd(cap%child_imports(cap%history_id), [cap%child_exports(cap%root_id)], rc = status)
     _VERIFY(STATUS)
 
@@ -603,9 +619,16 @@ contains
     ! Initialize the History
     !------------------------
 
+    call MAPL_InternalStateRetrieve(cap%gcs(cap%history_id), CHILD_MAPLOBJ, RC=status)
+    call CHILD_MAPLOBJ%t_profiler%start()
+    call CHILD_MAPLOBJ%t_profiler%start('Intialize')
+
     call ESMF_GridCompInitialize (CAP%GCS(cap%history_id), importState=CAP%CHILD_IMPORTS(cap%history_id), &
          exportState=CAP%CHILD_EXPORTS(cap%history_id), clock=CAP%CLOCK_HIST, userRC=STATUS )
     _VERIFY(STATUS)
+
+    call CHILD_MAPLOBJ%t_profiler%stop('Intialize')
+    call CHILD_MAPLOBJ%t_profiler%stop()
 
     _RETURN(ESMF_SUCCESS)
   end subroutine initialize_history
@@ -624,6 +647,7 @@ contains
     integer :: i
     type(ESMF_State) :: state, root_imports, component_state
     character(len=:), allocatable :: component_name, field_name
+    type (MAPL_MetaComp), pointer :: CHILD_MAPLOBJ
 
     ! Prepare EXPORTS for ExtData
     ! ---------------------------
@@ -694,10 +718,18 @@ contains
 
     ! Initialize the ExtData
     !------------------------
+
+    call MAPL_InternalStateRetrieve(cap%gcs(cap%extdata_id), CHILD_MAPLOBJ, RC=status)
+    call CHILD_MAPLOBJ%t_profiler%start()
+    call CHILD_MAPLOBJ%t_profiler%start('Intialize')
+
     call ESMF_GridCompInitialize (cap%gcs(cap%extdata_id), importState = cap%child_imports(cap%extdata_id), &
          exportState = cap%child_exports(cap%extdata_id), & 
          clock = cap%clock, userRc = status)
     _VERIFY(status)
+
+    call CHILD_MAPLOBJ%t_profiler%stop('Intialize')
+    call CHILD_MAPLOBJ%t_profiler%stop()
 
     _RETURN(ESMF_SUCCESS)
 
@@ -713,13 +745,20 @@ contains
     integer, intent(out) :: RC     ! Error code:
 
     integer :: status
+    class (BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import)
     _UNUSED_DUMMY(export)
     _UNUSED_DUMMY(clock)
 
+    t_p => get_global_time_profiler()
+    call t_p%start('Run')
+
     call run_MAPL_GridComp(gc, rc=status)
     _VERIFY(status)
+
+    call t_p%stop('Run')
+
     _RETURN(ESMF_SUCCESS)
 
   end subroutine run_gc
@@ -734,14 +773,19 @@ contains
     integer :: status
 
     type(MAPL_CapGridComp), pointer :: cap
-    type(MAPL_MetaComp), pointer :: MAPLOBJ
+    type(MAPL_MetaComp), pointer :: maplobj
+    class (BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
     
     cap => get_CapGridComp_from_gc(gc)
-    MAPLOBJ => get_MetaComp_from_gc(gc)
+    call MAPL_GetObjectFromGC(gc, maplobj, rc=status)
+    _VERIFY(status)
+
+    t_p => get_global_time_profiler()
+    call t_p%start('Finalize')
 
     if (.not. cap%printspec > 0) then
        
@@ -785,6 +829,9 @@ contains
           end if
        end if
     end if
+
+    call t_p%stop('Finalize')
+
     _RETURN(ESMF_SUCCESS)
   end subroutine finalize_gc
 
@@ -843,7 +890,6 @@ contains
 
   end subroutine run
 
-
   subroutine finalize(this, rc)
     class(MAPL_CapGridComp), intent(inout) :: this
     integer, optional, intent(out) :: rc
@@ -854,7 +900,6 @@ contains
     _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
   end subroutine finalize
-
 
   function get_model_duration(this, rc) result (duration)
     class (MAPL_CapGridComp) :: this
@@ -906,15 +951,6 @@ contains
   end function get_CapGridComp_from_gc
 
   
-  function get_MetaComp_from_gc(gc) result(meta_comp)
-    type(ESMF_GridComp), intent(inout) :: gc
-    type(MAPL_MetaComp), pointer :: meta_comp
-    type(MAPL_MetaComp_Wrapper) :: meta_comp_wrapper
-    integer :: rc
-    call ESMF_UserCompGetInternalState(gc, internal_meta_comp_name, meta_comp_wrapper, rc)
-    meta_comp => meta_comp_wrapper%ptr
-  end function get_MetaComp_from_gc
-
   
   function get_vec_from_config(config, key) result(vec)
     type(ESMF_Config), intent(inout) :: config
@@ -976,7 +1012,8 @@ contains
     procedure(), pointer :: root_set_services
 
     cap => get_CapGridComp_from_gc(gc)
-    MAPLOBJ => get_MetaComp_from_gc(gc)
+    call MAPL_GetObjectFromGC(gc, maplobj, rc=status)
+    _VERIFY(status)
 
     if (.not. cap%printspec > 0) then
 
@@ -985,6 +1022,7 @@ contains
        call ESMF_VMBarrier(cap%vm,rc=status)
        _VERIFY(status)
        cap%loop_start_timer = MPI_WTime(status)
+       cap%started_loop_timer = .true.
        TIME_LOOP: do n = 1, cap%nsteps
 
           call MAPL_MemUtilsWrite(cap%vm, 'MAPL_Cap:TimeLoop', rc = status)
@@ -998,6 +1036,16 @@ contains
 
           call cap%step(status)
           _VERIFY(status)
+
+          ! Reset loop average timer to get a better
+          ! estimate of true run time left by ignoring
+          ! initialization costs in the averageing.
+          !-------------------------------------------
+          if (n == 1) then
+             call ESMF_VMBarrier(cap%vm,rc=status)
+             _VERIFY(status)
+             cap%loop_start_timer = MPI_WTime(status)
+          endif
 
        enddo TIME_LOOP ! end of time loop
 
@@ -1019,7 +1067,8 @@ contains
       real(kind=REAL64) ::  LOOP_THROUGHPUT=0.0_REAL64
       real(kind=REAL64) ::  INST_THROUGHPUT=0.0_REAL64
       real(kind=REAL64) ::   RUN_THROUGHPUT=0.0_REAL64
-      real              :: mem_total, mem_commit, mem_percent
+      real              :: mem_total, mem_commit, mem_committed_percent
+      real              :: mem_used, mem_used_percent
     
     type(ESMF_Time) :: currTime
     type(ESMF_TimeInterval) :: delt
@@ -1028,6 +1077,10 @@ contains
 
     call ESMF_GridCompGet(this%gc, vm = this%vm)
 
+    if (.not.this%started_loop_timer) then
+       this%loop_start_timer = MPI_WTime(status)
+       this%started_loop_timer=.true.
+    end if
     start_timer = MPI_Wtime(status)
     ! Run the ExtData Component
     ! --------------------------
@@ -1118,14 +1171,19 @@ contains
          SEC_R = FLOOR(TIME_REMAINING       - 3600.0*HRS_R - 60.0*MIN_R)
        ! Reset Inst timer
          START_TIMER=END_TIMER
+       ! Get percent of used memory
+         call MAPL_MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
        ! Get percent of committed memory
-         call MAPL_MemCommited ( mem_total, mem_commit, mem_percent, RC=STATUS )
+         call MAPL_MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
          _VERIFY(STATUS)
 
          if( mapl_am_I_Root(this%vm) ) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
-                                      LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,mem_percent
+                                      LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
+                                      mem_committed_percent,mem_used_percent
     1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
-                2x,'Throughput(days/day)[Avg Tot Run]: ',f6.1,1x,f6.1,1x,f6.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x,f5.1,'% Memory Committed')
+                2x,'Throughput(days/day)[Avg Tot Run]: ',f6.1,1x,f6.1,1x,f6.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x, &
+                f5.1,'% : ',f5.1,'% Mem Comm:Used')
 
     _RETURN(ESMF_SUCCESS)
   end subroutine step

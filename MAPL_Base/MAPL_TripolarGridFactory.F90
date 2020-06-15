@@ -289,9 +289,10 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_file_metadata()'
-      integer :: status
 
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(rc)
 
    end subroutine initialize_from_file_metadata
 
@@ -548,8 +549,8 @@ contains
       class (TripolarGridFactory), intent(in) :: this
 
       _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(name)
 
+      name = ''
       ! needs to be implemented
       error stop -1
 
@@ -910,6 +911,7 @@ contains
       class (TripolarGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
+      _UNUSED_DUMMY(this)
 
       vars = 'lon,lat'
 
@@ -918,6 +920,8 @@ contains
    subroutine append_variable_metadata(this,var)
       class (TripolarGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(var)
    end subroutine append_variable_metadata
 
    subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
@@ -930,6 +934,16 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      integer :: global_dim(3), i1,j1,in,jn
+      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
+      _UNUSED_DUMMY(this)
+
+      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
+      _VERIFY(status)
+      call MAPL_GridGetInterior(grid,i1,in,j1,jn)
+      allocate(local_start,source=[i1,j1])
+      allocate(global_start,source=[1,1])
+      allocate(global_count,source=[global_dim(1),global_dim(2)])
 
    end subroutine generate_file_bounds
 
@@ -938,6 +952,7 @@ contains
       type(ArrayReference) :: ref
       class(TripolarGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:)
+      _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
 
@@ -946,6 +961,7 @@ contains
       type(ArrayReference) :: ref
       class(TripolarGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:,:)
+      _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D
 

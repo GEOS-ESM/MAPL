@@ -1,3 +1,5 @@
+#include "unused_dummy.H"
+
 module MAPL_DirPathMod
    use MAPL_KeywordEnforcerMod
    use pFIO
@@ -34,6 +36,8 @@ contains
       character(len=:), pointer :: dir
       logical :: exist
 
+      _UNUSED_DUMMY(unusable)
+
       iter = this%begin()
       do while (iter /= this%end())
          dir => iter%get()
@@ -62,6 +66,8 @@ contains
       character(len=*), intent(in) :: directory
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(unusable)
 
       call this%push_back(directory)
 

@@ -73,6 +73,9 @@ contains
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(out) :: rc
 
+     _UNUSED_DUMMY(this)
+     _UNUSED_DUMMY(unusable)
+
      ! This is a wrapper class and should not be directly
      ! initialized.
      _RETURN(_FAILURE)
@@ -149,6 +152,9 @@ contains
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_2d_real32'
 
       integer :: status
+
+      _UNUSED_DUMMY(rotate)
+
       call this%reference%transpose_regrid(u_in, v_in, u_out, v_out, rc=status)
       _RETURN(status)
 
@@ -167,6 +173,9 @@ contains
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_2d_real64'
 
       integer :: status
+
+      _UNUSED_DUMMY(rotate)
+
       call this%reference%transpose_regrid(u_in, v_in, u_out, v_out, rc=status)
       _RETURN(status)
 
@@ -184,6 +193,9 @@ contains
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real32'
 
       integer :: status
+
+      _UNUSED_DUMMY(rotate)
+
       call this%reference%transpose_regrid(u_in, v_in, u_out, v_out, rotate=rotate, rc=status)
       _RETURN(status)
 
@@ -321,6 +333,9 @@ contains
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_2d_real32'
 
       integer :: status
+
+      _UNUSED_DUMMY(rotate)
+
       call this%reference%regrid(u_in, v_in, u_out, v_out, rc=status)
       _RETURN(status)
 
@@ -339,6 +354,9 @@ contains
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_2d_real64'
 
       integer :: status
+
+      _UNUSED_DUMMY(rotate)
+
       call this%reference%regrid(u_in, v_in, u_out, v_out, rc=status)
       _RETURN(status)
 
@@ -358,6 +376,9 @@ contains
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_3d_real32'
 
       integer :: status
+
+      _UNUSED_DUMMY(rotate)
+
       call this%reference%regrid(u_in, v_in, u_out, v_out, rotate=rotate, rc=status)
       _RETURN(status)
 
@@ -429,6 +450,7 @@ contains
    function isTranspose(this) result(amTranspose)
       logical :: amTranspose
       class (TransposeRegridder), intent(in) :: this
+      _UNUSED_DUMMY(this)
       amTranspose = .true.
    end function isTranspose
   

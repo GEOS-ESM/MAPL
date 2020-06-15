@@ -98,7 +98,6 @@ contains
    logical function less_than(a, b)
       class (RegridderTypeSpec), intent(in) :: a
       type (RegridderTypeSpec), intent(in) :: b
-      logical :: greater_than
 
       ! Compare methods
 
@@ -176,6 +175,8 @@ contains
 
       integer :: status
       character(len=*), parameter :: Iam = MOD_NAME//'get_grid_type'
+
+      _UNUSED_DUMMY(unusable)
 
       if (present(InputGridType)) then
          call ESMF_AttributeGet(this%grid_in,'GridType',InputGridType,rc=status)

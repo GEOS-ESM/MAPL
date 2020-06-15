@@ -36,6 +36,8 @@ contains
       @assertEqual(dir%entries(1)%port_name, dir%entries(1)%port_name)
       @assertEqual(dir%entries(1)%partner_root_rank, dir%entries(1)%partner_root_rank)
 
+      call ds%free_directory_resources()
+
    end subroutine test_put_directory
 
 
@@ -52,6 +54,8 @@ contains
 
       mock_server = MockServer(comm)
       call ds%publish(PortInfo('service', mock_server), mock_server)
+
+      call ds%free_directory_resources()
 
    end subroutine test_publish
 
@@ -88,6 +92,8 @@ contains
 !!$      class default
 !!$         @assertTrue(.false.)
 !!$      end select
+
+      call ds%free_directory_resources()
 
    end subroutine test_connect
 
@@ -126,6 +132,8 @@ contains
 !!$         @assertTrue(.false.)
 !!$      end select
 !!$
+      call ds%free_directory_resources()
+
    end subroutine test_connect_swap_role
 
    ! 3 clients, 2 servers
@@ -164,6 +172,7 @@ contains
          call ds%connect_to_server('input', mock_client, comm)
       end select
 
+      call ds%free_directory_resources()
 
    end subroutine test_connect_multi
 
@@ -210,6 +219,7 @@ contains
          call ds%connect_to_server('input', mock_client, comm)
       end select
 
+      call ds%free_directory_resources()
 
    end subroutine test_connect_with_unused_process
 
@@ -252,6 +262,7 @@ contains
          call ds%connect_to_server('input', mock_client, comm)
       end select
 
+      call ds%free_directory_resources()
 
     end subroutine test_stress
 

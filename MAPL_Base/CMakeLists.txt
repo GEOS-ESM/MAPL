@@ -27,6 +27,7 @@ set (srcs
   MAPL_CapGridComp.F90
   MAPL_GridType.F90 
   MAPL_GridSpec.F90        MAPL_VerticalMethods.F90 MAPL_newCFIOitem.F90
+  MAPL_EtaHybridVerticalCoordinate.F90
   MAPL_VerticalInterpMod.F90 MAPL_ESMFTimeVectorMod.F90  MAPL_TimeMethods.F90 MAPL_ioClients.F90
 
   MAPL_DirPath.F90
@@ -61,11 +62,25 @@ set (srcs
   MAPL_NUOPCWrapperMod.F90 MAPL_CubedSphereGridFactory.F90
   MAPL_ExtDataCollection.F90 MAPL_ExtDataCollectionManager.F90
   FileMetadataUtilities.F90 FileMetadataUtilitiesVector.F90
-  )
+  MAPL_SimpleAlarm.F90)
 
-esma_add_library(${this} SRCS ${srcs} DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 gftl-shared $<$<BOOL:${FLAP_IS_REQUIRED}>:FLAP::FLAP>)
+# Customize dependencies for GCHP
+#esma_add_library(
+#  ${this} SRCS ${srcs}
+#  DEPENDENCIES MAPL_Profiler GMAO_pFIO MAPL_cfio_r4 pflogger gftl-shared FLAP::FLAP MPI::MPI_Fortran)
+esma_add_library(
+  ${this} SRCS ${srcs}
+  DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 gftl-shared $<$<BOOL:${FLAP_IS_REQUIRED}>:FLAP::FLAP>)
+
+# Turn off GEOS compile options when using GCHP
 #target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
+#if(DISABLE_GLOBAL_NAME_WARNING)
+#   target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${DISABLE_GLOBAL_NAME_WARNING}>)
+#endif()
+
 target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
+target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
+
 
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
@@ -98,7 +113,7 @@ endif()
 # We could leave these in the source directory, and just broaden the search path
 # in the other libaries, but this make it explicit which aspects are externally
 # used.
-file (COPY unused_dummy.H DESTINATION ${esma_include}/${this})
+file (COPY ${MAPL_SOURCE_DIR}/include/unused_dummy.H DESTINATION ${esma_include}/${this})
 file (COPY MAPL_Generic.h DESTINATION ${esma_include}/${this})
 file (COPY MAPL_Exceptions.h DESTINATION ${esma_include}/${this})
 file (COPY MAPL_ErrLog.h DESTINATION ${esma_include}/${this})

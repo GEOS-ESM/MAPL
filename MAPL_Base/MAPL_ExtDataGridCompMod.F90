@@ -52,6 +52,7 @@
    use MAPL_ioClientsMod
    use MAPL_newCFIOItemMod
    use MAPL_newCFIOItemVectorMod
+   use MAPL_SimpleAlarm
 
    IMPLICIT NONE
    PRIVATE
@@ -131,6 +132,7 @@
      ! the corresponding names of the two vector components on file
      character(len=ESMF_MAXSTR)   :: fcomp1, fcomp2
      type(newCFIOitem)            :: fileVars
+     type(SimpleAlarm)            :: update_alarm 
 
      integer                      :: collection_id
      integer                      :: pfioCollection_id
@@ -139,7 +141,6 @@
      logical                      :: ExtDataAlloc
      ! time shifting during continuous update
      type(ESMF_TimeInterval)      :: tshift
-     type(ESMF_Alarm)             :: update_alarm
      logical                      :: alarmIsEnabled = .false.
      integer                      :: FracVal = MAPL_ExtDataNullFrac
      ! do we have to do vertical interpolation
@@ -170,7 +171,7 @@
      type(ESMF_Time), pointer       :: refresh_time => null()
      ! time shifting during continuous update
      type(ESMF_TimeInterval)      :: tshift
-     type(ESMF_Alarm)             :: update_alarm
+     type(SimpleAlarm)            :: update_alarm
      logical                      :: alarmIsEnabled = .false.
   end type DerivedExport
 
@@ -416,7 +417,6 @@ CONTAINS
    logical, allocatable              :: DerivedVarNeeded(:)
    logical, allocatable              :: LocalVarNeeded(:)
 
-   type(ESMF_CFIO), pointer          :: cfio
    type(FileMetadataUtils), pointer  :: metadata
    integer                           :: counter
    real, pointer                     :: ptr2d(:,:) => null()
@@ -478,6 +478,8 @@ CONTAINS
     end if
 
     if (.not.self%active) then
+       call MAPL_TimerOff(MAPLSTATE,"Initialize")
+       call MAPL_TimerOff(MAPLSTATE,"TOTAL")
        _RETURN(ESMF_SUCCESS)
     end if
 
@@ -1300,12 +1302,9 @@ CONTAINS
    type(ESMF_Time)                   :: time, time0
    type(MAPL_MetaComp), pointer      :: MAPLSTATE
 
-   real, pointer, dimension(:,:)     :: var2d_prev, var2d_next
-   real, pointer, dimension(:,:,:)   :: var3d_prev, var3d_next
    logical                           :: doUpdate_
-   integer                           :: fieldCount, fieldRank
+   integer                           :: fieldCount
    character(len=ESMF_MAXSTR), ALLOCATABLE  :: NAMES (:)
-   type(ESMF_Field)                  :: field1, field2
    character(len=ESMF_MAXPATHLEN)    :: file_processed, file_processed1, file_processed2
    logical                           :: NotSingle
    logical                           :: updateL, updateR, swap
@@ -1317,6 +1316,10 @@ CONTAINS
    type(IOBundleVector), target     :: IOBundles
    type(IOBundleVectorIterator) :: bundle_iter
    type(ExtData_IOBundle), pointer :: io_bundle
+
+   _UNUSED_DUMMY(IMPORT)
+   _UNUSED_DUMMY(EXPORT)
+
 !  Declare pointers to IMPORT/EXPORT/INTERNAL states 
 !  -------------------------------------------------
 !  #include "MAPL_ExtData_DeclarePointer___.h"
@@ -1570,7 +1573,7 @@ CONTAINS
       io_bundle%pbundle = ESMF_FieldBundleCreate(rc=status)
       _VERIFY(STATUS)
 
-      call MAPL_ExtDataPopulateBundle(self,item,bracket_side,io_bundle%pbundle,rc=status)
+      call MAPL_ExtDataPopulateBundle(item,bracket_side,io_bundle%pbundle,rc=status)
       _VERIFY(status)
       call bundle_iter%next()
    enddo
@@ -1707,7 +1710,7 @@ CONTAINS
 
       if (doUpdate_) then
 
-         call CalcDerivedField(self%ExtDataState,self%primary,derivedItem%name,derivedItem%expression, &
+         call CalcDerivedField(self%ExtDataState,derivedItem%name,derivedItem%expression, &
               derivedItem%masking,__RC__)
 
       end if
@@ -2017,15 +2020,15 @@ CONTAINS
         integer                    :: iyy,imm,idd,ihh,imn,isc
         integer                    :: lasttoken
         character(len=2)           :: token
-        type(ESMF_Time)            :: time
+        type(ESMF_Time)            :: time,start_time
         integer                    :: cindex,pindex
         character(len=ESMF_MAXSTR) :: creffTime, ctInt
        
-        __Iam__('CreateTimeInterval')
+        integer :: status
  
         creffTime = ''
         ctInt     = ''
-        call ESMF_ClockGet (CLOCK, currTIME=time, __RC__)
+        call ESMF_ClockGet (CLOCK, currTIME=time, startTime=start_time, __RC__)
         if (.not.item%hasFileReffTime) then
            ! if int_frequency is less than zero than try to guess it from the file template
            ! if that fails then it must be a single file or a climatology 
@@ -2047,21 +2050,21 @@ CONTAINS
            if (lasttoken.gt.0) then
               token = item%file(lasttoken+1:lasttoken+2)
               select case(token)
-              case("y4") 
+              case("y4")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=1,dd=1,h=0,m=0,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,yy=1,__RC__)
-              case("m2") 
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,yy=1,__RC__)
+              case("m2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=1,h=0,m=0,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,mm=1,__RC__)
-              case("d2") 
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,mm=1,__RC__)
+              case("d2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=0,m=0,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,d=1,__RC__)
-              case("h2") 
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,d=1,__RC__)
+              case("h2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,h=1,__RC__)
-              case("n2") 
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,h=1,__RC__)
+              case("n2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,m=1,__RC__)
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,m=1,__RC__)
               end select
            else
               ! couldn't find any tokens so all the data must be on one file
@@ -2182,7 +2185,7 @@ CONTAINS
         logical                  , intent(in   ) :: allowExtrap
         integer, optional        , intent(out  ) :: rc
 
-        __Iam__('GetLevs')
+        integer :: status
 
         integer(ESMF_KIND_I4)      :: iyr,imm,idd,ihr,imn,iss,i,n,refYear
         character(len=ESMF_MAXPATHLEN) :: file
@@ -2270,13 +2273,13 @@ CONTAINS
         var => null()
         if (item%isVector) then
            var=>metadata%get_variable(trim(item%fcomp1))
-           _ASSERT(associated(var),"Variable not found in file")
+           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file))
            var => null()
            var=>metadata%get_variable(trim(item%fcomp2))
-           _ASSERT(associated(var),"Variable not found in file")
+           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp2)//" not found in file "//TRIM(item%file))
         else
            var=>metadata%get_variable(trim(item%var))
-           _ASSERT(associated(var),"Variable not found in file")
+           _ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file))
         end if
    
         levName = metadata%get_level_name(rc=status)
@@ -2337,7 +2340,7 @@ CONTAINS
         logical,                             intent(in   ) :: allowExtrap
         integer, optional,                   intent(out  ) :: rc
 
-        __Iam__('UpdateBracketTime')
+        integer :: status
 
         type(ESMF_Time)                            :: newTime
         integer                                    :: curDate,curTime,n,tindex
@@ -2360,7 +2363,6 @@ CONTAINS
         logical                                    :: LSide, RSide, intOK, bracketScan
         type(ESMF_TimeInterval)                    :: yrTimeStep
 
-        type (ESMF_CFIO), pointer                  :: xCFIO
         type(ESMF_Time), allocatable               :: xTSeries(:)
         type(FileMetaDataUtils), pointer           :: fdata
       
@@ -2890,7 +2892,6 @@ CONTAINS
         type(FileMetadataUtils), pointer, intent(inout)   :: metadata
         integer, optional,          intent(out  ) :: rc
         type(MAPLExtDataCollection), pointer :: collection => null()
-        integer :: status
 
         Collection => ExtDataCollections%at(collection_id)
         metadata => collection%find(file)
@@ -2906,7 +2907,7 @@ CONTAINS
         type(ESMF_Time)                           :: tSeries(:)
         integer, optional,          intent(out  ) :: rc
 
-        __Iam__('GetTimesOnFile')
+        integer :: status
 
         integer(ESMF_KIND_I4)              :: iyr,imm,idd,ihr,imn,isc
         integer                            :: i
@@ -3440,15 +3441,14 @@ CONTAINS
 
   end subroutine GetBracketTimeOnFile
 
- subroutine CalcDerivedField(state,primaries,exportName,exportExpr,masking,rc)
+ subroutine CalcDerivedField(state,exportName,exportExpr,masking,rc)
      type(ESMF_State),        intent(inout) :: state
-     type(PrimaryExports),    intent(inout) :: primaries
-     character(len=*),        intent(in   ) :: exportName
+     character(len=*),        intent(in   ) :: exportName     
      character(len=*),        intent(in   ) :: exportExpr
      logical,                 intent(in   ) :: masking
      integer, optional,       intent(out  ) :: rc
 
-     __Iam__('CalcDerivedField')
+     integer :: status
 
      type(ESMF_Field)                   :: field
 
@@ -3635,22 +3635,21 @@ CONTAINS
      integer, optional,   intent(out  )     :: rc
 
      integer :: status
-     character(len=ESMF_MAXSTR) :: Iam="MAPL_ExtDataVerticalInterpolate"
      integer :: id_ps
      type(ESMF_Field) :: field, newfield,psF
 
      if (item%do_VertInterp) then
         if (trim(item%importVDir)/=trim(item%fileVDir)) then
-           call MAPL_ExtDataFlipVertical(ExtState,item,filec,rc=status)
+           call MAPL_ExtDataFlipVertical(item,filec,rc=status)
            _VERIFY(status)
         end if 
         if (item%vartype == MAPL_fieldItem) then
-           call MAPL_ExtDataGetBracket(ExtState,item,filec,newField,getRL=.true.,rc=status)
+           call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,rc=status)
            _VERIFY(STATUS)
-           call MAPL_ExtDataGetBracket(ExtState,item,filec,Field,rc=status)
+           call MAPL_ExtDataGetBracket(item,filec,Field,rc=status)
            _VERIFY(STATUS)
            id_ps = ExtState%primaryOrder(1)
-           call MAPL_ExtDataGetBracket(ExtState,ExtState%primary%item(id_ps),filec,field=psF,rc=status)
+           call MAPL_ExtDataGetBracket(ExtState%primary%item(id_ps),filec,field=psF,rc=status)
            _VERIFY(STATUS)
            call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,rc=status)
            _VERIFY(STATUS)
@@ -3658,17 +3657,17 @@ CONTAINS
         else if (item%vartype == MAPL_ExtDataVectorItem) then
 
            id_ps = ExtState%primaryOrder(1)
-           call MAPL_ExtDataGetBracket(ExtState,ExtState%primary%item(id_ps),filec,field=psF,rc=status)
+           call MAPL_ExtDataGetBracket(ExtState%primary%item(id_ps),filec,field=psF,rc=status)
            _VERIFY(STATUS)
-           call MAPL_ExtDataGetBracket(ExtState,item,filec,newField,getRL=.true.,vcomp=1,rc=status)
+           call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=1,rc=status)
            _VERIFY(STATUS)
-           call MAPL_ExtDataGetBracket(ExtState,item,filec,Field,vcomp=1,rc=status)
+           call MAPL_ExtDataGetBracket(item,filec,Field,vcomp=1,rc=status)
            _VERIFY(STATUS)
            call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,rc=status)
            _VERIFY(STATUS)
-           call MAPL_ExtDataGetBracket(ExtState,item,filec,newField,getRL=.true.,vcomp=2,rc=status)
+           call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=2,rc=status)
            _VERIFY(STATUS)
-           call MAPL_ExtDataGetBracket(ExtState,item,filec,Field,vcomp=2,rc=status)
+           call MAPL_ExtDataGetBracket(item,filec,Field,vcomp=2,rc=status)
            _VERIFY(STATUS)
            call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,rc=status)
            _VERIFY(STATUS)
@@ -3677,29 +3676,29 @@ CONTAINS
 
      else if (item%do_Fill) then
         if (item%vartype == MAPL_fieldItem) then
-           call MAPL_ExtDataGetBracket(ExtState,item,filec,newField,getRL=.true.,rc=status)
+           call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,rc=status)
            _VERIFY(STATUS)
-           call MAPL_ExtDataGetBracket(ExtState,item,filec,Field,rc=status)
+           call MAPL_ExtDataGetBracket(item,filec,Field,rc=status)
            _VERIFY(STATUS)
            call MAPL_ExtDataFillField(item,field,newfield,rc=status)
            _VERIFY(STATUS)
         else if (item%vartype == MAPL_ExtDataVectorItem) then
-           call MAPL_ExtDataGetBracket(ExtState,item,filec,newField,getRL=.true.,vcomp=1,rc=status)
+           call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=1,rc=status)
            _VERIFY(STATUS)
-           call MAPL_ExtDataGetBracket(ExtState,item,filec,Field,vcomp=1,rc=status)
+           call MAPL_ExtDataGetBracket(item,filec,Field,vcomp=1,rc=status)
            _VERIFY(STATUS)
            call MAPL_ExtDataFillField(item,field,newfield,rc=status)
            _VERIFY(STATUS)
-           call MAPL_ExtDataGetBracket(ExtState,item,filec,newField,getRL=.true.,vcomp=2,rc=status)
+           call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=2,rc=status)
            _VERIFY(STATUS)
-           call MAPL_ExtDataGetBracket(ExtState,item,filec,Field,vcomp=2,rc=status)
+           call MAPL_ExtDataGetBracket(item,filec,Field,vcomp=2,rc=status)
            _VERIFY(STATUS)
            call MAPL_ExtDataFillField(item,field,newfield,rc=status)
            _VERIFY(STATUS)
         end if
      else
         if (trim(item%importVDir)/=trim(item%fileVDir)) then
-           call MAPL_ExtDataFlipVertical(ExtState,item,filec,rc=status)
+           call MAPL_ExtDataFlipVertical(item,filec,rc=status)
            _VERIFY(status)
         end if
      end if
@@ -3713,7 +3712,6 @@ CONTAINS
      logical,                        intent(inout) :: needed(:)
      integer, optional,              intent(out)   :: rc
 
-     character(len=ESMF_MAXSTR)      :: Iam = "GetMaskName"
      integer                         :: status
      integer                         :: i1,i2,i,ivar
      logical                         :: found,twovar
@@ -3770,7 +3768,6 @@ CONTAINS
     character(len=*),           intent(in)    :: exportExpr
     integer, optional,          intent(out)   :: rc
 
-    character(len=ESMF_MAXSTR) :: Iam = "EvaluateMask"
     integer :: status
 
     integer :: k,i
@@ -4235,7 +4232,7 @@ CONTAINS
 
      integer                               :: status
 
-     integer :: iyr,imm,idd,ihr,imn,isc,begDate,begTime
+     integer :: iyr,imm,idd,ihr,imn,isc
      type(FileMetadataUtils), pointer :: metadata => null()
 
      call MakeMetadata(fname,item%pfiocollection_id,metadata,__RC__)
@@ -4299,7 +4296,7 @@ CONTAINS
      if (present(primaryItem)) then
 
         if (primaryItem%AlarmIsEnabled) then
-           doUpdate = ESMF_AlarmIsRinging(primaryItem%update_alarm,__RC__)
+           doUpdate = primaryItem%update_alarm%is_ringing(currTime,__RC__)
            if (hasRun .eqv. .false.) doUpdate = .true.
            updateTime = currTime
         else if (trim(primaryItem%cyclic) == 'single') then
@@ -4326,7 +4323,7 @@ CONTAINS
         end if
      else if (present(derivedItem)) then
         if (DerivedItem%AlarmIsEnabled) then
-           doUpdate = ESMF_AlarmIsRinging(derivedItem%update_alarm,__RC__)
+           doUpdate = derivedItem%update_alarm%is_ringing(currTime,__RC__)
            updateTime = currTime
         else
            if (derivedItem%refresh_template == "0") then
@@ -4363,6 +4360,7 @@ CONTAINS
      character(len=ESMF_MAXSTR) :: refresh_template,ctInt
      character(len=ESMF_MAXSTR) :: Iam
      type(ESMF_TimeInterval)    :: tInterval
+     type(ESMF_Time)            :: current_time
      integer                    :: status
      Iam = "SetRefreshAlarms"
 
@@ -4373,6 +4371,8 @@ CONTAINS
      end if
      pindex = index(refresh_template,'P')
      if (pindex > 0) then
+        call ESMF_ClockGet(Clock,currTime=current_time,rc=status)
+        _VERIFY(status)
         ! now get time interval. Put 0000-00-00 in front if not there so parsetimeunits doesn't complain
         ctInt = refresh_template(pindex+1:)
         cindex = index(ctInt,'T')
@@ -4380,14 +4380,14 @@ CONTAINS
         call MAPL_NCIOParseTimeUnits(ctInt,iyy,imm,idd,ihh,imn,isc,status)
         _VERIFY(STATUS)
         call ESMF_TimeIntervalSet(tInterval,yy=iyy,mm=imm,d=idd,h=ihh,m=imn,s=isc,rc=status)
-        _VERIFY(STATUS)
+        _VERIFY(STATUS) 
         if (present(primaryItem)) then
-           primaryItem%update_alarm = ESMF_AlarmCreate(clock=clock,ringInterval=tInterval,sticky=.false.,rc=status)
-           _VERIFY(STATUS)
+           primaryItem%update_alarm = simpleAlarm(current_time,tInterval,rc=status)
+           _VERIFY(status)
            primaryItem%alarmIsEnabled = .true.
         else if (present(derivedItem)) then
-           DerivedItem%update_alarm = ESMF_AlarmCreate(clock=clock,ringInterval=tInterval,sticky=.false.,rc=status)
-           _VERIFY(STATUS)
+           DerivedItem%update_alarm = simpleAlarm(current_time,tInterval,rc=status)
+           _VERIFY(status)
            derivedItem%alarmIsEnabled = .true.
         end if
      end if
@@ -4471,9 +4471,8 @@ CONTAINS
 
   end function MAPL_ExtDataGridChangeLev
 
-  subroutine MAPL_ExtDataGetBracket(ExtState,item,Bside,field,bundle,getRL,vcomp,rc)
+  subroutine MAPL_ExtDataGetBracket(item,Bside,field,bundle,getRL,vcomp,rc)
 
-     type(MAPL_ExtData_State),         intent(inout) :: ExtState
      type(PrimaryExport),              intent(inout) :: item
      integer,                          intent(in   ) :: bside
      type(ESMF_Field),       optional, intent(inout) :: field
@@ -4483,11 +4482,9 @@ CONTAINS
      integer,                optional, intent(out  ) :: rc
 
      character(len=ESMF_MAXSTR) :: Iam
-     integer                    :: status
 
      logical :: getRL_
-     type(ESMF_Grid) :: grid,newGrid
-
+     
      Iam = "MAPL_ExtDataGetBracket"
 
      if (present(getRL)) then
@@ -4632,58 +4629,58 @@ CONTAINS
 
   end subroutine MAPL_ExtDataFillField
 
-  subroutine MAPL_ExtDataFlipVertical(ExtState,item,filec,rc)
-      type(MAPL_ExtData_State), intent(inout) :: ExtState
+  subroutine MAPL_ExtDataFlipVertical(item,filec,rc)
       type(PrimaryExport), intent(inout)      :: item
       integer,                  intent(in)    :: filec
       integer, optional, intent(out)          :: rc
 
       integer :: status
-      character(len=ESMF_MAXSTR) :: Iam = "MAPL_ExtDataFlipVertical"
-
+     
       type(ESMF_Field) :: Field,field1,field2
       real, pointer    :: ptr(:,:,:)
       real, allocatable :: ptemp(:,:,:)
-      integer :: lm
+      integer :: ls, le
 
       if (item%isVector) then
 
          if (item%do_Fill .or. item%do_VertInterp) then
-            call MAPL_ExtDataGetBracket(ExtState,item,filec,field=Field1,vcomp=1,getRL=.true.,__RC__)
-            call MAPL_ExtDataGetBracket(ExtState,item,filec,field=Field2,vcomp=2,getRL=.true.,__RC__)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,getRL=.true.,__RC__)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,getRL=.true.,__RC__)
          else
-            call MAPL_ExtDataGetBracket(ExtState,item,filec,field=Field1,vcomp=1,__RC__)
-            call MAPL_ExtDataGetBracket(ExtState,item,filec,field=Field2,vcomp=2,__RC__)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,__RC__)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,__RC__)
          end if
 
          call ESMF_FieldGet(Field1,0,farrayPtr=ptr,rc=status)
          _VERIFY(STATUS)
          allocate(ptemp,source=ptr,stat=status)
          _VERIFY(status)
-         lm = size(ptr,3)
-         ptr(:,:,lm:1:-1) = ptemp(:,:,1:lm:+1)
+         ls = lbound(ptr,3)
+         le = ubound(ptr,3)
+         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
          call ESMF_FieldGet(Field2,0,farrayPtr=ptr,rc=status)
          _VERIFY(STATUS)
          ptemp=ptr
-         ptr(:,:,lm:1:-1) = ptemp(:,:,1:lm:+1)
+         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
          deallocate(ptemp)
 
       else
 
          if (item%do_Fill .or. item%do_VertInterp) then
-            call MAPL_ExtDataGetBracket(ExtState,item,filec,field=Field,getRL=.true.,__RC__)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field,getRL=.true.,__RC__)
          else
-            call MAPL_ExtDataGetBracket(ExtState,item,filec,field=Field,__RC__)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field,__RC__)
          end if
 
          call ESMF_FieldGet(Field,0,farrayPtr=ptr,rc=status)
          _VERIFY(STATUS)
          allocate(ptemp,source=ptr,stat=status)
          _VERIFY(status)
-         lm = size(ptr,3)
-         ptr(:,:,lm:1:-1) = ptemp(:,:,1:lm:+1)
+         ls = lbound(ptr,3)
+         le = ubound(ptr,3)
+         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
          deallocate(ptemp)
       end if
 
@@ -4696,27 +4693,25 @@ CONTAINS
       _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_ExtDataFlipVertical
-  subroutine MAPL_ExtDataPopulateBundle(ExtState,item,filec,pbundle,rc)
-      type(MAPL_ExtData_State), intent(inout) :: ExtState
+  subroutine MAPL_ExtDataPopulateBundle(item,filec,pbundle,rc)
       type(PrimaryExport), intent(inout)      :: item
       integer,                  intent(in)    :: filec
       type(ESMF_FieldBundle), intent(inout)   :: pbundle
       integer, optional, intent(out)          :: rc
 
       integer :: status
-      character(len=ESMF_MAXSTR) :: Iam = "MAPL_ExtDataPopulateBundle"
-
+     
       type(ESMF_Field) :: Field,field1,field2
       type(ESMF_Grid)  :: grid
 
       if (item%isVector) then
 
          if (item%do_Fill .or. item%do_VertInterp) then
-            call MAPL_ExtDataGetBracket(ExtState,item,filec,field=Field1,vcomp=1,getRL=.true.,__RC__)
-            call MAPL_ExtDataGetBracket(ExtState,item,filec,field=Field2,vcomp=2,getRL=.true.,__RC__)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,getRL=.true.,__RC__)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,getRL=.true.,__RC__)
          else
-            call MAPL_ExtDataGetBracket(ExtState,item,filec,field=Field1,vcomp=1,__RC__)
-            call MAPL_ExtDataGetBracket(ExtState,item,filec,field=Field2,vcomp=2,__RC__)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,__RC__)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,__RC__)
          end if
 
          call ESMF_FieldGet(Field1,grid=grid,rc=status)
@@ -4740,9 +4735,9 @@ CONTAINS
       else
 
          if (item%do_Fill .or. item%do_VertInterp) then
-            call MAPL_ExtDataGetBracket(ExtState,item,filec,field=Field,getRL=.true.,__RC__)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field,getRL=.true.,__RC__)
          else
-            call MAPL_ExtDataGetBracket(ExtState,item,filec,field=Field,__RC__)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field,__RC__)
          end if
 
          call ESMF_FieldGet(Field,grid=grid,rc=status)
@@ -4764,8 +4759,8 @@ CONTAINS
 
      type (IoBundleVectorIterator) :: bundle_iter
      type (ExtData_IoBundle), pointer :: io_bundle
-     __Iam__('MAPL_ExtDataCreateCFIO')
-
+     integer :: status
+    
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
         io_bundle => bundle_iter%get()
@@ -4783,7 +4778,7 @@ CONTAINS
 
      type(IoBundleVectorIterator) :: bundle_iter
      type (ExtData_IoBundle), pointer :: io_bundle
-     __Iam__('MAPL_ExtDataDestroyCFIO')
+     integer :: status
 
      bundle_iter = IOBundles%begin()
      do while (bundle_iter /= IOBundles%end())
@@ -4805,8 +4800,6 @@ CONTAINS
      type(ExtData_IoBundle), pointer :: io_bundle => null()
      integer :: status
 
-     logical :: init = .false.
-     
      nfiles = IOBundles%size()
 
      do n = 1, nfiles
@@ -4825,7 +4818,7 @@ CONTAINS
 
      integer :: nfiles, n
      type (ExtData_IoBundle), pointer :: io_bundle
-     __Iam__('MAPL_ExtDataReadPrefetch')
+     integer :: status
 
 
      nfiles = IOBundles%size()
@@ -4845,7 +4838,6 @@ CONTAINS
      integer, optional, intent(out) :: rc
 
      integer :: status
-     character(len=ESMF_MAXSTR) :: Iam = "createFileLevBracket"
      type (ESMF_Grid) :: grid, newgrid
 
      if (item%vartype==MAPL_FieldItem) then
@@ -4878,7 +4870,7 @@ CONTAINS
      integer, intent(in)                    :: time_index
      integer, intent(out), optional         :: rc
 
-     __Iam__('IOBUNDLE_Add_Entry')
+     integer :: status
 
      type (ExtData_IOBundle) :: io_bundle
      type (NewCFIOItemVector) :: items

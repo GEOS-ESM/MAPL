@@ -15,7 +15,8 @@
    use MAPL_LatLonGridFactoryMod
    use MAPL_ConstantsMod, only: MAPL_PI_R8
    use MAPL_ErrorHandlingMod
-
+   use pflogger, only: pfl_initialize => initialize
+ 
    implicit NONE
 
    type(ESMF_RouteHandle) :: regrid_rh
@@ -97,8 +98,8 @@ CONTAINS
     call ESMF_Initialize (LogKindFlag=ESMF_LOGKIND_NONE, vm=vm, rc=STATUS)
     _VERIFY(STATUS)
     call ESMF_VMGet(vm, localPET=myPET, petCount=nPet)
-
-
+    call pfl_initialize()
+ 
     createdHandle=.false.
     nx=1
     ny=6
@@ -510,6 +511,9 @@ CONTAINS
       integer,                       intent(out)          :: rc
       integer :: i, j
       real(ESMF_KIND_R8)  :: renorm
+
+      _UNUSED_DUMMY(dynamicDstMaskValue)
+
       if (associated(dynamicMaskList)) then
         do i=1, size(dynamicMaskList)
           dynamicMaskList(i)%dstElement = 0.d0 ! set to zero
@@ -751,7 +755,6 @@ CONTAINS
        integer, optional, intent(out) :: rc
 
        integer :: status
-       character(len=ESMF_MAXSTR) :: Iam = "create_grid"
        type(LatLonGridFactory) :: ll_factory
 
        select case(grid_type)
