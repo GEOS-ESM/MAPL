@@ -1,20 +1,14 @@
+#include "MAPL_Exceptions.h"
+#include "unused_dummy.H"
 module MAPL_StringTemplate
 use ESMF
 use MAPL_ExceptionHandling
+use MAPL_KeywordEnforcerMod
 
 implicit none
 private
 
 public string_template
-public string_template_from_esmf
-
-!interface string_template
-   !module procedure string_template
-!end interface
-
-!interface string_template_from_esmf
-   !module procedure string_template_from_esmf
-!end interface
 
 character(len=2), parameter :: valid_tokens(13) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2"]
 character(len=3),parameter :: mon_lc(12) = [&
@@ -23,35 +17,14 @@ character(len=3),parameter :: mon_lc(12) = [&
 
 contains
 
-   subroutine string_template_from_esmf(output_string,template,experiment_id,time,rc)
+   subroutine string_template(output_string,template,unusable,experiment_id,nymd,nhms,time,rc)
       character(len=*), intent(out) :: output_string
       character(len=*), intent(in)  :: template
-      character(len=*), intent(in), optional :: experiment_id
-      type(ESMF_Time), intent(in), optional ::  time
-      integer, intent(out), optional :: rc
-
-      integer :: nymd,nhms
-      integer :: status,year,month,day,hour,minute,second
-     
-      if (present(time)) then
-         call ESMF_TimeGet(time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,rc=status)
-         _VERIFY(status)
-         nymd = (10000*year)+(100*month)+day
-         nhms = (10000*hour)+(100*minute)+second
-         call string_template(output_string,template,experiment_id=experiment_id, nymd=nymd, nhms=nhms, rc=status)
-         _VERIFY(status)
-      else
-         call string_template(output_string,template,experiment_id=experiment_id,rc=status)
-      end if
-
-   end subroutine string_template_from_esmf
-
-   subroutine string_template(output_string,template,experiment_id,nymd,nhms,rc)
-      character(len=*), intent(out) :: output_string
-      character(len=*), intent(in)  :: template
+      class(keywordEnforcer), optional, intent(in) :: unusable
       character(len=*), intent(in), optional :: experiment_id
       integer, intent(in), optional :: nymd
       integer, intent(in), optional :: nhms
+      type(ESMF_Time), intent(in), optional :: time
       integer, intent(out), optional :: rc
 
       integer :: year,month,day,hour,minute,second,tmpl_length,output_length
@@ -59,19 +32,29 @@ contains
       character(len=1) :: c0,c1,c2
       character(len=4) :: sbuf
       logical :: valid_token
+      integer :: status
      
+      _UNUSED_DUMMY(unusable)
       year=-1
       month=-1
       day=-1
       hour=-1
       minute=-1
       second=-1
+      if (present(time)) then
+         _ASSERT(.not.present(nymd),'can not specify an ESMF_Time and an integer time')
+         _ASSERT(.not.present(nhms),'can not specify an ESMF_Time and an integer time')
+         call ESMF_TimeGet(time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,rc=status)
+         _VERIFY(status)
+      end if
       if (present(nymd)) then
+         _ASSERT(.not.present(time),'can not specify an ESMF_Time and an integer time')
          year = nymd/10000
          month = mod(nymd/100,100)
          day = mod(nymd,100)
       end if
       if (present(nhms)) then
+         _ASSERT(.not.present(time),'can not specify an ESMF_Time and an integer time')
          hour = nhms/10000
          minute = mod(nhms/100,100)
          second = mod(nhms,100)  
@@ -114,7 +97,7 @@ contains
                valid_token = check_token(c1//c2) 
                if (valid_token) then
                   istp=3
-                  _ASSERT(present(nymd) .or. present(nhms),'Using token with no time')
+                  _ASSERT(present(nymd) .or. present(nhms) .or. present(time),'Using token with no time')
                   sbuf = evaluate_token(c1//c2,year,month,day,hour,minute)
                   kstp = len_trim(sbuf)
                   m=k+kstp-1
