@@ -228,7 +228,7 @@ contains
 
            call error_messages%insert(MAPL_NO_SUCH_PROPERTY, 'no such property')
            call error_messages%insert(MAPL_NO_SUCH_VARIABLE, 'no such variable')
-           call error_messages%insert(MAPL_TYPE_MISMATCH,    'passed argument does match expected type')
+           call error_messages%insert(MAPL_TYPE_MISMATCH,    'passed argument does not match expected type')
            call error_messages%insert(MAPL_UNSUPPORTED_TYPE, 'provided data type is not supported by this subclass')
            call error_messages%insert(MAPL_VALUE_NOT_SUPPORTED, 'provided value is not supported by this subclass')
 
