@@ -919,6 +919,10 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 ! interval (ZTHB,ZTHD) and the values at the beginning and end of the interval
 ! (ZTH1,ZTHN) are also optionally available. The last two are supported only for
 ! first two (non-ESMF) overloads.
+! PMN Jun 2020: Added optional ZTHP, like ZTHB a pure average of the cosine of the
+! solar zenith angle, except that for ZTHP the value averaged is allowed to be
+! negative (below the horizon). It will be used for Photolysis calculations.
+! Not implemented for ESMF overload.
 !
 ! If the interval is not specified, the values are instantaneous values valid at
 ! the reference time.
@@ -948,7 +952,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 ! !INTERFACE:
 
 !   subroutine MAPL_SunGetInsolation(LONS, LATS, ORBIT,ZTH,SLR,INTV,CLOCK, &
-!                                    TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN, &
+!                                    TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN,ZTHP, &
 !                                    RC)
 
 ! !ARGUMENTS:
@@ -967,6 +971,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 !      TYPE             ,        optional, intent(OUT) :: ZTHD
 !      TYPE             ,        optional, intent(OUT) :: ZTH1
 !      TYPE             ,        optional, intent(OUT) :: ZTHN
+!      TYPE             ,        optional, intent(OUT) :: ZTHP
 !      integer,                  optional, intent(OUT) :: RC
 !\end{verbatim}
 ! where we currently support three overloads for {\tt TYPE} : 
@@ -980,7 +985,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 #define DIMENSIONS (:)
 #define THE_SIZE   (size(LONS,1))
       recursive subroutine SOLAR_1D(LONS, LATS, ORBIT,ZTH,SLR,INTV,CLOCK, &
-                                    TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN,&
+                                    TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN,ZTHP,&
                                     STEPSIZE,RC)
 #include "sun.H"
       end subroutine SOLAR_1D
@@ -992,7 +997,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 #define DIMENSIONS (:,:)
 #define THE_SIZE   (size(LONS,1),size(LONS,2))
       recursive subroutine SOLAR_2D(LONS, LATS, ORBIT,ZTH,SLR,INTV,CLOCK, &
-                                    TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN,&
+                                    TIME,currTime,DIST,ZTHB,ZTHD,ZTH1,ZTHN,ZTHP,&
                                     STEPSIZE,RC)
 #include "sun.H"
       end subroutine SOLAR_2D
