@@ -83,6 +83,7 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: currentFile
      character(len=ESMF_MAXPATHLEN)     :: trackFile
      logical                            :: splitField
+     logical                            :: regex
      logical                            :: timeseries_output = .false.
      logical                            :: recycle_track = .false.
      type(HistoryTrajectory)            :: trajectory
