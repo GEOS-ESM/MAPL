@@ -22,7 +22,6 @@ module MAPL_HistoryGridCompMod
   use MAPL_GenericCplCompMod
   use MAPL_NewArthParserMod
   use MAPL_SortMod
-  use ESMF_CFIOMOD, only:  StrTemplate => ESMF_CFIOstrTemplate
   use MAPL_CFIOServerMod
   use MAPL_ShmemMod
   use MAPL_StringGridMapMod
@@ -41,6 +40,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_newCFIOitemMod
   use MAPL_ioClientsMod, only: io_client, o_Clients
   use HistoryTrajectoryMod
+  use MAPL_StringTemplate
   use regex_module
   !use ESMF_CFIOMOD
 
@@ -3431,9 +3431,9 @@ ENDDO PARSER
          read(DateStamp( 1: 8),'(i8.8)') nymd
          read(DateStamp(10:15),'(i6.6)') nhms
 
-         call StrTemplate ( filename(n), fntmpl, 'GRADS', &
-              xid=trim(INTSTATE%expid), &
-              nymd=nymd, nhms=nhms, stat=status ) ! here is where we get the actual filename of file we will write
+         call string_template ( filename(n), fntmpl, &
+              experiment_id=trim(INTSTATE%expid), &
+              nymd=nymd, nhms=nhms, rc=status ) ! here is where we get the actual filename of file we will write
          _VERIFY(STATUS)
 
          if(list(n)%monthly .and. list(n)%partial) then
