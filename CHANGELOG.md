@@ -35,10 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - ESMA_cmake v3.0.6
     - ecbuild geos/v1.0.5
 - Renamed directories.   Sub-libraries now named MAPL.<sub>
-  - ./MAPL_Base => ./base (MAPL.base)
-  - ./GMAO_pFIO => ./pfio  
-  - ./MAPL_Profiler => ./profiler
-  - ./MAPL_Shared => ./shared  
+  
+  - `./MAPL_Base` => `./base` (`MAPL.base`)
+  - `./GMAO_pFIO` => `./pfio`
+  - `./MAPL_Profiler` => `./profiler`
+  - `./MAPL_Shared` => `./shared`  
 
 ### Fixed
 ### Removed
