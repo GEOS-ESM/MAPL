@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added LLC grid factory
 - Added support for wildcard expansions (using regex)
 - Added "public" for 2 interfaces: ESMFL_Diff, and ESMFL_statistics
 
