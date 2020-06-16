@@ -933,12 +933,17 @@ contains
       integer, allocatable, intent(inout) :: global_count(:)
       integer, optional, intent(out) :: rc
 
+      integer :: status
+      integer :: global_dim(3), i1,j1,in,jn
+      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
       _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(grid)
-      _UNUSED_DUMMY(local_start)
-      _UNUSED_DUMMY(global_start)
-      _UNUSED_DUMMY(global_count)
-      _UNUSED_DUMMY(rc)
+
+      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
+      _VERIFY(status)
+      call MAPL_GridGetInterior(grid,i1,in,j1,jn)
+      allocate(local_start,source=[i1,j1])
+      allocate(global_start,source=[1,1])
+      allocate(global_count,source=[global_dim(1),global_dim(2)])
 
    end subroutine generate_file_bounds
 
