@@ -47,6 +47,7 @@ set (srcs
   CollectiveStageDataMessage.F90
   AddHistCollectionMessage.F90
   ModifyMetadataMessage.F90
+  ForwardDataMessage.F90
   ProtocolParser.F90
 
   MpiMutex.F90
@@ -113,6 +114,12 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES GNU)
   set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
   set_target_properties(pfio_collective_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 endif ()
+
+ecbuild_add_executable (
+  TARGET pfio_writer.x
+  SOURCES pfio_writer.F90
+  LIBS ${this} ${NETCDF_LIBRARIES}  MPI::MPI_Fortran)
+set_target_properties (pfio_writer.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 #--------------------
 include_directories (${INC_NETCDF})

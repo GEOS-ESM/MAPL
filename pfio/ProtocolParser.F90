@@ -20,6 +20,7 @@ module pFIO_ProtocolParserMod
    use pFIO_ModifyMetadataMessageMod
    use pFIO_HandShakeMessageMod
    use pFIO_DummyMessageMod
+   use pFIO_ForwardDataMessageMod
 
    implicit none
    private
@@ -69,6 +70,7 @@ contains
       type (ModifyMetadataMessage) :: ModifyMetadata
       type (HandShakeMessage) :: handshake
       type (DummyMessage) :: dummy
+      type (ForwardDataMessage) :: ForwardData
 
       if (this%initialized) return
 
@@ -88,6 +90,7 @@ contains
       call add_prototype(ModifyMetadata)
       call add_prototype(handshake)
       call add_prototype(dummy)
+      call add_prototype(ForwardData)
 
       this%initialized = .true.
 
