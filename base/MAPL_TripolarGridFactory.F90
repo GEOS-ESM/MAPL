@@ -20,6 +20,7 @@ module MAPL_TripolarGridFactoryMod
    use MAPL_KeywordEnforcerMod
    use ESMF
    use pFIO
+   use gFTL_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -77,6 +78,7 @@ module MAPL_TripolarGridFactoryMod
       procedure :: generate_file_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
+      procedure :: generate_grid_specific_vars
    end type TripolarGridFactory
    
    character(len=*), parameter :: MOD_NAME = 'MAPL_TripolarGridFactory::'
@@ -964,5 +966,11 @@ contains
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D
+
+   function generate_grid_specific_vars(this) result(vars)
+      class(TripolarGridFactory), intent(inout) :: this
+      character(len=:), allocatable :: vars
+      vars = 'lon,lat'
+   end function generate_grid_specific_vars
 
 end module MAPL_TripolarGridFactoryMod

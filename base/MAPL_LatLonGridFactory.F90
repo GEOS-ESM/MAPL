@@ -99,6 +99,7 @@ module MAPL_LatLonGridFactoryMod
       procedure :: generate_file_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
+      procedure :: generate_grid_specific_vars
    end type LatLonGridFactory
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_LatLonGridFactory::'
@@ -1769,6 +1770,11 @@ contains
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D
-      
+
+   function generate_grid_specific_vars(this) result(vars)
+      class(LatLonGridFactory), intent(inout) :: this
+      character(len=:), allocatable :: vars
+      vars = 'lon,lat'
+   end function generate_grid_specific_vars      
 
 end module MAPL_LatLonGridFactoryMod

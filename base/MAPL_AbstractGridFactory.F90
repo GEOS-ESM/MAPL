@@ -77,6 +77,7 @@ module MAPL_AbstractGridFactoryMod
       procedure(generate_file_bounds), deferred :: generate_file_bounds
       procedure(generate_file_reference2D), deferred :: generate_file_reference2D
       procedure(generate_file_reference3D), deferred :: generate_file_reference3D
+      procedure(generate_grid_specific_vars), deferred :: generate_grid_specific_vars
    end type AbstractGridFactory
 
    abstract interface
@@ -198,6 +199,13 @@ module MAPL_AbstractGridFactoryMod
          class (AbstractGridFactory), intent(inout) :: this
          real, pointer, intent(in) :: fpointer(:,:,:)
       end function generate_file_reference3D
+
+      function generate_grid_specific_vars(this) result(vars)
+         use gFTL_StringVector
+         import AbstractGridFactory
+         class (AbstractGridFactory), intent(inout) :: this
+         character(len=:), allocatable :: vars
+      end function generate_grid_specific_vars
 
    end interface
 

@@ -93,6 +93,7 @@ module MAPL_CubedSphereGridFactoryMod
       procedure :: generate_file_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
+      procedure :: generate_grid_specific_vars
       procedure :: get_fake_longitudes
       procedure :: get_fake_latitudes
    end type CubedSphereGridFactory
@@ -1196,5 +1197,12 @@ contains
       call C_F_pointer(cptr,ptr_ref,[size(fpointer,1),size(fpointer,2),1,size(fpointer,3),1])
       ref = ArrayReference(ptr_ref)
    end function generate_file_reference3D
+
+   function generate_grid_specific_vars(this) result(vars)
+      use gFTL_StringVector
+      class(CubedSphereGridFactory), intent(inout) :: this
+      character(len=:), allocatable :: vars
+      vars='nf,ncontact,Xdim,Ydim,contacts,orientation,anchor'
+   end function generate_grid_specific_vars
  
 end module MAPL_CubedSphereGridFactoryMod

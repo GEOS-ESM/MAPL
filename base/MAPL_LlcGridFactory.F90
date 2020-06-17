@@ -77,6 +77,7 @@ module MAPL_LlcGridFactoryMod
       procedure :: generate_file_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
+      procedure :: generate_grid_specific_vars
    end type LlcGridFactory
    
    character(len=*), parameter :: MOD_NAME = 'MAPL_LlcGridFactory::'
@@ -964,5 +965,11 @@ contains
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D
+
+   function generate_grid_specific_vars(this) result(vars)
+      class(LlcGridFactory), intent(inout) :: this
+      character(len=:), allocatable :: vars
+      vars = 'lon,lat'
+   end function generate_grid_specific_vars
 
 end module MAPL_LlcGridFactoryMod
