@@ -35,7 +35,8 @@ endif()
 
 ecbuild_declare_project()
 
-find_package(PFLOGGER REQUIRED)
+###find_package(PFLOGGER REQUIRED)
+find_package(PFLOGGER ${PFLOGGER_IS_REQUIRED_ARG} CONFIG)
 
 # Special case - MAPL_cfio is built twice with two different precisions.
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)
