@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added target "build-tests" that will build all tests.  This will enable
   ctest to be more selective about which tests.
 - Added ability of MAPL_GridCompGetFriendlies to recurse its children
-- Added `add_subdirectory(@env)` to `CMakeLists.txt` to allow
+- Added `esma_add_subdirectory(ESMA_env)` to `CMakeLists.txt` to allow
   installation of various files to the `bin` and `etc` directories under
   install prefix
 
