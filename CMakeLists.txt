@@ -61,7 +61,10 @@ add_subdirectory (Apps)
 
 add_subdirectory (Tests)
 
-add_subdirectory (@env)
+# @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
+if (IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/@env)
+   add_subdirectory (@env)
+endif ()
 
 # Install the Python directory
 install (
