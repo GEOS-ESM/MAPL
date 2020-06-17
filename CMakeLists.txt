@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.1.5
+  VERSION 2.2.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/@cmake)
@@ -60,6 +60,8 @@ include(mapl_create_stub_component)
 add_subdirectory (Apps)
 
 add_subdirectory (Tests)
+
+add_subdirectory (@env)
 
 # Install the Python directory
 install (
