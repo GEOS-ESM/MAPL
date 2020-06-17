@@ -44,6 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `./GMAO_pFIO` => `./pfio`
   - `./MAPL_Profiler` => `./profiler`
   - `./MAPL_Shared` => `./shared`  
+    
+- Updated `components.yaml` to use `ESMA_env` and `ESMA_cmake` if
+  building MAPL as standalone
 
 ### Fixed
 ### Removed
