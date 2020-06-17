@@ -65,12 +65,12 @@ set (srcs
   MAPL_SimpleAlarm.F90)
 
 # Customize dependencies for GCHP
-#esma_add_library(
-#  ${this} SRCS ${srcs}
-#  DEPENDENCIES MAPL_Profiler GMAO_pFIO MAPL_cfio_r4 pflogger gftl-shared FLAP::FLAP MPI::MPI_Fortran)
+###esma_add_library(
+###  ${this} SRCS ${srcs}
+###  DEPENDENCIES MAPL_Profiler GMAO_pFIO MAPL_cfio_r4 pflogger gftl-shared FLAP::FLAP MPI::MPI_Fortran)
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES GMAO_pFIO MAPL_cfio_r4 gftl-shared $<$<BOOL:${FLAP_IS_REQUIRED}>:FLAP::FLAP>)
+  DEPENDENCIES MAPL_Profiler GMAO_pFIO MAPL_cfio_r4 pflogger gftl-shared $<$<BOOL:${FLAP_IS_REQUIRED}>:FLAP::FLAP>)
 
 # Turn off GEOS compile options when using GCHP
 #target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
