@@ -140,6 +140,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Python automatic code generator for grid comp include files	
 - Added support to use pFlogger for logging
   - Command line option: --logging_config=<file>
+- Added ability for History to do monthly mean. This also involves reading and writing MAPL_GenericCpl checkpoints
 
 ## [2.0.6] - 2020-04-15
 
