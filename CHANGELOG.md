@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - String.F90 - encapsulates deferred length strings
 - Added target "build-tests" that will build all tests.  This will enable
   ctest to be more selective about which tests.
+- Added wildcard support for short name in automatic code generator for
+  gridded components.
 
 ### Changed
 - Refactored aliases in python automatic code generator.  Now aliases
