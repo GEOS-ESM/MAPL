@@ -2970,7 +2970,7 @@ contains
     _VERIFY(STATUS)
 
     call strToInt(DATE, nymd, nhms)
-    call string_template ( filename, filetmpl, &
+    call fill_grads_template ( filename, filetmpl, &
                            experiment_id=EXPID, nymd=nymd, nhms=nhms, rc=status )
     _VERIFY(STATUS)
     !call WRITE_PARALLEL("CFIO: Reading " // trim(filename))
@@ -4631,7 +4631,7 @@ CONTAINS
     _VERIFY(STATUS)
     
     call strToInt(DATE, nymd, nhms)
-    call string_template ( Filename, FileTmpl,&
+    call fill_grads_template ( Filename, FileTmpl,&
                            experiment_id=EXPID, nymd=nymd, nhms=nhms, rc=status )
     _VERIFY(STATUS)
     _RETURN(ESMF_SUCCESS)

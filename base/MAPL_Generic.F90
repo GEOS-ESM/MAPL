@@ -1435,7 +1435,7 @@ endif
 
       if(STATUS==ESMF_SUCCESS) then
          ! if the filename is tempate
-         call string_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), nymd=yyyymmdd,nhms=hhmmss,rc=status)
+         call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), nymd=yyyymmdd,nhms=hhmmss,rc=status)
          STATE%RECORD%INT_FNAME = FILENAME
          STATE%RECORD%INT_LEN = LEN_TRIM(FILENAME)
       else
@@ -1601,7 +1601,7 @@ endif
 
       if(STATUS==ESMF_SUCCESS) then
         ! if the filename is tempate
-         call string_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), &
+         call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), &
          nymd=yyyymmdd,nhms=hhmmss,rc=status)
          call MAPL_GetResource( STATE   , hdr,         &
                                  default=0, &
@@ -2111,7 +2111,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 
      if(STATUS==ESMF_SUCCESS) then
         ! if the filename is tempate
-        call string_template(filename,trim(adjustl(filetpl)),experiment_id=trim(id_string), nymd=yyyymmdd,nhms=hhmmss,rc=status)
+        call fill_grads_template(filename,trim(adjustl(filetpl)),experiment_id=trim(id_string), nymd=yyyymmdd,nhms=hhmmss,rc=status)
         call    MAPL_GetResource( STATE, FILETYPE, LABEL="INTERNAL_CHECKPOINT_TYPE:",                RC=STATUS )
         if ( STATUS/=ESMF_SUCCESS  .or.  FILETYPE == "default" ) then
            call MAPL_GetResource( STATE, FILETYPE, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )

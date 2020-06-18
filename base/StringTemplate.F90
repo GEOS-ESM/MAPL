@@ -8,7 +8,7 @@ use MAPL_KeywordEnforcerMod
 implicit none
 private
 
-public string_template
+public fill_grads_template
 
 character(len=2), parameter :: valid_tokens(13) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2"]
 character(len=3),parameter :: mon_lc(12) = [&
@@ -17,7 +17,7 @@ character(len=3),parameter :: mon_lc(12) = [&
 
 contains
 
-   subroutine string_template(output_string,template,unusable,experiment_id,nymd,nhms,time,rc)
+   subroutine fill_grads_template(output_string,template,unusable,experiment_id,nymd,nhms,time,rc)
       character(len=*), intent(out) :: output_string
       character(len=*), intent(in)  :: template
       class(keywordEnforcer), optional, intent(in) :: unusable
@@ -114,7 +114,7 @@ contains
          end if
       enddo
 
-   end subroutine string_template
+   end subroutine fill_grads_template
 
    function check_token(token) result(is_valid)
       character(len=2), intent(in) :: token
