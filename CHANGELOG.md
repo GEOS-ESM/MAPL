@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Update `components.yaml` to use `NOINSTALL`
     - ESMA_cmake v3.0.6
     - ecbuild geos/v1.0.5
+- Renamed MAPL_Profiler executable demo.x to profiler.x
 - Renamed directories.   Sub-libraries now named MAPL.<sub>
   
   - `./MAPL_Base` => `./base` (`MAPL.base`)
