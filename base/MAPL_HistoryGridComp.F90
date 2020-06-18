@@ -3431,7 +3431,7 @@ ENDDO PARSER
          read(DateStamp( 1: 8),'(i8.8)') nymd
          read(DateStamp(10:15),'(i6.6)') nhms
 
-         call string_template ( filename(n), fntmpl, &
+         call fill_grads_template ( filename(n), fntmpl, &
               experiment_id=trim(INTSTATE%expid), &
               nymd=nymd, nhms=nhms, rc=status ) ! here is where we get the actual filename of file we will write
          _VERIFY(STATUS)
