@@ -22,7 +22,6 @@ module MAPL_HistoryGridCompMod
   use MAPL_GenericCplCompMod
   use MAPL_NewArthParserMod
   use MAPL_SortMod
-  use ESMF_CFIOMOD, only:  StrTemplate => ESMF_CFIOstrTemplate
   use MAPL_CFIOServerMod
   use MAPL_ShmemMod
   use MAPL_StringGridMapMod
@@ -41,6 +40,8 @@ module MAPL_HistoryGridCompMod
   use MAPL_newCFIOitemMod
   use MAPL_ioClientsMod, only: io_client, o_Clients
   use HistoryTrajectoryMod
+  use MAPL_StringTemplate
+  use regex_module
   !use ESMF_CFIOMOD
 
   implicit none
@@ -361,6 +362,7 @@ contains
 
     integer                                   :: mntly
     integer                                   :: spltFld
+    integer                                   :: useRegex
     integer                                   :: unitr, unitw
     integer                                   :: tm,resolution(2)
     logical                                   :: match, contLine
@@ -416,6 +418,7 @@ contains
     integer :: collection_id
     logical, allocatable :: needSplit(:)
     type(ESMF_Field), allocatable :: fldList(:)
+    character(len=ESMF_MAXSTR), allocatable :: regexList(:)
     
 ! Begin
 !------
@@ -743,6 +746,7 @@ contains
        
        list(n)%monthly = .false.
        list(n)%splitField = .false.
+       list(n)%regex = .false.
 
        cfg = ESMF_ConfigCreate(rc=STATUS)
        _VERIFY(STATUS)
@@ -771,6 +775,10 @@ contains
 	                              label=trim(string) // 'splitField:',rc=status )
        _VERIFY(STATUS)
        list(n)%splitField = (spltFld /= 0)
+       call ESMF_ConfigGetAttribute ( cfg, useRegex, default=0, &
+	                              label=trim(string) // 'UseRegex:',rc=status )
+       _VERIFY(STATUS)
+       list(n)%regex = (useRegex /= 0)
        call ESMF_ConfigGetAttribute ( cfg, list(n)%frequency, default=060000, &
 	                              label=trim(string) // 'frequency:',rc=status )
        _VERIFY(STATUS)
@@ -1315,7 +1323,8 @@ contains
     do n=1,nlist
        do m=1,list(n)%field_set%nfields
           k=1
-          if (scan(trim(list(n)%field_set%fields(1,m)),'()^/*+-')==0)then
+          if (list(n)%regex .or. &
+              scan(trim(list(n)%field_set%fields(1,m)),'()^/*+-')==0)then
              do while ( k.le.nstatelist )
                 if (statelist(k) == '') statelist(k) = list(n)%field_set%fields(2,m)
                 if( statelist(k).ne.list(n)%field_set%fields(2,m)) then
@@ -1394,7 +1403,9 @@ contains
        allocate( list(n)%expSTATE(list(n)%field_set%nfields), stat=status )
        _VERIFY(STATUS)
        do m=1,list(n)%field_set%nfields
-       if (scan(trim(list(n)%field_set%fields(1,m)),'()^/*+-')==0)then
+! when we allow regex; some syntax resembles math expressions
+        if (list(n)%regex .or. &
+            scan(trim(list(n)%field_set%fields(1,m)),'()^/*+-')==0)then
           do k=1,nstatelist
              if( trim(list(n)%field_set%fields(2,m)) .eq. trim(statelist(k)) ) then
                 if (.not. stateListAvail(k)) then
@@ -1404,9 +1415,15 @@ contains
                 list(n)%expSTATE(m) = k
              end if
           enddo
-       endif 
+        endif 
        enddo
     enddo
+
+    ! Important: the next 2 calls modify the field's list
+    ! first we check if any regex expressions need to expanded
+    !---------------------------------------------------------
+    call wildCardExpand(rc=status)
+    _VERIFY(status)
 
     ! Deal with split 4d field
     !--------------------------
@@ -2517,6 +2534,231 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
 
   contains
+
+    subroutine wildCardExpand(rc)
+      integer, optional, intent(out) :: rc
+
+      ! local vars
+      integer :: status
+      
+      integer, pointer :: newExpState(:) => null()
+      type(newCFIOitemVectorIterator) :: iter
+      type(newCFIOitem), pointer :: item
+      integer :: nfields
+      integer :: nregex
+      character(len=ESMF_MAXSTR), allocatable :: fieldNames(:)
+      type(ESMF_State) :: expState
+      type(newCFIOItemVector), pointer  :: newItems
+      character(ESMF_MAXSTR) :: fldName, stateName
+      logical :: expand
+      integer :: k, i
+      
+      do n = 1, nlist
+         if (.not.list(n)%regex) cycle
+         fld_set => list(n)%field_set
+         nfields = fld_set%nfields
+
+         allocate(needSplit(nfields), regexList(nfields), stat=status)
+         _VERIFY(status)
+         regexList = ""
+         
+         allocate(newItems, stat=status); _VERIFY(status)
+
+         needSplit = .false.
+       
+         iter = list(n)%items%begin()
+         m = 0 ! m is the "old" field-index
+         do while(iter /= list(n)%items%end())
+            item => iter%get()
+            if (item%itemType == ItemTypeScalar) then
+               expand = hasRegex(fldName=item%xname, rc=status)
+               _VERIFY(status)
+               if (.not.expand) call newItems%push_back(item)
+            else if (item%itemType == ItemTypeVector) then
+               ! Lets' not allow regex expand for vectors
+               expand = hasRegex(fldName=item%xname, rc=status)
+               _VERIFY(status)
+               expand = expand.or.hasRegex(fldName=item%yname, rc=status)
+               _VERIFY(status)
+               if (.not.expand) call newItems%push_back(item)
+            end if
+   
+            call iter%next()
+         end do
+
+         ! re-pack field_set
+         nregex = count(needSplit)
+
+         if (nregex /= 0) then
+            nfields = nfields - nregex
+            allocate(newExpState(nfields), stat=status)
+            _VERIFY(status)
+            allocate(newFieldSet, stat=status); _VERIFY(status)
+            allocate(fields(4,nfields), stat=status); _VERIFY(status)
+            do k = 1, size(fld_set%fields,1)
+               fields(k,:) = pack(fld_set%fields(k,:), mask=.not.needSplit)
+            end do
+            newFieldSet%fields => fields
+            newFieldSet%nfields = nfields
+
+            newExpState = pack(list(n)%expState, mask=.not.needSplit)
+
+            ! regex and add the expanded fields to the list
+
+            do k = 1, size(needSplit) ! loop over "old" fld_set
+               if (.not. needSplit(k)) cycle
+
+               stateName = fld_set%fields(2,k)
+               expState = export(list(n)%expSTATE(k))
+               
+               call MAPL_WildCardExpand(state=expState, regexStr=regexList(k), &
+                    fieldNames=fieldNames, RC=status)
+               _VERIFY(STATUS)
+
+               do i=1,size(fieldNames)
+                  fldName = fieldNames(i)
+                  call appendFieldSet(newFieldSet, fldName, &
+                       stateName=stateName, &
+                       aliasName=fldName, &
+                       specialName='', rc=status)
+
+                  _VERIFY(status)
+                  ! append expState
+                  call appendArray(newExpState,idx=list(n)%expState(k),rc=status)
+                  _VERIFY(status)
+
+                  item%itemType = ItemTypeScalar
+                  item%xname = trim(fldName)
+                  item%yname = ''
+
+                  call newItems%push_back(item)
+
+               end do
+
+               deallocate(fieldNames)
+            end do
+
+            ! set nfields to ...
+
+            list(n)%field_set => newFieldSet
+            deallocate(list(n)%expState)
+            list(n)%expState => newExpState
+            list(n)%items = newItems
+         end if
+         ! clean-up
+         deallocate(needSplit, regexList)
+      enddo
+
+      _RETURN(ESMF_SUCCESS)
+    end subroutine wildCardExpand
+
+    function hasRegex(fldName, rc) result(haveIt)
+      logical :: haveIt
+      character(len=*),  intent(in)   :: fldName
+      integer, optional, intent(out) :: rc
+
+      ! local vars
+      integer :: k
+      integer :: status
+      character(len=ESMF_MAXSTR) :: tmpString
+      character(len=1), parameter :: BOR = "`"
+      character(len=1), parameter :: EOR = "`"
+      
+      ! and these vars are declared in the caller
+      ! fld_set
+      ! m
+
+      haveIt = .false.
+
+      m = m + 1
+      _ASSERT(fldName == fld_set%fields(3,m), 'Incorrect order') ! we got "m" right
+
+      tmpString = adjustl(fldName)
+      _ASSERT(len_trim(tmpString) > 0, "Empty name not allowed")
+      
+      ! begin-of-regex
+      haveIt = tmpString(1:1) == BOR
+
+      needSplit(m) = haveIt
+
+      if (haveIt) then
+         ! search for end-of-regex
+         k = index(tmpString(2:), EOR)
+         _ASSERT(k>1, "No EOR (end-of-regex)")
+         ! strip BOR and EOR
+         fld_set%fields(1,m) = tmpString(2:k)
+         fld_set%fields(3,m) = tmpString(2:k)
+         regexList(m) = tmpString(2:k)
+      end if
+
+
+      _RETURN(ESMF_SUCCESS)
+     
+    end function hasRegex
+
+    subroutine MAPL_WildCardExpand(state, regexStr, fieldNames, rc)
+      type(ESMF_State), intent(in) :: state
+      character(len=*), intent(in) :: regexStr
+      character(len=*), allocatable, intent(inout) :: fieldNames(:)
+      integer, optional, intent(out) :: rc
+
+      ! local vars
+      integer :: nitems, i, count
+      integer :: status
+      character (len=ESMF_MAXSTR), allocatable  :: itemNameList(:)
+      type(ESMF_StateItem_Flag),   allocatable  :: itemtypeList(:)
+      type(regex_type) :: regex
+      logical :: match
+      integer :: nmatches(2, ESMF_MAXSTR)
+      character(len=ESMF_MAXSTR), allocatable :: tmpFldNames(:)
+
+      call ESMF_StateGet(state, itemcount=nitems,  rc=status)
+      _VERIFY(status)
+
+      allocate(itemNameList(nitems), itemtypeList(nitems), stat=status)
+      _VERIFY(status)
+
+      call ESMF_StateGet(state,itemNameList=itemNameList,&
+                       itemTypeList=itemTypeList,RC=STATUS)
+    _VERIFY(STATUS)
+      call regcomp(regex,trim(regexStr),'xmi',status=status)
+    _VERIFY(STATUS)
+
+      if (.not.allocated(fieldNames)) then
+         allocate(fieldNames(0), stat=status)
+         _VERIFY(status)
+      end if
+      count = size(fieldNames)
+      
+      do i=1,nitems
+         if (itemTypeList(i) /= ESMF_STATEITEM_FIELD) cycle
+         
+         match = regexec(regex,trim(itemNameList(i)),nmatches,status=status)
+!non-zero indicate no match         _VERIFY(status)
+         if (match) then
+            ! debugging print
+            if (MAPL_AM_I_ROOT()) then
+               print *,'DEBUG:adding field to the list '//trim(itemNameList(i))
+            end if
+
+            count = count + 1
+            ! logic to grow the list
+            allocate(tmpFldNames(count), stat=status)
+            _VERIFY(status)
+            tmpFldNames(1:count-1) = fieldNames
+            call move_alloc(tmpFldNames, fieldNames)
+
+            fieldNames(count) = itemNameList(i)
+         end if
+         
+      end do
+
+      call regfree(regex)
+      deallocate(itemNameList, itemtypeList)
+
+      _RETURN(ESMF_SUCCESS)
+    end subroutine MAPL_WildCardExpand
+    
     subroutine split4dFields(rc)
       integer, optional, intent(out) :: rc
 
@@ -3189,9 +3431,9 @@ ENDDO PARSER
          read(DateStamp( 1: 8),'(i8.8)') nymd
          read(DateStamp(10:15),'(i6.6)') nhms
 
-         call StrTemplate ( filename(n), fntmpl, 'GRADS', &
-              xid=trim(INTSTATE%expid), &
-              nymd=nymd, nhms=nhms, stat=status ) ! here is where we get the actual filename of file we will write
+         call fill_grads_template ( filename(n), fntmpl, &
+              experiment_id=trim(INTSTATE%expid), &
+              nymd=nymd, nhms=nhms, rc=status ) ! here is where we get the actual filename of file we will write
          _VERIFY(STATUS)
 
          if(list(n)%monthly .and. list(n)%partial) then
@@ -4857,6 +5099,6 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_StateGet
-
+  
 end module MAPL_HistoryGridCompMod
 

@@ -14,6 +14,7 @@
       real,                    optional, intent(OUT) :: ZTHD DIMENSIONS
       real,                    optional, intent(OUT) :: ZTH1 DIMENSIONS
       real,                    optional, intent(OUT) :: ZTHN DIMENSIONS
+      real,                    optional, intent(OUT) :: ZTHP DIMENSIONS
       real,                    optional, intent(IN)  :: STEPSIZE
       integer,                 optional, intent(OUT) :: RC
 
@@ -34,7 +35,7 @@
       type (ESMF_Time)  :: CURRENTTIME
       type (ESMF_Clock) :: MYCLOCK
       type (ESMF_TimeInterval)  :: ts
-      real, dimension THE_SIZE :: ZTT, SLT, Y, ZTB, ZTD, NCC
+      real, dimension THE_SIZE :: ZTT, SLT, Y, NCC, ZTP
 
       real(ESMF_KIND_R8) :: days
       real :: ECC, OBQ, LAMBDAP
@@ -70,6 +71,9 @@
          call WRITE_PARALLEL('--- WARNING --- sun.H --- Doubly Periodic Using Daily Mean Solar Insolation')
          TIME_=MAPL_SunDailyMean
       end if
+
+      ! default value for ZTP since not fully implemented for some options
+      ZTP = 0.
 
       ! analytic two-body currently only works with TIME_=0 currently
       _ASSERT(.NOT.(ORBIT%ANAL2B.AND.TIME_/=0),'analytic two-body orbit currently requires TIME_=0') 
@@ -135,6 +139,8 @@
                ZTH = 0.0
             endwhere
 
+            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for SunDailyMean') 
+
          case(MAPL_SunAnnualMean)
 
             !pmn: consistent with above (and erroneous) SunDailyMean,
@@ -169,6 +175,8 @@
             ZTH = ZTH / float(ORBIT%DAYS_PER_CYCLE)
 
             if(present(DIST)) DIST = 1.0
+
+            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for SunAnnualMean') 
 
          case (0,                       &
                MAPL_SunAutumnalEquinox, & 
@@ -271,6 +279,9 @@
 
             end if
 
+            ! copy ZTH to ZTP before above horizon enforcement
+            ZTP = ZTH
+
             ! enforce zero insolation for sun below horizon
             ZTH = max(ZTH, 0.0)
 
@@ -298,14 +309,17 @@
          case(10)
             SLR = 0.3278
             ZTH = 0.6087247
+            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for TIME_ == 10') 
 
          case(11)
             SLR = 0.3449
             ZTH = 0.5962
+            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for TIME_ == 11') 
 
          case(12)
             SLR = 0.3461
             ZTH = 0.5884
+            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for TIME_ == 12') 
 
          end select
 
@@ -313,6 +327,7 @@
          if(present(ZTHD)) ZTHD = ZTH
          if(present(ZTH1)) ZTH1 = ZTH
          if(present(ZTHN)) ZTHN = ZTH
+         if(present(ZTHP)) ZTHP = ZTP
 
        else ! Return Time-Interval-Mean present(INTV)
 
@@ -346,9 +361,10 @@
 
          if(present(ZTHB)) ZTHB = 0.0
          if(present(DIST)) DIST = 0.0
+         if(present(ZTHP)) ZTHP = 0.0
 
          call MAPL_SunGetInsolation( LONS, LATS, ORBIT, ZTT, SLT, &
-              CLOCK=MYCLOCK, TIME=TIME, DIST=DD, &
+              CLOCK=MYCLOCK, TIME=TIME, DIST=DD, ZTHP=ZTP, &
               RC=STATUS)
          _VERIFY(STATUS)
 
@@ -359,6 +375,7 @@
             ZTH = ZTH + ZTT*SLT*0.5
 
             if(present(ZTHB)) ZTHB = ZTHB + 0.5*ZTT
+            if(present(ZTHP)) ZTHP = ZTHP + 0.5*ZTP
             if(present(ZTHD)) then
                where(ZTT>0.0)
                   ZTHD = ZTHD + 0.5*ZTT
@@ -372,7 +389,7 @@
             _VERIFY(STATUS)
 
             call MAPL_SunGetInsolation( LONS, LATS, ORBIT, ZTT, SLT, &
-                 CLOCK=MYCLOCK, TIME=TIME, ZTHB=ZTB, ZTHD=ZTD, DIST=DD, &
+                 CLOCK=MYCLOCK, TIME=TIME, DIST=DD, ZTHP=ZTP, &
                  RC=STATUS)
             _VERIFY(STATUS)
 
@@ -380,6 +397,7 @@
             ZTH = ZTH + ZTT*SLT*0.5
 
             if(present(ZTHB)) ZTHB = ZTHB + 0.5*ZTT
+            if(present(ZTHP)) ZTHP = ZTHP + 0.5*ZTP
             if(present(ZTHD)) then
                where(ZTT>0.0)
                   ZTHD = ZTHD + 0.5*ZTT
@@ -402,6 +420,7 @@
          end where
 
          if(present(ZTHB)) ZTHB = ZTHB/dble(NT)
+         if(present(ZTHP)) ZTHP = ZTHP/dble(NT)
 
          if(present(ZTHD)) then
             where(NCC>0.0)
