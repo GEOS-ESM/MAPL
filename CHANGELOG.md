@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `esma_add_subdirectory(ESMA_env)` to `CMakeLists.txt` to allow
   installation of various files to the `bin` and `etc` directories under
   install prefix
+- Added wildcard support for short name in automatic code generator for
+  gridded components.
+
 
 ### Changed
 
