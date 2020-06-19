@@ -2408,7 +2408,6 @@ ENDDO PARSER
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),rc=status)
              _VERIFY(status)
-             if (mapl_am_I_root()) write(*,*)'bmaa recycle: ',n,list(n)%recycle_track
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,rc=status)
              _VERIFY(status)
           else
