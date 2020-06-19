@@ -141,6 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed `checkout_externals` code in `CMakeLists.txt`
 
 ### Added
+- Added record capabilites for the History restarts
 
 - Added configuration for CircleCI and Github Actions
   - Builds MAPL using GCC 9.2.0 and Open MPI 4.0.2
