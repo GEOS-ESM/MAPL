@@ -106,7 +106,6 @@ module MAPL_GenericMod
   use ESMF
   use ESMFL_Mod
 
-  use ESMF_CFIOMod, only: ESMF_CFIOStrTemplate
   use pFIO
   use gFTL_StringVector
   use pFIO_ClientManagerMod
@@ -125,6 +124,7 @@ module MAPL_GenericMod
   use MAPL_ConfigMod
   use MAPL_ExceptionHandling
   use MAPL_KeywordEnforcerMod
+  use MAPL_StringTemplate
   use pFlogger, only: logging, Logger
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
@@ -1435,7 +1435,7 @@ endif
 
       if(STATUS==ESMF_SUCCESS) then
          ! if the filename is tempate
-         call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = trim(id_string), nymd=yyyymmdd,nhms=hhmmss,stat=status)
+         call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), nymd=yyyymmdd,nhms=hhmmss,rc=status)
          STATE%RECORD%INT_FNAME = FILENAME
          STATE%RECORD%INT_LEN = LEN_TRIM(FILENAME)
       else
@@ -1601,7 +1601,8 @@ endif
 
       if(STATUS==ESMF_SUCCESS) then
         ! if the filename is tempate
-         call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = trim(id_string), nymd=yyyymmdd,nhms=hhmmss,stat=status)
+         call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), &
+         nymd=yyyymmdd,nhms=hhmmss,rc=status)
          call MAPL_GetResource( STATE   , hdr,         &
                                  default=0, &
                                  LABEL="INTERNAL_HEADER:", &
@@ -2110,7 +2111,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
 
      if(STATUS==ESMF_SUCCESS) then
         ! if the filename is tempate
-        call ESMF_CFIOStrTemplate(FILENAME, trim(adjustl(FILEtpl)),'GRADS', xid = trim(id_string), nymd=yyyymmdd,nhms=hhmmss,stat=status)
+        call fill_grads_template(filename,trim(adjustl(filetpl)),experiment_id=trim(id_string), nymd=yyyymmdd,nhms=hhmmss,rc=status)
         call    MAPL_GetResource( STATE, FILETYPE, LABEL="INTERNAL_CHECKPOINT_TYPE:",                RC=STATUS )
         if ( STATUS/=ESMF_SUCCESS  .or.  FILETYPE == "default" ) then
            call MAPL_GetResource( STATE, FILETYPE, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
