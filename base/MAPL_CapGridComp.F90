@@ -428,6 +428,9 @@ contains
     call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPDSC, Label="EXPDSC:", rc=status)
     _VERIFY(STATUS)
 
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value=heartbeat_dt, Label="RUN_DT:", rc=status)
+    _VERIFY(STATUS)
+
     call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPID,  Label="EXPID:",  rc=status)
     _VERIFY(STATUS)
     call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPDSC, Label="EXPDSC:", rc=status)
@@ -1069,11 +1072,15 @@ contains
     _VERIFY(status)
 
     ! Call Record for intermediate checkpoint (if desired)
-    !  Note that we are not doing a Record for History.
     ! ------------------------------------------------------
 
     call ESMF_GridCompWriteRestart(this%gcs(this%root_id), importstate = this%child_imports(this%root_id), &
          exportstate = this%child_exports(this%root_id), &
+         clock = this%clock_hist, userrc = status)
+    _VERIFY(status)
+
+    call ESMF_GridCompWriteRestart(this%gcs(this%history_id), importstate = this%child_imports(this%history_id), &
+         exportstate = this%child_exports(this%history_id), &
          clock = this%clock_hist, userrc = status)
     _VERIFY(status)
 

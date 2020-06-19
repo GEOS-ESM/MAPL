@@ -1385,7 +1385,7 @@ contains
     call ESMF_CplCompGet(CC, vm=vm, rc=status)
     _VERIFY(STATUS)
 
-    filename = trim(state%name) // '_chk' ! following Andrea's suggestion
+    filename = trim(comp_name) // '_checkpoint' ! following Andrea's and Larry's suggestions
     am_i_root = MAPL_AM_I_ROOT(vm)
 
     unit=0 ! just to initialize
