@@ -44,6 +44,7 @@ module MAPL_CFIOMod
   use PFIO
   use MAPL_ioClientsMod
   use gFTL_IntegerVector
+  use MAPL_StringTemplate
 
   use, intrinsic :: ISO_C_BINDING
 
@@ -2969,8 +2970,8 @@ contains
     _VERIFY(STATUS)
 
     call strToInt(DATE, nymd, nhms)
-    call ESMF_CFIOstrTemplate ( filename, filetmpl, 'GRADS', &
-                                xid=EXPID, nymd=nymd, nhms=nhms, stat=status )
+    call fill_grads_template ( filename, filetmpl, &
+                           experiment_id=EXPID, nymd=nymd, nhms=nhms, rc=status )
     _VERIFY(STATUS)
     !call WRITE_PARALLEL("CFIO: Reading " // trim(filename))
     if (mapl_am_i_root()) write(*,*)"CFIO: Reading ",trim(filename)," at ",nymd," ",nhms
@@ -4630,8 +4631,8 @@ CONTAINS
     _VERIFY(STATUS)
     
     call strToInt(DATE, nymd, nhms)
-    call ESMF_CFIOstrTemplate ( Filename, FileTmpl, 'GRADS', &
-                                xid=EXPID, nymd=nymd, nhms=nhms, stat=status )
+    call fill_grads_template ( Filename, FileTmpl,&
+                           experiment_id=EXPID, nymd=nymd, nhms=nhms, rc=status )
     _VERIFY(STATUS)
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GetCurrentFile

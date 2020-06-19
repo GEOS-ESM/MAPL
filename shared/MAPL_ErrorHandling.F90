@@ -12,6 +12,37 @@ module MAPL_ErrorHandlingMod
    public :: MAPL_ASRT
    public :: MAPL_abort
 
+
+   public :: MAPL_UNKNOWN_ERROR
+   public :: MAPL_SUCCESS
+
+   public :: MAPL_NO_SUCH_PROPERTY
+   public :: MAPL_NO_SUCH_VARIABLE
+   public :: MAPL_TYPE_MISMATCH
+   public :: MAPL_UNSUPPORTED_TYPE
+   public :: MAPL_VALUE_NOT_SUPPORTED
+
+   public :: MAPL_NO_DEFAULT_VALUE
+   public :: MAPL_DUPLICATE_KEY
+   public :: MAPL_STRING_TOO_SHORT
+
+   enum, bind(c)
+      enumerator :: MAPL_UNKNOWN_ERROR = -1
+      enumerator :: MAPL_SUCCESS       = 0
+
+      ! 001-005
+      enumerator :: MAPL_NO_SUCH_PROPERTY
+      enumerator :: MAPL_NO_SUCH_VARIABLE
+      enumerator :: MAPL_TYPE_MISMATCH
+      enumerator :: MAPL_UNSUPPORTED_TYPE
+      enumerator :: MAPL_VALUE_NOT_SUPPORTED
+
+      ! 006-010
+      enumerator :: MAPL_NO_DEFAULT_VALUE
+      enumerator :: MAPL_DUPLICATE_KEY
+      enumerator :: MAPL_STRING_TOO_SHORT
+   end enum
+
 interface MAPL_VRFY
    module procedure MAPL_VRFY
    module procedure MAPL_VRFYt
@@ -46,7 +77,6 @@ contains
 
    end function MAPL_Assert
 
-
    logical function MAPL_Verify(status, filename, line, rc) result(fail)
       integer, intent(in) :: status
       character(*), intent(in) :: filename
@@ -61,8 +91,7 @@ contains
       fail = .not. condition
 
       if (fail) then
-         write(status_string,'(i0)') status
-         message = 'status=' // status_string
+         message = get_error_message(status)
          call MAPL_throw_exception(filename, line, message=message)
          if (present(rc)) rc = status
       end if
@@ -84,8 +113,7 @@ contains
       fail = .not. condition
 
       if (fail) then
-         write(status_string,'(i0)') status
-         message = 'status=' // status_string
+         message = get_error_message(status)
          call MAPL_throw_exception(filename, line, message=message)
       end if
       ! Regardless of error:
@@ -170,5 +198,47 @@ contains
       integer :: error_code
       call MPI_Abort(MPI_COMM_WORLD,error_code,status)
   end subroutine MAPL_abort
+
+  function get_error_message(error_code) result(description)
+     use gFTL_IntegerStringMap
+     character(:), allocatable :: description
+     integer, intent(in) :: error_code
+
+     type(IntegerStringMap), save :: error_messages
+     logical, save :: initialized = .false.
+
+
+     call initialize_err()
+
+     if (error_messages%count(error_code) > 0) then
+        description = error_messages%at(error_code)
+     else
+        description = error_messages%at(MAPL_UNKNOWN_ERROR)
+     end if
+
+  contains
+
+     subroutine initialize_err()
+
+        !$OMP serial
+        if (.not. initialized) then
+           initialized = .true.
+           call error_messages%insert(MAPL_UNKNOWN_ERROR, 'unknown error')
+           call error_messages%insert(MAPL_SUCCESS, 'success')
+
+           call error_messages%insert(MAPL_NO_SUCH_PROPERTY, 'no such property')
+           call error_messages%insert(MAPL_NO_SUCH_VARIABLE, 'no such variable')
+           call error_messages%insert(MAPL_TYPE_MISMATCH,    'passed argument does not match expected type')
+           call error_messages%insert(MAPL_UNSUPPORTED_TYPE, 'provided data type is not supported by this subclass')
+           call error_messages%insert(MAPL_VALUE_NOT_SUPPORTED, 'provided value is not supported by this subclass')
+
+           call error_messages%insert(MAPL_NO_DEFAULT_VALUE, 'no default value has been provided for this property')
+           call error_messages%insert(MAPL_DUPLICATE_KEY, 'map container already has the specified key')
+           call error_messages%insert(MAPL_STRING_TOO_SHORT, 'fixed length string is not long enough to contain requested data')
+        end if
+        !$OMP end serial
+     end subroutine initialize_err
+
+  end function get_error_message
 
 end module MAPL_ErrorHandlingMod

@@ -28,6 +28,7 @@ MAPL_CapOptions.F90                   MAPL_ioClients.F90                  MAPL_T
 MAPL_CFIO.F90                         MAPL_IO.F90                         MAPL_TimeMethods.F90
 MAPL_CFIOServer.F90                   MAPL_LatLonGridFactory.F90          MAPL_TransposeRegridder.F90
 MAPL_Comms.F90                        MAPL_LatLonToLatLonRegridder.F90    MAPL_TripolarGridFactory.F90
+MAPL_LlcGridFactory.F90
 MAPL_Config.F90                       MAPL_LocStreamMod.F90               MAPL_VarSpecMod.F90
 MAPL_ConservativeRegridder.F90        MAPL_MaxMinMod.F90                  MAPL_VerticalInterpMod.F90
 MAPL_CubedSphereGridFactory.F90       MAPL_MemUtils.F90                   MAPL_VerticalMethods.F90
@@ -40,6 +41,8 @@ MAPL_ExtDataCollectionManager.F90     MAPL_NUOPCWrapperMod.F90            SplitC
 MAPL_ExtDataGridCompMod.F90           MAPL_OrbGridCompMod.F90             tstqsat.F90
 MAPL_LocStreamFactoryMod.F90          MAPL_HistoryTrajectoryMod.F90       MAPL_LocstreamRegridder.F90
 ServerManager.F90 ApplicationSupport.F90
+regex_module.F90 StringTemplate.F90
+regex_F.c
 c_mapl_locstream_F.c  getrss.c  memuse.c
 )
 

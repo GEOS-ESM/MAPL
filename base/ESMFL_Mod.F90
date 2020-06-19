@@ -55,7 +55,6 @@ module ESMFL_MOD
 
   public ESMFL_RegridStore ! only used for regridding using ESMF_FieldRegrid
   public ESMFL_Regrid      
-  public ESMFL_Diff      
   public ESMFL_State2Bundle
   public ESMFL_Bundle2State
   public ESMFL_Bundles2Bundle
@@ -63,6 +62,8 @@ module ESMFL_MOD
   public ESMFL_HALO
   public ESMFL_BundleAddState
   public MAPL_AreaMean
+  public ESMFL_Diff
+  public ESMFL_statistics
   !EOP
 
   ! regridding
@@ -3000,13 +3001,16 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
          call ESMF_FieldGet (dstFLD, localDE=0, farrayPtr=dptr3d, rc = status)
          if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
        endif
-     else
+     else if(rank==2) then
        call ESMF_FieldGet (srcFLD, localDE=0, farrayPtr=sptr2d, rc = status)
        if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
        if (present(dstBUN)) then
           call ESMF_FieldGet (dstFLD, localDE=0, farrayPtr=dptr2d, rc = status)
           if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
        endif
+     else
+       if (MAPL_AM_I_Root()) print*, "WARNING: rank=1 field not implmented yet"
+       cycle
      end if
 
     ! loop over field's vertical levels
@@ -3288,7 +3292,9 @@ CONTAINS
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
    if(itemcount==0) then
-      call ESMFL_FailedRC(mype,Iam//': ESMF_state is empty')
+      !call ESMFL_FailedRC(mype,Iam//': ESMF_state is empty')
+      if (MAPL_AM_I_Root()) print*, "WARNING: "//Iam//': ESMF_state is empty'
+      _RETURN(_SUCCESS)
    end if
 
    allocate(itemnamelist(itemcount), stat=status)
@@ -3302,7 +3308,8 @@ CONTAINS
 
    do i=1,itemcount
       if(itemtypelist(i)/=ESMF_STATEITEM_FIELD) then
-        call ESMFL_FailedRC(mype,Iam//': State item is not a field.')
+        !call ESMFL_FailedRC(mype,Iam//': State item is not a field.')
+        if (MAPL_AM_I_Root()) print*, "WARNING: "//Iam//':  State item is not a field'
       end if
    end do
 
@@ -3318,7 +3325,8 @@ CONTAINS
 
       do i=1,itemcount
          if(itemtypelist(i)/=ESMF_STATEITEM_FIELD) then
-           call ESMFL_FailedRC(mype,Iam//': State item is not a field.')
+          ! call ESMFL_FailedRC(mype,Iam//': State item is not a field.')
+            if (MAPL_AM_I_Root()) print*, "WARNING: "//Iam//':  State item is not a field'
          end if
       end do
       call State2Bundle (dstSTA, dstBun)
