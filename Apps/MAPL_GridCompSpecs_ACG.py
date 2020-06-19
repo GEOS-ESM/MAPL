@@ -78,6 +78,13 @@ class MAPL_DataSpec:
         else:
             return name
 
+    def mangled_name(name):
+        if name[-1] == '*':
+            return "'" + name[:-1] + "'//trim(comp_name)"
+        else:
+            return "'" + name + "'"
+        
+
     def emit_declare_pointers(self):
         text = self.emit_header()
         type = 'real'
@@ -97,7 +104,8 @@ class MAPL_DataSpec:
     def emit_get_pointers(self):
         text = self.emit_header()
         short_name = MAPL_DataSpec.internal_name(self.args['short_name'])
-        text = text + "call MAPL_GetPointer(" + self.category + ', ' + short_name + ", '" + short_name + "', rc=status); VERIFY_(status)" 
+        mangled_name = MAPL_DataSpec.mangled_name(self.args['short_name'])
+        text = text + "call MAPL_GetPointer(" + self.category + ', ' + short_name + ", " + mangled_name + ", rc=status); VERIFY_(status)" 
         text = text + self.emit_trailer()
         return text
 
@@ -127,10 +135,7 @@ class MAPL_DataSpec:
                     return ''
             text = text + option + "="
             if option in MAPL_DataSpec.stringlike_options:
-                if (option == 'short_name' and value[-1] == '*'):
-                    value = "'" + value[:-1] + "' // trim(comp_name)"
-                else:
-                    value = "'" + value + "'"
+                value = MAPL_DataSpec.mangled_name(value)
             elif option in MAPL_DataSpec.arraylike_options:
                 value = '[' + value + ']' # convert to Fortran 1D array
             else:
