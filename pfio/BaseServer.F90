@@ -26,9 +26,15 @@ module pFIO_BaseServerMod
    use pFIO_SimpleSocketMod
    use pFIO_MessageVectorMod
    use pFIO_MessageVectorUtilMod
+   use pFIO_ForwardDataMessageMod
+   use pFIO_AttributeMod
+   use pFIO_StringAttributeMapMod
+   use pFIO_StringAttributeMapUtilMod
    use pFIO_DummyMessageMod
    use pFIO_DoneMessageMod
    use pFIO_CollectiveStageDataMessageMod
+   use pFIO_NetCDF4_FileFormatterMod
+   use pFIO_HistoryCollectionMod
    use mpi
 !   use pfio_base
 
@@ -48,7 +54,7 @@ module pFIO_BaseServerMod
       procedure :: clear_RequestHandle
       procedure :: get_dmessage ! get done or dummy message
       procedure :: set_collective_request ! 
-
+      procedure :: forward_DataToWriter 
    end type BaseServer
 
 contains
@@ -94,11 +100,18 @@ contains
      class (AbstractDataReference), pointer :: dataRefPtr
      class (RDMAReference), pointer :: remotePtr
      integer(kind=MPI_ADDRESS_KIND) :: offset, msize
- 
+     integer :: status
+     type (ForwardDataMessage) :: forMSG 
+     type (MessageVector) :: forwardVec
+     type (StringAttributeMap) :: forData  
+     type (StringAttributeMapIterator) :: fiter
+     type (NetCDF4_FileFormatter),pointer :: formatter
+     type (HistoryCollection),pointer :: hist_collection
+     logical :: f_exist
      !real(KIND=REAL64) :: t0, t1
-
      !t0 = 0.0d0
      !t1 = -1.0d0
+
      do n= 1, this%threads%size()
         threadPtr=>this%threads%at(n)
         if( n == 1) then ! only need to check one thread
@@ -122,12 +135,36 @@ contains
 
                  request_iter = this%stage_offset%find(i_to_string(q%request_id)//'done')
                  if (request_iter == this%stage_offset%end() .and. this%rank == remotePtr%mem_rank ) then ! not read yet
-                      !print*, this%rank , " is wrinting this collection ", collection_counter
                    ! (1) get address where data should put
                     offset     = this%stage_offset%at(i_to_string(q%request_id))
                     offset_address   = c_loc(i_ptr(offset+1))
-                   ! (2) write data
-                    call threadPtr%put_DataToFile(q,offset_address)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    if (this%inter_comm /= MPI_COMM_NULL) then
+                       !2) forward data to writer
+                       forMSG = ForwardDataMessage(q%request_id, q%collection_id, q%file_name, q%var_name, &
+                           q%type_kind, q%global_count, offset)
+                       call forwardVec%push_back(forMSG)
+                       fiter = forData%find(i_to_string(q%collection_id))
+                       if ( fiter == forData%end()) then
+                          call forData%insert(i_to_string(q%collection_id), Attribute(i_ptr(1:msize))) 
+                       endif
+
+                       hist_collection=>threadPtr%get_hist_collection(q%collection_id)
+                       ! create file with meta data
+                       inquire(file=q%file_name, exist=f_exist)
+                       if (.not. f_exist) then
+                          allocate(formatter)
+                          call formatter%create(trim(q%file_name),rc=status)
+                          _VERIFY(status)
+                          call formatter%write(hist_collection%fmd, rc=status)
+                          _VERIFY(status)
+                          call formatter%close()
+                          deallocate(formatter)
+                       endif
+                    else
+                    ! (2) write data directly
+                       call threadPtr%put_DataToFile(q,offset_address)
+                    endif  
                    ! (3) leave a mark, it has been written
                     call this%stage_offset%insert(i_to_string(q%request_id)//'done',0_MPI_ADDRESS_KIND)
                     !t1 = mpi_wtime()
@@ -135,6 +172,13 @@ contains
               end select
               call iter%next()
            enddo ! do backlog loop
+
+           if (this%inter_comm /= MPI_COMM_NULL .and. .not. forwardVec%empty()) then 
+              call this%Forward_dataToWriter(forwardVec, forData, rc=status)
+              call forwardVec%clear()
+              call forData%clear() 
+           endif
+           call MPI_Barrier(this%comm, status)
         endif ! first thread n==1 
         call threadPtr%clear_backlog()
         call threadPtr%clear_hist_collections()
@@ -242,5 +286,39 @@ contains
       enddo
 
    end subroutine set_collective_request
+
+   subroutine forward_DataToWriter(this, forwardVec, forwardData, rc)
+      class (BaseServer),target, intent(inout) :: this
+      type (MessageVector), intent(in) ::      forwardVec
+      type (StringAttributeMap), intent(in) :: forwardData
+      integer, optional, intent(out) :: rc
+
+      integer :: writer_rank, bsize, ksize, k, rank
+      integer :: command, ierr, MPI_STAT(MPI_STATUS_SIZE)
+      integer, allocatable :: buffer(:)
+      integer :: status
+      type (MessageVectorIterator) :: iter
+
+
+      command = 1
+      call serialize_message_vector(forwardVec,buffer)
+      bsize = size(buffer)
+
+      call MPI_send(command, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, ierr)
+      call MPI_recv(writer_rank, 1, MPI_INTEGER, &
+                0, pFIO_s_tag, this%Inter_Comm , &
+                MPI_STAT, ierr)
+      !forward Message 
+      call MPI_send(bsize,  1,     MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
+      call MPI_send(buffer, bsize, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
+      !send number of collections
+      call StringAttributeMap_serialize(forwardData,buffer)
+      bsize = size(buffer)
+      call MPI_send(bsize,  1, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
+      call MPI_send(buffer, bsize, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
+      !2) send the data
+      
+      _RETURN(_SUCCESS)
+   end subroutine forward_dataToWriter
 
 end module pFIO_BaseServerMod

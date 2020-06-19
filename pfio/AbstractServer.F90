@@ -2,8 +2,9 @@
 #include "unused_dummy.H"
 
 module pFIO_AbstractServerMod
-   use MAPL_ExceptionHandling
+   use MAPL_ErrorHandlingMod
    use pFIO_ConstantsMod
+   use pFIO_KeywordEnforcerMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractDataReferenceVectorMod
    use pFIO_ShmemReferenceMod
@@ -27,6 +28,8 @@ module pFIO_AbstractServerMod
       integer :: rank   ! rank in all server processes
       integer :: npes   ! number of processes of the server
       integer :: status ! counter, UNALLOCATED, PENDING
+      integer :: nwriters ! number of nc4 writers to be spawned
+
       logical :: all_backlog_is_empty = .true. 
       integer :: num_clients = 0
       logical :: terminate
@@ -36,6 +39,7 @@ module pFIO_AbstractServerMod
       integer :: NodeRoot_Comm! communicator of server nodes' roots
       integer :: Node_Num     ! number of server nodes
       integer :: Node_Rank    ! rank of server nodes
+      integer :: Inter_Comm   ! communiator with spawned children for writing
 
       ! save info about which process belongs to which node 
       ! all processes keep this info
@@ -70,6 +74,7 @@ module pFIO_AbstractServerMod
       procedure :: get_writing_PE
       procedure :: distribute_task
       procedure :: get_communicator
+      procedure :: terminate_writers
 
    end type AbstractServer
 
@@ -104,10 +109,14 @@ module pFIO_AbstractServerMod
 
 contains
 
-   subroutine init(this,comm)
+   subroutine init(this, comm, unusable, nwriters, pfio_writer, rc)
       class (AbstractServer),intent(inout) :: this
       integer, intent(in) :: comm
-
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: nwriters
+      character(len=*), optional, intent(in) :: pfio_writer
+      integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: pfio_writer_
       integer :: ierror, MyColor
 
       call MPI_Comm_dup(comm, this%comm, ierror)
@@ -141,6 +150,20 @@ contains
 
       call Mpi_AllGather(this%Node_Rank,  1, MPI_INTEGER, &
                          this%Node_Ranks, 1, MPI_INTEGER, comm,ierror)
+
+      this%Inter_Comm = MPI_COMM_NULL
+      this%nwriters = 0
+      pfio_writer_ = './pfio_writer.x'
+      if (present(nwriters))    this%nwriters = nwriters
+      if (present(pfio_writer)) pfio_writer_  = trim(pfio_writer)
+
+      if (this%nwriters == 0) then
+         _RETURN(_SUCCESS)
+      endif
+  
+      _ASSERT(this%nwriters > 1 ,' nwriters should be >=2. pfio_writer.x has captain-soldier structure')
+      call MPI_Comm_spawn( pfio_writer_ , MPI_ARGV_NULL, this%nwriters, MPI_INFO_NULL, 0, &
+                   this%comm, this%Inter_Comm, MPI_ERRCODES_IGNORE, ierror)
 
    end subroutine init
 
@@ -388,5 +411,20 @@ contains
       communicator = this%comm
 
    end function get_communicator
+
+   subroutine terminate_writers(this)
+      class (AbstractServer), intent(inout) :: this
+      integer :: terminate = -1
+      integer :: ierr
+      integer :: MPI_STAT(MPI_STATUS_SIZE)
+      ! The root rank sends termination signal to the root of the spawned children which would 
+      ! send terminate back for synchronization
+      ! if no syncrohization, the writer may be still writing while the main testing node is comparing
+      if( this%rank == 0 .and. this%nwriters > 1 ) then
+        call MPI_send(terminate, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, ierr)
+        call MPI_recv(terminate, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, MPI_STAT, ierr)
+      endif
+
+   end subroutine terminate_writers
 
 end module pFIO_AbstractServerMod

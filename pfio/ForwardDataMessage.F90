@@ -22,7 +22,6 @@ module pFIO_ForwardDataMessageMod
       integer :: type_kind
       integer, allocatable :: count(:)
       integer(kind=MPI_ADDRESS_KIND) :: offset 
-      integer(kind=MPI_ADDRESS_KIND) :: msize 
    contains
       procedure, nopass :: get_type_id
       procedure :: get_length
@@ -42,7 +41,7 @@ contains
 
    function new_ForwardDataMessage( &
         & request_id, collection_id, file_name, var_name, &
-        & type_kind, count, offset, msize) result(message)
+        & type_kind, count, offset) result(message)
       type (ForwardDataMessage) :: message
       integer, intent(in) :: request_id
       integer, intent(in) :: collection_id
@@ -51,7 +50,6 @@ contains
       integer :: type_kind
       integer, intent(in) :: count(:)
       integer(kind=MPI_ADDRESS_KIND), intent(in) :: offset 
-      integer(kind=MPI_ADDRESS_KIND), intent(in) :: msize 
 
       message%request_id    = request_id
       message%collection_id = collection_id
@@ -61,7 +59,6 @@ contains
 
       message%count = count
       message%offset = offset
-      message%msize  = msize
 
    end function new_ForwardDataMessage
 
@@ -75,8 +72,7 @@ contains
            & serialize_buffer_length(this%var_name) + &
            & serialize_buffer_length(this%type_kind) + &
            & serialize_buffer_length(this%count) + &
-           & serialize_buffer_length(this%offset) + &
-           & serialize_buffer_length(this%msize) 
+           & serialize_buffer_length(this%offset)
    end function get_length
 
    subroutine serialize(this, buffer, rc)
@@ -91,8 +87,7 @@ contains
            & serialize_intrinsic(this%var_name), &
            & serialize_intrinsic(this%type_kind), &
            & serialize_intrinsic(this%count), &
-           & serialize_intrinsic(this%offset), &
-           & serialize_intrinsic(this%msize)]
+           & serialize_intrinsic(this%offset)]
       _RETURN(_SUCCESS)
    end subroutine serialize
 
@@ -118,8 +113,6 @@ contains
       n = n + serialize_buffer_length(this%count)
       call deserialize_intrinsic(buffer(n:), this%offset)
       n = n + serialize_buffer_length(this%offset)
-      call deserialize_intrinsic(buffer(n:), this%msize)
-      n = n + serialize_buffer_length(this%msize)
       _RETURN(_SUCCESS)
    end subroutine deserialize
 

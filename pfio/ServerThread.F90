@@ -96,6 +96,7 @@ module pFIO_ServerThreadMod
       procedure :: handle_ModifyMetadata
       procedure :: handle_HandShake
 
+      procedure :: get_hist_collection
       procedure :: get_DataFromFile
       procedure :: get_DataFromMem
       procedure :: put_DataToFile
@@ -1315,5 +1316,12 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine get_DataFromMem
+
+   function get_hist_collection(this, collection_id) result(c)
+      class (ServerThread), target, intent(inout) :: this
+      integer, intent(in) :: collection_id
+      type (HistoryCollection), pointer :: c
+      c=>this%hist_collections%at(collection_id)
+   end function
 
 end module pFIO_ServerThreadMod

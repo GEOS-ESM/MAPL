@@ -52,9 +52,7 @@ contains
     logical :: f_exist
 
     iter = this%formatters%find(trim(file_name))
-    if (iter /= this%formatters%end()) then
-       formatter => this%formatters%at(trim(file_name))
-    else
+    if (iter == this%formatters%end()) then
        allocate(formatter)
        inquire(file=file_name, exist=f_exist)
        if(.not. f_exist) then 
@@ -66,7 +64,9 @@ contains
           call formatter%open(trim(file_name), pFIO_WRITE)
        endif
        call this%formatters%insert( trim(file_name),formatter)
+       deallocate(formatter)
     end if
+    formatter => this%formatters%at(trim(file_name))
     _RETURN(_SUCCESS)
   end function find
 
@@ -105,6 +105,7 @@ contains
       call f_ptr%close(rc=status)
       _VERIFY(status)
       ! remove the files
+      deallocate(f_ptr)
       call this%formatters%erase(iter)
       iter = this%formatters%begin()
     enddo
