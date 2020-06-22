@@ -52,9 +52,9 @@ jobs:
           # skip performance tests
           ctest -R MAPL -LE PERFORMANCE --output-on-failure
   build_gcm:
-    if: "!contains(github.event.pull_request.labels.*.name, 'trivial')"
     name: Build GEOSgcm
     runs-on: ubuntu-latest
+    if: "!contains(github.event.pull_request.labels.*.name, 'trivial')"
     container: gmao/geos-build-env-gcc-source:6.0.13-openmpi_4.0.3-gcc_9.3.0
     env:
       LANGUAGE: en_US.UTF-8
