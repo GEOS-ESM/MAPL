@@ -9,11 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 ### Changed
-
-- Updated Github Actions to not build GCM if trivial PR
-
 ### Fixed
 ### Removed
+
+## [2.2.2] - 2020-06-22
+
+### Changed
+
+- Updated Github Actions to not build GCM if trivial PR
 
 ## [2.2.1] - 2020-06-22
 
