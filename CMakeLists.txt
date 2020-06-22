@@ -4,11 +4,11 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.1.5
+  VERSION 2.2.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
-if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/@cmake)
-  list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/@cmake")
+if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/ESMA_cmake)
+  list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/ESMA_cmake")
   include (esma)
 else ()
   if (NOT COMMAND esma) # build as standalone project
@@ -28,7 +28,7 @@ else ()
     endif()
     option (SKIP_MEPO "Set to skip mepo steps" ON)
 
-    list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/@cmake")
+    list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/ESMA_cmake")
     include (esma)
   endif()
 endif()
@@ -41,9 +41,12 @@ find_package(PFLOGGER REQUIRED)
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)
 add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 
-add_subdirectory (GMAO_pFIO)
-add_subdirectory (MAPL_Profiler)
-add_subdirectory (MAPL_Base)
+add_subdirectory (pfio)
+add_subdirectory (profiler)
+add_subdirectory (generic)
+add_subdirectory (shared)
+add_subdirectory (include)
+add_subdirectory (base)
 add_subdirectory (MAPL)
 
 if (PFUNIT_FOUND)
@@ -53,10 +56,19 @@ endif ()
 # Support for automated code generation
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 include(mapl_acg)
+include(mapl_create_stub_component)
 add_subdirectory (Apps)
 
-# Git transition defect:
-# Uncomment the line below once the dev branch of MAPL has been brought in.
 add_subdirectory (Tests)
+
+# @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
+esma_add_subdirectory (ESMA_env FOUND ESMA_env_FOUND)
+
+# Install the Python directory
+install (
+   DIRECTORY Python
+   DESTINATION lib
+   USE_SOURCE_PERMISSIONS
+   )
 
 ecbuild_install_project (NAME MAPL)

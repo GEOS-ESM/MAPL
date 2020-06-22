@@ -16,14 +16,28 @@ class MAPL_DataSpec:
                    'refresh_interval', 'averaging_interval', 'halowidth',
                    'precision','default','restart', 'ungridded_dims',
                    'field_type', 'staggering', 'rotation',
-                   'friendlyto']
+                   'friendlyto', 'add2export']
 
     # The following arguments are skipped if value is empty string
     optional_options = [ 'dims', 'vlocation', 'num_subtiles',
                          'refresh_interval', 'averaging_interval', 'halowidth',
                          'precision','default','restart', 'ungridded_dims',
                          'field_type', 'staggering', 'rotation',
-                         'friendlyto']
+                         'friendlyto', 'add2export']
+
+    entry_aliases = {'dims': {'z'  : 'MAPL_DimsVertOnly',
+                              'xy' : 'MAPL_DimsHorzOnly',
+                              'xyz': 'MAPL_DimsHorzVert'},
+                     'vlocation': {'C': 'MAPL_VlocationCenter',
+                                   'E': 'MAPL_VlocationEdge',
+                                   'N': 'MAPL_VlocationNone'},
+                     'restart': {'OPT'  : 'MAPL_RestartOptional',
+                                 'SKIP' : 'MAPL_RestartSkip',
+                                 'REQ'  : 'MAPL_RestartRequired',
+                                 'BOOT' : 'MAPL_RestartBoot',
+                                 'SKIPI': 'MAPL_RestartSkipInitial'},
+                     'add2export': {'T': '.true.', 'F': '.false.'}
+                 }
 
     # The following options require quotes in generated code
     stringlike_options = ['short_name', 'long_name', 'units', 'friendlyto']
@@ -55,8 +69,22 @@ class MAPL_DataSpec:
             if ungridded:
                 extra_dims = ungridded.strip('][').split(',')
                 extra_rank = len(extra_dims)
-        return ranks[self.args['dims']] + extra_rank
+        dims = MAPL_DataSpec.entry_aliases['dims'][self.args['dims']]
+        return ranks[dims] + extra_rank
+
+    def internal_name(name):
+        if name[-1] == '*':
+            return name[:-1]
+        else:
+            return name
+
+    def mangled_name(name):
+        if name[-1] == '*':
+            return "'" + name[:-1] + "'//trim(comp_name)"
+        else:
+            return "'" + name + "'"
         
+
     def emit_declare_pointers(self):
         text = self.emit_header()
         type = 'real'
@@ -69,13 +97,15 @@ class MAPL_DataSpec:
         text = text + type
         if kind:
             text = text + '(kind=' + str(kind) + ')'
-        text = text +', pointer, ' + dimension + ' :: ' + self.args['short_name'] + ' => null()'
+        text = text +', pointer, ' + dimension + ' :: ' + MAPL_DataSpec.internal_name(self.args['short_name']) + ' => null()'
         text = text + self.emit_trailer()
         return text
 
     def emit_get_pointers(self):
         text = self.emit_header()
-        text = text + "call MAPL_GetPointer(" + self.category + ', ' + self.args['short_name'] + ", '" + self.args['short_name'] + "', rc=status); VERIFY_(status)" 
+        short_name = MAPL_DataSpec.internal_name(self.args['short_name'])
+        mangled_name = MAPL_DataSpec.mangled_name(self.args['short_name'])
+        text = text + "call MAPL_GetPointer(" + self.category + ', ' + short_name + ", " + mangled_name + ", rc=status); VERIFY_(status)" 
         text = text + self.emit_trailer()
         return text
 
@@ -105,9 +135,15 @@ class MAPL_DataSpec:
                     return ''
             text = text + option + "="
             if option in MAPL_DataSpec.stringlike_options:
-                value = "'" + value + "'"
+                value = MAPL_DataSpec.mangled_name(value)
             elif option in MAPL_DataSpec.arraylike_options:
                 value = '[' + value + ']' # convert to Fortran 1D array
+            else:
+                if (option in MAPL_DataSpec.entry_aliases) and (
+                        self.args[option] in MAPL_DataSpec.entry_aliases[option]):
+                    value = MAPL_DataSpec.entry_aliases[option][self.args[option]]
+                else:
+                    value = self.args[option]
             text = text + value + ", " + self.continue_line()
         return text
 
@@ -149,7 +185,8 @@ def read_specs(specs_filename):
         'COND'       : 'condition',
         'DEFAULT'    : 'default',
         'RESTART'    : 'restart',
-        'FRIENDLYTO' : 'friendlyto'
+        'FRIENDLYTO' : 'friendlyto',
+        'ADD2EXPORT' : 'add2export'
     }
 
     specs = {}
@@ -174,24 +211,6 @@ def read_specs(specs_filename):
                 specs[category] = pd.DataFrame(gen, columns=columns)
             except StopIteration:
                 break
-
-    entry_aliases = {'z'     : 'MAPL_DimsVertOnly',
-                     'xy'    : 'MAPL_DimsHorzOnly',
-                     'xyz'   : 'MAPL_DimsHorzVert',
-                     'C'     : 'MAPL_VlocationCenter',
-                     'E'     : 'MAPL_VlocationEdge',
-                     'N'     : 'MAPL_VlocationNone',
-                     'OPT'   : 'MAPL_RestartOptional',
-                     'SKIP'  : 'MAPL_RestartSkip',
-                     'REQ'   : 'MAPL_RestartRequired',
-                     'BOOT'  : 'MAPL_RestartBoot',
-                     'SKIPI' : 'MAPL_RestartSkipInitial'
-
-    }
-
-    specs['IMPORT'].replace(entry_aliases,inplace=True)
-    specs['EXPORT'].replace(entry_aliases,inplace=True)
-    specs['INTERNAL'].replace(entry_aliases,inplace=True)
 
     return specs
 

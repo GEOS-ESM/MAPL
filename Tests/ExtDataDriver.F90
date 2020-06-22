@@ -1,3 +1,5 @@
+#define I_AM_MAIN
+
 #include "MAPL_Generic.h"
 
 program ExtData_Driver
@@ -18,8 +20,8 @@ program ExtData_Driver
 
   cap_options=MAPL_FlapCapOptions(description='extdata driver',authors='gmao')
 
-  driver = ExtDataDriver('ExtDataApp',Root_SetServices,cap_options=cap_options)
-  call driver%run(rc=STATUS)
+  driver = ExtDataDriver('ExtDataApp',Root_SetServices,cap_options=cap_options,_RC)
+  call driver%run(_RC)
 
   call exit(0)
 
