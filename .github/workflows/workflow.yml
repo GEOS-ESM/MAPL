@@ -53,7 +53,7 @@ jobs:
           ctest -R MAPL -LE PERFORMANCE --output-on-failure
   build_gcm:
     name: Build GEOSgcm
-    if: "!contains(github.event.pull_request.labels.*.name, 'trivial')"
+    if: "!contains(github.event.pull_request.labels.*.name, '0 diff trivial')"
     runs-on: ubuntu-latest
     container: gmao/geos-build-env-gcc-source:6.0.13-openmpi_4.0.3-gcc_9.3.0
     env:
