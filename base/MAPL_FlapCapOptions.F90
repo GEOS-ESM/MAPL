@@ -4,6 +4,7 @@
 module MAPL_FlapCapOptionsMod
    use MPI
    use ESMF
+#ifdef USE_FLAP
    use FLAP
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
@@ -251,5 +252,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_esmf_logging_mode
+#endif
 
 end module MAPL_FlapCapOptionsMod
