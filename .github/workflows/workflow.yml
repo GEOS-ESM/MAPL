@@ -1,6 +1,8 @@
 name: Build Tests
 
-on: [pull_request]
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 jobs:
   build_test_mapl:
@@ -46,6 +48,7 @@ jobs:
           # skip performance tests
           ctest -R MAPL -LE PERFORMANCE --output-on-failure
   build_gcm:
+    if: contains(github.event.pull_request.labels.*.name, 'trivial')
     name: Build GEOSgcm
     runs-on: ubuntu-latest
     container: gmao/geos-build-env-gcc-source:6.0.13-openmpi_4.0.3-gcc_9.3.0
