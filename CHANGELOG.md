@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Removed
 
+## [2.2.1] - 2020-06-22
+
+### Fixed
+
+- Fixed Python ACG to work with Python 2.x
+
 ## [2.2.0] - 2020-06-22
 
 ### Added
@@ -70,10 +76,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Added MODE argument to MAPL_RecordAlarmIsNeeded. This is in sync with "yuri-s2s3-unstable-SLES12" CVS tag. Needed for "dual ocean"
-
-### Fixed
-
-- Fixed Python ACG to work with Python 2.x
 
 ### Fixed
 
