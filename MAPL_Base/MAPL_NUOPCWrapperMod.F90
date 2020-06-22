@@ -173,6 +173,7 @@ contains
     cap_options = MAPL_CapOptions(cap_rc_file = cap_params%cap_rc_file, rc = rc)
     cap_options%use_comm_world = .false.
     cap_options%comm = dup_comm
+    cap_options%logging_config = "logging.yaml"
     call MPI_Comm_size(dup_comm, cap_options%npes_model, rc)
 
     allocate(cap)
