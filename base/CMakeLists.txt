@@ -13,7 +13,7 @@ set (srcs
   AbstractCommSplitter.F90              MAPL_ExtData_IOBundleMod.F90        MAPL_Profiler.F90
   CFIOCollection.F90                    MAPL_ExtData_IOBundleVectorMod.F90  MAPL_RegridderManager.F90
   CommGroupDescription.F90              MAPL_RegridderSpec.F90
-  MAPL_FractionalRegridder.F9  0        MAPL_RegridderTypeSpecRegridderMap.F90
+  MAPL_FractionalRegridder.F90          MAPL_RegridderTypeSpecRegridderMap.F90
   ESMF_CFIOPtrVectorMod.F90             MAPL_GenericCplComp.F90             MAPL_RegridderVector.F90
   ESMFL_Mod.F90                         MAPL_Generic.F90                    MAPL_SatVapor.F90
   FileMetadataUtilities.F90             MAPL_GetLatLonCoord.F90             MAPL_SimpleAlarm.F90

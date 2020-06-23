@@ -251,6 +251,5 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_esmf_logging_mode
-#endif
 
 end module MAPL_FlapCapOptionsMod
