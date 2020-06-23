@@ -72,12 +72,14 @@ class MAPL_DataSpec:
         dims = MAPL_DataSpec.entry_aliases['dims'][self.args['dims']]
         return ranks[dims] + extra_rank
 
+    @staticmethod
     def internal_name(name):
         if name[-1] == '*':
             return name[:-1]
         else:
             return name
 
+    @staticmethod
     def mangled_name(name):
         if name[-1] == '*':
             return "'" + name[:-1] + "'//trim(comp_name)"
