@@ -33,6 +33,8 @@ else ()
   endif()
 endif()
 
+option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
+
 ecbuild_declare_project()
 
 find_package(PFLOGGER REQUIRED)
