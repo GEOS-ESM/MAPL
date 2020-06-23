@@ -4,7 +4,6 @@
 module MAPL_FlapCapOptionsMod
    use MPI
    use ESMF
-#ifdef USE_FLAP
    use FLAP
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
