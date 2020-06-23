@@ -7,7 +7,6 @@ module ExtDataDriverMod
    use MAPL
    use ExtData_DriverGridCompMod, only: ExtData_DriverGridComp, new_ExtData_DriverGridComp
    use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
-   use FLAP
    use gFTL_StringVector
    use MAPL_ApplicationSupport
    use MAPL_ServerManager
