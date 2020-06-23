@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Removed
 
+## [2.2.4] - 2020-06-23
+
+### Fixed
+
+- Fix to `sun.H` to allow CFMIP SCM cases to run
+
 ## [2.2.3] - 2020-06-23
 
 ### Added
