@@ -11,9 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CMake option BUILD_WITH_FLAP which is default ON.  When set to OFF, the build
   skips layers that require FLAP.  (Supports GCHP)
   
-	
-- USE_FLAP ifdef within MAPL_FlapCapOptions module
-
 ### Changed
 ### Fixed
 ### Removed
