@@ -309,17 +309,17 @@
          case(10)
             SLR = 0.3278
             ZTH = 0.6087247
-            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for TIME_ == 10') 
+            ZTP = ZTH
 
          case(11)
             SLR = 0.3449
             ZTH = 0.5962
-            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for TIME_ == 11') 
+            ZTP = ZTH
 
          case(12)
             SLR = 0.3461
             ZTH = 0.5884
-            _ASSERT(.not.present(ZTHP),'ZTHP not implemented for TIME_ == 12') 
+            ZTP = ZTH
 
          end select
 
