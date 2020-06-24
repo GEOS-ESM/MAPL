@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Removed
 
+## [2.2.5] - 2020-06-24
+
+### Fixed
+
+- Fix for the `_VERIFY()` macro (#464)
+
 ## [2.2.4] - 2020-06-23
 
 ### Fixed
