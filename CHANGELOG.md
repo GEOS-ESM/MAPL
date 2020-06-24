@@ -8,6 +8,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## [2.2.5] - 2020-06-24
+
+### Fixed
+
+- Fix for the `_VERIFY()` macro (#464)
+
+## [2.2.4] - 2020-06-23
+
+### Fixed
+
+- Fix to `sun.H` to allow CFMIP SCM cases to run
+
+## [2.2.3] - 2020-06-23
+
+### Added
+
+- CMake option BUILD_WITH_FLAP which is default ON.  When set to OFF, the build
+  skips layers that require FLAP.  (Supports GCHP)
+
+## [2.2.2] - 2020-06-22
+
+### Changed
+
+- Updated Github Actions to not build GCM if trivial PR
+
+## [2.2.1] - 2020-06-22
+
+### Fixed
+
+- Fixed Python ACG to work with Python 2.x
+
+## [2.2.0] - 2020-06-22
+
+### Added
 
 - Added LLC grid factory
 - Added support for wildcard expansions (using regex)
@@ -23,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   install prefix
 - Added wildcard support for short name in automatic code generator for
   gridded components.
+- Added new CI test for building GCM on pull request
 
 
 ### Changed
@@ -52,15 +91,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `components.yaml` to use `ESMA_env` and `ESMA_cmake` if
   building MAPL as standalone
 
-### Fixed
 ### Removed
 
 - Removed duplicate `Python` directory
 - Removed CircleCI
-
-### Added
-
-- Added new CI test for building GCM on pull request
 
 ## [2.1.5] - 2020-06-11
 

@@ -2,8 +2,21 @@
 
 MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF).   MAPL fills in missing capabilities of ESMF, provides higher-level interfaces for common boiler-plate logic, and enforces various componentization conventions across ESMF gridded components within GEOS.
 
-MAPL has 3 primary subdirectories:
-1. MAPL_Base - pretty much the core of MAPL as described above.
-2. GMAO_pFIO - this is a high level I/O layer that supports input and output as well as checkpointing for GEOS.   The layer heavily uses object oriented Fortran and is intended to be highly extensible.    The layer includes client-server capabilities that allow using a dedicated set of nodes to cache output before writing to disk, and is highly parallel.
-3. MAPL_cfio - this is a deprecated lower-level I/O layer that is generally replaced by GMAO_pFIO.    Not all of the strings have been cut yet.  Sometime soon, this directory will be eliminated.
+MAPL has 7 primary subdirectories for Fortran source code.
+1. shared - low level utilities that are used throughout the remainder of MAPL.
+2. profiler - time and memory profiling utility
+3. pfio - high-performance client-server I/O layer
+4. generic (under construction) - new home for MAPL extension of ESMF framework.
+5. base (formerly MAPL_Base) - legacy core of MAPL.   This layer will gradually evaporate under further refactoring.
+6. MAPL_cfio - this is a deprecated lower-level I/O layer that is generally replaced by GMAO_pFIO.    Not all of the strings have been cut yet.  Sometime soon, this directory will be eliminated.
+
+MAPL also has a variety of other auxiliary directories:
+1. include - include files used by external gridded components.
+2. Apps - various Python and Perl scripts used by gridded components.
+3. Python - beginnings of a run-time scripting framework for GEOS configurations
+4. cmake - CMake build macros
+5. MAPL_pFUnit - implements extensions of pFUnit unit testing framework that enable unit tests of grid comp run methods.   This layer should eventually be migrated into pFUnit itself.
+6. Tests - miscellaneous standalone drivers.
+
+
 

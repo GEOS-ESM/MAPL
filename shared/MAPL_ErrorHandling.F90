@@ -43,25 +43,31 @@ module MAPL_ErrorHandlingMod
       enumerator :: MAPL_STRING_TOO_SHORT
    end enum
 
-interface MAPL_VRFY
-   module procedure MAPL_VRFY
-   module procedure MAPL_VRFYt
-end interface
 
-interface MAPL_ASRT
-   module procedure MAPL_ASRT
-   module procedure MAPL_ASRTt
-end interface
+   interface MAPL_Assert
+      module procedure MAPL_Assert_condition
+      module procedure MAPL_Assert_return_code
+   end interface MAPL_Assert
 
-interface MAPL_RTRN
-   module procedure MAPL_RTRN
-   module procedure MAPL_RTRNt
-end interface
-
+   interface MAPL_VRFY
+      module procedure MAPL_VRFY
+      module procedure MAPL_VRFYt
+   end interface MAPL_VRFY
+   
+   interface MAPL_ASRT
+      module procedure MAPL_ASRT
+      module procedure MAPL_ASRTt
+   end interface MAPL_ASRT
+   
+   interface MAPL_RTRN
+      module procedure MAPL_RTRN
+      module procedure MAPL_RTRNt
+   end interface MAPL_RTRN
+   
 contains
 
 
-   logical function MAPL_Assert(condition, message, filename, line, rc) result(fail)
+   logical function MAPL_Assert_condition(condition, message, filename, line, rc) result(fail)
       logical, intent(in) :: condition
       character(*), intent(in) :: message
       character(*), intent(in) :: filename
@@ -75,7 +81,27 @@ contains
          if (present(rc)) rc = 1
       end if
 
-   end function MAPL_Assert
+   end function MAPL_Assert_Condition
+
+
+   logical function MAPL_Assert_return_code(condition, return_code, filename, line, rc) result(fail)
+      logical, intent(in) :: condition
+      integer, intent(in) :: return_code
+      character(*), intent(in) :: filename
+      integer, intent(in) :: line
+      integer, optional, intent(out) :: rc ! Not present in MAIN
+      character(:), allocatable :: message
+      
+      fail = .not. condition
+
+      if (fail) then
+         message = get_error_message(return_code)
+         call MAPL_throw_exception(filename, line, message=message)
+         if (present(rc)) rc = 1
+      end if
+
+   end function MAPL_Assert_Return_Code
+
 
    logical function MAPL_Verify(status, filename, line, rc) result(fail)
       integer, intent(in) :: status
@@ -91,7 +117,8 @@ contains
       fail = .not. condition
 
       if (fail) then
-         message = get_error_message(status)
+         write(status_string,'(i0)') status
+         message = 'status=' // status_string
          call MAPL_throw_exception(filename, line, message=message)
          if (present(rc)) rc = status
       end if
@@ -107,7 +134,6 @@ contains
 
       logical :: condition, fail
       character(:), allocatable :: message
-      character(8) :: status_string
 
       condition = (status == 0)
       fail = .not. condition
