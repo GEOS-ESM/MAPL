@@ -7,7 +7,7 @@ esma_add_library (${this}
 # Customize for GCHP
 #  DEPENDENCIES MAPL.base MAPL.pfio MAPL_cfio_r4
 #  INCLUDES ${INC_ESMF}
-  DEPENDENCIES MAPL.base GMAO_pFIO MAPL_cfio_r4 ESMF
+  DEPENDENCIES MAPL.base MAPL.pfio MAPL_cfio_r4 ESMF
   )
 
   
