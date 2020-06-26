@@ -1475,8 +1475,6 @@ endif
                call ESMF_GridCompGet( STATE%GCS(I), NAME=CHILD_NAME, RC=STATUS )
                _VERIFY(STATUS)
       
-               t_p => get_global_time_profiler()
-               call t_p%start(trim(CHILD_NAME),__RC__)
                call MAPL_GenericStateClockOn (STATE,trim(CHILD_NAME))
                call ESMF_GridCompInitialize (STATE%GCS(I), &
                     importState=STATE%GIM(I), &
@@ -1485,7 +1483,6 @@ endif
                     userRC=userRC, RC=STATUS )
                _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
                call MAPL_GenericStateClockOff(STATE,trim(CHILD_NAME))
-               call t_p%stop(trim(CHILD_NAME),__RC__)
             end if
          end do
          deallocate(CHLDMAPL)
@@ -2292,7 +2289,6 @@ end subroutine MAPL_GenericFinalize
   _VERIFY(STATUS)
 
   t_p => get_global_time_profiler()
-  call t_p%start(trim(state%compname),__RC__)
   call state%t_profiler%start(__RC__)
   call state%t_profiler%start('Record',__RC__)
 
@@ -2392,7 +2388,6 @@ end subroutine MAPL_GenericFinalize
 
   call state%t_profiler%stop('Record',__RC__)
   call state%t_profiler%stop(__RC__)
-  call t_p%stop(trim(state%compname),__RC__)
 
   _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_GenericRecord
@@ -2517,7 +2512,6 @@ end subroutine MAPL_StateRecord
   _VERIFY(STATUS)
 
   t_p => get_global_time_profiler()
-  call t_p%start(trim(state%compname),__RC__)
   call state%t_profiler%start(__RC__)
   call state%t_profiler%start('Refresh',__RC__)
 
@@ -2605,7 +2599,6 @@ end subroutine MAPL_StateRecord
   call state%t_profiler%stop('Refresh_self',__RC__)
   call state%t_profiler%stop('Refresh',__RC__)
   call state%t_profiler%stop(__RC__)
-  call t_p%stop(trim(state%compname),__RC__)
 
   _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_GenericRefresh
