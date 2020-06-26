@@ -3,8 +3,11 @@ esma_set_this()
 
 esma_add_library (${this}
   SRCS MAPL.F90
-  DEPENDENCIES MAPL.base MAPL.pfio MAPL_cfio_r4
-  INCLUDES ${INC_ESMF}
+
+# Customize for GCHP
+#  DEPENDENCIES MAPL.base MAPL.pfio MAPL_cfio_r4
+#  INCLUDES ${INC_ESMF}
+  DEPENDENCIES MAPL.base GMAO_pFIO MAPL_cfio_r4 ESMF
   )
 
   

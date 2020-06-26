@@ -282,11 +282,13 @@
             ! copy ZTH to ZTP before above horizon enforcement
             ZTP = ZTH
 
-            ! enforce zero insolation for sun below horizon
-            ZTH = max(ZTH, 0.0)
-
-            ! normalized downward solar flux at TOA
-            SLR = ZTH*AA
+            ! Customize for GCHP
+            !! enforce zero insolation for sun below horizon
+            !ZTH = max(ZTH, 0.0)
+            !
+            !! normalized downward solar flux at TOA
+            !SLR = ZTH*AA
+	    SLR = max(ZTH,0.0)*AA
 
             if(present(DIST)) DIST = AA
 

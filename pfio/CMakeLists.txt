@@ -85,13 +85,10 @@ set (srcs
   )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared )
-
-# Customize target link libraries for GCHP
-#target_link_libraries (${this} PUBLIC gftl gftl-shared 
-#                               PRIVATE ${NETCDF_LIBRARIES} OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
-#target_include_directories (${this} PUBLIC
-#          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
-target_link_libraries (${this} PUBLIC Baselibs)
+target_link_libraries (${this} PUBLIC gftl gftl-shared 
+                               PRIVATE ${NETCDF_LIBRARIES} OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
+target_include_directories (${this} PUBLIC
+          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
@@ -131,8 +128,6 @@ if (LATEX_FOUND)
 #  add_subdirectory (TeX)
 endif ()
 
-
-# Comment out for GCHP
-## Unit testing
+# Do not do unit testing in GCHP
 #add_subdirectory(tests EXCLUDE_FROM_ALL)
 

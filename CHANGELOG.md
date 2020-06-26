@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## [2.2.0] - 2020-06-22
+
+### Added
 
 - Added LLC grid factory
 - Added support for wildcard expansions (using regex)
@@ -23,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   install prefix
 - Added wildcard support for short name in automatic code generator for
   gridded components.
+- Added new CI test for building GCM on pull request
 
 
 ### Changed
@@ -52,15 +60,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `components.yaml` to use `ESMA_env` and `ESMA_cmake` if
   building MAPL as standalone
 
-### Fixed
 ### Removed
 
 - Removed duplicate `Python` directory
 - Removed CircleCI
-
-### Added
-
-- Added new CI test for building GCM on pull request
 
 ## [2.1.5] - 2020-06-11
 
@@ -141,6 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed `checkout_externals` code in `CMakeLists.txt`
 
 ### Added
+- Added record capabilites for the History restarts
 
 - Added configuration for CircleCI and Github Actions
   - Builds MAPL using GCC 9.2.0 and Open MPI 4.0.2

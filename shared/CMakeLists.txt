@@ -34,5 +34,5 @@ target_include_directories (${this} PUBLIC
   #add_subdirectory (tests)
 #endif ()
 
-# Comment out for GCHP
+# Do not do unit tests in GCHP
 #add_subdirectory(tests EXCLUDE_FROM_ALL)
