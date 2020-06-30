@@ -57,7 +57,7 @@ include_directories(${include_GMAO_pFIO})
 set(TESTO pfio_ctest_io.x)
 ecbuild_add_executable (
   TARGET ${TESTO}
-  PROPERTIES EXCLUDE_FROM_ALL=TRUE
+  NOINSTALL
   SOURCES pfio_ctest_io.F90
   LIBS GMAO_pFIO ${NETCDF_LIBRARIES} MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
@@ -88,7 +88,7 @@ add_test(NAME pFIO_tests_hybrid
 set(TESTPERF pfio_performance.x)
 ecbuild_add_executable (
   TARGET ${TESTPERF}
-  PROPERTIES EXCLUDE_FROM_ALL=TRUE
+  NOINSTALL
   SOURCES pfio_performance.F90
   DEFINITIONS USE_MPI
   LIBS GMAO_pFIO ${NETCDF_LIBRARIES} MPI::MPI_Fortran)

@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 
+## [2.1.6] - 2020-07-01
+
+### Changed
+
+- Updates for JEDI/ecbuild compatibility
+  - Updates to CMake to use `NOINSTALL`
+  - Update `components.yaml` to use `NOINSTALL`
+    - ESMA_cmake v3.0.4
+    - ecbuild geos/v1.0.5
+
 ## [2.1.5] - 2020-06-11
 
 ### Changed
