@@ -12,6 +12,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Removed
 
+## [2.2.7] - 2020-06-26
+
+### Changed
+
+- Update to ESMA_env v2.1.6
+
+## [2.2.6] - 2020-06-26
+
+### Fixed
+
+- Fixed double timers from profiler (#472)
+
+## [2.2.5] - 2020-06-24
+
+### Fixed
+
+- Fix for the `_VERIFY()` macro (#464)
+
+## [2.2.4] - 2020-06-23
+
+### Fixed
+
+- Fix to `sun.H` to allow CFMIP SCM cases to run
+
+## [2.2.3] - 2020-06-23
+
+### Added
+
+- CMake option BUILD_WITH_FLAP which is default ON.  When set to OFF, the build
+  skips layers that require FLAP.  (Supports GCHP)
+
+## [2.2.2] - 2020-06-22
+
+### Changed
+
+- Updated Github Actions to not build GCM if trivial PR
+
+## [2.2.1] - 2020-06-22
+
+### Fixed
+
+- Fixed Python ACG to work with Python 2.x
+
 ## [2.2.0] - 2020-06-22
 
 ### Added

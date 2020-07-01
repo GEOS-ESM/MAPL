@@ -1,6 +1,8 @@
 name: Build Tests
 
-on: [pull_request]
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 jobs:
   build_test_mapl:
@@ -16,6 +18,10 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.4.0
+        with:
+          access_token: ${{ github.token }}
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -47,6 +53,7 @@ jobs:
           ctest -R MAPL -LE PERFORMANCE --output-on-failure
   build_gcm:
     name: Build GEOSgcm
+    if: "!contains(github.event.pull_request.labels.*.name, '0 diff trivial')"
     runs-on: ubuntu-latest
     container: gmao/geos-build-env-gcc-source:6.0.13-openmpi_4.0.3-gcc_9.3.0
     env:
@@ -58,6 +65,10 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.4.0
+        with:
+          access_token: ${{ github.token }}
       - name: Checkout GCM
         uses: actions/checkout@v2
         with:

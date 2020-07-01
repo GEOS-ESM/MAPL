@@ -551,21 +551,15 @@ contains
        !----------------------------------------
 
        call t_p%start('Initialize')
-       call t_p%start(trim(root_name))
        call ESMF_GridCompInitialize(cap%gcs(cap%root_id), importState = cap%child_imports(cap%root_id), &
             exportState = cap%child_exports(cap%root_id), clock = cap%clock, userRC = status)
        _VERIFY(status)
-       call t_p%stop(trim(root_name))
 
-       call t_p%start('HIST')
        call cap%initialize_history(rc=status)
        _VERIFY(status)
-       call t_p%stop('HIST')
 
-       call t_p%start('EXTDATA')
        call cap%initialize_extdata(rc=status)
        _VERIFY(status)
-       call t_p%stop('EXTDATA')
 
        ! Finally check is this is a regular replay
        ! If so stuff gc and input state for ExtData in GCM internal state

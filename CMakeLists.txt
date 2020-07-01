@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.2.0
+  VERSION 2.2.7
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/ESMA_cmake)
@@ -32,6 +32,9 @@ else ()
     include (esma)
   endif()
 endif()
+
+# Turn off for GCHP
+#option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
 
 ecbuild_declare_project()
 
