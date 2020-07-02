@@ -9,11 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 ### Changed
+### Fixed
+### Removed
+
+## [2.2.7] - 2020-06-26
+
+### Changed
 
 - Update to ESMA_env v2.1.6
 
+## [2.2.6] - 2020-06-26
+
 ### Fixed
-### Removed
+
+- Fixed double timers from profiler (#472)
 
 ## [2.2.5] - 2020-06-24
 
