@@ -1,5 +1,5 @@
 module pFIO_MpiServerMod
-   use pFIO_KeywordEnforcerMod
+
    use pFIO_AbstractDirectoryServiceMod
    use pFIO_ServerThreadMod
    use pFIO_ServerThreadVectorMod
@@ -8,7 +8,6 @@ module pFIO_MpiServerMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractServerMod
    use pFIO_BaseServerMod
-
 
    implicit none
    private
@@ -27,15 +26,12 @@ module pFIO_MpiServerMod
 
 contains
 
-   function new_MpiServer(comm, port_name, unusable, nwriters, pfio_writer) result(s)
+   function new_MpiServer(comm, port_name) result(s)
       type (MpiServer) :: s
       integer, intent(in) :: comm
       character(*), intent(in) :: port_name
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: nwriters
-      character(*), optional, intent(in) :: pfio_writer
 
-      call s%init(comm, nwriters=nwriters, pfio_writer=pfio_writer)
+      call s%init(comm)
 
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
@@ -77,7 +73,6 @@ contains
       enddo
 
       call this%threads%clear()
-      call this%terminate_writers()
       deallocate(mask)
 
    end subroutine start

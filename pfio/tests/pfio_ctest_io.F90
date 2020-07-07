@@ -627,10 +627,14 @@ program main
    endif
 
    if( my_ocomm /= MPI_COMM_NULl) then
-      
-      !allocate(oserver, source = MpiServer(my_ocomm, 'oserver'))
-      allocate(oserver, source = MpiServer(my_ocomm, 'oserver', &
-               nwriters=options%n_writer, pfio_writer = options%writer))
+     
+      if (options%n_writer < 2) then 
+        allocate(oserver, source = MpiServer(my_ocomm, 'oserver'))
+      else
+         allocate(oserver, source = MultiLayerServer(my_ocomm, 'oserver', &
+               options%n_writer, options%writer))
+      endif
+
       call directory_service%publish(PortInfo('oserver',oserver), oserver, rc=status)
       if (my_appcomm == MPI_COMM_NULL) then 
          call directory_service%connect_to_client('oserver', oserver, rc=status)
