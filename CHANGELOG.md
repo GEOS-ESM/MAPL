@@ -106,7 +106,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Removed duplicate `Python` directory
-- Removed CircleCI
+- Removed CircleC
+
+## [2.1.6] - 2020-07-08
+
+### Changed
+
+- Updates for JEDI/ecbuild compatibility
+  - Updates to CMake to use `NOINSTALL`
+  - Updates to `components.yaml` to support use of `NOINSTALL`
 
 ## [2.1.5] - 2020-06-11
 
