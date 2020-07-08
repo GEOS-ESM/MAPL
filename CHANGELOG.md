@@ -106,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Removed duplicate `Python` directory
-- Removed CircleC
+- Removed CircleCI
 
 ## [2.1.6] - 2020-07-08
 
