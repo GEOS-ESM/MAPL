@@ -316,7 +316,12 @@ module MAPL_GenericMod
   
   interface MAPL_CheckpointState
      module procedure MAPL_ESMFStateWriteToFile
-  end interface
+  end interface MAPL_CheckpointState
+
+  interface MAPL_GetLogger
+     module procedure MAPL_GetLogger_gc
+     module procedure MAPL_GetLogger_meta
+  end interface MAPL_GetLogger
 
   include "mpif.h"
   
@@ -10399,7 +10404,17 @@ end subroutine MAPL_READFORCINGX
 
    end subroutine ArrDescrSetNCPar
 
-   subroutine MAPL_GetLogger(gc, lgr, rc)
+   subroutine MAPL_GetLogger_meta(meta, lgr, rc)
+      type (MAPL_MetaComp), intent(in) :: meta
+      class(Logger), pointer :: lgr
+      integer, optional, intent(out) :: rc
+
+      lgr => meta%lgr
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_GetLogger_meta
+
+   subroutine MAPL_GetLogger_gc(gc, lgr, rc)
       type(ESMF_GridComp), intent(inout) :: gc
       class(Logger), pointer :: lgr
       integer, optional, intent(out) :: rc
@@ -10410,9 +10425,11 @@ end subroutine MAPL_READFORCINGX
       call MAPL_GetObjectFromGC(gc, meta, rc=status)
       _VERIFY(status)
 
-      lgr => meta%lgr
+      call MAPL_GetLogger(meta, lgr, rc=status)
+      _VERIFY(status)
+
       _RETURN(_SUCCESS)
-   end subroutine MAPL_GetLogger
+   end subroutine MAPL_GetLogger_gc
 
    subroutine MAPL_ConnectivityGet(gc, connectivityPtr, RC)
       type(ESMF_GridComp), intent(inout) :: gc
