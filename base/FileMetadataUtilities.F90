@@ -253,6 +253,7 @@ module MAPL_FileMetadataUtilsMod
       isPresent = var%is_attribute_present(trim(attr_name))
       if (isPresent) then
          attr => var%get_attribute(trim(attr_name))
+      !if (associated(attr)) then
          vunits => attr%get_value()
          select type(vunits)
          type is (character(*))
@@ -260,8 +261,6 @@ module MAPL_FileMetadataUtilsMod
          class default
             _ASSERT(.false.,'units must be string')
          end select
-      else
-         units => null()
       end if
       _RETURN(_SUCCESS)
 

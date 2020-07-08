@@ -298,7 +298,6 @@ contains
     end subroutine fill_comm
       
    subroutine run_model(this, mapl_comm, unusable, rc)
-      use pFlogger, only: logging, Logger
       class (MAPL_Cap), intent(inout) :: this
       type(MAPL_Communicators), intent(in) :: mapl_comm
 !!$      integer, intent(in) :: comm
@@ -308,8 +307,7 @@ contains
       type (ESMF_VM) :: vm
       integer :: start_tick, stop_tick, tick_rate
       integer :: status
-      class(Logger), pointer :: lgr
-      
+
       _UNUSED_DUMMY(unusable)
 
       call start_timer()
@@ -360,10 +358,8 @@ contains
             wall_time = (stop_tick - start_tick) / real(tick_rate, kind=REAL64)
 
             model_days_per_day = model_duration / wall_time
-
-
-            lgr => logging%get_logger('MAPL')
-            call lgr%info("Model Throughput: %f12.3 days per day", model_days_per_day)
+            
+            write(OUTPUT_UNIT,'("Model Throughput:",X,F12.3,X,"days per day")') model_days_per_day
          end if
          
       end subroutine report_throughput
