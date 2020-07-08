@@ -246,7 +246,7 @@ contains
     call ESMF_ConfigGetAttribute(cap%config, value = n, Label = "CoresPerNode:", rc = status)
     if (status == ESMF_SUCCESS) then
        if (CoresPerNode /= n) then
-          call lgr%warning("CoresPerNode set (%i0), but does NOT match detected value (%i0)", CoresPerNode, n)
+          call WRITE_PARALLEL("WARNING: CoresPerNode set, but does NOT match detected value")
        end if
     end if
 
@@ -297,7 +297,7 @@ contains
        clockname = trim(clockname) // '_PERPETUAL'
        call ESMF_Clockset(cap%clock_hist, name = clockname, rc = status)
 
-       call Perpetual_Clock(cap, rc=status)
+       call Perpetual_Clock(cap%clock, cap%clock_hist, cap%perpetual_year, cap%perpetual_month, cap%perpetual_day, status)
        _VERIFY(status)
     endif
 
@@ -1107,7 +1107,7 @@ contains
     ! ----------------------
 
     if (this%lperp) then
-       call Perpetual_Clock(this, status)
+       call Perpetual_Clock(this%clock, this%clock_hist, this%perpetual_year, this%perpetual_month, this%perpetual_day, status)
        _VERIFY(status)
     end if
 
@@ -1239,8 +1239,6 @@ contains
 
     integer        :: UNIT
     integer        :: datetime(2)
-
-    class(Logger), pointer :: lgr
 
     ! Begin
     !------
@@ -1411,11 +1409,11 @@ contains
 
     CALL MAPL_UnpackDateTime(DATETIME, CUR_YY, CUR_MM, CUR_DD, CUR_H, CUR_M, CUR_S)
 
-    call MAPL_GetLogger(MAPLOBJ, lgr, rc=status)
-    _VERIFY(status)
-
-    call lgr%info('Read CAP restart properly, Current Date =   %i4.4~/%i2.2~/%i2.2', CUR_YY, CUR_MM, CUR_DD)
-    call lgr%info('                           Current Time =   %i2.2~/%i2.2~/%i2.2', CUR_H, CUR_M, CUR_S)
+    if( MAPL_AM_I_ROOT() ) then
+       write(6,"(a,2x,i4.4,'/',i2.2,'/',i2.2)") 'Read CAP restart properly, Current Date = ', CUR_YY,CUR_MM,CUR_DD
+       write(6,"(a,2x,i2.2,':',i2.2,':',i2.2)") '                           Current Time = ', CUR_H ,CUR_M ,CUR_S
+       print *
+    endif
 
 
 999 continue  ! Initialize Current time
@@ -1521,8 +1519,12 @@ contains
     _RETURN(ESMF_SUCCESS)
   end subroutine CAP_FINALIZE
 
-  subroutine Perpetual_Clock (this, rc)
-     class(MAPL_CapGridComp), intent(inout) :: this
+  subroutine Perpetual_Clock ( clock, clock_HIST, PERPETUAL_YEAR, PERPETUAL_MONTH, PERPETUAL_DAY, rc )
+    type(ESMF_Clock),intent(inout) :: clock
+    type(ESMF_Clock),intent(inout) :: clock_HIST
+    integer,         intent(in)    :: PERPETUAL_YEAR
+    integer,         intent(in)    :: PERPETUAL_MONTH
+    integer,         intent(in)    :: PERPETUAL_DAY
     integer,         intent(out)   :: rc
 
     type(ESMF_Time)                :: currTime
@@ -1532,20 +1534,6 @@ contains
     integer                        :: HIST_YY, HIST_MM, HIST_DD, HIST_H, HIST_M, HIST_S
     integer                        :: AGCM_YY, AGCM_MM, AGCM_DD, AGCM_H, AGCM_M, AGCM_S
 
-    type(ESMF_Clock) :: clock
-    type(ESMF_Clock) :: clock_HIST
-    integer          :: perpetual_year
-    integer          :: perpetual_month
-    integer          :: perpetual_day
-    class(Logger), pointer :: lgr
-
-    clock = this%clock
-    clock_hist = this%clock_Hist
-    perpetual_year = this%perpetual_year
-    perpetual_month = this%perpetual_month
-    perpetual_day = this%perpetual_day
-    call MAPL_GetLogger(this%gc, lgr, rc=status)
-    _VERIFY(status)
 
     call ESMF_ClockGetAlarm ( clock_HIST, alarmName='PERPETUAL', alarm=PERPETUAL, rc=status )
     _VERIFY(STATUS)
@@ -1571,10 +1559,19 @@ contains
          M  = HIST_M , &
          S  = HIST_S, rc=status )
     _VERIFY(STATUS)
+#ifdef DEBUG
+    block
+      integer :: AmIRoot_
+      type(ESMF_VM)                :: VM
 
-    call lgr%debug('Inside PERP M0:   %i4.4~/%i2.2~/%i2.2  Time: %i2.2~/%i2.2~/%i2.2', AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S)
-    call lgr%debug('Inside PERP H0:   %i4.4~/%i2.2~/%i2.2  Time: %i2.2~/%i2.2~/%i2.2', HIST_YY,HIST_MM,HIST_DD,HIST_H,HIST_M,HIST_S)
-
+      !         This line is intentionally uncommented:  vm is not initialized (TLC)
+      AmIRoot_ = MAPL_Am_I_Root(vm)
+      if( AmIRoot_ ) then
+         write(6,"(a,2x,i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2)") "Inside PERP M0: ",AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S
+         write(6,"(a,2x,i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2)") "Inside PERP H0: ",HIST_YY,HIST_MM,HIST_DD,HIST_H,HIST_M,HIST_S
+      endif
+    end block
+#endif
     if( (PERPETUAL_YEAR  /= -999)  .and. &
          (PERPETUAL_MONTH == -999)  .and. &
          (PERPETUAL_DAY   == -999) ) then
@@ -1592,10 +1589,20 @@ contains
           call ESMF_AlarmRingerOn( PERPETUAL, rc=status )
           _VERIFY(STATUS)
        endif
+#ifdef DEBUG
+       block
+         integer :: AmIRoot_
 
-       call lgr%debug('Inside PERP M0:   %i4.4~/%i2.2~/%i2.2  Time: %i2.2~/%i2.2~/%i2.2', AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S)
-       call lgr%debug('Inside PERP H0:   %i4.4~/%i2.2~/%i2.2  Time: %i2.2~/%i2.2~/%i2.2', HIST_YY,HIST_MM,HIST_DD,HIST_H,HIST_M,HIST_S)
+         type(ESMF_VM)                :: VM
 
+         !         This line is intentionally uncommented:  vm is not initialized (TLC)
+         AmIRoot_ = MAPL_Am_I_Root(vm)
+         if( AmIRoot_ ) then
+            write(6,"(a,2x,i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2)") "Inside PERP M1: ",AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S
+            write(6,"(a,2x,i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2)") "Inside PERP H1: ",HIST_YY,HIST_MM,HIST_DD,HIST_H,HIST_M,HIST_S
+         endif
+       end block
+#endif
     endif
 
     if( (PERPETUAL_YEAR  == -999)  .and. &
