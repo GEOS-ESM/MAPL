@@ -47,6 +47,7 @@ module MAPL_CapMod
 
       procedure :: create_member_subcommunicator
       procedure :: initialize_io_clients_servers
+      procedure :: finalize_io_clients_servers
       procedure :: initialize_cap_gc
       procedure :: initialize_mpi
       procedure :: finalize_mpi
@@ -162,6 +163,18 @@ contains
       
    end subroutine run_ensemble
 
+
+   subroutine finalize_io_clients_servers(this, unusable, rc)
+     class (MAPL_Cap), target, intent(inout) :: this
+     class (KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc
+     integer :: status
+
+     _UNUSED_DUMMY(unusable)
+     call this%cap_server%finalize()
+     _RETURN(_SUCCESS)
+ 
+   end subroutine finalize_io_clients_servers
 
    subroutine initialize_io_clients_servers(this, comm, unusable, rc)
      class (MAPL_Cap), target, intent(inout) :: this
