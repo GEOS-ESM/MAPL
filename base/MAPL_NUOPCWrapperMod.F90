@@ -16,6 +16,7 @@ module MAPL_NUOPCWrapperMod
        model_label_SetClock => label_SetClock, &
        model_label_SetRunClock => label_SetRunClock
   use MAPL_Mod
+  use pflogger, only: pfl_initialize => initialize
 
   implicit none
 
@@ -153,6 +154,7 @@ contains
     integer :: my_rank, npes, mpi_comm, dup_comm, status, subcommunicator
 
     type(MAPL_CapOptions) :: cap_options
+    logical, save :: first = .true.
     
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -171,6 +173,8 @@ contains
     cap_options = MAPL_CapOptions(cap_rc_file = cap_params%cap_rc_file, rc = rc)
     cap_options%use_comm_world = .false.
     cap_options%comm = dup_comm
+    ! cap_options%logging_config = "logging.yaml"
+    cap_options%logging_config = ''
     call MPI_Comm_size(dup_comm, cap_options%npes_model, rc)
 
     allocate(cap)
@@ -182,8 +186,12 @@ contains
     call cap%initialize_mpi(rc = status); _VERIFY(status)
 
     subcommunicator = cap%create_member_subcommunicator(cap%get_comm_world(), rc=status); _VERIFY(status)
-    call cap%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
+    if (first) then
+        call cap%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
+        first = .false.
+    end if
 
+    call cap%nuopc_fill_mapl_comm(rc = status); _VERIFY(status)
     call cap%initialize_cap_gc(cap%get_mapl_comm())
     
     call cap%cap_gc%set_services(rc = status); _VERIFY(status)
@@ -340,10 +348,10 @@ contains
 
     type(ESMF_State) :: import_state, export_state
     type(ESMF_Clock) :: clock
-    !type(ESMF_Field) :: field
+    type(ESMF_Field) :: field
 
     integer :: num_items
-    !character(len=ESMF_MAXSTR), allocatable :: item_names(:)
+    character(len=ESMF_MAXSTR), allocatable :: item_names(:)
 
     call ESMF_GridCompGet(model, clock = clock, importState = import_state, &
          exportState = export_state, rc = rc)
