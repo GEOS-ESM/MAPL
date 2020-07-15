@@ -23,7 +23,6 @@ module MAPL_CapMod
    private
 
    public :: MAPL_Cap
-   public :: init_MAPL_Cap
 
    type :: MAPL_Cap
       private
@@ -129,20 +128,10 @@ contains
           type (StreamHandler) :: console
           type (FileHandler) :: file_handler
           integer :: level
-
-          logical :: has_logging_config
-
+          
           call pfl_initialize()
 
-          has_logging_config = .false. ! unless
-
-          if (allocated(cap%cap_options%logging_config)) then
-             if(cap%cap_options%logging_config /= '') then
-                has_logging_config = .true.
-             end if
-          end if
-
-          if (has_logging_config) then
+          if (cap%cap_options%logging_config /= '') then
              call logging%load_file(cap%cap_options%logging_config)
           else
 
@@ -177,100 +166,6 @@ contains
      
     end function new_MAPL_Cap
 
-   subroutine init_MAPL_Cap(cap, name, set_services, unusable, cap_options, rc)
-      type (MAPL_Cap), intent(out) :: cap
-      character(*), intent(in) :: name
-      procedure() :: set_services
-      class (KeywordEnforcer),  optional, intent(in) :: unusable
-      class ( MAPL_CapOptions), optional, intent(in) :: cap_options
-      integer, optional, intent(out) :: rc
-      integer :: status
-      type(Logger), pointer :: lgr
-
-      cap%name = name
-      cap%set_services => set_services
-
-      if (present(cap_options)) then
-         allocate(cap%cap_options, source = cap_options)
-      else
-         allocate(cap%cap_options, source = MAPL_CapOptions())
-      endif
-
-      if (cap%cap_options%use_comm_world) then
-         cap%comm_world       = MPI_COMM_WORLD
-         cap%cap_options%comm = MPI_COMM_WORLD
-      else
-         cap%comm_world = cap%cap_options%comm
-      endif
-
-      call cap%initialize_mpi(rc=status)
-      _VERIFY(status)
-
-      call initialize_pflogger()
-
-      _RETURN(_SUCCESS)     
-      _UNUSED_DUMMY(unusable)
-
-    contains
-
-       subroutine initialize_pflogger()
-          use pflogger, only: pfl_initialize => initialize
-          use pflogger, only: StreamHandler, FileHandler, HandlerVector
-          use pflogger, only: MpiLock, MpiFormatter
-          use pflogger, only: INFO, WARNING
-          use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
-          type (HandlerVector) :: handlers
-          type (StreamHandler) :: console
-          type (FileHandler) :: file_handler
-          integer :: level
-
-          logical :: has_logging_config
-
-          call pfl_initialize()
-
-          has_logging_config = .false. ! unless
-
-          if (allocated(cap%cap_options%logging_config)) then
-             if(cap%cap_options%logging_config /= '') then
-                has_logging_config = .true.
-             end if
-          end if
-
-          if (has_logging_config) then
-             call logging%load_file(cap%cap_options%logging_config)
-          else
-
-             console = StreamHandler(OUTPUT_UNIT)
-             call console%set_level(INFO)
-             call console%set_formatter(MpiFormatter(cap%comm_world, fmt='%(short_name)a10~: %(message)a'))
-             call handlers%push_back(console)
-
-             file_handler = FileHandler('warnings_and_errors.log')
-             call file_handler%set_level(WARNING)
-             call file_handler%set_formatter(MpiFormatter(cap%comm_world, fmt='pe=%(mpi_rank)i5.5~: %(short_name)a~: %(message)a'))
-             call file_handler%set_lock(MpiLock(cap%comm_world))
-             call handlers%push_back(file_handler)
-             
-             if (cap%rank == 0) then
-                level = INFO
-             else
-                level = WARNING
-             end if
-
-             call logging%basic_config(level=level, handlers=handlers, rc=status)
-             _VERIFY(status)
-             
-             if (cap%rank == 0) then
-                lgr => logging%get_logger('MAPL')
-                call lgr%warning('No configure file specified for logging layer.  Using defaults.')
-             end if
-
-          end if
-
-       end subroutine initialize_pflogger
-     
-    end subroutine init_MAPL_Cap
-
    
    ! 3. Run the ensemble (default is 1 member)
    ! 4. Finalize MPI if initialized locally.
@@ -301,17 +196,14 @@ contains
 
       integer :: status
       integer :: subcommunicator
-      logical, save :: first = .true.
 
       _UNUSED_DUMMY(unusable)
       
       subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _VERIFY(status)
       if (subcommunicator /= MPI_COMM_NULL) then
-         if (first) then
-           call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
-           first = .false.
-         end if
+         call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
          call this%run_member(rc=status); _VERIFY(status)
+         call this%directory_service%free_directory_resources()
       end if
 
       _RETURN(_SUCCESS)

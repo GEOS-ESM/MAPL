@@ -52,6 +52,7 @@
    use MAPL_ioClientsMod
    use MAPL_newCFIOItemMod
    use MAPL_newCFIOItemVectorMod
+   use MAPL_SimpleAlarm
 
    IMPLICIT NONE
    PRIVATE
@@ -129,6 +130,7 @@
      ! the corresponding names of the two vector components on file
      character(len=ESMF_MAXSTR)   :: fcomp1, fcomp2
      type(newCFIOitem)            :: fileVars
+     type(SimpleAlarm)            :: update_alarm 
 
      integer                      :: collection_id
      integer                      :: pfioCollection_id
@@ -137,7 +139,6 @@
      logical                      :: ExtDataAlloc
      ! time shifting during continuous update
      type(ESMF_TimeInterval)      :: tshift
-     type(ESMF_Alarm)             :: update_alarm
      logical                      :: alarmIsEnabled = .false.
      integer                      :: FracVal = MAPL_ExtDataNullFrac
      ! do we have to do vertical interpolation
@@ -168,7 +169,7 @@
      type(ESMF_Time), pointer       :: refresh_time => null()
      ! time shifting during continuous update
      type(ESMF_TimeInterval)      :: tshift
-     type(ESMF_Alarm)             :: update_alarm
+     type(SimpleAlarm)            :: update_alarm
      logical                      :: alarmIsEnabled = .false.
   end type DerivedExport
 
@@ -1981,7 +1982,7 @@ CONTAINS
         integer                    :: iyy,imm,idd,ihh,imn,isc
         integer                    :: lasttoken
         character(len=2)           :: token
-        type(ESMF_Time)            :: time
+        type(ESMF_Time)            :: time,start_time
         integer                    :: cindex,pindex
         character(len=ESMF_MAXSTR) :: creffTime, ctInt
        
@@ -1989,7 +1990,7 @@ CONTAINS
  
         creffTime = ''
         ctInt     = ''
-        call ESMF_ClockGet (CLOCK, currTIME=time, __RC__)
+        call ESMF_ClockGet (CLOCK, currTIME=time, startTime=start_time, __RC__)
         if (.not.item%hasFileReffTime) then
            ! if int_frequency is less than zero than try to guess it from the file template
            ! if that fails then it must be a single file or a climatology 
@@ -2011,21 +2012,21 @@ CONTAINS
            if (lasttoken.gt.0) then
               token = item%file(lasttoken+1:lasttoken+2)
               select case(token)
-              case("y4") 
+              case("y4")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=1,dd=1,h=0,m=0,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,yy=1,__RC__)
-              case("m2") 
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,yy=1,__RC__)
+              case("m2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=1,h=0,m=0,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,mm=1,__RC__)
-              case("d2") 
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,mm=1,__RC__)
+              case("d2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=0,m=0,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,d=1,__RC__)
-              case("h2") 
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,d=1,__RC__)
+              case("h2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,h=1,__RC__)
-              case("n2") 
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,h=1,__RC__)
+              case("n2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,__RC__)
-                 call ESMF_TimeIntervalSet(item%frequency,m=1,__RC__)
+                 call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,m=1,__RC__)
               end select
            else
               ! couldn't find any tokens so all the data must be on one file
@@ -4176,7 +4177,7 @@ CONTAINS
      if (present(primaryItem)) then
        
         if (primaryItem%AlarmIsEnabled) then
-           doUpdate = ESMF_AlarmIsRinging(primaryItem%update_alarm,__RC__)
+           doUpdate = primaryItem%update_alarm%is_ringing(currTime,__RC__)
            if (hasRun .eqv. .false.) doUpdate = .true.
            updateTime = currTime
         else if (trim(primaryItem%cyclic) == 'single') then
@@ -4203,7 +4204,7 @@ CONTAINS
         end if
      else if (present(derivedItem)) then
         if (DerivedItem%AlarmIsEnabled) then
-           doUpdate = ESMF_AlarmIsRinging(derivedItem%update_alarm,__RC__)
+           doUpdate = derivedItem%update_alarm%is_ringing(currTime,__RC__)
            updateTime = currTime
         else
            if (derivedItem%refresh_template == "0") then
@@ -4240,6 +4241,7 @@ CONTAINS
      character(len=ESMF_MAXSTR) :: refresh_template,ctInt
      character(len=ESMF_MAXSTR) :: Iam
      type(ESMF_TimeInterval)    :: tInterval
+     type(ESMF_Time)            :: current_time
      integer                    :: status
      Iam = "SetRefreshAlarms"
 
@@ -4250,6 +4252,8 @@ CONTAINS
      end if
      pindex = index(refresh_template,'P')
      if (pindex > 0) then
+        call ESMF_ClockGet(Clock,currTime=current_time,rc=status)
+        _VERIFY(status)
         ! now get time interval. Put 0000-00-00 in front if not there so parsetimeunits doesn't complain
         ctInt = refresh_template(pindex+1:)
         cindex = index(ctInt,'T')
@@ -4258,13 +4262,13 @@ CONTAINS
         _VERIFY(STATUS)
         call ESMF_TimeIntervalSet(tInterval,yy=iyy,mm=imm,d=idd,h=ihh,m=imn,s=isc,rc=status)
         _VERIFY(STATUS) 
-        if (present(primaryItem)) then 
-           primaryItem%update_alarm = ESMF_AlarmCreate(clock=clock,ringInterval=tInterval,sticky=.false.,rc=status)
-           _VERIFY(STATUS)
+        if (present(primaryItem)) then
+           primaryItem%update_alarm = simpleAlarm(current_time,tInterval,rc=status)
+           _VERIFY(status)
            primaryItem%alarmIsEnabled = .true.
         else if (present(derivedItem)) then
-           DerivedItem%update_alarm = ESMF_AlarmCreate(clock=clock,ringInterval=tInterval,sticky=.false.,rc=status)
-           _VERIFY(STATUS)
+           DerivedItem%update_alarm = simpleAlarm(current_time,tInterval,rc=status)
+           _VERIFY(status)
            derivedItem%alarmIsEnabled = .true.
         end if
      end if
