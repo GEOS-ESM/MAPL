@@ -173,12 +173,12 @@ contains
     cap_options = MAPL_CapOptions(cap_rc_file = cap_params%cap_rc_file, rc = rc)
     cap_options%use_comm_world = .false.
     cap_options%comm = dup_comm
-    cap_options%logging_config = "logging.yaml"
+    ! cap_options%logging_config = "logging.yaml"
+    cap_options%logging_config = ''
     call MPI_Comm_size(dup_comm, cap_options%npes_model, rc)
 
     allocate(cap)
-    call init_MAPL_Cap(cap,cap_params%name, cap_params%set_services, cap_options = cap_options, rc = rc)
-!!$    cap = MAPL_Cap(cap_params%name, cap_params%set_services, cap_options = cap_options, rc = rc)
+    cap = MAPL_Cap(cap_params%name, cap_params%set_services, cap_options = cap_options, rc = rc)
     wrapped_cap%ptr => cap
 
     call ESMF_UserCompSetInternalState(model, "MAPL_Cap", wrapped_cap, status); _VERIFY(status)
@@ -191,6 +191,7 @@ contains
         first = .false.
     end if
 
+    call cap%nuopc_fill_mapl_comm(rc = status); _VERIFY(status)
     call cap%initialize_cap_gc(cap%get_mapl_comm())
     
     call cap%cap_gc%set_services(rc = status); _VERIFY(status)
