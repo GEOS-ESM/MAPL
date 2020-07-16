@@ -53,24 +53,12 @@ endif()
 esma_add_library(
   ${this} SRCS ${srcs}
 
-# Old GCHP:
-#  # Do not require FLAP for GCHP
-#  #DEPENDENCIES MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 pflogger gftl-shared FLAP::FLAP MPI::MPI_Fortran)
-#  DEPENDENCIES MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 pflogger gftl-shared $<$<BOOL:${FLAP_IS_REQUIRED}>:FLAP::FLAP>)
-#
-## Turn off GEOS compile options when using GCHP
-##target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
-##if(DISABLE_GLOBAL_NAME_WARNING)
-##   target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${DISABLE_GLOBAL_NAME_WARNING}>)
-##endif()
-# New in MAPL 2.2.7:
   DEPENDENCIES MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 pflogger gftl-shared MPI::MPI_Fortran)
 
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 if(DISABLE_GLOBAL_NAME_WARNING)
   target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${DISABLE_GLOBAL_NAME_WARNING}>)
 endif()
-#====
 target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
 
 target_include_directories (${this} PUBLIC

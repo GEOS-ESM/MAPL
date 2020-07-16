@@ -128,6 +128,6 @@ if (LATEX_FOUND)
 #  add_subdirectory (TeX)
 endif ()
 
-# Do not do unit testing in GCHP
+# GCHP: disable tests
 #add_subdirectory(tests EXCLUDE_FROM_ALL)
 

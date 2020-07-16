@@ -282,7 +282,7 @@
             ! copy ZTH to ZTP before above horizon enforcement
             ZTP = ZTH
 
-            ! Customize for GCHP
+	    ! GCHP: Do not enforce zero insolation for sun below horizon 
             !! enforce zero insolation for sun below horizon
             !ZTH = max(ZTH, 0.0)
             !
@@ -370,7 +370,7 @@
               RC=STATUS)
          _VERIFY(STATUS)
 
-         ! Modify to permit SZA < -90 in GCHP
+	 ! GCHP: Modify to permit SZA < -90
          !if(present(ZTH1)) ZTH1 = max(ZTT,0.0)
          if(present(ZTH1)) ZTH1 = ZTT
 

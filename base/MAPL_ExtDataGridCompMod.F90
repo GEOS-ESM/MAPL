@@ -11,7 +11,7 @@
 !BOP
 ! !MODULE: MAPL_ExtDataGridCompMod - Implements Interface to External Data
 !
-! !DESCRIPTION:
+! !DESCRIPTION: 
 !
 !  {\tt MAPL\_ExtDataGridComp} is an ESMF gridded component implementing
 !  an interface to boundary conditions and other types of external data
@@ -78,7 +78,7 @@
   integer, parameter         :: MAPL_ExtDataLeft          = 1
   integer, parameter         :: MAPL_ExtDataRight         = 2
   logical                    :: hasRun
-  logical, SAVE              :: firstRun
+  logical, SAVE              :: firstRun   ! GCHP
   character(len=ESMF_MAXSTR) :: error_msg_str
 
   type BracketingFields
@@ -103,7 +103,7 @@
      integer                      :: Trans
      real                         :: scale, offset
      logical                      :: do_offset, do_scale
-     logical                      :: levPosAttrUp = .false.
+     logical                      :: levPosAttrUp = .false.   ! GCHP
      character(len=ESMF_MAXSTR)   :: var
      character(len=ESMF_MAXPATHLEN)   :: file
      logical                      :: hasFileReffTime
@@ -159,7 +159,7 @@
      PRIVATE
      integer :: nItems = 0
      logical :: have_phis
-     type(PrimaryExport), pointer :: item(:) => null()
+     type(PrimaryExport), pointer :: item(:) => null() 
   end type PrimaryExports
 
   type DerivedExport
@@ -242,7 +242,7 @@ CONTAINS
     type(ESMF_GridComp), intent(INOUT) :: GC  ! gridded component
     integer, optional                  :: RC  ! return code
 
-! !DESCRIPTION: Sets Initialize, Run and Finalize services.
+! !DESCRIPTION: Sets Initialize, Run and Finalize services. 
 !
 ! !REVISION HISTORY:
 !
@@ -273,7 +273,7 @@ CONTAINS
     allocate ( self, stat=STATUS )
     _VERIFY(STATUS)
     wrap%ptr => self
-
+ 
 !                       ------------------------
 !                       ESMF Functional Services
 !                       ------------------------
@@ -283,12 +283,12 @@ CONTAINS
     call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_INITIALIZE,  Initialize_, __RC__ )
     call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_RUN,   Run_,        __RC__ )
     call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_FINALIZE, Finalize_,   __RC__ )
-
+        
 !   Store internal state in GC
 !   --------------------------
     call ESMF_UserCompSetInternalState ( GC, 'MAPL_ExtData_state', wrap, STATUS )
     _VERIFY(STATUS)
-
+  
 
     call MAPL_TimerAdd(gc,name="Initialize", rc=status)
     _VERIFY(STATUS)
@@ -369,7 +369,7 @@ CONTAINS
    type(ESMF_State), intent(inout)    :: EXPORT  ! Export State
    integer, intent(out)               :: rc      ! Error return code:
                                                  !  0 - all is well
-                                                 !  1 -
+                                                 !  1 - 
 
 ! !DESCRIPTION: This is a simple ESMF wrapper.
 !
@@ -382,7 +382,7 @@ CONTAINS
 
    type(MAPL_ExtData_state), pointer :: self        ! Legacy state
    type(ESMF_Grid)                   :: GRID        ! Grid
-   type(ESMF_Config)                 :: CF_master          ! Universal Config
+   type(ESMF_Config)                 :: CF_master          ! Universal Config 
 
    character(len=ESMF_MAXSTR)        :: comp_name
    character(len=ESMF_MAXSTR)        :: Iam
@@ -392,7 +392,7 @@ CONTAINS
    type(PrimaryExports)              :: Primary
    type(PrimaryExport), pointer      :: item
    type(DerivedExports)              :: Derived
-   type(DerivedExport), pointer      :: derivedItem
+   type(DerivedExport), pointer      :: derivedItem 
    integer                           :: nLines
    integer                           :: i
    integer                           :: ItemCount, itemCounter, j
@@ -445,8 +445,7 @@ CONTAINS
    call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, __RC__ )
    Iam = trim(comp_name) // '::' // trim(Iam)
 
-!  Initialize firstRun to true
-!  ---------------------------------------
+   ! GCHP: Initialize firstRun to true
    firstRun = .true.
  
 !  Extract relevant runtime information
@@ -457,7 +456,7 @@ CONTAINS
 !  Start Some Timers
 !  -----------------
    call MAPL_GetObjectFromGC ( gc, MAPLSTATE, RC=STATUS)
-   _VERIFY(STATUS)
+   _VERIFY(STATUS) 
    call MAPL_TimerOn(MAPLSTATE,"TOTAL")
    call MAPL_TimerOn(MAPLSTATE,"Initialize")
 
@@ -531,9 +530,9 @@ CONTAINS
    totalPrimaryEntries=0
    totalDerivedEntries=0
    call ESMF_ConfigNextLine(CFtemp,__RC__)
-   do while (status == ESMF_SUCCESS)
+   do while (status == ESMF_SUCCESS) 
       call ESMF_ConfigNextLine(CFtemp,rc=status)
-      if (status == ESMF_SUCCESS) then
+      if (status == ESMF_SUCCESS) then 
          call ESMF_ConfigGetAttribute(CFtemp,thisLine,rc=status)
          _VERIFY(STATUS)
          if (trim(thisLine) == "PrimaryExports%%" .or. trim(thisLine) == "DerivedExports%%" ) then
@@ -552,8 +551,8 @@ CONTAINS
    call ESMF_ConfigDestroy(CFtemp,rc=status)
    _VERIFY(STATUS)
 
-   IF ( MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'Initializing MAPL ExtData'
+   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'ExtData Initialize_: Start'
    ENDIF
 
    primary%nItems = totalPrimaryEntries
@@ -566,14 +565,14 @@ CONTAINS
       allocate(primary%item(totalPrimaryEntries), stat=STATUS)
       _VERIFY(STATUS)
    end if
-
+   
    derived%nItems = totalDerivedEntries
-   if (totalDerivedEntries > 0) then
+   if (totalDerivedEntries > 0) then 
       Allocate(DerivedVarNeeded(totalDerivedEntries),stat=status)
       _VERIFY(STATUS)
       DerivedVarNeeded = .false.
       allocate(derived%item(totalDerivedEntries),stat=status)
-      _VERIFY(STATUS)
+      _VERIFY(STATUS) 
    end if
 
 !  Primary Exports
@@ -587,7 +586,7 @@ CONTAINS
    call ESMF_ConfigLoadFile(CFtemp,EXTDATA_CF,rc=status)
    _VERIFY(STATUS)
    call ESMF_ConfigNextLine(CFtemp,__RC__)
-   do while(status == ESMF_SUCCESS)
+   do while(status == ESMF_SUCCESS) 
 
       call ESMF_ConfigNextLine(CFtemp,rc=status)
       if (status == ESMF_SUCCESS) then
@@ -683,7 +682,7 @@ CONTAINS
                            primary%item(totalPrimaryEntries)%do_scale = .true.
                            read(c_scale,*,iostat=ios) primary%item(totalPrimaryEntries)%scale
                         end if
-
+                     
                         ! variable name on file entry
                         call ESMF_ConfigGetAttribute(CFtemp, primary%item(totalPrimaryEntries)%var,    __RC__)
                         ! file template entry
@@ -698,8 +697,8 @@ CONTAINS
                            primary%item(totalPrimaryEntries)%hasFileReffTime = .false.
                         else
                            primary%item(totalPrimaryEntries)%hasFileReffTime = .true.
-                        end if
-
+                        end if            
+ 
               !         assume we will allocate
                         primary%item(totalPrimaryEntries)%ExtDataAlloc = .true.
               !         check if this is going to be a constant
@@ -744,7 +743,7 @@ CONTAINS
          end if
       end if
    end do
-   !Done parsing resource file
+   !Done parsing resource file    
 
    PrimaryItemCount = 0
    DerivedItemCount = 0
@@ -849,15 +848,15 @@ CONTAINS
        end if
     end do
 
-    call ESMF_VMGetCurrent(VM)
+    call ESMF_VMGetCurrent(VM) 
     call ESMF_VMBarrier(VM)
-
+    
     ! we have better found all the items in the export in either a primary or derived item
     if (itemCounter /= ItemCount) then
        write(error_msg_str, '(A6,I3,A31)') 'Found ', ItemCount-itemCounter,' unfullfilled imports in extdata'
        _ASSERT(.false., error_msg_str)
     end if
-
+   
     NumVarNames=primary%nItems
     allocate(VarNames(NumVarNames))
     allocate(LocalVarNeeded(NumVarNames))
@@ -1014,26 +1013,26 @@ CONTAINS
          else if (item%vartype == MAPL_ExtDataVectorItem) then
             call ESMF_StateGet(self%ExtDataState,trim(item%vcomp1),field,__RC__)
             call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
-            if (fieldRank == 2) then
+            if (fieldRank == 2) then 
                   call MAPL_GetPointer(self%ExtDataState, ptr2d, trim(item%vcomp1),__RC__)
                   ptr2d = item%const
-            else if (fieldRank == 3) then
+            else if (fieldRank == 3) then 
                   call MAPL_GetPointer(self%ExtDataState, ptr3d, trim(item%vcomp1), __RC__)
                   ptr3d = item%const
             endif
             call ESMF_StateGet(self%ExtDataState,trim(item%vcomp2),field,__RC__)
             call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
-            if (fieldRank == 2) then
+            if (fieldRank == 2) then 
                   call MAPL_GetPointer(self%ExtDataState, ptr2d, trim(item%vcomp2),__RC__)
                   ptr2d = item%const
-            else if (fieldRank == 3) then
+            else if (fieldRank == 3) then 
                   call MAPL_GetPointer(self%ExtDataState, ptr3d, trim(item%vcomp2), __RC__)
                   ptr3d = item%const
             endif
          end if
          cycle
       end if
-
+ 
       ! check if this is a single piece of data if user put - for refresh template
       ! by that it is an untemplated file with one time that could not possibly be time interpolated
       if (PrimaryExportIsConstant_(item)) then
@@ -1064,7 +1063,7 @@ CONTAINS
          if (fieldRank==3) then
             call ESMF_FieldGet(field,0,farrayPtr=ptr3d,__RC__)
             lm = size(ptr3d,3)
-         end if
+         end if   
          if (item%lm /= lm .and. lm /= 0 .and. item%havePressure) then
             item%do_VertInterp = .true.
          else if (item%lm /= lm .and. lm /= 0) then
@@ -1087,12 +1086,12 @@ CONTAINS
          call ESMF_FieldBundleSet(item%binterp2, GRID=GRID, __RC__)
          call MAPL_CFIORead(item%file,time,item%binterp1,noread=.true.,ignorecase=self%ignorecase,only_vars=item%var,__RC__)
          call MAPL_CFIORead(item%file,time,item%binterp2,noread=.true.,ignorecase=self%ignorecase,only_vars=item%var,__RC__)
-
+ 
       else if (item%vartype == MAPL_ExtDataVectorItem) then
-
+     
          ! check that we are not asking for conservative regridding
 !!$         if (item%Trans /= MAPL_HorzTransOrderBilinear) then
-         ! Allow conservative regridding for GCHP (ewl)
+         ! GCHP: Remove forced failure if doing conservative regridding
          !if (item%Trans /= REGRID_METHOD_BILINEAR) then
          !   _ASSERT(.false.,'No conservative re-gridding with vectors')
          !end if
@@ -1109,7 +1108,7 @@ CONTAINS
          call ESMF_StateGet(self%ExtDataState, trim(item%vcomp1), field,__RC__)
          call ESMF_FieldGet(field,grid=grid,rank=fieldRank,__RC__)
 
-         lm = 0
+         lm = 0 
          if (fieldRank==3) then
             call ESMF_FieldGet(field,0,farrayPtr=ptr3d,__RC__)
             lm = size(ptr3d,3)
@@ -1172,7 +1171,7 @@ CONTAINS
       print *, trim(Iam)//': IMPORT   State during Initialize():'
       call ESMF_StatePrint ( IMPORT )
       print *
-      print *, trim(Iam)//': EXPORT   State during Initialize():'
+      print *, trim(Iam)//': EXPORT   State during Initialize():' 
       call ESMF_StatePrint ( EXPORT )
    end if
 #endif
@@ -1230,7 +1229,7 @@ CONTAINS
    if (allocated(DerivedVarNeeded)) deallocate(DerivedVarNeeded)
    if (allocated(LocalVarNeeded)) deallocate(LocalVarNeeded)
 
-   !Done parsing resource file
+   !Done parsing resource file    
 
 !  Set has run to false to we know when we first go to run method it is first call
    hasRun = .false.
@@ -1240,8 +1239,8 @@ CONTAINS
 !  All done
 !  --------
 
-   IF ( MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'MAPL ExtData initialization complete'
+   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'ExtData Initialize_: End'
    ENDIF
 
    _RETURN(ESMF_SUCCESS)
@@ -1276,7 +1275,7 @@ CONTAINS
    type(ESMF_State), intent(inout) :: EXPORT     ! Export State
    integer, intent(out) ::  rc                   ! Error return code:
                                                  !  0 - all is well
-                                                 !  1 -
+                                                 !  1 - 
 
 ! !DESCRIPTION: This is a simple ESMF wrapper.
 !
@@ -1290,7 +1289,7 @@ CONTAINS
    type(MAPL_ExtData_state), pointer :: self        ! Legacy state
    type(ESMF_Field)                  :: field ! Field
    type(ESMF_FieldBundle)            :: bundle
-   type(ESMF_Config)                 :: CF          ! Universal Config
+   type(ESMF_Config)                 :: CF          ! Universal Config 
 
    character(len=ESMF_MAXSTR)        :: comp_name
    character(len=ESMF_MAXSTR)        :: Iam
@@ -1324,7 +1323,7 @@ CONTAINS
 !  Declare pointers to IMPORT/EXPORT/INTERNAL states 
 !  -------------------------------------------------
 !  #include "MAPL_ExtData_DeclarePointer___.h"
-
+  
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
    Iam = 'Run_'
@@ -1346,14 +1345,14 @@ CONTAINS
    end if
 
    call MAPL_GetObjectFromGC ( gc, MAPLSTATE, RC=STATUS)
-   _VERIFY(STATUS)
+   _VERIFY(STATUS) 
    call MAPL_TimerOn(MAPLSTATE,"TOTAL")
    call MAPL_TimerOn(MAPLSTATE,"Run")
 
    call ESMF_ClockGet(CLOCK, currTIME=time0, __RC__)
 
 
-!  Fill in the internal state with data from the files
+!  Fill in the internal state with data from the files 
 !  ---------------------------------------------------
 
    allocate(doUpdate(self%primary%nitems),stat=status)
@@ -1364,11 +1363,10 @@ CONTAINS
 
    call MAPL_TimerOn(MAPLSTATE,"-Read_Loop")
  
+   ! GCHP: always print if first run
    IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
-      Write(*,*) 'Calling MAPL ExtData Run_'
-   endif
-   IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
-      Write(*,*) 'ExtData Run_: READ_LOOP'
+      Write(*,*) 'ExtData Run_: Start'
+      Write(*,*) 'ExtData Run_: READ_LOOP: Start'
    ENDIF
 
    READ_LOOP: do i = 1, self%primary%nItems
@@ -1456,7 +1454,7 @@ CONTAINS
             ENDIF
 
          endif HAS_RUN
-
+ 
          ! now update bracketing times if neccessary
 
          NOT_SINGLE: if (NotSingle) then
@@ -1555,11 +1553,11 @@ CONTAINS
 
    end do READ_LOOP
 
-   IF ( MAPL_Am_I_Root() .and. Ext_Debug > 0 ) THEN
-      Write(*,*) 'ExtData Run_: READ_LOOP: Complete'
+   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+      Write(*,*) 'ExtData Run_: READ_LOOP: Done'
    ENDIF
 
-   ! Populate bundle
+   ! GCHP: extra prints
    IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
       Write(*,*) 'ExtData Run_: ---PopulateBundle'
    ENDIF
@@ -1580,51 +1578,52 @@ CONTAINS
    enddo
 
    call MAPL_TimerOn(MAPLSTATE,"--PRead")
-
-   ! CreateCFIO
    call MAPL_TimerOn(MAPLSTATE,"---CreateCFIO")
-   IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
-      Write(*,*) 'ExtData Run_: ---CreateCFIO'
-   ENDIF
    call MAPL_ExtDataCreateCFIO(IOBundles, rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---CreateCFIO")
 
-   ! prefetch
    call MAPL_TimerOn(MAPLSTATE,"---prefetch")
+
+   ! GCHP: extra prints
    IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
       Write(*,*) 'ExtData Run_: ---prefetch'
    ENDIF
+
    call MAPL_ExtDataPrefetch(IOBundles, rc=status)
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---prefetch")
    _VERIFY(STATUS)
-
-   ! IclientDone
    call MAPL_TimerOn(MAPLSTATE,"---IclientDone")
+
+   ! GCHP: extra prints
    IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
       Write(*,*) 'ExtData Run_: ---IclientDone'
    ENDIF
+
    call i_Clients%done_collective_prefetch()
    call i_Clients%wait()
+
    call MAPL_TimerOff(MAPLSTATE,"---IclientDone")
    _VERIFY(STATUS)
   
-   ! read-prefetch
    call MAPL_TimerOn(MAPLSTATE,"---read-prefetch")
+
+   ! GCHP: extra prints
    IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0) ) THEN
       Write(*,*) 'ExtData Run_: ---read-prefetch'
    ENDIF
+
    call MAPL_ExtDataReadPrefetch(IOBundles,rc=status) 
    _VERIFY(status)
    call MAPL_TimerOff(MAPLSTATE,"---read-prefetch")
-
    call MAPL_TimerOff(MAPLSTATE,"--PRead")
 
-   ! vertical interpolate
+   ! GCHP: extra prints
    IF ( MAPL_Am_I_Root() .and. (firstRun .or. Ext_Debug > 0)  ) THEN
       Write(*,*) 'ExtData Run_: Vertical interpolation'
    ENDIF
+
    bundle_iter = IOBundles%begin()
    do while (bundle_iter /= IOBundles%end())
       io_bundle => bundle_iter%get()
@@ -1664,7 +1663,7 @@ CONTAINS
          if (item%vartype == MAPL_FieldItem) then
 
                call ESMF_StateGet(self%ExtDataState, item%name, field, __RC__)
-               call MAPL_ExtDataInterpField(item,useTime(i),field,__RC__)
+               call MAPL_ExtDataInterpField(item,useTime(i),field,__RC__) 
 
          else if (item%vartype == MAPL_BundleItem) then
 
@@ -1684,25 +1683,28 @@ CONTAINS
                call MAPL_ExtDataInterpField(item,useTime(i),field,vector_comp=1,__RC__)
                call ESMF_StateGet(self%ExtDataState, item%vcomp2, field, __RC__)
                call MAPL_ExtDataInterpField(item,useTime(i),field,vector_comp=2,__RC__)
-
+ 
          end if
 
       endif
 
-      nullify(item)
+      nullify(item) 
 
    end do INTERP_LOOP
 
+   ! GCHP: always print if first run
    IF ( (Ext_Debug > 0 .or. firstRun) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Run_: INTERP_LOOP: Done'
    ENDIF
 
    call MAPL_TimerOff(MAPLSTATE,"-Interpolate")
 
-   ! now take care of derived fields
+   ! GCHP: extra prints
    IF ( (Ext_Debug > 0 .or. firstRun) .AND. MAPL_Am_I_Root() ) THEN
       Write(*,*) 'ExtData Run_: Calculating derived fields'
    ENDIF
+
+   ! now take care of derived fields
    do i=1,self%derived%nItems
 
       derivedItem => self%derived%item(i)
@@ -1723,8 +1725,9 @@ CONTAINS
 
    end do
 
+   ! GCHP: always print if first run
    IF ( MAPL_Am_I_Root() .and. (Ext_Debug > 0 .or. firstRun) ) THEN
-      Write(*,*) 'MAPL ExtData Run_ complete'
+      Write(*,*) 'ExtData Run_: End'
    ENDIF
 
 !  All done
@@ -1732,7 +1735,7 @@ CONTAINS
    deallocate(doUpdate)
    deallocate(useTime)
 
-   if (firstRun) firstRun = .false.
+   if (firstRun) firstRun = .false.   ! GCHP
    if (hasRun .eqv. .false.) hasRun = .true.
    call MAPL_TimerOff(MAPLSTATE,"Run")
    call MAPL_TimerOff(MAPLSTATE,"TOTAL")
@@ -1768,7 +1771,7 @@ CONTAINS
    type(ESMF_State), intent(inout) :: EXPORT     ! Export State
    integer, intent(out) ::  rc                   ! Error return code:
                                                  !  0 - all is well
-                                                 !  1 -
+                                                 !  1 - 
 
 ! !DESCRIPTION: This is a simple ESMF wrapper.
 !
@@ -1780,7 +1783,7 @@ CONTAINS
 !-------------------------------------------------------------------------
 
    type(MAPL_ExtData_state), pointer :: self        ! Legacy state
-   type(ESMF_Config)                 :: CF          ! Universal Config
+   type(ESMF_Config)                 :: CF          ! Universal Config 
 
    character(len=ESMF_MAXSTR)        :: comp_name
    character(len=ESMF_MAXSTR)        :: Iam
@@ -1838,7 +1841,7 @@ CONTAINS
     type(ESMF_GridComp), intent(INout)  :: GC           ! Grid Comp object
 
     type(MAPL_ExtData_state), pointer   :: self         ! Legacy state
-    type(ESMF_Config),   intent(out)    :: CF           ! Universal Config
+    type(ESMF_Config),   intent(out)    :: CF           ! Universal Config 
 
     integer, intent(out), optional      :: rc
 
@@ -1868,20 +1871,20 @@ CONTAINS
 !   ---------------------
     call ESMF_GridCompGet ( GC, config=CF, __RC__ )
 
-
+    
     _RETURN(ESMF_SUCCESS)
 
   end subroutine extract_
-
+   
 ! ............................................................................
 
    logical function PrimaryExportIsConstant_(item)
-
+   
       type(PrimaryExport), intent(in) :: item
 
       if ( trim(item%refresh_template) == '-' .or. &
            trim(item%file) == '/dev/null' ) then
-          PrimaryExportIsConstant_ = .true.
+          PrimaryExportIsConstant_ = .true. 
       else
           PrimaryExportIsConstant_ = .false.
       end if
@@ -1891,11 +1894,11 @@ CONTAINS
 ! ............................................................................
 
    logical function DerivedExportIsConstant_(item)
-
+   
       type(DerivedExport), intent(in) :: item
 
       if ( trim(item%refresh_template) == '-') then
-          DerivedExportIsConstant_ = .true.
+          DerivedExportIsConstant_ = .true. 
       else
           DerivedExportIsConstant_ = .false.
       end if
@@ -2140,8 +2143,11 @@ CONTAINS
         else if (trim(buffer) == 'single') then
 
            _RETURN(ESMF_SUCCESS)
+
+        ! GCHP: include option 'd' in addition to 'y'
         else if (trim(buffer) == 'y' .or. trim(buffer) == 'd') then
         
+           ! GCHP: set cyclic to either y or d, not just y
            if (trim(buffer) == 'y') then
                item%cyclic = "y"
            else if (trim(buffer) == 'd') then
@@ -2197,8 +2203,8 @@ CONTAINS
         logical                    :: found,lFound,intOK
         integer                    :: maxOffset
         character(len=:), allocatable :: levname
-        character(len=:), pointer :: positive
-        character(len=64)         :: posStr
+        character(len=:), pointer :: positive 
+        character(len=64)         :: posStr  ! GCHP
         type(FileMetadataUtils), pointer :: metadata
         type(Variable), pointer :: var
         type(ESMF_TimeInterval)    :: zero
@@ -2287,7 +2293,7 @@ CONTAINS
         _VERIFY(status)
         if (trim(levName) /='') then
            call metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits,coords=levFile,__RC__)
-           ! ewl: gfortran has a problem with this function
+           ! GCHP: use trim to avoid gfortran issue
            !levUnits=MAPL_TrimString(tlevUnits)
            levUnits=trim(tlevUnits)
            ! check if pressure
@@ -2300,8 +2306,8 @@ CONTAINS
            else
               positive => metadata%get_variable_attribute(levName,'positive',__RC__)
               if (associated(positive)) then
+                 ! GCHP: use local var and trim to avoid gfortran issue
                  posStr = positive
-                 ! ewl: gfortran has a problem with this function
                  !if (MAPL_TrimString(posStr)=='up') item%fileVDir="up"
                  if (trim(posStr)=='up') item%fileVDir="up"
               end if
@@ -2346,12 +2352,12 @@ CONTAINS
         type(ESMF_Time)                            :: newTime
         integer                                    :: curDate,curTime,n,tindex
         integer(ESMF_KIND_I4)                      :: iyr, imm, idd, ihr, imn, isc, oldYear
-        integer(ESMF_KIND_I4)                      :: cYear, cMonth
+        integer(ESMF_KIND_I4)                      :: cYear, cMonth  ! GCHP
         integer(ESMF_KIND_I4)                      :: fyr, fmm, fdd, fhr, fmn, fsc
         type(ESMF_TimeInterval)                    :: zero
         type(ESMF_Time)                            :: fTime
         logical                                    :: UniFileClim
-        logical                                    :: UniFileDOW
+        logical                                    :: UniFileDOW  ! GCHP
         type(ESMF_Time)                            :: readTime
 
         ! Allow for extrapolation.. up to a limit
@@ -2362,13 +2368,14 @@ CONTAINS
         logical                                    :: found, newFile
         logical                                    :: LExtrap, RExtrap, LExact, RExact
         logical                                    :: LSide, RSide, intOK, bracketScan
-        type(ESMF_TimeInterval)                    :: yrTimeStep
 
+        type(ESMF_TimeInterval)                    :: yrTimeStep  ! GCHP
         type(ESMF_Time), allocatable               :: xTSeries(:)
         type(FileMetaDataUtils), pointer           :: fdata
       
         call ESMF_TimeIntervalSet(zero,__RC__)
-        call ESMF_TimeIntervalSet(yrTimeStep, yy=1, rc=rc)
+
+        call ESMF_TimeIntervalSet(yrTimeStep, yy=1, rc=rc) ! GCHP
 
         ! Default
         fTime = cTime
@@ -2386,8 +2393,10 @@ CONTAINS
            ! but it was marked as cyclic we must have a year long climatology 
            ! on one file, set UniFileClim to true
            if (trim(item%cyclic)=='y') UniFileClim = .true.
-           ! If file is constant and marked as DOW, set UniFileDOW to true
+
+           ! GHCP: set to true if file is constant and marked as DOW ('d')
            UniFileDOW = (trim(item%cyclic)=='d')
+
            file_processed = item%file
            call MakeMetadata(file_processed,item%pfioCollection_id,fdata,__RC__)
            ! Retrieve the time series
@@ -2398,6 +2407,8 @@ CONTAINS
               end if
               _RETURN(ESMF_FAILURE)
            end if
+           ! GCHP: pass UniFileDOW
+           !call GetBracketTimeOnSingleFile(fdata,xTSeries,cTime,bSide,UniFileClim,interpTime,fileTime,tindex,allowExtrap,item%climYear,rc=status)
            call GetBracketTimeOnSingleFile(fdata,xTSeries,cTime,bSide,UniFileClim,UniFileDOW,interpTime,fileTime,tindex,allowExtrap,item%climYear,rc=status)
            if (status /= ESMF_SUCCESS) then
               if (mapl_am_I_root()) Then
@@ -2423,8 +2434,11 @@ CONTAINS
               call ESMF_TimeGet(cTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
               yrOffset = item%climYear - iyr
               call OffsetTimeYear(cTime,yrOffset,fTime,rc)
+
+           ! GCHP: handle DOW option
            elseif (trim(item%cyclic)=='d') then
               _ASSERT(.False.,'Day-of-week scaling factors must be given in a single file, but ' // trim(file_processed) // ' uses a refresh template')
+
            else
               yrOffset = 0
               if (item%reff_time > cTime) then
@@ -2506,6 +2520,7 @@ CONTAINS
                  intOK = (abs(yrOffset)<maxOffset)
                  if (.not.found) then
                     n = n + 1
+                    ! GCHP: increase search speed by iterating over years
                     !ftime = ftime + item%frequency
                     ftime = fTime+yrTimeStep
                  end if
@@ -2987,13 +3002,15 @@ CONTAINS
 
      end subroutine OffsetTimeYear
 
+     ! GCHP: add argument UniFileDOW
+     !subroutine GetBracketTimeOnSingleFile(fdata,tSeries,cTime,bSide,UniFileClim,interpTime,fileTime,tindex,allowExtrap,climyear,rc)
      subroutine GetBracketTimeOnSingleFile(fdata,tSeries,cTime,bSide,UniFileClim,UniFileDOW,interpTime,fileTime,tindex,allowExtrap,climyear,rc)
         class(FileMetadataUtils),            intent(inout) :: fdata
         type(ESMF_Time),                     intent(in   ) :: tSeries(:)
         type(ESMF_Time),                     intent(inout) :: cTime
         character(len=1),                    intent(in   ) :: bSide
         logical,                             intent(in   ) :: UniFileClim
-        logical,                             intent(in   ) :: UniFileDOW
+        logical,                             intent(in   ) :: UniFileDOW ! GCHP
         type(ESMF_TIME),                     intent(inout) :: interpTime
         type(ESMF_TIME),                     intent(inout) :: fileTime
         integer,                             intent(inout) :: tindex
@@ -3011,9 +3028,9 @@ CONTAINS
         logical                            :: LSide, RSide
         integer                            :: yrOffset, yrOffsetNeg, targYear
         integer                            :: iEntry
-        integer                            :: yrAdjust, yCentury
-        integer                            :: yRem, TargDOW
-        integer                            :: monthOffset
+        integer                            :: yrAdjust, yCentury  ! GCHP
+        integer                            :: yRem, TargDOW       ! GCHP
+        integer                            :: monthOffset         ! GCHP
         type(ESMF_Time), allocatable       :: tSeriesC(:)
         logical                            :: foundYear
         integer                            :: tSteps, curYear, nsteps
@@ -3023,7 +3040,7 @@ CONTAINS
         nsteps = size(tSeries)
         call ESMF_TimeGet(cTime,yy=targYear,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
 
-        ! If getting DOW, get the target day of the week
+        ! GCHP: If getting DOW, get the target day of the week
         If (UniFileDOW) Then
            ! DOW calculator
            ! Tested for Jan 1st 1000 AD through Dec 31st 2199
@@ -3438,7 +3455,7 @@ CONTAINS
            Write(6,'(a,a)') 'WARNING: Requested sample not found in file ', trim(fdata%get_file_name())
         _RETURN(ESMF_FAILURE)
      endif
-     !end if
+     !end if 
 
   end subroutine GetBracketTimeOnFile
 
@@ -3446,7 +3463,7 @@ CONTAINS
      type(ESMF_State),        intent(inout) :: state
      character(len=*),        intent(in   ) :: exportName     
      character(len=*),        intent(in   ) :: exportExpr
-     logical,                 intent(in   ) :: masking
+     logical,                 intent(in   ) :: masking               
      integer, optional,       intent(out  ) :: rc
 
      integer :: status
@@ -3476,7 +3493,7 @@ CONTAINS
      real                       :: alpha
      real, pointer              :: var2d(:,:)   => null()
      real, pointer              :: var3d(:,:,:) => null()
-     real, pointer              :: var2d_prev(:,:)   => null()
+     real, pointer              :: var2d_prev(:,:)   => null() 
      real, pointer              :: var2d_next(:,:)   => null()
      real, pointer              :: var3d_prev(:,:,:) => null()
      real, pointer              :: var3d_next(:,:,:) => null()
@@ -3623,7 +3640,7 @@ CONTAINS
                  end if
               enddo
            enddo
-        enddo
+        enddo 
      endif
 
      _RETURN(ESMF_SUCCESS)
@@ -3654,7 +3671,7 @@ CONTAINS
            _VERIFY(STATUS)
            call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,rc=status)
            _VERIFY(STATUS)
-
+  
         else if (item%vartype == MAPL_ExtDataVectorItem) then
 
            id_ps = ExtState%primaryOrder(1)
@@ -3703,7 +3720,7 @@ CONTAINS
            _VERIFY(status)
         end if
      end if
-
+ 
      _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ExtDataVerticalInterpolate
 
@@ -3835,7 +3852,7 @@ CONTAINS
        deallocate(flag,stat=status)
        _VERIFY(STATUS)
 
-   !   Set local mask to 1 where gridMask matches each integer (within precision!)
+   !   Set local mask to 1 where gridMask matches each integer (within precision!) 
    !   ---------------------------------------------------------------------------
        allocate(mask(size(rmask,1),size(rmask,2)),stat=status)
        _VERIFY(STATUS)
@@ -4045,15 +4062,15 @@ CONTAINS
   INTEGER, INTENT(IN)            :: iSize
   INTEGER, INTENT(INOUT)         :: iValues(iSize)! Space allocated for extracted integers
   CHARACTER(LEN=*), OPTIONAL     :: delimiter     ! 1-character delimiter
-  LOGICAL, OPTIONAL, INTENT(IN)  :: verbose    ! Let me know iValues as they are found.
-                                      ! DEBUG directive turns on the message even
-                                      ! if verbose is not present or if
+  LOGICAL, OPTIONAL, INTENT(IN)  :: verbose    ! Let me know iValues as they are found. 
+                                      ! DEBUG directive turns on the message even 
+                                      ! if verbose is not present or if 
                                       ! verbose = .FALSE.
   INTEGER, OPTIONAL, INTENT(OUT) :: rc            ! Return code
-! !DESCRIPTION:
+! !DESCRIPTION: 
 !
 !  Extract integers from a character-delimited string, for example, "-1,45,256,7,10".  In the context
-!  of Chem_Util, this is provided for determining the numerically indexed regions over which an
+!  of Chem_Util, this is provided for determining the numerically indexed regions over which an 
 !  emission might be applied.
 !
 !  In multiple passes, the string is parsed for the delimiter, and the characters up to, but not
@@ -4064,7 +4081,7 @@ CONTAINS
 !  The default delimiter is a comma (",").
 !
 !  "Unfilled" iValues are zero.
-!
+!  
 !  Return codes:
 !  1 Zero-length string.
 !  2 iSize needs to be increased.
@@ -4095,7 +4112,7 @@ CONTAINS
 !  "+1"
 !  "1 3 6"
 !
-! !REVISION HISTORY:
+! !REVISION HISTORY: 
 !
 !  Taken from chem utilities.
 !
@@ -4118,7 +4135,7 @@ CONTAINS
  base = ICHAR("0")
  iDash = ICHAR("-")
 
-! Determine verbosity, letting the DEBUG
+! Determine verbosity, letting the DEBUG 
 ! directive override local specification
 ! --------------------------------------
   tellMe = .FALSE.
@@ -4266,9 +4283,9 @@ CONTAINS
          _VERIFY(STATUS)
          call ESMF_ConfigGetAttribute(CF,thisLine,rc=status)
          _VERIFY(STATUS)
-         if (trim(thisLine) == "%%") then
+         if (trim(thisLine) == "%%") then 
             inBlock = .false.
-         else
+         else 
             iCnt = iCnt + 1
          end if
      end do
@@ -4278,7 +4295,7 @@ CONTAINS
 
   end subroutine advanceAndCount
 
-  subroutine CheckUpdate(doUpdate,updateTime,currTime,hasRun,primaryItem,derivedItem,rc)
+  subroutine CheckUpdate(doUpdate,updateTime,currTime,hasRun,primaryItem,derivedItem,rc) 
      logical,                       intent(out  ) :: doUpdate
      type(ESMF_Time),               intent(inout) :: updateTime
      type(ESMF_Time),               intent(inout) :: currTime
@@ -4295,7 +4312,7 @@ CONTAINS
      time0 = currTime
      time  = currTime
      if (present(primaryItem)) then
-
+       
         if (primaryItem%AlarmIsEnabled) then
            doUpdate = primaryItem%update_alarm%is_ringing(currTime,__RC__)
            if (hasRun .eqv. .false.) doUpdate = .true.
@@ -4347,11 +4364,11 @@ CONTAINS
            end if
         end if
      end if
-
+     
      _RETURN(ESMF_SUCCESS)
   end subroutine CheckUpdate
 
-  subroutine SetRefreshAlarms(clock,primaryItem,derivedItem,rc)
+  subroutine SetRefreshAlarms(clock,primaryItem,derivedItem,rc) 
      type(ESMF_Clock),              intent(inout) :: Clock
      type(PrimaryExport), optional, intent(inout) :: primaryItem
      type(DerivedExport), optional, intent(inout) :: derivedItem
@@ -4498,7 +4515,7 @@ CONTAINS
 
         if (present(field)) then
 
-           if (Bside == MAPL_ExtDataLeft .and. vcomp == 1) then
+           if (Bside == MAPL_ExtDataLeft .and. vcomp == 1) then 
               if (getRL_) then
                  field = item%modelGridFields%v1_faux1
                  _RETURN(ESMF_SUCCESS)
@@ -4506,7 +4523,7 @@ CONTAINS
                  field = item%modelGridFields%v1_finterp1
                  _RETURN(ESMF_SUCCESS)
               end if
-           else if (Bside == MAPL_ExtDataLeft .and. vcomp == 2) then
+           else if (Bside == MAPL_ExtDataLeft .and. vcomp == 2) then 
               if (getRL_) then
                  field = item%modelGridFields%v2_faux1
                  _RETURN(ESMF_SUCCESS)
@@ -4514,7 +4531,7 @@ CONTAINS
                  field = item%modelGridFields%v2_finterp1
                  _RETURN(ESMF_SUCCESS)
               end if
-           else if (Bside == MAPL_ExtDataRight .and. vcomp == 1) then
+           else if (Bside == MAPL_ExtDataRight .and. vcomp == 1) then 
               if (getRL_) then
                  field = item%modelGridFields%v1_faux2
                  _RETURN(ESMF_SUCCESS)
@@ -4522,7 +4539,7 @@ CONTAINS
                  field = item%modelGridFields%v1_finterp2
                  _RETURN(ESMF_SUCCESS)
               end if
-           else if (Bside == MAPL_ExtDataRight .and. vcomp == 2) then
+           else if (Bside == MAPL_ExtDataRight .and. vcomp == 2) then 
               if (getRL_) then
                  field = item%modelGridFields%v2_faux2
                  _RETURN(ESMF_SUCCESS)
@@ -4558,10 +4575,10 @@ CONTAINS
               end if
            end if
         else if (present(bundle)) then
-           if (Bside == MAPL_ExtDataLeft) then
+           if (Bside == MAPL_ExtDataLeft) then 
               bundle = item%binterp1
               _RETURN(ESMF_SUCCESS)
-           else if (Bside == MAPL_ExtDataRight) then
+           else if (Bside == MAPL_ExtDataRight) then 
               bundle = item%binterp2
               _RETURN(ESMF_SUCCESS)
            end if
@@ -4585,7 +4602,8 @@ CONTAINS
 
   real, pointer :: ptrF(:,:,:),ptrR(:,:,:)
   integer :: lm_in,lm_out,i
-  integer :: lb_in,lb_out,ub_in,ub_out
+
+  integer :: lb_in,lb_out,ub_in,ub_out  ! GCHP
 
   Iam = "MAPL_ExtDataFillField"
 
@@ -4595,8 +4613,10 @@ CONTAINS
   _VERIFY(STATUS)
   ptrF = 0.0
   lm_in= size(ptrR,3)
-  lb_in=lbound(ptrR,3)
-  ub_in=ubound(ptrR,3)
+
+  lb_in=lbound(ptrR,3)   ! GCHP
+  ub_in=ubound(ptrR,3)   ! GCHP
+
   lm_out = size(ptrF,3)
   if (trim(item%importVDir)=="down") then
 
@@ -4621,20 +4641,20 @@ CONTAINS
      end if
   end if
 
-  ! debugging
+  ! GCHP: extra prints
   if ( Ext_Debug > 0 .and. mapl_am_i_root() ) then
      write(*,'(2(a,I4),3a)') '   --> MAPL_ExtDataFillField: filling ', lm_in, ' level input to ', lm_out, ' levels for ', trim(item%name)
   endif
 
   _RETURN(ESMF_SUCCESS)
-
+  
   end subroutine MAPL_ExtDataFillField
 
   subroutine MAPL_ExtDataFlipVertical(item,filec,rc)
       type(PrimaryExport), intent(inout)      :: item
       integer,                  intent(in)    :: filec
       integer, optional, intent(out)          :: rc
-
+ 
       integer :: status
      
       type(ESMF_Field) :: Field,field1,field2
@@ -4685,7 +4705,7 @@ CONTAINS
          deallocate(ptemp)
       end if
 
-      ! debugging
+      ! GCHP: extra prints
       if ( Ext_Debug > 0 .and. mapl_am_i_root() ) then
          write(*,'(3a,2(x,I4))') '   --> MAPL_ExtDataFlipVertical: vertically flipping all levels for ', trim(item%name)
       end if
@@ -4699,7 +4719,7 @@ CONTAINS
       integer,                  intent(in)    :: filec
       type(ESMF_FieldBundle), intent(inout)   :: pbundle
       integer, optional, intent(out)          :: rc
-
+ 
       integer :: status
      
       type(ESMF_Field) :: Field,field1,field2
@@ -4864,7 +4884,7 @@ CONTAINS
 
   subroutine IOBundle_Add_Entry(IOBundles,item,entry_num,file,bside,time_index,rc)
      type(Iobundlevector), intent(inout) :: IOBundles
-     type(primaryExport), intent(in)        :: item
+     type(primaryExport), intent(in)        :: item 
      integer, intent(in)                    :: entry_num
      character(len=*), intent(in)           :: file
      integer, intent(in)                    :: bside
