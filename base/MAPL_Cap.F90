@@ -52,6 +52,8 @@ module MAPL_CapMod
       procedure :: initialize_mpi
       procedure :: finalize_mpi
 
+      procedure :: nuopc_fill_mapl_comm
+
 
       !getters
       procedure :: get_npes_model
@@ -214,6 +216,23 @@ contains
       end select
                   
    end subroutine run_member
+
+   subroutine nuopc_fill_mapl_comm(this, rc)
+      class(MAPL_Cap),         intent(inout) :: this
+      integer, optional,       intent(  out) :: rc
+
+      type(SplitCommunicator) :: split_comm
+      integer                 :: subcommunicator, status
+
+      subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _VERIFY(status)
+      if (subcommunicator /= MPI_COMM_NULL) then
+         call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
+         call this%cap_server%get_splitcomm(split_comm)
+         call fill_mapl_comm(split_comm, subcommunicator, .false., this%mapl_comm, rc=status); _VERIFY(status)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine nuopc_fill_mapl_comm
 
 
     subroutine fill_mapl_comm(split_comm, gcomm, running_old_o_server, mapl_comm, unusable, rc)
