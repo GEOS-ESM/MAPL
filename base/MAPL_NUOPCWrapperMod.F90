@@ -15,6 +15,7 @@ module MAPL_NUOPCWrapperMod
         model_label_SetClock => label_SetClock, &
         model_label_SetRunClock => label_SetRunClock
     use MAPL_Mod
+    use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler
     use pflogger, only: pfl_initialize => initialize
 
     implicit none
@@ -371,12 +372,22 @@ contains
         type(ESMF_GridComp)  :: model
         integer, intent(out) :: rc
 
-        type(MAPL_Cap), pointer :: cap
+        type(MAPL_Cap),     pointer :: cap
+        class(BaseProfiler), pointer :: t_p
 
         cap => get_cap_from_gc(model, rc)
-        VERIFY_NUOPC_(rc)
+        _VERIFY(rc)
         call cap%cap_gc%finalize(rc=rc)
         _VERIFY(rc)
+
+        call i_Clients%terminate()
+        call o_Clients%terminate()
+
+        call cap%finalize_io_clients_servers(rc=rc)
+        _VERIFY(rc)
+
+        t_p => get_global_time_profiler()
+        call t_p%stop()
 
         _RETURN(_SUCCESS)
     end subroutine model_finalize
