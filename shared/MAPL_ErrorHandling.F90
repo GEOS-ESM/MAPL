@@ -246,7 +246,8 @@ contains
 
      subroutine initialize_err()
 
-        !$OMP serial
+        ! GCHP: comment out OpenMP serial directive to avoid ifort19 compiler error
+        !!$OMP serial
         if (.not. initialized) then
            initialized = .true.
            call error_messages%insert(MAPL_UNKNOWN_ERROR, 'unknown error')
@@ -262,7 +263,8 @@ contains
            call error_messages%insert(MAPL_DUPLICATE_KEY, 'map container already has the specified key')
            call error_messages%insert(MAPL_STRING_TOO_SHORT, 'fixed length string is not long enough to contain requested data')
         end if
-        !$OMP end serial
+        ! GCHP: comment out OpenMP serial directive to avoid ifort19 compiler error
+        !!$OMP end serial
      end subroutine initialize_err
 
   end function get_error_message
