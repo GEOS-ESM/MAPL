@@ -9,11 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 ### Changed
-
-- Update to ESMA_env v2.1.6
-
 ### Fixed
 ### Removed
+
+## [2.2.7] - 2020-06-26
+
+### Changed
+
+- Update to ESMA_env v2.1.6
 
 ## [2.2.6] - 2020-06-26
 
@@ -104,6 +107,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed duplicate `Python` directory
 - Removed CircleCI
+
+## [2.1.6] - 2020-07-08
+
+### Changed
+
+- Updates for JEDI/ecbuild compatibility
+  - Updates to CMake to use `NOINSTALL`
+  - Updates to `components.yaml` to support use of `NOINSTALL`
 
 ## [2.1.5] - 2020-06-11
 
