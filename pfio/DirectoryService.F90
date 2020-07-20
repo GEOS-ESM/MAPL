@@ -296,8 +296,12 @@ contains
       integer :: n_entries
 
       server%terminate  = .false.
-
+      server_comm = MPI_COMM_NULL
       server_comm = server%get_communicator()
+      if (server_comm == MPI_COMM_NULL) then
+         _RETURN(_SUCCESS)
+      endif
+
       call MPI_Comm_rank(server_comm, rank_in_server, ierror)
 
       if (rank_in_server == 0) then
@@ -412,15 +416,19 @@ contains
       type (Directory) :: dir
       type (DirectoryEntry) :: dir_entry
       logical :: found
-      integer :: comm
+      integer :: server_comm
       character(len=*), parameter :: Iam = __FILE__
 
       ! Update local ports
       this%n_local_ports = this%n_local_ports + 1
       this%local_ports(this%n_local_ports) = port
+      server_comm = MPI_COMM_NULL
+      server_comm = server%get_communicator()
+      if (server_comm == MPI_COMM_NULL) then
+         _RETURN(_SUCCESS)
+      endif
 
-      comm = server%get_communicator()
-      call MPI_Comm_rank(comm, rank_in_server, ierror)
+      call MPI_Comm_rank(server_comm, rank_in_server, ierror)
       port_name = port%port_name
 
       if (rank_in_server == 0) then

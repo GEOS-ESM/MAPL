@@ -63,6 +63,7 @@ set (srcs
   BaseServer.F90
   MpiServer.F90
   MultiLayerServer.F90
+  MultiCommServer.F90
 #  OpenMPServer.F90
   ServerThread.F90
   ServerThreadVector.F90

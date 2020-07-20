@@ -12,6 +12,7 @@ module pFIO
    use pFIO_BaseServerMod
    use pFIO_MpiServerMod
    use pFIO_MultiLayerServerMod
+   use pFIO_MultiCommServerMod
    use pFIO_UtilitiesMod
 !!$   use pFIO_OpenMPServerMod
    use pFIO_ServerThreadMod

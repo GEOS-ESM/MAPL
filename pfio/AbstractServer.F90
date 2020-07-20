@@ -2,13 +2,21 @@
 #include "unused_dummy.H"
 
 module pFIO_AbstractServerMod
+   use, intrinsic :: iso_c_binding, only: c_ptr
+   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
+   use, intrinsic :: iso_c_binding, only: c_loc
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
+   use, intrinsic :: iso_c_binding, only: c_f_pointer
    use MAPL_ExceptionHandling
    use pFIO_ConstantsMod
+   use pFIO_UtilitiesMod, only: word_size, i_to_string
    use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractDataReferenceVectorMod
    use pFIO_ShmemReferenceMod
    use gFTL_StringInteger64Map
    use pFIO_AbstractMessageMod
+   use pFIO_CollectiveStageDataMessageMod
+   use pFIO_RDMAReferenceMod
    use pFIO_DummyMessageMod
    use pFIO_MessageVectorMod
    use mpi
@@ -50,6 +58,7 @@ module pFIO_AbstractServerMod
       procedure(get_dmessage), deferred :: get_dmessage
       procedure(clear_RequestHandle), deferred :: clear_RequestHandle
       procedure(set_collective_request), deferred :: set_collective_request
+      procedure(create_remote_win), deferred :: create_remote_win
       procedure :: get_status
       procedure :: set_status
       procedure :: get_and_set_status
@@ -66,11 +75,9 @@ module pFIO_AbstractServerMod
       procedure :: put_DataToFile
       procedure :: get_DataFromMem
       procedure :: am_I_reading_PE
-      procedure :: am_I_writing_PE
       procedure :: get_writing_PE
       procedure :: distribute_task
       procedure :: get_communicator
-
    end type AbstractServer
 
    abstract interface 
@@ -100,6 +107,12 @@ module pFIO_AbstractServerMod
          class(AbstractMessage), pointer :: dmessage
       end function
 
+      subroutine create_remote_win(this,rc)
+         import AbstractServer
+         class(AbstractServer),target,intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine create_remote_win
+
    end interface
 
 contains
@@ -111,6 +124,7 @@ contains
       integer :: ierror, MyColor
 
       call MPI_Comm_dup(comm, this%comm, ierror)
+
       call MPI_Comm_rank(this%comm, this%rank, ierror)
       call MPI_Comm_size(this%comm, this%npes, ierror)
 
@@ -144,8 +158,9 @@ contains
 
    end subroutine init
 
-   function get_and_set_status(this, rc) result(status)
+   function get_and_set_status(this, cmd, rc) result(status)
       class(AbstractServer),intent(inout) :: this
+      integer, intent(inout) :: cmd
       integer, optional, intent(out) :: rc
       integer :: status
 
@@ -156,6 +171,7 @@ contains
       endif
       !$omp flush (this)
       !$omp end critical (counter_status)
+      cmd = 1
       _RETURN(_SUCCESS)
    end function get_and_set_status
 
@@ -301,17 +317,6 @@ contains
       yes = (node_rank   == this%Node_Rank) .and. &
             (innode_rank == this%InNode_Rank)
    end function am_I_reading_PE
-
-   ! for output writing, each node will chose one innode rank write
-   function am_I_writing_PE(this,id) result (yes)
-      class(AbstractServer),intent(in) :: this
-      integer, intent(in) :: id
-      integer :: node_rank,innode_rank
-      logical :: yes
-
-      call this%distribute_task(id, node_rank,innode_rank)
-      yes = (innode_rank == this%InNode_Rank)
-   end function am_I_writing_PE
 
    ! distribute the task (id) to a specific process (node_rank, innode_rank)
    subroutine distribute_task(this,id, node_rank, innode_rank)

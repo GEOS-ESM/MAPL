@@ -128,3 +128,54 @@ module pFIO_HistoryCollectionVectorMod
    
 end module pFIO_HistoryCollectionVectorMod
 
+module pFIO_HistoryCollectionVectorUtilMod
+   use pFIO_HistoryCollectionMod
+   use pFIO_HistoryCollectionVectorMod
+   use pFIO_UtilitiesMod
+   implicit none
+   private
+
+   public:: serialize_HistoryCollection_vector
+   public:: deserialize_HistoryCollection_vector
+
+contains
+
+  subroutine serialize_HistoryCollection_vector(histVec,buffer)
+     type (HistoryCollectionVector),intent(in) :: histVec
+     integer, allocatable,intent(inout) :: buffer(:)
+     integer, allocatable :: tmp(:)
+     type (HistoryCollection),pointer :: hist_ptr
+     integer :: n, i
+
+     if (allocated(buffer)) deallocate(buffer)
+     allocate(buffer(0))
+     
+     n = histVec%size()
+     do i = 1, n
+        hist_ptr=>histVec%at(i)
+        call hist_ptr%fmd%serialize(tmp) 
+        buffer = [buffer,tmp]
+     enddo
+
+  end subroutine
+
+  subroutine deserialize_HistoryCollection_vector(buffer, histVec)
+     type (HistoryCollectionVector),intent(inout) :: histVec
+     integer, intent(in) :: buffer(:)
+     type (HistoryCollection), allocatable :: hist
+
+     integer :: n, length, fmd_len
+
+     length = size(buffer)
+     n=1
+     do while (n < length)
+       allocate(hist)
+       call hist%fmd%deserialize(buffer(n:))
+       call histVec%push_back(hist)
+       call deserialize_intrinsic(buffer(n:),fmd_len)
+       n = n + fmd_len 
+       deallocate(hist)
+     enddo
+  end subroutine
+
+end module pFIO_HistoryCollectionVectorUtilMod

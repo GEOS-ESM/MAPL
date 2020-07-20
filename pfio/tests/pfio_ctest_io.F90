@@ -630,9 +630,12 @@ program main
      
       if (options%n_writer < 2) then 
         allocate(oserver, source = MpiServer(my_ocomm, 'oserver'))
-      else
+      else if (trim(options%writer) /= '') then
          allocate(oserver, source = MultiLayerServer(my_ocomm, 'oserver', &
                options%n_writer, options%writer))
+      else
+         allocate(oserver, source = MultiCommServer(my_ocomm, 'oserver', &
+               options%n_writer))
       endif
 
       call directory_service%publish(PortInfo('oserver',oserver), oserver, rc=status)

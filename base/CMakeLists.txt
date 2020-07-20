@@ -10,9 +10,9 @@ endif()
 
 
 set (srcs
-  AbstractCommSplitter.F90              MAPL_ExtData_IOBundleMod.F90        MAPL_Profiler.F90
+  MAPL_ExtData_IOBundleMod.F90        MAPL_Profiler.F90
   CFIOCollection.F90                    MAPL_ExtData_IOBundleVectorMod.F90  MAPL_RegridderManager.F90
-  CommGroupDescription.F90              MAPL_RegridderSpec.F90
+  MAPL_RegridderSpec.F90
   MAPL_FractionalRegridder.F90          MAPL_RegridderTypeSpecRegridderMap.F90
   ESMF_CFIOPtrVectorMod.F90             MAPL_GenericCplComp.F90             MAPL_RegridderVector.F90
   ESMFL_Mod.F90                         MAPL_Generic.F90                    MAPL_SatVapor.F90
@@ -36,8 +36,8 @@ set (srcs
   MAPL_EsmfRegridder.F90                MAPL_NewArthParser.F90              
   MAPL_ESMFTimeVectorMod.F90            MAPL_newCFIO.F90                    Regrid_Functions_Mod.F90
   MAPL_EtaHybridVerticalCoordinate.F90  MAPL_newCFIOitem.F90                
-  MAPL_ExtDataCollection.F90            MAPL_NominalOrbitsMod.F90           SimpleCommSplitter.F90
-  MAPL_ExtDataCollectionManager.F90     MAPL_NUOPCWrapperMod.F90            SplitCommunicator.F90
+  MAPL_ExtDataCollection.F90            MAPL_NominalOrbitsMod.F90           
+  MAPL_ExtDataCollectionManager.F90     MAPL_NUOPCWrapperMod.F90            
   MAPL_ExtDataGridCompMod.F90           MAPL_OrbGridCompMod.F90             tstqsat.F90
   MAPL_LocStreamFactoryMod.F90          MAPL_HistoryTrajectoryMod.F90       MAPL_LocstreamRegridder.F90
   ServerManager.F90 ApplicationSupport.F90
