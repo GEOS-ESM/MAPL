@@ -62,48 +62,67 @@ contains
         type(ESMF_GridComp)  :: model
         integer, intent(out) :: rc
 
-        integer :: status
+        print*,"Wrapper Start SetServices"
 
         ! the NUOPC model component will register the generic methods
-        call NUOPC_CompDerive(model, model_routine_SS, rc=status)
-        VERIFY_NUOPC_(status)
+        call NUOPC_CompDerive(model, model_routine_SS, rc=rc)
+        VERIFY_NUOPC_(rc)
 
         call ESMF_GridCompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                userRoutine=initialize_p0, phase=0, rc=status)
-        VERIFY_NUOPC_(status)
+                userRoutine=initialize_p0, phase=0, rc=rc)
+        VERIFY_NUOPC_(rc)
 
         ! set entry point for methods that require specific implementation
+        ! call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
+        !         phaseLabelList=["IPDv05p1"], userRoutine=advertise_fields, rc=rc)
+        ! VERIFY_NUOPC_(rc)
         call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                phaseLabelList=["IPDv05p1"], userRoutine=advertise_fields, rc=status)
-        VERIFY_NUOPC_(status)
+                phaseLabelList=["IPDv02p1"], userRoutine=advertise_fields, rc=rc)
+        VERIFY_NUOPC_(rc)
 
+        print*,"Wrapper Advertise Phase: IPDv02p1"
+
+        ! call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
+        !         phaseLabelList=["IPDv05p4"], userRoutine=realize_fields, rc=rc)
+        ! VERIFY_NUOPC_(rc)
         call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                phaseLabelList=["IPDv05p4"], userRoutine=realize_fields, rc=status)
-        VERIFY_NUOPC_(status)
+                phaseLabelList=["IPDv02p3"], userRoutine=realize_fields, rc=rc)
+        VERIFY_NUOPC_(rc)
+
+        print*,"Wrapper Realize Phase: IPDv02p3"
 
         ! attach specializing method(s)
         call NUOPC_CompSpecialize(model, specLabel=model_label_DataInitialize, &
-                specRoutine=initialize_data, rc=status)
-        VERIFY_NUOPC_(status)
+                specRoutine=initialize_data, rc=rc)
+        VERIFY_NUOPC_(rc)
 
         call NUOPC_CompSpecialize(model, specLabel=model_label_Advance, &
-                specRoutine=model_advance, rc=status)
-        VERIFY_NUOPC_(status)
+                specRoutine=model_advance, rc=rc)
+        VERIFY_NUOPC_(rc)
 
-        call ESMF_MethodRemove(model, label=model_label_CheckImport, rc=status)
-        VERIFY_NUOPC_(status)
+        call ESMF_MethodRemove(model, label=model_label_CheckImport, rc=rc)
+        VERIFY_NUOPC_(rc)
 
         call NUOPC_CompSpecialize(model, specLabel=model_label_CheckImport, &
-                specRoutine=CheckImport, rc=status)
-        VERIFY_NUOPC_(status)
+                specRoutine=CheckImport, rc=rc)
+        VERIFY_NUOPC_(rc)
 
         call NUOPC_CompSpecialize(model, specLabel=model_label_SetClock, &
-                specRoutine=set_clock, rc=status)
-        VERIFY_NUOPC_(status)
+                specRoutine=set_clock, rc=rc)
+        VERIFY_NUOPC_(rc)
+
+        ! call NUOPC_CompSpecialize(model, specLabel=model_label_CheckImport, &
+        !      specRoutine=CheckImport, rc=rc)
+        ! if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        !      line=__LINE__, &
+        !      file=__FILE__)) &
+        !      return  ! bail out
 
         call NUOPC_CompSpecialize(model, specLabel=label_Finalize, &
-                specRoutine=model_finalize, rc=status)
-        VERIFY_NUOPC_(status)
+                specRoutine=model_finalize, rc=rc)
+        VERIFY_NUOPC_(rc)
+
+        print*,"Wrapper finish SetServices"
 
         _RETURN(_SUCCESS)
     end subroutine SetServices
@@ -128,9 +147,14 @@ contains
         _UNUSED_DUMMY(export_state)
         _UNUSED_DUMMY(clock)
 
+        print*,"Wrapper start initialize_p0"
+
+        ! call NUOPC_CompFilterPhaseMap(model, ESMF_METHOD_INITIALIZE, &
+        !         acceptStringList=(/"IPDv05p"/), rc=rc)
+        ! VERIFY_NUOPC_(rc)
         call NUOPC_CompFilterPhaseMap(model, ESMF_METHOD_INITIALIZE, &
-                acceptStringList=(/"IPDv05p"/), rc=status)
-        VERIFY_NUOPC_(status)
+                acceptStringList=(/"IPDv02p"/), rc=rc)
+        VERIFY_NUOPC_(rc)
 
         call ESMF_GridCompGet(model, vm=vm, rc=status)
         _VERIFY(status)
@@ -140,28 +164,26 @@ contains
         call MPI_Comm_dup(mpi_comm, dup_comm, status)
         _VERIFY(status)
 
-        cap_params = get_cap_parameters_from_gc(model, status)
+        cap_params = get_cap_parameters_from_gc(model, rc)
         _VERIFY(status)
 
-        cap_options = MAPL_CapOptions(cap_rc_file=cap_params%cap_rc_file, rc=status)
+        cap_options = MAPL_CapOptions(cap_rc_file = cap_params%cap_rc_file, rc = rc)
         _VERIFY(status)
         cap_options%use_comm_world = .false.
         cap_options%comm = dup_comm
         ! cap_options%logging_config = "logging.yaml"
         cap_options%logging_config = ''
-        call MPI_Comm_size(dup_comm, cap_options%npes_model, status)
+        call MPI_Comm_size(dup_comm, cap_options%npes_model, rc)
         _VERIFY(status)
 
         allocate(cap)
-        cap = MAPL_Cap(cap_params%name, cap_params%set_services, &
-                cap_options=cap_options, rc=status)
-        _VERIFY(status)
+        cap = MAPL_Cap(cap_params%name, cap_params%set_services, cap_options=cap_options, rc=rc)
         wrapped_cap%ptr => cap
 
         call ESMF_UserCompSetInternalState(model, "MAPL_Cap", wrapped_cap, status)
         _VERIFY(status)
 
-        call cap%initialize_mpi(rc=status)
+        call cap%initialize_mpi(rc = status)
         _VERIFY(status)
 
         subcommunicator = cap%create_member_subcommunicator(cap%get_comm_world(), rc=status)
@@ -182,6 +204,7 @@ contains
         call cap%cap_gc%initialize(rc=status)
         _VERIFY(status)
 
+        print*,"Wrapper finish initialize_p0"
         _RETURN(_SUCCESS)
     end subroutine initialize_p0
 
@@ -192,20 +215,20 @@ contains
         type(ESMF_Clock)        :: model_clock
         type(MAPL_Cap), pointer :: cap
         type(ESMF_TimeInterval) :: time_step
-        integer                 :: heartbeat_dt, status
+        integer                 :: heartbeat_dt
 
-        cap => get_cap_from_gc(model, status)
-        VERIFY_NUOPC_(status)
+        cap => get_cap_from_gc(model, rc)
+        VERIFY_NUOPC_(rc)
         heartbeat_dt = cap%cap_gc%get_heartbeat_dt()
 
-        call NUOPC_ModelGet(model, modelClock=model_clock, rc=status)
-        VERIFY_NUOPC_(status)
+        call NUOPC_ModelGet(model, modelClock=model_clock, rc=rc)
+        VERIFY_NUOPC_(rc)
 
-        call ESMF_TimeIntervalSet(time_step, s=heartbeat_dt, rc=status)
-        VERIFY_NUOPC_(status)
+        call ESMF_TimeIntervalSet(time_step, s=heartbeat_dt, rc=rc)
+        VERIFY_NUOPC_(rc)
 
-        call ESMF_ClockSet(model_clock, timeStep=time_step, rc=status)
-        VERIFY_NUOPC_(status)
+        call ESMF_ClockSet(model_clock, timeStep=time_step)
+        VERIFY_NUOPC_(rc)
 
         _RETURN(_SUCCESS)
     end subroutine set_clock
@@ -218,30 +241,27 @@ contains
 
         type(MAPL_Cap), pointer             :: cap
         type(Field_Attributes), allocatable :: export_attributes(:), import_attributes(:)
-        integer                             :: status
 
         _UNUSED_DUMMY(clock)
 
-        cap => get_cap_from_gc(model, status)
-        VERIFY_NUOPC_(status)
+        print*,"Wrapper start advertise"
 
-        export_attributes = get_field_attributes_from_state(cap%cap_gc%export_state, rc=status)
-        VERIFY_NUOPC_(status)
-        import_attributes = get_field_attributes_from_state(cap%cap_gc%import_state, rc=status)
-        VERIFY_NUOPC_(status)
+        cap => get_cap_from_gc(model, rc)
+        VERIFY_NUOPC_(rc)
 
-        call advertise_to_state(import_state, import_attributes, status)
-        VERIFY_NUOPC_(status)
-        call advertise_to_state(export_state, export_attributes, status)
-        VERIFY_NUOPC_(status)
+        export_attributes = get_field_attributes_from_state(cap%cap_gc%export_state)
+        import_attributes = get_field_attributes_from_state(cap%cap_gc%import_state)
+
+        call advertise_to_state(import_state, import_attributes)
+        call advertise_to_state(export_state, export_attributes)
+
+        print*,"Wrapper finish advertise"
 
         _RETURN(_SUCCESS)
     contains
-        subroutine advertise_to_state(state, fields, rc)
+        subroutine advertise_to_state(state, fields)
             type(ESMF_State),       intent(inout) :: state
             type(field_attributes), intent(in   ) :: fields(:)
-            integer, optional,      intent(  out) :: rc
-
             integer :: i, status
 
             do i = 1, size(fields)
@@ -249,15 +269,14 @@ contains
                     if (.not. NUOPC_FieldDictionaryHasEntry(short_name)) then
                         call NUOPC_FieldDictionaryAddEntry(standardName=trim(short_name), &
                                 canonicalUnits=trim(units), rc=status)
-                        VERIFY_NUOPC_(status)
+                        VERIFY_NUOPC_(rc)
                     end if
 
                     call NUOPC_Advertise(state, StandardName=trim(short_name), &
                             TransferOfferGeomObject="will provide", rc=status)
-                    VERIFY_NUOPC_(status)
+                    VERIFY_NUOPC_(rc)
                 end associate
             end do
-            _RETURN(_SUCCESS)
         end subroutine advertise_to_state
     end subroutine advertise_fields
 
@@ -269,43 +288,36 @@ contains
 
         type(MAPL_Cap), pointer             :: cap
         type(Field_Attributes), allocatable :: export_attributes(:), import_attributes(:)
-        integer                             :: status
+        integer                             :: i, status
 
         _UNUSED_DUMMY(clock)
 
+        print*,"Wrapper start realize"
+
         cap => get_cap_from_gc(model, rc)
         VERIFY_NUOPC_(rc)
-        export_attributes = get_field_attributes_from_state(cap%cap_gc%export_state, rc=status)
-        VERIFY_NUOPC_(status)
-        import_attributes = get_field_attributes_from_state(cap%cap_gc%import_state, rc=status)
-        VERIFY_NUOPC_(status)
+        export_attributes = get_field_attributes_from_state(cap%cap_gc%export_state)
+        import_attributes = get_field_attributes_from_state(cap%cap_gc%import_state)
 
-        call realize_to_state(export_state, export_attributes, rc=status)
-        VERIFY_NUOPC_(status)
-        call realize_to_state(import_state, import_attributes, rc=status)
-        VERIFY_NUOPC_(status)
+        do i = 1, size(export_attributes)
+            associate(export => export_attributes(i))
+                call MAPL_AllocateCoupling(export%field, status)
+                call NUOPC_Realize(export_state, field=export%field, rc=status)
+                VERIFY_NUOPC_(rc)
+            end associate
+        end do
 
+        do i = 1, size(import_attributes)
+            associate(import => import_attributes(i))
+                call ESMF_FieldValidate(import%field, rc=status)
+                VERIFY_NUOPC_(rc)
+                call NUOPC_Realize(import_state, field=import%field, rc=status)
+                VERIFY_NUOPC_(rc)
+            end associate
+        end do
+
+        print*,"Wrapper finish realize"
         _RETURN(_SUCCESS)
-
-    contains
-        subroutine realize_to_state(state, fields, rc)
-            type(ESMF_State),       intent(inout) :: state
-            type(field_attributes), intent(inout) :: fields(:)
-            integer, optional,      intent(  out) :: rc
-
-            integer :: i, status
-
-            do i = 1, size(fields)
-                associate(current => fields(i))
-                    call MAPL_AllocateCoupling(current%field, status)
-                    _VERIFY(status)
-                    call NUOPC_Realize(state, field=current%field, rc=status)
-                    VERIFY_NUOPC_(status)
-                end associate
-            end do
-
-            _RETURN(_SUCCESS)
-        end subroutine realize_to_state
     end subroutine realize_fields
 
     subroutine CheckImport(model, rc)
@@ -332,19 +344,39 @@ contains
         type(ESMF_Clock) :: clock
         type(ESMF_Field) :: field
 
-        integer                                 :: num_items, status
+        integer                                 :: num_items
         character(len=ESMF_MAXSTR), allocatable :: item_names(:)
 
         call ESMF_GridCompGet(model, clock=clock, importState=import_state, &
-                exportState=export_state, rc=status)
-        VERIFY_NUOPC_(status)
+                exportState=export_state, rc=rc)
+        VERIFY_NUOPC_(rc)
 
-        call ESMF_StateGet(export_state, itemcount=num_items, rc=status)
-        VERIFY_NUOPC_(status)
+        call ESMF_StateGet(export_state, itemcount=num_items, rc=rc)
+        VERIFY_NUOPC_(rc)
+
+        ! if (num_items /= 0) then
+        !    allocate(item_names(num_items))
+
+        !    call ESMF_StateGet(export_state, itemnamelist = item_names, rc = rc)
+        !    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        !         line=__LINE__, file=__FILE__)) return
+
+        !    do i = 1, num_items
+        !       call ESMF_StateGet(export_state, item_names(i), field, rc = rc)
+        !       if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        !            line=__LINE__, file=__FILE__)) return
+
+        !       call NUOPC_SetAttribute(field, name="Updated", value="true", rc=rc)
+        !       if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        !            line=__LINE__, &
+        !            file=__FILE__)) &
+        !            return  ! bail out
+        !    end do
+        ! end if
 
         call NUOPC_CompAttributeSet(model, &
-                name="InitializeDataComplete", value="true", rc=status)
-        VERIFY_NUOPC_(status)
+                name="InitializeDataComplete", value="true", rc=rc)
+        VERIFY_NUOPC_(rc)
 
         _RETURN(_SUCCESS)
     end subroutine initialize_data
@@ -354,13 +386,12 @@ contains
         integer, intent(out) :: rc
 
         type(MAPL_Cap), pointer :: cap
-        integer                 :: status
 
-        cap => get_cap_from_gc(model, status)
-        VERIFY_NUOPC_(status)
+        cap => get_cap_from_gc(model, rc)
+        VERIFY_NUOPC_(rc)
 
-        call cap%step_model(rc=status)
-        _VERIFY(status)
+        call cap%step_model(rc=rc)
+        _VERIFY(rc)
 
         _RETURN(_SUCCESS)
     end subroutine model_advance
@@ -369,20 +400,19 @@ contains
         type(ESMF_GridComp)  :: model
         integer, intent(out) :: rc
 
-        type(MAPL_Cap),      pointer :: cap
+        type(MAPL_Cap),     pointer :: cap
         class(BaseProfiler), pointer :: t_p
-        integer                      :: status
 
-        cap => get_cap_from_gc(model, status)
-        _VERIFY(status)
-        call cap%cap_gc%finalize(rc=status)
-        _VERIFY(status)
+        cap => get_cap_from_gc(model, rc)
+        _VERIFY(rc)
+        call cap%cap_gc%finalize(rc=rc)
+        _VERIFY(rc)
 
         call i_Clients%terminate()
         call o_Clients%terminate()
 
-        call cap%finalize_io_clients_servers(rc=status)
-        _VERIFY(status)
+        call cap%finalize_io_clients_servers(rc=rc)
+        _VERIFY(rc)
 
         t_p => get_global_time_profiler()
         call t_p%stop()
@@ -396,58 +426,54 @@ contains
 
         type(MAPL_Cap), pointer :: cap
         type(Cap_Wrapper)       :: wrapped_cap
-        integer                 :: status
 
-        call ESMF_UserCompGetInternalState(gc, "MAPL_Cap", wrapped_cap, status)
-        VERIFY_NUOPC_(status)
+        call ESMF_UserCompGetInternalState(gc, "MAPL_Cap", wrapped_cap, rc)
+        VERIFY_NUOPC_(rc)
 
         cap => wrapped_cap%ptr
 
         _RETURN(_SUCCESS)
     end function get_cap_from_gc
 
-    function get_field_attributes_from_state(state, rc) result(attributes)
+    function get_field_attributes_from_state(state) result(attributes)
         type(Field_Attributes), allocatable :: attributes(:)
-        type(ESMF_State),  intent(in   )    :: state
-        integer, optional, intent(  out)    :: rc
+        type(ESMF_State), intent(in)        :: state
 
-        integer                                 :: num_items, status, i
+        integer                                 :: num_items, rc, i
         type(ESMF_Field)                        :: field
         character(len=ESMF_MAXSTR), allocatable :: item_names(:)
         character(len=ESMF_MAXSTR)              :: str
 
-        call ESMF_StateGet(state, itemcount=num_items, rc=status)
-        VERIFY_NUOPC_(status)
+        call ESMF_StateGet(state, itemcount = num_items, rc = rc)
+        VERIFY_NUOPC_(rc)
 
         allocate(item_names(num_items))
         allocate(attributes(num_items))
 
-        call ESMF_StateGet(state, itemnamelist=item_names, rc=status)
-        VERIFY_NUOPC_(status)
+        call ESMF_StateGet(state, itemnamelist = item_names, rc = rc)
+        VERIFY_NUOPC_(rc)
 
         do i = 1, num_items
-            call ESMF_StateGet(state, item_names(i), field, rc=status)
-            VERIFY_NUOPC_(status)
+            call ESMF_StateGet(state, item_names(i), field, rc = rc)
+            VERIFY_NUOPC_(rc)
 
-            call ESMF_FieldValidate(field, rc=status)
-            VERIFY_NUOPC_(status)
-            attributes(i)%field=field
+            call ESMF_FieldValidate(field, rc = rc)
+            VERIFY_NUOPC_(rc)
+            attributes(i)%field = field
 
-            call ESMF_AttributeGet(field, name="LONG_NAME", value=str, rc=status)
-            VERIFY_NUOPC_(status)
-            attributes(i)%long_name=trim(str)
+            call ESMF_AttributeGet(field, name = "LONG_NAME", value = str, rc = rc)
+            VERIFY_NUOPC_(rc)
+            attributes(i)%long_name = trim(str)
 
-            call ESMF_FieldGet(field, name=str, rc=status)
-            VERIFY_NUOPC_(status)
-            attributes(i)%short_name=trim(str)
+            call ESMF_FieldGet(field, name = str, rc = rc)
+            VERIFY_NUOPC_(rc)
+            attributes(i)%short_name = trim(str)
 
-            call ESMF_AttributeGet(field, name="UNITS", value=str, rc=status)
-            VERIFY_NUOPC_(status)
+            call ESMF_AttributeGet(field, name = "UNITS", value = str, rc = rc)
+            VERIFY_NUOPC_(rc)
             if (str == "" .or. str == " ") str = "1" ! NUOPC doesn't like blank units
             attributes(i)%units = trim(str)
         end do
-
-        _RETURN(_SUCCESS)
     end function get_field_attributes_from_state
 
     function get_cap_parameters_from_gc(gc, rc) result(cap_params)
@@ -456,19 +482,16 @@ contains
         integer,             intent(  out) :: rc
 
         type(cap_parameters_wrapper) :: parameters_wrapper
-        integer                      :: status
 
-        call ESMF_UserCompGetInternalState(gc, internal_parameters_name, &
-                parameters_wrapper, status)
-        VERIFY_NUOPC_(status)
+        call ESMF_UserCompGetInternalState(gc, internal_parameters_name, parameters_wrapper, rc)
+        VERIFY_NUOPC_(rc)
 
         cap_params = parameters_wrapper%ptr
 
         _RETURN(_SUCCESS)
     end function get_cap_parameters_from_gc
 
-    subroutine add_wrapper_comp(driver, name, cap_rc_file, &
-                root_set_services, pet_list, wrapper_gc, rc)
+    subroutine add_wrapper_comp(driver, name, cap_rc_file, root_set_services, pet_list, wrapper_gc, rc)
         use NUOPC_Driver
 
         type(ESMF_GridComp), intent(inout) :: driver
@@ -479,18 +502,16 @@ contains
         integer,             intent(out)   :: rc
 
         type(cap_parameters_wrapper) :: wrapper
-        integer                      :: status
 
-        call NUOPC_DriverAddComp(driver, name, SetServices, comp=wrapper_gc, &
-                petlist=pet_list, rc=status)
-        VERIFY_NUOPC_(status)
+        call NUOPC_DriverAddComp(driver, name, SetServices, comp = wrapper_gc, &
+                petlist = pet_list, rc = rc)
+        VERIFY_NUOPC_(rc)
 
         allocate(wrapper%ptr)
         wrapper%ptr = cap_parameters(name, cap_rc_file, root_set_services)
 
-        call ESMF_UserCompSetInternalState(wrapper_gc, &
-                internal_parameters_name, wrapper, status)
-        VERIFY_NUOPC_(status)
+        call ESMF_UserCompSetInternalState(wrapper_gc, internal_parameters_name, wrapper, rc)
+        VERIFY_NUOPC_(rc)
 
         _RETURN(_SUCCESS)
     end subroutine add_wrapper_comp
@@ -502,14 +523,12 @@ contains
         integer, intent(out)               :: rc
 
         type(cap_parameters_wrapper) :: wrapper
-        integer                      :: status
 
         allocate(wrapper%ptr)
         wrapper%ptr = cap_parameters(name, cap_rc_file, root_set_services)
 
-        call ESMF_UserCompSetInternalState(wrapper_gc, &
-                internal_parameters_name, wrapper, status)
-        VERIFY_NUOPC_(status)
+        call ESMF_UserCompSetInternalState(wrapper_gc, internal_parameters_name, wrapper, rc)
+        VERIFY_NUOPC_(rc)
 
         _RETURN(_SUCCESS)
     end subroutine init_wrapper
