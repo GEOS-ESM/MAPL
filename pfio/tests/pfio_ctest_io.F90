@@ -520,7 +520,10 @@ program main
       client_start = 0
       app_start_rank = 0
       app_end_rank = npes-1
-   else if (options%server_type == 'mpi') then 
+   else if (options%server_type == 'mpi' .or. &
+            options%server_type == 'multilayer' .or. &
+            options%server_type == 'multicomm'  .or. &
+            options%server_type == 'multigroup' ) then 
       size_iclient = N_iclient_group*options%npes_iserver
       size_oclient = N_oclient_group*options%npes_oserver
       client_start = npes - size_iclient-size_oclient
@@ -628,13 +631,18 @@ program main
 
    if( my_ocomm /= MPI_COMM_NULl) then
      
-      if (options%n_writer < 2) then 
+      if (trim(options%server_type) == 'mpi' .or. &
+          trim(options%server_type) == 'simple' .or. &
+          trim(options%server_type) == 'hybrid' ) then 
         allocate(oserver, source = MpiServer(my_ocomm, 'oserver'))
-      else if (trim(options%writer) /= '') then
+      else if (trim(options%server_type) == 'multilayer') then
          allocate(oserver, source = MultiLayerServer(my_ocomm, 'oserver', &
                options%n_writer, options%writer))
-      else
+      else if (trim(options%server_type) == 'multicomm') then
          allocate(oserver, source = MultiCommServer(my_ocomm, 'oserver', &
+               options%n_writer))
+      else if (trim(options%server_type) == 'multigroup') then
+         allocate(oserver, source = MultiGroupServer(my_ocomm, 'oserver', &
                options%n_writer))
       endif
 
