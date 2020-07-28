@@ -2256,7 +2256,8 @@ CONTAINS
 
         type(ESMF_Time), allocatable               :: xTSeries(:)
         type(FileMetaDataUtils), pointer           :: fdata
-      
+
+        call lgr%info('Updating %a bracket for %a',bside, trim(item%name))
         call ESMF_TimeIntervalSet(zero,__RC__)
 
         ! Default
@@ -2664,6 +2665,8 @@ CONTAINS
         else if (bside =='L') then
            item%tindex1=tindex
         end if
+        call lgr%info(' ... file processed: %a', file_processed)
+
         _RETURN(ESMF_SUCCESS)
        
      end subroutine UpdateBracketTime
