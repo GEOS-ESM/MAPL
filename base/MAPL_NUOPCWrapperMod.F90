@@ -62,8 +62,6 @@ contains
         type(ESMF_GridComp)  :: model
         integer, intent(out) :: rc
 
-        print*,"Wrapper Start SetServices"
-
         ! the NUOPC model component will register the generic methods
         call NUOPC_CompDerive(model, model_routine_SS, rc=rc)
         VERIFY_NUOPC_(rc)
@@ -73,23 +71,13 @@ contains
         VERIFY_NUOPC_(rc)
 
         ! set entry point for methods that require specific implementation
-        ! call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-        !         phaseLabelList=["IPDv05p1"], userRoutine=advertise_fields, rc=rc)
-        ! VERIFY_NUOPC_(rc)
         call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                phaseLabelList=["IPDv02p1"], userRoutine=advertise_fields, rc=rc)
+                phaseLabelList=["IPDv05p1"], userRoutine=advertise_fields, rc=rc)
         VERIFY_NUOPC_(rc)
 
-        print*,"Wrapper Advertise Phase: IPDv02p1"
-
-        ! call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-        !         phaseLabelList=["IPDv05p4"], userRoutine=realize_fields, rc=rc)
-        ! VERIFY_NUOPC_(rc)
         call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                phaseLabelList=["IPDv02p3"], userRoutine=realize_fields, rc=rc)
+                phaseLabelList=["IPDv05p4"], userRoutine=realize_fields, rc=rc)
         VERIFY_NUOPC_(rc)
-
-        print*,"Wrapper Realize Phase: IPDv02p3"
 
         ! attach specializing method(s)
         call NUOPC_CompSpecialize(model, specLabel=model_label_DataInitialize, &
@@ -147,40 +135,39 @@ contains
         _UNUSED_DUMMY(export_state)
         _UNUSED_DUMMY(clock)
 
-        print*,"Wrapper start initialize_p0"
-
-        ! call NUOPC_CompFilterPhaseMap(model, ESMF_METHOD_INITIALIZE, &
-        !         acceptStringList=(/"IPDv05p"/), rc=rc)
-        ! VERIFY_NUOPC_(rc)
         call NUOPC_CompFilterPhaseMap(model, ESMF_METHOD_INITIALIZE, &
-                acceptStringList=(/"IPDv02p"/), rc=rc)
+                acceptStringList=(/"IPDv05p"/), rc=rc)
         VERIFY_NUOPC_(rc)
 
         call ESMF_GridCompGet(model, vm=vm, rc=status)
         _VERIFY(status)
-        call ESMF_VMGet(vm, localPet=my_rank, petCount=npes, mpiCommunicator=mpi_comm, rc=status)
+        call ESMF_VMGet(vm, localPet=my_rank, petCount=npes, &
+                mpiCommunicator=mpi_comm, rc=status)
         _VERIFY(status)
 
         call MPI_Comm_dup(mpi_comm, dup_comm, status)
         _VERIFY(status)
 
-        cap_params = get_cap_parameters_from_gc(model, rc)
+        cap_params = get_cap_parameters_from_gc(model, status)
         _VERIFY(status)
 
-        cap_options = MAPL_CapOptions(cap_rc_file = cap_params%cap_rc_file, rc = rc)
+        cap_options = MAPL_CapOptions(cap_rc_file=cap_params%cap_rc_file, rc=status)
         _VERIFY(status)
         cap_options%use_comm_world = .false.
         cap_options%comm = dup_comm
         ! cap_options%logging_config = "logging.yaml"
         cap_options%logging_config = ''
-        call MPI_Comm_size(dup_comm, cap_options%npes_model, rc)
+        call MPI_Comm_size(dup_comm, cap_options%npes_model, status)
         _VERIFY(status)
 
         allocate(cap)
-        cap = MAPL_Cap(cap_params%name, cap_params%set_services, cap_options=cap_options, rc=rc)
+        cap = MAPL_Cap(cap_params%name, cap_params%set_services,  &
+                cap_options=cap_options, rc=status)
+        _VERIFY(status)
         wrapped_cap%ptr => cap
 
-        call ESMF_UserCompSetInternalState(model, "MAPL_Cap", wrapped_cap, status)
+        call ESMF_UserCompSetInternalState(model, "MAPL_Cap", &
+                wrapped_cap, status)
         _VERIFY(status)
 
         call cap%initialize_mpi(rc = status)
@@ -204,7 +191,6 @@ contains
         call cap%cap_gc%initialize(rc=status)
         _VERIFY(status)
 
-        print*,"Wrapper finish initialize_p0"
         _RETURN(_SUCCESS)
     end subroutine initialize_p0
 
@@ -244,8 +230,6 @@ contains
 
         _UNUSED_DUMMY(clock)
 
-        print*,"Wrapper start advertise"
-
         cap => get_cap_from_gc(model, rc)
         VERIFY_NUOPC_(rc)
 
@@ -254,8 +238,6 @@ contains
 
         call advertise_to_state(import_state, import_attributes)
         call advertise_to_state(export_state, export_attributes)
-
-        print*,"Wrapper finish advertise"
 
         _RETURN(_SUCCESS)
     contains
@@ -269,12 +251,12 @@ contains
                     if (.not. NUOPC_FieldDictionaryHasEntry(short_name)) then
                         call NUOPC_FieldDictionaryAddEntry(standardName=trim(short_name), &
                                 canonicalUnits=trim(units), rc=status)
-                        VERIFY_NUOPC_(rc)
+                        VERIFY_NUOPC_(status)
                     end if
 
                     call NUOPC_Advertise(state, StandardName=trim(short_name), &
                             TransferOfferGeomObject="will provide", rc=status)
-                    VERIFY_NUOPC_(rc)
+                    VERIFY_NUOPC_(status)
                 end associate
             end do
         end subroutine advertise_to_state
@@ -292,8 +274,6 @@ contains
 
         _UNUSED_DUMMY(clock)
 
-        print*,"Wrapper start realize"
-
         cap => get_cap_from_gc(model, rc)
         VERIFY_NUOPC_(rc)
         export_attributes = get_field_attributes_from_state(cap%cap_gc%export_state)
@@ -302,21 +282,21 @@ contains
         do i = 1, size(export_attributes)
             associate(export => export_attributes(i))
                 call MAPL_AllocateCoupling(export%field, status)
+                _VERIFY(status)
                 call NUOPC_Realize(export_state, field=export%field, rc=status)
-                VERIFY_NUOPC_(rc)
+                VERIFY_NUOPC_(status)
             end associate
         end do
 
         do i = 1, size(import_attributes)
             associate(import => import_attributes(i))
                 call ESMF_FieldValidate(import%field, rc=status)
-                VERIFY_NUOPC_(rc)
+                VERIFY_NUOPC_(status)
                 call NUOPC_Realize(import_state, field=import%field, rc=status)
-                VERIFY_NUOPC_(rc)
+                VERIFY_NUOPC_(status)
             end associate
         end do
 
-        print*,"Wrapper finish realize"
         _RETURN(_SUCCESS)
     end subroutine realize_fields
 
