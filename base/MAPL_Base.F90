@@ -359,6 +359,17 @@ contains
     integer                               :: lb1, lb2, lb3
     integer                               :: ub1, ub2, ub3
 
+! SSI
+    character(len=ESMF_MAXSTR) :: name
+    type(ESMF_Array)    :: array
+    type(ESMF_DistGrid) :: distgrid
+    type(ESMF_Pin_Flag) :: pinflag
+    type(ESMF_VM)       :: vm
+    type(ESMF_ArraySpec):: arrayspec
+    logical             :: ssiSharedMemoryEnabled
+    integer :: mpi_rank, err, dimCount, tileCount, mpi_comm
+! SSI
+
     call ESMF_FieldGet(field, grid=GRID, RC=STATUS)
     _VERIFY(STATUS)
     call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, RC=STATUS)
@@ -388,6 +399,29 @@ contains
     if (present(UNGRID)) then
        szungrd = size(UNGRID)
     end if
+
+! SSI
+    call ESMF_VMGetCurrent(vm, rc=status)
+    _VERIFY(status)
+
+    call ESMF_VMGet(vm, ssiSharedMemoryEnabledFlag=ssiSharedMemoryEnabled, &
+         mpiCommunicator=mpi_comm, localPet=mpi_rank,  rc=status)
+    _VERIFY(status)
+
+    if (ssiSharedMemoryEnabled) then
+      pinflag=ESMF_PIN_DE_TO_SSI_CONTIG  ! requires support for SSI shared memory
+    else
+      pinflag=ESMF_PIN_DE_TO_PET
+    endif
+    !call ESMF_VMBarrier(vm, rc=status)
+    !_VERIFY(STATUS)
+    !print *, "SSI enabled ", mpi_rank, ssiSharedMemoryEnabled
+    !call ESMF_VMBarrier(vm, rc=status)
+    !_VERIFY(STATUS)
+
+    call ESMF_GridGet(GRID, distgrid=distgrid, rc=status)
+    _VERIFY(STATUS)
+! SSI
 
     Dimensionality: select case(DIMS)
 
@@ -487,17 +521,35 @@ contains
        if (typekind == ESMF_KIND_R4) then
           RankCase2d: select case (rank)
           case (2)
-          allocate(VAR_2D(lb1:ub1, lb2:ub2), STAT=STATUS)
-          _VERIFY(STATUS)
-          VAR_2D = INIT_VALUE
-          call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_2D, &
-               datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
-               gridToFieldMap=gridToFieldMap,              &
-               totalLWidth=haloWidth(1:griddedDims),     &
-               totalUWidth=haloWidth(1:griddedDims),     &
-               rc = status)
+             !allocate(VAR_2D(lb1:ub1, lb2:ub2), STAT=STATUS)
+             !_VERIFY(STATUS)
+             call ESMF_ArraySpecSet(arrayspec, typekind=ESMF_TYPEKIND_R4, &
+                  rank=rank, rc=status)
+             _VERIFY(STATUS)
+             array = ESMF_ArrayCreate(arrayspec=arrayspec,  &
+                   distgrid=distgrid, pinflag=pinflag,      &
+                   rc = status)
+             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array, farrayPtr=VAR_2D, rc = status)
+             _VERIFY(STATUS)
+             VAR_2D = INIT_VALUE
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_2D, &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
+                  gridToFieldMap=gridToFieldMap,              &
+                  totalLWidth=haloWidth(1:griddedDims),     &
+                  totalUWidth=haloWidth(1:griddedDims),     &
+                  rc = status)
           case (3)
-             allocate(VAR_3D(lb1:ub1, lb2:ub2, UNGRID(1)), STAT=STATUS)
+             !allocate(VAR_3D(lb1:ub1, lb2:ub2, UNGRID(1)), STAT=STATUS)
+             !_VERIFY(STATUS)
+             call ESMF_ArraySpecSet(arrayspec, typekind=ESMF_TYPEKIND_R4, &
+                  rank=rank, rc=status)
+             _VERIFY(STATUS)
+             array = ESMF_ArrayCreate(arrayspec=arrayspec,  &
+                   distgrid=distgrid, pinflag=pinflag,      &
+                   undistLBound=(/1/), undistUBound=(/UNGRID(1)/), rc = status)
+             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array, farrayPtr=VAR_3D, rc = status)
              _VERIFY(STATUS)
              VAR_3D = INIT_VALUE
              call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_3D, &
@@ -507,7 +559,17 @@ contains
                   totalUWidth=haloWidth(1:griddedDims),     &
                   rc = status)
           case (4)
-             allocate(VAR_4D(lb1:ub1, lb2:ub2, UNGRID(1), UNGRID(2)), STAT=STATUS)
+             !allocate(VAR_4D(lb1:ub1, lb2:ub2, UNGRID(1), UNGRID(2)), STAT=STATUS)
+             !_VERIFY(STATUS)
+             call ESMF_ArraySpecSet(arrayspec, typekind=ESMF_TYPEKIND_R4, &
+                  rank=rank, rc=status)
+             _VERIFY(STATUS)
+             array = ESMF_ArrayCreate(arrayspec=arrayspec,  &
+                   distgrid=distgrid, pinflag=pinflag,      &
+                   undistLBound=(/1,1/), undistUBound=(/UNGRID(1),UNGRID(2)/), &
+                   rc = status)
+             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array, farrayPtr=VAR_4D, rc = status)
              _VERIFY(STATUS)
              VAR_4D = INIT_VALUE
              call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_4D, &
@@ -522,7 +584,16 @@ contains
        else
           select case (rank)
           case (2)
-          allocate(VR8_2D(lb1:ub1, lb2:ub2), STAT=STATUS)
+          !allocate(VR8_2D(lb1:ub1, lb2:ub2), STAT=STATUS)
+          !_VERIFY(STATUS)
+          call ESMF_ArraySpecSet(arrayspec, typekind=ESMF_TYPEKIND_R8, &
+               rank=rank, rc=status)
+          _VERIFY(STATUS)
+          array = ESMF_ArrayCreate(arrayspec=arrayspec,  &
+                distgrid=distgrid, pinflag=pinflag,      &
+                rc = status)
+          _VERIFY(STATUS)
+          call ESMF_ArrayGet(array, farrayPtr=VR8_2D, rc = status)
           _VERIFY(STATUS)
           VR8_2D = INIT_VALUE
           call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VR8_2D, &
@@ -532,7 +603,16 @@ contains
                totalUWidth=haloWidth(1:griddedDims),            &
                rc = status)
           case (3)
-          allocate(VR8_3D(lb1:ub1, lb2:ub2, UNGRID(1)), STAT=STATUS)
+          !allocate(VR8_3D(lb1:ub1, lb2:ub2, UNGRID(1)), STAT=STATUS)
+          !_VERIFY(STATUS)
+          call ESMF_ArraySpecSet(arrayspec, typekind=ESMF_TYPEKIND_R8, &
+               rank=rank, rc=status)
+          _VERIFY(STATUS)
+          array = ESMF_ArrayCreate(arrayspec=arrayspec,  &
+                distgrid=distgrid, pinflag=pinflag,      &
+                undistLBound=(/1/), undistUBound=(/UNGRID(1)/), rc = status)
+          _VERIFY(STATUS)
+          call ESMF_ArrayGet(array, farrayPtr=VR8_3D, rc = status)
           _VERIFY(STATUS)
           VR8_3D = INIT_VALUE
           call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VR8_3D, &
@@ -542,7 +622,17 @@ contains
                totalUWidth=haloWidth(1:griddedDims),            &
                rc = status)
           case (4)
-          allocate(VR8_4D(lb1:ub1, lb2:ub2, UNGRID(1), UNGRID(2)), STAT=STATUS)
+          !allocate(VR8_4D(lb1:ub1, lb2:ub2, UNGRID(1), UNGRID(2)), STAT=STATUS)
+          !_VERIFY(STATUS)
+          call ESMF_ArraySpecSet(arrayspec, typekind=ESMF_TYPEKIND_R8, &
+               rank=rank, rc=status)
+          _VERIFY(STATUS)
+          array = ESMF_ArrayCreate(arrayspec=arrayspec,  &
+                distgrid=distgrid, pinflag=pinflag,      &
+                undistLBound=(/1,1/), undistUBound=(/UNGRID(1),UNGRID(2)/), &
+                rc = status)
+          _VERIFY(STATUS)
+          call ESMF_ArrayGet(array, farrayPtr=VR8_4D, rc = status)
           _VERIFY(STATUS)
           VR8_4D = INIT_VALUE
           call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VR8_4D, &
@@ -555,6 +645,9 @@ contains
              _ASSERT(.false., 'only up to 4D are supported')
           end select
        end if
+       _VERIFY(STATUS)
+
+       call add_SSIArray_to_Field(array,field,rc=status)
        _VERIFY(STATUS)
 
 ! Horz + Vert       
@@ -585,7 +678,16 @@ contains
        case (3)
           if (typekind == ESMF_KIND_R4) then
              NULLIFY(VAR_3D)
-             allocate(VAR_3D(lb1:ub1, lb2:ub2, lb3:ub3), STAT=status)
+             !allocate(VAR_3D(lb1:ub1, lb2:ub2, lb3:ub3), STAT=status)
+             !_VERIFY(STATUS)
+             call ESMF_ArraySpecSet(arrayspec, typekind=ESMF_TYPEKIND_R4, &
+                   rank=rank, rc=status)
+             _VERIFY(STATUS)
+             array = ESMF_ArrayCreate(arrayspec=arrayspec,  &
+                   distgrid=distgrid, pinflag=pinflag,      &
+                   undistLBound=(/lb3/), undistUBound=(/ub3/), rc = status)
+             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array, farrayPtr=VAR_3D, rc = status)
              _VERIFY(STATUS)
              VAR_3D = INIT_VALUE
              call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_3D, &
@@ -596,7 +698,16 @@ contains
                   rc = status)
           else
              NULLIFY(VR8_3D)
-             allocate(VR8_3D(lb1:ub1, lb2:ub2, lb3:ub3), STAT=status)
+             !allocate(VR8_3D(lb1:ub1, lb2:ub2, lb3:ub3), STAT=status)
+             !_VERIFY(STATUS)
+             call ESMF_ArraySpecSet(arrayspec, typekind=ESMF_TYPEKIND_R8, &
+                   rank=rank, rc=status)
+             _VERIFY(STATUS)
+             array = ESMF_ArrayCreate(arrayspec=arrayspec,  &
+                   distgrid=distgrid, pinflag=pinflag,      &
+                   undistLBound=(/lb3/), undistUBound=(/ub3/), rc = status)
+             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array, farrayPtr=VR8_3D, rc = status)
              _VERIFY(STATUS)
              VR8_3D = INIT_VALUE
              call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VR8_3D, &
@@ -611,7 +722,16 @@ contains
        case (4)
           if (typekind == ESMF_KIND_R4) then
              NULLIFY(VAR_4D)
-             allocate(VAR_4D(lb1:ub1, lb2:ub2, lb3:ub3, ungrid(1)), STAT=status)
+             !allocate(VAR_4D(lb1:ub1, lb2:ub2, lb3:ub3, ungrid(1)), STAT=status)
+             !_VERIFY(STATUS)
+             call ESMF_ArraySpecSet(arrayspec, typekind=ESMF_TYPEKIND_R4, &
+                   rank=rank, rc=status)
+             _VERIFY(STATUS)
+             array = ESMF_ArrayCreate(arrayspec=arrayspec,  &
+                   distgrid=distgrid, pinflag=pinflag,      &
+                   undistLBound=(/1/), undistUBound=(/ungrid(1)/), rc = status)
+             _VERIFY(STATUS)
+             call ESMF_ArrayGet(array, farrayPtr=VAR_4D, rc = status)
              _VERIFY(STATUS)
              VAR_4D = INIT_VALUE
              call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_4D, &
@@ -622,7 +742,14 @@ contains
                   rc = status)
           else
              NULLIFY(VR8_4D)
-             allocate(VR8_4D(lb1:ub1, lb2:ub2, lb3:ub3, ungrid(1)), STAT=status)
+             !allocate(VR8_4D(lb1:ub1, lb2:ub2, lb3:ub3, ungrid(1)), STAT=status)
+             !_VERIFY(STATUS)
+             call ESMF_ArraySpecSet(arrayspec, typekind=ESMF_TYPEKIND_R8, &
+                   rank=rank, rc=status)
+             _VERIFY(STATUS)
+             array = ESMF_ArrayCreate(arrayspec=arrayspec,  &
+                   distgrid=distgrid, pinflag=pinflag,      &
+                   undistLBound=(/1/), undistUBound=(/ungrid(1)/), rc = status)
              _VERIFY(STATUS)
              VR8_4D = INIT_VALUE
              call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VR8_4D, &
@@ -637,6 +764,9 @@ contains
        case default
           _RETURN(ESMF_FAILURE)
        end select RankCase3d
+
+       call add_SSIArray_to_Field(array,field,rc=status)
+       _VERIFY(STATUS)
 
 ! Tiles
 ! ----- 
@@ -753,6 +883,44 @@ contains
 
 
     _RETURN(ESMF_SUCCESS)
+
+    contains
+       subroutine add_SSIArray_to_Field(array,field,rc)
+          type(ESMF_Array),               intent(IN   ) :: array
+          type(ESMF_Field),               intent(INOUT) :: field
+          integer,              optional, intent(  OUT) :: rc
+
+          ! local
+          integer :: ssiLocalDeCount
+          integer, allocatable :: arrayImg(:)
+          type(ESMF_VM) :: vm
+          integer :: localPet
+          character(len=100) :: field_name
+
+          call ESMF_VMGetCurrent(vm, rc=status)
+          _VERIFY(STATUS)
+          call ESMF_VMGet(vm, localPet=localPet, rc=status)
+          _VERIFY(STATUS)
+          call ESMF_FieldGet(field, name=field_name, rc=status)
+          _VERIFY(STATUS)
+          call ESMF_ArrayGet(array, ssiLocalDeCount=ssiLocalDeCount, &
+            rc = status)
+          _VERIFY(STATUS)
+          if(trim(field_name) == 'U')  &
+          !print *, "localPet ........ ", __FILE__, __LINE__, trim(field_name), localPet, ssiLocalDeCount
+          allocate(arrayimg(ssiLocalDeCount), stat = status)
+          _VERIFY(STATUS)
+          arrayImg = transfer(array, arrayImg)
+          call ESMF_AttributeSet(field, name='SSI_ARRAY_SIZE', &
+               value=ssiLocalDeCount, rc = status)
+          _VERIFY(STATUS)
+          call ESMF_AttributeSet(field, name='SSI_ARRAY_SAVED', &
+               valueList=arrayImg, rc = status)
+          _VERIFY(STATUS)
+
+          _RETURN(ESMF_SUCCESS)
+       end subroutine add_SSIArray_to_Field
+
   end subroutine MAPL_FieldAllocCommit
 
   subroutine MAPL_FieldF90Deallocate(field, rc)
