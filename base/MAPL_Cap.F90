@@ -170,7 +170,6 @@ contains
      class (MAPL_Cap), target, intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(out) :: rc
-     integer :: status
 
      _UNUSED_DUMMY(unusable)
      call this%cap_server%finalize()
@@ -192,6 +191,8 @@ contains
          nodes_output_server=this%cap_options%nodes_output_server, &
          npes_input_server=this%cap_options%npes_input_server, &
          npes_output_server=this%cap_options%npes_output_server, &
+         oserver_type=this%cap_options%oserver_type, &
+         npes_output_backend=this%cap_options%npes_output_backend, &
          rc=status)
      _VERIFY(status)
 
@@ -505,7 +506,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: ierror, local_comm_world
+      integer :: ierror
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then

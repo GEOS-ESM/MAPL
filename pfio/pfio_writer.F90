@@ -23,7 +23,7 @@ program main
    implicit none
    integer :: Inter_Comm
    integer :: ierr
-   integer :: n, rank
+   integer :: rank
    integer :: server_rank
 
    integer :: MPI_STAT(MPI_STATUS_SIZE)
@@ -34,8 +34,6 @@ program main
    integer, allocatable :: bufferm(:), bufferd(:)
    type(MessageVector)  :: forwardVec
    type(StringAttributeMap)   :: forwardData
-   class(*), pointer :: i_ptr(:)
-   integer(kind=MPI_ADDRESS_KIND) :: offset
    type (Attribute), pointer :: attr
    type (NetCDF4_FileFormatter), pointer :: formatter
    type (StringNetCDF4_FileFormatterMap) :: formatters

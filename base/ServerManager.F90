@@ -17,7 +17,7 @@ module MAPL_ServerManager
    type, public :: ServerManager
       type(SplitCommunicator)  :: split_comm
       type(MpiServer), pointer :: i_server=>null()
-      type(MpiServer), pointer :: o_server=>null()
+      class(BaseServer), pointer :: o_server=>null()
       type(DirectoryService) :: directory_service
       contains
          procedure :: initialize
@@ -38,19 +38,25 @@ contains
 
    end subroutine get_splitcomm
 
-   subroutine initialize(this, comm, unusable, application_size, nodes_input_server, nodes_output_server, npes_input_server,npes_output_server, rc)
+   subroutine initialize(this, comm, unusable, application_size, nodes_input_server, nodes_output_server,&
+                         npes_input_server,npes_output_server, oserver_type, npes_output_backend, rc)
       class (ServerManager), intent(inout) :: this
       integer, intent(in) :: comm
       class (KeywordEnforcer),  optional, intent(in) :: unusable
       integer, optional, intent(in) :: application_size
       integer, optional, intent(in) :: nodes_input_server(:),nodes_output_server(:)
       integer, optional, intent(in) :: npes_input_server(:),npes_output_server(:)
+      character(*), optional, intent(in) :: oserver_type
+      integer, optional, intent(in) :: npes_output_backend
+ 
       integer, optional, intent(out) :: rc
       integer, allocatable :: npes_in(:),npes_out(:),nodes_in(:),nodes_out(:)
+      integer :: npes_out_backend
 
       type (SimpleCommSplitter) :: splitter
       integer :: status, i, rank,npes_model,n_oserver_group, n_iserver_group
       character(len=:), allocatable :: s_name
+      character(len=:), allocatable :: oserver_type_
       type(ClientThread), pointer :: clientPtr
 
       _UNUSED_DUMMY(unusable)
@@ -84,6 +90,20 @@ contains
       else
          nodes_out = [0]
       end if
+      
+      oserver_type_ = 'single'
+      if (present(oserver_type)) oserver_type_ = oserver_type 
+      
+      npes_out_backend = 0
+      if (present(npes_output_backend)) npes_out_backend = npes_output_backend
+
+      if (oserver_type_ == "multilayer" .or. oserver_type_ == 'multigroup') then
+         _ASSERT(npes_out_backend >=2, "captain-soldier need at lease two beckend")
+      endif
+      if (oserver_type_ == "multicomm") then
+         _ASSERT(npes_out_backend >=1, "need at lease one beckend for multicomm server")
+      endif
+
 
      n_iserver_group = max(size(npes_in),size(nodes_in))
      n_oserver_group = max(size(npes_out),size(nodes_out))
@@ -160,7 +180,24 @@ contains
      do i = 1, n_oserver_group
 
         if ( trim(s_name) =='o_server'//trim(i_to_string(i)) ) then
-           allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name))
+           if (oserver_type_ == 'multicomm' ) then
+
+              allocate(this%o_server, source = MultiCommServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend))
+
+           else if (oserver_type_ == 'multilayer' ) then
+
+              allocate(this%o_server, source = MultiLayerServer(this%split_comm%get_subcommunicator(), s_name, &
+                       npes_out_backend, './pfio_writer.x'))
+
+           else if (oserver_type_ == 'multigroup' ) then
+
+              allocate(this%o_server, source = MultiGroupServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend))
+
+           else
+
+              allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name))
+
+           endif
            call this%directory_service%publish(PortInfo(s_name,this%o_server), this%o_server)
            call this%directory_service%connect_to_client(s_name, this%o_server)
            call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
