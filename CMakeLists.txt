@@ -50,6 +50,7 @@ add_subdirectory (shared)
 add_subdirectory (include)
 add_subdirectory (base)
 add_subdirectory (MAPL)
+add_subdirectory (grid_comp)
 
 if (PFUNIT_FOUND)
   add_subdirectory (MAPL_pFUnit EXCLUDE_FROM_ALL)
