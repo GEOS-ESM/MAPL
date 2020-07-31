@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added routine to finalize the ioservers so that it can be called by another application using cap, like JEDI
 
 ### Changed
+
+- Moved more code to use pFlogger
+
 ### Fixed
 
 - Removed non-standard OpenMP pragma
