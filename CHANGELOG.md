@@ -8,8 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Added routine to finalize the ioservers so that it can be called by another application using cap, like JEDI
+
 ### Changed
 ### Fixed
+
+- Removed non-standard OpenMP pragma
+- Fixed problem with name mangling in ACG
+- Fix MAPL comm bug with NUOPC
+- Fixed pointer issue exposed by GNU
+
 ### Removed
 
 ## [2.2.7] - 2020-06-26
