@@ -82,9 +82,9 @@ contains
        _RETURN(_SUCCESS)
     end subroutine StringVariableMap_serialize
 
-    function StringVariableMap_deserialize(buffer, rc) result(map)
-       type (StringVariableMap) :: map
+    subroutine StringVariableMap_deserialize(buffer, map, rc)
        integer, intent(in) :: buffer(:)
+       type (StringVariableMap), intent(inout) :: map
        integer, optional, intent(out) :: rc
 
        character(len=:),allocatable :: key
@@ -101,7 +101,7 @@ contains
        n0 = serialize_buffer_length(length)
        n = n + n0
        length = length - n0
-
+       map = StringVariableMap()
        do while (length > 0)
           call deserialize_intrinsic(buffer(n:),key)
           n1 = serialize_buffer_length(key)
@@ -127,6 +127,6 @@ contains
           deallocate(var)
        enddo
        _RETURN(_SUCCESS)
-    end function StringVariableMap_deserialize
+    end subroutine StringVariableMap_deserialize
 
 end module pFIO_StringVariableMapUtilMod

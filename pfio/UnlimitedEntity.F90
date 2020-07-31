@@ -693,6 +693,7 @@ module pFIO_StringUnlimitedEntityMapUtilMod
    use pFIO_UtilitiesMod
    use pFIO_UnlimitedEntityMod
    use pFIO_StringUnlimitedEntityMapMod
+   use MAPL_ExceptionHandling
    implicit none
    private
 
@@ -726,9 +727,10 @@ contains
        buffer = [serialize_intrinsic(length),buffer]
     end subroutine StringUnlimitedEntityMap_serialize
 
-    function StringUnlimitedEntityMap_deserialize(buffer) result(map)
-       type (StringUnlimitedEntityMap) :: map
+    subroutine StringUnlimitedEntityMap_deserialize(buffer, map, rc) 
        integer, intent(in) :: buffer(:)
+       type (StringUnlimitedEntityMap), intent(inout) :: map
+       integer, optional, intent(out) :: rc
 
        character(len=:),allocatable :: key
        integer :: length,n,n0,n1,n2
@@ -740,6 +742,7 @@ contains
        n = n + n0
        length = length - n0
 
+       map = StringUnlimitedEntityMap()
        do while (length > 0)
           call deserialize_intrinsic(buffer(n:),key)
           n1 = serialize_buffer_length(key)
@@ -753,6 +756,7 @@ contains
           deallocate(key)
           deallocate(attr)
        enddo
-    end function StringUnlimitedEntityMap_deserialize
+       _RETURN(_SUCCESS)
+    end subroutine StringUnlimitedEntityMap_deserialize
 
 end module pFIO_StringUnlimitedEntityMapUtilMod

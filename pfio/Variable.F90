@@ -46,7 +46,8 @@ module pFIO_VariableMod
       procedure :: get_chunksizes
       procedure :: get_deflation
       procedure :: is_attribute_present
-
+      procedure :: assign
+      generic :: assignment(=) => assign
       generic :: operator(==) => equal
       generic :: operator(/=) => not_equal
       procedure :: equal
@@ -362,11 +363,12 @@ contains
       call deserialize_intrinsic(buffer(n:),this%type)
       length = serialize_buffer_length(this%type)
       n = n+length
-      this%dimensions = StringVector_deserialize(buffer(n:))
+      call StringVector_deserialize(buffer(n:), this%dimensions, status)
+      _VERIFY(status)
       call deserialize_intrinsic(buffer(n:),length)
       n = n + length
       call deserialize_intrinsic(buffer(n:),length)
-      this%attributes = StringAttributeMap_deserialize(buffer(n:n+length-1), status)
+      call StringAttributeMap_deserialize(buffer(n:n+length-1),this%attributes, status)
       _VERIFY(status)
 
       n = n + length
@@ -382,5 +384,17 @@ contains
       call deserialize_intrinsic(buffer(n:),this%chunksizes)
       _RETURN(_SUCCESS)
    end subroutine deserialize
+
+   subroutine assign(to, from)
+      class (Variable), intent(inout) :: to
+      type (Variable), intent(in) :: from
+
+      to%type = from%type
+      to%dimensions = from%dimensions
+      to%attributes = from%attributes
+      to%const_value= from%const_value
+      to%deflation  = from%deflation
+      to%chunksizes = from%chunksizes
+   end subroutine
 
 end module pFIO_VariableMod

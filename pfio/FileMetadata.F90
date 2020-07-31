@@ -547,18 +547,20 @@ contains
 
       length = serialize_buffer_length(length)
       n = n+length
-      this%dimensions = StringIntegerMap_deserialize(buffer(n:))
+      call StringIntegerMap_deserialize(buffer(n:),this%dimensions, status)
+      _VERIFY(status)
       call deserialize_intrinsic(buffer(n:),length)
       n = n + length
       call deserialize_intrinsic(buffer(n:),length)
       call this%global%deserialize(buffer(n:n+length-1), status)
       _VERIFY(status)
       n = n + length
-      this%variables = StringVariableMap_deserialize(buffer(n:))
+      call StringVariableMap_deserialize(buffer(n:), this%variables, status)
 
       call deserialize_intrinsic(buffer(n:),length)
       n = n + length
-      this%order = StringVector_deserialize(buffer(n:))
+      call StringVector_deserialize(buffer(n:), this%order, status)
+      _VERIFY(status)
       _RETURN(_SUCCESS)
    end subroutine deserialize
 

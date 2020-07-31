@@ -131,9 +131,9 @@ contains
        _RETURN(_SUCCESS)
     end subroutine StringAttributeMap_serialize
 
-    function StringAttributeMap_deserialize(buffer, rc) result(map)
-       type (StringAttributeMap) :: map
+    subroutine StringAttributeMap_deserialize(buffer, map, rc)
        integer, intent(in) :: buffer(:)
+       type (StringAttributeMap), intent(inout) :: map
        integer, optional, intent(out) :: rc
 
        character(len=:),allocatable :: key
@@ -164,6 +164,6 @@ contains
           deallocate(attr)
        enddo
        _RETURN(_SUCCESS)
-    end function StringAttributeMap_deserialize
+    end subroutine StringAttributeMap_deserialize
 
 end module pFIO_StringAttributeMapUtilMod
