@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 ### Changed
 ### Fixed
+
+- Fixed ESMF logging errors with non-72-level runs (#480)
+
 ### Removed
 
 ## [2.2.7] - 2020-06-26
