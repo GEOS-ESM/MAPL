@@ -1,6 +1,10 @@
+#include "MAPL_ErrLog.h"
+#include "unused_dummy.H"
+
 module pFIO_StringIntegerMapUtilMod
    use pFIO_UtilitiesMod
    use gFTL_StringIntegerMap
+   use MAPL_ExceptionHandling
    implicit none
    private
    public :: StringIntegerMap_serialize
@@ -31,9 +35,10 @@ contains
 
     end subroutine StringIntegerMap_serialize  
 
-    function StringIntegerMap_deserialize(buffer) result(map)
-       type (StringIntegerMap) :: map
+    subroutine StringIntegerMap_deserialize(buffer, map, rc)
        integer, intent(in) :: buffer(:)
+       type (StringIntegerMap), intent(inout) :: map
+       integer, optional, intent(out) :: rc
 
        character(len=:),allocatable :: key
        integer :: value,length,n,n0,n1,n2
@@ -43,7 +48,7 @@ contains
        n0 = serialize_buffer_length(length)
        n = n + n0
        length = length - n0
-
+       map = StringIntegerMap()
        do while (length > 0)
           call deserialize_intrinsic(buffer(n:),key)
           n1 = serialize_buffer_length(key)
@@ -55,6 +60,7 @@ contains
           call map%insert(key,value)
           deallocate(key)
        enddo
-    end function StringIntegerMap_deserialize
+       _RETURN(_SUCCESS)
+    end subroutine StringIntegerMap_deserialize
 
 end module pFIO_StringIntegerMapUtilMod

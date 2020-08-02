@@ -78,7 +78,7 @@ contains
     call ESMF_TimeGet(currTime,timeString=StartTime,rc=status)
     _VERIFY(status)
     timeUnits = trim(this%funits)//" since "//startTime( 1: 10)//" "//startTime(12:19)
-    v = Variable(PFIO_REAL32,dimensions='time')
+    v = Variable(type=PFIO_REAL32,dimensions='time')
     call v%add_attribute('long_name','time')
     call v%add_attribute('units',trim(timeUnits))
   

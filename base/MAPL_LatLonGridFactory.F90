@@ -1696,13 +1696,13 @@ contains
       call metadata%add_dimension('lat', this%jm_world)
 
       ! Coordinate variables
-      v = Variable(PFIO_REAL32, dimensions='lon')
+      v = Variable(type=PFIO_REAL32, dimensions='lon')
       call v%add_attribute('long_name', 'longitude')
       call v%add_attribute('units', 'degrees_east')
       call v%add_const_value(UnlimitedEntity(MAPL_RADIANS_TO_DEGREES*this%get_longitudes()))
       call metadata%add_variable('lon', v)
 
-      v = Variable(PFIO_REAL32, dimensions='lat')
+      v = Variable(type=PFIO_REAL32, dimensions='lat')
       call v%add_attribute('long_name', 'latitude')
       call v%add_attribute('units', 'degrees_north')
       call v%add_const_value(UnlimitedEntity(MAPL_RADIANS_TO_DEGREES*this%get_latitudes()))

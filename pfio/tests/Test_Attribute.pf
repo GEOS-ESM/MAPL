@@ -87,44 +87,39 @@ contains
    @test
    subroutine test_serialize()
       type (Attribute) :: a
-      type (Attribute),allocatable :: b
+      type (Attribute) :: b
 
       integer,allocatable :: buffer(:)
 
       a = Attribute(10)
       call a%serialize(buffer)
-      allocate(b)
-      call b%deserialize(buffer)
+      call Attribute_deserialize(buffer, b)
       @assertTrue(a==b)
-      deallocate(buffer,b)
+      deallocate(buffer)
 
       a = Attribute([10,20,30])
       call a%serialize(buffer)
-      allocate(b)
-      call b%deserialize(buffer)
+      call Attribute_deserialize(buffer, b)
       @assertTrue(a==b)
-      deallocate(buffer,b)
+      deallocate(buffer)
 
       a = Attribute([.true.,.false.])
       call a%serialize(buffer)
-      allocate(b)
-      call b%deserialize(buffer)
+      call Attribute_deserialize(buffer, b)
       @assertTrue(a==b)
-      deallocate(buffer,b)
+      deallocate(buffer)
 
       a = Attribute('abcd')
       call a%serialize(buffer)
-      allocate(b)
-      call b%deserialize(buffer)
+      call Attribute_deserialize(buffer, b)
       @assertTrue(a==b)
-      deallocate(buffer,b)
+      deallocate(buffer)
 
       a = Attribute('abcdefgh')
       call a%serialize(buffer)
-      allocate(b)
-      call b%deserialize(buffer)
+      call Attribute_deserialize(buffer, b)
       @assertTrue(a==b)
-      deallocate(buffer,b)
+      deallocate(buffer)
 
    end subroutine test_serialize
 
