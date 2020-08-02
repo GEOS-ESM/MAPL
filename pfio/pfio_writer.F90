@@ -131,7 +131,7 @@ program main
 
         ! deserilize message and data
         call deserialize_message_vector(bufferm, forwardVec)
-        forwardData = StringAttributeMap_deserialize(bufferd)
+        call StringAttributeMap_deserialize(bufferd, forwardData)
 
         ! loop over message vectors and write the file
         do i = 1, forwardVec%size()

@@ -36,6 +36,7 @@ contains
     type (FilemetaData), intent(in) :: fmd
 
     collection%fmd = fmd
+    collection%formatters = StringNetCDF4_FileFormatterMap() 
 
   end function new_HistoryCollection
 
@@ -129,6 +130,7 @@ module pFIO_HistoryCollectionVectorMod
 end module pFIO_HistoryCollectionVectorMod
 
 module pFIO_HistoryCollectionVectorUtilMod
+   use pFIO_FileMetadataMod
    use pFIO_HistoryCollectionMod
    use pFIO_HistoryCollectionVectorMod
    use pFIO_UtilitiesMod
@@ -162,19 +164,19 @@ contains
   subroutine deserialize_HistoryCollection_vector(buffer, histVec)
      type (HistoryCollectionVector),intent(inout) :: histVec
      integer, intent(in) :: buffer(:)
-     type (HistoryCollection), allocatable :: hist
-
+     type (HistoryCollection) :: hist
+     type (FileMetadata) :: fmd
      integer :: n, length, fmd_len
 
      length = size(buffer)
      n=1
+     fmd = FileMetadata()
      do while (n < length)
-       allocate(hist)
-       call hist%fmd%deserialize(buffer(n:))
+       hist = HistoryCollection(fmd)
+       call FileMetadata_deserialize(buffer(n:), hist%fmd)
        call histVec%push_back(hist)
        call deserialize_intrinsic(buffer(n:),fmd_len)
        n = n + fmd_len 
-       deallocate(hist)
      enddo
   end subroutine
 
