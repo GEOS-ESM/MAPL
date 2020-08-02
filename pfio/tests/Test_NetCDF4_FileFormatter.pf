@@ -58,7 +58,7 @@ contains
 
       call cf_expected%add_dimension('x',1)
       call cf_expected%add_dimension('y',2)
-      call cf_expected%add_variable('var', Variable(pFIO_INT32, dimensions='x,y'))
+      call cf_expected%add_variable('var', Variable(type=pFIO_INT32, dimensions='x,y'))
 
       call formatter%create('test.nc', rc=status)
       @assertEqual(NF90_NOERR, status)
@@ -116,7 +116,7 @@ contains
       call cf_expected%add_dimension('x',1)
       call cf_expected%add_dimension('y',2)
 
-      v = Variable(pFIO_INT32, dimensions='x,y')
+      v = Variable(type=pFIO_INT32, dimensions='x,y')
       call v%add_attribute('attr', [1.,2.,3.])
       call cf_expected%add_variable('var', v)
 

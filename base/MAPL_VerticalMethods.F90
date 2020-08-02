@@ -413,7 +413,7 @@ module MAPL_VerticalDataMod
                  end if
              
                  call metadata%add_dimension('lev', lm, rc=status)
-                 v = Variable(PFIO_REAL64, dimensions='lev')
+                 v = Variable(type=PFIO_REAL64, dimensions='lev')
                  call v%add_attribute('units',ungridded_unit)
                  call v%add_attribute('standard_name',ungridded_name)
                  call v%add_attribute('coordinate','N/A')
@@ -421,7 +421,7 @@ module MAPL_VerticalDataMod
                  call metadata%add_variable('lev',v,rc=status)
               else 
                  call metadata%add_dimension('lev', lm, rc=status)
-                 v = Variable(PFIO_REAL64, dimensions='lev')
+                 v = Variable(type=PFIO_REAL64, dimensions='lev')
                  call v%add_attribute('long_name','vertical level')
                  call v%add_attribute('units','layer')
                  call v%add_attribute('positive','down')
@@ -433,7 +433,7 @@ module MAPL_VerticalDataMod
 
            else if (this%regrid_type == VERTICAL_METHOD_ETA2LEV) then
               call metadata%add_dimension('lev', size(this%levs), rc=status)
-              v = Variable(PFIO_REAL64, dimensions='lev')
+              v = Variable(type=PFIO_REAL64, dimensions='lev')
               call v%add_attribute('long_name','vertical level')
               call v%add_attribute('units',trim(this%vunit))
               if (this%levs(1)>this%levs(size(this%levs))) then
@@ -448,7 +448,7 @@ module MAPL_VerticalDataMod
 
            else if (this%regrid_type == VERTICAL_METHOD_SELECT) then
               call metadata%add_dimension('lev', lm, rc=status)
-              v = Variable(PFIO_REAL64, dimensions='lev')
+              v = Variable(type=PFIO_REAL64, dimensions='lev')
               call v%add_attribute('long_name','vertical level')
               call v%add_attribute('units','layer')
               call v%add_attribute('positive','down')

@@ -19,6 +19,8 @@ module pFIO_VariableMod
 
    public :: Variable
    public :: Variable_SERIALIZE_TYPE
+   public :: Variable_deserialize
+
    integer, parameter :: Variable_SERIALIZE_TYPE = 100
  
    type :: Variable
@@ -46,15 +48,12 @@ module pFIO_VariableMod
       procedure :: get_chunksizes
       procedure :: get_deflation
       procedure :: is_attribute_present
-      procedure :: assign
-      generic :: assignment(=) => assign
       generic :: operator(==) => equal
       generic :: operator(/=) => not_equal
       procedure :: equal
       procedure :: not_equal
 
       procedure :: serialize
-      procedure :: deserialize
 
    end type Variable
 
@@ -66,9 +65,9 @@ module pFIO_VariableMod
 contains
 
 
-   function new_Variable(type, unusable, dimensions, chunksizes,const_value, deflation, rc) result(var)
+   function new_Variable(unusable, type, dimensions, chunksizes,const_value, deflation, rc) result(var)
       type (Variable) :: var
-      integer, intent(in) :: type
+      integer, optional, intent(in) :: type
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: dimensions
       integer, optional, intent(in) :: chunksizes(:)
@@ -76,17 +75,25 @@ contains
       integer, optional, intent(in) :: deflation
       integer, optional, intent(out) :: rc
 
+      integer:: empty(0)
 
-      var%type = type
+      var%type = -1
+      var%deflation = 0
+      var%chunksizes = empty
+      var%dimensions = StringVector()
+      var%attributes = StringAttributeMap()
+      var%const_value = UnlimitedEntity()
 
+      if (present(type)) then
+         var%type = type
+      endif
+ 
       if (present(dimensions)) then
          call parse_dimensions()
       end if
 
       if (present(chunksizes)) then
          var%chunksizes = chunksizes
-      else
-         allocate(var%chunksizes(0))
       end if
 
       if (present(const_value)) then
@@ -343,58 +350,57 @@ contains
       _RETURN(_SUCCESS) 
    end subroutine
 
-   subroutine deserialize(this, buffer, rc)
-      class (Variable), intent(inout) :: this
-      integer,intent(in) :: buffer(:)
+   subroutine Variable_deserialize(buffer, var, rc)
+      integer, intent(in) :: buffer(:)
+      type (Variable), intent(inout) :: var
       integer, optional, intent(out) :: rc
-      integer :: n,length, v_type
-      type (UnlimitedEntity),allocatable :: const
       integer :: status
- 
-      n = 1
-      call deserialize_intrinsic(buffer(n:),length)
-      _ASSERT(length == size(buffer), "length does not match")
-
-      length = serialize_buffer_length(length)
-      n = n+length
-      call deserialize_intrinsic(buffer(n:),v_type)
-      length = serialize_buffer_length(v_type)
-      n = n+length
-      call deserialize_intrinsic(buffer(n:),this%type)
-      length = serialize_buffer_length(this%type)
-      n = n+length
-      call StringVector_deserialize(buffer(n:), this%dimensions, status)
+      var = Variable()
+      call deserialize(var, buffer, rc=status)
       _VERIFY(status)
-      call deserialize_intrinsic(buffer(n:),length)
-      n = n + length
-      call deserialize_intrinsic(buffer(n:),length)
-      call StringAttributeMap_deserialize(buffer(n:n+length-1),this%attributes, status)
-      _VERIFY(status)
-
-      n = n + length
-      allocate(const)
-      call deserialize_intrinsic(buffer(n:),length)
-      call const%deserialize(buffer(n:(n+length-1)), status)
-      _VERIFY(status)
-      this%const_value = const
-      n = n + length
-      call deserialize_intrinsic(buffer(n:),this%deflation)
-      length = serialize_buffer_length(this%deflation)
-      n = n + length
-      call deserialize_intrinsic(buffer(n:),this%chunksizes)
       _RETURN(_SUCCESS)
-   end subroutine deserialize
+   contains
+      subroutine deserialize(this, buffer, rc)
+         class (Variable), intent(inout) :: this
+         integer,intent(in) :: buffer(:)
+         integer, optional, intent(out) :: rc
+         integer :: n,length, v_type
+         type (UnlimitedEntity) :: const
+         integer :: status
+ 
+         n = 1
+         call deserialize_intrinsic(buffer(n:),length)
+         _ASSERT(length == size(buffer), "length does not match")
 
-   subroutine assign(to, from)
-      class (Variable), intent(inout) :: to
-      type (Variable), intent(in) :: from
+         length = serialize_buffer_length(length)
+         n = n+length
+         call deserialize_intrinsic(buffer(n:),v_type)
+         length = serialize_buffer_length(v_type)
+         n = n+length
+         call deserialize_intrinsic(buffer(n:),this%type)
+         length = serialize_buffer_length(this%type)
+         n = n+length
+         call StringVector_deserialize(buffer(n:), this%dimensions, status)
+         _VERIFY(status)
+         call deserialize_intrinsic(buffer(n:),length)
+         n = n + length
+         call deserialize_intrinsic(buffer(n:),length)
+         call StringAttributeMap_deserialize(buffer(n:n+length-1),this%attributes, status)
+         _VERIFY(status)
 
-      to%type = from%type
-      to%dimensions = from%dimensions
-      to%attributes = from%attributes
-      to%const_value= from%const_value
-      to%deflation  = from%deflation
-      to%chunksizes = from%chunksizes
-   end subroutine
+         n = n + length
+         !allocate(const)
+         call deserialize_intrinsic(buffer(n:),length)
+         call UnlimitedEntity_deserialize(buffer(n:(n+length-1)), this%const_value, status)
+         _VERIFY(status)
+         !this%const_value = const
+         n = n + length
+         call deserialize_intrinsic(buffer(n:),this%deflation)
+         length = serialize_buffer_length(this%deflation)
+         n = n + length
+         call deserialize_intrinsic(buffer(n:),this%chunksizes)
+         _RETURN(_SUCCESS)
+      end subroutine deserialize
+  end subroutine Variable_deserialize
 
 end module pFIO_VariableMod

@@ -1,7 +1,11 @@
+#include "MAPL_ErrLog.h"
+#include "unused_dummy.H"
+
 module pFIO_StringVectorUtilMod
    use pFIO_UtilitiesMod
    use pFIO_AttributeMod
    use gFTL_StringVector
+   use MAPL_ExceptionHandling
    implicit none
    private
    public :: StringVector_serialize
@@ -34,14 +38,13 @@ contains
        integer, optional, intent(out) :: rc
 
        character(len=:),allocatable :: str
-       integer :: length,n,n1,n0
+       integer :: length,n,n1,n0, status
 
        n = 1
        call deserialize_intrinsic(buffer(n:),length)
        n0 =  serialize_buffer_length(length)
        n = n + n0
        length = length - n0
-
        strVec = StringVector() 
        do while (length > 0)
           call deserialize_intrinsic(buffer(n:),str)
@@ -51,6 +54,7 @@ contains
           length = length - n1
           deallocate(str)
        enddo
+       _RETURN(_SUCCESS)
    end subroutine StringVector_deserialize
 
 end module pFIO_StringVectorUtilMod

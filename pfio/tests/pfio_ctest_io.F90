@@ -257,7 +257,7 @@ contains
          call test_metadata%add_dimension('time',1)
  
          do k = 1, this%vars%size()
-            call test_metadata%add_variable(this%vars%at(k),Variable(pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time'), rc=status)
+            call test_metadata%add_variable(this%vars%at(k),Variable(type=pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time'), rc=status)
             _VERIFY(status)
          enddo
 
@@ -381,7 +381,7 @@ contains
          call fmd%add_dimension('nf',this%nf)
          call fmd%add_dimension('time',1)
 
-         T = Variable(pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time')
+         T = Variable(type=pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time')
 
          do i_var = 1, this%vars%size() 
             call fmd%add_variable( this%vars%at(i_var),T, rc=status)

@@ -312,10 +312,10 @@ contains
                   ll_var_dimensions = make_dim_string(cs_var_dimensions)
 
                   if (associated(this%cfio_cubed_sphere%get_variable('lev'))) then
-                     ll_variable = Variable(cs_variable%get_type(), dimensions=ll_var_dimensions, &
+                     ll_variable = Variable(type=cs_variable%get_type(), dimensions=ll_var_dimensions, &
                           & chunksizes = [this%IM/npx,this%JM/npy,1,1,1])
                   else
-                     ll_variable = Variable(cs_variable%get_type(), dimensions=ll_var_dimensions, &
+                     ll_variable = Variable(type=cs_variable%get_type(), dimensions=ll_var_dimensions, &
                           & chunksizes = [this%IM/npx,this%JM/npy,1,1])
                   end if
 

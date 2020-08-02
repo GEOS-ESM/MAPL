@@ -89,7 +89,6 @@ contains
 
        character(len=:),allocatable :: key
        integer :: length,n,n0,n1,n2, v_type
-       class(Variable), allocatable :: var
        type (Variable) :: v
        type (CoordinateVariable) :: c 
        integer :: status
@@ -108,23 +107,22 @@ contains
           n = n + n1
 
           ! the first one is length, the second one is type          
+          call deserialize_intrinsic(buffer(n:),n2)
           call deserialize_intrinsic(buffer(n+1:),v_type)
 
           if (v_type == Variable_SERIALIZE_TYPE) then
-             allocate(var, source = v)
+             call Variable_deserialize(buffer(n:n+n2-1),v, status)
+             _VERIFY(status)
+             call map%insert(key,v)
           else if (v_type == Coord_SERIALIZE_TYPE) then
-             allocate(var, source = c )
+             call CoordinateVariable_deserialize(buffer(n:n+n2-1),c, status)
+             _VERIFY(status)
+             call map%insert(key,c)
           endif
-
-          call deserialize_intrinsic(buffer(n:),n2)
-          call var%deserialize(buffer(n:n+n2-1), status)
-          _VERIFY(status)
 
           n = n + n2
           length = length - n1 - n2
-          call map%insert(key,var)
           deallocate(key)
-          deallocate(var)
        enddo
        _RETURN(_SUCCESS)
     end subroutine StringVariableMap_deserialize
