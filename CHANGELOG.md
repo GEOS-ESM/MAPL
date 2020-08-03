@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed ESMF logging errors with non-72-level runs (#480)
+- Remove unneeded `use Env;` in stub generator
 
 ### Removed
 
