@@ -170,7 +170,7 @@ contains
      class (MAPL_Cap), target, intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(out) :: rc
-     integer :: status
+     !integer :: status
 
      _UNUSED_DUMMY(unusable)
      call this%cap_server%finalize()
@@ -464,11 +464,11 @@ contains
       _VERIFY(ierror)
 
       if (.not. this%mpi_already_initialized) then
-!!$         call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
-!!$         _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supporte by this MPI.')
-         call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
+         call MPI_Init_thread(MPI_THREAD_SERIALIZED, provided, ierror)
+         !call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
          _VERIFY(ierror)
-         _ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
+         _ASSERT(provided == MPI_THREAD_SERIALIZED, 'MPI_THREAD_SERIALIZED not supporte by this MPI.')
+        ! _ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
       end if
 
       call MPI_Comm_rank(this%comm_world, this%rank, ierror); _VERIFY(ierror)
@@ -505,7 +505,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: ierror, local_comm_world
+      integer :: ierror !, local_comm_world
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then
