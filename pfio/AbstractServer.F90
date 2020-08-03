@@ -363,7 +363,6 @@ contains
       do i = 1, n
          dataRefPtr => this%dataRefPtrs%at(i)
          call dataRefPtr%deallocate()
-         deallocate(dataRefPtr)
       enddo
       call this%dataRefPtrs%erase(this%dataRefPtrs%begin(), this%dataRefPtrs%end())      
 

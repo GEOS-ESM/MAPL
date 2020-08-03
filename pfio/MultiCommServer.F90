@@ -505,6 +505,7 @@ contains
             dataRefPtr => this%MemdataRefPtrs%at(collection_counter)
             call dataRefPtr%deallocate()
          enddo
+         call this%MemdataRefPtrs%erase(this%MemdataRefPtrs%begin(), this%MemdataRefPtrs%end())
       end if
 
       _RETURN(_SUCCESS)
