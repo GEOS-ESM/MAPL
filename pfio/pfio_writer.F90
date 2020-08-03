@@ -36,6 +36,7 @@ program main
    type(StringAttributeMap)   :: forwardData
    type (Attribute), pointer :: attr
    type (NetCDF4_FileFormatter), pointer :: formatter
+   type (NetCDF4_FileFormatter) :: fm
    type (StringNetCDF4_FileFormatterMap) :: formatters
    type (StringNetCDF4_FileFormatterMapIterator) :: iter
    class (AbstractMessage), pointer :: msg
@@ -140,10 +141,8 @@ program main
            type is (ForwardDataMessage)
               iter = formatters%find(trim(q%file_name))
               if (iter == formatters%end()) then
-                 allocate(formatter)
-                 call formatter%open(trim(q%file_name), pFIO_WRITE)
-                 call formatters%insert( trim(q%file_name),formatter)
-                 deallocate(formatter)
+                 call fm%open(trim(q%file_name), pFIO_WRITE)
+                 call formatters%insert( trim(q%file_name),fm)
               endif
               formatter => formatters%at(trim(q%file_name))
      
@@ -157,7 +156,6 @@ program main
         do while (iter /= formatters%end())
            formatter => iter%value()
            call formatter%close(rc=status)
-           deallocate(formatter)
            call formatters%erase(iter)
            iter = formatters%begin()
         enddo
