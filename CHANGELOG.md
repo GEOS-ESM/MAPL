@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed problem with name mangling in ACG
 - Fix MAPL comm bug with NUOPC
 - Fixed pointer issue exposed by GNU
+- Fixed ESMF logging errors with non-72-level runs (#480)
 
 ### Removed
 
