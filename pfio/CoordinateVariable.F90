@@ -51,7 +51,6 @@ module pFIO_CoordinateVariableMod
       procedure :: get_int32
       procedure :: get_int64
       procedure :: serialize
-      !procedure :: deserialize
 
       generic :: operator(==) => equal_c
       generic :: operator(/=) => not_equal_c

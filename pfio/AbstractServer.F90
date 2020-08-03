@@ -61,7 +61,6 @@ module pFIO_AbstractServerMod
       procedure(create_remote_win), deferred :: create_remote_win
       procedure :: get_status
       procedure :: set_status
-      procedure :: get_and_set_status
       procedure :: update_status
       procedure :: clean_up
       procedure :: set_AllBacklogIsEmpty
@@ -157,23 +156,6 @@ contains
                          this%Node_Ranks, 1, MPI_INTEGER, comm,ierror)
 
    end subroutine init
-
-   function get_and_set_status(this, cmd, rc) result(status)
-      class(AbstractServer),intent(inout) :: this
-      integer, intent(inout) :: cmd
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      !$omp critical (counter_status)
-      status = this%status
-      if( this%status == UNALLOCATED) then
-         this%status = PENDING 
-      endif
-      !$omp flush (this)
-      !$omp end critical (counter_status)
-      cmd = 1
-      _RETURN(_SUCCESS)
-   end function get_and_set_status
 
    function get_status(this) result(status)
       class(AbstractServer),intent(in) :: this

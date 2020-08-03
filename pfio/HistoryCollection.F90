@@ -46,6 +46,7 @@ contains
     integer,optional,intent(out) :: rc 
 
     type (NetCDF4_FileFormatter), pointer :: formatter
+    type (NetCDF4_FileFormatter) :: fm
 
     type(StringNetCDF4_FileFormatterMapIterator) :: iter
     integer :: status
@@ -54,20 +55,19 @@ contains
 
     iter = this%formatters%find(trim(file_name))
     if (iter == this%formatters%end()) then
-       allocate(formatter)
        inquire(file=file_name, exist=f_exist)
        if(.not. f_exist) then 
-         call formatter%create(trim(file_name),rc=status)
+         call fm%create(trim(file_name),rc=status)
          _VERIFY(status)
-         call formatter%write(this%fmd, rc=status)
+         call fm%write(this%fmd, rc=status)
          _VERIFY(status)
        else
-          call formatter%open(trim(file_name), pFIO_WRITE)
+          call fm%open(trim(file_name), pFIO_WRITE)
        endif
-       call this%formatters%insert( trim(file_name),formatter)
-       deallocate(formatter)
+       call this%formatters%insert( trim(file_name),fm)
+       iter = this%formatters%find(trim(file_name))
     end if
-    formatter => this%formatters%at(trim(file_name))
+    formatter => iter%value()
     _RETURN(_SUCCESS)
   end function find
 
@@ -106,7 +106,6 @@ contains
       call f_ptr%close(rc=status)
       _VERIFY(status)
       ! remove the files
-      deallocate(f_ptr)
       call this%formatters%erase(iter)
       iter = this%formatters%begin()
     enddo
@@ -137,12 +136,12 @@ module pFIO_HistoryCollectionVectorUtilMod
    implicit none
    private
 
-   public:: serialize_HistoryCollection_vector
-   public:: deserialize_HistoryCollection_vector
+   public:: HistoryCollectionVector_serialize
+   public:: HistoryCollectionVector_deserialize
 
 contains
 
-  subroutine serialize_HistoryCollection_vector(histVec,buffer)
+  subroutine HistoryCollectionVector_serialize(histVec,buffer)
      type (HistoryCollectionVector),intent(in) :: histVec
      integer, allocatable,intent(inout) :: buffer(:)
      integer, allocatable :: tmp(:)
@@ -161,7 +160,7 @@ contains
 
   end subroutine
 
-  subroutine deserialize_HistoryCollection_vector(buffer, histVec)
+  subroutine HistoryCollectionVector_deserialize(buffer, histVec)
      type (HistoryCollectionVector),intent(inout) :: histVec
      integer, intent(in) :: buffer(:)
      type (HistoryCollection) :: hist

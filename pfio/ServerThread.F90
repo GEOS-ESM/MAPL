@@ -258,112 +258,17 @@ contains
 
       select type (q=>msg)
       type is (PrefetchDataMessage)
-          _ASSERT(.false., "please use done_prefetch")
-          mem_data_reference=LocalMemReference(q%type_kind,q%count)
-
-          call this%get_DataFromFile(q,mem_data_reference%base_address, status)
-          _VERIFY(status)
-
-          call this%insert_RequestHandle(q%request_id, &
-              & connection%put(q%request_id, mem_data_reference))
-
-          call this%request_backlog%erase(iter)
-
+         _ASSERT(.false., "please use done_prefetch")
+         _RETURN(_SUCCESS)  
       type is (CollectivePrefetchDataMessage)
-
          _ASSERT(.false., "please use done_collective_prefetch")
-         this%there_is_collective_request = .true.
-
-         _ASSERT(associated(this%containing_server), "need server")
-
-         data_status = this%containing_server%get_and_set_status(cmd,rc=status)
-         _VERIFY(status)
-
-         if (data_status == UNALLOCATED ) then
-
-            if( .not. multi_data_read) then
-               ! each node read part of a file, then exchange
-               dataRefPtr=> this%read_and_gather(rc=status)
-               _VERIFY(status)
-            else
-               dataRefPtr=> this%read_and_share(rc=status)
-               _VERIFY(status)
-            endif
-            ! now dataRefPtr on each node has all the data
-            call this%containing_server%add_DataReference(dataRefPtr)
-            nullify(dataRefPtr)
-         endif
-         
-         do while (data_status == PENDING )
-            !$omp taskyield
-            data_status = this%containing_server%get_status()
-         enddo
-
-         mem_data_reference = LocalMemReference(q%type_kind,q%count)
-
-         offset = this%containing_server%prefetch_offset%at(i_to_string(q%request_id))
-
-         !W.J node: these three lines are necessar for read_and_gather call
-         if ( .not. multi_data_read) then
-            call this%containing_server%distribute_task(q%request_id,node_rank,innode_rank)
-            g_offset = this%containing_server%prefetch_offset%at(i_to_string(-node_rank))
-            offset = offset+g_offset
-         endif
-
-         msize_word  = this%containing_server%prefetch_offset%at(i_to_string(MSIZE_ID))
-
-         dataRefPtr => this%containing_server%get_dataReference()
-         call c_f_pointer(dataRefPtr%base_address,i_ptr,shape=[msize_word])
-
-         offset_address = c_loc(i_ptr(offset+1))
-
-         call mem_data_reference%fetch_data(offset_address,q%global_count,q%start-q%global_start+1)
-
-         call this%insert_RequestHandle(q%request_id, &
-              & connection%put(q%request_id, mem_data_reference))
-
-         call this%request_backlog%erase(iter)
-
+         _RETURN(_SUCCESS)  
       type is (StageDataMessage)
-
          _ASSERT(.false., "please use done_stage")
-         handle => this%get_RequestHandle(q%request_id)
-         call handle%wait()
-
-         call this%put_DataToFile(q,handle%data_reference%base_address,rc=status)
-         _VERIFY(status)
-
-         call this%request_backlog%erase(iter)
-
+         _RETURN(_SUCCESS)  
       type is (CollectiveStageDataMessage)
          _ASSERT(.false., "please use done_collective_stage")
-         if (.not. all(this%containing_server%serverthread_done_msgs)) then
-            _RETURN(_SUCCESS)
-         endif
-
-         this%there_is_collective_request = .true.
-
-         _ASSERT( associated(this%containing_server), "need server") 
-
-         data_status = this%containing_server%get_and_set_status(cmd,rc=status)
-         _VERIFY(status)
-
-         call this%containing_server%create_remote_win(rc=status)
-         _VERIFY(status)
-
-         call this%containing_server%receive_output_data(rc=status) 
-         _VERIFY(status)
-
-         call this%containing_server%put_dataToFile(rc=status)
-         _VERIFY(status)
-         ! make sure this thread clean up
-         call this%containing_server%set_status(1)
-
-         call this%containing_server%set_collective_request(.false.,.true.)
-
-         call this%containing_server%update_status()
-
-          _RETURN(_SUCCESS)  
+         _RETURN(_SUCCESS)  
       class default
          _ASSERT(.false., "Wrong message type")
       end select
@@ -1060,9 +965,6 @@ contains
       endif
 
       _ASSERT( associated(this%containing_server), "need server") 
-
-      data_status = this%containing_server%get_and_set_status(cmd,rc=status)
-      _VERIFY(status)
 
       call this%containing_server%create_remote_win(rc=status)
       _VERIFY(status)

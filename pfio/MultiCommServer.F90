@@ -61,7 +61,6 @@ module pFIO_MultiCommServerMod
       type(AbstractDataReferenceVector) :: MemdataRefPtrs
    contains
       procedure :: start
-      procedure :: get_and_set_status
       procedure :: get_writing_PE
       procedure :: get_communicator
       procedure :: receive_output_data
@@ -175,7 +174,7 @@ contains
 
          do while (.true.)
 
-            status = this%get_and_set_status(cmd)
+            call MPI_Bcast(cmd, 1, MPI_INTEGER, 0, this%server_comm, ierr)
             if (cmd == -1) exit
             call this%create_remote_win(rc=status) 
             call this%receive_output_data()
@@ -252,7 +251,12 @@ contains
       character(len=*),parameter :: Iam = 'create_remote_win'
       type (ServerThread),pointer :: thread_ptr
       integer :: bsize, ierr
+      integer :: cmd = 1
       integer, allocatable :: buffer(:)
+
+      if (this%front_comm /= MPI_COMM_NULL) then
+         call MPI_Bcast(cmd, 1, MPI_INTEGER, 0, this%server_comm, ierr)
+      endif
 
       this%stage_offset = StringInteger64map()
 
@@ -264,7 +268,7 @@ contains
          call MPI_send(bsize,  1,     MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
          call MPI_send(buffer, bsize, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
 
-         call serialize_historycollection_vector(thread_ptr%hist_collections, buffer)
+         call HistoryCollectionVector_serialize(thread_ptr%hist_collections, buffer)
          bsize = size(buffer)
          call MPI_send(bsize,  1,     MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
          call MPI_send(buffer, bsize, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_Comm, ierr)
@@ -299,7 +303,7 @@ contains
          call MPI_Bcast(bsize, 1, MPI_INTEGER, 0, this%back_comm, ierr)
          if (.not. allocated(buffer)) allocate(buffer(bsize))
          call MPI_Bcast(buffer, bsize, MPI_INTEGER, 0, this%back_comm, ierr)
-         call deserialize_historycollection_vector(buffer, thread_ptr%hist_collections)
+         call HistoryCollectionVector_deserialize(buffer, thread_ptr%hist_collections)
          deallocate (buffer)
       endif
 
@@ -427,7 +431,6 @@ contains
       type(c_ptr) :: offset_address
       integer :: collection_counter
       class (AbstractDataReference), pointer :: dataRefPtr
-      type (LocalMemReference), pointer :: memdataPtr=>null()
       integer(kind=MPI_ADDRESS_KIND) :: offset
       integer :: w_rank, l_rank, ierr
       type(StringInteger64MapIterator) :: iter
@@ -513,24 +516,6 @@ contains
       communicator = this%front_comm
 
    end function get_communicator
-
-   function get_and_set_status(this, cmd, rc) result(status)
-      class(MultiCommServer),intent(inout) :: this
-      integer, intent(inout) :: cmd
-      integer, optional, intent(out) :: rc
-      integer :: status, ierr
-
-      !$omp critical (counter_status)
-      status = this%status
-      if( this%status == UNALLOCATED) then
-         this%status = PENDING
-      endif
-      !$omp flush (this)
-      !$omp end critical (counter_status)
-      cmd = 1
-      call MPI_Bcast(cmd, 1, MPI_INTEGER, 0, this%server_comm, ierr)
-      _RETURN(_SUCCESS)
-   end function get_and_set_status
 
   subroutine receive_output_data(this, rc)
      class (MultiCommServer),target, intent(inout) :: this

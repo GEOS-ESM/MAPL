@@ -271,7 +271,7 @@ contains
       if (this%I_am_front_root) then
          call serialize_message_vector(thread_ptr%request_backlog, bufferm)
          msg_size  = size(bufferm)
-         call serialize_historycollection_vector(thread_ptr%hist_collections, bufferh)
+         call HistoryCollectionVector_serialize(thread_ptr%hist_collections, bufferh)
          hist_size = size(bufferh)
 
          do collection_counter = 1, collection_total
@@ -528,7 +528,7 @@ contains
            call deserialize_message_vector(bufferm, threadPtr%request_backlog)
            deallocate (bufferm)
 
-           call deserialize_historycollection_vector(bufferh, threadPtr%hist_collections)
+           call HistoryCollectionVector_deserialize(bufferh, threadPtr%hist_collections)
            deallocate (bufferh)
          
            !(2) loop to get the total size and offset of each collection and request
