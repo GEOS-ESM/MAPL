@@ -593,7 +593,7 @@ contains
       type (UnlimitedEntity),intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
- 
+      this = UnlimitedEntity() 
       call deserialize(this, buffer, rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)

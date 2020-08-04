@@ -566,7 +566,6 @@ contains
       integer :: status
 
       fmd = FileMetaData()
-
       call deserialize(fmd, buffer, rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)

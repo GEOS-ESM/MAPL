@@ -170,6 +170,7 @@ contains
      length = size(buffer)
      n=1
      fmd = FileMetadata()
+     histVec = HistoryCollectionVector()
      do while (n < length)
        hist = HistoryCollection(fmd)
        call FileMetadata_deserialize(buffer(n:), hist%fmd)
