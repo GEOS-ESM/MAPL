@@ -62,13 +62,13 @@ contains
       integer, optional, intent(out) :: rc
       integer :: i
       if (present(no)) then
-         _ASSERT(size(no)==o_clients%size(),"mismatch in sizes")
+         _ASSERT(size(no)==o_clients%size(),"mismatch in osizes")
          do i=1,size(no)
             call this%o_clients_size%push_back(no(i))
          enddo
       end if 
       if (present(ni)) then
-         _ASSERT(size(ni)==i_Clients%size(),"mismatch in sizes")
+         _ASSERT(size(ni)==i_Clients%size(),"mismatch in isizes")
          do i=1,size(ni)
             call this%i_Clients_size%push_back(ni(i))
          enddo
