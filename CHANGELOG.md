@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Moved more code to use pFlogger
+- Update to ESMA_cmake v3.1.2
 
 ### Fixed
 
