@@ -688,5 +688,6 @@ program main
       call execute_command_line('/bin/rm -f test_in.nc4')
    endif
    call MPI_finalize(ierror)
-   call exit(exit_code)
+   if ( exit_code == 0) stop 0
+   if ( exit_code == 1) stop 1
 end program main
