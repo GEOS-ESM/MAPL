@@ -15,7 +15,6 @@ module NUOPC_MAPLcapClass
     public abs_set_services
 
     type :: NUOPC_MAPLcap
-        type(ESMF_GridComp), pointer                 :: gc
         character(len=:), allocatable                :: name
         character(len=:), allocatable                :: rc_file
         procedure(abs_set_services), nopass, pointer :: set_services
@@ -63,8 +62,9 @@ module NUOPC_MAPLcapClass
 #include "mpif.h"
 
 contains
-    subroutine init_MAPL_cap(this, rc)
+    subroutine init_MAPL_cap(this, model, rc)
         class(NUOPC_MAPLcap), intent(inout) :: this
+        type(ESMF_GridComp)                 :: model
         integer, optional,    intent(  out) :: rc
 
         type(ESMF_VM)           :: vm
@@ -74,7 +74,7 @@ contains
         integer                 :: status, mpi_comm, dup_comm, sub_comm
 
         ! Read ESMF VM information
-        call ESMF_GridCompGet(this%gc, vm=vm, __RC__)
+        call ESMF_GridCompGet(model, vm=vm, __RC__)
         call ESMF_VMGet(vm, mpiCommunicator=mpi_comm, __RC__)
         call MPI_Comm_dup(mpi_comm, dup_comm, status)
         _VERIFY(status)
@@ -142,7 +142,7 @@ contains
                 acceptStringList=["IPDv05p"], rc=rc)
         VERIFY_NUOPC_(rc)
 
-        call this%init_MAPL_cap(__RC__)
+        call this%init_MAPL_cap(model, __RC__)
         call this%init_MAPL_comm(__RC__)
         call this%init_MAPL(__RC__)
     end subroutine init_p0
@@ -332,13 +332,14 @@ contains
         VERIFY_NUOPC_(rc)
     end subroutine realize_to_export_state
 
-    subroutine data_init(this, rc)
+    subroutine data_init(this, model, rc)
         class(NUOPC_MAPLcap), intent(inout) :: this
+        type(ESMF_GridComp)                 :: model
         integer,              intent(  out) :: rc
 
         rc = ESMF_SUCCESS
 
-        call NUOPC_CompAttributeSet(this%gc, &
+        call NUOPC_CompAttributeSet(model, &
                 name="InitializeDataComplete", value="true", rc=rc)
         VERIFY_NUOPC_(rc)
     end subroutine data_init
@@ -361,8 +362,9 @@ contains
 
     end subroutine check_import
 
-    subroutine set_clock(this, rc)
+    subroutine set_clock(this, model, rc)
         class(NUOPC_MAPLcap), intent(inout) :: this
+        type(ESMF_GridComp)                 :: model
         integer,              intent(  out) :: rc
 
         type(ESMF_TimeInterval) :: time_step
@@ -377,7 +379,7 @@ contains
         VERIFY_NUOPC_(rc)
 
         ! set clock with time interval
-        call NUOPC_ModelGet(this%gc, modelClock=model_clock, rc=rc)
+        call NUOPC_ModelGet(model, modelClock=model_clock, rc=rc)
         VERIFY_NUOPC_(rc)
         call ESMF_ClockSet(model_clock, timeStep=time_step, rc=rc)
         VERIFY_NUOPC_(rc)

@@ -245,7 +245,7 @@ contains
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
-        call cap%data_init(rc)
+        call cap%data_init(model, rc)
         VERIFY_NUOPC_(rc)
     end subroutine initialize_data
 
@@ -290,7 +290,7 @@ contains
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
-        call cap%set_clock(rc)
+        call cap%set_clock(model, rc)
         VERIFY_NUOPC_(rc)
     end subroutine set_clock
 
@@ -321,7 +321,7 @@ contains
         rc = ESMF_SUCCESS
 
         allocate(wrapper%ptr)
-        wrapper%ptr = NUOPC_MAPLcap(gc, name, rc_file, root_set_services)
+        wrapper%ptr = NUOPC_MAPLcap(name, rc_file, root_set_services)
 
         call ESMF_UserCompSetInternalState(gc, internal_name, wrapper, rc)
         VERIFY_NUOPC_(rc)
