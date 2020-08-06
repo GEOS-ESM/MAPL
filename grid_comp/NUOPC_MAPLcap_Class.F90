@@ -73,6 +73,8 @@ contains
         logical, save           :: first = .true.
         integer                 :: status, mpi_comm, dup_comm, sub_comm
 
+        print*, "NUOPC_MAPLcapClass start init_MAPL_cap"
+
         ! Read ESMF VM information
         call ESMF_GridCompGet(model, vm=vm, __RC__)
         call ESMF_VMGet(vm, mpiCommunicator=mpi_comm, __RC__)
@@ -91,6 +93,8 @@ contains
         cap = MAPL_Cap(this%name, this%set_services, cap_options=cap_options, __RC__)
         this%cap => cap
 
+        print*, "NUOPC_MAPLcapClass finish init_MAPL_cap"
+
         _RETURN(_SUCCESS)
     end subroutine init_MAPL_cap
 
@@ -101,6 +105,8 @@ contains
         logical, save :: first = .true.
         integer       :: status, sub_comm
 
+        print*, "NUOPC_MAPLcapClass start init_MAPL_comm"
+
         call this%cap%initialize_mpi(__RC__)
         if (first) then
             sub_comm = this%cap%create_member_subcommunicator(this%cap%get_comm_world(),__RC__)
@@ -108,6 +114,8 @@ contains
             first = .false.
         end if
         call this%cap%nuopc_fill_mapl_comm(__RC__)
+
+        print*, "NUOPC_MAPLcapClass finish init_MAPL_comm"
 
         _RETURN(_SUCCESS)
     end subroutine init_MAPL_comm
@@ -118,10 +126,14 @@ contains
 
         integer :: status
 
+        print*, "NUOPC_MAPLcapClass start init_MAPL"
+
         ! Initialize MAPL
         call this%cap%initialize_cap_gc(this%cap%get_mapl_comm())
         call this%cap%cap_gc%set_services(__RC__)
         call this%cap%cap_gc%initialize(__RC__)
+
+        print*, "NUOPC_MAPLcapClass finish init_MAPL"
 
         _RETURN(_SUCCESS)
     end subroutine init_MAPL
@@ -138,6 +150,8 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcapClass start init_p0"
+
         call NUOPC_CompFilterPhaseMap(model, ESMF_METHOD_INITIALIZE, &
                 acceptStringList=["IPDv05p"], rc=rc)
         VERIFY_NUOPC_(rc)
@@ -145,6 +159,8 @@ contains
         call this%init_MAPL_cap(model, __RC__)
         call this%init_MAPL_comm(__RC__)
         call this%init_MAPL(__RC__)
+
+        print*, "NUOPC_MAPLcapClass finish init_p0"
     end subroutine init_p0
 
     subroutine init_p1(this, import_state, export_state, clock, rc)
@@ -156,8 +172,12 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcapClass start init_p1"
+
         call this%advertise_fields(import_state, export_state, rc=rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcapClass finish init_p1"
     end subroutine init_p1
 
     subroutine init_p2(this, import_state, export_state, clock, rc)
@@ -168,6 +188,8 @@ contains
         integer,              intent(  out) :: rc
 
         rc = ESMF_SUCCESS
+
+        print*, "NUOPC_MAPLcapClass init_p2"
     end subroutine init_p2
 
     subroutine init_p3(this, import_state, export_state, clock, rc)
@@ -178,6 +200,8 @@ contains
         integer,              intent(  out) :: rc
 
         rc = ESMF_SUCCESS
+
+        print*, "NUOPC_MAPLcapClass init_p3"
     end subroutine init_p3
 
     subroutine init_p4(this, import_state, export_state, clock, rc)
@@ -189,8 +213,12 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcapClass start init_p4"
+
         call this%realize_fields(import_state, export_state, rc=rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcapClass finish init_p4"
     end subroutine init_p4
 
     subroutine init_p5(this, import_state, export_state, clock, rc)
@@ -201,6 +229,8 @@ contains
         integer,              intent(  out) :: rc
 
         rc = ESMF_SUCCESS
+
+        print*, "NUOPC_MAPLcapClass init_p5"
     end subroutine init_p5
 
     subroutine init_p6(this, import_state, export_state, clock, rc)
@@ -211,6 +241,8 @@ contains
         integer,              intent(  out) :: rc
 
         rc = ESMF_SUCCESS
+
+        print*, "NUOPC_MAPLcapClass init_p6"
     end subroutine init_p6
 
     subroutine init_p7(this, import_state, export_state, clock, rc)
@@ -221,6 +253,8 @@ contains
         integer,              intent(  out) :: rc
 
         rc = ESMF_SUCCESS
+
+        print*, "NUOPC_MAPLcapClass init_p7"
     end subroutine init_p7
 
     subroutine advertise_fields(this, import_state, export_state, rc)
@@ -234,6 +268,8 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcapClass start advertise_fields"
+
         import_attributes = field_attributes_from_state(this%cap%cap_gc%import_state, rc)
         VERIFY_NUOPC_(rc)
         export_attributes = field_attributes_from_state(this%cap%cap_gc%export_state, rc)
@@ -243,6 +279,8 @@ contains
         VERIFY_NUOPC_(rc)
         call advertise(export_state, export_attributes, rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcapClass finish advertise_fields"
     contains
         subroutine advertise(state, fields, rc)
             type(ESMF_State),      intent(inout) :: state
@@ -267,6 +305,8 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcapClass start advertise_to_state"
+
         if (.not. NUOPC_FieldDictionaryHasEntry(this%name)) then
             call NUOPC_FieldDictionaryAddEntry(standardName=trim(this%name), &
                     canonicalUnits=trim(this%units), rc=rc)
@@ -276,6 +316,8 @@ contains
         call NUOPC_Advertise(state, standardName=trim(this%name), &
                 TransferOfferGeomObject="will provide", rc=rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcapClass finish advertise_to_state"
     end subroutine advertise_to_state
 
     subroutine realize_fields(this, import_state, export_state, rc)
@@ -289,6 +331,8 @@ contains
         integer                            :: i
 
         rc = ESMF_SUCCESS
+
+        print*, "NUOPC_MAPLcapClass start realize_fields"
 
         import_attributes = field_attributes_from_state(this%cap%cap_gc%import_state, rc)
         VERIFY_NUOPC_(rc)
@@ -304,6 +348,8 @@ contains
             call export_attributes(i)%realize_to_export_state(export_state, rc)
             VERIFY_NUOPC_(rc)
         end do
+
+        print*, "NUOPC_MAPLcapClass finish realize_fields"
     end subroutine realize_fields
 
     subroutine realize_to_import_state(this, state, rc)
@@ -313,10 +359,14 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcapClass start realize_to_import_state"
+
         call ESMF_FieldValidate(this%field, rc=rc)
         VERIFY_NUOPC_(rc)
         call NUOPC_Realize(state, field=this%field, rc=rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcapClass finish realize_to_import_state"
     end subroutine realize_to_import_state
 
     subroutine realize_to_export_state(this, state, rc)
@@ -326,10 +376,14 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcapClass start realize_to_export_state"
+
         call MAPL_AllocateCoupling(this%field, rc=rc)
         VERIFY_NUOPC_(rc)
         call NUOPC_Realize(state, field=this%field, rc=rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcapClass finish realize_to_export_state"
     end subroutine realize_to_export_state
 
     subroutine data_init(this, model, rc)
@@ -339,9 +393,13 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcapClass start data_init"
+
         call NUOPC_CompAttributeSet(model, &
                 name="InitializeDataComplete", value="true", rc=rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcapClass finish data_init"
     end subroutine data_init
 
     subroutine advance(this, rc)
@@ -350,8 +408,12 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcapClass start advance"
+
         call this%cap%step_model(rc=rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcapClass finish advance"
     end subroutine advance
 
     subroutine check_import(this, rc)
@@ -360,6 +422,7 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcapClass check_import"
     end subroutine check_import
 
     subroutine set_clock(this, model, rc)
@@ -373,6 +436,8 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcapClass start set_clock"
+
         ! set time interval
         heartbeat_dt = this%cap%cap_gc%get_heartbeat_dt()
         call ESMF_TimeIntervalSet(time_step, s=heartbeat_dt, rc=rc)
@@ -383,6 +448,8 @@ contains
         VERIFY_NUOPC_(rc)
         call ESMF_ClockSet(model_clock, timeStep=time_step, rc=rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcapClass finish set_clock"
     end subroutine set_clock
 
     subroutine finalize(this, rc)
@@ -392,6 +459,8 @@ contains
         class(BaseProfiler), pointer :: t_p
 
         rc = ESMF_SUCCESS
+
+        print*, "NUOPC_MAPLcapClass start finialize"
 
         call this%cap%cap_gc%finalize(rc=rc)
         VERIFY_NUOPC_(rc)
@@ -404,6 +473,8 @@ contains
 
         t_p => get_global_time_profiler()
         call t_p%stop()
+
+        print*, "NUOPC_MAPLcapClass finish finialize"
     end subroutine finalize
 
     function field_attributes_from_state(state, rc) result(attributes)
@@ -417,6 +488,8 @@ contains
         integer                                 :: i, item_count
 
         rc = ESMF_SUCCESS
+
+        print*, "NUOPC_MAPLcapClass start field_attributes_from_state"
 
         ! Allocate lists and get item_names
         call ESMF_StateGet(state, itemCount=item_count, rc=rc)
@@ -449,5 +522,7 @@ contains
             ! Create Field Attributes
             attributes(i) = FieldAttributes(field, name, long_name, units)
         end do
+
+        print*, "NUOPC_MAPLcapClass finish field_attributes_from_state"
     end function field_attributes_from_state
 end module NUOPC_MAPLcapClass

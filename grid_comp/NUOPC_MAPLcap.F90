@@ -35,6 +35,8 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start SetServices"
+
         ! the NUOPC model component will register the generic methods
         call NUOPC_CompDerive(model, model_SetServices, rc=rc)
         VERIFY_NUOPC_(rc)
@@ -84,6 +86,8 @@ contains
         call NUOPC_CompSpecialize(model, specLabel=model_Finalize, &
                 specRoutine=finalize, rc=rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish SetServices"
     end subroutine SetServices
 
     subroutine initialize_p0(model, import_state, export_state, clock, rc)
@@ -97,6 +101,8 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start initialize_p0"
+
         call NUOPC_CompFilterPhaseMap(model, ESMF_METHOD_INITIALIZE, &
                 acceptStringList=["IPDv05p"], rc=rc)
         VERIFY_NUOPC_(rc)
@@ -106,6 +112,8 @@ contains
 
         call cap%init_p0(model, import_state, export_state, clock, rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish initialize_p0"
     end subroutine initialize_p0
 
     subroutine initialize_p1(model, import_state, export_state, clock, rc)
@@ -119,11 +127,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start initialize_p1"
+
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%init_p1(import_state, export_state, clock, rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish initialize_p1"
     end subroutine initialize_p1
 
     subroutine initialize_p2(model, import_state, export_state, clock, rc)
@@ -137,11 +149,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start initialize_p2"
+
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%init_p2(import_state, export_state, clock, rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish initialize_p2"
     end subroutine initialize_p2
 
     subroutine initialize_p3(model, import_state, export_state, clock, rc)
@@ -155,11 +171,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start initialize_p3"
+
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%init_p3(import_state, export_state, clock, rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish initialize_p3"
     end subroutine initialize_p3
 
     subroutine initialize_p4(model, import_state, export_state, clock, rc)
@@ -173,11 +193,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start initialize_p4"
+
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%init_p4(import_state, export_state, clock, rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish initialize_p4"
     end subroutine initialize_p4
 
     subroutine initialize_p5(model, import_state, export_state, clock, rc)
@@ -191,11 +215,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start initialize_p5"
+
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%init_p5(import_state, export_state, clock, rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish initialize_p5"
     end subroutine initialize_p5
 
     subroutine initialize_p6(model, import_state, export_state, clock, rc)
@@ -209,11 +237,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start initialize_p6"
+
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%init_p6(import_state, export_state, clock, rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish initialize_p6"
     end subroutine initialize_p6
 
     subroutine initialize_p7(model, import_state, export_state, clock, rc)
@@ -227,11 +259,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start initialize_p7"
+
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%init_p7(import_state, export_state, clock, rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish initialize_p7"
     end subroutine initialize_p7
 
     subroutine initialize_data(model, rc)
@@ -242,11 +278,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start initialize_data"
+
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%data_init(model, rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish initialize_data"
     end subroutine initialize_data
 
     subroutine advance(model, rc)
@@ -257,11 +297,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start advance"
+
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%advance(rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish advance"
     end subroutine advance
 
     subroutine check_import(model, rc)
@@ -272,11 +316,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start check_import"
+
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%check_import(rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish check_import"
     end subroutine check_import
 
     subroutine set_clock(model, rc)
@@ -287,11 +335,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start set_clock"
+
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%set_clock(model, rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish set_clock"
     end subroutine set_clock
 
     subroutine finalize(model, rc)
@@ -302,11 +354,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start finialize"
+
         cap = get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%finalize(rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish finialize"
     end subroutine finalize
 
     subroutine init_internal_wrapper(gc, name, rc_file, root_set_services, rc)
@@ -320,11 +376,15 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start init_internal_wrapper"
+
         allocate(wrapper%ptr)
         wrapper%ptr = NUOPC_MAPLcap(name, rc_file, root_set_services)
 
         call ESMF_UserCompSetInternalState(gc, internal_name, wrapper, rc)
         VERIFY_NUOPC_(rc)
+
+        print*, "NUOPC_MAPLcap finish init_internal_wrapper"
     end subroutine init_internal_wrapper
 
     function get_NUOPC_MAPLcap(gc, rc) result(cap)
@@ -336,9 +396,13 @@ contains
 
         rc = ESMF_SUCCESS
 
+        print*, "NUOPC_MAPLcap start get_NUOPC_MAPLcap"
+
         call ESMF_UserCompGetInternalState(gc, internal_name, wrapper, rc)
         VERIFY_NUOPC_(rc)
 
         cap = wrapper%ptr
+
+        print*, "NUOPC_MAPLcap finish get_NUOPC_MAPLcap"
     end function get_NUOPC_MAPLcap
 end module NUOPC_MAPLcapMod
