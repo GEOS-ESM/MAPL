@@ -40,16 +40,16 @@ module NUOPC_MAPLcapClass
         procedure :: finalize
     end type NUOPC_MAPLcap
 
-    type :: Field_Attributes
-        type(ESMF_Field)           :: field
-        character(len=ESMF_MAXSTR) :: name
-        character(len=ESMF_MAXSTR) :: long_name
-        character(len=ESMF_MAXSTR) :: units
+    type :: FieldAttributes
+        type(ESMF_Field)              :: field
+        character(len=:), allocatable :: name
+        character(len=:), allocatable :: long_name
+        character(len=:), allocatable :: units
     contains
         procedure :: advertise_to_state
         procedure :: realize_to_import_state
         procedure :: realize_to_export_state
-    end type Field_Attributes
+    end type FieldAttributes
 
     abstract interface
         subroutine abs_set_services(gc, rc)
@@ -229,8 +229,8 @@ contains
         type(ESMF_State)                    :: export_state
         integer,              intent(  out) :: rc
 
-        type(Field_Attributes), allocatable :: import_attributes(:)
-        type(Field_Attributes), allocatable :: export_attributes(:)
+        type(FieldAttributes), allocatable :: import_attributes(:)
+        type(FieldAttributes), allocatable :: export_attributes(:)
 
         rc = ESMF_SUCCESS
 
@@ -245,9 +245,9 @@ contains
         VERIFY_NUOPC_(rc)
     contains
         subroutine advertise(state, fields, rc)
-            type(ESMF_State),       intent(inout) :: state
-            type(Field_Attributes), intent(inout) :: fields(:)
-            integer,                intent(  out) :: rc
+            type(ESMF_State),      intent(inout) :: state
+            type(FieldAttributes), intent(inout) :: fields(:)
+            integer,               intent(  out) :: rc
 
             integer :: i
 
@@ -261,9 +261,9 @@ contains
     end subroutine advertise_fields
 
     subroutine advertise_to_state(this, state, rc)
-        class(Field_Attributes), intent(inout) :: this
-        type(ESMF_State),        intent(inout) :: state
-        integer,                 intent(  out) :: rc
+        class(FieldAttributes), intent(inout) :: this
+        type(ESMF_State),       intent(inout) :: state
+        integer,                intent(  out) :: rc
 
         rc = ESMF_SUCCESS
 
@@ -284,9 +284,9 @@ contains
         type(ESMF_State)                    :: export_state
         integer,              intent(  out) :: rc
 
-        type(Field_Attributes), allocatable :: import_attributes(:)
-        type(Field_Attributes), allocatable :: export_attributes(:)
-        integer                             :: i
+        type(FieldAttributes), allocatable :: import_attributes(:)
+        type(FieldAttributes), allocatable :: export_attributes(:)
+        integer                            :: i
 
         rc = ESMF_SUCCESS
 
@@ -307,9 +307,9 @@ contains
     end subroutine realize_fields
 
     subroutine realize_to_import_state(this, state, rc)
-        class(Field_Attributes), intent(inout) :: this
-        type(ESMF_State),        intent(inout) :: state
-        integer,                 intent(  out) :: rc
+        class(FieldAttributes), intent(inout) :: this
+        type(ESMF_State),       intent(inout) :: state
+        integer,                intent(  out) :: rc
 
         rc = ESMF_SUCCESS
 
@@ -320,9 +320,9 @@ contains
     end subroutine realize_to_import_state
 
     subroutine realize_to_export_state(this, state, rc)
-        class(Field_Attributes), intent(inout) :: this
-        type(ESMF_State),        intent(inout) :: state
-        integer,                 intent(  out) :: rc
+        class(FieldAttributes), intent(inout) :: this
+        type(ESMF_State),       intent(inout) :: state
+        integer,                intent(  out) :: rc
 
         rc = ESMF_SUCCESS
 
@@ -407,9 +407,9 @@ contains
     end subroutine finalize
 
     function field_attributes_from_state(state, rc) result(attributes)
-        type(ESMF_State),     intent(inout) :: state
-        integer,              intent(  out) :: rc
-        type(Field_Attributes), allocatable :: attributes(:)
+        type(ESMF_State),    intent(inout) :: state
+        integer,             intent(  out) :: rc
+        type(FieldAttributes), allocatable :: attributes(:)
 
         type(ESMF_Field)                        :: field
         character(len=ESMF_MAXSTR), allocatable :: item_names(:)
@@ -447,7 +447,7 @@ contains
             if (units == "" .or. units == " ") units = "1"
 
             ! Create Field Attributes
-            attributes(i) = Field_Attributes(field, name, long_name, units)
+            attributes(i) = FieldAttributes(field, name, long_name, units)
         end do
     end function field_attributes_from_state
 end module NUOPC_MAPLcapClass
