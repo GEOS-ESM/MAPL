@@ -76,12 +76,14 @@ contains
         print*, "NUOPC_MAPLcapClass start init_MAPL_cap"
 
         ! Read ESMF VM information
+        print*, "NUOPC_MAPLcapClass get VM/comm info"
         call ESMF_GridCompGet(model, vm=vm, __RC__)
         call ESMF_VMGet(vm, mpiCommunicator=mpi_comm, __RC__)
         call MPI_Comm_dup(mpi_comm, dup_comm, status)
         _VERIFY(status)
 
         ! Setup MAPL_CapOptions
+        print*, "NUOPC_MAPLcapClass set cap_options"
         cap_options                = MAPL_CapOptions(cap_rc_file=this%rc_file, __RC__)
         cap_options%use_comm_world = .false.
         cap_options%comm           = dup_comm
@@ -90,7 +92,9 @@ contains
         _VERIFY(status)
 
         ! Create MAPL Cap
+        print*, "NUOPC_MAPLcapClass create cap"
         cap = MAPL_Cap(this%name, this%set_services, cap_options=cap_options, __RC__)
+        print*, "NUOPC_MAPLcapClass assign cap"
         this%cap => cap
 
         print*, "NUOPC_MAPLcapClass finish init_MAPL_cap"
