@@ -107,12 +107,16 @@ contains
 
         print*, "NUOPC_MAPLcapClass start init_MAPL_comm"
 
+        print*, "NUOPC_MAPLcapClass cap initialize MPI"
         call this%cap%initialize_mpi(__RC__)
         if (first) then
+            print*, "NUOPC_MAPLcapClass create sub_comm"
             sub_comm = this%cap%create_member_subcommunicator(this%cap%get_comm_world(),__RC__)
+            print*, "NUOPC_MAPLcapClass initialize io_clients_servers"
             call this%cap%initialize_io_clients_servers(sub_comm, __RC__)
             first = .false.
         end if
+        print*, "NUOPC_MAPLcapClass nuopc_fill_mapl_comm"
         call this%cap%nuopc_fill_mapl_comm(__RC__)
 
         print*, "NUOPC_MAPLcapClass finish init_MAPL_comm"
