@@ -69,7 +69,7 @@ contains
 
         type(ESMF_VM)           :: vm
         type(MAPL_CapOptions)   :: cap_options
-        type(MAPL_Cap), target  :: cap
+        type(MAPL_Cap), pointer :: cap
         logical, save           :: first = .true.
         integer                 :: status, mpi_comm, dup_comm, sub_comm
 
@@ -93,6 +93,7 @@ contains
 
         ! Create MAPL Cap
         print*, "NUOPC_MAPLcapClass create cap"
+        allocate(cap)
         cap = MAPL_Cap(this%name, this%set_services, cap_options=cap_options, __RC__)
         print*, "NUOPC_MAPLcapClass assign cap"
         this%cap => cap
