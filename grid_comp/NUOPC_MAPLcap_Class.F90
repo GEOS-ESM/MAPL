@@ -6,6 +6,7 @@ module NUOPC_MAPLcapClass
     use NUOPC
     use NUOPC_Model
     use MAPL_Mod
+    use MAPL_CapGridCompMod
     use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler
 
     implicit none
@@ -272,6 +273,9 @@ contains
         type(ESMF_State)                    :: export_state
         integer,              intent(  out) :: rc
 
+        type(MAPL_Cap)   :: cap
+        type(MAPL_CapGridComp) :: cap_gc
+        type(ESMF_State) :: mapl_import_state
         type(FieldAttributes), allocatable :: import_attributes(:)
         type(FieldAttributes), allocatable :: export_attributes(:)
 
@@ -279,7 +283,17 @@ contains
 
         print*, "NUOPC_MAPLcapClass start advertise_fields"
 
-        import_attributes = field_attributes_from_state(this%cap%cap_gc%import_state, rc)
+        print*, "NUOPC_MAPLcapClass get the mapl_cap"
+        cap = this%cap
+
+        print*, "NUOPC_MAPLcapClass get the mapl_cap_gc"
+        cap_gc = this%cap%cap_gc
+
+        print*, "NUOPC_MAPLcapClass get import state"
+        mapl_import_state = cap_gc%import_state
+
+        print*, "NUOPC_MAPLcapClass get import attributes"
+        import_attributes = field_attributes_from_state(mapl_import_state, rc)
         VERIFY_NUOPC_(rc)
         export_attributes = field_attributes_from_state(this%cap%cap_gc%export_state, rc)
         VERIFY_NUOPC_(rc)
@@ -486,10 +500,10 @@ contains
         print*, "NUOPC_MAPLcapClass finish finialize"
     end subroutine finalize
 
-    function field_attributes_from_state(state, rc) result(attributes)
+    function field_attributes_from_state(state, rc) result(field_attributes)
         type(ESMF_State),    intent(inout) :: state
         integer,             intent(  out) :: rc
-        type(FieldAttributes), allocatable :: attributes(:)
+        type(FieldAttributes), allocatable :: field_attributes(:)
 
         type(ESMF_Field)                        :: field
         character(len=ESMF_MAXSTR), allocatable :: item_names(:)
@@ -501,35 +515,44 @@ contains
         print*, "NUOPC_MAPLcapClass start field_attributes_from_state"
 
         ! Allocate lists and get item_names
+        print*, "NUOPC_MAPLcapClass read item_count from state"
         call ESMF_StateGet(state, itemCount=item_count, rc=rc)
         VERIFY_NUOPC_(rc)
         allocate(item_names(item_count))
-        allocate(attributes(item_count))
+        allocate(field_attributes(item_count))
+        print*, "NUOPC_MAPLcapClass read item_names from state"
         call ESMF_StateGet(state, itemNameList=item_names, rc=rc)
         VERIFY_NUOPC_(rc)
 
+        print*, "NUOPC_MAPLcapClass start loop over item_names"
         do i=1, item_count
             ! Get a field from the state
+            print*, "NUOPC_MAPLcapClass get field for item_name:", i, item_names(i)
             call ESMF_StateGet(state, item_names(i), field, rc=rc)
             VERIFY_NUOPC_(rc)
+            print*, "NUOPC_MAPLcapClass validate get the field"
             call ESMF_FieldValidate(field, rc=rc)
             VERIFY_NUOPC_(rc)
 
             ! Get the name of the field
+            print*, "NUOPC_MAPLcapClass read name from field"
             call ESMF_FieldGet(field, name=name, rc=rc)
             VERIFY_NUOPC_(rc)
 
             ! Get the LONG_NAME of the field
+            print*, "NUOPC_MAPLcapClass read LONG_NAME from field"
             call ESMF_AttributeGet(field, name="LONG_NAME", value=long_name, rc=rc)
             VERIFY_NUOPC_(rc)
 
             ! Get the UNITS of the field
+            print*, "NUOPC_MAPLcapClass read units from field"
             call ESMF_AttributeGet(field, name="UNITS", value=units, rc=rc)
             VERIFY_NUOPC_(rc)
             if (units == "" .or. units == " ") units = "1"
 
             ! Create Field Attributes
-            attributes(i) = FieldAttributes(field, name, long_name, units)
+            print*, "NUOPC_MAPLcapClass create field attributes for field"
+            field_attributes(i) = FieldAttributes(field, name, long_name, units)
         end do
 
         print*, "NUOPC_MAPLcapClass finish field_attributes_from_state"

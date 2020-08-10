@@ -372,6 +372,7 @@ contains
         procedure(abs_set_services)                :: root_set_services
         integer,                     intent(  out) :: rc
 
+        type(MAPL_Cap), pointer      :: cap
         type(NUOPC_MAPLcap_wrapper)  :: wrapper
 
         rc = ESMF_SUCCESS
@@ -380,6 +381,9 @@ contains
 
         allocate(wrapper%ptr)
         wrapper%ptr = NUOPC_MAPLcap(name, rc_file, root_set_services)
+        ! wrapper%ptr%name         = name
+        ! wrapper%ptr%rc_file      = rc_file
+        ! wrapper%ptr%set_services = root_set_services
 
         call ESMF_UserCompSetInternalState(gc, internal_name, wrapper, rc)
         VERIFY_NUOPC_(rc)
