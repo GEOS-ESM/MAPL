@@ -97,7 +97,7 @@ contains
         type(ESMF_Clock)     :: clock
         integer, intent(out) :: rc
 
-        type(NUOPC_MAPLcap) :: cap
+        type(NUOPC_MAPLcap), pointer :: cap
 
         rc = ESMF_SUCCESS
 
@@ -107,7 +107,7 @@ contains
                 acceptStringList=["IPDv05p"], rc=rc)
         VERIFY_NUOPC_(rc)
 
-        cap = get_NUOPC_MAPLcap(model, rc)
+        cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%init_p0(model, import_state, export_state, clock, rc)
@@ -123,13 +123,13 @@ contains
         type(ESMF_Clock)     :: clock
         integer, intent(out) :: rc
 
-        type(NUOPC_MAPLcap) :: cap
+        type(NUOPC_MAPLcap), pointer :: cap
 
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start initialize_p1"
 
-        cap = get_NUOPC_MAPLcap(model, rc)
+        cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%init_p1(import_state, export_state, clock, rc)
@@ -394,7 +394,7 @@ contains
     function get_NUOPC_MAPLcap(gc, rc) result(cap)
         type(ESMF_GridComp), intent(inout) :: gc
         integer,             intent(  out) :: rc
-        type(NUOPC_MAPLcap)                :: cap
+        type(NUOPC_MAPLcap), pointer       :: cap
 
         type(NUOPC_MAPLcap_wrapper) :: wrapper
 
@@ -405,7 +405,7 @@ contains
         call ESMF_UserCompGetInternalState(gc, internal_name, wrapper, rc)
         VERIFY_NUOPC_(rc)
 
-        cap = wrapper%ptr
+        cap => wrapper%ptr
 
         print*, "NUOPC_MAPLcap finish get_NUOPC_MAPLcap"
     end function get_NUOPC_MAPLcap
