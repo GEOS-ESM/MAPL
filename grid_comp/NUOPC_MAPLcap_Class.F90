@@ -9,6 +9,8 @@ module NUOPC_MAPLcapClass
     use MAPL_CapGridCompMod
     use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler
 
+    use NUOPCmapMod
+
     implicit none
     private
 
@@ -20,10 +22,13 @@ module NUOPC_MAPLcapClass
         character(len=:), allocatable                :: rc_file
         procedure(abs_set_services), nopass, pointer :: set_services
         type(MAPL_Cap), pointer                      :: cap => null()
+        type(NUOPCmap), pointer                      :: phase_map => null()
     contains
         procedure :: init_MAPL_cap
+        procedure :: create_phase_map
         procedure :: init_MAPL_comm
         procedure :: init_MAPL
+        procedure :: generic_init
         procedure :: init_p0
         procedure :: init_p1
         procedure :: init_p2
@@ -104,6 +109,22 @@ contains
         _RETURN(_SUCCESS)
     end subroutine init_MAPL_cap
 
+    subroutine create_phase_map(this, model, rc)
+        class(NUOPC_MAPLcap), intent(inout) :: this
+        type(ESMF_GridComp)                 :: model
+        integer,              intent(  out) :: rc
+
+        type(NUOPCmap), pointer :: phase_map
+
+        rc = ESMF_SUCCESS
+
+        allocate(phase_map)
+        call phase_map%create_phase_map(model, rc)
+        VERIFY_NUOPC_(rc)
+
+        this%phase_map => phase_map
+    end subroutine create_phase_map
+
     subroutine init_MAPL_comm(this, rc)
         class(NUOPC_MAPLcap), intent(inout) :: this
         integer, optional,    intent(  out) :: rc
@@ -170,8 +191,65 @@ contains
         call this%init_MAPL_comm(__RC__)
         call this%init_MAPL(__RC__)
 
+        call this%create_phase_map(model, rc)
+        VERIFY_NUOPC_(rc)
+
         print*, "NUOPC_MAPLcapClass finish init_p0"
     end subroutine init_p0
+
+    subroutine generic_init(this, model, import_state, export_state, clock, rc)
+        class(NUOPC_MAPLcap), intent(inout) :: this
+        type(ESMF_GridComp)                 :: model
+        type(ESMF_State)                    :: import_state
+        type(ESMF_State)                    :: export_state
+        type(ESMF_Clock)                    :: clock
+        integer,              intent(  out) :: rc
+
+        character(len=:), pointer :: phase_label
+        integer                   :: current_phase_index
+
+        rc = ESMF_SUCCESS
+
+        print*, "NUOPC_MAPLcapClass start generic_init"
+
+        call ESMF_GridCompGet(model, currentPhase=current_phase_index, rc=rc)
+        VERIFY_NUOPC_(rc)
+
+        call this%phase_map%get_phase(current_phase_index, phase_label, rc)
+        VERIFY_NUOPC_(rc)
+
+        select case(phase_label)
+        case (phase_label_list(1))
+            call this%init_p1(import_state, export_state, clock, rc)
+            VERIFY_NUOPC_(rc)
+
+        case (phase_label_list(2))
+            call this%init_p2(import_state, export_state, clock, rc)
+            VERIFY_NUOPC_(rc)
+
+        case (phase_label_list(3))
+            call this%init_p3(import_state, export_state, clock, rc)
+            VERIFY_NUOPC_(rc)
+
+        case (phase_label_list(4))
+            call this%init_p4(import_state, export_state, clock, rc)
+            VERIFY_NUOPC_(rc)
+
+        case (phase_label_list(5))
+            call this%init_p5(import_state, export_state, clock, rc)
+            VERIFY_NUOPC_(rc)
+
+        case (phase_label_list(6))
+            call this%init_p6(import_state, export_state, clock, rc)
+            VERIFY_NUOPC_(rc)
+
+        case (phase_label_list(7))
+            call this%init_p7(import_state, export_state, clock, rc)
+            VERIFY_NUOPC_(rc)
+        end select
+
+        print*, "NUOPC_MAPLcapClass finish generic_init"
+    end subroutine generic_init
 
     subroutine init_p1(this, import_state, export_state, clock, rc)
         class(NUOPC_MAPLcap), intent(inout) :: this

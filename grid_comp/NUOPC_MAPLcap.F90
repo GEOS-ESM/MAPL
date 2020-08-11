@@ -12,6 +12,7 @@ module NUOPC_MAPLcapMod
             model_SetClock       => label_SetClock, &
             model_Finalize       => label_finalize
     use NUOPC_MAPLcapClass
+    use NUOPCmapMod
     use MAPL_Mod
 
     implicit none
@@ -47,25 +48,7 @@ contains
 
         ! set entry point for methods that require specific implementation
         call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                phaseLabelList=["IPDv05p1"], userRoutine=initialize_p1, rc=rc)
-        VERIFY_NUOPC_(rc)
-        call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                phaseLabelList=["IPDv05p2"], userRoutine=initialize_p2, rc=rc)
-        VERIFY_NUOPC_(rc)
-        call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                phaseLabelList=["IPDv05p3"], userRoutine=initialize_p3, rc=rc)
-        VERIFY_NUOPC_(rc)
-        call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                phaseLabelList=["IPDv05p4"], userRoutine=initialize_p4, rc=rc)
-        VERIFY_NUOPC_(rc)
-        call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                phaseLabelList=["IPDv05p5"], userRoutine=initialize_p5, rc=rc)
-        VERIFY_NUOPC_(rc)
-        call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                phaseLabelList=["IPDv05p6"], userRoutine=initialize_p6, rc=rc)
-        VERIFY_NUOPC_(rc)
-        call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                phaseLabelList=["IPDv05p7"], userRoutine=initialize_p7, rc=rc)
+                phaseLabelList=phase_label_list, userRoutine=generic_initialize, rc=rc)
         VERIFY_NUOPC_(rc)
 
         ! attach specializing method(s)
@@ -116,7 +99,7 @@ contains
         print*, "NUOPC_MAPLcap finish initialize_p0"
     end subroutine initialize_p0
 
-    subroutine initialize_p1(model, import_state, export_state, clock, rc)
+    subroutine generic_initialize(model, import_state, export_state, clock, rc)
         type(ESMF_GridComp)  :: model
         type(ESMF_State)     :: import_state
         type(ESMF_State)     :: export_state
@@ -127,160 +110,28 @@ contains
 
         rc = ESMF_SUCCESS
 
-        print*, "NUOPC_MAPLcap start initialize_p1"
+        print*, "NUOPC_MAPLcap start generic_initialize"
 
         cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
-        call cap%init_p1(import_state, export_state, clock, rc)
+        call cap%generic_init(model, import_state, export_state, clock, rc)
         VERIFY_NUOPC_(rc)
 
-        print*, "NUOPC_MAPLcap finish initialize_p1"
-    end subroutine initialize_p1
-
-    subroutine initialize_p2(model, import_state, export_state, clock, rc)
-        type(ESMF_GridComp)  :: model
-        type(ESMF_State)     :: import_state
-        type(ESMF_State)     :: export_state
-        type(ESMF_Clock)     :: clock
-        integer, intent(out) :: rc
-
-        type(NUOPC_MAPLcap) :: cap
-
-        rc = ESMF_SUCCESS
-
-        print*, "NUOPC_MAPLcap start initialize_p2"
-
-        cap = get_NUOPC_MAPLcap(model, rc)
-        VERIFY_NUOPC_(rc)
-
-        call cap%init_p2(import_state, export_state, clock, rc)
-        VERIFY_NUOPC_(rc)
-
-        print*, "NUOPC_MAPLcap finish initialize_p2"
-    end subroutine initialize_p2
-
-    subroutine initialize_p3(model, import_state, export_state, clock, rc)
-        type(ESMF_GridComp)  :: model
-        type(ESMF_State)     :: import_state
-        type(ESMF_State)     :: export_state
-        type(ESMF_Clock)     :: clock
-        integer, intent(out) :: rc
-
-        type(NUOPC_MAPLcap) :: cap
-
-        rc = ESMF_SUCCESS
-
-        print*, "NUOPC_MAPLcap start initialize_p3"
-
-        cap = get_NUOPC_MAPLcap(model, rc)
-        VERIFY_NUOPC_(rc)
-
-        call cap%init_p3(import_state, export_state, clock, rc)
-        VERIFY_NUOPC_(rc)
-
-        print*, "NUOPC_MAPLcap finish initialize_p3"
-    end subroutine initialize_p3
-
-    subroutine initialize_p4(model, import_state, export_state, clock, rc)
-        type(ESMF_GridComp)  :: model
-        type(ESMF_State)     :: import_state
-        type(ESMF_State)     :: export_state
-        type(ESMF_Clock)     :: clock
-        integer, intent(out) :: rc
-
-        type(NUOPC_MAPLcap) :: cap
-
-        rc = ESMF_SUCCESS
-
-        print*, "NUOPC_MAPLcap start initialize_p4"
-
-        cap = get_NUOPC_MAPLcap(model, rc)
-        VERIFY_NUOPC_(rc)
-
-        call cap%init_p4(import_state, export_state, clock, rc)
-        VERIFY_NUOPC_(rc)
-
-        print*, "NUOPC_MAPLcap finish initialize_p4"
-    end subroutine initialize_p4
-
-    subroutine initialize_p5(model, import_state, export_state, clock, rc)
-        type(ESMF_GridComp)  :: model
-        type(ESMF_State)     :: import_state
-        type(ESMF_State)     :: export_state
-        type(ESMF_Clock)     :: clock
-        integer, intent(out) :: rc
-
-        type(NUOPC_MAPLcap) :: cap
-
-        rc = ESMF_SUCCESS
-
-        print*, "NUOPC_MAPLcap start initialize_p5"
-
-        cap = get_NUOPC_MAPLcap(model, rc)
-        VERIFY_NUOPC_(rc)
-
-        call cap%init_p5(import_state, export_state, clock, rc)
-        VERIFY_NUOPC_(rc)
-
-        print*, "NUOPC_MAPLcap finish initialize_p5"
-    end subroutine initialize_p5
-
-    subroutine initialize_p6(model, import_state, export_state, clock, rc)
-        type(ESMF_GridComp)  :: model
-        type(ESMF_State)     :: import_state
-        type(ESMF_State)     :: export_state
-        type(ESMF_Clock)     :: clock
-        integer, intent(out) :: rc
-
-        type(NUOPC_MAPLcap) :: cap
-
-        rc = ESMF_SUCCESS
-
-        print*, "NUOPC_MAPLcap start initialize_p6"
-
-        cap = get_NUOPC_MAPLcap(model, rc)
-        VERIFY_NUOPC_(rc)
-
-        call cap%init_p6(import_state, export_state, clock, rc)
-        VERIFY_NUOPC_(rc)
-
-        print*, "NUOPC_MAPLcap finish initialize_p6"
-    end subroutine initialize_p6
-
-    subroutine initialize_p7(model, import_state, export_state, clock, rc)
-        type(ESMF_GridComp)  :: model
-        type(ESMF_State)     :: import_state
-        type(ESMF_State)     :: export_state
-        type(ESMF_Clock)     :: clock
-        integer, intent(out) :: rc
-
-        type(NUOPC_MAPLcap) :: cap
-
-        rc = ESMF_SUCCESS
-
-        print*, "NUOPC_MAPLcap start initialize_p7"
-
-        cap = get_NUOPC_MAPLcap(model, rc)
-        VERIFY_NUOPC_(rc)
-
-        call cap%init_p7(import_state, export_state, clock, rc)
-        VERIFY_NUOPC_(rc)
-
-        print*, "NUOPC_MAPLcap finish initialize_p7"
-    end subroutine initialize_p7
+        print*, "NUOPC_MAPLcap finish generic_initialize"
+    end subroutine generic_initialize
 
     subroutine initialize_data(model, rc)
         type(ESMF_GridComp)  :: model
         integer, intent(out) :: rc
 
-        type(NUOPC_MAPLcap) :: cap
+        type(NUOPC_MAPLcap), pointer :: cap
 
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start initialize_data"
 
-        cap = get_NUOPC_MAPLcap(model, rc)
+        cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%data_init(model, rc)
@@ -293,13 +144,13 @@ contains
         type(ESMF_GridComp)  :: model
         integer, intent(out) :: rc
 
-        type(NUOPC_MAPLcap) :: cap
+        type(NUOPC_MAPLcap), pointer :: cap
 
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start advance"
 
-        cap = get_NUOPC_MAPLcap(model, rc)
+        cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%advance(rc)
@@ -312,13 +163,13 @@ contains
         type(ESMF_GridComp)  :: model
         integer, intent(out) :: rc
 
-        type(NUOPC_MAPLcap) :: cap
+        type(NUOPC_MAPLcap), pointer :: cap
 
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start check_import"
 
-        cap = get_NUOPC_MAPLcap(model, rc)
+        cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%check_import(rc)
@@ -331,13 +182,13 @@ contains
         type(ESMF_GridComp)  :: model
         integer, intent(out) :: rc
 
-        type(NUOPC_MAPLcap) :: cap
+        type(NUOPC_MAPLcap), pointer :: cap
 
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start set_clock"
 
-        cap = get_NUOPC_MAPLcap(model, rc)
+        cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%set_clock(model, rc)
@@ -350,13 +201,13 @@ contains
         type(ESMF_GridComp)  :: model
         integer, intent(out) :: rc
 
-        type(NUOPC_MAPLcap) :: cap
+        type(NUOPC_MAPLcap), pointer :: cap
 
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start finialize"
 
-        cap = get_NUOPC_MAPLcap(model, rc)
+        cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
 
         call cap%finalize(rc)
@@ -381,9 +232,6 @@ contains
 
         allocate(wrapper%ptr)
         wrapper%ptr = NUOPC_MAPLcap(name, rc_file, root_set_services)
-        ! wrapper%ptr%name         = name
-        ! wrapper%ptr%rc_file      = rc_file
-        ! wrapper%ptr%set_services = root_set_services
 
         call ESMF_UserCompSetInternalState(gc, internal_name, wrapper, rc)
         VERIFY_NUOPC_(rc)

@@ -3,6 +3,7 @@ esma_set_this (OVERRIDE MAPL.grid_comp)
 set (srcs
         NUOPC_MAPLcap.F90
         NUOPC_MAPLcap_Class.F90
+        NUOPCmap.F90
 )
 
 esma_add_library(
