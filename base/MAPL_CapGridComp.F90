@@ -64,6 +64,7 @@ module MAPL_CapGridCompMod
      procedure :: get_model_duration
      procedure :: get_am_i_root
      procedure :: get_heartbeat_dt
+      procedure :: set_root_grid
   end type MAPL_CapGridComp
 
   type :: MAPL_CapGridComp_Wrapper
@@ -1724,4 +1725,38 @@ contains
     _RETURN(ESMF_SUCCESS)
   end subroutine ESMFL_ClockSet
 
+    subroutine set_root_grid(this, grid, rc)
+        class(MAPL_CapGridComp), intent(inout) :: this
+        type(ESMF_Grid),         intent(in   ) :: grid
+        integer, optional,       intent(  out) :: rc
+
+        type(ESMF_Grid)           :: current_root_grid
+        type(ESMF_GridMatch_Flag) :: grid_match
+        integer                   :: status
+        logical                   :: has_valid_grid = .false., grid_is_present
+
+        call ESMF_GridCompGet(this%gcs(this%root_id), gridIsPresent=grid_is_present, __RC__)
+
+        if (grid_is_present) then
+            call ESMF_GridCompGet(this%gcs(this%root_id), grid=current_root_grid, __RC__)
+
+            call ESMF_GridValidate(current_root_grid, rc=status)
+            if (status == ESMF_SUCCESS) then
+                has_valid_grid = .true.
+            end if
+        end if
+
+        if (has_valid_grid) then
+            grid_match = ESMF_GridMatch(current_root_grid, grid, __RC__)
+
+            if (grid_match /= ESMF_GRIDMATCH_EXACT) then
+                status = ESMF_RC_OBJ_WRONG
+                return
+            end if
+        else
+            call ESMF_GridCompSet(this%gcs(this%root_id), grid=grid, __RC__)
+        end if
+
+        _RETURN(_SUCCESS)
+    end subroutine set_root_grid
 end module MAPL_CapGridCompMod
