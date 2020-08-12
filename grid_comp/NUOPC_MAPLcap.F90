@@ -34,6 +34,8 @@ contains
         type(ESMF_GridComp)  :: model
         integer, intent(out) :: rc
 
+        integer :: i
+
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start SetServices"
@@ -47,9 +49,11 @@ contains
         VERIFY_NUOPC_(rc)
 
         ! set entry point for methods that require specific implementation
-        call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
-                phaseLabelList=phase_label_list, userRoutine=generic_initialize, rc=rc)
-        VERIFY_NUOPC_(rc)
+        do i=1, num_phases
+            call NUOPC_CompSetEntryPoint(model, ESMF_METHOD_INITIALIZE, &
+                    phaseLabelList=[phase_label_list(i)], userRoutine=generic_initialize, rc=rc)
+            VERIFY_NUOPC_(rc)
+        end do
 
         ! attach specializing method(s)
         call NUOPC_CompSpecialize(model, specLabel=model_DataInitialize, &

@@ -10,6 +10,7 @@ module NUOPCmapMod
     implicit none
     private
 
+    public num_phases
     public phase_label_list
 
     public NUOPCmap
