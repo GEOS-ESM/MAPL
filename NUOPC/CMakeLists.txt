@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE MAPL.grid_comp)
+esma_set_this (OVERRIDE MAPL.NUOPC)
 
 set (srcs
         NUOPC_MAPLcap.F90

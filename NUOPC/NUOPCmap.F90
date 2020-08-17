@@ -44,6 +44,8 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPCmap start get_phase"
+        call ESMF_LogWrite("NUOPCmap start get_phase", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         print*, "NUOPCmap getting phase for index: ", index
         phase_label => this%at(index)
@@ -55,6 +57,8 @@ contains
         print*, "NUOPCmap index: ", index, " found phase: ", phase_label
 
         print*, "NUOPCmap finish get_phase"
+        call ESMF_LogWrite("NUOPCmap finish get_phase", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end subroutine get_phase
 
     subroutine add_phase(this, index, phase_label, rc)
@@ -66,6 +70,8 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPCmap start add_phase"
+        call ESMF_LogWrite("NUOPCmap start add_phase", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         if (this%count(index) > 0) then
             rc = ESMF_RC_OBJ_BAD
@@ -76,6 +82,8 @@ contains
         end if
 
         print*, "NUOPCmap finish add_phase"
+        call ESMF_LogWrite("NUOPCmap finish add_phase", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end subroutine add_phase
 
     subroutine create_phase_map(this, gc, rc)
@@ -88,9 +96,13 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPCmap start create_phase_map"
+        call ESMF_LogWrite("NUOPCmap start create_phase_map", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         do i=1, num_phases
             print*, "NUOPCmap searching for phase index"
+            call ESMF_LogWrite("NUOPCmap seaching for phase index", ESMF_LOGMSG_INFO, rc=rc)
+            VERIFY_ESMF_(rc)
             call NUOPC_CompSearchPhaseMap(gc, ESMF_METHOD_INITIALIZE, &
                     phaseLabel=phase_label_list(i), phaseIndex=phase_index, rc=rc)
             VERIFY_NUOPC_(rc)
@@ -107,5 +119,7 @@ contains
         end do
 
         print*, "NUOPCmap finish create_phase_map"
+        call ESMF_LogWrite("NUOPCmap finish create_phase_map", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end subroutine create_phase_map
 end module NUOPCmapMod

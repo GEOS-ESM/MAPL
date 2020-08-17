@@ -39,6 +39,8 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start SetServices"
+        call ESMF_LogWrite("NUOPC_MAPLcap start SetServices", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         ! the NUOPC model component will register the generic methods
         call NUOPC_CompDerive(model, model_SetServices, rc=rc)
@@ -75,6 +77,8 @@ contains
         VERIFY_NUOPC_(rc)
 
         print*, "NUOPC_MAPLcap finish SetServices"
+        call ESMF_LogWrite("NUOPC_MAPLcap finish SetServices", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end subroutine SetServices
 
     subroutine initialize_p0(model, import_state, export_state, clock, rc)
@@ -89,6 +93,8 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start initialize_p0"
+        call ESMF_LogWrite("NUOPC_MAPLcap start initialize_p0", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         call NUOPC_CompFilterPhaseMap(model, ESMF_METHOD_INITIALIZE, &
                 acceptStringList=["IPDv05p"], rc=rc)
@@ -101,6 +107,8 @@ contains
         VERIFY_NUOPC_(rc)
 
         print*, "NUOPC_MAPLcap finish initialize_p0"
+        call ESMF_LogWrite("NUOPC_MAPLcap finish initialize_p0", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end subroutine initialize_p0
 
     subroutine generic_initialize(model, import_state, export_state, clock, rc)
@@ -115,6 +123,8 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start generic_initialize"
+        call ESMF_LogWrite("NUOPC_MAPLcap start generic_initialize", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
@@ -123,6 +133,8 @@ contains
         VERIFY_NUOPC_(rc)
 
         print*, "NUOPC_MAPLcap finish generic_initialize"
+        call ESMF_LogWrite("NUOPC_MAPLcap finish generic_initialize", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end subroutine generic_initialize
 
     subroutine initialize_data(model, rc)
@@ -134,6 +146,8 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start initialize_data"
+        call ESMF_LogWrite("NUOPC_MAPLcap start initialize_data", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
@@ -142,6 +156,8 @@ contains
         VERIFY_NUOPC_(rc)
 
         print*, "NUOPC_MAPLcap finish initialize_data"
+        call ESMF_LogWrite("NUOPC_MAPLcap finish initialize_data", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end subroutine initialize_data
 
     subroutine advance(model, rc)
@@ -153,6 +169,8 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start advance"
+        call ESMF_LogWrite("NUOPC_MAPLcap start advance", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
@@ -161,6 +179,8 @@ contains
         VERIFY_NUOPC_(rc)
 
         print*, "NUOPC_MAPLcap finish advance"
+        call ESMF_LogWrite("NUOPC_MAPLcap finish advance", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end subroutine advance
 
     subroutine check_import(model, rc)
@@ -172,6 +192,8 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start check_import"
+        call ESMF_LogWrite("NUOPC_MAPLcap start check_import", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
@@ -180,6 +202,8 @@ contains
         VERIFY_NUOPC_(rc)
 
         print*, "NUOPC_MAPLcap finish check_import"
+        call ESMF_LogWrite("NUOPC_MAPLcap finish check_import", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end subroutine check_import
 
     subroutine set_clock(model, rc)
@@ -191,6 +215,8 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start set_clock"
+        call ESMF_LogWrite("NUOPC_MAPLcap start set_clock", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
@@ -199,6 +225,8 @@ contains
         VERIFY_NUOPC_(rc)
 
         print*, "NUOPC_MAPLcap finish set_clock"
+        call ESMF_LogWrite("NUOPC_MAPLcap finish set_clock", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end subroutine set_clock
 
     subroutine finalize(model, rc)
@@ -210,6 +238,8 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start finialize"
+        call ESMF_LogWrite("NUOPC_MAPLcap start finalize", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         cap => get_NUOPC_MAPLcap(model, rc)
         VERIFY_NUOPC_(rc)
@@ -218,6 +248,8 @@ contains
         VERIFY_NUOPC_(rc)
 
         print*, "NUOPC_MAPLcap finish finialize"
+        call ESMF_LogWrite("NUOPC_MAPLcap finish finalize", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end subroutine finalize
 
     subroutine init_internal_wrapper(gc, name, rc_file, root_set_services, rc)
@@ -233,6 +265,8 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start init_internal_wrapper"
+        call ESMF_LogWrite("NUOPC_MAPLcap start init_internal_wrapper", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         allocate(wrapper%ptr)
         wrapper%ptr = NUOPC_MAPLcap(name, rc_file, root_set_services)
@@ -241,6 +275,8 @@ contains
         VERIFY_NUOPC_(rc)
 
         print*, "NUOPC_MAPLcap finish init_internal_wrapper"
+        call ESMF_LogWrite("NUOPC_MAPLcap finish init_internal_wrapper", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end subroutine init_internal_wrapper
 
     function get_NUOPC_MAPLcap(gc, rc) result(cap)
@@ -253,6 +289,8 @@ contains
         rc = ESMF_SUCCESS
 
         print*, "NUOPC_MAPLcap start get_NUOPC_MAPLcap"
+        call ESMF_LogWrite("NUOPC_MAPLcap start get_NUOPC_MAPLcap", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
 
         call ESMF_UserCompGetInternalState(gc, internal_name, wrapper, rc)
         VERIFY_NUOPC_(rc)
@@ -260,5 +298,7 @@ contains
         cap => wrapper%ptr
 
         print*, "NUOPC_MAPLcap finish get_NUOPC_MAPLcap"
+        call ESMF_LogWrite("NUOPC_MAPLcap finish get_NUOPC_MAPLcap", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
     end function get_NUOPC_MAPLcap
 end module NUOPC_MAPLcapMod
