@@ -211,6 +211,11 @@ contains
     type(ESMF_TimeInterval) :: time_step
     integer :: heartbeat_dt
 
+        print*, "NUOPC_MAPLcap start set_clock"
+        call ESMF_LogWrite("NUOPC_MAPLcap start set_clock", ESMF_LOGMSG_INFO, rc=rc)
+    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+         line=__LINE__, file=__FILE__)) return
+
     cap => get_cap_from_gc(model, rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
          line=__LINE__, file=__FILE__)) return 
@@ -225,6 +230,11 @@ contains
          line=__LINE__, file=__FILE__)) return
 
     call ESMF_ClockSet(model_clock, timeStep = time_step)
+    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+         line=__LINE__, file=__FILE__)) return
+
+        print*, "NUOPC_MAPLcap finish set_clock"
+        call ESMF_LogWrite("NUOPC_MAPLcap finish set_clock", ESMF_LOGMSG_INFO, rc=rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
          line=__LINE__, file=__FILE__)) return
 

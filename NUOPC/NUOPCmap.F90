@@ -15,7 +15,7 @@ module NUOPCmapMod
 
     public NUOPCmap
 
-    integer, parameter :: num_phases = 7
+    integer, parameter :: num_phases = 6
     character(len=*), dimension(num_phases), parameter :: &
             phase_label_list = [&
                 "IPDv05p1", &
@@ -23,8 +23,8 @@ module NUOPCmapMod
                 "IPDv05p3", &
                 "IPDv05p4", &
                 "IPDv05p5", &
-                "IPDv05p6", &
-                "IPDv05p7"  &
+                "IPDv05p6" &
+                ! "IPDv05p7"  &
             ]
 
     type, extends(IntegerStringMap) :: NUOPCmap

@@ -42,6 +42,11 @@ contains
         call ESMF_LogWrite("NUOPC_MAPLcap start SetServices", ESMF_LOGMSG_INFO, rc=rc)
         VERIFY_ESMF_(rc)
 
+!         call NUOPC_CompAttributeSet(model, 'Verbosity', 'high', rc=rc)
+!         VERIFY_NUOPC_(rc)
+!         call NUOPC_CompAttributeSet(model, 'Diagnostic', 'max', rc=rc)
+!         VERIFY_NUOPC_(rc)
+
         ! the NUOPC model component will register the generic methods
         call NUOPC_CompDerive(model, model_SetServices, rc=rc)
         VERIFY_NUOPC_(rc)
@@ -69,6 +74,10 @@ contains
         call NUOPC_CompSpecialize(model, specLabel=model_CheckImport, &
                 specRoutine=check_import, rc=rc)
         VERIFY_NUOPC_(rc)
+
+        call ESMF_LogWrite("NUOPC_MAPLcap attache set_clock", ESMF_LOGMSG_INFO, rc=rc)
+        VERIFY_ESMF_(rc)
+
         call NUOPC_CompSpecialize(model, specLabel=model_SetClock, &
                 specRoutine=set_clock, rc=rc)
         VERIFY_NUOPC_(rc)
