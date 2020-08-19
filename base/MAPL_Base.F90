@@ -906,7 +906,7 @@ contains
           call ESMF_ArrayGet(array, ssiLocalDeCount=ssiLocalDeCount, &
             rc = status)
           _VERIFY(STATUS)
-          if(trim(field_name) == 'U')  &
+          !if(trim(field_name) == 'U')  &
           !print *, "localPet ........ ", __FILE__, __LINE__, trim(field_name), localPet, ssiLocalDeCount
           allocate(arrayimg(ssiLocalDeCount), stat = status)
           _VERIFY(STATUS)
