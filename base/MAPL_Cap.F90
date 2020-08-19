@@ -345,8 +345,8 @@ contains
       _UNUSED_DUMMY(unusable)
 
       call start_timer()
-      call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=mapl_comm%esmf%comm, rc=status)
-      _VERIFY(status)
+      !call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=mapl_comm%esmf%comm, rc=status)
+      !_VERIFY(status)
 
       call this%initialize_cap_gc(mapl_comm)
 
@@ -454,9 +454,10 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: ierror
+      integer :: ierror, status
       integer :: provided
       integer :: npes_world
+      type(ESMF_VM) :: vm
 
       _UNUSED_DUMMY(unusable)
 
@@ -464,10 +465,12 @@ contains
       _VERIFY(ierror)
 
       if (.not. this%mpi_already_initialized) then
-         call MPI_Init_thread(MPI_THREAD_SERIALIZED, provided, ierror)
+         call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, rc=status)
+         _VERIFY(status)
+         !call MPI_Init_thread(MPI_THREAD_SERIALIZED, provided, ierror)
          !call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
-         _VERIFY(ierror)
-         _ASSERT(provided == MPI_THREAD_SERIALIZED, 'MPI_THREAD_SERIALIZED not supporte by this MPI.')
+         !_VERIFY(ierror)
+         !_ASSERT(provided == MPI_THREAD_SERIALIZED, 'MPI_THREAD_SERIALIZED not supporte by this MPI.')
         ! _ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
       end if
 
