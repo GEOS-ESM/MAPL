@@ -469,6 +469,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
+!!!!!$    call omp_set_num_threads(1)
       call MPI_Initialized(this%mpi_already_initialized, ierror)
       _VERIFY(ierror)
 
