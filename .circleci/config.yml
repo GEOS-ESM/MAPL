@@ -50,14 +50,16 @@ jobs:
     executor: gcc-build-env
     working_directory: /root/project
     steps:
-      - checkout:
-          path: GEOSgcm
+      - run:
+          name: "Checkout GEOSgcm fixture"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}
+            git clone git@github.com:GEOS-ESM/GEOSgcm.git
       - run:
           name: "Mepo clone external repos"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm
             mepo clone
-            mepo status
             mepo develop GEOSgcm_GridComp GEOSgcm_App
             mepo status
       - run:
