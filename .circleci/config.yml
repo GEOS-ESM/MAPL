@@ -43,7 +43,7 @@ jobs:
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/MAPL/build
             make -j"$(nproc)" build-tests
-            # skip performance tests
+            # skip Performance tests (maybe doable on CircleCI?)
             ctest -R MAPL -LE PERFORMANCE --output-on-failure
 
   build-GEOSgcm:
