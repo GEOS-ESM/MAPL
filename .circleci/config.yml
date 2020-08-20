@@ -145,7 +145,10 @@ jobs:
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/test-fv3-c12
 
-            if [[ -f scratch_c12_L72_T2_1x6_1threads_GEOSfvdycore-v1.0-R4/EGRESS ]]
+            # The scratch directory for fv3 standalone isn't consistent
+            SCRDIR=$(find . -type d -name 'scratch*')
+
+            if [[ -f $SCRDIR/EGRESS ]]
             then
                echo "EGRESS found!"
             else
