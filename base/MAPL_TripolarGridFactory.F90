@@ -901,8 +901,20 @@ contains
       class (TripolarGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
 
+      type (Variable) :: v
+
       call metadata%add_dimension('lon', this%im_world)
       call metadata%add_dimension('lat', this%jm_world)
+
+      v = Variable(PFIO_REAL32, dimensions='lon,lat')
+      call v%add_attribute('long_name','longitude')
+      call v%add_attribute('units','degrees_east')
+      call metadata%add_variable('lons',v)
+
+      v = Variable(PFIO_REAL32, dimensions='lon,lat')
+      call v%add_attribute('long_name','latitude')
+      call v%add_attribute('units','degrees_north')
+      call metadata%add_variable('lats',v)
 
 
    end subroutine append_metadata
