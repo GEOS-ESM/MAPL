@@ -65,8 +65,6 @@ module MAPL_TripolarGridFactoryMod
 
       procedure :: equals
 
-      procedure :: read_grid_dimensions
-      procedure :: read_grid_coordinates
       procedure :: check_and_fill_consistency
       procedure :: generate_grid_name
       procedure :: to_string
@@ -555,125 +553,6 @@ contains
       error stop -1
 
    end function generate_grid_name
-
-
-   subroutine read_grid_coordinates(this, longitudes, latitudes, unusable, rc)
-      class (TripolarGridFactory), intent(in) :: this
-      real(kind=REAL64), allocatable, intent(out) :: longitudes(:,:)
-      real(kind=REAL64), allocatable, intent(out) :: latitudes(:,:)
-      class (KeywordEnforcer), optional, intent(out) :: unusable
-      integer, optional, intent(out) :: rc
-
-      include 'netcdf.inc'
-      
-      integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'read_grid_coordinates()'
-
-      integer :: xid, yid
-      integer :: start(2), counts(2)
-      integer :: pet, ndes
-      logical :: i_am_root
-      integer :: ncid
-      type (ESMF_VM) :: vm
-
-      real(kind=REAL64), allocatable :: lons(:,:), lats(:,:)
-
-      _UNUSED_DUMMY(unusable)
-
-      call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
-
-      call ESMF_VMGet(vm, localpet=pet, petCount=ndes, rc=status)
-      _VERIFY(status)
-
-      i_am_root = (pet == 0)
-
-      if (i_am_root) then
-         allocate(longitudes(this%im_world, this%jm_world), stat=status)
-         _VERIFY(status)
-         allocate(latitudes(this%im_world, this%jm_world), stat=status)
-         _VERIFY(status)
-
-         ncid = ncopn(this%grid_file_name, NCNOWRIT, status)
-         _VERIFY(status)
-
-         xid = ncvid(ncid, 'x_T', status)
-         _VERIFY(status)
-         
-         yid = ncvid(ncid, 'y_T', status)
-         _VERIFY(status)
-         
-         call ncvgt(ncid, xid, start, counts, lons, status)
-         _VERIFY(status)
-         call ncvgt(ncid, yid, start, counts, lats, status)
-         _VERIFY(status)
-
-         call ncclos(ncid, status)
-         _VERIFY(status)
-      else
-         allocate(longitudes(0,0))
-         allocate(latitudes(0,0))
-      end if
-
-   end subroutine read_grid_coordinates
-
-   subroutine read_grid_dimensions(this, unusable, rc)
-      use MAPL_CommsMod
-      class (TripolarGridFactory), intent(inout) :: this
-      class (KeywordEnforcer), optional, intent(out) :: unusable
-      integer, optional, intent(out) :: rc
-
-      include 'netcdf.inc'
-      
-      integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'read_grid_dimensions()'
-
-      integer :: xid
-      character(len=128) :: name
-      integer :: type
-      integer :: n
-      integer :: dims(MAXVDIMS)
-      integer :: natt
-      integer :: pet, ndes
-      logical :: i_am_root
-      integer :: ncid
-      type (ESMF_VM) :: vm
-
-      _UNUSED_DUMMY(unusable)
-
-      call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
-
-      call ESMF_VMGet(vm, localpet=pet, petCount=ndes, rc=status)
-      _VERIFY(status)
-
-      i_am_root = (pet == 0)
-
-      if (i_am_root) then
-         ncid = ncopn(this%grid_file_name, NCNOWRIT, status)
-         _VERIFY(status)
-
-         xid = ncvid(ncid, 'x_T', status)
-         _VERIFY(status)
-         
-         call ncvinq (ncid, xid, name, type, n, dims, natt, status)
-         _VERIFY(status)
-         
-         associate (im => this%im_world, jm => this%jm_world)
-           call ncdinq(ncid, dims(1), name, im, status)
-           _VERIFY(status)
-           call ncdinq(ncid, dims(2), name, jm, status)
-           _VERIFY(status)
-         end associate
-      end if
-
-      call MAPL_CommsBCast(vm, this%im_world, 1, root=0, rc=status)
-      _VERIFY(status)
-      call MAPL_CommsBCast(vm, this%jm_world, 1, root=0, rc=status)
-      _VERIFY(status)
-
-
-   end subroutine read_grid_dimensions
 
    subroutine init_halo(this, unusable, rc)
       class (TripolarGridFactory), intent(inout) :: this
