@@ -371,7 +371,7 @@ type MAPL_GenericRecordType
 end type  MAPL_GenericRecordType
 
 type MAPL_InitialState
-   integer                                  :: FILETYPE
+   integer                                  :: FILETYPE = MAPL_Write2Ram
    character(len=:), allocatable            :: IMP_FNAME
    character(len=:), allocatable            :: INT_FNAME
 end type  MAPL_InitialState
@@ -9823,7 +9823,6 @@ end subroutine MAPL_READFORCINGX
     call MAPL_InternalStateRetrieve(GC, STATE, RC=STATUS)
     _VERIFY(STATUS)
 
-    state%initial_state%filetype = MAPL_Write2Ram
     call MAPL_GetResource( STATE, FILENAME,         &
                           LABEL="IMPORT_CHECKPOINT_FILE:", &
                           RC=STATUS)
