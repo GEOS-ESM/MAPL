@@ -9780,7 +9780,7 @@ end subroutine MAPL_READFORCINGX
   end function MAPL_AddMethod
 
 
-  recursive subroutine MAPL_Setstatesave(state,filetype,rc)
+  recursive subroutine MAPL_SetStateSave(state,filetype,rc)
     type(MAPL_MetaComp), intent(inout) :: state
     integer,             intent(in ) :: filetype
     integer, optional,   intent(out) :: rc
@@ -9798,9 +9798,9 @@ end subroutine MAPL_READFORCINGX
 
     state%initial_state%filetype = filetype
 
-  end subroutine MAPL_Setstatesave
+  end subroutine MAPL_SetStateSave
 
-  recursive subroutine MAPL_Genericstatesave( GC, IMPORT, EXPORT, CLOCK, RC )
+  recursive subroutine MAPL_GenericStateSave( GC, IMPORT, EXPORT, CLOCK, RC )
     type(ESMF_GridComp), intent(inout) :: GC     ! composite gridded component
     type(ESMF_State),    intent(inout) :: IMPORT ! import state
     type(ESMF_State),    intent(inout) :: EXPORT ! export state
@@ -9810,18 +9810,18 @@ end subroutine MAPL_READFORCINGX
     type(mapl_metacomp), pointer :: state
     integer :: i,filetype
 
- character(len=14)                           :: datestamp
-  character(len=1)                            :: separator
+    character(len=14)                           :: datestamp
+    character(len=1)                            :: separator
 
-  character(len=ESMF_MAXSTR)                  :: filetypechar
-  character(len=4)                            :: extension
-  integer                                     :: hdr
-   integer :: status
-  character(len=:), allocatable :: tmpstr
-  character(len=ESMF_MAXSTR) :: filename
+    character(len=ESMF_MAXSTR)                  :: filetypechar
+    character(len=4)                            :: extension
+    integer                                     :: hdr
+    integer :: status
+    character(len=:), allocatable :: tmpstr
+    character(len=ESMF_MAXSTR) :: filename
 
-  call MAPL_InternalStateRetrieve(GC, STATE, RC=STATUS)
-  _VERIFY(STATUS)
+    call MAPL_InternalStateRetrieve(GC, STATE, RC=STATUS)
+    _VERIFY(STATUS)
 
     state%initial_state%filetype = MAPL_Write2Ram
     call MAPL_GetResource( STATE, FILENAME,         &
@@ -9839,35 +9839,35 @@ end subroutine MAPL_READFORCINGX
        STATE%initial_state%INT_FNAME = FILENAME
     end if
 
-  if(associated(STATE%GCS)) then
-     do I=1,size(STATE%GCS)
-        call MAPL_Genericstatesave (STATE%GCS(I), &
-             STATE%GIM(I), &
-             STATE%GEX(I), &
-             CLOCK, RC=STATUS )
-        _VERIFY(status)
-     enddo
-  endif
+    if(associated(STATE%GCS)) then
+       do I=1,size(STATE%GCS)
+          call MAPL_GenericStateSave (STATE%GCS(I), &
+               STATE%GIM(I), &
+               STATE%GEX(I), &
+               CLOCK, RC=STATUS )
+          _VERIFY(status)
+       enddo
+    endif
 
-  call MAPL_DateStampGet(clock, datestamp, rc=status)
-  _VERIFY(STATUS)
-  filetype=state%initial_state%filetype
-  if (FILETYPE /= MAPL_Write2Disk) then
-     separator = '*'
-  else
-     separator = '.'
-  end if
+    call MAPL_DateStampGet(clock, datestamp, rc=status)
+    _VERIFY(STATUS)
+    filetype=state%initial_state%filetype
+    if (FILETYPE /= MAPL_Write2Disk) then
+       separator = '*'
+    else
+       separator = '.'
+    end if
 
-  if (allocated(state%initial_state%imp_fname)) then
-     call    MAPL_GetResource( STATE, filetypechar, LABEL="IMPORT_CHECKPOINT_TYPE:",                  RC=STATUS )
-     if ( STATUS/=ESMF_SUCCESS  .or.  filetypechar == "default" ) then
-    call MAPL_GetResource( STATE, filetypechar, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
+    if (allocated(state%initial_state%imp_fname)) then
+       call    MAPL_GetResource( STATE, filetypechar, LABEL="IMPORT_CHECKPOINT_TYPE:",                  RC=STATUS )
+       if ( STATUS/=ESMF_SUCCESS  .or.  filetypechar == "default" ) then
+      call MAPL_GetResource( STATE, filetypechar, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
                     _VERIFY(STATUS)
-   end if
+    end if
     filetypechar = ESMF_UtilStringLowerCase(filetypechar,rc=STATUS)
-      _VERIFY(STATUS)
-     if (filetypechar == 'pnc4') then
-        extension = '.nc4'
+    _VERIFY(STATUS)
+    if (filetypechar == 'pnc4') then
+       extension = '.nc4'
     else
        extension = '.bin'
      end if
@@ -9877,33 +9877,33 @@ end subroutine MAPL_READFORCINGX
       deallocate(tmpstr)
     end if
 
-     if (allocated(state%initial_state%int_fname)) then
-        call    MAPL_GetResource( STATE, hdr,      LABEL="INTERNAL_HEADER:",         default=0,      RC=STATUS )
-        _VERIFY(STATUS)
-        call    MAPL_GetResource( STATE, filetypechar, LABEL="INTERNAL_CHECKPOINT_TYPE:",                RC=STATUS )
-        if ( STATUS/=ESMF_SUCCESS  .or.  filetypechar == "default" ) then
-           call MAPL_GetResource( STATE, filetypechar, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
-           _VERIFY(STATUS)
-        end if
-        filetypechar = ESMF_UtilStringLowerCase(filetypechar,rc=STATUS)
-        _VERIFY(STATUS)
-        if (filetypechar == 'pnc4') then
-           extension = '.nc4'
-        else
-           extension = '.bin'
-        end if
-        tmpstr=trim(state%initial_state%int_fname)
-        deallocate(state%initial_state%int_fname)
-        STATE%initial_state%INT_FNAME = tmpstr // separator // DATESTAMP // extension
-        deallocate(tmpstr)
-     end if
+    if (allocated(state%initial_state%int_fname)) then
+       call    MAPL_GetResource( STATE, hdr,      LABEL="INTERNAL_HEADER:",         default=0,      RC=STATUS )
+       _VERIFY(STATUS)
+       call    MAPL_GetResource( STATE, filetypechar, LABEL="INTERNAL_CHECKPOINT_TYPE:",                RC=STATUS )
+       if ( STATUS/=ESMF_SUCCESS  .or.  filetypechar == "default" ) then
+          call MAPL_GetResource( STATE, filetypechar, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
+          _VERIFY(STATUS)
+       end if
+       filetypechar = ESMF_UtilStringLowerCase(filetypechar,rc=STATUS)
+       _VERIFY(STATUS)
+       if (filetypechar == 'pnc4') then
+          extension = '.nc4'
+       else
+          extension = '.bin'
+       end if
+       tmpstr=trim(state%initial_state%int_fname)
+       deallocate(state%initial_state%int_fname)
+       STATE%initial_state%INT_FNAME = tmpstr // separator // DATESTAMP // extension
+       deallocate(tmpstr)
+    end if
 
-     ! call the actual record method
-     call MAPL_StateSave (GC, IMPORT, EXPORT, CLOCK, RC=STATUS )
-     _VERIFY(STATUS)
-     _RETURN(_SUCCESS)
+    ! call the actual record method
+    call MAPL_StateSave (GC, IMPORT, EXPORT, CLOCK, RC=STATUS )
+    _VERIFY(STATUS)
+    _RETURN(_SUCCESS)
 
-  end subroutine MAPL_Genericstatesave
+  end subroutine MAPL_GenericStateSave
 
 subroutine MAPL_StateSave( GC, IMPORT, EXPORT, CLOCK, RC )
 
