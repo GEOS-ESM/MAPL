@@ -1194,9 +1194,7 @@ contains
 
     call MAPL_GetObjectFromGC(this%gcs(this%root_id),maplobj,rc=status)
     _VERIFY(status)
-    call MAPL_AddSaveState(maplobj,MAPL_Write2Ram,rc=status)
-    _VERIFY(status)
-    call MAPL_GenericSaveState(this%gcs(this%root_id),this%child_imports(this%root_id), &
+    call MAPL_GenericStateSave(this%gcs(this%root_id),this%child_imports(this%root_id), &
            this%child_exports(this%root_id),this%clock,rc=status)
 
     call ESMF_ClockGet(this%clock,alarmCount=nalarms,rc=status)
@@ -1222,7 +1220,7 @@ contains
     integer :: status
 
     integer :: i 
-    call MAPL_GenericRestore(this%gcs(this%root_id),this%child_imports(this%root_id), &
+    call MAPL_GenericStateRestore(this%gcs(this%root_id),this%child_imports(this%root_id), &
              this%child_exports(this%root_id),this%clock,rc=status)
     _VERIFY(status)
     DO I = 1, size(this%alarm_list)
