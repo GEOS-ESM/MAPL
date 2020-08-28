@@ -53,6 +53,9 @@ module MAPL_CapGridCompMod
      type(ESMF_VM) :: vm
      real(kind=real64) :: loop_start_timer
      type(ESMF_Time) :: cap_restart_time
+     type(ESMF_Alarm), allocatable :: alarm_list(:)
+     type(ESMF_Time),  allocatable :: AlarmRingTime(:)
+     logical,          allocatable :: ringingState(:)
    contains
      procedure :: set_services
      procedure :: initialize
@@ -64,6 +67,10 @@ module MAPL_CapGridCompMod
      procedure :: get_model_duration
      procedure :: get_am_i_root
      procedure :: get_heartbeat_dt
+     procedure :: get_current_time
+     procedure :: rewind_clock
+     procedure :: record_state
+     procedure :: refresh_state
   end type MAPL_CapGridComp
 
   type :: MAPL_CapGridComp_Wrapper
@@ -915,6 +922,18 @@ contains
 
   end function get_heartbeat_dt
 
+  function get_current_time(this, rc) result (current_time)
+    class (MAPL_CapGridComp) :: this
+    type(ESMF_Time) :: current_time
+    integer, optional, intent(out) :: rc
+    integer :: status
+    call ESMF_ClockGet(this%clock,currTime=current_time,rc=status)
+    _VERIFY(status)
+
+    _RETURN(ESMF_SUCCESS)
+
+  end function get_current_time
+
 
   function get_CapGridComp_from_gc(gc) result(cap)
     type(ESMF_GridComp), intent(inout) :: gc
@@ -1097,7 +1116,6 @@ contains
 
     ! Advance the Clock before running History and Record
     ! ---------------------------------------------------
-
     call ESMF_ClockAdvance(this%clock, rc = status)
     _VERIFY(STATUS)
     call ESMF_ClockAdvance(this%clock_hist, rc = status)
@@ -1163,9 +1181,99 @@ contains
     1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
                 2x,'Throughput(days/day)[Avg Tot Run]: ',f6.1,1x,f6.1,1x,f6.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x, &
                 f5.1,'% : ',f5.1,'% Mem Comm:Used')
-
     _RETURN(ESMF_SUCCESS)
   end subroutine step
+
+  subroutine record_state(this, rc)
+    class(MAPL_CapGridComp), intent(inout) :: this
+    integer, intent(out) :: rc
+    integer :: status
+    type(MAPL_MetaComp), pointer :: maplobj
+
+    integer :: nalarms,i
+
+    call MAPL_GetObjectFromGC(this%gcs(this%root_id),maplobj,rc=status)
+    _VERIFY(status)
+    call MAPL_GenericStateSave(this%gcs(this%root_id),this%child_imports(this%root_id), &
+           this%child_exports(this%root_id),this%clock,rc=status)
+
+    call ESMF_ClockGet(this%clock,alarmCount=nalarms,rc=status)
+    _VERIFY(status)
+
+    allocate(this%alarm_list(nalarms),this%ringingState(nalarms),this%alarmRingTime(nalarms),stat=status)
+    _VERIFY(status)
+    call ESMF_ClockGetAlarmList(this%clock, alarmListFlag=ESMF_ALARMLIST_ALL, &
+         alarmList=this%alarm_list, rc=status)
+    _VERIFY(status)
+    do i = 1, nalarms
+       call ESMF_AlarmGet(this%alarm_list(I), ringTime=this%alarmRingTime(I), ringing=this%ringingState(I), rc=status)
+       VERIFY_(STATUS)
+    end do
+
+    _RETURN(_SUCCESS)
+
+  end subroutine record_state
+
+  subroutine refresh_state(this, rc)
+    class(MAPL_CapGridComp), intent(inout) :: this
+    integer, intent(out) :: rc
+    integer :: status
+
+    integer :: i 
+    call MAPL_GenericStateRestore(this%gcs(this%root_id),this%child_imports(this%root_id), &
+             this%child_exports(this%root_id),this%clock,rc=status)
+    _VERIFY(status)
+    DO I = 1, size(this%alarm_list)
+       call ESMF_AlarmSet(this%alarm_list(I), ringTime=this%alarmRingTime(I), ringing=this%ringingState(I), rc=status)
+       _VERIFY(STATUS)
+    END DO
+
+    _RETURN(_SUCCESS)
+
+  end subroutine refresh_state
+
+  subroutine rewind_clock(this, time, rc)
+    class(MAPL_CapGridComp), intent(inout) :: this
+    type(ESMF_Time), intent(inout) :: time
+    integer, intent(out) :: rc
+    integer :: status
+    type(ESMF_Time) :: current_time,ct
+
+    call ESMF_ClockGet(this%clock,currTime=current_time,rc=status)
+    _VERIFY(status)
+    if (current_time >  time) then
+       call ESMF_ClockSet(this%clock,direction=ESMF_DIRECTION_REVERSE,rc=status)
+       _VERIFY(status)
+       do 
+          call ESMF_ClockAdvance(this%clock,rc=status)
+          _VERIFY(status)
+          call ESMF_ClockGet(this%clock,currTime=ct,rc=status)
+          _VERIFY(status)
+          if (ct==time) exit
+       enddo
+       call ESMF_ClockSet(this%clock,direction=ESMF_DIRECTION_FORWARD,rc=status)
+       _VERIFY(status)
+    end if
+      
+    call ESMF_ClockGet(this%clock_hist,currTime=current_time,rc=status)
+    _VERIFY(status)
+    if (current_time >  time) then
+       call ESMF_ClockSet(this%clock_hist,direction=ESMF_DIRECTION_REVERSE,rc=status)
+       _VERIFY(status)
+       do 
+          call ESMF_ClockAdvance(this%clock_hist,rc=status)
+          _VERIFY(status)
+          call ESMF_ClockGet(this%clock_hist,currTime=ct,rc=status)
+          _VERIFY(status)
+          if (ct==time) exit
+       enddo
+       call ESMF_ClockSet(this%clock_hist,direction=ESMF_DIRECTION_FORWARD,rc=status)
+       _VERIFY(status)
+    end if
+      
+       
+    _RETURN(_SUCCESS)
+  end subroutine rewind_clock
 
 
   ! !IROUTINE: MAPL_ClockInit -- Sets the clock
