@@ -71,6 +71,7 @@ module MAPL_CapGridCompMod
      procedure :: rewind_clock
      procedure :: record_state
      procedure :: refresh_state
+     procedure :: destroy_state
   end type MAPL_CapGridComp
 
   type :: MAPL_CapGridComp_Wrapper
@@ -770,7 +771,7 @@ contains
     call t_p%start('Finalize')
 
     if (.not. cap%printspec > 0) then
-       
+
        call ESMF_GridCompFinalize(cap%gcs(cap%root_id), importstate = cap%child_imports(cap%root_id), &
             exportstate=cap%child_exports(cap%root_id), clock = cap%clock, userrc = status)
        _VERIFY(status)
@@ -1231,6 +1232,22 @@ contains
     _RETURN(_SUCCESS)
 
   end subroutine refresh_state
+
+  subroutine destroy_state(this, rc)
+    class(MAPL_CapGridComp), intent(inout) :: this
+    integer, intent(out) :: rc
+    integer :: status
+
+    call MAPL_DestroyStateSave(this%gcs(this%root_id),rc=status)
+    _VERIFY(status)
+   
+     if (allocated(this%alarm_list)) deallocate(this%alarm_list)
+     if (allocated(this%AlarmRingTime)) deallocate(this%alarmRingTime)
+     if (allocated(this%ringingState)) deallocate(this%ringingState)
+
+    _RETURN(_SUCCESS)
+
+  end subroutine destroy_state
 
   subroutine rewind_clock(this, time, rc)
     class(MAPL_CapGridComp), intent(inout) :: this
