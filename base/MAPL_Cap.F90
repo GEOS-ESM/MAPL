@@ -44,6 +44,7 @@ module MAPL_CapMod
       procedure :: run_member
       procedure :: run_model
       procedure :: step_model
+      procedure :: rewind_model
 
       procedure :: create_member_subcommunicator
       procedure :: initialize_io_clients_servers
@@ -416,7 +417,14 @@ contains
      integer :: status
      call this%cap_gc%step(rc = status); _VERIFY(status)
    end subroutine step_model
-   
+  
+   subroutine rewind_model(this, time, rc)
+     class(MAPL_Cap), intent(inout) :: this
+     type(ESMF_Time), intent(inout) :: time
+     integer, intent(out) :: rc
+     integer :: status
+     call this%cap_gc%rewind_clock(time,rc = status); _VERIFY(status)
+   end subroutine rewind_model 
 
    integer function create_member_subcommunicator(this, comm, unusable, rc) result(subcommunicator)
       class (MAPL_Cap), intent(in) :: this
