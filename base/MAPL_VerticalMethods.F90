@@ -93,7 +93,7 @@ module MAPL_VerticalDataMod
            else
               vdata%interp_levels = vdata%scaled_levels
            endif
-        else
+        else 
            vdata%regrid_type = VERTICAL_METHOD_SELECT
         end if
      end function newVerticalData
@@ -291,7 +291,7 @@ module MAPL_VerticalDataMod
         integer                     :: ungrdsize
         real, allocatable           :: ungridded_coord(:)
         real, allocatable           :: ungridded_coords(:,:)
-        logical                     :: unGrdNameCheck, unGrdUnitCheck, unGrdCoordCheck, have_ungrd
+        logical                     :: unGrdNameCheck, unGrdUnitCheck, unGrdCoordCheck, have_ungrd, found_mixed_ce
       
         integer :: status
         type(Variable) :: v
@@ -368,45 +368,59 @@ module MAPL_VerticalDataMod
           end do
        end if
 
+        found_mixed_ce=.false.
         lm=1
         haveVert = any(varDims/=1)
         if (haveVert) then
-           if (this%regrid_type == VERTICAL_METHOD_NONE ) then
-              vlast=1
-              do i=1,numVars
-                 if (varDims(i)/=1) then
-                    if (vlast/=1) then
-                       if (vlast /= varDims(i)) then
-                          _ASSERT(.false.,"have mixed level/edge")
-                       end if
-                    else
-                       vlast=varDims(i)
-                       vloc=location(i)
+           vlast=1
+           do i=1,numVars
+              if (varDims(i)/=1) then
+                 if (vlast/=1) then
+                    if (vlast /= varDims(i)) then
+                       found_mixed_ce=.true.
                     end if
+                 else
+                    vlast=varDims(i)
+                    vloc=location(i)
                  end if
-              end do
-              lm=vlast
-              if (vloc == MAPL_VLocationCenter) then
-                 vlb = 1
-              else if (vloc == MAPL_VlocationEdge) then
-                 vlb = 0
-              else
-                 vlb = 1
-              end if         
-           else if (this%regrid_type == VERTICAL_METHOD_ETA2LEV .or. & 
-                    this%regrid_type == VERTICAL_METHOD_SELECT) then
-              lm = size(this%levs) 
+              end if
+           end do
+           lm=vlast
+           if (vloc == MAPL_VLocationCenter) then
               vlb = 1
+           else if (vloc == MAPL_VlocationEdge) then
+              vlb = 0
+           else
+              vlb = 1
+           end if         
+        end if
+
+        if (this%regrid_type == VERTICAL_METHOD_ETA2LEV) then
+           lm = size(this%levs)
+           vlb = 1
+        end if
+        if (this%regrid_type == VERTICAL_METHOD_SELECT) then
+           if (lm == size(this%levs)) then
+              this%regrid_type = VERTICAL_METHOD_NONE
+           else
+              lm = size(this%levs)
+              vlb=1
            end if
         end if
+        if (this%regrid_type == VERTICAL_METHOD_NONE) then
+           _ASSERT(.not.(found_mixed_ce),'have mixed level/edge')
+        end if
+           
 
         if (haveVert) then
            this%lm=lm
            if (this%regrid_type == VERTICAL_METHOD_NONE) then
-              allocate(this%levs(lm))
-              do i=1,lm
-                 this%levs(i)=vlb+i-1
-              enddo
+              if (.not.allocated(this%levs)) then
+                 allocate(this%levs(lm))
+                 do i=1,lm
+                    this%levs(i)=vlb+i-1
+                 enddo
+              end if
               if (have_ungrd) then
                  if (allocated(ungridded_coord)) then
                    this%levs=ungridded_coord

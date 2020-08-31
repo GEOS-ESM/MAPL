@@ -8,8 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Added routine to finalize the ioservers so that it can be called by another application using cap, like JEDI
+
 ### Changed
+
+- Moved more code to use pFlogger
+- Update to ESMA_cmake v3.1.2
+- Update GitHub Actions to use Ubuntu 20/GCC 10 image
+
 ### Fixed
+
+- Removed non-standard OpenMP pragma
+- Fixed problem with name mangling in ACG
+- Fix MAPL comm bug with NUOPC
+- Fixed pointer issue exposed by GNU
+- Fixed ESMF logging errors with non-72-level runs (#480)
+- Remove unneeded `use Env;` in stub generator
+
 ### Removed
 
 ## [2.2.7] - 2020-06-26
