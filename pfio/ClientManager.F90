@@ -5,7 +5,12 @@ module pFIO_ClientManagerMod
 
    use MAPL_ExceptionHandling
    use pFIO_KeywordEnforcerMod
-   use PFIO
+   use pFIO_AbstractDataReferenceMod
+   use pFIO_FileMetadataMod
+   use pFIO_ClientThreadMod
+   use pFIO_ClientThreadVectorMod
+   use pFIO_StringVariableMapMod
+   use gFTL_IntegerVector
 
    implicit none
    private
@@ -16,6 +21,12 @@ module pFIO_ClientManagerMod
      private
      integer :: current_client = 1
      type(ClientThreadVector) :: clients
+     type(IntegerVector) :: server_sizes
+     type(IntegerVector) :: large_server_pool
+     type(IntegerVector) :: small_server_pool
+     integer :: smallCurrent=1
+     integer :: largeCurrent=1
+     integer :: writeCutoff
    contains
       procedure :: add_ext_collection
       procedure :: add_hist_collection
@@ -40,6 +51,9 @@ module pFIO_ClientManagerMod
       procedure :: next
       procedure :: current
       procedure :: set_current
+      procedure :: set_ideal_client
+      procedure :: split_clients
+      procedure :: set_server_size
    end type
 
    interface ClientManager
@@ -384,11 +398,11 @@ contains
       class (ClientManager), intent(inout) :: this
       integer, optional, intent(in) :: ith
       integer, optional, intent(out) :: rc
-      integer :: i
-      i = 1
-      if (present(ith)) i = ith
-      _ASSERT( 1<=i .and. i<=this%size(), "exceeding the clients number")
-      this%current_client = i
+      integer :: ith_
+      ith_ = 1
+      if (present(ith)) ith_ = ith
+      _ASSERT( 1<=ith_ .and. ith_<=this%size(), "exceeding the clients number")
+      this%current_client = ith_
       _RETURN(_SUCCESS)
    end subroutine set_current
 
@@ -397,6 +411,64 @@ contains
       type (ClientThread), pointer :: clientPtr
       clientPtr=> this%clients%at(this%current_client)
    end function current
+
+   subroutine set_ideal_client(this,nwriting,unusable,rc) 
+      class (ClientManager), intent(inout) :: this
+      integer, intent(in) :: nwriting
+      class (KeywordEnforcer),  optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      ! no "small" pool, just get next
+      if (this%small_server_pool%size() == 0) then
+         call this%next()
+      else
+         _ASSERT(this%large_server_pool%size()>0,'large server pool must be great than zero')
+         _ASSERT(this%small_server_pool%size()>0,'small server pool must be great than zero')
+         if (nwriting .ge. this%writeCutoff) then
+            this%largeCurrent=this%largeCurrent+1
+            if (this%largeCurrent .gt. this%large_server_pool%size()) this%largeCurrent=1
+            call this%set_current( ith =  this%large_server_pool%at(this%largeCurrent))
+         else
+            this%smallCurrent=this%smallCurrent+1
+            if (this%smallCurrent .gt. this%small_server_pool%size()) this%smallCurrent=1
+            call this%set_current( ith = this%small_server_pool%at(this%smallCurrent) )
+         end if
+      end if
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine set_ideal_client
+
+   subroutine split_clients(this, nsplit, nwriteCutoff,unusable, rc)
+      class (ClientManager), intent(inout) :: this
+      integer, intent(in) :: nsplit
+      integer, intent(in) :: nWriteCutoff
+      class (KeywordEnforcer),  optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: i
+
+      do i=1,this%server_sizes%size()
+          if (this%server_sizes%at(i) >= nsplit) then
+             call this%large_server_pool%push_back(i)
+          else
+             call this%small_server_pool%push_back(i)
+          end if
+      enddo
+      this%writeCutoff = nwriteCutoff
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine split_clients
+
+   subroutine set_server_size(this, server_size, unusable, rc)
+      class (ClientManager), intent(inout) :: this
+      integer, intent(in) :: server_size
+      class (KeywordEnforcer),  optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      call this%server_sizes%push_back(server_size)
+
+   end subroutine set_server_size 
 
    function size(this) result(n_client) 
       class (ClientManager), intent(in) :: this
