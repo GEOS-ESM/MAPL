@@ -42,12 +42,13 @@ module MAPL_CapOptionsMod
 
 contains
 
-   function new_CapOptions(unusable, cap_rc_file, egress_file, ensemble_subdir_prefix, rc) result (cap_options)
+   function new_CapOptions(unusable, cap_rc_file, egress_file, ensemble_subdir_prefix, esmf_logging_mode, rc) result (cap_options)
       type (MAPL_CapOptions) :: cap_options
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: cap_rc_file
       character(*), optional, intent(in) :: egress_file
       character(*), optional, intent(in) :: ensemble_subdir_prefix 
+      type(ESMF_LogKind_Flag), optional, intent(in) :: esmf_logging_mode
 
       integer, optional, intent(out) :: rc
 
@@ -66,6 +67,7 @@ contains
       if (present(cap_rc_file)) cap_options%cap_rc_file = cap_rc_file
       if (present(egress_file)) cap_options%egress_file = egress_file
       if (present(ensemble_subdir_prefix)) cap_options%ensemble_subdir_prefix = ensemble_subdir_prefix
+      if (present(esmf_logging_mode)) cap_options%esmf_logging_mode = esmf_logging_mode
 
       _RETURN(_SUCCESS)
 
