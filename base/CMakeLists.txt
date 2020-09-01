@@ -24,7 +24,7 @@ set (srcs
   MAPL_Base.F90                         MAPL_HistoryGridComp.F90            MAPL_StringRouteHandleMap.F90
   MAPL_Cap.F90                          MAPL_IdentityRegridder.F90          MAPL_stubs.F90
   MAPL_CapGridComp.F90                  MAPL_Integer64GridFactoryMap.F90    MAPL_sun_uc.F90
-  MAPL_CapOptions.F90                   MAPL_ioClients.F90                  MAPL_TilingRegridder.F90
+  MAPL_CapOptions.F90                   MAPL_TilingRegridder.F90
   MAPL_CFIO.F90                         MAPL_IO.F90                         MAPL_TimeMethods.F90
   MAPL_CFIOServer.F90                   MAPL_LatLonGridFactory.F90          MAPL_TransposeRegridder.F90
   MAPL_Comms.F90                        MAPL_LatLonToLatLonRegridder.F90    MAPL_TripolarGridFactory.F90

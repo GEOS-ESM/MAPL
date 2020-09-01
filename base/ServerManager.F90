@@ -7,7 +7,6 @@ module MAPL_ServerManager
    use MAPL_KeywordEnforcerMod
    use pFIO_ClientManagerMod
    use PFIO
-   use MAPL_ioClientsMod
    use MAPL_SimpleCommSplitterMod
    use MAPL_SplitCommunicatorMod
    implicit none
@@ -51,7 +50,7 @@ contains
  
       integer, optional, intent(out) :: rc
       integer, allocatable :: npes_in(:),npes_out(:),nodes_in(:),nodes_out(:)
-      integer :: npes_out_backend
+      integer :: npes_out_backend, server_size
 
       type (SimpleCommSplitter) :: splitter
       integer :: status, i, rank,npes_model,n_oserver_group, n_iserver_group
@@ -148,7 +147,8 @@ contains
            allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), 'o_server'//trim(i_to_string(1))))
            call this%directory_service%publish(PortInfo('o_server'//trim(i_to_string(1)), this%o_server), this%o_server)
         end if
-        call io_client%init_io_clients(ni = n_iserver_group, no = n_oserver_group )
+        i_Clients = ClientManager(n_client = n_iserver_group)
+        o_Clients = ClientManager(n_client = n_oserver_group)
      endif
 
      ! establish i_server group one by one
@@ -168,7 +168,9 @@ contains
 
         if ( index(s_name, 'model') /=0 ) then
            clientPtr => i_Clients%current()
-           call this%directory_service%connect_to_server('i_server'//trim(i_to_string(i)), clientPtr, this%split_comm%get_subcommunicator())
+           call this%directory_service%connect_to_server('i_server'//trim(i_to_string(i)), clientPtr, &
+                              this%split_comm%get_subcommunicator(), server_size = server_size)
+           call i_Clients%set_server_size(server_size)
            call i_Clients%next()
         endif
 
@@ -210,7 +212,9 @@ contains
 
         if ( index(s_name, 'model') /=0 ) then
            clientPtr => o_Clients%current()
-           call this%directory_service%connect_to_server('o_server'//trim(i_to_string(i)), clientPtr, this%split_comm%get_subcommunicator())
+           call this%directory_service%connect_to_server('o_server'//trim(i_to_string(i)), clientPtr, &
+                       this%split_comm%get_subcommunicator(), server_size = server_size)
+           call o_Clients%set_server_size(server_size)
            call o_Clients%next()
         endif
 
@@ -229,12 +233,6 @@ contains
      if ( index(s_name, 'model') /=0 ) then
         call i_Clients%set_current(1) ! set current to be the first
         call o_Clients%set_current(1) ! set current to be the first
-        if (npes_out(1) >0) then
-           call io_client%set_size(no = npes_out,rc=status)
-        else if (nodes_out(1)>0) then
-           call io_client%set_size(no = nodes_out,rc=status)
-        endif
-        _VERIFY(status)
      end if
 
       _RETURN(_SUCCESS)

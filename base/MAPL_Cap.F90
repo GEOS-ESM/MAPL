@@ -13,7 +13,6 @@ module MAPL_CapMod
    use MAPL_BaseMod
    use MAPL_ExceptionHandling
    use pFIO
-   use MAPL_ioClientsMod
    use MAPL_CapOptionsMod
    use MAPL_ServerManager
    use MAPL_ApplicationSupport

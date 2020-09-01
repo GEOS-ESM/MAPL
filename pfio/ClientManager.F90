@@ -16,6 +16,8 @@ module pFIO_ClientManagerMod
    private
 
    public :: ClientManager
+   public :: i_Clients
+   public :: o_Clients
 
    type :: ClientManager
      private
@@ -52,13 +54,16 @@ module pFIO_ClientManagerMod
       procedure :: current
       procedure :: set_current
       procedure :: set_ideal_client
-      procedure :: split_clients
+      procedure :: split_server_pools
       procedure :: set_server_size
    end type
 
    interface ClientManager
       module procedure new_ClientManager
    end interface
+
+   type (ClientManager), target :: i_Clients
+   type (ClientManager), target :: o_Clients
 
 contains
 
@@ -438,7 +443,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine set_ideal_client
 
-   subroutine split_clients(this, nsplit, nwriteCutoff,unusable, rc)
+   subroutine split_server_pools(this, nsplit, nwriteCutoff,unusable, rc)
       class (ClientManager), intent(inout) :: this
       integer, intent(in) :: nsplit
       integer, intent(in) :: nWriteCutoff
@@ -458,7 +463,7 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
-   end subroutine split_clients
+   end subroutine split_server_pools
 
    subroutine set_server_size(this, server_size, unusable, rc)
       class (ClientManager), intent(inout) :: this

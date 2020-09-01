@@ -45,7 +45,6 @@ module MAPL_Mod
   use MAPL_SimpleBundleMod
   use MAPL_NewArthParserMod
   use MAPL_DirPathMod
-  use MAPL_ioClientsMod
   use MAPL_KeywordEnforcerMod
   use MAPL_SimpleCommSplitterMod
   use MAPL_SplitCommunicatorMod

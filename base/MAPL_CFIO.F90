@@ -42,7 +42,6 @@ module MAPL_CFIOMod
   use ESMF_CFIOCollectionVectorMod
   use ESMF_CFIOCollectionMod
   use PFIO
-  use MAPL_ioClientsMod
   use gFTL_IntegerVector
   use MAPL_StringTemplate
 

@@ -38,7 +38,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_RegridderSpecMod
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
-  use MAPL_ioClientsMod, only: io_client, o_Clients
+  use pFIO_ClientManagerMod, only: o_Clients
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
@@ -531,7 +531,7 @@ contains
          label = 'ServerSizeSplit:', default=1, rc=status)
     _VERIFY(status)
     if (IntState%serverSizeSplit .gt. 1) then
-       call io_client%split_oclient_pool(IntState%serverSizeSplit,IntState%collectionWriteSplit,rc=status)
+       call o_Clients%split_server_pools(IntState%serverSizeSplit,IntState%collectionWriteSplit,rc=status)
        _VERIFY(status)
     end if
 
@@ -3413,7 +3413,7 @@ ENDDO PARSER
 
    call MAPL_TimerOn(GENSTATE,"----IO Create")
 
-   if (any(writing)) call io_client%set_oClient(count(writing))
+   if (any(writing)) call o_Clients%set_ideal_client(count(writing))
 
    OPENLOOP: do n=1,nlist
       if( Writing(n) ) then

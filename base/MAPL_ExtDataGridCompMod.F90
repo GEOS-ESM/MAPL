@@ -49,7 +49,7 @@
    use MAPL_CollectionVectorMod
    use MAPL_ExtDataCollectionManagerMod
    use MAPL_FileMetadataUtilsMod
-   use MAPL_ioClientsMod
+   use pFIO_ClientManagerMod, only : i_Clients
    use MAPL_newCFIOItemMod
    use MAPL_newCFIOItemVectorMod
    use MAPL_SimpleAlarm
