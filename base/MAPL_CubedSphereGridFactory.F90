@@ -740,9 +740,11 @@ contains
          
          equals = (a%lm == b%lm)
          if (.not. equals) return
-         
+
          ! same decomposition
-         equals = all(a%ims == b%ims) 
+         ! GCHP: test size instead to avoid error if debug flags on
+         !equals = all(a%ims == b%ims)
+         equals = (size(a%ims) == size(b%ims))
          if (.not. equals) return
 
          if ( allocated(a%jms) .and. allocated(b%jms)) then
