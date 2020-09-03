@@ -287,10 +287,6 @@ contains
         case (phase_label_list(6))
             call this%init_p6(import_state, export_state, clock, rc)
             VERIFY_NUOPC_(rc)
-
-        case (phase_label_list(7))
-            call this%init_p7(import_state, export_state, clock, rc)
-            VERIFY_NUOPC_(rc)
         end select
 
         print*, "NUOPC_MAPLcapClass finish generic_init"
