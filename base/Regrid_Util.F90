@@ -143,7 +143,7 @@ CONTAINS
          read(astr,*)cs_stretch_param(1)
          call get_command_argument(i+2,astr)
          read(astr,*)cs_stretch_param(2)
-         call get_command_argument(i+2,astr)
+         call get_command_argument(i+3,astr)
          read(astr,*)cs_stretch_param(3)
       case('-method')
          call get_command_argument(i+1,RegridMth)
