@@ -844,7 +844,7 @@ contains
       enddo
       
       ! Coordinate variables
-      v = Variable(PFIO_REAL32, dimensions='Xdim')
+      v = Variable(PFIO_REAL64, dimensions='Xdim')
       call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_east')
       call v%add_const_value(UnlimitedEntity(fake_coord))    
@@ -856,19 +856,19 @@ contains
          fake_coord(i)=dble(i)
       enddo
 
-      v = Variable(PFIO_REAL32, dimensions='Ydim')
+      v = Variable(PFIO_REAL64, dimensions='Ydim')
       call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_north')
       call v%add_const_value(UnlimitedEntity(fake_coord))
       call metadata%add_variable('Ydim', v)   
       deallocate(fake_coord)
 
-      v = Variable(PFIO_REAL32, dimensions='Xdim,Ydim')
+      v = Variable(PFIO_REAL64, dimensions='Xdim,Ydim')
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
       call metadata%add_variable('lons',v)
 
-      v = Variable(PFIO_REAL32, dimensions='Xdim,Ydim')
+      v = Variable(PFIO_REAL64, dimensions='Xdim,Ydim')
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('lats',v)
