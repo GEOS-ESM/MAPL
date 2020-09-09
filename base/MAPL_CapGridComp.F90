@@ -72,6 +72,8 @@ module MAPL_CapGridCompMod
      procedure :: record_state
      procedure :: refresh_state
      procedure :: destroy_state
+     procedure :: get_field_from_import
+     procedure :: get_field_from_internal
   end type MAPL_CapGridComp
 
   type :: MAPL_CapGridComp_Wrapper
@@ -1232,6 +1234,43 @@ contains
     _RETURN(_SUCCESS)
 
   end subroutine refresh_state
+
+  subroutine get_field_from_import(this,field_name,state_name,field,rc)
+    class(MAPL_CapGridComp), intent(inout) :: this
+    character(len=*), intent(in) :: field_name
+    character(len=*), intent(in) :: state_name
+    type(ESMF_Field), intent(inout) :: field
+    integer, intent(out) :: rc
+    integer :: status
+
+    type(ESMF_State) :: state
+
+    call MAPL_ImportStateGet(this%gcs(this%root_id),this%child_imports(this%root_id),&
+         state_name,state,rc=status)
+    _VERIFY(status)
+    call ESMF_StateGet(state,trim(field_name),field,rc=status)
+    _VERIFY(status)
+    _RETURN(_SUCCESS)
+
+  end subroutine get_field_from_import
+
+  subroutine get_field_from_internal(this,field_name,state_name,field,rc)
+    class(MAPL_CapGridComp), intent(inout) :: this
+    character(len=*), intent(in) :: field_name
+    character(len=*), intent(in) :: state_name
+    type(ESMF_field), intent(inout) :: field
+    integer, intent(out) :: rc
+    integer :: status
+
+    type(ESMF_State) :: state
+
+    call MAPL_InternalESMFStateGet(this%gcs(this%root_id),state_name,state,rc=status)
+    _VERIFY(status)
+    call ESMF_StateGet(state,trim(field_name),field,rc=status)
+    _VERIFY(status)
+    _RETURN(_SUCCESS)
+
+  end subroutine get_field_from_internal
 
   subroutine destroy_state(this, rc)
     class(MAPL_CapGridComp), intent(inout) :: this
