@@ -208,6 +208,7 @@ module MAPL_GenericMod
   public MAPL_InternalStateRetrieve
   public :: MAPL_GetLogger
   public MAPL_SetStateSave
+  public MAPL_DestroyStateSave
   public MAPL_GenericStateSave
   public MAPL_StateSave 
   public MAPL_GenericStateRestore
@@ -10066,10 +10067,6 @@ subroutine MAPL_StateRestore( GC, IMPORT, EXPORT, CLOCK, RC )
                                      STATE%initial_state%IMP_FNAME, &
                                      STATE, .FALSE., RC=STATUS)
      _VERIFY(STATUS)
-     UNIT = GETFILE(STATE%initial_state%IMP_FNAME, RC=STATUS)
-     _VERIFY(STATUS)
-     call MAPL_DestroyFile(unit = UNIT, rc=STATUS)
-     _VERIFY(STATUS)
   end if
 
   if (allocated(state%initial_state%int_fname)) then
@@ -10084,12 +10081,43 @@ subroutine MAPL_StateRestore( GC, IMPORT, EXPORT, CLOCK, RC )
      _VERIFY(STATUS)
      UNIT = GETFILE(STATE%initial_state%INT_FNAME, RC=STATUS)
      _VERIFY(STATUS)
-     call MAPL_DestroyFile(unit = UNIT, rc=STATUS)
-     _VERIFY(STATUS)
   end if
 
   _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_StateRestore
+
+  recursive subroutine MAPL_DestroyStateSave(gc,rc)
+    type(ESMF_GridComp), intent(inout) :: GC    
+    integer, optional,   intent(out) :: rc
+    type(MAPL_MetaComp), pointer :: state
+    integer :: unit, i, status
+
+     call MAPL_InternalStateRetrieve(GC, STATE, RC=STATUS)
+     _VERIFY(STATUS)
+     if(associated(STATE%GCS)) then
+        do I=1,size(STATE%GCS)
+           call MAPL_DestroyStateSave (STATE%GCS(I), RC=STATUS )
+           _VERIFY(STATUS)
+        enddo
+     endif
+
+     if (allocated(STATE%initial_state%imp_fname)) then
+        UNIT = GETFILE(STATE%initial_state%IMP_FNAME, RC=STATUS)
+        _VERIFY(STATUS)
+        call MAPL_DestroyFile(unit = UNIT, rc=STATUS)
+        _VERIFY(STATUS)
+        deallocate(STATE%initial_state%imp_fname)
+     end if
+
+     if (allocated(state%initial_state%int_fname)) then
+        UNIT = GETFILE(STATE%initial_state%INT_FNAME, RC=STATUS)
+        _VERIFY(STATUS)
+        call MAPL_DestroyFile(unit = UNIT, rc=STATUS)
+        _VERIFY(STATUS)
+        deallocate(state%initial_state%int_fname)
+     end if
+
+  end subroutine MAPL_DestroyStateSave
 
   subroutine MAPL_AddRecord(MAPLOBJ, ALARM, FILETYPE, RC)
     type(MAPL_MetaComp), intent(inout) :: MAPLOBJ
