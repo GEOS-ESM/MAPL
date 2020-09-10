@@ -632,7 +632,6 @@ module MAPL_newCFIOMod
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
-        if (.not.allocated(this%lons)) allocate(this%lons(size(ptr2d,1),size(ptr2d,2)))
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lons)
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
@@ -657,13 +656,12 @@ module MAPL_newCFIOMod
         factory => get_factory(this%output_grid,rc=status)
         _VERIFY(status)
 
-        call factory%generate_file_edge_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
+        call factory%generate_file_corner_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
         _VERIFY(status)
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
         staggerloc=ESMF_STAGGERLOC_CORNER, &
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
-        if (.not.allocated(this%corner_lons)) allocate(this%corner_lons(size(ptr2d,1),size(ptr2d,2)))
         this%corner_lons=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%corner_lons)
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lons', &
