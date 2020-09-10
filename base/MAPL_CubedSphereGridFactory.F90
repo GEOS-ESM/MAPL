@@ -91,6 +91,7 @@ module MAPL_CubedSphereGridFactoryMod
       procedure :: get_grid_vars
       procedure :: append_variable_metadata
       procedure :: generate_file_bounds
+      procedure :: generate_file_edge_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
       procedure :: get_fake_longitudes
@@ -855,6 +856,8 @@ contains
       ! Grid dimensinos
       call metadata%add_dimension('Xdim', this%im_world, rc=status)
       call metadata%add_dimension('Ydim', this%im_world, rc=status)
+      call metadata%add_dimension('XCdim', this%im_world+1, rc=status)
+      call metadata%add_dimension('YCdim', this%im_world+1, rc=status)
       call metadata%add_dimension('nf', 6, rc=status)
       call metadata%add_dimension('ncontact', 4, rc=status)
       call metadata%add_dimension('orientationStrLen', 5, rc=status)
@@ -979,6 +982,16 @@ contains
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('lats',v)
+
+      v = Variable(PFIO_REAL32, dimensions='XCdim,YCdim,nf')
+      call v%add_attribute('long_name','longitude')
+      call v%add_attribute('units','degrees_east')
+      call metadata%add_variable('corner_lons',v)
+
+      v = Variable(PFIO_REAL32, dimensions='XCdim,YCdim,nf')
+      call v%add_attribute('long_name','latitude')
+      call v%add_attribute('units','degrees_north')
+      call metadata%add_variable('corner_lats',v)
 
    end subroutine append_metadata
 
@@ -1174,6 +1187,37 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine generate_file_bounds
+
+   subroutine generate_file_edge_bounds(this,grid,local_start,global_start,global_count,rc)
+      use MAPL_BaseMod
+      class(CubedSphereGridFactory), intent(inout) :: this
+      type(ESMF_Grid),      intent(inout) :: grid
+      integer, allocatable, intent(inout) :: local_start(:)
+      integer, allocatable, intent(inout) :: global_start(:)
+      integer, allocatable, intent(inout) :: global_count(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: global_dim(3),i1,j1,in,jn,tile
+      integer :: face_i1, face_j1, is, js
+      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
+      _UNUSED_DUMMY(this)
+
+      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
+      _VERIFY(status)
+      call MAPL_GridGetInterior(grid,i1,in,j1,jn)
+      tile = 1 + (j1-1)/global_dim(1)
+      face_i1 = i1
+      face_j1 = j1-(tile-1)*global_dim(1)
+      is = i1
+      js = face_j1
+      allocate(local_start,source=[is,js,tile])
+      allocate(global_start,source=[1,1,1])
+      allocate(global_count,source=[global_dim(1)+1,global_dim(1)+1,6])
+
+      _RETURN(_SUCCESS)
+
+   end subroutine generate_file_edge_bounds
 
    function generate_file_reference2D(this,fpointer) result(ref)
       use pFIO
