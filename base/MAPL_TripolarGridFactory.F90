@@ -62,6 +62,7 @@ module MAPL_TripolarGridFactoryMod
       procedure :: get_grid_vars
       procedure :: append_variable_metadata
       procedure :: generate_file_bounds
+      procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
    end type TripolarGridFactory
@@ -897,9 +898,9 @@ contains
       use MAPL_BaseMod
       class(TripolarGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
-      integer, allocatable, intent(inout) :: local_start(:)
-      integer, allocatable, intent(inout) :: global_start(:)
-      integer, allocatable, intent(inout) :: global_count(:)
+      integer, allocatable, intent(out) :: local_start(:)
+      integer, allocatable, intent(out) :: global_start(:)
+      integer, allocatable, intent(out) :: global_count(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -915,6 +916,22 @@ contains
       allocate(global_count,source=[global_dim(1),global_dim(2)])
 
    end subroutine generate_file_bounds
+
+   subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
+      use esmf
+      class (TripolarGridFactory), intent(inout) :: this
+      type(ESMF_Grid), intent(inout)      :: grid
+      integer, allocatable, intent(out) :: local_start(:)
+      integer, allocatable, intent(out) :: global_start(:)
+      integer, allocatable, intent(out) :: global_count(:)
+      integer, optional, intent(out) :: rc
+
+      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_corner_bounds'
+      integer :: status
+
+      _ASSERT(.false.,"not yet implemented")
+
+   end subroutine generate_file_corner_bounds
 
    function generate_file_reference2D(this,fpointer) result(ref)
       use pFIO

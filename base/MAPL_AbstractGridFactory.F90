@@ -75,6 +75,7 @@ module MAPL_AbstractGridFactoryMod
       procedure(get_grid_vars), deferred :: get_grid_vars
       procedure(append_variable_metadata), deferred :: append_variable_metadata
       procedure(generate_file_bounds), deferred :: generate_file_bounds
+      procedure(generate_file_corner_bounds), deferred :: generate_file_corner_bounds
       procedure(generate_file_reference2D), deferred :: generate_file_reference2D
       procedure(generate_file_reference3D), deferred :: generate_file_reference3D
    end type AbstractGridFactory
@@ -176,12 +177,24 @@ module MAPL_AbstractGridFactoryMod
          import AbstractGridFactory
          class (AbstractGridFactory), intent(inout) :: this
          type(ESMF_Grid), intent(inout)      :: grid
-         integer, allocatable, intent(inout) :: local_start(:)
-         integer, allocatable, intent(inout) :: global_start(:)
-         integer, allocatable, intent(inout) :: global_count(:)
+         integer, allocatable, intent(out) :: local_start(:)
+         integer, allocatable, intent(out) :: global_start(:)
+         integer, allocatable, intent(out) :: global_count(:)
          integer, optional, intent(out) :: rc
          
       end subroutine generate_file_bounds
+
+      subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
+         use esmf
+         import AbstractGridFactory
+         class (AbstractGridFactory), intent(inout) :: this
+         type(ESMF_Grid), intent(inout)      :: grid
+         integer, allocatable, intent(out) :: local_start(:)
+         integer, allocatable, intent(out) :: global_start(:)
+         integer, allocatable, intent(out) :: global_count(:)
+         integer, optional, intent(out) :: rc
+         
+      end subroutine generate_file_corner_bounds
 
       function generate_file_reference2D(this,fpointer) result(ref)
          use pFIO
