@@ -42,6 +42,7 @@ module MAPL_newCFIOMod
      integer :: regrid_method = REGRID_METHOD_BILINEAR
      integer :: nbits = 1000
      real, allocatable :: lons(:,:),lats(:,:)
+     real, allocatable :: corner_lons(:,:),corner_lats(:,:)
      real, allocatable :: times(:)
      type(TimeData) :: timeInfo
      type(VerticalData) :: vdata
@@ -631,7 +632,6 @@ module MAPL_newCFIOMod
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
-        if (.not.allocated(this%lons)) allocate(this%lons(size(ptr2d,1),size(ptr2d,2)))
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lons)
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
@@ -644,6 +644,36 @@ module MAPL_newCFIOMod
         this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lats)
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
+              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+        deallocate(LocalStart,GlobalStart,GlobalCount)
+     end if
+
+     var_lon => this%metadata%get_variable('corner_lons')
+     var_lat => this%metadata%get_variable('corner_lats')
+     
+     hasll = associated(var_lon) .and. associated(var_lat)
+     if (hasll) then
+        factory => get_factory(this%output_grid,rc=status)
+        _VERIFY(status)
+
+        call factory%generate_file_corner_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
+        _VERIFY(status)
+        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
+        staggerloc=ESMF_STAGGERLOC_CORNER, &
+        farrayPtr=ptr2d, rc=status)
+        _VERIFY(STATUS)
+        this%corner_lons=ptr2d*MAPL_RADIANS_TO_DEGREES
+        ref = ArrayReference(this%corner_lons)
+         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lons', &
+              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
+        staggerloc=ESMF_STAGGERLOC_CORNER, &
+        farrayPtr=ptr2d, rc=status)
+        _VERIFY(STATUS)
+        if (.not.allocated(this%corner_lats)) allocate(this%corner_lats(size(ptr2d,1),size(ptr2d,2)))
+        this%corner_lats=ptr2d*MAPL_RADIANS_TO_DEGREES
+        ref = ArrayReference(this%corner_lats)
+         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lats', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
      end if
 
