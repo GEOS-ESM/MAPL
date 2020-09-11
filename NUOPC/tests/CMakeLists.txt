@@ -1,6 +1,7 @@
 add_definitions(-DUSE_MPI)
 set(TEST_SRCS
-    Test_NUOPCmap.F90
+    Test_NUOPCmap.pf
+    Test_NUOPCMAPLcap_Class.pf
     )
 
 set(SRCS
