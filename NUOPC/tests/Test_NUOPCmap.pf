@@ -1,33 +1,34 @@
 module Test_NUOPCmap
+   use, intrinsic :: iso_fortran_env, only: INT64
+
    use pfunit
    use NUOPCmapMod
    use ESMF
 
+   character(*), parameter :: test_phase_label = 'test'
+   character(*), parameter :: test_phase_label_bad = 'bad'
 contains
    @test
    subroutine test_add_phase()
       type(NUOPCmap)          :: NUOPC_map
-      character(*), parameter :: phase_label = 'test'
-      character(*), parameter :: phase_label_bad = 'bad'
       integer                 :: rc
 
-      call NUOPC_map%add_phase(1, phase_label, rc)
+      call NUOPC_map%add_phase(1, test_phase_label, rc)
       @assert_that(rc, is(equal_to(0)))
-      @assert_that(NUOPC_map%NUOPC_map%count(1) > 0, is(true()))
-      @assert_that(NUOPC_map%NUOPC_map%at(1), is(equal_to(phase_label)))
-      @assert_that(NUOPC_map%NUOPC_map%at(1), is(not(equal_to(phase_label_bad))))
+      @assert_that(NUOPC_map%NUOPC_map%count(1), is(equal_to(1_INT64)))
+      @assert_that(NUOPC_map%NUOPC_map%at(1), is(equal_to(test_phase_label)))
+      @assert_that(NUOPC_map%NUOPC_map%at(1), is(not(equal_to(test_phase_label_bad))))
 
-      call NUOPC_map%add_phase(1, phase_label_bad, rc)
+      call NUOPC_map%add_phase(1, test_phase_label_bad, rc)
       @assert_that(rc, is(equal_to(ESMF_RC_OBJ_BAD)))
-      @assert_that(NUOPC_map%NUOPC_map%count(1) > 0, is(true()))
-      @assert_that(NUOPC_map%NUOPC_map%at(1), is(not(equal_to(phase_label_bad))))
+      @assert_that(NUOPC_map%NUOPC_map%count(1), is(equal_to(1_INT64)))
+      @assert_that(NUOPC_map%NUOPC_map%at(1), is(not(equal_to(test_phase_label_bad))))
    end subroutine test_add_phase
 
    @test
    subroutine test_get_phase()
       type(NUOPCmap)          :: NUOPC_map
       character(:), pointer   :: phase_label
-      character(*), parameter :: test_phase_label = 'test'
       integer                 :: rc
 
       call NUOPC_map%get_phase(1, phase_label, rc)
@@ -42,4 +43,73 @@ contains
       @assert_that(associated(phase_label), is(true()))
       @assert_that(phase_label, is(equal_to(test_phase_label)))
    end subroutine test_get_phase
+
+   subroutine mock_search_phase_map(gc, phase_label, phase_index, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(*),        intent(in   ) :: phase_label
+      integer,             intent(  out) :: phase_index
+      integer,             intent(  out) :: rc
+
+      rc = ESMF_SUCCESS
+
+      select case(phase_label)
+      case(test_phase_label)
+         phase_index = 0
+      case(test_phase_label_bad)
+         phase_index = -1
+      case(phase_label_list(1))
+         phase_index = 100
+      case(phase_label_list(2))
+         phase_index = 200
+      case(phase_label_list(3))
+         phase_index = 300
+      case(phase_label_list(4))
+         phase_index = 400
+      case(phase_label_list(5))
+         phase_index = 500
+      case(phase_label_list(6))
+         phase_index = 600
+      case default
+         rc = 1
+      end select
+   end subroutine mock_search_phase_map
+
+   @test
+   subroutine test_read_phase()
+      type(NUOPCmap)      :: NUOPC_map
+      type(ESMF_GridComp) :: gc
+      integer             :: rc
+
+      NUOPC_map%search_phase_map => mock_search_phase_map
+
+      @assert_that(NUOPC_map%NUOPC_map%count(0), is(equal_to(0_INT64)))
+      call NUOPC_map%read_phase(gc, test_phase_label, rc)
+      @assert_that(rc, is(equal_to(0)))
+      @assert_that(NUOPC_map%NUOPC_map%count(0), is(equal_to(1_INT64)))
+      @assert_that(NUOPC_map%NUOPC_map%at(0), is(equal_to(test_phase_label)))
+
+      call NUOPC_map%read_phase(gc, test_phase_label_bad, rc)
+      @assert_that(rc, is(not(equal_to(0))))
+      @assert_that(rc, is(equal_to(ESMF_RC_OBJ_BAD)))
+      @assert_that(NUOPC_map%NUOPC_map%count(-1), is(equal_to(0_INT64)))
+   end subroutine test_read_phase
+
+   @test
+   subroutine test_create_phase_map()
+      type(NUOPCmap)      :: NUOPC_map
+      type(ESMF_GridComp) :: gc
+      integer             :: rc
+
+      integer :: i
+
+      call NUOPC_map%create_phase_map(gc, mock_search_phase_map, rc)
+      @assert_that(rc, is(equal_to(0)))
+      @assert_that(associated(NUOPC_map%search_phase_map, mock_search_phase_map), is(true()))
+
+      do i=1, num_phases
+         @assert_that(NUOPC_map%NUOPC_map%count(i*100), is(equal_to(1_INT64)))
+         @assert_that(NUOPC_map%NUOPC_map%at(i*100), is(equal_to(phase_label_list(i))))
+      end do
+      @assert_that(NUOPC_map%NUOPC_map%size(), is(equal_to(INT(num_phases, INT64))))
+   end subroutine test_create_phase_map
 end module Test_NUOPCmap

@@ -27,15 +27,32 @@ module NUOPCmapMod
          ]
 
    type :: NUOPCmap
-      type(IntegerStringMap) :: NUOPC_map
+      type(IntegerStringMap)                             :: NUOPC_map
+      procedure(NUOPC_search_phase_map), nopass, pointer :: search_phase_map => null()
    contains
       procedure :: get_phase
       procedure :: add_phase
       procedure :: read_phase
-      procedure :: create_phase_map
+      procedure :: create_phase_map_no_search
+      procedure :: create_phase_map_with_search
+      generic   :: create_phase_map => create_phase_map_no_search
+      generic   :: create_phase_map => create_phase_map_with_search
    end type NUOPCmap
 
 contains
+   subroutine NUOPC_search_phase_map(gc, phase_label, phase_index, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(*),        intent(in   ) :: phase_label
+      integer,             intent(  out) :: phase_index
+      integer,             intent(  out) :: rc
+
+      rc = ESMF_SUCCESS
+
+      call NUOPC_CompSearchPhaseMap(gc, ESMF_METHOD_INITIALIZE, &
+            phaseLabel=phase_label, phaseIndex=phase_index, rc=rc)
+      VERIFY_NUOPC_(rc)
+   end subroutine NUOPC_search_phase_map
+
    subroutine get_phase(this, index, phase_label, rc)
       class(NUOPCmap),           intent(inout) :: this
       integer,                   intent(in   ) :: index
@@ -67,22 +84,21 @@ contains
       end if
    end subroutine add_phase
 
-   subroutine read_phase(this, gc, index, rc)
+   subroutine read_phase(this, gc, phase_label, rc)
       class(NUOPCmap),     intent(inout) :: this
       type(ESMF_GridComp), intent(inout) :: gc
-      integer,             intent(in   ) :: index
+      character(*),        intent(in   ) :: phase_label
       integer,             intent(  out) :: rc
 
       integer :: phase_index
 
       rc = ESMF_SUCCESS
 
-      call NUOPC_CompSearchPhaseMap(gc, ESMF_METHOD_INITIALIZE, &
-            phaseLabel=phase_label_list(index), phaseIndex=phase_index, rc=rc)
+      call this%search_phase_map(gc, phase_label, phase_index, rc)
       VERIFY_NUOPC_(rc)
 
       if (phase_index >= 0) then
-         call this%add_phase(phase_index, phase_label_list(index), rc=rc)
+         call this%add_phase(phase_index, phase_label, rc=rc)
          VERIFY_NUOPC_(rc)
       else
          rc = ESMF_RC_OBJ_BAD
@@ -90,18 +106,29 @@ contains
       end if
    end subroutine read_phase
 
-   subroutine create_phase_map(this, gc, rc)
+   subroutine create_phase_map_no_search(this, gc, rc)
       class(NUOPCmap),     intent(inout) :: this
       type(ESMF_GridComp), intent(inout) :: gc
       integer,             intent(  out) :: rc
+
+      call this%create_phase_map(gc, NUOPC_search_phase_map, rc)
+   end subroutine create_phase_map_no_search
+
+   subroutine create_phase_map_with_search(this, gc, search_phase_map, rc)
+      class(NUOPCmap),                 intent(inout) :: this
+      type(ESMF_GridComp),             intent(inout) :: gc
+      procedure(NUOPC_search_phase_map)                :: search_phase_map
+      integer,                         intent(  out) :: rc
 
       integer :: i
 
       rc = ESMF_SUCCESS
 
+      this%search_phase_map => search_phase_map
+
       do i=1, num_phases
-         call this%read_phase(gc, i, rc)
+         call this%read_phase(gc, phase_label_list(i), rc)
          VERIFY_NUOPC_(rc)
       end do
-   end subroutine create_phase_map
+   end subroutine create_phase_map_with_search
 end module NUOPCmapMod
