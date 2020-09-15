@@ -4,6 +4,7 @@
 module pFIO_ClientManagerMod
 
    use MAPL_ExceptionHandling
+   use MAPL_SortMod
    use pFIO_KeywordEnforcerMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_FileMetadataMod
@@ -53,7 +54,7 @@ module pFIO_ClientManagerMod
       procedure :: next
       procedure :: current
       procedure :: set_current
-      procedure :: set_ideal_client
+      procedure :: set_optimal_server
       procedure :: split_server_pools
       procedure :: set_server_size
    end type
@@ -417,48 +418,97 @@ contains
       clientPtr=> this%clients%at(this%current_client)
    end function current
 
-   subroutine set_ideal_client(this,nwriting,unusable,rc) 
+   subroutine set_optimal_server(this,nwriting,unusable,rc) 
       class (ClientManager), intent(inout) :: this
       integer, intent(in) :: nwriting
       class (KeywordEnforcer),  optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
+      integer, save, allocatable :: nwritings(:) ! saved the past nwritings 
+      integer :: Cuttoff, ssize
+      integer, allocatable :: nwritings_order(:)
 
-      ! no "small" pool, just get next
+      ! if there is no "small" pool, then there is no "large" pool either, just get next
       if (this%small_server_pool%size() == 0) then
          call this%next()
+         _ASSERT(this%large_server_pool%size() == 0,'pool is not split')
+         _RETURN(_SUCCESS)
+
+      endif
+
+      _ASSERT(this%large_server_pool%size()>0,'large server pool must be great than zero')
+      _ASSERT(this%small_server_pool%size()>0,'small server pool must be great than zero')
+
+      Cuttoff = this%writeCutoff
+      ! if writeCutoff is not set, then pick one from the past experience
+      ! the whole pool size is used to determine how many past nwrting are saved
+      if (this%writeCutoff == 0) then
+         ssize = this%server_sizes%size()
+         if (.not. allocated (nwritings)) allocate (nwritings(ssize))
+         allocate(nwritings_order(ssize))
+
+         nwritings(2:ssize) = nwritings(1:ssize-1)
+         nwritings(1)       = nwriting
+         call MAPL_sort(nwritings, nwritings_order)
+         Cuttoff = nwritings_order((ssize+1)/2)
+         deallocate(nwritings_order)
+      endif
+         
+      if (nwriting .ge. Cuttoff) then
+         this%largeCurrent=this%largeCurrent+1
+         if (this%largeCurrent .gt. this%large_server_pool%size()) this%largeCurrent=1
+         call this%set_current( ith =  this%large_server_pool%at(this%largeCurrent))
       else
-         _ASSERT(this%large_server_pool%size()>0,'large server pool must be great than zero')
-         _ASSERT(this%small_server_pool%size()>0,'small server pool must be great than zero')
-         if (nwriting .ge. this%writeCutoff) then
-            this%largeCurrent=this%largeCurrent+1
-            if (this%largeCurrent .gt. this%large_server_pool%size()) this%largeCurrent=1
-            call this%set_current( ith =  this%large_server_pool%at(this%largeCurrent))
-         else
-            this%smallCurrent=this%smallCurrent+1
-            if (this%smallCurrent .gt. this%small_server_pool%size()) this%smallCurrent=1
-            call this%set_current( ith = this%small_server_pool%at(this%smallCurrent) )
-         end if
+         this%smallCurrent=this%smallCurrent+1
+         if (this%smallCurrent .gt. this%small_server_pool%size()) this%smallCurrent=1
+         call this%set_current( ith = this%small_server_pool%at(this%smallCurrent) )
       end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine set_ideal_client
+   end subroutine set_optimal_server
 
-   subroutine split_server_pools(this, nsplit, nwriteCutoff,unusable, rc)
+   subroutine split_server_pools(this, unusable, n_server_split, n_hist_split, rc)
       class (ClientManager), intent(inout) :: this
-      integer, intent(in) :: nsplit
-      integer, intent(in) :: nWriteCutoff
       class (KeywordEnforcer),  optional, intent(in) :: unusable
+      integer, optional, intent(in) :: n_server_split
+      integer, optional, intent(in) :: n_hist_split
       integer, optional, intent(out) :: rc
 
-      integer :: i
+      integer :: i, nsplit, nwriteCutoff, ssize
+      integer, allocatable :: server_sizes(:)
 
-      do i=1,this%server_sizes%size()
+      nsplit = 0
+      if (present(n_server_split)) nsplit = n_server_split
+ 
+      ! by default, nsplit = 0, every server goes to the large pool 
+
+      ssize = this%server_sizes%size()
+
+      if (ssize == 1) then
+        _RETURN(_SUCCESS)
+      endif
+
+      ! pick the mid-point as splitter if there is no default
+      if (nsplit == 0) then
+         allocate(server_sizes(ssize))
+         do i=1,ssize
+            server_sizes(i) = this%server_sizes%at(i)
+         enddo
+         call MAPL_Sort(server_sizes)
+         nsplit = server_sizes((ssize + 1)/2)
+      endif
+
+      do i=1,ssize
           if (this%server_sizes%at(i) >= nsplit) then
              call this%large_server_pool%push_back(i)
           else
              call this%small_server_pool%push_back(i)
           end if
       enddo
+
+      nwriteCutoff = 0
+      if (present(n_hist_split)) nwriteCutoff = n_hist_split
+
       this%writeCutoff = nwriteCutoff
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
