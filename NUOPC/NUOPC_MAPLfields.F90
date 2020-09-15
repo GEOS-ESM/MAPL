@@ -28,6 +28,12 @@ module NUOPC_MAPLfields_Mod
       procedure :: realize_to_import_state
       procedure :: allocate_coupling
       procedure :: realize_to_export_state
+
+      procedure :: get_field_from_state
+      procedure :: get_name_from_field
+      procedure :: get_long_name_from_field
+      procedure :: get_units_from_field
+      procedure :: fill_from_state
    end type FieldAttributes
 contains
    logical function has_field_dictionary_entry(this, rc)
@@ -124,7 +130,7 @@ contains
       integer :: status
 
       call ESMF_FieldValidate(this%field, rc=status)
-      VERIFY_NUOPC_(status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
    end subroutine validate
@@ -152,7 +158,7 @@ contains
       integer :: status
 
       call MAPL_AllocateCoupling(this%field, rc=status)
-      VERIFY_NUOPC_(status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
    end subroutine allocate_coupling
@@ -172,4 +178,92 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine realize_to_export_state
+
+   subroutine get_field_from_state(this, state, name, rc)
+      class(FieldAttributes), intent(inout) :: this
+      type(ESMF_State),       intent(inout) :: state
+      character(*),           intent(in   ) :: name
+      integer,optional,       intent(  out) :: rc
+
+      integer :: status
+
+      call ESMF_StateGet(state, name, this%field, rc=status)
+      _VERIFY(status)
+
+      call this%validate(rc=status)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_field_from_state
+
+   subroutine get_name_from_field(this, rc)
+      class(FieldAttributes), intent(inout) :: this
+      integer,optional,       intent(  out) :: rc
+
+      character(len=ESMF_MAXSTR) :: name
+
+      integer :: status
+
+      call ESMF_FieldGet(this%field, name=name, rc=status)
+      _VERIFY(status)
+      this%name = trim(name)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_name_from_field
+
+   subroutine get_long_name_from_field(this, rc)
+      class(FieldAttributes), intent(inout) :: this
+      integer,optional,       intent(  out) :: rc
+
+      character(len=ESMF_MAXSTR) :: long_name
+
+      integer :: status
+
+      call ESMF_AttributeGet(this%field, name="LONG_NAME", value=long_name, rc=status)
+      _VERIFY(status)
+      this%long_name = trim(long_name)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_long_name_from_field
+
+   subroutine get_units_from_field(this, rc)
+      class(FieldAttributes), intent(inout) :: this
+      integer,optional,       intent(  out) :: rc
+
+      character(len=ESMF_MAXSTR) :: units
+
+      integer :: status
+
+      call ESMF_AttributeGet(this%field, name="UNITS", value=units, rc=status)
+      _VERIFY(status)
+
+      if (units == "" .or. units == " ") units = "1"
+      this%units = trim(units)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_units_from_field
+
+   subroutine fill_from_state(this, state, name, rc)
+      class(FieldAttributes), intent(inout) :: this
+      type(ESMF_State),       intent(inout) :: state
+      character(*),           intent(in   ) :: name
+      integer,optional,       intent(  out) :: rc
+
+      integer :: status
+
+      call this%get_field_from_state(state, name, rc=status)
+      _VERIFY(status)
+
+      call this%get_name_from_field(rc=status)
+      _VERIFY(status)
+
+      call this%get_long_name_from_field(rc=status)
+      _VERIFY(status)
+
+      call this%get_units_from_field(rc=status)
+      _VERIFY(status)
+
+      ! Temporary
+      this%trans_geom = "will provide"
+   end subroutine fill_from_state
 end module NUOPC_MAPLfields_Mod

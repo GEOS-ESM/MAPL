@@ -10,6 +10,7 @@ module NUOPC_MAPLcapClass
     use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler
 
     use NUOPCmapMod
+    use NUOPC_MAPLfields_Mod
 
     implicit none
     private
@@ -45,17 +46,6 @@ module NUOPC_MAPLcapClass
         procedure :: set_clock
         procedure :: finalize
     end type NUOPC_MAPLcap
-
-    type :: FieldAttributes
-        type(ESMF_Field)              :: field
-        character(len=:), allocatable :: name
-        character(len=:), allocatable :: long_name
-        character(len=:), allocatable :: units
-    contains
-        procedure :: advertise_to_state
-        procedure :: realize_to_import_state
-        procedure :: realize_to_export_state
-    end type FieldAttributes
 
     abstract interface
         subroutine abs_set_services(gc, rc)
@@ -464,32 +454,6 @@ contains
         end subroutine advertise
     end subroutine advertise_fields
 
-    subroutine advertise_to_state(this, state, rc)
-        class(FieldAttributes), intent(inout) :: this
-        type(ESMF_State),       intent(inout) :: state
-        integer,                intent(  out) :: rc
-
-        rc = ESMF_SUCCESS
-
-        print*, "NUOPC_MAPLcapClass start advertise_to_state"
-        call ESMF_LogWrite("NUOPC_MAPLcapClass start advertise_to_state", ESMF_LOGMSG_INFO, rc=rc)
-        VERIFY_ESMF_(rc)
-
-        if (.not. NUOPC_FieldDictionaryHasEntry(this%name)) then
-            call NUOPC_FieldDictionaryAddEntry(standardName=trim(this%name), &
-                    canonicalUnits=trim(this%units), rc=rc)
-            VERIFY_NUOPC_(rc)
-        end if
-
-        call NUOPC_Advertise(state, standardName=trim(this%name), &
-                TransferOfferGeomObject="will provide", rc=rc)
-        VERIFY_NUOPC_(rc)
-
-        print*, "NUOPC_MAPLcapClass finish advertise_to_state"
-        call ESMF_LogWrite("NUOPC_MAPLcapClass finish advertise_to_state", ESMF_LOGMSG_INFO, rc=rc)
-        VERIFY_ESMF_(rc)
-    end subroutine advertise_to_state
-
     subroutine realize_fields(this, import_state, export_state, rc)
         class(NUOPC_MAPLcap), intent(inout) :: this
         type(ESMF_State)                    :: import_state
@@ -525,48 +489,6 @@ contains
         call ESMF_LogWrite("NUOPC_MAPLcapClass finish realize_fields", ESMF_LOGMSG_INFO, rc=rc)
         VERIFY_ESMF_(rc)
     end subroutine realize_fields
-
-    subroutine realize_to_import_state(this, state, rc)
-        class(FieldAttributes), intent(inout) :: this
-        type(ESMF_State),       intent(inout) :: state
-        integer,                intent(  out) :: rc
-
-        rc = ESMF_SUCCESS
-
-        print*, "NUOPC_MAPLcapClass start realize_to_import_state"
-        call ESMF_LogWrite("NUOPC_MAPLcapClass start realize_to_import_state", ESMF_LOGMSG_INFO, rc=rc)
-        VERIFY_ESMF_(rc)
-
-        call ESMF_FieldValidate(this%field, rc=rc)
-        VERIFY_NUOPC_(rc)
-        call NUOPC_Realize(state, field=this%field, rc=rc)
-        VERIFY_NUOPC_(rc)
-
-        print*, "NUOPC_MAPLcapClass finish realize_to_import_state"
-        call ESMF_LogWrite("NUOPC_MAPLcapClass finish realize_to_import_state", ESMF_LOGMSG_INFO, rc=rc)
-        VERIFY_ESMF_(rc)
-    end subroutine realize_to_import_state
-
-    subroutine realize_to_export_state(this, state, rc)
-        class(FieldAttributes), intent(inout) :: this
-        type(ESMF_State),       intent(inout) :: state
-        integer,                intent(  out) :: rc
-
-        rc = ESMF_SUCCESS
-
-        print*, "NUOPC_MAPLcapClass start realize_to_export_state"
-        call ESMF_LogWrite("NUOPC_MAPLcapClass start realize_to_export_state", ESMF_LOGMSG_INFO, rc=rc)
-        VERIFY_ESMF_(rc)
-
-        call MAPL_AllocateCoupling(this%field, rc=rc)
-        VERIFY_NUOPC_(rc)
-        call NUOPC_Realize(state, field=this%field, rc=rc)
-        VERIFY_NUOPC_(rc)
-
-        print*, "NUOPC_MAPLcapClass finish realize_to_export_state"
-        call ESMF_LogWrite("NUOPC_MAPLcapClass finish realize_to_export_state", ESMF_LOGMSG_INFO, rc=rc)
-        VERIFY_ESMF_(rc)
-    end subroutine realize_to_export_state
 
     subroutine data_init(this, model, rc)
         class(NUOPC_MAPLcap), intent(inout) :: this
@@ -684,76 +606,24 @@ contains
 
         type(ESMF_Field)                        :: field
         character(len=ESMF_MAXSTR), allocatable :: item_names(:)
-        character(len=ESMF_MAXSTR)              :: name, long_name, units
         integer                                 :: i, item_count
 
         rc = ESMF_SUCCESS
 
-        print*, "NUOPC_MAPLcapClass start field_attributes_from_state"
-        call ESMF_LogWrite("NUOPC_MAPLcapClass start field_attributes_from_state", ESMF_LOGMSG_INFO, rc=rc)
-        VERIFY_ESMF_(rc)
-
         ! Allocate lists and get item_names
-        print*, "NUOPC_MAPLcapClass read item_count from state"
-        call ESMF_LogWrite("NUOPC_MAPLcapClass read item_count from state", ESMF_LOGMSG_INFO, rc=rc)
-        VERIFY_ESMF_(rc)
         call ESMF_StateGet(state, itemCount=item_count, rc=rc)
         VERIFY_NUOPC_(rc)
+
         allocate(item_names(item_count))
         allocate(field_attributes(item_count))
-        print*, "NUOPC_MAPLcapClass read item_names from state"
-        call ESMF_LogWrite("NUOPC_MAPLcapClass read item_names from state", ESMF_LOGMSG_INFO, rc=rc)
-        VERIFY_ESMF_(rc)
+
         call ESMF_StateGet(state, itemNameList=item_names, rc=rc)
         VERIFY_NUOPC_(rc)
 
-        print*, "NUOPC_MAPLcapClass start loop over item_names"
-        call ESMF_LogWrite("NUOPC_MAPLcapClass start loop over item_names", ESMF_LOGMSG_INFO, rc=rc)
-        VERIFY_ESMF_(rc)
         do i=1, item_count
-            ! Get a field from the state
-            print*, "NUOPC_MAPLcapClass get field for item_name:", i, item_names(i)
-            call ESMF_LogWrite("NUOPC_MAPLcapClass get field for item_name: "//item_names(i), ESMF_LOGMSG_INFO, rc=rc)
-            VERIFY_ESMF_(rc)
-            call ESMF_StateGet(state, item_names(i), field, rc=rc)
-            VERIFY_NUOPC_(rc)
-            print*, "NUOPC_MAPLcapClass validate get field"
-            call ESMF_LogWrite("NUOPC_MAPLcapClass validate the field", ESMF_LOGMSG_INFO, rc=rc)
-            VERIFY_ESMF_(rc)
-            call ESMF_FieldValidate(field, rc=rc)
-            VERIFY_NUOPC_(rc)
 
-            ! Get the name of the field
-            print*, "NUOPC_MAPLcapClass read name from field"
-            call ESMF_LogWrite("NUOPC_MAPLcapClass read name from field", ESMF_LOGMSG_INFO, rc=rc)
-            VERIFY_ESMF_(rc)
-            call ESMF_FieldGet(field, name=name, rc=rc)
+            call field_attributes(i)%fill_from_state(state, item_names(i), rc=rc)
             VERIFY_NUOPC_(rc)
-
-            ! Get the LONG_NAME of the field
-            print*, "NUOPC_MAPLcapClass read LONG_NAME from field"
-            call ESMF_LogWrite("NUOPC_MAPLcapClass read LONG_NAME from field", ESMF_LOGMSG_INFO, rc=rc)
-            VERIFY_ESMF_(rc)
-            call ESMF_AttributeGet(field, name="LONG_NAME", value=long_name, rc=rc)
-            VERIFY_NUOPC_(rc)
-
-            ! Get the UNITS of the field
-            print*, "NUOPC_MAPLcapClass read UNITS from field"
-            call ESMF_LogWrite("NUOPC_MAPLcapClass read UNITS from field", ESMF_LOGMSG_INFO, rc=rc)
-            VERIFY_ESMF_(rc)
-            call ESMF_AttributeGet(field, name="UNITS", value=units, rc=rc)
-            VERIFY_NUOPC_(rc)
-            if (units == "" .or. units == " ") units = "1"
-
-            ! Create Field Attributes
-            print*, "NUOPC_MAPLcapClass create FieldAttributes for field"
-            call ESMF_LogWrite("NUOPC_MAPLcapClass create FieldAttributes for field", ESMF_LOGMSG_INFO, rc=rc)
-            VERIFY_ESMF_(rc)
-            field_attributes(i) = FieldAttributes(field, name, long_name, units)
         end do
-
-        print*, "NUOPC_MAPLcapClass finish field_attributes_from_state"
-        call ESMF_LogWrite("NUOPC_MAPLcapClass finish field_attributes_from_state", ESMF_LOGMSG_INFO, rc=rc)
-        VERIFY_ESMF_(rc)
     end function field_attributes_from_state
 end module NUOPC_MAPLcapClass
