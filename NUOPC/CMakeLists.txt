@@ -4,6 +4,7 @@ set (srcs
         NUOPC_MAPLcap.F90
         NUOPC_MAPLcap_Class.F90
         NUOPCmap.F90
+        NUOPC_MAPLfields.F90
 )
 
 esma_add_library(

@@ -117,7 +117,7 @@ contains
    subroutine create_phase_map_with_search(this, gc, search_phase_map, rc)
       class(NUOPCmap),                 intent(inout) :: this
       type(ESMF_GridComp),             intent(inout) :: gc
-      procedure(NUOPC_search_phase_map)                :: search_phase_map
+      procedure(NUOPC_search_phase_map)              :: search_phase_map
       integer,                         intent(  out) :: rc
 
       integer :: i

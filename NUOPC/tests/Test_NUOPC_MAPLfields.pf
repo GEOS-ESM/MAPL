@@ -1,0 +1,226 @@
+#include "MAPL_Generic.h"
+#include "NUOPC_ErrLog.h"
+
+module Test_NUOPC_MAPLfields
+   use pfunit
+   use NUOPC_MAPLfields_Mod
+   use ESMF
+   use NUOPC
+   use MAPL_Mod
+
+   character(*), parameter :: test_name       = 'test_name'
+   character(*), parameter :: test_name_bad   = 'test_name_bad'
+   character(*), parameter :: test_units      = 'test_units'
+   character(*), parameter :: test_trans_geom = 'test_trans_geom'
+
+   type, extends(FieldAttributes) :: mock_FieldAttributes_add_to_field_dictionary
+      logical :: has_field_dictionary_entry_return
+      integer :: has_field_dictionary_entry_rc
+      integer :: add_field_dictionary_entry_rc
+
+      integer :: has_field_dictionary_entry_called = 0
+      integer :: add_field_dictionary_entry_called = 0
+   contains
+      procedure :: has_field_dictionary_entry
+      procedure :: add_field_dictionary_entry
+   end type mock_FieldAttributes_add_to_field_dictionary
+
+   type, extends(FieldAttributes) :: mock_FieldAttributes_advertise_to_state
+      integer :: add_to_field_dictionary_rc
+      integer :: advertise_rc
+
+      integer :: add_to_field_dictionary_called = 0
+      integer :: advertise_called = 0
+   contains
+      procedure :: add_to_field_dictionary
+      procedure :: advertise
+   end type mock_FieldAttributes_advertise_to_state
+
+   type, extends(FieldAttributes) :: mock_FieldAttributes_realize_to_state
+      integer :: realize_rc
+      integer :: validate_rc
+      integer :: allocate_coupling_rc
+
+      integer :: realize_called = 0
+      integer :: validate_called = 0
+      integer :: allocate_coupling_called = 0
+   contains
+      procedure :: realize
+      procedure :: validate
+      procedure :: allocate_coupling
+   end type mock_FieldAttributes_realize_to_state
+contains
+   logical function has_field_dictionary_entry(this, rc)
+      class(mock_FieldAttributes_add_to_field_dictionary), intent(inout) :: this
+      integer, optional,                                   intent(  out) :: rc
+
+      integer :: status = ESMF_SUCCESS
+
+      this%has_field_dictionary_entry_called = this%has_field_dictionary_entry_called + 1
+      this%has_field_dictionary_entry_return = &
+            this%FieldAttributes%has_field_dictionary_entry(rc=this%has_field_dictionary_entry_rc)
+
+      select case (this%name)
+      case (test_name)
+         has_field_dictionary_entry = .false.
+      case (test_name_bad)
+         has_field_dictionary_entry = .true.
+      case default
+         status = 1
+      end select
+
+      _RETURN(_SUCCESS)
+   end function has_field_dictionary_entry
+
+   subroutine add_field_dictionary_entry(this, rc)
+      class(mock_FieldAttributes_add_to_field_dictionary), intent(inout) :: this
+      integer, optional,                                   intent(  out) :: rc
+
+      integer :: status = ESMF_SUCCESS
+
+      this%add_field_dictionary_entry_called = this%add_field_dictionary_entry_called + 1
+      call this%FieldAttributes%add_field_dictionary_entry(rc=this%add_field_dictionary_entry_rc)
+
+      if (this%name /= test_name) status = 1
+      if (this%units /= test_units) status = 1
+
+      _RETURN(_SUCCESS)
+   end subroutine add_field_dictionary_entry
+
+   @test
+   subroutine test_add_to_field_dictionary()
+      type(mock_FieldAttributes_add_to_field_dictionary) :: field_attributes
+      integer                                            :: rc
+
+      field_attributes%name  = test_name
+      field_attributes%units = test_units
+
+      @assert_that(field_attributes%has_field_dictionary_entry_called, is(equal_to(0)))
+      @assert_that(field_attributes%add_field_dictionary_entry_called, is(equal_to(0)))
+
+      call field_attributes%add_to_field_dictionary(rc)
+      @assert_that(rc, is(equal_to(ESMF_SUCCESS)))
+      @assert_that(field_attributes%has_field_dictionary_entry_called, is(equal_to(1)))
+      @assert_that(field_attributes%add_field_dictionary_entry_called, is(equal_to(1)))
+
+      field_attributes%name = test_name_bad
+
+      call field_attributes%add_to_field_dictionary(rc)
+      @assert_that(rc, is(equal_to(ESMF_SUCCESS)))
+      @assert_that(field_attributes%has_field_dictionary_entry_called, is(equal_to(2)))
+      @assert_that(field_attributes%add_field_dictionary_entry_called, is(equal_to(1)))
+   end subroutine test_add_to_field_dictionary
+
+   subroutine add_to_field_dictionary(this, rc)
+      class(mock_FieldAttributes_advertise_to_state), intent(inout) :: this
+      integer, optional,                              intent(  out) :: rc
+
+      integer :: status = ESMF_SUCCESS
+
+      this%add_to_field_dictionary_called = this%add_to_field_dictionary_called + 1
+      call this%FieldAttributes%add_to_field_dictionary(rc=this%add_to_field_dictionary_rc)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_to_field_dictionary
+
+   subroutine advertise(this, state, rc)
+      class(mock_FieldAttributes_advertise_to_state), intent(inout) :: this
+      type(ESMF_State),                               intent(inout) :: state
+      integer, optional,                              intent(  out) :: rc
+
+      integer :: status = ESMF_SUCCESS
+
+      this%advertise_called = this%advertise_called + 1
+      call this%FieldAttributes%advertise(state, rc=this%advertise_rc)
+
+      _RETURN(_SUCCESS)
+   end subroutine advertise
+
+   @test
+   subroutine test_advertise_to_state()
+      type(mock_FieldAttributes_advertise_to_state) :: field_attributes
+      type(ESMF_State)                              :: state
+      integer                                       :: rc
+
+      field_attributes%name       = test_name
+      field_attributes%trans_geom = test_trans_geom
+
+      @assert_that(field_attributes%add_to_field_dictionary_called, is(equal_to(0)))
+      @assert_that(field_attributes%advertise_called,               is(equal_to(0)))
+
+      call field_attributes%advertise_to_state(state, rc)
+      @assert_that(rc, is(equal_to(ESMF_SUCCESS)))
+
+      @assert_that(field_attributes%add_to_field_dictionary_called, is(equal_to(1)))
+      @assert_that(field_attributes%advertise_called,               is(equal_to(1)))
+   end subroutine test_advertise_to_state
+
+   subroutine realize(this, state, rc)
+      class(mock_FieldAttributes_realize_to_state), intent(inout) :: this
+      type(ESMF_State),                             intent(inout) :: state
+      integer, optional,                            intent(  out) :: rc
+
+      integer :: status = ESMF_SUCCESS
+
+      this%realize_called = this%realize_called + 1
+      call this%FieldAttributes%realize(state, rc=this%realize_rc)
+
+      _RETURN(_SUCCESS)
+   end subroutine realize
+
+   subroutine validate(this, rc)
+      class(mock_FieldAttributes_realize_to_state), intent(inout) :: this
+      integer, optional,                            intent(  out) :: rc
+
+      integer :: status = ESMF_SUCCESS
+
+      this%validate_called = this%validate_called + 1
+      call this%FieldAttributes%validate(rc=this%validate_rc)
+
+      _RETURN(_SUCCESS)
+   end subroutine validate
+
+   subroutine allocate_coupling(this, rc)
+      class(mock_FieldAttributes_realize_to_state), intent(inout) :: this
+      integer, optional,                            intent(  out) :: rc
+
+      integer :: status = ESMF_SUCCESS
+
+      this%allocate_coupling_called = this%allocate_coupling_called + 1
+      ! call this%FieldAttributes%allocate_coupling(rc=this%allocate_coupling_rc)
+
+      _RETURN(_SUCCESS)
+   end subroutine allocate_coupling
+
+   @test
+   subroutine test_realize_to_import_state()
+      type(mock_FieldAttributes_realize_to_state) :: field_attributes
+      type(ESMF_State)                            :: state
+      integer                                     :: rc
+
+      @assert_that(field_attributes%validate_called, is(equal_to(0)))
+      @assert_that(field_attributes%realize_called,  is(equal_to(0)))
+
+      call field_attributes%realize_to_import_state(state, rc)
+      @assert_that(rc, is(equal_to(ESMF_SUCCESS)))
+
+      @assert_that(field_attributes%validate_called, is(equal_to(1)))
+      @assert_that(field_attributes%realize_called,  is(equal_to(1)))
+   end subroutine test_realize_to_import_state
+
+   @test
+   subroutine test_realize_to_export_state()
+      type(mock_FieldAttributes_realize_to_state) :: field_attributes
+      type(ESMF_State)                            :: state
+      integer                                     :: rc
+
+      @assert_that(field_attributes%allocate_coupling_called, is(equal_to(0)))
+      @assert_that(field_attributes%realize_called,           is(equal_to(0)))
+
+      call field_attributes%realize_to_export_state(state, rc)
+      @assert_that(rc, is(equal_to(ESMF_SUCCESS)))
+
+      @assert_that(field_attributes%allocate_coupling_called, is(equal_to(1)))
+      @assert_that(field_attributes%realize_called,           is(equal_to(1)))
+   end subroutine test_realize_to_export_state
+end module Test_NUOPC_MAPLfields
