@@ -9,6 +9,7 @@ implicit none
 private
 
 public fill_grads_template
+public StrTemplate
 
 character(len=2), parameter :: valid_tokens(13) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2"]
 character(len=3),parameter :: mon_lc(12) = [&
@@ -16,6 +17,20 @@ character(len=3),parameter :: mon_lc(12) = [&
    'jul','aug','sep','oct','nov','dec']
 
 contains
+   subroutine StrTemplate(str, tmpl, class, xid, nymd, nhms, stat, preserve)
+      character(len=*), intent(out) :: str
+      character(len=*), intent(in ) :: tmpl
+
+      character(len=*), optional, intent(in ) :: class
+      character(len=*), optional, intent(in ) :: xid
+      integer,          optional, intent(in ) :: nymd
+      integer,          optional, intent(in ) :: nhms
+      integer,          optional, intent(out) :: stat
+      logical,          optional, intent(in ) :: preserve
+
+      call fill_grads_template(str, tmpl, &
+            experiment_id=xid, nymd=nymd, nhms=nhms,rc=stat)
+   end subroutine StrTemplate
 
    subroutine fill_grads_template(output_string,template,unusable,experiment_id,nymd,nhms,time,rc)
       character(len=*), intent(out) :: output_string
