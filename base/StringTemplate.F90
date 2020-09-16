@@ -28,6 +28,11 @@ contains
       integer,          optional, intent(out) :: stat
       logical,          optional, intent(in ) :: preserve
 
+      _UNUSED_DUMMY(class)
+
+      ! This option is not currently supported
+      _UNUSED_DUMMY(preserve)
+
       call fill_grads_template(str, tmpl, &
             experiment_id=xid, nymd=nymd, nhms=nhms,rc=stat)
    end subroutine StrTemplate
