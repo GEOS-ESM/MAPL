@@ -164,6 +164,9 @@ module MAPL_GenericMod
   public MAPL_AddChild
   public MAPL_AddConnectivity
   public MAPL_TerminateImport
+  public MAPL_ServiceAddConnection
+  public MAPL_ServiceAddProvider
+  public MAPL_ServiceAddSubscriber
   
   ! MAPL_Util
   !public MAPL_GenericStateClockOn
@@ -380,6 +383,7 @@ end type  MAPL_InitialState
 type MAPL_Connectivity
    type (MAPL_VarConn), pointer :: CONNECT(:)       => null()
    type (MAPL_VarConn), pointer :: DONOTCONN(:)     => null()
+   type (MAPL_VarServiceConnectionPtr), pointer :: ServiceConnection(:) => null()
 end type MAPL_Connectivity
 
 type MAPL_LinkType
@@ -441,6 +445,10 @@ type  MAPL_MetaComp
    type (MAPL_Communicators)                :: mapl_comm
    type (TimeProfiler), public :: t_profiler
    character(:), allocatable :: full_name ! Period separated list of ancestor names
+
+   type(MAPL_VarServiceProviderPtr), pointer :: provider_list(:) => null()
+   type(MAPL_VarServiceSubscriberPtr), pointer :: subscriber_list(:) => null()
+
    class(Logger), pointer :: lgr
 
 !!$   integer :: comm
@@ -1693,6 +1701,23 @@ endif
       _VERIFY(STATUS)
    end if
 
+   ! Service services processing:
+   ! process any providers
+   if (associated(state%provider_list)) then
+      call MAPL_VarServiceProviderSet(state%provider_list, import, rc=status)
+      _VERIFY(STATUS)
+   end if
+
+   ! process any subscribers
+   if (associated(state%subscriber_list)) then
+      call MAPL_VarServiceSubscriberSet(state%subscriber_list, state%internal, rc=status)
+      _VERIFY(STATUS)
+   end if
+
+   ! process any service connections
+  call MAPL_ServiceProcessConnections(state, RC=status)
+  _VERIFY(STATUS)
+   
   call MAPL_GenericStateClockOff(STATE,"GenInitTot")
   call MAPL_GenericStateClockOff(STATE,"TOTAL")
 
@@ -4916,7 +4941,247 @@ end function MAPL_AddChildFromGC
   end subroutine MAPL_TerminateImportAll
 
 
+!new routines to handle ServiceServices
+  subroutine MAPL_ServiceAddConnection( GC, PROVIDER, SUBSCRIBER, SERVICE, RC)
 
+    !ARGUMENTS:
+    type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
+    character (len=*),              intent(IN   ) :: PROVIDER 
+    character (len=*),              intent(IN   ) :: SUBSCRIBER
+    character (len=*),              intent(IN   ) :: SERVICE
+    integer,              optional, intent(  OUT) :: RC     ! Error code:
+    !EOPI
+
+    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ServiceAddConnection"
+    integer                               :: STATUS
+
+    type (MAPL_Connectivity), pointer     :: conn
+
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    _VERIFY(STATUS)
+
+    call MAPL_VarServiceConnectionCreate(CONN%ServiceConnection, &
+         PROVIDER=PROVIDER, &
+         SUBSCRIBER=SUBSCRIBER, &
+         SERVICE=SERVICE, &
+         RC=STATUS  )
+    _VERIFY(STATUS)
+
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine MAPL_ServiceAddConnection
+
+  subroutine MAPL_ServiceAddProvider(GC, SERVICE, BUNDLE, RC)
+    type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
+    character (len=*),              intent(IN   ) :: SERVICE
+    character (len=*),              intent(IN   ) :: BUNDLE
+    integer,              optional, intent(  OUT) :: RC     ! Error code:
+
+    integer :: status
+    type(MAPL_VarServiceProviderPtr), pointer :: provider_list(:) => null()
+
+    
+    call MAPL_ServiceProviderGet(gc, provider=provider_list, RC=status)
+    _VERIFY(STATUS)
+
+    call MAPL_VarServiceProviderListCreate(provider_list, &
+         SERVICE=SERVICE, &
+         BUNDLE=BUNDLE, &
+         RC=STATUS  )
+    _VERIFY(STATUS)
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine MAPL_ServiceAddProvider
+  
+  subroutine MAPL_ServiceAddSubscriber(GC, SERVICE, VARS, RC)
+    type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
+    character (len=*),              intent(IN   ) :: SERVICE
+    character (len=*),              intent(IN   ) :: VARS(:)
+    integer,              optional, intent(  OUT) :: RC     ! Error code:
+
+    integer :: status
+    type(MAPL_VarServiceSubscriberPtr), pointer :: subscriber_list(:) => null()
+    
+    call MAPL_ServiceSubscriberGet(gc, subscriber=subscriber_list, RC=status)
+    _VERIFY(STATUS)
+
+    call MAPL_VarServiceSubscriberListCreate(subscriber_list, &
+         SERVICE=SERVICE, &
+         VARS = VARS, &
+         RC=STATUS  )
+    _VERIFY(STATUS)
+    
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine MAPL_ServiceAddSubscriber
+
+  subroutine MAPL_ServiceProviderGet(GC, PROVIDER, RC)
+    type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
+    type(MAPL_VarServiceProviderPtr), pointer :: provider(:)
+    integer,              optional, intent(  OUT) :: RC     ! Error code:
+
+    integer :: status
+    type (MAPL_MetaComp), pointer     :: MAPLOBJ
+
+    !get MAPL
+    call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, RC=STATUS )
+    _VERIFY(STATUS)
+
+    provider => maplobj%provider_list
+    _RETURN(ESMF_SUCCESS)
+    
+  end subroutine MAPL_ServiceProviderGet
+
+  subroutine MAPL_ServiceSubscriberGet(GC, SUBSCRIBER, RC)
+    type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
+    type(MAPL_VarServiceSubscriberPtr), pointer :: subscriber(:)
+    integer,              optional, intent(  OUT) :: RC     ! Error code:
+
+    integer :: status
+    type (MAPL_MetaComp), pointer     :: MAPLOBJ
+
+    !get MAPL
+    call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, RC=STATUS )
+    _VERIFY(STATUS)
+
+    subscriber => maplobj%subscriber_list
+    _RETURN(ESMF_SUCCESS)
+    
+  end subroutine MAPL_ServiceSubscriberGet
+
+#if 0
+  in genericinitialize we need to
+  1) process providers (grab bundle from import, and store it)
+  2) process subscribers (grab locally stored bundle, and populate from vars from internal)
+  3) "service" the connections
+!  loop over all service connections
+#endif
+
+  subroutine MAPL_ServiceProcessConnections(META, RC)
+    !ARGUMENTS:
+    type (MAPL_MetaComp), pointer :: META
+    integer, optional,           intent(  OUT) :: RC     ! Error code:
+
+    integer :: status
+    integer :: I, N
+    integer :: K, NF
+    type (MAPL_Connectivity), pointer     :: conn
+    type(ESMF_FieldBundle) :: PBUNDLE, SBUNDLE
+    type(ESMF_Field) :: FIELD
+    character(len=ESMF_MAXSTR) :: SERVICE, PROVIDER, SUBSCRIBER
+
+    conn => meta%connectList
+
+    if (.not. associated(conn%ServiceConnection)) then
+       N = 0
+    else
+       N = size(conn%ServiceConnection)
+    end if
+
+    ! loop over service connections
+    DO I=1,N
+       ! retrieve connection info
+       call MAPL_VarServiceConnectionGet(conn%ServiceConnection(I), &
+            Service=SERVICE, Provider=PROVIDER, Subscriber=subscriber, &
+            RC=STATUS)
+       _VERIFY(STATUS)
+
+       ! get the PBUNDLE and SBUNDLE
+       call MAPL_ServiceGetBundle(META, provider=provider, &
+            service=service, bundle=pbundle, RC=status)
+       _VERIFY(STATUS)
+
+       call MAPL_ServiceGetBundle(META, subscriber=subscriber, &
+            service=service, bundle=sbundle, RC=status)
+       _VERIFY(STATUS)
+
+       call ESMF_FieldBundleGet(SBUNDLE, FieldCount=NF, RC=STATUS)
+       _VERIFY(STATUS)
+       ! loop over entries in SBUNDLE
+       DO K = 1, NF
+          call MAPL_FieldBundleGet(SBUNDLE, K, FIELD, RC=STATUS)
+          _VERIFY(STATUS)
+          ! add each of the fields to PBUNDLE, dublicates are allowed
+          call MAPL_FieldBundleAdd(PBUNDLE, FIELD, multiflag=.true., RC=STATUS)
+          _VERIFY(STATUS)
+       END DO
+    END DO
+    
+    _RETURN(ESMF_SUCCESS)
+  end subroutine MAPL_ServiceProcessConnections
+
+  subroutine MAPL_ServiceGetBundle(META, SERVICE, BUNDLE, PROVIDER, &
+       SUBSCRIBER, RC)
+    type (MAPL_MetaComp),        intent(INOUT) :: META
+    character(len=*),            intent(IN   ) :: SERVICE
+    type(ESMF_FieldBundle),      intent(  OUT) :: BUNDLE
+    character(len=*), optional,  intent(IN   ) :: PROVIDER
+    character(len=*), optional,  intent(IN   ) :: SUBSCRIBER
+    integer, optional,           intent(  OUT) :: RC     ! Error code:
+
+    integer :: status
+    logical :: do_provider, do_subscriber
+    character(len=ESMF_MAXSTR) :: cname
+    type (MAPL_MetaComp), pointer :: cmeta => null()
+    
+    ! find the GC for component who's name matches P/S
+    do_provider = .false.
+    do_subscriber = .false.
+    if (present(provider)) then
+       do_provider = .true.
+       cname = provider
+    end if
+    if (present(subscriber)) then
+       do_subscriber = .true.
+       cname = subscriber
+    end if
+    _ASSERT(IEOR(do_provider,do_subscriber)/=0, 'Only one of the arguments PROVIDER or SUBSCRIBER must be provided')
+    call MAPL_FindChild(META, name=cname, result=cmeta, rc=status)
+    _VERIFY(STATUS)
+    _ASSERT(associated(cmeta), 'No child found')
+    ! find the appropriate object (P, or S) matching SERVICE
+    if (do_subscriber) then
+       call MAPL_VarServiceSubscriberGet(cmeta%subscriber_list, service, bundle, rc=status)
+       _VERIFY(STATUS)
+    else ! must be provider
+       call MAPL_VarServiceProviderGet(cmeta%provider_list, service, bundle, rc=status)
+       _VERIFY(STATUS)
+    end if
+    ! return the saved bundle
+    
+    _RETURN(ESMF_SUCCESS)
+  end subroutine MAPL_ServiceGetBundle
+
+  recursive subroutine MAPL_FindChild(meta, name, result, rc)
+    type (MAPL_MetaComp),        intent(INOUT) :: META
+    character(len=*),            intent(IN   ) :: name
+    type (MAPL_MetaComp), pointer, intent(INOUT) :: result
+    integer, optional,           intent(  OUT) :: RC     ! Error code:
+
+    integer :: status
+    integer :: i
+    type (MAPL_MetaComp), pointer :: cmeta
+    character(len=ESMF_MAXSTR) :: cname
+    
+    if(associated(meta%GCS)) then
+       do I=1, size(meta%GCS)
+          call MAPL_InternalStateRetrieve(meta%gcs(i), cmeta, RC=STATUS)
+          _VERIFY(STATUS)
+          call ESMF_GridCompGet(meta%gcs(i), name=cname, RC=STATUS)
+          _VERIFY(STATUS)
+          if (cname == name) then ! found it!!!
+             result => cmeta
+             _RETURN(ESMF_SUCCESS)
+          end if
+          call MAPL_FindChild(cmeta, name, result, rc=status)
+          if (associated(result)) then ! somebody found it, terminate the search
+             _RETURN(ESMF_SUCCESS)
+          end if
+       end do
+    end if
+    _RETURN(ESMF_SUCCESS)
+  end subroutine MAPL_FindChild
+  
   !BOPI
   ! !IROUTINE: MAPL_TimerOn
   ! !IIROUTINE: MAPL_GenericStateClockOn
@@ -10756,19 +11021,19 @@ end subroutine MAPL_GenericStateRestore
    end subroutine MAPL_GetLogger_gc
 
    subroutine MAPL_ConnectivityGet(gc, connectivityPtr, RC)
-      type(ESMF_GridComp), intent(inout) :: gc
-      integer, optional, intent(out) :: rc
-      type (MAPL_Connectivity), pointer :: connectivityPtr
-
-      type (MAPL_MetaComp), pointer :: meta
-      integer                       :: status
+     type(ESMF_GridComp), intent(inout) :: gc
+     integer, optional, intent(out) :: rc
+     type (MAPL_Connectivity), pointer :: connectivityPtr
+     
+     type (MAPL_MetaComp), pointer :: meta
+     integer                       :: status
       
-      call MAPL_GetObjectFromGC(gc, meta, rc=status)
-      _VERIFY(status)
+     call MAPL_GetObjectFromGC(gc, meta, rc=status)
+     _VERIFY(status)
 
-      connectivityPtr => meta%connectList
-      
-      _RETURN(_SUCCESS)
+     connectivityPtr => meta%connectList
+     
+     _RETURN(_SUCCESS)
    end subroutine MAPL_ConnectivityGet
 
 end module MAPL_GenericMod
