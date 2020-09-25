@@ -30,6 +30,8 @@ module pFIO_ClientManagerMod
      integer :: smallCurrent=1
      integer :: largeCurrent=1
      integer :: writeCutoff
+     integer :: large_total = 0
+     integer :: small_total = 0
    contains
       procedure :: add_ext_collection
       procedure :: add_hist_collection
@@ -424,43 +426,66 @@ contains
       class (KeywordEnforcer),  optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer, save, allocatable :: nwritings(:) ! saved the past nwritings 
-      integer :: Cuttoff, ssize
+      integer, save, allocatable :: nwritings_large(:) ! saved the past large nwritings 
+      integer, save, allocatable :: nwritings_small(:) ! saved the past small nwritings 
+      integer :: Cuttoff, ssize, lsize, tsize
       integer, allocatable :: nwritings_order(:)
+      real :: l_ratio, s_ratio
 
       ! if there is no "small" pool, then there is no "large" pool either, just get next
-      if (this%small_server_pool%size() == 0) then
-         call this%next()
-         _ASSERT(this%large_server_pool%size() == 0,'pool is not split')
-         _RETURN(_SUCCESS)
+      ssize = this%small_server_pool%size()
+      lsize = this%large_server_pool%size()
+      tsize = this%server_sizes%size()
 
+      if (ssize == 0) then
+         call this%next()
+         _RETURN(_SUCCESS)
       endif
 
-      _ASSERT(this%large_server_pool%size()>0,'large server pool must be great than zero')
-      _ASSERT(this%small_server_pool%size()>0,'small server pool must be great than zero')
+      _ASSERT(lsize > 0,'large server pool must be great than zero')
+
+      if (.not. allocated (nwritings)) allocate (nwritings(tsize), source = 0)
+      if (.not. allocated (nwritings_large)) allocate (nwritings_large(lsize), source = 0)
+      if (.not. allocated (nwritings_small)) allocate (nwritings_small(ssize), source = 0)
 
       Cuttoff = this%writeCutoff
       ! if writeCutoff is not set, then pick one from the past experience
       ! the whole pool size is used to determine how many past nwrting are saved
       if (this%writeCutoff == 0) then
-         ssize = this%server_sizes%size()
-         if (.not. allocated (nwritings)) allocate (nwritings(ssize))
-         allocate(nwritings_order(ssize))
-
-         nwritings(2:ssize) = nwritings(1:ssize-1)
+         nwritings(2:tsize) = nwritings(1:tsize-1)
          nwritings(1)       = nwriting
-         call MAPL_sort(nwritings, nwritings_order)
-         Cuttoff = nwritings_order((ssize+1)/2)
+         allocate(nwritings_order(tsize), source = nwritings(:))
+
+         call MAPL_sort(nwritings_order)
+         Cuttoff = nwritings_order(tsize/2)
          deallocate(nwritings_order)
       endif
-         
-      if (nwriting .ge. Cuttoff) then
+
+      if (nwriting == Cuttoff) then ! after this block, nwrting /= Cuttoff
+         l_ratio = sum(nwritings_large)/ (this%large_total*1.0)
+         s_ratio = sum(nwritings_small)/ (this%small_total*1.0)
+
+         if (s_ratio >= l_ratio ) then! .true. means small pool is busier
+            Cuttoff = Cuttoff - 1 ! artificially decrease Cuttoff, so the next will go to large pool
+         else 
+            Cuttoff = Cuttoff + 1 ! artificially increase Cuttoff, so the next will go to small pool
+         endif
+      endif 
+
+      if (nwriting > Cuttoff) then
          this%largeCurrent=this%largeCurrent+1
-         if (this%largeCurrent .gt. this%large_server_pool%size()) this%largeCurrent=1
+         if (this%largeCurrent .gt. lsize) this%largeCurrent=1
          call this%set_current( ith =  this%large_server_pool%at(this%largeCurrent))
-      else
+         nwritings_large(1:lsize-1) = nwritings_large(2:lsize)
+         nwritings_large(lsize) = nwriting
+      endif
+
+      if (nwriting < Cuttoff) then
          this%smallCurrent=this%smallCurrent+1
          if (this%smallCurrent .gt. this%small_server_pool%size()) this%smallCurrent=1
          call this%set_current( ith = this%small_server_pool%at(this%smallCurrent) )
+         nwritings_small(1:ssize-1) = nwritings_small(2:ssize)
+         nwritings_small(ssize) = nwriting
       end if
 
       _RETURN(_SUCCESS)
@@ -474,42 +499,55 @@ contains
       integer, optional, intent(in) :: n_hist_split
       integer, optional, intent(out) :: rc
 
-      integer :: i, nsplit, nwriteCutoff, ssize
-      integer, allocatable :: server_sizes(:)
+      integer :: i, nsplit, nwriteCutoff, tsize
+      integer, allocatable :: server_sizes(:), tmp_position(:)
+      integer :: pos
 
-      nsplit = 0
-      if (present(n_server_split)) nsplit = n_server_split
- 
-      ! by default, nsplit = 0, every server goes to the large pool 
-
-      ssize = this%server_sizes%size()
-
-      if (ssize == 1) then
+      tsize = this%server_sizes%size()
+      if (tsize == 1) then
         _RETURN(_SUCCESS)
       endif
 
-      ! pick the mid-point as splitter if there is no default
-      if (nsplit == 0) then
-         allocate(server_sizes(ssize))
-         do i=1,ssize
-            server_sizes(i) = this%server_sizes%at(i)
+      nsplit = 0
+      if (present(n_server_split)) nsplit = n_server_split
+
+      allocate(server_sizes(tsize))
+      allocate(tmp_position(tsize))
+      do i=1,tsize
+         server_sizes(i) = this%server_sizes%at(i)
+         tmp_position(i) = i
+      enddo
+      call MAPL_Sort(server_sizes, tmp_position)
+      ! if nsplit is out of scope, pick the mid point
+      if (nsplit < server_sizes(1) .or. nsplit > server_sizes(tsize)) then 
+         pos = tsize/2
+      else
+         pos = 0
+         do i = 1, tsize
+            if ( nsplit < server_sizes(i) ) then
+               pos = i-1
+               exit
+            endif
          enddo
-         call MAPL_Sort(server_sizes)
-         nsplit = server_sizes((ssize + 1)/2)
+         if (pos == 0) pos = tsize/2
       endif
 
-      do i=1,ssize
-          if (this%server_sizes%at(i) >= nsplit) then
-             call this%large_server_pool%push_back(i)
-          else
-             call this%small_server_pool%push_back(i)
-          end if
+      this%large_total = 0
+      this%small_total = 0
+
+      do i = 1, pos
+         call this%small_server_pool%push_back(tmp_position(i))
+         this%small_total = this%small_total + this%server_sizes%at(tmp_position(i))
       enddo
 
-      nwriteCutoff = 0
-      if (present(n_hist_split)) nwriteCutoff = n_hist_split
+      do i = pos + 1, tsize
+         call this%large_server_pool%push_back(tmp_position(i))
+         this%large_total = this%large_total + this%server_sizes%at(tmp_position(i))
+      enddo  
 
-      this%writeCutoff = nwriteCutoff
+      this%writeCutoff = 0
+      if (present(n_hist_split)) this%writeCutoff = n_hist_split
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 

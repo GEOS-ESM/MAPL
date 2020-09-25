@@ -531,7 +531,7 @@ contains
          label = 'ServerSizeSplit:', default=0, rc=status)
     _VERIFY(status)
     call o_Clients%split_server_pools(n_server_split = IntState%serverSizeSplit, &
-                                         n_hist_split   = IntState%collectionWriteSplit,rc=status)
+                                      n_hist_split   = IntState%collectionWriteSplit,rc=status)
     _VERIFY(status)
 
     call ESMF_ConfigGetAttribute(config, value=INTSTATE%MarkDone,          &
