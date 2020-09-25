@@ -30,11 +30,12 @@ contains
 
       _UNUSED_DUMMY(class)
 
-      ! This option is not currently supported
-      _UNUSED_DUMMY(preserve)
-
       call fill_grads_template(str, tmpl, &
             experiment_id=xid, nymd=nymd, nhms=nhms,rc=stat)
+
+      if (present(preserve)) then
+         if (preserve) stat = 1
+      end if
    end subroutine StrTemplate
 
    subroutine fill_grads_template(output_string,template,unusable,experiment_id,nymd,nhms,time,rc)
