@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove unneeded `use Env;` in stub generator
 - Fixed tripolar metadata output (#528)
 - Fixed `MAPL_ErrLogMain.h` for use with GSI_App
+- Added MAPL_CFIOReadParallel change from Ricardo for TimeList
 
 ### Removed
 
