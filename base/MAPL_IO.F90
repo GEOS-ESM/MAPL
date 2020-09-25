@@ -2979,8 +2979,9 @@ module MAPL_IOMod
                       lMemRef = LocalMemReference(pFIO_REAL32,[0,size(var_2d,2)])
                       call c_f_pointer(lMemRef%base_address, gvar_2d, shape=[0, size(var_2d,2)])
                    endif
-
-                   call ArrayGather(var_2d, gvar_2d, grid, mask=mask, rc=status)
+                   do J = 1,size(var_2d,2)
+                      call ArrayGather(var_2d(:,J), gvar_2d(:,J), grid, mask=mask, rc=status)
+                   enddo
                    call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1], &
                                 global_start=[1,1], global_count=[arrdes%im_world,size(var_2d,2)])
 
@@ -3012,8 +3013,9 @@ module MAPL_IOMod
                       lMemRef = LocalMemReference(pFIO_REAL64,[0,size(vr8_2d,2)])
                       call c_f_pointer(lMemRef%base_address, gvr8_2d, shape=[0,size(vr8_2d,2)])
                    endif
-
-                   call ArrayGather(vr8_2d, gvr8_2d, grid, mask=mask, rc=status) 
+                   do J = 1,size(vr8_2d,2)
+                      call ArrayGather(vr8_2d(:,J), gvr8_2d(:,J), grid, mask=mask, rc=status) 
+                   enddo
                    call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1], &
                                  global_start=[1,1], global_count=[arrdes%im_world,size(vr8_2d,2)])
                 else
@@ -3046,9 +3048,12 @@ module MAPL_IOMod
                       lMemRef = LocalMemReference(pFIO_REAL32,[0,size(var_3d,2), size(var_3d,3)])
                       call c_f_pointer(lMemRef%base_address, gvar_3d, shape=[0, size(var_3d,2), size(var_3d,3)])
                    endif
-                   do k = 1, size(var_3d,3)
-                      call ArrayGather(var_3d(:,:,k), gvar_3d(:,:,k), grid, mask=mask, rc=status)
+                   do K = 1, size(var_3d,3)
+                      do J = 1,size(var_3d,2)
+                         call ArrayGather(var_3d(:,J,K), gvar_3d(:,J,K), grid, mask=mask, rc=status)
+                      enddo
                    enddo
+
                    call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1,1], &
                                  global_start=[1,1,1], global_count=[arrdes%im_world,size(var_3d,2),size(var_3d,3)])
                 else
@@ -3082,8 +3087,10 @@ module MAPL_IOMod
                       lMemRef = LocalMemReference(pFIO_REAL64,[0,size(vr8_3d,2), size(vr8_3d,3)])
                       call c_f_pointer(lMemRef%base_address, gvr8_3d, shape=[0,size(vr8_3d,2), size(vr8_3d,3)])
                    endif
-                   do k = 1, size(vr8_3d,3)
-                      call ArrayGather(vr8_3d(:,:,k), gvr8_3d(:,:,k), grid, mask=mask, rc=status)
+                   do K = 1, size(vr8_3d,3)
+                      do J = 1, size(vr8_3d,2)
+                         call ArrayGather(vr8_3d(:,J,K), gvr8_3d(:,J,K), grid, mask=mask, rc=status)
+                      enddo
                    enddo
                    call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1,1], &
                                  global_start=[1,1,1], global_count=[arrdes%im_world, size(vr8_3d,2), size(vr8_3d,3)])
