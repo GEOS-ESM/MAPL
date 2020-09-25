@@ -908,8 +908,8 @@ contains
           _VERIFY(STATUS)
           !if(trim(field_name) == 'U')  &
           !print *, "localPet ........ ", __FILE__, __LINE__, trim(field_name), localPet, ssiLocalDeCount
-          allocate(arrayimg(ssiLocalDeCount), stat = status)
-          _VERIFY(STATUS)
+          !allocate(arrayimg(ssiLocalDeCount), stat = status)
+          !_VERIFY(STATUS)
           arrayImg = transfer(array, arrayImg)
           call ESMF_AttributeSet(field, name='SSI_ARRAY_SIZE', &
                value=ssiLocalDeCount, rc = status)
