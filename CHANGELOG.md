@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved more code to use pFlogger
 - Update to ESMA_cmake v3.1.2
 - Update GitHub Actions to use Ubuntu 20/GCC 10 image
+- Updated CircleCI image to use 6.0.16 Baselibs
 
 ### Fixed
 
