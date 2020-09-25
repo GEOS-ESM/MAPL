@@ -983,12 +983,12 @@ contains
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('lats',v)
 
-      v = Variable(PFIO_REAL32, dimensions='XCdim,YCdim,nf')
+      v = Variable(type=PFIO_REAL32, dimensions='XCdim,YCdim,nf')
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
       call metadata%add_variable('corner_lons',v)
 
-      v = Variable(PFIO_REAL32, dimensions='XCdim,YCdim,nf')
+      v = Variable(type=PFIO_REAL32, dimensions='XCdim,YCdim,nf')
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('corner_lats',v)
