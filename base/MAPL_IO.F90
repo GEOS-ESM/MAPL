@@ -2907,8 +2907,9 @@ module MAPL_IOMod
                    lMemRef = LocalMemReference(pFIO_REAL32,[0])
                    call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[0])
                 endif
-                
-                call ArrayGather(var_1d, gvar_1d, grid, mask=mask, rc=status)
+                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then 
+                   call ArrayGather(var_1d, gvar_1d, grid, mask=mask, rc=status)
+                endif
                 call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1], &
                              global_start=[1], global_count=[size_1d])
              else
@@ -2945,7 +2946,9 @@ module MAPL_IOMod
                    call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[0])
                 endif
 
-                call ArrayGather(vr8_1d, gvr8_1d, grid, mask=mask, rc=status)
+                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then 
+                   call ArrayGather(vr8_1d, gvr8_1d, grid, mask=mask, rc=status)
+                endif
                 call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1], &
                              global_start=[1], global_count=[size_1d])
 
