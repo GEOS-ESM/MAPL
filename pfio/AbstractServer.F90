@@ -322,8 +322,8 @@ contains
       integer :: node_rank,innode_rank
       logical :: yes
 
-      node_rank   = mod(id,this%node_num)
-      innode_rank = mod(id,this%innode_npes)
+      node_rank   = mod(id-1,this%node_num)
+      innode_rank = mod(id-1,this%innode_npes)
 
       yes = (node_rank   == this%Node_Rank) .and. &
             (innode_rank == this%InNode_Rank)
