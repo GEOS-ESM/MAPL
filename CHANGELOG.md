@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update to ESMA_cmake v3.1.2
 - Update GitHub Actions to use Ubuntu 20/GCC 10 image
 - Updated CircleCI image to use 6.0.16 Baselibs
+- Refactor the option WRITE_RESTART_BY_OSERVER
+- Change the writing rank calculation in ServerThread.F90
 
 ### Fixed
 
