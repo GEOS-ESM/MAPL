@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Moved more code to use pFlogger
-- Update to ESMA_cmake v3.1.2
+- Update to ESMA_cmake v3.2.1 and ESMA_env v3.0.0
 - Update GitHub Actions to use Ubuntu 20/GCC 10 image
 - Updated CircleCI image to use 6.0.16 Baselibs
 - Refactor the option WRITE_RESTART_BY_OSERVER
