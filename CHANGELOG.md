@@ -32,8 +32,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed ESMF logging errors with non-72-level runs (#480)
 - Remove unneeded `use Env;` in stub generator
 - Fixed tripolar metadata output (#528)
+- Fixed `MAPL_ErrLogMain.h` for use with GSI_App
+- Added MAPL_CFIOReadParallel change from Ricardo for TimeList
 
 ### Removed
+
+- Remove unneeded GNU make file
 
 ## [2.2.7] - 2020-06-26
 
