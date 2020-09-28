@@ -2903,6 +2903,7 @@ module MAPL_IOMod
                 if( MAPL_AM_I_ROOT())  then
                    lMemRef = LocalMemReference(pFIO_REAL32,[size_1d])
                    call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[size_1d])
+                   if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) gvar_1d = var_1d
                 else
                    lMemRef = LocalMemReference(pFIO_REAL32,[0])
                    call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[0])
@@ -2941,6 +2942,7 @@ module MAPL_IOMod
                 if(MAPL_AM_I_ROOT()) then
                    lMemRef = LocalMemReference(pFIO_REAL64,[size_1d])
                    call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[size_1d])
+                   if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) gvr8_1d = vr8_1d
                 else
                    lMemRef = LocalMemReference(pFIO_REAL64,[0])
                    call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[0])
