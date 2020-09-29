@@ -639,7 +639,7 @@ contains
       ! (3) allocate the memory
       msize_words = offsets
       do collection_counter = 1, collection_total
-         rank = this%containing_server%get_writing_PE(collection_counter)
+         rank = this%containing_server%get_writing_PE(collection_counter-1)
          msize_word = msize_words(collection_counter) 
          call this%containing_server%stage_offset%insert(i_to_string(MSIZE_ID + collection_counter ),msize_word)
          allocate(remotePtr, source  = RDMAReference(pFIO_INT32,msize_word, this%containing_server%comm, rank ))
