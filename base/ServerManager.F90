@@ -128,7 +128,7 @@ contains
            allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), 'o_server'//trim(i_to_string(1))))
            call this%directory_service%publish(PortInfo('o_server'//trim(i_to_string(1)), this%o_server), this%o_server)
         end if
-        call io_client%init_io_clients(ni = n_oserver_group, no = n_iserver_group )
+        call io_client%init_io_clients(ni = n_iserver_group, no = n_oserver_group )
      endif
 
      ! establish i_server group one by one

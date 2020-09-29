@@ -63,6 +63,7 @@ contains
       call driver%initialize_mpi()
       call MAPL_Initialize(rc=status)
       _VERIFY(status)
+      _RETURN(_SUCCESS)
    end function newExtDataDriver
 
    subroutine run(this,RC)
@@ -136,8 +137,7 @@ contains
             call iter%next()
          enddo
 
-         call i_Clients%terminate()
-         call o_Clients%terminate()
+         call this%cap_server%finalize()
       end select
 
       call MPI_Barrier(CommCap,status)

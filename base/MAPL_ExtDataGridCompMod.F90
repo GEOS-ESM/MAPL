@@ -4186,6 +4186,7 @@ CONTAINS
      type(ESMF_Config)         :: cflocal
      character(len=*), parameter :: CF_COMPONENT_SEPARATOR = '.'
      real :: temp_real
+     logical :: isPresent
 
      IAM = "MAPL_ExtDataGridChangeLev"
 
@@ -4213,18 +4214,30 @@ CONTAINS
         _VERIFY(status)
         call MAPL_ConfigSetAttribute(cflocal,value=trim(gname), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"GRIDNAME:",rc=status)
         _VERIFY(status)
-        call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', value=temp_real, rc=status)
-        if (status == ESMF_SUCCESS) then
+
+        call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', isPresent=isPresent, rc=status)
+        _VERIFY(status)
+        if (isPresent) then
+           call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', value=temp_real, rc=status)
+           _VERIFY(status)
            call MAPL_ConfigSetAttribute(cflocal,value=temp_real, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"STRETCH_FACTOR:",rc=status)
            _VERIFY(status)
         endif
-        call ESMF_AttributeGet(grid, name='TARGET_LON', value=temp_real, rc=status)
-        if (status == ESMF_SUCCESS) then
+
+        call ESMF_AttributeGet(grid, name='TARGET_LON', isPresent=isPresent, rc=status)
+        _VERIFY(status)
+        if (isPresent) then
+           call ESMF_AttributeGet(grid, name='TARGET_LON', value=temp_real, rc=status)
+           _VERIFY(status)
            call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"TARGET_LON:",rc=status)
            _VERIFY(status)
         endif
-        call ESMF_AttributeGet(grid, name='TARGET_LAT', value=temp_real, rc=status)
-        if (status == ESMF_SUCCESS) then
+
+        call ESMF_AttributeGet(grid, name='TARGET_LAT', isPresent=isPresent, rc=status)
+        _VERIFY(status)
+        if (isPresent) then
+           call ESMF_AttributeGet(grid, name='TARGET_LAT', value=temp_real, rc=status)
+           _VERIFY(status)
            call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"TARGET_LAT:",rc=status)
            _VERIFY(status)
         endif

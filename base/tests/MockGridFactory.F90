@@ -31,6 +31,7 @@ module MockGridFactoryMod
       procedure :: append_metadata
       procedure :: append_variable_metadata
       procedure :: generate_file_bounds
+      procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
    end type MockGridFactory
@@ -199,9 +200,9 @@ contains
       use ESMF
       class(MockGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
-      integer, allocatable, intent(inout) :: local_start(:)
-      integer, allocatable, intent(inout) :: global_start(:)
-      integer, allocatable, intent(inout) :: global_count(:)
+      integer, allocatable, intent(out) :: local_start(:)
+      integer, allocatable, intent(out) :: global_start(:)
+      integer, allocatable, intent(out) :: global_count(:)
       integer, optional, intent(out) :: rc
 
       _UNUSED_DUMMY(this)
@@ -212,6 +213,25 @@ contains
       _UNUSED_DUMMY(rc)
 
    end subroutine generate_file_bounds
+
+   subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
+      use MAPL_BaseMod
+      use ESMF
+      class(MockGridFactory), intent(inout) :: this
+      type(ESMF_Grid),      intent(inout) :: grid
+      integer, allocatable, intent(out) :: local_start(:)
+      integer, allocatable, intent(out) :: global_start(:)
+      integer, allocatable, intent(out) :: global_count(:)
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(grid)
+      _UNUSED_DUMMY(local_start)
+      _UNUSED_DUMMY(global_start)
+      _UNUSED_DUMMY(global_count)
+      _UNUSED_DUMMY(rc)
+
+   end subroutine generate_file_corner_bounds
 
    function generate_file_reference2D(this,fpointer) result(ref)
       use pFIO
