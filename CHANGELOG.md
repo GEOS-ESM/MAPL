@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## [2.3.0] - 2020-09-29
+
+### Added
 
 - Added routine to finalize the ioservers so that it can be called by another application using cap, like JEDI
 - Re-added CircleCI with FV3 standalone test
@@ -17,11 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Moved more code to use pFlogger
-- Update to ESMA_cmake v3.1.2
+- Update to ESMA_cmake v3.2.1 and ESMA_env v3.0.0
 - Update GitHub Actions to use Ubuntu 20/GCC 10 image
 - Updated CircleCI image to use 6.0.16 Baselibs
 - Refactor the option WRITE_RESTART_BY_OSERVER
 - Change the writing rank calculation in ServerThread.F90
+- Cleanup of the NUOPC Wrapper's error handling using macros
+
 
 ### Fixed
 
@@ -32,8 +41,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed ESMF logging errors with non-72-level runs (#480)
 - Remove unneeded `use Env;` in stub generator
 - Fixed tripolar metadata output (#528)
+- Fixed `MAPL_ErrLogMain.h` for use with GSI_App
+- Added MAPL_CFIOReadParallel change from Ricardo for TimeList
 
 ### Removed
+
+- Remove unneeded GNU make file
 
 ## [2.2.7] - 2020-06-26
 
