@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated CircleCI image to use 6.0.16 Baselibs
 - Refactor the option WRITE_RESTART_BY_OSERVER
 - Change the writing rank calculation in ServerThread.F90
+- Cleanup of the NUOPC Wrapper's error handling using macros
+
 
 ### Fixed
 
