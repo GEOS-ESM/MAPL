@@ -17,6 +17,7 @@ module pFIO_ClientManagerMod
    private
 
    public :: ClientManager
+   public :: init_IO_ClientManager
    public :: i_Clients
    public :: o_Clients
 
@@ -63,6 +64,10 @@ module pFIO_ClientManagerMod
 
    interface ClientManager
       module procedure new_ClientManager
+   end interface
+
+   interface init_IO_ClientManager
+      module procedure init_ClientManager
    end interface
 
    type (ClientManager), target :: i_Clients
@@ -568,5 +573,18 @@ contains
       integer :: n_client
       n_client = this%clients%size()
    end function size
+
+   subroutine init_ClientManager(unusable, n_i, n_o, rc)
+      class (KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(in) :: n_i
+      integer, optional, intent(in) :: n_o
+      integer, optional, intent(out):: rc
+      integer :: status
+
+      i_Clients = ClientManager(n_client = n_i, rc=status)
+      o_Clients = ClientManager(n_client = n_o, rc=status)
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine init_ClientManager
 
 end module pFIO_ClientManagerMod

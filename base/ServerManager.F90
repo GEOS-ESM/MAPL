@@ -5,7 +5,6 @@ module MAPL_ServerManager
 
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
-   use pFIO_ClientManagerMod
    use PFIO
    use MAPL_SimpleCommSplitterMod
    use MAPL_SplitCommunicatorMod
@@ -147,8 +146,8 @@ contains
            allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), 'o_server'//trim(i_to_string(1))))
            call this%directory_service%publish(PortInfo('o_server'//trim(i_to_string(1)), this%o_server), this%o_server)
         end if
-        i_Clients = ClientManager(n_client = n_iserver_group)
-        o_Clients = ClientManager(n_client = n_oserver_group)
+        call init_IO_ClientManager(n_i = n_iserver_group, n_o = n_oserver_group, rc = status)
+        _VERIFY(status)
      endif
 
      ! establish i_server group one by one
