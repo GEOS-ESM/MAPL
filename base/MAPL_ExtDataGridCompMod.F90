@@ -2007,7 +2007,7 @@ CONTAINS
         end if
 
         if (lgr%isEnabledFor(DEBUG)) then
-           call lgr%debug(' >> REFFTIME for %a~: %a',trim(item%file), trim(item%FileReffTime))
+           call lgr%debug(' >> REFFTIME for %a~: %a',trim(item%file), '<'//trim(item%FileReffTime)//'>')
            call ESMF_TimeGet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=isc,rc=status)
            call lgr%debug(' >> Reference time: %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2', iYy, iMm, iDd, iHh, iMn, iSc)
            call ESMF_TimeIntervalGet(item%frequency,yy=iyy,mm=imm,d=idd,h=ihh,m=imn,s=isc,rc=status)
@@ -2257,7 +2257,7 @@ CONTAINS
         type(ESMF_Time), allocatable               :: xTSeries(:)
         type(FileMetaDataUtils), pointer           :: fdata
 
-        call lgr%info('Updating %a bracket for %a',bside, trim(item%name))
+        call lgr%info('Updating %a1 bracket for %a',bside, trim(item%name))
         call ESMF_TimeIntervalSet(zero,__RC__)
 
         ! Default
@@ -2514,7 +2514,7 @@ CONTAINS
            ! whether it is the right or left time   
            if (.not.found) then
 
-              call lgr%debug('            UpdateBracketTime: Scanning for bracket %a of %a~. RSide: %l1', bSide, trim(file_processed), (bSide=="R"))
+              call lgr%debug('            UpdateBracketTime: Scanning for bracket %a1 of %a~. RSide: %l1', bSide, trim(file_processed), (bSide=="R"))
 
               bracketScan = .True.
               newTime = fTime
@@ -2561,7 +2561,7 @@ CONTAINS
                     End If
                  End Do
                  if (status /= ESMF_SUCCESS) then
-                    call lgr%error('ExtData could not find appropriate file from file template %a for side %a', trim(item%file), bSide)
+                    call lgr%error('ExtData could not find appropriate file from file template %a for side %a1', trim(item%file), bSide)
                     _RETURN(ESMF_FAILURE)
                  end if
               else if (bSide == "L") then
@@ -2599,7 +2599,7 @@ CONTAINS
                     End If
                  End Do
                  if (status /= ESMF_SUCCESS) then
-                    call lgr%error('ExtData could not find appropriate file from file template %a for side %a', trim(item%file), bSide)
+                    call lgr%error('ExtData could not find appropriate file from file template %a for side %a1', trim(item%file), bSide)
                     _RETURN(ESMF_FAILURE)
                  end if
               end if
@@ -2639,7 +2639,7 @@ CONTAINS
               call GetBracketTimeOnFile(fdata,xTSeries,readTime,bSide,UniFileClim,interpTime,fileTime,tindex,yrOffsetInt=yrOffset+yrOffsetStamp,rc=status)
               found = (status == ESMF_SUCCESS)
               if (.not.found) then
-                 call lgr%error('ExtData could not find bracketing data from file template %a for side %a', trim(item%file), bSide)
+                 call lgr%error('ExtData could not find bracketing data from file template %a for side %a1', trim(item%file), bSide)
                  _RETURN(ESMF_FAILURE)
 
               end if
@@ -2650,13 +2650,13 @@ CONTAINS
 
 
         if (lgr%isEnabledFor(DEBUG)) then
-           call lgr%debug('            UpdateBracketTime: Updated bracket %a for %a', bside, trim(file_processed))
+           call lgr%debug('            UpdateBracketTime: Updated bracket %a1 for %a', bside, trim(file_processed))
            call ESMF_TimeGet(cTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
-           call lgr%debug('            ==> (%a) Time Requested: %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2', bside, iYr, iMm, iDd, iHr, iMn, iSc)
+           call lgr%debug('            ==> (%a1) Time Requested: %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2', bside, iYr, iMm, iDd, iHr, iMn, iSc)
            call ESMF_TimeGet(fileTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
-           call lgr%debug('            ==> (%a) Record time   : %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2', bside, iYr, iMm, iDd, iHr, iMn, iSc)
+           call lgr%debug('            ==> (%a1) Record time   : %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2', bside, iYr, iMm, iDd, iHr, iMn, iSc)
            call ESMF_TimeGet(interpTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
-           call lgr%debug('            ==> (%a) Effective time: %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2', bside, iYr, iMm, iDd, iHr, iMn, iSc)
+           call lgr%debug('            ==> (%a1) Effective time: %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2', bside, iYr, iMm, iDd, iHr, iMn, iSc)
         End If
 
         ! If we made it this far, then I guess we are OK?
@@ -3125,7 +3125,7 @@ CONTAINS
            _RETURN(ESMF_FAILURE)
         end if
 
-        call lgr%debug('               GetBracketTimeOnFile: (%a) called for %a', bside, trim(fdata%get_file_name()))
+        call lgr%debug('               GetBracketTimeOnFile: (%a1) called for %a', bside, trim(fdata%get_file_name()))
 
         if (yrOffset.ne.0) then
            ! If the source year is a leap year but this isn't, modify to day 28
@@ -3195,7 +3195,7 @@ CONTAINS
 
            if (lgr%isEnabledFor(DEBUG)) then
               call ESMF_TimeGet(fileTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
-              call lgr%debug('               GetBracketTimeOnFile: Data from time  %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2 set for bracket %a of file %a', &
+              call lgr%debug('               GetBracketTimeOnFile: Data from time  %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2 set for bracket %a1 of file %a', &
                    & iyr, imm, idd, ihr, imn, isc, bside, trim(fdata%get_file_name()))
               if (yrOffset /= 0) then
                  call ESMF_TimeGet(interpTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
