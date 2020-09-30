@@ -863,29 +863,29 @@ contains
       call metadata%add_dimension('orientationStrLen', 5, rc=status)
 
       ! Coordinate variables
-      v = Variable(PFIO_REAL64, dimensions='Xdim')
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim')
       call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_east')
       call metadata%add_variable('Xdim', CoordinateVariable(v, this%get_fake_longitudes()))
 
-      v = Variable(PFIO_REAL64, dimensions='Ydim')
+      v = Variable(type=PFIO_REAL64, dimensions='Ydim')
       call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_north')
       call metadata%add_variable('Ydim', CoordinateVariable(v, this%get_fake_latitudes()))
 
-      v = Variable(PFIO_INT32, dimensions='nf')
+      v = Variable(type=PFIO_INT32, dimensions='nf')
       call v%add_attribute('long_name','cubed-sphere face')
       call v%add_attribute('axis','e')
       call v%add_attribute('grads_dim','e')
       call v%add_const_value(UnlimitedEntity((/1,2,3,4,5,6/)))
       call metadata%add_variable('nf',v)
 
-      v = Variable(PFIO_INT32, dimensions='ncontact')
+      v = Variable(type=PFIO_INT32, dimensions='ncontact')
       call v%add_attribute('long_name','number of contact points')
       call v%add_const_value(UnlimitedEntity((/1,2,3,4/)))
       call metadata%add_variable('ncontact',v)
 
-      v = Variable(PFIO_STRING)
+      v = Variable(type=PFIO_STRING)
       call  v%add_attribute('grid_mapping_name','gnomonic cubed-sphere')
       call  v%add_attribute('file_format_version','2.90')
       call  v%add_attribute('additional_vars','contacts,orientation,anchor')
@@ -900,7 +900,7 @@ contains
                      3, 5, 6, 2, &
                      3, 1, 6, 4, &
                      5, 1, 2, 4 /), (/4,6/))
-      v = Variable(PFIO_INT32, dimensions='ncontact,nf')
+      v = Variable(type=PFIO_INT32, dimensions='ncontact,nf')
       call v%add_attribute('long_name', 'adjacent face starting from left side going clockwise')
       call v%add_const_value(UnlimitedEntity(ivar))
       call metadata%add_variable('contacts', v)
@@ -930,7 +930,7 @@ contains
                !" X:X ", &
                !" Y:-X", &
                !" X:-Y" /),(/4,6/))
-      v = Variable(PFIO_STRING, dimensions='orientationStrLen,ncontact,nf')
+      v = Variable(type=PFIO_STRING, dimensions='orientationStrLen,ncontact,nf')
       call v%add_attribute('long_name', 'orientation of boundary')
       !call v%add_const_value(UnlimitedEntity(cvar))
       call metadata%add_variable('orientation', v)
@@ -962,7 +962,7 @@ contains
                   1,  1, im,  1, &
                   1,  1, im,  1, &
                  im,  1, im, im  /), (/4,4,6/))
-      v = Variable(PFIO_INT32, dimensions='ncontact,ncontact,nf')
+      v = Variable(type=PFIO_INT32, dimensions='ncontact,ncontact,nf')
       call v%add_attribute('long_name', 'anchor point')
       call v%add_const_value(UnlimitedEntity(ivar2))
       call metadata%add_variable('anchor', v)
@@ -973,22 +973,22 @@ contains
       write(gridspec_file_name,'("C",i0,"_gridspec.nc4")') this%im_world
       call Metadata%add_attribute('gridspec_file', trim(gridspec_file_name))
 
-      v = Variable(PFIO_REAL32, dimensions='Xdim,Ydim,nf')
+      v = Variable(type=PFIO_REAL32, dimensions='Xdim,Ydim,nf')
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
       call metadata%add_variable('lons',v)
 
-      v = Variable(PFIO_REAL32, dimensions='Xdim,Ydim,nf')
+      v = Variable(type=PFIO_REAL32, dimensions='Xdim,Ydim,nf')
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('lats',v)
 
-      v = Variable(PFIO_REAL32, dimensions='XCdim,YCdim,nf')
+      v = Variable(type=PFIO_REAL32, dimensions='XCdim,YCdim,nf')
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
       call metadata%add_variable('corner_lons',v)
 
-      v = Variable(PFIO_REAL32, dimensions='XCdim,YCdim,nf')
+      v = Variable(type=PFIO_REAL32, dimensions='XCdim,YCdim,nf')
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('corner_lats',v)

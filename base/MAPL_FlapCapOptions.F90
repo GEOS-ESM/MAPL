@@ -172,6 +172,22 @@ contains
            error=status)
       _VERIFY(status)
 
+      call options%add(switch='--oserver_type', &
+           help='Output Server Type', &
+           required=.false., &
+           def='single', &
+           act='store', &
+           error=status)
+      _VERIFY(status)
+
+      call options%add(switch='--npes_output_backend', &
+           help='# MPI processes used by the beckend output', &
+           required=.false., &
+           def='0', &
+           act='store', &
+           error=status)
+      _VERIFY(status)
+
       _RETURN(_SUCCESS)
 
    end subroutine add_command_line_options
@@ -225,6 +241,10 @@ contains
       ! Logging options
       call this%cli_options%get(val=buffer, switch='--logging_config', error=status); _VERIFY(status)
       this%logging_config = trim(buffer)
+      ! ouput server type options
+      call this%cli_options%get(val=buffer, switch='--oserver_type', error=status); _VERIFY(status)
+      this%oserver_type = trim(buffer)
+      call this%cli_options%get(val=this%npes_output_backend, switch='--npes_output_backend', error=status); _VERIFY(status)
 
     end subroutine parse_command_line_arguments
 

@@ -82,7 +82,20 @@ add_test(NAME pFIO_tests_simple
 add_test(NAME pFIO_tests_hybrid
   COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s hybrid
   )
-set_tests_properties (pFIO_tests_mpi pFIO_tests_simple pFIO_tests_hybrid PROPERTIES LABELS "PERFORMANCE")
+
+add_test(NAME pFIO_tests_mpi_2layer
+  COMMAND env FI_PROVIDER=verbs ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multilayer -nw 3 -w ${CMAKE_BINARY_DIR}/bin/pfio_writer.x
+  )
+
+add_test(NAME pFIO_tests_mpi_2comm
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multicomm -nw 3
+  )
+
+add_test(NAME pFIO_tests_mpi_2group
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multigroup -nw 3
+  )
+
+set_tests_properties (pFIO_tests_mpi pFIO_tests_simple pFIO_tests_hybrid  pFIO_tests_mpi_2layer pFIO_tests_mpi_2comm pFIO_tests_mpi_2group  PROPERTIES LABELS "PERFORMANCE")
 
 set(TESTPERF pfio_performance.x)
 
@@ -101,5 +114,6 @@ set_tests_properties (pFIO_performance PROPERTIES LABELS "PERFORMANCE")
 
 add_dependencies(build-tests MAPL.pfio.tests)
 add_dependencies(build-tests ${TESTO})
+add_dependencies(build-tests pfio_writer.x)
 add_dependencies(build-tests ${TESTPERF})
 

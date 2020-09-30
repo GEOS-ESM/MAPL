@@ -48,7 +48,7 @@ module pFIO_BaseServerMod
       procedure :: clear_RequestHandle
       procedure :: get_dmessage ! get done or dummy message
       procedure :: set_collective_request ! 
-
+      procedure :: create_remote_win
    end type BaseServer
 
 contains
@@ -94,48 +94,54 @@ contains
      class (AbstractDataReference), pointer :: dataRefPtr
      class (RDMAReference), pointer :: remotePtr
      integer(kind=MPI_ADDRESS_KIND) :: offset, msize
- 
+     integer :: num_clients 
      !real(KIND=REAL64) :: t0, t1
 
      !t0 = 0.0d0
      !t1 = -1.0d0
-     do n= 1, this%threads%size()
+     num_clients = this%threads%size()
+     if (num_clients == 0) then
+        _RETURN(_SUCCESS)
+     endif
+
+     threadPtr=>this%threads%at(1)
+
+     iter = threadPtr%request_backlog%begin()
+     ! t0 = mpi_wtime()         
+     do while (iter /= threadPtr%request_backlog%end())
+        msg => iter%get()
+        select type (q=>msg)
+        type is (CollectiveStageDataMessage)
+           collection_counter = this%stage_offset%of(i_to_string(q%collection_id))
+           dataRefPtr => this%get_dataReference(collection_counter)
+           msize  = this%stage_offset%of(i_to_string(MSIZE_ID+collection_counter))
+           call c_f_pointer(dataRefPtr%base_address,i_ptr,shape=[msize])
+
+           select type(dataRefPtr)
+           type is (RDMAReference)
+              remotePtr=>dataRefPtr
+           class default
+              _ASSERT(.false., "remote is a must")
+           end select
+
+           request_iter = this%stage_offset%find(i_to_string(q%request_id)//'done')
+           if (request_iter == this%stage_offset%end() .and. this%rank == remotePtr%mem_rank ) then ! not read yet
+             !print*, this%rank , " is wrinting this collection ", collection_counter
+             ! (1) get address where data should put
+              offset     = this%stage_offset%at(i_to_string(q%request_id))
+              offset_address   = c_loc(i_ptr(offset+1))
+             ! (2) write data
+              call threadPtr%put_DataToFile(q,offset_address)
+             ! (3) leave a mark, it has been written
+              call this%stage_offset%insert(i_to_string(q%request_id)//'done',0_MPI_ADDRESS_KIND)
+              !t1 = mpi_wtime()
+           endif ! rank = mem_rank
+        end select
+        call iter%next()
+     enddo ! do backlog loop
+
+     do n = 1, num_clients
         threadPtr=>this%threads%at(n)
-        if( n == 1) then ! only need to check one thread
-           iter = threadPtr%request_backlog%begin()
-          ! t0 = mpi_wtime()         
-           do while (iter /= threadPtr%request_backlog%end())
-              msg => iter%get()
-              select type (q=>msg)
-              type is (CollectiveStageDataMessage)
-                 collection_counter = this%stage_offset%of(i_to_string(q%collection_id))
-                 dataRefPtr => this%get_dataReference(collection_counter)
-                 msize  = this%stage_offset%of(i_to_string(MSIZE_ID+collection_counter))
-                 call c_f_pointer(dataRefPtr%base_address,i_ptr,shape=[msize])
-
-                 select type(dataRefPtr)
-                 type is (RDMAReference)
-                    remotePtr=>dataRefPtr
-                 class default
-                    _ASSERT(.false., "remote is a must")
-                 end select
-
-                 request_iter = this%stage_offset%find(i_to_string(q%request_id)//'done')
-                 if (request_iter == this%stage_offset%end() .and. this%rank == remotePtr%mem_rank ) then ! not read yet
-                      !print*, this%rank , " is wrinting this collection ", collection_counter
-                   ! (1) get address where data should put
-                    offset     = this%stage_offset%at(i_to_string(q%request_id))
-                    offset_address   = c_loc(i_ptr(offset+1))
-                   ! (2) write data
-                    call threadPtr%put_DataToFile(q,offset_address)
-                   ! (3) leave a mark, it has been written
-                    call this%stage_offset%insert(i_to_string(q%request_id)//'done',0_MPI_ADDRESS_KIND)
-                    !t1 = mpi_wtime()
-                 endif ! rank = mem_rank
-              end select
-              call iter%next()
-           enddo ! do backlog loop
-        endif ! first thread n==1 
         call threadPtr%clear_backlog()
         call threadPtr%clear_hist_collections()
         call threadPtr%clear_subarray()
@@ -242,5 +248,77 @@ contains
       enddo
 
    end subroutine set_collective_request
+
+   subroutine create_remote_win(this, rc)
+      class (BaseServer), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      class (AbstractDataReference), pointer :: remotePtr
+      integer :: rank
+      integer(KIND=INT64) :: offset, msize_word
+      integer(KIND=INT64),allocatable :: offsets(:), msize_words(:)
+      type (MessageVectorIterator) :: iter
+      type (StringInteger64MapIterator) :: request_iter
+      class (AbstractMessage), pointer :: msg
+      integer :: collection_counter, collection_total
+      character(len=*),parameter :: Iam = 'create_remote_win'
+      type (ServerThread) , pointer :: thread_ptr
+
+      this%stage_offset = StringInteger64map()
+
+      collection_counter = 0
+      collection_total   = 0
+
+      thread_ptr => this%threads%at(1)
+
+      !(1) loop to get the total number of collection
+      iter   = thread_ptr%request_backlog%begin()
+      do while (iter /= thread_ptr%request_backlog%end())
+         msg => iter%get()
+
+         select type (q=>msg)
+         type is (CollectiveStageDataMessage)
+            request_iter = this%stage_offset%find(i_to_string(q%collection_id))
+            if ( request_iter == this%stage_offset%end()) then
+               collection_total = collection_total + 1
+               call this%stage_offset%insert(i_to_string(q%collection_id),int(collection_total, kind=INT64))
+            endif
+         end select
+         call iter%next()
+      end do
+
+      !(2) loop to get the total size and offset of each collection and request
+      allocate(offsets(collection_total), msize_words(collection_total))
+      offsets = 0
+      offset = 0
+      iter   = thread_ptr%request_backlog%begin()
+      do while (iter /= thread_ptr%request_backlog%end())
+         msg => iter%get()
+
+         select type (q=>msg)
+         type is (CollectiveStageDataMessage)
+            collection_counter = this%stage_offset%of(i_to_string(q%collection_id))
+            request_iter = this%stage_offset%find(i_to_string(q%request_id))
+            if ( request_iter == this%stage_offset%end()) then
+               ! insert local offset for each node
+               call this%stage_offset%insert(i_to_string(q%request_id),offsets(collection_counter))
+               msize_word = word_size(q%type_kind)*product(int(q%global_count,INT64))
+               offsets(collection_counter) = offsets(collection_counter) + msize_word
+            endif
+         end select
+         call iter%next()
+      end do
+      ! (3) allocate the memory
+      msize_words = offsets
+      do collection_counter = 1, collection_total
+         rank = this%get_writing_PE(collection_counter)
+         msize_word = msize_words(collection_counter)
+         call this%stage_offset%insert(i_to_string(MSIZE_ID + collection_counter ),msize_word)
+         allocate(remotePtr, source  = RDMAReference(pFIO_INT32,msize_word, this%comm, rank ))
+         call this%add_DataReference(remotePtr)
+         remotePtr=>null()
+      enddo
+      _RETURN(_SUCCESS)
+
+   end subroutine create_remote_win
 
 end module pFIO_BaseServerMod

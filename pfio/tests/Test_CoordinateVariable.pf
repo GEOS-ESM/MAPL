@@ -24,7 +24,7 @@ contains
       type (CoordinateVariable) :: cvar
       class(*), pointer :: c32(:),c64(:)
 
-      var  = Variable(pFIO_INT32)
+      var  = Variable(type=pFIO_INT32)
       cvar = CoordinateVariable(var, [1.0_real32, 10.0_real32])
       c32 => cvar%get_coordinate_data()
       select type (c32)
@@ -32,7 +32,7 @@ contains
          @assertEqual(c32, [1.0_real32, 10.0_real32])
       end select
 
-      var  = Variable(pFIO_INT32)
+      var  = Variable(type=pFIO_INT32)
       cvar = CoordinateVariable(var, [1.0_real64, 10.0_real64])
       c64 => cvar%get_coordinate_data()    
       select type (c64)
@@ -48,7 +48,7 @@ contains
       type (CoordinateVariable) :: cvar
       class(*), pointer :: c32(:),c64(:)
 
-      var  = Variable(pFIO_INT32)
+      var  = Variable(type=pFIO_INT32)
       cvar = CoordinateVariable(var, [1.0_real32, 10.0_real32])
       call cvar%replace_coordinate_data([2.0_real32])
 
@@ -58,7 +58,7 @@ contains
         @assertEqual(c32, [2.0_real32])
       end select
 
-      var  = Variable(pFIO_INT32)
+      var  = Variable(type=pFIO_INT32)
       cvar = CoordinateVariable(var, [1.0_real64, 10.0_real64])
       call cvar%replace_coordinate_data([2.0_real64])
       c64 => cvar%get_coordinate_data()    
@@ -75,14 +75,14 @@ contains
       type (CoordinateVariable) :: cv1, cv2
       integer,allocatable :: buffer(:)
 
-      v1 = Variable(pFIO_INT32, dimensions='x,y')
+      v1 = Variable(type=pFIO_INT32, dimensions='x,y')
       call v1%add_attribute('attr2', 2.)
       call v1%add_attribute('attr1', 1.)
       call v1%add_attribute('attr3', 'cat')
 
       cv1 = CoordinateVariable(v1,[1.0_real64,2.0_real64])
       call cv1%serialize(buffer)
-      call cv2%deserialize(buffer)
+      call CoordinateVariable_deserialize(buffer,cv2)
       @assertTrue(cv1 == cv2)
       call cv2%replace_coordinate_data([1.000000001_real64,2.0_real64])
       @assertFalse(cv1 == cv2)
