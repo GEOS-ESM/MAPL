@@ -130,6 +130,9 @@ module procedure MAPL_CFIOReadField
 module procedure MAPL_CFIOReadArray3D
 module procedure MAPL_CFIOReadArray2D
 end interface
+interface MAPL_CFIOReadParallel
+module procedure MAPL_CFIOReadParallel_
+end interface
 
 !                     ESMF Consistent Naming Convention
 !                     ---------------------------------
@@ -4898,13 +4901,14 @@ CONTAINS
 
   end subroutine MAPL_CFIOPartition
 
-  subroutine MAPL_CFIOReadParallel(bundlelist,filelist,time,blocksize,RegridMethod,gsiMode,rc)
+  subroutine MAPL_CFIOReadParallel_(bundlelist,filelist,time,blocksize,RegridMethod,gsiMode,timeList,rc)
      type(ESMF_FieldBundle), pointer, intent(inout) :: bundlelist(:)
      character(len=*), intent(in) :: filelist(:)
      type(ESMF_Time), intent(inout) ::time
      integer, optional, intent(in) :: blocksize
      integer, optional, intent(in) :: regridMethod
      logical, optional, intent(in) :: gsiMode
+     type(ESMF_Time), optional, intent(in) :: timelist(:)
      integer, optional, intent(out) :: rc
 
 
@@ -4936,7 +4940,11 @@ CONTAINS
         cfio(n)%fname = filelist(n)
         collection => collections%at(cfio(n)%collection_id)
         pcfio => collection%find(cfio(n)%fname)
-        call getTIndex(pcfio,time,nn,rc=status)
+        if (present(timelist)) then
+          call getTIndex(pcfio,timelist(n),nn,rc=status)
+        else
+          call getTIndex(pcfio,time,nn,rc=status)
+        endif
         VERIFY_(status)
         call tindex%push_back(nn)
      enddo
@@ -5036,7 +5044,7 @@ CONTAINS
 
      RETURN_(ESMF_SUCCESS)
 
-  end subroutine MAPL_CFIOReadParallel
+  end subroutine MAPL_CFIOReadParallel_
 
   subroutine MAPL_CFIOCreateFromFile(MCFIO,bundlein,RegridMethod,hw,only_vars,rc)
 
