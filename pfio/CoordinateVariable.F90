@@ -34,6 +34,7 @@ module pFIO_CoordinateVariableMod
    private
 
    public :: CoordinateVariable
+   public :: CoordinateVariable_deserialize
    public :: Coord_SERIALIZE_TYPE
    integer, parameter :: Coord_SERIALIZE_TYPE = 200
 
@@ -50,7 +51,6 @@ module pFIO_CoordinateVariableMod
       procedure :: get_int32
       procedure :: get_int64
       procedure :: serialize
-      procedure :: deserialize
 
       generic :: operator(==) => equal_c
       generic :: operator(/=) => not_equal_c
@@ -181,6 +181,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine get_int64
 
+       
   subroutine serialize(this, buffer, rc)
       class (CoordinateVariable), intent(in) :: this
       integer, allocatable,intent(inout) :: buffer(:)
@@ -215,55 +216,68 @@ contains
       _RETURN(_SUCCESS)
    end subroutine
 
-   subroutine deserialize(this, buffer, rc)
-      class (CoordinateVariable), intent(inout) :: this
-      integer,intent(in) :: buffer(:)
+   subroutine CoordinateVariable_deserialize(buffer, cv, rc)
+      integer, intent(in) :: buffer(:)
+      type (CoordinateVariable), intent(inout) :: cv
       integer, optional, intent(out) :: rc
-
-      integer :: n,length,type_kind, v_type
       integer :: status
 
-      integer(KIND=INT32), allocatable :: values_int32(:)
-      real(KIND=REAL32),   allocatable :: values_real32(:)
-      integer(KIND=INT64), allocatable :: values_int64(:)
-      real(KIND=REAL64),   allocatable :: values_real64(:)
-
-
-      n = 1
-      call deserialize_intrinsic(buffer(n:),length)
-      _ASSERT(length == size(buffer), "size not match")
-
-      length = serialize_buffer_length(length)
-      n = n + length
-      call deserialize_intrinsic(buffer(n:),v_type)
-      length = serialize_buffer_length(v_type)
-      n = n+length
-      call deserialize_intrinsic(buffer(n:),length)
-      call this%Variable%deserialize(buffer(n:n+length-1), status)
+      call deserialize(cv, buffer, rc=status)
       _VERIFY(status)
-      n = n + length
-      call deserialize_intrinsic(buffer(n:),type_kind)
-      length = serialize_buffer_length(type_kind)
-      n = n + length
-      if(allocated(this%coordinate_data)) deallocate(this%coordinate_data)
-      select case (type_kind)
-      case (pFIO_INT32)
-         call deserialize_intrinsic(buffer(n:),values_int32)
-         allocate(this%coordinate_data, source = values_int32) 
-      case (pFIO_INT64)
-         call deserialize_intrinsic(buffer(n:),values_int64)
-         allocate(this%coordinate_data, source = values_int64) 
-      case (pFIO_REAL32)
-         call deserialize_intrinsic(buffer(n:),values_REAL32)
-         allocate(this%coordinate_data, source = values_real32) 
-      case (pFIO_REAL64)
-         call deserialize_intrinsic(buffer(n:),values_REAL64)
-         allocate(this%coordinate_data, source = values_real64)
-      case default
-         _ASSERT(.false., "not supportted type")
-      end select
       _RETURN(_SUCCESS)
-   end subroutine deserialize
+
+   contains  
+      
+      subroutine deserialize(this, buffer, rc)
+         class (CoordinateVariable), intent(inout) :: this
+         integer,intent(in) :: buffer(:)
+         integer, optional, intent(out) :: rc
+
+         integer :: n,length,type_kind, v_type
+         integer :: status
+
+         integer(KIND=INT32), allocatable :: values_int32(:)
+         real(KIND=REAL32),   allocatable :: values_real32(:)
+         integer(KIND=INT64), allocatable :: values_int64(:)
+         real(KIND=REAL64),   allocatable :: values_real64(:)
+
+
+         n = 1
+         call deserialize_intrinsic(buffer(n:),length)
+         _ASSERT(length == size(buffer), "size not match")
+
+         length = serialize_buffer_length(length)
+         n = n + length
+         call deserialize_intrinsic(buffer(n:),v_type)
+         length = serialize_buffer_length(v_type)
+         n = n+length
+         call deserialize_intrinsic(buffer(n:),length)
+         call Variable_deserialize(buffer(n:n+length-1),this%variable, status)
+         _VERIFY(status)
+         n = n + length
+         call deserialize_intrinsic(buffer(n:),type_kind)
+         length = serialize_buffer_length(type_kind)
+         n = n + length
+         if(allocated(this%coordinate_data)) deallocate(this%coordinate_data)
+         select case (type_kind)
+         case (pFIO_INT32)
+            call deserialize_intrinsic(buffer(n:),values_int32)
+            allocate(this%coordinate_data, source = values_int32) 
+         case (pFIO_INT64)
+            call deserialize_intrinsic(buffer(n:),values_int64)
+            allocate(this%coordinate_data, source = values_int64) 
+         case (pFIO_REAL32)
+            call deserialize_intrinsic(buffer(n:),values_REAL32)
+            allocate(this%coordinate_data, source = values_real32) 
+         case (pFIO_REAL64)
+            call deserialize_intrinsic(buffer(n:),values_REAL64)
+            allocate(this%coordinate_data, source = values_real64)
+         case default
+            _ASSERT(.false., "not supportted type")
+         end select
+         _RETURN(_SUCCESS)
+      end subroutine deserialize
+   end subroutine CoordinateVariable_deserialize
 
    logical function equal_c(a, b) 
       class (CoordinateVariable), target, intent(in) :: a

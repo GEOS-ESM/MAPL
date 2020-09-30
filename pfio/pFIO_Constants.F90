@@ -23,6 +23,9 @@ module pFIO_ConstantsMod
    ! IO modes
    public :: pFIO_WRITE
    public :: pFIO_READ
+   public :: pFIO_s_tag
+   public :: pFIO_m_w_tag
+   public :: pFIO_w_m_tag
 
    public :: pFIO_DIMENSION_SEPARATOR
 
@@ -52,5 +55,10 @@ module pFIO_ConstantsMod
       enumerator :: pFIO_READ
       enumerator :: pFIO_WRITE
    end enum
+
+   integer, parameter :: pFIO_s_tag   = 9999
+   integer, parameter :: pFIO_m_w_tag = 8888
+   integer, parameter :: pFIO_w_m_tag = 7777
+   
 
 end module pFIO_ConstantsMod
