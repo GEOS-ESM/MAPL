@@ -2334,7 +2334,7 @@ CONTAINS
                  call ESMF_TimeGet(fTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,rc=status)
                  call lgr%debug('     ==> Target time    : %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2', iyr, iMm, iDd, ihr, iMn, iSc)
                  call ESMF_TimeIntervalGet(item%frequency,yy=iyr,mm=imm,d=idd,h=ihr,m=imn,s=isc,rc=status)
-                 call lgr%debug('     ===> item%frequency: Reference time: %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2', iyr, iMm, iDd, ihr, iMn, iSc)
+                 call lgr%debug('     ===> item%%frequency: Reference time: %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2', iyr, iMm, iDd, ihr, iMn, iSc)
                  call lgr%debug('     ===> # iterations until found %i5', n)
               endif
 
@@ -2622,7 +2622,7 @@ CONTAINS
                     call ESMF_TimeGet(newTime,yy=fyr,mm=fmm,dd=fdd,h=fhr,m=fmn,s=fsc,__RC__)
                     call lgr%debug('            UpdateBracketTime: Template %a applied: %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2 ', &
                          & trim(item%refresh_template), iyr, imm, idd, ihr, imn, isc)
-                    call lgr%debug('                                                 -> %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2 on file ', &
+                    call lgr%debug('                                                 -> %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2 on file %a', &
                          fyr, fmm, fdd, fhr, fmn, fsc, trim(file_processed))
                  End If
 
@@ -2665,7 +2665,7 @@ CONTAINS
         else if (bside =='L') then
            item%tindex1=tindex
         end if
-        call lgr%info(' ... file processed: %a', file_processed)
+        call lgr%info(' ... file processed: %a', trim(file_processed))
 
         _RETURN(ESMF_SUCCESS)
        
@@ -2780,7 +2780,7 @@ CONTAINS
 
         call lgr%debug('               GetTimesOnFile: Reading times')
         call lgr%debug('                  ==> File: %a', trim(cfio%fName))
-        call lgr%debug('                  ==> File timing info: %i0.10 %i0.10 %i0.4')
+        call lgr%debug('                  ==> File timing info: %i0.10 %i0.10 %i0.4', begDate, begTime, cfio%tSteps)
 
         do i=1,cfio%tSteps
            iCurrInterval = tSeriesInt(i)
@@ -3073,7 +3073,7 @@ CONTAINS
 
            if (lgr%isEnabledFor(DEBUG)) then
               call ESMF_TimeGet(fileTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
-              call lgr%debug('               GetBracketTimeOnSingleFile: Data from time  %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2 set for bracket %a of file %a', &
+              call lgr%debug('               GetBracketTimeOnSingleFile: Data from time  %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2 set for bracket %a1 of file %a', &
                    & iyr, imm, idd, ihr, imn, isc, bside, trim(fdata%get_file_name()))
               if (yrOffset /= 0) then
                  call ESMF_TimeGet(interpTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
@@ -3139,7 +3139,7 @@ CONTAINS
 
         if (lgr%isEnabledFor(DEBUG)) then
            call ESMF_TimeGet(cLimTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
-           call lgr%debug('              GetBracketTimeOnFile: Year offset of %i2 applied while scanning %a to give target time %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2', &
+           call lgr%debug('              GetBracketTimeOnFile: Year offset of %i3 applied while scanning %a to give target time %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2', &
                 & yrOffset, trim(fdata%get_file_name()), iyr, imm, idd, ihr, imn, isc)
         end if
 
