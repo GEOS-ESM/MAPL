@@ -295,7 +295,7 @@ contains
          call fmd%add_dimension('lat',nlats)
          call fmd%add_dimension('level',1)
          call fmd%add_dimension('time',1)
-         T1 = Variable(pFIO_REAL32, dimensions='lon,lat,level,time')
+         T1 = Variable(type=pFIO_REAL32, dimensions='lon,lat,level,time')
          call fmd%add_variable('T',T1)
          this%hist_collection_ids(1) = this%o_c%add_hist_collection(fmd)
 
@@ -303,7 +303,7 @@ contains
          call fmd2%add_dimension('lat',this%nlat)
          call fmd2%add_dimension('level',1)
          call fmd2%add_dimension('time',1)
-         T2 = Variable(pFIO_REAL32, dimensions='lon,lat,level,time')
+         T2 = Variable(type=pFIO_REAL32, dimensions='lon,lat,level,time')
          call fmd2%add_variable('T',T2)
          this%hist_collection_ids(2) = this%o_c%add_hist_collection(fmd2)
 

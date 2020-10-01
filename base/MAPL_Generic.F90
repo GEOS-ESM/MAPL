@@ -109,7 +109,6 @@ module MAPL_GenericMod
   use pFIO
   use gFTL_StringVector
   use pFIO_ClientManagerMod
-  use MAPL_ioClientsMod, only: i_Clients, o_Clients
   use MAPL_BaseMod
   use MAPL_IOMod
   use MAPL_ProfMod
@@ -188,6 +187,7 @@ module MAPL_GenericMod
   public MAPL_ExchangeGridGet
   public MAPL_ExchangeGridSet
   public MAPL_ImportStateGet
+  public MAPL_InternalESMFStateGet
   public MAPL_ExportStateGet
   public MAPL_GetChildLocstream
   public MAPL_CopyFriendliness
@@ -207,6 +207,10 @@ module MAPL_GenericMod
   public MAPL_ESMFStateReadFromFile
   public MAPL_InternalStateRetrieve
   public :: MAPL_GetLogger
+  public MAPL_SetStateSave
+  public MAPL_DestroyStateSave
+  public MAPL_GenericStateSave
+  public MAPL_GenericStateRestore
 !BOP  
   ! !PUBLIC TYPES:
 
@@ -316,7 +320,12 @@ module MAPL_GenericMod
   
   interface MAPL_CheckpointState
      module procedure MAPL_ESMFStateWriteToFile
-  end interface
+  end interface MAPL_CheckpointState
+
+  interface MAPL_GetLogger
+     module procedure MAPL_GetLogger_gc
+     module procedure MAPL_GetLogger_meta
+  end interface MAPL_GetLogger
 
   include "mpif.h"
   
@@ -359,6 +368,13 @@ type MAPL_GenericRecordType
    character (len=ESMF_MAXSTR)              :: INT_FNAME
    integer                                  :: INT_LEN
 end type  MAPL_GenericRecordType
+
+type MAPL_InitialState
+   integer                                  :: FILETYPE = MAPL_Write2Ram
+   character(len=:), allocatable            :: IMP_FNAME
+   character(len=:), allocatable            :: INT_FNAME
+end type  MAPL_InitialState
+
 
 type MAPL_Connectivity
    type (MAPL_VarConn), pointer :: CONNECT(:)       => null()
@@ -412,6 +428,7 @@ type  MAPL_MetaComp
    type (MAPL_LocStream)                    :: LOCSTREAM
    character(len=ESMF_MAXSTR)               :: COMPNAME
    type (MAPL_GenericRecordType)  , pointer :: RECORD           => null()
+   type (MAPL_InitialState)                 :: initial_state
    type (ESMF_State)                        :: FORCING
    type (MAPL_Connectivity)                 :: connectList
    integer                        , pointer :: phase_init (:)    => null()
@@ -5419,7 +5436,7 @@ end function MAPL_AddChildFromGC
 
     nwrgt1 = (mpl%grid%num_readers > 1) 
 
-    
+   
     if(INDEX(FNAME,'*') == 0) then
        if (AmIRoot) then
           block
@@ -8515,6 +8532,53 @@ recursive subroutine MAPL_WireComponent(GC, RC)
    return
  end subroutine MAPL_ImportStateGet
 
+ recursive subroutine MAPL_InternalESMFStateGet ( GC, name, result, rc )
+    type(ESMF_GridComp), intent(INout)  :: GC
+    character(len=*),  intent(IN   ) :: name
+    type (ESMF_State), intent(  OUT) :: result
+    integer,           intent(  OUT) :: rc
+    
+    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_InternalESMFStateGet"
+    integer                               :: status 
+    integer                               :: I
+    logical                               :: have_ens
+    character(len=ESMF_MAXSTR)            :: sname
+    type (MAPL_MetaComp),pointer          :: STATE 
+    type(ESMF_State)                      :: internal
+    
+
+    have_ens = index(name,":") /= 0
+   
+    call MAPL_InternalStateGet ( GC, STATE, RC=STATUS)
+    _VERIFY(STATUS)
+    call MAPL_Get(STATE,INTERNAL_ESMF_STATE=internal,rc=status)
+    _VERIFY(status)
+    call ESMF_StateGet(internal, name=sname, rc=status)
+    _VERIFY(STATUS)
+    if (have_ens) then
+       if (sname == trim(name) // '_INTERNAL') then
+          result = internal
+          _RETURN(ESMF_SUCCESS)
+       end if
+    else
+       if (sname(index(sname,":")+1:) == trim(name) // '_INTERNAL') then
+          result = internal
+          _RETURN(ESMF_SUCCESS)
+       end if
+    end if
+
+    if (associated(STATE%GCS)) then
+       do I = 1, size(STATE%GCS)
+          call MAPL_InternalESMFStateGet(STATE%GCS(I), name, result, RC=STATUS)
+          if (status == ESMF_SUCCESS) then
+             _RETURN(ESMF_SUCCESS)
+          end if
+       end do
+    end if
+   rc = ESMF_FAILURE
+   return
+ end subroutine MAPL_InternalESMFStateGet
+
  recursive subroutine MAPL_GetChildLocstream(GC, result, name, rc)
     type(ESMF_GridComp),   intent(INout) :: GC
     type (MAPL_LocStream), intent(  OUT) :: result
@@ -9761,6 +9825,270 @@ end subroutine MAPL_READFORCINGX
     _RETURN(ESMF_SUCCESS)
   end function MAPL_AddMethod
 
+
+  recursive subroutine MAPL_SetStateSave(state,filetype,rc)
+    type(MAPL_MetaComp), intent(inout) :: state
+    integer,             intent(in ) :: filetype
+    integer, optional,   intent(out) :: rc
+    type(MAPL_MetaComp), pointer :: CMAPL => null()
+    integer :: k, status
+
+    if (associated(state%gcs)) then
+       do k=1,size(state%GCS)
+          call MAPL_GetObjectFromGC ( state%GCS(K), CMAPL, RC=STATUS)
+          _VERIFY(STATUS)
+          call MAPL_SetStateSave(CMAPL,filetype,RC=STATUS)
+          _VERIFY(STATUS)
+       enddo
+    end if
+
+    state%initial_state%filetype = filetype
+
+  end subroutine MAPL_SetStateSave
+
+  recursive subroutine MAPL_GenericStateSave( GC, IMPORT, EXPORT, CLOCK, RC )
+    type(ESMF_GridComp), intent(inout) :: GC     ! composite gridded component
+    type(ESMF_State),    intent(inout) :: IMPORT ! import state
+    type(ESMF_State),    intent(inout) :: EXPORT ! export state
+    type(ESMF_Clock),    intent(inout) :: CLOCK  ! the clock
+    integer, optional,   intent(  out) :: RC     ! Error code:
+
+    type(mapl_metacomp), pointer :: state
+    integer :: i,filetype
+
+    character(len=14)                           :: datestamp
+    character(len=1)                            :: separator
+
+    character(len=ESMF_MAXSTR)                  :: filetypechar
+    character(len=4)                            :: extension
+    integer                                     :: hdr
+    integer :: status
+    character(len=:), allocatable :: tmpstr
+    character(len=ESMF_MAXSTR) :: filename
+    character(len=ESMF_MAXSTR)                  :: CFILETYPE
+
+    call MAPL_InternalStateRetrieve(GC, STATE, RC=STATUS)
+    _VERIFY(STATUS)
+
+    call MAPL_GetResource( STATE, FILENAME,         &
+                          LABEL="IMPORT_CHECKPOINT_FILE:", &
+                          RC=STATUS)
+    if(STATUS==ESMF_SUCCESS) then
+       _ASSERT(.not.allocated(state%initial_state%imp_fname),"can only save one state")
+       STATE%initial_state%IMP_FNAME = FILENAME
+    end if
+    call MAPL_GetResource( STATE   , filename,  &
+                        LABEL="INTERNAL_CHECKPOINT_FILE:", &
+                         RC=STATUS)
+    if(STATUS==ESMF_SUCCESS) then
+       _ASSERT(.not.allocated(state%initial_state%int_fname),"can only save one state")
+       STATE%initial_state%INT_FNAME = FILENAME
+    end if
+
+    if(associated(STATE%GCS)) then
+       do I=1,size(STATE%GCS)
+          call MAPL_GenericStateSave (STATE%GCS(I), &
+               STATE%GIM(I), &
+               STATE%GEX(I), &
+               CLOCK, RC=STATUS )
+          _VERIFY(status)
+       enddo
+    endif
+
+    call MAPL_DateStampGet(clock, datestamp, rc=status)
+    _VERIFY(STATUS)
+    filetype=state%initial_state%filetype
+    if (FILETYPE /= MAPL_Write2Disk) then
+       separator = '*'
+    else
+       separator = '.'
+    end if
+
+    if (allocated(state%initial_state%imp_fname)) then
+       call    MAPL_GetResource( STATE, filetypechar, LABEL="IMPORT_CHECKPOINT_TYPE:",                  RC=STATUS )
+       if ( STATUS/=ESMF_SUCCESS  .or.  filetypechar == "default" ) then
+      call MAPL_GetResource( STATE, filetypechar, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
+                    _VERIFY(STATUS)
+    end if
+    filetypechar = ESMF_UtilStringLowerCase(filetypechar,rc=STATUS)
+    _VERIFY(STATUS)
+    if (filetypechar == 'pnc4') then
+       extension = '.nc4'
+    else
+       extension = '.bin'
+     end if
+      tmpstr=trim(state%initial_state%imp_fname)
+      deallocate(state%initial_state%imp_fname)
+      STATE%initial_state%IMP_FNAME = tmpstr // separator // DATESTAMP // extension
+      deallocate(tmpstr)
+    end if
+
+    if (allocated(state%initial_state%int_fname)) then
+       call    MAPL_GetResource( STATE, hdr,      LABEL="INTERNAL_HEADER:",         default=0,      RC=STATUS )
+       _VERIFY(STATUS)
+       call    MAPL_GetResource( STATE, filetypechar, LABEL="INTERNAL_CHECKPOINT_TYPE:",                RC=STATUS )
+       if ( STATUS/=ESMF_SUCCESS  .or.  filetypechar == "default" ) then
+          call MAPL_GetResource( STATE, filetypechar, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
+          _VERIFY(STATUS)
+       end if
+       filetypechar = ESMF_UtilStringLowerCase(filetypechar,rc=STATUS)
+       _VERIFY(STATUS)
+       if (filetypechar == 'pnc4') then
+          extension = '.nc4'
+       else
+          extension = '.bin'
+       end if
+       tmpstr=trim(state%initial_state%int_fname)
+       deallocate(state%initial_state%int_fname)
+       STATE%initial_state%INT_FNAME = tmpstr // separator // DATESTAMP // extension
+       deallocate(tmpstr)
+    end if
+
+    if (allocated(state%initial_state%imp_fname)) then
+       call    MAPL_GetResource( STATE, CFILETYPE, LABEL="IMPORT_CHECKPOINT_TYPE:",                  RC=STATUS )
+       if ( STATUS/=ESMF_SUCCESS  .or.  CFILETYPE == "default" ) then
+          call MAPL_GetResource( STATE, CFILETYPE, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
+          _VERIFY(STATUS)
+       end if
+       call MAPL_ESMFStateWriteToFile(IMPORT, CLOCK, &
+                                      STATE%initial_state%IMP_FNAME, &
+                                      CFILETYPE, STATE, .FALSE., oClients = o_Clients, &
+                                    RC=STATUS)
+       _VERIFY(STATUS)
+    end if
+
+    if (allocated(state%initial_state%int_fname)) then
+       call    MAPL_GetResource( STATE, hdr,      LABEL="INTERNAL_HEADER:",         default=0,      RC=STATUS )
+       _VERIFY(STATUS)
+       call    MAPL_GetResource( STATE, CFILETYPE, LABEL="INTERNAL_CHECKPOINT_TYPE:",                RC=STATUS )
+       if ( STATUS/=ESMF_SUCCESS  .or.  CFILETYPE == "default" ) then
+          call MAPL_GetResource( STATE, CFILETYPE, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
+          _VERIFY(STATUS)
+       end if
+       call MAPL_ESMFStateWriteToFile(STATE%INTERNAL, CLOCK, &
+                                      STATE%initial_state%INT_FNAME, &
+                                      CFILETYPE, STATE, hdr/=0, oClients = o_Clients, &
+                                    RC=STATUS)
+       _VERIFY(STATUS)
+    end if
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine MAPL_GenericStateSave
+
+
+  recursive subroutine MAPL_GenericStateRestore ( GC, IMPORT, EXPORT, CLOCK, RC )
+
+! !ARGUMENTS:
+
+    type(ESMF_GridComp), intent(inout) :: GC     ! composite gridded component
+    type(ESMF_State),    intent(inout) :: IMPORT ! import state
+    type(ESMF_State),    intent(inout) :: EXPORT ! export state
+    type(ESMF_Clock),    intent(inout) :: CLOCK  ! the clock
+    integer, optional,   intent(  out) :: RC     ! Error code:
+                                                 ! = 0 all is well
+                                                 ! otherwise, error
+!EOPI
+
+! LOCAL VARIABLES
+
+  character(len=ESMF_MAXSTR)                  :: IAm
+  character(len=ESMF_MAXSTR)                  :: COMP_NAME
+  character(len=ESMF_MAXSTR)                  :: CHILD_NAME
+  integer                                     :: STATUS
+  integer                                     :: I
+  type (MAPL_MetaComp), pointer               :: STATE
+  character(len=ESMF_MAXSTR)                  :: filetypechar
+  character(len=4)                            :: extension
+  class(BaseProfiler), pointer                :: t_p
+  integer                                     :: hdr, unit
+!=============================================================================
+
+!  Begin...
+
+  Iam = "MAPL_GenericStateRestore"
+  call ESMF_GridCompGet(GC, name=COMP_NAME, RC=STATUS )
+  _VERIFY(STATUS)
+  Iam = trim(COMP_NAME) // Iam
+
+! Retrieve the pointer to the state
+!----------------------------------
+
+  call MAPL_InternalStateRetrieve(GC, STATE, RC=STATUS)
+  _VERIFY(STATUS)
+
+  call MAPL_GenericStateClockOn(STATE,"TOTAL")
+! Refresh the children
+! ---------------------
+  if(associated(STATE%GCS)) then
+     do I=1,size(STATE%GCS)
+        call ESMF_GridCompGet( STATE%GCS(I), NAME=CHILD_NAME, RC=STATUS )
+        _VERIFY(STATUS)
+        call MAPL_GenericStateRestore (STATE%GCS(I), STATE%GIM(I), STATE%GEX(I), CLOCK, &
+             RC=STATUS )
+        _VERIFY(STATUS)
+     enddo
+  endif
+! Do my "own" refresh
+! ------------------
+  call MAPL_GenericStateClockOn(STATE,"--GenRefreshMine")
+
+  if (allocated(STATE%initial_state%imp_fname)) then
+     call MAPL_ESMFStateReadFromFile(IMPORT, CLOCK, &
+                                     STATE%initial_state%IMP_FNAME, &
+                                     STATE, .FALSE., RC=STATUS)
+     _VERIFY(STATUS)
+  end if
+
+  if (allocated(state%initial_state%int_fname)) then
+     call MAPL_GetResource( STATE   , hdr,         &
+                            default=0, &
+                            LABEL="INTERNAL_HEADER:", &
+                            RC=STATUS)
+     _VERIFY(STATUS)
+     call MAPL_ESMFStateReadFromFile(STATE%INTERNAL, CLOCK, &
+                                     STATE%initial_state%INT_FNAME, &
+                                     STATE, hdr/=0, RC=STATUS)
+     _VERIFY(STATUS)
+     UNIT = GETFILE(STATE%initial_state%INT_FNAME, RC=STATUS)
+     _VERIFY(STATUS)
+  end if
+
+  _RETURN(ESMF_SUCCESS)
+end subroutine MAPL_GenericStateRestore
+
+  recursive subroutine MAPL_DestroyStateSave(gc,rc)
+    type(ESMF_GridComp), intent(inout) :: GC    
+    integer, optional,   intent(out) :: rc
+    type(MAPL_MetaComp), pointer :: state
+    integer :: unit, i, status
+
+     call MAPL_InternalStateRetrieve(GC, STATE, RC=STATUS)
+     _VERIFY(STATUS)
+     if(associated(STATE%GCS)) then
+        do I=1,size(STATE%GCS)
+           call MAPL_DestroyStateSave (STATE%GCS(I), RC=STATUS )
+           _VERIFY(STATUS)
+        enddo
+     endif
+
+     if (allocated(STATE%initial_state%imp_fname)) then
+        UNIT = GETFILE(STATE%initial_state%IMP_FNAME, RC=STATUS)
+        _VERIFY(STATUS)
+        call MAPL_DestroyFile(unit = UNIT, rc=STATUS)
+        _VERIFY(STATUS)
+        deallocate(STATE%initial_state%imp_fname)
+     end if
+
+     if (allocated(state%initial_state%int_fname)) then
+        UNIT = GETFILE(STATE%initial_state%INT_FNAME, RC=STATUS)
+        _VERIFY(STATUS)
+        call MAPL_DestroyFile(unit = UNIT, rc=STATUS)
+        _VERIFY(STATUS)
+        deallocate(state%initial_state%int_fname)
+     end if
+
+  end subroutine MAPL_DestroyStateSave
+
   subroutine MAPL_AddRecord(MAPLOBJ, ALARM, FILETYPE, RC)
     type(MAPL_MetaComp), intent(inout) :: MAPLOBJ
     type(ESMF_Alarm),    intent(INout) :: ALARM(:)
@@ -10399,7 +10727,17 @@ end subroutine MAPL_READFORCINGX
 
    end subroutine ArrDescrSetNCPar
 
-   subroutine MAPL_GetLogger(gc, lgr, rc)
+   subroutine MAPL_GetLogger_meta(meta, lgr, rc)
+      type (MAPL_MetaComp), intent(in) :: meta
+      class(Logger), pointer :: lgr
+      integer, optional, intent(out) :: rc
+
+      lgr => meta%lgr
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_GetLogger_meta
+
+   subroutine MAPL_GetLogger_gc(gc, lgr, rc)
       type(ESMF_GridComp), intent(inout) :: gc
       class(Logger), pointer :: lgr
       integer, optional, intent(out) :: rc
@@ -10410,9 +10748,11 @@ end subroutine MAPL_READFORCINGX
       call MAPL_GetObjectFromGC(gc, meta, rc=status)
       _VERIFY(status)
 
-      lgr => meta%lgr
+      call MAPL_GetLogger(meta, lgr, rc=status)
+      _VERIFY(status)
+
       _RETURN(_SUCCESS)
-   end subroutine MAPL_GetLogger
+   end subroutine MAPL_GetLogger_gc
 
    subroutine MAPL_ConnectivityGet(gc, connectivityPtr, RC)
       type(ESMF_GridComp), intent(inout) :: gc

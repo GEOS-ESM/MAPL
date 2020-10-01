@@ -38,7 +38,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_RegridderSpecMod
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
-  use MAPL_ioClientsMod, only: io_client, o_Clients
+  use pFIO_ClientManagerMod, only: o_Clients
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
@@ -525,15 +525,14 @@ contains
     end if
 
     call ESMF_ConfigGetAttribute(config, value=IntState%collectionWriteSplit, &
-         label = 'CollectionWriteSplit:', default=1, rc=status)
+         label = 'CollectionWriteSplit:', default=0, rc=status)
     _VERIFY(status)
     call ESMF_ConfigGetAttribute(config, value=IntState%serverSizeSplit, &
-         label = 'ServerSizeSplit:', default=1, rc=status)
+         label = 'ServerSizeSplit:', default=0, rc=status)
     _VERIFY(status)
-    if (IntState%serverSizeSplit .gt. 1) then
-       call io_client%split_oclient_pool(IntState%serverSizeSplit,IntState%collectionWriteSplit,rc=status)
-       _VERIFY(status)
-    end if
+    call o_Clients%split_server_pools(n_server_split = IntState%serverSizeSplit, &
+                                      n_hist_split   = IntState%collectionWriteSplit,rc=status)
+    _VERIFY(status)
 
     call ESMF_ConfigGetAttribute(config, value=INTSTATE%MarkDone,          &
                                          label='MarkDone:', default=0, rc=status)
@@ -3413,7 +3412,7 @@ ENDDO PARSER
 
    call MAPL_TimerOn(GENSTATE,"----IO Create")
 
-   if (any(writing)) call io_client%set_oClient(count(writing))
+   if (any(writing)) call o_Clients%set_optimal_server(count(writing))
 
    OPENLOOP: do n=1,nlist
       if( Writing(n) ) then
