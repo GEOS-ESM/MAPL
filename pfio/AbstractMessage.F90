@@ -25,6 +25,7 @@ module pFIO_AbstractMessageMod
    public :: ModifyMetadata_ID
    public :: HandShake_ID
    public :: DUMMY_ID
+   public :: ForwardData_ID
 
    enum, bind(c)
       enumerator :: TERMINATE_ID = 1
@@ -43,6 +44,7 @@ module pFIO_AbstractMessageMod
       enumerator :: ModifyMetadata_ID
       enumerator :: HandShake_ID
       enumerator :: DUMMY_ID
+      enumerator :: ForwardData_ID 
    end enum
 
    type, abstract :: AbstractMessage

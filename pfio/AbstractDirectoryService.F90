@@ -1,4 +1,5 @@
 module pFIO_AbstractDirectoryServiceMod
+   use pFIO_KeywordEnforcerMod
    use pFIO_BaseServerMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractSocketVectorMod
@@ -30,15 +31,18 @@ module pFIO_AbstractDirectoryServiceMod
 
    abstract interface
 
-      subroutine connect_to_server(this, port_name, client, client_comm, rc)
+      subroutine connect_to_server(this, port_name, client, client_comm, unusable, server_size, rc)
          use pFIO_ClientThreadMod
          import AbstractDirectoryService
          import PortInfo
          import AbstractSocket
+         import KeywordEnforcer
          class (AbstractDirectoryService), target, intent(inout) :: this
          character(len=*), intent(in) :: port_name
          class (ClientThread), intent(inout) :: client
          integer, intent(in) :: client_comm
+         class (KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: server_size
          integer, optional, intent(out) :: rc
       end subroutine connect_to_server
 

@@ -32,7 +32,8 @@ module MAPL_CapOptionsMod
       character(:), allocatable :: ensemble_subdir_prefix
       ! logging options
       character(:), allocatable :: logging_config
-
+      character(:), allocatable :: oserver_type
+      integer :: npes_output_backend = 0
    end type MAPL_CapOptions
 
    interface MAPL_CapOptions
@@ -55,6 +56,7 @@ contains
 
       cap_options%cap_rc_file = 'CAP.rc'
       cap_options%egress_file = 'EGRESS'
+      cap_options%oserver_type= 'single'
       cap_options%ensemble_subdir_prefix = 'mem'
 
       cap_options%npes_input_server  =[0]

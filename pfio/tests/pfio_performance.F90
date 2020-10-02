@@ -323,7 +323,7 @@ contains
       case (2) ! history out
 
          allocate(stage_ids(this%vars%size(),this%num_collection))
-
+         fmd = FileMetadata()
          call fmd%add_dimension('Xdim',this%Xdim)
          call fmd%add_dimension('Ydim',this%Ydim)
          call fmd%add_dimension('lev',this%lev)
@@ -333,12 +333,12 @@ contains
          call fmd%add_dimension('ncontact', 4, rc=status)
          call fmd%add_dimension('orientationStrLen', 5, rc=status)
 
-          v = Variable(PFIO_REAL32, dimensions='Xdim')
+          v = Variable(type=PFIO_REAL32, dimensions='Xdim')
           call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
           call v%add_attribute('units', 'degrees_east')
           call fmd%add_variable('Xdim', v)
 
-          const_v = Variable(PFIO_REAL64, dimensions='Xdim,Ydim,nf')
+          const_v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf')
           call const_v%add_attribute('long_name', 'longitude with 6 faces')
           call const_v%add_attribute('units', 'degrees_east')
           allocate(lats(this%Xdim,this%Ydim, this%nf))
@@ -346,22 +346,22 @@ contains
           call const_v%add_const_value(UnlimitedEntity(lats))
           call fmd%add_variable('lats', const_v)
 
-          v = Variable(PFIO_REAL64, dimensions='Xdim,Ydim,nf')
+          v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf')
           call const_v%add_attribute('long_name', 'longitude with 6 faces')
           call const_v%add_attribute('units', 'degrees_east')
           call fmd%add_variable('lons', v)
 
-           v = Variable(PFIO_REAL64, dimensions='Ydim')
+           v = Variable(type=PFIO_REAL64, dimensions='Ydim')
           call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
           call v%add_attribute('units', 'degrees_north')
           call fmd%add_variable('Ydim', v)
 
-           v = Variable(PFIO_REAL32, dimensions='time')
+           v = Variable(type=PFIO_REAL32, dimensions='time')
           call v%add_attribute('long_name', 'time sine')
           call v%add_attribute('units', 'time since 0000000')
           call fmd%add_variable('time', v)
 
-           T = Variable(pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time')
+           T = Variable(type=pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time')
 
           do i_var = 1, this%vars%size() 
              call fmd%add_variable( this%vars%at(i_var),T)
@@ -376,7 +376,7 @@ contains
          enddo
 
          ! create file and put changes into var_map
-         v = Variable(PFIO_REAL32, dimensions='time')
+         v = Variable(type=PFIO_REAL32, dimensions='time')
          call v%add_attribute('long_name', 'time sine')
          call v%add_attribute('units', 'time since 1111111')
          call var_map%insert('time',v)     

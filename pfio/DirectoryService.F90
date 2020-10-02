@@ -143,12 +143,14 @@ contains
 
    end function make_directory_window
    
-   subroutine connect_to_server(this, port_name, client, client_comm, rc)
+   subroutine connect_to_server(this, port_name, client, client_comm, unusable, server_size, rc)
       use pFIO_ClientThreadMod
       class (DirectoryService), target, intent(inout) :: this
       character(*), intent(in) :: port_name
       class (ClientThread), intent(inout) :: client
       integer, intent(in) :: client_comm
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: server_size
       integer, optional, intent(out) :: rc
 
       class (AbstractSocket), pointer :: sckt
@@ -165,6 +167,7 @@ contains
       integer :: tmp_rank
       integer :: server_root_rank
       integer :: client_npes
+      integer :: server_npes
       integer, allocatable :: client_ranks(:)
       integer, allocatable :: server_ranks(:)
       
@@ -184,7 +187,7 @@ contains
             allocate(sckt, source=SimpleSocket(server_thread_ptr))
             call client%set_connection(sckt)
             nullify(sckt)
-
+            if (present(server_size)) server_size = server_ptr%npes
             allocate(server_ptr%serverthread_done_msgs(1))
             server_ptr%serverthread_done_msgs = .false.
             _RETURN(_SUCCESS)
@@ -250,11 +253,15 @@ contains
          call MPI_Send(client_npes, 1, MPI_INTEGER, server_root_rank, NPES_TAG, this%comm, ierror)
          call MPI_Send(client_ranks, client_npes, MPI_INTEGER, server_root_rank, RANKS_TAG, this%comm, ierror)
          call MPI_Recv(server_ranks, client_npes, MPI_INTEGER, server_root_rank, 0, this%comm, status, ierror)
+         call MPI_Recv(server_npes, 1, MPI_INTEGER, server_root_rank, 0, this%comm, status, ierror)
+         if (present(server_size)) server_size = server_npes
       end if
 
       call MPI_Scatter(server_ranks, 1, MPI_INTEGER, &
         & server_rank, 1, MPI_INTEGER, &
         & 0, client_comm, ierror)
+     
+      if (present(server_size)) call MPI_Bcast(server_size, 1, MPI_INTEGER, 0, client_comm,ierror)
 
       ! Construct the connection
       call MPI_Recv(tmp_rank, 1, MPI_INTEGER, server_rank, CONNECT_TAG, this%comm, status, ierror)
@@ -296,8 +303,12 @@ contains
       integer :: n_entries
 
       server%terminate  = .false.
-
+      server_comm = MPI_COMM_NULL
       server_comm = server%get_communicator()
+      if (server_comm == MPI_COMM_NULL) then
+         _RETURN(_SUCCESS)
+      endif
+
       call MPI_Comm_rank(server_comm, rank_in_server, ierror)
 
       if (rank_in_server == 0) then
@@ -375,6 +386,7 @@ contains
 
       if (rank_in_server == 0) then
         call MPI_Send(server_ranks, client_npes, MPI_INTEGER, client_root_rank, 0, this%comm, ierror)
+        call MPI_Send(server_npes,   1,          MPI_INTEGER, client_root_rank, 0, this%comm, ierror)
       endif
 
       if (rank_in_server /= 0) then
@@ -412,15 +424,19 @@ contains
       type (Directory) :: dir
       type (DirectoryEntry) :: dir_entry
       logical :: found
-      integer :: comm
+      integer :: server_comm
       character(len=*), parameter :: Iam = __FILE__
 
       ! Update local ports
       this%n_local_ports = this%n_local_ports + 1
       this%local_ports(this%n_local_ports) = port
+      server_comm = MPI_COMM_NULL
+      server_comm = server%get_communicator()
+      if (server_comm == MPI_COMM_NULL) then
+         _RETURN(_SUCCESS)
+      endif
 
-      comm = server%get_communicator()
-      call MPI_Comm_rank(comm, rank_in_server, ierror)
+      call MPI_Comm_rank(server_comm, rank_in_server, ierror)
       port_name = port%port_name
 
       if (rank_in_server == 0) then
