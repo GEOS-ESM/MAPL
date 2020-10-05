@@ -52,6 +52,7 @@ contains
      parser = ProtocolParser()
      length = size(buffer)
      n=1
+     msgVec = MessageVector()
      do while (n < length)
        allocate(msg, source = parser%decode(buffer(n:))) 
        call msgVec%push_back(msg)

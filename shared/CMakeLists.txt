@@ -16,6 +16,10 @@ set (srcs
     MAPL_ShmemMod.F90
     MAPL_Sort.F90
     MAPL_Throw.F90
+    AbstractCommSplitter.F90
+    CommGroupDescription.F90
+    SplitCommunicator.F90
+    SimpleCommSplitter.F90
     sort.c
     MAPL_ExceptionHandling.F90
 

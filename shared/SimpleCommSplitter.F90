@@ -11,7 +11,6 @@ module MAPL_SimpleCommSplitterMod
    use MAPL_CommGroupDescriptionVectorMod
    use MAPL_ExceptionHandling
    use MAPL_AbstractCommSplitterMod
-   use pFIO
    use MAPL_KeywordEnforcerMod
    use MAPL_SplitCommunicatorMod
    use MPI
