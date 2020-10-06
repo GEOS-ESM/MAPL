@@ -3,6 +3,7 @@ esma_set_this (OVERRIDE MAPL.NUOPC)
 set (srcs
         NUOPC_MAPLcap.F90
         NUOPC_MAPLcap_Class.F90
+        NUOPC_MAPLconfig.F90
         NUOPCmap.F90
         NUOPC_MAPLfields.F90
 )
