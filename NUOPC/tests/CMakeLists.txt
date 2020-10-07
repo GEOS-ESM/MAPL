@@ -22,3 +22,5 @@ add_pfunit_ctest(MAPL.NUOPC.tests
 add_dependencies(build-tests MAPL.NUOPC.tests)
 
 set_tests_properties(MAPL.NUOPC.tests PROPERTIES LABELS "NUOPC")
+
+configure_file(NUOPC_config.yaml NUOPC_config.yaml COPYONLY)
