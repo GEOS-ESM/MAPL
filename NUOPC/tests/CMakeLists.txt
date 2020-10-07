@@ -23,4 +23,6 @@ add_dependencies(build-tests MAPL.NUOPC.tests)
 
 set_tests_properties(MAPL.NUOPC.tests PROPERTIES LABELS "NUOPC")
 
-configure_file(NUOPC_config.yaml NUOPC_config.yaml COPYONLY)
+configure_file(NUOPC_config.yaml        NUOPC_config.yaml        COPYONLY)
+configure_file(test_NUOPC_config.rc     test_NUOPC_config.rc     COPYONLY)
+configure_file(test_NUOPC_config_bad.rc test_NUOPC_config_bad.rc COPYONLY)

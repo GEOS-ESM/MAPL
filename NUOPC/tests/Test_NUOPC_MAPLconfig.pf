@@ -8,7 +8,9 @@ module Test_NUOPC_MAPLconfig
    use yaFyaml
    use ESMF
 
-   character(*), parameter :: test_yaml = 'NUOPC_config.yaml'
+   character(*), parameter :: test_yaml   = 'NUOPC_config.yaml'
+   character(*), parameter :: test_rc     = 'test_NUOPC_config.rc'
+   character(*), parameter :: test_rc_bad = 'test_NUOPC_config_bad.rc'
 
 contains
    @test
@@ -360,4 +362,55 @@ contains
       @assert_that(field_config%SharePolicyField,        is(equal_to('not share')))
       @assert_that(field_config%SharePolicyGeomObject,   is(equal_to('not share')))
    end subroutine test_read_config
+
+   function create_config(filename) result(config)
+      type(ESMF_Config) :: config
+      character(*), intent(in) :: filename
+
+      integer :: rc
+
+      config = ESMF_ConfigCreate(rc=rc)
+      @assert_that(rc, is(equal_to(0)))
+
+      call ESMF_ConfigLoadFile(config, filename, rc=rc)
+      @assert_that(rc, is(equal_to(0)))
+   end function create_config
+
+   @test
+   subroutine test_read_filename_from_config()
+      type(NUOPC_MAPLconfig) :: MAPL_config
+      type(ESMF_Config)      :: config
+
+      character(:), allocatable :: filename
+      integer                   :: rc
+
+      config = create_config(test_rc_bad)
+      call MAPL_config%read_filename_from_config(config, filename, rc=rc)
+      @assert_that(rc, is(equal_to(0)))
+      @assert_that(allocated(filename), is(false()))
+
+      config = create_config(test_rc)
+      call MAPL_config%read_filename_from_config(config, filename, rc=rc)
+      @assert_that(rc, is(equal_to(0)))
+      @assert_that(filename == test_yaml, is(true()))
+   end subroutine test_read_filename_from_config
+
+   @test
+   subroutine test_create_NUOPC_MAPLconfig()
+      type(NUOPC_MAPLconfig) :: MAPL_config
+      type(ESMF_Config)      :: config
+      integer                :: rc
+
+      config = create_config(test_rc_bad)
+      MAPL_config = create_NUOPC_MAPLconfig(config, rc=rc)
+      @assert_that(rc, is(equal_to(0)))
+      @assert_that(MAPL_config%imports%size(), is(equal_to(0_INT64)))
+      @assert_that(MAPL_config%exports%size(), is(equal_to(0_INT64)))
+
+      config = create_config(test_rc)
+      MAPL_config = create_NUOPC_MAPLconfig(config, rc=rc)
+      @assert_that(rc, is(equal_to(0)))
+      @assert_that(MAPL_config%imports%size(), is(equal_to(12_INT64)))
+      @assert_that(MAPL_config%exports%size(), is(equal_to(12_INT64)))
+   end subroutine test_create_NUOPC_MAPLconfig
 end module Test_NUOPC_MAPLconfig

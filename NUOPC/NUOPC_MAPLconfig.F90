@@ -105,8 +105,9 @@ module NUOPC_MAPLconfigMod
    private
 
    public NUOPC_MAPLconfig
+   public create_NUOPC_MAPLconfig
 
-   character(*), parameter :: rc_label = 'NUOPC_config'
+   character(*), parameter :: rc_label = 'NUOPC_config:'
 
    character(*), parameter :: NUOPC_imports = 'NUOPC_imports'
    character(*), parameter :: NUOPC_exports = 'NUOPC_exports'
@@ -115,24 +116,30 @@ module NUOPC_MAPLconfigMod
       type(FieldConfigMap) :: imports
       type(FieldConfigMap) :: exports
    contains
+      procedure, nopass :: read_filename_from_config
       procedure, nopass :: read_from_config
       procedure         :: read_config
    end type NUOPC_MAPLconfig
 
 contains
-   subroutine read_file_name_from_config(config, filename, rc)
+   subroutine read_filename_from_config(config, filename, rc)
       type(ESMF_Config),         intent(inout) :: config
       character(:), allocatable, intent(  out) :: filename
       integer, optional,         intent(  out) :: rc
 
+      logical                    :: present
       character(len=ESMF_MaxStr) :: value
       integer                    :: status
 
-      call ESMF_ConfigGetAttribute(config, value=value, label=rc_label, __RC__)
-      filename = trim(value)
+      call ESMF_ConfigFindLabel(config, isPresent=present, label=rc_label, __RC__)
+
+      if (present) then
+         call ESMF_ConfigGetAttribute(config, value=value, label=rc_label, __RC__)
+         filename = trim(value)
+      end if
 
       _RETURN(_SUCCESS)
-   end subroutine read_file_name_from_config
+   end subroutine read_filename_from_config
 
    function read_from_config(config) result(field_config_map)
       type(FieldConfigMap)               :: field_config_map
@@ -186,4 +193,21 @@ contains
 
       call file_stream%close()
    end subroutine read_config
+
+   function create_NUOPC_MAPLconfig(config, rc) result(MAPL_config)
+      type(NUOPC_MAPLconfig) :: MAPL_config
+      type(ESMF_Config), intent(inout) :: config
+      integer, optional, intent(  out) :: rc
+
+      character(:), allocatable :: filename
+      integer                   :: status
+
+      call MAPL_config%read_filename_from_config(config, filename, __RC__)
+
+      if (allocated(filename)) then
+         call MAPL_config%read_config(filename)
+      end if
+
+      _RETURN(_SUCCESS)
+   end function create_NUOPC_MAPLconfig
 end module NUOPC_MAPLconfigMod
