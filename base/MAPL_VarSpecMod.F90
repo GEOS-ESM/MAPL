@@ -17,6 +17,7 @@ use MAPL_BaseMod
 use MAPL_IOMod
 use MAPL_CommsMod, only: MAPL_AM_I_ROOT
 use MAPL_ExceptionHandling
+use MAPL_KeyWordEnforcerMod
 
 ! !PUBLIC MEMBER FUNCTIONS:
 
@@ -111,6 +112,10 @@ type, public :: MAPL_VarSpecType
   character(len=ESMF_MAXSTR)               :: UNITS
   character(len=ESMF_MAXSTR)               :: FRIENDLYTO
   character(len=ESMF_MAXSTR)               :: VECTOR_PAIR
+  character(len=ESMF_MAXSTR)               :: NUOPCname
+  character(len=ESMF_MAXSTR)               :: TransferOfferGeomObject
+  character(len=ESMF_MAXSTR)               :: SharePolicyField
+  character(len=ESMF_MAXSTR)               :: SharePolicyGeomObject
   character(len=ESMF_MAXSTR), pointer      :: ATTR_INAMES(:) => null()
   character(len=ESMF_MAXSTR), pointer      :: ATTR_RNAMES(:) => null()
   integer,                    pointer      :: ATTR_IVALUES(:) => null()
@@ -183,7 +188,12 @@ contains
                              STAGGERING, &
                              ROTATION,   & 
                              GRID, &
-                                                                   RC  )
+                             RC, &
+                             unusable, &
+                             NUOPCname, &
+                             TransferOfferGeomObject, &
+                             SharePolicyField, &
+                             SharePolicyGeomObject)
 
     type (MAPL_VarSpec ),             pointer         :: SPEC(:)
     character (len=*)               , intent(IN)      :: SHORT_NAME
@@ -217,6 +227,11 @@ contains
     integer            , optional   , intent(IN)      :: ROTATION
     type(ESMF_Grid)    , optional   , intent(IN)      :: GRID
     integer            , optional   , intent(OUT)     :: RC
+    class(KeywordEnforcer), optional, intent(in)      :: unusable
+    character(len=*),       optional, intent(in)      :: NUOPCname
+    character(len=*),       optional, intent(in)      :: TransferOfferGeomObject
+    character(len=*),       optional, intent(in)      :: SharePolicyField
+    character(len=*),       optional, intent(in)      :: SharePolicyGeomObject
 
 
 
@@ -240,6 +255,10 @@ contains
     character(len=ESMF_MAXSTR) :: usableLONG
     character(len=ESMF_MAXSTR) :: usableUNIT
     character(len=ESMF_MAXSTR) :: usableFRIENDLYTO
+    character(len=ESMF_MAXSTR) :: usableNUOPCname
+    character(len=ESMF_MAXSTR) :: usableTransferOfferGeomObject
+    character(len=ESMF_MAXSTR) :: usableSharePolicyField
+    character(len=ESMF_MAXSTR) :: usableSharePolicyGeomObject
     character(len=ESMF_MAXSTR), pointer :: usableATTR_INAMES(:) => NULL()
     character(len=ESMF_MAXSTR), pointer :: usableATTR_RNAMES(:) => NULL()
     integer                   , pointer :: usableATTR_IVALUES(:) => NULL()
@@ -258,6 +277,8 @@ contains
     integer :: szINAMES, szRNAMES, szIVALUES, szRVALUES
     integer :: szUNGRD
     logical :: defaultProvided
+
+    _UNUSED_DUMMY(unusable)
 
       if(associated(SPEC)) then
        if(MAPL_VarSpecGetIndex(SPEC, SHORT_NAME)/=-1) then
@@ -302,6 +323,30 @@ contains
        usableUNIT=UNITS
       else
        usableUNIT=""
+      endif
+
+      if(present(NUOPCname)) then
+         usableNUOPCname = NUOPCname
+      else
+         usableNUOPCname = SHORT_NAME
+      endif
+
+      if(present(TransferOfferGeomObject)) then
+         usableTransferOfferGeomObject = TransferOfferGeomObject
+      else
+         usableTransferOfferGeomObject = "will provide"
+      endif
+
+      if(present(SharePolicyField)) then
+         usableSharePolicyField = SharePolicyField
+      else
+         usableSharePolicyField = "not share"
+      endif
+
+      if(present(SharePolicyGeomObject)) then
+         usableSharePolicyGeomObject = SharePolicyGeomObject
+      else
+         usableSharePolicyGeomObject = usableSharePolicyField
       endif
 
       if(present(FRIENDLYTO)) then
@@ -535,6 +580,10 @@ contains
       TMP(I+1)%SPECPtr%ROTATION =  usableROTATION
       TMP(I+1)%SPECPtr%doNotAllocate    =  .false.
       TMP(I+1)%SPECPtr%alwaysAllocate   =  .false.
+      TMP(I+1)%SPECPtr%NUOPCname               = usableNUOPCname
+      TMP(I+1)%SPECPtr%TransferOfferGeomObject = usableTransferOfferGeomObject
+      TMP(I+1)%SPECPtr%SharePolicyField        = usableSharePolicyField
+      TMP(I+1)%SPECPtr%SharePolicyGeomObject   = usableSharePolicyGeomObject
       if(associated(usableATTR_IVALUES)) then
          TMP(I+1)%SPECPtr%ATTR_IVALUES  =>  usableATTR_IVALUES
       else
@@ -835,6 +884,10 @@ contains
                                    STAGGERING      = ITEM%SPECPTR%STAGGERING,        &
                                    ROTATION        = ITEM%SPECPTR%ROTATION,          &
                                    GRID            = ITEM%SPECPTR%GRID,              &
+                                   NUOPCname               = ITEM%SPECPTR%NUOPCname,               &
+                                   TransferOfferGeomObject = ITEM%SPECPTR%TransferOfferGeomObject, &
+                                   SharePolicyField        = ITEM%SPECPTR%SharePolicyField,        &
+                                   SharePolicyGeomObject   = ITEM%SPECPTR%SharePolicyGeomObject,   &
                                                                           RC=STATUS  )     
      _VERIFY(STATUS)
 
@@ -912,8 +965,13 @@ contains
                              ROTATION,                                 &
                              GRID,                                     &
                              doNotAllocate,                            &
-                             alwaysAllocate,                            &
-                                                                    RC )
+                             alwaysAllocate,                           &
+                             RC,                                       &
+                             unusable,                                 &
+                             NUOPCname,                                &
+                             TransferOfferGeomObject,                  &
+                             SharePolicyField,                         &
+                             SharePolicyGeomObject)
 
     type (MAPL_VarSpec ),             intent(INOUT)   :: SPEC
     character(len=*)   , optional   , intent(IN)      :: SHORT_NAME
@@ -937,6 +995,13 @@ contains
     logical            , optional   , intent(IN)      :: doNotAllocate
     logical            , optional   , intent(IN)      :: alwaysAllocate
     integer            , optional   , intent(OUT)     :: RC
+    class(KeywordEnforcer), optional, intent(in)      :: unusable
+    character(len=*),       optional, intent(in)      :: NUOPCname
+    character(len=*),       optional, intent(in)      :: TransferOfferGeomObject
+    character(len=*),       optional, intent(in)      :: SharePolicyField
+    character(len=*),       optional, intent(in)      :: SharePolicyGeomObject
+
+    _UNUSED_DUMMY(unusable)
 
 
 
@@ -955,6 +1020,22 @@ contains
 
       if(present(UNITS)) then
         SPEC%SPECPtr%UNITS = UNITS
+      endif
+
+      if(present(NUOPCname)) then
+         SPEC%SPECPtr%NUOPCname = NUOPCname
+      endif
+
+      if(present(TransferOfferGeomObject)) then
+         SPEC%SPECPtr%TransferOfferGeomObject = TransferOfferGeomObject
+      endif
+
+      if(present(SharePolicyField)) then
+         SPEC%SPECPtr%SharePolicyField = SharePolicyField
+      endif
+
+      if(present(SharePolicyGeomObject)) then
+         SPEC%SPECPtr%SharePolicyGeomObject = SharePolicyGeomObject
       endif
 
       if(present(FRIENDLYTO)) then
@@ -1101,8 +1182,8 @@ contains
                              ATTR_RNAMES, ATTR_INAMES,                 &
                              ATTR_RVALUES, ATTR_IVALUES,               &
                              UNGRIDDED_DIMS,                           &
-                             UNGRIDDED_UNIT,                          &
-                             UNGRIDDED_NAME,                          &
+                             UNGRIDDED_UNIT,                           &
+                             UNGRIDDED_NAME,                           &
                              UNGRIDDED_COORDS,                         &
                              FIELD_TYPE,                               &
                              STAGGERING,                               &
@@ -1110,7 +1191,12 @@ contains
                              GRID,                                     &
                              doNotAllocate,                            &
                              alwaysAllocate,                           &
-                                                                    RC )
+                             RC,                                       &
+                             unusable,                                 &
+                             NUOPCname,                                &
+                             TransferOfferGeomObject,                  &
+                             SharePolicyField,                         &
+                             SharePolicyGeomObject)
 
     type (MAPL_VarSpec ),             intent(IN )     :: SPEC
     character(len=*)   , optional   , intent(OUT)     :: SHORT_NAME
@@ -1148,9 +1234,13 @@ contains
     logical            , optional   , intent(OUT)     :: doNotAllocate
     logical            , optional   , intent(OUT)     :: alwaysAllocate
     integer            , optional   , intent(OUT)     :: RC
+    class(KeywordEnforcer), optional, intent(out)     :: unusable
+    character(len=*),       optional, intent(out)     :: NUOPCname
+    character(len=*),       optional, intent(out)     :: TransferOfferGeomObject
+    character(len=*),       optional, intent(out)     :: SharePolicyField
+    character(len=*),       optional, intent(out)     :: SharePolicyGeomObject
 
-
-
+    _UNUSED_DUMMY(unusable)
 
       if(.not.associated(SPEC%SPECPtr)) then
        _RETURN(ESMF_FAILURE)
@@ -1170,6 +1260,22 @@ contains
 
       if(present(UNITS)) then
        UNITS = SPEC%SPECPtr%UNITS
+      endif
+
+      if (present(NUOPCname)) then
+         NUOPCname = SPEC%SPECPtr%NUOPCname
+      endif
+
+      if (present(TransferOfferGeomObject)) then
+         TransferOfferGeomObject = SPEC%SPECPtr%TransferOfferGeomObject
+      endif
+
+      if (present(SharePolicyField)) then
+         SharePolicyField = SPEC%SPECPtr%SharePolicyField
+      endif
+
+      if (present(SharePolicyGeomObject)) then
+         SharePolicyGeomObject = SPEC%SPECPtr%SharePolicyGeomObject
       endif
 
       if(present(FRIENDLYTO)) then
