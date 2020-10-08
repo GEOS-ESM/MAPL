@@ -5792,6 +5792,10 @@ end function MAPL_AddChildFromGC
     character(ESMF_MAXSTR):: SHORT_NAME
     character(ESMF_MAXSTR):: LONG_NAME
     character(ESMF_MAXSTR):: UNITS
+    character(ESMF_MAXSTR):: NUOPCname
+    character(ESMF_MAXSTR):: TransferOfferGeomObject
+    character(ESMF_MAXSTR):: SharePolicyField
+    character(ESMF_MAXSTR):: SharePolicyGeomObject
     character(ESMF_MAXSTR):: FRIENDLYTO
     integer               :: REFRESH
     integer               :: AVGINT
@@ -5866,7 +5870,11 @@ end function MAPL_AddChildFromGC
                            FIELD_TYPE=FIELD_TYPE, &
                            STAGGERING=STAGGERING, &
                            ROTATION=ROTATION, &
-                           RC=STATUS )
+                           RC=STATUS, &
+                           NUOPCname=NUOPCname, &
+                           TransferOfferGeomObject=TransferOfferGeomObject, &
+                           SharePolicyField=SharePolicyField, &
+                           SharePolicyGeomObject=SharePolicyGeomObject)
       _VERIFY(STATUS)
 
       I=MAPL_VarSpecGetIndex(SPEC, SHORT_NAME, RC=STATUS)
@@ -6151,6 +6159,14 @@ end function MAPL_AddChildFromGC
       call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
       _VERIFY(STATUS)
       call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
+      _VERIFY(STATUS)
+      call ESMF_AttributeSet(FIELD, NAME='NUOPCname', VALUE=NUOPCname, RC=STATUS)
+      _VERIFY(STATUS)
+      call ESMF_AttributeSet(FIELD, NAME='TransferOfferGeomObject', VALUE=TransferOfferGeomObject, RC=STATUS)
+      _VERIFY(STATUS)
+      call ESMF_AttributeSet(FIELD, NAME='SharePolicyField', VALUE=SharePolicyField, RC=STATUS)
+      _VERIFY(STATUS)
+      call ESMF_AttributeSet(FIELD, NAME='SharePolicyGeomObject', VALUE=SharePolicyGeomObject, RC=STATUS)
       _VERIFY(STATUS)
 
       call ESMF_AttributeSet(FIELD, NAME='REFRESH_INTERVAL', VALUE=REFRESH, RC=STATUS)
