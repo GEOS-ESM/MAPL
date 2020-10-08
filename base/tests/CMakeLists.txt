@@ -27,9 +27,7 @@ set (SRCS
 add_library (base_extras
   MAPL_Initialize.F90
   )
-target_link_libraries (base_extras PUBLIC ${ESMF_LIBRARIES} MAPL.base MAPL_pFUnit)
-target_include_directories (base_extras PUBLIC ${INC_ESMF})
-target_include_directories (base_extras PUBLIC ${INC_NETCDF})
+add_dependencies (base_extras MAPL.base MAPL_pFUnit esmf NetCDF::NetCDF_Fortran)
 
 
 add_pfunit_ctest(MAPL.base.tests

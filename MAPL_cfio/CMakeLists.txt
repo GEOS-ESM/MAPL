@@ -29,9 +29,9 @@ set (lib MAPL_cfio_${precision})
 
 esma_add_library (${lib}
   SRCS ${srcs}
-  DEPENDENCIES ${ESMF_LIBRARIES}
+  DEPENDENCIES esmf NetCDF::NetCDF_Fortran
   )
-target_include_directories (${lib} PUBLIC ${INC_NETCDF} ${INC_ESMF})
+add_dependencies (${lib} esmf NetCDF::NetCDF_Fortran)
 
 if (precision MATCHES "r8")
   string (REPLACE " " ";" flags ${FREAL8})
@@ -39,5 +39,3 @@ if (precision MATCHES "r8")
     target_compile_options (${lib} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${flag}>)
   endforeach ()
 endif ()
-
-
