@@ -3025,7 +3025,7 @@ CONTAINS
               LExact  =  (cLimTime == tSeries(1))
               RExact  =  (cLimTime == tSeries(nsteps))
 
-              call lgr%debug('            GetBracketTimeOnSingleFile: Extrapolation flags (2) are ',LExact,RExact,LExtrap,RExtrap,'for file ', trim(fdata%get_file_name()))
+              call lgr%debug('            GetBracketTimeOnSingleFile: Extrapolation flags (2) are %L1 %L1 %L1 %L1 for file %a',LExact,RExact,LExtrap,RExtrap, trim(fdata%get_file_name()))
 
            End IF
 

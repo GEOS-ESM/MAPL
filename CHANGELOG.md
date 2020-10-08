@@ -12,8 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Removed
 
+## [2.3.1] - 2020-10-08
 
-## [2.3.0] - 2020-09-29
+### Fixed
+
+- Fixed bug in ExtData when using debug logger
+
+## [2.3.0] - 2020-10-02
 
 ### Added
 
