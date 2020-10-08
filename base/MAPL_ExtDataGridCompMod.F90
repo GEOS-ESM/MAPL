@@ -2561,7 +2561,7 @@ CONTAINS
                  ! Convert year offset to the future value
                  yrOffset = iYr - cYearOff
                  ! Determine the template time
-                 call ESMF_TimeSet(newTime,yy=iYr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+                 call OffsetTimeYear(cTime,yrOffset,newTime,__RC__)
                  ftime = item%reff_time
                  n = 0
                  do while (.not.found)
@@ -2602,8 +2602,8 @@ CONTAINS
                  ! yrOffset: Number of years added from current time to get file time
                  Do While ((.not.found).and.(abs(yrOffset).lt.maxOffset))
                     yrOffset = yrOffset - 1
-                    iYr = refYear + yrOffset
-                    call ESMF_TimeSet(newTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+                    call OffsetTimeYear(cTime,yrOffset,newTime,__RC__)
+
                     ! Error check - if the new time is before the first file time,
                     ! all is lost
                     If (newTime.lt.xTSeries(1)) exit
