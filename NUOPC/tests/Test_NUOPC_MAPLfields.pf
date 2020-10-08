@@ -8,10 +8,12 @@ module Test_NUOPC_MAPLfields
    use NUOPC
    use MAPL_Mod
 
-   character(*), parameter :: test_name       = 'test_name'
-   character(*), parameter :: test_name_bad   = 'test_name_bad'
-   character(*), parameter :: test_units      = 'test_units'
-   character(*), parameter :: test_trans_geom = 'test_trans_geom'
+   character(*), parameter :: test_name        = 'test_name'
+   character(*), parameter :: test_name_bad    = 'test_name_bad'
+   character(*), parameter :: test_units       = 'test_units'
+   character(*), parameter :: test_trans_geom  = 'test_trans_geom'
+   character(*), parameter :: test_share_field = 'test_share_field'
+   character(*), parameter :: test_share_geom  = 'test_share_geom'
 
    type, extends(FieldAttributes) :: mock_FieldAttributes_add_to_field_dictionary
       logical :: has_field_dictionary_entry_return
@@ -142,8 +144,10 @@ contains
       type(ESMF_State)                              :: state
       integer                                       :: rc
 
-      field_attributes%name       = test_name
-      field_attributes%trans_geom = test_trans_geom
+      field_attributes%name                    = test_name
+      field_attributes%TransferOfferGeomObject = test_trans_geom
+      field_attributes%SharePolicyField        = test_share_field
+      field_attributes%SharePolicyGeomObject   = test_share_geom
 
       @assert_that(field_attributes%add_to_field_dictionary_called, is(equal_to(0)))
       @assert_that(field_attributes%advertise_called,               is(equal_to(0)))
@@ -223,4 +227,6 @@ contains
       @assert_that(field_attributes%allocate_coupling_called, is(equal_to(1)))
       @assert_that(field_attributes%realize_called,           is(equal_to(1)))
    end subroutine test_realize_to_export_state
+
+   !! Note: Should we write tests for remaining routines? !!
 end module Test_NUOPC_MAPLfields

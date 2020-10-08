@@ -16,7 +16,10 @@ module NUOPC_MAPLfields_Mod
       character(:), allocatable :: name
       character(:), allocatable :: long_name
       character(:), allocatable :: units
-      character(:), allocatable :: trans_geom
+      character(:), allocatable :: NUOPCname
+      character(:), allocatable :: TransferOfferGeomObject
+      character(:), allocatable :: SharePolicyField
+      character(:), allocatable :: SharePolicyGeomObject
    contains
       procedure :: has_field_dictionary_entry
       procedure :: add_field_dictionary_entry
@@ -33,6 +36,10 @@ module NUOPC_MAPLfields_Mod
       procedure :: get_name_from_field
       procedure :: get_long_name_from_field
       procedure :: get_units_from_field
+      procedure :: get_NUOPCname_from_field
+      procedure :: get_TransferOfferGeomObject_from_field
+      procedure :: get_SharePolicyField_from_field
+      procedure :: get_SharePolicyGeomObject_from_field
       procedure :: fill_from_state
    end type FieldAttributes
 contains
@@ -87,8 +94,13 @@ contains
 
       integer :: status
 
+      !! NOTE: Should this be NUOPCname or the MAPL name? !!
+
       call NUOPC_Advertise(state, standardName=trim(this%name), &
-            TransferOfferGeomObject=this%trans_geom, rc=status)
+            TransferOfferGeomObject=this%TransferOfferGeomObject, &
+            SharePolicyField=this%SharePolicyField, &
+            SharePolicyGeomObject=this%SharePolicyGeomObject, &
+            rc=status)
       VERIFY_NUOPC_(status)
 
       _RETURN(_SUCCESS)
@@ -101,11 +113,9 @@ contains
 
       integer :: status
 
-      call this%add_to_field_dictionary(rc=status)
-      VERIFY_NUOPC_(status)
+      call this%add_to_field_dictionary(__RC__)
 
-      call this%advertise(state, rc=status)
-      VERIFY_NUOPC_(status)
+      call this%advertise(state, __RC__)
 
       _RETURN(_SUCCESS)
    end subroutine advertise_to_state
@@ -129,8 +139,7 @@ contains
 
       integer :: status
 
-      call ESMF_FieldValidate(this%field, rc=status)
-      _VERIFY(status)
+      call ESMF_FieldValidate(this%field, __RC__)
 
       _RETURN(_SUCCESS)
    end subroutine validate
@@ -142,11 +151,8 @@ contains
 
       integer :: status
 
-      call this%validate(rc=status)
-      VERIFY_NUOPC_(status)
-
-      call this%realize(state, rc=status)
-      VERIFY_NUOPC_(status)
+      call this%validate(__RC__)
+      call this%realize(state, __RC__)
 
       _RETURN(_SUCCESS)
    end subroutine realize_to_import_state
@@ -157,8 +163,7 @@ contains
 
       integer :: status
 
-      call MAPL_AllocateCoupling(this%field, rc=status)
-      _VERIFY(status)
+      call MAPL_AllocateCoupling(this%field, __RC__)
 
       _RETURN(_SUCCESS)
    end subroutine allocate_coupling
@@ -170,11 +175,9 @@ contains
 
       integer :: status
 
-      call this%allocate_coupling(rc=status)
-      VERIFY_NUOPC_(status)
+      call this%allocate_coupling(__RC__)
 
-      call this%realize(state, rc=status)
-      VERIFY_NUOPC_(status)
+      call this%realize(state, __RC__)
 
       _RETURN(_SUCCESS)
    end subroutine realize_to_export_state
@@ -187,11 +190,9 @@ contains
 
       integer :: status
 
-      call ESMF_StateGet(state, name, this%field, rc=status)
-      _VERIFY(status)
+      call ESMF_StateGet(state, name, this%field, __RC__)
 
-      call this%validate(rc=status)
-      _VERIFY(status)
+      call this%validate(__RC__)
 
       _RETURN(_SUCCESS)
    end subroutine get_field_from_state
@@ -201,11 +202,9 @@ contains
       integer,optional,       intent(  out) :: rc
 
       character(len=ESMF_MAXSTR) :: name
+      integer                    :: status
 
-      integer :: status
-
-      call ESMF_FieldGet(this%field, name=name, rc=status)
-      _VERIFY(status)
+      call ESMF_FieldGet(this%field, name=name, __RC__)
       this%name = trim(name)
 
       _RETURN(_SUCCESS)
@@ -216,11 +215,9 @@ contains
       integer,optional,       intent(  out) :: rc
 
       character(len=ESMF_MAXSTR) :: long_name
+      integer                    :: status
 
-      integer :: status
-
-      call ESMF_AttributeGet(this%field, name="LONG_NAME", value=long_name, rc=status)
-      _VERIFY(status)
+      call ESMF_AttributeGet(this%field, name="LONG_NAME", value=long_name, __RC__)
       this%long_name = trim(long_name)
 
       _RETURN(_SUCCESS)
@@ -231,17 +228,67 @@ contains
       integer,optional,       intent(  out) :: rc
 
       character(len=ESMF_MAXSTR) :: units
+      integer                    :: status
 
-      integer :: status
-
-      call ESMF_AttributeGet(this%field, name="UNITS", value=units, rc=status)
-      _VERIFY(status)
+      call ESMF_AttributeGet(this%field, name="UNITS", value=units, __RC__)
 
       if (units == "" .or. units == " ") units = "1"
       this%units = trim(units)
 
       _RETURN(_SUCCESS)
    end subroutine get_units_from_field
+
+   subroutine get_NUOPCname_from_field(this, rc)
+      class(FieldAttributes), intent(inout) :: this
+      integer,optional,       intent(  out) :: rc
+
+      character(len=ESMF_MAXSTR) :: NUOPCname
+      integer                    :: status
+
+      call ESMF_AttributeGet(this%field, name="NUOPCname", value=NUOPCname, __RC__)
+      this%NUOPCname = trim(NUOPCname)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_NUOPCname_from_field
+
+   subroutine get_TransferOfferGeomObject_from_field(this, rc)
+      class(FieldAttributes), intent(inout) :: this
+      integer,optional,       intent(  out) :: rc
+
+      character(len=ESMF_MAXSTR) :: TransferOfferGeomObject
+      integer                    :: status
+
+      call ESMF_AttributeGet(this%field, name="TransferOfferGeomObject", value=TransferOfferGeomObject, __RC__)
+      this%TransferOfferGeomObject = trim(TransferOfferGeomObject)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_TransferOfferGeomObject_from_field
+
+   subroutine get_SharePolicyField_from_field(this, rc)
+      class(FieldAttributes), intent(inout) :: this
+      integer,optional,       intent(  out) :: rc
+
+      character(len=ESMF_MAXSTR) :: SharePolicyField
+      integer                    :: status
+
+      call ESMF_AttributeGet(this%field, name="SharePolicyField", value=SharePolicyField, __RC__)
+      this%SharePolicyField = trim(SharePolicyField)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_SharePolicyField_from_field
+
+   subroutine get_SharePolicyGeomObject_from_field(this, rc)
+      class(FieldAttributes), intent(inout) :: this
+      integer,optional,       intent(  out) :: rc
+
+      character(len=ESMF_MAXSTR) :: SharePolicyGeomObject
+      integer                    :: status
+
+      call ESMF_AttributeGet(this%field, name="SharePolicyGeomObject", value=SharePolicyGeomObject, __RC__)
+      this%SharePolicyGeomObject = trim(SharePolicyGeomObject)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_SharePolicyGeomObject_from_field
 
    subroutine fill_from_state(this, state, name, rc)
       class(FieldAttributes), intent(inout) :: this
@@ -251,19 +298,20 @@ contains
 
       integer :: status
 
-      call this%get_field_from_state(state, name, rc=status)
-      _VERIFY(status)
+      call this%get_field_from_state(state, name, __RC__)
 
-      call this%get_name_from_field(rc=status)
-      _VERIFY(status)
+      call this%get_name_from_field(__RC__)
 
-      call this%get_long_name_from_field(rc=status)
-      _VERIFY(status)
+      call this%get_long_name_from_field(__RC__)
 
-      call this%get_units_from_field(rc=status)
-      _VERIFY(status)
+      call this%get_units_from_field(__RC__)
 
-      ! Temporary
-      this%trans_geom = "will provide"
+      call this%get_NUOPCname_from_field(__RC__)
+
+      call this%get_TransferOfferGeomObject_from_field(__RC__)
+
+      call this%get_SharePolicyField_from_field(__RC__)
+
+      call this%get_SharePolicyGeomObject_from_field(__RC__)
    end subroutine fill_from_state
 end module NUOPC_MAPLfields_Mod
