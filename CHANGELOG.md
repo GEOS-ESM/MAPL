@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added a deflate and bit shaving option to Regrid_Util.x
 
+### Changed
+
+- Updated Github Docker CI image
+
 ## [2.3.1] - 2020-10-08
 
 ### Fixed
