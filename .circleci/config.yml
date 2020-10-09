@@ -79,7 +79,8 @@ jobs:
           name: "Build and install"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm/build
-            make -j"$(nproc)" install
+            #make -j"$(nproc)" install
+            make -j2 install
 
       # We need to persist the install for the next step
       - persist_to_workspace:
@@ -171,7 +172,7 @@ workflows:
       - make-FV3-experiment:
           requires:
             - build-GEOSgcm
-      - run-FV3-standalone:
-          requires:
-            - make-FV3-experiment
+      #- run-FV3-standalone:
+      #    requires:
+      #      - make-FV3-experiment
 
