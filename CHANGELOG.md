@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.3.2] - 2020-10-09
 
+### Fixed
+
+- Fixed a bug in ExtData when extrapolating on a Leap Day (#563)
+
 ### Added
 
 - Added a deflate and bit shaving option to Regrid_Util.x
