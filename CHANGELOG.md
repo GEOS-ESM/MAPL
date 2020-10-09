@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Added a deflate and bit shaving option to Regrid_Util.x
+
 ### Changed
 ### Fixed
 ### Removed
