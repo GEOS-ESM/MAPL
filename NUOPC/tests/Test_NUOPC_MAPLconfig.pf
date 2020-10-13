@@ -14,6 +14,42 @@ module Test_NUOPC_MAPLconfig
 
 contains
    @test
+   subroutine test_set_doNotAllocate()
+      type(FieldConfig) :: field_config
+
+      ! False
+      field_config%TransferOfferGeomObject = 'will provide'
+      field_config%SharePolicyField        = 'share'
+      call field_config%set_doNotAllocate()
+      @assert_that(field_config%doNotAllocate, is(false()))
+      ! False
+      field_config%TransferOfferGeomObject = 'can provide'
+      field_config%SharePolicyField        = 'share'
+      call field_config%set_doNotAllocate()
+      @assert_that(field_config%doNotAllocate, is(false()))
+      ! False
+      field_config%TransferOfferGeomObject = 'will provide'
+      field_config%SharePolicyField        = 'not share'
+      call field_config%set_doNotAllocate()
+      @assert_that(field_config%doNotAllocate, is(false()))
+      ! False
+      field_config%TransferOfferGeomObject = 'can provide'
+      field_config%SharePolicyField        = 'not share'
+      call field_config%set_doNotAllocate()
+      @assert_that(field_config%doNotAllocate, is(false()))
+      ! False
+      field_config%TransferOfferGeomObject = 'cannot provide'
+      field_config%SharePolicyField        = 'not share'
+      call field_config%set_doNotAllocate()
+      @assert_that(field_config%doNotAllocate, is(false()))
+      ! True
+      field_config%TransferOfferGeomObject = 'cannot provide'
+      field_config%SharePolicyField        = 'share'
+      call field_config%set_doNotAllocate()
+      @assert_that(field_config%doNotAllocate, is(true()))
+   end subroutine test_set_doNotAllocate
+
+   @test
    subroutine test_fill_defaults()
       type(FieldConfig) :: field_config1
       type(FieldConfig) :: field_config2
@@ -26,6 +62,7 @@ contains
       @assert_that(field_config1%TransferOfferGeomObject, is(equal_to('will provide')))
       @assert_that(field_config1%SharePolicyField,        is(equal_to('not share')))
       @assert_that(field_config1%SharePolicyGeomObject,   is(equal_to('not share')))
+      @assert_that(field_config1%doNotAllocate,           is(false()))
 
       field_config2%name                    = 'test'
       field_config2%NUOPCname               = 'nuopc'
@@ -38,6 +75,7 @@ contains
       @assert_that(field_config2%TransferOfferGeomObject, is(equal_to('can provide')))
       @assert_that(field_config2%SharePolicyField,        is(equal_to('share')))
       @assert_that(field_config2%SharePolicyGeomObject,   is(equal_to('not share')))
+      @assert_that(field_config1%doNotAllocate,           is(false()))
 
       field_config3%name             = 'test'
       field_config3%SharePolicyField = 'share'
@@ -47,6 +85,7 @@ contains
       @assert_that(field_config3%TransferOfferGeomObject, is(equal_to('will provide')))
       @assert_that(field_config3%SharePolicyField,        is(equal_to('share')))
       @assert_that(field_config3%SharePolicyGeomObject,   is(equal_to('share')))
+      @assert_that(field_config1%doNotAllocate,           is(false()))
    end subroutine test_fill_defaults
 
    @test

@@ -20,18 +20,33 @@ module NUOPC_MAPLfieldConfig
    character(*), parameter :: default_TransferOfferGeomObject = 'will provide'
    character(*), parameter :: default_SharePolicyField        = 'not share'
 
+   character(*), parameter :: cannot_provide = 'cannot provide'
+   character(*), parameter :: share          = 'share'
+
    type :: FieldConfig
       character(:), allocatable :: name
       character(:), allocatable :: NUOPCname
       character(:), allocatable :: TransferOfferGeomObject
       character(:), allocatable :: SharePolicyField
       character(:), allocatable :: SharePolicyGeomObject
+      logical                   :: doNotAllocate
    contains
+      procedure :: set_doNotAllocate
       procedure :: fill_defaults
       procedure :: read_field_config
    end type FieldConfig
 
 contains
+   subroutine set_doNotAllocate(this)
+      class(FieldConfig), intent(inout) :: this
+
+      if ((this%TransferOfferGeomObject == cannot_provide) .and. (this%SharePolicyField == share)) then
+         this%doNotAllocate = .true.
+      else
+         this%doNotAllocate = .false.
+      end if
+   end subroutine set_doNotAllocate
+
    subroutine fill_defaults(this)
       class(FieldConfig), intent(inout) :: this
 
@@ -39,6 +54,8 @@ contains
       if (.not. allocated(this%TransferOfferGeomObject)) this%TransferOfferGeomObject = default_TransferOfferGeomObject
       if (.not. allocated(this%SharePolicyField))        this%SharePolicyField        = default_SharePolicyField
       if (.not. allocated(this%SharePolicyGeomObject))   this%SharePolicyGeomObject   = this%SharePolicyField
+
+      call this%set_doNotAllocate()
    end subroutine fill_defaults
 
    subroutine read_field_config(this, name, config)
