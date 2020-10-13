@@ -23,6 +23,7 @@
    use MAPL_ConstantsMod, only: MAPL_PI_R8
    use MAPL_ExceptionHandling
    use MAPL_ApplicationSupport
+   use pFIO
 
  
    implicit NONE
@@ -95,6 +96,7 @@ CONTAINS
    type(ESMF_CONFIG) :: cfinput,cfoutput
    integer :: regridMethod
    real :: cs_stretch_param(3)
+   integer :: deflate, shave
  
     Iam = "ut_ReGridding"
 
@@ -114,6 +116,8 @@ CONTAINS
     regridMth='bilinear'
     newCube=.true.
     cs_stretch_param=cs_stretch_uninit
+    shave=64
+    deflate=0
     nargs = command_argument_count()
     do i=1,nargs
       call get_command_argument(i,str)
@@ -157,6 +161,12 @@ CONTAINS
       case('-tp_out')
          call get_command_argument(i+1,tp_fileout)
          tripolar_file_out = tp_fileout
+      case('-shave')
+         call get_command_argument(i+1,astr)
+         read(astr,*)shave
+      case('-deflate')
+         call get_command_argument(i+1,astr)
+         read(astr,*)deflate
       case('--help')
          if (mapl_am_I_root()) then
          
@@ -189,9 +199,6 @@ CONTAINS
 
     call ESMF_CalendarSetDefault ( ESMF_CALKIND_GREGORIAN, rc=status )
     _VERIFY(STATUS)
-    if (.not.allTimes) then
-       call UnpackDateTIme(itime,year,month,day,hour,minute,second)
-    end if
     call ESMF_CFIOSet(lcfio,fname=trim(filename),__RC__)
     call ESMF_CFIOFileOpen(lcfio,FMODE=1,__RC__)
     call ESMF_CFIOGet       (LCFIO,     grid=CFIOGRID, __RC__)
@@ -274,7 +281,7 @@ CONTAINS
        _VERIFY(STATUS)
 
        call t_prof%start("regrid")
-       call RunESMFRegridding(bundle_cfio,bundle_esmf,__RC__)
+       call RunESMFRegridding(bundle_cfio,bundle_esmf,shave,__RC__)
        call t_prof%stop("regrid")
 
        call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
@@ -288,7 +295,7 @@ CONTAINS
        call ESMF_ClockSet(clock,currtime=time,__RC__)
        if (.not.fileCreated) then
           call ESMF_TimeIntervalGet(timeInterval,s=freq,__RC__)
-          call MAPL_CFIOCreate ( cfio_esmf, outputFile, clock, Bundle_esmf,frequency=freq,vunit = "layer", rc=status )
+          call MAPL_CFIOCreate ( cfio_esmf, outputFile, clock, Bundle_esmf,frequency=freq,vunit = "layer", deflate=deflate, rc=status )
           _VERIFY(STATUS)
           call MAPL_CFIOSet(cfio_esmf,newFormat=newCube,rc=status)
           _VERIFY(STATUS)
@@ -419,10 +426,11 @@ CONTAINS
 
     end subroutine BundleCopy
 
-    subroutine RunESMFRegridding(bundle_old,bundle_new,rc)
+    subroutine RunESMFRegridding(bundle_old,bundle_new,shave,rc)
 
     type(ESMF_FieldBundle),     intent(inout) :: bundle_old
     type(ESMF_FieldBundle),     intent(inout) :: bundle_new
+    integer, intent(in) :: shave
 
     integer, optional,      intent(out  ) :: rc
 
@@ -455,6 +463,10 @@ CONTAINS
           call ESMF_FieldGet(field_old,0,farrayPtr=ptr3D_old,__RC__)
           call ESMF_FieldGet(field_new,0,farrayPtr=ptr3D_new,__RC__)
           call regridder_esmf%regrid(ptr3d_old,ptr3d_new,__RC__)
+          if (shave < 24) then
+             call pFIO_DownBit(ptr3d_new,ptr3d_new,shave,undef=MAPL_undef,rc=status)
+             _VERIFY(status)
+          end if
           nullify(ptr3d_old)
           nullify(ptr3d_new)
 
@@ -463,6 +475,10 @@ CONTAINS
           call ESMF_FieldGet(field_old,0,farrayPtr=ptr2D_old,__RC__)
           call ESMF_FieldGet(field_new,0,farrayPtr=ptr2D_new,__RC__)
           call regridder_esmf%regrid(ptr2d_old,ptr2d_new,__RC__)
+          if (shave < 24) then
+             call pFIO_DownBit(ptr2d_new,ptr2d_new,shave,undef=MAPL_undef,rc=status)
+             _VERIFY(status)
+          end if
           nullify(ptr2d_old)
           nullify(ptr2d_new)
        end if
@@ -605,7 +621,9 @@ CONTAINS
 
          character(:), allocatable :: report_lines(:)
          integer :: i
+         character(1) :: empty(0)
    
+         reporter = ProfileReporter(empty)
          call reporter%add_column(NameColumn(20))
          call reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
          call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
