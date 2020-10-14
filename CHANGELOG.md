@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Fix bug with using coarse grids in History and ExtData
+
 ### Added
 ### Changed
 ### Fixed
