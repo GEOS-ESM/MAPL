@@ -19,7 +19,9 @@ add_pfunit_ctest(MAPL.NUOPC.tests
     MAX_PES 4
     )
 
-add_dependencies(build-tests MAPL.NUOPC.tests)
+add_dependencies(build-tests base_extras MAPL.base.tests MAPL.NUOPC.tests)
+
+target_link_libraries (base_extras PUBLIC ${ESMF_LIBRARIES} MAPL.base MAPL.NUOPC MAPL_pFUnit)
 
 set_tests_properties(MAPL.NUOPC.tests PROPERTIES LABELS "NUOPC")
 
