@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 ### Changed
+
+- Increased the width of the `#-cycles` column in profiler output
+
 ### Fixed
 ### Removed
 
