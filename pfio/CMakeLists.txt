@@ -86,7 +86,7 @@ set (srcs
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared )
 target_link_libraries (${this} PUBLIC gftl gftl-shared 
-                               PRIVATE ${NETCDF_LIBRARIES} OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
+                               PRIVATE ${NETCDF_LIBRARIES} $<$<BOOL:${OMP}>:OpenMP::OpenMP_Fortran> MPI::MPI_Fortran)
 target_include_directories (${this} PUBLIC
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
@@ -102,16 +102,14 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES GNU)
   ecbuild_add_executable (
     TARGET pfio_server_demo.x
     SOURCES pfio_server_demo.F90
-    LIBS ${this} ${NETCDF_LIBRARIES} OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
+    LIBS ${this} ${NETCDF_LIBRARIES} $<$<BOOL:${OMP}>:OpenMP::OpenMP_Fortran> MPI::MPI_Fortran)
   set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-  set_target_properties(pfio_server_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
     
   ecbuild_add_executable (
     TARGET pfio_collective_demo.x
     SOURCES pfio_collective_demo.F90
-    LIBS ${this} ${NETCDF_LIBRARIES} OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
+    LIBS ${this} ${NETCDF_LIBRARIES} $<$<BOOL:${OMP}>:OpenMP::OpenMP_Fortran> MPI::MPI_Fortran)
   set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-  set_target_properties(pfio_collective_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 endif ()
 
 #--------------------
