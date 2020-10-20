@@ -505,6 +505,8 @@
            if(vnameTemp == 'contacts') cycle
            if(vnameTemp == 'orientation') cycle
            if(vnameTemp == 'anchor') cycle
+           if(vnameTemp == 'corner_lons') cycle
+           if(vnameTemp == 'corner_lats') cycle
         end if
         if (nvDims .EQ. 1) cycle
         nVars = nVars + 1
@@ -528,6 +530,8 @@
               if (dimName(iv)=='nf') cycle
               if (dimName(iv)=='orientationStrLen') cycle
               if (dimName(iv)=='ncontact') cycle
+              if (dimName(iv)=='XCdim') cycle
+              if (dimName(iv)=='YCdim') cycle
            end if
            rtcode = NF90_INQ_VARID(fid,dimName(iv),varId)
            dimUnits(iv) = ' '
