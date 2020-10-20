@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 ### Changed
 ### Fixed
+
+- Fixed bug with reading in cubed-sphere files that have the corners
+
 ### Removed
 
 ## [2.3.3] - 2020-10-14
