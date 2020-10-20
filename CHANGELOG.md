@@ -9,11 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 ### Changed
-
-- Increased the width of the `#-cycles` column in profiler output
-
 ### Fixed
 ### Removed
+
+## [2.3.4] - 2020-10-20
+
+### Changed
+
+- Increased the width of the `#-cycles` column in profiler output
+- Added Docker authentication to CI
+- Updated mepo components to match GEOSgcm
+
+### Fixed
+
+- Fixed bug with reading in cubed-sphere files that have the corners
 
 ## [2.3.3] - 2020-10-14
 
