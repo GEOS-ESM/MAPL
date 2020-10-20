@@ -8,7 +8,11 @@ jobs:
   build_test_mapl:
     name: Build and Test MAPL
     runs-on: ubuntu-latest
-    container: gmao/ubuntu20-geos-env-mkl:6.0.16-openmpi_4.0.5-gcc_10.2.0
+    container: 
+      image: gmao/ubuntu20-geos-env-mkl:6.0.16-openmpi_4.0.5-gcc_10.2.0
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     env:
       LANGUAGE: en_US.UTF-8
       LC_ALL: en_US.UTF-8
@@ -18,11 +22,6 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
     steps:
-      - name: Docker Login
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.4.0
         with:
