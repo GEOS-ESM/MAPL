@@ -17,16 +17,20 @@ workflows:
   version: 2.1
   build-and-test:
     jobs:
-      - build-and-test-MAPL
-          context: docker-hub-creds
-      - build-GEOSgcm
-          context: docker-hub-creds
+      - build-and-test-MAPL:
+          context: 
+            - docker-hub-creds
+      - build-GEOSgcm:
+          context: 
+            - docker-hub-creds
       - make-FV3-experiment:
-          context: docker-hub-creds
+          context: 
+            - docker-hub-creds
           requires:
             - build-GEOSgcm
       - run-FV3-standalone:
-          context: docker-hub-creds
+          context: 
+            - docker-hub-creds
           requires:
             - make-FV3-experiment
 
