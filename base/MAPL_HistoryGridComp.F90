@@ -2801,16 +2801,16 @@ ENDDO PARSER
          do while(iter /= list(n)%items%end())
             item => iter%get()
             if (item%itemType == ItemTypeScalar) then
-               split = has4dField(fldName=item%xname, rc=status)
+               split = hasSplitableField(fldName=item%xname, rc=status)
                _VERIFY(status)
                if (.not.split) call newItems%push_back(item)
             else if (item%itemType == ItemTypeVector) then
                ! Lets' not allow 4d split for vectors (at least for now);
                ! it is easy to implement; just tedious
 
-               split = has4dField(fldName=item%xname, rc=status)
+               split = hasSplitableField(fldName=item%xname, rc=status)
                _VERIFY(status)
-               split = split.or.has4dField(fldName=item%yname, rc=status)
+               split = split.or.hasSplitableField(fldName=item%yname, rc=status)
                _VERIFY(status)
                if (.not.split) call newItems%push_back(item)
              
@@ -2897,15 +2897,17 @@ ENDDO PARSER
       _RETURN(ESMF_SUCCESS)
     end subroutine split4dFields
 
-    function has4dField(fldName, rc) result(have4d)
-      logical :: have4d
+    function hasSplitableField(fldName, rc) result(okToSplit)
+      logical :: okToSplit
       character(len=*),  intent(in)   :: fldName
       integer, optional, intent(out) :: rc
 
       ! local vars
       integer :: k
       integer :: fldRank
+      integer :: dims
       integer :: status
+      logical :: has_ungrd
       type(ESMF_State) :: exp_state
       type(ESMF_Field) :: fld
       type(ESMF_FieldStatus_Flag) :: fieldStatus
@@ -2914,7 +2916,7 @@ ENDDO PARSER
       ! fld_set
       ! m
 
-      have4d = .false.
+      okToSplit = .false.
       fldRank = 0
 
       m = m + 1
@@ -2939,15 +2941,30 @@ ENDDO PARSER
 
       _ASSERT(fldRank < 5, "unsupported rank")
       
-      have4d = (fldRank == 4)
-      if (have4d) then
+      if (fldRank == 4) then
+         okToSplit = .true.
+      else if (fldRank == 3) then
+         ! split ONLY if X and Y are "gridded" and Z is "ungridded"
+         call ESMF_AttributeGet(fld, name='DIMS', value=dims, rc=status)
+        _VERIFY(STATUS)
+        if (dims == MAPL_DimsHorzOnly) then
+           call ESMF_AttributeGet(fld, name="UNGRIDDED_DIMS", &
+                isPresent=has_ungrd, rc=status)
+            _VERIFY(STATUS)
+            if (has_ungrd) then
+               okToSplit = .true.
+            end if
+         end if
+      end if
+      
+      if (okToSplit) then
          fldList(m) = fld
       end if
-      needSplit(m) = have4d
+      needSplit(m) = okToSplit
 
       _RETURN(ESMF_SUCCESS)
      
-    end function has4dField
+    end function hasSplitableField
 
     subroutine appendArray(array, idx, rc)
       integer, pointer,  intent(inout)   :: array(:)
