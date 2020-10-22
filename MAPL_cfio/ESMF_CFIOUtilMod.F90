@@ -495,12 +495,15 @@
       integer tmpNvar
       logical :: cs_found
       integer :: vdir_
+      integer :: found_xc, found_yc,vid
 
 ! Initialize variables
 
       surfaceOnly = .FALSE.
       stationFile = .false.
       vdir_       = -1 ! Assume 3D and same orientation
+      found_xc = 0
+      found_yc = 0
 
 ! Check FID here.
 
@@ -534,7 +537,13 @@
            tmpNvar = tmpNvar - 1
         end if
       enddo
-      if (cs_found) tmpNvar = tmpNvar - 3
+      if (cs_found) then
+         tmpNvar = tmpNvar - 3
+         found_xc = NF90_INQ_VARID(fid,"corner_lons",vid)
+         if (found_xc ==0) tmpNvar = tmpNvar - 1
+         found_yc = NF90_INQ_VARID(fid,"corner_lats",vid)
+         if (found_yc ==0) tmpNvar = tmpNvar - 1
+      end if
       nvars = tmpNvar
 
 ! Extract dimension information
@@ -550,7 +559,9 @@
         end if
         if (trim(dimName) .eq. 'nv') cycle 
         if (trim(dimName) .eq. 'nf') cycle 
-        if (trim(dimName) .eq. 'ncontact') cycle 
+        if (trim(dimName) .eq. 'ncontact') cycle
+        if (trim(dimName) .eq. 'XCdim') cycle 
+        if (trim(dimName) .eq. 'YCdim') cycle 
         if (trim(dimName) .eq. 'orientationStrLen') cycle 
 
         rc = NF90_INQ_VARID (fid, dimName, dimId)
@@ -602,6 +613,7 @@
       enddo
 
       if (cs_found .and. nDims == 6) surfaceOnly = .TRUE.
+      if (cs_found .and. nDims == 8) surfaceOnly = .TRUE.
       if (nDims .EQ. 3 .and. .NOT. stationFile) then
         surfaceOnly = .TRUE.
       endif
@@ -695,6 +707,8 @@
         if (trim(dimName) .eq. 'nv') cycle
         if (trim(dimName) .eq. 'nf') cycle
         if (trim(dimName) .eq. 'ncontact') cycle
+        if (trim(dimName) .eq. 'XCdim') cycle 
+        if (trim(dimName) .eq. 'YCdim') cycle 
         if (trim(dimName) .eq. 'orientationStrLen') cycle
 
         rc = NF90_INQ_VARID (fid, dimName, dimId)
@@ -890,6 +904,8 @@
         if (dimName=='nf') cycle
         if (dimName=='orientationStrLen') cycle
         if (dimName=='ncontact') cycle
+        if (trim(dimName) .eq. 'XCdim') cycle 
+        if (trim(dimName) .eq. 'YCdim') cycle 
         rc = NF90_INQ_VARID (fid, dimName, dimId)
         if (err("GetBegDateTime: NF90_INQ_VARID failed",rc,-40) .NE. 0) return
         ! If it has the standard_name attribute, use that instead
@@ -3316,6 +3332,8 @@
         if (dimName=='nf') cycle
         if (dimName=='orientationStrLen') cycle
         if (dimName=='ncontact') cycle
+        if (trim(dimName) .eq. 'XCdim') cycle 
+        if (trim(dimName) .eq. 'YCdim') cycle 
         rc = NF90_INQ_VARID (fid, dimName, dimId)
         if (err("DimInqure: NF90_INQ_VARID failed",rc,-40) .NE. 0) return
         rc = NF90_GET_ATT(fid,dimId,'units',dimUnits)

@@ -1082,12 +1082,12 @@ contains
             end select
 
             allocate(var, source= &
-                 & CoordinateVariable(Variable(get_fio_type(xtype,rc=status), dimensions=dim_string), &
+                 & CoordinateVariable(Variable(type = get_fio_type(xtype,rc=status), dimensions=dim_string), &
                  & coordinate_data))
             _VERIFY(status)
             deallocate(coordinate_data)
          else
-            allocate(var, source=Variable(get_fio_type(xtype,rc=status), dimensions=dim_string))
+            allocate(var, source=Variable(type= get_fio_type(xtype,rc=status), dimensions=dim_string))
             _VERIFY(status)
          end if
 

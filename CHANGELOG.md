@@ -8,16 +8,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+### Changed
+### Fixed
+### Removed
 
-- Added routine to finalize the ioservers so that it can be called by another application using cap, like JEDI
-- Re-added CircleCI with FV3 standalone test
-- Add ability to run multiple forward time integrations within one execution for JEDI (#529)
+## [2.3.4] - 2020-10-20
 
 ### Changed
 
+- Increased the width of the `#-cycles` column in profiler output
+- Added Docker authentication to CI
+- Updated mepo components to match GEOSgcm
+
+### Fixed
+
+- Fixed bug with reading in cubed-sphere files that have the corners
+
+## [2.3.3] - 2020-10-14
+
+## Fixed
+
+- Fix bug with using coarse grids in History and ExtData
+
+## [2.3.2] - 2020-10-09
+
+### Fixed
+
+- Fixed a bug in ExtData when extrapolating on a Leap Day (#563)
+
+### Added
+
+- Added a deflate and bit shaving option to Regrid_Util.x
+
+### Changed
+
+- Updated Github Docker CI image
+
+## [2.3.1] - 2020-10-08
+
+### Fixed
+
+- Fixed bug in ExtData when using debug logger
+
+## [2.3.0] - 2020-10-02
+
+### Added
+
+- Add MultiComm, MultiGroupi and MultiLayer to include front ends and back ends in the oserver
+- Added routine to finalize the ioservers so that it can be called by another application using cap, like JEDI
+- Re-added CircleCI with FV3 standalone test
+- Add ability to run multiple forward time integrations within one execution for JEDI (#529)
+- Added mpeu `StrTemplate` replacement to MAPL
+
+### Changed
+
+- Automate the server pool split and history work distribution when there are multiple oservers
 - Moved more code to use pFlogger
-- Update to ESMA_cmake v3.1.2
+- Update to ESMA_cmake v3.2.1 and ESMA_env v3.0.0
 - Update GitHub Actions to use Ubuntu 20/GCC 10 image
+- Updated CircleCI image to use 6.0.16 Baselibs
+- Refactor the option WRITE_RESTART_BY_OSERVER
+- Change the writing rank calculation in ServerThread.F90
+- Cleanup of the NUOPC Wrapper's error handling using macros
+
 
 ### Fixed
 
@@ -28,8 +81,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed ESMF logging errors with non-72-level runs (#480)
 - Remove unneeded `use Env;` in stub generator
 - Fixed tripolar metadata output (#528)
+- Fixed `MAPL_ErrLogMain.h` for use with GSI_App
+- Added MAPL_CFIOReadParallel change from Ricardo for TimeList
 
 ### Removed
+
+- Remove MAPL_ioClients.F90 and move some subroutines to ClientManager.F90
+- Remove unneeded GNU make file
 
 ## [2.2.7] - 2020-06-26
 

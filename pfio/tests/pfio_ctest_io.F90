@@ -26,9 +26,11 @@ module ctest_io_CLI
 
       integer :: N_ig ! number of isever group
       integer :: N_og ! nuber of  osever group
+      integer :: N_writer ! number of writer
 
       logical :: debug
       character(len=:),allocatable :: server_type ! 'mpi' or 'openmp'
+      character(len=:),allocatable :: writer ! 'mpi' or 'openmp'
    end type CommandLineOptions0
 
    type DirectoryServicePointer
@@ -52,6 +54,8 @@ contains
 
       n_args = command_argument_count()
 
+      options%N_writer = 0
+      options%writer   = ''
       i_arg = 0
       do
          if (i_arg > n_args) exit
@@ -79,6 +83,13 @@ contains
             buffer = get_next_argument()
             _ASSERT(buffer /= '-', "no extrea - ")
             read(buffer,*) options%N_og
+         case ('-nw', '--n_writer')
+            buffer = get_next_argument()
+            _ASSERT(buffer /= '-', "no extrea - ")
+            read(buffer,*) options%N_writer
+         case ('-w', '--pfio_writer')
+            options%writer = get_next_argument()
+            _ASSERT(options%server_type /= '-', "no extrea - ")
          case ('-f1', '--file_1')
             options%file_1 = get_next_argument()
             _ASSERT(options%file_1(1:1) /= '-', "no extrea - ")
@@ -257,7 +268,7 @@ contains
          call test_metadata%add_dimension('time',1)
  
          do k = 1, this%vars%size()
-            call test_metadata%add_variable(this%vars%at(k),Variable(pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time'), rc=status)
+            call test_metadata%add_variable(this%vars%at(k),Variable(type=pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time'), rc=status)
             _VERIFY(status)
          enddo
 
@@ -381,7 +392,7 @@ contains
          call fmd%add_dimension('nf',this%nf)
          call fmd%add_dimension('time',1)
 
-         T = Variable(pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time')
+         T = Variable(type=pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time')
 
          do i_var = 1, this%vars%size() 
             call fmd%add_variable( this%vars%at(i_var),T, rc=status)
@@ -479,10 +490,11 @@ program main
    character(len = 100):: cmd
    integer :: N_iclient_group, N_oclient_group,N_groups
    integer,allocatable :: local_comm_world(:), app_comms(:)
-   integer :: md_id
-
+   integer :: md_id, exit_code
+   
    required = MPI_THREAD_MULTIPLE
-   call MPI_init_thread(required, provided, ierror)
+   !call MPI_init_thread(required, provided, ierror)
+   call MPI_init(ierror)
    call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
    call MPI_Comm_size(MPI_COMM_WORLD, npes, ierror)
 
@@ -508,7 +520,10 @@ program main
       client_start = 0
       app_start_rank = 0
       app_end_rank = npes-1
-   else if (options%server_type == 'mpi') then 
+   else if (options%server_type == 'mpi' .or. &
+            options%server_type == 'multilayer' .or. &
+            options%server_type == 'multicomm'  .or. &
+            options%server_type == 'multigroup' ) then 
       size_iclient = N_iclient_group*options%npes_iserver
       size_oclient = N_oclient_group*options%npes_oserver
       client_start = npes - size_iclient-size_oclient
@@ -615,8 +630,22 @@ program main
    endif
 
    if( my_ocomm /= MPI_COMM_NULl) then
+     
+      if (trim(options%server_type) == 'mpi' .or. &
+          trim(options%server_type) == 'simple' .or. &
+          trim(options%server_type) == 'hybrid' ) then 
+        allocate(oserver, source = MpiServer(my_ocomm, 'oserver'))
+      else if (trim(options%server_type) == 'multilayer') then
+         allocate(oserver, source = MultiLayerServer(my_ocomm, 'oserver', &
+               options%n_writer, options%writer))
+      else if (trim(options%server_type) == 'multicomm') then
+         allocate(oserver, source = MultiCommServer(my_ocomm, 'oserver', &
+               options%n_writer))
+      else if (trim(options%server_type) == 'multigroup') then
+         allocate(oserver, source = MultiGroupServer(my_ocomm, 'oserver', &
+               options%n_writer))
+      endif
 
-      allocate(oserver, source = MpiServer(my_ocomm, 'oserver'))
       call directory_service%publish(PortInfo('oserver',oserver), oserver, rc=status)
       if (my_appcomm == MPI_COMM_NULL) then 
          call directory_service%connect_to_client('oserver', oserver, rc=status)
@@ -638,7 +667,10 @@ program main
    call Mpi_Barrier(MPI_COMM_WORLD,ierror)
    call system_clock(c3)
 
-   if ( rank == 0) then
+   call directory_service%free_directory_resources()
+   call Mpi_Barrier(MPI_COMM_WORLD,ierror)
+   exit_code = 0
+   if (rank == 0) then
       do md_id = 1, 2
          cmd=''
          out_file = 'test_out'//i_to_string(md_id)//'.nc4'
@@ -650,12 +682,12 @@ program main
             call execute_command_line('/bin/rm -f '//trim(out_file))
          else
             print*, 'test_in.nc4 and '//trim(out_file)//' differ'
-            stop 1
+            exit_code = 1
          endif
       enddo
       call execute_command_line('/bin/rm -f test_in.nc4')
    endif
-   call directory_service%free_directory_resources()
-   call Mpi_Barrier(MPI_COMM_WORLD,ierror)
    call MPI_finalize(ierror)
+   if ( exit_code == 0) stop 0
+   if ( exit_code == 1) stop 1
 end program main
