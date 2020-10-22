@@ -517,11 +517,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-<<<<<<< HEAD
-      integer :: ierror !, local_comm_world
-=======
       integer :: ierror
->>>>>>> develop
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then
