@@ -76,12 +76,10 @@ contains
       integer :: status
       logical :: check_entry
 
-      check_entry = this%has_field_dictionary_entry(rc=status)
-      VERIFY_NUOPC_(status)
+      check_entry = this%has_field_dictionary_entry(__RC__)
 
       if (.not. check_entry) then
-         call this%add_field_dictionary_entry(rc=status)
-         VERIFY_NUOPC_(status)
+         call this%add_field_dictionary_entry(__RC__)
       end if
 
       _RETURN(_SUCCESS)

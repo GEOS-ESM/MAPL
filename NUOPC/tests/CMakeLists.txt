@@ -9,17 +9,23 @@ set(TEST_SRCS
 set(SRCS
     )
 
+add_library (nuopc_extras
+  MAPL_Initialize.F90
+  )
+
 
 add_pfunit_ctest(MAPL.NUOPC.tests
     TEST_SOURCES ${TEST_SRCS}
     OTHER_SOURCES ${SRCS}
-    LINK_LIBRARIES MAPL.NUOPC MAPL.base MAPL.pfio base_extras MAPL_pFUnit
+    LINK_LIBRARIES MAPL.NUOPC MAPL.base MAPL.pfio nuopc_extras MAPL_pFUnit
+    EXTRA_INITIALIZE Initialize
+    EXTRA_USE MAPL_pFUnit_Initialize
     MAX_PES 4
     )
 
-add_dependencies(build-tests base_extras MAPL.base.tests MAPL.NUOPC.tests)
+add_dependencies(build-tests nuopc_extras MAPL.base.tests MAPL.NUOPC.tests)
 
-target_link_libraries (base_extras PUBLIC ${ESMF_LIBRARIES} MAPL.base MAPL.NUOPC MAPL_pFUnit)
+target_link_libraries (nuopc_extras PUBLIC ${ESMF_LIBRARIES} MAPL.base MAPL.NUOPC MAPL_pFUnit)
 
 set_tests_properties(MAPL.NUOPC.tests PROPERTIES LABELS "NUOPC")
 

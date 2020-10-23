@@ -56,7 +56,9 @@ contains
       class(mock_FieldAttributes_add_to_field_dictionary), intent(inout) :: this
       integer, optional,                                   intent(  out) :: rc
 
-      integer :: status = ESMF_SUCCESS
+      integer :: status
+
+      status = ESMF_SUCCESS
 
       this%has_field_dictionary_entry_called = this%has_field_dictionary_entry_called + 1
       this%has_field_dictionary_entry_return = &
@@ -71,7 +73,7 @@ contains
          status = 1
       end select
 
-      _RETURN(_SUCCESS)
+      _RETURN(status)
    end function has_field_dictionary_entry
 
    subroutine add_field_dictionary_entry(this, rc)
@@ -86,7 +88,7 @@ contains
       if (this%name /= test_name) status = 1
       if (this%units /= test_units) status = 1
 
-      _RETURN(_SUCCESS)
+      _RETURN(status)
    end subroutine add_field_dictionary_entry
 
    @test
@@ -117,8 +119,6 @@ contains
       class(mock_FieldAttributes_advertise_to_state), intent(inout) :: this
       integer, optional,                              intent(  out) :: rc
 
-      integer :: status = ESMF_SUCCESS
-
       this%add_to_field_dictionary_called = this%add_to_field_dictionary_called + 1
       call this%FieldAttributes%add_to_field_dictionary(rc=this%add_to_field_dictionary_rc)
 
@@ -129,8 +129,6 @@ contains
       class(mock_FieldAttributes_advertise_to_state), intent(inout) :: this
       type(ESMF_State),                               intent(inout) :: state
       integer, optional,                              intent(  out) :: rc
-
-      integer :: status = ESMF_SUCCESS
 
       this%advertise_called = this%advertise_called + 1
       call this%FieldAttributes%advertise(state, rc=this%advertise_rc)
