@@ -14,8 +14,6 @@ add_pfunit_ctest(MAPL.NUOPC.tests
     TEST_SOURCES ${TEST_SRCS}
     OTHER_SOURCES ${SRCS}
     LINK_LIBRARIES MAPL.NUOPC MAPL.base MAPL.pfio base_extras MAPL_pFUnit
-    EXTRA_INITIALIZE Initialize
-    EXTRA_USE MAPL_pFUnit_Initialize
     MAX_PES 4
     )
 
