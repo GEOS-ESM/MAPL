@@ -751,6 +751,8 @@ contains
                    distgrid=distgrid, pinflag=pinflag,      &
                    undistLBound=(/1/), undistUBound=(/ungrid(1)/), rc = status)
              _VERIFY(STATUS)
+             call ESMF_ArrayGet(array, farrayPtr=VR8_4D, rc = status)
+             _VERIFY(STATUS)
              VR8_4D = INIT_VALUE
              call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VR8_4D, &
                   datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
