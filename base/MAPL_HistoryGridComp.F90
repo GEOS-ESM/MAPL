@@ -2781,12 +2781,12 @@ ENDDO PARSER
       type(ESMF_State) :: expState
       type(newCFIOItemVector), pointer  :: newItems
       character(ESMF_MAXSTR) :: fldName, stateName
+      character(ESMF_MAXSTR) :: baseName, aliasName, alias
       logical :: split
-      integer :: k, i
+      integer :: k, i, idx, baseLen
       
       ! Restrictions:
       ! 1) we do not split vectors
-      ! 2) use alias for split-field name base
       do n = 1, nlist
          if (.not.list(n)%splitField) cycle
          fld_set => list(n)%field_set
@@ -2853,7 +2853,11 @@ ENDDO PARSER
                call MAPL_FieldSplit(fldList(k), splitFields, RC=status)
                _VERIFY(STATUS)
 
+               baseName = fld_set%fields(1,k)
                stateName = fld_set%fields(2,k)
+               aliasName = fld_set%fields(3,k)
+               baseLen = len_trim(baseName)
+
                expState = export(list(n)%expSTATE(k))
 
                do i=1,size(splitFields)
@@ -2861,9 +2865,15 @@ ENDDO PARSER
                        rc=status)
                   _VERIFY(status)
 
+                  ! here we do "search-and-replace" to preserve the 
+                  ! split naming convension while do the aliasing
+                  idx = index(fldName, baseName)
+                  alias = fldName(1:idx-1) // trim(aliasName) // &
+                       trim(fldName((idx+1+baseLen):))
+
                   call appendFieldSet(newFieldSet, fldName, & 
                        stateName=stateName, &
-                       aliasName=fldName, &
+                       aliasName=alias, &
                        specialName='', rc=status)
 
                   _VERIFY(status)
@@ -2875,7 +2885,7 @@ ENDDO PARSER
                   _VERIFY(status)
 
                   item%itemType = ItemTypeScalar
-                  item%xname = trim(fldName)
+                  item%xname = trim(alias)
                   item%yname = ''
 
                   call newItems%push_back(item)
@@ -2914,6 +2924,7 @@ ENDDO PARSER
       type(ESMF_State) :: exp_state
       type(ESMF_Field) :: fld
       type(ESMF_FieldStatus_Flag) :: fieldStatus
+      character(ESMF_MAXSTR) :: baseName
       
       ! and these vars are declared in the caller
       ! fld_set
@@ -2925,10 +2936,11 @@ ENDDO PARSER
       m = m + 1
       _ASSERT(fldName == fld_set%fields(3,m), 'Incorrect order') ! we got "m" right
       
+      baseName = fld_set%fields(1,m)
       k = list(n)%expSTATE(m)
       exp_state = export(k)
    
-      call MAPL_StateGet(exp_state,fldName,fld,rc=status )
+      call MAPL_StateGet(exp_state,baseName,fld,rc=status )
       _VERIFY(status)
 
       call ESMF_FieldGet(fld, status=fieldStatus, rc=status)
