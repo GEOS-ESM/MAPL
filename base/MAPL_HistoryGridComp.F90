@@ -1427,9 +1427,9 @@ contains
     call wildCardExpand(rc=status)
     _VERIFY(status)
 
-    ! Deal with split 4d field
-    !--------------------------
-    call split4dFields(rc=status)
+    ! Deal with splitting fields with ungriddeds dims
+    !------------------------------------------------
+    call splitUngriddedFields(rc=status)
     _VERIFY(status)
 
     do n=1,nlist
@@ -2557,6 +2557,9 @@ ENDDO PARSER
       logical :: expand
       integer :: k, i
       
+      ! Restrictions:
+      ! 1) we do not do wildcard expansion for vectors
+      ! 2) no use of aliases for wildcard-expanded-field name base
       do n = 1, nlist
          if (.not.list(n)%regex) cycle
          fld_set => list(n)%field_set
@@ -2763,7 +2766,7 @@ ENDDO PARSER
       _RETURN(ESMF_SUCCESS)
     end subroutine MAPL_WildCardExpand
     
-    subroutine split4dFields(rc)
+    subroutine splitUngriddedFields(rc)
       integer, optional, intent(out) :: rc
 
       ! local vars
@@ -2773,7 +2776,7 @@ ENDDO PARSER
       type(newCFIOitemVectorIterator) :: iter
       type(newCFIOitem), pointer :: item
       integer :: nfields
-      integer :: nfield4d
+      integer :: nsplit
       type(ESMF_Field), pointer :: splitFields(:) => null()
       type(ESMF_State) :: expState
       type(newCFIOItemVector), pointer  :: newItems
@@ -2782,7 +2785,7 @@ ENDDO PARSER
       integer :: k, i
       
       ! Restrictions:
-      ! 1) we do not split 4d vectors
+      ! 1) we do not split vectors
       ! 2) use alias for split-field name base
       do n = 1, nlist
          if (.not.list(n)%splitField) cycle
@@ -2805,7 +2808,7 @@ ENDDO PARSER
                _VERIFY(status)
                if (.not.split) call newItems%push_back(item)
             else if (item%itemType == ItemTypeVector) then
-               ! Lets' not allow 4d split for vectors (at least for now);
+               ! Lets' not allow field split for vectors (at least for now);
                ! it is easy to implement; just tedious
 
                split = hasSplitableField(fldName=item%xname, rc=status)
@@ -2814,7 +2817,7 @@ ENDDO PARSER
                _VERIFY(status)
                if (.not.split) call newItems%push_back(item)
              
-               _ASSERT(.not. split, 'vectors of 4d fields not allowed yet')
+               _ASSERT(.not. split, 'split field vectors of not allowed yet')
              
             end if
    
@@ -2822,10 +2825,10 @@ ENDDO PARSER
          end do
 
          ! re-pack field_set
-         nfield4d = count(needSplit)
+         nsplit = count(needSplit)
 
-         if (nfield4d /= 0) then
-            nfields = nfields - nfield4d
+         if (nsplit /= 0) then
+            nfields = nfields - nsplit
             allocate(newExpState(nfields), stat=status)
             _VERIFY(status)
             ! do the same for statename
@@ -2849,8 +2852,8 @@ ENDDO PARSER
 
                call MAPL_FieldSplit(fldList(k), splitFields, RC=status)
                _VERIFY(STATUS)
-               stateName = fld_set%fields(2,k)
 
+               stateName = fld_set%fields(2,k)
                expState = export(list(n)%expSTATE(k))
 
                do i=1,size(splitFields)
@@ -2858,7 +2861,7 @@ ENDDO PARSER
                        rc=status)
                   _VERIFY(status)
 
-                  call appendFieldSet(newFieldSet, fldName, &
+                  call appendFieldSet(newFieldSet, fldName, & 
                        stateName=stateName, &
                        aliasName=fldName, &
                        specialName='', rc=status)
@@ -2895,7 +2898,7 @@ ENDDO PARSER
       enddo
 
       _RETURN(ESMF_SUCCESS)
-    end subroutine split4dFields
+    end subroutine splitUngriddedFields
 
     function hasSplitableField(fldName, rc) result(okToSplit)
       logical :: okToSplit

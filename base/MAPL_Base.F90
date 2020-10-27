@@ -4331,7 +4331,7 @@ and so on.
             n = n+1
             ptr3d => ptr4d(:,:,:,k)
             ! create a new field
-            write(splitName,'(A,I3.3)') trim(name) // '_', n
+            write(splitName,'(A,I3.3)') trim(name), n
             f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, rc=status)
             _VERIFY(STATUS)
             call ESMF_FieldEmptyComplete(F, farrayPtr=ptr3D,    &
@@ -4381,7 +4381,7 @@ and so on.
             n = n+1
             ptr2d => ptr3d(:,:,k)
             ! create a new field
-            write(splitName,'(A,I3.3)') trim(name) // '_', n
+            write(splitName,'(A,I3.3)') trim(name), n
             f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, rc=status)
             _VERIFY(STATUS)
             call ESMF_FieldEmptyComplete(F, farrayPtr=ptr2D,    &
