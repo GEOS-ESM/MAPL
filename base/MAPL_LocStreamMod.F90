@@ -178,7 +178,7 @@ contains
 !===================================================================
 
 
-  subroutine MAPL_LocStreamGet(LocStream, NT_LOCAL, TILETYPE, TILEKIND, &
+  subroutine MAPL_LocStreamGet(LocStream, NT_LOCAL, nt_global, TILETYPE, TILEKIND, &
                                TILELONS, TILELATS, TILEAREA, &
 !                              TILEI, TILEJ, TILEGRID, &
                                TILEGRID, &
@@ -196,6 +196,7 @@ contains
     integer, optional,                    pointer       :: GRIDIM(:)
     integer, optional,                    pointer       :: GRIDJM(:)
     integer, optional,                    pointer       :: LOCAL_ID(:)
+    integer, optional,                    intent(out)   :: nt_global
     character(len=*), optional, pointer                 :: GRIDNAMES(:)
     type(ESMF_Grid), optional,            intent(  OUT) :: TILEGRID
     type(ESMF_Grid), optional,            intent(  OUT) :: ATTACHEDGRID
@@ -214,6 +215,11 @@ contains
     if (present(NT_LOCAL)) then
        NT_LOCAL = locstream%Ptr%NT_LOCAL
     end if
+
+    if (present(nt_global)) then
+       nt_global = locstream%ptr%nt_global
+    end if
+
 
     if (present(tiletype)) then
 #ifdef __GFORTRAN__
@@ -340,7 +346,8 @@ contains
 ! !IIROUTINE: MAPL_LocStreamCreateFromFile --- Create from file
 
   ! !INTERFACE:
-  subroutine MAPL_LocStreamCreateFromFile(LocStream, LAYOUT, FILENAME, NAME, MASK, GRID, NewGridNames, RC)
+  subroutine MAPL_LocStreamCreateFromFile(LocStream, LAYOUT, FILENAME, NAME, MASK, GRID, NewGridNames, use_pfaf, RC)
+  !subroutine MAPL_LocStreamCreateFromFile(LocStream, LAYOUT, FILENAME, NAME, MASK, GRID, NewGridNames, RC)
 
     !ARGUMENTS:
     type(MAPL_LocStream),                 intent(  OUT) :: LocStream
@@ -350,6 +357,7 @@ contains
     integer,                    optional, intent(IN   ) :: MASK(:)
     type(ESMF_Grid), optional,            intent(INout) :: GRID
     logical,                    optional, intent(IN   ) :: NewGridNames
+    logical,                    optional, intent(In   ) :: use_pfaf
     integer,                    optional, intent(  OUT) :: RC  
 
 ! !DESCRIPTION: Creates a location stream from a file. This does
@@ -392,6 +400,7 @@ contains
     real, pointer     :: lons(:,:), lats(:,:)
     real, allocatable :: hlons(:,:), hlats(:,:)
 #endif
+    logical :: use_pfaf_
 
 ! Begin
 !------
@@ -399,6 +408,11 @@ contains
     NewGridNames_ = .false.
     if (present(NewGridNames)) then
        NewGridNames_ = NewGridNames
+    end if
+    if (present(use_pfaf)) then
+       use_pfaf_=use_pfaf
+    else
+       use_pfaf_=.false.
     end if
 
 ! Allocate the Location Stream
@@ -478,6 +492,11 @@ contains
           call READ_PARALLEL(layout, STREAM%TILING(N)%JM, unit=UNIT, rc=status)
           _VERIFY(STATUS)
        enddo
+       if (use_pfaf_) then
+          STREAM%TILING(2)%IM = 291284
+          STREAM%TILING(2)%JM = 1
+          STREAM%TILING(2)%name = "ROUTE_GRID"
+       end if
 
 
 ! Read location stream file into AVR
@@ -504,6 +523,10 @@ contains
              AVR(:,NumGlobalVars+2+NumLocalVars*(N-1)) = AVR(:,NumGlobalVars+2+NumLocalVars*(N-1))+1
          endif
        enddo
+
+       if (use_pfaf_) then
+          AVR(:,NumGlobalVars+2+NumLocalVars) = 1
+       end if
 
        call FREE_FILE(UNIT)
 
@@ -553,7 +576,11 @@ contains
                    if(MSK(I)) then
                       K = K + 1
                       II = nint(AVR(I,NumGlobalVars+1+NumLocalVars*(N-1)))
-                      JJ = nint(AVR(I,NumGlobalVars+2+NumLocalVars*(N-1)))
+                      if (use_pfaf_ .and. (n==2)) then
+                         JJ = nint(AVR(I,NumGlobalVars+2+NumLocalVars*(N-1)))
+                      else
+                         JJ=1
+                      end if
                       ISMINE(K) = I1<=II .and. IN>=II .and. &
                                   J1<=JJ .and. JN>=JJ
                    endif
@@ -666,6 +693,11 @@ contains
           call MAPL_CommsBcast(vm, DATA=STREAM%TILING(N)%IM, N=1, ROOT=0, RC=status)
           call MAPL_CommsBcast(vm, DATA=STREAM%TILING(N)%JM, N=1, ROOT=0, RC=status)
        enddo
+       if (use_pfaf_) then
+          STREAM%TILING(2)%IM = 291284
+          STREAM%TILING(2)%JM = 1
+          STREAM%TILING(2)%name = "ROUTE_GRID"
+       end if
 
 ! Read location stream file into AVR
 !---------------------------------------
@@ -740,6 +772,7 @@ contains
              call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
              if ( MAPL_am_I_root() ) read(UNIT) AVR
              call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
+             if (use_pfaf_) avr(:,1)=1
              K = 0
              do I=1, NT
                 if(MSK(I)) then
@@ -804,6 +837,7 @@ contains
              call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
              K = 0
              L = 0
+             if (use_pfaf_) avr(:,1)=1
              do I=1, NT
                 if(MSK(I)) then
                    K = K + 1
@@ -976,7 +1010,7 @@ contains
     endif
 
 
-    if(present(Grid)) then ! A grid was attached
+    if(present(Grid) .and. (.not.use_pfaf_)) then ! A grid was attached
        deallocate(ISMINE)
 
        DoCoeffs = .true.
@@ -988,7 +1022,7 @@ contains
 
        DX = 360./float(tiling%IM)
 
-       I  = index(TILING%NAME,'-',.true.)
+       I  = index(TILING%NAME,'-',.true.) !bmaa got rid
        _ASSERT(I>0,'needs informative message')
        I  = I+1
 
@@ -1528,7 +1562,7 @@ contains
     
     IM_WORLD = DIMS(1)
     JM_WORLD = DIMS(2)
-    
+   
     _ASSERT(IM_WORLD==TILING%IM,'needs informative message')
     _ASSERT(JM_WORLD==TILING%JM,'needs informative message')
     
@@ -2782,6 +2816,7 @@ integer function GRIDINDEX(STREAM,GRID,RC)
         exit
      end if
   end do
+  if (trim(name)=="ROUTE_GRID") GridIndex=2
 
   _ASSERT(GridIndex/=0,'needs informative message')
 
