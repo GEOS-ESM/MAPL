@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Added fixture entry to `components.yaml` (requires mepo v1.23.0 or higher)
+
 ### Changed
 ### Fixed
 ### Removed
