@@ -16,6 +16,8 @@ module MAPL_CapMod
    use MAPL_CapOptionsMod
    use MAPL_ServerManager
    use MAPL_ApplicationSupport
+   use gFTL_StringVector
+
    implicit none
    private
 
@@ -403,11 +405,19 @@ contains
 
    end subroutine run_model
    
-   subroutine initialize_cap_gc(this, mapl_comm)
+   subroutine initialize_cap_gc(this, mapl_comm, unusable, NUOPC_cap_imports, NUOPC_cap_exports)
      class(MAPL_Cap), intent(inout) :: this
      type(MAPL_Communicators), intent(in) :: mapl_comm
+
+    class(KeywordEnforcer), optional, intent(in) :: unusable
+    type(StringVector),     optional, intent(in) :: NUOPC_cap_imports
+    type(StringVector),     optional, intent(in) :: NUOPC_cap_exports
+
+      _UNUSED_DUMMY(unusable)
+
      call MAPL_CapGridCompCreate(this%cap_gc, mapl_comm, this%set_services, this%get_cap_rc_file(), &
-           this%name, this%get_egress_file())     
+           this%name, this%get_egress_file(), &
+           NUOPC_cap_imports=NUOPC_cap_imports, NUOPC_cap_exports=NUOPC_cap_exports)
    end subroutine initialize_cap_gc
    
 

@@ -22,6 +22,7 @@ module MAPL_CapGridCompMod
   use MAPL_CFIOServerMod
   use MAPL_ConfigMod
   use MAPL_DirPathMod
+  use MAPL_KeywordEnforcerMod
   use pFIO
   use gFTL_StringVector
   use pflogger, only: logging, Logger
@@ -56,6 +57,9 @@ module MAPL_CapGridCompMod
      type(ESMF_Alarm), allocatable :: alarm_list(:)
      type(ESMF_Time),  allocatable :: AlarmRingTime(:)
      logical,          allocatable :: ringingState(:)
+
+     type(StringVector), allocatable :: NUOPC_cap_imports
+     type(StringVector), allocatable :: NUOPC_cap_exports
    contains
      procedure :: set_services
      procedure :: initialize
@@ -74,6 +78,7 @@ module MAPL_CapGridCompMod
      procedure :: destroy_state
      procedure :: get_field_from_import
      procedure :: get_field_from_internal
+     procedure :: get_NUOPC_cap_fields
   end type MAPL_CapGridComp
 
   type :: MAPL_CapGridComp_Wrapper
@@ -87,13 +92,18 @@ module MAPL_CapGridCompMod
 contains
 
   
-  subroutine MAPL_CapGridCompCreate(cap, mapl_comm, root_set_services, cap_rc, name, final_file)
+  subroutine MAPL_CapGridCompCreate(cap, mapl_comm, root_set_services, cap_rc, name, final_file, &
+        unusable, NUOPC_cap_imports, NUOPC_cap_exports)
     type(MAPL_CapGridComp), intent(out), target :: cap
     type (MAPL_Communicators), intent(in) :: mapl_comm
 !!$    integer, intent(in) :: mapl_comm
     procedure() :: root_set_services
     character(*), intent(in) :: cap_rc, name
     character(len=*), optional, intent(in) :: final_file
+
+    class(KeywordEnforcer), optional, intent(in) :: unusable
+    type(StringVector),     optional, intent(in) :: NUOPC_cap_imports
+    type(StringVector),     optional, intent(in) :: NUOPC_cap_exports
 
     type(MAPL_CapGridComp_Wrapper) :: cap_wrapper
     type(MAPL_MetaComp), pointer :: meta
@@ -107,6 +117,9 @@ contains
     if (present(final_file)) then
        allocate(cap%final_file, source=final_file)
     end if
+
+    if (present(NUOPC_cap_imports)) cap%NUOPC_cap_imports = NUOPC_cap_imports
+    if (present(NUOPC_cap_exports)) cap%NUOPC_cap_exports = NUOPC_cap_exports
 
     cap%config = ESMF_ConfigCreate(rc=status)
     _VERIFY(status)
@@ -643,8 +656,7 @@ contains
 
     ! Prepare EXPORTS for ExtData
     ! ---------------------------
-    cap_imports_vec = get_vec_from_config(cap%config, "CAP_IMPORTS")
-    cap_exports_vec = get_vec_from_config(cap%config, "CAP_EXPORTS")
+    call cap%get_NUOPC_cap_fields(cap_imports_vec, cap_exports_vec)
 
     cap%import_state = ESMF_StateCreate(name = "Cap_Imports", stateintent = ESMF_STATEINTENT_IMPORT)
     cap%export_state = ESMF_StateCreate(name = "Cap_Exports", stateintent = ESMF_STATEINTENT_EXPORT)
@@ -947,7 +959,21 @@ contains
     cap => cap_wrapper%ptr
   end function get_CapGridComp_from_gc
 
-  
+
+  subroutine get_NUOPC_cap_fields(cap, cap_imports_vec, cap_exports_vec)
+     class(MAPL_CapGridComp), intent(inout) :: cap
+     type(StringVector),      intent(  out) :: cap_imports_vec
+     type(StringVector),      intent(  out) :: cap_exports_vec
+
+     integer :: status
+
+     if (.not. allocated(cap%NUOPC_cap_imports)) cap%NUOPC_cap_imports = get_vec_from_config(cap%config, "CAP_IMPORTS")
+     if (.not. allocated(cap%NUOPC_cap_exports)) cap%NUOPC_cap_exports = get_vec_from_config(cap%config, "CAP_EXPORTS")
+
+     cap_imports_vec = cap%NUOPC_cap_imports
+     cap_exports_vec = cap%NUOPC_cap_exports
+  end subroutine get_NUOPC_cap_fields
+
   
   function get_vec_from_config(config, key) result(vec)
     type(ESMF_Config), intent(inout) :: config
