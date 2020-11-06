@@ -87,9 +87,12 @@ module MAPL_CapGridCompMod
 contains
 
   
-  subroutine MAPL_CapGridCompCreate(cap, mapl_comm, root_set_services, cap_rc, name, final_file)
+! Routine name should chnage since GC is now created at a higher level in
+! MAPL_Cap.F90
+  subroutine MAPL_CapGridCompCreate(cap, mapl_comm, gc, root_set_services, cap_rc, name, final_file)
     type(MAPL_CapGridComp), intent(out), target :: cap
     type (MAPL_Communicators), intent(in) :: mapl_comm
+    type(ESMF_GridComp), intent(in) :: gc
 !!$    integer, intent(in) :: mapl_comm
     procedure() :: root_set_services
     character(*), intent(in) :: cap_rc, name
@@ -98,9 +101,14 @@ contains
     type(MAPL_CapGridComp_Wrapper) :: cap_wrapper
     type(MAPL_MetaComp), pointer :: meta
     integer :: status, rc
-    character(*), parameter :: cap_name = "CAP"
+    !character(*), parameter :: cap_name = "CAP"
+    character(len=ESMF_MAXSTR) :: cap_name
 
-    
+    ! Set cap%gc to gc created at top level
+    cap%gc = gc 
+
+    call ESMF_GridCompGet(cap%gc, name=cap_name, rc=status)
+    _VERIFY(status)
     cap%cap_rc_file = cap_rc
     cap%mapl_comm = mapl_comm
     cap%root_set_services => root_set_services
@@ -114,7 +122,9 @@ contains
     _VERIFY(STATUS)
 
     allocate(cap%name, source=name)
-    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, rc=status)
+! GC is now created in MAPL_Cap.F90
+    !cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, rc=status)
+    call ESMF_GridCompSet(cap%gc, config=cap%config, rc=status)
     _VERIFY(status)
 
     call MAPL_InternalStateCreate(cap%gc, meta, rc=status)
