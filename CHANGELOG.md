@@ -8,12 +8,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Added fixture entry to `components.yaml` (requires mepo v1.23.0 or higher)
+
 ### Changed
 ### Fixed
 ### Removed
 
+## [2.3.4] - 2020-10-20
 
-## [2.3.0] - 2020-09-29
+### Changed
+
+- Increased the width of the `#-cycles` column in profiler output
+- Added Docker authentication to CI
+- Updated mepo components to match GEOSgcm
+
+### Fixed
+
+- Fixed bug with reading in cubed-sphere files that have the corners
+
+## [2.3.3] - 2020-10-14
+
+## Fixed
+
+- Fix bug with using coarse grids in History and ExtData
+
+## [2.3.2] - 2020-10-09
+
+### Fixed
+
+- Fixed a bug in ExtData when extrapolating on a Leap Day (#563)
+
+### Added
+
+- Added a deflate and bit shaving option to Regrid_Util.x
+
+### Changed
+
+- Updated Github Docker CI image
+
+## [2.3.1] - 2020-10-08
+
+### Fixed
+
+- Fixed bug in ExtData when using debug logger
+
+## [2.3.0] - 2020-10-02
 
 ### Added
 
