@@ -36,6 +36,7 @@ module MAPL_CapMod
       type(MAPL_CapGridComp), public :: cap_gc
       type(MAPL_Communicators) :: mapl_comm
       type(ServerManager) :: cap_server
+      type(ESMF_GridComp) :: gc_from_top_level
 
    contains
       procedure :: run
@@ -149,11 +150,25 @@ contains
       integer :: status
       integer :: subcommunicator
       type(SplitCommunicator) :: split_comm
+      integer, allocatable :: ranks(:)
+      integer :: rank
 
       _UNUSED_DUMMY(unusable)
-      
+     _ASSERT(this%cap_options%n_members == 1, 'number of ensemble members must be 1 .... for now')
       subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _VERIFY(status)
       if (subcommunicator /= MPI_COMM_NULL) then
+         !================================================================
+         ! This is addded to allow the model GC to be created at higher level
+         ! so all PETs can see the call even though the GC uses only those PETs
+         ! in the model communicator; required when ESMF_Initialized is called
+         ! before MPI_Init and multiple communicators are still needed; like
+         ! one communicator for the model and another one for the IO_Server
+         allocate(ranks(this%cap_options%npes_model), stat=status)
+         _VERIFY(status)
+         ranks = (/(rank, rank=0,this%cap_options%npes_model-1)/)
+         this%gc_from_top_level = ESMF_GridCompCreate(name="CAP", petList=ranks, rc=status)
+         _VERIFY(status)
+         !================================================================
          call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
          call this%cap_server%get_splitcomm(split_comm)
          call fill_mapl_comm(split_comm, subcommunicator, .false., this%mapl_comm, rc=status)
@@ -207,7 +222,6 @@ contains
       
       integer :: status
       type(SplitCommunicator) :: split_comm
-
       call this%cap_server%get_splitcomm(split_comm)
       select case(split_comm%get_name())
       case('model')
@@ -406,7 +420,8 @@ contains
    subroutine initialize_cap_gc(this, mapl_comm)
      class(MAPL_Cap), intent(inout) :: this
      type(MAPL_Communicators), intent(in) :: mapl_comm
-     call MAPL_CapGridCompCreate(this%cap_gc, mapl_comm, this%set_services, this%get_cap_rc_file(), &
+     call MAPL_CapGridCompCreate(this%cap_gc, mapl_comm, &
+           this%gc_from_top_level, this%set_services, this%get_cap_rc_file(), &
            this%name, this%get_egress_file())     
    end subroutine initialize_cap_gc
    
