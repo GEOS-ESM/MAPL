@@ -1213,6 +1213,7 @@ contains
              call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
              RingTime = RefTime
           else
+             call ESMF_TimeIntervalSet( Frequency, MM=1, calendar=cal, rc=status ) ; _VERIFY(STATUS)
              !ALT keep the values from above
              ! and for debugging print
              call WRITE_PARALLEL("DEBUG: monthly averaging is active for collection "//trim(list(n)%collection))
@@ -4699,7 +4700,7 @@ ENDDO PARSER
 200 continue
     if( MAPL_AM_I_ROOT() ) then
        write(6,100) list%frequency, list%duration, tdim, trim(list%collection)
-100    format(1x,'Freq: ',i6.6,'  Dur: ',i6.6,'  TM: ',i4,'  Collection: ',a)
+100    format(1x,'Freq: ',i8.8,'  Dur: ',i8.8,'  TM: ',i4,'  Collection: ',a)
     endif
 
     return
