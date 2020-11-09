@@ -1352,7 +1352,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
    _VERIFY(STATUS)
    if (isPresent) then
       nra = ESMF_ConfigGetLen( STATE%CF, RC = STATUS)
-      _ASSERT( NRA > 0,'needs informative message')
+      _ASSERT( NRA > 0,'Empty list is not allowed')
 
       allocate (ref_date(NRA), ref_time(NRA), ref_freq(NRA), stat=STATUS)
       _VERIFY(STATUS)
