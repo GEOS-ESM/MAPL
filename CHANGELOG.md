@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed integer overflow in memutils for big memory systems
-- Fix bug with segment alarm whenn processing a monthly mean collection
+- Fix bug with segment alarm when processing a monthly mean collection
 
 
 ## [2.3.4] - 2020-10-20
