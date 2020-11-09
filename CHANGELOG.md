@@ -6,7 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Fix bug with segment alarm whem processing a monthly mean collectiom
 
 ### Added
 ### Changed
@@ -22,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed integer overflow in memutils for big memory systems
+- Fix bug with segment alarm whenn processing a monthly mean collection
+
 
 ## [2.3.4] - 2020-10-20
 
