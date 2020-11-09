@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ## [2.3.4] - 2020-10-20
+- Fix bug with segment alarm whem processing a monthly mean collectiom
 
 ### Changed
 
