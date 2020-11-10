@@ -27,6 +27,7 @@ module MAPL_GridManager_private
    private
 
    public :: GridManager
+   public :: factory_id_attribute
 
    ! singleton
    type :: GridManager
@@ -69,6 +70,7 @@ module MAPL_GridManager_private
    integer(kind=INT64), parameter :: NOT_FOUND = 1 - HUGE(1_INT64)
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_GridManager_private::'
+   character(len=*), parameter :: factory_id_attribute = 'MAPL_grid_factory_id'
 
 
 contains
@@ -202,7 +204,7 @@ contains
 
       ! TODO: this should only be done if the grid is new, rather than cached, in which case
       ! the attribute is already set.
-      call ESMF_AttributeSet(grid, 'factory_id', factory_id, rc=status)
+      call ESMF_AttributeSet(grid, factory_id_attribute, factory_id, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -384,7 +386,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_AttributeGet(grid, 'factory_id', id, rc=status)
+      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
       _VERIFY(status)
 
       factory => this%factories%at(id)
@@ -548,7 +550,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_AttributeGet(grid, 'factory_id', id, rc=status)
+      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
