@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed integer overflow in memutils for big memory systems
+- Fixed logic to allow proper termination of all imports except those specified
 
 ### Removed
 
