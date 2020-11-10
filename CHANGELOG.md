@@ -6,19 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Fix bug with segment alarm whem processing a monthly mean collectiom
+
+### Added
+### Changed
+### Fixed
+### Removed
+
+## [2.3.5] - 2020-11-06
 
 ### Added
 
 - Added fixture entry to `components.yaml` (requires mepo v1.23.0 or higher)
 - Added an external grid and clock setter (for NUOPC).
 
-### Changed
 ### Fixed
 
 - Fixed integer overflow in memutils for big memory systems
+- Fix bug with segment alarm when processing a monthly mean collection
 
-### Removed
 
 ## [2.3.4] - 2020-10-20
 
