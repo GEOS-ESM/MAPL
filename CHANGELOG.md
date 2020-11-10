@@ -8,15 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## [2.3.5] - 2020-11-06
+
+### Added
 
 - Added fixture entry to `components.yaml` (requires mepo v1.23.0 or higher)
 
-### Changed
 ### Fixed
 
 - Fixed integer overflow in memutils for big memory systems
+- Fix bug with segment alarm when processing a monthly mean collection
 
-### Removed
 
 ## [2.3.4] - 2020-10-20
 

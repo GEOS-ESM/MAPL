@@ -863,6 +863,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   integer, dimension(:), allocatable :: ref_date, ref_time, ref_freq
   integer                       :: NRA, sec
   character(len=ESMF_MAXSTR)    :: AlarmName
+  character(len=3)              :: alarmNum
   type(ESMF_Time)               :: CurrTime    ! Current time of the ESMF clock
   type(ESMF_Time)               :: RefTime
   type(ESMF_TimeInterval)       :: Frequency
@@ -1351,7 +1352,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
    _VERIFY(STATUS)
    if (isPresent) then
       nra = ESMF_ConfigGetLen( STATE%CF, RC = STATUS)
-      _ASSERT( NRA > 0 .and. NRA < 10,'needs informative message')
+      _ASSERT( NRA > 0,'Empty list is not allowed')
 
       allocate (ref_date(NRA), ref_time(NRA), ref_freq(NRA), stat=STATUS)
       _VERIFY(STATUS)
@@ -1379,7 +1380,8 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
       _VERIFY(STATUS)
 
       DO  I = 1, NRA
-         AlarmName = "RecordAlarm" // CHAR(I+ICHAR('0')) 
+         write(alarmNum,'(I3.3)') I
+         AlarmName = "RecordAlarm" // alarmNum
          call ESMF_ClockGetAlarm(clock, trim(AlarmName), recordAlarm, rc=status)
          if (STATUS/=ESMF_SUCCESS) then
             ! create alarm
