@@ -72,7 +72,7 @@ contains
       integer :: n, length, status
 
       n = 1
-      call this%fmd%deserialize(buffer(n:),status)
+      call FileMetaData_deserialize(buffer(n:), this%fmd, status)
       _VERIFY(status)
       call deserialize_intrinsic(buffer(n:), length)
       n = n + length 

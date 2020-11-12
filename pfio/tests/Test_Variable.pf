@@ -22,13 +22,13 @@ contains
    subroutine test_get_type()
       type (Variable) :: var
 
-      var = Variable(pFIO_INT32)
+      var = Variable(type=pFIO_INT32)
       @assertEqual(pFIO_INT32, var%get_type())
 
-      var = Variable(pFIO_INT64)
+      var = Variable(type=pFIO_INT64)
       @assertEqual(pFIO_INT64, var%get_type())
 
-      var = Variable(pFIO_REAL32, dimensions='x,y')
+      var = Variable(type=pFIO_REAL32, dimensions='x,y')
       @assertEqual(pFIO_REAL32, var%get_type())
       
    end subroutine test_get_type
@@ -38,10 +38,10 @@ contains
       type (Variable) :: var
 
 
-      var = Variable(pFIO_INT32, dimensions='x')
+      var = Variable(type=pFIO_INT32, dimensions='x')
       @assertEqual('x', var%get_ith_dimension(1))
 
-      var = Variable(pFIO_INT32, dimensions='x,yz,qqq')
+      var = Variable(type=pFIO_INT32, dimensions='x,yz,qqq')
       @assertEqual('yz', var%get_ith_dimension(2))
       @assertEqual('qqq', var%get_ith_dimension(3))
       
@@ -53,7 +53,7 @@ contains
       type (Attribute), pointer :: attr
       class (*), pointer :: value
       
-      var = Variable(pFIO_INT32, dimensions='x')
+      var = Variable(type=pFIO_INT32, dimensions='x')
       call var%add_attribute('pet_age', 15)
 
       attr => var%get_attribute('pet_age')
@@ -75,7 +75,7 @@ contains
       type (Attribute), pointer :: attr
       class (*), pointer :: values(:)
 
-      var = Variable(pFIO_INT32, dimensions='x')
+      var = Variable(type=pFIO_INT32, dimensions='x')
       call var%add_attribute('pet_size', [15._REAL64,24._REAL64])
 
       attr => var%get_attribute('pet_size')
@@ -98,7 +98,7 @@ contains
       class (*), pointer :: value
 
       !integer :: EMPTY(0)
-      var = Variable(pFIO_INT32, dimensions='x')
+      var = Variable(type=pFIO_INT32, dimensions='x')
       call var%add_attribute('pet_name', 'kitty')
 
       attr => var%get_attribute('pet_name')
@@ -121,19 +121,19 @@ contains
    subroutine test_equal_diff_dims()
       type (Variable) :: v1, v2
 
-      v1 = Variable(pFIO_INT32, dimensions='x')
+      v1 = Variable(type=pFIO_INT32, dimensions='x')
       v2 = v1
       @assertTrue(v1 == v2)
       @assertFalse(v1 /= v2)
       
-      v2 = Variable(pFIO_INT32, dimensions='y')
+      v2 = Variable(type=pFIO_INT32, dimensions='y')
 
       @assertTrue(v1 == v1)
       @assertFalse(v1 == v2)
 
       ! dimension order matters
-      v1 = Variable(pFIO_INT32, dimensions='x,y')
-      v2 = Variable(pFIO_INT32, dimensions='y,x')
+      v1 = Variable(type=pFIO_INT32, dimensions='x,y')
+      v2 = Variable(type=pFIO_INT32, dimensions='y,x')
       @assertFalse(v1 == v2)
       
    end subroutine test_equal_diff_dims
@@ -147,7 +147,7 @@ contains
       @assertTrue(v1 == v2)
 
       const = UnlimitedEntity([0,1])
-      v1 = Variable(pFIO_INT32, dimensions='x', const_value = const)
+      v1 = Variable(type=pFIO_INT32, dimensions='x', const_value = const)
       v2 = v1
 
       call v1%add_attribute('attr1', 1)
@@ -168,25 +168,23 @@ contains
 
    @test
    subroutine test_serialize()
-      type (Variable) :: v1
-      type (Variable), allocatable :: v2
+      type (Variable) :: v1, v2
       integer,allocatable :: buffer(:)
       real, dimension(2,3)     :: r2d
       real(kind=real64),  dimension(2,3,4)    ::  r3d
       integer(kind=INT64), dimension(2,3,4,5) :: i4d
 
-      v1 = Variable(pFIO_INT32, dimensions='x,y')
+      v1 = Variable(type=pFIO_INT32, dimensions='x,y')
       call v1%add_attribute('attr2', 2.)
       call v1%add_attribute('attr1', 1.)
       call v1%add_attribute('attr3', 'cat')
 
       call v1%serialize(buffer)
-      allocate(v2)
-      call v2%deserialize(buffer)
+      call Variable_deserialize(buffer, v2)
       @assertTrue(v1 == v2)     
-      deallocate(v2,buffer)
+      deallocate(buffer)
 
-      v1 = Variable(pFIO_real32, dimensions='x,y')
+      v1 = Variable(type=pFIO_real32, dimensions='x,y')
       call v1%add_attribute('attr2', 2.)
       call v1%add_attribute('attr1', 1.)
       call v1%add_attribute('attr3', 'cat')
@@ -194,12 +192,11 @@ contains
       r2d = 2.0
       call v1%add_const_value(UnlimitedEntity(r2d))
       call v1%serialize(buffer)
-      allocate(v2)
-      call v2%deserialize(buffer)
+      call Variable_deserialize(buffer, v2)
       @assertTrue(v1 == v2)     
-      deallocate(v2,buffer)
+      deallocate(buffer)
       
-      v1 = Variable(pFIO_real64, dimensions='x,y,z')
+      v1 = Variable(type=pFIO_real64, dimensions='x,y,z')
       call v1%add_attribute('attr2', 2.)
       call v1%add_attribute('attr1', 1.)
       call v1%add_attribute('attr3', 'cat')
@@ -207,12 +204,11 @@ contains
       r3d = 1.0_real64
       call v1%add_const_value(UnlimitedEntity(r3d))
       call v1%serialize(buffer)
-      allocate(v2)
-      call v2%deserialize(buffer)
+      call Variable_deserialize(buffer, v2)
       @assertTrue(v1 == v2)     
-      deallocate(v2,buffer)
+      deallocate(buffer)
 
-      v1 = Variable(pFIO_INT64, dimensions='x,y,z,i')
+      v1 = Variable(type=pFIO_INT64, dimensions='x,y,z,i')
       call v1%add_attribute('attr2', 2.)
       call v1%add_attribute('attr1', 1.)
       call v1%add_attribute('attr3', 'cat')
@@ -220,10 +216,9 @@ contains
       i4d = 10
       call v1%add_const_value(UnlimitedEntity(i4d))
       call v1%serialize(buffer)
-      allocate(v2)
-      call v2%deserialize(buffer)
+      call Variable_deserialize(buffer, v2)
       @assertTrue(v1 == v2)     
-      deallocate(v2,buffer)
+      deallocate(buffer)
 
    end subroutine
 end module Test_Variable

@@ -21,6 +21,7 @@ module pFIO_FileMetadataMod
    private
 
    public :: FileMetadata 
+   public :: FileMetadata_deserialize
 
    type :: FileMetadata
       private
@@ -57,14 +58,37 @@ module pFIO_FileMetadataMod
       procedure :: not_equal
 
       procedure :: serialize
-      procedure :: deserialize
       procedure :: is_coordinate_variable
 
    end type FileMetadata
 
+   interface FileMetadata
+      module procedure new_FileMetadata
+   end interface
 
 contains
 
+   function new_FileMetadata(unusable, dimensions, global, variables, order) result (fmd)
+     type (FileMetadata) :: fmd
+     class (KeywordEnforcer), optional, intent(in) :: unusable
+     type (StringIntegerMap), optional, intent(in) :: dimensions
+     type (Variable), optional, intent(in) :: global
+     type (StringVariableMap), optional, intent(in) :: variables
+     type (StringVector), optional, intent(in) :: order
+
+     fmd%dimensions = StringIntegerMap()
+     if (present(dimensions)) fmd%dimensions = dimensions
+
+     fmd%global = Variable()
+     if (present(global)) fmd%global = global
+
+     fmd%variables = StringVariableMap()
+     if (present(variables)) fmd%variables = variables
+
+     fmd%order = StringVector()
+     if (present(order)) fmd%order = order
+
+   end function
 
    function get_dimensions(this) result(dimensions)
       type (StringIntegerMap), pointer :: dimensions
@@ -535,31 +559,47 @@ contains
       _RETURN(_SUCCESS)
    end subroutine
 
-   subroutine deserialize(this, buffer, rc)
-      class (FileMetadata), intent(inout) :: this
+   subroutine FileMetadata_deserialize(buffer, fmd, rc)
       integer, intent(in) :: buffer(:)
+      type (FileMetadata), intent(inout) :: fmd
       integer, optional, intent(out) :: rc
-      integer :: n,length
-      integer :: status 
-      n = 1
-      call deserialize_intrinsic(buffer(n:),length)
-      _ASSERT(length <= size(buffer), "length does not match")
+      integer :: status
 
-      length = serialize_buffer_length(length)
-      n = n+length
-      this%dimensions = StringIntegerMap_deserialize(buffer(n:))
-      call deserialize_intrinsic(buffer(n:),length)
-      n = n + length
-      call deserialize_intrinsic(buffer(n:),length)
-      call this%global%deserialize(buffer(n:n+length-1), status)
+      fmd = FileMetaData()
+      call deserialize(fmd, buffer, rc=status)
       _VERIFY(status)
-      n = n + length
-      this%variables = StringVariableMap_deserialize(buffer(n:))
-
-      call deserialize_intrinsic(buffer(n:),length)
-      n = n + length
-      this%order = StringVector_deserialize(buffer(n:))
       _RETURN(_SUCCESS)
-   end subroutine deserialize
+  
+   contains
+
+      subroutine deserialize(this, buffer, rc)
+         class (FileMetadata), intent(inout) :: this
+         integer, intent(in) :: buffer(:)
+         integer, optional, intent(out) :: rc
+         integer :: n,length
+         integer :: status 
+         n = 1
+         call deserialize_intrinsic(buffer(n:),length)
+         _ASSERT(length <= size(buffer), "length does not match")
+   
+         length = serialize_buffer_length(length)
+         n = n+length
+         call StringIntegerMap_deserialize(buffer(n:),this%dimensions, status)
+         _VERIFY(status)
+         call deserialize_intrinsic(buffer(n:),length)
+         n = n + length
+         call deserialize_intrinsic(buffer(n:),length)
+         call Variable_deserialize(buffer(n:n+length-1),this%global, status)
+         _VERIFY(status)
+         n = n + length
+         call StringVariableMap_deserialize(buffer(n:), this%variables, status)
+   
+         call deserialize_intrinsic(buffer(n:),length)
+         n = n + length
+         call StringVector_deserialize(buffer(n:), this%order, status)
+         _VERIFY(status)
+         _RETURN(_SUCCESS)
+      end subroutine deserialize
+   end subroutine FileMetadata_deserialize
 
 end module pFIO_FileMetadataMod
