@@ -48,6 +48,7 @@ module MAPL_LatLonGridFactoryMod
       real(kind=REAL64), allocatable :: lat_centers(:)
       real(kind=REAL64), allocatable :: lon_corners(:)
       real(kind=REAL64), allocatable :: lat_corners(:)
+      logical :: force_decomposition = .false.
       
       ! Domain decomposition:
       integer :: nx = UNDEFINED_INTEGER
@@ -114,6 +115,7 @@ module MAPL_LatLonGridFactoryMod
       module procedure set_with_default_real
       module procedure set_with_default_character
       module procedure set_with_default_range
+      module procedure set_with_default_logical
    end interface set_with_default
 
 
@@ -183,7 +185,7 @@ contains
 
    function LatLonGridFactory_from_parameters(unusable, grid_name, &
         & im_world, jm_world, lm, nx, ny, ims, jms, &
-        & pole, dateline, lon_range, lat_range, rc) result(factory)
+        & pole, dateline, lon_range, lat_range, force_decomposition, rc) result(factory)
       type (LatLonGridFactory) :: factory
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: grid_name
@@ -202,6 +204,7 @@ contains
       integer, optional, intent(in) :: ny
       integer, optional, intent(in) :: ims(:)
       integer, optional, intent(in) :: jms(:)
+      logical, optional, intent(in) :: force_decomposition 
 
       integer, optional, intent(out) :: rc
 
@@ -229,6 +232,7 @@ contains
 
       call set_with_default(factory%lon_range, lon_range, RealMinMax(UNDEFINED_REAL,UNDEFINED_REAL))
       call set_with_default(factory%lat_range, lat_range, RealMinMax(UNDEFINED_REAL,UNDEFINED_REAL))
+      call set_with_default(factory%force_decomposition, force_decomposition, .false.)
 
       call factory%check_and_fill_consistency(rc=status)
       _VERIFY(status)
@@ -308,12 +312,15 @@ contains
               & rc=status)
          _VERIFY(status)
       end if
+      write(*,*)'bmaa status 1 ',status
 
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, rc=status)
       _VERIFY(status)
+      write(*,*)'bmaa status 2 ',status
       call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, rc=status)
       _VERIFY(status)
+      write(*,*)'bmaa status 3 ',status
 
 
       if (this%lm /= UNDEFINED_INTEGER) then
@@ -404,6 +411,7 @@ contains
 
       lon_centers = MAPL_Range(min_coord, max_coord, this%im_world, &
            & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
    end function compute_lon_centers
@@ -451,6 +459,7 @@ contains
 
       lon_corners = MAPL_Range(min_coord, max_coord, this%im_world+1, &
            & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
    end function compute_lon_corners
@@ -629,9 +638,11 @@ contains
               staggerloc=ESMF_STAGGERLOC_CENTER, &
               farrayPtr=centers, rc=status)
          _VERIFY(status)
+         write(*,*)'bmaa status 4 ',status,associated(centers)
          call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
               staggerloc=ESMF_STAGGERLOC_CORNER, &
               farrayPtr=corners, rc=status)
+         write(*,*)'bmaa status 5 ',status,associated(corners)
          _VERIFY(status)
          do j = 1, size(centers,2)
             centers(:,j) = this%lon_centers(i_1:i_n)
@@ -1130,11 +1141,13 @@ contains
          _ASSERT(this%lon_range%min == UNDEFINED_REAL)
          _ASSERT(this%lon_range%max == UNDEFINED_REAL)
       end if
-      verify_decomp = this%check_decomposition(rc=status)
-      _VERIFY(status)
-      if ( (.not.verify_decomp) ) then
-         call this%generate_newnxy(rc=status)
+      if (.not.this%force_decomposition) then
+         verify_decomp = this%check_decomposition(rc=status)
          _VERIFY(status)
+         if ( (.not.verify_decomp) ) then
+            call this%generate_newnxy(rc=status)
+            _VERIFY(status)
+         end if
       end if
 
       _RETURN(_SUCCESS)
@@ -1236,6 +1249,18 @@ contains
 
    end subroutine set_with_default_range
 
+   subroutine set_with_default_logical(to, from, default)
+      logical, intent(out) :: to
+      logical, optional, intent(in) :: from
+      logical, intent(in) :: default
+
+      if (present(from)) then
+         to = from
+      else
+         to = default
+      end if
+
+   end subroutine set_with_default_logical
 
    ! MAPL uses values in lon_array and lat_array only to determine the
    ! general positioning.  Actual coordinates are then recomputed.
