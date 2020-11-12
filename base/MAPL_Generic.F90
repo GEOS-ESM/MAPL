@@ -4854,6 +4854,9 @@ end function MAPL_AddChildFromGC
     integer                               :: I,J
     logical                               :: SKIP
     character(len=ESMF_MAXSTR), allocatable :: SNAMES(:)
+    type (MAPL_Connectivity), pointer     :: conn
+    type (MAPL_VarConn), pointer          :: CONNECT(:)
+    logical :: isConnected
 
     _ASSERT(size(SHORT_NAMES)==size(CHILD_IDS),'needs informative message')
 
@@ -4865,14 +4868,17 @@ end function MAPL_AddChildFromGC
        SNAMES(I) = trim(SHORT_NAMES(I))
     enddo
 
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    CONNECT => CONN%CONNECT
     if (associated(META%GCS)) then
        do I=1, size(META%GCS)
           call MAPL_GetObjectFromGC(META%GCS(I), META_CHILD, RC=STATUS)
           _VERIFY(STATUS)
           do J=1 ,size(META_CHILD%Import_Spec)
              call MAPL_VarSpecGet(META_CHILD%Import_Spec(J),SHORT_NAME=SHORT_NAME,RC=STATUS)
+             isConnected = MAPL_VarIsConnected(connect,short_name,I,rc=status)
              SKIP = ANY(SNAMES==TRIM(SHORT_NAME)) .and. (ANY(CHILD_IDS==I))
-             if (.not.SKIP) then
+             if ((.not.isConnected) .and. (.not.skip)) then
                 call MAPL_DoNotConnect(GC, SHORT_NAME, I, RC=status)
                 _VERIFY(STATUS)
              end if
