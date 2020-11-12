@@ -22,6 +22,7 @@ module MAPL_CapGridCompMod
   use MAPL_CFIOServerMod
   use MAPL_ConfigMod
   use MAPL_DirPathMod
+  use MAPL_KeywordEnforcerMod
   use pFIO
   use gFTL_StringVector
   use pflogger, only: logging, Logger
@@ -74,6 +75,8 @@ module MAPL_CapGridCompMod
      procedure :: destroy_state
      procedure :: get_field_from_import
      procedure :: get_field_from_internal
+     procedure :: set_grid
+     procedure :: set_clock
   end type MAPL_CapGridComp
 
   type :: MAPL_CapGridComp_Wrapper
@@ -1271,6 +1274,36 @@ contains
     _RETURN(_SUCCESS)
 
   end subroutine get_field_from_internal
+
+  subroutine set_grid(this, grid, unusable, rc)
+     class(MAPL_CapGridComp),          intent(inout) :: this
+     type(ESMF_Grid),                  intent(in   ) :: grid
+     class(KeywordEnforcer), optional, intent(in   ) :: unusable
+     integer,                optional, intent(  out) :: rc
+
+     integer :: status
+
+     _UNUSED_DUMMY(unusable)
+
+     call ESMF_GridCompSet(this%gc, grid=grid, __RC__)
+
+     _RETURN(_SUCCESS)
+  end subroutine set_grid
+
+  subroutine set_clock(this, clock, unusable, rc)
+     class(MAPL_CapGridComp),          intent(inout) :: this
+     type(ESMF_Clock),                 intent(in   ) :: clock
+     class(KeywordEnforcer), optional, intent(in   ) :: unusable
+     integer,                optional, intent(  out) :: rc
+
+     integer :: status
+
+     _UNUSED_DUMMY(unusable)
+
+     call ESMF_GridCompSet(this%gc, clock=clock, __RC__)
+
+     _RETURN(_SUCCESS)
+  end subroutine set_clock
 
   subroutine destroy_state(this, rc)
     class(MAPL_CapGridComp), intent(inout) :: this

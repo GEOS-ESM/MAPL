@@ -8,8 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Added an external grid and clock setter (for NUOPC).
+
 ### Changed
 ### Fixed
+
+- Fixed logic to allow proper termination of all imports except those specified
+
 ### Removed
 
 ## [2.3.5] - 2020-11-06
