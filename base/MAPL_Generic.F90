@@ -4961,10 +4961,10 @@ end function MAPL_AddChildFromGC
     _VERIFY(STATUS)
 
     call MAPL_VarServiceConnectionCreate(CONN%ServiceConnection, &
-         PROVIDER=PROVIDER, &
-         SUBSCRIBER=SUBSCRIBER, &
-         SERVICE=SERVICE, &
-         RC=STATUS  )
+         provider=provider, &
+         subscriber=subscriber, &
+         service=service, &
+         rc=status  )
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
@@ -5002,13 +5002,13 @@ end function MAPL_AddChildFromGC
     integer :: status
     type(MAPL_VarServiceSubscriberPtr), pointer :: subscriber_list(:) => null()
     
-    call MAPL_ServiceSubscriberGet(gc, subscriber=subscriber_list, RC=status)
+    call MAPL_ServiceSubscribersGet(gc, subscribers=subscriber_list, RC=status)
     _VERIFY(STATUS)
 
     call MAPL_VarServiceSubscriberListCreate(subscriber_list, &
-         SERVICE=SERVICE, &
-         VARS = VARS, &
-         RC=STATUS  )
+         service=service, &
+         vars = vars, &
+         rc=status  )
     _VERIFY(STATUS)
     
     _RETURN(ESMF_SUCCESS)
@@ -5032,9 +5032,9 @@ end function MAPL_AddChildFromGC
     
   end subroutine MAPL_ServiceProviderGet
 
-  subroutine MAPL_ServiceSubscriberGet(GC, SUBSCRIBER, RC)
+  subroutine MAPL_ServiceSubscribersGet(GC, SUBSCRIBERS, RC)
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
-    type(MAPL_VarServiceSubscriberPtr), pointer :: subscriber(:)
+    type(MAPL_VarServiceSubscriberPtr), pointer :: subscribers(:)
     integer,              optional, intent(  OUT) :: RC     ! Error code:
 
     integer :: status
@@ -5044,18 +5044,10 @@ end function MAPL_AddChildFromGC
     call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, RC=STATUS )
     _VERIFY(STATUS)
 
-    subscriber => maplobj%subscriber_list
+    subscribers => maplobj%subscriber_list
     _RETURN(ESMF_SUCCESS)
     
-  end subroutine MAPL_ServiceSubscriberGet
-
-#if 0
-  in genericinitialize we need to
-  1) process providers (grab bundle from import, and store it)
-  2) process subscribers (grab locally stored bundle, and populate from vars from internal)
-  3) "service" the connections
-!  loop over all service connections
-#endif
+  end subroutine MAPL_ServiceSubscribersGet
 
   subroutine MAPL_ServiceProcessConnections(META, RC)
     !ARGUMENTS:
@@ -5135,13 +5127,13 @@ end function MAPL_AddChildFromGC
        do_subscriber = .true.
        cname = subscriber
     end if
-    _ASSERT(IEOR(do_provider,do_subscriber)/=0, 'Only one of the arguments PROVIDER or SUBSCRIBER must be provided')
+    _ASSERT(do_provider .neqv. do_subscriber, 'Only one of the arguments PROVIDER or SUBSCRIBER must be provided')
     call MAPL_FindChild(META, name=cname, result=cmeta, rc=status)
     _VERIFY(STATUS)
     _ASSERT(associated(cmeta), 'No child found')
     ! find the appropriate object (P, or S) matching SERVICE
     if (do_subscriber) then
-       call MAPL_VarServiceSubscriberGet(cmeta%subscriber_list, service, bundle, rc=status)
+       call MAPL_VarServiceSubscribersGet(cmeta%subscriber_list, service, bundle, rc=status)
        _VERIFY(STATUS)
     else ! must be provider
        call MAPL_VarServiceProviderGet(cmeta%provider_list, service, bundle, rc=status)

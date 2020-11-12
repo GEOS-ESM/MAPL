@@ -46,7 +46,7 @@ public MAPL_VarServiceSubscriberListCreate
 public MAPL_VarServiceConnectionCreate
 public MAPL_VarServiceConnectionGet
 public MAPL_VarServiceProviderGet
-public MAPL_VarServiceSubscriberGet
+public MAPL_VarServiceSubscribersGet
 public MAPL_VarServiceProviderSet
 public MAPL_VarServiceSubscriberSet
 
@@ -2213,7 +2213,7 @@ contains
     _RETURN(_SUCCESS)
   end subroutine MAPL_VarServiceProviderSet
    
-  subroutine MAPL_VarServiceSubscriberGet(subscriber_list, service, bundle, rc)
+  subroutine MAPL_VarServiceSubscribersGet(subscriber_list, service, bundle, rc)
     type(MAPL_VarServiceSubscriberPtr), pointer, intent(IN) :: subscriber_list(:)
     character(len=*), intent(IN) :: service
     type(ESMF_FieldBundle), intent(OUT) :: bundle
@@ -2235,7 +2235,7 @@ contains
     END DO
     _ASSERT(found, 'No match found for service')
     _RETURN(_SUCCESS)
-  end subroutine MAPL_VarServiceSubscriberGet
+  end subroutine MAPL_VarServiceSubscribersGet
    
   subroutine MAPL_VarServiceSubscriberSet(subscriber_list, state, rc)
     type(MAPL_VarServiceSubscriberPtr), pointer, intent(INOUT) :: subscriber_list(:)
