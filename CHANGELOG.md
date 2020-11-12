@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Added an external grid and clock setter (for NUOPC).
+
 ### Changed
 ### Fixed
 
@@ -20,7 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added fixture entry to `components.yaml` (requires mepo v1.23.0 or higher)
-- Added an external grid and clock setter (for NUOPC).
 
 ### Fixed
 
