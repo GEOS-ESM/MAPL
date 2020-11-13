@@ -24,13 +24,8 @@ module MAPL_ExternalGridFactory
    character(len=*), parameter :: MOD_NAME = 'ExternalGridFactory::'
 
    type, extends(AbstractGridFactory) :: ExternalGridFactory
-      character(len=:), allocatable :: gird_name
-
-      integer :: im_world != UNDEFINED_INTEGER
-      integer :: jm_world != UNDEFINED_INTEGER
-      integer :: lm       != UNDEFINED_INTEGER
-
-      type(ESMF_DistGrid), allocatable :: dist_grid
+      character(len=:), allocatable :: grid_name
+      type(ESMF_Grid),  allocatable :: external_grid
    contains
       procedure :: make_new_grid
 
@@ -53,11 +48,11 @@ module MAPL_ExternalGridFactory
       procedure :: generate_file_reference3D
    end type ExternalGridFactory
 contains
-   function ExternalGridFactory_from_parameters(unusable, grid, dist_grid, rc) result(factory)
+   function ExternalGridFactory_from_parameters(unusable, grid_name, grid, rc) result(factory)
       type(ExternalGridFactory) :: factory
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
+      character(*),           optional, intent(in   ) :: grid_name
       type(ESMF_Grid),        optional, intent(in   ) :: grid
-      type(ESMF_DistGrid),    optional, intent(in   ) :: dist_grid
       integer,                optional, intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'ExternalGridFactory_from_parameters'
@@ -65,14 +60,8 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      if (present(grid)) then
-         call factory%inject_external_grid(grid, rc=status)
-         _VERIFY(status)
-      end if
-
-      if (present(dist_grid)) then
-         factory%dist_grid = dist_grid
-      end if
+      if (present(grid_name)) factory%grid_name = grid_name
+      if (present(grid)) factory%external_grid = grid
 
       _RETURN(_SUCCESS)
    end function ExternalGridFactory_from_parameters
@@ -88,9 +77,8 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      if (allocated(this%dist_grid)) then
-         grid = ESMF_GridCreate(this%dist_grid, rc=status)
-         _VERIFY(status)
+      if (allocated(this%external_grid)) then
+         grid = this%external_grid
       else
          _ASSERT(.false.)
       end if
@@ -108,16 +96,6 @@ contains
          return
       class is (ExternalGridFactory)
          equals = .true.
-
-         equals = (a%im_world == b%im_world)
-         if (.not. equals) return
-
-         equals = (a%jm_world == b%jm_world)
-         if (.not. equals) return
-
-         equals = (a%lm == b%lm)
-         if (.not. equals) return
-
       end select
    end function equals
 
@@ -127,9 +105,13 @@ contains
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
       integer,                optional, intent(  out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      character(len=*), parameter :: Iam = MOD_NAME // 'initialize_from_file_metadata'
+      integer                     :: status
 
-      ! TODO: fill in the rest
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(file_metadata)
+
+      _ASSERT(.false.)
 
       _RETURN(_SUCCESS)
    end subroutine initialize_from_file_metadata
@@ -141,9 +123,14 @@ contains
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
       integer,                optional, intent(  out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      character(len=*), parameter :: Iam = MOD_NAME // 'initialize_from_config_with_prefix'
+      integer                     :: status
 
-      ! TODO: fill in the rest
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(config)
+      _UNUSED_DUMMY(prefix)
+
+      _ASSERT(.false.)
 
       _RETURN(_SUCCESS)
    end subroutine initialize_from_config_with_prefix
@@ -156,24 +143,15 @@ contains
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
       integer,                optional, intent(  out) :: rc
 
-      integer                     :: dim_count, tile_count
-      integer, allocatable        :: max_index(:,:)
       character(len=*), parameter :: Iam = MOD_NAME // 'initialize_from_esmf_distGrid'
       integer                     :: status
 
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(dist_grid)
+      _UNUSED_DUMMY(lon_array)
+      _UNUSED_DUMMY(lat_array)
 
-      call ESMF_DistGridGet(dist_grid, dimCount=dim_count, tileCount=tile_count, rc=status)
-      _VERIFY(status)
-      allocate(max_index(dim_count, tile_count))
-      call ESMF_DistGridGet(dist_grid, maxIndexPTile=max_index, rc=status)
-      _VERIFY(status)
-
-      this%im_world = max_index(1,1)
-      this%jm_world = max_index(2,1)
-      this%lm       = max_index(3,1)
-
-      this%dist_grid = dist_grid
+      _ASSERT(.false.)
 
       _RETURN(_SUCCESS)
    end subroutine initialize_from_esmf_distGrid
@@ -182,12 +160,17 @@ contains
       class(ExternalGridFactory),       intent(inout) :: this
       real(kind=REAL32),                intent(inout) :: array(:,:)
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
-      integer,                optional, intent(in   ):: halo_width
+      integer,                optional, intent(in   ) :: halo_width
       integer,                optional, intent(  out) :: rc
 
-      _UNUSED_DUMMY(unusable)
+      character(len=*), parameter :: Iam = MOD_NAME // 'halo'
+      integer                     :: status
 
-      ! TODO: fill in the rest
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(array)
+      _UNUSED_DUMMY(halo_width)
+
+      _ASSERT(.false.)
 
       _RETURN(_SUCCESS)
    end subroutine halo
@@ -196,12 +179,7 @@ contains
       character(:), allocatable :: name
       class(ExternalGridFactory), intent(in) :: this
 
-      character(len=4) :: im_string, jm_string
-
-      write(im_string, '(i4.4)') this%im_world
-      write(jm_string, '(i4.4)') this%jm_world
-
-      name = 'EXTERNAL'// im_string // 'x' // jm_string
+      name = 'EXTERNAL'
    end function generate_grid_name
 
    subroutine append_metadata(this, metadata)
@@ -233,7 +211,15 @@ contains
       integer,      allocatable,  intent(  out) :: global_count(:)
       integer,      optional,     intent(  out) :: rc
 
-      ! TODO: fill in the rest
+      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
+      integer                     :: status
+
+      _UNUSED_DUMMY(grid)
+      _UNUSED_DUMMY(local_start)
+      _UNUSED_DUMMY(global_start)
+      _UNUSED_DUMMY(global_count)
+
+      _ASSERT(.false.)
 
       _RETURN(_SUCCESS)
    end subroutine generate_file_bounds
@@ -246,7 +232,13 @@ contains
       integer,      allocatable,  intent(  out) :: global_count(:)
       integer,      optional,     intent(  out) :: rc
 
-      ! TODO: fill in the rest
+      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
+      integer                     :: status
+
+      _UNUSED_DUMMY(grid)
+      _UNUSED_DUMMY(local_start)
+      _UNUSED_DUMMY(global_start)
+      _UNUSED_DUMMY(global_count)
 
       _RETURN(_SUCCESS)
    end subroutine generate_file_corner_bounds
