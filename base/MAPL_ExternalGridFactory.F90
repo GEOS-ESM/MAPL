@@ -53,6 +53,30 @@ module MAPL_ExternalGridFactory
       procedure :: generate_file_reference3D
    end type ExternalGridFactory
 contains
+   function ExternalGridFactory_from_parameters(unusable, grid, dist_grid, rc) result(factory)
+      type(ExternalGridFactory) :: factory
+      class(KeywordEnforcer), optional, intent(in   ) :: unusable
+      type(ESMF_Grid),        optional, intent(in   ) :: grid
+      type(ESMF_DistGrid),    optional, intent(in   ) :: dist_grid
+      integer,                optional, intent(  out) :: rc
+
+      character(len=*), parameter :: Iam = MOD_NAME // 'ExternalGridFactory_from_parameters'
+      integer                     :: status
+
+      _UNUSED_DUMMY(unusable)
+
+      if (present(grid)) then
+         call factory%inject_external_grid(grid, rc=status)
+         _VERIFY(status)
+      end if
+
+      if (present(dist_grid)) then
+         factory%dist_grid = dist_grid
+      end if
+
+      _RETURN(_SUCCESS)
+   end function ExternalGridFactory_from_parameters
+
    function make_new_grid(this, unusable, rc) result(grid)
       type(ESMF_Grid) :: grid
       class(ExternalGridFactory),       intent(in   ) :: this
