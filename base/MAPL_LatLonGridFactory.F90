@@ -312,15 +312,12 @@ contains
               & rc=status)
          _VERIFY(status)
       end if
-      write(*,*)'bmaa status 1 ',status
 
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, rc=status)
       _VERIFY(status)
-      write(*,*)'bmaa status 2 ',status
       call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, rc=status)
       _VERIFY(status)
-      write(*,*)'bmaa status 3 ',status
 
 
       if (this%lm /= UNDEFINED_INTEGER) then
@@ -638,11 +635,9 @@ contains
               staggerloc=ESMF_STAGGERLOC_CENTER, &
               farrayPtr=centers, rc=status)
          _VERIFY(status)
-         write(*,*)'bmaa status 4 ',status,associated(centers)
          call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
               staggerloc=ESMF_STAGGERLOC_CORNER, &
               farrayPtr=corners, rc=status)
-         write(*,*)'bmaa status 5 ',status,associated(corners)
          _VERIFY(status)
          do j = 1, size(centers,2)
             centers(:,j) = this%lon_centers(i_1:i_n)
