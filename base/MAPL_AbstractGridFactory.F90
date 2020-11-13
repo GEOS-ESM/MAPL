@@ -78,8 +78,6 @@ module MAPL_AbstractGridFactoryMod
       procedure(generate_file_corner_bounds), deferred :: generate_file_corner_bounds
       procedure(generate_file_reference2D), deferred :: generate_file_reference2D
       procedure(generate_file_reference3D), deferred :: generate_file_reference3D
-
-      procedure :: inject_external_grid
    end type AbstractGridFactory
 
    abstract interface
@@ -1007,22 +1005,4 @@ contains
       end if
 
    end function get_grid
-
-   subroutine inject_external_grid(this, grid, unusable, rc)
-      class(AbstractGridFactory),       intent(inout) :: this
-      type(ESMF_Grid),                  intent(in   ) :: grid
-      class(KeywordEnforcer), optional, intent(in   ) :: unusable
-      integer,                optional, intent(  out) :: rc
-
-      _UNUSED_DUMMY(unusable)
-
-      if (allocated(this%grid)) then
-         _RETURN(_FAILURE)
-      else
-         this%grid = grid
-         _RETURN(_FAILURE)
-      end if
-   end subroutine inject_external_grid
-
-      
 end module MAPL_AbstractGridFactoryMod
