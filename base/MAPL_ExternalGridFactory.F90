@@ -20,8 +20,17 @@ module MAPL_ExternalGridFactory
    private
 
    public :: ExternalGridFactory
+   
+   character(len=*), parameter :: MOD_NAME = 'ExternalGridFactory::'
 
    type, extends(AbstractGridFactory) :: ExternalGridFactory
+      character(len=:), allocatable :: gird_name
+
+      integer :: im_world != UNDEFINED_INTEGER
+      integer :: jm_world != UNDEFINED_INTEGER
+      integer :: lm       != UNDEFINED_INTEGER
+
+      type(ESMF_DistGrid), allocatable :: dist_grid
    contains
       procedure :: make_new_grid
 
@@ -50,9 +59,17 @@ contains
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
       integer,                optional, intent(  out) :: rc
 
+      character(len=*), parameter :: Iam = MOD_NAME // 'make_grid'
+      integer                     :: status
+
       _UNUSED_DUMMY(unusable)
 
-      ! TODO: fill in the rest
+      if (allocated(this%dist_grid)) then
+         grid = ESMF_GridCreate(this%dist_grid, rc=status)
+         _VERIFY(status)
+      else
+         _ASSERT(.false.)
+      end if
 
       _RETURN(_SUCCESS)
    end function make_new_grid
@@ -67,7 +84,16 @@ contains
          return
       class is (ExternalGridFactory)
          equals = .true.
-         ! TODO: fill in the rest
+
+         equals = (a%im_world == b%im_world)
+         if (.not. equals) return
+
+         equals = (a%jm_world == b%jm_world)
+         if (.not. equals) return
+
+         equals = (a%lm == b%lm)
+         if (.not. equals) return
+
       end select
    end function equals
 
@@ -106,9 +132,24 @@ contains
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
       integer,                optional, intent(  out) :: rc
 
+      integer                     :: dim_count, tile_count
+      integer, allocatable        :: max_index(:,:)
+      character(len=*), parameter :: Iam = MOD_NAME // 'initialize_from_esmf_distGrid'
+      integer                     :: status
+
       _UNUSED_DUMMY(unusable)
 
-      ! TODO: fill in the rest
+      call ESMF_DistGridGet(dist_grid, dimCount=dim_count, tileCount=tile_count, rc=status)
+      _VERIFY(status)
+      allocate(max_index(dim_count, tile_count))
+      call ESMF_DistGridGet(dist_grid, maxIndexPTile=max_index, rc=status)
+      _VERIFY(status)
+
+      this%im_world = max_index(1,1)
+      this%jm_world = max_index(2,1)
+      this%lm       = max_index(3,1)
+
+      this%dist_grid = dist_grid
 
       _RETURN(_SUCCESS)
    end subroutine initialize_from_esmf_distGrid
@@ -131,7 +172,12 @@ contains
       character(:), allocatable :: name
       class(ExternalGridFactory), intent(in) :: this
 
-      ! TODO: fill in the rest
+      character(len=4) :: im_string, jm_string
+
+      write(im_string, '(i4.4)') this%im_world
+      write(jm_string, '(i4.4)') this%jm_world
+
+      name = 'EXTERNAL'// im_string // 'x' // jm_string
    end function generate_grid_name
 
    subroutine append_metadata(this, metadata)
