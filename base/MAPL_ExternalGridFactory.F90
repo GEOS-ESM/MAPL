@@ -5,7 +5,7 @@
 #define _RETURN(A)   if(present(rc)) rc=A; return
 #include "unused_dummy.H"
 
-module MAPL_ExternalGridFactory
+module MAPL_ExternalGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_MinMaxMod
    use MAPL_KeywordEnforcerMod
@@ -20,7 +20,7 @@ module MAPL_ExternalGridFactory
    private
 
    public :: ExternalGridFactory
-   
+
    character(len=*), parameter :: MOD_NAME = 'ExternalGridFactory::'
 
    type, extends(AbstractGridFactory) :: ExternalGridFactory
@@ -47,6 +47,10 @@ module MAPL_ExternalGridFactory
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
    end type ExternalGridFactory
+
+   interface ExternalGridFactory
+      module procedure ExternalGridFactory_from_parameters
+   end interface ExternalGridFactory
 contains
    function ExternalGridFactory_from_parameters(unusable, grid_name, grid, rc) result(factory)
       type(ExternalGridFactory) :: factory
@@ -258,4 +262,4 @@ contains
 
       ! TODO: fill in the rest
    end function generate_file_reference3D
-end module MAPL_ExternalGridFactory
+end module MAPL_ExternalGridFactoryMod
