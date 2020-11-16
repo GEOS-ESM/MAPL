@@ -181,13 +181,13 @@ type MAPL_VarServiceProviderType
   !ALT currect assumption is the bundle for the provider will be in the import state
 end type MAPL_VarServiceProviderType
 
-type MAPL_VarServiceSubscriberType
+type MAPL_VarServiceRequestType
   private
   character(len=ESMF_MAXSTR)               :: SERVICE_NAME
   type(ESMF_FieldBundle)                   :: BUNDLE
-  !ALT currect assumption is the bundle for the provider will be in the export state
+  !ALT currect assumption is the bundle for the subscriber will be in the export state
   character(len=ESMF_MAXSTR), allocatable      :: VAR_LIST(:)
-end type MAPL_VarServiceSubscriberType
+end type MAPL_VarServiceRequestType
 
 type, public :: MAPL_VarServiceConnectionType
   private
@@ -201,10 +201,10 @@ type, public :: MAPL_VarServiceProviderPtr
   type(MAPL_VarServiceProviderType), pointer :: Ptr => null()
 end type MAPL_VarServiceProviderPtr
 
-type, public :: MAPL_VarServiceSubscriberPtr
+type, public :: MAPL_VarServiceRequestPtr
   private
   type(MAPL_VarServiceSubscriberType), pointer :: Ptr => null()
-end type MAPL_VarServiceSubscriberPtr
+end type MAPL_VarServiceRequestPtr
 
 type, public :: MAPL_VarServiceConnectionPtr
   private
@@ -2061,7 +2061,7 @@ contains
 
   end subroutine MAPL_VarServiceProviderListCreate
 
-  subroutine MAPL_VarServiceSubscriberListCreate(SLIST, SERVICE, VARS, RC)
+  subroutine MAPL_VarServiceRequestListAppend(SLIST, SERVICE, VARS, RC)
 
     type (MAPL_VarServiceSubscriberPtr),      pointer     :: SLIST(:)
     character (len=*)             , intent(IN   ) :: SERVICE
@@ -2070,7 +2070,7 @@ contains
     
     integer                                :: STATUS
     integer                                :: I
-    type (MAPL_VarServiceSubscriberPtr ), pointer  :: TMP(:) => null()
+    type (MAPL_VarServiceRequestPtr ), pointer  :: TMP(:) => null()
 
 
     if(.not. associated(SLIST)) then
@@ -2237,7 +2237,7 @@ contains
     _RETURN(_SUCCESS)
   end subroutine MAPL_VarServiceSubscribersGet
    
-  subroutine MAPL_VarServiceSubscriberSet(subscriber_list, state, rc)
+  subroutine MAPL_VarFillRequestBundle(subscriber_list, state, rc)
     type(MAPL_VarServiceSubscriberPtr), pointer, intent(INOUT) :: subscriber_list(:)
     type(ESMF_State), intent(IN) :: state
     integer, optional, intent(out) :: rc
@@ -2262,6 +2262,6 @@ contains
     END DO
     
     _RETURN(_SUCCESS)
-  end subroutine MAPL_VarServiceSubscriberSet
+  end subroutine MAPL_VarFillRequestBundle
    
 end module MAPL_VarSpecMod

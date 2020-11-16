@@ -446,7 +446,7 @@ type  MAPL_MetaComp
    character(:), allocatable :: full_name ! Period separated list of ancestor names
 
    type(MAPL_VarServiceProviderPtr), pointer :: provider_list(:) => null()
-   type(MAPL_VarServiceSubscriberPtr), pointer :: subscriber_list(:) => null()
+   type(MAPL_VarServiceRequestPtr), pointer :: request_list(:) => null()
 
    class(Logger), pointer :: lgr
 
@@ -1709,12 +1709,12 @@ endif
 
    ! process any subscribers
    if (associated(state%subscriber_list)) then
-      call MAPL_VarServiceSubscriberSet(state%subscriber_list, state%internal, rc=status)
+      call MAPL_VarFillRequestBundle(state%subscriber_list, state%internal, rc=status)
       _VERIFY(STATUS)
    end if
 
    ! process any service connections
-  call MAPL_ServiceProcessConnections(state, RC=status)
+  call MAPL_ProcessServiceConnections(state, RC=status)
   _VERIFY(STATUS)
    
   call MAPL_GenericStateClockOff(STATE,"GenInitTot")
@@ -5073,7 +5073,7 @@ end function MAPL_AddChildFromGC
     DO I=1,N
        ! retrieve connection info
        call MAPL_VarServiceConnectionGet(conn%ServiceConnection(I), &
-            Service=SERVICE, Provider=PROVIDER, Subscriber=subscriber, &
+            Service=SERVICE, Provider=PROVIDER, Requestor=subscriber, &
             RC=STATUS)
        _VERIFY(STATUS)
 
@@ -5092,7 +5092,7 @@ end function MAPL_AddChildFromGC
        DO K = 1, NF
           call MAPL_FieldBundleGet(SBUNDLE, K, FIELD, RC=STATUS)
           _VERIFY(STATUS)
-          ! add each of the fields to PBUNDLE, dublicates are allowed
+          ! add each of the fields to PBUNDLE, duplicates are allowed
           call MAPL_FieldBundleAdd(PBUNDLE, FIELD, multiflag=.true., RC=STATUS)
           _VERIFY(STATUS)
        END DO
