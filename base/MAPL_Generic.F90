@@ -163,9 +163,9 @@ module MAPL_GenericMod
   public MAPL_AddChild
   public MAPL_AddConnectivity
   public MAPL_TerminateImport
-  public MAPL_ServiceAddConnection
-  public MAPL_ServiceAddProvider
-  public MAPL_ServiceAddSubscriber
+  public MAPL_ConnectService
+  public MAPL_AdvertiseService/
+  public MAPL_RequestService
   
   ! MAPL_Util
   !public MAPL_GenericStateClockOn
@@ -4941,7 +4941,7 @@ end function MAPL_AddChildFromGC
 
 
 !new routines to handle ServiceServices
-  subroutine MAPL_ServiceAddConnection( GC, PROVIDER, SUBSCRIBER, SERVICE, RC)
+  subroutine MAPL_ConnectService( GC, PROVIDER, SUBSCRIBER, SERVICE, RC)
 
     !ARGUMENTS:
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
@@ -4968,9 +4968,9 @@ end function MAPL_AddChildFromGC
 
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_ServiceAddConnection
+  end subroutine MAPL_ConnectService
 
-  subroutine MAPL_ServiceAddProvider(GC, SERVICE, BUNDLE, RC)
+  subroutine MAPL_AdvertiseService(GC, SERVICE, BUNDLE, RC)
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
     character (len=*),              intent(IN   ) :: SERVICE
     character (len=*),              intent(IN   ) :: BUNDLE
@@ -4980,39 +4980,40 @@ end function MAPL_AddChildFromGC
     type(MAPL_VarServiceProviderPtr), pointer :: provider_list(:) => null()
 
     
-    call MAPL_ServiceProviderGet(gc, provider=provider_list, RC=status)
+    call MAPL_ServiceProviderGet(gc, advertised_services=provider_list, RC=status)
     _VERIFY(STATUS)
 
-    call MAPL_VarServiceProviderListCreate(provider_list, &
+    call MAPL_VarServiceProviderListAppend(provider_list, &
          SERVICE=SERVICE, &
          BUNDLE=BUNDLE, &
          RC=STATUS  )
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_ServiceAddProvider
+  end subroutine MAPL_AdvertiseService
   
-  subroutine MAPL_ServiceAddSubscriber(GC, SERVICE, VARS, RC)
+  subroutine MAPL_RequestService(GC, SERVICE, VARS, RC)
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
     character (len=*),              intent(IN   ) :: SERVICE
     character (len=*),              intent(IN   ) :: VARS(:)
     integer,              optional, intent(  OUT) :: RC     ! Error code:
 
     integer :: status
-    type(MAPL_VarServiceSubscriberPtr), pointer :: subscriber_list(:) => null()
+    type(MAPL_VarServiceSubscriberPtr), pointer :: service_requests(:) => null()
     
-    call MAPL_ServiceSubscribersGet(gc, subscribers=subscriber_list, RC=status)
+    call MAPL_ServiceSubscriberGet(gc, requested_services=service_requests, RC=status)
     _VERIFY(STATUS)
 
-    call MAPL_VarServiceSubscriberListCreate(subscriber_list, &
+    call MAPL_VarServiceRequestListAppend(subscriber_list, &
          service=service, &
          vars = vars, &
          rc=status  )
+
     _VERIFY(STATUS)
     
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_ServiceAddSubscriber
+  end subroutine MAPL_RequestService
 
   subroutine MAPL_ServiceProviderGet(GC, PROVIDER, RC)
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
