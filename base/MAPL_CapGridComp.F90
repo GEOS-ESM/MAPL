@@ -183,6 +183,7 @@ contains
     character(len=ESMF_MAXSTR )           :: DYCORE
     character(len=ESMF_MAXPATHLEN) :: user_dirpath,tempString
     logical                      :: tend,foundPath
+    logical                      :: cap_clock_is_present
 
 
     type (MAPL_MetaComp), pointer :: maplobj
@@ -234,6 +235,18 @@ contains
        _VERIFY(status)
     end if
 
+    ! Check if a valid clock was provided externally
+    !-----------------------------------------------
+
+    call ESMF_GridCompGet(gc, clockIsPresent=cap_clock_is_present, rc=status)
+    _VERIFY(status)
+
+    if (cap_clock_is_present) then
+        call ESMF_GridCompGet(gc, clock=cap%clock, rc=status)
+        _VERIFY(status)
+        call ESMF_ClockValidate(cap%clock, rc=status)
+        _VERIFY(status)
+    else
     !  Create Clock. This is a private routine that sets the start and 
     !   end times and the time interval of the clock from the configuration.
     !   The start time is temporarily set to 1 interval before the time in the
@@ -242,11 +255,13 @@ contains
     !   were after the last advance before the previous Finalize.
     !---------------------------------------------------------------------------
 
-    call MAPL_ClockInit(MAPLOBJ, cap%clock, nsteps, rc = status)
-    _VERIFY(status)
-    cap%nsteps = nsteps    
-    call ESMF_ClockGet(cap%clock,currTime=cap%cap_restart_time,rc=status)
-    _VERIFY(status)
+        call MAPL_ClockInit(MAPLOBJ, cap%clock, nsteps, rc = status)
+        _VERIFY(status)
+        cap%nsteps = nsteps
+        call ESMF_ClockGet(cap%clock,currTime=cap%cap_restart_time,rc=status)
+        _VERIFY(status)
+    end if
+
     cap%clock_hist = ESMF_ClockCreate(cap%clock, rc = STATUS )  ! Create copy for HISTORY
     _VERIFY(STATUS)
 
@@ -281,38 +296,40 @@ contains
     call ESMF_AlarmRingerOff(perpetual, rc = status)
     _VERIFY(status)
 
-    ! Set CLOCK for AGCM
-    ! ------------------
+    ! Set CLOCK for AGCM if not externally provided
+    ! ---------------------------------------------
 
-    call MAPL_GetResource(MAPLOBJ, cap%perpetual_year, label='PERPETUAL_YEAR:',  default = -999, rc = status)
-    _VERIFY(status)
-    call MAPL_GetResource(MAPLOBJ, cap%perpetual_month, label='PERPETUAL_MONTH:', default = -999, rc = status)
-    _VERIFY(status)
-    call MAPL_GetResource(MAPLOBJ, cap%perpetual_day, label='PERPETUAL_DAY:',   default = -999, rc = status)
-    _VERIFY(status)
-
-    cap%lperp = ((cap%perpetual_day /= -999) .or. (cap%perpetual_month /= -999) .or. (cap%perpetual_year  /= -999))
-
-    if (cap%perpetual_day /= -999) then
-       _ASSERT(cap%perpetual_month /= -999, 'Must specify a value for PERPETUAL_MONTH in cap.')
-       _ASSERT(cap%perpetual_year  /= -999, 'Must specify a value for PERPETUAL_YEAR in cap.')
-    endif
-
-    if (cap%lperp) then
-       if (cap%perpetual_year  /= -999) call lgr%info('Using Perpetual  Year: %i0', cap%perpetual_year)
-       if (cap%perpetual_month /= -999) call lgr%info('Using Perpetual Month: %i0', cap%perpetual_month)
-       if (cap%perpetual_day   /= -999) call lgr%info('Using Perpetual   Day: %i0', cap%perpetual_day)
-
-       call ESMF_ClockGet(cap%clock, name = clockname, rc = status)
-       clockname = trim(clockname) // '_PERPETUAL'
-       call ESMF_Clockset(cap%clock, name = clockname, rc = status)
-
-       call ESMF_ClockGet(cap%clock_hist, name = clockname, rc = status)
-       clockname = trim(clockname) // '_PERPETUAL'
-       call ESMF_Clockset(cap%clock_hist, name = clockname, rc = status)
-
-       call Perpetual_Clock(cap, rc=status)
+    if (.not.cap_clock_is_present) then
+       call MAPL_GetResource(MAPLOBJ, cap%perpetual_year, label='PERPETUAL_YEAR:',  default = -999, rc = status)
        _VERIFY(status)
+       call MAPL_GetResource(MAPLOBJ, cap%perpetual_month, label='PERPETUAL_MONTH:', default = -999, rc = status)
+       _VERIFY(status)
+       call MAPL_GetResource(MAPLOBJ, cap%perpetual_day, label='PERPETUAL_DAY:',   default = -999, rc = status)
+       _VERIFY(status)
+
+       cap%lperp = ((cap%perpetual_day /= -999) .or. (cap%perpetual_month /= -999) .or. (cap%perpetual_year  /= -999))
+
+       if (cap%perpetual_day /= -999) then
+          _ASSERT(cap%perpetual_month /= -999, 'Must specify a value for PERPETUAL_MONTH in cap.')
+          _ASSERT(cap%perpetual_year  /= -999, 'Must specify a value for PERPETUAL_YEAR in cap.')
+       endif
+
+       if (cap%lperp) then
+          if (cap%perpetual_year  /= -999) call lgr%info('Using Perpetual  Year: %i0', cap%perpetual_year)
+          if (cap%perpetual_month /= -999) call lgr%info('Using Perpetual Month: %i0', cap%perpetual_month)
+          if (cap%perpetual_day   /= -999) call lgr%info('Using Perpetual   Day: %i0', cap%perpetual_day)
+
+          call ESMF_ClockGet(cap%clock, name = clockname, rc = status)
+          clockname = trim(clockname) // '_PERPETUAL'
+          call ESMF_Clockset(cap%clock, name = clockname, rc = status)
+
+          call ESMF_ClockGet(cap%clock_hist, name = clockname, rc = status)
+          clockname = trim(clockname) // '_PERPETUAL'
+          call ESMF_Clockset(cap%clock_hist, name = clockname, rc = status)
+
+          call Perpetual_Clock(cap, rc=status)
+          _VERIFY(status)
+       endif
     endif
 
     !  Get configurable info to create HIST 
