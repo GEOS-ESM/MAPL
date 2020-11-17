@@ -41,13 +41,12 @@ public MAPL_VarIsListed
 public MAPL_ConnCheckUnused
 public MAPL_ConnCheckReq
 public MAPL_VarSpecSamePrec
-public MAPL_VarServiceProviderListAppend
-public MAPL_VarServiceRequestListAppend
+public MAPL_VarProvidedServiceListAppend
+public MAPL_VarRequestedServiceListAppend
 public MAPL_VarServiceConnectionCreate
 public MAPL_VarServiceConnectionGet
-public MAPL_VarServiceProviderGet
-public MAPL_VarServiceProviderSet
-public MAPL_VarServiceRequestGet
+public MAPL_VarProvidedServiceSet
+public MAPL_VarRequestedServiceGet
 public MAPL_VarFillRequestBundle
 
 ! !OVERLOADED INTERFACES:
@@ -173,38 +172,38 @@ type, public :: MAPL_VarConn
   type(MAPL_VarConnType), pointer :: ConnPtr => null()
 end type MAPL_VarConn
 
-type MAPL_VarServiceProviderType
+type MAPL_VarProvidedServiceType
   private
   character(len=ESMF_MAXSTR)               :: SERVICE_NAME
   character(len=ESMF_MAXSTR)               :: BUNDLE_NAME
   type(ESMF_FieldBundle)                   :: BUNDLE
   !ALT currect assumption is the bundle for the provider will be in the import state
-end type MAPL_VarServiceProviderType
+end type MAPL_VarProvidedServiceType
 
-type MAPL_VarServiceRequestType
+type MAPL_VarRequestedServiceType
   private
   character(len=ESMF_MAXSTR)               :: SERVICE_NAME
   type(ESMF_FieldBundle)                   :: BUNDLE
   !ALT currect assumption is the bundle for the request will be in the export state
   character(len=ESMF_MAXSTR), allocatable      :: VAR_LIST(:)
-end type MAPL_VarServiceRequestType
+end type MAPL_VarRequestedServiceType
 
 type, public :: MAPL_VarServiceConnectionType
   private
   character(len=ESMF_MAXSTR)               :: SERVICE_NAME
   character(len=ESMF_MAXSTR)               :: PROVIDER_NAME
-  character(len=ESMF_MAXSTR)               :: REQUESTOR_NAME
+  character(len=ESMF_MAXSTR)               :: REQUESTER_NAME
 end type MAPL_VarServiceConnectionType
 
-type, public :: MAPL_VarServiceProviderPtr
+type, public :: MAPL_VarProvidedServicePtr
   private
-  type(MAPL_VarServiceProviderType), pointer :: Ptr => null()
-end type MAPL_VarServiceProviderPtr
+  type(MAPL_VarProvidedServiceType), pointer :: Ptr => null()
+end type MAPL_VarProvidedServicePtr
 
-type, public :: MAPL_VarServiceRequestPtr
+type, public :: MAPL_VarRequestedServicePtr
   private
-  type(MAPL_VarServiceRequestType), pointer :: Ptr => null()
-end type MAPL_VarServiceRequestPtr
+  type(MAPL_VarRequestedServiceType), pointer :: Ptr => null()
+end type MAPL_VarRequestedServicePtr
 
 type, public :: MAPL_VarServiceConnectionPtr
   private
@@ -2020,16 +2019,16 @@ contains
 
   end subroutine MAPL_ConnCheckReq
 
-  subroutine MAPL_VarServiceProviderListAppend(PLIST, SERVICE, BUNDLE, RC)
+  subroutine MAPL_VarProvidedServiceListAppend(PLIST, SERVICE, BUNDLE, RC)
 
-    type (MAPL_VarServiceProviderPtr),      pointer     :: PLIST(:)
+    type (MAPL_VarProvidedServicePtr),      pointer     :: PLIST(:)
     character (len=*)             , intent(IN   ) :: SERVICE
     character (len=*)             , intent(IN   ) :: BUNDLE
     integer,              optional, intent(  OUT) :: RC     ! Error code:
     
     integer                                :: STATUS
     integer                                :: I
-    type (MAPL_VarServiceProviderPtr ), pointer  :: TMP(:) => null()
+    type (MAPL_VarProvidedServicePtr ), pointer  :: TMP(:) => null()
 
 
     if(.not. associated(PLIST)) then
@@ -2059,18 +2058,18 @@ contains
     
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_VarServiceProviderListAppend
+  end subroutine MAPL_VarProvidedServiceListAppend
 
-  subroutine MAPL_VarServiceRequestListAppend(SLIST, SERVICE, VARS, RC)
+  subroutine MAPL_VarRequestedServiceListAppend(SLIST, SERVICE, VARS, RC)
 
-    type (MAPL_VarServiceRequestPtr), pointer     :: SLIST(:)
+    type (MAPL_VarRequestedServicePtr), pointer     :: SLIST(:)
     character (len=*)             , intent(IN   ) :: SERVICE
     character (len=*)             , intent(IN   ) :: VARS(:)
     integer,              optional, intent(  OUT) :: RC     ! Error code:
     
     integer                                :: STATUS
     integer                                :: I
-    type (MAPL_VarServiceRequestPtr ), pointer  :: TMP(:) => null()
+    type (MAPL_VarRequestedServicePtr ), pointer  :: TMP(:) => null()
 
 
     if(.not. associated(SLIST)) then
@@ -2101,15 +2100,15 @@ contains
     
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_VarServiceRequestListAppend
+  end subroutine MAPL_VarRequestedServiceListAppend
 
   subroutine MAPL_VarServiceConnectionCreate(CLIST, SERVICE, &
-       PROVIDER, REQUESTOR, RC)
+       PROVIDER, REQUESTER, RC)
 
     type (MAPL_VarServiceConnectionPtr), pointer  :: CLIST(:)
     character (len=*)             , intent(IN   ) :: SERVICE
     character (len=*)             , intent(IN   ) :: PROVIDER
-    character (len=*)             , intent(IN   ) :: REQUESTOR
+    character (len=*)             , intent(IN   ) :: REQUESTER
     integer,              optional, intent(  OUT) :: RC     ! Error code:
     
     integer                                :: STATUS
@@ -2138,7 +2137,7 @@ contains
     
     TMP(I+1)%Ptr%Service_name = SERVICE
     TMP(I+1)%Ptr%Provider_name = PROVIDER
-    TMP(I+1)%Ptr%Requestor_name = REQUESTOR
+    TMP(I+1)%Ptr%Requester_name = REQUESTER
       
     CLIST => TMP
     
@@ -2147,12 +2146,12 @@ contains
   end subroutine MAPL_VarServiceConnectionCreate
 
   subroutine MAPL_VarServiceConnectionGet(item, &
-            Service, Provider, Requestor, RC)
+            Service, Provider, Requester, RC)
 
     type (MAPL_VarServiceConnectionPtr), intent(IN)  :: ITEM
     character (len=*), optional, intent(  OUT) :: SERVICE
     character (len=*), optional, intent(  OUT) :: PROVIDER
-    character (len=*), optional, intent(  OUT) :: REQUESTOR
+    character (len=*), optional, intent(  OUT) :: REQUESTER
     integer,           optional, intent(  OUT) :: RC     ! Error code:
     
     if (present(Service)) then
@@ -2163,15 +2162,15 @@ contains
        Provider = item%Ptr%Provider_name
     end if
 
-    if (present(requestor)) then
-       requestor = item%Ptr%requestor_name
+    if (present(requester)) then
+       requester = item%Ptr%requester_name
     end if
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarServiceConnectionGet
 
-  subroutine MAPL_VarServiceProviderGet(provider_list, advertised_service, bundle, rc)
-    type(MAPL_VarServiceProviderPtr), pointer, intent(IN) :: provider_list(:)
+  subroutine MAPL_VarProvidedServiceGet(provider_list, advertised_service, bundle, rc)
+    type(MAPL_VarProvidedServicePtr), pointer, intent(IN) :: provider_list(:)
     character(len=*), intent(IN) :: advertised_service
     type(ESMF_FieldBundle), intent(OUT) :: bundle
     integer, optional, intent(out) :: rc
@@ -2192,10 +2191,10 @@ contains
     END DO
     _ASSERT(found, 'No match found for service')
     _RETURN(_SUCCESS)
-  end subroutine MAPL_VarServiceProviderGet
+  end subroutine MAPL_VarProvidedServiceGet
    
-  subroutine MAPL_VarServiceProviderSet(provider_list, state, rc)
-    type(MAPL_VarServiceProviderPtr), pointer, intent(IN) :: provider_list(:)
+  subroutine MAPL_VarProvidedServiceSet(provider_list, state, rc)
+    type(MAPL_VarProvidedServicePtr), pointer, intent(IN) :: provider_list(:)
     type(ESMF_State), intent(IN) :: state
     integer, optional, intent(out) :: rc
     
@@ -2211,10 +2210,10 @@ contains
     END DO
 
     _RETURN(_SUCCESS)
-  end subroutine MAPL_VarServiceProviderSet
+  end subroutine MAPL_VarProvidedServiceSet
    
-  subroutine MAPL_VarServiceRequestGet(request_list, service, bundle, rc)
-    type(MAPL_VarServiceRequestPtr), pointer, intent(IN) :: request_list(:)
+  subroutine MAPL_VarRequestedServiceGet(request_list, service, bundle, rc)
+    type(MAPL_VarRequestedServicePtr), pointer, intent(IN) :: request_list(:)
     character(len=*), intent(IN) :: service
     type(ESMF_FieldBundle), intent(OUT) :: bundle
     integer, optional, intent(out) :: rc
@@ -2235,10 +2234,10 @@ contains
     END DO
     _ASSERT(found, 'No match found for service')
     _RETURN(_SUCCESS)
-  end subroutine MAPL_VarServiceRequestGet
+  end subroutine MAPL_VarRequestedServiceGet
    
   subroutine MAPL_VarFillRequestBundle(request_list, state, rc)
-    type(MAPL_VarServiceRequestPtr), pointer, intent(INOUT) :: request_list(:)
+    type(MAPL_VarRequestedServicePtr), pointer, intent(INOUT) :: request_list(:)
     type(ESMF_State), intent(IN) :: state
     integer, optional, intent(out) :: rc
     
