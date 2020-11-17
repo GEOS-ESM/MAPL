@@ -41,14 +41,14 @@ public MAPL_VarIsListed
 public MAPL_ConnCheckUnused
 public MAPL_ConnCheckReq
 public MAPL_VarSpecSamePrec
-public MAPL_VarServiceProviderListCreate
-public MAPL_VarServiceSubscriberListCreate
+public MAPL_VarServiceProviderListAppend
+public MAPL_VarServiceRequestListAppend
 public MAPL_VarServiceConnectionCreate
 public MAPL_VarServiceConnectionGet
 public MAPL_VarServiceProviderGet
-public MAPL_VarServiceSubscribersGet
 public MAPL_VarServiceProviderSet
-public MAPL_VarServiceSubscriberSet
+public MAPL_VarServiceRequestGet
+public MAPL_VarFillRequestBundle
 
 ! !OVERLOADED INTERFACES:
 
@@ -185,7 +185,7 @@ type MAPL_VarServiceRequestType
   private
   character(len=ESMF_MAXSTR)               :: SERVICE_NAME
   type(ESMF_FieldBundle)                   :: BUNDLE
-  !ALT currect assumption is the bundle for the subscriber will be in the export state
+  !ALT currect assumption is the bundle for the request will be in the export state
   character(len=ESMF_MAXSTR), allocatable      :: VAR_LIST(:)
 end type MAPL_VarServiceRequestType
 
@@ -193,7 +193,7 @@ type, public :: MAPL_VarServiceConnectionType
   private
   character(len=ESMF_MAXSTR)               :: SERVICE_NAME
   character(len=ESMF_MAXSTR)               :: PROVIDER_NAME
-  character(len=ESMF_MAXSTR)               :: SUBSCRIBER_NAME
+  character(len=ESMF_MAXSTR)               :: REQUESTOR_NAME
 end type MAPL_VarServiceConnectionType
 
 type, public :: MAPL_VarServiceProviderPtr
@@ -203,7 +203,7 @@ end type MAPL_VarServiceProviderPtr
 
 type, public :: MAPL_VarServiceRequestPtr
   private
-  type(MAPL_VarServiceSubscriberType), pointer :: Ptr => null()
+  type(MAPL_VarServiceRequestType), pointer :: Ptr => null()
 end type MAPL_VarServiceRequestPtr
 
 type, public :: MAPL_VarServiceConnectionPtr
@@ -2020,7 +2020,7 @@ contains
 
   end subroutine MAPL_ConnCheckReq
 
-  subroutine MAPL_VarServiceProviderListCreate(PLIST, SERVICE, BUNDLE, RC)
+  subroutine MAPL_VarServiceProviderListAppend(PLIST, SERVICE, BUNDLE, RC)
 
     type (MAPL_VarServiceProviderPtr),      pointer     :: PLIST(:)
     character (len=*)             , intent(IN   ) :: SERVICE
@@ -2059,11 +2059,11 @@ contains
     
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_VarServiceProviderListCreate
+  end subroutine MAPL_VarServiceProviderListAppend
 
   subroutine MAPL_VarServiceRequestListAppend(SLIST, SERVICE, VARS, RC)
 
-    type (MAPL_VarServiceSubscriberPtr),      pointer     :: SLIST(:)
+    type (MAPL_VarServiceRequestPtr), pointer     :: SLIST(:)
     character (len=*)             , intent(IN   ) :: SERVICE
     character (len=*)             , intent(IN   ) :: VARS(:)
     integer,              optional, intent(  OUT) :: RC     ! Error code:
@@ -2101,15 +2101,15 @@ contains
     
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_VarServiceSubscriberListCreate
+  end subroutine MAPL_VarServiceRequestListAppend
 
   subroutine MAPL_VarServiceConnectionCreate(CLIST, SERVICE, &
-       PROVIDER, SUBSCRIBER, RC)
+       PROVIDER, REQUESTOR, RC)
 
     type (MAPL_VarServiceConnectionPtr), pointer  :: CLIST(:)
     character (len=*)             , intent(IN   ) :: SERVICE
     character (len=*)             , intent(IN   ) :: PROVIDER
-    character (len=*)             , intent(IN   ) :: SUBSCRIBER
+    character (len=*)             , intent(IN   ) :: REQUESTOR
     integer,              optional, intent(  OUT) :: RC     ! Error code:
     
     integer                                :: STATUS
@@ -2138,7 +2138,7 @@ contains
     
     TMP(I+1)%Ptr%Service_name = SERVICE
     TMP(I+1)%Ptr%Provider_name = PROVIDER
-    TMP(I+1)%Ptr%Subscriber_name = SUBSCRIBER
+    TMP(I+1)%Ptr%Requestor_name = REQUESTOR
       
     CLIST => TMP
     
@@ -2147,12 +2147,12 @@ contains
   end subroutine MAPL_VarServiceConnectionCreate
 
   subroutine MAPL_VarServiceConnectionGet(item, &
-            Service, Provider, Subscriber, RC)
+            Service, Provider, Requestor, RC)
 
     type (MAPL_VarServiceConnectionPtr), intent(IN)  :: ITEM
     character (len=*), optional, intent(  OUT) :: SERVICE
     character (len=*), optional, intent(  OUT) :: PROVIDER
-    character (len=*), optional, intent(  OUT) :: SUBSCRIBER
+    character (len=*), optional, intent(  OUT) :: REQUESTOR
     integer,           optional, intent(  OUT) :: RC     ! Error code:
     
     if (present(Service)) then
@@ -2163,16 +2163,16 @@ contains
        Provider = item%Ptr%Provider_name
     end if
 
-    if (present(Subscriber)) then
-       Subscriber = item%Ptr%Subscriber_name
+    if (present(requestor)) then
+       requestor = item%Ptr%requestor_name
     end if
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarServiceConnectionGet
 
-  subroutine MAPL_VarServiceProviderGet(provider_list, service, bundle, rc)
+  subroutine MAPL_VarServiceProviderGet(provider_list, advertised_service, bundle, rc)
     type(MAPL_VarServiceProviderPtr), pointer, intent(IN) :: provider_list(:)
-    character(len=*), intent(IN) :: service
+    character(len=*), intent(IN) :: advertised_service
     type(ESMF_FieldBundle), intent(OUT) :: bundle
     integer, optional, intent(out) :: rc
     
@@ -2184,7 +2184,7 @@ contains
     
     found = .false.
     DO I=1,size(provider_list)
-       if(provider_list(i)%ptr%service_name == service) then
+       if(provider_list(i)%ptr%service_name == advertised_service) then
           found = .true.
           bundle = provider_list(i)%ptr%bundle
           exit
@@ -2213,8 +2213,8 @@ contains
     _RETURN(_SUCCESS)
   end subroutine MAPL_VarServiceProviderSet
    
-  subroutine MAPL_VarServiceSubscribersGet(subscriber_list, service, bundle, rc)
-    type(MAPL_VarServiceSubscriberPtr), pointer, intent(IN) :: subscriber_list(:)
+  subroutine MAPL_VarServiceRequestGet(request_list, service, bundle, rc)
+    type(MAPL_VarServiceRequestPtr), pointer, intent(IN) :: request_list(:)
     character(len=*), intent(IN) :: service
     type(ESMF_FieldBundle), intent(OUT) :: bundle
     integer, optional, intent(out) :: rc
@@ -2223,22 +2223,22 @@ contains
     integer :: i
     logical :: found
     
-    _ASSERT(associated(subscriber_list),'subscriber_list should not be empty')
+    _ASSERT(associated(request_list),'request_list should not be empty')
     
     found = .false.
-    DO I=1,size(subscriber_list)
-       if(subscriber_list(i)%ptr%service_name == service) then
+    DO I=1,size(request_list)
+       if(request_list(i)%ptr%service_name == service) then
           found = .true.
-          bundle = subscriber_list(i)%ptr%bundle
+          bundle = request_list(i)%ptr%bundle
           exit
        end if
     END DO
     _ASSERT(found, 'No match found for service')
     _RETURN(_SUCCESS)
-  end subroutine MAPL_VarServiceSubscribersGet
+  end subroutine MAPL_VarServiceRequestGet
    
-  subroutine MAPL_VarFillRequestBundle(subscriber_list, state, rc)
-    type(MAPL_VarServiceSubscriberPtr), pointer, intent(INOUT) :: subscriber_list(:)
+  subroutine MAPL_VarFillRequestBundle(request_list, state, rc)
+    type(MAPL_VarServiceRequestPtr), pointer, intent(INOUT) :: request_list(:)
     type(ESMF_State), intent(IN) :: state
     integer, optional, intent(out) :: rc
     
@@ -2246,15 +2246,15 @@ contains
     integer :: n, i
     type(ESMF_Field) :: fields(1)
     
-    _ASSERT(associated(subscriber_list),'subscriber_list should not be empty')
+    _ASSERT(associated(request_list),'request_list should not be empty')
     
-    DO N=1,size(subscriber_list)
-       if (allocated(subscriber_list(n)%ptr%var_list)) then
-          do I=1, size(subscriber_list(n)%ptr%var_list)
-             call ESMF_StateGet(state, subscriber_list(n)%ptr%var_list(i), &
+    DO N=1,size(request_list)
+       if (allocated(request_list(n)%ptr%var_list)) then
+          do I=1, size(request_list(n)%ptr%var_list)
+             call ESMF_StateGet(state, request_list(n)%ptr%var_list(i), &
                   fields(1), rc=status)
              _VERIFY(status)
-             call ESMF_FieldBundleAdd(subscriber_list(n)%ptr%bundle, fields, rc=status)
+             call ESMF_FieldBundleAdd(request_list(n)%ptr%bundle, fields, rc=status)
              _VERIFY(status)
           end do
        end if

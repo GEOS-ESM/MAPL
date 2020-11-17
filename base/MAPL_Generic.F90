@@ -164,7 +164,7 @@ module MAPL_GenericMod
   public MAPL_AddConnectivity
   public MAPL_TerminateImport
   public MAPL_ConnectService
-  public MAPL_AdvertiseService/
+  public MAPL_AdvertiseService
   public MAPL_RequestService
   
   ! MAPL_Util
@@ -1707,9 +1707,9 @@ endif
       _VERIFY(STATUS)
    end if
 
-   ! process any subscribers
-   if (associated(state%subscriber_list)) then
-      call MAPL_VarFillRequestBundle(state%subscriber_list, state%internal, rc=status)
+   ! process any requestors
+   if (associated(state%request_list)) then
+      call MAPL_VarFillRequestBundle(state%request_list, state%internal, rc=status)
       _VERIFY(STATUS)
    end if
 
@@ -4941,12 +4941,12 @@ end function MAPL_AddChildFromGC
 
 
 !new routines to handle ServiceServices
-  subroutine MAPL_ConnectService( GC, PROVIDER, SUBSCRIBER, SERVICE, RC)
+  subroutine MAPL_ConnectService( GC, PROVIDER, REQUESTOR, SERVICE, RC)
 
     !ARGUMENTS:
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
     character (len=*),              intent(IN   ) :: PROVIDER 
-    character (len=*),              intent(IN   ) :: SUBSCRIBER
+    character (len=*),              intent(IN   ) :: REQUESTOR
     character (len=*),              intent(IN   ) :: SERVICE
     integer,              optional, intent(  OUT) :: RC     ! Error code:
     !EOPI
@@ -4961,7 +4961,7 @@ end function MAPL_AddChildFromGC
 
     call MAPL_VarServiceConnectionCreate(CONN%ServiceConnection, &
          provider=provider, &
-         subscriber=subscriber, &
+         requestor=requestor, &
          service=service, &
          rc=status  )
     _VERIFY(STATUS)
@@ -4980,7 +4980,7 @@ end function MAPL_AddChildFromGC
     type(MAPL_VarServiceProviderPtr), pointer :: provider_list(:) => null()
 
     
-    call MAPL_ServiceProviderGet(gc, advertised_services=provider_list, RC=status)
+    call MAPL_ServiceProviderGet(gc, provider_list=provider_list, RC=status)
     _VERIFY(STATUS)
 
     call MAPL_VarServiceProviderListAppend(provider_list, &
@@ -4999,12 +4999,12 @@ end function MAPL_AddChildFromGC
     integer,              optional, intent(  OUT) :: RC     ! Error code:
 
     integer :: status
-    type(MAPL_VarServiceSubscriberPtr), pointer :: service_requests(:) => null()
+    type(MAPL_VarServiceRequestPtr), pointer :: service_requests(:) => null()
     
-    call MAPL_ServiceSubscriberGet(gc, requested_services=service_requests, RC=status)
+    call MAPL_ServiceRequestGet(gc, service_requests=service_requests, RC=status)
     _VERIFY(STATUS)
 
-    call MAPL_VarServiceRequestListAppend(subscriber_list, &
+    call MAPL_VarServiceRequestListAppend(service_requests, &
          service=service, &
          vars = vars, &
          rc=status  )
@@ -5015,9 +5015,9 @@ end function MAPL_AddChildFromGC
 
   end subroutine MAPL_RequestService
 
-  subroutine MAPL_ServiceProviderGet(GC, PROVIDER, RC)
+  subroutine MAPL_ServiceProviderGet(gc, provider_list, rc)
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
-    type(MAPL_VarServiceProviderPtr), pointer :: provider(:)
+    type(MAPL_VarServiceProviderPtr), pointer :: provider_list(:)
     integer,              optional, intent(  OUT) :: RC     ! Error code:
 
     integer :: status
@@ -5027,14 +5027,14 @@ end function MAPL_AddChildFromGC
     call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, RC=STATUS )
     _VERIFY(STATUS)
 
-    provider => maplobj%provider_list
+    provider_list => maplobj%provider_list
     _RETURN(ESMF_SUCCESS)
     
   end subroutine MAPL_ServiceProviderGet
 
-  subroutine MAPL_ServiceSubscribersGet(GC, SUBSCRIBERS, RC)
+  subroutine MAPL_ServiceRequestGet(GC, service_requests, RC)
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
-    type(MAPL_VarServiceSubscriberPtr), pointer :: subscribers(:)
+    type(MAPL_VarServiceRequestPtr), pointer :: service_requests(:)
     integer,              optional, intent(  OUT) :: RC     ! Error code:
 
     integer :: status
@@ -5044,12 +5044,12 @@ end function MAPL_AddChildFromGC
     call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, RC=STATUS )
     _VERIFY(STATUS)
 
-    subscribers => maplobj%subscriber_list
+    service_requests => maplobj%request_list
     _RETURN(ESMF_SUCCESS)
     
-  end subroutine MAPL_ServiceSubscribersGet
+  end subroutine MAPL_ServiceRequestGet
 
-  subroutine MAPL_ServiceProcessConnections(META, RC)
+  subroutine MAPL_ProcessServiceConnections(META, RC)
     !ARGUMENTS:
     type (MAPL_MetaComp), pointer :: META
     integer, optional,           intent(  OUT) :: RC     ! Error code:
@@ -5058,9 +5058,9 @@ end function MAPL_AddChildFromGC
     integer :: I, N
     integer :: K, NF
     type (MAPL_Connectivity), pointer     :: conn
-    type(ESMF_FieldBundle) :: PBUNDLE, SBUNDLE
+    type(ESMF_FieldBundle) :: PBUNDLE, RBUNDLE
     type(ESMF_Field) :: FIELD
-    character(len=ESMF_MAXSTR) :: SERVICE, PROVIDER, SUBSCRIBER
+    character(len=ESMF_MAXSTR) :: service, provider, requestor
 
     conn => meta%connectList
 
@@ -5074,24 +5074,24 @@ end function MAPL_AddChildFromGC
     DO I=1,N
        ! retrieve connection info
        call MAPL_VarServiceConnectionGet(conn%ServiceConnection(I), &
-            Service=SERVICE, Provider=PROVIDER, Requestor=subscriber, &
-            RC=STATUS)
-       _VERIFY(STATUS)
+            service=service, provider=provider, requestor=requestor, &
+            rc=status)
+       _VERIFY(status)
 
-       ! get the PBUNDLE and SBUNDLE
+       ! get the PBUNDLE and RBUNDLE
        call MAPL_ServiceGetBundle(META, provider=provider, &
             service=service, bundle=pbundle, RC=status)
        _VERIFY(STATUS)
 
-       call MAPL_ServiceGetBundle(META, subscriber=subscriber, &
-            service=service, bundle=sbundle, RC=status)
+       call MAPL_ServiceGetBundle(META, requestor=requestor, &
+            service=service, bundle=rbundle, RC=status)
        _VERIFY(STATUS)
 
-       call ESMF_FieldBundleGet(SBUNDLE, FieldCount=NF, RC=STATUS)
+       call ESMF_FieldBundleGet(RBUNDLE, FieldCount=NF, RC=STATUS)
        _VERIFY(STATUS)
-       ! loop over entries in SBUNDLE
+       ! loop over entries in RBUNDLE
        DO K = 1, NF
-          call MAPL_FieldBundleGet(SBUNDLE, K, FIELD, RC=STATUS)
+          call MAPL_FieldBundleGet(RBUNDLE, K, FIELD, RC=STATUS)
           _VERIFY(STATUS)
           ! add each of the fields to PBUNDLE, duplicates are allowed
           call MAPL_FieldBundleAdd(PBUNDLE, FIELD, multiflag=.true., RC=STATUS)
@@ -5100,40 +5100,40 @@ end function MAPL_AddChildFromGC
     END DO
     
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_ServiceProcessConnections
+  end subroutine MAPL_ProcessServiceConnections
 
-  subroutine MAPL_ServiceGetBundle(META, SERVICE, BUNDLE, PROVIDER, &
-       SUBSCRIBER, RC)
-    type (MAPL_MetaComp),        intent(INOUT) :: META
-    character(len=*),            intent(IN   ) :: SERVICE
-    type(ESMF_FieldBundle),      intent(  OUT) :: BUNDLE
-    character(len=*), optional,  intent(IN   ) :: PROVIDER
-    character(len=*), optional,  intent(IN   ) :: SUBSCRIBER
-    integer, optional,           intent(  OUT) :: RC     ! Error code:
+  subroutine MAPL_ServiceGetBundle(meta, service, bundle, provider, &
+       requestor, rc)
+    type (MAPL_MetaComp),        intent(INOUT) :: meta
+    character(len=*),            intent(IN   ) :: service
+    type(ESMF_FieldBundle),      intent(  OUT) :: bundle
+    character(len=*), optional,  intent(IN   ) :: provider
+    character(len=*), optional,  intent(IN   ) :: requestor
+    integer, optional,           intent(  OUT) :: rc     ! Error code:
 
     integer :: status
-    logical :: do_provider, do_subscriber
+    logical :: do_provider, do_requestor
     character(len=ESMF_MAXSTR) :: cname
     type (MAPL_MetaComp), pointer :: cmeta => null()
     
     ! find the GC for component who's name matches P/S
     do_provider = .false.
-    do_subscriber = .false.
+    do_requestor = .false.
     if (present(provider)) then
        do_provider = .true.
        cname = provider
     end if
-    if (present(subscriber)) then
-       do_subscriber = .true.
-       cname = subscriber
+    if (present(requestor)) then
+       do_requestor = .true.
+       cname = requestor
     end if
-    _ASSERT(do_provider .neqv. do_subscriber, 'Only one of the arguments PROVIDER or SUBSCRIBER must be provided')
+    _ASSERT(do_provider .neqv. do_requestor, 'Only one of the arguments PROVIDER or REQUEST must be provided')
     call MAPL_FindChild(META, name=cname, result=cmeta, rc=status)
     _VERIFY(STATUS)
     _ASSERT(associated(cmeta), 'No child found')
     ! find the appropriate object (P, or S) matching SERVICE
-    if (do_subscriber) then
-       call MAPL_VarServiceSubscribersGet(cmeta%subscriber_list, service, bundle, rc=status)
+    if (do_requestor) then
+       call MAPL_VarServiceRequestGet(cmeta%request_list, service, bundle, rc=status)
        _VERIFY(STATUS)
     else ! must be provider
        call MAPL_VarServiceProviderGet(cmeta%provider_list, service, bundle, rc=status)
