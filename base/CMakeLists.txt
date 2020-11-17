@@ -52,7 +52,8 @@ endif()
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 gftl-shared pflogger MPI::MPI_Fortran)
+  DEPENDENCIES MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 pflogger gftl-shared
+               esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
 
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 if(DISABLE_GLOBAL_NAME_WARNING)
@@ -85,15 +86,10 @@ if (EXTENDED_SOURCE)
   esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})
 endif()
 
-#--------------------
-add_dependencies (${this} esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
-target_link_libraries (${this} PUBLIC esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
-
 # Users guide 
 if (LATEX_FOUND)
   add_subdirectory (TeX)
 endif ()
-
 
 # Unit testing
 if (PFUNIT_FOUND)
