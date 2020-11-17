@@ -1341,7 +1341,7 @@ contains
            grid_match = ESMF_GridMatch(cap_grid, root_grid, __RC__)
            _ASSERT(grid_match == ESMF_GRIDMATCH_EXACT, "Attempting to override root grid with non-matching external grid")
         else
-            call ESMF_GridCompSet(this%gcs(this%root_id), grid=root_grid, __RC__)
+            call ESMF_GridCompSet(this%gcs(this%root_id), grid=cap_grid, __RC__)
         end if
      end if
 
