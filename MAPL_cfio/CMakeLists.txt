@@ -31,7 +31,6 @@ esma_add_library (${lib}
   SRCS ${srcs}
   DEPENDENCIES esmf NetCDF::NetCDF_Fortran
   )
-add_dependencies (${lib} esmf NetCDF::NetCDF_Fortran)
 
 if (precision MATCHES "r8")
   string (REPLACE " " ";" flags ${FREAL8})
