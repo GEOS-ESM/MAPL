@@ -26,6 +26,7 @@ module MAPL_ExternalGridFactoryMod
    type, extends(AbstractGridFactory) :: ExternalGridFactory
       character(len=:), allocatable :: grid_name
       type(ESMF_Grid),  allocatable :: external_grid
+      integer,          allocatable :: lm
    contains
       procedure :: make_new_grid
 
@@ -52,11 +53,12 @@ module MAPL_ExternalGridFactoryMod
       module procedure ExternalGridFactory_from_parameters
    end interface ExternalGridFactory
 contains
-   function ExternalGridFactory_from_parameters(unusable, grid_name, grid, rc) result(factory)
+   function ExternalGridFactory_from_parameters(unusable, grid_name, grid, lm, rc) result(factory)
       type(ExternalGridFactory) :: factory
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
       character(*),           optional, intent(in   ) :: grid_name
       type(ESMF_Grid),        optional, intent(in   ) :: grid
+      integer,                optional, intent(in   ) :: lm
       integer,                optional, intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'ExternalGridFactory_from_parameters'
@@ -85,6 +87,11 @@ contains
          grid = this%external_grid
       else
          _ASSERT(.false.)
+      end if
+
+      if (allocated(this%lm)) then
+         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
+         _VERIFY(status)
       end if
 
       _RETURN(_SUCCESS)
