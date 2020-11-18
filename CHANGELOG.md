@@ -8,15 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added ability to inject grid into root child GridComp (for NUOPC).
+- Added ability to use external clock (for NUOPC).
+### Changed
+### Fixed
+- Bug in injecting grid into root child GridComp (for NUOPC).
+### Removed
+
+## [2.3.6] - 2020-11-12
+
+### Added
 
 - Added an external grid and clock setter (for NUOPC).
 
-### Changed
 ### Fixed
 
 - Fixed logic to allow proper termination of all imports except those specified
-
-### Removed
 
 ## [2.3.5] - 2020-11-06
 

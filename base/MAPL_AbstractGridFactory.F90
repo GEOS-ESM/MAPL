@@ -1005,6 +1005,4 @@ contains
       end if
 
    end function get_grid
-
-      
 end module MAPL_AbstractGridFactoryMod

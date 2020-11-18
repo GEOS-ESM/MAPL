@@ -40,6 +40,7 @@ module MAPL_Mod
   use MAPL_GridManagerMod
   use MAPL_LatLonGridFactoryMod
   use MAPL_CubedSphereGridFactoryMod
+  use MAPL_ExternalGridFactoryMod
   use MAPL_ShmemMod
   use MAPL_MaxMinMod
   use MAPL_SimpleBundleMod

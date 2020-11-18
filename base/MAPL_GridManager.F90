@@ -27,6 +27,7 @@ module MAPL_GridManager_private
    private
 
    public :: GridManager
+   public :: factory_id_attribute
 
    ! singleton
    type :: GridManager
@@ -69,6 +70,7 @@ module MAPL_GridManager_private
    integer(kind=INT64), parameter :: NOT_FOUND = 1 - HUGE(1_INT64)
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_GridManager_private::'
+   character(len=*), parameter :: factory_id_attribute = 'MAPL_grid_factory_id'
 
 
 contains
@@ -89,6 +91,7 @@ contains
      use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
      use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
      use MAPL_LlcGridFactoryMod, only: LlcGridFactory
+     use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
       class (AbstractGridFactory), allocatable :: factory
       class (GridManager), intent(inout) :: this
       character(len=*), intent(in) :: grid_type
@@ -110,6 +113,7 @@ contains
       type (CubedSphereGridFactory) :: cubed_factory
       type (TripolarGridFactory) :: tripolar_factory
       type (LlcGridFactory) :: llc_factory
+      type (ExternalGridFactory) :: external_factory
 
       _UNUSED_DUMMY(unusable)
 
@@ -118,6 +122,7 @@ contains
            call this%prototypes%insert('Cubed-Sphere', cubed_factory)
            call this%prototypes%insert('Tripolar',  tripolar_factory)
            call this%prototypes%insert('llc',  llc_factory)
+           call this%prototypes%insert('External', external_factory)
            initialized = .true.
       end if
 
@@ -202,7 +207,7 @@ contains
 
       ! TODO: this should only be done if the grid is new, rather than cached, in which case
       ! the attribute is already set.
-      call ESMF_AttributeSet(grid, 'factory_id', factory_id, rc=status)
+      call ESMF_AttributeSet(grid, factory_id_attribute, factory_id, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -384,7 +389,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_AttributeGet(grid, 'factory_id', id, rc=status)
+      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
       _VERIFY(status)
 
       factory => this%factories%at(id)
@@ -548,7 +553,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_AttributeGet(grid, 'factory_id', id, rc=status)
+      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
