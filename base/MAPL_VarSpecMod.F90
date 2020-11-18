@@ -45,6 +45,7 @@ public MAPL_VarProvidedServiceListAppend
 public MAPL_VarRequestedServiceListAppend
 public MAPL_VarServiceConnectionCreate
 public MAPL_VarServiceConnectionGet
+public MAPL_VarProvidedServiceGet
 public MAPL_VarProvidedServiceSet
 public MAPL_VarRequestedServiceGet
 public MAPL_VarFillRequestBundle
