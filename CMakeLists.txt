@@ -41,6 +41,9 @@ if (NOT COMMAND esma)
 endif ()
 
 option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
+if (BUILD_WITH_FLAP)
+  find_package(FLAP REQUIRED)
+endif ()
 
 ecbuild_declare_project()
 
@@ -64,10 +67,6 @@ if (NOT Baselibs_FOUND)
   find_package(GFTL_SHARED REQUIRED)
   find_package(YAFYAML REQUIRED)
   find_package(PFLOGGER REQUIRED)
-
-  if (BUILD_WITH_FLAP)
-    find_package(FLAP REQUIRED)
-  endif ()
 endif ()
 
 # Special case - MAPL_cfio is built twice with two different precisions.
