@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Bug in pfio tests when compiled with Debug flag
 - Bug in injecting grid into root child GridComp (for NUOPC).
+- Bug preventing components from advancing when an external clock is used
 ### Removed
 
 ## [2.3.6] - 2020-11-12
