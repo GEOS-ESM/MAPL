@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added ability to use external clock (for NUOPC).
 - Enabled building and installing as a standalone library, using external dependencies.
 ### Changed
+- Change CI Image to 6.0.22.
+- Updated `components.yaml`
+  - Move to ESMA_env v3.1.0
+  - Move to ESMA_cmake v3.3.0 (which moves FLAP detection to MAPL)
 ### Fixed
 - Bug in pfio tests when compiled with Debug flag
 - Bug in injecting grid into root child GridComp (for NUOPC).
