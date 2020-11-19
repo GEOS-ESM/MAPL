@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added ability to inject grid into root child GridComp (for NUOPC).
 - Added ability to use external clock (for NUOPC).
+- Enabled building and installing as a standalone library, using external dependencies.
 ### Changed
 ### Fixed
 - Bug in pfio tests when compiled with Debug flag
