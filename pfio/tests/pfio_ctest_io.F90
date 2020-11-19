@@ -17,7 +17,6 @@ module ctest_io_CLI
    public :: DirectoryServicePointer
  
    type CommandLineOptions0
-      character(len=:), allocatable :: file_1, file_2
       type (StringVector) :: requested_variables
 
       integer :: npes_client
@@ -90,12 +89,6 @@ contains
          case ('-w', '--pfio_writer')
             options%writer = get_next_argument()
             _ASSERT(options%server_type /= '-', "no extrea - ")
-         case ('-f1', '--file_1')
-            options%file_1 = get_next_argument()
-            _ASSERT(options%file_1(1:1) /= '-', "no extrea - ")
-         case ('-f2', '--file_2')
-            options%file_2 = get_next_argument()
-            _ASSERT(options%file_2(1:1) /= '-', "no extrea - ")
          case ('-v', '--var')
             buffer = get_next_argument()
             _ASSERT(buffer(1:1) /= '-', "no extrea - ")
@@ -176,9 +169,6 @@ module FakeHistData0Mod
 
       integer, allocatable :: hist_collection_ids(:)
 
-      character(len=:), allocatable :: file_1
-      character(len=:), allocatable :: file_2
-
       type (StringVector) :: vars
       type (FakeBundle), allocatable :: bundle(:)
 
@@ -249,7 +239,6 @@ contains
       !this%o_c = ClientThread()
       !call this%o_c%init_connection(app_ds(2)%dsPtr,comms(2),'o_server')
 
-      this%file_1 = options%file_1
       this%vars = options%requested_variables
 
       this%comm = comms(1)
@@ -370,7 +359,6 @@ contains
             ref = ArrayReference(this%bundle(i_var)%x)
             prefetch_ids(i_var) = &
                  & icPtr%collective_prefetch_data(collection_id,'test_in.nc4', this%vars%at(i_var), ref,&
-                 !& this%i_c%collective_prefetch_data(collection_id, this%file_1, this%vars%at(i_var), ref,&
                  & start=[Xdim0,Ydim0,nf,1,1], &
                  & global_start=[1,1,1,1,1],global_count=[this%Xdim,this%Ydim,this%nf, this%lev,1], rc=status)
             _VERIFY(status)
@@ -413,7 +401,6 @@ contains
             do i_var = 1, this%vars%size()
                ref = ArrayReference(this%bundle(i_var)%x)
                stage_ids(i_var,md_id) = &
-                 !& this%o_c%collective_stage_data(file_md_id, trim(this%file_1)//'.new.nc4', this%vars%at(i_var), ref,&
                  & ocPtr%collective_stage_data(file_md_id, 'test_out'//i_to_string(md_id)//'.nc4', this%vars%at(i_var), ref,&
                  & start=[Xdim0,Ydim0,nf,1, 1], &
                  & global_start=[1,1,1,1,1],global_count=[this%Xdim,this%Ydim, this%nf, this%lev,1], rc=status)
