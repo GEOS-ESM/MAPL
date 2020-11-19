@@ -121,6 +121,7 @@
      integer                      :: tindex1,tindex2
      integer                      :: climyear
      type(ESMF_TimeInterval)      :: frequency
+     logical                      :: frequency_is_constant ! GCHP
      type(ESMF_Time)              :: reff_time
 
      ! if primary export represents a pair of vector fields
@@ -2057,18 +2058,23 @@ CONTAINS
               case("y4")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=1,dd=1,h=0,m=0,s=0,__RC__)
                  call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,yy=1,__RC__)
+                 item%frequency_is_constant = .FALSE.
               case("m2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=1,h=0,m=0,s=0,__RC__)
                  call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,mm=1,__RC__)
+                 item%frequency_is_constant = .FALSE.
               case("d2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=0,m=0,s=0,__RC__)
                  call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,d=1,__RC__)
+                 item%frequency_is_constant = .TRUE.
               case("h2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,__RC__)
                  call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,h=1,__RC__)
+                 item%frequency_is_constant = .TRUE.
               case("n2")
                  call ESMF_TimeSet(item%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,__RC__)
                  call ESMF_TimeIntervalSet(item%frequency,startTime=start_time,m=1,__RC__)
+                 item%frequency_is_constant = .TRUE.
               end select
            else
               ! couldn't find any tokens so all the data must be on one file
@@ -2372,7 +2378,7 @@ CONTAINS
         type(ESMF_TimeInterval)                    :: yrTimeStep  ! GCHP
         type(ESMF_Time), allocatable               :: xTSeries(:)
         type(FileMetaDataUtils), pointer           :: fdata
-      
+
         call ESMF_TimeIntervalSet(zero,__RC__)
 
         call ESMF_TimeIntervalSet(yrTimeStep, yy=1, rc=rc) ! GCHP
@@ -2448,11 +2454,14 @@ CONTAINS
               ! apart - do it the hard way instead... 
               ftime = item%reff_time
               n = 0
-              ! SDE DEBUG: This caused problems in the past but the
-              ! alternative is far too slow... need to keep an eye 
-              ! on this but the Max(0,...) should help.
-              n = max(0,floor((cTime-item%reff_time)/item%frequency))
-              if (n>0) fTime = fTime + (n*item%frequency)
+              ! LRB: If frequency is variable, we can't skip ahead by n intervals.
+              if (item%frequency_is_constant) then
+                ! SDE DEBUG: This caused problems in the past but the
+                ! alternative is far too slow... need to keep an eye 
+                ! on this but the Max(0,...) should help.
+                n = max(0,floor((cTime-item%reff_time)/item%frequency))
+                if (n>0) fTime = fTime + (n*item%frequency)
+              end if
               do while (.not.found)
                  ! SDE: This needs to be ">"
                  found = ((ftime + item%frequency) > ctime)
@@ -2470,6 +2479,7 @@ CONTAINS
                  Write(*,'(a,I0.4,5(a,I0.2))') '            ==> File time     : ',iYr,'-',iMM,'-',iDD,' ',iHr,':',iMn,':',iSc
                  call ESMF_TimeIntervalGet(item%frequency,yy=iyr,mm=imm,d=idd,h=ihr,m=imn,s=isc,__RC__)
                  Write(*,'(a,I0.4,5(a,I0.2))') '            ==> item%frequency     : ',iYr,'-',iMM,'-',iDD,' ',iHr,':',iMn,':',iSc
+                 Write(*,'(a,L1)')             '            ==> Frequency is constant: ',item%frequency_is_constant
                  Write(*,'(a,I5)')             '            ==> # iterations until found: ',n
               end if
 
@@ -2561,7 +2571,7 @@ CONTAINS
                  ! Convert year offset to the future value
                  yrOffset = iYr - cYearOff
                  ! Determine the template time
-                 call ESMF_TimeSet(newTime,yy=iYr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+                 call OffsetTimeYear(cTime,yrOffset,newTime,__RC__)
                  ftime = item%reff_time
                  n = 0
                  do while (.not.found)
@@ -2602,8 +2612,8 @@ CONTAINS
                  ! yrOffset: Number of years added from current time to get file time
                  Do While ((.not.found).and.(abs(yrOffset).lt.maxOffset))
                     yrOffset = yrOffset - 1
-                    iYr = refYear + yrOffset
-                    call ESMF_TimeSet(newTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+                    call OffsetTimeYear(cTime,yrOffset,newTime,__RC__)
+
                     ! Error check - if the new time is before the first file time,
                     ! all is lost
                     If (newTime.lt.xTSeries(1)) exit
