@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `components.yaml`
   - Move to ESMA_env v3.1.0
   - Move to ESMA_cmake v3.3.0 (which moves FLAP detection to MAPL)
+- Move the MAPL_Cap, MAPL_CapGridComp, and NUOPCdriver to new directory so to break circular depenedence when new extdata component is brought online.
 ### Fixed
 - Bug in pfio tests when compiled with Debug flag
 - Bug in injecting grid into root child GridComp (for NUOPC).
