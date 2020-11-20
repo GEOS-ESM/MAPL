@@ -275,9 +275,9 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_State), intent(inout) :: EXPORT     ! Export State
          integer, intent(out) ::  rc                   ! Error return code:
 
-         type (ESMF_GridComp),      pointer  :: GCS(:)
-         type (ESMF_State),         pointer  :: GIM(:)
-         type (ESMF_State),         pointer  :: GEX(:)
+         type (ESMF_GridComp),      allocatable  :: GCS(:)
+         type (ESMF_State),         allocatable  :: GIM(:)
+         type (ESMF_State),         allocatable  :: GEX(:)
 
          character(len=ESMF_MAXSTR)    :: Iam
          integer                       :: STATUS
@@ -301,7 +301,8 @@ MODULE ExtDataUtRoot_GridCompMod
 
          call MAPL_GetObjectFromGC ( GC, MAPL, RC=STATUS )
          _VERIFY(STATUS)
-         call MAPL_Get ( MAPL, GCS=GCS, GIM=GIM, GEX=GEX,rc=status)
+         call MAPL_Get(MAPL, childrens_gridcomps=GCS, &
+              childrens_import_states =GIM, childrens_export_states=GEX, rc=status)
          _VERIFY(STATUS)
          call MAPL_Get ( MAPL, internal_esmf_state=internal, cf=cf, RC=STATUS )
          _VERIFY(STATUS)

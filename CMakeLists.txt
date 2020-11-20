@@ -84,7 +84,7 @@ add_subdirectory (gridcomps)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
-  add_subdirectory (MAPL_pFUnit EXCLUDE_FROM_ALL)
+  add_subdirectory (pfunit EXCLUDE_FROM_ALL)
 endif ()
 
 # Support for automated code generation
