@@ -8,3 +8,5 @@ target_include_directories (${this} PUBLIC
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 add_subdirectory(Cap)
+add_subdirectory(ExtData)
+add_subdirectory(History)

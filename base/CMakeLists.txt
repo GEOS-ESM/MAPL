@@ -10,8 +10,8 @@ endif()
 
 
 set (srcs
-  MAPL_ExtData_IOBundleMod.F90        MAPL_Profiler.F90
-  CFIOCollection.F90                    MAPL_ExtData_IOBundleVectorMod.F90  MAPL_RegridderManager.F90
+  MAPL_Profiler.F90
+  CFIOCollection.F90                    MAPL_RegridderManager.F90
   MAPL_RegridderSpec.F90
   MAPL_FractionalRegridder.F90          MAPL_RegridderTypeSpecRegridderMap.F90
   ESMF_CFIOPtrVectorMod.F90             MAPL_GenericCplComp.F90             MAPL_RegridderVector.F90
@@ -20,8 +20,8 @@ set (srcs
   FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                MAPL_SimpleBundleMod.F90
   MAPL_AbstractGridFactory.F90          MAPL_GridSpec.F90                   MAPL_StringGridFactoryMap.F90
   MAPL_GridType.F90                     MAPL_StringGridMap.F90
-  MAPL_AbstractRegridder.F90            MAPL_HistoryCollection.F90          
-  MAPL_Base.F90                         MAPL_HistoryGridComp.F90            MAPL_StringRouteHandleMap.F90
+  MAPL_AbstractRegridder.F90                      
+  MAPL_Base.F90                         MAPL_StringRouteHandleMap.F90
   MAPL_IdentityRegridder.F90            MAPL_stubs.F90
   MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
   MAPL_CapOptions.F90                   MAPL_TilingRegridder.F90
@@ -35,11 +35,10 @@ set (srcs
   MAPL_DefGridName.F90                  MAPL_Mod.F90                        MAPL_VotingRegridder.F90
   MAPL_EsmfRegridder.F90                MAPL_NewArthParser.F90              
   MAPL_ESMFTimeVectorMod.F90            MAPL_newCFIO.F90                    Regrid_Functions_Mod.F90
-  MAPL_EtaHybridVerticalCoordinate.F90  MAPL_newCFIOitem.F90                
-  MAPL_ExtDataCollection.F90            MAPL_NominalOrbitsMod.F90           
-  MAPL_ExtDataCollectionManager.F90                 
-  MAPL_ExtDataGridCompMod.F90           MAPL_OrbGridCompMod.F90             tstqsat.F90
-  MAPL_LocStreamFactoryMod.F90          MAPL_HistoryTrajectoryMod.F90       MAPL_LocstreamRegridder.F90
+  MAPL_EtaHybridVerticalCoordinate.F90  MAPL_newCFIOitem.F90              
+  MAPL_OrbGridCompMod.F90               tstqsat.F90  
+  MAPL_NominalOrbitsMod.F90           
+  MAPL_LocStreamFactoryMod.F90          MAPL_LocstreamRegridder.F90
   ServerManager.F90 ApplicationSupport.F90
   regex_module.F90 StringTemplate.F90
   regex_F.c

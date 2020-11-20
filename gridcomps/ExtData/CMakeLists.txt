@@ -1,12 +1,12 @@
-esma_set_this (OVERRIDE MAPL.cap)
+esma_set_this (OVERRIDE MAPL.extdata)
 
 set (srcs
-     MAPL_Cap.F90
-     MAPL_CapGridComp.F90
-     MAPL_NUOPCWrapperMod.F90
+     MAPL_ExtDataCollectionManager.F90  MAPL_ExtData_IOBundleMod.F90
+     MAPL_ExtDataCollection.F90  MAPL_ExtDataGridCompMod.F90 
+     MAPL_ExtData_IOBundleVectorMod.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler MAPL.extdata MAPL.history)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base)
 target_link_libraries (${this} PUBLIC gftl gftl-shared ${ESMF_LIBRARIES}
                                PRIVATE OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
 target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF}
