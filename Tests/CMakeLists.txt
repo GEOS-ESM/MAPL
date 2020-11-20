@@ -6,11 +6,9 @@ set (srcs
     VarspecDescription.F90
     )
 
-include_directories (${INC_ESMF})
-
 if (BUILD_WITH_FLAP)
   ecbuild_add_executable (TARGET ExtDataDriver.x SOURCES ${srcs})
-  target_link_libraries (ExtDataDriver.x MAPL FLAP::FLAP ${MKL_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
+  target_link_libraries (ExtDataDriver.x MAPL FLAP::FLAP esmf ${MKL_LIBRARIES} ${OpenMP_Fortran_LIBRARIES})
   set_target_properties(ExtDataDriver.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
 endif ()
 
