@@ -28,7 +28,6 @@ module MAPL_Mod
 #ifdef USE_FLAP
   use MAPL_FlapCapOptionsMod
 #endif
-  use MAPL_CapMod
   use MAPL_MemUtilsMod
   use MAPL_HashMod
   use MAPL_LoadBalanceMod
