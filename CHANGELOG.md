@@ -8,20 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+### Changed
+
+- Move MAPL_Cap, CapGridComp, and NUOPCwrapper to new directory in anticipation of refactored ExtData that will  not live in base
+
+### Fixed
+### Removed
+
+## [2.4.0] - 2020-11-20
+
+### Added
+
 - Added ability to inject grid into root child GridComp (for NUOPC).
 - Added ability to use external clock (for NUOPC).
 - Enabled building and installing as a standalone library, using external dependencies.
+
 ### Changed
+
 - Change CI Image to 6.0.22.
 - Updated `components.yaml`
   - Move to ESMA_env v3.1.0
-  - Move to ESMA_cmake v3.3.0 (which moves FLAP detection to MAPL)
-- Move MAPL_Cap, CapGridComp, and NUOPCwrapper to new directory in anticipation of refactored ExtData that will  not live in base
+  - Move to ESMA_cmake v3.3.0 (**REQUIRED** due to Baselibs detection changes and `find_package(FLAP)` moved to MAPL)
+
 ### Fixed
+
 - Bug in pfio tests when compiled with Debug flag
 - Bug in injecting grid into root child GridComp (for NUOPC).
 - Bug preventing components from advancing when an external clock is used
-### Removed
 
 ## [2.3.6] - 2020-11-12
 
