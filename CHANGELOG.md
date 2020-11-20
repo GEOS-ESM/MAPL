@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `components.yaml`
   - Move to ESMA_env v3.1.0
   - Move to ESMA_cmake v3.3.0 (**REQUIRED** due to Baselibs detection changes and `find_package(FLAP)` moved to MAPL)
-
+  
 ### Fixed
 
 - Bug in pfio tests when compiled with Debug flag
