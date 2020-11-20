@@ -80,6 +80,7 @@ add_subdirectory (shared)
 add_subdirectory (include)
 add_subdirectory (base)
 add_subdirectory (MAPL)
+add_subdirectory (gridcomps)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
