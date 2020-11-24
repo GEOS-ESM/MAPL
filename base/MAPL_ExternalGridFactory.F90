@@ -205,7 +205,7 @@ contains
       character(:), allocatable :: vars
       class(ExternalGridFactory), intent(inout) :: this
 
-      ! TODO: fill in the rest
+      vars = ''
    end function get_grid_vars
 
    subroutine append_variable_metadata(this, var)
