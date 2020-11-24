@@ -91,6 +91,7 @@ contains
      use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
      use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
      use MAPL_LlcGridFactoryMod, only: LlcGridFactory
+     use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
       class (AbstractGridFactory), allocatable :: factory
       class (GridManager), intent(inout) :: this
       character(len=*), intent(in) :: grid_type
@@ -112,6 +113,7 @@ contains
       type (CubedSphereGridFactory) :: cubed_factory
       type (TripolarGridFactory) :: tripolar_factory
       type (LlcGridFactory) :: llc_factory
+      type (ExternalGridFactory) :: external_factory
 
       _UNUSED_DUMMY(unusable)
 
@@ -120,6 +122,7 @@ contains
            call this%prototypes%insert('Cubed-Sphere', cubed_factory)
            call this%prototypes%insert('Tripolar',  tripolar_factory)
            call this%prototypes%insert('llc',  llc_factory)
+           call this%prototypes%insert('External', external_factory)
            initialized = .true.
       end if
 
