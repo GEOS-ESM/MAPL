@@ -1324,6 +1324,7 @@ contains
      integer :: status
 
      _UNUSED_DUMMY(unusable)
+     _UNUSED_DUMMY(lm)
 
      call ESMF_GridCompSet(this%gc, grid=grid, __RC__)
 
