@@ -68,6 +68,7 @@ contains
 
       if (present(grid_name)) factory%grid_name = grid_name
       if (present(grid)) factory%external_grid = grid
+      if (present(grid)) factory%lm = lm
 
       _RETURN(_SUCCESS)
    end function ExternalGridFactory_from_parameters
