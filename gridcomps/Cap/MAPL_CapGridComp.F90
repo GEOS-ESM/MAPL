@@ -1314,10 +1314,11 @@ contains
 
   end subroutine get_field_from_internal
 
-  subroutine set_grid(this, grid, unusable, rc)
+  subroutine set_grid(this, grid, unusable, lm, rc)
      class(MAPL_CapGridComp),          intent(inout) :: this
      type(ESMF_Grid),                  intent(in   ) :: grid
      class(KeywordEnforcer), optional, intent(in   ) :: unusable
+     integer,                optional, intent(in   ) :: lm
      integer,                optional, intent(  out) :: rc
 
      integer :: status
