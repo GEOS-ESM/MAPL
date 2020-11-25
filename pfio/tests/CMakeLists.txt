@@ -34,7 +34,6 @@ add_library (pfio_extras
   )
 target_link_libraries (pfio_extras PUBLIC MAPL_pFUnit MAPL.shared)
 
-
 add_pfunit_ctest(MAPL.pfio.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}

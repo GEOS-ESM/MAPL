@@ -50,7 +50,12 @@ function (mapl_acg target specs_file)
 
   endforeach ()
 
-  set(generator ${esma_etc}/MAPL/MAPL_GridCompSpecs_ACG.py)
+  if (DEFINED MAPL_BASE_DIR)
+    set (_generator_dir ${MAPL_BASE_DIR}/etc)
+  else ()
+    set (_generator_dir ${esma_etc}/MAPL)
+  endif ()
+  set(generator ${_generator_dir}/MAPL_GridCompSpecs_ACG.py)
 
   add_custom_command (
     OUTPUT ${generated}
