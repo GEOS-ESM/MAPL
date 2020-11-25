@@ -80,7 +80,8 @@ contains
       integer,                optional, intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'make_grid'
-      integer                     :: status
+      logical                     :: is_present
+      integer                     :: status, lm
 
       _UNUSED_DUMMY(unusable)
 
@@ -91,8 +92,18 @@ contains
       end if
 
       if (allocated(this%lm)) then
-         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
+         call ESMF_AttributeGet(grid, name='GRID_LM', isPresent=is_present, rc=status)
          _VERIFY(status)
+
+         if (is_present) then
+            call ESMF_AttributeGet(grid, name='GRID_LM', value=lm, rc=status)
+            _VERIFY(status)
+
+            _ASSERT(lm == this%lm)
+         else
+            call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
+            _VERIFY(status)
+         end if
       end if
 
       _RETURN(_SUCCESS)
