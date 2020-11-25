@@ -23,6 +23,8 @@ module MAPL_CapGridCompMod
   use MAPL_ConfigMod
   use MAPL_DirPathMod
   use MAPL_KeywordEnforcerMod
+  use MAPL_ExternalGridFactoryMod
+  use MAPL_GridManagerMod
   use pFIO
   use gFTL_StringVector
   use pflogger, only: logging, Logger
@@ -1314,17 +1316,23 @@ contains
 
   end subroutine get_field_from_internal
 
-  subroutine set_grid(this, grid, unusable, rc)
+  subroutine set_grid(this, grid, unusable, lm, rc)
      class(MAPL_CapGridComp),          intent(inout) :: this
      type(ESMF_Grid),                  intent(in   ) :: grid
      class(KeywordEnforcer), optional, intent(in   ) :: unusable
+     integer,                optional, intent(in   ) :: lm
      integer,                optional, intent(  out) :: rc
 
-     integer :: status
+     type(ESMF_Grid)           :: mapl_grid
+     type(ExternalGridFactory) :: external_grid_factory
+     integer                   :: status
 
      _UNUSED_DUMMY(unusable)
 
-     call ESMF_GridCompSet(this%gc, grid=grid, __RC__)
+     external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, __RC__)
+     mapl_grid = grid_manager%make_grid(external_grid_factory, __RC__)
+
+     call ESMF_GridCompSet(this%gc, grid=mapl_grid, __RC__)
 
      _RETURN(_SUCCESS)
   end subroutine set_grid
