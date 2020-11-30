@@ -63,11 +63,28 @@ jobs:
           name: "Set Environment variable for PR number"
           command: |
             echo 'export GITHUB_PR_NUMBER=$(basename ${CIRCLE_PULL_REQUEST})' >> $BASH_ENV
+            echo 'export LABEL_TO_SKIP_CI=0_diff_trivial' >> $BASH_ENV
             source $BASH_ENV
       - run:
-          name: "Echo that value"
+          name: "Echo new values"
           command: |
             echo "GITHUB_PR_NUMBER=${GITHUB_PR_NUMBER}"
+            echo "LABEL_TO_SKIP_CI=${LABEL_TO_SKIP_CI}"
+      - run:
+          name: "Get GitHub Labels"
+          command: |
+            LABELS_FOUND=( $(curl \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/GEOS-ESM/MAPL/pulls/622 | jq -r '.labels[].name | gsub(" ";"_")' ) )
+            for x in "${LABELS_FOUND[@]}"
+            do
+              if [ "$x" = "$LABEL_TO_SKIP_CI" ]
+              then
+                  echo "Found it! $x"
+              else
+                  echo "$x"
+              fi
+            done
       #- run:
           #name: "Mepo clone external repos"
           #command: |
