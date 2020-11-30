@@ -28,7 +28,6 @@ module MAPL_Mod
 #ifdef USE_FLAP
   use MAPL_FlapCapOptionsMod
 #endif
-  use MAPL_CapMod
   use MAPL_MemUtilsMod
   use MAPL_HashMod
   use MAPL_LoadBalanceMod
@@ -40,6 +39,7 @@ module MAPL_Mod
   use MAPL_GridManagerMod
   use MAPL_LatLonGridFactoryMod
   use MAPL_CubedSphereGridFactoryMod
+  use MAPL_ExternalGridFactoryMod
   use MAPL_ShmemMod
   use MAPL_MaxMinMod
   use MAPL_SimpleBundleMod

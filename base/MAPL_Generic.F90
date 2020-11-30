@@ -864,6 +864,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   integer, dimension(:), allocatable :: ref_date, ref_time, ref_freq
   integer                       :: NRA, sec
   character(len=ESMF_MAXSTR)    :: AlarmName
+  character(len=3)              :: alarmNum
   type(ESMF_Time)               :: CurrTime    ! Current time of the ESMF clock
   type(ESMF_Time)               :: RefTime
   type(ESMF_TimeInterval)       :: Frequency
@@ -1352,7 +1353,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
    _VERIFY(STATUS)
    if (isPresent) then
       nra = ESMF_ConfigGetLen( STATE%CF, RC = STATUS)
-      _ASSERT( NRA > 0 .and. NRA < 10,'needs informative message')
+      _ASSERT( NRA > 0,'Empty list is not allowed')
 
       allocate (ref_date(NRA), ref_time(NRA), ref_freq(NRA), stat=STATUS)
       _VERIFY(STATUS)
@@ -1380,7 +1381,8 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
       _VERIFY(STATUS)
 
       DO  I = 1, NRA
-         AlarmName = "RecordAlarm" // CHAR(I+ICHAR('0')) 
+         write(alarmNum,'(I3.3)') I
+         AlarmName = "RecordAlarm" // alarmNum
          call ESMF_ClockGetAlarm(clock, trim(AlarmName), recordAlarm, rc=status)
          if (STATUS/=ESMF_SUCCESS) then
             ! create alarm
@@ -5020,6 +5022,9 @@ end function MAPL_AddChildFromDSO
     integer                               :: I,J
     logical                               :: SKIP
     character(len=ESMF_MAXSTR), allocatable :: SNAMES(:)
+    type (MAPL_Connectivity), pointer     :: conn
+    type (MAPL_VarConn), pointer          :: CONNECT(:)
+    logical :: isConnected
 
     _ASSERT(size(SHORT_NAMES)==size(CHILD_IDS),'needs informative message')
 
@@ -5031,14 +5036,17 @@ end function MAPL_AddChildFromDSO
        SNAMES(I) = trim(SHORT_NAMES(I))
     enddo
 
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    CONNECT => CONN%CONNECT
     if (associated(META%GCS)) then
        do I=1, size(META%GCS)
           call MAPL_GetObjectFromGC(META%GCS(I), META_CHILD, RC=STATUS)
           _VERIFY(STATUS)
           do J=1 ,size(META_CHILD%Import_Spec)
              call MAPL_VarSpecGet(META_CHILD%Import_Spec(J),SHORT_NAME=SHORT_NAME,RC=STATUS)
+             isConnected = MAPL_VarIsConnected(connect,short_name,I,rc=status)
              SKIP = ANY(SNAMES==TRIM(SHORT_NAME)) .and. (ANY(CHILD_IDS==I))
-             if (.not.SKIP) then
+             if ((.not.isConnected) .and. (.not.skip)) then
                 call MAPL_DoNotConnect(GC, SHORT_NAME, I, RC=status)
                 _VERIFY(STATUS)
              end if

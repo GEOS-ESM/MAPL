@@ -9,14 +9,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added fixture entry to `components.yaml` (requires mepo v1.23.0 or higher)
+- Added an `ExternalGridManager`, to allow MAPL to have knowledge of external grids (for NUOPC).
 
 ### Changed
+
+- Move MAPL_Cap, CapGridComp, and NUOPCwrapper to new directory in anticipation of refactored ExtData that will  not live in base
+
+### Fixed
+### Removed
+
+## [2.4.0] - 2020-11-20
+
+### Added
+
+- Added ability to inject grid into root child GridComp (for NUOPC).
+- Added ability to use external clock (for NUOPC).
+- Enabled building and installing as a standalone library, using external dependencies.
+
+### Changed
+
+- Change CI Image to 6.0.22.
+- Updated `components.yaml`
+  - Move to ESMA_env v3.1.0
+  - Move to ESMA_cmake v3.3.0 (**REQUIRED** due to Baselibs detection changes and `find_package(FLAP)` moved to MAPL)
+  
+### Fixed
+
+- Bug in pfio tests when compiled with Debug flag
+- Bug in injecting grid into root child GridComp (for NUOPC).
+- Bug preventing components from advancing when an external clock is used
+
+## [2.3.6] - 2020-11-12
+
+### Added
+
+- Added an external grid and clock setter (for NUOPC).
+
+### Fixed
+
+- Fixed logic to allow proper termination of all imports except those specified
+
+## [2.3.5] - 2020-11-06
+
+### Added
+
+- Added fixture entry to `components.yaml` (requires mepo v1.23.0 or higher)
+
 ### Fixed
 
 - Fixed integer overflow in memutils for big memory systems
+- Fix bug with segment alarm when processing a monthly mean collection
 
-### Removed
 
 ## [2.3.4] - 2020-10-20
 
