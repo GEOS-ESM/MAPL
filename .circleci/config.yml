@@ -11,7 +11,8 @@ executors:
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
-    resource_class: xlarge
+    #XLARGE# resource_class: xlarge
+    resource_class: medium
 
 workflows:
   version: 2.1
@@ -61,12 +62,14 @@ jobs:
           name: "Build and install"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/MAPL/build
-            make -j"$(nproc)" install
+            #XLARGE# make -j"$(nproc)" install
+            make -j4 install
       - run:
           name: "Run MAPL Unit Tests"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/MAPL/build
-            make -j"$(nproc)" build-tests
+            #XLARGE# make -j"$(nproc)" build-tests
+            make -j4 build-tests
             # skip Performance tests (maybe doable on CircleCI?)
             ctest -R MAPL -LE PERFORMANCE --output-on-failure
 
@@ -103,8 +106,8 @@ jobs:
           name: "Build and install"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm/build
-            make -j"$(nproc)" install
-            #make -j2 install
+            #XLARGE# make -j"$(nproc)" install
+            make -j4 install
 
       # We need to persist the install for the next step
       - persist_to_workspace:
