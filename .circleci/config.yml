@@ -62,7 +62,8 @@ jobs:
       - run:
           name: "Set Environment variable for PR number"
           command: |
-            echo 'export GITHUB_PR_NUMBER=$(basename ${CIRCLE_PULL_REQUEST}'
+            echo 'export GITHUB_PR_NUMBER=$(basename ${CIRCLE_PULL_REQUEST})' >> $BASH_ENV
+            source $BASH_ENV
       - run:
           name: "Echo that value"
           command: |
