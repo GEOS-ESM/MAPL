@@ -44,6 +44,29 @@ jobs:
       - run:
           name: "Versions etc"
           command: mpirun --version && gfortran --version && echo $BASEDIR && pwd && ls && echo "$(nproc)"
+      - run:
+          name: "Get jq"
+          command: |
+            apt update
+            apt -y install jq
+      - run:
+          name: "Echo out environment variables"
+          command: |
+            echo "CIRCLE_BRANCH: ${CIRCLE_BRANCH}"
+            echo "CIRCLE_PROJECT_REPONAME: ${CIRCLE_PROJECT_REPONAME}"
+            echo "CIRCLE_PROJECT_USERNAME: ${CIRCLE_PROJECT_USERNAME}"
+            echo "CIRCLE_PULL_REQUEST: ${CIRCLE_PULL_REQUEST}"
+            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+            echo "CIRCLE_TAG: ${CIRCLE_TAG}"
+            echo "CIRCLE_USERNAME: ${CIRCLE_USERNAME}"
+      - run:
+          name: "Set Environment variable for PR number"
+          command: |
+            echo 'export GITHUB_PR_NUMBER=$(basename ${CIRCLE_PULL_REQUEST}'
+      - run:
+          name: "Echo that value"
+          command: |
+            echo "GITHUB_PR_NUMBER=${GITHUB_PR_NUMBER}"
       #- run:
           #name: "Mepo clone external repos"
           #command: |
