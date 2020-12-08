@@ -1,5 +1,10 @@
-file(GLOB MAPL_PUBLIC_HEADERS_h  "*.h" )
-file(GLOB MAPL_PUBLIC_HEADERS_H  "*.H" )
-file(COPY ${MAPL_PUBLIC_HEADERS_h} DESTINATION ${esma_include}/MAPL)
-file(COPY ${MAPL_PUBLIC_HEADERS_H} DESTINATION ${esma_include}/MAPL)
+set( MAPL_PUBLIC_HEADERS
+   MAPL_ErrLog.h
+   MAPL_ErrLogMain.h
+   MAPL_Exceptions.h
+   MAPL_Generic.h
+   NUOPC_ErrLog.h
+   unused_dummy.H
+   )
+file(COPY ${MAPL_PUBLIC_HEADERS} DESTINATION ${esma_include}/MAPL)
 
