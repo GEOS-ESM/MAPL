@@ -24,6 +24,8 @@ module MAPL_CapOptionsMod
       ! only one of the next two options can have nonzero values
       integer, allocatable :: npes_output_server(:)
       integer, allocatable :: nodes_output_server(:)
+      ! whether or not the nodes are padding with idle when mod(model total npes , each node npes) /=0
+      logical              :: isolate_nodes = .true.
       ! server groups
       integer :: n_iserver_group = 1
       integer :: n_oserver_group = 1
