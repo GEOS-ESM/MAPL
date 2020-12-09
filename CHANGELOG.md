@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added an `ExternalGridManager`, to allow MAPL to have knowledge of external grids (for NUOPC).
+- Added command line interface option `--isolate_nodes`. By default it is `.true.`
 
 ### Changed
 

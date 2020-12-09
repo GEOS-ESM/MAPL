@@ -1,5 +1,7 @@
 # MAPL Repository
 
+[![GEOS-ESM](https://circleci.com/gh/GEOS-ESM/MAPL.svg?style=svg)](https://app.circleci.com/pipelines/github/GEOS-ESM/MAPL)
+
 MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF).   MAPL fills in missing capabilities of ESMF, provides higher-level interfaces for common boiler-plate logic, and enforces various componentization conventions across ESMF gridded components within GEOS.
 
 MAPL has 7 primary subdirectories for Fortran source code.
