@@ -5835,6 +5835,8 @@ end function MAPL_AddChildFromGC
     integer                                 :: rstReq
     logical                                 :: isPresent
     logical                                 :: isCreated
+    character (len=ESMF_MAXSTR), allocatable  :: itemNameList(:)
+    type(ESMF_StateItem_Flag),   allocatable  :: itemtypeList(:)
 
 
    if (present(DEFER)) then
@@ -5842,6 +5844,11 @@ end function MAPL_AddChildFromGC
    else
       usableDEFER = .false.
    end if
+
+   call ESMF_StateGet(state, itemCount=n, __RC__)
+   
+   allocate(itemNameList(n), __STAT__)
+   allocate(itemtypeList(n), __STAT__)
 
    attr = 0
    rstReq = 0
@@ -5876,6 +5883,14 @@ end function MAPL_AddChildFromGC
                            ROTATION=ROTATION, &
                            RC=STATUS )
       _VERIFY(STATUS)
+
+      if (stat == MAPL_FieldItem) then
+         if (any(itemNameList == short_name)) then
+            call ESMF_StateGet(state, short_name, spec_field, __RC__)
+            !ALT: we might need to add attributes
+            cycle
+         end if
+      end if
 
       I=MAPL_VarSpecGetIndex(SPEC, SHORT_NAME, RC=STATUS)
       if (I /= L) then
@@ -6244,6 +6259,10 @@ end function MAPL_AddChildFromGC
    _VERIFY(STATUS)
    call ESMF_AttributeSet(STATE, NAME="MAPL_RestartRequired", VALUE=rstReq, RC=STATUS)
    _VERIFY(STATUS)
+
+   deallocate(itemNameList)
+   deallocate(itemTypeList)
+
 
    _RETURN(ESMF_SUCCESS)
 

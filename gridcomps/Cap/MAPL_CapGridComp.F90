@@ -605,6 +605,13 @@ contains
        !----------------------------------------
 
        call t_p%start('Initialize')
+       ! check for externally supplied fields in import and/or export
+       ! if we find them, put them in their root_id counterparts
+       call inject_external_fields(import_state, &
+            cap%child_imports(cap%root_id), __RC__)
+       call inject_external_fields(export_state, &
+            cap%child_exports(cap%root_id), __RC__)
+       ! initialize the root gc
        call ESMF_GridCompInitialize(cap%gcs(cap%root_id), importState = cap%child_imports(cap%root_id), &
             exportState = cap%child_exports(cap%root_id), clock = cap%clock, userRC = status)
        _VERIFY(status)
@@ -635,6 +642,37 @@ contains
 
 
     _RETURN(ESMF_SUCCESS)
+    contains
+      subroutine inject_external_fields(src_state, dst_state, rc)
+        type(ESMF_State),  intent(in ) :: src_state
+        type(ESMF_State),  intent(out) :: dst_state
+        integer, optional, intent(out) :: rc
+
+        integer :: i,n
+        character (len=ESMF_MAXSTR), allocatable  :: itemNameList(:)
+        type(ESMF_StateItem_Flag),   allocatable  :: itemtypeList(:)
+        type(ESMF_Field) :: field
+
+        call ESMF_StateGet(src_state, itemCount=n, __RC__)
+
+        allocate(itemNameList(n), __STAT__)
+        allocate(itemtypeList(n), __STAT__)
+
+        call ESMF_StateGet(src_state, itemNameList=itemNamelist, &
+             itemTypelist=itemTypeList, __RC__)
+
+        do i = 1,n
+           if (itemTypeList(i) == ESMF_STATEITEM_FIELD) then
+              call ESMF_StateGet(src_state, itemNameList(i), field, __RC__)
+              call MAPL_StateAdd(dst_state, field, __RC__)
+           end if
+        end do
+
+        deallocate(itemNameList)
+        deallocate(itemTypeList)
+
+        _RETURN(ESMF_SUCCESS)
+      end subroutine inject_external_fields
   end subroutine initialize_gc
 
   
@@ -893,8 +931,10 @@ contains
   end subroutine set_services
 
 
-  subroutine initialize(this, rc)
+  subroutine initialize(this, import_state, export_state, clock, rc)
     class(MAPL_CapGridComp), intent(inout) :: this
+    type(ESMF_State), optional :: import_state, export_state
+    type(ESMF_Clock), optional :: clock
     integer, optional, intent(out) :: rc
     
     integer :: status

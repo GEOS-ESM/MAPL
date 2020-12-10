@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added ability to shape pointers with external NUOPC components
 - Added an `ExternalGridManager`, to allow MAPL to have knowledge of external grids (for NUOPC).
 
 ### Changed
