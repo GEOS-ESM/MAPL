@@ -993,6 +993,12 @@ contains
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('corner_lats',v)
 
+      if (this%stretched_cube) then
+         call metadata%add_attribute('stretch_factor',this%stretch_factor)
+         call metadata%add_attribute('target_lon',this%target_lon*180.0/MAPL_PI)
+         call metadata%add_attribute('target_lat',this%target_lat*180.0/MAPL_PI)
+      end if
+
    end subroutine append_metadata
 
    function get_grid_vars(this) result(vars)
