@@ -887,7 +887,7 @@ contains
 
       v = Variable(type=PFIO_STRING)
       call  v%add_attribute('grid_mapping_name','gnomonic cubed-sphere')
-      call  v%add_attribute('file_format_version','2.90')
+      call  v%add_attribute('file_format_version','2.91')
       call  v%add_attribute('additional_vars','contacts,orientation,anchor')
       call  v%add_attribute('gridspec_file','gridspec.nc4')
       call metadata%add_variable('cubed_sphere',v)
