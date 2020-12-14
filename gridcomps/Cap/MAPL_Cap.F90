@@ -208,6 +208,7 @@ contains
          npes_output_server=this%cap_options%npes_output_server, &
          oserver_type=this%cap_options%oserver_type, &
          npes_output_backend=this%cap_options%npes_output_backend, &
+         isolate_nodes = this%cap_options%isolate_nodes, &
          rc=status)
      _VERIFY(status)
 

@@ -887,7 +887,7 @@ contains
 
       v = Variable(type=PFIO_STRING)
       call  v%add_attribute('grid_mapping_name','gnomonic cubed-sphere')
-      call  v%add_attribute('file_format_version','2.90')
+      call  v%add_attribute('file_format_version','2.91')
       call  v%add_attribute('additional_vars','contacts,orientation,anchor')
       call  v%add_attribute('gridspec_file','gridspec.nc4')
       call metadata%add_variable('cubed_sphere',v)
@@ -992,6 +992,12 @@ contains
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('corner_lats',v)
+
+      if (this%stretched_cube) then
+         call metadata%add_attribute('stretch_factor',this%stretch_factor)
+         call metadata%add_attribute('target_lon',this%target_lon*180.0/MAPL_PI)
+         call metadata%add_attribute('target_lat',this%target_lat*180.0/MAPL_PI)
+      end if
 
    end subroutine append_metadata
 
