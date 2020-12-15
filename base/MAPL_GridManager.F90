@@ -1,10 +1,4 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; call MAPL_throw_exception(__FILE__,__LINE__); return; endif
-#define __VERIFYMSG(A,msg)   if(  A/=0) then; if(present(rc)) rc=A; call MAPL_throw_exception(__FILE__,__LINE__, msg); return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
+#include "MAPL_Generic.h"
 
 !!!  NOTE: This class implements the Singleton pattern - there should
 !!!        be only one GridManager for the application.  However,
@@ -21,6 +15,7 @@ module MAPL_GridManager_private
    use MAPL_Integer64GridFactoryMapMod
    use MAPL_StringGridFactoryMapMod
    use MAPL_KeywordEnforcerMod
+   use mapl_ErrorHandlingMod
    use ESMF
    use MAPL_ExceptionHandling, only: MAPL_throw_exception
    implicit none
@@ -133,7 +128,7 @@ contains
          allocate(factory, source=prototype%clone(), stat=status)
          _VERIFY(status)
       else
-         _ASSERT(.false.)
+         _FAIL('prototype not found')
       end if
 
       _RETURN(_SUCCESS)
@@ -242,7 +237,7 @@ contains
       end if
 
       call ESMF_ConfigGetAttribute(config, label=label, value=grid_type, rc=status)
-      __VERIFYMSG(status,message='label not found')
+      _ASSERT(status==0,'label not found')
 
       allocate(factory, source=this%make_factory(trim(grid_type), config, prefix=prefix, rc=status))
       _VERIFY(status)
@@ -368,7 +363,7 @@ contains
 
       if (.not. this%keep_grids) then
          call ESMF_GridDestroy(grid, rc=status)
-         __VERIFYMSG(status,message='failed to destroy grid')
+         _ASSERT(status==0,'failed to destroy grid')
       end if
 
       _RETURN(_SUCCESS)
@@ -518,6 +513,7 @@ module MAPL_GridManagerMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_GridManager_private
    use MAPL_KeywordEnforcerMod
+   use mapl_ErrorHandlingMod
    use MAPL_ExceptionHandling, only: MAPL_throw_exception
    use ESMF
    implicit none

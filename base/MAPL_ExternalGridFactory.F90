@@ -1,14 +1,10 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
+#include "MAPL_Generic.h"
 
 module MAPL_ExternalGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_MinMaxMod
    use MAPL_KeywordEnforcerMod
+   use mapl_ErrorHandlingMod
    use ESMF
    use pFIO
    use MAPL_CommsMod
@@ -62,7 +58,6 @@ contains
       integer,                optional, intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'ExternalGridFactory_from_parameters'
-      integer                     :: status
 
       _UNUSED_DUMMY(unusable)
 
@@ -88,7 +83,7 @@ contains
       if (allocated(this%external_grid)) then
          grid = this%external_grid
       else
-         _ASSERT(.false.)
+         _FAIL('grid not allocated')
       end if
 
       if (allocated(this%lm)) then
@@ -99,7 +94,7 @@ contains
             call ESMF_AttributeGet(grid, name='GRID_LM', value=lm, rc=status)
             _VERIFY(status)
 
-            _ASSERT(lm == this%lm)
+            _ASSERT(lm == this%lm,'inconsistent levels')
          else
             call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
             _VERIFY(status)
@@ -113,6 +108,7 @@ contains
       class(ExternalGridFactory), intent(in) :: a
       class(AbstractGridFactory), intent(in) :: b
 
+      _UNUSED_DUMMY(a)
       select type(b)
       class default
          equals = .false.
@@ -129,12 +125,12 @@ contains
       integer,                optional, intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'initialize_from_file_metadata'
-      integer                     :: status
 
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(file_metadata)
 
-      _ASSERT(.false.)
+      _FAIL('unimplemented')
 
       _RETURN(_SUCCESS)
    end subroutine initialize_from_file_metadata
@@ -147,13 +143,13 @@ contains
       integer,                optional, intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'initialize_from_config_with_prefix'
-      integer                     :: status
 
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(config)
       _UNUSED_DUMMY(prefix)
 
-      _ASSERT(.false.)
+      _FAIL('unimplemented')
 
       _RETURN(_SUCCESS)
    end subroutine initialize_from_config_with_prefix
@@ -167,14 +163,14 @@ contains
       integer,                optional, intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'initialize_from_esmf_distGrid'
-      integer                     :: status
 
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(dist_grid)
       _UNUSED_DUMMY(lon_array)
       _UNUSED_DUMMY(lat_array)
 
-      _ASSERT(.false.)
+      _FAIL('unimplemented')
 
       _RETURN(_SUCCESS)
    end subroutine initialize_from_esmf_distGrid
@@ -187,13 +183,13 @@ contains
       integer,                optional, intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'halo'
-      integer                     :: status
 
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(array)
       _UNUSED_DUMMY(halo_width)
 
-      _ASSERT(.false.)
+      _FAIL('unimplemented')
 
       _RETURN(_SUCCESS)
    end subroutine halo
@@ -202,6 +198,7 @@ contains
       character(:), allocatable :: name
       class(ExternalGridFactory), intent(in) :: this
 
+      _UNUSED_DUMMY(this)
       name = 'EXTERNAL'
    end function generate_grid_name
 
@@ -209,6 +206,8 @@ contains
       class(ExternalGridFactory), intent(inout) :: this
       type(FileMetadata),         intent(inout) :: metadata
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(metadata)
       ! TODO: fill in the rest
    end subroutine append_metadata
 
@@ -216,6 +215,7 @@ contains
       character(:), allocatable :: vars
       class(ExternalGridFactory), intent(inout) :: this
 
+      _UNUSED_DUMMY(this)
       vars = ''
    end function get_grid_vars
 
@@ -223,6 +223,8 @@ contains
       class(ExternalGridFactory), intent(inout) :: this
       type(Variable),             intent(inout) :: var
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(var)
       ! TODO: fill in the rest
    end subroutine append_variable_metadata
 
@@ -235,14 +237,14 @@ contains
       integer,      optional,     intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
-      integer                     :: status
 
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(grid)
       _UNUSED_DUMMY(local_start)
       _UNUSED_DUMMY(global_start)
       _UNUSED_DUMMY(global_count)
 
-      _ASSERT(.false.)
+      _FAIL('unimplemented')
 
       _RETURN(_SUCCESS)
    end subroutine generate_file_bounds
@@ -256,8 +258,8 @@ contains
       integer,      optional,     intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
-      integer                     :: status
 
+      _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(grid)
       _UNUSED_DUMMY(local_start)
       _UNUSED_DUMMY(global_start)
@@ -271,7 +273,8 @@ contains
       class(ExternalGridFactory), intent(inout) :: this
       real, pointer,              intent(in   ) :: fpointer(:,:)
 
-      ! TODO: fill in the rest
+      _UNUSED_DUMMY(this)
+      ref = ArrayReference(fpointer)
    end function generate_file_reference2D
 
    function generate_file_reference3D(this, fpointer) result(ref)
@@ -279,6 +282,8 @@ contains
       class(ExternalGridFactory), intent(inout) :: this
       real, pointer,              intent(in   ) :: fpointer(:,:,:)
 
-      ! TODO: fill in the rest
+      _UNUSED_DUMMY(this)
+      ref = ArrayReference(fpointer)
    end function generate_file_reference3D
+
 end module MAPL_ExternalGridFactoryMod

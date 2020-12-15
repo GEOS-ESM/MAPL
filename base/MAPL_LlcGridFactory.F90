@@ -3,14 +3,7 @@
 ! overload set interfaces in legacy
 ! Document PE, PC, DC, DE, GC
 
-
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
-
+#include "MAPL_Generic.h"
 
 ! This module generates ESMF_Grids corresponding to _regular_ lat-lon coordinate grids.
 ! I.e., spacing between lats (lons) is constant.
@@ -18,6 +11,7 @@
 module MAPL_LlcGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_KeywordEnforcerMod
+   use mapl_ErrorHandlingMod
    use ESMF
    use pFIO
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -406,8 +400,8 @@ contains
 
       ! Check decomposition/bounds
       ! LLc/Tripolar requires even divisibility
-      _ASSERT(mod(this%im_world, this%nx) == 0)
-      _ASSERT(mod(this%jm_world, this%ny) == 0)
+      _ASSERT(mod(this%im_world, this%nx) == 0, 'uneven decomposition')
+      _ASSERT(mod(this%jm_world, this%ny) == 0, 'uneven decomposition')
 
       ! local extents
       call verify(this%nx, this%im_world, this%ims, rc=status)
@@ -428,24 +422,24 @@ contains
          integer :: status
 
          if (allocated(ms)) then
-            _ASSERT(size(ms) > 0)
+            _ASSERT(size(ms) > 0, 'degenerate topology')
 
             if (n == UNDEFINED_INTEGER) then
                n = size(ms)
             else
-               _ASSERT(n == size(ms))
+               _ASSERT(n == size(ms), 'inconsistent topology')
             end if
 
             if (m_world == UNDEFINED_INTEGER) then
                m_world = sum(ms)
             else
-               _ASSERT(m_world == sum(ms))
+               _ASSERT(m_world == sum(ms), 'inconsistent decomposition')
             end if
 
          else
 
-            _ASSERT(n /= UNDEFINED_INTEGER)
-            _ASSERT(m_world /= UNDEFINED_INTEGER)
+            _ASSERT(n /= UNDEFINED_INTEGER, 'uninitialized topology')
+            _ASSERT(m_world /= UNDEFINED_INTEGER, 'uninitialized dimension')
             allocate(ms(n), stat=status)
             _VERIFY(status)
             call MAPL_DecomposeDim(m_world, ms, n)
@@ -508,10 +502,7 @@ contains
       _UNUSED_DUMMY(lon_array)
       _UNUSED_DUMMY(lat_array)
 
-      
-      ! not supported
-      _ASSERT(.false.) 
-
+      _FAIL('unsupported')
    end subroutine initialize_from_esmf_distGrid
 
    
@@ -958,9 +949,14 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_corner_bounds'
-      integer :: status
 
-      _ASSERT(.false.)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(grid)
+      _UNUSED_DUMMY(local_start)
+      _UNUSED_DUMMY(global_start)
+      _UNUSED_DUMMY(global_count)
+
+      _FAIL('unsupported')
 
    end subroutine generate_file_corner_bounds
 
