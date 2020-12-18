@@ -35,7 +35,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_ExceptionHandling
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
-  use MAPL_RegridderSpecMod
+  use mapl_RegridMethods
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
   use pFIO_ClientManagerMod, only: o_Clients
