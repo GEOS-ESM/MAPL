@@ -12,13 +12,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added an `ExternalGridManager`, to allow MAPL to have knowledge of external grids (for NUOPC).
 - Added command line interface option `--isolate_nodes`. By default it is `.true.`
 - Add stretching factors to file if applicable in cubed-sphere output via History and uptick to cube version 2.91
+- Ability to register protoype (non-ESMF) regridders in NewRegridderManager
+
 
 ### Changed
 
 - Move MAPL_Cap, CapGridComp, and NUOPCwrapper to new directory in anticipation of refactored ExtData that will  not live in base
 - Convert `file(GLOB)` to explicit list
-
+- Moved modules into separate files.
+- Updated various modules to use the standard `_ASSERT()` and `_VERIFY()` macros instead of ad-hoc ones.
+	
 ### Fixed
+
+	
 ### Removed
 
 ## [2.4.0] - 2020-11-20
