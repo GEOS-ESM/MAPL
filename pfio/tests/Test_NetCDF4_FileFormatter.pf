@@ -77,6 +77,31 @@ contains
 
    end subroutine test_write_read_simple_variable
 
+  @test
+   subroutine test_inq_var_dims()
+      type (NetCDF4_FileFormatter) :: formatter
+      type (FileMetadata) :: cf_expected
+      type (FileMetadata) :: cf_found
+      integer :: status
+      integer, allocatable :: dim_len(:)
+
+      call cf_expected%add_dimension('x',1)
+      call cf_expected%add_dimension('y',2)
+      call cf_expected%add_variable('var', Variable(type=pFIO_INT32, dimensions='x,y'))
+
+      call formatter%create('test.nc', rc=status)
+      call formatter%write(cf_expected, rc=status)
+      call formatter%close(rc=status)
+
+      call formatter%open('test.nc', mode=NF90_NOWRITE, rc=status)
+      dim_len = formatter%inq_var_dims('var', rc=status)
+      @assertEqual(NF90_NOERR, status)
+      @assertEqual(dim_len, [1,2])
+
+      call formatter%close(rc=status)
+
+   end subroutine test_inq_var_dims
+
    @test
    subroutine test_write_read_simple_attribute()
       type (NetCDF4_FileFormatter) :: formatter

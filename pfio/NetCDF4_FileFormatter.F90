@@ -134,6 +134,7 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure, private :: write_coordinate_variables
 
       procedure :: inq_dim
+      procedure :: inq_var_dims
       procedure :: is_coordinate_dimension
    end type NetCDF4_FileFormatter
 
@@ -1213,6 +1214,35 @@ contains
    
 #undef _TYPE
 
+   function inq_var_dims(this, var_name, unusable, rc) result(dim_len)
+      class (NetCDF4_FileFormatter), intent(in) :: this
+      character(len=*), intent(in) :: var_name
+      integer, allocatable :: dim_len(:)
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer, allocatable :: dimids(:)
+      integer ::i, numDims, varid
+      integer :: status
+
+      status = nf90_inq_varid(this%ncid, var_name, varid)
+      _VERIFY(status)
+
+      status = nf90_inquire_variable(this%ncid, varid, ndims = numDims)
+      _VERIFY(status)
+      allocate(dimids(numDims), dim_len(numDims))
+      status = nf90_inquire_variable(this%ncid, varid, dimids = dimids)
+      _VERIFY(status)
+
+      do i = 1, numDims
+         status = nf90_inquire_dimension(this%ncid, dimids(i), len=dim_len(i))
+         _VERIFY(status)
+      enddo
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end function inq_var_dims
 
    ! Kludge to support parallel write with UNLIMITED dimension
    integer function inq_dim(this, dim_name, unusable, rc) result(length)

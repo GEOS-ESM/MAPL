@@ -7332,7 +7332,8 @@ module MAPL_IOMod
 
     integer                            :: ind
     type(ESMF_Grid)                    :: grid
-
+    integer                            :: global_dim(ESMF_MAXDIM)
+    integer, allocatable               :: dim_len(:)
     integer                            :: MAPL_DIMS
     integer, pointer                   :: MASK(:) => null()
     type(Netcdf4_Fileformatter)        :: formatter
@@ -7367,7 +7368,7 @@ module MAPL_IOMod
     do l=1,nVars
       call ESMF_FieldBundleGet(bundle, fieldIndex=l, field=field, rc=status)
       _VERIFY(STATUS)
-      call ESMF_FieldGet(field,name=FieldName,rc=status)
+      call ESMF_FieldGet(field,name=FieldName, grid=grid, rc=status)
       _VERIFY(STATUS)
 ! Check for old style aerosol names
       ind= index(FieldName, '::')
@@ -7379,14 +7380,21 @@ module MAPL_IOMod
          call ESMF_AttributeGet(field, name='DIMS', value=MAPL_DIMS, rc=status)
          _VERIFY(STATUS)
          if (MAPL_DIMS == MAPL_DimsTileOnly .or. MAPL_DIMS == MAPL_DimsTileTile) then
-            call ESMF_FieldGet   (field, grid=grid, rc=status)
-            _VERIFY(STATUS)
             call MAPL_TileMaskGet(grid,  mask, rc=status)
             _VERIFY(STATUS)
 !@         else
 !@            allocate(Mask(1))
          endif
       endif
+
+      if (arrdes%readers_comm/=MPI_COMM_NULL) then
+         call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
+          _VERIFY(status) 
+         dim_len = formatter%inq_var_dims(FieldName, rc=status)
+         _VERIFY(STATUS)
+         ! WY notes: just compare the first dimension to avoid complexity
+         _ASSERT(dim_len(1) == global_dim(1), "The dimensions in files are different")
+      end if
 
       call MAPL_FieldReadNCPar(formatter, FieldName, field, arrdes=arrdes, HomePE=mask, rc=status)
       _VERIFY(STATUS)
