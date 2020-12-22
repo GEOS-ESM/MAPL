@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Check the dimension of the variables in restart file
 - Added an `ExternalGridManager`, to allow MAPL to have knowledge of external grids (for NUOPC).
 - Added command line interface option `--isolate_nodes`. By default it is `.true.`
 - Add stretching factors to file if applicable in cubed-sphere output via History and uptick to cube version 2.91
