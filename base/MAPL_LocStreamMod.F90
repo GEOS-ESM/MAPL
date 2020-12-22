@@ -183,7 +183,7 @@ contains
 !                              TILEI, TILEJ, TILEGRID, &
                                TILEGRID, &
                                GRIDIM, GRIDJM, GRIDNAMES, &
-                               ATTACHEDGRID, LOCAL_ID, RC)
+                               ATTACHEDGRID, LOCAL_ID, local_i, local_j,RC)
     type(MAPL_LocStream),                 intent(IN   ) :: LocStream
     integer, optional,                    intent(  OUT) :: NT_LOCAL
     integer, optional,                    pointer       :: TILETYPE(:)
@@ -200,6 +200,8 @@ contains
     character(len=*), optional, pointer                 :: GRIDNAMES(:)
     type(ESMF_Grid), optional,            intent(  OUT) :: TILEGRID
     type(ESMF_Grid), optional,            intent(  OUT) :: ATTACHEDGRID
+    integer, optional,  pointer,          intent(  OUT) :: local_i(:)
+    integer, optional,  pointer,          intent(  OUT) :: local_j(:)
     integer, optional,                    intent(  OUT) :: RC
     
 ! Local variables
@@ -333,6 +335,30 @@ contains
 
     if (present(tilegrid)) then
        tilegrid = locstream%Ptr%TILEGRID
+    end if
+
+    if (present(local_i)) then
+#ifdef __GFORTRAN__
+       allocate(tmp_rptr(lbound(locstream%Ptr%Local_IndexLocation,1):ubound(locstream%Ptr%Local_IndexLocation,1)))
+       do i = lbound(locstream%Ptr%Local_IndexLocation,1), ubound(locstream%Ptr%Local_IndexLocation,1)
+         tmp_iptr(i) = locstream%Ptr%Local_IndexLocation(i)%i
+       enddo
+       local_i => tmp_rptr
+#else
+       local_i => locstream%Ptr%LOCAL_INDEXLOCATION(:)%i
+#endif
+    end if
+
+    if (present(local_j)) then
+#ifdef __GFORTRAN__
+       allocate(tmp_rptr(lbound(locstream%Ptr%Local_IndexLocation,1):ubound(locstream%Ptr%Local_IndexLocation,1)))
+       do i = lbound(locstream%Ptr%Local_IndexLocation,1), ubound(locstream%Ptr%Local_IndexLocation,1)
+         tmp_iptr(i) = locstream%Ptr%Local_IndexLocation(i)%j
+       enddo
+       local_j => tmp_rptr
+#else
+       local_j => locstream%Ptr%LOCAL_INDEXLOCATION(:)%j
+#endif
     end if
 
     _RETURN(ESMF_SUCCESS)
