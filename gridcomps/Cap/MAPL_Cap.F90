@@ -466,18 +466,21 @@ contains
       integer :: ierror
       integer :: provided
       integer :: npes_world
+      integer :: status
 
       _UNUSED_DUMMY(unusable)
 
+      call  ESMF_InitializePreMPI(rc=status)
+      _VERIFY(status)
       call MPI_Initialized(this%mpi_already_initialized, ierror)
       _VERIFY(ierror)
 
       if (.not. this%mpi_already_initialized) then
 !!$         call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
 !!$         _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supporte by this MPI.')
-         call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
+         call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
          _VERIFY(ierror)
-         _ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
+         _ASSERT(provided == MPI_THREAD_MULTIPLE, "MPI_THREAD_MULTIPLE not supported by this MPI.")
       end if
 
       call MPI_Comm_rank(this%comm_world, this%rank, ierror); _VERIFY(ierror)
