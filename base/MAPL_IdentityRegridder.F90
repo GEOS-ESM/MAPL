@@ -1,15 +1,12 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
+#include "MAPL_Generic.h"
 
 module MAPL_IdentityRegridderMod
    use MAPL_AbstractRegridderMod
    use MAPL_GridSpecMod
-   use MAPL_RegridderSpecMod
+   use MAPL_RegridderSpec
    use MAPL_KeywordEnforcerMod
+   use mapl_ErrorHandlingMod
+   use mapl_RegridMethods
    use ESMF
    
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -83,7 +80,7 @@ contains
 
       _UNUSED_DUMMY(this)
 
-      _ASSERT(size(q_in,3) == size(q_out,3))
+      _ASSERT(size(q_in,3) == size(q_out,3), 'inconsistent array shape')
 
       q_out = q_in
 
@@ -133,9 +130,9 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(rotate)
 
-      _ASSERT(size(u_in,3) == size(u_out,3))
-      _ASSERT(size(v_in,3) == size(v_out,3))
-      _ASSERT(size(u_in,3) == size(v_in,3))
+      _ASSERT(size(u_in,3) == size(u_out,3), 'inconsistent array shape')
+      _ASSERT(size(v_in,3) == size(v_out,3), 'inconsistent array shape')
+      _ASSERT(size(u_in,3) == size(v_in,3), 'inconsistent array shape')
 
       u_out = u_in
       v_out = v_in
@@ -159,7 +156,7 @@ contains
    ! do nothing
    subroutine initialize_subclass(this, unusable, rc)
       use MAPL_KeywordEnforcerMod
-      use MAPL_RegridderSpecMod
+      use MAPL_RegridderSpec
       use MAPL_BaseMod, only: MAPL_GridGet
       class (IdentityRegridder), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable

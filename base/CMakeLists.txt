@@ -12,7 +12,9 @@ endif()
 set (srcs
   MAPL_ExtData_IOBundleMod.F90        MAPL_Profiler.F90
   CFIOCollection.F90                    MAPL_ExtData_IOBundleVectorMod.F90  MAPL_RegridderManager.F90
-  MAPL_RegridderSpec.F90
+  NewRegridderManager.F90
+  RegridderTypeSpec.F90                 RegridderSpec.F90                   RegridderSpecRouteHandleMap.F90
+  RegridMethods.F90                     HorizontalFluxRegridder.F90
   MAPL_FractionalRegridder.F90          MAPL_RegridderTypeSpecRegridderMap.F90
   ESMF_CFIOPtrVectorMod.F90             MAPL_GenericCplComp.F90             MAPL_RegridderVector.F90
   ESMFL_Mod.F90                         MAPL_Generic.F90                    MAPL_SatVapor.F90
