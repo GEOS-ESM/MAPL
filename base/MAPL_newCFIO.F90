@@ -8,8 +8,8 @@ module MAPL_newCFIOMod
   use MAPL_GridManagerMod
   use MAPL_GenericMod
   use MAPL_BaseMod
-  use MAPL_RegridderManagerMod
-  use MAPL_RegridderSpecMod
+  use MAPL_NewRegridderManager
+  use MAPL_RegridMethods
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod
   use MAPL_ConstantsMod

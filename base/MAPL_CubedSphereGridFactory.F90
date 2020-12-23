@@ -6,18 +6,14 @@
 ! equivalent for the "other" axis.
 !-----------------------------------------------------
 
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
+#include "MAPL_Generic.h"
 
 
 module MAPL_CubedSphereGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_MinMaxMod
    use MAPL_KeywordEnforcerMod
+   use mapl_ErrorHandlingMod
    use ESMF
    use pFIO
    use MAPL_CommsMod
@@ -217,7 +213,7 @@ contains
       enddo
 
       if(allocated(this%jms_2d)) then
-         _ASSERT(size(this%jms_2d,2) == 6) 
+         _ASSERT(size(this%jms_2d,2) == 6,'incompatible shape') 
          allocate(jms, source = this%jms_2d)
       else
          allocate(jms(this%ny,nTile))
@@ -597,7 +593,7 @@ contains
       if ( (this%target_lon /= UNDEFINED_REAL) .and. &
            (this%target_lat /= UNDEFINED_REAL) .and. &
            (this%stretch_factor /= UNDEFINED_REAL) ) then
-         _ASSERT( (this%target_lat >= -90.0) .and. (this%target_lat <= 90) )
+         _ASSERT( (this%target_lat >= -90.0) .and. (this%target_lat <= 90), 'latitude out of range')
          this%stretched_cube = .true.
          this%target_lon=this%target_lon*pi/180.d0
          this%target_lat=this%target_lat*pi/180.d0
@@ -605,11 +601,11 @@ contains
 
       ! Check decomposition/bounds
       ! WY notes: not necessary for this assert
-      !_ASSERT(allocated(this%ims) .eqv. allocated(this%jms))
+      !_ASSERT(allocated(this%ims) .eqv. allocated(this%jms),'inconsistent options')
       call verify(this%nx, this%im_world, this%ims, rc=status)
       if (allocated(this%jms_2d)) then
-        _ASSERT(size(this%jms_2d,2)==6) 
-        _ASSERT(sum(this%jms_2d) == 6*this%im_world)
+        _ASSERT(size(this%jms_2d,2)==6, 'incompatible shape') 
+        _ASSERT(sum(this%jms_2d) == 6*this%im_world, 'incompatible shape')
       else
          call verify(this%ny, this%im_world, this%jms, rc=status)
       endif
@@ -627,24 +623,24 @@ contains
          integer :: status
 
          if (allocated(ms)) then
-            _ASSERT(size(ms) > 0)
+            _ASSERT(size(ms) > 0, 'must be > 0 PEs in each dimension')
 
             if (n == UNDEFINED_INTEGER) then
                n = size(ms)
             else
-               _ASSERT(n == size(ms))
+               _ASSERT(n == size(ms), 'inconsistent specs')
             end if
 
             if (m_world == UNDEFINED_INTEGER) then
                m_world = sum(ms)
             else
-               _ASSERT(m_world == sum(ms))
+               _ASSERT(m_world == sum(ms), 'inconsistent specs')
             end if
 
          else
 
-            _ASSERT(n /= UNDEFINED_INTEGER)
-            _ASSERT(m_world /= UNDEFINED_INTEGER)
+            _ASSERT(n /= UNDEFINED_INTEGER,'n not specified')
+            _ASSERT(m_world /= UNDEFINED_INTEGER,'m_wold not specified')
             allocate(ms(n), stat=status)
             _VERIFY(status)
 
@@ -775,8 +771,7 @@ contains
       _UNUSED_DUMMY(lat_array)
       _UNUSED_DUMMY(unusable)
       
-      ! not implemented
-      _ASSERT(.false.)
+      _FAIL('not implemented')
 
    end subroutine initialize_from_esmf_distGrid
 
