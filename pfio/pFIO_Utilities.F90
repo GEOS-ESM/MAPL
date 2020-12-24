@@ -288,8 +288,9 @@ contains
       integer(kind=INT32), allocatable :: buffer(:)
       logical, intent(in) :: scalar
       integer, optional, intent(out) :: rc
-
-      buffer = [transfer(scalar,1)]
+     
+      allocate(buffer(1), source = 0)
+      if(scalar) buffer(1) = 1
 
       _RETURN(_SUCCESS)
    end function serialize_logical_0d
@@ -300,10 +301,15 @@ contains
       logical, intent(in) :: array(:)
       integer, optional, intent(out) :: rc
 
+      integer, allocatable :: itmp(:)
       integer(kind=INT32) :: n
 
       n = size(array)*word_size(pFIO_LOGICAL)
-      buffer = [n+1, transfer(array,[1])]
+      allocate(itmp(n), source = 0)
+      where(array)
+         itmp = 1
+      endwhere
+      buffer = [n+1, itmp]
 
       _RETURN(_SUCCESS)
    end function serialize_logical_1d
@@ -444,7 +450,7 @@ contains
       integer, optional, intent(out) :: rc
 
       _ASSERT(size(buffer) >= 1, "wrong buffer")      
-      scalar = transfer(buffer(1),scalar)
+      scalar = buffer(1) /= 0
 
       _RETURN(_SUCCESS)
    end subroutine deserialize_logical_0d
@@ -460,7 +466,8 @@ contains
       _ASSERT(size(buffer) >= 1, "wrong buffer")      
       n = buffer(1)
       allocate(array(n-1))
-      array = transfer(buffer(2:n),array)
+     
+      array = buffer(2:n) /= 0
 
       _RETURN(_SUCCESS)
    end subroutine deserialize_logical_1d
@@ -501,8 +508,7 @@ contains
       case (pFIO_REAL32)
          word_size = c_sizeof(r32)/c_sizeof(i32)
       case (pFIO_LOGICAL)
-         word_size = c_sizeof(l)/c_sizeof(i32)
-         _ASSERT(word_size >=1, "size at least should be 1")
+         word_size = 1
       case (pFIO_REAL64)
          word_size = c_sizeof(r64)/c_sizeof(i32)
       case (pFIO_INT64)
