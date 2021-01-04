@@ -3,6 +3,7 @@
 
 module pFIO_UtilitiesMod
    use, intrinsic :: iso_c_binding, only: c_sizeof 
+   use, intrinsic :: iso_c_binding, only: c_bool
    use, intrinsic :: iso_fortran_env, only: INT32,REAL32,INT64,REAL64
    use pFIO_ConstantsMod
    use MAPL_ExceptionHandling
@@ -500,7 +501,7 @@ contains
       integer(kind=INT64) :: i64
       real (kind=REAL32) :: r32
       real (kind=REAL64) :: r64
-      logical :: l
+      logical(kind=C_BOOL) :: l
 
       select case(type_kind)
       case (pFIO_INT32)

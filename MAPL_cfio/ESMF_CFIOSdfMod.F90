@@ -23,7 +23,7 @@
       use ESMF_CFIOVarInfoMod
       use ESMF_CFIOFileMod
       use netcdf
-      use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64
+      use, intrinsic :: ISO_FORTRAN_ENV, only: INT16, REAL32, REAL64
 
       implicit none
 !------------------------------------------------------------------------------
@@ -350,11 +350,11 @@
 !EOP
 !------------------------------------------------------------------------------
       integer :: ngatts, lm, i, ii, iv
-      real*4 :: amiss
-      real*4 :: vRange32(2)
-      real*4, pointer :: lon(:), lat(:)
-      real*4, pointer :: lev(:) => null()
-      real*8, pointer :: lon_64(:), lat_64(:), lev_64(:)
+      real(kind=REAL32) :: amiss
+      real(kind=REAL32) :: vRange32(2)
+      real(kind=REAL32), pointer :: lon(:), lat(:)
+      real(kind=REAL32), pointer :: lev(:) => null()
+      real(kind=REAL64), pointer :: lon_64(:), lat_64(:), lev_64(:)
       integer :: coXType = NF90_FLOAT
       integer :: coYType = NF90_FLOAT
       integer :: coZType = NF90_FLOAT
@@ -369,9 +369,8 @@
       integer :: nvDims           ! number of dimensions
       integer :: vDims(MAXVDIMS)  ! variable shape
       integer :: nvatts           ! number of attributes
-      real*4, pointer :: rtmp(:)
+      real(kind=REAL32), pointer :: rtmp(:)
       integer, pointer :: itmp(:)
-      logical :: esmf_file = .false.
       logical :: new_grid
       integer :: nDims, allVars, recdim
       integer :: im, jm, km
@@ -384,10 +383,10 @@
       integer :: akid, bkid, ptopid
       integer :: icount
       integer :: vdir
-      real*4, pointer :: ak(:), bk(:)
-      real*4 :: ptop
-      real*4 :: ptop_array(1)
-      real*4 :: scale, offset
+      real(kind=REAL32), pointer :: ak(:), bk(:)
+      real(kind=REAL32) :: ptop
+      real(kind=REAL32) :: ptop_array(1)
+      real(kind=REAL32) :: scale, offset
       character, pointer ::  globalAtt(:)
       character(len=MLEN) :: fNameTmp     ! file name
       character(len=MVARLEN) :: fversion
@@ -889,8 +888,6 @@
             end if
          end do
          cfio%attChars(i)(cfio%attCharCnts(i)+1:MLEN) = ' '
-         if (index(cfio%attCharNames(i),'Conventions') .gt. 0 .and.  &
-             index(cfio%attChars(i), 'ESMF') .gt. 0) esmf_file=.true.
 
          if (index(cfio%attCharNames(i),'History') .gt. 0)  &
             cfio%History=cfio%attChars(i)
@@ -1990,14 +1987,13 @@
 !EOP
 !-------------------------------------------------------------------------
 
-      ! REAL*4 variables for 32-bit output to netCDF file.
+      ! REAL(KIND=REAL32) variables for 32-bit output to netCDF file.
 
-      integer :: im, jm, km, tm, nst
-      real*8, pointer :: lon_64(:), lat_64(:), levs_64(:)
-      real*8, pointer :: lon2_64(:), lat2_64(:)
+      integer :: im, jm, km, tm
+      real(kind=REAL64), pointer :: lon_64(:), lat_64(:), levs_64(:)
+      real(kind=REAL64), pointer :: lon2_64(:), lat2_64(:)
       character(len=MVARLEN) :: levunits
       integer :: yyyymmdd_beg, hhmmss_beg, timinc
-      real :: missing_val
       integer :: nvars
       character(len=MLEN), pointer :: vname(:)
       character(len=MVARLEN), pointer :: vtitle(:)
@@ -2007,11 +2003,11 @@
       integer, pointer :: akid(:), bkid(:), ptopid(:)
       integer, pointer ::  vid(:)
 
-      real*4 amiss_32
-      real*4 scale_32, offset_32
-      real*4 high_32,low_32
-      real*4, pointer :: ak_32(:), bk_32(:), layer(:)
-      real*4 :: ptop_32(1)
+      real(kind=REAL32) amiss_32
+      real(kind=REAL32) scale_32, offset_32
+      real(kind=REAL32) high_32,low_32
+      real(kind=REAL32), pointer :: ak_32(:), bk_32(:), layer(:)
+      real(kind=REAL32) :: ptop_32(1)
       integer i, j
       integer timeid, timedim
       integer, pointer :: latid(:), lonid(:), stationid(:)
@@ -2038,8 +2034,7 @@
       integer maxLen
       integer rtcode
       logical :: aveFile = .false.
-      character cellMthd
-!      real*4 bndsdata(2)
+!      real(kind=REAL32) bndsdata(2)
       integer bndsid, dimsbnd(2), bndsdim
       integer ig
       integer ndim
@@ -2054,8 +2049,8 @@
 
 ! Variables for packing
 
-      integer*2 amiss_16
-      real*4, pointer ::  pRange_32(:,:),vRange_32(:,:)
+      integer(kind=INT16) amiss_16
+      real(kind=REAL32), pointer ::  pRange_32(:,:),vRange_32(:,:)
       logical packflag
 ! Set metadata strings.  These metadata values are specified in the 
 ! COARDS conventions
@@ -2076,9 +2071,9 @@
 !                           timeUnits: string is built below
       character (len=50) :: coordinatesName
       integer :: iCnt
-      real*4, pointer :: realVarAtt(:)
+      real(kind=REAL32), pointer :: realVarAtt(:)
       integer, pointer :: intVarAtt(:)
-      real*4 :: scale_factor, add_offset
+      real(kind=REAL32) :: scale_factor, add_offset
       character (len=50) :: nameLatDim, nameLonDim
       character (len=50) :: nameLat, nameLon, nameLev, nameEdge
       character (len=50) :: nameAk, nameBk, namePtop, nameStation 
@@ -2092,7 +2087,7 @@
       yyyymmdd_beg = cfio%date
       hhmmss_beg = cfio%begTime
       timinc = cfio%timeInc
-      missing_val = cfio%varObjs(1)%amiss
+
       allocate(vname(nvars), vtitle(nvars), vunits(nvars), kmvar(nvars), &
             valid_range(2,nvars), packing_range(2,nvars), vid(nvars),    &
             vRange_32(2,nvars), pRange_32(2,nvars), stat = rtcode)
@@ -2124,7 +2119,6 @@
          packing_range(2, i) = cfio%varObjs(i)%packingRange(2)
          if ( cfio%varObjs(i)%timAve ) then
             aveFile = .true.
-            cellMthd = cfio%varObjs(i)%aveMethod
          end if
       enddo
 
@@ -2189,7 +2183,6 @@
       if ( index(cfio%grids(ig)%gName, 'station') .gt. &
            0 ) then
          if (im .ne. jm) rtcode = err("It isn't station grid",-1,-1)
-         nst = im
       end if
 
       levunits = trim(cfio%grids(ig)%levUnits)
@@ -2679,7 +2672,6 @@
       if ( index(cfio%grids(ig)%gName, 'station') .gt. &
            0 ) then
          if (im .ne. jm) rtcode = err("It isn't station grid",-1,-1)
-         nst = im
       end if
 
       gDims3D(5,ig) = 0
@@ -3350,7 +3342,7 @@
       deallocate(gmid, stat = rtcode)
       deallocate(gmdim, stat = rtcode)
 
-      rc=0
+      rc=rtcode
       return
 contains
   logical function isFileExtensionNetCDF4(fileName)
@@ -3406,7 +3398,7 @@ contains
       integer :: vid, corner(4), edges(4)
       integer :: hour, minute, sec, incSecs, timeIndex
       integer :: seconds, timeinc, curSecs
-      real*4 :: bndsdata(2)
+      real(kind=REAL32) :: bndsdata(2)
       integer :: i, rtcode=0
 
 !     make sure user provides the right variable name
