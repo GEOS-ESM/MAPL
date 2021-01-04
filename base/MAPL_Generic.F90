@@ -124,6 +124,8 @@ module MAPL_GenericMod
   use MAPL_ExceptionHandling
   use MAPL_KeywordEnforcerMod
   use MAPL_StringTemplate
+  use mpi
+  use netcdf
   use pFlogger, only: logging, Logger
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
@@ -327,7 +329,6 @@ module MAPL_GenericMod
      module procedure MAPL_GetLogger_meta
   end interface MAPL_GetLogger
 
-  include "mpif.h"
   
 ! =======================================================================
 
@@ -452,7 +453,7 @@ type MAPL_MetaPtr
 end type MAPL_MetaPtr
 
 character(*), parameter :: SEPARATOR = '.'
-include "netcdf.inc"
+
 contains
 
 #define LOWEST_(c) m=0; do while (m /= c) ;\
@@ -10474,7 +10475,7 @@ end subroutine MAPL_GenericStateRestore
 
 
      type(ESMF_GridComp),  intent(INOUT) :: GC         ! Gridded component
-     integer*8,            pointer       :: LSADDR(:)
+     integer(kind=INT64),            pointer       :: LSADDR(:)
      integer,              intent(  OUT) :: RC         ! Return code
 
 
@@ -10484,10 +10485,10 @@ end subroutine MAPL_GenericStateRestore
      type (MAPL_LocStream)                       :: LocStream
 
      character(len=ESMF_MAXSTR)   :: CNAME
-     integer*8                    :: ADDR
+     integer(kind=INT64)                    :: ADDR
      integer                      :: I
      integer                      :: N
-     integer*8, pointer           :: TMP(:)
+     integer(kind=INT64), pointer           :: TMP(:)
      logical                      :: found
 
 ! Retrieve the pointer to the internal state
