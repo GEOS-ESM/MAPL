@@ -1,26 +1,22 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
+#include "MAPL_Generic.h"
 
 module MAPL_RegridderManager_private
    use MAPL_GridManagerMod
-   use MAPL_RegridderSpecMod
+   use MAPL_RegridderTypeSpec
+   use MAPL_RegridderSpec
    use MAPL_RegridderVectorMod
    use MAPL_RegridderTypeSpecRegridderMapMod
-   use MAPL_RegridderSpecRouteHandleMapMod
    use MAPL_KeywordEnforcerMod
+   use mapl_ErrorHandlingMod
    use MAPL_AbstractRegridderMod
    use MAPL_IdentityRegridderMod
    use ESMF
    use MAPL_EsmfRegridderMod
+   use mapl_RegridMethods
    implicit none
    private
 
    public :: RegridderManager
-   public :: NewRegridderManager
 
    ! Private set of pre-computed route-handles.
    ! Convervative, Tiling, and Voting can all use the same route-handle.
@@ -44,16 +40,6 @@ module MAPL_RegridderManager_private
       procedure :: delete_regridder
    end type RegridderManager
 
-   type :: NewRegridderManager
-      private
-      logical :: initialized = .false.
-      ! TODO: this could be a vector of EsmfRegridders rather than AbstractRegridders.
-      type (RegridderVector) :: regridders
-   contains
-      procedure :: init => new_init
-      procedure :: make_regridder_from_grids => new_make_regridder_from_grids
-      generic :: make_regridder => make_regridder_from_grids
-   end type NewRegridderManager
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_RegridderManager_private::'
 
@@ -218,79 +204,6 @@ contains
    end function make_regridder_from_grids
 
 
-   function new_make_regridder_from_grids(this, grid_in, grid_out, regrid_method, unusable, hints, rc) result(regridder)
-      class (AbstractRegridder), pointer :: regridder
-      class (NewRegridderManager), target, intent(inout) :: this
-      type (ESMF_Grid), intent(in) :: grid_in
-      type (ESMF_Grid), intent(in) :: grid_out
-      integer, intent(in) :: regrid_method
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: hints
-      integer, optional,  intent(out) :: rc
-
-      integer :: status
-      character(len=*), parameter :: Iam= MOD_NAME // 'make_regridder_from_grids'
-      type (RegridderSpec) :: spec
-      integer(ESMF_KIND_I8) :: id_in, id_out
-
-      _UNUSED_DUMMY(unusable)
-
-      if (.not. this%initialized) then
-        call this%init()
-      end if
-
-      id_in = get_factory_id(grid_in,rc=status)
-      _VERIFY(status)
-      id_out = get_factory_id(grid_out,rc=status)
-      _VERIFY(status)
-      ! Special case if two grids are the same
-      id_in = get_factory_id(grid_in,rc=status)
-      _VERIFY(status)
-      id_out = get_factory_id(grid_out,rc=status)
-      _VERIFY(status)
-      if (id_in==id_out) then
-         regridder => identity_regridder()
-         _RETURN(_SUCCESS)
-      end if
-
-      ! If manager already has suitable regridder, use it.
-      spec = RegridderSpec(grid_in, grid_out, regrid_method, hints=hints)
-
-      regridder => find(this%regridders, spec)
-      if (associated(regridder)) then
-         _RETURN(_SUCCESS)
-      end if
-
-      call this%regridders%push_back(EsmfRegridder())
-      regridder => this%regridders%back()
-      call regridder%initialize(spec, rc=status)
-      _VERIFY(status)
-
-      _RETURN(_SUCCESS)
-
-   contains
-
-      function find(vector, spec) result(match)
-         class (AbstractRegridder), pointer :: match
-         type (RegridderVector), target :: vector
-         type (RegridderSpec), intent(in) :: spec
-
-         type (RegridderVectorIterator) :: iter
-
-         iter = vector%begin()
-         do while (iter /= vector%end())
-            match => iter%get()
-            if (match%get_spec() == spec) return
-           call iter%next()
-        end do
-
-        match => null()
-
-     end function find
-
-   end function new_make_regridder_from_grids
-
-
    subroutine init(this)
      use MAPL_LatLonToLatLonRegridderMod
      use MAPL_ConservativeRegridderMod
@@ -311,19 +224,6 @@ contains
 
    end subroutine init
 
-  
-   subroutine new_init(this)
-     use MAPL_LatLonToLatLonRegridderMod
-     use MAPL_ConservativeRegridderMod
-     use MAPL_VotingRegridderMod
-     use MAPL_FractionalRegridderMod
-     class (NewRegridderManager), intent(inout) :: this
-
-     this%initialized = .true.
-
-  end subroutine new_init
-
-
 end module MAPL_RegridderManager_private
 
 
@@ -335,9 +235,7 @@ module MAPL_RegridderManagerMod
 
    public :: RegridderManager
    public :: regridder_manager
-   public :: new_regridder_manager
 
    type (RegridderManager), target, save :: regridder_manager
-   type (NewRegridderManager), target, save :: new_regridder_manager
 
 end module MAPL_RegridderManagerMod
