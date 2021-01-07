@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved modules into separate files.
 - Updated various modules to use the standard `_ASSERT()` and `_VERIFY()` macros instead of ad-hoc ones.
 - Updated `components.yaml`
-  - ESMA_env v3.1.2
+  - ESMA_env v3.1.3
   - ESMA_cmake v3.3.5
 	
 ### Fixed
