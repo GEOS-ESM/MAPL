@@ -88,7 +88,7 @@ set (srcs
   StringVectorUtil.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared NetCDF::NetCDF_Fortran)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared NetCDF::NetCDF_Fortran TYPE SHARED)
 target_link_libraries (${this} PUBLIC gftl-shared
                                PRIVATE OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
 target_include_directories (${this} PUBLIC

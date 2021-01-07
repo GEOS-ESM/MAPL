@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ability to register protoype (non-ESMF) regridders in NewRegridderManager
 - Make the default clobber rather than no clobber in NetCDF formatter in PFIO
 - Add basic check that the restart files match the application grid
+- Add new `MAPL_AddChildFromDSO` module procedure for `MAPL_AddChild`
 
 ### Changed
 
@@ -22,9 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Convert `file(GLOB)` to explicit list
 - Moved modules into separate files.
 - Updated various modules to use the standard `_ASSERT()` and `_VERIFY()` macros instead of ad-hoc ones.
+- MAPL (sub-)libraries are now built as `TYPE SHARED` (needed for DSO work)
 	
 ### Fixed
-
 	
 ### Removed
 
