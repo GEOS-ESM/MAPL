@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add stretching factors to file if applicable in cubed-sphere output via History and uptick to cube version 2.91
 - Ability to register protoype (non-ESMF) regridders in NewRegridderManager
 - Make the default clobber rather than no clobber in NetCDF formatter in PFIO
-
+- Add basic check that the restart files match the application grid
 
 ### Changed
 
