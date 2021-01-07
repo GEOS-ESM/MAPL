@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `components.yaml`
   - ESMA_env v3.1.3
   - ESMA_cmake v3.3.5
+- Update CI image to use Baselibs v6.0.27
 	
 ### Fixed
 	
