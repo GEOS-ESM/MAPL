@@ -6,7 +6,7 @@ set (srcs
      MAPL_NUOPCWrapperMod.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler TYPE SHARED)
 target_link_libraries (${this} PUBLIC gftl gftl-shared ${ESMF_LIBRARIES}
                                PRIVATE OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
 target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF}
