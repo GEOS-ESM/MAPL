@@ -16,13 +16,16 @@ set (srcs
     MAPL_ShmemMod.F90
     MAPL_Sort.F90
     MAPL_Throw.F90
+    AbstractCommSplitter.F90
+    CommGroupDescription.F90
+    SplitCommunicator.F90
+    SimpleCommSplitter.F90
     sort.c
     MAPL_ExceptionHandling.F90
 
     String.F90
   )
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared pflogger MPI::MPI_Fortran)
-#target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared MPI::MPI_Fortran pflogger TYPE SHARED)
 target_include_directories (${this} PUBLIC
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
@@ -30,8 +33,8 @@ target_include_directories (${this} PUBLIC
 #file (COPY MAPL_ErrLog.h DESTINATION ${esma_include}/${this})
 #file (COPY MAPL_Exceptions.h DESTINATION ${esma_include}/${this})
 
-#if (PFUNIT_FOUND)
-  #add_subdirectory (tests)
-#endif ()
+if (PFUNIT_FOUND)
+  add_subdirectory (tests)
+endif ()
 
-add_subdirectory(tests EXCLUDE_FROM_ALL)
+#add_subdirectory(tests EXCLUDE_FROM_ALL)

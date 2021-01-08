@@ -35,14 +35,14 @@ module MAPL_CFIOMod
   use MAPL_SortMod
   use MAPL_GridManagerMod
   use MAPL_RegridderManagerMod
+  use MAPL_NewRegridderManager
   use MAPL_AbstractRegridderMod
   use MAPL_ConfigMod
-  use MAPL_RegridderSpecMod
+  use mapl_RegridMethods
   use MAPL_MemUtilsMod
   use ESMF_CFIOCollectionVectorMod
   use ESMF_CFIOCollectionMod
   use PFIO
-  use MAPL_ioClientsMod
   use gFTL_IntegerVector
   use MAPL_StringTemplate
 
@@ -132,6 +132,11 @@ module MAPL_CFIOMod
      module procedure MAPL_CFIOReadArray3D
      module procedure MAPL_CFIOReadArray2D
   end interface
+
+  interface MAPL_CFIOReadParallel
+     module procedure MAPL_CFIOReadParallel_
+  end interface
+
 
 !                     ESMF Consistent Naming Convention
 !                     ---------------------------------
@@ -2970,7 +2975,7 @@ contains
     _VERIFY(STATUS)
 
     call strToInt(DATE, nymd, nhms)
-    call string_template ( filename, filetmpl, &
+    call fill_grads_template ( filename, filetmpl, &
                            experiment_id=EXPID, nymd=nymd, nhms=nhms, rc=status )
     _VERIFY(STATUS)
     !call WRITE_PARALLEL("CFIO: Reading " // trim(filename))
@@ -4631,7 +4636,7 @@ CONTAINS
     _VERIFY(STATUS)
     
     call strToInt(DATE, nymd, nhms)
-    call string_template ( Filename, FileTmpl,&
+    call fill_grads_template ( Filename, FileTmpl,&
                            experiment_id=EXPID, nymd=nymd, nhms=nhms, rc=status )
     _VERIFY(STATUS)
     _RETURN(ESMF_SUCCESS)
@@ -4943,10 +4948,11 @@ CONTAINS
 
   end subroutine MAPL_CFIOPartition
 
-  subroutine MAPL_CFIOReadParallel(bundlelist,filelist,time,blocksize,RegridMethod,gsiMode,rc)
+  subroutine MAPL_CFIOReadParallel_(bundlelist,filelist,time,blocksize,RegridMethod,gsiMode,timelist,rc)
      type(ESMF_FieldBundle), pointer, intent(inout) :: bundlelist(:)
      character(len=*), intent(in) :: filelist(:)
      type(ESMF_Time), intent(inout) ::time
+     type(ESMF_Time), optional, intent(in) ::timelist(:)
      integer, optional, intent(in) :: blocksize
      integer, optional, intent(in) :: regridMethod
      logical, optional, intent(in) :: gsiMode
@@ -4979,7 +4985,11 @@ CONTAINS
         cfio(n)%fname = filelist(n)
         collection => collections%at(cfio(n)%collection_id)
         pcfio => collection%find(cfio(n)%fname)
-        call getTIndex(pcfio,time,nn,rc=status)
+        if (present(timelist)) then
+          call getTIndex(pcfio,timelist(n),nn,rc=status)
+        else
+          call getTIndex(pcfio,time,nn,rc=status)
+        endif
         _VERIFY(status)
         call tindex%push_back(nn)
      enddo
@@ -5076,11 +5086,14 @@ CONTAINS
 
      enddo
 
-     deallocate(slices,psize,root,reading,gslices)
+     deallocate(slices,psize,root,reading,gslices,stat=status)
+     _VERIFY(STATUS)
+     deallocate(cfio,stat=status)
+     _VERIFY(STATUS)
 
      _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_CFIOReadParallel
+  end subroutine MAPL_CFIOReadParallel_
 
   subroutine MAPL_CFIOCreateFromFile(MCFIO,bundlein,RegridMethod,hw,only_vars,rc)
 

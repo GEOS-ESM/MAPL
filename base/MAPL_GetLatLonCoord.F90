@@ -1,15 +1,9 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; call MAPL_throw_exception(__FILE__,__LINE__); return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; call MAPL_throw_exception(__FILE__,__LINE__); return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-
-#include "unused_dummy.H"
+#include "MAPL_Generic.h"
 
 module MAPL_GetLatLonCoordMod
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
-  use MAPL_ExceptionHandling
+  use mapl_ErrorHandlingMod
   use MAPL_BaseMod, only: MAPL_GridGet
   use MAPL_CommsMod
   use esmf
@@ -65,7 +59,7 @@ contains
       else if (dim==2) then
          if (myPet==0) x = xg(1,:)
       else
-         _ASSERT(.false.)
+         _FAIL('unsupported rank > 2')
       end if
       call MAPL_CommsBcast(layout,x,size(x), 0, rc=status)
       _VERIFY(status)
@@ -116,7 +110,7 @@ contains
       else if (dim==2) then
          if (myPet==0) x = xg(1,:)
       else
-         _ASSERT(.false.)
+         _FAIL('unsupported rank > 2')
       end if
       call MAPL_CommsBcast(layout,x,size(x), 0, rc=status)
       _VERIFY(status)

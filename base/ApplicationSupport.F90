@@ -189,7 +189,7 @@ module MAPL_ApplicationSupport
 
       reporter = ProfileReporter(empty)
       call reporter%add_column(NameColumn(50, separator= " "))
-      call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn(),separator='-'))
+      call reporter%add_column(FormattedTextColumn('#-cycles','(i8.0)', 8, NumCyclesColumn(),separator='-'))
 
       inclusive = MultiColumn(['Inclusive'], separator='=')
       call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))

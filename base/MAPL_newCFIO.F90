@@ -8,8 +8,8 @@ module MAPL_newCFIOMod
   use MAPL_GridManagerMod
   use MAPL_GenericMod
   use MAPL_BaseMod
-  use MAPL_RegridderManagerMod
-  use MAPL_RegridderSpecMod
+  use MAPL_NewRegridderManager
+  use MAPL_RegridMethods
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod
   use MAPL_ConstantsMod
@@ -20,7 +20,6 @@ module MAPL_newCFIOMod
   use pFIO_ClientManagerMod
   use MAPL_ExtDataCollectionMod
   use MAPL_ExtDataCOllectionManagerMod
-  use MAPL_ioClientsMod
   use gFTL_StringVector
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
@@ -42,6 +41,7 @@ module MAPL_newCFIOMod
      integer :: regrid_method = REGRID_METHOD_BILINEAR
      integer :: nbits = 1000
      real, allocatable :: lons(:,:),lats(:,:)
+     real, allocatable :: corner_lons(:,:),corner_lats(:,:)
      real, allocatable :: times(:)
      type(TimeData) :: timeInfo
      type(VerticalData) :: vdata
@@ -411,8 +411,17 @@ module MAPL_newCFIOMod
         real, pointer :: ptr2d(:,:), outptr2d(:,:)
         real, allocatable, target :: ptr3d_inter(:,:,:)
         type(ESMF_Grid) :: gridIn,gridOut
+        logical :: hasDE_in, hasDE_out
 
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
+        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
+        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
+        _VERIFY(status)
+        hasDE_in = MAPL_GridHasDE(gridIn,rc=status)
+        _VERIFY(status)
+        hasDE_out = MAPL_GridHasDE(gridOut,rc=status)
         _VERIFY(status)
 
         if (this%doVertRegrid) then
@@ -421,8 +430,12 @@ module MAPL_newCFIOMod
            call ESMF_FieldGet(Field,rank=fieldRank,rc=status)
            _VERIFY(status)
            if (fieldRank==3) then
-              call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
-              _VERIFY(status)
+              if (hasDE_in) then
+                 call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
+                 _VERIFY(status)
+              else
+                 allocate(ptr3d(0,0,0))
+              end if
               allocate(ptr3d_inter(size(ptr3d,1),size(ptr3d,2),this%vdata%lm),stat=status)
               _VERIFY(status)
               if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
@@ -438,19 +451,23 @@ module MAPL_newCFIOMod
            if (associated(ptr3d)) nullify(ptr3d)
         end if
 
-        call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
-        _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
         _VERIFY(status)
         call ESMF_FieldGet(field,rank=fieldRank,rc=status)
         _VERIFY(status)
         if (fieldRank==2) then
-           call MAPL_FieldGetPointer(field,ptr2d,rc=status)
-           _VERIFY(status)
-           call MAPL_FieldGetPointer(OutField,outptr2d,rc=status)
-           _VERIFY(status)
+           if (hasDE_in) then
+              call MAPL_FieldGetPointer(field,ptr2d,rc=status)
+              _VERIFY(status)
+           else
+              allocate(ptr2d(0,0))
+           end if
+           if (hasDE_out) then
+              call MAPL_FieldGetPointer(OutField,outptr2d,rc=status)
+              _VERIFY(status)
+           else
+              allocate(outptr2d(0,0))
+           end if
            if (gridIn==gridOut) then
               outPtr2d=ptr2d
            else
@@ -460,11 +477,19 @@ module MAPL_newCFIOMod
            end if
         else if (fieldRank==3) then
            if (.not.associated(ptr3d)) then
-              call MAPL_FieldGetPointer(field,ptr3d,rc=status)
-              _VERIFY(status)
+              if (hasDE_in) then
+                 call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
+                 _VERIFY(status)
+              else
+                 allocate(ptr3d(0,0,0))
+              end if
            end if
-           call MAPL_FieldGetPointer(OutField,outptr3d,rc=status)
-           _VERIFY(status)
+           if (hasDE_out) then
+              call MAPL_FieldGetPointer(OutField,outptr3d,rc=status)
+              _VERIFY(status)
+           else
+              allocate(outptr3d(0,0,0)) 
+           end if
            if (gridIn==gridOut) then
               outPtr3d=Ptr3d
            else
@@ -498,10 +523,19 @@ module MAPL_newCFIOMod
         real, pointer :: yptr2d(:,:), youtptr2d(:,:)
         real, allocatable, target :: yptr3d_inter(:,:,:)
         type(ESMF_Grid) :: gridIn, gridOut
+        logical :: hasDE_in, hasDE_out
 
         call ESMF_FieldBundleGet(this%output_bundle,xName,field=xoutField,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%output_bundle,yName,field=youtField,rc=status)
+        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
+        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
+        _VERIFY(status)
+        hasDE_in = MAPL_GridHasDE(gridIn,rc=status)
+        _VERIFY(status)
+        hasDE_out = MAPL_GridHasDE(gridOut,rc=status)
         _VERIFY(status)
 
         if (this%doVertRegrid) then
@@ -510,8 +544,12 @@ module MAPL_newCFIOMod
            call ESMF_FieldGet(xField,rank=fieldRank,rc=status)
            _VERIFY(status)
            if (fieldRank==3) then
-              call ESMF_FieldGet(xfield,farrayPtr=xptr3d,rc=status)
-              _VERIFY(status)
+              if (hasDE_in) then
+                 call ESMF_FieldGet(xfield,farrayPtr=xptr3d,rc=status)
+                 _VERIFY(status)
+              else
+                 allocate(xptr3d(0,0,0))
+              end if
               allocate(xptr3d_inter(size(xptr3d,1),size(xptr3d,2),this%vdata%lm),stat=status)
               _VERIFY(status)
               if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
@@ -528,8 +566,12 @@ module MAPL_newCFIOMod
            call ESMF_FieldGet(yField,rank=fieldRank,rc=status)
            _VERIFY(status)
            if (fieldRank==3) then
-              call ESMF_FieldGet(yfield,farrayPtr=yptr3d,rc=status)
-              _VERIFY(status)
+              if (hasDE_in) then
+                 call ESMF_FieldGet(yfield,farrayPtr=yptr3d,rc=status)
+                 _VERIFY(status)
+              else
+                 allocate(yptr3d(0,0,0))
+              end if
               allocate(yptr3d_inter(size(yptr3d,1),size(yptr3d,2),this%vdata%lm),stat=status)
               _VERIFY(status)
               if (this%vdata%regrid_type==VERTICAL_METHOD_SELECT) then
@@ -546,10 +588,6 @@ module MAPL_newCFIOMod
            if (associated(yptr3d)) nullify(yptr3d)
         end if
 
-        call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,rc=status)
-        _VERIFY(status)
-        call ESMF_FieldBundleGet(this%output_bundle,grid=gridOut,rc=status)
-        _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,xname,field=xfield,rc=status)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,yname,field=yfield,rc=status)
@@ -557,15 +595,26 @@ module MAPL_newCFIOMod
         call ESMF_FieldGet(xfield,rank=fieldRank,rc=status)
         _VERIFY(status)
         if (fieldRank==2) then
-           call MAPL_FieldGetPointer(xfield,xptr2d,rc=status)
-           _VERIFY(status)
-           call MAPL_FieldGetPointer(xOutField,xoutptr2d,rc=status)
-           _VERIFY(status)
+           if (hasDE_in) then
+              call MAPL_FieldGetPointer(xfield,xptr2d,rc=status)
+              _VERIFY(status)
+              call MAPL_FieldGetPointer(yfield,yptr2d,rc=status)
+              _VERIFY(status)
+           else
+              allocate(xptr2d(0,0))
+              allocate(yptr2d(0,0))
+           end if
 
-           call MAPL_FieldGetPointer(yfield,yptr2d,rc=status)
-           _VERIFY(status)
-           call MAPL_FieldGetPointer(yOutField,youtptr2d,rc=status)
-           _VERIFY(status)
+           if (hasDE_in) then
+              call MAPL_FieldGetPointer(xOutField,xoutptr2d,rc=status)
+              _VERIFY(status)
+              call MAPL_FieldGetPointer(yOutField,youtptr2d,rc=status)
+              _VERIFY(status)
+           else
+              allocate(xoutptr2d(0,0))
+              allocate(youtptr2d(0,0))
+           end if
+
 
            if (gridIn==gridOut) then
               xoutPtr2d=xptr2d
@@ -576,18 +625,31 @@ module MAPL_newCFIOMod
            end if
         else if (fieldRank==3) then
            if (.not.associated(xptr3d)) then
-              call MAPL_FieldGetPointer(xfield,xptr3d,rc=status)
-              _VERIFY(status)
+              if (hasDE_in) then
+                 call MAPL_FieldGetPointer(xfield,xptr3d,rc=status)
+                 _VERIFY(status)
+              else
+                 allocate(xptr3d(0,0,0))
+              end if
            end if
-           call MAPL_FieldGetPointer(xOutField,xoutptr3d,rc=status)
-           _VERIFY(status)
-
            if (.not.associated(yptr3d)) then
-              call MAPL_FieldGetPointer(yfield,yptr3d,rc=status)
-              _VERIFY(status)
+              if (hasDE_in) then
+                 call MAPL_FieldGetPointer(yfield,yptr3d,rc=status)
+                 _VERIFY(status)
+              else
+                 allocate(yptr3d(0,0,0))
+              end if
            end if
-           call MAPL_FieldGetPointer(yOutField,youtptr3d,rc=status)
-           _VERIFY(status)
+
+           if (hasDE_out) then
+              call MAPL_FieldGetPointer(xOutField,xoutptr3d,rc=status)
+              _VERIFY(status)
+              call MAPL_FieldGetPointer(yOutField,youtptr3d,rc=status)
+              _VERIFY(status)
+           else
+              allocate(xoutptr3d(0,0,0))
+              allocate(youtptr3d(0,0,0))
+           end if
 
            if (gridIn==gridOut) then
               xoutPtr3d=xptr3d
@@ -631,7 +693,6 @@ module MAPL_newCFIOMod
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
-        if (.not.allocated(this%lons)) allocate(this%lons(size(ptr2d,1),size(ptr2d,2)))
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lons)
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
@@ -644,6 +705,36 @@ module MAPL_newCFIOMod
         this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
         ref = ArrayReference(this%lats)
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
+              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+        deallocate(LocalStart,GlobalStart,GlobalCount)
+     end if
+
+     var_lon => this%metadata%get_variable('corner_lons')
+     var_lat => this%metadata%get_variable('corner_lats')
+     
+     hasll = associated(var_lon) .and. associated(var_lat)
+     if (hasll) then
+        factory => get_factory(this%output_grid,rc=status)
+        _VERIFY(status)
+
+        call factory%generate_file_corner_bounds(this%output_grid,LocalStart,GlobalStart,GlobalCount,rc=status)
+        _VERIFY(status)
+        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=1, &
+        staggerloc=ESMF_STAGGERLOC_CORNER, &
+        farrayPtr=ptr2d, rc=status)
+        _VERIFY(STATUS)
+        this%corner_lons=ptr2d*MAPL_RADIANS_TO_DEGREES
+        ref = ArrayReference(this%corner_lons)
+         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lons', &
+              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+        call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
+        staggerloc=ESMF_STAGGERLOC_CORNER, &
+        farrayPtr=ptr2d, rc=status)
+        _VERIFY(STATUS)
+        if (.not.allocated(this%corner_lats)) allocate(this%corner_lats(size(ptr2d,1),size(ptr2d,2)))
+        this%corner_lats=ptr2d*MAPL_RADIANS_TO_DEGREES
+        ref = ArrayReference(this%corner_lats)
+         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lats', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
      end if
 
@@ -688,6 +779,8 @@ module MAPL_newCFIOMod
               call pFIO_DownBit(ptr2d,ptr2d,this%nbits,undef=MAPL_undef,rc=status)
               _VERIFY(status)
            end if
+        else
+           allocate(ptr2d(0,0))
         end if
         ref = factory%generate_file_reference2D(Ptr2D)
         allocate(localStart,source=[gridLocalStart,1])
@@ -701,6 +794,8 @@ module MAPL_newCFIOMod
                call pFIO_DownBit(ptr3d,ptr3d,this%nbits,undef=MAPL_undef,rc=status)
                _VERIFY(status)
             end if
+         else
+            allocate(ptr3d(0,0,0))
          end if
          ref = factory%generate_file_reference3D(Ptr3D)
          allocate(localStart,source=[gridLocalStart,1,1])

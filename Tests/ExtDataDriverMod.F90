@@ -7,7 +7,6 @@ module ExtDataDriverMod
    use MAPL
    use ExtData_DriverGridCompMod, only: ExtData_DriverGridComp, new_ExtData_DriverGridComp
    use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
-   use FLAP
    use gFTL_StringVector
    use MAPL_ApplicationSupport
    use MAPL_ServerManager
@@ -64,6 +63,7 @@ contains
       call driver%initialize_mpi()
       call MAPL_Initialize(rc=status)
       _VERIFY(status)
+      _RETURN(_SUCCESS)
    end function newExtDataDriver
 
    subroutine run(this,RC)
@@ -137,8 +137,7 @@ contains
             call iter%next()
          enddo
 
-         call i_Clients%terminate()
-         call o_Clients%terminate()
+         call this%cap_server%finalize()
       end select
 
       call MPI_Barrier(CommCap,status)

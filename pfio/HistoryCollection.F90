@@ -36,6 +36,7 @@ contains
     type (FilemetaData), intent(in) :: fmd
 
     collection%fmd = fmd
+    collection%formatters = StringNetCDF4_FileFormatterMap() 
 
   end function new_HistoryCollection
 
@@ -45,6 +46,7 @@ contains
     integer,optional,intent(out) :: rc 
 
     type (NetCDF4_FileFormatter), pointer :: formatter
+    type (NetCDF4_FileFormatter) :: fm
 
     type(StringNetCDF4_FileFormatterMapIterator) :: iter
     integer :: status
@@ -52,21 +54,20 @@ contains
     logical :: f_exist
 
     iter = this%formatters%find(trim(file_name))
-    if (iter /= this%formatters%end()) then
-       formatter => this%formatters%at(trim(file_name))
-    else
-       allocate(formatter)
+    if (iter == this%formatters%end()) then
        inquire(file=file_name, exist=f_exist)
        if(.not. f_exist) then 
-         call formatter%create(trim(file_name),rc=status)
+         call fm%create(trim(file_name),rc=status)
          _VERIFY(status)
-         call formatter%write(this%fmd, rc=status)
+         call fm%write(this%fmd, rc=status)
          _VERIFY(status)
        else
-          call formatter%open(trim(file_name), pFIO_WRITE)
+          call fm%open(trim(file_name), pFIO_WRITE)
        endif
-       call this%formatters%insert( trim(file_name),formatter)
+       call this%formatters%insert( trim(file_name),fm)
+       iter = this%formatters%find(trim(file_name))
     end if
+    formatter => iter%value()
     _RETURN(_SUCCESS)
   end function find
 
@@ -127,3 +128,56 @@ module pFIO_HistoryCollectionVectorMod
    
 end module pFIO_HistoryCollectionVectorMod
 
+module pFIO_HistoryCollectionVectorUtilMod
+   use pFIO_FileMetadataMod
+   use pFIO_HistoryCollectionMod
+   use pFIO_HistoryCollectionVectorMod
+   use pFIO_UtilitiesMod
+   implicit none
+   private
+
+   public:: HistoryCollectionVector_serialize
+   public:: HistoryCollectionVector_deserialize
+
+contains
+
+  subroutine HistoryCollectionVector_serialize(histVec,buffer)
+     type (HistoryCollectionVector),intent(in) :: histVec
+     integer, allocatable,intent(inout) :: buffer(:)
+     integer, allocatable :: tmp(:)
+     type (HistoryCollection),pointer :: hist_ptr
+     integer :: n, i
+
+     if (allocated(buffer)) deallocate(buffer)
+     allocate(buffer(0))
+     
+     n = histVec%size()
+     do i = 1, n
+        hist_ptr=>histVec%at(i)
+        call hist_ptr%fmd%serialize(tmp) 
+        buffer = [buffer,tmp]
+     enddo
+
+  end subroutine
+
+  subroutine HistoryCollectionVector_deserialize(buffer, histVec)
+     type (HistoryCollectionVector),intent(inout) :: histVec
+     integer, intent(in) :: buffer(:)
+     type (HistoryCollection) :: hist
+     type (FileMetadata) :: fmd
+     integer :: n, length, fmd_len
+
+     length = size(buffer)
+     n=1
+     fmd = FileMetadata()
+     histVec = HistoryCollectionVector()
+     do while (n < length)
+       hist = HistoryCollection(fmd)
+       call FileMetadata_deserialize(buffer(n:), hist%fmd)
+       call histVec%push_back(hist)
+       call deserialize_intrinsic(buffer(n:),fmd_len)
+       n = n + fmd_len 
+     enddo
+  end subroutine
+
+end module pFIO_HistoryCollectionVectorUtilMod

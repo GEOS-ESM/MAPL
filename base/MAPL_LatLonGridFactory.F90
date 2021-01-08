@@ -1,14 +1,7 @@
+#include "MAPL_ErrLog.h"
+
 ! overload set interfaces in legacy
 ! Document PE, PC, DC, DE, GC
-
-
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
-
 
 ! This module generates ESMF_Grids corresponding to _regular_ lat-lon coordinate grids.
 ! I.e., spacing between lats (lons) is constant.
@@ -17,6 +10,7 @@ module MAPL_LatLonGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_MinMaxMod
    use MAPL_KeywordEnforcerMod
+   use mapl_ErrorHandlingMod
    use MAPL_ConstantsMod
    use ESMF
    use pFIO
@@ -97,9 +91,9 @@ module MAPL_LatLonGridFactoryMod
       procedure :: check_decomposition
       procedure :: generate_newnxy
       procedure :: generate_file_bounds
+      procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
-      procedure :: generate_grid_specific_vars
    end type LatLonGridFactory
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_LatLonGridFactory::'
@@ -164,17 +158,17 @@ contains
 
       ! Check consistency
 
-      _ASSERT(size(lon_corners) == size(lon_centers)+1)
-      _ASSERT(size(lat_corners) == size(lat_centers)+1)
+      _ASSERT(size(lon_corners) == size(lon_centers)+1, 'inconsistent shape')
+      _ASSERT(size(lat_corners) == size(lat_centers)+1, 'inconsistent shape')
 
-      _ASSERT(sum(ims) == size(lon_centers))
-      _ASSERT(sum(jms) == size(lat_centers))
+      _ASSERT(sum(ims) == size(lon_centers),'inconcistent decomposition')
+      _ASSERT(sum(jms) == size(lat_centers),'inconcistent decomposition')
 
       call ESMF_VMGetCurrent(vm, rc=status)
       _VERIFY(status)
       call ESMF_VMGet(vm, PETcount=nPet, rc=status)
       _VERIFY(status)
-      _ASSERT(factory%nx*factory%ny == nPet)
+      _ASSERT(factory%nx*factory%ny == nPet,'inconsistent process topology')
 
       _RETURN(_SUCCESS)
       
@@ -206,7 +200,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'LatLonGridFactory_from_parameters'
 
       _UNUSED_DUMMY(unusable)
 
@@ -255,7 +248,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'make_geos_grid'
 
       _UNUSED_DUMMY(unusable)
       grid = this%create_basic_grid(rc=status)
@@ -277,7 +269,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
 
       _UNUSED_DUMMY(unusable)
 
@@ -373,7 +364,6 @@ contains
       real(kind=REAL64) :: delta, min_coord, max_coord
       logical :: regional
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'compute_lon_centers'
 
       _UNUSED_DUMMY(unusable)
 
@@ -420,7 +410,6 @@ contains
       real(kind=REAL64) :: delta, min_coord, max_coord
       logical :: regional
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'get_lon_corners'
 
       _UNUSED_DUMMY(unusable)
 
@@ -499,7 +488,6 @@ contains
 
       real(kind=REAL64) :: delta, min_coord, max_coord
       logical :: regional
-      character(len=*), parameter :: Iam = MOD_NAME // 'compute_lat_centers'
       integer :: status
 
       _UNUSED_DUMMY(unusable)
@@ -519,7 +507,7 @@ contains
             min_coord = -90.d0 + delta/2
             max_coord = +90.d0 - delta/2
          case ('PC')
-            _ASSERT(this%jm_world > 1)
+            _ASSERT(this%jm_world > 1,'degenerate grid')
             min_coord = -90.d0
             max_coord = +90.d0
          end select
@@ -543,7 +531,7 @@ contains
 
       real(kind=REAL64) :: delta, min_coord, max_coord
       logical :: regional
-      character(len=*), parameter :: Iam = MOD_NAME // 'compute_lat_corners'
+
       integer :: status
 
       _UNUSED_DUMMY(unusable)
@@ -563,7 +551,7 @@ contains
             min_coord = -90.d0
             max_coord = +90.d0
          case ('PC')
-            _ASSERT(this%jm_world > 1)
+            _ASSERT(this%jm_world > 1, 'degenerate grid')
             delta = 180.d0 / (this%jm_world-1)
             min_coord = -90.d0-delta/2
             max_coord = +90.d0+delta/2
@@ -594,7 +582,6 @@ contains
       real(kind=ESMF_KIND_R8), pointer :: centers(:,:)
       real(kind=ESMF_KIND_R8), pointer :: corners(:,:)
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'add_horz_coordinates'
       integer :: i, j, ij(4)
 
       _UNUSED_DUMMY(unusable)
@@ -672,7 +659,6 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_file_metadata()'
       integer :: status
 
       class (CoordinateVariable), pointer :: v
@@ -707,7 +693,7 @@ contains
                im = file_metadata%get_dimension(lon_name, rc=status)
                _VERIFY(status)
             else
-               _ASSERT(.false.)
+               _FAIL('no longitude coordinate')
             end if
          end if
          lat_name = 'lat'
@@ -722,7 +708,7 @@ contains
                jm = file_metadata%get_dimension(lat_name, rc=status)
                _VERIFY(status)
             else
-               _ASSERT(.false.)
+               _FAIL('no latitude coordinate')
             end if
          end if
          hasLev=.false.
@@ -753,14 +739,14 @@ contains
         v => file_metadata%get_coordinate_variable(lon_name, rc=status)
         _VERIFY(status)
         ptr => v%get_coordinate_data()
-        _ASSERT(associated(ptr))
+        _ASSERT(associated(ptr),'coordinate data not allocated')
         select type (ptr)
         type is (real(kind=REAL64))
            this%lon_centers = ptr
         type is (real(kind=REAL32))
            this%lon_centers = ptr
         class default
-           _ASSERT(.false.)
+           _FAIL('unsuppoted type of data; must be REAL32 or REAL64')
         end select
 
         if (any((this%lon_centers(2:im)-this%lon_centers(1:im-1))<0)) then
@@ -771,14 +757,14 @@ contains
         v => file_metadata%get_coordinate_variable(lat_name, rc=status)
         _VERIFY(status)
         ptr => v%get_coordinate_data()
-        _ASSERT(associated(ptr))
+        _ASSERT(associated(ptr),'coordinate data not allocated')
         select type (ptr)
         type is (real(kind=REAL64))
            this%lat_centers = ptr
         type is (real(kind=REAL32))
            this%lat_centers = ptr
         class default
-           _ASSERT(.false.)
+           _FAIL('unsupported type of data; must be REAL32 or REAL64')
         end select
 
 
@@ -901,7 +887,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME//'make_geos_grid_from_config'
       character(len=ESMF_MAXSTR) :: tmp
       type(ESMF_VM) :: VM
 
@@ -1096,7 +1081,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'check_and_fill_consistency'
       logical :: verify_decomp
 
       _UNUSED_DUMMY(unusable)
@@ -1107,28 +1091,28 @@ contains
 
       ! Check decomposition/bounds
       ! WY notes: should not have this assert
-      !_ASSERT(allocated(this%ims) .eqv. allocated(this%jms))
+      !_ASSERT(allocated(this%ims) .eqv. allocated(this%jms), 'inconsistent options')
       call verify(this%nx, this%im_world, this%ims, rc=status)
       call verify(this%ny, this%jm_world, this%jms, rc=status)
 
       ! Check regional vs global
       if (this%pole == 'XY') then ! regional
          this%periodic = .false.
-         _ASSERT(this%lat_range%min /= UNDEFINED_REAL)
-         _ASSERT(this%lat_range%max /= UNDEFINED_REAL)
+         _ASSERT(this%lat_range%min /= UNDEFINED_REAL, 'uninitialized min for lat_range')
+         _ASSERT(this%lat_range%max /= UNDEFINED_REAL, 'uninitialized min for lat_range')
       else ! global
-         _ASSERT(any(this%pole == ['PE', 'PC']))
-         _ASSERT(this%lat_range%min == UNDEFINED_REAL)
-         _ASSERT(this%lat_range%max == UNDEFINED_REAL)
+         _ASSERT(any(this%pole == ['PE', 'PC']), 'unsupported option for pole:'//this%pole)
+         _ASSERT(this%lat_range%min == UNDEFINED_REAL, 'inconsistent min for lat_range')
+         _ASSERT(this%lat_range%max == UNDEFINED_REAL, 'inconsistent max for lat_range')
       end if
       if (this%dateline == 'XY') then
          this%periodic = .false.
-         _ASSERT(this%lon_range%min /= UNDEFINED_REAL)
-         _ASSERT(this%lon_range%max /= UNDEFINED_REAL)
+         _ASSERT(this%lon_range%min /= UNDEFINED_REAL, 'uninitialized min for lon_range')
+         _ASSERT(this%lon_range%max /= UNDEFINED_REAL, 'uninitialized max for lon_range')
       else
-         _ASSERT(any(this%dateline == ['DC', 'DE', 'GC', 'GE']))
-         _ASSERT(this%lon_range%min == UNDEFINED_REAL)
-         _ASSERT(this%lon_range%max == UNDEFINED_REAL)
+         _ASSERT(any(this%dateline == ['DC', 'DE', 'GC', 'GE']), 'unsupported option for dateline')
+         _ASSERT(this%lon_range%min == UNDEFINED_REAL, 'inconsistent min for lon_range')
+         _ASSERT(this%lon_range%max == UNDEFINED_REAL, 'inconsistent max for lon_range')
       end if
       verify_decomp = this%check_decomposition(rc=status)
       _VERIFY(status)
@@ -1150,24 +1134,24 @@ contains
          integer :: status
 
          if (allocated(ms)) then
-            _ASSERT(size(ms) > 0)
+            _ASSERT(size(ms) > 0, 'degenerate topology')
 
             if (n == UNDEFINED_INTEGER) then
                n = size(ms)
             else
-               _ASSERT(n == size(ms))
+               _ASSERT(n == size(ms), 'inconsistent topology')
             end if
 
             if (m_world == UNDEFINED_INTEGER) then
                m_world = sum(ms)
             else
-               _ASSERT(m_world == sum(ms))
+               _ASSERT(m_world == sum(ms), 'inconsistent decomponsition')
             end if
 
          else
 
-            _ASSERT(n /= UNDEFINED_INTEGER)
-            _ASSERT(m_world /= UNDEFINED_INTEGER)
+            _ASSERT(n /= UNDEFINED_INTEGER, 'uninitialized topology')
+            _ASSERT(m_world /= UNDEFINED_INTEGER,'uninitialized dimension')
             allocate(ms(n), stat=status)
             _VERIFY(status)
             !call MAPL_DecomposeDim(m_world, ms, n, min_DE_extent=2)
@@ -1255,7 +1239,6 @@ contains
       integer, allocatable :: max_index(:,:)
       integer :: status
       character(len=2) :: pole ,dateline
-      character(len=*), parameter :: Iam = MOD_NAME // 'initialize_from_esmf_distGrid'
 
       type (ESMF_Config) :: config
       type (ESMF_VM) :: vm
@@ -1497,7 +1480,6 @@ contains
       type (ESMF_VM) :: vm
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'init_halo'
 
       _UNUSED_DUMMY(unusable)
 
@@ -1535,7 +1517,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'halo'
 
       integer :: pet_north
       integer :: pet_south
@@ -1588,7 +1569,6 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         character(len=*), parameter :: Iam = MOD_NAME // 'fill_north'
 
          integer :: len, last
 
@@ -1614,7 +1594,6 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         character(len=*), parameter :: Iam = MOD_NAME // 'fill_south'
 
          integer :: len, last
 
@@ -1641,7 +1620,6 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         character(len=*), parameter :: Iam = MOD_NAME // 'fill_east'
 
          integer :: len, last
 
@@ -1664,7 +1642,6 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         character(len=*), parameter :: Iam = MOD_NAME // 'fill_west'
 
          integer :: len, last
 
@@ -1697,13 +1674,13 @@ contains
       call metadata%add_dimension('lat', this%jm_world)
 
       ! Coordinate variables
-      v = Variable(PFIO_REAL32, dimensions='lon')
+      v = Variable(type=PFIO_REAL32, dimensions='lon')
       call v%add_attribute('long_name', 'longitude')
       call v%add_attribute('units', 'degrees_east')
       call v%add_const_value(UnlimitedEntity(MAPL_RADIANS_TO_DEGREES*this%get_longitudes()))
       call metadata%add_variable('lon', v)
 
-      v = Variable(PFIO_REAL32, dimensions='lat')
+      v = Variable(type=PFIO_REAL32, dimensions='lat')
       call v%add_attribute('long_name', 'latitude')
       call v%add_attribute('units', 'degrees_north')
       call v%add_const_value(UnlimitedEntity(MAPL_RADIANS_TO_DEGREES*this%get_latitudes()))
@@ -1732,14 +1709,14 @@ contains
       use MAPL_BaseMod
       class(LatLonGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
-      integer, allocatable, intent(inout) :: local_start(:)
-      integer, allocatable, intent(inout) :: global_start(:)
-      integer, allocatable, intent(inout) :: global_count(:)
+      integer, allocatable, intent(out) :: local_start(:)
+      integer, allocatable, intent(out) :: global_start(:)
+      integer, allocatable, intent(out) :: global_count(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: global_dim(3), i1,j1,in,jn
-      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
+
       _UNUSED_DUMMY(this)
 
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
@@ -1752,6 +1729,25 @@ contains
       _RETURN(_SUCCESS) 
 
    end subroutine generate_file_bounds
+
+   subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
+      use esmf
+      class (LatLonGridFactory), intent(inout) :: this
+      type(ESMF_Grid), intent(inout)      :: grid
+      integer, allocatable, intent(out) :: local_start(:)
+      integer, allocatable, intent(out) :: global_start(:)
+      integer, allocatable, intent(out) :: global_count(:)
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(grid)
+      _UNUSED_DUMMY(local_start)
+      _UNUSED_DUMMY(global_start)
+      _UNUSED_DUMMY(global_count)
+
+      _FAIL('unimplemented')
+      _RETURN(_SUCCESS)
+   end subroutine generate_file_corner_bounds
 
    function generate_file_reference2D(this,fpointer) result(ref)
       use pFIO
@@ -1770,11 +1766,6 @@ contains
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D
-
-   function generate_grid_specific_vars(this) result(vars)
-      class(LatLonGridFactory), intent(inout) :: this
-      character(len=:), allocatable :: vars
-      vars = 'lon,lat'
-   end function generate_grid_specific_vars      
+      
 
 end module MAPL_LatLonGridFactoryMod

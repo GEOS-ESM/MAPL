@@ -6,7 +6,7 @@ module MAPL_ESMFFieldBundleWrite
    use MAPL_TimeDataMod
    use MAPL_newCFIOitemVectorMod
    use MAPL_newCFIOitemMod
-   use MAPL_ioClientsMod, only: io_client, o_Clients
+   use pFIO_ClientManagerMod, only: o_Clients
    use MAPL_ExceptionHandling
    implicit none
    private

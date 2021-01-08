@@ -5,9 +5,7 @@ module MAPL_ServerManager
 
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
-   use pFIO_ClientManagerMod
    use PFIO
-   use MAPL_ioClientsMod
    use MAPL_SimpleCommSplitterMod
    use MAPL_SplitCommunicatorMod
    implicit none
@@ -17,7 +15,7 @@ module MAPL_ServerManager
    type, public :: ServerManager
       type(SplitCommunicator)  :: split_comm
       type(MpiServer), pointer :: i_server=>null()
-      type(MpiServer), pointer :: o_server=>null()
+      class(BaseServer), pointer :: o_server=>null()
       type(DirectoryService) :: directory_service
       contains
          procedure :: initialize
@@ -38,20 +36,28 @@ contains
 
    end subroutine get_splitcomm
 
-   subroutine initialize(this, comm, unusable, application_size, nodes_input_server, nodes_output_server, npes_input_server,npes_output_server, rc)
+   subroutine initialize(this, comm, unusable, application_size, nodes_input_server, nodes_output_server,&
+                         npes_input_server,npes_output_server, oserver_type, npes_output_backend, isolate_nodes, rc)
       class (ServerManager), intent(inout) :: this
       integer, intent(in) :: comm
       class (KeywordEnforcer),  optional, intent(in) :: unusable
       integer, optional, intent(in) :: application_size
       integer, optional, intent(in) :: nodes_input_server(:),nodes_output_server(:)
       integer, optional, intent(in) :: npes_input_server(:),npes_output_server(:)
+      character(*), optional, intent(in) :: oserver_type
+      integer, optional, intent(in) :: npes_output_backend
+      logical, optional, intent(in) :: isolate_nodes
+ 
       integer, optional, intent(out) :: rc
       integer, allocatable :: npes_in(:),npes_out(:),nodes_in(:),nodes_out(:)
+      integer :: npes_out_backend, server_size
 
       type (SimpleCommSplitter) :: splitter
       integer :: status, i, rank,npes_model,n_oserver_group, n_iserver_group
       character(len=:), allocatable :: s_name
+      character(len=:), allocatable :: oserver_type_
       type(ClientThread), pointer :: clientPtr
+      logical :: isolated_
 
       _UNUSED_DUMMY(unusable)
 
@@ -84,34 +90,51 @@ contains
       else
          nodes_out = [0]
       end if
+      
+      oserver_type_ = 'single'
+      if (present(oserver_type)) oserver_type_ = oserver_type 
+      
+      npes_out_backend = 0
+      if (present(npes_output_backend)) npes_out_backend = npes_output_backend
+
+      isolated_ = .true.
+      if (present(isolate_nodes)) isolated_ = isolate_nodes
+
+      if (oserver_type_ == "multilayer" .or. oserver_type_ == 'multigroup') then
+         _ASSERT(npes_out_backend >=2, "captain-soldier need at lease two beckend")
+      endif
+      if (oserver_type_ == "multicomm") then
+         _ASSERT(npes_out_backend >=1, "need at lease one beckend for multicomm server")
+      endif
+
 
      n_iserver_group = max(size(npes_in),size(nodes_in))
      n_oserver_group = max(size(npes_out),size(nodes_out))
      this%directory_service = DirectoryService(comm)
      splitter = SimpleCommSplitter(comm)
-     call splitter%add_group(npes=npes_model, name='model', isolate_nodes=.true.)
+     call splitter%add_group(npes=npes_model, name='model', isolate_nodes=isolated_)
 
      if (npes_in(1) > 0) then
         do i = 1, size(npes_in)
            s_name ='i_server'//trim(i_to_string(i))
-           call splitter%add_group(npes=npes_in(i), name=s_name, isolate_nodes=.true.)
+           call splitter%add_group(npes=npes_in(i), name=s_name, isolate_nodes=isolated_)
         enddo
      elseif (nodes_in(1) > 0) then
         do i = 1, size(nodes_in)
            s_name ='i_server'//trim(i_to_string(i))
-           call splitter%add_group(nnodes=nodes_in(i), name=s_name, isolate_nodes=.true.)
+           call splitter%add_group(nnodes=nodes_in(i), name=s_name, isolate_nodes=isolated_)
         enddo
      end if
 
      if (npes_out(1) > 0 ) then
         do i = 1, size(npes_out)
           s_name ='o_server'//trim(i_to_string(i))
-          call splitter%add_group(npes=npes_out(i), name=s_name, isolate_nodes=.true.)
+          call splitter%add_group(npes=npes_out(i), name=s_name, isolate_nodes=isolated_)
         enddo
      else if(nodes_out(1) > 0) then
         do i = 1, size(nodes_out)
           s_name ='o_server'//trim(i_to_string(i))
-          call splitter%add_group(nnodes=nodes_out(i), name=s_name, isolate_nodes=.true.)
+          call splitter%add_group(nnodes=nodes_out(i), name=s_name, isolate_nodes=isolated_)
         enddo
      endif
 
@@ -128,7 +151,8 @@ contains
            allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), 'o_server'//trim(i_to_string(1))))
            call this%directory_service%publish(PortInfo('o_server'//trim(i_to_string(1)), this%o_server), this%o_server)
         end if
-        call io_client%init_io_clients(ni = n_oserver_group, no = n_iserver_group )
+        call init_IO_ClientManager(n_i = n_iserver_group, n_o = n_oserver_group, rc = status)
+        _VERIFY(status)
      endif
 
      ! establish i_server group one by one
@@ -148,7 +172,9 @@ contains
 
         if ( index(s_name, 'model') /=0 ) then
            clientPtr => i_Clients%current()
-           call this%directory_service%connect_to_server('i_server'//trim(i_to_string(i)), clientPtr, this%split_comm%get_subcommunicator())
+           call this%directory_service%connect_to_server('i_server'//trim(i_to_string(i)), clientPtr, &
+                              this%split_comm%get_subcommunicator(), server_size = server_size)
+           call i_Clients%set_server_size(server_size)
            call i_Clients%next()
         endif
 
@@ -160,20 +186,39 @@ contains
      do i = 1, n_oserver_group
 
         if ( trim(s_name) =='o_server'//trim(i_to_string(i)) ) then
-           allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name))
+           if (oserver_type_ == 'multicomm' ) then
+
+              allocate(this%o_server, source = MultiCommServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend))
+
+           else if (oserver_type_ == 'multilayer' ) then
+
+              allocate(this%o_server, source = MultiLayerServer(this%split_comm%get_subcommunicator(), s_name, &
+                       npes_out_backend, './pfio_writer.x'))
+
+           else if (oserver_type_ == 'multigroup' ) then
+
+              allocate(this%o_server, source = MultiGroupServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend))
+
+           else
+
+              allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name))
+
+           endif
            call this%directory_service%publish(PortInfo(s_name,this%o_server), this%o_server)
            call this%directory_service%connect_to_client(s_name, this%o_server)
            call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
            if (rank == 0 .and. nodes_out(i) /=0 ) then
-              write(*,'(A,I0,A)')"Starting pFIO output server on ",nodes_out," nodes"
+              write(*,'(A,I0,A)')"Starting pFIO output server on ",nodes_out(i)," nodes"
            else if (rank==0 .and. npes_out(i) /=0 ) then
-              write(*,'(A,I0,A)')"Starting pFIO output server on ",npes_out," pes"
+              write(*,'(A,I0,A)')"Starting pFIO output server on ",npes_out(i)," pes"
            end if
         endif
 
         if ( index(s_name, 'model') /=0 ) then
            clientPtr => o_Clients%current()
-           call this%directory_service%connect_to_server('o_server'//trim(i_to_string(i)), clientPtr, this%split_comm%get_subcommunicator())
+           call this%directory_service%connect_to_server('o_server'//trim(i_to_string(i)), clientPtr, &
+                       this%split_comm%get_subcommunicator(), server_size = server_size)
+           call o_Clients%set_server_size(server_size)
            call o_Clients%next()
         endif
 
@@ -192,12 +237,6 @@ contains
      if ( index(s_name, 'model') /=0 ) then
         call i_Clients%set_current(1) ! set current to be the first
         call o_Clients%set_current(1) ! set current to be the first
-        if (npes_out(1) >0) then
-           call io_client%set_size(no = npes_out,rc=status)
-        else if (nodes_out(1)>0) then
-           call io_client%set_size(no = nodes_out,rc=status)
-        endif
-        _VERIFY(status)
      end if
 
       _RETURN(_SUCCESS)

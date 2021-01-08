@@ -4,6 +4,7 @@
 
    use ESMF
    use ESMFL_Mod
+   use MAPL_Profiler
    use MAPL_BaseMod
    use MAPL_MemUtilsMod
    use MAPL_CFIOMod
@@ -12,20 +13,25 @@
    use ESMF_CFIOMod
    use ESMF_CFIOUtilMod
    use ESMF_CFIOFileMod
-   use MAPL_LatLonGridFactoryMod
+   use MAPL_NewRegridderManager
+   use MAPL_AbstractRegridderMod
+   use mapl_RegridMethods
+   use MAPL_GridManagerMod
+   use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
+   use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
+   use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
    use MAPL_ConstantsMod, only: MAPL_PI_R8
    use MAPL_ExceptionHandling
    use MAPL_ApplicationSupport
+   use pFIO
+
  
    implicit NONE
 
-   type(ESMF_RouteHandle) :: regrid_rh
-   type(ESMF_DynamicMask) :: dynamicMask
-   logical :: createdHandle
-
-   integer, parameter :: grid_ll = 1
-   integer, parameter :: grid_cs = 2
-   integer, parameter :: grid_tp = 3
+   class(AbstractRegridder), pointer :: regridder_esmf=>null()
+   real, parameter :: cs_stretch_uninit = -1.0
+   type(DistributedProfiler), target :: t_prof
+   type (ProfileReporter) :: reporter
 
    include "mpif.h"
 
@@ -41,8 +47,6 @@ CONTAINS
 !  ---------------------------------------------
    type(ESMF_Grid)     :: grid_old, grid_new
    type(ESMF_VM)       :: vm             ! ESMF Virtual Machine
-
-   real(kind=ESMF_KIND_R8) :: itime_end, itime_beg
 
    character(len=ESMF_MAXPATHLEN) ::  Filename,OutputFile,tp_filein,tp_fileout
 
@@ -88,7 +92,11 @@ CONTAINS
    character(len=ESMF_MAXSTR) :: gridname
    character(len=ESMF_MAXPATHLEN) :: str,astr
    real, pointer :: lonsfile(:), latsfile(:)
-   integer :: inGrid, outGrid
+   character(len=:), allocatable :: tripolar_file_in,tripolar_file_out,old_gridname
+   type(ESMF_CONFIG) :: cfinput,cfoutput
+   integer :: regridMethod
+   real :: cs_stretch_param(3)
+   integer :: deflate, shave
  
     Iam = "ut_ReGridding"
 
@@ -99,16 +107,17 @@ CONTAINS
     _VERIFY(STATUS)
     call ESMF_VMGet(vm, localPET=myPET, petCount=nPet)
     call MAPL_Initialize(__RC__)
+    t_prof=DistributedProfiler('Regrid_Util',MpiTimerGauge(),MPI_COMM_WORLD)
  
-    createdHandle=.false.
     nx=1
     ny=6
     onlyvars=.false.
     alltimes=.true.
     regridMth='bilinear'
     newCube=.true.
-    inGrid = grid_ll
-    outGrid = grid_ll
+    cs_stretch_param=cs_stretch_uninit
+    shave=64
+    deflate=0
     nargs = command_argument_count()
     do i=1,nargs
       call get_command_argument(i,str)
@@ -133,6 +142,13 @@ CONTAINS
          read(astr,*)itime(1)
          call get_command_argument(i+2,astr)
          read(astr,*)itime(2)
+      case('-stretch_factor')
+         call get_command_argument(i+1,astr)
+         read(astr,*)cs_stretch_param(1)
+         call get_command_argument(i+2,astr)
+         read(astr,*)cs_stretch_param(2)
+         call get_command_argument(i+3,astr)
+         read(astr,*)cs_stretch_param(3)
       case('-method')
          call get_command_argument(i+1,RegridMth)
       case('-cubeFormat')
@@ -141,10 +157,16 @@ CONTAINS
          if (trim(astr) == 'old') newCube=.false.
       case('-tp_in')
          call get_command_argument(i+1,tp_filein)
-         inGrid=grid_tp
+         tripolar_file_in = tp_filein
       case('-tp_out')
          call get_command_argument(i+1,tp_fileout)
-         outGrid=grid_tp
+         tripolar_file_out = tp_fileout
+      case('-shave')
+         call get_command_argument(i+1,astr)
+         read(astr,*)shave
+      case('-deflate')
+         call get_command_argument(i+1,astr)
+         read(astr,*)deflate
       case('--help')
          if (mapl_am_I_root()) then
          
@@ -159,20 +181,30 @@ CONTAINS
        if (MAPL_AM_I_Root()) write(*,*)'invalid regrid method choose bilinear or conservative'
        _ASSERT(.false.,'needs informative message')
     end if
+    if (trim(regridMth) == 'bilinear') then
+       regridMethod = REGRID_METHOD_BILINEAR
+    end if
+    if (trim(regridMth) == 'patch') then
+       regridMethod = REGRID_METHOD_PATCH
+    end if
+    if (trim(regridMth) == 'conservative') then
+       regridMethod = REGRID_METHOD_CONSERVE
+    end if
+    if (trim(regridMth) == 'conservative2') then
+       regridMethod = REGRID_METHOD_CONSERVE_2ND
+    end if
 
     call MAPL_GetNodeInfo (comm=MPI_COMM_WORLD, rc=status)
     _VERIFY(STATUS)
 
     call ESMF_CalendarSetDefault ( ESMF_CALKIND_GREGORIAN, rc=status )
     _VERIFY(STATUS)
-    if (.not.allTimes) then
-       call UnpackDateTIme(itime,year,month,day,hour,minute,second)
-    end if
     call ESMF_CFIOSet(lcfio,fname=trim(filename),__RC__)
     call ESMF_CFIOFileOpen(lcfio,FMODE=1,__RC__)
     call ESMF_CFIOGet       (LCFIO,     grid=CFIOGRID, __RC__)
     call ESMF_CFIOGridGet   (CFIOGRID, IM=IM_WORLD0, JM=JM_WORLD0, KM=LM_WORLD, Lon=lonsfile,lat=latsfile, __RC__)
     call guesspole_and_dateline(lonsfile,latsfile,dateline_old,pole_old)
+    old_gridname = create_gridname(im_world0,jm_world0,dateline_old,pole_old)
     if (.not.allTimes) then
        tSteps=1
        call UnpackDateTIme(itime,year,month,day,hour,minute,second)
@@ -208,20 +240,16 @@ CONTAINS
     _VERIFY(STATUS)
 
     call UnpackGridName(Gridname,im_world_new,jm_world_new,dateline_new,pole_new)
-!   Lat lon or cubed sphere?
-!   ------------------------
-    if ( JM_World0 == 6*IM_World0 ) then
-       inGrid = grid_cs
-    end if
-
-    if ( JM_World_new == 6*IM_World_new ) then
-       outGrid = grid_cs
-    end if
-
 
     if (mapl_am_i_root()) write(*,*)'going to make grid',im_world0,jm_world0,im_world_new,jm_world_new
-    grid_old = create_grid(inGrid,"unknown",im_world0,jm_world0,lm_world,nx,ny,dateline_old,pole_old,tp_filein,__RC__)
-    grid_new = create_grid(outGrid,gridname,im_world_new,jm_world_new,lm_world,nx,ny,dateline_new,pole_new,tp_fileout,__RC__)
+    cfinput = create_cf(old_gridname,im_world0,jm_world0,nx,ny,lm_world,cs_stretch_param,__RC__)
+    cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,__RC__)
+    grid_old=grid_manager%make_grid(cfinput,prefix=trim(old_gridname)//".",__RC__)
+    grid_new=grid_manager%make_grid(cfoutput,prefix=trim(gridname)//".",__RC__)
+    call t_prof%start("GenRegrid")
+    regridder_esmf => new_regridder_manager%make_regridder(grid_old,grid_new,regridMethod,__RC__)
+    call t_prof%stop("GenRegrid")
+
     if (mapl_am_i_root()) write(*,*)'done making grid'
 
     bundle_cfio=ESMF_FieldBundleCreate(name="cfio_bundle",rc=status)
@@ -233,6 +261,7 @@ CONTAINS
     do i=1,tsteps
 
        
+       call t_prof%start("Read")
        if (mapl_am_i_root()) write(*,*)'processing timestep ',i
        time = tSeries(i)
        if (onlyvars) then
@@ -245,18 +274,20 @@ CONTAINS
        if (Mapl_AM_I_Root()) write(*,*)'done reading file ',trim(filename)
 
        if (.not.fileCreated) bundle_esmf = BundleClone(bundle_cfio,grid_new,__RC__)
+       call t_prof%stop("Read")
 
        call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
        _VERIFY(STATUS)
-       itime_beg = MPI_Wtime(STATUS)
        _VERIFY(STATUS)
 
-       call RunESMFRegridding(regridMth,bundle_cfio,bundle_esmf,__RC__)
+       call t_prof%start("regrid")
+       call RunESMFRegridding(bundle_cfio,bundle_esmf,shave,__RC__)
+       call t_prof%stop("regrid")
 
        call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
        _VERIFY(STATUS)
-       itime_end = MPI_Wtime(STATUS)
-       if (mapl_am_I_root()) write(*,*)'MAPL TIME: ',itime_end-itime_beg
+ 
+       call t_prof%start("write")
 
 
        if (mapl_am_I_root()) write(*,*) "moving on to writing the file"
@@ -264,7 +295,7 @@ CONTAINS
        call ESMF_ClockSet(clock,currtime=time,__RC__)
        if (.not.fileCreated) then
           call ESMF_TimeIntervalGet(timeInterval,s=freq,__RC__)
-          call MAPL_CFIOCreate ( cfio_esmf, outputFile, clock, Bundle_esmf,frequency=freq,vunit = "layer", rc=status )
+          call MAPL_CFIOCreate ( cfio_esmf, outputFile, clock, Bundle_esmf,frequency=freq,vunit = "layer", deflate=deflate, rc=status )
           _VERIFY(STATUS)
           call MAPL_CFIOSet(cfio_esmf,newFormat=newCube,rc=status)
           _VERIFY(STATUS)
@@ -272,6 +303,7 @@ CONTAINS
        call MAPL_CFIOWrite(cfio_esmf,clock,bundle_esmf,created=fileCreated,rc=status)
        _VERIFY(STATUS)
        if (.not.fileCreated) fileCreated=.true.
+       call t_prof%stop("write")
  
     end do
     call MAPL_CFIOClose(cfio_esmf,rc=status)
@@ -281,6 +313,9 @@ CONTAINS
 !   --------
     call ESMF_VMBarrier(VM,__RC__)
 
+    call t_prof%finalize()
+    call t_prof%reduce()
+    call generate_report()
     call MAPL_Finalize(__RC__)
     call MPI_Finalize(status)
 !    call ESMF_Finalize ( rc=status )
@@ -391,76 +426,28 @@ CONTAINS
 
     end subroutine BundleCopy
 
-    subroutine RunESMFRegridding(regridMth,bundle_old,bundle_new,rc)
+    subroutine RunESMFRegridding(bundle_old,bundle_new,shave,rc)
 
-    character(len=*),           intent(in   ) :: regridMth
     type(ESMF_FieldBundle),     intent(inout) :: bundle_old
     type(ESMF_FieldBundle),     intent(inout) :: bundle_new
+    integer, intent(in) :: shave
 
     integer, optional,      intent(out  ) :: rc
 
     character(len=ESMF_MAXSTR) :: Iam
     integer :: status
 
-    type(ESMF_Field) :: field_old, field_new, srcField,dstField
-    type(ESMF_Grid) :: grid_old, grid_new
-    integer :: bcount,i,l
+    type(ESMF_Field) :: field_old, field_new
+    integer :: bcount,i
     real(ESMF_KIND_R4), pointer  :: ptr3d_old(:,:,:) => null()
     real(ESMF_KIND_R4), pointer  :: ptr3d_new(:,:,:) => null()
-    real(ESMF_KIND_R4), pointer  :: srcPtr(:,:) => null()
-    real(ESMF_KIND_R4), pointer  :: dstPtr(:,:) => null()
-    type(ESMF_RegridMethod_Flag) :: regridMethod
-    type(ESMF_PoleMethod_Flag)   :: PoleMethod
-    integer                 :: oldRank, newRank,srcterm
-    real(kind=ESMF_KIND_R4), pointer :: ptr2d(:,:)
+    real(ESMF_KIND_R4), pointer  :: ptr2d_old(:,:) => null()
+    real(ESMF_KIND_R4), pointer  :: ptr2d_new(:,:) => null()
+    integer                 :: oldRank, newRank
 
     Iam = "RunESMFRegridding"
 
-    if (trim(regridMth) == 'bilinear') then
-       regridMethod = ESMF_REGRIDMETHOD_BILINEAR
-       PoleMethod = ESMF_POLEMETHOD_TEETH
-    end if
-    if (trim(regridMth) == 'patch') then
-       regridMethod = ESMF_REGRIDMETHOD_PATCH
-       PoleMethod = ESMF_POLEMETHOD_TEETH
-    end if
-    if (trim(regridMth) == 'conservative') then
-       regridMethod = ESMF_REGRIDMETHOD_CONSERVE
-       PoleMethod = ESMF_POLEMETHOD_NONE
-    end if
-    if (trim(regridMth) == 'conservative2') then
-       regridMethod = ESMF_REGRIDMETHOD_CONSERVE_2ND
-       PoleMethod = ESMF_POLEMETHOD_NONE
-    end if
-
-    call ESMF_FieldBundleGet(bundle_old,grid=grid_old,__RC__)
-    call ESMF_FieldBundleGet(bundle_new,grid=grid_new,__RC__)
-
-    srcField = MAPL_FieldCreateEmpty(name="srcField",grid=grid_old,__RC__)
-    call MAPL_FieldAlloccommit(srcField,dims=MAPL_DimsHorzOnly,location=MAPL_VLocationNone, &
-        typekind=kind(0.0),hw=0,__RC__)
-    call ESMF_FieldGet(srcField,localDE=0,farrayPtr=ptr2d,__RC__)
-    ptr2d = 0.0
-
-    dstField = MAPL_FieldCreateEmpty(name="dstField",grid=grid_new,__RC__)
-    call MAPL_FieldAlloccommit(dstField,dims=MAPL_DimsHorzOnly,location=MAPL_VLocationNone, &
-        typekind=kind(0.0),hw=0,__RC__)
-    call ESMF_FieldGet(dstField,localDE=0,farrayPtr=ptr2d,__RC__)
-    ptr2d = 0.0
-
-    srcTerm=0
-    if (.not.createdHandle) then
-       call ESMF_FieldRegridStore(srcField, dstField, &
-              & regridmethod=regridMethod, lineType=ESMF_LINETYPE_GREAT_CIRCLE, &
-              & srcTermProcessing=srcTerm, &
-              & srcMaskValues = [0], &
-              & unmappedAction=ESMF_UNMAPPEDACTION_IGNORE, &
-              & routehandle=regrid_rh, __RC__)
-       createdHandle=.true.
-       call ESMF_DynamicMaskSetR4R8R4(dynamicMask,simpleDynMaskProc,dynamicSrcMaskValue=MAPL_UNDEF,__RC__)
-    end if
-
-    call ESMF_FieldBundleGet(bundle_old,fieldcount=bcount,__RC__)
+   call ESMF_FieldBundleGet(bundle_old,fieldcount=bcount,__RC__)
    do i=1,bcount
 
        call ESMF_FieldBundleGet(bundle_old,i,field=field_old,__RC__)
@@ -474,79 +461,32 @@ CONTAINS
        if (oldRank == 3) then
 
           call ESMF_FieldGet(field_old,0,farrayPtr=ptr3D_old,__RC__)
-          call ESMF_FieldGet(srcfield,0,farrayPtr=srcPtr,__RC__)
           call ESMF_FieldGet(field_new,0,farrayPtr=ptr3D_new,__RC__)
-          call ESMF_FieldGet(dstfield,0,farrayPtr=dstPtr,__RC__)
-          do l=1,size(ptr3D_old,3)
-
-             srcPtr = ptr3d_old(:,:,l)
-             call ESMF_FieldRegrid(srcField,dstField,routehandle=regrid_rh, &
-                  termorderflag=ESMF_TERMORDER_SRCSEQ, dynamicMask=dynamicMask,__RC__)
-             ptr3d_new(:,:,l) = dstPtr
-
-          end do
-
+          call regridder_esmf%regrid(ptr3d_old,ptr3d_new,__RC__)
+          if (shave < 24) then
+             call pFIO_DownBit(ptr3d_new,ptr3d_new,shave,undef=MAPL_undef,rc=status)
+             _VERIFY(status)
+          end if
           nullify(ptr3d_old)
           nullify(ptr3d_new)
-          nullify(srcPtr)
-          nullify(dstPtr)
 
        else if (oldRank == 2) then
 
-          call ESMF_FieldRegrid(field_old,field_new,routehandle=regrid_rh, &
-               termorderflag=ESMF_TERMORDER_SRCSEQ, &
-               zeroregion=ESMF_REGION_SELECT, dynamicMask=dynamicMask, __RC__)
-
+          call ESMF_FieldGet(field_old,0,farrayPtr=ptr2D_old,__RC__)
+          call ESMF_FieldGet(field_new,0,farrayPtr=ptr2D_new,__RC__)
+          call regridder_esmf%regrid(ptr2d_old,ptr2d_new,__RC__)
+          if (shave < 24) then
+             call pFIO_DownBit(ptr2d_new,ptr2d_new,shave,undef=MAPL_undef,rc=status)
+             _VERIFY(status)
+          end if
+          nullify(ptr2d_old)
+          nullify(ptr2d_new)
        end if
     end do
 
     _RETURN(ESMF_SUCCESS)
 
     end subroutine RunESMFRegridding
-
-   subroutine simpleDynMaskProc(dynamicMaskList, dynamicSrcMaskValue, &
-      dynamicDstMaskValue, rc)
-      type(ESMF_DynamicMaskElementR4R8R4), pointer        :: dynamicMaskList(:)
-      real(ESMF_KIND_R4),            intent(in), optional :: dynamicSrcMaskValue
-      real(ESMF_KIND_R4),            intent(in), optional :: dynamicDstMaskValue
-      integer,                       intent(out)          :: rc
-      integer :: i, j
-      real(ESMF_KIND_R8)  :: renorm
-
-      _UNUSED_DUMMY(dynamicDstMaskValue)
-
-      if (associated(dynamicMaskList)) then
-        do i=1, size(dynamicMaskList)
-          dynamicMaskList(i)%dstElement = 0.d0 ! set to zero
-          renorm = 0.d0 ! reset
-          do j=1, size(dynamicMaskList(i)%factor)
-            !if (.not. &
-              !match(dynamicSrcMaskValue,dynamicMaskList(i)%srcElement(j))) then
-              !dynamicMaskList(i)%dstElement = dynamicMaskList(i)%dstElement &
-                !+ dynamicMaskList(i)%factor(j) &
-                !* dynamicMaskList(i)%srcElement(j)
-              !renorm = renorm + dynamicMaskList(i)%factor(j)
-            !endif
-            if (dynamicSrcMaskValue /= dynamicMaskList(i)%srcElement(j)) then
-              dynamicMaskList(i)%dstElement = dynamicMaskList(i)%dstElement &
-                + dynamicMaskList(i)%factor(j) &
-                * dynamicMaskList(i)%srcElement(j)
-              renorm = renorm + dynamicMaskList(i)%factor(j)
-            endif
-          enddo
-          if (renorm > 0.d0) then
-            dynamicMaskList(i)%dstElement = dynamicMaskList(i)%dstElement / renorm
-          else if (present(dynamicSrcMaskValue)) then
-            dynamicMaskList(i)%dstElement = dynamicSrcMaskValue
-          else
-            rc = ESMF_RC_ARG_BAD  ! error detected
-            return
-          endif
-        enddo
-      endif
-      ! return successfully
-      rc = ESMF_SUCCESS
-    end subroutine
 
    subroutine UnpackDateTime(DATETIME, YY, MM, DD, H, M, S)
      integer, intent(IN   ) :: DATETIME(:)
@@ -603,173 +543,105 @@ CONTAINS
      else
         pole='PC'
      end if
-    end subroutine guesspole_and_dateline  
- 
-    function cs_gridcreate(grid_name,im_world,nx,lm,rc) result(grid)
-       type(ESMF_Grid)              :: grid
-       character(len=*), intent(in) :: grid_name
-       integer, intent(in)          :: im_world
-       integer, intent(in)          :: nx
-       integer, intent(in)          :: lm
-       integer, optional, intent(out) :: rc
+    end subroutine guesspole_and_dateline 
 
-       character(len=*),parameter :: Iam = "cs_gridcreate"
-       integer :: i
-       integer :: ijms(2,6)
-       integer :: status
-
-       ijms(1,1)=nx
-       ijms(2,1)=nx
-       do i=2,6
-          ijms(:,i)=ijms(:,1)
-       enddo
-       grid = ESMF_GridCreateCubedSPhere(im_world,regDecompPTile=ijms,name=grid_name, &
-                staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
-      _VERIFY(status)
-
-      call ESMF_AttributeSet(grid, name='GRID_LM', value=lm, rc=status)
-      _VERIFY(status)
-
-      call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
-      _VERIFY(status)
-      call ESMF_AttributeSet(grid, name='NEW_CUBE', value=1,rc=status)
-      _VERIFY(status)
-      _RETURN(ESMF_SUCCESS)
-
-     end function cs_gridcreate
- 
-    function tripolar_gridcreate(grid_name,im_world,jm_world,nx,ny,lm,gridspec,rc) result(grid)
-       type(ESMF_Grid)              :: grid
+    function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,rc) result(cf)
+       use MAPL_ConfigMod
+       type(ESMF_Config)              :: cf
        character(len=*), intent(in) :: grid_name
        integer, intent(in)          :: im_world,jm_world
        integer, intent(in)          :: nx,ny
        integer, intent(in)          :: lm
-       character(len=*), intent(in) :: gridspec
+       real, intent(in)             :: cs_stretch_param(3)
        integer, optional, intent(out) :: rc
 
-       character(len=*),parameter :: Iam = "cs_gridcreate"
+       character(len=ESMF_MAXSTR),parameter :: Iam = "create_cf"
        integer :: status
+       character(len=2) :: pole,dateline
+       integer :: nn
 
-       integer, allocatable :: ims(:),jms(:)
-       integer :: i_1,i_n,j_1,j_n, ncid, varid, ic, jc
-       real, allocatable :: centers(:,:), corners(:,:,:)
-       real(ESMF_KIND_R8), pointer :: fptr(:,:)
+       nn = len_trim(grid_name)
+       dateline=grid_name(nn-1:nn)
+       pole=grid_name(1:2)
 
-       allocate(ims(0:nx-1),jms(0:ny-1))
-       call MAPL_DecomposeDim(im_world,ims,nx)
-       call MAPL_DecomposeDim(jm_world,jms,ny)
-
-       grid = ESMF_GridCreate1PeriDim( &
-            name=trim(grid_name) ,&
-            countsPerDEDim1=ims, &
-            countsPerDEDim2=jms, &
-            indexFlag=ESMF_INDEX_DELOCAL, &
-            gridEdgeLWidth=[0,0], &
-            gridEdgeUWidth=[0,1], &
-            coordDep1=[1,2], &
-            coordDep2=[1,2], &
-            poleKindFlag=[ESMF_POLEKIND_MONOPOLE,ESMF_POLEKIND_BIPOLE], &
-            coordSys=ESMF_COORDSYS_SPH_RAD, &
-            __RC__)
-
-       deallocate(ims,jms)
-
-       call ESMF_GridAddCoord(grid, __RC__)
-       call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER,__RC__)
-       call MAPL_Grid_Interior(grid, i_1, i_n, j_1, j_n)
-       status = nf90_open(gridspec,NF90_NOWRITE,ncid)
-       _VERIFY(status)
-
-       allocate(centers(im_world,jm_world),__STAT__)
-
-       ! do longitudes
-       status = nf90_inq_varid(ncid,'x_T',varid)
-       _VERIFY(status)
-       status = nf90_get_var(ncid,varid,centers)
-       _VERIFY(status)
-       centers=centers*MAPL_PI_R8/180.d0
-       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CENTER, &
-          farrayPtr=fptr, rc=status)
-       fptr=centers(i_1:i_n,j_1:j_n)
-       ! do latitudes
-       status = nf90_inq_varid(ncid,'y_T',varid)
-       _VERIFY(status)
-       status = nf90_get_var(ncid,varid,centers)
-       _VERIFY(status)
-       centers=centers*MAPL_PI_R8/180.d0
-       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CENTER, &
-          farrayPtr=fptr, rc=status)
-       fptr=centers(i_1:i_n,j_1:j_n)
-       deallocate(centers)
-       ! now repeat for corners
-       allocate(corners(im_world,jm_world,4),__STAT__)
-
-       ! do longitudes
-       status = nf90_inq_varid(ncid,'x_vert_T',varid)
-       _VERIFY(status)
-       status = nf90_get_var(ncid,varid,corners)
-       _VERIFY(status)
-       corners=corners*MAPL_PI_R8/180.d0
-       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CORNER, &
-          farrayPtr=fptr, __RC__)
-       ic = size(fptr,1)
-       jc = size(fptr,2)
-       if (j_n == jm_world) then
-          fptr(:,1:jc-1)=corners(i_1:i_n,j_1:j_n,1)
-          fptr(:,jc)=corners(i_1:i_n,j_n,4)
+       cf = MAPL_ConfigCreate(__RC__)
+       call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",rc=status)
+       VERIFY_(status)
+       call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",rc=status)
+       VERIFY_(status)
+       if (jm_world==6*im_world) then
+          call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",rc=status)
+          VERIFY_(status)
+          call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",rc=status)
+          VERIFY_(status)
+          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",rc=status)
+          VERIFY_(status)
+          call MAPL_ConfigSetAttribute(cf,value=ny/6, label=trim(grid_name)//".NY:",rc=status)
+          VERIFY_(status)
+          if (any(cs_stretch_param/=cs_stretch_uninit)) then
+             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(1),label=trim(grid_name)//".STRETCH_FACTOR:",rc=status)
+             VERIFY_(status)
+             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(2),label=trim(grid_name)//".TARGET_LON:",rc=status)
+             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(3),label=trim(grid_name)//".TARGET_LAT:",rc=status)
+          end if
+     
        else
-          fptr=corners(i_1:i_n,j_1:j_n,1)
+          call MAPL_ConfigSetAttribute(cf,value="LatLon", label=trim(grid_name)//".GRID_TYPE:",rc=status)
+          VERIFY_(status)
+          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",rc=status)
+          VERIFY_(status)
+          call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",rc=status)
+          VERIFY_(status)
+          call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",rc=status)
+          VERIFY_(status)
+          call MAPL_ConfigSetAttribute(cf,value=pole, label=trim(grid_name)//".POLE:",rc=status)
+          VERIFY_(status)
+          call MAPL_ConfigSetAttribute(cf,value=dateline, label=trim(grid_name)//".DATELINE:",rc=status)
+          VERIFY_(status)
        end if
-       ! do latitudes
-       status = nf90_inq_varid(ncid,'y_vert_T',varid)
-       _VERIFY(status)
-       status = nf90_get_var(ncid,varid,corners)
-       _VERIFY(status)
-       corners=corners*MAPL_PI_R8/180.d0
-       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CORNER, &
-          farrayPtr=fptr, __RC__)
-       if (j_n == jm_world) then
-          fptr(:,1:jc-1)=corners(i_1:i_n,j_1:j_n,1)
-          fptr(:,jc)=corners(i_1:i_n,j_n,4)
-       else
-          fptr=corners(i_1:i_n,j_1:j_n,1)
-       end if
-       deallocate(corners)
 
-       call ESMF_AttributeSet(grid,name='GRID_LM',value=lm,__RC__)
 
-       _RETURN(ESMF_SUCCESS)
+     end function create_cf 
 
-     end function tripolar_gridcreate 
+    function create_gridname(im,jm,date,pole) result(gridname)
+     integer, intent(in) :: im
+     integer, intent(in) :: jm
+     character(len=2), intent(in) :: date
+     character(len=2), intent(in) :: pole
+     character(len=ESMF_MAXSTR) :: gridname
+     character(len=16) :: imstr,jmstr
+     write(imstr,*) im
+     write(jmstr,*) jm
+     gridname =  pole // trim(adjustl(imstr))//'x'//&
+                 trim(adjustl(jmstr))//'-'//date
 
-    function create_grid(grid_type,gname,im_world,jm_world,lm,nx,ny,dateline,pole,tp_file,rc) result(grid)
-       type(ESMF_Grid) :: grid
-       integer, intent(in) :: grid_type
-       character(len=*), intent(in) :: gname
-       integer, intent(in) :: im_world,jm_world,lm,nx,ny
-       character(len=2), intent(in) :: dateline,pole
-       character(len=*), intent(in) :: tp_file
-       integer, optional, intent(out) :: rc
+    end function create_gridname
 
-       integer :: status
-       type(LatLonGridFactory) :: ll_factory
+    subroutine generate_report()
 
-       select case(grid_type)
-          case(grid_ll)
-             ll_factory = LatLonGridFactory(grid_name=gname,im_world=im_world,jm_world=jm_world,lm=lm, &
-                                            nx=nx,ny=ny,pole=pole,dateline=dateline,__RC__)
-             grid=ll_factory%make_grid(__RC__)
-          case(grid_cs)
-             grid = cs_gridcreate(gname,im_world,nx,lm,__RC__)
-          case(grid_tp)
-             grid = tripolar_gridcreate(gname,im_world,jm_world,nx,ny,lm,tp_file,__RC__)
-       end select
-       
-       _RETURN(ESMF_SUCCESS)
-    end function create_grid
-        
+         character(:), allocatable :: report_lines(:)
+         integer :: i
+         character(1) :: empty(0)
+   
+         reporter = ProfileReporter(empty)
+         call reporter%add_column(NameColumn(20))
+         call reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
+         call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
+         call reporter%add_column(FormattedTextColumn('Exclusive','(f9.6)', 9, ExclusiveColumn('MEAN')))
+         call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))   
+         call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.6)', 9, ExclusiveColumn('MAX')))
+         call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.6)', 9, ExclusiveColumn('MIN')))
+         call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
+         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE'))) 
+        report_lines = reporter%generate_report(t_prof)
+         if (mapl_am_I_root()) then 
+            write(*,'(a)')'Final profile'
+            write(*,'(a)')'============='
+            do i = 1, size(report_lines)
+               write(*,'(a)') report_lines(i)
+            end do
+            write(*,'(a)') ''
+         end if
+    end subroutine generate_report
+ 
     end program ut_ReGridding 

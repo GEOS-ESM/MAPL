@@ -22,6 +22,9 @@ module MAPL_CapGridCompMod
   use MAPL_CFIOServerMod
   use MAPL_ConfigMod
   use MAPL_DirPathMod
+  use MAPL_KeywordEnforcerMod
+  use MAPL_ExternalGridFactoryMod
+  use MAPL_GridManagerMod
   use pFIO
   use gFTL_StringVector
   use pflogger, only: logging, Logger
@@ -53,6 +56,9 @@ module MAPL_CapGridCompMod
      type(ESMF_VM) :: vm
      real(kind=real64) :: loop_start_timer
      type(ESMF_Time) :: cap_restart_time
+     type(ESMF_Alarm), allocatable :: alarm_list(:)
+     type(ESMF_Time),  allocatable :: AlarmRingTime(:)
+     logical,          allocatable :: ringingState(:)
    contains
      procedure :: set_services
      procedure :: initialize
@@ -64,6 +70,16 @@ module MAPL_CapGridCompMod
      procedure :: get_model_duration
      procedure :: get_am_i_root
      procedure :: get_heartbeat_dt
+     procedure :: get_current_time
+     procedure :: rewind_clock
+     procedure :: record_state
+     procedure :: refresh_state
+     procedure :: destroy_state
+     procedure :: get_field_from_import
+     procedure :: get_field_from_internal
+     procedure :: set_grid
+     procedure :: inject_external_grid
+     procedure :: set_clock
   end type MAPL_CapGridComp
 
   type :: MAPL_CapGridComp_Wrapper
@@ -169,6 +185,7 @@ contains
     character(len=ESMF_MAXSTR )           :: DYCORE
     character(len=ESMF_MAXPATHLEN) :: user_dirpath,tempString
     logical                      :: tend,foundPath
+    logical                      :: cap_clock_is_present
 
 
     type (MAPL_MetaComp), pointer :: maplobj
@@ -176,6 +193,7 @@ contains
     type(MAPL_CapGridComp), pointer :: cap
     class(BaseProfiler), pointer :: t_p
     class(Logger), pointer :: lgr
+    type(ESMF_Clock) :: cap_clock
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -220,6 +238,24 @@ contains
        _VERIFY(status)
     end if
 
+    ! Check if a valid clock was provided externally
+    !-----------------------------------------------
+
+    call ESMF_GridCompGet(gc, clockIsPresent=cap_clock_is_present, rc=status)
+    _VERIFY(status)
+
+    if (cap_clock_is_present) then
+        call ESMF_GridCompGet(gc, clock=cap_clock, rc=status)
+        _VERIFY(status)
+        call ESMF_ClockValidate(cap_clock, rc=status)
+        _VERIFY(status)
+        cap%clock = ESMF_ClockCreate(cap_clock, rc=status)
+        _VERIFY(status)
+        ! NOTE: We assume the MAPL components will only advance by
+        ! one time step when driven with an external clock.
+        !---------------------------------------------------------
+        cap%nsteps = 1
+    else
     !  Create Clock. This is a private routine that sets the start and 
     !   end times and the time interval of the clock from the configuration.
     !   The start time is temporarily set to 1 interval before the time in the
@@ -228,11 +264,14 @@ contains
     !   were after the last advance before the previous Finalize.
     !---------------------------------------------------------------------------
 
-    call MAPL_ClockInit(MAPLOBJ, cap%clock, nsteps, rc = status)
-    _VERIFY(status)
-    cap%nsteps = nsteps    
+        call MAPL_ClockInit(MAPLOBJ, cap%clock, nsteps, rc = status)
+        _VERIFY(status)
+        cap%nsteps = nsteps
+    end if
+
     call ESMF_ClockGet(cap%clock,currTime=cap%cap_restart_time,rc=status)
     _VERIFY(status)
+
     cap%clock_hist = ESMF_ClockCreate(cap%clock, rc = STATUS )  ! Create copy for HISTORY
     _VERIFY(STATUS)
 
@@ -246,7 +285,7 @@ contains
     call ESMF_ConfigGetAttribute(cap%config, value = n, Label = "CoresPerNode:", rc = status)
     if (status == ESMF_SUCCESS) then
        if (CoresPerNode /= n) then
-          call WRITE_PARALLEL("WARNING: CoresPerNode set, but does NOT match detected value")
+          call lgr%warning("CoresPerNode set (%i0), but does NOT match detected value (%i0)", CoresPerNode, n)
        end if
     end if
 
@@ -254,10 +293,17 @@ contains
     _VERIFY(status)
      _ASSERT(CoresPerNode <= npes, 'something impossible happened')
 
-    call ESMF_ConfigGetAttribute(cap%config, value = heartbeat_dt, Label = "HEARTBEAT_DT:", rc = status)
-    _VERIFY(status)
-    call ESMF_TimeIntervalSet(frequency, s = heartbeat_dt, rc = status)
-    _VERIFY(status)
+    if (cap_clock_is_present) then
+       call ESMF_ClockGet(cap%clock, timeStep=frequency, rc=status)
+       _VERIFY(status)
+       call ESMF_TimeIntervalGet(frequency, s=heartbeat_dt, rc=status)
+       _VERIFY(status)
+    else
+       call ESMF_ConfigGetAttribute(cap%config, value = heartbeat_dt, Label = "HEARTBEAT_DT:", rc = status)
+       _VERIFY(status)
+       call ESMF_TimeIntervalSet(frequency, s = heartbeat_dt, rc = status)
+       _VERIFY(status)
+    end if
 
     cap%heartbeat_dt = heartbeat_dt
 
@@ -267,38 +313,40 @@ contains
     call ESMF_AlarmRingerOff(perpetual, rc = status)
     _VERIFY(status)
 
-    ! Set CLOCK for AGCM
-    ! ------------------
+    ! Set CLOCK for AGCM if not externally provided
+    ! ---------------------------------------------
 
-    call MAPL_GetResource(MAPLOBJ, cap%perpetual_year, label='PERPETUAL_YEAR:',  default = -999, rc = status)
-    _VERIFY(status)
-    call MAPL_GetResource(MAPLOBJ, cap%perpetual_month, label='PERPETUAL_MONTH:', default = -999, rc = status)
-    _VERIFY(status)
-    call MAPL_GetResource(MAPLOBJ, cap%perpetual_day, label='PERPETUAL_DAY:',   default = -999, rc = status)
-    _VERIFY(status)
-
-    cap%lperp = ((cap%perpetual_day /= -999) .or. (cap%perpetual_month /= -999) .or. (cap%perpetual_year  /= -999))
-
-    if (cap%perpetual_day /= -999) then
-       _ASSERT(cap%perpetual_month /= -999, 'Must specify a value for PERPETUAL_MONTH in cap.')
-       _ASSERT(cap%perpetual_year  /= -999, 'Must specify a value for PERPETUAL_YEAR in cap.')
-    endif
-
-    if (cap%lperp) then
-       if (cap%perpetual_year  /= -999) call lgr%info('Using Perpetual  Year: %i0', cap%perpetual_year)
-       if (cap%perpetual_month /= -999) call lgr%info('Using Perpetual Month: %i0', cap%perpetual_month)
-       if (cap%perpetual_day   /= -999) call lgr%info('Using Perpetual   Day: %i0', cap%perpetual_day)
-
-       call ESMF_ClockGet(cap%clock, name = clockname, rc = status)
-       clockname = trim(clockname) // '_PERPETUAL'
-       call ESMF_Clockset(cap%clock, name = clockname, rc = status)
-
-       call ESMF_ClockGet(cap%clock_hist, name = clockname, rc = status)
-       clockname = trim(clockname) // '_PERPETUAL'
-       call ESMF_Clockset(cap%clock_hist, name = clockname, rc = status)
-
-       call Perpetual_Clock(cap%clock, cap%clock_hist, cap%perpetual_year, cap%perpetual_month, cap%perpetual_day, status)
+    if (.not.cap_clock_is_present) then
+       call MAPL_GetResource(MAPLOBJ, cap%perpetual_year, label='PERPETUAL_YEAR:',  default = -999, rc = status)
        _VERIFY(status)
+       call MAPL_GetResource(MAPLOBJ, cap%perpetual_month, label='PERPETUAL_MONTH:', default = -999, rc = status)
+       _VERIFY(status)
+       call MAPL_GetResource(MAPLOBJ, cap%perpetual_day, label='PERPETUAL_DAY:',   default = -999, rc = status)
+       _VERIFY(status)
+
+       cap%lperp = ((cap%perpetual_day /= -999) .or. (cap%perpetual_month /= -999) .or. (cap%perpetual_year  /= -999))
+
+       if (cap%perpetual_day /= -999) then
+          _ASSERT(cap%perpetual_month /= -999, 'Must specify a value for PERPETUAL_MONTH in cap.')
+          _ASSERT(cap%perpetual_year  /= -999, 'Must specify a value for PERPETUAL_YEAR in cap.')
+       endif
+
+       if (cap%lperp) then
+          if (cap%perpetual_year  /= -999) call lgr%info('Using Perpetual  Year: %i0', cap%perpetual_year)
+          if (cap%perpetual_month /= -999) call lgr%info('Using Perpetual Month: %i0', cap%perpetual_month)
+          if (cap%perpetual_day   /= -999) call lgr%info('Using Perpetual   Day: %i0', cap%perpetual_day)
+
+          call ESMF_ClockGet(cap%clock, name = clockname, rc = status)
+          clockname = trim(clockname) // '_PERPETUAL'
+          call ESMF_Clockset(cap%clock, name = clockname, rc = status)
+
+          call ESMF_ClockGet(cap%clock_hist, name = clockname, rc = status)
+          clockname = trim(clockname) // '_PERPETUAL'
+          call ESMF_Clockset(cap%clock_hist, name = clockname, rc = status)
+
+          call Perpetual_Clock(cap, rc=status)
+          _VERIFY(status)
+       endif
     endif
 
     !  Get configurable info to create HIST 
@@ -428,6 +476,9 @@ contains
     call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPDSC, Label="EXPDSC:", rc=status)
     _VERIFY(STATUS)
 
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value=heartbeat_dt, Label="RUN_DT:", rc=status)
+    _VERIFY(STATUS)
+
     call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPID,  Label="EXPID:",  rc=status)
     _VERIFY(STATUS)
     call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPDSC, Label="EXPDSC:", rc=status)
@@ -532,6 +583,12 @@ contains
     call MAPL_Get(MAPLOBJ, gcs = cap%gcs, gim = cap%child_imports, gex = cap%child_exports, rc = status)
     _VERIFY(status)
 
+
+    !  Inject grid to root child if grid has been set externally
+    !-----------------------------------------------------------
+
+    call cap%inject_external_grid(__RC__)
+
     ! Run as usual unless PRINTSPEC> 0 as set in CAP.rc. If set then
     ! model will not run completely and instead it will simply run MAPL_SetServices
     ! and print out the IM/EX specs. This step uses MAPL_StatePrintSpecCSV found
@@ -548,21 +605,15 @@ contains
        !----------------------------------------
 
        call t_p%start('Initialize')
-       call t_p%start(trim(root_name))
        call ESMF_GridCompInitialize(cap%gcs(cap%root_id), importState = cap%child_imports(cap%root_id), &
             exportState = cap%child_exports(cap%root_id), clock = cap%clock, userRC = status)
        _VERIFY(status)
-       call t_p%stop(trim(root_name))
 
-       call t_p%start('HIST')
        call cap%initialize_history(rc=status)
        _VERIFY(status)
-       call t_p%stop('HIST')
 
-       call t_p%start('EXTDATA')
        call cap%initialize_extdata(rc=status)
        _VERIFY(status)
-       call t_p%stop('EXTDATA')
 
        ! Finally check is this is a regular replay
        ! If so stuff gc and input state for ExtData in GCM internal state
@@ -766,7 +817,7 @@ contains
     call t_p%start('Finalize')
 
     if (.not. cap%printspec > 0) then
-       
+
        call ESMF_GridCompFinalize(cap%gcs(cap%root_id), importstate = cap%child_imports(cap%root_id), &
             exportstate=cap%child_exports(cap%root_id), clock = cap%clock, userrc = status)
        _VERIFY(status)
@@ -917,6 +968,18 @@ contains
     _RETURN(ESMF_SUCCESS)
 
   end function get_heartbeat_dt
+
+  function get_current_time(this, rc) result (current_time)
+    class (MAPL_CapGridComp) :: this
+    type(ESMF_Time) :: current_time
+    integer, optional, intent(out) :: rc
+    integer :: status
+    call ESMF_ClockGet(this%clock,currTime=current_time,rc=status)
+    _VERIFY(status)
+
+    _RETURN(ESMF_SUCCESS)
+
+  end function get_current_time
 
 
   function get_CapGridComp_from_gc(gc) result(cap)
@@ -1069,11 +1132,15 @@ contains
     _VERIFY(status)
 
     ! Call Record for intermediate checkpoint (if desired)
-    !  Note that we are not doing a Record for History.
     ! ------------------------------------------------------
 
     call ESMF_GridCompWriteRestart(this%gcs(this%root_id), importstate = this%child_imports(this%root_id), &
          exportstate = this%child_exports(this%root_id), &
+         clock = this%clock_hist, userrc = status)
+    _VERIFY(status)
+
+    call ESMF_GridCompWriteRestart(this%gcs(this%history_id), importstate = this%child_imports(this%history_id), &
+         exportstate = this%child_exports(this%history_id), &
          clock = this%clock_hist, userrc = status)
     _VERIFY(status)
 
@@ -1096,7 +1163,6 @@ contains
 
     ! Advance the Clock before running History and Record
     ! ---------------------------------------------------
-
     call ESMF_ClockAdvance(this%clock, rc = status)
     _VERIFY(STATUS)
     call ESMF_ClockAdvance(this%clock_hist, rc = status)
@@ -1106,7 +1172,7 @@ contains
     ! ----------------------
 
     if (this%lperp) then
-       call Perpetual_Clock(this%clock, this%clock_hist, this%perpetual_year, this%perpetual_month, this%perpetual_day, status)
+       call Perpetual_Clock(this, status)
        _VERIFY(status)
     end if
 
@@ -1162,9 +1228,222 @@ contains
     1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
                 2x,'Throughput(days/day)[Avg Tot Run]: ',f6.1,1x,f6.1,1x,f6.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x, &
                 f5.1,'% : ',f5.1,'% Mem Comm:Used')
-
     _RETURN(ESMF_SUCCESS)
   end subroutine step
+
+  subroutine record_state(this, rc)
+    class(MAPL_CapGridComp), intent(inout) :: this
+    integer, intent(out) :: rc
+    integer :: status
+    type(MAPL_MetaComp), pointer :: maplobj
+
+    integer :: nalarms,i
+
+    call MAPL_GetObjectFromGC(this%gcs(this%root_id),maplobj,rc=status)
+    _VERIFY(status)
+    call MAPL_GenericStateSave(this%gcs(this%root_id),this%child_imports(this%root_id), &
+           this%child_exports(this%root_id),this%clock,rc=status)
+
+    call ESMF_ClockGet(this%clock,alarmCount=nalarms,rc=status)
+    _VERIFY(status)
+
+    allocate(this%alarm_list(nalarms),this%ringingState(nalarms),this%alarmRingTime(nalarms),stat=status)
+    _VERIFY(status)
+    call ESMF_ClockGetAlarmList(this%clock, alarmListFlag=ESMF_ALARMLIST_ALL, &
+         alarmList=this%alarm_list, rc=status)
+    _VERIFY(status)
+    do i = 1, nalarms
+       call ESMF_AlarmGet(this%alarm_list(I), ringTime=this%alarmRingTime(I), ringing=this%ringingState(I), rc=status)
+       VERIFY_(STATUS)
+    end do
+
+    _RETURN(_SUCCESS)
+
+  end subroutine record_state
+
+  subroutine refresh_state(this, rc)
+    class(MAPL_CapGridComp), intent(inout) :: this
+    integer, intent(out) :: rc
+    integer :: status
+
+    integer :: i 
+    call MAPL_GenericStateRestore(this%gcs(this%root_id),this%child_imports(this%root_id), &
+             this%child_exports(this%root_id),this%clock,rc=status)
+    _VERIFY(status)
+    DO I = 1, size(this%alarm_list)
+       call ESMF_AlarmSet(this%alarm_list(I), ringTime=this%alarmRingTime(I), ringing=this%ringingState(I), rc=status)
+       _VERIFY(STATUS)
+    END DO
+
+    _RETURN(_SUCCESS)
+
+  end subroutine refresh_state
+
+  subroutine get_field_from_import(this,field_name,state_name,field,rc)
+    class(MAPL_CapGridComp), intent(inout) :: this
+    character(len=*), intent(in) :: field_name
+    character(len=*), intent(in) :: state_name
+    type(ESMF_Field), intent(inout) :: field
+    integer, intent(out) :: rc
+    integer :: status
+
+    type(ESMF_State) :: state
+
+    call MAPL_ImportStateGet(this%gcs(this%root_id),this%child_imports(this%root_id),&
+         state_name,state,rc=status)
+    _VERIFY(status)
+    call ESMF_StateGet(state,trim(field_name),field,rc=status)
+    _VERIFY(status)
+    _RETURN(_SUCCESS)
+
+  end subroutine get_field_from_import
+
+  subroutine get_field_from_internal(this,field_name,state_name,field,rc)
+    class(MAPL_CapGridComp), intent(inout) :: this
+    character(len=*), intent(in) :: field_name
+    character(len=*), intent(in) :: state_name
+    type(ESMF_field), intent(inout) :: field
+    integer, intent(out) :: rc
+    integer :: status
+
+    type(ESMF_State) :: state
+
+    call MAPL_InternalESMFStateGet(this%gcs(this%root_id),state_name,state,rc=status)
+    _VERIFY(status)
+    call ESMF_StateGet(state,trim(field_name),field,rc=status)
+    _VERIFY(status)
+    _RETURN(_SUCCESS)
+
+  end subroutine get_field_from_internal
+
+  subroutine set_grid(this, grid, unusable, lm, rc)
+     class(MAPL_CapGridComp),          intent(inout) :: this
+     type(ESMF_Grid),                  intent(in   ) :: grid
+     class(KeywordEnforcer), optional, intent(in   ) :: unusable
+     integer,                optional, intent(in   ) :: lm
+     integer,                optional, intent(  out) :: rc
+
+     type(ESMF_Grid)           :: mapl_grid
+     type(ExternalGridFactory) :: external_grid_factory
+     integer                   :: status
+
+     _UNUSED_DUMMY(unusable)
+
+     external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, __RC__)
+     mapl_grid = grid_manager%make_grid(external_grid_factory, __RC__)
+
+     call ESMF_GridCompSet(this%gc, grid=mapl_grid, __RC__)
+
+     _RETURN(_SUCCESS)
+  end subroutine set_grid
+
+  subroutine inject_external_grid(this, unusable, rc)
+     class(MAPL_CapGridComp),          intent(inout) :: this
+     class(KeywordEnforcer), optional, intent(in   ) :: unusable
+     integer,                optional, intent(  out) :: rc
+
+     type(ESMF_GridMatch_Flag) :: grid_match
+     type(ESMF_Grid)           :: cap_grid,            root_grid
+     logical                   :: cap_grid_is_present, root_grid_is_present
+     integer                   :: status
+
+     _UNUSED_DUMMY(unusable)
+
+     call ESMF_GridCompGet(this%gc, gridIsPresent=cap_grid_is_present, __RC__)
+
+     if (cap_grid_is_present) then
+        call ESMF_GridCompGet(this%gc, grid=cap_grid, __RC__)
+        call ESMF_GridValidate(cap_grid, __RC__)
+
+        call ESMF_GridCompGet(this%gcs(this%root_id), gridIsPresent=root_grid_is_present, __RC__)
+
+        if (root_grid_is_present) then
+           call ESMF_GridCompGet(this%gcs(this%root_id), grid=root_grid, __RC__)
+           call ESMF_GridValidate(root_grid, __RC__)
+
+           grid_match = ESMF_GridMatch(cap_grid, root_grid, __RC__)
+           _ASSERT(grid_match == ESMF_GRIDMATCH_EXACT, "Attempting to override root grid with non-matching external grid")
+        else
+            call ESMF_GridCompSet(this%gcs(this%root_id), grid=cap_grid, __RC__)
+        end if
+     end if
+
+     _RETURN(_SUCCESS)
+  end subroutine inject_external_grid
+
+  subroutine set_clock(this, clock, unusable, rc)
+     class(MAPL_CapGridComp),          intent(inout) :: this
+     type(ESMF_Clock),                 intent(in   ) :: clock
+     class(KeywordEnforcer), optional, intent(in   ) :: unusable
+     integer,                optional, intent(  out) :: rc
+
+     integer :: status
+
+     _UNUSED_DUMMY(unusable)
+
+     call ESMF_GridCompSet(this%gc, clock=clock, __RC__)
+
+     _RETURN(_SUCCESS)
+  end subroutine set_clock
+
+  subroutine destroy_state(this, rc)
+    class(MAPL_CapGridComp), intent(inout) :: this
+    integer, intent(out) :: rc
+    integer :: status
+
+    call MAPL_DestroyStateSave(this%gcs(this%root_id),rc=status)
+    _VERIFY(status)
+   
+     if (allocated(this%alarm_list)) deallocate(this%alarm_list)
+     if (allocated(this%AlarmRingTime)) deallocate(this%alarmRingTime)
+     if (allocated(this%ringingState)) deallocate(this%ringingState)
+
+    _RETURN(_SUCCESS)
+
+  end subroutine destroy_state
+
+  subroutine rewind_clock(this, time, rc)
+    class(MAPL_CapGridComp), intent(inout) :: this
+    type(ESMF_Time), intent(inout) :: time
+    integer, intent(out) :: rc
+    integer :: status
+    type(ESMF_Time) :: current_time,ct
+
+    call ESMF_ClockGet(this%clock,currTime=current_time,rc=status)
+    _VERIFY(status)
+    if (current_time >  time) then
+       call ESMF_ClockSet(this%clock,direction=ESMF_DIRECTION_REVERSE,rc=status)
+       _VERIFY(status)
+       do 
+          call ESMF_ClockAdvance(this%clock,rc=status)
+          _VERIFY(status)
+          call ESMF_ClockGet(this%clock,currTime=ct,rc=status)
+          _VERIFY(status)
+          if (ct==time) exit
+       enddo
+       call ESMF_ClockSet(this%clock,direction=ESMF_DIRECTION_FORWARD,rc=status)
+       _VERIFY(status)
+    end if
+      
+    call ESMF_ClockGet(this%clock_hist,currTime=current_time,rc=status)
+    _VERIFY(status)
+    if (current_time >  time) then
+       call ESMF_ClockSet(this%clock_hist,direction=ESMF_DIRECTION_REVERSE,rc=status)
+       _VERIFY(status)
+       do 
+          call ESMF_ClockAdvance(this%clock_hist,rc=status)
+          _VERIFY(status)
+          call ESMF_ClockGet(this%clock_hist,currTime=ct,rc=status)
+          _VERIFY(status)
+          if (ct==time) exit
+       enddo
+       call ESMF_ClockSet(this%clock_hist,direction=ESMF_DIRECTION_FORWARD,rc=status)
+       _VERIFY(status)
+    end if
+      
+       
+    _RETURN(_SUCCESS)
+  end subroutine rewind_clock
 
 
   ! !IROUTINE: MAPL_ClockInit -- Sets the clock
@@ -1238,6 +1517,8 @@ contains
 
     integer        :: UNIT
     integer        :: datetime(2)
+
+    class(Logger), pointer :: lgr
 
     ! Begin
     !------
@@ -1408,11 +1689,11 @@ contains
 
     CALL MAPL_UnpackDateTime(DATETIME, CUR_YY, CUR_MM, CUR_DD, CUR_H, CUR_M, CUR_S)
 
-    if( MAPL_AM_I_ROOT() ) then
-       write(6,"(a,2x,i4.4,'/',i2.2,'/',i2.2)") 'Read CAP restart properly, Current Date = ', CUR_YY,CUR_MM,CUR_DD
-       write(6,"(a,2x,i2.2,':',i2.2,':',i2.2)") '                           Current Time = ', CUR_H ,CUR_M ,CUR_S
-       print *
-    endif
+    call MAPL_GetLogger(MAPLOBJ, lgr, rc=status)
+    _VERIFY(status)
+
+    call lgr%info('Read CAP restart properly, Current Date =   %i4.4~/%i2.2~/%i2.2', CUR_YY, CUR_MM, CUR_DD)
+    call lgr%info('                           Current Time =   %i2.2~/%i2.2~/%i2.2', CUR_H, CUR_M, CUR_S)
 
 
 999 continue  ! Initialize Current time
@@ -1518,12 +1799,8 @@ contains
     _RETURN(ESMF_SUCCESS)
   end subroutine CAP_FINALIZE
 
-  subroutine Perpetual_Clock ( clock, clock_HIST, PERPETUAL_YEAR, PERPETUAL_MONTH, PERPETUAL_DAY, rc )
-    type(ESMF_Clock),intent(inout) :: clock
-    type(ESMF_Clock),intent(inout) :: clock_HIST
-    integer,         intent(in)    :: PERPETUAL_YEAR
-    integer,         intent(in)    :: PERPETUAL_MONTH
-    integer,         intent(in)    :: PERPETUAL_DAY
+  subroutine Perpetual_Clock (this, rc)
+     class(MAPL_CapGridComp), intent(inout) :: this
     integer,         intent(out)   :: rc
 
     type(ESMF_Time)                :: currTime
@@ -1533,6 +1810,20 @@ contains
     integer                        :: HIST_YY, HIST_MM, HIST_DD, HIST_H, HIST_M, HIST_S
     integer                        :: AGCM_YY, AGCM_MM, AGCM_DD, AGCM_H, AGCM_M, AGCM_S
 
+    type(ESMF_Clock) :: clock
+    type(ESMF_Clock) :: clock_HIST
+    integer          :: perpetual_year
+    integer          :: perpetual_month
+    integer          :: perpetual_day
+    class(Logger), pointer :: lgr
+
+    clock = this%clock
+    clock_hist = this%clock_Hist
+    perpetual_year = this%perpetual_year
+    perpetual_month = this%perpetual_month
+    perpetual_day = this%perpetual_day
+    call MAPL_GetLogger(this%gc, lgr, rc=status)
+    _VERIFY(status)
 
     call ESMF_ClockGetAlarm ( clock_HIST, alarmName='PERPETUAL', alarm=PERPETUAL, rc=status )
     _VERIFY(STATUS)
@@ -1558,19 +1849,10 @@ contains
          M  = HIST_M , &
          S  = HIST_S, rc=status )
     _VERIFY(STATUS)
-#ifdef DEBUG
-    block
-      integer :: AmIRoot_
-      type(ESMF_VM)                :: VM
 
-      !         This line is intentionally uncommented:  vm is not initialized (TLC)
-      AmIRoot_ = MAPL_Am_I_Root(vm)
-      if( AmIRoot_ ) then
-         write(6,"(a,2x,i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2)") "Inside PERP M0: ",AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S
-         write(6,"(a,2x,i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2)") "Inside PERP H0: ",HIST_YY,HIST_MM,HIST_DD,HIST_H,HIST_M,HIST_S
-      endif
-    end block
-#endif
+    call lgr%debug('Inside PERP M0:   %i4.4~/%i2.2~/%i2.2  Time: %i2.2~/%i2.2~/%i2.2', AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S)
+    call lgr%debug('Inside PERP H0:   %i4.4~/%i2.2~/%i2.2  Time: %i2.2~/%i2.2~/%i2.2', HIST_YY,HIST_MM,HIST_DD,HIST_H,HIST_M,HIST_S)
+
     if( (PERPETUAL_YEAR  /= -999)  .and. &
          (PERPETUAL_MONTH == -999)  .and. &
          (PERPETUAL_DAY   == -999) ) then
@@ -1588,20 +1870,10 @@ contains
           call ESMF_AlarmRingerOn( PERPETUAL, rc=status )
           _VERIFY(STATUS)
        endif
-#ifdef DEBUG
-       block
-         integer :: AmIRoot_
 
-         type(ESMF_VM)                :: VM
+       call lgr%debug('Inside PERP M0:   %i4.4~/%i2.2~/%i2.2  Time: %i2.2~/%i2.2~/%i2.2', AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S)
+       call lgr%debug('Inside PERP H0:   %i4.4~/%i2.2~/%i2.2  Time: %i2.2~/%i2.2~/%i2.2', HIST_YY,HIST_MM,HIST_DD,HIST_H,HIST_M,HIST_S)
 
-         !         This line is intentionally uncommented:  vm is not initialized (TLC)
-         AmIRoot_ = MAPL_Am_I_Root(vm)
-         if( AmIRoot_ ) then
-            write(6,"(a,2x,i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2)") "Inside PERP M1: ",AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S
-            write(6,"(a,2x,i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2)") "Inside PERP H1: ",HIST_YY,HIST_MM,HIST_DD,HIST_H,HIST_M,HIST_S
-         endif
-       end block
-#endif
     endif
 
     if( (PERPETUAL_YEAR  == -999)  .and. &

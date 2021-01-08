@@ -3,6 +3,7 @@ module pFIO_ProtocolParserMod
    use pFIO_AbstractMessageMod
    use pFIO_AbstractMessageMod
    use pFIO_IntegerMessageMapMod
+   use pFIO_FileMetadataMod
 
    use pFIO_TerminateMessageMod
    use pFIO_DoneMessageMod
@@ -20,6 +21,7 @@ module pFIO_ProtocolParserMod
    use pFIO_ModifyMetadataMessageMod
    use pFIO_HandShakeMessageMod
    use pFIO_DummyMessageMod
+   use pFIO_ForwardDataMessageMod
 
    implicit none
    private
@@ -69,6 +71,7 @@ contains
       type (ModifyMetadataMessage) :: ModifyMetadata
       type (HandShakeMessage) :: handshake
       type (DummyMessage) :: dummy
+      type (ForwardDataMessage) :: ForwardData
 
       if (this%initialized) return
 
@@ -79,15 +82,18 @@ contains
       call add_prototype(sdone)
       call add_prototype(csdone)
       call add_prototype(addExtCollection)
+      addHistCollection = AddHistCollectionMessage(FileMetadata())
       call add_prototype(addHistCollection)
       call add_prototype(IDId)
       call add_prototype(PrefetchData)
       call add_prototype(CollectivePrefetchData)
       call add_prototype(StageData)
       call add_prototype(CollectiveStageData)
+      ModifyMetaData = ModifyMetadataMessage(collection_id=-1)
       call add_prototype(ModifyMetadata)
       call add_prototype(handshake)
       call add_prototype(dummy)
+      call add_prototype(ForwardData)
 
       this%initialized = .true.
 

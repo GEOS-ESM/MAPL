@@ -6,18 +6,14 @@
 ! equivalent for the "other" axis.
 !-----------------------------------------------------
 
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
+#include "MAPL_Generic.h"
 
 
 module MAPL_CubedSphereGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_MinMaxMod
    use MAPL_KeywordEnforcerMod
+   use mapl_ErrorHandlingMod
    use ESMF
    use pFIO
    use MAPL_CommsMod
@@ -91,9 +87,9 @@ module MAPL_CubedSphereGridFactoryMod
       procedure :: get_grid_vars
       procedure :: append_variable_metadata
       procedure :: generate_file_bounds
+      procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
-      procedure :: generate_grid_specific_vars
       procedure :: get_fake_longitudes
       procedure :: get_fake_latitudes
    end type CubedSphereGridFactory
@@ -217,7 +213,7 @@ contains
       enddo
 
       if(allocated(this%jms_2d)) then
-         _ASSERT(size(this%jms_2d,2) == 6) 
+         _ASSERT(size(this%jms_2d,2) == 6,'incompatible shape') 
          allocate(jms, source = this%jms_2d)
       else
          allocate(jms(this%ny,nTile))
@@ -238,6 +234,7 @@ contains
             _VERIFY(status)
             call ESMF_AttributeSet(grid, name='STRETCH_FACTOR', value=this%stretch_factor,rc=status)
             _VERIFY(status)
+            write(*,*)'bmaa setting sf'
             call ESMF_AttributeSet(grid, name='TARGET_LON', value=this%target_lon,rc=status)
             _VERIFY(status)
             call ESMF_AttributeSet(grid, name='TARGET_LAT', value=this%target_lat,rc=status)
@@ -248,7 +245,7 @@ contains
                       staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
             _VERIFY(status)
          end if
-         call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+         call ESMF_AttributeSet(grid, name='GridType', value='Cubed-Sphere', rc=status)
       else
          grid = ESMF_GridCreateNoPeriDim( &
               & name = this%grid_name, &
@@ -597,18 +594,20 @@ contains
       if ( (this%target_lon /= UNDEFINED_REAL) .and. &
            (this%target_lat /= UNDEFINED_REAL) .and. &
            (this%stretch_factor /= UNDEFINED_REAL) ) then
+         _ASSERT( (this%target_lat >= -90.0) .and. (this%target_lat <= 90), 'latitude out of range')
          this%stretched_cube = .true.
          this%target_lon=this%target_lon*pi/180.d0
          this%target_lat=this%target_lat*pi/180.d0
       end if
+      write(*,*)'bmaa stretch: ',this%stretched_cube
 
       ! Check decomposition/bounds
       ! WY notes: not necessary for this assert
-      !_ASSERT(allocated(this%ims) .eqv. allocated(this%jms))
+      !_ASSERT(allocated(this%ims) .eqv. allocated(this%jms),'inconsistent options')
       call verify(this%nx, this%im_world, this%ims, rc=status)
       if (allocated(this%jms_2d)) then
-        _ASSERT(size(this%jms_2d,2)==6) 
-        _ASSERT(sum(this%jms_2d) == 6*this%im_world)
+        _ASSERT(size(this%jms_2d,2)==6, 'incompatible shape') 
+        _ASSERT(sum(this%jms_2d) == 6*this%im_world, 'incompatible shape')
       else
          call verify(this%ny, this%im_world, this%jms, rc=status)
       endif
@@ -626,24 +625,24 @@ contains
          integer :: status
 
          if (allocated(ms)) then
-            _ASSERT(size(ms) > 0)
+            _ASSERT(size(ms) > 0, 'must be > 0 PEs in each dimension')
 
             if (n == UNDEFINED_INTEGER) then
                n = size(ms)
             else
-               _ASSERT(n == size(ms))
+               _ASSERT(n == size(ms), 'inconsistent specs')
             end if
 
             if (m_world == UNDEFINED_INTEGER) then
                m_world = sum(ms)
             else
-               _ASSERT(m_world == sum(ms))
+               _ASSERT(m_world == sum(ms), 'inconsistent specs')
             end if
 
          else
 
-            _ASSERT(n /= UNDEFINED_INTEGER)
-            _ASSERT(m_world /= UNDEFINED_INTEGER)
+            _ASSERT(n /= UNDEFINED_INTEGER,'n not specified')
+            _ASSERT(m_world /= UNDEFINED_INTEGER,'m_wold not specified')
             allocate(ms(n), stat=status)
             _VERIFY(status)
 
@@ -774,8 +773,7 @@ contains
       _UNUSED_DUMMY(lat_array)
       _UNUSED_DUMMY(unusable)
       
-      ! not implemented
-      _ASSERT(.false.)
+      _FAIL('not implemented')
 
    end subroutine initialize_from_esmf_distGrid
 
@@ -855,36 +853,38 @@ contains
       ! Grid dimensinos
       call metadata%add_dimension('Xdim', this%im_world, rc=status)
       call metadata%add_dimension('Ydim', this%im_world, rc=status)
+      call metadata%add_dimension('XCdim', this%im_world+1, rc=status)
+      call metadata%add_dimension('YCdim', this%im_world+1, rc=status)
       call metadata%add_dimension('nf', 6, rc=status)
       call metadata%add_dimension('ncontact', 4, rc=status)
       call metadata%add_dimension('orientationStrLen', 5, rc=status)
 
       ! Coordinate variables
-      v = Variable(PFIO_REAL64, dimensions='Xdim')
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim')
       call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_east')
       call metadata%add_variable('Xdim', CoordinateVariable(v, this%get_fake_longitudes()))
 
-      v = Variable(PFIO_REAL64, dimensions='Ydim')
+      v = Variable(type=PFIO_REAL64, dimensions='Ydim')
       call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_north')
       call metadata%add_variable('Ydim', CoordinateVariable(v, this%get_fake_latitudes()))
 
-      v = Variable(PFIO_INT32, dimensions='nf')
+      v = Variable(type=PFIO_INT32, dimensions='nf')
       call v%add_attribute('long_name','cubed-sphere face')
       call v%add_attribute('axis','e')
       call v%add_attribute('grads_dim','e')
       call v%add_const_value(UnlimitedEntity((/1,2,3,4,5,6/)))
       call metadata%add_variable('nf',v)
 
-      v = Variable(PFIO_INT32, dimensions='ncontact')
+      v = Variable(type=PFIO_INT32, dimensions='ncontact')
       call v%add_attribute('long_name','number of contact points')
       call v%add_const_value(UnlimitedEntity((/1,2,3,4/)))
       call metadata%add_variable('ncontact',v)
 
-      v = Variable(PFIO_STRING)
+      v = Variable(type=PFIO_STRING)
       call  v%add_attribute('grid_mapping_name','gnomonic cubed-sphere')
-      call  v%add_attribute('file_format_version','2.90')
+      call  v%add_attribute('file_format_version','2.91')
       call  v%add_attribute('additional_vars','contacts,orientation,anchor')
       call  v%add_attribute('gridspec_file','gridspec.nc4')
       call metadata%add_variable('cubed_sphere',v)
@@ -897,7 +897,7 @@ contains
                      3, 5, 6, 2, &
                      3, 1, 6, 4, &
                      5, 1, 2, 4 /), (/4,6/))
-      v = Variable(PFIO_INT32, dimensions='ncontact,nf')
+      v = Variable(type=PFIO_INT32, dimensions='ncontact,nf')
       call v%add_attribute('long_name', 'adjacent face starting from left side going clockwise')
       call v%add_const_value(UnlimitedEntity(ivar))
       call metadata%add_variable('contacts', v)
@@ -927,7 +927,7 @@ contains
                !" X:X ", &
                !" Y:-X", &
                !" X:-Y" /),(/4,6/))
-      v = Variable(PFIO_STRING, dimensions='orientationStrLen,ncontact,nf')
+      v = Variable(type=PFIO_STRING, dimensions='orientationStrLen,ncontact,nf')
       call v%add_attribute('long_name', 'orientation of boundary')
       !call v%add_const_value(UnlimitedEntity(cvar))
       call metadata%add_variable('orientation', v)
@@ -959,7 +959,7 @@ contains
                   1,  1, im,  1, &
                   1,  1, im,  1, &
                  im,  1, im, im  /), (/4,4,6/))
-      v = Variable(PFIO_INT32, dimensions='ncontact,ncontact,nf')
+      v = Variable(type=PFIO_INT32, dimensions='ncontact,ncontact,nf')
       call v%add_attribute('long_name', 'anchor point')
       call v%add_const_value(UnlimitedEntity(ivar2))
       call metadata%add_variable('anchor', v)
@@ -970,15 +970,31 @@ contains
       write(gridspec_file_name,'("C",i0,"_gridspec.nc4")') this%im_world
       call Metadata%add_attribute('gridspec_file', trim(gridspec_file_name))
 
-      v = Variable(PFIO_REAL32, dimensions='Xdim,Ydim,nf')
+      v = Variable(type=PFIO_REAL32, dimensions='Xdim,Ydim,nf')
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
       call metadata%add_variable('lons',v)
 
-      v = Variable(PFIO_REAL32, dimensions='Xdim,Ydim,nf')
+      v = Variable(type=PFIO_REAL32, dimensions='Xdim,Ydim,nf')
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('lats',v)
+
+      v = Variable(type=PFIO_REAL32, dimensions='XCdim,YCdim,nf')
+      call v%add_attribute('long_name','longitude')
+      call v%add_attribute('units','degrees_east')
+      call metadata%add_variable('corner_lons',v)
+
+      v = Variable(type=PFIO_REAL32, dimensions='XCdim,YCdim,nf')
+      call v%add_attribute('long_name','latitude')
+      call v%add_attribute('units','degrees_north')
+      call metadata%add_variable('corner_lats',v)
+
+      if (this%stretched_cube) then
+         call metadata%add_attribute('stretch_factor',this%stretch_factor)
+         call metadata%add_attribute('target_lon',this%target_lon*180.0/MAPL_PI)
+         call metadata%add_attribute('target_lat',this%target_lat*180.0/MAPL_PI)
+      end if
 
    end subroutine append_metadata
 
@@ -1153,9 +1169,9 @@ contains
       use MAPL_BaseMod
       class(CubedSphereGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
-      integer, allocatable, intent(inout) :: local_start(:)
-      integer, allocatable, intent(inout) :: global_start(:)
-      integer, allocatable, intent(inout) :: global_count(:)
+      integer, allocatable, intent(out) :: local_start(:)
+      integer, allocatable, intent(out) :: global_start(:)
+      integer, allocatable, intent(out) :: global_count(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -1174,6 +1190,37 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine generate_file_bounds
+
+   subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
+      use MAPL_BaseMod
+      class(CubedSphereGridFactory), intent(inout) :: this
+      type(ESMF_Grid),      intent(inout) :: grid
+      integer, allocatable, intent(out) :: local_start(:)
+      integer, allocatable, intent(out) :: global_start(:)
+      integer, allocatable, intent(out) :: global_count(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: global_dim(3),i1,j1,in,jn,tile
+      integer :: face_i1, face_j1, is, js
+      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
+      _UNUSED_DUMMY(this)
+
+      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
+      _VERIFY(status)
+      call MAPL_GridGetInterior(grid,i1,in,j1,jn)
+      tile = 1 + (j1-1)/global_dim(1)
+      face_i1 = i1
+      face_j1 = j1-(tile-1)*global_dim(1)
+      is = i1
+      js = face_j1
+      allocate(local_start,source=[is,js,tile])
+      allocate(global_start,source=[1,1,1])
+      allocate(global_count,source=[global_dim(1)+1,global_dim(1)+1,6])
+
+      _RETURN(_SUCCESS)
+
+   end subroutine generate_file_corner_bounds
 
    function generate_file_reference2D(this,fpointer) result(ref)
       use pFIO
@@ -1197,12 +1244,5 @@ contains
       call C_F_pointer(cptr,ptr_ref,[size(fpointer,1),size(fpointer,2),1,size(fpointer,3),1])
       ref = ArrayReference(ptr_ref)
    end function generate_file_reference3D
-
-   function generate_grid_specific_vars(this) result(vars)
-      use gFTL_StringVector
-      class(CubedSphereGridFactory), intent(inout) :: this
-      character(len=:), allocatable :: vars
-      vars='nf,ncontact,Xdim,Ydim,contacts,orientation,anchor'
-   end function generate_grid_specific_vars
  
 end module MAPL_CubedSphereGridFactoryMod

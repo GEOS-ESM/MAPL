@@ -7,12 +7,12 @@ module MAPL_ESMFFieldBundleRead
    use MAPL_TimeDataMod
    use MAPL_newCFIOitemVectorMod
    use MAPL_newCFIOitemMod
-   use MAPL_ioClientsMod, only: io_client, o_Clients
    use MAPL_ExceptionHandling
    use MAPL_AbstractGridFactoryMod
    use MAPL_AbstractRegridderMod
    use MAPL_GridManagerMod 
    use MAPL_FileMetadataUtilsMod
+   use pFIO_ClientManagerMod, only: o_Clients
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
@@ -54,7 +54,7 @@ module MAPL_ESMFFieldBundleRead
          _ASSERT(num_fields == 0,"Trying to fill non-empty bundle")
          factory => get_factory(grid,rc=status)
          _VERIFY(status) 
-         grid_vars = factory%generate_grid_specific_vars()
+         grid_vars = factory%get_grid_vars()
          exclude_vars = grid_vars//",lev,time,lons,lats"
 
          variables => metadata%get_variables()

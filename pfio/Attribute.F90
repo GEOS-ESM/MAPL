@@ -13,6 +13,7 @@ module pFIO_AttributeMod
 
    public :: Attribute
    public :: StringWrap
+   public :: Attribute_deserialize
 
    type,extends(UnlimitedEntity) :: Attribute
    contains
@@ -23,12 +24,18 @@ module pFIO_AttributeMod
    end type Attribute
 
    interface Attribute
+      module procedure new_Attribute_empty ! HUGE or undef
       module procedure new_Attribute_0d ! scalar constructor
       module procedure new_Attribute_1d ! vector constructor
    end interface Attribute
 
 contains
 
+   function new_Attribute_empty() result(attr)
+      type (Attribute) :: attr
+      attr%UnlimitedEntity = UnlimitedEntity()
+   end function new_Attribute_empty
+   
 
    function new_Attribute_0d(value, rc) result(attr)
       type (Attribute) :: attr
@@ -69,8 +76,18 @@ contains
 
    end function not_equal_attr
 
-end module pFIO_AttributeMod
+   subroutine Attribute_deserialize(buffer, this, rc)
+      integer, intent(in) :: buffer(:)
+      type (Attribute), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
 
+      call UnlimitedEntity_deserialize(buffer, this%UnlimitedEntity, rc=status)
+      _VERIFY(status)
+      _RETURN(_SUCCESS)
+   end subroutine Attribute_deserialize
+
+end module pFIO_AttributeMod
 
 ! The following module defines an FTL map (associative array) with keys that are deferred
 ! length strings and values that are Attributes.
@@ -131,14 +148,14 @@ contains
        _RETURN(_SUCCESS)
     end subroutine StringAttributeMap_serialize
 
-    function StringAttributeMap_deserialize(buffer, rc) result(map)
-       type (StringAttributeMap) :: map
+    subroutine StringAttributeMap_deserialize(buffer, map, rc)
        integer, intent(in) :: buffer(:)
+       type (StringAttributeMap), intent(inout) :: map
        integer, optional, intent(out) :: rc
 
        character(len=:),allocatable :: key
        integer :: length,n,n0,n1,n2
-       type (Attribute), allocatable :: attr
+       type (Attribute) :: attr
        integer :: status
 
        n = 1
@@ -149,21 +166,22 @@ contains
        n = n + n0
        length = length - n0
 
+       map = StringAttributeMap()
        do while (length > 0)
           call deserialize_intrinsic(buffer(n:),key)
           n1 = serialize_buffer_length(key)
           n = n + n1
-          allocate(attr)
+          !allocate(attr)
           call deserialize_intrinsic(buffer(n:),n2)
-          call attr%deserialize(buffer(n:n+n2-1), status)
+          call Attribute_deserialize(buffer(n:n+n2-1), attr, status)
           _VERIFY(status)
           n = n + n2
           length = length - n1 - n2
           call map%insert(key,attr)
           deallocate(key)
-          deallocate(attr)
+          !deallocate(attr)
        enddo
        _RETURN(_SUCCESS)
-    end function StringAttributeMap_deserialize
+    end subroutine StringAttributeMap_deserialize
 
 end module pFIO_StringAttributeMapUtilMod

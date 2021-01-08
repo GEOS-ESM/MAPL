@@ -71,7 +71,20 @@ class MAPL_DataSpec:
                 extra_rank = len(extra_dims)
         dims = MAPL_DataSpec.entry_aliases['dims'][self.args['dims']]
         return ranks[dims] + extra_rank
-        
+
+    @staticmethod
+    def internal_name(name):
+        if name[-1] == '*':
+            return name[:-1]
+        else:
+            return name
+    @staticmethod
+    def mangled_name(name):
+        if name[-1] == '*':
+            return "'" + name[:-1] + "'//trim(comp_name)"
+        else:
+            return "'" + name + "'"
+
     def emit_declare_pointers(self):
         text = self.emit_header()
         type = 'real'
@@ -84,13 +97,15 @@ class MAPL_DataSpec:
         text = text + type
         if kind:
             text = text + '(kind=' + str(kind) + ')'
-        text = text +', pointer, ' + dimension + ' :: ' + self.args['short_name'] + ' => null()'
+        text = text +', pointer, ' + dimension + ' :: ' + MAPL_DataSpec.internal_name(self.args['short_name']) + ' => null()'
         text = text + self.emit_trailer()
         return text
 
     def emit_get_pointers(self):
         text = self.emit_header()
-        text = text + "call MAPL_GetPointer(" + self.category + ', ' + self.args['short_name'] + ", '" + self.args['short_name'] + "', rc=status); VERIFY_(status)" 
+        short_name = MAPL_DataSpec.internal_name(self.args['short_name'])
+        mangled_name = MAPL_DataSpec.mangled_name(self.args['short_name'])
+        text = text + "call MAPL_GetPointer(" + self.category + ', ' + short_name + ", " + mangled_name + ", rc=status); VERIFY_(status)" 
         text = text + self.emit_trailer()
         return text
 
@@ -120,7 +135,10 @@ class MAPL_DataSpec:
                     return ''
             text = text + option + "="
             if option in MAPL_DataSpec.stringlike_options:
-                value = "'" + value + "'"
+                if option == 'short_name':
+                   value = MAPL_DataSpec.mangled_name(value)
+                else: 
+                   value = "'"+value+"'"
             elif option in MAPL_DataSpec.arraylike_options:
                 value = '[' + value + ']' # convert to Fortran 1D array
             else:
@@ -196,11 +214,6 @@ def read_specs(specs_filename):
                 specs[category] = pd.DataFrame(gen, columns=columns)
             except StopIteration:
                 break
-
-
-#    specs['IMPORT'].replace(entry_aliases,inplace=True)
-#    specs['EXPORT'].replace(entry_aliases,inplace=True)
-#    specs['INTERNAL'].replace(entry_aliases,inplace=True)
 
     return specs
 

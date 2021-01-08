@@ -35,10 +35,10 @@ module MAPL_HistoryGridCompMod
   use MAPL_ExceptionHandling
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
-  use MAPL_RegridderSpecMod
+  use mapl_RegridMethods
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
-  use MAPL_ioClientsMod, only: io_client, o_Clients
+  use pFIO_ClientManagerMod, only: o_Clients
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
@@ -154,6 +154,9 @@ contains
     _VERIFY(status)
 
     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_FINALIZE, Finalize,  rc=status)
+    _VERIFY(status)
+
+    call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_WRITERESTART, RecordRestart, rc=status)
     _VERIFY(status)
 
 ! Allocate an instance of the private internal state...
@@ -522,15 +525,14 @@ contains
     end if
 
     call ESMF_ConfigGetAttribute(config, value=IntState%collectionWriteSplit, &
-         label = 'CollectionWriteSplit:', default=1, rc=status)
+         label = 'CollectionWriteSplit:', default=0, rc=status)
     _VERIFY(status)
     call ESMF_ConfigGetAttribute(config, value=IntState%serverSizeSplit, &
-         label = 'ServerSizeSplit:', default=1, rc=status)
+         label = 'ServerSizeSplit:', default=0, rc=status)
     _VERIFY(status)
-    if (IntState%serverSizeSplit .gt. 1) then
-       call io_client%split_oclient_pool(IntState%serverSizeSplit,IntState%collectionWriteSplit,rc=status)
-       _VERIFY(status)
-    end if
+    call o_Clients%split_server_pools(n_server_split = IntState%serverSizeSplit, &
+                                      n_hist_split   = IntState%collectionWriteSplit,rc=status)
+    _VERIFY(status)
 
     call ESMF_ConfigGetAttribute(config, value=INTSTATE%MarkDone,          &
                                          label='MarkDone:', default=0, rc=status)
@@ -1211,6 +1213,7 @@ contains
              call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
              RingTime = RefTime
           else
+             call ESMF_TimeIntervalSet( Frequency, MM=1, calendar=cal, rc=status ) ; _VERIFY(STATUS)
              !ALT keep the values from above
              ! and for debugging print
              call WRITE_PARALLEL("DEBUG: monthly averaging is active for collection "//trim(list(n)%collection))
@@ -2405,7 +2408,6 @@ ENDDO PARSER
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),rc=status)
              _VERIFY(status)
-             if (mapl_am_I_root()) write(*,*)'bmaa recycle: ',n,list(n)%recycle_track
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,rc=status)
              _VERIFY(status)
           else
@@ -2527,6 +2529,9 @@ ENDDO PARSER
 
     deallocate(stateListAvail)
     deallocate( statelist )
+
+    call MAPL_GenericInitialize( gc, import, dumexport, clock, rc=status )
+    _VERIFY(status)
 
     call MAPL_TimerOff(GENSTATE,"Initialize")
     call MAPL_TimerOff(GENSTATE,"TOTAL")
@@ -3351,18 +3356,18 @@ ENDDO PARSER
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
       endif
 
-      if(Writing(n)) then
-         call ESMF_AlarmRingerOff( list(n)%his_alarm,rc=status )
-         _VERIFY(STATUS)
-      end if
+!      if(Writing(n)) then
+!         call ESMF_AlarmRingerOff( list(n)%his_alarm,rc=status )
+!         _VERIFY(STATUS)
+!      end if
 
       if (Ignore(n)) then
          ! "Exersise" the alarms and then do nothing
          Writing(n) = .false.
-         if (ESMF_AlarmIsRinging ( list(n)%his_alarm )) then
-            call ESMF_AlarmRingerOff( list(n)%his_alarm,rc=status )
-            _VERIFY(STATUS)
-         end if
+!         if (ESMF_AlarmIsRinging ( list(n)%his_alarm )) then
+!            call ESMF_AlarmRingerOff( list(n)%his_alarm,rc=status )
+!            _VERIFY(STATUS)
+!         end if
          if (ESMF_AlarmIsRinging ( list(n)%seg_alarm )) then
             call ESMF_AlarmRingerOff( list(n)%seg_alarm,rc=status )
             _VERIFY(STATUS)
@@ -3408,7 +3413,7 @@ ENDDO PARSER
 
    call MAPL_TimerOn(GENSTATE,"----IO Create")
 
-   if (any(writing)) call io_client%set_oClient(count(writing))
+   if (any(writing)) call o_Clients%set_optimal_server(count(writing))
 
    OPENLOOP: do n=1,nlist
       if( Writing(n) ) then
@@ -3431,7 +3436,7 @@ ENDDO PARSER
          read(DateStamp( 1: 8),'(i8.8)') nymd
          read(DateStamp(10:15),'(i6.6)') nhms
 
-         call string_template ( filename(n), fntmpl, &
+         call fill_grads_template ( filename(n), fntmpl, &
               experiment_id=trim(INTSTATE%expid), &
               nymd=nymd, nhms=nhms, rc=status ) ! here is where we get the actual filename of file we will write
          _VERIFY(STATUS)
@@ -4695,7 +4700,7 @@ ENDDO PARSER
 200 continue
     if( MAPL_AM_I_ROOT() ) then
        write(6,100) list%frequency, list%duration, tdim, trim(list%collection)
-100    format(1x,'Freq: ',i6.6,'  Dur: ',i6.6,'  TM: ',i4,'  Collection: ',a)
+100    format(1x,'Freq: ',i8.8,'  Dur: ',i8.8,'  TM: ',i4,'  Collection: ',a)
     endif
 
     return
@@ -5099,6 +5104,84 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_StateGet
+
+  subroutine RecordRestart( gc, import, export, clock, rc )
+
+! !ARGUMENTS:
+
+    type(ESMF_GridComp), intent(inout)    :: gc     ! composite gridded component 
+    type(ESMF_State),       intent(inout) :: import ! import state
+    type(ESMF_State),       intent(  out) :: export ! export state
+    type(ESMF_Clock),       intent(inout) :: clock  ! the clock
   
+    integer, intent(out), OPTIONAL        :: rc     ! Error code:
+                                                     ! = 0 all is well
+                                                     ! otherwise, error
+
+    integer                         :: status
+
+
+    character(len=14)                :: datestamp ! YYYYMMDD_HHMMz
+    type(HistoryCollection), pointer :: list(:)
+    type(HISTORY_wrap)               :: wrap
+    type (HISTORY_STATE), pointer    :: IntState
+    integer                          :: n, nlist
+    logical                          :: doRecord
+    character(len=ESMF_MAXSTR)       :: fname_saved, filename
+    type (MAPL_MetaComp), pointer    :: meta
+
+! Check if it is time to do anything
+    doRecord = .false.
+
+    call MAPL_InternalStateRetrieve(GC, meta, rc=status)
+    _VERIFY(status)
+
+    doRecord = MAPL_RecordAlarmIsRinging(meta, rc=status)
+    if (.not. doRecord) then
+       _RETURN(ESMF_SUCCESS)
+    end if
+
+    call MAPL_DateStampGet(clock, datestamp, rc=status)
+    _VERIFY(STATUS)
+
+! Retrieve the pointer to the state
+    call ESMF_GridCompGetInternalState(gc, wrap, status)
+    _VERIFY(status)
+    IntState => wrap%ptr
+    list => IntState%list
+    nlist = size(list)
+
+    do n=1,nlist
+       if(list(n)%monthly) then
+          !ALT: To avoid waste, we should not write checkpoint files
+          ! when History just wrote the collection, 
+          ! since the accumulators and the counters have been reset
+          if (.not. ESMF_AlarmIsRinging ( list(n)%his_alarm )) then
+             if (.not. list(n)%partial) then
+
+                ! save the compname
+                call ESMF_CplCompGet (INTSTATE%CCS(n), name=fname_saved, rc=status)
+                _VERIFY(status)
+                ! add timestamp to filename
+                filename = trim(fname_saved) // datestamp
+                call ESMF_CplCompSet (INTSTATE%CCS(n), name=filename, rc=status)
+                _VERIFY(status)
+
+                call ESMF_CplCompWriteRestart (INTSTATE%CCS(n), &
+                     importState=INTSTATE%CIM(n), &
+                     exportState=INTSTATE%GIM(n), &
+                     clock=CLOCK,           &
+                     userRC=STATUS)
+                _VERIFY(STATUS)
+                ! restore the compname
+                call ESMF_CplCompSet (INTSTATE%CCS(n), name=fname_saved, rc=status)
+                _VERIFY(status)
+             end if
+          end if
+       end if
+    enddo
+    _RETURN(ESMF_SUCCESS)
+  end subroutine RecordRestart
+
 end module MAPL_HistoryGridCompMod
 

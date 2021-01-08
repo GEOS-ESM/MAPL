@@ -2,7 +2,6 @@
 #include "unused_dummy.H"
 
 module MAPL_AbstractCommSplitterMod
-   use pFIO
    use MPI
    implicit none
    private

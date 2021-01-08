@@ -33,6 +33,7 @@ module pFIO_UnlimitedEntityMod
    private
 
    public :: UnlimitedEntity
+   public :: UnlimitedEntity_deserialize
    public :: StringWrap
 
    type :: UnlimitedEntity
@@ -51,7 +52,6 @@ module pFIO_UnlimitedEntityMod
       procedure :: not_equal
       procedure :: set
       procedure :: serialize
-      procedure :: deserialize
       procedure :: get_string
       procedure :: is_empty
    end type UnlimitedEntity
@@ -65,6 +65,7 @@ module pFIO_UnlimitedEntityMod
 
 
    interface UnlimitedEntity
+      module procedure new_UnlimitedEntity_empty
       module procedure new_UnlimitedEntity_0d ! scalar constructor
       module procedure new_UnlimitedEntity_1d ! vector constructor
       module procedure new_UnlimitedEntity_2d ! vector constructor
@@ -78,6 +79,10 @@ module pFIO_UnlimitedEntityMod
 
 contains
 
+   function new_UnlimitedEntity_empty() result(attr)
+      type (UnlimitedEntity) :: attr
+   end function new_UnlimitedEntity_empty
+   
 
    function new_UnlimitedEntity_0d(value, rc) result(attr)
       type (UnlimitedEntity) :: attr
@@ -583,90 +588,102 @@ contains
       _RETURN(_SUCCESS)
    end subroutine serialize 
 
-   subroutine deserialize( this, buffer, rc)
-      class (UnlimitedEntity), target,intent(inout) :: this
+   subroutine UnlimitedEntity_deserialize( buffer,this, rc)
       integer, intent(in) :: buffer(:)
+      type (UnlimitedEntity),intent(inout) :: this
       integer, optional, intent(out) :: rc
-
-      integer :: n,type_kind,length
-
-      integer(KIND=INT32) :: value_int32
-      integer(KIND=INT64) :: value_int64
-      real(KIND=REAL32)   :: value_real32
-      real(KIND=REAL64)   :: value_real64
-      logical :: value_logical
-
-      integer(KIND=INT32), allocatable :: values_int32(:)
-      integer(KIND=INT64), allocatable :: values_int64(:)
-      real(KIND=REAL32), allocatable :: values_real32(:)
-      real(KIND=REAL64), allocatable :: values_real64(:)
-      logical, allocatable :: values_logical(:)
-
-      character(len=:), allocatable :: value_char
-      integer :: rank
-
-      n = 1
-      call deserialize_intrinsic(buffer(n:),length)
-      _ASSERT(length == size(buffer),'length does not match')
-
-      n = n + serialize_buffer_length(length)
-      call deserialize_intrinsic(buffer(n:),this%shape)
-      n = n + serialize_buffer_length(this%shape)
-      call deserialize_intrinsic(buffer(n:),type_kind)
-      n = n + serialize_buffer_length(type_kind)
-
-      rank = this%get_rank()
-      select case (rank)
-      case (0)
-         select case (type_kind)
-         case (pFIO_INT32)
-             call deserialize_intrinsic(buffer(n:),value_int32)
-             call this%set(value_int32)
-         case (pFIO_INT64)
-             call deserialize_intrinsic(buffer(n:),value_int64)
-             call this%set(value_int64)
-         case (pFIO_REAL32)
-             call deserialize_intrinsic(buffer(n:),value_real32)
-             call this%set(value_real32)
-         case (pFIO_REAL64)
-             call deserialize_intrinsic(buffer(n:),value_real64)
-             call this%set(value_real64)
-         case (pFIO_LOGICAL)
-             call deserialize_intrinsic(buffer(n:),value_logical)
-             call this%set(value_logical)
-         case (pFIO_STRING)
-             call deserialize_intrinsic(buffer(n:),value_char)
-             call this%set(value_char)
-         case (pFIO_UNSUPPORTED_TYPE)
-             ! this is uninitialized case, make sure shape is not allocated even it is empty
-              deallocate(this%shape)
-         case default
-           _ASSERT(.false., "UnlimitedEntity deserialize not support")
-         end select
-      case (1:)
-         select case (type_kind)
-         case (pFIO_INT32)
-             call deserialize_intrinsic(buffer(n:),values_int32)
-             allocate(this%values, source =values_int32)
-         case (pFIO_INT64)
-             call deserialize_intrinsic(buffer(n:),values_int64)
-             allocate(this%values, source =values_int64)
-         case (pFIO_REAL32)
-             call deserialize_intrinsic(buffer(n:),values_real32)
-             allocate(this%values, source =values_real32)
-         case (pFIO_REAL64)
-             call deserialize_intrinsic(buffer(n:),values_real64)
-             allocate(this%values, source =values_real64)
-         case (pFIO_LOGICAL)
-             call deserialize_intrinsic(buffer(n:),values_logical)
-             allocate(this%values, source =values_logical)
-         case default
-           _ASSERT(.false., "UnlimitedEntity deserialize not support")
-         end select
-
-      end select
+      integer :: status
+      this = UnlimitedEntity() 
+      call deserialize(this, buffer, rc=status)
+      _VERIFY(status)
       _RETURN(_SUCCESS)
-   end subroutine deserialize
+   contains
+
+      subroutine deserialize( this, buffer, rc)
+         class (UnlimitedEntity), target,intent(inout) :: this
+         integer, intent(in) :: buffer(:)
+         integer, optional, intent(out) :: rc
+   
+         integer :: n,type_kind,length
+   
+         integer(KIND=INT32) :: value_int32
+         integer(KIND=INT64) :: value_int64
+         real(KIND=REAL32)   :: value_real32
+         real(KIND=REAL64)   :: value_real64
+         logical :: value_logical
+   
+         integer(KIND=INT32), allocatable :: values_int32(:)
+         integer(KIND=INT64), allocatable :: values_int64(:)
+         real(KIND=REAL32), allocatable :: values_real32(:)
+         real(KIND=REAL64), allocatable :: values_real64(:)
+         logical, allocatable :: values_logical(:)
+   
+         character(len=:), allocatable :: value_char
+         integer :: rank
+   
+         n = 1
+         call deserialize_intrinsic(buffer(n:),length)
+         _ASSERT(length == size(buffer),'length does not match')
+   
+         n = n + serialize_buffer_length(length)
+         call deserialize_intrinsic(buffer(n:),this%shape)
+         n = n + serialize_buffer_length(this%shape)
+         call deserialize_intrinsic(buffer(n:),type_kind)
+         n = n + serialize_buffer_length(type_kind)
+   
+         rank = this%get_rank()
+         select case (rank)
+         case (0)
+            select case (type_kind)
+            case (pFIO_INT32)
+                call deserialize_intrinsic(buffer(n:),value_int32)
+                call this%set(value_int32)
+            case (pFIO_INT64)
+                call deserialize_intrinsic(buffer(n:),value_int64)
+                call this%set(value_int64)
+            case (pFIO_REAL32)
+                call deserialize_intrinsic(buffer(n:),value_real32)
+                call this%set(value_real32)
+            case (pFIO_REAL64)
+                call deserialize_intrinsic(buffer(n:),value_real64)
+                call this%set(value_real64)
+            case (pFIO_LOGICAL)
+                call deserialize_intrinsic(buffer(n:),value_logical)
+                call this%set(value_logical)
+            case (pFIO_STRING)
+                call deserialize_intrinsic(buffer(n:),value_char)
+                call this%set(value_char)
+            case (pFIO_UNSUPPORTED_TYPE)
+                ! this is uninitialized case, make sure shape is not allocated even it is empty
+                 if (allocated(this%shape))deallocate(this%shape)
+            case default
+              _ASSERT(.false., "UnlimitedEntity deserialize not support")
+            end select
+         case (1:)
+            select case (type_kind)
+            case (pFIO_INT32)
+                call deserialize_intrinsic(buffer(n:),values_int32)
+                allocate(this%values, source =values_int32)
+            case (pFIO_INT64)
+                call deserialize_intrinsic(buffer(n:),values_int64)
+                allocate(this%values, source =values_int64)
+            case (pFIO_REAL32)
+                call deserialize_intrinsic(buffer(n:),values_real32)
+                allocate(this%values, source =values_real32)
+            case (pFIO_REAL64)
+                call deserialize_intrinsic(buffer(n:),values_real64)
+                allocate(this%values, source =values_real64)
+            case (pFIO_LOGICAL)
+                call deserialize_intrinsic(buffer(n:),values_logical)
+                allocate(this%values, source =values_logical)
+            case default
+              _ASSERT(.false., "UnlimitedEntity deserialize not support")
+            end select
+   
+         end select
+         _RETURN(_SUCCESS)
+      end subroutine deserialize
+   end subroutine UnlimitedEntity_deserialize
 
 end module pFIO_UnlimitedEntityMod
 
@@ -693,6 +710,7 @@ module pFIO_StringUnlimitedEntityMapUtilMod
    use pFIO_UtilitiesMod
    use pFIO_UnlimitedEntityMod
    use pFIO_StringUnlimitedEntityMapMod
+   use MAPL_ExceptionHandling
    implicit none
    private
 
@@ -726,13 +744,14 @@ contains
        buffer = [serialize_intrinsic(length),buffer]
     end subroutine StringUnlimitedEntityMap_serialize
 
-    function StringUnlimitedEntityMap_deserialize(buffer) result(map)
-       type (StringUnlimitedEntityMap) :: map
+    subroutine StringUnlimitedEntityMap_deserialize(buffer, map, rc) 
        integer, intent(in) :: buffer(:)
+       type (StringUnlimitedEntityMap), intent(inout) :: map
+       integer, optional, intent(out) :: rc
 
        character(len=:),allocatable :: key
        integer :: length,n,n0,n1,n2
-       type (UnlimitedEntity), allocatable :: attr
+       type (UnlimitedEntity) :: attr
 
        n = 1
        call deserialize_intrinsic(buffer(n:),length)
@@ -740,19 +759,19 @@ contains
        n = n + n0
        length = length - n0
 
+       map = StringUnlimitedEntityMap()
        do while (length > 0)
           call deserialize_intrinsic(buffer(n:),key)
           n1 = serialize_buffer_length(key)
           n = n + n1
-          allocate(attr)
-          call attr%deserialize(buffer(n:))
           call deserialize_intrinsic(buffer(n:),n2)
+          call UnlimitedEntity_deserialize(buffer(n:), attr)
           n = n + n2
           length = length - n1 - n2
           call map%insert(key,attr)
           deallocate(key)
-          deallocate(attr)
        enddo
-    end function StringUnlimitedEntityMap_deserialize
+       _RETURN(_SUCCESS)
+    end subroutine StringUnlimitedEntityMap_deserialize
 
 end module pFIO_StringUnlimitedEntityMapUtilMod

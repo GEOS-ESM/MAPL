@@ -4,7 +4,6 @@
 #
 #----------------------------------------------------------------------------
 
-use Env;                 # make env vars readily available
 use Getopt::Std;         # command line options
 
 # Command line options

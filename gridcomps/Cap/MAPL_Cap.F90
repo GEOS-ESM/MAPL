@@ -5,7 +5,6 @@
 module MAPL_CapMod
    use MPI
    use ESMF
-   use FLAP
    use MAPL_SimpleCommSplitterMod
    use MAPL_SplitCommunicatorMod
    use MAPL_KeywordEnforcerMod
@@ -14,7 +13,6 @@ module MAPL_CapMod
    use MAPL_BaseMod
    use MAPL_ExceptionHandling
    use pFIO
-   use MAPL_ioClientsMod
    use MAPL_CapOptionsMod
    use MAPL_ServerManager
    use MAPL_ApplicationSupport
@@ -45,12 +43,16 @@ module MAPL_CapMod
       procedure :: run_member
       procedure :: run_model
       procedure :: step_model
+      procedure :: rewind_model
 
       procedure :: create_member_subcommunicator
       procedure :: initialize_io_clients_servers
+      procedure :: finalize_io_clients_servers
       procedure :: initialize_cap_gc
       procedure :: initialize_mpi
       procedure :: finalize_mpi
+
+      procedure :: nuopc_fill_mapl_comm
 
 
       !getters
@@ -164,6 +166,17 @@ contains
    end subroutine run_ensemble
 
 
+   subroutine finalize_io_clients_servers(this, unusable, rc)
+     class (MAPL_Cap), target, intent(inout) :: this
+     class (KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc
+
+     _UNUSED_DUMMY(unusable)
+     call this%cap_server%finalize()
+     _RETURN(_SUCCESS)
+ 
+   end subroutine finalize_io_clients_servers
+
    subroutine initialize_io_clients_servers(this, comm, unusable, rc)
      class (MAPL_Cap), target, intent(inout) :: this
      integer, intent(in) :: comm
@@ -178,6 +191,9 @@ contains
          nodes_output_server=this%cap_options%nodes_output_server, &
          npes_input_server=this%cap_options%npes_input_server, &
          npes_output_server=this%cap_options%npes_output_server, &
+         oserver_type=this%cap_options%oserver_type, &
+         npes_output_backend=this%cap_options%npes_output_backend, &
+         isolate_nodes = this%cap_options%isolate_nodes, &
          rc=status)
      _VERIFY(status)
 
@@ -202,6 +218,23 @@ contains
       end select
                   
    end subroutine run_member
+
+   subroutine nuopc_fill_mapl_comm(this, rc)
+      class(MAPL_Cap),         intent(inout) :: this
+      integer, optional,       intent(  out) :: rc
+
+      type(SplitCommunicator) :: split_comm
+      integer                 :: subcommunicator, status
+
+      subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _VERIFY(status)
+      if (subcommunicator /= MPI_COMM_NULL) then
+         call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
+         call this%cap_server%get_splitcomm(split_comm)
+         call fill_mapl_comm(split_comm, subcommunicator, .false., this%mapl_comm, rc=status); _VERIFY(status)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine nuopc_fill_mapl_comm
 
 
     subroutine fill_mapl_comm(split_comm, gcomm, running_old_o_server, mapl_comm, unusable, rc)
@@ -299,6 +332,7 @@ contains
     end subroutine fill_comm
       
    subroutine run_model(this, mapl_comm, unusable, rc)
+      use pFlogger, only: logging, Logger
       class (MAPL_Cap), intent(inout) :: this
       type(MAPL_Communicators), intent(in) :: mapl_comm
 !!$      integer, intent(in) :: comm
@@ -308,7 +342,8 @@ contains
       type (ESMF_VM) :: vm
       integer :: start_tick, stop_tick, tick_rate
       integer :: status
-
+      class(Logger), pointer :: lgr
+      
       _UNUSED_DUMMY(unusable)
 
       call start_timer()
@@ -359,8 +394,10 @@ contains
             wall_time = (stop_tick - start_tick) / real(tick_rate, kind=REAL64)
 
             model_days_per_day = model_duration / wall_time
-            
-            write(OUTPUT_UNIT,'("Model Throughput:",X,F12.3,X,"days per day")') model_days_per_day
+
+
+            lgr => logging%get_logger('MAPL')
+            call lgr%info("Model Throughput: %f12.3 days per day", model_days_per_day)
          end if
          
       end subroutine report_throughput
@@ -381,7 +418,14 @@ contains
      integer :: status
      call this%cap_gc%step(rc = status); _VERIFY(status)
    end subroutine step_model
-   
+  
+   subroutine rewind_model(this, time, rc)
+     class(MAPL_Cap), intent(inout) :: this
+     type(ESMF_Time), intent(inout) :: time
+     integer, intent(out) :: rc
+     integer :: status
+     call this%cap_gc%rewind_clock(time,rc = status); _VERIFY(status)
+   end subroutine rewind_model 
 
    integer function create_member_subcommunicator(this, comm, unusable, rc) result(subcommunicator)
       class (MAPL_Cap), intent(in) :: this
@@ -470,7 +514,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: ierror, local_comm_world
+      integer :: ierror
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then

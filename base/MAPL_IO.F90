@@ -2900,28 +2900,32 @@ module MAPL_IOMod
              endif
  
              if (arrdes%write_restart_by_oserver) then
-                if(arrdes%writers_comm /= MPI_COMM_NULL) then
+                if( MAPL_AM_I_ROOT())  then
                    lMemRef = LocalMemReference(pFIO_REAL32,[size_1d])
                    call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[size_1d])
+                   if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) gvar_1d = var_1d
                 else
                    lMemRef = LocalMemReference(pFIO_REAL32,[0])
                    call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[0])
                 endif
-             endif
-
-             if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                call MAPL_VarWrite(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, gvar_out = gvar_1d, rc=status)
-             else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
-                call MAPL_VarWrite(formatter, name, var_1d, layout=layout, arrdes=arrdes,gvar_out = gvar_1d, rc=status)
-             else
-                _RETURN(ESMF_FAILURE)
-             end if
-
-             if (arrdes%write_restart_by_oserver) then
+                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then 
+                   call ArrayGather(var_1d, gvar_1d, grid, mask=mask, rc=status)
+                endif
                 call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1], &
                              global_start=[1], global_count=[size_1d])
-             endif
+             else
 
+                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
+                   call MAPL_VarWrite(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
+                else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
+                   call MAPL_VarWrite(formatter, name, var_1d, layout=layout, arrdes=arrdes, rc=status)
+                else
+                   _RETURN(ESMF_FAILURE)
+                end if
+
+             endif
+          else
+             _ASSERT(.false., "Cannot write unassociated var-1d")
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_1d, rc=status)
@@ -2935,28 +2939,34 @@ module MAPL_IOMod
              endif
 
              if (arrdes%write_restart_by_oserver) then
-                if(arrdes%writers_comm /= MPI_COMM_NULL) then
+                if(MAPL_AM_I_ROOT()) then
                    lMemRef = LocalMemReference(pFIO_REAL64,[size_1d])
                    call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[size_1d])
+                   if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) gvr8_1d = vr8_1d
                 else
                    lMemRef = LocalMemReference(pFIO_REAL64,[0])
                    call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[0])
                 endif
-             endif
 
-             if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                call MAPL_VarWrite(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, mask=mask, gvar_out = gvr8_1d, rc=status)
-             else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
-                call MAPL_VarWrite(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, gvar_out = gvr8_1d, rc=status)
-             else
-                _RETURN(ESMF_FAILURE)
-             end if
-
-             if (arrdes%write_restart_by_oserver) then
+                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then 
+                   call ArrayGather(vr8_1d, gvr8_1d, grid, mask=mask, rc=status)
+                endif
                 call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1], &
                              global_start=[1], global_count=[size_1d])
-             endif
 
+             else
+
+                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
+                   call MAPL_VarWrite(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
+                else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
+                   call MAPL_VarWrite(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, rc=status)
+                else
+                   _RETURN(ESMF_FAILURE)
+                end if
+
+             endif
+          else
+             _ASSERT(.false., "Cannot write unassociated var8-1d")
           end if
        endif
     else if (rank == 2) then
@@ -2967,27 +2977,32 @@ module MAPL_IOMod
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
 
                 if (arrdes%write_restart_by_oserver) then
-                   if(arrdes%writers_comm /= MPI_COMM_NULL) then
+                   if(MAPL_AM_I_ROOT()) then
                       lMemRef = LocalMemReference(pFIO_REAL32,[arrdes%im_world, size(var_2d,2)])
                       call c_f_pointer(lMemRef%base_address, gvar_2d, shape=[arrdes%im_world, size(var_2d,2)])
                    else
                       lMemRef = LocalMemReference(pFIO_REAL32,[0,size(var_2d,2)])
                       call c_f_pointer(lMemRef%base_address, gvar_2d, shape=[0, size(var_2d,2)])
                    endif
-                endif
+                   do J = 1,size(var_2d,2)
+                      call ArrayGather(var_2d(:,J), gvar_2d(:,J), grid, mask=mask, rc=status)
+                   enddo
+                   call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1], &
+                                global_start=[1,1], global_count=[arrdes%im_world,size(var_2d,2)])
 
-                do J = 1,size(var_2d,2)
-                   call MAPL_VarWrite(formatter, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, gvar_out=gvar_2d(:,j), rc=status)
-                end do
+                else
 
-                if (arrdes%write_restart_by_oserver) then
-                     call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1], &
-                                 global_start=[1,1], global_count=[arrdes%im_world,size(var_2d,2)])
+                   do J = 1,size(var_2d,2)
+                      call MAPL_VarWrite(formatter, name, var_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                   end do
+
                 endif
 
              else
                call MAPL_VarWrite(formatter, name, var_2d, arrdes=arrdes, oClients=oClients, rc=status)
              endif ! dims
+          else
+             _ASSERT(.false., "Cannot write unassociated var-2d")
           endif ! associated 
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_2d, rc=status)
@@ -2996,27 +3011,31 @@ module MAPL_IOMod
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
 
                 if (arrdes%write_restart_by_oserver) then
-                   if(arrdes%writers_comm /= MPI_COMM_NULL) then
+                   if( MAPL_AM_I_ROOT() ) then
                       lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_2d,2)])
                       call c_f_pointer(lMemRef%base_address, gvr8_2d, shape=[arrdes%im_world,size(vr8_2d,2)])
                    else
                       lMemRef = LocalMemReference(pFIO_REAL64,[0,size(vr8_2d,2)])
                       call c_f_pointer(lMemRef%base_address, gvr8_2d, shape=[0,size(vr8_2d,2)])
                    endif
-                endif
-
-                do J = 1,size(vr8_2d,2)
-                   call MAPL_VarWrite(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, gvar_out=gvr8_2d(:,j), rc=status)
-                end do
-
-                if (arrdes%write_restart_by_oserver) then
-                     call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1], &
+                   do J = 1,size(vr8_2d,2)
+                      call ArrayGather(vr8_2d(:,J), gvr8_2d(:,J), grid, mask=mask, rc=status) 
+                   enddo
+                   call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1], &
                                  global_start=[1,1], global_count=[arrdes%im_world,size(vr8_2d,2)])
+                else
+
+                   do J = 1,size(vr8_2d,2)
+                      call MAPL_VarWrite(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
+                   end do
+
                 endif
 
              else
                 call MAPL_VarWrite(formatter, name, vr8_2d, arrdes=arrdes, oClients=oClients, rc=status)
              end if
+          else
+             _ASSERT(.false., "Cannot write unassociated var8-2d")
           end if
        endif
     else if (rank == 3) then
@@ -3027,30 +3046,37 @@ module MAPL_IOMod
              if (DIMS == MAPL_DimsTileOnly) then
 
                 if (arrdes%write_restart_by_oserver) then
-                   if(arrdes%writers_comm /= MPI_COMM_NULL) then
+                   if( MAPL_Am_I_Root() ) then
                       lMemRef = LocalMemReference(pFIO_REAL32,[arrdes%im_world, size(var_3d,2), size(var_3d,3)])
                       call c_f_pointer(lMemRef%base_address, gvar_3d, shape=[arrdes%im_world, size(var_3d,2), size(var_3d,3)])
                    else
                       lMemRef = LocalMemReference(pFIO_REAL32,[0,size(var_3d,2), size(var_3d,3)])
                       call c_f_pointer(lMemRef%base_address, gvar_3d, shape=[0, size(var_3d,2), size(var_3d,3)])
                    endif
-                endif
+                   do K = 1, size(var_3d,3)
+                      do J = 1,size(var_3d,2)
+                         call ArrayGather(var_3d(:,J,K), gvar_3d(:,J,K), grid, mask=mask, rc=status)
+                      enddo
+                   enddo
 
-                do J = 1,size(var_3d,2)
-                   do K = 1,size(var_3d,3)
-                      call MAPL_VarWrite(formatter, name, var_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
-                           & offset1=j, offset2=k, gvar_out=gvar_3d(:,J,K), rc=status)
-                   end do
-                end do
-
-                if (arrdes%write_restart_by_oserver) then
                    call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1,1], &
                                  global_start=[1,1,1], global_count=[arrdes%im_world,size(var_3d,2),size(var_3d,3)])
+                else
+
+                   do J = 1,size(var_3d,2)
+                      do K = 1,size(var_3d,3)
+                         call MAPL_VarWrite(formatter, name, var_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
+                           & offset1=j, offset2=k, rc=status)
+                      end do
+                   end do
+
                 endif
 
              else
                 call MAPL_VarWrite(formatter, name, var_3d, arrdes=arrdes, oClients=oClients, rc=status)
              endif
+          else
+             _ASSERT(.false., "Cannot write unassociated var-3d")
           end if
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_3d, rc=status)
@@ -3059,33 +3085,38 @@ module MAPL_IOMod
              if (DIMS == MAPL_DimsTileOnly) then
 
                 if (arrdes%write_restart_by_oserver) then
-                   if(arrdes%writers_comm /= MPI_COMM_NULL) then
+                   if( MAPL_Am_I_Root() ) then
                       lMemRef = LocalMemReference(pFIO_REAL64,[arrdes%im_world,size(vr8_3d,2), size(vr8_3d,3)])
                       call c_f_pointer(lMemRef%base_address, gvr8_3d, shape=[arrdes%im_world,size(vr8_3d,2), size(vr8_3d,3)])
                    else
                       lMemRef = LocalMemReference(pFIO_REAL64,[0,size(vr8_3d,2), size(vr8_3d,3)])
                       call c_f_pointer(lMemRef%base_address, gvr8_3d, shape=[0,size(vr8_3d,2), size(vr8_3d,3)])
                    endif
-                endif
-
-                do J = 1,size(vr8_3d,2)
-                   do K = 1,size(vr8_3d,3)
-                      call MAPL_VarWrite(formatter, name, vr8_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
-                           & offset1=j, offset2=k, gvar_out=gvr8_3d(:,J,K), rc=status)
-                   end do
-                end do
-
-                if (arrdes%write_restart_by_oserver) then
-                     call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1,1], &
+                   do K = 1, size(vr8_3d,3)
+                      do J = 1, size(vr8_3d,2)
+                         call ArrayGather(vr8_3d(:,J,K), gvr8_3d(:,J,K), grid, mask=mask, rc=status)
+                      enddo
+                   enddo
+                   call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1,1], &
                                  global_start=[1,1,1], global_count=[arrdes%im_world, size(vr8_3d,2), size(vr8_3d,3)])
+                else
+
+                   do J = 1,size(vr8_3d,2)
+                      do K = 1,size(vr8_3d,3)
+                         call MAPL_VarWrite(formatter, name, vr8_3d(:,J,K), layout=layout, arrdes=arrdes, mask=mask, &
+                           & offset1=j, offset2=k, rc=status)
+                      end do
+                   end do
+                
                 endif
 
              else
                 call MAPL_VarWrite(formatter, name, vr8_3d, arrdes=arrdes, oClients=oClients, rc=status)
              end if
+          else
+             _ASSERT(.false., "Cannot write unassociated var8-3d")
           end if
        endif
-
     else if (rank == 4) then
        if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
           _ASSERT(.false., "Unsupported tile/ungrid variable")
@@ -3096,14 +3127,13 @@ module MAPL_IOMod
           if (.not.associated(var_4d)) then
              _ASSERT(.false., "Cannot write unassociated vars")
           end if
-             call MAPL_VarWrite(formatter, name, var_4d, arrdes=arrdes, oClients=oClients, rc=status)
+          call MAPL_VarWrite(formatter, name, var_4d, arrdes=arrdes, oClients=oClients, rc=status)
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_4d, rc=status)
           _VERIFY(STATUS)
           if (.not.associated(vr8_4d)) then
              _ASSERT(.false., "Cannot write unassociated vars")
           end if
-
           call MAPL_VarWrite(formatter, name, vr8_4d, arrdes=arrdes, oClients=oClients, rc=status)
        endif
     else
@@ -5733,7 +5763,7 @@ module MAPL_IOMod
 
 !---------------------------
 
-  subroutine MAPL_VarWriteNCpar_R4_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2,gvar_out, RC)
+  subroutine MAPL_VarWriteNCpar_R4_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -5743,7 +5773,6 @@ module MAPL_IOMod
     integer,           optional , intent(IN   ) :: MASK(:)
     integer,           optional,  intent(IN   ) :: offset1
     integer,           optional,  intent(IN   ) :: offset2
-    real(kind=ESMF_KIND_R4),optional, intent(inout  ) :: gvar_out(:)
     integer,           optional , intent(  OUT) :: RC
 
 ! Local variables
@@ -5979,21 +6008,12 @@ module MAPL_IOMod
 !          print*,'start values are ',start
 !          print*,'count values are ',cnt
 
-          if (arrdes%write_restart_by_oserver) then
-             if(present(gvar_out)) then
-               gvar_out = gvar
-             else
-               _ASSERT(.false., "gvar_out should be present")
-             endif
-          else
-             call formatter%put_var(trim(name),gvar,start=start,count=cnt,rc=status)
-             if(status /= nf_noerr) then
-                print*,'Error writing variable ', status
-                print*, NF_STRERROR(status)
-                _VERIFY(STATUS)
-             endif
-          endif ! write_restart_by_oserver
-
+          call formatter%put_var(trim(name),gvar,start=start,count=cnt,rc=status)
+          if(status /= nf_noerr) then
+             print*,'Error writing variable ', status
+             print*, NF_STRERROR(status)
+             _VERIFY(STATUS)
+          endif
        endif
 
        call MPI_GROUP_FREE (GROUP, STATUS)
@@ -6035,21 +6055,12 @@ module MAPL_IOMod
              endif
 
              if (io_rank == 0) then
-
-                if (arrdes%write_restart_by_oserver) then
-                   if(present(gvar_out)) then
-                      gvar_out = A
-                   else
-                      _ASSERT(.false., "gvar_out should be present")
-                   endif
-                else
-                   call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-                   if(status /= nf_noerr) then
-                      print*,trim(IAm),'Error writing variable ',status
-                      print*, NF_STRERROR(status)
-                      _VERIFY(STATUS)
-                   endif
-                endif !write_restart_by_oserver
+                call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
+                if(status /= nf_noerr) then
+                   print*,trim(IAm),'Error writing variable ',status
+                   print*, NF_STRERROR(status)
+                   _VERIFY(STATUS)
+                endif
              endif ! io_rank = 0
           endif ! arrdes%writers_comm/=MPI_COMM_NULL
        else ! not present(arrdes)
@@ -6068,7 +6079,7 @@ module MAPL_IOMod
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWriteNCpar_R4_1d
 
-  subroutine MAPL_VarWriteNCpar_R8_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, gvar_out, RC)
+  subroutine MAPL_VarWriteNCpar_R8_1d(formatter, name, A, layout, ARRDES, MASK, offset1, offset2, RC)
 
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
@@ -6078,7 +6089,6 @@ module MAPL_IOMod
     integer,           optional , intent(IN   ) :: MASK(:)
     integer,           optional,  intent(IN   ) :: offset1
     integer,           optional,  intent(IN   ) :: offset2
-    real(kind=ESMF_KIND_R8), optional, intent(INOUT  ) :: gvar_out(:)
     integer,           optional , intent(  OUT) :: RC
 
 ! Local variables
@@ -6314,22 +6324,12 @@ module MAPL_IOMod
 !          print*,'start values are ',start
 !          print*,'count values are ',cnt
  
-          if (arrdes%write_restart_by_oserver) then
-             ! WJ note: only one writer, so size(gvar) == size(gvar_out)  
-             if (present(gvar_out)) then
-                gvar_out = gvar
-             else
-                _ASSERT(.false., "gvar_out should be present")
-             endif
-          else
-             call formatter%put_var(trim(name),gvar,start=start,count=cnt,rc=status)
-             if(status /= nf_noerr) then
-                print*,'Error writing variable ', status
-                print*, NF_STRERROR(status)
-                _VERIFY(STATUS)
-             endif
-          endif !write_restart_by_oserver
-
+          call formatter%put_var(trim(name),gvar,start=start,count=cnt,rc=status)
+          if(status /= nf_noerr) then
+             print*,'Error writing variable ', status
+             print*, NF_STRERROR(status)
+             _VERIFY(STATUS)
+          endif
        endif
 
        call MPI_GROUP_FREE (GROUP, STATUS)
@@ -6371,21 +6371,12 @@ module MAPL_IOMod
              endif
 
              if (io_rank == 0) then
-                if (arrdes%write_restart_by_oserver) then
-                   ! WJ note: only one writer, so size(gvar) == size(gvar_out)  
-                   if (present(gvar_out)) then
-                      gvar_out = A
-                   else
-                      _ASSERT(.false., "gvar_out should be present")
-                  endif
-               else
-                  call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
-                  if(status /= nf_noerr) then
-                     print*,trim(IAm),'Error writing variable ',status
-                     print*, NF_STRERROR(status)
-                     _VERIFY(STATUS)
-                  endif
-               endif ! write_restart_by_oserver
+                call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
+                if(status /= nf_noerr) then
+                   print*,trim(IAm),'Error writing variable ',status
+                   print*, NF_STRERROR(status)
+                   _VERIFY(STATUS)
+                endif
              endif ! io_rank
            endif
 
@@ -7345,7 +7336,9 @@ module MAPL_IOMod
     integer                            :: MAPL_DIMS
     integer, pointer                   :: MASK(:) => null()
     type(Netcdf4_Fileformatter)        :: formatter
+    type(FileMetaData)                 :: metadata
     character(len=:), allocatable      :: fname_by_face
+    logical :: grid_file_match
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars,rc=STATUS)
     _VERIFY(STATUS)
@@ -7371,6 +7364,13 @@ module MAPL_IOMod
              _VERIFY(STATUS)
           endif
        end if
+       metadata=formatter%read(rc=status)
+       _VERIFY(status)
+       call ESMF_FieldBundleGet(bundle,grid=grid,rc=status)
+       _VERIFY(status)
+       grid_file_match=compare_grid_file(metadata,grid,rc=status)
+       _VERIFY(status)
+       _ASSERT(grid_file_match,"File grid dimensions in "//trim(filename)//" do not match grid")
     endif
 
     do l=1,nVars
@@ -7416,6 +7416,38 @@ module MAPL_IOMod
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_BundleReadNCPar
+
+  function compare_grid_file(metadata,grid,rc) result(match)
+     type(FileMetaData), intent(in) :: metadata
+     type(ESMF_Grid), intent(in) :: grid
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+     logical :: match
+
+     integer :: file_lev_size, file_lat_size, file_lon_size, file_tile_size
+     integer :: grid_dims(3)
+
+     match = .false.
+     call MAPL_GridGet(grid,globalCellCountPerDim=grid_dims,rc=status)
+     _VERIFY(status)
+     file_lon_size = metadata%get_dimension("lon")
+     file_lat_size = metadata%get_dimension("lat")
+     file_lev_size = metadata%get_dimension("lev")
+     file_tile_size = metadata%get_dimension("tile")
+     if (file_tile_size > 0) then
+        match = (file_tile_size == grid_dims(1))
+     else
+        if (file_lev_size > 0) then
+
+            match = (file_lon_size == grid_dims(1)) .and. (file_lat_size == grid_dims(2)) &
+                    .and. (file_lev_size==grid_dims(3))
+        else
+            match = (file_lon_size == grid_dims(1)) .and. (file_lat_size == grid_dims(2))
+        end if
+     end if
+     _RETURN(_SUCCESS)
+  end function compare_grid_file
 
   subroutine MAPL_StateVarReadNCPar(filename, STATE, arrdes, bootstrapable, NAME, RC)
     character(len=*)            , intent(IN   ) :: filename
@@ -8371,6 +8403,7 @@ module MAPL_IOMod
 
        if (arrdes%write_restart_by_oserver) then
           _ASSERT(present(oClients), 'output server is needed')
+          call oClients%set_optimal_server(1)
           iter = RstCollections%find(trim(BundleName))
           if (iter == RstCollections%end()) then
              arrdes%collection_id = oClients%add_hist_collection(cf)
@@ -8435,7 +8468,6 @@ module MAPL_IOMod
     if (arrdes%write_restart_by_oserver) then
        call oClients%done_collective_stage()
        call oClients%wait()
-       call oClients%next()
        call MPI_Info_free(info, status)
        _VERIFY(STATUS)
     elseif (arrdes%writers_comm/=MPI_COMM_NULL) then

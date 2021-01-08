@@ -27,15 +27,14 @@ set (SRCS
 add_library (base_extras
   MAPL_Initialize.F90
   )
-target_link_libraries (base_extras PUBLIC ${ESMF_LIBRARIES} MAPL.base MAPL_pFUnit)
-target_include_directories (base_extras PUBLIC ${INC_ESMF})
-target_include_directories (base_extras PUBLIC ${INC_NETCDF})
+target_link_libraries (base_extras MAPL.shared MAPL_pFUnit
+                                   esmf NetCDF::NetCDF_Fortran)
 
 
 add_pfunit_ctest(MAPL.base.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
-                LINK_LIBRARIES MAPL.base MAPL.pfio base_extras MAPL_pFUnit
+                LINK_LIBRARIES MAPL.base MAPL.pfio base_extras
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 MAX_PES 8
