@@ -12,7 +12,9 @@ endif()
 set (srcs
   MAPL_ExtData_IOBundleMod.F90        MAPL_Profiler.F90
   CFIOCollection.F90                    MAPL_ExtData_IOBundleVectorMod.F90  MAPL_RegridderManager.F90
-  MAPL_RegridderSpec.F90
+  NewRegridderManager.F90
+  RegridderTypeSpec.F90                 RegridderSpec.F90                   RegridderSpecRouteHandleMap.F90
+  RegridMethods.F90                     HorizontalFluxRegridder.F90
   MAPL_FractionalRegridder.F90          MAPL_RegridderTypeSpecRegridderMap.F90
   ESMF_CFIOPtrVectorMod.F90             MAPL_GenericCplComp.F90             MAPL_RegridderVector.F90
   ESMFL_Mod.F90                         MAPL_Generic.F90                    MAPL_SatVapor.F90
@@ -22,8 +24,8 @@ set (srcs
   MAPL_GridType.F90                     MAPL_StringGridMap.F90
   MAPL_AbstractRegridder.F90            MAPL_HistoryCollection.F90          
   MAPL_Base.F90                         MAPL_HistoryGridComp.F90            MAPL_StringRouteHandleMap.F90
-  MAPL_Cap.F90                          MAPL_IdentityRegridder.F90          MAPL_stubs.F90
-  MAPL_CapGridComp.F90                  MAPL_Integer64GridFactoryMap.F90    MAPL_sun_uc.F90
+  MAPL_IdentityRegridder.F90            MAPL_stubs.F90
+  MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
   MAPL_CapOptions.F90                   MAPL_TilingRegridder.F90
   MAPL_CFIO.F90                         MAPL_IO.F90                         MAPL_TimeMethods.F90
   MAPL_CFIOServer.F90                   MAPL_LatLonGridFactory.F90          MAPL_TransposeRegridder.F90
@@ -37,9 +39,10 @@ set (srcs
   MAPL_ESMFTimeVectorMod.F90            MAPL_newCFIO.F90                    Regrid_Functions_Mod.F90
   MAPL_EtaHybridVerticalCoordinate.F90  MAPL_newCFIOitem.F90                
   MAPL_ExtDataCollection.F90            MAPL_NominalOrbitsMod.F90           
-  MAPL_ExtDataCollectionManager.F90     MAPL_NUOPCWrapperMod.F90            
+  MAPL_ExtDataCollectionManager.F90                 
   MAPL_ExtDataGridCompMod.F90           MAPL_OrbGridCompMod.F90             tstqsat.F90
   MAPL_LocStreamFactoryMod.F90          MAPL_HistoryTrajectoryMod.F90       MAPL_LocstreamRegridder.F90
+  MAPL_ExternalGridFactory.F90
   ServerManager.F90 ApplicationSupport.F90
   regex_module.F90 StringTemplate.F90
   regex_F.c
@@ -53,7 +56,8 @@ endif()
 esma_add_library(
   ${this} SRCS ${srcs}
   DEPENDENCIES MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 pflogger gftl-shared
-               esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
+               esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran
+  TYPE SHARED)
 
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 if(DISABLE_GLOBAL_NAME_WARNING)

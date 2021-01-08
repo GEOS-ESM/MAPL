@@ -1,12 +1,11 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
+#include "MAPL_Generic.h"
+
 module MAPL_TransposeRegridderMod
   use MAPL_AbstractRegridderMod
-  use MAPL_RegridderSpecMod
+  use mapl_KeywordEnforcerMod
+  use mapl_RegridderSpec
+  use mapl_RegridMethods
+  use mapl_ErrorHandlingMod
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   use ESMF
   implicit none
@@ -56,7 +55,6 @@ module MAPL_TransposeRegridderMod
 
 contains
 
-
   function new_TransposeRegridder(reference) result(regridder)
      type (TransposeRegridder) :: regridder
      class (AbstractRegridder), target, intent(in) :: reference
@@ -68,7 +66,6 @@ contains
 
    subroutine initialize_subclass(this, unusable, rc)
      use MAPL_KeywordEnforcerMod
-     use MAPL_RegridderSpecMod
      class (TransposeRegridder), intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(out) :: rc

@@ -8,8 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Added an `ExternalGridManager`, to allow MAPL to have knowledge of external grids (for NUOPC).
+- Added command line interface option `--isolate_nodes`. By default it is `.true.`
+- Add stretching factors to file if applicable in cubed-sphere output via History and uptick to cube version 2.91
+- Ability to register protoype (non-ESMF) regridders in NewRegridderManager
+- Make the default clobber rather than no clobber in NetCDF formatter in PFIO
+- Add basic check that the restart files match the application grid
+- Add new `MAPL_AddChildFromDSO` module procedure for `MAPL_AddChild`
+
 ### Changed
+
+- Move MAPL_Cap, CapGridComp, and NUOPCwrapper to new directory in anticipation of refactored ExtData that will  not live in base
+- Convert `file(GLOB)` to explicit list
+- Moved modules into separate files.
+- Updated various modules to use the standard `_ASSERT()` and `_VERIFY()` macros instead of ad-hoc ones.
+- MAPL (sub-)libraries are now built as `TYPE SHARED` (needed for DSO work)
+- Updated `components.yaml`
+  - ESMA_env v3.1.3
+  - ESMA_cmake v3.3.5
+- Update CI image to use Baselibs v6.0.27
+	
 ### Fixed
+	
 ### Removed
 
 ## [2.4.0] - 2020-11-20
