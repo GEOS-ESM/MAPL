@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved modules into separate files.
 - Updated various modules to use the standard `_ASSERT()` and `_VERIFY()` macros instead of ad-hoc ones.
 - MAPL (sub-)libraries are now built as `TYPE SHARED` (needed for DSO work)
+- Updated `components.yaml`
+  - ESMA_env v3.1.3
+  - ESMA_cmake v3.3.5
+- Update CI image to use Baselibs v6.0.27
 	
 ### Fixed
 	
