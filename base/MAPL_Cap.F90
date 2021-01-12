@@ -89,6 +89,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
+      real              :: mem_total, mem_commit, mem_committed_percent
+      real              :: mem_used, mem_used_percent
+
       cap%name = name
       cap%set_services => set_services
 
@@ -108,10 +111,28 @@ contains
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
 
+       ! Get percent of used memory
+         call MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
+       ! Get percent of committed memory
+         call MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
+         _VERIFY(STATUS)
+         if( cap%rank .eq. 0 ) write(6,1000) mem_committed_percent,mem_used_percent
+    1000 format(1x,'Memory after  MPI_INIT: ',f5.1,'% Committed : ',f5.1,'% Mem Used')
+
       call MAPL_Initialize(comm=cap%comm_world, &
                            logging_config=cap%cap_options%logging_config, &
                            rc=status)
       _VERIFY(status)
+
+       ! Get percent of used memory
+         call MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
+       ! Get percent of committed memory
+         call MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
+         _VERIFY(STATUS)
+         if( cap%rank .eq. 0 ) write(6,1001) mem_committed_percent,mem_used_percent
+    1001 format(1x,'Memory after MAPL_INIT: ',f5.1,'% Committed : ',f5.1,'% Mem Used')
 
       _RETURN(_SUCCESS)     
       _UNUSED_DUMMY(unusable)
@@ -150,13 +171,46 @@ contains
       integer :: subcommunicator
       type(SplitCommunicator) :: split_comm
 
+      real              :: mem_total, mem_commit, mem_committed_percent
+      real              :: mem_used, mem_used_percent
+
       _UNUSED_DUMMY(unusable)
       
       subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _VERIFY(status)
       if (subcommunicator /= MPI_COMM_NULL) then
          call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
+
+       ! Get percent of used memory
+         call MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
+       ! Get percent of committed memory
+         call MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
+         _VERIFY(STATUS)
+         if( this%rank .eq. 0 ) write(6,1000) mem_committed_percent,mem_used_percent
+    1000 format(1x,'Memory after  initialize_io_clients_servers: ',f5.1,'% Committed : ',f5.1,'% Mem Used')
+
          call this%cap_server%get_splitcomm(split_comm)
+
+       ! Get percent of used memory
+         call MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
+       ! Get percent of committed memory
+         call MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
+         _VERIFY(STATUS)
+         if( this%rank .eq. 0 ) write(6,1001) mem_committed_percent,mem_used_percent
+    1001 format(1x,'Memory after  get_splitcomm: ',f5.1,'% Committed : ',f5.1,'% Mem Used')
+
          call fill_mapl_comm(split_comm, subcommunicator, .false., this%mapl_comm, rc=status)
+
+       ! Get percent of used memory
+         call MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
+       ! Get percent of committed memory
+         call MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
+         _VERIFY(STATUS)
+         if( this%rank .eq. 0 ) write(6,1002) mem_committed_percent,mem_used_percent
+    1002 format(1x,'Memory after  fill_mapl_comm: ',f5.1,'% Committed : ',f5.1,'% Mem Used')
+
          call this%run_member(rc=status); _VERIFY(status)
          call this%cap_server%finalize()
       end if
@@ -342,19 +396,70 @@ contains
       integer :: start_tick, stop_tick, tick_rate
       integer :: status
       class(Logger), pointer :: lgr
+
+      real              :: mem_total, mem_commit, mem_committed_percent
+      real              :: mem_used, mem_used_percent
       
       _UNUSED_DUMMY(unusable)
 
       call start_timer()
+
+       ! Get percent of used memory
+         call MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
+       ! Get percent of committed memory
+         call MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
+         _VERIFY(STATUS)
+         if( this%rank .eq. 0 ) write(6,1000) mem_committed_percent,mem_used_percent
+    1000 format(1x,'Memory before ESMF_Initialize: ',f5.1,'% Committed : ',f5.1,'% Mem Used')
+
       call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=mapl_comm%esmf%comm, rc=status)
       _VERIFY(status)
 
+       ! Get percent of used memory
+         call MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
+       ! Get percent of committed memory
+         call MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
+         _VERIFY(STATUS)
+         if( this%rank .eq. 0 ) write(6,1001) mem_committed_percent,mem_used_percent
+    1001 format(1x,'Memory after ESMF_Initialize: ',f5.1,'% Committed : ',f5.1,'% Mem Used')
+
       call this%initialize_cap_gc(mapl_comm)
+
+       ! Get percent of used memory
+         call MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
+       ! Get percent of committed memory
+         call MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
+         _VERIFY(STATUS)
+         if( this%rank .eq. 0 ) write(6,1002) mem_committed_percent,mem_used_percent
+    1002 format(1x,'Memory after initialize_cap_gc: ',f5.1,'% Committed : ',f5.1,'% Mem Used')
 
       call this%cap_gc%set_services(rc = status)
       _VERIFY(status)
+
+       ! Get percent of used memory
+         call MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
+       ! Get percent of committed memory
+         call MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
+         _VERIFY(STATUS)
+         if( this%rank .eq. 0 ) write(6,1003) mem_committed_percent,mem_used_percent
+    1003 format(1x,'Memory after cap_gc%set_services: ',f5.1,'% Committed : ',f5.1,'% Mem Used')
+
       call this%cap_gc%initialize(rc=status)
       _VERIFY(status)
+
+       ! Get percent of used memory
+         call MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
+       ! Get percent of committed memory
+         call MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
+         _VERIFY(STATUS)
+         if( this%rank .eq. 0 ) write(6,1004) mem_committed_percent,mem_used_percent
+    1004 format(1x,'Memory after cap_gc%initialize: ',f5.1,'% Committed : ',f5.1,'% Mem Used')
+
       call this%cap_gc%run(rc=status)
       _VERIFY(status)
       call this%cap_gc%finalize(rc=status)
@@ -567,6 +672,147 @@ contains
      character(len=:), allocatable :: egress_file
      allocate(egress_file, source=this%cap_options%egress_file)
    end function get_egress_file
+
+
+  subroutine MemUsed ( memtotal, used, percent_used, RC )
+     real, intent(out) :: memtotal, used, percent_used
+     integer, optional, intent(OUT  ) :: RC
+
+     ! This routine returns the memory usage on Linux systems.
+     ! It does this by querying a system file (file_name below).
+
+     character(len=32) :: meminfo   = '/proc/meminfo'
+     character(len=32) :: string
+     integer :: mem_unit
+     real    :: multiplier, available
+
+     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_Cap:MemUsed"
+     integer :: status
+
+#ifdef sysDarwin
+     memtotal = 0.0
+     used = 0.0
+     percent_used = 0.0
+     RETURN_(ESMF_SUCCESS)
+#else
+     available = -1
+     memtotal = -1
+#endif
+
+
+     call get_unit(mem_unit)
+     open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',IOSTAT=STATUS)
+     _VERIFY(STATUS)
+     do
+        read (mem_unit,'(a)', end=20) string
+        if ( index ( string, 'MemTotal:' ) == 1 ) then  ! High Water Mark
+           read (string(10:LEN_trim(string)-2),*) memtotal
+           multiplier = 1.0
+           if (trim(string(LEN_trim(string)-1:)) == "kB" ) &
+                multiplier = 1.0/1024. ! Convert from kB to MB
+           memtotal = memtotal * multiplier
+        endif
+        if ( index ( string, 'MemAvailable:' ) == 1 ) then  ! Resident Memory
+           multiplier = 1.0
+           read (string(14:LEN_trim(string)-2),*) available
+           if (trim(string(LEN_trim(string)-1:)) == "kB" ) &
+                multiplier = 1.0/1024. ! Convert from kB to MB
+           available = available * multiplier
+        endif
+     enddo
+20   close(mem_unit)
+
+     if (memtotal >= 0 .and. available >= 0) then
+        used = memtotal-available
+        percent_used = 100.0*(used/memtotal)
+     else
+        ! fail, but don't crash
+        used = -1
+        percent_used = -1
+     end if
+
+     _RETURN(ESMF_SUCCESS)
+  end subroutine MemUsed
+
+subroutine MemCommited ( memtotal, committed_as, percent_committed, RC )
+
+real, intent(out) :: memtotal, committed_as, percent_committed
+integer, optional, intent(OUT  ) :: RC
+
+! This routine returns the memory usage on Linux systems.
+! It does this by querying a system file (file_name below).
+
+character(len=32) :: meminfo   = '/proc/meminfo'
+character(len=32) :: string
+integer :: mem_unit
+real    :: multiplier
+
+character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_Cap:MemCommited"
+integer :: status
+
+#ifdef sysDarwin
+  memtotal = 0.0
+  committed_as = 0.0
+  percent_committed = 0.0
+  _RETURN(ESMF_SUCCESS)
+#endif
+
+  multiplier = 1.0
+
+  call get_unit(mem_unit)
+  open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',IOSTAT=STATUS)
+  _VERIFY(STATUS)
+  do; read (mem_unit,'(a)', end=20) string
+    if ( INDEX ( string, 'MemTotal:' ) == 1 ) then  ! High Water Mark
+      read (string(10:LEN_TRIM(string)-2),*) memtotal
+      if (TRIM(string(LEN_TRIM(string)-1:)) == "kB" ) &
+        multiplier = 1.0/1024. ! Convert from kB to MB
+      memtotal = memtotal * multiplier
+    endif
+    if ( INDEX ( string, 'Committed_AS:' ) == 1 ) then  ! Resident Memory
+      read (string(14:LEN_TRIM(string)-2),*) committed_as
+      if (TRIM(string(LEN_TRIM(string)-1:)) == "kB" ) &
+        multiplier = 1.0/1024. ! Convert from kB to MB
+      committed_as = committed_as * multiplier
+    endif
+  enddo
+20 close(mem_unit)
+
+   percent_committed = 100.0*(committed_as/memtotal)
+
+   _RETURN(ESMF_SUCCESS)
+end subroutine MemCommited
+
+
+subroutine get_unit ( iunit )
+  implicit none
+!
+  integer i
+  integer ios
+  integer iunit
+  logical lopen
+
+  iunit = 0
+
+  do i = 1, 99
+
+    if ( i /= 5 .and. i /= 6 ) then
+
+      inquire ( unit = i, opened = lopen, iostat = ios )
+
+      if ( ios == 0 ) then
+        if ( .not. lopen ) then
+          iunit = i
+          return
+        end if
+      end if
+
+    end if
+
+  end do
+
+  return
+end subroutine get_unit
 
 end module MAPL_CapMod
 
