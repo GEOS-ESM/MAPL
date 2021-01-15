@@ -56,7 +56,8 @@ endif()
 esma_add_library(
   ${this} SRCS ${srcs}
   DEPENDENCIES MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 pflogger gftl-shared
-               esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
+               esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran
+  TYPE SHARED)
 
 target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${OpenMP_Fortran_FLAGS}>)
 if(DISABLE_GLOBAL_NAME_WARNING)
