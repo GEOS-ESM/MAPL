@@ -9,6 +9,7 @@ module MAPL_CommGroupDescriptionMod
    public :: CommGroupDescription
    
    type :: CommGroupDescription
+      integer :: npes_per_node
       integer :: npes
       integer :: nnodes
       logical :: isolate_nodes
@@ -23,17 +24,18 @@ end interface
 
 contains
 
-   function new_CommGroupDescription( npes, nnodes, isolate_nodes, name, unusable, rc) result(CommGroup)
+   function new_CommGroupDescription( npes, nnodes, isolate_nodes, name, unusable, npes_per_node, rc) result(CommGroup)
       type(CommGroupDescription) :: CommGroup
       integer, intent(in) :: npes
       integer, intent(in) :: nnodes
       logical, intent(in) :: isolate_nodes
       character(*), intent(in) :: name
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in)  :: npes_per_node
       integer, optional, intent(out) :: rc
 
       _UNUSED_DUMMY(unusable)
-      _ASSERT(npes*nnodes ==0, "npes and nnodes are exclusive")
+      _ASSERT(npes*nnodes == 0, "npes and nnodes are exclusive")
 
       if (nnodes > 0) then
          _ASSERT( isolate_nodes, " nnodes should be isolated")
@@ -43,6 +45,13 @@ contains
       CommGroup%nnodes = nnodes
       CommGroup%isolate_nodes = isolate_nodes 
       CommGroup%name = name
+      CommGroup%npes_per_node = 0
+
+      if ( present(npes_per_node)) then
+         CommGroup%npes_per_node = npes_per_node
+         CommGroup%npes   = 0
+         CommGroup%nnodes = 0
+      endif
 
       _RETURN(_SUCCESS)
    end function new_CommGroupDescription
@@ -77,7 +86,7 @@ contains
            do i_rank = start_rank_, nodes_sizes(i_node)-1
 
               if( my_node == i_node .and. my_rank == i_rank) then
-                  _ASSERT( .not. IamInGroup, "I have been inluded in the other group")
+                  _ASSERT( .not. IamInGroup, "I have been included in the other group")
                   IamInGroup = .true.
               endif
 
@@ -97,16 +106,28 @@ contains
 
       ! case 2, group is divided by nnodes
       if (this%nnodes > 0) then
+
          next_node = start_node_ + this%nnodes 
          next_rank = 0
          if (start_node_ <= my_node .and. my_node < next_node) then
-            _ASSERT( .not. IamInGroup, "I have been inluded in the other group")
+            _ASSERT( .not. IamInGroup, "I have been included in the other group")
             IamInGroup = .true.
          endif
       endif
 
-      ! case 3, empty group
-      if (this%npes == 0 .and. this%nnodes ==0) then
+      ! case 3, npes per node
+      if (this%npes_per_node > 0) then
+         _ASSERT( all(nodes_sizes == nodes_sizes(1)) , " all nodes should have the same amount of cores")
+         next_rank  = start_rank + this%npes_per_node
+         next_node  = 0 ! no used
+         if (start_rank <=my_rank .and. my_rank < next_rank) then
+            _ASSERT( .not. IamInGroup, "I have been included in the other group")
+            IamInGroup = .true.
+         endif
+      endif
+
+      ! case 4, empty group
+      if (this%npes == 0 .and. this%nnodes ==0 .and. this%npes_per_node ==0) then
         next_node = start_node
         next_rank = start_rank
       endif
