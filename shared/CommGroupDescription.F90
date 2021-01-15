@@ -86,7 +86,7 @@ contains
            do i_rank = start_rank_, nodes_sizes(i_node)-1
 
               if( my_node == i_node .and. my_rank == i_rank) then
-                  _ASSERT( .not. IamInGroup, "I have been inluded in the other group")
+                  _ASSERT( .not. IamInGroup, "I have been included in the other group")
                   IamInGroup = .true.
               endif
 
@@ -110,7 +110,7 @@ contains
          next_node = start_node_ + this%nnodes 
          next_rank = 0
          if (start_node_ <= my_node .and. my_node < next_node) then
-            _ASSERT( .not. IamInGroup, "I have been inluded in the other group")
+            _ASSERT( .not. IamInGroup, "I have been included in the other group")
             IamInGroup = .true.
          endif
       endif
@@ -121,7 +121,7 @@ contains
          next_rank  = start_rank + this%npes_per_node
          next_node  = 0 ! no used
          if (start_rank <=my_rank .and. my_rank < next_rank) then
-            _ASSERT( .not. IamInGroup, "I have been inluded in the other group")
+            _ASSERT( .not. IamInGroup, "I have been included in the other group")
             IamInGroup = .true.
          endif
       endif
