@@ -22,6 +22,7 @@ module MAPL_ApplicationSupport
 
       character(:), allocatable :: logging_configuration_file
       integer :: comm_world,status
+      integer :: my_rank, ierror
      
       _UNUSED_DUMMY(unusable)
 
@@ -31,13 +32,19 @@ module MAPL_ApplicationSupport
          logging_configuration_file=''
       end if
       if (present(comm)) then
+         call MPI_Comm_Rank(comm, my_rank, ierror)
+         if (my_rank == 0) write(*,'(a)') 'MAPL_Initialize: MPI_comm_dup(comm,comm_world,status)'
          call MPI_comm_dup(comm,comm_world,status)
          _VERIFY(status)
       else
+         call MPI_Comm_Rank(MPI_COMM_WORLD, my_rank, ierror)
+         if (my_rank == 0) write(*,'(a)') 'MAPL_Initialize: comm_world=MPI_COMM_WORLD'
          comm_world=MPI_COMM_WORLD
       end if
+      if (my_rank == 0) write(*,'(a)') 'MAPL_Initialize: initialize_pflogger()'
       call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file,rc=status)
       _VERIFY(status)
+      if (my_rank == 0) write(*,'(a)') 'MAPL_Initialize: start_global_profiler()'
       call start_global_profiler(comm=comm_world,rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)

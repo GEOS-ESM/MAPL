@@ -758,6 +758,9 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%template, default="", &
                                       label=trim(string) // 'template:' ,rc=status )
        _VERIFY(STATUS)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%output_dir, default="", &
+                                      label=trim(string) // 'output_dir:' ,rc=status )
+       _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%format,default='flat', &
                                       label=trim(string) // 'format:' ,rc=status )
        _VERIFY(STATUS)
@@ -3440,6 +3443,9 @@ ENDDO PARSER
               experiment_id=trim(INTSTATE%expid), &
               nymd=nymd, nhms=nhms, rc=status ) ! here is where we get the actual filename of file we will write
          _VERIFY(STATUS)
+         if (trim(list(n)%output_dir)/="") then
+            filename(n) = trim(list(n)%output_dir)//"/"//trim(filename(n))
+         endif
 
          if(list(n)%monthly .and. list(n)%partial) then
             filename(n)=trim(filename(n)) // '-partial'

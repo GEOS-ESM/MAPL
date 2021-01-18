@@ -22,6 +22,7 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: collection
      character(len=ESMF_MAXSTR)         :: filename
      character(len=ESMF_MAXSTR)         :: template
+     character(len=ESMF_MAXPATHLEN)     :: output_dir
      character(len=ESMF_MAXSTR)         :: format
      character(len=ESMF_MAXSTR)         :: mode
      character(len=ESMF_MAXSTR)         :: descr

@@ -195,29 +195,38 @@ contains
     class(Logger), pointer :: lgr
     type(ESMF_Clock) :: cap_clock
 
+      real              :: mem_total, mem_commit, mem_committed_percent
+      real              :: mem_used, mem_used_percent
+
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
 
     cap => get_CapGridComp_from_gc(gc)
-    call MAPL_InternalStateRetrieve(gc, maplobj, rc=status)
-    _VERIFY(status)
-
-    t_p => get_global_time_profiler()
-
     call ESMF_GridCompGet(gc, vm = cap%vm, rc = status)
     _VERIFY(status)
     call ESMF_VMGet(cap%vm, petcount = NPES, mpiCommunicator = comm, rc = status)
     _VERIFY(status)
 
     AmIRoot_ = MAPL_Am_I_Root(cap%vm)
+    cap%AmIRoot = AmIRoot_
+
+       ! Get percent of used memory
+         call MAPL_MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+         _VERIFY(STATUS)
+       ! Get percent of committed memory
+         call MAPL_MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
+         _VERIFY(STATUS)
+         if( AmIRoot_ ) write(6,1000) mem_committed_percent,mem_used_percent
+    1000 format(1x,'Memory: ',f5.1,'% Committed : ',f5.1,'% Mem Used')
+
+    call MAPL_InternalStateRetrieve(gc, maplobj, rc=status)
+    _VERIFY(status)
+
+    t_p => get_global_time_profiler()
 
     call MAPL_GetNodeInfo(comm = comm, rc = status)
     _VERIFY(STATUS)
-
-    AmIRoot_ = MAPL_Am_I_Root(cap%vm)
-
-    cap%AmIRoot = AmIRoot_
 
     !  CAP's MAPL MetaComp
     !---------------------
