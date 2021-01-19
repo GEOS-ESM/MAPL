@@ -10,9 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: gmao/ubuntu20-geos-env-mkl:v6.0.27-openmpi_4.0.5-gcc_10.2.0
-      credentials:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Per https://github.com/actions/virtual-environments/issues/1445#issuecomment-713861495
+      # It seems like we might not need secrets on GitHub Actions
+      #credentials:
+        #username: ${{ secrets.DOCKERHUB_USERNAME }}
+        #password: ${{ secrets.DOCKERHUB_TOKEN }}
     env:
       LANGUAGE: en_US.UTF-8
       LC_ALL: en_US.UTF-8
