@@ -90,16 +90,19 @@ jobs:
             mepo develop GEOSgcm_GridComp GEOSgcm_App
             mepo status
       - run:
-          # This is the place I'll be looking at
           name: "Mepo checkout MAPL branch"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm/src/Shared/@MAPL
 
-            # Testing from: https://stackoverflow.com/a/55940371/1876449
+            # Based a bit on: https://stackoverflow.com/a/55940371/1876449
             #
-            # if CIRCLE_PR_NUMBER is NOT set (meaning it is not a PR 
-            # from a forked repository), then CIRCLE_BRANCH will 
-            # contain the real branch name
+            # CIRCLE_PR_NUMBER is only available on forked PRs:
+            #
+            # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
+            #
+            # so if it exists we fetch the PR's branch. This fetch was
+            # figured out by looking at the MAPL build-and-test above
+            # which did work!
             if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
                git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
             fi
