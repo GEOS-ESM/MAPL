@@ -100,16 +100,9 @@ jobs:
             # if CIRCLE_PR_NUMBER is NOT set (meaning it is not a PR 
             # from a forked repository), then CIRCLE_BRANCH will 
             # contain the real branch name
-            if [ -z "${CIRCLE_PR_NUMBER}" ]; then
-                REAL_BRANCH_NAME="${CIRCLE_BRANCH}"
-
-            # if CIRCLE_PR_NUMBER is set, then we need to use it 
-            # to fetch the real branch name
-            else
-                REAL_BRANCH_NAME=$(curl -s https://api.github.com/repos/"${CIRCLE_PROJECT_USERNAME}"/"${CIRCLE_PROJECT_REPONAME}"/pulls/"${CIRCLE_PR_NUMBER}"?access_token="${GITHUB_TOKEN}" | jq -r '.head.ref')
+            if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
+               git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
             fi
-
-            echo ${REAL_BRANCH_NAME}
 
             mepo checkout ${CIRCLE_BRANCH} MAPL
             mepo status
