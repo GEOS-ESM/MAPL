@@ -94,6 +94,23 @@ jobs:
           name: "Mepo checkout MAPL branch"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm
+
+            # Testing from: https://stackoverflow.com/a/55940371/1876449
+            #
+            # if CIRCLE_PR_NUMBER is NOT set (meaning it is not a PR 
+            # from a forked repository), then CIRCLE_BRANCH will 
+            # contain the real branch name
+            if [ -z "${CIRCLE_PR_NUMBER}" ]; then
+                REAL_BRANCH_NAME="${CIRCLE_BRANCH}"
+
+            # if CIRCLE_PR_NUMBER is set, then we need to use it 
+            # to fetch the real branch name
+            else
+                REAL_BRANCH_NAME=$(curl -s https://api.github.com/repos/"${CIRCLE_PROJECT_USERNAME}"/"${CIRCLE_PROJECT_REPONAME}"/pulls/"${CIRCLE_PR_NUMBER}"?access_token="${GITHUB_TOKEN}" | jq -r '.head.ref')
+            fi
+
+            echo ${REAL_BRANCH_NAME}
+
             mepo checkout ${CIRCLE_BRANCH} MAPL
             mepo status
       - run:
