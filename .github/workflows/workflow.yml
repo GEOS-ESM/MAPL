@@ -99,6 +99,7 @@ jobs:
         if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
         working-directory: ./Shared/@MAPL
         run: |
+          pwd
           echo ${GITHUB_REF}
           GITHUB_REF_STRIP_REFS=${GITHUB_REF##refs/}
           GITHUB_REF_STRIP_MERGE=${GITHUB_REF_STRIP_REFS%%/merge}
@@ -112,6 +113,7 @@ jobs:
           mepo status
       - name: CMake
         run: |
+          pwd
           mkdir build
           cd build
           cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe'
