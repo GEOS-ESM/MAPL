@@ -10,8 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+
 - For MultiGroupServer, the backend and frontend share each node
+
 ### Fixed
+
+- Fixes for allowing forked PRs to pass CI
 
 ### Removed
 
