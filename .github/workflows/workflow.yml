@@ -86,16 +86,27 @@ jobs:
           gfortran --version
           mpirun --version
           echo $BASEDIR
-          echo ${GITHUB_REF}
           echo ${GITHUB_HEAD_REF}
       - name: Mepo clone external repos
         run: |
+          pwd
           mepo init
           mepo clone
           mepo status
           mepo develop GEOSgcm_GridComp GEOSgcm_App
           mepo status
-      - name: Mepo checkout MAPL branch
+      - name: Git checkout MAPL branch (forks)
+        if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        working_directory: ./Shared/@MAPL
+        run: |
+          echo ${GITHUB_REF}
+          GITHUB_REF_STRIP_REFS=${GITHUB_REF##refs/}
+          GITHUB_REF_STRIP_MERGE=${GITHUB_REF_STRIP_REFS%%/merge}
+          git fetch --force origin "${GITHUB_REF_STRIP_MERGE}/head:remotes/origin/${GITHUB_REF_STRIP_MERGE}"
+          mepo checkout ${GITHUB_REF_STRIP_MERGE} MAPL
+          mepo status
+      - name: Mepo checkout MAPL branch (same repo)
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         run: |
           mepo checkout ${GITHUB_HEAD_REF} MAPL
           mepo status
