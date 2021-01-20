@@ -72,6 +72,7 @@ module pFIO_ClientThreadMod
       procedure :: done_collective_stage
       procedure :: wait
       procedure :: wait_all
+      procedure :: post_wait_all
       procedure :: terminate
 
       procedure :: handle_Id
@@ -449,6 +450,12 @@ contains
       !call this%shake_hand()
 
    end subroutine wait_all
+
+   subroutine post_wait_all(this)
+      use pFIO_AbstractRequestHandleMod
+      class (ClientThread), target, intent(inout) :: this
+      call this%wait_all()
+   end subroutine post_wait_all
 
    integer function get_unique_request_id(this) result(request_id)
       class (ClientThread), intent(inout) :: this
