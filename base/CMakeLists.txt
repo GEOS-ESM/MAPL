@@ -22,8 +22,8 @@ set (srcs
   FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                MAPL_SimpleBundleMod.F90
   MAPL_AbstractGridFactory.F90          MAPL_GridSpec.F90                   MAPL_StringGridFactoryMap.F90
   MAPL_GridType.F90                     MAPL_StringGridMap.F90
-  MAPL_AbstractRegridder.F90            MAPL_HistoryCollection.F90          
-  MAPL_Base.F90                         MAPL_HistoryGridComp.F90            MAPL_StringRouteHandleMap.F90
+  MAPL_AbstractRegridder.F90                      
+  MAPL_Base.F90                         MAPL_StringRouteHandleMap.F90
   MAPL_IdentityRegridder.F90            MAPL_stubs.F90
   MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
   MAPL_CapOptions.F90                   MAPL_TilingRegridder.F90
@@ -41,7 +41,7 @@ set (srcs
   MAPL_ExtDataCollection.F90            MAPL_NominalOrbitsMod.F90           
   MAPL_ExtDataCollectionManager.F90                 
   MAPL_ExtDataGridCompMod.F90           MAPL_OrbGridCompMod.F90             tstqsat.F90
-  MAPL_LocStreamFactoryMod.F90          MAPL_HistoryTrajectoryMod.F90       MAPL_LocstreamRegridder.F90
+  MAPL_LocStreamFactoryMod.F90          MAPL_LocstreamRegridder.F90
   MAPL_ExternalGridFactory.F90
   ServerManager.F90 ApplicationSupport.F90
   regex_module.F90 StringTemplate.F90
