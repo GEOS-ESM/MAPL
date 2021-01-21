@@ -26,6 +26,9 @@ module MAPL_CapOptionsMod
       integer, allocatable :: nodes_output_server(:)
       ! whether or not the nodes are padding with idle when mod(model total npes , each node npes) /=0
       logical              :: isolate_nodes = .true.
+      ! whether or not copy the data before isend to the oserver
+      ! it is faster but demands more memory if it is true 
+      logical              :: fast_oclient  = .false.
       ! server groups
       integer :: n_iserver_group = 1
       integer :: n_oserver_group = 1

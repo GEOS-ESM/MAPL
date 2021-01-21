@@ -194,6 +194,7 @@ contains
          oserver_type=this%cap_options%oserver_type, &
          npes_output_backend=this%cap_options%npes_output_backend, &
          isolate_nodes = this%cap_options%isolate_nodes, &
+         fast_oclient  = this%cap_options%fast_oclient, &
          rc=status)
      _VERIFY(status)
 

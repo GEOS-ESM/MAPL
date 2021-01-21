@@ -70,6 +70,7 @@ set (srcs
   ServerThreadVector.F90
   BaseThread.F90
   ClientThread.F90
+  FastClientThread.F90
   ClientThreadVector.F90
   ClientManager.F90
   ExtDataCollection.F90

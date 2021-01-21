@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-
+- Add option fast_oclient that waits before using oserver. It would not wait after done message are sent 
 ### Changed
 
 - For MultiGroupServer, the backend and frontend share each node
