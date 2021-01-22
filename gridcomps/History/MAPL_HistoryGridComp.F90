@@ -3567,9 +3567,10 @@ ENDDO PARSER
 
    enddo POSTLOOP
 
-   call o_Clients%done_collective_stage()
-   call o_Clients%wait() 
-
+   if (any(writing)) then
+      call o_Clients%done_collective_stage()
+      call o_Clients%post_wait()
+   endif
    call MAPL_TimerOff(GENSTATE,"-----IO Post")
    call MAPL_TimerOff(GENSTATE,"----IO Write")
 

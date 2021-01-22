@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Add option fast_oclient that waits before using oserver. It would not wait after done message are sent 
+### Changed
+
+- For MultiGroupServer, the backend and frontend share each node
+- Moved `MAPL_HistoryGridComp.F90` and related files to `gridcomps/History`
+
+### Fixed
+
+- Fixes for allowing forked PRs to pass CI
+
+### Removed
+
+## [2.5.0] - 2021-01-08
+
+### Added
 
 - Added an `ExternalGridManager`, to allow MAPL to have knowledge of external grids (for NUOPC).
 - Added command line interface option `--isolate_nodes`. By default it is `.true.`
@@ -28,10 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_env v3.1.3
   - ESMA_cmake v3.3.5
 - Update CI image to use Baselibs v6.0.27
-	
-### Fixed
-	
-### Removed
 
 ## [2.4.0] - 2020-11-20
 
@@ -324,7 +335,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected Python code generator scripts for component import/export specs.
 - Add directories to `.gitignore` for building with `mepo`
 - Bug building with mixed Intel/GCC compilers
-- Implemented workaround to cmake error that happens when building tests in parallel.	
+- Implemented workaround to cmake error that happens when building tests in parallel.
 - Set correct ESMA_env tag in `components.yaml`
 - Updated `components.yaml` to be inline with GEOSgcm
 - Minor problem in GMAO_pFIO Cmakelists (consistency with PRIVATE)
@@ -343,7 +354,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
 - Add precession of equinox (not on by default)
 - Imported Python/MAPL subdir (old, but never imported to GitHub)
-- Python automatic code generator for grid comp include files	
+- Python automatic code generator for grid comp include files
 - Added support to use pFlogger for logging
   - Command line option: `--logging_config=<file>`
 - Added ability for History to do monthly mean. This also involves reading and writing MAPL_GenericCpl checkpoints
