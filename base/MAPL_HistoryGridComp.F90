@@ -2781,6 +2781,7 @@ ENDDO PARSER
       character(ESMF_MAXSTR) :: fldName, stateName
       logical :: split
       integer :: k, i
+      logical :: hasField
       
       ! Restrictions:
       ! 1) we do not split 4d vectors
@@ -2869,8 +2870,17 @@ ENDDO PARSER
                   call appendArray(newExpState,idx=list(n)%expState(k),rc=status)
                   _VERIFY(status)
 
-                  call MAPL_StateAdd(expState, field=splitFields(i), rc=status)
+                  ! ALT: this is ONLY a very simple test to make sure that this is not a duplicate
+                  ! this issue might be revisited to assure that possible duplicates have
+                  ! identical content. Otherwise the split fields should be put in its own container
+                  ! perhaps per collection, but this 
+                  hasField = .false. ! initialize just in case
+                  call checkIfStateHasField(expState, fieldName=fldName, hasField=hasField, rc=status)
                   _VERIFY(status)
+                  if (.not. hasField) then
+                     call MAPL_StateAdd(expState, field=splitFields(i), rc=status)
+                     _VERIFY(status)
+                  end if
 
                   item%itemType = ItemTypeScalar
                   item%xname = trim(fldName)
@@ -5183,5 +5193,41 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
   end subroutine RecordRestart
 
+  subroutine  checkIfStateHasField(state, fieldName, hasField, rc)
+    type(ESMF_State), intent(in) :: state ! export state
+    character(len=*), intent(in) :: fieldName
+    logical, intent(out)         :: hasField
+    integer, intent(out), optional :: rc ! Error code:
+
+    integer :: n, i, status
+    character (len=ESMF_MAXSTR), allocatable  :: itemNameList(:)
+    type(ESMF_StateItem_Flag),   allocatable  :: itemTypeList(:)
+
+    call ESMF_StateGet(state, itemcount=n,  rc=status)
+    _VERIFY(status)
+
+    allocate(itemNameList(n), stat=status)
+    _VERIFY(status)
+    allocate(itemTypeList(n), stat=status)
+    _VERIFY(status)
+    call ESMF_StateGet(state,itemnamelist=itemNamelist,itemtypelist=itemTypeList,rc=status)
+    _VERIFY(STATUS)
+
+    hasField = .false.
+    do I=1,N
+       if(itemTypeList(I)/=ESMF_STATEITEM_FIELD) cycle
+       if(itemNameList(I)==fieldName) then
+          hasField = .true.
+          exit
+       end if
+    end do
+    deallocate(itemNameList, stat=status)
+    _VERIFY(STATUS)
+    deallocate(itemTypeList, stat=status)
+    _VERIFY(status)
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine checkIfStateHasField
+    
 end module MAPL_HistoryGridCompMod
 
