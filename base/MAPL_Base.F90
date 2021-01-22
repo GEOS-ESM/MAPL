@@ -4276,14 +4276,16 @@ and so on.
     _RETURN(_SUCCESS)
  end function MAPL_TrimString
 
- subroutine MAPL_FieldSplit(field, fields, rc)
+ subroutine MAPL_FieldSplit(field, fields, aliasName, rc)
    type(ESMF_Field),          intent(IN   ) :: field
    type(ESMF_Field), pointer, intent(  out) :: fields(:)
+   character(len=*), optional, intent(in  ) :: aliasName
    integer, optional,         intent(  out) :: rc
 
    ! local vars
    integer :: status
    integer :: k, n
+   integer :: k1,k2
    integer :: gridRank
 
    logical                    :: has_ungrd
@@ -4299,10 +4301,11 @@ and so on.
    type(ESMF_TypeKind_Flag)   :: tk
    character(len=ESMF_MAXSTR) :: name
    character(len=ESMF_MAXSTR) :: splitName
+   character(len=ESMF_MAXSTR), allocatable :: splitNameArray(:)
 
    ! get ptr
-   ! loop over 4-d dim
-   ! create 3d field
+   ! loop over 3-d or 4-d dim
+   ! create 2d or 3d field
    ! put in state/bundle
    ! end-of-loop
    call ESMF_FieldGet(field, name=name, grid=grid, typekind=tk, rc=status)
@@ -4327,11 +4330,16 @@ and so on.
          allocate(fields(n), stat=status)
          _VERIFY(STATUS)
          n = 0
-         do k=lbound(ptr4d,4),ubound(ptr4d,4)
+         k1=lbound(ptr4d,4)
+         k2=ubound(ptr4d,4)
+         kk = k2-k1+1
+         call genAlias(name, kk, splitNameArray, aliasName=aliasName) 
+            write(splitName,'(A,I3.3)') trim(name), n
+         do k=k1,k2
             n = n+1
             ptr3d => ptr4d(:,:,:,k)
             ! create a new field
-            write(splitName,'(A,I3.3)') trim(name), n
+            splitName = splitNameArray(n)
             f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, rc=status)
             _VERIFY(STATUS)
             call ESMF_FieldEmptyComplete(F, farrayPtr=ptr3D,    &
@@ -4377,11 +4385,13 @@ and so on.
          allocate(fields(n), stat=status)
          _VERIFY(STATUS)
          n = 0
-         do k=lbound(ptr3d,3),ubound(ptr3d,3)
+         k1=lbound(ptr3d,3)
+         k2=ubound(ptr3d,3)
+         do k=k1,k2
             n = n+1
             ptr2d => ptr3d(:,:,k)
             ! create a new field
-            write(splitName,'(A,I3.3)') trim(name), n
+            splitName = splitNameArray(n)
             f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, rc=status)
             _VERIFY(STATUS)
             call ESMF_FieldEmptyComplete(F, farrayPtr=ptr2D,    &
@@ -4425,7 +4435,56 @@ and so on.
    end if
 
    deallocate(gridToFieldMap)
+   deallocate(splitArrayName)
    ! fields SHOULD be deallocated by the caller!!!
+   _RETURN(ESMF_SUCCESS)
+
+ contains
+   subroutine genAlias(name, n, splitNameArray, aliasName)
+     integer :: n
+     character(len=*) :: name
+     character(len=*), allocatable :: splitNameArray(:)
+     character(len=*), optional :: aliasName
+     integer, optional :: rc
+
+     integer :: i, k
+     integer :: k1, k2, count
+     allocate(splitNameArray(n), __STAT__)
+
+     if (present(aliasName)) then
+        ! count the separators (";") in aliasName
+        ! if they match n (i.e. the count = n-1) use each
+        ! else if count is 0, append 00i to aliasName
+        ! else return an error
+
+        ! parse the aliasName
+        count = 0
+        k1 = 1
+        do k=1,len_trim(aliasName)
+           if (aliasName(k:k) == ";") then
+              count = count+1
+              k2=k-1
+              _ASSERT(count < n)
+              aliasNameArray(count) = aliasName(k1:k2)
+              k1 = k+1
+           end if
+        end do
+        if(count == n-1) then
+           aliasNameArray(count) = aliasName(k1:k)
+        else if (count == 0) then
+           do i=1,n
+              write(splitNameArr(i),'(A,I3.3)') trim(aliasName), i
+           end do
+        else
+           _ASSERT(.false.)
+        end if
+
+     else
+        do i=1,n
+           write(splitNameArr(i),'(A,I3.3)') trim(name), i
+        end do
+     end if
+        
    _RETURN(ESMF_SUCCESS)
  end subroutine MAPL_FieldSplit
 end module MAPL_BaseMod

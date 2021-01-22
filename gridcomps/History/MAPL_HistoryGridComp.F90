@@ -2852,13 +2852,13 @@ ENDDO PARSER
             do k = 1, size(needSplit) ! loop over "old" fld_set
                if (.not. needSplit(k)) cycle
 
-               call MAPL_FieldSplit(fldList(k), splitFields, RC=status)
-               _VERIFY(STATUS)
-
                baseName = fld_set%fields(1,k)
                stateName = fld_set%fields(2,k)
                aliasName = fld_set%fields(3,k)
                baseLen = len_trim(baseName)
+
+               call MAPL_FieldSplit(fldList(k), splitFields, aliasName=aliasName, RC=status)
+               _VERIFY(STATUS)
 
                expState = export(list(n)%expSTATE(k))
 
