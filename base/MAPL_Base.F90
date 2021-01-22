@@ -4288,10 +4288,12 @@ and so on.
 
    logical                    :: has_ungrd
    integer                    :: ungrd_cnt
+   integer                    :: fieldRank
    integer, allocatable       :: gridToFieldMap(:)
    integer, allocatable       :: ungrd(:)
    real, pointer              :: ptr4d(:,:,:,:) => null()
    real, pointer              :: ptr3d(:,:,:) => null()
+   real, pointer              :: ptr2d(:,:) => null()
    type(ESMF_Field)           :: f, fld
    type(ESMF_Grid)            :: grid
    type(ESMF_TypeKind_Flag)   :: tk
@@ -4314,55 +4316,110 @@ and so on.
    _VERIFY(STATUS)
 
    if (tk == ESMF_TYPEKIND_R4) then
-      !ALT: assumes 1 DE per PET
-      call ESMF_FieldGet(Field,0,ptr4D,rc=status)
+      call ESMF_FieldGet(FIELD, dimCount=fieldRank, rc=status)
       _VERIFY(STATUS)
-      n = size(ptr4d,4)
-      allocate(fields(n), stat=status)
-      _VERIFY(STATUS)
-      n = 0
-      do k=lbound(ptr4d,4),ubound(ptr4d,4)
-         n = n+1
-         ptr3d => ptr4d(:,:,:,k)
-         ! create a new field
-         write(splitName,'(A,I3.3)') trim(name) // '_', n
-         f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, rc=status)
+      if (fieldRank == 4) then
+      
+         !ALT: assumes 1 DE per PET
+         call ESMF_FieldGet(Field,0,ptr4D,rc=status)
          _VERIFY(STATUS)
-         call ESMF_FieldEmptyComplete(F, farrayPtr=ptr3D,    &
-              datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
-              gridToFieldMap=gridToFieldMap,                      &
-              rc = status)
+         n = size(ptr4d,4)
+         allocate(fields(n), stat=status)
          _VERIFY(STATUS)
-         ! copy attributes and adjust as necessary
-         fld = field ! shallow copy to get around intent(in/out)
-         call MAPL_FieldCopyAttributes(FIELD_IN=fld, FIELD_OUT=f, RC=status)
-         _VERIFY(STATUS)
+         n = 0
+         do k=lbound(ptr4d,4),ubound(ptr4d,4)
+            n = n+1
+            ptr3d => ptr4d(:,:,:,k)
+            ! create a new field
+            write(splitName,'(A,I3.3)') trim(name), n
+            f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, rc=status)
+            _VERIFY(STATUS)
+            call ESMF_FieldEmptyComplete(F, farrayPtr=ptr3D,    &
+                 datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
+                 gridToFieldMap=gridToFieldMap,                      &
+                 rc = status)
+            _VERIFY(STATUS)
+            ! copy attributes and adjust as necessary
+            fld = field ! shallow copy to get around intent(in/out)
+            call MAPL_FieldCopyAttributes(FIELD_IN=fld, FIELD_OUT=f, RC=status)
+            _VERIFY(STATUS)
 
-         ! adjust ungridded dims attribute (if any)
-         call ESMF_AttributeGet(FIELD, NAME="UNGRIDDED_DIMS", isPresent=has_ungrd, RC=STATUS)
-         _VERIFY(STATUS)
-         if (has_ungrd) then
-            call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+            ! adjust ungridded dims attribute (if any)
+            call ESMF_AttributeGet(FIELD, NAME="UNGRIDDED_DIMS", isPresent=has_ungrd, RC=STATUS)
             _VERIFY(STATUS)
-            allocate(ungrd(UNGRD_CNT), stat=status)
-            _VERIFY(STATUS)
-            call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
-            _VERIFY(STATUS)
-            call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
-            _VERIFY(STATUS)
-            if (ungrd_cnt > 1) then
-               ungrd_cnt = ungrd_cnt - 1
-               call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', &
-                    valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+            if (has_ungrd) then
+               call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
                _VERIFY(STATUS)
-            else
-               has_ungrd = .false.
+               allocate(ungrd(UNGRD_CNT), stat=status)
+               _VERIFY(STATUS)
+               call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+               _VERIFY(STATUS)
+               call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
+               _VERIFY(STATUS)
+               if (ungrd_cnt > 1) then
+                  ungrd_cnt = ungrd_cnt - 1
+                  call ESMF_AttributeSet(F, NAME='UNGRIDDED_DIMS', &
+                       valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+                  _VERIFY(STATUS)
+               else
+                  has_ungrd = .false.
+               end if
+               deallocate(ungrd)
             end if
-            deallocate(ungrd)
-         end if
             
-         fields(n) = f
-      end do
+            fields(n) = f
+         end do
+      else if (fieldRank == 3) then
+         !ALT: assumes 1 DE per PET
+         call ESMF_FieldGet(Field,0,ptr3D,rc=status)
+         _VERIFY(STATUS)
+         n = size(ptr3d,3)
+         allocate(fields(n), stat=status)
+         _VERIFY(STATUS)
+         n = 0
+         do k=lbound(ptr3d,3),ubound(ptr3d,3)
+            n = n+1
+            ptr2d => ptr3d(:,:,k)
+            ! create a new field
+            write(splitName,'(A,I3.3)') trim(name), n
+            f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, rc=status)
+            _VERIFY(STATUS)
+            call ESMF_FieldEmptyComplete(F, farrayPtr=ptr2D,    &
+                 datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
+                 gridToFieldMap=gridToFieldMap,                      &
+                 rc = status)
+            _VERIFY(STATUS)
+            ! copy attributes and adjust as necessary
+            fld = field ! shallow copy to get around intent(in/out)
+            call MAPL_FieldCopyAttributes(FIELD_IN=fld, FIELD_OUT=f, RC=status)
+            _VERIFY(STATUS)
+
+            ! adjust ungridded dims attribute (if any)
+            call ESMF_AttributeGet(FIELD, NAME="UNGRIDDED_DIMS", isPresent=has_ungrd, RC=STATUS)
+            _VERIFY(STATUS)
+            if (has_ungrd) then
+               call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+               _VERIFY(STATUS)
+               allocate(ungrd(UNGRD_CNT), stat=status)
+               _VERIFY(STATUS)
+               call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+               _VERIFY(STATUS)
+               call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
+               _VERIFY(STATUS)
+               if (ungrd_cnt > 1) then
+                  ungrd_cnt = ungrd_cnt - 1
+                  call ESMF_AttributeSet(F, NAME='UNGRIDDED_DIMS', &
+                       valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+                  _VERIFY(STATUS)
+               else
+                  has_ungrd = .false.
+               end if
+               deallocate(ungrd)
+            end if
+            
+            fields(n) = f
+         end do
+      end if
    else if (tk == ESMF_TYPEKIND_R8) then
       _ASSERT(.false., "R8 overload not implemented yet")
    end if
