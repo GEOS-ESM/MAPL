@@ -7336,7 +7336,9 @@ module MAPL_IOMod
     integer                            :: MAPL_DIMS
     integer, pointer                   :: MASK(:) => null()
     type(Netcdf4_Fileformatter)        :: formatter
+    type(FileMetaData)                 :: metadata
     character(len=:), allocatable      :: fname_by_face
+    logical :: grid_file_match
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars,rc=STATUS)
     _VERIFY(STATUS)
@@ -7362,6 +7364,13 @@ module MAPL_IOMod
              _VERIFY(STATUS)
           endif
        end if
+       metadata=formatter%read(rc=status)
+       _VERIFY(status)
+       call ESMF_FieldBundleGet(bundle,grid=grid,rc=status)
+       _VERIFY(status)
+       grid_file_match=compare_grid_file(metadata,grid,rc=status)
+       _VERIFY(status)
+       _ASSERT(grid_file_match,"File grid dimensions in "//trim(filename)//" do not match grid")
     endif
 
     do l=1,nVars
@@ -7407,6 +7416,38 @@ module MAPL_IOMod
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_BundleReadNCPar
+
+  function compare_grid_file(metadata,grid,rc) result(match)
+     type(FileMetaData), intent(in) :: metadata
+     type(ESMF_Grid), intent(in) :: grid
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+     logical :: match
+
+     integer :: file_lev_size, file_lat_size, file_lon_size, file_tile_size
+     integer :: grid_dims(3)
+
+     match = .false.
+     call MAPL_GridGet(grid,globalCellCountPerDim=grid_dims,rc=status)
+     _VERIFY(status)
+     file_lon_size = metadata%get_dimension("lon")
+     file_lat_size = metadata%get_dimension("lat")
+     file_lev_size = metadata%get_dimension("lev")
+     file_tile_size = metadata%get_dimension("tile")
+     if (file_tile_size > 0) then
+        match = (file_tile_size == grid_dims(1))
+     else
+        if (file_lev_size > 0) then
+
+            match = (file_lon_size == grid_dims(1)) .and. (file_lat_size == grid_dims(2)) &
+                    .and. (file_lev_size==grid_dims(3))
+        else
+            match = (file_lon_size == grid_dims(1)) .and. (file_lat_size == grid_dims(2))
+        end if
+     end if
+     _RETURN(_SUCCESS)
+  end function compare_grid_file
 
   subroutine MAPL_StateVarReadNCPar(filename, STATE, arrdes, bootstrapable, NAME, RC)
     character(len=*)            , intent(IN   ) :: filename
@@ -8426,7 +8467,7 @@ module MAPL_IOMod
     
     if (arrdes%write_restart_by_oserver) then
        call oClients%done_collective_stage()
-       call oClients%wait()
+       call oClients%post_wait()
        call MPI_Info_free(info, status)
        _VERIFY(STATUS)
     elseif (arrdes%writers_comm/=MPI_COMM_NULL) then

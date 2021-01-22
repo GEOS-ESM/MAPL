@@ -2643,7 +2643,7 @@ and so on.
 !............................................................................
 
   subroutine MAPL_GridGet(GRID, globalCellCountPerDim, localCellCountPerDim, RC)
-      type (ESMF_Grid), intent(INOUT) :: GRID
+      type (ESMF_Grid), intent(IN)     :: GRID
       integer, optional, intent(INout) :: globalCellCountPerDim(:)
       integer, optional, intent(INout) :: localCellCountPerDim(:)
       integer, optional, intent(  OUT) :: RC
@@ -2777,7 +2777,7 @@ and so on.
   end subroutine MAPL_GridGetInterior
 
   function MAPL_GridHasDE(grid,rc) result(hasDE)
-     type(ESMF_Grid), intent(inout) :: grid
+     type(ESMF_Grid), intent(in) :: grid
      integer, intent(out), optional :: rc
 
      integer :: status

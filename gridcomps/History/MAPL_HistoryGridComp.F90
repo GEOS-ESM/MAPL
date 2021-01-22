@@ -35,7 +35,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_ExceptionHandling
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
-  use MAPL_RegridderSpecMod
+  use mapl_RegridMethods
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
   use pFIO_ClientManagerMod, only: o_Clients
@@ -1213,6 +1213,7 @@ contains
              call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
              RingTime = RefTime
           else
+             call ESMF_TimeIntervalSet( Frequency, MM=1, calendar=cal, rc=status ) ; _VERIFY(STATUS)
              !ALT keep the values from above
              ! and for debugging print
              call WRITE_PARALLEL("DEBUG: monthly averaging is active for collection "//trim(list(n)%collection))
@@ -3598,9 +3599,10 @@ ENDDO PARSER
 
    enddo POSTLOOP
 
-   call o_Clients%done_collective_stage()
-   call o_Clients%wait() 
-
+   if (any(writing)) then
+      call o_Clients%done_collective_stage()
+      call o_Clients%post_wait()
+   endif
    call MAPL_TimerOff(GENSTATE,"-----IO Post")
    call MAPL_TimerOff(GENSTATE,"----IO Write")
 
@@ -4731,7 +4733,7 @@ ENDDO PARSER
 200 continue
     if( MAPL_AM_I_ROOT() ) then
        write(6,100) list%frequency, list%duration, tdim, trim(list%collection)
-100    format(1x,'Freq: ',i6.6,'  Dur: ',i6.6,'  TM: ',i4,'  Collection: ',a)
+100    format(1x,'Freq: ',i8.8,'  Dur: ',i8.8,'  TM: ',i4,'  Collection: ',a)
     endif
 
     return

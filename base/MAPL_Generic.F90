@@ -228,6 +228,7 @@ module MAPL_GenericMod
   interface MAPL_AddChild
      module procedure MAPL_AddChildFromGC
      module procedure MAPL_AddChildFromMeta
+     module procedure MAPL_AddChildFromDSO
   end interface
   
   interface MAPL_AddImportSpec
@@ -863,6 +864,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   integer, dimension(:), allocatable :: ref_date, ref_time, ref_freq
   integer                       :: NRA, sec
   character(len=ESMF_MAXSTR)    :: AlarmName
+  character(len=3)              :: alarmNum
   type(ESMF_Time)               :: CurrTime    ! Current time of the ESMF clock
   type(ESMF_Time)               :: RefTime
   type(ESMF_TimeInterval)       :: Frequency
@@ -1351,7 +1353,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
    _VERIFY(STATUS)
    if (isPresent) then
       nra = ESMF_ConfigGetLen( STATE%CF, RC = STATUS)
-      _ASSERT( NRA > 0 .and. NRA < 10,'needs informative message')
+      _ASSERT( NRA > 0,'Empty list is not allowed')
 
       allocate (ref_date(NRA), ref_time(NRA), ref_freq(NRA), stat=STATUS)
       _VERIFY(STATUS)
@@ -1379,7 +1381,8 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
       _VERIFY(STATUS)
 
       DO  I = 1, NRA
-         AlarmName = "RecordAlarm" // CHAR(I+ICHAR('0')) 
+         write(alarmNum,'(I3.3)') I
+         AlarmName = "RecordAlarm" // alarmNum
          call ESMF_ClockGetAlarm(clock, trim(AlarmName), recordAlarm, rc=status)
          if (STATUS/=ESMF_SUCCESS) then
             ! create alarm
@@ -2013,6 +2016,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   type (MAPL_MetaComp), pointer               :: STATE
   integer                                     :: I
   logical                                     :: final_checkpoint
+  logical                                     :: nwrgt1
   integer                                     :: NC
   integer                                     :: PHASE
   integer                                     :: NUMPHASES
@@ -2227,7 +2231,7 @@ contains
 
           reporter = ProfileReporter(empty)
           call reporter%add_column(NameColumn(50 , separator=" "))
-          call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn(),separator='-'))
+          call reporter%add_column(FormattedTextColumn('#-cycles','(i8.0)', 8, NumCyclesColumn(),separator='-'))
           inclusive = MultiColumn(['Inclusive'], separator='=')
           call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))
           call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn(),'MAX'),separator='-'))
@@ -4601,6 +4605,173 @@ recursive integer function MAPL_AddChildFromGC(GC, NAME, SS, petList, configFile
 end function MAPL_AddChildFromGC
 
 
+!INTERFACE:
+recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentGC, SharedObj, petList, configFile, RC)
+
+  !ARGUMENTS:
+  character(len=*), intent(IN)    :: NAME
+  character(len=*), intent(in)    :: userRoutine
+  type(ESMF_Grid),  optional,    intent(INout) :: grid
+  type(ESMF_GridComp), optional, intent(INOUT) :: ParentGC
+  character(len=*), optional, intent(in)       :: sharedObj
+
+  integer, optional  , intent(IN   ) :: petList(:)
+  character(len=*), optional, intent(IN   ) :: configFile
+  integer, optional  , intent(  OUT) :: rc
+  !EOP
+  
+  character(len=ESMF_MAXSTR)                  :: IAm
+  integer                                     :: STATUS
+
+  type(MAPL_MetaComp), pointer                :: META
+
+  integer                                     :: I
+  type(MAPL_MetaComp), pointer                :: CHILD_META
+  type(ESMF_GridComp), pointer                :: TMPGCS(:)
+  type(ESMF_State)   , pointer                :: TMPGIM(:)
+  type(ESMF_State)   , pointer                :: TMPGEX(:)
+  character(len=ESMF_MAXSTR), pointer         :: TMPNL(:)
+  character(len=ESMF_MAXSTR)                  :: FNAME, PNAME
+  type(ESMF_GridComp)                         :: pGC
+  type(ESMF_Context_Flag)                     :: contextFlag
+  class(BaseProfiler), pointer                :: t_p
+
+  class(Logger), pointer :: lgr
+
+  lgr => logging%get_logger('MAPL.GENERIC')
+
+  Iam = "MAPL_AddChildFromDSO"
+
+  if (present(ParentGC)) then
+     call MAPL_InternalStateRetrieve(ParentGC, META, RC=status)
+     _VERIFY(STATUS)
+  endif
+
+  if (.not.associated(META%GCS)) then
+     ! this is the first child to be added
+     allocate(META%GCS(0), stat=status)
+     _VERIFY(STATUS)
+     allocate(META%GIM(0), stat=status)
+     _VERIFY(STATUS)
+     allocate(META%GEX(0), stat=status)
+     _VERIFY(STATUS)
+     allocate(META%GCNameList(0), stat=status)
+     _VERIFY(STATUS)
+  end if
+
+  I = size(META%GCS) + 1
+  MAPL_AddChildFromDSO = I
+! realloc GCS, gcnamelist 
+  allocate(TMPGCS(I), stat=status)
+  _VERIFY(STATUS)
+  allocate(TMPGIM(I), stat=status)
+  _VERIFY(STATUS)
+  allocate(TMPGEX(I), stat=status)
+  _VERIFY(STATUS)
+  allocate(TMPNL(I), stat=status)
+  _VERIFY(STATUS)
+  TMPGCS(1:I-1) = META%GCS
+  TMPGIM(1:I-1) = META%GIM
+  TMPGEX(1:I-1) = META%GEX
+  TMPNL(1:I-1) = META%GCNameList
+  deallocate(META%GCS)
+  deallocate(META%GIM)
+  deallocate(META%GEX)
+  deallocate(META%GCNameList)
+  META%GCS => TMPGCS
+  META%GIM => TMPGIM
+  META%GEX => TMPGEX
+  META%GCNameList => TMPNL
+
+  FNAME = trim(NAME)
+  if (index(NAME,":") == 0) then
+     if (present(parentGC)) then
+        pGC = parentGC
+        call ESMF_GridCompGet(pGC, name = PNAME, RC=STATUS)
+        _VERIFY(STATUS)
+        FNAME = PNAME(1:index(PNAME,":"))//trim(NAME)
+     end if
+  end if
+
+  if (present(petList)) then
+     contextFlag = ESMF_CONTEXT_OWN_VM ! this is default
+  else
+     contextFlag = ESMF_CONTEXT_PARENT_VM ! more efficient
+  end if
+
+  META%GCNameList(I) = trim(FNAME)
+
+  if (present(configfile)) then
+     META%GCS(I) = ESMF_GridCompCreate   (     &
+          NAME   = trim(FNAME),                 &
+          CONFIGFILE = configfile,             &
+          grid = grid,                         &
+          petList = petList,                   &
+          contextFlag = contextFlag,           &
+          RC=STATUS )
+     _VERIFY(STATUS)
+  else
+     META%GCS(I) = ESMF_GridCompCreate   (     &
+          NAME   = trim(FNAME),                 &
+          CONFIG = META%CF,                    &
+          grid = grid,                         &
+          petList = petList,                   &
+          contextFlag = contextFlag,           &
+          RC=STATUS )
+     _VERIFY(STATUS)
+  end if
+
+! Create each child's import/export state
+! ----------------------------------
+
+  META%GIM(I) = ESMF_StateCreate (                         & 
+       NAME = trim(META%GCNameList(I)) // '_Imports', &
+       stateIntent = ESMF_STATEINTENT_IMPORT, &
+       RC=STATUS )
+  _VERIFY(STATUS)
+
+  META%GEX(I) = ESMF_StateCreate (                         &
+       NAME = trim(META%GCNameList(I)) // '_Exports', &
+       stateIntent = ESMF_STATEINTENT_EXPORT, &
+       RC=STATUS )
+  _VERIFY(STATUS)
+
+! create MAPL_Meta
+  call MAPL_InternalStateCreate ( META%GCS(I), CHILD_META, RC=STATUS)
+  _VERIFY(STATUS)
+
+! put parentGC there
+  if (present(parentGC)) then
+     allocate(CHILD_META%parentGC, stat=status)
+     _VERIFY(STATUS)
+     CHILD_META%parentGC = parentGC
+  end if
+
+  
+  call lgr%debug('Adding logger for component %a ',trim(fname))
+  child_meta%full_name = meta%full_name // SEPARATOR // trim(fname)
+  child_meta%compname = trim(fname)
+  child_meta%lgr => logging%get_logger(child_meta%full_name)
+
+! copy communicator to childs mapl_metacomp
+  CHILD_META%mapl_comm = META%mapl_comm
+  CHILD_META%t_profiler = TimeProfiler(trim(NAME), comm_world = META%mapl_comm%esmf%comm )
+
+  t_p => get_global_time_profiler()
+
+  call t_p%start(trim(NAME),__RC__)
+  call CHILD_META%t_profiler%start(__RC__)
+  call CHILD_META%t_profiler%start('SetService',__RC__)
+  call ESMF_GridCompSetServices ( META%GCS(I), userRoutine, sharedObj=sharedObj,__RC__)
+  call CHILD_META%t_profiler%stop('SetService',__RC__)
+  call CHILD_META%t_profiler%stop(__RC__)
+  call t_p%stop(trim(NAME),__RC__)
+  
+  _VERIFY(STATUS)
+
+  _RETURN(ESMF_SUCCESS)
+end function MAPL_AddChildFromDSO
+
 
 
   subroutine MAPL_AddConnectivityOld ( GC, SHORT_NAME, TO_NAME, &
@@ -4852,6 +5023,9 @@ end function MAPL_AddChildFromGC
     integer                               :: I,J
     logical                               :: SKIP
     character(len=ESMF_MAXSTR), allocatable :: SNAMES(:)
+    type (MAPL_Connectivity), pointer     :: conn
+    type (MAPL_VarConn), pointer          :: CONNECT(:)
+    logical :: isConnected
 
     _ASSERT(size(SHORT_NAMES)==size(CHILD_IDS),'needs informative message')
 
@@ -4863,14 +5037,17 @@ end function MAPL_AddChildFromGC
        SNAMES(I) = trim(SHORT_NAMES(I))
     enddo
 
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
+    CONNECT => CONN%CONNECT
     if (associated(META%GCS)) then
        do I=1, size(META%GCS)
           call MAPL_GetObjectFromGC(META%GCS(I), META_CHILD, RC=STATUS)
           _VERIFY(STATUS)
           do J=1 ,size(META_CHILD%Import_Spec)
              call MAPL_VarSpecGet(META_CHILD%Import_Spec(J),SHORT_NAME=SHORT_NAME,RC=STATUS)
+             isConnected = MAPL_VarIsConnected(connect,short_name,I,rc=status)
              SKIP = ANY(SNAMES==TRIM(SHORT_NAME)) .and. (ANY(CHILD_IDS==I))
-             if (.not.SKIP) then
+             if ((.not.isConnected) .and. (.not.skip)) then
                 call MAPL_DoNotConnect(GC, SHORT_NAME, I, RC=status)
                 _VERIFY(STATUS)
              end if

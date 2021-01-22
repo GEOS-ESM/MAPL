@@ -35,9 +35,10 @@ module MAPL_CFIOMod
   use MAPL_SortMod
   use MAPL_GridManagerMod
   use MAPL_RegridderManagerMod
+  use MAPL_NewRegridderManager
   use MAPL_AbstractRegridderMod
   use MAPL_ConfigMod
-  use MAPL_RegridderSpecMod
+  use mapl_RegridMethods
   use MAPL_MemUtilsMod
   use ESMF_CFIOCollectionVectorMod
   use ESMF_CFIOCollectionMod
