@@ -8467,7 +8467,7 @@ module MAPL_IOMod
     
     if (arrdes%write_restart_by_oserver) then
        call oClients%done_collective_stage()
-       call oClients%wait()
+       call oClients%post_wait()
        call MPI_Info_free(info, status)
        _VERIFY(STATUS)
     elseif (arrdes%writers_comm/=MPI_COMM_NULL) then
