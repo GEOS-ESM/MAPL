@@ -4285,7 +4285,7 @@ and so on.
    ! local vars
    integer :: status
    integer :: k, n
-   integer :: k1,k2
+   integer :: k1,k2,kk
    integer :: gridRank
 
    logical                    :: has_ungrd
@@ -4333,8 +4333,9 @@ and so on.
          k1=lbound(ptr4d,4)
          k2=ubound(ptr4d,4)
          kk = k2-k1+1
-         call genAlias(name, kk, splitNameArray, aliasName=aliasName) 
-            write(splitName,'(A,I3.3)') trim(name), n
+         call genAlias(name, kk, splitNameArray, aliasName=aliasName,rc=status)
+         _VERIFY(STATUS)
+ 
          do k=k1,k2
             n = n+1
             ptr3d => ptr4d(:,:,:,k)
@@ -4435,12 +4436,12 @@ and so on.
    end if
 
    deallocate(gridToFieldMap)
-   deallocate(splitArrayName)
+   deallocate(splitNameArray)
    ! fields SHOULD be deallocated by the caller!!!
    _RETURN(ESMF_SUCCESS)
 
  contains
-   subroutine genAlias(name, n, splitNameArray, aliasName)
+   subroutine genAlias(name, n, splitNameArray, aliasName, rc)
      integer :: n
      character(len=*) :: name
      character(len=*), allocatable :: splitNameArray(:)
@@ -4448,9 +4449,9 @@ and so on.
      integer, optional :: rc
 
      integer :: i, k
-     integer :: k1, k2, count
-     allocate(splitNameArray(n), __STAT__)
-
+     integer :: k1, k2, kk, count
+     allocate(splitNameArray(n), stat=status)
+     _VERIFY(status)
      if (present(aliasName)) then
         ! count the separators (";") in aliasName
         ! if they match n (i.e. the count = n-1) use each
@@ -4464,28 +4465,29 @@ and so on.
            if (aliasName(k:k) == ";") then
               count = count+1
               k2=k-1
-              _ASSERT(count < n)
-              aliasNameArray(count) = aliasName(k1:k2)
+              _ASSERT(count < n, 'Too many split separators')
+              splitNameArray(count) = aliasName(k1:k2)
               k1 = k+1
            end if
         end do
         if(count == n-1) then
-           aliasNameArray(count) = aliasName(k1:k)
+           splitNameArray(count) = aliasName(k1:k)
         else if (count == 0) then
            do i=1,n
-              write(splitNameArr(i),'(A,I3.3)') trim(aliasName), i
+              write(splitNameArray(i),'(A,I3.3)') trim(aliasName), i
            end do
         else
-           _ASSERT(.false.)
+           _ASSERT(.false.,'Inconsistent number of split separators')
         end if
 
      else
         do i=1,n
-           write(splitNameArr(i),'(A,I3.3)') trim(name), i
+           write(splitNameArray(i),'(A,I3.3)') trim(name), i
         end do
      end if
         
    _RETURN(ESMF_SUCCESS)
- end subroutine MAPL_FieldSplit
+ end subroutine GenAlias
+end subroutine MAPL_FieldSplit
 end module MAPL_BaseMod
 
