@@ -4958,8 +4958,7 @@ ENDDO PARSER
 
                if (ifound_vloc) then
                   if (ivLoc /= Totloc(i) .and. totloc(i) /= MAPL_VLocationNone) then
-                     if (mapl_am_I_root()) write(*,*)'arithmetic expression has two different vlocations'
-                     _ASSERT(.false.,'needs informative message')
+                     _ASSERT(.false.,'arithmetic expression has two different vlocations')
                   end if
                else
                   if (totloc(i) /= MAPL_VLocationNone) then
