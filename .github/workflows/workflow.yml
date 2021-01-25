@@ -3,6 +3,12 @@ name: Build Tests
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
+    # Do not run if the only files changed cannot affect the build
+    paths-ignore:
+      - "**.md"
+      - "Python/**"
+      - ".github/CODEOWNERS"
+      - ".github/PULL_REQUEST_TEMPLATE.md"
 
 jobs:
   build_test_mapl:
