@@ -14,6 +14,90 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For MultiGroupServer, the backend and frontend share each node
 - Moved `MAPL_HistoryGridComp.F90` and related files to `gridcomps/History`
 
+- Major refactoring related to MAPL generic capabilities
+
+    0. Cretaed new subdirectory  "generic"
+    
+    1. Modified interface to MAPL_Get() to use ALLOCATABLE for GEX, GIM,
+       GCS, and GCnamelist.  Original interface assumed these are
+       contiguous which will not be sustainable under the planned changes.
+    
+    2. (Re)Introduce fundamental classes in generic subdir.  Made
+       MAPL_MetaComp an extension of AbstractComponentNode, and provided
+       stub implementations for 3 methods. (Commenting out other
+       interfaces in the abstract class for now.)
+    
+    3. Activate get_parent(), add_child(), and num_children()
+    
+    4. Introduced MaplComponentNode
+    
+       Easier to introduce things in a smaller module.   Replaced String NodeMap with
+       an internal map in MaplComponentNdoed wcich uses pointers.   Allows use to
+       avoid some SELECT CASE to cast AbstractComponentNodes back to the desired type.
+       MAPL_MetaComp now just extends MaplComponentNode.
+    
+    5. Extracted internal state.
+    
+    6. Started moving derived types related to import/export specification
+       and such.    The goal will be to then refactor into proper classes
+       with encapsulation.
+    
+    7.  Introducing Vector container for array of pointers to VarpSpecType.
+    
+        First brute force attempt resulted in run-time issues that were
+        difficult to trace.  So going gradually.  Have introduced a
+        StateSpecification type that hold the legacy array of pointers and a
+        vector and methods that will enable keeping both representations
+        consistent.
+    
+        New representation is not used yet.
+    
+        Various attempts to update use of MAPL_VarSpec based
+        upon vectors were failing due to multiple pointer associations
+        across objects.
+    
+        The basic vector was modified to be MAPL_VarSpec instead of
+        MAPL_VarSpecType, and now all works.
+    
+        Wrapped new procedure with legacy interface.
+    
+        HistoryGridComp uses the older interface in a way that is
+        not immediately fixable.
+    
+    8.  MAPL_GenericGrid
+        - Created new module in generic for and renamed to MaplGrid
+        - moved component from MAPL_MetaComp to BaseFrameworkComponent
+    
+    9. Moved 'lgr' component to baseFrameworkComponent.
+       - Add obsolete warning to deprecated interface
+       - Migrated some grid methods to new class.
+       - This necessitated moving some procedures from MAPL_Base into
+         MAPL_Generic.
+    
+    10. Prepping VarSpecMod for relocation.
+        - Removed dependencies on MAPL_IO and MAPL_comms.  Used pflogger
+          to replicate the functionality.
+        - Eliminated dependence of VarSpec on Base.
+        - Moved some parameters into new Enumerator module in ./shared.
+          MAPL_Base still needs to republish them to avoid issues with external
+          codes.
+    
+    11. Introduced a MaplShared package to export everything from
+    
+    12. Migrated VarSpec to ./generic.
+    
+    13. Eliminated use of MAPL_Communicators in MAPL_CFIO.F90.
+        - Side benefit - eliminated lots of unused routines and logic associated
+          with old and new o-server.
+    
+    14. Lots of things related to MAPL_Communicators and old O-server
+        were eliminated.
+    
+    15. Kludgy relocation of component logger.
+    
+    16. MAPL_Initialize is needed in each test layer so pulled
+        it over to the pfunit directory.
+	
 ### Fixed
 
 - Fixes for allowing forked PRs to pass CI

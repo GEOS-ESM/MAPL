@@ -3810,7 +3810,7 @@ end subroutine MAPL_DateStampGet
 
 
     !ARGUMENTS:
-    type (MAPL_MetaComp),           intent(INOUT) :: STATE
+    type (MAPL_MetaComp), target,   intent(INOUT) :: STATE
     type (ESMF_Alarm),    optional, intent(  OUT) :: RUNALARM
     type (MAPL_SunOrbit), optional, intent(  OUT) :: ORBIT
     integer,              optional, intent(  OUT) :: IM, JM, LM
@@ -4159,7 +4159,7 @@ end subroutine MAPL_DateStampGet
 
      if(present(GCNames )) then
         if (.not. allocated(STATE%GCNamelist)) allocate(STATE%GCNamelist(0))
-        GCNames = STATE%GCNameList
+        GCNames => STATE%GCNameList
      endif
 
      if(present(childrens_names )) then
