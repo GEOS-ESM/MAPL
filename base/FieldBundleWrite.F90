@@ -23,12 +23,14 @@ module MAPL_ESMFFieldBundleWrite
    
    contains
 
-      subroutine create_from_bundle(this,bundle,clock,output_file,n_steps,rc)
+      subroutine create_from_bundle(this,bundle,clock,output_file,n_steps,nbits,deflate,rc)
          class(FieldBundleWRiter), intent(inout) :: this
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
          character(len=*), intent(in) :: output_file
          integer, optional, intent(in)  :: n_steps
+         integer, optional, intent(in)  :: nbits
+         integer, optional, intent(in)  :: deflate
          integer, optional, intent(out) :: rc
 
          type(TimeData) :: time_info
@@ -66,7 +68,7 @@ module MAPL_ESMFFieldBundleWrite
          _VERIFY(status) 
          this%file_name = output_file
          collection_id = o_clients%add_hist_collection(this%cfio%metadata)
-         call this%cfio%set_param(write_collection_id=collection_id)
+         call this%cfio%set_param(write_collection_id=collection_id,nbits=nbits,deflation=deflate)
          _RETURN(_SUCCESS)
 
       end subroutine create_from_bundle
