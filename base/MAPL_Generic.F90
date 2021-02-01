@@ -9583,7 +9583,11 @@ subroutine MAPL_ReadForcingX(MPL,NAME,DATAFILE,CURRTIME,  &
           if (io_rank == 0) then
              print *,'Using parallel IO for reading file: ',trim(DATAFILE)
 
+#ifdef __NAG_COMPILER_RELEASE
+             _FAIL('NAG does not provide ftell. Convert to stream I/O')
+#else
              offset = _FTELL(UNIT)+4
+#endif
 
              ! MAT: Here we help protect against use of the 32-bit
              !      ftell from the macro at top. If we read a file
