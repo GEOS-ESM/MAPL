@@ -61,6 +61,7 @@ ecbuild_add_executable (
   SOURCES pfio_ctest_io.F90
   LIBS MAPL.shared MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
+# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${TESTO} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
