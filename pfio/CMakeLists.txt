@@ -70,6 +70,7 @@ set (srcs
   ServerThreadVector.F90
   BaseThread.F90
   ClientThread.F90
+  FastClientThread.F90
   ClientThreadVector.F90
   ClientManager.F90
   ExtDataCollection.F90
@@ -88,11 +89,9 @@ set (srcs
   StringVectorUtil.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared NetCDF::NetCDF_Fortran)
-#target_link_libraries (${this} PUBLIC gftl-shared
-#                               PRIVATE OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared NetCDF::NetCDF_Fortran TYPE SHARED)
 target_link_libraries (${this} PUBLIC gftl-shared
-                               PRIVATE MPI::MPI_Fortran)
+                               PRIVATE OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
 target_include_directories (${this} PUBLIC
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 

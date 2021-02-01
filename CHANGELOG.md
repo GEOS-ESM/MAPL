@@ -8,13 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Add option fast_oclient that waits before using oserver. It would not wait after done message are sent 
+### Changed
+
+- For MultiGroupServer, the backend and frontend share each node
+- Moved `MAPL_HistoryGridComp.F90` and related files to `gridcomps/History`
+
+### Fixed
+
+- Fixes for allowing forked PRs to pass CI
+- use integer to represent logical internally in pFIO utilities to avoid non-standard transfer
+
+### Removed
+
+## [2.5.0] - 2021-01-08
+
+### Added
 
 - Added an `ExternalGridManager`, to allow MAPL to have knowledge of external grids (for NUOPC).
 - Added command line interface option `--isolate_nodes`. By default it is `.true.`
 - Add stretching factors to file if applicable in cubed-sphere output via History and uptick to cube version 2.91
 - Ability to register protoype (non-ESMF) regridders in NewRegridderManager
 - Make the default clobber rather than no clobber in NetCDF formatter in PFIO
-
+- Add basic check that the restart files match the application grid
+- Add new `MAPL_AddChildFromDSO` module procedure for `MAPL_AddChild`
 
 ### Changed
 
@@ -22,12 +39,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Convert `file(GLOB)` to explicit list
 - Moved modules into separate files.
 - Updated various modules to use the standard `_ASSERT()` and `_VERIFY()` macros instead of ad-hoc ones.
-	
-### Fixed
-
-- use integer to represent logical internally in pFIO utilities to avoid non-standard transfer
-	
-### Removed
+- MAPL (sub-)libraries are now built as `TYPE SHARED` (needed for DSO work)
+- Updated `components.yaml`
+  - ESMA_env v3.1.3
+  - ESMA_cmake v3.3.5
+- Update CI image to use Baselibs v6.0.27
 
 ## [2.4.0] - 2020-11-20
 
@@ -320,7 +336,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected Python code generator scripts for component import/export specs.
 - Add directories to `.gitignore` for building with `mepo`
 - Bug building with mixed Intel/GCC compilers
-- Implemented workaround to cmake error that happens when building tests in parallel.	
+- Implemented workaround to cmake error that happens when building tests in parallel.
 - Set correct ESMA_env tag in `components.yaml`
 - Updated `components.yaml` to be inline with GEOSgcm
 - Minor problem in GMAO_pFIO Cmakelists (consistency with PRIVATE)
@@ -339,7 +355,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
 - Add precession of equinox (not on by default)
 - Imported Python/MAPL subdir (old, but never imported to GitHub)
-- Python automatic code generator for grid comp include files	
+- Python automatic code generator for grid comp include files
 - Added support to use pFlogger for logging
   - Command line option: `--logging_config=<file>`
 - Added ability for History to do monthly mean. This also involves reading and writing MAPL_GenericCpl checkpoints

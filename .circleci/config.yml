@@ -3,7 +3,7 @@ version: 2.1
 executors:
   gcc-build-env:
     docker:
-      - image: gmao/ubuntu20-geos-env-mkl:v6.0.22-openmpi_4.0.5-gcc_10.2.0
+      - image: gmao/ubuntu20-geos-env-mkl:v6.0.27-openmpi_4.0.5-gcc_10.2.0
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_AUTH_TOKEN
@@ -92,7 +92,21 @@ jobs:
       - run:
           name: "Mepo checkout MAPL branch"
           command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm
+            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm/src/Shared/@MAPL
+
+            # Based a bit on: https://stackoverflow.com/a/55940371/1876449
+            #
+            # CIRCLE_PR_NUMBER is only available on forked PRs:
+            #
+            # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
+            #
+            # so if it exists we fetch the PR's branch. This fetch was
+            # figured out by looking at the MAPL build-and-test above
+            # which did work!
+            if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
+               git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
+            fi
+
             mepo checkout ${CIRCLE_BRANCH} MAPL
             mepo status
       - run:

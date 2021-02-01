@@ -9,6 +9,7 @@ module pFIO_ClientManagerMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_FileMetadataMod
    use pFIO_ClientThreadMod
+   use pFIO_FastClientThreadMod
    use pFIO_ClientThreadVectorMod
    use pFIO_StringVariableMapMod
    use gFTL_IntegerVector
@@ -23,6 +24,7 @@ module pFIO_ClientManagerMod
 
    type :: ClientManager
      private
+     integer :: client_comm, rank
      integer :: current_client = 1
      type(ClientThreadVector) :: clients
      type(IntegerVector) :: server_sizes
@@ -51,6 +53,7 @@ module pFIO_ClientManagerMod
       procedure :: done_stage
       procedure :: done_collective_stage
       procedure :: wait
+      procedure :: post_wait
       procedure :: terminate
 
       procedure :: size
@@ -75,24 +78,35 @@ module pFIO_ClientManagerMod
 
 contains
 
-   function new_ClientManager(unusable, n_client, rc) result (c_manager)
+   function new_ClientManager(client_comm, unusable, n_client, fast_oclient, rc) result (c_manager)
+      integer, intent(in) :: client_comm
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(in) :: n_client
+      logical, optional, intent(in) :: fast_oclient
       integer, optional, intent(out) :: rc
       type (ClientManager) :: c_manager
 
       class (ClientThread), pointer :: clientPtr
       integer :: i, n
+      logical :: fast_
 
       n = 1
       if (present(n_client)) n = n_client
+      fast_ = .false.
+      if (present(fast_oclient)) fast_ = fast_oclient
       c_manager%clients = ClientThreadVector()     
       do i = 1, n
-        allocate(clientPtr, source = ClientThread())
+        if (fast_) then
+           allocate(clientPtr, source = FastClientThread())
+        else
+           allocate(clientPtr, source = ClientThread())
+        endif
         call c_manager%clients%push_back(clientPtr)
         clientPtr=>null()
       enddo
-      
+
+      call Mpi_Comm_dup(client_comm, c_manager%client_comm, rc)
+      call MPI_Comm_rank(client_comm, c_manager%rank, rc)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function new_ClientManager
@@ -103,7 +117,7 @@ contains
       character(len=*), intent(in) :: template
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
 
       integer :: i
 
@@ -122,7 +136,7 @@ contains
       type(FileMetadata),intent(in) :: fmd
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
       integer :: i
       
       do i = 1, this%size()
@@ -141,7 +155,7 @@ contains
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
 
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
       integer :: i
 
       do i = 1, this%size()
@@ -164,7 +178,7 @@ contains
       integer, optional, intent(in)  :: start(:)
       integer, optional, intent(out) :: rc
 
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
       integer :: request_id, status
 
       clientPtr =>this%current()
@@ -181,7 +195,7 @@ contains
       type (StringVariableMap), optional,intent(in) :: var_map
       integer, optional, intent(out) :: rc
 
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
       integer :: status
    
       ClientPtr => this%current()
@@ -199,7 +213,7 @@ contains
       type (StringVariableMap), optional,intent(in) :: var_map
       integer, optional, intent(out) :: rc
 
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
       integer :: i, status
 
       do i = 1, this%clients%size()
@@ -225,7 +239,7 @@ contains
       integer, optional, intent(in) :: global_count(:)
       integer, optional, intent(out):: rc
 
-      type(clientThread), pointer :: clientPtr
+      class (clientThread), pointer :: clientPtr
       integer :: request_id, status
 
       clientPtr =>this%current()
@@ -247,7 +261,7 @@ contains
       integer, optional, intent(in)  :: start(:)
       integer, optional, intent(out) :: rc
 
-      type(clientThread), pointer :: clientPtr
+      class (clientThread), pointer :: clientPtr
       integer :: request_id, status
 
       clientPtr =>this%current()
@@ -270,7 +284,7 @@ contains
       integer, optional, intent(in) :: global_count(:)
       integer, optional, intent(out) :: rc
 
-      type(clientThread), pointer :: clientPtr
+      class (clientThread), pointer :: clientPtr
       integer :: request_id, status
 
       clientPtr =>this%current()
@@ -290,7 +304,7 @@ contains
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(clientThread), pointer :: clientPtr
+      class (clientThread), pointer :: clientPtr
       integer :: request_id, status
 
       clientPtr =>this%current()
@@ -305,7 +319,7 @@ contains
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
 
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
       call clientPtr%shake_hand()
@@ -319,7 +333,7 @@ contains
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
 
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
       call clientPtr%done_prefetch()
@@ -333,7 +347,7 @@ contains
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
 
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
    
       clientPtr =>this%current()
       call clientPtr%done_collective_prefetch()
@@ -347,7 +361,7 @@ contains
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
 
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
    
       clientPtr =>this%current()
       call clientPtr%done_stage()
@@ -361,7 +375,7 @@ contains
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
 
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
    
       clientPtr =>this%current()
       call clientPtr%done_collective_stage()
@@ -375,7 +389,7 @@ contains
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
    
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
       
       clientPtr =>this%current()
       call clientPtr%wait_all()
@@ -384,16 +398,31 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine wait
 
+   subroutine post_wait(this, unusable, rc)
+      class (ClientManager), target, intent(inout) :: this
+      class (KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(out) :: rc
+   
+      class (ClientThread), pointer :: clientPtr
+      
+      clientPtr =>this%current()
+      call clientPtr%post_wait_all()
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine post_wait
+
    subroutine terminate(this, unusable, rc)
       class (ClientManager), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
 
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
       integer :: i
 
       do i = 1, this%size()
          clientPtr =>this%clients%at(i)
+         call clientPtr%wait_all()
          call clientPtr%terminate()
       enddo
 
@@ -421,7 +450,7 @@ contains
 
    function current(this) result(clientPtr) 
       class (ClientManager), target, intent(in) :: this
-      type (ClientThread), pointer :: clientPtr
+      class (ClientThread), pointer :: clientPtr
       clientPtr=> this%clients%at(this%current_client)
    end function current
 
@@ -433,7 +462,7 @@ contains
       integer, save, allocatable :: nwritings(:) ! saved the past nwritings 
       integer, save, allocatable :: nwritings_large(:) ! saved the past large nwritings 
       integer, save, allocatable :: nwritings_small(:) ! saved the past small nwritings 
-      integer :: Cuttoff, ssize, lsize, tsize
+      integer :: Cuttoff, ssize, lsize, tsize, ith
       integer, allocatable :: nwritings_order(:)
       real :: l_ratio, s_ratio
 
@@ -444,6 +473,7 @@ contains
 
       if (ssize == 0) then
          call this%next()
+         call this%wait()
          _RETURN(_SUCCESS)
       endif
 
@@ -480,18 +510,23 @@ contains
       if (nwriting > Cuttoff) then
          this%largeCurrent=this%largeCurrent+1
          if (this%largeCurrent .gt. lsize) this%largeCurrent=1
-         call this%set_current( ith =  this%large_server_pool%at(this%largeCurrent))
+         ith = this%large_server_pool%at(this%largeCurrent)
+         call this%set_current( ith = ith)
+         if (this%rank ==0) print*, "Large pool oserver is chosen, nwriting and server size :", nwriting, this%server_sizes%at(ith)
          nwritings_large(1:lsize-1) = nwritings_large(2:lsize)
          nwritings_large(lsize) = nwriting
       endif
 
       if (nwriting < Cuttoff) then
          this%smallCurrent=this%smallCurrent+1
-         if (this%smallCurrent .gt. this%small_server_pool%size()) this%smallCurrent=1
-         call this%set_current( ith = this%small_server_pool%at(this%smallCurrent) )
+         if (this%smallCurrent .gt. ssize) this%smallCurrent=1
+         ith = this%small_server_pool%at(this%smallCurrent)
+         call this%set_current( ith = ith )
+         if (this%rank ==0) print*, "Small pool oserver is chosen, nwriting and server size :", nwriting, this%server_sizes%at(ith)
          nwritings_small(1:ssize-1) = nwritings_small(2:ssize)
          nwritings_small(ssize) = nwriting
       end if
+      call this%wait()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -510,6 +545,7 @@ contains
 
       tsize = this%server_sizes%size()
       if (tsize == 1) then
+         if (this%rank == 0) print*, " oserver is not split"
         _RETURN(_SUCCESS)
       endif
 
@@ -553,6 +589,12 @@ contains
       this%writeCutoff = 0
       if (present(n_hist_split)) this%writeCutoff = n_hist_split
 
+      if (this%rank == 0) then
+         print*, "Oservers are split: ", server_sizes
+         print*, "Small pool oserver npes: ", server_sizes(1:pos)
+         print*, "Large pool oserver npes: ", server_sizes(pos+1:tsize)
+      endif
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
@@ -574,15 +616,17 @@ contains
       n_client = this%clients%size()
    end function size
 
-   subroutine init_ClientManager(unusable, n_i, n_o, rc)
+   subroutine init_ClientManager(client_comm, unusable, n_i, n_o, fast_oclient, rc)
+      integer, intent(in) :: client_comm
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(in) :: n_i
       integer, optional, intent(in) :: n_o
+      logical, optional, intent(in) :: fast_oclient
       integer, optional, intent(out):: rc
       integer :: status
 
-      i_Clients = ClientManager(n_client = n_i, rc=status)
-      o_Clients = ClientManager(n_client = n_o, rc=status)
+      i_Clients = ClientManager(client_comm, n_client = n_i, rc=status)
+      o_Clients = ClientManager(client_comm, n_client = n_o, fast_oclient = fast_oclient, rc=status)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine init_ClientManager
