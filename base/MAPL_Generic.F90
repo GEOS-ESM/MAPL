@@ -4258,6 +4258,8 @@ end subroutine MAPL_DateStampGet
                                    LOCSTREAM, EXCHANGEGRID, CLOCK, NAME,  &
                                    CF, ConfigFile, component, RC)
 
+    use mapl_AbstractComposite
+    use mapl_ConcreteComposite
     !ARGUMENTS:
     type (MAPL_MetaComp),            intent(INOUT) :: STATE
     type (ESMF_Alarm),     optional, intent(IN   ) :: RUNALARM
@@ -4277,7 +4279,17 @@ end subroutine MAPL_DateStampGet
     character(len=ESMF_MAXSTR), parameter :: IAm = "MAPL_GenericStateSet"
     integer :: STATUS
 
+    class(AbstractComposite), pointer :: composite
+    ! Fixup uninitialized METAs
 
+
+    ! Fixup uninitialized META objs.
+    composite => STATE%get_composite()
+    if (.not. associated(composite)) then
+       allocate(composite, source=ConcreteComposite(STATE))
+       call STATE%set_composite(composite)
+    end if
+    
      if(present(LM)) then
       STATE%GRID%LM=LM
      endif

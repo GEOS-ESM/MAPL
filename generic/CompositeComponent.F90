@@ -9,7 +9,7 @@ module mapl_CompositeComponent
 
    type, abstract, extends(AbstractFrameworkComponent) :: CompositeComponent
 !!$      private
-      class(ConcreteComposite), pointer :: composite
+      class(ConcreteComposite), pointer :: composite => null()
    contains
       procedure :: get_child
       procedure :: add_child
