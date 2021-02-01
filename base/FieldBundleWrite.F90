@@ -12,6 +12,7 @@ module MAPL_ESMFFieldBundleWrite
    private
 
    public :: FieldBundleWriter
+   public :: MAPL_write_bundle
    type :: FieldBundleWriter
       private
       type(MAPL_newCFIO) :: cfio
@@ -22,13 +23,33 @@ module MAPL_ESMFFieldBundleWrite
    end type
    
    contains
+      
+      subroutine MAPL_Write_bundle(bundle,clock,output_file,nbits,deflate,rc)
+         type(ESMF_FieldBundle), intent(inout) :: bundle
+         type(ESMF_Clock), intent(inout) :: clock
+         character(len=*), intent(in) :: output_file
+         integer, optional, intent(in)  :: nbits
+         integer, optional, intent(in)  :: deflate
+         integer, optional, intent(out) :: rc
 
-      subroutine create_from_bundle(this,bundle,clock,output_file,n_steps,nbits,deflate,rc)
+         integer :: status
+
+         type(FieldBundleWriter) :: newWriter
+
+         call newWriter%create_from_bundle(bundle,clock,output_File,n_steps=1,time_interval=0,nbits=nbits,deflate=deflate,rc=status)
+         _VERIFY(status)
+         call newWriter%write_to_file(rc=status)
+         _VERIFY(status)
+         _RETURN(_SUCCESS)
+      end subroutine MAPL_Write_Bundle
+
+      subroutine create_from_bundle(this,bundle,clock,output_file,n_steps,time_interval,nbits,deflate,rc)
          class(FieldBundleWRiter), intent(inout) :: this
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
          character(len=*), intent(in) :: output_file
          integer, optional, intent(in)  :: n_steps
+         integer, optional, intent(in)  :: time_interval
          integer, optional, intent(in)  :: nbits
          integer, optional, intent(in)  :: deflate
          integer, optional, intent(out) :: rc
@@ -38,21 +59,23 @@ module MAPL_ESMFFieldBundleWrite
          character(ESMF_MAXSTR), allocatable :: field_names(:)
          type(newCFIOItemVector) :: items
          type(newCFIOItem) :: item
-         type(ESMF_TimeInterval) :: time_interval,clock_interval
+         type(ESMF_TimeInterval) :: offset
+         integer :: time_interval_
        
-         call ESMF_ClockGet(clock,timestep=clock_interval,rc=status)
-         _VERIFY(status)
-         call ESMF_TimeIntervalGet(clock_interval,s=clock_frequency,rc=status)
-         _VERIFY(status)
-         call ESMF_TimeIntervalSet(time_interval,s=0,rc=status)
+         call ESMF_TimeIntervalSet(offset,s=0,rc=status)
          _VERIFY(status)
          if (present(n_steps)) then
             file_steps = n_steps
          else
             file_steps = 1
          end if
+         if (present(time_interval)) then
+            time_interval_=time_interval
+         else
+            time_interval_=0
+         end if
 
-         time_info = TimeData(clock,file_steps,clock_frequency,time_interval)
+         time_info = TimeData(clock,file_steps,time_interval_,offset)
          call ESMF_FieldBundleGet(bundle, fieldCount=num_fields,rc=status)
          _VERIFY(status)
          allocate(field_names(num_fields),stat=status)

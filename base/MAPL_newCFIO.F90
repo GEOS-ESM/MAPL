@@ -136,7 +136,6 @@ module MAPL_newCFIOMod
         _VERIFY(status)
         factory => get_factory(this%output_grid,rc=status)
         _VERIFY(status)
-        write(*,*)'bmma appending meta'
         call factory%append_metadata(this%metadata)
 
         if (present(vdata)) then
