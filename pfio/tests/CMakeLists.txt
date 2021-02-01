@@ -63,7 +63,7 @@ ecbuild_add_executable (
   DEFINITIONS USE_MPI)
 # CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${TESTO} PRIVATE OpenMP::OpenMP_Fortran)
+   target_link_libraries(${TESTO} OpenMP::OpenMP_Fortran)
 endif ()
 
 # Detect if we are using Open MPI and add oversubscribe
@@ -109,7 +109,7 @@ ecbuild_add_executable (
   LIBS MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran)
 # CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${TESTPERF} PRIVATE OpenMP::OpenMP_Fortran)
+   target_link_libraries(${TESTPERF} OpenMP::OpenMP_Fortran)
 endif ()
 target_link_libraries(${TESTPERF} MAPL.pfio ${NETCDF_LIBRARIES})
 add_test(NAME pFIO_performance
