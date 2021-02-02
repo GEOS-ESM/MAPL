@@ -2,11 +2,9 @@
 #include "unused_dummy.H"
 
 module pFIO_LocalMemReferenceMod
-   use, intrinsic :: iso_c_binding, only: c_ptr
    use, intrinsic :: iso_c_binding, only: C_NULL_PTR
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use, intrinsic :: iso_c_binding, only: c_associated
    use, intrinsic :: iso_fortran_env, only: INT32
    use, intrinsic :: iso_fortran_env, only: INT64
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -304,7 +302,11 @@ contains
       n_words = n * word_size(this%type_kind)
       allocate(this%i_ptr(n_words), stat=status)
       _VERIFY(status)
-      this%base_address = c_loc(this%i_ptr)
+      if (n > 0) then
+         this%base_address = c_loc(this%i_ptr)
+      else
+         this%base_address =  C_NULL_PTR 
+      endif
       _RETURN(_SUCCESS)
    end subroutine allocate
 
