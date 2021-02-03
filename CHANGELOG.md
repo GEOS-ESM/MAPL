@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Major refactoring related to MAPL generic capabilities
 
-    0. Cretaed new subdirectory  "generic"
+    0. Created new subdirectory  "generic"
     
     1. Modified interface to MAPL_Get() to use ALLOCATABLE for GEX, GIM,
        GCS, and GCnamelist.  Original interface assumed these are
@@ -29,20 +29,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     
     3. Activate get_parent(), add_child(), and num_children()
     
-    4. Introduced MaplComponentNode
+    4. Introduced AbstractComposite and ConcreteComposite
     
-       Easier to introduce things in a smaller module.   Replaced String NodeMap with
-       an internal map in MaplComponentNdoed wcich uses pointers.   Allows use to
-       avoid some SELECT CASE to cast AbstractComponentNodes back to the desired type.
-       MAPL_MetaComp now just extends MaplComponentNode.
-    
-    5. Extracted internal state.
+       These are isolate the responsibility for managing the component hierarchy. 
+       CompositeComponite then blends in ConcreteComposite into the 
+       AbstractFrameworkComponent class.
+       
+    5. Extracted internal state from MAPL_MetaComp
     
     6. Started moving derived types related to import/export specification
        and such.    The goal will be to then refactor into proper classes
        with encapsulation.
     
-    7.  Introducing Vector container for array of pointers to VarpSpecType.
+    7.  Introducing Vector container for array of pointers to VarSpecType.
     
         First brute force attempt resulted in run-time issues that were
         difficult to trace.  So going gradually.  Have introduced a
