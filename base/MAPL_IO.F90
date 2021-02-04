@@ -696,6 +696,7 @@ module MAPL_IOMod
     integer          :: status
 
     character(LEN=ESMF_MAXSTR) :: usableFORM
+    character(LEN=ESMF_MAXSTR) :: action_
 
     if(MAPL_AM_I_ROOT()) then
        if(.not.present(BLOCKSIZE) .and. .not.present(NUMBUFFERS)) then
@@ -711,7 +712,13 @@ module MAPL_IOMod
        usableFORM = "unformatted"
     end if
 
-    open(UNIT,FILE=FILE,FORM=usableFORM,ACTION=action,IOSTAT=STATUS)
+    if (present(ACTION)) then
+       action_ = action
+    else
+       action_ = "READWRITE"
+    end if
+
+    open(UNIT,FILE=FILE,FORM=usableFORM,ACTION=action_,IOSTAT=STATUS)
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
