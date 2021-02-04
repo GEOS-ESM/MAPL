@@ -12,7 +12,6 @@ set (TEST_SRCS
     Test_MAPL_Config.pf
     test_DirPath.pf
     Test_VarSpec.pf
-#    Test_Simple_CommSplitter.pf
   )
 
 # SRCS are mostly mocks to facilitate tests

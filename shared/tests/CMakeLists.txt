@@ -1,5 +1,6 @@
 set (test_srcs
     test_String.pf
+    Test_Simple_CommSplitter.pf
   )
 
 
