@@ -5529,11 +5529,11 @@ end function MAPL_AddChildFromGC
     end if
     
     if (filetype == 'binary' .or. filetype == 'BINARY') then
-       UNIT = GETFILE(FNAME, form="unformatted", all_pes=.true., rc=status)
+       UNIT = GETFILE(FNAME, form="unformatted", all_pes=.true., ACTION='READ', rc=status)
        _VERIFY(STATUS)
 
     elseif(filetype=="formatted".or.filetype=="FORMATTED") then
-       UNIT = GETFILE(FNAME, form="formatted", all_pes=.true., rc=status)
+       UNIT = GETFILE(FNAME, form="formatted", all_pes=.true., ACTION='READ', rc=status)
        _VERIFY(STATUS)
 
     elseif(filetype=='pbinary') then
@@ -8956,7 +8956,7 @@ subroutine MAPL_ReadForcingX(MPL,NAME,DATAFILE,CURRTIME,  &
    _VERIFY(STATUS)
 
    if ( DATE_PREV < 0 ) then
-      UNIT=GETFILE(DATAFILE,form='unformatted', rc=status)
+      UNIT=GETFILE(DATAFILE,form='unformatted', ACTION='READ', rc=status)
       _VERIFY(STATUS)
       call READ_PARALLEL(LAYOUT, REAL_HEADER, unit=UNIT, rc=status)
       _VERIFY(STATUS)
@@ -9083,7 +9083,7 @@ subroutine MAPL_ReadForcingX(MPL,NAME,DATAFILE,CURRTIME,  &
           _VERIFY(STATUS)
           inquire(FILE = FNAME, EXIST=FileExists)
           if (FileExists) then
-             UNIT = GETFILE ( FNAME, form="formatted", rc=status )
+             UNIT = GETFILE ( FNAME, form="formatted", ACTION='READ', rc=status )
              _VERIFY(STATUS)
              read(UNIT,'(i8.8,1x,i6.6)',iostat=status) datetime
              _VERIFY(STATUS)
@@ -9091,7 +9091,7 @@ subroutine MAPL_ReadForcingX(MPL,NAME,DATAFILE,CURRTIME,  &
           else
              call MAPL_PackDateTime(DATETIME, YY, MM, DD, H, M, S)
              !write bcs checkpoint
-             UNIT = GETFILE ( FNAME, form="formatted", rc=status )
+             UNIT = GETFILE ( FNAME, form="formatted", ACTION='READ', rc=status )
              _VERIFY(STATUS)
              write(UNIT,'(i8.8,1x,i6.6)',iostat=status) datetime
              _VERIFY(STATUS)
@@ -9113,7 +9113,7 @@ subroutine MAPL_ReadForcingX(MPL,NAME,DATAFILE,CURRTIME,  &
 ! Get forcing fortran unit
 !-------------------------
 
-    UNIT=GETFILE(DATAFILE,form='unformatted',all_pes=.true.)
+    UNIT=GETFILE(DATAFILE,form='unformatted',all_pes=.true., ACTION='READ')
 
 ! Check to see if forcing state buffers have been initialized
 !-------------------------------------------------------------
@@ -9749,7 +9749,7 @@ end subroutine MAPL_READFORCINGX
     call ESMF_DistGridGet(distGRID, delayout=layout, rc=STATUS)
     _VERIFY(STATUS)
 
-    UNIT = GETFILE(GRIDSPECFILE, form="formatted", rc=status)
+    UNIT = GETFILE(GRIDSPECFILE, form="formatted", ACTION='READ', rc=status)
     call READ_PARALLEL(LAYOUT, X, unit=UNIT)
     call READ_PARALLEL(LAYOUT, Y, unit=UNIT)
     call FREE_FILE(UNIT)
@@ -10057,6 +10057,7 @@ end subroutine MAPL_READFORCINGX
                                      STATE%initial_state%INT_FNAME, &
                                      STATE, hdr/=0, RC=STATUS)
      _VERIFY(STATUS)
+     !ALT: why we need this UNIT???
      UNIT = GETFILE(STATE%initial_state%INT_FNAME, RC=STATUS)
      _VERIFY(STATUS)
   end if

@@ -524,7 +524,7 @@ module MAPL_IOMod
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-  INTEGER FUNCTION GETFILE( NAME, DO_OPEN, FORM, ALL_PES, &
+  INTEGER FUNCTION GETFILE( NAME, DO_OPEN, FORM, ALL_PES, ACTION, &
                              BLOCKSIZE, NUMBUFFERS, RC )
     IMPLICIT NONE
 
@@ -532,6 +532,7 @@ module MAPL_IOMod
     integer         , intent(in   ), OPTIONAL :: DO_OPEN
     character(LEN=*), intent(in   ), OPTIONAL :: Form
     logical         , intent(in   ), OPTIONAL :: ALL_PES
+    character(LEN=*), intent(in   ), OPTIONAL :: ACTION
     integer         , intent(in   ), OPTIONAL :: BLOCKSIZE
     integer         , intent(in   ), OPTIONAL :: NUMBUFFERS
     integer         , intent(  out), OPTIONAL :: RC
@@ -588,7 +589,7 @@ module MAPL_IOMod
                 status = 0
                 
                 if ( DO_OPEN_ .NE. 0 ) then
-                   call MAPL_open(UNIT=i,FILE=Name,FORM=FORM, &
+                   call MAPL_open(UNIT=i,FILE=Name,FORM=FORM, ACTION=ACTION, &
                                   BLOCKSIZE= BLOCKSIZE, NUMBUFFERS=NUMBUFFERS, RC=STATUS)
                 endif
                 
@@ -682,7 +683,7 @@ module MAPL_IOMod
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-  subroutine MAPL_OPEN(UNIT,FILE,FORM,BLOCKSIZE, NUMBUFFERS, RC)
+  subroutine MAPL_OPEN(UNIT,FILE,FORM,ACTION,BLOCKSIZE, NUMBUFFERS, RC)
 
     implicit none
     integer         , optional, intent(out) :: RC
@@ -690,6 +691,7 @@ module MAPL_IOMod
     integer         ,           intent(in) :: UNIT
     character(LEN=*),           intent(in) :: FILE
     character(LEN=*), optional, intent(in) :: FORM
+    character(LEN=*), optional, intent(in) :: ACTION
     integer,          optional, intent(in) :: BLOCKSIZE, NUMBUFFERS
     integer          :: status
 
@@ -709,7 +711,7 @@ module MAPL_IOMod
        usableFORM = "unformatted"
     end if
 
-    open(UNIT,FILE=FILE,FORM=usableFORM,IOSTAT=STATUS)
+    open(UNIT,FILE=FILE,FORM=usableFORM,ACTION=action,IOSTAT=STATUS)
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)

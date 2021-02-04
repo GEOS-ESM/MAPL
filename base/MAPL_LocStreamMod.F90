@@ -384,6 +384,7 @@ contains
     type(MAPL_Tiling       ), pointer :: TILING
     type (ESMF_VM)                            :: vm
     logical                           :: NewGridNames_
+    logical                           :: amIRoot
 
 #ifdef NEW_INTERP_CODE
     integer           :: isc, iec, jsc, jec
@@ -405,6 +406,7 @@ contains
 !-----------------------------
 
     call ESMF_VMGetCurrent(vm, rc=status)
+    amIRoot = MAPL_AM_I_Root(vm)
 
     LocStream%Ptr => null()
     allocate(LocStream%Ptr, STAT=STATUS)
@@ -421,29 +423,35 @@ contains
 
 ! Use some heuristics to determine filetype (choices are BINARY and ASCII)
 !------------------------------------------------------------------------
-    ! just get the unit
-    UNIT = GETFILE(FILENAME, DO_OPEN=0, ALL_PES=.true., RC=STATUS)
-    _VERIFY(STATUS)
+    if (amIRoot) then
+       ! just get the unit
+       UNIT = GETFILE(FILENAME, DO_OPEN=0, ACTION='READ', RC=STATUS)
+       _VERIFY(STATUS)
 
-    INQUIRE(IOLENGTH=IREC) BYTE
-    open (UNIT=UNIT, FILE=FILENAME, FORM='unformatted', ACCESS='DIRECT', RECL=IREC, IOSTAT=status)
-    _VERIFY(STATUS)
-    read (UNIT, REC=1, ERR=100) BYTE
-    call FREE_FILE(UNIT)
+       INQUIRE(IOLENGTH=IREC) BYTE
+       open (UNIT=UNIT, FILE=FILENAME, FORM='unformatted', ACCESS='DIRECT', RECL=IREC, ACTION='READ', IOSTAT=status)
+       _VERIFY(STATUS)
+       read (UNIT, REC=1, ERR=100) BYTE
+       call FREE_FILE(UNIT)
 
-    isascii = .true.
-    do i=1,size(byte)
-       if (BYTE(I) < 7) then
-          isascii = .false.
-          exit
-       end if
-    end do
+       isascii = .true.
+       do i=1,size(byte)
+          if (BYTE(I) < 7) then
+             isascii = .false.
+             exit
+          end if
+       end do
+    end if ! amIRoot
+
+! Global Bcast
+    call MAPL_CommsBcast(vm, data=amIRoot, N=1, Root=MAPL_Root, RC=status)
+       _VERIFY(STATUS)
 
     if (isascii) then
 ! Open file and read header info
 !-------------------------------
 
-       UNIT = GETFILE(FILENAME, form='FORMATTED', RC=status)
+       UNIT = GETFILE(FILENAME, form='FORMATTED', ACTION='READ', RC=status)
        _VERIFY(STATUS)
 
 ! Total number of tiles in exchange grid
@@ -630,19 +638,19 @@ contains
 ! Open file and read header info
 !-------------------------------
 
-       UNIT = GETFILE(FILENAME, form='UNFORMATTED', RC=status)
+       UNIT = GETFILE(FILENAME, form='UNFORMATTED', ACTION='READ', RC=status)
        _VERIFY(STATUS)
 
 ! Total number of tiles in exchange grid
 !---------------------------------------
-       if ( MAPL_am_I_root() ) read(UNIT) NT
-       call MAPL_CommsBcast(vm, DATA=NT, N=1, ROOT=0, RC=status)
+       if ( amIRoot ) read(UNIT) NT
+       call MAPL_CommsBcast(vm, DATA=NT, N=1, ROOT=MAPL_Root, RC=status)
 
 ! Number of grids that can be attached
 !-------------------------------------
 
-       if ( MAPL_am_I_root() ) read(UNIT) STREAM%N_GRIDS
-       call MAPL_CommsBcast(vm, DATA=STREAM%N_GRIDS, N=1, ROOT=0, RC=status)
+       if ( amIRoot ) read(UNIT) STREAM%N_GRIDS
+       call MAPL_CommsBcast(vm, DATA=STREAM%N_GRIDS, N=1, ROOT=MAPL_Root, RC=status)
 
 ! The exchange grid is used to tile each attached grid
 !-----------------------------------------------------
@@ -654,17 +662,17 @@ contains
 !---------------------------------------------
 
        do N=1,STREAM%N_GRIDS
-          if ( MAPL_am_I_root() ) then
+          if ( amIRoot ) then
             read(UNIT) STREAM%TILING(N)%NAME
             read(UNIT) STREAM%TILING(N)%IM
             read(UNIT) STREAM%TILING(N)%JM
           endif
-          call MAPL_CommsBcast(vm, DATA=STREAM%TILING(N)%NAME, N=MAPL_TileNameLength, ROOT=0, RC=status)
+          call MAPL_CommsBcast(vm, DATA=STREAM%TILING(N)%NAME, N=MAPL_TileNameLength, ROOT=MAPL_ROOT, RC=status)
           if (NewGridNames_) then
              call GenOldGridName_(STREAM%TILING(N)%NAME)
           end if
-          call MAPL_CommsBcast(vm, DATA=STREAM%TILING(N)%IM, N=1, ROOT=0, RC=status)
-          call MAPL_CommsBcast(vm, DATA=STREAM%TILING(N)%JM, N=1, ROOT=0, RC=status)
+          call MAPL_CommsBcast(vm, DATA=STREAM%TILING(N)%IM, N=1, ROOT=MAPL_ROOT, RC=status)
+          call MAPL_CommsBcast(vm, DATA=STREAM%TILING(N)%JM, N=1, ROOT=MAPL_ROOT, RC=status)
        enddo
 
 ! Read location stream file into AVR
@@ -674,12 +682,12 @@ contains
        _VERIFY(STATUS)
 
        call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
-       if ( MAPL_am_I_root() ) then
+       if (amIRoot ) then
          read(UNIT) AVR
          read(unit)
          read(unit)
        endif
-       call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
+       call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=MAPL_ROOT, RootOnly=.false., RC=status)
 
 ! Allocate msk for which tiles to include in the stream being created.
 !--------------------------------------------------------------------
@@ -726,8 +734,8 @@ contains
        do N=1,STREAM%N_GRIDS
           if (read_always .or. gname == STREAM%TILING(N)%NAME) then
              call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
-             if ( MAPL_am_I_root() ) read(UNIT) AVR
-             call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
+             if ( amIRoot ) read(UNIT) AVR
+             call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=MAPL_ROOT, RootOnly=.false., RC=status)
              K = 0
              do I=1, NT
                 if(MSK(I)) then
@@ -738,8 +746,8 @@ contains
                 end if
              end do
              call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
-             if ( MAPL_am_I_root() ) read(UNIT) AVR
-             call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
+             if ( amIRoot ) read(UNIT) AVR
+             call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=MAPL_ROOT, RootOnly=.false., RC=status)
              K = 0
              do I=1, NT
                 if(MSK(I)) then
@@ -749,11 +757,11 @@ contains
                    endif
                 end if
              end do
-             if ( MAPL_am_I_root() ) read(UNIT)
+             if ( amIRoot ) read(UNIT)
           else
-             if ( MAPL_am_I_root() ) read(UNIT)
-             if ( MAPL_am_I_root() ) read(UNIT)
-             if ( MAPL_am_I_root() ) read(UNIT)
+             if ( amIRoot ) read(UNIT)
+             if ( amIRoot ) read(UNIT)
+             if ( amIRoot ) read(UNIT)
           endif
        end do
        STREAM%NT_LOCAL = count(ISMINE)
@@ -761,7 +769,7 @@ contains
        _VERIFY(STATUS)
     end if
 
-       if ( MAPL_am_I_root() ) then
+       if ( amIRoot ) then
          rewind(UNIT)
          read(UNIT)
          read(UNIT)
@@ -785,8 +793,8 @@ contains
        do N=1,STREAM%N_GRIDS
           if (read_always .or. gname == STREAM%TILING(N)%NAME) then
              call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
-             if ( MAPL_am_I_root() ) read(UNIT) AVR
-             call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
+             if ( amIRoot ) read(UNIT) AVR
+             call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=MAPL_ROOT, RootOnly=.false., RC=status)
              K = 0
              L = 0
              do I=1, NT
@@ -800,8 +808,8 @@ contains
              end do
              
              call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
-             if ( MAPL_am_I_root() ) read(UNIT) AVR
-             call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
+             if ( amIRoot ) read(UNIT) AVR
+             call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=MAPL_ROOT, RootOnly=.false., RC=status)
              K = 0
              L = 0
              do I=1, NT
@@ -815,8 +823,8 @@ contains
              end do
              
              call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
-             if ( MAPL_am_I_root() ) read(UNIT) AVR
-             call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
+             if ( amIRoot ) read(UNIT) AVR
+             call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=MAPL_ROOT, RootOnly=.false., RC=status)
              K = 0
              L = 0
              do I=1, NT
@@ -829,9 +837,9 @@ contains
                 end if
              end do
           else
-             if ( MAPL_am_I_root() ) read(UNIT)
-             if ( MAPL_am_I_root() ) read(UNIT)
-             if ( MAPL_am_I_root() ) read(UNIT)
+             if ( amIRoot ) read(UNIT)
+             if ( amIRoot ) read(UNIT)
+             if ( amIRoot ) read(UNIT)
           endif
        end do
     end if
@@ -864,7 +872,7 @@ contains
 
     if(.not.isascii) then
 
-       if ( MAPL_am_I_root() ) then
+       if ( amIRoot ) then
          rewind(UNIT)
          read(UNIT)
          read(UNIT)
@@ -889,8 +897,8 @@ contains
        end do
 
        call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
-       if ( MAPL_am_I_root() ) read(UNIT) AVR
-       call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
+       if ( amIRoot ) read(UNIT) AVR
+       call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=MAPL_ROOT, RootOnly=.false., RC=status)
        K = 0
        L = 0
        do I=1, NT
@@ -905,8 +913,8 @@ contains
        end do
 
        call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
-       if ( MAPL_am_I_root() ) read(UNIT) AVR
-       call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
+       if ( amIRoot ) read(UNIT) AVR
+       call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=MAPL_ROOT, RootOnly=.false., RC=status)
        K = 0
        L = 0
        do I=1, NT
@@ -920,8 +928,8 @@ contains
        end do
 
        call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
-       if ( MAPL_am_I_root() ) read(UNIT) AVR
-       call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
+       if ( amIRoot ) read(UNIT) AVR
+       call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=MAPL_ROOT, RootOnly=.false., RC=status)
        K = 0
        L = 0
        do I=1, NT
@@ -935,18 +943,18 @@ contains
        end do
 
        call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
-       if ( MAPL_am_I_root() ) then
+       if ( amIRoot ) then
           do I=1, 3*STREAM%N_GRIDS ! skip I,J,W
              read(UNIT)
           end do
           read(UNIT, iostat=iostat) AVR
        end if
-       call MAPL_CommsBcast(vm, DATA=iostat, N=1, ROOT=0, RC=status)
+       call MAPL_CommsBcast(vm, DATA=iostat, N=1, ROOT=MAPL_ROOT, RC=status)
        _VERIFY(STATUS)
 
        STREAM%IsTileAreaValid = iostat == 0
        if (STREAM%IsTileAreaValid) then
-          call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
+          call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=MAPL_ROOT, RootOnly=.false., RC=status)
           _VERIFY(STATUS)
           K = 0
           L = 0
@@ -1311,8 +1319,8 @@ contains
      name = gridname
 
    end subroutine GenOldGridName_
-
-  end subroutine MAPL_LocStreamCreateFromFile
+ 
+ end subroutine MAPL_LocStreamCreateFromFile
 
 
 
