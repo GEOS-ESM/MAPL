@@ -105,28 +105,24 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
 
-
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES GNU)
-  # GFortran gives bizarre LD error for the following targets.
-  ecbuild_add_executable (
-    TARGET pfio_server_demo.x
-    SOURCES pfio_server_demo.F90
-    LIBS ${this} MPI::MPI_Fortran)
-  set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-  # CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-  if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-     target_link_libraries(pfio_server_demo.x PRIVATE OpenMP::OpenMP_Fortran)
-  endif ()
-    
-  ecbuild_add_executable (
-    TARGET pfio_collective_demo.x
-    SOURCES pfio_collective_demo.F90
-    LIBS ${this} MPI::MPI_Fortran)
-  set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-  # CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-  if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-     target_link_libraries(pfio_collective_demo.x PRIVATE OpenMP::OpenMP_Fortran)
-  endif ()
+ecbuild_add_executable (
+   TARGET pfio_server_demo.x
+   SOURCES pfio_server_demo.F90
+   LIBS ${this} MPI::MPI_Fortran)
+set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
+   target_link_libraries(pfio_server_demo.x OpenMP::OpenMP_Fortran)
+endif ()
+   
+ecbuild_add_executable (
+   TARGET pfio_collective_demo.x
+   SOURCES pfio_collective_demo.F90
+   LIBS ${this} MPI::MPI_Fortran)
+set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
+   target_link_libraries(pfio_collective_demo.x OpenMP::OpenMP_Fortran)
 endif ()
 
 ecbuild_add_executable (
