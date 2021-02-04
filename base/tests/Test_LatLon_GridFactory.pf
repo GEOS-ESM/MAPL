@@ -62,8 +62,7 @@ contains
       type (Test_LatLonGridFactory) :: aTest
       class (GridCase), intent(in) :: testParameter
 
-!$$      allocate(aTest%testParameter, source=testParameter)
-      select type (p => aTest%testParameter)
+      select type (p => testParameter)
       class is (GridCase)
          call p%setNumPETsRequested(p%nx * p%ny)
       end select
