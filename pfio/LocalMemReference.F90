@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_LocalMemReferenceMod
-   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
+   use, intrinsic :: iso_c_binding, only: C_NULL_PTR, c_associated
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use, intrinsic :: iso_fortran_env, only: INT32
@@ -110,21 +110,33 @@ contains
       type is (integer(kind=INT32))
          reference = LocalMemReference( pFIO_INT32, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, int32Ptr, shape=shape(array))
          int32Ptr = array
       type is (integer(kind=INT64))
          reference = LocalMemReference( pFIO_INT64, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, int64Ptr, shape=shape(array))
          int64Ptr = array
       type is (real(kind=REAL32))
          reference = LocalMemReference( pFIO_REAL32, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, real32Ptr, shape=shape(array))
          real32Ptr = array
       type is (real(kind=REAL64))
          reference = LocalMemReference( pFIO_REAL64, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
@@ -149,21 +161,33 @@ contains
       type is (integer(kind=INT32))
          reference = LocalMemReference( pFIO_INT32, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, int32Ptr, shape=shape(array))
          int32Ptr = array
       type is (integer(kind=INT64))
          reference = LocalMemReference( pFIO_INT64, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, int64Ptr, shape=shape(array))
          int64Ptr = array
       type is (real(kind=REAL32))
          reference = LocalMemReference( pFIO_REAL32, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, real32Ptr, shape=shape(array))
          real32Ptr = array
       type is (real(kind=REAL64))
          reference = LocalMemReference( pFIO_REAL64, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
@@ -188,21 +212,33 @@ contains
       type is (integer(kind=INT32))
          reference = LocalMemReference( pFIO_INT32, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, int32Ptr, shape=shape(array))
          int32Ptr = array
       type is (integer(kind=INT64))
          reference = LocalMemReference( pFIO_INT64, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, int64Ptr, shape=shape(array))
          int64Ptr = array
       type is (real(kind=REAL32))
          reference = LocalMemReference( pFIO_REAL32, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, real32Ptr, shape=shape(array))
          real32Ptr = array
       type is (real(kind=REAL64))
          reference = LocalMemReference( pFIO_REAL64, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
@@ -227,21 +263,33 @@ contains
       type is (integer(kind=INT32))
          reference = LocalMemReference( pFIO_INT32, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, int32Ptr, shape=shape(array))
          int32Ptr = array
       type is (integer(kind=INT64))
          reference = LocalMemReference( pFIO_INT64, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, int64Ptr, shape=shape(array))
          int64Ptr = array
       type is (real(kind=REAL32))
          reference = LocalMemReference( pFIO_REAL32, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, real32Ptr, shape=shape(array))
          real32Ptr = array
       type is (real(kind=REAL64))
          reference = LocalMemReference( pFIO_REAL64, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
@@ -266,21 +314,33 @@ contains
       type is (integer(kind=INT32))
          reference = LocalMemReference( pFIO_INT32, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, int32Ptr, shape=shape(array))
          int32Ptr = array
       type is (integer(kind=INT64))
          reference = LocalMemReference( pFIO_INT64, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, int64Ptr, shape=shape(array))
          int64Ptr = array
       type is (real(kind=REAL32))
          reference = LocalMemReference( pFIO_REAL32, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, real32Ptr, shape=shape(array))
          real32Ptr = array
       type is (real(kind=REAL64))
          reference = LocalMemReference( pFIO_REAL64, shape(array), rc=status)
          _VERIFY(status)
+         if (.not. c_associated(reference%base_address)) then
+            _RETURN(_SUCCESS)
+         endif
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
