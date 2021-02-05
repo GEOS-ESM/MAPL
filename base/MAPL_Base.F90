@@ -2669,7 +2669,6 @@ and so on.
          _VERIFY(status)
          gridCornerLons=ptr(1:im+1,1:jm+1)
 
-         lats
          call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER, &
                                  farrayPtr=corner, rc=status)
          _VERIFY(status)
