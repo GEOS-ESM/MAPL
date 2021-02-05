@@ -17,7 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixes for allowing forked PRs to pass CI
+=======
 - Fixes incorrect referrencing of R4 variables when reading R8 tile vars in base/MAPL_IO.F90
+- Use integer to represent logical internally in pFIO utilities to avoid non-standard transfer
 
 ### Removed
 

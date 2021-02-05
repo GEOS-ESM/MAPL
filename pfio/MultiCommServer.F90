@@ -171,6 +171,8 @@ contains
          integer(kind=INT64) :: msize_word
 
          call MPI_Comm_rank(this%server_comm, my_rank, ierr)
+         allocate(this%serverthread_done_msgs(1))
+         this%serverthread_done_msgs(:) = .false.
 
          do while (.true.)
 

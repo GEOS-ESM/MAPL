@@ -27,6 +27,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_StringGridMapMod
   use MAPL_GridManagerMod
   use MAPL_ConfigMod
+  use, intrinsic :: iso_fortran_env, only: INT64
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   use MAPL_HistoryCollectionMod, only: HistoryCollection, FieldSet
   use MAPL_HistoryCollectionVectorMod, only: HistoryCollectionVector
@@ -118,7 +119,7 @@ module MAPL_HistoryGridCompMod
   end type HISTORY_wrap
 
   type HISTORY_ExchangeListType
-     integer*8, pointer                  :: lsaddr_ptr(:) => null()
+     integer(kind=INT64), pointer                  :: lsaddr_ptr(:) => null()
   end type HISTORY_ExchangeListType
 
   type HISTORY_ExchangeListWrap
@@ -340,8 +341,8 @@ contains
     integer                                   :: localStatus, globalStatus
     integer, pointer :: allPes(:)
     integer          :: localPe(1), nactual, minactual
-    integer*8                                 :: ADDR
-    integer*8, pointer                        :: LSADDR_PTR(:) => null()
+    integer(kind=INT64)                                 :: ADDR
+    integer(kind=INT64), pointer                        :: LSADDR_PTR(:) => null()
     type(ESMF_State)                          :: state_out
     integer                                   :: fieldRank, gridRank
     integer                                   :: undist
@@ -1729,7 +1730,7 @@ ENDDO PARSER
             _ASSERT(IntState%Regrid(n)%PTR%gridname /= '','needs informative message')
 
 !ALT:       here we are getting the address of LocStream from the TILEGRID 
-!           as INTEGER*8 attribute and we are using a C routine to 
+!           as INTEGER(KIND=INT64) attribute and we are using a C routine to 
 !           set the pointer to LocStream
 
             call ESMF_AttributeGet(grid_in, name='TILEGRID_LOCSTREAM_ADDR', &

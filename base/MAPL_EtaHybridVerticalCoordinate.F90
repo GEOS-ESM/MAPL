@@ -91,9 +91,12 @@ contains
 
       ! get ak and bk
       do k = 1, num_levels+1
-         call ESMF_ConfigNextLine(config, __RC__ ) 
-         call ESMF_ConfigGetAttribute(config, ak(k), __RC__ )
-         call ESMF_ConfigGetAttribute(config, bk(k), __RC__ )
+         call ESMF_ConfigNextLine(config, &
+            __RC__ )
+         call ESMF_ConfigGetAttribute(config, ak(k), &
+            __RC__ )
+         call ESMF_ConfigGetAttribute(config, bk(k), &
+            __RC__ )
       enddo
 
       grid = EtaHybridVerticalCoordinate(ak, bk, ref_pressure=ref_pressure)
