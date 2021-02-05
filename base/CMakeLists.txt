@@ -44,7 +44,7 @@ set (srcs
   MAPL_LocStreamFactoryMod.F90          MAPL_LocstreamRegridder.F90
   MAPL_ExternalGridFactory.F90
   ServerManager.F90 ApplicationSupport.F90
-  regex_module.F90 StringTemplate.F90
+  regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90
   regex_F.c
   c_mapl_locstream_F.c  getrss.c  memuse.c
   )
