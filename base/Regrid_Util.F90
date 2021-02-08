@@ -218,14 +218,14 @@ CONTAINS
        do i=1,tSteps
            iCurrInterval = tSeriesInt(i)
            call GetDate ( begDate, begTime, iCurrInterval, nymdB, nhmsB, status )
-           call MAPL_UnpackTime(nymdB,year,month,day)
-           call MAPL_UnpackTime(nhmsB,hour,minute,second)
+           call MAPL_UnpackTime(nymdB,year,month,day,__RC__)
+           call MAPL_UnpackTime(nhmsB,hour,minute,second,__RC__)
            call ESMF_TimeSet(tSeries(i), yy=year, mm=month, dd=day,  h=hour,  m=minute, s=second,__RC__)
        enddo
        icurrInterval = tSeriesInt(1)
        call GetDate ( begDate, begTime, iCurrInterval, nymdB, nhmsB, status )
-       call MAPL_UnpackTime(nymdB,year,month,day)
-       call MAPL_UnpackTime(nhmsB,hour,minute,second)
+       call MAPL_UnpackTime(nymdB,year,month,day,__RC__)
+       call MAPL_UnpackTime(nhmsB,hour,minute,second,__RC__)
     end if
     call ESMF_CFIOFileClose(lcfio)
 

@@ -16,6 +16,8 @@ use MAPL_RangeMod
 use, intrinsic :: iso_fortran_env, only: REAL32
 use, intrinsic :: iso_fortran_env, only: REAL64
 use MAPL_ExceptionHandling
+use MAPL_TimeValidateMod, only: is_valid_time
+use MAPL_DateValidateMod, only: is_valid_date
 implicit NONE
 private
 
@@ -1210,14 +1212,24 @@ subroutine MAPL_TimeStringGet(TIMESTRING,YY,MM,DD,H,M,S)
 end subroutine MAPL_TimeStringGet
 
 
-subroutine MAPL_UnpackTime(TIME,IYY,IMM,IDD)
+subroutine MAPL_UnpackTime(TIME,IYY,IMM,IDD,unusable,rc)
+  use MAPL_KeywordEnforcerMod
   integer, intent (IN ) :: TIME
   integer, intent (OUT) :: IYY
   integer, intent (OUT) :: IMM
   integer, intent (OUT) :: IDD
+  class (KeywordEnforcer), optional, intent(in) :: unusable
+  integer, optional, intent(out) :: rc
+
+  _UNUSED_DUMMY(unusable)
+
+  _ASSERT(is_valid_time(TIME),'Invalid time passed to MAPL_UnpackTime')
+
   IYY = TIME/10000
   IMM = mod(TIME/100,100)
   IDD = mod(TIME,100)
+
+  _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_UnpackTime
 
 
@@ -1239,9 +1251,17 @@ subroutine MAPL_PackDateTime(date_time, yy, mm, dd, h, m, s)
 end subroutine MAPL_PackDateTime
 
 
-subroutine MAPL_UnpackDateTime(date_time, yy, mm, dd, h, m, s)
+subroutine MAPL_UnpackDateTime(date_time, yy, mm, dd, h, m, s, unusable, rc)
+  use MAPL_KeywordEnforcerMod
   integer, intent(in) :: date_time(:)
   integer, intent(out) :: yy, mm, dd, h, m, s
+  class (KeywordEnforcer), optional, intent(in) :: unusable
+  integer, optional, intent(out) :: rc
+
+  _UNUSED_DUMMY(unusable)
+
+  _ASSERT(is_valid_date(date_time(1)),'Invalid date passed to MAPL_UnpackDateTime')
+  _ASSERT(is_valid_time(date_time(2)),'Invalid time passed to MAPL_UnpackDateTime')
 
   yy =     date_time(1) / 10000
   mm = mod(date_time(1), 10000) / 100
@@ -1249,6 +1269,8 @@ subroutine MAPL_UnpackDateTime(date_time, yy, mm, dd, h, m, s)
   h  =     date_time(2) / 10000
   m  = mod(date_time(2), 10000) / 100
   s  = mod(date_time(2), 100)
+
+  _RETURN(ESMF_SUCCESS)
 end subroutine MAPL_UnpackDateTime
 
 

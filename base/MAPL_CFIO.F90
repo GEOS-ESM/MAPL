@@ -6556,8 +6556,8 @@ end subroutine MAPL_CFIOReadBundleReadPrefetch
      do i=1,cfio%tSteps
         iCurrInterval = tSeriesInt(i)
         call GetDate ( begDate, begTime, iCurrInterval, nymdB, nhmsB, status )
-        call MAPL_UnpackTime(nymdB,iyr,imm,idd)
-        call MAPL_UnpackTime(nhmsB,ihr,imn,isc)
+        call MAPL_UnpackTime(nymdB,iyr,imm,idd,__RC__)
+        call MAPL_UnpackTime(nhmsB,ihr,imn,isc,__RC__)
         call ESMF_TimeSet(ctime, yy=iyr, mm=imm, dd=idd,  h=ihr,  m=imn, s=isc,__RC__)
         if (ctime == time) tindex =i
      enddo
@@ -6596,8 +6596,8 @@ end subroutine MAPL_CFIOReadBundleReadPrefetch
      do i=1,cfio%tSteps
         iCurrInterval = tSeriesInt(i)
         call GetDate ( begDate, begTime, iCurrInterval, nymdB, nhmsB, status )
-        call MAPL_UnpackTime(nymdB,iyr,imm,idd)
-        call MAPL_UnpackTime(nhmsB,ihr,imn,isc)
+        call MAPL_UnpackTime(nymdB,iyr,imm,idd,__RC__)
+        call MAPL_UnpackTime(nhmsB,ihr,imn,isc,__RC__)
         call ESMF_TimeSet(ltime, yy=iyr, mm=imm, dd=idd,  h=ihr,  m=imn, s=isc,__RC__)
         if (i==tindex) then
            time=ltime
