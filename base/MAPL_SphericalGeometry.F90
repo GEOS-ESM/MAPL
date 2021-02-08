@@ -157,7 +157,7 @@ contains
     signs(2)= (d23<0.0)
     signs(3)= (d34<0.0)
     signs(4)= (d41<0.0)
-    in_poly=(count(signs)==0) .or. (count(signs==4))
+    in_poly=( (count(signs)==0) .or. (count(signs)==4) )
 
  end function point_in_polygon
 
