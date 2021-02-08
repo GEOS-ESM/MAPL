@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 =======
 - Fixes incorrect referrencing of R4 variables when reading R8 tile vars in base/MAPL_IO.F90
 - Use integer to represent logical internally in pFIO utilities to avoid non-standard transfer
+- Modified horizontal ij search algorithm in MAPL_Base.F90 to use general bisection search to fix capaibility issues with non-gmao created cubed sphere grids
 
 ### Removed
 
