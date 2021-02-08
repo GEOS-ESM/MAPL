@@ -207,7 +207,7 @@ contains
       call this%cap_server%get_splitcomm(split_comm)
       select case(split_comm%get_name())
       case('model')
-         call this%run_model(rc=status); _VERIFY(status)
+         call this%run_model(comm=split_comm%get_subcommunicator(), rc=status); _VERIFY(status)
          call i_Clients%terminate()
          call o_Clients%terminate()
       end select
@@ -215,9 +215,10 @@ contains
    end subroutine run_member
 
 
-   subroutine run_model(this, unusable, rc)
+   subroutine run_model(this, comm, unusable, rc)
       use pFlogger, only: logging, Logger
       class (MAPL_Cap), intent(inout) :: this
+      integer, intent(in) :: comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) ::rc
 
@@ -229,7 +230,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       call start_timer()
-      call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, rc=status)
+      call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, rc=status)
       _VERIFY(status)
 
       call this%initialize_cap_gc()
