@@ -1,0 +1,61 @@
+module Test_DateValidate
+   use MAPL_DateValidateMod
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_date()
+
+      integer :: date
+
+      ! Obvious cases
+      date = 20000101
+      @assert_that(is_valid_date(date), is(true()))
+
+      date = -1
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 20000000
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 20001301
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 20001232
+      @assert_that(is_valid_date(date), is(false()))
+
+      ! Month Tests
+
+      ! 30-day months
+
+      date = 12340431
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 12340631
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 12340931
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 12341131
+      @assert_that(is_valid_date(date), is(false()))
+
+      ! February tests
+
+      date = 19000229
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 20000229
+      @assert_that(is_valid_date(date), is(true()))
+
+      date = 20010229
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 20040229
+      @assert_that(is_valid_date(date), is(true()))
+
+   end subroutine test_date
+
+end module Test_DateValidate

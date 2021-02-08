@@ -8,7 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Add option fast_oclient that waits before using oserver. It would not wait after done message are sent 
+- Added new `is_valid_date()` and `is_valid_time()` functions to make
+  sure invalid times and dates are not sent to MAPL
+
 ### Changed
 
 - For MultiGroupServer, the backend and frontend share each node
@@ -17,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixes for allowing forked PRs to pass CI
-=======
 - Fixes incorrect referrencing of R4 variables when reading R8 tile vars in base/MAPL_IO.F90
 - Use integer to represent logical internally in pFIO utilities to avoid non-standard transfer
 
