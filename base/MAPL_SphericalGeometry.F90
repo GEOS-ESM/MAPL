@@ -11,7 +11,8 @@ private
 public get_points_in_spherical_domain
 contains
 
- subroutine get_points_in_spherical_domain(corner_lons,corner_lats,lons,lats,ii,jj,rc)
+ subroutine get_points_in_spherical_domain(center_lons,center_lats,corner_lons,corner_lats,lons,lats,ii,jj,rc)
+    real(real64), intent(in) :: center_lats(:,:),center_lons(:,:)
     real(real64), intent(in) :: corner_lats(:,:),corner_lons(:,:)
     real(real64), intent(in) :: lons(:),lats(:)
     integer, intent(out) :: ii(:),jj(:)
@@ -39,7 +40,7 @@ contains
        iub=im
        jlb=1
        jub=jm
-       in_region = point_in_polygon([lons(i),lats(i)], &
+       in_region = point_in_polygon([lons(i),lats(i)],[center_lons(ilb,jlb),center_lats(ilb,jlb)],  &
            [corner_lons(ilb,jlb),corner_lats(ilb,jlb)], &
            [corner_lons(iub+1,jlb),corner_lats(iub+1,jlb)], &
            [corner_lons(iub+1,jub+1),corner_lats(iub+1,jub+1)], &
@@ -52,7 +53,7 @@ contains
              lold=lnew
              uold=unew
              unew=lold+(uold-lold)/2
-             in_sub_region = point_in_polygon([lons(i),lats(i)], &
+             in_sub_region = point_in_polygon([lons(i),lats(i)], [center_lons(lnew,jlb),center_lats(lnew,jlb)], &
                  [corner_lons(lnew,jlb),corner_lats(lnew,jlb)], &
                  [corner_lons(unew+1,jlb),corner_lats(unew+1,jlb)], &
                  [corner_lons(unew+1,jub+1),corner_lats(unew+1,jub+1)], &
@@ -76,7 +77,7 @@ contains
              lold=lnew
              uold=unew
              unew=lold+(uold-lold)/2
-             in_sub_region = point_in_polygon([lons(i),lats(i)], &
+             in_sub_region = point_in_polygon([lons(i),lats(i)], [center_lons(ifound,lnew),center_lats(ifound,lnew)] , &
                  [corner_lons(ifound,lnew),corner_lats(ifound,lnew)], &
                  [corner_lons(ifound+1,lnew),corner_lats(ifound+1,lnew)], &
                  [corner_lons(ifound+1,unew+1),corner_lats(ifound+1,unew+1)], &
@@ -101,9 +102,7 @@ contains
          
  end subroutine get_points_in_spherical_domain 
 
- ! this also works, note p0 is the point we are interested in and pinside is any point insidethe polygon
- ! am keeping this because it also works if we need it
- function point_in_polygon_arcintersection(p0,pinside,a1,a2,a3,a4) result(in_poly)
+ function point_in_polygon(p0,pinside,a1,a2,a3,a4) result(in_poly)
     real(real64), intent(in) :: p0(2),pinside(2),a1(2),a2(2),a3(2),a4(2)
     logical :: in_poly
  
@@ -127,39 +126,40 @@ contains
     end if
 
 
- end function point_in_polygon_arcintersection
-
- function point_in_polygon(p1,a1,a2,a3,a4) result(in_poly)
-    real(real64), intent(in) :: p1(2),a1(2),a2(2),a3(2),a4(2)
-    logical :: in_poly
- 
-    real(real64) :: p1c(3),a1c(3),a2c(3),a3c(3),a4c(3)
-    real(real64) :: crs12(3),crs23(3),crs34(3),crs41(3)
-    real(real64) :: d12,d23,d34,d41
-    logical :: signs(4)
-    ! a1 -> a2 -> a3 -> a4 so a4 connects to a1
-
-    p1c=convert_to_cart(p1)
-    a1c=convert_to_cart(a1)
-    a2c=convert_to_cart(a2)
-    a3c=convert_to_cart(a3)
-    a4c=convert_to_cart(a4)
-
-    crs12 = cross_prod(a1c,a2c)
-    crs23 = cross_prod(a2c,a3c)
-    crs34 = cross_prod(a3c,a4c)
-    crs41 = cross_prod(a4c,a1c)
-    d12=dot_product(p1c,crs12)
-    d23=dot_product(p1c,crs23)
-    d34=dot_product(p1c,crs34)
-    d41=dot_product(p1c,crs41)
-    signs(1)= (d12<0.0)
-    signs(2)= (d23<0.0)
-    signs(3)= (d34<0.0)
-    signs(4)= (d41<0.0)
-    in_poly=( (count(signs)==0) .or. (count(signs)==4) )
-
  end function point_in_polygon
+
+! it is claimed this should work but doesn't
+ !function point_in_polygon_crosprod(p1,a1,a2,a3,a4) result(in_poly)
+    !real(real64), intent(in) :: p1(2),a1(2),a2(2),a3(2),a4(2)
+    !logical :: in_poly
+ 
+    !real(real64) :: p1c(3),a1c(3),a2c(3),a3c(3),a4c(3)
+    !real(real64) :: crs12(3),crs23(3),crs34(3),crs41(3)
+    !real(real64) :: d12,d23,d34,d41
+    !logical :: signs(4)
+    !! a1 -> a2 -> a3 -> a4 so a4 connects to a1
+
+    !p1c=convert_to_cart(p1)
+    !a1c=convert_to_cart(a1)
+    !a2c=convert_to_cart(a2)
+    !a3c=convert_to_cart(a3)
+    !a4c=convert_to_cart(a4)
+
+    !crs12 = cross_prod(a1c,a2c)
+    !crs23 = cross_prod(a2c,a3c)
+    !crs34 = cross_prod(a3c,a4c)
+    !crs41 = cross_prod(a4c,a1c)
+    !d12=dot_product(p1c,crs12)
+    !d23=dot_product(p1c,crs23)
+    !d34=dot_product(p1c,crs34)
+    !d41=dot_product(p1c,crs41)
+    !signs(1)= (d12<0.0)
+    !signs(2)= (d23<0.0)
+    !signs(3)= (d34<0.0)
+    !signs(4)= (d41<0.0)
+    !in_poly=( (count(signs)==0) .or. (count(signs)==4) )
+
+ !end function point_in_polygon_crossprod
 
  function lines_intersect(b0,b1,a0,a1)  result(intersect)
     real(real64), intent(in) :: b0(3),b1(3),a0(3),a1(3)

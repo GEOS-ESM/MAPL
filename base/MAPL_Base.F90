@@ -3534,12 +3534,18 @@ and so on.
      _ASSERT(localSearch,"Global Search for IJ not implemented")   
 
      if (im_world*6==jm_world) then
+        call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lons, rc=status)
+        _VERIFY(STATUS)
+        call ESMF_GridGetCoord(grid,coordDim=2, localDe=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lats, rc=status)
+        _VERIFY(STATUS)
         allocate(corner_lons(im+1,jm+1))
         allocate(corner_lats(im+1,jm+1))
         call MAPL_GridGetCorners(Grid,corner_lons,corner_lats,rc=status)
         ii=-1
         jj=-1
-        call get_points_in_spherical_domain(corner_lons,corner_lats,target_lons,target_lats,ii,jj,rc=status)
+        call get_points_in_spherical_domain(lons,lats,corner_lons,corner_lats,target_lons,target_lats,ii,jj,rc=status)
         _VERIFY(status)
         deallocate(corner_lons,corner_lats)
      else
