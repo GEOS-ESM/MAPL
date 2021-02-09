@@ -9272,7 +9272,7 @@ subroutine MAPL_ReadForcingX(MPL,NAME,DATAFILE,CURRTIME,  &
        call MAPL_CommsBcast(layout, datetime, n=2, ROOT=MAPL_Root, rc=status)
        _VERIFY(STATUS)
 
-       CALL MAPL_UnpackDateTime(DATETIME, YY, MM, DD, H, M, S, __RC__)
+       CALL MAPL_UnpackDateTime(DATETIME, YY, MM, DD, H, M, S)
 
        call ESMF_TimeSet(CurrentTime, &
                          YY=YY, MM=MM, DD=DD, &
@@ -9685,8 +9685,8 @@ end subroutine MAPL_READFORCINGX
        IYR=0; IMM = 1; IDD = 1
        IHR=0; IMN = 0; ISC = 0
     else
-       call MAPL_UNPACKTIME(DATE,IYR,IMM,IDD,__RC__)
-       call MAPL_UNPACKTIME(HOUR,IHR,IMN,ISC,__RC__)
+       call MAPL_UNPACKTIME(DATE,IYR,IMM,IDD)
+       call MAPL_UNPACKTIME(HOUR,IHR,IMN,ISC)
     endif
 
     call ESMF_TimeSet(TIME, YY=IYR, MM=IMM, DD=IDD, H=IHR, M=IMN, S=ISC, RC=STATUS )

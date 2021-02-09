@@ -959,7 +959,7 @@ CONTAINS
             isNegative = .false.
             read(item%refresh_template(k+1:),*,iostat=ios)nhms
          end if
-         call MAPL_UnpackTime(nhms,ihr,imn,isc,__RC__)
+         call MAPL_UnpackTime(nhms,ihr,imn,isc)
          if (isNegative) then
             ihr = -ihr
             imn = -imn
@@ -1137,7 +1137,7 @@ CONTAINS
             isNegative = .false.
             read(derivedItem%refresh_template(k+1:),*,iostat=ios)nhms
          end if
-         call MAPL_UnpackTime(nhms,ihr,imn,isc,__RC__)
+         call MAPL_UnpackTime(nhms,ihr,imn,isc)
          if (isNegative) then
             ihr = -ihr
             imn = -imn
@@ -2785,8 +2785,8 @@ CONTAINS
         do i=1,cfio%tSteps
            iCurrInterval = tSeriesInt(i)
            call GetDate ( begDate, begTime, iCurrInterval, nymdB, nhmsB, status )
-           call MAPL_UnpackTime(nymdB,iyr,imm,idd,__RC__)
-           call MAPL_UnpackTime(nhmsB,ihr,imn,isc,__RC__)
+           call MAPL_UnpackTime(nymdB,iyr,imm,idd)
+           call MAPL_UnpackTime(nhmsB,ihr,imn,isc)
 
            
            if (lgr%isEnabledFor(DEBUG) .and. any(i == [1,cfio%tsteps])) then
