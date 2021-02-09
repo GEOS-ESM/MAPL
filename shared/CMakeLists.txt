@@ -39,8 +39,3 @@ if (PFUNIT_FOUND)
 endif ()
 
 #add_subdirectory(tests EXCLUDE_FROM_ALL)
-
-ecbuild_add_executable(TARGET TimeTester.exe SOURCES TimeTester.F90)
-target_link_libraries(TimeTester.exe PRIVATE ${this})
-ecbuild_add_executable(TARGET DateTester.exe SOURCES DateTester.F90)
-target_link_libraries(DateTester.exe PRIVATE ${this})
