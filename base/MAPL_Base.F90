@@ -13,6 +13,7 @@ module MAPL_BaseMod
 use ESMF
 use MAPL_ConstantsMod, only: MAPL_PI, MAPL_PI_R8
 use MAPL_RangeMod
+use MAPL_SphericalGeometry
 use, intrinsic :: iso_fortran_env, only: REAL32
 use, intrinsic :: iso_fortran_env, only: REAL64
 use MAPL_ExceptionHandling
@@ -2595,46 +2596,119 @@ and so on.
 
       type(ESMF_RouteHandle) :: rh
       type(ESMF_Field) :: field
-      integer :: counts(3)
+      integer :: counts(3),lsz
       real(ESMF_KIND_R8), pointer :: ptr(:,:)
       real(ESMF_KIND_R8), pointer :: corner(:,:)
-      integer :: im,jm,imc,jmc
+      integer :: im,jm,imc,jmc,idx,i,j
+      logical :: hasLons,hasLats
+      real(ESMF_KIND_R8), allocatable :: r8ptr(:),lons1d(:),lats1d(:)
+      type(ESMF_CoordSys_Flag) :: coordSys
 
       call MAPL_GridGet(grid,localCellCountPerDim=counts,rc=status)
       _VERIFY(status)
       im=counts(1)
       jm=counts(2)
+      ! check if we have corners
+      call ESMF_AttributeGet(grid,  NAME='GridCornerLons:', &
+           isPresent=hasLons, RC=STATUS)
+      _VERIFY(status)
+      call ESMF_AttributeGet(grid,  NAME='GridCornerLats:', &
+           isPresent=hasLats, RC=STATUS)
+      _VERIFY(status)
+      if (hasLons .and. hasLats) then
+         call ESMF_AttributeGet(grid,  NAME='GridCornerLons:', &
+              itemcount=lsz, RC=STATUS)
+         _VERIFY(STATUS)
+         _ASSERT(size(gridCornerLons,1)*size(gridCornerLons,2)==lsz,"stored corner sizes to not match grid")
+         call ESMF_AttributeGet(grid,  NAME='GridCornerLats:', &
+              itemcount=lsz, RC=STATUS)
+         _VERIFY(STATUS)
+         _ASSERT(size(gridCornerLats,1)*size(gridCornerLats,2)==lsz,"stored corner sizes to not match grid")
+         allocate(r8ptr(lsz),stat=status)
+         _VERIFY(status)
 
-      call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER, &
-                              farrayPtr=corner, rc=status)
-      imc=size(corner,1)
-      jmc=size(corner,2)
-      allocate(ptr(0:imc+1,0:jmc+1),source=0.0d0,stat=status)
-      _VERIFY(status)
-      field = ESMF_FieldCreate(grid,ptr,staggerLoc=ESMF_STAGGERLOC_CORNER,totalLWidth=[1,1],totalUWidth=[1,1],rc=status)
-      _VERIFY(status)
-      call ESMF_FieldHaloStore(field,rh,rc=status)
-      _VERIFY(status)
+         call ESMF_AttributeGet(grid,  NAME='GridCornerLons:', &
+              VALUELIST=r8ptr, RC=STATUS)
+         _VERIFY(STATUS)
 
-      ptr(1:imc,1:jmc)=corner
-      call ESMF_FieldHalo(field,rh,rc=status)
-      _VERIFY(status)
-      gridCornerLons=ptr(1:im+1,1:jm+1)
+         idx = 0
+         do j = 1, size(gridCornerLons,2)
+            do i = 1, size(gridCornerLons,1)
+               idx = idx+1
+               gridCornerLons(i,j) = r8ptr(idx)
+            end do
+         end do
 
-      !lats
-      call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER, &
-                              farrayPtr=corner, rc=status)
-      _VERIFY(status)
-      ptr(1:imc,1:jmc)=corner
-      call ESMF_FieldHalo(field,rh,rc=status)
-      _VERIFY(status)
-      gridCornerLats=ptr(1:im+1,1:jm+1)
-      
-      deallocate(ptr)
-      call ESMF_FieldDestroy(field,rc=status) 
-      _VERIFY(status)
-      call ESMF_FieldHaloRelease(rh,rc=status)
-      _VERIFY(status)
+         call ESMF_AttributeGet(grid,  NAME='GridCornerLats:', &
+              VALUELIST=r8ptr, RC=STATUS)
+         _VERIFY(STATUS)
+
+         idx = 0
+         do j = 1, size(gridCornerLons,2)
+            do i = 1, size(gridCornerLons,1)
+               idx = idx+1
+               gridCornerLats(i,j) = r8ptr(idx)
+            end do
+         end do
+         deallocate(r8ptr)
+      else
+
+         call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER, &
+                                 farrayPtr=corner, rc=status)
+         imc=size(corner,1)
+         jmc=size(corner,2)
+         allocate(ptr(0:imc+1,0:jmc+1),source=0.0d0,stat=status)
+         _VERIFY(status)
+         field = ESMF_FieldCreate(grid,ptr,staggerLoc=ESMF_STAGGERLOC_CORNER,totalLWidth=[1,1],totalUWidth=[1,1],rc=status)
+         _VERIFY(status)
+         call ESMF_FieldHaloStore(field,rh,rc=status)
+         _VERIFY(status)
+
+         ptr(1:imc,1:jmc)=corner
+         call ESMF_FieldHalo(field,rh,rc=status)
+         _VERIFY(status)
+         gridCornerLons=ptr(1:im+1,1:jm+1)
+
+         call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER, &
+                                 farrayPtr=corner, rc=status)
+         _VERIFY(status)
+         ptr(1:imc,1:jmc)=corner
+         call ESMF_FieldHalo(field,rh,rc=status)
+         _VERIFY(status)
+         gridCornerLats=ptr(1:im+1,1:jm+1)
+         
+         deallocate(ptr)
+         call ESMF_FieldDestroy(field,rc=status) 
+         _VERIFY(status)
+         call ESMF_FieldHaloRelease(rh,rc=status)
+         _VERIFY(status)
+
+         call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
+         _VERIFY(status)
+         allocate(lons1d(size(gridCornerLons,1)*size(gridCornerLons,2)),stat=status)
+         _VERIFY(status)
+         allocate(lats1d(size(gridCornerLons,1)*size(gridCornerLons,2)),stat=status)
+         _VERIFY(status)
+         idx = 0
+         do j=1,size(gridCornerLons,2)
+            do i=1,size(gridCornerLons,1)
+               idx=idx+1
+               lons1d(idx)=gridCornerLons(i,j)
+               lats1d(idx)=gridCornerLats(i,j)
+            enddo
+         enddo
+         if (coordSys==ESMF_COORDSYS_SPH_DEG) then
+            lons1d=lons1d*MAPL_PI_R8/180.d0
+            lats1d=lats1d*MAPL_PI_R8/180.d0
+         end if 
+         call ESMF_AttributeSet(grid, name='GridCornerLons:', &
+               itemCount = idx, valueList=lons1d, rc=status)
+         _VERIFY(STATUS)
+         call ESMF_AttributeSet(grid, name='GridCornerLats:', &
+               itemCount = idx, valueList=lats1d, rc=status)
+         _VERIFY(STATUS)
+         deallocate(lons1d,lats1d)
+      end if
 
       _RETURN(ESMF_SUCCESS)
 
@@ -3424,20 +3498,12 @@ and so on.
      real(ESMF_KIND_R8), allocatable :: lats_1d(:)
      real(ESMF_KIND_R8), allocatable :: elons(:)
      real(ESMF_KIND_R8), allocatable :: elats(:)
-     real(ESMF_KIND_R8), allocatable :: ex(:)
-     real(ESMF_KIND_R8), allocatable :: ey(:)
-     real(ESMF_KIND_R8), allocatable :: EdgeX(:,:)
-     real(ESMF_KIND_R8), allocatable :: EdgeY(:,:)
-     real(ESMF_KIND_R8), allocatable, save :: EdgeLats_(:,:,:)
-     real(ESMF_KIND_R8), allocatable, save :: EdgeLons_(:,:,:)
-     real                    :: lonloc,latloc,x_loc,y_loc
-     logical                 :: isCubed, switch
-     integer                 :: face_pnt,face,imp1,jmp1,itmp
-     integer                 :: im_1d, jm_1d, IIloc, JJloc, i, j
+     integer :: i,iiloc,jjloc
+     real(ESMF_KIND_R4) :: lonloc,latloc
      real(kind=REAL64), parameter :: PI_R8     = 3.14159265358979323846_REAL64
      logical                 :: localSearch
-     integer                 :: fStart,fEnd
-     logical, save           :: computeEdges = .true.
+     real(ESMF_KIND_R8), allocatable :: target_lons(:),target_lats(:)
+     real(ESMF_KIND_R8), allocatable :: corner_lons(:,:),corner_lats(:,:)
 
 
      ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
@@ -3454,119 +3520,34 @@ and so on.
         JM = counts(2)
         localSearch = .true.
      else
-        _ASSERT(present(IMGlob), 'IMGlob must be present if Grid is present')
-        _ASSERT(present(JMGlob), 'JMGlob must be present if Grid is present')
-        IM_World = IMGlob
-        JM_World = JMGlob
-        IM = IM_World
-        JM = IM_World
         localSearch = .false.
-     end if   
-
-     if (JM_World == 6*IM_World) then
-        isCubed = .true.
-     else
-        isCubed = .false.
      end if
-     ii = -1
-     jj = -1
-     if (isCubed) then
-        if (localSearch) then
-           if (computeEdges) then
-              allocate(EdgeLats_(IM+1,JM+1,1),stat=status)
-              _VERIFY(STATUS)
-              allocate(EdgeLons_(IM+1,JM+1,1),stat=status)
-              _VERIFY(STATUS)
-              call MAPL_GridGetCorners(Grid,EdgeLons_(:,:,1),EdgeLats_(:,:,1),rc=status)
-              _VERIFY(STATUS)
-              computeEdges = .false.
-           end if
-        else
-           _ASSERT(present(EdgeLats) .and. present(EdgeLons), 'inconsistent use of optional arguments')
-           EdgeLats_ = EdgeLats
-           EdgeLons_ = EdgeLons
-        end if
-        allocate(EdgeX(IM+1,JM+1),stat=status)
+     allocate(target_lons(npts),target_lats(npts))
+     if (present(lon) .and. present(lat)) then
+        target_lons = lon
+        target_lats = lat
+     else if (present(lonR8) .and. present(latR8)) then
+        target_lons = lonR8
+        target_lats = latR8
+     end if
+
+     _ASSERT(localSearch,"Global Search for IJ not implemented")   
+
+     if (im_world*6==jm_world) then
+        call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lons, rc=status)
         _VERIFY(STATUS)
-        allocate(EdgeY(IM+1,JM+1),stat=status)
+        call ESMF_GridGetCoord(grid,coordDim=2, localDe=0, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lats, rc=status)
         _VERIFY(STATUS)
-
-        if (localSearch) then
-           fStart = 1
-           fEnd   = 1
-        else
-           fStart = 1
-           fEnd   = 6
-        end if
-
-        do j = fStart, fEnd
-           if (localSearch) then
-              call check_face(IM+1,JM+1,EdgeLons_(:,:,1),EdgeLats_(:,:,1),FACE)
-              _ASSERT(FACE > 0 .and. FACE <= 6, 'illegal grid face (must be in [1..6])')
-              call cube_xy(IM+1,JM+1,EdgeX,EdgeY,EdgeLons_(:,:,j),EdgeLats_(:,:,j),face)
-           else
-              call check_face(IM+1,JM+1,EdgeLons_(:,:,j),EdgeLats_(:,:,j),FACE)
-              _ASSERT(FACE > 0 .and. FACE <= 6, 'illegal grid face (must be in [1..6])')
-              call cube_xy(IM+1,JM+1,EdgeX,EdgeY,EdgeLons_(:,:,j),EdgeLats_(:,:,j),face)
-           end if
-           switch = .false.
-           if (abs(EdgeX(1,1)-EdgeX(2,1)) < 0.0001) switch = .true.
-
-           if (switch) then
-              allocate(ex(jm+1),ey(im+1), stat = status)
-              _VERIFY(STATUS)
-              imp1=im+1
-              jmp1=jm+1
-              im_1d = jm+1
-              jm_1d = im+1
-           else
-              allocate(ex(im+1),ey(jm+1), stat=status)
-              _VERIFY(status)
-              imp1=im+1
-              jmp1=jm+1
-              im_1d = im+1
-              jm_1d = jm+1
-           end if
-           call flatten_xy(EdgeX,EdgeY,ex,ey,imp1,jmp1,im_1d,jm_1d,switch)
-           do i=1,npts
-              ! CS grid 0 to 360 shift if we must
-              ! if this is a global search and we have not found point, search this face
-              ! otherwise always do search
-              if ( (.not.localSearch .and. II(i) <0 .and. JJ(i) < 0) .or. localSearch) then
-                 if (present(lon) .and. present(lat)) then
-                    lonloc = lon(i)
-                    latloc = lat(i)
-                 else if (present(lonR8) .and. present(latR8)) then
-                    lonloc = lonR8(i)
-                    latloc = latR8(i)
-                 end if
-                 if (lonloc < 0.) lonloc = lonloc + 2.0*MAPL_PI
-                 call check_face_pnt(lonloc,latloc,face_pnt)
-                 if (face_pnt == face) then
-                    call cube_xy_point(x_loc,y_loc,latloc,lonloc,face_pnt)
-                    IIloc = ijsearch(ex,im_1d,x_loc,.false.)
-                    JJloc = ijsearch(ey,jm_1d,y_loc,.false.)
-                    if (switch) then
-                       itmp = IIloc
-                       IIloc = JJloc
-                       JJloc = itmp
-                    endif
-                    if (.not.localSearch) JJloc = IM_World*(j-1)+JJloc
-                 else
-                    IIloc = -1
-                    JJloc = -1
-                 end if
-                 II(i) = IIloc
-                 JJ(i) = JJloc
-              end if
-           end do
-           deallocate(ex)
-           deallocate(ey)
-        end do
-
-
-        deallocate(EdgeY)
-        deallocate(EdgeX)
+        allocate(corner_lons(im+1,jm+1))
+        allocate(corner_lats(im+1,jm+1))
+        call MAPL_GridGetCorners(Grid,corner_lons,corner_lats,rc=status)
+        ii=-1
+        jj=-1
+        call get_points_in_spherical_domain(lons,lats,corner_lons,corner_lats,target_lons,target_lats,ii,jj,rc=status)
+        _VERIFY(status)
+        deallocate(corner_lons,corner_lats)
      else
         if (localSearch) then
            call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
@@ -3593,13 +3574,8 @@ and so on.
         ! lat-lon grid goes from -180 to 180 shift if we must
         ! BMA this -180 to 180 might change at some point
         do i=1,npts
-           if (present(lon) .and. present(lat)) then
-              lonloc = lon(i)
-              latloc = lat(i)
-           else if (present(lonR8) .and. present(latR8)) then
-              lonloc = lonR8(i)
-              latloc = latR8(i)
-           end if
+           lonloc = target_lons(i)
+           latloc = target_lats(i)
            if (lonloc > MAPL_PI) lonloc = lonloc - 2.0*MAPL_PI
            IIloc = ijsearch(elons,im+1,lonloc,.false.)
            JJloc = ijsearch(elats,jm+1,latloc,.false.)
@@ -3670,215 +3646,6 @@ and so on.
       return
    end subroutine calc_edges_1d
 
-      subroutine cube_xy(IM,JM,x,y,LONS,LATS,face)
-      integer, intent(in) :: IM,JM
-      real(ESMF_KIND_R8), intent(inout) :: x(:,:),y(:,:)
-      real(ESMF_KIND_R8), intent(in) :: LATS(:,:),LONS(:,:)
-      integer, intent(in) :: face
-
-      real(ESMF_KIND_R8) :: rsq3
-      real(ESMF_KIND_R8)  :: LAT,LON
-      integer :: i,j
-      rsq3 = 1.0/sqrt(3.0d0)
-      do i=1,IM
-       do j=1,JM
-        LAT=LATS(I,J)
-        LON=LONS(I,J)+MAPL_PI_R8/18.0d0
-        select case(face)
-         case (1)
-          x(I,J) =  rsq3*tan(LON)
-          y(I,J) =  rsq3*tan(LAT)/cos(LON)
-         case (2)
-          x(I,J) =  rsq3*tan(LON)
-          y(I,J) = -rsq3*tan(LAT)/cos(LON)
-         case (3)
-          x(I,J) = -rsq3*cos(LON)/sin(LON)
-          y(I,J) =  rsq3*tan(LAT)/sin(LON)
-         case (4)
-          x(I,J) = -rsq3*cos(LON)/sin(LON)
-          y(I,J) = -rsq3*tan(LAT)/sin(LON)
-         case (5)
-          x(I,J) =  rsq3*sin(LON)*cos(LAT)/sin(LAT)
-          y(I,J) = -rsq3*cos(LON)*cos(LAT)/sin(LAT)
-         case (6)
-          x(I,J) = -rsq3*sin(LON)*cos(LAT)/sin(LAT)
-          y(I,J) = -rsq3*cos(LON)*cos(LAT)/sin(LAT)
-        end select
-       enddo
-      enddo
-
-      end subroutine cube_xy
-
-      subroutine cube_xy_point(x,y,LAT,LON,face)
-      real, intent(inout) :: x,y
-      real, intent(in) :: LAT,LON
-      integer, intent(in) :: face
-
-      real :: rsq3,llon,llat
-      rsq3 = 1.0/sqrt(3.0)
-      LLAT=LAT
-      LLON=LON+MAPL_PI/18.0
-      select case(face)
-       case (1)
-        x =  rsq3*tan(LLON)
-        y =  rsq3*tan(LLAT)/cos(LLON)
-       case (2)
-        x =  rsq3*tan(LLON)
-        y = -rsq3*tan(LLAT)/cos(LLON)
-       case (3)
-        x = -rsq3*cos(LLON)/sin(LLON)
-        y =  rsq3*tan(LLAT)/sin(LLON)
-       case (4)
-        x = -rsq3*cos(LLON)/sin(LLON)
-        y = -rsq3*tan(LLAT)/sin(LLON)
-       case (5)
-        x =  rsq3*sin(LLON)*cos(LLAT)/sin(LLAT)
-        y = -rsq3*cos(LLON)*cos(LLAT)/sin(LLAT)
-       case (6)
-        x = -rsq3*sin(LLON)*cos(LLAT)/sin(LLAT)
-        y = -rsq3*cos(LLON)*cos(LLAT)/sin(LLAT)
-      end select
-
-      end subroutine cube_xy_point
-
-      subroutine check_face(IM,JM,LONS,LATS,face)
-      integer, intent(in) :: im,jm
-      real(ESMF_KIND_R8), intent(in) :: LONS(:,:),LATS(:,:)
-      integer, intent(inout) :: face
-      real :: lon,lat
-      integer :: i,j,k
-      real :: s(6),smin, xyz(3), rsq3
-      integer :: fmin,ifmin(6),imax,imaxt
-
-      ifmin = 0
-      rsq3=1.0/sqrt(3.)
-      do i=1,IM
-       do j=1,JM
-        smin = 30.0
-        lon=LONS(i,j)+MAPL_PI/18.0
-        lat=LATS(i,j)
-        xyz(1)=cos(lon)*cos(lat)
-        xyz(2)=sin(lon)*cos(lat)
-        xyz(3)=sin(lat)
-        if (xyz(1) /= 0.0) then
-         s(1)=rsq3/xyz(1)
-         s(2)=-rsq3/xyz(1)
-        else
-         s(1)=1000.0
-         s(2)=1000.0
-        endif
-        if (xyz(2) /= 0.0) then
-         s(3)=rsq3/xyz(2)
-         s(4)=-rsq3/xyz(2)
-        else
-         s(3)=1000.0
-         s(4)=1000.0
-        endif
-        if (xyz(3) /= 0.0) then
-         s(5)=rsq3/xyz(3)
-         s(6)=-rsq3/xyz(3)
-        else
-         s(5)=1000.0
-         s(6)=1000.0
-        endif
-        do k=1,6
-         if (s(k) > 0) then
-          if (s(k) < smin) then
-           smin = s(k)
-           fmin = k
-          endif
-         endif
-        enddo
-        ifmin(fmin) = ifmin(fmin)+1
-       enddo
-      enddo
-      imax = 0
-      do k=1,6
-       imaxt=ifmin(k)
-       if (imaxt > imax) then
-        imax = imaxt
-        face = k
-       endif
-      enddo
-      end subroutine check_face
-
-      subroutine flatten_xy(x,y,x_1d,y_1d,im,jm,im_1d,jm_1d,switch)
-      implicit none
-      integer, intent(in) :: im,jm, im_1d, jm_1d
-      real(ESMF_KIND_R8), intent(in) :: x(:,:), y(:,:)
-      real(ESMF_KIND_R8), intent(inout) :: y_1d(:), x_1d(:)
-      logical, intent(in) :: switch
-      integer :: i
-      if (.not.switch) then
-       do i =1,im_1d
-        x_1d(i)=x(i,1)
-       enddo
-       do i =1,jm_1d
-        y_1d(i)=y(1,i)
-       enddo
-      else if (switch) then
-       do i =1,im_1d
-        x_1d(i)=x(1,i)
-       enddo
-       do i =1,jm_1d
-        y_1d(i)=y(i,1)
-       enddo
-      endif
-      return
-      end subroutine flatten_xy
-
-      subroutine check_face_pnt(LON,LAT,face)
-      real, intent(in) :: LON,LAT
-      integer, intent(inout) :: face
-      real :: llon,llat
-      integer :: k
-      real :: s(6),smin, xyz(3), rsq3
-      integer :: fmin
-      character(len=ESMF_MAXSTR) :: Iam
-      Iam = 'check_face_pnt'
-
-      rsq3=1.0/sqrt(3.)
-      smin = 30.0
-      llon=lon+MAPL_PI/18.0
-      llat=lat
-      xyz(1)=cos(llon)*cos(llat)
-      xyz(2)=sin(llon)*cos(llat)
-      xyz(3)=sin(llat)
-      fmin = 7
-      if (xyz(1) /= 0.) then
-       s(1)=rsq3/xyz(1)
-       s(2)=-rsq3/xyz(1)
-      else
-       s(1)=1000.
-       s(2)=1000.
-      endif
-      if (xyz(2) /= 0.) then
-       s(3)=rsq3/xyz(2)
-       s(4)=-rsq3/xyz(2)
-      else
-       s(3)=1000.
-       s(4)=1000.
-      endif
-      if (xyz(3) /= 0.) then
-       s(5)=rsq3/xyz(3)
-       s(6)=-rsq3/xyz(3)
-      else
-       s(5)=1000.
-       s(6)=1000.
-      endif
-      do k=1,6
-       if (s(k) > 0) then
-        if (s(k) < smin) then
-         smin = s(k)
-         fmin = k
-        endif
-       endif
-      enddo
-      if (fmin /= 7) then
-       face = fmin
-      endif  
-      end subroutine check_face_pnt
-         
   end subroutine MAPL_GetHorzIJIndex
 
   subroutine MAPL_GenGridName(im, jm, lon, lat, xyoffset, gridname, geos_style)
