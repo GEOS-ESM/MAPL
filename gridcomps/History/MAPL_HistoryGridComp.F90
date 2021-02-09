@@ -43,8 +43,7 @@ module MAPL_HistoryGridCompMod
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
-  use MAPL_TimeValidateMod, only: is_valid_time
-  use MAPL_DateValidateMod, only: is_valid_date
+  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   !use ESMF_CFIOMOD
 
   implicit none

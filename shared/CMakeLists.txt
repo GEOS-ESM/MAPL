@@ -24,8 +24,7 @@ set (srcs
     MAPL_ExceptionHandling.F90
 
     String.F90
-    TimeValidate.F90
-    DateValidate.F90
+    TimeUtils.F90
   )
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared MPI::MPI_Fortran pflogger TYPE SHARED)
 target_include_directories (${this} PUBLIC
@@ -40,3 +39,8 @@ if (PFUNIT_FOUND)
 endif ()
 
 #add_subdirectory(tests EXCLUDE_FROM_ALL)
+
+ecbuild_add_executable(TARGET TimeTester.exe SOURCES TimeTester.F90)
+target_link_libraries(TimeTester.exe PRIVATE ${this})
+ecbuild_add_executable(TARGET DateTester.exe SOURCES DateTester.F90)
+target_link_libraries(DateTester.exe PRIVATE ${this})

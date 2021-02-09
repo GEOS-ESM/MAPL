@@ -1,5 +1,5 @@
-module Test_DateValidate
-   use MAPL_DateValidateMod
+module Test_TimeUtils
+   use MAPL_TimeUtilsMod
    use funit
    implicit none
 
@@ -67,4 +67,54 @@ contains
 
    end subroutine test_date
 
-end module Test_DateValidate
+   @test
+   subroutine test_time()
+
+      integer :: time
+
+      time = 000000
+      @assert_that(is_valid_time(time), is(true()))
+
+      time = 235959
+      @assert_that(is_valid_time(time), is(true()))
+
+      time = 240000
+      @assert_that(is_valid_time(time), is(true()))
+
+      time = -000001
+      @assert_that(is_valid_time(time), is(false()))
+
+      time = 240001
+      @assert_that(is_valid_time(time), is(false()))
+
+      time = 006000
+      @assert_that(is_valid_time(time), is(false()))
+
+      time = 000060
+      @assert_that(is_valid_time(time), is(false()))
+
+      time = 234567
+      @assert_that(is_valid_time(time), is(false()))
+
+   end subroutine test_time
+
+   @test
+   subroutine test_datetime()
+
+      integer :: datetime(2)
+
+      ! Simple test
+      datetime = [20000101,120000]
+      @assert_that(is_valid_datetime(datetime), is(true()))
+
+      ! Bad date
+      datetime = [20001301,120000]
+      @assert_that(is_valid_datetime(datetime), is(false()))
+
+      ! Bad time
+      datetime = [20000101,250000]
+      @assert_that(is_valid_datetime(datetime), is(false()))
+
+   end subroutine test_datetime
+
+end module Test_TimeUtils

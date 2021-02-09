@@ -16,8 +16,7 @@ use MAPL_RangeMod
 use, intrinsic :: iso_fortran_env, only: REAL32
 use, intrinsic :: iso_fortran_env, only: REAL64
 use MAPL_ExceptionHandling
-use MAPL_TimeValidateMod, only: is_valid_time
-use MAPL_DateValidateMod, only: is_valid_date
+use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
 implicit NONE
 private
 

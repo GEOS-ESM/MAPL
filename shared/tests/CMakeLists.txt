@@ -1,7 +1,6 @@
 set (test_srcs
     test_String.pf
-    test_TimeValidate.pf
-    test_DateValidate.pf
+    test_TimeUtils.pf
   )
 
 
