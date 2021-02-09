@@ -28,8 +28,6 @@ contains
       ! Obvious cases
       if (date < 0) then
          is_valid = .false.
-      else if (year > 24) then
-         is_valid = .false.
       else if (month == 0) then
          is_valid = .false.
       else if (month > 12) then
@@ -45,9 +43,9 @@ contains
       ! February
       case (2)
          if (is_leap_year) then
-            if (day > 30) is_valid = .false.
-         else 
             if (day > 29) is_valid = .false.
+         else
+            if (day > 28) is_valid = .false.
          end if
       ! 31 day months
       case default
