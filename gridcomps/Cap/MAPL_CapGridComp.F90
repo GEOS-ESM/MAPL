@@ -28,6 +28,7 @@ module MAPL_CapGridCompMod
   use pFIO
   use gFTL_StringVector
   use pflogger, only: logging, Logger
+  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
 
   use iso_fortran_env
   
@@ -1530,7 +1531,9 @@ contains
 
     call MAPL_GetResource( MAPLOBJ, datetime, label='BEG_DATE:', rc=STATUS )
     if(STATUS==ESMF_SUCCESS) then
-       CALL MAPL_UnpackDateTime(DATETIME, BEG_YY, BEG_MM, BEG_DD, BEG_H, BEG_M, BEG_S, __RC__)
+       _ASSERT(is_valid_date(datetime(1)),'Invalid date in BEG_DATE')
+       _ASSERT(is_valid_time(datetime(2)),'Invalid time in BEG_DATE')
+       CALL MAPL_UnpackDateTime(DATETIME, BEG_YY, BEG_MM, BEG_DD, BEG_H, BEG_M, BEG_S)
     else
 
        ! !RESOURCE_ITEM: year :: Beginning year (integer)
@@ -1555,7 +1558,9 @@ contains
 
     call MAPL_GetResource( MAPLOBJ, datetime, label='END_DATE:', rc=STATUS )
     if(STATUS==ESMF_SUCCESS) then
-       CALL MAPL_UnpackDateTime(DATETIME, END_YY, END_MM, END_DD, END_H, END_M, END_S, __RC__)
+       _ASSERT(is_valid_date(datetime(1)),'Invalid date in END_DATE')
+       _ASSERT(is_valid_time(datetime(2)),'Invalid time in END_DATE')
+       CALL MAPL_UnpackDateTime(DATETIME, END_YY, END_MM, END_DD, END_H, END_M, END_S)
     else
        ! !RESOURCE_ITEM: year :: Ending year (integer)
        call MAPL_GetResource( MAPLOBJ, END_YY, label='END_YY:', DEFAULT=1, rc=STATUS )
@@ -1585,7 +1590,7 @@ contains
     end if
 
     if(STATUS==ESMF_SUCCESS) then
-       CALL MAPL_UnpackDateTime(DATETIME, DUR_YY, DUR_MM, DUR_DD, DUR_H, DUR_M, DUR_S, __RC__)
+       CALL MAPL_UnpackDateTime(DATETIME, DUR_YY, DUR_MM, DUR_DD, DUR_H, DUR_M, DUR_S)
     else
        ! !RESOURCE_ITEM: year :: Ending year (integer)
        call MAPL_GetResource( MAPLOBJ, DUR_YY, label='DUR_YY:', DEFAULT=0, rc=STATUS )
@@ -1687,7 +1692,9 @@ contains
     read(UNIT,100,err=999,end=999) datetime
 100 format(i8.8,1x,i6.6)
 
-    CALL MAPL_UnpackDateTime(DATETIME, CUR_YY, CUR_MM, CUR_DD, CUR_H, CUR_M, CUR_S, __RC__)
+    _ASSERT(is_valid_date(DATETIME(1)),'Invalid date in cap_restart')
+    _ASSERT(is_valid_time(DATETIME(2)),'Invalid time in cap_restart')
+    CALL MAPL_UnpackDateTime(DATETIME, CUR_YY, CUR_MM, CUR_DD, CUR_H, CUR_M, CUR_S)
 
     call MAPL_GetLogger(MAPLOBJ, lgr, rc=status)
     _VERIFY(status)

@@ -741,7 +741,7 @@ contains
     call ESMF_ConfigGetAttribute(cf, datetime, label='BEG_DATE:',rc=status)
     _VERIFY(status)
 
-    CALL MAPL_UnpackDateTime(DATETIME, CUR_YY, CUR_MM, CUR_DD, CUR_H, CUR_M, CUR_S, __RC__)
+    CALL MAPL_UnpackDateTime(DATETIME, CUR_YY, CUR_MM, CUR_DD, CUR_H, CUR_M, CUR_S)
 
     call ESMF_TimeSet( CurrTime, YY = CUR_YY, &
          MM = CUR_MM, &
@@ -761,7 +761,7 @@ contains
 
     call ESMF_ConfigGetAttribute( cf, datetime, label='JOB_SGMT:',rc=STATUS )
     _VERIFY(status)
-    CALL MAPL_UnpackDateTime(DATETIME, DUR_YY, DUR_MM, DUR_DD, DUR_H, DUR_M, DUR_S, __RC__)
+    CALL MAPL_UnpackDateTime(DATETIME, DUR_YY, DUR_MM, DUR_DD, DUR_H, DUR_M, DUR_S)
 
     call ESMF_TimeIntervalSet(  duration, YY = DUR_YY, &
          MM = DUR_MM, &
@@ -794,7 +794,7 @@ contains
           _VERIFY(status)
           call ESMF_ConfigGetAttribute(this%config,ctime,rc=status)
           _VERIFY(status)
-          call MAPL_UnpackDateTime(ctime,comp_YY,comp_MM,COMP_DD,COMP_H,COMP_M,COMP_S, __RC__)
+          call MAPL_UnpackDateTime(ctime,comp_YY,comp_MM,COMP_DD,COMP_H,COMP_M,COMP_S)
           call ESMF_TimeSet(this%times(i),yy=comp_yy,mm=comp_mm,dd=comp_dd,h=comp_h,m=comp_m,s=comp_s,rc=status)
           _VERIFY(status)
        enddo
