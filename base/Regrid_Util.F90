@@ -31,7 +31,6 @@
  
    implicit NONE
 
-   class(AbstractRegridder), pointer :: regridder_esmf=>null()
    real, parameter :: cs_stretch_uninit = -1.0
    type(DistributedProfiler), target :: t_prof
    type (ProfileReporter) :: reporter
@@ -87,7 +86,7 @@ CONTAINS
    character(len=ESMF_MAXPATHLEN) :: str,astr
    character(len=:), allocatable :: tripolar_file_in,tripolar_file_out
    type(ESMF_CONFIG) :: cfoutput
-   integer :: regridMethod
+   integer :: regridMethod,tint
    real :: cs_stretch_param(3)
    integer :: deflate, shave
    type (FileMetaDataUtils) :: metadata
@@ -97,7 +96,6 @@ CONTAINS
    type(ServerManager) :: o_server
    type(ServerManager) :: i_server
    type(NetCDF4_FileFormatter) :: formatter
-   class (AbstractGridFactory), allocatable :: factory
  
     Iam = "ut_ReGridding"
 
@@ -238,6 +236,8 @@ CONTAINS
     else
        TimeInterval=tSeries(2)-tSeries(1)
     end if
+    call ESMF_TimeIntervalGet(TimeInterval,h=hour,m=minute,s=second,__RC__)
+    tint=hour*10000+minute*100+second
     Clock = ESMF_ClockCreate ( name="Eric", timeStep=TimeInterval, &
                                startTime=tSeries(1), rc=status )
     _VERIFY(STATUS)
@@ -246,8 +246,6 @@ CONTAINS
 
     cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,__RC__)
     grid_new=grid_manager%make_grid(cfoutput,prefix=trim(gridname)//".",__RC__)
-    call t_prof%start("GenRegrid")
-    call t_prof%stop("GenRegrid")
 
     if (mapl_am_i_root()) write(*,*)'done making grid'
 
@@ -273,31 +271,22 @@ CONTAINS
 
        call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
        _VERIFY(STATUS)
-       _VERIFY(STATUS)
 
-       call t_prof%start("regrid")
-       !call RunESMFRegridding(bundle,bundle_esmf,shave,__RC__)
-       call t_prof%stop("regrid")
-
-       call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-       _VERIFY(STATUS)
- 
        call t_prof%start("write")
-
 
        if (mapl_am_I_root()) write(*,*) "moving on to writing the file"
 
        call ESMF_ClockSet(clock,currtime=time,__RC__)
-       call newWriter%create_from_bundle(bundle,clock,outputFile,nbits=shave,deflate=deflate,rc=status)
-       _VERIFY(status)
+       if (.not.fileCreated) then
+          call newWriter%create_from_bundle(bundle,clock,outputFile,n_steps=tsteps,time_interval=tint,nbits=shave,deflate=deflate,rc=status)
+          _VERIFY(status)
+          fileCreated=.true.
+       end if
        call newWriter%write_to_file(rc=status)
        _VERIFY(status)
-       if (.not.fileCreated) fileCreated=.true.
        call t_prof%stop("write")
  
     end do
-    !call MAPL_CFIOClose(cfio_esmf,rc=status)
-    !_VERIFY(STATUS)
 
 !   All done
 !   --------
@@ -309,176 +298,10 @@ CONTAINS
     call t_prof%reduce()
     call generate_report()
     call MAPL_Finalize(__RC__)
-    call MPI_Finalize(status)
-!    call ESMF_Finalize ( rc=status )
-!    _VERIFY(STATUS)
+    call ESMF_Finalize ( rc=status )
+    _VERIFY(STATUS)
 
     end subroutine main
-
-
-    function BundleClone(Bundle_old,grid_new,rc) result(Bundle_new)
-
-    type(ESMF_FieldBundle), intent(inout) :: Bundle_old
-    type(ESMF_Grid),        intent(inout) :: grid_new
- 
-    type(ESMF_FieldBundle)                :: Bundle_new
-    integer, optional,      intent(out  ) :: rc
-
-    integer :: status
-    character(LEN=ESMF_MAXSTR) :: Iam
-
-    integer :: bcount, i
-    type(ESMF_Field) :: field
-    type(ESMF_Field) :: field_old
-    character(LEN=ESMF_MAXSTR) :: FieldName
-    integer :: dims_orig
-
-    Iam = "BundleClone"        
-
-
-    call ESMF_FieldBundleGet(bundle_old,fieldCount=bcount,rc=status)
-    _VERIFY(STATUS)
-
-    bundle_new = ESMF_FieldBundleCreate(name="newBundle",rc=status)
-    _VERIFY(STATUS)
-    call ESMF_FieldBundleSet(bundle_new,grid=grid_new,__RC__)
-
-    do i=1,bcount
-       ! get info about original fields in bundle
-       call ESMF_FieldBundleGet(bundle_old,i,field=field_old,rc=status)
-       _VERIFY(STATUS)
-       call ESMF_FieldGet(field_old,name=FieldName,rc=status)
-       _VERIFY(STATUS)
-
-       call ESMF_AttributeGet(field_old,NAME='DIMS',value=dims_orig,rc=status)
-       _VERIFY(STATUS)
-       field = MAPL_FieldCreate(field_old,grid_new,rc=status)
-       _VERIFY(STATUS)
-       call ESMF_AttributeSet(field,NAME='DIMS',value=dims_orig,rc=status)
-       _VERIFY(STATUS)
-       call MAPL_FieldBundleAdd(bundle_new,field,__RC__)
-
-    end do
-
-    _RETURN(ESMF_SUCCESS)
-
-    end function BundleClone
-
-    subroutine BundleCopy(Bundle_old,Bundle_new,rc)
-
-    type(ESMF_FieldBundle), intent(inout) :: Bundle_old
-    type(ESMF_FieldBundle), intent(inout) :: Bundle_new
- 
-    integer, optional,      intent(out  ) :: rc
-
-    integer :: status
-    character(LEN=ESMF_MAXSTR) :: Iam
-
-    integer :: bcount, i
-    type(ESMF_Field) :: field_new
-    type(ESMF_Field) :: field_old
-    real, pointer, dimension(:,:) :: ptr2d_old => null()
-    real, pointer, dimension(:,:) :: ptr2d_new => null()
-    real, pointer, dimension(:,:,:) :: ptr3d_old => null()
-    real, pointer, dimension(:,:,:) :: ptr3d_new => null()
-    integer :: dims, vloc
-
-    Iam = "BundleCopy"        
-
-
-    call ESMF_FieldBundleGet(bundle_old,fieldCount=bcount,rc=status)
-    _VERIFY(STATUS)
-
-
-    do i=1,bcount
-       ! get info about original fields in bundle
-       call ESMF_FieldBundleGet(bundle_old,i,field=field_old,rc=status)
-       _VERIFY(STATUS)
-       call ESMF_AttributeGet(field_old,NAME='DIMS',value=dims,rc=status)
-       _VERIFY(STATUS)
-       call ESMF_AttributeGet(field_old,NAME='VLOCATION',value=vloc,rc=status)
-       _VERIFY(STATUS)
-
-       call ESMF_FieldBundleGet(bundle_new,i,field=field_new,rc=status)
-       _VERIFY(STATUS)
-      
-       if (dims==MAPL_DimsHorzOnly) then
-          call ESMF_FieldGet(field_old,0,ptr2d_old,__RC__)
-          call ESMF_FieldGet(field_new,0,ptr2d_new,__RC__)
-          ptr2d_new=ptr2d_old
-       else if (dims==MAPL_DimsHorzVert) then
-          call ESMF_FieldGet(field_old,0,ptr3d_old,__RC__)
-          call ESMF_FieldGet(field_new,0,ptr3d_new,__RC__)
-          ptr3d_new=ptr3d_old
-       end if
-
-    end do
-
-    _RETURN(ESMF_SUCCESS)
-
-    end subroutine BundleCopy
-
-    subroutine RunESMFRegridding(bundle_old,bundle_new,shave,rc)
-
-    type(ESMF_FieldBundle),     intent(inout) :: bundle_old
-    type(ESMF_FieldBundle),     intent(inout) :: bundle_new
-    integer, intent(in) :: shave
-
-    integer, optional,      intent(out  ) :: rc
-
-    character(len=ESMF_MAXSTR) :: Iam
-    integer :: status
-
-    type(ESMF_Field) :: field_old, field_new
-    integer :: bcount,i
-    real(ESMF_KIND_R4), pointer  :: ptr3d_old(:,:,:) => null()
-    real(ESMF_KIND_R4), pointer  :: ptr3d_new(:,:,:) => null()
-    real(ESMF_KIND_R4), pointer  :: ptr2d_old(:,:) => null()
-    real(ESMF_KIND_R4), pointer  :: ptr2d_new(:,:) => null()
-    integer                 :: oldRank, newRank
-
-    Iam = "RunESMFRegridding"
-
-   call ESMF_FieldBundleGet(bundle_old,fieldcount=bcount,__RC__)
-   do i=1,bcount
-
-       call ESMF_FieldBundleGet(bundle_old,i,field=field_old,__RC__)
-       call ESMF_FieldGet(field_old,rank=oldRank,__RC__)
-
-       call ESMF_FieldBundleGet(bundle_new,i,field=field_new,__RC__)
-       call ESMF_FieldGet(field_new,rank=newRank,__RC__)
-
-       _ASSERT(newRank == oldRank,'needs informative message')
-
-       if (oldRank == 3) then
-
-          call ESMF_FieldGet(field_old,0,farrayPtr=ptr3D_old,__RC__)
-          call ESMF_FieldGet(field_new,0,farrayPtr=ptr3D_new,__RC__)
-          call regridder_esmf%regrid(ptr3d_old,ptr3d_new,__RC__)
-          if (shave < 24) then
-             call pFIO_DownBit(ptr3d_new,ptr3d_new,shave,undef=MAPL_undef,rc=status)
-             _VERIFY(status)
-          end if
-          nullify(ptr3d_old)
-          nullify(ptr3d_new)
-
-       else if (oldRank == 2) then
-
-          call ESMF_FieldGet(field_old,0,farrayPtr=ptr2D_old,__RC__)
-          call ESMF_FieldGet(field_new,0,farrayPtr=ptr2D_new,__RC__)
-          call regridder_esmf%regrid(ptr2d_old,ptr2d_new,__RC__)
-          if (shave < 24) then
-             call pFIO_DownBit(ptr2d_new,ptr2d_new,shave,undef=MAPL_undef,rc=status)
-             _VERIFY(status)
-          end if
-          nullify(ptr2d_old)
-          nullify(ptr2d_new)
-       end if
-    end do
-
-    _RETURN(ESMF_SUCCESS)
-
-    end subroutine RunESMFRegridding
 
    subroutine UnpackDateTime(DATETIME, YY, MM, DD, H, M, S)
      integer, intent(IN   ) :: DATETIME(:)

@@ -106,16 +106,20 @@ module MAPL_ESMFFieldBundleRead
                    if (grid_size(3) == lev_size) then
                       location=MAPL_VLocationCenter
                       dims = MAPL_DimsHorzVert
+                      field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
+                        ungriddedUbound=[grid_size(3)],ungriddedLBound=[1], rc=status)
                    else if (grid_size(3)+1 == lev_size) then
                       location=MAPL_VLocationEdge
                       dims = MAPL_DimsHorzVert
+                      field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
+                        ungriddedUbound=[grid_size(3)],ungriddedLBound=[0], rc=status)
                   end if
                else
                    location=MAPL_VLocationNone
                    dims = MAPL_DimsHorzOnly
+                   field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
+                      rc=status)
                end if
-               field=MAPL_FieldCreateEmpty(trim(var_name),grid,rc=status)
-               _VERIFY(status)
                call ESMF_AttributeSet(field,name='DIMS',value=dims,rc=status)
                _VERIFY(status)
                call ESMF_AttributeSet(field,name='VLOCATION',value=location,rc=status)
@@ -123,9 +127,6 @@ module MAPL_ESMFFieldBundleRead
                call ESMF_AttributeSet(field,name='UNITS',value='NA',rc=status)
                _VERIFY(status)
                call ESMF_AttributeSet(field,name='LONG_NAME',value='NA',rc=status)
-               _VERIFY(status)
-               call MAPL_FieldAllocCommit(field,dims=dims,location=location, &
-                       typekind=REAL32,hw=0,rc=status)
                _VERIFY(status)
                call MAPL_FieldBundleAdd(bundle,field,rc=status)
                _VERIFY(status)                  
