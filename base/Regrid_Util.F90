@@ -263,7 +263,6 @@ CONTAINS
        if (onlyvars) then
           call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=regridMethod,only_vars=vars,rc=status)
        else
-          !call MAPL_CFIORead(filename,time,bundle,rc=status)
           call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=regridMethod,rc=status)
        end if
        _VERIFY(STATUS)
