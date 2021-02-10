@@ -105,6 +105,7 @@ type MAPL_LocStreamType
    type(MAPL_Tiling),        pointer  :: Tiling(:)              =>null() ! Grid associated tilings
    real, pointer              :: D(:,:,:)=>null() ! Bilinear weights
    logical                            :: IsTileAreaValid
+   integer                            :: pfafstetter_catchments
 end type MAPL_LocStreamType
 
 type MAPL_LocStreamXformType
@@ -373,7 +374,6 @@ contains
 
   ! !INTERFACE:
   subroutine MAPL_LocStreamCreateFromFile(LocStream, LAYOUT, FILENAME, NAME, MASK, GRID, NewGridNames, use_pfaf, RC)
-  !subroutine MAPL_LocStreamCreateFromFile(LocStream, LAYOUT, FILENAME, NAME, MASK, GRID, NewGridNames, RC)
 
     !ARGUMENTS:
     type(MAPL_LocStream),                 intent(  OUT) :: LocStream
@@ -418,6 +418,7 @@ contains
     type(MAPL_Tiling       ), pointer :: TILING
     type (ESMF_VM)                            :: vm
     logical                           :: NewGridNames_
+    integer                           :: hdr(2)
 
 #ifdef NEW_INTERP_CODE
     integer           :: isc, iec, jsc, jec
@@ -489,8 +490,10 @@ contains
 ! Total number of tiles in exchange grid
 !---------------------------------------
 
-       call READ_PARALLEL(layout, NT, UNIT=UNIT, rc=status)
+       call READ_PARALLEL(layout, hdr, UNIT=UNIT, rc=status)
        _VERIFY(STATUS)
+       nt=hdr(1)
+       stream%pfafstetter_catchments=hdr(2)
 
 ! Number of grids that can be attached
 !-------------------------------------
@@ -519,7 +522,7 @@ contains
           _VERIFY(STATUS)
        enddo
        if (use_pfaf_) then
-          STREAM%TILING(2)%IM = 291284
+          STREAM%TILING(2)%IM = stream%pfafstetter_catchments
           STREAM%TILING(2)%JM = 1
           STREAM%TILING(2)%name = "ROUTE_GRID"
        end if
@@ -550,9 +553,9 @@ contains
          endif
        enddo
 
-       if (use_pfaf_) then
-          AVR(:,NumGlobalVars+2+NumLocalVars) = 1
-       end if
+       !if (use_pfaf_) then
+          !AVR(:,NumGlobalVars+2+NumLocalVars) = 1
+       !end if
 
        call FREE_FILE(UNIT)
 
@@ -603,9 +606,11 @@ contains
                       K = K + 1
                       II = nint(AVR(I,NumGlobalVars+1+NumLocalVars*(N-1)))
                       if (use_pfaf_ .and. (n==2)) then
-                         JJ = nint(AVR(I,NumGlobalVars+2+NumLocalVars*(N-1)))
+                         !JJ = nint(AVR(I,NumGlobalVars+2+NumLocalVars*(N-1)))
+                         JJ = 1
                       else
-                         JJ=1
+                         JJ = nint(AVR(I,NumGlobalVars+2+NumLocalVars*(N-1)))
+                         !JJ=1
                       end if
                       ISMINE(K) = I1<=II .and. IN>=II .and. &
                                   J1<=JJ .and. JN>=JJ
@@ -688,8 +693,9 @@ contains
 
 ! Total number of tiles in exchange grid
 !---------------------------------------
-       if ( MAPL_am_I_root() ) read(UNIT) NT
+       if ( MAPL_am_I_root() ) read(UNIT) NT,stream%pfafstetter_catchments
        call MAPL_CommsBcast(vm, DATA=NT, N=1, ROOT=0, RC=status)
+       call MAPL_CommsBcast(vm, DATA=stream%pfafstetter_catchments, N=1, ROOT=0, RC=status)
 
 ! Number of grids that can be attached
 !-------------------------------------
@@ -720,7 +726,8 @@ contains
           call MAPL_CommsBcast(vm, DATA=STREAM%TILING(N)%JM, N=1, ROOT=0, RC=status)
        enddo
        if (use_pfaf_) then
-          STREAM%TILING(2)%IM = 291284
+          if (mapl_am_i_root()) write(*,*)'bmaa pfaf: ',stream%pfafstetter_catchments
+          STREAM%TILING(2)%IM = stream%pfafstetter_catchments
           STREAM%TILING(2)%JM = 1
           STREAM%TILING(2)%name = "ROUTE_GRID"
        end if
@@ -798,7 +805,7 @@ contains
              call MAPL_SyncSharedMemory(RC=STATUS); _VERIFY(STATUS)
              if ( MAPL_am_I_root() ) read(UNIT) AVR
              call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
-             if (use_pfaf_) avr(:,1)=1
+             !if (use_pfaf_) avr(:,1)=1
              K = 0
              do I=1, NT
                 if(MSK(I)) then
@@ -863,7 +870,7 @@ contains
              call MAPL_BcastShared(vm, DATA=AVR, N=NT, ROOT=0, RootOnly=.false., RC=status)
              K = 0
              L = 0
-             if (use_pfaf_) avr(:,1)=1
+             !if (use_pfaf_) avr(:,1)=1
              do I=1, NT
                 if(MSK(I)) then
                    K = K + 1
