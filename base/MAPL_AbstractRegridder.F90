@@ -1,9 +1,9 @@
-#include "MAPL_ErrLog.h"
-#include "unused_dummy.H"
+#include "MAPL_Generic.h"
 
 module MAPL_AbstractRegridderMod
    use MAPL_BaseMod, only: MAPL_UNDEF
-   use MAPL_RegridderSpecMod
+   use mapl_RegridderSpec
+   use mapl_KeywordEnforcerMod
    use ESMF
    use MAPL_MemUtilsMod
    use MAPL_ExceptionHandling
@@ -12,7 +12,6 @@ module MAPL_AbstractRegridderMod
    private
    
    public :: AbstractRegridder
-   public :: REGRID_HINT_LOCAL
 
    type, abstract :: AbstractRegridder
       private
@@ -21,12 +20,13 @@ module MAPL_AbstractRegridderMod
       logical :: has_undef_value_ = .false.
    contains
       procedure :: clone
-!!$      procedure(clone), deferred :: clone
 
+      procedure, nopass :: supports
       procedure :: initialize_base
       procedure(initialize_subclass), deferred :: initialize_subclass
       generic :: initialize => initialize_base, initialize_subclass
       procedure :: get_spec
+      procedure :: set_spec
       procedure :: isTranspose
       
       procedure :: regrid_scalar_2d_real32
@@ -92,19 +92,14 @@ module MAPL_AbstractRegridderMod
 
    end type AbstractRegridder
 
-   integer, parameter :: REGRID_HINT_LOCAL = 1
 
    abstract interface
-!!$      function clone(this)
-!!$         import AbstractRegridder
-!!$         class (AbstractRegridder), allocatable :: clone
-!!$         class (AbstractRegridder), intent(in) :: this
-!!$      end function clone
 
       subroutine initialize_subclass(this, unusable, rc)
          use MAPL_KeywordEnforcerMod
-         use MAPL_RegridderSpecMod
+         use MAPL_RegridderSpec
          import AbstractRegridder
+         implicit none
          class (AbstractRegridder), intent(inout) :: this
          class (KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
@@ -113,7 +108,6 @@ module MAPL_AbstractRegridderMod
    end interface
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_AbstractRegridder::'
-
 
 contains
 
@@ -945,6 +939,12 @@ contains
       class (AbstractRegridder), intent(in) :: this
       spec = this%spec
    end function get_spec
+   
+   subroutine set_spec(this, spec)
+      class(AbstractRegridder), intent(inout) :: this
+      type(RegridderSpec), intent(in) :: spec
+      this%spec = spec
+   end subroutine set_spec
 
    function isTranspose(this) result(amTranspose)
       logical :: amTranspose
@@ -955,7 +955,7 @@ contains
 
    subroutine initialize_base(this, spec, unusable, rc)
       use MAPL_KeywordEnforcerMod
-      use MAPL_RegridderSpecMod
+      use MAPL_RegridderSpec
       class (AbstractRegridder), intent(inout) :: this
       type (RegridderSpec), intent(in) :: spec
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -981,5 +981,20 @@ contains
       allocate(clone, source=this)
 
    end function clone
+
+   ! Ideally this would be a DEFERRED method, but it is not needed for
+   ! the custom legacy regridders and providing a default fail, avoids
+   ! preserves backward compatibility for those.
+   logical function supports(spec, unusable, rc)
+      type(RegridderSpec), intent(in) :: spec
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(spec)
+      _UNUSED_DUMMY(unusable)
+
+      _FAIL('unimplemented')
+      _RETURN(_SUCCESS)
+   end function supports
 
 end module MAPL_AbstractRegridderMod

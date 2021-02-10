@@ -85,6 +85,7 @@ end interface
 interface MAPL_VarIsConnected
    module procedure MAPL_VarIsConnectedEE
    module procedure MAPL_VarIsConnectedIE
+   module procedure MAPL_VarIsConnectedName
 end interface
 
 interface MAPL_VarSpecPrint
@@ -1739,6 +1740,43 @@ contains
     MAPL_VarIsConnectedIE = .false.
     _RETURN(ESMF_SUCCESS)
   end function MAPL_VarIsConnectedIE
+
+  logical function MAPL_VarIsConnectedName(CONN, IMPORT_NAME, import, RC)
+    type (MAPL_VarConn ),        pointer       :: CONN(:)
+    character (len=*),           intent(IN   ) :: IMPORT_NAME
+    integer,                     intent(in   ) :: import
+    integer,           optional, intent(  OUT) :: RC     ! Error code:
+
+
+
+    integer                               :: I
+    integer                               :: TI
+
+    MAPL_VarIsConnectedName = .false.
+
+    if (.not. associated(CONN)) then
+       _RETURN(ESMF_SUCCESS)
+    end if
+
+! try to find a match with "TO"
+    DO I = 1, size(CONN)
+       if (CONN(I)%CONNptr%TO%SHORT_NAME /= IMPORT_NAME) then
+          cycle
+       end if
+
+       TI = CONN(I)%CONNptr%TO%IMPORT
+       if (TI /= IMPORT) then
+          cycle
+       end if
+
+       MAPL_VarIsConnectedName = .true.
+       _RETURN(ESMF_SUCCESS)
+    END DO
+
+
+    MAPL_VarIsConnectedName = .false.
+    _RETURN(ESMF_SUCCESS)
+  end function MAPL_VarIsConnectedName
 
   logical function MAPL_VarIsListed(CONN, SHORT_NAME, IMPORT, RC)
     type (MAPL_VarConn ),             pointer   :: CONN(:)

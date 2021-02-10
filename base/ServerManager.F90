@@ -37,7 +37,8 @@ contains
    end subroutine get_splitcomm
 
    subroutine initialize(this, comm, unusable, application_size, nodes_input_server, nodes_output_server,&
-                         npes_input_server,npes_output_server, oserver_type, npes_output_backend, rc)
+                         npes_input_server,npes_output_server, oserver_type, npes_output_backend, isolate_nodes, &
+                         fast_oclient, rc)
       class (ServerManager), intent(inout) :: this
       integer, intent(in) :: comm
       class (KeywordEnforcer),  optional, intent(in) :: unusable
@@ -46,16 +47,20 @@ contains
       integer, optional, intent(in) :: npes_input_server(:),npes_output_server(:)
       character(*), optional, intent(in) :: oserver_type
       integer, optional, intent(in) :: npes_output_backend
- 
+      logical, optional, intent(in) :: isolate_nodes
+      logical, optional, intent(in) :: fast_oclient
+      
       integer, optional, intent(out) :: rc
       integer, allocatable :: npes_in(:),npes_out(:),nodes_in(:),nodes_out(:)
       integer :: npes_out_backend, server_size
 
       type (SimpleCommSplitter) :: splitter
+      integer :: client_comm
       integer :: status, i, rank,npes_model,n_oserver_group, n_iserver_group
       character(len=:), allocatable :: s_name
       character(len=:), allocatable :: oserver_type_
       type(ClientThread), pointer :: clientPtr
+      logical :: isolated_
 
       _UNUSED_DUMMY(unusable)
 
@@ -95,6 +100,9 @@ contains
       npes_out_backend = 0
       if (present(npes_output_backend)) npes_out_backend = npes_output_backend
 
+      isolated_ = .true.
+      if (present(isolate_nodes)) isolated_ = isolate_nodes
+
       if (oserver_type_ == "multilayer" .or. oserver_type_ == 'multigroup') then
          _ASSERT(npes_out_backend >=2, "captain-soldier need at lease two beckend")
       endif
@@ -107,29 +115,29 @@ contains
      n_oserver_group = max(size(npes_out),size(nodes_out))
      this%directory_service = DirectoryService(comm)
      splitter = SimpleCommSplitter(comm)
-     call splitter%add_group(npes=npes_model, name='model', isolate_nodes=.true.)
+     call splitter%add_group(npes=npes_model, name='model', isolate_nodes=isolated_)
 
      if (npes_in(1) > 0) then
         do i = 1, size(npes_in)
            s_name ='i_server'//trim(i_to_string(i))
-           call splitter%add_group(npes=npes_in(i), name=s_name, isolate_nodes=.true.)
+           call splitter%add_group(npes=npes_in(i), name=s_name, isolate_nodes=isolated_)
         enddo
      elseif (nodes_in(1) > 0) then
         do i = 1, size(nodes_in)
            s_name ='i_server'//trim(i_to_string(i))
-           call splitter%add_group(nnodes=nodes_in(i), name=s_name, isolate_nodes=.true.)
+           call splitter%add_group(nnodes=nodes_in(i), name=s_name, isolate_nodes=isolated_)
         enddo
      end if
 
      if (npes_out(1) > 0 ) then
         do i = 1, size(npes_out)
           s_name ='o_server'//trim(i_to_string(i))
-          call splitter%add_group(npes=npes_out(i), name=s_name, isolate_nodes=.true.)
+          call splitter%add_group(npes=npes_out(i), name=s_name, isolate_nodes=isolated_)
         enddo
      else if(nodes_out(1) > 0) then
         do i = 1, size(nodes_out)
           s_name ='o_server'//trim(i_to_string(i))
-          call splitter%add_group(nnodes=nodes_out(i), name=s_name, isolate_nodes=.true.)
+          call splitter%add_group(nnodes=nodes_out(i), name=s_name, isolate_nodes=isolated_)
         enddo
      endif
 
@@ -138,15 +146,16 @@ contains
      s_name = this%split_comm%get_name()
 
      if ( index(s_name, 'model') /=0 ) then
+        client_comm = this%split_comm%get_subcommunicator()
         if (npes_in(1) == 0 .and. nodes_in(1) == 0) then
-           allocate(this%i_server, source = MpiServer(this%split_comm%get_subcommunicator(), 'i_server'//trim(i_to_string(1))))
+           allocate(this%i_server, source = MpiServer(client_comm, 'i_server'//trim(i_to_string(1))))
            call this%directory_service%publish(PortInfo('i_server'//trim(i_to_string(1)), this%i_server), this%i_server)
         end if
         if (npes_out(1) == 0 .and. nodes_out(1) == 0) then
-           allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), 'o_server'//trim(i_to_string(1))))
+           allocate(this%o_server, source = MpiServer(client_comm, 'o_server'//trim(i_to_string(1))))
            call this%directory_service%publish(PortInfo('o_server'//trim(i_to_string(1)), this%o_server), this%o_server)
         end if
-        call init_IO_ClientManager(n_i = n_iserver_group, n_o = n_oserver_group, rc = status)
+        call init_IO_ClientManager(client_comm, n_i = n_iserver_group, n_o = n_oserver_group, fast_oclient=fast_oclient, rc = status)
         _VERIFY(status)
      endif
 

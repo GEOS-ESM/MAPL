@@ -27,6 +27,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_StringGridMapMod
   use MAPL_GridManagerMod
   use MAPL_ConfigMod
+  use, intrinsic :: iso_fortran_env, only: INT64
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   use MAPL_HistoryCollectionMod, only: HistoryCollection, FieldSet
   use MAPL_HistoryCollectionVectorMod, only: HistoryCollectionVector
@@ -35,7 +36,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_ExceptionHandling
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
-  use MAPL_RegridderSpecMod
+  use mapl_RegridMethods
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
   use pFIO_ClientManagerMod, only: o_Clients
@@ -118,7 +119,7 @@ module MAPL_HistoryGridCompMod
   end type HISTORY_wrap
 
   type HISTORY_ExchangeListType
-     integer*8, pointer                  :: lsaddr_ptr(:) => null()
+     integer(kind=INT64), pointer                  :: lsaddr_ptr(:) => null()
   end type HISTORY_ExchangeListType
 
   type HISTORY_ExchangeListWrap
@@ -340,8 +341,8 @@ contains
     integer                                   :: localStatus, globalStatus
     integer, pointer :: allPes(:)
     integer          :: localPe(1), nactual, minactual
-    integer*8                                 :: ADDR
-    integer*8, pointer                        :: LSADDR_PTR(:) => null()
+    integer(kind=INT64)                                 :: ADDR
+    integer(kind=INT64), pointer                        :: LSADDR_PTR(:) => null()
     type(ESMF_State)                          :: state_out
     integer                                   :: fieldRank, gridRank
     integer                                   :: undist
@@ -1213,6 +1214,7 @@ contains
              call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
              RingTime = RefTime
           else
+             call ESMF_TimeIntervalSet( Frequency, MM=1, calendar=cal, rc=status ) ; _VERIFY(STATUS)
              !ALT keep the values from above
              ! and for debugging print
              call WRITE_PARALLEL("DEBUG: monthly averaging is active for collection "//trim(list(n)%collection))
@@ -1728,7 +1730,7 @@ ENDDO PARSER
             _ASSERT(IntState%Regrid(n)%PTR%gridname /= '','needs informative message')
 
 !ALT:       here we are getting the address of LocStream from the TILEGRID 
-!           as INTEGER*8 attribute and we are using a C routine to 
+!           as INTEGER(KIND=INT64) attribute and we are using a C routine to 
 !           set the pointer to LocStream
 
             call ESMF_AttributeGet(grid_in, name='TILEGRID_LOCSTREAM_ADDR', &
@@ -3566,9 +3568,10 @@ ENDDO PARSER
 
    enddo POSTLOOP
 
-   call o_Clients%done_collective_stage()
-   call o_Clients%wait() 
-
+   if (any(writing)) then
+      call o_Clients%done_collective_stage()
+      call o_Clients%post_wait()
+   endif
    call MAPL_TimerOff(GENSTATE,"-----IO Post")
    call MAPL_TimerOff(GENSTATE,"----IO Write")
 
@@ -4699,7 +4702,7 @@ ENDDO PARSER
 200 continue
     if( MAPL_AM_I_ROOT() ) then
        write(6,100) list%frequency, list%duration, tdim, trim(list%collection)
-100    format(1x,'Freq: ',i6.6,'  Dur: ',i6.6,'  TM: ',i4,'  Collection: ',a)
+100    format(1x,'Freq: ',i8.8,'  Dur: ',i8.8,'  TM: ',i4,'  Collection: ',a)
     endif
 
     return
@@ -4956,8 +4959,7 @@ ENDDO PARSER
 
                if (ifound_vloc) then
                   if (ivLoc /= Totloc(i) .and. totloc(i) /= MAPL_VLocationNone) then
-                     if (mapl_am_I_root()) write(*,*)'arithmetic expression has two different vlocations'
-                     _ASSERT(.false.,'needs informative message')
+                     _ASSERT(.false.,'arithmetic expression has two different vlocations')
                   end if
                else
                   if (totloc(i) /= MAPL_VLocationNone) then

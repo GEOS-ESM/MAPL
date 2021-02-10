@@ -1,15 +1,11 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
-
+#include "MAPL_Generic.h"
 module MAPL_LatLonToLatLonRegridderMod
    use MAPL_AbstractRegridderMod
    use MAPL_GridSpecMod
-   use MAPL_RegridderSpecMod
+   use MAPL_RegridderSpec
+   use mapl_RegridMethods
    use MAPL_KeywordEnforcerMod
+   use mapl_ErrorHandlingMod
    use ESMF
    
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -51,7 +47,6 @@ module MAPL_LatLonToLatLonRegridderMod
   character(len=*), parameter :: MOD_NAME = 'MAPL_LatLonToLatLonRegridder::'
 
 contains
-
 
    function newLatLonToLatLonRegridder(grid_in, grid_out, regrid_method, unusable, rc) result(regridder)
       use ESMF
@@ -100,7 +95,7 @@ contains
          do
             if(Xout(j_out  ) <= Xin(j0+1)) exit
             j0=j0+1
-            _ASSERT(j0 < N_in )
+            _ASSERT(j0 < N_in, 'index error')
          end do
          j1 = j0 + 1
 
@@ -145,14 +140,14 @@ contains
        do           
           if(Xout(j_out  )>=Xin(j0) .and. Xout(j_out  )<=Xin(j0+1)) exit
           j0=j0+1
-          _ASSERT(j0 <= N_in )
+          _ASSERT(j0 <= N_in, 'index error')
        end do
 
        j1 = j0
        do
           if(Xout(j_out+1)>=Xin(j1) .and. Xout(j_out+1)<=Xin(j1+1)) exit
           j1=j1+1
-          _ASSERT(j1 <= N_in )
+          _ASSERT(j1 <= N_in, 'index error')
        end do
 
        allocate(weight(j_out)%f(j0:j1), stat=status)
@@ -208,7 +203,7 @@ contains
 
       logical :: redistribute
 
-      _ASSERT(size(q_in,3) == size(q_out,3))
+      _ASSERT(size(q_in,3) == size(q_out,3), 'inconsistent array shape')
 
       spec = this%get_spec()
 
@@ -472,7 +467,7 @@ contains
 
    subroutine initialize_subclass(this, unusable, rc)
       use MAPL_KeywordEnforcerMod
-      use MAPL_RegridderSpecMod
+      use MAPL_RegridderSpec
       use MAPL_BaseMod, only: MAPL_GridGet
       use MAPL_GetLatLonCoordMod
       use MAPL_ConstantsMod, only: MAPL_PI_R8
@@ -500,11 +495,11 @@ contains
       ! Verify that grids are of the support type: 'LatLon'
       call ESMF_AttributeGet(spec%grid_in , name="GridType", value=grid_type, rc=status)
       _VERIFY(status)
-      _ASSERT(trim(grid_type) == 'LatLon')
+      _ASSERT(trim(grid_type) == 'LatLon', 'unsupported grid_in type: '//trim(grid_type))
         
       call ESMF_AttributeGet(spec%grid_out , name="GridType", value=grid_type, rc=status)
       _VERIFY(status)
-      _ASSERT(trim(grid_type) == 'LatLon')
+      _ASSERT(trim(grid_type) == 'LatLon', 'unsupported grid_out type: '//trim(grid_type))
       
       call MAPL_GridGet(spec%grid_in, globalCellCountPerDim=this%num_points_in, rc=status)
       _VERIFY(status)
@@ -567,15 +562,15 @@ contains
             else
                rngOut = 0
             end if
-!!$            _ASSERT(abs( (rngIn-rngOut)/rngIn ) < 1.e-5)
+!!$            _ASSERT(abs( (rngIn-rngOut)/rngIn ) < 1.e-5, 'range to small')
             if(xf_out(1) < xf_in(1)) then
                xf_out  = xf_out + int((xf_in(1)-xf_out(1))/rngIn+(MAPL_PI_R8/180.0d0))*rngIn
             else
                xf_out  = xf_out + int((xf_in(1)-xf_out(1))/rngIn)*rngIn
             end if
          end if
-         _ASSERT(xf_in(size(xf_in)) >= xf_out(size(xf_out)))
-         _ASSERT(xf_in(1) <= xf_out(1))
+         _ASSERT(xf_in(size(xf_in)) >= xf_out(size(xf_out)), 'incorrect bracketing?')
+         _ASSERT(xf_in(1) <= xf_out(1),'incorrect bracketing?')
          select case (spec%regrid_method)
          case (REGRID_METHOD_BILINEAR)
             call compute_linear_weights(this%mappings(dim)%WeightList, xf_in, xf_out, rc=status)
@@ -584,7 +579,7 @@ contains
             call compute_binning_weights(this%mappings(dim)%WeightList,xf_in,xf_out,hasPoles,rc=status)
             _VERIFY(status)
          case default
-            _ASSERT(.false.)
+            _FAIL('unsupported regrid method')
          end select
          deallocate(xg_in,xg_out,xf_in,xf_out)
          

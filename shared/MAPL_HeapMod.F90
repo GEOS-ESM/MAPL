@@ -188,18 +188,19 @@
 
     
     subroutine MAPL_DeAlloc_R_2D(A, RC)
-
       real, pointer                  :: A(:,:)
       integer, optional, intent(OUT) :: RC
 
       interface ival2
-         integer*8 function ival2(Ptr)
+         integer(kind=INT64) function ival2(Ptr)
+            use, intrinsic :: iso_fortran_env, only: INT64
            real, pointer :: Ptr(:,:)
          end function ival2
       end interface
 
       interface ival1
-         integer*8 function ival1(Ptr)
+         integer(kind=INT64) function ival1(Ptr)
+            use, intrinsic :: iso_fortran_env, only: INT64
            real, pointer :: Ptr(:)
          end function ival1
       end interface

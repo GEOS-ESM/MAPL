@@ -91,7 +91,6 @@ contains
 
 
   subroutine make_cfio(this, rc)
-    use MAPL_RegridderSpecMod
     class (ExtData_IoBundle), intent(inout) :: this
     integer, optional, intent(out) :: rc
 

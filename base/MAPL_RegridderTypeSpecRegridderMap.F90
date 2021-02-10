@@ -1,5 +1,5 @@
 module MAPL_RegridderTypeSpecRegridderMapMod
-   use MAPL_RegridderSpecMod, only: RegridderTypeSpec
+   use MAPL_RegridderTypeSpec, only: RegridderTypeSpec
    use MAPL_AbstractRegridderMod
 
 #define _key type(RegridderTypeSpec)

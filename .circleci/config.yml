@@ -3,7 +3,7 @@ version: 2.1
 executors:
   gcc-build-env:
     docker:
-      - image: gmao/ubuntu20-geos-env-mkl:6.0.16-openmpi_4.0.5-gcc_10.2.0
+      - image: gmao/ubuntu20-geos-env-mkl:v6.0.27-openmpi_4.0.5-gcc_10.2.0
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_AUTH_TOKEN
@@ -11,7 +11,8 @@ executors:
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
-    resource_class: xlarge
+    #XLARGE# resource_class: xlarge
+    resource_class: medium
 
 workflows:
   version: 2.1
@@ -61,12 +62,14 @@ jobs:
           name: "Build and install"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/MAPL/build
-            make -j"$(nproc)" install
+            #XLARGE# make -j"$(nproc)" install
+            make -j4 install
       - run:
           name: "Run MAPL Unit Tests"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/MAPL/build
-            make -j"$(nproc)" build-tests
+            #XLARGE# make -j"$(nproc)" build-tests
+            make -j4 build-tests
             # skip Performance tests (maybe doable on CircleCI?)
             ctest -R MAPL -LE PERFORMANCE --output-on-failure
 
@@ -89,7 +92,21 @@ jobs:
       - run:
           name: "Mepo checkout MAPL branch"
           command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm
+            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm/src/Shared/@MAPL
+
+            # Based a bit on: https://stackoverflow.com/a/55940371/1876449
+            #
+            # CIRCLE_PR_NUMBER is only available on forked PRs:
+            #
+            # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
+            #
+            # so if it exists we fetch the PR's branch. This fetch was
+            # figured out by looking at the MAPL build-and-test above
+            # which did work!
+            if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
+               git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
+            fi
+
             mepo checkout ${CIRCLE_BRANCH} MAPL
             mepo status
       - run:
@@ -103,8 +120,8 @@ jobs:
           name: "Build and install"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm/build
-            make -j"$(nproc)" install
-            #make -j2 install
+            #XLARGE# make -j"$(nproc)" install
+            make -j4 install
 
       # We need to persist the install for the next step
       - persist_to_workspace:
