@@ -94,7 +94,8 @@ contains
       call this%cap_server%get_splitcomm(split_comm)
       select case(split_comm%get_name())
       case('model')
-         call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, rc=status)
+         call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, &
+              & mpiCommunicator=split_comm%get_subcommunicator(), rc=status)
          _VERIFY(STATUS)
 
          config = ESMF_ConfigCreate(rc=status)

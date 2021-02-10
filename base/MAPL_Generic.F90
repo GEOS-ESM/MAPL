@@ -2808,7 +2808,10 @@ end subroutine MAPL_DateStampGet
        _VERIFY(STATUS)
        !!!! Memory leak !!!!
        allocate(root_composite)
-       root_composite = ConcreteComposite(MAPLOBJ)
+       ! TODO: test if workaround is needed for 10.2
+       ! workaround for gfortran 10.1
+!!$       root_composite = ConcreteComposite(MAPLOBJ)
+       call root_composite%initialize(MAPLOBJ)
        tmp_component => root_composite%get_component()
        select type (tmp_component)
        class is (MAPL_MetaComp)
@@ -4281,13 +4284,16 @@ end subroutine MAPL_DateStampGet
     integer :: STATUS
 
     class(AbstractComposite), pointer :: composite
+    type(ConcreteComposite), pointer :: t_composite
     ! Fixup uninitialized METAs
 
 
     ! Fixup uninitialized META objs.
     composite => STATE%get_composite()
     if (.not. associated(composite)) then
-       allocate(composite, source=ConcreteComposite(STATE))
+       allocate(t_composite)
+       call t_composite%initialize(STATE)
+       composite => t_composite
        call STATE%set_composite(composite)
     end if
     
@@ -5975,6 +5981,7 @@ end function MAPL_AddChildFromDSO
     type(ESMF_Grid)       :: GRD
 
     integer :: range_(2)
+    type(MAPL_VarSpec), pointer :: varspec
 
     if (present(range)) then
        range_ = range
@@ -6024,7 +6031,8 @@ end function MAPL_AddChildFromDSO
           end select Dimensionality
        end if
 
-       call MAPL_VarSpecSet(SPEC%var_specs%of(L), GRID=GRD, RC=STATUS )
+       varspec => SPEC%var_specs%of(L)
+       call MAPL_VarSpecSet(varspec, GRID=GRD, RC=STATUS )
        _VERIFY(STATUS)
 
     end do
@@ -6124,6 +6132,7 @@ end subroutine MAPL_StateCreateFromVarSpecNew
     logical                                 :: isCreated
 
     integer :: range_(2)
+    type(MAPL_VarSpec), pointer :: varspec
 
     if (present(range)) then
        range_ = range
@@ -6200,7 +6209,8 @@ end subroutine MAPL_StateCreateFromVarSpecNew
          else
             nestState = SPEC_STATE
          end if
-         call MAPL_VarSpecSet(spec%var_specs%of(L),STATE=nestState,RC=STATUS)
+         varspec => spec%var_specs%of(L)
+         call MAPL_VarSpecSet(varspec,STATE=nestState,RC=STATUS)
          _VERIFY(STATUS)
 
          call ESMF_AttributeSet(nestState, NAME='RESTART', VALUE=RESTART, RC=STATUS)
@@ -6228,7 +6238,8 @@ end subroutine MAPL_StateCreateFromVarSpecNew
          else
             BUNDLE = SPEC_BUNDLE
          end if
-         call MAPL_VarSpecSet(SPEC%var_specs%of(L),BUNDLE=BUNDLE,RC=STATUS)
+         varspec => SPEC%var_specs%of(L)
+         call MAPL_VarSpecSet(varspec,BUNDLE=BUNDLE,RC=STATUS)
          _VERIFY(STATUS)
 
          call ESMF_AttributeSet(BUNDLE, NAME='RESTART', VALUE=RESTART, RC=STATUS)
@@ -6429,7 +6440,8 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 !         _VERIFY(STATUS)
 
       endif
-      call MAPL_VarSpecSet(spec%var_specs%of(L),FIELD=FIELD,RC=STATUS)
+      varspec => SPEC%var_specs%of(L)
+      call MAPL_VarSpecSet(varspec,FIELD=FIELD,RC=STATUS)
       _VERIFY(STATUS)
 ! and in the FIELD in the state
 ! --------------------------
@@ -10181,6 +10193,8 @@ end subroutine MAPL_READFORCINGX
     type(ESMF_GridComp), pointer :: gridcomp
     type(ESMF_State), pointer :: child_import_state
     type(ESMF_State), pointer :: child_export_state
+    type (ESMF_State), pointer :: internal_state
+
     _UNUSED_DUMMY(EXPORT)
     call MAPL_InternalStateRetrieve(GC, STATE, RC=STATUS)
     _VERIFY(STATUS)
@@ -10281,7 +10295,8 @@ end subroutine MAPL_READFORCINGX
           call MAPL_GetResource( STATE, CFILETYPE, LABEL="DEFAULT_CHECKPOINT_TYPE:", default='pnc4', RC=STATUS )
           _VERIFY(STATUS)
        end if
-       call MAPL_ESMFStateWriteToFile(STATE%get_internal_state(), CLOCK, &
+       internal_state => STATE%get_internal_state()
+       call MAPL_ESMFStateWriteToFile(internal_state, CLOCK, &
                                       STATE%initial_state%INT_FNAME, &
                                       CFILETYPE, STATE, hdr/=0, oClients = o_Clients, &
                                     RC=STATUS)

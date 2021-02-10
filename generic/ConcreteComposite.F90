@@ -19,7 +19,7 @@ module mapl_ConcreteComposite
       procedure :: get_component
       procedure :: set_component
       procedure :: get_num_children
-
+      procedure :: initialize
 !!$      procedure :: is_leaf
 !!$      procedure :: is_root
    end type ConcreteComposite
@@ -48,6 +48,16 @@ contains
       composite%parent => parent
 
    end function new_composite
+
+   ! GFortran 10.1 crashes when the constructor (function) is used
+   ! probably because of the deep copy in the instrinsic assignment.
+   ! this initialize() method is a workaround.
+   subroutine initialize(this, component)
+      class(ConcreteComposite), intent(inout) :: this
+      class(AbstractFrameworkComponent), intent(in) :: component
+      this%component = component
+      this%parent => null()
+   end subroutine initialize
 
    function new_placeholder(parent) result(composite)
       type(ConcreteComposite) :: composite
