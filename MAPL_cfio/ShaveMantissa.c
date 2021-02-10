@@ -150,7 +150,7 @@ int ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int has_
 
   b = a;
   if(ain!=a) {
-    if(fabs(ain-a)<len) {
+    if(labs(ain-a)<len) {
       fprintf(stderr,"ShaveMantissa32: Overlapping arrays");
       return 3;
     }
