@@ -1893,7 +1893,11 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
   end if
 
   if (computeVariance .and. usableTranspose) then
-     _ASSERT(.false.,"Can not comput variance and transpose in LocStream!")
+     _ASSERT(.false.,"Can not compute variance and transpose in LocStream!")
+  end if
+
+  if (computeVariance .and. uSample) then
+     _ASSERT(.false.,"Can not compute variance and sample in LocStream!")
   end if
 
 ! Compute weighted average over masked locations
