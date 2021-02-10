@@ -7,7 +7,7 @@ set (srcs
     )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler TYPE SHARED)
-target_link_libraries (${this} PUBLIC gftl gftl-shared ${ESMF_LIBRARIES}
+target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared ${ESMF_LIBRARIES}
                                PRIVATE MPI::MPI_Fortran)
 # CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")

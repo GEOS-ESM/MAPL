@@ -9,5 +9,5 @@ set (srcs
 
 esma_add_library (${this} EXCLUDE_FROM_ALL SRCS ${srcs} NOINSTALL)
 
-target_link_libraries (${this} pfunit esmf NetCDF::NetCDF_Fortran)
+target_link_libraries (${this} PFUNIT::pfunit esmf NetCDF::NetCDF_Fortran)
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})

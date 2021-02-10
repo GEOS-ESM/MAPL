@@ -54,7 +54,7 @@ set (srcs
 
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared gftl MAPL.shared MPI::MPI_Fortran TYPE SHARED)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl MAPL.shared MPI::MPI_Fortran TYPE SHARED)
 
 target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
 
