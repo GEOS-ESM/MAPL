@@ -43,6 +43,7 @@ module MAPL_HistoryGridCompMod
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
+  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   !use ESMF_CFIOMOD
 
   implicit none
@@ -792,16 +793,24 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%ref_date, default=nymdc, &
 	                              label=trim(string) // 'ref_date:',rc=status )
        _VERIFY(STATUS)
+       _ASSERT(is_valid_date(list(n)%ref_date),'Invalid ref_date')
        call ESMF_ConfigGetAttribute ( cfg, list(n)%ref_time, default=000000, &
                                       label=trim(string) // 'ref_time:',rc=status )
        _VERIFY(STATUS)
+       _ASSERT(is_valid_time(list(n)%ref_time),'Invalid ref_time')
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=-999, &
 	                              label=trim(string) // 'end_date:',rc=status )
        _VERIFY(STATUS)
+       if (list(n)%end_date /= -999) then
+          _ASSERT(is_valid_date(list(n)%end_date),'Invalid end_date')
+       end if
        call ESMF_ConfigGetAttribute ( cfg, list(n)%end_time, default=-999, &
                                       label=trim(string) // 'end_time:',rc=status )
        _VERIFY(STATUS)
+       if (list(n)%end_time /= -999) then
+          _ASSERT(is_valid_time(list(n)%end_time),'Invalid end_time')
+       end if
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%duration, default=list(n)%frequency, &
 	                              label=trim(string) // 'duration:'  ,rc=status )

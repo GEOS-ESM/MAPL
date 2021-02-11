@@ -24,6 +24,7 @@ set (srcs
     MAPL_ExceptionHandling.F90
 
     String.F90
+    TimeUtils.F90
   )
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared MPI::MPI_Fortran pflogger TYPE SHARED)
 target_include_directories (${this} PUBLIC
