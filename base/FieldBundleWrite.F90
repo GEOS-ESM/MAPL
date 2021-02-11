@@ -21,10 +21,13 @@ module MAPL_ESMFFieldBundleWrite
          procedure :: create_from_bundle
          procedure :: write_to_file
    end type
+   interface MAPL_Write_Bundle
+      module procedure Write_bundle_single_time
+   end interface
    
    contains
       
-      subroutine MAPL_Write_bundle(bundle,clock,output_file,nbits,deflate,rc)
+      subroutine write_bundle_single_time(bundle,clock,output_file,nbits,deflate,rc)
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
          character(len=*), intent(in) :: output_file
@@ -41,7 +44,7 @@ module MAPL_ESMFFieldBundleWrite
          call newWriter%write_to_file(rc=status)
          _VERIFY(status)
          _RETURN(_SUCCESS)
-      end subroutine MAPL_Write_Bundle
+      end subroutine write_bundle_single_time
 
       subroutine create_from_bundle(this,bundle,clock,output_file,n_steps,time_interval,nbits,deflate,rc)
          class(FieldBundleWRiter), intent(inout) :: this

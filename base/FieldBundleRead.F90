@@ -25,22 +25,21 @@ module MAPL_ESMFFieldBundleRead
    implicit none
    private
   
-   public MAPL_create_bundle_from_file
+   public MAPL_create_bundle_from_metdata_id
    public MAPL_read_bundle 
    contains
 
-      subroutine MAPL_create_bundle_from_file(bundle,file_name,file_grid,only_vars,rc)
+      subroutine MAPL_create_bundle_from_metdata_id(bundle,metadata_id,file_name,only_vars,rc)
          type(ESMF_FieldBundle), intent(inout) :: bundle
+         integer, intent(in) :: metadata_id
          character(len=*), intent(in) :: file_name
-         type(ESMF_Grid), intent(in) :: file_grid
          character(len=*), optional, intent(in) :: only_vars
          integer, optional, intent(out) :: rc
          
          integer :: status
-         type(FileMetadata) :: basic_metadata
-         type(FileMetadataUtils) :: metadata
-         type (NetCDF4_FileFormatter) :: formatter
-         type(ESMF_Grid) :: grid
+         type(MAPLExtDataCollection), pointer :: collection => null()
+         type(fileMetaDataUtils), pointer :: metadata
+         type(ESMF_Grid) :: grid,file_grid
          integer :: num_fields,var_present,dims,location
          logical :: create_variable, has_vertical_level, var_has_levels
          class (AbstractGridFactory), pointer :: factory
@@ -57,11 +56,9 @@ module MAPL_ESMFFieldBundleRead
          type (StringVectorIterator) :: dim_iter
          integer :: lev_size, grid_size(3)
 
-         call formatter%open(file_name, pFIO_READ,rc=status)
-         _VERIFY(status)
-         basic_metadata = formatter%read(rc=status)
-         _VERIFY(status)
-         call metadata%create(basic_metadata,file_name)
+         collection => ExtDataCollections%at(metadata_id)
+         metadata => collection%find(trim(file_name))
+         file_grid=collection%src_grid
          lev_name = metadata%get_level_name(rc=status)
          _VERIFY(status)
          has_vertical_level = (metadata%get_level_name(rc=status)/='')
@@ -92,15 +89,15 @@ module MAPL_ESMFFieldBundleRead
                   call dim_iter%next()
                enddo
             end if
-            
-            if (index(exclude_vars,trim(var_name)) > 0) then
+
+            if (index(','//trim(exclude_vars)//',',','//trim(var_name)//',') > 0) then
                call var_iter%next()
-               cycle
-            end if
+                  cycle
+               end if
             create_variable = .true.
             if (present(only_vars)) then
-               if (index(only_vars,trim(var_name)) < 1) create_variable = .false.
-            end if
+               if (index(','//trim(only_vars)//',',','//trim(var_name)//',') < 1) create_variable = .false.
+            end if            
             if (create_variable) then
                if(var_has_levels) then 
                    if (grid_size(3) == lev_size) then
@@ -136,7 +133,7 @@ module MAPL_ESMFFieldBundleRead
 
          _RETURN(_SUCCESS)
  
-      end subroutine MAPL_create_bundle_from_file
+      end subroutine MAPL_create_bundle_from_metdata_id
 
       subroutine MAPL_read_bundle(bundle,file_tmpl,time,only_vars,regrid_method,rc)
          type(ESMF_FieldBundle), intent(inout) :: bundle
@@ -156,7 +153,6 @@ module MAPL_ESMFFieldBundleRead
          type(newCFIOItemVector)            :: items
          character(len=ESMF_MAXSTR), allocatable :: field_names(:)
          type(newCFIOitem) :: item
-         type(ESMF_Grid) :: file_grid
         
          call fill_grads_template(file_name,file_tmpl,time=time,rc=status)
          _VERIFY(status)
@@ -166,7 +162,6 @@ module MAPL_ESMFFieldBundleRead
          metadata_id = MAPL_ExtDataAddCollection(trim(file_tmpl))
          collection => ExtDataCollections%at(metadata_id)
          metadata => collection%find(trim(file_name))
-         file_grid=collection%src_grid
          call metadata%get_time_info(timeVector=time_series,rc=status)
          _VERIFY(status)
          time_index=-1
@@ -182,7 +177,7 @@ module MAPL_ESMFFieldBundleRead
          call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,rc=status)
          _VERIFY(status)
          if (num_fields ==0) then
-            call MAPL_create_bundle_from_file(bundle,file_name,file_grid,only_vars=only_vars,rc=status)
+            call MAPL_create_bundle_from_metdata_id(bundle,metadata_id,file_name,only_vars=only_vars,rc=status)
             _VERIFY(status)
          end if
          
