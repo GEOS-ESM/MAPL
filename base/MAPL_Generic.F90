@@ -10966,10 +10966,10 @@ end subroutine MAPL_GenericStateRestore
       class(Logger), pointer :: lgr
       integer, optional, intent(out) :: rc
 
-      class(Logger), pointer :: meta_lgr
-
-      meta_lgr => logging%get_logger('MAPL.GENERIC')
-      call meta_lgr%warning('obsolete interface MAPL_GetLogger()')
+!!$      class(Logger), pointer :: meta_lgr
+!!$
+!!$      meta_lgr => logging%get_logger('MAPL.GENERIC')
+!!$      call meta_lgr%warning('obsolete interface MAPL_GetLogger()')
 
       lgr => meta%get_logger()
 
