@@ -9,7 +9,7 @@ add_pfunit_ctest(MAPL.generic.tests
                 LINK_LIBRARIES MAPL.generic MAPL.shared MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
-		MAX_PES 5
+		MAX_PES 1
                 )
 
 add_dependencies(tests MAPL.generic.tests)
