@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add option to compute variance of tiles when doing T2G locstream transform
 - Add option fast_oclient that waits before using oserver. It would not wait after done message are sent 
 - Added new `is_valid_date()` and `is_valid_time()` functions to make
   sure invalid times and dates are not sent to MAPL
