@@ -12,7 +12,7 @@ add_pfunit_ctest(MAPL.generic.tests
 		MAX_PES 1
                 )
 
-add_dependencies(tests MAPL.generic.tests)
+add_dependencies(build-tests MAPL.generic.tests)
 	      
 
 
