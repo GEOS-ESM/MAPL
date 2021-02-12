@@ -184,9 +184,7 @@ contains
             first = .false.
         end if
 
-        call cap%nuopc_fill_mapl_comm(rc=status)
-        _VERIFY(status)
-        call cap%initialize_cap_gc(cap%get_mapl_comm())
+        call cap%initialize_cap_gc()
 
         call cap%cap_gc%set_services(rc=status)
         _VERIFY(status)

@@ -29,17 +29,17 @@ set (SRCS
 # This file needs to be in a library because CMake cannot detect the
 # dependency of the pFUnit driver on it.  This is due to the use of
 # preprocesor in the driver for specifying the include file.
-add_library (pfio_extras
-  pFIO_Initialize.F90
-  )
-target_link_libraries (pfio_extras PUBLIC MAPL_pFUnit MAPL.shared)
+#add_library (pfio_extras
+#  pFIO_Initialize.F90
+#  )
+#target_link_libraries (pfio_extras PUBLIC MAPL.pfunit MAPL.shared)
 
 add_pfunit_ctest(MAPL.pfio.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
-                LINK_LIBRARIES MAPL.pfio pfio_extras 
+                LINK_LIBRARIES MAPL.pfio MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
-                EXTRA_USE pFIO_pFUNIT_Initialize
+                EXTRA_USE MAPL_pFUnit_Initialize
                 MAX_PES 8
                 )
 

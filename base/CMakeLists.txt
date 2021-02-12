@@ -28,10 +28,10 @@ set (srcs
   MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
   MAPL_CapOptions.F90                   MAPL_TilingRegridder.F90
   MAPL_CFIO.F90                         MAPL_IO.F90                         MAPL_TimeMethods.F90
-  MAPL_CFIOServer.F90                   MAPL_LatLonGridFactory.F90          MAPL_TransposeRegridder.F90
+  MAPL_LatLonGridFactory.F90          MAPL_TransposeRegridder.F90
   MAPL_Comms.F90                        MAPL_LatLonToLatLonRegridder.F90    MAPL_TripolarGridFactory.F90
   MAPL_LlcGridFactory.F90
-  MAPL_Config.F90                       MAPL_LocStreamMod.F90               MAPL_VarSpecMod.F90
+  MAPL_Config.F90                       MAPL_LocStreamMod.F90
   MAPL_ConservativeRegridder.F90        MAPL_MaxMinMod.F90                  MAPL_VerticalInterpMod.F90
   MAPL_CubedSphereGridFactory.F90       MAPL_MemUtils.F90                   MAPL_VerticalMethods.F90
   MAPL_DefGridName.F90                  MAPL_Mod.F90                        MAPL_VotingRegridder.F90
@@ -47,6 +47,7 @@ set (srcs
   regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90
   regex_F.c
   c_mapl_locstream_F.c  getrss.c  memuse.c
+  # new generic - needs to move eventually
   )
 
 if (BUILD_WITH_FLAP)
@@ -55,7 +56,7 @@ endif()
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 pflogger gftl-shared
+  DEPENDENCIES MAPL.generic MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 pflogger gftl-shared
                esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE SHARED)
 

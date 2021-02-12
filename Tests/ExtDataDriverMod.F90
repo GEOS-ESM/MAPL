@@ -28,7 +28,6 @@ module ExtDataDriverMod
       type(DirectoryService) :: directory_service
       class (MAPL_CapOptions), allocatable :: cap_options
       type(SplitCommunicator) :: split_comm
-      type(MAPL_Communicators) :: mapl_comm
 
    contains
       procedure :: run
@@ -93,10 +92,10 @@ contains
 
       call this%initialize_io_clients_servers(commCap, rc = status); _VERIFY(status)
       call this%cap_server%get_splitcomm(split_comm)
-      call fill_mapl_comm(split_comm, commCap, this%mapl_comm, rc=status)
       select case(split_comm%get_name())
       case('model')
-         call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=this%mapl_comm%esmf%comm, rc=status)
+         call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, &
+              & mpiCommunicator=split_comm%get_subcommunicator(), rc=status)
          _VERIFY(STATUS)
 
          config = ESMF_ConfigCreate(rc=status)
@@ -122,7 +121,7 @@ contains
 
             if (mapl_am_I_root()) write(*,*)"Running new case"
             cname => iter%get()
-            cap = new_ExtData_DriverGridComp(root_setservices, this%mapl_comm, name=this%name, configFileName=cname)
+            cap = new_ExtData_DriverGridComp(root_setservices, name=this%name, configFileName=cname)
             call cap%set_services(rc = status)
             _VERIFY(status)
             call cap%initialize(rc = status)
@@ -210,68 +209,6 @@ contains
 
    end subroutine initialize_mpi
 
-    subroutine fill_mapl_comm(split_comm, gcomm, mapl_comm, unusable, rc) 
-      type (SplitCommunicator), intent(in) :: split_comm
-      integer, intent(in) :: gcomm
-      type (MAPL_Communicators), intent(OUT) :: mapl_comm
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: comm
-      integer :: status
-      integer, parameter :: MAPL_TAG_GLOBAL_IOROOT_RANK = 987
-      character(len=:), allocatable :: s_name
-
-      _UNUSED_DUMMY(unusable)
-
-      mapl_comm%mapl%comm = gcomm
-      mapl_comm%global%comm = gcomm
-      mapl_comm%esmf%comm = MPI_COMM_NULL
-      mapl_comm%io%comm = MPI_COMM_NULL
-
-      comm = split_comm%get_subcommunicator()
-      s_name = split_comm%get_name()
-
-      if (index(s_name,'o_server') /=0) then
-         mapl_comm%io%comm = comm
-      endif
-
-      if (index(s_name,'model') /=0) then
-         mapl_comm%esmf%comm = comm
-      endif
-
-      call fill_comm(mapl_comm%mapl, rc=status); _VERIFY(status)
-      call fill_comm(mapl_comm%global, rc=status); _VERIFY(status)
-      call fill_comm(mapl_comm%esmf, rc=status); _VERIFY(status)
-      call fill_comm(mapl_comm%io, rc=status); _VERIFY(status)
-
-! Find the global rank of root in the io communicator      
-! WJ notes:  If the users want to use the old server, use defalut n_oserver_group = 1
-
-    return
-
-    end subroutine fill_mapl_comm
-
-    subroutine fill_comm(mcomm, rc)
-      type (MAPL_Communicator), intent(inout) :: mcomm
-      integer, optional, intent(out) :: rc
-      integer :: comm
-      integer :: status
-
-      comm = mcomm%comm
-      if (comm == MPI_COMM_NULL) then
-         mcomm%size = 0
-         mcomm%rank = MPI_UNDEFINED
-         mcomm%root = MPI_UNDEFINED
-      else
-         call MPI_Comm_Size(comm, mcomm%size,status)
-         _VERIFY(status)
-         call MPI_Comm_Rank(comm, mcomm%rank,status)
-         _VERIFY(status)
-         mcomm%root = 0
-      end if
-      _RETURN(ESMF_SUCCESS)
-    end subroutine fill_comm
 
 end module ExtDataDriverMod
 

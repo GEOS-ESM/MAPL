@@ -22,7 +22,6 @@ module MAPL_HistoryGridCompMod
   use MAPL_GenericCplCompMod
   use MAPL_NewArthParserMod
   use MAPL_SortMod
-  use MAPL_CFIOServerMod
   use MAPL_ShmemMod
   use MAPL_StringGridMapMod
   use MAPL_GridManagerMod
@@ -238,7 +237,7 @@ contains
 ! \begin{description}
 ! \item[filename]     Character string defining the filename of a particular diagnostic output stream.
 ! \item[template]     Character string defining the time stamping template following GrADS convensions. The default value depends on the duration of the file.
-! \item[format]       Character string defining file format ("flat" or "CFIO" or "CFIOasync"). Default = "flat".
+! \item[format]       Character string defining file format ("flat" or "CFIO"). Default = "flat".
 ! \item[mode]         Character string equal to "instantaneous" or "time-averaged". Default = "instantaneous".
 ! \item[descr]        Character string equal to the list description. Defaults to "expdsc".
 ! \item[frequency]    Integer (HHMMSS) for the frequency of output.  Default = 060000.
@@ -380,10 +379,6 @@ contains
     logical          :: DoCopy
     type(ESMF_State) :: parser_state
     type(ESMF_Field) :: parser_field
-
-!   Async cfio option
-    type(MAPL_Communicators)       :: mapl_comm
-    logical                        :: doAsync
 
 !   Single colum flag used to set different defalut for TM
     integer                        :: snglcol
@@ -2392,7 +2387,7 @@ ENDDO PARSER
 
     do n=1,nlist
        if (list(n)%disabled) cycle
-       if (list(n)%format == 'CFIO' .or. list(n)%format == 'CFIOasync') then
+       if (list(n)%format == 'CFIO') then
           call Get_Tdim (list(n), clock, tm)
           if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
              list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,rc=status)
@@ -2519,23 +2514,6 @@ ENDDO PARSER
          print *
       enddo
    endif
-
-    doAsync = .false.
-    do n=1,nlist
-       if (list(n)%format == 'CFIOasync') then
-          doAsync = .true.
-          exit
-       end if
-    enddo
-
-    if (doAsync) then
-       call MAPL_Get(GENSTATE,mapl_comm=mapl_comm,rc=status)
-       _VERIFY(STATUS)
-       if (mapl_comm%io%size == 0) then
-          call WRITE_PARALLEL('You requested the asynchronous option but did not allocate any resources')
-          _ASSERT(.false.,'needs informative message')
-       end if
-    end if
 
     deallocate(stateListAvail)
     deallocate( statelist )
@@ -3232,7 +3210,6 @@ ENDDO PARSER
     integer                        :: nymd, nhms
     character(len=ESMF_MAXSTR)     :: DateStamp
     integer                        :: CollBlock
-    type(MAPL_Communicators)       :: mapl_Comm
     type(ESMF_Time)                :: current_time
 
 !   variables for "backwards" mode
@@ -3267,9 +3244,6 @@ ENDDO PARSER
 !------------------------------------------
 
     call MAPL_GetObjectFromGC ( gc, GENSTATE, RC=STATUS)
-    _VERIFY(STATUS)
-
-    call MAPL_Get(GENSTATE,mapl_comm=mapl_comm,rc=status)
     _VERIFY(STATUS)
 
     call MAPL_TimerOn(GENSTATE,"TOTAL")
@@ -3681,7 +3655,7 @@ ENDDO PARSER
    do n=1,nlist
       deallocate(list(n)%r4, list(n)%r8, list(n)%r8_to_r4)
       if (list(n)%disabled) cycle
-      IF (list(n)%format == 'CFIO' .or. list(n)%format == 'CFIOasync') then
+      IF (list(n)%format == 'CFIO') then
          if( MAPL_CFIOIsCreated(list(n)%mcfio) ) then
             CALL MAPL_CFIOdestroy (list(n)%mcfio, rc=STATUS)
             _VERIFY(STATUS)
@@ -3715,17 +3689,6 @@ ENDDO PARSER
    enddo
 #endif
 
-   !call MAPL_Get(GENSTATE,maplcomm=mapl_comm,rc=status)
-   !_VERIFY(STATUS)
-   !if (mapl_comm%io%size > 0) then
-      !if (mapl_am_i_root()) then
-         !call MPI_Send(mapl_comm%global%rank,1,MPI_INTEGER,mapl_comm%io%root,MAPL_TAG_NORMALEXIT, &
-                       !mapL_comm%mapl%comm,status)
-         !_VERIFY(STATUS)
-         !call MPI_Recv(n,1,MPI_INTEGER,mapl_comm%io%root,MAPL_TAG_WORKEREXIT, &
-                       !mapl_comm%mapl%comm,MPI_STATUS_IGNORE,status)
-      !end if
-   !end if
 
     call MAPL_TimerOff(GENSTATE,"Finalize")
     call MAPL_TimerOff(GENSTATE,"TOTAL")
@@ -5140,6 +5103,8 @@ ENDDO PARSER
     character(len=ESMF_MAXSTR)       :: fname_saved, filename
     type (MAPL_MetaComp), pointer    :: meta
 
+    _UNUSED_DUMMY(import)
+    _UNUSED_DUMMY(export)
 ! Check if it is time to do anything
     doRecord = .false.
 
