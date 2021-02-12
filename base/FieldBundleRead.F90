@@ -135,12 +135,13 @@ module MAPL_ESMFFieldBundleRead
  
       end subroutine MAPL_create_bundle_from_metdata_id
 
-      subroutine MAPL_read_bundle(bundle,file_tmpl,time,only_vars,regrid_method,rc)
+      subroutine MAPL_read_bundle(bundle,file_tmpl,time,only_vars,regrid_method,noread,rc)
          type(ESMF_FieldBundle), intent(inout) :: bundle
          character(len=*), intent(in) :: file_tmpl
          type(ESMF_Time), intent(in) :: time
          character(len=*), optional, intent(in) :: only_vars
          integer, optional, intent(in) :: regrid_method
+         logical, optional, intent(in) :: noread
          integer, optional, intent(out) :: rc
 
          integer :: status
@@ -179,6 +180,11 @@ module MAPL_ESMFFieldBundleRead
          if (num_fields ==0) then
             call MAPL_create_bundle_from_metdata_id(bundle,metadata_id,file_name,only_vars=only_vars,rc=status)
             _VERIFY(status)
+         end if
+         if (present(noread)) then
+            if (noread) then
+               _RETURN(_SUCCESS)
+            end if
          end if
          
          call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,rc=status)
