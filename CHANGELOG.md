@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [2.6.0] - 2021-02-12
+
+### Added
+
 - Add option to compute variance of tiles when doing T2G locstream transform
 - Add option fast_oclient that waits before using oserver. It would not wait after done message are sent 
 - Added new `is_valid_date()` and `is_valid_time()` functions to make
@@ -41,38 +51,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
        These are isolate the responsibility for managing the component hierarchy. 
        CompositeComponite then blends in ConcreteComposite into the 
        AbstractFrameworkComponent class.
-       
+    
     5. Extracted internal state from MAPL_MetaComp
     
     6. Started moving derived types related to import/export specification
        and such.    The goal will be to then refactor into proper classes
        with encapsulation.
     
-    7.  Introducing Vector container for array of pointers to VarSpecType.
+    7. Introducing Vector container for array of pointers to VarSpecType.
     
-        First brute force attempt resulted in run-time issues that were
-        difficult to trace.  So going gradually.  Have introduced a
-        StateSpecification type that hold the legacy array of pointers and a
-        vector and methods that will enable keeping both representations
-        consistent.
+       First brute force attempt resulted in run-time issues that were
+       difficult to trace.  So going gradually.  Have introduced a
+       StateSpecification type that hold the legacy array of pointers and a
+       vector and methods that will enable keeping both representations
+       consistent.
     
-        New representation is not used yet.
+       New representation is not used yet.
     
-        Various attempts to update use of MAPL_VarSpec based
-        upon vectors were failing due to multiple pointer associations
-        across objects.
+       Various attempts to update use of MAPL_VarSpec based
+       upon vectors were failing due to multiple pointer associations
+       across objects.
     
-        The basic vector was modified to be MAPL_VarSpec instead of
-        MAPL_VarSpecType, and now all works.
+       The basic vector was modified to be MAPL_VarSpec instead of
+       MAPL_VarSpecType, and now all works.
     
-        Wrapped new procedure with legacy interface.
+       Wrapped new procedure with legacy interface.
     
-        HistoryGridComp uses the older interface in a way that is
-        not immediately fixable.
+       HistoryGridComp uses the older interface in a way that is
+       not immediately fixable.
     
-    8.  MAPL_GenericGrid
-        - Created new module in generic for and renamed to MaplGrid
-        - moved component from MAPL_MetaComp to BaseFrameworkComponent
+    8. MAPL_GenericGrid
+       - Created new module in generic for and renamed to MaplGrid
+       - moved component from MAPL_MetaComp to BaseFrameworkComponent
     
     9. Moved 'lgr' component to baseFrameworkComponent.
        - Add obsolete warning to deprecated interface
@@ -103,7 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     
     16. MAPL_Initialize is needed in each test layer so pulled
         it over to the pfunit directory.
-	
+
 ### Fixed
 
 - Fixes for allowing forked PRs to pass CI
