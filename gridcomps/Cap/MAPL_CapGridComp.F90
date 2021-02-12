@@ -19,7 +19,6 @@ module MAPL_CapGridCompMod
   use MAPL_HistoryGridCompMod, only : HISTORY_ExchangeListWrap
   use MAPL_ExtDataGridCompMod, only : ExtData_SetServices => SetServices
   use MAPL_ExtDataGridCompMod, only : T_EXTDATA_STATE, EXTDATA_WRAP
-  use MAPL_CFIOServerMod
   use MAPL_ConfigMod
   use MAPL_DirPathMod
   use MAPL_KeywordEnforcerMod
@@ -28,6 +27,7 @@ module MAPL_CapGridCompMod
   use pFIO
   use gFTL_StringVector
   use pflogger, only: logging, Logger
+  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
 
   use iso_fortran_env
   
@@ -43,16 +43,14 @@ module MAPL_CapGridCompMod
      type (ESMF_GridComp)          :: gc
      procedure(), pointer, nopass  :: root_set_services => null()
      character(len=:), allocatable :: final_file, name, cap_rc_file
-     type (MAPL_Communicators)     :: mapl_comm
-!!$     integer     :: mapl_comm
      integer :: nsteps, heartbeat_dt, perpetual_year, perpetual_month, perpetual_day
      logical :: amiroot, lperp, started_loop_timer
      integer :: extdata_id, history_id, root_id, printspec
      type(ESMF_Clock) :: clock, clock_hist
      type(ESMF_Config) :: cf_ext, cf_root, cf_hist, config
-     type(ESMF_GridComp), pointer :: gcs(:) => null()
+     type(ESMF_GridComp), allocatable :: gcs(:)
      type(ESMF_State), public :: import_state, export_state
-     type(ESMF_State), pointer :: child_imports(:) => null(), child_exports(:) => null()
+     type(ESMF_State), allocatable :: child_imports(:), child_exports(:)
      type(ESMF_VM) :: vm
      real(kind=real64) :: loop_start_timer
      type(ESMF_Time) :: cap_restart_time
@@ -93,22 +91,20 @@ module MAPL_CapGridCompMod
 contains
 
   
-  subroutine MAPL_CapGridCompCreate(cap, mapl_comm, root_set_services, cap_rc, name, final_file)
+   subroutine MAPL_CapGridCompCreate(cap, root_set_services, cap_rc, name, final_file)
+      use mapl_StubComponent
     type(MAPL_CapGridComp), intent(out), target :: cap
-    type (MAPL_Communicators), intent(in) :: mapl_comm
-!!$    integer, intent(in) :: mapl_comm
     procedure() :: root_set_services
     character(*), intent(in) :: cap_rc, name
     character(len=*), optional, intent(in) :: final_file
 
     type(MAPL_CapGridComp_Wrapper) :: cap_wrapper
-    type(MAPL_MetaComp), pointer :: meta
+    type(MAPL_MetaComp), pointer :: meta => null()
     integer :: status, rc
     character(*), parameter :: cap_name = "CAP"
-
+    type(StubComponent) :: stub_component
     
     cap%cap_rc_file = cap_rc
-    cap%mapl_comm = mapl_comm
     cap%root_set_services => root_set_services
     if (present(final_file)) then
        allocate(cap%final_file, source=final_file)
@@ -123,10 +119,11 @@ contains
     cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, rc=status)
     _VERIFY(status)
 
+    meta => null()
     call MAPL_InternalStateCreate(cap%gc, meta, rc=status)
     _VERIFY(status)
 
-    call MAPL_Set(meta, name=cap_name, rc=status)
+    call MAPL_Set(meta, name=cap_name, component=stub_component, rc=status)
     _VERIFY(status)
 
     cap_wrapper%ptr => cap
@@ -221,8 +218,6 @@ contains
 
     !  CAP's MAPL MetaComp
     !---------------------
-    call MAPL_Set(MAPLOBJ, mapl_comm = cap%mapl_Comm, rc = status)
-    _VERIFY(STATUS)
 
     ! Note the call to GetLogger must be _after_ the call to MAPL_Set().
     ! That call establishes the name of this component which is used in
@@ -580,7 +575,8 @@ contains
     !  Query MAPL for the the children's for GCS, IMPORTS, EXPORTS
     !-------------------------------------------------------------
 
-    call MAPL_Get(MAPLOBJ, gcs = cap%gcs, gim = cap%child_imports, gex = cap%child_exports, rc = status)
+    call MAPL_Get(MAPLOBJ, childrens_gridcomps = cap%gcs, &
+         childrens_import_states = cap%child_imports, childrens_export_states = cap%child_exports, rc = status)
     _VERIFY(status)
 
 
@@ -1530,6 +1526,8 @@ contains
 
     call MAPL_GetResource( MAPLOBJ, datetime, label='BEG_DATE:', rc=STATUS )
     if(STATUS==ESMF_SUCCESS) then
+       _ASSERT(is_valid_date(datetime(1)),'Invalid date in BEG_DATE')
+       _ASSERT(is_valid_time(datetime(2)),'Invalid time in BEG_DATE')
        CALL MAPL_UnpackDateTime(DATETIME, BEG_YY, BEG_MM, BEG_DD, BEG_H, BEG_M, BEG_S)
     else
 
@@ -1555,6 +1553,8 @@ contains
 
     call MAPL_GetResource( MAPLOBJ, datetime, label='END_DATE:', rc=STATUS )
     if(STATUS==ESMF_SUCCESS) then
+       _ASSERT(is_valid_date(datetime(1)),'Invalid date in END_DATE')
+       _ASSERT(is_valid_time(datetime(2)),'Invalid time in END_DATE')
        CALL MAPL_UnpackDateTime(DATETIME, END_YY, END_MM, END_DD, END_H, END_M, END_S)
     else
        ! !RESOURCE_ITEM: year :: Ending year (integer)
@@ -1687,6 +1687,8 @@ contains
     read(UNIT,100,err=999,end=999) datetime
 100 format(i8.8,1x,i6.6)
 
+    _ASSERT(is_valid_date(DATETIME(1)),'Invalid date in cap_restart')
+    _ASSERT(is_valid_time(DATETIME(2)),'Invalid time in cap_restart')
     CALL MAPL_UnpackDateTime(DATETIME, CUR_YY, CUR_MM, CUR_DD, CUR_H, CUR_M, CUR_S)
 
     call MAPL_GetLogger(MAPLOBJ, lgr, rc=status)
