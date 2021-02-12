@@ -244,7 +244,7 @@ CONTAINS
 
     call UnpackGridName(Gridname,im_world_new,jm_world_new,dateline_new,pole_new)
 
-    cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,__RC__)
+    cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,newcube,__RC__)
     grid_new=grid_manager%make_grid(cfoutput,prefix=trim(gridname)//".",__RC__)
 
     if (mapl_am_i_root()) write(*,*)'done making grid'
@@ -359,7 +359,7 @@ CONTAINS
      end if
     end subroutine guesspole_and_dateline 
 
-    function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,rc) result(cf)
+    function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,newCube,rc) result(cf)
        use MAPL_ConfigMod
        type(ESMF_Config)              :: cf
        character(len=*), intent(in) :: grid_name
@@ -367,6 +367,7 @@ CONTAINS
        integer, intent(in)          :: nx,ny
        integer, intent(in)          :: lm
        real, intent(in)             :: cs_stretch_param(3)
+       logical, intent(in)          :: newCube
        integer, optional, intent(out) :: rc
 
        character(len=ESMF_MAXSTR),parameter :: Iam = "create_cf"
@@ -384,8 +385,13 @@ CONTAINS
        call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",rc=status)
        VERIFY_(status)
        if (jm_world==6*im_world) then
-          call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",rc=status)
-          VERIFY_(status)
+          if (newCube) then
+             call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",rc=status)
+             VERIFY_(status)
+          else
+             call MAPL_ConfigSetAttribute(cf,value="Old-Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",rc=status)
+             VERIFY_(status)
+          end if
           call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",rc=status)
           VERIFY_(status)
           call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",rc=status)

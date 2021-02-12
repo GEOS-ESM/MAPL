@@ -840,8 +840,8 @@ contains
       integer :: i
 
       ! Horizontal grid dimensions
-      call metadata%add_dimension('lon', this%im_world)
-      call metadata%add_dimension('lat', this%im_world*6)
+      call metadata%add_dimension('Xdim', this%im_world)
+      call metadata%add_dimension('Ydim', this%im_world*6)
 
       ! Coordinate variables
 
