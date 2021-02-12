@@ -1814,7 +1814,7 @@ end subroutine MAPL_LocStreamFracArea
 ! !IIROUTINE: MAPL_LocStreamTransformT2G --- T2G
 
 !INTERFACE:
-subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, TRANSPOSE, RC )
+subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, TRANSPOSE, variance, RC )
   
   !ARGUMENTS:
   type(MAPL_LocStream),      intent(IN ) :: LocStream
@@ -1823,6 +1823,7 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
   logical, optional,         intent(IN ) :: MASK(:) 
   logical, optional,         intent(IN ) :: SAMPLE
   logical, optional,         intent(IN ) :: TRANSPOSE
+  logical, optional,         intent(IN ) :: variance
   integer, optional,         intent(OUT) :: RC  
   !EOPI
   
@@ -1830,11 +1831,12 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
 
 
   integer                    :: STATUS
-  real,         allocatable  :: FF(:,:)
+  real,         allocatable  :: FF(:,:),tmpOut(:,:)
   integer                    :: II, JJ, N, I1, IN, J1, JN
   logical,      allocatable  :: usableMASK(:) 
   logical                    :: uSAMPLE 
   logical                    :: usableTRANSPOSE
+  logical                    :: computeVariance
 
 ! Make sure Location stream has been created...
 !----------------------------------------------
@@ -1878,10 +1880,24 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
      uSAMPLE = .false.
   end if
 
+  if (present(variance)) then
+     computeVariance=variance
+  else
+     computeVariance=.false.
+  end if
+
   if(present(TRANSPOSE)) then
      usableTRANSPOSE = TRANSPOSE
   else
      usableTRANSPOSE = .false.
+  end if
+
+  if (computeVariance .and. usableTranspose) then
+     _ASSERT(.false.,"Can not compute variance and transpose in LocStream!")
+  end if
+
+  if (computeVariance .and. uSample) then
+     _ASSERT(.false.,"Can not compute variance and sample in LocStream!")
   end if
 
 ! Compute weighted average over masked locations
@@ -1939,6 +1955,29 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
         OUTPUT = MAPL_Undef
      end where
   endif
+
+  if (computeVariance) then
+     allocate(tmpOut(size(OUTPUT,1),size(OUTPUT,2)), stat=STATUS)
+     _VERIFY(STATUS)
+     tmpOut=Output
+     outPut=0.0
+     ff=0.0
+     do N = 1, size(INPUT)
+        if(usableMASK(N) .and. INPUT(N)/=MAPL_UNDEF) then
+           II = LOCSTREAM%Ptr%LOCAL_INDEXLOCATION(N)%I
+           JJ = LOCSTREAM%Ptr%LOCAL_INDEXLOCATION(N)%J 
+           OUTPUT(II,JJ) = OUTPUT(II,JJ) + LOCSTREAM%Ptr%LOCAL_INDEXLOCATION(N)%W * (INPUT(N)-tmpOut(II,JJ))**2
+           FF    (II,JJ) = FF    (II,JJ) + LOCSTREAM%Ptr%LOCAL_INDEXLOCATION(N)%W
+        end if
+     end do
+     where (FF>0) 
+         output=output/ff
+     end where
+     where (ff<=0)
+         output=mapl_undef
+     end where
+     deallocate(tmpOut)
+  end if
 
   deallocate(usableMASK)
   deallocate(FF)

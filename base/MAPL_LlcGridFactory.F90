@@ -261,8 +261,8 @@ contains
      call READ_PARALLEL(LAYOUT, Y, unit=UNIT)
      call FREE_FILE(UNIT)
 
-     X = X * (MAPL_PI_R8)/180._8
-     Y = Y * (MAPL_PI_R8)/180._8
+     X = X * (MAPL_PI_R8)/180._REAL64
+     Y = Y * (MAPL_PI_R8)/180._REAL64
 
 
      GRIDX = X(IMSTART:IMSTART+IM-1,JMSTART:JMSTART+JM-1)

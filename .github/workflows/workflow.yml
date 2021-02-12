@@ -3,6 +3,12 @@ name: Build Tests
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
+    # Do not run if the only files changed cannot affect the build
+    paths-ignore:
+      - "**.md"
+      - "Python/**"
+      - ".github/CODEOWNERS"
+      - ".github/PULL_REQUEST_TEMPLATE.md"
 
 jobs:
   build_test_mapl:
@@ -10,14 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: gmao/ubuntu20-geos-env-mkl:v6.0.27-openmpi_4.0.5-gcc_10.2.0
-      credentials:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Per https://github.com/actions/virtual-environments/issues/1445#issuecomment-713861495
+      # It seems like we might not need secrets on GitHub Actions which is good for forked
+      # pull requests
+      #credentials:
+        #username: ${{ secrets.DOCKERHUB_USERNAME }}
+        #password: ${{ secrets.DOCKERHUB_TOKEN }}
     env:
-      LANGUAGE: en_US.UTF-8
-      LC_ALL: en_US.UTF-8
-      LANG: en_US.UTF-8
-      LC_TYPE: en_US.UTF-8 
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
@@ -61,10 +66,6 @@ jobs:
     runs-on: ubuntu-latest
     container: gmao/ubuntu20-geos-env-mkl:v6.0.27-openmpi_4.0.5-gcc_10.2.0
     env:
-      LANGUAGE: en_US.UTF-8
-      LC_ALL: en_US.UTF-8
-      LANG: en_US.UTF-8
-      LC_TYPE: en_US.UTF-8 
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
@@ -91,9 +92,32 @@ jobs:
           mepo status
           mepo develop GEOSgcm_GridComp GEOSgcm_App
           mepo status
-      - name: Mepo checkout MAPL branch
+      # The next two actions use:
+      #   https://github.community/t/is-there-a-way-to-tell-if-a-pr-is-from-a-forked-repository/134186/7?u=mathomp4
+      # to test if you are in a fork or not
+      - name: Git checkout MAPL branch (forks)
+        if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        working-directory: ./src/Shared/@MAPL
+        run: |
+          # GITHUB_REF will look like 'refs/pull/669/merge' and we want 'pull/669'
+          GITHUB_REF_STRIP_REFS=${GITHUB_REF##refs/}
+          GITHUB_REF_STRIP_MERGE=${GITHUB_REF_STRIP_REFS%%/merge}
+          # This was figured out with looking at CircleCI output
+          git fetch --force origin "${GITHUB_REF_STRIP_MERGE}/head:remotes/origin/${GITHUB_REF_STRIP_MERGE}"
+          mepo checkout ${GITHUB_REF_STRIP_MERGE} MAPL
+          mepo status
+      # If we are in the same org, this will work
+      - name: Mepo checkout MAPL branch (same org), MAPL on main/develop
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }} && "contains('refs/heads/main,refs/heads/develop', github.ref)"
         run: |
           mepo checkout ${GITHUB_HEAD_REF} MAPL
+          mepo status
+      # If we are in the same org, this will work
+      - name: Mepo checkout MAPL branch (same org), MAPL not on main/develop
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }} && "!contains('refs/heads/main,refs/heads/develop', github.ref)"
+        run: |
+          mepo checkout ${GITHUB_HEAD_REF} MAPL
+          mepo checkout-if-exists ${GITHUB_HEAD_REF}
           mepo status
       - name: CMake
         run: |

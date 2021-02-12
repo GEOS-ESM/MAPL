@@ -409,7 +409,7 @@ module MAPL_IOMod
                            optional,  intent(IN   ) :: offset
       integer, optional,              intent(IN   ) :: readers_comm, ioscattercomm
       integer, optional,              intent(IN   ) :: writers_comm, iogathercomm
-      integer, optional, pointer                    :: i1(:), in(:), j1(:), jn(:)
+      integer, optional, target                    :: i1(:), in(:), j1(:), jn(:)
       integer, optional,              intent(IN   ) :: im_world, jm_world, lm_world
 
       if(present(offset  )) ArrDes%offset   = offset
@@ -1135,7 +1135,7 @@ module MAPL_IOMod
           _VERIFY(STATUS)
           if (associated(vr8_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                call MAPL_VarRead(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
+                call MAPL_VarRead(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
                 _VERIFY(STATUS)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call MAPL_VarRead(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, rc=status)
@@ -1174,7 +1174,7 @@ module MAPL_IOMod
                    call MAPL_VarRead(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                 end do
              else if (DIMS == MAPL_DimsTileTile) then
-                do j=1,size(var_2d,2)
+                do j=1,size(vr8_2d,2)
                    call MAPL_VarRead(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                    _VERIFY(STATUS)
                 enddo
@@ -8467,7 +8467,7 @@ module MAPL_IOMod
     
     if (arrdes%write_restart_by_oserver) then
        call oClients%done_collective_stage()
-       call oClients%wait()
+       call oClients%post_wait()
        call MPI_Info_free(info, status)
        _VERIFY(STATUS)
     elseif (arrdes%writers_comm/=MPI_COMM_NULL) then

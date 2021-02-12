@@ -28,6 +28,8 @@ module MAPL_SimpleCommSplitterMod
       procedure :: add_group_simple
       generic :: add_group => add_group_simple
       procedure :: compute_color
+      procedure :: get_node_sizes
+      procedure :: get_node_id
    end type SimpleCommSplitter
 
 
@@ -110,12 +112,13 @@ contains
       _RETURN(_SUCCESS)
    end function split
 
-   subroutine add_group_simple(this, unusable, npes, nnodes, isolate_nodes, name, rc)
+   subroutine add_group_simple(this, unusable, npes, nnodes, isolate_nodes, npes_per_node, name, rc)
       class (SimpleCommSplitter), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: npes
       integer, optional, intent(in) :: nnodes
       logical, optional, intent(in) :: isolate_nodes
+      integer, optional, intent(in) :: npes_per_node
       character(*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
@@ -153,7 +156,7 @@ contains
          _ASSERT(isolate_nodes, " nnodes should be isolated")
       endif
 
-      call this%group_descriptions%push_back(CommGroupDescription(npes_, nnodes_, isolate_nodes_, name_, rc=status))
+      call this%group_descriptions%push_back(CommGroupDescription(npes_, nnodes_, isolate_nodes_, name_, npes_per_node = npes_per_node, rc=status))
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -188,8 +191,8 @@ contains
       _VERIFY(ierror)
       call MPI_Comm_rank(node_comm, rank_on_node, ierror); _VERIFY(ierror)
 
-      node_id = get_node_id(node_comm, shared_communicator, rc=status); _VERIFY(status)
-      node_sizes = get_node_sizes(node_comm, shared_communicator, rc=status); _VERIFY(status)
+      node_id = this%get_node_id(rc=status); _VERIFY(status)
+      node_sizes = this%get_node_sizes(rc=status); _VERIFY(status)
 
       color = MPI_UNDEFINED ! unless ...
 
@@ -219,19 +222,24 @@ contains
 
    ! Nodes are numbered by the order of the node roots within the
    ! global communicator starting at 1. (Not zero!)
-   integer function get_node_id(node_comm, shared_communicator, unusable, rc) result(node_id)
-      integer, intent(in) :: node_comm
-      integer, intent(in) :: shared_communicator
+   integer function get_node_id(this, unusable, rc) result(node_id)
+      class (SimpleCommSplitter), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      integer :: node_comm
+      integer :: shared_communicator
       integer :: npes, rank, ierror
       integer :: status
       integer :: rank_on_node
       integer, allocatable :: node_ranks(:)
+      integer :: info = MPI_INFO_NULL
       
       _UNUSED_DUMMY(unusable)
 
+      shared_communicator = this%get_shared_communicator()
+      call MPI_Comm_split_type(shared_communicator, MPI_COMM_TYPE_SHARED, 0, info, node_comm, ierror)
+      _VERIFY(ierror)
       call MPI_Comm_size(shared_communicator, npes, ierror); _VERIFY(ierror)
       call MPI_Comm_rank(shared_communicator, rank, ierror); _VERIFY(ierror)
       call MPI_Comm_rank(node_comm, rank_on_node, ierror); _VERIFY(ierror)
@@ -252,19 +260,25 @@ contains
 
    end function get_node_id
 
-   function get_node_sizes(node_comm, shared_communicator, unusable, rc) result(node_sizes)
+   function get_node_sizes(this, unusable, rc) result(node_sizes)
+      class (SimpleCommSplitter), intent(in) :: this
       integer, allocatable :: node_sizes(:)
-      integer, intent(in) :: node_comm
-      integer, intent(in) :: shared_communicator
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       integer :: npes, ierror
+      integer :: node_comm
+      integer :: shared_communicator
       integer :: status
       integer :: rank_on_node, npes_on_node
+      integer :: info = MPI_INFO_NULL
 
       _UNUSED_DUMMY(unusable)
-      
+     
+      shared_communicator = this%get_shared_communicator()
+      call MPI_Comm_split_type(shared_communicator, MPI_COMM_TYPE_SHARED, 0, info, node_comm, ierror)
+      _VERIFY(ierror)
+ 
       call MPI_Comm_size(shared_communicator, npes, ierror); _VERIFY(ierror)
       allocate(node_sizes(0:npes-1), stat=status);  _VERIFY(status)
 

@@ -9,7 +9,6 @@ module MAPL_CapMod
    use MAPL_SplitCommunicatorMod
    use MAPL_KeywordEnforcerMod
    use MAPL_CapGridCompMod
-   use MAPL_CFIOServerMod
    use MAPL_BaseMod
    use MAPL_ExceptionHandling
    use pFIO
@@ -34,7 +33,6 @@ module MAPL_CapMod
       logical :: mpi_already_initialized = .false.
 
       type(MAPL_CapGridComp), public :: cap_gc
-      type(MAPL_Communicators) :: mapl_comm
       type(ServerManager) :: cap_server
 
    contains
@@ -52,14 +50,11 @@ module MAPL_CapMod
       procedure :: initialize_mpi
       procedure :: finalize_mpi
 
-      procedure :: nuopc_fill_mapl_comm
-
 
       !getters
       procedure :: get_npes_model
       procedure :: get_comm_world
       procedure :: get_n_members
-      procedure :: get_mapl_comm
       procedure :: get_cap_gc
       procedure :: get_cap_rc_file
       procedure :: get_egress_file
@@ -156,7 +151,6 @@ contains
       if (subcommunicator /= MPI_COMM_NULL) then
          call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
          call this%cap_server%get_splitcomm(split_comm)
-         call fill_mapl_comm(split_comm, subcommunicator, .false., this%mapl_comm, rc=status)
          call this%run_member(rc=status); _VERIFY(status)
          call this%cap_server%finalize()
       end if
@@ -194,6 +188,7 @@ contains
          oserver_type=this%cap_options%oserver_type, &
          npes_output_backend=this%cap_options%npes_output_backend, &
          isolate_nodes = this%cap_options%isolate_nodes, &
+         fast_oclient  = this%cap_options%fast_oclient, &
          rc=status)
      _VERIFY(status)
 
@@ -212,130 +207,18 @@ contains
       call this%cap_server%get_splitcomm(split_comm)
       select case(split_comm%get_name())
       case('model')
-         call this%run_model(this%mapl_comm, rc=status); _VERIFY(status)
+         call this%run_model(comm=split_comm%get_subcommunicator(), rc=status); _VERIFY(status)
          call i_Clients%terminate()
          call o_Clients%terminate()
       end select
                   
    end subroutine run_member
 
-   subroutine nuopc_fill_mapl_comm(this, rc)
-      class(MAPL_Cap),         intent(inout) :: this
-      integer, optional,       intent(  out) :: rc
 
-      type(SplitCommunicator) :: split_comm
-      integer                 :: subcommunicator, status
-
-      subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _VERIFY(status)
-      if (subcommunicator /= MPI_COMM_NULL) then
-         call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
-         call this%cap_server%get_splitcomm(split_comm)
-         call fill_mapl_comm(split_comm, subcommunicator, .false., this%mapl_comm, rc=status); _VERIFY(status)
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine nuopc_fill_mapl_comm
-
-
-    subroutine fill_mapl_comm(split_comm, gcomm, running_old_o_server, mapl_comm, unusable, rc)
-      type (SplitCommunicator), intent(in) :: split_comm
-      integer, intent(in) :: gcomm
-      logical, intent(in) :: running_old_o_server
-      type (MAPL_Communicators), intent(OUT) :: mapl_comm
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: comm
-      integer :: status
-      integer :: grank
-      integer :: source
-      integer, parameter :: MAPL_TAG_GLOBAL_IOROOT_RANK = 987
-      integer :: stat(MPI_STATUS_SIZE)
-      character(len=:), allocatable :: s_name
-
-      _UNUSED_DUMMY(unusable)
-
-      mapl_comm%mapl%comm = gcomm
-      mapl_comm%global%comm = gcomm
-      mapl_comm%esmf%comm = MPI_COMM_NULL
-      mapl_comm%io%comm = MPI_COMM_NULL
-
-      comm = split_comm%get_subcommunicator()
-      s_name = split_comm%get_name()
-
-      if (index(s_name,'o_server') /=0) then
-         mapl_comm%io%comm = comm
-      endif
-
-      if (index(s_name,'model') /=0) then
-         mapl_comm%esmf%comm = comm
-      endif
-
-      call fill_comm(mapl_comm%mapl, rc=status); _VERIFY(status)
-      call fill_comm(mapl_comm%global, rc=status); _VERIFY(status)
-      call fill_comm(mapl_comm%esmf, rc=status); _VERIFY(status)
-      call fill_comm(mapl_comm%io, rc=status); _VERIFY(status)
-
-! Find the global rank of root in the io communicator      
-! WJ notes:  If the users want to use the old server, use defalut n_oserver_group = 1
-!     
-      if (running_old_o_server) then
-         if(mapl_comm%io%rank == 0) then
-            grank=mapl_comm%global%rank
-            call MPI_Send(grank,1,MPI_INTEGER,0,MAPL_TAG_GLOBAL_IOROOT_RANK, &
-                          mapl_comm%global%comm, status)
-            _VERIFY(status)
-         endif
-
-         if(mapl_comm%global%rank == 0) then
-            call MPI_Recv(grank,1,MPI_INTEGER,MPI_ANY_SOURCE,&
-                          MAPL_TAG_GLOBAL_IOROOT_RANK, mapl_comm%global%comm, &
-                          stat, status)
-            _VERIFY(status)
-            source = stat(MPI_SOURCE)
-            _ASSERT(source == grank, "Invalid rank error, most likely due to non-unique tag")
-         endif
-
-         call MPI_Bcast(grank,1,MPI_INTEGER,0,mapl_comm%global%comm, status)
-         _VERIFY(status)
-
-         mapl_comm%io%root = grank
-
-         call MPI_Bcast(mapl_comm%io%size,1,MPI_INTEGER,grank,mapl_comm%global%comm, status)
-         _VERIFY(status)
-
-         call MAPL_CFIOServerInitMpiTypes()
-      end if
-
-      return
-    end subroutine fill_mapl_comm
-
-    subroutine fill_comm(mcomm, rc)
-      type (MAPL_Communicator), intent(inout) :: mcomm
-      integer, optional, intent(out) :: rc
-      integer :: comm
-      integer :: status
-
-      comm = mcomm%comm
-      if (comm == MPI_COMM_NULL) then
-         mcomm%size = 0
-         mcomm%rank = MPI_UNDEFINED
-         mcomm%root = MPI_UNDEFINED
-      else
-         call MPI_Comm_Size(comm, mcomm%size,status)
-         _VERIFY(status)
-         call MPI_Comm_Rank(comm, mcomm%rank,status)
-         _VERIFY(status)
-         mcomm%root = 0
-      end if
-      _RETURN(ESMF_SUCCESS)
-    end subroutine fill_comm
-      
-   subroutine run_model(this, mapl_comm, unusable, rc)
+   subroutine run_model(this, comm, unusable, rc)
       use pFlogger, only: logging, Logger
       class (MAPL_Cap), intent(inout) :: this
-      type(MAPL_Communicators), intent(in) :: mapl_comm
-!!$      integer, intent(in) :: comm
+      integer, intent(in) :: comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) ::rc
 
@@ -347,10 +230,10 @@ contains
       _UNUSED_DUMMY(unusable)
 
       call start_timer()
-      call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=mapl_comm%esmf%comm, rc=status)
+      call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, rc=status)
       _VERIFY(status)
 
-      call this%initialize_cap_gc(mapl_comm)
+      call this%initialize_cap_gc()
 
       call this%cap_gc%set_services(rc = status)
       _VERIFY(status)
@@ -404,10 +287,10 @@ contains
 
    end subroutine run_model
    
-   subroutine initialize_cap_gc(this, mapl_comm)
+   subroutine initialize_cap_gc(this)
      class(MAPL_Cap), intent(inout) :: this
-     type(MAPL_Communicators), intent(in) :: mapl_comm
-     call MAPL_CapGridCompCreate(this%cap_gc, mapl_comm, this%set_services, this%get_cap_rc_file(), &
+
+     call MAPL_CapGridCompCreate(this%cap_gc, this%set_services, this%get_cap_rc_file(), &
            this%name, this%get_egress_file())     
    end subroutine initialize_cap_gc
    
@@ -550,12 +433,6 @@ contains
      type(MAPL_CapGridComp) :: cap_gc
      cap_gc = this%cap_gc
    end function get_cap_gc
-
-   function get_mapl_comm(this) result(mapl_comm)
-     class(MAPL_Cap), intent(in) :: this
-     type(MAPL_Communicators) :: mapl_comm
-     mapl_comm = this%mapl_comm
-   end function get_mapl_comm
 
    function get_cap_rc_file(this) result(cap_rc_file)
      class(MAPL_Cap), intent(in) :: this
