@@ -501,7 +501,6 @@ contains
       integer(kind=INT64) :: i64
       real (kind=REAL32) :: r32
       real (kind=REAL64) :: r64
-      logical(kind=C_BOOL) :: l
 
       select case(type_kind)
       case (pFIO_INT32)

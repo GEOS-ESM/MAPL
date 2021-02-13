@@ -539,7 +539,7 @@ contains
       integer, optional, intent(in) :: n_hist_split
       integer, optional, intent(out) :: rc
 
-      integer :: i, nsplit, nwriteCutoff, tsize
+      integer :: i, nsplit, tsize
       integer, allocatable :: server_sizes(:), tmp_position(:)
       integer :: pos
 
