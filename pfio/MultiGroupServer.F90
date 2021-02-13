@@ -244,9 +244,9 @@ contains
      class (MultiGroupServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
      if (this%front_Comm == MPI_COMM_NULL) then 
-         _RETURN(_SUCCESS)
+        _ASSERT(.false. , "hey backend does not call this")
      else
-         _ASSERT(.false. , "hey backend does not call this")
+        _RETURN(_SUCCESS)
      endif  
    end subroutine put_DataToFile
 
