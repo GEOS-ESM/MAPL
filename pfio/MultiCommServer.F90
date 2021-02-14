@@ -75,30 +75,32 @@ module pFIO_MultiCommServerMod
 
 contains
 
-   function new_MultiCommServer(server_comm, port_name, nwriter, rc) result(s)
+   function new_MultiCommServer(server_comm, port_name, nwriter_per_node, rc) result(s)
       type (MultiCommServer) :: s
       integer, intent(in) :: server_comm
       character(*), intent(in) :: port_name
-      integer, intent (in) :: nwriter
+      integer, intent (in) :: nwriter_per_node
       integer, optional, intent(out) :: rc
-      integer :: s_rank, s_size
+      integer :: s_rank, s_size, nwriter
       integer :: ierror, status, local_rank
       type (SimpleCommSplitter) :: splitter
       type (SplitCommunicator)   ::  s_comm
       character(len=:), allocatable :: s_name
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type (MpiSocket), target :: dummy_socket
-
+      integer, allocatable :: node_sizes(:)
 
       call MPI_Comm_dup(server_comm, s%server_comm, ierror)
       call MPI_Comm_size(s%server_comm, s_size , ierror)
-
+      
       splitter = SimpleCommsplitter(s%server_comm)
-      call splitter%add_group(npes = s_size-nwriter, name="o_server_front", isolate_nodes=.false.)
-      call splitter%add_group(npes = nwriter,        name="o_server_back",  isolate_nodes=.false.)
+      node_sizes = splitter%get_node_sizes()
+      call splitter%add_group(npes_per_node = node_sizes(1)-nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
+      call splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
  
       s_comm = splitter%split(rc=status); _VERIFY(status)
 
+      nwriter = nwriter_per_node*size(node_sizes)
       s%front_comm = MPI_COMM_NULL
       s%back_comm  = MPI_COMM_NULL
       s%nwriter    = nwriter
