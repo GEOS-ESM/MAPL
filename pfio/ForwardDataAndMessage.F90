@@ -65,16 +65,17 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: n
+      !integer :: k
       
       call deserialize_message_vector(buffer,this%msg_vec)
       n = 1 + buffer(1)
-
+      !k = 0
       if (size(buffer) > n) then
          allocate(this%idata(buffer(n)-1))
          this%idata(:) = buffer(n+1:)
+         !k = buffer(n)
       endif
-
-      _ASSERT(size(buffer) == buffer(1)+buffer(n),"buffer size size is wrong")
+      !_ASSERT(size(buffer) == buffer(1)+ k,"buffer size does not match")
       _RETURN(_SUCCESS)
    end subroutine deserialize
 

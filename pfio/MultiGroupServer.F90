@@ -68,8 +68,6 @@ module pFIO_MultiGroupServerMod
       logical :: I_am_back_root
       integer, allocatable :: back_ranks(:)
       integer, allocatable :: front_ranks(:)
-      integer, allocatable :: group_comms(:)
-      type (FileMetadata) :: fmd
    contains
       procedure :: start
       procedure :: start_back
@@ -100,7 +98,7 @@ contains
       character(len=:), allocatable :: s_name
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type (MpiSocket), target :: dummy_socket
-      integer :: server_group, tmp_group, n, nwriter
+      integer :: nwriter
       integer, allocatable :: ranks(:)
       integer, allocatable :: node_sizes(:)
 
@@ -163,19 +161,6 @@ contains
          call s%set_status(1)
          call s%add_connection(dummy_socket)
       endif
-
-
-     ! create a group of comms
-      call MPI_Comm_group(s%server_comm, server_group, ierror)
-
-      allocate(s%group_comms(s%nwriter))
-      do n = 1, s%nwriter
-         ranks =[ s%front_ranks, s%back_ranks(n)]
-         call MPI_Group_incl(server_group, s%nfront+1, ranks, tmp_group, ierror)
-         call MPI_Comm_create_group(s%server_comm, tmp_group, s%front_ranks(n)+1, s%group_comms(n), ierror)
-         call MPI_Barrier(s%server_comm, ierror)
-         call MPI_Group_free(tmp_group, ierror)
-      enddo
 
       if (s_rank == 0) print*, "MultiServer Start: nfront, nback", s%nfront, s%nwriter
 
@@ -308,7 +293,7 @@ contains
      integer :: collection_counter, collection_total, collection_id, ierror
      integer :: MPI_STAT(MPI_STATUS_SIZE)
      integer :: msg_size, words, local_size, back_local_rank
-     integer, allocatable :: buffer(:), groups(:)
+     integer, allocatable :: buffer(:)
      type (IntegerVector) :: collection_ids
      type (ForwardDataAndMessage), allocatable :: f_d_ms(:)
      type (HistoryCollection), pointer :: hist_collection
@@ -338,23 +323,7 @@ contains
         call iter%next()
      end do
 
-     ! send request to get the writers for each collection
-     allocate(groups(collection_total))
-
-     if (this%I_am_front_root) then
-        do collection_counter = 1, collection_total
-           collection_id = collection_ids%at(collection_counter)
-           call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
-           call Mpi_Recv(back_local_rank, 1, MPI_INTEGER, this%back_ranks(1), &
-                this%front_ranks(1), this%server_comm, MPI_STAT, ierror)
-           groups(collection_counter) =  back_local_rank
-        enddo
-     endif
-
-     ! pack data and message for each collection
-
-     call Mpi_Bcast(groups, collection_total, MPI_INTEGER, 0, this%front_comm, ierror)     
-
+     ! pack the data and message for each collection id
      allocate(f_d_ms(collection_total))
      do i = 1, client_num
         thread_ptr=>this%threads%at(i)
@@ -381,19 +350,26 @@ contains
 
      ! serializes and send data_and_message to writer
      do collection_counter = 1, collection_total
-        back_local_rank = groups(collection_counter)
-        ! root sends axtra file metadata
+        ! root asks for idle writer and sends axtra file metadata
         if (this%I_am_front_root) then
+
            collection_id = collection_ids%at(collection_counter)
+           call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
            ! here thread_ptr can point to any thread
            hist_collection => thread_ptr%hist_collections%at(collection_id)
            call hist_collection%fmd%serialize(buffer)
+
+           call Mpi_Recv(back_local_rank, 1, MPI_INTEGER, this%back_ranks(1), &
+                this%front_ranks(1), this%server_comm, MPI_STAT, ierror)
+
            msg_size= size(buffer)
            call Mpi_send(msg_size,1, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
                this%back_ranks(back_local_rank+1), this%server_comm, ierror)
            call Mpi_send(buffer,msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
                this%back_ranks(back_local_rank+1), this%server_comm, ierror)
         endif
+
+        call Mpi_Bcast( back_local_rank, 1, MPI_INTEGER, 0, this%front_comm, ierror)
 
         call f_d_ms(collection_counter)%serialize(buffer)
         msg_size= size(buffer)
@@ -402,6 +378,7 @@ contains
         call Mpi_send(buffer,msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
             this%back_ranks(back_local_rank+1), this%server_comm, ierror)
      enddo
+
      deallocate(f_d_ms)
      _RETURN(_SUCCESS)
    end subroutine receive_output_data
