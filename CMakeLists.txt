@@ -54,7 +54,7 @@ if (NOT Baselibs_FOUND)
   add_definitions(-DNETCDF_NEED_NF_MPIIO)
   add_definitions(-DHAS_NETCDF3)
 
-  find_package(HDF5 REQUIRED Fortran)
+  find_package(HDF5 REQUIRED)
   if(HDF5_IS_PARALLEL)
      add_definitions(-DH5_HAVE_PARALLEL)
   endif()
