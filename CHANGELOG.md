@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Move to ESMA_cmake v3.3.6
+- Remove requirement for HDF5 Fortran bindings in MAPL
 
 ### Fixed
 
