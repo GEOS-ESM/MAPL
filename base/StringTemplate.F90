@@ -142,6 +142,7 @@ contains
             k=k+1
          end if
       enddo
+      _RETURN(_SUCCESS)
 
    end subroutine fill_grads_template
 

@@ -9,7 +9,7 @@
 #include "MAPL_Generic.h"
 
 
-module MAPL_CubedSphereGridFactoryMod
+module MAPL_OldCubedSphereGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_MinMaxMod
    use MAPL_KeywordEnforcerMod
@@ -23,7 +23,7 @@ module MAPL_CubedSphereGridFactoryMod
    implicit none
    private
 
-   public :: CubedSphereGridFactory
+   public :: OldCubedSphereGridFactory
 
    integer, parameter :: ndims = 2
    integer, parameter :: UNDEFINED_INTEGER = 1-huge(1)
@@ -36,7 +36,7 @@ module MAPL_CubedSphereGridFactoryMod
 
    integer, parameter :: NUM_CUBE_FACES = 6
 
-   type, extends(AbstractGridFactory) :: CubedSphereGridFactory
+   type, extends(AbstractGridFactory) :: OldCubedSphereGridFactory
       private
 
       
@@ -91,15 +91,13 @@ module MAPL_CubedSphereGridFactoryMod
       procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
-      procedure :: get_fake_longitudes
-      procedure :: get_fake_latitudes
-   end type CubedSphereGridFactory
+   end type OldCubedSphereGridFactory
    
-   character(len=*), parameter :: MOD_NAME = 'CubedSphereGridFactory::'
+   character(len=*), parameter :: MOD_NAME = 'OldCubedSphereGridFactory::'
    
-   interface CubedSphereGridFactory
-      module procedure CubedSphereGridFactory_from_parameters
-   end interface CubedSphereGridFactory
+   interface OldCubedSphereGridFactory
+      module procedure OldCubedSphereGridFactory_from_parameters
+   end interface OldCubedSphereGridFactory
 
    interface set_with_default
       module procedure set_with_default_integer
@@ -113,10 +111,10 @@ module MAPL_CubedSphereGridFactoryMod
 contains
 
 
-   function CubedSphereGridFactory_from_parameters(unusable, grid_name, grid_type, &
+   function OldCubedSphereGridFactory_from_parameters(unusable, grid_name, grid_type, &
         & im_world, lm, nx, ny, ims, jms, stretch_factor, target_lon, target_lat, &
         & rc) result(factory)
-      type (CubedSphereGridFactory) :: factory
+      type (OldCubedSphereGridFactory) :: factory
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: grid_name
       integer, optional, intent(in) :: grid_type
@@ -137,7 +135,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'CubedSphereGridFactory_from_parameters'
+      character(len=*), parameter :: Iam = MOD_NAME // 'OldCubedSphereGridFactory_from_parameters'
 
       if (present(unusable)) print*,shape(unusable)
 
@@ -164,12 +162,12 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end function CubedSphereGridFactory_from_parameters
+   end function OldCubedSphereGridFactory_from_parameters
 
 
    function make_new_grid(this, unusable, rc) result(grid)
       type (ESMF_Grid) :: grid
-      class (CubedSphereGridFactory), intent(in) :: this
+      class (OldCubedSphereGridFactory), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -189,7 +187,7 @@ contains
    
    function create_basic_grid(this, unusable, rc) result(grid)
       type (ESMF_Grid) :: grid
-      class (CubedSphereGridFactory), intent(in) :: this
+      class (OldCubedSphereGridFactory), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -293,7 +291,7 @@ contains
       use MAPL_KeywordEnforcerMod
       use MAPL_BaseMod, only: MAPL_DecomposeDim
 
-      class (CubedSphereGridFactory), intent(inout)  :: this
+      class (OldCubedSphereGridFactory), intent(inout)  :: this
       type (FileMetadata), target, intent(in) :: file_metadata
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -340,7 +338,7 @@ contains
 
    subroutine initialize_from_config_with_prefix(this, config, prefix, unusable, rc)
       use esmf
-      class (CubedSphereGridFactory), intent(inout) :: this
+      class (OldCubedSphereGridFactory), intent(inout) :: this
       type (ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: prefix  ! effectively optional due to overload without this argument
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -529,7 +527,7 @@ contains
    end subroutine initialize_from_config_with_prefix
    
    subroutine halo_init(this, halo_width,rc)
-      class (CubedSphereGridFactory), intent(inout) :: this
+      class (OldCubedSphereGridFactory), intent(inout) :: this
       integer, optional, intent(in) :: halo_width
       integer, optional, intent(out) :: rc
 
@@ -564,17 +562,17 @@ contains
 
    function to_string(this) result(string)
       character(len=:), allocatable :: string
-      class (CubedSphereGridFactory), intent(in) :: this
+      class (OldCubedSphereGridFactory), intent(in) :: this
 
       _UNUSED_DUMMY(this)
-      string = 'CubedSphereGridFactory'
+      string = 'OldCubedSphereGridFactory'
 
    end function to_string
 
    subroutine check_and_fill_consistency(this, unusable, rc)
       use MAPL_BaseMod, only: MAPL_DecomposeDim
       use MAPL_ConstantsMod, only: PI => MAPL_PI_R8
-      class (CubedSphereGridFactory), intent(inout) :: this
+      class (OldCubedSphereGridFactory), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -724,14 +722,14 @@ contains
    
 
    logical function equals(a, b)
-      class (CubedSphereGridFactory), intent(in) :: a
+      class (OldCubedSphereGridFactory), intent(in) :: a
       class (AbstractGridFactory), intent(in) :: b
 
       select type (b)
       class default
          equals = .false.
          return
-      class is (CubedSphereGridFactory)
+      class is (OldCubedSphereGridFactory)
          equals = .true.
 
          equals = (a%im_world == b%im_world)
@@ -757,14 +755,14 @@ contains
    end function equals
 
    subroutine initialize_from_esmf_distGrid(this, dist_grid, lon_array, lat_array, unusable, rc)
-      class (CubedSphereGridFactory), intent(inout)  :: this
+      class (OldCubedSphereGridFactory), intent(inout)  :: this
       type (ESMF_DistGrid), intent(in) :: dist_grid
       type (ESMF_LocalArray), intent(in) :: lon_array
       type (ESMF_LocalArray), intent(in) :: lat_array
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      character(len=*), parameter :: Iam = MOD_NAME // 'CubedSphereGridFactory_initialize_from_esmf_distGrid'
+      character(len=*), parameter :: Iam = MOD_NAME // 'OldCubedSphereGridFactory_initialize_from_esmf_distGrid'
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(dist_grid)
@@ -778,7 +776,7 @@ contains
 
    subroutine halo(this, array, unusable, halo_width, rc)
       use, intrinsic :: iso_fortran_env, only: REAL32
-      class (CubedSphereGridFactory), intent(inout) :: this
+      class (OldCubedSphereGridFactory), intent(inout) :: this
       real(kind=REAL32), intent(inout) :: array(:,:)
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: halo_width
@@ -822,7 +820,7 @@ contains
    end subroutine halo
 
    function generate_grid_name(this) result(name)
-      class (CubedSphereGridFactory), intent(in) :: this
+      class (OldCubedSphereGridFactory), intent(in) :: this
       character(len=:), allocatable :: name
 
       character(len=4) :: im_string
@@ -834,349 +832,72 @@ contains
    end function generate_grid_name
 
    subroutine append_metadata(this, metadata)!, unusable, rc)
-      class (CubedSphereGridFactory), intent(inout) :: this
+      class (OldCubedSphereGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
-!!$      class (KeywordEnforcer), optional, intent(in) :: unusable
-!!$      integer, optional, intent(out) :: rc
 
-      integer :: im
       type (Variable) :: v
-      integer, parameter :: MAXLEN=80
-      character(len=MAXLEN) :: gridspec_file_name
-      character(len=5), allocatable :: cvar(:,:)
-      integer, allocatable :: ivar(:,:)
-      integer, allocatable :: ivar2(:,:,:)
+      integer, allocatable :: fake_coords(:)
+      integer :: i
 
-      integer :: status
-
-      ! Grid dimensinos
-      call metadata%add_dimension('Xdim', this%im_world, rc=status)
-      call metadata%add_dimension('Ydim', this%im_world, rc=status)
-      call metadata%add_dimension('XCdim', this%im_world+1, rc=status)
-      call metadata%add_dimension('YCdim', this%im_world+1, rc=status)
-      call metadata%add_dimension('nf', 6, rc=status)
-      call metadata%add_dimension('ncontact', 4, rc=status)
-      call metadata%add_dimension('orientationStrLen', 5, rc=status)
+      ! Horizontal grid dimensions
+      call metadata%add_dimension('Xdim', this%im_world)
+      call metadata%add_dimension('Ydim', this%im_world*6)
 
       ! Coordinate variables
-      v = Variable(type=PFIO_REAL64, dimensions='Xdim')
+
+      allocate(fake_coords(this%im_world))
+      do i=1,this%im_world
+         fake_coords(i)=i
+      enddo
+      v = Variable(type=PFIO_REAL32, dimensions='Xdim')
       call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_east')
-      call metadata%add_variable('Xdim', CoordinateVariable(v, this%get_fake_longitudes()))
+      call v%add_const_value(UnlimitedEntity(fake_coords))
+      call metadata%add_variable('lon', v)
+      deallocate(fake_coords)
 
-      v = Variable(type=PFIO_REAL64, dimensions='Ydim')
+      allocate(fake_coords(this%im_world*6))
+      do i=1,this%im_world*6
+         fake_coords(i)=i
+      enddo
+      v = Variable(type=PFIO_REAL32, dimensions='Ydim')
       call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
       call v%add_attribute('units', 'degrees_north')
-      call metadata%add_variable('Ydim', CoordinateVariable(v, this%get_fake_latitudes()))
-
-      v = Variable(type=PFIO_INT32, dimensions='nf')
-      call v%add_attribute('long_name','cubed-sphere face')
-      call v%add_attribute('axis','e')
-      call v%add_attribute('grads_dim','e')
-      call v%add_const_value(UnlimitedEntity((/1,2,3,4,5,6/)))
-      call metadata%add_variable('nf',v)
-
-      v = Variable(type=PFIO_INT32, dimensions='ncontact')
-      call v%add_attribute('long_name','number of contact points')
-      call v%add_const_value(UnlimitedEntity((/1,2,3,4/)))
-      call metadata%add_variable('ncontact',v)
-
-      v = Variable(type=PFIO_STRING)
-      call  v%add_attribute('grid_mapping_name','gnomonic cubed-sphere')
-      call  v%add_attribute('file_format_version','2.91')
-      call  v%add_attribute('additional_vars','contacts,orientation,anchor')
-      call  v%add_attribute('gridspec_file','gridspec.nc4')
-      call metadata%add_variable('cubed_sphere',v)
-
-      ! Other variables
-      allocate(ivar(4,6))
-      ivar = reshape( (/5, 3, 2, 6, &
-                     1, 3, 4, 6, &
-                     1, 5, 4, 2, &
-                     3, 5, 6, 2, &
-                     3, 1, 6, 4, &
-                     5, 1, 2, 4 /), (/4,6/))
-      v = Variable(type=PFIO_INT32, dimensions='ncontact,nf')
-      call v%add_attribute('long_name', 'adjacent face starting from left side going clockwise')
-      call v%add_const_value(UnlimitedEntity(ivar))
-      call metadata%add_variable('contacts', v)
-
-      allocate(cvar(4,6))
-      !cvar =reshape((/" Y:-X", &
-               !" X:-Y", &
-               !" Y:Y ", &
-               !" X:X ", &
-               !" Y:Y ", &
-               !" X:X ", &
-               !" Y:-X", &
-               !" X:-Y", &
-               !" Y:-X", &
-               !" X:-Y", &
-               !" Y:Y ", &
-               !" X:X ", &
-               !" Y:Y ", &
-               !!" X:X ", &
-               !" Y:-X", &
-               !" X:-Y", &
-               !" Y:-X", &
-               !" X:-Y", &
-               !" Y:Y ", &
-               !" X:X ", &
-               !" Y:Y ", &
-               !" X:X ", &
-               !" Y:-X", &
-               !" X:-Y" /),(/4,6/))
-      v = Variable(type=PFIO_STRING, dimensions='orientationStrLen,ncontact,nf')
-      call v%add_attribute('long_name', 'orientation of boundary')
-      !call v%add_const_value(UnlimitedEntity(cvar))
-      call metadata%add_variable('orientation', v)
-
-      im = this%im_world
-      allocate(ivar2(4,4,6))
-      ivar2 = reshape(        & 
-                 (/im, im,  1, im, &
-                  1, im,  1,  1, &
-                  1, im,  1,  1, &
-                 im, im,  1, im, &
-                 im,  1, im, im, &
-                  1,  1, im,  1, &
-                  1,  1, im,  1, &
-                 im,  1, im,  im, &
-                 im, im,  1, im, &
-                  1, im,  1,  1, &
-                  1, im,  1,  1, &
-                 im, im,  1, im, &
-                 im,  1, im, im, &
-                  1,  1, im,  1, &
-                  1,  1, im,  1, &
-                 im,  1, im, im, &
-                 im, im,  1, im, &
-                  1, im,  1,  1, &
-                  1, im,  1,  1, &
-                 im, im,  1, im, &
-                 im,  1, im, im, &
-                  1,  1, im,  1, &
-                  1,  1, im,  1, &
-                 im,  1, im, im  /), (/4,4,6/))
-      v = Variable(type=PFIO_INT32, dimensions='ncontact,ncontact,nf')
-      call v%add_attribute('long_name', 'anchor point')
-      call v%add_const_value(UnlimitedEntity(ivar2))
-      call metadata%add_variable('anchor', v)
-
-      call Metadata%add_attribute('grid_mapping_name', 'gnomonic cubed-sphere')
-      call Metadata%add_attribute('file_format_version', '2.90')
-      call Metadata%add_attribute('additional_vars', 'contacts,orientation,anchor')
-      write(gridspec_file_name,'("C",i0,"_gridspec.nc4")') this%im_world
-      call Metadata%add_attribute('gridspec_file', trim(gridspec_file_name))
-
-      v = Variable(type=PFIO_REAL32, dimensions='Xdim,Ydim,nf')
-      call v%add_attribute('long_name','longitude')
-      call v%add_attribute('units','degrees_east')
-      call metadata%add_variable('lons',v)
-
-      v = Variable(type=PFIO_REAL32, dimensions='Xdim,Ydim,nf')
-      call v%add_attribute('long_name','latitude')
-      call v%add_attribute('units','degrees_north')
-      call metadata%add_variable('lats',v)
-
-      v = Variable(type=PFIO_REAL32, dimensions='XCdim,YCdim,nf')
-      call v%add_attribute('long_name','longitude')
-      call v%add_attribute('units','degrees_east')
-      call metadata%add_variable('corner_lons',v)
-
-      v = Variable(type=PFIO_REAL32, dimensions='XCdim,YCdim,nf')
-      call v%add_attribute('long_name','latitude')
-      call v%add_attribute('units','degrees_north')
-      call metadata%add_variable('corner_lats',v)
-
-      if (this%stretched_cube) then
-         call metadata%add_attribute('stretch_factor',this%stretch_factor)
-         call metadata%add_attribute('target_lon',this%target_lon*180.0/MAPL_PI)
-         call metadata%add_attribute('target_lat',this%target_lat*180.0/MAPL_PI)
-      end if
+      call v%add_const_value(UnlimitedEntity(fake_coords))
+      call metadata%add_variable('lat', v)
+      deallocate(fake_coords)
 
    end subroutine append_metadata
 
    function get_grid_vars(this) result(vars)
-      class (CubedSphereGridFactory), intent(inout) :: this
+      class (OldCubedSphereGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
       _UNUSED_DUMMY(this)
 
-      vars = 'Xdim,Ydim,nf'
+      vars = 'Xdim,Ydim'
 
    end function get_grid_vars
 
    function get_file_format_vars(this) result(vars)
-      class (CubedSphereGridFactory), intent(inout) :: this
+      class (OldCubedSphereGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
       _UNUSED_DUMMY(this)
 
-      vars = 'Xdim,Ydim,nf,anchor,lons,lats,corner_lons,corner_lats,nf,ncontact,cubed_sphere,contacts,orientation'
+      vars = 'Xdim,Ydim'
 
    end function get_file_format_vars
 
    subroutine append_variable_metadata(this,var)
-      class (CubedSphereGridFactory), intent(inout) :: this
+      class (OldCubedSphereGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
       _UNUSED_DUMMY(this)
-
-      call var%add_attribute('coordinates','lons lats')
-      call var%add_attribute('grid_mapping','cubed_sphere')
-
    end subroutine append_variable_metadata
-
-   ! Routine to return fake coordinates for Grads+netCDF use cases.
-   ! Result is the longitudes (in degrees) of cell centers along the
-   ! "equator" of face 1.
-   function get_fake_longitudes(this, unusable, rc) result(longitudes)
-      use mpi
-      use MAPL_BaseMod, only: MAPL_Grid_Interior
-      real (kind=REAL64), allocatable :: longitudes(:)
-      class (CubedSphereGridFactory), intent(inout) :: this
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      type (ESMF_Grid) :: grid
-      real (kind=ESMF_KIND_R8), pointer :: centers(:,:)
-      real (kind=REAL64), allocatable :: piece(:)
-      integer :: n_loc
-      integer, allocatable :: counts(:), displs(:)
-      type (ESMF_VM) :: vm
-      integer :: ierror
-      integer :: npes, p, pet
-      integer :: comm_grid
-      integer :: i_1, i_n, j_1, j_n
-      integer :: j_mid
-      integer :: tile
-      integer :: status
-      
-      character(len=*), parameter :: Iam = MOD_NAME // 'get_fake_longitudes()'
-      
-      _UNUSED_DUMMY(unusable)
-      
-      grid = this%make_grid()
-
-      call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-           staggerloc=ESMF_STAGGERLOC_CENTER, &
-           farrayPtr=centers, rc=status)
-      _VERIFY(status)
-
-      call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
-
-      call ESMF_VMGet(vm, mpiCommunicator=comm_grid, petcount=npes, localpet=pet, rc=status)
-      _VERIFY(status)
-      
-      call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
-
-      j_mid = 1 + this%im_world/2
-
-      tile = 1 + (j_1-1)/this%im_world
-      if (tile == 1 .and. (j_1 <= j_mid) .and. (j_mid <= j_n)) then
-         allocate(piece(i_1:i_n))
-         piece(:) = centers(:,j_mid-(j_1-1))
-         n_loc = (i_n - i_1 + 1)
-      else
-         allocate(piece(1)) ! MPI does not like 0-sized arrays.
-         piece(1) = 0
-         n_loc = 0
-      end if
-
-      allocate(counts(0:npes-1), displs(0:npes-1))
-      
-      call MPI_Allgather(n_loc, 1, MPI_INTEGER, counts, 1, MPI_INTEGER, comm_grid, ierror)
-      _VERIFY(ierror)
-
-      displs(0) = 0
-      do p = 1, npes-1
-         displs(p) = displs(p-1) + counts(p-1)
-      end do
-
-      allocate(longitudes(this%im_world))
-      call MPI_Allgatherv(piece, n_loc, MPI_REAL8, longitudes, counts, displs, MPI_REAL8, comm_grid, ierror)
-      _VERIFY(ierror)
-
-      longitudes = longitudes * MAPL_RADIANS_TO_DEGREES
-      
-   end function get_fake_longitudes
-
-   function get_fake_latitudes(this, unusable, rc) result(latitudes)
-      use mpi
-      use MAPL_BaseMod, only: MAPL_Grid_Interior
-      real (kind=REAL64), allocatable :: latitudes(:)
-      class (CubedSphereGridFactory), intent(inout) :: this
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      type (ESMF_Grid) :: grid
-      real (kind=ESMF_KIND_R8), pointer :: centers(:,:)
-      real (kind=REAL64), allocatable :: piece(:)
-      integer :: n_loc
-      integer, allocatable :: counts(:), displs(:)
-      type (ESMF_VM) :: vm
-      integer :: ierror
-      integer :: npes, p, pet
-      integer :: comm_grid
-      integer :: i_1, i_n, j_1, j_n
-      integer :: j_mid
-      integer :: tile
-      integer :: status
-      
-      character(len=*), parameter :: Iam = MOD_NAME // 'get_fake_latitudes()'
-
-      _UNUSED_DUMMY(unusable)
-      
-      grid = this%make_grid()
-
-      call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-           staggerloc=ESMF_STAGGERLOC_CENTER, &
-           farrayPtr=centers, rc=status)
-      _VERIFY(status)
-
-      call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
-
-      call ESMF_VMGet(vm, mpiCommunicator=comm_grid, petcount=npes, localpet=pet, rc=status)
-      _VERIFY(status)
-      
-      call MAPL_grid_interior(grid, i_1, i_n, j_1, j_n)
-
-      j_mid = 1 + this%im_world/2
-
-      tile = 1 + (j_1-1)/this%im_world
-      if (tile == 1 .and. (i_1 <= j_mid) .and. (j_mid <= i_n)) then
-         allocate(piece(j_1:j_n))
-         piece(:) = centers(j_mid-(i_1-1),:)
-         n_loc = (j_n - j_1 + 1)
-      else
-         allocate(piece(1)) ! MPI does not like 0-sized arrays.
-         piece(1) = 0
-         n_loc = 0
-      end if
-
-      allocate(counts(0:npes-1), displs(0:npes-1))
-      
-      call MPI_Allgather(n_loc, 1, MPI_INTEGER, counts, 1, MPI_INTEGER, comm_grid, ierror)
-      _VERIFY(ierror)
-
-      displs(0) = 0
-      do p = 1, npes-1
-         displs(p) = displs(p-1) + counts(p-1)
-      end do
-
-      allocate(latitudes(this%im_world))
-      call MPI_Allgatherv(piece, n_loc, MPI_REAL8, latitudes, counts, displs, MPI_REAL8, comm_grid, ierror)
-      _VERIFY(ierror)
-
-      latitudes = latitudes * MAPL_RADIANS_TO_DEGREES
-      
-   end function get_fake_latitudes
 
    subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
       use MAPL_BaseMod
-      class(CubedSphereGridFactory), intent(inout) :: this
+      class(OldCubedSphereGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
       integer, allocatable, intent(out) :: local_start(:)
       integer, allocatable, intent(out) :: global_start(:)
@@ -1191,10 +912,9 @@ contains
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
       _VERIFY(status)
       call MAPL_GridGetInterior(grid,i1,in,j1,jn)
-      tile = 1 + (j1-1)/global_dim(1)
-      allocate(local_start,source=[i1,j1-(tile-1)*global_dim(1),tile])
-      allocate(global_start,source=[1,1,1])
-      allocate(global_count,source=[global_dim(1),global_dim(1),6])
+      allocate(local_start,source=[i1,j1])
+      allocate(global_start,source=[1,1])
+      allocate(global_count,source=[global_dim(1),global_dim(2)])
 
       _RETURN(_SUCCESS)
 
@@ -1202,7 +922,7 @@ contains
 
    subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
       use MAPL_BaseMod
-      class(CubedSphereGridFactory), intent(inout) :: this
+      class(OldCubedSphereGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
       integer, allocatable, intent(out) :: local_start(:)
       integer, allocatable, intent(out) :: global_start(:)
@@ -1210,22 +930,14 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: global_dim(3),i1,j1,in,jn,tile
-      integer :: face_i1, face_j1, is, js
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
       _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(grid)
+      _UNUSED_DUMMY(local_start)
+      _UNUSED_DUMMY(global_start)
+      _UNUSED_DUMMY(global_count)
 
-      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
-      _VERIFY(status)
-      call MAPL_GridGetInterior(grid,i1,in,j1,jn)
-      tile = 1 + (j1-1)/global_dim(1)
-      face_i1 = i1
-      face_j1 = j1-(tile-1)*global_dim(1)
-      is = i1
-      js = face_j1
-      allocate(local_start,source=[is,js,tile])
-      allocate(global_start,source=[1,1,1])
-      allocate(global_count,source=[global_dim(1)+1,global_dim(1)+1,6])
+      _FAIL('unimplemented')
 
       _RETURN(_SUCCESS)
 
@@ -1234,7 +946,7 @@ contains
    function generate_file_reference2D(this,fpointer) result(ref)
       use pFIO
       type(ArrayReference) :: ref
-      class(CubedSphereGridFactory), intent(inout) :: this
+      class(OldCubedSphereGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:)
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
@@ -1244,14 +956,10 @@ contains
       use pFIO
       use, intrinsic :: ISO_C_BINDING
       type(ArrayReference) :: ref
-      class(CubedSphereGridFactory), intent(inout) :: this
+      class(OldCubedSphereGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:,:)
-      type(c_ptr) :: cptr
-      real, pointer :: ptr_ref(:,:,:,:,:)
       _UNUSED_DUMMY(this)
-      cptr = c_loc(fpointer)
-      call C_F_pointer(cptr,ptr_ref,[size(fpointer,1),size(fpointer,2),1,size(fpointer,3),1])
-      ref = ArrayReference(ptr_ref)
+      ref = ArrayReference(fpointer)
    end function generate_file_reference3D
  
-end module MAPL_CubedSphereGridFactoryMod
+end module MAPL_OldCubedSphereGridFactoryMod

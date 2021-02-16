@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add new bundle IO routines for non performance critical IO to eventually depreciate MAPL_CFIO and MAPL_cfio
+
 ### Changed
 
 ### Fixed
