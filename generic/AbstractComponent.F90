@@ -1,5 +1,5 @@
 module mapl_AbstractComponent
-   implicit none(external)
+   implicit none
    private
 
    public :: AbstractComponent
