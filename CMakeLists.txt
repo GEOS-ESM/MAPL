@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.6.0
+  VERSION 2.6.1
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/ESMA_cmake)
@@ -54,7 +54,7 @@ if (NOT Baselibs_FOUND)
   add_definitions(-DNETCDF_NEED_NF_MPIIO)
   add_definitions(-DHAS_NETCDF3)
 
-  find_package(HDF5 REQUIRED Fortran)
+  find_package(HDF5 REQUIRED)
   if(HDF5_IS_PARALLEL)
      add_definitions(-DH5_HAVE_PARALLEL)
   endif()
