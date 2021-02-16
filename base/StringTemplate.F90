@@ -11,7 +11,7 @@ private
 public fill_grads_template
 public StrTemplate
 
-character(len=2), parameter :: valid_tokens(13) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2"]
+character(len=2), parameter :: valid_tokens(14) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2","S2"]
 character(len=3),parameter :: mon_lc(12) = [&
    'jan','feb','mar','apr','may','jun',   &
    'jul','aug','sep','oct','nov','dec']
@@ -127,7 +127,7 @@ contains
                   if (.not.preserve_) then
                      _ASSERT(present(nymd) .or. present(nhms) .or. present(time),'Using token with no time')
                   end if
-                  sbuf = evaluate_token(c1//c2,year,month,day,hour,minute,preserve_)
+                  sbuf = evaluate_token(c1//c2,year,month,day,hour,minute,second,preserve_)
                   kstp = len_trim(sbuf)
                   m=k+kstp-1
                   output_string(k:m)=sbuf
@@ -159,9 +159,9 @@ contains
       enddo
    end function check_token
 
-   function evaluate_token(token,year,month,day,hour,minute,preserve) result(buffer)
+   function evaluate_token(token,year,month,day,hour,minute,second,preserve) result(buffer)
       character(len=2), intent(in) :: token
-      integer, intent(in) :: year,month,day,hour,minute
+      integer, intent(in) :: year,month,day,hour,minute,second
       logical, intent(in) :: preserve
       character(len=4) :: buffer
       character(len=1) :: c1,c2
@@ -227,6 +227,12 @@ contains
       case("n")
          if (.not.skip_token(minute,preserve)) then
             write(buffer,'(i2.2)')minute
+         else
+            buffer="%"//token
+         end if
+      case("S")
+         if (.not.skip_token(second,preserve)) then
+            write(buffer,'(i2.2)')second
          else
             buffer="%"//token
          end if
