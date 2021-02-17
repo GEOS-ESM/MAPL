@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Allow user to specify decomposition used by grids in History output, useful for testing
 - Add %S as seconds token to grads style StringTemplate
 - Add new bundle IO routines for non performance critical IO to eventually depreciate MAPL_CFIO and MAPL_cfio
 
