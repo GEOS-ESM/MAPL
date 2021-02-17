@@ -37,8 +37,7 @@ find_package(GFTL_SHARED REQUIRED)
 esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared pflogger gftl-shared gftl)
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
-target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF})
-target_link_libraries (${this} PUBLIC ${ESMF_LIBRARIES} ${MPI_Fortran_LIBRARIES})
+target_link_libraries (${this} PUBLIC esmf NetCDF::NetCDF_Fortran)
 
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
