@@ -926,7 +926,7 @@ module MAPL_newCFIOMod
            ref=factory%generate_file_reference2D(ptr2d)
            allocate(localStart,source=[gridLocalStart,timeIndex])
            allocate(globalStart,source=[gridGlobalStart,timeIndex])
-           allocate(globalCount,source=[gridGlobalCount,1]) 
+           allocate(globalCount,source=[gridGlobalCount,1])
         else if (rank==3) then
            call ESMF_FieldGet(output_field,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
            _VERIFY(status)

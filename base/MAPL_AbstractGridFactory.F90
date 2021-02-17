@@ -78,6 +78,7 @@ module MAPL_AbstractGridFactoryMod
       procedure(generate_file_corner_bounds), deferred :: generate_file_corner_bounds
       procedure(generate_file_reference2D), deferred :: generate_file_reference2D
       procedure(generate_file_reference3D), deferred :: generate_file_reference3D
+      procedure(get_file_format_vars), deferred :: get_file_format_vars
    end type AbstractGridFactory
 
    abstract interface
@@ -164,6 +165,12 @@ module MAPL_AbstractGridFactoryMod
          class (AbstractGridFactory), intent(inout) :: this
          character(len=:), allocatable :: vars
       end function get_grid_vars
+
+      function get_file_format_vars(this) result(vars)
+         import AbstractGridFactory
+         class (AbstractGridFactory), intent(inout) :: this
+         character(len=:), allocatable :: vars
+      end function get_file_format_vars
 
       subroutine append_variable_metadata(this,var)
          use pFIO

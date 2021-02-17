@@ -31,7 +31,6 @@ module MAPL_CFIOMod
   use MAPL_IOMod
   use ESMFL_Mod
   use MAPL_ShmemMod
-  use MAPL_CFIOServerMod
   use MAPL_SortMod
   use MAPL_GridManagerMod
   use MAPL_RegridderManagerMod
@@ -74,8 +73,6 @@ module MAPL_CFIOMod
   public MAPL_CFIOIsCreated
   public MAPL_CFIOGetFilename
   public MAPL_CFIOGetTimeString
-  public MAPL_CFIOStartAsyncColl
-  public MAPL_CFIOBcastIONode
 
   public MAPL_CFIOPartition
   public MAPL_CFIOCreateFromFile
@@ -83,10 +80,6 @@ module MAPL_CFIOMod
   public MAPL_CFIOReadBundleWait
   public MAPL_CFIOReadParallel
   public MAPL_CFIOAddCollection
-  !public MAPL_ExtDataAddCollection
-  public MAPL_CFIOReadBundlePrefetch
-  public MAPL_CFIOReadBundleReadPrefetch
-  public MAPL_CFIOGetTimeFromIndex
 
   ! ESMF-style names
   ! ----------------
@@ -106,14 +99,6 @@ module MAPL_CFIOMod
 
 !                     MAPL Consistent Naming Convention
 !                     ---------------------------------
-
-  interface MAPL_CFIOStartAsyncColl
-     module procedure MAPL_CFIOStartAsyncColl
-  end interface
-
-  interface MAPL_CFIOBcastIONode
-     module procedure MAPL_CFIOBcastIONode
-  end interface
 
   interface MAPL_CFIOCreate
      module procedure MAPL_CFIOCreateFromBundle
@@ -235,7 +220,6 @@ module MAPL_CFIOMod
      class (AbstractRegridder), pointer :: new_regridder => null()
      integer :: regrid_method
      type (ESMF_Grid)           :: output_grid  
-     logical                    :: async
      integer                    :: AsyncWorkRank
      integer                    :: globalComm
      logical                    :: regridConservative
@@ -295,7 +279,7 @@ contains
                                          SOURCE, INSTITUTION, COMMENT, CONTACT,   &
                                          FORMAT, EXPID, DEFLATE, GC,  ORDER, &
                                          NumCores, nbits, TM, Conservative,  &
-                                         Async, VectorList, itemOrder, RC )
+                                         VectorList, itemOrder, RC )
 ! !ARGUMENTS:
 !
     type(MAPL_CFIO),             intent(OUT) :: MCFIO
@@ -326,7 +310,6 @@ contains
     integer,         optional,   intent(IN)  :: Nbits
     integer,         optional,   intent(IN)  :: NumCores
     integer,         optional,   intent(IN)  :: TM
-    logical,         optional,   intent(IN)  :: Async
     character(len=*),optional,   pointer     :: vectorList(:,:)
     type(ESMF_ItemOrder_Flag),   optional,   intent(IN)  :: itemOrder
     integer,         optional,   intent(OUT) :: RC
@@ -557,12 +540,6 @@ contains
     else
        vunits = ""
     endif
-
-    if (present(Async)) then
-       mcfio%async = async
-    else
-       mcfio%async = .false.
-    end if
 
     if (present(vectorList)) then
        if (associated(vectorList)) then
@@ -2048,7 +2025,6 @@ contains
     integer                    :: counts(5)
     integer                    :: IM0,JM0,I,IP
     logical                    :: FixPole
-    integer                    :: levsize
     integer                    :: lm, nv
     logical                    :: transAlreadyDone
     type(Ptr2Arr), allocatable :: globPtrArr(:)
@@ -2311,17 +2287,9 @@ contains
          _VERIFY(STATUS)
       end if
 
-      if (mcfio%async) then
-         levsize = mcfio%im*mcfio%jm
-         call MPI_ISend(Gout,levsize,MPI_REAL,mcfio%asyncWorkRank, &
-              MAPL_TAG_SHIPDATA,mCFIO%globalComm,request,status)
-         _VERIFY(STATUS)
-      else
          call MPI_ISend(Gout, size(Gout), MPI_REAL, MCFIO%RootRank, &
                  trans_tag, mCFIO%comm, request,         STATUS)
             _VERIFY(STATUS)
-
-      end if
 
 
       return
@@ -2362,44 +2330,42 @@ contains
 ! Set the time at which we will be writing from the clock
 !--------------------------------------------------------
 
-    ASYNCIF: if (.not.mcfio%async) then
-
        call ESMF_ClockGet       (CLOCK, name=ClockName, CurrTime =TIME, RC=STATUS)
        _VERIFY(STATUS)
 
-           call ESMF_TimeIntervalGet( MCFIO%OFFSET, S=noffset, rc=status )
-           _VERIFY(STATUS)
-           if( noffset /= 0 ) then
-               LPERP = ( index( trim(clockname),'_PERPETUAL' ).ne.0 )
-           if( LPERP ) then
-               call ESMF_ClockGetAlarm ( clock, alarmName='PERPETUAL', alarm=PERPETUAL, rc=status )
-               _VERIFY(STATUS)
-               if( ESMF_AlarmIsRinging(PERPETUAL) ) then
-                   call ESMF_TimeGet ( Time, YY = YY, &
-                                             MM = MM, &
-                                             DD = DD, &
-                                             H  = H , &
-                                             M  = M , &
-                                             S  = S, rc=status )
-                                             MM = MM + 1
-                   call ESMF_TimeSet ( Time, YY = YY, &
-                                             MM = MM, &
-                                             DD = DD, &
-                                             H  = H , &
-                                             M  = M , &
-                                             S  = S, rc=status )
-               endif
-           endif
-           endif
+       call ESMF_TimeIntervalGet( MCFIO%OFFSET, S=noffset, rc=status )
+       _VERIFY(STATUS)
+       if( noffset /= 0 ) then
+          LPERP = ( index( trim(clockname),'_PERPETUAL' ).ne.0 )
+          if( LPERP ) then
+             call ESMF_ClockGetAlarm ( clock, alarmName='PERPETUAL', alarm=PERPETUAL, rc=status )
+             _VERIFY(STATUS)
+             if( ESMF_AlarmIsRinging(PERPETUAL) ) then
+                call ESMF_TimeGet ( Time, YY = YY, &
+                     MM = MM, &
+                     DD = DD, &
+                     H  = H , &
+                     M  = M , &
+                     S  = S, rc=status )
+                MM = MM + 1
+                call ESMF_TimeSet ( Time, YY = YY, &
+                     MM = MM, &
+                     DD = DD, &
+                     H  = H , &
+                     M  = M , &
+                     S  = S, rc=status )
+             endif
+          endif
+       endif
 
        TIME = TIME - MCFIO%OFFSET
 
        call ESMF_TimeGet        (TIME,     timeString=DATE,     RC=STATUS)
        _VERIFY(STATUS)
 
-   ! Allocate global 2d and 3d arrays at the writing resolution
-   !  Note that everybody allocated these.
-   !-----------------------------------------------------------
+       ! Allocate global 2d and 3d arrays at the writing resolution
+       !  Note that everybody allocated these.
+       !-----------------------------------------------------------
 
        call MAPL_GridGet( MCFIO%GRID, globalCellCountPerDim=COUNTS, RC=STATUS)
        _VERIFY(STATUS)
@@ -2417,8 +2383,8 @@ contains
 
        AmRoot     = mCFIO%myPE==mCFIO%rootRank
 
-   ! Finally Do The Writes
-   !______________________
+       ! Finally Do The Writes
+       !______________________
 
        nn   = 0
        VARIABLESW: do L=1,size(MCFIO%VarDims)
@@ -2427,27 +2393,27 @@ contains
              nn       = nn + 1
              MyGlobal = mCFIO%Krank(nn) == MCFIO%MYPE
 
-   ! Horizontal Interpolation and Shaving on PEs with global data
-   ! ------------------------------------------------------------
+             ! Horizontal Interpolation and Shaving on PEs with global data
+             ! ------------------------------------------------------------
 
              IAMVARROOT: if(AmRoot) then
                 Gptr2Out => Gptr3Out(:,:,1)
                 call MPI_Recv(Gptr2Out,size(Gptr2Out),MPI_REAL, mCFIO%Krank(nn), &
-                              trans_tag,  mCFIO%comm, MPI_STATUS_IGNORE, STATUS)
+                     trans_tag,  mCFIO%comm, MPI_STATUS_IGNORE, STATUS)
                 _VERIFY(STATUS)
 
                 call StrToInt(date,nymd,nhms)
                 call ESMF_CFIOVarWrite(MCFIO%CFIO, trim(MCFIO%VARNAME(L)), &
-                                       Gptr2Out, timeString=DATE,  RC=STATUS)
+                     Gptr2Out, timeString=DATE,  RC=STATUS)
                 _VERIFY(STATUS)
 
              end if IAMVARROOT
 
           elseif (MCFIO%VarDims(L)==3) then
 
-   ! Everyone waits, processes their layer, and sends it to root.
-   !   Root write it out.
-   !-------------------------------------------------------------
+             ! Everyone waits, processes their layer, and sends it to root.
+             !   Root write it out.
+             !-------------------------------------------------------------
 
              LEVELSW: do k=1,MCFIO%lm
                 nn       = nn + 1
@@ -2456,13 +2422,13 @@ contains
                 IAMLEVROOT: if(AmRoot) then
                    Gptr2Out => Gptr3Out(:,:,1)
                    call MPI_Recv(Gptr2Out, size(Gptr2Out), MPI_REAL, mCFIO%Krank(nn), &
-                                 trans_tag,  mCFIO%comm, MPI_STATUS_IGNORE,   STATUS)
+                        trans_tag,  mCFIO%comm, MPI_STATUS_IGNORE,   STATUS)
                    _VERIFY(STATUS)
 
                    call StrToInt(date,nymd,nhms)
                    call ESMF_CFIOVarWrite(MCFIO%CFIO, trim(MCFIO%VARNAME(L)), &
-                                          Gptr3Out, kbeg=K, kount=1,          &
-                                          timeString=DATE,           RC=STATUS)
+                        Gptr3Out, kbeg=K, kount=1,          &
+                        timeString=DATE,           RC=STATUS)
                    _VERIFY(STATUS)
 
                 end if IAMLEVROOT
@@ -2470,8 +2436,6 @@ contains
           endif RANKW
 
        end do VARIABLESW
-
-    end if ASYNCIF
 
    !if(AmRoot) then
    !   write(6,'(1X,"Wrote: ",i6," Slices (",i3," Nodes, ",i2," CoresPerNode) to File:  ",a)') &
@@ -2518,14 +2482,10 @@ contains
   !    write(6,'(1X,"Cleaned: ",i6," Slices (",i3," Nodes, ",i2," CoresPerNode) to File:  ",a)') &
   !          size(MCFIO%reqs),mCFIO%partsize/mCFIO%numcores,mCFIO%numcores,trim(mCFIO%fName)
   ! endif
-    if (.not.mCFIO%async) then
-
        if (any(mCFIO%myPE==mCFIO%Krank)) then
           deallocate(Gptr3Out, stat=STATUS)
           _VERIFY(STATUS)
        end if
-
-    end if
 
     _RETURN(ESMF_SUCCESS)
 
@@ -4706,143 +4666,7 @@ CONTAINS
 
     end subroutine MAPL_CFIOGetTimeString
     
-    subroutine MAPL_CFIOstartAsyncColl(mcfio,clock,mapl_comm,markdone,rc)
 
-    type(MAPL_CFIO  ),          intent(inout) :: MCFIO
-    type(ESMF_Clock) ,          intent(inout) :: clock
-    type(MAPL_Communicators),   intent(inout) :: mapl_comm
-    integer,                    intent(in   ) :: markdone
-    integer, optional       ,   intent(out  ) :: rc
-
-    integer :: status
-
-    integer :: slices
-    character(len=ESMF_MAXSTR) :: TimeString,filename
-    integer :: im,jm,ionode,l,nn,k,csize
-    integer, allocatable :: levindex(:)
-    character(len=esmf_maxstr), allocatable ::  levname(:)
-    logical :: useFaceDim
-
-    im = mcfio%im
-    jm = mcfio%jm
-    useFaceDim = mcfio%useFaceDim
-
-    ! count the number of slices
-    slices = 0
-    do L=1,size(MCFIO%VarDims)
-       if (MCFIO%VarDims(L)==2) then
-          slices=slices+1
-       else if (MCFIO%VarDims(L) ==3) then
-          do k=1,MCFIO%lm
-             slices=slices+1
-          enddo
-       endif
-    enddo
- 
-    call MAPL_CFIOServerGetFreeNode(mapl_comm,IOnode,im,jm,slices,rc=status)
-    _VERIFY(STATUS)
-    call MAPL_CFIOSet(mcfio,IOWorker=IOnode,rc=status)
-    _VERIFY(STATUS)
-    call MAPL_CFIOGetTimeString(mcfio,clock,timeString,rc=status)
-    _VERIFY(STATUS)
-    filename = MAPL_CFIOGetFilename(mcfio)
-    call MAPL_CFIOAsyncSendCollInfo(filename,IM,JM,timeString,slices &
-           ,IOnode,markdone,mapl_comm,useFaceDim,rc=status)
-    _VERIFY(STATUS)
-
-    allocate(levindex(slices),stat=status)
-    _VERIFY(STATUS)
-    allocate(levname(slices),stat=status)
-    _VERIFY(STATUS)
-    nn = 0
-
-    VARIABLES: do L=1,size(MCFIO%VarDims)
-
-       RANK: if (MCFIO%VarDims(L)==2) then
-
-          nn=nn+1
-          levindex(nn)=0
-          levname(nn)=mcfio%VarName(L)
-
-       elseif (MCFIO%VarDims(L)==3) then
-
-
-          LEVELS: do k=1,MCFIO%lm
-
-             nn=nn+1
-             levindex(nn)=k
-             levname(nn)=mcfio%VarName(L)
-          enddo LEVELS
-       end if Rank
-    enddo VARIABLES
-
-    call MPI_Send(mcfio%krank, slices, MPI_INTEGER, IONODE, MAPL_TAG_SHIPINFO, &
-     mapl_comm%mapl%comm,status)
-    _VERIFY(STATUS)
-    call MPI_Send(levindex, slices, MPI_INTEGER , IONODE, MAPL_TAG_SHIPINFO, &
-     mapl_comm%mapl%comm,status)
-    _VERIFY(STATUS)
-    csize=slices*ESMF_MAXSTR
-    call MPI_Send(levname,csize,MPI_CHARACTER, IONODE, MAPL_TAG_SHIPINFO, &
-     mapl_comm%mapl%comm,status)
-    _VERIFY(STATUS)
-
-    deallocate(levindex)
-    deallocate(levname)
-
-    _RETURN(ESMF_SUCCESS)
-
-    end subroutine
-
-
-    subroutine MAPL_CFIOBcastIONode(mcfio,root,comm,rc)
-    type(MAPL_CFIO  ),          intent(inout) :: MCFIO
-    integer,                    intent(in   ) :: root
-    integer,                    intent(in   ) :: comm
-    integer, optional,          intent(out  ) :: rc
-
-    integer :: status
-
-    call mpi_bcast(mcfio%AsyncWorkRank,1,MPI_INTEGER,root,comm,status)
-    _VERIFY(STATUS)
-
-    _RETURN(ESMF_SUCCESS)
-    end subroutine
-
-  subroutine MAPL_CFIOAsyncSendCollInfo(filename,IM,JM,timeString,nlevs,workRank,markdone,mapl_comm,useFaceDim,rc)
-  character(len=ESMF_MAXSTR), intent(in) :: filename
-  integer,                    intent(in) :: IM
-  integer,                    intent(in) :: JM
-  character(len=ESMF_MAXSTR), intent(in) :: timeString
-  integer,                    intent(in) :: nlevs
-  integer,                    intent(in) :: workRank
-  integer,                    intent(in) :: markdone
-  type(MAPL_Communicators),   intent(in) :: mapl_comm
-  logical,                    intent(in) :: useFaceDim
-  integer, optional,          intent(out) :: rc
-
-  integer :: status
-  type(MAPL_CFIOServerIOinfo) :: ServerInfo
-  integer :: nymd,nhms
-
-
-  ServerInfo%filename = filename
-  ServerInfo%lons = IM
-  ServerInfo%lats = JM
-  ServerInfo%nlevs = nlevs
-  call StrToInt(timeString,nymd,nhms)
-  ServerInfo%date = nymd
-  ServerInfo%time = nhms
-  ServerInfo%markdone = markdone
-  ServerInfo%useFaceDim = useFaceDim
-
-  call MPI_Send(ServerInfo, 1, mpi_io_server_info_type, workRank, MAPL_TAG_SHIPINFO, &
-     mapl_comm%mapl%comm,status)
-  _VERIFY(STATUS)
-
-  _RETURN(ESMF_SUCCESS)
-
-  end subroutine
   subroutine MAPL_CFIOPartition(Slices, NumColls, NumNodes, Writing, Psize,Root)
     integer, intent(IN ) :: NumColls
     integer, intent(IN ) :: Slices(NumColls), NumNodes
@@ -5455,408 +5279,6 @@ CONTAINS
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_CFIOCreateFromFile
-
-  subroutine MAPL_CFIOReadBundlePrefetch(MCFIO,time_index,filetemplate,state,init, rc)
-     use MAPL_GenericMod, only: MAPL_MetaComp, MAPL_TimerOn, MAPL_TimerOff
-    type(MAPL_CFIO  ),   target,     intent(INOUT) :: MCFIO
-    integer,                         intent(INOUT) :: time_index
-    character(len=*),                intent(IN   ) :: filetemplate
-    type (MAPL_MetaComp), optional, intent(inout) :: state
-    logical, optional, intent(in) :: init
-    integer,               optional, intent(  OUT) :: RC
-
-    integer          :: status
-
-    type(ESMF_CFIO), pointer :: cfiop
-    type(CFIOCollection), pointer :: collection
-    type (ESMF_VM) :: vm
-    integer :: pet
-
-    type (CFIOCollectionVectorIterator) :: iter
-
-    _UNUSED_DUMMY(filetemplate)
-    
-    call ESMF_VMGetCurrent(vm,rc=status)
-    _VERIFY(STATUS)
-    call ESMF_VMGet(vm,localPet=pet,rc=status)
-    _VERIFY(STATUS)
-
-    if (.not. init) then
-       call MAPL_TimerOn(state,"----add-collection")
-       iter = collections%begin()
-       do while (iter /= collections%end())
-          collection => iter%get()
-          collection%scollection_id = i_Clients%add_ext_collection(trim(collection%template))
-          call iter%next()
-       end do
-       call MAPL_TimerOff(state,"----add-collection")
-    end if
-
-    collection => collections%at(mcfio%collection_id)
-    mcfio%scollection_id = collection%scollection_id
-    cfiop => collection%find(trim(mcfio%fname))
-
-    ! TODO: n_vars should be a more obvious thing here
-    mcfio%n_vars = size(mcfio%varDims)
-    allocate(mcfio%variables(mcfio%n_vars), stat=status)
-    _VERIFY(status)
-
-    mcfio%variables(:)%num_dimensions = mcfio%VarDims(:)
-    
-    call request_file_data(mcfio, rc=status)
-    _VERIFY(status)
-
-    _RETURN(ESMF_SUCCESS)
-
-  contains
-
-
-    ! Use IO client to request distributed data for each field.
-    subroutine request_file_data(mcfio, rc)
-      type (MAPL_CFIO), target, intent(inout) :: mcfio
-      integer, optional, intent(out) :: rc
-
-      integer :: i_var
-      integer :: n_dims_var
-      type (MCFIO_Variable), pointer :: variable
-      integer :: LM_src
-      integer :: i1, in, j1, jn ! local bounds on src grid
-      integer, allocatable :: start(:)
-      integer, allocatable :: global_start(:)
-      integer, allocatable :: global_count(:)
-      type (ArrayReference) :: ref
-      logical :: HasDE
-
-      call MAPL_TimerOn(state,"----request")
-      do i_var = 1, mcfio%n_vars
-
-         variable => mcfio%variables(i_var)
-         n_dims_var = variable%num_dimensions
-         select case (n_dims_var)
-         case (2)
-            LM_src = 1
-         case (3)
-            LM_src = MCFIO%lm
-         case default
-            LM_src = 0
-         end select
-
-         ! Note: src_grid is mcfio%grid   (This is apparently not true.)
-         ! Note: Too bad that ESMF_GridGetFieldBounds does not accept an
-         !       option for returning global indices unless it was constructed
-         !       that way.
-
-         call MAPL_grid_interior(collection%src_grid, i1, in, j1, jn)
-         
-         hasDE = MAPL_GridHasDE(collection%src_grid,rc=status)
-         _VERIFY(status)
-         if (hasDE) then
-            allocate(variable%data(i1:in, j1:jn, LM_src))
-            _VERIFY(status)
-         else
-            allocate(variable%data(0,0,0))
-         end if
-
-         select case (n_dims_var)
-         case (2)
-            start = [i1, j1, time_index] ! (i,j,t)
-            global_start = [1, 1, time_index] ! (i,j,t)
-            global_count = [mcfio%IM, mcfio%JM, 1]
-         case (3)
-            start = [i1, j1, 1, time_index] ! (i,j,k,t)
-            global_start = [1, 1, 1, time_index] ! (i,j,t)
-            global_count = [mcfio%IM, mcfio%JM, MCFIO%LM, 1]
-         end select
-
-         ! Request data from the server via the I-Client.
-         call MAPL_TimerOn(state,"----make-reference")
-         ref = ArrayReference(variable%data)
-         call MAPL_TimerOff(state,"----make-reference")
-!!$         variable%request_id = i_Clients%request_subset_data_reference( &
-!!$              mcfio%scollection_id, mcfio%fname, trim(mcfio%varName(i_var)), &
-!!$              & ref, start=start)
-         !variable%request_id = i_Clients%collective_prefetch_data( &
-         call i_Clients%collective_prefetch_data( &
-              mcfio%scollection_id, mcfio%fname, trim(mcfio%varName(i_var)), &
-              & ref, start=start, global_start=global_start, global_count=global_count)
-      end do
-      call MAPL_TimerOff(state,"----request")
-       
-
-      _RETURN(ESMF_SUCCESS)
-
-    end subroutine request_file_data
-
-  end subroutine MAPL_CFIOReadBundlePrefetch
-
-
-  subroutine MAPL_CFIOReadBundleReadPrefetch(MCFIO,hw,state,rc)
-     use MAPL_GenericMod, only: MAPL_MetaComp, MAPL_TimerOn, MAPL_TimerOff
-    type(MAPL_CFIO  ),  target,   intent(INOUT) :: MCFIO
-    integer,               optional, intent(IN   ) :: hw
-    type (MAPL_MetaComp), optional, intent(inout) :: state
-    integer,               optional, intent(  OUT) :: RC
-
-    integer          :: status
-
-    integer   :: hw_
-    type(ESMF_CFIO), pointer :: cfiop
-    type(CFIOCollection), pointer :: collection
-
-    type (ESMF_Grid) :: src_grid ! from file
-    type (ESMF_Grid) :: dst_grid ! from bundle
-
-    if (present(hw)) then
-       hw_=hw
-       _ASSERT(.false., 'halo not supported - sorry')
-    else
-       hw_=0
-    end if
-
-    ! TODO: "collections" is a global variable.  Fix.
-    collection => collections%at(mcfio%collection_id)
-    cfiop => collection%find(trim(mcfio%fname))
-
-    if (present(state)) call MAPL_TimerOn(state,"----RegridStore")
-    mcfio%new_regridder => make_esmf_regridder(mcfio, rc=status)
-    _VERIFY(status)
-    if (present(state)) call MAPL_TimerOff(state,"----RegridStore")
-
-    if (present(state)) call MAPL_TimerOn(state,"----RegridApply")
-    call regrid_data(mcfio, rc=status)
-    _VERIFY(status)
-    if (present(state)) call MAPL_TimerOff(state,"----RegridApply")
-
-    deallocate(mcfio%variables, stat=status)
-    _VERIFY(status)
-
-    _RETURN(ESMF_SUCCESS)
-
-  contains
-
-     function make_esmf_regridder(mcfio, rc) result(regridder)
-        class (AbstractRegridder), pointer :: regridder
-        type (MAPL_CFIO), intent(inout) :: mcfio
-        integer, optional, intent(out) :: rc
-
-        ! Local variables
-        type(ESMF_Field) :: tmp_field
-        
-        ! TODO: Add check that the grid is a "2 D" grid.  Someday,
-        !       someone clever may pass a grid from a component that
-        !       treats the levels as actually gridded.  We should fail
-        !       with a message rather than bungling the logic below.
-        
-        ! Determine the src and dst grids
-        src_grid = collection%src_grid
-           
-        call ESMF_FieldBundleGet(mcfio%bundle, 1, tmp_field, rc=status)
-        _VERIFY(status)
-        call ESMF_FieldGet(tmp_field, grid=dst_grid,  rc=status)
-        _VERIFY(status)
-        
-        regridder => new_regridder_manager%make_regridder(src_grid, dst_grid, regrid_method=mcfio%regrid_method, rc=status)
-        _VERIFY(status)
-
-        _RETURN(ESMF_SUCCESS)
-        
-     end function make_esmf_regridder
-     
-     
-     ! Wait for data to arrive for each field.  Then use established regridder to
-     ! to regrid onto model grid.
-     subroutine regrid_data(mcfio, rc)
-        type (MAPL_CFIO), target, intent(inout) :: mcfio
-        integer, optional, intent(out) :: rc
-
-        type (MCFIO_Variable), pointer :: variable
-        type (ESMF_Field) :: bundle_field
-        type (ESMF_Field) :: bundle_vector_fields(2)
-        integer :: i_var, j_var
-        
-        ! Loop over variables and regrid each one.
-        do i_var = 1, mcfio%n_vars
-           variable => mcfio%variables(i_var)
-           
-           j_var = mcfio%needVar(i_var)
-           select case (j_var)
-           case (:-1)
-              ! Field is northward component of tangent vector
-              ! Skip - is processed with Eastward component
-              cycle
-           case (1:)
-              ! Field is eastward component of tangent vector
-              ! regrid with northward component
-              ! Extract fields from bundle
-              call ESMF_FieldBundleGet(mcfio%bundle, i_var, bundle_vector_fields(1), rc=status)
-              _VERIFY(status)
-              call ESMF_FieldBundleGet(mcfio%bundle, j_var, bundle_vector_fields(2), rc=status)
-              _VERIFY(status)
-              call regrid_vector(mcfio, mcfio%variables([i_var,j_var]), bundle_vector_fields, rc=status)
-              _VERIFY(status)
-           case (0)
-            ! Field is a scalar quantity
-              ! Get a Fortran pointer to the field in the bundle:
-              call ESMF_FieldBundleGet(mcfio%bundle, i_var, bundle_field, rc=status)
-              _VERIFY(status)
-              
-              call regrid_scalar(mcfio, variable, bundle_field, rc=status)
-              _VERIFY(status)
-           end select
-           
-        end do
-        
-        _RETURN(ESMF_SUCCESS)
-        
-     end subroutine regrid_data
-     
-     
-     subroutine regrid_scalar(mcfio, variable, bundle_field, rc)
-        type (MAPL_CFIO), intent(inout) :: mcfio
-        type (MCFIO_Variable), target :: variable
-        type (ESMF_Field), intent(inout) :: bundle_field
-        integer, optional, intent(out) :: rc
-        
-        type (ESMF_DynamicMask) :: dynamic_mask
-        integer :: n_dims_var
-        
-        real(kind=REAL32), pointer :: src_data_2d(:,:)
-        real(kind=REAL32), pointer :: src_data_3d(:,:,:)
-        
-        real(kind=REAL32), pointer :: bundle_data_2d(:,:)
-        real(kind=REAL32), pointer :: bundle_data_3d(:,:,:)
-        
-        ! Has the data arrived from the server.
-        if (present(state)) call MAPL_TimerOn(state,"--IclientWait")
-        !call i_Clients%wait(variable%request_id)
-        call i_Clients%wait()
-        if (present(state)) call MAPL_TimerOff(state,"--IclientWait")
-       
-        n_dims_var = variable%num_dimensions
-        select case (n_dims_var)
-        case (2)
-           src_data_2d => variable%data(:,:,1)
-           if (mcfio%regrid_method == REGRID_METHOD_FRACTION) src_data_2d=src_data_2d-mcfio%fraction
-           call ESMF_FieldGet(bundle_field, farrayPtr=bundle_data_2d, rc=status)
-           _VERIFY(status)
-           call mcfio%new_regridder%regrid(src_data_2d, bundle_data_2d, rc=status)
-           _VERIFY(status)
-        case (3)
-           src_data_3d => variable%data(:,:,:)
-           if (mcfio%regrid_method == REGRID_METHOD_FRACTION) src_data_3d=src_data_3d-mcfio%fraction
-           call ESMF_FieldGet(bundle_field, farrayPtr=bundle_data_3d, rc=status)
-           _VERIFY(status)
-           call mcfio%new_regridder%regrid(src_data_3d, bundle_data_3d, rc=status)
-           _VERIFY(status)
-        end select
-
-        _RETURN(ESMF_SUCCESS)
-
-     end subroutine regrid_scalar
-
-
-     subroutine regrid_vector(mcfio, variables, bundle_fields, rc)
-        use MAPL_AbstractGridFactoryMod
-        type (MAPL_CFIO), intent(inout) :: mcfio
-        type (MCFIO_Variable) :: variables(2)
-        type (ESMF_Field), intent(inout) :: bundle_fields(2)
-        integer, optional, intent(out) :: rc
-
-        type (ESMF_DynamicMask) :: dynamic_mask
-        integer :: n_dims_var
-
-        real(kind=REAL32), pointer :: ew_bundle_data_2d(:,:)
-        real(kind=REAL32), pointer :: ns_bundle_data_2d(:,:)
-        real(kind=REAL32), pointer :: ew_bundle_data_3d(:,:,:)
-        real(kind=REAL32), pointer :: ns_bundle_data_3d(:,:,:)
-        type (ESMF_Field) :: src_field
-        type (ESMF_Field) :: dst_field
-
-        class (AbstractGridFactory), pointer :: factory
-
-        ! Has the data arrived from the server.
-        !call i_Clients%wait(variables(1)%request_id)
-        !call i_Clients%wait(variables(2)%request_id)
-        call i_Clients%wait()
-
-        n_dims_var = variables(1)%num_dimensions
-        _ASSERT(n_dims_var == variables(2)%num_dimensions, 'inconsistent number of dimensions')
-
-        select case (n_dims_var)
-        case (2)
-           call ESMF_FieldGet(bundle_fields(1), farrayPtr=ew_bundle_data_2d, rc=status)
-           _VERIFY(status)
-           call ESMF_FieldGet(bundle_fields(2), farrayPtr=ns_bundle_data_2d, rc=status)
-           _VERIFY(status)
-
-           call mcfio%new_regridder%regrid( &
-                & variables(1)%data(:,:,1), variables(2)%data(:,:,1), &
-                & ew_bundle_data_2d, ns_bundle_data_2d, rc=status)
-           _VERIFY(status)
-        case (3)
-           call ESMF_FieldGet(bundle_fields(1), farrayPtr=ew_bundle_data_3d, rc=status)
-           _VERIFY(status)
-           call ESMF_FieldGet(bundle_fields(2), farrayPtr=ns_bundle_data_3d, rc=status)
-           _VERIFY(status)
-
-           call mcfio%new_regridder%regrid( &
-                & variables(1)%data, variables(2)%data, &
-                & ew_bundle_data_3d, ns_bundle_data_3d, rc=status)
-           _VERIFY(status)
-        case default
-           _RETURN(ESMF_FAILURE)
-        end select
-
-        _RETURN(ESMF_SUCCESS)
-
-     end subroutine regrid_vector
-
-
-     subroutine simpleDynMaskProcV(dynamicMaskList, dynamicSrcMaskValue, &
-          dynamicDstMaskValue, rc)
-        type(ESMF_DynamicMaskElementR4R8R4V), pointer              :: dynamicMaskList(:)
-        real(ESMF_KIND_R4),            intent(in), optional :: dynamicSrcMaskValue
-        real(ESMF_KIND_R4),            intent(in), optional :: dynamicDstMaskValue
-        integer,                       intent(out)          :: rc
-        integer :: i, j, k, n
-        real(ESMF_KIND_R4), allocatable  :: renorm(:)
-
-        if (associated(dynamicMaskList)) then
-           n = size(dynamicMaskList(1)%srcElement(1)%ptr)
-           allocate(renorm(n))
-
-           do i=1, size(dynamicMaskList)
-              dynamicMaskList(i)%dstElement = 0.0 ! set to zero
-
-              renorm = 0.d0 ! reset
-              do j=1, size(dynamicMaskList(i)%factor)
-                 do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
-                    if (.not. &
-                         match(dynamicSrcMaskValue,dynamicMaskList(i)%srcElement(j)%ptr(k))) then
-                       dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) & 
-                            + dynamicMaskList(i)%factor(j) &
-                            * dynamicMaskList(i)%srcElement(j)%ptr(k)
-                       renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
-                    endif
-                 end do
-              end do
-              where (renorm > 0.d0)
-                 dynamicMaskList(i)%dstElement = dynamicMaskList(i)%dstElement / renorm
-              elsewhere
-                 dynamicMaskList(i)%dstElement = dynamicSrcMaskValue
-              end where
-           enddo
-        endif
-        ! return successfully
-        rc = ESMF_SUCCESS
-     end subroutine simpleDynMaskProcV
-
-     logical function match(missing,b)
-        real(kind=REAL32), intent(in) :: missing, b
-        match = (missing==b) 
-     end function match
-  
-end subroutine MAPL_CFIOReadBundleReadPrefetch
 
 
   subroutine MAPL_CFIOReadBundleRead(MCFIO,tindex,hw,rc)
@@ -6568,48 +5990,4 @@ end subroutine MAPL_CFIOReadBundleReadPrefetch
 
   end subroutine GetTIndex
 
-  subroutine MAPL_CFIOGetTimeFromIndex(mcfio,tindex,time,rc)
-     type(MAPL_CFIO),intent(inout)             :: mcfio
-     type(ESMF_Time),intent(inout)             :: time
-     integer, intent(in)                       :: tindex
-     integer, optional,          intent(out  ) :: rc
-
-     integer(ESMF_KIND_I4)              :: iyr,imm,idd,ihr,imn,isc
-     integer                            :: i,status
-     integer(ESMF_KIND_I8)              :: iCurrInterval
-     integer                            :: nhmsB, nymdB
-     integer                            :: begDate, begTime
-     type(ESMF_Time)                    :: ltime
-     integer(ESMF_KIND_I8),allocatable  :: tSeriesInt(:)
-     logical                            :: found
-     type(CFIOCollection), pointer      :: collection
-     type(ESMF_CFIO), pointer           :: cfio
-
-     found=.false.
-
-     collection => collections%at(mcfio%collection_ID)
-     cfio => collection%find(mcfio%fname)
-
-     allocate(tSeriesInt(cfio%tSteps))
-     call getDateTimeVec(cfio%fid,begDate,begTime,tSeriesInt,__RC__)
-    
-     do i=1,cfio%tSteps
-        iCurrInterval = tSeriesInt(i)
-        call GetDate ( begDate, begTime, iCurrInterval, nymdB, nhmsB, status )
-        call MAPL_UnpackTime(nymdB,iyr,imm,idd)
-        call MAPL_UnpackTime(nhmsB,ihr,imn,isc)
-        call ESMF_TimeSet(ltime, yy=iyr, mm=imm, dd=idd,  h=ihr,  m=imn, s=isc,__RC__)
-        if (i==tindex) then
-           time=ltime
-           found=.true.
-           exit
-        end if
-     enddo
-
-     deallocate(tSeriesInt)
-     _ASSERT(found, 'search failed')
-     _RETURN(ESMF_SUCCESS)
-
-  end subroutine MAPL_CFIOGetTimeFromIndex
-  
 end module MAPL_CFIOMod

@@ -87,6 +87,7 @@ module MAPL_LatLonGridFactoryMod
 
       procedure :: append_metadata
       procedure :: get_grid_vars
+      procedure :: get_file_format_vars
       procedure :: append_variable_metadata
       procedure :: check_decomposition
       procedure :: generate_newnxy
@@ -1668,7 +1669,7 @@ contains
       type (FileMetadata), intent(inout) :: metadata
 
       type (Variable) :: v
-      
+     
       ! Horizontal grid dimensions
       call metadata%add_dimension('lon', this%im_world)
       call metadata%add_dimension('lat', this%jm_world)
@@ -1697,6 +1698,16 @@ contains
       vars = 'lon,lat'
 
    end function get_grid_vars
+
+   function get_file_format_vars(this) result(vars)
+      class (LatLonGridFactory), intent(inout) :: this
+
+      character(len=:), allocatable :: vars
+      _UNUSED_DUMMY(this)
+
+      vars = 'lon,lat'
+
+   end function get_file_format_vars
 
    subroutine append_variable_metadata(this,var)
       class (LatLonGridFactory), intent(inout) :: this

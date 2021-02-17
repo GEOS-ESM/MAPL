@@ -60,6 +60,7 @@ module MAPL_TripolarGridFactoryMod
 
       procedure :: append_metadata
       procedure :: get_grid_vars
+      procedure :: get_file_format_vars
       procedure :: append_variable_metadata
       procedure :: generate_file_bounds
       procedure :: generate_file_corner_bounds
@@ -886,6 +887,16 @@ contains
       vars = 'Xdim,Ydim'
 
    end function get_grid_vars
+
+   function get_file_format_vars(this) result(vars)
+      class (TripolarGridFactory), intent(inout) :: this
+
+      character(len=:), allocatable :: vars
+      _UNUSED_DUMMY(this)
+
+      vars = 'Xdim,Ydim'
+
+   end function get_file_format_vars
 
    subroutine append_variable_metadata(this,var)
       class (TripolarGridFactory), intent(inout) :: this

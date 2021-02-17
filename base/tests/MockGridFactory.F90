@@ -34,6 +34,7 @@ module MockGridFactoryMod
       procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
+      procedure :: get_file_format_vars
    end type MockGridFactory
 
    interface MockGridFactory
@@ -250,5 +251,11 @@ contains
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D
+
+   function get_file_format_vars(this) result(vars)
+      class (MockGridFactory), intent(inout) :: this
+      character(len=:), allocatable :: vars
+      vars=""
+   end function get_file_format_vars
 
 end module MockGridFactoryMod
