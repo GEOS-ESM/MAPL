@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- fix MAPL_AddChildFromDSO
+
 ### Removed
 
 ## [2.6.1] - 2021-02-16
