@@ -3,6 +3,7 @@
 
 module HistoryTrajectoryMod
 
+   use mpi
    use ESMF
    use MAPL_ErrorHandlingMod
    use MAPL_KeywordEnforcerMod
@@ -43,6 +44,7 @@ module HistoryTrajectoryMod
       character(LEN=ESMF_MAXPATHLEN) :: file_name
       type(TimeData) :: time_info
       logical :: recycle_track
+      integer, allocatable :: local_count(:)
       contains
          procedure :: initialize
          procedure :: create_variable
@@ -55,6 +57,7 @@ module HistoryTrajectoryMod
          procedure :: get_file_start_time
          procedure :: get
          procedure :: reset_times_to_current_day
+         procedure :: gather_to_root
    end type
 
    interface HistoryTrajectory
@@ -73,7 +76,8 @@ module HistoryTrajectoryMod
          type(NetCDF4_FileFormatter) :: formatter
          type(FileMetadataUtils) :: metadata
          type(FileMetadata) :: basic_metadata
-         integer :: num_times
+         integer :: num_times,my_pet,n_pets
+         type(ESMF_VM) :: vm
       
          _UNUSED_DUMMY(unusable)
 
@@ -101,7 +105,14 @@ module HistoryTrajectoryMod
          _VERIFY(status)
          trajectory%root_locstream = trajectory%locstream_factory%create_locstream(rc=status)
          _VERIFY(status)
- 
+         call ESMF_VMGetCurrent(vm,rc=status)
+         _VERIFY(status)
+         call ESMF_VMGet(vm,localPet=my_pet,peCount=n_pets,rc=status)
+         _VERIFY(status)
+         allocate(trajectory%local_count(0:n_pets-1))
+         call MAPL_DecomposeDim(size(trajectory%lons),trajectory%local_count,n_pets)
+         _VERIFY(status)
+
          _RETURN(_SUCCESS)             
  
       end function HistoryTrajectory_from_file
@@ -407,10 +418,11 @@ module HistoryTrajectoryMod
          type(newCFIOitemVectorIterator) :: iter
          type(newCFIOitem), pointer :: item
          type(ESMF_Field) :: src_field,dst_field
-         integer :: rank,interval(2),number_to_write,previous_day,current_day
+         integer :: rank,interval(2),number_to_write,previous_day,current_day,l
          real(kind=REAL32), allocatable :: p_new_lev(:,:,:)
          real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
          real(kind=REAL32), pointer :: p_dst_3d(:,:),p_dst_2d(:)
+         real(kind=REAL32), allocatable :: global_dst_2d(:),global_dst_3d(:,:)
          real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
 
          interval = this%get_current_interval(current_time)
@@ -456,7 +468,14 @@ module HistoryTrajectoryMod
                      call this%regridder%regrid(p_src_2d,p_dst_2d,rc=status)
                      _VERIFY(status)
                      if (mapl_am_i_root()) then
-                        call this%file_handle%put_var(trim(item%xname),p_dst_2d(interval(1):interval(2)),&
+                        allocate(global_dst_2d(size(this%times)))
+                     else
+                        allocate(global_dst_2d(0))
+                     end if
+                     call this%gather_to_root(p_dst_2d,global_dst_2d,rc=status)
+                     _VERIFY(status)
+                     if (mapl_am_i_root()) then 
+                        call this%file_handle%put_var(trim(item%xname),global_dst_2d(interval(1):interval(2)),&
                           start=[this%number_written+1],count=[number_to_write]) 
                      end if
                   else if (rank==3) then
@@ -475,8 +494,17 @@ module HistoryTrajectoryMod
                         _VERIFY(status)
                      end if
                      if (mapl_am_i_root()) then
-                        call this%file_handle%put_var(trim(item%xname),p_dst_3d(interval(1):interval(2),:),&
-                          start=[this%number_written+1,1],count=[number_to_write,size(p_dst_3d,2)])                          
+                        allocate(global_dst_3d(size(this%times),size(p_dst_3d,2)))
+                     else
+                        allocate(global_dst_3d(0,0))
+                     end if
+                     do l=1,size(p_dst_3d,2)
+                        call this%gather_to_root(p_dst_3d(:,l),global_dst_3d(:,l),rc=status)
+                        _VERIFY(status)
+                     enddo
+                     if (mapl_am_i_root()) then
+                        call this%file_handle%put_var(trim(item%xname),global_dst_3d(interval(1):interval(2),:),&
+                          start=[this%number_written+1,1],count=[number_to_write,size(global_dst_3d,2)])                          
                      end if
                   end if
                else if (item%itemType == ItemTypeVector) then
@@ -637,5 +665,31 @@ module HistoryTrajectoryMod
          enddo
 
       end subroutine reset_times_to_current_day
+
+      subroutine gather_to_root(this,local_array,root_array,rc)
+         class(HistoryTrajectory), intent(Inout) :: this
+         real(kind=REAL32), intent(in) :: local_array(:)
+         real(kind=REAL32), intent(out) :: root_array(:)
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_VM) :: vm
+         integer :: i,status,my_pet,n_pets,mpi_comm,mpi_root
+         integer, allocatable :: displ(:)
+         call ESMF_VMGetCurrent(vm,rc=status)
+         _VERIFY(status)
+         call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,peCount=n_pets,localPet=my_pet,rc=status)
+         _VERIFY(status)
+
+         allocate(displ(n_pets))
+         displ(1)=0
+         do i=2,n_pets
+            displ(i)=sum(this%local_count(0:i-2))
+         enddo
+         call MPI_GatherV(local_array,size(local_array),MPI_REAL, &
+            root_array,this%local_count,displ,MPI_REAL,0,mpi_comm,status)
+         _VERIFY(status)
+         _RETURN(_SUCCESS)
+ 
+      end subroutine gather_to_root
 
 end module HistoryTrajectoryMod
