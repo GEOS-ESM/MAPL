@@ -113,12 +113,12 @@ contains
 
       _ASSERT(size(u_in,1) == this%IM_in, 'mismatch in IM for input')
       _ASSERT(size(v_in,1) == this%IM_in, 'mismatch in IM for input')
-      _ASSERT(size(u_in,2) == this%JM_in, 'mismatch in IM for input')
-      _ASSERT(size(v_in,2) == this%JM_in, 'mismatch in IM for input')
-      _ASSERT(size(u_out,1) == this%IM_out, 'mismatch in IM for input')
-      _ASSERT(size(v_out,1) == this%IM_out, 'mismatch in IM for input')
-      _ASSERT(size(u_out,2) == this%JM_out, 'mismatch in IM for input')
-      _ASSERT(size(v_out,2) == this%JM_out, 'mismatch in IM for input')
+      _ASSERT(size(u_in,2) == this%JM_in, 'mismatch in JM for input')
+      _ASSERT(size(v_in,2) == this%JM_in, 'mismatch in JM for input')
+      _ASSERT(size(u_out,1) == this%IM_out, 'mismatch in IM for output')
+      _ASSERT(size(v_out,1) == this%IM_out, 'mismatch in IM for output')
+      _ASSERT(size(u_out,2) == this%JM_out, 'mismatch in JM for output')
+      _ASSERT(size(v_out,2) == this%JM_out, 'mismatch in JM for output')
 
       associate (N => this%resolution_ratio)
         associate (IM => size(u_out,1), JM => size(u_out,2))
@@ -168,13 +168,12 @@ contains
       
       _ASSERT(size(u_in,1) == this%IM_in, 'mismatch in IM for input')
       _ASSERT(size(v_in,1) == this%IM_in, 'mismatch in IM for input')
-      _ASSERT(size(u_in,2) == this%JM_in, 'mismatch in IM for input')
-      _ASSERT(size(v_in,2) == this%JM_in, 'mismatch in IM for input')
-      _ASSERT(size(u_out,1) == this%IM_out, 'mismatch in IM for input')
-      _ASSERT(size(v_out,1) == this%IM_out, 'mismatch in IM for input')
-      _ASSERT(size(u_out,2) == this%JM_out, 'mismatch in IM for input')
-      _ASSERT(size(v_out,2) == this%JM_out, 'mismatch in IM for input')
-
+      _ASSERT(size(u_in,2) == this%JM_in, 'mismatch in JM for input')
+      _ASSERT(size(v_in,2) == this%JM_in, 'mismatch in JM for input')
+      _ASSERT(size(u_out,1) == this%IM_out, 'mismatch in IM for output')
+      _ASSERT(size(v_out,1) == this%IM_out, 'mismatch in IM for output')
+      _ASSERT(size(u_out,2) == this%JM_out, 'mismatch in JM for output')
+      _ASSERT(size(v_out,2) == this%JM_out, 'mismatch in JM for output')
 
       associate (N => this%resolution_ratio)
         associate (IM => size(u_out,1), JM => size(u_out,2))
