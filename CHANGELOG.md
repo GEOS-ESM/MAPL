@@ -12,11 +12,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Important constraint is that the input grid must be a refinement of
   the output grid.
 
+- Improvement to ExtDataDriver when generating synthetic data
+- Allow user to specify decomposition used by grids in History output, useful for testing
+- Add %S as seconds token to grads style StringTemplate
+- Add new bundle IO routines for non performance critical IO to eventually depreciate MAPL_CFIO and MAPL_cfio
+
 ### Changed
 
 ### Fixed
 
+- fix MAPL_AddChildFromDSO
+
 ### Removed
+
+## [2.6.1] - 2021-02-16
+
+### Changed
+
+- Move to ESMA_cmake v3.3.6
+- Remove requirement for HDF5 Fortran bindings in MAPL
+
+### Fixed
+
+- Fixes build of MAPL on non-Baselibs machines
 
 ## [2.6.0] - 2021-02-12
 

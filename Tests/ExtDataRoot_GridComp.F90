@@ -121,6 +121,18 @@ MODULE ExtDataUtRoot_GridCompMod
                units = 'na', &
                dims = MAPL_DimsHorzOnly, &
                vlocation = MAPL_VLocationCenter, rc=status)
+         call MAPL_AddInternalSpec(GC,&
+               short_name='lats', &
+               long_name='na' , &
+               units = 'na', &
+               dims = MAPL_DimsHorzOnly, &
+               vlocation = MAPL_VLocationCenter, rc=status)
+         call MAPL_AddInternalSpec(GC,&
+               short_name='lons', &
+               long_name='na' , &
+               units = 'na', &
+               dims = MAPL_DimsHorzOnly, &
+               vlocation = MAPL_VLocationCenter, rc=status)
 
 !   Generic Set Services
 !   --------------------
@@ -291,6 +303,9 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_State) :: internal
          type(ESMF_Config) :: cf
          type(ESMF_Time) :: currTime
+         real(ESMF_KIND_R8),pointer :: ptrR8(:,:)
+         real, pointer :: ptrR4(:,:)
+         type(ESMF_Grid) :: grid
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
@@ -312,6 +327,17 @@ MODULE ExtDataUtRoot_GridCompMod
          call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,status)
          _VERIFY(status)
          synth => synthWrap%ptr
+         call ESMF_GridCompGet(GC,grid=grid,__RC__)
+         call MAPL_GetPointer(internal,ptrR4,'lons',__RC__)
+         call ESMF_GridGetCoord (Grid, coordDim=1, localDE=0, &
+                           staggerloc=ESMF_STAGGERLOC_CENTER, &
+                           farrayPtr=ptrR8, rc=status)
+         ptrR4=ptrR8
+         call MAPL_GetPointer(internal,ptrR4,'lats',__RC__)
+         call ESMF_GridGetCoord (Grid, coordDim=2, localDE=0, &
+                           staggerloc=ESMF_STAGGERLOC_CENTER, &
+                           farrayPtr=ptrR8, rc=status) 
+         ptrR4=ptrR8
 
          select case (trim(synth%runMode))
 
@@ -523,7 +549,7 @@ MODULE ExtDataUtRoot_GridCompMod
       real, pointer                       :: Exptr2(:,:) => null()
       integer :: itemcount
       character(len=ESMF_MAXSTR), allocatable :: outNameList(:)
-      type(ESMF_Field) :: expf,farray(1)
+      type(ESMF_Field) :: expf,farray(3)
       type(ESMF_State) :: pstate
       character(len=:), pointer :: fexpr
 
@@ -537,6 +563,10 @@ MODULE ExtDataUtRoot_GridCompMod
       exPtr2=synth%tFunc%evaluateTime(Time,rc=status)
       _VERIFY(status)
       call ESMF_StateGet(inState,'time',farray(1),rc=status)
+      _VERIFY(status)
+      call ESMF_StateGet(inState,'lons',farray(2),rc=status)
+      _VERIFY(status)
+      call ESMF_StateGet(inState,'lats',farray(3),rc=status)
       _VERIFY(status)
       pstate = ESMF_StateCreate(rc=status)
       _VERIFY(status)

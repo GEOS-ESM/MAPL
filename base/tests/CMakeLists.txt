@@ -41,4 +41,18 @@ add_pfunit_ctest(MAPL.base.tests
 
 add_dependencies(build-tests MAPL.base.tests)
 
+set(TESTIO mapl_bundleio_test.x)
+ecbuild_add_executable (
+  TARGET ${TESTIO}
+  NOINSTALL
+  SOURCES mapl_bundleio_test.F90
+  LIBS MAPL.base MAPL.shared MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran
+  DEFINITIONS USE_MPI)
 
+add_test(NAME bundleio_tests_latlon
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 2 -ny 1 -ogrid PC90x47-DE)
+
+add_test(NAME bundleio_tests_cube
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 6 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 1 -ny 6 -ogrid PE12x72-CF)
+
+add_dependencies(build-tests ${TESTIO})
