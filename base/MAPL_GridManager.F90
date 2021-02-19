@@ -87,6 +87,7 @@ contains
      use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
      use MAPL_LlcGridFactoryMod, only: LlcGridFactory
      use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
+     use MAPL_OldCubedSphereGridFactoryMod, only: OldCubedSphereGridFactory
       class (AbstractGridFactory), allocatable :: factory
       class (GridManager), intent(inout) :: this
       character(len=*), intent(in) :: grid_type
@@ -106,6 +107,7 @@ contains
       logical, save :: initialized = .false.
       type (LatLonGridFactory) :: latlon_factory
       type (CubedSphereGridFactory) :: cubed_factory
+      type (OldCubedSphereGridFactory) :: old_cubed_factory
       type (TripolarGridFactory) :: tripolar_factory
       type (LlcGridFactory) :: llc_factory
       type (ExternalGridFactory) :: external_factory
@@ -115,6 +117,7 @@ contains
       if (.not. initialized) then
            call this%prototypes%insert('LatLon', latlon_factory)
            call this%prototypes%insert('Cubed-Sphere', cubed_factory)
+           call this%prototypes%insert('Old-Cubed-Sphere', old_cubed_factory)
            call this%prototypes%insert('Tripolar',  tripolar_factory)
            call this%prototypes%insert('llc',  llc_factory)
            call this%prototypes%insert('External', external_factory)
@@ -467,7 +470,7 @@ contains
             jm = file_metadata%get_dimension('Ydim',rc=status)
             _VERIFY(status)
             if (jm == 6*im) then 
-               allocate(factory, source=this%make_clone('Cubed-Sphere'))
+               allocate(factory, source=this%make_clone('Old-Cubed-Sphere'))
             else
                nf = file_metadata%get_dimension('nf',rc=status)
                if (status == _SUCCESS) then
@@ -490,7 +493,7 @@ contains
          end if
 
          if (jm == 6*im) then ! old-format cubed-sphere
-            allocate(factory, source=this%make_clone('Cubed-Sphere'))
+            allocate(factory, source=this%make_clone('Old-Cubed-Sphere'))
 !!$        elseif (...) then ! something that is true for tripolar?
 !!$           factory = this%make_clone('tripolar')
          else

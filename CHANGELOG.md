@@ -15,6 +15,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [2.6.2] - 2021-02-19
+
+### Added
+
+- Completed new capability to conseratively regrid horizontal fluxes
+  Important constraint is that the input grid must be a refinement of
+  the output grid.
+- Improvement to ExtDataDriver when generating synthetic data
+- Allow user to specify decomposition used by grids in History output, useful for testing
+- Add %S as seconds token to grads style StringTemplate
+- Add new bundle IO routines for non performance critical IO to eventually depreciate MAPL_CFIO and MAPL_cfio
+
+### Fixed
+
+- Fix MAPL_AddChildFromDSO
+
 ## [2.6.1] - 2021-02-16
 
 ### Changed

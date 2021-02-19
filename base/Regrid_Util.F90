@@ -24,11 +24,13 @@
    use MAPL_ExceptionHandling
    use MAPL_ApplicationSupport
    use pFIO
-
+   use MAPL_ESMFFieldBundleWrite
+   use MAPL_ESMFFieldBundleRead
+   use MAPL_ServerManager
+   use MAPL_FileMetadataUtilsMod
  
    implicit NONE
 
-   class(AbstractRegridder), pointer :: regridder_esmf=>null()
    real, parameter :: cs_stretch_uninit = -1.0
    type(DistributedProfiler), target :: t_prof
    type (ProfileReporter) :: reporter
@@ -45,14 +47,10 @@ CONTAINS
 
 !  Basic ESMF objects being used in this example
 !  ---------------------------------------------
-   type(ESMF_Grid)     :: grid_old, grid_new
+   type(ESMF_Grid)     :: grid_new
    type(ESMF_VM)       :: vm             ! ESMF Virtual Machine
 
    character(len=ESMF_MAXPATHLEN) ::  Filename,OutputFile,tp_filein,tp_fileout
-
-!  The CFIO object associated with a disk file
-!  -------------------------------------------
-   type(MAPL_CFIO) :: cfio_esmf
 
 !  Basic information about the parallel environment
 !         PET = Persistent Execution Threads
@@ -64,12 +62,10 @@ CONTAINS
 
    integer :: status, rc
    integer :: Nx,Ny,nargs
-   integer :: IM_World0,JM_World0,LM_World
-   integer :: IM_World_new, JM_World_new
-   type(ESMF_CFIO) :: lcfio
-   type(ESMF_CFIOGrid), pointer :: CFIOGRID 
+   integer :: IM_World_new, JM_World_new, lm_world
+   character(len=:), allocatable :: lev_name
 
-   type(ESMF_FieldBundle) :: bundle_cfio, bundle_esmf
+   type(ESMF_FieldBundle) :: bundle
    type(ESMF_Time) :: time
    type(ESMF_Time), allocatable :: tSeries(:)
    type(ESMF_TimeInterval) :: timeInterval
@@ -81,22 +77,25 @@ CONTAINS
 
    character(len=ESMF_MAXSTR) :: Iam
 
-   integer :: second,minute,hour,day,month,year,itime(2),begDate,begTime,tsteps,i,nymdB, nhmsB,freq
+   integer :: second,minute,hour,day,month,year,itime(2),tsteps,i
 
    character(len=2) :: pole_new,dateline_new
-   character(len=2) :: pole_old,dateline_old
    logical :: onlyVars, allTimes, newCube
    character(len=512) :: vars
-   integer(ESMF_KIND_I8), allocatable :: tseriesInt(:)
-   integer(ESMF_KIND_I8) :: iCurrInterval
    character(len=ESMF_MAXSTR) :: gridname
    character(len=ESMF_MAXPATHLEN) :: str,astr
-   real, pointer :: lonsfile(:), latsfile(:)
-   character(len=:), allocatable :: tripolar_file_in,tripolar_file_out,old_gridname
-   type(ESMF_CONFIG) :: cfinput,cfoutput
-   integer :: regridMethod
+   character(len=:), allocatable :: tripolar_file_in,tripolar_file_out
+   type(ESMF_CONFIG) :: cfoutput
+   integer :: regridMethod,tint
    real :: cs_stretch_param(3)
    integer :: deflate, shave
+   type (FileMetaDataUtils) :: metadata
+   type (FileMetaData) :: basic_metadata
+
+   type(FieldBundleWriter) :: newWriter
+   type(ServerManager) :: o_server
+   type(ServerManager) :: i_server
+   type(NetCDF4_FileFormatter) :: formatter
  
     Iam = "ut_ReGridding"
 
@@ -109,6 +108,9 @@ CONTAINS
     call MAPL_Initialize(__RC__)
     t_prof=DistributedProfiler('Regrid_Util',MpiTimerGauge(),MPI_COMM_WORLD)
  
+    call o_server%initialize(mpi_comm_world)
+    call i_server%initialize(mpi_comm_world)
+
     nx=1
     ny=6
     onlyvars=.false.
@@ -142,6 +144,7 @@ CONTAINS
          read(astr,*)itime(1)
          call get_command_argument(i+2,astr)
          read(astr,*)itime(2)
+         alltimes=.false.
       case('-stretch_factor')
          call get_command_argument(i+1,astr)
          read(astr,*)cs_stretch_param(1)
@@ -199,62 +202,55 @@ CONTAINS
 
     call ESMF_CalendarSetDefault ( ESMF_CALKIND_GREGORIAN, rc=status )
     _VERIFY(STATUS)
-    call ESMF_CFIOSet(lcfio,fname=trim(filename),__RC__)
-    call ESMF_CFIOFileOpen(lcfio,FMODE=1,__RC__)
-    call ESMF_CFIOGet       (LCFIO,     grid=CFIOGRID, __RC__)
-    call ESMF_CFIOGridGet   (CFIOGRID, IM=IM_WORLD0, JM=JM_WORLD0, KM=LM_WORLD, Lon=lonsfile,lat=latsfile, __RC__)
-    call guesspole_and_dateline(lonsfile,latsfile,dateline_old,pole_old)
-    old_gridname = create_gridname(im_world0,jm_world0,dateline_old,pole_old)
+
+    call formatter%open(trim(filename),pFIO_Read,rc=status)
+    _VERIFY(status)
+    basic_metadata=formatter%read(rc=status)
+    _VERIFY(status)
+    call metadata%create(basic_metadata,trim(filename))
+
+    call formatter%close(rc=status)
+    _VERIFY(status)
+
+    tsteps = metadata%get_dimension('time',rc=status)
+    _VERIFY(status)
+    call metadata%get_time_info(timeVector=tSeries,rc=status)
+    _VERIFY(status)
+    lev_name=metadata%get_level_name()
+    if (trim(lev_name)/='') then
+       lm_world = metadata%get_dimension(lev_name,rc=status)
+       _VERIFY(status)
+    end if
+
+
     if (.not.allTimes) then
        tSteps=1
        call UnpackDateTIme(itime,year,month,day,hour,minute,second)
+       deallocate(tSeries)
        allocate(tSeries(1))
        call ESMF_TimeSet(tSeries(1), yy=year, mm=month, dd=day,  h=hour,  m=minute, s=second,__RC__)
-    else
-       tSteps=lcfio%tSteps
-       allocate(tSeriesInt(tSteps))
-       call getDateTimeVec(lcfio%fid,begDate,begTime,tSeriesInt,__RC__)
-       allocate(tSeries(tSteps))
-       do i=1,tSteps
-           iCurrInterval = tSeriesInt(i)
-           call GetDate ( begDate, begTime, iCurrInterval, nymdB, nhmsB, status )
-           call MAPL_UnpackTime(nymdB,year,month,day)
-           call MAPL_UnpackTime(nhmsB,hour,minute,second)
-           call ESMF_TimeSet(tSeries(i), yy=year, mm=month, dd=day,  h=hour,  m=minute, s=second,__RC__)
-       enddo
-       icurrInterval = tSeriesInt(1)
-       call GetDate ( begDate, begTime, iCurrInterval, nymdB, nhmsB, status )
-       call MAPL_UnpackTime(nymdB,year,month,day)
-       call MAPL_UnpackTime(nhmsB,hour,minute,second)
     end if
-    call ESMF_CFIOFileClose(lcfio)
-
     if (tSteps == 1) then
        call ESMF_TimeIntervalSet( TimeInterval, h=6, m=0, s=0, rc=status )
        _VERIFY(STATUS)
     else
        TimeInterval=tSeries(2)-tSeries(1)
     end if
+    call ESMF_TimeIntervalGet(TimeInterval,h=hour,m=minute,s=second,__RC__)
+    tint=hour*10000+minute*100+second
     Clock = ESMF_ClockCreate ( name="Eric", timeStep=TimeInterval, &
                                startTime=tSeries(1), rc=status )
     _VERIFY(STATUS)
 
     call UnpackGridName(Gridname,im_world_new,jm_world_new,dateline_new,pole_new)
 
-    if (mapl_am_i_root()) write(*,*)'going to make grid',im_world0,jm_world0,im_world_new,jm_world_new
-    cfinput = create_cf(old_gridname,im_world0,jm_world0,nx,ny,lm_world,cs_stretch_param,__RC__)
-    cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,__RC__)
-    grid_old=grid_manager%make_grid(cfinput,prefix=trim(old_gridname)//".",__RC__)
+    cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,newcube,__RC__)
     grid_new=grid_manager%make_grid(cfoutput,prefix=trim(gridname)//".",__RC__)
-    call t_prof%start("GenRegrid")
-    regridder_esmf => new_regridder_manager%make_regridder(grid_old,grid_new,regridMethod,__RC__)
-    call t_prof%stop("GenRegrid")
 
     if (mapl_am_i_root()) write(*,*)'done making grid'
 
-    bundle_cfio=ESMF_FieldBundleCreate(name="cfio_bundle",rc=status)
-    _VERIFY(STATUS)
-    call ESMF_FieldBundleSet(bundle_cfio,grid=grid_old,rc=status)
+    bundle=ESMF_FieldBundleCreate(name="cfio_bundle",rc=status)
+    call ESMF_FieldBundleSet(bundle,grid=grid_new,rc=status)
     _VERIFY(STATUS)
 
     fileCreated=.false.
@@ -265,228 +261,46 @@ CONTAINS
        if (mapl_am_i_root()) write(*,*)'processing timestep ',i
        time = tSeries(i)
        if (onlyvars) then
-          call MAPL_CFIORead(filename,time,bundle_cfio,only_vars=vars,rc=status)
+          call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=regridMethod,only_vars=vars,rc=status)
        else
-          call MAPL_CFIORead(filename,time,bundle_cfio,rc=status)
+          call MAPL_Read_bundle(bundle,trim(filename),time=time,regrid_method=regridMethod,rc=status)
        end if
        _VERIFY(STATUS)
-
-       if (Mapl_AM_I_Root()) write(*,*)'done reading file ',trim(filename)
-
-       if (.not.fileCreated) bundle_esmf = BundleClone(bundle_cfio,grid_new,__RC__)
        call t_prof%stop("Read")
 
        call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
        _VERIFY(STATUS)
-       _VERIFY(STATUS)
 
-       call t_prof%start("regrid")
-       call RunESMFRegridding(bundle_cfio,bundle_esmf,shave,__RC__)
-       call t_prof%stop("regrid")
-
-       call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
-       _VERIFY(STATUS)
- 
        call t_prof%start("write")
-
 
        if (mapl_am_I_root()) write(*,*) "moving on to writing the file"
 
        call ESMF_ClockSet(clock,currtime=time,__RC__)
        if (.not.fileCreated) then
-          call ESMF_TimeIntervalGet(timeInterval,s=freq,__RC__)
-          call MAPL_CFIOCreate ( cfio_esmf, outputFile, clock, Bundle_esmf,frequency=freq,vunit = "layer", deflate=deflate, rc=status )
-          _VERIFY(STATUS)
-          call MAPL_CFIOSet(cfio_esmf,newFormat=newCube,rc=status)
-          _VERIFY(STATUS)
+          call newWriter%create_from_bundle(bundle,clock,outputFile,n_steps=tsteps,time_interval=tint,nbits=shave,deflate=deflate,rc=status)
+          _VERIFY(status)
+          fileCreated=.true.
        end if
-       call MAPL_CFIOWrite(cfio_esmf,clock,bundle_esmf,created=fileCreated,rc=status)
-       _VERIFY(STATUS)
-       if (.not.fileCreated) fileCreated=.true.
+       call newWriter%write_to_file(rc=status)
+       _VERIFY(status)
        call t_prof%stop("write")
  
     end do
-    call MAPL_CFIOClose(cfio_esmf,rc=status)
-    _VERIFY(STATUS)
 
 !   All done
 !   --------
     call ESMF_VMBarrier(VM,__RC__)
 
+    call o_server%finalize()
+    call i_server%finalize()
     call t_prof%finalize()
     call t_prof%reduce()
     call generate_report()
     call MAPL_Finalize(__RC__)
-    call MPI_Finalize(status)
-!    call ESMF_Finalize ( rc=status )
-!    _VERIFY(STATUS)
+    call ESMF_Finalize ( rc=status )
+    _VERIFY(STATUS)
 
     end subroutine main
-
-
-    function BundleClone(Bundle_old,grid_new,rc) result(Bundle_new)
-
-    type(ESMF_FieldBundle), intent(inout) :: Bundle_old
-    type(ESMF_Grid),        intent(inout) :: grid_new
- 
-    type(ESMF_FieldBundle)                :: Bundle_new
-    integer, optional,      intent(out  ) :: rc
-
-    integer :: status
-    character(LEN=ESMF_MAXSTR) :: Iam
-
-    integer :: bcount, i
-    type(ESMF_Field) :: field
-    type(ESMF_Field) :: field_old
-    character(LEN=ESMF_MAXSTR) :: FieldName
-    integer :: dims_orig
-
-    Iam = "BundleClone"        
-
-
-    call ESMF_FieldBundleGet(bundle_old,fieldCount=bcount,rc=status)
-    _VERIFY(STATUS)
-
-    bundle_new = ESMF_FieldBundleCreate(name="newBundle",rc=status)
-    _VERIFY(STATUS)
-    call ESMF_FieldBundleSet(bundle_new,grid=grid_new,__RC__)
-
-    do i=1,bcount
-       ! get info about original fields in bundle
-       call ESMF_FieldBundleGet(bundle_old,i,field=field_old,rc=status)
-       _VERIFY(STATUS)
-       call ESMF_FieldGet(field_old,name=FieldName,rc=status)
-       _VERIFY(STATUS)
-
-       call ESMF_AttributeGet(field_old,NAME='DIMS',value=dims_orig,rc=status)
-       _VERIFY(STATUS)
-       field = MAPL_FieldCreate(field_old,grid_new,rc=status)
-       _VERIFY(STATUS)
-       call ESMF_AttributeSet(field,NAME='DIMS',value=dims_orig,rc=status)
-       _VERIFY(STATUS)
-       call MAPL_FieldBundleAdd(bundle_new,field,__RC__)
-
-    end do
-
-    _RETURN(ESMF_SUCCESS)
-
-    end function BundleClone
-
-    subroutine BundleCopy(Bundle_old,Bundle_new,rc)
-
-    type(ESMF_FieldBundle), intent(inout) :: Bundle_old
-    type(ESMF_FieldBundle), intent(inout) :: Bundle_new
- 
-    integer, optional,      intent(out  ) :: rc
-
-    integer :: status
-    character(LEN=ESMF_MAXSTR) :: Iam
-
-    integer :: bcount, i
-    type(ESMF_Field) :: field_new
-    type(ESMF_Field) :: field_old
-    real, pointer, dimension(:,:) :: ptr2d_old => null()
-    real, pointer, dimension(:,:) :: ptr2d_new => null()
-    real, pointer, dimension(:,:,:) :: ptr3d_old => null()
-    real, pointer, dimension(:,:,:) :: ptr3d_new => null()
-    integer :: dims, vloc
-
-    Iam = "BundleCopy"        
-
-
-    call ESMF_FieldBundleGet(bundle_old,fieldCount=bcount,rc=status)
-    _VERIFY(STATUS)
-
-
-    do i=1,bcount
-       ! get info about original fields in bundle
-       call ESMF_FieldBundleGet(bundle_old,i,field=field_old,rc=status)
-       _VERIFY(STATUS)
-       call ESMF_AttributeGet(field_old,NAME='DIMS',value=dims,rc=status)
-       _VERIFY(STATUS)
-       call ESMF_AttributeGet(field_old,NAME='VLOCATION',value=vloc,rc=status)
-       _VERIFY(STATUS)
-
-       call ESMF_FieldBundleGet(bundle_new,i,field=field_new,rc=status)
-       _VERIFY(STATUS)
-      
-       if (dims==MAPL_DimsHorzOnly) then
-          call ESMF_FieldGet(field_old,0,ptr2d_old,__RC__)
-          call ESMF_FieldGet(field_new,0,ptr2d_new,__RC__)
-          ptr2d_new=ptr2d_old
-       else if (dims==MAPL_DimsHorzVert) then
-          call ESMF_FieldGet(field_old,0,ptr3d_old,__RC__)
-          call ESMF_FieldGet(field_new,0,ptr3d_new,__RC__)
-          ptr3d_new=ptr3d_old
-       end if
-
-    end do
-
-    _RETURN(ESMF_SUCCESS)
-
-    end subroutine BundleCopy
-
-    subroutine RunESMFRegridding(bundle_old,bundle_new,shave,rc)
-
-    type(ESMF_FieldBundle),     intent(inout) :: bundle_old
-    type(ESMF_FieldBundle),     intent(inout) :: bundle_new
-    integer, intent(in) :: shave
-
-    integer, optional,      intent(out  ) :: rc
-
-    character(len=ESMF_MAXSTR) :: Iam
-    integer :: status
-
-    type(ESMF_Field) :: field_old, field_new
-    integer :: bcount,i
-    real(ESMF_KIND_R4), pointer  :: ptr3d_old(:,:,:) => null()
-    real(ESMF_KIND_R4), pointer  :: ptr3d_new(:,:,:) => null()
-    real(ESMF_KIND_R4), pointer  :: ptr2d_old(:,:) => null()
-    real(ESMF_KIND_R4), pointer  :: ptr2d_new(:,:) => null()
-    integer                 :: oldRank, newRank
-
-    Iam = "RunESMFRegridding"
-
-   call ESMF_FieldBundleGet(bundle_old,fieldcount=bcount,__RC__)
-   do i=1,bcount
-
-       call ESMF_FieldBundleGet(bundle_old,i,field=field_old,__RC__)
-       call ESMF_FieldGet(field_old,rank=oldRank,__RC__)
-
-       call ESMF_FieldBundleGet(bundle_new,i,field=field_new,__RC__)
-       call ESMF_FieldGet(field_new,rank=newRank,__RC__)
-
-       _ASSERT(newRank == oldRank,'needs informative message')
-
-       if (oldRank == 3) then
-
-          call ESMF_FieldGet(field_old,0,farrayPtr=ptr3D_old,__RC__)
-          call ESMF_FieldGet(field_new,0,farrayPtr=ptr3D_new,__RC__)
-          call regridder_esmf%regrid(ptr3d_old,ptr3d_new,__RC__)
-          if (shave < 24) then
-             call pFIO_DownBit(ptr3d_new,ptr3d_new,shave,undef=MAPL_undef,rc=status)
-             _VERIFY(status)
-          end if
-          nullify(ptr3d_old)
-          nullify(ptr3d_new)
-
-       else if (oldRank == 2) then
-
-          call ESMF_FieldGet(field_old,0,farrayPtr=ptr2D_old,__RC__)
-          call ESMF_FieldGet(field_new,0,farrayPtr=ptr2D_new,__RC__)
-          call regridder_esmf%regrid(ptr2d_old,ptr2d_new,__RC__)
-          if (shave < 24) then
-             call pFIO_DownBit(ptr2d_new,ptr2d_new,shave,undef=MAPL_undef,rc=status)
-             _VERIFY(status)
-          end if
-          nullify(ptr2d_old)
-          nullify(ptr2d_new)
-       end if
-    end do
-
-    _RETURN(ESMF_SUCCESS)
-
-    end subroutine RunESMFRegridding
 
    subroutine UnpackDateTime(DATETIME, YY, MM, DD, H, M, S)
      integer, intent(IN   ) :: DATETIME(:)
@@ -545,7 +359,7 @@ CONTAINS
      end if
     end subroutine guesspole_and_dateline 
 
-    function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,rc) result(cf)
+    function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,newCube,rc) result(cf)
        use MAPL_ConfigMod
        type(ESMF_Config)              :: cf
        character(len=*), intent(in) :: grid_name
@@ -553,6 +367,7 @@ CONTAINS
        integer, intent(in)          :: nx,ny
        integer, intent(in)          :: lm
        real, intent(in)             :: cs_stretch_param(3)
+       logical, intent(in)          :: newCube
        integer, optional, intent(out) :: rc
 
        character(len=ESMF_MAXSTR),parameter :: Iam = "create_cf"
@@ -570,8 +385,13 @@ CONTAINS
        call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",rc=status)
        VERIFY_(status)
        if (jm_world==6*im_world) then
-          call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",rc=status)
-          VERIFY_(status)
+          if (newCube) then
+             call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",rc=status)
+             VERIFY_(status)
+          else
+             call MAPL_ConfigSetAttribute(cf,value="Old-Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",rc=status)
+             VERIFY_(status)
+          end if
           call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",rc=status)
           VERIFY_(status)
           call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",rc=status)

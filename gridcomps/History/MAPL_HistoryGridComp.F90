@@ -361,7 +361,7 @@ contains
     integer                                   :: c
     logical                                   :: isFileName
     logical                                   :: fileExists
-    logical                                   :: isPresent
+    logical                                   :: isPresent,hasNX,hasNY
     real                                      :: lvl
 
     integer                                   :: mntly
@@ -619,15 +619,21 @@ contains
              key => iter%key()
              call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",rc=status)
              _VERIFY(status)
-             if (trim(grid_type)=='Cubed-Sphere') then
-                call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,rc=status)
-                _VERIFY(status)
-             else
-                call MAPL_MakeDecomposition(nx,ny,rc=status)
-                _VERIFY(status)
+             call  ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,rc=status)
+             _VERIFY(status)
+             call  ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,rc=status)
+             _VERIFY(status)
+             if ((.not.hasNX) .and. (.not.hasNY)) then
+                if (trim(grid_type)=='Cubed-Sphere') then
+                   call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,rc=status)
+                   _VERIFY(status)
+                else
+                   call MAPL_MakeDecomposition(nx,ny,rc=status)
+                   _VERIFY(status)
+                end if
+                call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",rc=status)
+                call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",rc=status)
              end if
-             call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",rc=status)
-             call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",rc=status)
              output_grid = grid_manager%make_grid(config, prefix=key//'.', rc=status)
              _VERIFY(status)
              call IntState%output_grids%set(key, output_grid)
