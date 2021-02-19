@@ -7,6 +7,7 @@ module LocStreamFactoryMod
    use MAPL_ErrorHandlingMod
    use MAPL_KeywordEnforcerMod
    use MAPL_ConstantsMod
+   use MAPL_BaseMod, only : MAPL_DecomposeDim
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -54,31 +55,41 @@ module LocStreamFactoryMod
          integer, optional, intent(out) :: rc
 
          type(ESMF_VM) :: vm
-         integer :: my_pet,local_count,status
+         integer :: my_pet,n_pets,status,offset
          real(kind=REAL64), allocatable :: tlons(:),tlats(:)
+         integer, allocatable :: local_count(:)
 
          _UNUSED_DUMMY(unusable) 
          call ESMF_VMGetCurrent(vm,rc=status)
          _VERIFY(status)
-         call ESMF_VMGet(vm,localPet=my_pet,rc=status)
+         call ESMF_VMGet(vm,localPet=my_pet,peCount=n_pets,rc=status)
          _VERIFY(status)
-         if (my_pet==0) then
-            local_count = size(this%lons)
-            allocate(tlons(size(this%lons)),source=this%lons,stat=status)
-            _VERIFY(status)
-            allocate(tlats(size(this%lats)),source=this%lats,stat=status)
-            _VERIFY(status)
+         allocate(local_count(0:n_pets-1))
+         call MAPL_DecomposeDim(size(this%lons),local_count,n_pets)
+         _VERIFY(status)
+         allocate(tlons(local_count(my_pet)))
+         allocate(tlats(local_count(my_pet)))
+         offset=0
+         if (my_pet/=0) offset=sum(local_count(0:my_pet-1))
+         tlons=this%lons(offset+1:offset+local_count(my_pet))
+         tlats=this%lats(offset+1:offset+local_count(my_pet))
+         !if (my_pet==0) then
+            !local_count = size(this%lons)
+            !allocate(tlons(size(this%lons)),source=this%lons,stat=status)
+            !_VERIFY(status)
+            !allocate(tlats(size(this%lats)),source=this%lats,stat=status)
+            !_VERIFY(status)
             tlons=tlons*MAPL_PI_R8/180.0d0
             tlats=tlats*MAPL_PI_R8/180.0d0
-         else
-            local_count = 0
-            allocate(tlons(0),stat=status)
-            _VERIFY(status)
-            allocate(tlats(0),stat=status)
-            _VERIFY(status)
-         end if
+         !else
+            !local_count = 0
+            !allocate(tlons(0),stat=status)
+            !_VERIFY(status)
+            !allocate(tlats(0),stat=status)
+            !_VERIFY(status)
+         !end if
 
-         locstream = ESMF_LocStreamCreate(localCount=local_count,coordSys=ESMF_COORDSYS_SPH_RAD,rc=status)
+         locstream = ESMF_LocStreamCreate(localCount=local_count(my_pet),coordSys=ESMF_COORDSYS_SPH_RAD,rc=status)
          _VERIFY(status)
          call ESMF_LocStreamAddKey(locstream,keyName="ESMF:Lat",farray=tlats,datacopyflag=ESMF_DATACOPY_VALUE, &
                  keyUnits="Radians", keyLongName="Latitude",rc=status)

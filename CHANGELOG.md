@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Optimized 1D trajectory sampling in History for better performance
 - Improvement to ExtDataDriver when generating synthetic data
 - Allow user to specify decomposition used by grids in History output, useful for testing
 - Add %S as seconds token to grads style StringTemplate
