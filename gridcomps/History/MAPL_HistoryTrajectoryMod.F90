@@ -673,11 +673,11 @@ module HistoryTrajectoryMod
          integer, optional, intent(out) :: rc
 
          type(ESMF_VM) :: vm
-         integer :: i,status,my_pet,n_pets,mpi_comm,mpi_root
+         integer :: i,status,n_pets,mpi_comm,mpi_root
          integer, allocatable :: displ(:)
          call ESMF_VMGetCurrent(vm,rc=status)
          _VERIFY(status)
-         call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,peCount=n_pets,localPet=my_pet,rc=status)
+         call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,peCount=n_pets,rc=status)
          _VERIFY(status)
 
          allocate(displ(n_pets))
