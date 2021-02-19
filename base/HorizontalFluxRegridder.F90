@@ -221,7 +221,6 @@ contains
 
       integer :: k, status
 
-      write(*,*)'bmaa in 3d flux: ',size(u_in,1),size(u_in,2),size(u_out,1),size(u_out,2)
       _ASSERT(size(u_in,3) == size(u_out,3), 'mismatch in number of levels')
       _ASSERT(size(v_in,3) == size(v_out,3), 'mismatch in number of levels')
       _ASSERT(size(u_in,3) == size(v_in,3), 'mismatch in number of levels')
