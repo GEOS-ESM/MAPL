@@ -73,21 +73,8 @@ module LocStreamFactoryMod
          if (my_pet/=0) offset=sum(local_count(0:my_pet-1))
          tlons=this%lons(offset+1:offset+local_count(my_pet))
          tlats=this%lats(offset+1:offset+local_count(my_pet))
-         !if (my_pet==0) then
-            !local_count = size(this%lons)
-            !allocate(tlons(size(this%lons)),source=this%lons,stat=status)
-            !_VERIFY(status)
-            !allocate(tlats(size(this%lats)),source=this%lats,stat=status)
-            !_VERIFY(status)
-            tlons=tlons*MAPL_PI_R8/180.0d0
-            tlats=tlats*MAPL_PI_R8/180.0d0
-         !else
-            !local_count = 0
-            !allocate(tlons(0),stat=status)
-            !_VERIFY(status)
-            !allocate(tlats(0),stat=status)
-            !_VERIFY(status)
-         !end if
+         tlons=tlons*MAPL_PI_R8/180.0d0
+         tlats=tlats*MAPL_PI_R8/180.0d0
 
          locstream = ESMF_LocStreamCreate(localCount=local_count(my_pet),coordSys=ESMF_COORDSYS_SPH_RAD,rc=status)
          _VERIFY(status)
