@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Completed new capability to conseratively regrid horizontal fluxes
+  Important constraint is that the input grid must be a refinement of
+  the output grid.
 
 - Improvement to ExtDataDriver when generating synthetic data
 - Allow user to specify decomposition used by grids in History output, useful for testing

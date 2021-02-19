@@ -623,7 +623,8 @@ CONTAINS
                         ! regridding keyword, controls what type of regridding is performed
                         ! options are
                         ! N - conventional bilinear regridding
-                        ! Y - conservative tile based regridding
+                        ! Y - conservative regridding
+                        ! H - conservative horizontal flux regridding
                         ! V - voting, tile based
                         ! F;val - fractional, returns the fraction of the input cells with value, val
                         !         that overlap the target cell
@@ -631,16 +632,14 @@ CONTAINS
                         buffer = ESMF_UtilStringLowerCase(buffer, __RC__)
                         buffer = trim(buffer)
                         if (trim(buffer) == 'y') then
-!!$                           primary%item(totalPrimaryEntries)%Trans = MAPL_HorzTransOrderBinning
                            primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_CONSERVE
                         else if (trim(buffer) == 'n') then
-!!$                           primary%item(totalPrimaryEntries)%Trans = MAPL_HorzTransOrderBilinear
                            primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_BILINEAR
+                        else if (trim(buffer) == 'h') then
+                           primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_CONSERVE_HFLUX
                         else if (trim(buffer) == 'v') then
-!!$                           primary%item(totalPrimaryEntries)%Trans = MAPL_HorzTransOrderSample
                            primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_VOTE
                         else if (index(trim(buffer),'f') ==1 ) then
-!!$                           primary%item(totalPrimaryEntries)%Trans = MAPL_HorzTransOrderFraction
                            primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_FRACTION
                            k = index(buffer,';')
                            _ASSERT(k > 0,'ERROR: MAPL fractional regridding requires semi-colon in ExtData.rc entry: '//trim(primary%item(totalPrimaryEntries)%name))
@@ -1076,11 +1075,8 @@ CONTAINS
  
       else if (item%vartype == MAPL_ExtDataVectorItem) then
      
-         ! check that we are not asking for conservative regridding
-!!$         if (item%Trans /= MAPL_HorzTransOrderBilinear) then
-         if (item%Trans /= REGRID_METHOD_BILINEAR) then
-            _ASSERT(.false.,'No conservative re-gridding with vectors')
-         end if 
+         ! Only some methods are supported for vector regridding
+         _ASSERT(any(item%Trans /= [REGRID_METHOD_BILINEAR,REGRID_METHOD_CONSERVE_HFLUX]), 'Regrid method unsupported for vectors.')
 
          block
             integer :: gridRotation1, gridRotation2
