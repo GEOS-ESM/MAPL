@@ -79,11 +79,11 @@ contains
 
        associate (IM_in => this%IM_in, JM_in => this%JM_in, IM_out => this%IM_out, JM_out => this%JM_out)
          
-         call MAPL_GridGet(spec%grid_in, localCellCountPerDim=counts, __RC__)
+         call MAPL_GridGet(grid_in, localCellCountPerDim=counts, __RC__)
          IM_in = counts(1)
          JM_in = counts(2)
          
-         call MAPL_GridGet(spec%grid_out, localCellCountPerDim=counts, __RC__)
+         call MAPL_GridGet(grid_out, localCellCountPerDim=counts, __RC__)
          IM_out = counts(1)
          JM_out = counts(2)
 
