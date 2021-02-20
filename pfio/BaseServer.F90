@@ -21,7 +21,6 @@ module pFIO_BaseServerMod
    use pFIO_ShmemReferenceMod
    use pFIO_RDMAReferenceMod
    use pFIO_AbstractDataMessageMod
-   use pFIO_AbstractSocketMod
    use pFIO_MpiSocketMod
    use pFIO_SimpleSocketMod
    use pFIO_MessageVectorMod

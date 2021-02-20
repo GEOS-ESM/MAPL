@@ -2,7 +2,6 @@ module MaplGeneric
    use mapl_AbstractComponent
    use mapl_MaplComponent
    use mapl_ComponentSpecification
-   use mapl_VariableSpecification
    use mapl_StateSpecification
    use mapl_VarSpecVector
    use mapl_VarSpecMod
