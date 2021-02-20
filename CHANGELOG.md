@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add command line option --one_node_output
+
 ### Changed
 
 - Change one sided mpi_put to mpi_send and receive pair in the class MultiGroupServer
