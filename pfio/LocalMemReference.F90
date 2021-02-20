@@ -362,6 +362,7 @@ contains
       n_words = n * word_size(this%type_kind)
       allocate(this%i_ptr(n_words), stat=status)
       _VERIFY(status)
+
 #ifdef __NAG_COMPILER_BUILD
       if (n > 0) then
          this%base_address = c_loc(this%i_ptr)
