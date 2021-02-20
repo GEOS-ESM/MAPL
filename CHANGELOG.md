@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- fix memory leak when using fast_oserver in write_restart_by_oserver
+
 ### Removed
 
 ## [2.6.2] - 2021-02-19
