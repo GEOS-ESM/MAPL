@@ -54,6 +54,7 @@ module pFIO_MultiGroupServerMod
    public :: MultiGroupServer
 
    type :: vector_array
+      integer :: request
       integer, allocatable :: buffer(:)
    end type
 
@@ -68,6 +69,7 @@ module pFIO_MultiGroupServerMod
       logical :: I_am_back_root
       integer, allocatable :: back_ranks(:)
       integer, allocatable :: front_ranks(:)
+      class(vector_array), allocatable :: buffers(:)
    contains
       procedure :: start
       procedure :: start_back
@@ -140,7 +142,7 @@ contains
          if (local_rank ==0 ) then
             call MPI_Send(s%front_ranks, s_size-nwriter, MPI_INTEGER, s%back_ranks(1), 777, s%server_comm, ierror)
          endif
-         
+         allocate(s%buffers(s%nwriter))
       endif
 
       if (index(s_name, 'o_server_back') /=0) then
@@ -160,6 +162,7 @@ contains
          call MPI_Bcast(s%front_ranks, s%nfront, MPI_INTEGER, 0, s%back_comm, ierror)
          call s%set_status(1)
          call s%add_connection(dummy_socket)
+         allocate(s%buffers(s%nfront))
       endif
 
       if (s_rank == 0) print*, "MultiServer Start: nfront, nback", s%nfront, s%nwriter
@@ -371,12 +374,13 @@ contains
 
         call Mpi_Bcast( back_local_rank, 1, MPI_INTEGER, 0, this%front_comm, ierror)
 
-        call f_d_ms(collection_counter)%serialize(buffer)
-        msg_size= size(buffer)
+        if (allocated(this%buffers(back_local_rank+1)%buffer)) call MPI_Wait(this%buffers(back_local_rank+1)%request, MPI_STAT, ierror)
+        call f_d_ms(collection_counter)%serialize(this%buffers(back_local_rank+1)%buffer)
+        msg_size= size(this%buffers(back_local_rank+1)%buffer)
         call Mpi_send(msg_size,1, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
              this%back_ranks(back_local_rank+1), this%server_comm, ierror)
-        call Mpi_send(buffer,msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
-            this%back_ranks(back_local_rank+1), this%server_comm, ierror)
+        call Mpi_Isend(this%buffers(back_local_rank+1)%buffer, msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
+            this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(back_local_rank+1)%request,ierror)
      enddo
 
      deallocate(f_d_ms)
@@ -399,7 +403,6 @@ contains
      class (AbstractMessage), pointer :: msg
      class (ServerThread),pointer :: thread_ptr
      integer, parameter :: stag = 6782
-     class (vector_array), allocatable :: buffers(:)
      integer, allocatable :: buffer_fmd(:)
 
      integer, pointer :: g_1d(:), l_1d(:), g_2d(:,:), l_2d(:,:), g_3d(:,:,:), l_3d(:,:,:)
@@ -486,8 +489,6 @@ contains
 ! sync with create_remote_win from front_com
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-           allocate(buffers(this%nfront))
-
            do i = 1, this%nfront
               ! receive extra metadata from front root
               if (i == 1) then
@@ -503,10 +504,11 @@ contains
               call MPI_recv( msg_size, 1, MPI_INTEGER,    &
                    this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, &
                    MPI_STAT, ierr)
-              allocate(buffers(i)%buffer(msg_size))
-              call MPI_recv( buffers(i)%buffer(1), msg_size, MPI_INTEGER, &
-                   this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, &
-                   MPI_STAT, ierr)
+              if (allocated(this%buffers(i)%buffer)) deallocate (this%buffers(i)%buffer) 
+              allocate(this%buffers(i)%buffer(msg_size))
+              call MPI_Irecv( this%buffers(i)%buffer(1), msg_size, MPI_INTEGER, &
+                   this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(i)%request, &
+                   ierr)
            enddo
 
            ! re-org data
@@ -516,8 +518,9 @@ contains
            do i = 1, this%nfront
               s0 = 1
               f_d_m = ForwardDataAndMessage()
-              call f_d_m%deserialize(buffers(i)%buffer)
-              deallocate(buffers(i)%buffer)
+              call MPI_Wait(this%buffers(i)%request, MPI_STAT, ierr)
+              call f_d_m%deserialize(this%buffers(i)%buffer)
+              deallocate(this%buffers(i)%buffer)
               if (size(f_d_m%idata) ==0) cycle
               iter = f_d_m%msg_vec%begin()
               do j = 1, f_d_m%msg_vec%size()
@@ -665,7 +668,6 @@ contains
            enddo
            call thread_ptr%clear_hist_collections()
            call thread_ptr%hist_collections%clear()
-           deallocate (buffers)
            deallocate (buffer_fmd) 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! telling captain, I am the soldier that is ready to have more work
@@ -688,8 +690,14 @@ contains
    subroutine terminate_back(this)
       class (MultiGroupServer), intent(inout) :: this
       integer :: terminate = -1
-      integer :: ierr
+      integer :: ierr, i
       integer :: MPI_STAT(MPI_STATUS_SIZE)
+      
+      ! starting from 2, no backend root
+      do i = 2, this%nwriter
+        if (allocated(this%buffers(i)%buffer)) call MPI_Wait(this%buffers(i)%request, MPI_STAT, ierr)
+      enddo
+
       ! The front root rank sends termination signal to the back root 
       ! The back root send terminate back for synchronization
       if (this%I_am_front_root) then
