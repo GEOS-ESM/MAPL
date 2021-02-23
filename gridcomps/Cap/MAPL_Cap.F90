@@ -236,7 +236,8 @@ contains
       call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, rc=status)
       _VERIFY(status)
 
-      call this%initialize_cap_gc()
+      call this%initialize_cap_gc(rc=status)
+      _VERIFY(status)
 
       call this%cap_gc%set_services(rc = status)
       _VERIFY(status)
@@ -290,11 +291,19 @@ contains
 
    end subroutine run_model
    
-   subroutine initialize_cap_gc(this)
+   subroutine initialize_cap_gc(this, unusable, rc)
      class(MAPL_Cap), intent(inout) :: this
+     class (KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+
+     _UNUSED_DUMMY(unusable)
 
      call MAPL_CapGridCompCreate(this%cap_gc, this%set_services, this%get_cap_rc_file(), &
-           this%name, this%get_egress_file())     
+           this%name, this%get_egress_file(), rc=status)
+     _VERIFY(status)
+     _RETURN(_SUCCESS)
    end subroutine initialize_cap_gc
    
 
