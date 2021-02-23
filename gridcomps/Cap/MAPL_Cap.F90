@@ -191,6 +191,7 @@ contains
          fast_oclient  = this%cap_options%fast_oclient, &
          rc=status)
      _VERIFY(status)
+     _RETURN(_SUCCESS)
 
    end subroutine initialize_io_clients_servers
      
@@ -212,6 +213,8 @@ contains
          call o_Clients%terminate()
       end select
                   
+     _RETURN(_SUCCESS)
+
    end subroutine run_member
 
 
@@ -300,6 +303,7 @@ contains
      integer, intent(out) :: rc
      integer :: status
      call this%cap_gc%step(rc = status); _VERIFY(status)
+     _RETURN(_SUCCESS)
    end subroutine step_model
   
    subroutine rewind_model(this, time, rc)
@@ -308,6 +312,7 @@ contains
      integer, intent(out) :: rc
      integer :: status
      call this%cap_gc%rewind_clock(time,rc = status); _VERIFY(status)
+     _RETURN(_SUCCESS)
    end subroutine rewind_model 
 
    integer function create_member_subcommunicator(this, comm, unusable, rc) result(subcommunicator)
