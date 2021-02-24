@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Have CMake automatically gitignore build and install dirs
+
 ### Removed
 
 ## [2.6.2] - 2021-02-19
