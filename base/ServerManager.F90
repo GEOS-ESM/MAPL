@@ -37,7 +37,7 @@ contains
    end subroutine get_splitcomm
 
    subroutine initialize(this, comm, unusable, application_size, nodes_input_server, nodes_output_server,&
-                         npes_input_server,npes_output_server, oserver_type, npes_output_backend, isolate_nodes, &
+                         npes_input_server,npes_output_server, oserver_type, npes_backend_pernode, isolate_nodes, &
                          fast_oclient, rc)
       class (ServerManager), intent(inout) :: this
       integer, intent(in) :: comm
@@ -46,7 +46,7 @@ contains
       integer, optional, intent(in) :: nodes_input_server(:),nodes_output_server(:)
       integer, optional, intent(in) :: npes_input_server(:),npes_output_server(:)
       character(*), optional, intent(in) :: oserver_type
-      integer, optional, intent(in) :: npes_output_backend
+      integer, optional, intent(in) :: npes_backend_pernode
       logical, optional, intent(in) :: isolate_nodes
       logical, optional, intent(in) :: fast_oclient
       
@@ -98,7 +98,7 @@ contains
       if (present(oserver_type)) oserver_type_ = oserver_type 
       
       npes_out_backend = 0
-      if (present(npes_output_backend)) npes_out_backend = npes_output_backend
+      if (present(npes_backend_pernode)) npes_out_backend = npes_backend_pernode
 
       isolated_ = .true.
       if (present(isolate_nodes)) isolated_ = isolate_nodes
