@@ -47,6 +47,7 @@ set (srcs
   CollectiveStageDataMessage.F90
   AddHistCollectionMessage.F90
   ModifyMetadataMessage.F90
+  ForwardDataAndMessage.F90
   ForwardDataMessage.F90
   ProtocolParser.F90
 
@@ -128,7 +129,7 @@ endif ()
 ecbuild_add_executable (
   TARGET pfio_writer.x
   SOURCES pfio_writer.F90
-  LIBS ${this} ${NETCDF_LIBRARIES}  MPI::MPI_Fortran)
+  LIBS ${this} NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
 set_target_properties (pfio_writer.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 #--------------------

@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.5.0
+  VERSION 2.6.2
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/ESMA_cmake)
@@ -54,7 +54,7 @@ if (NOT Baselibs_FOUND)
   add_definitions(-DNETCDF_NEED_NF_MPIIO)
   add_definitions(-DHAS_NETCDF3)
 
-  find_package(HDF5 REQUIRED Fortran)
+  find_package(HDF5 REQUIRED)
   if(HDF5_IS_PARALLEL)
      add_definitions(-DH5_HAVE_PARALLEL)
   endif()
@@ -84,7 +84,7 @@ add_subdirectory (gridcomps)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
-  add_subdirectory (MAPL_pFUnit EXCLUDE_FROM_ALL)
+  add_subdirectory (pfunit EXCLUDE_FROM_ALL)
 endif ()
 
 # Support for automated code generation
@@ -108,6 +108,18 @@ install (
 install (
    DIRECTORY cmake
    DESTINATION ${INSTALL_DATA_DIR}
+   )
+
+# https://www.scivision.dev/cmake-auto-gitignore-build-dir/
+# --- auto-ignore build directory
+if(NOT EXISTS ${PROJECT_BINARY_DIR}/.gitignore)
+  file(WRITE ${PROJECT_BINARY_DIR}/.gitignore "*")
+endif()
+
+# Piggyback that file into install
+install(
+   FILES ${PROJECT_BINARY_DIR}/.gitignore
+   DESTINATION ${CMAKE_INSTALL_PREFIX}
    )
 
 ecbuild_install_project (NAME MAPL)

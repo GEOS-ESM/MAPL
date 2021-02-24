@@ -409,7 +409,7 @@ module MAPL_IOMod
                            optional,  intent(IN   ) :: offset
       integer, optional,              intent(IN   ) :: readers_comm, ioscattercomm
       integer, optional,              intent(IN   ) :: writers_comm, iogathercomm
-      integer, optional, pointer                    :: i1(:), in(:), j1(:), jn(:)
+      integer, optional, target                    :: i1(:), in(:), j1(:), jn(:)
       integer, optional,              intent(IN   ) :: im_world, jm_world, lm_world
 
       if(present(offset  )) ArrDes%offset   = offset

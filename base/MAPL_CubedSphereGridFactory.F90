@@ -85,6 +85,7 @@ module MAPL_CubedSphereGridFactoryMod
 
       procedure :: append_metadata
       procedure :: get_grid_vars
+      procedure :: get_file_format_vars
       procedure :: append_variable_metadata
       procedure :: generate_file_bounds
       procedure :: generate_file_corner_bounds
@@ -244,7 +245,7 @@ contains
                       staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
             _VERIFY(status)
          end if
-         call ESMF_AttributeSet(grid, 'GridType', 'Cubed-Sphere', rc=status)
+         call ESMF_AttributeSet(grid, name='GridType', value='Cubed-Sphere', rc=status)
       else
          grid = ESMF_GridCreateNoPeriDim( &
               & name = this%grid_name, &
@@ -1005,6 +1006,16 @@ contains
       vars = 'Xdim,Ydim,nf'
 
    end function get_grid_vars
+
+   function get_file_format_vars(this) result(vars)
+      class (CubedSphereGridFactory), intent(inout) :: this
+
+      character(len=:), allocatable :: vars
+      _UNUSED_DUMMY(this)
+
+      vars = 'Xdim,Ydim,nf,anchor,lons,lats,corner_lons,corner_lats,nf,ncontact,cubed_sphere,contacts,orientation'
+
+   end function get_file_format_vars
 
    subroutine append_variable_metadata(this,var)
       class (CubedSphereGridFactory), intent(inout) :: this

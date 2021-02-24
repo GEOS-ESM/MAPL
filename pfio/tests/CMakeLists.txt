@@ -29,17 +29,17 @@ set (SRCS
 # This file needs to be in a library because CMake cannot detect the
 # dependency of the pFUnit driver on it.  This is due to the use of
 # preprocesor in the driver for specifying the include file.
-add_library (pfio_extras
-  pFIO_Initialize.F90
-  )
-target_link_libraries (pfio_extras PUBLIC MAPL_pFUnit MAPL.shared)
+#add_library (pfio_extras
+#  pFIO_Initialize.F90
+#  )
+#target_link_libraries (pfio_extras PUBLIC MAPL.pfunit MAPL.shared)
 
 add_pfunit_ctest(MAPL.pfio.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
-                LINK_LIBRARIES MAPL.pfio pfio_extras 
+                LINK_LIBRARIES MAPL.pfio MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
-                EXTRA_USE pFIO_pFUNIT_Initialize
+                EXTRA_USE MAPL_pFUnit_Initialize
                 MAX_PES 8
                 )
 
@@ -59,7 +59,7 @@ ecbuild_add_executable (
   TARGET ${TESTO}
   NOINSTALL
   SOURCES pfio_ctest_io.F90
-  LIBS MAPL.shared MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran
+  LIBS MAPL.shared MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
 # CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
@@ -106,12 +106,12 @@ ecbuild_add_executable (
   NOINSTALL
   SOURCES pfio_performance.F90
   DEFINITIONS USE_MPI
-  LIBS MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran)
+  LIBS MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
 # CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${TESTPERF} OpenMP::OpenMP_Fortran)
 endif ()
-target_link_libraries(${TESTPERF} MAPL.pfio ${NETCDF_LIBRARIES})
+target_link_libraries(${TESTPERF} MAPL.pfio NetCDF::NetCDF_Fortran)
 add_test(NAME pFIO_performance
   COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s hybrid
   )

@@ -1,4 +1,3 @@
-
 #include "MAPL_ErrLog.h"
 
 !=============================================================================
@@ -12,12 +11,12 @@ module MAPL_VarSpecMod
 
 ! !USES:
 
-use ESMF
-use MAPL_BaseMod
-use MAPL_IOMod
-use MAPL_CommsMod, only: MAPL_AM_I_ROOT
-use MAPL_ExceptionHandling
-
+   use ESMF
+   use pFlogger
+   use mapl_Enumerators
+   use MAPL_ExceptionHandling
+   use mapl_VariableSpecification
+   use mapl_VarSpecVector
 ! !PUBLIC MEMBER FUNCTIONS:
 
 implicit none
@@ -41,6 +40,17 @@ public MAPL_VarIsListed
 public MAPL_ConnCheckUnused
 public MAPL_ConnCheckReq
 public MAPL_VarSpecSamePrec
+
+! Types
+
+   public :: MAPL_VarSpec
+   public :: MAPL_VarSpecType
+   public :: MAPL_VarSpecPtr
+   public :: MAPL_VarConnPoint
+   public :: MAPL_VarConnType
+   public :: MAPL_VarConn
+
+
 ! !OVERLOADED INTERFACES:
 
 public operator(.eq.)
@@ -65,6 +75,7 @@ end interface
 
 interface MAPL_VarSpecGet
    module procedure MAPL_VarSpecGetRegular
+   module procedure MAPL_VarSpecGetNew
    module procedure MAPL_VarSpecGetFieldPtr
    module procedure MAPL_VarSpecGetBundlePtr
    module procedure MAPL_VarSpecGetStatePtr
@@ -72,6 +83,7 @@ end interface
 
 interface MAPL_VarSpecSet
    module procedure MAPL_VarSpecSetRegular
+   module procedure MAPL_VarSpecSetNew
    module procedure MAPL_VarSpecSetFieldPtr
    module procedure MAPL_VarSpecSetBundlePtr
    module procedure MAPL_VarSpecSetStatePtr
@@ -93,79 +105,11 @@ interface MAPL_VarSpecPrint
    module procedure MAPL_VarSpecPrintMany
 end interface
 
-! !PUBLIC TYPES:
-
-type, public :: MAPL_VarSpec
-  private
-  type(MAPL_VarSpecType), pointer :: SpecPtr => null()
-end type MAPL_VarSpec
-
-type, public :: MAPL_VarSpecPtr
-  type(MAPL_VarSpec), pointer :: Spec(:) => null()
-end type MAPL_VarSpecPtr
-
 !EOP
 
-type, public :: MAPL_VarSpecType
-  character(len=ESMF_MAXSTR)               :: SHORT_NAME
-  character(len=ESMF_MAXSTR)               :: LONG_NAME
-  character(len=ESMF_MAXSTR)               :: UNITS
-  character(len=ESMF_MAXSTR)               :: FRIENDLYTO
-  character(len=ESMF_MAXSTR)               :: VECTOR_PAIR
-  character(len=ESMF_MAXSTR), pointer      :: ATTR_INAMES(:) => null()
-  character(len=ESMF_MAXSTR), pointer      :: ATTR_RNAMES(:) => null()
-  integer,                    pointer      :: ATTR_IVALUES(:) => null()
-  real,                       pointer      :: ATTR_RVALUES(:) => null()
-  integer,                    pointer      :: UNGRIDDED_DIMS(:) => null()
-  character(len=ESMF_MAXSTR)               :: UNGRIDDED_UNIT
-  character(len=ESMF_MAXSTR)               :: UNGRIDDED_NAME
-  real,                       pointer      :: UNGRIDDED_COORDS(:)
-  integer                                  :: DIMS
-  integer                                  :: LOCATION
-  integer                                  :: NUM_SUBTILES
-  integer                                  :: STAT
-  integer                                  :: ACCMLT_INTERVAL
-  integer                                  :: COUPLE_INTERVAL
-  integer                                  :: OFFSET
-  integer                                  :: LABEL
-  integer                                  :: HALOWIDTH
-  integer                                  :: PRECISION
-  integer                                  :: FIELD_TYPE
-  integer                                  :: VECTOR_ORDER
-  integer                                  :: STAGGERING
-  integer                                  :: ROTATION
-  integer                                  :: RESTART
-  logical                                  :: defaultProvided
-  logical                                  :: doNotAllocate
-  logical                                  :: alwaysAllocate ! meant for export specs
-  real                                     :: DEFAULT
-  type(ESMF_Field), pointer                :: FIELD => null()
-  type(ESMF_FieldBundle), pointer          :: BUNDLE => null()
-  type(ESMF_State), pointer                :: STATE => null()
-  type(ESMF_Grid)                          :: GRID
-end type MAPL_VarSpecType
-
-type MAPL_VarConnPoint
-  private
-  character(len=ESMF_MAXSTR)               :: SHORT_NAME
-  integer                                  :: IMPORT
-  integer                                  :: EXPORT
-end type MAPL_VarConnPoint
-
-type MAPL_VarConnType
-  private
-  type (MAPL_VarConnPoint)                 :: FROM
-  type (MAPL_VarConnPoint)                 :: TO
-  logical                                  :: used = .false.
-  logical                                  :: notRequired = .false.
-end type MAPL_VarConnType
-
-type, public :: MAPL_VarConn
-  private
-  type(MAPL_VarConnType), pointer :: ConnPtr => null()
-end type MAPL_VarConn
-
 contains
+
+
 
   subroutine MAPL_VarSpecCreateInList(SPEC, SHORT_NAME, LONG_NAME,     &
                              UNITS,  Dims, VLocation, FIELD, BUNDLE, STATE, &
@@ -588,6 +532,7 @@ contains
     type (MAPL_VarSpec ), pointer         :: TMP(:) => null()
     integer                               :: I
     logical                               :: usableALLOW_DUPLICATES
+    class(Logger), pointer :: lgr
      
 
     if(present(ALLOW_DUPLICATES)) then
@@ -612,9 +557,8 @@ contains
                 end if
                 return
              else
-                call write_parallel("ERROR: same SHORT_NAME, ("   // &
-                                    trim(ITEM%SPECPtr%SHORT_NAME) // &
-                                    "), different attributes")
+                lgr => logging%get_logger('MAPL.GENERIC')
+                call lgr%error("Duplicate SHORT_NAME %a with different attributes.", trim(ITEM%SPECPtr%short_name))
                 call MAPL_VarSpecPrint(ITEM)
                 call MAPL_VarSpecPrint(SPEC(I))
                 _RETURN(ESMF_FAILURE)
@@ -1030,6 +974,128 @@ contains
 
   end subroutine MAPL_VarSpecSetRegular
 
+  subroutine MAPL_VarSpecSetNew(SPEC, SHORT_NAME, LONG_NAME, UNITS,       &
+                             Dims, VLocation, FIELD, BUNDLE, STATE,    &
+                             STAT, ACCMLT_INTERVAL, COUPLE_INTERVAL,   &
+                             OFFSET, LABEL,                            &
+                             FRIENDLYTO,                               &
+                             FIELD_TYPE,                               &
+                             STAGGERING,                               &
+                             ROTATION,                                 &
+                             GRID,                                     &
+                             doNotAllocate,                            &
+                             alwaysAllocate,                            &
+                                                                    RC )
+
+    type (MAPL_VarSpecType),             intent(INOUT)   :: SPEC
+    character(len=*)   , optional   , intent(IN)      :: SHORT_NAME
+    character(len=*)   , optional   , intent(IN)      :: LONG_NAME
+    character(len=*)   , optional   , intent(IN)      :: UNITS
+    integer            , optional   , intent(IN)      :: DIMS
+    integer            , optional   , intent(IN)      :: VLOCATION
+    integer            , optional   , intent(IN)      :: ACCMLT_INTERVAL
+    integer            , optional   , intent(IN)      :: COUPLE_INTERVAL
+    integer            , optional   , intent(IN)      :: OFFSET
+    integer            , optional   , intent(IN)      :: STAT
+    integer            , optional   , intent(IN)      :: LABEL
+    type(ESMF_Field)   , optional   , intent(IN)      :: FIELD
+    type(ESMF_FieldBundle)  , optional   , intent(IN) :: BUNDLE
+    type(ESMF_State)   , optional   , intent(IN)      :: STATE
+    character(len=*)   , optional   , intent(IN)      :: FRIENDLYTO
+    integer            , optional   , intent(in)      :: FIELD_TYPE
+    integer            , optional   , intent(in)      :: STAGGERING
+    integer            , optional   , intent(in)      :: ROTATION
+    type(ESMF_Grid)    , optional   , intent(IN)      :: GRID
+    logical            , optional   , intent(IN)      :: doNotAllocate
+    logical            , optional   , intent(IN)      :: alwaysAllocate
+    integer            , optional   , intent(OUT)     :: RC
+
+
+
+      if(present(SHORT_NAME)) then
+        SPEC%SHORT_NAME = SHORT_NAME
+      endif
+
+      if(present(LONG_NAME)) then
+        SPEC%LONG_NAME = LONG_NAME
+      endif
+
+      if(present(UNITS)) then
+        SPEC%UNITS = UNITS
+      endif
+
+      if(present(FRIENDLYTO)) then
+        SPEC%FRIENDLYTO = FRIENDLYTO
+      endif
+
+      if(present(STAT)) then
+       SPEC%STAT=STAT
+      endif
+
+      if(present(DIMS)) then
+       SPEC%DIMS=DIMS
+      endif
+
+      if(present(VLOCATION)) then
+       SPEC%LOCATION=VLOCATION
+      endif
+
+      if(present(ACCMLT_INTERVAL)) then
+       SPEC%ACCMLT_INTERVAL=ACCMLT_INTERVAL
+      endif
+
+      if(present(COUPLE_INTERVAL)) then
+       SPEC%COUPLE_INTERVAL=COUPLE_INTERVAL
+      endif
+
+      if(present(OFFSET)) then
+       SPEC%OFFSET=OFFSET
+      endif
+
+      if(present(LABEL)) then
+       SPEC%LABEL=LABEL
+      endif
+
+      if(present(FIELD)) then
+       SPEC%FIELD = FIELD
+      endif
+
+      if(present(BUNDLE)) then
+       SPEC%BUNDLE = BUNDLE
+      endif
+
+      if(present(STATE)) then
+       SPEC%STATE = STATE
+      endif
+
+      if(present(GRID)) then
+         SPEC%GRID = GRID
+      endif
+
+      if(present(FIELD_TYPE)) then
+         SPEC%FIELD_TYPE = FIELD_TYPE
+      endif
+
+      if(present(STAGGERING)) then
+         SPEC%STAGGERING = STAGGERING
+      endif
+
+      if(present(ROTATION)) then
+         SPEC%ROTATION = ROTATION
+      endif
+
+      if(present(doNotAllocate)) then
+         SPEC%doNotAllocate = doNotAllocate
+      endif
+
+      if(present(alwaysAllocate)) then
+         SPEC%alwaysAllocate = alwaysAllocate
+      endif
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecSetNew
+
 
   subroutine MAPL_VarSpecSetFieldPtr(SPEC, FIELDPTR, RC )
 
@@ -1296,6 +1362,210 @@ contains
       _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_VarSpecGetRegular
+
+  subroutine MAPL_VarSpecGetNew(SPEC, SHORT_NAME, LONG_NAME, UNITS,       &
+                             Dims, VLocation, FIELD, BUNDLE, STATE, &
+                             NUM_SUBTILES,      &
+                             STAT, ACCMLT_INTERVAL, COUPLE_INTERVAL,   &
+                             OFFSET, LABEL, DEFAULT, defaultProvided,  &
+                             FRIENDLYTO,                               &
+                             RESTART,                                  &
+                             HALOWIDTH,                                &
+                             PRECISION,                                &
+                             ATTR_RNAMES, ATTR_INAMES,                 &
+                             ATTR_RVALUES, ATTR_IVALUES,               &
+                             UNGRIDDED_DIMS,                           &
+                             UNGRIDDED_UNIT,                          &
+                             UNGRIDDED_NAME,                          &
+                             UNGRIDDED_COORDS,                         &
+                             FIELD_TYPE,                               &
+                             STAGGERING,                               &
+                             ROTATION,                                 &
+                             GRID,                                     &
+                             doNotAllocate,                            &
+                             alwaysAllocate,                           &
+                                                                    RC )
+
+    type (MAPL_VarSpecType),             intent(IN )     :: SPEC
+    character(len=*)   , optional   , intent(OUT)     :: SHORT_NAME
+    character(len=*)   , optional   , intent(OUT)     :: LONG_NAME
+    character(len=*)   , optional   , intent(OUT)     :: UNITS
+    integer            , optional   , intent(OUT)     :: DIMS
+    integer            , optional   , intent(OUT)     :: VLOCATION
+    integer            , optional   , intent(OUT)     :: NUM_SUBTILES
+    integer            , optional   , intent(OUT)     :: ACCMLT_INTERVAL
+    integer            , optional   , intent(OUT)     :: COUPLE_INTERVAL
+    integer            , optional   , intent(OUT)     :: OFFSET
+    integer            , optional   , intent(OUT)     :: STAT
+    integer            , optional   , intent(OUT)     :: LABEL
+    real               , optional   , intent(OUT)     :: DEFAULT
+    logical            , optional   , intent(OUT)     :: defaultProvided
+    type(ESMF_Field)   , optional   , intent(OUT)     :: FIELD
+    type(ESMF_FieldBundle)  , optional   , intent(OUT)     :: BUNDLE
+    type(ESMF_State)   , optional   , intent(OUT)     :: STATE
+    character(len=*)   , optional   , intent(OUT)     :: FRIENDLYTO
+    integer            , optional   , intent(OUT)     :: HALOWIDTH
+    integer            , optional   , intent(OUT)     :: PRECISION
+    integer            , optional   , intent(OUT)     :: RESTART
+    character(len=ESMF_MAXSTR), optional, pointer     :: ATTR_INAMES(:)
+    character(len=ESMF_MAXSTR), optional, pointer     :: ATTR_RNAMES(:)
+    integer,                    optional, pointer     :: ATTR_IVALUES(:)
+    real,                       optional, pointer     :: ATTR_RVALUES(:)
+    integer,                    optional, pointer     :: UNGRIDDED_DIMS(:)
+    character(len=*)   , optional   , intent(OUT)     :: UNGRIDDED_UNIT
+    character(len=*)   , optional   , intent(OUT)     :: UNGRIDDED_NAME
+    real,                       optional, pointer     :: UNGRIDDED_COORDS(:)
+    integer,                    optional              :: FIELD_TYPE
+    integer,                    optional              :: STAGGERING
+    integer,                    optional              :: ROTATION
+    type(ESMF_Grid)    , optional   , intent(OUT)     :: GRID
+    logical            , optional   , intent(OUT)     :: doNotAllocate
+    logical            , optional   , intent(OUT)     :: alwaysAllocate
+    integer            , optional   , intent(OUT)     :: RC
+
+
+
+
+      if(present(STAT)) then
+       STAT = SPEC%STAT
+      endif
+
+      if(present(SHORT_NAME)) then
+       SHORT_NAME = SPEC%SHORT_NAME
+      endif
+
+      if(present(LONG_NAME)) then
+       LONG_NAME = SPEC%LONG_NAME
+      endif
+
+      if(present(UNITS)) then
+       UNITS = SPEC%UNITS
+      endif
+
+      if(present(FRIENDLYTO)) then
+       FRIENDLYTO = SPEC%FRIENDLYTO
+      endif
+
+      if(present(DIMS)) then
+       DIMS = SPEC%DIMS
+      endif
+
+      if(present(VLOCATION)) then
+       VLOCATION = SPEC%LOCATION
+      endif
+
+      if(present(NUM_SUBTILES)) then
+       NUM_SUBTILES = SPEC%NUM_SUBTILES
+      endif
+
+      if(present(ACCMLT_INTERVAL)) then
+       ACCMLT_INTERVAL = SPEC%ACCMLT_INTERVAL
+      endif
+
+      if(present(COUPLE_INTERVAL)) then
+       COUPLE_INTERVAL = SPEC%COUPLE_INTERVAL
+      endif
+
+      if(present(OFFSET)) then
+       OFFSET = SPEC%OFFSET
+      endif
+
+      if(present(LABEL)) then
+       LABEL = SPEC%LABEL
+      endif
+
+      if(present(DEFAULT)) then
+       DEFAULT = SPEC%DEFAULT
+      endif
+
+      if(present(defaultProvided)) then
+         defaultProvided= SPEC%defaultProvided
+      endif
+
+      if(present(FIELD)) then
+       FIELD = SPEC%FIELD
+      endif
+
+      if(present(BUNDLE)) then
+       BUNDLE = SPEC%BUNDLE
+      endif
+
+      if(present(STATE)) then
+       STATE = SPEC%STATE
+      endif
+
+      if(present(HALOWIDTH)) then
+       HALOWIDTH = SPEC%HALOWIDTH
+      endif
+
+      if(present(PRECISION)) then
+       PRECISION = SPEC%PRECISION
+      endif
+
+      if(present(RESTART)) then
+       RESTART = SPEC%RESTART
+      endif
+
+      if(present(ATTR_INAMES)) then
+       ATTR_INAMES => SPEC%ATTR_INAMES
+      endif
+
+      if(present(ATTR_RNAMES)) then
+       ATTR_RNAMES => SPEC%ATTR_RNAMES
+      endif
+
+      if(present(ATTR_IVALUES)) then
+       ATTR_IVALUES => SPEC%ATTR_IVALUES
+      endif
+
+      if(present(ATTR_RVALUES)) then
+       ATTR_RVALUES => SPEC%ATTR_RVALUES
+      endif
+
+      if(present(UNGRIDDED_DIMS)) then
+       UNGRIDDED_DIMS => SPEC%UNGRIDDED_DIMS
+      endif
+
+      if(present(UNGRIDDED_UNIT)) then
+       UNGRIDDED_UNIT = SPEC%UNGRIDDED_UNIT
+      endif
+
+      if(present(UNGRIDDED_NAME)) then
+       UNGRIDDED_NAME = SPEC%UNGRIDDED_NAME
+      endif
+
+      if(present(UNGRIDDED_COORDS)) then
+       UNGRIDDED_COORDS => SPEC%UNGRIDDED_COORDS
+      endif
+
+      if(present(FIELD_TYPE)) then
+       FIELD_TYPE = SPEC%FIELD_TYPE
+      endif
+
+      if(present(STAGGERING)) then
+       STAGGERING = SPEC%STAGGERING
+      endif
+
+      if(present(ROTATION)) then
+       ROTATION = SPEC%ROTATION
+      endif
+
+      if(present(GRID)) then
+       GRID = SPEC%GRID
+      endif
+
+      if(present(doNotAllocate)) then
+         doNotAllocate = SPEC%doNotAllocate
+      endif
+
+      if(present(alwaysAllocate)) then
+         alwaysAllocate = SPEC%alwaysAllocate
+      endif
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecGetNew
+
 
   subroutine MAPL_VarSpecGetFieldPtr(SPEC, FIELDPTR, RC )
 
@@ -1829,28 +2099,18 @@ contains
     type (MAPL_VarSpec ),             intent(IN )     :: SPEC
     integer            , optional   , intent(OUT)     :: RC
 
-
-
-    character(len=3) :: tmp
-    character(len=ESMF_MAXSTR)            :: string
+    class(Logger), pointer :: lgr
 
     if(.not.associated(SPEC%SPECPtr)) then
        _RETURN(ESMF_FAILURE)
     endif
 
-    write(tmp,'(i3)') spec%specptr%label
-    CALL WRITE_PARALLEL('NAME = '//trim(SPEC%SPECPtr%SHORT_NAME) // ":" // &
-                        trim(SPEC%SPECPtr%LONG_NAME)//":"//tmp)
-
-    WRITE(string,*) 'ACCUMT =',SPEC%SPECPtr%ACCMLT_INTERVAL
-    CALL WRITE_PARALLEL(trim(string))
-    WRITE(string,*) 'COUPLE =',SPEC%SPECPtr%COUPLE_INTERVAL
-    CALL WRITE_PARALLEL(trim(string))
-!    WRITE(string,*) 'DIMS =',SPEC%SPECPtr%DIMS
-!    CALL WRITE_PARALLEL(trim(string))
-
-!    WRITE(string, *) 'LOCATION =',SPEC%SPECPtr%LOCATION
-!    CALL WRITE_PARALLEL(trim(string))
+    call lgr%info('NAME = %a~:%a~:%i3.3', &
+         trim(spec%specptr%short_name), trim(spec%specptr%long_name), spec%specptr%label)
+    call lgr%info('ACCUMT = %i0',SPEC%SPECPtr%ACCMLT_INTERVAL)
+    call lgr%info('COUPLE = %i0',SPEC%SPECPtr%COUPLE_INTERVAL)
+!!$    call lgr%info('DIMS   = %i0',SPEC%SPECPtr%DIMS)
+!!$    call lgr%info('LOCATION = %dims   = %i0',SPEC%SPECPtr%location)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarSpecPrintOne
@@ -1884,21 +2144,17 @@ contains
     character(len=*),                 intent(IN )     :: compName
     integer            , optional   , intent(OUT)     :: RC
 
-
-
-    character(len=3)                      :: dimensions
-    character(len=ESMF_MAXSTR)            :: specInfo
+    class(Logger), pointer :: lgr
 
     if(.not.associated(SPEC%SPECPtr)) then
        _RETURN(ESMF_FAILURE)
     endif
 
-    write(dimensions,'(i3)') spec%specptr%dims
-    specInfo = '  '//trim(compName)//", " // &
-                        trim(SPEC%SPECPtr%SHORT_NAME) // ", " // &
-                        trim(SPEC%SPECPtr%LONG_NAME)//", "// &
-                        trim(SPEC%SPECPtr%UNITS)//", "// dimensions
-    if (MAPL_AM_I_ROOT()) write(6,'(a)') trim(specInfo)
+    lgr => logging%get_logger('MAPL.GENERIC')
+    call lgr%info('%a~, %a~, %a~, %i3', &
+         trim(compName), trim(spec%specptr%short_name), trim(spec%specptr%long_name), &
+         spec%specptr%dims)
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarSpecPrint1CSV
 
@@ -1924,8 +2180,8 @@ contains
   logical function MAPL_ConnCheckUnused(CONN)
     type (MAPL_VarConn ),             pointer   :: CONN(:)
 
-
     integer                               :: I
+    class(Logger), pointer :: lgr
 
     MAPL_ConnCheckUnused = .true.
     if (.not. associated(CONN)) then
@@ -1936,10 +2192,10 @@ contains
        if (CONN(I)%CONNptr%notRequired) cycle
        if (.not. CONN(I)%CONNptr%USED) then
           MAPL_ConnCheckUnused = .false.
-          call WRITE_PARALLEL('ERROR:' // &
-               ' SRC_NAME:' // trim(CONN(I)%CONNptr%FROM%SHORT_NAME) // &
-               ' DST_NAME:'//trim(CONN(I)%CONNptr%TO%SHORT_NAME) // &
-               ' is not satisfied' )
+          lgr => logging%get_logger('MAPL.GENERIC')
+          call lgr%error( &
+               'SRC_NAME: <%a~>  DST_NAME: <%a~> is not satisfied', &
+               trim(CONN(I)%CONNptr%FROM%SHORT_NAME),trim(CONN(I)%CONNptr%TO%SHORT_NAME))
        end if
     end DO
 
