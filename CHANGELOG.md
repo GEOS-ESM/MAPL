@@ -11,7 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Change one sided mpi_put to mpi_send and receive pair in the class MultiGroupServer
+- Change command line interface to --npes_backend_pernode to avoid confusion
+- Remove self-defined-in-file MAPL macros
+
 ### Fixed
+
+- Have CMake automatically gitignore build and install dirs
 
 ### Removed
 

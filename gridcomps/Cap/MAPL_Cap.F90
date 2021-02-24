@@ -186,7 +186,7 @@ contains
          npes_input_server=this%cap_options%npes_input_server, &
          npes_output_server=this%cap_options%npes_output_server, &
          oserver_type=this%cap_options%oserver_type, &
-         npes_output_backend=this%cap_options%npes_output_backend, &
+         npes_backend_pernode=this%cap_options%npes_backend_pernode, &
          isolate_nodes = this%cap_options%isolate_nodes, &
          fast_oclient  = this%cap_options%fast_oclient, &
          rc=status)

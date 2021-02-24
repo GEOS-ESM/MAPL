@@ -140,7 +140,7 @@ contains
      integer, optional, intent(out) :: rc
 
      integer ::  n
-     type (ServerThread),pointer :: threadPtr
+     class (ServerThread),pointer :: threadPtr
      class (AbstractMessage),pointer :: msg
      type (MessageVectorIterator) :: iter
      type (StringInteger64MapIterator) :: request_iter

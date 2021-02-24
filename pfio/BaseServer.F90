@@ -57,7 +57,7 @@ contains
      integer, optional, intent(out) :: rc
 
      integer :: i, client_num, status
-     type (ServerThread),pointer :: threadPtr
+     class (ServerThread),pointer :: threadPtr
      class (AbstractDataReference), pointer :: dataRefPtr
 
      client_num = this%threads%size()
@@ -83,7 +83,7 @@ contains
      integer, optional, intent(out) :: rc
 
      integer ::  n
-     type (ServerThread),pointer :: threadPtr
+     class (ServerThread),pointer :: threadPtr
      class (AbstractMessage),pointer :: msg
      type (MessageVectorIterator) :: iter
      type (StringInteger64MapIterator) :: request_iter
@@ -157,7 +157,7 @@ contains
      integer, optional, intent(out) :: rc
 
      integer :: i, client_num, status
-     type (ServerThread),pointer :: threadPtr
+     class (ServerThread),pointer :: threadPtr
 
      client_num = this%threads%size()
 
@@ -260,7 +260,7 @@ contains
       class (AbstractMessage), pointer :: msg
       integer :: collection_counter, collection_total
       character(len=*),parameter :: Iam = 'create_remote_win'
-      type (ServerThread) , pointer :: thread_ptr
+      class (ServerThread) , pointer :: thread_ptr
 
       this%stage_offset = StringInteger64map()
 
