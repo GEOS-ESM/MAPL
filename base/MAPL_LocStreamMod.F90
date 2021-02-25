@@ -490,10 +490,15 @@ contains
 ! Total number of tiles in exchange grid
 !---------------------------------------
 
-       call READ_PARALLEL(layout, hdr, UNIT=UNIT, rc=status)
-       _VERIFY(STATUS)
-       nt=hdr(1)
-       stream%pfafstetter_catchments=hdr(2)
+       if (use_pfaf_) then
+          call READ_PARALLEL(layout, hdr, UNIT=UNIT, rc=status)
+          _VERIFY(STATUS)
+          nt=hdr(1)
+          stream%pfafstetter_catchments=hdr(2)
+       else
+          call READ_PARALLEL(layout, nt, UNIT=UNIT, rc=status)
+          _VERIFY(STATUS)
+       end if 
 
 ! Number of grids that can be attached
 !-------------------------------------
@@ -693,9 +698,14 @@ contains
 
 ! Total number of tiles in exchange grid
 !---------------------------------------
-       if ( MAPL_am_I_root() ) read(UNIT) NT,stream%pfafstetter_catchments
-       call MAPL_CommsBcast(vm, DATA=NT, N=1, ROOT=0, RC=status)
-       call MAPL_CommsBcast(vm, DATA=stream%pfafstetter_catchments, N=1, ROOT=0, RC=status)
+       if (use_pfaf_) then
+          if ( MAPL_am_I_root() ) read(UNIT) NT,stream%pfafstetter_catchments
+          call MAPL_CommsBcast(vm, DATA=NT, N=1, ROOT=0, RC=status)
+          call MAPL_CommsBcast(vm, DATA=stream%pfafstetter_catchments, N=1, ROOT=0, RC=status)
+       else
+          if ( MAPL_am_I_root() ) read(UNIT) NT
+          call MAPL_CommsBcast(vm, DATA=NT, N=1, ROOT=0, RC=status)
+       end if
 
 ! Number of grids that can be attached
 !-------------------------------------
@@ -726,7 +736,6 @@ contains
           call MAPL_CommsBcast(vm, DATA=STREAM%TILING(N)%JM, N=1, ROOT=0, RC=status)
        enddo
        if (use_pfaf_) then
-          if (mapl_am_i_root()) write(*,*)'bmaa pfaf: ',stream%pfafstetter_catchments
           STREAM%TILING(2)%IM = stream%pfafstetter_catchments
           STREAM%TILING(2)%JM = 1
           STREAM%TILING(2)%name = "ROUTE_GRID"
