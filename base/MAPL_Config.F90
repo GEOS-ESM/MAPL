@@ -648,7 +648,7 @@ contains
 
      integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
      character(len=LSZ) :: buffer
-     character(len=12) :: tmpStr, newVal
+     character(len=15) :: tmpStr, newVal
      integer :: count, i, j
      integer :: status
 
