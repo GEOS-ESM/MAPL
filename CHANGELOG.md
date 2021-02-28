@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add return code to constructor method for MAPL Cap gridded component to allow applications
+  to fail gracefully if an error occurs
+
 ### Changed
 
 - Change one sided mpi_put to mpi_send and receive pair in the class MultiGroupServer
@@ -18,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Have CMake automatically gitignore build and install dirs
+- Properly set return code for MAPL Cap methods
 
 ### Removed
 
