@@ -267,27 +267,11 @@ contains
     end if
 
     if (present(local_i)) then
-#ifdef __GFORTRAN__
-       allocate(tmp_iptr(lbound(locstream%Ptr%Local_IndexLocation,1):ubound(locstream%Ptr%Local_IndexLocation,1)))
-       do i = lbound(locstream%Ptr%Local_IndexLocation,1), ubound(locstream%Ptr%Local_IndexLocation,1)
-         tmp_iptr(i) = locstream%Ptr%Local_IndexLocation(i)%i
-       enddo
-       local_i => tmp_iptr
-#else
        local_i => locstream%Ptr%LOCAL_INDEXLOCATION(:)%i
-#endif
     end if
 
     if (present(local_j)) then
-#ifdef __GFORTRAN__
-       allocate(tmp_iptr(lbound(locstream%Ptr%Local_IndexLocation,1):ubound(locstream%Ptr%Local_IndexLocation,1)))
-       do i = lbound(locstream%Ptr%Local_IndexLocation,1), ubound(locstream%Ptr%Local_IndexLocation,1)
-         tmp_iptr(i) = locstream%Ptr%Local_IndexLocation(i)%j
-       enddo
-       local_j => tmp_iptr
-#else
        local_j => locstream%Ptr%LOCAL_INDEXLOCATION(:)%j
-#endif
     end if
 
     _RETURN(ESMF_SUCCESS)
