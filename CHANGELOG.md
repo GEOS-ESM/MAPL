@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- New overload for MAPL_ConfigSetAttribute to support array of integers
+- New overload for MAPL_ConfigSetAttribute to support array of reals
 
 ### Changed
 
