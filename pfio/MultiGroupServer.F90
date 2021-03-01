@@ -8,6 +8,7 @@ module pFIO_MultiGroupServerMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use pFIO_KeywordEnforcerMod
+   use MAPL_Profiler
    use MAPL_ErrorHandlingMod
    use pFIO_ConstantsMod
    use pFIO_CollectiveStageDataMessageMod
@@ -170,10 +171,12 @@ contains
       class (MultiGroupServer), target, intent(inout) :: this
 
       if ( this%front_comm /= MPI_COMM_NULL) then
+         this%t_profiler = TimeProfiler(trim("MultiGroupServer_front"), comm_world=this%front_comm) 
          call start_front()
       endif
 
       if ( this%back_comm /= MPI_COMM_NULL) then
+         this%t_profiler = TimeProfiler(trim("MultiGroupServer_back"), comm_world=this%back_comm)
          call this%start_back()      
       endif
 
@@ -184,6 +187,9 @@ contains
          integer :: i,client_size,ierr
          logical, allocatable :: mask(:)
          integer :: terminate = -1
+
+         call this%t_profiler%start()
+         call this%t_profiler%start('Wall Time')
          client_size = this%threads%size()
    
          allocate(this%serverthread_done_msgs(client_size))
@@ -213,7 +219,13 @@ contains
    
          call this%threads%clear()
          call this%terminate_back()
-         deallocate(mask)
+         call this%t_profiler%stop('Wall Time')
+         call this%t_profiler%stop()
+
+         call Mpi_comm_rank(this%front_comm, this%rank, ierr)
+         call this%report_profile()
+  
+        deallocate(mask)
    
       end subroutine start_front
 
@@ -300,6 +312,7 @@ contains
      integer, pointer :: i_ptr(:)
      class (AbstractRequestHandle), pointer :: handle
 
+     call this%t_profiler%start("receive_forward_data")
      client_num = this%threads%size()
      this%stage_offset = StringInteger64map()
 
@@ -378,7 +391,7 @@ contains
         call Mpi_send(buffer,msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
             this%back_ranks(back_local_rank+1), this%server_comm, ierror)
      enddo
-
+     call this%t_profiler%stop("receive_forward_data")
      deallocate(f_d_ms)
      _RETURN(_SUCCESS)
    end subroutine receive_output_data
@@ -417,6 +430,10 @@ contains
      type (c_ptr) :: address
      type (ForwardDataAndMessage), target :: f_d_m
      type (FileMetaData) :: fmd
+
+
+     call this%t_profiler%start()
+     call this%t_profiler%start('Wall Time')
 
      call MPI_Comm_rank(this%back_comm, back_local_rank, ierr)
      thread_ptr => this%threads%at(1)
@@ -476,7 +493,7 @@ contains
          enddo
       else ! not root but writers 
         do while (.true.)
-
+           
            ! 1) get collection id from captain
            call MPI_recv( collection_id, 1, MPI_INTEGER, &
                   0, back_local_rank, this%back_comm, &
@@ -486,6 +503,7 @@ contains
 ! sync with create_remote_win from front_com
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+           call this%t_profiler%start("receive_write_data")
            allocate(buffers(this%nfront))
 
            do i = 1, this%nfront
@@ -673,7 +691,9 @@ contains
 
            call MPI_send(back_local_rank, 1, MPI_INTEGER, 0, stag, this%back_comm , ierr)
 
+           call this%t_profiler%stop("receive_write_data")
          enddo
+         
       endif
 
       if (this%I_am_back_root) then
@@ -683,6 +703,11 @@ contains
          call MPI_send(collection_id, 1, MPI_INTEGER, 0, 0, this%server_comm, ierr)
       endif
 
+      call this%t_profiler%stop('Wall Time')
+      call this%t_profiler%stop()
+
+      call Mpi_comm_rank(this%back_comm, this%rank, ierr)
+      call this%report_profile()
    end subroutine start_back
 
    subroutine terminate_back(this)

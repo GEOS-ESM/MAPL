@@ -61,6 +61,7 @@ contains
      class (ServerThread),pointer :: threadPtr
      class (AbstractDataReference), pointer :: dataRefPtr
 
+     call this%t_profiler%start("receive_data")
      client_num = this%threads%size()
 
      do i = 1, client_num
@@ -76,6 +77,7 @@ contains
          _VERIFY(status)
      enddo
 
+     call this%t_profiler%stop("receive_data")
      _RETURN(_SUCCESS)
    end subroutine receive_output_data
 
@@ -103,6 +105,8 @@ contains
      if (num_clients == 0) then
         _RETURN(_SUCCESS)
      endif
+
+     call this%t_profiler%start("writing_data")
 
      threadPtr=>this%threads%at(1)
 
@@ -149,6 +153,7 @@ contains
      !if( t1-t0 > 0) then
      !   print*, "this rank",this%rank,"spending ", t1-t0, " seconds writing"
      !endif
+     call this%t_profiler%stop("writing_data")
      _RETURN(_SUCCESS)
    end subroutine put_DataToFile
 
@@ -263,6 +268,8 @@ contains
       character(len=*),parameter :: Iam = 'create_remote_win'
       class (ServerThread) , pointer :: thread_ptr
 
+      call this%t_profiler%start("create_shared_mem")
+
       this%stage_offset = StringInteger64map()
 
       collection_counter = 0
@@ -317,6 +324,8 @@ contains
          call this%add_DataReference(remotePtr)
          remotePtr=>null()
       enddo
+
+      call this%t_profiler%stop("create_shared_mem")
       _RETURN(_SUCCESS)
 
    end subroutine create_remote_win

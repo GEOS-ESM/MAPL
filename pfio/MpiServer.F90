@@ -1,5 +1,5 @@
 module pFIO_MpiServerMod
-
+   use MAPL_Profiler
    use pFIO_AbstractDirectoryServiceMod
    use pFIO_ServerThreadMod
    use pFIO_ServerThreadVectorMod
@@ -35,7 +35,7 @@ contains
 
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
-
+      s%t_profiler = TimeProfiler(trim("MpiServer"), comm_world=comm)
    end function new_MpiServer
 
    subroutine start(this)
@@ -45,6 +45,8 @@ contains
       integer :: i,client_size
       logical, allocatable :: mask(:)
 
+      call this%t_profiler%start()
+      call this%t_profiler%start('Wall Time')
       client_size = this%threads%size()
 
       allocate(this%serverthread_done_msgs(client_size))
@@ -75,6 +77,9 @@ contains
       call this%threads%clear()
       deallocate(mask)
 
+      call this%t_profiler%stop('Wall Time')
+      call this%t_profiler%stop()
+      call this%report_profile() 
    end subroutine start
 
 end module pFIO_MpiServerMod

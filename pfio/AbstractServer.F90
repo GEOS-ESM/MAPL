@@ -7,6 +7,8 @@ module pFIO_AbstractServerMod
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
+   use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
+   use MAPL_Profiler
    use MAPL_ExceptionHandling
    use pFIO_ConstantsMod
    use pFIO_UtilitiesMod, only: word_size, i_to_string
@@ -52,6 +54,7 @@ module pFIO_AbstractServerMod
       type(StringInteger64Map) :: stage_offset
       logical , allocatable :: serverthread_done_msgs(:)
       type(AbstractDataReferenceVector) :: dataRefPtrs
+      type (TimeProfiler), public :: t_profiler
    contains
       procedure :: init
       procedure(start),deferred :: start
@@ -77,6 +80,7 @@ module pFIO_AbstractServerMod
       procedure :: get_writing_PE
       procedure :: distribute_task
       procedure :: get_communicator
+      procedure :: report_profile
    end type AbstractServer
 
    abstract interface 
@@ -154,7 +158,6 @@ contains
 
       call Mpi_AllGather(this%Node_Rank,  1, MPI_INTEGER, &
                          this%Node_Ranks, 1, MPI_INTEGER, comm,ierror)
-
    end subroutine init
 
    function get_status(this) result(status)
@@ -374,5 +377,40 @@ contains
       communicator = this%comm
 
    end function get_communicator
+
+   subroutine report_profile(this, rc )
+      class (AbstractServer), intent(in) :: this
+      integer, optional,   intent(  out) :: RC     ! Error code:
+      character(:), allocatable :: report(:)
+      type (ProfileReporter) :: reporter
+      type (MultiColumn) :: inclusive, exclusive
+      character(1) :: empty(0)
+      integer :: i
+
+      if  (this%rank == 1) then ! use rank one, the back_end's root has no clock
+
+          reporter = ProfileReporter(empty)
+          call reporter%add_column(NameColumn(50 , separator=" "))
+          call reporter%add_column(FormattedTextColumn('#-cycles','(i8.0)', 8, NumCyclesColumn(),separator='-'))
+          inclusive = MultiColumn(['Inclusive'], separator='=')
+          call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))
+          call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn(),'MAX'),separator='-'))
+          call reporter%add_column(inclusive)
+          exclusive = MultiColumn(['Exclusive'], separator='=')
+          call exclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, ExclusiveColumn(), separator='-'))
+          call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
+          call reporter%add_column(exclusive)
+
+          report = reporter%generate_report(this%t_profiler)
+          write(OUTPUT_UNIT,*)''
+          write(OUTPUT_UNIT,*)'Time for ' // "Oserver"
+          do i = 1, size(report)
+             write(OUTPUT_UNIT,'(a)')report(i)
+          end do
+          write(OUTPUT_UNIT,*)''
+      end if
+
+     _RETURN(_SUCCESS)
+   end subroutine report_profile
 
 end module pFIO_AbstractServerMod
