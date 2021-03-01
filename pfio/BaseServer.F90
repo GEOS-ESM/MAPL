@@ -106,7 +106,7 @@ contains
         _RETURN(_SUCCESS)
      endif
 
-     call this%t_profiler%start("writing_data")
+     call this%t_profiler%start("write_data")
 
      threadPtr=>this%threads%at(1)
 
@@ -116,6 +116,7 @@ contains
         msg => iter%get()
         select type (q=>msg)
         type is (CollectiveStageDataMessage)
+           call this%t_profiler%start(i_to_string(q%collection_id))
            collection_counter = this%stage_offset%of(i_to_string(q%collection_id))
            dataRefPtr => this%get_dataReference(collection_counter)
            msize  = this%stage_offset%of(i_to_string(MSIZE_ID+collection_counter))
@@ -140,6 +141,7 @@ contains
               call this%stage_offset%insert(i_to_string(q%request_id)//'done',0_MPI_ADDRESS_KIND)
               !t1 = mpi_wtime()
            endif ! rank = mem_rank
+           call this%t_profiler%stop(i_to_string(q%collection_id))
         end select
         call iter%next()
      enddo ! do backlog loop
@@ -153,7 +155,7 @@ contains
      !if( t1-t0 > 0) then
      !   print*, "this rank",this%rank,"spending ", t1-t0, " seconds writing"
      !endif
-     call this%t_profiler%stop("writing_data")
+     call this%t_profiler%stop("write_data")
      _RETURN(_SUCCESS)
    end subroutine put_DataToFile
 

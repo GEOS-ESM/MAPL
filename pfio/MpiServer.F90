@@ -46,7 +46,6 @@ contains
       logical, allocatable :: mask(:)
 
       call this%t_profiler%start()
-      call this%t_profiler%start('Wall Time')
       client_size = this%threads%size()
 
       allocate(this%serverthread_done_msgs(client_size))
@@ -77,7 +76,6 @@ contains
       call this%threads%clear()
       deallocate(mask)
 
-      call this%t_profiler%stop('Wall Time')
       call this%t_profiler%stop()
       call this%report_profile() 
    end subroutine start

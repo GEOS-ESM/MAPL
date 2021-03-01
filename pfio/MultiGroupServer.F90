@@ -189,7 +189,6 @@ contains
          integer :: terminate = -1
 
          call this%t_profiler%start()
-         call this%t_profiler%start('Wall Time')
          client_size = this%threads%size()
    
          allocate(this%serverthread_done_msgs(client_size))
@@ -219,7 +218,6 @@ contains
    
          call this%threads%clear()
          call this%terminate_back()
-         call this%t_profiler%stop('Wall Time')
          call this%t_profiler%stop()
 
          call Mpi_comm_rank(this%front_comm, this%rank, ierr)
@@ -312,7 +310,7 @@ contains
      integer, pointer :: i_ptr(:)
      class (AbstractRequestHandle), pointer :: handle
 
-     call this%t_profiler%start("receive_forward_data")
+     call this%t_profiler%start("receive_data")
      client_num = this%threads%size()
      this%stage_offset = StringInteger64map()
 
@@ -345,6 +343,7 @@ contains
            msg => iter%get()
            select type (q=>msg)
            class is (AbstractCollectiveDataMessage)
+              call this%t_profiler%start("receive_"//i_to_string(q%collection_id))
               handle => thread_ptr%get_RequestHandle(q%request_id)
               call handle%wait()
               words = word_size(q%type_kind)
@@ -354,6 +353,7 @@ contains
                  call c_f_pointer(handle%data_reference%base_address, i_ptr, shape=[local_size])
                  call f_d_ms(collection_counter)%add_data_message(q, i_ptr)
               endif
+              call this%t_profiler%stop("receive_"//i_to_string(q%collection_id))
            class default
               _ASSERT(.false., "yet to implemented")
            end select
@@ -361,12 +361,19 @@ contains
         end do ! iter
      enddo ! client_num
 
+     call this%t_profiler%stop("receive_data")
+     call this%t_profiler%start("forward_data")
      ! serializes and send data_and_message to writer
      do collection_counter = 1, collection_total
         ! root asks for idle writer and sends axtra file metadata
         if (this%I_am_front_root) then
-
            collection_id = collection_ids%at(collection_counter)
+        endif
+
+        call Mpi_Bcast( collection_id, 1, MPI_INTEGER, 0, this%front_comm, ierror)
+        call this%t_profiler%start("forward_"//i_to_string(collection_id))
+
+        if (this%I_am_front_root) then
            call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
            ! here thread_ptr can point to any thread
            hist_collection => thread_ptr%hist_collections%at(collection_id)
@@ -390,8 +397,9 @@ contains
              this%back_ranks(back_local_rank+1), this%server_comm, ierror)
         call Mpi_send(buffer,msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
             this%back_ranks(back_local_rank+1), this%server_comm, ierror)
+        call this%t_profiler%stop("forward_"//i_to_string(collection_id))
      enddo
-     call this%t_profiler%stop("receive_forward_data")
+     call this%t_profiler%stop("forward_data")
      deallocate(f_d_ms)
      _RETURN(_SUCCESS)
    end subroutine receive_output_data
@@ -433,7 +441,6 @@ contains
 
 
      call this%t_profiler%start()
-     call this%t_profiler%start('Wall Time')
 
      call MPI_Comm_rank(this%back_comm, back_local_rank, ierr)
      thread_ptr => this%threads%at(1)
@@ -503,7 +510,9 @@ contains
 ! sync with create_remote_win from front_com
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-           call this%t_profiler%start("receive_write_data")
+           call this%t_profiler%start("receive_data")
+           call this%t_profiler%start("receive_"//i_to_string(collection_id))
+
            allocate(buffers(this%nfront))
 
            do i = 1, this%nfront
@@ -657,7 +666,13 @@ contains
                end do
                if(allocated(f_d_m%idata))deallocate(f_d_m%idata)
            enddo
+
+           call this%t_profiler%stop("receive_"//i_to_string(collection_id))
+           call this%t_profiler%stop("receive_data")
           
+           call this%t_profiler%start("write_data")
+           call this%t_profiler%start("write_"//i_to_string(collection_id))
+
            call FileMetadata_deserialize(buffer_fmd, fmd)
 
            thread_ptr => this%threads%at(1) ! backend only has one thread
@@ -691,7 +706,8 @@ contains
 
            call MPI_send(back_local_rank, 1, MPI_INTEGER, 0, stag, this%back_comm , ierr)
 
-           call this%t_profiler%stop("receive_write_data")
+           call this%t_profiler%stop("write_"//i_to_string(collection_id))
+           call this%t_profiler%stop("write_data")
          enddo
          
       endif
@@ -703,7 +719,6 @@ contains
          call MPI_send(collection_id, 1, MPI_INTEGER, 0, 0, this%server_comm, ierr)
       endif
 
-      call this%t_profiler%stop('Wall Time')
       call this%t_profiler%stop()
 
       call Mpi_comm_rank(this%back_comm, this%rank, ierr)
