@@ -181,7 +181,6 @@ contains
 
   subroutine MAPL_LocStreamGet(LocStream, NT_LOCAL, nt_global, TILETYPE, TILEKIND, &
                                TILELONS, TILELATS, TILEAREA, &
-!                              TILEI, TILEJ, TILEGRID, &
                                TILEGRID, &
                                GRIDIM, GRIDJM, GRIDNAMES, &
                                ATTACHEDGRID, LOCAL_ID, local_i, local_j,RC)
@@ -208,13 +207,6 @@ contains
 ! Local variables
 
 
-#ifdef __GFORTRAN__
-    integer                    :: i
-    integer, pointer           :: tmp_iptr(:) => null()
-    real,    pointer           :: tmp_rptr(:) => null()
-    character(len=MAPL_TileNameLength), pointer       :: tmp_strptr(:) => null()
-#endif
-
     if (present(NT_LOCAL)) then
        NT_LOCAL = locstream%Ptr%NT_LOCAL
     end if
@@ -225,15 +217,7 @@ contains
 
 
     if (present(tiletype)) then
-#ifdef __GFORTRAN__
-       allocate(tmp_iptr(lbound(locstream%Ptr%Local_GeoLocation,1):ubound(locstream%Ptr%Local_GeoLocation,1)))
-       do i = lbound(locstream%Ptr%Local_GeoLocation,1), ubound(locstream%Ptr%Local_GeoLocation,1)
-         tmp_iptr(i) = locstream%Ptr%Local_GeoLocation(i)%t
-       enddo
-       tiletype => tmp_iptr
-#else
        tiletype => locstream%Ptr%Local_GeoLocation(:)%t
-#endif
     end if
 
     if (present(tilekind)) then
@@ -243,67 +227,27 @@ contains
     end if
 
     if (present(tilelons)) then
-#ifdef __GFORTRAN__
-       allocate(tmp_rptr(lbound(locstream%Ptr%Local_GeoLocation,1):ubound(locstream%Ptr%Local_GeoLocation,1)))
-       do i = lbound(locstream%Ptr%Local_GeoLocation,1), ubound(locstream%Ptr%Local_GeoLocation,1)
-         tmp_rptr(i) = locstream%Ptr%Local_GeoLocation(i)%x
-       enddo
-       tilelons => tmp_rptr
-#else
        tilelons => locstream%Ptr%Local_GeoLocation(:)%x
-#endif
     end if
 
     if (present(tilelats)) then
-#ifdef __GFORTRAN__
-       allocate(tmp_rptr(lbound(locstream%Ptr%Local_GeoLocation,1):ubound(locstream%Ptr%Local_GeoLocation,1)))
-       do i = lbound(locstream%Ptr%Local_GeoLocation,1), ubound(locstream%Ptr%Local_GeoLocation,1)
-         tmp_rptr(i) = locstream%Ptr%Local_GeoLocation(i)%y
-       enddo
-       tilelats => tmp_rptr
-#else
        tilelats => locstream%Ptr%Local_GeoLocation(:)%y
-#endif
     end if
 
     if (present(tilearea)) then
        if (locstream%Ptr%IsTileAreaValid) then
-#ifdef __GFORTRAN__
-          allocate(tmp_rptr(lbound(locstream%Ptr%Local_GeoLocation,1):ubound(locstream%Ptr%Local_GeoLocation,1)))
-          do i = lbound(locstream%Ptr%Local_GeoLocation,1), ubound(locstream%Ptr%Local_GeoLocation,1)
-            tmp_rptr(i) = locstream%Ptr%Local_GeoLocation(i)%a
-          enddo
-          tilearea => tmp_rptr
-#else
           tilearea => locstream%Ptr%Local_GeoLocation(:)%a
-#endif
        else
           tilearea => null()
        end if
     end if
 
     if (present(gridim)) then
-#ifdef __GFORTRAN__
-       allocate(tmp_iptr(lbound(locstream%Ptr%tiling,1):ubound(locstream%Ptr%tiling,1)))
-       do i = lbound(locstream%Ptr%tiling,1), ubound(locstream%Ptr%tiling,1)
-         tmp_iptr(i) = locstream%Ptr%tiling(i)%im
-       enddo
-       gridim => tmp_iptr
-#else
        gridim => locstream%Ptr%tiling(:)%im
-#endif
     end if
 
     if (present(gridjm)) then
-#ifdef __GFORTRAN__
-       allocate(tmp_iptr(lbound(locstream%Ptr%tiling,1):ubound(locstream%Ptr%tiling,1)))
-       do i = lbound(locstream%Ptr%tiling,1), ubound(locstream%Ptr%tiling,1)
-         tmp_iptr(i) = locstream%Ptr%tiling(i)%jm
-       enddo
-       gridjm => tmp_iptr
-#else
        gridjm => locstream%Ptr%tiling(:)%jm
-#endif
     end if
 
     if (present(local_id)) then
@@ -311,28 +255,12 @@ contains
     end if
 
     if (present(gridnames)) then
-#ifdef __GFORTRAN__
-       allocate(tmp_strptr(lbound(locstream%Ptr%tiling,1):ubound(locstream%Ptr%tiling,1)))
-       do i = lbound(locstream%Ptr%tiling,1), ubound(locstream%Ptr%tiling,1)
-         tmp_strptr(i) = locstream%Ptr%tiling(i)%name
-       enddo
-       gridnames => tmp_strptr
-#else
        gridnames => locstream%Ptr%tiling(:)%name
-#endif
     end if
 
     if (present(attachedgrid)) then
        attachedgrid = locstream%Ptr%grid
     end if
-
-!!$    if (present(tilei)) then
-!!$       tilei => locstream%Ptr%TILING(locstream%ptr%CURRENT_TILING)%Global_IndexLocation(:)%i
-!!$    end if
-!!$
-!!$    if (present(tilej)) then
-!!$       tilej => locstream%Ptr%TILING(locstream%ptr%CURRENT_TILING)%Global_IndexLocation(:)%j
-!!$    end if
 
     if (present(tilegrid)) then
        tilegrid = locstream%Ptr%TILEGRID
@@ -529,7 +457,7 @@ contains
        if (use_pfaf_) then
           STREAM%TILING(2)%IM = stream%pfafstetter_catchments
           STREAM%TILING(2)%JM = 1
-          STREAM%TILING(2)%name = "ROUTE_GRID"
+          STREAM%TILING(2)%name = "CATCHMENT_GRID"
        end if
 
 
@@ -738,7 +666,7 @@ contains
        if (use_pfaf_) then
           STREAM%TILING(2)%IM = stream%pfafstetter_catchments
           STREAM%TILING(2)%JM = 1
-          STREAM%TILING(2)%name = "ROUTE_GRID"
+          STREAM%TILING(2)%name = "CATCHMENT_GRID"
        end if
 
 ! Read location stream file into AVR
@@ -2897,7 +2825,7 @@ integer function GRIDINDEX(STREAM,GRID,RC)
         exit
      end if
   end do
-  if (trim(name)=="ROUTE_GRID") GridIndex=2
+  if (trim(name)=="CATCHMENT_GRID") GridIndex=2
 
   _ASSERT(GridIndex/=0,'needs informative message')
 
