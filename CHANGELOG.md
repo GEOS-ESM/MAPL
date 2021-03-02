@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- New overload for MAPL_ConfigSetAttribute to support array of integers
+- New overload for MAPL_ConfigSetAttribute to support array of reals
+
+- Added ability to "attach" to the pfafstetter grid for land tiles for components running directly on the catchments
 
 - Add command line option --one_node_output
 
@@ -15,8 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Change one sided mpi_put to mpi_send and receive pair in the class MultiGroupServer
 - Change command line interface to --npes_backend_pernode to avoid confusion
+- Remove self-defined-in-file MAPL macros
 
 ### Fixed
+
+- Have CMake automatically gitignore build and install dirs
 
 ### Removed
 
