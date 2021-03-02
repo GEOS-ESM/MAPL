@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New overload for MAPL_ConfigSetAttribute to support array of integers
 - New overload for MAPL_ConfigSetAttribute to support array of reals
 
+- Added ability to "attach" to the pfafstetter grid for land tiles for components running directly on the catchments
+
 ### Changed
 
 - Change to non-blocking send and receive from frontend to beckend in the class MultiGroupServer
