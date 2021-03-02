@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Have CMake automatically gitignore build and install dirs
+- Prevent History from mistakenly duplicating export fields
+  when field names end with their component's name
 
 ### Removed
 
