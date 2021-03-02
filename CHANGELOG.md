@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Have CMake automatically gitignore build and install dirs
 - Properly set return code for MAPL Cap methods
+- Prevent History from mistakenly duplicating export fields
+  when field names end with the component's name
 
 ### Removed
 
