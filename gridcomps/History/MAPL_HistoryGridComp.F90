@@ -4736,11 +4736,18 @@ ENDDO PARSER
   iRealFields = 0
   allocate(isBundle(nfield))
   do m=1,nfield
-    if (scan(trim(fields(1,m)),'()^*/+-.')/=0) then
+    VarName = fields(1,m)
+    i = len_trim(fields(1,m))
+    j = len_trim(fields(2,m))
+    idx = i-j
+    if (idx > 0) then
+       if (fields(1,m)(idx+1:i) == fields(2,m)(1:j)) VarName = fields(1,m)(1:idx)
+    end if
+    if (scan(trim(VarName),'()^*/+-.')/=0) then
        rewrite(m)= .TRUE.
        tmpfields(m)= trim(fields(1,m))
     else
-       if (index(fields(1,m),'%') == 0) then
+       if (index(VarName,'%') == 0) then
           iRealFields = iRealFields + 1
           rewrite(m)= .FALSE.
           isBundle(m) = .FALSE.
