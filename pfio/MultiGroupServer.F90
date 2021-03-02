@@ -8,6 +8,7 @@ module pFIO_MultiGroupServerMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use pFIO_KeywordEnforcerMod
+   use MAPL_Profiler
    use MAPL_ErrorHandlingMod
    use pFIO_ConstantsMod
    use pFIO_CollectiveStageDataMessageMod
@@ -184,9 +185,10 @@ contains
 
       subroutine start_front()
          class (ServerThread), pointer :: thread_ptr => null()
-         integer :: i,client_size,ierr
+         integer :: i,client_size
          logical, allocatable :: mask(:)
          integer :: terminate = -1
+
          client_size = this%threads%size()
    
          allocate(this%serverthread_done_msgs(client_size))
@@ -216,6 +218,10 @@ contains
    
          call this%threads%clear()
          call this%terminate_back()
+
+         call ioserver_profiler%stop()
+         call this%report_profile()
+  
          deallocate(mask)
    
       end subroutine start_front
@@ -248,6 +254,8 @@ contains
       if (this%front_Comm == MPI_COMM_NULL) then 
          _RETURN(_SUCCESS)
       endif
+ 
+      call ioserver_profiler%start("clean up")
 
       num_clients = this%threads%size()
 
@@ -273,6 +281,7 @@ contains
          iter = this%stage_offset%begin()
       enddo
 
+      call ioserver_profiler%stop("clean up")
       _RETURN(_SUCCESS)
    end subroutine clean_up
 
@@ -303,6 +312,7 @@ contains
      integer, pointer :: i_ptr(:)
      class (AbstractRequestHandle), pointer :: handle
 
+     call ioserver_profiler%start("receive_data")
      client_num = this%threads%size()
      this%stage_offset = StringInteger64map()
 
@@ -335,6 +345,7 @@ contains
            msg => iter%get()
            select type (q=>msg)
            class is (AbstractCollectiveDataMessage)
+              call ioserver_profiler%start("collection_"//i_to_string(q%collection_id))
               handle => thread_ptr%get_RequestHandle(q%request_id)
               call handle%wait()
               words = word_size(q%type_kind)
@@ -344,6 +355,7 @@ contains
                  call c_f_pointer(handle%data_reference%base_address, i_ptr, shape=[local_size])
                  call f_d_ms(collection_counter)%add_data_message(q, i_ptr)
               endif
+              call ioserver_profiler%stop("collection_"//i_to_string(q%collection_id))
            class default
               _ASSERT(.false., "yet to implemented")
            end select
@@ -351,12 +363,19 @@ contains
         end do ! iter
      enddo ! client_num
 
+     call ioserver_profiler%stop("receive_data")
+     call ioserver_profiler%start("forward_data")
      ! serializes and send data_and_message to writer
      do collection_counter = 1, collection_total
         ! root asks for idle writer and sends axtra file metadata
         if (this%I_am_front_root) then
-
            collection_id = collection_ids%at(collection_counter)
+        endif
+
+        call Mpi_Bcast( collection_id, 1, MPI_INTEGER, 0, this%front_comm, ierror)
+        call ioserver_profiler%start("collection_"//i_to_string(collection_id))
+
+        if (this%I_am_front_root) then
            call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
            ! here thread_ptr can point to any thread
            hist_collection => thread_ptr%hist_collections%at(collection_id)
@@ -381,8 +400,9 @@ contains
              this%back_ranks(back_local_rank+1), this%server_comm, ierror)
         call Mpi_Isend(this%buffers(back_local_rank+1)%buffer, msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
             this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(back_local_rank+1)%request,ierror)
+        call ioserver_profiler%stop("collection_"//i_to_string(collection_id))
      enddo
-
+     call ioserver_profiler%stop("forward_data")
      deallocate(f_d_ms)
      _RETURN(_SUCCESS)
    end subroutine receive_output_data
@@ -420,6 +440,7 @@ contains
      type (c_ptr) :: address
      type (ForwardDataAndMessage), target :: f_d_m
      type (FileMetaData) :: fmd
+
 
      call MPI_Comm_rank(this%back_comm, back_local_rank, ierr)
      thread_ptr => this%threads%at(1)
@@ -479,7 +500,7 @@ contains
          enddo
       else ! not root but writers 
         do while (.true.)
-
+           
            ! 1) get collection id from captain
            call MPI_recv( collection_id, 1, MPI_INTEGER, &
                   0, back_local_rank, this%back_comm, &
@@ -642,7 +663,7 @@ contains
                end do
                if(allocated(f_d_m%idata))deallocate(f_d_m%idata)
            enddo
-          
+
            call FileMetadata_deserialize(buffer_fmd, fmd)
 
            thread_ptr => this%threads%at(1) ! backend only has one thread
@@ -676,6 +697,7 @@ contains
            call MPI_send(back_local_rank, 1, MPI_INTEGER, 0, stag, this%back_comm , ierr)
 
          enddo
+         
       endif
 
       if (this%I_am_back_root) then
