@@ -8,6 +8,7 @@ module pFIO_MultiGroupServerMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use pFIO_KeywordEnforcerMod
+   use MAPL_Profiler
    use MAPL_ErrorHandlingMod
    use pFIO_ConstantsMod
    use pFIO_CollectiveStageDataMessageMod
@@ -17,7 +18,6 @@ module pFIO_MultiGroupServerMod
    use pFIO_ServerThreadVectorMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractSocketVectorMod
-   use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractServerMod
    use gFTL_StringInteger64Map
    use pFIO_AbstractMessageMod
@@ -54,6 +54,7 @@ module pFIO_MultiGroupServerMod
    public :: MultiGroupServer
 
    type :: vector_array
+      integer :: request
       integer, allocatable :: buffer(:)
    end type
 
@@ -68,6 +69,7 @@ module pFIO_MultiGroupServerMod
       logical :: I_am_back_root
       integer, allocatable :: back_ranks(:)
       integer, allocatable :: front_ranks(:)
+      class(vector_array), allocatable :: buffers(:)
    contains
       procedure :: start
       procedure :: start_back
@@ -140,7 +142,7 @@ contains
          if (local_rank ==0 ) then
             call MPI_Send(s%front_ranks, s_size-nwriter, MPI_INTEGER, s%back_ranks(1), 777, s%server_comm, ierror)
          endif
-         
+         allocate(s%buffers(s%nwriter))
       endif
 
       if (index(s_name, 'o_server_back') /=0) then
@@ -160,6 +162,7 @@ contains
          call MPI_Bcast(s%front_ranks, s%nfront, MPI_INTEGER, 0, s%back_comm, ierror)
          call s%set_status(1)
          call s%add_connection(dummy_socket)
+         allocate(s%buffers(s%nfront))
       endif
 
       if (s_rank == 0) print*, "MultiServer Start: nfront, nback", s%nfront, s%nwriter
@@ -181,9 +184,10 @@ contains
 
       subroutine start_front()
          class (ServerThread), pointer :: thread_ptr => null()
-         integer :: i,client_size,ierr
+         integer :: i,client_size
          logical, allocatable :: mask(:)
          integer :: terminate = -1
+
          client_size = this%threads%size()
    
          allocate(this%serverthread_done_msgs(client_size))
@@ -213,6 +217,10 @@ contains
    
          call this%threads%clear()
          call this%terminate_back()
+
+         call ioserver_profiler%stop()
+         call this%report_profile()
+  
          deallocate(mask)
    
       end subroutine start_front
@@ -245,6 +253,8 @@ contains
       if (this%front_Comm == MPI_COMM_NULL) then 
          _RETURN(_SUCCESS)
       endif
+ 
+      call ioserver_profiler%start("clean up")
 
       num_clients = this%threads%size()
 
@@ -270,6 +280,7 @@ contains
          iter = this%stage_offset%begin()
       enddo
 
+      call ioserver_profiler%stop("clean up")
       _RETURN(_SUCCESS)
    end subroutine clean_up
 
@@ -300,6 +311,7 @@ contains
      integer, pointer :: i_ptr(:)
      class (AbstractRequestHandle), pointer :: handle
 
+     call ioserver_profiler%start("receive_data")
      client_num = this%threads%size()
      this%stage_offset = StringInteger64map()
 
@@ -332,6 +344,7 @@ contains
            msg => iter%get()
            select type (q=>msg)
            class is (AbstractCollectiveDataMessage)
+              call ioserver_profiler%start("collection_"//i_to_string(q%collection_id))
               handle => thread_ptr%get_RequestHandle(q%request_id)
               call handle%wait()
               words = word_size(q%type_kind)
@@ -341,6 +354,7 @@ contains
                  call c_f_pointer(handle%data_reference%base_address, i_ptr, shape=[local_size])
                  call f_d_ms(collection_counter)%add_data_message(q, i_ptr)
               endif
+              call ioserver_profiler%stop("collection_"//i_to_string(q%collection_id))
            class default
               _ASSERT(.false., "yet to implemented")
            end select
@@ -348,12 +362,19 @@ contains
         end do ! iter
      enddo ! client_num
 
+     call ioserver_profiler%stop("receive_data")
+     call ioserver_profiler%start("forward_data")
      ! serializes and send data_and_message to writer
      do collection_counter = 1, collection_total
         ! root asks for idle writer and sends axtra file metadata
         if (this%I_am_front_root) then
-
            collection_id = collection_ids%at(collection_counter)
+        endif
+
+        call Mpi_Bcast( collection_id, 1, MPI_INTEGER, 0, this%front_comm, ierror)
+        call ioserver_profiler%start("collection_"//i_to_string(collection_id))
+
+        if (this%I_am_front_root) then
            call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
            ! here thread_ptr can point to any thread
            hist_collection => thread_ptr%hist_collections%at(collection_id)
@@ -371,14 +392,16 @@ contains
 
         call Mpi_Bcast( back_local_rank, 1, MPI_INTEGER, 0, this%front_comm, ierror)
 
-        call f_d_ms(collection_counter)%serialize(buffer)
-        msg_size= size(buffer)
+        if (allocated(this%buffers(back_local_rank+1)%buffer)) call MPI_Wait(this%buffers(back_local_rank+1)%request, MPI_STAT, ierror)
+        call f_d_ms(collection_counter)%serialize(this%buffers(back_local_rank+1)%buffer)
+        msg_size= size(this%buffers(back_local_rank+1)%buffer)
         call Mpi_send(msg_size,1, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
              this%back_ranks(back_local_rank+1), this%server_comm, ierror)
-        call Mpi_send(buffer,msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
-            this%back_ranks(back_local_rank+1), this%server_comm, ierror)
+        call Mpi_Isend(this%buffers(back_local_rank+1)%buffer, msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
+            this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(back_local_rank+1)%request,ierror)
+        call ioserver_profiler%stop("collection_"//i_to_string(collection_id))
      enddo
-
+     call ioserver_profiler%stop("forward_data")
      deallocate(f_d_ms)
      _RETURN(_SUCCESS)
    end subroutine receive_output_data
@@ -399,7 +422,6 @@ contains
      class (AbstractMessage), pointer :: msg
      class (ServerThread),pointer :: thread_ptr
      integer, parameter :: stag = 6782
-     class (vector_array), allocatable :: buffers(:)
      integer, allocatable :: buffer_fmd(:)
 
      integer, pointer :: g_1d(:), l_1d(:), g_2d(:,:), l_2d(:,:), g_3d(:,:,:), l_3d(:,:,:)
@@ -417,6 +439,7 @@ contains
      type (c_ptr) :: address
      type (ForwardDataAndMessage), target :: f_d_m
      type (FileMetaData) :: fmd
+
 
      call MPI_Comm_rank(this%back_comm, back_local_rank, ierr)
      thread_ptr => this%threads%at(1)
@@ -476,7 +499,7 @@ contains
          enddo
       else ! not root but writers 
         do while (.true.)
-
+           
            ! 1) get collection id from captain
            call MPI_recv( collection_id, 1, MPI_INTEGER, &
                   0, back_local_rank, this%back_comm, &
@@ -485,8 +508,6 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! sync with create_remote_win from front_com
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-           allocate(buffers(this%nfront))
 
            do i = 1, this%nfront
               ! receive extra metadata from front root
@@ -503,10 +524,11 @@ contains
               call MPI_recv( msg_size, 1, MPI_INTEGER,    &
                    this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, &
                    MPI_STAT, ierr)
-              allocate(buffers(i)%buffer(msg_size))
-              call MPI_recv( buffers(i)%buffer(1), msg_size, MPI_INTEGER, &
-                   this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, &
-                   MPI_STAT, ierr)
+              if (allocated(this%buffers(i)%buffer)) deallocate (this%buffers(i)%buffer) 
+              allocate(this%buffers(i)%buffer(msg_size))
+              call MPI_Irecv( this%buffers(i)%buffer(1), msg_size, MPI_INTEGER, &
+                   this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(i)%request, &
+                   ierr)
            enddo
 
            ! re-org data
@@ -516,8 +538,9 @@ contains
            do i = 1, this%nfront
               s0 = 1
               f_d_m = ForwardDataAndMessage()
-              call f_d_m%deserialize(buffers(i)%buffer)
-              deallocate(buffers(i)%buffer)
+              call MPI_Wait(this%buffers(i)%request, MPI_STAT, ierr)
+              call f_d_m%deserialize(this%buffers(i)%buffer)
+              deallocate(this%buffers(i)%buffer)
               if (size(f_d_m%idata) ==0) cycle
               iter = f_d_m%msg_vec%begin()
               do j = 1, f_d_m%msg_vec%size()
@@ -639,7 +662,7 @@ contains
                end do
                if(allocated(f_d_m%idata))deallocate(f_d_m%idata)
            enddo
-          
+
            call FileMetadata_deserialize(buffer_fmd, fmd)
 
            thread_ptr => this%threads%at(1) ! backend only has one thread
@@ -665,7 +688,6 @@ contains
            enddo
            call thread_ptr%clear_hist_collections()
            call thread_ptr%hist_collections%clear()
-           deallocate (buffers)
            deallocate (buffer_fmd) 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! telling captain, I am the soldier that is ready to have more work
@@ -674,6 +696,7 @@ contains
            call MPI_send(back_local_rank, 1, MPI_INTEGER, 0, stag, this%back_comm , ierr)
 
          enddo
+         
       endif
 
       if (this%I_am_back_root) then
@@ -688,8 +711,14 @@ contains
    subroutine terminate_back(this)
       class (MultiGroupServer), intent(inout) :: this
       integer :: terminate = -1
-      integer :: ierr
+      integer :: ierr, i
       integer :: MPI_STAT(MPI_STATUS_SIZE)
+      
+      ! starting from 2, no backend root
+      do i = 2, this%nwriter
+        if (allocated(this%buffers(i)%buffer)) call MPI_Wait(this%buffers(i)%request, MPI_STAT, ierr)
+      enddo
+
       ! The front root rank sends termination signal to the back root 
       ! The back root send terminate back for synchronization
       if (this%I_am_front_root) then

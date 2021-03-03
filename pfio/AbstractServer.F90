@@ -7,6 +7,8 @@ module pFIO_AbstractServerMod
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
+   use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
+   use MAPL_Profiler
    use MAPL_ExceptionHandling
    use pFIO_ConstantsMod
    use pFIO_UtilitiesMod, only: word_size, i_to_string
@@ -24,7 +26,9 @@ module pFIO_AbstractServerMod
    implicit none
    private
    public :: AbstractServer
-   
+   public :: ioserver_profiler
+   type (DistributedProfiler), allocatable :: ioserver_profiler
+
    integer,parameter,public :: MAX_SERVER_NODES_NUM = 100000
    integer,parameter,public :: MSIZE_ID = - MAX_SERVER_NODES_NUM
    integer,parameter,public :: UNALLOCATED = -100
@@ -77,6 +81,7 @@ module pFIO_AbstractServerMod
       procedure :: get_writing_PE
       procedure :: distribute_task
       procedure :: get_communicator
+      procedure :: report_profile
    end type AbstractServer
 
    abstract interface 
@@ -154,7 +159,10 @@ contains
 
       call Mpi_AllGather(this%Node_Rank,  1, MPI_INTEGER, &
                          this%Node_Ranks, 1, MPI_INTEGER, comm,ierror)
-
+      if (.not. allocated(ioserver_profiler)) then
+         allocate(ioserver_profiler, source = DistributedProfiler("ioserver", MpiTimerGauge(), comm))
+         call ioserver_profiler%start()
+      endif
    end subroutine init
 
    function get_status(this) result(status)
@@ -216,7 +224,9 @@ contains
       class(AbstractServer),intent(inout) :: this
       integer, optional, intent(out) :: rc
       type(StringInteger64MapIterator) :: iter
-      
+ 
+      call ioserver_profiler%start("clean up")     
+ 
       call this%clear_DataReference()
       call this%clear_RequestHandle()
       call this%set_AllBacklogIsEmpty(.true.)
@@ -234,6 +244,8 @@ contains
          iter = this%stage_offset%begin()
       enddo
 
+      call ioserver_profiler%stop("clean up")
+     
       _RETURN(_SUCCESS)
    end subroutine clean_up
 
@@ -374,5 +386,42 @@ contains
       communicator = this%comm
 
    end function get_communicator
+
+   subroutine report_profile(this, rc )
+      class (AbstractServer), intent(inout) :: this
+      integer, optional,   intent(  out) :: RC     ! Error code:
+      character(:), allocatable :: report_lines(:)
+      type (ProfileReporter) :: reporter
+      type (MultiColumn) :: inclusive, exclusive
+      character(1) :: empty(0)
+      integer :: i
+
+
+       call ioserver_profiler%finalize()
+       call ioserver_profiler%reduce()
+
+       reporter = ProfileReporter(empty)
+       call reporter%add_column(NameColumn(20))
+       call reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
+       call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
+       call reporter%add_column(FormattedTextColumn('Exclusive','(f9.6)', 9, ExclusiveColumn('MEAN')))
+       call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))
+       call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.6)', 9, ExclusiveColumn('MAX')))
+       call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.6)', 9, ExclusiveColumn('MIN')))
+       call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
+       call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
+      report_lines = reporter%generate_report(ioserver_profiler)
+
+      if (this%rank == 0) then
+         write(*,'(a)')'Final profile'
+         write(*,'(a)')'============='
+         do i = 1, size(report_lines)
+            write(*,'(a)') report_lines(i)
+         end do
+         write(*,'(a)') ''
+      end if
+
+     _RETURN(_SUCCESS)
+   end subroutine report_profile
 
 end module pFIO_AbstractServerMod
