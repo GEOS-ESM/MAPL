@@ -204,6 +204,10 @@ contains
     integer, optional,  pointer,          intent(  OUT) :: local_j(:)
     integer, optional,                    intent(  OUT) :: RC
 
+! MAT These GFORTRAN workarounds are needed because without them
+!     runs of GEOS do not layout regress. That is a 4x24 run is not
+!     zero-diff with a 3x18 run. If you decide to remove these, test
+!     to make sure this works.
 #ifdef __GFORTRAN__
     integer                    :: i
     integer, pointer           :: tmp_iptr(:) => null()
@@ -233,6 +237,10 @@ contains
 !       tilekind => locstream%Ptr%Local_GeoLocation(:)%u
     end if
 
+! MAT These GFORTRAN workarounds are needed because without them
+!     runs of GEOS do not layout regress. That is a 4x24 run is not
+!     zero-diff with a 3x18 run. If you decide to remove these, test
+!     to make sure this works.
     if (present(tilelons)) then
 #ifdef __GFORTRAN__
        allocate(tmp_rptr(lbound(locstream%Ptr%Local_GeoLocation,1):ubound(locstream%Ptr%Local_GeoLocation,1)))
