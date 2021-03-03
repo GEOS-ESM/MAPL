@@ -8,13 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Add profiler for output server
 - New overload for MAPL_ConfigSetAttribute to support array of integers
 - New overload for MAPL_ConfigSetAttribute to support array of reals
-
+- Add return code to constructor method for MAPL Cap gridded component to allow applications
+  to fail gracefully if an error occurs
 - Added ability to "attach" to the pfafstetter grid for land tiles for components running directly on the catchments
 
 ### Changed
 
+- Change to non-blocking send and receive from frontend to beckend in the class MultiGroupServer
 - Change one sided mpi_put to mpi_send and receive pair in the class MultiGroupServer
 - Change command line interface to --npes_backend_pernode to avoid confusion
 - Remove self-defined-in-file MAPL macros
@@ -22,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Have CMake automatically gitignore build and install dirs
+- Properly set return code for MAPL Cap methods
+- Remove GFORTRAN workaround in MAPL_LocStreamMod
+
 
 ### Removed
 

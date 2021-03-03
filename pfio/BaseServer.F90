@@ -21,7 +21,6 @@ module pFIO_BaseServerMod
    use pFIO_ShmemReferenceMod
    use pFIO_RDMAReferenceMod
    use pFIO_AbstractDataMessageMod
-   use pFIO_AbstractSocketMod
    use pFIO_MpiSocketMod
    use pFIO_SimpleSocketMod
    use pFIO_MessageVectorMod
@@ -61,6 +60,7 @@ contains
      class (ServerThread),pointer :: threadPtr
      class (AbstractDataReference), pointer :: dataRefPtr
 
+     call ioserver_profiler%start("receive_data")
      client_num = this%threads%size()
 
      do i = 1, client_num
@@ -76,6 +76,7 @@ contains
          _VERIFY(status)
      enddo
 
+     call ioserver_profiler%stop("receive_data")
      _RETURN(_SUCCESS)
    end subroutine receive_output_data
 
@@ -104,6 +105,8 @@ contains
         _RETURN(_SUCCESS)
      endif
 
+     call ioserver_profiler%start("write_data")
+
      threadPtr=>this%threads%at(1)
 
      iter = threadPtr%request_backlog%begin()
@@ -112,6 +115,7 @@ contains
         msg => iter%get()
         select type (q=>msg)
         type is (CollectiveStageDataMessage)
+           call ioserver_profiler%start("collection_"//i_to_string(q%collection_id))
            collection_counter = this%stage_offset%of(i_to_string(q%collection_id))
            dataRefPtr => this%get_dataReference(collection_counter)
            msize  = this%stage_offset%of(i_to_string(MSIZE_ID+collection_counter))
@@ -136,6 +140,7 @@ contains
               call this%stage_offset%insert(i_to_string(q%request_id)//'done',0_MPI_ADDRESS_KIND)
               !t1 = mpi_wtime()
            endif ! rank = mem_rank
+           call ioserver_profiler%stop("collection_"//i_to_string(q%collection_id))
         end select
         call iter%next()
      enddo ! do backlog loop
@@ -149,6 +154,7 @@ contains
      !if( t1-t0 > 0) then
      !   print*, "this rank",this%rank,"spending ", t1-t0, " seconds writing"
      !endif
+     call ioserver_profiler%stop("write_data")
      _RETURN(_SUCCESS)
    end subroutine put_DataToFile
 
@@ -263,6 +269,8 @@ contains
       character(len=*),parameter :: Iam = 'create_remote_win'
       class (ServerThread) , pointer :: thread_ptr
 
+      call ioserver_profiler%start("create_shared_mem")
+
       this%stage_offset = StringInteger64map()
 
       collection_counter = 0
@@ -317,6 +325,8 @@ contains
          call this%add_DataReference(remotePtr)
          remotePtr=>null()
       enddo
+
+      call ioserver_profiler%stop("create_shared_mem")
       _RETURN(_SUCCESS)
 
    end subroutine create_remote_win
