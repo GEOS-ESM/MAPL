@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Have CMake automatically gitignore build and install dirs
+- Fix issue with History when field names have "." in them
 
 ### Removed
 
