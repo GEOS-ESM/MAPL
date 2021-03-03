@@ -8086,8 +8086,13 @@ module MAPL_IOMod
              x0=1.0d0
              x1=dble(arrdes%JM_WORLD)
           else
-             x0=-90.0d0
-             x1=90.0d0
+             if (arrdes%jm_world==1) then
+                x0=0.0
+                x1=0.0
+             else
+                x0=-90.0d0
+                x1=90.0d0
+             end if
           endif
           lat = MAPL_Range(x0,x1,arrdes%JM_WORLD)
           
