@@ -2,7 +2,6 @@
 
 module MAPL_Mod
 
-  use MAPL_ExceptionHandling
   use ESMFL_Mod         !  Stopgap
   use MAPL_ExceptionHandling
   use MAPL_BaseMod
@@ -12,7 +11,6 @@ module MAPL_Mod
   use MAPL_IOMod
   use MAPL_CFIOMod
   use MAPL_CommsMod
-  use MAPL_LocStreamMod
   use MAPL_GenericMod
   use MAPL_VarSpecMod
   use MAPL_ConstantsMod
