@@ -17,7 +17,6 @@ module pFIO_MultiCommServerMod
    use pFIO_ServerThreadVectorMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractSocketVectorMod
-   use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractServerMod
    use gFTL_StringInteger64Map
    use pFIO_AbstractMessageMod
