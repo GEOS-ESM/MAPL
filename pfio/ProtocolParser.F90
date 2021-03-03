@@ -1,7 +1,6 @@
 #include "unused_dummy.H"
 module pFIO_ProtocolParserMod
    use pFIO_AbstractMessageMod
-   use pFIO_AbstractMessageMod
    use pFIO_IntegerMessageMapMod
    use pFIO_FileMetadataMod
 
