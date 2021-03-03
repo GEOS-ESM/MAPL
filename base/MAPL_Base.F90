@@ -3360,6 +3360,8 @@ and so on.
         else if (coordSys==ESMF_COORDSYS_SPH_RAD) then
            center_lons=lons
            center_lats=lats
+        else if (coordSys==ESMF_COORDSYS_CART) then
+           _RETURN(_FAIL)
         end if 
         call MAPL_GridGetCorners(Grid,corner_lons,corner_lats,rc=status)
         ii=-1
