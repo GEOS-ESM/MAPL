@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- New overload for MAPL_ConfigSetAttribute to support array of integers
+- New overload for MAPL_ConfigSetAttribute to support array of reals
+
+- Added ability to "attach" to the pfafstetter grid for land tiles for components running directly on the catchments
 
 ### Changed
 
@@ -17,7 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Remove GFORTAN workaround in MAPL_LocStreamMod
+- Have CMake automatically gitignore build and install dirs
+- Remove GFORTRAN workaround in MAPL_LocStreamMod
 
 ### Removed
 

@@ -1,7 +1,6 @@
 #include "MAPL_Generic.h"
 
 
-
 ! This module implements extensions that allow extending an
 ! ESMF_Config object.  Otherwise, ESMF only provides a constructor
 ! that loads the data from a text file.
@@ -17,8 +16,10 @@ module MAPL_ConfigMod
 
    interface MAPL_ConfigSetAttribute
       module procedure :: MAPL_ConfigSetAttribute_real32
+      module procedure :: MAPL_ConfigSetAttribute_reals32
       module procedure :: MAPL_ConfigSetAttribute_real64
       module procedure :: MAPL_ConfigSetAttribute_int32
+      module procedure :: MAPL_ConfigSetAttribute_ints32
       module procedure :: MAPL_ConfigSetAttribute_string
    end interface
 
@@ -595,13 +596,76 @@ contains
       return
    end subroutine MAPL_ConfigSetAttribute_int32
 
+   subroutine MAPL_ConfigSetAttribute_ints32( config, value, label, rc )
+     use, intrinsic :: iso_fortran_env, only: INT32
+! !ARGUMENTS:
+     type(ESMF_Config), intent(inout)             :: config     
+     integer(kind=INT32), intent(in)              :: value(:)
+     character(len=*), intent(in), optional       :: label 
+     integer, intent(out), optional               :: rc   
 ! BOPI -------------------------------------------------------------------
 !
-! !IROUTINE: MAPL_ConfigSetAttribute - Set a 4-byte integer number
+! !IROUTINE: MAPL_ConfigSetAttribute - Set an array of 4-byte integer numbers
 
 !
 ! !INTERFACE:
       ! Private name; call using MAPL_ConfigSetAttribute()
+
+     integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
+     character(len=LSZ) :: buffer
+     character(len=12) :: tmpStr, newVal
+     integer :: count, i, j
+     integer :: status
+     
+     count = size(value)
+     buffer = '' ! initialize to 
+     do i = 1, count
+        j = len_trim(buffer)
+        write(tmpStr, *) value(i) ! ALT: check if enough space to write
+        newVal = adjustl(tmpStr)
+        _ASSERT(j + len_trim(newVal) < LSZ,'not enough space to write')
+        write(buffer(j+1:), *) trim(newVal)
+     end do
+     call MAPL_ConfigSetAttribute(config, value=buffer, label=label, __RC__)
+
+     _RETURN(ESMF_SUCCESS)
+   end subroutine MAPL_ConfigSetAttribute_ints32
+
+   subroutine MAPL_ConfigSetAttribute_reals32( config, value, label, rc )
+     use, intrinsic :: iso_fortran_env, only: REAL32
+! !ARGUMENTS:
+     type(ESMF_Config), intent(inout)             :: config     
+     real(kind=REAL32), intent(in)                :: value(:)
+     character(len=*), intent(in), optional       :: label 
+     integer, intent(out), optional               :: rc   
+! BOPI -------------------------------------------------------------------
+!
+! !IROUTINE: MAPL_ConfigSetAttribute - Set an array of 4-byte integer numbers
+
+!
+! !INTERFACE:
+      ! Private name; call using MAPL_ConfigSetAttribute()
+
+     integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
+     character(len=LSZ) :: buffer
+     character(len=15) :: tmpStr, newVal
+     integer :: count, i, j
+     integer :: status
+
+     count = size(value)
+     buffer = '' ! initialize to 
+     do i = 1, count
+        j = len_trim(buffer)
+        write(tmpStr, *) value(i) ! ALT: check if enough space to write
+        newVal = adjustl(tmpStr)
+        _ASSERT(j + len_trim(newVal) < LSZ,'not enough space to write')
+        write(buffer(j+1:), *) trim(newVal)
+     end do
+     call MAPL_ConfigSetAttribute(config, value=buffer, label=label, __RC__)
+
+     _RETURN(ESMF_SUCCESS)
+   end subroutine MAPL_ConfigSetAttribute_reals32
+
    subroutine MAPL_ConfigSetAttribute_string(config, value, label, rc)
 ! !ARGUMENTS:
       type(ESMF_Config), intent(inout)             :: config     
