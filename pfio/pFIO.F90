@@ -26,8 +26,6 @@ module pFIO
    use pFIO_SimpleSocketMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_ArrayReferenceMod
-   use pFIO_CoordinateVariableMod
-   use pFIO_AttributeMod
    use pFIO_StringAttributeMapMod
    use pFIO_StringVariableMapMod
    use pFIO_DownBitMod
