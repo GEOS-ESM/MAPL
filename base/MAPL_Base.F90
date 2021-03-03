@@ -11,7 +11,7 @@ module MAPL_BaseMod
 ! !USES:
 !
 use ESMF
-use MAPL_ConstantsMod, only: MAPL_PI, MAPL_PI_R8
+use MAPL_ConstantsMod, only: MAPL_PI, MAPL_PI_R8,MAPL_DEGREES_TO_RADIANS
 use MAPL_RangeMod
 use MAPL_SphericalGeometry
 use, intrinsic :: iso_fortran_env, only: REAL32
@@ -2692,8 +2692,8 @@ and so on.
             enddo
          enddo
          if (coordSys==ESMF_COORDSYS_SPH_DEG) then
-            lons1d=lons1d*MAPL_PI_R8/180.d0
-            lats1d=lats1d*MAPL_PI_R8/180.d0
+            lons1d=lons1d*MAPL_DEGREES_TO_RADIANS
+            lats1d=lats1d*MAPL_DEGREES_TO_RADIANS
          end if 
          call ESMF_AttributeSet(grid, name='GridCornerLons:', &
                itemCount = idx, valueList=lons1d, rc=status)
@@ -3310,7 +3310,8 @@ and so on.
      real(kind=REAL64), parameter :: PI_R8     = 3.14159265358979323846_REAL64
      logical                 :: localSearch
      real(ESMF_KIND_R8), allocatable :: target_lons(:),target_lats(:)
-     real(ESMF_KIND_R8), allocatable :: corner_lons(:,:),corner_lats(:,:)
+     real(ESMF_KIND_R8), allocatable :: corner_lons(:,:),corner_lats(:,:),center_lats(:,:),center_lons(:,:)
+     type(ESMF_CoordSys_Flag) :: coordSys
 
 
      ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
@@ -3347,14 +3348,25 @@ and so on.
         call ESMF_GridGetCoord(grid,coordDim=2, localDe=0, &
            staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lats, rc=status)
         _VERIFY(STATUS)
+        call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
+        _VERIFY(STATUS)
         allocate(corner_lons(im+1,jm+1))
         allocate(corner_lats(im+1,jm+1))
+        allocate(center_lons(im,jm),center_lats(im,jm))
+
+        if (coordSys==ESMF_COORDSYS_SPH_DEG) then
+           center_lons=lons*MAPL_DEGREES_TO_RADIANS
+           center_lats=lats*MAPL_DEGREES_TO_RADIANS
+        else if (coordSys==ESMF_COORDSYS_SPH_RAD) then
+           center_lons=lons
+           center_lats=lats
+        end if 
         call MAPL_GridGetCorners(Grid,corner_lons,corner_lats,rc=status)
         ii=-1
         jj=-1
-        call get_points_in_spherical_domain(lons,lats,corner_lons,corner_lats,target_lons,target_lats,ii,jj,rc=status)
+        call get_points_in_spherical_domain(center_lons,center_lats,corner_lons,corner_lats,target_lons,target_lats,ii,jj,rc=status)
         _VERIFY(status)
-        deallocate(corner_lons,corner_lats)
+        deallocate(corner_lons,corner_lats, center_lons,center_lats)
      else
         if (localSearch) then
            call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
