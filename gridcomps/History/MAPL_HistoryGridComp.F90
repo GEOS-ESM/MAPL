@@ -4750,6 +4750,7 @@ ENDDO PARSER
           isBundle(m) = .FALSE.
           tmpfields(m)= trim(fields(1,m))
        else 
+          isBundle(m) = .false.
           rewrite(m)= .TRUE.
           tmpfields(m)= trim(fields(1,m))
        end if
