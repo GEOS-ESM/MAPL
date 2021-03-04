@@ -74,7 +74,7 @@ contains
       call this%threads%clear()
       deallocate(mask)
 
-      call ioserver_profiler%stop()
+      if (allocated(ioserver_profiler)) call ioserver_profiler%stop()
       call this%report_profile() 
    end subroutine start
 

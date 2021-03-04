@@ -225,7 +225,7 @@ contains
       integer, optional, intent(out) :: rc
       type(StringInteger64MapIterator) :: iter
  
-      call ioserver_profiler%start("clean up")     
+      if (allocated(ioserver_profiler)) call ioserver_profiler%start("clean up")     
  
       call this%clear_DataReference()
       call this%clear_RequestHandle()
@@ -244,7 +244,7 @@ contains
          iter = this%stage_offset%begin()
       enddo
 
-      call ioserver_profiler%stop("clean up")
+      if (allocated(ioserver_profiler)) call ioserver_profiler%stop("clean up")
      
       _RETURN(_SUCCESS)
    end subroutine clean_up
@@ -396,20 +396,23 @@ contains
       character(1) :: empty(0)
       integer :: i
 
+      if ( .not. allocated(ioserver_profiler)) then
+         _RETURN(_SUCCESS)
+      endif
 
-       call ioserver_profiler%finalize()
-       call ioserver_profiler%reduce()
+      call ioserver_profiler%finalize()
+      call ioserver_profiler%reduce()
 
-       reporter = ProfileReporter(empty)
-       call reporter%add_column(NameColumn(20))
-       call reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
-       call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
-       call reporter%add_column(FormattedTextColumn('Exclusive','(f9.6)', 9, ExclusiveColumn('MEAN')))
-       call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))
-       call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.6)', 9, ExclusiveColumn('MAX')))
-       call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.6)', 9, ExclusiveColumn('MIN')))
-       call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
-       call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
+      reporter = ProfileReporter(empty)
+      call reporter%add_column(NameColumn(20))
+      call reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
+      call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
+      call reporter%add_column(FormattedTextColumn('Exclusive','(f9.6)', 9, ExclusiveColumn('MEAN')))
+      call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))
+      call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.6)', 9, ExclusiveColumn('MAX')))
+      call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.6)', 9, ExclusiveColumn('MIN')))
+      call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
+      call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
       report_lines = reporter%generate_report(ioserver_profiler)
 
       if (this%rank == 0) then
@@ -421,7 +424,7 @@ contains
          write(*,'(a)') ''
       end if
 
-     _RETURN(_SUCCESS)
+      _RETURN(_SUCCESS)
    end subroutine report_profile
 
 end module pFIO_AbstractServerMod
