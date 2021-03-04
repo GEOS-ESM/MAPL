@@ -2682,6 +2682,8 @@ and so on.
          if (coordSys==ESMF_COORDSYS_SPH_DEG) then
             gridCornerLons=gridCornerLons*MAPL_DEGREES_TO_RADIANS
             gridCornerLats=gridCornerLats*MAPL_DEGREES_TO_RADIANS
+         else if (coordSys==ESMF_COORDSYS_CART) then
+            _RETURN(_FAILURE)
          end if
          allocate(lons1d(size(gridCornerLons,1)*size(gridCornerLons,2)),stat=status)
          _VERIFY(status)
@@ -3307,7 +3309,6 @@ and so on.
      real(ESMF_KIND_R8), allocatable :: elats(:)
      integer :: i,iiloc,jjloc
      real(ESMF_KIND_R4) :: lonloc,latloc
-     real(kind=REAL64), parameter :: PI_R8     = 3.14159265358979323846_REAL64
      logical                 :: localSearch
      real(ESMF_KIND_R8), allocatable :: target_lons(:),target_lats(:)
      real(ESMF_KIND_R8), allocatable :: corner_lons(:,:),corner_lats(:,:),center_lats(:,:),center_lons(:,:)
