@@ -27,8 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Have CMake automatically gitignore build and install dirs
 - Properly set return code for MAPL Cap methods
-- Remove GFORTRAN workaround in MAPL_LocStreamMod
-
+- Remove some GFORTRAN workarounds in MAPL_LocStreamMod (some still
+  needed for GNU layout regression, #733)
 
 ### Removed
 
