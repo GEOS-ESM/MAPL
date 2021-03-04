@@ -2683,7 +2683,7 @@ and so on.
             gridCornerLons=gridCornerLons*MAPL_DEGREES_TO_RADIANS
             gridCornerLats=gridCornerLats*MAPL_DEGREES_TO_RADIANS
          else if (coordSys==ESMF_COORDSYS_CART) then
-            _RETURN(_FAILURE)
+            _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
          end if
          allocate(lons1d(size(gridCornerLons,1)*size(gridCornerLons,2)),stat=status)
          _VERIFY(status)
@@ -3362,7 +3362,7 @@ and so on.
            center_lons=lons
            center_lats=lats
         else if (coordSys==ESMF_COORDSYS_CART) then
-           _RETURN(_FAILURE)
+           _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
         end if 
         call MAPL_GridGetCorners(Grid,corner_lons,corner_lats,rc=status)
         ii=-1
