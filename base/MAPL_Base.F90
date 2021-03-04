@@ -2679,6 +2679,10 @@ and so on.
 
          call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
          _VERIFY(status)
+         if (coordSys==ESMF_COORDSYS_SPH_DEG) then
+            gridCornerLons=gridCornerLons*MAPL_DEGREES_TO_RADIANS
+            gridCornerLats=gridCornerLats*MAPL_DEGREES_TO_RADIANS
+         end if
          allocate(lons1d(size(gridCornerLons,1)*size(gridCornerLons,2)),stat=status)
          _VERIFY(status)
          allocate(lats1d(size(gridCornerLons,1)*size(gridCornerLons,2)),stat=status)
@@ -2691,10 +2695,6 @@ and so on.
                lats1d(idx)=gridCornerLats(i,j)
             enddo
          enddo
-         if (coordSys==ESMF_COORDSYS_SPH_DEG) then
-            lons1d=lons1d*MAPL_DEGREES_TO_RADIANS
-            lats1d=lats1d*MAPL_DEGREES_TO_RADIANS
-         end if 
          call ESMF_AttributeSet(grid, name='GridCornerLons:', &
                itemCount = idx, valueList=lons1d, rc=status)
          _VERIFY(STATUS)
