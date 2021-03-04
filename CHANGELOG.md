@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Properly set return code for MAPL Cap methods
 - Remove some GFORTRAN workarounds in MAPL_LocStreamMod (some still
   needed for GNU layout regression, #733)
+- Fix issue with History when field names have "." in them
+
 
 ### Removed
 
