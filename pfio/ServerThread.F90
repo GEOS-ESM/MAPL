@@ -8,6 +8,7 @@ module pFIO_ServerThreadMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use MAPL_ExceptionHandling
+   use MAPL_Profiler
    use pFIO_UtilitiesMod, only: word_size, i_to_string 
    use pFIO_AbstractSocketMod
    use pFIO_AbstractMessageMod
@@ -137,6 +138,7 @@ contains
       call s%set_connection(sckt, status)
       _VERIFY(status)
       if(present(server)) s%containing_server=>server
+
       _RETURN(_SUCCESS)
    end function new_ServerThread
 
@@ -163,8 +165,10 @@ contains
       class(AbstractSocket),pointer :: connection
       integer :: status
 
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("wait_message")
       connection=>this%get_connection()
       message => connection%receive()
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("wait_message")
       if (associated(message)) then
          call message%dispatch(this, status)
          _VERIFY(status)

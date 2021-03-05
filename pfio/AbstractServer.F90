@@ -27,7 +27,7 @@ module pFIO_AbstractServerMod
    private
    public :: AbstractServer
    public :: ioserver_profiler
-   type (DistributedProfiler), allocatable :: ioserver_profiler
+   type (DistributedProfiler), pointer :: ioserver_profiler=>null()
 
    integer,parameter,public :: MAX_SERVER_NODES_NUM = 100000
    integer,parameter,public :: MSIZE_ID = - MAX_SERVER_NODES_NUM
@@ -159,10 +159,11 @@ contains
 
       call Mpi_AllGather(this%Node_Rank,  1, MPI_INTEGER, &
                          this%Node_Ranks, 1, MPI_INTEGER, comm,ierror)
-      if (.not. allocated(ioserver_profiler)) then
+      if (.not. associated(ioserver_profiler)) then
          allocate(ioserver_profiler, source = DistributedProfiler("ioserver", MpiTimerGauge(), comm))
          call ioserver_profiler%start()
       endif
+      call MPI_Barrier(comm, ierror)
    end subroutine init
 
    function get_status(this) result(status)
@@ -225,7 +226,7 @@ contains
       integer, optional, intent(out) :: rc
       type(StringInteger64MapIterator) :: iter
  
-      if (allocated(ioserver_profiler)) call ioserver_profiler%start("clean up")     
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("clean_up")     
  
       call this%clear_DataReference()
       call this%clear_RequestHandle()
@@ -244,7 +245,7 @@ contains
          iter = this%stage_offset%begin()
       enddo
 
-      if (allocated(ioserver_profiler)) call ioserver_profiler%stop("clean up")
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("clean_up")
      
       _RETURN(_SUCCESS)
    end subroutine clean_up
@@ -396,7 +397,7 @@ contains
       character(1) :: empty(0)
       integer :: i
 
-      if ( .not. allocated(ioserver_profiler)) then
+      if ( .not. associated(ioserver_profiler)) then
          _RETURN(_SUCCESS)
       endif
 
@@ -424,6 +425,7 @@ contains
          write(*,'(a)') ''
       end if
 
+      deallocate(ioserver_profiler)
       _RETURN(_SUCCESS)
    end subroutine report_profile
 
