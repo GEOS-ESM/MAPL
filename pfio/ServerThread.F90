@@ -220,18 +220,11 @@ contains
       type (DoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      type (LocalMemReference) :: mem_data_reference
-      class(AbstractDataReference),pointer :: dataRefPtr
       class(AbstractMessage),pointer :: dMessage
-      integer :: data_status, node_rank, innode_rank
-      integer(kind=INT64) :: g_offset, offset,msize_word
-      type(c_ptr) :: offset_address
-      integer,pointer :: i_ptr(:)
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
       class(AbstractSocket),pointer :: connection
-      class (AbstractRequestHandle), pointer :: handle
-      integer :: status, cmd
+      integer :: status
 
       ! first time handling the "Done" message, simple return
       this%containing_server%serverthread_done_msgs(this%thread_rank) = .true. 
@@ -781,7 +774,11 @@ contains
 
       integer, allocatable :: start(:),count(:)
 
-      hist_collection=>this%hist_collections%at(message%collection_id)
+      if (this%hist_collections%size() == 1) then
+         hist_collection=>this%hist_collections%at(1)
+      else
+         hist_collection=>this%hist_collections%at(message%collection_id)
+      endif
       formatter =>hist_collection%find(message%file_name)
  
       select type (message)
@@ -955,7 +952,7 @@ contains
       type (CollectiveStageDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      integer :: status, data_status, cmd
+      integer :: status
 
       _UNUSED_DUMMY(message)
 

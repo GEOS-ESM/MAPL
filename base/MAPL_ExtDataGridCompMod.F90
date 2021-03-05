@@ -382,7 +382,7 @@ CONTAINS
 
    type(MAPL_ExtData_state), pointer :: self        ! Legacy state
    type(ESMF_Grid)                   :: GRID        ! Grid
-   type(ESMF_Config)                 :: CF_master          ! Universal Config 
+   type(ESMF_Config)                 :: CF_main          ! Universal Config 
 
    character(len=ESMF_MAXSTR)        :: comp_name
    character(len=ESMF_MAXSTR)        :: Iam
@@ -443,13 +443,13 @@ CONTAINS
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
    Iam = 'Initialize_'
-   call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, __RC__ )
+   call ESMF_GridCompGet( GC, name=comp_name, config=CF_main, __RC__ )
    Iam = trim(comp_name) // '::' // trim(Iam)
 
 !  Extract relevant runtime information
 !  ------------------------------------
-   call extract_ ( GC, self, CF_master, __RC__)
-   self%CF = CF_master
+   call extract_ ( GC, self, CF_main, __RC__)
+   self%CF = CF_main
 
 !  Get the GC pFlogger
 !  -------------------
@@ -468,10 +468,10 @@ CONTAINS
     _VERIFY(STATUS)
 
     ! set ExtData on by default, let user turn it off if they want
-    call ESMF_ConfigGetAttribute(CF_master,self%active, Label='USE_EXTDATA:',default=.true.,rc=status)
+    call ESMF_ConfigGetAttribute(CF_main,self%active, Label='USE_EXTDATA:',default=.true.,rc=status)
 
     ! set extdata to ignore case on variable names in files
-    call ESMF_ConfigGetAttribute(CF_master,caseSensitiveVarNames, Label='CASE_SENSITIVE_VARIABLE_NAMES:',default=.false.,rc=status)
+    call ESMF_ConfigGetAttribute(CF_main,caseSensitiveVarNames, Label='CASE_SENSITIVE_VARIABLE_NAMES:',default=.false.,rc=status)
     self%ignoreCase = .not. caseSensitiveVarNames
 
     ! no need to run ExtData if there are no imports to fill
@@ -508,14 +508,14 @@ CONTAINS
 !                         Parse ExtData Resource File
 !                         ---------------------------
 
-   call ESMF_ConfigGetAttribute(CF_Master,value=EXTDATA_CF,Label="CF_EXTDATA:",rc=status)
+   call ESMF_ConfigGetAttribute(CF_main,value=EXTDATA_CF,Label="CF_EXTDATA:",rc=status)
    _VERIFY(STATUS)
-   call ESMF_ConfigGetAttribute(CF_Master,value=self%allowExtrap,Label="Ext_AllowExtrap:", default=.false., rc=status)
+   call ESMF_ConfigGetAttribute(CF_main,value=self%allowExtrap,Label="Ext_AllowExtrap:", default=.false., rc=status)
    _VERIFY(STATUS)
-   call ESMF_ConfigGetAttribute(CF_Master,value=self%blocksize,label="BlockSize:",default=1,rc=status)
-   call ESMF_ConfigGetAttribute(CF_Master,value=self%prefetch,label="Prefetch:",default=.true.,rc=status)
+   call ESMF_ConfigGetAttribute(CF_main,value=self%blocksize,label="BlockSize:",default=1,rc=status)
+   call ESMF_ConfigGetAttribute(CF_main,value=self%prefetch,label="Prefetch:",default=.true.,rc=status)
 
-   call ESMF_ConfigGetAttribute(CF_Master,value=self%distributed_trans,Label="CONSERVATIVE_DISTRIBUTED_TRANS:",default=.false., rc=status)
+   call ESMF_ConfigGetAttribute(CF_main,value=self%distributed_trans,Label="CONSERVATIVE_DISTRIBUTED_TRANS:",default=.false., rc=status)
    _VERIFY(STATUS)
 
    CFtemp = ESMF_ConfigCreate (rc=STATUS )
@@ -623,7 +623,8 @@ CONTAINS
                         ! regridding keyword, controls what type of regridding is performed
                         ! options are
                         ! N - conventional bilinear regridding
-                        ! Y - conservative tile based regridding
+                        ! Y - conservative regridding
+                        ! H - conservative horizontal flux regridding
                         ! V - voting, tile based
                         ! F;val - fractional, returns the fraction of the input cells with value, val
                         !         that overlap the target cell
@@ -631,16 +632,14 @@ CONTAINS
                         buffer = ESMF_UtilStringLowerCase(buffer, __RC__)
                         buffer = trim(buffer)
                         if (trim(buffer) == 'y') then
-!!$                           primary%item(totalPrimaryEntries)%Trans = MAPL_HorzTransOrderBinning
                            primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_CONSERVE
                         else if (trim(buffer) == 'n') then
-!!$                           primary%item(totalPrimaryEntries)%Trans = MAPL_HorzTransOrderBilinear
                            primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_BILINEAR
+                        else if (trim(buffer) == 'h') then
+                           primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_CONSERVE_HFLUX
                         else if (trim(buffer) == 'v') then
-!!$                           primary%item(totalPrimaryEntries)%Trans = MAPL_HorzTransOrderSample
                            primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_VOTE
                         else if (index(trim(buffer),'f') ==1 ) then
-!!$                           primary%item(totalPrimaryEntries)%Trans = MAPL_HorzTransOrderFraction
                            primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_FRACTION
                            k = index(buffer,';')
                            _ASSERT(k > 0,'ERROR: MAPL fractional regridding requires semi-colon in ExtData.rc entry: '//trim(primary%item(totalPrimaryEntries)%name))
@@ -1059,7 +1058,7 @@ CONTAINS
          item%modelGridFields%v1_finterp1 = MAPL_FieldCreate(field,item%var,doCopy=.true.,__RC__)
          item%modelGridFields%v1_finterp2 = MAPL_FieldCreate(field,item%var,doCopy=.true.,__RC__)
          if (item%do_fill .or. item%do_vertInterp) then
-            call createFileLevBracket(item,cf_master,__RC__)
+            call createFileLevBracket(item,cf_main,__RC__)
          end if
 
       else if (item%vartype == MAPL_BundleItem) then
@@ -1076,11 +1075,8 @@ CONTAINS
  
       else if (item%vartype == MAPL_ExtDataVectorItem) then
      
-         ! check that we are not asking for conservative regridding
-!!$         if (item%Trans /= MAPL_HorzTransOrderBilinear) then
-         if (item%Trans /= REGRID_METHOD_BILINEAR) then
-            _ASSERT(.false.,'No conservative re-gridding with vectors')
-         end if 
+         ! Only some methods are supported for vector regridding
+         _ASSERT(any(item%Trans /= [REGRID_METHOD_BILINEAR,REGRID_METHOD_CONSERVE_HFLUX]), 'Regrid method unsupported for vectors.')
 
          block
             integer :: gridRotation1, gridRotation2
@@ -1110,7 +1106,7 @@ CONTAINS
          item%modelGridFields%v2_finterp1 = MAPL_FieldCreate(field, item%fcomp2,doCopy=.true.,__RC__)
          item%modelGridFields%v2_finterp2 = MAPL_FieldCreate(field, item%fcomp2,doCopy=.true.,__RC__)
          if (item%do_fill .or. item%do_vertInterp) then
-            call createFileLevBracket(item,cf_master,__RC__)
+            call createFileLevBracket(item,cf_main,__RC__)
          end if
 
       end if

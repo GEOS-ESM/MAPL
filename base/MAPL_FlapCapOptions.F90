@@ -180,7 +180,7 @@ contains
            error=status)
       _VERIFY(status)
 
-      call options%add(switch='--npes_output_backend', &
+      call options%add(switch='--npes_backend_pernode', &
            help='# MPI processes used by the backend output', &
            required=.false., &
            def='0', &
@@ -262,7 +262,7 @@ contains
       ! ouput server type options
       call this%cli_options%get(val=buffer, switch='--oserver_type', error=status); _VERIFY(status)
       this%oserver_type = trim(buffer)
-      call this%cli_options%get(val=this%npes_output_backend, switch='--npes_output_backend', error=status); _VERIFY(status)
+      call this%cli_options%get(val=this%npes_backend_pernode, switch='--npes_backend_pernode', error=status); _VERIFY(status)
 
     end subroutine parse_command_line_arguments
 

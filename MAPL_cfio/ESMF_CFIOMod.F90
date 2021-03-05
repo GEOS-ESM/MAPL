@@ -57,6 +57,7 @@
       use ESMF_CFIOEOSMod
 #endif
       use esmf, only: ESMF_UtilStringUpperCase
+      use, intrinsic :: iso_fortran_env, only: REAL32
       implicit none
 !------------------------------------------------------------------------------
 ! !PRIVATE TYPES:
@@ -950,7 +951,7 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-     real*4, intent(out)   :: xr(:,:,:) ! precision reduced array; can
+     real(kind=REAL32), intent(out)   :: xr(:,:,:) ! precision reduced array; can
 !                                       ! share storage with input array
                                         ! if it has same kind
      integer, intent(out)  :: rc        ! error code
@@ -1004,7 +1005,7 @@
 !
 ! !OUTPUT PARAMETERS:
 !
-     real*4, intent(out)   :: xr(:,:)   ! precision reduced array; can
+     real(kind=REAL32), intent(out)   :: xr(:,:)   ! precision reduced array; can
 !                                       !  share storage with input array
 !                                       !  if it has same kind
      integer, intent(out)  :: rc        ! error code
@@ -1043,7 +1044,7 @@
 !------------------------------------------------------------------------------
 
     integer   :: E, xbits, has_undef
-    real*4    :: scale, xmin, xmax, tol, undef_
+    real(kind=REAL32)    :: scale, xmin, xmax, tol, undef_
     logical   :: shave_mantissa
     integer, external :: ShaveMantissa32
 

@@ -27,11 +27,10 @@ module ExtData_DriverGridCompMod
      integer :: nsteps
      type(ESMF_Clock) :: clock
      type(ESMF_Config) :: cf_ext, cf_root, cf_hist, config
-     type(ESMF_GridComp), pointer :: gcs(:) => null()
-     type(ESMF_State),    pointer :: imports(:) => null(), exports(:) => null()
+     type(ESMF_GridComp), allocatable :: gcs(:)
+     type(ESMF_State),    allocatable :: imports(:), exports(:)
      type(ESMF_VM) :: vm
      type(ESMF_Time), allocatable :: times(:)
-     type(MAPL_Communicators) :: mapl_comm
    contains
      procedure :: set_services
      procedure :: initialize
@@ -55,9 +54,8 @@ module ExtData_DriverGridCompMod
 
 contains
 
-  function new_ExtData_DriverGridComp(root_set_services, mapl_comm, configFileName, name) result(cap)
+  function new_ExtData_DriverGridComp(root_set_services, configFileName, name) result(cap)
     procedure() :: root_set_services
-    type (MAPL_Communicators) :: mapl_comm
     character(len=*), optional, intent(in) :: name
     character(len=*), optional, intent(in) :: configFileName
     type(ExtData_DriverGridComp) :: cap
@@ -83,7 +81,6 @@ contains
 
     cap%gc = ESMF_GridCompCreate(name='ExtData_DriverGridComp', rc = status)
     _VERIFY(status)
-    cap%mapl_comm=mapl_comm
 
     allocate(cap_wrapper%ptr)
     cap_wrapper%ptr = cap
@@ -180,7 +177,7 @@ contains
     !  CAP's MAPL MetaComp
     !---------------------
 
-    call MAPL_Set(MAPLOBJ, mapl_comm=cap%mapl_comm,rc = status)
+    call MAPL_Set(MAPLOBJ,rc = status)
     _VERIFY(STATUS)
 
     call MAPL_Set(MAPLOBJ, name = cap%name, cf = cap%config, rc = status)
@@ -355,7 +352,8 @@ contains
     !  Query MAPL for the the children's for GCS, IMPORTS, EXPORTS
     !-------------------------------------------------------------
 
-    call MAPL_Get(MAPLOBJ, gcs = cap%gcs, gim = cap%imports, gex = cap%exports, rc = status)
+    call MAPL_Get(MAPLOBJ, childrens_gridcomps = cap%gcs, &
+         childrens_import_states = cap%imports, childrens_export_states = cap%exports, rc = status)
     _VERIFY(status)
 
     !  Initialize the Computational Hierarchy

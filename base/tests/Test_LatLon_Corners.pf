@@ -64,11 +64,6 @@ contains
       class (GridCase), intent(in) :: testParameter
 
       _UNUSED_DUMMY(testParameter)
-!$$      allocate(aTest%testParameter, source=testParameter)
-      select type (p => aTest%testParameter)
-      class is (GridCase)
-         call p%setNumPETsRequested(p%nx * p%ny)
-      end select
 
    end function newTest_LatLonCorners
 

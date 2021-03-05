@@ -38,7 +38,7 @@ module MAPL_CapOptionsMod
       ! logging options
       character(:), allocatable :: logging_config
       character(:), allocatable :: oserver_type
-      integer :: npes_output_backend = 0
+      integer :: npes_backend_pernode = 0
    end type MAPL_CapOptions
 
    interface MAPL_CapOptions

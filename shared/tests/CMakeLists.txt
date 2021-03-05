@@ -1,5 +1,6 @@
 set (test_srcs
     test_String.pf
+    test_TimeUtils.pf
   )
 
 
@@ -9,5 +10,3 @@ add_pfunit_ctest(MAPL.shared.tests
                 )
 
 add_dependencies(build-tests MAPL.shared.tests)
-
-

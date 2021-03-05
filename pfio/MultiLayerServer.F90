@@ -17,7 +17,6 @@ module pFIO_MultiLayerServerMod
    use pFIO_ServerThreadVectorMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractSocketVectorMod
-   use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractServerMod
    use gFTL_StringInteger64Map
    use pFIO_AbstractMessageMod
@@ -141,7 +140,7 @@ contains
      integer, optional, intent(out) :: rc
 
      integer ::  n
-     type (ServerThread),pointer :: threadPtr
+     class (ServerThread),pointer :: threadPtr
      class (AbstractMessage),pointer :: msg
      type (MessageVectorIterator) :: iter
      type (StringInteger64MapIterator) :: request_iter
