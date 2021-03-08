@@ -169,8 +169,8 @@ contains
             p_name = port_name
          endif
 
-         allocate(ioserver_profiler, source = DistributedProfiler(p_name, MpiTimerGauge(), comm))
-         call ioserver_profiler%start()
+         !allocate(ioserver_profiler, source = DistributedProfiler(p_name, MpiTimerGauge(), comm))
+         !call ioserver_profiler%start()
       endif
       call MPI_Barrier(comm, ierror)
    end subroutine init
