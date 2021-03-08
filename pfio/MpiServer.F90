@@ -26,13 +26,14 @@ module pFIO_MpiServerMod
 
 contains
 
-   function new_MpiServer(comm, port_name, profiler_name) result(s)
+   function new_MpiServer(comm, port_name, profiler_name, with_profiler) result(s)
       type (MpiServer) :: s
       integer, intent(in) :: comm
       character(*), intent(in) :: port_name
       character(*), optional, intent(in) :: profiler_name
+      logical, optional, intent(in) :: with_profiler
 
-      call s%init(comm, port_name, profiler_name=profiler_name)
+      call s%init(comm, port_name, profiler_name=profiler_name, with_profiler = with_profiler )
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
    end function new_MpiServer

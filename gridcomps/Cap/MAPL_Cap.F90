@@ -189,6 +189,7 @@ contains
          npes_backend_pernode=this%cap_options%npes_backend_pernode, &
          isolate_nodes = this%cap_options%isolate_nodes, &
          fast_oclient  = this%cap_options%fast_oclient, &
+         with_profiler = this%cap_options%with_io_profiler, &
          rc=status)
      _VERIFY(status)
      _RETURN(_SUCCESS)
