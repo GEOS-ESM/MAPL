@@ -25,10 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix bug in HorzIJ routine to place geospatial points when the grid units are degrees
 - Have CMake automatically gitignore build and install dirs
 - Properly set return code for MAPL Cap methods
 - Remove some GFORTRAN workarounds in MAPL_LocStreamMod (some still
   needed for GNU layout regression, #733)
+- Fix issue with History when field names have "." in them
+
 
 ### Removed
 
