@@ -271,7 +271,7 @@ contains
       endif
 
       if (associated(this%o_server)) then
-         call this%i_server%report_profile()
+         call this%o_server%report_profile()
          deallocate(this%o_server)
       endif
       call this%directory_service%free_directory_resources()
