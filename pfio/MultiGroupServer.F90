@@ -128,7 +128,7 @@ contains
       s%I_am_back_root = .false.
       if (index(s_name, 'o_server_front') /=0) then
          s%front_comm = s_comm%get_subcommunicator()
-         call s%init(s%front_comm)
+         call s%init(s%front_comm, s_name)
          s%port_name = trim(port_name)
          call MPI_Comm_rank(s%front_comm, local_rank, ierror)
          if (s_rank == 0) then 
@@ -218,7 +218,7 @@ contains
          call this%threads%clear()
          call this%terminate_back()
 
-         call ioserver_profiler%stop()
+         if (associated(ioserver_profiler)) call ioserver_profiler%stop()
          call this%report_profile()
   
          deallocate(mask)
@@ -254,7 +254,7 @@ contains
          _RETURN(_SUCCESS)
       endif
  
-      call ioserver_profiler%start("clean up")
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("clean up")
 
       num_clients = this%threads%size()
 
@@ -280,7 +280,7 @@ contains
          iter = this%stage_offset%begin()
       enddo
 
-      call ioserver_profiler%stop("clean up")
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("clean up")
       _RETURN(_SUCCESS)
    end subroutine clean_up
 
@@ -311,7 +311,7 @@ contains
      integer, pointer :: i_ptr(:)
      class (AbstractRequestHandle), pointer :: handle
 
-     call ioserver_profiler%start("receive_data")
+     if (associated(ioserver_profiler)) call ioserver_profiler%start("receive_data")
      client_num = this%threads%size()
      this%stage_offset = StringInteger64map()
 
@@ -344,7 +344,7 @@ contains
            msg => iter%get()
            select type (q=>msg)
            class is (AbstractCollectiveDataMessage)
-              call ioserver_profiler%start("collection_"//i_to_string(q%collection_id))
+              if (associated(ioserver_profiler)) call ioserver_profiler%start("collection_"//i_to_string(q%collection_id))
               handle => thread_ptr%get_RequestHandle(q%request_id)
               call handle%wait()
               words = word_size(q%type_kind)
@@ -354,7 +354,7 @@ contains
                  call c_f_pointer(handle%data_reference%base_address, i_ptr, shape=[local_size])
                  call f_d_ms(collection_counter)%add_data_message(q, i_ptr)
               endif
-              call ioserver_profiler%stop("collection_"//i_to_string(q%collection_id))
+              if (associated(ioserver_profiler)) call ioserver_profiler%stop("collection_"//i_to_string(q%collection_id))
            class default
               _ASSERT(.false., "yet to implemented")
            end select
@@ -362,8 +362,8 @@ contains
         end do ! iter
      enddo ! client_num
 
-     call ioserver_profiler%stop("receive_data")
-     call ioserver_profiler%start("forward_data")
+     if (associated(ioserver_profiler)) call ioserver_profiler%stop("receive_data")
+     if (associated(ioserver_profiler)) call ioserver_profiler%start("forward_data")
      ! serializes and send data_and_message to writer
      do collection_counter = 1, collection_total
         ! root asks for idle writer and sends axtra file metadata
@@ -372,7 +372,7 @@ contains
         endif
 
         call Mpi_Bcast( collection_id, 1, MPI_INTEGER, 0, this%front_comm, ierror)
-        call ioserver_profiler%start("collection_"//i_to_string(collection_id))
+        if (associated(ioserver_profiler)) call ioserver_profiler%start("collection_"//i_to_string(collection_id))
 
         if (this%I_am_front_root) then
            call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
@@ -399,9 +399,9 @@ contains
              this%back_ranks(back_local_rank+1), this%server_comm, ierror)
         call Mpi_Isend(this%buffers(back_local_rank+1)%buffer, msg_size, MPI_INTEGER, this%back_ranks(back_local_rank+1), &
             this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(back_local_rank+1)%request,ierror)
-        call ioserver_profiler%stop("collection_"//i_to_string(collection_id))
+        if (associated(ioserver_profiler)) call ioserver_profiler%stop("collection_"//i_to_string(collection_id))
      enddo
-     call ioserver_profiler%stop("forward_data")
+     if (associated(ioserver_profiler)) call ioserver_profiler%stop("forward_data")
      deallocate(f_d_ms)
      _RETURN(_SUCCESS)
    end subroutine receive_output_data

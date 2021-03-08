@@ -114,7 +114,7 @@ contains
       s%I_am_back_root = .false.
       if (index(s_name, 'o_server_front') /=0) then
          s%front_comm = s_comm%get_subcommunicator()
-         call s%init(s%front_comm)
+         call s%init(s%front_comm, s_name)
          s%port_name = trim(port_name)
          call MPI_Comm_rank(s%front_comm, local_rank, ierror)
          if (s_rank == 0) then 
