@@ -8,6 +8,7 @@ module pFIO_ServerThreadMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use MAPL_ExceptionHandling
+   use MAPL_Profiler
    use pFIO_UtilitiesMod, only: word_size, i_to_string 
    use pFIO_AbstractSocketMod
    use pFIO_AbstractMessageMod
@@ -137,6 +138,7 @@ contains
       call s%set_connection(sckt, status)
       _VERIFY(status)
       if(present(server)) s%containing_server=>server
+
       _RETURN(_SUCCESS)
    end function new_ServerThread
 
@@ -163,8 +165,10 @@ contains
       class(AbstractSocket),pointer :: connection
       integer :: status
 
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("wait_message")
       connection=>this%get_connection()
       message => connection%receive()
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("wait_message")
       if (associated(message)) then
          call message%dispatch(this, status)
          _VERIFY(status)
@@ -491,6 +495,8 @@ contains
       type (ExtDataCollection) :: c
       class(AbstractSocket),pointer :: connection
 
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("add_Extcollection")
+      
       iter = this%ext_collections%begin()
       n = 1
 
@@ -512,7 +518,8 @@ contains
       end if
       connection=>this%get_connection()      
       call connection%send(IdMessage(n))         
-      
+     
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Extcollection") 
       _RETURN(_SUCCESS)
    end subroutine handle_AddExtCollection
 
@@ -525,6 +532,7 @@ contains
       type (HistoryCollection) :: hist_collection
       class(AbstractSocket),pointer :: connection
      
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("add_Histcollection") 
       if ( message%collection_id == -1 ) then 
          n = this%hist_collections%size()+1
       else
@@ -540,6 +548,7 @@ contains
 
       connection=>this%get_connection()      
       call connection%send(IdMessage(n))
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Histcollection") 
       _RETURN(_SUCCESS)
    end subroutine handle_AddHistCollection
 
@@ -658,6 +667,7 @@ contains
 
       integer, allocatable :: start(:),count(:)
 
+
       collection => this%ext_collections%at(message%collection_id)
       formatter => collection%find(message%file_name)
 
@@ -708,8 +718,9 @@ contains
           case default
               _ASSERT(.false., "Not supported type")
           end select
-       end select
-       _RETURN(_SUCCESS)
+      end select
+
+      _RETURN(_SUCCESS)
    end subroutine get_DataFromFile
 
    subroutine handle_StageData(this, message, rc)
@@ -1078,16 +1089,22 @@ contains
 
       if( .not. multi_data_read) then
         ! each node read part of a file, then exchange
+         if (associated(ioserver_profiler)) call ioserver_profiler%start("read_gather")
          dataRefPtr=> this%read_and_gather(rc=status)
          _VERIFY(status)
+         if (associated(ioserver_profiler)) call ioserver_profiler%stop("read_gather")
       else
+         if (associated(ioserver_profiler)) call ioserver_profiler%start("read_share")
          dataRefPtr=> this%read_and_share(rc=status)
          _VERIFY(status)
+         if (associated(ioserver_profiler)) call ioserver_profiler%stop("read_share")
       endif
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("send_data")
       ! now dataRefPtr on each node has all the data
       call this%containing_server%add_DataReference(dataRefPtr)
-
       call this%containing_server%get_DataFromMem(multi_data_read, rc=status)
+
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("send_data")
 
       call this%containing_server%clean_up()
  
@@ -1121,7 +1138,7 @@ contains
             mem_data_reference = LocalMemReference(q%type_kind,q%count)
             offset = this%containing_server%prefetch_offset%at(i_to_string(q%request_id))
 
-           !W.J node: these three lines are necessar for read_and_gather call
+           !W.J node: these three lines are necessary for read_and_gather call
            if ( .not. multi_data_read) then
               call this%containing_server%distribute_task(q%request_id,node_rank,innode_rank)
               g_offset = this%containing_server%prefetch_offset%at(i_to_string(-node_rank))

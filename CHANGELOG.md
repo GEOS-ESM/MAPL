@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+- fix memory leak when using fast_oserver in write_restart_by_oserver
+
+### Removed
+
+## [2.6.3] - 2021-03-09
+
+### Added
+
+- Disable throughput reporting if an external clock is driving CapGridComp
+- Comment out profiler in output server
 - Add profiler for output server
 - New overload for MAPL_ConfigSetAttribute to support array of integers
 - New overload for MAPL_ConfigSetAttribute to support array of reals
@@ -25,13 +39,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- fix memory leak when using fast_oserver in write_restart_by_oserver
+- Fix bug in HorzIJ routine to place geospatial points when the grid units are degrees
 - Have CMake automatically gitignore build and install dirs
 - Properly set return code for MAPL Cap methods
 - Remove some GFORTRAN workarounds in MAPL_LocStreamMod (some still
   needed for GNU layout regression, #733)
-
-### Removed
+- Fix issue with History when field names have "." in them
 
 ## [2.6.2] - 2021-02-19
 

@@ -43,7 +43,7 @@ contains
       
       call distributed_profiler%set_comm_world(comm_world = comm_world)
       call distributed_profiler%set_node(MeterNode(name, distributed_profiler%make_meter()))
-      call distributed_profiler%start()
+!      call distributed_profiler%start()
       
    end function new_DistributedProfiler
 
