@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Disable throughput reporting if an external clock is driving CapGridComp
 - Comment out profiler in output server
 - Add profiler for output server
 - New overload for MAPL_ConfigSetAttribute to support array of integers
