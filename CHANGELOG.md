@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [2.6.3] - 2021-03-09
+
+### Added
+
 - Disable throughput reporting if an external clock is driving CapGridComp
 - Comment out profiler in output server
 - Add profiler for output server
@@ -32,9 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove some GFORTRAN workarounds in MAPL_LocStreamMod (some still
   needed for GNU layout regression, #733)
 - Fix issue with History when field names have "." in them
-
-
-### Removed
 
 ## [2.6.2] - 2021-02-19
 
