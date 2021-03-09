@@ -1,5 +1,5 @@
 module pFIO_MpiServerMod
-
+   use MAPL_Profiler
    use pFIO_AbstractDirectoryServiceMod
    use pFIO_ServerThreadMod
    use pFIO_ServerThreadVectorMod
@@ -26,16 +26,15 @@ module pFIO_MpiServerMod
 
 contains
 
-   function new_MpiServer(comm, port_name) result(s)
+   function new_MpiServer(comm, port_name, profiler_name) result(s)
       type (MpiServer) :: s
       integer, intent(in) :: comm
       character(*), intent(in) :: port_name
+      character(*), optional, intent(in) :: profiler_name
 
-      call s%init(comm)
-
+      call s%init(comm, port_name, profiler_name=profiler_name)
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
-
    end function new_MpiServer
 
    subroutine start(this)
@@ -75,6 +74,8 @@ contains
       call this%threads%clear()
       deallocate(mask)
 
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop()
+      call this%report_profile() 
    end subroutine start
 
 end module pFIO_MpiServerMod

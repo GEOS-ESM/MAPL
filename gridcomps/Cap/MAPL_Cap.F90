@@ -186,11 +186,12 @@ contains
          npes_input_server=this%cap_options%npes_input_server, &
          npes_output_server=this%cap_options%npes_output_server, &
          oserver_type=this%cap_options%oserver_type, &
-         npes_output_backend=this%cap_options%npes_output_backend, &
+         npes_backend_pernode=this%cap_options%npes_backend_pernode, &
          isolate_nodes = this%cap_options%isolate_nodes, &
          fast_oclient  = this%cap_options%fast_oclient, &
          rc=status)
      _VERIFY(status)
+     _RETURN(_SUCCESS)
 
    end subroutine initialize_io_clients_servers
      
@@ -212,6 +213,8 @@ contains
          call o_Clients%terminate()
       end select
                   
+     _RETURN(_SUCCESS)
+
    end subroutine run_member
 
 
@@ -233,7 +236,8 @@ contains
       call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, rc=status)
       _VERIFY(status)
 
-      call this%initialize_cap_gc()
+      call this%initialize_cap_gc(rc=status)
+      _VERIFY(status)
 
       call this%cap_gc%set_services(rc = status)
       _VERIFY(status)
@@ -287,11 +291,19 @@ contains
 
    end subroutine run_model
    
-   subroutine initialize_cap_gc(this)
+   subroutine initialize_cap_gc(this, unusable, rc)
      class(MAPL_Cap), intent(inout) :: this
+     class (KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+
+     _UNUSED_DUMMY(unusable)
 
      call MAPL_CapGridCompCreate(this%cap_gc, this%set_services, this%get_cap_rc_file(), &
-           this%name, this%get_egress_file())     
+           this%name, this%get_egress_file(), rc=status)
+     _VERIFY(status)
+     _RETURN(_SUCCESS)
    end subroutine initialize_cap_gc
    
 
@@ -300,6 +312,7 @@ contains
      integer, intent(out) :: rc
      integer :: status
      call this%cap_gc%step(rc = status); _VERIFY(status)
+     _RETURN(_SUCCESS)
    end subroutine step_model
   
    subroutine rewind_model(this, time, rc)
@@ -308,6 +321,7 @@ contains
      integer, intent(out) :: rc
      integer :: status
      call this%cap_gc%rewind_clock(time,rc = status); _VERIFY(status)
+     _RETURN(_SUCCESS)
    end subroutine rewind_model 
 
    integer function create_member_subcommunicator(this, comm, unusable, rc) result(subcommunicator)

@@ -65,8 +65,7 @@ CONTAINS
    type(ESMF_CONFIG) :: cfoutput
 
    type(FieldBundleWriter) :: newWriter
-   type(ServerManager) :: o_server
-   type(ServerManager) :: i_server
+   type(ServerManager) :: io_server
    real, pointer :: ptr2d(:,:),ptr3d(:,:,:)
    real :: cs_stretch_param(3)
    integer :: exit_code
@@ -81,8 +80,7 @@ CONTAINS
     call ESMF_VMGet(vm, localPET=myPET, petCount=nPet)
     call MAPL_Initialize(__RC__)
  
-    call o_server%initialize(mpi_comm_world)
-    call i_server%initialize(mpi_comm_world)
+    call io_server%initialize(mpi_comm_world)
 
     nx=1
     ny=6
@@ -120,7 +118,6 @@ CONTAINS
     lm_world=3
     cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,__RC__)
     grid_new=grid_manager%make_grid(cfoutput,prefix=trim(gridname)//".",__RC__)
-
     bundle=ESMF_FieldBundleCreate(name="cfio_bundle",rc=status)
     call ESMF_FieldBundleSet(bundle,grid=grid_new,rc=status)
     _VERIFY(STATUS)
@@ -170,8 +167,7 @@ CONTAINS
 
     call Compare_Bundle(bundle,bundle_new,1.0e6,rc=exit_code)
 
-    call o_server%finalize()
-    call i_server%finalize()
+    call io_server%finalize()
     call MAPL_Finalize(__RC__)
     call ESMF_Finalize ( rc=status )
     _VERIFY(STATUS)
