@@ -57,6 +57,7 @@ module MAPL_CapGridCompMod
      type(ESMF_Alarm), allocatable :: alarm_list(:)
      type(ESMF_Time),  allocatable :: AlarmRingTime(:)
      logical,          allocatable :: ringingState(:)
+     logical :: compute_throughput
    contains
      procedure :: set_services
      procedure :: initialize
@@ -256,6 +257,7 @@ contains
         ! one time step when driven with an external clock.
         !---------------------------------------------------------
         cap%nsteps = 1
+        cap%compute_throughput = .false.
     else
     !  Create Clock. This is a private routine that sets the start and 
     !   end times and the time interval of the clock from the configuration.
@@ -268,6 +270,7 @@ contains
         call MAPL_ClockInit(MAPLOBJ, cap%clock, nsteps, rc = status)
         _VERIFY(status)
         cap%nsteps = nsteps
+        cap%compute_throughput = .true.
     end if
 
     call ESMF_ClockGet(cap%clock,currTime=cap%cap_restart_time,rc=status)
@@ -1064,8 +1067,10 @@ contains
        !-----------------------------------------------------
        call ESMF_VMBarrier(cap%vm,rc=status)
        _VERIFY(status)
-       cap%loop_start_timer = MPI_WTime(status)
-       cap%started_loop_timer = .true.
+       if (cap%compute_throughput) then
+          cap%loop_start_timer = MPI_WTime(status)
+          cap%started_loop_timer = .true.
+       end if
        TIME_LOOP: do n = 1, cap%nsteps
 
           call MAPL_MemUtilsWrite(cap%vm, 'MAPL_Cap:TimeLoop', rc = status)
@@ -1084,7 +1089,7 @@ contains
           ! estimate of true run time left by ignoring
           ! initialization costs in the averageing.
           !-------------------------------------------
-          if (n == 1) then
+          if (n == 1 .and. cap%compute_throughput) then
              call ESMF_VMBarrier(cap%vm,rc=status)
              _VERIFY(status)
              cap%loop_start_timer = MPI_WTime(status)
@@ -1120,11 +1125,13 @@ contains
 
     call ESMF_GridCompGet(this%gc, vm = this%vm)
 
-    if (.not.this%started_loop_timer) then
-       this%loop_start_timer = MPI_WTime(status)
-       this%started_loop_timer=.true.
+    if (this%compute_throughput) then
+       if (.not.this%started_loop_timer) then
+          this%loop_start_timer = MPI_WTime(status)
+          this%started_loop_timer=.true.
+       end if
+       start_timer = MPI_Wtime(status)
     end if
-    start_timer = MPI_Wtime(status)
     ! Run the ExtData Component
     ! --------------------------
 
@@ -1153,9 +1160,12 @@ contains
          exportstate = this%child_exports(this%root_id), &
          clock = this%clock, userrc = status)
     _VERIFY(status)
-    call ESMF_VMBarrier(this%vm,rc=status)
-    _VERIFY(status)
-    end_run_timer = MPI_WTime(status)
+
+    if (this%compute_throughput) then
+       call ESMF_VMBarrier(this%vm,rc=status)
+       _VERIFY(status)
+       end_run_timer = MPI_WTime(status)
+    end if
 
     ! Synchronize for Next TimeStep
     ! -----------------------------
@@ -1196,7 +1206,7 @@ contains
 
    ! Estimate throughput times
    ! ---------------------------
-       
+   if (this%compute_throughput) then 
        ! Call system clock to estimate throughput simulated Days/Day
          call ESMF_VMBarrier( this%vm, RC=STATUS )
          _VERIFY(STATUS)
@@ -1230,6 +1240,8 @@ contains
     1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
                 2x,'Throughput(days/day)[Avg Tot Run]: ',f6.1,1x,f6.1,1x,f6.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x, &
                 f5.1,'% : ',f5.1,'% Mem Comm:Used')
+  end if
+
     _RETURN(ESMF_SUCCESS)
   end subroutine step
 
