@@ -197,6 +197,7 @@ contains
 
 
     type (MAPL_MetaComp), pointer :: maplobj, root_obj
+    type (ESMF_GridComp), pointer :: root_gc
     procedure(), pointer :: root_set_services
     type(MAPL_CapGridComp), pointer :: cap
     class(BaseProfiler), pointer :: t_p
@@ -537,8 +538,9 @@ contains
     call t_p%start('SetService')
     cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)  
     _VERIFY(status)
-    call MAPL_GetObjectFromGC(cap%gcs(cap%root_id), root_obj, rc=status) 
-    _ASSERT(cap%n_run_phases <= SIZE(root_obj%phase_run)," cap_gc n_run_phases should not exceed the n_run_phases of the root") 
+    root_gc => maplobj%get_child_gridcomp(cap%root_id)
+    call MAPL_GetObjectFromGC(root_gc, root_obj, rc=status) 
+    _ASSERT(cap%n_run_phases <= SIZE(root_obj%phase_run),"n_run_phases in cap_gc should not exceed n_run_phases in root") 
 
     !  Create History child
     !----------------------
@@ -1136,7 +1138,7 @@ contains
     integer :: status
 ! For Throughout/execution estimates
     integer           :: HRS_R, MIN_R, SEC_R
-    real(kind=REAL64) :: START_RUN_TIMER,END_RUN_TIMER,START_TIMER,END_TIMER
+    real(kind=REAL64), save :: START_RUN_TIMER,END_RUN_TIMER,START_TIMER,END_TIMER
     real(kind=REAL64) :: TIME_REMAINING
     real(kind=REAL64) ::  LOOP_THROUGHPUT=0.0_REAL64
     real(kind=REAL64) ::  INST_THROUGHPUT=0.0_REAL64
@@ -1154,94 +1156,62 @@ contains
 
     call ESMF_GridCompGet(this%gc, vm = this%vm)
 
-    if (this%compute_throughput) then
-       if (.not.this%started_loop_timer) then
-          this%loop_start_timer = MPI_WTime(status)
-          this%started_loop_timer=.true.
-       end if
-       start_timer = MPI_Wtime(status)
-    end if
 
     ! Run the ExtData Component
     ! --------------------------
     if (phase_ == 1) then
+
+      if (this%compute_throughput) then
+         if (.not.this%started_loop_timer) then
+            this%loop_start_timer = MPI_WTime(status)
+            this%started_loop_timer=.true.
+         end if
+         start_timer = MPI_Wtime(status)
+      end if
+
       call first_phase(rc=status)
       _VERIFY(status)
+
+      if (this%compute_throughput) then
+         call ESMF_VMBarrier(this%vm,rc=status)
+         _VERIFY(status)
+         start_run_timer = MPI_WTime(status)
+      end if
     endif ! phase_ == 1
 
     ! Run the Gridded Component
     ! --------------------------
-    start_run_timer = MPI_WTime(status)
     call ESMF_GridCompRun(this%gcs(this%root_id), importstate = this%child_imports(this%root_id), &
          exportstate = this%child_exports(this%root_id), &
          clock = this%clock, phase=phase_, userrc = status)
     _VERIFY(status)
 
-    if (this%compute_throughput) then
-       call ESMF_VMBarrier(this%vm,rc=status)
-       _VERIFY(status)
-       end_run_timer = MPI_WTime(status)
-    end if
 
     ! Advance the Clock and run History and Record
     ! ---------------------------------------------------
     if (phase_ == this%n_run_phases) then
-      call last_phase(rc=status)
-      _VERIFY(STATUS)
+
+       if (this%compute_throughput) then
+          call ESMF_VMBarrier(this%vm,rc=status)
+          _VERIFY(status)
+          end_run_timer = MPI_WTime(status)
+       end if
+
+       call last_phase(rc=status)
+       _VERIFY(STATUS)
+
+       ! Estimate throughput times
+       ! ---------------------------
+       if (this%compute_throughput) then
+          call print_throughput(rc=status)
+          _VERIFY(STATUS)
+       end if
     endif !phase_ == last
 
     ! Synchronize for Next TimeStep
     ! -----------------------------
     call ESMF_VMBarrier(this%vm, rc = status)
     _VERIFY(STATUS)
-
-    ! Estimate throughput times
-    ! ---------------------------
-    if (this%compute_throughput) then 
-      call ESMF_ClockGet(this%clock, CurrTime = currTime, rc = status)
-      _VERIFY(status)
-      call ESMF_TimeGet(CurrTime, YY = AGCM_YY, &
-            MM = AGCM_MM, &
-            DD = AGCM_DD, &
-            H  = AGCM_H , &
-            M  = AGCM_M , &
-            S  = AGCM_S, rc=status)
-      _VERIFY(status)
-      delt=currTime-this%cap_restart_time
-       ! Call system clock to estimate throughput simulated Days/Day
-         call ESMF_VMBarrier( this%vm, RC=STATUS )
-         _VERIFY(STATUS)
-         END_TIMER = MPI_Wtime(status)
-         call ESMF_TimeIntervalGet(delt,s_r8=delt64,rc=status)
-         _VERIFY(status)
-         n=delt64/real(this%heartbeat_dt,kind=real64)
-       ! GridCompRun Timer [Inst]
-         RUN_THROUGHPUT = REAL(  this%HEARTBEAT_DT,kind=REAL64)/(END_RUN_TIMER-START_RUN_TIMER)
-       ! Time loop throughput [Inst]
-         INST_THROUGHPUT = REAL(  this%HEARTBEAT_DT,kind=REAL64)/(END_TIMER-START_TIMER)
-       ! Time loop throughput [Avg]
-         LOOP_THROUGHPUT = REAL(n*this%HEARTBEAT_DT,kind=REAL64)/(END_TIMER- this%loop_start_timer)
-       ! Estimate time remaining (seconds)
-         TIME_REMAINING = REAL((this%nsteps-n)*this%HEARTBEAT_DT,kind=REAL64)/LOOP_THROUGHPUT
-         HRS_R = FLOOR(TIME_REMAINING/3600.0)
-         MIN_R = FLOOR(TIME_REMAINING/60.0  -   60.0*HRS_R)
-         SEC_R = FLOOR(TIME_REMAINING       - 3600.0*HRS_R - 60.0*MIN_R)
-       ! Reset Inst timer
-         START_TIMER=END_TIMER
-       ! Get percent of used memory
-         call MAPL_MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
-         _VERIFY(STATUS)
-       ! Get percent of committed memory
-         call MAPL_MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
-         _VERIFY(STATUS)
-
-         if( mapl_am_I_Root(this%vm) ) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
-                                      LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
-                                      mem_committed_percent,mem_used_percent
-    1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
-                2x,'Throughput(days/day)[Avg Tot Run]: ',f6.1,1x,f6.1,1x,f6.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x, &
-                f5.1,'% : ',f5.1,'% Mem Comm:Used')
-    end if
 
     _RETURN(ESMF_SUCCESS)
 
@@ -1254,7 +1224,7 @@ contains
         call ESMF_GridCompRun(this%gcs(this%extdata_id), importState = this%child_imports(this%extdata_id), &
              exportState = this%child_exports(this%extdata_id), &
              clock = this%clock, userrc = status)
-        _VERIFY(status)
+         _VERIFY(status)
         ! Call Record for intermediate checkpoint (if desired)
         ! ------------------------------------------------------
         call ESMF_GridCompWriteRestart(this%gcs(this%root_id), importstate = this%child_imports(this%root_id), &
@@ -1291,6 +1261,58 @@ contains
              clock = this%clock_hist, userrc = status)
         _VERIFY(status)
         _RETURN(_SUCCESS)
+     end subroutine
+
+     subroutine print_throughput(rc)
+        integer, optional, intent(out) :: rc
+        integer :: status
+ 
+        call ESMF_ClockGet(this%clock, CurrTime = currTime, rc = status)
+        _VERIFY(status)
+        call ESMF_TimeGet(CurrTime, YY = AGCM_YY, &
+            MM = AGCM_MM, &
+            DD = AGCM_DD, &
+            H  = AGCM_H , &
+            M  = AGCM_M , &
+            S  = AGCM_S, rc=status)
+        _VERIFY(status)
+        delt=currTime-this%cap_restart_time
+        ! Call system clock to estimate throughput simulated Days/Day
+        call ESMF_VMBarrier( this%vm, RC=STATUS )
+        _VERIFY(STATUS)
+        END_TIMER = MPI_Wtime(status)
+        call ESMF_TimeIntervalGet(delt,s_r8=delt64,rc=status)
+        _VERIFY(status)
+        n=delt64/real(this%heartbeat_dt,kind=real64)
+        !GridCompRun Timer [Inst]
+        RUN_THROUGHPUT = REAL(  this%HEARTBEAT_DT,kind=REAL64)/(END_RUN_TIMER-START_RUN_TIMER)
+       ! Time loop throughput [Inst]
+        INST_THROUGHPUT = REAL(  this%HEARTBEAT_DT,kind=REAL64)/(END_TIMER-START_TIMER)
+       ! Time loop throughput [Avg]
+        LOOP_THROUGHPUT = REAL(n*this%HEARTBEAT_DT,kind=REAL64)/(END_TIMER- this%loop_start_timer)
+       ! Estimate time remaining (seconds)
+        TIME_REMAINING = REAL((this%nsteps-n)*this%HEARTBEAT_DT,kind=REAL64)/LOOP_THROUGHPUT
+        HRS_R = FLOOR(TIME_REMAINING/3600.0)
+        MIN_R = FLOOR(TIME_REMAINING/60.0  -   60.0*HRS_R)
+        SEC_R = FLOOR(TIME_REMAINING       - 3600.0*HRS_R - 60.0*MIN_R)
+        ! Reset Inst timer
+        START_TIMER=END_TIMER
+        ! Get percent of used memory
+        call MAPL_MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
+        _VERIFY(STATUS)
+        ! Get percent of committed memory
+        call MAPL_MemCommited ( mem_total, mem_commit, mem_committed_percent, RC=STATUS )
+        _VERIFY(STATUS)
+
+        if( mapl_am_I_Root(this%vm) ) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,&
+                                      LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
+                                      mem_committed_percent,mem_used_percent
+    1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
+                2x,'Throughput(days/day)[Avg Tot Run]: ',f6.1,1x,f6.1,1x,f6.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x, &
+                f5.1,'% : ',f5.1,'% Mem Comm:Used')
+
+        _RETURN(_SUCCESS)
+        
      end subroutine
 
   end subroutine step
