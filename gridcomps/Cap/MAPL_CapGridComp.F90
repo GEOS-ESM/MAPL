@@ -1156,56 +1156,26 @@ contains
 
     call ESMF_GridCompGet(this%gc, vm = this%vm)
 
-
     ! Run the ExtData Component
     ! --------------------------
     if (phase_ == 1) then
-
-      if (this%compute_throughput) then
-         if (.not.this%started_loop_timer) then
-            this%loop_start_timer = MPI_WTime(status)
-            this%started_loop_timer=.true.
-         end if
-         start_timer = MPI_Wtime(status)
-      end if
-
       call first_phase(rc=status)
       _VERIFY(status)
-
-      if (this%compute_throughput) then
-         call ESMF_VMBarrier(this%vm,rc=status)
-         _VERIFY(status)
-         start_run_timer = MPI_WTime(status)
-      end if
     endif ! phase_ == 1
-
     ! Run the Gridded Component
     ! --------------------------
     call ESMF_GridCompRun(this%gcs(this%root_id), importstate = this%child_imports(this%root_id), &
          exportstate = this%child_exports(this%root_id), &
          clock = this%clock, phase=phase_, userrc = status)
     _VERIFY(status)
-
-
     ! Advance the Clock and run History and Record
     ! ---------------------------------------------------
     if (phase_ == this%n_run_phases) then
 
-       if (this%compute_throughput) then
-          call ESMF_VMBarrier(this%vm,rc=status)
-          _VERIFY(status)
-          end_run_timer = MPI_WTime(status)
-       end if
 
        call last_phase(rc=status)
        _VERIFY(STATUS)
 
-       ! Estimate throughput times
-       ! ---------------------------
-       if (this%compute_throughput) then
-          call print_throughput(rc=status)
-          _VERIFY(STATUS)
-       end if
     endif !phase_ == last
 
     ! Synchronize for Next TimeStep
@@ -1220,6 +1190,14 @@ contains
      subroutine first_phase(rc)
         integer, optional, intent(out) :: rc
         integer :: status
+
+        if (this%compute_throughput) then
+           if (.not.this%started_loop_timer) then
+              this%loop_start_timer = MPI_WTime(status)
+              this%started_loop_timer=.true.
+           end if
+           start_timer = MPI_Wtime(status)
+        end if
 
         call ESMF_GridCompRun(this%gcs(this%extdata_id), importState = this%child_imports(this%extdata_id), &
              exportState = this%child_exports(this%extdata_id), &
@@ -1236,6 +1214,13 @@ contains
              exportstate = this%child_exports(this%history_id), &
              clock = this%clock_hist, userrc = status)
         _VERIFY(status)
+
+        if (this%compute_throughput) then
+           call ESMF_VMBarrier(this%vm,rc=status)
+           _VERIFY(status)
+           start_run_timer = MPI_WTime(status)
+        end if
+
         _RETURN(_SUCCESS)
 
      end subroutine
@@ -1243,6 +1228,12 @@ contains
      subroutine last_phase(rc)
         integer, optional, intent(out) :: rc
         integer :: status
+
+        if (this%compute_throughput) then
+           call ESMF_VMBarrier(this%vm,rc=status)
+           _VERIFY(status)
+           end_run_timer = MPI_WTime(status)
+        end if
  
         call ESMF_ClockAdvance(this%clock, rc = status)
         _VERIFY(STATUS)
@@ -1260,7 +1251,15 @@ contains
              exportstate = this%child_exports(this%history_id), &
              clock = this%clock_hist, userrc = status)
         _VERIFY(status)
+        ! Estimate throughput times
+        ! ---------------------------
+        if (this%compute_throughput) then
+           call print_throughput(rc=status)
+           _VERIFY(STATUS)
+        end if
+
         _RETURN(_SUCCESS)
+
      end subroutine
 
      subroutine print_throughput(rc)
