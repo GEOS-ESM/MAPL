@@ -38,6 +38,12 @@ module MAPL_CapGridCompMod
 
   public :: MAPL_CapGridComp, MAPL_CapGridCompCreate, MAPL_CapGridComp_Wrapper
 
+  type :: Throughput_Timer
+     real(kind=real64) :: loop_start_timer
+     real(kind=REAL64) :: start_run_timer
+     real(kind=REAL64) :: start_timer
+  end type
+
   type :: MAPL_CapGridComp
      private
      type (ESMF_GridComp)          :: gc
@@ -52,13 +58,13 @@ module MAPL_CapGridCompMod
      type(ESMF_State), public :: import_state, export_state
      type(ESMF_State), allocatable :: child_imports(:), child_exports(:)
      type(ESMF_VM) :: vm
-     real(kind=real64) :: loop_start_timer
      type(ESMF_Time) :: cap_restart_time
      type(ESMF_Alarm), allocatable :: alarm_list(:)
      type(ESMF_Time),  allocatable :: AlarmRingTime(:)
      logical,          allocatable :: ringingState(:)
      logical :: compute_throughput
      integer :: n_run_phases
+     type (Throughput_Timer) :: starts
    contains
      procedure :: set_services
      procedure :: initialize
@@ -1093,7 +1099,7 @@ contains
        call ESMF_VMBarrier(cap%vm,rc=status)
        _VERIFY(status)
        if (cap%compute_throughput) then
-          cap%loop_start_timer = MPI_WTime(status)
+          cap%starts%loop_start_timer = MPI_WTime(status)
           cap%started_loop_timer = .true.
        end if
        TIME_LOOP: do n = 1, cap%nsteps
@@ -1117,7 +1123,7 @@ contains
           if (n == 1 .and. cap%compute_throughput) then
              call ESMF_VMBarrier(cap%vm,rc=status)
              _VERIFY(status)
-             cap%loop_start_timer = MPI_WTime(status)
+             cap%starts%loop_start_timer = MPI_WTime(status)
           endif
 
        enddo TIME_LOOP ! end of time loop
@@ -1138,7 +1144,7 @@ contains
     integer :: status
 ! For Throughout/execution estimates
     integer           :: HRS_R, MIN_R, SEC_R
-    real(kind=REAL64), save :: START_RUN_TIMER,END_RUN_TIMER,START_TIMER,END_TIMER
+    real(kind=REAL64) :: END_RUN_TIMER, END_TIMER
     real(kind=REAL64) :: TIME_REMAINING
     real(kind=REAL64) ::  LOOP_THROUGHPUT=0.0_REAL64
     real(kind=REAL64) ::  INST_THROUGHPUT=0.0_REAL64
@@ -1193,10 +1199,10 @@ contains
 
         if (this%compute_throughput) then
            if (.not.this%started_loop_timer) then
-              this%loop_start_timer = MPI_WTime(status)
+              this%starts%loop_start_timer = MPI_WTime(status)
               this%started_loop_timer=.true.
            end if
-           start_timer = MPI_Wtime(status)
+           this%starts%start_timer = MPI_Wtime(status)
         end if
 
         call ESMF_GridCompRun(this%gcs(this%extdata_id), importState = this%child_imports(this%extdata_id), &
@@ -1218,7 +1224,7 @@ contains
         if (this%compute_throughput) then
            call ESMF_VMBarrier(this%vm,rc=status)
            _VERIFY(status)
-           start_run_timer = MPI_WTime(status)
+           this%starts%start_run_timer = MPI_WTime(status)
         end if
 
         _RETURN(_SUCCESS)
@@ -1284,18 +1290,18 @@ contains
         _VERIFY(status)
         n=delt64/real(this%heartbeat_dt,kind=real64)
         !GridCompRun Timer [Inst]
-        RUN_THROUGHPUT = REAL(  this%HEARTBEAT_DT,kind=REAL64)/(END_RUN_TIMER-START_RUN_TIMER)
+        RUN_THROUGHPUT = REAL(  this%HEARTBEAT_DT,kind=REAL64)/(END_RUN_TIMER-this%starts%start_run_timer)
        ! Time loop throughput [Inst]
-        INST_THROUGHPUT = REAL(  this%HEARTBEAT_DT,kind=REAL64)/(END_TIMER-START_TIMER)
+        INST_THROUGHPUT = REAL(  this%HEARTBEAT_DT,kind=REAL64)/(END_TIMER-this%starts%start_timer)
        ! Time loop throughput [Avg]
-        LOOP_THROUGHPUT = REAL(n*this%HEARTBEAT_DT,kind=REAL64)/(END_TIMER- this%loop_start_timer)
+        LOOP_THROUGHPUT = REAL(n*this%HEARTBEAT_DT,kind=REAL64)/(END_TIMER- this%starts%loop_start_timer)
        ! Estimate time remaining (seconds)
         TIME_REMAINING = REAL((this%nsteps-n)*this%HEARTBEAT_DT,kind=REAL64)/LOOP_THROUGHPUT
         HRS_R = FLOOR(TIME_REMAINING/3600.0)
         MIN_R = FLOOR(TIME_REMAINING/60.0  -   60.0*HRS_R)
         SEC_R = FLOOR(TIME_REMAINING       - 3600.0*HRS_R - 60.0*MIN_R)
         ! Reset Inst timer
-        START_TIMER=END_TIMER
+        this%starts%start_timer = END_TIMER
         ! Get percent of used memory
         call MAPL_MemUsed ( mem_total, mem_used, mem_used_percent, RC=STATUS )
         _VERIFY(STATUS)
