@@ -38,7 +38,7 @@ module MAPL_CapGridCompMod
 
   public :: MAPL_CapGridComp, MAPL_CapGridCompCreate, MAPL_CapGridComp_Wrapper
 
-  type :: Throughput_Timer
+  type :: ThroughputTimers
      real(kind=real64) :: loop_start_timer
      real(kind=REAL64) :: start_run_timer
      real(kind=REAL64) :: start_timer
@@ -64,7 +64,7 @@ module MAPL_CapGridCompMod
      logical,          allocatable :: ringingState(:)
      logical :: compute_throughput
      integer :: n_run_phases
-     type (Throughput_Timer) :: starts
+     type (ThroughputTimers) :: starts
    contains
      procedure :: set_services
      procedure :: initialize
@@ -1140,22 +1140,8 @@ contains
     integer, optional, intent(in) :: phase
     integer, optional, intent(out) :: rc
 
-    integer :: AGCM_YY, AGCM_MM, AGCM_DD, AGCM_H, AGCM_M, AGCM_S
-    integer :: status
-! For Throughout/execution estimates
-    integer           :: HRS_R, MIN_R, SEC_R
+    integer :: status, phase_
     real(kind=REAL64) :: END_RUN_TIMER, END_TIMER
-    real(kind=REAL64) :: TIME_REMAINING
-    real(kind=REAL64) ::  LOOP_THROUGHPUT=0.0_REAL64
-    real(kind=REAL64) ::  INST_THROUGHPUT=0.0_REAL64
-    real(kind=REAL64) ::   RUN_THROUGHPUT=0.0_REAL64
-    real              :: mem_total, mem_commit, mem_committed_percent
-    real              :: mem_used, mem_used_percent
-    
-    type(ESMF_Time) :: currTime
-    type(ESMF_TimeInterval) :: delt
-    real(kind=REAL64) :: delt64
-    integer :: n, phase_
 
     phase_ = 1
     if (present(phase)) phase_ = phase
@@ -1165,8 +1151,10 @@ contains
     ! Run the ExtData Component
     ! --------------------------
     if (phase_ == 1) then
+
       call first_phase(rc=status)
       _VERIFY(status)
+
     endif ! phase_ == 1
     ! Run the Gridded Component
     ! --------------------------
@@ -1177,7 +1165,6 @@ contains
     ! Advance the Clock and run History and Record
     ! ---------------------------------------------------
     if (phase_ == this%n_run_phases) then
-
 
        call last_phase(rc=status)
        _VERIFY(STATUS)
@@ -1270,7 +1257,20 @@ contains
 
      subroutine print_throughput(rc)
         integer, optional, intent(out) :: rc
-        integer :: status
+        integer :: status, n
+
+        real(kind=REAL64) ::  TIME_REMAINING
+        real(kind=REAL64) ::  LOOP_THROUGHPUT
+        real(kind=REAL64) ::  INST_THROUGHPUT
+        real(kind=REAL64) ::  RUN_THROUGHPUT
+        real              :: mem_total, mem_commit, mem_committed_percent
+        real              :: mem_used, mem_used_percent
+        type(ESMF_Time)   :: currTime
+        type(ESMF_TimeInterval) :: delt
+        real(kind=REAL64)       :: delt64
+        integer                 :: AGCM_YY, AGCM_MM, AGCM_DD, AGCM_H, AGCM_M, AGCM_S
+        integer                 :: HRS_R, MIN_R, SEC_R
+
  
         call ESMF_ClockGet(this%clock, CurrTime = currTime, rc = status)
         _VERIFY(status)
