@@ -40,14 +40,16 @@ set (srcs
   MAPL_EtaHybridVerticalCoordinate.F90  MAPL_newCFIOitem.F90                
   MAPL_ExtDataCollection.F90            MAPL_NominalOrbitsMod.F90           
   MAPL_ExtDataCollectionManager.F90                 
-  MAPL_ExtDataGridCompMod.F90           MAPL_OrbGridCompMod.F90             tstqsat.F90
+  MAPL_ExtDataGridCompMod.F90           MAPL_OrbGridCompMod.F90
   MAPL_LocStreamFactoryMod.F90          MAPL_LocstreamRegridder.F90
   MAPL_ExternalGridFactory.F90
   ServerManager.F90 ApplicationSupport.F90 MAPL_OldCubedSphereGridFactory.F90
   regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90  FieldBundleWrite.F90 FieldBundleRead.F90
   regex_F.c
   c_mapl_locstream_F.c  getrss.c  memuse.c
-  # new generic - needs to move eventually
+
+  # Orphaned program: should not be in this library.
+  # tstqsat.F90
   )
 
 if (BUILD_WITH_FLAP)
