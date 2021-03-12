@@ -404,7 +404,7 @@ type, extends(MaplGenericComponent) ::  MAPL_MetaComp
    character(len=ESMF_MAXSTR)     , allocatable :: GCNameList(:)
    type (MAPL_Prof               ), pointer :: TIMES(:)         => null()
    integer                        , pointer :: phase_init (:)    => null()
-   integer                        , pointer :: phase_run  (:)    => null()
+   integer, public                , pointer :: phase_run  (:)    => null()
    integer                        , pointer :: phase_final(:)    => null()
    integer                        , pointer :: phase_record(:)   => null()
    integer                        , pointer :: phase_coldstart(:)=> null()
