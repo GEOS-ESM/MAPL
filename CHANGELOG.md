@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix array out of bound when prinnting io message
+
 ### Removed
 
 ## [2.6.3] - 2021-03-09
