@@ -179,9 +179,9 @@ contains
            call this%directory_service%publish(PortInfo(s_name,this%i_server), this%i_server)
            call this%directory_service%connect_to_client(s_name, this%i_server)
            call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
-           if (rank == 0 .and. nodes_in(i) /=0 ) then
+           if (rank == 0 .and. nodes_in(1) /=0 ) then
               write(*,'(A,I0,A)')"Starting pFIO input server on ",nodes_in(i)," nodes"
-           else if (rank==0 .and. npes_in(i) /=0 ) then
+           else if (rank==0 .and. npes_in(1) /=0 ) then
               write(*,'(A,I0,A)')"Starting pFIO input server on ",npes_in(i)," pes"
            end if
         endif
@@ -223,9 +223,9 @@ contains
            call this%directory_service%publish(PortInfo(s_name,this%o_server), this%o_server)
            call this%directory_service%connect_to_client(s_name, this%o_server)
            call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
-           if (rank == 0 .and. nodes_out(i) /=0 ) then
+           if (rank == 0 .and. nodes_out(1) /=0 ) then
               write(*,'(A,I0,A)')"Starting pFIO output server on ",nodes_out(i)," nodes"
-           else if (rank==0 .and. npes_out(i) /=0 ) then
+           else if (rank==0 .and. npes_out(1) /=0 ) then
               write(*,'(A,I0,A)')"Starting pFIO output server on ",npes_out(i)," pes"
            end if
         endif
