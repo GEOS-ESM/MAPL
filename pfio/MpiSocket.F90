@@ -161,8 +161,10 @@ contains
 
       n_words = product(local_reference%shape) * word_size(local_reference%type_kind)
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
+      if (n_words ==0) allocate(data(1))
       call MPI_Isend(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
       allocate(handle, source=MpiRequestHandle(local_reference, request))
+      if (n_words ==0) deallocate(data)
       _RETURN(_SUCCESS)
    end function put
 
@@ -184,8 +186,10 @@ contains
 
       n_words = product(local_reference%shape) * word_size(local_reference%type_kind)
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
+      if (n_words ==0) allocate(data(1))
       call MPI_Irecv(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
       allocate(handle, source=MpiRequestHandle(local_reference, request))
+      if (n_words ==0) deallocate(data)
       _RETURN(_SUCCESS)
    end function get
 

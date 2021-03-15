@@ -361,7 +361,7 @@ contains
     integer                                   :: c
     logical                                   :: isFileName
     logical                                   :: fileExists
-    logical                                   :: isPresent
+    logical                                   :: isPresent,hasNX,hasNY
     real                                      :: lvl
 
     integer                                   :: mntly
@@ -619,15 +619,21 @@ contains
              key => iter%key()
              call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",rc=status)
              _VERIFY(status)
-             if (trim(grid_type)=='Cubed-Sphere') then
-                call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,rc=status)
-                _VERIFY(status)
-             else
-                call MAPL_MakeDecomposition(nx,ny,rc=status)
-                _VERIFY(status)
+             call  ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,rc=status)
+             _VERIFY(status)
+             call  ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,rc=status)
+             _VERIFY(status)
+             if ((.not.hasNX) .and. (.not.hasNY)) then
+                if (trim(grid_type)=='Cubed-Sphere') then
+                   call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,rc=status)
+                   _VERIFY(status)
+                else
+                   call MAPL_MakeDecomposition(nx,ny,rc=status)
+                   _VERIFY(status)
+                end if
+                call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",rc=status)
+                call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",rc=status)
              end if
-             call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",rc=status)
-             call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",rc=status)
              output_grid = grid_manager%make_grid(config, prefix=key//'.', rc=status)
              _VERIFY(status)
              call IntState%output_grids%set(key, output_grid)
@@ -4725,26 +4731,35 @@ ENDDO PARSER
 ! rather than the actual output field variables (i.e., fields(1,:)).
 ! Also do check that there are no illegal operations
 !-------------------------------------------------------------------
+  allocate ( exptmp (1), stat=status )
+  _VERIFY(STATUS)
+  exptmp(1) = ExpState
   ! check which fields are actual exports or expressions
   nPExtraFields = 0
   iRealFields = 0
   allocate(isBundle(nfield))
   do m=1,nfield
-    if (scan(trim(fields(1,m)),'()^*/+-.')/=0) then
-       rewrite(m)= .TRUE.
-       tmpfields(m)= trim(fields(1,m))
-    else
-       if (index(fields(1,m),'%') == 0) then
+
+    call MAPL_ExportStateGet(exptmp,fields(2,m),state,rc=status)
+    _VERIFY(STATUS)
+    if (index(fields(1,m),'%') == 0) then
+       call ESMF_StateGet(state,fields(1,m),field,rc=status)
+       if (status==_SUCCESS) then
           iRealFields = iRealFields + 1
           rewrite(m)= .FALSE.
           isBundle(m) = .FALSE.
           tmpfields(m)= trim(fields(1,m))
-       else
-          isBundle(m)=.true.
-          rewrite(m)= .FALSE.
+       else 
+          isBundle(m) = .false.
+          rewrite(m)= .TRUE.
           tmpfields(m)= trim(fields(1,m))
-       endif
+       end if
+    else
+       isBundle(m)=.true.
+       rewrite(m)= .FALSE.
+       tmpfields(m)= trim(fields(1,m))
     endif
+    
   enddo
 
   ! now that we know this allocated a place to store the names of the real fields
@@ -4845,9 +4860,6 @@ ENDDO PARSER
   allocate(TotLoc(totFields),stat=status)
   _VERIFY(STATUS)
 
-  allocate ( exptmp (1), stat=status )
-  _VERIFY(STATUS)
-  exptmp(1) = ExpState
   iRealFields = 0
   do i=1,nfield
     if ( (.not.rewrite(i)) .and. (.not.isBundle(i)) ) then

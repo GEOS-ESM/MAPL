@@ -209,17 +209,21 @@ contains
      use MAPL_ConservativeRegridderMod
      use MAPL_VotingRegridderMod
      use MAPL_FractionalRegridderMod
+     use MAPL_HorizontalFluxRegridder
      class (RegridderManager), intent(inout) :: this
 
      type (ConservativeRegridder) :: regridder1
      type (LatLonToLatLonRegridder) :: regridder2
      type (VotingRegridder) :: regridder3
      type (FractionalRegridder) :: regridder4
+     type (HorizontalFluxRegridder) :: regridder5
         
      call this%add_prototype('LatLon', 'LatLon', REGRID_METHOD_CONSERVE, regridder1)
      call this%add_prototype('LatLon', 'LatLon', REGRID_METHOD_BILINEAR, regridder2)
      call this%add_prototype('LatLon', 'LatLon', REGRID_METHOD_VOTE, regridder3)
      call this%add_prototype('LatLon', 'LatLon', REGRID_METHOD_FRACTION, regridder4)
+     call this%add_prototype('Cubed-Sphere', 'Cubed_Sphere', &
+          REGRID_METHOD_CONSERVE_HFLUX, regridder5)
      this%initialized = .true.
 
    end subroutine init

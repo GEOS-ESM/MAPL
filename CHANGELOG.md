@@ -9,14 +9,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add %S as seconds token to grads style StringTemplate
-- Add new bundle IO routines for non performance critical IO to eventually depreciate MAPL_CFIO and MAPL_cfio
+- Add support for multi-run-phase for root gridcomp 
 
 ### Changed
 
 ### Fixed
 
 ### Removed
+
+## [2.6.3] - 2021-03-09
+
+### Added
+
+- Disable throughput reporting if an external clock is driving CapGridComp
+- Comment out profiler in output server
+- Add profiler for output server
+- New overload for MAPL_ConfigSetAttribute to support array of integers
+- New overload for MAPL_ConfigSetAttribute to support array of reals
+- Add return code to constructor method for MAPL Cap gridded component to allow applications
+  to fail gracefully if an error occurs
+- Added ability to "attach" to the pfafstetter grid for land tiles for components running directly on the catchments
+
+### Changed
+
+- Change to non-blocking send and receive from frontend to beckend in the class MultiGroupServer
+- Change one sided mpi_put to mpi_send and receive pair in the class MultiGroupServer
+- Change command line interface to --npes_backend_pernode to avoid confusion
+- Remove self-defined-in-file MAPL macros
+
+### Fixed
+
+- Fix bug in HorzIJ routine to place geospatial points when the grid units are degrees
+- Have CMake automatically gitignore build and install dirs
+- Properly set return code for MAPL Cap methods
+- Remove some GFORTRAN workarounds in MAPL_LocStreamMod (some still
+  needed for GNU layout regression, #733)
+- Fix issue with History when field names have "." in them
+
+## [2.6.2] - 2021-02-19
+
+### Added
+
+- Completed new capability to conseratively regrid horizontal fluxes
+  Important constraint is that the input grid must be a refinement of
+  the output grid.
+- Improvement to ExtDataDriver when generating synthetic data
+- Allow user to specify decomposition used by grids in History output, useful for testing
+- Add %S as seconds token to grads style StringTemplate
+- Add new bundle IO routines for non performance critical IO to eventually depreciate MAPL_CFIO and MAPL_cfio
+
+### Fixed
+
+- Fix MAPL_AddChildFromDSO
 
 ## [2.6.1] - 2021-02-16
 

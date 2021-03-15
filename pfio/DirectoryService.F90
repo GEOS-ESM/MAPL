@@ -171,7 +171,7 @@ contains
       integer, allocatable :: client_ranks(:)
       integer, allocatable :: server_ranks(:)
       
-      type(ServerThread), pointer :: server_thread_ptr
+      class(ServerThread), pointer :: server_thread_ptr
       class(BaseServer), pointer :: server_ptr
 
       ! First, check ports to see if server is local, in which case

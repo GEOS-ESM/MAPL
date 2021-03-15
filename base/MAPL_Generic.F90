@@ -118,7 +118,6 @@ module MAPL_GenericMod
   use MAPL_ConstantsMod
   use MAPL_SunMod
   use MaplGeneric
-  use MAPL_VarSpecMod
   use MAPL_GenericCplCompMod
   use MAPL_LocStreamMod
   use MAPL_ConfigMod
@@ -405,7 +404,7 @@ type, extends(MaplGenericComponent) ::  MAPL_MetaComp
    character(len=ESMF_MAXSTR)     , allocatable :: GCNameList(:)
    type (MAPL_Prof               ), pointer :: TIMES(:)         => null()
    integer                        , pointer :: phase_init (:)    => null()
-   integer                        , pointer :: phase_run  (:)    => null()
+   integer, public                , pointer :: phase_run  (:)    => null()
    integer                        , pointer :: phase_final(:)    => null()
    integer                        , pointer :: phase_record(:)   => null()
    integer                        , pointer :: phase_coldstart(:)=> null()
@@ -4714,7 +4713,6 @@ recursive integer function MAPL_AddChildFromGC(GC, NAME, SS, petList, configFile
   _RETURN(ESMF_SUCCESS)
 end function MAPL_AddChildFromGC
 
-
 !INTERFACE:
 recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentGC, SharedObj, petList, configFile, RC)
 
@@ -4738,10 +4736,7 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
   integer                                     :: I
   type(MAPL_MetaComp), pointer                :: CHILD_META, tmp_meta
   class(AbstractFrameworkComponent), pointer :: tmp_framework
-  type(ESMF_GridComp), pointer                :: TMPGCS(:)
-  type(ESMF_State)   , pointer                :: TMPGIM(:)
-  type(ESMF_State)   , pointer                :: TMPGEX(:)
-  character(len=ESMF_MAXSTR), pointer         :: TMPNL(:)
+  character(len=ESMF_MAXSTR), allocatable     :: TMPNL(:)
   character(len=ESMF_MAXSTR)                  :: FNAME, PNAME
   type(ESMF_GridComp)                         :: pGC
   type(ESMF_Context_Flag)                     :: contextFlag
@@ -4775,7 +4770,7 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
   allocate(TMPNL(I), stat=status)
   _VERIFY(STATUS)
   TMPNL(1:I-1) = META%GCNameList
-  deallocate(META%GCNameList)
+  META%GCNameList = TMPNL
 
   FNAME = trim(NAME)
   if (index(NAME,":") == 0) then
@@ -4792,58 +4787,64 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
   deallocate(tmp_meta)
   _ASSERT(associated(tmp_framework),'add_child() failed')
 
-  if (present(petList)) then
-     contextFlag = ESMF_CONTEXT_OWN_VM ! this is default
-  else
-     contextFlag = ESMF_CONTEXT_PARENT_VM ! more efficient
-  end if
+  select type (tmp_framework)
+     class is (MAPL_MetaComp)
+        child_meta => tmp_framework
+        call child_meta%set_component(stub_component)
 
-  META%GCNameList(I) = trim(FNAME)
+        if (present(petList)) then
+           contextFlag = ESMF_CONTEXT_OWN_VM ! this is default
+        else
+           contextFlag = ESMF_CONTEXT_PARENT_VM ! more efficient
+        end if
 
-  gridcomp => child_meta%gridcomp
-  if (present(configfile)) then
-     gridcomp = ESMF_GridCompCreate   (     &
-          NAME   = trim(FNAME),                 &
-          CONFIGFILE = configfile,             &
-          grid = grid,                         &
-          petList = petList,                   &
-          contextFlag = contextFlag,           &
-          RC=STATUS )
-     _VERIFY(STATUS)
-  else
-     gridcomp = ESMF_GridCompCreate   (     &
-          NAME   = trim(FNAME),                 &
-          CONFIG = META%CF,                    &
-          grid = grid,                         &
-          petList = petList,                   &
-          contextFlag = contextFlag,           &
-          RC=STATUS )
-     _VERIFY(STATUS)
-  end if
+        META%GCNameList(I) = trim(FNAME)
+
+        gridcomp => child_meta%gridcomp
+        if (present(configfile)) then
+           gridcomp = ESMF_GridCompCreate   (     &
+                NAME   = trim(FNAME),                 &
+                CONFIGFILE = configfile,             &
+                grid = grid,                         &
+                petList = petList,                   &
+                contextFlag = contextFlag,           &
+                RC=STATUS )
+           _VERIFY(STATUS)
+        else
+           gridcomp = ESMF_GridCompCreate   (     &
+                NAME   = trim(FNAME),                 &
+                CONFIG = META%CF,                    &
+                grid = grid,                         &
+                petList = petList,                   &
+                contextFlag = contextFlag,           &
+                RC=STATUS )
+           _VERIFY(STATUS)
+        end if
 
 ! Create each child's import/export state
-! ----------------------------------
+! --   --------------------------------
 
-! Create each child's import/export state
-! ----------------------------------
+        child_import_state => META%get_child_import_state(i)
+        child_import_state = ESMF_StateCreate (                         & 
+             NAME = trim(META%GCNameList(I)) // '_Imports', &
+             stateIntent = ESMF_STATEINTENT_IMPORT, &
+             RC=STATUS )
+        _VERIFY(STATUS)
 
-     child_import_state => META%get_child_import_state(i)
-     child_import_state = ESMF_StateCreate (                         & 
-          NAME = trim(META%GCNameList(I)) // '_Imports', &
-          stateIntent = ESMF_STATEINTENT_IMPORT, &
+        child_export_state => META%get_child_export_state(i)
+        child_export_state = ESMF_StateCreate (                         &
+             NAME = trim(META%GCNameList(I)) // '_Exports', &
+             stateIntent = ESMF_STATEINTENT_EXPORT, &
           RC=STATUS )
-     _VERIFY(STATUS)
-
-     child_export_state => META%get_child_export_state(i)
-     child_export_state = ESMF_StateCreate (                         &
-          NAME = trim(META%GCNameList(I)) // '_Exports', &
-          stateIntent = ESMF_STATEINTENT_EXPORT, &
-       RC=STATUS )
-  _VERIFY(STATUS)
+        _VERIFY(STATUS)
 
 ! create MAPL_Meta
-  call MAPL_InternalStateCreate ( gridcomp, CHILD_META, RC=STATUS)
-  _VERIFY(STATUS)
+        call MAPL_InternalStateCreate ( gridcomp, CHILD_META, RC=STATUS)
+        _VERIFY(STATUS)
+     class default
+        _ASSERT(.false., "wrong framework type")
+
+  end select
 
 ! put parentGC there
   if (present(parentGC)) then
