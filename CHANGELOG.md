@@ -9,10 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add support for multi-run-phase for root gridcomp 
+
 ### Changed
 
 ### Fixed
 
+- fix out-of-bound access when printing pFIO message
+- Removed program tstqsat.F90 from MAPL.base library.  A followup
+  should add cmake logic to create an executable or just delete the
+  file.
 - Bumped cube version to 2.91 in global metadata
 
 ### Removed
