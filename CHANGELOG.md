@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated MAPL to use the new GFE namespace in CMake. (`gftl` --> `GFTL::gftl`). NOTE: This requires Baselibs 6.1.0 or higher.
+
 ### Fixed
 
 - fix out-of-bound access when printing pFIO message
