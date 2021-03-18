@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add command line option --one_node_output
+
 ### Changed
 
 ### Fixed
@@ -42,8 +44,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add return code to constructor method for MAPL Cap gridded component to allow applications
   to fail gracefully if an error occurs
 - Added ability to "attach" to the pfafstetter grid for land tiles for components running directly on the catchments
-
-- Add command line option --one_node_output
 
 ### Changed
 
