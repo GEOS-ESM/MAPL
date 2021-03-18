@@ -160,6 +160,7 @@ contains
       t => node%get_meter()
       if (name /= node%get_name()) then
          this%status = INCORRECTLY_NESTED_METERS
+         if (present(rc)) rc == INCORRECTLY_NESTED_METERS
          call mapl_throw_exception(__FILE__,__LINE__, &
               & "Timer <"//name// "> does not match start timer <"//node%get_name()//">")
          return
