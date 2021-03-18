@@ -160,14 +160,8 @@ contains
       t => node%get_meter()
       if (name /= node%get_name()) then
          this%status = INCORRECTLY_NESTED_METERS
-         block
-           use MPI
-           integer :: rank, ierror
-           call MPI_Comm_rank(this%comm_world, rank, ierror)
-           if (rank == 0) then
-             _ASSERT(.false., "Timer "//name// " likely does not find its pair")
-           end if
-         end block
+         call mapl_throw_exception(__FILE__,__LINE__, &
+              & "Timer <"//name// "> does not match start timer <"//node%get_name()//">")
          return
       end if
       call t%stop()

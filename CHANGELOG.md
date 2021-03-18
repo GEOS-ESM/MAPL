@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed error handling in profiler/BaseProfiler.F90
+
 ### Removed
 
 ## [2.6.4] - 2021-03-18
