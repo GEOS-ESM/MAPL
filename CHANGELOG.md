@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   should add cmake logic to create an executable or just delete the
   file.
 - Bumped cube version to 2.91 in global metadata
+- CMake workaround for macOS + Intel oneAPI FLAP bug (#644)
 
 ### Removed
 
