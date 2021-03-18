@@ -9,19 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add support for multi-run-phase for root gridcomp 
-
 ### Changed
 
 ### Fixed
 
-- fix out-of-bound access when printing pFIO message
+### Removed
+
+## [2.6.4] - 2021-03-18
+
+### Added
+
+- Add support for multi-run-phase for root gridcomp
+
+### Fixed
+
+- Fixed spliiting the same field in multiple collections
+- Fix out-of-bound access when printing pFIO message
 - Removed program tstqsat.F90 from MAPL.base library.  A followup
   should add cmake logic to create an executable or just delete the
   file.
 - CMake workaround for macOS + Intel oneAPI FLAP bug (#644)
-
-### Removed
 
 ## [2.6.3] - 2021-03-09
 
