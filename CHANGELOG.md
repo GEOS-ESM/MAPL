@@ -11,7 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Do not output `cubed_sphere` and `orientation` variables in native
+  History output as pFIO at present does not handle string variables
+
 ### Fixed
+
+- Bumped cube version to 2.91 in global metadata
 
 ### Removed
 
