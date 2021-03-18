@@ -116,7 +116,7 @@ jobs:
           mepo status
       # If we are in the same org, this will work
       - name: Mepo checkout MAPL branch (same org), MAPL not on main/develop
-        if: github.event.pull_request.head.repo.full_name == github.repository && ($github.head_ref != 'main' && github.head_ref != 'develop')
+        if: github.event.pull_request.head.repo.full_name == github.repository && (github.head_ref != 'main' && github.head_ref != 'develop')
         run: |
           mepo checkout ${GITHUB_HEAD_REF} MAPL
           mepo checkout-if-exists ${GITHUB_HEAD_REF}
