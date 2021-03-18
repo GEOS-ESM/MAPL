@@ -291,9 +291,10 @@ contains
 
    end subroutine run_model
    
-   subroutine initialize_cap_gc(this, unusable, rc)
+   subroutine initialize_cap_gc(this, unusable, n_run_phases, rc)
      class(MAPL_Cap), intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(in) :: n_run_phases
      integer, optional, intent(out) :: rc
 
      integer :: status
@@ -301,7 +302,7 @@ contains
      _UNUSED_DUMMY(unusable)
 
      call MAPL_CapGridCompCreate(this%cap_gc, this%set_services, this%get_cap_rc_file(), &
-           this%name, this%get_egress_file(), rc=status)
+           this%name, this%get_egress_file(), n_run_phases=n_run_phases, rc=status)
      _VERIFY(status)
      _RETURN(_SUCCESS)
    end subroutine initialize_cap_gc
