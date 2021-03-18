@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add support for multi-run-phase for root gridcomp 
-
 ### Changed
 
 ### Fixed
@@ -18,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ## [2.6.4] - 2021-03-18
+
+### Added
+
+- Add support for multi-run-phase for root gridcomp
 
 ### Fixed
 
