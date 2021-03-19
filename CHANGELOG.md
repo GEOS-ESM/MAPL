@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add command line option --one_node_output
+
 ### Changed
 
 - Do not output `cubed_sphere` and `orientation` variables in native
@@ -17,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixes ESMF logging errors related to expressions in History
+- Fixed error handling in profiler/BaseProfiler.F90
 - Fix memory leak when using fast_oserver in write_restart_by_oserver
 - Bumped cube version to 2.91 in global metadata
 
