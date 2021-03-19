@@ -51,7 +51,7 @@ contains
       call serialize_message_vector(this%msg_vec, buff_tmp)
 
       if ( k > 0 ) then
-         i = size(this%idata)+1
+         i = k + 1
          buffer =[buff_tmp, i, this%idata]
       else
          buffer = buff_tmp
