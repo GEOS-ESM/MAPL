@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- fix size of unalloated array for gfortran
+- Fix size of unallocated array for gfortran
 
 ### Removed
 
