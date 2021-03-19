@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixes ESMF logging errors related to expressions in History
 - Fix memory leak when using fast_oserver in write_restart_by_oserver
 - Bumped cube version to 2.91 in global metadata
 
