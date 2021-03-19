@@ -112,13 +112,15 @@ contains
       class(AbstractMeterNode), pointer :: node
       class(AbstractMeter), allocatable :: m
 
-      if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
-      _ASSERT_RC(.not. this%stack%empty(),"Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
-
-      node => this%stack%back()
-      if (.not. node%has_child(name)) then
-         m = this%make_meter()
-         call node%add_child(name, m) !this%make_meter())
+      if (this%stack%empty()) then
+         this%status = INCORRECTLY_NESTED_METERS
+         _ASSERT_RC(.not. this%stack%empty(),"Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
+      else
+         node => this%stack%back()
+         if (.not. node%has_child(name)) then
+            m = this%make_meter()
+            call node%add_child(name, m) !this%make_meter())
+         end if
       end if
 
       node => node%get_child(name)
