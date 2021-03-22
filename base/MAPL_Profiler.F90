@@ -119,7 +119,7 @@
 
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ProfClockOff"
 
-      integer :: COUNTS
+      integer(kind=INT64) :: COUNTS
       integer :: I, NN
       integer :: status
 
