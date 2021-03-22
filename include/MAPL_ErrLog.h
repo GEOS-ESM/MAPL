@@ -87,12 +87,13 @@
 #    define _RC _RC_(rc,status)
 
 
-#    define _ASSERT_MSG_AND_LOC_AND_RC(A,msg,file,line,rc)  if(MAPL_Assert(A,msg,file,line __rc(rc))) __return
+#    define _ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc)  if(MAPL_Assert(A,msg,stat,file,line __rc(rc))) __return
 
 ! Assumes status is passed back in dummy called "rc"
-#    define _ASSERT_MSG_AND_LOC(A,msg,file,line) _ASSERT_MSG_AND_LOC_AND_RC(A,msg,file,line,rc)
+#    define _ASSERT_MSG_AND_LOC(A,msg,stat,file,line) _ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc)
 ! Assumes __FILE__ and __LINE__ are appropriate
-#    define _ASSERT(A,msg) _ASSERT_MSG_AND_LOC(A,msg,_FILE_,__LINE__)
+#    define _ASSERT(A,msg) _ASSERT_MSG_AND_LOC(A,msg,1,_FILE_,__LINE__)
+#    define _ASSERT_RC(A,msg,stat) _ASSERT_MSG_AND_LOC(A,msg,stat,_FILE_,__LINE__)
 #    define _ASSERT_NOMSG(A) _ASSERT(A,'needs informative message')
 #    define _FAIL(msg) _ASSERT(.false.,msg)
 
