@@ -4766,6 +4766,7 @@ ENDDO PARSER
   type(ESMF_Field)                        :: field
   integer                                 :: dims
   logical, allocatable                    :: isBundle(:)
+  logical                                 :: hasField
 
 ! Set rewrite flag and tmpfields.
 ! To keep consistency, all the arithmetic parsing output fields must
@@ -4785,8 +4786,8 @@ ENDDO PARSER
     call MAPL_ExportStateGet(exptmp,fields(2,m),state,rc=status)
     _VERIFY(STATUS)
     if (index(fields(1,m),'%') == 0) then
-       call ESMF_StateGet(state,fields(1,m),field,rc=status)
-       if (status==_SUCCESS) then
+       call checkIfStateHasField(state, fields(1,m), hasField, __RC__)
+       if (hasField) then
           iRealFields = iRealFields + 1
           rewrite(m)= .FALSE.
           isBundle(m) = .FALSE.

@@ -93,8 +93,11 @@ CONTAINS
    type (FileMetaData) :: basic_metadata
 
    type(FieldBundleWriter) :: newWriter
-   type(ServerManager) :: o_server
-   type(ServerManager) :: i_server
+   ! W.J note: I cannot see how o_server and i_server are used here
+   ! but one manager is enough. It has i_server and o_server components
+   type(ServerManager) :: io_server
+   !type(ServerManager) :: o_server
+   !type(ServerManager) :: i_server
    type(NetCDF4_FileFormatter) :: formatter
  
     Iam = "ut_ReGridding"
@@ -107,9 +110,11 @@ CONTAINS
     call ESMF_VMGet(vm, localPET=myPET, petCount=nPet)
     call MAPL_Initialize(__RC__)
     t_prof=DistributedProfiler('Regrid_Util',MpiTimerGauge(),MPI_COMM_WORLD)
- 
-    call o_server%initialize(mpi_comm_world)
-    call i_server%initialize(mpi_comm_world)
+    call t_prof%start(__RC__) 
+
+    call io_server%initialize(mpi_comm_world)
+    !call o_server%initialize(mpi_comm_world)
+    !call i_server%initialize(mpi_comm_world)
 
     nx=1
     ny=6
@@ -291,8 +296,9 @@ CONTAINS
 !   --------
     call ESMF_VMBarrier(VM,__RC__)
 
-    call o_server%finalize()
-    call i_server%finalize()
+    call io_server%finalize()
+    !call o_server%finalize()
+    !call i_server%finalize()
     call t_prof%finalize()
     call t_prof%reduce()
     call generate_report()

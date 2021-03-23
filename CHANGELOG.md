@@ -9,6 +9,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add command line option --one_node_output
+
+### Changed
+
+- Do not output `cubed_sphere` and `orientation` variables in native
+  History output as pFIO at present does not handle string variables
+
+### Fixed
+
+- Fixes ESMF logging errors related to expressions in History
+- Fixed error handling in profiler/BaseProfiler.F90
+- Fix memory leak when using fast_oserver in write_restart_by_oserver
+- Bumped cube version to 2.91 in global metadata
+- Change calls to `system_clock()` to be `INT64` (#511)
+
+### Removed
+
+## [2.6.4] - 2021-03-18
+
+### Added
+
+- Add support for multi-run-phase for root gridcomp
+
+### Fixed
+
+- Fixed spliiting the same field in multiple collections
+- Fix out-of-bound access when printing pFIO message
+- Removed program tstqsat.F90 from MAPL.base library.  A followup
+  should add cmake logic to create an executable or just delete the
+  file.
+- CMake workaround for macOS + Intel oneAPI FLAP bug (#644)
+
+## [2.6.3] - 2021-03-09
+
+### Added
+
+- Disable throughput reporting if an external clock is driving CapGridComp
+- Comment out profiler in output server
 - Add profiler for output server
 - New overload for MAPL_ConfigSetAttribute to support array of integers
 - New overload for MAPL_ConfigSetAttribute to support array of reals
@@ -31,9 +69,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove some GFORTRAN workarounds in MAPL_LocStreamMod (some still
   needed for GNU layout regression, #733)
 - Fix issue with History when field names have "." in them
-
-
-### Removed
 
 ## [2.6.2] - 2021-02-19
 

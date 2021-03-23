@@ -66,7 +66,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: ierror
  
-      call s%init(comm)
+      call s%init(comm, port_name)
 
       s%Inter_Comm = MPI_COMM_NULL
       s%nwriters = nwriters

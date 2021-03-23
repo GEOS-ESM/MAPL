@@ -65,12 +65,20 @@ contains
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
       associate (id => request_id)
-         mem_data_reference = LocalMemReference(data_reference%type_kind, data_reference%shape)
-         ! copy data out so the client can move on after done message is send
-         call data_reference%copy_data_to(mem_data_reference, rc=status)
-         _VERIFY(status) 
-         ! put calls iSend
-         call this%insert_RequestHandle(id, connection%put(id, mem_data_reference))
+
+         select type (data_reference)
+         type is (LocalMemReference)
+            !if localmem is already allocated, no need extra copy. For example, write_restart_by_oserver
+            call this%insert_RequestHandle(id, connection%put(id, data_reference))
+         class default
+            mem_data_reference = LocalMemReference(data_reference%type_kind, data_reference%shape)
+            ! copy data out so the client can move on after done message is send
+            call data_reference%copy_data_to(mem_data_reference, rc=status)
+            _VERIFY(status)
+            ! put calls iSend
+            call this%insert_RequestHandle(id, connection%put(id, mem_data_reference))
+         end select
+
       end associate
       _RETURN(_SUCCESS)
    end function stage_data
@@ -108,12 +116,20 @@ contains
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
       associate (id => request_id)
-         mem_data_reference = LocalMemReference(data_reference%type_kind, data_reference%shape)
-         ! copy data out so the client can move on after done message is send
-         call data_reference%copy_data_to(mem_data_reference, rc=status)
-         _VERIFY(status) 
-         ! put calls iSend
-         call this%insert_RequestHandle(id, connection%put(id, mem_data_reference))
+
+           select type (data_reference)
+           type is (LocalMemReference)
+              !if localmem is already allocated, no need extra copy. For example, write_restart_by_oserver
+              call this%insert_RequestHandle(id, connection%put(id, data_reference))
+           class default
+              mem_data_reference = LocalMemReference(data_reference%type_kind, data_reference%shape)
+              ! copy data out so the client can move on after done message is send
+              call data_reference%copy_data_to(mem_data_reference, rc=status)
+              _VERIFY(status) 
+              ! put calls iSend
+              call this%insert_RequestHandle(id, connection%put(id, mem_data_reference))
+           end select
+
       end associate
 
       _RETURN(_SUCCESS)
@@ -146,12 +162,20 @@ contains
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
       associate (id => request_id)
-         mem_data_reference = LocalMemReference(data_reference%type_kind, data_reference%shape)
-         ! copy data out so the client can move on after done message is send
-         call data_reference%copy_data_to(mem_data_reference, rc=status)
-         _VERIFY(status) 
-         ! put calls iSend
-         call this%insert_RequestHandle(id, connection%put(id, mem_data_reference))
+
+         select type (data_reference)
+         type is (LocalMemReference)
+            !if localmem is already allocated, no need extra copy. For example, write_restart_by_oserver
+            call this%insert_RequestHandle(id, connection%put(id, data_reference))
+         class default
+            mem_data_reference = LocalMemReference(data_reference%type_kind, data_reference%shape)
+            ! copy data out so the client can move on after done message is send
+            call data_reference%copy_data_to(mem_data_reference, rc=status)
+            _VERIFY(status)
+            ! put calls iSend
+            call this%insert_RequestHandle(id, connection%put(id, mem_data_reference))
+         end select
+
       end associate
 
       _RETURN(_SUCCESS)

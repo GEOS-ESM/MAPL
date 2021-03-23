@@ -843,19 +843,21 @@ contains
       type (Variable) :: v
       integer, parameter :: MAXLEN=80
       character(len=MAXLEN) :: gridspec_file_name
-      character(len=5), allocatable :: cvar(:,:)
+      !!! character(len=5), allocatable :: cvar(:,:)
       integer, allocatable :: ivar(:,:)
       integer, allocatable :: ivar2(:,:,:)
 
       integer :: status
+      integer, parameter :: ncontact = 4
+      integer, parameter :: nf = 6
 
-      ! Grid dimensinos
+      ! Grid dimensions
       call metadata%add_dimension('Xdim', this%im_world, rc=status)
       call metadata%add_dimension('Ydim', this%im_world, rc=status)
       call metadata%add_dimension('XCdim', this%im_world+1, rc=status)
       call metadata%add_dimension('YCdim', this%im_world+1, rc=status)
-      call metadata%add_dimension('nf', 6, rc=status)
-      call metadata%add_dimension('ncontact', 4, rc=status)
+      call metadata%add_dimension('nf', nf, rc=status)
+      call metadata%add_dimension('ncontact', ncontact, rc=status)
       call metadata%add_dimension('orientationStrLen', 5, rc=status)
 
       ! Coordinate variables
@@ -873,98 +875,74 @@ contains
       call v%add_attribute('long_name','cubed-sphere face')
       call v%add_attribute('axis','e')
       call v%add_attribute('grads_dim','e')
-      call v%add_const_value(UnlimitedEntity((/1,2,3,4,5,6/)))
+      call v%add_const_value(UnlimitedEntity([1,2,3,4,5,6]))
       call metadata%add_variable('nf',v)
 
       v = Variable(type=PFIO_INT32, dimensions='ncontact')
       call v%add_attribute('long_name','number of contact points')
-      call v%add_const_value(UnlimitedEntity((/1,2,3,4/)))
+      call v%add_const_value(UnlimitedEntity([1,2,3,4]))
       call metadata%add_variable('ncontact',v)
-
-      v = Variable(type=PFIO_STRING)
-      call  v%add_attribute('grid_mapping_name','gnomonic cubed-sphere')
-      call  v%add_attribute('file_format_version','2.91')
-      call  v%add_attribute('additional_vars','contacts,orientation,anchor')
-      call  v%add_attribute('gridspec_file','gridspec.nc4')
-      call metadata%add_variable('cubed_sphere',v)
 
       ! Other variables
       allocate(ivar(4,6))
-      ivar = reshape( (/5, 3, 2, 6, &
-                     1, 3, 4, 6, &
-                     1, 5, 4, 2, &
-                     3, 5, 6, 2, &
-                     3, 1, 6, 4, &
-                     5, 1, 2, 4 /), (/4,6/))
+      ivar = reshape( [5, 3, 2, 6, &
+                       1, 3, 4, 6, &
+                       1, 5, 4, 2, &
+                       3, 5, 6, 2, &
+                       3, 1, 6, 4, &
+                       5, 1, 2, 4 ], [ncontact,nf])
       v = Variable(type=PFIO_INT32, dimensions='ncontact,nf')
       call v%add_attribute('long_name', 'adjacent face starting from left side going clockwise')
       call v%add_const_value(UnlimitedEntity(ivar))
       call metadata%add_variable('contacts', v)
 
-      allocate(cvar(4,6))
-      !cvar =reshape((/" Y:-X", &
-               !" X:-Y", &
-               !" Y:Y ", &
-               !" X:X ", &
-               !" Y:Y ", &
-               !" X:X ", &
-               !" Y:-X", &
-               !" X:-Y", &
-               !" Y:-X", &
-               !" X:-Y", &
-               !" Y:Y ", &
-               !" X:X ", &
-               !" Y:Y ", &
-               !!" X:X ", &
-               !" Y:-X", &
-               !" X:-Y", &
-               !" Y:-X", &
-               !" X:-Y", &
-               !" Y:Y ", &
-               !" X:X ", &
-               !" Y:Y ", &
-               !" X:X ", &
-               !" Y:-X", &
-               !" X:-Y" /),(/4,6/))
-      v = Variable(type=PFIO_STRING, dimensions='orientationStrLen,ncontact,nf')
-      call v%add_attribute('long_name', 'orientation of boundary')
-      !call v%add_const_value(UnlimitedEntity(cvar))
-      call metadata%add_variable('orientation', v)
+      !!! At present pfio does not seem to work with string variables
+      !!! allocate(cvar(4,6))
+      !!! cvar =reshape([" Y:-X", " X:-Y", " Y:Y ", " X:X ", &
+      !!!                " Y:Y ", " X:X ", " Y:-X", " X:-Y", &
+      !!!                " Y:-X", " X:-Y", " Y:Y ", " X:X ", &
+      !!!                " Y:Y ", " X:X ", " Y:-X", " X:-Y", &
+      !!!                " Y:-X", " X:-Y", " Y:Y ", " X:X ", &
+      !!!                " Y:Y ", " X:X ", " Y:-X", " X:-Y" ], [ncontact,nf])
+      !!! v = Variable(type=PFIO_STRING, dimensions='orientationStrLen,ncontact,nf')
+      !!! call v%add_attribute('long_name', 'orientation of boundary')
+      !!! call v%add_const_value(UnlimitedEntity(cvar))
+      !!! call metadata%add_variable('orientation', v)
 
       im = this%im_world
       allocate(ivar2(4,4,6))
-      ivar2 = reshape(        & 
-                 (/im, im,  1, im, &
-                  1, im,  1,  1, &
-                  1, im,  1,  1, &
-                 im, im,  1, im, &
-                 im,  1, im, im, &
-                  1,  1, im,  1, &
-                  1,  1, im,  1, &
-                 im,  1, im,  im, &
-                 im, im,  1, im, &
-                  1, im,  1,  1, &
-                  1, im,  1,  1, &
-                 im, im,  1, im, &
-                 im,  1, im, im, &
-                  1,  1, im,  1, &
-                  1,  1, im,  1, &
-                 im,  1, im, im, &
-                 im, im,  1, im, &
-                  1, im,  1,  1, &
-                  1, im,  1,  1, &
-                 im, im,  1, im, &
-                 im,  1, im, im, &
-                  1,  1, im,  1, &
-                  1,  1, im,  1, &
-                 im,  1, im, im  /), (/4,4,6/))
+      ivar2 = reshape(            & 
+               [[im, im,  1, im,  &
+                  1, im,  1,  1,  &
+                  1, im,  1,  1,  &
+                 im, im,  1, im], &
+                [im,  1, im, im,  &
+                  1,  1, im,  1,  &
+                  1,  1, im,  1,  &
+                 im,  1, im, im], &
+                [im, im,  1, im,  &
+                  1, im,  1,  1,  &
+                  1, im,  1,  1,  &
+                 im, im,  1, im], &
+                [im,  1, im, im,  &
+                  1,  1, im,  1,  &
+                  1,  1, im,  1,  &
+                 im,  1, im, im], &
+                [im, im,  1, im,  &
+                  1, im,  1,  1,  &
+                  1, im,  1,  1,  &
+                 im, im,  1, im], &
+                [im,  1, im, im,  &
+                  1,  1, im,  1,  &
+                  1,  1, im,  1,  &
+                 im,  1, im, im] ], [ncontact,ncontact,nf])
       v = Variable(type=PFIO_INT32, dimensions='ncontact,ncontact,nf')
       call v%add_attribute('long_name', 'anchor point')
       call v%add_const_value(UnlimitedEntity(ivar2))
       call metadata%add_variable('anchor', v)
 
       call Metadata%add_attribute('grid_mapping_name', 'gnomonic cubed-sphere')
-      call Metadata%add_attribute('file_format_version', '2.90')
+      call Metadata%add_attribute('file_format_version', '2.91')
       call Metadata%add_attribute('additional_vars', 'contacts,orientation,anchor')
       write(gridspec_file_name,'("C",i0,"_gridspec.nc4")') this%im_world
       call Metadata%add_attribute('gridspec_file', trim(gridspec_file_name))
