@@ -21,7 +21,7 @@
 #ifdef _CUDA
   use cudafor
 #endif
-  use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64
+  use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, INT64
   implicit none
   private
 
@@ -30,7 +30,7 @@
   type, public :: MAPL_Prof
     private
     character(len=ESMF_MAXSTR) :: NAME=""
-    integer        :: START_TIME
+    integer(kind=INT64) :: START_TIME
     real  (kind=REAL64) :: CUMM_TIME   
   end type MAPL_Prof
 
@@ -53,7 +53,7 @@
   integer, public, parameter  :: MAPL_TimerModeMinMax = 3
 
   type(ESMF_VM), save :: VM
-  integer,       save :: COUNT_MAX, COUNT_RATE
+  integer(kind=INT64), save :: COUNT_MAX, COUNT_RATE
   real(kind=REAL64),  save :: CRI
   logical,       save :: FIRSTTIME = .true.
   logical,       save :: DISABLED  = .false.
@@ -119,7 +119,7 @@
 
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ProfClockOff"
 
-      integer :: COUNTS
+      integer(kind=INT64) :: COUNTS
       integer :: I, NN
       integer :: status
 
