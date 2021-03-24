@@ -62,7 +62,7 @@ esma_add_library(
                esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE SHARED)
 
-# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
@@ -87,14 +87,14 @@ endforeach()
 
 ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90 DEPENDS esmf)
 target_link_libraries (cub2latlon.x PRIVATE ${this} MAPL.pfio ${MPI_Fortran_LIBRARIES})
-# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(cub2latlon.x PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
 
 ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util.F90 DEPENDS esmf)
 target_link_libraries (Regrid_Util.x PRIVATE ${this} MAPL.pfio ${MPI_Fortran_LIBRARIES})
-# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(Regrid_Util.x PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
