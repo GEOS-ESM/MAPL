@@ -285,7 +285,7 @@ contains
           _VERIFY(STATUS)
        end if
 
-       call ESMF_AttributeGet(FIELD, NAME="UNGRIDDED_DIMS", isPresent=has_ungrd, RC=STATUS)
+       call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
        _VERIFY(STATUS)
        if (has_ungrd) then
           call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
@@ -3855,7 +3855,7 @@ and so on.
             _VERIFY(STATUS)
 
             ! adjust ungridded dims attribute (if any)
-            call ESMF_AttributeGet(FIELD, NAME="UNGRIDDED_DIMS", isPresent=has_ungrd, RC=STATUS)
+            call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
             _VERIFY(STATUS)
             if (has_ungrd) then
                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
@@ -3889,6 +3889,9 @@ and so on.
          n = 0
          k1=lbound(ptr3d,3)
          k2=ubound(ptr3d,3)
+         kk = k2-k1+1
+         call genAlias(name, kk, splitNameArray, aliasName=aliasName,rc=status)
+         _VERIFY(STATUS)
          do k=k1,k2
             n = n+1
             ptr2d => ptr3d(:,:,k)
@@ -3907,7 +3910,7 @@ and so on.
             _VERIFY(STATUS)
 
             ! adjust ungridded dims attribute (if any)
-            call ESMF_AttributeGet(FIELD, NAME="UNGRIDDED_DIMS", isPresent=has_ungrd, RC=STATUS)
+            call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
             _VERIFY(STATUS)
             if (has_ungrd) then
                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
@@ -3962,7 +3965,8 @@ and so on.
         ! parse the aliasName
         count = 0
         k1 = 1
-        do k=1,len_trim(aliasName)
+        kk = len_trim(aliasName)
+        do k=1,kk
            if (aliasName(k:k) == ";") then
               count = count+1
               k2=k-1
@@ -3972,7 +3976,9 @@ and so on.
            end if
         end do
         if(count == n-1) then
-           splitNameArray(count) = aliasName(k1:k)
+           k2 = kk
+           count = count+1
+           splitNameArray(count) = aliasName(k1:k2)
         else if (count == 0) then
            do i=1,n
               write(splitNameArray(i),'(A,I3.3)') trim(aliasName), i

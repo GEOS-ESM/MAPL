@@ -2776,9 +2776,9 @@ ENDDO PARSER
       type(ESMF_State) :: expState
       type(newCFIOItemVector), pointer  :: newItems
       character(ESMF_MAXSTR) :: fldName, stateName
-      character(ESMF_MAXSTR) :: baseName, aliasName, alias
+      character(ESMF_MAXSTR) :: aliasName, alias
       logical :: split
-      integer :: k, i, idx, baseLen
+      integer :: k, i, idx
       logical :: hasField
       
       ! Restrictions:
@@ -2846,10 +2846,8 @@ ENDDO PARSER
             do k = 1, size(needSplit) ! loop over "old" fld_set
                if (.not. needSplit(k)) cycle
 
-               baseName = fld_set%fields(1,k)
                stateName = fld_set%fields(2,k)
                aliasName = fld_set%fields(3,k)
-               baseLen = len_trim(baseName)
 
                call MAPL_FieldSplit(fldList(k), splitFields, aliasName=aliasName, RC=status)
                _VERIFY(STATUS)
@@ -2861,11 +2859,7 @@ ENDDO PARSER
                        rc=status)
                   _VERIFY(status)
 
-                  ! here we do "search-and-replace" to preserve the 
-                  ! split naming convension while do the aliasing
-                  idx = index(fldName, baseName)
-                  alias = fldName(1:idx-1) // trim(aliasName) // &
-                       trim(fldName((idx+1+baseLen):))
+                  alias = fldName
 
                   call appendFieldSet(newFieldSet, fldName, & 
                        stateName=stateName, &
@@ -2968,7 +2962,7 @@ ENDDO PARSER
          call ESMF_AttributeGet(fld, name='DIMS', value=dims, rc=status)
         _VERIFY(STATUS)
         if (dims == MAPL_DimsHorzOnly) then
-           call ESMF_AttributeGet(fld, name="UNGRIDDED_DIMS", &
+           call ESMF_AttributeGet(fld, name='UNGRIDDED_DIMS', &
                 isPresent=has_ungrd, rc=status)
             _VERIFY(STATUS)
             if (has_ungrd) then
