@@ -4269,7 +4269,7 @@ CONTAINS
     implicit none
 
     ! Arguments
-    real*8,            intent(  OUT) :: qave 
+    real(kind=REAL64), intent(  OUT) :: qave 
     real,              intent(IN   ) :: q(:,:)
     real,              intent(IN   ) :: area(:,:)
     type(ESMF_Grid),   intent(INout) :: grid
@@ -4281,7 +4281,7 @@ CONTAINS
     character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_AreaMeanBR'
 
     ! Local vars
-    real*8  :: qdum(2)
+    real(kind=REAL64)  :: qdum(2)
     integer :: im,jm
     integer :: DIMS(3)
 
@@ -4359,7 +4359,7 @@ CONTAINS
     implicit none
 
     ! Arguments
-    real*8,            intent(  OUT) :: qave 
+    real(kind=REAL64), intent(  OUT) :: qave 
     real,              intent(IN   ) :: q(:,:)
     real,              intent(IN   ) :: area(:,:)
     type(ESMF_Grid),   intent(INout) :: grid
@@ -4370,8 +4370,8 @@ CONTAINS
     character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_AreaMean'
 
     ! Local vars
-    real*8  :: qdum(2)
-    real*8  :: qdumloc(2)
+    real(kind=REAL64)  :: qdum(2)
+    real(kind=REAL64)  :: qdumloc(2)
     integer :: im,jm
 
     integer :: i,j

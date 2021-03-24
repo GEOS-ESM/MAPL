@@ -662,7 +662,7 @@ contains
     integer, optional, intent(out) :: rc
     integer :: status
     type(HISTORY_ExchangeListWrap) :: lswrap
-    integer*8, pointer             :: LSADDR(:) => null()
+    integer(kind=INT64), pointer   :: LSADDR(:) => null()
 
     if (present(rc)) rc = ESMF_SUCCESS
     ! All the EXPORTS of the Hierachy are made IMPORTS of History
