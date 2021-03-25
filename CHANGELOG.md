@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Setting and getting UNGRIDDED_DIMS attribute uses now single quoted string
 - Do not output `cubed_sphere` and `orientation` variables in native
   History output as pFIO at present does not handle string variables
 - Updated Python scripts to work with Python 2 or 3. Scripts were:
@@ -24,11 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed unset UNGRIDDED_DIMS attribute bug
 - Fixes ESMF logging errors related to expressions in History
 - Fixed error handling in profiler/BaseProfiler.F90
 - Fix memory leak when using fast_oserver in write_restart_by_oserver
 - Bumped cube version to 2.91 in global metadata
 - Change calls to `system_clock()` to be `INT64` (#511)
+- CMake updates to allow NAG Fortran build
 
 ### Removed
 
