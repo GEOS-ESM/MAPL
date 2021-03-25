@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix size of unallocated array for gfortran
+- Fixed size of unallocated array for gfortran
+- Fixed counting of backend npes for assert
 
 ### Removed
 
