@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped cube version to 2.91 in global metadata
 - Change calls to `system_clock()` to be `INT64` (#511)
 - CMake updates to allow NAG Fortran build
+- Converted some remaining `real*8`-type declarations to be `real(kind=REAL64)`-style
 
 ### Removed
 
