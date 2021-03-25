@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Setting and getting UNGRIDDED_DIMS attribute uses now single quoted string
 - Do not output `cubed_sphere` and `orientation` variables in native
   History output as pFIO at present does not handle string variables
+- Updated Python scripts to work with Python 2 or 3. Scripts were:
+   - `base/mapl_tree.py`
+   - `base/mapl_vlist.py`
+   - `Apps/MAPL_GridCompSpecs_ACG.py`
 
 ### Fixed
 
