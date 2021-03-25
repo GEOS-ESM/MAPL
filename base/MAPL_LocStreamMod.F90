@@ -24,7 +24,7 @@ use MAPL_CommsMod
 use MAPL_HashMod
 use MAPL_ShmemMod
 use MAPL_ExceptionHandling
-use, intrinsic :: iso_fortran_env, only: REAL64
+use, intrinsic :: iso_fortran_env, only: REAL64, INT64
 
 implicit none
 private
@@ -1587,7 +1587,7 @@ contains
     integer                           :: arbIndexCount
     integer, allocatable              :: arbIndex(:,:)
     integer, parameter                :: DUMMY_NSUBTILES=1
-    integer*8                         :: ADDR
+    integer(kind=INT64)               :: ADDR
 
 ! Begin
 !------

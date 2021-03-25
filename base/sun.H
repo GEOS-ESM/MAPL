@@ -26,7 +26,7 @@
       integer           :: IDAY, IDAYP1, TIME_
       integer           :: NT
       real              :: FAC, ZS, ZC, ANG, AA, DD, ET
-      real*8            :: SECS
+      real(kind=REAL64) :: SECS
 
       integer           :: YEAR
       integer           :: SEC_OF_DAY

@@ -1819,9 +1819,9 @@ real    :: IIR(NT*COUNT), JJR(NT*COUNT)
       real, pointer           :: var_1d(:)
       real, pointer           :: var_2d(:,:)
       real, pointer           :: var_3d(:,:,:)
-      real*8, pointer           :: vr8_1d(:)
-      real*8, pointer           :: vr8_2d(:,:)
-      real*8, pointer           :: vr8_3d(:,:,:)
+      real(kind=REAL64), pointer :: vr8_1d(:)
+      real(kind=REAL64), pointer :: vr8_2d(:,:)
+      real(kind=REAL64), pointer :: vr8_3d(:,:,:)
       type(ESMF_TypeKind_Flag)  :: tk
 
       call ESMF_FieldGet(FIELD, grid=GRID, dimCount=fieldRank, &
@@ -1995,9 +1995,9 @@ real    :: IIR(NT*COUNT), JJR(NT*COUNT)
       real, pointer           :: var_1d(:)
       real, pointer           :: var_2d(:,:)
       real, pointer           :: var_3d(:,:,:)
-      real*8, pointer           :: vr8_1d(:)
-      real*8, pointer           :: vr8_2d(:,:)
-      real*8, pointer           :: vr8_3d(:,:,:)
+      real(kind=REAL64), pointer :: vr8_1d(:)
+      real(kind=REAL64), pointer :: vr8_2d(:,:)
+      real(kind=REAL64), pointer :: vr8_3d(:,:,:)
       type(ESMF_TypeKind_Flag)  :: tk
 
       call ESMF_FieldGet(from, dimCount=fieldRank, &
@@ -2241,11 +2241,11 @@ and so on.
 !   ---------------------------------------
     type(ESMF_Config), pointer :: Config_
     integer           :: IM_World_      
-    real*8            :: BegLon_
-    real*8            :: DelLon_ 
+    real(kind=REAL64) :: BegLon_
+    real(kind=REAL64) :: DelLon_ 
     integer           :: JM_World_      
-    real*8            :: BegLat_
-    real*8            :: DelLat_
+    real(kind=REAL64) :: BegLat_
+    real(kind=REAL64) :: DelLat_
     integer           :: LM_World_ 
     integer           :: Nx_, Ny_, Nz_
 
@@ -2260,7 +2260,7 @@ and so on.
     real(ESMF_KIND_R8), allocatable :: cornerX(:)
     real(ESMF_KIND_R8), allocatable :: cornerY(:)
 
-    real*8, parameter                 :: D2R = MAPL_PI_R8 / 180
+    real(kind=REAL64), parameter    :: D2R = MAPL_PI_R8 / 180
     real                            :: FirstOut(2)
     real                            :: LastOut(2)
 
