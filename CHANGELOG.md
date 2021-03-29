@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
+
+### Added
 
 - Add command line option --one_node_output
 - Ability to split fields with ungridded dimensions (and not only 4d). 
