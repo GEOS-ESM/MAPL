@@ -2,7 +2,11 @@
 
 import os, sys, argparse
 
-
+# To allow Python 2 and 3
+## This allows use of range with Python2
+from builtins import range
+## This allows using encoding with open
+from io import open
 
 # -----------------------------------------------------------------------------
 # main program: get a list of fortran src files and *_Registr.rc files, parse
@@ -146,7 +150,7 @@ def prc_fort(src, im_list, ex_list, in_list):
 
     # read src file and process
     # -------------------------
-    fin = open(src)
+    fin = open(src, encoding="ISO-8859-1")
 
     for line in fin:
         line = line.strip()
@@ -256,34 +260,34 @@ def write_states(List, stateName, format):
 # print list of states (IM/EX/IN) in mediawiki format
 # -----------------------------------------------------------------------------
 def __write_wiki__(List, state):
-    print '\n'
-    print "__FORCETOC__"
+    print('\n')
+    print("__FORCETOC__")
 
-    if   state=='ex': print '===Export States (%s) ===\n' % len(List)
-    elif state=='im': print '===Import States (%s) ===\n' % len(List)
-    elif state=='in': print '===Internal States (%s) ===\n' % len(List)
+    if   state=='ex': print('===Export States (%s) ===\n' % len(List))
+    elif state=='im': print('===Import States (%s) ===\n' % len(List))
+    elif state=='in': print('===Internal States (%s) ===\n' % len(List))
     else: raise Exception('state [%s] not recognized' % state)
 
-    print '{| class="wikitable"'
-    print '|+ List of GEOS-5 [%s] State variables' % state.upper()
+    print('{| class="wikitable"')
+    print('|+ List of GEOS-5 [%s] State variables' % state.upper())
     # print '! width="100px" | Name'
     # print '! width="100px" | Component'
     # print '! width="100px" | Units'
     # print '! width="50px"  | Dim'
     # print '! width="200px" | Long Name'
-    print '! Name !! Component !! Units !! Dim !! Long name'
+    print('! Name !! Component !! Units !! Dim !! Long name')
 
-    for i in xrange(len(List)):
+    for i in range(len(List)):
         short = List[i][0].strip()
         gc = List[i][1].strip()
         units = List[i][2].strip()
         dims = List[i][3].strip()
         long = List[i][4].strip()
         
-        print '|-'
-        print '| %s || %s || %s || %s || %s' % (short, gc, units, dims, long)
+        print('|-')
+        print('| %s || %s || %s || %s || %s' % (short, gc, units, dims, long))
 
-    print '|}'
+    print('|}')
 
 
 
@@ -291,11 +295,11 @@ def __write_wiki__(List, state):
 # print ascii list of states (IM/EX/IN)
 # -----------------------------------------------------------------------------
 def __write_ascii__(List, state):
-    print "\n\n"
+    print("\n\n")
 
-    if   state=='ex': print 'Export States (%s):\n' % len(List)
-    elif state=='im': print 'Import States (%s):\n' % len(List)
-    elif state=='in': print 'Internal States (%s):\n' % len(List)
+    if   state=='ex': print('Export States (%s):\n' % len(List))
+    elif state=='im': print('Import States (%s):\n' % len(List))
+    elif state=='in': print('Internal States (%s):\n' % len(List))
     else: raise Exception('state [%s] not recognized' % state)
     
     print(" ----------------|------------|------------|-------|-" 
@@ -304,7 +308,7 @@ def __write_ascii__(List, state):
     print(" ----------------|------------|------------|-------|-"
           "---------------------------------------------------")  
 
-    for i in xrange(len(List)):
+    for i in range(len(List)):
         short = List[i][0]
         gc = List[i][1];
         units = List[i][2]
@@ -315,7 +319,7 @@ def __write_ascii__(List, state):
         if units.strip().__len__() > 10:
             long += ' [' + units + ']'
             units = '--->'
-        print ' %-15s | %-10s | %-10s | %-5s | %s' % (short, gc, units, dims, long)
+        print(' %-15s | %-10s | %-10s | %-5s | %s' % (short, gc, units, dims, long))
 
     print(" ----------------|------------|------------|-------|-" 
           "---------------------------------------------------")
@@ -327,29 +331,29 @@ def __write_ascii__(List, state):
 # -----------------------------------------------------------------------------
 def __write_latex__(List, state):
     
-    if   state=='ex': print 'Export states (%s):\\\\' % len(List)
-    elif state=='im': print 'Import States (%s):\\\\' % len(List)
-    elif state=='in': print 'Internal States (%s):\\\\' % len(List)
+    if   state=='ex': print('Export states (%s):\\\\' % len(List))
+    elif state=='im': print('Import States (%s):\\\\' % len(List))
+    elif state=='in': print('Internal States (%s):\\\\' % len(List))
     else: raise Exception('state [%s] not recognized' % state)
 
-    print '\\begin{longtable}{p{1in} | p{0.8in} p{0.5in} p{3.1in}}'
-    print '\\hline'
-    print '{\\sf Short Name} & {\\sf Units} & {\\sf Dims} & {\\sf Long name}\\\\'
+    print('\\begin{longtable}{p{1in} | p{0.8in} p{0.5in} p{3.1in}}')
+    print('\\hline')
+    print('{\\sf Short Name} & {\\sf Units} & {\\sf Dims} & {\\sf Long name}\\\\')
     #print 'Short Name & Units & Dims & Long name\\\\'
-    print '\\hline'
-    print '\\endhead'
+    print('\\hline')
+    print('\\endhead')
 
-    for i in xrange(len(List)):
+    for i in range(len(List)):
         short = List[i][0].strip().replace('_','\\_')
         gc = List[i][1].strip().replace('_','\\_')
         units = List[i][2].strip().replace('_','\\_')
         dims = List[i][3].strip().replace('_','\\_')
         long = List[i][4].strip().lower().replace('_','\\_')
         vloc = List[i][5].strip().replace('_','\\_')
-        print ' \\texttt{%s} & %s & %s & %s\\\\' % (short, units, dims, long)
+        print(' \\texttt{%s} & %s & %s & %s\\\\' % (short, units, dims, long))
 
-    print '\\hline'
-    print '\\end{longtable}'
+    print('\\hline')
+    print('\\end{longtable}')
 
 
 

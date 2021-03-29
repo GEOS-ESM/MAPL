@@ -314,7 +314,7 @@ for category in ("IMPORT","EXPORT","INTERNAL"):
             f_get_pointers.write(spec.emit_get_pointers())
 
 # Close output files
-for category, f in f_specs.items():
+for category, f in list(f_specs.items()):
     if f:
         f.close()
 if f_declare_pointers:

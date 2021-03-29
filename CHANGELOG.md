@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
+
+### Added
 
 - Add command line option --one_node_output
 - Ability to split fields with ungridded dimensions (and not only 4d). 
@@ -18,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Setting and getting UNGRIDDED_DIMS attribute uses now single quoted string
 - Do not output `cubed_sphere` and `orientation` variables in native
   History output as pFIO at present does not handle string variables
+- Updated Python scripts to work with Python 2 or 3. Scripts were:
+   - `base/mapl_tree.py`
+   - `base/mapl_vlist.py`
+   - `Apps/MAPL_GridCompSpecs_ACG.py`
 - Updated MAPL to use the new GFE namespace in CMake. (`gftl` --> `GFTL::gftl`). NOTE: This requires Baselibs 6.1.0 or higher.
 
 ### Fixed
@@ -29,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped cube version to 2.91 in global metadata
 - Change calls to `system_clock()` to be `INT64` (#511)
 - CMake updates to allow NAG Fortran build
+- Converted some remaining `real*8`-type declarations to be `real(kind=REAL64)`-style
 
 ### Removed
 
