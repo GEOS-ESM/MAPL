@@ -8,5 +8,9 @@ esma_add_library (${this}
   TYPE SHARED
   )
 
+if (BUILD_WITH_FLAP)
+   target_link_libraries(${this} PRIVATE FLAP::FLAP)
+endif ()
+
 target_include_directories (${this} PUBLIC
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

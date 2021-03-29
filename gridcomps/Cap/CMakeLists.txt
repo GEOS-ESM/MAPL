@@ -13,6 +13,9 @@ target_link_libraries (${this} PUBLIC gftl gftl-shared esmf NetCDF::NetCDF_Fortr
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
+if (BUILD_WITH_FLAP)
+   target_link_libraries(${this} PRIVATE FLAP::FLAP)
+endif ()
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
