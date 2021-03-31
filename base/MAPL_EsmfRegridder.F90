@@ -1,20 +1,17 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
+#include "MAPL_Generic.h"
 
 module MAPL_EsmfRegridderMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use ESMF
+   use mapl_RegridMethods
    use MAPL_KeywordEnforcerMod
-   use MAPL_RegridderSpecMod
+   use mapl_ErrorHandlingMod
+   use MAPL_RegridderSpec
    use MAPL_AbstractGridFactoryMod
    use MAPL_AbstractRegridderMod
    use MAPL_GridManagerMod
    use MAPL_BaseMod, only: MAPL_undef, MAPL_GridGet, MAPL_GridHasDE
-   use MAPL_RegridderSpecRouteHandleMapMod
+   use MAPL_RegridderSpecRouteHandleMap
    implicit none
    private
 
@@ -30,12 +27,12 @@ module MAPL_EsmfRegridderMod
    type (RegridderSpecRouteHandleMap), save, target :: transpose_route_handles_r4
    type (RegridderSpecRouteHandleMap), save, target :: transpose_route_handles_r8
    
-
    type, extends(AbstractRegridder) :: EsmfRegridder
       integer :: regrid_method
       type (ESMF_DynamicMask) :: dynamic_mask
    contains
-     procedure :: initialize_subclass
+      procedure :: initialize_subclass
+      procedure, nopass :: supports
      
       procedure :: regrid_scalar_2d_real32
       procedure :: regrid_scalar_2d_real64
@@ -75,6 +72,28 @@ contains
 
       ! Nothing to do here
    end function new_EsmfRegridder
+
+   logical function supports(spec, unusable, rc)
+      type(RegridderSpec), intent(in) :: spec
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(unusable)
+
+      supports = any(spec%regrid_method  == &
+           [ &
+           REGRID_METHOD_BILINEAR, &
+           REGRID_METHOD_BILINEAR_ROTATE, &
+           REGRID_METHOD_CONSERVE, &
+           REGRID_METHOD_VOTE, &
+           REGRID_METHOD_FRACTION, &
+           REGRID_METHOD_CONSERVE_2ND, &
+           REGRID_METHOD_PATCH, &
+           REGRID_METHOD_NEAREST_STOD ])
+!!$      supports = .true.
+
+      _RETURN(_SUCCESS)
+   end function supports
    
 
    subroutine regrid_scalar_2d_real32(this, q_in, q_out, rc)
@@ -273,7 +292,7 @@ contains
       _VERIFY(status)
       
       if (hasDE) then
-          _ASSERT(kin == size(q_in,3))
+          _ASSERT(kin == size(q_in,3),'inconsistent array shape')
       end if
       src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
                   gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kin],&
@@ -296,7 +315,7 @@ contains
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceflag=ESMF_REDUCE_MAX,rc=status)
       _VERIFY(status)
       if (hasDE) then
-          _ASSERT(km == size(q_out,3))
+          _ASSERT(km == size(q_out,3),'inconsistent array shape')
       end if
       dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R4, &
                   gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kout],&
@@ -356,7 +375,7 @@ contains
       _VERIFY(status)
       
       if (hasDE) then
-          _ASSERT(kin == size(q_in,3))
+          _ASSERT(kin == size(q_in,3),'inconsistent array shape')
       end if
       src_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R8, &
                   gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kin],&
@@ -379,7 +398,7 @@ contains
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceflag=ESMF_REDUCE_MAX,rc=status)
       _VERIFY(status)
       if (hasDE) then
-          _ASSERT(km == size(q_out,3))
+          _ASSERT(km == size(q_out,3),'inconsistent array shape')
       end if
       dst_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R8, &
                   gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kout],&
@@ -430,7 +449,7 @@ contains
       spec = this%get_spec()
 
       km = size(q_in,3)
-      _ASSERT(km == size(q_out,3))
+      _ASSERT(km == size(q_out,3),'inconsistent array shape')
 
       im_src = size(q_in,1)
       jm_src = size(q_in,2)
@@ -448,7 +467,7 @@ contains
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kin,reduceFlag=ESMF_REDUCE_MAX,rc=status)
       _VERIFY(status)
       if (hasDE) then
-          _ASSERT(kin == size(q_in,3))
+          _ASSERT(kin == size(q_in,3),'inconsistent array shape')
       end if
       src_field = ESMF_FieldCreate(spec%grid_out, typekind=ESMF_TYPEKIND_R4, &
                   gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kin],&
@@ -469,7 +488,7 @@ contains
       call ESMF_VMAllReduce(vm,sendData=km,recvData=kout,reduceFlag=ESMF_REDUCE_MAX,rc=status)
       _VERIFY(status)
       if (hasDE) then
-          _ASSERT(kout == size(q_out,3))
+          _ASSERT(kout == size(q_out,3),'inconsistent array shape')
       end if
       dst_field = ESMF_FieldCreate(spec%grid_in, typekind=ESMF_TYPEKIND_R4, &
                   gridToFieldMap=[2,3],ungriddedLBound=[1],ungriddedUBound=[kout],&
@@ -522,13 +541,13 @@ contains
 
       im_src = size(u_in,1)
       jm_src = size(u_in,2)
-      _ASSERT(im_src == size(v_in,1))
-      _ASSERT(jm_src == size(v_in,2))
+      _ASSERT(im_src == size(v_in,1),'inconsistent array shape')
+      _ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
 
       im_dst = size(u_out,1)
       jm_dst = size(u_out,2)
-      _ASSERT(im_dst == size(v_out,1))
-      _ASSERT(jm_dst == size(v_out,2))
+      _ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
+      _ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
 
       grid_axis_in = 'north-south'
       grid_axis_out = 'north-south'
@@ -616,13 +635,13 @@ contains
 
      im_src = size(u_in,1)
      jm_src = size(u_in,2)
-     _ASSERT(im_src == size(v_in,1))
-     _ASSERT(jm_src == size(v_in,2))
+     _ASSERT(im_src == size(v_in,1),'inconsistent array shape')
+     _ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
 
      im_dst = size(u_out,1)
      jm_dst = size(u_out,2)
-     _ASSERT(im_dst == size(v_out,1))
-     _ASSERT(jm_dst == size(v_out,2))
+     _ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
+     _ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
 
       grid_axis_in = 'north-south'
       grid_axis_out = 'north-south'
@@ -710,13 +729,13 @@ contains
 
       im_src = size(u_in,1)
       jm_src = size(u_in,2)
-      _ASSERT(im_src == size(v_in,1))
-      _ASSERT(jm_src == size(v_in,2))
+      _ASSERT(im_src == size(v_in,1),'inconsistent array shape')
+      _ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
 
       im_dst = size(u_out,1)
       jm_dst = size(u_out,2)
-      _ASSERT(im_dst == size(v_out,1))
-      _ASSERT(jm_dst == size(v_out,2))
+      _ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
+      _ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
 
       grid_axis_in = 'north-south'
       grid_axis_out = 'north-south'
@@ -803,19 +822,19 @@ contains
       spec = this%get_spec()
 
       km = size(u_in,3)
-      _ASSERT(km == size(v_in,3))
-      _ASSERT(km == size(u_out,3))
-      _ASSERT(km == size(v_out,3))
+      _ASSERT(km == size(v_in,3),'inconsistent array shape')
+      _ASSERT(km == size(u_out,3),'inconsistent array shape')
+      _ASSERT(km == size(v_out,3),'inconsistent array shape')
 
       im_src = size(u_in,1)
       jm_src = size(u_in,2)
-      _ASSERT(im_src == size(v_in,1))
-      _ASSERT(jm_src == size(v_in,2))
+      _ASSERT(im_src == size(v_in,1),'inconsistent array shape')
+      _ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
 
       im_dst = size(u_out,1)
       jm_dst = size(u_out,2)
-      _ASSERT(im_dst == size(v_out,1))
-      _ASSERT(jm_dst == size(v_out,2))
+      _ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
+      _ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
 
       grid_axis_in = 'north-south'
       grid_axis_out = 'north-south'
@@ -916,19 +935,19 @@ contains
      spec = this%get_spec()
 
      km = size(u_in,3)
-     _ASSERT(km == size(v_in,3))
-     _ASSERT(km == size(u_out,3))
-     _ASSERT(km == size(v_out,3))
+     _ASSERT(km == size(v_in,3),'inconsistent array shape')
+     _ASSERT(km == size(u_out,3),'inconsistent array shape')
+     _ASSERT(km == size(v_out,3),'inconsistent array shape')
 
      im_src = size(u_in,1)
      jm_src = size(u_in,2)
-     _ASSERT(im_src == size(v_in,1))
-     _ASSERT(jm_src == size(v_in,2))
+     _ASSERT(im_src == size(v_in,1),'inconsistent array shape')
+     _ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
 
      im_dst = size(u_out,1)
      jm_dst = size(u_out,2)
-     _ASSERT(im_dst == size(v_out,1))
-     _ASSERT(jm_dst == size(v_out,2))
+     _ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
+     _ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
 
      grid_axis_in = 'north-south'
      grid_axis_out = 'north-south'
@@ -1024,19 +1043,19 @@ contains
       _VERIFY(status)
 
       km = size(u_in,3)
-      _ASSERT(km == size(v_in,3))
-      _ASSERT(km == size(u_out,3))
-      _ASSERT(km == size(v_out,3))
+      _ASSERT(km == size(v_in,3),'inconsistent array shape')
+      _ASSERT(km == size(u_out,3),'inconsistent array shape')
+      _ASSERT(km == size(v_out,3),'inconsistent array shape')
 
       im_src = size(u_in,1)
       jm_src = size(u_in,2)
-      _ASSERT(im_src == size(v_in,1))
-      _ASSERT(jm_src == size(v_in,2))
+      _ASSERT(im_src == size(v_in,1),'inconsistent array shape')
+      _ASSERT(jm_src == size(v_in,2),'inconsistent array shape')
 
       im_dst = size(u_out,1)
       jm_dst = size(u_out,2)
-      _ASSERT(im_dst == size(v_out,1))
-      _ASSERT(jm_dst == size(v_out,2))
+      _ASSERT(im_dst == size(v_out,1),'inconsistent array shape')
+      _ASSERT(jm_dst == size(v_out,2),'inconsistent array shape')
 
       allocate(p_src(3,km,im_src,jm_src))
       allocate(p_dst(3,km,im_dst,jm_dst))
@@ -1262,7 +1281,7 @@ contains
       call ESMF_FieldGet(dst_field, typekind = dst_kind, rc = status)
       _VERIFY(status)
 
-      _ASSERT(src_kind == dst_kind)
+      _ASSERT(src_kind == dst_kind,'inconsistent kinds')
 
       route_handle = this%select_route_handle(src_kind, do_transpose = doTranspose, rc = status)
       _VERIFY(status)     
@@ -1290,7 +1309,7 @@ contains
 
    subroutine initialize_subclass(this, unusable, rc)
      use MAPL_KeywordEnforcerMod
-     use MAPL_RegridderSpecMod
+     use MAPL_RegridderSpec
      use MAPL_BaseMod, only: MAPL_grid_interior
      class (EsmfRegridder), intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -1368,7 +1387,7 @@ contains
         route_handles => route_handles_r8
         transpose_route_handles => transpose_route_handles_r8
      else
-        _ASSERT(.false.)
+        _FAIL('unsupported type kind (must be R4 or R8)')
      end if
 
      unmappedaction = ESMF_UNMAPPEDACTION_ERROR
@@ -1457,7 +1476,7 @@ contains
                 & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
            _VERIFY(status)
         case default
-           _ASSERT(.false.)
+           _FAIL('unknown regrid method')
         end select
         call ESMF_FieldSMMStore(src_field,dst_field,dummy_rh,transpose_route_handle, &
              & factorList,factorIndexList,srcTermProcessing=srcTermProcessing, &
@@ -1501,7 +1520,7 @@ contains
         route_handles => route_handles_r8
         transpose_route_handles => transpose_route_handles_r8
      else
-        _ASSERT(.false.)
+        _FAIL('unsuported typekind (must be R4 or R8)')
      end if
 
      ! Create route-handle if none exist
@@ -1525,5 +1544,5 @@ contains
      _RETURN(_SUCCESS)
 
    end function select_route_handle
-   
+
 end module MAPL_EsmfRegridderMod

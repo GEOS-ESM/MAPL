@@ -31,6 +31,4 @@
 ## Checklist:
 <!--- Go over all the following points, and put an `x` in all the boxes that apply. -->
 <!--- If you're unsure about any of these, don't hesitate to ask. We're here to help! -->
-- [ ] I have tested this change with a run of GEOSgcm (if non-trivial)
-- [ ] I have added one of the required labels (0 diff, 0 diff trivial, 0 diff structural, non 0-diff)
-- [ ] I have updated the CHANGELOG.md accordingly following the style of [Keep a Changelog](https://keepachangelog.com/en/1.0.0/#how)
+- [ ] I have tested this change with a run of GCHP

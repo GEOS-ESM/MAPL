@@ -7,11 +7,9 @@ module MAPL_LoadBalanceMod
 
   use MAPL_SortMod
   use MAPL_ExceptionHandling
-
+  use mpi
   implicit none
   private
-
-  include "mpif.h"
 
   public MAPL_BalanceWork
   public MAPL_BalanceCreate

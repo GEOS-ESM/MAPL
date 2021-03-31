@@ -1,7 +1,7 @@
 module pFIO_ServerThreadVectorMod
    use pFIO_ServerThreadMod
 
-#define _type type (ServerThread)
+#define _type class (ServerThread)
 #define _pointer
 #define _vector ServerThreadVector
 #define _iterator ServerThreadVectorIterator

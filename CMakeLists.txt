@@ -4,42 +4,78 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.2.7
+  VERSION 2.6.3
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/ESMA_cmake)
   list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/ESMA_cmake")
   include (esma)
-else ()
-  if (NOT COMMAND esma) # build as standalone project
+endif ()
 
-    if (NOT SKIP_MEPO)
-       set (MEPO_INIT_COMMAND mepo init)
-       execute_process (
-          COMMAND ${MEPO_INIT_COMMAND}
-          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-          )
+# build as standalone project
+if (NOT COMMAND esma)
+  include (esma OPTIONAL)
+endif ()
 
-       set (MEPO_CLONE_COMMAND mepo clone)
-       execute_process (
-          COMMAND ${MEPO_CLONE_COMMAND}
-          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-          )
-    endif()
-    option (SKIP_MEPO "Set to skip mepo steps" ON)
+if (NOT COMMAND esma)
 
+  if (SKIP_MEPO)
+    message (FATAL_ERROR "ESMA not found")
+  else ()
+     set (MEPO_INIT_COMMAND mepo init)
+     execute_process (
+        COMMAND ${MEPO_INIT_COMMAND}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        )
+
+     set (MEPO_CLONE_COMMAND mepo clone)
+     execute_process (
+        COMMAND ${MEPO_CLONE_COMMAND}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        )
     list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/ESMA_cmake")
     include (esma)
-  endif()
-endif()
+    option (SKIP_MEPO "Set to skip mepo steps" ON)
+  endif ()
 
-# Turn off for GCHP
+endif ()
+
+# GCHP note: customized
+find_package(PFLOGGER ${PFLOGGER_IS_REQUIRED_ARG} CONFIG)
+#---- MAPL original ----
+#find_package(PFLOGGER REQUIRED)
+#-----------------------
+
+# GCHP note: commented out
 #option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
+#if (BUILD_WITH_FLAP)
+#  find_package(FLAP REQUIRED)
+#endif ()
 
 ecbuild_declare_project()
 
-###find_package(PFLOGGER REQUIRED)
-find_package(PFLOGGER ${PFLOGGER_IS_REQUIRED_ARG} CONFIG)
+# GCHP note: commented out
+#if (NOT Baselibs_FOUND)
+#  find_package(NetCDF REQUIRED Fortran)
+#  add_definitions(-DHAS_NETCDF4)
+#  add_definitions(-DHAS_NETCDF3)
+#  add_definitions(-DNETCDF_NEED_NF_MPIIO)
+#  add_definitions(-DHAS_NETCDF3)
+#
+#  find_package(HDF5 REQUIRED)
+#  if(HDF5_IS_PARALLEL)
+#     add_definitions(-DH5_HAVE_PARALLEL)
+#  endif()
+#
+#  find_package(ESMF MODULE REQUIRED)
+#
+#  find_package(YAFYAML REQUIRED)
+#
+#  find_package(GFTL REQUIRED)
+#  find_package(GFTL_SHARED REQUIRED)
+#  find_package(YAFYAML REQUIRED)
+#  find_package(PFLOGGER REQUIRED)
+#endif ()
 
 # Special case - MAPL_cfio is built twice with two different precisions.
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)
@@ -52,9 +88,11 @@ add_subdirectory (shared)
 add_subdirectory (include)
 add_subdirectory (base)
 add_subdirectory (MAPL)
+add_subdirectory (gridcomps)
 
 if (PFUNIT_FOUND)
-  add_subdirectory (MAPL_pFUnit EXCLUDE_FROM_ALL)
+  include (add_pfunit_ctest)
+  add_subdirectory (pfunit EXCLUDE_FROM_ALL)
 endif ()
 
 # Support for automated code generation
@@ -73,6 +111,23 @@ install (
    DIRECTORY Python
    DESTINATION lib
    USE_SOURCE_PERMISSIONS
+   )
+
+install (
+   DIRECTORY cmake
+   DESTINATION ${INSTALL_DATA_DIR}
+   )
+
+# https://www.scivision.dev/cmake-auto-gitignore-build-dir/
+# --- auto-ignore build directory
+if(NOT EXISTS ${PROJECT_BINARY_DIR}/.gitignore)
+  file(WRITE ${PROJECT_BINARY_DIR}/.gitignore "*")
+endif()
+
+# Piggyback that file into install
+install(
+   FILES ${PROJECT_BINARY_DIR}/.gitignore
+   DESTINATION ${CMAKE_INSTALL_PREFIX}
    )
 
 ecbuild_install_project (NAME MAPL)

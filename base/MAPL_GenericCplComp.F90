@@ -1166,6 +1166,8 @@ contains
 ! Get the target components name and set-up traceback handle.
 ! -----------------------------------------------------------
 
+    _UNUSED_DUMMY(dst)
+    _UNUSED_DUMMY(clock)
     IAm = "MAPL_GenericCplComReadRestart"
     call ESMF_CplCompGet( CC, NAME=COMP_NAME, RC=STATUS )
     _VERIFY(STATUS)
@@ -1368,6 +1370,8 @@ contains
 
 ! Get the target components name and set-up traceback handle.
 ! -----------------------------------------------------------
+    _UNUSED_DUMMY(dst)
+    _UNUSED_DUMMY(clock)
 
     IAm = "MAPL_GenericCplComWriteRestart"
     call ESMF_CplCompGet( CC, NAME=COMP_NAME, RC=STATUS )

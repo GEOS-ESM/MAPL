@@ -4,7 +4,7 @@
 module pFIO_MpiMutexMod
    use mpi
    use iso_fortran_env, only: INT64
-   use iso_c_binding, only: c_ptr, c_f_pointer, c_sizeof
+   use iso_c_binding, only: c_ptr, c_f_pointer
    implicit none
    private
 
@@ -62,9 +62,8 @@ contains
          block
            logical, pointer :: scratchpad(:)
            integer :: sizeof_logical
-           logical :: one_logical
-           
-           sizeof_logical = c_sizeof(one_logical)
+          
+           call MPI_Type_extent(MPI_LOGICAL, sizeof_logical, ierror)
            sz = lock%npes * sizeof_logical
            call MPI_Alloc_mem(sz, MPI_INFO_NULL, lock%locks_ptr, ierror)
 

@@ -2,13 +2,23 @@
 #include "unused_dummy.H"
 
 module pFIO_AbstractServerMod
+   use, intrinsic :: iso_c_binding, only: c_ptr
+   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
+   use, intrinsic :: iso_c_binding, only: c_loc
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
+   use, intrinsic :: iso_c_binding, only: c_f_pointer
+   use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
+   use MAPL_Profiler
    use MAPL_ExceptionHandling
    use pFIO_ConstantsMod
+   use pFIO_UtilitiesMod, only: word_size, i_to_string
    use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractDataReferenceVectorMod
    use pFIO_ShmemReferenceMod
    use gFTL_StringInteger64Map
    use pFIO_AbstractMessageMod
+   use pFIO_CollectiveStageDataMessageMod
+   use pFIO_RDMAReferenceMod
    use pFIO_DummyMessageMod
    use pFIO_MessageVectorMod
    use mpi
@@ -16,7 +26,9 @@ module pFIO_AbstractServerMod
    implicit none
    private
    public :: AbstractServer
-   
+   public :: ioserver_profiler
+   type (DistributedProfiler), pointer :: ioserver_profiler=>null()
+
    integer,parameter,public :: MAX_SERVER_NODES_NUM = 100000
    integer,parameter,public :: MSIZE_ID = - MAX_SERVER_NODES_NUM
    integer,parameter,public :: UNALLOCATED = -100
@@ -50,9 +62,9 @@ module pFIO_AbstractServerMod
       procedure(get_dmessage), deferred :: get_dmessage
       procedure(clear_RequestHandle), deferred :: clear_RequestHandle
       procedure(set_collective_request), deferred :: set_collective_request
+      procedure(create_remote_win), deferred :: create_remote_win
       procedure :: get_status
       procedure :: set_status
-      procedure :: get_and_set_status
       procedure :: update_status
       procedure :: clean_up
       procedure :: set_AllBacklogIsEmpty
@@ -66,11 +78,10 @@ module pFIO_AbstractServerMod
       procedure :: put_DataToFile
       procedure :: get_DataFromMem
       procedure :: am_I_reading_PE
-      procedure :: am_I_writing_PE
       procedure :: get_writing_PE
       procedure :: distribute_task
       procedure :: get_communicator
-
+      procedure :: report_profile
    end type AbstractServer
 
    abstract interface 
@@ -100,17 +111,27 @@ module pFIO_AbstractServerMod
          class(AbstractMessage), pointer :: dmessage
       end function
 
+      subroutine create_remote_win(this,rc)
+         import AbstractServer
+         class(AbstractServer),target,intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine create_remote_win
+
    end interface
 
 contains
 
-   subroutine init(this,comm)
+   subroutine init(this,comm, port_name, profiler_name)
       class (AbstractServer),intent(inout) :: this
       integer, intent(in) :: comm
+      character(*), intent(in) :: port_name
+      character(*), optional, intent(in) :: profiler_name
 
       integer :: ierror, MyColor
+      character(len=:), allocatable :: p_name
 
       call MPI_Comm_dup(comm, this%comm, ierror)
+
       call MPI_Comm_rank(this%comm, this%rank, ierror)
       call MPI_Comm_size(this%comm, this%npes, ierror)
 
@@ -141,23 +162,18 @@ contains
 
       call Mpi_AllGather(this%Node_Rank,  1, MPI_INTEGER, &
                          this%Node_Ranks, 1, MPI_INTEGER, comm,ierror)
+      if (.not. associated(ioserver_profiler)) then
+         if (present(profiler_name)) then
+            p_name = profiler_name
+         else
+            p_name = port_name
+         endif
 
-   end subroutine init
-
-   function get_and_set_status(this, rc) result(status)
-      class(AbstractServer),intent(inout) :: this
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      !$omp critical (counter_status)
-      status = this%status
-      if( this%status == UNALLOCATED) then
-         this%status = PENDING 
+         !allocate(ioserver_profiler, source = DistributedProfiler(p_name, MpiTimerGauge(), comm))
+         !call ioserver_profiler%start()
       endif
-      !$omp flush (this)
-      !$omp end critical (counter_status)
-      _RETURN(_SUCCESS)
-   end function get_and_set_status
+      call MPI_Barrier(comm, ierror)
+   end subroutine init
 
    function get_status(this) result(status)
       class(AbstractServer),intent(in) :: this
@@ -218,7 +234,9 @@ contains
       class(AbstractServer),intent(inout) :: this
       integer, optional, intent(out) :: rc
       type(StringInteger64MapIterator) :: iter
-      
+ 
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("clean_up")     
+ 
       call this%clear_DataReference()
       call this%clear_RequestHandle()
       call this%set_AllBacklogIsEmpty(.true.)
@@ -236,6 +254,8 @@ contains
          iter = this%stage_offset%begin()
       enddo
 
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("clean_up")
+     
       _RETURN(_SUCCESS)
    end subroutine clean_up
 
@@ -302,17 +322,6 @@ contains
             (innode_rank == this%InNode_Rank)
    end function am_I_reading_PE
 
-   ! for output writing, each node will chose one innode rank write
-   function am_I_writing_PE(this,id) result (yes)
-      class(AbstractServer),intent(in) :: this
-      integer, intent(in) :: id
-      integer :: node_rank,innode_rank
-      logical :: yes
-
-      call this%distribute_task(id, node_rank,innode_rank)
-      yes = (innode_rank == this%InNode_Rank)
-   end function am_I_writing_PE
-
    ! distribute the task (id) to a specific process (node_rank, innode_rank)
    subroutine distribute_task(this,id, node_rank, innode_rank)
       class(AbstractServer),intent(in) :: this
@@ -335,8 +344,8 @@ contains
       integer :: node_rank,innode_rank
       logical :: yes
 
-      node_rank   = mod(id,this%node_num)
-      innode_rank = mod(id,this%innode_npes)
+      node_rank   = mod(id-1,this%node_num)
+      innode_rank = mod(id-1,this%innode_npes)
 
       yes = (node_rank   == this%Node_Rank) .and. &
             (innode_rank == this%InNode_Rank)
@@ -376,7 +385,6 @@ contains
       do i = 1, n
          dataRefPtr => this%dataRefPtrs%at(i)
          call dataRefPtr%deallocate()
-         deallocate(dataRefPtr)
       enddo
       call this%dataRefPtrs%erase(this%dataRefPtrs%begin(), this%dataRefPtrs%end())      
 
@@ -388,5 +396,46 @@ contains
       communicator = this%comm
 
    end function get_communicator
+
+   subroutine report_profile(this, rc )
+      class (AbstractServer), intent(inout) :: this
+      integer, optional,   intent(  out) :: RC     ! Error code:
+      character(:), allocatable :: report_lines(:)
+      type (ProfileReporter) :: reporter
+      type (MultiColumn) :: inclusive, exclusive
+      character(1) :: empty(0)
+      integer :: i
+
+      if ( .not. associated(ioserver_profiler)) then
+         _RETURN(_SUCCESS)
+      endif
+
+      call ioserver_profiler%finalize()
+      call ioserver_profiler%reduce()
+
+      reporter = ProfileReporter(empty)
+      call reporter%add_column(NameColumn(20))
+      call reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
+      call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
+      call reporter%add_column(FormattedTextColumn('Exclusive','(f9.6)', 9, ExclusiveColumn('MEAN')))
+      call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))
+      call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.6)', 9, ExclusiveColumn('MAX')))
+      call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.6)', 9, ExclusiveColumn('MIN')))
+      call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
+      call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
+      report_lines = reporter%generate_report(ioserver_profiler)
+
+      if (this%rank == 0) then
+         write(*,'(a)')'Final profile'
+         write(*,'(a)')'============='
+         do i = 1, size(report_lines)
+            write(*,'(a)') report_lines(i)
+         end do
+         write(*,'(a)') ''
+      end if
+
+      deallocate(ioserver_profiler)
+      _RETURN(_SUCCESS)
+   end subroutine report_profile
 
 end module pFIO_AbstractServerMod

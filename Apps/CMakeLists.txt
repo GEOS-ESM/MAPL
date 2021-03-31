@@ -8,3 +8,9 @@ file (COPY MAPL_GridCompSpecs_ACG.py DESTINATION ${esma_etc}/MAPL)
 file (COPY mapl_acg.pl DESTINATION ${esma_etc}/MAPL)
 file (COPY mapl_stub.pl DESTINATION ${esma_etc}/MAPL)
 
+install (PROGRAMS
+  MAPL_GridCompSpecs_ACG.py
+  mapl_acg.pl
+  mapl_stub.pl
+  TYPE SYSCONF
+  )

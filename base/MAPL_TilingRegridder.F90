@@ -1,15 +1,12 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
+#include "MAPL_Generic.h"
 #define _DEALOCS(A) if(associated(A)) then;if(MAPL_ShmInitialized) then; call MAPL_DeAllocNodeArray(A,rc=status);else; deallocate(A);endif;NULLIFY(A);endif
-#include "unused_dummy.H"
 
 module MAPL_TilingRegridderMod
    use MAPL_AbstractRegridderMod
    use MAPL_KeywordEnforcerMod
-   use MAPL_RegridderSpecMod
+   use mapl_ErrorHandlingMod
+   use MAPL_RegridderSpec
+   use MAPL_RegridMethods
    use MAPL_DirPathMod
    use MAPL_BaseMod, only: MAPL_UNDEF, MAPL_TileNameLength
    use MAPL_ShmemMod
@@ -220,7 +217,7 @@ contains
 
       call read_integer(n_grids)
       _VERIFY(status)
-      _ASSERT(n_grids == 2)
+      _ASSERT(n_grids == 2, 'illegal value for n_grids (must be 2)')
 
       do idx_grid = 1, n_grids
          call read_tiling_metadata(tile_file%grid_tiles(idx_grid)) ! in
@@ -439,7 +436,7 @@ contains
          trial_name = make_tile_file_name(grid_name_out, grid_name_in, '.nc4')
          inquire(file=trial_name, exist=exists)
          ! This was the last chance - fail if we still have not found the file.
-         _ASSERT(exists)
+         _ASSERT(exists, 'could not find tempest file')
       end if
 
       if (exists) then
@@ -553,7 +550,7 @@ contains
       real (kind=REAL32), allocatable :: fraction(:,:)
       type (RegridderSpec) :: spec
 
-      _ASSERT(.not. this%has_undef_value())
+      _ASSERT(.not. this%has_undef_value(), 'undefined value')
 
       call this%init_regrid(q_out)
       allocate(fraction, source = q_out)
@@ -564,7 +561,7 @@ contains
       if (all(shape(q_out) == this%out_shape)) then
          call this%loop_over_tiles(this%global_x_tiles, q_in, q_out, fraction)
       else
-         _ASSERT(iand(spec%hints, REGRID_HINT_LOCAL) /= 0)
+         _ASSERT(iand(spec%hints, REGRID_HINT_LOCAL) /= 0, 'bad hint')
          call this%loop_over_tiles(this%local_x_tiles, q_in, q_out, fraction)
       end if
 
