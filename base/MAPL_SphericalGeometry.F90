@@ -21,7 +21,6 @@ contains
     integer :: npts,i,n,niter,im,jm,ilb,jlb,iub,jub,ifound,jfound
     integer :: lold,uold,lnew,unew
     logical :: in_region,in_sub_region
-    integer :: status
 
     npts = size(lats)
 

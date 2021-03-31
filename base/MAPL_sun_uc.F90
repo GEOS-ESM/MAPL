@@ -521,7 +521,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
       real(kind=REAL64)  :: TREL, T1, T2, T3, T4, dTRELdDAY
       real(kind=REAL64)  :: SOB, COB, OMG0, OMG, PRH, PRHV
       real    :: D2R, OMECC, OPECC, OMSQECC, EAFAC
-      real(kind=REAL64)  :: X, TA, EA, MA, TRRA, MNRA
+      real(kind=REAL64)  :: TA, EA, MA, TRRA, MNRA
       real    :: meanEOT
       type(MAPL_SunOrbit) :: ORBIT
       integer :: STATUS
@@ -1034,7 +1034,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 !   Locals
 
       
-      character(len=ESMF_MAXSTR)      :: IAm = "SunGetInsolationArr"
+!!$      character(len=ESMF_MAXSTR)      :: IAm = "SunGetInsolationArr"
       integer                         :: STATUS
 
       real, pointer, dimension (:  )  :: LONS1, LATS1, ZTH1, SLR1, ZTHB1, ZTHD1

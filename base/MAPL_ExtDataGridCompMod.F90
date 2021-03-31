@@ -2808,6 +2808,7 @@ CONTAINS
         integer(ESMF_KIND_I4)              :: iyr,imm,idd,ihr,imn,isc
         logical                            :: srcLeap, targLeap
 
+        _UNUSED_DUMMY(Iam)
         call ESMF_TimeGet(inTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
         ! If the source year is a leap year but the new one isn't, modify to day 28
         iYr = iYr + yrOffset
@@ -2861,6 +2862,7 @@ CONTAINS
         logical                            :: foundYear
         integer                            :: tSteps, curYear, nsteps
 
+        _UNUSED_DUMMY(Iam)
         ! Store the target time which was actually requested
         yrOffset=0
         nsteps = size(tSeries)
@@ -3108,6 +3110,7 @@ CONTAINS
         integer                            :: yrOffset, yrOffsetNeg
         integer                            :: climSize,tsteps
 
+        _UNUSED_DUMMY(Iam)
         tsteps = size(tSeries)
         ! Assume that the requested time is within range
         If (Present(yrOffsetInt)) Then

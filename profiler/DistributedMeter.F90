@@ -1,3 +1,5 @@
+#include "unused_dummy.H"
+
 module MAPL_DistributedMeter
    use, intrinsic :: iso_fortran_env, only: REAL64
    use MAPL_AdvancedMeter
@@ -276,9 +278,8 @@ contains
 
       integer :: ierror
 
-      integer :: dist_type
       integer :: rank
-      type(DistributedStatistics) :: tmp, tmp2
+      type(DistributedStatistics) :: tmp
 
       call MPI_Comm_rank(comm, rank, ierror)
 
@@ -304,6 +305,8 @@ contains
       integer(kind=MPI_ADDRESS_KIND) :: displacements(2)
       integer(kind=MPI_ADDRESS_KIND) :: lb, sz
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(r64)
       call MPI_Type_get_extent_x(MPI_REAL8, lb, sz, ierror)
       displacements = [0_MPI_ADDRESS_KIND, 3*sz]
 
@@ -320,6 +323,8 @@ contains
 
       integer(kind=MPI_ADDRESS_KIND) :: displacements(1)
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(int)
       displacements = [0_MPI_ADDRESS_KIND]
       call MPI_Type_create_struct(1, [6], displacements, [MPI_INTEGER], new_type, ierror)
 
@@ -336,6 +341,7 @@ contains
       integer(kind=MPI_ADDRESS_KIND) :: lb, sz, sz2
       integer :: type_dist_real64, type_dist_integer
 
+      _UNUSED_DUMMY(d)
       call this%make_mpi_type(this%statistics%total, type_dist_real64, ierror)
       call this%make_mpi_type(this%statistics%num_cycles, type_dist_integer, ierror)
 
@@ -356,6 +362,8 @@ contains
 
       integer :: i
 
+      _UNUSED_DUMMY(type)
+      
       do i = 1, len
          inoutvec(i) = invec(i) .reduce. inoutvec(i)
       end do

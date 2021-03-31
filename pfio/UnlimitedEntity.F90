@@ -65,7 +65,6 @@ module pFIO_UnlimitedEntityMod
 
 
    interface UnlimitedEntity
-      module procedure new_UnlimitedEntity_empty
       module procedure new_UnlimitedEntity_0d ! scalar constructor
       module procedure new_UnlimitedEntity_1d ! vector constructor
       module procedure new_UnlimitedEntity_2d ! vector constructor
@@ -78,11 +77,6 @@ module pFIO_UnlimitedEntityMod
 
 
 contains
-
-   function new_UnlimitedEntity_empty() result(attr)
-      type (UnlimitedEntity) :: attr
-   end function new_UnlimitedEntity_empty
-   
 
    function new_UnlimitedEntity_0d(value, rc) result(attr)
       type (UnlimitedEntity) :: attr
