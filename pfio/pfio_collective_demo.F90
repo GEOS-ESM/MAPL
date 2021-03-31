@@ -324,11 +324,11 @@ program main
 
 !! sanity check
 
-   if(options%server_type == 'openmp') then
-     if (required > provided) stop "provided thread is not enough for openmp"
-     num_threads = 10
-     call omp_set_num_threads(num_threads) 
-   endif
+!$   if(options%server_type == 'openmp') then
+!$     if (required > provided) stop "provided thread is not enough for openmp"
+!$     num_threads = 10
+!$     call omp_set_num_threads(num_threads) 
+!$   endif
 
    d_s => get_directory_service(options%server_type)
 

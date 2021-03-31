@@ -64,7 +64,7 @@ contains
       integer, allocatable ::  map_buf(:)
       integer :: status
 
-      call StringVariableMap_serialize(this%var_map,map_buf, rc=status)
+      call StringVariableMap_serialize(this%var_map, map_buf, rc=status)
       _VERIFY(status)
       buffer = [ &
            & serialize_intrinsic(this%collection_id), &
@@ -83,7 +83,7 @@ contains
       call deserialize_intrinsic(buffer(n:), this%collection_id)
       n = n + serialize_buffer_length(this%collection_id)
 
-      this%var_map = StringVariableMap_deserialize(buffer(n:),rc=status)
+      call StringVariableMap_deserialize(buffer(n:), this%var_map, rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
    end subroutine deserialize

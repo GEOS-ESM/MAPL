@@ -20,8 +20,10 @@ program main
    call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
 
    main_prof = DistributedProfiler('TOTAL', MpiTimerGauge(), MPI_COMM_WORLD)   ! timer 1
+   call main_prof%start()
    lap_prof = DistributedProfiler('Lap', MpiTimerGauge(), MPI_COMM_WORLD)
-   
+   call lap_prof%start()
+
    call main_prof%start('init reporter')
    call reporter%add_column(NameColumn(20))
    call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn()))

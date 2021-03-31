@@ -139,16 +139,23 @@ module pFIO_NetCDF4_FileFormatterMod
 
 contains
 
-   subroutine create(this, file, unusable, rc)
+   subroutine create(this, file, unusable, mode, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
       character(len=*), intent(in) :: file
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: mode
       integer, optional, intent(out) :: rc
 
       integer :: status
+      integer :: mode_
 
+      if (present(mode)) then
+         mode_=mode
+      else
+         mode_=NF90_CLOBBER
+      end if
       !$omp critical
-      status = nf90_create(file, IOR(NF90_NOCLOBBER, NF90_NETCDF4), this%ncid)
+      status = nf90_create(file, IOR(mode_, NF90_NETCDF4), this%ncid)
       !$omp end critical
       _VERIFY(status)
 
@@ -157,10 +164,11 @@ contains
    end subroutine create
 
 
-   subroutine create_par(this, file, unusable, comm, info, rc)
+   subroutine create_par(this, file, unusable, mode, comm, info, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
       character(len=*), intent(in) :: file
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: mode
       integer, optional, intent(in) :: comm
       integer, optional, intent(in) :: info
       integer, optional, intent(out) :: rc
@@ -168,7 +176,13 @@ contains
       integer :: comm_
       integer :: info_
       integer :: status
-      integer :: mode
+      integer :: mode_
+
+      if (present(mode)) then
+         mode_=mode
+      else
+         mode_=NF90_CLOBBER
+      end if
 
       if (present(comm)) then
          comm_ = comm
@@ -186,13 +200,12 @@ contains
       this%comm = comm_
       this%info = info_
 
-      mode = NF90_NOCLOBBER
-      mode = IOR(mode, NF90_NETCDF4)
-      mode = IOR(mode, NF90_SHARE)
-      mode = IOR(mode, NF90_MPIIO)
+      mode_ = IOR(mode_, NF90_NETCDF4)
+      mode_ = IOR(mode_, NF90_SHARE)
+      mode_ = IOR(mode_, NF90_MPIIO)
 
       !$omp critical
-      status = nf90_create(file, mode, comm=comm_, info=info_, ncid=this%ncid)
+      status = nf90_create(file, mode_, comm=comm_, info=info_, ncid=this%ncid)
       !$omp end critical
       _VERIFY(status)
 
@@ -1082,12 +1095,12 @@ contains
             end select
 
             allocate(var, source= &
-                 & CoordinateVariable(Variable(get_fio_type(xtype,rc=status), dimensions=dim_string), &
+                 & CoordinateVariable(Variable(type = get_fio_type(xtype,rc=status), dimensions=dim_string), &
                  & coordinate_data))
             _VERIFY(status)
             deallocate(coordinate_data)
          else
-            allocate(var, source=Variable(get_fio_type(xtype,rc=status), dimensions=dim_string))
+            allocate(var, source=Variable(type= get_fio_type(xtype,rc=status), dimensions=dim_string))
             _VERIFY(status)
          end if
 

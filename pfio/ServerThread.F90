@@ -8,6 +8,7 @@ module pFIO_ServerThreadMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use MAPL_ExceptionHandling
+   use MAPL_Profiler
    use pFIO_UtilitiesMod, only: word_size, i_to_string 
    use pFIO_AbstractSocketMod
    use pFIO_AbstractMessageMod
@@ -63,7 +64,7 @@ module pFIO_ServerThreadMod
       private
 
       type (ExtCollectionVector)        :: ext_collections
-      type (HistoryCollectionVector) :: hist_collections
+      type (HistoryCollectionVector), public :: hist_collections
 
       logical                  :: there_is_collective_request = .false.
       logical,public           :: terminate = .false.
@@ -96,10 +97,10 @@ module pFIO_ServerThreadMod
       procedure :: handle_ModifyMetadata
       procedure :: handle_HandShake
 
+      procedure :: get_hist_collection
       procedure :: get_DataFromFile
       procedure :: get_DataFromMem
       procedure :: put_DataToFile
-      procedure :: create_remote_win
       procedure :: read_and_gather
       procedure :: read_and_share
       procedure :: receive_output_data
@@ -137,6 +138,7 @@ contains
       call s%set_connection(sckt, status)
       _VERIFY(status)
       if(present(server)) s%containing_server=>server
+
       _RETURN(_SUCCESS)
    end function new_ServerThread
 
@@ -163,8 +165,10 @@ contains
       class(AbstractSocket),pointer :: connection
       integer :: status
 
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("wait_message")
       connection=>this%get_connection()
       message => connection%receive()
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("wait_message")
       if (associated(message)) then
          call message%dispatch(this, status)
          _VERIFY(status)
@@ -220,17 +224,10 @@ contains
       type (DoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      type (LocalMemReference) :: mem_data_reference
-      class(AbstractDataReference),pointer :: dataRefPtr
       class(AbstractMessage),pointer :: dMessage
-      integer :: data_status, node_rank, innode_rank
-      integer(kind=INT64) :: g_offset, offset,msize_word
-      type(c_ptr) :: offset_address
-      integer,pointer :: i_ptr(:)
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
       class(AbstractSocket),pointer :: connection
-      class (AbstractRequestHandle), pointer :: handle
       integer :: status
 
       ! first time handling the "Done" message, simple return
@@ -258,112 +255,17 @@ contains
 
       select type (q=>msg)
       type is (PrefetchDataMessage)
-          _ASSERT(.false., "please use done_prefetch")
-          mem_data_reference=LocalMemReference(q%type_kind,q%count)
-
-          call this%get_DataFromFile(q,mem_data_reference%base_address, status)
-          _VERIFY(status)
-
-          call this%insert_RequestHandle(q%request_id, &
-              & connection%put(q%request_id, mem_data_reference))
-
-          call this%request_backlog%erase(iter)
-
+         _ASSERT(.false., "please use done_prefetch")
+         _RETURN(_SUCCESS)  
       type is (CollectivePrefetchDataMessage)
-
          _ASSERT(.false., "please use done_collective_prefetch")
-         this%there_is_collective_request = .true.
-
-         _ASSERT(associated(this%containing_server), "need server")
-
-         data_status = this%containing_server%get_and_set_status(rc=status)
-         _VERIFY(status)
-
-         if (data_status == UNALLOCATED ) then
-
-            if( .not. multi_data_read) then
-               ! each node read part of a file, then exchange
-               dataRefPtr=> this%read_and_gather(rc=status)
-               _VERIFY(status)
-            else
-               dataRefPtr=> this%read_and_share(rc=status)
-               _VERIFY(status)
-            endif
-            ! now dataRefPtr on each node has all the data
-            call this%containing_server%add_DataReference(dataRefPtr)
-            nullify(dataRefPtr)
-         endif
-         
-         do while (data_status == PENDING )
-            !$omp taskyield
-            data_status = this%containing_server%get_status()
-         enddo
-
-         mem_data_reference = LocalMemReference(q%type_kind,q%count)
-
-         offset = this%containing_server%prefetch_offset%at(i_to_string(q%request_id))
-
-         !W.J node: these three lines are necessar for read_and_gather call
-         if ( .not. multi_data_read) then
-            call this%containing_server%distribute_task(q%request_id,node_rank,innode_rank)
-            g_offset = this%containing_server%prefetch_offset%at(i_to_string(-node_rank))
-            offset = offset+g_offset
-         endif
-
-         msize_word  = this%containing_server%prefetch_offset%at(i_to_string(MSIZE_ID))
-
-         dataRefPtr => this%containing_server%get_dataReference()
-         call c_f_pointer(dataRefPtr%base_address,i_ptr,shape=[msize_word])
-
-         offset_address = c_loc(i_ptr(offset+1))
-
-         call mem_data_reference%fetch_data(offset_address,q%global_count,q%start-q%global_start+1)
-
-         call this%insert_RequestHandle(q%request_id, &
-              & connection%put(q%request_id, mem_data_reference))
-
-         call this%request_backlog%erase(iter)
-
+         _RETURN(_SUCCESS)  
       type is (StageDataMessage)
-
          _ASSERT(.false., "please use done_stage")
-         handle => this%get_RequestHandle(q%request_id)
-         call handle%wait()
-
-         call this%put_DataToFile(q,handle%data_reference%base_address,rc=status)
-         _VERIFY(status)
-
-         call this%request_backlog%erase(iter)
-
+         _RETURN(_SUCCESS)  
       type is (CollectiveStageDataMessage)
          _ASSERT(.false., "please use done_collective_stage")
-         if (.not. all(this%containing_server%serverthread_done_msgs)) then
-            _RETURN(_SUCCESS)
-         endif
-
-         this%there_is_collective_request = .true.
-
-         _ASSERT( associated(this%containing_server), "need server") 
-
-         data_status = this%containing_server%get_and_set_status(rc=status)
-         _VERIFY(status)
-
-         call this%create_remote_win(rc=status)
-         _VERIFY(status)
-
-         call this%containing_server%receive_output_data(rc=status) 
-         _VERIFY(status)
-
-         call this%containing_server%put_dataToFile(rc=status)
-         _VERIFY(status)
-         ! make sure this thread clean up
-         call this%containing_server%set_status(1)
-
-         call this%containing_server%set_collective_request(.false.,.true.)
-
-         call this%containing_server%update_status()
-
-          _RETURN(_SUCCESS)  
+         _RETURN(_SUCCESS)  
       class default
          _ASSERT(.false., "Wrong message type")
       end select
@@ -581,74 +483,6 @@ contains
       _RETURN(_SUCCESS)
    end function read_and_share
 
-   subroutine create_remote_win(this, rc) 
-      class (ServerThread), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
-      class (AbstractDataReference), pointer :: remotePtr
-      integer :: rank
-      integer(KIND=INT64) :: offset, msize_word
-      integer(KIND=INT64),allocatable :: offsets(:), msize_words(:)
-      type (MessageVectorIterator) :: iter
-      type (StringInteger64MapIterator) :: request_iter
-      class (AbstractMessage), pointer :: msg
-      integer :: collection_counter, collection_total
-      character(len=*),parameter :: Iam = 'create_remote_win'
-
-      this%containing_server%stage_offset = StringInteger64map()
-
-      collection_counter = 0
-      collection_total   = 0
-      !(1) loop to get the total number of collection
-      iter   = this%request_backlog%begin()
-      do while (iter /= this%request_backlog%end())
-         msg => iter%get()
-
-         select type (q=>msg)
-         type is (CollectiveStageDataMessage)
-            request_iter = this%containing_server%stage_offset%find(i_to_string(q%collection_id))
-            if ( request_iter == this%containing_server%stage_offset%end()) then
-               collection_total = collection_total + 1
-               call this%containing_server%stage_offset%insert(i_to_string(q%collection_id),int(collection_total, kind=INT64))
-            endif
-         end select
-         call iter%next()
-      end do
-
-      !(2) loop to get the total size and offset of each collection and request
-      allocate(offsets(collection_total), msize_words(collection_total))
-      offsets = 0
-      offset = 0
-      iter   = this%request_backlog%begin()
-      do while (iter /= this%request_backlog%end())
-         msg => iter%get()
-
-         select type (q=>msg)
-         type is (CollectiveStageDataMessage)
-            collection_counter = this%containing_server%stage_offset%of(i_to_string(q%collection_id))
-            request_iter = this%containing_server%stage_offset%find(i_to_string(q%request_id))
-            if ( request_iter == this%containing_server%stage_offset%end()) then
-               ! insert local offset for each node
-               call this%containing_server%stage_offset%insert(i_to_string(q%request_id),offsets(collection_counter))
-               msize_word = word_size(q%type_kind)*product(int(q%global_count,INT64))
-               offsets(collection_counter) = offsets(collection_counter) + msize_word
-            endif
-         end select
-         call iter%next()
-      end do
-
-      ! (3) allocate the memory
-      msize_words = offsets
-      do collection_counter = 1, collection_total
-         rank = this%containing_server%get_writing_PE(collection_counter)
-         msize_word = msize_words(collection_counter) 
-         call this%containing_server%stage_offset%insert(i_to_string(MSIZE_ID + collection_counter ),msize_word)
-         allocate(remotePtr, source  = RDMAReference(pFIO_INT32,msize_word, this%containing_server%comm, rank ))
-         call this%containing_server%add_DataReference(remotePtr)
-         remotePtr=>null()
-      enddo
-      _RETURN(_SUCCESS)
-   end subroutine create_remote_win
-
    subroutine handle_AddExtCollection(this, message, rc)
       class (ServerThread), target, intent(inout) :: this
       type (AddExtCollectionMessage), intent(in) :: message
@@ -661,6 +495,8 @@ contains
       type (ExtDataCollection) :: c
       class(AbstractSocket),pointer :: connection
 
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("add_Extcollection")
+      
       iter = this%ext_collections%begin()
       n = 1
 
@@ -682,7 +518,8 @@ contains
       end if
       connection=>this%get_connection()      
       call connection%send(IdMessage(n))         
-      
+     
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Extcollection") 
       _RETURN(_SUCCESS)
    end subroutine handle_AddExtCollection
 
@@ -695,6 +532,7 @@ contains
       type (HistoryCollection) :: hist_collection
       class(AbstractSocket),pointer :: connection
      
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("add_Histcollection") 
       if ( message%collection_id == -1 ) then 
          n = this%hist_collections%size()+1
       else
@@ -710,6 +548,7 @@ contains
 
       connection=>this%get_connection()      
       call connection%send(IdMessage(n))
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Histcollection") 
       _RETURN(_SUCCESS)
    end subroutine handle_AddHistCollection
 
@@ -828,6 +667,7 @@ contains
 
       integer, allocatable :: start(:),count(:)
 
+
       collection => this%ext_collections%at(message%collection_id)
       formatter => collection%find(message%file_name)
 
@@ -878,8 +718,9 @@ contains
           case default
               _ASSERT(.false., "Not supported type")
           end select
-       end select
-       _RETURN(_SUCCESS)
+      end select
+
+      _RETURN(_SUCCESS)
    end subroutine get_DataFromFile
 
    subroutine handle_StageData(this, message, rc)
@@ -944,9 +785,13 @@ contains
 
       integer, allocatable :: start(:),count(:)
 
-      hist_collection=>this%hist_collections%at(message%collection_id)
+      if (this%hist_collections%size() == 1) then
+         hist_collection=>this%hist_collections%at(1)
+      else
+         hist_collection=>this%hist_collections%at(message%collection_id)
+      endif
       formatter =>hist_collection%find(message%file_name)
-       
+ 
       select type (message)
       type is (StageDataMessage)
         start = message%start
@@ -1129,7 +974,7 @@ contains
 
       _ASSERT( associated(this%containing_server), "need server") 
 
-      call this%create_remote_win(rc=status)
+      call this%containing_server%create_remote_win(rc=status)
       _VERIFY(status)
 
       call this%containing_server%receive_output_data(rc=status) 
@@ -1244,16 +1089,22 @@ contains
 
       if( .not. multi_data_read) then
         ! each node read part of a file, then exchange
+         if (associated(ioserver_profiler)) call ioserver_profiler%start("read_gather")
          dataRefPtr=> this%read_and_gather(rc=status)
          _VERIFY(status)
+         if (associated(ioserver_profiler)) call ioserver_profiler%stop("read_gather")
       else
+         if (associated(ioserver_profiler)) call ioserver_profiler%start("read_share")
          dataRefPtr=> this%read_and_share(rc=status)
          _VERIFY(status)
+         if (associated(ioserver_profiler)) call ioserver_profiler%stop("read_share")
       endif
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("send_data")
       ! now dataRefPtr on each node has all the data
       call this%containing_server%add_DataReference(dataRefPtr)
-
       call this%containing_server%get_DataFromMem(multi_data_read, rc=status)
+
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("send_data")
 
       call this%containing_server%clean_up()
  
@@ -1287,7 +1138,7 @@ contains
             mem_data_reference = LocalMemReference(q%type_kind,q%count)
             offset = this%containing_server%prefetch_offset%at(i_to_string(q%request_id))
 
-           !W.J node: these three lines are necessar for read_and_gather call
+           !W.J node: these three lines are necessary for read_and_gather call
            if ( .not. multi_data_read) then
               call this%containing_server%distribute_task(q%request_id,node_rank,innode_rank)
               g_offset = this%containing_server%prefetch_offset%at(i_to_string(-node_rank))
@@ -1315,5 +1166,12 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine get_DataFromMem
+
+   function get_hist_collection(this, collection_id) result(c)
+      class (ServerThread), target, intent(inout) :: this
+      integer, intent(in) :: collection_id
+      type (HistoryCollection), pointer :: c
+      c=>this%hist_collections%at(collection_id)
+   end function
 
 end module pFIO_ServerThreadMod

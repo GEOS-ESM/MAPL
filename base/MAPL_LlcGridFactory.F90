@@ -3,14 +3,7 @@
 ! overload set interfaces in legacy
 ! Document PE, PC, DC, DE, GC
 
-
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
-
+#include "MAPL_Generic.h"
 
 ! This module generates ESMF_Grids corresponding to _regular_ lat-lon coordinate grids.
 ! I.e., spacing between lats (lons) is constant.
@@ -18,6 +11,7 @@
 module MAPL_LlcGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_KeywordEnforcerMod
+   use mapl_ErrorHandlingMod
    use ESMF
    use pFIO
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -73,8 +67,10 @@ module MAPL_LlcGridFactoryMod
 
       procedure :: append_metadata
       procedure :: get_grid_vars
+      procedure :: get_file_format_vars
       procedure :: append_variable_metadata
       procedure :: generate_file_bounds
+      procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
    end type LlcGridFactory
@@ -266,8 +262,8 @@ contains
      call READ_PARALLEL(LAYOUT, Y, unit=UNIT)
      call FREE_FILE(UNIT)
 
-     X = X * (MAPL_PI_R8)/180._8
-     Y = Y * (MAPL_PI_R8)/180._8
+     X = X * (MAPL_PI_R8)/180._REAL64
+     Y = Y * (MAPL_PI_R8)/180._REAL64
 
 
      GRIDX = X(IMSTART:IMSTART+IM-1,JMSTART:JMSTART+JM-1)
@@ -405,8 +401,8 @@ contains
 
       ! Check decomposition/bounds
       ! LLc/Tripolar requires even divisibility
-      _ASSERT(mod(this%im_world, this%nx) == 0)
-      _ASSERT(mod(this%jm_world, this%ny) == 0)
+      _ASSERT(mod(this%im_world, this%nx) == 0, 'uneven decomposition')
+      _ASSERT(mod(this%jm_world, this%ny) == 0, 'uneven decomposition')
 
       ! local extents
       call verify(this%nx, this%im_world, this%ims, rc=status)
@@ -427,24 +423,24 @@ contains
          integer :: status
 
          if (allocated(ms)) then
-            _ASSERT(size(ms) > 0)
+            _ASSERT(size(ms) > 0, 'degenerate topology')
 
             if (n == UNDEFINED_INTEGER) then
                n = size(ms)
             else
-               _ASSERT(n == size(ms))
+               _ASSERT(n == size(ms), 'inconsistent topology')
             end if
 
             if (m_world == UNDEFINED_INTEGER) then
                m_world = sum(ms)
             else
-               _ASSERT(m_world == sum(ms))
+               _ASSERT(m_world == sum(ms), 'inconsistent decomposition')
             end if
 
          else
 
-            _ASSERT(n /= UNDEFINED_INTEGER)
-            _ASSERT(m_world /= UNDEFINED_INTEGER)
+            _ASSERT(n /= UNDEFINED_INTEGER, 'uninitialized topology')
+            _ASSERT(m_world /= UNDEFINED_INTEGER, 'uninitialized dimension')
             allocate(ms(n), stat=status)
             _VERIFY(status)
             call MAPL_DecomposeDim(m_world, ms, n)
@@ -507,10 +503,7 @@ contains
       _UNUSED_DUMMY(lon_array)
       _UNUSED_DUMMY(lat_array)
 
-      
-      ! not supported
-      _ASSERT(.false.) 
-
+      _FAIL('unsupported')
    end subroutine initialize_from_esmf_distGrid
 
    
@@ -917,6 +910,16 @@ contains
 
    end function get_grid_vars
 
+   function get_file_format_vars(this) result(vars)
+      class (LlcGridFactory), intent(inout) :: this
+
+      character(len=:), allocatable :: vars
+      _UNUSED_DUMMY(this)
+
+      vars = 'lon,lat'
+
+   end function get_file_format_vars
+
    subroutine append_variable_metadata(this,var)
       class (LlcGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
@@ -928,9 +931,9 @@ contains
       use MAPL_BaseMod
       class(LlcGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
-      integer, allocatable, intent(inout) :: local_start(:)
-      integer, allocatable, intent(inout) :: global_start(:)
-      integer, allocatable, intent(inout) :: global_count(:)
+      integer, allocatable, intent(out) :: local_start(:)
+      integer, allocatable, intent(out) :: global_start(:)
+      integer, allocatable, intent(out) :: global_count(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -946,6 +949,27 @@ contains
       allocate(global_count,source=[global_dim(1),global_dim(2)])
 
    end subroutine generate_file_bounds
+
+   subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
+      use esmf
+      class (LlcGridFactory), intent(inout) :: this
+      type(ESMF_Grid), intent(inout)      :: grid
+      integer, allocatable, intent(out) :: local_start(:)
+      integer, allocatable, intent(out) :: global_start(:)
+      integer, allocatable, intent(out) :: global_count(:)
+      integer, optional, intent(out) :: rc
+
+      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_corner_bounds'
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(grid)
+      _UNUSED_DUMMY(local_start)
+      _UNUSED_DUMMY(global_start)
+      _UNUSED_DUMMY(global_count)
+
+      _FAIL('unsupported')
+
+   end subroutine generate_file_corner_bounds
 
    function generate_file_reference2D(this,fpointer) result(ref)
       use pFIO

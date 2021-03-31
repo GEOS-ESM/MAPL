@@ -572,7 +572,7 @@ integer, optional, intent(OUT  ) :: RC
 character(len=32) :: proc_self = '/proc/self/status'
 character(len=32) :: meminfo   = '/proc/meminfo'
 character(len=32) :: string
-integer :: memtot, memfree, swaptot, swapfree
+integer(kind=INT64) :: memtot, memfree, swaptot, swapfree
 integer :: mem_unit
 real    :: multiplier
 

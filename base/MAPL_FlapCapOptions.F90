@@ -173,6 +173,38 @@ contains
            error=status)
       _VERIFY(status)
 
+      call options%add(switch='--oserver_type', &
+           help='Output Server Type', &
+           required=.false., &
+           def='single', &
+           act='store', &
+           error=status)
+      _VERIFY(status)
+
+      call options%add(switch='--npes_backend_pernode', &
+           help='# MPI processes used by the backend output', &
+           required=.false., &
+           def='0', &
+           act='store', &
+           error=status)
+      _VERIFY(status)
+
+      call options%add(switch='--isolate_nodes', &
+           help='Padding extra processes in the last nodes with idle', &
+           required=.false., &
+           def='.true.', &
+           act='store', &
+           error=status)
+      _VERIFY(status)
+
+      call options%add(switch='--fast_oclient', &
+           help='Copying data before isend. Client would wait until it is re-used', &
+           required=.false., &
+           def='.false.', &
+           act='store', &
+           error=status)
+      _VERIFY(status)
+
       _RETURN(_SUCCESS)
 
    end subroutine add_command_line_options
@@ -204,6 +236,8 @@ contains
       endif
  
       call this%cli_options%get(val=this%npes_model, switch='--npes_model', error=status); _VERIFY(status)
+      call this%cli_options%get(val=this%isolate_nodes, switch='--isolate_nodes', error=status); _VERIFY(status)
+      call this%cli_options%get(val=this%fast_oclient, switch='--fast_oclient', error=status); _VERIFY(status)
       call this%cli_options%get_varying(val=this%npes_input_server, switch='--npes_input_server', error=status); _VERIFY(status)
       call this%cli_options%get_varying(val=this%npes_output_server, switch='--npes_output_server', error=status); _VERIFY(status)
       call this%cli_options%get_varying(val=this%nodes_input_server, switch='--nodes_input_server', error=status); _VERIFY(status)
@@ -226,6 +260,10 @@ contains
       ! Logging options
       call this%cli_options%get(val=buffer, switch='--logging_config', error=status); _VERIFY(status)
       this%logging_config = trim(buffer)
+      ! ouput server type options
+      call this%cli_options%get(val=buffer, switch='--oserver_type', error=status); _VERIFY(status)
+      this%oserver_type = trim(buffer)
+      call this%cli_options%get(val=this%npes_backend_pernode, switch='--npes_backend_pernode', error=status); _VERIFY(status)
 
     end subroutine parse_command_line_arguments
 

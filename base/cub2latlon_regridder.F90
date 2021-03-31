@@ -1,9 +1,4 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; call MAPL_throw_exception(__FILE__,__LINE__); return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; call MAPL_throw_exception(__FILE__,__LINE__); return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
+#include "MAPL_Generic.h"
 
 !---------------------------
 ! Note - this module abuses global variables as a simple mechanism for
@@ -112,21 +107,21 @@ contains
          select case (argument)
          case ('-i', '--ifile')
             regridder%in_file = get_next_argument()
-            _ASSERT(regridder%in_file(1:1) /= '-')
+            _ASSERT(regridder%in_file(1:1) /= '-','bad format')
          case ('-o', '--ofile')
              regridder%out_file = get_next_argument()
-            _ASSERT(regridder%in_file(1:1) /= '-')
+            _ASSERT(regridder%in_file(1:1) /= '-','bad format')
          case ('--nlats')
             buffer  = get_next_argument()
-            _ASSERT(buffer(1:1) /= '-')
+            _ASSERT(buffer(1:1) /= '-','bad format')
             read(buffer,*) regridder%JM
          case ('--nlons')
             buffer  = get_next_argument()
-            _ASSERT(buffer(1:1) /= '-')
+            _ASSERT(buffer(1:1) /= '-','bad format')
             read(buffer,*) regridder%IM
          case ('--vars')
             buffer = get_next_argument()
-            _ASSERT(buffer(1:1) /= '-')
+            _ASSERT(buffer(1:1) /= '-','bad format')
             regridder%requested_variables = parse_vars(buffer)
          case ('-d', '--debug')
             regridder%debug = .true.
@@ -312,10 +307,10 @@ contains
                   ll_var_dimensions = make_dim_string(cs_var_dimensions)
 
                   if (associated(this%cfio_cubed_sphere%get_variable('lev'))) then
-                     ll_variable = Variable(cs_variable%get_type(), dimensions=ll_var_dimensions, &
+                     ll_variable = Variable(type=cs_variable%get_type(), dimensions=ll_var_dimensions, &
                           & chunksizes = [this%IM/npx,this%JM/npy,1,1,1])
                   else
-                     ll_variable = Variable(cs_variable%get_type(), dimensions=ll_var_dimensions, &
+                     ll_variable = Variable(type=cs_variable%get_type(), dimensions=ll_var_dimensions, &
                           & chunksizes = [this%IM/npx,this%JM/npy,1,1])
                   end if
 
@@ -381,17 +376,17 @@ contains
          end if
 
          a => long_name_attr%get_value()
-         _ASSERT(associated(a))
+         _ASSERT(associated(a),'invalid pointer')
          select type (a)
          type is (character(len=*))
             long_name = ESMF_UtilStringLowerCase(a, rc=STATUS)
          class default
-            _ASSERT(.false.)
+            _FAIL('incorrect type')
          end select
 
          if (index(long_name, 'east') > 0) then ! East component of a vector
             north_component = find_north_component(vars, long_name)
-            _ASSERT(north_component /= '')
+            _ASSERT(north_component /= '','needs informative message')
             call this%vector_variables(1)%push_back(var_name)
             call this%vector_variables(2)%push_back(north_component)
          elseif (index(long_name, 'north') == 0) then ! 
@@ -438,12 +433,12 @@ contains
 
             if (associated(attr)) then
                a => attr%get_value()
-               _ASSERT(associated(a))
+               _ASSERT(associated(a),'invalid pointer')
                select type (a)
                type is (character(len=*))
                   trial = ESMF_UtilStringLowerCase(a, rc=status)
                class default
-                  _ASSERT(.false.)
+                  _FAIL('incorrect type')
                end select
 
                idx = index(trial, 'north')
@@ -666,8 +661,9 @@ contains
    ! then writing to the other file.   Gets a bit messy to handle  2D vs 3D and scalar
    ! vs vector cases.  Certainly could be cleaned further in next pass.
 
-   subroutine write_data(this)
+   subroutine write_data(this, rc)
       class (RegridSupport), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
       
 
       type (StringVariableMapIterator) :: var_iter
@@ -948,8 +944,9 @@ contains
    end subroutine write_data
 
 
-   subroutine write_metadata(this)
+   subroutine write_metadata(this, rc)
       class (RegridSupport), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       type (ESMF_VM) :: vm_global
       integer :: status
       
@@ -1186,16 +1183,10 @@ end module SupportMod
 ! Macros for main program should STOP.  Macros for module above
 ! throw an exception and RETURN.
 
-#undef _VERIFY
-#undef _ASSERT
-#undef _RETURN
-
-#define _VERIFY(A)   if(  A/=0) then; call MAPL_throw_exception(__FILE__,__LINE__); error stop; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; call MAPL_throw_exception(__FILE__,__LINE__); error stop; endif
-#define _RETURN(A)   if(present(rc)) rc=A; if (A /= _SUCCESS) error stop
-
-
 ! The main program.   Misleadingly simple.
+#undef MAPL_ErrLog_DONE
+#define I_AM_MAIN
+#include "MAPL_Generic.h"
 program main
    use ESMF
    use SupportMod
@@ -1246,7 +1237,7 @@ program main
 
 
    call system_clock(c0)
-   call regridder%write_data()
+   call regridder%write_data(__RC__)
    call system_clock(c1)
    if (local_pet == 0) then
      print*,'write_data()', real(c1-c0)/crate

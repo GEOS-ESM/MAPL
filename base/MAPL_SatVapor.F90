@@ -8,7 +8,7 @@ module MAPL_SatVaporMod
   use MAPL_ConstantsMod
 #endif
 
-  use, intrinsic :: iso_fortran_env, only: REAL64
+  use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 !BOP
 
 ! !MODULE: MAPL_SatVaporMod -- A module for saturation humidity calculations
@@ -77,82 +77,82 @@ module MAPL_SatVaporMod
   end interface
 
 #ifndef MAPL_MODE
-  real*8,    parameter :: ESFAC      = 0.622
-  real*8,    parameter :: ZEROC      = 273.16  ! K
+  real(kind=REAL64),    parameter :: ESFAC      = 0.622
+  real(kind=REAL64),    parameter :: ZEROC      = 273.16  ! K
 #else
-  real*8,    parameter :: ESFAC      = MAPL_H2OMW/MAPL_AIRMW
-  real*8,    parameter :: ZEROC      = MAPL_TICE
+  real(kind=REAL64),    parameter :: ESFAC      = MAPL_H2OMW/MAPL_AIRMW
+  real(kind=REAL64),    parameter :: ZEROC      = MAPL_TICE
 #endif
 
 ! Physical parameters
 
-  real*8,    parameter :: MINPFAC    = 2.0
-  real*8,    parameter :: MAX_RS     = 1.0/(MINPFAC-1.0)  
-  real*8,    parameter :: MAX_QS     = MAX_RS/(1.0+MAX_RS)
+  real(kind=REAL64),    parameter :: MINPFAC    = 2.0
+  real(kind=REAL64),    parameter :: MAX_RS     = 1.0/(MINPFAC-1.0)  
+  real(kind=REAL64),    parameter :: MAX_QS     = MAX_RS/(1.0+MAX_RS)
 
 ! Table parameters
 
-  real*8,    parameter :: TMINTBL    =  150.0       ! lower T bound of tables
-  real*8,    parameter :: TMAXTBL    =  333.0       ! upper T bound of tables
+  real(kind=REAL64),    parameter :: TMINTBL    =  150.0       ! lower T bound of tables
+  real(kind=REAL64),    parameter :: TMAXTBL    =  333.0       ! upper T bound of tables
 
 ! Some limits
 
-  real*8,    parameter :: TMINICE    =  ZEROC - 95.
-  real*8,    parameter :: TMAXICE    =  ZEROC      
-  real*8,    parameter :: TMINLQU    =  ZEROC - 40.
-  real*8,    parameter :: TMAXLQU    =  TMAXTBL    
+  real(kind=REAL64),    parameter :: TMINICE    =  ZEROC - 95.
+  real(kind=REAL64),    parameter :: TMAXICE    =  ZEROC      
+  real(kind=REAL64),    parameter :: TMINLQU    =  ZEROC - 40.
+  real(kind=REAL64),    parameter :: TMAXLQU    =  TMAXTBL    
 
 ! Starr parameters
 
-  real*8,    parameter :: TMINSTR = TMINICE - ZEROC
-  real*8,    parameter :: TSTARR1 = -75.
-  real*8,    parameter :: TSTARR2 = -65.
-  real*8,    parameter :: TSTARR3 = -50.
-  real*8,    parameter :: TSTARR4 = -40.
-  real*8,    parameter :: TMAXSTR = +60.
+  real(kind=REAL64),    parameter :: TMINSTR = TMINICE - ZEROC
+  real(kind=REAL64),    parameter :: TSTARR1 = -75.
+  real(kind=REAL64),    parameter :: TSTARR2 = -65.
+  real(kind=REAL64),    parameter :: TSTARR3 = -50.
+  real(kind=REAL64),    parameter :: TSTARR4 = -40.
+  real(kind=REAL64),    parameter :: TMAXSTR = +60.
 
-  real*8,    parameter :: B6 = 6.136820929E-11*100.0
-  real*8,    parameter :: B5 = 2.034080948E-8 *100.0
-  real*8,    parameter :: B4 = 3.031240396E-6 *100.0
-  real*8,    parameter :: B3 = 2.650648471E-4 *100.0
-  real*8,    parameter :: B2 = 1.428945805E-2 *100.0
-  real*8,    parameter :: B1 = 4.436518521E-1 *100.0
-  real*8,    parameter :: B0 = 6.107799961E+0 *100.0
-  real*8,    parameter :: BI6= 1.838826904E-10*100.0
-  real*8,    parameter :: BI5= 4.838803174E-8 *100.0
-  real*8,    parameter :: BI4= 5.824720280E-6 *100.0
-  real*8,    parameter :: BI3= 4.176223716E-4 *100.0
-  real*8,    parameter :: BI2= 1.886013408E-2 *100.0
-  real*8,    parameter :: BI1= 5.034698970E-1 *100.0
-  real*8,    parameter :: BI0= 6.109177956E+0 *100.0
-  real*8,    parameter :: S16= 0.516000335E-11*100.0
-  real*8,    parameter :: S15= 0.276961083E-8 *100.0
-  real*8,    parameter :: S14= 0.623439266E-6 *100.0
-  real*8,    parameter :: S13= 0.754129933E-4 *100.0
-  real*8,    parameter :: S12= 0.517609116E-2 *100.0
-  real*8,    parameter :: S11= 0.191372282E+0 *100.0
-  real*8,    parameter :: S10= 0.298152339E+1 *100.0
-  real*8,    parameter :: S26= 0.314296723E-10*100.0
-  real*8,    parameter :: S25= 0.132243858E-7 *100.0
-  real*8,    parameter :: S24= 0.236279781E-5 *100.0
-  real*8,    parameter :: S23= 0.230325039E-3 *100.0
-  real*8,    parameter :: S22= 0.129690326E-1 *100.0
-  real*8,    parameter :: S21= 0.401390832E+0 *100.0
-  real*8,    parameter :: S20= 0.535098336E+1 *100.0
+  real(kind=REAL64),    parameter :: B6 = 6.136820929E-11*100.0
+  real(kind=REAL64),    parameter :: B5 = 2.034080948E-8 *100.0
+  real(kind=REAL64),    parameter :: B4 = 3.031240396E-6 *100.0
+  real(kind=REAL64),    parameter :: B3 = 2.650648471E-4 *100.0
+  real(kind=REAL64),    parameter :: B2 = 1.428945805E-2 *100.0
+  real(kind=REAL64),    parameter :: B1 = 4.436518521E-1 *100.0
+  real(kind=REAL64),    parameter :: B0 = 6.107799961E+0 *100.0
+  real(kind=REAL64),    parameter :: BI6= 1.838826904E-10*100.0
+  real(kind=REAL64),    parameter :: BI5= 4.838803174E-8 *100.0
+  real(kind=REAL64),    parameter :: BI4= 5.824720280E-6 *100.0
+  real(kind=REAL64),    parameter :: BI3= 4.176223716E-4 *100.0
+  real(kind=REAL64),    parameter :: BI2= 1.886013408E-2 *100.0
+  real(kind=REAL64),    parameter :: BI1= 5.034698970E-1 *100.0
+  real(kind=REAL64),    parameter :: BI0= 6.109177956E+0 *100.0
+  real(kind=REAL64),    parameter :: S16= 0.516000335E-11*100.0
+  real(kind=REAL64),    parameter :: S15= 0.276961083E-8 *100.0
+  real(kind=REAL64),    parameter :: S14= 0.623439266E-6 *100.0
+  real(kind=REAL64),    parameter :: S13= 0.754129933E-4 *100.0
+  real(kind=REAL64),    parameter :: S12= 0.517609116E-2 *100.0
+  real(kind=REAL64),    parameter :: S11= 0.191372282E+0 *100.0
+  real(kind=REAL64),    parameter :: S10= 0.298152339E+1 *100.0
+  real(kind=REAL64),    parameter :: S26= 0.314296723E-10*100.0
+  real(kind=REAL64),    parameter :: S25= 0.132243858E-7 *100.0
+  real(kind=REAL64),    parameter :: S24= 0.236279781E-5 *100.0
+  real(kind=REAL64),    parameter :: S23= 0.230325039E-3 *100.0
+  real(kind=REAL64),    parameter :: S22= 0.129690326E-1 *100.0
+  real(kind=REAL64),    parameter :: S21= 0.401390832E+0 *100.0
+  real(kind=REAL64),    parameter :: S20= 0.535098336E+1 *100.0
 
 ! Goff-Gratch Parameters
 
-  real*8,    parameter :: DL(1:6) = (/-7.902980, 5.02808, -1.3816E-7, 11.344, 8.1328E-3, -3.49149 /)
-  real*8,    parameter :: DI(0:3) = (/ 57518.5606E08, 2.01889049, 3.56654, 20.947031        /)
-  real*8,    parameter :: LOGPS   = 3.005714898  ! log10(1013.246)
-  real*8,    parameter :: TS      = 373.16
+  real(kind=REAL64),    parameter :: DL(1:6) = (/-7.902980, 5.02808, -1.3816E-7, 11.344, 8.1328E-3, -3.49149 /)
+  real(kind=REAL64),    parameter :: DI(0:3) = (/ 57518.5606E08, 2.01889049, 3.56654, 20.947031        /)
+  real(kind=REAL64),    parameter :: LOGPS   = 3.005714898  ! log10(1013.246)
+  real(kind=REAL64),    parameter :: TS      = 373.16
 
 ! Murphy and Koop Parameters
  
-  real*8,    parameter :: CL(0:9) = (/ 54.842763, -6763.22, -4.21000, .000367, &
+  real(kind=REAL64),    parameter :: CL(0:9) = (/ 54.842763, -6763.22, -4.21000, .000367, &
                                        0.0415, 218.8,  53.878000, -1331.22,    &
                                       -9.44523, 0.014025                      /)
-  real*8,    parameter :: CI(0:3) = (/ 9.550426, -5723.265, 3.53068, -.00728332             /)
+  real(kind=REAL64),    parameter :: CI(0:3) = (/ 9.550426, -5723.265, 3.53068, -.00728332             /)
 
 ! Enumeration for formulation type
 
@@ -176,19 +176,19 @@ module MAPL_SatVaporMod
 
   integer,   save      :: DEGSUBS    =  DEFAULT_SUBS ! subdivisions per deg K
   integer,   save      :: TABLESIZE  =  nint(TMAXTBL-TMINTBL)*DEFAULT_SUBS + 1
-  real*8,    save      :: DELTA_T    =  1.0 / DEFAULT_SUBS
+  real(kind=REAL64),    save      :: DELTA_T    =  1.0 / DEFAULT_SUBS
 
-  real*8,    save      :: ESTFRZ
-  real*8,    save      :: ESTLQU
+  real(kind=REAL64),    save      :: ESTFRZ
+  real(kind=REAL64),    save      :: ESTLQU
 
-  real*8, allocatable, save :: ESTBLE(:)
-  real*8, allocatable, save :: ESTBLW(:)
+  real(kind=REAL64), allocatable, save :: ESTBLE(:)
+  real(kind=REAL64), allocatable, save :: ESTBLW(:)
 
   integer,   parameter :: WATER   = 1
   integer,   parameter :: ICE     = 2
 
-  real*8,    save      :: TMIN(2) = (/ TMINLQU, TMINICE /)
-  real*8,    save      :: TMAX(2) = (/ TMAXLQU, TMAXICE /) 
+  real(kind=REAL64),    save      :: TMIN(2) = (/ TMINLQU, TMINICE /)
+  real(kind=REAL64),    save      :: TMAX(2) = (/ TMAXLQU, TMAXICE /) 
 
 contains
 
@@ -296,7 +296,7 @@ contains
 ! N.B.--Tables are in Pa
  
       integer :: I
-      real*8  :: T
+      real(kind=REAL64)  :: T
       logical :: UT
 
 ! Save the value of UTBL and temporarily set it to false to get the exact
@@ -425,16 +425,16 @@ contains
 #define DX DQ
 #define KIND_ 4
   recursive function QSAT0(TL,PL,DQ,OverIce) result(QS)
-    real*4,              intent(IN) :: TL
-    real*4, optional,    intent(IN) :: PL
-    real*4, optional,    intent(OUT):: DQ
+    real(kind=REAL32),              intent(IN) :: TL
+    real(kind=REAL32), optional,    intent(IN) :: PL
+    real(kind=REAL32), optional,    intent(OUT):: DQ
     logical,optional,    intent(IN) :: OverIce
-    real*4                          :: QS
+    real(kind=REAL32)                          :: QS
 
 
-    real*4    :: TI,W
-    real*4    :: DD, TT, EF
-    real*4    :: DDQ
+    real(kind=REAL32)    :: TI,W
+    real(kind=REAL32)    :: DD, TT, EF
+    real(kind=REAL32)    :: DDQ
     integer   :: IT
     logical   :: OverLqu
 
@@ -454,16 +454,16 @@ contains
 #define KIND_ 8
 
   recursive function QSATD0(TL,PL,DQ,OverIce) result(QS)
-    real*8,              intent(IN) :: TL
-    real*8, optional,    intent(IN) :: PL
-    real*8, optional,    intent(OUT):: DQ
+    real(kind=REAL64),              intent(IN) :: TL
+    real(kind=REAL64), optional,    intent(IN) :: PL
+    real(kind=REAL64), optional,    intent(OUT):: DQ
     logical,optional,    intent(IN) :: OverIce
-    real*8                          :: QS
+    real(kind=REAL64)                          :: QS
 
 
-    real*8    :: TI,W
-    real*8    :: DD, TT, EF
-    real*8    :: DDQ
+    real(kind=REAL64)    :: TI,W
+    real(kind=REAL64)    :: DD, TT, EF
+    real(kind=REAL64)    :: DDQ
     integer   :: IT
     logical   :: OverLqu
 
@@ -493,16 +493,16 @@ contains
 #define KIND_ 4
 
    function QSAT1(TL,PL,DQ,OverIce) result(QS)
-    real*4,              intent(IN) :: TL(:)
-    real*4, optional,    intent(IN) :: PL(:)
-    real*4, optional,    intent(OUT):: DQ(:)
+    real(kind=REAL32),              intent(IN) :: TL(:)
+    real(kind=REAL32), optional,    intent(IN) :: PL(:)
+    real(kind=REAL32), optional,    intent(OUT):: DQ(:)
     logical,optional,    intent(IN) :: OverIce
-    real*4                          :: QS(SIZE(TL,1))
+    real(kind=REAL32)                          :: QS(SIZE(TL,1))
 
     integer   :: I
-    real*4    :: TI,W  
-    real*4    :: DD, TT, EF
-    real*4    :: DDQ
+    real(kind=REAL32)    :: TI,W  
+    real(kind=REAL32)    :: DD, TT, EF
+    real(kind=REAL32)    :: DDQ
     integer   :: IT
     logical   :: OverLqu
 
@@ -524,16 +524,16 @@ contains
 #define KIND_ 8
 
    function QSATD1(TL,PL,DQ, OverIce) result(QS)
-    real*8,              intent(IN) :: TL(:)
-    real*8, optional,    intent(IN) :: PL(:)
-    real*8, optional,    intent(OUT):: DQ(:)
+    real(kind=REAL64),              intent(IN) :: TL(:)
+    real(kind=REAL64), optional,    intent(IN) :: PL(:)
+    real(kind=REAL64), optional,    intent(OUT):: DQ(:)
     logical,optional,    intent(IN) :: OverIce
-    real*8                          :: QS(SIZE(TL,1))
+    real(kind=REAL64)                          :: QS(SIZE(TL,1))
 
     integer   :: I
-    real*8    :: TI,W  
-    real*8    :: DDQ
-    real*8    :: DD, TT, EF
+    real(kind=REAL64)    :: TI,W  
+    real(kind=REAL64)    :: DDQ
+    real(kind=REAL64)    :: DD, TT, EF
     integer   :: IT
     logical   :: OverLqu
 
@@ -565,16 +565,16 @@ contains
 #define KIND_ 4
 
    function QSAT2(TL,PL,DQ,OverIce) result(QS)
-    real*4,              intent(IN) :: TL(:,:)
-    real*4, optional,    intent(IN) :: PL(:,:)
-    real*4, optional,    intent(OUT):: DQ(:,:)
+    real(kind=REAL32),              intent(IN) :: TL(:,:)
+    real(kind=REAL32), optional,    intent(IN) :: PL(:,:)
+    real(kind=REAL32), optional,    intent(OUT):: DQ(:,:)
     logical,optional,    intent(IN) :: OverIce
-    real*4    :: QS(SIZE(TL,1),SIZE(TL,2))
+    real(kind=REAL32)    :: QS(SIZE(TL,1),SIZE(TL,2))
 
     integer   :: I, J
-    real*4    :: TI,W  
-    real*4    :: DDQ
-    real*4    :: DD, TT, EF
+    real(kind=REAL32)    :: TI,W  
+    real(kind=REAL32)    :: DDQ
+    real(kind=REAL32)    :: DD, TT, EF
     integer   :: IT
     logical   :: OverLqu
 
@@ -598,16 +598,16 @@ contains
 #define KIND_ 8
 
    function QSATD2(TL,PL,DQ,OverIce) result(QS)
-    real*8,              intent(IN) :: TL(:,:)
-    real*8, optional,    intent(IN) :: PL(:,:)
-    real*8, optional,    intent(OUT):: DQ(:,:)
+    real(kind=REAL64),              intent(IN) :: TL(:,:)
+    real(kind=REAL64), optional,    intent(IN) :: PL(:,:)
+    real(kind=REAL64), optional,    intent(OUT):: DQ(:,:)
     logical,optional,    intent(IN) :: OverIce
-    real*8    :: QS(SIZE(TL,1),SIZE(TL,2))
+    real(kind=REAL64)    :: QS(SIZE(TL,1),SIZE(TL,2))
 
     integer   :: I, J
-    real*8    :: TI,W  
-    real*8    :: DDQ
-    real*8    :: DD, TT, EF
+    real(kind=REAL64)    :: TI,W  
+    real(kind=REAL64)    :: DDQ
+    real(kind=REAL64)    :: DD, TT, EF
     integer   :: IT
     logical   :: OverLqu
 
@@ -641,16 +641,16 @@ contains
 #define KIND_ 4
 
    function QSAT3(TL,PL,DQ, OverIce) result(QS)
-    real*4,              intent(IN) :: TL(:,:,:)
-    real*4, optional,    intent(IN) :: PL(:,:,:)
-    real*4, optional,    intent(OUT):: DQ(:,:,:)
+    real(kind=REAL32),              intent(IN) :: TL(:,:,:)
+    real(kind=REAL32), optional,    intent(IN) :: PL(:,:,:)
+    real(kind=REAL32), optional,    intent(OUT):: DQ(:,:,:)
     logical,optional,    intent(IN) :: OverIce
-    real*4    :: QS(SIZE(TL,1),SIZE(TL,2),SIZE(TL,3))
+    real(kind=REAL32)    :: QS(SIZE(TL,1),SIZE(TL,2),SIZE(TL,3))
 
     integer   :: I, J, K
-    real*4    :: TI,W  
-    real*4    :: DDQ
-    real*4    :: DD, TT, EF
+    real(kind=REAL32)    :: TI,W  
+    real(kind=REAL32)    :: DDQ
+    real(kind=REAL32)    :: DD, TT, EF
     integer   :: IT
     logical   :: OverLqu
 
@@ -676,16 +676,16 @@ contains
 #define KIND_ 8
 
    function QSATD3(TL,PL,DQ, OverIce) result(QS)
-    real*8,              intent(IN) :: TL(:,:,:)
-    real*8, optional,    intent(IN) :: PL(:,:,:)
-    real*8, optional,    intent(OUT):: DQ(:,:,:)
+    real(kind=REAL64),              intent(IN) :: TL(:,:,:)
+    real(kind=REAL64), optional,    intent(IN) :: PL(:,:,:)
+    real(kind=REAL64), optional,    intent(OUT):: DQ(:,:,:)
     logical,optional,    intent(IN) :: OverIce
-    real*8    :: QS(SIZE(TL,1),SIZE(TL,2),SIZE(TL,3))
+    real(kind=REAL64)    :: QS(SIZE(TL,1),SIZE(TL,2),SIZE(TL,3))
 
     integer   :: I, J, K
-    real*8    :: TI,W  
-    real*8    :: DDQ
-    real*8    :: DD, TT, EF
+    real(kind=REAL64)    :: TI,W  
+    real(kind=REAL64)    :: DDQ
+    real(kind=REAL64)    :: DD, TT, EF
     integer   :: IT
     logical   :: OverLqu
 
