@@ -41,6 +41,7 @@ module pFIO_UnlimitedEntityMod
       integer, allocatable :: shape(:)
       class (*), allocatable :: value
       class (*), allocatable :: values(:)
+      logical :: valid = .false. ! just to avoid warning for empty constructor
    contains
       procedure :: get_shape
       procedure :: get_rank
@@ -65,6 +66,7 @@ module pFIO_UnlimitedEntityMod
 
 
    interface UnlimitedEntity
+      module procedure new_UnlimitedEntity_empty ! scalar constructor
       module procedure new_UnlimitedEntity_0d ! scalar constructor
       module procedure new_UnlimitedEntity_1d ! vector constructor
       module procedure new_UnlimitedEntity_2d ! vector constructor
@@ -77,6 +79,11 @@ module pFIO_UnlimitedEntityMod
 
 
 contains
+
+   function new_UnlimitedEntity_empty() result(attr)
+      type (UnlimitedEntity) :: attr
+      attr%valid = .true.
+   end function new_UnlimitedEntity_empty
 
    function new_UnlimitedEntity_0d(value, rc) result(attr)
       type (UnlimitedEntity) :: attr

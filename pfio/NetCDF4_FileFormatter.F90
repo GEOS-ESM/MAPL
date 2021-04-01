@@ -1024,6 +1024,8 @@ contains
 
       integer :: len
       integer :: dimid
+      integer :: iotype
+      type(Variable) :: v
 
 
       !$omp critical
@@ -1094,10 +1096,10 @@ contains
                _RETURN(_FAILURE)
             end select
 
-            allocate(var, source= &
-                 & CoordinateVariable(Variable(type = get_fio_type(xtype,rc=status), dimensions=dim_string), &
-                 & coordinate_data))
+            iotype = get_fio_type(xtype,rc=status)
             _VERIFY(status)
+            v = Variable(type=iotype , dimensions=dim_string)
+            allocate(var, source=CoordinateVariable(v, coordinate_data))
             deallocate(coordinate_data)
          else
             allocate(var, source=Variable(type= get_fio_type(xtype,rc=status), dimensions=dim_string))
