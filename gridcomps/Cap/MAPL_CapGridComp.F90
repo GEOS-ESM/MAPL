@@ -1143,6 +1143,7 @@ contains
     integer :: status, phase_
     real(kind=REAL64) :: END_RUN_TIMER, END_TIMER
 
+    _UNUSED_DUMMY(unusable)
     phase_ = 1
     if (present(phase)) phase_ = phase
 

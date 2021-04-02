@@ -242,7 +242,6 @@ module HistoryTrajectoryMod
          integer :: interval(2)
          integer :: i,nfound 
          logical :: found
-         integer :: status
 
          found = .false.
          nfound = 0
@@ -618,8 +617,7 @@ module HistoryTrajectoryMod
          class(HistoryTrajectory), intent(Inout) :: this
          integer, intent(out), optional :: rc
 
-         integer :: i,status,yy,mm,dd,h,m,yp,mp,dp,s,ms,us,ns
-         real(ESMF_KIND_R8) :: s_r8,d_r8,h_r8,m_r8
+         integer :: i,status,h,m,yp,mp,dp,s,ms,us,ns
          type(ESMF_Clock) :: clock
          type(ESMF_Time) :: current_time
          integer :: year,month,day

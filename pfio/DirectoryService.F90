@@ -178,6 +178,7 @@ contains
       ! a SimpleSocket is used for the connection.
       ! Note: In this scenario, the server _must_ always publish prior to this.
 
+      _UNUSED_DUMMY(unusable)
       do n = 1, this%n_local_ports
          if (trim(this%local_ports(n)%port_name) == port_name) then
             allocate(sckt, source=SimpleSocket(client))

@@ -1,3 +1,5 @@
+#include "unused_dummy.H"
+
 module MAPL_SeparatorColumn
    use MAPL_AbstractColumn
    use MAPL_AbstractMeterNode
@@ -63,6 +65,7 @@ contains
 
    integer function get_num_rows_header(this) result(num_rows)
       class(SeparatorColumn), intent(in) :: this
+      _UNUSED_DUMMY(this)
       num_rows = 1
    end function get_num_rows_header
    

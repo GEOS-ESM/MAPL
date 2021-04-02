@@ -101,7 +101,6 @@ contains
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type (MpiSocket), target :: dummy_socket
       integer :: nwriter
-      integer, allocatable :: ranks(:)
       integer, allocatable :: node_sizes(:)
 
       call MPI_Comm_dup(server_comm, s%server_comm, ierror)
@@ -109,8 +108,15 @@ contains
 
       splitter = SimpleCommsplitter(s%server_comm)
       node_sizes = splitter%get_node_sizes()
-      call splitter%add_group(npes_per_node = node_sizes(1)-nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
-      call splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
+
+      ! if oserver size is smaller than one-node, than it means oserver and model coexist in one node 
+      if (s_size < node_sizes(1)) then
+         call splitter%add_group(npes = s_size - nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
+         call splitter%add_group(npes = nwriter_per_node,          name="o_server_back",  isolate_nodes=.false.)
+      else   
+         call splitter%add_group(npes_per_node = node_sizes(1)-nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
+         call splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
+      endif
  
       s_comm = splitter%split(rc=status); _VERIFY(status)
 

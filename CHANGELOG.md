@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Ability to run MultiGroupServer and model in a single node
 - Add command line option --one_node_output
 - Ability to split fields with ungridded dimensions (and not only 4d). 
 - Ability to add alias names to the split fields
@@ -37,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change calls to `system_clock()` to be `INT64` (#511)
 - CMake updates to allow NAG Fortran build
 - Converted some remaining `real*8`-type declarations to be `real(kind=REAL64)`-style
+- Eliminated (almost) all compiler warnings for Intel compiler
 
 ### Removed
 

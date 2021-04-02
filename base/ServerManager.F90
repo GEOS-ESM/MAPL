@@ -104,7 +104,11 @@ contains
       if (present(isolate_nodes)) isolated_ = isolate_nodes
 
       if (oserver_type_ == "multilayer" .or. oserver_type_ == 'multigroup') then
-         _ASSERT(npes_out_backend >=2, "captain-soldier need at lease two beckend")
+         if (nodes_out(1) == 0) then
+            _ASSERT(npes_out_backend >=2, "captain-soldier needs at least two backend")
+         else
+            _ASSERT(nodes_out(1)*npes_out_backend >=2, "captain-soldier needs at least two backend")
+         endif
       endif
       if (oserver_type_ == "multicomm") then
          _ASSERT(npes_out_backend >=1, "need at lease one beckend for multicomm server")

@@ -265,9 +265,6 @@ module MAPL_CommsMod
     type (ESMF_DELayout) :: layout
     logical              :: R
 
-    integer       :: status
-    type (ESMF_VM) :: vm
-
     R = MAPL_Am_I_Rank(layout)
 
   end function MAPL_Am_I_Root_Layout
