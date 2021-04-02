@@ -144,7 +144,6 @@ contains
       character(*), intent(in) :: name
       class(AbstractMeter), intent(in) :: meter
 
-      class(AbstractMeterNode), pointer :: child
       type (MeterNode) :: tmp
       integer :: idx
 
