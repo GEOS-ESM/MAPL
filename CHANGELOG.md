@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change calls to `system_clock()` to be `INT64` (#511)
 - CMake updates to allow NAG Fortran build
 - Converted some remaining `real*8`-type declarations to be `real(kind=REAL64)`-style
+- Eliminated (almost) all compiler warnings for Intel compiler
 
 ### Removed
 

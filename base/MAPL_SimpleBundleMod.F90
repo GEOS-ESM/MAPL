@@ -165,6 +165,7 @@ CONTAINS
     __Iam__('MAPL_SimpleBundleCreateEmpty')
 !                           ------
 
+    _UNUSED_DUMMY(Iam)
     self%Bundle => null()
 !   Name the SimpleBundle
     if (present(name)) then

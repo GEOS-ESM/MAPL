@@ -3271,8 +3271,7 @@ and so on.
 !  !IROUTINE: MAPL_GetHorzIJIndex -- Get indexes on destributed ESMF grid for an arbitary lat and lon
 
 !  !INTERFACE:
-  subroutine MAPL_GetHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid,IMGlob,JMGlob, &
-          & EdgeLons, EdgeLats, rc)
+  subroutine MAPL_GetHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
      implicit none
      !ARGUMENTS:
      integer,                      intent(in   ) :: npts ! number of points in lat and lon arrays
@@ -3283,10 +3282,6 @@ and so on.
      real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts) ! array of longitudes in radians
      real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) ! array of latitudes in radians
      type(ESMF_Grid),    optional, intent(inout) :: Grid ! ESMF grid
-     integer,            optional, intent(in   ) :: IMGlob
-     integer,            optional, intent(in   ) :: JMGlob
-     real(ESMF_KIND_R8), optional, intent(inout) :: EdgeLons(:,:,:) ! array of longitudes in radians on _all_ 6 faces
-     real(ESMF_KIND_R8), optional, intent(inout) :: EdgeLats(:,:,:) ! array of latitudes in radians on _all_ 6 faces
      integer,            optional, intent(out  ) :: rc  ! return code
   
      !DESCRIPTION
@@ -3313,7 +3308,6 @@ and so on.
      real(ESMF_KIND_R8), allocatable :: target_lons(:),target_lats(:)
      real(ESMF_KIND_R8), allocatable :: corner_lons(:,:),corner_lats(:,:),center_lats(:,:),center_lons(:,:)
      type(ESMF_CoordSys_Flag) :: coordSys
-
 
      ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
      ! this also means we are running on a distributed grid

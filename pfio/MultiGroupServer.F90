@@ -101,7 +101,6 @@ contains
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type (MpiSocket), target :: dummy_socket
       integer :: nwriter
-      integer, allocatable :: ranks(:)
       integer, allocatable :: node_sizes(:)
 
       call MPI_Comm_dup(server_comm, s%server_comm, ierror)

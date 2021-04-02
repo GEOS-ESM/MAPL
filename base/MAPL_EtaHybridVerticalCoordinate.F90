@@ -44,13 +44,15 @@ module MAPL_EtaHybridVerticalCoordinateMod
 
 contains
 
-   function new_EtaHybridVerticalCoordinate_by_ak_bk(ak, bk, unused, ref_pressure, rc) result(grid)
+   function new_EtaHybridVerticalCoordinate_by_ak_bk(ak, bk, unusable, ref_pressure, rc) result(grid)
       type (EtaHybridVerticalCoordinate) :: grid
       real(kind=REAL64), intent(in) :: ak(:)
       real(kind=REAL64), intent(in) :: bk(:)
-      class(KeywordEnforcer), optional, intent(in) :: unused
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       real(kind=REAL64),optional, intent(in) :: ref_pressure
       integer, optional, intent(inout) :: rc
+
+      _UNUSED_DUMMY(unusable)
 
       _ASSERT(size(ak) >= 2, 'size of ak should be >=2')
       _ASSERT(size(ak) == size(bk), ' size of ak should be the same as that of bk')
@@ -67,18 +69,19 @@ contains
       
    end function new_EtaHybridVerticalCoordinate_by_ak_bk
 
-   function new_EtaHybridVerticalCoordinate_by_cfg(config, unused, rc) result(grid)
+   function new_EtaHybridVerticalCoordinate_by_cfg(config, unusable, rc) result(grid)
       type (EtaHybridVerticalCoordinate) :: grid
       type (ESMF_Config) :: config
-      class (KeywordEnforcer), optional, intent(in) :: unused
+      class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(inout) :: rc
       real(kind=REAL64), allocatable :: ak(:)
       real(kind=REAL64), allocatable :: bk(:)
       integer :: status
       integer :: k, num_levels
-      real(kind=REAL64) :: ptop, pint, ref_pressure
+      real(kind=REAL64) :: ref_pressure
       character(len=32) :: data_label
  
+      _UNUSED_DUMMY(unusable)
       call ESMF_ConfigGetAttribute(config, num_levels,label='NUM_LEVELS:', __RC__ )
       call ESMF_ConfigGetAttribute(config, ref_pressure,label='REF_PRESSURE:', &
                                    default = DEFAULT_REFERENCE_PRESSURE, __RC__ )
@@ -104,30 +107,32 @@ contains
       deallocate(ak, bk)
    end function new_EtaHybridVerticalCoordinate_by_cfg
 
-   function new_EtaHybridVerticalCoordinate_by_file(filename, unused, rc) result(grid)
+   function new_EtaHybridVerticalCoordinate_by_file(filename, unusable, rc) result(grid)
       type (EtaHybridVerticalCoordinate) :: grid
       character(len=*), intent(in) :: filename
-      class (KeywordEnforcer), optional, intent(in) :: unused
+      class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(inout) :: rc
       type (ESMF_Config) :: config
       integer :: status
 
+      _UNUSED_DUMMY(unusable)
       call ESMF_ConfigLoadFile (config, filename, __RC__) 
  
       grid = EtaHybridVerticalCoordinate(config)
 
    end function new_EtaHybridVerticalCoordinate_by_file
 
-   subroutine get_eta_r8(this, ptop, pint, ak, bk, unused,rc)
+   subroutine get_eta_r8(this, ptop, pint, ak, bk, unusable,rc)
       class(EtaHybridVerticalCoordinate), intent(in) :: this
       real(kind=REAL64), intent(out) :: ak(:)
       real(kind=REAL64), intent(out) :: bk(:)
       real(kind=REAL64), intent(out) :: ptop ! model top (Pa)
       real(kind=REAL64), intent(out) :: pint ! transition to p (Pa)
-      class(KeywordEnforcer), optional, intent(in) :: unused
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: num_levels, k, ks
 
+      _UNUSED_DUMMY(unusable)
      _ASSERT(this%num_levels == size(ak) - 1 ,"size vertical grid should be consistent")      
 
      ak = this%ak
@@ -150,13 +155,13 @@ contains
 
    end subroutine get_eta_r8
 
-   subroutine get_eta_r4(this, ptop, pint, ak, bk, unused,rc)
+   subroutine get_eta_r4(this, ptop, pint, ak, bk, unusable,rc)
       class(EtaHybridVerticalCoordinate), intent(in) :: this
       real(kind=REAL32), intent(out) :: ak(:)
       real(kind=REAL32), intent(out) :: bk(:)
       real(kind=REAL32), intent(out) :: ptop ! model top (Pa)
       real(kind=REAL32), intent(out) :: pint ! transition to p (Pa)
-      class(KeywordEnforcer), optional, intent(in) :: unused
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       real(kind=REAL64), allocatable :: ak8(:)
@@ -165,6 +170,7 @@ contains
       real(kind=REAL64) :: pint8 ! transition to p (Pa)
       integer :: num_levels     
 
+      _UNUSED_DUMMY(unusable)
       num_levels = this%num_levels
       allocate(ak8(num_levels+1))
       allocate(bk8(num_levels+1))
@@ -182,47 +188,51 @@ contains
      _RETURN(_SUCCESS)
    end subroutine get_eta_r4
 
-   subroutine get_eta_onestep_r4(filename, ptop, pint, ak, bk, unused, rc)
+   subroutine get_eta_onestep_r4(filename, ptop, pint, ak, bk, unusable, rc)
       character(len=*), intent(in) :: filename
       real(kind=REAL32), intent(out) :: ak(:)
       real(kind=REAL32), intent(out) :: bk(:)
       real(kind=REAL32), intent(out) :: ptop ! model top (Pa)
       real(kind=REAL32), intent(out) :: pint ! transition to p (Pa)
-      class(KeywordEnforcer), optional, intent(in) :: unused
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: status
       type (EtaHybridVerticalCoordinate) :: vgrid
+
+      _UNUSED_DUMMY(unusable)
 
       vgrid = EtaHybridVerticalCoordinate(filename)
       call vgrid%get_eta(ptop, pint, ak, bk, __RC__ )
 
    end subroutine get_eta_onestep_r4
 
-   subroutine get_eta_onestep_r8(filename, ptop, pint, ak, bk, unused, rc)
+   subroutine get_eta_onestep_r8(filename, ptop, pint, ak, bk, unusable, rc)
       character(len=*), intent(in) :: filename
       real(kind=REAL64), intent(out) :: ak(:)
       real(kind=REAL64), intent(out) :: bk(:)
       real(kind=REAL64), intent(out) :: ptop ! model top (Pa)
       real(kind=REAL64), intent(out) :: pint ! transition to p (Pa)
-      class(KeywordEnforcer), optional, intent(in) :: unused
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: status
       type (EtaHybridVerticalCoordinate) :: vgrid
 
+      _UNUSED_DUMMY(unusable)
       vgrid = EtaHybridVerticalCoordinate(filename)
       call vgrid%get_eta(ptop, pint, ak, bk, __RC__ )
 
    end subroutine get_eta_onestep_r8
 
-   subroutine get_pressure_levels_r8(this, pressure_levels, unused, reference_pressure, rc)
+   subroutine get_pressure_levels_r8(this, pressure_levels, unusable, reference_pressure, rc)
       class(EtaHybridVerticalCoordinate), intent(in) :: this
       real(kind=REAL64), intent(out) :: pressure_levels(:)
-      class(KeywordEnforcer), optional, intent(in) :: unused
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       real(kind=REAL64), optional, intent(in) :: reference_pressure
       integer, optional, intent(out) :: rc
       real(kind=REAL64) :: p0
       integer :: k, num_levels
 
+      _UNUSED_DUMMY(unusable)
       num_levels = this%num_levels
       _ASSERT(size(pressure_levels) == num_levels, 'incorrect array size for pressure_levels dummy argument')
 
@@ -250,16 +260,17 @@ contains
 
    end subroutine get_pressure_levels_r8
 
-   subroutine get_pressure_levels_r4(this, pressure_levels, unused, reference_pressure, rc)
+   subroutine get_pressure_levels_r4(this, pressure_levels, unusable, reference_pressure, rc)
       class(EtaHybridVerticalCoordinate), intent(in) :: this
       real(kind=REAL32), intent(out) :: pressure_levels(:)
-      class(KeywordEnforcer), optional, intent(in) :: unused
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       real(kind=REAL32), optional, intent(in) :: reference_pressure
       integer, optional, intent(out) :: rc
       real(kind=REAL64) :: p0
-      integer :: k, num_levels
+      integer :: num_levels
       real(kind=REAL64), allocatable :: plevels(:)
 
+      _UNUSED_DUMMY(unusable)
       num_levels = this%num_levels
       _ASSERT(size(pressure_levels) == num_levels, 'incorrect array size for pressure_levels dummy argument')
 
@@ -279,15 +290,16 @@ contains
 
    end subroutine get_pressure_levels_r4
 
-   subroutine get_pressures_r8_3d(this, pressures, surface_pressure, unused, rc)
+   subroutine get_pressures_r8_3d(this, pressures, surface_pressure, unusable, rc)
       class(EtaHybridVerticalCoordinate), intent(in) :: this
       real(kind=REAL64), intent(out) :: pressures(:,:,:)
-      class(KeywordEnforcer), optional, intent(in) :: unused
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       real(kind=REAL64), optional, intent(in) :: surface_pressure(:,:)
       integer, optional, intent(out) :: rc
       integer :: i, j, k, isize, jsize, ksize
       real(kind=REAL64), allocatable :: levels(:)
 
+      _UNUSED_DUMMY(unusable)
       isize = size(pressures,1)
       jsize = size(pressures,2)
       ksize = size(pressures,3)
@@ -306,15 +318,16 @@ contains
 
    end subroutine get_pressures_r8_3d
 
-   subroutine get_pressures_r4_3d(this, pressures, surface_pressure, unused, rc)
+   subroutine get_pressures_r4_3d(this, pressures, surface_pressure, unusable, rc)
       class(EtaHybridVerticalCoordinate), intent(in) :: this
       real(kind=REAL32), intent(out) :: pressures(:,:,:)
-      class(KeywordEnforcer), optional, intent(in) :: unused
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       real(kind=REAL32), optional, intent(in) :: surface_pressure(:,:)
       integer, optional, intent(out) :: rc
       integer :: i, j, k, isize, jsize, ksize
       real(kind=REAL32), allocatable :: levels(:)
 
+      _UNUSED_DUMMY(unusable)
       isize = size(pressures,1)
       jsize = size(pressures,2)
       ksize = size(pressures,3)

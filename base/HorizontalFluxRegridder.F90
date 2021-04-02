@@ -68,10 +68,10 @@ contains
 
      type(RegridderSpec) :: spec
 
-     type(ESMF_Grid) :: grid_in, grid_out
      integer :: counts(5)
      integer :: status
-     
+
+     _UNUSED_DUMMY(unusable)
      spec = this%get_spec()
 
      associate (grid_in => spec%grid_in, grid_out => spec%grid_out)
@@ -109,6 +109,7 @@ contains
       integer :: i, j, ii, jj
       real(kind=REAL32) :: m_x, m_y
 
+      _UNUSED_DUMMY(rotate)
 
       _ASSERT(size(u_in,1) == this%IM_in, 'mismatch in IM for input')
       _ASSERT(size(v_in,1) == this%IM_in, 'mismatch in IM for input')
@@ -164,6 +165,8 @@ contains
 
       integer :: i, j, ii, jj
       real(REAL64) :: m_x, m_y
+
+      _UNUSED_DUMMY(rotate)
       
       _ASSERT(size(u_in,1) == this%IM_in, 'mismatch in IM for input')
       _ASSERT(size(v_in,1) == this%IM_in, 'mismatch in IM for input')
@@ -219,6 +222,8 @@ contains
 
       integer :: k, status
 
+      _UNUSED_DUMMY(rotate)
+      
       _ASSERT(size(u_in,3) == size(u_out,3), 'mismatch in number of levels')
       _ASSERT(size(v_in,3) == size(v_out,3), 'mismatch in number of levels')
       _ASSERT(size(u_in,3) == size(v_in,3), 'mismatch in number of levels')

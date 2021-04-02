@@ -2013,7 +2013,6 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   type (MAPL_MetaComp), pointer               :: STATE
   integer                                     :: I
   logical                                     :: final_checkpoint
-  logical                                     :: nwrgt1
   integer                                     :: NC
   integer                                     :: PHASE
   integer                                     :: NUMPHASES

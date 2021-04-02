@@ -40,17 +40,15 @@ module MAPL_ESMFFieldBundleRead
          type(MAPLExtDataCollection), pointer :: collection => null()
          type(fileMetaDataUtils), pointer :: metadata
          type(ESMF_Grid) :: grid,file_grid
-         integer :: num_fields,var_present,dims,location
+         integer :: num_fields,dims,location
          logical :: create_variable, has_vertical_level, var_has_levels
          class (AbstractGridFactory), pointer :: factory
          character(len=:), allocatable :: grid_vars,exclude_vars
-         type(Variable), pointer :: var
          type(StringVariableMap), pointer :: variables
          type(Variable), pointer :: this_variable
          type(StringVariableMapIterator) :: var_iter
          character(len=:), pointer :: var_name,dim_name
          character(len=:), allocatable :: lev_name
-         character(len=:), pointer :: v_lev_name
          type(ESMF_Field) :: field
          type (StringVector), pointer :: dimensions
          type (StringVectorIterator) :: dim_iter

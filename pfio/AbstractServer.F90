@@ -402,7 +402,6 @@ contains
       integer, optional,   intent(  out) :: RC     ! Error code:
       character(:), allocatable :: report_lines(:)
       type (ProfileReporter) :: reporter
-      type (MultiColumn) :: inclusive, exclusive
       character(1) :: empty(0)
       integer :: i
 

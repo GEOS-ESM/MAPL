@@ -560,7 +560,7 @@ contains
 
       
       ! not supported
-      _ASSERT(.false.,"tripolar initialize from distgrid non supported") 
+      _FAIL("tripolar initialize from distgrid non supported") 
 
    end subroutine initialize_from_esmf_distGrid
 
@@ -938,9 +938,13 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_corner_bounds'
-      integer :: status
 
-      _ASSERT(.false.,"not yet implemented")
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(grid)
+      _UNUSED_DUMMY(local_start)
+      _UNUSED_DUMMY(global_start)
+      _UNUSED_DUMMY(global_count)
+      _FAIL("not yet implemented")
 
    end subroutine generate_file_corner_bounds
 
