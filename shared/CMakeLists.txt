@@ -8,12 +8,10 @@ set (srcs
     MAPL_ErrorHandling.F90
     MAPL_Hash.F90
     MAPL_HeapMod.F90
-    MAPL_InterpMod.F90
     MAPL_KeywordEnforcer.F90
     MAPL_LoadBalance.F90
     MAPL_MinMax.F90
     MAPL_Range.F90
-    MAPL_ShmemMod.F90
     MAPL_Sort.F90
     MAPL_Throw.F90
     AbstractCommSplitter.F90
@@ -26,6 +24,9 @@ set (srcs
     Enumerators.F90
     MaplShared.F90
     TimeUtils.F90
+# Fortran submodules
+    Interp/Interp.f90 Interp/Interp_implementation.F90
+    Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
   )
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared MPI::MPI_Fortran pflogger TYPE SHARED)
 target_include_directories (${this} PUBLIC
