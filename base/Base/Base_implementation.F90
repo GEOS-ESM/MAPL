@@ -12,7 +12,7 @@ submodule (MAPL_Base) Base_Implementation
   use ESMF
   use MAPL_ConstantsMod, only: MAPL_PI, MAPL_PI_R8,MAPL_DEGREES_TO_RADIANS
   use MAPL_RangeMod
-use MAPL_SphericalGeometry
+  use MAPL_SphericalGeometry
   use MaplGeneric, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
   use mapl_Enumerators
   use MAPL_ExceptionHandling
@@ -1822,14 +1822,6 @@ contains
   end subroutine MAPL_FieldCopy
 
 
-  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  module function MAPL_RemapBoundsFull_3dr4(A,I1,IM,J1,JM,L1,LM)
-        integer,      intent(IN) :: I1,IM,J1,JM,L1,LM
-        real, target, intent(IN) :: A(I1:IM,J1:JM,L1:LM)
-        real, pointer            :: MAPL_RemapBoundsFull_3dr4(:,:,:)
-
-        MAPL_RemapBoundsFull_3dr4 => A
-      end function MAPL_RemapBoundsFull_3dr4
   !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   module function MAPL_RemapBounds_3dr4(A, LB1, LB2, LB3) result(ptr)
     integer,      intent(IN) :: LB1, LB2, LB3

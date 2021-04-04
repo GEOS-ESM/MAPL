@@ -501,13 +501,6 @@ module MAPL_Base
        integer, optional, intent(  OUT) :: RC
      end subroutine MAPL_FieldCopy
 
-  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      module function MAPL_RemapBoundsFull_3dr4(A,I1,IM,J1,JM,L1,LM)
-        integer,      intent(IN) :: I1,IM,J1,JM,L1,LM
-        real, target, intent(IN) :: A(I1:IM,J1:JM,L1:LM)
-        real, pointer            :: MAPL_RemapBoundsFull_3dr4(:,:,:)
-
-      end function MAPL_RemapBoundsFull_3dr4
      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      module function MAPL_RemapBounds_3dr4(A, LB1, LB2, LB3) result(ptr)
        integer,      intent(IN) :: LB1, LB2, LB3
@@ -877,6 +870,18 @@ module MAPL_Base
        integer, optional,         intent(  out) :: rc
      end subroutine MAPL_FieldSplit
   end interface
+
+contains
+
+  ! NAG and Intel need inconsistent workarounds for this function if moved
+  ! into the submodule.  So keeping it here.
+
+  function MAPL_RemapBoundsFull_3dr4(A,I1,IM,J1,JM,L1,LM)
+    integer,      intent(IN) :: I1,IM,J1,JM,L1,LM
+    real, target, intent(IN) :: A(I1:IM,J1:JM,L1:LM)
+    real, pointer            :: MAPL_RemapBoundsFull_3dr4(:,:,:)
+
+  end function MAPL_RemapBoundsFull_3dr4
 
 end module MAPL_Base
 
