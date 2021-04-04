@@ -25,7 +25,7 @@ set (srcs
     MaplShared.F90
     TimeUtils.F90
 # Fortran submodules
-    Interp/Interp.f90 Interp/Interp_implementation.F90
+    Interp/Interp.F90 Interp/Interp_implementation.F90
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
   )
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared MPI::MPI_Fortran pflogger TYPE SHARED)
