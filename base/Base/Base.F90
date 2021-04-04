@@ -11,9 +11,6 @@ module MAPL_Base
   !
   use ESMF, only: ESMF_MAXSTR
   use, intrinsic :: iso_fortran_env, only: REAL64
-  use Mapl_Enumerators
-  use MAPL_RangeMod
-  use MaplGeneric, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
   implicit NONE
   private
 
@@ -30,9 +27,7 @@ module MAPL_Base
   public MAPL_FieldCreateEmpty
   public MAPL_FieldGetTime
   public MAPL_FieldSetTime
-  public MAPL_GridGet
   public MAPL_GRID_INTERIOR
-  public MAPL_GridHasDE
   public MAPL_IncYMD
   public MAPL_Interp_Fac
   public MAPL_LatLonGridCreate   ! Creates regular Lat/Lon ESMF Grids
@@ -47,7 +42,6 @@ module MAPL_Base
   public MAPL_UnpackTime
   public MAPL_UnpackDateTime
   public MAPL_RmQualifier
-  public MAPL_GetImsJms
   public MAPL_AttributeSet
   public MAPL_SetPointer
   public MAPL_FieldCopyAttributes
@@ -64,95 +58,10 @@ module MAPL_Base
   public MAPL_BundleCreate
   public MAPL_FieldCopy
   public MAPL_Leap
-  public MAPL_Range
-  public MAPL_DistGridGet
   public MAPL_GridGetCorners
   public MAPL_GridGetInterior
   public MAPL_TrimString
   public MAPL_FieldSplit
-
-  ! !PUBLIC PARAMETERS
-  !
-  ! Republish parameters that are now in mapl_enumerators
-  public :: MAPL_CplUNKNOWN
-  public :: MAPL_CplSATISFIED
-  public :: MAPL_CplNEEDED
-  public :: MAPL_CplNOTNEEDED
-  public :: MAPL_FriendlyVariable
-  public :: MAPL_FieldItem
-  public :: MAPL_BundleItem
-  public :: MAPL_StateItem
-  public :: MAPL_NoRestart
-
-  public :: MAPL_Write2Disk
-  public :: MAPL_Write2RAM
-
-  public :: MAPL_VLocationNone
-  public :: MAPL_VLocationEdge
-  public :: MAPL_VLocationCenter
-
-  public :: MAPL_DimsUnknown
-  public :: MAPL_DimsVertOnly
-  public :: MAPL_DimsHorzOnly
-  public :: MAPL_DimsHorzVert
-  public :: MAPL_DimsTileOnly
-  public :: MAPL_DimsTileTile
-  public :: MAPL_DimsNone
-
-  public :: MAPL_ScalarField
-  public :: MAPL_VectorField
-
-
-  public :: MAPL_CplAverage
-  public :: MAPL_CplMin
-  public :: MAPL_CplMax
-  public :: MAPL_CplAccumulate
-  public :: MAPL_MinMaxUnknown
-
-  public :: MAPL_AttrGrid
-  public :: MAPL_AttrTile
-
-  public :: MAPL_UnInitialized
-  public :: MAPL_InitialDefault
-  public :: MAPL_InitialRestart
-
-  public :: MAPL_DuplicateEntry
-  public :: MAPL_Self
-  public :: MAPL_Import
-  public :: MAPL_Export
-  public :: MAPL_ConnUnknown
-  public :: MAPL_FirstPhase
-  public :: MAPL_SecondPhase
-  public :: MAPL_ThirdPhase
-  public :: MAPL_FourthPhase
-  public :: MAPL_FifthPhase
-
-  public :: MAPL_Ocean
-  public :: MAPL_Lake
-  public :: MAPL_LandIce
-  public :: MAPL_Land
-  public :: MAPL_Vegetated
-
-  public :: MAPL_NumVegTypes
-
-  public :: MAPL_AGrid
-  public :: MAPL_CGrid
-  public :: MAPL_DGrid
-
-  public :: MAPL_RotateLL
-  public :: MAPL_RotateCube
-
-
-  public :: MAPL_HorzTransOrderBinning
-  public :: MAPL_HorzTransOrderBilinear
-  public :: MAPL_HorzTransOrderFraction
-  public :: MAPL_HorzTransOrderSample
-
-  public :: MAPL_RestartOptional
-  public :: MAPL_RestartSkip
-  public :: MAPL_RestartRequired
-  public :: MAPL_RestartBootstrap
-  public :: MAPL_RestartSkipInitial
 
 
   real,    public, parameter :: MAPL_UNDEF              = 1.0e15  
@@ -887,6 +796,13 @@ end module MAPL_Base
 
 module MAPL_BaseMod
   use MAPL_Base
+  use MAPL_RangeMod, only:   MAPL_Range
+  use MaplGeneric, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
+  use Mapl_Enumerators
+   
+
+
+
 end module MAPL_BaseMod
 
 

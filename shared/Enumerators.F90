@@ -40,7 +40,7 @@ module mapl_Enumerators
    integer, public, parameter :: MAPL_AttrGrid        = 1
    integer, public, parameter :: MAPL_AttrTile        = 2
 
-   integer, public, parameter :: MAPL_UnInitialized  = 0
+   integer, public, parameter :: MAPL_Uninitialized  = 0
    integer, public, parameter :: MAPL_InitialDefault  = 1
    integer, public, parameter :: MAPL_InitialRestart  = 2
 
