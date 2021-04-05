@@ -27,7 +27,9 @@ set (srcs
     MaplShared.F90
     TimeUtils.F90
   )
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared MPI::MPI_Fortran pflogger TYPE SHARED)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared MPI::MPI_Fortran pflogger 
+  # TYPE SHARED           (in GCHP we want STATIC libs)
+)
 target_include_directories (${this} PUBLIC
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
