@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed a bug related to the naming scheme for split fields when ungrid size is 1
 - Fixed unset UNGRIDDED_DIMS attribute bug
 - Fixes ESMF logging errors related to expressions in History
 - Fixed error handling in profiler/BaseProfiler.F90
