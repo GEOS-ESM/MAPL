@@ -8,14 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
-
-### Added
 
 - Ability to run MultiGroupServer and model in a single node
 - Add command line option --one_node_output
 - Ability to split fields with ungridded dimensions (and not only 4d). 
 - Ability to add alias names to the split fields
+- Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
 - Nearest-neighbor interpolation option for ExtData (keyword: 'E')
 
 ### Changed
@@ -27,9 +25,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - `base/mapl_tree.py`
    - `base/mapl_vlist.py`
    - `Apps/MAPL_GridCompSpecs_ACG.py`
+- Updated `components.yaml`:
+   - ESMA_env v3.2.0 (Baselibs 6.1.0 <==> ESMF 8.1.0)
+   - ESMA_cmake v3.3.7 (useless to MAPL, keeps up to date)
+- Update CI images to 6.1.0
 
 ### Fixed
 
+- Fixed a bug related to the naming scheme for split fields when ungrid size is 1
 - Fixed unset UNGRIDDED_DIMS attribute bug
 - Fixes ESMF logging errors related to expressions in History
 - Fixed error handling in profiler/BaseProfiler.F90
