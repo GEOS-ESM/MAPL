@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ability to add alias names to the split fields
 - Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
 - Add MAPL_TransposeaRegridderMod to MAPL_Mod
+- Nearest-neighbor interpolation option for ExtData (keyword: 'E')
 
 ### Changed
 
