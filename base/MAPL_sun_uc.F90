@@ -2419,9 +2419,9 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       type(ESMF_TimeInterval)    :: intToNextNoon, oneDayInterval
 
       type(ESMF_Time)            :: currentTime, origTime
-      type(ESMF_Time)            :: timeBasedOnCycle23
-      type(ESMF_Time)            :: startCycle23, startCycle24
-      type(ESMF_TimeInterval)    :: timeSinceStartOfCycle24
+      type(ESMF_Time)            :: timeBasedOnCycle24
+      type(ESMF_Time)            :: startCycle24, startCycle25
+      type(ESMF_TimeInterval)    :: timeSinceStartOfCycle25
 
       integer :: currentYear, currentMon, currentDay, currentDOY
       integer :: prevDOY, nextDOY, prevNoonYear, nextNoonYear
@@ -2560,17 +2560,6 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          ! -------------------------------------------------------------
          OUT_OF_TABLE_AND_CYCLE: if ( outOfTable .and. (.not. PersistSolar_) ) then
 
-            ! Create an ESMF_Time at start of Cycle 23
-            ! ----------------------------------------
-            call ESMF_TimeSet( startCycle23, YY = 1996,  &
-                                             MM = 8,     &
-                                             DD = 1,     &
-                                              H = 12,    &
-                                              M = 00,    &
-                                              S = 00,    &
-                                             RC = STATUS )
-            _VERIFY(STATUS)
-
             ! Create an ESMF_Time at start of Cycle 24
             ! ----------------------------------------
             call ESMF_TimeSet( startCycle24, YY = 2008,  &
@@ -2582,17 +2571,28 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
                                              RC = STATUS )
             _VERIFY(STATUS)
 
+            ! Create an ESMF_Time at start of Cycle 25
+            ! ----------------------------------------
+            call ESMF_TimeSet( startCycle25, YY = 2019,  &
+                                             MM = 12,    &
+                                             DD = 1,     &
+                                              H = 12,    &
+                                              M = 00,    &
+                                              S = 00,    &
+                                             RC = STATUS )
+            _VERIFY(STATUS)
+
             ! Create TimeInterval based on interval 
-            ! from start of latest Cycle 24
+            ! from start of latest Cycle 25
             ! -------------------------------------
 
-            timeSinceStartOfCycle24 = currentTime - startCycle24
+            timeSinceStartOfCycle25 = currentTime - startCycle25
 
             ! Make a new time based on that
-            ! interval past start of Cycle 23
+            ! interval past start of Cycle 24
             ! -------------------------------
 
-            timeBasedOnCycle23 = startCycle23 + timeSinceStartOfCycle24
+            timeBasedOnCycle24 = startCycle24 + timeSinceStartOfCycle25
 
             ! Store our original time just in case
             ! ------------------------------------
@@ -2604,7 +2604,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
             ! Make our "current" time the one calculated above
             ! ------------------------------------------------
-            currentTime = timeBasedOnCycle23
+            currentTime = timeBasedOnCycle24
 
             ! Get new currentYear, currentMon, currentDay
             ! -------------------------------------------
