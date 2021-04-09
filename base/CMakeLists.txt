@@ -59,7 +59,7 @@ endif()
 if (ESMA_USE_GFE_NAMESPACE)
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.generic MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 pflogger GFTL_SHARED::gftl-shared
+  DEPENDENCIES MAPL.generic MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 PFLOGGER::pflogger GFTL_SHARED::gftl-shared
                esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE SHARED)
 else ()
