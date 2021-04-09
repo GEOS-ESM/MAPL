@@ -28,8 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - `Apps/MAPL_GridCompSpecs_ACG.py`
 - Updated `components.yaml`:
    - ESMA_env v3.2.0 (Baselibs 6.1.0 <==> ESMF 8.1.0)
-   - ESMA_cmake v3.3.7 (useless to MAPL, keeps up to date)
+   - ESMA_cmake v3.3.8 (adds ability to see GFE namespace option)
 - Update CI images to 6.1.0
+- Updated MAPL to have the ability to use the new GFE namespace in CMake. (`gftl` --> `GFTL::gftl`). 
+   - The default in ESMA_cmake v3.3.8 is *not* enabled. To enable use `-DESMA_USE_GFE_NAMESPACE=ON`.
+   - NOTE: This requires Baselibs 6.2.0 or higher when using Baselibs.
 
 ### Fixed
 
