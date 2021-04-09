@@ -625,6 +625,7 @@ CONTAINS
                         ! N - conventional bilinear regridding
                         ! Y - conservative regridding
                         ! H - conservative horizontal flux regridding
+                        ! E - nearest neighbor regridding
                         ! V - voting, tile based
                         ! F;val - fractional, returns the fraction of the input cells with value, val
                         !         that overlap the target cell
@@ -637,6 +638,8 @@ CONTAINS
                            primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_BILINEAR
                         else if (trim(buffer) == 'h') then
                            primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_CONSERVE_HFLUX
+                        else if (trim(buffer) == 'e') then
+                           primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_NEAREST_STOD
                         else if (trim(buffer) == 'v') then
                            primary%item(totalPrimaryEntries)%trans = REGRID_METHOD_VOTE
                         else if (index(trim(buffer),'f') ==1 ) then
@@ -645,7 +648,7 @@ CONTAINS
                            _ASSERT(k > 0,'ERROR: MAPL fractional regridding requires semi-colon in ExtData.rc entry: '//trim(primary%item(totalPrimaryEntries)%name))
                            read(buffer(k+1:),*,iostat=ios) primary%item(totalPrimaryEntries)%FracVal
                         else
-                           __raise__(MAPL_RC_ERROR, "the regridding keyword for extdata primary export must be N, Y, V, or F")
+                           __raise__(MAPL_RC_ERROR, "the regridding keyword for extdata primary export must be E, H, N, Y, V, or F")
                         end if
 
                         ! refresh template entry
