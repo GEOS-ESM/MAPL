@@ -34,7 +34,11 @@ find_package(PFLOGGER REQUIRED)
 find_package(GFTL REQUIRED)
 find_package(GFTL_SHARED REQUIRED)
 
-esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared pflogger gftl-shared gftl TYPE SHARED)
+if (ESMA_USE_GFE_NAMESPACE)
+  esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared PFLOGGER::pflogger GFTL_SHARED::gftl-shared GFTL::gftl TYPE SHARED)
+else ()
+  esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared pflogger gftl-shared gftl TYPE SHARED)
+endif ()
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 target_link_libraries (${this} PUBLIC esmf NetCDF::NetCDF_Fortran)
