@@ -26,11 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - `base/mapl_tree.py`
    - `base/mapl_vlist.py`
    - `Apps/MAPL_GridCompSpecs_ACG.py`
-- Updated MAPL to use the new GFE namespace in CMake. (`gftl` --> `GFTL::gftl`). NOTE: This requires Baselibs 6.1.0 or higher.
 - Updated `components.yaml`:
    - ESMA_env v3.2.0 (Baselibs 6.1.0 <==> ESMF 8.1.0)
    - ESMA_cmake v3.3.7 (useless to MAPL, keeps up to date)
 - Update CI images to 6.1.0
+- Updated MAPL to have the ability to use the new GFE namespace in CMake. (`gftl` --> `GFTL::gftl`). NOTE: This requires Baselibs 6.2.0 or higher.
+
 
 ### Fixed
 
