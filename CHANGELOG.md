@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - `base/mapl_tree.py`
    - `base/mapl_vlist.py`
    - `Apps/MAPL_GridCompSpecs_ACG.py`
+   - Nullified pointers for deactivated optional state elements for
+     the grid compe spec code generator ACG.
 - Updated `components.yaml`:
    - ESMA_env v3.2.0 (Baselibs 6.1.0 <==> ESMF 8.1.0)
    - ESMA_cmake v3.3.8 (adds ability to see GFE namespace option)
@@ -46,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CMake updates to allow NAG Fortran build
 - Converted some remaining `real*8`-type declarations to be `real(kind=REAL64)`-style
 - Eliminated (almost) all compiler warnings for Intel compiler
+- Removed conditional around declaring pointers in code emitted by grid comp ACG.
 
 ### Removed
 
