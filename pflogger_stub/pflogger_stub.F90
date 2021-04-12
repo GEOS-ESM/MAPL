@@ -1,4 +1,3 @@
-#include "error_handling_macros.fh"
 module PFL_Logger
    use gFTL_StringUnlimitedMap
    use PFL_KeywordEnforcer
