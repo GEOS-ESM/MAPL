@@ -59,7 +59,7 @@ class MAPL_DataSpec:
         return "&" + self.newline() + "& "
 
     def emit_specs(self):
-        return self.emit_header() + self.emit_args() + self.emit_trailer()
+        return self.emit_header() + self.emit_args() + self.emit_trailer(nullify=False)
 
     def get_rank(self):
         ranks = {'MAPL_DimsHorzVert':3, 'MAPL_DimsHorzOnly':2, 'MAPL_DimsVertOnly':1}
@@ -85,8 +85,11 @@ class MAPL_DataSpec:
         else:
             return "'" + name + "'"
 
+    # Pointers must be declared regardless of COND status.  Deactivated
+    # pointers should not be _referenced_ but such sections should still
+    # compile, so we must declare the pointers
     def emit_declare_pointers(self):
-        text = self.emit_header()
+        text = self.newline()
         type = 'real'
         if 'precision' in self.args:
             kind = self.args['precision']
@@ -98,7 +101,6 @@ class MAPL_DataSpec:
         if kind:
             text = text + '(kind=' + str(kind) + ')'
         text = text +', pointer, ' + dimension + ' :: ' + MAPL_DataSpec.internal_name(self.args['short_name']) + ' => null()'
-        text = text + self.emit_trailer()
         return text
 
     def emit_get_pointers(self):
@@ -106,14 +108,14 @@ class MAPL_DataSpec:
         short_name = MAPL_DataSpec.internal_name(self.args['short_name'])
         mangled_name = MAPL_DataSpec.mangled_name(self.args['short_name'])
         text = text + "call MAPL_GetPointer(" + self.category + ', ' + short_name + ", " + mangled_name + ", rc=status); VERIFY_(status)" 
-        text = text + self.emit_trailer()
+        text = text + self.emit_trailer(nullify=True)
         return text
 
     def emit_header(self):
         text = self.newline()
-        if 'CONDITION' in self.args and self.args['CONDITION']:
+        if 'condition' in self.args and self.args['condition']:
             self.indent = self.indent + 3
-            text = text + "if (" + self.args['CONDITION']  + ") then" + self.newline() 
+            text = text + "if (" + self.args['condition']  + ") then" + self.newline() 
         return text
 
     def emit_args(self):
@@ -150,10 +152,14 @@ class MAPL_DataSpec:
             text = text + value + ", " + self.continue_line()
         return text
 
-    def emit_trailer(self):
-        if 'CONDITION' in self.args and self.args['CONDITION']:
+    def emit_trailer(self, nullify=False):
+        if 'condition' in self.args and self.args['condition']:
             self.indent = self.indent - 3
+            short_name = MAPL_DataSpec.internal_name(self.args['short_name'])
             text = self.newline()
+            if nullify:
+                text = text + "else" + self.newline()
+                text = text + "   nullify(" + short_name + ")" + self.newline()
             text = text + "endif" + self.newline()
         else:
             text = self.newline()
