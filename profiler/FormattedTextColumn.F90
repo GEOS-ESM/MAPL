@@ -110,6 +110,7 @@ contains
       allocate(character(n) :: rows(values%size()))
 
       do i = 1, values%size()
+         rows(i) = ''
          select type (v => values%at(i))
          type is (integer)
             write(rows(i),this%format) v

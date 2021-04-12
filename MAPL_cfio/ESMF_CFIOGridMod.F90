@@ -44,12 +44,12 @@
          integer :: jm              ! size of latitudinal  dimension
          integer :: km              ! size of vertical dimension
          integer :: tm              ! size of time dimension
-         real*8, pointer :: lon(:) => NULL()    ! longitude of center of gridbox in
+         real(kind=REAL64), pointer :: lon(:) => NULL()    ! longitude of center of gridbox in
                                     ! degrees east of Greenwich (can be
                                     ! -180 -> 180 or 0 -> 360)
-         real*8, pointer :: lat(:) => NULL()    ! latitude of center of gridbox in
+         real(kind=REAL64), pointer :: lat(:) => NULL()    ! latitude of center of gridbox in
                                     ! degrees north of equator
-         real*8, pointer :: lev(:) => NULL()    ! Level (units given by levUnits) of
+         real(kind=REAL64), pointer :: lev(:) => NULL()    ! Level (units given by levUnits) of
                                     ! center of gridbox
          character(len=MLEN) :: levUnits   ! units of level dimension, e.g.,
                                            ! "hPa", "sigma_level"

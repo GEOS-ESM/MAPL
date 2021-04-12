@@ -60,6 +60,7 @@ module MAPL_TripolarGridFactoryMod
 
       procedure :: append_metadata
       procedure :: get_grid_vars
+      procedure :: get_file_format_vars
       procedure :: append_variable_metadata
       procedure :: generate_file_bounds
       procedure :: generate_file_corner_bounds
@@ -559,7 +560,7 @@ contains
 
       
       ! not supported
-      _ASSERT(.false.,"tripolar initialize from distgrid non supported") 
+      _FAIL("tripolar initialize from distgrid non supported") 
 
    end subroutine initialize_from_esmf_distGrid
 
@@ -887,6 +888,16 @@ contains
 
    end function get_grid_vars
 
+   function get_file_format_vars(this) result(vars)
+      class (TripolarGridFactory), intent(inout) :: this
+
+      character(len=:), allocatable :: vars
+      _UNUSED_DUMMY(this)
+
+      vars = 'Xdim,Ydim'
+
+   end function get_file_format_vars
+
    subroutine append_variable_metadata(this,var)
       class (TripolarGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
@@ -927,9 +938,13 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_corner_bounds'
-      integer :: status
 
-      _ASSERT(.false.,"not yet implemented")
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(grid)
+      _UNUSED_DUMMY(local_start)
+      _UNUSED_DUMMY(global_start)
+      _UNUSED_DUMMY(global_count)
+      _FAIL("not yet implemented")
 
    end subroutine generate_file_corner_bounds
 

@@ -9,11 +9,226 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Ability to run MultiGroupServer and model in a single node
+- Add command line option --one_node_output
+- Ability to split fields with ungridded dimensions (and not only 4d). 
+- Ability to add alias names to the split fields
+- Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
+- Add MAPL_TransposeaRegridderMod to MAPL_Mod
+- Nearest-neighbor interpolation option for ExtData (keyword: 'E')
+
 ### Changed
+
+- Setting and getting UNGRIDDED_DIMS attribute uses now single quoted string
+- Do not output `cubed_sphere` and `orientation` variables in native
+  History output as pFIO at present does not handle string variables
+- Updated Python scripts to work with Python 2 or 3. Scripts were:
+   - `base/mapl_tree.py`
+   - `base/mapl_vlist.py`
+   - `Apps/MAPL_GridCompSpecs_ACG.py`
+   - Nullified pointers for deactivated optional state elements for
+     the grid compe spec code generator ACG.
+- Updated `components.yaml`:
+   - ESMA_env v3.2.0 (Baselibs 6.1.0 <==> ESMF 8.1.0)
+   - ESMA_cmake v3.3.8 (adds ability to see GFE namespace option)
+- Update CI images to 6.1.0
+- Updated MAPL to have the ability to use the new GFE namespace in CMake. (`gftl` --> `GFTL::gftl`). 
+   - The default in ESMA_cmake v3.3.8 is *not* enabled. To enable use `-DESMA_USE_GFE_NAMESPACE=ON`.
+   - NOTE: This requires Baselibs 6.2.0 or higher when using Baselibs.
+- Updated the non-PersistSolar branch of `MAPL_SunGetSolarConstantFromNRLFile` to use Solar Cycle 24 as we are now in Cycle 25.
 
 ### Fixed
 
+- Fixed a bug related to the naming scheme for split fields when ungrid size is 1
+- Fixed unset UNGRIDDED_DIMS attribute bug
+- Fixes ESMF logging errors related to expressions in History
+- Fixed error handling in profiler/BaseProfiler.F90
+- Fix memory leak when using fast_oserver in write_restart_by_oserver
+- Bumped cube version to 2.91 in global metadata
+- Change calls to `system_clock()` to be `INT64` (#511)
+- CMake updates to allow NAG Fortran build
+- Converted some remaining `real*8`-type declarations to be `real(kind=REAL64)`-style
+- Eliminated (almost) all compiler warnings for Intel compiler
+- Removed conditional around declaring pointers in code emitted by grid comp ACG.
+
 ### Removed
+
+## [2.6.4] - 2021-03-18
+
+### Added
+
+- Add support for multi-run-phase for root gridcomp
+
+### Fixed
+
+- Fixed spliiting the same field in multiple collections
+- Fix out-of-bound access when printing pFIO message
+- Removed program tstqsat.F90 from MAPL.base library.  A followup
+  should add cmake logic to create an executable or just delete the
+  file.
+- CMake workaround for macOS + Intel oneAPI FLAP bug (#644)
+
+## [2.6.3] - 2021-03-09
+
+### Added
+
+- Disable throughput reporting if an external clock is driving CapGridComp
+- Comment out profiler in output server
+- Add profiler for output server
+- New overload for MAPL_ConfigSetAttribute to support array of integers
+- New overload for MAPL_ConfigSetAttribute to support array of reals
+- Add return code to constructor method for MAPL Cap gridded component to allow applications
+  to fail gracefully if an error occurs
+- Added ability to "attach" to the pfafstetter grid for land tiles for components running directly on the catchments
+
+### Changed
+
+- Change to non-blocking send and receive from frontend to beckend in the class MultiGroupServer
+- Change one sided mpi_put to mpi_send and receive pair in the class MultiGroupServer
+- Change command line interface to --npes_backend_pernode to avoid confusion
+- Remove self-defined-in-file MAPL macros
+
+### Fixed
+
+- Fix bug in HorzIJ routine to place geospatial points when the grid units are degrees
+- Have CMake automatically gitignore build and install dirs
+- Properly set return code for MAPL Cap methods
+- Remove some GFORTRAN workarounds in MAPL_LocStreamMod (some still
+  needed for GNU layout regression, #733)
+- Fix issue with History when field names have "." in them
+
+## [2.6.2] - 2021-02-19
+
+### Added
+
+- Completed new capability to conseratively regrid horizontal fluxes
+  Important constraint is that the input grid must be a refinement of
+  the output grid.
+- Improvement to ExtDataDriver when generating synthetic data
+- Allow user to specify decomposition used by grids in History output, useful for testing
+- Add %S as seconds token to grads style StringTemplate
+- Add new bundle IO routines for non performance critical IO to eventually depreciate MAPL_CFIO and MAPL_cfio
+
+### Fixed
+
+- Fix MAPL_AddChildFromDSO
+
+## [2.6.1] - 2021-02-16
+
+### Changed
+
+- Move to ESMA_cmake v3.3.6
+- Remove requirement for HDF5 Fortran bindings in MAPL
+
+### Fixed
+
+- Fixes build of MAPL on non-Baselibs machines
+
+## [2.6.0] - 2021-02-12
+
+### Added
+
+- Add option to compute variance of tiles when doing T2G locstream transform
+- Add option fast_oclient that waits before using oserver. It would not wait after done message are sent 
+- Added new `is_valid_date()` and `is_valid_time()` functions to make
+  sure invalid times and dates are not sent to MAPL
+
+### Changed
+
+- For MultiGroupServer, the backend and frontend share each node
+- Moved `MAPL_HistoryGridComp.F90` and related files to `gridcomps/History`
+- Updated `Python/MAPL/constants.py` to have the same constants as
+  `MAPL_Constants.F90`
+
+- Major refactoring related to MAPL generic capabilities
+
+    0. Created new subdirectory  "generic"
+    
+    1. Modified interface to MAPL_Get() to use ALLOCATABLE for GEX, GIM,
+       GCS, and GCnamelist.  Original interface assumed these are
+       contiguous which will not be sustainable under the planned changes.
+    
+    2. (Re)Introduce fundamental classes in generic subdir.  Made
+       MAPL_MetaComp an extension of AbstractComponentNode, and provided
+       stub implementations for 3 methods. (Commenting out other
+       interfaces in the abstract class for now.)
+    
+    3. Activate get_parent(), add_child(), and num_children()
+    
+    4. Introduced AbstractComposite and ConcreteComposite
+    
+       These are isolate the responsibility for managing the component hierarchy. 
+       CompositeComponite then blends in ConcreteComposite into the 
+       AbstractFrameworkComponent class.
+    
+    5. Extracted internal state from MAPL_MetaComp
+    
+    6. Started moving derived types related to import/export specification
+       and such.    The goal will be to then refactor into proper classes
+       with encapsulation.
+    
+    7. Introducing Vector container for array of pointers to VarSpecType.
+    
+       First brute force attempt resulted in run-time issues that were
+       difficult to trace.  So going gradually.  Have introduced a
+       StateSpecification type that hold the legacy array of pointers and a
+       vector and methods that will enable keeping both representations
+       consistent.
+    
+       New representation is not used yet.
+    
+       Various attempts to update use of MAPL_VarSpec based
+       upon vectors were failing due to multiple pointer associations
+       across objects.
+    
+       The basic vector was modified to be MAPL_VarSpec instead of
+       MAPL_VarSpecType, and now all works.
+    
+       Wrapped new procedure with legacy interface.
+    
+       HistoryGridComp uses the older interface in a way that is
+       not immediately fixable.
+    
+    8. MAPL_GenericGrid
+       - Created new module in generic for and renamed to MaplGrid
+       - moved component from MAPL_MetaComp to BaseFrameworkComponent
+    
+    9. Moved 'lgr' component to baseFrameworkComponent.
+       - Add obsolete warning to deprecated interface
+       - Migrated some grid methods to new class.
+       - This necessitated moving some procedures from MAPL_Base into
+         MAPL_Generic.
+    
+    10. Prepping VarSpecMod for relocation.
+        - Removed dependencies on MAPL_IO and MAPL_comms.  Used pflogger
+          to replicate the functionality.
+        - Eliminated dependence of VarSpec on Base.
+        - Moved some parameters into new Enumerator module in ./shared.
+          MAPL_Base still needs to republish them to avoid issues with external
+          codes.
+    
+    11. Introduced a MaplShared package to export everything from
+    
+    12. Migrated VarSpec to ./generic.
+    
+    13. Eliminated use of MAPL_Communicators in MAPL_CFIO.F90.
+        - Side benefit - eliminated lots of unused routines and logic associated
+          with old and new o-server.
+    
+    14. Lots of things related to MAPL_Communicators and old O-server
+        were eliminated.
+    
+    15. Kludgy relocation of component logger.
+    
+    16. MAPL_Initialize is needed in each test layer so pulled
+        it over to the pfunit directory.
+
+### Fixed
+
+- Fixes for allowing forked PRs to pass CI
+- Fixes incorrect referrencing of R4 variables when reading R8 tile vars in base/MAPL_IO.F90
+- Use integer to represent logical internally in pFIO utilities to avoid non-standard transfer
+- Modified horizontal ij search algorithm in MAPL_Base.F90 to use general bisection search to fix capaibility issues with non-gmao created cubed sphere grids
 
 ## [2.5.0] - 2021-01-08
 

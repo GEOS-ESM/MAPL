@@ -47,6 +47,7 @@ set (srcs
   CollectiveStageDataMessage.F90
   AddHistCollectionMessage.F90
   ModifyMetadataMessage.F90
+  ForwardDataAndMessage.F90
   ForwardDataMessage.F90
   ProtocolParser.F90
 
@@ -70,6 +71,7 @@ set (srcs
   ServerThreadVector.F90
   BaseThread.F90
   ClientThread.F90
+  FastClientThread.F90
   ClientThreadVector.F90
   ClientManager.F90
   ExtDataCollection.F90
@@ -88,9 +90,18 @@ set (srcs
   StringVectorUtil.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared NetCDF::NetCDF_Fortran TYPE SHARED)
-target_link_libraries (${this} PUBLIC gftl-shared
-                               PRIVATE OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran TYPE SHARED)
+if (ESMA_USE_GFE_NAMESPACE)
+  target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared
+    PRIVATE MPI::MPI_Fortran)
+else ()
+  target_link_libraries (${this} PUBLIC gftl-shared
+    PRIVATE MPI::MPI_Fortran)
+endif ()
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
+   target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
+endif ()
 target_include_directories (${this} PUBLIC
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
@@ -100,28 +111,30 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
 
-
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES GNU)
-  # GFortran gives bizarre LD error for the following targets.
-  ecbuild_add_executable (
-    TARGET pfio_server_demo.x
-    SOURCES pfio_server_demo.F90
-    LIBS ${this} OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
-  set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-  set_target_properties(pfio_server_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
-    
-  ecbuild_add_executable (
-    TARGET pfio_collective_demo.x
-    SOURCES pfio_collective_demo.F90
-    LIBS ${this} OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
-  set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-  set_target_properties(pfio_collective_demo.x PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
+ecbuild_add_executable (
+   TARGET pfio_server_demo.x
+   SOURCES pfio_server_demo.F90
+   LIBS ${this} MPI::MPI_Fortran)
+set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
+   target_link_libraries(pfio_server_demo.x OpenMP::OpenMP_Fortran)
+endif ()
+   
+ecbuild_add_executable (
+   TARGET pfio_collective_demo.x
+   SOURCES pfio_collective_demo.F90
+   LIBS ${this} MPI::MPI_Fortran)
+set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
+   target_link_libraries(pfio_collective_demo.x OpenMP::OpenMP_Fortran)
 endif ()
 
 ecbuild_add_executable (
   TARGET pfio_writer.x
   SOURCES pfio_writer.F90
-  LIBS ${this} ${NETCDF_LIBRARIES}  MPI::MPI_Fortran)
+  LIBS ${this} NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
 set_target_properties (pfio_writer.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 #--------------------

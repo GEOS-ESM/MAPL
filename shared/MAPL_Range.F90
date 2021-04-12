@@ -1,9 +1,4 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; call MAPL_throw_exception(__FILE__,__LINE__); return; endif
-#define _ASSERT(A)   if(.not.A) then; if(present(rc)) rc=_FAILURE; call MAPL_throw_exception(__FILE__,__LINE__); return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module MAPL_RangeMod
@@ -39,7 +34,7 @@ contains
      integer :: i
      real(kind=REAL64) :: delta
 
-     _ASSERT(((n /= 1) .or. (x0 == x1)))
+     _ASSERT(((n /= 1) .or. (x0 == x1)),'needs informative message')
      allocate(range(n))
      
      range(1) = x0
@@ -71,7 +66,7 @@ contains
      integer :: i
      real(kind=REAL64) :: delta
 
-     _ASSERT((n /= 1) .or. (x0 == x1))
+     _ASSERT((n /= 1) .or. (x0 == x1),'needs informative message')
      allocate(range(n))
      
      range(1) = x0

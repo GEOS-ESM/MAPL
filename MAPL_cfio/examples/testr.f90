@@ -20,16 +20,15 @@
 
     integer :: fid
     integer :: argc
-    integer, external :: iargc
     logical :: passed = .true.
 
     character(len=256) :: inFile
 
-    argc = iargc()
+    argc = command_argument_count()
     if ( argc < 1 ) then 
        inFile = "GEOS5.ana.hdf"
     else
-       call GetArg ( 1, inFile )
+       call get_command_argument ( 1, inFile )
     end if
 
 ! Create a CFIO object

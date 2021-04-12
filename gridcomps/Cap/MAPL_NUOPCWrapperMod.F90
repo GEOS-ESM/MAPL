@@ -184,9 +184,7 @@ contains
             first = .false.
         end if
 
-        call cap%nuopc_fill_mapl_comm(rc=status)
-        _VERIFY(status)
-        call cap%initialize_cap_gc(cap%get_mapl_comm())
+        call cap%initialize_cap_gc()
 
         call cap%cap_gc%set_services(rc=status)
         _VERIFY(status)
@@ -324,10 +322,8 @@ contains
 
         type(ESMF_State) :: import_state, export_state
         type(ESMF_Clock) :: clock
-        type(ESMF_Field) :: field
 
         integer                                 :: num_items
-        character(len=ESMF_MAXSTR), allocatable :: item_names(:)
 
         call ESMF_GridCompGet(model, clock=clock, importState=import_state, &
                 exportState=export_state, rc=rc)

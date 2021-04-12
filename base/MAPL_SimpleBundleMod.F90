@@ -113,6 +113,7 @@
    end interface MAPL_SimpleBundleWrite
 
    interface MAPL_SimpleBundleCreate
+      module procedure MAPL_SimpleBundleCreateEmpty
       module procedure MAPL_SimpleBundleCreateFromBundle
       module procedure MAPL_SimpleBundleCreateFromState
    end interface MAPL_SimpleBundleCreate
@@ -120,6 +121,111 @@
 CONTAINS
 
 !............................................................................................
+
+
+!-----------------------------------------------------------------------------
+!BOP
+ 
+! !IROUTINE: MAPL_SimpleBundleCreate --- Create Simple Bundle
+!
+! !IIROUTINE: MAPL_SimpleBundleCreate --- Create Simple Bundle from nothing
+!
+! !INTERFACE:
+!
+
+  Function MAPL_SimpleBundleCreateEmpty ( grid, rc, &
+                                          Levs, LevUnits, &
+                                          ptop, delp,     &
+                                          name) result (self)
+
+! !ARGUMENTS:
+
+    type(MAPL_SimpleBundle)                        :: self     ! Simple Bundle !rename to simpleBundle
+    type(ESMF_Grid),                intent(in)     :: grid
+    integer, OPTIONAL,              intent(out)    :: rc
+                                                    ! Vertical coordinates
+    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: Levs(:)       ! Constant levels
+    character(len=*), OPTIONAL,     intent(in)     :: LevUnits      ! Level units
+                                                    ! Lagrangian Control Volume Info
+    real(ESMF_KIND_R4), OPTIONAL,   intent(in)     :: ptop          ! top pressure (Pa)
+    real(ESMF_KIND_R4), OPTIONAL, pointer, &
+                                    intent(in)     :: delp(:,:,:)   ! layer thickness (Pa)
+    character(len=*), OPTIONAL,     intent(in)     :: name          ! name
+
+! !DESCRIPTION: Given inputs, create a SimpleBundle
+!
+!EOP
+
+! !Locals
+    character(len=ESMF_MAXSTR) :: bundleName
+    integer :: im, jm, km, dims(3), i
+    character(len=ESMF_MAXSTR) :: message
+    real(ESMF_KIND_R8), pointer :: LonsRad(:,:), LatsRad(:,:)
+
+    __Iam__('MAPL_SimpleBundleCreateEmpty')
+!                           ------
+
+    _UNUSED_DUMMY(Iam)
+    self%Bundle => null()
+!   Name the SimpleBundle
+    if (present(name)) then
+       if (len_trim(name) > ESMF_MAXSTR) then
+           message = 'string "'//trim(name)//'" is too long to be used '// &
+                     'as a Simple Bundle name'
+           __raise__(MAPL_RC_ERROR, message)
+       end if
+       self%name = trim(name)
+    else
+       self%name = bundleName
+    end if
+
+!                             --------------------
+!                             Coordinate variables
+!                             --------------------
+    self%grid = grid
+    call MAPL_GridGet(self%Grid, localCellCountPerDim = dims, __RC__)
+    im = dims(1);  jm = dims(2);  km = dims(3)
+    allocate(self%coords%Lons(im,jm), self%coords%Lats(im,jm), self%coords%Levs(km), __STAT__)
+
+!   Retrieve the lat/lon from Grid and convert to degrees
+!   -----------------------------------------------------
+   call ESMF_GridGetCoord (self%Grid, coordDim=1, localDE=0, &
+                           staggerloc=ESMF_STAGGERLOC_CENTER, &
+                           farrayPtr=LonsRad, __RC__)
+   call ESMF_GridGetCoord (self%Grid, coordDim=2, localDE=0, &
+                           staggerloc=ESMF_STAGGERLOC_CENTER, &
+                           farrayPtr=LatsRad, __RC__)
+   self%coords%Lons(:,:) = ( 180. / MAPL_PI) * LonsRad(:,:)
+   self%coords%Lats(:,:) = ( 180. / MAPL_PI) * LatsRad(:,:)
+
+!  1-D Levels
+!  ----------
+   if ( present(Levs) ) then
+      if ( size(Levs) == km ) then
+         self%coords%Levs(:) = Levs(:)
+      else
+         _FAIL('Levs different than Levs from ESMF_Grid')
+      end if
+   else
+      self%coords%Levs(:) = [(i, i = 1, km)]
+   end if
+   if ( present(LevUnits) ) then
+      self%coords%LevUnits = LevUnits
+   else
+      self%coords%LevUnits = '1'
+   end if
+
+!  Optional Lagrangian Control Volume info
+!  ---------------------------------------
+   if ( present(ptop) ) self%coords%lcv%ptop = ptop
+   if ( present(delp) ) then ! User specied
+!ALT      self%coords%lcv%delp = delp
+      self%coords%lcv%delp => delp
+   else ! Look inside bundle for delp or DELP
+      self%coords%lcv%delp => NULL()
+   end if
+
+  end Function MAPL_SimpleBundleCreateEmpty
 
 !-----------------------------------------------------------------------------
 !BOP
@@ -611,9 +717,14 @@ CONTAINS
     integer :: status
 
     deallocate(self%coords%Lons, self%coords%Lats, self%coords%Levs, __STAT__) 
-    deallocate(self%r1, self%r2, self%r3, __STAT__)
+!    deallocate(self%r1, self%r2, self%r3, __STAT__)
+    if(associated(self%r1)) deallocate(self%r1)
+    if(associated(self%r2)) deallocate(self%r2)
+    if(associated(self%r3)) deallocate(self%r3)
 
-    call MAPL_FieldBundleDestroy(self%bundle, __RC__)
+    if (associated(self%bundle)) then
+       call MAPL_FieldBundleDestroy(self%bundle, __RC__)
+    end if
 
     if (self%bundleAlloc) then
        deallocate(self%bundle, __STAT__)

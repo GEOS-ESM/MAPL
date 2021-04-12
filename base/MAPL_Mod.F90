@@ -2,7 +2,6 @@
 
 module MAPL_Mod
 
-  use MAPL_ExceptionHandling
   use ESMFL_Mod         !  Stopgap
   use MAPL_ExceptionHandling
   use MAPL_BaseMod
@@ -12,7 +11,6 @@ module MAPL_Mod
   use MAPL_IOMod
   use MAPL_CFIOMod
   use MAPL_CommsMod
-  use MAPL_LocStreamMod
   use MAPL_GenericMod
   use MAPL_VarSpecMod
   use MAPL_ConstantsMod
@@ -37,6 +35,7 @@ module MAPL_Mod
   use MAPL_RegridderManagerMod
   use MAPL_NewRegridderManager
   use mapl_HorizontalFluxRegridder
+  use MAPL_TransposeRegridderMod
   use MAPL_RegridderSpec
   use MAPL_RegridderTypeSpec
   use MAPL_RegridMethods
@@ -54,6 +53,8 @@ module MAPL_Mod
   use MAPL_SplitCommunicatorMod
   use MAPL_EtaHybridVerticalCoordinateMod
   use MAPL_ApplicationSupport
+  use MAPL_ESMFFieldBundleRead
+  use MAPL_ESMFFieldBundleWrite
   logical, save, private :: mapl_is_initialized = .false.
 
 end module MAPL_Mod

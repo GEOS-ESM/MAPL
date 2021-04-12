@@ -29,17 +29,17 @@ set (SRCS
 # This file needs to be in a library because CMake cannot detect the
 # dependency of the pFUnit driver on it.  This is due to the use of
 # preprocesor in the driver for specifying the include file.
-add_library (pfio_extras
-  pFIO_Initialize.F90
-  )
-target_link_libraries (pfio_extras PUBLIC MAPL_pFUnit MAPL.shared)
+#add_library (pfio_extras
+#  pFIO_Initialize.F90
+#  )
+#target_link_libraries (pfio_extras PUBLIC MAPL.pfunit MAPL.shared)
 
 add_pfunit_ctest(MAPL.pfio.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
-                LINK_LIBRARIES MAPL.pfio pfio_extras 
+                LINK_LIBRARIES MAPL.pfio MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
-                EXTRA_USE pFIO_pFUNIT_Initialize
+                EXTRA_USE MAPL_pFUnit_Initialize
                 MAX_PES 8
                 )
 
@@ -59,9 +59,12 @@ ecbuild_add_executable (
   TARGET ${TESTO}
   NOINSTALL
   SOURCES pfio_ctest_io.F90
-  LIBS MAPL.shared MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran
+  LIBS MAPL.shared MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
-set_target_properties(${TESTO} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
+   target_link_libraries(${TESTO} OpenMP::OpenMP_Fortran)
+endif ()
 
 # Detect if we are using Open MPI and add oversubscribe
 string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST ${MPI_Fortran_LIBRARY_VERSION_STRING})
@@ -84,7 +87,7 @@ add_test(NAME pFIO_tests_hybrid
 
 add_test(NAME pFIO_tests_mpi_2layer
   COMMAND env FI_PROVIDER=verbs ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multilayer -nw 3 -w ${CMAKE_BINARY_DIR}/bin/pfio_writer.x
-  )
+    )
 
 add_test(NAME pFIO_tests_mpi_2comm
   COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multicomm -nw 3
@@ -94,7 +97,21 @@ add_test(NAME pFIO_tests_mpi_2group
   COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multigroup -nw 3
   )
 
-set_tests_properties (pFIO_tests_mpi pFIO_tests_simple pFIO_tests_hybrid  pFIO_tests_mpi_2layer pFIO_tests_mpi_2comm pFIO_tests_mpi_2group  PROPERTIES LABELS "PERFORMANCE")
+set (pfio_tests
+  pFIO_tests_mpi
+  pFIO_tests_simple
+  pFIO_tests_hybrid
+  pFIO_tests_mpi_2comm
+  pFIO_tests_mpi_2layer
+  pFIO_tests_mpi_2group
+  )
+
+foreach (test ${pfio_tests})
+  set_tests_properties (${test} PROPERTIES LABELS "PERFORMANCE")
+endforeach ()
+if (APPLE)
+  set_tests_properties (pFIO_tests_mpi_2layer PROPERTIES DISABLED True)
+endif ()
 
 set(TESTPERF pfio_performance.x)
 
@@ -103,9 +120,12 @@ ecbuild_add_executable (
   NOINSTALL
   SOURCES pfio_performance.F90
   DEFINITIONS USE_MPI
-  LIBS MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran)
-set_target_properties(${TESTPERF} PROPERTIES LINK_FLAGS "${OpenMP_Fortran_FLAGS}")
-target_link_libraries(${TESTPERF} MAPL.pfio ${NETCDF_LIBRARIES})
+  LIBS MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
+   target_link_libraries(${TESTPERF} OpenMP::OpenMP_Fortran)
+endif ()
+target_link_libraries(${TESTPERF} MAPL.pfio NetCDF::NetCDF_Fortran)
 add_test(NAME pFIO_performance
   COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s hybrid
   )

@@ -144,7 +144,6 @@ contains
       character(*), intent(in) :: name
       class(AbstractMeter), intent(in) :: meter
 
-      class(AbstractMeterNode), pointer :: child
       type (MeterNode) :: tmp
       integer :: idx
 
@@ -222,7 +221,6 @@ contains
    end function find_child
 
    logical function has_child(this, name)
-      class (AbstractMeterNode), pointer :: child
       class (MeterNode), target, intent(in) :: this
       character(*), intent(in) :: name
       has_child = (this%find_child(name) /= NOT_FOUND)

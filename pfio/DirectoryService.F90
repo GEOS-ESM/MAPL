@@ -171,13 +171,14 @@ contains
       integer, allocatable :: client_ranks(:)
       integer, allocatable :: server_ranks(:)
       
-      type(ServerThread), pointer :: server_thread_ptr
+      class(ServerThread), pointer :: server_thread_ptr
       class(BaseServer), pointer :: server_ptr
 
       ! First, check ports to see if server is local, in which case
       ! a SimpleSocket is used for the connection.
       ! Note: In this scenario, the server _must_ always publish prior to this.
 
+      _UNUSED_DUMMY(unusable)
       do n = 1, this%n_local_ports
          if (trim(this%local_ports(n)%port_name) == port_name) then
             allocate(sckt, source=SimpleSocket(client))

@@ -95,16 +95,8 @@ contains
 
       call this%stack%push_back(this%node)
 
-      if( .not. this%stack%size() == 1) then
-         block
-           use MPI
-           integer :: rank, ierror
-           call MPI_Comm_rank(this%comm_world, rank, ierror)
-           if (rank == 0) then
-             _ASSERT(.false., "Timer "//this%node%get_name()// ' is not a fresh self start')
-           end if
-         end block
-      end if
+      if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
+      _ASSERT_RC(this%stack%size()== 1,"Timer "//this%node%get_name()// " is not a fresh self start",INCORRECTLY_NESTED_METERS)
 
       t => this%node%get_meter()
       call t%start()
@@ -120,23 +112,14 @@ contains
       class(AbstractMeterNode), pointer :: node
       class(AbstractMeter), allocatable :: m
 
-      if (this%stack%empty()) then
-         block
-           use MPI
-           integer :: rank, ierror
-           call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
-           if (rank == 0) then
-             _ASSERT(.false., "Timer "//name//' should not start when empty: ')
-           end if
-         end block
-         return
-      else
-         node => this%stack%back()
-         if (.not. node%has_child(name)) then
-           m = this%make_meter()
-           call node%add_child(name, m) !this%make_meter())
-         end if
-      endif
+      if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
+      _ASSERT_RC(.not. this%stack%empty(),"Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
+
+      node => this%stack%back()
+      if (.not. node%has_child(name)) then
+         m = this%make_meter()
+         call node%add_child(name, m) !this%make_meter())
+      end if
 
       node => node%get_child(name)
       call this%stack%push_back(node)
@@ -158,18 +141,8 @@ contains
 
       node => this%stack%back()
       t => node%get_meter()
-      if (name /= node%get_name()) then
-         this%status = INCORRECTLY_NESTED_METERS
-         block
-           use MPI
-           integer :: rank, ierror
-           call MPI_Comm_rank(this%comm_world, rank, ierror)
-           if (rank == 0) then
-             _ASSERT(.false., "Timer "//name// " likely does not find its pair")
-           end if
-         end block
-         return
-      end if
+      if (name /= node%get_name()) this%status = INCORRECTLY_NESTED_METERS
+      _ASSERT_RC(name == node%get_name(),"Timer <"//name// "> does not match start timer <"//node%get_name()//">",INCORRECTLY_NESTED_METERS)
       call t%stop()
       call this%stack%pop_back()
 
@@ -183,16 +156,8 @@ contains
       class(AbstractMeter), pointer :: t
       class(AbstractMeterNode), pointer :: node
 
-      if( .not. this%stack%size() == 1) then
-         block
-           use MPI
-           integer :: rank, ierror
-           call MPI_Comm_rank(this%comm_world, rank, ierror)
-           if (rank == 0) then
-             _ASSERT(.false., "There are still something on the stack when stop timer")
-           end if
-         end block
-      end if
+      if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
+      _ASSERT_RC(this%stack%size()== 1,"Stack not empty when timer stopped.",INCORRECTLY_NESTED_METERS)
 
       node => this%stack%back()
       t => node%get_meter()

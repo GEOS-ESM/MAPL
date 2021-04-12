@@ -22,11 +22,11 @@ module MAPL_HistoryGridCompMod
   use MAPL_GenericCplCompMod
   use MAPL_NewArthParserMod
   use MAPL_SortMod
-  use MAPL_CFIOServerMod
   use MAPL_ShmemMod
   use MAPL_StringGridMapMod
   use MAPL_GridManagerMod
   use MAPL_ConfigMod
+  use, intrinsic :: iso_fortran_env, only: INT64
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   use MAPL_HistoryCollectionMod, only: HistoryCollection, FieldSet
   use MAPL_HistoryCollectionVectorMod, only: HistoryCollectionVector
@@ -42,6 +42,7 @@ module MAPL_HistoryGridCompMod
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
+  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   !use ESMF_CFIOMOD
 
   implicit none
@@ -118,7 +119,7 @@ module MAPL_HistoryGridCompMod
   end type HISTORY_wrap
 
   type HISTORY_ExchangeListType
-     integer*8, pointer                  :: lsaddr_ptr(:) => null()
+     integer(kind=INT64), pointer                  :: lsaddr_ptr(:) => null()
   end type HISTORY_ExchangeListType
 
   type HISTORY_ExchangeListWrap
@@ -236,7 +237,7 @@ contains
 ! \begin{description}
 ! \item[filename]     Character string defining the filename of a particular diagnostic output stream.
 ! \item[template]     Character string defining the time stamping template following GrADS convensions. The default value depends on the duration of the file.
-! \item[format]       Character string defining file format ("flat" or "CFIO" or "CFIOasync"). Default = "flat".
+! \item[format]       Character string defining file format ("flat" or "CFIO"). Default = "flat".
 ! \item[mode]         Character string equal to "instantaneous" or "time-averaged". Default = "instantaneous".
 ! \item[descr]        Character string equal to the list description. Defaults to "expdsc".
 ! \item[frequency]    Integer (HHMMSS) for the frequency of output.  Default = 060000.
@@ -340,8 +341,8 @@ contains
     integer                                   :: localStatus, globalStatus
     integer, pointer :: allPes(:)
     integer          :: localPe(1), nactual, minactual
-    integer*8                                 :: ADDR
-    integer*8, pointer                        :: LSADDR_PTR(:) => null()
+    integer(kind=INT64)                                 :: ADDR
+    integer(kind=INT64), pointer                        :: LSADDR_PTR(:) => null()
     type(ESMF_State)                          :: state_out
     integer                                   :: fieldRank, gridRank
     integer                                   :: undist
@@ -360,7 +361,7 @@ contains
     integer                                   :: c
     logical                                   :: isFileName
     logical                                   :: fileExists
-    logical                                   :: isPresent
+    logical                                   :: isPresent,hasNX,hasNY
     real                                      :: lvl
 
     integer                                   :: mntly
@@ -378,10 +379,6 @@ contains
     logical          :: DoCopy
     type(ESMF_State) :: parser_state
     type(ESMF_Field) :: parser_field
-
-!   Async cfio option
-    type(MAPL_Communicators)       :: mapl_comm
-    logical                        :: doAsync
 
 !   Single colum flag used to set different defalut for TM
     integer                        :: snglcol
@@ -622,15 +619,21 @@ contains
              key => iter%key()
              call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",rc=status)
              _VERIFY(status)
-             if (trim(grid_type)=='Cubed-Sphere') then
-                call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,rc=status)
-                _VERIFY(status)
-             else
-                call MAPL_MakeDecomposition(nx,ny,rc=status)
-                _VERIFY(status)
+             call  ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,rc=status)
+             _VERIFY(status)
+             call  ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,rc=status)
+             _VERIFY(status)
+             if ((.not.hasNX) .and. (.not.hasNY)) then
+                if (trim(grid_type)=='Cubed-Sphere') then
+                   call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,rc=status)
+                   _VERIFY(status)
+                else
+                   call MAPL_MakeDecomposition(nx,ny,rc=status)
+                   _VERIFY(status)
+                end if
+                call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",rc=status)
+                call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",rc=status)
              end if
-             call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",rc=status)
-             call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",rc=status)
              output_grid = grid_manager%make_grid(config, prefix=key//'.', rc=status)
              _VERIFY(status)
              call IntState%output_grids%set(key, output_grid)
@@ -791,16 +794,24 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%ref_date, default=nymdc, &
 	                              label=trim(string) // 'ref_date:',rc=status )
        _VERIFY(STATUS)
+       _ASSERT(is_valid_date(list(n)%ref_date),'Invalid ref_date')
        call ESMF_ConfigGetAttribute ( cfg, list(n)%ref_time, default=000000, &
                                       label=trim(string) // 'ref_time:',rc=status )
        _VERIFY(STATUS)
+       _ASSERT(is_valid_time(list(n)%ref_time),'Invalid ref_time')
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=-999, &
 	                              label=trim(string) // 'end_date:',rc=status )
        _VERIFY(STATUS)
+       if (list(n)%end_date /= -999) then
+          _ASSERT(is_valid_date(list(n)%end_date),'Invalid end_date')
+       end if
        call ESMF_ConfigGetAttribute ( cfg, list(n)%end_time, default=-999, &
                                       label=trim(string) // 'end_time:',rc=status )
        _VERIFY(STATUS)
+       if (list(n)%end_time /= -999) then
+          _ASSERT(is_valid_time(list(n)%end_time),'Invalid end_time')
+       end if
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%duration, default=list(n)%frequency, &
 	                              label=trim(string) // 'duration:'  ,rc=status )
@@ -1428,9 +1439,9 @@ contains
     call wildCardExpand(rc=status)
     _VERIFY(status)
 
-    ! Deal with split 4d field
-    !--------------------------
-    call split4dFields(rc=status)
+    ! Deal with splitting fields with ungriddeds dims
+    !------------------------------------------------
+    call splitUngriddedFields(rc=status)
     _VERIFY(status)
 
     do n=1,nlist
@@ -1729,7 +1740,7 @@ ENDDO PARSER
             _ASSERT(IntState%Regrid(n)%PTR%gridname /= '','needs informative message')
 
 !ALT:       here we are getting the address of LocStream from the TILEGRID 
-!           as INTEGER*8 attribute and we are using a C routine to 
+!           as INTEGER(KIND=INT64) attribute and we are using a C routine to 
 !           set the pointer to LocStream
 
             call ESMF_AttributeGet(grid_in, name='TILEGRID_LOCSTREAM_ADDR', &
@@ -2382,7 +2393,7 @@ ENDDO PARSER
 
     do n=1,nlist
        if (list(n)%disabled) cycle
-       if (list(n)%format == 'CFIO' .or. list(n)%format == 'CFIOasync') then
+       if (list(n)%format == 'CFIO') then
           call Get_Tdim (list(n), clock, tm)
           if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
              list(n)%vdata = VerticalData(levels=list(n)%levels,vcoord=list(n)%vvars(1),vscale=list(n)%vscale,vunit=list(n)%vunit,rc=status)
@@ -2510,23 +2521,6 @@ ENDDO PARSER
       enddo
    endif
 
-    doAsync = .false.
-    do n=1,nlist
-       if (list(n)%format == 'CFIOasync') then
-          doAsync = .true.
-          exit
-       end if
-    enddo
-
-    if (doAsync) then
-       call MAPL_Get(GENSTATE,mapl_comm=mapl_comm,rc=status)
-       _VERIFY(STATUS)
-       if (mapl_comm%io%size == 0) then
-          call WRITE_PARALLEL('You requested the asynchronous option but did not allocate any resources')
-          _ASSERT(.false.,'needs informative message')
-       end if
-    end if
-
     deallocate(stateListAvail)
     deallocate( statelist )
 
@@ -2558,6 +2552,9 @@ ENDDO PARSER
       logical :: expand
       integer :: k, i
       
+      ! Restrictions:
+      ! 1) we do not do wildcard expansion for vectors
+      ! 2) no use of aliases for wildcard-expanded-field name base
       do n = 1, nlist
          if (.not.list(n)%regex) cycle
          fld_set => list(n)%field_set
@@ -2764,7 +2761,7 @@ ENDDO PARSER
       _RETURN(ESMF_SUCCESS)
     end subroutine MAPL_WildCardExpand
     
-    subroutine split4dFields(rc)
+    subroutine splitUngriddedFields(rc)
       integer, optional, intent(out) :: rc
 
       ! local vars
@@ -2774,17 +2771,18 @@ ENDDO PARSER
       type(newCFIOitemVectorIterator) :: iter
       type(newCFIOitem), pointer :: item
       integer :: nfields
-      integer :: nfield4d
+      integer :: nsplit
       type(ESMF_Field), pointer :: splitFields(:) => null()
       type(ESMF_State) :: expState
       type(newCFIOItemVector), pointer  :: newItems
       character(ESMF_MAXSTR) :: fldName, stateName
+      character(ESMF_MAXSTR) :: aliasName, alias
       logical :: split
-      integer :: k, i
+      integer :: k, i, idx
+      logical :: hasField
       
       ! Restrictions:
-      ! 1) we do not split 4d vectors
-      ! 2) use alias for split-field name base
+      ! 1) we do not split vectors
       do n = 1, nlist
          if (.not.list(n)%splitField) cycle
          fld_set => list(n)%field_set
@@ -2802,20 +2800,20 @@ ENDDO PARSER
          do while(iter /= list(n)%items%end())
             item => iter%get()
             if (item%itemType == ItemTypeScalar) then
-               split = has4dField(fldName=item%xname, rc=status)
+               split = hasSplitableField(fldName=item%xname, rc=status)
                _VERIFY(status)
                if (.not.split) call newItems%push_back(item)
             else if (item%itemType == ItemTypeVector) then
-               ! Lets' not allow 4d split for vectors (at least for now);
+               ! Lets' not allow field split for vectors (at least for now);
                ! it is easy to implement; just tedious
 
-               split = has4dField(fldName=item%xname, rc=status)
+               split = hasSplitableField(fldName=item%xname, rc=status)
                _VERIFY(status)
-               split = split.or.has4dField(fldName=item%yname, rc=status)
+               split = split.or.hasSplitableField(fldName=item%yname, rc=status)
                _VERIFY(status)
                if (.not.split) call newItems%push_back(item)
              
-               _ASSERT(.not. split, 'vectors of 4d fields not allowed yet')
+               _ASSERT(.not. split, 'split field vectors of not allowed yet')
              
             end if
    
@@ -2823,10 +2821,10 @@ ENDDO PARSER
          end do
 
          ! re-pack field_set
-         nfield4d = count(needSplit)
+         nsplit = count(needSplit)
 
-         if (nfield4d /= 0) then
-            nfields = nfields - nfield4d
+         if (nsplit /= 0) then
+            nfields = nfields - nsplit
             allocate(newExpState(nfields), stat=status)
             _VERIFY(status)
             ! do the same for statename
@@ -2848,9 +2846,11 @@ ENDDO PARSER
             do k = 1, size(needSplit) ! loop over "old" fld_set
                if (.not. needSplit(k)) cycle
 
-               call MAPL_FieldSplit(fldList(k), splitFields, RC=status)
-               _VERIFY(STATUS)
                stateName = fld_set%fields(2,k)
+               aliasName = fld_set%fields(3,k)
+
+               call MAPL_FieldSplit(fldList(k), splitFields, aliasName=aliasName, RC=status)
+               _VERIFY(STATUS)
 
                expState = export(list(n)%expSTATE(k))
 
@@ -2859,9 +2859,11 @@ ENDDO PARSER
                        rc=status)
                   _VERIFY(status)
 
-                  call appendFieldSet(newFieldSet, fldName, &
+                  alias = fldName
+
+                  call appendFieldSet(newFieldSet, fldName, & 
                        stateName=stateName, &
-                       aliasName=fldName, &
+                       aliasName=alias, &
                        specialName='', rc=status)
 
                   _VERIFY(status)
@@ -2869,11 +2871,20 @@ ENDDO PARSER
                   call appendArray(newExpState,idx=list(n)%expState(k),rc=status)
                   _VERIFY(status)
 
-                  call MAPL_StateAdd(expState, field=splitFields(i), rc=status)
+                  ! ALT: this is ONLY a very simple test to make sure that this is not a duplicate
+                  ! this issue might be revisited to assure that possible duplicates have
+                  ! identical content. Otherwise the split fields should be put in its own container
+                  ! perhaps per collection, but this 
+                  hasField = .false. ! initialize just in case
+                  call checkIfStateHasField(expState, fieldName=fldName, hasField=hasField, rc=status)
                   _VERIFY(status)
+                  if (.not. hasField) then
+                     call MAPL_StateAdd(expState, field=splitFields(i), rc=status)
+                     _VERIFY(status)
+                  end if
 
                   item%itemType = ItemTypeScalar
-                  item%xname = trim(fldName)
+                  item%xname = trim(alias)
                   item%yname = ''
 
                   call newItems%push_back(item)
@@ -2896,35 +2907,39 @@ ENDDO PARSER
       enddo
 
       _RETURN(ESMF_SUCCESS)
-    end subroutine split4dFields
+    end subroutine splitUngriddedFields
 
-    function has4dField(fldName, rc) result(have4d)
-      logical :: have4d
+    function hasSplitableField(fldName, rc) result(okToSplit)
+      logical :: okToSplit
       character(len=*),  intent(in)   :: fldName
       integer, optional, intent(out) :: rc
 
       ! local vars
       integer :: k
       integer :: fldRank
+      integer :: dims
       integer :: status
+      logical :: has_ungrd
       type(ESMF_State) :: exp_state
       type(ESMF_Field) :: fld
       type(ESMF_FieldStatus_Flag) :: fieldStatus
+      character(ESMF_MAXSTR) :: baseName
       
       ! and these vars are declared in the caller
       ! fld_set
       ! m
 
-      have4d = .false.
+      okToSplit = .false.
       fldRank = 0
 
       m = m + 1
       _ASSERT(fldName == fld_set%fields(3,m), 'Incorrect order') ! we got "m" right
       
+      baseName = fld_set%fields(1,m)
       k = list(n)%expSTATE(m)
       exp_state = export(k)
    
-      call MAPL_StateGet(exp_state,fldName,fld,rc=status )
+      call MAPL_StateGet(exp_state,baseName,fld,rc=status )
       _VERIFY(status)
 
       call ESMF_FieldGet(fld, status=fieldStatus, rc=status)
@@ -2940,15 +2955,30 @@ ENDDO PARSER
 
       _ASSERT(fldRank < 5, "unsupported rank")
       
-      have4d = (fldRank == 4)
-      if (have4d) then
+      if (fldRank == 4) then
+         okToSplit = .true.
+      else if (fldRank == 3) then
+         ! split ONLY if X and Y are "gridded" and Z is "ungridded"
+         call ESMF_AttributeGet(fld, name='DIMS', value=dims, rc=status)
+        _VERIFY(STATUS)
+        if (dims == MAPL_DimsHorzOnly) then
+           call ESMF_AttributeGet(fld, name='UNGRIDDED_DIMS', &
+                isPresent=has_ungrd, rc=status)
+            _VERIFY(STATUS)
+            if (has_ungrd) then
+               okToSplit = .true.
+            end if
+         end if
+      end if
+      
+      if (okToSplit) then
          fldList(m) = fld
       end if
-      needSplit(m) = have4d
+      needSplit(m) = okToSplit
 
       _RETURN(ESMF_SUCCESS)
      
-    end function has4dField
+    end function hasSplitableField
 
     subroutine appendArray(array, idx, rc)
       integer, pointer,  intent(inout)   :: array(:)
@@ -3222,7 +3252,6 @@ ENDDO PARSER
     integer                        :: nymd, nhms
     character(len=ESMF_MAXSTR)     :: DateStamp
     integer                        :: CollBlock
-    type(MAPL_Communicators)       :: mapl_Comm
     type(ESMF_Time)                :: current_time
 
 !   variables for "backwards" mode
@@ -3257,9 +3286,6 @@ ENDDO PARSER
 !------------------------------------------
 
     call MAPL_GetObjectFromGC ( gc, GENSTATE, RC=STATUS)
-    _VERIFY(STATUS)
-
-    call MAPL_Get(GENSTATE,mapl_comm=mapl_comm,rc=status)
     _VERIFY(STATUS)
 
     call MAPL_TimerOn(GENSTATE,"TOTAL")
@@ -3567,9 +3593,10 @@ ENDDO PARSER
 
    enddo POSTLOOP
 
-   call o_Clients%done_collective_stage()
-   call o_Clients%wait() 
-
+   if (any(writing)) then
+      call o_Clients%done_collective_stage()
+      call o_Clients%post_wait()
+   endif
    call MAPL_TimerOff(GENSTATE,"-----IO Post")
    call MAPL_TimerOff(GENSTATE,"----IO Write")
 
@@ -3670,7 +3697,7 @@ ENDDO PARSER
    do n=1,nlist
       deallocate(list(n)%r4, list(n)%r8, list(n)%r8_to_r4)
       if (list(n)%disabled) cycle
-      IF (list(n)%format == 'CFIO' .or. list(n)%format == 'CFIOasync') then
+      IF (list(n)%format == 'CFIO') then
          if( MAPL_CFIOIsCreated(list(n)%mcfio) ) then
             CALL MAPL_CFIOdestroy (list(n)%mcfio, rc=STATUS)
             _VERIFY(STATUS)
@@ -3704,17 +3731,6 @@ ENDDO PARSER
    enddo
 #endif
 
-   !call MAPL_Get(GENSTATE,maplcomm=mapl_comm,rc=status)
-   !_VERIFY(STATUS)
-   !if (mapl_comm%io%size > 0) then
-      !if (mapl_am_i_root()) then
-         !call MPI_Send(mapl_comm%global%rank,1,MPI_INTEGER,mapl_comm%io%root,MAPL_TAG_NORMALEXIT, &
-                       !mapL_comm%mapl%comm,status)
-         !_VERIFY(STATUS)
-         !call MPI_Recv(n,1,MPI_INTEGER,mapl_comm%io%root,MAPL_TAG_WORKEREXIT, &
-                       !mapl_comm%mapl%comm,MPI_STATUS_IGNORE,status)
-      !end if
-   !end if
 
     call MAPL_TimerOff(GENSTATE,"Finalize")
     call MAPL_TimerOff(GENSTATE,"TOTAL")
@@ -4744,6 +4760,7 @@ ENDDO PARSER
   type(ESMF_Field)                        :: field
   integer                                 :: dims
   logical, allocatable                    :: isBundle(:)
+  logical                                 :: hasField
 
 ! Set rewrite flag and tmpfields.
 ! To keep consistency, all the arithmetic parsing output fields must
@@ -4751,26 +4768,35 @@ ENDDO PARSER
 ! rather than the actual output field variables (i.e., fields(1,:)).
 ! Also do check that there are no illegal operations
 !-------------------------------------------------------------------
+  allocate ( exptmp (1), stat=status )
+  _VERIFY(STATUS)
+  exptmp(1) = ExpState
   ! check which fields are actual exports or expressions
   nPExtraFields = 0
   iRealFields = 0
   allocate(isBundle(nfield))
   do m=1,nfield
-    if (scan(trim(fields(1,m)),'()^*/+-.')/=0) then
-       rewrite(m)= .TRUE.
-       tmpfields(m)= trim(fields(1,m))
-    else
-       if (index(fields(1,m),'%') == 0) then
+
+    call MAPL_ExportStateGet(exptmp,fields(2,m),state,rc=status)
+    _VERIFY(STATUS)
+    if (index(fields(1,m),'%') == 0) then
+       call checkIfStateHasField(state, fields(1,m), hasField, __RC__)
+       if (hasField) then
           iRealFields = iRealFields + 1
           rewrite(m)= .FALSE.
           isBundle(m) = .FALSE.
           tmpfields(m)= trim(fields(1,m))
-       else
-          isBundle(m)=.true.
-          rewrite(m)= .FALSE.
+       else 
+          isBundle(m) = .false.
+          rewrite(m)= .TRUE.
           tmpfields(m)= trim(fields(1,m))
-       endif
+       end if
+    else
+       isBundle(m)=.true.
+       rewrite(m)= .FALSE.
+       tmpfields(m)= trim(fields(1,m))
     endif
+    
   enddo
 
   ! now that we know this allocated a place to store the names of the real fields
@@ -4871,9 +4897,6 @@ ENDDO PARSER
   allocate(TotLoc(totFields),stat=status)
   _VERIFY(STATUS)
 
-  allocate ( exptmp (1), stat=status )
-  _VERIFY(STATUS)
-  exptmp(1) = ExpState
   iRealFields = 0
   do i=1,nfield
     if ( (.not.rewrite(i)) .and. (.not.isBundle(i)) ) then
@@ -4957,8 +4980,7 @@ ENDDO PARSER
 
                if (ifound_vloc) then
                   if (ivLoc /= Totloc(i) .and. totloc(i) /= MAPL_VLocationNone) then
-                     if (mapl_am_I_root()) write(*,*)'arithmetic expression has two different vlocations'
-                     _ASSERT(.false.,'needs informative message')
+                     _ASSERT(.false.,'arithmetic expression has two different vlocations')
                   end if
                else
                   if (totloc(i) /= MAPL_VLocationNone) then
@@ -5130,6 +5152,8 @@ ENDDO PARSER
     character(len=ESMF_MAXSTR)       :: fname_saved, filename
     type (MAPL_MetaComp), pointer    :: meta
 
+    _UNUSED_DUMMY(import)
+    _UNUSED_DUMMY(export)
 ! Check if it is time to do anything
     doRecord = .false.
 
@@ -5183,5 +5207,41 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
   end subroutine RecordRestart
 
+  subroutine  checkIfStateHasField(state, fieldName, hasField, rc)
+    type(ESMF_State), intent(in) :: state ! export state
+    character(len=*), intent(in) :: fieldName
+    logical, intent(out)         :: hasField
+    integer, intent(out), optional :: rc ! Error code:
+
+    integer :: n, i, status
+    character (len=ESMF_MAXSTR), allocatable  :: itemNameList(:)
+    type(ESMF_StateItem_Flag),   allocatable  :: itemTypeList(:)
+
+    call ESMF_StateGet(state, itemcount=n,  rc=status)
+    _VERIFY(status)
+
+    allocate(itemNameList(n), stat=status)
+    _VERIFY(status)
+    allocate(itemTypeList(n), stat=status)
+    _VERIFY(status)
+    call ESMF_StateGet(state,itemnamelist=itemNamelist,itemtypelist=itemTypeList,rc=status)
+    _VERIFY(STATUS)
+
+    hasField = .false.
+    do I=1,N
+       if(itemTypeList(I)/=ESMF_STATEITEM_FIELD) cycle
+       if(itemNameList(I)==fieldName) then
+          hasField = .true.
+          exit
+       end if
+    end do
+    deallocate(itemNameList, stat=status)
+    _VERIFY(STATUS)
+    deallocate(itemTypeList, stat=status)
+    _VERIFY(status)
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine checkIfStateHasField
+    
 end module MAPL_HistoryGridCompMod
 

@@ -76,6 +76,8 @@ contains
      type (StringVariableMap), optional, intent(in) :: variables
      type (StringVector), optional, intent(in) :: order
 
+     _UNUSED_DUMMY(unusable)
+     
      fmd%dimensions = StringIntegerMap()
      if (present(dimensions)) fmd%dimensions = dimensions
 
