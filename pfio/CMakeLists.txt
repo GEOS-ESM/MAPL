@@ -10,7 +10,6 @@ endif()
 
 set (srcs
   # pFIO Files
-  KeywordEnforcer.F90
   pFIO_ShaveMantissa.c
   DownBit.F90
   pFIO_Constants.F90
