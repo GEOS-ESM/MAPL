@@ -26,6 +26,7 @@ module MAPL_SunMod
   use MAPL_ExceptionHandling
   use netcdf
   use, intrinsic :: iso_fortran_env, only: REAL64
+  use pflogger, only: logging, Logger
 
   implicit none
   private
@@ -2445,12 +2446,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
       integer, parameter :: YEAR_NOT_FOUND = -99
 
-      logical, parameter :: DEBUGPRINT = .FALSE.
-
       logical, save :: TableCreated = .FALSE.
       integer, save, allocatable, dimension(:) :: yearTable, doyTable
       real,    save, allocatable, dimension(:) :: tsi, mgindex, sbindex
       integer, save :: numlines
+
+      class(Logger), pointer :: lgr
+
+      lgr => logging%get_logger('MAPL.SUN')
 
       if (present(PersistSolar)) then
          PersistSolar_ = PersistSolar
@@ -2508,7 +2511,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             ! Read in arrays
             ! --------------
 
-            if (DEBUGPRINT) write (*,*) "Reading the Solar Table"
+            call lgr%debug("Reading the Solar Table")
 
             do i = 1, numlines
                read(unit,*) yearTable(i), doyTable(i), tsi(i), mgindex(i), sbindex(i)
@@ -2619,18 +2622,11 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
             ! Debugging Prints
             ! ----------------
-            if (DEBUGPRINT) then
-               write (*,'(1X,A)') 'Off the end of table, moving into last complete cycle'
-               write (*,*)
-
-               write (*,'(1X,A,1X,I4,A,I0.2,A,I0.2)') 'Original Year/Mon/Day to Find:   ', originalYear,'-',originalMon,'-',originalDay
-               write (*,'(1X,A,1X,I0.3)')             'Original Day of Year:            ', origDOY
-               write (*,*)
-
-               write (*,'(1X,A,1X,I4,A,I0.2,A,I0.2)') 'New Year/Mon/Day to Find:        ', currentYear,'-',currentMon,'-',currentDay
-               write (*,'(1X,A,1X,I0.3)')             'New Day of Year:                 ', currentDOY
-               write (*,*)
-            end if
+            call lgr%debug('Off the end of table, moving into last complete cycle')
+            call lgr%debug('  Original Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', originalYear,originalMon,originalDay)
+            call lgr%debug('  Original Day of Year: %i0', origDOY)
+            call lgr%debug('  New Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', currentYear,currentMon,currentDay)
+            call lgr%debug('  New Day of Year: %i0', currentDOY)
 
          end if OUT_OF_TABLE_AND_CYCLE
 
@@ -2689,14 +2685,10 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
             ! Debugging Prints
             ! ----------------
-            if (DEBUGPRINT) then
-               write (*,'(1X,A)') 'Off the end of table, persisting last values'
-               write (*,*)
-               write (*,'(1X,A,1X,F8.3)') 'tsi at end of table:     ', tsi(numlines)
-               write (*,'(1X,A,1X,F8.6)') 'mgindex at end of table: ', mgindex(numlines)
-               write (*,'(1X,A,1X,F9.4)') 'sbindex at end of table: ', sbindex(numlines)
-               write (*,*) 
-            end if
+            call lgr%debug('Off the end of table, persisting last values')
+            call lgr%debug('  tsi at end of table: %F8.3', tsi(numlines))
+            call lgr%debug('  mgindex at end of table: %F8.6', mgindex(numlines))
+            call lgr%debug('  sbindex at end of table: %F9.4', sbindex(numlines))
 
          ! Otherwise we interpolate to the table
          ! -------------------------------------
@@ -2711,28 +2703,23 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
             ! Debugging Prints
             ! ----------------
-            if (DEBUGPRINT) then
-               write (*,'(1X,A,1X,I3)')   'First DOY to Find:   ', prevDOY
-               write (*,'(1X,A,1X,I6)')   'file_index for date: ', INDX1
-               write (*,'(1X,A,1X,I4)')   'yearTable(date):     ', yearTable(INDX1)
-               write (*,'(1X,A,1X,I3)')   'doyTable(date):      ', doyTable(INDX1)
-               write (*,'(1X,A,1X,F8.3)') 'tsi(date):           ', tsi(INDX1)
-               write (*,'(1X,A,1X,F8.6)') 'mgindex(date):       ', mgindex(INDX1)
-               write (*,'(1X,A,1X,F9.4)') 'sbindex(date):       ', sbindex(INDX1)
-               write (*,*) 
+            call lgr%debug('  First DOY to Find:     %i3', prevDOY)
+            call lgr%debug('    file_index for date: %i6', INDX1)
+            call lgr%debug('    yearTable(date):     %i4', yearTable(INDX1))
+            call lgr%debug('    doyTable(date):      %i3', doyTable(INDX1))
+            call lgr%debug('    tsi(date):           %f8.3', tsi(INDX1))
+            call lgr%debug('    mgindex(date):       %f8.6', mgindex(INDX1))
+            call lgr%debug('    sbindex(date):       %f9.4', sbindex(INDX1))
 
-               write (*,'(1X,A,1X,I3)')   'Second DOY to Find:  ', nextDOY
-               write (*,'(1X,A,1X,I6)')   'file_index for date: ', INDX2
-               write (*,'(1X,A,1X,I4)')   'yearTable(date):     ', yearTable(INDX2)
-               write (*,'(1X,A,1X,I3)')   'doyTable(date):      ', doyTable(INDX2)
-               write (*,'(1X,A,1X,F8.3)') 'tsi(date):           ', tsi(INDX2)
-               write (*,'(1X,A,1X,F8.6)') 'mgindex(date):       ', mgindex(INDX2)
-               write (*,'(1X,A,1X,F9.4)') 'sbindex(date):       ', sbindex(INDX2)
-               write (*,*) 
+            call lgr%debug('  Second DOY to Find:    %i3', nextDOY)
+            call lgr%debug('    file_index for date: %i6', INDX2)
+            call lgr%debug('    yearTable(date):     %i4', yearTable(INDX2))
+            call lgr%debug('    doyTable(date):      %i3', doyTable(INDX2))
+            call lgr%debug('    tsi(date):           %f8.3', tsi(INDX2))
+            call lgr%debug('    mgindex(date):       %f8.6', mgindex(INDX2))
+            call lgr%debug('    sbindex(date):       %f9.4', sbindex(INDX2))
 
-               write (*,'(1X,A,1X,F8.6)') 'Interpolation Factor:', FAC
-               write (*,*) 
-            end if
+            call lgr%debug('  Interpolation Factor:  %f8.6', FAC)
          end if OUT_OF_TABLE_AND_PERSIST
       end if ON_ROOT
 
