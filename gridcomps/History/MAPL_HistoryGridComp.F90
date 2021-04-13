@@ -731,12 +731,6 @@ contains
 ! Initialize History Lists
 ! ------------------------
 
-    allocate(INTSTATE%AVERAGE    (nlist), stat=status)
-    _VERIFY(STATUS)
-    allocate(INTSTATE%STAMPOFFSET(nlist), stat=status)
-    _VERIFY(STATUS)
-
-    IntState%average = .false.
     LISTLOOP: do n=1,nlist
 
        list(n)%unit = 0
@@ -1113,6 +1107,10 @@ contains
        call ESMF_ConfigGetAttribute(cfg, list(n)%ForceOffsetZero, default=.false., & 
                                     label=trim(string)//'timestampEnd:', rc=status)
        _VERIFY(status) 
+! Force history so that time averaged collections are timestamped at the begining of the accumulation interval
+       call ESMF_ConfigGetAttribute(cfg, list(n)%timeStampStart, default=.false., & 
+                                    label=trim(string)//'timestampStart:', rc=status)
+       _VERIFY(status) 
 
 ! Get an optional chunk size
 ! --------------------------
@@ -1163,15 +1161,6 @@ contains
 ! ----------
 
        if (list(n)%disabled) cycle
-
-       if(list(n)%mode == "instantaneous" .or. list(n)%ForceOffsetZero) then
-          sec = 0
-       else
-          IntState%average(n) = .true.
-          sec = MAPL_nsecf(list(n)%acc_interval) / 2
-       endif
-       call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, rc=status )
-       _VERIFY(STATUS)
 
 ! His and Seg Alarms based on Reference Date and Time
 ! ---------------------------------------------------
@@ -1621,12 +1610,13 @@ ENDDO PARSER
     IntState%average = .false.
     do n=1, nlist
        if (list(n)%disabled) cycle
+       if(list(n)%monthly) cycle
        if(list(n)%mode == "instantaneous" .or. list(n)%ForceOffsetZero) then
           sec = 0
+       else if (list(n)%timeStampStart) then
+          sec = MAPL_nsecf(list(n)%acc_interval)
        else
-          IntState%average(n) = .true.
           sec = MAPL_nsecf(list(n)%acc_interval) / 2
-          if(list(n)%monthly) cycle
        endif
        call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, rc=status )
        _VERIFY(STATUS)
@@ -3253,6 +3243,9 @@ ENDDO PARSER
     character(len=ESMF_MAXSTR)     :: DateStamp
     integer                        :: CollBlock
     type(ESMF_Time)                :: current_time
+    type(ESMF_Time)                :: nextMonth
+    type(ESMF_TimeInterval)        :: dur, oneMonth
+    integer                        :: sec
 
 !   variables for "backwards" mode
     logical                        :: fwd
@@ -3474,6 +3467,20 @@ ENDDO PARSER
 
          if( NewSeg) then 
             list(n)%partial = .false.
+            if (list(n)%monthly) then
+               ! get the number of seconds in this month
+               ! it's tempting to use the variable "oneMonth" but it does not work
+               ! instead we compute the differece between 
+               ! nextMonth and thisMonth as a new timeInterval
+
+               call ESMF_ClockGet(clock,currTime=current_time,rc=status)
+               _VERIFY(status)
+               call ESMF_TimeIntervalSet( oneMonth, MM=1, __RC__)
+               nextMonth = current_time + oneMonth
+               dur = nextMonth - current_time
+               call ESMF_TimeIntervalGet(dur, s=sec, __RC__)
+               call list(n)%mNewCFIO%modifyTimeIncrement(sec, __RC__)
+            end if
          endif
 
          if (list(n)%timeseries_output) then
