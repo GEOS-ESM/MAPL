@@ -1,27 +1,41 @@
-module PFL_Logger
-   use gFTL_StringUnlimitedMap
-   use PFL_KeywordEnforcer
+#include "MAPL_ErrLog.h"
+#define _SUCCESS 0
+#define _RETURN(status) if(present(rc))rc=status; return
+
+module PFL_SeverityLevels
    implicit none
-   private
-
-   public :: Logger
-
    public :: NOTSET
-   public :: DEBUG_LEVEL
-   public :: INFO_LEVEL
-   public :: WARNING_LEVEL
-   public :: ERROR_LEVEL
-   public :: CRITICAL_LEVEL
+   public :: DEBUG
+   public :: INFO
+   public :: WARNING
+   public :: ERROR
+   public :: CRITICAL
 
    enum, bind(c)
       enumerator :: &
            & NOTSET   =  0, &
-           & DEBUG_LEVEL    = 10, &
-           & INFO_LEVEL     = 20, &
-           & WARNING_LEVEL  = 30, &
-           & ERROR_LEVEL    = 40, &
-           & CRITICAL_LEVEL = 50
+           & DEBUG    = 10, &
+           & INFO     = 20, &
+           & WARNING  = 30, &
+           & ERROR    = 40, &
+           & CRITICAL = 50
    end enum
+
+end module PFL_SeverityLevels
+   
+module PFL_Logger
+   use PFL_SeverityLevels, only: NOTSET
+   use PFL_SeverityLevels, only: DEBUG_LEVEL => DEBUG
+   use PFL_SeverityLevels, only: INFO_LEVEL => INFO
+   use PFL_SeverityLevels, only: WARNING_LEVEL => WARNING
+   use PFL_SeverityLevels, only: ERROR_LEVEL => ERROR
+   use PFL_SeverityLevels, only: CRITICAL_LEVEL => critical
+   use gFTL_StringUnlimitedMap
+   use PFL_KeywordEnforcerMod
+   implicit none
+   private
+
+   public :: Logger
 
    type :: Logger
    contains
@@ -39,6 +53,7 @@ contains
 
    subroutine free(this)
       class (Logger), intent(inout) :: this
+      _UNUSED_DUMMY(this)
    end subroutine free
 
    subroutine debug(this, message, ARG_LIST, unusable, extra, line, file, rc)
@@ -50,7 +65,24 @@ contains
       integer, optional, intent(in) :: line
       character(*), optional, intent(in) :: file
       integer, optional, intent(out) :: rc
-      _RETURN(_SUCCESS,rc)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(message)
+      _UNUSED_DUMMY(arg1)
+      _UNUSED_DUMMY(arg2)
+      _UNUSED_DUMMY(arg3)
+      _UNUSED_DUMMY(arg4)
+      _UNUSED_DUMMY(arg5)
+      _UNUSED_DUMMY(arg6)
+      _UNUSED_DUMMY(arg7)
+      _UNUSED_DUMMY(arg8)
+      _UNUSED_DUMMY(arg9)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(extra)
+      _UNUSED_DUMMY(line)
+      _UNUSED_DUMMY(file)
+
+      _RETURN(_SUCCESS)
    end subroutine debug
 
    subroutine info(this, message, ARG_LIST, unusable, extra, line, file, rc)
@@ -62,7 +94,24 @@ contains
       integer, optional, intent(in) :: line
       character(*), optional, intent(in) :: file
       integer, optional, intent(out) :: rc
-      _RETURN(_SUCCESS,rc)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(message)
+      _UNUSED_DUMMY(arg1)
+      _UNUSED_DUMMY(arg2)
+      _UNUSED_DUMMY(arg3)
+      _UNUSED_DUMMY(arg4)
+      _UNUSED_DUMMY(arg5)
+      _UNUSED_DUMMY(arg6)
+      _UNUSED_DUMMY(arg7)
+      _UNUSED_DUMMY(arg8)
+      _UNUSED_DUMMY(arg9)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(extra)
+      _UNUSED_DUMMY(line)
+      _UNUSED_DUMMY(file)
+
+      _RETURN(_SUCCESS)
    end subroutine info
 
    subroutine warning(this, message, ARG_LIST, unusable, extra, line, file, rc)
@@ -75,8 +124,23 @@ contains
       character(*), optional, intent(in) :: file
       integer, optional, intent(out) :: rc
       
-      _RETURN(_SUCCESS,rc)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(message)
+      _UNUSED_DUMMY(arg1)
+      _UNUSED_DUMMY(arg2)
+      _UNUSED_DUMMY(arg3)
+      _UNUSED_DUMMY(arg4)
+      _UNUSED_DUMMY(arg5)
+      _UNUSED_DUMMY(arg6)
+      _UNUSED_DUMMY(arg7)
+      _UNUSED_DUMMY(arg8)
+      _UNUSED_DUMMY(arg9)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(extra)
+      _UNUSED_DUMMY(line)
+      _UNUSED_DUMMY(file)
 
+      _RETURN(_SUCCESS)
    end subroutine warning
 
    subroutine error(this, message, ARG_LIST, unusable, extra, line, file, rc)
@@ -90,8 +154,23 @@ contains
       character(*), optional, intent(in) :: file
       integer, optional, intent(out) :: rc
 
-      _RETURN(_SUCCESS,rc)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(message)
+      _UNUSED_DUMMY(arg1)
+      _UNUSED_DUMMY(arg2)
+      _UNUSED_DUMMY(arg3)
+      _UNUSED_DUMMY(arg4)
+      _UNUSED_DUMMY(arg5)
+      _UNUSED_DUMMY(arg6)
+      _UNUSED_DUMMY(arg7)
+      _UNUSED_DUMMY(arg8)
+      _UNUSED_DUMMY(arg9)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(extra)
+      _UNUSED_DUMMY(line)
+      _UNUSED_DUMMY(file)
 
+      _RETURN(_SUCCESS)
    end subroutine error
 
    subroutine critical(this, message, ARG_LIST, unusable, extra, line, file, rc)
@@ -103,12 +182,28 @@ contains
       integer, optional, intent(in) :: line
       character(*), optional, intent(in) :: file
       integer, optional, intent(out) :: rc
-      _RETURN(_SUCCESS,rc)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(message)
+      _UNUSED_DUMMY(arg1)
+      _UNUSED_DUMMY(arg2)
+      _UNUSED_DUMMY(arg3)
+      _UNUSED_DUMMY(arg4)
+      _UNUSED_DUMMY(arg5)
+      _UNUSED_DUMMY(arg6)
+      _UNUSED_DUMMY(arg7)
+      _UNUSED_DUMMY(arg8)
+      _UNUSED_DUMMY(arg9)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(extra)
+      _UNUSED_DUMMY(line)
+      _UNUSED_DUMMY(file)
+
+      _RETURN(_SUCCESS)
    end subroutine critical
 end module PFL_Logger
 
 module PFL_LoggerManager
-   use gFTL_StringUnlimitedMap
    use PFL_Logger, only: Logger
    implicit none
    private
@@ -135,7 +230,7 @@ contains
       class (LoggerManager), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       lgr => this%log_
-      _RETURN(_SUCCESS,rc)
+      _RETURN(_SUCCESS)
    end function get_logger_root
 
    function get_logger_name(this, name, rc) result(lgr)
@@ -143,21 +238,25 @@ contains
       class (LoggerManager), target, intent(inout) :: this
       character(len=*), intent(in) :: name
       integer, optional, intent(out) :: rc
+      _UNUSED_DUMMY(name)
       lgr => this%log_
-      _RETURN(_SUCCESS,rc)
+      _RETURN(_SUCCESS)
    end function get_logger_name
 
    subroutine free(this)
       class(LoggerManager), intent(inout) :: this
+      _UNUSED_DUMMY(this)
    end subroutine free
 
 end module PFL_LoggerManager
 
 module pflogger
-   implicit none
+   use PFL_SeverityLevels
    use PFL_Logger
    use PFL_LoggerManager
    use PFL_WrapArray
+   use PFL_KeywordEnforcerMod
+   implicit none
    private
 
    public :: initialize
@@ -182,6 +281,9 @@ contains
       character(len=*), optional,intent(in) :: logger_name
       integer, optional, intent(out) :: rc
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(comm)
+      _UNUSED_DUMMY(logging_config)
+      _UNUSED_DUMMY(logger_name)
       _RETURN(_SUCCESS)
    end subroutine initialize
 

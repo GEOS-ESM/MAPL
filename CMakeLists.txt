@@ -45,14 +45,12 @@ if (BUILD_WITH_FLAP)
   find_package(FLAP REQUIRED)
 endif ()
 
-option(BUILD_WITH_PFLOGGER "Use pFlogger" ON)
+ecbuild_declare_project()
 if (BUILD_WITH_PFLOGGER)
   add_definitions(-DUSE_PFLOGGER)
-else ()
+else ()  
   add_subdirectory (pflogger_stub)
 endif ()
-
-ecbuild_declare_project()
 
 if (NOT Baselibs_FOUND)
   find_package(NetCDF REQUIRED Fortran)
