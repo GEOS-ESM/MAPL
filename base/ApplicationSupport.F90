@@ -36,7 +36,7 @@ module MAPL_ApplicationSupport
       else
          comm_world=MPI_COMM_WORLD
       end if
-#ifdef USE_PFLOGGER
+#ifdef BUILD_WITH_PFLOGGER
       call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file,rc=status)
       _VERIFY(status)
 #endif
@@ -71,7 +71,7 @@ module MAPL_ApplicationSupport
       call logging%free()
    end subroutine finalize_pflogger
 
-#ifdef USE_PFLOGGER
+#ifdef BUILD_WITH_PFLOGGER
    subroutine initialize_pflogger(unusable,comm,logging_config,rc)
       use pflogger, only: pfl_initialize => initialize
       use pflogger, only: StreamHandler, FileHandler, HandlerVector

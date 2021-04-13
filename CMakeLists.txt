@@ -47,7 +47,7 @@ endif ()
 
 ecbuild_declare_project()
 if (BUILD_WITH_PFLOGGER)
-  add_definitions(-DUSE_PFLOGGER)
+  add_definitions(-DBUILD_WITH_PFLOGGER)
 else ()  
   add_subdirectory (pflogger_stub)
 endif ()

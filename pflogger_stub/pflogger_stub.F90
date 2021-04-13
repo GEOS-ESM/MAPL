@@ -45,6 +45,7 @@ module PFL_Logger
       procedure :: error
       procedure :: critical
       procedure :: free
+      procedure :: isEnabledFor
    end type Logger
 
 #define ARG_LIST arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9
@@ -201,6 +202,13 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine critical
+
+   logical function isEnabledFor(this, level)
+      class (Logger), intent(in) :: this
+      integer, intent(in) :: level
+      isEnabledFor = .false.
+   end function isEnabledFor
+ 
 end module PFL_Logger
 
 module PFL_LoggerManager
