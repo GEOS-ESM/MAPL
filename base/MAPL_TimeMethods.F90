@@ -63,7 +63,7 @@ contains
   end subroutine get
        
   subroutine setFrequency(this,frequency,rc)
-     class(TimeData) :: this
+     class(TimeData), intent(inout) :: this
      integer, intent(in) :: frequency
      integer, optional, intent(out) :: rc
 
