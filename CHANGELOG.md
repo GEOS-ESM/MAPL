@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+-  pFIO/KeywordEnforcer.F90 duplicated functionality now in
+   shared/KeywordEnforcer.F90, and has been removed in favor of the
+   other.
+
 ### Added
 
 - a new flag to timestamp average collections at the beginning of the averaging interval

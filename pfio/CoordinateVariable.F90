@@ -29,7 +29,7 @@ module pFIO_CoordinateVariableMod
    use MAPL_ExceptionHandling
    use pFIO_UtilitiesMod
    use pFIO_VariableMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    implicit none
    private
 
