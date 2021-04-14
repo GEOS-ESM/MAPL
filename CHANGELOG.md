@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added pflogger_stub directory. With -DBUILD_WITH_PFLOGGER=OFF, it is built and linked to replace pflogger library.
 - a new flag to timestamp average collections at the beginning of the averaging interval
 - Ability to run MultiGroupServer and model in a single node
 - Add command line option --one_node_output
