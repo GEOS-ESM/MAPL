@@ -404,7 +404,7 @@ type, extends(MaplGenericComponent) ::  MAPL_MetaComp
    character(len=ESMF_MAXSTR)     , allocatable :: GCNameList(:)
    type (MAPL_Prof               ), pointer :: TIMES(:)         => null()
    integer                        , pointer :: phase_init (:)    => null()
-   integer                        , pointer :: phase_run  (:)    => null()
+   integer, public                , pointer :: phase_run  (:)    => null()
    integer                        , pointer :: phase_final(:)    => null()
    integer                        , pointer :: phase_record(:)   => null()
    integer                        , pointer :: phase_coldstart(:)=> null()
@@ -2013,7 +2013,6 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   type (MAPL_MetaComp), pointer               :: STATE
   integer                                     :: I
   logical                                     :: final_checkpoint
-  logical                                     :: nwrgt1
   integer                                     :: NC
   integer                                     :: PHASE
   integer                                     :: NUMPHASES
@@ -6428,10 +6427,6 @@ end subroutine MAPL_StateCreateFromVarSpecNew
                     value=default_value, RC=STATUS)
                _VERIFY(STATUS)
             end if
-            if (has_ungrd) then
-               call ESMF_AttributeSet(FIELD, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
-               _VERIFY(STATUS)
-            end if
          end if
 
 ! Put the FIELD in the MAPL FIELD (VAR SPEC)
@@ -6484,6 +6479,8 @@ end subroutine MAPL_StateCreateFromVarSpecNew
       call ESMF_AttributeSet(FIELD, NAME='ROTATION', VALUE=ROTATION, RC=STATUS)
       _VERIFY(STATUS)
       if (associated(UNGRD)) Then
+         call ESMF_AttributeSet(FIELD, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+         _VERIFY(STATUS)
          call ESMF_AttributeSet(FIELD, NAME='UNGRIDDED_NAME', VALUE=UNGRIDDED_NAME, RC=STATUS)
          _VERIFY(STATUS)
          call ESMF_AttributeSet(FIELD, NAME='UNGRIDDED_UNIT', VALUE=UNGRIDDED_UNIT, RC=STATUS)

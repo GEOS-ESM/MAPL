@@ -167,9 +167,9 @@ void dump_hash(int h, int *i, int *j, int *k)
     bucket = hash->bucket_list + l;
     for(m=0; m<bucket->next_entry; m++) {
       entry = (bucket->entry_list) + m;
-      i[num]==entry->i;
-      j[num]==entry->j;
-      k[num]==entry->k;
+      i[num]=entry->i;
+      j[num]=entry->j;
+      k[num]=entry->k;
       num++;
     }
   }
@@ -194,7 +194,7 @@ int increment_hash(int h, int i, int j, int k)
   } else if(!(hash_heap[h].bucket_list)) {
 
     printf("hash.c line=%d : Attempt to increment uninitalized hash %d i=%d j=%d %ld\n",
-	   __LINE__,h,i,j,hash_heap[h].bucket_list);
+	   __LINE__,h,i,j,(long) hash_heap[h].bucket_list);
     exit(1);
 
   } else {

@@ -10,7 +10,6 @@ endif()
 
 set (srcs
   # pFIO Files
-  KeywordEnforcer.F90
   pFIO_ShaveMantissa.c
   DownBit.F90
   pFIO_Constants.F90
@@ -91,9 +90,14 @@ set (srcs
   )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran TYPE SHARED)
-target_link_libraries (${this} PUBLIC gftl-shared
-                               PRIVATE MPI::MPI_Fortran)
-# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+if (ESMA_USE_GFE_NAMESPACE)
+  target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared
+    PRIVATE MPI::MPI_Fortran)
+else ()
+  target_link_libraries (${this} PUBLIC gftl-shared
+    PRIVATE MPI::MPI_Fortran)
+endif ()
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
@@ -111,7 +115,7 @@ ecbuild_add_executable (
    SOURCES pfio_server_demo.F90
    LIBS ${this} MPI::MPI_Fortran)
 set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(pfio_server_demo.x OpenMP::OpenMP_Fortran)
 endif ()
@@ -121,7 +125,7 @@ ecbuild_add_executable (
    SOURCES pfio_collective_demo.F90
    LIBS ${this} MPI::MPI_Fortran)
 set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(pfio_collective_demo.x OpenMP::OpenMP_Fortran)
 endif ()

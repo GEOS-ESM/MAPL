@@ -46,7 +46,6 @@ contains
       character(:), allocatable, intent(out) :: header(:)
 
       integer :: w, h
-      character(:), allocatable :: separator
 
       w = this%get_width()
       h = this%get_num_rows_header()

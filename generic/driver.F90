@@ -18,9 +18,6 @@ program main
    type(ESMF_Clock) :: clock
    integer :: status
 
-   class(AbstractComponent), pointer :: component
-   class(AbstractComponent), pointer :: generic
-
    type(ConcreteComposite), target :: root_composite
    class(AbstractFrameworkComponent), pointer :: root
 

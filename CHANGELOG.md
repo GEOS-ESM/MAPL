@@ -7,8 +7,83 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+-  pFIO/KeywordEnforcer.F90 duplicated functionality now in
+   shared/KeywordEnforcer.F90, and has been removed in favor of the
+   other.
+
 ### Added
+
+- a new flag to timestamp average collections at the beginning of the averaging interval
+- Ability to run MultiGroupServer and model in a single node
+- Add command line option --one_node_output
+- Ability to split fields with ungridded dimensions (and not only 4d). 
+- Ability to add alias names to the split fields
+- Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
+- Add MAPL_TransposeaRegridderMod to MAPL_Mod
+- Nearest-neighbor interpolation option for ExtData (keyword: 'E')
 - Add with_io_profiler option
+
+### Changed
+
+- Simplified the logic for timestamping offsets
+- Setting and getting UNGRIDDED_DIMS attribute uses now single quoted string
+- Do not output `cubed_sphere` and `orientation` variables in native
+  History output as pFIO at present does not handle string variables
+- Updated Python scripts to work with Python 2 or 3. Scripts were:
+   - `base/mapl_tree.py`
+   - `base/mapl_vlist.py`
+   - `Apps/MAPL_GridCompSpecs_ACG.py`
+   - Nullified pointers for deactivated optional state elements for
+     the grid compe spec code generator ACG.
+- Updated `components.yaml`:
+   - ESMA_env v3.2.0 (Baselibs 6.1.0 <==> ESMF 8.1.0)
+   - ESMA_cmake v3.3.8 (adds ability to see GFE namespace option)
+- Update CI images to 6.1.0
+- Updated MAPL to have the ability to use the new GFE namespace in CMake. (`gftl` --> `GFTL::gftl`). 
+   - The default in ESMA_cmake v3.3.8 is *not* enabled. To enable use `-DESMA_USE_GFE_NAMESPACE=ON`.
+   - NOTE: This requires Baselibs 6.2.0 or higher when using Baselibs.
+- Updated the non-PersistSolar branch of `MAPL_SunGetSolarConstantFromNRLFile` to use Solar Cycle 24 as we are now in Cycle 25.
+
+### Fixed
+
+- Fixed few memory leaks (average and stampOffset arrays were allocated twice)
+- Fixed a bug related to incorrect time increment attribute for a monthly collection
+- Fixed a bug related to the naming scheme for split fields when ungrid size is 1
+- Fixed unset UNGRIDDED_DIMS attribute bug
+- Fixes ESMF logging errors related to expressions in History
+- Fixed error handling in profiler/BaseProfiler.F90
+- Fix memory leak when using fast_oserver in write_restart_by_oserver
+- Bumped cube version to 2.91 in global metadata
+- Change calls to `system_clock()` to be `INT64` (#511)
+- CMake updates to allow NAG Fortran build
+- Converted some remaining `real*8`-type declarations to be `real(kind=REAL64)`-style
+- Eliminated (almost) all compiler warnings for Intel compiler
+- Removed conditional around declaring pointers in code emitted by grid comp ACG.
+
+### Removed
+
+## [2.6.4] - 2021-03-18
+
+### Added
+
+- Add support for multi-run-phase for root gridcomp
+
+### Fixed
+
+- Fixed spliiting the same field in multiple collections
+- Fix out-of-bound access when printing pFIO message
+- Removed program tstqsat.F90 from MAPL.base library.  A followup
+  should add cmake logic to create an executable or just delete the
+  file.
+- CMake workaround for macOS + Intel oneAPI FLAP bug (#644)
+
+## [2.6.3] - 2021-03-09
+
+### Added
+
+- Disable throughput reporting if an external clock is driving CapGridComp
 - Comment out profiler in output server
 - Add profiler for output server
 - New overload for MAPL_ConfigSetAttribute to support array of integers
@@ -32,9 +107,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove some GFORTRAN workarounds in MAPL_LocStreamMod (some still
   needed for GNU layout regression, #733)
 - Fix issue with History when field names have "." in them
-
-
-### Removed
 
 ## [2.6.2] - 2021-02-19
 

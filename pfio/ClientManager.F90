@@ -5,7 +5,7 @@ module pFIO_ClientManagerMod
 
    use MAPL_ExceptionHandling
    use MAPL_SortMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_FileMetadataMod
    use pFIO_ClientThreadMod
@@ -606,8 +606,10 @@ contains
       class (KeywordEnforcer),  optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      _UNUSED_DUMMY(unusable)
       call this%server_sizes%push_back(server_size)
 
+      _RETURN(_SUCCESS)
    end subroutine set_server_size 
 
    function size(this) result(n_client) 

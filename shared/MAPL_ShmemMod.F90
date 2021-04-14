@@ -6,7 +6,7 @@
   module MAPL_ShmemMod
 
     use, intrinsic :: ISO_C_BINDING
-    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64
+    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
     use MAPL_ExceptionHandling
     use pflogger, only: logging, Logger
 
@@ -376,7 +376,7 @@
 
 
     subroutine MAPL_DeAllocNodeArray_1DR4(Ptr,rc)
-      real*4,  pointer               :: Ptr(:)
+      real(kind=REAL32),  pointer    :: Ptr(:)
       integer, optional, intent(OUT) :: rc
 
       type(c_ptr) :: Caddr
@@ -395,7 +395,7 @@
     end subroutine MAPL_DeAllocNodeArray_1DR4
 
     subroutine MAPL_DeAllocNodeArray_2DR4(Ptr,rc)
-      real*4,  pointer               :: Ptr(:,:)
+      real(kind=REAL32),  pointer    :: Ptr(:,:)
       integer, optional, intent(OUT) :: rc
 
       type(c_ptr) :: Caddr
@@ -414,7 +414,7 @@
     end subroutine MAPL_DeAllocNodeArray_2DR4
 
     subroutine MAPL_DeAllocNodeArray_3DR4(Ptr,rc)
-      real*4,  pointer               :: Ptr(:,:,:)
+      real(kind=REAL32),  pointer    :: Ptr(:,:,:)
       integer, optional, intent(OUT) :: rc
 
       type(c_ptr) :: Caddr
@@ -452,7 +452,7 @@
 
 
     subroutine MAPL_DeAllocNodeArray_1DR8(Ptr,rc)
-      real*8,  pointer               :: Ptr(:)
+      real(kind=REAL64),  pointer    :: Ptr(:)
       integer, optional, intent(OUT) :: rc
 
       type(c_ptr) :: Caddr
@@ -471,7 +471,7 @@
     end subroutine MAPL_DeAllocNodeArray_1DR8
 
     subroutine MAPL_DeAllocNodeArray_2DR8(Ptr,rc)
-      real*8,  pointer               :: Ptr(:,:)
+      real(kind=REAL64),  pointer    :: Ptr(:,:)
       integer, optional, intent(OUT) :: rc
 
       type(c_ptr) :: Caddr
@@ -490,7 +490,7 @@
     end subroutine MAPL_DeAllocNodeArray_2DR8
 
     subroutine MAPL_DeAllocNodeArray_3DR8(Ptr,rc)
-      real*8,  pointer               :: Ptr(:,:,:)
+      real(kind=REAL64),  pointer    :: Ptr(:,:,:)
       integer, optional, intent(OUT) :: rc
 
       type(c_ptr) :: Caddr
@@ -509,7 +509,7 @@
     end subroutine MAPL_DeAllocNodeArray_3DR8
 
     subroutine MAPL_DeAllocNodeArray_4DR8(Ptr,rc)
-      real*8,  pointer               :: Ptr(:,:,:,:)
+      real(kind=REAL64),  pointer    :: Ptr(:,:,:,:)
       integer, optional, intent(OUT) :: rc
 
       type(c_ptr) :: Caddr
@@ -527,7 +527,7 @@
     end subroutine MAPL_DeAllocNodeArray_4DR8
 
     subroutine MAPL_DeAllocNodeArray_5DR8(Ptr,rc)
-      real*8,  pointer               :: Ptr(:,:,:,:,:)
+      real(kind=REAL64),  pointer    :: Ptr(:,:,:,:,:)
       integer, optional, intent(OUT) :: rc
 
       type(c_ptr) :: Caddr
@@ -677,7 +677,7 @@
 
 
     subroutine MAPL_AllocNodeArray_1DR4(Ptr, Shp, lbd, rc)
-      real*4, pointer,   intent(INOUT) :: Ptr(:)
+      real(kind=REAL32), pointer,   intent(INOUT) :: Ptr(:)
       integer,           intent(IN   ) :: Shp(1)
       integer, optional, intent(IN   ) :: lbd(1)
       integer, optional, intent(  OUT) :: rc
@@ -704,7 +704,7 @@
 
 
     subroutine MAPL_AllocNodeArray_2DR4(Ptr, Shp, lbd, rc)
-      real*4, pointer,   intent(INOUT) :: Ptr(:,:)
+      real(kind=REAL32), pointer,   intent(INOUT) :: Ptr(:,:)
       integer,           intent(IN   ) :: Shp(2)
       integer, optional, intent(IN   ) :: lbd(2)
       integer, optional, intent(  OUT) :: rc
@@ -730,7 +730,7 @@
     end subroutine MAPL_AllocNodeArray_2DR4
 
     subroutine MAPL_AllocNodeArray_3DR4(Ptr, Shp, lbd, rc)
-      real*4, pointer,   intent(INOUT) :: Ptr(:,:,:)
+      real(kind=REAL32), pointer,   intent(INOUT) :: Ptr(:,:,:)
       integer,           intent(IN   ) :: Shp(3)
       integer, optional, intent(IN   ) :: lbd(3)
       integer, optional, intent(  OUT) :: rc
@@ -783,7 +783,7 @@
 
 
     subroutine MAPL_AllocNodeArray_1DR8(Ptr, Shp, lbd, rc)
-      real*8, pointer,   intent(INOUT) :: Ptr(:)
+      real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:)
       integer,           intent(IN   ) :: Shp(1)
       integer, optional, intent(IN   ) :: lbd(1)
       integer, optional, intent(  OUT) :: rc
@@ -810,7 +810,7 @@
 
 
     subroutine MAPL_AllocNodeArray_2DR8(Ptr, Shp, lbd, rc)
-      real*8, pointer,   intent(INOUT) :: Ptr(:,:)
+      real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:)
       integer,           intent(IN   ) :: Shp(2)
       integer, optional, intent(IN   ) :: lbd(2)
       integer, optional, intent(  OUT) :: rc
@@ -836,7 +836,7 @@
     end subroutine MAPL_AllocNodeArray_2DR8
 
     subroutine MAPL_AllocNodeArray_3DR8(Ptr, Shp, lbd, rc)
-      real*8, pointer,   intent(INOUT) :: Ptr(:,:,:)
+      real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:,:)
       integer,           intent(IN   ) :: Shp(3)
       integer, optional, intent(IN   ) :: lbd(3)
       integer, optional, intent(  OUT) :: rc
@@ -862,7 +862,7 @@
     end subroutine MAPL_AllocNodeArray_3DR8
 
     subroutine MAPL_AllocNodeArray_4DR8(Ptr, Shp, lbd, rc)
-      real*8, pointer,   intent(INOUT) :: Ptr(:,:,:,:)
+      real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:,:,:)
       integer,           intent(IN   ) :: Shp(4)
       integer, optional, intent(IN   ) :: lbd(4)
       integer, optional, intent(  OUT) :: rc
@@ -888,7 +888,7 @@
     end subroutine MAPL_AllocNodeArray_4DR8
 
     subroutine MAPL_AllocNodeArray_5DR8(Ptr, Shp, lbd, rc)
-      real*8, pointer,   intent(INOUT) :: Ptr(:,:,:,:,:)
+      real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:,:,:,:)
       integer,           intent(IN   ) :: Shp(5)
       integer, optional, intent(IN   ) :: lbd(5)
       integer, optional, intent(  OUT) :: rc
@@ -1200,13 +1200,13 @@
     end subroutine GetSharedMemory
 
     subroutine MAPL_BroadcastToNodes_1DR4(DATA,N,ROOT,rc)
-      real*4,            intent(INOUT) :: DATA(:)
+      real(kind=REAL32), intent(INOUT) :: DATA(:)
       integer,           intent(IN   ) :: N
       integer,           intent(IN   ) :: ROOT
       integer, optional, intent(  OUT) :: rc
       integer :: STATUS
 
-      real*4, allocatable :: ldata(:)
+      real(kind=REAL32), allocatable :: ldata(:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
          _RETURN(SHM_SUCCESS)
@@ -1224,13 +1224,13 @@
     end subroutine MAPL_BroadcastToNodes_1DR4
 
     subroutine MAPL_BroadcastToNodes_2DR4(DATA,N,ROOT,rc)
-      real*4,            intent(INOUT) :: DATA(:,:)
+      real(kind=REAL32), intent(INOUT) :: DATA(:,:)
       integer,           intent(IN   ) :: N
       integer,           intent(IN   ) :: ROOT
       integer, optional, intent(  OUT) :: rc
       integer :: STATUS
 
-      real*4, allocatable :: ldata(:,:)
+      real(kind=REAL32), allocatable :: ldata(:,:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
          _RETURN(SHM_SUCCESS)
@@ -1296,13 +1296,13 @@
     end subroutine MAPL_BroadcastToNodes_4DR4
 
     subroutine MAPL_BroadcastToNodes_1DR8(DATA,N,ROOT,rc)
-      real*8,            intent(INOUT) :: DATA(:)
+      real(kind=REAL64), intent(INOUT) :: DATA(:)
       integer,           intent(IN   ) :: N
       integer,           intent(IN   ) :: ROOT
       integer, optional, intent(  OUT) :: rc
       integer :: STATUS
 
-      real*8, allocatable :: ldata(:)
+      real(kind=REAL64), allocatable :: ldata(:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
          _RETURN(SHM_SUCCESS)
@@ -1320,13 +1320,13 @@
     end subroutine MAPL_BroadcastToNodes_1DR8
 
     subroutine MAPL_BroadcastToNodes_2DR8(DATA,N,ROOT,rc)
-      real*8,            intent(INOUT) :: DATA(:,:)
+      real(kind=REAL64), intent(INOUT) :: DATA(:,:)
       integer,           intent(IN   ) :: N
       integer,           intent(IN   ) :: ROOT
       integer, optional, intent(  OUT) :: rc
       integer :: STATUS
 
-      real*8, allocatable :: ldata(:,:)
+      real(kind=REAL64), allocatable :: ldata(:,:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
          _RETURN(SHM_SUCCESS)
@@ -1344,13 +1344,13 @@
     end subroutine MAPL_BroadcastToNodes_2DR8
 
     subroutine MAPL_BroadcastToNodes_3DR8(DATA,N,ROOT,rc)
-      real*8,            intent(INOUT) :: DATA(:,:,:)
+      real(kind=REAL64), intent(INOUT) :: DATA(:,:,:)
       integer,           intent(IN   ) :: N
       integer,           intent(IN   ) :: ROOT
       integer, optional, intent(  OUT) :: rc
       integer :: STATUS
 
-      real*8, allocatable :: ldata(:,:,:)
+      real(kind=REAL64), allocatable :: ldata(:,:,:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
          _RETURN(SHM_SUCCESS)
@@ -1368,13 +1368,13 @@
     end subroutine MAPL_BroadcastToNodes_3DR8
 
     subroutine MAPL_BroadcastToNodes_4DR8(DATA,N,ROOT,rc)
-      real*8,            intent(INOUT) :: DATA(:,:,:,:)
+      real(kind=REAL64), intent(INOUT) :: DATA(:,:,:,:)
       integer,           intent(IN   ) :: N
       integer,           intent(IN   ) :: ROOT
       integer, optional, intent(  OUT) :: rc
       integer :: STATUS
 
-      real*8, allocatable :: ldata(:,:,:,:)
+      real(kind=REAL64), allocatable :: ldata(:,:,:,:)
 
       if(.not.MAPL_ShmInitialized .or. MAPL_NodeRootsComm==MPI_COMM_NULL) THEN
          _RETURN(SHM_SUCCESS)

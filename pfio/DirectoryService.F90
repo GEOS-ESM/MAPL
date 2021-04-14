@@ -15,7 +15,7 @@
 module pFIO_DirectoryServiceMod
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_ptr, c_sizeof
    use MAPL_ExceptionHandling
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use pFIO_AbstractServerMod
    use pFIO_ServerThreadMod
    use pFIO_BaseServerMod
@@ -178,6 +178,7 @@ contains
       ! a SimpleSocket is used for the connection.
       ! Note: In this scenario, the server _must_ always publish prior to this.
 
+      _UNUSED_DUMMY(unusable)
       do n = 1, this%n_local_ports
          if (trim(this%local_ports(n)%port_name) == port_name) then
             allocate(sckt, source=SimpleSocket(client))

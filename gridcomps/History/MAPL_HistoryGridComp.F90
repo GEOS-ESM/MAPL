@@ -731,12 +731,6 @@ contains
 ! Initialize History Lists
 ! ------------------------
 
-    allocate(INTSTATE%AVERAGE    (nlist), stat=status)
-    _VERIFY(STATUS)
-    allocate(INTSTATE%STAMPOFFSET(nlist), stat=status)
-    _VERIFY(STATUS)
-
-    IntState%average = .false.
     LISTLOOP: do n=1,nlist
 
        list(n)%unit = 0
@@ -1113,6 +1107,10 @@ contains
        call ESMF_ConfigGetAttribute(cfg, list(n)%ForceOffsetZero, default=.false., & 
                                     label=trim(string)//'timestampEnd:', rc=status)
        _VERIFY(status) 
+! Force history so that time averaged collections are timestamped at the begining of the accumulation interval
+       call ESMF_ConfigGetAttribute(cfg, list(n)%timeStampStart, default=.false., & 
+                                    label=trim(string)//'timestampStart:', rc=status)
+       _VERIFY(status) 
 
 ! Get an optional chunk size
 ! --------------------------
@@ -1163,15 +1161,6 @@ contains
 ! ----------
 
        if (list(n)%disabled) cycle
-
-       if(list(n)%mode == "instantaneous" .or. list(n)%ForceOffsetZero) then
-          sec = 0
-       else
-          IntState%average(n) = .true.
-          sec = MAPL_nsecf(list(n)%acc_interval) / 2
-       endif
-       call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, rc=status )
-       _VERIFY(STATUS)
 
 ! His and Seg Alarms based on Reference Date and Time
 ! ---------------------------------------------------
@@ -1439,9 +1428,9 @@ contains
     call wildCardExpand(rc=status)
     _VERIFY(status)
 
-    ! Deal with split 4d field
-    !--------------------------
-    call split4dFields(rc=status)
+    ! Deal with splitting fields with ungriddeds dims
+    !------------------------------------------------
+    call splitUngriddedFields(rc=status)
     _VERIFY(status)
 
     do n=1,nlist
@@ -1621,12 +1610,13 @@ ENDDO PARSER
     IntState%average = .false.
     do n=1, nlist
        if (list(n)%disabled) cycle
+       if(list(n)%monthly) cycle
        if(list(n)%mode == "instantaneous" .or. list(n)%ForceOffsetZero) then
           sec = 0
+       else if (list(n)%timeStampStart) then
+          sec = MAPL_nsecf(list(n)%acc_interval)
        else
-          IntState%average(n) = .true.
           sec = MAPL_nsecf(list(n)%acc_interval) / 2
-          if(list(n)%monthly) cycle
        endif
        call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, rc=status )
        _VERIFY(STATUS)
@@ -2552,6 +2542,9 @@ ENDDO PARSER
       logical :: expand
       integer :: k, i
       
+      ! Restrictions:
+      ! 1) we do not do wildcard expansion for vectors
+      ! 2) no use of aliases for wildcard-expanded-field name base
       do n = 1, nlist
          if (.not.list(n)%regex) cycle
          fld_set => list(n)%field_set
@@ -2758,7 +2751,7 @@ ENDDO PARSER
       _RETURN(ESMF_SUCCESS)
     end subroutine MAPL_WildCardExpand
     
-    subroutine split4dFields(rc)
+    subroutine splitUngriddedFields(rc)
       integer, optional, intent(out) :: rc
 
       ! local vars
@@ -2768,17 +2761,18 @@ ENDDO PARSER
       type(newCFIOitemVectorIterator) :: iter
       type(newCFIOitem), pointer :: item
       integer :: nfields
-      integer :: nfield4d
+      integer :: nsplit
       type(ESMF_Field), pointer :: splitFields(:) => null()
       type(ESMF_State) :: expState
       type(newCFIOItemVector), pointer  :: newItems
       character(ESMF_MAXSTR) :: fldName, stateName
+      character(ESMF_MAXSTR) :: aliasName, alias
       logical :: split
-      integer :: k, i
+      integer :: k, i, idx
+      logical :: hasField
       
       ! Restrictions:
-      ! 1) we do not split 4d vectors
-      ! 2) use alias for split-field name base
+      ! 1) we do not split vectors
       do n = 1, nlist
          if (.not.list(n)%splitField) cycle
          fld_set => list(n)%field_set
@@ -2796,20 +2790,20 @@ ENDDO PARSER
          do while(iter /= list(n)%items%end())
             item => iter%get()
             if (item%itemType == ItemTypeScalar) then
-               split = has4dField(fldName=item%xname, rc=status)
+               split = hasSplitableField(fldName=item%xname, rc=status)
                _VERIFY(status)
                if (.not.split) call newItems%push_back(item)
             else if (item%itemType == ItemTypeVector) then
-               ! Lets' not allow 4d split for vectors (at least for now);
+               ! Lets' not allow field split for vectors (at least for now);
                ! it is easy to implement; just tedious
 
-               split = has4dField(fldName=item%xname, rc=status)
+               split = hasSplitableField(fldName=item%xname, rc=status)
                _VERIFY(status)
-               split = split.or.has4dField(fldName=item%yname, rc=status)
+               split = split.or.hasSplitableField(fldName=item%yname, rc=status)
                _VERIFY(status)
                if (.not.split) call newItems%push_back(item)
              
-               _ASSERT(.not. split, 'vectors of 4d fields not allowed yet')
+               _ASSERT(.not. split, 'split field vectors of not allowed yet')
              
             end if
    
@@ -2817,10 +2811,10 @@ ENDDO PARSER
          end do
 
          ! re-pack field_set
-         nfield4d = count(needSplit)
+         nsplit = count(needSplit)
 
-         if (nfield4d /= 0) then
-            nfields = nfields - nfield4d
+         if (nsplit /= 0) then
+            nfields = nfields - nsplit
             allocate(newExpState(nfields), stat=status)
             _VERIFY(status)
             ! do the same for statename
@@ -2842,9 +2836,11 @@ ENDDO PARSER
             do k = 1, size(needSplit) ! loop over "old" fld_set
                if (.not. needSplit(k)) cycle
 
-               call MAPL_FieldSplit(fldList(k), splitFields, RC=status)
-               _VERIFY(STATUS)
                stateName = fld_set%fields(2,k)
+               aliasName = fld_set%fields(3,k)
+
+               call MAPL_FieldSplit(fldList(k), splitFields, aliasName=aliasName, RC=status)
+               _VERIFY(STATUS)
 
                expState = export(list(n)%expSTATE(k))
 
@@ -2853,9 +2849,11 @@ ENDDO PARSER
                        rc=status)
                   _VERIFY(status)
 
-                  call appendFieldSet(newFieldSet, fldName, &
+                  alias = fldName
+
+                  call appendFieldSet(newFieldSet, fldName, & 
                        stateName=stateName, &
-                       aliasName=fldName, &
+                       aliasName=alias, &
                        specialName='', rc=status)
 
                   _VERIFY(status)
@@ -2863,11 +2861,20 @@ ENDDO PARSER
                   call appendArray(newExpState,idx=list(n)%expState(k),rc=status)
                   _VERIFY(status)
 
-                  call MAPL_StateAdd(expState, field=splitFields(i), rc=status)
+                  ! ALT: this is ONLY a very simple test to make sure that this is not a duplicate
+                  ! this issue might be revisited to assure that possible duplicates have
+                  ! identical content. Otherwise the split fields should be put in its own container
+                  ! perhaps per collection, but this 
+                  hasField = .false. ! initialize just in case
+                  call checkIfStateHasField(expState, fieldName=fldName, hasField=hasField, rc=status)
                   _VERIFY(status)
+                  if (.not. hasField) then
+                     call MAPL_StateAdd(expState, field=splitFields(i), rc=status)
+                     _VERIFY(status)
+                  end if
 
                   item%itemType = ItemTypeScalar
-                  item%xname = trim(fldName)
+                  item%xname = trim(alias)
                   item%yname = ''
 
                   call newItems%push_back(item)
@@ -2890,35 +2897,39 @@ ENDDO PARSER
       enddo
 
       _RETURN(ESMF_SUCCESS)
-    end subroutine split4dFields
+    end subroutine splitUngriddedFields
 
-    function has4dField(fldName, rc) result(have4d)
-      logical :: have4d
+    function hasSplitableField(fldName, rc) result(okToSplit)
+      logical :: okToSplit
       character(len=*),  intent(in)   :: fldName
       integer, optional, intent(out) :: rc
 
       ! local vars
       integer :: k
       integer :: fldRank
+      integer :: dims
       integer :: status
+      logical :: has_ungrd
       type(ESMF_State) :: exp_state
       type(ESMF_Field) :: fld
       type(ESMF_FieldStatus_Flag) :: fieldStatus
+      character(ESMF_MAXSTR) :: baseName
       
       ! and these vars are declared in the caller
       ! fld_set
       ! m
 
-      have4d = .false.
+      okToSplit = .false.
       fldRank = 0
 
       m = m + 1
       _ASSERT(fldName == fld_set%fields(3,m), 'Incorrect order') ! we got "m" right
       
+      baseName = fld_set%fields(1,m)
       k = list(n)%expSTATE(m)
       exp_state = export(k)
    
-      call MAPL_StateGet(exp_state,fldName,fld,rc=status )
+      call MAPL_StateGet(exp_state,baseName,fld,rc=status )
       _VERIFY(status)
 
       call ESMF_FieldGet(fld, status=fieldStatus, rc=status)
@@ -2934,15 +2945,30 @@ ENDDO PARSER
 
       _ASSERT(fldRank < 5, "unsupported rank")
       
-      have4d = (fldRank == 4)
-      if (have4d) then
+      if (fldRank == 4) then
+         okToSplit = .true.
+      else if (fldRank == 3) then
+         ! split ONLY if X and Y are "gridded" and Z is "ungridded"
+         call ESMF_AttributeGet(fld, name='DIMS', value=dims, rc=status)
+        _VERIFY(STATUS)
+        if (dims == MAPL_DimsHorzOnly) then
+           call ESMF_AttributeGet(fld, name='UNGRIDDED_DIMS', &
+                isPresent=has_ungrd, rc=status)
+            _VERIFY(STATUS)
+            if (has_ungrd) then
+               okToSplit = .true.
+            end if
+         end if
+      end if
+      
+      if (okToSplit) then
          fldList(m) = fld
       end if
-      needSplit(m) = have4d
+      needSplit(m) = okToSplit
 
       _RETURN(ESMF_SUCCESS)
      
-    end function has4dField
+    end function hasSplitableField
 
     subroutine appendArray(array, idx, rc)
       integer, pointer,  intent(inout)   :: array(:)
@@ -3217,6 +3243,9 @@ ENDDO PARSER
     character(len=ESMF_MAXSTR)     :: DateStamp
     integer                        :: CollBlock
     type(ESMF_Time)                :: current_time
+    type(ESMF_Time)                :: nextMonth
+    type(ESMF_TimeInterval)        :: dur, oneMonth
+    integer                        :: sec
 
 !   variables for "backwards" mode
     logical                        :: fwd
@@ -3438,6 +3467,20 @@ ENDDO PARSER
 
          if( NewSeg) then 
             list(n)%partial = .false.
+            if (list(n)%monthly) then
+               ! get the number of seconds in this month
+               ! it's tempting to use the variable "oneMonth" but it does not work
+               ! instead we compute the differece between 
+               ! nextMonth and thisMonth as a new timeInterval
+
+               call ESMF_ClockGet(clock,currTime=current_time,rc=status)
+               _VERIFY(status)
+               call ESMF_TimeIntervalSet( oneMonth, MM=1, __RC__)
+               nextMonth = current_time + oneMonth
+               dur = nextMonth - current_time
+               call ESMF_TimeIntervalGet(dur, s=sec, __RC__)
+               call list(n)%mNewCFIO%modifyTimeIncrement(sec, __RC__)
+            end if
          endif
 
          if (list(n)%timeseries_output) then
@@ -4724,6 +4767,7 @@ ENDDO PARSER
   type(ESMF_Field)                        :: field
   integer                                 :: dims
   logical, allocatable                    :: isBundle(:)
+  logical                                 :: hasField
 
 ! Set rewrite flag and tmpfields.
 ! To keep consistency, all the arithmetic parsing output fields must
@@ -4743,8 +4787,8 @@ ENDDO PARSER
     call MAPL_ExportStateGet(exptmp,fields(2,m),state,rc=status)
     _VERIFY(STATUS)
     if (index(fields(1,m),'%') == 0) then
-       call ESMF_StateGet(state,fields(1,m),field,rc=status)
-       if (status==_SUCCESS) then
+       call checkIfStateHasField(state, fields(1,m), hasField, __RC__)
+       if (hasField) then
           iRealFields = iRealFields + 1
           rewrite(m)= .FALSE.
           isBundle(m) = .FALSE.
@@ -5170,5 +5214,41 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
   end subroutine RecordRestart
 
+  subroutine  checkIfStateHasField(state, fieldName, hasField, rc)
+    type(ESMF_State), intent(in) :: state ! export state
+    character(len=*), intent(in) :: fieldName
+    logical, intent(out)         :: hasField
+    integer, intent(out), optional :: rc ! Error code:
+
+    integer :: n, i, status
+    character (len=ESMF_MAXSTR), allocatable  :: itemNameList(:)
+    type(ESMF_StateItem_Flag),   allocatable  :: itemTypeList(:)
+
+    call ESMF_StateGet(state, itemcount=n,  rc=status)
+    _VERIFY(status)
+
+    allocate(itemNameList(n), stat=status)
+    _VERIFY(status)
+    allocate(itemTypeList(n), stat=status)
+    _VERIFY(status)
+    call ESMF_StateGet(state,itemnamelist=itemNamelist,itemtypelist=itemTypeList,rc=status)
+    _VERIFY(STATUS)
+
+    hasField = .false.
+    do I=1,N
+       if(itemTypeList(I)/=ESMF_STATEITEM_FIELD) cycle
+       if(itemNameList(I)==fieldName) then
+          hasField = .true.
+          exit
+       end if
+    end do
+    deallocate(itemNameList, stat=status)
+    _VERIFY(STATUS)
+    deallocate(itemTypeList, stat=status)
+    _VERIFY(status)
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine checkIfStateHasField
+    
 end module MAPL_HistoryGridCompMod
 

@@ -10,7 +10,7 @@ module pFIO_MockClientThreadMod
    use pFIO_MessageVisitorMod
    use pFIO_BaseThreadMod
    use pFIO_AbstractDataReferenceMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use pFIO_SimpleSocketMod
    use pFIO_FileMetadataMod
 

@@ -1,3 +1,5 @@
+#include "unused_dummy.H"
+
 module MAPL_TimeProfiler_private
    use MAPL_BaseProfiler, only: BaseProfiler
    use MAPL_BaseProfiler, only: TimeProfilerIterator => BaseProfilerIterator
@@ -42,6 +44,7 @@ contains
    function make_meter(this) result(meter)
       class(AbstractMeter), allocatable :: meter
       class(TimeProfiler), intent(in) :: this
+      _UNUSED_DUMMY(this)
       meter = AdvancedMeter(MpiTimerGauge())
    end function make_meter
 

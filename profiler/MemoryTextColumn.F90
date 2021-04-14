@@ -42,7 +42,6 @@ contains
       character(1), optional, intent(in) :: separator
 
       integer :: i, n
-      character(:), allocatable :: word
 
       n = size(header)
       allocate(column%header(n))
