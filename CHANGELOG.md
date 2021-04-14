@@ -15,8 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added pflogger_stub directory. With -DBUILD_WITH_PFLOGGER=OFF, it is built and linked to replace pflogger library.
-- a new flag to timestamp average collections at the beginning of the averaging interval
+- A new flag to timestamp average collections at the beginning of the averaging interval
 - Ability to run MultiGroupServer and model in a single node
 - Add command line option --one_node_output
 - Ability to split fields with ungridded dimensions (and not only 4d). 
@@ -24,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
 - Add MAPL_TransposeaRegridderMod to MAPL_Mod
 - Nearest-neighbor interpolation option for ExtData (keyword: 'E')
+- Added pflogger_stub directory. With `-DBUILD_WITH_PFLOGGER=OFF`, it is built and linked to replace pFlogger library.
 
 ### Changed
 
@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
      the grid compe spec code generator ACG.
 - Updated `components.yaml`:
    - ESMA_env v3.2.0 (Baselibs 6.1.0 <==> ESMF 8.1.0)
-   - ESMA_cmake v3.3.8 (adds ability to see GFE namespace option)
+   - ESMA_cmake v3.3.9 (adds ability to see GFE namespace option, `BUILD_WITH_PFLOGGER`)
 - Update CI images to 6.1.0
 - Updated MAPL to have the ability to use the new GFE namespace in CMake. (`gftl` --> `GFTL::gftl`). 
    - The default in ESMA_cmake v3.3.8 is *not* enabled. To enable use `-DESMA_USE_GFE_NAMESPACE=ON`.
