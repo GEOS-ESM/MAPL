@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- a new flag to timestamp average collections at the beginning of the averaging interval
 - Ability to run MultiGroupServer and model in a single node
 - Add command line option --one_node_output
 - Ability to split fields with ungridded dimensions (and not only 4d). 
@@ -25,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Simplified the logic for timestamping offsets
 - Setting and getting UNGRIDDED_DIMS attribute uses now single quoted string
 - Do not output `cubed_sphere` and `orientation` variables in native
   History output as pFIO at present does not handle string variables
@@ -45,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed few memory leaks (average and stampOffset arrays were allocated twice)
+- Fixed a bug related to incorrect time increment attribute for a monthly collection
 - Fixed a bug related to the naming scheme for split fields when ungrid size is 1
 - Fixed unset UNGRIDDED_DIMS attribute bug
 - Fixes ESMF logging errors related to expressions in History

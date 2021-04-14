@@ -26,6 +26,7 @@ module MAPL_TimeDataMod
      procedure :: compute_time_vector
      procedure :: get_start_time
      procedure :: get
+     procedure :: setFrequency
   end type timeData
 
   interface timeData
@@ -60,6 +61,16 @@ contains
      end if
      _RETURN(_SUCCESS)
   end subroutine get
+       
+  subroutine setFrequency(this,frequency,rc)
+     class(TimeData), intent(inout) :: this
+     integer, intent(in) :: frequency
+     integer, optional, intent(out) :: rc
+
+     this%frequency = frequency
+
+     _RETURN(_SUCCESS)
+   end subroutine setFrequency
        
 
   function define_time_variable(this,rc) result(v)
