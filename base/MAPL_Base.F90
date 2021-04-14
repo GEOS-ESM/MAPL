@@ -3969,14 +3969,19 @@ and so on.
               k1 = k+1
            end if
         end do
-        if(count == n-1) then
+        if (count == 0) then
+           if (name == aliasName) then
+              do i=1,n
+                 write(splitNameArray(i),'(A,I3.3)') trim(aliasName), i
+              end do
+           else
+              count = count+1
+              splitNameArray(count) = aliasName
+           end if
+        else if(count == n-1) then
            k2 = kk
            count = count+1
            splitNameArray(count) = aliasName(k1:k2)
-        else if (count == 0) then
-           do i=1,n
-              write(splitNameArray(i),'(A,I3.3)') trim(aliasName), i
-           end do
         else
            _ASSERT(.false.,'Inconsistent number of split separators')
         end if

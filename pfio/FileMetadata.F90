@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_FileMetadataMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use gFTL_StringIntegerMap
    use pFIO_StringIntegerMapUtilMod
    use pFIO_ConstantsMod

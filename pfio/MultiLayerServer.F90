@@ -7,7 +7,7 @@ module pFIO_MultiLayerServerMod
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use MAPL_ErrorHandlingMod
    use pFIO_ConstantsMod
    use pFIO_CollectiveStageDataMessageMod

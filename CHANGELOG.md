@@ -7,18 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
+### Removed
+
+-  pFIO/KeywordEnforcer.F90 duplicated functionality now in
+   shared/KeywordEnforcer.F90, and has been removed in favor of the
+   other.
 
 ### Added
 
+- a new flag to timestamp average collections at the beginning of the averaging interval
 - Ability to run MultiGroupServer and model in a single node
 - Add command line option --one_node_output
 - Ability to split fields with ungridded dimensions (and not only 4d). 
 - Ability to add alias names to the split fields
+- Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
+- Add MAPL_TransposeaRegridderMod to MAPL_Mod
+- Nearest-neighbor interpolation option for ExtData (keyword: 'E')
 
 ### Changed
 
+- Simplified the logic for timestamping offsets
 - Setting and getting UNGRIDDED_DIMS attribute uses now single quoted string
 - Do not output `cubed_sphere` and `orientation` variables in native
   History output as pFIO at present does not handle string variables
@@ -26,9 +34,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - `base/mapl_tree.py`
    - `base/mapl_vlist.py`
    - `Apps/MAPL_GridCompSpecs_ACG.py`
+   - Nullified pointers for deactivated optional state elements for
+     the grid compe spec code generator ACG.
+- Updated `components.yaml`:
+   - ESMA_env v3.2.0 (Baselibs 6.1.0 <==> ESMF 8.1.0)
+   - ESMA_cmake v3.3.8 (adds ability to see GFE namespace option)
+- Update CI images to 6.1.0
+- Updated MAPL to have the ability to use the new GFE namespace in CMake. (`gftl` --> `GFTL::gftl`). 
+   - The default in ESMA_cmake v3.3.8 is *not* enabled. To enable use `-DESMA_USE_GFE_NAMESPACE=ON`.
+   - NOTE: This requires Baselibs 6.2.0 or higher when using Baselibs.
+- Updated the non-PersistSolar branch of `MAPL_SunGetSolarConstantFromNRLFile` to use Solar Cycle 24 as we are now in Cycle 25.
 
 ### Fixed
 
+- Fixed few memory leaks (average and stampOffset arrays were allocated twice)
+- Fixed a bug related to incorrect time increment attribute for a monthly collection
+- Fixed a bug related to the naming scheme for split fields when ungrid size is 1
 - Fixed unset UNGRIDDED_DIMS attribute bug
 - Fixes ESMF logging errors related to expressions in History
 - Fixed error handling in profiler/BaseProfiler.F90
@@ -38,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CMake updates to allow NAG Fortran build
 - Converted some remaining `real*8`-type declarations to be `real(kind=REAL64)`-style
 - Eliminated (almost) all compiler warnings for Intel compiler
+- Removed conditional around declaring pointers in code emitted by grid comp ACG.
 
 ### Removed
 

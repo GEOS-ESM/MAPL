@@ -54,6 +54,7 @@ module MAPL_newCFIOMod
         procedure :: CreateFileMetaData
         procedure :: CreateVariable
         procedure :: modifyTime
+        procedure :: modifyTimeIncrement
         procedure :: bundlePost
         procedure :: stageData
         procedure :: stage2DLatLon
@@ -327,6 +328,20 @@ module MAPL_newCFIOMod
         _RETURN(ESMF_SUCCESS)
 
      end subroutine modifyTime
+
+     subroutine modifyTimeIncrement(this, frequency, rc) 
+        class(MAPL_newCFIO), intent(inout) :: this
+        integer, intent(in) :: frequency
+        integer, optional, intent(out) :: rc
+ 
+        integer :: status
+
+        call this%timeInfo%setFrequency(frequency, rc=status)
+        _VERIFY(status)
+
+        _RETURN(ESMF_SUCCESS)
+
+      end subroutine modifyTimeIncrement
 
      subroutine bundlepost(this,filename,oClients,rc)
         class (MAPL_newCFIO), intent(inout) :: this

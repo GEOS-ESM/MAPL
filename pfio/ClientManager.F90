@@ -5,7 +5,7 @@ module pFIO_ClientManagerMod
 
    use MAPL_ExceptionHandling
    use MAPL_SortMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_FileMetadataMod
    use pFIO_ClientThreadMod
