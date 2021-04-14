@@ -12,5 +12,4 @@ else ()
    esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared TYPE SHARED)
 endif ()
 
-target_include_directories (${this} PUBLIC
-          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
