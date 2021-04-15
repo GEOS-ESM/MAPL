@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Changed the interface to TimeData to have an optional "funits" argument (defaults to "minutes")
+- Changed time units to "days" for monthly collections
 - Simplified the logic for timestamping offsets
 - Setting and getting UNGRIDDED_DIMS attribute uses now single quoted string
 - Do not output `cubed_sphere` and `orientation` variables in native
@@ -48,6 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed print diagnostics for monthly collections (proper reporting of frequency, duration, eliminated acc_interval)
+- Fixed another bug related to the incorrect time increment for monthly averaged collections
 - Fixed few memory leaks (average and stampOffset arrays were allocated twice)
 - Fixed a bug related to incorrect time increment attribute for a monthly collection
 - Fixed a bug related to the naming scheme for split fields when ungrid size is 1
