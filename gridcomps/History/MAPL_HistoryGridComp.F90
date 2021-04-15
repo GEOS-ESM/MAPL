@@ -2405,7 +2405,11 @@ ENDDO PARSER
           _VERIFY(status)
           call list(n)%mNewCFIO%set_param(itemOrder=intState%fileOrderAlphabetical,rc=status)
           _VERIFY(status)
-          list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n))
+          if (list(n)%monthly) then
+             list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),'days')
+          else
+             list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n))
+          end if
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),rc=status)
              _VERIFY(status)
@@ -3243,7 +3247,7 @@ ENDDO PARSER
     character(len=ESMF_MAXSTR)     :: DateStamp
     integer                        :: CollBlock
     type(ESMF_Time)                :: current_time
-    type(ESMF_Time)                :: nextMonth
+    type(ESMF_Time)                :: lastMonth
     type(ESMF_TimeInterval)        :: dur, oneMonth
     integer                        :: sec
 
@@ -3471,13 +3475,13 @@ ENDDO PARSER
                ! get the number of seconds in this month
                ! it's tempting to use the variable "oneMonth" but it does not work
                ! instead we compute the differece between 
-               ! nextMonth and thisMonth as a new timeInterval
+               ! thisMonth and lastMonth and as a new timeInterval
 
                call ESMF_ClockGet(clock,currTime=current_time,rc=status)
                _VERIFY(status)
                call ESMF_TimeIntervalSet( oneMonth, MM=1, __RC__)
-               nextMonth = current_time + oneMonth
-               dur = nextMonth - current_time
+               lastMonth = current_time - oneMonth
+               dur = current_time - lastMonth
                call ESMF_TimeIntervalGet(dur, s=sec, __RC__)
                call list(n)%mNewCFIO%modifyTimeIncrement(sec, __RC__)
             end if
