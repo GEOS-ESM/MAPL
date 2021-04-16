@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add MAPL_TransposeaRegridderMod to MAPL_Mod
 - Nearest-neighbor interpolation option for ExtData (keyword: 'E')
 - Added pflogger_stub directory. With `-DBUILD_WITH_PFLOGGER=OFF`, it is built and linked to replace pFlogger library.
+- Added new CI test using Intel oneAPI
 
 ### Changed
 
