@@ -55,7 +55,7 @@
 
     type Segment_T
        integer (c_int) :: shmid=-1
-       type    (c_ptr) :: addr
+       type    (c_ptr) :: addr=C_NULL_PTR
     end type Segment_T
 
     type(Segment_T), pointer :: Segs(:) => NULL()
@@ -198,6 +198,8 @@
 
       allocate(Segs(CHUNK),stat=STATUS)
       _ASSERT(STATUS==0,'needs informative message')
+      Segs(:)%shmid = -1
+      Segs(:)%addr=C_NULL_PTR
 
       MAPL_ShmInitialized=.true.
 
@@ -1083,6 +1085,7 @@
 
       pos=1
       do while(pos<=size(Segs))
+         if(Segs(pos)%shmid == -1) cycle
          if(c_associated(Segs(pos)%addr,Caddr)) exit
          pos = pos + 1
       end do
@@ -1118,6 +1121,7 @@
 !!! Free the position in the segment list
 
       Segs(pos)%shmid=-1
+      Segs(pos)%addr=C_NULL_PTR
 
       _RETURN(SHM_SUCCESS)
     end subroutine ReleaseSharedMemory
@@ -1148,6 +1152,8 @@
          if(pos==size(Segs)) then ! Expand the segment list
             allocate(SegsNew(size(Segs)+CHUNK),stat=STATUS)
             _ASSERT(STATUS==0,'needs informative message')
+            SegsNew(:)%shmid = -1
+            SegsNew(:)%addr=C_NULL_PTR
 
             SegsNew(1:size(Segs)) = Segs
 
