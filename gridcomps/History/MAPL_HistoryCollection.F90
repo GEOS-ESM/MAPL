@@ -66,6 +66,7 @@ module MAPL_HistoryCollectionMod
      integer                            :: Psize
      integer                            :: tm
      logical                            :: ForceOffsetZero
+     logical                            :: timestampStart
      logical                            :: monthly
      logical                            :: partial = .false.
      ! Adding Arithemtic Field Rewrite
