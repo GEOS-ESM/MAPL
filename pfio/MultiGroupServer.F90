@@ -70,6 +70,7 @@ module pFIO_MultiGroupServerMod
       integer, allocatable :: back_ranks(:)
       integer, allocatable :: front_ranks(:)
       class(vector_array), allocatable :: buffers(:)
+      type(SimpleCommSplitter) :: splitter
    contains
       procedure :: start
       procedure :: start_back
@@ -95,7 +96,6 @@ contains
       integer, optional, intent(out) :: rc
       integer :: s_rank, s_size
       integer :: ierror, status, local_rank
-      type (SimpleCommSplitter) :: splitter
       type (SplitCommunicator)   ::  s_comm
       character(len=:), allocatable :: s_name
       integer :: MPI_STAT(MPI_STATUS_SIZE)
@@ -103,22 +103,22 @@ contains
       integer :: nwriter
       integer, allocatable :: node_sizes(:)
 
-      call MPI_Comm_dup(server_comm, s%server_comm, ierror)
+      s%server_comm = server_comm
       call MPI_Comm_size(s%server_comm, s_size , ierror)
 
-      splitter = SimpleCommsplitter(s%server_comm)
-      node_sizes = splitter%get_node_sizes()
+      s%splitter = SimpleCommsplitter(s%server_comm)
+      node_sizes = s%splitter%get_node_sizes()
 
       ! if oserver size is smaller than one-node, than it means oserver and model coexist in one node 
       if (s_size < node_sizes(1)) then
-         call splitter%add_group(npes = s_size - nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
-         call splitter%add_group(npes = nwriter_per_node,          name="o_server_back",  isolate_nodes=.false.)
+         call s%splitter%add_group(npes = s_size - nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
+         call s%splitter%add_group(npes = nwriter_per_node,          name="o_server_back",  isolate_nodes=.false.)
       else   
-         call splitter%add_group(npes_per_node = node_sizes(1)-nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
-         call splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
+         call s%splitter%add_group(npes_per_node = node_sizes(1)-nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
+         call s%splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
       endif
  
-      s_comm = splitter%split(rc=status); _VERIFY(status)
+      s_comm = s%splitter%split(rc=status); _VERIFY(status)
 
       nwriter = nwriter_per_node*size(node_sizes)
       s%front_comm = MPI_COMM_NULL
@@ -185,7 +185,7 @@ contains
       if ( this%back_comm /= MPI_COMM_NULL) then
          call this%start_back()      
       endif
-
+      call this%splitter%free_sub_comm()
    contains
 
       subroutine start_front()

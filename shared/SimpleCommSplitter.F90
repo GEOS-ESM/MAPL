@@ -23,6 +23,8 @@ module MAPL_SimpleCommSplitterMod
       private
       character(:), allocatable :: base_name
       type (CommGroupDescriptionVector) :: group_descriptions
+      logical :: is_split
+      integer :: sub_comm
    contains
       procedure :: split
       procedure :: add_group_simple
@@ -30,6 +32,7 @@ module MAPL_SimpleCommSplitterMod
       procedure :: compute_color
       procedure :: get_node_sizes
       procedure :: get_node_id
+      procedure :: free_sub_comm
    end type SimpleCommSplitter
 
 
@@ -215,6 +218,9 @@ contains
          endif
       enddo
 
+      call Mpi_Comm_free(node_comm, ierror)
+      _VERIFY(ierror)
+
       _RETURN(_SUCCESS)
       
    end function compute_color
@@ -256,6 +262,8 @@ contains
       call MPI_Bcast(node_id, 1, MPI_INTEGER, 0, node_comm, ierror)
       _VERIFY(ierror)
 
+      call Mpi_Comm_free(node_comm, ierror)
+      _VERIFY(ierror)
       _RETURN(_SUCCESS)
 
    end function get_node_id
@@ -294,9 +302,32 @@ contains
 
       node_sizes = pack(node_sizes, (node_sizes /= -1))
 
+      call Mpi_Comm_free(node_comm, ierror)
+      _VERIFY(ierror)
+
       _RETURN(_SUCCESS)
    end function get_node_sizes
 
+   subroutine free_sub_comm(this)
+     class ( SimpleCommSplitter), intent(inout) :: this
+     integer :: ierror
+     if (this%is_split) then
+        call MPI_Comm_free(this%sub_comm, ierror)
+     endif
+  end subroutine free_sub_comm
+
+  subroutine assign(this, from)
+     class (SimpleCommSplitter), intent(inout) :: this
+     type (SimpleCommSplitter), intent(inout) :: from
+
+     call this%set_shared_communicator(from%get_shared_communicator())
+     this%base_name = from%base_name
+     this%group_descriptions = from%group_descriptions
+     this%is_split = from%is_split
+     this%sub_comm = from%sub_comm
+     from%is_split = .false.
+
+  end subroutine assign 
 
 end module MAPL_SimpleCommSplitterMod
 

@@ -358,7 +358,7 @@ contains
       integer :: status
 
       if(present(comm_world)) then
-        call MPI_Comm_dup(comm_world, this%comm_world, status)
+        this%comm_world = comm_world
       else
         this%comm_world =  MPI_COMM_WORLD
       endif
