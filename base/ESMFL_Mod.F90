@@ -2709,7 +2709,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    character(len=ESMF_MAXSTR), parameter :: IAm = 'StateRegrid'
 
 ! start
-
+   write(*,*)"bmaa: ",__FILE__,__LINE__
    call ESMF_VMGetCurrent(vm)
    call ESMF_VMGet(vm, localPet=mype, petCount=npe, rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
@@ -2722,6 +2722,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
    call ESMF_StateGet(srcSTA, itemcount=itemcount, rc=status)
 
+   write(*,*)"bmaa: ",__FILE__,__LINE__
    if(itemcount==0) then
       call ESMFL_FailedRC(mype,Iam//': ESMF_state is empty')
    end if
@@ -2735,6 +2736,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
                       itemtypelist=itemtypelist, rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
+   write(*,*)"bmaa: ",__FILE__,__LINE__
    srcFCount=0
    do i=1,itemcount
       if(itemtypelist(i)==ESMF_STATEITEM_FIELD) then
@@ -2743,6 +2745,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
       end if
    end do
    allocate(srcNames(srcFCount))
+   write(*,*)"bmaa: ",__FILE__,__LINE__
    srcFCount=0
    do i=1,itemcount
       if(itemtypelist(i)==ESMF_STATEITEM_FIELD) then
@@ -2753,6 +2756,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
     
 ! get grid from first field in state, and create bundle
 
+   write(*,*)"bmaa: ",__FILE__,__LINE__
    if(verbose .and. mype==MAPL_Root) print *, ' Get grid from ',trim(srcNames(1))
    call ESMF_StateGet(srcSTA, trim(srcNames(1)), FLD, &
                       rc=status)
@@ -2770,6 +2774,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
 ! populate source bundle   
 
+   write(*,*)"bmaa: ",__FILE__,__LINE__
    call ESMFL_StateGetField(srcSTA, srcNames , srcBUN, RC=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' SRC ESMFL_StateGetField failed')
 
@@ -2796,6 +2801,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
     
 ! get grid from first field in state, and create bundle
 
+   write(*,*)"bmaa: ",__FILE__,__LINE__
    if(verbose .and. mype==MAPL_Root) print *, ' Get grid from ',trim(dstNames(1))
    call ESMF_StateGet(dstSTA, trim(dstNames(1)), FLD, &
                       rc=status)
@@ -2811,6 +2817,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call ESMF_FieldBundleSet(dstBUN, grid, rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' src ESMF_FieldBundleSet failed' )
 
+   write(*,*)"bmaa: ",__FILE__,__LINE__
 ! populate destination bundle   
 
    call ESMFL_StateGetField(dstSTA, dstNames, dstBUN, RC=status)
@@ -2818,6 +2825,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
 ! now call BundleRegrid
 
+   write(*,*)"bmaa: ",__FILE__,__LINE__
    call BundleRegrid (srcBUN, dstBUN, rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
@@ -3653,7 +3661,7 @@ CONTAINS
 
       call ESMF_StateGet (STA, nameInBundle, stateField,  RC=STATUS)
       notInState=(status/=ESMF_SUCCESS)
-      (.not.notINState) then
+      if (.not.notINState) then
          call ESMF_StateGet (STA, NameInBundle, itemType=itemType,  RC=STATUS)
          _VERIFY(STATUS)
       end if
