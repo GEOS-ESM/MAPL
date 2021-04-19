@@ -3648,6 +3648,8 @@ CONTAINS
    integer                  :: src_fieldRank, dst_fieldRank
    logical                  :: NotInState,itemNotFound
    character(len=ESMF_MAXSTR) :: NameInBundle
+   type(ESMF_StateItem_Flag) :: itemType
+
 
 !
    call ESMF_FieldBundleGet (BUN, name=name, FieldCount=NumVars, RC=STATUS)
