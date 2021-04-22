@@ -420,7 +420,7 @@ contains
       if (.not. this%mpi_already_initialized) then
          call MAPL_Finalize(comm=this%comm_world)
          !call MPI_Finalize(ierror)
-         call ESMF_Finalize(ierror)
+         call ESMF_Finalize(rc=ierror)
          _VERIFY(ierror)
       end if
 
