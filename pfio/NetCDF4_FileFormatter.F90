@@ -11,7 +11,7 @@ module pFIO_NetCDF4_FileFormatterMod
    use pFIO_VariableMod
    use pFIO_CoordinateVariableMod
    use pFIO_FileMetadataMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use gFTL_StringVector
    use gFTL_StringIntegerMap
    use pFIO_StringVariableMapMod
