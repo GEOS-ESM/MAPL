@@ -5176,17 +5176,22 @@ CONTAINS
     allocate( MCFIO%pairList(LT),stat=STATUS)
     _VERIFY(STATUS)
 
+
     if (present(regridmethod)) then
        regridmethod_=regridmethod
     else
        regridmethod_=REGRID_METHOD_BILINEAR
     endif
-    mcfio%regrid_method = regridmethod_
 
     mcfio%regrid_type=-1
     if ( (img /= im .or. jmg /= jm) .and. (regridMethod_ /= -1) ) then
        if (regridmethod_==REGRID_METHOD_VOTE .or. regridmethod_==REGRID_METHOD_CONSERVE .or. regridmethod_==REGRID_METHOD_FRACTION) then
           mcfio%regridConservative = .true.
+          mcfio%regridder => make_regridder(esmfgrid,regridMethod_,lonsfile,latsfile,im,jm,counts(3),.false.,localTiles=.false.,rc=status)
+          _VERIFY(status)
+       else if (regridmethod_==REGRID_METHOD_BILINEAR) then
+          mcfio%regridder => make_regridder(ESMFGRID, regridMethod_, LONSfile, LATSfile, IM, JM, counts(3), .false., rc=status)
+          _VERIFY(status)
        end if
        mcfio%regrid_type=regridmethod_
     end if
@@ -5402,6 +5407,7 @@ CONTAINS
                 alloc_ra = 1
                 allocate(mcfio%reqs(nn)%read_array(mcfio%im,mcfio%jm),stat=status)
                 _VERIFY(status)
+
                 globPtrArr(nn)%ptr => mcfio%reqs(nn)%read_array
                 ptrTypeIn(1)%ptr => globPtrArr(nn)%ptr
                 allocate(mcfio%buffer(nn)%ptr(img,jmg),stat=status)
@@ -5495,7 +5501,8 @@ CONTAINS
                 call TransAndSave(mcfio,ptrTypein(1:2),ptrtypeout(1:2),mcfio%reqs(nn),.not.TransAlreadyDone,2,hw_,rc=status)
              end if VECTORTEST
              if (alloc_ra > 0) then
-                deallocate(mcfio%reqs(nn)%read_array)
+                deallocate(mcfio%reqs(nn)%read_array,stat=status)
+                _VERIFY(status)
                 nullify(mcfio%reqs(nn)%read_array)
                 if (alloc_ra > 1) then
                    deallocate(mcfio%reqs(nv)%read_array)
@@ -5549,8 +5556,6 @@ CONTAINS
               _VERIFY(STATUS)
            end if
         end if
-        deallocate(gin)
-        nullify(gin)
         if (mcfio%gsiMode) call shift180Lon2D_(gout)
      else
  
@@ -5580,11 +5585,6 @@ CONTAINS
            call mCFIO%regridder%set_undef_value(MAPL_undef)
            call mCFIO%regridder%regrid(uin, vin, uout, vout, rotate=mCFIO%doRotate, rc=status)
            _VERIFY(status)
-
-           deallocate(PtrIn(1)%ptr)
-           nullify(PtrIn(1)%ptr)
-           deallocate(PtrIn(2)%ptr)
-           nullify(PtrIn(2)%ptr)
 
         end if
 
