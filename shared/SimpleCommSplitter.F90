@@ -23,7 +23,7 @@ module MAPL_SimpleCommSplitterMod
       private
       character(:), allocatable :: base_name
       type (CommGroupDescriptionVector) :: group_descriptions
-      logical :: is_split
+      logical :: is_split = .false.
       integer :: sub_comm
    contains
       procedure :: split
@@ -33,6 +33,8 @@ module MAPL_SimpleCommSplitterMod
       procedure :: get_node_sizes
       procedure :: get_node_id
       procedure :: free_sub_comm
+      procedure :: assign
+      generic :: assignment(=) =>assign
    end type SimpleCommSplitter
 
 
@@ -318,14 +320,20 @@ contains
 
   subroutine assign(this, from)
      class (SimpleCommSplitter), intent(inout) :: this
-     type (SimpleCommSplitter), intent(inout) :: from
+     type (SimpleCommSplitter), intent(in) :: from
+     integer :: rank, comm, ierror
+     
+     comm = from%get_shared_communicator()
 
-     call this%set_shared_communicator(from%get_shared_communicator())
+     if (from%is_split) then
+       call MPI_Comm_rank(comm, rank, ierror)
+       if (rank == 0) print*, "WANRNIG, try not to duplicate an splitter that has been split. Only one split splitter should bed called free_sub_comm"
+     endif
+     call this%set_shared_communicator(comm)
      this%base_name = from%base_name
      this%group_descriptions = from%group_descriptions
      this%is_split = from%is_split
      this%sub_comm = from%sub_comm
-     from%is_split = .false.
 
   end subroutine assign 
 
