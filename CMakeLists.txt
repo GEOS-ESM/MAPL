@@ -46,6 +46,11 @@ if (BUILD_WITH_FLAP)
 endif ()
 
 ecbuild_declare_project()
+if (BUILD_WITH_PFLOGGER)
+  add_definitions(-DBUILD_WITH_PFLOGGER)
+else ()  
+  add_subdirectory (pflogger_stub)
+endif ()
 
 if (NOT Baselibs_FOUND)
   find_package(NetCDF REQUIRED Fortran)
@@ -66,7 +71,9 @@ if (NOT Baselibs_FOUND)
   find_package(GFTL REQUIRED)
   find_package(GFTL_SHARED REQUIRED)
   find_package(YAFYAML REQUIRED)
-  find_package(PFLOGGER REQUIRED)
+  if (BUILD_WITH_PFLOGGER)
+    find_package(PFLOGGER REQUIRED)
+  endif ()
 endif ()
 
 # Special case - MAPL_cfio is built twice with two different precisions.
