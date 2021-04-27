@@ -2155,7 +2155,6 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call ESMF_VMBroadcast(vm, srcLons, ims_world, MAPL_Root, rc=status)
 
    call ESMF_AttributeGet(dstGrid, 'VERBOSE', isPresent=isPresent, rc=status)
-   _VERIFY(STATUS)
    if (isPresent) then
       call ESMF_AttributeGet(dstGrid, 'VERBOSE', verbose, rc=status)
       _VERIFY(STATUS)
@@ -2700,14 +2699,15 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    type(ESMF_Grid)            :: GRID
    type(ESMF_FieldBundle)          :: srcBUN
    type(ESMF_FieldBundle)          :: dstBUN
-   integer :: status, mype, npe, i, itemcount
+   integer :: status, mype, npe, i, itemcount, srcFCount,dstFCount
    character (len=ESMF_MAXSTR), pointer  :: itemnamelist(:)
+   character (len=ESMF_MAXSTR), allocatable  :: dstNames(:)
+   character (len=ESMF_MAXSTR), allocatable  :: srcNames(:)
    type(ESMF_StateItem_Flag)  , pointer  :: itemtypelist(:)
    character(len=ESMF_MAXSTR)            :: name 
    character(len=ESMF_MAXSTR), parameter :: IAm = 'StateRegrid'
 
 ! start
-
    call ESMF_VMGetCurrent(vm)
    call ESMF_VMGet(vm, localPet=mype, petCount=npe, rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
@@ -2733,16 +2733,26 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
                       itemtypelist=itemtypelist, rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
+   srcFCount=0
    do i=1,itemcount
-      if(itemtypelist(i)/=ESMF_STATEITEM_FIELD) then
-        call ESMFL_FailedRC(mype,Iam//': State item is not a field.')
+      if(itemtypelist(i)==ESMF_STATEITEM_FIELD) then
+        srcFCount=srcFCount+1 
+        !call ESMFL_FailedRC(mype,trim(Iam)//': State item '//trim(itemNameList(i))//' is not a field.')
       end if
    end do
-
+   allocate(srcNames(srcFCount))
+   srcFCount=0
+   do i=1,itemcount
+      if(itemtypelist(i)==ESMF_STATEITEM_FIELD) then
+        srcFCount=srcFCount+1
+        srcNames(srcFCount)=trim(itemNameList(i))
+      end if
+   end do
+    
 ! get grid from first field in state, and create bundle
 
-   if(verbose .and. mype==MAPL_Root) print *, ' Get grid from ',trim(itemnamelist(1))
-   call ESMF_StateGet(srcSTA, trim(itemnamelist(1)), FLD, &
+   if(verbose .and. mype==MAPL_Root) print *, ' Get grid from ',trim(srcNames(1))
+   call ESMF_StateGet(srcSTA, trim(srcNames(1)), FLD, &
                       rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' ESMF_StateGetField failed')
    call ESMF_StateGet(srcSTA, name=name, rc=status)
@@ -2758,26 +2768,40 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
 ! populate source bundle   
 
-   call ESMFL_StateGetField(srcSTA, itemnamelist , srcBUN, RC=status)
+   call ESMFL_StateGetField(srcSTA, srcNames , srcBUN, RC=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' SRC ESMFL_StateGetField failed')
 
 ! Get information from dst state
 !-------------------------------
 
+   call ESMF_StateGet(dstSTA, itemcount=itemcount, rc=status)
+   _VERIFY(status)
+   deallocate(itemNameList) 
+   deallocate(itemTypeList)
+   allocate(itemNameList(itemCount))
+   allocate(itemTypeList(itemCount))
    call ESMF_StateGet(dstSTA, itemnamelist=itemnamelist, &
                       itemtypelist=itemtypelist, rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-
+   dstFCount=0
    do i=1,itemcount
-      if(itemtypelist(i)/=ESMF_STATEITEM_FIELD) then
-        call ESMFL_FailedRC(mype,Iam//': State item is not a field.')
+      if(itemtypelist(i)==ESMF_STATEITEM_FIELD) then
+        dstFCount=dstFCount+1 
       end if
    end do
-
+   allocate(dstNames(dstFCount))
+   dstFCount=0
+   do i=1,itemcount
+      if(itemtypelist(i)==ESMF_STATEITEM_FIELD) then
+        dstFCount=dstFCount+1
+        dstNames(dstFCount)=trim(itemNameList(i))
+      end if
+   end do
+   _ASSERT(dstFCount==srcFCount,"source and destination bundle sizes do not match") 
 ! get grid from first field in state, and create bundle
 
-   if(verbose .and. mype==MAPL_Root) print *, ' Get grid from ',trim(itemnamelist(1))
-   call ESMF_StateGet(dstSTA, trim(itemnamelist(1)), FLD, &
+   if(verbose .and. mype==MAPL_Root) print *, ' Get grid from ',trim(dstNames(1))
+   call ESMF_StateGet(dstSTA, trim(dstNames(1)), FLD, &
                       rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' ESMF_StateGetField failed')
    call ESMF_StateGet(dstSTA, name=name, rc=status)
@@ -2793,7 +2817,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
 ! populate destination bundle   
 
-   call ESMFL_StateGetField(dstSTA, itemnamelist, dstBUN, RC=status)
+   call ESMFL_StateGetField(dstSTA, dstNames, dstBUN, RC=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' DST ESMFL_StateGetField failed')
 
 ! now call BundleRegrid
@@ -3618,10 +3642,10 @@ CONTAINS
    real(kind=ESMF_KIND_R8), pointer :: dst_pr83d(:,:,:)
    type(ESMF_TypeKind_Flag) :: src_tk, dst_tk
    integer                  :: src_fieldRank, dst_fieldRank
-   logical                  :: NotInState
+   logical                  :: NotInState,itemNotFound
    character(len=ESMF_MAXSTR) :: NameInBundle
-
    type(ESMF_StateItem_Flag) :: itemType
+
 
 !
    call ESMF_FieldBundleGet (BUN, name=name, FieldCount=NumVars, RC=STATUS)
@@ -3633,17 +3657,16 @@ CONTAINS
       call ESMF_FieldGet(FLD, Name=NameInBundle, rc=STATUS)
       _VERIFY(STATUS)
 
-      call ESMF_StateGet (STA, NameInBundle, itemType=itemType,  RC=STATUS)
-      _VERIFY(STATUS)
-
-      if (itemType /= ESMF_STATEITEM_FIELD) then
-         NotInState = .TRUE.
-      else
-         NotInState = .FALSE.
-         call ESMF_StateGet (STA, NameInBundle, StateFIELD,  RC=STATUS)
+      call ESMF_StateGet (STA, nameInBundle, stateField,  RC=STATUS)
+      notInState=(status/=ESMF_SUCCESS)
+      if (.not.notINState) then
+         call ESMF_StateGet (STA, NameInBundle, itemType=itemType,  RC=STATUS)
          _VERIFY(STATUS)
       end if
 
+      if (itemType /= ESMF_STATEITEM_FIELD) then
+         cycle
+      end if
       if (NotInState) then
          call MAPL_StateAdd (STA, FLD, rc=status)
          _VERIFY(STATUS)

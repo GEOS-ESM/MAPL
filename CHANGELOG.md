@@ -69,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Converted some remaining `real*8`-type declarations to be `real(kind=REAL64)`-style
 - Eliminated (almost) all compiler warnings for Intel compiler
 - Removed conditional around declaring pointers in code emitted by grid comp ACG.
+- Fixed bugs in ESMFL and MAPL_CFIOReadParallel to support GEOSadas
 
 ### Removed
 
