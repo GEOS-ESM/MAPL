@@ -130,8 +130,7 @@ contains
       integer :: ierror, MyColor
       character(len=:), allocatable :: p_name
 
-      call MPI_Comm_dup(comm, this%comm, ierror)
-
+      this%comm = comm
       call MPI_Comm_rank(this%comm, this%rank, ierror)
       call MPI_Comm_size(this%comm, this%npes, ierror)
 

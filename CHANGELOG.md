@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Removed
+### Added
+### Changed
+### Fixed
+
+## [2.6.5] - 2021-04-28
+
+### Removed
 
 -  pFIO/KeywordEnforcer.F90 duplicated functionality now in
    shared/KeywordEnforcer.F90, and has been removed in favor of the
@@ -25,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Nearest-neighbor interpolation option for ExtData (keyword: 'E')
 - Added pflogger_stub directory. With `-DBUILD_WITH_PFLOGGER=OFF`, it is built and linked to replace pFlogger library.
 - Added new CI test using Intel oneAPI
+- Add function to free communicators that is split by SimpleCommSplitter
 
 ### Changed
 
@@ -69,8 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Eliminated (almost) all compiler warnings for Intel compiler
 - Removed conditional around declaring pointers in code emitted by grid comp ACG.
 - Fixed bugs in ESMFL and MAPL_CFIOReadParallel to support GEOSadas
-
-### Removed
+- Remove some unnecessary MPI_Comm_dup calls. Some of those call are actually bugs
 
 ## [2.6.4] - 2021-03-18
 

@@ -13,6 +13,7 @@ module MAPL_ServerManager
 
 
    type, public :: ServerManager
+      type(SimpleCommSplitter) :: splitter
       type(SplitCommunicator)  :: split_comm
       type(MpiServer), pointer :: i_server=>null()
       class(BaseServer), pointer :: o_server=>null()
@@ -54,7 +55,6 @@ contains
       integer, allocatable :: npes_in(:),npes_out(:),nodes_in(:),nodes_out(:)
       integer :: npes_out_backend, server_size
 
-      type (SimpleCommSplitter) :: splitter
       integer :: client_comm
       integer :: status, i, rank,npes_model,n_oserver_group, n_iserver_group
       character(len=:), allocatable :: s_name, profiler_name
@@ -118,34 +118,34 @@ contains
      n_iserver_group = max(size(npes_in),size(nodes_in))
      n_oserver_group = max(size(npes_out),size(nodes_out))
      this%directory_service = DirectoryService(comm)
-     splitter = SimpleCommSplitter(comm)
-     call splitter%add_group(npes=npes_model, name='model', isolate_nodes=isolated_)
+     this%splitter = SimpleCommSplitter(comm)
+     call this%splitter%add_group(npes=npes_model, name='model', isolate_nodes=isolated_)
 
      if (npes_in(1) > 0) then
         do i = 1, size(npes_in)
            s_name ='i_server'//trim(i_to_string(i))
-           call splitter%add_group(npes=npes_in(i), name=s_name, isolate_nodes=isolated_)
+           call this%splitter%add_group(npes=npes_in(i), name=s_name, isolate_nodes=isolated_)
         enddo
      elseif (nodes_in(1) > 0) then
         do i = 1, size(nodes_in)
            s_name ='i_server'//trim(i_to_string(i))
-           call splitter%add_group(nnodes=nodes_in(i), name=s_name, isolate_nodes=isolated_)
+           call this%splitter%add_group(nnodes=nodes_in(i), name=s_name, isolate_nodes=isolated_)
         enddo
      end if
 
      if (npes_out(1) > 0 ) then
         do i = 1, size(npes_out)
           s_name ='o_server'//trim(i_to_string(i))
-          call splitter%add_group(npes=npes_out(i), name=s_name, isolate_nodes=isolated_)
+          call this%splitter%add_group(npes=npes_out(i), name=s_name, isolate_nodes=isolated_)
         enddo
      else if(nodes_out(1) > 0) then
         do i = 1, size(nodes_out)
           s_name ='o_server'//trim(i_to_string(i))
-          call splitter%add_group(nnodes=nodes_out(i), name=s_name, isolate_nodes=isolated_)
+          call this%splitter%add_group(nnodes=nodes_out(i), name=s_name, isolate_nodes=isolated_)
         enddo
      endif
 
-     this%split_comm = splitter%split(rc=status); _VERIFY(status)
+     this%split_comm = this%splitter%split(rc=status); _VERIFY(status)
 
      s_name = this%split_comm%get_name()
 
@@ -279,6 +279,7 @@ contains
          deallocate(this%o_server)
       endif
       call this%directory_service%free_directory_resources()
+      call this%splitter%free_sub_comm()
       _RETURN(_SUCCESS)
    end subroutine finalize
 
