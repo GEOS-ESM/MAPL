@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added pflogger_stub directory. With `-DBUILD_WITH_PFLOGGER=OFF`, it is built and linked to replace pFlogger library.
 - Added new CI test using Intel oneAPI
 - Add function to free communicators that is split by SimpleCommSplitter
+- Add with_io_profiler option
 
 ### Changed
 

@@ -29,6 +29,8 @@ module MAPL_CapOptionsMod
       ! whether or not copy the data before isend to the oserver
       ! it is faster but demands more memory if it is true 
       logical              :: fast_oclient  = .false.
+      ! whether or not turn on the io profiler
+      logical              :: with_io_profiler = .false.
       ! server groups
       integer :: n_iserver_group = 1
       integer :: n_oserver_group = 1
