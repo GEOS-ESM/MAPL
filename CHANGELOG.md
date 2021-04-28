@@ -94,6 +94,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   should add cmake logic to create an executable or just delete the
   file.
 - CMake workaround for macOS + Intel oneAPI FLAP bug (#644)
+- Fixed size of unallocated array for gfortran
+- Fixed counting of backend npes for assert
 
 ## [2.6.3] - 2021-03-09
 

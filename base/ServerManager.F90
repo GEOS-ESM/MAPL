@@ -112,7 +112,7 @@ contains
          endif
       endif
       if (oserver_type_ == "multicomm") then
-         _ASSERT(npes_out_backend >=1, "need at lease one beckend for multicomm server")
+         _ASSERT(npes_out_backend >=1, "needs at least one backend for multicomm server")
       endif
 
 
