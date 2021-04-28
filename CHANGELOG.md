@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Add _RETURN(_SUCCESS) to MAPL_SimpleBundle routines
 - Fixed possibly uninitialized values when handling members of Segment_T derived type. Helps on the Rome nodes.
 - Fixed print diagnostics for monthly collections (proper reporting of frequency, duration, eliminated acc_interval)
 - Fixed another bug related to the incorrect time increment for monthly averaged collections
