@@ -597,6 +597,7 @@ contains
          call MPI_Free_mem(dir, ierror)
       end if
 
+      call Mpi_Comm_free(this%comm, ierror)
       _RETURN(_SUCCESS)
    end subroutine free_directory_resources
 

@@ -142,7 +142,7 @@ contains
 
       call MPI_Win_fence(0, this%win, ierr)
       call MPI_Win_free(this%win,ierr)
-
+      call MPI_Comm_free(this%InNode_Comm, ierr)
       this%shmem_allocated = .false.
       _RETURN(_SUCCESS)
    end subroutine deallocate

@@ -35,7 +35,7 @@ module MAPL_CapMod
 
       type(MAPL_CapGridComp), public :: cap_gc
       type(ServerManager) :: cap_server
-
+      type(SimpleCommSplitter), public :: splitter
    contains
       procedure :: run
       procedure :: run_ensemble
@@ -151,9 +151,9 @@ contains
       subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _VERIFY(status)
       if (subcommunicator /= MPI_COMM_NULL) then
          call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
-         call this%cap_server%get_splitcomm(split_comm)
          call this%run_member(rc=status); _VERIFY(status)
          call this%cap_server%finalize()
+         call this%splitter%free_sub_comm()
       end if
 
       _RETURN(_SUCCESS)
@@ -327,12 +327,11 @@ contains
    end subroutine rewind_model 
 
    integer function create_member_subcommunicator(this, comm, unusable, rc) result(subcommunicator)
-      class (MAPL_Cap), intent(in) :: this
+      class (MAPL_Cap), intent(inout) :: this
       integer, intent(in) :: comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       
-      type (SimpleCommSplitter) :: splitter
       type (SplitCommunicator) :: split_comm
 
       integer :: status
@@ -342,8 +341,8 @@ contains
       _UNUSED_DUMMY(unusable)
       
       subcommunicator = MPI_COMM_NULL ! in case of failure
-      splitter = SimpleCommSplitter(comm, this%cap_options%n_members, this%npes_member, base_name=this%cap_options%ensemble_subdir_prefix)
-      split_comm = splitter%split(rc=status); _VERIFY(status)
+      this%splitter = SimpleCommSplitter(comm, this%cap_options%n_members, this%npes_member, base_name=this%cap_options%ensemble_subdir_prefix)
+      split_comm = this%splitter%split(rc=status); _VERIFY(status)
       subcommunicator = split_comm%get_subcommunicator()
 
       if (this%cap_options%n_members > 1) then
