@@ -147,8 +147,9 @@ contains
                 mpiCommunicator=mpi_comm, rc=status)
         _VERIFY(status)
 
-        call MPI_Comm_dup(mpi_comm, dup_comm, status)
-        _VERIFY(status)
+        !call MPI_Comm_dup(mpi_comm, dup_comm, status)
+        !_VERIFY(status)
+        dup_comm = mpi_comm
 
         cap_params = get_cap_parameters_from_gc(model, status)
         _VERIFY(status)
@@ -322,10 +323,8 @@ contains
 
         type(ESMF_State) :: import_state, export_state
         type(ESMF_Clock) :: clock
-        type(ESMF_Field) :: field
 
         integer                                 :: num_items
-        character(len=ESMF_MAXSTR), allocatable :: item_names(:)
 
         call ESMF_GridCompGet(model, clock=clock, importState=import_state, &
                 exportState=export_state, rc=rc)
@@ -396,6 +395,8 @@ contains
 
         t_p => get_global_time_profiler()
         call t_p%stop()
+
+        call cap%splitter%free_sub_comm()
 
         _RETURN(_SUCCESS)
     end subroutine model_finalize

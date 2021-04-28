@@ -31,13 +31,14 @@ module MAPL_ApplicationSupport
          logging_configuration_file=''
       end if
       if (present(comm)) then
-         call MPI_comm_dup(comm,comm_world,status)
-         _VERIFY(status)
+         comm_world = comm
       else
          comm_world=MPI_COMM_WORLD
       end if
+#ifdef BUILD_WITH_PFLOGGER
       call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file,rc=status)
       _VERIFY(status)
+#endif
       call start_global_profiler(comm=comm_world,rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
@@ -54,8 +55,7 @@ module MAPL_ApplicationSupport
       _UNUSED_DUMMY(unusable)
       
       if (present(comm)) then
-         call MPI_comm_dup(comm,comm_world,status)
-         _VERIFY(status)
+         comm_world = comm
       else
          comm_world=MPI_COMM_WORLD
       end if
@@ -69,11 +69,13 @@ module MAPL_ApplicationSupport
       call logging%free()
    end subroutine finalize_pflogger
 
+#ifdef BUILD_WITH_PFLOGGER
    subroutine initialize_pflogger(unusable,comm,logging_config,rc)
       use pflogger, only: pfl_initialize => initialize
       use pflogger, only: StreamHandler, FileHandler, HandlerVector
       use pflogger, only: MpiLock, MpiFormatter
       use pflogger, only: INFO, WARNING
+
       use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
 
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -96,8 +98,7 @@ module MAPL_ApplicationSupport
          logging_configuration_file=''
       end if
       if (present(comm)) then
-         call MPI_Comm_dup(comm,comm_world,status)
-         _VERIFY(status)
+         comm_world = comm
       else
          comm_world=MPI_COMM_WORLD
       end if
@@ -138,6 +139,7 @@ module MAPL_ApplicationSupport
       _RETURN(_SUCCESS)
 
    end subroutine initialize_pflogger
+#endif
 
    subroutine start_global_profiler(unusable,comm,rc)
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -148,10 +150,9 @@ module MAPL_ApplicationSupport
 
       _UNUSED_DUMMY(unusable)
       if (present(comm)) then
-         call MPI_Comm_dup(comm,world_comm,status)
-         _VERIFY(status)
+         world_comm = comm
       else
-         world_comm=MPI_COMM_WORLD
+         world_comm = MPI_COMM_WORLD
       end if
       t_p => get_global_time_profiler()
       t_p = TimeProfiler('All', comm_world = world_comm)
@@ -180,8 +181,7 @@ module MAPL_ApplicationSupport
 
       _UNUSED_DUMMY(unusable)
       if (present(comm)) then
-         call MPI_comm_dup(comm,world_comm,ierror)
-         _VERIFY(ierror)
+         world_comm = comm
       else
          world_comm=MPI_COMM_WORLD
       end if

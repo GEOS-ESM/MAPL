@@ -7,7 +7,7 @@ module pFIO_MultiCommServerMod
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use MAPL_ErrorHandlingMod
    use pFIO_ConstantsMod
    use pFIO_CollectiveStageDataMessageMod
@@ -58,6 +58,7 @@ module pFIO_MultiCommServerMod
       integer, allocatable :: back_ranks(:)
       integer, allocatable :: front_ranks(:)
       type(AbstractDataReferenceVector) :: MemdataRefPtrs
+      type (SimpleCommSplitter) :: splitter
    contains
       procedure :: start
       procedure :: get_writing_PE
@@ -82,22 +83,21 @@ contains
       integer, optional, intent(out) :: rc
       integer :: s_rank, s_size, nwriter
       integer :: ierror, status, local_rank
-      type (SimpleCommSplitter) :: splitter
       type (SplitCommunicator)   ::  s_comm
       character(len=:), allocatable :: s_name
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type (MpiSocket), target :: dummy_socket
       integer, allocatable :: node_sizes(:)
 
-      call MPI_Comm_dup(server_comm, s%server_comm, ierror)
+      s%server_comm = server_comm
       call MPI_Comm_size(s%server_comm, s_size , ierror)
       
-      splitter = SimpleCommsplitter(s%server_comm)
-      node_sizes = splitter%get_node_sizes()
-      call splitter%add_group(npes_per_node = node_sizes(1)-nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
-      call splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
+      s%splitter = SimpleCommsplitter(s%server_comm)
+      node_sizes = s%splitter%get_node_sizes()
+      call s%splitter%add_group(npes_per_node = node_sizes(1)-nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
+      call s%splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
  
-      s_comm = splitter%split(rc=status); _VERIFY(status)
+      s_comm = s%splitter%split(rc=status); _VERIFY(status)
 
       nwriter = nwriter_per_node*size(node_sizes)
       s%front_comm = MPI_COMM_NULL
@@ -163,6 +163,8 @@ contains
          call start_back()      
       endif
 
+      call this%splitter%free_sub_comm()
+ 
    contains
 
       subroutine start_back()

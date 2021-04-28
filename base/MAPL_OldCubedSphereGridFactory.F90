@@ -893,6 +893,7 @@ contains
       class (OldCubedSphereGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
       _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(var)
    end subroutine append_variable_metadata
 
    subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
@@ -905,7 +906,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: global_dim(3),i1,j1,in,jn,tile
+      integer :: global_dim(3),i1,j1,in,jn
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
       _UNUSED_DUMMY(this)
 
@@ -929,7 +930,6 @@ contains
       integer, allocatable, intent(out) :: global_count(:)
       integer, optional, intent(out) :: rc
 
-      integer :: status
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(grid)

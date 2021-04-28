@@ -171,6 +171,8 @@ contains
   
      integer :: status
 
+     _UNUSED_DUMMY(unusable)
+     
      call this%cap_server%initialize(comm, &
          application_size=this%cap_options%npes_model, &
          nodes_input_server=this%cap_options%nodes_input_server, &

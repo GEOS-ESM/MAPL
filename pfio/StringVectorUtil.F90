@@ -38,7 +38,7 @@ contains
        integer, optional, intent(out) :: rc
 
        character(len=:),allocatable :: str
-       integer :: length,n,n1,n0, status
+       integer :: length,n,n1,n0
 
        n = 1
        call deserialize_intrinsic(buffer(n:),length)

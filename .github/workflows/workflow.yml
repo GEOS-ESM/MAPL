@@ -2,7 +2,7 @@ name: Build Tests
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    types: [opened, synchronize, reopened]
     # Do not run if the only files changed cannot affect the build
     paths-ignore:
       - "**.md"
@@ -14,8 +14,8 @@ jobs:
   build_test_mapl:
     name: Build and Test MAPL
     runs-on: ubuntu-latest
-    container: 
-      image: gmao/ubuntu20-geos-env-mkl:v6.0.27-openmpi_4.0.5-gcc_10.2.0
+    container:
+      image: gmao/ubuntu20-geos-env-mkl:v6.1.0-openmpi_4.0.5-gcc_10.2.0
       # Per https://github.com/actions/virtual-environments/issues/1445#issuecomment-713861495
       # It seems like we might not need secrets on GitHub Actions which is good for forked
       # pull requests
@@ -28,7 +28,7 @@ jobs:
       OMPI_MCA_btl_vader_single_copy_mechanism: none
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.4.0
+        uses: styfle/cancel-workflow-action@0.9.0
         with:
           access_token: ${{ github.token }}
       - name: Checkout
@@ -64,14 +64,15 @@ jobs:
     name: Build GEOSgcm
     if: "!contains(github.event.pull_request.labels.*.name, '0 diff trivial')"
     runs-on: ubuntu-latest
-    container: gmao/ubuntu20-geos-env-mkl:v6.0.27-openmpi_4.0.5-gcc_10.2.0
+    container:
+      image: gmao/ubuntu20-geos-env-mkl:v6.1.0-openmpi_4.0.5-gcc_10.2.0
     env:
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
     steps:
       - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.4.0
+        uses: styfle/cancel-workflow-action@0.9.0
         with:
           access_token: ${{ github.token }}
       - name: Checkout GCM
@@ -125,8 +126,53 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe'
+          cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe' -DUSE_F2PY=OFF
       - name: Build
         run: |
           cd build
           make -j4 install
+  build_test_mapl_intel:
+    name: Build and Test MAPL Intel
+    runs-on: ubuntu-latest
+    container:
+      image: gmao/ubuntu20-geos-env:v6.1.0-intelmpi_2021.2.0-intel_2021.2.0
+      # Per https://github.com/actions/virtual-environments/issues/1445#issuecomment-713861495
+      # It seems like we might not need secrets on GitHub Actions which is good for forked
+      # pull requests
+      #credentials:
+        #username: ${{ secrets.DOCKERHUB_USERNAME }}
+        #password: ${{ secrets.DOCKERHUB_TOKEN }}
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.0
+        with:
+          access_token: ${{ github.token }}
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Versions etc.
+        run: |
+          ifort --version
+          mpirun --version
+          echo $BASEDIR
+      - name: Mepo clone external repos
+        run: |
+          mepo init
+          mepo clone
+          mepo status
+      - name: CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_BUILD_TYPE=Debug
+      - name: Build
+        run: |
+          cd build
+          make -j4 install
+      - name: Run MAPL unit tests
+        run: |
+          cd build
+          make -j4 build-tests
+          # skip performance tests
+          ctest -R MAPL -LE PERFORMANCE --output-on-failure

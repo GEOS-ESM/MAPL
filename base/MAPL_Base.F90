@@ -285,7 +285,7 @@ contains
           _VERIFY(STATUS)
        end if
 
-       call ESMF_AttributeGet(FIELD, NAME="UNGRIDDED_DIMS", isPresent=has_ungrd, RC=STATUS)
+       call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
        _VERIFY(STATUS)
        if (has_ungrd) then
           call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
@@ -1819,9 +1819,9 @@ real    :: IIR(NT*COUNT), JJR(NT*COUNT)
       real, pointer           :: var_1d(:)
       real, pointer           :: var_2d(:,:)
       real, pointer           :: var_3d(:,:,:)
-      real*8, pointer           :: vr8_1d(:)
-      real*8, pointer           :: vr8_2d(:,:)
-      real*8, pointer           :: vr8_3d(:,:,:)
+      real(kind=REAL64), pointer :: vr8_1d(:)
+      real(kind=REAL64), pointer :: vr8_2d(:,:)
+      real(kind=REAL64), pointer :: vr8_3d(:,:,:)
       type(ESMF_TypeKind_Flag)  :: tk
 
       call ESMF_FieldGet(FIELD, grid=GRID, dimCount=fieldRank, &
@@ -1995,9 +1995,9 @@ real    :: IIR(NT*COUNT), JJR(NT*COUNT)
       real, pointer           :: var_1d(:)
       real, pointer           :: var_2d(:,:)
       real, pointer           :: var_3d(:,:,:)
-      real*8, pointer           :: vr8_1d(:)
-      real*8, pointer           :: vr8_2d(:,:)
-      real*8, pointer           :: vr8_3d(:,:,:)
+      real(kind=REAL64), pointer :: vr8_1d(:)
+      real(kind=REAL64), pointer :: vr8_2d(:,:)
+      real(kind=REAL64), pointer :: vr8_3d(:,:,:)
       type(ESMF_TypeKind_Flag)  :: tk
 
       call ESMF_FieldGet(from, dimCount=fieldRank, &
@@ -2241,11 +2241,11 @@ and so on.
 !   ---------------------------------------
     type(ESMF_Config), pointer :: Config_
     integer           :: IM_World_      
-    real*8            :: BegLon_
-    real*8            :: DelLon_ 
+    real(kind=REAL64) :: BegLon_
+    real(kind=REAL64) :: DelLon_ 
     integer           :: JM_World_      
-    real*8            :: BegLat_
-    real*8            :: DelLat_
+    real(kind=REAL64) :: BegLat_
+    real(kind=REAL64) :: DelLat_
     integer           :: LM_World_ 
     integer           :: Nx_, Ny_, Nz_
 
@@ -2260,7 +2260,7 @@ and so on.
     real(ESMF_KIND_R8), allocatable :: cornerX(:)
     real(ESMF_KIND_R8), allocatable :: cornerY(:)
 
-    real*8, parameter                 :: D2R = MAPL_PI_R8 / 180
+    real(kind=REAL64), parameter    :: D2R = MAPL_PI_R8 / 180
     real                            :: FirstOut(2)
     real                            :: LastOut(2)
 
@@ -3271,8 +3271,7 @@ and so on.
 !  !IROUTINE: MAPL_GetHorzIJIndex -- Get indexes on destributed ESMF grid for an arbitary lat and lon
 
 !  !INTERFACE:
-  subroutine MAPL_GetHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid,IMGlob,JMGlob, &
-          & EdgeLons, EdgeLats, rc)
+  subroutine MAPL_GetHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
      implicit none
      !ARGUMENTS:
      integer,                      intent(in   ) :: npts ! number of points in lat and lon arrays
@@ -3283,10 +3282,6 @@ and so on.
      real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts) ! array of longitudes in radians
      real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) ! array of latitudes in radians
      type(ESMF_Grid),    optional, intent(inout) :: Grid ! ESMF grid
-     integer,            optional, intent(in   ) :: IMGlob
-     integer,            optional, intent(in   ) :: JMGlob
-     real(ESMF_KIND_R8), optional, intent(inout) :: EdgeLons(:,:,:) ! array of longitudes in radians on _all_ 6 faces
-     real(ESMF_KIND_R8), optional, intent(inout) :: EdgeLats(:,:,:) ! array of latitudes in radians on _all_ 6 faces
      integer,            optional, intent(out  ) :: rc  ! return code
   
      !DESCRIPTION
@@ -3313,7 +3308,6 @@ and so on.
      real(ESMF_KIND_R8), allocatable :: target_lons(:),target_lats(:)
      real(ESMF_KIND_R8), allocatable :: corner_lons(:,:),corner_lats(:,:),center_lats(:,:),center_lons(:,:)
      type(ESMF_CoordSys_Flag) :: coordSys
-
 
      ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
      ! this also means we are running on a distributed grid
@@ -3777,31 +3771,36 @@ and so on.
     _RETURN(_SUCCESS)
  end function MAPL_TrimString
 
- subroutine MAPL_FieldSplit(field, fields, rc)
+ subroutine MAPL_FieldSplit(field, fields, aliasName, rc)
    type(ESMF_Field),          intent(IN   ) :: field
    type(ESMF_Field), pointer, intent(  out) :: fields(:)
+   character(len=*), optional, intent(in  ) :: aliasName
    integer, optional,         intent(  out) :: rc
 
    ! local vars
    integer :: status
    integer :: k, n
+   integer :: k1,k2,kk
    integer :: gridRank
 
    logical                    :: has_ungrd
    integer                    :: ungrd_cnt
+   integer                    :: fieldRank
    integer, allocatable       :: gridToFieldMap(:)
    integer, allocatable       :: ungrd(:)
    real, pointer              :: ptr4d(:,:,:,:) => null()
    real, pointer              :: ptr3d(:,:,:) => null()
+   real, pointer              :: ptr2d(:,:) => null()
    type(ESMF_Field)           :: f, fld
    type(ESMF_Grid)            :: grid
    type(ESMF_TypeKind_Flag)   :: tk
    character(len=ESMF_MAXSTR) :: name
    character(len=ESMF_MAXSTR) :: splitName
+   character(len=ESMF_MAXSTR), allocatable :: splitNameArray(:)
 
    ! get ptr
-   ! loop over 4-d dim
-   ! create 3d field
+   ! loop over 3-d or 4-d dim
+   ! create 2d or 3d field
    ! put in state/bundle
    ! end-of-loop
    call ESMF_FieldGet(field, name=name, grid=grid, typekind=tk, rc=status)
@@ -3815,62 +3814,186 @@ and so on.
    _VERIFY(STATUS)
 
    if (tk == ESMF_TYPEKIND_R4) then
-      !ALT: assumes 1 DE per PET
-      call ESMF_FieldGet(Field,0,ptr4D,rc=status)
+      call ESMF_FieldGet(FIELD, dimCount=fieldRank, rc=status)
       _VERIFY(STATUS)
-      n = size(ptr4d,4)
-      allocate(fields(n), stat=status)
-      _VERIFY(STATUS)
-      n = 0
-      do k=lbound(ptr4d,4),ubound(ptr4d,4)
-         n = n+1
-         ptr3d => ptr4d(:,:,:,k)
-         ! create a new field
-         write(splitName,'(A,I3.3)') trim(name) // '_', n
-         f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, rc=status)
+      if (fieldRank == 4) then
+      
+         !ALT: assumes 1 DE per PET
+         call ESMF_FieldGet(Field,0,ptr4D,rc=status)
          _VERIFY(STATUS)
-         call ESMF_FieldEmptyComplete(F, farrayPtr=ptr3D,    &
-              datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
-              gridToFieldMap=gridToFieldMap,                      &
-              rc = status)
+         n = size(ptr4d,4)
+         allocate(fields(n), stat=status)
          _VERIFY(STATUS)
-         ! copy attributes and adjust as necessary
-         fld = field ! shallow copy to get around intent(in/out)
-         call MAPL_FieldCopyAttributes(FIELD_IN=fld, FIELD_OUT=f, RC=status)
+         n = 0
+         k1=lbound(ptr4d,4)
+         k2=ubound(ptr4d,4)
+         kk = k2-k1+1
+         call genAlias(name, kk, splitNameArray, aliasName=aliasName,rc=status)
          _VERIFY(STATUS)
+ 
+         do k=k1,k2
+            n = n+1
+            ptr3d => ptr4d(:,:,:,k)
+            ! create a new field
+            splitName = splitNameArray(n)
+            f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, rc=status)
+            _VERIFY(STATUS)
+            call ESMF_FieldEmptyComplete(F, farrayPtr=ptr3D,    &
+                 datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
+                 gridToFieldMap=gridToFieldMap,                      &
+                 rc = status)
+            _VERIFY(STATUS)
+            ! copy attributes and adjust as necessary
+            fld = field ! shallow copy to get around intent(in/out)
+            call MAPL_FieldCopyAttributes(FIELD_IN=fld, FIELD_OUT=f, RC=status)
+            _VERIFY(STATUS)
 
-         ! adjust ungridded dims attribute (if any)
-         call ESMF_AttributeGet(FIELD, NAME="UNGRIDDED_DIMS", isPresent=has_ungrd, RC=STATUS)
-         _VERIFY(STATUS)
-         if (has_ungrd) then
-            call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+            ! adjust ungridded dims attribute (if any)
+            call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
             _VERIFY(STATUS)
-            allocate(ungrd(UNGRD_CNT), stat=status)
-            _VERIFY(STATUS)
-            call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
-            _VERIFY(STATUS)
-            call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
-            _VERIFY(STATUS)
-            if (ungrd_cnt > 1) then
-               ungrd_cnt = ungrd_cnt - 1
-               call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', &
-                    valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+            if (has_ungrd) then
+               call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
                _VERIFY(STATUS)
-            else
-               has_ungrd = .false.
+               allocate(ungrd(UNGRD_CNT), stat=status)
+               _VERIFY(STATUS)
+               call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+               _VERIFY(STATUS)
+               call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
+               _VERIFY(STATUS)
+               if (ungrd_cnt > 1) then
+                  ungrd_cnt = ungrd_cnt - 1
+                  call ESMF_AttributeSet(F, NAME='UNGRIDDED_DIMS', &
+                       valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+                  _VERIFY(STATUS)
+               else
+                  has_ungrd = .false.
+               end if
+               deallocate(ungrd)
             end if
-            deallocate(ungrd)
-         end if
             
-         fields(n) = f
-      end do
+            fields(n) = f
+         end do
+      else if (fieldRank == 3) then
+         !ALT: assumes 1 DE per PET
+         call ESMF_FieldGet(Field,0,ptr3D,rc=status)
+         _VERIFY(STATUS)
+         n = size(ptr3d,3)
+         allocate(fields(n), stat=status)
+         _VERIFY(STATUS)
+         n = 0
+         k1=lbound(ptr3d,3)
+         k2=ubound(ptr3d,3)
+         kk = k2-k1+1
+         call genAlias(name, kk, splitNameArray, aliasName=aliasName,rc=status)
+         _VERIFY(STATUS)
+         do k=k1,k2
+            n = n+1
+            ptr2d => ptr3d(:,:,k)
+            ! create a new field
+            splitName = splitNameArray(n)
+            f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, rc=status)
+            _VERIFY(STATUS)
+            call ESMF_FieldEmptyComplete(F, farrayPtr=ptr2D,    &
+                 datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
+                 gridToFieldMap=gridToFieldMap,                      &
+                 rc = status)
+            _VERIFY(STATUS)
+            ! copy attributes and adjust as necessary
+            fld = field ! shallow copy to get around intent(in/out)
+            call MAPL_FieldCopyAttributes(FIELD_IN=fld, FIELD_OUT=f, RC=status)
+            _VERIFY(STATUS)
+
+            ! adjust ungridded dims attribute (if any)
+            call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
+            _VERIFY(STATUS)
+            if (has_ungrd) then
+               call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+               _VERIFY(STATUS)
+               allocate(ungrd(UNGRD_CNT), stat=status)
+               _VERIFY(STATUS)
+               call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+               _VERIFY(STATUS)
+               call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
+               _VERIFY(STATUS)
+               if (ungrd_cnt > 1) then
+                  ungrd_cnt = ungrd_cnt - 1
+                  call ESMF_AttributeSet(F, NAME='UNGRIDDED_DIMS', &
+                       valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+                  _VERIFY(STATUS)
+               else
+                  has_ungrd = .false.
+               end if
+               deallocate(ungrd)
+            end if
+            
+            fields(n) = f
+         end do
+      end if
    else if (tk == ESMF_TYPEKIND_R8) then
       _ASSERT(.false., "R8 overload not implemented yet")
    end if
 
    deallocate(gridToFieldMap)
+   deallocate(splitNameArray)
    ! fields SHOULD be deallocated by the caller!!!
    _RETURN(ESMF_SUCCESS)
- end subroutine MAPL_FieldSplit
+
+ contains
+   subroutine genAlias(name, n, splitNameArray, aliasName, rc)
+     integer :: n
+     character(len=*) :: name
+     character(len=*), allocatable :: splitNameArray(:)
+     character(len=*), optional :: aliasName
+     integer, optional :: rc
+
+     integer :: i, k
+     integer :: k1, k2, kk, count
+     allocate(splitNameArray(n), stat=status)
+     _VERIFY(status)
+     if (present(aliasName)) then
+        ! count the separators (";") in aliasName
+        ! if they match n (i.e. the count = n-1) use each
+        ! else if count is 0, append 00i to aliasName
+        ! else return an error
+
+        ! parse the aliasName
+        count = 0
+        k1 = 1
+        kk = len_trim(aliasName)
+        do k=1,kk
+           if (aliasName(k:k) == ";") then
+              count = count+1
+              k2=k-1
+              _ASSERT(count < n, 'Too many split separators')
+              splitNameArray(count) = aliasName(k1:k2)
+              k1 = k+1
+           end if
+        end do
+        if (count == 0) then
+           if (name == aliasName) then
+              do i=1,n
+                 write(splitNameArray(i),'(A,I3.3)') trim(aliasName), i
+              end do
+           else
+              count = count+1
+              splitNameArray(count) = aliasName
+           end if
+        else if(count == n-1) then
+           k2 = kk
+           count = count+1
+           splitNameArray(count) = aliasName(k1:k2)
+        else
+           _ASSERT(.false.,'Inconsistent number of split separators')
+        end if
+
+     else
+        do i=1,n
+           write(splitNameArray(i),'(A,I3.3)') trim(name), i
+        end do
+     end if
+        
+   _RETURN(ESMF_SUCCESS)
+ end subroutine GenAlias
+end subroutine MAPL_FieldSplit
 end module MAPL_BaseMod
 

@@ -204,6 +204,21 @@ contains
            error=status)
       _VERIFY(status)
 
+     call options%add(switch='--one_node_output', &
+           help='Specify if each output server has only one nodes', &
+           required=.false., &
+           def='.false.', &
+           act='store', &
+           error=status)
+
+      call options%add(switch='--with_io_profiler', &
+           help='Turning on io_profler', &
+           required=.false., &
+           def='.false.', &
+           act='store', &
+           error=status)
+      _VERIFY(status)
+
       _RETURN(_SUCCESS)
 
    end subroutine add_command_line_options
@@ -215,6 +230,8 @@ contains
 
       integer :: status
       character(80) :: buffer
+      logical :: one_node_output
+      integer, allocatable :: nodes_output_server(:)
 
       _UNUSED_DUMMY(unusable)
 
@@ -237,10 +254,17 @@ contains
       call this%cli_options%get(val=this%npes_model, switch='--npes_model', error=status); _VERIFY(status)
       call this%cli_options%get(val=this%isolate_nodes, switch='--isolate_nodes', error=status); _VERIFY(status)
       call this%cli_options%get(val=this%fast_oclient, switch='--fast_oclient', error=status); _VERIFY(status)
+      call this%cli_options%get(val=this%with_io_profiler, switch='--with_io_profiler', error=status); _VERIFY(status)
       call this%cli_options%get_varying(val=this%npes_input_server, switch='--npes_input_server', error=status); _VERIFY(status)
       call this%cli_options%get_varying(val=this%npes_output_server, switch='--npes_output_server', error=status); _VERIFY(status)
       call this%cli_options%get_varying(val=this%nodes_input_server, switch='--nodes_input_server', error=status); _VERIFY(status)
-      call this%cli_options%get_varying(val=this%nodes_output_server, switch='--nodes_output_server', error=status); _VERIFY(status)
+      call this%cli_options%get_varying(val=nodes_output_server, switch='--nodes_output_server', error=status); _VERIFY(status)
+      call this%cli_options%get(val=one_node_output, switch='--one_node_output', error=status); _VERIFY(status)
+      if (one_node_output) then
+         allocate(this%nodes_output_server(sum(nodes_output_server)), source =1)
+      else
+         this%nodes_output_server = nodes_output_server
+      endif
 
       this%n_iserver_group = max(size(this%npes_input_server),size(this%nodes_input_server))
       this%n_oserver_group = max(size(this%npes_output_server),size(this%nodes_output_server))

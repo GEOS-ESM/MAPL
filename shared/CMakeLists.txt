@@ -26,14 +26,15 @@ set (srcs
     Enumerators.F90
     MaplShared.F90
     TimeUtils.F90
-  )
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared MPI::MPI_Fortran pflogger TYPE SHARED)
-target_include_directories (${this} PUBLIC
-          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+    )
 
-#file (COPY MAPL_ErrLogMain.h DESTINATION ${esma_include}/${this})
-#file (COPY MAPL_ErrLog.h DESTINATION ${esma_include}/${this})
-#file (COPY MAPL_Exceptions.h DESTINATION ${esma_include}/${this})
+if (ESMA_USE_GFE_NAMESPACE)
+  esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE SHARED)
+else ()
+  esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared MPI::MPI_Fortran pflogger TYPE SHARED)
+endif ()
+
+target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 if (PFUNIT_FOUND)
   add_subdirectory (tests)

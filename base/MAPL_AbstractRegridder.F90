@@ -993,8 +993,10 @@ contains
       _UNUSED_DUMMY(spec)
       _UNUSED_DUMMY(unusable)
 
+      supports = .false.
       _FAIL('unimplemented')
       _RETURN(_SUCCESS)
+
    end function supports
 
 end module MAPL_AbstractRegridderMod

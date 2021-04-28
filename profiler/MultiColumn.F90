@@ -114,7 +114,6 @@ contains
       integer :: total_width, total_height, shared_height
       class(TextColumn), pointer :: c
       character(:), allocatable :: column_header(:)
-      character(1) :: char
       integer :: n_shared
 
       total_width = this%get_width()

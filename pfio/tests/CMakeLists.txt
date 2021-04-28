@@ -61,7 +61,7 @@ ecbuild_add_executable (
   SOURCES pfio_ctest_io.F90
   LIBS MAPL.shared MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
-# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${TESTO} OpenMP::OpenMP_Fortran)
 endif ()
@@ -87,7 +87,7 @@ add_test(NAME pFIO_tests_hybrid
 
 add_test(NAME pFIO_tests_mpi_2layer
   COMMAND env FI_PROVIDER=verbs ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multilayer -nw 3 -w ${CMAKE_BINARY_DIR}/bin/pfio_writer.x
-  )
+    )
 
 add_test(NAME pFIO_tests_mpi_2comm
   COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multicomm -nw 3
@@ -97,7 +97,21 @@ add_test(NAME pFIO_tests_mpi_2group
   COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 18 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s multigroup -nw 3
   )
 
-set_tests_properties (pFIO_tests_mpi pFIO_tests_simple pFIO_tests_hybrid  pFIO_tests_mpi_2layer pFIO_tests_mpi_2comm pFIO_tests_mpi_2group  PROPERTIES LABELS "PERFORMANCE")
+set (pfio_tests
+  pFIO_tests_mpi
+  pFIO_tests_simple
+  pFIO_tests_hybrid
+  pFIO_tests_mpi_2comm
+  pFIO_tests_mpi_2layer
+  pFIO_tests_mpi_2group
+  )
+
+foreach (test ${pfio_tests})
+  set_tests_properties (${test} PROPERTIES LABELS "PERFORMANCE")
+endforeach ()
+if (APPLE)
+  set_tests_properties (pFIO_tests_mpi_2layer PROPERTIES DISABLED True)
+endif ()
 
 set(TESTPERF pfio_performance.x)
 
@@ -107,7 +121,7 @@ ecbuild_add_executable (
   SOURCES pfio_performance.F90
   DEFINITIONS USE_MPI
   LIBS MAPL.pfio NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
-# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${TESTPERF} OpenMP::OpenMP_Fortran)
 endif ()

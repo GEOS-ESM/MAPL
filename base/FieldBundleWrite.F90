@@ -58,7 +58,7 @@ module MAPL_ESMFFieldBundleWrite
          integer, optional, intent(out) :: rc
 
          type(TimeData) :: time_info
-         integer :: num_fields,i,file_steps,clock_frequency,collection_id,status
+         integer :: num_fields,i,file_steps,collection_id,status
          character(ESMF_MAXSTR), allocatable :: field_names(:)
          type(newCFIOItemVector) :: items
          type(newCFIOItem) :: item
