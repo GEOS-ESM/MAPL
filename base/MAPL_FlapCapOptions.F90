@@ -210,6 +210,13 @@ contains
            def='.false.', &
            act='store', &
            error=status)
+
+      call options%add(switch='--with_io_profiler', &
+           help='Turning on io_profler', &
+           required=.false., &
+           def='.false.', &
+           act='store', &
+           error=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -247,6 +254,7 @@ contains
       call this%cli_options%get(val=this%npes_model, switch='--npes_model', error=status); _VERIFY(status)
       call this%cli_options%get(val=this%isolate_nodes, switch='--isolate_nodes', error=status); _VERIFY(status)
       call this%cli_options%get(val=this%fast_oclient, switch='--fast_oclient', error=status); _VERIFY(status)
+      call this%cli_options%get(val=this%with_io_profiler, switch='--with_io_profiler', error=status); _VERIFY(status)
       call this%cli_options%get_varying(val=this%npes_input_server, switch='--npes_input_server', error=status); _VERIFY(status)
       call this%cli_options%get_varying(val=this%npes_output_server, switch='--npes_output_server', error=status); _VERIFY(status)
       call this%cli_options%get_varying(val=this%nodes_input_server, switch='--nodes_input_server', error=status); _VERIFY(status)

@@ -328,6 +328,8 @@ contains
          end associate
       end do
 
+      _RETURN(_SUCCESS)
+
    end subroutine apply_weights_real32
 
 
@@ -391,6 +393,7 @@ contains
            end do
          end associate
       end do
+      _RETURN(_SUCCESS)
 
    end subroutine apply_weights_real64
 

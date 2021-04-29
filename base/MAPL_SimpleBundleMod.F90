@@ -225,6 +225,8 @@ CONTAINS
       self%coords%lcv%delp => NULL()
    end if
 
+   _RETURN(_SUCCESS)
+
   end Function MAPL_SimpleBundleCreateEmpty
 
 !-----------------------------------------------------------------------------
@@ -527,6 +529,8 @@ CONTAINS
     self%n3d = n3d
 
     deallocate(isRequested, __STAT__)
+
+    _RETURN(_SUCCESS)
   
   contains
 
@@ -689,6 +693,8 @@ CONTAINS
                                                ptop=ptop, delp=delp, only_vars=only_vars, &
                                                strict=strict, name=name, __RC__ )
 
+    _RETURN(_SUCCESS)
+
   end Function MAPL_SimpleBundleCreateFromState
 
 !-----------------------------------------------------------------------------
@@ -729,6 +735,8 @@ CONTAINS
     if (self%bundleAlloc) then
        deallocate(self%bundle, __STAT__)
     end if
+
+    _RETURN(_SUCCESS)
 
   end subroutine MAPL_SimpleBundleDestroy
 
@@ -779,6 +787,8 @@ CONTAINS
     self = MAPL_SimpleBundleCreate ( Bundle, __RC__ )
     self%bundleAlloc = .true.
 
+    _RETURN(_SUCCESS)
+
   end function MAPL_SimpleBundleRead
 
 !-----------------------------------------------------------------------------
@@ -816,6 +826,7 @@ CONTAINS
     call MAPL_CFIOCreate ( cfio, filename, clock, self%Bundle, __RC__)
     call MAPL_CFIOWrite  ( cfio, Clock, self%Bundle, verbose=verbose, __RC__)
     call MAPL_CFIODestroy ( cfio, __RC__ )
+    _RETURN(_SUCCESS)
 
   end subroutine MAPL_SimpleBundleWrite1
 
@@ -857,6 +868,7 @@ CONTAINS
     call MAPL_CFIOCreate ( cfio, filename, clock, self%Bundle, __RC__)
     call MAPL_CFIOWrite  ( cfio, Clock, self%Bundle, verbose=verbose, __RC__)
     call MAPL_CFIODestroy ( cfio, __RC__ )
+    _RETURN(_SUCCESS)
 
   end subroutine MAPL_SimpleBundleWrite2
 
@@ -1023,6 +1035,7 @@ end subroutine MAPL_SimpleBundlePrint
           _RETURN(ESMF_SUCCESS)
        end if
     end if
+    _RETURN(_SUCCESS)
 
   end function MAPL_SimpleBundleGetIndex
 

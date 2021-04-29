@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Removed
+### Added
+### Changed
+### Fixed
+
+## [2.6.6] - 2021-04-29
+
+### Fixed
+
+- Fixed bug in `SimpleCommSplitter.F90`
+
+## [2.6.5] - 2021-04-28
+
+### Removed
 
 -  pFIO/KeywordEnforcer.F90 duplicated functionality now in
    shared/KeywordEnforcer.F90, and has been removed in favor of the
@@ -25,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Nearest-neighbor interpolation option for ExtData (keyword: 'E')
 - Added pflogger_stub directory. With `-DBUILD_WITH_PFLOGGER=OFF`, it is built and linked to replace pFlogger library.
 - Added new CI test using Intel oneAPI
+- Add function to free communicators that is split by SimpleCommSplitter
+- Add with_io_profiler option
 
 ### Changed
 
@@ -51,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Add _RETURN(_SUCCESS) to MAPL_SimpleBundle routines
 - Fixed possibly uninitialized values when handling members of Segment_T derived type. Helps on the Rome nodes.
 - Fixed print diagnostics for monthly collections (proper reporting of frequency, duration, eliminated acc_interval)
 - Fixed another bug related to the incorrect time increment for monthly averaged collections
@@ -67,8 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Converted some remaining `real*8`-type declarations to be `real(kind=REAL64)`-style
 - Eliminated (almost) all compiler warnings for Intel compiler
 - Removed conditional around declaring pointers in code emitted by grid comp ACG.
-
-### Removed
+- Fixed bugs in ESMFL and MAPL_CFIOReadParallel to support GEOSadas
+- Remove some unnecessary MPI_Comm_dup calls. Some of those call are actually bugs
 
 ## [2.6.4] - 2021-03-18
 
@@ -84,6 +100,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   should add cmake logic to create an executable or just delete the
   file.
 - CMake workaround for macOS + Intel oneAPI FLAP bug (#644)
+- Fixed size of unallocated array for gfortran
+- Fixed counting of backend npes for assert
 
 ## [2.6.3] - 2021-03-09
 
