@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 ### Changed
+
+- Use `ESMF_Finalize` instead of `MPI_Finalize` in Cap
+
 ### Fixed
 
 ## [2.6.5] - 2021-04-28
