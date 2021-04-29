@@ -327,10 +327,14 @@ contains
 
      if (from%is_split) then
        call MPI_Comm_rank(comm, rank, ierror)
-       if (rank == 0) print*, "WANRNIG, try not to duplicate an splitter that has been split. Only one split splitter should bed called free_sub_comm"
+       if (rank == 0) print*, "WARNING, try not to duplicate a splitter that has been split. Only one split splitter should be called free_sub_comm"
      endif
      call this%set_shared_communicator(comm)
-     this%base_name = from%base_name
+     if (allocated(from%base_name)) then
+        this%base_name = from%base_name
+     else
+        this%base_name = ''
+     end if
      this%group_descriptions = from%group_descriptions
      this%is_split = from%is_split
      this%sub_comm = from%sub_comm
