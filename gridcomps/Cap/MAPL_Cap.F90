@@ -412,13 +412,13 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: ierror
+      integer :: status
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then
          call MAPL_Finalize(comm=this%comm_world)
-         call MPI_Finalize(ierror)
-         _VERIFY(ierror)
+         call ESMF_Finalize(rc=status)
+         _VERIFY(status)
       end if
 
       _RETURN(_SUCCESS)
