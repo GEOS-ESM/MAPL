@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [2.6.6] - 2021-04-29
+
+### Fixed
+
+- Fixed bug in `SimpleCommSplitter.F90`
+
 ## [2.6.5] - 2021-04-28
 
 ### Removed
