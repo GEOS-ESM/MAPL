@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 ### Changed
+
+- Allow the NRL Solar Data table read function to skip commented lines
+
 ### Fixed
 
 ## [2.6.6] - 2021-04-29
