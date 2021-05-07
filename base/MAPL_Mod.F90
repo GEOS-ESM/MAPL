@@ -55,6 +55,7 @@ module MAPL_Mod
   use MAPL_ApplicationSupport
   use MAPL_ESMFFieldBundleRead
   use MAPL_ESMFFieldBundleWrite
+  use MAPL_ServerManager
   logical, save, private :: mapl_is_initialized = .false.
 
 end module MAPL_Mod

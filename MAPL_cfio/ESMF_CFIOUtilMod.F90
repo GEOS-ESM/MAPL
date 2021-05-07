@@ -532,13 +532,12 @@
         if (nvDims .EQ. 1 .or. trim(vname) .eq. 'time_bnds') then
           tmpNvar = tmpNvar - 1
         endif
-        if (vname == 'cubed_sphere') then
+        if (vname == 'nf') then
            cs_found = .true.
-           tmpNvar = tmpNvar - 1
         end if
       enddo
       if (cs_found) then
-         tmpNvar = tmpNvar - 3
+         tmpNvar = tmpNvar - 4
          found_xc = NF90_INQ_VARID(fid,"corner_lons",vid)
          if (found_xc ==0) tmpNvar = tmpNvar - 1
          found_yc = NF90_INQ_VARID(fid,"corner_lats",vid)
