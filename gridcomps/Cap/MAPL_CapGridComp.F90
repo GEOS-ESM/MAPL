@@ -65,6 +65,7 @@ module MAPL_CapGridCompMod
      logical :: compute_throughput
      integer :: n_run_phases
      type (ThroughputTimers) :: starts
+     integer :: step_counter
    contains
      procedure :: set_services
      procedure :: initialize
@@ -86,6 +87,9 @@ module MAPL_CapGridCompMod
      procedure :: set_grid
      procedure :: inject_external_grid
      procedure :: set_clock
+     procedure :: set_step_counter
+     procedure :: increment_step_counter
+     procedure :: get_step_counter
   end type MAPL_CapGridComp
 
   type :: MAPL_CapGridComp_Wrapper
@@ -1013,6 +1017,25 @@ contains
 
   end function get_current_time
 
+  subroutine set_step_counter(this, n)
+    class (MAPL_CapGridComp), intent(inout) :: this
+    integer, intent(in) :: n
+
+    this%step_counter = n
+  end subroutine set_step_counter
+
+  subroutine increment_step_counter(this)
+    class (MAPL_CapGridComp), intent(inout) :: this
+
+    this%step_counter = this%step_counter + 1
+  end subroutine increment_step_counter
+
+  function get_step_counter(this) result (step_counter)
+    class (MAPL_CapGridComp), intent(in) :: this
+    integer :: step_counter
+
+    step_counter = this%step_counter
+  end function get_step_counter
 
   function get_CapGridComp_from_gc(gc) result(cap)
     type(ESMF_GridComp), intent(inout) :: gc
@@ -1102,7 +1125,12 @@ contains
           cap%starts%loop_start_timer = MPI_WTime(status)
           cap%started_loop_timer = .true.
        end if
+
+       call cap%set_step_counter(0)
+
        TIME_LOOP: do n = 1, cap%nsteps
+
+          call cap%increment_step_counter()
 
           call MAPL_MemUtilsWrite(cap%vm, 'MAPL_Cap:TimeLoop', rc = status)
           _VERIFY(status)
@@ -1268,7 +1296,6 @@ contains
         real              :: mem_used, mem_used_percent
         type(ESMF_Time)   :: currTime
         type(ESMF_TimeInterval) :: delt
-        real(kind=REAL64)       :: delt64
         integer                 :: AGCM_YY, AGCM_MM, AGCM_DD, AGCM_H, AGCM_M, AGCM_S
         integer                 :: HRS_R, MIN_R, SEC_R
 
@@ -1287,16 +1314,14 @@ contains
         call ESMF_VMBarrier( this%vm, RC=STATUS )
         _VERIFY(STATUS)
         END_TIMER = MPI_Wtime(status)
-        call ESMF_TimeIntervalGet(delt,s_r8=delt64,rc=status)
-        _VERIFY(status)
-        n=delt64/real(this%heartbeat_dt,kind=real64)
+        n=this%get_step_counter()
         !GridCompRun Timer [Inst]
-        RUN_THROUGHPUT = REAL(  this%HEARTBEAT_DT,kind=REAL64)/(END_RUN_TIMER-this%starts%start_run_timer)
-       ! Time loop throughput [Inst]
+        RUN_THROUGHPUT  = REAL(  this%HEARTBEAT_DT,kind=REAL64)/(END_RUN_TIMER-this%starts%start_run_timer)
+        ! Time loop throughput [Inst]
         INST_THROUGHPUT = REAL(  this%HEARTBEAT_DT,kind=REAL64)/(END_TIMER-this%starts%start_timer)
-       ! Time loop throughput [Avg]
-        LOOP_THROUGHPUT = REAL(n*this%HEARTBEAT_DT,kind=REAL64)/(END_TIMER- this%starts%loop_start_timer)
-       ! Estimate time remaining (seconds)
+        ! Time loop throughput [Avg]
+        LOOP_THROUGHPUT = REAL(n*this%HEARTBEAT_DT,kind=REAL64)/(END_TIMER-this%starts%loop_start_timer)
+        ! Estimate time remaining (seconds)
         TIME_REMAINING = REAL((this%nsteps-n)*this%HEARTBEAT_DT,kind=REAL64)/LOOP_THROUGHPUT
         HRS_R = FLOOR(TIME_REMAINING/3600.0)
         MIN_R = FLOOR(TIME_REMAINING/60.0  -   60.0*HRS_R)

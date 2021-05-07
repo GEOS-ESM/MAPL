@@ -10,7 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 ### Changed
+
+- Use `ESMF_Finalize` instead of `MPI_Finalize` in Cap
+- Allow the NRL Solar Data table read function to skip commented lines
+
 ### Fixed
+
+- Fixed during-run timer output for perpetual year runs
 
 ## [2.6.6] - 2021-04-29
 
