@@ -23,34 +23,45 @@ executors:
     #MEDIUM# resource_class: medium
 
 workflows:
-  version: 2.1
   build-and-test:
     jobs:
       - build-MAPL:
           name: build-MAPL-<< matrix.compiler >>
-          context: 
-            - docker-hub-creds
           matrix:
             parameters:
               compiler: [gfortran, ifort]
+          context: 
+            - docker-hub-creds
       - run-MAPL-tests:
           name: run-MAPL-tests-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
           context: 
             - docker-hub-creds
           requires:
             - build-MAPL-<< matrix.compiler >>
       #- build-GEOSgcm:
           #name: build-GEOSgcm-<< matrix.compiler >>
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
           #context: 
             #- docker-hub-creds
       #- make-FV3-exp:
           #name: make-FV3-exp-<< matrix.compiler >>
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
           #context: 
             #- docker-hub-creds
           #requires:
             #- build-GEOSgcm-<< matrix.compiler >>
       #- run-FV3:
           #name: run-FV3-<< matrix.compiler >>
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
           #context: 
             #- docker-hub-creds
           #requires:
