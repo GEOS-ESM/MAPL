@@ -11,6 +11,7 @@ executors:
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
+      MPIEXEC_PREFLAGS: --oversubscribe
     resource_class: xlarge
     #MEDIUM# resource_class: medium
 
@@ -26,22 +27,13 @@ executors:
 workflows:
   build-and-test:
     jobs:
-      - build-MAPL:
-          name: build-MAPL-on-<< matrix.compiler >>
+      - build-and-test-MAPL:
+          name: build-and-test-MAPL-on-<< matrix.compiler >>
           matrix:
             parameters:
               compiler: [gfortran, ifort]
           context: 
             - docker-hub-creds
-      - run-MAPL-tests:
-          name: run-MAPL-tests-on-<< matrix.compiler >>
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          context: 
-            - docker-hub-creds
-          requires: 
-            - build-MAPL-on-<< matrix.compiler >>
       #- build-GEOSgcm:
           #name: build-GEOSgcm-on-<< matrix.compiler >>
           #matrix:
@@ -69,7 +61,7 @@ workflows:
             #- make-FV3-exp-on-<< matrix.compiler >>
 
 jobs:
-  build-MAPL:
+  build-and-test-MAPL:
     parameters:
       compiler:
         type: string
@@ -90,43 +82,25 @@ jobs:
       - run:
           name: "CMake"
           command: |
-            mkdir -p  ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
-            cmake ${CIRCLE_WORKING_DIRECTORY}/MAPL -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS='--oversubscribe' -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-MAPL
+            mkdir -p  ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
+            cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
+            cmake ${CIRCLE_WORKING_DIRECTORY}/MAPL -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/install-MAPL
       - run:
           name: "Build and install"
           command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
+            cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
             make -j"$(nproc)" install
             #MEDIUM# make -j4 install
-      
-      # We need to persist the install for the next step
-      - persist_to_workspace:
-          root: /root/project
-          paths:
-            - MAPL
-            - workspace/build-MAPL
-            - workspace/install-MAPL
-
-  run-MAPL-tests:
-    parameters:
-      compiler:
-        type: string
-    executor: << parameters.compiler >>
-    working_directory: /root/project
-    steps:
-      - attach_workspace:
-          at: /root/project
       - run:
           name: "Build MAPL Unit Tests"
           command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
+            cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
             make -j"$(nproc)" build-tests
             #MEDIUM# make -j4 build-tests
       - run:
           name: "Run MAPL Unit Tests"
           command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
+            cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
             # skip Performance tests (maybe doable on CircleCI?)
             ctest -R MAPL -LE PERFORMANCE --output-on-failure
 
