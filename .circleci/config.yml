@@ -13,6 +13,7 @@ executors:
       OMPI_MCA_btl_vader_single_copy_mechanism: none
     resource_class: xlarge
     #MEDIUM# resource_class: medium
+
   ifort:
     docker:
       - image: gmao/ubuntu20-geos-env:v6.1.0-intelmpi_2021.2.0-intel_2021.2.0
@@ -26,57 +27,60 @@ workflows:
   build-and-test:
     jobs:
       - build-MAPL:
-          name: build-MAPL-<< matrix.compiler >>
+          name: build-MAPL-on-<< matrix.compiler >>
           matrix:
             parameters:
               compiler: [gfortran, ifort]
           context: 
             - docker-hub-creds
       - run-MAPL-tests:
-          name: run-MAPL-tests-<< matrix.compiler >>
+          name: run-MAPL-tests-on-<< matrix.compiler >>
           matrix:
             parameters:
               compiler: [gfortran, ifort]
           context: 
             - docker-hub-creds
-          requires:
-            - build-MAPL-<< matrix.compiler >>
-      #- build-GEOSgcm:
-          #name: build-GEOSgcm-<< matrix.compiler >>
-          #matrix:
-            #parameters:
-              #compiler: [gfortran, ifort]
-          #context: 
-            #- docker-hub-creds
-      #- make-FV3-exp:
-          #name: make-FV3-exp-<< matrix.compiler >>
-          #matrix:
-            #parameters:
-              #compiler: [gfortran, ifort]
-          #context: 
-            #- docker-hub-creds
-          #requires:
-            #- build-GEOSgcm-<< matrix.compiler >>
-      #- run-FV3:
-          #name: run-FV3-<< matrix.compiler >>
-          #matrix:
-            #parameters:
-              #compiler: [gfortran, ifort]
-          #context: 
-            #- docker-hub-creds
-          #requires:
-            #- make-FV3-exp-<< matrix.compiler >>
+          requires: 
+            - build-MAPL-on-<< matrix.compiler >>
+      - build-GEOSgcm:
+          name: build-GEOSgcm-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          context: 
+            - docker-hub-creds
+      - make-FV3-exp:
+          name: make-FV3-exp-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          context: 
+            - docker-hub-creds
+          requires: 
+            - build-GEOSgcm-on-<< matrix.compiler >>
+      - run-FV3:
+          name: run-FV3-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          context: 
+            - docker-hub-creds
+          requires: 
+            - make-FV3-exp-on-<< matrix.compiler >>
 
 jobs:
   build-MAPL:
-    executor: << matrix.compiler >>
+    parameters:
+      compiler:
+        type: string
+    executor: << parameters.compiler >>
     working_directory: /root/project
     steps:
       - checkout:
           path: MAPL
       - run:
           name: "Versions etc"
-          command: mpirun --version && << matrix.compiler >> --version && echo $BASEDIR && pwd && ls && echo "$(nproc)"
+          command: mpirun --version && << parameters.compiler >> --version && echo $BASEDIR && pwd && ls && echo "$(nproc)"
       - run:
           name: "Mepo clone external repos"
           command: |
@@ -88,7 +92,7 @@ jobs:
           command: |
             mkdir -p  ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
-            cmake ${CIRCLE_WORKING_DIRECTORY}/MAPL -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< matrix.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS='--oversubscribe' -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-MAPL
+            cmake ${CIRCLE_WORKING_DIRECTORY}/MAPL -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS='--oversubscribe' -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-MAPL
       - run:
           name: "Build and install"
           command: |
@@ -103,7 +107,10 @@ jobs:
             - build-MAPL
 
   run-MAPL-tests:
-    executor: << matrix.compiler >>
+    parameters:
+      compiler:
+        type: string
+    executor: << parameters.compiler >>
     working_directory: /root/project
     steps:
       - attach_workspace:
@@ -122,7 +129,10 @@ jobs:
             ctest -R MAPL -LE PERFORMANCE --output-on-failure
 
   build-GEOSgcm:
-    executor: << matrix.compiler >>
+    parameters:
+      compiler:
+        type: string
+    executor: << parameters.compiler >>
     working_directory: /root/project
     steps:
       - run:
@@ -167,7 +177,7 @@ jobs:
             cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm
             mkdir -p  ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSgcm
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSgcm
-            cmake ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< matrix.compiler >> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSgcm -DUSE_F2PY=OFF 
+            cmake ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSgcm -DUSE_F2PY=OFF 
       - run:
           name: "Build and install"
           command: |
@@ -182,7 +192,10 @@ jobs:
             - install-GEOSgcm
 
   make-FV3-exp:
-    executor: << matrix.compiler >>
+    parameters:
+      compiler:
+        type: string
+    executor: << parameters.compiler >>
     working_directory: /root/project
     steps:
       - attach_workspace:
@@ -224,7 +237,10 @@ jobs:
             - test-fv3-c12
 
   run-FV3:
-    executor: << matrix.compiler >>
+    parameters:
+      compiler:
+        type: string
+    executor: << parameters.compiler >>
     working_directory: /root/project
     steps:
       - attach_workspace:
