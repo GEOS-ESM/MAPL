@@ -42,31 +42,31 @@ workflows:
             - docker-hub-creds
           requires: 
             - build-MAPL-on-<< matrix.compiler >>
-      - build-GEOSgcm:
-          name: build-GEOSgcm-on-<< matrix.compiler >>
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          context: 
-            - docker-hub-creds
-      - make-FV3-exp:
-          name: make-FV3-exp-on-<< matrix.compiler >>
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          context: 
-            - docker-hub-creds
-          requires: 
-            - build-GEOSgcm-on-<< matrix.compiler >>
-      - run-FV3:
-          name: run-FV3-on-<< matrix.compiler >>
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          context: 
-            - docker-hub-creds
-          requires: 
-            - make-FV3-exp-on-<< matrix.compiler >>
+      #- build-GEOSgcm:
+          #name: build-GEOSgcm-on-<< matrix.compiler >>
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
+          #context: 
+            #- docker-hub-creds
+      #- make-FV3-exp:
+          #name: make-FV3-exp-on-<< matrix.compiler >>
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
+          #context: 
+            #- docker-hub-creds
+          #requires: 
+            #- build-GEOSgcm-on-<< matrix.compiler >>
+      #- run-FV3:
+          #name: run-FV3-on-<< matrix.compiler >>
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
+          #context: 
+            #- docker-hub-creds
+          #requires: 
+            #- make-FV3-exp-on-<< matrix.compiler >>
 
 jobs:
   build-MAPL:
@@ -102,9 +102,11 @@ jobs:
       
       # We need to persist the install for the next step
       - persist_to_workspace:
-          root: workspace
+          root: /root/project
           paths:
-            - build-MAPL
+            - MAPL
+            - workspace/build-MAPL
+            - workspace/install-MAPL
 
   run-MAPL-tests:
     parameters:
@@ -114,7 +116,7 @@ jobs:
     working_directory: /root/project
     steps:
       - attach_workspace:
-          at: workspace
+          at: /root/project
       - run:
           name: "Build MAPL Unit Tests"
           command: |
