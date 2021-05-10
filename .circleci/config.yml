@@ -34,31 +34,31 @@ workflows:
               compiler: [gfortran, ifort]
           context: 
             - docker-hub-creds
-      #- build-GEOSgcm:
-          #name: build-GEOSgcm-on-<< matrix.compiler >>
-          #matrix:
-            #parameters:
-              #compiler: [gfortran, ifort]
-          #context: 
-            #- docker-hub-creds
-      #- make-FV3-exp:
-          #name: make-FV3-exp-on-<< matrix.compiler >>
-          #matrix:
-            #parameters:
-              #compiler: [gfortran, ifort]
-          #context: 
-            #- docker-hub-creds
-          #requires: 
-            #- build-GEOSgcm-on-<< matrix.compiler >>
-      #- run-FV3:
-          #name: run-FV3-on-<< matrix.compiler >>
-          #matrix:
-            #parameters:
-              #compiler: [gfortran, ifort]
-          #context: 
-            #- docker-hub-creds
-          #requires: 
-            #- make-FV3-exp-on-<< matrix.compiler >>
+      - build-GEOSgcm:
+          name: build-GEOSgcm-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          context: 
+            - docker-hub-creds
+      - make-FV3-exp:
+          name: make-FV3-exp-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          context: 
+            - docker-hub-creds
+          requires: 
+            - build-GEOSgcm-on-<< matrix.compiler >>
+      - run-FV3:
+          name: run-FV3-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          context: 
+            - docker-hub-creds
+          requires: 
+            - make-FV3-exp-on-<< matrix.compiler >>
 
 jobs:
   build-and-test-MAPL:
