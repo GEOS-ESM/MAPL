@@ -75,6 +75,7 @@ public MAPL_GridGetCorners
 public MAPL_GridGetInterior
 public MAPL_TrimString
 public MAPL_FieldSplit
+public MAPL_GetCorrectedPhase
 
 ! !PUBLIC PARAMETERS
 !
@@ -3995,5 +3996,15 @@ and so on.
    _RETURN(ESMF_SUCCESS)
  end subroutine GenAlias
 end subroutine MAPL_FieldSplit
+
+  function MAPL_GetCorrectedPhase(gc,rc) result(phase)
+     type(ESMF_GridComp), intent(inout) :: gc
+     integer, optional, intent(out) :: rc
+     integer :: phase,status
+     call ESMF_GridCompGet(gc,currentPhase=phase,rc=status)
+     _VERIFY(status)
+     if (phase>10) phase=phase-10
+     _RETURN(_SUCCESS)
+  end function
 end module MAPL_BaseMod
 

@@ -2446,6 +2446,10 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
       integer, parameter :: YEAR_NOT_FOUND = -99
 
+      character(len=256) :: line
+      character(len=1), parameter :: commentChar = "#"
+      integer :: stat
+
       logical, save :: TableCreated = .FALSE.
       integer, save, allocatable, dimension(:) :: yearTable, doyTable
       real,    save, allocatable, dimension(:) :: tsi, mgindex, sbindex
@@ -2475,8 +2479,8 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          filename = trim(filename_in)
 
          ! Does the file exist?
-         inquire( FILE=FILENAME, EXIST=found )
-         _ASSERT( FOUND ,'needs informative message')
+         inquire( FILE=filename, EXIST=found )
+         _ASSERT( found ,'Could not find NRL data file '//trim(filename) )
 
          UNIT = GETFILE(filename, DO_OPEN=0, form="formatted", rc=status)
          _VERIFY(STATUS)
@@ -2488,7 +2492,11 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             ! Determine length of file
             ! ------------------------
 
+            call lgr%debug("Scanning the Solar Table to determine number of data points")
+
             numlines = num_lines_in_file(UNIT)
+
+            call lgr%debug("Solar Table Data Points: %i0", numlines)
 
             ! Allocate our arrays
             ! -------------------
@@ -2513,9 +2521,18 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
             call lgr%debug("Reading the Solar Table")
 
-            do i = 1, numlines
-               read(unit,*) yearTable(i), doyTable(i), tsi(i), mgindex(i), sbindex(i)
+            i = 1
+            do
+               read(unit,'(A)',iostat=stat) line
+               if (is_iostat_end(stat)) exit
+               ! Skip lines starting with #-comments
+               if (index (line, commentChar) /= 0) cycle
+               read(line,*) yearTable(i), doyTable(i), tsi(i), mgindex(i), sbindex(i)
+               i = i + 1
             end do
+
+            ! Belt and suspenders check that all data was read
+            _ASSERT(size(yearTable) == numlines,"Inconsistency in NRL number of lines")
 
          end if
 
@@ -2742,13 +2759,18 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             implicit none
 
             integer, intent(in) :: unit
+
+            character(len=256) :: line
             integer :: stat
+            character(len=1), parameter :: commentChar = "#"
             
             count = 0
 
             do
-               read(unit,*,iostat=stat) 
+               read(unit,'(A)',iostat=stat) line
                if (is_iostat_end(stat)) exit
+               ! Skip lines starting with #-comments
+               if (index (line, commentChar) /= 0) cycle
                count = count + 1
             end do
 
