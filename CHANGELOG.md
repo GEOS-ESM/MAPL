@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added new CI test using Intel oneAPI
 - Add function to free communicators that is split by SimpleCommSplitter
 - Add with_io_profiler option
+- New interface to MAPL_GetResource to pass config rather than  MAPL object
 
 ### Changed
 
