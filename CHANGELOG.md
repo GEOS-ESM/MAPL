@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Added return code in start_global_profiler()
 - Fixed during-run timer output for perpetual year runs
 - Fixed bug prevent "little" cfio from reading new cubed sphere files
 
