@@ -17,13 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed during-run timer output for perpetual year runs
+- Fixed bug prevent "little" cfio from reading new cubed sphere files
 
 ## [2.6.6] - 2021-04-29
 
 ### Fixed
 
 - Fixed bug in `SimpleCommSplitter.F90`
-- Fixed bug prevent "little" cfio from reading new cubed sphere files
 
 ## [2.6.5] - 2021-04-28
 
