@@ -146,7 +146,7 @@ module MAPL_ApplicationSupport
       integer, optional, intent(in) :: comm
       integer, optional, intent(out) :: rc
       class (BaseProfiler), pointer :: t_p
-      integer :: world_comm,status
+      integer :: world_comm
 
       _UNUSED_DUMMY(unusable)
       if (present(comm)) then
@@ -157,6 +157,7 @@ module MAPL_ApplicationSupport
       t_p => get_global_time_profiler()
       t_p = TimeProfiler('All', comm_world = world_comm)
       call t_p%start()
+      _RETURN(_SUCCESS)
    end subroutine start_global_profiler
 
    subroutine stop_global_profiler()

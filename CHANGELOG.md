@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+- Added return code in start_global_profiler()
+
 ## [2.6.6] - 2021-04-29
 
 ### Fixed
