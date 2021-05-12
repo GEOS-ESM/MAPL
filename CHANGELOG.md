@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 ### Changed
+### Fixed
+
+## [2.6.7] - 2021-05-12
+
+### Removed
+### Added
+
+- New interface to MAPL_GetResource to pass config rather than MAPL object
+
+### Changed
 
 - Use `ESMF_Finalize` instead of `MPI_Finalize` in Cap
 - Allow the NRL Solar Data table read function to skip commented lines
@@ -18,13 +28,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added return code in start_global_profiler()
 - Fixed during-run timer output for perpetual year runs
+- Fixed bug prevent "little" cfio from reading new cubed sphere files
 
 ## [2.6.6] - 2021-04-29
 
 ### Fixed
 
 - Fixed bug in `SimpleCommSplitter.F90`
-- Fixed bug prevent "little" cfio from reading new cubed sphere files
 
 ## [2.6.5] - 2021-04-28
 
@@ -48,7 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added new CI test using Intel oneAPI
 - Add function to free communicators that is split by SimpleCommSplitter
 - Add with_io_profiler option
-- New interface to MAPL_GetResource to pass config rather than  MAPL object
 
 ### Changed
 
