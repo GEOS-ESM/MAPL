@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Re-org subroutine finalize_io_clients_servers to avoid missing calls
 - Use `ESMF_Finalize` instead of `MPI_Finalize` in Cap
 - Allow the NRL Solar Data table read function to skip commented lines
 - Updated `components.yaml` to be in sync with GEOSgcm:
