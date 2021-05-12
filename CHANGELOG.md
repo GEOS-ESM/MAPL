@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use `ESMF_Finalize` instead of `MPI_Finalize` in Cap
 - Allow the NRL Solar Data table read function to skip commented lines
+- Updated `components.yaml` to be in sync with GEOSgcm:
+   - ESMA_env v3.2.1
+   - ESMA_cmake v3.4.0
 
 ### Fixed
 
