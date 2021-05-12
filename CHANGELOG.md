@@ -10,7 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 ### Changed
+### Fixed
 
+## [2.6.7] - 2021-05-12
+
+### Removed
+### Added
+
+- New interface to MAPL_GetResource to pass config rather than MAPL object
+
+### Changed
+
+- Re-org subroutine finalize_io_clients_servers to avoid missing calls
 - Use `ESMF_Finalize` instead of `MPI_Finalize` in Cap
 - Allow the NRL Solar Data table read function to skip commented lines
 
@@ -48,7 +59,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added new CI test using Intel oneAPI
 - Add function to free communicators that is split by SimpleCommSplitter
 - Add with_io_profiler option
-- New interface to MAPL_GetResource to pass config rather than  MAPL object
 
 ### Changed
 

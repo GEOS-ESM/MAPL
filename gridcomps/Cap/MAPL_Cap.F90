@@ -144,7 +144,6 @@ contains
 
       integer :: status
       integer :: subcommunicator
-      type(SplitCommunicator) :: split_comm
 
       _UNUSED_DUMMY(unusable)
       
@@ -152,7 +151,7 @@ contains
       if (subcommunicator /= MPI_COMM_NULL) then
          call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
          call this%run_member(rc=status); _VERIFY(status)
-         call this%cap_server%finalize()
+         call this%finalize_io_clients_servers()
          call this%splitter%free_sub_comm()
       end if
 
@@ -165,8 +164,15 @@ contains
      class (MAPL_Cap), target, intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(out) :: rc
+     type(SplitCommunicator) :: split_comm
 
      _UNUSED_DUMMY(unusable)
+     call this%cap_server%get_splitcomm(split_comm)
+     select case(split_comm%get_name())
+     case('model')
+        call i_Clients%terminate()
+        call o_Clients%terminate()
+     end select
      call this%cap_server%finalize()
      _RETURN(_SUCCESS)
  
@@ -211,8 +217,6 @@ contains
       select case(split_comm%get_name())
       case('model')
          call this%run_model(comm=split_comm%get_subcommunicator(), rc=status); _VERIFY(status)
-         call i_Clients%terminate()
-         call o_Clients%terminate()
       end select
                   
      _RETURN(_SUCCESS)
