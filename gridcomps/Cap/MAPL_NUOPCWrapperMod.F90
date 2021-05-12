@@ -387,9 +387,6 @@ contains
         call cap%cap_gc%finalize(rc=rc)
         _VERIFY(rc)
 
-        call i_Clients%terminate()
-        call o_Clients%terminate()
-
         call cap%finalize_io_clients_servers(rc=rc)
         _VERIFY(rc)
 
