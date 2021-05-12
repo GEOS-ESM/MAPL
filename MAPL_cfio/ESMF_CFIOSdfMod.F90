@@ -473,19 +473,14 @@
             index(vnameTemp, 'Height:EOSGRID') .gt. 0) ) then
            coZType = vtype
         end if
-        if(vnameTemp == 'cubed_sphere') then
+        if(vnameTemp == 'nf') then
            cs_found = .true.
-           varId = i
-           rtcode = NF90_GET_ATT(fid,varId,'file_format_version',fversion )
-           if (err("problem in NF90_GET_ATT",rtcode,-53) .NE. 0) then  
-              if ( present(rc) ) rc = rtcode
-              return
-           end if
            cycle
         endif
 
       end do
       if (cs_found) then
+         fversion="2.91"
          read(fversion, *) cfio%formatVersion
       end if
 
@@ -500,7 +495,9 @@
            cycle
         end if
         if (cs_found) then
-           if(vnameTemp == 'cubed_sphere') cycle
+           if(vnameTemp == 'ncontact') cycle
+           if(vnameTemp == 'lons') cycle
+           if(vnameTemp == 'lats') cycle
            if(vnameTemp == 'contacts') cycle
            if(vnameTemp == 'orientation') cycle
            if(vnameTemp == 'anchor') cycle
