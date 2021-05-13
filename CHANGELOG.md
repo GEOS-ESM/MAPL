@@ -68,7 +68,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 	
-
 - Changed the interface to TimeData to have an optional "funits" argument (defaults to "minutes")
 - Changed time units to "days" for monthly collections
 - Simplified the logic for timestamping offsets
