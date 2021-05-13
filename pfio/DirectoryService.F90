@@ -15,7 +15,7 @@
 module pFIO_DirectoryServiceMod
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_ptr, c_sizeof
    use MAPL_ExceptionHandling
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use pFIO_AbstractServerMod
    use pFIO_ServerThreadMod
    use pFIO_BaseServerMod
@@ -597,6 +597,7 @@ contains
          call MPI_Free_mem(dir, ierror)
       end if
 
+      call Mpi_Comm_free(this%comm, ierror)
       _RETURN(_SUCCESS)
    end subroutine free_directory_resources
 

@@ -5,7 +5,7 @@ module pFIO_ClientManagerMod
 
    use MAPL_ExceptionHandling
    use MAPL_SortMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_FileMetadataMod
    use pFIO_ClientThreadMod
@@ -105,7 +105,7 @@ contains
         clientPtr=>null()
       enddo
 
-      call Mpi_Comm_dup(client_comm, c_manager%client_comm, rc)
+      c_manager%client_comm = client_comm
       call MPI_Comm_rank(client_comm, c_manager%rank, rc)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

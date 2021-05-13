@@ -7,20 +7,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
 ### Added
-- Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
+### Changed
+
+- Adopting Fortran submodules to improve compilation.
+
+### Fixed
+
+## [2.6.7] - 2021-05-12
+
+### Removed
+### Added
+
+- New interface to MAPL_GetResource to pass config rather than MAPL object
+
+### Changed
+
+- Re-org subroutine finalize_io_clients_servers to avoid missing calls
+- Use `ESMF_Finalize` instead of `MPI_Finalize` in Cap
+- Allow the NRL Solar Data table read function to skip commented lines
+- Updated `components.yaml` to be in sync with GEOSgcm:
+   - ESMA_env v3.2.1
+   - ESMA_cmake v3.4.0
+
+### Fixed
+
+- Added return code in start_global_profiler()
+- Fixed during-run timer output for perpetual year runs
+- Fixed bug prevent "little" cfio from reading new cubed sphere files
+
+## [2.6.6] - 2021-04-29
+
+### Fixed
+
+- Fixed bug in `SimpleCommSplitter.F90`
+
+## [2.6.5] - 2021-04-28
+
+### Removed
+
+-  pFIO/KeywordEnforcer.F90 duplicated functionality now in
+   shared/KeywordEnforcer.F90, and has been removed in favor of the
+   other.
 
 ### Added
 
+- A new flag to timestamp average collections at the beginning of the averaging interval
 - Ability to run MultiGroupServer and model in a single node
 - Add command line option --one_node_output
 - Ability to split fields with ungridded dimensions (and not only 4d). 
 - Ability to add alias names to the split fields
+- Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
+- Add MAPL_TransposeaRegridderMod to MAPL_Mod
+- Nearest-neighbor interpolation option for ExtData (keyword: 'E')
+- Added pflogger_stub directory. With `-DBUILD_WITH_PFLOGGER=OFF`, it is built and linked to replace pFlogger library.
+- Added new CI test using Intel oneAPI
+- Add function to free communicators that is split by SimpleCommSplitter
+- Add with_io_profiler option
 
 ### Changed
 	
 
-- Adopting Fortran submodules to improve compilation.	
+- Changed the interface to TimeData to have an optional "funits" argument (defaults to "minutes")
+- Changed time units to "days" for monthly collections
+- Simplified the logic for timestamping offsets
 - Setting and getting UNGRIDDED_DIMS attribute uses now single quoted string
 - Do not output `cubed_sphere` and `orientation` variables in native
   History output as pFIO at present does not handle string variables
@@ -28,9 +79,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - `base/mapl_tree.py`
    - `base/mapl_vlist.py`
    - `Apps/MAPL_GridCompSpecs_ACG.py`
+   - Nullified pointers for deactivated optional state elements for
+     the grid compe spec code generator ACG.
+- Updated `components.yaml`:
+   - ESMA_env v3.2.0 (Baselibs 6.1.0 <==> ESMF 8.1.0)
+   - ESMA_cmake v3.3.9 (adds ability to see GFE namespace option, `BUILD_WITH_PFLOGGER`)
+- Update CI images to 6.1.0
+- Updated MAPL to have the ability to use the new GFE namespace in CMake. (`gftl` --> `GFTL::gftl`). 
+   - The default in ESMA_cmake v3.3.8 is *not* enabled. To enable use `-DESMA_USE_GFE_NAMESPACE=ON`.
+   - NOTE: This requires Baselibs 6.2.0 or higher when using Baselibs.
+- Updated the non-PersistSolar branch of `MAPL_SunGetSolarConstantFromNRLFile` to use Solar Cycle 24 as we are now in Cycle 25.
 
 ### Fixed
 
+- Add _RETURN(_SUCCESS) to MAPL_SimpleBundle routines
+- Fixed possibly uninitialized values when handling members of Segment_T derived type. Helps on the Rome nodes.
+- Fixed print diagnostics for monthly collections (proper reporting of frequency, duration, eliminated acc_interval)
+- Fixed another bug related to the incorrect time increment for monthly averaged collections
+- Fixed few memory leaks (average and stampOffset arrays were allocated twice)
+- Fixed a bug related to incorrect time increment attribute for a monthly collection
+- Fixed a bug related to the naming scheme for split fields when ungrid size is 1
 - Fixed unset UNGRIDDED_DIMS attribute bug
 - Fixes ESMF logging errors related to expressions in History
 - Fixed error handling in profiler/BaseProfiler.F90
@@ -40,8 +108,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CMake updates to allow NAG Fortran build
 - Converted some remaining `real*8`-type declarations to be `real(kind=REAL64)`-style
 - Eliminated (almost) all compiler warnings for Intel compiler
-
-### Removed
+- Removed conditional around declaring pointers in code emitted by grid comp ACG.
+- Fixed bugs in ESMFL and MAPL_CFIOReadParallel to support GEOSadas
+- Remove some unnecessary MPI_Comm_dup calls. Some of those call are actually bugs
 
 ## [2.6.4] - 2021-03-18
 
@@ -57,6 +126,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   should add cmake logic to create an executable or just delete the
   file.
 - CMake workaround for macOS + Intel oneAPI FLAP bug (#644)
+- Fixed size of unallocated array for gfortran
+- Fixed counting of backend npes for assert
 
 ## [2.6.3] - 2021-03-09
 

@@ -121,17 +121,17 @@ module pFIO_AbstractServerMod
 
 contains
 
-   subroutine init(this,comm, port_name, profiler_name)
+   subroutine init(this,comm, port_name, profiler_name, with_profiler)
       class (AbstractServer),intent(inout) :: this
       integer, intent(in) :: comm
       character(*), intent(in) :: port_name
       character(*), optional, intent(in) :: profiler_name
+      logical, optional, intent(in) :: with_profiler
 
       integer :: ierror, MyColor
       character(len=:), allocatable :: p_name
 
-      call MPI_Comm_dup(comm, this%comm, ierror)
-
+      this%comm = comm
       call MPI_Comm_rank(this%comm, this%rank, ierror)
       call MPI_Comm_size(this%comm, this%npes, ierror)
 
@@ -162,16 +162,22 @@ contains
 
       call Mpi_AllGather(this%Node_Rank,  1, MPI_INTEGER, &
                          this%Node_Ranks, 1, MPI_INTEGER, comm,ierror)
-      if (.not. associated(ioserver_profiler)) then
-         if (present(profiler_name)) then
-            p_name = profiler_name
-         else
-            p_name = port_name
-         endif
 
-         !allocate(ioserver_profiler, source = DistributedProfiler(p_name, MpiTimerGauge(), comm))
-         !call ioserver_profiler%start()
+      if (present(profiler_name)) then
+         p_name = profiler_name
+      else
+         p_name = port_name
       endif
+
+      if (present(with_profiler)) then
+         if (with_profiler) then
+            if (.not. associated(ioserver_profiler)) then
+               allocate(ioserver_profiler, source = DistributedProfiler(p_name, MpiTimerGauge(), comm))
+               call ioserver_profiler%start()
+            endif
+         endif
+      endif
+
       call MPI_Barrier(comm, ierror)
    end subroutine init
 

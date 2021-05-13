@@ -1,5 +1,5 @@
 module pFIO_AbstractDirectoryServiceMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use pFIO_BaseServerMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractSocketVectorMod

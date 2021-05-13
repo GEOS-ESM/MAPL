@@ -7,7 +7,7 @@ module pFIO_MultiGroupServerMod
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use MAPL_Profiler
    use MAPL_ErrorHandlingMod
    use pFIO_ConstantsMod
@@ -70,6 +70,7 @@ module pFIO_MultiGroupServerMod
       integer, allocatable :: back_ranks(:)
       integer, allocatable :: front_ranks(:)
       class(vector_array), allocatable :: buffers(:)
+      type(SimpleCommSplitter) :: splitter
    contains
       procedure :: start
       procedure :: start_back
@@ -87,15 +88,16 @@ module pFIO_MultiGroupServerMod
 
 contains
 
-   function new_MultiGroupServer(server_comm, port_name, nwriter_per_node, rc) result(s)
+   function new_MultiGroupServer(server_comm, port_name, nwriter_per_node, with_profiler, rc) result(s)
       type (MultiGroupServer) :: s
       integer, intent(in) :: server_comm
       character(*), intent(in) :: port_name
       integer, intent (in) :: nwriter_per_node
+      logical, optional, intent(in) :: with_profiler
       integer, optional, intent(out) :: rc
+
       integer :: s_rank, s_size
       integer :: ierror, status, local_rank
-      type (SimpleCommSplitter) :: splitter
       type (SplitCommunicator)   ::  s_comm
       character(len=:), allocatable :: s_name
       integer :: MPI_STAT(MPI_STATUS_SIZE)
@@ -103,22 +105,22 @@ contains
       integer :: nwriter
       integer, allocatable :: node_sizes(:)
 
-      call MPI_Comm_dup(server_comm, s%server_comm, ierror)
+      s%server_comm = server_comm
       call MPI_Comm_size(s%server_comm, s_size , ierror)
 
-      splitter = SimpleCommsplitter(s%server_comm)
-      node_sizes = splitter%get_node_sizes()
+      s%splitter = SimpleCommsplitter(s%server_comm)
+      node_sizes = s%splitter%get_node_sizes()
 
       ! if oserver size is smaller than one-node, than it means oserver and model coexist in one node 
       if (s_size < node_sizes(1)) then
-         call splitter%add_group(npes = s_size - nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
-         call splitter%add_group(npes = nwriter_per_node,          name="o_server_back",  isolate_nodes=.false.)
+         call s%splitter%add_group(npes = s_size - nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
+         call s%splitter%add_group(npes = nwriter_per_node,          name="o_server_back",  isolate_nodes=.false.)
       else   
-         call splitter%add_group(npes_per_node = node_sizes(1)-nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
-         call splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
+         call s%splitter%add_group(npes_per_node = node_sizes(1)-nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
+         call s%splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
       endif
  
-      s_comm = splitter%split(rc=status); _VERIFY(status)
+      s_comm = s%splitter%split(rc=status); _VERIFY(status)
 
       nwriter = nwriter_per_node*size(node_sizes)
       s%front_comm = MPI_COMM_NULL
@@ -134,7 +136,7 @@ contains
       s%I_am_back_root = .false.
       if (index(s_name, 'o_server_front') /=0) then
          s%front_comm = s_comm%get_subcommunicator()
-         call s%init(s%front_comm, s_name)
+         call s%init(s%front_comm, s_name, with_profiler = with_profiler)
          s%port_name = trim(port_name)
          call MPI_Comm_rank(s%front_comm, local_rank, ierror)
          if (s_rank == 0) then 
@@ -185,7 +187,7 @@ contains
       if ( this%back_comm /= MPI_COMM_NULL) then
          call this%start_back()      
       endif
-
+      call this%splitter%free_sub_comm()
    contains
 
       subroutine start_front()

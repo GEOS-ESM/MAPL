@@ -26,6 +26,7 @@ module MAPL_SunMod
   use MAPL_ExceptionHandling
   use netcdf
   use, intrinsic :: iso_fortran_env, only: REAL64
+  use pflogger, only: logging, Logger
 
   implicit none
   private
@@ -2419,9 +2420,9 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       type(ESMF_TimeInterval)    :: intToNextNoon, oneDayInterval
 
       type(ESMF_Time)            :: currentTime, origTime
-      type(ESMF_Time)            :: timeBasedOnCycle23
-      type(ESMF_Time)            :: startCycle23, startCycle24
-      type(ESMF_TimeInterval)    :: timeSinceStartOfCycle24
+      type(ESMF_Time)            :: timeBasedOnCycle24
+      type(ESMF_Time)            :: startCycle24, startCycle25
+      type(ESMF_TimeInterval)    :: timeSinceStartOfCycle25
 
       integer :: currentYear, currentMon, currentDay, currentDOY
       integer :: prevDOY, nextDOY, prevNoonYear, nextNoonYear
@@ -2445,12 +2446,18 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
       integer, parameter :: YEAR_NOT_FOUND = -99
 
-      logical, parameter :: DEBUGPRINT = .FALSE.
+      character(len=256) :: line
+      character(len=1), parameter :: commentChar = "#"
+      integer :: stat
 
       logical, save :: TableCreated = .FALSE.
       integer, save, allocatable, dimension(:) :: yearTable, doyTable
       real,    save, allocatable, dimension(:) :: tsi, mgindex, sbindex
       integer, save :: numlines
+
+      class(Logger), pointer :: lgr
+
+      lgr => logging%get_logger('MAPL.SUN')
 
       if (present(PersistSolar)) then
          PersistSolar_ = PersistSolar
@@ -2472,8 +2479,8 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          filename = trim(filename_in)
 
          ! Does the file exist?
-         inquire( FILE=FILENAME, EXIST=found )
-         _ASSERT( FOUND ,'needs informative message')
+         inquire( FILE=filename, EXIST=found )
+         _ASSERT( found ,'Could not find NRL data file '//trim(filename) )
 
          UNIT = GETFILE(filename, DO_OPEN=0, form="formatted", rc=status)
          _VERIFY(STATUS)
@@ -2485,7 +2492,11 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             ! Determine length of file
             ! ------------------------
 
+            call lgr%debug("Scanning the Solar Table to determine number of data points")
+
             numlines = num_lines_in_file(UNIT)
+
+            call lgr%debug("Solar Table Data Points: %i0", numlines)
 
             ! Allocate our arrays
             ! -------------------
@@ -2508,11 +2519,20 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             ! Read in arrays
             ! --------------
 
-            if (DEBUGPRINT) write (*,*) "Reading the Solar Table"
+            call lgr%debug("Reading the Solar Table")
 
-            do i = 1, numlines
-               read(unit,*) yearTable(i), doyTable(i), tsi(i), mgindex(i), sbindex(i)
+            i = 1
+            do
+               read(unit,'(A)',iostat=stat) line
+               if (is_iostat_end(stat)) exit
+               ! Skip lines starting with #-comments
+               if (index (line, commentChar) /= 0) cycle
+               read(line,*) yearTable(i), doyTable(i), tsi(i), mgindex(i), sbindex(i)
+               i = i + 1
             end do
+
+            ! Belt and suspenders check that all data was read
+            _ASSERT(size(yearTable) == numlines,"Inconsistency in NRL number of lines")
 
          end if
 
@@ -2560,17 +2580,6 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          ! -------------------------------------------------------------
          OUT_OF_TABLE_AND_CYCLE: if ( outOfTable .and. (.not. PersistSolar_) ) then
 
-            ! Create an ESMF_Time at start of Cycle 23
-            ! ----------------------------------------
-            call ESMF_TimeSet( startCycle23, YY = 1996,  &
-                                             MM = 8,     &
-                                             DD = 1,     &
-                                              H = 12,    &
-                                              M = 00,    &
-                                              S = 00,    &
-                                             RC = STATUS )
-            _VERIFY(STATUS)
-
             ! Create an ESMF_Time at start of Cycle 24
             ! ----------------------------------------
             call ESMF_TimeSet( startCycle24, YY = 2008,  &
@@ -2582,17 +2591,28 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
                                              RC = STATUS )
             _VERIFY(STATUS)
 
+            ! Create an ESMF_Time at start of Cycle 25
+            ! ----------------------------------------
+            call ESMF_TimeSet( startCycle25, YY = 2019,  &
+                                             MM = 12,    &
+                                             DD = 1,     &
+                                              H = 12,    &
+                                              M = 00,    &
+                                              S = 00,    &
+                                             RC = STATUS )
+            _VERIFY(STATUS)
+
             ! Create TimeInterval based on interval 
-            ! from start of latest Cycle 24
+            ! from start of latest Cycle 25
             ! -------------------------------------
 
-            timeSinceStartOfCycle24 = currentTime - startCycle24
+            timeSinceStartOfCycle25 = currentTime - startCycle25
 
             ! Make a new time based on that
-            ! interval past start of Cycle 23
+            ! interval past start of Cycle 24
             ! -------------------------------
 
-            timeBasedOnCycle23 = startCycle23 + timeSinceStartOfCycle24
+            timeBasedOnCycle24 = startCycle24 + timeSinceStartOfCycle25
 
             ! Store our original time just in case
             ! ------------------------------------
@@ -2604,7 +2624,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
             ! Make our "current" time the one calculated above
             ! ------------------------------------------------
-            currentTime = timeBasedOnCycle23
+            currentTime = timeBasedOnCycle24
 
             ! Get new currentYear, currentMon, currentDay
             ! -------------------------------------------
@@ -2619,18 +2639,11 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
             ! Debugging Prints
             ! ----------------
-            if (DEBUGPRINT) then
-               write (*,'(1X,A)') 'Off the end of table, moving into last complete cycle'
-               write (*,*)
-
-               write (*,'(1X,A,1X,I4,A,I0.2,A,I0.2)') 'Original Year/Mon/Day to Find:   ', originalYear,'-',originalMon,'-',originalDay
-               write (*,'(1X,A,1X,I0.3)')             'Original Day of Year:            ', origDOY
-               write (*,*)
-
-               write (*,'(1X,A,1X,I4,A,I0.2,A,I0.2)') 'New Year/Mon/Day to Find:        ', currentYear,'-',currentMon,'-',currentDay
-               write (*,'(1X,A,1X,I0.3)')             'New Day of Year:                 ', currentDOY
-               write (*,*)
-            end if
+            call lgr%debug('Off the end of table, moving into last complete cycle')
+            call lgr%debug('  Original Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', originalYear,originalMon,originalDay)
+            call lgr%debug('  Original Day of Year: %i0', origDOY)
+            call lgr%debug('  New Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', currentYear,currentMon,currentDay)
+            call lgr%debug('  New Day of Year: %i0', currentDOY)
 
          end if OUT_OF_TABLE_AND_CYCLE
 
@@ -2689,14 +2702,10 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
             ! Debugging Prints
             ! ----------------
-            if (DEBUGPRINT) then
-               write (*,'(1X,A)') 'Off the end of table, persisting last values'
-               write (*,*)
-               write (*,'(1X,A,1X,F8.3)') 'tsi at end of table:     ', tsi(numlines)
-               write (*,'(1X,A,1X,F8.6)') 'mgindex at end of table: ', mgindex(numlines)
-               write (*,'(1X,A,1X,F9.4)') 'sbindex at end of table: ', sbindex(numlines)
-               write (*,*) 
-            end if
+            call lgr%debug('Off the end of table, persisting last values')
+            call lgr%debug('  tsi at end of table: %F8.3', tsi(numlines))
+            call lgr%debug('  mgindex at end of table: %F8.6', mgindex(numlines))
+            call lgr%debug('  sbindex at end of table: %F9.4', sbindex(numlines))
 
          ! Otherwise we interpolate to the table
          ! -------------------------------------
@@ -2711,28 +2720,23 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
             ! Debugging Prints
             ! ----------------
-            if (DEBUGPRINT) then
-               write (*,'(1X,A,1X,I3)')   'First DOY to Find:   ', prevDOY
-               write (*,'(1X,A,1X,I6)')   'file_index for date: ', INDX1
-               write (*,'(1X,A,1X,I4)')   'yearTable(date):     ', yearTable(INDX1)
-               write (*,'(1X,A,1X,I3)')   'doyTable(date):      ', doyTable(INDX1)
-               write (*,'(1X,A,1X,F8.3)') 'tsi(date):           ', tsi(INDX1)
-               write (*,'(1X,A,1X,F8.6)') 'mgindex(date):       ', mgindex(INDX1)
-               write (*,'(1X,A,1X,F9.4)') 'sbindex(date):       ', sbindex(INDX1)
-               write (*,*) 
+            call lgr%debug('  First DOY to Find:     %i3', prevDOY)
+            call lgr%debug('    file_index for date: %i6', INDX1)
+            call lgr%debug('    yearTable(date):     %i4', yearTable(INDX1))
+            call lgr%debug('    doyTable(date):      %i3', doyTable(INDX1))
+            call lgr%debug('    tsi(date):           %f8.3', tsi(INDX1))
+            call lgr%debug('    mgindex(date):       %f8.6', mgindex(INDX1))
+            call lgr%debug('    sbindex(date):       %f9.4', sbindex(INDX1))
 
-               write (*,'(1X,A,1X,I3)')   'Second DOY to Find:  ', nextDOY
-               write (*,'(1X,A,1X,I6)')   'file_index for date: ', INDX2
-               write (*,'(1X,A,1X,I4)')   'yearTable(date):     ', yearTable(INDX2)
-               write (*,'(1X,A,1X,I3)')   'doyTable(date):      ', doyTable(INDX2)
-               write (*,'(1X,A,1X,F8.3)') 'tsi(date):           ', tsi(INDX2)
-               write (*,'(1X,A,1X,F8.6)') 'mgindex(date):       ', mgindex(INDX2)
-               write (*,'(1X,A,1X,F9.4)') 'sbindex(date):       ', sbindex(INDX2)
-               write (*,*) 
+            call lgr%debug('  Second DOY to Find:    %i3', nextDOY)
+            call lgr%debug('    file_index for date: %i6', INDX2)
+            call lgr%debug('    yearTable(date):     %i4', yearTable(INDX2))
+            call lgr%debug('    doyTable(date):      %i3', doyTable(INDX2))
+            call lgr%debug('    tsi(date):           %f8.3', tsi(INDX2))
+            call lgr%debug('    mgindex(date):       %f8.6', mgindex(INDX2))
+            call lgr%debug('    sbindex(date):       %f9.4', sbindex(INDX2))
 
-               write (*,'(1X,A,1X,F8.6)') 'Interpolation Factor:', FAC
-               write (*,*) 
-            end if
+            call lgr%debug('  Interpolation Factor:  %f8.6', FAC)
          end if OUT_OF_TABLE_AND_PERSIST
       end if ON_ROOT
 
@@ -2755,13 +2759,18 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             implicit none
 
             integer, intent(in) :: unit
+
+            character(len=256) :: line
             integer :: stat
+            character(len=1), parameter :: commentChar = "#"
             
             count = 0
 
             do
-               read(unit,*,iostat=stat) 
+               read(unit,'(A)',iostat=stat) line
                if (is_iostat_end(stat)) exit
+               ! Skip lines starting with #-comments
+               if (index (line, commentChar) /= 0) cycle
                count = count + 1
             end do
 

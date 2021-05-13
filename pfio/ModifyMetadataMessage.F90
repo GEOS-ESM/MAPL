@@ -7,7 +7,7 @@ module pFIO_ModifyMetadataMessageMod
    use pFIO_AbstractMessageMod
    use pFIO_StringVariableMapMod
    use pFIO_StringVariableMapUtilMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    implicit none
    private
 

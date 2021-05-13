@@ -7,7 +7,7 @@ module pFIO_FastClientThreadMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractDataReferenceMod
    use pFIO_LocalMemReferenceMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use pFIO_ClientThreadMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectiveStageDataMessageMod

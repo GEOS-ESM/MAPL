@@ -303,7 +303,8 @@ module MAPL_GenericMod
   end interface
   
   interface  MAPL_GetResource
-     module procedure MAPL_GetResource_scalar
+     module procedure MAPL_GetResourceFromConfig_scalar
+     module procedure MAPL_GetResourceFromMAPL_scalar
      module procedure MAPL_GetResource_array
   end interface
   
@@ -8073,7 +8074,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
   end function get_labels_with_prefix  
 
 
-  subroutine MAPL_GetResource_scalar(state, val, label, default, rc)
+  subroutine MAPL_GetResourceFromMAPL_scalar(state, val, label, default, rc)
     type(MAPL_MetaComp), intent(inout) :: state
     character(len=*), intent(in) :: label
     class(*), intent(inout) :: val
@@ -8081,8 +8082,8 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     integer, optional, intent(out) :: rc
 
     character(len=ESMF_MAXSTR), allocatable :: labels_to_try(:)
-    character(len=:), allocatable :: label_to_print, label_to_use
-    integer :: i, status, printrc
+    character(len=:), allocatable :: label_to_use
+    integer :: i, status
     logical :: label_is_present, default_is_present
 
     default_is_present = present(default)
@@ -8109,6 +8110,37 @@ recursive subroutine MAPL_WireComponent(GC, RC)
        return
     end if
 
+    if (label_is_present) then
+       call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label_to_use,default,rc)
+       _VERIFY(status)
+    else
+       call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label,default,rc)
+       _VERIFY(status)
+    end if
+
+    _RETURN(_SUCCESS)
+
+  end subroutine MAPL_GetResourceFromMAPL_scalar
+  
+  subroutine MAPL_GetResourceFromConfig_scalar(config, val, label, default, rc)
+    type(ESMF_Config), intent(inout) :: config
+    character(len=*), intent(in) :: label
+    class(*), intent(inout) :: val
+    class(*), optional, intent(in) :: default
+    integer, optional, intent(out) :: rc
+
+    integer :: status, printrc
+    logical :: default_is_present, label_is_present
+    character(len=:), allocatable :: label_to_print
+
+    default_is_present = present(default)
+    
+    if (default_is_present) then
+       _ASSERT(same_type_as(val, default), "Value and default must have same type")
+    end if
+
+    call ESMF_ConfigFindLabel(config, label = label, isPresent = label_is_present, rc = status)
+
     select type(val)
     type is(integer(int32))
        if (default_is_present .and. .not. label_is_present) then
@@ -8117,7 +8149,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
              val = default             
           end select
        else
-          call ESMF_ConfigGetAttribute(state%cf, val, label = label_to_use, rc = status)
+          call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
           _VERIFY(status)
        end if
     type is(integer(int64))
@@ -8127,7 +8159,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
              val = default             
           end select
        else
-          call ESMF_ConfigGetAttribute(state%cf, val, label = label_to_use, rc = status)
+          call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
           _VERIFY(status)
        end if
     type is(real(real32))
@@ -8137,7 +8169,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
              val = default             
           end select
        else
-          call ESMF_ConfigGetAttribute(state%cf, val, label = label_to_use, rc = status)
+          call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
           _VERIFY(status)
        end if
     type is (real(real64))
@@ -8147,7 +8179,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
              val = default             
           end select
        else
-          call ESMF_ConfigGetAttribute(state%cf, val, label = label_to_use, rc = status)
+          call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
           _VERIFY(status)
        end if
     type is(character(len=*))      
@@ -8157,7 +8189,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
              val = trim(default)
           end select
        else
-          call ESMF_ConfigGetAttribute(state%cf, val, label = label_to_use, rc = status)
+          call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
           _VERIFY(status)
        end if
     type is(logical)
@@ -8167,29 +8199,30 @@ recursive subroutine MAPL_WireComponent(GC, RC)
              val = default             
           end select
        else
-          call ESMF_ConfigGetAttribute(state%cf, val, label = label_to_use, rc = status)
+          call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
           _VERIFY(status)
        end if
        class default       
        _ASSERT(.false., "Unupported type")
     end select
 
-    call ESMF_ConfigGetAttribute(state%cf, printrc, label = 'PRINTRC:', default = 0, rc = status)
+    call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status)
     _VERIFY(status)
 
     ! Can set printrc to negative to not print at all
     if (MAPL_AM_I_Root() .and. printrc >= 0) then
        if (label_is_present) then
-          label_to_print = label_to_use
+          label_to_print = label
        else
           label_to_print = trim(label)
        end if
-       call print_resource(printrc, label_to_print, val, default)
+       call print_resource(printrc, label_to_print, val, default=default,rc=status)
+       _VERIFY(status)
     end if
     
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_GetResource_scalar
+  end subroutine MAPL_GetResourceFromConfig_scalar
   
 
   subroutine MAPL_GetResource_array(state, vals, label, default, rc)
@@ -8303,11 +8336,12 @@ recursive subroutine MAPL_WireComponent(GC, RC)
   end subroutine MAPL_GetResource_array
 
   
-  subroutine print_resource(printrc, label, val, default)
+  subroutine print_resource(printrc, label, val, default, rc)
     integer, intent(in) :: printrc
     character(len=*), intent(in) :: label
     class(*), intent(in) :: val
     class(*), optional, intent(in) :: default
+    integer, optional, intent(out) :: rc
 
     character(len=:), allocatable :: val_str, default_str, output_format, type_str, type_format
     type(StringVector), pointer, save :: already_printed_labels => null()
@@ -8365,6 +8399,8 @@ recursive subroutine MAPL_WireComponent(GC, RC)
        if (present(default)) then
           default_str = intrinsic_to_string(default, 'a')
        end if
+    class default
+       _ASSERT(.false.,"Unsupported type")
     end select
 
     output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)"

@@ -23,6 +23,8 @@ module MAPL_SimpleCommSplitterMod
       private
       character(:), allocatable :: base_name
       type (CommGroupDescriptionVector) :: group_descriptions
+      logical :: is_split = .false.
+      integer :: sub_comm
    contains
       procedure :: split
       procedure :: add_group_simple
@@ -30,6 +32,9 @@ module MAPL_SimpleCommSplitterMod
       procedure :: compute_color
       procedure :: get_node_sizes
       procedure :: get_node_id
+      procedure :: free_sub_comm
+      procedure :: assign
+      generic :: assignment(=) =>assign
    end type SimpleCommSplitter
 
 
@@ -215,6 +220,9 @@ contains
          endif
       enddo
 
+      call Mpi_Comm_free(node_comm, ierror)
+      _VERIFY(ierror)
+
       _RETURN(_SUCCESS)
       
    end function compute_color
@@ -256,6 +264,8 @@ contains
       call MPI_Bcast(node_id, 1, MPI_INTEGER, 0, node_comm, ierror)
       _VERIFY(ierror)
 
+      call Mpi_Comm_free(node_comm, ierror)
+      _VERIFY(ierror)
       _RETURN(_SUCCESS)
 
    end function get_node_id
@@ -294,9 +304,42 @@ contains
 
       node_sizes = pack(node_sizes, (node_sizes /= -1))
 
+      call Mpi_Comm_free(node_comm, ierror)
+      _VERIFY(ierror)
+
       _RETURN(_SUCCESS)
    end function get_node_sizes
 
+   subroutine free_sub_comm(this)
+     class ( SimpleCommSplitter), intent(inout) :: this
+     integer :: ierror
+     if (this%is_split) then
+        call MPI_Comm_free(this%sub_comm, ierror)
+     endif
+  end subroutine free_sub_comm
+
+  subroutine assign(this, from)
+     class (SimpleCommSplitter), intent(inout) :: this
+     type (SimpleCommSplitter), intent(in) :: from
+     integer :: rank, comm, ierror
+     
+     comm = from%get_shared_communicator()
+
+     if (from%is_split) then
+       call MPI_Comm_rank(comm, rank, ierror)
+       if (rank == 0) print*, "WARNING, try not to duplicate a splitter that has been split. Only one split splitter should be called free_sub_comm"
+     endif
+     call this%set_shared_communicator(comm)
+     if (allocated(from%base_name)) then
+        this%base_name = from%base_name
+     else
+        this%base_name = ''
+     end if
+     this%group_descriptions = from%group_descriptions
+     this%is_split = from%is_split
+     this%sub_comm = from%sub_comm
+
+  end subroutine assign 
 
 end module MAPL_SimpleCommSplitterMod
 

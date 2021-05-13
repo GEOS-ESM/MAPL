@@ -35,7 +35,7 @@ module MAPL_CapMod
 
       type(MAPL_CapGridComp), public :: cap_gc
       type(ServerManager) :: cap_server
-
+      type(SimpleCommSplitter), public :: splitter
    contains
       procedure :: run
       procedure :: run_ensemble
@@ -144,16 +144,15 @@ contains
 
       integer :: status
       integer :: subcommunicator
-      type(SplitCommunicator) :: split_comm
 
       _UNUSED_DUMMY(unusable)
       
       subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _VERIFY(status)
       if (subcommunicator /= MPI_COMM_NULL) then
          call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
-         call this%cap_server%get_splitcomm(split_comm)
          call this%run_member(rc=status); _VERIFY(status)
-         call this%cap_server%finalize()
+         call this%finalize_io_clients_servers()
+         call this%splitter%free_sub_comm()
       end if
 
       _RETURN(_SUCCESS)
@@ -165,8 +164,15 @@ contains
      class (MAPL_Cap), target, intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(out) :: rc
+     type(SplitCommunicator) :: split_comm
 
      _UNUSED_DUMMY(unusable)
+     call this%cap_server%get_splitcomm(split_comm)
+     select case(split_comm%get_name())
+     case('model')
+        call i_Clients%terminate()
+        call o_Clients%terminate()
+     end select
      call this%cap_server%finalize()
      _RETURN(_SUCCESS)
  
@@ -190,6 +196,7 @@ contains
          npes_backend_pernode=this%cap_options%npes_backend_pernode, &
          isolate_nodes = this%cap_options%isolate_nodes, &
          fast_oclient  = this%cap_options%fast_oclient, &
+         with_profiler = this%cap_options%with_io_profiler, &
          rc=status)
      _VERIFY(status)
      _RETURN(_SUCCESS)
@@ -210,8 +217,6 @@ contains
       select case(split_comm%get_name())
       case('model')
          call this%run_model(comm=split_comm%get_subcommunicator(), rc=status); _VERIFY(status)
-         call i_Clients%terminate()
-         call o_Clients%terminate()
       end select
                   
      _RETURN(_SUCCESS)
@@ -326,12 +331,11 @@ contains
    end subroutine rewind_model 
 
    integer function create_member_subcommunicator(this, comm, unusable, rc) result(subcommunicator)
-      class (MAPL_Cap), intent(in) :: this
+      class (MAPL_Cap), intent(inout) :: this
       integer, intent(in) :: comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       
-      type (SimpleCommSplitter) :: splitter
       type (SplitCommunicator) :: split_comm
 
       integer :: status
@@ -341,8 +345,8 @@ contains
       _UNUSED_DUMMY(unusable)
       
       subcommunicator = MPI_COMM_NULL ! in case of failure
-      splitter = SimpleCommSplitter(comm, this%cap_options%n_members, this%npes_member, base_name=this%cap_options%ensemble_subdir_prefix)
-      split_comm = splitter%split(rc=status); _VERIFY(status)
+      this%splitter = SimpleCommSplitter(comm, this%cap_options%n_members, this%npes_member, base_name=this%cap_options%ensemble_subdir_prefix)
+      split_comm = this%splitter%split(rc=status); _VERIFY(status)
       subcommunicator = split_comm%get_subcommunicator()
 
       if (this%cap_options%n_members > 1) then
@@ -412,13 +416,13 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: ierror
+      integer :: status
       _UNUSED_DUMMY(unusable)
 
       if (.not. this%mpi_already_initialized) then
          call MAPL_Finalize(comm=this%comm_world)
-         call MPI_Finalize(ierror)
-         _VERIFY(ierror)
+         call ESMF_Finalize(rc=status)
+         _VERIFY(status)
       end if
 
       _RETURN(_SUCCESS)

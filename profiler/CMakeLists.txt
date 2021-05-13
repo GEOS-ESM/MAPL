@@ -54,8 +54,11 @@ set (srcs
 
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared gftl MAPL.shared MPI::MPI_Fortran TYPE SHARED)
-
+if (ESMA_USE_GFE_NAMESPACE)
+  esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl MAPL.shared MPI::MPI_Fortran TYPE SHARED)
+else ()
+  esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared gftl MAPL.shared MPI::MPI_Fortran TYPE SHARED)
+endif ()
 target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
 
 add_subdirectory (demo EXCLUDE_FROM_ALL)

@@ -26,6 +26,7 @@ module MAPL_TimeDataMod
      procedure :: compute_time_vector
      procedure :: get_start_time
      procedure :: get
+     procedure :: setFrequency
   end type timeData
 
   interface timeData
@@ -33,19 +34,24 @@ module MAPL_TimeDataMod
   end interface timeData
 contains
 
-  function new_time_data(clock,ntime,frequency,offset,rc) result(tData)
+  function new_time_data(clock,ntime,frequency,offset,funits,rc) result(tData)
     type(timeData) :: tData
     type(ESMF_Clock),intent(inout) :: clock
     integer, intent(in) :: ntime
     integer, intent(in) :: frequency
     type(ESMF_TimeInterval) :: offset
+    character(len=*), optional, intent(in) :: funits
     integer, optional, intent(Out) :: rc
 
     tdata%clock=clock
     tdata%ntime=ntime
     tdata%frequency=frequency
     tdata%offset=offset
-    tdata%funits="minutes"
+    if(present(funits)) then
+       tdata%funits=funits
+    else
+       tdata%funits="minutes"
+    end if
 
     _RETURN(ESMF_SUCCESS)
 
@@ -60,6 +66,16 @@ contains
      end if
      _RETURN(_SUCCESS)
   end subroutine get
+       
+  subroutine setFrequency(this,frequency,rc)
+     class(TimeData), intent(inout) :: this
+     integer, intent(in) :: frequency
+     integer, optional, intent(out) :: rc
+
+     this%frequency = frequency
+
+     _RETURN(_SUCCESS)
+   end subroutine setFrequency
        
 
   function define_time_variable(this,rc) result(v)
@@ -98,13 +114,20 @@ contains
     i123=10000*i1+100*i2+i3
     call v%add_attribute('begin_time',i123)
 
-    isc=mod(this%frequency,60)
-    i2=this%frequency-isc
-    i2=i2/60
-    imn=mod(i2,60)
-    i2=i2-imn
-    ihr=i2/60
-    ifreq=10000*ihr+100*imn+isc 
+    select case(trim(this%funits))
+    case('minutes')
+       isc=mod(this%frequency,60)
+       i2=this%frequency-isc
+       i2=i2/60
+       imn=mod(i2,60)
+       i2=i2-imn
+       ihr=i2/60
+       ifreq=10000*ihr+100*imn+isc 
+    case('days')
+       ifreq = this%frequency/86400
+    case default
+       _ASSERT(.false., 'Not supported yet')
+    end select
     call v%add_attribute('time_increment',ifreq)
 
     call this%tvec%clear()
