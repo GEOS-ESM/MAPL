@@ -62,6 +62,7 @@ module MAPL_Base
   public MAPL_GridGetInterior
   public MAPL_TrimString
   public MAPL_FieldSplit
+  public MAPL_GetCorrectedPhase
 
 
   real,    public, parameter :: MAPL_UNDEF              = 1.0e15  
@@ -778,6 +779,13 @@ module MAPL_Base
        character(len=*), optional, intent(in  ) :: aliasName
        integer, optional,         intent(  out) :: rc
      end subroutine MAPL_FieldSplit
+
+     module function MAPL_GetCorrectedPhase(gc,rc) result(phase)
+       use ESMF, only: ESMF_GridComp
+       type(ESMF_GridComp), intent(inout) :: gc
+       integer, optional, intent(out) :: rc
+       integer :: phase
+     end function
   end interface
 
 contains
@@ -790,6 +798,7 @@ contains
     real, target, intent(IN) :: A(I1:IM,J1:JM,L1:LM)
     real, pointer            :: MAPL_RemapBoundsFull_3dr4(:,:,:)
 
+    MAPL_RemapBoundsFull_3dr4 => A
   end function MAPL_RemapBoundsFull_3dr4
 
 end module MAPL_Base

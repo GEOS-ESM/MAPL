@@ -3738,14 +3738,19 @@ contains
                k1 = k+1
             end if
          end do
-         if(count == n-1) then
+         if (count == 0) then
+            if (name == aliasName) then
+               do i=1,n
+                  write(splitNameArray(i),'(A,I3.3)') trim(aliasName), i
+               end do
+            else
+               count = count+1
+               splitNameArray(count) = aliasName
+            end if
+         else if(count == n-1) then
             k2 = kk
             count = count+1
             splitNameArray(count) = aliasName(k1:k2)
-         else if (count == 0) then
-            do i=1,n
-               write(splitNameArray(i),'(A,I3.3)') trim(aliasName), i
-            end do
          else
             _ASSERT(.false.,'Inconsistent number of split separators')
          end if
@@ -3760,5 +3765,17 @@ contains
     end subroutine GenAlias
   end subroutine MAPL_FieldSplit
 
+  module function MAPL_GetCorrectedPhase(gc,rc) result(phase)
+     type(ESMF_GridComp), intent(inout) :: gc
+     integer, optional, intent(out) :: rc
+     integer :: phase
+ 
+     integer :: status
+
+     call ESMF_GridCompGet(gc,currentPhase=phase,rc=status)
+     _VERIFY(status)
+     if (phase>10) phase=phase-10
+     _RETURN(_SUCCESS)
+  end function MAPL_GetCorrectedPhase
 
 end submodule Base_Implementation
