@@ -29,8 +29,9 @@ set (srcs
   
   MaplGeneric.F90
   )
-
-find_package(PFLOGGER REQUIRED)
+if (BUILD_WITH_PFLOGGER)
+  find_package(PFLOGGER REQUIRED)
+endif ()
 find_package(GFTL REQUIRED)
 find_package(GFTL_SHARED REQUIRED)
 
