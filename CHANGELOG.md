@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 ### Changed
 ### Fixed
+- Added condition to find pflogger 
 
 ## [2.6.7] - 2021-05-12
 
