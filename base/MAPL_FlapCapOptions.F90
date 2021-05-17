@@ -19,7 +19,6 @@ module MAPL_FlapCapOptionsMod
    contains
       procedure, nopass :: add_command_line_options
       procedure :: parse_command_line_arguments
-      procedure :: set_esmf_logging_mode
    end type MAPL_FlapCapOptions
 
    interface MAPL_FlapCapOptions
@@ -289,29 +288,5 @@ contains
       call this%cli_options%get(val=this%npes_backend_pernode, switch='--npes_backend_pernode', error=status); _VERIFY(status)
 
     end subroutine parse_command_line_arguments
-
-    subroutine set_esmf_logging_mode(this, flag_name, unusable, rc)
-      class (MAPL_FlapCapOptions), intent(inout) :: this
-      character(*), intent(in) :: flag_name
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      _UNUSED_DUMMY(unusable)
-
-      select case (flag_name)
-      case ('none')
-         this%esmf_logging_mode = ESMF_LOGKIND_NONE
-      case ('single')
-         this%esmf_logging_mode = ESMF_LOGKIND_SINGLE
-      case ('multi')
-         this%esmf_logging_mode = ESMF_LOGKIND_MULTI
-      case ('multi_on_error')
-         this%esmf_logging_mode = ESMF_LOGKIND_MULTI_ON_ERROR
-      case default
-         _FAIL("Unsupported ESMF logging option: "//flag_name)
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine set_esmf_logging_mode
 
 end module MAPL_FlapCapOptionsMod

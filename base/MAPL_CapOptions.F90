@@ -41,6 +41,8 @@ module MAPL_CapOptionsMod
       character(:), allocatable :: logging_config
       character(:), allocatable :: oserver_type
       integer :: npes_backend_pernode = 0
+   contains
+      procedure :: set_esmf_logging_mode
    end type MAPL_CapOptions
 
    interface MAPL_CapOptions
@@ -79,6 +81,30 @@ contains
       _RETURN(_SUCCESS)
 
    end function
+
+   subroutine set_esmf_logging_mode(this, flag_name, unusable, rc)
+      class (MAPL_CapOptions), intent(inout) :: this
+      character(*), intent(in) :: flag_name
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(unusable)
+
+      select case (flag_name)
+      case ('none')
+         this%esmf_logging_mode = ESMF_LOGKIND_NONE
+      case ('single')
+         this%esmf_logging_mode = ESMF_LOGKIND_SINGLE
+      case ('multi')
+         this%esmf_logging_mode = ESMF_LOGKIND_MULTI
+      case ('multi_on_error')
+         this%esmf_logging_mode = ESMF_LOGKIND_MULTI_ON_ERROR
+      case default
+         _FAIL("Unsupported ESMF logging option: "//flag_name)
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine set_esmf_logging_mode
 
 end module MAPL_CapOptionsMod
 
