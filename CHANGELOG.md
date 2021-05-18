@@ -10,8 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 ### Changed
-### Fixed
 - Added a pfio demo for MAPL Flap users
+### Fixed
+- fixed pfio_MAPL_demo.F90
 - Moved down adding pflogger in CMakeLists.txt
 - Added condition to find pflogger 
 
