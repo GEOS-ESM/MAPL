@@ -1083,11 +1083,9 @@
 
 !!! Find the segment in the segment list
 
-      pos=1
-      do while(pos<=size(Segs))
+      do pos=1,size(Segs)
          if(Segs(pos)%shmid == -1) cycle
          if(c_associated(Segs(pos)%addr,Caddr)) exit
-         pos = pos + 1
       end do
 
 !!! Everyone exits if it is not there
