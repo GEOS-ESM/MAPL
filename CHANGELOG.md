@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 ### Changed
+
+- Updates to enable use of GFE namespace
+
 ### Fixed
 - Added a pfio demo for MAPL Flap users
 - Moved down adding pflogger in CMakeLists.txt
