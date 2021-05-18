@@ -43,12 +43,10 @@ program main
       if (npes /= cap_options%npes_model) stop "sanity check failed"
 
 block
-
       ! if there are multiple oserver, split it into large and small pool
       call o_clients%split_server_pools()
-
-
       ! define file meta data
+      dim1 = 1000
       call fmd%add_dimension('first',dim1)
       ! define varaible
       T = Variable(type=pFIO_REAL32, dimensions='first')
@@ -58,8 +56,7 @@ block
       hist_id = o_clients%add_hist_collection(fmd)
 
       ! variable in model
-      dim1 = 1000
-      width = npes/dim1
+      width = dim1/npes
       i1 = rank*width +1
       i2 = (rank+1)*width
       if (rank == npes -1) i2 = dim1
