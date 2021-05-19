@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - fixed pfio_MAPL_demo.F90
+- Fixed bug in MAPL_Shmem causing infinite loop when relesing shared memory
 - Moved down adding pflogger in CMakeLists.txt
 - Added condition to find pflogger 
 
