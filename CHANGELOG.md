@@ -12,8 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Adopting Fortran submodules to improve compilation.
+- Added a pfio demo for MAPL Flap users
 
 ### Fixed
+- fixed pfio_MAPL_demo.F90
+- Moved down adding pflogger in CMakeLists.txt
+- Added condition to find pflogger 
 
 ## [2.6.7] - 2021-05-12
 
