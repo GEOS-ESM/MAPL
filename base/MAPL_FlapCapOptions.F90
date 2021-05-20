@@ -224,7 +224,7 @@ contains
    end subroutine add_command_line_options
 
    subroutine parse_command_line_arguments(this, unusable, rc)
-      type (MAPL_FlapCapOptions), intent(inout) :: this
+      class (MAPL_FlapCapOptions), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -291,7 +291,7 @@ contains
     end subroutine parse_command_line_arguments
 
     subroutine set_esmf_logging_mode(this, flag_name, unusable, rc)
-      type (MAPL_FlapCapOptions), intent(inout) :: this
+      class (MAPL_FlapCapOptions), intent(inout) :: this
       character(*), intent(in) :: flag_name
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
