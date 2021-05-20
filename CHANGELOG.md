@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+ - Changed type declaration to prevent runtime failure when building with
+   Intel 18.0.5.274 and Intel MPI 2018.0.4.
+
 ## [2.6.8]
 
 ### Changed
