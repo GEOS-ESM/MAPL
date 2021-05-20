@@ -16,20 +16,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a file MAPL_FlapCLI.F90
 
 ### Changed
+### Fixed
+
+## [2.6.8]
+
+### Changed
 
 - Added a MAPL_CapOptions constructor
 - Adopting Fortran submodules to improve compilation.
-- Added a pfio demo for MAPL Flap users
+- Added a pfio demo for MAPL FLAP users
 
 ### Fixed
-- fixed pfio_MAPL_demo.F90
+
+- Fixed pfio_MAPL_demo.F90
+- Fixed mismatch of ESMF_Initialize() and ESMF_Finalize()
 - Fixed bug in MAPL_Shmem causing infinite loop when relesing shared memory
 - Moved down adding pflogger in CMakeLists.txt
 - Added condition to find pflogger 
 
 ## [2.6.7] - 2021-05-12
 
-### Removed
 ### Added
 
 - New interface to MAPL_GetResource to pass config rather than MAPL object

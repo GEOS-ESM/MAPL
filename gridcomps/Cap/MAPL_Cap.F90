@@ -32,7 +32,6 @@ module MAPL_CapMod
       type (MAPL_CapOptions), allocatable :: cap_options
       ! misc
       logical :: mpi_already_initialized = .false.
-
       type(MAPL_CapGridComp), public :: cap_gc
       type(ServerManager) :: cap_server
       type(SimpleCommSplitter), public :: splitter
@@ -239,7 +238,8 @@ contains
       _UNUSED_DUMMY(unusable)
 
       call start_timer()
-      call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, rc=status)
+
+      call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, rc=status)
       _VERIFY(status)
 
       call this%initialize_cap_gc(rc=status)
@@ -254,8 +254,8 @@ contains
       call this%cap_gc%finalize(rc=status)
       _VERIFY(status)
 
-      !call ESMF_Finalize(rc=status)
-      !_VERIFY(status)
+      call ESMF_Finalize(endflag=ESMF_END_KEEPMPI, rc=status)
+      _VERIFY(status)
       call stop_timer()
 
       ! W.J note : below reporting will be remove soon
@@ -393,6 +393,7 @@ contains
 
       this%npes_member = npes_world / this%cap_options%n_members
 
+
       _RETURN(_SUCCESS)
 
    end subroutine initialize_mpi
@@ -419,10 +420,9 @@ contains
       integer :: status
       _UNUSED_DUMMY(unusable)
 
+      call MAPL_Finalize(comm=this%comm_world)
       if (.not. this%mpi_already_initialized) then
-         call MAPL_Finalize(comm=this%comm_world)
-         call ESMF_Finalize(rc=status)
-         _VERIFY(status)
+         call MPI_Finalize(status)
       end if
 
       _RETURN(_SUCCESS)
