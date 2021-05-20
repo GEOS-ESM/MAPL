@@ -8,9 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Removed
+
+- remove file MAPL_FlapCapOptions.F90
+
 ### Added
+
+- Added a file MAPL_FlapCLI.F90
+
 ### Changed
 
+- Added a MAPL_CapOptions constructor
 - Adopting Fortran submodules to improve compilation.
 - Added a pfio demo for MAPL Flap users
 
