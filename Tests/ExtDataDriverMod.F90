@@ -26,7 +26,7 @@ module ExtDataDriverMod
       type(MpiServer), pointer :: i_server=>null()
       type(MpiServer), pointer :: o_server=>null()
       type(DirectoryService) :: directory_service
-      class (MAPL_CapOptions), allocatable :: cap_options
+      type(MAPL_CapOptions), allocatable :: cap_options
       type(SplitCommunicator) :: split_comm
 
    contains
@@ -46,7 +46,7 @@ contains
       character(*), intent(in) :: name
       procedure() :: set_services
       class (KeywordEnforcer),  optional, intent(in) :: unusable
-      class ( MAPL_CapOptions), optional, intent(in) :: cap_options
+      type  (MAPL_CapOptions),  optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
      
       integer :: status
