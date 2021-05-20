@@ -11,14 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 ### Changed
 ### Fixed
-- Fixed mismatch of ESMF_initialize() and ESMF_Finalize()
+
+## [2.6.8]
+
+### Changed
+
+- Adopting Fortran submodules to improve compilation.
+- Added a pfio demo for MAPL FLAP users
+
+### Fixed
+
+- Fixed pfio_MAPL_demo.F90
+- Fixed mismatch of ESMF_Initialize() and ESMF_Finalize()
 - Fixed bug in MAPL_Shmem causing infinite loop when relesing shared memory
 - Moved down adding pflogger in CMakeLists.txt
 - Added condition to find pflogger 
 
 ## [2.6.7] - 2021-05-12
 
-### Removed
 ### Added
 
 - New interface to MAPL_GetResource to pass config rather than MAPL object
@@ -68,7 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add with_io_profiler option
 
 ### Changed
-
+	
 - Changed the interface to TimeData to have an optional "funits" argument (defaults to "minutes")
 - Changed time units to "days" for monthly collections
 - Simplified the logic for timestamping offsets
