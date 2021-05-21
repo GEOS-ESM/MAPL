@@ -44,8 +44,7 @@ module MAPL_CapOptionsMod
       character(:), allocatable :: logging_config
       character(:), allocatable :: oserver_type
       integer :: npes_backend_pernode = 0
-   contains
-      procedure :: set_esmf_logging_mode
+
    end type MAPL_CapOptions
 
    interface MAPL_CapOptions
@@ -133,7 +132,19 @@ contains
       cap_options%n_oserver_group = max(size(cap_options%npes_output_server),size(cap_options%nodes_output_server))
 
       call flapCLI%cli_options%get(val=buffer, switch='--esmf_logtype', error=status); _VERIFY(status)
-      call cap_options%set_esmf_logging_mode(trim(buffer), rc=status); _VERIFY(status)
+      ! set_esmf_logging_mode
+      select case (trim(buffer))
+      case ('none')
+         cap_options%esmf_logging_mode = ESMF_LOGKIND_NONE
+      case ('single')
+         cap_options%esmf_logging_mode = ESMF_LOGKIND_SINGLE
+      case ('multi')
+         cap_options%esmf_logging_mode = ESMF_LOGKIND_MULTI
+      case ('multi_on_error')
+         cap_options%esmf_logging_mode = ESMF_LOGKIND_MULTI_ON_ERROR
+      case default
+         _FAIL("Unsupported ESMF logging option: "//trim(buffer))
+      end select
 
       ! Ensemble specific options
       call flapCLI%cli_options%get(val=buffer, switch='--prefix', error=status); _VERIFY(status)
@@ -155,30 +166,6 @@ contains
    end function
 
 #endif
-
-   subroutine set_esmf_logging_mode(this, flag_name, unusable, rc)
-      class (MAPL_CapOptions), intent(inout) :: this
-      character(*), intent(in) :: flag_name
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      _UNUSED_DUMMY(unusable)
-
-      select case (flag_name)
-      case ('none')
-         this%esmf_logging_mode = ESMF_LOGKIND_NONE
-      case ('single')
-         this%esmf_logging_mode = ESMF_LOGKIND_SINGLE
-      case ('multi')
-         this%esmf_logging_mode = ESMF_LOGKIND_MULTI
-      case ('multi_on_error')
-         this%esmf_logging_mode = ESMF_LOGKIND_MULTI_ON_ERROR
-      case default
-         _FAIL("Unsupported ESMF logging option: "//flag_name)
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine set_esmf_logging_mode
 
 end module MAPL_CapOptionsMod
 
