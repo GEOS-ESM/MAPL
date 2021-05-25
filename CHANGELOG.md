@@ -8,17 +8,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Removed
-
-- remove file MAPL_FlapCapOptions.F90
-
 ### Added
-
-- Added a file MAPL_FlapCLI.F90
-
 ### Changed
 ### Fixed
 
-## [2.6.8]
+## [2.7.0] - 2021-05-25
+
+### Removed
+
+- Remove file `MAPL_FlapCapOptions.F90`
+
+### Added
+
+- Added a file `MAPL_FlapCLI.F90`
+
+### Changed
+
+- Change FlapCapOptions to FlapCLI which is not a sub class of
+  MAPL_CapOptions any more. This update means code that before did:
+  ```fortran
+   type (MAPL_Cap) :: cap
+   type (MAPL_FlapCapOptions) :: cap_options
+
+   cap_options = MAPL_FlapCapOptions(description = 'GEOS AGCM', &
+                                     authors     = 'GMAO')
+   ```
+   now must do:
+   ```fortran
+   type (MAPL_FlapCLI) :: cli
+   type (MAPL_CapOptions) :: cap_options
+
+   cli = MAPL_FlapCLI(description = 'GEOS AGCM', &
+                      authors     = 'GMAO')
+   cap_options = MAPL_CapOptions(cli)
+   ```
+   This was changed to facilitate working with UFS.
+
+## [2.6.8] - 2021-05-21
 
 ### Changed
 
