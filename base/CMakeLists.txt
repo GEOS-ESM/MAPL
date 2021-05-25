@@ -54,7 +54,7 @@ set (srcs
   )
 
 if (BUILD_WITH_FLAP)
-  list (APPEND srcs MAPL_FlapCapOptions.F90)
+  list (APPEND srcs MAPL_FlapCLI.F90)
 endif()
 
 if (ESMA_USE_GFE_NAMESPACE)

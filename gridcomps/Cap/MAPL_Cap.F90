@@ -29,7 +29,7 @@ module MAPL_CapMod
       integer :: rank
       integer :: npes_member
  
-      class (MAPL_CapOptions), allocatable :: cap_options
+      type (MAPL_CapOptions), allocatable :: cap_options
       ! misc
       logical :: mpi_already_initialized = .false.
       type(MAPL_CapGridComp), public :: cap_gc
@@ -80,7 +80,7 @@ contains
       character(*), intent(in) :: name
       procedure() :: set_services
       class (KeywordEnforcer),  optional, intent(in) :: unusable
-      class ( MAPL_CapOptions), optional, intent(in) :: cap_options
+      type ( MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
       integer :: status
 
