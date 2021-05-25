@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Added a MAPL_CapOptions constructor
 - Change FlapCapOptions to FlapCLI which is not a sub class of
   MAPL_CapOptions any more. This update means code that before did:
   ```fortran
@@ -48,7 +49,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Added a MAPL_CapOptions constructor
 - Adopting Fortran submodules to improve compilation.
 - Added a pfio demo for MAPL FLAP users
 
