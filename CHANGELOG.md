@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Set required CMake Version to 3.17
+- Update `components.yaml`
+  - ESMA_cmake v3.4.2 (to match GEOSgcm)
 
 ### Fixed
 
