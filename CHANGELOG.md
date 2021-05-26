@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 ### Added
+- Regrid_Util.x now checks if file exsts and captures the units and long_name of the input for the output file
 ### Changed
 ### Fixed
 
