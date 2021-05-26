@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.13)
+cmake_minimum_required (VERSION 3.17)
 cmake_policy (SET CMP0053 NEW)
 cmake_policy (SET CMP0054 NEW)
 
@@ -7,10 +7,19 @@ project (
   VERSION 2.7.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
-if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/ESMA_cmake)
-  list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/ESMA_cmake")
-  include (esma)
-endif ()
+# mepo can now clone subrepos in three styles
+set (ESMA_CMAKE_DIRS
+  ESMA_cmake
+  @ESMA_cmake
+  ESMA_cmake@
+  )
+
+foreach (dir IN LISTS ESMA_CMAKE_DIRS)
+  if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/${dir})
+    list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/${dir}")
+    include (esma)
+  endif ()
+endforeach ()
 
 # build as standalone project
 if (NOT COMMAND esma)
@@ -22,19 +31,17 @@ if (NOT COMMAND esma)
   if (SKIP_MEPO)
     message (FATAL_ERROR "ESMA not found")
   else ()
-     set (MEPO_INIT_COMMAND mepo init)
-     execute_process (
-        COMMAND ${MEPO_INIT_COMMAND}
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        )
-
-     set (MEPO_CLONE_COMMAND mepo clone)
-     execute_process (
-        COMMAND ${MEPO_CLONE_COMMAND}
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        )
-    list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/ESMA_cmake")
-    include (esma)
+    set (MEPO_CLONE_COMMAND mepo clone)
+    execute_process (
+      COMMAND ${MEPO_CLONE_COMMAND}
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      )
+    foreach (dir IN LISTS ESMA_CMAKE_DIRS)
+      if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/${dir})
+        list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/${dir}")
+        include (esma)
+      endif ()
+    endforeach ()
     option (SKIP_MEPO "Set to skip mepo steps" ON)
   endif ()
 

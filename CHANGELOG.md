@@ -10,7 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 ### Changed
+
+- Set required CMake Version to 3.17
+- Update `components.yaml`
+  - ESMA_cmake v3.4.2 (to match GEOSgcm)
+
 ### Fixed
+
+- Allow MAPL to build if subrepos are cloned with any mepo style
+  (prefix, postfix, naked)
 
 ## [2.7.0] - 2021-05-25
 
