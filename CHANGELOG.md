@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Regrid_Util.x now checks if file exsts and captures the units and long_name of the input for the output file
 ### Changed
-
+- set logical values in flap commmand line without true or false values
 - Set required CMake Version to 3.17
 - Update `components.yaml`
   - ESMA_cmake v3.4.2 (to match GEOSgcm)
