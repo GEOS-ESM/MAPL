@@ -96,13 +96,15 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       character(80) :: buffer
-      logical :: one_node_output
+      logical :: one_node_output, no_isolated_nodes, use_sub_comm
+
       integer, allocatable :: nodes_output_server(:)
 
       call flapCLI%cli_options%get(val=buffer, switch='--egress_file', error=status); _VERIFY(status)
       cap_options%egress_file = trim(buffer)
 
-      call flapCLI%cli_options%get(val=cap_options%use_comm_world, switch='--use_comm_world', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=use_sub_comm, switch='--use_sub_comm', error=status); _VERIFY(status)
+      cap_options%use_comm_world = .not. use_sub_comm
 
       if ( .not. cap_options%use_comm_world) then
          call flapCLI%cli_options%get(val=buffer, switch='--comm_model', error=status); _VERIFY(status)
@@ -114,7 +116,8 @@ contains
       endif
 
       call flapCLI%cli_options%get(val=cap_options%npes_model, switch='--npes_model', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get(val=cap_options%isolate_nodes, switch='--isolate_nodes', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=no_isolated_nodes, switch='--no_isolated_nodes', error=status); _VERIFY(status)
+      cap_options%isolate_nodes = .not. no_isolated_nodes
       call flapCLI%cli_options%get(val=cap_options%fast_oclient, switch='--fast_oclient', error=status); _VERIFY(status)
       call flapCLI%cli_options%get(val=cap_options%with_io_profiler, switch='--with_io_profiler', error=status); _VERIFY(status)
       call flapCLI%cli_options%get_varying(val=cap_options%npes_input_server, switch='--npes_input_server', error=status); _VERIFY(status)
