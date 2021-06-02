@@ -7,6 +7,9 @@ project (
   VERSION 2.7.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
+# build as shared libraries by default
+option (BUILD_SHARED_LIBS "Build shared libraries" ON)
+
 # mepo can now clone subrepos in three styles
 set (ESMA_CMAKE_DIRS
   ESMA_cmake

@@ -36,9 +36,9 @@ find_package(GFTL REQUIRED)
 find_package(GFTL_SHARED REQUIRED)
 
 if (ESMA_USE_GFE_NAMESPACE)
-  esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared PFLOGGER::pflogger GFTL_SHARED::gftl-shared GFTL::gftl TYPE SHARED)
+  esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared PFLOGGER::pflogger GFTL_SHARED::gftl-shared GFTL::gftl)
 else ()
-  esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared pflogger gftl-shared gftl TYPE SHARED)
+  esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared pflogger gftl-shared gftl)
 endif ()
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
