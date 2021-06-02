@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 - Regrid_Util.x now checks if file exsts and captures the units and long_name of the input for the output file
+- Build libraries either as shared (default) or static based on BUILD_SHARED_LIBS flag
 ### Changed
 
 - Set required CMake Version to 3.17
