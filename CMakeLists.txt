@@ -53,6 +53,7 @@ if (BUILD_SHARED_MAPL)
 else ()
   set (MAPL_TYPE STATIC)
 endif()
+message (STATUS "Building MAPL as ${MAPL_TYPE} libraries")
 
 option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
 if (BUILD_WITH_FLAP)
