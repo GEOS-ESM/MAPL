@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 ### Added
+
 - add option BUILD_SHARED_MAPL to build shared or static library
 - Regrid_Util.x now checks if file exsts and captures the units and long_name of the input for the output file
+- Add `--with_esmf_moab` to enable MOAB Mesh in ESMF
+
 ### Changed
 
 - Set required CMake Version to 3.17
@@ -21,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Allow MAPL to build if subrepos are cloned with any mepo style
   (prefix, postfix, naked)
+- Add missing variable declaration preventing MAPL from building
+  if H5_HAVE_PARALLEL is defined
 
 ## [2.7.0] - 2021-05-25
 

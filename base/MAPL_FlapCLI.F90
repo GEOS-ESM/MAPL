@@ -216,6 +216,14 @@ contains
            error=status)
       _VERIFY(status)
 
+      call options%add(switch='--with_esmf_moab', &
+           help='Enables use of MOAB library for ESMF meshes', &
+           required=.false., &
+           def='.false.', &
+           act='store_true', &
+           error=status)
+      _VERIFY(status)
+
       _RETURN(_SUCCESS)
 
    end subroutine add_command_line_options
