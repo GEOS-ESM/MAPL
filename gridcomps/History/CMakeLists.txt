@@ -6,7 +6,7 @@ set (srcs
      MAPL_HistoryGridComp.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler TYPE ${MAPL_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler TYPE ${MAPL_LIBRARY_TYPE})
 if (ESMA_USE_GFE_NAMESPACE)
    target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared esmf NetCDF::NetCDF_Fortran
                                  PRIVATE MPI::MPI_Fortran)

@@ -7,10 +7,10 @@ set (srcs
   )
 
 if (ESMA_USE_GFE_NAMESPACE)
-   esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared TYPE ${MAPL_TYPE})
+   esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared TYPE ${MAPL_LIBRARY_TYPE})
    add_library(PFLOGGER::pflogger ALIAS ${this})
 else ()
-   esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared TYPE ${MAPL_TYPE})
+   esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared TYPE ${MAPL_LIBRARY_TYPE})
 endif ()
 
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
