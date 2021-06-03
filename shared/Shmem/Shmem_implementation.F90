@@ -1,224 +1,58 @@
-
 #define SHM_SUCCESS  0
 #include "unused_dummy.H"
 #include "MAPL_ErrLog.h"
 
-  module MAPL_ShmemMod
+submodule (MAPL_Shmem) Shmem_implementation
+  use pflogger, only: logging, Logger
+  use MAPL_ExceptionHandling
+  implicit none
 
-    use, intrinsic :: ISO_C_BINDING
-    use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
-    use MAPL_ExceptionHandling
-    use pflogger, only: logging, Logger
+contains
 
-    implicit none
-    private
+  module procedure MAPL_GetNodeInfo
 
-    include 'mpif.h'
+     integer :: STATUS
 
-    public :: MAPL_GetNodeInfo
-    public :: MAPL_CoresPerNodeGet
-    public :: MAPL_InitializeShmem
-    public :: MAPL_FinalizeShmem
+     if (MAPL_NodeComm == -1) then ! make sure that we do this only once
+        MAPL_NodeComm = getNodeComm(comm, rc=STATUS)
+        _VERIFY(STATUS)
+     end if
+     
+     if (MAPL_NodeRootsComm == -1) then ! make sure that we do this only once
+        MAPL_NodeRootsComm = getNodeRootsComm(comm, rc=STATUS)
+        _VERIFY(STATUS)
+     end if
 
-    public :: MAPL_AllocNodeArray
-    public :: MAPL_DeAllocNodeArray
-    public :: MAPL_ShmemAmOnFirstNode
-    public :: MAPL_SyncSharedMemory
-    public :: MAPL_BroadcastToNodes
+     _RETURN(SHM_SUCCESS)
+  end procedure MAPL_GetNodeInfo
 
-    public :: MAPL_AllocateShared
-    public :: GetSharedMemory
-    public :: ReleaseSharedMemory
+  module procedure MAPL_InitializeShmem
 
-    public :: MAPL_GetNewRank
+     integer :: STATUS
 
-    integer, public, parameter :: MAPL_NoShm=255
+     _ASSERT(MAPL_NodeComm /= -1,'needs informative message')
+     
+     allocate(Segs(CHUNK),stat=STATUS)
+     _ASSERT(STATUS==0,'needs informative message')
+     Segs(:)%shmid = -1
+     Segs(:)%addr=C_NULL_PTR
 
-    character*30 :: Iam="MAPL_ShmemMod in line "
-
-    integer(c_int), parameter :: IPC_CREAT = 512
-    integer(c_int), parameter :: IPC_RMID  = 0
-    integer,        parameter :: C_KEY_T = c_int32_t
-
-    integer,        parameter :: CHUNK=256
-
-    integer, public, save :: MAPL_NodeComm=-1
-    integer, public, save :: MAPL_NodeRootsComm=-1
-    integer, public, save :: MAPL_MyNodeNum=-1
-    logical, public, save :: MAPL_AmNodeRoot=.false.
-    logical, public, save :: MAPL_ShmInitialized=.false.
-
-    integer,         save :: MAPL_CoresPerNodeUsed=-1
-    integer,         save :: MAPL_CoresPerNodeMin=-1
-    integer,         save :: MAPL_CoresPerNodeMax=-1
-    integer,         save :: MAPL_NumNodes=-1
-
-    type Segment_T
-       integer (c_int) :: shmid=-1
-       type    (c_ptr) :: addr=C_NULL_PTR
-    end type Segment_T
-
-    type(Segment_T), pointer :: Segs(:) => NULL()
-    type(Segment_T), pointer :: SegsNew(:) => null()
-
-    type NodeRankList_T
-       integer, pointer :: rank(:) => NULL()
-       integer          :: rankLastUsed
-    end type NodeRankList_T
-
-    type(NodeRankList_T), public, allocatable :: MAPL_NodeRankList(:)
-
-    interface
-       function shmget(key, size, shmflg) bind(c, name="shmget")
-         use, intrinsic :: ISO_C_BINDING
-	 import :: c_key_t
-         integer (c_int)              :: shmget
-         integer (c_key_t),     value :: key
-         integer (c_size_t),    value :: size
-         integer (c_int),       value :: shmflg
-       end function shmget
-
-       function shmat(shmid, shmaddr, shmflg) bind(c, name="shmat")
-         use, intrinsic :: ISO_C_BINDING
-         implicit none
-         type (c_ptr)           :: shmat
-         integer (c_int), value :: shmid
-         type (c_ptr),    value :: shmaddr
-         integer (c_int), value :: shmflg
-       end function shmat
-
-       function shmdt(shmaddr) bind(c, name="shmdt")
-         use, intrinsic :: ISO_C_BINDING
-         implicit none
-         integer (c_int)     :: shmdt
-         type (c_ptr), value :: shmaddr
-       end function shmdt
-
-       function shmctl(shmid, cmd, buf) bind(c, name="shmctl")
-         use, intrinsic :: ISO_C_BINDING
-         implicit none
-         integer (c_int)        :: shmctl
-         integer (c_int), value :: shmid
-         integer (c_int), value :: cmd
-         type (c_ptr),    value :: buf
-       end function shmctl
-
-       subroutine perror(s) bind(c,name="perror")
-         use, intrinsic :: ISO_C_BINDING
-         implicit none
-         character(c_char), intent(in) :: s(*)
-       end subroutine perror
-
-    end interface
-
-    interface MAPL_AllocNodeArray
-       module procedure MAPL_AllocNodeArray_1DL4
-       module procedure MAPL_AllocNodeArray_1DI4
-       module procedure MAPL_AllocNodeArray_2DI4
-       module procedure MAPL_AllocNodeArray_3DI4
-       module procedure MAPL_AllocNodeArray_4DI4
-       module procedure MAPL_AllocNodeArray_1DR4
-       module procedure MAPL_AllocNodeArray_2DR4
-       module procedure MAPL_AllocNodeArray_3DR4
-       module procedure MAPL_AllocNodeArray_4DR4
-       module procedure MAPL_AllocNodeArray_1DR8
-       module procedure MAPL_AllocNodeArray_2DR8
-       module procedure MAPL_AllocNodeArray_3DR8
-       module procedure MAPL_AllocNodeArray_4DR8
-       module procedure MAPL_AllocNodeArray_5DR8
-    end interface
-
-    interface MAPL_DeAllocNodeArray
-       module procedure MAPL_DeAllocNodeArray_1DL4
-       module procedure MAPL_DeAllocNodeArray_1DI4
-       module procedure MAPL_DeAllocNodeArray_2DI4
-       module procedure MAPL_DeAllocNodeArray_3DI4
-       module procedure MAPL_DeAllocNodeArray_4DI4
-       module procedure MAPL_DeAllocNodeArray_1DR4
-       module procedure MAPL_DeAllocNodeArray_2DR4
-       module procedure MAPL_DeAllocNodeArray_3DR4
-       module procedure MAPL_DeAllocNodeArray_4DR4
-       module procedure MAPL_DeAllocNodeArray_1DR8
-       module procedure MAPL_DeAllocNodeArray_2DR8
-       module procedure MAPL_DeAllocNodeArray_3DR8
-       module procedure MAPL_DeAllocNodeArray_4DR8
-       module procedure MAPL_DeAllocNodeArray_5DR8
-    end interface
-   
-    interface MAPL_BroadcastToNodes
-       module procedure MAPL_BroadcastToNodes_1DI4
-       module procedure MAPL_BroadcastToNodes_2DI4
-       module procedure MAPL_BroadcastToNodes_3DI4
-       module procedure MAPL_BroadcastToNodes_1DR4
-       module procedure MAPL_BroadcastToNodes_2DR4
-       module procedure MAPL_BroadcastToNodes_3DR4
-       module procedure MAPL_BroadcastToNodes_4DR4
-       module procedure MAPL_BroadcastToNodes_1DR8
-       module procedure MAPL_BroadcastToNodes_2DR8
-       module procedure MAPL_BroadcastToNodes_3DR8
-       module procedure MAPL_BroadcastToNodes_4DR8
-    end interface
-
-    interface MAPL_AllocateShared
-       module procedure MAPL_AllocateShared_1DL4
-       module procedure MAPL_AllocateShared_1DI4
-       module procedure MAPL_AllocateShared_1DR4
-       module procedure MAPL_AllocateShared_1DR8
-       module procedure MAPL_AllocateShared_2DR4
-       module procedure MAPL_AllocateShared_2DR8
-    end interface
-
-  contains
-
-    subroutine MAPL_GetNodeInfo(comm, rc)
-      integer,           intent(IN ) :: comm
-      integer, optional, intent(OUT) :: rc
-
-      integer :: STATUS
-
-      if (MAPL_NodeComm == -1) then ! make sure that we do this only once
-         MAPL_NodeComm = getNodeComm(comm, rc=STATUS)
-         _VERIFY(STATUS)
-      end if
-
-      if (MAPL_NodeRootsComm == -1) then ! make sure that we do this only once
-         MAPL_NodeRootsComm = getNodeRootsComm(comm, rc=STATUS)
-         _VERIFY(STATUS)
-      end if
-
-      _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_GetNodeInfo
-
-    subroutine MAPL_InitializeShmem(rc)
-      integer, optional, intent(OUT) :: rc
-
-      integer :: STATUS
-
-      _ASSERT(MAPL_NodeComm /= -1,'needs informative message')
-
-      allocate(Segs(CHUNK),stat=STATUS)
-      _ASSERT(STATUS==0,'needs informative message')
-      Segs(:)%shmid = -1
-      Segs(:)%addr=C_NULL_PTR
-
-      MAPL_ShmInitialized=.true.
+     MAPL_ShmInitialized=.true.
 
 #ifdef DEBUG
-      if(MAPL_AmNodeRoot) &
-           print *, "MAPL_Shmem initialized for node ", MAPL_MyNodeNum
+     if(MAPL_AmNodeRoot) &
+          print *, "MAPL_Shmem initialized for node ", MAPL_MyNodeNum
 #endif
 
-      _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_InitializeShmem
+     _RETURN(SHM_SUCCESS)
+  end procedure MAPL_InitializeShmem
 
-    subroutine MAPL_FinalizeShmem(rc)
-      integer, optional, intent(OUT) :: rc
+ module procedure MAPL_FinalizeShmem
+    integer      :: status, i
+    type (c_ptr) :: buf
 
-      integer      :: STATUS, i
-      type (c_ptr) :: buf
-
-      if (allocated(MAPL_NodeRankList)) then
-         do i=1,size(MAPL_NodeRankList)
+    if (allocated(MAPL_NodeRankList)) then
+       do i=1,size(MAPL_NodeRankList)
             if (associated(MAPL_NodeRankList(i)%rank)) then
                deallocate(MAPL_NodeRankList(i)%rank)
                MAPL_NodeRankList(i)%rank=>NULL()
@@ -279,11 +113,9 @@
       MAPL_NumNodes=-1
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_FinalizeShmem
+    end procedure MAPL_FinalizeShmem
 
-    subroutine MAPL_DeAllocNodeArray_1DL4(Ptr,rc)
-      logical,  pointer              :: Ptr(:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_1DL4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -298,11 +130,9 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_1DL4
+    end procedure MAPL_DeAllocNodeArray_1DL4
 
-    subroutine MAPL_DeAllocNodeArray_1DI4(Ptr,rc)
-      integer,  pointer              :: Ptr(:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_1DI4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -317,11 +147,9 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_1DI4
+    end procedure MAPL_DeAllocNodeArray_1DI4
 
-    subroutine MAPL_DeAllocNodeArray_2DI4(Ptr,rc)
-      integer,  pointer              :: Ptr(:,:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_2DI4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -336,11 +164,9 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_2DI4
+    end procedure MAPL_DeAllocNodeArray_2DI4
 
-    subroutine MAPL_DeAllocNodeArray_3DI4(Ptr,rc)
-      integer,  pointer              :: Ptr(:,:,:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_3DI4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -355,11 +181,9 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_3DI4
+    end procedure MAPL_DeAllocNodeArray_3DI4
 
-    subroutine MAPL_DeAllocNodeArray_4DI4(Ptr,rc)
-      integer,  pointer              :: Ptr(:,:,:,:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_4DI4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -374,12 +198,10 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_4DI4
+    end procedure MAPL_DeAllocNodeArray_4DI4
 
 
-    subroutine MAPL_DeAllocNodeArray_1DR4(Ptr,rc)
-      real(kind=REAL32),  pointer    :: Ptr(:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_1DR4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -394,11 +216,9 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_1DR4
+    end procedure MAPL_DeAllocNodeArray_1DR4
 
-    subroutine MAPL_DeAllocNodeArray_2DR4(Ptr,rc)
-      real(kind=REAL32),  pointer    :: Ptr(:,:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_2DR4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -413,11 +233,9 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_2DR4
+    end procedure MAPL_DeAllocNodeArray_2DR4
 
-    subroutine MAPL_DeAllocNodeArray_3DR4(Ptr,rc)
-      real(kind=REAL32),  pointer    :: Ptr(:,:,:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_3DR4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -432,11 +250,9 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_3DR4
+    end procedure MAPL_DeAllocNodeArray_3DR4
 
-    subroutine MAPL_DeAllocNodeArray_4DR4(Ptr,rc)
-      real,  pointer                 :: Ptr(:,:,:,:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_4DR4
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -450,12 +266,10 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_4DR4
+    end procedure MAPL_DeAllocNodeArray_4DR4
 
 
-    subroutine MAPL_DeAllocNodeArray_1DR8(Ptr,rc)
-      real(kind=REAL64),  pointer    :: Ptr(:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_1DR8
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -470,11 +284,9 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_1DR8
+    end procedure MAPL_DeAllocNodeArray_1DR8
 
-    subroutine MAPL_DeAllocNodeArray_2DR8(Ptr,rc)
-      real(kind=REAL64),  pointer    :: Ptr(:,:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_2DR8
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -489,11 +301,9 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_2DR8
+    end procedure MAPL_DeAllocNodeArray_2DR8
 
-    subroutine MAPL_DeAllocNodeArray_3DR8(Ptr,rc)
-      real(kind=REAL64),  pointer    :: Ptr(:,:,:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_3DR8
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -508,11 +318,9 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_3DR8
+    end procedure MAPL_DeAllocNodeArray_3DR8
 
-    subroutine MAPL_DeAllocNodeArray_4DR8(Ptr,rc)
-      real(kind=REAL64),  pointer    :: Ptr(:,:,:,:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_4DR8
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -526,11 +334,9 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_4DR8
+    end procedure MAPL_DeAllocNodeArray_4DR8
 
-    subroutine MAPL_DeAllocNodeArray_5DR8(Ptr,rc)
-      real(kind=REAL64),  pointer    :: Ptr(:,:,:,:,:)
-      integer, optional, intent(OUT) :: rc
+    module procedure MAPL_DeAllocNodeArray_5DR8
 
       type(c_ptr) :: Caddr
       integer     :: STATUS
@@ -544,13 +350,31 @@
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_DeAllocNodeArray_5DR8    
+    end procedure MAPL_DeAllocNodeArray_5DR8    
 
-    subroutine MAPL_AllocNodeArray_1DL4(Ptr, Shp, lbd, rc)
-      logical, pointer,  intent(INOUT) :: Ptr(:)
-      integer,           intent(IN   ) :: Shp(1)
-      integer, optional, intent(IN   ) :: lbd(1)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_1DL4
+    implicit none
+      type(c_ptr) :: Caddr
+      integer len, STATUS
+
+      if(.not.MAPL_ShmInitialized) then
+         _RETURN(MAPL_NoShm)
+      endif
+
+      len = shp(1)
+
+      call GetSharedMemory(Caddr, len, rc=STATUS)
+      _VERIFY(STATUS)
+
+      call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
+      _ASSERT(size(Ptr)==len,'needs informative message')
+
+      if(present(lbd)) Ptr(lbd(1):) => Ptr
+
+      _RETURN(SHM_SUCCESS)
+    end procedure MAPL_AllocNodeArray_1DL4
+
+    module procedure MAPL_AllocNodeArray_1DI4
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -570,40 +394,10 @@
       if(present(lbd)) Ptr(lbd(1):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_1DL4
-
-    subroutine MAPL_AllocNodeArray_1DI4(Ptr, Shp, lbd, rc)
-      integer, pointer,  intent(INOUT) :: Ptr(:)
-      integer,           intent(IN   ) :: Shp(1)
-      integer, optional, intent(IN   ) :: lbd(1)
-      integer, optional, intent(  OUT) :: rc
-
-      type(c_ptr) :: Caddr
-      integer len, STATUS
-
-      if(.not.MAPL_ShmInitialized) then
-         _RETURN(MAPL_NoShm)
-      endif
-
-      len = shp(1)
-
-      call GetSharedMemory(Caddr, len, rc=STATUS)
-      _VERIFY(STATUS)
-
-      call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-      _ASSERT(size(Ptr)==len,'needs informative message')
-
-      if(present(lbd)) Ptr(lbd(1):) => Ptr
-
-      _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_1DI4
+    end procedure MAPL_AllocNodeArray_1DI4
 
 
-    subroutine MAPL_AllocNodeArray_2DI4(Ptr, Shp, lbd, rc)
-      integer, pointer,  intent(INOUT) :: Ptr(:,:)
-      integer,           intent(IN   ) :: Shp(2)
-      integer, optional, intent(IN   ) :: lbd(2)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_2DI4
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -623,13 +417,9 @@
       if(present(lbd)) Ptr(lbd(1):,lbd(2):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_2DI4
+    end procedure MAPL_AllocNodeArray_2DI4
 
-    subroutine MAPL_AllocNodeArray_3DI4(Ptr, Shp, lbd, rc)
-      integer, pointer,  intent(INOUT) :: Ptr(:,:,:)
-      integer,           intent(IN   ) :: Shp(3)
-      integer, optional, intent(IN   ) :: lbd(3)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_3DI4
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -649,13 +439,9 @@
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_3DI4
+    end procedure MAPL_AllocNodeArray_3DI4
 
-    subroutine MAPL_AllocNodeArray_4DI4(Ptr, Shp, lbd, rc)
-      integer, pointer,  intent(INOUT) :: Ptr(:,:,:,:)
-      integer,           intent(IN   ) :: Shp(4)
-      integer, optional, intent(IN   ) :: lbd(4)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_4DI4
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -675,14 +461,10 @@
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_4DI4
+    end procedure MAPL_AllocNodeArray_4DI4
 
 
-    subroutine MAPL_AllocNodeArray_1DR4(Ptr, Shp, lbd, rc)
-      real(kind=REAL32), pointer,   intent(INOUT) :: Ptr(:)
-      integer,           intent(IN   ) :: Shp(1)
-      integer, optional, intent(IN   ) :: lbd(1)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_1DR4
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -702,14 +484,10 @@
       if(present(lbd)) Ptr(lbd(1):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_1DR4
+    end procedure MAPL_AllocNodeArray_1DR4
 
 
-    subroutine MAPL_AllocNodeArray_2DR4(Ptr, Shp, lbd, rc)
-      real(kind=REAL32), pointer,   intent(INOUT) :: Ptr(:,:)
-      integer,           intent(IN   ) :: Shp(2)
-      integer, optional, intent(IN   ) :: lbd(2)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_2DR4
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -729,13 +507,9 @@
       if(present(lbd)) Ptr(lbd(1):,lbd(2):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_2DR4
+    end procedure MAPL_AllocNodeArray_2DR4
 
-    subroutine MAPL_AllocNodeArray_3DR4(Ptr, Shp, lbd, rc)
-      real(kind=REAL32), pointer,   intent(INOUT) :: Ptr(:,:,:)
-      integer,           intent(IN   ) :: Shp(3)
-      integer, optional, intent(IN   ) :: lbd(3)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_3DR4
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -755,13 +529,9 @@
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_3DR4
+    end procedure MAPL_AllocNodeArray_3DR4
 
-    subroutine MAPL_AllocNodeArray_4DR4(Ptr, Shp, lbd, rc)
-      real, pointer,     intent(INOUT) :: Ptr(:,:,:,:)
-      integer,           intent(IN   ) :: Shp(4)
-      integer, optional, intent(IN   ) :: lbd(4)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_4DR4
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -781,14 +551,10 @@
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_4DR4
+    end procedure MAPL_AllocNodeArray_4DR4
 
 
-    subroutine MAPL_AllocNodeArray_1DR8(Ptr, Shp, lbd, rc)
-      real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:)
-      integer,           intent(IN   ) :: Shp(1)
-      integer, optional, intent(IN   ) :: lbd(1)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_1DR8
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -808,14 +574,10 @@
       if(present(lbd)) Ptr(lbd(1):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_1DR8
+    end procedure MAPL_AllocNodeArray_1DR8
 
 
-    subroutine MAPL_AllocNodeArray_2DR8(Ptr, Shp, lbd, rc)
-      real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:)
-      integer,           intent(IN   ) :: Shp(2)
-      integer, optional, intent(IN   ) :: lbd(2)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_2DR8
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -835,13 +597,9 @@
       if(present(lbd)) Ptr(lbd(1):,lbd(2):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_2DR8
+    end procedure MAPL_AllocNodeArray_2DR8
 
-    subroutine MAPL_AllocNodeArray_3DR8(Ptr, Shp, lbd, rc)
-      real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:,:)
-      integer,           intent(IN   ) :: Shp(3)
-      integer, optional, intent(IN   ) :: lbd(3)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_3DR8
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -861,13 +619,9 @@
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_3DR8
+    end procedure MAPL_AllocNodeArray_3DR8
 
-    subroutine MAPL_AllocNodeArray_4DR8(Ptr, Shp, lbd, rc)
-      real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:,:,:)
-      integer,           intent(IN   ) :: Shp(4)
-      integer, optional, intent(IN   ) :: lbd(4)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_4DR8
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -887,13 +641,9 @@
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_4DR8
+    end procedure MAPL_AllocNodeArray_4DR8
 
-    subroutine MAPL_AllocNodeArray_5DR8(Ptr, Shp, lbd, rc)
-      real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:,:,:,:)
-      integer,           intent(IN   ) :: Shp(5)
-      integer, optional, intent(IN   ) :: lbd(5)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocNodeArray_5DR8
 
       type(c_ptr) :: Caddr
       integer len, STATUS
@@ -914,15 +664,10 @@
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):,lbd(5):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_AllocNodeArray_5DR8    
+    end procedure MAPL_AllocNodeArray_5DR8    
 
 
-    subroutine MAPL_AllocateShared_1DL4(Ptr, Shp, lbd, TransRoot, rc)
-      logical, pointer,  intent(INOUT) :: Ptr(:)
-      integer,           intent(IN   ) :: Shp(1)
-      integer, optional, intent(IN   ) :: lbd(1)
-      logical,           intent(IN   ) :: TransRoot
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocateShared_1DL4
 
 
       integer :: status
@@ -941,14 +686,9 @@
 
       _RETURN(STATUS)
 
-    end subroutine MAPL_AllocateShared_1DL4
+    end procedure MAPL_AllocateShared_1DL4
 
-    subroutine MAPL_AllocateShared_1DI4(Ptr, Shp, lbd, TransRoot, rc)
-      integer, pointer,  intent(INOUT) :: Ptr(:)
-      integer,           intent(IN   ) :: Shp(1)
-      integer, optional, intent(IN   ) :: lbd(1)
-      logical,           intent(IN   ) :: TransRoot
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocateShared_1DI4
 
 
       integer :: status
@@ -967,14 +707,9 @@
 
       _RETURN(STATUS)
 
-    end subroutine MAPL_AllocateShared_1DI4
+    end procedure MAPL_AllocateShared_1DI4
 
-    subroutine MAPL_AllocateShared_1DR4(Ptr, Shp, lbd, TransRoot, rc)
-      real, pointer,     intent(INOUT) :: Ptr(:)
-      integer,           intent(IN   ) :: Shp(1)
-      integer, optional, intent(IN   ) :: lbd(1)
-      logical,           intent(IN   ) :: TransRoot
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocateShared_1DR4
 
 
       integer :: status
@@ -993,14 +728,9 @@
 
       _RETURN(STATUS)
 
-    end subroutine MAPL_AllocateShared_1DR4
+    end procedure MAPL_AllocateShared_1DR4
 
-    subroutine MAPL_AllocateShared_1DR8(Ptr, Shp, lbd, TransRoot, rc)
-      real(KIND=REAL64), pointer,     intent(INOUT) :: Ptr(:)
-      integer,           intent(IN   ) :: Shp(1)
-      integer, optional, intent(IN   ) :: lbd(1)
-      logical,           intent(IN   ) :: TransRoot
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocateShared_1DR8
 
 
       integer :: status
@@ -1019,14 +749,9 @@
 
       _RETURN(STATUS)
 
-    end subroutine MAPL_AllocateShared_1DR8
+    end procedure MAPL_AllocateShared_1DR8
 
-    subroutine MAPL_AllocateShared_2DR4(Ptr, Shp, lbd, TransRoot, rc)
-      real,    pointer,  intent(INOUT) :: Ptr(:,:)
-      integer,           intent(IN   ) :: Shp(2)
-      integer, optional, intent(IN   ) :: lbd(2)
-      logical,           intent(IN   ) :: TransRoot
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocateShared_2DR4
 
 
       integer :: status
@@ -1045,14 +770,9 @@
 
       _RETURN(STATUS)
 
-    end subroutine MAPL_AllocateShared_2DR4
+    end procedure MAPL_AllocateShared_2DR4
 
-    subroutine MAPL_AllocateShared_2DR8(Ptr, Shp, lbd, TransRoot, rc)
-      real(KIND=REAL64), pointer, intent(INOUT) :: Ptr(:,:)
-      integer,           intent(IN   ) :: Shp(2)
-      integer, optional, intent(IN   ) :: lbd(2)
-      logical,           intent(IN   ) :: TransRoot
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_AllocateShared_2DR8
 
 
       integer :: status
@@ -1071,23 +791,18 @@
 
       _RETURN(STATUS)
 
-    end subroutine MAPL_AllocateShared_2DR8
+    end procedure MAPL_AllocateShared_2DR8
 
-    subroutine ReleaseSharedMemory(Caddr,rc)
-      type(c_ptr),       intent(INOUT) :: Caddr
-      integer, optional, intent(  OUT) :: rc
-
+    module procedure ReleaseSharedMemory
       integer        :: pos
       type (c_ptr)   :: buf
       integer        :: STATUS
 
 !!! Find the segment in the segment list
 
-      pos=1
-      do while(pos<=size(Segs))
+      do pos=1,size(Segs)
          if(Segs(pos)%shmid == -1) cycle
          if(c_associated(Segs(pos)%addr,Caddr)) exit
-         pos = pos + 1
       end do
 
 !!! Everyone exits if it is not there
@@ -1124,14 +839,11 @@
       Segs(pos)%addr=C_NULL_PTR
 
       _RETURN(SHM_SUCCESS)
-    end subroutine ReleaseSharedMemory
+    end procedure ReleaseSharedMemory
 
 
 
-    subroutine GetSharedMemory(Caddr,Len,rc)
-      type(c_ptr),       intent(  OUT) :: Caddr
-      integer,           intent(IN   ) :: Len
-      integer, optional, intent(  OUT) :: rc
+    module procedure GetSharedMemory
 
       integer                   :: status, pos
       integer(c_key_t)          :: key
@@ -1203,13 +915,9 @@
       Caddr = Segs(pos)%addr
 
       _RETURN(SHM_SUCCESS)
-    end subroutine GetSharedMemory
+    end procedure GetSharedMemory
 
-    subroutine MAPL_BroadcastToNodes_1DR4(DATA,N,ROOT,rc)
-      real(kind=REAL32), intent(INOUT) :: DATA(:)
-      integer,           intent(IN   ) :: N
-      integer,           intent(IN   ) :: ROOT
-      integer, optional, intent(  OUT) :: rc
+    module procedure BroadcastToNodes_1DR4
       integer :: STATUS
 
       real(kind=REAL32), allocatable :: ldata(:)
@@ -1227,13 +935,9 @@
       deallocate(ldata)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_BroadcastToNodes_1DR4
+    end procedure BroadcastToNodes_1DR4
 
-    subroutine MAPL_BroadcastToNodes_2DR4(DATA,N,ROOT,rc)
-      real(kind=REAL32), intent(INOUT) :: DATA(:,:)
-      integer,           intent(IN   ) :: N
-      integer,           intent(IN   ) :: ROOT
-      integer, optional, intent(  OUT) :: rc
+    module procedure BroadcastToNodes_2DR4
       integer :: STATUS
 
       real(kind=REAL32), allocatable :: ldata(:,:)
@@ -1251,13 +955,9 @@
       deallocate(ldata)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_BroadcastToNodes_2DR4
+    end procedure BroadcastToNodes_2DR4
 
-    subroutine MAPL_BroadcastToNodes_3DR4(DATA,N,ROOT,rc)
-      real,              intent(INOUT) :: DATA(:,:,:)
-      integer,           intent(IN   ) :: N
-      integer,           intent(IN   ) :: ROOT
-      integer, optional, intent(  OUT) :: rc
+    module procedure BroadcastToNodes_3DR4
       integer :: STATUS
 
       real, allocatable :: ldata(:,:,:)
@@ -1275,13 +975,9 @@
       deallocate(ldata)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_BroadcastToNodes_3DR4
+    end procedure BroadcastToNodes_3DR4
 
-    subroutine MAPL_BroadcastToNodes_4DR4(DATA,N,ROOT,rc)
-      real,              intent(INOUT) :: DATA(:,:,:,:)
-      integer,           intent(IN   ) :: N
-      integer,           intent(IN   ) :: ROOT
-      integer, optional, intent(  OUT) :: rc
+    module procedure BroadcastToNodes_4DR4
       integer :: STATUS
 
       real, allocatable :: ldata(:,:,:,:)
@@ -1299,13 +995,9 @@
       deallocate(ldata)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_BroadcastToNodes_4DR4
+    end procedure BroadcastToNodes_4DR4
 
-    subroutine MAPL_BroadcastToNodes_1DR8(DATA,N,ROOT,rc)
-      real(kind=REAL64), intent(INOUT) :: DATA(:)
-      integer,           intent(IN   ) :: N
-      integer,           intent(IN   ) :: ROOT
-      integer, optional, intent(  OUT) :: rc
+    module procedure BroadcastToNodes_1DR8
       integer :: STATUS
 
       real(kind=REAL64), allocatable :: ldata(:)
@@ -1323,13 +1015,9 @@
       deallocate(ldata)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_BroadcastToNodes_1DR8
+    end procedure BroadcastToNodes_1DR8
 
-    subroutine MAPL_BroadcastToNodes_2DR8(DATA,N,ROOT,rc)
-      real(kind=REAL64), intent(INOUT) :: DATA(:,:)
-      integer,           intent(IN   ) :: N
-      integer,           intent(IN   ) :: ROOT
-      integer, optional, intent(  OUT) :: rc
+    module procedure BroadcastToNodes_2DR8
       integer :: STATUS
 
       real(kind=REAL64), allocatable :: ldata(:,:)
@@ -1347,13 +1035,9 @@
       deallocate(ldata)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_BroadcastToNodes_2DR8
+    end procedure BroadcastToNodes_2DR8
 
-    subroutine MAPL_BroadcastToNodes_3DR8(DATA,N,ROOT,rc)
-      real(kind=REAL64), intent(INOUT) :: DATA(:,:,:)
-      integer,           intent(IN   ) :: N
-      integer,           intent(IN   ) :: ROOT
-      integer, optional, intent(  OUT) :: rc
+    module procedure BroadcastToNodes_3DR8
       integer :: STATUS
 
       real(kind=REAL64), allocatable :: ldata(:,:,:)
@@ -1371,13 +1055,9 @@
       deallocate(ldata)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_BroadcastToNodes_3DR8
+    end procedure BroadcastToNodes_3DR8
 
-    subroutine MAPL_BroadcastToNodes_4DR8(DATA,N,ROOT,rc)
-      real(kind=REAL64), intent(INOUT) :: DATA(:,:,:,:)
-      integer,           intent(IN   ) :: N
-      integer,           intent(IN   ) :: ROOT
-      integer, optional, intent(  OUT) :: rc
+    module procedure BroadcastToNodes_4DR8
       integer :: STATUS
 
       real(kind=REAL64), allocatable :: ldata(:,:,:,:)
@@ -1395,13 +1075,9 @@
       deallocate(ldata)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_BroadcastToNodes_4DR8
+    end procedure BroadcastToNodes_4DR8
 
-    subroutine MAPL_BroadcastToNodes_1DI4(DATA,N,ROOT,rc)
-      integer,           intent(INOUT) :: DATA(:)
-      integer,           intent(IN   ) :: N
-      integer,           intent(IN   ) :: ROOT
-      integer, optional, intent(  OUT) :: rc
+    module procedure BroadcastToNodes_1DI4
       integer :: STATUS
 
       integer, allocatable :: ldata(:)
@@ -1419,13 +1095,9 @@
       deallocate(ldata)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_BroadcastToNodes_1DI4
+    end procedure BroadcastToNodes_1DI4
 
-    subroutine MAPL_BroadcastToNodes_2DI4(DATA,N,ROOT,rc)
-      integer,           intent(INOUT) :: DATA(:,:)
-      integer,           intent(IN   ) :: N
-      integer,           intent(IN   ) :: ROOT
-      integer, optional, intent(  OUT) :: rc
+    module procedure BroadcastToNodes_2DI4
       integer :: STATUS
 
       integer, allocatable :: ldata(:,:)
@@ -1443,13 +1115,9 @@
       deallocate(ldata)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_BroadcastToNodes_2DI4
+    end procedure BroadcastToNodes_2DI4
 
-    subroutine MAPL_BroadcastToNodes_3DI4(DATA,N,ROOT,rc)
-      integer,           intent(INOUT) :: DATA(:,:,:)
-      integer,           intent(IN   ) :: N
-      integer,           intent(IN   ) :: ROOT
-      integer, optional, intent(  OUT) :: rc
+    module procedure BroadcastToNodes_3DI4
       integer :: STATUS
 
       integer, allocatable :: ldata(:,:,:)
@@ -1467,10 +1135,9 @@
       deallocate(ldata)
 
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_BroadcastToNodes_3DI4
+    end procedure BroadcastToNodes_3DI4
 
-    subroutine MAPL_SyncSharedMemory(rc)
-      integer, optional, intent(  OUT) :: rc
+    module procedure MAPL_SyncSharedMemory
       integer :: STATUS
       if(.not.MAPL_ShmInitialized) then
          _RETURN(SHM_SUCCESS)
@@ -1479,14 +1146,9 @@
       call MPI_Barrier(MAPL_NodeComm, STATUS)
       _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
       _RETURN(SHM_SUCCESS)
-    end subroutine MAPL_SyncSharedMemory
+    end procedure MAPL_SyncSharedMemory
 
-    function MAPL_GetNewRank(node,rc) result(rank)
-
-      integer, intent(in) :: node
-      integer, optional, intent(out) :: rc
-
-      integer :: rank
+    module procedure MAPL_GetNewRank
 
       rank = MAPL_NodeRankList(node)%RankLastUsed+1
       if (rank > size(MAPL_NodeRankList(node)%rank)) then
@@ -1496,13 +1158,10 @@
  
       _RETURN(SHM_SUCCESS)
 
-    end function MAPL_GetNewRank
+    end procedure MAPL_GetNewRank
 
-    function getNodeComm(Comm, rc) result(NodeComm)
+    module procedure getNodeComm
       use MAPL_SortMod
-      integer,           intent( IN) :: Comm
-      integer, optional, intent(OUT) :: rc
-      integer                        :: NodeComm
 
       integer, allocatable :: colors(:), ranks(:)
       integer :: last
@@ -1654,12 +1313,9 @@
 
       end function getColor
     
-    end function getNodeComm
+    end procedure getNodeComm
 
-    function getNodeRootsComm(Comm, rc) result(NodeRootsComm)
-      integer,           intent( IN) :: Comm
-      integer, optional, intent(OUT) :: rc
-      integer                        :: NodeRootsComm
+    module procedure getNodeRootsComm
 
       integer :: STATUS, MyColor, NumNodes, npes, rank
       class(Logger), pointer :: lgr
@@ -1701,14 +1357,11 @@
 
       _RETURN(SHM_SUCCESS)
 
-    end function getNodeRootsComm
+    end procedure getNodeRootsComm
 
 
 
-    function MAPL_ShmemAmOnFirstNode(comm, rc) result(a)
-      integer,           intent(IN   ) :: comm
-      integer, optional, intent(  OUT) :: RC
-      logical                          :: a
+    module procedure MAPL_ShmemAmOnFirstNode
 
       integer :: status, rank
 
@@ -1729,11 +1382,9 @@
       end if
 
       _RETURN(SHM_SUCCESS)
-    end function MAPL_ShmemAmOnFirstNode
+    end procedure MAPL_ShmemAmOnFirstNode
 
-    integer function MAPL_CoresPerNodeGet(comm, rc)
-      integer,           intent(IN   ) :: comm
-      integer, optional, intent(  OUT) :: RC
+    module procedure MAPL_CoresPerNodeGet
 
       integer :: status
 
@@ -1745,6 +1396,6 @@
       MAPL_CoresPerNodeGet = MAPL_CoresPerNodeUsed
 
       _RETURN(SHM_SUCCESS)
-    end function MAPL_CoresPerNodeGet
+    end procedure MAPL_CoresPerNodeGet
 
-  end module MAPL_ShmemMod
+  end submodule Shmem_implementation

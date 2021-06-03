@@ -23,7 +23,7 @@ set (srcs
   MAPL_AbstractGridFactory.F90          MAPL_GridSpec.F90                   MAPL_StringGridFactoryMap.F90
   MAPL_GridType.F90                     MAPL_StringGridMap.F90
   MAPL_AbstractRegridder.F90                      
-  MAPL_Base.F90                         MAPL_StringRouteHandleMap.F90
+  MAPL_StringRouteHandleMap.F90
   MAPL_IdentityRegridder.F90            MAPL_stubs.F90
   MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
   MAPL_CapOptions.F90                   MAPL_TilingRegridder.F90
@@ -47,13 +47,14 @@ set (srcs
   regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90  FieldBundleWrite.F90 FieldBundleRead.F90
   regex_F.c
   c_mapl_locstream_F.c  getrss.c  memuse.c
+  Base/Base.F90 Base/Base_implementation.F90
 
   # Orphaned program: should not be in this library.
   # tstqsat.F90
   )
 
 if (BUILD_WITH_FLAP)
-  list (APPEND srcs MAPL_FlapCapOptions.F90)
+  list (APPEND srcs MAPL_FlapCLI.F90)
 endif()
 
 if (ESMA_USE_GFE_NAMESPACE)

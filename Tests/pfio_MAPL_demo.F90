@@ -7,7 +7,8 @@ program main
    use mpi
    use MAPL
    implicit none
-   type (MAPL_FlapCapOptions) :: cap_options
+   type (MAPL_FlapCLI) :: cli
+   type (MAPL_CapOptions) :: cap_options
    type(ServerManager) :: ioserver_manager   
    type(SplitCommunicator) :: split_comm
    integer :: client_comm,rank, npes, ierror, provided,required
@@ -18,8 +19,10 @@ program main
    integer :: dim1, i, i1, i2, width, hist_id, stage_id, n, step
    real, allocatable :: x(:)
 
-   cap_options = MAPL_FlapCapOptions(description = 'GEOS AGCM', &
-                                     authors     = 'GMAO')
+   cli = MAPL_FlapCLI(description = 'GEOS AGCM', &
+                      authors     = 'GMAO')
+   cap_options = MAPL_CapOptions(cli)
+
    call MPI_init(ierror)
    
    call ioserver_manager%initialize(MPI_COMM_WORLD, &
@@ -43,12 +46,10 @@ program main
       if (npes /= cap_options%npes_model) stop "sanity check failed"
 
 block
-
       ! if there are multiple oserver, split it into large and small pool
       call o_clients%split_server_pools()
-
-
       ! define file meta data
+      dim1 = 1000
       call fmd%add_dimension('first',dim1)
       ! define varaible
       T = Variable(type=pFIO_REAL32, dimensions='first')
@@ -58,8 +59,7 @@ block
       hist_id = o_clients%add_hist_collection(fmd)
 
       ! variable in model
-      dim1 = 1000
-      width = npes/dim1
+      width = dim1/npes
       i1 = rank*width +1
       i2 = (rank+1)*width
       if (rank == npes -1) i2 = dim1

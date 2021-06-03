@@ -29,10 +29,9 @@ module MAPL_CapMod
       integer :: rank
       integer :: npes_member
  
-      class (MAPL_CapOptions), allocatable :: cap_options
+      type (MAPL_CapOptions), allocatable :: cap_options
       ! misc
       logical :: mpi_already_initialized = .false.
-
       type(MAPL_CapGridComp), public :: cap_gc
       type(ServerManager) :: cap_server
       type(SimpleCommSplitter), public :: splitter
@@ -81,7 +80,7 @@ contains
       character(*), intent(in) :: name
       procedure() :: set_services
       class (KeywordEnforcer),  optional, intent(in) :: unusable
-      class ( MAPL_CapOptions), optional, intent(in) :: cap_options
+      type ( MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
       integer :: status
 
@@ -239,8 +238,18 @@ contains
       _UNUSED_DUMMY(unusable)
 
       call start_timer()
-      call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, rc=status)
+
+      call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, rc=status)
       _VERIFY(status)
+
+      ! Note per ESMF this is a temporary routine as eventually MOAB will
+      ! be the only mesh generator. But until then, this allows us to
+      ! test it
+      call ESMF_MeshSetMOAB(this%cap_options%with_esmf_moab, rc=status)
+      _VERIFY(status)
+
+      lgr => logging%get_logger('MAPL')
+      call lgr%info("Running with MOAB library for ESMF Mesh: %l1", this%cap_options%with_esmf_moab)
 
       call this%initialize_cap_gc(rc=status)
       _VERIFY(status)
@@ -254,8 +263,8 @@ contains
       call this%cap_gc%finalize(rc=status)
       _VERIFY(status)
 
-      !call ESMF_Finalize(rc=status)
-      !_VERIFY(status)
+      call ESMF_Finalize(endflag=ESMF_END_KEEPMPI, rc=status)
+      _VERIFY(status)
       call stop_timer()
 
       ! W.J note : below reporting will be remove soon
@@ -393,6 +402,7 @@ contains
 
       this%npes_member = npes_world / this%cap_options%n_members
 
+
       _RETURN(_SUCCESS)
 
    end subroutine initialize_mpi
@@ -419,10 +429,9 @@ contains
       integer :: status
       _UNUSED_DUMMY(unusable)
 
+      call MAPL_Finalize(comm=this%comm_world)
       if (.not. this%mpi_already_initialized) then
-         call MAPL_Finalize(comm=this%comm_world)
-         call ESMF_Finalize(rc=status)
-         _VERIFY(status)
+         call MPI_Finalize(status)
       end if
 
       _RETURN(_SUCCESS)
