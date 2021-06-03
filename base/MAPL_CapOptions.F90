@@ -34,6 +34,8 @@ module MAPL_CapOptionsMod
       logical              :: fast_oclient  = .false.
       ! whether or not turn on the io profiler
       logical              :: with_io_profiler = .false.
+      ! whether or not to use MOAB in ESMF
+      logical              :: with_esmf_moab = .false.
       ! server groups
       integer :: n_iserver_group = 1
       integer :: n_oserver_group = 1
@@ -117,6 +119,7 @@ contains
       call flapCLI%cli_options%get(val=cap_options%isolate_nodes, switch='--isolate_nodes', error=status); _VERIFY(status)
       call flapCLI%cli_options%get(val=cap_options%fast_oclient, switch='--fast_oclient', error=status); _VERIFY(status)
       call flapCLI%cli_options%get(val=cap_options%with_io_profiler, switch='--with_io_profiler', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%with_esmf_moab, switch='--with_esmf_moab', error=status); _VERIFY(status)
       call flapCLI%cli_options%get_varying(val=cap_options%npes_input_server, switch='--npes_input_server', error=status); _VERIFY(status)
       call flapCLI%cli_options%get_varying(val=cap_options%npes_output_server, switch='--npes_output_server', error=status); _VERIFY(status)
       call flapCLI%cli_options%get_varying(val=cap_options%nodes_input_server, switch='--nodes_input_server', error=status); _VERIFY(status)

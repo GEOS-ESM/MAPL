@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 ### Added
+
 - Regrid_Util.x now checks if file exsts and captures the units and long_name of the input for the output file
+- Add `--with_esmf_moab` to enable MOAB Mesh in ESMF
+
 ### Changed
 
 - Set required CMake Version to 3.17
