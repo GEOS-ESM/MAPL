@@ -30,9 +30,9 @@ set (srcs
     )
 
 if (ESMA_USE_GFE_NAMESPACE)
-  esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE SHARED)
+  esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_TYPE})
 else ()
-  esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared MPI::MPI_Fortran pflogger TYPE SHARED)
+  esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared MPI::MPI_Fortran pflogger TYPE ${MAPL_TYPE})
 endif ()
 
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
