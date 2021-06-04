@@ -47,6 +47,14 @@ if (NOT COMMAND esma)
 
 endif ()
 
+option (BUILD_SHARED_MAPL "Build shared MAPL libraries" ON)
+if (BUILD_SHARED_MAPL)
+  set (MAPL_LIBRARY_TYPE SHARED)
+else ()
+  set (MAPL_LIBRARY_TYPE STATIC)
+endif()
+message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
+
 option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
 if (BUILD_WITH_FLAP)
   find_package(FLAP REQUIRED)
