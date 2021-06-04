@@ -6,7 +6,7 @@ esma_add_library (${this}
   DEPENDENCIES MAPL.base MAPL.pfio MAPL_cfio_r4 MAPL.gridcomps
                esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran
                $<$<BOOL:${BUILD_WITH_FLAP}>:FLAP::FLAP>
-  TYPE SHARED
+  TYPE ${MAPL_LIBRARY_TYPE} 
   )
 
 target_include_directories (${this} PUBLIC
