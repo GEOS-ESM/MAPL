@@ -8,7 +8,7 @@ set (srcs
   MAPL_Initialize.F90
 )  
 
-esma_add_library (${this} EXCLUDE_FROM_ALL SRCS ${srcs} NOINSTALL)
+esma_add_library (${this} EXCLUDE_FROM_ALL SRCS ${srcs} NOINSTALL TYPE ${MAPL_LIBRARY_TYPE})
 
 if (ESMA_USE_GFE_NAMESPACE)
    target_link_libraries (${this} MAPL.shared PFUNIT::pfunit esmf NetCDF::NetCDF_Fortran)
