@@ -98,7 +98,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       character(80) :: buffer
-      logical :: one_node_output, no_isolated_nodes, use_sub_comm
+      logical :: one_node_output, compress_nodes, use_sub_comm
 
       integer, allocatable :: nodes_output_server(:)
 
@@ -118,8 +118,8 @@ contains
       endif
 
       call flapCLI%cli_options%get(val=cap_options%npes_model, switch='--npes_model', error=status); _VERIFY(status)
-      call flapCLI%cli_options%get(val=no_isolated_nodes, switch='--no_isolated_nodes', error=status); _VERIFY(status)
-      cap_options%isolate_nodes = .not. no_isolated_nodes
+      call flapCLI%cli_options%get(val=compress_nodes, switch='--compress_nodes', error=status); _VERIFY(status)
+      cap_options%isolate_nodes = .not. compress_nodes
       call flapCLI%cli_options%get(val=cap_options%fast_oclient, switch='--fast_oclient', error=status); _VERIFY(status)
       call flapCLI%cli_options%get(val=cap_options%with_io_profiler, switch='--with_io_profiler', error=status); _VERIFY(status)
       call flapCLI%cli_options%get(val=cap_options%with_esmf_moab, switch='--with_esmf_moab', error=status); _VERIFY(status)

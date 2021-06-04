@@ -185,8 +185,8 @@ contains
            error=status)
       _VERIFY(status)
 
-      call options%add(switch='--no_isolated_nodes', &
-           help='Padding extra processes in the last nodes with idle', &
+      call options%add(switch='--compress_nodes', &
+           help='MPI processes continue on the nodes even MPI communicator is divided', &
            required=.false., &
            def='.false.', &
            act='store_true', &
