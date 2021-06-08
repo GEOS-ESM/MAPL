@@ -39,7 +39,7 @@ if (APPLE AND CMAKE_Fortran_COMPILER_ID MATCHES Intel AND CMAKE_Fortran_COMPILER
       "as TYPE STATIC, the model would work. So we are setting ${this} as\n"
       "a TYPE STATIC library. Note: This might interfere with coupled model.")
 else ()
-   set (LIBRARY_TYPE SHARED)
+   set (LIBRARY_TYPE ${MAPL_LIBRARY_TYPE})
 endif ()
 
 esma_add_library (${lib}

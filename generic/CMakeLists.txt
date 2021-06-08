@@ -29,15 +29,16 @@ set (srcs
   
   MaplGeneric.F90
   )
-
-find_package(PFLOGGER REQUIRED)
+if (BUILD_WITH_PFLOGGER)
+  find_package(PFLOGGER REQUIRED)
+endif ()
 find_package(GFTL REQUIRED)
 find_package(GFTL_SHARED REQUIRED)
 
 if (ESMA_USE_GFE_NAMESPACE)
-  esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared PFLOGGER::pflogger GFTL_SHARED::gftl-shared GFTL::gftl TYPE SHARED)
+  esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared PFLOGGER::pflogger GFTL_SHARED::gftl-shared GFTL::gftl TYPE ${MAPL_LIBRARY_TYPE})
 else ()
-  esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared pflogger gftl-shared gftl TYPE SHARED)
+  esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared pflogger gftl-shared gftl TYPE ${MAPL_LIBRARY_TYPE})
 endif ()
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

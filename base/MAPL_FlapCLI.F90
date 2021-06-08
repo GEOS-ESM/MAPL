@@ -1,35 +1,31 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
-module MAPL_FlapCapOptionsMod
+module MAPL_FlapCLIMod
    use MPI
    use ESMF
    use FLAP
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use MAPL_CapOptionsMod
-   use pflogger
    implicit none
    private
 
-   public :: MAPL_FlapCapOptions
+   public :: MAPL_FlapCLI
 
-   type, extends(MAPL_CapOptions) :: MAPL_FlapCapOptions
+   type :: MAPL_FlapCLI
      type(command_line_interface) :: cli_options
    contains
       procedure, nopass :: add_command_line_options
-      procedure :: parse_command_line_arguments
-      procedure :: set_esmf_logging_mode
-   end type MAPL_FlapCapOptions
+   end type MAPL_FlapCLI
 
-   interface MAPL_FlapCapOptions
-      module procedure new_FlapCapOptions
+   interface MAPL_FlapCLI
+      module procedure new_FlapCLI
    end interface
 
 contains
 
-   function new_FlapCapOptions(unusable, description, authors, rc) result (flapcap)
-      type (MAPL_FlapCapOptions) :: flapcap
+   function new_FlapCLI(unusable, description, authors, rc) result (flapcap)
+      type (MAPL_FlapCLI) :: flapcap
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: description
       character(*), optional, intent(in) :: authors
@@ -44,8 +40,9 @@ contains
 
       call flapcap%add_command_line_options(flapcap%cli_options, rc=status)
       _VERIFY(status)   
-      call flapcap%parse_command_line_arguments(rc=status)
-      _VERIFY(status)
+
+      call flapcap%cli_options%parse(error=status); _VERIFY(status)
+
       _RETURN(_SUCCESS)
 
    end function   
@@ -100,11 +97,11 @@ contains
            error=status)
       _VERIFY(status)
 
-      call options%add(switch='--use_comm_world', &
+      call options%add(switch='--use_sub_comm', &
            help='# The model by default is using MPI_COMM_WORLD : .true. or .false.', &
            required=.false., &
-           act='store',      &
-           def='.true.',     &
+           def='.false.',     &
+           act='store_true',      &
            error=status)
       _VERIFY(status)
 
@@ -188,11 +185,11 @@ contains
            error=status)
       _VERIFY(status)
 
-      call options%add(switch='--isolate_nodes', &
-           help='Padding extra processes in the last nodes with idle', &
+      call options%add(switch='--compress_nodes', &
+           help='MPI processes continue on the nodes even MPI communicator is divided', &
            required=.false., &
-           def='.true.', &
-           act='store', &
+           def='.false.', &
+           act='store_true', &
            error=status)
       _VERIFY(status)
 
@@ -200,7 +197,7 @@ contains
            help='Copying data before isend. Client would wait until it is re-used', &
            required=.false., &
            def='.false.', &
-           act='store', &
+           act='store_true', &
            error=status)
       _VERIFY(status)
 
@@ -208,14 +205,22 @@ contains
            help='Specify if each output server has only one nodes', &
            required=.false., &
            def='.false.', &
-           act='store', &
+           act='store_true', &
            error=status)
 
       call options%add(switch='--with_io_profiler', &
            help='Turning on io_profler', &
            required=.false., &
            def='.false.', &
-           act='store', &
+           act='store_true', &
+           error=status)
+      _VERIFY(status)
+
+      call options%add(switch='--with_esmf_moab', &
+           help='Enables use of MOAB library for ESMF meshes', &
+           required=.false., &
+           def='.false.', &
+           act='store_true', &
            error=status)
       _VERIFY(status)
 
@@ -223,95 +228,4 @@ contains
 
    end subroutine add_command_line_options
 
-   subroutine parse_command_line_arguments(this, unusable, rc)
-      class (MAPL_FlapCapOptions), intent(inout) :: this
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(80) :: buffer
-      logical :: one_node_output
-      integer, allocatable :: nodes_output_server(:)
-
-      _UNUSED_DUMMY(unusable)
-
-      call this%cli_options%parse(error=status); _VERIFY(status)
-
-      call this%cli_options%get(val=buffer, switch='--egress_file', error=status); _VERIFY(status)
-      this%egress_file = trim(buffer)
-
-      call this%cli_options%get(val=this%use_comm_world, switch='--use_comm_world', error=status); _VERIFY(status)
-
-      if ( .not. this%use_comm_world) then
-         call this%cli_options%get(val=buffer, switch='--comm_model', error=status); _VERIFY(status)
-         _ASSERT(trim(buffer) /= '*', "Should provide comm for model")
-         call this%cli_options%get(val=this%comm, switch='--comm_model', error=status); _VERIFY(status)
-      else
-        ! comm will be set to MPI_COMM_WORLD later on in initialize_mpi
-        ! npes will be set to npes_world later on in initialize_mpi
-      endif
- 
-      call this%cli_options%get(val=this%npes_model, switch='--npes_model', error=status); _VERIFY(status)
-      call this%cli_options%get(val=this%isolate_nodes, switch='--isolate_nodes', error=status); _VERIFY(status)
-      call this%cli_options%get(val=this%fast_oclient, switch='--fast_oclient', error=status); _VERIFY(status)
-      call this%cli_options%get(val=this%with_io_profiler, switch='--with_io_profiler', error=status); _VERIFY(status)
-      call this%cli_options%get_varying(val=this%npes_input_server, switch='--npes_input_server', error=status); _VERIFY(status)
-      call this%cli_options%get_varying(val=this%npes_output_server, switch='--npes_output_server', error=status); _VERIFY(status)
-      call this%cli_options%get_varying(val=this%nodes_input_server, switch='--nodes_input_server', error=status); _VERIFY(status)
-      call this%cli_options%get_varying(val=nodes_output_server, switch='--nodes_output_server', error=status); _VERIFY(status)
-      call this%cli_options%get(val=one_node_output, switch='--one_node_output', error=status); _VERIFY(status)
-      if (one_node_output) then
-         allocate(this%nodes_output_server(sum(nodes_output_server)), source =1)
-      else
-         this%nodes_output_server = nodes_output_server
-      endif
-
-      this%n_iserver_group = max(size(this%npes_input_server),size(this%nodes_input_server))
-      this%n_oserver_group = max(size(this%npes_output_server),size(this%nodes_output_server))
-
-      call this%cli_options%get(val=buffer, switch='--esmf_logtype', error=status); _VERIFY(status)
-      call this%set_esmf_logging_mode(trim(buffer), rc=status); _VERIFY(status)
-
-      ! Ensemble specific options
-      call this%cli_options%get(val=buffer, switch='--prefix', error=status); _VERIFY(status)
-      this%ensemble_subdir_prefix = trim(buffer)
-      call this%cli_options%get(val=this%n_members, switch='--n_members', error=status); _VERIFY(status)
-      
-      call this%cli_options%get(val=buffer, switch='--cap_rc', error=status); _VERIFY(status)
-      this%cap_rc_file = trim(buffer)
-
-      ! Logging options
-      call this%cli_options%get(val=buffer, switch='--logging_config', error=status); _VERIFY(status)
-      this%logging_config = trim(buffer)
-      ! ouput server type options
-      call this%cli_options%get(val=buffer, switch='--oserver_type', error=status); _VERIFY(status)
-      this%oserver_type = trim(buffer)
-      call this%cli_options%get(val=this%npes_backend_pernode, switch='--npes_backend_pernode', error=status); _VERIFY(status)
-
-    end subroutine parse_command_line_arguments
-
-    subroutine set_esmf_logging_mode(this, flag_name, unusable, rc)
-      class (MAPL_FlapCapOptions), intent(inout) :: this
-      character(*), intent(in) :: flag_name
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      _UNUSED_DUMMY(unusable)
-
-      select case (flag_name)
-      case ('none')
-         this%esmf_logging_mode = ESMF_LOGKIND_NONE
-      case ('single')
-         this%esmf_logging_mode = ESMF_LOGKIND_SINGLE
-      case ('multi')
-         this%esmf_logging_mode = ESMF_LOGKIND_MULTI
-      case ('multi_on_error')
-         this%esmf_logging_mode = ESMF_LOGKIND_MULTI_ON_ERROR
-      case default
-         _FAIL("Unsupported ESMF logging option: "//flag_name)
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine set_esmf_logging_mode
-
-end module MAPL_FlapCapOptionsMod
+end module MAPL_FlapCLIMod

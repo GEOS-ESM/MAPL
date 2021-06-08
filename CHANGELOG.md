@@ -9,12 +9,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 ### Added
+
+- add option BUILD_SHARED_MAPL to build shared or static library
+- Regrid_Util.x now checks if file exsts and captures the units and long_name of the input for the output file
+- Add `--with_esmf_moab` to enable MOAB Mesh in ESMF
+
 ### Changed
+- set logical values in flap commmand line without true or false values
+- Set required CMake Version to 3.17
+- Update `components.yaml`
+  - ESMA_cmake v3.4.2 (to match GEOSgcm)
+
 ### Fixed
+
+- Allow MAPL to build if subrepos are cloned with any mepo style
+  (prefix, postfix, naked)
+- Add missing variable declaration preventing MAPL from building
+  if H5_HAVE_PARALLEL is defined
+- Protect against trying to flip 2D variable in ExtData if there are mixed 2D/3D in file
+
+## [2.7.0] - 2021-05-25
+
+### Removed
+
+- Remove file `MAPL_FlapCapOptions.F90`
+
+### Added
+
+- Added a file `MAPL_FlapCLI.F90`
+
+### Changed
+
+- Added a MAPL_CapOptions constructor
+- Change FlapCapOptions to FlapCLI which is not a sub class of
+  MAPL_CapOptions any more. This update means code that before did:
+  ```fortran
+   type (MAPL_Cap) :: cap
+   type (MAPL_FlapCapOptions) :: cap_options
+
+   cap_options = MAPL_FlapCapOptions(description = 'GEOS AGCM', &
+                                     authors     = 'GMAO')
+   ```
+   now must do:
+   ```fortran
+   type (MAPL_FlapCLI) :: cli
+   type (MAPL_CapOptions) :: cap_options
+
+   cli = MAPL_FlapCLI(description = 'GEOS AGCM', &
+                      authors     = 'GMAO')
+   cap_options = MAPL_CapOptions(cli)
+   ```
+   This was changed to facilitate working with UFS.
+
+## [2.6.8] - 2021-05-21
+
+### Changed
+
+- Adopting Fortran submodules to improve compilation.
+- Added a pfio demo for MAPL FLAP users
+
+### Fixed
+
+- Fixed pfio_MAPL_demo.F90
+- Fixed mismatch of ESMF_Initialize() and ESMF_Finalize()
+- Fixed bug in MAPL_Shmem causing infinite loop when relesing shared memory
+- Moved down adding pflogger in CMakeLists.txt
+- Added condition to find pflogger 
 
 ## [2.6.7] - 2021-05-12
 
-### Removed
 ### Added
 
 - New interface to MAPL_GetResource to pass config rather than MAPL object
@@ -24,6 +87,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Re-org subroutine finalize_io_clients_servers to avoid missing calls
 - Use `ESMF_Finalize` instead of `MPI_Finalize` in Cap
 - Allow the NRL Solar Data table read function to skip commented lines
+- Updated `components.yaml` to be in sync with GEOSgcm:
+   - ESMA_env v3.2.1
+   - ESMA_cmake v3.4.0
 
 ### Fixed
 
@@ -61,7 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add with_io_profiler option
 
 ### Changed
-
+	
 - Changed the interface to TimeData to have an optional "funits" argument (defaults to "minutes")
 - Changed time units to "days" for monthly collections
 - Simplified the logic for timestamping offsets
