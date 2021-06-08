@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Set required CMake Version to 3.17
 - Update `components.yaml`
   - ESMA_cmake v3.4.2 (to match GEOSgcm)
-- Updates to enable use of GFE namespace
+- Updates to enable use of GFE namespaces
 
 
 ### Fixed
