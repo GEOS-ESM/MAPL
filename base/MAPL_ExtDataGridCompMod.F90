@@ -1038,7 +1038,7 @@ CONTAINS
       ! get clim year if this is cyclic
       call GetClimYear(item,__RC__)
       ! get levels, other information
-      call GetLevs(item,time,self%allowExtrap,__RC__)
+      call GetLevs(item,time,self%ExtDataState,self%allowExtrap,__RC__)
       call ESMF_VMBarrier(vm)
       ! register collections
       item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file))
@@ -2077,10 +2077,11 @@ CONTAINS
 
      end subroutine GetClimYear
 
-     subroutine GetLevs(item, time, allowExtrap, rc)
+     subroutine GetLevs(item, time, state, allowExtrap, rc)
 
         type(PrimaryExport)      , intent(inout) :: item
         type(ESMF_Time)          , intent(inout) :: time
+        type(ESMF_State)         , intent(in   ) :: state
         logical                  , intent(in   ) :: allowExtrap
         integer, optional        , intent(out  ) :: rc
 
@@ -2088,8 +2089,9 @@ CONTAINS
 
         integer(ESMF_KIND_I4)      :: iyr,imm,idd,ihr,imn,iss,i,n,refYear
         character(len=ESMF_MAXPATHLEN) :: file
-        integer                    :: nymd, nhms
+        integer                    :: nymd, nhms, rank
         type(ESMF_Time)            :: fTime
+        type(ESMF_Field)           :: field
         real, allocatable          :: levFile(:) 
         character(len=ESMF_MAXSTR) :: buff,levunits,tlevunits
         logical                    :: found,lFound,intOK
@@ -2104,8 +2106,15 @@ CONTAINS
 
         call ESMF_TimeIntervalSet(zero,__RC__)
 
-        if (item%frequency == zero) then
+        call ESMF_StateGet(state,trim(item%name),field,__RC__)
+        call ESMF_FieldGet(field,rank=rank,__RC__)
+        if (rank==2) then
+           item%lm=0
+           _RETURN(_SUCCESS)
+        end if
 
+        if (item%frequency == zero) then
+           
            file = item%file
            Inquire(file=trim(file),EXIST=found)
 
@@ -3410,6 +3419,9 @@ CONTAINS
      integer :: id_ps
      type(ESMF_Field) :: field, newfield,psF
 
+     if (item%lm==0) then
+        _RETURN(_SUCCESS)
+     end if
      if (item%do_VertInterp) then
         if (trim(item%importVDir)/=trim(item%fileVDir)) then
            call MAPL_ExtDataFlipVertical(item,filec,rc=status)
@@ -4420,7 +4432,7 @@ CONTAINS
       type(ESMF_Field) :: Field,field1,field2
       real, pointer    :: ptr(:,:,:)
       real, allocatable :: ptemp(:,:,:)
-      integer :: ls, le, rank
+      integer :: ls, le
 
       if (item%isVector) then
 
@@ -4432,23 +4444,20 @@ CONTAINS
             call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,__RC__)
          end if
 
-         call ESMF_FieldGet(field1,rank=rank,__RC__)
-         if (rank==3) then
-            call ESMF_FieldGet(Field1,0,farrayPtr=ptr,rc=status)
-            _VERIFY(STATUS)
-            allocate(ptemp,source=ptr,stat=status)
-            _VERIFY(status)
-            ls = lbound(ptr,3)
-            le = ubound(ptr,3)
-            ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
+         call ESMF_FieldGet(Field1,0,farrayPtr=ptr,rc=status)
+         _VERIFY(STATUS)
+         allocate(ptemp,source=ptr,stat=status)
+         _VERIFY(status)
+         ls = lbound(ptr,3)
+         le = ubound(ptr,3)
+         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
-            call ESMF_FieldGet(Field2,0,farrayPtr=ptr,rc=status)
-            _VERIFY(STATUS)
-            ptemp=ptr
-            ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
+         call ESMF_FieldGet(Field2,0,farrayPtr=ptr,rc=status)
+         _VERIFY(STATUS)
+         ptemp=ptr
+         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
-            deallocate(ptemp)
-         end if
+         deallocate(ptemp)
 
       else
 
@@ -4458,17 +4467,14 @@ CONTAINS
             call MAPL_ExtDataGetBracket(item,filec,field=Field,__RC__)
          end if
 
-         call ESMF_FieldGet(field,rank=rank,__RC__)
-         if (rank==3) then
-            call ESMF_FieldGet(Field,0,farrayPtr=ptr,rc=status)
-            _VERIFY(STATUS)
-            allocate(ptemp,source=ptr,stat=status)
-            _VERIFY(status)
-            ls = lbound(ptr,3)
-            le = ubound(ptr,3)
-            ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
-            deallocate(ptemp)
-         end if
+         call ESMF_FieldGet(Field,0,farrayPtr=ptr,rc=status)
+         _VERIFY(STATUS)
+         allocate(ptemp,source=ptr,stat=status)
+         _VERIFY(status)
+         ls = lbound(ptr,3)
+         le = ubound(ptr,3)
+         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
+         deallocate(ptemp)
       end if
 
       _RETURN(ESMF_SUCCESS)
