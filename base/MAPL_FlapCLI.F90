@@ -97,11 +97,11 @@ contains
            error=status)
       _VERIFY(status)
 
-      call options%add(switch='--use_comm_world', &
+      call options%add(switch='--use_sub_comm', &
            help='# The model by default is using MPI_COMM_WORLD : .true. or .false.', &
            required=.false., &
-           act='store',      &
-           def='.true.',     &
+           def='.false.',     &
+           act='store_true',      &
            error=status)
       _VERIFY(status)
 
@@ -185,11 +185,11 @@ contains
            error=status)
       _VERIFY(status)
 
-      call options%add(switch='--isolate_nodes', &
-           help='Padding extra processes in the last nodes with idle', &
+      call options%add(switch='--compress_nodes', &
+           help='MPI processes continue on the nodes even MPI communicator is divided', &
            required=.false., &
-           def='.true.', &
-           act='store', &
+           def='.false.', &
+           act='store_true', &
            error=status)
       _VERIFY(status)
 
@@ -197,7 +197,7 @@ contains
            help='Copying data before isend. Client would wait until it is re-used', &
            required=.false., &
            def='.false.', &
-           act='store', &
+           act='store_true', &
            error=status)
       _VERIFY(status)
 
@@ -205,14 +205,14 @@ contains
            help='Specify if each output server has only one nodes', &
            required=.false., &
            def='.false.', &
-           act='store', &
+           act='store_true', &
            error=status)
 
       call options%add(switch='--with_io_profiler', &
            help='Turning on io_profler', &
            required=.false., &
            def='.false.', &
-           act='store', &
+           act='store_true', &
            error=status)
       _VERIFY(status)
 

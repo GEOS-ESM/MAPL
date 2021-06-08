@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `--with_esmf_moab` to enable MOAB Mesh in ESMF
 
 ### Changed
-
+- set logical values in flap commmand line without true or false values
 - Set required CMake Version to 3.17
 - Update `components.yaml`
   - ESMA_cmake v3.4.2 (to match GEOSgcm)
