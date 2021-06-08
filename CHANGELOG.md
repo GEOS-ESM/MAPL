@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (prefix, postfix, naked)
 - Add missing variable declaration preventing MAPL from building
   if H5_HAVE_PARALLEL is defined
+- Protect against trying to flip 2D variable in ExtData if there are mixed 2D/3D in file
 
 ## [2.7.0] - 2021-05-25
 
