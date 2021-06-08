@@ -4420,7 +4420,7 @@ CONTAINS
       type(ESMF_Field) :: Field,field1,field2
       real, pointer    :: ptr(:,:,:)
       real, allocatable :: ptemp(:,:,:)
-      integer :: ls, le
+      integer :: ls, le, rank
 
       if (item%isVector) then
 
@@ -4432,20 +4432,23 @@ CONTAINS
             call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,__RC__)
          end if
 
-         call ESMF_FieldGet(Field1,0,farrayPtr=ptr,rc=status)
-         _VERIFY(STATUS)
-         allocate(ptemp,source=ptr,stat=status)
-         _VERIFY(status)
-         ls = lbound(ptr,3)
-         le = ubound(ptr,3)
-         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
+         call ESMF_FieldGet(field1,rank=rank,__RC__)
+         if (rank==3) then
+            call ESMF_FieldGet(Field1,0,farrayPtr=ptr,rc=status)
+            _VERIFY(STATUS)
+            allocate(ptemp,source=ptr,stat=status)
+            _VERIFY(status)
+            ls = lbound(ptr,3)
+            le = ubound(ptr,3)
+            ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
-         call ESMF_FieldGet(Field2,0,farrayPtr=ptr,rc=status)
-         _VERIFY(STATUS)
-         ptemp=ptr
-         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
+            call ESMF_FieldGet(Field2,0,farrayPtr=ptr,rc=status)
+            _VERIFY(STATUS)
+            ptemp=ptr
+            ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
-         deallocate(ptemp)
+            deallocate(ptemp)
+         end if
 
       else
 
@@ -4455,14 +4458,17 @@ CONTAINS
             call MAPL_ExtDataGetBracket(item,filec,field=Field,__RC__)
          end if
 
-         call ESMF_FieldGet(Field,0,farrayPtr=ptr,rc=status)
-         _VERIFY(STATUS)
-         allocate(ptemp,source=ptr,stat=status)
-         _VERIFY(status)
-         ls = lbound(ptr,3)
-         le = ubound(ptr,3)
-         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
-         deallocate(ptemp)
+         call ESMF_FieldGet(field,rank=rank,__RC__)
+         if (rank==3) then
+            call ESMF_FieldGet(Field,0,farrayPtr=ptr,rc=status)
+            _VERIFY(STATUS)
+            allocate(ptemp,source=ptr,stat=status)
+            _VERIFY(status)
+            ls = lbound(ptr,3)
+            le = ubound(ptr,3)
+            ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
+            deallocate(ptemp)
+         end if
       end if
 
       _RETURN(ESMF_SUCCESS)
