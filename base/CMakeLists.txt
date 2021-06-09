@@ -54,7 +54,7 @@ set (srcs
   )
 
 if (BUILD_WITH_FLAP)
-  list (APPEND srcs MAPL_FlapCapOptions.F90)
+  list (APPEND srcs MAPL_FlapCLI.F90)
 endif()
 
 if (ESMA_USE_GFE_NAMESPACE)
@@ -62,13 +62,13 @@ esma_add_library(
   ${this} SRCS ${srcs}
   DEPENDENCIES MAPL.generic MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 PFLOGGER::pflogger GFTL_SHARED::gftl-shared
                esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran
-  TYPE SHARED)
+  TYPE ${MAPL_LIBRARY_TYPE})
 else ()
 esma_add_library(
   ${this} SRCS ${srcs}
   DEPENDENCIES MAPL.generic MAPL.shared MAPL.profiler MAPL.pfio MAPL_cfio_r4 pflogger gftl-shared
                esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran
-  TYPE SHARED)
+  TYPE ${MAPL_LIBRARY_TYPE})
 endif ()
 
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280

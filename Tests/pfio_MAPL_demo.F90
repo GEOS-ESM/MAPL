@@ -21,13 +21,14 @@ program main
 
       implicit none
 
-      type (MAPL_FlapCapOptions) :: cap_options
-      type(ServerManager)        :: ioserver_manager   
-      type(SplitCommunicator)    :: split_comm
-      type(ArrayReference)       :: ref
-      type(FileMetadata)         :: fmd
-      Type(Variable)             :: v
-      type(StringVariableMap)    :: var_map
+      type (MAPL_FlapCLI)     :: cli
+      type (MAPL_CapOptions)  :: cap_options
+      type(ServerManager)     :: ioserver_manager
+      type(SplitCommunicator) :: split_comm
+      type(ArrayReference)    :: ref
+      type(FileMetadata)      :: fmd
+      Type(Variable)          :: v
+      type(StringVariableMap) :: var_map
 
       integer, parameter :: MAX_STRING_LENGTH = 256
       real(kind=8), parameter :: PI = 4.0d0*ATAN(1.0d0)
@@ -73,8 +74,9 @@ program main
 !BOC
 
       ! Read and parse the command line, and set parameters
-      cap_options = MAPL_FlapCapOptions(description = 'GEOS AGCM', &
-                                        authors     = 'GMAO')
+      cli = MAPL_FlapCLI(description = 'GEOS AGCM', &
+                         authors     = 'GMAO')
+      cap_options = MAPL_CapOptions(cli)
 
       call MPI_init(ierror)
    

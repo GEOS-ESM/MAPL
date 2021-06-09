@@ -29,7 +29,7 @@ module MAPL_CapMod
       integer :: rank
       integer :: npes_member
  
-      class (MAPL_CapOptions), allocatable :: cap_options
+      type (MAPL_CapOptions), allocatable :: cap_options
       ! misc
       logical :: mpi_already_initialized = .false.
       type(MAPL_CapGridComp), public :: cap_gc
@@ -80,7 +80,7 @@ contains
       character(*), intent(in) :: name
       procedure() :: set_services
       class (KeywordEnforcer),  optional, intent(in) :: unusable
-      class ( MAPL_CapOptions), optional, intent(in) :: cap_options
+      type ( MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
       integer :: status
 
@@ -241,6 +241,15 @@ contains
 
       call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, rc=status)
       _VERIFY(status)
+
+      ! Note per ESMF this is a temporary routine as eventually MOAB will
+      ! be the only mesh generator. But until then, this allows us to
+      ! test it
+      call ESMF_MeshSetMOAB(this%cap_options%with_esmf_moab, rc=status)
+      _VERIFY(status)
+
+      lgr => logging%get_logger('MAPL')
+      call lgr%info("Running with MOAB library for ESMF Mesh: %l1", this%cap_options%with_esmf_moab)
 
       call this%initialize_cap_gc(rc=status)
       _VERIFY(status)
