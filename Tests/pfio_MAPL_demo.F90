@@ -21,8 +21,8 @@ program main
 
       implicit none
 
-      type (MAPL_FlapCLI)     :: cli
-      type (MAPL_CapOptions)  :: cap_options
+      type(MAPL_FlapCLI)      :: cli
+      type(MAPL_CapOptions)   :: cap_options
       type(ServerManager)     :: ioserver_manager
       type(SplitCommunicator) :: split_comm
       type(ArrayReference)    :: ref
