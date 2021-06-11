@@ -89,7 +89,7 @@ set (srcs
   StringVectorUtil.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran TYPE SHARED)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran TYPE ${MAPL_LIBRARY_TYPE})
 if (ESMA_USE_GFE_NAMESPACE)
   target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared
     PRIVATE MPI::MPI_Fortran)
