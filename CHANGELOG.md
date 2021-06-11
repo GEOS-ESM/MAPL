@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 ### Added
+### Changed
+### Fixed
+
+## [2.7.1] - 2021-06-11
+
+### Added
 
 - Add more function in pfio_MAPL_demo.F90
 - Add option BUILD_SHARED_MAPL to build shared or static library
