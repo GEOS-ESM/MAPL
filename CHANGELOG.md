@@ -12,6 +12,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [2.7.1] - 2021-06-11
+
+### Added
+
+- Add more function in pfio_MAPL_demo.F90
+- Add option BUILD_SHARED_MAPL to build shared or static library
+- Regrid_Util.x now checks if file exsts and captures the units and long_name of the input for the output file
+- Add `--with_esmf_moab` to enable MOAB Mesh in ESMF
+
+### Changed
+
+- Set logical values in flap commmand line without true or false values
+- Set required CMake Version to 3.17
+- Updates to enable use of GFE namespaces (requires Baselibs v6.2.4 or higher)
+  - ESMA_cmake v3.5.0
+  - ESMA_env v3.3.0
+  - Update CI to use 6.2.4 CI images
+
+### Fixed
+
+- Allow MAPL to build if subrepos are cloned with any mepo style (prefix, postfix, naked)
+- Add missing variable declaration preventing MAPL from building if H5_HAVE_PARALLEL is defined
+- Protect against trying to flip 2D variable in ExtData if there are mixed 2D/3D in file
+
 ## [2.7.0] - 2021-05-25
 
 ### Removed

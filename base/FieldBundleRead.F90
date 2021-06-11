@@ -53,6 +53,9 @@ module MAPL_ESMFFieldBundleRead
          type (StringVector), pointer :: dimensions
          type (StringVectorIterator) :: dim_iter
          integer :: lev_size, grid_size(3)
+         type(Attribute), pointer :: attr
+         class(*), pointer :: attr_val
+         character(len=:), allocatable :: units,long_name
 
          collection => ExtDataCollections%at(metadata_id)
          metadata => collection%find(trim(file_name))
@@ -78,6 +81,7 @@ module MAPL_ESMFFieldBundleRead
             var_has_levels = .false.
             var_name => var_iter%key()
             this_variable => var_iter%value()
+            
             if (has_vertical_level) then
                dimensions => this_variable%get_dimensions()
                dim_iter = dimensions%begin()
@@ -119,9 +123,25 @@ module MAPL_ESMFFieldBundleRead
                _VERIFY(status)
                call ESMF_AttributeSet(field,name='VLOCATION',value=location,rc=status)
                _VERIFY(status)
-               call ESMF_AttributeSet(field,name='UNITS',value='NA',rc=status)
+               attr => this_variable%get_attribute('units')
+               attr_val=>attr%get_value()
+               select type(attr_val)
+               type is (character(*))
+                  units=attr_val
+               class default
+                  _ASSERT(.false.,'unsupport subclass for units')
+               end select
+               call ESMF_AttributeSet(field,name='UNITS',value=units,rc=status)
                _VERIFY(status)
-               call ESMF_AttributeSet(field,name='LONG_NAME',value='NA',rc=status)
+               attr => this_variable%get_attribute('long_name')
+               attr_val=>attr%get_value()
+               select type(attr_val)
+               type is (character(*))
+                  long_name=attr_val
+               class default
+                  _ASSERT(.false.,'unsupport subclass for units')
+               end select
+               call ESMF_AttributeSet(field,name='LONG_NAME',value=long_name,rc=status)
                _VERIFY(status)
                call MAPL_FieldBundleAdd(bundle,field,rc=status)
                _VERIFY(status)                  

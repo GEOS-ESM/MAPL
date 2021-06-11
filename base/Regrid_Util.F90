@@ -71,7 +71,7 @@ CONTAINS
    type(ESMF_TimeInterval) :: timeInterval
    type(ESMF_Clock) :: clock
 
-   logical :: fileCreated
+   logical :: fileCreated,file_exists
 
    character(len=ESMF_MAXSTR) :: RegridMth
 
@@ -201,6 +201,9 @@ CONTAINS
     if (trim(regridMth) == 'conservative2') then
        regridMethod = REGRID_METHOD_CONSERVE_2ND
     end if
+
+    inquire(file=trim(outputfile),exist=file_exists)
+    _ASSERT(.not.file_exists,"output file already exists: exiting!")
 
     call MAPL_GetNodeInfo (comm=MPI_COMM_WORLD, rc=status)
     _VERIFY(STATUS)
