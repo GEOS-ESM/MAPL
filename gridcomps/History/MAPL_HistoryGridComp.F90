@@ -4030,29 +4030,29 @@ ENDDO PARSER
    
 201     format('dset ^',a,/, 'title ',a,/,a,/,             &
                'undef ',e15.6,/,                           &
-	       'xdef ',i5,' linear ',f8.3,2x,f14.9,/,      &
-	       'ydef ',i4,' linear ',f8.3,2x,f14.9,/,      &
+	       'xdef ',i8,' linear ',f8.3,2x,f14.9,/,      &
+	       'ydef ',i8,' linear ',f8.3,2x,f14.9,/,      &
 	       'zdef ',i3,' linear  1  1',/,               &
 	       'tdef ',i5,' linear  ',i2.2,':',i2.2,'z',i2.2,a3,i4.4,3x,i2.2,'mn',/, &
 	       'vars  ',i3)
 202     format('dset ^',a,/, 'title ',a,/,a,/,             &
                'undef ',e15.6,/,                           &
-	       'xdef ',i5,' linear ',f8.3,2x,f14.9,/,      &
-	       'ydef ',i4,' linear ',f8.3,2x,f14.9,/,      &
+	       'xdef ',i8,' linear ',f8.3,2x,f14.9,/,      &
+	       'ydef ',i8,' linear ',f8.3,2x,f14.9,/,      &
 	       'zdef ',i3,' linear  1  1',/,               &
 	       'tdef ',i5,' linear  ',i2.2,':',i2.2,'z',i2.2,a3,i4.4,3x,i2.2,'hr',/, &
 	       'vars  ',i3)
 203     format('dset ^',a,/, 'title ',a,/,a,/,             &
                'undef ',e15.6,/,                           &
-	       'xdef ',i5,' linear ',f8.3,2x,f14.9,/,      &
-	       'ydef ',i4,' linear ',f8.3,2x,f14.9,/,      &
+	       'xdef ',i8,' linear ',f8.3,2x,f14.9,/,      &
+	       'ydef ',i8,' linear ',f8.3,2x,f14.9,/,      &
 	       'zdef ',i3,' linear  1  1',/,               &
 	       'tdef ',i5,' linear  ',i2.2,':',i2.2,'z',i2.2,a3,i4.4,3x,i2.2,'dy',/, &
 	       'vars  ',i3)
 204     format('dset ^',a,/, 'title ',a,/,a,/,             &
                'undef ',e15.6,/,                           &
-	       'xdef ',i5,' linear ',f8.3,2x,f14.9,/,      &
-	       'ydef ',i4,' linear ',f8.3,2x,f14.9,/,      &
+	       'xdef ',i8,' linear ',f8.3,2x,f14.9,/,      &
+	       'ydef ',i8,' linear ',f8.3,2x,f14.9,/,      &
 	       'zdef ',i3,' linear  1  1',/,               &
 	       'tdef ',i5,' linear  ',i2.2,':',i2.2,'z',i2.2,a3,i4.4,3x,i2.2,'mo',/, &
 	       'vars  ',i3)
