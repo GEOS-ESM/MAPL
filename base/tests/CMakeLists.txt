@@ -33,11 +33,12 @@ add_pfunit_ctest(MAPL.base.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
 #                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.pfio base_extras MAPL.pfunit
-		LINK_LIBRARIES MAPL.base MAPL.shared MAPL.pfio MAPL.pfunit
+                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.pfio MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 MAX_PES 8
                 )
+set_target_properties(MAPL.base.tests PROPERTIES Fortran_MODULE_DIRECTORY ${esma_include}/MAPL.base/tests)
 
 add_dependencies(build-tests MAPL.base.tests)
 
@@ -48,6 +49,7 @@ ecbuild_add_executable (
   SOURCES mapl_bundleio_test.F90
   LIBS MAPL.base MAPL.shared MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
+set_target_properties(${TESTIO} PROPERTIES Fortran_MODULE_DIRECTORY ${esma_include}/MAPL.base/tests)
 
 add_test(NAME bundleio_tests_latlon
   COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 2 -ny 1 -ogrid PC90x47-DE)

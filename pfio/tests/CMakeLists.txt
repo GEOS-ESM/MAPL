@@ -42,7 +42,7 @@ add_pfunit_ctest(MAPL.pfio.tests
                 EXTRA_USE MAPL_pFUnit_Initialize
                 MAX_PES 8
                 )
-
+set_target_properties(MAPL.pfio.tests PROPERTIES Fortran_MODULE_DIRECTORY ${esma_include}/MAPL.pfio/tests)
 
 include_directories(
    ${CMAKE_CURRENT_SOURCE_DIR}
@@ -65,6 +65,7 @@ ecbuild_add_executable (
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${TESTO} OpenMP::OpenMP_Fortran)
 endif ()
+set_target_properties(${TESTO} PROPERTIES Fortran_MODULE_DIRECTORY ${esma_include}/MAPL.pfio/tests)
 
 # Detect if we are using Open MPI and add oversubscribe
 string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST ${MPI_Fortran_LIBRARY_VERSION_STRING})
@@ -126,6 +127,8 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${TESTPERF} OpenMP::OpenMP_Fortran)
 endif ()
 target_link_libraries(${TESTPERF} MAPL.pfio NetCDF::NetCDF_Fortran)
+set_target_properties(${TESTPERF} PROPERTIES Fortran_MODULE_DIRECTORY ${esma_include}/MAPL.pfio/tests)
+
 add_test(NAME pFIO_performance
   COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 12 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTO} ${TESTO_FLAGS} -s hybrid
   )

@@ -19,6 +19,7 @@ add_pfunit_ctest (
   EXTRA_USE MAPL_pFUnit_Initialize
   MAX_PES 8
   )
+set_target_properties(MAPL.profiler.tests PROPERTIES Fortran_MODULE_DIRECTORY ${esma_include}/MAPL.profiler/tests)
   
 add_dependencies (build-tests MAPL.profiler.tests)
 
