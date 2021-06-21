@@ -6,12 +6,8 @@ set (srcs
   pflogger_stub.F90
   )
 
-if (ESMA_USE_GFE_NAMESPACE)
-   esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared TYPE ${MAPL_LIBRARY_TYPE})
-   add_library(PFLOGGER::pflogger ALIAS ${this})
-else ()
-   esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared TYPE ${MAPL_LIBRARY_TYPE})
-endif ()
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared TYPE ${MAPL_LIBRARY_TYPE})
+add_library(PFLOGGER::pflogger ALIAS ${this})
 
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
