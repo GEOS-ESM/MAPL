@@ -11,7 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 ### Changed
 ### Fixed
-- fix format for writing out large number
+
+- Fix format for writing out large number
+- Fix for NAG Build
+
 ## [2.7.1] - 2021-06-11
 
 ### Added
