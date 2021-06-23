@@ -1,6 +1,5 @@
 submodule (MAPL_InterpMod) Interp_implementation
-  use, intrinsic :: iso_fortran_env, only: REAL32
-  use, intrinsic :: iso_fortran_env, only: REAL64
+
   implicit none
 
 contains
