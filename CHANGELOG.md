@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow MAPL to build if subrepos are cloned with any mepo style (prefix, postfix, naked)
 - Add missing variable declaration preventing MAPL from building if H5_HAVE_PARALLEL is defined
 - Protect against trying to flip 2D variable in ExtData if there are mixed 2D/3D in file
+- Add support for GNU Fortran 9.3.0
 
 ## [2.7.0] - 2021-05-25
 
