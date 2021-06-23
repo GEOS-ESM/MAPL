@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+- Fix format for writing out large number
+
 ## [2.7.2] - 2021-06-23
 
 ### Fixed
