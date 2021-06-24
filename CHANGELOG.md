@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 ### Changed
+
+- Update CMake to exclusively use GFE Namespace. This means that when building MAPL, users should use the latest versions of GFE libraries (gFTL, gFTL-Shared, pFlogger, fArgParse, yaFyaml, pFUnit)
+
 ### Fixed
 
 - Fix format for writing out large number
