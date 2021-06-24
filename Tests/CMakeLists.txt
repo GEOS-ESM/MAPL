@@ -1,3 +1,5 @@
+set(MODULE_DIRECTORY "${esma_include}/Tests")
+
 set (srcs
     ExtDataDriverGridComp.F90
     ExtDataRoot_GridComp.F90
@@ -15,6 +17,7 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
      if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
         target_link_libraries(ExtDataDriver.x PRIVATE OpenMP::OpenMP_Fortran)
      endif ()
+     set_target_properties(ExtDataDriver.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
    
      ecbuild_add_executable (TARGET pfio_MAPL_demo.x SOURCES pfio_MAPL_demo.F90)
      target_link_libraries (pfio_MAPL_demo.x PRIVATE MAPL FLAP::FLAP esmf ${MKL_LIBRARIES})
@@ -22,6 +25,7 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
      if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
         target_link_libraries(pfio_MAPL_demo.x PRIVATE OpenMP::OpenMP_Fortran)
      endif ()
+     set_target_properties(pfio_MAPL_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
      
   endif ()
 endif ()

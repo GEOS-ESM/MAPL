@@ -50,3 +50,4 @@ endif ()
 
 add_executable(demo driver.F90 UserComponent.F90)
 target_link_libraries(demo PRIVATE ${this})
+set_target_properties(demo PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
