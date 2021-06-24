@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix format for writing out large number
+- Fixed CMAKE_Fortran_MODULE_DIRECTORY for some directories
 
 ## [2.7.2] - 2021-06-23
 
