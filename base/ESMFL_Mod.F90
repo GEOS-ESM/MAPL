@@ -301,7 +301,7 @@ contains
 
 !BOP
 
-! !IROUTINE: ESMFL_GridCoordGet - retrieves the coordinates of a particular axis 
+! !IROUTINE: ESMFL_GridCoordGet - retrieves the coordinates of a particular axis in radians
 
 ! !INTERFACE:
 subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
