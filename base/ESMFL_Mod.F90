@@ -379,7 +379,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
   else if (crdSys == ESMF_COORDSYS_SPH_RAD) then
      conv2rad = 1._ESMF_KIND_R8
   else
-     _RETURN(ESMF_FAILURE)
+     _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
   end if
 
   if (tk == ESMF_TYPEKIND_R4) then
