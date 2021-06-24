@@ -301,7 +301,7 @@ contains
 
 !BOP
 
-! !IROUTINE: ESMFL_GridCoordGet - retrieves the coordinates of a particular axis 
+! !IROUTINE: ESMFL_GridCoordGet - retrieves the coordinates of a particular axis in radians
 
 ! !INTERFACE:
 subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
@@ -317,11 +317,13 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
 
 !	local variables
   integer                   :: rank
+  type(ESMF_CoordSys_Flag)  :: crdSys
   type(ESMF_TypeKind_Flag)  :: tk
   integer                   :: counts(ESMF_MAXDIM)
   integer                   :: crdOrder
   real(ESMF_KIND_R4), pointer :: r4d2(:,:)
   real(ESMF_KIND_R8), pointer :: r8d2(:,:)
+  real(ESMF_KIND_R8)        :: conv2rad
   integer                   :: STATUS
   integer                   :: i
   integer                   :: j
@@ -331,7 +333,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
 
   _UNUSED_DUMMY(Units)
 
-  call ESMF_GridGet(grid, coordTypeKind=tk, &
+  call ESMF_GridGet(grid, coordSys=crdSys, coordTypeKind=tk, &
           dimCount=rank, coordDimCount=coordDimCount, rc=status)
   _VERIFY(STATUS) 
 
@@ -372,6 +374,14 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
      _RETURN(ESMF_SUCCESS)
   end if
 
+  if (crdSys == ESMF_COORDSYS_SPH_DEG) then
+     conv2rad = MAPL_PI_R8 / 180._ESMF_KIND_R8
+  else if (crdSys == ESMF_COORDSYS_SPH_RAD) then
+     conv2rad = 1._ESMF_KIND_R8
+  else
+     _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
+  end if
+
   if (tk == ESMF_TYPEKIND_R4) then
      if (coordDimCount(crdOrder)==2) then
         call ESMF_GridGetCoord(grid, localDE=0, coordDim=crdOrder, &
@@ -381,7 +391,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
         _VERIFY(STATUS) 
         allocate(coord(counts(1), counts(2)), STAT=status)
         _VERIFY(STATUS)
-        coord = R4D2
+        coord = conv2rad * R4D2
      else
         _RETURN(ESMF_FAILURE)
      endif
@@ -394,7 +404,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
         _VERIFY(STATUS) 
         allocate(coord(counts(1), counts(2)), STAT=status)
         _VERIFY(STATUS)
-        coord = R8D2
+        coord = conv2rad * R8D2
      else
         _RETURN(ESMF_FAILURE)
      endif
