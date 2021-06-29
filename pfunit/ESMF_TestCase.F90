@@ -44,14 +44,32 @@ contains
 
       logical :: discard
       type (ESMF_GridComp), target :: gc
+      type (ESMF_State) :: state
+      type (ESMF_Clock) :: clock
+      type (ESMF_TimeInterval) :: step
+      type (ESMF_Time) :: time0, time1
       integer :: rc
       integer :: pet
 
 
       ! Gridded component 
       gc = ESMF_GridCompCreate(petList=[(pet,pet=0,this%getNumPETsRequested()-1)], rc=rc)
+      state = ESMF_StateCreate(rc=rc)
       if (rc /= ESMF_SUCCESS) call throw('Insufficient PETs for request')
       if (rc /= ESMF_SUCCESS) call throw('Failed to get vm for gridded component.')
+
+      state = ESMF_StateCreate(rc=rc)
+      if (rc /= ESMF_SUCCESS) call throw('Failed to create empty ESMF_State')
+      call ESMF_TimeSet(time0, yy=2000, mm=2, dd=28, h=2, m=24, s=45, calKindFlag=ESMF_CALKIND_GREGORIAN, rc=rc)
+      if (rc /= ESMF_SUCCESS) call throw('Failed to set time0')
+      call ESMF_TimeSet(time1, yy=2001, mm=2, dd=28, h=2, m=24, s=45, calKindFlag=ESMF_CALKIND_GREGORIAN, rc=rc)
+      if (rc /= ESMF_SUCCESS) call throw('Failed to set time1')
+      call ESMF_TimeIntervalSet(step, d=2, h=8, m=36, s=15, calKindFlag=ESMF_CALKIND_GREGORIAN, rc=rc)
+      if (rc /= ESMF_SUCCESS) call throw('Failed to set step')
+
+      clock = ESMF_ClockCreate(step, startTime=time0, stopTime=time1, &
+           name="Clock 1", rc=rc)
+      if (rc /= ESMF_SUCCESS) call throw('Failed to create empty ESMF_Clock')
 
       this%gc => gc
       this%val = 4
@@ -62,11 +80,11 @@ contains
 
       if (.not. anyExceptions(this%parentContext)) then
          if (this%context%isActive()) then
-            call ESMF_GridCompInitialize(gc, rc=rc)
+            call ESMF_GridCompInitialize(gc, importState=state, exportState=state, clock=clock, rc=rc)
 
             if (.not. anyExceptions(this%context)) then
-               call ESMF_GridCompRun(gc, rc=rc)
-               call ESMF_GridCompFinalize(gc, rc=rc)
+               call ESMF_GridCompRun(gc, importState=state, exportState=state, clock=clock,rc=rc)
+               call ESMF_GridCompFinalize(gc, importState=state, exportState=state, clock=clock, rc=rc)
             end if
          end if
       else
