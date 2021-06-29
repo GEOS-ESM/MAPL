@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix format for writing out large number
 - Fixed CMAKE_Fortran_MODULE_DIRECTORY for some directories
+- Update handling of file coordinates when creating grids from file. Now if identified as a standard grid compute coordinates. Option to allow this to be overrided and use file coordinates. Fixed issue if two files are identified as a standard grid but has very slightly different coordinates causing one or the other to be used depending on which file is used first.
 
 ## [2.7.3] - 2021-06-24
 
