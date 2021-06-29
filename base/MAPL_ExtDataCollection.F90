@@ -15,6 +15,7 @@ module MAPL_ExtDataCollectionMod
 
   type :: MAPLExtDataCollection
     character(len=:), allocatable :: template
+    logical :: use_file_coords
     type (FileMetadataUtilsVector) :: metadatas
     type (StringIntegerMap) :: file_ids
     type(ESMF_Grid), allocatable :: src_grid
@@ -32,11 +33,17 @@ module MAPL_ExtDataCollectionMod
 contains
 
 
-  function new_MAPLExtDataCollection(template) result(collection)
+  function new_MAPLExtDataCollection(template,use_file_coords) result(collection)
     type (MAPLExtDataCollection) :: collection
     character(len=*), intent(in) :: template
+    logical, optional, intent(in) :: use_file_coords
 
     collection%template = template 
+    if (present(use_file_coords)) then
+       collection%use_file_coords=use_file_coords
+    else
+       collection%use_file_coords=.false.
+    end if
 
   end function new_MAPLExtDataCollection
 
@@ -97,7 +104,7 @@ contains
        deallocate(metadata)
        metadata => this%metadatas%back()
        if (.not. allocated(this%src_grid)) then
-          allocate(factory, source=grid_manager%make_factory(trim(file_name)))
+          allocate(factory, source=grid_manager%make_factory(trim(file_name),force_file_coordinates=this%use_file_coords))
           this%src_grid = grid_manager%make_grid(factory)
        end if
        ! size() returns 64-bit integer;  cast to 32 bit for this usage.

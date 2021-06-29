@@ -276,12 +276,13 @@ contains
 
    end subroutine add_horz_coordinates
 
-   subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
+   subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
       use MAPL_KeywordEnforcerMod
 
       class (LlcGridFactory), intent(inout)  :: this
       type (FileMetadata), target, intent(in) :: file_metadata
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: force_file_coordinates
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_file_metadata()'
