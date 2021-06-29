@@ -201,6 +201,7 @@
      integer              :: blocksize
      logical              :: prefetch
      logical              :: distributed_trans
+     logical              :: use_file_coords
   end type MAPL_ExtData_State
 
 ! Hook for the ESMF
@@ -517,6 +518,8 @@ CONTAINS
 
    call ESMF_ConfigGetAttribute(CF_main,value=self%distributed_trans,Label="CONSERVATIVE_DISTRIBUTED_TRANS:",default=.false., rc=status)
    _VERIFY(STATUS)
+   call ESMF_ConfigGetAttribute(CF_main,value=self%use_file_coords,Label="Use_File_Coords:",default=.false., rc=status)
+   _VERIFY(status)
 
    CFtemp = ESMF_ConfigCreate (rc=STATUS )
    _VERIFY(STATUS)
@@ -947,7 +950,7 @@ CONTAINS
 
       call lgr%debug('ExtData Initialize_(): PrimaryLoop: ')
 
-      item%pfioCollection_id = MAPL_ExtDataAddCollection(item%file)
+      item%pfioCollection_id = MAPL_ExtDataAddCollection(item%file,use_file_coords=self%use_file_coords)
 
       ! parse refresh template to see if we have a time shift during constant updating
       k = index(item%refresh_template,';')
