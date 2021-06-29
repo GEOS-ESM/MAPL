@@ -10,7 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Added
 ### Changed
-
+	
+- Activated ESMF logging for unit tests.
+- Fixed problem in unit testing framework that results in
+  "harmless" warnings/errors in the ESMF log.
 - Update CMake to exclusively use GFE Namespace. This means that when building MAPL, users should use the latest versions of GFE libraries (gFTL, gFTL-Shared, pFlogger, fArgParse, yaFyaml, pFUnit)
 
 ### Fixed
