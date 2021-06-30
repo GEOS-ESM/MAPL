@@ -681,7 +681,7 @@ contains
       
       integer :: i_min, i_max
       real(kind=REAL64) :: d_lat, d_lat_temp, extrap_lat
-      logical :: is_valid, use_file_coords
+      logical :: is_valid, use_file_coords, compute_lons, compute_lats
       
       _UNUSED_DUMMY(unusable)
 
@@ -872,17 +872,28 @@ contains
             this%lon_corners = MAPL_DEGREES_TO_RADIANS * this%lon_corners
             this%lat_corners = MAPL_DEGREES_TO_RADIANS * this%lat_corners
          else
+            compute_lons=.false.
+            compute_lats=.false.
             if (regLon .and. (this%dateline.ne.'XY')) then 
+               compute_lons=.true.
+            end if
+            if (regLat .and. (this%pole.ne.'XY')) then 
+               compute_lats=.true.
+            end if
+            if (compute_lons .and. compute_lats) then
                this%lon_centers = this%compute_lon_centers(this%dateline, rc=status)
                _VERIFY(status)
                this%lon_corners = this%compute_lon_corners(this%dateline, rc=status)
                _VERIFY(status)
-            end if
-            if (regLat .and. (this%pole.ne.'XY')) then 
                this%lat_centers = this%compute_lat_centers(this%pole, rc=status)
                _VERIFY(status)
                this%lat_corners = this%compute_lat_corners(this%pole, rc=status)
                _VERIFY(status)
+            else
+               this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
+               this%lat_centers = MAPL_DEGREES_TO_RADIANS * this%lat_centers
+               this%lon_corners = MAPL_DEGREES_TO_RADIANS * this%lon_corners
+               this%lat_corners = MAPL_DEGREES_TO_RADIANS * this%lat_corners
             end if
          end if
 
