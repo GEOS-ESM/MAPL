@@ -5,7 +5,7 @@ contains
       use MAPL_ThrowMod, only: MAPL_set_throw_method
       use MAPL_pFUnit_ThrowMod
    
-      call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE)
+      call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_MULTI)
       call MAPL_set_throw_method(throw)
 
    end subroutine Initialize

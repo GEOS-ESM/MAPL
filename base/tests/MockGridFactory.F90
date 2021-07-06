@@ -154,11 +154,12 @@ contains
       _UNUSED_DUMMY(this)
    end function generate_grid_name
 
-   subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
+   subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
       use MAPL_KeywordEnforcerMod
       class (MockGridFactory), intent(inout)  :: this
       type (FileMetadata), target, intent(in) :: file_metadata
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: force_file_coordinates
       integer, optional, intent(out) :: rc
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(file_metadata)

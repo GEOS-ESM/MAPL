@@ -44,29 +44,35 @@ contains
 
       logical :: discard
       type (ESMF_GridComp), target :: gc
-      integer :: rc
+      integer :: rc, userRc
       integer :: pet
 
 
       ! Gridded component 
       gc = ESMF_GridCompCreate(petList=[(pet,pet=0,this%getNumPETsRequested()-1)], rc=rc)
       if (rc /= ESMF_SUCCESS) call throw('Insufficient PETs for request')
-      if (rc /= ESMF_SUCCESS) call throw('Failed to get vm for gridded component.')
 
       this%gc => gc
       this%val = 4
       
-      call this%setInternalState(gc)
+      call this%setInternalState(gc,rc=rc)
+      if (rc /= ESMF_SUCCESS) call throw('Insufficient PETs for request')
       ! create subcommunicator
       this%context = this%parentContext%makeSubcontext(this%getNumPETsRequested())
 
       if (.not. anyExceptions(this%parentContext)) then
          if (this%context%isActive()) then
-            call ESMF_GridCompInitialize(gc, rc=rc)
+            call ESMF_GridCompInitialize(gc, userRc=userRc, rc=rc)
+            if (userRc /= ESMF_SUCCESS) call throw('ESMF_TestCase::initialize() failed.')
+            if (rc /= ESMF_SUCCESS) call throw('Failure in ESMF_GridCompInitialize()')
 
             if (.not. anyExceptions(this%context)) then
-               call ESMF_GridCompRun(gc, rc=rc)
-               call ESMF_GridCompFinalize(gc, rc=rc)
+               call ESMF_GridCompRun(gc, userRc=userRc, rc=rc)
+               if (userRc /= ESMF_SUCCESS) call throw('ESMF_TestCase::run() failed.')
+               if (rc /= ESMF_SUCCESS) call throw('Failure in ESMF_GridCompRun()')
+               call ESMF_GridCompFinalize(gc, userRc=userRc, rc=rc)
+               if (userRc /= ESMF_SUCCESS) call throw('ESMF_TestCase::finalize() failed.')
+               if (rc /= ESMF_SUCCESS) call throw('Failure in ESMF_GridCompFinalize()')
             end if
          end if
       else
@@ -78,15 +84,17 @@ contains
 
       call gatherExceptions(this%parentContext)
 
-      call this%clearInternalState(gc)
+      call this%clearInternalState(gc, rc=rc)
+      if (rc /= ESMF_SUCCESS) call throw('Failure in ESMF_GridCompFinalize()')
 
    end subroutine runBare
 
-   subroutine setInternalState(this, gc)
+   subroutine setInternalState(this, gc, rc)
       class (ESMF_TestCase), target, intent(inout) :: this
       type (ESMF_GridComp), intent(inout) :: gc
+      integer, intent(out) :: rc
 
-      integer :: rc
+      integer :: status
 
       allocate(this%wrapped) ! note this is a memory leak.
       allocate(this%wrapped%wrapped) ! note this is a memory leak.
@@ -94,22 +102,36 @@ contains
 
       ! Note - this%wrapped%wrapped%testPtr must be set outside. Cannot at target attribute to this
       ! interface.
-      call ESMF_GridCompSetServices(gc, setServices, rc=rc)
-
-      call ESMF_GridCompSetInternalState(gc, this%wrapped, rc)
+      call ESMF_GridCompSetServices(gc, setServices, rc=status)
+      if (status /= ESMF_SUCCESS) then
+         rc = status
+         return
+      end if
+      call ESMF_GridCompSetInternalState(gc, this%wrapped, status)
+      if (status /= ESMF_SUCCESS) then
+         rc = status
+         return
+      end if
+      rc = ESMF_SUCCESS
 
    end subroutine setInternalState
 
-   subroutine clearInternalState(this, gc)
+   subroutine clearInternalState(this, gc, rc)
       class (ESMF_TestCase), intent(inout) :: this
       type (ESMF_GridComp), intent(inout) :: gc
+      integer, intent(out) :: rc
 
-      integer :: rc
+      integer :: status
 
       deallocate(this%wrapped%wrapped)
       deallocate(this%wrapped)
 
-      call ESMF_GridCompDestroy(gc, rc=rc)
+      call ESMF_GridCompDestroy(gc, rc=status)
+      if (status /= ESMF_SUCCESS) then
+         rc = status
+         return
+      end if
+      rc = ESMF_SUCCESS
 
    end subroutine clearInternalState
 
@@ -124,12 +146,10 @@ contains
       class (ESMF_TestCase), pointer :: testPtr
       integer :: finalrc
 
-      type(ESMF_StateItem_Flag) :: itemtype
-
       ! To prevent "unused variable" warnings, we do something useless here.
-      call ESMF_StateGet(importState,'item', itemtype)
-      call ESMF_StateGet(exportState,'item', itemtype)
-      call ESMF_ClockGet(clock)
+      if (.false.) print*,shape(importState)
+      if (.false.) print*,shape(exportState)
+      if (.false.) print*,shape(clock)
 
       ! Get Internal State
       call ESMF_GridCompGetInternalState(comp, wrap, rc)
@@ -160,12 +180,10 @@ contains
 
       integer :: finalrc
 
-      type(ESMF_StateItem_Flag) :: itemtype
-
       ! To prevent "unused variable" warnings, we do something useless here.
-      call ESMF_StateGet(importState,'item', itemtype)
-      call ESMF_StateGet(exportState,'item', itemtype)
-      call ESMF_ClockGet(clock)
+      if (.false.) print*,shape(importState)
+      if (.false.) print*,shape(exportState)
+      if (.false.) print*,shape(clock)
 
       call ESMF_GridCompGetInternalState(comp, wrap, rc)
       if (rc .ne. ESMF_SUCCESS) then
@@ -195,12 +213,10 @@ contains
       class (ESMF_TestCase), pointer :: testPtr
       integer :: finalrc
 
-      type(ESMF_StateItem_Flag) :: itemtype
-
       ! To prevent "unused variable" warnings, we do something useless here.
-      call ESMF_StateGet(importState,'item', itemtype)
-      call ESMF_StateGet(exportState,'item', itemtype)
-      call ESMF_ClockGet(clock)
+      if (.false.) print*,shape(importState)
+      if (.false.) print*,shape(exportState)
+      if (.false.) print*,shape(clock)
 
       ! This is where the model specific computation goes.
 
@@ -208,7 +224,7 @@ contains
       if (rc .ne. ESMF_SUCCESS) then
          finalrc = ESMF_FAILURE
       else
-         finalrc = ESMF_FAILURE
+         finalrc = ESMF_SUCCESS
       end if
 
       ! Access private data block and verify data
