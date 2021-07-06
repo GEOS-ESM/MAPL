@@ -41,13 +41,15 @@ workflows:
               compiler: [gfortran, ifort]
           context: 
             - docker-hub-creds
-      - build-GEOSadas:
-          name: build-GEOSadas-on-<< matrix.compiler >>
-          matrix:
-            parameters:
-              compiler: [ifort]
-          context: 
-            - docker-hub-creds
+      #####################################################
+      # - build-GEOSadas:                                 #
+      #     name: build-GEOSadas-on-<< matrix.compiler >> #
+      #     matrix:                                       #
+      #       parameters:                                 #
+      #         compiler: [ifort]                         #
+      #     context:                                      #
+      #       - docker-hub-creds                          #
+      #####################################################
       ###################################################
       # - make-FV3-exp:                                 #
       #     name: make-FV3-exp-on-<< matrix.compiler >> #
@@ -196,8 +198,6 @@ jobs:
             cd ${CIRCLE_WORKING_DIRECTORY}/GEOSadas
             mepo clone
             mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared
-            # We need env and cmake newer as GEOSadas is still Baselibs 6.1.0
-            mepo develop env cmake
             mepo status
       - run:
           name: "Mepo checkout MAPL branch"
