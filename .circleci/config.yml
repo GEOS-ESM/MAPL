@@ -41,6 +41,13 @@ workflows:
               compiler: [gfortran, ifort]
           context: 
             - docker-hub-creds
+      - build-GEOSadas:
+          name: build-GEOSadas-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [ifort]
+          context: 
+            - docker-hub-creds
       ###################################################
       # - make-FV3-exp:                                 #
       #     name: make-FV3-exp-on-<< matrix.compiler >> #
@@ -123,7 +130,7 @@ jobs:
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm
             mepo clone
-            mepo develop GEOSgcm_GridComp GEOSgcm_App
+            mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared
             mepo status
       - run:
           name: "Mepo checkout MAPL branch"
@@ -170,6 +177,63 @@ jobs:
       #     paths:              #
       #       - install-GEOSgcm #
       ###########################
+
+  build-GEOSadas:
+    parameters:
+      compiler:
+        type: string
+    executor: << parameters.compiler >>
+    working_directory: /root/project
+    steps:
+      - run:
+          name: "Checkout GEOSadas fixture"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}
+            git clone https://github.com/GEOS-ESM/GEOSadas.git
+      - run:
+          name: "Mepo clone external repos"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSadas
+            mepo clone
+            mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared
+            mepo status
+      - run:
+          name: "Mepo checkout MAPL branch"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSadas/src/Shared/@MAPL
+
+            # Based a bit on: https://stackoverflow.com/a/55940371/1876449
+            #
+            # CIRCLE_PR_NUMBER is only available on forked PRs:
+            #
+            # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
+            #
+            # so if it exists we fetch the PR's branch. This fetch was
+            # figured out by looking at the MAPL build-and-test above
+            # which did work!
+            if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
+               git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
+            fi
+
+            mepo checkout ${CIRCLE_BRANCH} MAPL
+            if [ "${CIRCLE_BRANCH}" != "develop" ] && [ "${CIRCLE_BRANCH}" != "main" ]
+            then
+               mepo checkout-if-exists ${CIRCLE_BRANCH}
+            fi
+            mepo status
+      - run:
+          name: "CMake"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSadas
+            mkdir -p  ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSadas
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSadas
+            cmake ${CIRCLE_WORKING_DIRECTORY}/GEOSadas -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSadas -DUSE_F2PY=OFF 
+      - run:
+          name: "Build and install"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSadas
+            make -j"$(nproc)" install
+            #MEDIUM# make -j4 install
 
   make-FV3-exp:
     parameters:
