@@ -41,6 +41,24 @@ workflows:
               compiler: [gfortran, ifort]
           context: 
             - docker-hub-creds
+      - make-FV3-exp:
+          name: make-FV3-exp-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          context:
+            - docker-hub-creds
+          requires:
+            - build-GEOSgcm-on-<< matrix.compiler >>
+      - run-FV3:
+          name: run-FV3-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          context:
+            - docker-hub-creds
+          requires:
+            - make-FV3-exp-on-<< matrix.compiler >>
       #####################################################
       # - build-GEOSadas:                                 #
       #     name: build-GEOSadas-on-<< matrix.compiler >> #
@@ -50,26 +68,6 @@ workflows:
       #     context:                                      #
       #       - docker-hub-creds                          #
       #####################################################
-      ###################################################
-      # - make-FV3-exp:                                 #
-      #     name: make-FV3-exp-on-<< matrix.compiler >> #
-      #     matrix:                                     #
-      #       parameters:                               #
-      #         compiler: [gfortran, ifort]             #
-      #     context:                                    #
-      #       - docker-hub-creds                        #
-      #     requires:                                   #
-      #       - build-GEOSgcm-on-<< matrix.compiler >>  #
-      # - run-FV3:                                      #
-      #     name: run-FV3-on-<< matrix.compiler >>      #
-      #     matrix:                                     #
-      #       parameters:                               #
-      #         compiler: [gfortran, ifort]             #
-      #     context:                                    #
-      #       - docker-hub-creds                        #
-      #     requires:                                   #
-      #       - make-FV3-exp-on-<< matrix.compiler >>   #
-      ###################################################
 
 jobs:
   build-and-test-MAPL:
@@ -173,12 +171,10 @@ jobs:
             #MEDIUM# make -j4 install
 
       # We need to persist the install for the next step
-      ###########################
-      # - persist_to_workspace: #
-      #     root: workspace     #
-      #     paths:              #
-      #       - install-GEOSgcm #
-      ###########################
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - install-GEOSgcm
 
   build-GEOSadas:
     parameters:
