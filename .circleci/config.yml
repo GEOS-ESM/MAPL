@@ -34,13 +34,15 @@ workflows:
               compiler: [gfortran, ifort]
           context: 
             - docker-hub-creds
-      - build-GEOSgcm:
-          name: build-GEOSgcm-on-<< matrix.compiler >>
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          context: 
-            - docker-hub-creds
+      ####################################################
+      # - build-GEOSgcm:                                 #
+      #     name: build-GEOSgcm-on-<< matrix.compiler >> #
+      #     matrix:                                      #
+      #       parameters:                                #
+      #         compiler: [gfortran, ifort]              #
+      #     context:                                     #
+      #       - docker-hub-creds                         #
+      ####################################################
       ###################################################
       # - make-FV3-exp:                                 #
       #     name: make-FV3-exp-on-<< matrix.compiler >> #
@@ -93,27 +95,30 @@ jobs:
       - run:
           name: "CMake"
           command: |
-            mkdir -p  ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
+            mkdir -p /logfiles
+            mkdir -p ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
             cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            cmake ${CIRCLE_WORKING_DIRECTORY}/MAPL -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/install-MAPL
+            cmake ${CIRCLE_WORKING_DIRECTORY}/MAPL -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/install-MAPL |& tee /logfiles/MAPL.cmake.log
       - run:
           name: "Build and install"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            make -j"$(nproc)" install
+            make -j"$(nproc)" install |& tee /logfiles/MAPL.makeinstall.log
             #MEDIUM# make -j4 install
       - run:
           name: "Build MAPL Unit Tests"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            make -j"$(nproc)" build-tests
+            make -j"$(nproc)" build-tests |& tee /logfiles/MAPL.build-tests.log
             #MEDIUM# make -j4 build-tests
       - run:
           name: "Run MAPL Unit Tests"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
             # skip Performance tests (maybe doable on CircleCI?)
-            ctest -R MAPL -LE PERFORMANCE --output-on-failure
+            ctest -R MAPL -LE PERFORMANCE --output-on-failure |& tee /logfiles/MAPL.ctest.log
+      - store_artifacts:
+          path: /logfiles
 
   build-GEOSgcm:
     parameters:
