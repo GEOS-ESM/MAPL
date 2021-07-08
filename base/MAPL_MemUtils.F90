@@ -479,7 +479,19 @@ module MAPL_MemUtilsMod
 
      call get_unit(mem_unit)
      open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',IOSTAT=STATUS)
-     _VERIFY(STATUS)
+     !_VERIFY(STATUS)
+
+     ! Note: On at least one CircleCI compute machine, this was returning IOSTAT=9, with an IOMSG of:
+     !          permission to access file denied, unit 100, file /proc/meminfo
+     !       So, instead, if we get this issue, just act like macOS and not return useful info rather
+     !       than crashing the model
+     if (STATUS /= 0) then
+        memtotal = 0.0
+        used = 0.0
+        percent_used = 0.0
+        RETURN_(ESMF_SUCCESS)
+     end if
+
      do
         read (mem_unit,'(a)', end=20) string
         if ( index ( string, 'MemTotal:' ) == 1 ) then  ! High Water Mark
@@ -538,7 +550,19 @@ integer :: status
 
   call get_unit(mem_unit)
   open(UNIT=mem_unit,FILE=meminfo,FORM='formatted',IOSTAT=STATUS)
-  _VERIFY(STATUS)
+  !_VERIFY(STATUS)
+
+  ! Note: On at least one CircleCI compute machine, this was returning IOSTAT=9, with an IOMSG of:
+  !          permission to access file denied, unit 100, file /proc/meminfo
+  !       So, instead, if we get this issue, just act like macOS and not return useful info rather
+  !       than crashing the model
+  if (STATUS /= 0) then
+     memtotal = 0.0
+     committed_as = 0.0
+     percent_committed = 0.0
+     RETURN_(ESMF_SUCCESS)
+  end if
+
   do; read (mem_unit,'(a)', end=20) string
     if ( INDEX ( string, 'MemTotal:' ) == 1 ) then  ! High Water Mark
       read (string(10:LEN_TRIM(string)-2),*) memtotal
