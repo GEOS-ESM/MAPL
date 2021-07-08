@@ -96,25 +96,25 @@ jobs:
             mkdir -p /logfiles
             mkdir -p ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
             cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            cmake ${CIRCLE_WORKING_DIRECTORY}/MAPL -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/install-MAPL |& tee /logfiles/MAPL.cmake.log
+            cmake ${CIRCLE_WORKING_DIRECTORY}/MAPL -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/install-MAPL |& tee /logfiles/cmake.log
       - run:
           name: "Build and install"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            make -j"$(nproc)" install |& tee /logfiles/MAPL.make.log
-            #MEDIUM# make -j4 install |& tee /logfiles/MAPL.make.log
+            make -j"$(nproc)" install |& tee /logfiles/make.log
+            #MEDIUM# make -j4 install |& tee /logfiles/make.log
       - run:
           name: "Build MAPL Unit Tests"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            make -j"$(nproc)" build-tests |& tee /logfiles/MAPL.build-tests.log
-            #MEDIUM# make -j4 build-tests |& tee /logfiles/MAPL.build-tests.log
+            make -j"$(nproc)" build-tests |& tee /logfiles/build-tests.log
+            #MEDIUM# make -j4 build-tests |& tee /logfiles/build-tests.log
       - run:
           name: "Run MAPL Unit Tests"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
             # skip Performance tests (maybe doable on CircleCI?)
-            ctest -R MAPL -LE PERFORMANCE --output-on-failure |& tee /logfiles/MAPL.ctest.log
+            ctest -R MAPL -LE PERFORMANCE --output-on-failure |& tee /logfiles/ctest.log
       - store_artifacts:
           path: /logfiles
 
@@ -168,13 +168,13 @@ jobs:
             cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm
             mkdir -p  ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSgcm
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSgcm
-            cmake ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSgcm -DUSE_F2PY=OFF |& tee /logfiles/GCM.cmake.log
+            cmake ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSgcm -DUSE_F2PY=OFF |& tee /logfiles/cmake.log
       - run:
           name: "Build and install"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSgcm
-            make -j"$(nproc)" install |& tee /logfiles/GCM.make.log
-            #MEDIUM# make -j4 install |& tee /logfiles/GCM.make.log
+            make -j"$(nproc)" install |& tee /logfiles/make.log
+            #MEDIUM# make -j4 install |& tee /logfiles/make.log
       - store_artifacts:
           path: /logfiles
 
@@ -237,13 +237,13 @@ jobs:
             cd ${CIRCLE_WORKING_DIRECTORY}/GEOSadas
             mkdir -p  ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSadas
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSadas
-            cmake ${CIRCLE_WORKING_DIRECTORY}/GEOSadas -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSadas -DUSE_F2PY=OFF |& tee /logfiles/ADAS.cmake.log
+            cmake ${CIRCLE_WORKING_DIRECTORY}/GEOSadas -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSadas -DUSE_F2PY=OFF |& tee /logfiles/cmake.log
       - run:
           name: "Build and install"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSadas
-            make -j"$(nproc)" install |& tee /logfiles/ADAS.make.log
-            #MEDIUM# make -j4 install |& tee /logfiles/ADAS.make.log
+            make -j"$(nproc)" install |& tee /logfiles/make.log
+            #MEDIUM# make -j4 install |& tee /logfiles/make.log
       - store_artifacts:
           path: /logfiles
 
@@ -306,7 +306,7 @@ jobs:
           command: |
             mkdir -p /logfiles
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/test-fv3-c12
-            ./fv3.j |& tee /logfiles/FV3.run.log
+            ./fv3.j |& tee /logfiles/fv3_run.log
       - run:
           name: "Check for EGRESS"
           command: |
