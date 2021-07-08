@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update CMake to exclusively use GFE Namespace. This means that when building MAPL, users should use the latest versions of GFE libraries (gFTL, gFTL-Shared, pFlogger, fArgParse, yaFyaml, pFUnit)
 - Update ESMA_cmake to v3.5.1 (macOS fix)
 - Updated the CI to do both GNU and Intel builds of MAPL and GEOSgcm. (Note that for now the GEOSfvdycore build is turned off due to cost of CI)
+- Updated the CI to store logfile artifacts from builds
 
 ### Fixed
 
