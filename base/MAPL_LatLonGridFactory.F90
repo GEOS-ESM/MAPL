@@ -657,13 +657,14 @@ contains
    end subroutine add_horz_coordinates
 
 
-   subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
+   subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
       use MAPL_KeywordEnforcerMod
       use MAPL_BaseMod, only: MAPL_DecomposeDim
 
       class (LatLonGridFactory), intent(inout)  :: this
       type (FileMetadata), target, intent(in) :: file_metadata
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: force_file_coordinates
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -680,9 +681,15 @@ contains
       
       integer :: i_min, i_max
       real(kind=REAL64) :: d_lat, d_lat_temp, extrap_lat
-      logical :: is_valid
+      logical :: is_valid, use_file_coords, compute_lons, compute_lats
       
       _UNUSED_DUMMY(unusable)
+
+      if (present(force_file_coordinates)) then
+         use_file_coords = force_file_Coordinates
+      else
+         use_file_coords = .false.
+      end if
 
       ! Cannot assume that lats and lons are evenly spaced
       this%is_regular = .false.
@@ -856,13 +863,39 @@ contains
             delij=this%lat_centers(i)-this%lat_centers(i-1)
             if ((del12-delij)>epsilon(1.0)) regLat=.false.
          end do
-         this%is_regular = (regLat .and. regLon) 
+         this%is_regular = (regLat .and. regLon)
 
-         ! Convert to radians
-         this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
-         this%lat_centers = MAPL_DEGREES_TO_RADIANS * this%lat_centers
-         this%lon_corners = MAPL_DEGREES_TO_RADIANS * this%lon_corners
-         this%lat_corners = MAPL_DEGREES_TO_RADIANS * this%lat_corners
+         if (use_file_coords) then
+            this%is_regular = .false.
+            this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
+            this%lat_centers = MAPL_DEGREES_TO_RADIANS * this%lat_centers
+            this%lon_corners = MAPL_DEGREES_TO_RADIANS * this%lon_corners
+            this%lat_corners = MAPL_DEGREES_TO_RADIANS * this%lat_corners
+         else
+            compute_lons=.false.
+            compute_lats=.false.
+            if (regLon .and. (this%dateline.ne.'XY')) then 
+               compute_lons=.true.
+            end if
+            if (regLat .and. (this%pole.ne.'XY')) then 
+               compute_lats=.true.
+            end if
+            if (compute_lons .and. compute_lats) then
+               this%lon_centers = this%compute_lon_centers(this%dateline, rc=status)
+               _VERIFY(status)
+               this%lon_corners = this%compute_lon_corners(this%dateline, rc=status)
+               _VERIFY(status)
+               this%lat_centers = this%compute_lat_centers(this%pole, rc=status)
+               _VERIFY(status)
+               this%lat_corners = this%compute_lat_corners(this%pole, rc=status)
+               _VERIFY(status)
+            else
+               this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
+               this%lat_centers = MAPL_DEGREES_TO_RADIANS * this%lat_centers
+               this%lon_corners = MAPL_DEGREES_TO_RADIANS * this%lon_corners
+               this%lat_corners = MAPL_DEGREES_TO_RADIANS * this%lat_corners
+            end if
+         end if
 
     end associate
     
@@ -1360,7 +1393,6 @@ contains
       class (LatLonGridFactory), intent(in) :: a
       class (AbstractGridFactory), intent(in) :: b
 
-     
       select type (b)
          class default
          equals = .false.

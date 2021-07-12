@@ -399,12 +399,13 @@ contains
    ! TODO: need to check on whether all factory constructors should be
    ! included in the factories component for grid_manager.
 
-   function make_factory_from_file(this, file_name, unused, rc) result(factory)
+   function make_factory_from_file(this, file_name, unused, force_file_coordinates, rc) result(factory)
       use pFIO
       class (AbstractGridFactory), allocatable :: factory
       class (GridManager), intent(inout) :: this
       character(*), intent(in) :: file_name
       class (KeywordEnforcer), optional, intent(in) :: unused
+      logical, optional, intent(in) :: force_file_coordinates
       integer, optional, intent(out) :: rc
       
       type (FileMetadata) :: file_metadata
@@ -502,7 +503,7 @@ contains
 
      end if
 
-     call factory%initialize(file_metadata, rc=status)
+     call factory%initialize(file_metadata, force_file_coordinates=force_file_coordinates, rc=status)
      _VERIFY(status)
      call file_formatter%close(rc=status)
 

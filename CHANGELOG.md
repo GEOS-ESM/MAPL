@@ -12,6 +12,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [2.8.0] - 2021-07-12
+
+### Added
+
+- Unit tests can now use the `_RC` macro for checking results from
+  calls to ESMF.  The file must first CPP define either `I_AM_PFUNIT`
+  or `I_AM_FUNIT` (serial) and then `#include "MAPL_ErrLog.h"`.
+
+### Changed
+
+- Activated ESMF logging for unit tests.
+- Fixed problem in unit testing framework that results in
+  "harmless" warnings/errors in the ESMF log.
+- Update CMake to exclusively use GFE Namespace. This means that when building MAPL, users should use the latest versions of GFE libraries (gFTL, gFTL-Shared, pFlogger, fArgParse, yaFyaml, pFUnit)
+- Update ESMA_cmake to v3.5.1 (macOS fix)
+- Updated the CI to do both GNU and Intel builds of MAPL and GEOSgcm on CircleCI. (Note that for now the GEOSfvdycore build is turned off due to cost of CI)
+- Updated the CI to store logfile artifacts from CircleCI builds
+
+### Fixed
+
+- Fix format for writing out large number
+- Fixed CMAKE_Fortran_MODULE_DIRECTORY for some directories
+- Update handling of file coordinates when creating grids from file. Now if identified as a standard grid compute coordinates. Option to allow this to be overrided and use file coordinates. Fixed issue if two files are identified as a standard grid but has very slightly different coordinates causing one or the other to be used depending on which file is used first.
+- Fixed bug with corner case in the new logic to compute lons if matching one of our standard grids
+- Fix for NAG Build
+
 ## [2.7.3] - 2021-06-24
 
 ### Fixed
@@ -147,7 +173,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add with_io_profiler option
 
 ### Changed
-	
+
 - Changed the interface to TimeData to have an optional "funits" argument (defaults to "minutes")
 - Changed time units to "days" for monthly collections
 - Simplified the logic for timestamping offsets

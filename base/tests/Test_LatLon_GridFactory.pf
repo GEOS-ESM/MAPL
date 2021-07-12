@@ -1,3 +1,5 @@
+#define I_AM_PFUNIT
+#include "MAPL_ErrLog.h"
 module Test_LatLon_GridFactory
    use pfunit
    use ESMF_TestCase_mod
@@ -140,10 +142,9 @@ contains
       end if
       call this%barrier()
 
-      config = ESMF_ConfigCreate(rc=status)
-      @mpiAssertEqual(ESMF_SUCCESS, 0)
+      config = ESMF_ConfigCreate(_RC)
 
-      call ESMF_ConfigLoadFile(config, resource_file, rc=status)
+      call ESMF_ConfigLoadFile(config, resource_file, _RC)
       @mpiAssertEqual(ESMF_SUCCESS, 0)
 
       call this%barrier()
@@ -153,11 +154,9 @@ contains
          close(unit, status='delete')
       end if
 
-      call this%factory%initialize(config, rc=status)
-      @mpiAssertEqual(ESMF_SUCCESS, 0)
+      call this%factory%initialize(config, _RC)
 
-      call ESMF_ConfigDestroy(config, rc=status)
-      @mpiAssertEqual(ESMF_SUCCESS, 0)
+      call ESMF_ConfigDestroy(config, _RC)
 
       this%grid = this%factory%make_grid()
 
@@ -253,8 +252,7 @@ contains
 
       ! X
       call ESMF_GridGetCoord(this%grid, coordDim=1, staggerLoc=ESMF_STAGGERLOC_CENTER, &
-           & farrayPtr=centers, rc=status)
-      @mpiAssertTrue(status==SUCCESS, message='Failed to get grid x centers.')
+           & farrayPtr=centers, _RC)
 
       select type (p => this%testparameter)
       type is (GridCase)
@@ -263,8 +261,7 @@ contains
 
       ! Y
       call ESMF_GridGetCoord(this%grid, coordDim=2, staggerLoc=ESMF_STAGGERLOC_CENTER, &
-           & farrayPtr=centers, rc=status)
-      @mpiAssertTrue(status==SUCCESS, message='Failed to geet grid x centers.')
+           & farrayPtr=centers, _RC)
 
       select type (p => this%testparameter)
       type is (GridCase)
@@ -302,8 +299,7 @@ contains
 
       ! X
       call ESMF_GridGetCoord(this%grid, coordDim=1, staggerLoc=ESMF_STAGGERLOC_CENTER, &
-           & farrayPtr=centers, rc=status)
-      @mpiAssertTrue(status==SUCCESS, message='Failed to get grid x centers.')
+           & farrayPtr=centers, _RC)
 
       select type (p => this%testparameter)
       type is (GridCase)
@@ -312,8 +308,7 @@ contains
 
       ! Y
       call ESMF_GridGetCoord(this%grid, coordDim=2, staggerLoc=ESMF_STAGGERLOC_CENTER, &
-           & farrayPtr=centers, rc=status)
-      @mpiAssertTrue(status==SUCCESS, message='Failed to geet grid x centers.')
+           & farrayPtr=centers, _RC)
 
       select type (p => this%testparameter)
       type is (GridCase)

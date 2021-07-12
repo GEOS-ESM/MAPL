@@ -81,8 +81,14 @@
 
 
 #    define _FILE_ __FILE__
-#    define _RETURN(A)     call MAPL_Return(A,_FILE_,__LINE__ __rc(rc)); __return
-#    define _VERIFY(A)     if(MAPL_Verify(A,_FILE_,__LINE__ __rc(rc))) __return
+#    if defined(I_AM_FUNIT)
+#       define _VERIFY(A)     call assert_that(A, is(0), SourceLocation(_FILE_,__LINE__));if(anyExceptions())return
+#    elif defined(I_AM_PFUNIT)
+#       define _VERIFY(A)     call assert_that(A, is(0), SourceLocation(_FILE_,__LINE__));if(anyExceptions(this%context))return
+#    else
+#       define _RETURN(A)     call MAPL_Return(A,_FILE_,__LINE__ __rc(rc)); __return
+#       define _VERIFY(A)     if(MAPL_Verify(A,_FILE_,__LINE__ __rc(rc))) __return
+#    endif
 #    define _RC_(rc,status) rc=status);_VERIFY(status
 #    define _RC _RC_(rc,status)
 

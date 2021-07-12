@@ -1,3 +1,5 @@
+set(MODULE_DIRECTORY "${esma_include}/MAPL.profiler/tests")
+
 set (TEST_SRCS
   test_AdvancedMeter.pf
   test_NameColumn.pf
@@ -19,6 +21,7 @@ add_pfunit_ctest (
   EXTRA_USE MAPL_pFUnit_Initialize
   MAX_PES 8
   )
+set_target_properties(MAPL.profiler.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
   
 add_dependencies (build-tests MAPL.profiler.tests)
 
