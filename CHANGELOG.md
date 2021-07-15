@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 ### Added
+
+- Add `CMakePresets.json` file
+  - Note: requires CMake 3.21.0 to use
+  - Per CMake advice, add `CMakeUserPresets.json` to `.gitignore`
+
 ### Changed
 ### Fixed
 
