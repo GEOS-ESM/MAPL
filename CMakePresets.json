@@ -1,5 +1,5 @@
 ﻿{
-  "version": 2,
+  "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
     "minor": 21,
@@ -77,7 +77,7 @@
       "hidden": true,
       "displayName": "Base Build Config",
       "description": "Sets default build options",
-      "jobs": 4,
+      "jobs": 6,
       "targets": ["install"]
     },
     {
@@ -109,6 +109,51 @@
       "name": "Aggressive-Ninja",
       "configurePreset": "Aggressive-Ninja",
       "inherits": "base-build"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "base-test",
+      "hidden": true,
+      "displayName": "Base Test Config",
+      "description": "Sets default test options",
+      "output": {
+         "outputOnFailure": true
+      },
+      "execution": {
+         "jobs": 6,
+         "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "Release",
+      "configurePreset": "Release",
+      "inherits": "base-test"
+    },
+    {
+      "name": "Debug",
+      "configurePreset": "Debug",
+      "inherits": "base-test"
+    },
+    {
+      "name": "Aggressive",
+      "configurePreset": "Aggressive",
+      "inherits": "base-test"
+    },
+    {
+      "name": "Release-Ninja",
+      "configurePreset": "Release-Ninja",
+      "inherits": "base-test"
+    },
+    {
+      "name": "Debug-Ninja",
+      "configurePreset": "Debug-Ninja",
+      "inherits": "base-test"
+    },
+    {
+      "name": "Aggressive-Ninja",
+      "configurePreset": "Aggressive-Ninja",
+      "inherits": "base-test"
     }
   ]
 }
