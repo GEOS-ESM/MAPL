@@ -99,13 +99,14 @@ module MAPL_newCFIOMod
         _RETURN(ESMF_SUCCESS)
      end function new_MAPL_newCFIO
 
-     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,rc)
+     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,posDown,rc)
         class (MAPL_newCFIO), intent(inout) :: this
         type(newCFIOitemVector), target, intent(inout) :: items
         type(ESMF_FieldBundle), intent(inout) :: bundle
         type(TimeData), intent(inout) :: timeInfo
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
+        logical, intent(in), optional :: posDown ! Added for GCHP
         integer, intent(out), optional :: rc
 
         type(ESMF_Grid) :: input_grid
@@ -117,6 +118,11 @@ module MAPL_newCFIOMod
         integer :: metadataVarsSize
 
         integer :: status
+        logical :: isPosDown ! Added for GCHP
+
+        ! Added for GCHP
+        isPosDown = .TRUE.
+        if (present(posDown)) isPosDown = posDown
 
         this%items = items
         this%input_bundle = bundle
@@ -145,7 +151,7 @@ module MAPL_newCFIOMod
            this%vdata=VerticalData(rc=status)
            _VERIFY(status)
         end if
-        call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,rc=status)
+        call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,posDown=isPosDown,rc=status)
         _VERIFY(status)
         this%doVertRegrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
         if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%input_bundle,rc=status)

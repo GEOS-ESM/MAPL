@@ -409,6 +409,7 @@ contains
     integer              :: chnksz
     logical :: table_end
     logical :: old_fields_style
+    logical :: isPosDown ! Added for GCHP
 
     type(HistoryCollection) :: collection
     character(len=ESMF_MAXSTR) :: cFileOrder
@@ -2442,7 +2443,10 @@ ENDDO PARSER
                 call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,rc=status)
                 _VERIFY(status)
              else
-                call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
+                ! Set lev positive to down for Emissions collection in GCHP
+                isPosDown = .TRUE.
+                if ( trim(list(n)%collection) /= "Emissions" ) isPosDown = .FALSE.
+                call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,posDown=isPosDown,rc=status)
                 _VERIFY(status)
              end if
              collection_id = o_Clients%add_hist_collection(list(n)%mNewCFIO%metadata)

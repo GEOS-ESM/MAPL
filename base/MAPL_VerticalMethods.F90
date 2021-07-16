@@ -272,10 +272,11 @@ module MAPL_VerticalDataMod
      end subroutine get_interpolating_variable
 
 
-     subroutine append_vertical_metadata(this,metadata,bundle,rc)
+     subroutine append_vertical_metadata(this,metadata,bundle,posDown,rc)
         class (verticalData), intent(inout) :: this
         type(FileMetaData), intent(inout) :: metadata
         type(ESMF_FieldBundle), intent(inout) :: bundle
+        logical, optional, intent(in) :: posDown ! Added for GCHP
         integer, optional, intent(out) :: rc
 
         integer :: lm,i,NumVars,fieldRank,vlast,vloc,vlb
@@ -296,6 +297,12 @@ module MAPL_VerticalDataMod
         integer :: status
         type(Variable) :: v
         logical :: isPresent
+
+        logical :: isPosDown ! Added for GCHP
+
+        ! Added for GCHP
+        isPosDown = .TRUE.
+        if (present(posDown)) isPosDown = posDown
 
         ! loop over variables in file
         call ESMF_FieldBundleGet(bundle,fieldCount=NumVars,rc=status)
@@ -438,7 +445,11 @@ module MAPL_VerticalDataMod
                  v = Variable(type=PFIO_REAL64, dimensions='lev')
                  call v%add_attribute('long_name','vertical level')
                  call v%add_attribute('units','layer')
-                 call v%add_attribute('positive','down')
+                 if (isPosDown) then
+                     call v%add_attribute('positive','down')
+                 else
+                     call v%add_attribute('positive','up')
+                 endif
                  call v%add_attribute('coordinate','eta')
                  call v%add_attribute('standard_name','model_layer')
                  call v%add_const_value(UnlimitedEntity(this%levs))
