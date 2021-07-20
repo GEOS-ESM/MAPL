@@ -173,9 +173,9 @@ module MAPL_GenericMod
   public MAPL_RequestService
   
   ! MAPL_Util
-  !public MAPL_GenericStateClockOn
-  !public MAPL_GenericStateClockOff
-  !public MAPL_GenericStateClockAdd
+  public MAPL_GenericStateClockOn
+  public MAPL_GenericStateClockOff
+  public MAPL_GenericStateClockAdd
   public MAPL_TimerOn
   public MAPL_TimerOff
   public MAPL_TimerAdd
