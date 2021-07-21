@@ -12,5 +12,5 @@ install (PROGRAMS
   MAPL_GridCompSpecs_ACG.py
   mapl_acg.pl
   mapl_stub.pl
-  TYPE SYSCONF
+  DESTINATION etc
   )
