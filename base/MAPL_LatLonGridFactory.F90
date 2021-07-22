@@ -96,6 +96,8 @@ module MAPL_LatLonGridFactoryMod
       procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
+      procedure :: test_decomp_equals
+      procedure :: test_physical_params_equals
    end type LatLonGridFactory
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_LatLonGridFactory::'
@@ -1387,7 +1389,73 @@ contains
 
    end subroutine initialize_from_esmf_distGrid
 
+   logical function test_decomp_equals(this,a)
+      class (LatLonGridFactory), intent(in) :: this
+      class (AbstractGridFactory), intent(in) :: a
 
+      select type (a)
+         class default
+         test_decomp_equals = .false.
+         return
+      class is (LatLonGridFactory)
+         test_decomp_equals = .true.
+
+
+         test_decomp_equals = size(a%ims)==size(this%ims) .and. size(a%jms)==size(this%jms)
+         if (.not. test_decomp_equals) return
+
+         ! same decomposition
+         test_decomp_equals = all(a%ims == this%ims) .and. all(a%jms == this%jms)
+         if (.not. test_decomp_equals) return
+
+      end select
+
+   end function test_decomp_equals
+
+
+   logical function test_physical_params_equals(this, a)
+      class (LatLonGridFactory), intent(in) :: this
+      class (AbstractGridFactory), intent(in) :: a
+
+      select type (a)
+         class default
+         test_physical_params_equals = .false.
+         return
+      class is (LatLonGridFactory)
+         test_physical_params_equals = .true.
+
+         test_physical_params_equals = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
+         if (.not. test_physical_params_equals) return
+
+         test_physical_params_equals = (a%is_regular .eqv. this%is_regular)
+         if (.not. test_physical_params_equals) return
+
+         if (a%is_regular) then
+            test_physical_params_equals = (a%pole == this%pole)
+            if (.not. test_physical_params_equals) return
+
+            test_physical_params_equals = (a%dateline == this%dateline)
+            if (.not. test_physical_params_equals) return
+
+            if (a%pole == 'XY') then
+               test_physical_params_equals = (a%lat_range == this%lat_range)
+               if (.not. test_physical_params_equals) return
+            end if
+
+            if (a%dateline == 'XY') then
+               test_physical_params_equals = (a%lon_range == this%lon_range)
+               if (.not. test_physical_params_equals) return
+            end if
+         else
+            test_physical_params_equals = &
+                 & all(a%lon_centers == this%lon_centers) .and. & 
+                 & all(a%lon_corners == this%lon_corners) .and. &
+                 & all(a%lat_centers == this%lat_centers) .and. &
+                 & all(a%lat_corners == this%lat_corners)
+         end if
+      end select
+
+   end function test_physical_params_equals
 
    logical function equals(a, b)
       class (LatLonGridFactory), intent(in) :: a
@@ -1400,45 +1468,15 @@ contains
       class is (LatLonGridFactory)
          equals = .true.
 
-         equals = (a%im_world == b%im_world) .and. (a%jm_world == b%jm_world)
-         if (.not. equals) return
-
          equals = (a%lm == b%lm)
          if (.not. equals) return
 
-         equals = size(a%ims)==size(b%ims) .and. size(a%jms)==size(b%jms)
+         equals = a%test_decomp_equals(b)
          if (.not. equals) return
 
-         ! same decomposition
-         equals = all(a%ims == b%ims) .and. all(a%jms == b%jms)
+         equals = a%test_physical_params_equals(b)
          if (.not. equals) return
 
-         equals = (a%is_regular .eqv. b%is_regular)
-         if (.not. equals) return
-
-         if (a%is_regular) then
-            equals = (a%pole == b%pole)
-            if (.not. equals) return
-
-            equals = (a%dateline == b%dateline)
-            if (.not. equals) return
-
-            if (a%pole == 'XY') then
-               equals = (a%lat_range == b%lat_range)
-               if (.not. equals) return
-            end if
-
-            if (a%dateline == 'XY') then
-               equals = (a%lon_range == b%lon_range)
-               if (.not. equals) return
-            end if
-         else
-            equals = &
-                 & all(a%lon_centers == b%lon_centers) .and. & 
-                 & all(a%lon_corners == b%lon_corners) .and. &
-                 & all(a%lat_centers == b%lat_centers) .and. &
-                 & all(a%lat_corners == b%lat_corners)
-         end if
       end select
 
    end function equals
@@ -1768,13 +1806,14 @@ contains
       _UNUSED_DUMMY(var)
    end subroutine append_variable_metadata
 
-   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,metadata,rc)
       use MAPL_BaseMod
       class(LatLonGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
       integer, allocatable, intent(out) :: local_start(:)
       integer, allocatable, intent(out) :: global_start(:)
       integer, allocatable, intent(out) :: global_count(:)
+      type(FileMetaData), intent(in), optional :: metaData
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -1821,11 +1860,12 @@ contains
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
       
-   function generate_file_reference3D(this,fpointer) result(ref)
+   function generate_file_reference3D(this,fpointer,metaData) result(ref)
       use pFIO
       type(ArrayReference) :: ref
       class(LatLonGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:,:)
+      type(FileMetaData), intent(in), optional :: metaData
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D

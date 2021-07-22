@@ -44,6 +44,8 @@ module MAPL_ExternalGridFactoryMod
       procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
+      procedure :: test_decomp_equals
+      procedure :: test_physical_params_equals
    end type ExternalGridFactory
 
    interface ExternalGridFactory
@@ -104,6 +106,34 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_new_grid
+
+   logical function test_decomp_equals(this,a)
+      class(ExternalGridFactory), intent(in) :: this
+      class(AbstractGridFactory), intent(in) :: a
+
+      _UNUSED_DUMMY(this)
+      select type(a)
+      class default
+         test_decomp_equals = .false.
+         return
+      class is (ExternalGridFactory)
+         test_decomp_equals = .true.
+      end select
+   end function test_decomp_equals
+
+   logical function test_physical_params_equals(this,a)
+      class(ExternalGridFactory), intent(in) :: this
+      class(AbstractGridFactory), intent(in) :: a
+
+      _UNUSED_DUMMY(this)
+      select type(a)
+      class default
+         test_physical_params_equals = .false.
+         return
+      class is (ExternalGridFactory)
+         test_physical_params_equals = .true.
+      end select
+   end function test_physical_params_equals
 
    logical function equals(a, b)
       class(ExternalGridFactory), intent(in) :: a
@@ -238,12 +268,13 @@ contains
       ! TODO: fill in the rest
    end subroutine append_variable_metadata
 
-   subroutine generate_file_bounds(this, grid, local_start, global_start, global_count, rc)
+   subroutine generate_file_bounds(this, grid, local_start, global_start, global_count, metadata, rc)
       class(ExternalGridFactory), intent(inout) :: this
       type(ESMF_Grid),            intent(inout) :: grid
       integer,      allocatable,  intent(  out) :: local_start(:)
       integer,      allocatable,  intent(  out) :: global_start(:)
       integer,      allocatable,  intent(  out) :: global_count(:)
+      type(FileMetaData), intent(in), optional :: metaData
       integer,      optional,     intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
@@ -287,10 +318,11 @@ contains
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
 
-   function generate_file_reference3D(this, fpointer) result(ref)
+   function generate_file_reference3D(this, fpointer, metadata) result(ref)
       type(ArrayReference) :: ref
       class(ExternalGridFactory), intent(inout) :: this
       real, pointer,              intent(in   ) :: fpointer(:,:,:)
+      type(FileMetaData), intent(in), optional :: metaData
 
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)

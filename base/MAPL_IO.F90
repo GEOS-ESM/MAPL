@@ -7881,10 +7881,31 @@ module MAPL_IOMod
     type (StringIntegerMap), save      :: RstCollections
     type (StringIntegerMapIterator)    :: iter
     type (StringVariableMap) :: var_map
+    logical :: have_target_lon, have_target_lat, have_stretch_factor
+    real :: target_lon, target_lat, stretch_factor
+    logical :: is_stretched
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
 
+    call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",isPresent=have_target_lon,rc=status)
+    _VERIFY(status)
+    call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",isPresent=have_target_lat,rc=status)
+    _VERIFY(status)
+    call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",isPresent=have_stretch_factor,rc=status)
+    _VERIFY(status)
+    if (have_target_lon .and. have_target_lat .and. have_stretch_factor) then
+       is_stretched = .true.
+       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",value=target_lon,rc=status)
+       _VERIFY(status)
+       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",value=target_lat,rc=status)
+       _VERIFY(status)
+       call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",value=stretch_factor,rc=status)
+       _VERIFY(status)
+    else
+       is_stretched = .false.
+    end if
+       
 
     ! verify that file is compatible with fields in bundle we are reading
 
@@ -8065,6 +8086,11 @@ module MAPL_IOMod
              isCubed = .true.
              x0=1.0d0
              x1=dble(arrdes%IM_WORLD)
+             if (is_stretched) then
+                call cf%add_attribute('TARGET_LON',target_lon)
+                call cf%add_attribute('TARGET_LAT',target_lat)
+                call cf%add_attribute('STRETCH_FACTOR',stretch_factor)
+             end if
           else
              isCubed = .false.
              x0=-180.0d0
@@ -8573,6 +8599,7 @@ module MAPL_IOMod
     _VERIFY(STATUS)
     call ESMF_FieldBundleSet(bundle_write,grid=arrdes%grid,rc=STATUS)
     _VERIFY(STATUS)
+
 
     DO I = 1, ITEMCOUNT
 
