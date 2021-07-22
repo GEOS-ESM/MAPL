@@ -79,8 +79,8 @@ module MAPL_AbstractGridFactoryMod
       procedure(generate_file_reference2D), deferred :: generate_file_reference2D
       procedure(generate_file_reference3D), deferred :: generate_file_reference3D
       procedure(get_file_format_vars), deferred :: get_file_format_vars
-      procedure(test_decomp_equals), deferred :: test_decomp_equals
-      procedure(test_physical_params_equals), deferred :: test_physical_params_equals
+      procedure(decomps_are_equal), deferred :: decomps_are_equal
+      procedure(physical_params_are_equal), deferred :: physical_params_are_equal
    end type AbstractGridFactory
 
    abstract interface
@@ -91,17 +91,17 @@ module MAPL_AbstractGridFactoryMod
          class (AbstractGridFactory), intent(in) :: b
       end function equals
 
-      logical function test_decomp_equals(this,a)
+      logical function decomps_are_equal(this,a)
          import AbstractGridFactory
          class (AbstractGridFactory), intent(in) :: this
          class (AbstractGridFactory), intent(in) :: a
-      end function test_decomp_equals
+      end function decomps_are_equal
 
-      logical function test_physical_params_equals(this,a)
+      logical function physical_params_are_equal(this,a)
          import AbstractGridFactory
          class (AbstractGridFactory), intent(in) :: this
          class (AbstractGridFactory), intent(in) :: a
-      end function test_physical_params_equals
+      end function physical_params_are_equal
 
       function make_new_grid(this, unusable, rc) result(grid)
          use esmf

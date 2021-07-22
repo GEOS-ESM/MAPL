@@ -5900,7 +5900,7 @@ end function MAPL_AddChildFromDSO
        else
           app_factory => get_factory(MPL%GRID%ESMFGRID)
           allocate(file_factory,source=grid_manager%make_factory(trim(filename)))
-          _ASSERT(file_factory%test_physical_params_equals(app_factory),"Factories not equal")
+          _ASSERT(file_factory%physical_params_are_equal(app_factory),"Factories not equal")
           call ArrDescrSetNCPar(arrdes,MPL,num_readers=mpl%grid%num_readers,RC=STATUS)
           _VERIFY(STATUS)
        end if PNC4_TILE

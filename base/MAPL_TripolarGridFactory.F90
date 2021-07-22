@@ -66,8 +66,8 @@ module MAPL_TripolarGridFactoryMod
       procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
-      procedure :: test_decomp_equals
-      procedure :: test_physical_params_equals
+      procedure :: decomps_are_equal
+      procedure :: physical_params_are_equal
    end type TripolarGridFactory
    
    character(len=*), parameter :: MOD_NAME = 'MAPL_TripolarGridFactory::'
@@ -567,46 +567,48 @@ contains
 
    end subroutine initialize_from_esmf_distGrid
 
-   logical function test_decomp_equals(this,a)
+   function decomps_are_equal(this,a) result(equal)
       class (TripolarGridFactory), intent(in) :: this
       class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
 
       select type (a)
       class default
-         test_decomp_equals = .false.
+         equal = .false.
          return
       class is (TripolarGridFactory)
-         test_decomp_equals = .true.
+         equal = .true.
 
          ! same decomposition
-         test_decomp_equals = a%nx == this%nx .and. a%ny == this%ny
-         if (.not. test_decomp_equals) return
+         equal = a%nx == this%nx .and. a%ny == this%ny
+         if (.not. equal) return
          
       end select
          
-   end function test_decomp_equals
+   end function decomps_are_equal
 
    
-   logical function test_physical_params_equals(this, a)
+   function physical_params_are_equal(this, a) result(equal)
       class (TripolarGridFactory), intent(in) :: this
       class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
 
       select type (a)
       class default
-         test_physical_params_equals = .false.
+         equal = .false.
          return
       class is (TripolarGridFactory)
-         test_physical_params_equals = .true.
+         equal = .true.
 
-         test_physical_params_equals = (a%grid_file_name == this%grid_file_name)
-         if (.not. test_physical_params_equals) return
+         equal = (a%grid_file_name == this%grid_file_name)
+         if (.not. equal) return
 
-         test_physical_params_equals = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
-         if (.not. test_physical_params_equals) return
+         equal = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
+         if (.not. equal) return
          
       end select
          
-   end function test_physical_params_equals
+   end function physical_params_are_equal
 
 
    logical function equals(a, b)
@@ -623,10 +625,10 @@ contains
          equals = (a%lm == b%lm)
          if (.not. equals) return
 
-         equals = a%test_decomp_equals(b)
+         equals = a%decomps_are_equal(b)
          if (.not. equals) return
 
-         equals = a%test_physical_params_equals(b)
+         equals = a%physical_params_are_equal(b)
          if (.not. equals) return
          
       end select

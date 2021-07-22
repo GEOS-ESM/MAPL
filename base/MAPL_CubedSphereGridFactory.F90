@@ -93,8 +93,8 @@ module MAPL_CubedSphereGridFactoryMod
       procedure :: generate_file_reference3D
       procedure :: get_fake_longitudes
       procedure :: get_fake_latitudes
-      procedure :: test_decomp_equals
-      procedure :: test_physical_params_equals
+      procedure :: decomps_are_equal
+      procedure :: physical_params_are_equal
    end type CubedSphereGridFactory
    
    character(len=*), parameter :: MOD_NAME = 'CubedSphereGridFactory::'
@@ -771,60 +771,62 @@ contains
       
    end subroutine set_with_default_bounds
    
-   logical function test_decomp_equals(this, a)
+   function decomps_are_equal(this, a) result(equal)
       class (CubedSphereGridFactory), intent(in) :: this
       class (AbstractGridFactory), intent(in) :: a
       integer :: a_nx,b_nx,a_ny,b_ny
+      logical :: equal
 
       select type(a)
       class default
-         test_decomp_equals = .false.
+         equal = .false.
       class is (CubedSphereGridFactory)
-         test_decomp_equals = .true.
-         test_decomp_equals = all(a%ims == this%ims) 
-         if (.not. test_decomp_equals) return
+         equal = .true.
+         equal = all(a%ims == this%ims) 
+         if (.not. equal) return
 
          if ( allocated(a%jms) .and. allocated(this%jms)) then
             a_ny=size(a%jms)
             b_ny=size(this%ims)
             a_nx=size(a%ims)
             b_nx=size(this%ims)
-            test_decomp_equals = a_nx*a_ny == b_nx*b_ny
-            if (.not. test_decomp_equals) return
+            equal = a_nx*a_ny == b_nx*b_ny
+            if (.not. equal) return
          else
-            test_decomp_equals = all(a%jms_2d == this%jms_2d)
-            if (.not. test_decomp_equals) return
+            equal = all(a%jms_2d == this%jms_2d)
+            if (.not. equal) return
          endif
       end select 
 
-   end function test_decomp_equals
+   end function decomps_are_equal
 
-   logical function test_physical_params_equals(this, a)
+   function physical_params_are_equal(this, a) result(equal)
       class (CubedSphereGridFactory), intent(in) :: this
       class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
 
       select type (a)
       class default
-         test_physical_params_equals = .false.
+         equal = .false.
          return
       class is (CubedSphereGridFactory)
-         test_physical_params_equals = .true.
+         equal = .true.
 
-         test_physical_params_equals = (a%im_world == this%im_world)
-         if (.not. test_physical_params_equals) return
+         equal = (a%im_world == this%im_world)
+         if (.not. equal) return
          
-         test_physical_params_equals = (a%stretch_factor == this%stretch_factor)
-         if (.not. test_physical_params_equals) return
+         equal = (a%stretch_factor == this%stretch_factor)
+         if (.not. equal) return
          
-         test_physical_params_equals = (a%target_lon == this%target_lon)
-         if (.not. test_physical_params_equals) return
+         equal = (a%target_lon == this%target_lon)
+         if (.not. equal) return
          
-         test_physical_params_equals = (a%target_lat == this%target_lat)
-         if (.not. test_physical_params_equals) return
+         equal = (a%target_lat == this%target_lat)
+         if (.not. equal) return
          
       end select
          
-   end function test_physical_params_equals
+   end function physical_params_are_equal
 
    logical function equals(a, b)
       class (CubedSphereGridFactory), intent(in) :: a
@@ -841,10 +843,10 @@ contains
          equals = (a%lm == b%lm)
          if (.not. equals) return
 
-         equals = a%test_decomp_equals(b)
+         equals = a%decomps_are_equal(b)
          if (.not. equals) return
          
-         equals = a%test_physical_params_equals(b)
+         equals = a%physical_params_are_equal(b)
          if (.not. equals) return
          
       end select

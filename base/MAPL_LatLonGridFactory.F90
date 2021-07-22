@@ -96,8 +96,8 @@ module MAPL_LatLonGridFactoryMod
       procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
-      procedure :: test_decomp_equals
-      procedure :: test_physical_params_equals
+      procedure :: decomps_are_equal
+      procedure :: physical_params_are_equal
    end type LatLonGridFactory
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_LatLonGridFactory::'
@@ -1389,65 +1389,67 @@ contains
 
    end subroutine initialize_from_esmf_distGrid
 
-   logical function test_decomp_equals(this,a)
+   function decomps_are_equal(this,a) result(equal)
       class (LatLonGridFactory), intent(in) :: this
       class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
 
       select type (a)
          class default
-         test_decomp_equals = .false.
+         equal = .false.
          return
       class is (LatLonGridFactory)
-         test_decomp_equals = .true.
+         equal = .true.
 
 
-         test_decomp_equals = size(a%ims)==size(this%ims) .and. size(a%jms)==size(this%jms)
-         if (.not. test_decomp_equals) return
+         equal = size(a%ims)==size(this%ims) .and. size(a%jms)==size(this%jms)
+         if (.not. equal) return
 
          ! same decomposition
-         test_decomp_equals = all(a%ims == this%ims) .and. all(a%jms == this%jms)
-         if (.not. test_decomp_equals) return
+         equal = all(a%ims == this%ims) .and. all(a%jms == this%jms)
+         if (.not. equal) return
 
       end select
 
-   end function test_decomp_equals
+   end function decomps_are_equal
 
 
-   logical function test_physical_params_equals(this, a)
+   function physical_params_are_equal(this, a) result(equal)
       class (LatLonGridFactory), intent(in) :: this
       class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
 
       select type (a)
          class default
-         test_physical_params_equals = .false.
+         equal = .false.
          return
       class is (LatLonGridFactory)
-         test_physical_params_equals = .true.
+         equal = .true.
 
-         test_physical_params_equals = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
-         if (.not. test_physical_params_equals) return
+         equal = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
+         if (.not. equal) return
 
-         test_physical_params_equals = (a%is_regular .eqv. this%is_regular)
-         if (.not. test_physical_params_equals) return
+         equal = (a%is_regular .eqv. this%is_regular)
+         if (.not. equal) return
 
          if (a%is_regular) then
-            test_physical_params_equals = (a%pole == this%pole)
-            if (.not. test_physical_params_equals) return
+            equal = (a%pole == this%pole)
+            if (.not. equal) return
 
-            test_physical_params_equals = (a%dateline == this%dateline)
-            if (.not. test_physical_params_equals) return
+            equal = (a%dateline == this%dateline)
+            if (.not. equal) return
 
             if (a%pole == 'XY') then
-               test_physical_params_equals = (a%lat_range == this%lat_range)
-               if (.not. test_physical_params_equals) return
+               equal = (a%lat_range == this%lat_range)
+               if (.not. equal) return
             end if
 
             if (a%dateline == 'XY') then
-               test_physical_params_equals = (a%lon_range == this%lon_range)
-               if (.not. test_physical_params_equals) return
+               equal = (a%lon_range == this%lon_range)
+               if (.not. equal) return
             end if
          else
-            test_physical_params_equals = &
+            equal = &
                  & all(a%lon_centers == this%lon_centers) .and. & 
                  & all(a%lon_corners == this%lon_corners) .and. &
                  & all(a%lat_centers == this%lat_centers) .and. &
@@ -1455,7 +1457,7 @@ contains
          end if
       end select
 
-   end function test_physical_params_equals
+   end function physical_params_are_equal
 
    logical function equals(a, b)
       class (LatLonGridFactory), intent(in) :: a
@@ -1471,10 +1473,10 @@ contains
          equals = (a%lm == b%lm)
          if (.not. equals) return
 
-         equals = a%test_decomp_equals(b)
+         equals = a%decomps_are_equal(b)
          if (.not. equals) return
 
-         equals = a%test_physical_params_equals(b)
+         equals = a%physical_params_are_equal(b)
          if (.not. equals) return
 
       end select

@@ -44,8 +44,8 @@ module MAPL_ExternalGridFactoryMod
       procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
-      procedure :: test_decomp_equals
-      procedure :: test_physical_params_equals
+      procedure :: decomps_are_equal
+      procedure :: physical_params_are_equal
    end type ExternalGridFactory
 
    interface ExternalGridFactory
@@ -107,33 +107,35 @@ contains
       _RETURN(_SUCCESS)
    end function make_new_grid
 
-   logical function test_decomp_equals(this,a)
+   function decomps_are_equal(this,a) result(equal)
       class(ExternalGridFactory), intent(in) :: this
       class(AbstractGridFactory), intent(in) :: a
+      logical :: equal
 
       _UNUSED_DUMMY(this)
       select type(a)
       class default
-         test_decomp_equals = .false.
+         equal = .false.
          return
       class is (ExternalGridFactory)
-         test_decomp_equals = .true.
+         equal = .true.
       end select
-   end function test_decomp_equals
+   end function decomps_are_equal
 
-   logical function test_physical_params_equals(this,a)
+   function physical_params_are_equal(this,a) result(equal)
       class(ExternalGridFactory), intent(in) :: this
       class(AbstractGridFactory), intent(in) :: a
+      logical :: equal
 
       _UNUSED_DUMMY(this)
       select type(a)
       class default
-         test_physical_params_equals = .false.
+         equal = .false.
          return
       class is (ExternalGridFactory)
-         test_physical_params_equals = .true.
+         equal = .true.
       end select
-   end function test_physical_params_equals
+   end function physical_params_are_equal
 
    logical function equals(a, b)
       class(ExternalGridFactory), intent(in) :: a
