@@ -266,6 +266,8 @@ contains
          class default
             value => q
          end select
+      else if (allocated(this%values)) then
+         _ASSERT(.false.,"Attribute is array")
       else
          value => null()
       end if
@@ -280,6 +282,8 @@ contains
 
       if (allocated(this%values)) then
         values => this%values
+      else if (allocated(this%value)) then
+        _ASSERT(.false.,"Asttribute is scalar")
       else
         values => null()
       end if
@@ -333,7 +337,7 @@ contains
       integer, optional, intent(out) :: rc
       logical :: yes
 
-      class (*), pointer :: value
+      class (*), pointer :: value(:)
 
       ! not initialized
       yes = .not. allocated(this%shape)
@@ -342,11 +346,11 @@ contains
       endif
       
       ! initialized with UnlimitedEnity('')
-      value => this%get_value()
+      value => this%get_values()
       if (associated(value)) then
          select type (q=>value) 
          type is (character(len=*))
-             yes = (q == '')
+             yes = (q(1) == '')
          end select
       end if
 

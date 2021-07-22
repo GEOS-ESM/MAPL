@@ -8,11 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Removed
+
+- Removed MAPL_OldCubedShereGridFactory.F90 and consilidated with MAPL_CubedSphereGridFactory.F90 
+
 ### Added
 
 - Unit tests can now use the `_RC` macro for checking results from
   calls to ESMF.  The file must first CPP define either `I_AM_PFUNIT`
   or `I_AM_FUNIT` (serial) and then `#include "MAPL_ErrLog.h"`.
+- Add stretch parameters to restarts and check the file grid compared to MAPL grid
+  when reading restarts
 
 ### Changed
 	
