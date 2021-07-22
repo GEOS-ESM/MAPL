@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `CMakePresets.json` file
+  - Note: requires CMake 3.21.0 to use
+  - Per CMake advice, add `CMakeUserPresets.json` to `.gitignore`
+
+### Changed
+### Fixed
+
+## [2.8.0] - 2021-07-12
+
+### Added
+
 - Unit tests can now use the `_RC` macro for checking results from
   calls to ESMF.  The file must first CPP define either `I_AM_PFUNIT`
   or `I_AM_FUNIT` (serial) and then `#include "MAPL_ErrLog.h"`.
@@ -20,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when reading restarts
 
 ### Changed
-	
+
 - Activated ESMF logging for unit tests.
 - Fixed problem in unit testing framework that results in
   "harmless" warnings/errors in the ESMF log.
@@ -172,7 +183,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add with_io_profiler option
 
 ### Changed
-	
+
 - Changed the interface to TimeData to have an optional "funits" argument (defaults to "minutes")
 - Changed time units to "days" for monthly collections
 - Simplified the logic for timestamping offsets
