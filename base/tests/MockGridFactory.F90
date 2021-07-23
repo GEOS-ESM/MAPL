@@ -28,6 +28,8 @@ module MockGridFactoryMod
       procedure :: initialize_from_file_metadata
       procedure :: get_grid_vars
 
+      procedure :: decomps_are_equal
+      procedure :: physical_params_are_equal
       procedure :: append_metadata
       procedure :: append_variable_metadata
       procedure :: generate_file_bounds
@@ -88,7 +90,33 @@ contains
 
    end function make_new_grid
 
+   function physical_params_are_equal(this,a) result(equal)
+      class (MockGridFactory), intent(in) :: this
+      class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
 
+      select type (a)
+      class default
+         equal = .false.
+         return
+      class is (MockGridFactory)
+         equal = .true.
+      end select
+   end function physical_params_are_equal
+
+   function decomps_are_equal(this,a) result(equal)
+      class (MockGridFactory), intent(in) :: this
+      class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
+
+      select type (a)
+      class default
+         equal = .false.
+         return
+      class is (MockGridFactory)
+         equal = .true.
+      end select
+   end function decomps_are_equal
 
    logical function equals(a, b)
       class (MockGridFactory), intent(in) :: a
@@ -197,7 +225,7 @@ contains
       _UNUSED_DUMMY(var)
    end subroutine append_variable_metadata
 
-   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,metadata,rc)
       use MAPL_BaseMod
       use ESMF
       class(MockGridFactory), intent(inout) :: this
@@ -205,6 +233,7 @@ contains
       integer, allocatable, intent(out) :: local_start(:)
       integer, allocatable, intent(out) :: global_start(:)
       integer, allocatable, intent(out) :: global_count(:)
+      type(FileMetaData), intent(in), optional :: metaData
       integer, optional, intent(out) :: rc
 
       _UNUSED_DUMMY(this)
@@ -244,10 +273,11 @@ contains
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
 
-   function generate_file_reference3D(this,fpointer) result(ref)
+   function generate_file_reference3D(this,fpointer,metadata) result(ref)
       use pFIO
       type(ArrayReference) :: ref
       class(MockGridFactory), intent(inout) :: this
+      type(FileMetaData), intent(in), optional :: metaData
       real, pointer, intent(in) :: fpointer(:,:,:)
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)

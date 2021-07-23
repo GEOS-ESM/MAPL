@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add stretch parameters to restarts and check the file grid compared to MAPL grid
+  when reading restarts
+
 ### Removed
+
+- Removed MAPL_OldCubedShereGridFactory.F90 and consilidated with MAPL_CubedSphereGridFactory.F90 
+
 ### Added
 
 - Add `CMakePresets.json` file
