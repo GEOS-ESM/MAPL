@@ -79,6 +79,8 @@ module MAPL_AbstractGridFactoryMod
       procedure(generate_file_reference2D), deferred :: generate_file_reference2D
       procedure(generate_file_reference3D), deferred :: generate_file_reference3D
       procedure(get_file_format_vars), deferred :: get_file_format_vars
+      procedure(decomps_are_equal), deferred :: decomps_are_equal
+      procedure(physical_params_are_equal), deferred :: physical_params_are_equal
    end type AbstractGridFactory
 
    abstract interface
@@ -88,6 +90,18 @@ module MAPL_AbstractGridFactoryMod
          class (AbstractGridFactory), intent(in) :: a
          class (AbstractGridFactory), intent(in) :: b
       end function equals
+
+      logical function decomps_are_equal(this,a)
+         import AbstractGridFactory
+         class (AbstractGridFactory), intent(in) :: this
+         class (AbstractGridFactory), intent(in) :: a
+      end function decomps_are_equal
+
+      logical function physical_params_are_equal(this,a)
+         import AbstractGridFactory
+         class (AbstractGridFactory), intent(in) :: this
+         class (AbstractGridFactory), intent(in) :: a
+      end function physical_params_are_equal
 
       function make_new_grid(this, unusable, rc) result(grid)
          use esmf
@@ -180,14 +194,16 @@ module MAPL_AbstractGridFactoryMod
          type(Variable), intent(inout) :: var
       end subroutine append_variable_metadata
 
-      subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+      subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,metadata,rc)
          use esmf
+         use pFIO
          import AbstractGridFactory
          class (AbstractGridFactory), intent(inout) :: this
          type(ESMF_Grid), intent(inout)      :: grid
          integer, allocatable, intent(out) :: local_start(:)
          integer, allocatable, intent(out) :: global_start(:)
          integer, allocatable, intent(out) :: global_count(:)
+         type(FileMetadata), intent(in), optional :: metaData
          integer, optional, intent(out) :: rc
          
       end subroutine generate_file_bounds
@@ -212,12 +228,13 @@ module MAPL_AbstractGridFactoryMod
          real, pointer, intent(in) :: fpointer(:,:)
       end function generate_file_reference2D
 
-      function generate_file_reference3D(this,fpointer) result(ref)
+      function generate_file_reference3D(this,fpointer,metadata) result(ref)
          use pFIO
          import AbstractGridFactory
          type(ArrayReference) :: ref
          class (AbstractGridFactory), intent(inout) :: this
          real, pointer, intent(in) :: fpointer(:,:,:)
+         type(FileMetadata), intent(in), optional :: metaData
       end function generate_file_reference3D
 
    end interface
@@ -1013,6 +1030,5 @@ contains
       end if
 
    end function get_grid
-
       
 end module MAPL_AbstractGridFactoryMod

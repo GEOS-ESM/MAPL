@@ -21,6 +21,7 @@ module MAPL_newCFIOMod
   use MAPL_ExtDataCollectionMod
   use MAPL_ExtDataCOllectionManagerMod
   use gFTL_StringVector
+  use MAPL_FileMetadataUtilsMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
@@ -898,8 +899,10 @@ module MAPL_newCFIOMod
      type(ESMF_Grid) :: output_grid
      logical :: hasDE
      class(AbstractGridFactory), pointer :: factory
+     type(fileMetadataUtils), pointer :: metadata
 
      collection => extdatacollections%at(this%metadata_collection_id)
+     metadata => collection%find(filename)
      filegrid = collection%src_grid
      factory => get_factory(filegrid)
      hasDE=MAPL_GridHasDE(filegrid,rc=status)
@@ -912,7 +915,7 @@ module MAPL_newCFIOMod
      end if
      call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
      _VERIFY(status)
-     call factory%generate_file_bounds(fileGrid,gridLocalStart,gridGlobalStart,gridGlobalCount,rc=status)
+     call factory%generate_file_bounds(fileGrid,gridLocalStart,gridGlobalStart,gridGlobalCount,metadata=metadata%fileMetadata,rc=status)
      _VERIFY(status)
      ! create input bundle
      call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,rc=status)
@@ -956,7 +959,7 @@ module MAPL_newCFIOMod
               allocate(ptr3d(0,0,0),stat=status)
               _VERIFY(status)
            end if
-           ref=factory%generate_file_reference3D(ptr3d)
+           ref=factory%generate_file_reference3D(ptr3d,metadata=metadata%filemetadata)
            allocate(localStart,source=[gridLocalStart,1,timeIndex])
            allocate(globalStart,source=[gridGlobalStart,1,timeIndex])
            allocate(globalCount,source=[gridGlobalCount,lm,1]) 
