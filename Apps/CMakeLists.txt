@@ -12,9 +12,5 @@ install (PROGRAMS
   MAPL_GridCompSpecs_ACG.py
   mapl_acg.pl
   mapl_stub.pl
-  # [lrb, 2021-7-22] For GCHP: Replaced TYPE arg with DESTINATION. The TYPE 
-  #                            argument wasn't added until CMake 3.14 and our
-  #                            current requirement is 3.13.
-- # TYPE SYSCONF
-  DESTINATION etc
+  TYPE SYSCONF
   )
