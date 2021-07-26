@@ -5657,6 +5657,7 @@ end function MAPL_AddChildFromDSO
     logical                               :: is_tile
     class(AbstractGridFactory), pointer :: app_factory
     class (AbstractGridFactory), allocatable :: file_factory
+    character(len=ESMF_MAXSTR) :: grid_type
 
     _UNUSED_DUMMY(CLOCK)
 
@@ -5898,9 +5899,17 @@ end function MAPL_AddChildFromDSO
           call ArrDescrSetNCPar(arrdes,MPL,tile=.TRUE.,num_readers=mpl%grid%num_readers,RC=STATUS)
           _VERIFY(STATUS)
        else
-          app_factory => get_factory(MPL%GRID%ESMFGRID)
-          allocate(file_factory,source=grid_manager%make_factory(trim(filename)))
-          _ASSERT(file_factory%physical_params_are_equal(app_factory),"Factories not equal")
+          call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',isPresent=isPresent,rc=status)
+          _VERIFY(status)
+          if (isPresent) then
+             call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',value=grid_type,rc=status)
+             _VERIFY(status)
+          end if
+          if (trim(grid_type) /= 'Tripolar' .and. trim(grid_type) /= 'llc' .and. trim(grid_type) /= 'External') then
+             app_factory => get_factory(MPL%GRID%ESMFGRID)
+             allocate(file_factory,source=grid_manager%make_factory(trim(filename)))
+             _ASSERT(file_factory%physical_params_are_equal(app_factory),"Factories not equal")
+          end if
           call ArrDescrSetNCPar(arrdes,MPL,num_readers=mpl%grid%num_readers,RC=STATUS)
           _VERIFY(STATUS)
        end if PNC4_TILE
