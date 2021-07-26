@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+- Fixed bug with tripolar grids and restarts to not check the file grid matches the application grid if application grid is tripolar 
+
 ## [2.8.0] - 2021-07-12
 
 ### Added
