@@ -65,9 +65,7 @@ module MAPL_CapGridCompMod
      procedure :: initialize_history
      procedure :: run
      procedure :: step
-#ifdef ADJOINT
      procedure :: step_reverse
-#endif
      procedure :: finalize
      procedure :: get_model_duration
      procedure :: get_am_i_root
@@ -1569,7 +1567,6 @@ contains
     _RETURN(_SUCCESS)
   end subroutine rewind_clock
 
-#ifdef ADJOINT
   subroutine step_reverse(this, first, rc)
     class(MAPL_CapGridComp), intent(inout) :: this
     logical, intent(in)  :: first
@@ -1652,7 +1649,7 @@ contains
 
     _RETURN(ESMF_SUCCESS)
   end subroutine step_reverse
-#endif
+
   ! !IROUTINE: MAPL_ClockInit -- Sets the clock
 
   ! !INTERFACE: 
