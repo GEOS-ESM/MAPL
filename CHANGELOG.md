@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Per CMake advice, add `CMakeUserPresets.json` to `.gitignore`
 
 ### Changed
+
+- Widened the throughput timer format
+
 ### Fixed
 
 - Fixed bug with tripolar grids and restarts to not check the file grid matches the application grid if application grid is tripolar 
