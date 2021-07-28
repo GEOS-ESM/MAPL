@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Add stretch parameters to restarts and check the file grid compared to MAPL grid
-  when reading restarts
+### Removed
+### Added
+### Changed
+### Fixed
+
+## [2.8.1] - 2021-07-28
 
 ### Removed
 
@@ -16,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add stretch parameters to restarts and check the file grid compared to MAPL grid
+  when reading restarts
 - Add `CMakePresets.json` file
   - Note: requires CMake 3.21.0 to use
   - Per CMake advice, add `CMakeUserPresets.json` to `.gitignore`
