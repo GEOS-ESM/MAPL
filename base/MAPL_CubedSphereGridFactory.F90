@@ -93,6 +93,8 @@ module MAPL_CubedSphereGridFactoryMod
       procedure :: generate_file_reference3D
       procedure :: get_fake_longitudes
       procedure :: get_fake_latitudes
+      procedure :: decomps_are_equal
+      procedure :: physical_params_are_equal
    end type CubedSphereGridFactory
    
    character(len=*), parameter :: MOD_NAME = 'CubedSphereGridFactory::'
@@ -233,12 +235,15 @@ contains
                       staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, & 
                       transformArgs=transformArgument,rc=status)
             _VERIFY(status)
-            call ESMF_AttributeSet(grid, name='STRETCH_FACTOR', value=this%stretch_factor,rc=status)
-            _VERIFY(status)
-            call ESMF_AttributeSet(grid, name='TARGET_LON', value=this%target_lon,rc=status)
-            _VERIFY(status)
-            call ESMF_AttributeSet(grid, name='TARGET_LAT', value=this%target_lat,rc=status)
-            _VERIFY(status)
+            if (this%stretch_factor/=UNDEFINED_REAL .and. this%target_lon/=UNDEFINED_REAL .and. &
+                this%target_lat/=UNDEFINED_REAL) then
+               call ESMF_AttributeSet(grid, name='STRETCH_FACTOR', value=this%stretch_factor,rc=status)
+               _VERIFY(status)
+               call ESMF_AttributeSet(grid, name='TARGET_LON', value=this%target_lon,rc=status)
+               _VERIFY(status)
+               call ESMF_AttributeSet(grid, name='TARGET_LAT', value=this%target_lat,rc=status)
+               _VERIFY(status)
+            end if
          else
             grid = ESMF_GridCreateCubedSPhere(this%im_world,countsPerDEDim1PTile=ims, &
                       countsPerDEDim2PTile=jms ,name=this%grid_name, &
@@ -301,15 +306,58 @@ contains
 
       character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_file_metadata()'
       integer :: status
-      logical :: hasLev,hasLevel
+      logical :: hasLev,hasLevel,hasXdim,hasLon
+      logical :: is_stretched
       character(:), allocatable :: lev_name
+      type(Attribute), pointer :: attr
+      class(*), pointer :: attr_val(:)
 
       associate(im => this%im_world)
-         im = file_metadata%get_dimension('Xdim',rc=status)
-         _VERIFY(status)
+         hasXdim = file_metadata%has_dimension('Xdim')
+         hasLon = file_metadata%has_dimension('lon',rc=status)
+         if (hasXdim .and. (.not.haslon)) then
+            im = file_metadata%get_dimension('Xdim',rc=status)
+            _VERIFY(status)
+         else if (hasLon .and. (.not.hasXdim)) then
+            im = file_metadata%get_dimension('lon',rc=status)
+            _VERIFY(status)
+         else
+            _ASSERT(.false.,"can not identify dimenions of cubed-sphere file")
+         end if
       end associate
       call this%make_arbitrary_decomposition(this%nx, this%ny, reduceFactor=6, rc=status)
       _VERIFY(status)
+
+      is_stretched = file_metadata%has_attribute('STRETCH_FACTOR') .and. &
+                     file_metadata%has_attribute('TARGET_LON') .and. &
+                     file_metadata%has_attribute('TARGET_LAT')
+      if (is_stretched) then
+         attr => file_metadata%get_attribute('STRETCH_FACTOR')
+         attr_val => attr%get_values()
+         select type(q=>attr_val)
+         type is (real(kind=REAL32))
+            this%stretch_factor = q(1)
+         class default
+            _ASSERT(.false.,'unsupport subclass for stretch params')
+         end select
+         attr => file_metadata%get_attribute('TARGET_LAT')
+         attr_val => attr%get_values()
+         select type(q=>attr_val)
+         type is (real(kind=REAL32))
+            this%target_lon = q(1)
+         class default
+            _ASSERT(.false.,'unsupport subclass for stretch params')
+         end select
+         attr => file_metadata%get_attribute('TARGET_LON')
+         attr_val => attr%get_values()
+         select type(q=>attr_val)
+         type is (real(kind=REAL32))
+            this%target_lat = q(1)
+         class default
+            _ASSERT(.false.,'unsupport subclass for stretch params')
+         end select
+      end if
+        
 
       hasLev=.false.
       hasLevel=.false.
@@ -723,10 +771,67 @@ contains
       
    end subroutine set_with_default_bounds
    
+   function decomps_are_equal(this, a) result(equal)
+      class (CubedSphereGridFactory), intent(in) :: this
+      class (AbstractGridFactory), intent(in) :: a
+      integer :: a_nx,b_nx,a_ny,b_ny
+      logical :: equal
+
+      select type(a)
+      class default
+         equal = .false.
+      class is (CubedSphereGridFactory)
+         equal = .true.
+         equal = all(a%ims == this%ims) 
+         if (.not. equal) return
+
+         if ( allocated(a%jms) .and. allocated(this%jms)) then
+            a_ny=size(a%jms)
+            b_ny=size(this%ims)
+            a_nx=size(a%ims)
+            b_nx=size(this%ims)
+            equal = a_nx*a_ny == b_nx*b_ny
+            if (.not. equal) return
+         else
+            equal = all(a%jms_2d == this%jms_2d)
+            if (.not. equal) return
+         endif
+      end select 
+
+   end function decomps_are_equal
+
+   function physical_params_are_equal(this, a) result(equal)
+      class (CubedSphereGridFactory), intent(in) :: this
+      class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
+
+      select type (a)
+      class default
+         equal = .false.
+         return
+      class is (CubedSphereGridFactory)
+         equal = .true.
+
+         equal = (a%im_world == this%im_world)
+         if (.not. equal) return
+         
+         equal = (a%stretch_factor == this%stretch_factor)
+         if (.not. equal) return
+         
+         equal = (a%target_lon == this%target_lon)
+         if (.not. equal) return
+         
+         equal = (a%target_lat == this%target_lat)
+         if (.not. equal) return
+         
+      end select
+         
+   end function physical_params_are_equal
 
    logical function equals(a, b)
       class (CubedSphereGridFactory), intent(in) :: a
       class (AbstractGridFactory), intent(in) :: b
+      integer :: a_nx,b_nx,a_ny,b_ny
 
       select type (b)
       class default
@@ -735,23 +840,14 @@ contains
       class is (CubedSphereGridFactory)
          equals = .true.
 
-         equals = (a%im_world == b%im_world)
-         if (.not. equals) return
-         
          equals = (a%lm == b%lm)
          if (.not. equals) return
-         
-         ! same decomposition
-         equals = all(a%ims == b%ims) 
-         if (.not. equals) return
 
-         if ( allocated(a%jms) .and. allocated(b%jms)) then
-            equals = all(a%jms == b%jms)
-            if (.not. equals) return
-         else
-            equals = all(a%jms_2d == b%jms_2d)
-            if (.not. equals) return
-         endif
+         equals = a%decomps_are_equal(b)
+         if (.not. equals) return
+         
+         equals = a%physical_params_are_equal(b)
+         if (.not. equals) return
          
       end select
          
@@ -1153,27 +1249,46 @@ contains
       
    end function get_fake_latitudes
 
-   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,metaData,rc)
       use MAPL_BaseMod
       class(CubedSphereGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
       integer, allocatable, intent(out) :: local_start(:)
       integer, allocatable, intent(out) :: global_start(:)
       integer, allocatable, intent(out) :: global_count(:)
+      type(FileMetadata), intent(in), optional :: metaData
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: global_dim(3),i1,j1,in,jn,tile
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
+      logical :: face_format
+      integer :: nf
       _UNUSED_DUMMY(this)
 
+      if (present(metadata)) then
+         nf = metadata%get_dimension('nf',rc=status)
+         if (status == _SUCCESS) then
+            face_format = .true.
+         else
+            face_format = .false.
+         end if
+      else
+         face_format = .true.
+      end if
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
       _VERIFY(status)
       call MAPL_GridGetInterior(grid,i1,in,j1,jn)
-      tile = 1 + (j1-1)/global_dim(1)
-      allocate(local_start,source=[i1,j1-(tile-1)*global_dim(1),tile])
-      allocate(global_start,source=[1,1,1])
-      allocate(global_count,source=[global_dim(1),global_dim(1),6])
+      if (face_format) then
+         tile = 1 + (j1-1)/global_dim(1)
+         allocate(local_start,source=[i1,j1-(tile-1)*global_dim(1),tile])
+         allocate(global_start,source=[1,1,1])
+         allocate(global_count,source=[global_dim(1),global_dim(1),6])
+      else
+         allocate(local_start,source=[i1,j1])
+         allocate(global_start,source=[1,1])
+         allocate(global_count,source=[global_dim(1),global_dim(2)])
+      end if
 
       _RETURN(_SUCCESS)
 
@@ -1191,6 +1306,7 @@ contains
       integer :: status
       integer :: global_dim(3),i1,j1,in,jn,tile
       integer :: face_i1, face_j1, is, js
+      integer :: nf
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
       _UNUSED_DUMMY(this)
 
@@ -1219,18 +1335,37 @@ contains
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
 
-   function generate_file_reference3D(this,fpointer) result(ref)
+   function generate_file_reference3D(this,fpointer,metadata) result(ref)
       use pFIO
       use, intrinsic :: ISO_C_BINDING
       type(ArrayReference) :: ref
       class(CubedSphereGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:,:)
+      type(FileMetadata), intent(in), optional :: metaData
       type(c_ptr) :: cptr
       real, pointer :: ptr_ref(:,:,:,:,:)
+      logical :: face_format
+      integer :: nf,status
       _UNUSED_DUMMY(this)
-      cptr = c_loc(fpointer)
-      call C_F_pointer(cptr,ptr_ref,[size(fpointer,1),size(fpointer,2),1,size(fpointer,3),1])
-      ref = ArrayReference(ptr_ref)
+
+      if (present(metadata)) then
+         nf = metadata%get_dimension('nf',rc=status)
+         if (status == _SUCCESS) then
+            face_format = .true.
+         else
+            face_format = .false.
+         end if
+      else
+         face_format = .true.
+      end if
+
+      if (face_format) then
+         cptr = c_loc(fpointer)
+         call C_F_pointer(cptr,ptr_ref,[size(fpointer,1),size(fpointer,2),1,size(fpointer,3),1])
+         ref = ArrayReference(ptr_ref)
+      else
+         ref = ArrayReference(fpointer)
+      end if
    end function generate_file_reference3D
- 
+
 end module MAPL_CubedSphereGridFactoryMod

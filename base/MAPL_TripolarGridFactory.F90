@@ -66,6 +66,8 @@ module MAPL_TripolarGridFactoryMod
       procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
+      procedure :: decomps_are_equal
+      procedure :: physical_params_are_equal
    end type TripolarGridFactory
    
    character(len=*), parameter :: MOD_NAME = 'MAPL_TripolarGridFactory::'
@@ -565,7 +567,49 @@ contains
 
    end subroutine initialize_from_esmf_distGrid
 
+   function decomps_are_equal(this,a) result(equal)
+      class (TripolarGridFactory), intent(in) :: this
+      class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
+
+      select type (a)
+      class default
+         equal = .false.
+         return
+      class is (TripolarGridFactory)
+         equal = .true.
+
+         ! same decomposition
+         equal = a%nx == this%nx .and. a%ny == this%ny
+         if (.not. equal) return
+         
+      end select
+         
+   end function decomps_are_equal
+
    
+   function physical_params_are_equal(this, a) result(equal)
+      class (TripolarGridFactory), intent(in) :: this
+      class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
+
+      select type (a)
+      class default
+         equal = .false.
+         return
+      class is (TripolarGridFactory)
+         equal = .true.
+
+         equal = (a%grid_file_name == this%grid_file_name)
+         if (.not. equal) return
+
+         equal = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
+         if (.not. equal) return
+         
+      end select
+         
+   end function physical_params_are_equal
+
 
    logical function equals(a, b)
       class (TripolarGridFactory), intent(in) :: a
@@ -578,17 +622,13 @@ contains
       class is (TripolarGridFactory)
          equals = .true.
 
-         equals = (a%grid_file_name == b%grid_file_name)
-         if (.not. equals) return
-
-         equals = (a%im_world == b%im_world) .and. (a%jm_world == b%jm_world)
-         if (.not. equals) return
-         
          equals = (a%lm == b%lm)
          if (.not. equals) return
-         
-         ! same decomposition
-         equals = a%nx == b%nx .and. a%ny == b%ny
+
+         equals = a%decomps_are_equal(b)
+         if (.not. equals) return
+
+         equals = a%physical_params_are_equal(b)
          if (.not. equals) return
          
       end select
@@ -906,13 +946,14 @@ contains
       _UNUSED_DUMMY(var)
    end subroutine append_variable_metadata
 
-   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,metadata,rc)
       use MAPL_BaseMod
       class(TripolarGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
       integer, allocatable, intent(out) :: local_start(:)
       integer, allocatable, intent(out) :: global_start(:)
       integer, allocatable, intent(out) :: global_count(:)
+      type(FileMetaData), intent(in), optional :: metaData
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -958,11 +999,12 @@ contains
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
 
-   function generate_file_reference3D(this,fpointer) result(ref)
+   function generate_file_reference3D(this,fpointer,metadata) result(ref)
       use pFIO
       type(ArrayReference) :: ref
       class(TripolarGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:,:)
+      type(FileMetaData), intent(in), optional :: metaData
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D

@@ -96,6 +96,8 @@ module MAPL_LatLonGridFactoryMod
       procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
+      procedure :: decomps_are_equal
+      procedure :: physical_params_are_equal
    end type LatLonGridFactory
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_LatLonGridFactory::'
@@ -1387,7 +1389,75 @@ contains
 
    end subroutine initialize_from_esmf_distGrid
 
+   function decomps_are_equal(this,a) result(equal)
+      class (LatLonGridFactory), intent(in) :: this
+      class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
 
+      select type (a)
+         class default
+         equal = .false.
+         return
+      class is (LatLonGridFactory)
+         equal = .true.
+
+
+         equal = size(a%ims)==size(this%ims) .and. size(a%jms)==size(this%jms)
+         if (.not. equal) return
+
+         ! same decomposition
+         equal = all(a%ims == this%ims) .and. all(a%jms == this%jms)
+         if (.not. equal) return
+
+      end select
+
+   end function decomps_are_equal
+
+
+   function physical_params_are_equal(this, a) result(equal)
+      class (LatLonGridFactory), intent(in) :: this
+      class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
+
+      select type (a)
+         class default
+         equal = .false.
+         return
+      class is (LatLonGridFactory)
+         equal = .true.
+
+         equal = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
+         if (.not. equal) return
+
+         equal = (a%is_regular .eqv. this%is_regular)
+         if (.not. equal) return
+
+         if (a%is_regular) then
+            equal = (a%pole == this%pole)
+            if (.not. equal) return
+
+            equal = (a%dateline == this%dateline)
+            if (.not. equal) return
+
+            if (a%pole == 'XY') then
+               equal = (a%lat_range == this%lat_range)
+               if (.not. equal) return
+            end if
+
+            if (a%dateline == 'XY') then
+               equal = (a%lon_range == this%lon_range)
+               if (.not. equal) return
+            end if
+         else
+            equal = &
+                 & all(a%lon_centers == this%lon_centers) .and. & 
+                 & all(a%lon_corners == this%lon_corners) .and. &
+                 & all(a%lat_centers == this%lat_centers) .and. &
+                 & all(a%lat_corners == this%lat_corners)
+         end if
+      end select
+
+   end function physical_params_are_equal
 
    logical function equals(a, b)
       class (LatLonGridFactory), intent(in) :: a
@@ -1400,45 +1470,15 @@ contains
       class is (LatLonGridFactory)
          equals = .true.
 
-         equals = (a%im_world == b%im_world) .and. (a%jm_world == b%jm_world)
-         if (.not. equals) return
-
          equals = (a%lm == b%lm)
          if (.not. equals) return
 
-         equals = size(a%ims)==size(b%ims) .and. size(a%jms)==size(b%jms)
+         equals = a%decomps_are_equal(b)
          if (.not. equals) return
 
-         ! same decomposition
-         equals = all(a%ims == b%ims) .and. all(a%jms == b%jms)
+         equals = a%physical_params_are_equal(b)
          if (.not. equals) return
 
-         equals = (a%is_regular .eqv. b%is_regular)
-         if (.not. equals) return
-
-         if (a%is_regular) then
-            equals = (a%pole == b%pole)
-            if (.not. equals) return
-
-            equals = (a%dateline == b%dateline)
-            if (.not. equals) return
-
-            if (a%pole == 'XY') then
-               equals = (a%lat_range == b%lat_range)
-               if (.not. equals) return
-            end if
-
-            if (a%dateline == 'XY') then
-               equals = (a%lon_range == b%lon_range)
-               if (.not. equals) return
-            end if
-         else
-            equals = &
-                 & all(a%lon_centers == b%lon_centers) .and. & 
-                 & all(a%lon_corners == b%lon_corners) .and. &
-                 & all(a%lat_centers == b%lat_centers) .and. &
-                 & all(a%lat_corners == b%lat_corners)
-         end if
       end select
 
    end function equals
@@ -1768,13 +1808,14 @@ contains
       _UNUSED_DUMMY(var)
    end subroutine append_variable_metadata
 
-   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,metadata,rc)
       use MAPL_BaseMod
       class(LatLonGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
       integer, allocatable, intent(out) :: local_start(:)
       integer, allocatable, intent(out) :: global_start(:)
       integer, allocatable, intent(out) :: global_count(:)
+      type(FileMetaData), intent(in), optional :: metaData
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -1821,11 +1862,12 @@ contains
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
       
-   function generate_file_reference3D(this,fpointer) result(ref)
+   function generate_file_reference3D(this,fpointer,metaData) result(ref)
       use pFIO
       type(ArrayReference) :: ref
       class(LatLonGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:,:)
+      type(FileMetaData), intent(in), optional :: metaData
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D

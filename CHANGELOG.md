@@ -12,6 +12,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [2.8.1] - 2021-07-28
+
+### Removed
+
+- Removed MAPL_OldCubedShereGridFactory.F90 and consilidated with MAPL_CubedSphereGridFactory.F90 
+
+### Added
+
+- Add stretch parameters to restarts and check the file grid compared to MAPL grid
+  when reading restarts
+- Add `CMakePresets.json` file
+  - Note: requires CMake 3.21.0 to use
+  - Per CMake advice, add `CMakeUserPresets.json` to `.gitignore`
+
+### Changed
+
+- Widened the throughput timer format
+
+### Fixed
+
+- Fixed bug with tripolar grids and restarts to not check the file grid matches the application grid if application grid is tripolar 
+
 ## [2.8.0] - 2021-07-12
 
 ### Added
