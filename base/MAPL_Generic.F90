@@ -5905,7 +5905,7 @@ end function MAPL_AddChildFromDSO
              call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',value=grid_type,rc=status)
              _VERIFY(status)
           end if
-          if (trim(grid_type) /= 'Tripolar' .and. trim(grid_type) /= 'llc' .and. trim(grid_type) /= 'External') then
+          if (trim(grid_type) == 'Cubed-Sphere') then
              app_factory => get_factory(MPL%GRID%ESMFGRID)
              allocate(file_factory,source=grid_manager%make_factory(trim(filename)))
              _ASSERT(file_factory%physical_params_are_equal(app_factory),"Factories not equal")
