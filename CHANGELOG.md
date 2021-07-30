@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 ### Added
+
+- Add option to flip native level output in History relative to input
+
 ### Changed
 ### Fixed
 
