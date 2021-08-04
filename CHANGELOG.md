@@ -12,7 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
-## [2.6.8]
+## [2.6.9] - 2021-08-04
+
+### Added
+
+- Added `MAPL_AllocNodeArray_6DR8` and `MAPL_DeAllocNodeArray_6DR8` to Shmem
+
+## [2.6.8] - 2021-05-20
 
 ### Changed
 
