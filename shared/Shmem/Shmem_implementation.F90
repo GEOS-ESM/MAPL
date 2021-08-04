@@ -352,6 +352,22 @@ contains
       _RETURN(SHM_SUCCESS)
     end procedure MAPL_DeAllocNodeArray_5DR8    
 
+    module procedure MAPL_DeAllocNodeArray_6DR8
+
+      type(c_ptr) :: Caddr
+      integer     :: STATUS
+
+      if(.not.MAPL_ShmInitialized) then
+         _RETURN(MAPL_NoShm)
+      endif
+
+      Caddr = C_Loc(Ptr(lbound(Ptr,1),lbound(Ptr,2),lbound(Ptr,3),lbound(Ptr,4),lbound(Ptr,5),lbound(Ptr,6)))
+      call ReleaseSharedMemory(Caddr,rc=STATUS)
+      _VERIFY(STATUS)
+
+      _RETURN(SHM_SUCCESS)
+    end procedure MAPL_DeAllocNodeArray_6DR8
+
     module procedure MAPL_AllocNodeArray_1DL4
     implicit none
       type(c_ptr) :: Caddr
@@ -665,6 +681,29 @@ contains
 
       _RETURN(SHM_SUCCESS)
     end procedure MAPL_AllocNodeArray_5DR8    
+
+    module procedure MAPL_AllocNodeArray_6DR8
+
+      type(c_ptr) :: Caddr
+      integer len, STATUS
+
+      _UNUSED_DUMMY(lbd)
+      if(.not.MAPL_ShmInitialized) then
+         _RETURN(MAPL_NoShm)
+      endif
+
+      len=product(Shp)*2
+
+      call GetSharedMemory(Caddr, len, rc=STATUS)
+      _VERIFY(STATUS)
+
+      call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
+      _ASSERT(all(shape(Ptr)==Shp),'needs informative message')
+
+      if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):,lbd(5):,lbd(6):) => Ptr
+
+      _RETURN(SHM_SUCCESS)
+    end procedure MAPL_AllocNodeArray_6DR8
 
 
     module procedure MAPL_AllocateShared_1DL4

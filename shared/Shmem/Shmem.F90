@@ -122,6 +122,7 @@ module MAPL_Shmem
      module procedure MAPL_AllocNodeArray_3DR8
      module procedure MAPL_AllocNodeArray_4DR8
      module procedure MAPL_AllocNodeArray_5DR8
+     module procedure MAPL_AllocNodeArray_6DR8
   end interface MAPL_AllocNodeArray
 
   interface MAPL_DeAllocNodeArray
@@ -139,6 +140,7 @@ module MAPL_Shmem
      module procedure MAPL_DeAllocNodeArray_3DR8
      module procedure MAPL_DeAllocNodeArray_4DR8
      module procedure MAPL_DeAllocNodeArray_5DR8
+     module procedure MAPL_DeAllocNodeArray_6DR8
   end interface MAPL_DeAllocNodeArray
 
   interface MAPL_BroadcastToNodes
