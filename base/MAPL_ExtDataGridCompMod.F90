@@ -850,7 +850,7 @@ CONTAINS
     
     ! we have better found all the items in the export in either a primary or derived item
     if (itemCounter /= ItemCount) then
-       write(error_msg_str, '(A6,I3,A31)') 'Found ', ItemCount-itemCounter,' unfullfilled imports in extdata'
+       write(error_msg_str, '(A6,I3,A31)') 'Found ', ItemCount-itemCounter,' unfulfilled imports in extdata'
        _ASSERT(.false., error_msg_str)
     end if
    
