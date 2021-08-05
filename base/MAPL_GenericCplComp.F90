@@ -22,7 +22,7 @@ module MAPL_GenericCplCompMod
   use ESMF
   use ESMFL_Mod
   use MAPL_BaseMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use MAPL_IOMod
   use MAPL_CommsMod
   use MAPL_ProfMod

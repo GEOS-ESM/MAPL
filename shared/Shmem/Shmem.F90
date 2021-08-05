@@ -6,6 +6,7 @@ module MAPL_Shmem
 
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64, REAL32
+  use MAPL_Constants
 
   implicit none
   private
@@ -28,8 +29,6 @@ module MAPL_Shmem
   public :: ReleaseSharedMemory
 
   public :: MAPL_GetNewRank
-
-  integer, public, parameter :: MAPL_NoShm=255
 
   character*30 :: Iam="MAPL_ShmemMod in line "
 

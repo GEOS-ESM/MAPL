@@ -20,7 +20,7 @@
    use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
    use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
    use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
-   use MAPL_ConstantsMod, only: MAPL_PI_R8
+   use MAPL_Constants, only: MAPL_PI_R8
    use MAPL_ExceptionHandling
    use MAPL_ApplicationSupport
    use pFIO

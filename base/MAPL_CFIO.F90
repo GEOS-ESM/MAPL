@@ -24,7 +24,7 @@ module MAPL_CFIOMod
   use ESMF
   use MAPL_BaseMod
   use MAPL_CommsMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use ESMF_CFIOMod  
   use ESMF_CFIOUtilMod
   use ESMF_CFIOFileMod
@@ -5797,7 +5797,7 @@ CONTAINS
     use MAPL_AbstractGridFactoryMod
     use MAPL_LatLonGridFactoryMod
     use MAPL_GridManagerMod
-    use MAPL_ConstantsMod, only: MAPL_RADIANS_TO_DEGREES
+    use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
     type (ESMF_GRid), intent(in) :: grid
 
     real, intent(out) :: lons(:), lats(:)

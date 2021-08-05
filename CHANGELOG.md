@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add stretch parameters to restarts and check the file grid compared to MAPL grid
   when reading restarts
+- Refactors Constants into its own library
 
 ### Removed
 

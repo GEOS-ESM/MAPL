@@ -12,7 +12,7 @@ module MAPL_newCFIOMod
   use MAPL_RegridMethods
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use pFIO
   use MAPL_newCFIOItemVectorMod
   use MAPL_newCFIOItemMod

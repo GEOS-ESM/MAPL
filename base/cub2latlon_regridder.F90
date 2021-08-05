@@ -14,7 +14,7 @@ module SupportMod
    use MAPL_ExceptionHandling
    use MAPL_BaseMod
    use pFIO
-   use MAPL_ConstantsMod
+   use MAPL_Constants
    use MAPL_RangeMod
    use MAPL_StringRouteHandleMapMod
    use gFTL_StringVector
