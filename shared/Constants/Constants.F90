@@ -1,7 +1,7 @@
 module MAPL_Constants
 
 use, intrinsic :: iso_fortran_env, only: REAL64, REAL32
-use MAPL_InternalConstantsMod, disabled => MAPL_UNDEF !For temporary backward compatibility
+use MAPL_InternalConstantsMod, DisabledVar => MAPL_UNDEF !For temporary backward compatibility
 use MAPL_MathConstantsMod
 use MAPL_PhysicalConstantsMod
 

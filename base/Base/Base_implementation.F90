@@ -10,7 +10,6 @@ submodule (MAPL_Base) Base_Implementation
   ! !USES:
   !
   use ESMF
-  !use MAPL_Constants, only: MAPL_PI, MAPL_PI_R8,MAPL_DEGREES_TO_RADIANS
   use MAPL_Constants
   use MAPL_RangeMod
   use MAPL_SphericalGeometry

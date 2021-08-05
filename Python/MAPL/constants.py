@@ -57,7 +57,7 @@ MAPL_ALHF    = 3.3370E5               # J/kg
 MAPL_ALHS    = MAPL_ALHL+MAPL_ALHF    # J/kg
 
 
-!Internal constants
+#Internal constants
 MAPL_UNDEF   = 1.0e15
 MAPL_GRID_NAME_DEFAULT = 'UNKNOWN'
 MAPL_GRID_FILE_NAME_DEFAULT = 'UNKNOWN'
