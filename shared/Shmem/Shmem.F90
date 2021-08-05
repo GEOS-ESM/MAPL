@@ -121,6 +121,7 @@ module MAPL_Shmem
      module procedure MAPL_AllocNodeArray_3DR8
      module procedure MAPL_AllocNodeArray_4DR8
      module procedure MAPL_AllocNodeArray_5DR8
+     module procedure MAPL_AllocNodeArray_6DR8
   end interface MAPL_AllocNodeArray
 
   interface MAPL_DeAllocNodeArray
@@ -138,6 +139,7 @@ module MAPL_Shmem
      module procedure MAPL_DeAllocNodeArray_3DR8
      module procedure MAPL_DeAllocNodeArray_4DR8
      module procedure MAPL_DeAllocNodeArray_5DR8
+     module procedure MAPL_DeAllocNodeArray_6DR8
   end interface MAPL_DeAllocNodeArray
 
   interface MAPL_BroadcastToNodes
@@ -252,6 +254,11 @@ module MAPL_Shmem
        integer, optional, intent(OUT) :: rc
      end subroutine MAPL_DeAllocNodeArray_5DR8
 
+     module subroutine MAPL_DeAllocNodeArray_6DR8(Ptr,rc)
+       real(kind=REAL64),  pointer    :: Ptr(:,:,:,:,:,:)
+       integer, optional, intent(OUT) :: rc
+     end subroutine MAPL_DeAllocNodeArray_6DR8
+
      module subroutine MAPL_AllocNodeArray_1DL4(Ptr, Shp, lbd, rc)
        logical, pointer,  intent(INOUT) :: Ptr(:)
        integer,           intent(IN   ) :: Shp(1)
@@ -354,6 +361,12 @@ module MAPL_Shmem
        integer, optional, intent(  OUT) :: rc
      end subroutine MAPL_AllocNodeArray_5DR8
 
+     module subroutine MAPL_AllocNodeArray_6DR8(Ptr, Shp, lbd, rc)
+       real(kind=REAL64), pointer,   intent(INOUT) :: Ptr(:,:,:,:,:,:)
+       integer,           intent(IN   ) :: Shp(6)
+       integer, optional, intent(IN   ) :: lbd(6)
+       integer, optional, intent(  OUT) :: rc
+     end subroutine MAPL_AllocNodeArray_6DR8
 
      module subroutine MAPL_AllocateShared_1DL4(Ptr, Shp, lbd, TransRoot, rc)
        logical, pointer,  intent(INOUT) :: Ptr(:)

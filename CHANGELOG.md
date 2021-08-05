@@ -7,9 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Add stretch parameters to restarts and check the file grid compared to MAPL grid
-  when reading restarts
-- Refactors Constants into its own library
+### Removed
+### Added
+
+- Add option to flip native level output in History relative to input
+- Added `MAPL_AllocNodeArray_6DR8` and `MAPL_DeAllocNodeArray_6DR8` to Shmem
+- Refactors Constants into its own library and consolidated mathematical/physical constants used throughout code to use those from library
+
+### Changed
+### Fixed
+
+## [2.8.2] - 2021-07-29
+
+### Removed
+
+- Removed unneeded `.gitrepo` files
+
+### Fixed
+
+- Only check the restart grid compared to component if component grid is Cubed-Sphere. Other factories not yet supported.
+
+## [2.8.1] - 2021-07-28
 
 ### Removed
 
@@ -17,12 +35,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add stretch parameters to restarts and check the file grid compared to MAPL grid
+  when reading restarts
 - Add `CMakePresets.json` file
   - Note: requires CMake 3.21.0 to use
   - Per CMake advice, add `CMakeUserPresets.json` to `.gitignore`
 
 ### Changed
+
+- Widened the throughput timer format
+
 ### Fixed
+
+- Fixed bug with tripolar grids and restarts to not check the file grid matches the application grid if application grid is tripolar 
 
 ## [2.8.0] - 2021-07-12
 
