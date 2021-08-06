@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactors Constants into its own library and consolidated mathematical/physical constants used throughout code to use those from library
 
 ### Changed
+
+- Updated `components.yaml`
+  - ESMA_cmake v3.5.3
+
 ### Fixed
 
 ## [2.8.2] - 2021-07-29
