@@ -25,7 +25,6 @@ module MAPL_InternalConstantsMod
    character(len=*), parameter  :: MAPL_GRID_FILE_NAME_DEFAULT  = 'UNKNOWN'
    character(len=*), parameter  :: MAPL_CF_COMPONENT_SEPARATOR  = '.'
 
-! Used in Profiler and CapGridComp
    enum, bind(c)
       enumerator MAPL_TimerModeOld
       enumerator MAPL_TimerModeRootOnly
@@ -33,7 +32,6 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_TimerModeMinMax
    endenum
 
-! SatVaporMod
    enum, bind(c)
       enumerator :: MAPL_UseStarrQsat = 1
       enumerator MAPL_UseGoffGratchQsat
@@ -41,34 +39,27 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_UseCAMQsat
    endenum
 
-! Used in Comms and CFIO
    enum, bind(c)
       enumerator MAPL_Unknown
       enumerator MAPL_IsGather
       enumerator MAPL_IsScatter
    endenum
 
-! Used in Regridder, LocStream, HistoryGridComp and Base
    integer, parameter :: MAPL_TileNameLength = 128
 
-! Used in Shmem, CFIO, and Regridder
    integer, parameter :: MAPL_NoShm=255
 
-! Used in DirPath and ErrorHandling
    enum, bind(c)
       enumerator MAPL_SUCCESS
       enumerator MAPL_FILE_NOT_FOUND
    endenum
 
-!Used in LatLonRegridder
    enum, bind(c)
       enumerator :: MAPL_DimTopoEdge = -1
       enumerator MAPL_DimTopoCyclic
       enumerator MAPL_DimTopoCenter
    endenum
 
-! Used in Generic and VarSpec, OrbGridComp, ExtDataGridComp, and StateSpecification
-   !Enumerators
    integer, parameter :: MAPL_CplUNKNOWN        = 0  !Not used
    integer, parameter :: MAPL_CplSATISFIED      = 1
    integer, parameter :: MAPL_CplNEEDED         = 2  !not used
@@ -79,20 +70,17 @@ module MAPL_InternalConstantsMod
    integer, parameter :: MAPL_StateItem         = 32
    integer, parameter :: MAPL_NoRestart         = 64  !not used
 
-! Used in Generic
    enum, bind(c)
       enumerator MAPL_Write2Disk
       enumerator MAPL_Write2RAM
    endenum
 
-! Used in HistoryGridComp, VerticalMethods, FieldBundleRead, IO, Base, CFIO, StateSpecification, VarSpec, and Generic
    enum, bind(c)
       enumerator MAPL_VLocationNone
       enumerator MAPL_VLocationEdge
       enumerator MAPL_VLocationCenter
    endenum
 
-! Used in Generic, OrbGridComp, CFIO, Base, FieldBundleRead, IO, and HistoryGridComp
    enum, bind(c)
       enumerator MAPL_DimsUnknown
       enumerator MAPL_DimsVertOnly
@@ -103,13 +91,11 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_DimsNone
    endenum
 
-! Used in CFIO, VarSpec, and StateSpecification
    enum, bind(c)
       enumerator :: MAPL_ScalarField = 1
       enumerator MAPL_VectorField
    endenum
 
-! Used in GenericCplComp, and HistoryGridComp
    enum, bind(c)
       enumerator MAPL_CplAverage
       enumerator MAPL_CplMin
@@ -118,20 +104,17 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_MinMaxUnknown   ! This was defined to MAPL_CplAverage before and is not used
    endenum
 
-! Used in Generic
    enum, bind(c)
       enumerator :: MAPL_AttrGrid = 1
       enumerator MAPL_AttrTile
    endenum
 
-!Used in Base and Generic
    enum, bind(c)
       enumerator MAPL_Uninitialized
       enumerator MAPL_InitialDefault
       enumerator MAPL_InitialRestart
    endenum
 
-! Used in Generic, StateSpecification, and VarSpec
    enum, bind(c)
       enumerator :: MAPL_DuplicateEntry = -99
       enumerator :: MAPL_ConnUnknown = -1
@@ -140,7 +123,6 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_Export
    endenum
 
-! Used in Generic
    enum, bind(c)
       enumerator :: MAPL_FirstPhase = 1
       enumerator MAPL_SecondPhase
@@ -149,7 +131,6 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_FifthPhase
    endenum
 
-! Used in external components
    integer, parameter :: MAPL_Ocean              = 0  
    integer, parameter :: MAPL_Lake               = 19 
    integer, parameter :: MAPL_LandIce            = 20 
@@ -157,20 +138,17 @@ module MAPL_InternalConstantsMod
    integer, parameter :: MAPL_Vegetated          = 101
    integer, parameter :: MAPL_NumVegTypes        = 6 
 
-! Used in StateSpecification, VarSpec, and CFIO
    enum, bind(c)
       enumerator MAPL_AGrid
       enumerator MAPL_CGrid
       enumerator MAPL_DGrid
    endenum 
 
-! Used in CFIO, StateSpecification, and VarSpec
    enum, bind(c)
       enumerator MAPL_RotateLL
       enumerator MAPL_RotateCube
    endenum
 
-! Seems to not be used
    enum, bind(c)
       enumerator MAPL_HorzTransOrderBinning
       enumerator MAPL_HorzTransOrderBilinear
@@ -178,7 +156,6 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_HorzTransOrderSample
    endenum
 
-! Used in IO, Generic, StateSpecification, and VarSpec
    enum, bind(c)
       enumerator MAPL_RestartOptional
       enumerator MAPL_RestartSkip

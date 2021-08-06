@@ -12,7 +12,7 @@ module MAPL_PhysicalConstantsMod
 ! !PUBLIC VARIABLES:
 
    ! Universal Constants
-#if defined(CODATA_CONSTANTS)
+#if defined(CODATA_2018_CONSTANTS)
    real, parameter              :: MAPL_STFBOL                    = 5.670374419E-8                               ! W/(m^2 K^4)
    real, parameter              :: MAPL_AVOGAD                    = 6.02214076E26                                ! 1/kmol
    real, parameter              :: MAPL_RUNIV                     = 8314.462618                                  ! J/(Kmole K)
