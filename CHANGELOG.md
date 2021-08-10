@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Removed
+- Removed Pandas dependency
+
 ### Added
 
 - Add option to flip native level output in History relative to input
