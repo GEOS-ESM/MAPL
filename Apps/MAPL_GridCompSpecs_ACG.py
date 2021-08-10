@@ -3,7 +3,6 @@ import argparse
 import sys
 import os
 import csv
-import pandas as pd
 
 
 ###############################################################
@@ -183,6 +182,13 @@ def read_specs(specs_filename):
             elif not prev_row_blank:
                 return
 
+    def dataframe(reader, columns):
+        """ Read a reader iterator and return a list of dictionaries, each including column name and value. """
+        df = []
+        for row in reader:
+            df.append(dict(zip(columns, row)))
+        return df
+
     column_aliases = {
         'NAME'       : 'short_name',
         'LONG NAME'  : 'long_name',
@@ -217,7 +223,7 @@ def read_specs(specs_filename):
                         columns.append(column_aliases[c])
                     else:
                         columns.append(c)
-                specs[category] = pd.DataFrame(gen, columns=columns)
+                specs[category] = dataframe(gen, columns)
             except StopIteration:
                 break
 
@@ -310,7 +316,7 @@ else:
 
 # Generate code from specs (processed above with pandas)
 for category in ("IMPORT","EXPORT","INTERNAL"):
-    for item in specs[category].to_dict("records"):
+    for item in specs[category]:
         spec = MAPL_DataSpec(category.lower(), item)
         if f_specs[category]:
             f_specs[category].write(spec.emit_specs())
