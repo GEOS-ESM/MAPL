@@ -16,7 +16,6 @@ module MAPL_InternalConstantsMod
    integer,parameter            :: MAPL_I4                      = selected_int_kind ( 6) ! 4 byte integer
    integer,parameter            :: MAPL_IN                      = kind(1)                ! native integer
 
-   real,    public, parameter   :: MAPL_UNDEF                   = 1.0e15
    integer,parameter            :: MAPL_UNDEFINED_INTEGER       = 1-huge(1)
    real,parameter               :: MAPL_UNDEFINED_REAL          = huge(1.)
    real(kind=REAL64), parameter :: MAPL_UNDEFINED_REAL64        = huge(1.d0)
