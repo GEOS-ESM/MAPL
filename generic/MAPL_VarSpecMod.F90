@@ -13,7 +13,7 @@ module MAPL_VarSpecMod
 
    use ESMF
    use pFlogger
-   use mapl_Enumerators
+   use MAPL_Constants
    use MAPL_ExceptionHandling
    use mapl_VariableSpecification
    use mapl_VarSpecVector

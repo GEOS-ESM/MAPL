@@ -115,7 +115,7 @@ module MAPL_GenericMod
   use MAPL_Profiler
   use MAPL_MemUtilsMod
   use MAPL_CommsMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use MAPL_SunMod
   use MaplGeneric
   use MAPL_GenericCplCompMod
@@ -339,8 +339,6 @@ module MAPL_GenericMod
 
 
 integer, parameter :: LAST_ALARM = 99
-
-character(len=*), parameter :: CF_COMPONENT_SEPARATOR = '.'
 
 type MAPL_GenericWrap
    type(MAPL_MetaComp       ), pointer :: MAPLOBJ
@@ -8090,7 +8088,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     labels_with_prefix(1) = trim(component_name)//"_"//trim(label)
     labels_with_prefix(2) = trim(component_type)//"_"//trim(label)
     labels_with_prefix(3) = trim(label)
-    labels_with_prefix(4) = trim(component_name)//CF_COMPONENT_SEPARATOR//trim(label)
+    labels_with_prefix(4) = trim(component_name)//MAPL_CF_COMPONENT_SEPARATOR//trim(label)
   end function get_labels_with_prefix  
 
 
@@ -10004,23 +10002,23 @@ end subroutine MAPL_READFORCINGX
        _ASSERT(.false.,'needs informative message')
     endif
 
-    call MAPL_ConfigPrepend(state%cf,trim(comp_name),CF_COMPONENT_SEPARATOR,'NX:',rc=status)
+    call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NX:',rc=status)
     _VERIFY(status)
-    call MAPL_ConfigPrepend(state%cf,trim(comp_name),CF_COMPONENT_SEPARATOR,'NY:',rc=status)
+    call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NY:',rc=status)
     _VERIFY(status)
    
-    call ESMF_ConfigGetAttribute(state%cf,gridname,label=trim(comp_name)//CF_COMPONENT_SEPARATOR//'GRIDNAME:',rc=status)
+    call ESMF_ConfigGetAttribute(state%cf,gridname,label=trim(comp_name)//MAPL_CF_COMPONENT_SEPARATOR//'GRIDNAME:',rc=status)
     _VERIFY(status)
     nn = len_trim(gridname)
     dateline = gridname(nn-1:nn)
     if (dateline == 'CF') then
-       call ESMF_ConfigGetAttribute(state%CF,ny,label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//'NY:',rc=status)
+       call ESMF_ConfigGetAttribute(state%CF,ny,label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//'NY:',rc=status)
        _VERIFY(status)
-       call MAPL_ConfigSetAttribute(state%CF, value=ny/6, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//'NY:',rc=status)
+       call MAPL_ConfigSetAttribute(state%CF, value=ny/6, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//'NY:',rc=status)
        _VERIFY(status)
     end if
 
-    grid = grid_manager%make_grid(state%CF, prefix=trim(COMP_Name)//CF_COMPONENT_SEPARATOR, rc=status)
+    grid = grid_manager%make_grid(state%CF, prefix=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR, rc=status)
     _VERIFY(status)
 
     call state%grid%set(grid, __RC__)

@@ -10,11 +10,10 @@ submodule (MAPL_Base) Base_Implementation
   ! !USES:
   !
   use ESMF
-  use MAPL_ConstantsMod, only: MAPL_PI, MAPL_PI_R8,MAPL_DEGREES_TO_RADIANS
+  use MAPL_Constants
   use MAPL_RangeMod
   use MAPL_SphericalGeometry
   use MaplGeneric, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
-  use mapl_Enumerators
   use MAPL_ExceptionHandling
   implicit NONE
 
@@ -1057,10 +1056,9 @@ contains
 
   integer module function MAPL_nsecf2 (nhhmmss,nmmdd,nymd)
     integer nhhmmss,nmmdd,nymd,nday,month
-    integer nsday, ncycle,iday,iday2
+    integer nsday,iday,iday2
     integer i,nsegm,nsegd
     PARAMETER ( NSDAY  = 86400 )
-    PARAMETER ( NCYCLE = 1461*24*3600 )
     INTEGER YEAR, DAY, SEC
     integer    MNDY(12,4), mnd48(48)
     DATA MND48/0,31,60,91,121,152,182,213,244,274,305,335,366,397,34*0 /
@@ -2074,7 +2072,6 @@ contains
     real(ESMF_KIND_R8), allocatable :: cornerX(:)
     real(ESMF_KIND_R8), allocatable :: cornerY(:)
 
-    real(kind=REAL64), parameter    :: D2R = MAPL_PI_R8 / 180
     real                            :: FirstOut(2)
     real                            :: LastOut(2)
 
@@ -2261,10 +2258,10 @@ contains
 
     !  Compute the coordinates (the corner/center is for backward compatibility)
     !  -------------------------------------------------------------------------
-    deltaX      = D2R * DelLon_
-    deltaY      = D2R * DelLat_
-    minCoord(1) = D2R * BegLon_ - deltaX/2
-    minCoord(2) = D2R * BegLat_ - deltaY/2 
+    deltaX      = MAPL_DEGREES_TO_RADIANS * DelLon_
+    deltaY      = MAPL_DEGREES_TO_RADIANS * DelLat_
+    minCoord(1) = MAPL_DEGREES_TO_RADIANS * BegLon_ - deltaX/2
+    minCoord(2) = MAPL_DEGREES_TO_RADIANS * BegLat_ - deltaY/2 
 
     allocate(cornerX(IM_World_+1),cornerY(JM_World_+1), stat=STATUS)
     _VERIFY(STATUS)
@@ -2297,7 +2294,7 @@ contains
     LastOut(2)=90. 
 
     block
-      use MAPL_ConstantsMod, only: MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS
       real(kind=REAL64), allocatable :: lons(:)
       real(kind=REAL64), allocatable :: lats(:)
 
