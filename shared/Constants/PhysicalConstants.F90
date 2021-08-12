@@ -31,8 +31,8 @@ module MAPL_PhysicalConstantsMod
    real(kind=REAL32), parameter :: MAPL_OMEGA                     = 2.0*MAPL_PI/MAPL_SECONDS_PER_SIDEREAL_DAY     ! 1/s
    real(kind=REAL64), parameter :: MAPL_EARTH_ECCENTRICITY        = 8.1819190842622d-2                            ! --
    real(kind=REAL64), parameter :: MAPL_EARTH_SEMIMAJOR_AXIS      = 6378137                                       ! m
-   real(kind=REAL64), parameter :: MAPL_KM2DEG                    = (1.0/(MAPL_RADIUS/1000.)) * MAPL_RADIANS_TO_DEGREES
-   real(kind=REAL64), parameter :: MAPL_DEG2KM                    = (MAPL_RADIUS/1000.) * MAPL_DEGREES_TO_RADIANS
+   real(kind=REAL64), parameter :: MAPL_KM_PER_DEG                    = (1.0/(MAPL_RADIUS/1000.)) * MAPL_RADIANS_TO_DEGREES
+   real(kind=REAL64), parameter :: MAPL_DEG_PER_KM                    = (MAPL_RADIUS/1000.) * MAPL_DEGREES_TO_RADIANS
 
 
    ! Physical properties

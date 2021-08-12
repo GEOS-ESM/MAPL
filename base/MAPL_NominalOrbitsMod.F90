@@ -621,7 +621,7 @@ SUBROUTINE find_sweeppoints(iii, latwayp, longwayp, l, r, wrapon, latlonshift)
                CALL linspace(r,l,iii,myvec)
        end if
        do i=1, size(myvec)
-          myvec_deg(i) =  MAPL_KM2DEG * myvec(i)
+          myvec_deg(i) =  MAPL_KM_PER_DEG * myvec(i)
        end do
       DO say = 1,size(myvec)
           ALLOCATE(latshift1(1:size(longwayp)),lonshift1(1:size(longwayp)))
@@ -1063,7 +1063,7 @@ SUBROUTINE find_LTGE(distlon, lat_vec_centers, vec_lat, long_limits)
           do k=1,mys
              if ( (lat_vec_centers(k).LT.vec_lat(i)).AND.  & 
                   (lat_vec_centers(k).GE.vec_lat(i+1)) ) then
-                long_limitstemp(i) = MAPL_DEG2KM * distlon(k)
+                long_limitstemp(i) = MAPL_DEG_PER_KM * distlon(k)
                 exit
              end if 
          end do 
@@ -1207,7 +1207,7 @@ REAL(dp) FUNCTION find_delta_t(iSat, kk, long_limits, longind,t1,time_day)
           END DO
          long_wayptemp = (long_wayptemp-180)
          flag_add = 0
-         dista = MAPL_DEG2KM * get_distance( lat_wayptemp(1,1),long_wayptemp(1,1), &
+         dista = MAPL_DEG_PER_KM * get_distance( lat_wayptemp(1,1),long_wayptemp(1,1), &
          lat_wayptemp(2,1),long_wayptemp(2,1))
          if  (dista.GT.long_limits) then
              flag_add = 1
