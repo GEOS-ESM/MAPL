@@ -7,10 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-
 ### Removed
+- Removed Pandas dependency
+- Removed unused functions from NominalOrbits Module
+
 ### Added
+
+- Add option to flip native level output in History relative to input
+- Added `MAPL_AllocNodeArray_6DR8` and `MAPL_DeAllocNodeArray_6DR8` to Shmem
+- Refactors Constants into its own library and consolidated mathematical/physical constants used throughout code to use those from library
+
 ### Changed
+
+- Updated `components.yaml`
+  - ESMA_cmake v3.5.3
+
 ### Fixed
 
 ## [2.8.2] - 2021-07-29

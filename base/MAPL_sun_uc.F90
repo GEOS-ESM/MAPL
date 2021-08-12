@@ -19,7 +19,7 @@ module MAPL_SunMod
 ! !USES:
 
   use ESMF
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use MAPL_BaseMod
   use MAPL_IOMod
   use MAPL_CommsMod
@@ -521,7 +521,7 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
       integer :: K, KP, YEARS_PER_CYCLE, DAYS_PER_CYCLE
       real(kind=REAL64)  :: TREL, T1, T2, T3, T4, dTRELdDAY
       real(kind=REAL64)  :: SOB, COB, OMG0, OMG, PRH, PRHV
-      real    :: D2R, OMECC, OPECC, OMSQECC, EAFAC
+      real    :: OMECC, OPECC, OMSQECC, EAFAC
       real(kind=REAL64)  :: TA, EA, MA, TRRA, MNRA
       real    :: meanEOT
       type(MAPL_SunOrbit) :: ORBIT
@@ -537,8 +537,6 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
       !   where TREL is ecliptic longitude of true Sun
       dTRELdDAY(TREL) = OMG*(1.0-ECCENTRICITY*cos(TREL-PRH))**2
 
-      ! useful constants
-      D2R  = MAPL_PI / 180.
 
       ! record inputs needed by both orbit methods
       ORBIT%CLOCK  = CLOCK
@@ -549,13 +547,15 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
       if (ORBIT_ANAL2B) then
 
         ! record inputs in ORBIT type
-        ORBIT%ORB2B_YEARLEN      = ORB2B_YEARLEN
-        ORBIT%ORB2B_ECC_REF      = ORB2B_ECC_REF
-        ORBIT%ORB2B_OBQ_REF      = ORB2B_OBQ_REF      * D2R           ! radians
-        ORBIT%ORB2B_LAMBDAP_REF  = ORB2B_LAMBDAP_REF  * D2R           ! radians
-        ORBIT%ORB2B_ECC_RATE     = ORB2B_ECC_RATE           / 36525.  ! per day
-        ORBIT%ORB2B_OBQ_RATE     = ORB2B_OBQ_RATE     * D2R / 36525.  ! radians per day
-        ORBIT%ORB2B_LAMBDAP_RATE = ORB2B_LAMBDAP_RATE * D2R / 36525.  ! radians per day
+        associate(D2R => MAPL_DEGREES_TO_RADIANS)
+          ORBIT%ORB2B_YEARLEN      = ORB2B_YEARLEN
+          ORBIT%ORB2B_ECC_REF      = ORB2B_ECC_REF
+          ORBIT%ORB2B_OBQ_REF      = ORB2B_OBQ_REF      * D2R           ! radians
+          ORBIT%ORB2B_LAMBDAP_REF  = ORB2B_LAMBDAP_REF  * D2R           ! radians
+          ORBIT%ORB2B_ECC_RATE     = ORB2B_ECC_RATE           / 36525.  ! per day
+          ORBIT%ORB2B_OBQ_RATE     = ORB2B_OBQ_RATE     * D2R / 36525.  ! radians per day
+          ORBIT%ORB2B_LAMBDAP_RATE = ORB2B_LAMBDAP_RATE * D2R / 36525.  ! radians per day
+        end associate
         ! record MAPL Time object for REFerence time
         year   = ORB2B_REF_YYYYMMDD / 10000
         month  = mod(ORB2B_REF_YYYYMMDD, 10000) / 100
@@ -613,11 +613,13 @@ type(MAPL_SunOrbit) function MAPL_SunOrbitCreate(CLOCK,                  &
 !       OMSQECC = OMECC * OPECC
         EAFAC = sqrt(OMECC/OPECC)
 
-        OMG0 = 2.*MAPL_PI/YEARLEN
-        OMG  = OMG0/sqrt(OMSQECC)**3
-        PRH  = PERIHELION*D2R
-        SOB  = sin(OBLIQUITY*D2R)
-        COB  = cos(OBLIQUITY*D2R)
+        associate(D2R => MAPL_DEGREES_TO_RADIANS)
+          OMG0 = 2.*MAPL_PI/YEARLEN
+          OMG  = OMG0/sqrt(OMSQECC)**3
+          PRH  = PERIHELION*D2R
+          SOB  = sin(OBLIQUITY*D2R)
+          COB  = cos(OBLIQUITY*D2R)
+        end associate
 
         ! PRH is the ecliptic longitude of the perihelion, measured (at the Sun)
         ! from the autumnal equinox in the direction of the Earth`s orbital motion

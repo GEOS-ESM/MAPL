@@ -43,8 +43,6 @@
       integer, parameter :: NDIMS_MAX = 4
       integer, parameter :: MAX_VAR_DIMS = 32
       character*7, parameter :: GRID_NAME='EOSGRID'
-      integer, parameter :: NFILES_MAX = 64
-      integer, parameter :: NVARS_MAX = 128
       integer, parameter :: MAXCHR = 256
       integer, parameter :: PACK_BITS = 32766
       integer, parameter :: PACK_FILL = 32767
