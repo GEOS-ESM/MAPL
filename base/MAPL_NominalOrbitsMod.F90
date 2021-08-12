@@ -870,20 +870,6 @@ SUBROUTINE build_array(s,e,dp, mat)
        end do
 END SUBROUTINE build_array
 
-REAL(dp) FUNCTION deg2km(angle)
-       IMPLICIT NONE    
-       REAL(dp) angle
-
-       deg2km = (MAPL_RADIUS/1000.) * deg2rad(angle) 
-END FUNCTION deg2km
-
-REAL(dp) FUNCTION km2deg(r)
-       IMPLICIT NONE    
-       REAL(dp) :: r, rad
-
-       rad = r/(MAPL_RADIUS/1000.)
-       km2deg = rad2deg(rad)
-END FUNCTION km2deg
 
 REAL(dp) FUNCTION deg2rad(angle)
        IMPLICIT NONE
