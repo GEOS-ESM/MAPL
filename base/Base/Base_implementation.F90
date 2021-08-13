@@ -1698,7 +1698,8 @@ contains
     integer, optional, intent(  OUT) :: RC
     integer                          :: status
     
-    call ESMF_AttributeCopy(field_in, field_out, attcopy=ESMF_ATTCOPY_VALUE, __RC__)     
+    call ESMF_AttributeCopy(field_in, field_out, attcopy=ESMF_ATTCOPY_VALUE, rc=status)  
+    _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldCopyAttributes
 
