@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+	
 
 ### Removed
 - Removed Pandas dependency
@@ -18,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactors Constants into its own library and consolidated mathematical/physical constants used throughout code to use those from library
 
 ### Changed
-
+- Simplified implementation of MAPL_FieldCopyAttributes
 - Updated `components.yaml`
   - ESMA_cmake v3.5.3
 
