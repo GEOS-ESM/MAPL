@@ -1696,62 +1696,9 @@ contains
     type (ESMF_Field), intent(INOUT) :: FIELD_IN !ALT: intent(in)
     type (ESMF_Field), intent(INOUT) :: FIELD_OUT
     integer, optional, intent(  OUT) :: RC
-
-    type (ESMF_TypeKind_Flag)        :: tk
     integer                          :: status
-    character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_FieldCopyAttributes'
-    integer                          :: i, n, count
-    character(len=ESMF_MAXSTR)       :: attname
-    character(len=ESMF_MAXSTR)       :: att
-    integer, pointer                 :: iptr(:)
-    logical, pointer                 :: lptr(:)
-    real,    pointer                 :: rptr(:)
-
-    call ESMF_AttributeGet(field_in, count=n, rc=status)
-    _VERIFY(STATUS)
-
-    do i = 1, n
-       call  ESMF_AttributeGet(field_in, attributeIndex=i, name=attname, &
-            typekind=tk, itemcount=count, rc=status)
-       _VERIFY(STATUS)
-
-       if (tk == ESMF_TypeKind_I4) then
-          allocate(iptr(count), stat=status)
-          _VERIFY(STATUS)
-          call ESMF_AttributeGet(field_in,  NAME=attname, itemcount=count, VALUELIST=iptr, RC=STATUS)
-          _VERIFY(STATUS)
-          call ESMF_AttributeSet(field_out, NAME=attname, itemcount=count, VALUELIST=iptr, RC=STATUS)
-          _VERIFY(STATUS)
-          deallocate(iptr)
-
-       else if (tk == ESMF_TypeKind_Logical) then
-          allocate(lptr(count), stat=status)
-          _VERIFY(STATUS)
-          call ESMF_AttributeGet(field_in,  NAME=attname, itemcount=count, VALUELIST=lptr, RC=STATUS)
-          _VERIFY(STATUS)
-          call ESMF_AttributeSet(field_out, NAME=attname, itemcount=count, VALUELIST=lptr, RC=STATUS)
-          _VERIFY(STATUS)
-          deallocate(lptr)
-
-       else if (tk == ESMF_TypeKind_R4) then
-          allocate(rptr(count), stat=status)
-          _VERIFY(STATUS)
-          call ESMF_AttributeGet(field_in,  NAME=attname, itemcount=count, VALUELIST=rptr, RC=STATUS)
-          _VERIFY(STATUS)
-          call ESMF_AttributeSet(field_out, NAME=attname, itemcount=count, VALUELIST=rptr, RC=STATUS)
-          _VERIFY(STATUS)
-          deallocate(rptr)
-
-       else if (tk == ESMF_TypeKind_Character) then
-          call ESMF_AttributeGet(field_in,  NAME=attname, VALUE=att, RC=STATUS)
-          _VERIFY(STATUS)
-          call ESMF_AttributeSet(field_out, NAME=attname, VALUE=att, RC=STATUS)
-          _VERIFY(STATUS)
-
-       else
-          _RETURN(ESMF_FAILURE)
-       end if
-    end do
+    
+    call ESMF_AttributeCopy(field_in, field_out, attcopy=ESMF_ATTCOPY_VALUE, __RC__)     
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldCopyAttributes
 
