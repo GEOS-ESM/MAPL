@@ -88,6 +88,7 @@ module MAPL_HistoryCollectionMod
      logical                            :: timeseries_output = .false.
      logical                            :: recycle_track = .false.
      type(HistoryTrajectory)            :: trajectory
+     character(len=ESMF_MAXSTR)         :: positive 
      contains
         procedure :: AddGrid
   end type HistoryCollection

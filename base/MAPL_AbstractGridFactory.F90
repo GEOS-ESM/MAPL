@@ -6,6 +6,7 @@ module MAPL_AbstractGridFactoryMod
    use pFIO
    use MAPL_ExceptionHandling
    use MAPL_BaseMod, only: MAPL_UNDEF
+   use MAPL_Constants
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use MAPL_KeywordEnforcerMod
    implicit none
@@ -768,7 +769,7 @@ contains
    function get_basis(this,basis,unusable,rc) result(basis_vectors)
       use esmf
       use MAPL_KeywordEnforcerMod
-      use MAPL_ConstantsMod, only : PI => MAPL_PI_R8
+      use MAPL_Constants, only : PI => MAPL_PI_R8
       real(REAL64), pointer :: basis_vectors(:,:,:,:)
       character(len=*), intent(in) :: basis
       class (AbstractGridFactory), target, intent(inout) :: this
@@ -965,7 +966,7 @@ contains
    end function
 
    function xyz2latlon(xyz_coord) result(sph_coord)
-      use MAPL_ConstantsMod, only: PI => MAPL_PI_R8
+      use MAPL_Constants, only: PI => MAPL_PI_R8
       real(REAL64), intent(inout):: xyz_coord(3)
       real(REAL64) :: sph_coord(2)
       real(REAL64), parameter:: esl=1.e-10

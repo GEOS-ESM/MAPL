@@ -15,9 +15,8 @@ module MaplShared
    use mapl_HashMod
    use mapl_ErrorHandlingMod
    use mapl_DirPathMod
-   use mapl_ConstantsMod
+   use mapl_Constants
    use mapl_CommGroupDescriptionMod
    use mapl_AbstractCommSplitterMod
-   use mapl_Enumerators
    
 end module MaplShared

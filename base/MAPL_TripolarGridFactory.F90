@@ -7,6 +7,7 @@ module MAPL_TripolarGridFactoryMod
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_ShmemMod
+   use MAPL_Constants
    use ESMF
    use pFIO
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -17,23 +18,18 @@ module MAPL_TripolarGridFactoryMod
    public :: TripolarGridFactory
 
    integer, parameter :: NUM_DIM = 2
-   integer, parameter :: UNDEFINED_INTEGER = 1-huge(1)
-   character(len=*), parameter :: UNDEFINED_CHAR = '**'
-
-   character(len=*), parameter :: GRID_NAME_DEFAULT = 'UNKNOWN'
-   character(len=*), parameter :: GRID_FILE_NAME_DEFAULT = 'UNKNOWN'
 
    type, extends(AbstractGridFactory) :: TripolarGridFactory
       private
       character(len=:), allocatable :: grid_file_name
       character(len=:), allocatable :: grid_name
       ! Grid dimensions
-      integer :: im_world = UNDEFINED_INTEGER
-      integer :: jm_world = UNDEFINED_INTEGER
+      integer :: im_world = MAPL_UNDEFINED_INTEGER
+      integer :: jm_world = MAPL_UNDEFINED_INTEGER
       integer :: lm
       ! Domain decomposition:
-      integer :: nx = UNDEFINED_INTEGER
-      integer :: ny = UNDEFINED_INTEGER
+      integer :: nx = MAPL_UNDEFINED_INTEGER
+      integer :: ny = MAPL_UNDEFINED_INTEGER
       integer, allocatable :: ims(:)
       integer, allocatable :: jms(:)
       ! Used for halo
@@ -107,14 +103,14 @@ contains
       
       if (present(unusable)) print*,shape(unusable)
 
-      call set_with_default(factory%grid_name, grid_name, GRID_NAME_DEFAULT)
-      call set_with_default(factory%grid_file_name, grid_file_name, GRID_FILE_NAME_DEFAULT)
+      call set_with_default(factory%grid_name, grid_name, MAPL_GRID_NAME_DEFAULT)
+      call set_with_default(factory%grid_file_name, grid_file_name, MAPL_GRID_FILE_NAME_DEFAULT)
 
-      call set_with_default(factory%ny, nx, UNDEFINED_INTEGER)
-      call set_with_default(factory%nx, ny, UNDEFINED_INTEGER)
-      call set_with_default(factory%im_world, im_world, UNDEFINED_INTEGER)
-      call set_with_default(factory%jm_world, jm_world, UNDEFINED_INTEGER)
-      call set_with_default(factory%lm, lm, UNDEFINED_INTEGER)
+      call set_with_default(factory%ny, nx, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(factory%nx, ny, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(factory%im_world, im_world, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(factory%jm_world, jm_world, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(factory%lm, lm, MAPL_UNDEFINED_INTEGER)
 
 
 
@@ -180,7 +176,7 @@ contains
       call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, rc=status)
       _VERIFY(status)
       
-      if (this%lm /= UNDEFINED_INTEGER) then
+      if (this%lm /= MAPL_UNDEFINED_INTEGER) then
          call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
          _VERIFY(status)
       end if
@@ -196,7 +192,7 @@ contains
       use MAPL_CommsMod
       use MAPL_IOMod
       use NetCDF
-      use MAPL_ConstantsMod
+      use MAPL_Constants
       class (TripolarGridFactory), intent(in) :: this
       type (ESMF_Grid), intent(inout) :: grid
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -364,18 +360,18 @@ contains
 
       if (present(unusable)) print*,shape(unusable)
 
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=GRID_NAME_DEFAULT)
+      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDSPEC:', rc=status)
       _VERIFY(status)
       this%grid_file_name = trim(tmp)
 
-      call ESMF_ConfigGetAttribute(config, this%nx, label=prefix//'NX:', default=UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%ny, label=prefix//'NY:', default=UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%im_world, label=prefix//'IM_WORLD:', default=UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%jm_world, label=prefix//'JM_WORLD:', default=UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%nx, label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%ny, label=prefix//'NY:', default=MAPL_UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%im_world, label=prefix//'IM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%jm_world, label=prefix//'JM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
 
       call this%check_and_fill_consistency(rc=status)
 
@@ -454,7 +450,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       if (.not. allocated(this%grid_name)) then
-         this%grid_name = GRID_NAME_DEFAULT
+         this%grid_name = MAPL_GRID_NAME_DEFAULT
       end if
 
       ! Check decomposition/bounds
@@ -483,13 +479,13 @@ contains
          if (allocated(ms)) then
             _ASSERT(size(ms) > 0,"needs message")
 
-            if (n == UNDEFINED_INTEGER) then
+            if (n == MAPL_UNDEFINED_INTEGER) then
                n = size(ms)
             else
                _ASSERT(n == size(ms),"needs message")
             end if
 
-            if (m_world == UNDEFINED_INTEGER) then
+            if (m_world == MAPL_UNDEFINED_INTEGER) then
                m_world = sum(ms)
             else
                _ASSERT(m_world == sum(ms),"needs message")
@@ -497,8 +493,8 @@ contains
 
          else
 
-            _ASSERT(n /= UNDEFINED_INTEGER,"needs message")
-            _ASSERT(m_world /= UNDEFINED_INTEGER,"needs message")
+            _ASSERT(n /= MAPL_UNDEFINED_INTEGER,"needs message")
+            _ASSERT(m_world /= MAPL_UNDEFINED_INTEGER,"needs message")
             allocate(ms(n), stat=status)
             _VERIFY(status)
             call MAPL_DecomposeDim(m_world, ms, n)
@@ -545,7 +541,7 @@ contains
    ! input files.
    subroutine initialize_from_esmf_distGrid(this, dist_grid, lon_array, lat_array, unusable, rc)
       use MAPL_ConfigMod
-      use MAPL_ConstantsMod, only: PI => MAPL_PI_R8
+      use MAPL_Constants, only: PI => MAPL_PI_R8
       class (TripolarGridFactory), intent(inout)  :: this
       type (ESMF_DistGrid), intent(in) :: dist_grid
       type (ESMF_LocalArray), intent(in) :: lon_array

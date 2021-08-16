@@ -19,7 +19,7 @@ module ESMFL_MOD
 
   !USES:
   use ESMF
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use MAPL_BaseMod
   use MAPL_CommsMod
   use MAPL_ExceptionHandling
@@ -1173,7 +1173,6 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    type(ESMF_Grid)         :: grid3D
    real(kind=REAL32), pointer        :: Sptr2d(:,:)
    real(kind=REAL32), pointer        :: Dptr2d(:,:)
-   real                    :: pi
    real(ESMF_KIND_R8)      :: deltaX, deltaY
    real(ESMF_KIND_R8)      :: min(2), max(2)
    integer :: status, rank
@@ -1262,9 +1261,8 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    !                           name="SRC 2D grid", rc=status)
    !_VERIFY(status)
    ! instead use the following...
-   pi = 4.0 * atan(1.0)
-   deltaX = 2.0*pi/gccpd(1)
-   deltaY = pi/(gccpd(2)-1) 
+   deltaX = 2.0*MAPL_PI/gccpd(1)
+   deltaY = MAPL_PI/(gccpd(2)-1) 
    SRCGrid2D = ESMF_GridCreateHorzLatLonUni(         &
          counts = gccpd(1:2),        &
          minGlobalCoordPerDim=min(1:2),     &
@@ -1371,8 +1369,8 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    !                           name="DST 2D grid", rc=status)
    !_VERIFY(status)
    ! instead use the following ...
-   deltaX = 2.0*pi/gccpd(1)
-   deltaY = pi/(gccpd(2)-1)
+   deltaX = 2.0*MAPL_PI/gccpd(1)
+   deltaY = MAPL_PI/(gccpd(2)-1)
    DSTGrid2D = ESMF_GridCreateHorzLatLonUni(         &
          counts = gccpd(1:2),        &
          minGlobalCoordPerDim=min(1:2),     &

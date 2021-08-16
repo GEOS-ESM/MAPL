@@ -13,7 +13,7 @@ module MAPL_HistoryGridCompMod
   use ESMFL_Mod
   use MAPL_BaseMod
   use MAPL_VarSpecMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use MAPL_IOMod
   use MAPL_CommsMod
   use MAPL_GenericMod
@@ -890,6 +890,18 @@ contains
        end if
 
        list(n)%field_set => field_set
+
+! Decide on orientation of output
+! -------------------------------
+
+          call ESMF_ConfigFindLabel(cfg,trim(string)//'positive:',isPresent=isPresent,rc=status)
+          if (isPresent) then
+             call ESMF_ConfigGetAttribute(cfg,value=list(n)%positive,rc=status)
+             _VERIFY(status)
+             _ASSERT(list(n)%positive=='down'.or.list(n)%positive=='up',"positive value for collection must be down or up")
+          else
+             list(n)%positive = 'down'
+          end if
 
 ! Get an optional list of output levels
 ! -------------------------------------
@@ -2410,7 +2422,7 @@ ENDDO PARSER
              list(n)%vdata = VerticalData(levels=list(n)%levels,rc=status)
              _VERIFY(status)
           else
-             list(n)%vdata = VerticalData(rc=status)
+             list(n)%vdata = VerticalData(positive=list(n)%positive,rc=status)
              _VERIFY(status)
           end if
           call list(n)%mNewCFIO%set_param(deflation=list(n)%deflate,rc=status)
