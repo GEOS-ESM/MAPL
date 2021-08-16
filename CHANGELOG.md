@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_cmake v3.5.3
 
 ### Fixed
+- Added npes for pfio_MAPL_demo.F90 when --npes_model is not specified in command line
 
 ## [2.8.2] - 2021-07-29
 
