@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added error message to pFIO_NetCDF4_FileFormatterMod if nf90_open() fails. 
 - Add option to flip native level output in History relative to input
 - Added `MAPL_AllocNodeArray_6DR8` and `MAPL_DeAllocNodeArray_6DR8` to Shmem
 - Refactors Constants into its own library and consolidated mathematical/physical constants used throughout code to use those from library
