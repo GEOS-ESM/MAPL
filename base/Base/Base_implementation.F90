@@ -2206,10 +2206,10 @@ contains
 
     !  Compute the coordinates (the corner/center is for backward compatibility)
     !  -------------------------------------------------------------------------
-    deltaX      = MAPL_DEGREES_TO_RADIANS * DelLon_
-    deltaY      = MAPL_DEGREES_TO_RADIANS * DelLat_
-    minCoord(1) = MAPL_DEGREES_TO_RADIANS * BegLon_ - deltaX/2
-    minCoord(2) = MAPL_DEGREES_TO_RADIANS * BegLat_ - deltaY/2 
+    deltaX      = MAPL_DEGREES_TO_RADIANS_R8 * DelLon_
+    deltaY      = MAPL_DEGREES_TO_RADIANS_R8 * DelLat_
+    minCoord(1) = MAPL_DEGREES_TO_RADIANS_R8 * BegLon_ - deltaX/2
+    minCoord(2) = MAPL_DEGREES_TO_RADIANS_R8 * BegLat_ - deltaY/2 
 
     allocate(cornerX(IM_World_+1),cornerY(JM_World_+1), stat=STATUS)
     _VERIFY(STATUS)
@@ -2242,14 +2242,14 @@ contains
     LastOut(2)=90. 
 
     block
-      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
       real(kind=REAL64), allocatable :: lons(:)
       real(kind=REAL64), allocatable :: lats(:)
 
       lons = MAPL_Range(FirstOut(1), LastOut(1), im_world_, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8)
       lats = MAPL_Range(FirstOut(2), LastOut(2), JM_WORLD, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8)
 
       call MAPL_GRID_INTERIOR(grid, i1, in, j1, jn)
 
@@ -2394,8 +2394,8 @@ contains
        call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
        _VERIFY(status)
        if (coordSys==ESMF_COORDSYS_SPH_DEG) then
-          gridCornerLons=gridCornerLons*MAPL_DEGREES_TO_RADIANS
-          gridCornerLats=gridCornerLats*MAPL_DEGREES_TO_RADIANS
+          gridCornerLons=gridCornerLons*MAPL_DEGREES_TO_RADIANS_R8
+          gridCornerLats=gridCornerLats*MAPL_DEGREES_TO_RADIANS_R8
        else if (coordSys==ESMF_COORDSYS_CART) then
           _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
        end if
@@ -3064,8 +3064,8 @@ contains
        allocate(center_lons(im,jm),center_lats(im,jm))
 
        if (coordSys==ESMF_COORDSYS_SPH_DEG) then
-          center_lons=lons*MAPL_DEGREES_TO_RADIANS
-          center_lats=lats*MAPL_DEGREES_TO_RADIANS
+          center_lons=lons*MAPL_DEGREES_TO_RADIANS_R8
+          center_lats=lats*MAPL_DEGREES_TO_RADIANS_R8
        else if (coordSys==ESMF_COORDSYS_SPH_RAD) then
           center_lons=lons
           center_lats=lats
