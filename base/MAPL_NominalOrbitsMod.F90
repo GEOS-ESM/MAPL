@@ -875,7 +875,7 @@ REAL(dp) FUNCTION deg2rad(angle)
        IMPLICIT NONE
 
        REAL(dp), INTENT(IN) :: angle
-       deg2rad = MAPL_DEGREES_TO_RADIANS * angle
+       deg2rad = MAPL_DEGREES_TO_RADIANS_R8 * angle
 END FUNCTION deg2rad
 
 REAL(dp) FUNCTION rad2deg(rad)
