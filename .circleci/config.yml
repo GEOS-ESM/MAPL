@@ -61,15 +61,13 @@ workflows:
       #     requires:                                   #
       #       - make-FV3-exp-on-<< matrix.compiler >>   #
       ###################################################
-      #####################################################
-      # - build-GEOSadas:                                 #
-      #     name: build-GEOSadas-on-<< matrix.compiler >> #
-      #     matrix:                                       #
-      #       parameters:                                 #
-      #         compiler: [ifort]                         #
-      #     context:                                      #
-      #       - docker-hub-creds                          #
-      #####################################################
+      - build-GEOSadas:
+          name: build-GEOSadas-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [ifort]
+          context:
+            - docker-hub-creds
 
 jobs:
   build-and-test-MAPL:
