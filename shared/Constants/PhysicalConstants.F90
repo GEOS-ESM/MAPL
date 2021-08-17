@@ -1,7 +1,7 @@
 module MAPL_PhysicalConstantsMod
 
    use, intrinsic :: iso_fortran_env, only: REAL64, REAL32
-   use MAPL_MathConstantsMod, only: MAPL_PI_R8, MAPL_PI, MAPL_RADIANS_TO_DEGREES, MAPL_DEGREES_TO_RADIANS
+   use MAPL_MathConstantsMod, only: MAPL_PI_R8, MAPL_PI, MAPL_RADIANS_TO_DEGREES, MAPL_DEGREES_TO_RADIANS_R8
    implicit none
 
 !=============================================================================
@@ -32,7 +32,7 @@ module MAPL_PhysicalConstantsMod
    real(kind=REAL64), parameter :: MAPL_EARTH_ECCENTRICITY        = 8.1819190842622d-2                            ! --
    real(kind=REAL64), parameter :: MAPL_EARTH_SEMIMAJOR_AXIS      = 6378137                                       ! m
    real(kind=REAL64), parameter :: MAPL_KM_PER_DEG                    = (1.0/(MAPL_RADIUS/1000.)) * MAPL_RADIANS_TO_DEGREES
-   real(kind=REAL64), parameter :: MAPL_DEG_PER_KM                    = (MAPL_RADIUS/1000.) * MAPL_DEGREES_TO_RADIANS
+   real(kind=REAL64), parameter :: MAPL_DEG_PER_KM                    = (MAPL_RADIUS/1000.) * MAPL_DEGREES_TO_RADIANS_R8
 
 
    ! Physical properties

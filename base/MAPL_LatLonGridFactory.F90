@@ -355,7 +355,7 @@ contains
 
    ! in radians
    function compute_lon_centers(this, dateline, unusable, rc) result(lon_centers)
-      use MAPL_Constants, only:MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only:MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lon_centers(:)
       class (LatLonGridFactory), intent(in) :: this
@@ -395,14 +395,14 @@ contains
       end if
 
       lon_centers = MAPL_Range(min_coord, max_coord, this%im_world, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
    end function compute_lon_centers
 
    function compute_lon_corners(this, dateline, unusable, rc) result(lon_corners)
-      use MAPL_Constants, only:MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only:MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lon_corners(:)
       class (LatLonGridFactory), intent(in) :: this
@@ -442,7 +442,7 @@ contains
       end if
 
       lon_corners = MAPL_Range(min_coord, max_coord, this%im_world+1, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -482,7 +482,7 @@ contains
 
 
    function compute_lat_centers(this, pole, unusable, rc) result(lat_centers)
-      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lat_centers(:)
       class (LatLonGridFactory), intent(in) :: this
@@ -518,14 +518,14 @@ contains
       end if
 
       lat_centers = MAPL_Range(min_coord, max_coord, this%jm_world, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
 
       _RETURN(_SUCCESS)
 
    end function compute_lat_centers
 
    function compute_lat_corners(this, pole, unusable, rc) result(lat_corners)
-      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lat_corners(:)
       class (LatLonGridFactory), intent(in) :: this
@@ -563,10 +563,10 @@ contains
       end if
 
       lat_corners = MAPL_Range(min_coord, max_coord, this%jm_world+1, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
       if (pole == 'PC') then
-         lat_corners(1)=-90.d0*MAPL_DEGREES_TO_RADIANS
-         lat_corners(this%jm_world+1)=90.d0*MAPL_DEGREES_TO_RADIANS
+         lat_corners(1)=-90.d0*MAPL_DEGREES_TO_RADIANS_R8
+         lat_corners(this%jm_world+1)=90.d0*MAPL_DEGREES_TO_RADIANS_R8
       end if
 
       _RETURN(_SUCCESS)
@@ -864,10 +864,10 @@ contains
 
          if (use_file_coords) then
             this%is_regular = .false.
-            this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
-            this%lat_centers = MAPL_DEGREES_TO_RADIANS * this%lat_centers
-            this%lon_corners = MAPL_DEGREES_TO_RADIANS * this%lon_corners
-            this%lat_corners = MAPL_DEGREES_TO_RADIANS * this%lat_corners
+            this%lon_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_centers
+            this%lat_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_centers
+            this%lon_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_corners
+            this%lat_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_corners
          else
             compute_lons=.false.
             compute_lats=.false.
@@ -887,10 +887,10 @@ contains
                this%lat_corners = this%compute_lat_corners(this%pole, rc=status)
                _VERIFY(status)
             else
-               this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
-               this%lat_centers = MAPL_DEGREES_TO_RADIANS * this%lat_centers
-               this%lon_corners = MAPL_DEGREES_TO_RADIANS * this%lon_corners
-               this%lat_corners = MAPL_DEGREES_TO_RADIANS * this%lat_corners
+               this%lon_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_centers
+               this%lat_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_centers
+               this%lon_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_corners
+               this%lat_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_corners
             end if
          end if
 
