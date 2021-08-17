@@ -1069,7 +1069,7 @@ CONTAINS
             endif
 
             ! interpolate along great circle unless endpoints of interpolation have same lon
-            associate(d2r => MAPL_DEGREES_TO_RADIANS, r2d => MAPL_RADIANS_TO_DEGREES)
+            associate(d2r => MAPL_DEGREES_TO_RADIANS_R8, r2d => MAPL_RADIANS_TO_DEGREES)
              eplatl1 = slats(1,n-1) 
              eplatr1 = slats(3,n-1) 
              eplatl2 = slats(1,n) 
@@ -1226,7 +1226,7 @@ CONTAINS
             endif
 
             ! interpolate along great circle unless endpoints of interpolation have same lon
-            associate(d2r => MAPL_DEGREES_TO_RADIANS, r2d => MAPL_RADIANS_TO_DEGREES)
+            associate(d2r => MAPL_DEGREES_TO_RADIANS_R8, r2d => MAPL_RADIANS_TO_DEGREES)
              eplatl1 = slats(1,n-1) 
              eplatr1 = slats(3,n-1) 
              eplatl2 = slats(1,n) 
