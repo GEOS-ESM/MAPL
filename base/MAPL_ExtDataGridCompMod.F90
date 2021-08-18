@@ -2096,7 +2096,7 @@ CONTAINS
         type(ESMF_Time)            :: fTime
         type(ESMF_Field)           :: field
         real, allocatable          :: levFile(:) 
-        character(len=ESMF_MAXSTR) :: buff,levunits,tlevunits
+        character(len=ESMF_MAXSTR) :: buff,levunits,tlevunits,temp_name
         logical                    :: found,lFound,intOK
         integer                    :: maxOffset
         character(len=:), allocatable :: levname
@@ -2104,12 +2104,19 @@ CONTAINS
         type(FileMetadataUtils), pointer :: metadata
         type(Variable), pointer :: var
         type(ESMF_TimeInterval)    :: zero
+        integer :: vect_semi
 
         positive=>null()
 
         call ESMF_TimeIntervalSet(zero,__RC__)
 
-        call ESMF_StateGet(state,trim(item%name),field,__RC__)
+        vect_semi=index(item%name,";")
+        if (vect_semi/=0) then
+           temp_name=item%name(:vect_semi-1)
+        else
+           temp_name=item%name
+        end if
+        call ESMF_StateGet(state,trim(temp_name),field,__RC__)
         call ESMF_FieldGet(field,rank=rank,__RC__)
         if (rank==2) then
            item%lm=0
