@@ -16,6 +16,7 @@
 !
    Use ESMF
    Use MAPL_Mod
+   Use MAPL_Constants
   
    IMPLICIT NONE
    PRIVATE
@@ -993,7 +994,7 @@ CONTAINS
 
       real, pointer :: ex(:), ey(:)
       real(dp) :: slons(3,nobs), slats(3,nobs) 
-      real(dp) :: alpha, beta, d2r, r2d, lon1, lon2, lat1, lat2
+      real(dp) :: alpha, beta, lon1, lon2, lat1, lat2
       integer, intent(out) :: mask(im,jm)
       real :: x_loc, y_loc
      
@@ -1009,8 +1010,6 @@ CONTAINS
       integer :: face_pnt
       logical :: switch
 
-      d2r = MAPL_PI/180.
-      r2d = 180./MAPL_PI
 !     find indices have constant values of coordinate
       switch = .false.
       if ( abs(x(1,1)-x(2,1)) < abs(x(1,1)-x(1,2)) ) switch = .true.
@@ -1070,79 +1069,81 @@ CONTAINS
             endif
 
             ! interpolate along great circle unless endpoints of interpolation have same lon
-            eplatl1 = slats(1,n-1) 
-            eplatr1 = slats(3,n-1) 
-            eplatl2 = slats(1,n) 
-            eplatr2 = slats(3,n) 
-            sdnom1 = sin((eplonl1-eplonr1)*d2r)
-            sdnom2 = sin((eplonl2-eplonr2)*d2r)  
-            if (abs(sdnom1) /= 0.) then
-             sp1 = sin((lon1-eplonr1)*d2r)/sdnom1
-             sp2 = sin((lon1-eplonl1)*d2r)/sdnom1
-             lat1 = atan(tan(eplatl1*d2r)*sp1 - tan(eplatr1*d2r)*sp2)
-             lat1 = lat1*r2d
-            else
-             lat1 = (1.0-alpha) * slats(1,n-1) + alpha * slats(3,n-1)  
-            endif
-            if (abs(sdnom2) /= 0.) then
-             sp1 = sin((lon2-eplonr2)*d2r)/sdnom2
-             sp2 = sin((lon2-eplonl2)*d2r)/sdnom2
-             lat2 = atan(tan(eplatl2*d2r)*sp1 - tan(eplatr2*d2r)*sp2)
-             lat2 = lat2*r2d 
-            else
-             lat2 = (1.0-alpha) * slats(1,n) + alpha * slats(3,n) 
-            endif
+            associate(d2r => MAPL_DEGREES_TO_RADIANS_R8, r2d => MAPL_RADIANS_TO_DEGREES)
+             eplatl1 = slats(1,n-1) 
+             eplatr1 = slats(3,n-1) 
+             eplatl2 = slats(1,n) 
+             eplatr2 = slats(3,n) 
+             sdnom1 = sin((eplonl1-eplonr1)*d2r)
+             sdnom2 = sin((eplonl2-eplonr2)*d2r)  
+             if (abs(sdnom1) /= 0.) then
+              sp1 = sin((lon1-eplonr1)*d2r)/sdnom1
+              sp2 = sin((lon1-eplonl1)*d2r)/sdnom1
+              lat1 = atan(tan(eplatl1*d2r)*sp1 - tan(eplatr1*d2r)*sp2)
+              lat1 = lat1*r2d
+             else
+              lat1 = (1.0-alpha) * slats(1,n-1) + alpha * slats(3,n-1)  
+             endif
+             if (abs(sdnom2) /= 0.) then
+              sp1 = sin((lon2-eplonr2)*d2r)/sdnom2
+              sp2 = sin((lon2-eplonl2)*d2r)/sdnom2
+              lat2 = atan(tan(eplatl2*d2r)*sp1 - tan(eplatr2*d2r)*sp2)
+              lat2 = lat2*r2d 
+             else
+              lat2 = (1.0-alpha) * slats(1,n) + alpha * slats(3,n) 
+             endif
 
-            do m = 1, jsegs ! along track refinement
-               beta = (m - 1.0 ) / ( jsegs - 1.0 )
-               if (abs(lon2-lon1) < 180.) then
-                lon = (1.0-beta) * lon1 + beta * lon2
-                eplon1=lon1
-                eplon2=lon2
-               else if (lon2 > lon1) then
-                lon = (1.0-beta) * (lon1+360.) + beta * lon2
-                eplon1=lon1+360.
-                eplon2=lon2
-               else
-                lon = (1.0-beta) * lon1 + beta * (lon2+360.)
-                eplon1=lon1
-                eplon2=lon2+360.
-               endif
-               eplat1=lat1
-               eplat2=lat2
-               sdnom=sin((eplon1-eplon2)*d2r)
-               if (abs(sdnom) /= 0. ) then
-                sp1=sin((lon-eplon2)*d2r)/sdnom 
-                sp2=sin((lon-eplon1)*d2r)/sdnom
-                latf = atan(tan(eplat1*d2r)*sp1-tan(eplat2*d2r)*sp2)
-                latf = latf*r2d
-                lat = latf
-               else 
-                lat = (1.0-beta) * lat1 + beta * lat2
-               endif
-               if (lon < lb) lon=lon+360.
-               if (lon > ub) lon=lon-360.
+             do m = 1, jsegs ! along track refinement
+                beta = (m - 1.0 ) / ( jsegs - 1.0 )
+                if (abs(lon2-lon1) < 180.) then
+                 lon = (1.0-beta) * lon1 + beta * lon2
+                 eplon1=lon1
+                 eplon2=lon2
+                else if (lon2 > lon1) then
+                 lon = (1.0-beta) * (lon1+360.) + beta * lon2
+                 eplon1=lon1+360.
+                 eplon2=lon2
+                else
+                 lon = (1.0-beta) * lon1 + beta * (lon2+360.)
+                 eplon1=lon1
+                 eplon2=lon2+360.
+                endif
+                eplat1=lat1
+                eplat2=lat2
+                sdnom=sin((eplon1-eplon2)*d2r)
+                if (abs(sdnom) /= 0. ) then
+                 sp1=sin((lon-eplon2)*d2r)/sdnom 
+                 sp2=sin((lon-eplon1)*d2r)/sdnom
+                 latf = atan(tan(eplat1*d2r)*sp1-tan(eplat2*d2r)*sp2)
+                 latf = latf*r2d
+                 lat = latf
+                else 
+                 lat = (1.0-beta) * lat1 + beta * lat2
+                endif
+                if (lon < lb) lon=lon+360.
+                if (lon > ub) lon=lon-360.
 
-               lat = lat * MAPL_PI/180.0
-               lon = lon * MAPL_PI/180.0
-               call check_face_pnt(LON,LAT,face_pnt)
-               if (face_pnt == face) then
-                call cube_xy_point(x_loc,y_loc,LAT,LON,face)
-                inbox = pnt_in_rect(x_loc,y_loc,wcorner_x,wcorner_y)
-                if (inbox == 1) then
-                 i = ijsearch(ex,im_1d,x_loc,.false.)
-                 j = ijsearch(ey,jm_1d,y_loc,.false.)
-                 if (switch) then 
-                    itmp = i
-                    i = j
-                    j = itmp
-                 endif
-                 if ( i>0 .and. j>0 .and. i<=im .and. j<=jm) then
-                   mask(i,j)=1
+                lat = lat * MAPL_PI/180.0
+                lon = lon * MAPL_PI/180.0
+                call check_face_pnt(LON,LAT,face_pnt)
+                if (face_pnt == face) then
+                 call cube_xy_point(x_loc,y_loc,LAT,LON,face)
+                 inbox = pnt_in_rect(x_loc,y_loc,wcorner_x,wcorner_y)
+                 if (inbox == 1) then
+                  i = ijsearch(ex,im_1d,x_loc,.false.)
+                  j = ijsearch(ey,jm_1d,y_loc,.false.)
+                  if (switch) then 
+                     itmp = i
+                     i = j
+                     j = itmp
+                  endif
+                  if ( i>0 .and. j>0 .and. i<=im .and. j<=jm) then
+                    mask(i,j)=1
+                  end if
                  end if
-                end if
-               endif
-            end do ! msegs
+                endif
+             end do ! msegs
+            end associate
          end do    ! nobs
       end do       ! ksegs
 
@@ -1163,7 +1164,7 @@ CONTAINS
       real :: lons_1d(im),lats_1d(jm)
       real :: elons(im+1), elats(jm+1)
       real(dp) :: slons(3,nobs), slats(3,nobs) 
-      real(dp) :: alpha, beta, d2r, r2d, lon1, lon2, lat1, lat2
+      real(dp) :: alpha, beta, lon1, lon2, lat1, lat2
       integer, intent(out) :: mask(im,jm)
 
      
@@ -1176,8 +1177,6 @@ CONTAINS
       real :: sdnom,eplon1,eplon2,eplat1,eplat2
       real :: latf
 
-      d2r = MAPL_PI/180.
-      r2d = 180./MAPL_PI
 
 !     Build edge coords
 !     -----------------
@@ -1227,65 +1226,67 @@ CONTAINS
             endif
 
             ! interpolate along great circle unless endpoints of interpolation have same lon
-            eplatl1 = slats(1,n-1) 
-            eplatr1 = slats(3,n-1) 
-            eplatl2 = slats(1,n) 
-            eplatr2 = slats(3,n) 
-            sdnom1 = sin((eplonl1-eplonr1)*d2r)
-            sdnom2 = sin((eplonl2-eplonr2)*d2r)  
-            if (abs(sdnom1) /= 0.) then
-             sp1 = sin((lon1-eplonr1)*d2r)/sdnom1
-             sp2 = sin((lon1-eplonl1)*d2r)/sdnom1
-             lat1 = atan(tan(eplatl1*d2r)*sp1 - tan(eplatr1*d2r)*sp2)
-             lat1 = lat1*r2d
-            else
-             lat1 = (1.0-alpha) * slats(1,n-1) + alpha * slats(3,n-1)  
-            endif
-            if (abs(sdnom2) /= 0.) then
-             sp1 = sin((lon2-eplonr2)*d2r)/sdnom2
-             sp2 = sin((lon2-eplonl2)*d2r)/sdnom2
-             lat2 = atan(tan(eplatl2*d2r)*sp1 - tan(eplatr2*d2r)*sp2)
-             lat2 = lat2*r2d 
-            else
-             lat2 = (1.0-alpha) * slats(1,n) + alpha * slats(3,n) 
-            endif
+            associate(d2r => MAPL_DEGREES_TO_RADIANS_R8, r2d => MAPL_RADIANS_TO_DEGREES)
+             eplatl1 = slats(1,n-1) 
+             eplatr1 = slats(3,n-1) 
+             eplatl2 = slats(1,n) 
+             eplatr2 = slats(3,n) 
+             sdnom1 = sin((eplonl1-eplonr1)*d2r)
+             sdnom2 = sin((eplonl2-eplonr2)*d2r)  
+             if (abs(sdnom1) /= 0.) then
+              sp1 = sin((lon1-eplonr1)*d2r)/sdnom1
+              sp2 = sin((lon1-eplonl1)*d2r)/sdnom1
+              lat1 = atan(tan(eplatl1*d2r)*sp1 - tan(eplatr1*d2r)*sp2)
+              lat1 = lat1*r2d
+             else
+              lat1 = (1.0-alpha) * slats(1,n-1) + alpha * slats(3,n-1)  
+             endif
+             if (abs(sdnom2) /= 0.) then
+              sp1 = sin((lon2-eplonr2)*d2r)/sdnom2
+              sp2 = sin((lon2-eplonl2)*d2r)/sdnom2
+              lat2 = atan(tan(eplatl2*d2r)*sp1 - tan(eplatr2*d2r)*sp2)
+              lat2 = lat2*r2d 
+             else
+              lat2 = (1.0-alpha) * slats(1,n) + alpha * slats(3,n) 
+             endif
 
-            do m = 1, jsegs ! along track refinement
-               beta = (m - 1.0 ) / ( jsegs - 1.0 )
-               if (abs(lon2-lon1) < 180.) then
-                lon = (1.0-beta) * lon1 + beta * lon2
-                eplon1=lon1
-                eplon2=lon2
-               else if (lon2 > lon1) then
-                lon = (1.0-beta) * (lon1+360.) + beta * lon2
-                eplon1=lon1+360.
-                eplon2=lon2
-               else
-                lon = (1.0-beta) * lon1 + beta * (lon2+360.)
-                eplon1=lon1
-                eplon2=lon2+360.
-               endif
-               eplat1=lat1
-               eplat2=lat2
-               sdnom=sin((eplon1-eplon2)*d2r)
-               if (abs(sdnom) /= 0. ) then
-                sp1=sin((lon-eplon2)*d2r)/sdnom 
-                sp2=sin((lon-eplon1)*d2r)/sdnom
-                latf = atan(tan(eplat1*d2r)*sp1-tan(eplat2*d2r)*sp2)
-                latf = latf*r2d
-                lat = latf
-               else 
-                lat = (1.0-beta) * lat1 + beta * lat2
-               endif
-               if (lon < lb) lon=lon+360.
-               if (lon > ub) lon=lon-360.
-               inbox = pnt_in_rect(lat,lon,wcorner_lat,wcorner_lon)
-               if (inbox == 1) then
-                i = ijsearch(elons,im+1,lon,.false.)
-                j = ijsearch(elats,jm+1,lat,.false.)
-                if ( i>0 .and. i<=im .and. j>0 .and. j<=jm ) mask(i,j) = 1
-               end if
-            end do ! msegs
+             do m = 1, jsegs ! along track refinement
+                beta = (m - 1.0 ) / ( jsegs - 1.0 )
+                if (abs(lon2-lon1) < 180.) then
+                 lon = (1.0-beta) * lon1 + beta * lon2
+                 eplon1=lon1
+                 eplon2=lon2
+                else if (lon2 > lon1) then
+                 lon = (1.0-beta) * (lon1+360.) + beta * lon2
+                 eplon1=lon1+360.
+                 eplon2=lon2
+                else
+                 lon = (1.0-beta) * lon1 + beta * (lon2+360.)
+                 eplon1=lon1
+                 eplon2=lon2+360.
+                endif
+                eplat1=lat1
+                eplat2=lat2
+                sdnom=sin((eplon1-eplon2)*d2r)
+                if (abs(sdnom) /= 0. ) then
+                 sp1=sin((lon-eplon2)*d2r)/sdnom 
+                 sp2=sin((lon-eplon1)*d2r)/sdnom
+                 latf = atan(tan(eplat1*d2r)*sp1-tan(eplat2*d2r)*sp2)
+                 latf = latf*r2d
+                 lat = latf
+                else 
+                 lat = (1.0-beta) * lat1 + beta * lat2
+                endif
+                if (lon < lb) lon=lon+360.
+                if (lon > ub) lon=lon-360.
+                inbox = pnt_in_rect(lat,lon,wcorner_lat,wcorner_lon)
+                if (inbox == 1) then
+                 i = ijsearch(elons,im+1,lon,.false.)
+                 j = ijsearch(elats,jm+1,lat,.false.)
+                 if ( i>0 .and. i<=im .and. j>0 .and. j<=jm ) mask(i,j) = 1
+                end if
+             end do ! msegs
+            end associate
          end do    ! nobs
       end do       ! ksegs
       end subroutine orb_swath_mask_lonlat

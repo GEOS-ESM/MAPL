@@ -8,7 +8,7 @@ module MAPL_ExternalGridFactoryMod
    use ESMF
    use pFIO
    use MAPL_CommsMod
-   use MAPL_ConstantsMod
+   use MAPL_Constants
    use MAPL_IOMod, only : GETFILE, FREE_FILE 
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32
 

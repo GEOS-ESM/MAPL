@@ -18,6 +18,7 @@
   use MAPL_IOMod
   use MAPL_CommsMod
   use MAPL_ExceptionHandling
+  use MAPL_Constants
 #ifdef _CUDA
   use cudafor
 #endif
@@ -46,11 +47,6 @@
   public MAPL_TimerModeSet
 
 !EOP
-
-  integer, public, parameter  :: MAPL_TimerModeOld = 0
-  integer, public, parameter  :: MAPL_TimerModeRootOnly = 1
-  integer, public, parameter  :: MAPL_TimerModeMax = 2
-  integer, public, parameter  :: MAPL_TimerModeMinMax = 3
 
   type(ESMF_VM), save :: VM
   integer(kind=INT64), save :: COUNT_MAX, COUNT_RATE

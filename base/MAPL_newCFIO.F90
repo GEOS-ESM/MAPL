@@ -12,7 +12,7 @@ module MAPL_newCFIOMod
   use MAPL_RegridMethods
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use pFIO
   use MAPL_newCFIOItemVectorMod
   use MAPL_newCFIOItemMod
@@ -295,7 +295,8 @@ module MAPL_newCFIOMod
         call v%add_attribute('_FillValue',MAPL_UNDEF)
         call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
         call factory%append_variable_metadata(v)
-        call this%metadata%add_variable(trim(varName),v)
+        call this%metadata%add_variable(trim(varName),v,rc=status)
+        _VERIFY(status)
         ! finally make a new field if neccessary
         if (this%doVertRegrid .and. (fieldRank ==3) ) then
            newField = MAPL_FieldCreate(field,this%output_grid,lm=this%vData%lm,rc=status)
@@ -460,6 +461,9 @@ module MAPL_newCFIOMod
               else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
                  call this%vdata%regrid_eta_to_pressure(ptr3d,ptr3d_inter,rc=status)
                  _VERIFY(status)
+              else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
+                 call this%vdata%flip_levels(ptr3d,ptr3d_inter,rc=status)
+                 _VERIFY(status)
               end if
               ptr3d => ptr3d_inter
            end if
@@ -574,6 +578,9 @@ module MAPL_newCFIOMod
               else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
                  call this%vdata%regrid_eta_to_pressure(xptr3d,xptr3d_inter,rc=status)
                  _VERIFY(status)
+              else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
+                 call this%vdata%flip_levels(xptr3d,xptr3d_inter,rc=status)
+                 _VERIFY(status)
               end if
               xptr3d => xptr3d_inter
            end if
@@ -595,6 +602,9 @@ module MAPL_newCFIOMod
                  _VERIFY(status)
               else if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
                  call this%vdata%regrid_eta_to_pressure(yptr3d,yptr3d_inter,rc=status)
+                 _VERIFY(status)
+              else if (this%vdata%regrid_type==VERTICAL_METHOD_FLIP) then
+                 call this%vdata%flip_levels(yptr3d,yptr3d_inter,rc=status)
                  _VERIFY(status)
               end if
               yptr3d => yptr3d_inter

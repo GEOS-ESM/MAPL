@@ -6,12 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
+	
 
 ### Removed
+- Removed Pandas dependency
+- Removed unused functions from NominalOrbits Module
+
 ### Added
+
+- Added error message to pFIO_NetCDF4_FileFormatterMod if nf90_open() fails. 
+- Add option to flip native level output in History relative to input
+- Added `MAPL_AllocNodeArray_6DR8` and `MAPL_DeAllocNodeArray_6DR8` to Shmem
+- Refactors Constants into its own library and consolidated mathematical/physical constants used throughout code to use those from library
+- Added single precision Degrees to Radian Conversion
+
 ### Changed
+- Simplified implementation of MAPL_FieldCopyAttributes
+- Updated `components.yaml`
+  - ESMA_cmake v3.5.3
+
 ### Fixed
+- Added npes for pfio_MAPL_demo.F90 when --npes_model is not specified in command line
+- Fixed bug in ExtData when doing vector pairs
 
 ## [2.8.2] - 2021-07-29
 

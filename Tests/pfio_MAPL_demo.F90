@@ -79,7 +79,12 @@ program main
       cap_options = MAPL_CapOptions(cli)
 
       call MPI_init(ierror)
-   
+
+      call MPI_Comm_size(MPI_COMM_WORLD, npes, ierror)
+      if ( cap_options%npes_model == -1) then
+          cap_options%npes_model = npes
+      endif
+
       ! Initialize the IO Server Manager using parameters defined above
       call ioserver_manager%initialize(MPI_COMM_WORLD, &
                     application_size     = cap_options%npes_model, &

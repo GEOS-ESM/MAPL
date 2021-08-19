@@ -11,7 +11,7 @@ module MAPL_LatLonGridFactoryMod
    use MAPL_MinMaxMod
    use MAPL_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
-   use MAPL_ConstantsMod
+   use MAPL_Constants
    use ESMF
    use pFIO
    use MAPL_CommsMod
@@ -24,20 +24,15 @@ module MAPL_LatLonGridFactoryMod
    public :: LatLonGridFactory
 
    integer, parameter :: NUM_DIM = 2
-   integer, parameter :: UNDEFINED_INTEGER = 1-huge(1)
-   real, parameter :: UNDEFINED_REAL = huge(1.)
-   character(len=*), parameter :: UNDEFINED_CHAR = '**'
-
-   character(len=*), parameter :: GRID_NAME_DEFAULT = 'UNKNOWN'
 
    type, extends(AbstractGridFactory) :: LatLonGridFactory
       private
       logical :: is_regular = .false.
       character(len=:), allocatable :: grid_name
       ! Grid dimensions
-      integer :: im_world = UNDEFINED_INTEGER
-      integer :: jm_world = UNDEFINED_INTEGER
-      integer :: lm = UNDEFINED_INTEGER
+      integer :: im_world = MAPL_UNDEFINED_INTEGER
+      integer :: jm_world = MAPL_UNDEFINED_INTEGER
+      integer :: lm = MAPL_UNDEFINED_INTEGER
       real(kind=REAL64), allocatable :: lon_centers(:)
       real(kind=REAL64), allocatable :: lat_centers(:)
       real(kind=REAL64), allocatable :: lon_corners(:)
@@ -45,16 +40,16 @@ module MAPL_LatLonGridFactoryMod
       logical :: force_decomposition = .false.
       
       ! Domain decomposition:
-      integer :: nx = UNDEFINED_INTEGER
-      integer :: ny = UNDEFINED_INTEGER
+      integer :: nx = MAPL_UNDEFINED_INTEGER
+      integer :: ny = MAPL_UNDEFINED_INTEGER
       integer, allocatable :: ims(:)
       integer, allocatable :: jms(:)
       ! Grid conventions:
       character(len=:), allocatable :: pole
       character(len=:), allocatable :: dateline
       ! Regional vs global:
-      type (RealMinMax) :: lon_range = RealMinMax(UNDEFINED_REAL,UNDEFINED_REAL)
-      type (RealMinMax) :: lat_range = RealMinMax(UNDEFINED_REAL,UNDEFINED_REAL)
+      type (RealMinMax) :: lon_range = RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL)
+      type (RealMinMax) :: lat_range = RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL)
       ! Used for halo
       type (ESMF_DELayout) :: layout
       integer :: px, py
@@ -210,24 +205,24 @@ contains
       _UNUSED_DUMMY(unusable)
 
       factory%is_regular = .true.
-      call set_with_default(factory%grid_name, grid_name, GRID_NAME_DEFAULT)
+      call set_with_default(factory%grid_name, grid_name, MAPL_GRID_NAME_DEFAULT)
 
-      call set_with_default(factory%nx, nx, UNDEFINED_INTEGER)
-      call set_with_default(factory%ny, ny, UNDEFINED_INTEGER)
+      call set_with_default(factory%nx, nx, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(factory%ny, ny, MAPL_UNDEFINED_INTEGER)
 
-      call set_with_default(factory%im_world, im_world, UNDEFINED_INTEGER)
-      call set_with_default(factory%jm_world, jm_world, UNDEFINED_INTEGER)
-      call set_with_default(factory%lm, lm, UNDEFINED_INTEGER)
+      call set_with_default(factory%im_world, im_world, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(factory%jm_world, jm_world, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(factory%lm, lm, MAPL_UNDEFINED_INTEGER)
 
       ! default is unallocated
       if (present(ims)) factory%ims = ims
       if (present(jms)) factory%jms = jms
 
-      call set_with_default(factory%pole, pole, UNDEFINED_CHAR)
-      call set_with_default(factory%dateline, dateline, UNDEFINED_CHAR)
+      call set_with_default(factory%pole, pole, MAPL_UNDEFINED_CHAR)
+      call set_with_default(factory%dateline, dateline, MAPL_UNDEFINED_CHAR)
 
-      call set_with_default(factory%lon_range, lon_range, RealMinMax(UNDEFINED_REAL,UNDEFINED_REAL))
-      call set_with_default(factory%lat_range, lat_range, RealMinMax(UNDEFINED_REAL,UNDEFINED_REAL))
+      call set_with_default(factory%lon_range, lon_range, RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL))
+      call set_with_default(factory%lat_range, lat_range, RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL))
       call set_with_default(factory%force_decomposition, force_decomposition, .false.)
 
       call factory%check_and_fill_consistency(rc=status)
@@ -314,7 +309,7 @@ contains
       _VERIFY(status)
 
 
-      if (this%lm /= UNDEFINED_INTEGER) then
+      if (this%lm /= MAPL_UNDEFINED_INTEGER) then
          call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
          _VERIFY(status)
       end if
@@ -360,7 +355,7 @@ contains
 
    ! in radians
    function compute_lon_centers(this, dateline, unusable, rc) result(lon_centers)
-      use MAPL_ConstantsMod, only:MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only:MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lon_centers(:)
       class (LatLonGridFactory), intent(in) :: this
@@ -400,14 +395,14 @@ contains
       end if
 
       lon_centers = MAPL_Range(min_coord, max_coord, this%im_world, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
    end function compute_lon_centers
 
    function compute_lon_corners(this, dateline, unusable, rc) result(lon_corners)
-      use MAPL_ConstantsMod, only:MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only:MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lon_corners(:)
       class (LatLonGridFactory), intent(in) :: this
@@ -447,7 +442,7 @@ contains
       end if
 
       lon_corners = MAPL_Range(min_coord, max_coord, this%im_world+1, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -487,7 +482,7 @@ contains
 
 
    function compute_lat_centers(this, pole, unusable, rc) result(lat_centers)
-      use MAPL_ConstantsMod, only: MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lat_centers(:)
       class (LatLonGridFactory), intent(in) :: this
@@ -523,14 +518,14 @@ contains
       end if
 
       lat_centers = MAPL_Range(min_coord, max_coord, this%jm_world, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
 
       _RETURN(_SUCCESS)
 
    end function compute_lat_centers
 
    function compute_lat_corners(this, pole, unusable, rc) result(lat_corners)
-      use MAPL_ConstantsMod, only: MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lat_corners(:)
       class (LatLonGridFactory), intent(in) :: this
@@ -568,10 +563,10 @@ contains
       end if
 
       lat_corners = MAPL_Range(min_coord, max_coord, this%jm_world+1, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
       if (pole == 'PC') then
-         lat_corners(1)=-90.d0*MAPL_DEGREES_TO_RADIANS
-         lat_corners(this%jm_world+1)=90.d0*MAPL_DEGREES_TO_RADIANS
+         lat_corners(1)=-90.d0*MAPL_DEGREES_TO_RADIANS_R8
+         lat_corners(this%jm_world+1)=90.d0*MAPL_DEGREES_TO_RADIANS_R8
       end if
 
       _RETURN(_SUCCESS)
@@ -869,10 +864,10 @@ contains
 
          if (use_file_coords) then
             this%is_regular = .false.
-            this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
-            this%lat_centers = MAPL_DEGREES_TO_RADIANS * this%lat_centers
-            this%lon_corners = MAPL_DEGREES_TO_RADIANS * this%lon_corners
-            this%lat_corners = MAPL_DEGREES_TO_RADIANS * this%lat_corners
+            this%lon_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_centers
+            this%lat_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_centers
+            this%lon_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_corners
+            this%lat_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_corners
          else
             compute_lons=.false.
             compute_lats=.false.
@@ -892,10 +887,10 @@ contains
                this%lat_corners = this%compute_lat_corners(this%pole, rc=status)
                _VERIFY(status)
             else
-               this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
-               this%lat_centers = MAPL_DEGREES_TO_RADIANS * this%lat_centers
-               this%lon_corners = MAPL_DEGREES_TO_RADIANS * this%lon_corners
-               this%lat_corners = MAPL_DEGREES_TO_RADIANS * this%lat_corners
+               this%lon_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_centers
+               this%lat_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_centers
+               this%lon_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_corners
+               this%lat_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_corners
             end if
          end if
 
@@ -938,14 +933,14 @@ contains
       _VERIFY(status)
       
       this%is_regular = .true.
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=GRID_NAME_DEFAULT)
+      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
 
-      call ESMF_ConfigGetAttribute(config, this%nx, label=prefix//'NX:', default=UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%ny, label=prefix//'NY:', default=UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%nx, label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%ny, label=prefix//'NY:', default=MAPL_UNDEFINED_INTEGER)
 
-      call ESMF_ConfigGetAttribute(config, this%im_world, label=prefix//'IM_WORLD:', default=UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%jm_world, label=prefix//'JM_WORLD:', default=UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%im_world, label=prefix//'IM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%jm_world, label=prefix//'JM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
@@ -964,13 +959,13 @@ contains
          _VERIFY(status)
       endif
 
-      call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
 
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'POLE:', default=UNDEFINED_CHAR, rc=status)
+      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'POLE:', default=MAPL_UNDEFINED_CHAR, rc=status)
       if (status == _SUCCESS) then
          this%pole = trim(tmp)
       end if
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'DATELINE:', default=UNDEFINED_CHAR, rc=status)
+      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'DATELINE:', default=MAPL_UNDEFINED_CHAR, rc=status)
       if (status == _SUCCESS) then
          this%dateline = trim(tmp)
       end if
@@ -1128,7 +1123,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       if (.not. allocated(this%grid_name)) then
-         this%grid_name = GRID_NAME_DEFAULT
+         this%grid_name = MAPL_GRID_NAME_DEFAULT
       end if
 
       ! Check decomposition/bounds
@@ -1140,21 +1135,21 @@ contains
       ! Check regional vs global
       if (this%pole == 'XY') then ! regional
          this%periodic = .false.
-         _ASSERT(this%lat_range%min /= UNDEFINED_REAL, 'uninitialized min for lat_range')
-         _ASSERT(this%lat_range%max /= UNDEFINED_REAL, 'uninitialized min for lat_range')
+         _ASSERT(this%lat_range%min /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
+         _ASSERT(this%lat_range%max /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
       else ! global
          _ASSERT(any(this%pole == ['PE', 'PC']), 'unsupported option for pole:'//this%pole)
-         _ASSERT(this%lat_range%min == UNDEFINED_REAL, 'inconsistent min for lat_range')
-         _ASSERT(this%lat_range%max == UNDEFINED_REAL, 'inconsistent max for lat_range')
+         _ASSERT(this%lat_range%min == MAPL_UNDEFINED_REAL, 'inconsistent min for lat_range')
+         _ASSERT(this%lat_range%max == MAPL_UNDEFINED_REAL, 'inconsistent max for lat_range')
       end if
       if (this%dateline == 'XY') then
          this%periodic = .false.
-         _ASSERT(this%lon_range%min /= UNDEFINED_REAL, 'uninitialized min for lon_range')
-         _ASSERT(this%lon_range%max /= UNDEFINED_REAL, 'uninitialized max for lon_range')
+         _ASSERT(this%lon_range%min /= MAPL_UNDEFINED_REAL, 'uninitialized min for lon_range')
+         _ASSERT(this%lon_range%max /= MAPL_UNDEFINED_REAL, 'uninitialized max for lon_range')
       else
          _ASSERT(any(this%dateline == ['DC', 'DE', 'GC', 'GE']), 'unsupported option for dateline')
-         _ASSERT(this%lon_range%min == UNDEFINED_REAL, 'inconsistent min for lon_range')
-         _ASSERT(this%lon_range%max == UNDEFINED_REAL, 'inconsistent max for lon_range')
+         _ASSERT(this%lon_range%min == MAPL_UNDEFINED_REAL, 'inconsistent min for lon_range')
+         _ASSERT(this%lon_range%max == MAPL_UNDEFINED_REAL, 'inconsistent max for lon_range')
       end if
       if (.not.this%force_decomposition) then
          verify_decomp = this%check_decomposition(rc=status)
@@ -1180,13 +1175,13 @@ contains
          if (allocated(ms)) then
             _ASSERT(size(ms) > 0, 'degenerate topology')
 
-            if (n == UNDEFINED_INTEGER) then
+            if (n == MAPL_UNDEFINED_INTEGER) then
                n = size(ms)
             else
                _ASSERT(n == size(ms), 'inconsistent topology')
             end if
 
-            if (m_world == UNDEFINED_INTEGER) then
+            if (m_world == MAPL_UNDEFINED_INTEGER) then
                m_world = sum(ms)
             else
                _ASSERT(m_world == sum(ms), 'inconsistent decomponsition')
@@ -1194,8 +1189,8 @@ contains
 
          else
 
-            _ASSERT(n /= UNDEFINED_INTEGER, 'uninitialized topology')
-            _ASSERT(m_world /= UNDEFINED_INTEGER,'uninitialized dimension')
+            _ASSERT(n /= MAPL_UNDEFINED_INTEGER, 'uninitialized topology')
+            _ASSERT(m_world /= MAPL_UNDEFINED_INTEGER,'uninitialized dimension')
             allocate(ms(n), stat=status)
             _VERIFY(status)
             !call MAPL_DecomposeDim(m_world, ms, n, min_DE_extent=2)
@@ -1283,7 +1278,7 @@ contains
    ! input files.
    subroutine initialize_from_esmf_distGrid(this, dist_grid, lon_array, lat_array, unusable, rc)
       use MAPL_ConfigMod
-      use MAPL_ConstantsMod, only: PI => MAPL_PI_R8
+      use MAPL_Constants, only: PI => MAPL_PI_R8
       class (LatLonGridFactory), intent(inout)  :: this
       type (ESMF_DistGrid), intent(in) :: dist_grid
       type (ESMF_LocalArray), intent(in) :: lon_array
@@ -1756,7 +1751,7 @@ contains
 
 
    subroutine append_metadata(this, metadata)
-      use MAPL_ConstantsMod
+      use MAPL_Constants
       class (LatLonGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
 

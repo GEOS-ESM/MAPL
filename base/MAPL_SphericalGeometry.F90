@@ -3,7 +3,7 @@ module MAPL_SphericalGeometry
    use MAPL_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
    use ESMF
-   use MAPL_ConstantsMod
+   use MAPL_Constants
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32
 
 implicit none
