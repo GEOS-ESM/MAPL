@@ -62,8 +62,6 @@ module MAPL_GridManager_private
 
    end type GridManager
 
-   integer(kind=INT64), parameter :: NOT_FOUND = 1 - HUGE(1_INT64)
-
    character(len=*), parameter :: MOD_NAME = 'MAPL_GridManager_private::'
    character(len=*), parameter :: factory_id_attribute = 'MAPL_grid_factory_id'
 
@@ -229,8 +227,6 @@ contains
       character(len=ESMF_MAXSTR) :: grid_type
 
       character(len=:), allocatable :: label
-
-      character(len=*), parameter :: CF_COMPONENT_SEPARATOR = '.'
 
       _UNUSED_DUMMY(unusable)
 

@@ -14,7 +14,7 @@ module MAPL_CommsMod
   use ESMF
   use MAPL_BaseMod
   use MAPL_ShmemMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter
   use MAPL_ExceptionHandling
   implicit none
   private
@@ -46,10 +46,6 @@ module MAPL_CommsMod
   public MAPL_CollectiveGather3D
   public MAPL_RoundRobinPEList
   public MAPL_BcastShared
-
-  integer, parameter, public :: MAPL_Unknown   = 0
-  integer, parameter, public :: MAPL_IsGather  = 1
-  integer, parameter, public :: MAPL_IsScatter = 2
 
   type ArrPtr
      real, pointer :: A(:,:)

@@ -33,7 +33,7 @@
    use ESMF_CFIOUtilMod
    use MAPL_CFIOMod
    use MAPL_NewArthParserMod
-   use MAPL_ConstantsMod, only: MAPL_PI,MAPL_PI_R8,MAPL_RADIANS_TO_DEGREES
+   use MAPL_Constants, only: MAPL_PI,MAPL_PI_R8,MAPL_RADIANS_TO_DEGREES,MAPL_CF_COMPONENT_SEPARATOR
    use MAPL_IOMod, only: MAPL_NCIOParseTimeUnits
    use mapl_RegridMethods
    use, intrinsic :: iso_fortran_env, only: REAL64
@@ -850,7 +850,7 @@ CONTAINS
     
     ! we have better found all the items in the export in either a primary or derived item
     if (itemCounter /= ItemCount) then
-       write(error_msg_str, '(A6,I3,A31)') 'Found ', ItemCount-itemCounter,' unfullfilled imports in extdata'
+       write(error_msg_str, '(A6,I3,A31)') 'Found ', ItemCount-itemCounter,' unfulfilled imports in extdata'
        _ASSERT(.false., error_msg_str)
     end if
    
@@ -2096,7 +2096,7 @@ CONTAINS
         type(ESMF_Time)            :: fTime
         type(ESMF_Field)           :: field
         real, allocatable          :: levFile(:) 
-        character(len=ESMF_MAXSTR) :: buff,levunits,tlevunits
+        character(len=ESMF_MAXSTR) :: buff,levunits,tlevunits,temp_name
         logical                    :: found,lFound,intOK
         integer                    :: maxOffset
         character(len=:), allocatable :: levname
@@ -2104,12 +2104,19 @@ CONTAINS
         type(FileMetadataUtils), pointer :: metadata
         type(Variable), pointer :: var
         type(ESMF_TimeInterval)    :: zero
+        integer :: vect_semi
 
         positive=>null()
 
         call ESMF_TimeIntervalSet(zero,__RC__)
 
-        call ESMF_StateGet(state,trim(item%name),field,__RC__)
+        vect_semi=index(item%name,";")
+        if (vect_semi/=0) then
+           temp_name=item%name(:vect_semi-1)
+        else
+           temp_name=item%name
+        end if
+        call ESMF_StateGet(state,trim(temp_name),field,__RC__)
         call ESMF_FieldGet(field,rank=rank,__RC__)
         if (rank==2) then
            item%lm=0
@@ -4201,7 +4208,6 @@ CONTAINS
      integer :: NX,NY
      type(ESMF_Grid)           :: newGrid
      type(ESMF_Config)         :: cflocal
-     character(len=*), parameter :: CF_COMPONENT_SEPARATOR = '.'
      real :: temp_real
      logical :: isPresent
 
@@ -4215,21 +4221,21 @@ CONTAINS
      comp_name = "ExtData"
      cflocal = MAPL_ConfigCreate(rc=status)
      _VERIFY(status)
-     call MAPL_ConfigSetAttribute(cflocal,value=NX, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"NX:",rc=status)
+     call MAPL_ConfigSetAttribute(cflocal,value=NX, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"NX:",rc=status)
      _VERIFY(status)
-     call MAPL_ConfigSetAttribute(cflocal,value=lm, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"LM:",rc=status)
+     call MAPL_ConfigSetAttribute(cflocal,value=lm, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"LM:",rc=status)
      _VERIFY(status)
 
      if (counts(2) == 6*counts(1)) then
-        call MAPL_ConfigSetAttribute(cflocal,value="Cubed-Sphere", label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"GRID_TYPE:",rc=status)
+        call MAPL_ConfigSetAttribute(cflocal,value="Cubed-Sphere", label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"GRID_TYPE:",rc=status)
         _VERIFY(status)
-        call MAPL_ConfigSetAttribute(cflocal,value=6, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"NF:",rc=status)
+        call MAPL_ConfigSetAttribute(cflocal,value=6, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"NF:",rc=status)
         _VERIFY(status)
-        call MAPL_ConfigSetAttribute(cflocal,value=counts(1), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"IM_WORLD:",rc=status)
+        call MAPL_ConfigSetAttribute(cflocal,value=counts(1), label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"IM_WORLD:",rc=status)
         _VERIFY(status)
-        call MAPL_ConfigSetAttribute(cflocal,value=ny/6, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"NY:",rc=status)
+        call MAPL_ConfigSetAttribute(cflocal,value=ny/6, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"NY:",rc=status)
         _VERIFY(status)
-        call MAPL_ConfigSetAttribute(cflocal,value=trim(gname), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"GRIDNAME:",rc=status)
+        call MAPL_ConfigSetAttribute(cflocal,value=trim(gname), label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"GRIDNAME:",rc=status)
         _VERIFY(status)
 
         call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', isPresent=isPresent, rc=status)
@@ -4237,7 +4243,7 @@ CONTAINS
         if (isPresent) then
            call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', value=temp_real, rc=status)
            _VERIFY(status)
-           call MAPL_ConfigSetAttribute(cflocal,value=temp_real, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"STRETCH_FACTOR:",rc=status)
+           call MAPL_ConfigSetAttribute(cflocal,value=temp_real, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"STRETCH_FACTOR:",rc=status)
            _VERIFY(status)
         endif
 
@@ -4246,7 +4252,7 @@ CONTAINS
         if (isPresent) then
            call ESMF_AttributeGet(grid, name='TARGET_LON', value=temp_real, rc=status)
            _VERIFY(status)
-           call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"TARGET_LON:",rc=status)
+           call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LON:",rc=status)
            _VERIFY(status)
         endif
 
@@ -4255,17 +4261,17 @@ CONTAINS
         if (isPresent) then
            call ESMF_AttributeGet(grid, name='TARGET_LAT', value=temp_real, rc=status)
            _VERIFY(status)
-           call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"TARGET_LAT:",rc=status)
+           call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LAT:",rc=status)
            _VERIFY(status)
         endif
      else
-        call MAPL_ConfigSetAttribute(cflocal,value=counts(1), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"IM_WORLD:",rc=status)
+        call MAPL_ConfigSetAttribute(cflocal,value=counts(1), label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"IM_WORLD:",rc=status)
         _VERIFY(status)
-        call MAPL_ConfigSetAttribute(cflocal,value=counts(2), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"JM_WORLD:",rc=status)
+        call MAPL_ConfigSetAttribute(cflocal,value=counts(2), label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"JM_WORLD:",rc=status)
         _VERIFY(status)
-        call MAPL_ConfigSetAttribute(cflocal,value=ny, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"NY:",rc=status)
+        call MAPL_ConfigSetAttribute(cflocal,value=ny, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"NY:",rc=status)
         _VERIFY(status)
-        call MAPL_ConfigSetAttribute(cflocal,value=trim(gname), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"GRIDNAME:",rc=status)
+        call MAPL_ConfigSetAttribute(cflocal,value=trim(gname), label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"GRIDNAME:",rc=status)
         _VERIFY(status)
      end if
      newgrid = grid_manager%make_grid(cflocal, prefix=trim(COMP_Name)//".", rc=status)

@@ -10,7 +10,7 @@
 
    use MAPL_BaseMod
    use MAPL_CommsMod
-   use MAPL_ConstantsMod
+   use MAPL_Constants
 
    use ESMF_CfioMod
    use MAPL_CfioMod

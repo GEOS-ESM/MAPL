@@ -24,7 +24,7 @@ module MAPL_CFIOMod
   use ESMF
   use MAPL_BaseMod
   use MAPL_CommsMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use ESMF_CFIOMod  
   use ESMF_CFIOUtilMod
   use ESMF_CFIOFileMod
@@ -1000,8 +1000,8 @@ contains
              mcfio%xyoffset = xyoffset
           else
              mcfio%xyoffset = 0
-             lons1d = MAPL_Range(-180.,180.-(360./IMO), IMO, conversion_factor=MAPL_DEGREES_TO_RADIANS)
-             lats1d = MAPL_Range(-90., +90., JMO, conversion_factor=MAPL_DEGREES_TO_RADIANS)
+             lons1d = MAPL_Range(-180.,180.-(360./IMO), IMO, conversion_factor=MAPL_DEGREES_TO_RADIANS_R8)
+             lats1d = MAPL_Range(-90., +90., JMO, conversion_factor=MAPL_DEGREES_TO_RADIANS_R8)
           endif
 
        endif
@@ -5797,7 +5797,7 @@ CONTAINS
     use MAPL_AbstractGridFactoryMod
     use MAPL_LatLonGridFactoryMod
     use MAPL_GridManagerMod
-    use MAPL_ConstantsMod, only: MAPL_RADIANS_TO_DEGREES
+    use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
     type (ESMF_GRid), intent(in) :: grid
 
     real, intent(out) :: lons(:), lats(:)
@@ -5883,8 +5883,8 @@ CONTAINS
     allocate(lons_radians(size(lons)))
     allocate(lats_radians(size(lats)))
     
-    lons_radians = MAPL_DEGREES_TO_RADIANS * lons
-    lats_radians = MAPL_DEGREES_TO_RADIANS * lats
+    lons_radians = MAPL_DEGREES_TO_RADIANS_R8 * lons
+    lats_radians = MAPL_DEGREES_TO_RADIANS_R8 * lats
     
     lon_array = ESMF_LocalArrayCreate(lons_radians, rc=status)
     _VERIFY(status)

@@ -10,11 +10,10 @@ submodule (MAPL_Base) Base_Implementation
   ! !USES:
   !
   use ESMF
-  use MAPL_ConstantsMod, only: MAPL_PI, MAPL_PI_R8,MAPL_DEGREES_TO_RADIANS
+  use MAPL_Constants
   use MAPL_RangeMod
   use MAPL_SphericalGeometry
   use MaplGeneric, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
-  use mapl_Enumerators
   use MAPL_ExceptionHandling
   implicit NONE
 
@@ -1057,10 +1056,9 @@ contains
 
   integer module function MAPL_nsecf2 (nhhmmss,nmmdd,nymd)
     integer nhhmmss,nmmdd,nymd,nday,month
-    integer nsday, ncycle,iday,iday2
+    integer nsday,iday,iday2
     integer i,nsegm,nsegd
     PARAMETER ( NSDAY  = 86400 )
-    PARAMETER ( NCYCLE = 1461*24*3600 )
     INTEGER YEAR, DAY, SEC
     integer    MNDY(12,4), mnd48(48)
     DATA MND48/0,31,60,91,121,152,182,213,244,274,305,335,366,397,34*0 /
@@ -1698,62 +1696,10 @@ contains
     type (ESMF_Field), intent(INOUT) :: FIELD_IN !ALT: intent(in)
     type (ESMF_Field), intent(INOUT) :: FIELD_OUT
     integer, optional, intent(  OUT) :: RC
-
-    type (ESMF_TypeKind_Flag)        :: tk
     integer                          :: status
-    character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_FieldCopyAttributes'
-    integer                          :: i, n, count
-    character(len=ESMF_MAXSTR)       :: attname
-    character(len=ESMF_MAXSTR)       :: att
-    integer, pointer                 :: iptr(:)
-    logical, pointer                 :: lptr(:)
-    real,    pointer                 :: rptr(:)
-
-    call ESMF_AttributeGet(field_in, count=n, rc=status)
-    _VERIFY(STATUS)
-
-    do i = 1, n
-       call  ESMF_AttributeGet(field_in, attributeIndex=i, name=attname, &
-            typekind=tk, itemcount=count, rc=status)
-       _VERIFY(STATUS)
-
-       if (tk == ESMF_TypeKind_I4) then
-          allocate(iptr(count), stat=status)
-          _VERIFY(STATUS)
-          call ESMF_AttributeGet(field_in,  NAME=attname, itemcount=count, VALUELIST=iptr, RC=STATUS)
-          _VERIFY(STATUS)
-          call ESMF_AttributeSet(field_out, NAME=attname, itemcount=count, VALUELIST=iptr, RC=STATUS)
-          _VERIFY(STATUS)
-          deallocate(iptr)
-
-       else if (tk == ESMF_TypeKind_Logical) then
-          allocate(lptr(count), stat=status)
-          _VERIFY(STATUS)
-          call ESMF_AttributeGet(field_in,  NAME=attname, itemcount=count, VALUELIST=lptr, RC=STATUS)
-          _VERIFY(STATUS)
-          call ESMF_AttributeSet(field_out, NAME=attname, itemcount=count, VALUELIST=lptr, RC=STATUS)
-          _VERIFY(STATUS)
-          deallocate(lptr)
-
-       else if (tk == ESMF_TypeKind_R4) then
-          allocate(rptr(count), stat=status)
-          _VERIFY(STATUS)
-          call ESMF_AttributeGet(field_in,  NAME=attname, itemcount=count, VALUELIST=rptr, RC=STATUS)
-          _VERIFY(STATUS)
-          call ESMF_AttributeSet(field_out, NAME=attname, itemcount=count, VALUELIST=rptr, RC=STATUS)
-          _VERIFY(STATUS)
-          deallocate(rptr)
-
-       else if (tk == ESMF_TypeKind_Character) then
-          call ESMF_AttributeGet(field_in,  NAME=attname, VALUE=att, RC=STATUS)
-          _VERIFY(STATUS)
-          call ESMF_AttributeSet(field_out, NAME=attname, VALUE=att, RC=STATUS)
-          _VERIFY(STATUS)
-
-       else
-          _RETURN(ESMF_FAILURE)
-       end if
-    end do
+    
+    call ESMF_AttributeCopy(field_in, field_out, attcopy=ESMF_ATTCOPY_VALUE, rc=status)  
+    _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldCopyAttributes
 
@@ -2074,7 +2020,6 @@ contains
     real(ESMF_KIND_R8), allocatable :: cornerX(:)
     real(ESMF_KIND_R8), allocatable :: cornerY(:)
 
-    real(kind=REAL64), parameter    :: D2R = MAPL_PI_R8 / 180
     real                            :: FirstOut(2)
     real                            :: LastOut(2)
 
@@ -2261,10 +2206,10 @@ contains
 
     !  Compute the coordinates (the corner/center is for backward compatibility)
     !  -------------------------------------------------------------------------
-    deltaX      = D2R * DelLon_
-    deltaY      = D2R * DelLat_
-    minCoord(1) = D2R * BegLon_ - deltaX/2
-    minCoord(2) = D2R * BegLat_ - deltaY/2 
+    deltaX      = MAPL_DEGREES_TO_RADIANS_R8 * DelLon_
+    deltaY      = MAPL_DEGREES_TO_RADIANS_R8 * DelLat_
+    minCoord(1) = MAPL_DEGREES_TO_RADIANS_R8 * BegLon_ - deltaX/2
+    minCoord(2) = MAPL_DEGREES_TO_RADIANS_R8 * BegLat_ - deltaY/2 
 
     allocate(cornerX(IM_World_+1),cornerY(JM_World_+1), stat=STATUS)
     _VERIFY(STATUS)
@@ -2297,14 +2242,14 @@ contains
     LastOut(2)=90. 
 
     block
-      use MAPL_ConstantsMod, only: MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
       real(kind=REAL64), allocatable :: lons(:)
       real(kind=REAL64), allocatable :: lats(:)
 
       lons = MAPL_Range(FirstOut(1), LastOut(1), im_world_, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8)
       lats = MAPL_Range(FirstOut(2), LastOut(2), JM_WORLD, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8)
 
       call MAPL_GRID_INTERIOR(grid, i1, in, j1, jn)
 
@@ -2449,8 +2394,8 @@ contains
        call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
        _VERIFY(status)
        if (coordSys==ESMF_COORDSYS_SPH_DEG) then
-          gridCornerLons=gridCornerLons*MAPL_DEGREES_TO_RADIANS
-          gridCornerLats=gridCornerLats*MAPL_DEGREES_TO_RADIANS
+          gridCornerLons=gridCornerLons*MAPL_DEGREES_TO_RADIANS_R8
+          gridCornerLats=gridCornerLats*MAPL_DEGREES_TO_RADIANS_R8
        else if (coordSys==ESMF_COORDSYS_CART) then
           _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
        end if
@@ -3119,8 +3064,8 @@ contains
        allocate(center_lons(im,jm),center_lats(im,jm))
 
        if (coordSys==ESMF_COORDSYS_SPH_DEG) then
-          center_lons=lons*MAPL_DEGREES_TO_RADIANS
-          center_lats=lats*MAPL_DEGREES_TO_RADIANS
+          center_lons=lons*MAPL_DEGREES_TO_RADIANS_R8
+          center_lats=lats*MAPL_DEGREES_TO_RADIANS_R8
        else if (coordSys==ESMF_COORDSYS_SPH_RAD) then
           center_lons=lons
           center_lats=lats
