@@ -13,9 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ## [Unreleased]
-	
 
 ### Removed
+
+### Added
+
+### Changed
+
+### Fixed
+
+## [2.8.3] - 2021-08-19
+
+### Removed
+
 - Removed Pandas dependency
 - Removed unused functions from NominalOrbits Module
 
@@ -28,11 +38,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added single precision Degrees to Radian Conversion
 
 ### Changed
+
 - Simplified implementation of MAPL_FieldCopyAttributes
 - Updated `components.yaml`
   - ESMA_cmake v3.5.3
 
 ### Fixed
+
 - Added npes for pfio_MAPL_demo.F90 when --npes_model is not specified in command line
 - Fixed bug in ExtData when doing vector pairs
 
