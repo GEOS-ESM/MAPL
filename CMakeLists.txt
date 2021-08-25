@@ -146,3 +146,5 @@ install(
    )
 
 ecbuild_install_project (NAME MAPL)
+
+include(esma_cpack OPTIONAL)
