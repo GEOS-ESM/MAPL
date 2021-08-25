@@ -32,6 +32,9 @@
 #  ifdef _VERIFY
 #    undef _VERIFY
 #  endif
+#  ifdef _VERIFY_EXPLAIN
+#    undef _VERIFY_EXPLAIN
+#  endif
 #  ifdef _ASSERT
 #    undef _ASSERT
 #  endif
@@ -89,6 +92,7 @@
 #       define _RETURN(A)     call MAPL_Return(A,_FILE_,__LINE__ __rc(rc)); __return
 #       define _VERIFY(A)     if(MAPL_Verify(A,_FILE_,__LINE__ __rc(rc))) __return
 #    endif
+#    define _VERIFY_EXPLAIN(A,HINT) if(MAPL_VerifyExplain(A,HINT,_FILE_,__LINE__ __rc(rc))) __return
 #    define _RC_(rc,status) rc=status);_VERIFY(status
 #    define _RC _RC_(rc,status)
 

@@ -6,6 +6,7 @@ module MAPL_ErrorHandlingMod
 
    public :: MAPL_Assert
    public :: MAPL_Verify
+   public :: MAPL_VerifyExplain
    public :: MAPL_Return
    public :: MAPL_RTRN
    public :: MAPL_Vrfy
@@ -126,6 +127,27 @@ contains
       
    end function MAPL_Verify
 
+   logical function MAPL_VerifyExplain(status, explain, filename, line, rc) result(fail)
+      integer, intent(in) :: status
+      character(*), intent(in) :: filename
+      character(*), intent(in) :: explain
+      integer, intent(in) :: line
+      integer, optional, intent(out) :: rc ! Not present in MAIN
+
+      logical :: condition
+      character(:), allocatable :: message
+      character(16) :: status_string
+
+      condition = (status == 0)
+      fail = .not. condition
+
+      if (fail) then
+         message = trim(explain)
+         call MAPL_throw_exception(filename, line, message=message)
+         if (present(rc)) rc = status
+      end if
+      
+   end function MAPL_VerifyExplain
 
    subroutine MAPL_Return(status, filename, line, rc) 
       integer, intent(in) :: status
