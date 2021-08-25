@@ -16,23 +16,18 @@ module AEIO_IOController
    implicit none
    private
 
-   ! functions of IO controller
-   ! - instantiate server/front+back and clients on appropriate pets
-   ! - serve as common interface to generate route handle on full VM
-   ! - take state from application and deliver to client
-   ! - take config and pass down to server and client
-   ! - control execution of client and servers and creating epochs
-
-   ! - in theory if not want separate server resources could instatiate server on same nodes
-   ! - and skip the epochs have to think about how RH work then ..., if RH calling 
-   ! - delegated to client/server 
    type IOController
       private
       type(ClientMap) :: clients
       type(ServerMap) :: servers
+      integer, allocatable :: pet_list(:,:)
 
    contains
       procedure :: initialize
+      procedure :: transfer_grid
+!     procedure :: create_client_server_rh
+!     procedure :: create_server_writer_prototype
+!     procedure :: run
    end type
 
 contains
@@ -57,12 +52,15 @@ contains
       type(Server) :: output_server
       type(Client) :: output_client
 
+
+
       integer :: status
 
+      allocate(this%pet_list,source=pet_list)
       call hist_config%import_yaml_file(configuration_file,rc=status)
       _VERIFY(status)
 
-      ! initialize collections on front of server
+      ! create client and server for each collection
       enabled = hist_config%get_enabled()
       coll_registry=hist_config%get_collections()
       enabled_iter = enabled%begin()
@@ -76,9 +74,58 @@ contains
          _VERIFY(status)
          call this%clients%insert(key,output_client)
       enddo
+
+      ! initialize client and server for each collection
+
+      ! begin information exchange
+
+      ! create route handles
       
       _RETURN(_SUCCESS)
    end subroutine initialize
 
+   subroutine transfer_grid(this,coll_name,rc)
+      class(IOController), intent(inout) :: this
+      character(len=*), intent(in) :: coll_name
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Grid) :: client_grid,front_server_grid
+      integer :: status
+      type(ESMF_GridComp) fake_gridcomp
+      type(ESMF_VM) :: server_vm
+      type(ESMF_DistGrid) :: client_distGrid,server_distGrid,balanced_distGrid
+      type(Client), pointer :: collection_client
+      character(len=ESMF_MAXSTR) :: grid_name
+
+      fake_gridcomp = ESMF_GridCompCreate(petList=this%pet_list(2,:),rc=status)
+      _VERIFY(status)
+      call ESMF_GridCompSetServices(fake_gridcomp,fake_set_services,rc=status)
+      _VERIFY(status)
+      call ESMF_GridCompGet(fake_gridcomp,vm=server_vm,rc=status)
+      _VERIFY(status)
+      collection_client =>  this%clients%at(coll_name)
+      client_grid = collection_client%get_grid(rc=status)
+      _VERIFY(status)
+      call ESMF_GridGet(client_grid,distGrid=client_distGrid,rc=status)
+      _VERIFY(status)
+      call ESMF_GridGet(client_grid,name=grid_name,rc=status)
+      _VERIFY(status)
+      server_distGrid=ESMF_DistGridCreate(client_distGrid,vm=server_vm,rc=status)
+      _VERIFY(status)
+      balanced_distGrid=ESMF_DistGridCreate(server_distGrid,balanceflag=.true.,rc=status)
+      _VERIFY(status)
+      front_server_grid = ESMF_GridCreate(client_Grid,balanced_distGrid,name=grid_name, &
+      copyAttributes = .true.,rc=status)
+      _VERIFY(status)
+      
+      
+
+      _RETURN(_SUCCESS)
+   end subroutine transfer_grid
+
+   subroutine fake_set_services(gridcomp,rc)
+      type(ESMF_GridComp) :: gridcomp
+      integer, intent(out) :: rc
+   end subroutine
 
 end module AEIO_IOController

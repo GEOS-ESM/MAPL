@@ -23,6 +23,7 @@ module AEIO_Server
    type Server
       type(collection) :: hist_collection
       integer, allocatable :: pet_list(:,:)
+      type(ESMF_FieldBundle) :: bundle
    contains
       procedure initialize
    end type
