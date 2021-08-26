@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+## [2.8.4] - 2021-08-27
+
+### Added
+
 - Added `esma_cpack` include for tarring ability
 
 ### Changed
