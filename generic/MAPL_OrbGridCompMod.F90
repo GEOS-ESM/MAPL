@@ -15,8 +15,12 @@
 ! !USES:
 !
    Use ESMF
-   Use MAPL_Mod
+   Use ESMFL_Mod
+   Use MAPL_BaseMod
+   Use MAPL_GenericMod
    Use MAPL_Constants
+   Use MAPL_CommsMod, only: MAPL_AM_I_ROOT
+   Use MAPL_ErrorHandlingMod
   
    IMPLICIT NONE
    PRIVATE
