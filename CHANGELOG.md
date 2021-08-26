@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+## [2.8.4] - 2021-08-27
+
+### Added
+
 - Added `esma_cpack` include for tarring ability
 
 ### Changed
@@ -25,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated ESMA_cmake to v3.5.4
 
 ### Fixed
+
+- Fix bug when restart name has a "-" at the beginning
 
 ## [2.8.3] - 2021-08-19
 
