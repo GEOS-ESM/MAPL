@@ -18,6 +18,7 @@ foreach (dir IN LISTS ESMA_CMAKE_DIRS)
   if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/${dir})
     list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/${dir}")
     include (esma)
+    set(MAPL_STANDALONE TRUE)
   endif ()
 endforeach ()
 
@@ -40,6 +41,7 @@ if (NOT COMMAND esma)
       if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/${dir})
         list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/${dir}")
         include (esma)
+        set(MAPL_STANDALONE TRUE)
       endif ()
     endforeach ()
     option (SKIP_MEPO "Set to skip mepo steps" ON)
@@ -146,3 +148,8 @@ install(
    )
 
 ecbuild_install_project (NAME MAPL)
+
+# This must be after ecbuild_install_project
+if (MAPL_STANDALONE)
+  include (esma_cpack OPTIONAL)
+endif ()
