@@ -5907,7 +5907,7 @@ end function MAPL_AddChildFromDSO
           !possible insufficent metadata in the other restarts to support the other grid factories
           if (trim(grid_type) == 'Cubed-Sphere') then
              app_factory => get_factory(MPL%GRID%ESMFGRID)
-             allocate(file_factory,source=grid_manager%make_factory(trim(filename)))
+             allocate(file_factory,source=grid_manager%make_factory(trim(fname)))
              _ASSERT(file_factory%physical_params_are_equal(app_factory),"Factories not equal")
           end if
           call ArrDescrSetNCPar(arrdes,MPL,num_readers=mpl%grid%num_readers,RC=STATUS)
