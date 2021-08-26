@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug in MAPL_AddChildFromMeta so that an error in the SetServices of a gridded component is propagated upwards correctly
+
 ## [2.8.4] - 2021-08-27
 
 ### Added
