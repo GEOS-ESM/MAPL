@@ -4,6 +4,7 @@
 module pFIO_NetCDF4_FileFormatterMod
    use, intrinsic :: iso_fortran_env, only: INT32, INT64
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   use, intrinsic :: iso_fortran_env, only: error_unit
    use MAPL_ExceptionHandling
    use pFIO_ConstantsMod
    use pFIO_UnlimitedEntityMod
@@ -246,17 +247,18 @@ contains
          this%info = MPI_INFO_NULL
       end if
 
+      !$omp critical
       if (this%parallel) then
-         !$omp critical
          status = nf90_open(file, IOR(omode, NF90_MPIIO), comm=this%comm, info=this%info, ncid=this%ncid)
-         !$omp end critical
-         _VERIFY(status)
       else
-         !$omp critical
          status = nf90_open(file, IOR(omode, NF90_SHARE), this%ncid)
-         !$omp end critical
-         _VERIFY(status)
       end if
+      if (status /= nf90_noerr) then
+         write(error_unit, fmt='("nf90_open: returned error code (", I0,") opening ", A, " [", A,"]")') &
+               status,trim(file),trim(nf90_strerror(status))
+      end if
+      !$omp end critical
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
