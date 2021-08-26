@@ -4542,6 +4542,7 @@ end subroutine MAPL_DateStampGet
     !EOPI
 
   integer                                     :: STATUS
+  integer                                     :: SS_STATUS
 
   integer                                     :: I
   type(MAPL_MetaComp), pointer                :: CHILD_META, tmp_meta
@@ -4673,7 +4674,9 @@ end subroutine MAPL_DateStampGet
   call CHILD_META%t_profiler%start(__RC__)
   call CHILD_META%t_profiler%start('SetService',__RC__)
   gridcomp => META%GET_CHILD_GRIDCOMP(I)
-  call ESMF_GridCompSetServices ( gridcomp, SS, RC=status )
+  call ESMF_GridCompSetServices ( gridcomp, SS, userRC=SS_STATUS, RC=status )
+  _VERIFY(STATUS)
+  _VERIFY(SS_STATUS)
   call CHILD_META%t_profiler%stop('SetService',__RC__)
   call CHILD_META%t_profiler%stop(__RC__)
   call t_p%stop(trim(NAME),__RC__)
