@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Relocated CapOptions related modules to `./gridcomps/Cap`.   Also simplified the 
+  FLAP options layer a bit.    Had to introduce some minor naming kludges to keep
+  high level GEOS interfaces working.   This should be revisited under 3.0.
+
 ### Fixed
 
 ## [2.8.4] - 2021-08-27
