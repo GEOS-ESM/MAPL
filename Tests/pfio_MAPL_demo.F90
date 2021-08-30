@@ -18,10 +18,8 @@ program main
       use mpi
       use MAPL
       use pFIO_UnlimitedEntityMod
-
       implicit none
 
-      type(MAPL_FlapCLI)      :: cli
       type(MAPL_CapOptions)   :: cap_options
       type(ServerManager)     :: ioserver_manager
       type(SplitCommunicator) :: split_comm
@@ -74,9 +72,9 @@ program main
 !BOC
 
       ! Read and parse the command line, and set parameters
-      cli = MAPL_FlapCLI(description = 'GEOS AGCM', &
-                         authors     = 'GMAO')
-      cap_options = MAPL_CapOptions(cli)
+      cap_options = MAPL_FlapCLI( &
+           description = 'GEOS AGCM', &
+           authors     = 'GMAO')
 
       call MPI_init(ierror)
 

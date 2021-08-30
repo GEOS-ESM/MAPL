@@ -5,47 +5,58 @@ module MAPL_FlapCLIMod
    use MPI
    use ESMF
    use FLAP
-   use MAPL_KeywordEnforcerMod
-   use MAPL_ExceptionHandling
+   use mapl_KeywordEnforcerMod
+   use mapl_ExceptionHandling
+   use mapl_CapOptionsMod
    implicit none
    private
 
+   public :: MAPL_CapOptions
    public :: MAPL_FlapCLI
 
-   type :: MAPL_FlapCLI
+   type :: MAPL_FlapCLI_type
      type(command_line_interface) :: cli_options
    contains
       procedure, nopass :: add_command_line_options
-   end type MAPL_FlapCLI
+      procedure :: fill_cap_options
+   end type MAPL_FlapCLI_type
 
    interface MAPL_FlapCLI
-      module procedure new_FlapCLI
-   end interface
+      module procedure new_CapOptions_from_flap
+   end interface MAPL_FlapCLI
+
+   interface MAPL_CapOptions
+      module procedure new_CapOptions_copy ! for backward compatibility ! delete for 3.0
+   end interface MAPL_CapOptions
+
 
 contains
 
-   function new_FlapCLI(unusable, description, authors, rc) result (flapcap)
-      type (MAPL_FlapCLI) :: flapcap
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: description
-      character(*), optional, intent(in) :: authors
+   function new_CapOptions_from_flap(unusable, description, authors, rc) result (cap_options)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type (MAPL_CapOptions) :: cap_options
+      character(*), intent(in) :: description
+      character(*), intent(in) :: authors
       integer, optional, intent(out) :: rc
       integer :: status
- 
-      _UNUSED_DUMMY(unusable)
 
-      call flapcap%cli_options%init( &
+      type(MAPL_FlapCLI_type) :: flap_cli
+
+      call flap_cli%cli_options%init( &
         description = trim(description), &
         authors     = trim(authors))
 
-      call flapcap%add_command_line_options(flapcap%cli_options, rc=status)
+      call flap_cli%add_command_line_options(flap_cli%cli_options, rc=status)
       _VERIFY(status)   
 
-      call flapcap%cli_options%parse(error=status); _VERIFY(status)
+      call flap_cli%cli_options%parse(error=status); _VERIFY(status)
 
+      call flap_cli%fill_cap_options(cap_options, rc=status)
+      _VERIFY(status)
+      
       _RETURN(_SUCCESS)
-
-   end function   
+      _UNUSED_DUMMY(unusable)
+   end function new_CapOptions_from_flap
 
    ! Static method
    subroutine add_command_line_options(options, unusable, rc)
@@ -227,5 +238,93 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine add_command_line_options
+
+   subroutine fill_cap_options(flapCLI, cap_options, unusable, rc)
+      class(MAPL_FlapCLI_type), intent(inout) :: flapCLI
+      type(MAPL_CapOptions), intent(out) :: cap_options
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+      integer :: status
+      character(80) :: buffer
+      logical :: one_node_output, compress_nodes, use_sub_comm
+
+      integer, allocatable :: nodes_output_server(:)
+
+      call flapCLI%cli_options%get(val=buffer, switch='--egress_file', error=status); _VERIFY(status)
+      cap_options%egress_file = trim(buffer)
+
+      call flapCLI%cli_options%get(val=use_sub_comm, switch='--use_sub_comm', error=status); _VERIFY(status)
+      cap_options%use_comm_world = .not. use_sub_comm
+
+      if ( .not. cap_options%use_comm_world) then
+         call flapCLI%cli_options%get(val=buffer, switch='--comm_model', error=status); _VERIFY(status)
+         _ASSERT(trim(buffer) /= '*', "Should provide comm for model")
+         call flapCLI%cli_options%get(val=cap_options%comm, switch='--comm_model', error=status); _VERIFY(status)
+      else
+        ! comm will be set to MPI_COMM_WORLD later on in initialize_mpi
+        ! npes will be set to npes_world later on in initialize_mpi
+      endif
+
+      call flapCLI%cli_options%get(val=cap_options%npes_model, switch='--npes_model', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=compress_nodes, switch='--compress_nodes', error=status); _VERIFY(status)
+      cap_options%isolate_nodes = .not. compress_nodes
+      call flapCLI%cli_options%get(val=cap_options%fast_oclient, switch='--fast_oclient', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%with_io_profiler, switch='--with_io_profiler', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%with_esmf_moab, switch='--with_esmf_moab', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get_varying(val=cap_options%npes_input_server, switch='--npes_input_server', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get_varying(val=cap_options%npes_output_server, switch='--npes_output_server', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get_varying(val=cap_options%nodes_input_server, switch='--nodes_input_server', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get_varying(val=nodes_output_server, switch='--nodes_output_server', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=one_node_output, switch='--one_node_output', error=status); _VERIFY(status)
+      if (one_node_output) then
+         allocate(cap_options%nodes_output_server(sum(nodes_output_server)), source =1)
+      else
+         cap_options%nodes_output_server = nodes_output_server
+      endif
+
+      cap_options%n_iserver_group = max(size(cap_options%npes_input_server),size(cap_options%nodes_input_server))
+      cap_options%n_oserver_group = max(size(cap_options%npes_output_server),size(cap_options%nodes_output_server))
+
+      call flapCLI%cli_options%get(val=buffer, switch='--esmf_logtype', error=status); _VERIFY(status)
+      ! set_esmf_logging_mode
+      select case (trim(buffer))
+      case ('none')
+         cap_options%esmf_logging_mode = ESMF_LOGKIND_NONE
+      case ('single')
+         cap_options%esmf_logging_mode = ESMF_LOGKIND_SINGLE
+      case ('multi')
+         cap_options%esmf_logging_mode = ESMF_LOGKIND_MULTI
+      case ('multi_on_error')
+         cap_options%esmf_logging_mode = ESMF_LOGKIND_MULTI_ON_ERROR
+      case default
+         _FAIL("Unsupported ESMF logging option: "//trim(buffer))
+      end select
+
+      ! Ensemble specific options
+      call flapCLI%cli_options%get(val=buffer, switch='--prefix', error=status); _VERIFY(status)
+      cap_options%ensemble_subdir_prefix = trim(buffer)
+      call flapCLI%cli_options%get(val=cap_options%n_members, switch='--n_members', error=status); _VERIFY(status)
+
+      call flapCLI%cli_options%get(val=buffer, switch='--cap_rc', error=status); _VERIFY(status)
+      cap_options%cap_rc_file = trim(buffer)
+
+      ! Logging options
+      call flapCLI%cli_options%get(val=buffer, switch='--logging_config', error=status); _VERIFY(status)
+      cap_options%logging_config = trim(buffer)
+      ! ouput server type options
+      call flapCLI%cli_options%get(val=buffer, switch='--oserver_type', error=status); _VERIFY(status)
+      cap_options%oserver_type = trim(buffer)
+      call flapCLI%cli_options%get(val=cap_options%npes_backend_pernode, switch='--npes_backend_pernode', error=status); _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine fill_cap_options
+
+   function new_CapOptions_copy(options) result(copy)
+      type(MAPL_CapOptions) :: copy
+      type(MAPL_CapOptions), intent(in) :: options
+
+      copy = options
+   end function new_CapOptions_copy
 
 end module MAPL_FlapCLIMod
