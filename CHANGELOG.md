@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added log entries for stage start/finish in MAPL.GENERIC
+
 ### Changed
 
 ### Fixed
