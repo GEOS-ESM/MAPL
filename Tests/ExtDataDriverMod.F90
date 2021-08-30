@@ -55,9 +55,9 @@ contains
       driver%name = name
       driver%set_services => set_services
       if (present(cap_options)) then
-         cap_options = cap_options
+         driver%cap_options = cap_options
       else
-         cap_options = MAPL_CapOptions()
+         driver%cap_options = MAPL_CapOptions()
       endif
       call driver%initialize_mpi()
       call MAPL_Initialize(rc=status)

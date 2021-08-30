@@ -7,7 +7,8 @@ module MAPL_FlapCLIMod
    use FLAP
    use mapl_KeywordEnforcerMod
    use mapl_ExceptionHandling
-   use mapl_CapOptionsMod
+   use mapl_CapOptionsMod, only: MAPL_FlapCli => MAPL_CapOptions
+   use mapl_CapOptionsMod, only: MAPL_CapOptions
    implicit none
    private
 
