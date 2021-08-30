@@ -27,11 +27,10 @@ set (srcs
 
   GenericCplComp.F90
 
-  MAPL_ExtDataGridCompMod.F90
+  MaplGeneric.F90
 
-  Generic.F90
+  MAPL_Generic.F90
 
-  MAPL_OrbGridCompMod.F90
   )
 if (BUILD_WITH_PFLOGGER)
   find_package(PFLOGGER REQUIRED)
