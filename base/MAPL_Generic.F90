@@ -1743,7 +1743,6 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
        [character(len=12):: 'GenRunTot','--GenRunMine'] 
   character(len=12) :: sbrtn
   character(len=ESMF_MAXSTR) :: stage_description
-  logical                    :: stage_is_one_time
   class(Logger), pointer :: lgr => null()
 
 
@@ -1778,7 +1777,6 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
 
   t_p => get_global_time_profiler()
 
-  stage_is_one_time = .true.
   MethodBlock: if (method == ESMF_METHOD_RUN) then
      func_ptr => ESMF_GridCompRun
      timers => timers_run
@@ -1787,7 +1785,6 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
         write(char_phase,'(i1)')phase
         sbrtn = 'Run'//char_phase
      end if
-     stage_is_one_time = .false.
   else if (method == ESMF_METHOD_INITIALIZE) then
      func_ptr => ESMF_GridCompInitialize
 !ALT: enable this when fully implemented (for now NULLIFY)
@@ -1812,7 +1809,6 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
 !     timers => timers_writereastart
      NULLIFY(timers)
      sbrtn = 'WriteRestart'
-     stage_is_one_time = .false.
   endif MethodBlock
   stage_description = ''''//trim(sbrtn)//''' stage of the gridded component '''//trim(COMP_NAME)//''''
 
@@ -1839,22 +1835,14 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
   end IF
 #endif
 
-  if (stage_is_one_time) then
-    call lgr%info('Started the  %a', trim(stage_description))
-  else 
-    call lgr%debug('Started the  %a', trim(stage_description))
-  end if
+  call lgr%info('Started the  %a', trim(stage_description))
   call func_ptr (GC, &
        importState=IMPORT, &
        exportState=EXPORT, &
        clock=CLOCK, PHASE=PHASE_, &
        userRC=userRC, RC=STATUS )
   _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
-  if (stage_is_one_time) then
-    call lgr%info('Finished the %a', trim(stage_description))
-  else 
-    call lgr%debug('Finished the %a', trim(stage_description))
-  end if
+  call lgr%info('Finished the %a', trim(stage_description))
 
   ! TIMERS off
   if (associated(timers)) then
