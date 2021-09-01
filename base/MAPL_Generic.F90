@@ -1742,6 +1742,8 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
   character(len=12), target :: timers_run(2) = &
        [character(len=12):: 'GenRunTot','--GenRunMine'] 
   character(len=12) :: sbrtn
+  character(len=ESMF_MAXSTR) :: stage_description
+  class(Logger), pointer :: lgr => null()
 
 
 !=============================================================================
@@ -1759,6 +1761,8 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
        currentMethod=method, RC=STATUS )
   _VERIFY(STATUS)
   Iam = trim(COMP_NAME) // trim(Iam)
+
+  lgr => logging%get_logger('MAPL.GENERIC')
 
   call ESMF_VmGetCurrent(VM)
 ! Retrieve the pointer to the internal state. It comes in a wrapper.
@@ -1806,6 +1810,7 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
      NULLIFY(timers)
      sbrtn = 'WriteRestart'
   endif MethodBlock
+  stage_description = ''''//trim(sbrtn)//''' stage of the gridded component '''//trim(COMP_NAME)//''''
 
 ! TIMERS on
   call t_p%start(trim(state%compname),__RC__)
@@ -1830,13 +1835,14 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
   end IF
 #endif
 
-
+  call lgr%info('Started the  %a', trim(stage_description))
   call func_ptr (GC, &
        importState=IMPORT, &
        exportState=EXPORT, &
        clock=CLOCK, PHASE=PHASE_, &
        userRC=userRC, RC=STATUS )
-  _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
+  _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during the '//trim(stage_description))
+  call lgr%info('Finished the %a', trim(stage_description))
 
   ! TIMERS off
   if (associated(timers)) then
@@ -4548,6 +4554,7 @@ end subroutine MAPL_DateStampGet
   class(AbstractFrameworkComponent), pointer :: tmp_framework
   character(len=ESMF_MAXSTR), allocatable     :: TMPNL(:)
   character(len=ESMF_MAXSTR)                  :: FNAME, PNAME
+  character(len=ESMF_MAXSTR)                  :: stage_description
   type(ESMF_GridComp)                         :: pGC
   type(ESMF_Context_Flag)                     :: contextFlag
   class(BaseProfiler), pointer                :: t_p
@@ -4669,13 +4676,17 @@ end subroutine MAPL_DateStampGet
 
   t_p => get_global_time_profiler()
 
+  stage_description = '''SetServices'' stage of the gridded component '''//trim(FNAME)//''''
+
   call t_p%start(trim(NAME),__RC__)
   call CHILD_META%t_profiler%start(__RC__)
   call CHILD_META%t_profiler%start('SetService',__RC__)
   gridcomp => META%GET_CHILD_GRIDCOMP(I)
+  call lgr%info("Started the  %a", trim(stage_description))
   call ESMF_GridCompSetServices ( gridcomp, SS, userRC=SS_STATUS, RC=status )
   _VERIFY(STATUS)
   _VERIFY(SS_STATUS)
+  call lgr%info("Finished the %a", trim(stage_description))
   call CHILD_META%t_profiler%stop('SetService',__RC__)
   call CHILD_META%t_profiler%stop(__RC__)
   call t_p%stop(trim(NAME),__RC__)
