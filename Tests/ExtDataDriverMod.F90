@@ -9,7 +9,6 @@ module ExtDataDriverMod
    use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
    use gFTL_StringVector
    use MAPL_ApplicationSupport
-   use MAPL_ServerManager
    use, intrinsic :: iso_fortran_env, only: output_unit, REAL64, INT64
    implicit none
 
@@ -31,7 +30,6 @@ module ExtDataDriverMod
 
    contains
       procedure :: run
-      procedure :: initialize_io_clients_servers
       procedure :: initialize_mpi
    end type ExtDataDriver
 
@@ -70,120 +68,79 @@ contains
       class(ExtDataDriver), intent(inout) :: this
       integer,       optional, intent(OUT) :: rc
 
-      type(ESMF_Config)            :: config
-
-
       integer                      :: STATUS
-
-      integer                  :: CommCap
-
       type (ESMF_VM) :: VM
-
       type(ExtData_DriverGridComp), target :: cap
+      integer :: mypet,i,pet_count
+      integer, allocatable :: pet_list(:,:)
+      integer, allocatable :: model_pets(:)
+      logical :: model,front,back
+      type(ESMF_State) :: export
+      type(IOController) :: io_controller
+      type(ESMF_Clock) :: clock
+      character(len=:), allocatable :: hist_config
 
-      integer :: lineCount, columnCount,i,rank
-      character(len=ESMF_MAXSTR) :: ctemp
-      character(len=:), pointer :: cname
-      type(StringVector) :: cases
-      type(StringVectorIterator) :: iter  
-      type(SplitCommunicator) :: split_comm 
+      model=.false.
+      front=.false.
+      back=.false.
+      allocate(pet_list(3,2))
 
-      CommCap = MPI_COMM_WORLD
+      pet_list(1,1)=0
+      pet_list(1,2)=this%cap_options%npes_model-1
+      pet_list(2,1)=this%cap_options%npes_model
+      pet_list(2,2)=this%cap_options%npes_model+this%cap_options%npes_input_server(1)-1
+      pet_list(3,1)=this%cap_options%npes_model+this%cap_options%npes_input_server(1)
+      pet_list(3,2)=this%cap_options%npes_model+this%cap_options%npes_input_server(1)+this%cap_options%npes_output_server(1)-1
 
-      call this%initialize_io_clients_servers(commCap, rc = status); _VERIFY(status)
-      call this%cap_server%get_splitcomm(split_comm)
-      select case(split_comm%get_name())
-      case('model')
-         call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, &
-              & mpiCommunicator=split_comm%get_subcommunicator(), rc=status)
-         _VERIFY(STATUS)
+      call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, rc=status)
+      _VERIFY(STATUS)
+      call ESMF_VMGet(vm,localPet=mypet,petCount=pet_count,__RC__)
+      model = mypet <= pet_list(1,2)
+      allocate(model_pets(this%cap_options%npes_model))
+      do i=1,this%cap_options%npes_model
+         model_pets(i) = i-1
+      enddo
 
-         config = ESMF_ConfigCreate(rc=status)
-         _VERIFY(status)
-         call ESMF_ConfigLoadFile   ( config, 'CAP.rc', rc=STATUS )
-         _VERIFY(status)
-         call ESMF_ConfigGetDim(config,lineCount,columnCount,label='CASES::',rc=status)
-         _VERIFY(status)
-         call ESMF_ConfigFindLabel(config,label='CASES::',rc=status)
-         _VERIFY(status)
-         do i=1,lineCount
-            call ESMF_ConfigNextLine(config,rc=status)
+      if (this%cap_options%npes_input_server(1) > 0 .and. this%cap_options%npes_output_server(1) > 0) then
+         front = mypet >= pet_list(2,1) .and. mypet <= pet_list(2,2)
+         back = mypet >= pet_list(3,1) .and. mypet <= pet_list(3,2)
+      end if
+
+      export = ESMF_StateCreate()
+      write(*,*)"bmaa model pets ",model_pets
+      cap = new_ExtData_DriverGridComp(root_setservices, name=this%name, configFileName="CAP.rc",pet_list=model_pets)
+      call cap%set_services(rc = status)
+      _VERIFY(status)
+      call cap%initialize(export,clock,rc = status)
+      _VERIFY(status)
+
+      call ESMF_VMBarrier(vm,__RC__)
+      call ESMF_StateReconcile(export,__RC__)
+      call ESMF_VMBarrier(vm,__RC__)
+      hist_config="newhist.yaml"
+      call io_controller%initialize(export,hist_config,clock,pet_list,rc=status)
+      _VERIFY(status)
+      call io_controller%transfer_grids_to_front(rc=status)
+      _VERIFY(status) 
+
+      do i=1,10
+         if (model) then
+            call cap%run(export,clock, rc=status)
             _VERIFY(status)
-            call ESMF_ConfigGetAttribute(config,ctemp,rc=status)
-            _VERIFY(status)
-            call cases%push_back(trim(ctemp))
-         enddo
-         call ESMF_ConfigDestroy(config, rc=status)
-         _VERIFY(status)
+         end if
+         
+      enddo 
 
-         iter = cases%begin()
-         do while (iter /= cases%end())
+      call cap%finalize(rc = status)
+      _VERIFY(status)
 
-            if (mapl_am_I_root()) write(*,*)"Running new case"
-            cname => iter%get()
-            cap = new_ExtData_DriverGridComp(root_setservices, name=this%name, configFileName=cname)
-            call cap%set_services(rc = status)
-            _VERIFY(status)
-            call cap%initialize(rc = status)
-            _VERIFY(status)
-
-            call cap%run(rc=status)
-            _VERIFY(status)
-
-            call cap%finalize(rc = status)
-            _VERIFY(status)
-
-            call iter%next()
-         enddo
-
-         call this%cap_server%finalize()
-      end select
-
-      call MPI_Barrier(CommCap,status)
-      _VERIFY(STATUS) 
-!  Finalize framework
-!  ------------------
-
-     call MPI_Comm_Rank(CommCap,rank,status)
-     _VERIFY(status)
-     if (rank==0) then
-        close(99)
-        open(99,file='egress',form='formatted')
-        close(99)
-     end if
-    
       call MAPL_Finalize(rc=status)
       _VERIFY(status) 
-      call mpi_finalize(status)
-      _VERIFY(STATUS)
 
       _RETURN(ESMF_SUCCESS)
 
 
    end subroutine run
-
-   subroutine initialize_io_clients_servers(this, comm, unusable, rc)
-     use MAPL_CFIOMod
-     class (ExtDataDriver), target, intent(inout) :: this
-     integer, intent(in) :: comm
-     class (KeywordEnforcer), optional, intent(in) :: unusable
-     integer, optional, intent(out) :: rc
-  
-     integer :: status
-
-     _UNUSED_DUMMY(unusable)
-     
-     call this%cap_server%initialize(comm, &
-         application_size=this%cap_options%npes_model, &
-         nodes_input_server=this%cap_options%nodes_input_server, &
-         nodes_output_server=this%cap_options%nodes_output_server, &
-         npes_input_server=this%cap_options%npes_input_server, &
-         npes_output_server=this%cap_options%npes_output_server, &
-         rc=status)
-     _VERIFY(status)
-     _RETURN(_SUCCESS)
-
-   end subroutine initialize_io_clients_servers
 
    subroutine initialize_mpi(this, unusable, rc) 
       class (ExtDataDriver), intent(inout) :: this

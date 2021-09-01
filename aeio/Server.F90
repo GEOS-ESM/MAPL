@@ -10,22 +10,14 @@ module AEIO_Server
    private
 
    public :: Server
-   ! functions of IO controller
-   ! - instantiate Server/front+back and Servers on appropriate pets
-   ! - serve as common interface to generate route handle on full VM
-   ! - take state from application and deliver to Server
-   ! - take config and pass down to Server and Server
-   ! - control execution of Server and Servers and creating epochs
 
-   ! - in theory if not want separate Server resources could instatiate Server on same nodes
-   ! - and skip the epochs have to think about how RH work then ..., if RH calling 
-   ! - delegated to Server/Server 
    type Server
-      type(collection) :: hist_collection
       integer, allocatable :: pet_list(:,:)
       type(ESMF_FieldBundle) :: bundle
    contains
       procedure initialize
+      procedure set_grid
+      procedure get_grid
    end type
 
    interface Server
@@ -49,12 +41,32 @@ contains
       type(Server) :: c
       integer :: status
 
-      c%hist_collection = hist_collection
-      allocate(c%pet_list,source=pet_list,stat=status)
-      _VERIFY(status)
       _RETURN(_SUCCESS)
 
    end function new_Server
 
+   subroutine set_grid(this,grid,rc)
+      class(server), intent(inout) :: this
+      type(esmf_grid), intent(in) :: grid
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      
+      call ESMF_FieldBundleSet(this%bundle,grid,__RC__)
+      _RETURN(_SUCCESS)
+
+   end subroutine set_grid
+
+   function get_grid(this,rc) result(grid)
+      class(server), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      type(esmf_grid) :: grid
+      integer :: status
+      
+      call ESMF_FieldBundleGet(this%bundle,grid=grid,__RC__)
+      _RETURN(_SUCCESS)
+
+   end function get_grid
 
 end module AEIO_Server

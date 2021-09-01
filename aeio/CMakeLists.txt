@@ -22,7 +22,9 @@ set (srcs
     GroupMap.F90
     GroupRegistry.F90
     HistoryConfig.F90
-    Template.F90 
+    Template.F90
+    TransferGridComp.F90
+    AEIO.F90
     )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler TYPE SHARED)

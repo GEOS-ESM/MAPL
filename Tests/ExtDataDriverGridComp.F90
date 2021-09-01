@@ -4,8 +4,6 @@
 module ExtData_DriverGridCompMod
   use ESMF
   use MAPL
-  use MAPL_ExtDataGridCompMod, only : ExtData_SetServices => SetServices
-  use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_Profiler
 
   implicit none
@@ -22,15 +20,16 @@ module ExtData_DriverGridCompMod
      type (ESMF_GridComp)          :: gc
      procedure(), pointer, nopass  :: root_set_services => null()
      character(len=:), allocatable :: name, configFile
-     logical :: amiroot, run_hist, run_extdata
-     integer :: extdata_id, history_id, root_id, printspec
+     logical :: amiroot
+     integer :: root_id, printspec
      integer :: nsteps
      type(ESMF_Clock) :: clock
-     type(ESMF_Config) :: cf_ext, cf_root, cf_hist, config
+     type(ESMF_Config) :: cf_ext, cf_root, config
      type(ESMF_GridComp), allocatable :: gcs(:)
      type(ESMF_State),    allocatable :: imports(:), exports(:)
      type(ESMF_VM) :: vm
      type(ESMF_Time), allocatable :: times(:)
+     integer, allocatable :: pet_list(:)
    contains
      procedure :: set_services
      procedure :: initialize
@@ -54,10 +53,11 @@ module ExtData_DriverGridCompMod
 
 contains
 
-  function new_ExtData_DriverGridComp(root_set_services, configFileName, name) result(cap)
+  function new_ExtData_DriverGridComp(root_set_services, configFileName, name, pet_list) result(cap)
     procedure() :: root_set_services
     character(len=*), optional, intent(in) :: name
     character(len=*), optional, intent(in) :: configFileName
+    integer, intent(in), optional :: pet_list(:)
     type(ExtData_DriverGridComp) :: cap
 
     type(ExtData_DriverGridComp_Wrapper) :: cap_wrapper
@@ -77,6 +77,10 @@ contains
        allocate(cap%configFile, source=configFileName)
     else
        allocate(cap%configFile, source='CAP.rc')
+    end if
+
+    if (present(pet_list)) then
+       allocate(cap%pet_list,source=pet_list)
     end if
 
     cap%gc = ESMF_GridCompCreate(name='ExtData_DriverGridComp', rc = status)
@@ -136,7 +140,7 @@ contains
     integer :: ny
 
     integer                      :: HEARTBEAT_DT
-    character(len=ESMF_MAXSTR)   :: HIST_CF, ROOT_CF, EXTDATA_CF
+    character(len=ESMF_MAXSTR)   :: ROOT_CF
 
     type (MAPL_MetaComp), pointer :: MAPLOBJ
     procedure(), pointer :: root_set_services
@@ -144,8 +148,6 @@ contains
     class(BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import_state)
-    _UNUSED_DUMMY(export_state)
-    _UNUSED_DUMMY(clock)
 
     t_p => get_global_time_profiler()
 
@@ -183,8 +185,6 @@ contains
     call MAPL_Set(MAPLOBJ, name = cap%name, cf = cap%config, rc = status)
     _VERIFY(status)
 
-    call ESMF_ConfigGetAttribute(cap%config,cap%run_hist,label="RUN_HISTORY:",default=.true.)
-    call ESMF_ConfigGetAttribute(cap%config,cap%run_extdata,label="RUN_EXTDATA:",default=.true.)
 
     ! !RESOURCE_ITEM: string :: Name of ROOT's config file
     call MAPL_GetResource(MAPLOBJ, ROOT_CF, "ROOT_CF:", default = "ROOT.rc", rc = status) 
@@ -192,14 +192,6 @@ contains
 
     ! !RESOURCE_ITEM: string :: Name to assign to the ROOT component
     call MAPL_GetResource(MAPLOBJ, ROOT_NAME, "ROOT_NAME:", default = "ROOT", rc = status) 
-    _VERIFY(status)
-
-    ! !RESOURCE_ITEM: string :: Name of HISTORY's config file 
-    call MAPL_GetResource(MAPLOBJ, HIST_CF, "HIST_CF:", default = "HISTORY.rc", rc = status) 
-    _VERIFY(status)
-
-    ! !RESOURCE_ITEM: string :: Name of ExtData's config file
-    call MAPL_GetResource(MAPLOBJ, EXTDATA_CF, "EXTDATA_CF:", default = 'ExtData.rc', rc = status)
     _VERIFY(status)
 
     ! !RESOURCE_ITEM: string :: Control Timers 
@@ -265,57 +257,6 @@ contains
     call MAPL_ConfigSetAttribute(cap%cf_root, value=run_dt, Label="RUN_DT:", rc=status)
     _VERIFY(STATUS)
 
-    ! Add EXPID and EXPDSC from HISTORY.rc to AGCM.rc
-    !------------------------------------------------
-    if (cap%run_hist) then
-       cap%cf_hist = ESMF_ConfigCreate(rc=STATUS )
-       _VERIFY(STATUS)
-       call ESMF_ConfigLoadFile(cap%cf_hist, HIST_CF, rc=STATUS )
-       _VERIFY(STATUS)
-
-       call MAPL_ConfigSetAttribute(cap%cf_hist, value=HIST_CF, Label="HIST_CF:", rc=status)
-       _VERIFY(STATUS)
-
-       call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPID,  Label="EXPID:",  default='', rc=status)
-       call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPDSC, Label="EXPDSC:", default='', rc=status)
-
-       call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPID,  Label="EXPID:",  rc=status)
-       _VERIFY(STATUS)
-       call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPDSC, Label="EXPDSC:", rc=status)
-       _VERIFY(STATUS)
-
-       call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", rc=status)
-       _VERIFY(STATUS)
-       call ESMF_ConfigGetAttribute(cap%cf_root, value = NY, Label="NY:", rc=status)
-       _VERIFY(STATUS)
-       call MAPL_ConfigSetAttribute(cap%cf_hist, value=NX,  Label="NX:",  rc=status)
-       _VERIFY(STATUS)
-       call MAPL_ConfigSetAttribute(cap%cf_hist, value=NY,  Label="NY:",  rc=status)
-       _VERIFY(STATUS)
-       call MAPL_ConfigSetAttribute(cap%cf_hist, value=run_dt, Label="RUN_DT:", rc=status)
-       _VERIFY(STATUS)
-    end if
-
-    if (cap%run_extdata) then
-       ! Add NX and NY from AGCM.rc to ExtData.rc as well as name of ExtData rc file
-       cap%cf_ext = ESMF_ConfigCreate(rc=STATUS )
-       _VERIFY(STATUS)
-       call ESMF_ConfigLoadFile(cap%cf_ext, EXTDATA_CF, rc=STATUS )
-       _VERIFY(STATUS)
-       call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", rc=status)
-       _VERIFY(STATUS)
-       call ESMF_ConfigGetAttribute(cap%cf_root, value = NY, Label="NY:", rc=status)
-       _VERIFY(STATUS)
-       call MAPL_ConfigSetAttribute(cap%cf_ext, value=NX,  Label="NX:",  rc=status)
-       _VERIFY(STATUS)
-       call MAPL_ConfigSetAttribute(cap%cf_ext, value=NY,  Label="NY:",  rc=status)
-       _VERIFY(STATUS)
-       call MAPL_ConfigSetAttribute(cap%cf_ext, value=run_dt, Label="RUN_DT:", rc=status)
-       _VERIFY(STATUS)
-       call MAPL_ConfigSetAttribute(cap%cf_ext, value=EXTDATA_CF,  Label="CF_EXTDATA:",  rc=status)
-       _VERIFY(STATUS)
-    end if
-
     !  Create Root child
     !-------------------
     call MAPL_Set(MAPLOBJ, CF=CAP%CF_ROOT, RC=STATUS)
@@ -326,27 +267,12 @@ contains
 
     root_set_services => cap%root_set_services
 
-    cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)  
-    _VERIFY(status)
-
-    if (cap%run_hist) then
-
-       call MAPL_Set(MAPLOBJ, CF=CAP%CF_HIST, RC=STATUS)
-       _VERIFY(STATUS)
-
-       cap%history_id = MAPL_AddChild( MAPLOBJ, name = 'HIST', SS = HIST_SetServices, rc = status)  
+    if (allocated(cap%pet_list)) then
+       cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, petlist=cap%pet_list,rc = status)  
        _VERIFY(status)
-
-    end if
-
-    if (cap%run_extdata) then
-
-       call MAPL_Set(MAPLOBJ, CF=CAP%CF_EXT, RC=STATUS)
-       _VERIFY(STATUS)
-
-       cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData_SetServices, rc = status)
+    else
+       cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)  
        _VERIFY(status)
-    
     end if
 
     !  Query MAPL for the the children's for GCS, IMPORTS, EXPORTS
@@ -363,65 +289,10 @@ contains
          exportState = cap%exports(cap%root_id), clock = cap%clock, userRC = status)
     _VERIFY(status)
 
-    if (cap%run_hist) then
-
-       ! All the EXPORTS of the Hierachy are made IMPORTS of History
-       !------------------------------------------------------------
-
-       call ESMF_StateAdd(cap%imports(cap%history_id), [cap%exports(cap%root_id)], rc = status)
-       _VERIFY(STATUS)
-
-       ! Initialize the History
-       !------------------------
-
-       call ESMF_GridCompInitialize (CAP%GCS(cap%history_id), importState=CAP%IMPORTS(cap%history_id), &
-            exportState=CAP%EXPORTS(cap%history_id), clock=CAP%CLOCK, userRC=STATUS )
-       _VERIFY(STATUS)
-
-    end if
-
-    if (cap%run_extdata) then
-
-       ! Prepare EXPORTS for ExtData
-       ! ---------------------------
-       call ESMF_StateGet(cap%imports(cap%root_id), itemcount = itemcount, rc = status)
-       _VERIFY(status)
-       allocate(itemnames(itemcount), stat = status)
-       _VERIFY(status)
-       allocate(itemtypes(itemcount), stat = status)
-       _VERIFY(status)
-
-       call ESMF_StateGet(cap%imports(cap%root_id), itemnamelist = itemnames, &
-            itemtypelist = itemtypes, rc = status)
-       _VERIFY(status)
-
-       do i = 1, itemcount
-          if (ItemTypes(i) == ESMF_StateItem_Field) then
-             call ESMF_StateGet(cap%imports(cap%root_id), itemnames(i), field, rc = status)
-             _VERIFY(status)
-             call MAPL_StateAdd(cap%exports(cap%extdata_id), field, rc = status)
-             _VERIFY(status)
-          else if (ItemTypes(i) == ESMF_StateItem_FieldBundle) then
-             call ESMF_StateGet(cap%imports(cap%root_id), itemnames(i), bundle, rc = status)
-             _VERIFY(status)
-             call MAPL_StateAdd(cap%exports(cap%extdata_id), bundle, rc = status)
-             _VERIFY(status)
-          end if
-       END DO
-       deallocate(itemtypes)
-       deallocate(itemnames)
-
-
-       ! Initialize the ExtData
-       !------------------------
-
-       call ESMF_GridCompInitialize (cap%gcs(cap%extdata_id), importState = cap%imports(cap%extdata_id), &
-            exportState = cap%exports(cap%extdata_id), & 
-            clock = cap%clock, userRc = status)
-       _VERIFY(status)
-
-    end if
-
+    export_state=cap%exports(cap%root_id)
+    call ESMF_GridCompSet(gc,clock=cap%clock,rc=status)
+    _VERIFY(status)
+    clock=cap%clock
     call cap%parseTimes(rc=status)
     _VERIFY(status)
 
@@ -443,7 +314,7 @@ contains
     _UNUSED_DUMMY(export)
     _UNUSED_DUMMY(clock)
 
-    call run_MultipleTimes(gc, rc=status)
+    call run_MultipleTimes(gc, export, clock, rc=status)
     _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
 
@@ -471,22 +342,6 @@ contains
     call ESMF_GridCompFinalize(cap%gcs(cap%root_id), importstate = cap%imports(cap%root_id), &
          exportstate=cap%exports(cap%root_id), clock = cap%clock, userrc = status)
     _VERIFY(status)
-
-    if (cap%run_hist) then
-       call ESMF_GridCompFinalize(cap%gcs(cap%history_id), importstate = cap%imports(cap%history_id), &
-            exportstate = cap%exports(cap%history_id), clock = cap%clock, userrc = status)
-       _VERIFY(status)
-       call ESMF_ConfigDestroy(cap%cf_hist, rc = status)
-       _VERIFY(status)
-    end if
-
-    if (cap%run_extdata) then
-       call ESMF_GridCompFinalize(cap%gcs(cap%extdata_id), importstate = cap%imports(cap%extdata_id), &
-            exportstate = cap%exports(cap%extdata_id), clock = cap%clock, userrc = status)
-       _VERIFY(status)
-       call ESMF_ConfigDestroy(cap%cf_ext, rc = status)
-       _VERIFY(status)
-    end if
 
     call ESMF_ConfigDestroy(cap%cf_root, rc = status)
     _VERIFY(status)
@@ -525,27 +380,35 @@ contains
   end subroutine set_services
 
 
-  subroutine initialize(this, rc)
+  subroutine initialize(this, export, clock, rc)
     class(ExtData_DriverGridComp), intent(inout) :: this
+    type(ESMF_State), intent(inout) :: export
+    type(ESMF_Clock), intent(inout) :: clock
     integer, optional, intent(out) :: rc
     
     integer :: status
-    
-    call ESMF_GridCompInitialize(this%gc, userRc = status)
+ 
+    call ESMF_GridCompInitialize(this%gc, exportState=export, userRc = status)
+    _VERIFY(status)
+    call ESMF_GridCompGet(this%gc,exportState=export,clock=clock,rc=status)
     _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
   end subroutine initialize
 
 
-  subroutine run(this, rc)
+  subroutine run(this, export, clock, rc)
     class(ExtData_DriverGridComp), intent(inout) :: this
+    type(ESMF_State), intent(inout) :: export
+    type(ESMF_Clock), intent(inout) :: clock
     integer, optional, intent(out) :: rc
 
     integer :: status
     integer :: userRc
 
-    call ESMF_GridCompRun(this%gc, userRC=userRC,rc=status)
+    call ESMF_GridCompRun(this%gc, userRC=userRC, exportState=export, rc=status)
     _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'run failed')
+    call ESMF_GridCompGet(this%gc,exportState=export,clock=clock,rc=status)
+    _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
 
   end subroutine run
@@ -596,8 +459,10 @@ contains
   end function get_MetaComp_from_gc
 
 
-  subroutine run_MultipleTimes(gc, rc)
+  subroutine run_MultipleTimes(gc, export, clock, rc)
     type (ESMF_Gridcomp) :: gc
+    type (ESMF_State), intent(inout) :: export
+    type (ESMF_Clock), intent(inout) :: clock
     integer, optional, intent(out) :: rc
     
     integer :: n, status
@@ -609,28 +474,30 @@ contains
     cap => get_CapGridComp_from_gc(gc)
     MAPLOBJ => get_MetaComp_from_gc(gc)
 
-    if (allocated(cap%times)) then
-       do n=1,size(cap%times)
-          call cap%AdvanceClockToTime(cap%times(n),rc=status)
-          _VERIFY(status)
-          call cap%run_one_step(status)
-          _VERIFY(status)
-       enddo
-    else
-       do n=1,cap%nsteps
+    !if (allocated(cap%times)) then
+       !do n=1,size(cap%times)
+          !call cap%AdvanceClockToTime(cap%times(n),rc=status)
+          !_VERIFY(status)
+          !call cap%run_one_step(export,status)
+          !_VERIFY(status)
+       !enddo
+    !else
+       !do n=1,cap%nsteps
           call ESMF_ClockAdvance(cap%clock,rc=status)
           _VERIFY(status)
-          call cap%run_one_step(status)
+          call cap%run_one_step(export,status)
           _VERIFY(status)
-       enddo
-    endif
+       !enddo
+    !endif
+    clock=cap%clock
 
     _RETURN(ESMF_SUCCESS)
   end subroutine run_MultipleTimes
 
 
-  subroutine run_one_step(this, rc)
+  subroutine run_one_step(this, export, rc)
     class(ExtData_DriverGridComp), intent(inout) :: this
+    type(ESMF_State), intent(inout) :: export
     integer, intent(out) :: rc
     integer :: AGCM_YY, AGCM_MM, AGCM_DD, AGCM_H, AGCM_M, AGCM_S
     integer :: status
@@ -649,32 +516,15 @@ contains
     _VERIFY(status)
 
     call ESMF_GridCompGet(this%gc, vm = this%vm)
-    ! Run the ExtData Component
-    ! --------------------------
-
-    if (this%run_extdata) then
-       call ESMF_GridCompRun(this%gcs(this%extdata_id), importState = this%imports(this%extdata_id), &
-            exportState = this%exports(this%extdata_id), &
-            clock = this%clock, userrc = status)
-       _VERIFY(status)
-    end if
 
     ! Run the Gridded Component
     ! --------------------------
     call ESMF_GridCompRun(this%gcs(this%root_id), importstate = this%imports(this%root_id), &
          exportstate = this%exports(this%root_id), &
          clock = this%clock, userrc = status)
+    export = this%exports(this%root_id)
     _VERIFY(status)
 
-    ! Call History Run for Output
-    ! ---------------------------
-
-    if (this%run_hist) then
-       call ESMF_GridCompRun(this%gcs(this%history_id), importstate=this%imports(this%history_id), &
-            exportstate = this%exports(this%history_id), &
-            clock = this%clock, userrc = status)
-       _VERIFY(status)
-    end if
     call MAPL_MemCommited ( mem_total, mem_commit, mem_percent, RC=STATUS )
     if (this%AmIRoot) write(6,1000) AGCM_YY,AGCM_MM,AGCM_DD,AGCM_H,AGCM_M,AGCM_S,mem_percent
 1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2,2x,f5.1,'%Memory Committed')

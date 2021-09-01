@@ -51,6 +51,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
+      write(*,*)"bmaa adding ",trim(short_name)," ",trim(component_name)
       this%short_name     = short_name
       this%component_name = component_name
 
