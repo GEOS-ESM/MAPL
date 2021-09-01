@@ -1842,7 +1842,7 @@ subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
        exportState=EXPORT, &
        clock=CLOCK, PHASE=PHASE_, &
        userRC=userRC, RC=STATUS )
-  _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
+  _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during the '//trim(stage_description))
   call lgr%info('Finished the %a', trim(stage_description))
 
   ! TIMERS off
