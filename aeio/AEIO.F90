@@ -1,0 +1,21 @@
+module AEIO
+   use GroupMod
+   use AEIO_ServerMap
+   use GroupMapMod
+   use COllectionMod
+   use FieldEntryMod
+   use FrequencyMod
+   use AEIO_ClientMap
+   use FieldRegistryMod
+   use GroupRegistryMod
+   use FieldGroupEntryMod
+   use TemplateMod
+   use CollectionMapMod
+   use AEIO_Client
+   use CollectionRegistryMod
+   use FieldGroupMod
+   use AEIO_Server
+   use FieldEntryMapMod
+   use AEIO_IOController
+   use HistoryConfigMod
+end module AEIO
