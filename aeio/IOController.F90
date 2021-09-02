@@ -33,7 +33,7 @@ module AEIO_IOController
       procedure :: transfer_grids_to_front
       procedure :: transfer_grid_to_back
       procedure :: transfer_grids_to_back
-!     procedure :: connect_client_server
+      procedure :: connect_client_server
 !     procedure :: connect_server_writer
    end type
 
