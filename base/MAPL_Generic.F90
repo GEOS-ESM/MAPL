@@ -5371,6 +5371,20 @@ end function MAPL_AddChildFromDSO
     !real(kind=ESMF_KIND_R8),save ::  total_time = 0.0d0
     !logical                               :: amIRoot
     !type (ESMF_VM)                        :: vm
+    logical :: empty
+    class(Logger), pointer :: lgr
+
+! Check if state is empty. If "yes", simply return
+    empty = MAPL_IsStateEmpty(state, __RC__)
+    if (empty) then
+       if (MAPL_Am_I_Root()) then
+          call MAPL_GetLogger(mpl, lgr, __RC__)
+          call lgr%warning('Checkpoint '//trim(filename) //&
+               ' requested, but state is empty. Ignored...')
+       end if
+
+       _RETURN(ESMF_SUCCESS)
+    end if
 
 ! Open file
 !----------
@@ -5656,8 +5670,21 @@ end function MAPL_AddChildFromDSO
     class(AbstractGridFactory), pointer :: app_factory
     class (AbstractGridFactory), allocatable :: file_factory
     character(len=ESMF_MAXSTR) :: grid_type
+    logical :: empty
+    class(Logger), pointer :: lgr
 
     _UNUSED_DUMMY(CLOCK)
+
+! Check if state is empty. If "yes", simply return
+    empty = MAPL_IsStateEmpty(state, __RC__)
+    if (empty) then
+       if (MAPL_Am_I_Root()) then
+          call MAPL_GetLogger(mpl, lgr, __RC__)
+          call lgr%warning('Restart '//trim(filename) //&
+               ' requested, but state is empty. Ignored...')
+       end if
+       _RETURN(ESMF_SUCCESS)
+    end if
 
 ! Implemented a suggestion by Arlindo to allow files beginning with "-" (dash)
 ! to be skipped if file does not exist and values defaulted
@@ -11115,5 +11142,21 @@ end subroutine MAPL_GenericStateRestore
 
    end function get_child_export_state
 
-      
+
+   function MAPL_IsStateEmpty(state, rc) result(empty)
+     type(ESMF_State), intent(in) :: state
+     integer, optional, intent(out) :: rc
+     logical                        :: empty
+
+     integer :: itemcount
+     integer :: status
+
+     empty = .true.
+     call ESMF_StateGet(state,itemcount=itemcount,rc=status)
+     _VERIFY(status)
+
+     if (itemcount /= 0) empty = .false.
+     _RETURN(ESMF_SUCCESS)
+   end function MAPL_IsStateEmpty
+
 end module MAPL_GenericMod
