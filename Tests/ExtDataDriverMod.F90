@@ -116,12 +116,17 @@ contains
 
       call ESMF_VMBarrier(vm,__RC__)
       call ESMF_StateReconcile(export,__RC__)
+      block
+         type(ESMF_Field) :: ff
+         integer :: flb(1),fub(1)
+         call ESMF_StateGet(export,"VAR3D",ff,__RC__)
+         call ESMF_FieldGet(ff,ungriddedLBound=flb,ungriddedUBound=fub,__RC__)
+         write(*,*)"bmaa ",flb,fub
+      end block
       call ESMF_VMBarrier(vm,__RC__)
       hist_config="newhist.yaml"
       call io_controller%initialize(export,hist_config,clock,pet_list,rc=status)
       _VERIFY(status)
-      call io_controller%transfer_grids_to_front(rc=status)
-      _VERIFY(status) 
 
       do i=1,10
          if (model) then

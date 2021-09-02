@@ -13,6 +13,7 @@ module AEIO_IOController
    use CollectionRegistryMod
    use gFTL_StringVector
    use AEIO_TransferGridComp
+   use AEIO_RHConnector
    
    implicit none
    private
@@ -32,8 +33,8 @@ module AEIO_IOController
       procedure :: transfer_grids_to_front
       procedure :: transfer_grid_to_back
       procedure :: transfer_grids_to_back
-!     procedure :: create_client_server_rh
-!     procedure :: create_server_writer_prototype
+!     procedure :: connect_client_server
+!     procedure :: connect_server_writer
    end type
 
 contains
@@ -55,6 +56,7 @@ contains
       type(Server) :: output_server
       type(Client) :: output_client
       type(Client), pointer :: client_ptr
+      type(Server), pointer :: server_ptr
 
 
       integer :: status
@@ -88,14 +90,54 @@ contains
          _VERIFY(status)
          call enabled_iter%next()
       enddo
-         
 
-      ! begin information exchange
+      ! first communication - send grid
+      call this%transfer_grids_to_Front(rc=status)
+      _VERIFY(status)
 
-      ! create route handles
+      ! fill bundle on front end of server for each collection
+      enabled_iter = this%enabled%begin()
+      do while(enabled_iter /= this%enabled%end())
+         key=enabled_iter%get()
+         server_ptr => this%servers%at(key)
+         call server_ptr%initialize(state,rc=status)
+         _VERIFY(status)
+         call enabled_iter%next()
+      enddo
+   
+      ! second communication - created RH
+      enabled_iter = this%enabled%begin()
+      do while(enabled_iter /= this%enabled%end())
+         key=enabled_iter%get()
+         call this%connect_client_server(key,rc=status)
+         _VERIFY(status)
+         call enabled_iter%next()
+      enddo
       
+         
       _RETURN(_SUCCESS)
    end subroutine initialize
+
+   subroutine connect_client_server(this,collection_name,rc)
+      class(IOController), intent(inout) :: this
+      character(len=*), intent(in) :: collection_name
+      integer, optional, intent(out) :: rc
+
+      type(Client), pointer :: client_ptr
+      type(Server), pointer :: server_ptr
+      type(ESMF_FieldBundle) :: client_bundle, server_bundle
+      type(RHConnector) :: connector
+      integer :: status
+      
+      server_ptr => this%servers%at(collection_name)
+      client_ptr => this%clients%at(collection_name)
+      client_bundle = client_ptr%get_bundle()
+      server_bundle = server_ptr%get_bundle()
+      call connector%regrid_store_fieldBundles(client_bundle,server_bundle,rc=status)
+      _VERIFY(status)
+       
+
+   end subroutine connect_client_server
 
    subroutine transfer_grids_to_front(this,rc)
       class(IOController), intent(inout) :: this

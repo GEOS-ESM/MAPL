@@ -13,12 +13,20 @@ module AEIO_RHConnector
       private
       type(ESMF_RouteHandle) :: rh
       logical :: sender
+      type(ESMF_StateItem_Flag) :: rh_container_type
+      logical :: regrid
    contains
-      procedure setup_from_FieldBundles
-      procedure setup_from_fields
+      procedure regrid_store_FieldBundles
+      procedure regrid_store_fields
+      !procedure redist_store_ArrayBundles
+      !procedure redist_store_arrays
       procedure set_sender
       procedure regrid_FieldBundles
       procedure regrid_fields
+      !procedure redist_FieldBundles
+      !procedure redist_Fields
+      !procedure redist_ArrayBundles
+      !procedure redist_Arrays
    end type
 
 contains
@@ -28,8 +36,14 @@ contains
       logical, intent(in) :: sender
       this%sender=sender
    end subroutine set_sender
+
+   subroutine set_type(this,esmf_type)
+      class(RHConnector), intent(inout) :: this
+      type(ESMF_StateItem_Flag), intent(In) :: esmf_type
+      this%rh_container_type = esmf_type
+   end subroutine set_type
     
-   subroutine setup_from_FieldBundles(this,FieldBundle_in,FieldBundle_out,rc)
+   subroutine regrid_store_FieldBundles(this,FieldBundle_in,FieldBundle_out,rc)
       class(RHConnector), intent(inout) :: this
       type(ESMF_FieldBundle), intent(in) :: FieldBundle_in
       type(ESMF_FieldBundle), intent(out) :: FieldBundle_out
@@ -37,8 +51,10 @@ contains
       integer :: status
       call ESMF_FieldBundleRegridStore(FieldBundle_in,FieldBundle_out,routeHandle=this%rh,rc=status)
       _VERIFY(status)
+      this%rh_container_type=ESMF_STATEITEM_FIELDBUNDLE
+      this%regrid=.true.
       _RETURN(_SUCCESS)
-   end subroutine setup_from_FieldBundles
+   end subroutine regrid_store_FieldBundles
 
    subroutine regrid_FieldBundles(this,FieldBundle_in,FieldBundle_out,rc)
       class(RHConnector), intent(inout) :: this
@@ -55,7 +71,7 @@ contains
      
    end subroutine regrid_FieldBundles
     
-   subroutine setup_from_fields(this,Field_in,Field_out,rc)
+   subroutine regrid_store_fields(this,Field_in,Field_out,rc)
       class(RHConnector), intent(inout) :: this
       type(ESMF_Field), intent(in) :: Field_in
       type(ESMF_Field), intent(out) :: Field_out
@@ -63,8 +79,10 @@ contains
       integer :: status
       call ESMF_FieldRegridStore(Field_in,Field_out,routeHandle=this%rh,rc=status)
       _VERIFY(status)
+      this%rh_container_type=ESMF_STATEITEM_FIELDBUNDLE
+      this%regrid=.true.
       _RETURN(_SUCCESS)
-   end subroutine setup_from_fields
+   end subroutine regrid_store_fields
 
    subroutine regrid_fields(this,Field_in,Field_out,rc)
       class(RHConnector), intent(inout) :: this

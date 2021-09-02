@@ -52,6 +52,7 @@ module CollectionMod
 
       procedure :: fill_groups
       procedure :: fill_bundle
+      procedure :: get_field_names
    end type Collection
 contains
    function get_name(this) result(collection_name)
@@ -261,18 +262,30 @@ contains
       if (present(rc)) rc = status
    end subroutine fill_groups
 
-   subroutine fill_bundle(this,state,bundle,unusable,rc)
+   function get_field_names(this,rc) result(field_names)
+      class(Collection),                intent(inout) :: this
+      integer,                optional, intent(  out) :: rc
+
+      type(StringVector) :: field_names
+      call this%fields%append_field_names(field_names)
+      
+
+   end function get_field_names
+       
+
+   subroutine fill_bundle(this,state,bundle,unusable,grid,rc)
       class(Collection),                intent(inout) :: this
       type(ESMF_State),                 intent(inout) :: state
       type(ESMF_FieldBundle),           intent(inout) :: bundle
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
+      type(ESMF_Grid), optional,        intent(in   ) :: grid
       integer,                optional, intent(  out) :: rc
 
       integer :: status
 
       _UNUSED_DUMMY(unusable)
 
-      call this%fields%fill_bundle(state,bundle, __RC__)
+      call this%fields%fill_bundle(state,bundle, grid=grid, __RC__)
 
       _RETURN(_SUCCESS)
 

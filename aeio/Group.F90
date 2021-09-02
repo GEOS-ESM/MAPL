@@ -6,6 +6,7 @@ module GroupMod
    use ESMF
    use NUOPC
    use yaFyaml
+   use gFTL_StringVector
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
 
@@ -37,6 +38,7 @@ module GroupMod
 
       procedure :: import_group
       procedure :: fill_bundle
+      procedure :: append_field_names
    end type Group
 contains
    subroutine initialize(this, fields, aux_fields)
@@ -54,6 +56,14 @@ contains
 
       fields = this%fields
    end function get_fields
+
+   subroutine append_field_names(this, field_names)
+      class(group), intent(inout) :: This
+      type(StringVector),intent(inout)  :: field_names
+
+      call this%fields%append_field_names(field_names)
+
+   end subroutine append_field_names
 
    function get_aux_fields(this) result(aux_fields)
       class(FieldGroup), allocatable :: aux_fields
@@ -131,18 +141,19 @@ contains
       _RETURN(_SUCCESS)
    end subroutine import_group
 
-   subroutine fill_bundle(this, state, bundle, unusable, rc)
+   subroutine fill_bundle(this, state, bundle, unusable, grid, rc)
       class(Group),                      intent(inout) :: this
       type(ESMF_State),                 intent(inout) :: state
       type(ESMF_FieldBundle),            intent(inout) :: bundle
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
+      type(ESMF_Grid), optional, intent(in) :: grid
       integer,                optional, intent(  out) :: rc
 
       integer :: status
 
       _UNUSED_DUMMY(unusable)
 
-      call this%fields%fill_bundle(state, bundle,  __RC__)
+      call this%fields%fill_bundle(state, bundle,  grid=grid, __RC__)
 
       _RETURN(_SUCCESS)
    end subroutine fill_bundle

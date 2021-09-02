@@ -5,6 +5,7 @@ module AEIO_Client
    use ESMF
    use CollectionMod
    use MAPL_ExceptionHandling
+   use AEIO_RHConnector
    
    implicit none
    private
@@ -14,9 +15,12 @@ module AEIO_Client
       type(collection) :: hist_collection
       integer, allocatable :: pet_list(:,:)
       type(ESMF_FieldBundle) :: bundle
+      type(RHConnector) :: server_connection
    contains
       procedure initialize
       procedure get_grid
+      procedure get_bundle
+      procedure set_client_server_connector
    end type
 
    interface Client
@@ -56,6 +60,12 @@ contains
 
    end function new_Client
 
+   function get_bundle(this) result(bundle)
+      class(Client), intent(inout) :: this
+      type(ESMF_FieldBundle) :: bundle
+      bundle=this%bundle
+   end function
+
    function get_grid(this,rc) result(grid)
       class(Client), intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -66,5 +76,13 @@ contains
       _VERIFY(status)
       _RETURN(_SUCCESS)
    end function get_grid
+
+   subroutine set_client_server_connector(this,rh)
+      class(Client), intent(inout) :: this
+      type(RHConnector), intent(in) :: rh
+
+      this%server_connection = rh
+      call this%server_connection%set_sender(.true.)
+   end subroutine set_client_server_connector
 
 end module AEIO_Client

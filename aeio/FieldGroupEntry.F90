@@ -136,18 +136,19 @@ contains
       std_name = this%field_entry%standard_name()
    end function standard_name
 
-   subroutine add_to_bundle(this, state, bundle, unusable, rc)
+   subroutine add_to_bundle(this, state, bundle, unusable, grid, rc)
       class(FieldGroupEntry),           intent(inout) :: this
       type(ESMF_State),                 intent(inout) :: state
       type(ESMF_FieldBundle),           intent(inout) :: bundle
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
+      type(ESMF_Grid),        optional, intent(in   ) :: grid
       integer,                optional, intent(  out) :: rc
 
       integer :: status
 
       _UNUSED_DUMMY(unusable)
 
-      call this%field_entry%add_to_bundle(state,bundle, __RC__)
+      call this%field_entry%add_to_bundle(state,bundle, grid=grid, __RC__)
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle

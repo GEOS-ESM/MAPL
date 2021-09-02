@@ -134,16 +134,18 @@ contains
       std_name = this%short_name // '.' // this%component_name
    end function standard_name
 
-   subroutine add_to_bundle(this, state, bundle, unusable, rc)
+   subroutine add_to_bundle(this, state, bundle, unusable, grid, rc)
       class(FieldEntry),                intent(inout) :: this
       type(ESMF_State),                 intent(inout) :: state
       type(ESMF_FieldBundle),           intent(inout) :: bundle
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
+      type(ESMF_Grid),        optional, intent(in   ) :: grid
       integer,                optional, intent(  out) :: rc
 
       integer :: status
       type(ESMF_State) :: export_state
-      type(ESMF_Field) :: field
+      type(ESMF_Field) :: field,new_field
+      integer :: lb(1),ub(1),rank
 
       _UNUSED_DUMMY(unusable)
 
@@ -151,8 +153,23 @@ contains
       _VERIFY(status)
       call ESMF_StateGet(export_state,trim(this%short_name),field,rc=status)
       _VERIFY(status)
-      call ESMF_FieldBundleAdd(bundle,[field],rc=status)
-      _VERIFY(status)
+      if (present(grid)) then
+         call ESMF_FieldGet(field,rank=rank,rc=status)
+         if (rank==2) then
+            new_field = ESMF_FieldCreate(grid,ESMF_TYPEKIND_R4,name=trim(this%short_name),rc=status)
+            _VERIFY(status)
+         else if (rank==3) then
+            call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
+            new_field = ESMF_FieldCreate(grid,ESMF_TYPEKIND_R4,name=trim(this%short_name), &
+                        ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
+            _VERIFY(status)
+         end if
+         call ESMF_FieldBundleAdd(bundle,[new_field],rc=status)
+         _VERIFY(status)
+      else
+         call ESMF_FieldBundleAdd(bundle,[field],rc=status)
+         _VERIFY(status)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle

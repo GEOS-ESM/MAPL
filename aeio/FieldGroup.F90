@@ -6,6 +6,7 @@ module FieldGroupMod
    use ESMF
    use NUOPC
    use yaFyaml
+   use gFTL_StringVector
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
 
@@ -42,6 +43,7 @@ module FieldGroupMod
       procedure :: import_component
       procedure :: import_field
       procedure :: fill_bundle
+      procedure :: append_field_names
    end type FieldGroup
 contains
    integer(kind=INT64) function size(this)
@@ -259,7 +261,6 @@ contains
 
       character(:), pointer       :: key
       type(ConfigurationIterator) :: iter
-      type(Configuration)         :: sub_config
 
       integer :: status
 
@@ -288,11 +289,12 @@ contains
    end subroutine import_field
 
 
-   subroutine fill_bundle(this, state, bundle, unusable, rc)
+   subroutine fill_bundle(this, state, bundle, unusable,grid, rc)
       class(FieldGroup),                intent(inout) :: this
       type(ESMF_State),                 intent(inout) :: state
       type(ESMF_FieldBundle),           intent(inout) :: bundle
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
+      type(ESMF_Grid), optional,        intent(in   ) :: grid
       integer,                optional, intent(  out) :: rc
 
       class(FieldGroupEntry), pointer  :: field_entry
@@ -305,11 +307,33 @@ contains
       iter = this%map%begin()
       do while(iter /= this%map%end())
          field_entry => iter%value()
-         call field_entry%add_to_bundle(state,bundle, __RC__)
+         call field_entry%add_to_bundle(state,bundle, grid=grid, __RC__)
 
          call iter%next()
       end do
 
       _RETURN(_SUCCESS)
    end subroutine fill_bundle
+
+   subroutine append_field_names(this, field_names)
+      class(FieldGroup),                intent(inout) :: this
+      type(StringVector), intent(inout) :: field_names
+
+      class(FieldGroupEntry), pointer  :: field_entry
+      type(FieldGroupEntryMapIterator) :: iter
+      type(FieldEntry), allocatable :: field
+      character(:), allocatable :: short_name
+
+      iter = this%map%begin()
+      do while(iter /= this%map%end())
+         field_entry => iter%value()
+         field = field_entry%get_field_entry()
+         short_name=field%get_short_name()
+         call field_names%push_back(short_name)
+         deallocate(short_name)
+         deallocate(field)
+         call iter%next()
+      end do
+
+   end subroutine append_field_names
 end module FieldGroupMod
