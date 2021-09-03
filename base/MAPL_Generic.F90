@@ -5372,17 +5372,11 @@ end function MAPL_AddChildFromDSO
     !logical                               :: amIRoot
     !type (ESMF_VM)                        :: vm
     logical :: empty
-    class(Logger), pointer :: lgr
 
 ! Check if state is empty. If "yes", simply return
     empty = MAPL_IsStateEmpty(state, __RC__)
     if (empty) then
-       if (MAPL_Am_I_Root()) then
-          call MAPL_GetLogger(mpl, lgr, __RC__)
-          call lgr%warning('Checkpoint '//trim(filename) //&
-               ' requested, but state is empty. Ignored...')
-       end if
-
+       call warn_empty('Checkpoint '//trim(filename), MPL, __RC__)
        _RETURN(ESMF_SUCCESS)
     end if
 
@@ -5678,11 +5672,7 @@ end function MAPL_AddChildFromDSO
 ! Check if state is empty. If "yes", simply return
     empty = MAPL_IsStateEmpty(state, __RC__)
     if (empty) then
-       if (MAPL_Am_I_Root()) then
-          call MAPL_GetLogger(mpl, lgr, __RC__)
-          call lgr%warning('Restart '//trim(filename) //&
-               ' requested, but state is empty. Ignored...')
-       end if
+       call warn_empty('Restart '//trim(filename), MPL, __RC__)
        _RETURN(ESMF_SUCCESS)
     end if
 
@@ -11158,5 +11148,21 @@ end subroutine MAPL_GenericStateRestore
      if (itemcount /= 0) empty = .false.
      _RETURN(ESMF_SUCCESS)
    end function MAPL_IsStateEmpty
+
+   subroutine warn_empty(string, MPL, rc)
+     character (len=*), intent(in) :: string
+     type(MAPL_MetaComp),              intent(INOUT) :: MPL
+     integer, optional,                intent(  OUT) :: RC
+
+     class(Logger), pointer :: lgr
+     integer :: status 
+
+     if (MAPL_Am_I_Root()) then
+        call MAPL_GetLogger(mpl, lgr, __RC__)
+        call lgr%warning(string //&
+             ' requested, but state is empty. Ignored...')
+     end if
+     _RETURN(ESMF_SUCCESS)
+   end subroutine warn_empty
 
 end module MAPL_GenericMod
