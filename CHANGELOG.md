@@ -15,12 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## [2.8.5] - 2021-09-03
+
+### Fixed
+
+- Added missing recursive declaration to MAPL_GenericWrapper
+
 ## [2.8.4] - 2021-08-27
 
 ### Added
 
 - Added `esma_cpack` include for tarring ability
-- Added missing recursive declaration to MAPL_GenericWrapper
 
 ### Changed
 
