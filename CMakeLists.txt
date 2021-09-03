@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.8.4
+  VERSION 2.8.5
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # mepo can now clone subrepos in three styles
