@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added `esma_cpack` include for tarring ability
+- Added missing recursive declaration to MAPL_GenericWrapper
 
 ### Changed
 
