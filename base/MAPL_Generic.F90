@@ -1705,7 +1705,7 @@ end subroutine MAPL_GenericInitialize
 !=============================================================================
 !=============================================================================
 
-subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
+recursive subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
 
   !ARGUMENTS:
   type(ESMF_GridComp)  :: GC     ! Gridded component 
