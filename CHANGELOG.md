@@ -24,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed issue #486. Empty state restarts will now be ignored (with warning) for writing (the code also protects reading, but the existing code already had a different protection)
 - Added default `CMAKE_BUILD_TYPE` for MAPL standalone. Defaults to `Release` build if not set on command line
 
+## [2.8.5] - 2021-09-03
+
+### Fixed
+
+- Added missing recursive declaration to MAPL_GenericWrapper
+
 ## [2.8.4] - 2021-08-27
 
 ### Added
