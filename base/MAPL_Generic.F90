@@ -1705,7 +1705,7 @@ end subroutine MAPL_GenericInitialize
 !=============================================================================
 !=============================================================================
 
-subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
+recursive subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
 
   !ARGUMENTS:
   type(ESMF_GridComp)  :: GC     ! Gridded component 
@@ -5371,6 +5371,14 @@ end function MAPL_AddChildFromDSO
     !real(kind=ESMF_KIND_R8),save ::  total_time = 0.0d0
     !logical                               :: amIRoot
     !type (ESMF_VM)                        :: vm
+    logical :: empty
+
+! Check if state is empty. If "yes", simply return
+    empty = MAPL_IsStateEmpty(state, __RC__)
+    if (empty) then
+       call warn_empty('Checkpoint '//trim(filename), MPL, __RC__)
+       _RETURN(ESMF_SUCCESS)
+    end if
 
 ! Open file
 !----------
@@ -5656,8 +5664,17 @@ end function MAPL_AddChildFromDSO
     class(AbstractGridFactory), pointer :: app_factory
     class (AbstractGridFactory), allocatable :: file_factory
     character(len=ESMF_MAXSTR) :: grid_type
+    logical :: empty
+    class(Logger), pointer :: lgr
 
     _UNUSED_DUMMY(CLOCK)
+
+! Check if state is empty. If "yes", simply return
+    empty = MAPL_IsStateEmpty(state, __RC__)
+    if (empty) then
+       call warn_empty('Restart '//trim(filename), MPL, __RC__)
+       _RETURN(ESMF_SUCCESS)
+    end if
 
 ! Implemented a suggestion by Arlindo to allow files beginning with "-" (dash)
 ! to be skipped if file does not exist and values defaulted
@@ -11115,5 +11132,37 @@ end subroutine MAPL_GenericStateRestore
 
    end function get_child_export_state
 
-      
+
+   function MAPL_IsStateEmpty(state, rc) result(empty)
+     type(ESMF_State), intent(in) :: state
+     integer, optional, intent(out) :: rc
+     logical                        :: empty
+
+     integer :: itemcount
+     integer :: status
+
+     empty = .true.
+     call ESMF_StateGet(state,itemcount=itemcount,rc=status)
+     _VERIFY(status)
+
+     if (itemcount /= 0) empty = .false.
+     _RETURN(ESMF_SUCCESS)
+   end function MAPL_IsStateEmpty
+
+   subroutine warn_empty(string, MPL, rc)
+     character (len=*), intent(in) :: string
+     type(MAPL_MetaComp),              intent(INOUT) :: MPL
+     integer, optional,                intent(  OUT) :: RC
+
+     class(Logger), pointer :: lgr
+     integer :: status 
+
+     if (MAPL_Am_I_Root()) then
+        call MAPL_GetLogger(mpl, lgr, __RC__)
+        call lgr%warning(string //&
+             ' requested, but state is empty. Ignored...')
+     end if
+     _RETURN(ESMF_SUCCESS)
+   end subroutine warn_empty
+
 end module MAPL_GenericMod
