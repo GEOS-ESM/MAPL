@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module AEIO_IOController
+   use MPI
    use MAPL_ExceptionHandling
    use ESMF
    use AEIO_Client
@@ -26,6 +27,9 @@ module AEIO_IOController
       type(ServerMap) :: servers
       integer, allocatable :: pet_list(:,:)
       type(StringVector) :: enabled
+      integer :: server_comm
+      integer :: front_comm
+      integer :: back_comm
 
    contains
       procedure :: initialize
@@ -35,6 +39,7 @@ module AEIO_IOController
       procedure :: transfer_grids_to_back
       procedure :: connect_client_server
 !     procedure :: connect_server_writer
+      procedure :: create_comms
    end type
 
 contains
@@ -62,6 +67,8 @@ contains
       integer :: status
 
       allocate(this%pet_list,source=pet_list)
+      call this%create_comms()
+
       call hist_config%import_yaml_file(configuration_file,rc=status)
       _VERIFY(status)
 
@@ -282,5 +289,38 @@ contains
       call ESMF_GridCompDestroy(fake_gridcomp,__RC__)
       _RETURN(_SUCCESS)
    end function transfer_grid_to_pets
+
+   subroutine create_comms(this,rc)
+      class(IOController), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+    
+      type(ESMF_VM) :: vm
+      integer :: status, mpi_comm,rank
+      integer :: server_color,front_color,back_color
+     
+      server_color = MPI_UNDEFINED
+      front_color  = MPI_UNDEFINED
+      back_color   = MPI_UNDEFINED
+      call ESMF_VMGetCurrent(vm,__RC__)
+      call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,__RC__)
+      call mpi_comm_rank(mpi_comm,rank,status)
+      _VERIFY(status)
+      if (rank <= this%pet_list(2,2) .and. rank >= this%pet_list(2,1) ) front_color=2
+      if (rank <= this%pet_list(3,2) .and. rank >= this%pet_list(3,1) ) back_color=3
+      if (rank <= this%pet_list(3,2) .and. rank >= this%pet_list(2,1) ) server_color=1
+      
+
+      this%server_comm = MPI_COMM_NULL
+      this%front_comm = MPI_COMM_NULL
+      this%back_comm = MPI_COMM_NULL
+
+      call mpi_comm_split(mpi_comm,server_color,0,this%server_comm,status)
+      _VERIFY(status)
+      call mpi_comm_split(mpi_comm,front_color,0,this%front_comm,status)
+      _VERIFY(status)
+      call mpi_comm_split(mpi_comm,back_color,0,this%back_comm,status)
+      _VERIFY(status)
+
+   end subroutine create_comms
 
 end module AEIO_IOController
