@@ -220,10 +220,10 @@ contains
       pet=this%pet_list(2,1)
 
       collection_server =>  this%servers%at(coll_name)
-      server_grid = collection_server%get_grid(rc=status)
-      _VERIFY(status)
+      !server_grid = collection_server%get_grid(rc=status)
+      !_VERIFY(status)
 
-      back_server_grid = transfer_grid_to_pets(server_grid,[pet],__RC__)
+      !back_server_grid = transfer_grid_to_pets(server_grid,[pet],__RC__)
 
       _RETURN(_SUCCESS)
    end subroutine transfer_grid_to_back

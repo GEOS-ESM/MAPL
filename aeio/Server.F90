@@ -39,9 +39,13 @@ contains
 
       integer :: status
       type(ESMF_Grid) :: grid
+      !type(ESMF_State) :: state1
 
+      !state1 = ESMF_StateCreate(__RC__)
       call ESMF_FieldBundleGet(this%bundle,grid=grid,__RC__)
       call this%hist_collection%fill_bundle(state,this%bundle,grid=grid,__RC__)
+      !call ESMF_StateAdd(state1,[this%bundle],__RC__)
+      !call ESMF_StateReconcile(state1,__RC__)
 
       _RETURN(_SUCCESS)
    end subroutine initialize

@@ -145,7 +145,8 @@ contains
       integer :: status
       type(ESMF_State) :: export_state
       type(ESMF_Field) :: field,new_field
-      integer :: lb(1),ub(1),rank
+      integer :: lb(1),ub(1),rank, local_des
+      real(ESMF_KIND_R4), pointer :: ptr2d(:,:),ptr3d(:,:,:)
 
       _UNUSED_DUMMY(unusable)
 
@@ -158,11 +159,25 @@ contains
          if (rank==2) then
             new_field = ESMF_FieldCreate(grid,ESMF_TYPEKIND_R4,name=trim(this%short_name),rc=status)
             _VERIFY(status)
+            call ESMF_FieldGet(new_field,localDECount=local_des,rc=status)
+            _VERIFY(status)
+            if (local_des >0) then
+               call ESMF_FieldGet(new_field,localDE=0,farrayPtr=ptr2d,rc=status)
+               _VERIFY(status)
+               ptr2d=0.0
+            end if
          else if (rank==3) then
             call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
             new_field = ESMF_FieldCreate(grid,ESMF_TYPEKIND_R4,name=trim(this%short_name), &
                         ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
             _VERIFY(status)
+            call ESMF_FieldGet(new_field,localDECount=local_des,rc=status)
+            _VERIFY(status)
+            if (local_des >0) then
+               call ESMF_FieldGet(new_field,localDE=0,farrayPtr=ptr3d,rc=status)
+               _VERIFY(status)
+               ptr3d=0.0
+            end if
          end if
          call ESMF_FieldBundleAdd(bundle,[new_field],rc=status)
          _VERIFY(status)
