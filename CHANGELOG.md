@@ -14,11 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Refactored MAPL_Generic.F90 and MAPL_GenericCplComp.F90 from base to generic. This removes generic dependency from
   base
-- Moved MAPL_ExtDataGridCompMod.F90, MAPL_OrbGridCompMod.F90, and MAPL_OrbGridComp.rc from base to generic due to their
-  dependency on generic.
+- Renamed MAPL_GenericCplComp.F90 to GenericCplComp.F90
+- Moved MAPL_ExtDataGridCompMod.F90, MAPL_OrbGridCompMod.F90, and MAPL_OrbGridComp.rc from base to gridcomps
+  subdirectories
 - Renamed Base.F90, Base_implementation.F90, and MAPL_Mod.F90 to Base_Base.F90, Base_Base_implementation.F90, and
   Base.F90 respectively.
-- Added recursive declaration to MAPL_GenericWrapper subroutine
 
 ### Fixed
 - Fixed issue #486. Empty state restarts will now be ignored (with warning) for writing (the code also protects reading, but the existing code already had a different protection)
