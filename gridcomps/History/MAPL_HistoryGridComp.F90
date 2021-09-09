@@ -38,7 +38,8 @@ module MAPL_HistoryGridCompMod
   use mapl_RegridMethods
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
-  use pFIO
+  use pFIO_ClientManagerMod, only: o_Clients
+  use pFIO_DownbitMod, only: pFIO_DownBit
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
