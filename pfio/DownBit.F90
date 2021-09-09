@@ -187,7 +187,7 @@ contains
 !
 ! !INPUT PARAMETERS:
 !
-     real, intent(in)    ::  x(:)         ! input array 
+     real,target, intent(in)    ::  x(:)         ! input array 
      integer, intent(in) :: nbits           ! number of bits per word to retain
      real, OPTIONAL, intent(in) :: undef    ! missing value
      logical, OPTIONAL, intent(in) :: flops ! if true, uses slower float point
@@ -195,7 +195,7 @@ contains
 !
 ! !OUTPUT PARAMETERS:
 !
-     real, intent(out)   :: xr(:)   ! precision reduced array; can
+     real, target, intent(inout)   :: xr(:)   ! precision reduced array; can
      integer, optional, intent(out) :: rc
 
 
