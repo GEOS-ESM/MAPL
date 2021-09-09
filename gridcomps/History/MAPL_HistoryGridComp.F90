@@ -38,7 +38,7 @@ module MAPL_HistoryGridCompMod
   use mapl_RegridMethods
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
-  use pFIO_ClientManagerMod, only: o_Clients
+  use pFIO
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
@@ -3629,6 +3629,31 @@ ENDDO PARSER
                        list(n)%descr, intstate%output_grids,rc )
                   INTSTATE%LCTL(n) = .false.
                endif
+              
+               nbits: block
+                 integer :: fieldRank
+                 type(ESMF_Field) :: field
+                 real, pointer :: ptr1d(:), ptr2d(:,:), ptr3d(:,:,:), ptr4d(:,:,:,:)
+                 if (list(n)%nbits <24) then
+                   do m=1,list(n)%field_set%nfields
+                      call ESMF_StateGet(state_out, trim(list(n)%field_set%fields(3,m)),field,rc=status )
+                      _VERIFY(STATUS)
+                      call ESMF_FieldGet(field, rank=fieldRank,rc=status)
+                      if (fieldRank ==1) then
+                         call ESMF_FieldGet(field, farrayptr=ptr1d, rc=status)
+                         call pFIO_DownBit(ptr1d,ptr1d,list(n)%nbits,undef=MAPL_undef,rc=status)
+                      elseif (fieldRank ==2) then
+                         call ESMF_FieldGet(field, farrayptr=ptr2d, rc=status)
+                         call pFIO_DownBit(ptr2d,ptr2d,list(n)%nbits,undef=MAPL_undef,rc=status)
+                      elseif (fieldRank ==3) then
+                         call ESMF_FieldGet(field, farrayptr=ptr3d, rc=status)
+                         call pFIO_DownBit(ptr3d,ptr3d,list(n)%nbits,undef=MAPL_undef,rc=status)
+                      else
+                         _ASSERT(.false. ,'The field rank is not implmented')
+                      endif
+                   enddo
+                 endif
+               end block nbits
 
                do m=1,list(n)%field_set%nfields
                   call MAPL_VarWrite ( list(n)%unit, STATE=state_out, &
