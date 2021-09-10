@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added the feature which can use nbits ( shave bit) in history binary output
+
 ### Changed
 - Refactored MAPL_Generic.F90 and MAPL_GenericCplComp.F90 from base to generic. This removes generic dependency from
   base
