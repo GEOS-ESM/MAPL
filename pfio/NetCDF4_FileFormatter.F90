@@ -17,6 +17,7 @@ module pFIO_NetCDF4_FileFormatterMod
    use gFTL_StringIntegerMap
    use pFIO_StringVariableMapMod
    use pFIO_StringAttributeMapMod
+   use pfio_NetCDF_Supplement
    use netcdf
    implicit none
    private
@@ -737,8 +738,10 @@ contains
          xtype = NF90_FLOAT
       case (pFIO_REAL64)
          xtype = NF90_DOUBLE
-      case (pFIO_STRING)
+      case (pFIO_CHAR)
          xtype = NF90_CHAR
+      case (pFIO_STRING)
+         xtype = NF90_STRING
       case default
          rc = _FAILURE
       end select
@@ -763,6 +766,8 @@ contains
       case (NF90_DOUBLE)
          fio_type = pFIO_REAL64
       case (NF90_CHAR)
+         fio_type = pFIO_CHAR
+      case (NF90_STRING)
          fio_type = pFIO_STRING
       case default
          rc = _FAILURE
@@ -901,6 +906,13 @@ contains
             _VERIFY(status)
             call cf%add_attribute(trim(attr_name), str)
             deallocate(str)
+         case (NF90_STRING)
+            !$omp critical
+            status = pfio_get_att_string(this%ncid, varid, trim(attr_name), str)
+            !$omp end critical
+            _VERIFY(status)
+            call cf%add_attribute(trim(attr_name), str)
+            deallocate(str)
          case default
             _RETURN(_FAILURE)
          end select
@@ -986,6 +998,13 @@ contains
             allocate(character(len=len) :: str)
             !$omp critical
             status = nf90_get_att(this%ncid, varid, trim(attr_name), str)
+            !$omp end critical
+            _VERIFY(status)
+            call var%add_attribute(trim(attr_name), str)
+            deallocate(str)
+         case (NF90_STRING)
+            !$omp critical
+            status = pfio_get_att_string(this%ncid, varid, trim(attr_name), str)
             !$omp end critical
             _VERIFY(status)
             call var%add_attribute(trim(attr_name), str)
