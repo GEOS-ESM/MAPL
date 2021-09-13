@@ -39,6 +39,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
   use pFIO_ClientManagerMod, only: o_Clients
+  use pFIO_DownbitMod, only: pFIO_DownBit
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
@@ -3629,6 +3630,9 @@ ENDDO PARSER
                        list(n)%descr, intstate%output_grids,rc )
                   INTSTATE%LCTL(n) = .false.
                endif
+             
+               call shavebits(state_out, list(n), rc=status)
+               _VERIFY(STATUS)
 
                do m=1,list(n)%field_set%nfields
                   call MAPL_VarWrite ( list(n)%unit, STATE=state_out, &
@@ -5294,6 +5298,47 @@ ENDDO PARSER
 
     _RETURN(ESMF_SUCCESS)
   end subroutine checkIfStateHasField
+
+  subroutine shavebits( state, list, rc)
+    type(ESMF_state), intent(inout) :: state
+    type (HistoryCollection), intent(in) :: list
+    integer, optional, intent(out):: rc
+
+    integer :: m, fieldRank, status
+    type(ESMF_Field) :: field
+    real, pointer :: ptr1d(:), ptr2d(:,:), ptr3d(:,:,:)
+
+    if (list%nbits >=24) then
+       _RETURN(ESMF_SUCCESS)
+    endif
+
+    do m=1,list%field_set%nfields
+       call ESMF_StateGet(state, trim(list%field_set%fields(3,m)),field,rc=status )
+       _VERIFY(STATUS)
+       call ESMF_FieldGet(field, rank=fieldRank,rc=status)
+       if (fieldRank ==1) then
+          call ESMF_FieldGet(field, farrayptr=ptr1d, rc=status)
+          _VERIFY(STATUS)
+          call pFIO_DownBit(ptr1d,ptr1d,list%nbits,undef=MAPL_undef,rc=status)
+          _VERIFY(STATUS)
+       elseif (fieldRank ==2) then
+          call ESMF_FieldGet(field, farrayptr=ptr2d, rc=status)
+          _VERIFY(STATUS)
+          call pFIO_DownBit(ptr2d,ptr2d,list%nbits,undef=MAPL_undef,rc=status)
+          _VERIFY(STATUS)
+       elseif (fieldRank ==3) then
+          call ESMF_FieldGet(field, farrayptr=ptr3d, rc=status)
+          _VERIFY(STATUS)
+          call pFIO_DownBit(ptr3d,ptr3d,list%nbits,undef=MAPL_undef,rc=status)
+          _VERIFY(STATUS)
+       else
+          _ASSERT(.false. ,'The field rank is not implmented')
+       endif
+    enddo
+
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine
     
 end module MAPL_HistoryGridCompMod
 

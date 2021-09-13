@@ -6,7 +6,6 @@ module MAPL_newCFIOMod
   use MAPL_AbstractGridFactoryMod
   use MAPL_AbstractRegridderMod
   use MAPL_GridManagerMod
-  use MAPL_GenericMod
   use MAPL_BaseMod
   use MAPL_NewRegridderManager
   use MAPL_RegridMethods

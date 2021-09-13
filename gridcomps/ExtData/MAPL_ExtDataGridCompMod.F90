@@ -22,11 +22,13 @@
 ! !USES:
 !
    USE ESMF
+   use MAPL_GenericMod, only: MAPL_GenericSetServices, MAPL_GenericInitialize, MAPL_GenericFinalize
+   use MAPL_GenericMod, only: MAPL_TimerAdd, MAPL_TimerOn, MAPL_TimerOff, MAPL_GetLogger
+   use MAPL_GenericMod, only: MAPL_MetaComp, MAPL_GetObjectFromGC, MAPL_GridCompSetEntryPoint
    use MAPL_BaseMod
    use MAPL_CommsMod
    use MAPL_ShmemMod
    use ESMFL_Mod
-   use MAPL_GenericMod
    use MAPL_VarSpecMod
    use ESMF_CFIOFileMod
    use ESMF_CFIOMod

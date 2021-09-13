@@ -15,6 +15,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## [2.8.6] - 2021-09-13
+
+### Added
+
+- Added the feature which can use nbits ( shave bit) in history binary output
+- Added script to automatically make a complete, mepo'd tarball on release
+
+### Changed
+
+- Refactored MAPL_Generic.F90 and MAPL_GenericCplComp.F90 from base to generic. This removes generic dependency from
+  base
+- Renamed MAPL_GenericCplComp.F90 to GenericCplComp.F90
+- Moved MAPL_ExtDataGridCompMod.F90, MAPL_OrbGridCompMod.F90, and MAPL_OrbGridComp.rc from base to gridcomps
+  subdirectories
+- Renamed Base.F90, Base_implementation.F90, and MAPL_Mod.F90 to Base_Base.F90, Base_Base_implementation.F90, and
+  Base.F90 respectively.
+
+### Fixed
+
+- Fixed issue #486. Empty state restarts will now be ignored (with warning) for writing (the code also protects reading, but the existing code already had a different protection)
+- Added default `CMAKE_BUILD_TYPE` for MAPL standalone. Defaults to `Release` build if not set on command line
+
 ## [2.8.5] - 2021-09-03
 
 ### Fixed

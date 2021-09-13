@@ -4,8 +4,17 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.8.5
+  VERSION 2.8.6
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
+
+# Set the default build type to release
+if (NOT CMAKE_BUILD_TYPE)
+  message (STATUS "Setting build type to 'Release' as none was specified.")
+  set (CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property (CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "Aggressive")
+endif ()
 
 # mepo can now clone subrepos in three styles
 set (ESMA_CMAKE_DIRS
