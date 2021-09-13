@@ -117,6 +117,7 @@ module MAPL_GenericMod
   use MAPL_CommsMod
   use MAPL_Constants
   use MAPL_SunMod
+  use mapl_MaplGrid
   use MaplGeneric
   use MAPL_GenericCplCompMod
   use MAPL_LocStreamMod
