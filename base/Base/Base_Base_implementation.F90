@@ -13,7 +13,7 @@ submodule (MAPL_Base) Base_Implementation
   use MAPL_Constants
   use MAPL_RangeMod
   use MAPL_SphericalGeometry
-  use MaplGeneric, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
+  use mapl_MaplGrid, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
   use MAPL_ExceptionHandling
   implicit NONE
 
