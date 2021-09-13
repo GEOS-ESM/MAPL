@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added the feature which can use nbits ( shave bit) in history binary output
+- Added option to flip vertical orientation of checkpoint files
 
 ### Changed
 

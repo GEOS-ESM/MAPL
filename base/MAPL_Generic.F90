@@ -910,6 +910,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   character(len=ESMF_MAXSTR)       :: write_restart_by_face
   character(len=ESMF_MAXSTR)       :: read_restart_by_face
   character(len=ESMF_MAXSTR)       :: write_restart_by_oserver
+  character(len=ESMF_MAXSTR)       :: positive
   type(ESMF_GridComp), pointer :: gridcomp
   type(ESMF_State), pointer :: child_import_state
   type(ESMF_State), pointer :: child_export_state
@@ -1232,6 +1233,14 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
      endif ! doubly-periodic
   end if ! isPresent
   end if ! isGridValid
+
+  ! set positive convention
+  call MAPL_GetResource( STATE, positive, Label="CHECKPOINT_POSITIVE:", &
+        default='down', RC=STATUS)
+  _VERIFY(STATUS)
+  positive = ESMF_UtilStringLowerCase(positive,rc=status)
+  _VERIFY(STATUS)
+  _ASSERT(trim(positive)=="up".or.trim(positive)=="down","positive must be up or down")
 ! Put the clock passed down in the generic state
 !-----------------------------------------------
 
@@ -1577,6 +1586,8 @@ endif
       endif
    end if
 
+   call ESMF_AttributeSet(import,'POSITIVE',trim(positive),rc=status)
+   _VERIFY(status)
 ! Create internal and initialize state variables
 ! -----------------------------------------------
 
@@ -1595,6 +1606,8 @@ endif
                                         RC=STATUS       )
       end if
       _VERIFY(STATUS)
+      call ESMF_AttributeSet(internal_state,'POSITIVE',trim(positive),rc=status)
+      _VERIFY(status)
 
       id_string = ""
       tmp_label = "INTERNAL_RESTART_FILE:"
