@@ -14,7 +14,7 @@ module MAPL_NUOPCWrapperMod
         model_label_DataInitialize => label_DataInitialize, &
         model_label_SetClock => label_SetClock, &
         model_label_SetRunClock => label_SetRunClock
-    use MAPL_Mod
+    use MAPLBase_Mod
     use MAPL_CapMod
     use pFIO
     use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler
