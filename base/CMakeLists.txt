@@ -10,8 +10,8 @@ endif()
 
 
 set (srcs
-  MAPL_ExtData_IOBundleMod.F90        MAPL_Profiler.F90
-  CFIOCollection.F90                    MAPL_ExtData_IOBundleVectorMod.F90  MAPL_RegridderManager.F90
+  MAPL_Profiler.F90
+  CFIOCollection.F90                    MAPL_RegridderManager.F90
   NewRegridderManager.F90
   RegridderTypeSpec.F90                 RegridderSpec.F90                   RegridderSpecRouteHandleMap.F90
   RegridMethods.F90                     HorizontalFluxRegridder.F90
@@ -36,14 +36,13 @@ set (srcs
   MAPL_CubedSphereGridFactory.F90       MAPL_MemUtils.F90                   MAPL_VerticalMethods.F90
   MAPL_DefGridName.F90                  Base.F90                        MAPL_VotingRegridder.F90
   MAPL_EsmfRegridder.F90                MAPL_NewArthParser.F90              
-  MAPL_ESMFTimeVectorMod.F90            MAPL_newCFIO.F90                    Regrid_Functions_Mod.F90
-  MAPL_EtaHybridVerticalCoordinate.F90  MAPL_newCFIOitem.F90                
-  MAPL_ExtDataCollection.F90            MAPL_NominalOrbitsMod.F90           
-  MAPL_ExtDataCollectionManager.F90                 
+  MAPL_ESMFTimeVectorMod.F90            Regrid_Functions_Mod.F90
+  MAPL_EtaHybridVerticalCoordinate.F90                  
+  MAPL_NominalOrbitsMod.F90           
   MAPL_LocStreamFactoryMod.F90          MAPL_LocstreamRegridder.F90
   MAPL_ExternalGridFactory.F90
   ServerManager.F90 ApplicationSupport.F90 
-  regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90  FieldBundleWrite.F90 FieldBundleRead.F90
+  regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90 
   regex_F.c
   c_mapl_locstream_F.c  getrss.c  memuse.c
   Base/Base_Base.F90 Base/Base_Base_implementation.F90
@@ -93,13 +92,6 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
 endif ()
 set_target_properties(cub2latlon.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
-ecbuild_add_executable (TARGET Regrid_Util.x SOURCES Regrid_Util.F90 DEPENDS esmf)
-target_link_libraries (Regrid_Util.x PRIVATE ${this} MAPL.pfio ${MPI_Fortran_LIBRARIES})
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(Regrid_Util.x PRIVATE OpenMP::OpenMP_Fortran)
-endif ()
-set_target_properties(Regrid_Util.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 if (EXTENDED_SOURCE)
   esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})
