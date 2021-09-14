@@ -11,9 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added the feature which can use nbits ( shave bit) in history binary output
+- Added option to flip vertical orientation of checkpoint files from the provided orientation which is assumed to be down (TOA -> surface) as index increases. User can provide a per grid comp INTERNAL_CHECKPOINT_POSITIVE: and IMPORT_CHECKPOINT_POSITIVE: option with the default as down. If this is set to up 3D fields that are vlocationedge or vlocationcenter will be flipped on writing and positive in the lev variable will be up. Likewise restarts with positive up will be flipped relative to the orientation in the file.
 
 ### Changed
+
+### Fixed
+
+## [2.8.6] - 2021-09-13
+
+### Added
+
+- Added the feature which can use nbits ( shave bit) in history binary output
+- Added script to automatically make a complete, mepo'd tarball on release
+
+### Changed
+
 - Refactored MAPL_Generic.F90 and MAPL_GenericCplComp.F90 from base to generic. This removes generic dependency from
   base
 - Renamed MAPL_GenericCplComp.F90 to GenericCplComp.F90
@@ -29,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Moved Regrid_Util.F90 from base to FieldBundle do its dependencies. Executable still generated in same place.
 
 ### Fixed
+
 - Fixed issue #486. Empty state restarts will now be ignored (with warning) for writing (the code also protects reading, but the existing code already had a different protection)
 - Added default `CMAKE_BUILD_TYPE` for MAPL standalone. Defaults to `Release` build if not set on command line
 
