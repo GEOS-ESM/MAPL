@@ -9366,8 +9366,8 @@ module MAPL_IOMod
                else
                   positive => null()
                end if
-               if (positive == "up") then
-                  flip=.true.
+               if (associated(positive)) then 
+                  flip = (trim(positive) == "up")
                   _RETURN(_SUCCESS)
                end if
             end if
@@ -9391,7 +9391,9 @@ module MAPL_IOMod
      
       call ESMF_FieldGet(field,rank=rank,typeKind=tk,rc=status)
       _VERIFY(status)
-      if (rank==3) then
+      if (rank/=3) then
+         _RETURN(_SUCCESS)
+      else
          call ESMF_AttributeGet(field,name="VLOCATION",value=vloc,rc=status)
          _VERIFY(status)
          if (vloc==MAPL_VLocationCenter .or. vloc==MAPL_VLocationEdge) then
