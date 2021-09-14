@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   subdirectories
 - Renamed Base.F90, Base_implementation.F90, and MAPL_Mod.F90 to Base_Base.F90, Base_Base_implementation.F90, and
   Base.F90 respectively.
+- Refactored ExtData modules. Because of the dependencies, the following changes were also done:
+    - Moved CFIO modules from base to a new directory called MAPL_ESMFcfio.
+    - Moved newCFIO modules from base to gridcomps/ExtData
+    - Moved ESMF_CFIO module from base to MAPL_cfio as it contains other ESMF CFIO modules
+    - Moved Bundle modules (Read, Write, SimpleBundleMod) to new gridcomps/FieldBundle directory
+    - Moved Regrid_Util.F90 from base to FieldBundle do its dependencies. Executable still generated in same place.
 
 ### Fixed
 - Fixed issue #486. Empty state restarts will now be ignored (with warning) for writing (the code also protects reading, but the existing code already had a different protection)

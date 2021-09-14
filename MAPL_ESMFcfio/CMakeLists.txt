@@ -1,16 +1,11 @@
-esma_set_this (OVERRIDE MAPL.ExtData)
+esma_set_this (OVERRIDE MAPL.ESMFcfio)
 
 set (srcs
-        ExtDataCollection.F90
-        ExtDataCollectionManager.F90
-        ExtData_IOBundleMod.F90
-        ExtData_IOBundleVectorMod.F90
-        MAPL_ExtDataGridCompMod.F90
-        MAPL_newCFIOitem.F90
-        MAPL_newCFIO.F90
+        MAPL_CFIO.F90
+        CFIOCollection.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.generic MAPL.pfio MAPL.ESMFcfio
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.generic 
                                                     MAPL_cfio_r4  TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared esmf NetCDF::NetCDF_Fortran
                                PRIVATE MPI::MPI_Fortran)

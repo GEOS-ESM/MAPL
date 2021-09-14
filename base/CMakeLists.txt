@@ -11,15 +11,15 @@ endif()
 
 set (srcs
   MAPL_Profiler.F90
-  CFIOCollection.F90                    MAPL_RegridderManager.F90
+  MAPL_RegridderManager.F90
   NewRegridderManager.F90
   RegridderTypeSpec.F90                 RegridderSpec.F90                   RegridderSpecRouteHandleMap.F90
   RegridMethods.F90                     HorizontalFluxRegridder.F90
   MAPL_FractionalRegridder.F90          MAPL_RegridderTypeSpecRegridderMap.F90
-  ESMF_CFIOPtrVectorMod.F90             MAPL_RegridderVector.F90
+  MAPL_RegridderVector.F90
   ESMFL_Mod.F90                         MAPL_SatVapor.F90
   FileMetadataUtilities.F90             MAPL_GetLatLonCoord.F90             MAPL_SimpleAlarm.F90
-  FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                MAPL_SimpleBundleMod.F90
+  FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                
   MAPL_AbstractGridFactory.F90          MAPL_GridSpec.F90                   MAPL_StringGridFactoryMap.F90
   MAPL_GridType.F90                     MAPL_StringGridMap.F90              MaplGrid.F90
   MAPL_AbstractRegridder.F90                      
@@ -27,7 +27,7 @@ set (srcs
   MAPL_IdentityRegridder.F90            MAPL_stubs.F90
   MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
   MAPL_CapOptions.F90                   MAPL_TilingRegridder.F90
-  MAPL_CFIO.F90                         MAPL_IO.F90                         MAPL_TimeMethods.F90
+  MAPL_IO.F90                         MAPL_TimeMethods.F90
   MAPL_LatLonGridFactory.F90          MAPL_TransposeRegridder.F90
   MAPL_Comms.F90                        MAPL_LatLonToLatLonRegridder.F90    MAPL_TripolarGridFactory.F90
   MAPL_LlcGridFactory.F90

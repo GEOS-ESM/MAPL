@@ -5,6 +5,8 @@ module MAPL
    use MAPL_GenericMod
    use MAPL_VarSpecMod
    use MAPL_ExtDataGridCompMod, only: T_EXTDATA_STATE, EXTDATA_WRAP
+   use MAPL_CFIOMod
+   use MAPL_SimpleBundleMod
    use ESMF_CFIOMod
    use pFIO
    use MAPL_GridCompsMod
