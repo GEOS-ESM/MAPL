@@ -1,11 +1,11 @@
-esma_set_this (OVERRIDE MAPL.ExtData)
+esma_set_this (OVERRIDE MAPL.ExtData.IOBundle)
 
 set (srcs
-        MAPL_ExtDataGridCompMod.F90
+        ExtData_IOBundleMod.F90
+        ExtData_IOBundleVectorMod.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.generic MAPL.pfio
-        MAPL.ExtData.Collection MAPL.ExtData.IOBundle MAPL.newcfio MAPL_cfio_r4  TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.base MAPL.newcfio TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared esmf NetCDF::NetCDF_Fortran
                                PRIVATE MPI::MPI_Fortran)
 
@@ -16,7 +16,4 @@ endif ()
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-
-add_subdirectory (Collection)
-add_subdirectory (IOBundle)
 

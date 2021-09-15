@@ -19,7 +19,7 @@ set (srcs
   ESMF_CFIOPtrVectorMod.F90             MAPL_RegridderVector.F90
   ESMFL_Mod.F90                         MAPL_SatVapor.F90
   FileMetadataUtilities.F90             MAPL_GetLatLonCoord.F90             MAPL_SimpleAlarm.F90
-  FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                
+  FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                MAPL_SimpleBundleMod.F90 
   MAPL_AbstractGridFactory.F90          MAPL_GridSpec.F90                   MAPL_StringGridFactoryMap.F90
   MAPL_GridType.F90                     MAPL_StringGridMap.F90              MaplGrid.F90
   MAPL_AbstractRegridder.F90                      

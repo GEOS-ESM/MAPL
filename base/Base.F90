@@ -44,6 +44,7 @@ module MAPLBase_Mod
   use MAPL_ExternalGridFactoryMod
   use MAPL_ShmemMod
   use MAPL_MaxMinMod
+  use MAPL_SimpleBundleMod
   use MAPL_NewArthParserMod
   use MAPL_DirPathMod
   use MAPL_KeywordEnforcerMod

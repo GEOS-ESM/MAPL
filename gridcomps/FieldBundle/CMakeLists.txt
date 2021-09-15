@@ -3,7 +3,6 @@ esma_set_this (OVERRIDE MAPL.FieldBundle)
 set (srcs
         FieldBundleRead.F90
         FieldBundleWrite.F90
-        MAPL_SimpleBundleMod.F90
     )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.generic MAPL.pfio

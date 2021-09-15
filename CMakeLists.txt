@@ -115,6 +115,7 @@ add_subdirectory (include)
 add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
+add_subdirectory (MAPL_newcfio)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
