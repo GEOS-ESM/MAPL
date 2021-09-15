@@ -34,7 +34,7 @@ add_pfunit_ctest(MAPL.base.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
 #                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.pfio base_extras MAPL.pfunit
-                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.constants MAPL.pfio MAPL.pfunit MAPL.newcfio
+                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.constants MAPL.pfio MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 MAX_PES 8
@@ -48,7 +48,7 @@ ecbuild_add_executable (
   TARGET ${TESTIO}
   NOINSTALL
   SOURCES mapl_bundleio_test.F90
-  LIBS MAPL.base MAPL.shared MAPL.constants MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran
+  LIBS MAPL.base MAPL.shared MAPL.constants MAPL.pfio MAPL.newcfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
 set_target_properties(${TESTIO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
