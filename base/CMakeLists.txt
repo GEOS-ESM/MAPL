@@ -94,7 +94,6 @@ if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
 endif ()
 set_target_properties(cub2latlon.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
-
 if (EXTENDED_SOURCE)
   esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})
 endif()

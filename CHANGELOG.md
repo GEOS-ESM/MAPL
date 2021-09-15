@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Refactored ExtData modules. Because of the dependencies, the following changes were also done:
+    - Moved Collection ExtData modules into gridcomps/ExtData/Collection
+    - Moved IOBundle ExtData modules into gridcomps/ExtData/IOBundle
+    - Moved newCFIO modules from base to MAPL_newcfio
+    - Moved BundleRead and BundleWrite modules from base to MAPL_newcfio
+    - Moved Regrid_Util.F90 from base to MAPL_newcfio  due to newcfio dependency on base. Executable still generated in install/bin
+
 ### Fixed
 
 ## [2.8.6] - 2021-09-13
@@ -33,12 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   subdirectories
 - Renamed Base.F90, Base_implementation.F90, and MAPL_Mod.F90 to Base_Base.F90, Base_Base_implementation.F90, and
   Base.F90 respectively.
-- Refactored ExtData modules. Because of the dependencies, the following changes were also done:
-    - Moved CFIO modules from base to a new directory called MAPL_ESMFcfio.
-    - Moved newCFIO modules from base to gridcomps/ExtData
-    - Moved ESMF_CFIO module from base to MAPL_cfio as it contains other ESMF CFIO modules
-    - Moved Bundle modules (Read, Write, SimpleBundleMod) to new gridcomps/FieldBundle directory
-    - Moved Regrid_Util.F90 from base to FieldBundle do its dependencies. Executable still generated in same place.
 
 ### Fixed
 

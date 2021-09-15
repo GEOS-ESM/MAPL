@@ -34,7 +34,7 @@ add_pfunit_ctest(MAPL.base.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
 #                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.pfio base_extras MAPL.pfunit
-                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.constants MAPL.pfio MAPL.pfunit MAPL.FieldBundle
+                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.constants MAPL.pfio MAPL.pfunit MAPL.newcfio
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 MAX_PES 8
@@ -59,3 +59,4 @@ add_test(NAME bundleio_tests_cube
   COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 6 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 1 -ny 6 -ogrid PE12x72-CF)
 
 add_dependencies(build-tests ${TESTIO})
+
