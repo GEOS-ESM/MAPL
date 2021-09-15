@@ -30,6 +30,7 @@ module AEIO_Server
       procedure set_server_writer_prototype
       procedure get_server_writer_prototype
       procedure get_data_from_client
+      procedure offload_data
    end type
 
    interface Server
@@ -153,5 +154,14 @@ contains
       call this%client_connection%redist_fieldBundles(dstFieldBundle=this%bundle,_RC)
       _RETURN(_SUCCESS)
    end subroutine get_data_from_client
+
+   subroutine offload_data(this,rc)
+      class(server), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN(_SUCCESS)
+   end subroutine offload_data
 
 end module AEIO_Server

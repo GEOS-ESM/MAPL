@@ -443,7 +443,9 @@ contains
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMGet(vm,localPet=myPet,_RC)
       if (myPet >= this%pet_list(1,1) .and. mypet <= this%pet_list(2,2)) then
+
          call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
+
          enabled_iter = this%enabled%begin()
          do while(enabled_iter /= this%enabled%end())
             coll_name=enabled_iter%get()
@@ -481,7 +483,7 @@ contains
          do while(enabled_iter /= this%enabled%end())
             coll_name=enabled_iter%get()
             server_ptr => this%servers%at(coll_name)
-
+            call server_ptr%offload_data(_RC)
             call enabled_iter%next()
          enddo
 
