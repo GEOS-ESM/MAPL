@@ -6,7 +6,61 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-	
+
+### Removed
+
+### Added
+
+- Added option to flip vertical orientation of checkpoint files from the provided orientation which is assumed to be down (TOA -> surface) as index increases. User can provide a per grid comp INTERNAL_CHECKPOINT_POSITIVE: and IMPORT_CHECKPOINT_POSITIVE: option with the default as down. If this is set to up 3D fields that are vlocationedge or vlocationcenter will be flipped on writing and positive in the lev variable will be up. Likewise restarts with positive up will be flipped relative to the orientation in the file.
+- Added GEOSadas CI ifort build test
+
+### Changed
+
+### Fixed
+
+## [2.8.6] - 2021-09-13
+
+### Added
+
+- Added the feature which can use nbits ( shave bit) in history binary output
+- Added script to automatically make a complete, mepo'd tarball on release
+
+### Changed
+
+- Refactored MAPL_Generic.F90 and MAPL_GenericCplComp.F90 from base to generic. This removes generic dependency from
+  base
+- Renamed MAPL_GenericCplComp.F90 to GenericCplComp.F90
+- Moved MAPL_ExtDataGridCompMod.F90, MAPL_OrbGridCompMod.F90, and MAPL_OrbGridComp.rc from base to gridcomps
+  subdirectories
+- Renamed Base.F90, Base_implementation.F90, and MAPL_Mod.F90 to Base_Base.F90, Base_Base_implementation.F90, and
+  Base.F90 respectively.
+
+### Fixed
+
+- Fixed issue #486. Empty state restarts will now be ignored (with warning) for writing (the code also protects reading, but the existing code already had a different protection)
+- Added default `CMAKE_BUILD_TYPE` for MAPL standalone. Defaults to `Release` build if not set on command line
+
+## [2.8.5] - 2021-09-03
+
+### Fixed
+
+- Added missing recursive declaration to MAPL_GenericWrapper
+
+## [2.8.4] - 2021-08-27
+
+### Added
+
+- Added `esma_cpack` include for tarring ability
+
+### Changed
+
+- Updated ESMA_cmake to v3.5.4
+
+### Fixed
+
+- Fix bug when restart name has a "-" at the beginning
+
+## [2.8.3] - 2021-08-19
 
 ### Removed
 
@@ -20,7 +74,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `MAPL_AllocNodeArray_6DR8` and `MAPL_DeAllocNodeArray_6DR8` to Shmem
 - Refactors Constants into its own library and consolidated mathematical/physical constants used throughout code to use those from library
 - Added single precision Degrees to Radian Conversion
-- Added GEOSadas CI ifort build test
 
 ### Changed
 
@@ -31,6 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Added npes for pfio_MAPL_demo.F90 when --npes_model is not specified in command line
+- Fixed bug in ExtData when doing vector pairs
 
 ## [2.8.2] - 2021-07-29
 

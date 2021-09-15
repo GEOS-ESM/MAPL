@@ -11,3 +11,5 @@ target_include_directories (${this} PUBLIC
 
 add_subdirectory(Cap)
 add_subdirectory(History)
+add_subdirectory(Orbit)
+add_subdirectory(ExtData)
