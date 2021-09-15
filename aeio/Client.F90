@@ -21,6 +21,7 @@ module AEIO_Client
       procedure get_grid
       procedure get_bundle
       procedure set_client_server_connector
+      procedure transfer_data_to_server
    end type
 
    interface Client
@@ -38,10 +39,8 @@ contains
       character(len=:), allocatable :: collection_name
 
       collection_name = this%hist_collection%get_name()
-      this%bundle=ESMF_FieldBundleCreate(name=collection_name,rc=status)
-      _VERIFY(status)
-      call this%hist_collection%fill_bundle(state,this%bundle,rc=status)
-      _VERIFY(status) 
+      this%bundle=ESMF_FieldBundleCreate(name=collection_name,_RC)
+      call this%hist_collection%fill_bundle(state,this%bundle,_RC)
 
       _RETURN(_SUCCESS)
    end subroutine initialize
@@ -72,8 +71,7 @@ contains
 
       integer :: status
       type(ESMF_Grid) :: grid
-      call ESMF_FieldBundleGet(this%bundle,grid=grid,rc=status)
-      _VERIFY(status)
+      call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
       _RETURN(_SUCCESS)
    end function get_grid
 
@@ -84,5 +82,16 @@ contains
       this%server_connection = rh
       call this%server_connection%set_sender(.true.)
    end subroutine set_client_server_connector
+
+   subroutine transfer_data_to_server(this,rc)
+      class(client), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+     
+      integer :: status
+
+      call this%server_connection%redist_fieldBundles(srcFieldBundle=this%bundle,_RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine transfer_data_to_server
 
 end module AEIO_Client

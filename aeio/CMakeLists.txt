@@ -1,8 +1,11 @@
 esma_set_this (OVERRIDE MAPL.aeio)
 
 set (srcs
+    Writer.F90
     RHConnector.F90
     RHConnectorMap.F90
+    CollectionDescriptor.F90
+    CollectionDescriptorMap.F90
     IOController.F90
     Client.F90
     ClientMap.F90

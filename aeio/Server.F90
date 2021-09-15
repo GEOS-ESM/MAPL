@@ -18,12 +18,18 @@ module AEIO_Server
       integer, allocatable :: pet_list(:,:)
       type(ESMF_FieldBundle) :: bundle
       type(RHConnector) :: client_connection
+      type(RHConnector) :: writer_prototype_conn
    contains
       procedure initialize
       procedure set_grid
       procedure get_grid
+      !procedure set_prototype_grid
+      !procedure get_prototype_grid
       procedure get_bundle
       procedure set_client_server_connector
+      procedure set_server_writer_prototype
+      procedure get_server_writer_prototype
+      procedure get_data_from_client
    end type
 
    interface Server
@@ -39,13 +45,9 @@ contains
 
       integer :: status
       type(ESMF_Grid) :: grid
-      !type(ESMF_State) :: state1
 
-      !state1 = ESMF_StateCreate(__RC__)
-      call ESMF_FieldBundleGet(this%bundle,grid=grid,__RC__)
-      call this%hist_collection%fill_bundle(state,this%bundle,grid=grid,__RC__)
-      !call ESMF_StateAdd(state1,[this%bundle],__RC__)
-      !call ESMF_StateReconcile(state1,__RC__)
+      call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
+      call this%hist_collection%fill_bundle(state,this%bundle,grid=grid,_RC)
 
       _RETURN(_SUCCESS)
    end subroutine initialize
@@ -60,7 +62,6 @@ contains
       c%hist_collection = hist_collection
       allocate(c%pet_list,source=pet_list,stat=status)
       _VERIFY(status)
-      c%bundle=ESMF_FieldBundleCreate(__RC__)
       _RETURN(_SUCCESS)
 
    end function new_Server
@@ -78,7 +79,7 @@ contains
 
       integer :: status
       
-      call ESMF_FieldBundleSet(this%bundle,grid=grid,__RC__)
+      call ESMF_FieldBundleSet(this%bundle,grid=grid,_RC)
       _RETURN(_SUCCESS)
 
    end subroutine set_grid
@@ -90,10 +91,33 @@ contains
       type(esmf_grid) :: grid
       integer :: status
       
-      call ESMF_FieldBundleGet(this%bundle,grid=grid,__RC__)
+      call ESMF_FieldBundleGet(this%bundle,grid=grid,_RC)
       _RETURN(_SUCCESS)
 
    end function get_grid
+
+   !subroutine set_prototype_grid(this,grid,rc)
+      !class(server), intent(inout) :: this
+      !type(esmf_grid), intent(in) :: grid
+      !integer, optional, intent(out) :: rc
+!
+      !integer :: status
+      !call ESMF_FieldBundleSet(this%prototype_bundle,grid=grid,_RC)
+      !_RETURN(_SUCCESS)
+!
+   !end subroutine set_prototype_grid
+
+   !function get_prototype_grid(this,rc) result(grid)
+      !class(server), intent(inout) :: this
+      !integer, optional, intent(out) :: rc
+!
+      !type(esmf_grid) :: grid
+      !integer :: status
+     ! 
+      !call ESMF_FieldBundleGet(this%prototype_bundle,grid=grid,_RC)
+      !_RETURN(_SUCCESS)
+!
+   !end function get_prototype_grid
 
    subroutine set_client_server_connector(this,rh)
       class(Server), intent(inout) :: this
@@ -101,6 +125,33 @@ contains
 
       this%client_connection = rh
       call this%client_connection%set_sender(.false.)
+
    end subroutine set_client_server_connector
+
+   subroutine set_server_writer_prototype(this,rh)
+      class(Server), intent(inout) :: this
+      type(RHConnector), intent(in) :: rh
+
+      this%writer_prototype_conn = rh
+
+   end subroutine set_server_writer_prototype
+
+   subroutine get_server_writer_prototype(this,rh)
+      class(Server), intent(inout) :: this
+      type(RHConnector), intent(out) :: rh
+
+      rh = this%writer_prototype_conn
+
+   end subroutine get_server_writer_prototype
+
+   subroutine get_data_from_client(this,rc)
+      class(server), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call this%client_connection%redist_fieldBundles(dstFieldBundle=this%bundle,_RC)
+      _RETURN(_SUCCESS)
+   end subroutine get_data_from_client
 
 end module AEIO_Server

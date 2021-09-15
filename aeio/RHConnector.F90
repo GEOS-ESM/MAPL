@@ -18,11 +18,15 @@ module AEIO_RHConnector
    contains
       procedure regrid_store_FieldBundles
       procedure regrid_store_fields
+      procedure redist_store_FieldBundles
+      procedure redist_store_fields
       procedure redist_store_ArrayBundles
       procedure redist_store_arrays
       procedure set_sender
       procedure regrid_FieldBundles
       procedure regrid_fields
+      procedure redist_FieldBundles
+      procedure redist_fields
       procedure redist_ArrayBundles
       procedure redist_Arrays
    end type
@@ -47,8 +51,7 @@ contains
       type(ESMF_FieldBundle), intent(inout) :: FieldBundle_out
       integer, optional, intent(out) :: rc
       integer :: status
-      call ESMF_FieldBundleRegridStore(FieldBundle_in,FieldBundle_out,routeHandle=this%rh,rc=status)
-      _VERIFY(status)
+      call ESMF_FieldBundleRegridStore(FieldBundle_in,FieldBundle_out,routeHandle=this%rh,_RC)
       this%rh_container_type=ESMF_STATEITEM_FIELDBUNDLE
       this%regrid=.true.
       _RETURN(_SUCCESS)
@@ -60,12 +63,35 @@ contains
       type(ESMF_Field), intent(inout) :: Field_out
       integer, optional, intent(out) :: rc
       integer :: status
-      call ESMF_FieldRegridStore(Field_in,Field_out,routeHandle=this%rh,rc=status)
-      _VERIFY(status)
+      call ESMF_FieldRegridStore(Field_in,Field_out,routeHandle=this%rh,_RC)
       this%rh_container_type=ESMF_STATEITEM_FIELDBUNDLE
       this%regrid=.true.
       _RETURN(_SUCCESS)
    end subroutine regrid_store_fields
+
+   subroutine redist_store_FieldBundles(this,FieldBundle_in,FieldBundle_out,rc)
+      class(RHConnector), intent(inout) :: this
+      type(ESMF_FieldBundle), intent(in) :: FieldBundle_in
+      type(ESMF_FieldBundle), intent(inout) :: FieldBundle_out
+      integer, optional, intent(out) :: rc
+      integer :: status
+      call ESMF_FieldBundleredistStore(FieldBundle_in,FieldBundle_out,routeHandle=this%rh,_RC)
+      this%rh_container_type=ESMF_STATEITEM_FIELDBUNDLE
+      this%regrid=.false.
+      _RETURN(_SUCCESS)
+   end subroutine redist_store_FieldBundles
+
+   subroutine redist_store_fields(this,Field_in,Field_out,rc)
+      class(RHConnector), intent(inout) :: this
+      type(ESMF_Field), intent(in) :: Field_in
+      type(ESMF_Field), intent(inout) :: Field_out
+      integer, optional, intent(out) :: rc
+      integer :: status
+      call ESMF_FieldredistStore(Field_in,Field_out,routeHandle=this%rh,_RC)
+      this%rh_container_type=ESMF_STATEITEM_FIELDBUNDLE
+      this%regrid=.false.
+      _RETURN(_SUCCESS)
+   end subroutine redist_store_fields
 
    subroutine redist_store_arrayBundles(this,arrayBundle_in,arrayBundle_out,rc)
       class(RHConnector), intent(inout) :: this
@@ -73,8 +99,7 @@ contains
       type(ESMF_arrayBundle), intent(inout) :: arrayBundle_out
       integer, optional, intent(out) :: rc
       integer :: status
-      call ESMF_ArrayBundleRedistStore(arrayBundle_in,arrayBundle_out,routeHandle=this%rh,rc=status)
-      _VERIFY(status)
+      call ESMF_ArrayBundleRedistStore(arrayBundle_in,arrayBundle_out,routeHandle=this%rh,_RC)
       this%rh_container_type=ESMF_STATEITEM_ARRAYBUNDLE
       this%regrid=.true.
       _RETURN(_SUCCESS)
@@ -86,68 +111,97 @@ contains
       type(ESMF_array), intent(inout) :: array_out
       integer, optional, intent(out) :: rc
       integer :: status
-      call ESMF_ArrayRedistStore(array_in,array_out,routeHandle=this%rh,rc=status)
-      _VERIFY(status)
+      call ESMF_ArrayRedistStore(array_in,array_out,routeHandle=this%rh,_RC)
       this%rh_container_type=ESMF_STATEITEM_ARRAY
       this%regrid=.true.
       _RETURN(_SUCCESS)
    end subroutine redist_store_arrays
 
-   subroutine regrid_FieldBundles(this,FieldBundle_in,FieldBundle_out,rc)
+   subroutine regrid_FieldBundles(this,srcFieldBundle,dstFieldBundle,rc)
       class(RHConnector), intent(inout) :: this
-      type(ESMF_FieldBundle), intent(in) :: FieldBundle_in
-      type(ESMF_FieldBundle), intent(out) :: FieldBundle_out
+      type(ESMF_FieldBundle), intent(in), optional :: srcFieldBundle
+      type(ESMF_FieldBundle), intent(out) , optional :: dstFieldBundle
       integer, optional, intent(out) :: rc
 
       if (this%sender) then
-         call ESMF_FieldBundleRegrid(srcFieldBundle=FieldBundle_in,routeHandle=this%rh)
+         call ESMF_FieldBundleRegrid(srcFieldBundle=srcFieldBundle,routeHandle=this%rh)
       else
-         call ESMF_FieldBundleRegrid(dstFieldBundle=FieldBundle_out,routeHandle=this%rh)
+         call ESMF_FieldBundleRegrid(dstFieldBundle=dstFieldBundle,routeHandle=this%rh)
       end if
       _RETURN(_SUCCESS)
      
    end subroutine regrid_FieldBundles
 
-   subroutine regrid_fields(this,Field_in,Field_out,rc)
+   subroutine regrid_fields(this,srcField,dstField,rc)
       class(RHConnector), intent(inout) :: this
-      type(ESMF_Field), intent(in) :: Field_in
-      type(ESMF_Field), intent(out) :: Field_out
+      type(ESMF_Field), intent(in), optional :: srcField
+      type(ESMF_Field), intent(out), optional :: dstField
       integer, optional, intent(out) :: rc
 
       if (this%sender) then
-         call ESMF_FieldRegrid(srcField=Field_in,routeHandle=this%rh)
+         call ESMF_FieldRegrid(srcField=srcField,routeHandle=this%rh)
       else
-         call ESMF_FieldRegrid(dstField=Field_out,routeHandle=this%rh)
+         call ESMF_FieldRegrid(dstField=dstField,routeHandle=this%rh)
       end if
       _RETURN(_SUCCESS)
      
    end subroutine regrid_fields
     
-   subroutine redist_ArrayBundles(this,ArrayBundle_in,ArrayBundle_out,rc)
+   subroutine redist_FieldBundles(this,srcFieldBundle,dstFieldBundle,rc)
       class(RHConnector), intent(inout) :: this
-      type(ESMF_ArrayBundle), intent(in) :: ArrayBundle_in
-      type(ESMF_ArrayBundle), intent(out) :: ArrayBundle_out
+      type(ESMF_FieldBundle), intent(in), optional :: srcFieldBundle
+      type(ESMF_FieldBundle), intent(out), optional :: dstFieldBundle
       integer, optional, intent(out) :: rc
 
       if (this%sender) then
-         call ESMF_ArrayBundleRedist(srcArrayBundle=ArrayBundle_in,routeHandle=this%rh)
+         call ESMF_FieldBundleredist(srcFieldBundle=srcFieldBundle,routeHandle=this%rh)
       else
-         call ESMF_ArrayBundleRedist(dstArrayBundle=ArrayBundle_out,routeHandle=this%rh)
+         call ESMF_FieldBundleredist(dstFieldBundle=dstFieldBundle,routeHandle=this%rh)
+      end if
+      _RETURN(_SUCCESS)
+     
+   end subroutine redist_FieldBundles
+
+   subroutine redist_fields(this,srcField,dstField,rc)
+      class(RHConnector), intent(inout) :: this
+      type(ESMF_Field), intent(in), optional :: srcField
+      type(ESMF_Field), intent(out), optional :: dstField
+      integer, optional, intent(out) :: rc
+
+      if (this%sender) then
+         call ESMF_Fieldredist(srcField=srcField,routeHandle=this%rh)
+      else
+         call ESMF_Fieldredist(dstField=dstField,routeHandle=this%rh)
+      end if
+      _RETURN(_SUCCESS)
+     
+   end subroutine redist_fields
+    
+   subroutine redist_ArrayBundles(this,srcArrayBundle,dstArrayBundle,rc)
+      class(RHConnector), intent(inout) :: this
+      type(ESMF_ArrayBundle), intent(in), optional :: srcArrayBundle
+      type(ESMF_ArrayBundle), intent(out), optional :: dstArrayBundle
+      integer, optional, intent(out) :: rc
+
+      if (this%sender) then
+         call ESMF_ArrayBundleRedist(srcArrayBundle=srcArrayBundle,routeHandle=this%rh)
+      else
+         call ESMF_ArrayBundleRedist(dstArrayBundle=dstArrayBundle,routeHandle=this%rh)
       end if
       _RETURN(_SUCCESS)
      
    end subroutine redist_ArrayBundles
 
-   subroutine redist_Arrays(this,Array_in,Array_out,rc)
+   subroutine redist_Arrays(this,srcArray,dstArray,rc)
       class(RHConnector), intent(inout) :: this
-      type(ESMF_Array), intent(in) :: Array_in
-      type(ESMF_Array), intent(out) :: Array_out
+      type(ESMF_Array), intent(in), optional :: srcArray
+      type(ESMF_Array), intent(out), optional :: dstArray
       integer, optional, intent(out) :: rc
 
       if (this%sender) then
-         call ESMF_ArrayRedist(srcArray=Array_in,routeHandle=this%rh)
+         call ESMF_ArrayRedist(srcArray=srcArray,routeHandle=this%rh)
       else
-         call ESMF_ArrayRedist(dstArray=Array_out,routeHandle=this%rh)
+         call ESMF_ArrayRedist(dstArray=dstArray,routeHandle=this%rh)
       end if
       _RETURN(_SUCCESS)
      

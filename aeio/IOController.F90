@@ -3,6 +3,7 @@
 module AEIO_IOController
    use MPI
    use MAPL_ExceptionHandling
+   use MAPL_BaseMod
    use ESMF
    use AEIO_Client
    use AEIO_ClientMap
@@ -15,6 +16,7 @@ module AEIO_IOController
    use gFTL_StringVector
    use AEIO_TransferGridComp
    use AEIO_RHConnector
+   use AEIO_Writer
    
    implicit none
    private
@@ -25,6 +27,7 @@ module AEIO_IOController
       private
       type(ClientMap) :: clients
       type(ServerMap) :: servers
+      type(writer) :: writer_comp
       integer, allocatable :: pet_list(:,:)
       type(StringVector) :: enabled
       integer :: server_comm
@@ -33,12 +36,16 @@ module AEIO_IOController
 
    contains
       procedure :: initialize
+      procedure :: run
       procedure :: transfer_grid_to_front
       procedure :: transfer_grids_to_front
-      procedure :: transfer_grid_to_back
-      procedure :: transfer_grids_to_back
+      !procedure :: transfer_grid_to_back
+      !procedure :: transfer_grids_to_back
       procedure :: connect_client_server
-!     procedure :: connect_server_writer
+      procedure :: transfer_data_client_server
+      procedure :: generate_server_writer_prototype
+      procedure :: offload_server_data
+      procedure :: setup_writers
       procedure :: create_comms
    end type
 
@@ -69,8 +76,7 @@ contains
       allocate(this%pet_list,source=pet_list)
       call this%create_comms()
 
-      call hist_config%import_yaml_file(configuration_file,rc=status)
-      _VERIFY(status)
+      call hist_config%import_yaml_file(configuration_file,_RC)
 
       ! create client and server for each collection
       this%enabled = hist_config%get_enabled()
@@ -79,11 +85,9 @@ contains
       do while(enabled_iter /= this%enabled%end())
          key=enabled_iter%get()
          hist_coll=coll_registry%at(key)
-         output_server=Server(hist_coll,pet_list,rc=status)
-         _VERIFY(status)
+         output_server=Server(hist_coll,pet_list,_RC)
          call this%servers%insert(key,output_server)
-         output_client=Client(hist_coll,pet_list,rc=status)
-         _VERIFY(status)
+         output_client=Client(hist_coll,pet_list,_RC)
          call this%clients%insert(key,output_client)
          call enabled_iter%next()
       enddo
@@ -93,22 +97,20 @@ contains
       do while(enabled_iter /= this%enabled%end())
          key=enabled_iter%get()
          client_ptr => this%clients%at(key)
-         call client_ptr%initialize(state,rc=status)
-         _VERIFY(status)
+         call client_ptr%initialize(state,_RC)
          call enabled_iter%next()
       enddo
 
       ! first communication - send grid
-      call this%transfer_grids_to_Front(rc=status)
-      _VERIFY(status)
+      call this%transfer_grids_to_front(_RC)
+      !call this%transfer_grids_to_back(_RC)
 
       ! fill bundle on front end of server for each collection
       enabled_iter = this%enabled%begin()
       do while(enabled_iter /= this%enabled%end())
          key=enabled_iter%get()
          server_ptr => this%servers%at(key)
-         call server_ptr%initialize(state,rc=status)
-         _VERIFY(status)
+         call server_ptr%initialize(state,_RC)
          call enabled_iter%next()
       enddo
    
@@ -116,14 +118,53 @@ contains
       enabled_iter = this%enabled%begin()
       do while(enabled_iter /= this%enabled%end())
          key=enabled_iter%get()
-         call this%connect_client_server(key,rc=status)
-         _VERIFY(status)
+         call this%connect_client_server(key,_RC)
+         call this%generate_server_writer_prototype(key,_RC)
          call enabled_iter%next()
       enddo
       
          
       _RETURN(_SUCCESS)
    end subroutine initialize
+
+   subroutine run(this,clock,rc)
+      class(IOController), intent(inout) :: this
+      type(ESMF_Clock), intent(in) :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      ! here the client might do some work
+
+      ! then we would probably want to check if it is time to write
+
+      ! if time to write
+      call this%transfer_data_client_server(_RC)
+
+      ! on correct Pets offload data
+      call this%offload_server_data(_RC)
+      
+
+      _RETURN(_SUCCESS)
+   end subroutine run
+ 
+
+   subroutine setup_writers(this,collection_name,rc)
+      class(IOController), intent(inout) :: this
+      character(len=*), intent(in) :: collection_name
+      integer, optional, intent(out) :: rc
+
+      type(Server), pointer :: server_ptr
+      type(ESMF_FieldBundle) :: bundle
+      type(RHConnector) :: rh
+      integer :: status
+
+      server_ptr => this%servers%at(collection_name)
+      bundle =  server_ptr%get_bundle()
+      call server_ptr%get_server_writer_prototype(rh)
+      call this%writer_comp%add_collection(collection_name,bundle,rh,_RC)
+      _RETURN(_SUCCESS)
+      
+   end subroutine setup_writers
 
    subroutine connect_client_server(this,collection_name,rc)
       class(IOController), intent(inout) :: this
@@ -138,13 +179,45 @@ contains
       
       server_ptr => this%servers%at(collection_name)
       client_ptr => this%clients%at(collection_name)
-      client_bundle = client_ptr%get_bundle()
       server_bundle = server_ptr%get_bundle()
-      call connector%regrid_store_fieldBundles(client_bundle,server_bundle,rc=status)
-      _VERIFY(status)
-       
+      client_bundle = client_ptr%get_bundle()
+      call connector%redist_store_fieldBundles(client_bundle,server_bundle,_RC)
+      call client_ptr%set_client_server_connector(connector)
+      call server_ptr%set_client_server_connector(connector)
 
    end subroutine connect_client_server
+
+   subroutine generate_server_writer_prototype(this,collection_name,rc)
+      class(IOController), intent(inout) :: this
+      character(len=*), intent(in) :: collection_name
+      integer, optional, intent(out) :: rc
+
+      type(Server), pointer :: server_ptr
+      type(ESMF_FieldBundle) :: server_bundle
+      type(RHConnector) :: connector
+      type(ESMF_Grid) :: grid
+      type(ESMF_DistGrid) :: dist_grid_in,dist_grid_out
+      type(ESMF_Array) :: array_in,array_out
+      type(ESMF_DELayout) :: de_layout
+      integer :: grid_size(3)
+      integer :: status
+      
+      server_ptr => this%servers%at(collection_name)
+      server_bundle = server_ptr%get_bundle()
+      call ESMF_FieldBundleGet(server_bundle,grid=grid,_RC)
+      call ESMF_GridGet(grid,distGrid=dist_grid_in,_RC)
+      call MAPL_GridGet(grid,globalCellCountPerDim=grid_size,_RC)
+      de_layout=ESMF_DELayoutCreate(deCount=1,petList=[this%pet_list(2,1)],_RC)
+      dist_grid_out=ESMF_DistGridCreate([1,1],[grid_size(1),grid_size(2)],regDecomp=[1,1],delayout=de_layout,_RC)
+      array_in = ESMF_ArrayCreate(dist_grid_in,ESMF_TYPEKIND_R4,_RC)
+      array_out = ESMF_ArrayCreate(dist_grid_out,ESMF_TYPEKIND_R4,_RC)
+
+      call connector%redist_store_arrays(array_in,array_out,_RC)
+      call server_ptr%set_server_writer_prototype(connector)
+      call ESMF_ArrayDestroy(array_in,nogarbage=.true.,_RC)
+      call ESMF_ArrayDestroy(array_out,nogarbage=.true.,_RC)
+
+   end subroutine generate_server_writer_prototype
 
    subroutine transfer_grids_to_front(this,rc)
       class(IOController), intent(inout) :: this
@@ -157,8 +230,7 @@ contains
       enabled_iter = this%enabled%begin()
       do while(enabled_iter /= this%enabled%end())
          coll_name=enabled_iter%get()
-         call this%transfer_grid_to_front(coll_name,rc=status)
-         _VERIFY(status)
+         call this%transfer_grid_to_front(coll_name,_RC)
          call enabled_iter%next()
       enddo
        
@@ -184,56 +256,54 @@ contains
       enddo
 
       collection_client =>  this%clients%at(coll_name)
-      client_grid = collection_client%get_grid(rc=status)
-      _VERIFY(status)
+      client_grid = collection_client%get_grid(_RC)
 
-      front_server_grid = transfer_grid_to_pets(client_grid,pets,__RC__)
+      front_server_grid = transfer_grid_to_pets(client_grid,pets,_RC)
       collection_server => this%servers%at(coll_name)
-      call collection_server%set_grid(front_server_grid,__RC__)
+      call collection_server%set_grid(front_server_grid,_RC)
 
       _RETURN(_SUCCESS)
    end subroutine transfer_grid_to_front
 
-   subroutine transfer_grids_to_back(this,rc)
-      class(IOController), intent(inout) :: this
-      integer, optional, intent(out) :: rc
+   !subroutine transfer_grids_to_back(this,rc)
+      !class(IOController), intent(inout) :: this
+      !integer, optional, intent(out) :: rc
 
-      type(StringVectorIterator) :: enabled_iter
-      integer :: status
-      character(:), allocatable :: coll_name 
+      !type(StringVectorIterator) :: enabled_iter
+      !integer :: status
+      !character(:), allocatable :: coll_name 
       
-      enabled_iter = this%enabled%begin()
-      do while(enabled_iter /= this%enabled%end())
-         coll_name=enabled_iter%get()
-         call this%transfer_grid_to_back(coll_name,rc=status)
-         _VERIFY(status)
-         call enabled_iter%next()
-      enddo
+      !enabled_iter = this%enabled%begin()
+      !do while(enabled_iter /= this%enabled%end())
+         !coll_name=enabled_iter%get()
+         !call this%transfer_grid_to_back(coll_name,_RC)
+         !call enabled_iter%next()
+      !enddo
        
 
-   end subroutine transfer_grids_to_back
+   !end subroutine transfer_grids_to_back
 
-   subroutine transfer_grid_to_back(this,coll_name,rc)
-      class(IOController), intent(inout) :: this
-      character(len=*), intent(in) :: coll_name
-      integer, optional, intent(out) :: rc
+   !subroutine transfer_grid_to_back(this,coll_name,rc)
+      !class(IOController), intent(inout) :: this
+      !character(len=*), intent(in) :: coll_name
+      !integer, optional, intent(out) :: rc
 
-      type(ESMF_Grid) :: back_server_grid
-      type(ESMF_Grid) :: server_grid
-      type(Server), pointer :: collection_server
-      integer :: status
-      integer :: pet
+      !type(ESMF_Grid) :: back_server_grid
+      !type(ESMF_Grid) :: server_grid
+      !type(Server), pointer :: collection_server
+      !integer :: status
+      !integer :: pet
 
-      pet=this%pet_list(2,1)
+      !pet=this%pet_list(2,1)
 
-      collection_server =>  this%servers%at(coll_name)
-      !server_grid = collection_server%get_grid(rc=status)
-      !_VERIFY(status)
+      !collection_server =>  this%servers%at(coll_name)
+      !server_grid = collection_server%get_grid(_RC)
 
-      !back_server_grid = transfer_grid_to_pets(server_grid,[pet],__RC__)
+      !back_server_grid = transfer_grid_to_pets(server_grid,[pet],_RC)
+      !call collection_server%set_prototype_grid(back_server_grid,_RC)
 
-      _RETURN(_SUCCESS)
-   end subroutine transfer_grid_to_back
+      !_RETURN(_SUCCESS)
+   !end subroutine transfer_grid_to_back
 
    function transfer_grid_to_pets(grid,pets,rc) result(redistributed_grid)
       type(ESMF_Grid), intent(in) :: grid
@@ -243,7 +313,7 @@ contains
       type(ESMF_Grid) :: redistributed_grid
       integer :: status
       type(ESMF_GridComp) fake_gridcomp
-      type(ESMF_VM) :: server_vm,vm
+      type(ESMF_VM) :: target_vm,vm
       type(ESMF_DistGrid) :: input_distGrid,output_distgrid,balanced_distGrid
       character(len=ESMF_MAXSTR) :: grid_name
       type(ESMF_State) :: fake_state
@@ -252,43 +322,80 @@ contains
       integer :: myPet
 
       call ESMF_VMGetCurrent(vm)
-      call ESMF_VMGet(vm,localPet=myPet,rc=status)
-      _VERIFY(status)
+      call ESMF_VMGet(vm,localPet=myPet,_RC)
 
-      fake_gridcomp = ESMF_GridCompCreate(petList=pets,rc=status)
-      _VERIFY(status)
-      call ESMF_GridCompSetServices(fake_gridcomp,set_services,rc=status)
-      _VERIFY(status)
-      fake_state=ESMF_StateCreate(__RC__)
+      fake_gridcomp = ESMF_GridCompCreate(petList=pets,_RC)
+      call ESMF_GridCompSetServices(fake_gridcomp,set_services,_RC)
+      fake_state=ESMF_StateCreate(_RC)
 
-      call ESMF_GridCompInitialize(fake_gridcomp,importState=fake_state,phase=1,__RC__)
-      call ESMF_StateReconcile(fake_state,__RC__)
-      call ESMF_StateGet(fake_state,"empty",fake_field,__RC__)
-      call ESMF_FieldGet(fake_field,vm=server_vm,__RC__)
+      call ESMF_GridCompInitialize(fake_gridcomp,importState=fake_state,phase=1,_RC)
+      call ESMF_StateReconcile(fake_state,_RC)
+      call ESMF_StateGet(fake_state,"empty",fake_field,_RC)
+      call ESMF_FieldGet(fake_field,vm=target_vm,_RC)
 
-      call ESMF_GridGet(grid,distGrid=input_distGrid,rc=status)
-      _VERIFY(status)
-      call ESMF_GridGet(grid,name=grid_name,rc=status)
-      _VERIFY(status)
-      output_distgrid=ESMF_DistGridCreate(input_distGrid,vm=server_vm,rc=status)
-      _VERIFY(status)
+      call ESMF_GridGet(grid,distGrid=input_distGrid,_RC)
+      call ESMF_GridGet(grid,name=grid_name,_RC)
+      output_distgrid=ESMF_DistGridCreate(input_distGrid,vm=target_vm,_RC)
 
-      empty_grid = ESMF_GridEmptyCreate(vm=server_vm,__RC__)
-      call ESMF_GridSet(empty_grid,name="temp_grid",distGrid=output_distgrid,vm=server_vm,__RC__)
-      call ESMF_FieldEmptySet(fake_field,grid=empty_grid,vm=server_vm,__RC__)
-      call ESMF_GridCompInitialize(fake_gridcomp,importState=fake_state,phase=2,__RC__)
+      empty_grid = ESMF_GridEmptyCreate(vm=target_vm,_RC)
+      call ESMF_GridSet(empty_grid,name="temp_grid",distGrid=output_distgrid,vm=target_vm,_RC)
+      call ESMF_FieldEmptySet(fake_field,grid=empty_grid,vm=target_vm,_RC)
+      call ESMF_GridCompInitialize(fake_gridcomp,importState=fake_state,phase=2,_RC)
 
-      call ESMF_StateReconcile(fake_state,__RC__)
+      call ESMF_StateReconcile(fake_state,_RC)
 
-      call ESMF_FieldGet(fake_field,grid=empty_grid,__RC__)
-      call ESMF_GridGet(empty_grid,distGrid=balanced_distGrid,__RC__)
-      redistributed_grid = ESMF_GridCreate(grid,balanced_distGrid,copyAttributes=.true.,__RC__)
+      call ESMF_FieldGet(fake_field,grid=empty_grid,_RC)
+      call ESMF_GridGet(empty_grid,distGrid=balanced_distGrid,_RC)
+      redistributed_grid = ESMF_GridCreate(grid,balanced_distGrid,copyAttributes=.true.,_RC)
 
-      call ESMF_StateReconcile(fake_state,__RC__)
+      call ESMF_StateReconcile(fake_state,_RC)
 
-      call ESMF_GridCompDestroy(fake_gridcomp,__RC__)
+      call ESMF_GridCompDestroy(fake_gridcomp,_RC)
       _RETURN(_SUCCESS)
    end function transfer_grid_to_pets
+
+   function transfer_distgrid_to_pets(input_distgrid,pets,rc) result(redistributed_distgrid)
+      type(ESMF_DistGrid), intent(in) :: input_distgrid
+      integer, intent(in) :: pets(:)
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_DistGrid) :: redistributed_distgrid
+      integer :: status
+      type(ESMF_GridComp) fake_gridcomp
+      type(ESMF_VM) :: target_vm,vm
+      type(ESMF_DistGrid) :: output_distgrid
+      type(ESMF_State) :: fake_state
+      type(ESMF_Field) :: fake_field
+      type(ESMF_Grid) :: empty_grid
+      integer :: myPet
+
+      call ESMF_VMGetCurrent(vm)
+      call ESMF_VMGet(vm,localPet=myPet,_RC)
+
+      fake_gridcomp = ESMF_GridCompCreate(petList=pets,_RC)
+      call ESMF_GridCompSetServices(fake_gridcomp,set_services,_RC)
+      fake_state=ESMF_StateCreate(_RC)
+
+      call ESMF_GridCompInitialize(fake_gridcomp,importState=fake_state,phase=1,_RC)
+      call ESMF_StateReconcile(fake_state,_RC)
+      call ESMF_StateGet(fake_state,"empty",fake_field,_RC)
+      call ESMF_FieldGet(fake_field,vm=target_vm,_RC)
+
+      output_distgrid=ESMF_DistGridCreate(input_distGrid,vm=target_vm,_RC)
+
+      empty_grid = ESMF_GridEmptyCreate(vm=target_vm,_RC)
+      call ESMF_GridSet(empty_grid,name="temp_grid",distGrid=output_distgrid,vm=target_vm,_RC)
+      call ESMF_FieldEmptySet(fake_field,grid=empty_grid,vm=target_vm,_RC)
+      call ESMF_GridCompInitialize(fake_gridcomp,importState=fake_state,phase=2,_RC)
+
+      call ESMF_StateReconcile(fake_state,_RC)
+
+      call ESMF_FieldGet(fake_field,grid=empty_grid,_RC)
+      call ESMF_GridGet(empty_grid,distGrid=redistributed_distGrid,_RC)
+
+      call ESMF_GridCompDestroy(fake_gridcomp,_RC)
+      _RETURN(_SUCCESS)
+   end function transfer_distgrid_to_pets
 
    subroutine create_comms(this,rc)
       class(IOController), intent(inout) :: this
@@ -301,10 +408,9 @@ contains
       server_color = MPI_UNDEFINED
       front_color  = MPI_UNDEFINED
       back_color   = MPI_UNDEFINED
-      call ESMF_VMGetCurrent(vm,__RC__)
-      call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,__RC__)
+      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
       call mpi_comm_rank(mpi_comm,rank,status)
-      _VERIFY(status)
       if (rank <= this%pet_list(2,2) .and. rank >= this%pet_list(2,1) ) front_color=2
       if (rank <= this%pet_list(3,2) .and. rank >= this%pet_list(3,1) ) back_color=3
       if (rank <= this%pet_list(3,2) .and. rank >= this%pet_list(2,1) ) server_color=1
@@ -322,5 +428,66 @@ contains
       _VERIFY(status)
 
    end subroutine create_comms
+
+   subroutine transfer_data_client_server(this,rc)
+      class(IOController), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status,myPet
+      type(ESMF_VM) :: vm
+      type(Client), pointer :: client_ptr
+      type(Server), pointer :: server_ptr
+      type(StringVectorIterator) :: enabled_iter
+      character(:), allocatable :: coll_name 
+
+      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMGet(vm,localPet=myPet,_RC)
+      if (myPet >= this%pet_list(1,1) .and. mypet <= this%pet_list(2,2)) then
+         call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
+         enabled_iter = this%enabled%begin()
+         do while(enabled_iter /= this%enabled%end())
+            coll_name=enabled_iter%get()
+            server_ptr => this%servers%at(coll_name)
+            client_ptr => this%clients%at(coll_name)
+            if (myPet >= this%pet_list(1,1) .and. mypet <= this%pet_list(1,2)) then
+               call client_ptr%transfer_data_to_server(_RC)
+            end if
+            if (myPet >= this%pet_list(2,1) .and. mypet <= this%pet_list(2,2)) then
+               call server_ptr%get_data_from_client(_RC)
+            end if
+            call enabled_iter%next()
+         enddo
+
+         call ESMF_VMEpochExit()
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine transfer_data_client_server
+
+   subroutine offload_server_data(this,rc)
+      class(IOController), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status,myPet
+      type(ESMF_VM) :: vm
+      type(Server), pointer :: server_ptr
+      type(StringVectorIterator) :: enabled_iter
+      character(:), allocatable :: coll_name 
+
+      call ESMF_VMGetCurrent(vm,_RC)
+      call ESMF_VMGet(vm,localPet=myPet,_RC)
+      if (myPet >= this%pet_list(2,1) .and. mypet <= this%pet_list(2,2)) then
+         enabled_iter = this%enabled%begin()
+         do while(enabled_iter /= this%enabled%end())
+            coll_name=enabled_iter%get()
+            server_ptr => this%servers%at(coll_name)
+
+            call enabled_iter%next()
+         enddo
+
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine offload_server_data
 
 end module AEIO_IOController
