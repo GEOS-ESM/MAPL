@@ -10,7 +10,6 @@ set (srcs
   ESMF_CFIOSdfMod.F90     
   ESMF_CFIOUtilMod.F90    
   ESMF_CFIOVarInfoMod.F90 
-  ESMF_CFIOPtrVectorMod.F90
   ShaveMantissa.c
   )
 
@@ -45,7 +44,7 @@ endif ()
 
 esma_add_library (${lib}
   SRCS ${srcs}
-  DEPENDENCIES esmf NetCDF::NetCDF_Fortran GFTL_SHARED::gftl-shared MAPL.pfio
+  DEPENDENCIES esmf NetCDF::NetCDF_Fortran
   TYPE ${LIBRARY_TYPE}
   )
 
