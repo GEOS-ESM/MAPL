@@ -2,10 +2,10 @@
 module MAPL_ESMFFieldBundleWrite
    use ESMF
    use pFIO
-   use MAPL_newCFIOMod
+   use MAPL_GriddedIOMod
    use MAPL_TimeDataMod
-   use MAPL_newCFIOitemVectorMod
-   use MAPL_newCFIOitemMod
+   use MAPL_GriddedIOitemVectorMod
+   use MAPL_GriddedIOitemMod
    use pFIO_ClientManagerMod, only: o_Clients
    use MAPL_ExceptionHandling
    implicit none
@@ -15,7 +15,7 @@ module MAPL_ESMFFieldBundleWrite
    public :: MAPL_write_bundle
    type :: FieldBundleWriter
       private
-      type(MAPL_newCFIO) :: cfio
+      type(MAPL_GriddedIO) :: cfio
       character(:), allocatable :: file_name
       contains
          procedure :: create_from_bundle
@@ -60,8 +60,8 @@ module MAPL_ESMFFieldBundleWrite
          type(TimeData) :: time_info
          integer :: num_fields,i,file_steps,collection_id,status
          character(ESMF_MAXSTR), allocatable :: field_names(:)
-         type(newCFIOItemVector) :: items
-         type(newCFIOItem) :: item
+         type(GriddedIOItemVector) :: items
+         type(GriddedIOItem) :: item
          type(ESMF_TimeInterval) :: offset
          integer :: time_interval_
        

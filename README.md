@@ -11,6 +11,7 @@ MAPL has 7 primary subdirectories for Fortran source code.
 4. generic (under construction) - new home for MAPL extension of ESMF framework.
 5. base (formerly MAPL_Base) - legacy core of MAPL.   This layer will gradually evaporate under further refactoring.
 6. MAPL_cfio - this is a deprecated lower-level I/O layer that is generally replaced by GMAO_pFIO.    Not all of the strings have been cut yet.  Sometime soon, this directory will be eliminated.
+7. griddedio - layer between ESMF container and pfio library
 
 MAPL also has a variety of other auxiliary directories:
 1. include - include files used by external gridded components.

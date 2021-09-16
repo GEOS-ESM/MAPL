@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Moved newcfio modules from base into new griddedio directory
+    - Renamed newCFIO modules and routines to GriddedIO
+- Refactored ExtData modules. Because of the dependencies, the following changes were also done:
+    - Moved Collection ExtData modules into griddedio directory. Removed the Ext prefix for collection modules and subroutines and types
+    - Moved BundleRead and BundleWrite modules from base to griddedio
+    - Moved Regrid_Util.F90 from base to griddedio  due to griddedio dependency on base. Executable still generated in install/bin
+
 ### Fixed
 
 ## [2.8.6] - 2021-09-13
