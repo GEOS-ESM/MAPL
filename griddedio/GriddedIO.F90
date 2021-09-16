@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module MAPL_newCFIOMod
+module MAPL_GriddedIOMod
   use ESMF
   use ESMFL_Mod
   use MAPL_AbstractGridFactoryMod
@@ -13,12 +13,12 @@ module MAPL_newCFIOMod
   use MAPL_VerticalDataMod
   use MAPL_Constants
   use pFIO
-  use MAPL_newCFIOItemVectorMod
-  use MAPL_newCFIOItemMod
+  use MAPL_GriddedIOItemVectorMod
+  use MAPL_GriddedIOItemMod
   use MAPL_ExceptionHandling
   use pFIO_ClientManagerMod
-  use MAPL_ExtDataCollectionMod
-  use MAPL_ExtDataCOllectionManagerMod
+  use MAPL_DataCollectionMod
+  use MAPL_DataCollectionManagerMod
   use gFTL_StringVector
   use MAPL_FileMetadataUtilsMod
   use, intrinsic :: ISO_C_BINDING
@@ -27,7 +27,7 @@ module MAPL_newCFIOMod
   
   private
 
-  type, public :: MAPL_newCFIO
+  type, public :: MAPL_GriddedIO
      type(FileMetaData) :: metadata
      integer :: write_collection_id
      integer :: read_collection_id
@@ -45,7 +45,7 @@ module MAPL_newCFIOMod
      real, allocatable :: times(:)
      type(TimeData) :: timeInfo
      type(VerticalData) :: vdata
-     type(newCFIOitemVector) :: items
+     type(GriddedIOitemVector) :: items
      integer :: deflateLevel = 0
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
@@ -65,17 +65,17 @@ module MAPL_newCFIOMod
         procedure :: alphabatize_variables
         procedure :: request_data_from_file
         procedure :: process_data_from_file
-  end type MAPL_newCFIO
+  end type MAPL_GriddedIO
 
-  interface MAPL_newCFIO
-     module procedure new_MAPL_newCFIO
-  end interface MAPL_newCFIO
+  interface MAPL_GriddedIO
+     module procedure new_MAPL_GriddedIO
+  end interface MAPL_GriddedIO
 
   contains
 
-     function new_MAPL_newCFIO(metadata,input_bundle,output_bundle,write_collection_id,read_collection_id, &
-             metadata_collection_id,regrid_method,fraction,items,rc) result(newCFIO)
-        type(MAPL_newCFIO) :: newCFIO
+     function new_MAPL_GriddedIO(metadata,input_bundle,output_bundle,write_collection_id,read_collection_id, &
+             metadata_collection_id,regrid_method,fraction,items,rc) result(GriddedIO)
+        type(MAPL_GriddedIO) :: GriddedIO
         type(Filemetadata), intent(in), optional :: metadata
         type(ESMF_FieldBundle), intent(in), optional :: input_bundle
         type(ESMF_FieldBundle), intent(in), optional :: output_bundle
@@ -84,24 +84,24 @@ module MAPL_newCFIOMod
         integer, intent(in), optional :: metadata_collection_id
         integer, intent(in), optional :: regrid_method
         integer, intent(in), optional :: fraction
-        type(newCFIOitemVector), intent(in), optional :: items
+        type(GriddedIOitemVector), intent(in), optional :: items
         integer, intent(out), optional :: rc
 
-        if (present(metadata)) newCFIO%metadata=metadata 
-        if (present(input_bundle)) newCFIO%input_bundle=input_bundle
-        if (present(output_bundle)) newCFIO%output_bundle=output_bundle
-        if (present(regrid_method)) newCFIO%regrid_method=regrid_method
-        if (present(write_collection_id)) newCFIO%write_collection_id=write_collection_id
-        if (present(read_collection_id)) newCFIO%read_collection_id=read_collection_id
-        if (present(metadata_collection_id)) newCFIO%metadata_collection_id=metadata_collection_id
-        if (present(items)) newCFIO%items=items
-        if (present(fraction)) newCFIO%fraction=fraction
+        if (present(metadata)) GriddedIO%metadata=metadata 
+        if (present(input_bundle)) GriddedIO%input_bundle=input_bundle
+        if (present(output_bundle)) GriddedIO%output_bundle=output_bundle
+        if (present(regrid_method)) GriddedIO%regrid_method=regrid_method
+        if (present(write_collection_id)) GriddedIO%write_collection_id=write_collection_id
+        if (present(read_collection_id)) GriddedIO%read_collection_id=read_collection_id
+        if (present(metadata_collection_id)) GriddedIO%metadata_collection_id=metadata_collection_id
+        if (present(items)) GriddedIO%items=items
+        if (present(fraction)) GriddedIO%fraction=fraction
         _RETURN(ESMF_SUCCESS)
-     end function new_MAPL_newCFIO
+     end function new_MAPL_GriddedIO
 
      subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,rc)
-        class (MAPL_newCFIO), intent(inout) :: this
-        type(newCFIOitemVector), target, intent(inout) :: items
+        class (MAPL_GriddedIO), intent(inout) :: this
+        type(GriddedIOitemVector), target, intent(inout) :: items
         type(ESMF_FieldBundle), intent(inout) :: bundle
         type(TimeData), intent(inout) :: timeInfo
         type(VerticalData), intent(inout), optional :: vdata
@@ -111,8 +111,8 @@ module MAPL_newCFIOMod
         type(ESMF_Grid) :: input_grid
         class (AbstractGridFactory), pointer :: factory
 
-        type(newCFIOitemVectorIterator) :: iter
-        type(newCFIOitem), pointer :: item
+        type(GriddedIOitemVectorIterator) :: iter
+        type(GriddedIOitem), pointer :: item
         type(stringVector) :: order
         integer :: metadataVarsSize
 
@@ -186,7 +186,7 @@ module MAPL_newCFIOMod
      end subroutine CreateFileMetaData
 
      subroutine set_param(this,deflation,chunking,nbits,regrid_method,itemOrder,write_collection_id,rc)
-        class (MAPL_newCFIO), intent(inout) :: this
+        class (MAPL_GriddedIO), intent(inout) :: this
         integer, optional, intent(in) :: deflation
         integer, optional, intent(in) :: chunking(:)
         integer, optional, intent(in) :: nbits
@@ -211,7 +211,7 @@ module MAPL_newCFIOMod
      end subroutine set_param
 
      subroutine set_default_chunking(this,rc)
-        class (MAPL_newCFIO), intent(inout) :: this
+        class (MAPL_GriddedIO), intent(inout) :: this
         integer, optional, intent(out) :: rc
 
         integer ::  global_dim(3)
@@ -239,7 +239,7 @@ module MAPL_newCFIOMod
 
 
      subroutine CreateVariable(this,itemName,rc)
-        class (MAPL_newCFIO), intent(inout) :: this
+        class (MAPL_GriddedIO), intent(inout) :: this
         character(len=*), intent(in) :: itemName
         integer, optional, intent(out) :: rc
  
@@ -311,7 +311,7 @@ module MAPL_newCFIOMod
      end subroutine CreateVariable
 
      subroutine modifyTime(this, oClients, rc) 
-        class(MAPL_newCFIO), intent(inout) :: this
+        class(MAPL_GriddedIO), intent(inout) :: this
         type (ClientManager), optional, intent(inout) :: oClients
         integer, optional, intent(out) :: rc
  
@@ -331,7 +331,7 @@ module MAPL_newCFIOMod
      end subroutine modifyTime
 
      subroutine modifyTimeIncrement(this, frequency, rc) 
-        class(MAPL_newCFIO), intent(inout) :: this
+        class(MAPL_GriddedIO), intent(inout) :: this
         integer, intent(in) :: frequency
         integer, optional, intent(out) :: rc
  
@@ -345,7 +345,7 @@ module MAPL_newCFIOMod
       end subroutine modifyTimeIncrement
 
      subroutine bundlepost(this,filename,oClients,rc)
-        class (MAPL_newCFIO), intent(inout) :: this
+        class (MAPL_GriddedIO), intent(inout) :: this
         character(len=*), intent(in) :: filename
         type (ClientManager), optional, intent(inout) :: oClients
         integer, optional, intent(out) :: rc
@@ -355,8 +355,8 @@ module MAPL_newCFIOMod
         integer :: tindex
         type(ArrayReference) :: ref
 
-        type(newCFIOitemVectorIterator) :: iter
-        type(newCFIOitem), pointer :: item
+        type(GriddedIOitemVectorIterator) :: iter
+        type(GriddedIOitem), pointer :: item
 
         this%times = this%timeInfo%compute_time_vector(this%metadata,rc=status)
         _VERIFY(status)
@@ -415,7 +415,7 @@ module MAPL_newCFIOMod
      end subroutine bundlepost
 
      subroutine RegridScalar(this,itemName,rc)
-        class (MAPL_newCFIO), intent(inout) :: this
+        class (MAPL_GriddedIO), intent(inout) :: this
         character(len=*), intent(in) :: itemName
         integer, optional, intent(out) :: rc
 
@@ -525,7 +525,7 @@ module MAPL_newCFIOMod
      end subroutine RegridScalar
 
      subroutine RegridVector(this,xName,yName,rc)
-        class (MAPL_newCFIO), intent(inout) :: this
+        class (MAPL_GriddedIO), intent(inout) :: this
         character(len=*), intent(in) :: xName
         character(len=*), intent(in) :: yName
         integer, optional, intent(out) :: rc
@@ -691,7 +691,7 @@ module MAPL_newCFIOMod
      end subroutine RegridVector
 
   subroutine stage2DLatLon(this, fileName, oClients, rc)
-     class (MAPL_newCFIO), intent(inout) :: this
+     class (MAPL_GriddedIO), intent(inout) :: this
      character(len=*), intent(in) :: fileName
      type (ClientManager), optional, intent(inout) :: oClients
      integer, optional, intent(out) :: rc
@@ -767,7 +767,7 @@ module MAPL_newCFIOMod
   end subroutine stage2DLatLon
   
   subroutine stageData(this, field, fileName, tIndex, oClients, rc) 
-     class (MAPL_newCFIO), intent(inout) :: this
+     class (MAPL_GriddedIO), intent(inout) :: this
      type(ESMF_Field), intent(inout) :: field
      character(len=*), intent(in) :: fileName
      integer, intent(in) :: tIndex
@@ -835,7 +835,7 @@ module MAPL_newCFIOMod
   end subroutine stageData
 
   subroutine alphabatize_variables(this,nfixedVars,rc)
-     class (MAPL_newCFIO), intent(inout) :: this
+     class (MAPL_GriddedIO), intent(inout) :: this
      integer, intent(in) :: nFixedVars
      integer, optional, intent(out) :: rc
       
@@ -887,14 +887,14 @@ module MAPL_newCFIOMod
   end subroutine alphabatize_variables
 
   subroutine request_data_from_file(this,filename,timeindex,rc)
-     class(mapl_newcfio), intent(inout) :: this
+     class(mapl_GriddedIO), intent(inout) :: this
      character(len=*), intent(in) :: filename
      integer, intent(in) :: timeindex
      integer, intent(out), optional :: rc
 
      integer :: status
      type(esmf_grid) :: filegrid
-     type(maplextdatacollection), pointer :: collection
+     type(maplDatacollection), pointer :: collection
      integer :: i,numVars
      character(len=ESMF_MAXSTR), allocatable :: names(:)
      type(ESMF_Field) :: output_field
@@ -910,7 +910,7 @@ module MAPL_newCFIOMod
      class(AbstractGridFactory), pointer :: factory
      type(fileMetadataUtils), pointer :: metadata
 
-     collection => extdatacollections%at(this%metadata_collection_id)
+     collection => Datacollections%at(this%metadata_collection_id)
      metadata => collection%find(filename)
      filegrid = collection%src_grid
      factory => get_factory(filegrid)
@@ -986,15 +986,15 @@ module MAPL_newCFIOMod
   end subroutine request_data_from_file
 
   subroutine process_data_from_file(this,rc)
-     class(mapl_newcfio), intent(inout) :: this
+     class(mapl_GriddedIO), intent(inout) :: this
      integer, intent(out), optional :: rc
 
      integer :: status     
      integer :: i,numVars
      character(len=ESMF_MAXSTR), allocatable :: names(:)
      type(ESMF_Field) :: field
-     type(newCFIOitem), pointer :: item
-     type(newCFIOitemVectorIterator) :: iter
+     type(GriddedIOitem), pointer :: item
+     type(GriddedIOitemVectorIterator) :: iter
 
      call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,rc=status)
      _VERIFY(status)
@@ -1027,4 +1027,4 @@ module MAPL_newCFIOMod
 
   end subroutine process_data_from_file
 
-end module MAPL_newCFIOMod
+end module MAPL_GriddedIOMod

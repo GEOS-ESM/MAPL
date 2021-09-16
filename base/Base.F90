@@ -52,8 +52,6 @@ module MAPLBase_Mod
   use MAPL_SplitCommunicatorMod
   use MAPL_EtaHybridVerticalCoordinateMod
   use MAPL_ApplicationSupport
-  use MAPL_ESMFFieldBundleRead
-  use MAPL_ESMFFieldBundleWrite
   use MAPL_ServerManager
   logical, save, private :: mapl_is_initialized = .false.
 
