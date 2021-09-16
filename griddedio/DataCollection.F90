@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-module MAPL_ExtDataCollectionMod
+module MAPL_DataCollectionMod
   use pFIO
   use MAPL_FileMetadataUtilsVectorMod
   use MAPL_FileMetadataUtilsMod
@@ -10,10 +10,10 @@ module MAPL_ExtDataCollectionMod
   implicit none
   private
 
-  public :: MAPLExtDataCollection
-  public :: new_MAPLExtDataCollection
+  public :: MAPLDataCollection
+  public :: new_MAPLDataCollection
 
-  type :: MAPLExtDataCollection
+  type :: MAPLDataCollection
     character(len=:), allocatable :: template
     logical :: use_file_coords
     type (FileMetadataUtilsVector) :: metadatas
@@ -21,11 +21,11 @@ module MAPL_ExtDataCollectionMod
     type(ESMF_Grid), allocatable :: src_grid
   contains
     procedure :: find
-  end type MAPLExtDataCollection
+  end type MAPLDataCollection
 
-  interface MAPLExtDataCollection
-    module procedure new_MAPLExtDataCollection
-  end interface MAPLExtDataCollection
+  interface MAPLDataCollection
+    module procedure new_MAPLDataCollection
+  end interface MAPLDataCollection
 
 
   integer, parameter :: MAX_FORMATTERS = 2
@@ -33,8 +33,8 @@ module MAPL_ExtDataCollectionMod
 contains
 
 
-  function new_MAPLExtDataCollection(template,use_file_coords) result(collection)
-    type (MAPLExtDataCollection) :: collection
+  function new_MAPLDataCollection(template,use_file_coords) result(collection)
+    type (MAPLDataCollection) :: collection
     character(len=*), intent(in) :: template
     logical, optional, intent(in) :: use_file_coords
 
@@ -45,13 +45,13 @@ contains
        collection%use_file_coords=.false.
     end if
 
-  end function new_MAPLExtDataCollection
+  end function new_MAPLDataCollection
 
 
 
   function find(this, file_name, rc) result(metadata)
     type (FileMetadataUtils), pointer :: metadata
-    class (MAPLExtDataCollection), intent(inout) :: this
+    class (MAPLDataCollection), intent(inout) :: this
     character(len=*), intent(in) :: file_name
     integer, optional, intent(out) :: rc
 
@@ -113,16 +113,16 @@ contains
 
   end function find
 
-end module MAPL_ExtDataCollectionMod
+end module MAPL_DataCollectionMod
 
 
 module MAPL_CollectionVectorMod
    use pFIO
-   use MAPL_ExtDataCollectionMod
+   use MAPL_DataCollectionMod
    
    ! Create a map (associative array) between names and pFIO_Attributes.
    
-#define _type type (MAPLExtDataCollection)
+#define _type type (MAPLDataCollection)
 #define _vector MAPLCollectionVector
 #define _iterator MAPLCollectionVectorIterator
 

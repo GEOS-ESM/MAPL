@@ -1,14 +1,16 @@
-esma_set_this (OVERRIDE MAPL.newcfio)
+esma_set_this (OVERRIDE MAPL.griddedio)
 
 set (srcs
-        MAPL_newCFIOitem.F90
-        MAPL_newCFIO.F90
+        DataCollection.F90
+        DataCollectionManager.F90
+        GriddedIOitem.F90
+        GriddedIO.F90
         FieldBundleRead.F90
         FieldBundleWrite.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.generic MAPL.pfio
-        MAPL.ExtData.Collection MAPL_cfio_r4  TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.pfio
+         MAPL_cfio_r4  TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared esmf NetCDF::NetCDF_Fortran
                                PRIVATE MPI::MPI_Fortran)
 
