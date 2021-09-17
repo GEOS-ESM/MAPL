@@ -1304,23 +1304,26 @@ module MAPL_IOMod
 
     if (ignoreEOF_ .and. (unit > 0)) then
        ! test for end-of-file by 
-       ! using INQUIRE
-       !@@ making a blank read followed by backspace
+       ! making a blank read followed by backspace
 
        if (MAPL_am_i_root(layout)) then
-!@@          read (UNIT, IOSTAT=status)
-          inquire (UNIT=unit, IOSTAT=status)
+          read (UNIT, IOSTAT=status)
        end if
        call MAPL_CommsBcast(layout, status, n=1, ROOT=MAPL_Root, rc=stat)
        _VERIFY(STAT)
 
+#ifdef __GFORTRAN__
+       if (status == 5001) then
+          _RETURN(ESMF_SUCCESS)
+       end if
+#endif
        if (status == IOSTAT_END) then
           _RETURN(ESMF_SUCCESS)
        end if
        _VERIFY(STATUS)
 
-!@@       call MAPL_Backspace(UNIT, layout, rc=status)
-!@@       _VERIFY(STATUS)
+       call MAPL_Backspace(UNIT, layout, rc=status)
+       _VERIFY(STATUS)
     end if
 
     call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
