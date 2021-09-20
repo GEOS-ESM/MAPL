@@ -8514,11 +8514,14 @@ module MAPL_IOMod
        call MAPL_FieldWriteNCPar(formatter, fieldName, field, arrdes, HomePE=mask, oClients=oClients, rc=status)
        _VERIFY(STATUS)
 
-       call ESMF_AttributeGet(field,"FLIPPED",fieldName,rc=status)
-       if (status == _SUCCESS) then
-          call ESMF_FieldDestroy(field,noGarbage=.true.,rc=status)
-          _VERIFY(status)
-       end if
+       call ESMF_AttributeGet(field,name="FLIPPED",isPresent=isPresent,rc=status)
+       if (isPresent) then
+         call ESMF_AttributeGet(field,name="FLIPPED",value=fieldName,rc=status)
+         if (status == _SUCCESS) then
+            call ESMF_FieldDestroy(field,noGarbage=.true.,rc=status)
+            _VERIFY(status)
+         end if
+      end if
        
     enddo
 
