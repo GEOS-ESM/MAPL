@@ -23,6 +23,7 @@ module AEIO_IOController
 
    public IOController
 
+   type(RHConnector) :: justin
    type IOController
       private
       type(ClientMap) :: clients
@@ -33,7 +34,9 @@ module AEIO_IOController
       integer :: server_comm
       integer :: front_comm
       integer :: back_comm
-
+      integer, allocatable :: server_ranks(:)
+      integer, allocatable :: writer_ranks(:)
+      logical :: i_am_server_root
    contains
       procedure :: initialize
       procedure :: run
@@ -47,6 +50,8 @@ module AEIO_IOController
       procedure :: offload_server_data
       procedure :: setup_writers
       procedure :: create_comms
+      procedure :: start_writer
+      procedure :: stop_writer
    end type
 
 contains
@@ -70,7 +75,6 @@ contains
       type(Client), pointer :: client_ptr
       type(Server), pointer :: server_ptr
 
-
       integer :: status
 
       allocate(this%pet_list,source=pet_list)
@@ -85,7 +89,7 @@ contains
       do while(enabled_iter /= this%enabled%end())
          key=enabled_iter%get()
          hist_coll=coll_registry%at(key)
-         output_server=Server(hist_coll,pet_list,_RC)
+         output_server=Server(hist_coll,this%server_ranks,this%writer_ranks,_RC)
          call this%servers%insert(key,output_server)
          output_client=Client(hist_coll,pet_list,_RC)
          call this%clients%insert(key,output_client)
@@ -122,10 +126,47 @@ contains
          call this%generate_server_writer_prototype(key,_RC)
          call enabled_iter%next()
       enddo
-      
+
+      ! create writer
+      this%writer_comp = writer(this%server_ranks,this%writer_ranks,this%server_comm,this%back_comm,_RC)
+      enabled_iter = this%enabled%begin()
+      do while(enabled_iter /= this%enabled%end())
+         key=enabled_iter%get()
+         call this%setup_writers(key,_RC)
+         call enabled_iter%next()
+      enddo
          
       _RETURN(_SUCCESS)
    end subroutine initialize
+
+   subroutine start_writer(this,rc)
+      class(IOController), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call this%writer_comp%start_writer(_RC)
+      _RETURN(_SUCCESS)
+   end subroutine start_writer
+
+   subroutine stop_writer(this,rc)
+      class(IOController), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: terminate = -1
+      integer :: MPI_STAT(MPI_STATUS_SIZE)
+
+      write(*,*)'bmaa stopping ',this%i_am_server_root
+      if (this%I_am_server_root) then
+         write(*,*)"bmaa send ",this%writer_ranks(1)
+         call MPI_Send(terminate,1,MPI_INTEGER,this%writer_ranks(1), &
+              this%writer_ranks(1),this%server_comm,status)
+         _VERIFY(status)
+         write(*,*)"bmaa recv "
+      end if
+      _RETURN(_SUCCESS)
+   end subroutine stop_writer
 
    subroutine run(this,clock,rc)
       class(IOController), intent(inout) :: this
@@ -142,11 +183,9 @@ contains
 
       ! on correct Pets offload data
       call this%offload_server_data(_RC)
-      
 
       _RETURN(_SUCCESS)
    end subroutine run
- 
 
    subroutine setup_writers(this,collection_name,rc)
       class(IOController), intent(inout) :: this
@@ -175,15 +214,26 @@ contains
       type(Server), pointer :: server_ptr
       type(ESMF_FieldBundle) :: client_bundle, server_bundle
       type(RHConnector) :: connector
+      type(ESMF_Field) :: client_field,server_field !bmaa
+      integer :: field_count !bmaa
+      character(len=ESMF_MAXSTR), allocatable :: field_names(:) !bmaa
       integer :: status
       
       server_ptr => this%servers%at(collection_name)
       client_ptr => this%clients%at(collection_name)
       server_bundle = server_ptr%get_bundle()
       client_bundle = client_ptr%get_bundle()
-      call connector%redist_store_fieldBundles(client_bundle,server_bundle,_RC)
+      call ESMF_FieldBundleGet(client_bundle,fieldCount=field_count,_RC) !bmaa
+      allocate(field_names(field_count))! bmaa
+      call ESMF_FieldBundleGet(client_bundle,fieldNameList=field_names,_RC) !bmaa
+      call ESMF_FieldBundleGet(client_bundle,trim(field_names(1)),field=client_field,_RC) !bmaa
+      call ESMF_FieldBundleGet(server_bundle,trim(field_names(1)),field=server_field,_RC) !bmaa
+      call connector%redist_store_fields(client_field,server_field,_RC) !bmaa
+    
+      !call connector%redist_store_fieldBundles(client_bundle,server_bundle,_RC)
       call client_ptr%set_client_server_connector(connector)
       call server_ptr%set_client_server_connector(connector)
+      justin=connector
 
    end subroutine connect_client_server
 
@@ -402,7 +452,7 @@ contains
       integer, optional, intent(out) :: rc
     
       type(ESMF_VM) :: vm
-      integer :: status, mpi_comm,rank
+      integer :: status, mpi_comm,rank,front_size,back_size,i
       integer :: server_color,front_color,back_color
      
       server_color = MPI_UNDEFINED
@@ -426,6 +476,32 @@ contains
       _VERIFY(status)
       call mpi_comm_split(mpi_comm,back_color,0,this%back_comm,status)
       _VERIFY(status)
+      this%i_am_server_root=.false.
+
+      write(*,*)"bmaa alloc  2",rank,allocated(this%writer_ranks)
+      if (this%server_comm /= MPI_COMM_NULL) then
+         front_size=this%pet_list(2,2)-this%pet_list(2,1)+1
+         back_size=this%pet_list(3,2)-this%pet_list(3,1)+1
+         allocate(this%server_ranks(front_size),stat=status)
+         _VERIFY(status)
+         write(*,*)"bmaa alloc  3",rank,allocated(this%writer_ranks),back_size,front_size
+         allocate(this%writer_ranks(back_size),stat=status)
+         _VERIFY(status)
+         do i=1,front_size
+            this%server_ranks(i)=i-1
+         enddo
+         do i=1,back_size
+            this%writer_ranks(i)=front_size+i-1 
+         enddo
+         call MPI_COMM_RANK(this%server_comm,rank,status)
+         _VERIFY(status)
+         if (rank == 0) this%i_am_server_root=.true.
+      else
+         write(*,*)"bmaa alloc  4 ",rank,allocated(this%writer_ranks)
+         allocate(this%server_ranks(0))
+         allocate(this%writer_ranks(0))
+      end if
+      _RETURN(_SUCCESS)
 
    end subroutine create_comms
 
@@ -442,9 +518,12 @@ contains
 
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMGet(vm,localPet=myPet,_RC)
+            if (myPet >= this%pet_list(2,1) .and. mypet <= this%pet_list(2,2)) write(*,*)"bmaa 0"
+            if (myPet >= this%pet_list(1,1) .and. mypet <= this%pet_list(1,2)) write(*,*)"bmaa c"
       if (myPet >= this%pet_list(1,1) .and. mypet <= this%pet_list(2,2)) then
 
          call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
+            if (myPet >= this%pet_list(2,1) .and. mypet <= this%pet_list(2,2)) write(*,*)"bmaa 1"
 
          enabled_iter = this%enabled%begin()
          do while(enabled_iter /= this%enabled%end())
@@ -456,11 +535,14 @@ contains
             end if
             if (myPet >= this%pet_list(2,1) .and. mypet <= this%pet_list(2,2)) then
                call server_ptr%get_data_from_client(_RC)
+               write(*,*)"bmaa 2"
             end if
             call enabled_iter%next()
          enddo
 
          call ESMF_VMEpochExit()
+            if (myPet >= this%pet_list(2,1) .and. mypet <= this%pet_list(2,2)) write(*,*)"bmaa 3"
+         
       end if
 
       _RETURN(_SUCCESS)
@@ -479,6 +561,7 @@ contains
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMGet(vm,localPet=myPet,_RC)
       if (myPet >= this%pet_list(2,1) .and. mypet <= this%pet_list(2,2)) then
+         ! first round
          enabled_iter = this%enabled%begin()
          do while(enabled_iter /= this%enabled%end())
             coll_name=enabled_iter%get()
@@ -486,6 +569,7 @@ contains
             call server_ptr%offload_data(_RC)
             call enabled_iter%next()
          enddo
+         ! second round enter epoch
 
       end if
 

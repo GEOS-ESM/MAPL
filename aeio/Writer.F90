@@ -17,7 +17,6 @@ module AEIO_Writer
    public :: Writer
 
    type Writer
-      logical :: I_am_writers_root
       integer, allocatable :: writer_ranks(:)
       integer, allocatable :: server_ranks(:)
       type(CollectionDescriptorMap) :: collection_descriptor_map
@@ -38,11 +37,16 @@ contains
    function i_am_back_root(this) result(I_am_root)
       class(writer), intent(inout) :: this
       logical :: i_am_root
-      i_am_root=.true.
+      integer :: rank, status
+      call MPI_COMM_RANK(this%writer_comm,rank,status)
+      i_am_root=(rank==0)
    end function
 
-   function new_writer(pet_list,rc) result(c)
-      integer, intent(in)          :: pet_list(:,:)
+   function new_writer(server_ranks,writer_ranks,connector_comm,writer_comm,rc) result(c)
+      integer, intent(in)          :: server_ranks(:)
+      integer, intent(in)          :: writer_ranks(:)
+      integer, intent(in)          :: connector_comm
+      integer, intent(in)          :: writer_comm
       integer, optional, intent(out) :: rc
       type(writer) :: c
       integer :: status,myPet
@@ -50,11 +54,10 @@ contains
 
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMGet(vm,localPet=myPet,_RC)
-      allocate (c%server_ranks,source=pet_list(2,:),stat=status)
-      _VERIFY(status)
-      allocate (c%writer_ranks,source=pet_list(3,:),stat=status)
-      _VERIFY(status)
-      c%i_am_writers_root = ( myPet == c%writer_ranks(1) )
+      allocate(c%server_ranks,source=server_ranks)
+      allocate(c%writer_ranks,source=writer_ranks)
+      c%connector_comm=connector_comm
+      c%writer_comm=writer_comm
 
    end function new_writer
 
@@ -81,14 +84,20 @@ contains
       integer :: nwriters,free_worker,free,no_job,i,status,back_local_rank
       integer :: MPI_STAT(MPI_STATUS_SIZE)
 
-      nwriters = size(this%server_ranks)-1
+      call MPI_COMM_RANK(this%writer_comm,back_local_rank,status)
+      _VERIFY(status)
+      nwriters = size(this%writer_ranks)-1
       allocate(busy(nwriters))
       busy = .false.
+      write(*,*)"Starting writer ",nwriters
       if (this%i_am_back_root()) then
-         do while (.true.) 
+         write(*,*)"bmaa start master "
+         do while (.true.)
+            write(*,*)"bmaa waiting from ",this%server_ranks(1) 
             call MPI_recv(collection_id, 1, MPI_INTEGER, &
             this%server_ranks(1),this%writer_ranks(1),this%connector_comm, &
             MPI_STAT, status)
+            write(*,*)"bmaa got collection id ",collection_id,status
             _VERIFY(status)
             if (collection_id >= 1) then
                 free_worker = 0
@@ -115,8 +124,10 @@ contains
                 _VERIFY(status)
             else
                no_job=-1
-               do i=1,nwriters-1
-                  if (busy(i) ==0) then
+               do i=1,nwriters
+                  write(*,*)'bmaa loop over writers ',i
+                  if (.not.busy(i)) then
+                     write(*,*)"bmaa send to worker ",i
                      call MPI_send(no_job,1,MPI_INTEGER,i,i,this%writer_comm,status)
                      _VERIFY(status)
                   else
@@ -128,15 +139,19 @@ contains
                      _VERIFY(status)
                   end if
                end do
+               exit
             end if
          enddo
       else
+         write(*,*)"bmaa start writer"
          do while (.true.)
             ! which collection am I working on
+            write(*,*)'bmaa slave1: ',back_local_rank
             call MPI_Recv(collection_id,1,MPI_INTEGER, &
                          0,back_local_rank,this%writer_comm, &
                          MPI_STAT,status)
             _VERIFY(status)
+            write(*,*)'bmaa slave2: ',collection_id
             if (collection_id < 0) exit
             ! do stuff
 
@@ -146,6 +161,8 @@ contains
 
          enddo
       end if
+      write(*,*)"bmaa all done ",back_local_rank
+      _RETURN(_SUCCESS)
 
    end subroutine start_writer
 

@@ -15,7 +15,8 @@ module AEIO_Server
 
    type Server
       type(collection) :: hist_collection
-      integer, allocatable :: pet_list(:,:)
+      integer, allocatable :: server_ranks(:)
+      integer, allocatable :: writer_ranks(:)
       type(ESMF_FieldBundle) :: bundle
       type(RHConnector) :: client_connection
       type(RHConnector) :: writer_prototype_conn
@@ -31,6 +32,7 @@ module AEIO_Server
       procedure get_server_writer_prototype
       procedure get_data_from_client
       procedure offload_data
+      procedure get_connector
    end type
 
    interface Server
@@ -38,6 +40,12 @@ module AEIO_Server
    end interface Server
 
 contains
+
+   function get_connector(this) result(rh)
+      class(Server), intent(inout) :: this
+      type(RHConnector) :: rh
+      rh=this%client_connection
+   end function get_connector
 
    subroutine initialize(this,state,rc)
       class(Server), intent(inout) :: this
@@ -53,16 +61,21 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize
 
-   function new_Server(hist_collection,pet_list,rc) result(c)
+   function new_Server(hist_collection,server_ranks,writer_ranks,rc) result(c)
       type(Collection), intent(in) :: hist_collection 
-      integer, intent(in)          :: pet_list(:,:)
+      integer, intent(in)          :: server_ranks(:)
+      integer, intent(in)          :: writer_ranks(:)
       integer, optional, intent(out) :: rc
       type(Server) :: c
       integer :: status
 
       c%hist_collection = hist_collection
-      allocate(c%pet_list,source=pet_list,stat=status)
+      write(*,*)'bmaa wtf ',server_ranks,writer_ranks
+      allocate(c%server_ranks,source=server_ranks,stat=status)
       _VERIFY(status)
+      allocate(c%writer_ranks,source=writer_ranks,stat=status)
+      _VERIFY(status)
+      c%bundle = ESMF_FieldBundleCreate(_RC)
       _RETURN(_SUCCESS)
 
    end function new_Server
@@ -150,8 +163,19 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Field) :: field !bmaa
+      integer :: field_count,i !bmaa
+      character(len=ESMF_MAXSTR), allocatable :: field_names(:) !bmaa
 
-      call this%client_connection%redist_fieldBundles(dstFieldBundle=this%bundle,_RC)
+      call ESMF_FieldBundleGet(this%bundle,fieldCount=field_count,_RC) !bmaa
+      allocate(field_names(field_count)) !bmaa
+      call ESMF_FieldBundleGet(this%bundle,fieldNameList=field_names,_RC) !bmaa
+      do i=1,field_count !bmaa
+         call ESMF_FieldBundleGet(this%bundle,trim(field_names(i)),field=field,_RC) !bmaa
+         call this%client_connection%redist_fields(dstField=field,_RC) !bmaa
+      enddo !bmaa
+
+      !call this%client_connection%redist_fieldBundles(dstFieldBundle=this%bundle,_RC)
       _RETURN(_SUCCESS)
    end subroutine get_data_from_client
 
@@ -160,7 +184,31 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      ! here is where we 
+      ! get work we will talk to
+      ! generate new rh from prototype
+      ! send data
+      ! how do we send the actual filename? what the heck the file should look like including time?
+      type(ESMF_Field) :: field !bmaa
+      integer :: field_count,i !bmaa
+      character(len=ESMF_MAXSTR), allocatable :: field_names(:) !bmaa
+      real, pointer :: ptr2d(:,:),ptr3d(:,:,:) !bmaa
+      integer :: rank !bmaa
 
+      call ESMF_FieldBundleGet(this%bundle,fieldCount=field_count,_RC) !bmaa
+      allocate(field_names(field_count)) !bmaa
+      call ESMF_FieldBundleGet(this%bundle,fieldNameList=field_names,_RC) !bmaa
+      do i=1,field_count !bmaa
+         call ESMF_FieldBundleGet(this%bundle,trim(field_names(i)),field=field,_RC) !bmaa
+         call ESMF_FieldGet(field,rank=rank,_RC) !bmaa
+         if (rank==2) then ! bmaa
+            call ESMF_FieldGet(field,farrayptr=ptr2d,_RC) !bmaa
+            write(*,*)"bmaa 2d: ",maxval(ptr2d) !bmaa
+         else if (rank==3) then ! bmaa
+            call ESMF_FieldGet(field,farrayptr=ptr3d,_RC) !bmaa
+            write(*,*)"bmaa 3d: ",maxval(ptr3d) !bmaa
+         end if !bmaa
+      enddo !bmaa
       _RETURN(_SUCCESS)
    end subroutine offload_data
 
