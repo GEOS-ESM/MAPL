@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed ESMF logging errors from MAPL_IO (#1032)
+
 ## [2.8.6] - 2021-09-13
 
 ### Added
