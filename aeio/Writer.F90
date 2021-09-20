@@ -91,13 +91,10 @@ contains
       busy = .false.
       write(*,*)"Starting writer ",nwriters
       if (this%i_am_back_root()) then
-         write(*,*)"bmaa start master "
          do while (.true.)
-            write(*,*)"bmaa waiting from ",this%server_ranks(1) 
             call MPI_recv(collection_id, 1, MPI_INTEGER, &
             this%server_ranks(1),this%writer_ranks(1),this%connector_comm, &
             MPI_STAT, status)
-            write(*,*)"bmaa got collection id ",collection_id,status
             _VERIFY(status)
             if (collection_id >= 1) then
                 free_worker = 0
@@ -125,9 +122,7 @@ contains
             else
                no_job=-1
                do i=1,nwriters
-                  write(*,*)'bmaa loop over writers ',i
                   if (.not.busy(i)) then
-                     write(*,*)"bmaa send to worker ",i
                      call MPI_send(no_job,1,MPI_INTEGER,i,i,this%writer_comm,status)
                      _VERIFY(status)
                   else
@@ -143,15 +138,12 @@ contains
             end if
          enddo
       else
-         write(*,*)"bmaa start writer"
          do while (.true.)
             ! which collection am I working on
-            write(*,*)'bmaa slave1: ',back_local_rank
             call MPI_Recv(collection_id,1,MPI_INTEGER, &
                          0,back_local_rank,this%writer_comm, &
                          MPI_STAT,status)
             _VERIFY(status)
-            write(*,*)'bmaa slave2: ',collection_id
             if (collection_id < 0) exit
             ! do stuff
 
@@ -161,7 +153,6 @@ contains
 
          enddo
       end if
-      write(*,*)"bmaa all done ",back_local_rank
       _RETURN(_SUCCESS)
 
    end subroutine start_writer
