@@ -8521,7 +8521,7 @@ module MAPL_IOMod
             call ESMF_FieldDestroy(field,noGarbage=.true.,rc=status)
             _VERIFY(status)
          end if
-      end if
+       end if
        
     enddo
 
