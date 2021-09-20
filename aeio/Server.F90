@@ -70,7 +70,6 @@ contains
       integer :: status
 
       c%hist_collection = hist_collection
-      write(*,*)'bmaa wtf ',server_ranks,writer_ranks
       allocate(c%server_ranks,source=server_ranks,stat=status)
       _VERIFY(status)
       allocate(c%writer_ranks,source=writer_ranks,stat=status)
