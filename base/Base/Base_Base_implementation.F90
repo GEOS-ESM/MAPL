@@ -2702,8 +2702,8 @@ contains
     else
        _ASSERT(.false., 'unsupported typekind+rank')
     end if
-    call ESMF_FieldDestroy(Field,rc=status)
-    _VERIFY(STATUS)
+!WP!call ESMF_FieldDestroy(Field,rc=status)
+!WP!_VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
 

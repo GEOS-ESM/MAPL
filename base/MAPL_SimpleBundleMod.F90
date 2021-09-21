@@ -29,6 +29,7 @@
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    use MAPL_Constants, only: MAPL_PI
    use MAPL_ExceptionHandling
+   use MAPL_ESMFFieldBundleRead
 
    implicit NONE
    private
@@ -780,8 +781,9 @@ CONTAINS
 
     Bundle = ESMF_FieldBundleCreate ( name=bundle_name, __RC__ )
     call ESMF_FieldBundleSet ( bundle, grid=Grid, __RC__ )
-    call MAPL_CFIORead  ( filename, Time, Bundle, verbose=verbose, &
-                          ONLY_VARS=only_vars, expid=expid, __RC__ )
+  ! call MAPL_CFIORead  ( filename, Time, Bundle, verbose=verbose, &
+  !                       ONLY_VARS=only_vars, expid=expid, __RC__ )
+    call MAPL_read_bundle(bundle,filename,time,only_vars=only_vars,__RC__)
     self = MAPL_SimpleBundleCreate ( Bundle, __RC__ )
     self%bundleAlloc = .true.
 
