@@ -71,7 +71,7 @@ endif ()
 if(DISABLE_GLOBAL_NAME_WARNING)
   target_compile_options (${this} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:${DISABLE_GLOBAL_NAME_WARNING}>)
 endif()
-target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
+target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE NEW_INTERP_CODE)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
