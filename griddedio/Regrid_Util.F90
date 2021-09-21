@@ -31,7 +31,7 @@
  
    implicit NONE
 
-   real, parameter :: cs_stretch_uninit = -1.0
+   real, parameter :: uninit = MAPL_UNDEF
    type(DistributedProfiler), target :: t_prof
    type (ProfileReporter) :: reporter
 
@@ -88,6 +88,7 @@ CONTAINS
    type(ESMF_CONFIG) :: cfoutput
    integer :: regridMethod,tint
    real :: cs_stretch_param(3)
+   real :: lon_range(2), lat_range(2)
    integer :: deflate, shave
    type (FileMetaDataUtils) :: metadata
    type (FileMetaData) :: basic_metadata
@@ -122,7 +123,9 @@ CONTAINS
     alltimes=.true.
     regridMth='bilinear'
     newCube=.true.
-    cs_stretch_param=cs_stretch_uninit
+    cs_stretch_param=uninit
+    lon_range=uninit
+    lat_range=uninit
     shave=64
     deflate=0
     nargs = command_argument_count()
@@ -157,6 +160,16 @@ CONTAINS
          read(astr,*)cs_stretch_param(2)
          call get_command_argument(i+3,astr)
          read(astr,*)cs_stretch_param(3)
+      case('-lon_range')
+         call get_command_argument(i+1,astr)
+         read(astr,*)lon_range(1)
+         call get_command_argument(i+2,astr)
+         read(astr,*)lon_range(2)
+      case('-lat_range')
+         call get_command_argument(i+1,astr)
+         read(astr,*)lat_range(1)
+         call get_command_argument(i+2,astr)
+         read(astr,*)lat_range(2)
       case('-method')
          call get_command_argument(i+1,RegridMth)
       case('-cubeFormat')
@@ -252,7 +265,7 @@ CONTAINS
 
     call UnpackGridName(Gridname,im_world_new,jm_world_new,dateline_new,pole_new)
 
-    cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,newcube,__RC__)
+    cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,newcube,lon_range,lat_range,__RC__)
     grid_new=grid_manager%make_grid(cfoutput,prefix=trim(gridname)//".",__RC__)
 
     if (mapl_am_i_root()) write(*,*)'done making grid'
@@ -368,7 +381,7 @@ CONTAINS
      end if
     end subroutine guesspole_and_dateline 
 
-    function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,newCube,rc) result(cf)
+    function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,newCube,lon_range,lat_range,rc) result(cf)
        use MAPL_ConfigMod
        type(ESMF_Config)              :: cf
        character(len=*), intent(in) :: grid_name
@@ -377,6 +390,8 @@ CONTAINS
        integer, intent(in)          :: lm
        real, intent(in)             :: cs_stretch_param(3)
        logical, intent(in)          :: newCube
+       real, intent(in)             :: lon_range(2)
+       real, intent(in)             :: lat_range(2)
        integer, optional, intent(out) :: rc
 
        character(len=ESMF_MAXSTR),parameter :: Iam = "create_cf"
@@ -407,7 +422,7 @@ CONTAINS
           VERIFY_(status)
           call MAPL_ConfigSetAttribute(cf,value=ny/6, label=trim(grid_name)//".NY:",rc=status)
           VERIFY_(status)
-          if (any(cs_stretch_param/=cs_stretch_uninit)) then
+          if (any(cs_stretch_param/=uninit)) then
              call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(1),label=trim(grid_name)//".STRETCH_FACTOR:",rc=status)
              VERIFY_(status)
              call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(2),label=trim(grid_name)//".TARGET_LON:",rc=status)
@@ -427,6 +442,12 @@ CONTAINS
           VERIFY_(status)
           call MAPL_ConfigSetAttribute(cf,value=dateline, label=trim(grid_name)//".DATELINE:",rc=status)
           VERIFY_(status)
+          if (pole=='XY' .and. dateline=='XY') then
+             _ASSERT(all(lon_range/=uninit),'if regional must specify lon_range')
+             _ASSERT(all(lat_range/=uninit),'if regional must specify lat_range')
+             call MAPL_ConfigSetAttribute(cf,value=lon_range,label=trim(grid_name)//".LON_RANGE:",_RC)
+             call MAPL_ConfigSetAttribute(cf,value=lat_range,label=trim(grid_name)//".LAT_RANGE:",_RC)
+          end if
        end if
 
 
