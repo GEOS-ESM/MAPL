@@ -3,21 +3,21 @@ module MAPL_ESMFFieldBundleRead
    use ESMF
    use pFIO
    use MAPL_BaseMod
-   use MAPL_newCFIOMod
+   use MAPL_GriddedIOMod
    use MAPL_TimeDataMod
-   use MAPL_newCFIOitemVectorMod
-   use MAPL_newCFIOitemMod
+   use MAPL_GriddedIOitemVectorMod
+   use MAPL_GriddedIOitemMod
    use MAPL_ExceptionHandling
    use MAPL_AbstractGridFactoryMod
    use MAPL_AbstractRegridderMod
    use MAPL_GridManagerMod 
-   use MAPL_ExtDataCollectionMod
+   use MAPL_DataCollectionMod
    use MAPL_CollectionVectorMod
-   use MAPL_ExtDataCollectionManagerMod
+   use MAPL_DataCollectionManagerMod
    use MAPL_FileMetadataUtilsMod
    use pFIO_ClientManagerMod, only : i_Clients
-   use MAPL_newCFIOItemMod
-   use MAPL_newCFIOItemVectorMod
+   use MAPL_GriddedIOItemMod
+   use MAPL_GriddedIOItemVectorMod
    use MAPL_SimpleAlarm
    use MAPL_StringTemplate
    use gFTL_StringVector
@@ -37,7 +37,7 @@ module MAPL_ESMFFieldBundleRead
          integer, optional, intent(out) :: rc
          
          integer :: status
-         type(MAPLExtDataCollection), pointer :: collection => null()
+         type(MAPLDataCollection), pointer :: collection => null()
          type(fileMetaDataUtils), pointer :: metadata
          type(ESMF_Grid) :: grid,file_grid
          integer :: num_fields,dims,location
@@ -57,7 +57,7 @@ module MAPL_ESMFFieldBundleRead
          class(*), pointer :: attr_val
          character(len=:), allocatable :: units,long_name
 
-         collection => ExtDataCollections%at(metadata_id)
+         collection => DataCollections%at(metadata_id)
          metadata => collection%find(trim(file_name))
          file_grid=collection%src_grid
          lev_name = metadata%get_level_name(rc=status)
@@ -164,22 +164,22 @@ module MAPL_ESMFFieldBundleRead
 
          integer :: status
          integer :: num_fields, metadata_id, collection_id, time_index, i
-         type(MAPL_newCFIO) :: cfio
+         type(MAPL_GriddedIO) :: cfio
          character(len=ESMF_MAXPATHLEN) :: file_name
-         type(MAPLExtDataCollection), pointer :: collection => null()
+         type(MAPLDataCollection), pointer :: collection => null()
          type(fileMetaDataUtils), pointer :: metadata
          type(ESMF_Time), allocatable :: time_series(:)
-         type(newCFIOItemVector)            :: items
+         type(GriddedIOItemVector)            :: items
          character(len=ESMF_MAXSTR), allocatable :: field_names(:)
-         type(newCFIOitem) :: item
+         type(GriddedIOitem) :: item
         
          call fill_grads_template(file_name,file_tmpl,time=time,rc=status)
          _VERIFY(status)
 
          collection_id=i_clients%add_ext_collection(trim(file_tmpl))
 
-         metadata_id = MAPL_ExtDataAddCollection(trim(file_tmpl))
-         collection => ExtDataCollections%at(metadata_id)
+         metadata_id = MAPL_DataAddCollection(trim(file_tmpl))
+         collection => DataCollections%at(metadata_id)
          metadata => collection%find(trim(file_name))
          call metadata%get_time_info(timeVector=time_series,rc=status)
          _VERIFY(status)
@@ -217,7 +217,7 @@ module MAPL_ESMFFieldBundleRead
          enddo
         
 
-         cfio=MAPL_NewCFIO(output_bundle=bundle,metadata_collection_id=metadata_id,read_collection_id=collection_id,items=items)
+         cfio=MAPL_GriddedIO(output_bundle=bundle,metadata_collection_id=metadata_id,read_collection_id=collection_id,items=items)
          call cfio%set_param(regrid_method=regrid_method)
          call cfio%request_data_from_file(trim(file_name),timeindex=time_index,rc=status)
          _VERIFY(status)
