@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Moved Regrid_Util.F90 from base to griddedio  due to griddedio dependency on base. Executable still generated in install/bin
 
 ### Fixed
+- Fixed #338. Added a workaround for a gfortran bug that handles end-of-file incorrectly (returns IOSTAT=5001).
 
 - Fixed ESMF logging errors from MAPL_IO (#1032)
 
