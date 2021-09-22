@@ -1,14 +1,7 @@
+#include "MAPL_ErrLog.h"
+
 ! overload set interfaces in legacy
 ! Document PE, PC, DC, DE, GC
-
-
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-#include "unused_dummy.H"
-
 
 ! This module generates ESMF_Grids corresponding to _regular_ lat-lon coordinate grids.
 ! I.e., spacing between lats (lons) is constant.
@@ -17,7 +10,8 @@ module MAPL_LatLonGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_MinMaxMod
    use MAPL_KeywordEnforcerMod
-   use MAPL_ConstantsMod
+   use mapl_ErrorHandlingMod
+   use MAPL_Constants
    use ESMF
    use pFIO
    use MAPL_CommsMod
@@ -30,36 +24,32 @@ module MAPL_LatLonGridFactoryMod
    public :: LatLonGridFactory
 
    integer, parameter :: NUM_DIM = 2
-   integer, parameter :: UNDEFINED_INTEGER = 1-huge(1)
-   real, parameter :: UNDEFINED_REAL = huge(1.)
-   character(len=*), parameter :: UNDEFINED_CHAR = '**'
-
-   character(len=*), parameter :: GRID_NAME_DEFAULT = 'UNKNOWN'
 
    type, extends(AbstractGridFactory) :: LatLonGridFactory
       private
       logical :: is_regular = .false.
       character(len=:), allocatable :: grid_name
       ! Grid dimensions
-      integer :: im_world = UNDEFINED_INTEGER
-      integer :: jm_world = UNDEFINED_INTEGER
-      integer :: lm = UNDEFINED_INTEGER
+      integer :: im_world = MAPL_UNDEFINED_INTEGER
+      integer :: jm_world = MAPL_UNDEFINED_INTEGER
+      integer :: lm = MAPL_UNDEFINED_INTEGER
       real(kind=REAL64), allocatable :: lon_centers(:)
       real(kind=REAL64), allocatable :: lat_centers(:)
       real(kind=REAL64), allocatable :: lon_corners(:)
       real(kind=REAL64), allocatable :: lat_corners(:)
+      logical :: force_decomposition = .false.
       
       ! Domain decomposition:
-      integer :: nx = UNDEFINED_INTEGER
-      integer :: ny = UNDEFINED_INTEGER
+      integer :: nx = MAPL_UNDEFINED_INTEGER
+      integer :: ny = MAPL_UNDEFINED_INTEGER
       integer, allocatable :: ims(:)
       integer, allocatable :: jms(:)
       ! Grid conventions:
       character(len=:), allocatable :: pole
       character(len=:), allocatable :: dateline
       ! Regional vs global:
-      type (RealMinMax) :: lon_range = RealMinMax(UNDEFINED_REAL,UNDEFINED_REAL)
-      type (RealMinMax) :: lat_range = RealMinMax(UNDEFINED_REAL,UNDEFINED_REAL)
+      type (RealMinMax) :: lon_range = RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL)
+      type (RealMinMax) :: lat_range = RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL)
       ! Used for halo
       type (ESMF_DELayout) :: layout
       integer :: px, py
@@ -93,6 +83,7 @@ module MAPL_LatLonGridFactoryMod
 
       procedure :: append_metadata
       procedure :: get_grid_vars
+      procedure :: get_file_format_vars
       procedure :: append_variable_metadata
       procedure :: check_decomposition
       procedure :: generate_newnxy
@@ -100,6 +91,8 @@ module MAPL_LatLonGridFactoryMod
       procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
+      procedure :: decomps_are_equal
+      procedure :: physical_params_are_equal
    end type LatLonGridFactory
 
    character(len=*), parameter :: MOD_NAME = 'MAPL_LatLonGridFactory::'
@@ -114,6 +107,7 @@ module MAPL_LatLonGridFactoryMod
       module procedure set_with_default_real
       module procedure set_with_default_character
       module procedure set_with_default_range
+      module procedure set_with_default_logical
    end interface set_with_default
 
 
@@ -164,17 +158,17 @@ contains
 
       ! Check consistency
 
-      _ASSERT(size(lon_corners) == size(lon_centers)+1)
-      _ASSERT(size(lat_corners) == size(lat_centers)+1)
+      _ASSERT(size(lon_corners) == size(lon_centers)+1, 'inconsistent shape')
+      _ASSERT(size(lat_corners) == size(lat_centers)+1, 'inconsistent shape')
 
-      _ASSERT(sum(ims) == size(lon_centers))
-      _ASSERT(sum(jms) == size(lat_centers))
+      _ASSERT(sum(ims) == size(lon_centers),'inconcistent decomposition')
+      _ASSERT(sum(jms) == size(lat_centers),'inconcistent decomposition')
 
       call ESMF_VMGetCurrent(vm, rc=status)
       _VERIFY(status)
       call ESMF_VMGet(vm, PETcount=nPet, rc=status)
       _VERIFY(status)
-      _ASSERT(factory%nx*factory%ny == nPet)
+      _ASSERT(factory%nx*factory%ny == nPet,'inconsistent process topology')
 
       _RETURN(_SUCCESS)
       
@@ -183,7 +177,7 @@ contains
 
    function LatLonGridFactory_from_parameters(unusable, grid_name, &
         & im_world, jm_world, lm, nx, ny, ims, jms, &
-        & pole, dateline, lon_range, lat_range, rc) result(factory)
+        & pole, dateline, lon_range, lat_range, force_decomposition, rc) result(factory)
       type (LatLonGridFactory) :: factory
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: grid_name
@@ -202,33 +196,34 @@ contains
       integer, optional, intent(in) :: ny
       integer, optional, intent(in) :: ims(:)
       integer, optional, intent(in) :: jms(:)
+      logical, optional, intent(in) :: force_decomposition 
 
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'LatLonGridFactory_from_parameters'
 
       _UNUSED_DUMMY(unusable)
 
       factory%is_regular = .true.
-      call set_with_default(factory%grid_name, grid_name, GRID_NAME_DEFAULT)
+      call set_with_default(factory%grid_name, grid_name, MAPL_GRID_NAME_DEFAULT)
 
-      call set_with_default(factory%nx, nx, UNDEFINED_INTEGER)
-      call set_with_default(factory%ny, ny, UNDEFINED_INTEGER)
+      call set_with_default(factory%nx, nx, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(factory%ny, ny, MAPL_UNDEFINED_INTEGER)
 
-      call set_with_default(factory%im_world, im_world, UNDEFINED_INTEGER)
-      call set_with_default(factory%jm_world, jm_world, UNDEFINED_INTEGER)
-      call set_with_default(factory%lm, lm, UNDEFINED_INTEGER)
+      call set_with_default(factory%im_world, im_world, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(factory%jm_world, jm_world, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(factory%lm, lm, MAPL_UNDEFINED_INTEGER)
 
       ! default is unallocated
       if (present(ims)) factory%ims = ims
       if (present(jms)) factory%jms = jms
 
-      call set_with_default(factory%pole, pole, UNDEFINED_CHAR)
-      call set_with_default(factory%dateline, dateline, UNDEFINED_CHAR)
+      call set_with_default(factory%pole, pole, MAPL_UNDEFINED_CHAR)
+      call set_with_default(factory%dateline, dateline, MAPL_UNDEFINED_CHAR)
 
-      call set_with_default(factory%lon_range, lon_range, RealMinMax(UNDEFINED_REAL,UNDEFINED_REAL))
-      call set_with_default(factory%lat_range, lat_range, RealMinMax(UNDEFINED_REAL,UNDEFINED_REAL))
+      call set_with_default(factory%lon_range, lon_range, RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL))
+      call set_with_default(factory%lat_range, lat_range, RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL))
+      call set_with_default(factory%force_decomposition, force_decomposition, .false.)
 
       call factory%check_and_fill_consistency(rc=status)
       _VERIFY(status)
@@ -255,7 +250,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'make_geos_grid'
 
       _UNUSED_DUMMY(unusable)
       grid = this%create_basic_grid(rc=status)
@@ -277,7 +271,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
 
       _UNUSED_DUMMY(unusable)
 
@@ -316,7 +309,7 @@ contains
       _VERIFY(status)
 
 
-      if (this%lm /= UNDEFINED_INTEGER) then
+      if (this%lm /= MAPL_UNDEFINED_INTEGER) then
          call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
          _VERIFY(status)
       end if
@@ -362,7 +355,7 @@ contains
 
    ! in radians
    function compute_lon_centers(this, dateline, unusable, rc) result(lon_centers)
-      use MAPL_ConstantsMod, only:MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only:MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lon_centers(:)
       class (LatLonGridFactory), intent(in) :: this
@@ -373,7 +366,6 @@ contains
       real(kind=REAL64) :: delta, min_coord, max_coord
       logical :: regional
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'compute_lon_centers'
 
       _UNUSED_DUMMY(unusable)
 
@@ -403,13 +395,14 @@ contains
       end if
 
       lon_centers = MAPL_Range(min_coord, max_coord, this%im_world, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
    end function compute_lon_centers
 
    function compute_lon_corners(this, dateline, unusable, rc) result(lon_corners)
-      use MAPL_ConstantsMod, only:MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only:MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lon_corners(:)
       class (LatLonGridFactory), intent(in) :: this
@@ -420,7 +413,6 @@ contains
       real(kind=REAL64) :: delta, min_coord, max_coord
       logical :: regional
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'get_lon_corners'
 
       _UNUSED_DUMMY(unusable)
 
@@ -450,7 +442,8 @@ contains
       end if
 
       lon_corners = MAPL_Range(min_coord, max_coord, this%im_world+1, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
    end function compute_lon_corners
@@ -489,7 +482,7 @@ contains
 
 
    function compute_lat_centers(this, pole, unusable, rc) result(lat_centers)
-      use MAPL_ConstantsMod, only: MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lat_centers(:)
       class (LatLonGridFactory), intent(in) :: this
@@ -499,7 +492,6 @@ contains
 
       real(kind=REAL64) :: delta, min_coord, max_coord
       logical :: regional
-      character(len=*), parameter :: Iam = MOD_NAME // 'compute_lat_centers'
       integer :: status
 
       _UNUSED_DUMMY(unusable)
@@ -519,21 +511,21 @@ contains
             min_coord = -90.d0 + delta/2
             max_coord = +90.d0 - delta/2
          case ('PC')
-            _ASSERT(this%jm_world > 1)
+            _ASSERT(this%jm_world > 1,'degenerate grid')
             min_coord = -90.d0
             max_coord = +90.d0
          end select
       end if
 
       lat_centers = MAPL_Range(min_coord, max_coord, this%jm_world, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
 
       _RETURN(_SUCCESS)
 
    end function compute_lat_centers
 
    function compute_lat_corners(this, pole, unusable, rc) result(lat_corners)
-      use MAPL_ConstantsMod, only: MAPL_DEGREES_TO_RADIANS
+      use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lat_corners(:)
       class (LatLonGridFactory), intent(in) :: this
@@ -543,7 +535,7 @@ contains
 
       real(kind=REAL64) :: delta, min_coord, max_coord
       logical :: regional
-      character(len=*), parameter :: Iam = MOD_NAME // 'compute_lat_corners'
+
       integer :: status
 
       _UNUSED_DUMMY(unusable)
@@ -563,7 +555,7 @@ contains
             min_coord = -90.d0
             max_coord = +90.d0
          case ('PC')
-            _ASSERT(this%jm_world > 1)
+            _ASSERT(this%jm_world > 1, 'degenerate grid')
             delta = 180.d0 / (this%jm_world-1)
             min_coord = -90.d0-delta/2
             max_coord = +90.d0+delta/2
@@ -571,10 +563,10 @@ contains
       end if
 
       lat_corners = MAPL_Range(min_coord, max_coord, this%jm_world+1, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
       if (pole == 'PC') then
-         lat_corners(1)=-90.d0*MAPL_DEGREES_TO_RADIANS
-         lat_corners(this%jm_world+1)=90.d0*MAPL_DEGREES_TO_RADIANS
+         lat_corners(1)=-90.d0*MAPL_DEGREES_TO_RADIANS_R8
+         lat_corners(this%jm_world+1)=90.d0*MAPL_DEGREES_TO_RADIANS_R8
       end if
 
       _RETURN(_SUCCESS)
@@ -594,7 +586,6 @@ contains
       real(kind=ESMF_KIND_R8), pointer :: centers(:,:)
       real(kind=ESMF_KIND_R8), pointer :: corners(:,:)
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'add_horz_coordinates'
       integer :: i, j, ij(4)
 
       _UNUSED_DUMMY(unusable)
@@ -663,16 +654,16 @@ contains
    end subroutine add_horz_coordinates
 
 
-   subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
+   subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
       use MAPL_KeywordEnforcerMod
       use MAPL_BaseMod, only: MAPL_DecomposeDim
 
       class (LatLonGridFactory), intent(inout)  :: this
       type (FileMetadata), target, intent(in) :: file_metadata
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: force_file_coordinates
       integer, optional, intent(out) :: rc
 
-      character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_file_metadata()'
       integer :: status
 
       class (CoordinateVariable), pointer :: v
@@ -687,9 +678,15 @@ contains
       
       integer :: i_min, i_max
       real(kind=REAL64) :: d_lat, d_lat_temp, extrap_lat
-      logical :: is_valid
+      logical :: is_valid, use_file_coords, compute_lons, compute_lats
       
       _UNUSED_DUMMY(unusable)
+
+      if (present(force_file_coordinates)) then
+         use_file_coords = force_file_Coordinates
+      else
+         use_file_coords = .false.
+      end if
 
       ! Cannot assume that lats and lons are evenly spaced
       this%is_regular = .false.
@@ -707,7 +704,7 @@ contains
                im = file_metadata%get_dimension(lon_name, rc=status)
                _VERIFY(status)
             else
-               _ASSERT(.false.)
+               _FAIL('no longitude coordinate')
             end if
          end if
          lat_name = 'lat'
@@ -722,7 +719,7 @@ contains
                jm = file_metadata%get_dimension(lat_name, rc=status)
                _VERIFY(status)
             else
-               _ASSERT(.false.)
+               _FAIL('no latitude coordinate')
             end if
          end if
          hasLev=.false.
@@ -753,14 +750,14 @@ contains
         v => file_metadata%get_coordinate_variable(lon_name, rc=status)
         _VERIFY(status)
         ptr => v%get_coordinate_data()
-        _ASSERT(associated(ptr))
+        _ASSERT(associated(ptr),'coordinate data not allocated')
         select type (ptr)
         type is (real(kind=REAL64))
            this%lon_centers = ptr
         type is (real(kind=REAL32))
            this%lon_centers = ptr
         class default
-           _ASSERT(.false.)
+           _FAIL('unsuppoted type of data; must be REAL32 or REAL64')
         end select
 
         if (any((this%lon_centers(2:im)-this%lon_centers(1:im-1))<0)) then
@@ -771,14 +768,14 @@ contains
         v => file_metadata%get_coordinate_variable(lat_name, rc=status)
         _VERIFY(status)
         ptr => v%get_coordinate_data()
-        _ASSERT(associated(ptr))
+        _ASSERT(associated(ptr),'coordinate data not allocated')
         select type (ptr)
         type is (real(kind=REAL64))
            this%lat_centers = ptr
         type is (real(kind=REAL32))
            this%lat_centers = ptr
         class default
-           _ASSERT(.false.)
+           _FAIL('unsupported type of data; must be REAL32 or REAL64')
         end select
 
 
@@ -863,13 +860,39 @@ contains
             delij=this%lat_centers(i)-this%lat_centers(i-1)
             if ((del12-delij)>epsilon(1.0)) regLat=.false.
          end do
-         this%is_regular = (regLat .and. regLon) 
+         this%is_regular = (regLat .and. regLon)
 
-         ! Convert to radians
-         this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
-         this%lat_centers = MAPL_DEGREES_TO_RADIANS * this%lat_centers
-         this%lon_corners = MAPL_DEGREES_TO_RADIANS * this%lon_corners
-         this%lat_corners = MAPL_DEGREES_TO_RADIANS * this%lat_corners
+         if (use_file_coords) then
+            this%is_regular = .false.
+            this%lon_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_centers
+            this%lat_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_centers
+            this%lon_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_corners
+            this%lat_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_corners
+         else
+            compute_lons=.false.
+            compute_lats=.false.
+            if (regLon .and. (this%dateline.ne.'XY')) then 
+               compute_lons=.true.
+            end if
+            if (regLat .and. (this%pole.ne.'XY')) then 
+               compute_lats=.true.
+            end if
+            if (compute_lons .and. compute_lats) then
+               this%lon_centers = this%compute_lon_centers(this%dateline, rc=status)
+               _VERIFY(status)
+               this%lon_corners = this%compute_lon_corners(this%dateline, rc=status)
+               _VERIFY(status)
+               this%lat_centers = this%compute_lat_centers(this%pole, rc=status)
+               _VERIFY(status)
+               this%lat_corners = this%compute_lat_corners(this%pole, rc=status)
+               _VERIFY(status)
+            else
+               this%lon_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_centers
+               this%lat_centers = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_centers
+               this%lon_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lon_corners
+               this%lat_corners = MAPL_DEGREES_TO_RADIANS_R8 * this%lat_corners
+            end if
+         end if
 
     end associate
     
@@ -901,7 +924,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME//'make_geos_grid_from_config'
       character(len=ESMF_MAXSTR) :: tmp
       type(ESMF_VM) :: VM
 
@@ -911,14 +933,14 @@ contains
       _VERIFY(status)
       
       this%is_regular = .true.
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=GRID_NAME_DEFAULT)
+      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
 
-      call ESMF_ConfigGetAttribute(config, this%nx, label=prefix//'NX:', default=UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%ny, label=prefix//'NY:', default=UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%nx, label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%ny, label=prefix//'NY:', default=MAPL_UNDEFINED_INTEGER)
 
-      call ESMF_ConfigGetAttribute(config, this%im_world, label=prefix//'IM_WORLD:', default=UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%jm_world, label=prefix//'JM_WORLD:', default=UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%im_world, label=prefix//'IM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%jm_world, label=prefix//'JM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
@@ -937,13 +959,13 @@ contains
          _VERIFY(status)
       endif
 
-      call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=UNDEFINED_INTEGER)
+      call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
 
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'POLE:', default=UNDEFINED_CHAR, rc=status)
+      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'POLE:', default=MAPL_UNDEFINED_CHAR, rc=status)
       if (status == _SUCCESS) then
          this%pole = trim(tmp)
       end if
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'DATELINE:', default=UNDEFINED_CHAR, rc=status)
+      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'DATELINE:', default=MAPL_UNDEFINED_CHAR, rc=status)
       if (status == _SUCCESS) then
          this%dateline = trim(tmp)
       end if
@@ -1096,45 +1118,46 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'check_and_fill_consistency'
       logical :: verify_decomp
 
       _UNUSED_DUMMY(unusable)
 
       if (.not. allocated(this%grid_name)) then
-         this%grid_name = GRID_NAME_DEFAULT
+         this%grid_name = MAPL_GRID_NAME_DEFAULT
       end if
 
       ! Check decomposition/bounds
       ! WY notes: should not have this assert
-      !_ASSERT(allocated(this%ims) .eqv. allocated(this%jms))
+      !_ASSERT(allocated(this%ims) .eqv. allocated(this%jms), 'inconsistent options')
       call verify(this%nx, this%im_world, this%ims, rc=status)
       call verify(this%ny, this%jm_world, this%jms, rc=status)
 
       ! Check regional vs global
       if (this%pole == 'XY') then ! regional
          this%periodic = .false.
-         _ASSERT(this%lat_range%min /= UNDEFINED_REAL)
-         _ASSERT(this%lat_range%max /= UNDEFINED_REAL)
+         _ASSERT(this%lat_range%min /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
+         _ASSERT(this%lat_range%max /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
       else ! global
-         _ASSERT(any(this%pole == ['PE', 'PC']))
-         _ASSERT(this%lat_range%min == UNDEFINED_REAL)
-         _ASSERT(this%lat_range%max == UNDEFINED_REAL)
+         _ASSERT(any(this%pole == ['PE', 'PC']), 'unsupported option for pole:'//this%pole)
+         _ASSERT(this%lat_range%min == MAPL_UNDEFINED_REAL, 'inconsistent min for lat_range')
+         _ASSERT(this%lat_range%max == MAPL_UNDEFINED_REAL, 'inconsistent max for lat_range')
       end if
       if (this%dateline == 'XY') then
          this%periodic = .false.
-         _ASSERT(this%lon_range%min /= UNDEFINED_REAL)
-         _ASSERT(this%lon_range%max /= UNDEFINED_REAL)
+         _ASSERT(this%lon_range%min /= MAPL_UNDEFINED_REAL, 'uninitialized min for lon_range')
+         _ASSERT(this%lon_range%max /= MAPL_UNDEFINED_REAL, 'uninitialized max for lon_range')
       else
-         _ASSERT(any(this%dateline == ['DC', 'DE', 'GC', 'GE']))
-         _ASSERT(this%lon_range%min == UNDEFINED_REAL)
-         _ASSERT(this%lon_range%max == UNDEFINED_REAL)
+         _ASSERT(any(this%dateline == ['DC', 'DE', 'GC', 'GE']), 'unsupported option for dateline')
+         _ASSERT(this%lon_range%min == MAPL_UNDEFINED_REAL, 'inconsistent min for lon_range')
+         _ASSERT(this%lon_range%max == MAPL_UNDEFINED_REAL, 'inconsistent max for lon_range')
       end if
-      verify_decomp = this%check_decomposition(rc=status)
-      _VERIFY(status)
-      if ( (.not.verify_decomp) ) then
-         call this%generate_newnxy(rc=status)
+      if (.not.this%force_decomposition) then
+         verify_decomp = this%check_decomposition(rc=status)
          _VERIFY(status)
+         if ( (.not.verify_decomp) ) then
+            call this%generate_newnxy(rc=status)
+            _VERIFY(status)
+         end if
       end if
 
       _RETURN(_SUCCESS)
@@ -1150,24 +1173,24 @@ contains
          integer :: status
 
          if (allocated(ms)) then
-            _ASSERT(size(ms) > 0)
+            _ASSERT(size(ms) > 0, 'degenerate topology')
 
-            if (n == UNDEFINED_INTEGER) then
+            if (n == MAPL_UNDEFINED_INTEGER) then
                n = size(ms)
             else
-               _ASSERT(n == size(ms))
+               _ASSERT(n == size(ms), 'inconsistent topology')
             end if
 
-            if (m_world == UNDEFINED_INTEGER) then
+            if (m_world == MAPL_UNDEFINED_INTEGER) then
                m_world = sum(ms)
             else
-               _ASSERT(m_world == sum(ms))
+               _ASSERT(m_world == sum(ms), 'inconsistent decomponsition')
             end if
 
          else
 
-            _ASSERT(n /= UNDEFINED_INTEGER)
-            _ASSERT(m_world /= UNDEFINED_INTEGER)
+            _ASSERT(n /= MAPL_UNDEFINED_INTEGER, 'uninitialized topology')
+            _ASSERT(m_world /= MAPL_UNDEFINED_INTEGER,'uninitialized dimension')
             allocate(ms(n), stat=status)
             _VERIFY(status)
             !call MAPL_DecomposeDim(m_world, ms, n, min_DE_extent=2)
@@ -1236,6 +1259,18 @@ contains
 
    end subroutine set_with_default_range
 
+   subroutine set_with_default_logical(to, from, default)
+      logical, intent(out) :: to
+      logical, optional, intent(in) :: from
+      logical, intent(in) :: default
+
+      if (present(from)) then
+         to = from
+      else
+         to = default
+      end if
+
+   end subroutine set_with_default_logical
 
    ! MAPL uses values in lon_array and lat_array only to determine the
    ! general positioning.  Actual coordinates are then recomputed.
@@ -1243,7 +1278,7 @@ contains
    ! input files.
    subroutine initialize_from_esmf_distGrid(this, dist_grid, lon_array, lat_array, unusable, rc)
       use MAPL_ConfigMod
-      use MAPL_ConstantsMod, only: PI => MAPL_PI_R8
+      use MAPL_Constants, only: PI => MAPL_PI_R8
       class (LatLonGridFactory), intent(inout)  :: this
       type (ESMF_DistGrid), intent(in) :: dist_grid
       type (ESMF_LocalArray), intent(in) :: lon_array
@@ -1255,7 +1290,6 @@ contains
       integer, allocatable :: max_index(:,:)
       integer :: status
       character(len=2) :: pole ,dateline
-      character(len=*), parameter :: Iam = MOD_NAME // 'initialize_from_esmf_distGrid'
 
       type (ESMF_Config) :: config
       type (ESMF_VM) :: vm
@@ -1350,13 +1384,80 @@ contains
 
    end subroutine initialize_from_esmf_distGrid
 
+   function decomps_are_equal(this,a) result(equal)
+      class (LatLonGridFactory), intent(in) :: this
+      class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
 
+      select type (a)
+         class default
+         equal = .false.
+         return
+      class is (LatLonGridFactory)
+         equal = .true.
+
+
+         equal = size(a%ims)==size(this%ims) .and. size(a%jms)==size(this%jms)
+         if (.not. equal) return
+
+         ! same decomposition
+         equal = all(a%ims == this%ims) .and. all(a%jms == this%jms)
+         if (.not. equal) return
+
+      end select
+
+   end function decomps_are_equal
+
+
+   function physical_params_are_equal(this, a) result(equal)
+      class (LatLonGridFactory), intent(in) :: this
+      class (AbstractGridFactory), intent(in) :: a
+      logical :: equal
+
+      select type (a)
+         class default
+         equal = .false.
+         return
+      class is (LatLonGridFactory)
+         equal = .true.
+
+         equal = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
+         if (.not. equal) return
+
+         equal = (a%is_regular .eqv. this%is_regular)
+         if (.not. equal) return
+
+         if (a%is_regular) then
+            equal = (a%pole == this%pole)
+            if (.not. equal) return
+
+            equal = (a%dateline == this%dateline)
+            if (.not. equal) return
+
+            if (a%pole == 'XY') then
+               equal = (a%lat_range == this%lat_range)
+               if (.not. equal) return
+            end if
+
+            if (a%dateline == 'XY') then
+               equal = (a%lon_range == this%lon_range)
+               if (.not. equal) return
+            end if
+         else
+            equal = &
+                 & all(a%lon_centers == this%lon_centers) .and. & 
+                 & all(a%lon_corners == this%lon_corners) .and. &
+                 & all(a%lat_centers == this%lat_centers) .and. &
+                 & all(a%lat_corners == this%lat_corners)
+         end if
+      end select
+
+   end function physical_params_are_equal
 
    logical function equals(a, b)
       class (LatLonGridFactory), intent(in) :: a
       class (AbstractGridFactory), intent(in) :: b
 
-     
       select type (b)
          class default
          equals = .false.
@@ -1364,45 +1465,15 @@ contains
       class is (LatLonGridFactory)
          equals = .true.
 
-         equals = (a%im_world == b%im_world) .and. (a%jm_world == b%jm_world)
-         if (.not. equals) return
-
          equals = (a%lm == b%lm)
          if (.not. equals) return
 
-         equals = size(a%ims)==size(b%ims) .and. size(a%jms)==size(b%jms)
+         equals = a%decomps_are_equal(b)
          if (.not. equals) return
 
-         ! same decomposition
-         equals = all(a%ims == b%ims) .and. all(a%jms == b%jms)
+         equals = a%physical_params_are_equal(b)
          if (.not. equals) return
 
-         equals = (a%is_regular .eqv. b%is_regular)
-         if (.not. equals) return
-
-         if (a%is_regular) then
-            equals = (a%pole == b%pole)
-            if (.not. equals) return
-
-            equals = (a%dateline == b%dateline)
-            if (.not. equals) return
-
-            if (a%pole == 'XY') then
-               equals = (a%lat_range == b%lat_range)
-               if (.not. equals) return
-            end if
-
-            if (a%dateline == 'XY') then
-               equals = (a%lon_range == b%lon_range)
-               if (.not. equals) return
-            end if
-         else
-            equals = &
-                 & all(a%lon_centers == b%lon_centers) .and. & 
-                 & all(a%lon_corners == b%lon_corners) .and. &
-                 & all(a%lat_centers == b%lat_centers) .and. &
-                 & all(a%lat_corners == b%lat_corners)
-         end if
       end select
 
    end function equals
@@ -1497,7 +1568,6 @@ contains
       type (ESMF_VM) :: vm
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'init_halo'
 
       _UNUSED_DUMMY(unusable)
 
@@ -1535,7 +1605,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'halo'
 
       integer :: pet_north
       integer :: pet_south
@@ -1588,7 +1657,6 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         character(len=*), parameter :: Iam = MOD_NAME // 'fill_north'
 
          integer :: len, last
 
@@ -1614,7 +1682,6 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         character(len=*), parameter :: Iam = MOD_NAME // 'fill_south'
 
          integer :: len, last
 
@@ -1641,7 +1708,6 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         character(len=*), parameter :: Iam = MOD_NAME // 'fill_east'
 
          integer :: len, last
 
@@ -1664,7 +1730,6 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         character(len=*), parameter :: Iam = MOD_NAME // 'fill_west'
 
          integer :: len, last
 
@@ -1686,12 +1751,12 @@ contains
 
 
    subroutine append_metadata(this, metadata)
-      use MAPL_ConstantsMod
+      use MAPL_Constants
       class (LatLonGridFactory), intent(inout) :: this
       type (FileMetadata), intent(inout) :: metadata
 
       type (Variable) :: v
-      
+     
       ! Horizontal grid dimensions
       call metadata%add_dimension('lon', this%im_world)
       call metadata%add_dimension('lat', this%jm_world)
@@ -1721,6 +1786,16 @@ contains
 
    end function get_grid_vars
 
+   function get_file_format_vars(this) result(vars)
+      class (LatLonGridFactory), intent(inout) :: this
+
+      character(len=:), allocatable :: vars
+      _UNUSED_DUMMY(this)
+
+      vars = 'lon,lat'
+
+   end function get_file_format_vars
+
    subroutine append_variable_metadata(this,var)
       class (LatLonGridFactory), intent(inout) :: this
       type(Variable), intent(inout) :: var
@@ -1728,18 +1803,19 @@ contains
       _UNUSED_DUMMY(var)
    end subroutine append_variable_metadata
 
-   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+   subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,metadata,rc)
       use MAPL_BaseMod
       class(LatLonGridFactory), intent(inout) :: this
       type(ESMF_Grid),      intent(inout) :: grid
       integer, allocatable, intent(out) :: local_start(:)
       integer, allocatable, intent(out) :: global_start(:)
       integer, allocatable, intent(out) :: global_count(:)
+      type(FileMetaData), intent(in), optional :: metaData
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: global_dim(3), i1,j1,in,jn
-      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
+
       _UNUSED_DUMMY(this)
 
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
@@ -1762,11 +1838,14 @@ contains
       integer, allocatable, intent(out) :: global_count(:)
       integer, optional, intent(out) :: rc
 
-      character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_corner_bounds'
-      integer :: status
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(grid)
+      _UNUSED_DUMMY(local_start)
+      _UNUSED_DUMMY(global_start)
+      _UNUSED_DUMMY(global_count)
 
-      _ASSERT(.false.)
-
+      _FAIL('unimplemented')
+      _RETURN(_SUCCESS)
    end subroutine generate_file_corner_bounds
 
    function generate_file_reference2D(this,fpointer) result(ref)
@@ -1778,11 +1857,12 @@ contains
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
       
-   function generate_file_reference3D(this,fpointer) result(ref)
+   function generate_file_reference3D(this,fpointer,metaData) result(ref)
       use pFIO
       type(ArrayReference) :: ref
       class(LatLonGridFactory), intent(inout) :: this
       real, pointer, intent(in) :: fpointer(:,:,:)
+      type(FileMetaData), intent(in), optional :: metaData
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D

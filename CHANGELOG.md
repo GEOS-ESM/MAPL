@@ -7,13 +7,578 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+### Added
+
+- Added option to flip vertical orientation of checkpoint files from the provided orientation which is assumed to be down (TOA -> surface) as index increases. User can provide a per grid comp INTERNAL_CHECKPOINT_POSITIVE: and IMPORT_CHECKPOINT_POSITIVE: option with the default as down. If this is set to up 3D fields that are vlocationedge or vlocationcenter will be flipped on writing and positive in the lev variable will be up. Likewise restarts with positive up will be flipped relative to the orientation in the file.
+- Added GEOSldas CI build test
+- Added option to regrid to a regional lat-lon grid in the Regrid_Util.x utility
+
+### Changed
+
+- Moved newcfio modules from base into new griddedio directory
+    - Renamed newCFIO modules and routines to GriddedIO
+- Refactored ExtData modules. Because of the dependencies, the following changes were also done:
+    - Moved Collection ExtData modules into griddedio directory. Removed the Ext prefix for collection modules and subroutines and types
+    - Moved BundleRead and BundleWrite modules from base to griddedio
+    - Moved Regrid_Util.F90 from base to griddedio  due to griddedio dependency on base. Executable still generated in install/bin
+
+### Fixed
+- Fixed #338. Added a workaround for a gfortran bug that handles end-of-file incorrectly (returns IOSTAT=5001).
+
+- Fixed ESMF logging errors from MAPL_IO (#1032)
+
+## [2.8.6] - 2021-09-13
+
+### Added
+
+- Added the feature which can use nbits ( shave bit) in history binary output
+- Added script to automatically make a complete, mepo'd tarball on release
+
+### Changed
+
+- Refactored MAPL_Generic.F90 and MAPL_GenericCplComp.F90 from base to generic. This removes generic dependency from
+  base
+- Renamed MAPL_GenericCplComp.F90 to GenericCplComp.F90
+- Moved MAPL_ExtDataGridCompMod.F90, MAPL_OrbGridCompMod.F90, and MAPL_OrbGridComp.rc from base to gridcomps
+  subdirectories
+- Renamed Base.F90, Base_implementation.F90, and MAPL_Mod.F90 to Base_Base.F90, Base_Base_implementation.F90, and
+  Base.F90 respectively.
+
+### Fixed
+
+- Fixed issue #486. Empty state restarts will now be ignored (with warning) for writing (the code also protects reading, but the existing code already had a different protection)
+- Added default `CMAKE_BUILD_TYPE` for MAPL standalone. Defaults to `Release` build if not set on command line
+
+## [2.8.5] - 2021-09-03
+
+### Fixed
+
+- Added missing recursive declaration to MAPL_GenericWrapper
+
+## [2.8.4] - 2021-08-27
+
+### Added
+
+- Added `esma_cpack` include for tarring ability
+
+### Changed
+
+- Updated ESMA_cmake to v3.5.4
+
+### Fixed
+
+- Fix bug when restart name has a "-" at the beginning
+
+## [2.8.3] - 2021-08-19
+
+### Removed
+
+- Removed Pandas dependency
+- Removed unused functions from NominalOrbits Module
+
+### Added
+
+- Added error message to pFIO_NetCDF4_FileFormatterMod if nf90_open() fails. 
+- Add option to flip native level output in History relative to input
+- Added `MAPL_AllocNodeArray_6DR8` and `MAPL_DeAllocNodeArray_6DR8` to Shmem
+- Refactors Constants into its own library and consolidated mathematical/physical constants used throughout code to use those from library
+- Added single precision Degrees to Radian Conversion
+
+### Changed
+
+- Simplified implementation of MAPL_FieldCopyAttributes
+- Updated `components.yaml`
+  - ESMA_cmake v3.5.3
+
+### Fixed
+
+- Added npes for pfio_MAPL_demo.F90 when --npes_model is not specified in command line
+- Fixed bug in ExtData when doing vector pairs
+
+## [2.8.2] - 2021-07-29
+
+### Removed
+
+- Removed unneeded `.gitrepo` files
+
+### Fixed
+
+- Only check the restart grid compared to component if component grid is Cubed-Sphere. Other factories not yet supported.
+
+## [2.8.1] - 2021-07-28
+
+### Removed
+
+- Removed MAPL_OldCubedShereGridFactory.F90 and consilidated with MAPL_CubedSphereGridFactory.F90 
+
+### Added
+
+- Add stretch parameters to restarts and check the file grid compared to MAPL grid
+  when reading restarts
+- Add `CMakePresets.json` file
+  - Note: requires CMake 3.21.0 to use
+  - Per CMake advice, add `CMakeUserPresets.json` to `.gitignore`
+
+### Changed
+
+- Widened the throughput timer format
+
+### Fixed
+
+- Fixed bug with tripolar grids and restarts to not check the file grid matches the application grid if application grid is tripolar 
+
+## [2.8.0] - 2021-07-12
+
+### Added
+
+- Unit tests can now use the `_RC` macro for checking results from
+  calls to ESMF.  The file must first CPP define either `I_AM_PFUNIT`
+  or `I_AM_FUNIT` (serial) and then `#include "MAPL_ErrLog.h"`.
+
+### Changed
+
+- Activated ESMF logging for unit tests.
+- Fixed problem in unit testing framework that results in
+  "harmless" warnings/errors in the ESMF log.
+- Update CMake to exclusively use GFE Namespace. This means that when building MAPL, users should use the latest versions of GFE libraries (gFTL, gFTL-Shared, pFlogger, fArgParse, yaFyaml, pFUnit)
+- Update ESMA_cmake to v3.5.1 (macOS fix)
+- Updated the CI to do both GNU and Intel builds of MAPL and GEOSgcm on CircleCI. (Note that for now the GEOSfvdycore build is turned off due to cost of CI)
+- Updated the CI to store logfile artifacts from CircleCI builds
+
+### Fixed
+
+- Fix format for writing out large number
+- Fixed CMAKE_Fortran_MODULE_DIRECTORY for some directories
+- Update handling of file coordinates when creating grids from file. Now if identified as a standard grid compute coordinates. Option to allow this to be overrided and use file coordinates. Fixed issue if two files are identified as a standard grid but has very slightly different coordinates causing one or the other to be used depending on which file is used first.
+- Fixed bug with corner case in the new logic to compute lons if matching one of our standard grids
+- Fix for NAG Build
+
+## [2.7.3] - 2021-06-24
+
+### Fixed
+
+- Ensure grid coordinates are always provided in radians
+
+## [2.7.2] - 2021-06-23
+
+### Fixed
+
+- Add support for GNU Fortran 9.3.0
+
+## [2.7.1] - 2021-06-11
+
+### Added
+
+- Add more function in pfio_MAPL_demo.F90
+- Add option BUILD_SHARED_MAPL to build shared or static library
+- Regrid_Util.x now checks if file exsts and captures the units and long_name of the input for the output file
+- Add `--with_esmf_moab` to enable MOAB Mesh in ESMF
+
+### Changed
+
+- Set logical values in flap commmand line without true or false values
+- Set required CMake Version to 3.17
+- Updates to enable use of GFE namespaces (requires Baselibs v6.2.4 or higher)
+  - ESMA_cmake v3.5.0
+  - ESMA_env v3.3.0
+  - Update CI to use 6.2.4 CI images
+
+### Fixed
+
+- Allow MAPL to build if subrepos are cloned with any mepo style (prefix, postfix, naked)
+- Add missing variable declaration preventing MAPL from building if H5_HAVE_PARALLEL is defined
+- Protect against trying to flip 2D variable in ExtData if there are mixed 2D/3D in file
+
+## [2.7.0] - 2021-05-25
+
+### Removed
+
+- Remove file `MAPL_FlapCapOptions.F90`
+
+### Added
+
+- Added a file `MAPL_FlapCLI.F90`
+
+### Changed
+
+- Added a MAPL_CapOptions constructor
+- Change FlapCapOptions to FlapCLI which is not a sub class of
+  MAPL_CapOptions any more. This update means code that before did:
+  ```fortran
+   type (MAPL_Cap) :: cap
+   type (MAPL_FlapCapOptions) :: cap_options
+
+   cap_options = MAPL_FlapCapOptions(description = 'GEOS AGCM', &
+                                     authors     = 'GMAO')
+   ```
+   now must do:
+   ```fortran
+   type (MAPL_FlapCLI) :: cli
+   type (MAPL_CapOptions) :: cap_options
+
+   cli = MAPL_FlapCLI(description = 'GEOS AGCM', &
+                      authors     = 'GMAO')
+   cap_options = MAPL_CapOptions(cli)
+   ```
+   This was changed to facilitate working with UFS.
+
+## [2.6.8] - 2021-05-21
+
+### Changed
+
+- Adopting Fortran submodules to improve compilation.
+- Added a pfio demo for MAPL FLAP users
+
+### Fixed
+
+- Fixed pfio_MAPL_demo.F90
+- Fixed mismatch of ESMF_Initialize() and ESMF_Finalize()
+- Fixed bug in MAPL_Shmem causing infinite loop when relesing shared memory
+- Moved down adding pflogger in CMakeLists.txt
+- Added condition to find pflogger 
+
+## [2.6.7] - 2021-05-12
+
+### Added
+
+- New interface to MAPL_GetResource to pass config rather than MAPL object
+
+### Changed
+
+- Re-org subroutine finalize_io_clients_servers to avoid missing calls
+- Use `ESMF_Finalize` instead of `MPI_Finalize` in Cap
+- Allow the NRL Solar Data table read function to skip commented lines
+- Updated `components.yaml` to be in sync with GEOSgcm:
+   - ESMA_env v3.2.1
+   - ESMA_cmake v3.4.0
+
+### Fixed
+
+- Added return code in start_global_profiler()
+- Fixed during-run timer output for perpetual year runs
+- Fixed bug prevent "little" cfio from reading new cubed sphere files
+
+## [2.6.6] - 2021-04-29
+
+### Fixed
+
+- Fixed bug in `SimpleCommSplitter.F90`
+
+## [2.6.5] - 2021-04-28
+
+### Removed
+
+-  pFIO/KeywordEnforcer.F90 duplicated functionality now in
+   shared/KeywordEnforcer.F90, and has been removed in favor of the
+   other.
+
+### Added
+
+- A new flag to timestamp average collections at the beginning of the averaging interval
+- Ability to run MultiGroupServer and model in a single node
+- Add command line option --one_node_output
+- Ability to split fields with ungridded dimensions (and not only 4d). 
+- Ability to add alias names to the split fields
+- Added MAPL_SimpleBundleCreateEmpty procedure to MAPL_SimpleBundleCreate.
+- Add MAPL_TransposeaRegridderMod to MAPL_Mod
+- Nearest-neighbor interpolation option for ExtData (keyword: 'E')
+- Added pflogger_stub directory. With `-DBUILD_WITH_PFLOGGER=OFF`, it is built and linked to replace pFlogger library.
+- Added new CI test using Intel oneAPI
+- Add function to free communicators that is split by SimpleCommSplitter
+- Add with_io_profiler option
+
+### Changed
+
+- Changed the interface to TimeData to have an optional "funits" argument (defaults to "minutes")
+- Changed time units to "days" for monthly collections
+- Simplified the logic for timestamping offsets
+- Setting and getting UNGRIDDED_DIMS attribute uses now single quoted string
+- Do not output `cubed_sphere` and `orientation` variables in native
+  History output as pFIO at present does not handle string variables
+- Updated Python scripts to work with Python 2 or 3. Scripts were:
+   - `base/mapl_tree.py`
+   - `base/mapl_vlist.py`
+   - `Apps/MAPL_GridCompSpecs_ACG.py`
+   - Nullified pointers for deactivated optional state elements for
+     the grid compe spec code generator ACG.
+- Updated `components.yaml`:
+   - ESMA_env v3.2.0 (Baselibs 6.1.0 <==> ESMF 8.1.0)
+   - ESMA_cmake v3.3.9 (adds ability to see GFE namespace option, `BUILD_WITH_PFLOGGER`)
+- Update CI images to 6.1.0
+- Updated MAPL to have the ability to use the new GFE namespace in CMake. (`gftl` --> `GFTL::gftl`). 
+   - The default in ESMA_cmake v3.3.8 is *not* enabled. To enable use `-DESMA_USE_GFE_NAMESPACE=ON`.
+   - NOTE: This requires Baselibs 6.2.0 or higher when using Baselibs.
+- Updated the non-PersistSolar branch of `MAPL_SunGetSolarConstantFromNRLFile` to use Solar Cycle 24 as we are now in Cycle 25.
+
+### Fixed
+
+- Add _RETURN(_SUCCESS) to MAPL_SimpleBundle routines
+- Fixed possibly uninitialized values when handling members of Segment_T derived type. Helps on the Rome nodes.
+- Fixed print diagnostics for monthly collections (proper reporting of frequency, duration, eliminated acc_interval)
+- Fixed another bug related to the incorrect time increment for monthly averaged collections
+- Fixed few memory leaks (average and stampOffset arrays were allocated twice)
+- Fixed a bug related to incorrect time increment attribute for a monthly collection
+- Fixed a bug related to the naming scheme for split fields when ungrid size is 1
+- Fixed unset UNGRIDDED_DIMS attribute bug
+- Fixes ESMF logging errors related to expressions in History
+- Fixed error handling in profiler/BaseProfiler.F90
+- Fix memory leak when using fast_oserver in write_restart_by_oserver
+- Bumped cube version to 2.91 in global metadata
+- Change calls to `system_clock()` to be `INT64` (#511)
+- CMake updates to allow NAG Fortran build
+- Converted some remaining `real*8`-type declarations to be `real(kind=REAL64)`-style
+- Eliminated (almost) all compiler warnings for Intel compiler
+- Removed conditional around declaring pointers in code emitted by grid comp ACG.
+- Fixed bugs in ESMFL and MAPL_CFIOReadParallel to support GEOSadas
+- Remove some unnecessary MPI_Comm_dup calls. Some of those call are actually bugs
+
+## [2.6.4] - 2021-03-18
+
+### Added
+
+- Add support for multi-run-phase for root gridcomp
+
+### Fixed
+
+- Fixed spliiting the same field in multiple collections
+- Fix out-of-bound access when printing pFIO message
+- Removed program tstqsat.F90 from MAPL.base library.  A followup
+  should add cmake logic to create an executable or just delete the
+  file.
+- CMake workaround for macOS + Intel oneAPI FLAP bug (#644)
+- Fixed size of unallocated array for gfortran
+- Fixed counting of backend npes for assert
+
+## [2.6.3] - 2021-03-09
+
+### Added
+
+- Disable throughput reporting if an external clock is driving CapGridComp
+- Comment out profiler in output server
+- Add profiler for output server
+- New overload for MAPL_ConfigSetAttribute to support array of integers
+- New overload for MAPL_ConfigSetAttribute to support array of reals
+- Add return code to constructor method for MAPL Cap gridded component to allow applications
+  to fail gracefully if an error occurs
+- Added ability to "attach" to the pfafstetter grid for land tiles for components running directly on the catchments
+
+### Changed
+
+- Change to non-blocking send and receive from frontend to beckend in the class MultiGroupServer
+- Change one sided mpi_put to mpi_send and receive pair in the class MultiGroupServer
+- Change command line interface to --npes_backend_pernode to avoid confusion
+- Remove self-defined-in-file MAPL macros
+
+### Fixed
+
+- Fix bug in HorzIJ routine to place geospatial points when the grid units are degrees
+- Have CMake automatically gitignore build and install dirs
+- Properly set return code for MAPL Cap methods
+- Remove some GFORTRAN workarounds in MAPL_LocStreamMod (some still
+  needed for GNU layout regression, #733)
+- Fix issue with History when field names have "." in them
+
+## [2.6.2] - 2021-02-19
+
+### Added
+
+- Completed new capability to conseratively regrid horizontal fluxes
+  Important constraint is that the input grid must be a refinement of
+  the output grid.
+- Improvement to ExtDataDriver when generating synthetic data
+- Allow user to specify decomposition used by grids in History output, useful for testing
+- Add %S as seconds token to grads style StringTemplate
+- Add new bundle IO routines for non performance critical IO to eventually depreciate MAPL_CFIO and MAPL_cfio
+
+### Fixed
+
+- Fix MAPL_AddChildFromDSO
+
+## [2.6.1] - 2021-02-16
+
+### Changed
+
+- Move to ESMA_cmake v3.3.6
+- Remove requirement for HDF5 Fortran bindings in MAPL
+
+### Fixed
+
+- Fixes build of MAPL on non-Baselibs machines
+
+## [2.6.0] - 2021-02-12
+
+### Added
+
+- Add option to compute variance of tiles when doing T2G locstream transform
+- Add option fast_oclient that waits before using oserver. It would not wait after done message are sent 
+- Added new `is_valid_date()` and `is_valid_time()` functions to make
+  sure invalid times and dates are not sent to MAPL
+
+### Changed
+
+- For MultiGroupServer, the backend and frontend share each node
+- Moved `MAPL_HistoryGridComp.F90` and related files to `gridcomps/History`
+- Updated `Python/MAPL/constants.py` to have the same constants as
+  `MAPL_Constants.F90`
+
+- Major refactoring related to MAPL generic capabilities
+
+    0. Created new subdirectory  "generic"
+    
+    1. Modified interface to MAPL_Get() to use ALLOCATABLE for GEX, GIM,
+       GCS, and GCnamelist.  Original interface assumed these are
+       contiguous which will not be sustainable under the planned changes.
+    
+    2. (Re)Introduce fundamental classes in generic subdir.  Made
+       MAPL_MetaComp an extension of AbstractComponentNode, and provided
+       stub implementations for 3 methods. (Commenting out other
+       interfaces in the abstract class for now.)
+    
+    3. Activate get_parent(), add_child(), and num_children()
+    
+    4. Introduced AbstractComposite and ConcreteComposite
+    
+       These are isolate the responsibility for managing the component hierarchy. 
+       CompositeComponite then blends in ConcreteComposite into the 
+       AbstractFrameworkComponent class.
+    
+    5. Extracted internal state from MAPL_MetaComp
+    
+    6. Started moving derived types related to import/export specification
+       and such.    The goal will be to then refactor into proper classes
+       with encapsulation.
+    
+    7. Introducing Vector container for array of pointers to VarSpecType.
+    
+       First brute force attempt resulted in run-time issues that were
+       difficult to trace.  So going gradually.  Have introduced a
+       StateSpecification type that hold the legacy array of pointers and a
+       vector and methods that will enable keeping both representations
+       consistent.
+    
+       New representation is not used yet.
+    
+       Various attempts to update use of MAPL_VarSpec based
+       upon vectors were failing due to multiple pointer associations
+       across objects.
+    
+       The basic vector was modified to be MAPL_VarSpec instead of
+       MAPL_VarSpecType, and now all works.
+    
+       Wrapped new procedure with legacy interface.
+    
+       HistoryGridComp uses the older interface in a way that is
+       not immediately fixable.
+    
+    8. MAPL_GenericGrid
+       - Created new module in generic for and renamed to MaplGrid
+       - moved component from MAPL_MetaComp to BaseFrameworkComponent
+    
+    9. Moved 'lgr' component to baseFrameworkComponent.
+       - Add obsolete warning to deprecated interface
+       - Migrated some grid methods to new class.
+       - This necessitated moving some procedures from MAPL_Base into
+         MAPL_Generic.
+    
+    10. Prepping VarSpecMod for relocation.
+        - Removed dependencies on MAPL_IO and MAPL_comms.  Used pflogger
+          to replicate the functionality.
+        - Eliminated dependence of VarSpec on Base.
+        - Moved some parameters into new Enumerator module in ./shared.
+          MAPL_Base still needs to republish them to avoid issues with external
+          codes.
+    
+    11. Introduced a MaplShared package to export everything from
+    
+    12. Migrated VarSpec to ./generic.
+    
+    13. Eliminated use of MAPL_Communicators in MAPL_CFIO.F90.
+        - Side benefit - eliminated lots of unused routines and logic associated
+          with old and new o-server.
+    
+    14. Lots of things related to MAPL_Communicators and old O-server
+        were eliminated.
+    
+    15. Kludgy relocation of component logger.
+    
+    16. MAPL_Initialize is needed in each test layer so pulled
+        it over to the pfunit directory.
+
+### Fixed
+
+- Fixes for allowing forked PRs to pass CI
+- Fixes incorrect referrencing of R4 variables when reading R8 tile vars in base/MAPL_IO.F90
+- Use integer to represent logical internally in pFIO utilities to avoid non-standard transfer
+- Modified horizontal ij search algorithm in MAPL_Base.F90 to use general bisection search to fix capaibility issues with non-gmao created cubed sphere grids
+
+## [2.5.0] - 2021-01-08
+
+### Added
+
+- Added an `ExternalGridManager`, to allow MAPL to have knowledge of external grids (for NUOPC).
+- Added command line interface option `--isolate_nodes`. By default it is `.true.`
+- Add stretching factors to file if applicable in cubed-sphere output via History and uptick to cube version 2.91
+- Ability to register protoype (non-ESMF) regridders in NewRegridderManager
+- Make the default clobber rather than no clobber in NetCDF formatter in PFIO
+- Add basic check that the restart files match the application grid
+- Add new `MAPL_AddChildFromDSO` module procedure for `MAPL_AddChild`
+
+### Changed
+
+- Move MAPL_Cap, CapGridComp, and NUOPCwrapper to new directory in anticipation of refactored ExtData that will  not live in base
+- Convert `file(GLOB)` to explicit list
+- Moved modules into separate files.
+- Updated various modules to use the standard `_ASSERT()` and `_VERIFY()` macros instead of ad-hoc ones.
+- MAPL (sub-)libraries are now built as `TYPE SHARED` (needed for DSO work)
+- Updated `components.yaml`
+  - ESMA_env v3.1.3
+  - ESMA_cmake v3.3.5
+- Update CI image to use Baselibs v6.0.27
+
+## [2.4.0] - 2020-11-20
+
+### Added
+
+- Added ability to inject grid into root child GridComp (for NUOPC).
+- Added ability to use external clock (for NUOPC).
+- Enabled building and installing as a standalone library, using external dependencies.
+
+### Changed
+
+- Change CI Image to 6.0.22.
+- Updated `components.yaml`
+  - Move to ESMA_env v3.1.0
+  - Move to ESMA_cmake v3.3.0 (**REQUIRED** due to Baselibs detection changes and `find_package(FLAP)` moved to MAPL)
+  
+### Fixed
+
+- Bug in pfio tests when compiled with Debug flag
+- Bug in injecting grid into root child GridComp (for NUOPC).
+- Bug preventing components from advancing when an external clock is used
+
+## [2.3.6] - 2020-11-12
+
+### Added
+
+- Added an external grid and clock setter (for NUOPC).
+
+### Fixed
+
+- Fixed logic to allow proper termination of all imports except those specified
+
+## [2.3.5] - 2020-11-06
+
 ### Added
 
 - Added fixture entry to `components.yaml` (requires mepo v1.23.0 or higher)
 
-### Changed
 ### Fixed
-### Removed
+
+- Fixed integer overflow in memutils for big memory systems
+- Fix bug with segment alarm when processing a monthly mean collection
+
 
 ## [2.3.4] - 2020-10-20
 
@@ -263,7 +828,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected Python code generator scripts for component import/export specs.
 - Add directories to `.gitignore` for building with `mepo`
 - Bug building with mixed Intel/GCC compilers
-- Implemented workaround to cmake error that happens when building tests in parallel.	
+- Implemented workaround to cmake error that happens when building tests in parallel.
 - Set correct ESMA_env tag in `components.yaml`
 - Updated `components.yaml` to be inline with GEOSgcm
 - Minor problem in GMAO_pFIO Cmakelists (consistency with PRIVATE)
@@ -282,7 +847,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Builds and runs `pFIO_tests` and `MAPL_Base_tests`
 - Add precession of equinox (not on by default)
 - Imported Python/MAPL subdir (old, but never imported to GitHub)
-- Python automatic code generator for grid comp include files	
+- Python automatic code generator for grid comp include files
 - Added support to use pFlogger for logging
   - Command line option: `--logging_config=<file>`
 - Added ability for History to do monthly mean. This also involves reading and writing MAPL_GenericCpl checkpoints

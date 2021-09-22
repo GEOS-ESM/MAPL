@@ -139,12 +139,16 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      if ( this%RDMA_allocated ) then
-         call MPI_Win_fence(0, this%win, status)
-         _VERIFY(status)
-         call MPI_Win_free(this%win,status)
-         _VERIFY(status)
+      if ( .not. this%RDMA_allocated ) then
+         _RETURN(_SUCCESS)
       endif
+
+      call MPI_Win_fence(0, this%win, status)
+      _VERIFY(status)
+      call MPI_Win_free(this%win,status)
+      _VERIFY(status)
+      call MPi_comm_free(this%comm, status)
+      _VERIFY(status)
 
       this%RDMA_allocated = .false.
       _RETURN(_SUCCESS)

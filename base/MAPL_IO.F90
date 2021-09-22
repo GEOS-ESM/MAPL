@@ -409,7 +409,7 @@ module MAPL_IOMod
                            optional,  intent(IN   ) :: offset
       integer, optional,              intent(IN   ) :: readers_comm, ioscattercomm
       integer, optional,              intent(IN   ) :: writers_comm, iogathercomm
-      integer, optional, pointer                    :: i1(:), in(:), j1(:), jn(:)
+      integer, optional, target                    :: i1(:), in(:), j1(:), jn(:)
       integer, optional,              intent(IN   ) :: im_world, jm_world, lm_world
 
       if(present(offset  )) ArrDes%offset   = offset
@@ -1135,7 +1135,7 @@ module MAPL_IOMod
           _VERIFY(STATUS)
           if (associated(vr8_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
-                call MAPL_VarRead(formatter, name, var_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
+                call MAPL_VarRead(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, mask=mask, rc=status)
                 _VERIFY(STATUS)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call MAPL_VarRead(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, rc=status)
@@ -1174,7 +1174,7 @@ module MAPL_IOMod
                    call MAPL_VarRead(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                 end do
              else if (DIMS == MAPL_DimsTileTile) then
-                do j=1,size(var_2d,2)
+                do j=1,size(vr8_2d,2)
                    call MAPL_VarRead(formatter, name, vr8_2d(:,J), layout=layout, arrdes=arrdes, mask=mask, offset1=j, rc=status)
                    _VERIFY(STATUS)
                 enddo
@@ -1312,6 +1312,11 @@ module MAPL_IOMod
        call MAPL_CommsBcast(layout, status, n=1, ROOT=MAPL_Root, rc=stat)
        _VERIFY(STAT)
 
+#ifdef __GFORTRAN__
+       if (status == 5001) then
+          _RETURN(ESMF_SUCCESS)
+       end if
+#endif
        if (status == IOSTAT_END) then
           _RETURN(ESMF_SUCCESS)
        end if
@@ -7336,7 +7341,11 @@ module MAPL_IOMod
     integer                            :: MAPL_DIMS
     integer, pointer                   :: MASK(:) => null()
     type(Netcdf4_Fileformatter)        :: formatter
+    type(FileMetaData)                 :: metadata
     character(len=:), allocatable      :: fname_by_face
+    logical :: grid_file_match,flip
+    type(ESMF_VM) :: vm
+    integer :: comm
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars,rc=STATUS)
     _VERIFY(STATUS)
@@ -7362,7 +7371,23 @@ module MAPL_IOMod
              _VERIFY(STATUS)
           endif
        end if
+       metadata=formatter%read(rc=status)
+       _VERIFY(status)
+       call ESMF_FieldBundleGet(bundle,grid=grid,rc=status)
+       _VERIFY(status)
+       grid_file_match=compare_grid_file(metadata,grid,rc=status)
+       _VERIFY(status)
+       flip = check_flip(metadata,rc=status)
+       _VERIFY(status)
+
+       _ASSERT(grid_file_match,"File grid dimensions in "//trim(filename)//" do not match grid")
     endif
+    call ESMF_VMGetCurrent(vm,rc=status)
+    _VERIFY(status)
+    call ESMF_VMGet(vm,mpiCommunicator=comm,rc=status)
+    _VERIFY(status)
+    call MPI_BCast(flip,1,MPI_LOGICAL,0,comm,status)
+    _VERIFY(status)
 
     do l=1,nVars
       call ESMF_FieldBundleGet(bundle, fieldIndex=l, field=field, rc=status)
@@ -7390,6 +7415,10 @@ module MAPL_IOMod
 
       call MAPL_FieldReadNCPar(formatter, FieldName, field, arrdes=arrdes, HomePE=mask, rc=status)
       _VERIFY(STATUS)
+      if (flip) then 
+          call flip_field(field,rc=status)
+          _VERIFY(status)
+      end if
         
     enddo
 
@@ -7407,6 +7436,38 @@ module MAPL_IOMod
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_BundleReadNCPar
+
+  function compare_grid_file(metadata,grid,rc) result(match)
+     type(FileMetaData), intent(in) :: metadata
+     type(ESMF_Grid), intent(in) :: grid
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+     logical :: match
+
+     integer :: file_lev_size, file_lat_size, file_lon_size, file_tile_size
+     integer :: grid_dims(3)
+
+     match = .false.
+     call MAPL_GridGet(grid,globalCellCountPerDim=grid_dims,rc=status)
+     _VERIFY(status)
+     file_lon_size = metadata%get_dimension("lon")
+     file_lat_size = metadata%get_dimension("lat")
+     file_lev_size = metadata%get_dimension("lev")
+     file_tile_size = metadata%get_dimension("tile")
+     if (file_tile_size > 0) then
+        match = (file_tile_size == grid_dims(1))
+     else
+        if (file_lev_size > 0) then
+
+            match = (file_lon_size == grid_dims(1)) .and. (file_lat_size == grid_dims(2)) &
+                    .and. (file_lev_size==grid_dims(3))
+        else
+            match = (file_lon_size == grid_dims(1)) .and. (file_lat_size == grid_dims(2))
+        end if
+     end if
+     _RETURN(_SUCCESS)
+  end function compare_grid_file
 
   subroutine MAPL_StateVarReadNCPar(filename, STATE, arrdes, bootstrapable, NAME, RC)
     character(len=*)            , intent(IN   ) :: filename
@@ -7840,10 +7901,33 @@ module MAPL_IOMod
     type (StringIntegerMap), save      :: RstCollections
     type (StringIntegerMapIterator)    :: iter
     type (StringVariableMap) :: var_map
+    logical :: have_target_lon, have_target_lat, have_stretch_factor
+    real :: target_lon, target_lat, stretch_factor
+    logical :: is_stretched
+    character(len=ESMF_MAXSTR) :: positive
+    type(StringVector) :: flip_vars
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
 
+    call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",isPresent=have_target_lon,rc=status)
+    _VERIFY(status)
+    call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",isPresent=have_target_lat,rc=status)
+    _VERIFY(status)
+    call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",isPresent=have_stretch_factor,rc=status)
+    _VERIFY(status)
+    if (have_target_lon .and. have_target_lat .and. have_stretch_factor) then
+       is_stretched = .true.
+       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",value=target_lon,rc=status)
+       _VERIFY(status)
+       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",value=target_lat,rc=status)
+       _VERIFY(status)
+       call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",value=stretch_factor,rc=status)
+       _VERIFY(status)
+    else
+       is_stretched = .false.
+    end if
+       
 
     ! verify that file is compatible with fields in bundle we are reading
 
@@ -8001,6 +8085,8 @@ module MAPL_IOMod
        call ArrDescrSet(arrdes, JM_WORLD=JM_WORLD)
     end if
 
+    call ESMF_AttributeGet(bundle,"POSITIVE",positive,rc=status)
+    _VERIFY(status)
     ! count dimensions for NCIO
     ndims = 0
     if (Have_HorzVert .or. Have_HorzOnly) ndims = ndims + 2
@@ -8024,6 +8110,11 @@ module MAPL_IOMod
              isCubed = .true.
              x0=1.0d0
              x1=dble(arrdes%IM_WORLD)
+             if (is_stretched) then
+                call cf%add_attribute('TARGET_LON',target_lon)
+                call cf%add_attribute('TARGET_LAT',target_lat)
+                call cf%add_attribute('STRETCH_FACTOR',stretch_factor)
+             end if
           else
              isCubed = .false.
              x0=-180.0d0
@@ -8045,8 +8136,13 @@ module MAPL_IOMod
              x0=1.0d0
              x1=dble(arrdes%JM_WORLD)
           else
-             x0=-90.0d0
-             x1=90.0d0
+             if (arrdes%jm_world==1) then
+                x0=0.0
+                x1=0.0
+             else
+                x0=-90.0d0
+                x1=90.0d0
+             end if
           endif
           lat = MAPL_Range(x0,x1,arrdes%JM_WORLD)
           
@@ -8088,7 +8184,7 @@ module MAPL_IOMod
              call var%add_attribute('units','layer')
              call var%add_attribute('long_name','sigma at layer midpoints')
              call var%add_attribute('standard_name','atmosphere_hybrid_sigma_pressure_coordinate')
-             call var%add_attribute('positive','down')
+             call var%add_attribute('positive',trim(positive))
              call var%add_attribute('coordinate','eta')
              call var%add_attribute('formulaTerms','ap: ak b: bk ps: ps p0: p00')
              call cf%add_variable('lev',var,rc=status)
@@ -8110,7 +8206,7 @@ module MAPL_IOMod
              call var%add_attribute('units','level')
              call var%add_attribute('long_name','sigma at layer edges')
              call var%add_attribute('standard_name','atmosphere_hybrid_sigma_pressure_coordinate')
-             call var%add_attribute('positive','down')
+             call var%add_attribute('positive',trim(positive))
              call var%add_attribute('coordinate','eta')
              call var%add_attribute('formulaTerms','ap: ak b: bk ps: ps p0: p00')
              call cf%add_variable('edge',var,rc=status)
@@ -8260,9 +8356,11 @@ module MAPL_IOMod
           else if(arrayRank == 3) then
              if (DIMS(1)==MAPL_DimsHorzVert) then
                 if (LOCATION(1) == MAPL_VLocationCenter) then
+                   call flip_vars%push_back(trim(filename))
                    call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,lev',units,long_name,rc=status)
                    _VERIFY(status)
                 else if(LOCATION(1) == MAPL_VLocationEdge) then
+                   call flip_vars%push_back(trim(filename))
                    call add_fvar(cf,trim(fieldname),pfDataType,'lon,lat,edge',units,long_name,rc=status)
                    _VERIFY(status)
                 else
@@ -8420,17 +8518,25 @@ module MAPL_IOMod
 
        call MAPL_FieldWriteNCPar(formatter, fieldName, field, arrdes, HomePE=mask, oClients=oClients, rc=status)
        _VERIFY(STATUS)
+
+       call ESMF_AttributeGet(field,name="FLIPPED",isPresent=isPresent,rc=status)
+       if (isPresent) then
+         call ESMF_AttributeGet(field,name="FLIPPED",value=fieldName,rc=status)
+         if (status == _SUCCESS) then
+            call ESMF_FieldDestroy(field,noGarbage=.true.,rc=status)
+            _VERIFY(status)
+         end if
+       end if
        
     enddo
 
-    
     if (arrdes%write_restart_by_oserver) then
        call oClients%done_collective_stage()
-       call oClients%wait()
+       call oClients%post_wait()
        call MPI_Info_free(info, status)
        _VERIFY(STATUS)
     elseif (arrdes%writers_comm/=MPI_COMM_NULL) then
-       call formatter%close()
+       call formatter%close(rc=status)
        _VERIFY(STATUS)
        call MPI_Info_free(info, status)
        _VERIFY(STATUS)
@@ -8489,10 +8595,13 @@ module MAPL_IOMod
     character(len=ESMF_MAXSTR)           :: FieldName,BundleName,StateName
     logical                              :: forceWriteNoRestart_
 
-    type (ESMF_Field)                  :: new_field
+    type (ESMF_Field)                  :: new_field, added_field
     type (ESMF_FieldBundle)            :: bundle_write
     integer                            :: nBundle
     logical                            :: isPresent
+    character(len=ESMF_MAXSTR)         :: positive
+    logical                            :: flip
+   
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
     _VERIFY(STATUS)
@@ -8527,6 +8636,12 @@ module MAPL_IOMod
     _VERIFY(STATUS)
     call ESMF_FieldBundleSet(bundle_write,grid=arrdes%grid,rc=STATUS)
     _VERIFY(STATUS)
+
+    call ESMF_AttributeGet(state,name="POSITIVE",value=positive,rc=status)
+    _VERIFY(status)
+    call ESMF_AttributeSet(bundle_write,name="POSITIVE",value=positive,rc=status)
+    _VERIFY(status)
+    flip = trim(positive)=="up"
 
     DO I = 1, ITEMCOUNT
 
@@ -8594,7 +8709,13 @@ module MAPL_IOMod
              endif
              if (skipWriting) cycle
 
-             call MAPL_FieldBundleAdd(bundle_write,field,rc=status)
+             if (flip) then
+                added_field = create_flipped_field(field,rc=status)
+                _VERIFY(status)
+             else
+                added_field = field
+             end if
+             call MAPL_FieldBundleAdd(bundle_write,added_field,rc=status)
              _VERIFY(STATUS)
 
           end IF
@@ -9217,5 +9338,151 @@ module MAPL_IOMod
      name = trim(fname)//'_face_'//i_to_string(face)
 
    end function get_fname_by_face
+
+   function check_flip(metadata,rc) result(flip)
+      type(FileMetadata), intent(inout) :: metadata
+      integer, optional, intent(out) :: rc
+      character(len=:), pointer :: positive
+      type(CoordinateVariable), pointer :: var
+      type (StringVariableMap), pointer :: vars
+      type (StringVariableMapIterator) :: var_iter
+      character(len=:), pointer :: var_name
+      logical :: isPresent
+      logical :: flip
+      type(Attribute), pointer :: attr => null()
+      class(*), pointer :: vpos
+
+      flip = .false.
+      vars => metadata%get_variables()
+      var_iter = vars%begin()
+      do while(var_iter /=vars%end())
+         var_name => var_iter%key()
+         var => metadata%get_coordinate_variable(trim(var_name))
+         if (associated(var)) then
+            if (index(var_name,'lev') .ne. 0 .or. index(var_name,'edge') .ne. 0) then
+               isPresent = var%is_attribute_present('positive')
+               if (isPresent) then
+                  attr => var%get_attribute('positive')
+                  _ASSERT(associated(attr),"restart file leve dim has no positive attribute")
+                  vpos => attr%get_value()
+                  select type(vpos)
+                  type is (character(*))
+                     positive => vpos
+                  class default
+                     _ASSERT(.false.,'units must be string')
+                  end select
+               else
+                  positive => null()
+               end if
+               if (associated(positive)) then 
+                  flip = (trim(positive) == "up")
+                  _RETURN(_SUCCESS)
+               end if
+            end if
+         end if
+         call var_iter%next()
+      enddo
+      _RETURN(_SUCCESS)
+   end function check_flip
+
+   subroutine flip_field(field,rc)
+      type(ESMF_Field), intent(inout) :: field
+      integer, intent(out), optional :: rc
+
+      integer :: status,rank
+      real(KIND=ESMF_KIND_R4), pointer :: ptr_r4(:,:,:)
+      real(KIND=ESMF_KIND_R8), pointer :: ptr_r8(:,:,:)
+      real(KIND=ESMF_KIND_R4), allocatable :: alloc_r4(:,:,:)
+      real(KIND=ESMF_KIND_R8), allocatable :: alloc_r8(:,:,:)
+      type(ESMF_TypeKind_Flag) :: tk
+      integer :: vloc,i,lb,ub,ii
+     
+      call ESMF_FieldGet(field,rank=rank,typeKind=tk,rc=status)
+      _VERIFY(status)
+      if (rank/=3) then
+         _RETURN(_SUCCESS)
+      else
+         call ESMF_AttributeGet(field,name="VLOCATION",value=vloc,rc=status)
+         _VERIFY(status)
+         if (vloc==MAPL_VLocationCenter .or. vloc==MAPL_VLocationEdge) then
+            if (tk == ESMF_TYPEKIND_R4) then
+               call ESMF_FieldGet(field,farrayPtr=ptr_r4,rc=status)
+               _VERIFY(status)
+               allocate(alloc_r4,source=ptr_r4)
+               lb = lbound(ptr_r4,dim=3)
+               ub = ubound(ptr_r4,dim=3)
+               ii=0
+               do i=lb,ub
+                  ptr_r4(:,:,i)=alloc_r4(:,:,ub-ii)
+                  ii=ii+1
+               enddo
+            else if (tk == ESMF_TYPEKIND_R8) then
+               call ESMF_FieldGet(field,farrayPtr=ptr_r8,rc=status)
+               _VERIFY(status)
+               allocate(alloc_r8,source=ptr_r8)
+               lb = lbound(ptr_r8,dim=3)
+               ub = ubound(ptr_r8,dim=3)
+               ii=0
+               do i=lb,ub
+                  ptr_r8(:,:,i)=alloc_r8(:,:,ub-ii)
+                  ii=ii+1
+               enddo
+            end if
+         end if
+      end if
+      _RETURN(_SUCCESS)
+   end subroutine flip_field
+
+   function create_flipped_field(field,rc) result(flipped_field)
+      type(ESMF_Field), intent(inout) :: field
+      integer, intent(out), optional :: rc
+
+      type(ESMF_Field) :: flipped_field
+      integer :: status,rank
+      character(len=ESMF_MAXSTR) :: fname
+      integer :: vloc,lb(1),ub(1)
+      type(ESMF_Grid) :: grid
+      type(ESMF_TYPEKIND_FLAG) :: tk
+      real(KIND=ESMF_KIND_R4), pointer :: ptr_r4_in(:,:,:),ptr_r4_out(:,:,:)
+      real(KIND=ESMF_KIND_R8), pointer :: ptr_r8_in(:,:,:),ptr_r8_out(:,:,:)
+      
+     
+      call ESMF_FieldGet(field,rank=rank,name=fname,rc=status)
+      _VERIFY(status)
+      if (rank==3) then
+         call ESMF_AttributeGet(field,name="VLOCATION",value=vloc,rc=status)
+         _VERIFY(status)
+         if (vloc==MAPL_VLocationCenter .or. vloc==MAPL_VLocationEdge) then
+            call ESMF_FieldGet(Field,grid=grid,ungriddedLbound=lb,ungriddedUBound=ub,typekind=tk,rc=status)
+            _VERIFY(status)
+            flipped_field = ESMF_FieldCreate(grid,tk,name=trim(fname),ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
+            _VERIFY(status)
+            call MAPL_FieldCopyAttributes(field_in=field,field_out=flipped_field,rc=status)
+            _VERIFY(status)
+            if (tk==ESMF_TYPEKIND_R4) then
+               call ESMF_FieldGet(field,farrayptr=ptr_r4_in,rc=status)
+               _VERIFY(status)
+               call ESMF_FieldGet(flipped_field,farrayptr=ptr_r4_out,rc=status)
+               _VERIFY(status)
+               ptr_r4_out=ptr_r4_in
+            else if (tk==ESMF_TYPEKIND_R8) then
+               call ESMF_FieldGet(field,farrayptr=ptr_r8_in,rc=status)
+               _VERIFY(status)
+               call ESMF_FieldGet(flipped_field,farrayptr=ptr_r8_out,rc=status)
+               _VERIFY(status)
+               ptr_r8_out=ptr_r8_in
+            end if
+            call flip_field(flipped_field,rc=status)
+            _VERIFY(status)
+            call ESMF_AttributeSet(flipped_field,"FLIPPED","flipped",rc=status)
+            _VERIFY(status)
+         else
+            flipped_field=field
+         end if
+      else
+         flipped_field=field   
+      end if
+      _RETURN(_SUCCESS)
+   end function create_flipped_field
 
 end module MAPL_IOMod

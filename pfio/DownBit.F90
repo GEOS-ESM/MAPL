@@ -1,10 +1,5 @@
-#define _SUCCESS      0
-#define _FAILURE     1
-#define _VERIFY(A)   if(  A/=0) then; if(present(rc)) rc=A; PRINT *, Iam, __LINE__; return; endif
-#define _ASSERT(A)   if(.not.(A)) then; if(present(rc)) rc=_FAILURE; PRINT *, Iam, __LINE__; return; endif
-#define _RETURN(A)   if(present(rc)) rc=A; return
-
 module pFIO_DownbitMod
+   use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc, c_ptr
 
    implicit none
    private
@@ -12,6 +7,7 @@ module pFIO_DownbitMod
    public :: pFIO_DownBit
 
    interface pFIO_DownBit
+      module procedure pFIO_DownBit1D
       module procedure pFIO_DownBit2D
       module procedure pFIO_DownBit3D 
    end interface pFIO_DownBit
@@ -37,7 +33,7 @@ contains
      real, intent(out)   :: xr(:,:,:) ! precision reduced array; can
 !                                       ! share storage with input array
                                         ! if it has same kind
-     integer, intent(out)  :: rc        ! error code
+     integer, optional, intent(out)  :: rc        ! error code
                                         !  = 0 - all is well
                                         ! /= 0 - something went wrong 
 !
@@ -83,7 +79,7 @@ contains
      real, intent(out)   :: xr(:,:)   ! precision reduced array; can
 !                                       !  share storage with input array
 !                                       !  if it has same kind
-     integer, intent(out)  :: rc        ! error code
+     integer, optional, intent(out)  :: rc        ! error code
                                         !  = 0 - all is well
                                         ! /= 0 - something went wrong 
 !
@@ -185,5 +181,35 @@ contains
     end if
 
    end subroutine pFIO_DownBit2D
+
+   subroutine pFIO_DownBit1D ( x, xr, nbits, undef, flops, rc )
+     implicit NONE
+!
+! !INPUT PARAMETERS:
+!
+     real,target, intent(in)    ::  x(:)         ! input array 
+     integer, intent(in) :: nbits           ! number of bits per word to retain
+     real, OPTIONAL, intent(in) :: undef    ! missing value
+     logical, OPTIONAL, intent(in) :: flops ! if true, uses slower float point
+                                            !  based algorithm
+!
+! !OUTPUT PARAMETERS:
+!
+     real, target, intent(inout)   :: xr(:)   ! precision reduced array; can
+     integer, optional, intent(out) :: rc
+
+
+     real, pointer :: x_tmp(:,:)
+     real, pointer :: xr_tmp(:,:)
+     type(c_ptr) :: x_ptr, xr_ptr
+     
+     x_ptr = c_loc(x(1))
+     call c_f_pointer(x_ptr,  x_tmp,[size(x),1])
+     xr_ptr = c_loc(xr(1))
+     call c_f_pointer(xr_ptr, xr_tmp,[size(x),1])
+
+     call pFIO_Downbit2d(x_tmp(:,:), xr_tmp(:,:), nbits, undef=undef, flops=flops, rc=rc)
+
+   end subroutine pFIO_Downbit1D
 
 end module pFIO_DownbitMod

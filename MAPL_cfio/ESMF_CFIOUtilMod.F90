@@ -43,8 +43,6 @@
       integer, parameter :: NDIMS_MAX = 4
       integer, parameter :: MAX_VAR_DIMS = 32
       character*7, parameter :: GRID_NAME='EOSGRID'
-      integer, parameter :: NFILES_MAX = 64
-      integer, parameter :: NVARS_MAX = 128
       integer, parameter :: MAXCHR = 256
       integer, parameter :: PACK_BITS = 32766
       integer, parameter :: PACK_FILL = 32767
@@ -532,13 +530,12 @@
         if (nvDims .EQ. 1 .or. trim(vname) .eq. 'time_bnds') then
           tmpNvar = tmpNvar - 1
         endif
-        if (vname == 'cubed_sphere') then
+        if (vname == 'nf') then
            cs_found = .true.
-           tmpNvar = tmpNvar - 1
         end if
       enddo
       if (cs_found) then
-         tmpNvar = tmpNvar - 3
+         tmpNvar = tmpNvar - 4
          found_xc = NF90_INQ_VARID(fid,"corner_lons",vid)
          if (found_xc ==0) tmpNvar = tmpNvar - 1
          found_yc = NF90_INQ_VARID(fid,"corner_lats",vid)
@@ -678,10 +675,10 @@
       integer nDims, nvars, ngatts, dimId
 
 !     Time conversion local variables
-      real*4    rtime, rtime_array(1) 
-      real*8    dtime, dtime_array(1)
-      integer*2 itime, itime_array(1)
-      integer*4 ltime, ltime_array(1)
+      real(kind=REAL32)    rtime, rtime_array(1) 
+      real(kind=REAL64)    dtime, dtime_array(1)
+      integer(kind=INT16) itime, itime_array(1)
+      integer(kind=REAL32) ltime, ltime_array(1)
       !integer   t1
       integer   newDate, newTime
 
@@ -1207,13 +1204,12 @@
 !
 !EOP
 !-------------------------------------------------------------------------
-       integer :: iCnt, jCnt, dLen, tLen
+       integer :: iCnt, jCnt, dLen
        character(len=MVARLEN) :: sDate, sTime
        character(len=MVARLEN) :: strDate, strTime
        character :: char
                                                                                          
        dLen = index(timeString, 'T' )
-       tLen = len(trim(timeString)) - dLen
        sDate = timeString(1:dLen-1)
        sTime = timeString(dLen+1:len(trim(timeString)))
        jCnt = 1
@@ -2523,7 +2519,7 @@
 
 ! Variables for packing and range checking
 
-      integer*2, allocatable :: grid_16(:,:)
+      integer(kind=INT16), allocatable :: grid_16(:,:)
       real(kind=REAL32), allocatable :: fminutes_32(:)
       real(kind=REAL32) high_32, low_32, amiss_32
       real(kind=REAL32) scale_32, offset_32
@@ -2567,7 +2563,7 @@
         rc = -7
         return
       endif
-      if ( MOD (seconds,60) .eq. 0 ) then 
+      if ( MOD (int(seconds),60) .eq. 0 ) then 
         minutes = seconds / 60
       else
         print *, 'CFIO_PutVar: Currently, times must fall on minute ',&
@@ -2591,7 +2587,7 @@
       call CFIO_parseIntTime ( timinc, hour, min, sec ) 
       incSecs = hour*3600 + min*60 + sec
 
-      if ( MOD (seconds, incSecs) .ne. 0 ) then
+      if ( MOD (int(seconds), incSecs) .ne. 0 ) then
         print *, 'CFIO_putvar: Absolute time of ',seconds,' not ',&
                 'possible with an interval of ',incSecs
         rc = -2
@@ -2878,12 +2874,11 @@
 !EOP
 !-------------------------------------------------------------------------
 
-      integer timeId, begDate, begTime, seconds, minutes
+      integer begDate, begTime, seconds
       integer corner(3), edges(3), timeIndex
       integer vid
       integer i,j,k
       !integer incSecs
-      logical stationFile
       integer(INT64), allocatable :: incVec(:)
 
 ! Variables for working with dimensions
@@ -2912,8 +2907,8 @@
 
 ! Variables for packing
 
-      integer*2, allocatable :: grid_16(:,:)
-      integer*2 amiss_16
+      integer(kind=INT16), allocatable :: grid_16(:,:)
+      integer(kind=INT16) amiss_16
       real(kind=REAL32) amiss_32
       real(kind=REAL32) scale_32, offset_32
 
@@ -2948,7 +2943,6 @@
         rc = NF90_INQUIRE_DIMENSION (fid, i, dimName, dimSize)
         if (err("DimInqure: can't get dim info",rc,-41) .NE. 0) return
         if (index(dimName,'station')  .gt. 0) then
-           stationFile = .true.
            im = dimSize
            jm = dimSize
            cycle
@@ -2980,7 +2974,6 @@
 !            return
           endif
         else if ( myIndex .EQ. 3 ) then
-            timeId = dimId
         else
           print *, 'CFIO_GetVar: Coordinate variable ', &
                   TRIM(dimName),' with units of ',TRIM(dimUnits),&
@@ -3031,7 +3024,6 @@
       end if
 
       if ( MOD (seconds,60) .eq. 0 ) then
-        minutes = seconds / 60
       else
         print *, 'CFIO_GetVar: Currently, times must fall on minute ',&
                 'boundaries.'
@@ -3256,7 +3248,7 @@
 !EOP
 !-------------------------------------------------------------------------
 
-      integer begDate, begTime, seconds, minutes
+      integer begDate, begTime, seconds
       !integer timeShift
       integer corner(5), edges(5), timeIndex
       integer vid
@@ -3287,8 +3279,8 @@
 
 ! Variables for packing
 
-      integer*2, allocatable :: grid_16(:,:,:)
-      integer*2 amiss_16
+      integer(kind=INT16), allocatable :: grid_16(:,:,:)
+      integer(kind=INT16) amiss_16
       real(kind=REAL32) amiss_32
       real(kind=REAL32) scale_32, offset_32
 
@@ -3410,7 +3402,6 @@
       end if
 
       if ( MOD (seconds,60) .eq. 0 ) then
-        minutes = seconds / 60
       else
         print *, 'CFIO_GetVar: Currently, times must fall on minute ',&
                 'boundaries.'
@@ -3702,7 +3693,7 @@
 
 ! Variables for packing and range checking
 
-      integer*2, allocatable :: grid_16(:,:,:)
+      integer(kind=INT16), allocatable :: grid_16(:,:,:)
       real(kind=REAL32), allocatable :: fminutes_32(:)
       real(kind=REAL32) high_32, low_32, amiss_32
       real(kind=REAL32) scale_32, offset_32
@@ -3746,7 +3737,7 @@
         rc = -7
         return
       endif
-      if ( MOD (seconds,60) .eq. 0 ) then 
+      if ( MOD (int(seconds),60) .eq. 0 ) then 
         minutes = seconds / 60
       else
         print *, 'CFIO_PutVar: Currently, times must fall on minute ',&
@@ -3770,7 +3761,7 @@
       call CFIO_parseIntTime ( timinc, hour, min, sec ) 
       incSecs = hour*3600 + min*60 + sec
 
-      if ( MOD (seconds, incSecs) .ne. 0 ) then
+      if ( MOD (int(seconds), incSecs) .ne. 0 ) then
         print *, 'CFIO_putvar: Absolute time of ',seconds,' not ',&
                 'possible with an interval of ',incSecs
         rc = -2
@@ -4224,7 +4215,6 @@
       integer varType, nvDims, vDims(MAXVDIMS), nvAtts
       character*(MAXCHR) vnameTemp
       integer i
-      logical surfaceOnly
       integer attType, attLen
       integer allVars            ! all variables - includes dimension vars
 
@@ -4235,9 +4225,6 @@
       rc = NF90_INQUIRE (fid,nDims,allVars,ngatts,recdim)
       if (err("Inqure: NF90_INQUIRE failed",rc,-48) .NE. 0) return
 
-      if (nDims .EQ. 3) then
-        surfaceOnly = .TRUE.
-      endif
 
       do i= 1, allVars
         rc = NF90_INQUIRE_VARIABLE (fid,i,vnameTemp,varType,nvDims,vDims,nvAtts)
@@ -5259,7 +5246,7 @@ end subroutine die
 
 ! Variables for packing and range checking
 
-      integer*2, allocatable :: grid_16(:,:,:)
+      integer(kind=INT16), allocatable :: grid_16(:,:,:)
       real(kind=REAL32) high_32, low_32, amiss_32
       real(kind=REAL32) scale_32, offset_32
       logical outRange, outPRange

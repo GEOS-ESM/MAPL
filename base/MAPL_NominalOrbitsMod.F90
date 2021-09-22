@@ -1,5 +1,6 @@
 #include "unused_dummy.H"
-  MODULE MAPL_NominalOrbitsMod 
+  MODULE MAPL_NominalOrbitsMod
+     use MAPL_Constants
      IMPLICIT NONE
 
 !BOP
@@ -73,7 +74,6 @@
          /)
 
 !      Earth/Time related constants 
-       REAL(dp), PARAMETER  :: g0 = 0.000072921158553     !rad per seconds
        REAL(dp), PARAMETER  :: g1p = 0.0172027912;  
                            ! increase in the lon of GR per day (rad/day)
 !      g2p need to be calculated (optimized) version in matlab values are copied here  
@@ -108,11 +108,7 @@
 
 
 !     3-Other Coef
-       REAL(dp), PARAMETER :: pi=3.141592653589793
-       REAL(dp), PARAMETER :: earth_radius=6371.0  !sphere
        REAL(dp), PARAMETER :: myeps = 0.0000001    !for zero checks
-       REAL(dp), PARAMETER :: cdeg2km = earth_radius * (pi / 180.0) ! constant for deg2km 
-       REAL(dp), PARAMETER :: ckm2deg = (1.0/earth_radius) * (180.0/pi)
 
 
 
@@ -625,7 +621,7 @@ SUBROUTINE find_sweeppoints(iii, latwayp, longwayp, l, r, wrapon, latlonshift)
                CALL linspace(r,l,iii,myvec)
        end if
        do i=1, size(myvec)
-          myvec_deg(i) =  ckm2deg * myvec(i)
+          myvec_deg(i) =  MAPL_KM_PER_DEG * myvec(i)
        end do
       DO say = 1,size(myvec)
           ALLOCATE(latshift1(1:size(longwayp)),lonshift1(1:size(longwayp)))
@@ -710,17 +706,19 @@ SUBROUTINE  ECI2ECEF(iSat,fraction2day,  ECI_est, ECEF_est)
         REAL(dp)      :: Goft, a1, a2
         REAL(dp)      :: fraction2day 
 
-        t1 =  Day2year(iSat)
-        Goft = g0 + g1p*t1 + g2p(iSat) * fraction2day
-        a1 = cos(Goft);
-        a2 = sin(Goft);
-        RotM = 0.0
-        RotM(1,1) = a1
-        RotM(1,2) = a2
-        RotM(2,1) = -a2
-        RotM(2,2) = a1
-        RotM(3,3) = 1
-        ECEF_est = MATMUL(RotM, ECI_est)
+        associate(g0 => MAPL_OMEGA_R8)
+           t1 =  Day2year(iSat)
+           Goft = g0 + g1p*t1 + g2p(iSat) * fraction2day
+           a1 = cos(Goft);
+           a2 = sin(Goft);
+           RotM = 0.0
+           RotM(1,1) = a1
+           RotM(1,2) = a2
+           RotM(2,1) = -a2
+           RotM(2,2) = a1
+           RotM(3,3) = 1
+           ECEF_est = MATMUL(RotM, ECI_est)
+        end associate
 END SUBROUTINE ECI2ECEF  
 
 SUBROUTINE get_time(iSat, nymd, nhms, fraction2day, ntime_day)
@@ -764,28 +762,27 @@ SUBROUTINE ECEF2LLA(x, y, z, lat, lon, alt)
        REAL(dp), INTENT(IN)  :: x,y,z
        REAL(dp), INTENT(OUT) :: lat,lon,alt
 !      % WGS84 ellipsoid constants:
-       REAL(dp), PARAMETER  :: a = 6378137 ! those should be defined outside
-       REAL(dp), PARAMETER  :: e = 8.1819190842622e-2
-       REAL(dp), PARAMETER  :: pi = 3.14159265358979323846 
        REAL(dp)             :: b, ep, p, th, N
 
-       b   = sqrt(a**2 * (1-e**2))
-       ep  = sqrt((a**2-b**2)/b**2)
-       p   = sqrt(x**2+y**2)
-       th  = atan2(a*z,b*p)
-       lon = atan2(y,x)
-       lat = atan2((z+ep**2*b*sin(th)**3),(p-e**2*a*cos(th)**3))
-       N   = a/sqrt(1-e**2*sin(lat)**2)
-       alt = p/cos(lat)-N
-!%     !return lon in range [0,2*pi)
-       !lon = mod(lon,2*pi) ! does not the same as matlab
-       lon = lon-floor(lon/(2*pi))*(2*pi)
-!      % correct for numerical instability in altitude near exact poles:
-!      % (after this correction, error is about 2 millimeters, which is about
-!      % the same as the numerical precision of the overall function)
-       !k= (abs(x)<1.AND.abs(y)<1 )
-       !print *, k
-       !!alt(k) = abs(z(k))-b
+       associate(a => MAPL_EARTH_SEMIMAJOR_AXIS, e => MAPL_EARTH_ECCENTRICITY, pi => MAPL_PI_R8)
+          b   = sqrt(a**2 * (1-e**2))
+          ep  = sqrt((a**2-b**2)/b**2)
+          p   = sqrt(x**2+y**2)
+          th  = atan2(a*z,b*p)
+          lon = atan2(y,x)
+          lat = atan2((z+ep**2*b*sin(th)**3),(p-e**2*a*cos(th)**3))
+          N   = a/sqrt(1-e**2*sin(lat)**2)
+          alt = p/cos(lat)-N
+!%        !return lon in range [0,2*pi)
+          !lon = mod(lon,2*pi) ! does not the same as matlab
+          lon = lon-floor(lon/(2*pi))*(2*pi)
+!         % correct for numerical instability in altitude near exact poles:
+!         % (after this correction, error is about 2 millimeters, which is about
+!         % the same as the numerical precision of the overall function)
+          !k= (abs(x)<1.AND.abs(y)<1 )
+          !print *, k
+          !!alt(k) = abs(z(k))-b
+       end associate
 END SUBROUTINE ECEF2LLA
 
 integer function ODS_Julian ( CalDate )
@@ -873,33 +870,19 @@ SUBROUTINE build_array(s,e,dp, mat)
        end do
 END SUBROUTINE build_array
 
-REAL(dp) FUNCTION deg2km(angle)
-       IMPLICIT NONE    
-       REAL(dp) angle
-
-       deg2km = earth_radius * deg2rad(angle) 
-END FUNCTION deg2km
-
-REAL(dp) FUNCTION km2deg(r)
-       IMPLICIT NONE    
-       REAL(dp) :: r, rad
-
-       rad = r/earth_radius
-       km2deg = rad2deg(rad)
-END FUNCTION km2deg
 
 REAL(dp) FUNCTION deg2rad(angle)
        IMPLICIT NONE
 
        REAL(dp), INTENT(IN) :: angle
-       deg2rad = (pi/180.0) * angle
+       deg2rad = MAPL_DEGREES_TO_RADIANS_R8 * angle
 END FUNCTION deg2rad
 
 REAL(dp) FUNCTION rad2deg(rad)
        IMPLICIT NONE
        REAL(dp), INTENT(IN) :: rad
 
-       rad2deg = (180.0/pi) * rad
+       rad2deg = MAPL_RADIANS_TO_DEGREES * rad
 END FUNCTION rad2deg
 
 REAL(dp) FUNCTION get_distance(lt1, ln1, lt2, ln2)
@@ -939,25 +922,28 @@ REAL(dp) FUNCTION get_azimuth(lt1, ln1, lt2, ln2, wrapon) ! need to be
              sin(lat1) * cos(lat2) * cos(lon2-lon1))
        ! Azimuths are undefined at the poles, so we choose a convention: zero at
        ! the north pole and pi at the south pole.
-       if (lat1 <= -pi/2.0) az = 0.0
-       if (lat2 >=  pi/2.0) az = 0.0
-       if (lat2 <=  -pi/2.0) az = pi
-       if (lat1 >=   pi/2.0) az = pi
-       epsilone = 1.74E-8
+       associate(pi => MAPL_PI_R8)
+          if (lat1 <= -pi/2.0) az = 0.0
+          if (lat2 >=  pi/2.0) az = 0.0
+          if (lat2 <=  -pi/2.0) az = pi
+          if (lat1 >=   pi/2.0) az = pi
+          epsilone = 1.74E-8
 
 
-       if (wrapon) then
-           if ( az>-epsilone .AND. az < epsilone) then
-               saz = 0
-           else
-               saz = az/abs(az)
-           end if
-           az = pi*((abs(az)/pi) - 2*ceiling(((abs(az)/pi)-1)/2)) * saz
-       end if
+          if (wrapon) then
+              if ( az>-epsilone .AND. az < epsilone) then
+                  saz = 0
+              else
+                  saz = az/abs(az)
+              end if
+              az = pi*((abs(az)/pi) - 2*ceiling(((abs(az)/pi)-1)/2)) * saz
+          end if
 
-       if ( az < -epsilone) then ! change to 0 to 2pi
-           az = az + 2*pi
-       end if
+          if ( az < -epsilone) then ! change to 0 to 2pi
+              az = az + 2*pi
+          end if
+       end associate
+
        !  Reset near-zero points
        if (az<0.0) az=0
        get_azimuth = rad2deg(az)
@@ -983,22 +969,25 @@ SUBROUTINE get_reckon(phi1, lambda1, az1, rng1, phi, lambda, wrapon)
        lambda0 = deg2rad(lambda1)
        az = deg2rad(az1)
        rng = deg2rad(rng1)
-       if (phi0 >= pi/2-epsilone) az = pi   ! starting at north pole
-       if (phi0 <= epsilone-pi/2) az = 0    ! starting at south pole
-       ! Calculate coordinates of great circle end point using spherical trig.
-       phi = asin(sin(phi0)*cos(rng) + cos(phi0)*sin(rng)*cos(az))
-       lambda = lambda0 + atan2( sin(rng)*sin(az),            &
-                cos(phi0)*cos(rng) - sin(phi0)*sin(rng)*cos(az) )
+
+       associate(pi => MAPL_PI_R8)
+          if (phi0 >= pi/2-epsilone) az = pi   ! starting at north pole
+          if (phi0 <= epsilone-pi/2) az = 0    ! starting at south pole
+          ! Calculate coordinates of great circle end point using spherical trig.
+          phi = asin(sin(phi0)*cos(rng) + cos(phi0)*sin(rng)*cos(az))
+          lambda = lambda0 + atan2( sin(rng)*sin(az),            &
+                   cos(phi0)*cos(rng) - sin(phi0)*sin(rng)*cos(az) )
 
 
-       if (wrapon) then 
-           if ( lambda>-epsilone .AND. lambda < epsilone) then
-               saz = 0
-           else
-               saz = lambda/abs(lambda)
-           end if
-           lambda = pi*((abs(lambda)/pi) - 2*ceiling(((abs(lambda)/pi)-1)/2)) * saz
-       end if
+          if (wrapon) then 
+              if ( lambda>-epsilone .AND. lambda < epsilone) then
+                  saz = 0
+              else
+                  saz = lambda/abs(lambda)
+              end if
+              lambda = pi*((abs(lambda)/pi) - 2*ceiling(((abs(lambda)/pi)-1)/2)) * saz
+          end if
+       end associate
 
        lambda = rad2deg(lambda)
        phi    = rad2deg(phi)
@@ -1060,7 +1049,7 @@ SUBROUTINE find_LTGE(distlon, lat_vec_centers, vec_lat, long_limits)
           do k=1,mys
              if ( (lat_vec_centers(k).LT.vec_lat(i)).AND.  & 
                   (lat_vec_centers(k).GE.vec_lat(i+1)) ) then
-                long_limitstemp(i) = cdeg2km * distlon(k)
+                long_limitstemp(i) = MAPL_DEG_PER_KM * distlon(k)
                 exit
              end if 
          end do 
@@ -1204,7 +1193,7 @@ REAL(dp) FUNCTION find_delta_t(iSat, kk, long_limits, longind,t1,time_day)
           END DO
          long_wayptemp = (long_wayptemp-180)
          flag_add = 0
-         dista = cdeg2km * get_distance( lat_wayptemp(1,1),long_wayptemp(1,1), &
+         dista = MAPL_DEG_PER_KM * get_distance( lat_wayptemp(1,1),long_wayptemp(1,1), &
          lat_wayptemp(2,1),long_wayptemp(2,1))
          if  (dista.GT.long_limits) then
              flag_add = 1

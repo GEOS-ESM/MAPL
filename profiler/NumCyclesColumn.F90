@@ -1,3 +1,5 @@
+#include "unused_dummy.H"
+
 module MAPL_NumCyclesColumn
    use MAPL_AbstractColumn
    use MAPL_SimpleColumn
@@ -25,12 +27,13 @@ contains
       class (AbstractMeterNode), target, intent(in) :: node
       class (AbstractMeter), pointer :: tmr
 
+      _UNUSED_DUMMY(this)
+
       tmr => node%get_meter()
 
       select type (tmr)
       class is (AdvancedMeter)
          allocate(row, source=tmr%get_num_cycles())
-!!$         row = num_cycles
       class default
          print*,'error handling here'
       end select

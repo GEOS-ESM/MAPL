@@ -1,0 +1,86 @@
+module Test_CompositeComponent
+   use mapl_AbstractComponent
+   use mapl_AbstractFrameworkComponent
+   use mapl_CompositeComponent
+   use mapl_KeywordEnforcerMod
+   use funit, only: assert_that
+   use esmf
+   implicit none
+
+   type, extends(CompositeComponent) :: CompleteComponent
+   contains
+      procedure :: initialize
+      procedure :: run
+      procedure :: finalize
+      procedure :: set_component
+      procedure :: get_component
+      procedure :: get_internal_state
+      procedure :: add_child_component
+      procedure :: run_child
+   end type CompleteComponent
+
+contains
+
+   @test
+   subroutine test_get_num_children()
+   end subroutine test_get_num_children
+
+
+   subroutine initialize(this, clock, phase, unusable, rc)
+      class(CompleteComponent), intent(inout) :: this
+      type(ESMF_Clock), intent(inout) :: clock
+      character(*), intent(in) :: phase
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+   end subroutine initialize
+
+   subroutine run(this, clock, phase, unusable, rc)
+      class(CompleteComponent), intent(inout) :: this
+      type(ESMF_Clock), intent(inout) :: clock
+      character(*), intent(in) :: phase
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+   end subroutine run
+
+   subroutine finalize(this, clock, phase, unusable, rc)
+      class(CompleteComponent), intent(inout) :: this
+      type(ESMF_Clock), intent(inout) :: clock
+      character(*), intent(in) :: phase
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+   end subroutine finalize
+
+   subroutine set_component(this, component)
+      class(CompleteComponent), target, intent(inout) :: this
+      class(AbstractComponent), intent(in) :: component
+   end subroutine set_component
+
+   function get_component(this) result(component)
+      class(AbstractComponent), pointer :: component
+      class(CompleteComponent), target, intent(in) :: this
+   end function get_component
+
+   function get_internal_state(this) result(state)
+      type(ESMF_State), pointer :: state
+      class(CompleteComponent), target, intent(in) :: this
+   end function get_internal_state
+
+   subroutine run_child(this, name, clock, phase, unusable, rc)
+      class(CompleteComponent), intent(inout) :: this
+      character(*), intent(in) :: name
+      type(ESMF_Clock), intent(inout) :: clock
+      character(*), intent(in) :: phase
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+   end subroutine run_child
+
+   function add_child_component(this, name, user_component) result(child)
+      class(AbstractFrameworkComponent), pointer :: child
+      class(CompleteComponent), target, intent(inout) :: this
+      character(*), intent(in) :: name
+      class(AbstractComponent), intent(in) :: user_component
+   end function add_child_component
+
+   
+
+end module Test_CompositeComponent

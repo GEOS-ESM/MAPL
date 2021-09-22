@@ -4,6 +4,7 @@
 module pFIO_NetCDF4_FileFormatterMod
    use, intrinsic :: iso_fortran_env, only: INT32, INT64
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+   use, intrinsic :: iso_fortran_env, only: error_unit
    use MAPL_ExceptionHandling
    use pFIO_ConstantsMod
    use pFIO_UnlimitedEntityMod
@@ -11,7 +12,7 @@ module pFIO_NetCDF4_FileFormatterMod
    use pFIO_VariableMod
    use pFIO_CoordinateVariableMod
    use pFIO_FileMetadataMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use gFTL_StringVector
    use gFTL_StringIntegerMap
    use pFIO_StringVariableMapMod
@@ -139,16 +140,23 @@ module pFIO_NetCDF4_FileFormatterMod
 
 contains
 
-   subroutine create(this, file, unusable, rc)
+   subroutine create(this, file, unusable, mode, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
       character(len=*), intent(in) :: file
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: mode
       integer, optional, intent(out) :: rc
 
       integer :: status
+      integer :: mode_
 
+      if (present(mode)) then
+         mode_=mode
+      else
+         mode_=NF90_CLOBBER
+      end if
       !$omp critical
-      status = nf90_create(file, IOR(NF90_NOCLOBBER, NF90_NETCDF4), this%ncid)
+      status = nf90_create(file, IOR(mode_, NF90_NETCDF4), this%ncid)
       !$omp end critical
       _VERIFY(status)
 
@@ -157,10 +165,11 @@ contains
    end subroutine create
 
 
-   subroutine create_par(this, file, unusable, comm, info, rc)
+   subroutine create_par(this, file, unusable, mode, comm, info, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
       character(len=*), intent(in) :: file
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: mode
       integer, optional, intent(in) :: comm
       integer, optional, intent(in) :: info
       integer, optional, intent(out) :: rc
@@ -168,7 +177,13 @@ contains
       integer :: comm_
       integer :: info_
       integer :: status
-      integer :: mode
+      integer :: mode_
+
+      if (present(mode)) then
+         mode_=mode
+      else
+         mode_=NF90_CLOBBER
+      end if
 
       if (present(comm)) then
          comm_ = comm
@@ -186,13 +201,12 @@ contains
       this%comm = comm_
       this%info = info_
 
-      mode = NF90_NOCLOBBER
-      mode = IOR(mode, NF90_NETCDF4)
-      mode = IOR(mode, NF90_SHARE)
-      mode = IOR(mode, NF90_MPIIO)
+      mode_ = IOR(mode_, NF90_NETCDF4)
+      mode_ = IOR(mode_, NF90_SHARE)
+      mode_ = IOR(mode_, NF90_MPIIO)
 
       !$omp critical
-      status = nf90_create(file, mode, comm=comm_, info=info_, ncid=this%ncid)
+      status = nf90_create(file, mode_, comm=comm_, info=info_, ncid=this%ncid)
       !$omp end critical
       _VERIFY(status)
 
@@ -233,17 +247,18 @@ contains
          this%info = MPI_INFO_NULL
       end if
 
+      !$omp critical
       if (this%parallel) then
-         !$omp critical
          status = nf90_open(file, IOR(omode, NF90_MPIIO), comm=this%comm, info=this%info, ncid=this%ncid)
-         !$omp end critical
-         _VERIFY(status)
       else
-         !$omp critical
          status = nf90_open(file, IOR(omode, NF90_SHARE), this%ncid)
-         !$omp end critical
-         _VERIFY(status)
       end if
+      if (status /= nf90_noerr) then
+         write(error_unit, fmt='("nf90_open: returned error code (", I0,") opening ", A, " [", A,"]")') &
+               status,trim(file),trim(nf90_strerror(status))
+      end if
+      !$omp end critical
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -1011,6 +1026,8 @@ contains
 
       integer :: len
       integer :: dimid
+      integer :: iotype
+      type(Variable) :: v
 
 
       !$omp critical
@@ -1081,10 +1098,10 @@ contains
                _RETURN(_FAILURE)
             end select
 
-            allocate(var, source= &
-                 & CoordinateVariable(Variable(type = get_fio_type(xtype,rc=status), dimensions=dim_string), &
-                 & coordinate_data))
+            iotype = get_fio_type(xtype,rc=status)
             _VERIFY(status)
+            v = Variable(type=iotype , dimensions=dim_string)
+            allocate(var, source=CoordinateVariable(v, coordinate_data))
             deallocate(coordinate_data)
          else
             allocate(var, source=Variable(type= get_fio_type(xtype,rc=status), dimensions=dim_string))

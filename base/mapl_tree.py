@@ -51,7 +51,7 @@ class MAPL_Tree():
         # header for mindmap output
         # -------------------------
         if self.out_format=='mindmap':
-            print '<map version="0.9.0">'
+            print('<map version="0.9.0">')
 
         # the dictionary
         # --------------
@@ -109,7 +109,7 @@ class MAPL_Tree():
         """
 
         if self.out_format=='mindmap':
-            print '</map>'
+            print('</map>')
 
 
 
@@ -122,7 +122,7 @@ class MAPL_Tree():
         """
 
         comp = comp.lower()
-        if comp in self.gc_dir.keys():
+        if comp in list(self.gc_dir.keys()):
             return self.gc_dir[comp]
         else:
             return None
@@ -181,10 +181,10 @@ class MAPL_Tree():
                 txt2prnt += ' LINK="' + MYLINK + '"'
             if MYCOLOR:
                 txt2prnt += ' COLOR="' + MYCOLOR + '"'
-            print txt2prnt +'>'
+            print(txt2prnt +'>')
             
         elif self.out_format=='ascii':
-            print level*('|'+self.space) + compname
+            print(level*('|'+self.space) + compname)
         else:
             raise Exception('output format [%s] not recognized' % self.out_format)
             
@@ -198,7 +198,7 @@ class MAPL_Tree():
         """
 
         if self.out_format=='mindmap':
-            print level*self.space + '</node>'
+            print(level*self.space + '</node>')
 
 
 

@@ -7,7 +7,7 @@ module pFIO_MultiLayerServerMod
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use MAPL_ErrorHandlingMod
    use pFIO_ConstantsMod
    use pFIO_CollectiveStageDataMessageMod
@@ -17,7 +17,6 @@ module pFIO_MultiLayerServerMod
    use pFIO_ServerThreadVectorMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractSocketVectorMod
-   use pFIO_AbstractDataReferenceMod
    use pFIO_AbstractServerMod
    use gFTL_StringInteger64Map
    use pFIO_AbstractMessageMod
@@ -67,7 +66,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: ierror
  
-      call s%init(comm)
+      call s%init(comm, port_name)
 
       s%Inter_Comm = MPI_COMM_NULL
       s%nwriters = nwriters
@@ -141,7 +140,7 @@ contains
      integer, optional, intent(out) :: rc
 
      integer ::  n
-     type (ServerThread),pointer :: threadPtr
+     class (ServerThread),pointer :: threadPtr
      class (AbstractMessage),pointer :: msg
      type (MessageVectorIterator) :: iter
      type (StringInteger64MapIterator) :: request_iter

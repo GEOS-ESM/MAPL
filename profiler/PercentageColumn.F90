@@ -1,3 +1,5 @@
+#include "unused_dummy.H"
+
 module MAPL_PercentageColumn
    use, intrinsic :: iso_fortran_env, only: REAL64
    use MAPL_AbstractMeterNode
@@ -86,6 +88,10 @@ contains
       class(*), allocatable :: row
       class (PercentageColumn), intent(in) :: this
       class (AbstractMeterNode), target, intent(in) :: node
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(row)
+      allocate(row,source=0) ! to eliminate compiler warning.
 
    end function get_row
    

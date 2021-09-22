@@ -6,6 +6,7 @@ module MAPL_AbstractGridFactoryMod
    use pFIO
    use MAPL_ExceptionHandling
    use MAPL_BaseMod, only: MAPL_UNDEF
+   use MAPL_Constants
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use MAPL_KeywordEnforcerMod
    implicit none
@@ -78,6 +79,9 @@ module MAPL_AbstractGridFactoryMod
       procedure(generate_file_corner_bounds), deferred :: generate_file_corner_bounds
       procedure(generate_file_reference2D), deferred :: generate_file_reference2D
       procedure(generate_file_reference3D), deferred :: generate_file_reference3D
+      procedure(get_file_format_vars), deferred :: get_file_format_vars
+      procedure(decomps_are_equal), deferred :: decomps_are_equal
+      procedure(physical_params_are_equal), deferred :: physical_params_are_equal
    end type AbstractGridFactory
 
    abstract interface
@@ -87,6 +91,18 @@ module MAPL_AbstractGridFactoryMod
          class (AbstractGridFactory), intent(in) :: a
          class (AbstractGridFactory), intent(in) :: b
       end function equals
+
+      logical function decomps_are_equal(this,a)
+         import AbstractGridFactory
+         class (AbstractGridFactory), intent(in) :: this
+         class (AbstractGridFactory), intent(in) :: a
+      end function decomps_are_equal
+
+      logical function physical_params_are_equal(this,a)
+         import AbstractGridFactory
+         class (AbstractGridFactory), intent(in) :: this
+         class (AbstractGridFactory), intent(in) :: a
+      end function physical_params_are_equal
 
       function make_new_grid(this, unusable, rc) result(grid)
          use esmf
@@ -110,13 +126,14 @@ module MAPL_AbstractGridFactoryMod
       end subroutine initialize_from_config_with_prefix
 
 
-      subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
+      subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates,rc)
         use MAPL_KeywordEnforcerMod
         use pFIO
         import AbstractGridFactory
         class (AbstractGridFactory), intent(inout)  :: this
         type (FileMetadata), target, intent(in) :: file_metadata
         class (KeywordEnforcer), optional, intent(in) :: unusable
+        logical, optional, intent(in) :: force_file_coordinates
         integer, optional, intent(out) :: rc
       end subroutine initialize_from_file_metadata
 
@@ -165,6 +182,12 @@ module MAPL_AbstractGridFactoryMod
          character(len=:), allocatable :: vars
       end function get_grid_vars
 
+      function get_file_format_vars(this) result(vars)
+         import AbstractGridFactory
+         class (AbstractGridFactory), intent(inout) :: this
+         character(len=:), allocatable :: vars
+      end function get_file_format_vars
+
       subroutine append_variable_metadata(this,var)
          use pFIO
          import AbstractGridFactory
@@ -172,14 +195,16 @@ module MAPL_AbstractGridFactoryMod
          type(Variable), intent(inout) :: var
       end subroutine append_variable_metadata
 
-      subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,rc)
+      subroutine generate_file_bounds(this,grid,local_start,global_start,global_count,metadata,rc)
          use esmf
+         use pFIO
          import AbstractGridFactory
          class (AbstractGridFactory), intent(inout) :: this
          type(ESMF_Grid), intent(inout)      :: grid
          integer, allocatable, intent(out) :: local_start(:)
          integer, allocatable, intent(out) :: global_start(:)
          integer, allocatable, intent(out) :: global_count(:)
+         type(FileMetadata), intent(in), optional :: metaData
          integer, optional, intent(out) :: rc
          
       end subroutine generate_file_bounds
@@ -204,12 +229,13 @@ module MAPL_AbstractGridFactoryMod
          real, pointer, intent(in) :: fpointer(:,:)
       end function generate_file_reference2D
 
-      function generate_file_reference3D(this,fpointer) result(ref)
+      function generate_file_reference3D(this,fpointer,metadata) result(ref)
          use pFIO
          import AbstractGridFactory
          type(ArrayReference) :: ref
          class (AbstractGridFactory), intent(inout) :: this
          real, pointer, intent(in) :: fpointer(:,:,:)
+         type(FileMetadata), intent(in), optional :: metaData
       end function generate_file_reference3D
 
    end interface
@@ -743,7 +769,7 @@ contains
    function get_basis(this,basis,unusable,rc) result(basis_vectors)
       use esmf
       use MAPL_KeywordEnforcerMod
-      use MAPL_ConstantsMod, only : PI => MAPL_PI_R8
+      use MAPL_Constants, only : PI => MAPL_PI_R8
       real(REAL64), pointer :: basis_vectors(:,:,:,:)
       character(len=*), intent(in) :: basis
       class (AbstractGridFactory), target, intent(inout) :: this
@@ -940,7 +966,7 @@ contains
    end function
 
    function xyz2latlon(xyz_coord) result(sph_coord)
-      use MAPL_ConstantsMod, only: PI => MAPL_PI_R8
+      use MAPL_Constants, only: PI => MAPL_PI_R8
       real(REAL64), intent(inout):: xyz_coord(3)
       real(REAL64) :: sph_coord(2)
       real(REAL64), parameter:: esl=1.e-10
@@ -1005,6 +1031,5 @@ contains
       end if
 
    end function get_grid
-
       
 end module MAPL_AbstractGridFactoryMod
