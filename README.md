@@ -1,5 +1,10 @@
 # MAPL Repository
 
+[![Scc Count Badge](https://sloc.xyz/github/GEOS-ESM/MAPL/?category=code)](https://github.com/GEOS-ESM/MAPL/)
+[![Scc Count Badge](https://sloc.xyz/github/GEOS-ESM/MAPL/?category=comments)](https://github.com/GEOS-ESM/MAPL/)
+[![Scc Count Badge](https://sloc.xyz/github/GEOS-ESM/MAPL/?category=blanks)](https://github.com/GEOS-ESM/MAPL/)
+[![Scc Count Badge](https://sloc.xyz/github/GEOS-ESM/MAPL/?category=lines)](https://github.com/GEOS-ESM/MAPL/)
+
 [![GEOS-ESM](https://circleci.com/gh/GEOS-ESM/MAPL.svg?style=svg)](https://app.circleci.com/pipelines/github/GEOS-ESM/MAPL)
 
 MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF).   MAPL fills in missing capabilities of ESMF, provides higher-level interfaces for common boiler-plate logic, and enforces various componentization conventions across ESMF gridded components within GEOS.
