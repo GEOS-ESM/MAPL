@@ -1,6 +1,9 @@
 # MAPL Repository
 
-[![Scc Count Badge](https://sloc.xyz/github/GEOS-ESM/MAPL/)](https://github.com/GEOS-ESM/MAPL/)
+[![Scc Count Badge](https://sloc.xyz/github/GEOS-ESM/MAPL/?category=code)](https://github.com/GEOS-ESM/MAPL/)
+[![Scc Count Badge](https://sloc.xyz/github/GEOS-ESM/MAPL/?category=blanks)](https://github.com/GEOS-ESM/MAPL/)
+[![Scc Count Badge](https://sloc.xyz/github/GEOS-ESM/MAPL/?category=lines)](https://github.com/GEOS-ESM/MAPL/)
+[![Scc Count Badge](https://sloc.xyz/github/GEOS-ESM/MAPL/?category=comments)](https://github.com/GEOS-ESM/MAPL/)
 
 [![GEOS-ESM](https://circleci.com/gh/GEOS-ESM/MAPL.svg?style=svg)](https://app.circleci.com/pipelines/github/GEOS-ESM/MAPL)
 
