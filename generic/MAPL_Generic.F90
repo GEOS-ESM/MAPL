@@ -5403,7 +5403,7 @@ end function MAPL_AddChildFromDSO
        _VERIFY(STATUS)
        ! loop over entries in RBUNDLE
        DO K = 1, NF
-          call MAPL_FieldBundleGet(RBUNDLE, K, FIELD, RC=STATUS)
+          call ESMF_FieldBundleGet(RBUNDLE, K, FIELD, RC=STATUS)
           _VERIFY(STATUS)
           ! add each of the fields to PBUNDLE, duplicates are allowed
           call MAPL_FieldBundleAdd(PBUNDLE, FIELD, multiflag=.true., RC=STATUS)
@@ -5439,7 +5439,7 @@ end function MAPL_AddChildFromDSO
        do_requester = .true.
        cname = requester
     end if
-    _ASSERT(do_provider .neqv. do_requester, 'Only one of the arguments PROVIDER or REQUEST must be provided')
+    _ASSERT(do_provider .neqv. do_requester, 'Only one of the arguments PROVIDER or REQUESTER must be provided')
     call MAPL_FindChild(META, name=cname, result=cmeta, rc=status)
     _VERIFY(STATUS)
     _ASSERT(associated(cmeta), 'No child found')
@@ -5473,8 +5473,6 @@ end function MAPL_AddChildFromDSO
        do I=1, nc
           call MAPL_InternalStateRetrieve(meta%get_child_gridcomp(i), cmeta, RC=STATUS)
           _VERIFY(STATUS)
-!          call ESMF_GridCompGet(meta%gcs(i), name=cname, RC=STATUS)
-!          _VERIFY(STATUS)
           if (cmeta%compname == name) then ! found it!!!
              result => cmeta
              _RETURN(ESMF_SUCCESS)
@@ -5488,7 +5486,7 @@ end function MAPL_AddChildFromDSO
        result => null()
        _RETURN(ESMF_SUCCESS)
     end if
-    _RETURN(ESMF_FAILURE)
+    _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FindChild
   
   !BOPI

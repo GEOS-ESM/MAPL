@@ -2360,13 +2360,13 @@ contains
 
   end subroutine MAPL_VarRequestedServiceListAppend
 
-  subroutine MAPL_VarServiceConnectionCreate(CLIST, SERVICE, &
-       PROVIDER, REQUESTER, RC)
+  subroutine MAPL_VarServiceConnectionCreate(CLIST, &
+       PROVIDER, REQUESTER, SERVICE, RC)
 
     type (MAPL_VarServiceConnectionPtr), pointer  :: CLIST(:)
-    character (len=*)             , intent(IN   ) :: SERVICE
     character (len=*)             , intent(IN   ) :: PROVIDER
     character (len=*)             , intent(IN   ) :: REQUESTER
+    character (len=*)             , intent(IN   ) :: SERVICE
     integer,              optional, intent(  OUT) :: RC     ! Error code:
     
     integer                                :: STATUS
@@ -2500,20 +2500,24 @@ contains
     integer, optional, intent(out) :: rc
     
     integer :: status
-    integer :: n, i
-    type(ESMF_Field) :: fields(1)
+    integer :: n, i, nl
+    type(ESMF_Field), allocatable :: fields(:)
     
     _ASSERT(associated(request_list),'request_list should not be empty')
     
     DO N=1,size(request_list)
        if (allocated(request_list(n)%ptr%var_list)) then
-          do I=1, size(request_list(n)%ptr%var_list)
+          nl = size(request_list(n)%ptr%var_list)
+          allocate(fields(nl), stat=status)
+          _VERIFY(status)
+          do I=1, nl
              call ESMF_StateGet(state, request_list(n)%ptr%var_list(i), &
-                  fields(1), rc=status)
-             _VERIFY(status)
-             call ESMF_FieldBundleAdd(request_list(n)%ptr%bundle, fields, rc=status)
+                  fields(i), rc=status)
              _VERIFY(status)
           end do
+          call ESMF_FieldBundleAdd(request_list(n)%ptr%bundle, fields, rc=status)
+          _VERIFY(status)
+          deallocate(fields)
        end if
 
     END DO
