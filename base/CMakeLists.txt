@@ -88,7 +88,7 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PUBLIC "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
 
-ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90 DEPENDS esmf MAPL.shared)
+ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90 DEPENDS esmf)
 target_link_libraries (cub2latlon.x PRIVATE ${this} MAPL.pfio ${MPI_Fortran_LIBRARIES})
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")

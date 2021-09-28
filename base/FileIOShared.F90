@@ -1,7 +1,3 @@
-!This file should include contents of FileIOShared and be renamed to
-!FileIOShared. Current FileIOShared will disappear.
-!NCIO and BinIO would then use this FileIOShared
-!A new MAPL_IO.F90 would then only contain use NCIO and BinIO.
 
 #include "MAPL_ErrLog.h"
 
