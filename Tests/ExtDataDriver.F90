@@ -25,6 +25,4 @@ program ExtData_Driver
   driver = ExtDataDriver('ExtDataApp',Root_SetServices,cap_options=cap_options,_RC)
   call driver%run(_RC)
 
-  call exit(0)
-
 end program ExtData_Driver

@@ -23,15 +23,34 @@ module AEIO_RHConnector
       procedure redist_store_ArrayBundles
       procedure redist_store_arrays
       procedure set_sender
+      procedure transfer_rh
       procedure regrid_FieldBundles
       procedure regrid_fields
       procedure redist_FieldBundles
       procedure redist_fields
       procedure redist_ArrayBundles
       procedure redist_Arrays
+      procedure destroy
    end type
 
 contains
+
+   function transfer_rh(this,originPetList,targetPetList,rc) result(new_rh)
+      class(RHConnector), intent(in) :: this
+      integer, intent(in) :: originPetList(:)
+      integer, intent(in) :: targetPetList(:)
+      integer, intent(out), optional :: rc
+
+      type(RHConnector) :: new_rh
+      integer :: status
+
+      new_rh%sender = this%sender
+      new_rh%rh_container_type = this%rh_container_type
+      new_rh%regrid=this%regrid
+      new_rh%rh = ESMF_RouteHandleCreate(this%rh,originPetList=originPetList, &
+                  targetPetList=targetPetList,_RC)
+      _RETURN(_SUCCESS)
+   end function transfer_rh
 
    subroutine set_sender(this,sender)
       class(RHConnector), intent(inout) :: this
@@ -76,7 +95,6 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       call ESMF_FieldBundleRedistStore(FieldBundle_in,FieldBundle_out,routeHandle=this%rh,_RC)
-      call ESMF_FieldBundleRedist(fieldbundle_in,fieldbundle_out,this%rh,_RC) !bmaa
       this%rh_container_type=ESMF_STATEITEM_FIELDBUNDLE
       this%regrid=.false.
       _RETURN(_SUCCESS)
@@ -213,5 +231,14 @@ contains
       _RETURN(_SUCCESS)
      
    end subroutine redist_Arrays
+
+   subroutine destroy(this,rc)
+      class(RHConnector), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call ESMF_RouteHandleDestroy(this%rh,noGarbage=.true.,_RC)
+      _RETURN(_SUCCESS)
+   end subroutine destroy
     
 end module AEIO_RHConnector

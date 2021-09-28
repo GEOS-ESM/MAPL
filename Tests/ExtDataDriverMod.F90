@@ -20,14 +20,8 @@ module ExtDataDriverMod
       integer :: rank
       integer :: comm_world
       character(:), allocatable :: name
-      type(ServerManager) :: cap_server
       type (ESMF_LogKind_Flag) :: esmf_logging_mode = ESMF_LOGKIND_NONE
-      type(MpiServer), pointer :: i_server=>null()
-      type(MpiServer), pointer :: o_server=>null()
-      type(DirectoryService) :: directory_service
       class (MAPL_CapOptions), allocatable :: cap_options
-      type(SplitCommunicator) :: split_comm
-
    contains
       procedure :: run
       procedure :: initialize_mpi
@@ -101,13 +95,12 @@ contains
          model_pets(i) = i-1
       enddo
 
-      if (this%cap_options%npes_input_server(1) > 0 .and. this%cap_options%npes_output_server(1) > 0) then
+      !if (this%cap_options%npes_input_server(1) > 0 .and. this%cap_options%npes_output_server(1) > 0) then
          front = mypet >= pet_list(2,1) .and. mypet <= pet_list(2,2)
          back = mypet >= pet_list(3,1) .and. mypet <= pet_list(3,2)
-      end if
+      !end if
 
       export = ESMF_StateCreate()
-      write(*,*)"bmaa model pets ",model_pets
       cap = new_ExtData_DriverGridComp(root_setservices, name=this%name, configFileName="CAP.rc",pet_list=model_pets)
       call cap%set_services(rc = status)
       _VERIFY(status)
@@ -121,14 +114,21 @@ contains
       call io_controller%initialize(export,hist_config,clock,pet_list,rc=status)
       _VERIFY(status)
 
-      do i=1,10
-         if (model) then
-            call cap%run(export,clock, rc=status)
-            _VERIFY(status)
-         end if
-         
-      enddo 
-
+      if (back) then
+         call io_controller%start_writer(_RC)
+      else if (model .or. front) then
+         do i=1,1
+            if (model) then
+               call cap%run(export,clock, rc=status)
+               _VERIFY(status)
+            end if
+            if (model .or. front) then
+               call io_controller%run(clock,_RC)
+            end if
+         enddo 
+         call io_controller%stop_writer(_RC)
+      end if
+      call MPI_Barrier(MPI_COMM_WORLD,status)
       call cap%finalize(rc = status)
       _VERIFY(status)
 

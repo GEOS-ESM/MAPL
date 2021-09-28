@@ -6,6 +6,7 @@ set (srcs
     RHConnectorMap.F90
     CollectionDescriptor.F90
     CollectionDescriptorMap.F90
+    CollectionDescriptorVector.F90
     IOController.F90
     Client.F90
     ClientMap.F90
@@ -32,7 +33,7 @@ set (srcs
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler TYPE SHARED)
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared ${ESMF_LIBRARIES}
-                               PRIVATE OpenMP::OpenMP_Fortran MPI::MPI_Fortran)
+                               PRIVATE MPI::MPI_Fortran)
 target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF}
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 

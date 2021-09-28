@@ -2,7 +2,6 @@
 #include "NUOPC_ErrLog.h"
 
 module FrequencyMod
-   use, intrinsic :: iso_fortran_env, only: INT64
    use ESMF
    use NUOPC
    use MAPL_ExceptionHandling

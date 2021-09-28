@@ -23,7 +23,6 @@ module AEIO_IOController
 
    public IOController
 
-   type(RHConnector) :: justin
    type IOController
       private
       type(ClientMap) :: clients
@@ -66,6 +65,7 @@ contains
 
 
       type(HistoryConfig) :: hist_config
+      integer :: collection_id
       type(CollectionRegistry) :: coll_registry
       type(StringVectorIterator) :: enabled_iter
       type(Collection) :: hist_coll
@@ -76,8 +76,10 @@ contains
       type(Server), pointer :: server_ptr
 
       integer :: status
+      character(len=200) :: error_message
 
-      allocate(this%pet_list,source=pet_list)
+      allocate(this%pet_list,source=pet_list,stat=status,errmsg=error_message)
+      _VERIFY(status)
       call this%create_comms()
 
       call hist_config%import_yaml_file(configuration_file,_RC)
@@ -86,10 +88,12 @@ contains
       this%enabled = hist_config%get_enabled()
       coll_registry=hist_config%get_collections()
       enabled_iter = this%enabled%begin()
+      collection_id = 0
       do while(enabled_iter /= this%enabled%end())
          key=enabled_iter%get()
          hist_coll=coll_registry%at(key)
-         output_server=Server(hist_coll,this%server_ranks,this%writer_ranks,_RC)
+         collection_id=collection_id+1
+         output_server=Server(hist_coll,collection_id,pet_list,this%server_comm,this%front_comm,this%server_ranks,this%writer_ranks,_RC)
          call this%servers%insert(key,output_server)
          output_client=Client(hist_coll,pet_list,_RC)
          call this%clients%insert(key,output_client)
@@ -128,7 +132,7 @@ contains
       enddo
 
       ! create writer
-      this%writer_comp = writer(this%server_ranks,this%writer_ranks,this%server_comm,this%back_comm,_RC)
+      this%writer_comp = writer(this%pet_list,this%server_ranks,this%writer_ranks,this%server_comm,this%back_comm,_RC)
       enabled_iter = this%enabled%begin()
       do while(enabled_iter /= this%enabled%end())
          key=enabled_iter%get()
@@ -192,6 +196,7 @@ contains
       type(Server), pointer :: server_ptr
       type(ESMF_FieldBundle) :: bundle
       type(RHConnector) :: rh
+      integer :: collection_id
       integer :: status
 
       server_ptr => this%servers%at(collection_name)
@@ -230,7 +235,6 @@ contains
       !call connector%redist_store_fieldBundles(client_bundle,server_bundle,_RC)
       call client_ptr%set_client_server_connector(connector)
       call server_ptr%set_client_server_connector(connector)
-      justin=connector
 
    end subroutine connect_client_server
 
@@ -254,7 +258,7 @@ contains
       call ESMF_FieldBundleGet(server_bundle,grid=grid,_RC)
       call ESMF_GridGet(grid,distGrid=dist_grid_in,_RC)
       call MAPL_GridGet(grid,globalCellCountPerDim=grid_size,_RC)
-      de_layout=ESMF_DELayoutCreate(deCount=1,petList=[this%pet_list(2,1)],_RC)
+      de_layout=ESMF_DELayoutCreate(deCount=1,petList=[this%pet_list(3,1)],_RC)
       dist_grid_out=ESMF_DistGridCreate([1,1],[grid_size(1),grid_size(2)],regDecomp=[1,1],delayout=de_layout,_RC)
       array_in = ESMF_ArrayCreate(dist_grid_in,ESMF_TYPEKIND_R4,_RC)
       array_out = ESMF_ArrayCreate(dist_grid_out,ESMF_TYPEKIND_R4,_RC)
@@ -555,11 +559,19 @@ contains
          do while(enabled_iter /= this%enabled%end())
             coll_name=enabled_iter%get()
             server_ptr => this%servers%at(coll_name)
-            call server_ptr%offload_data(_RC)
+            call server_ptr%get_writer(_RC)
             call enabled_iter%next()
          enddo
          ! second round enter epoch
-
+         !call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
+         enabled_iter = this%enabled%begin()
+         do while(enabled_iter /= this%enabled%end())
+            coll_name=enabled_iter%get()
+            server_ptr => this%servers%at(coll_name)
+            call server_ptr%offload_data(_RC)
+            call enabled_iter%next()
+         enddo
+         !call ESMF_VMEpochExit()
       end if
 
       _RETURN(_SUCCESS)
