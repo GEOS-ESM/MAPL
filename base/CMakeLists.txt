@@ -27,7 +27,9 @@ set (srcs
   MAPL_IdentityRegridder.F90            MAPL_stubs.F90
   MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
   MAPL_CapOptions.F90                   MAPL_TilingRegridder.F90
-  MAPL_CFIO.F90                         MAPL_IO.F90                         MAPL_TimeMethods.F90
+  MAPL_CFIO.F90                         MAPL_TimeMethods.F90
+  FileIOShared.F90                      BinIO.F90                           NCIO.F90
+  MAPL_IO.F90
   MAPL_LatLonGridFactory.F90          MAPL_TransposeRegridder.F90
   MAPL_Comms.F90                        MAPL_LatLonToLatLonRegridder.F90    MAPL_TripolarGridFactory.F90
   MAPL_LlcGridFactory.F90
@@ -86,7 +88,7 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PUBLIC "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
 
-ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90 DEPENDS esmf)
+ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90 DEPENDS esmf MAPL.shared)
 target_link_libraries (cub2latlon.x PRIVATE ${this} MAPL.pfio ${MPI_Fortran_LIBRARIES})
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
