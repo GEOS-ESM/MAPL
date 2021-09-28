@@ -9,7 +9,6 @@ module AEIO_Writer
    use MAPL_ExceptionHandling
    use gFTL_StringVector
    use AEIO_RHConnector
-   use AEIO_RHConnectorMap
    use AEIO_CollectionDescriptor
    use AEIO_CollectionDescriptorVector
    
@@ -25,12 +24,10 @@ module AEIO_Writer
       type(CollectionDescriptorVector) :: collection_descriptors
       integer :: connector_comm
       integer :: writer_comm
-      type(RHConnectorMap) :: connector_map
    contains
       procedure :: start_writer
       procedure :: i_am_back_root
       procedure :: add_collection
-      procedure :: add_transfer_prototype
       procedure :: create_server_writer_rh
       procedure :: write_collection
       procedure :: setup_transfer
@@ -84,16 +81,6 @@ contains
       call this%collection_descriptors%push_back(collection_descriptor)
       _RETURN(_SUCCESS)
    end subroutine add_collection
-
-   subroutine add_transfer_prototype(this,collection_name,connector,rc)
-      class(Writer), intent(inout) :: this
-      character(len=*),intent(in) :: collection_name
-      type(RHConnector), intent(in) :: connector
-      integer, optional, intent(out) :: rc
-
-      call this%connector_map%insert(trim(collection_name),connector)
-      _RETURN(_SUCCESS)
-   end subroutine add_transfer_prototype
 
    subroutine create_server_writer_rh(this,rc)
       class(Writer), intent(inout) :: this
