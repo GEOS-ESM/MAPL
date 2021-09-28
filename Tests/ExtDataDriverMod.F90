@@ -79,6 +79,7 @@ contains
       back=.false.
       allocate(pet_list(3,2))
 
+      write(*,*)"bmaa start "
       pet_list(1,1)=0
       pet_list(1,2)=this%cap_options%npes_model-1
       pet_list(2,1)=this%cap_options%npes_model
@@ -95,10 +96,8 @@ contains
          model_pets(i) = i-1
       enddo
 
-      !if (this%cap_options%npes_input_server(1) > 0 .and. this%cap_options%npes_output_server(1) > 0) then
-         front = mypet >= pet_list(2,1) .and. mypet <= pet_list(2,2)
-         back = mypet >= pet_list(3,1) .and. mypet <= pet_list(3,2)
-      !end if
+      front = mypet >= pet_list(2,1) .and. mypet <= pet_list(2,2)
+      back = mypet >= pet_list(3,1) .and. mypet <= pet_list(3,2)
 
       export = ESMF_StateCreate()
       cap = new_ExtData_DriverGridComp(root_setservices, name=this%name, configFileName="CAP.rc",pet_list=model_pets)
@@ -128,6 +127,8 @@ contains
          enddo 
          call io_controller%stop_writer(_RC)
       end if
+      call ESMF_VMBarrier(vm,_RC)
+      write(*,*)'bmaa all done'
       call MPI_Barrier(MPI_COMM_WORLD,status)
       call cap%finalize(rc = status)
       _VERIFY(status)
