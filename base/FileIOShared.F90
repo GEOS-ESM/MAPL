@@ -34,6 +34,8 @@ module FileIOSharedMod
   public MAPL_TileMaskGet
   public alloc_
   public dealloc_
+  public ArrDescrSet
+  public ArrDescrInit
 
   include "mpif.h"
 
@@ -416,5 +418,202 @@ module FileIOSharedMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_TileMaskGet
+
+      subroutine ArrDescrInit(ArrDes,comm,im_world,jm_world,lm_world,nx,ny,num_readers,num_writers,is,ie,js,je,rc)
+         type(ArrDescr), intent(INOUT) :: ArrDes
+         integer, intent(in) :: comm
+         integer, intent(in) :: IM_World
+         integer, intent(in) :: JM_World
+         integer, intent(in) :: lm_world
+         integer, intent(in) :: nx
+         integer, intent(in) :: ny
+         integer, intent(in) :: num_readers
+         integer, intent(in) :: num_writers
+         integer, intent(in) :: is
+         integer, intent(in) :: ie
+         integer, intent(in) :: js
+         integer, intent(in) :: je
+         integer, optional, intent(out) :: rc
+
+         integer :: color,myid,npes,NX0,NY0,ny_by_readers,ny_by_writers,j
+         integer :: readers_comm, writers_comm, ioscattercomm,iogathercomm, xcomm,ycomm
+         integer, allocatable :: i1(:),in(:),j1(:),jn(:)
+         integer, allocatable :: iminw(:),imaxw(:),jminw(:),jmaxw(:)
+         integer :: imincnt,jmincnt,imaxcnt,jmaxcnt,i
+
+         integer :: status
+
+         call MPI_Comm_Rank(comm,myid,status)
+         _VERIFY(STATUS)
+         call MPI_COMM_Size(comm,npes,status)
+         _VERIFY(STATUS)
+
+         allocate(iminw(npes),imaxw(npes),jminw(npes),jmaxw(npes),stat=status)
+         iminw=-1
+         imaxw=-1
+         jminw=-1
+         jmaxw=-1
+         iminw(myid+1)=is
+         imaxw(myid+1)=ie
+         jminw(myid+1)=js
+         jmaxw(myid+1)=je
+         call MPI_AllReduce(MPI_IN_PLACE,iminw,npes,MPI_INTEGER,MPI_MAX,comm,status)
+         call MPI_AllReduce(MPI_IN_PLACE,imaxw,npes,MPI_INTEGER,MPI_MAX,comm,status)
+         call MPI_AllReduce(MPI_IN_PLACE,jminw,npes,MPI_INTEGER,MPI_MAX,comm,status)
+         call MPI_AllReduce(MPI_IN_PLACE,jmaxw,npes,MPI_INTEGER,MPI_MAX,comm,status)
+
+         call MAPL_Sort(iminw)
+         call MAPL_Sort(imaxw)
+         call MAPL_Sort(jminw)
+         call MAPL_Sort(jmaxw)
+
+         allocate(i1(nx),in(nx),j1(ny),jn(ny))
+         i1(1) = minval(iminw)
+         in(1) = minval(imaxw)
+         j1(1) = minval(jminw)
+         jn(1) = minval(jmaxw)
+         imincnt = 1
+         imaxcnt = 1
+         jmincnt = 1
+         jmaxcnt = 1
+         do i=1,npes
+            if (iminw(i) > i1(imincnt)) then
+               imincnt = imincnt + 1
+               i1(imincnt) = iminw(i)
+            end if
+            if (imaxw(i) > in(imaxcnt)) then
+               imaxcnt = imaxcnt + 1
+               in(imaxcnt) = imaxw(i)
+            end if
+            if (jminw(i) > j1(jmincnt)) then
+               jmincnt = jmincnt + 1
+               j1(jmincnt) = jminw(i)
+            end if
+            if (jmaxw(i) > jn(jmaxcnt)) then
+               jmaxcnt = jmaxcnt + 1
+               jn(jmincnt) = jmaxw(i)
+            end if
+         enddo
+         deallocate(iminw,imaxw,jminw,jmaxw)
+
+         NX0 = mod(myid,nx) + 1
+         NY0 = myid/nx + 1
+         color = nx0
+         call MPI_Comm_Split(comm,color,myid,ycomm,status)
+         _VERIFY(STATUS)
+         color = ny0
+         call MPI_Comm_Split(comm,color,myid,xcomm,status)
+         _VERIFY(STATUS)
+         ! reader communicators
+         if (num_readers > ny .or. mod(ny,num_readers) /= 0) then
+            _RETURN(ESMF_FAILURE)
+         end if
+         ny_by_readers = ny/num_readers
+         if (mod(myid,nx*ny/num_readers) ==0) then
+            color = 0
+         else
+            color = MPI_UNDEFINED
+         end if
+         call MPI_COMM_SPLIT(comm,color,myid,readers_comm,status)
+         _VERIFY(STATUS)
+         if (num_readers==ny) then
+            IOscattercomm = xcomm
+         else
+            j = ny0 - mod(ny0-1,ny_by_readers)
+            call MPI_Comm_Split(comm,j,myid,IOScattercomm,status)
+            _VERIFY(STATUS)
+         endif
+         ! writer communicators
+         if (num_writers > ny .or. mod(ny,num_writers) /= 0) then
+            _RETURN(ESMF_FAILURE)
+         end if
+         ny_by_writers = ny/num_writers
+         if (mod(myid,nx*ny/num_writers) ==0) then
+            color = 0
+         else
+            color = MPI_UNDEFINED
+         end if
+         call MPI_COMM_SPLIT(comm,color,myid,writers_comm,status)
+         _VERIFY(STATUS)
+         if (num_writers==ny) then
+            IOgathercomm = xcomm
+         else
+            j = ny0 - mod(ny0-1,ny_by_writers)
+            call MPI_Comm_Split(comm,j,myid,IOgathercomm,status)
+            _VERIFY(STATUS)
+         endif
+
+         ArrDes%im_world=im_world
+         ArrDes%jm_world=jm_world
+         ArrDes%lm_world=lm_world
+
+         ArrDes%readers_comm  = readers_comm
+         ArrDes%ioscattercomm = ioscattercomm
+         ArrDes%writers_comm  = writers_comm
+         ArrDes%iogathercomm  = iogathercomm
+         ArrDes%xcomm = xcomm
+         ArrDes%ycomm = ycomm
+
+         allocate(arrdes%i1(size(i1)),stat=status)
+         _VERIFY(STATUS)
+         arrdes%i1=i1
+         allocate(arrdes%in(size(in)),stat=status)
+         _VERIFY(STATUS)
+         arrdes%in=in
+         allocate(arrdes%j1(size(j1)),stat=status)
+         _VERIFY(STATUS)
+         arrdes%j1=j1
+         allocate(arrdes%jn(size(jn)),stat=status)
+         _VERIFY(STATUS)
+         arrdes%jn=jn
+
+         ArrDes%NX0 = NY0
+         ArrDes%NY0 = NX0
+
+         ArrDes%offset = 0
+
+         ArrDes%romio_cb_read  = "automatic"
+         ArrDes%cb_buffer_size = "16777216"
+         ArrDes%romio_cb_write = "enable"
+
+         ArrDes%face_readers_comm = MPI_COMM_NULL
+         ArrDes%face_writers_comm = MPI_COMM_NULL
+         ArrDes%face_index        = 0
+
+         ArrDes%tile = .false.
+
+         ArrDes%filename = ''
+
+         _RETURN(ESMF_SUCCESS)
+
+      end subroutine ArrDescrInit
+
+    subroutine ArrDescrSet(ArrDes, offset, &
+         readers_comm, ioscattercomm, &
+         writers_comm, iogathercomm, &
+         i1, in, j1, jn, im_world, jm_world, lm_world)
+
+      type(ArrDescr),                 intent(INOUT) :: ArrDes
+      integer(kind=MPI_OFFSET_KIND), &
+                           optional,  intent(IN   ) :: offset
+      integer, optional,              intent(IN   ) :: readers_comm, ioscattercomm
+      integer, optional,              intent(IN   ) :: writers_comm, iogathercomm
+      integer, optional, target                    :: i1(:), in(:), j1(:), jn(:)
+      integer, optional,              intent(IN   ) :: im_world, jm_world, lm_world
+
+      if(present(offset  )) ArrDes%offset   = offset
+      if(present(readers_comm )) ArrDes%readers_comm  = readers_comm
+      if(present(ioscattercomm)) ArrDes%ioscattercomm = ioscattercomm
+      if(present(writers_comm )) ArrDes%writers_comm  = writers_comm
+      if(present(iogathercomm )) ArrDes%iogathercomm  = iogathercomm
+      if(present(i1      )) ArrDes%i1       => i1
+      if(present(in      )) ArrDes%in       => in
+      if(present(j1      )) ArrDes%j1       => j1
+      if(present(jn      )) ArrDes%jn       => jn
+      if(present(im_world)) ArrDes%im_world = im_world
+      if(present(jm_world)) ArrDes%jm_world = jm_world
+      if(present(lm_world)) ArrDes%lm_world = lm_world
+
+    end subroutine ArrDescrSet
 
 end module FileIOSharedMod
