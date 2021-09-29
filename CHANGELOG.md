@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `components.yaml`
     - ESMA_cmake v3.5.7 (Bug fix for NAG, support for mepo styles)
     - ESMA_env v3.3.1
+- Refactored MAPL_IO by separating it into a Binary (BinIO.F90) and NetCDF (NCIO.F90) modules. Shared subroutines and
+  types have been moved to FileIOShared.F90. MAPL_IO becomes a package module to hold these aforementioned three modules.
 
 ### Fixed
 
