@@ -95,18 +95,8 @@ contains
       integer, optional, intent(out) :: rc
      
       integer :: status
-      type(ESMF_Field) :: field !bmaa
-      integer :: field_count,i !bmaa
-      character(len=ESMF_MAXSTR), allocatable :: field_names(:) !bmaa
 
-      call ESMF_FieldBundleGet(this%bundle,fieldCount=field_count,_RC) !bmaa
-      allocate(field_names(field_count)) !bmaa
-      call ESMF_FieldBundleGet(this%bundle,fieldNameList=field_names,_RC) !bmaa
-      do i=1,field_count !bmaa
-         call ESMF_FieldBundleGet(this%bundle,trim(field_names(i)),field=field,_RC) !bmaa
-         call this%server_connection%redist_fields(srcField=field,_RC) !bmaa
-      enddo !bmaa
-      !call this%server_connection%redist_fieldBundles(srcFieldBundle=this%bundle,_RC)
+      call this%server_connection%redist_fieldBundles(srcFieldBundle=this%bundle,_RC)
       _RETURN(_SUCCESS)
 
    end subroutine transfer_data_to_server

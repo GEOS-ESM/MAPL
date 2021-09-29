@@ -198,11 +198,13 @@ contains
       type(ESMF_Array) :: array
       character(len=ESMF_MAXSTR), allocatable :: fieldNames(:)
       integer :: rank,lb(1),ub(1),gdims(3)
+      character(len=:), allocatable :: coll_name
 
       call MPI_COMM_RANK(this%writer_comm,local_rank,status)
       _VERIFY(status)
       collection_descriptor = this%collection_descriptors%at(collection_id)
       rh = collection_descriptor%get_rh()
+      coll_name = collection_descriptor%get_coll_name()
       rh_new = this%setup_transfer(rh,local_rank,_RC)
 
       bundle = collection_descriptor%get_bundle()
@@ -227,6 +229,16 @@ contains
          end if
          call ESMF_ArrayBundleAdd(output_bundle,[array],_RC)
          call rh_new%redist_arrays(dstArray=array,_RC)
+         block
+            real, pointer :: ptr2d(:,:),ptr3d(:,:,:)
+            if (rank==2) then
+               call ESMF_ArrayGet(array,farrayptr=ptr2d,_RC)
+               write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr2d),maxval(ptr2d)
+            else if (rank==3) then
+               call ESMF_ArrayGet(array,farrayptr=ptr3d,_RC)
+               write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr3d),maxval(ptr3d)
+            end if
+         end block
       enddo
       
       call ESMF_VMEpochExit()

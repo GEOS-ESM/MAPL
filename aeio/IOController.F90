@@ -28,8 +28,9 @@ module AEIO_IOController
       type(ClientMap) :: clients
       type(ServerMap) :: servers
       type(writer) :: writer_comp
-      integer, allocatable :: pet_list(:,:)
       type(StringVector) :: enabled
+      ! these are messy right now...
+      integer, allocatable :: pet_list(:,:)
       integer :: server_comm
       integer :: front_comm
       integer :: back_comm
@@ -216,23 +217,14 @@ contains
       type(Server), pointer :: server_ptr
       type(ESMF_FieldBundle) :: client_bundle, server_bundle
       type(RHConnector) :: connector
-      type(ESMF_Field) :: client_field,server_field !bmaa
-      integer :: field_count !bmaa
-      character(len=ESMF_MAXSTR), allocatable :: field_names(:) !bmaa
       integer :: status
       
       server_ptr => this%servers%at(collection_name)
       client_ptr => this%clients%at(collection_name)
       server_bundle = server_ptr%get_bundle()
       client_bundle = client_ptr%get_bundle()
-      call ESMF_FieldBundleGet(client_bundle,fieldCount=field_count,_RC) !bmaa
-      allocate(field_names(field_count))! bmaa
-      call ESMF_FieldBundleGet(client_bundle,fieldNameList=field_names,_RC) !bmaa
-      call ESMF_FieldBundleGet(client_bundle,trim(field_names(1)),field=client_field,_RC) !bmaa
-      call ESMF_FieldBundleGet(server_bundle,trim(field_names(1)),field=server_field,_RC) !bmaa
-      call connector%redist_store_fields(client_field,server_field,_RC) !bmaa
     
-      !call connector%redist_store_fieldBundles(client_bundle,server_bundle,_RC)
+      call connector%redist_store_fieldBundles(client_bundle,server_bundle,_RC)
       call client_ptr%set_client_server_connector(connector)
       call server_ptr%set_client_server_connector(connector)
 
@@ -264,6 +256,7 @@ contains
       array_out = ESMF_ArrayCreate(dist_grid_out,ESMF_TYPEKIND_R4,_RC)
 
       call connector%redist_store_arrays(array_in,array_out,_RC)
+      call connector%set_sender(.true.)
       call server_ptr%set_server_writer_prototype(connector)
       call ESMF_ArrayDestroy(array_in,nogarbage=.true.,_RC)
       call ESMF_ArrayDestroy(array_out,nogarbage=.true.,_RC)
@@ -563,7 +556,7 @@ contains
             call enabled_iter%next()
          enddo
          ! second round enter epoch
-         !call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
+         call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
          enabled_iter = this%enabled%begin()
          do while(enabled_iter /= this%enabled%end())
             coll_name=enabled_iter%get()
@@ -571,7 +564,7 @@ contains
             call server_ptr%offload_data(_RC)
             call enabled_iter%next()
          enddo
-         !call ESMF_VMEpochExit()
+         call ESMF_VMEpochExit()
       end if
 
       _RETURN(_SUCCESS)

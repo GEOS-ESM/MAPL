@@ -79,7 +79,6 @@ contains
       back=.false.
       allocate(pet_list(3,2))
 
-      write(*,*)"bmaa start "
       pet_list(1,1)=0
       pet_list(1,2)=this%cap_options%npes_model-1
       pet_list(2,1)=this%cap_options%npes_model
@@ -116,7 +115,7 @@ contains
       if (back) then
          call io_controller%start_writer(_RC)
       else if (model .or. front) then
-         do i=1,1
+         do i=1,10
             if (model) then
                call cap%run(export,clock, rc=status)
                _VERIFY(status)
@@ -128,7 +127,6 @@ contains
          call io_controller%stop_writer(_RC)
       end if
       call ESMF_VMBarrier(vm,_RC)
-      write(*,*)'bmaa all done'
       call MPI_Barrier(MPI_COMM_WORLD,status)
       call cap%finalize(rc = status)
       _VERIFY(status)

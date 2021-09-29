@@ -167,19 +167,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Field) :: field !bmaa
-      integer :: field_count,i !bmaa
-      character(len=ESMF_MAXSTR), allocatable :: field_names(:) !bmaa
 
-      call ESMF_FieldBundleGet(this%bundle,fieldCount=field_count,_RC) !bmaa
-      allocate(field_names(field_count)) !bmaa
-      call ESMF_FieldBundleGet(this%bundle,fieldNameList=field_names,_RC) !bmaa
-      do i=1,field_count !bmaa
-         call ESMF_FieldBundleGet(this%bundle,trim(field_names(i)),field=field,_RC) !bmaa
-         call this%client_connection%redist_fields(dstField=field,_RC) !bmaa
-      enddo !bmaa
-
-      !call this%client_connection%redist_fieldBundles(dstFieldBundle=this%bundle,_RC)
+      call this%client_connection%redist_fieldBundles(dstFieldBundle=this%bundle,_RC)
       _RETURN(_SUCCESS)
    end subroutine get_data_from_client
 
@@ -203,12 +192,9 @@ contains
          _VERIFY(status)
          call MPI_Recv(worker_rank,1,MPI_INTEGER,this%writer_ranks(1), &
               this%server_ranks(1),this%connector_comm,MPI_STAT,status)
-         write(*,*)"bmaa got worker rank back: ",worker_rank
          _VERIFY(status)
       end if
-      write(*,*)"bmaa start telling!"
       call MPI_Bcast(worker_rank,1,MPI_INTEGER,this%server_ranks(1),this%server_comm,status)
-      write(*,*)"bmaa end telling!"
       _VERIFY(status)
 
       ! transfer prototype

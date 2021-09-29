@@ -36,6 +36,7 @@ contains
       collection_descriptor%coll_name=collection_name
       collection_descriptor%bundle=bundle
       collection_descriptor%rh=rh
+      call collection_descriptor%rh%set_sender(.false.)
    end function new_CollectionDescriptor
  
    function get_rh(this) result(rh)
