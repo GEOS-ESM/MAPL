@@ -5,7 +5,6 @@ set (srcs
     RHConnector.F90
     RHConnectorMap.F90
     CollectionDescriptor.F90
-    #CollectionDescriptorMap.F90
     CollectionDescriptorVector.F90
     IOController.F90
     Client.F90
@@ -28,6 +27,7 @@ set (srcs
     HistoryConfig.F90
     Template.F90
     TransferGridComp.F90
+    MpiConnection.F90
     AEIO.F90
     )
 

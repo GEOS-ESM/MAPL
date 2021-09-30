@@ -17,6 +17,7 @@ module AEIO_IOController
    use AEIO_TransferGridComp
    use AEIO_RHConnector
    use AEIO_Writer
+   use AEIO_MpiConnection
    
    implicit none
    private
@@ -29,6 +30,7 @@ module AEIO_IOController
       type(ServerMap) :: servers
       type(writer) :: writer_comp
       type(StringVector) :: enabled
+      type(MpiConnection) :: mpi_connection
       ! these are messy right now...
       integer, allocatable :: pet_list(:,:)
       integer :: server_comm
@@ -96,7 +98,7 @@ contains
          collection_id=collection_id+1
          output_server=Server(hist_coll,collection_id,pet_list,this%server_comm,this%front_comm,this%server_ranks,this%writer_ranks,_RC)
          call this%servers%insert(key,output_server)
-         output_client=Client(hist_coll,pet_list,_RC)
+         output_client=Client(hist_coll,_RC)
          call this%clients%insert(key,output_client)
          call enabled_iter%next()
       enddo
@@ -492,8 +494,12 @@ contains
          allocate(this%server_ranks(0))
          allocate(this%writer_ranks(0))
       end if
-      _RETURN(_SUCCESS)
 
+      if (this%server_comm /= MPI_COMM_NULL) then
+         this%mpi_connection = MpiConnection(this%server_comm,3,vm,_RC)
+      end if 
+
+      _RETURN(_SUCCESS)
    end subroutine create_comms
 
    subroutine transfer_data_client_server(this,rc)

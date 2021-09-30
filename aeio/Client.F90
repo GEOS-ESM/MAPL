@@ -13,7 +13,6 @@ module AEIO_Client
    public :: Client
    type Client
       type(collection) :: hist_collection
-      integer, allocatable :: pet_list(:,:)
       type(ESMF_FieldBundle) :: bundle
       type(RHConnector) :: server_connection
    contains
@@ -46,16 +45,13 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize
 
-   function new_Client(hist_collection,pet_list,rc) result(c)
+   function new_Client(hist_collection,rc) result(c)
       type(Collection), intent(in) :: hist_collection 
-      integer, intent(in)          :: pet_list(:,:)
       integer, optional, intent(out) :: rc
       type(Client) :: c
       integer :: status
 
       c%hist_collection = hist_collection
-      allocate(c%pet_list,source=pet_list,stat=status)
-      _VERIFY(status)
       _RETURN(_SUCCESS)
 
    end function new_Client
