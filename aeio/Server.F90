@@ -8,6 +8,7 @@ module AEIO_Server
    use MAPL_ExceptionHandling
    use gFTL_StringVector
    use AEIO_RHConnector
+   use AEIO_MpiConnection
    
    implicit none
    private
@@ -17,11 +18,7 @@ module AEIO_Server
    type Server
       type(collection) :: hist_collection
       integer :: collection_id
-      integer :: connector_comm
-      integer :: server_comm
-      integer, allocatable :: pet_list(:,:)
-      integer, allocatable :: server_ranks(:)
-      integer, allocatable :: writer_ranks(:)
+      type(MpiConnection) :: front_back_connection
       type(ESMF_FieldBundle) :: bundle
       type(RHConnector) :: client_connection
       type(RHConnector) :: writer_prototype_conn
@@ -57,13 +54,8 @@ contains
       class(Server), intent(inout) :: this
       logical :: am_root
 
-      integer :: rank,status
-      call MPI_COMM_RANK(this%connector_comm,rank,status)
-      if (rank==0) then
-         am_root=.true.
-      else
-         am_root=.false.
-      end if
+      am_root = this%front_back_connection%am_i_front_root()
+
    end function i_am_server_root
 
    subroutine initialize(this,state,rc)
@@ -80,28 +72,17 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize
 
-   function new_Server(hist_collection,collection_id,pet_list,connector_comm,server_comm,server_ranks,writer_ranks,rc) result(c)
+   function new_Server(hist_collection,collection_id,mpi_connection,rc) result(c)
       type(Collection), intent(in) :: hist_collection
       integer, intent(in)          :: collection_id 
-      integer, intent(in)          :: pet_list(:,:)
-      integer, intent(in)          :: connector_comm
-      integer, intent(in)          :: server_comm
-      integer, intent(in)          :: server_ranks(:)
-      integer, intent(in)          :: writer_ranks(:)
+      type(MpiConnection), intent(in) :: mpi_connection
       integer, optional, intent(out) :: rc
       type(Server) :: c
       integer :: status
 
       c%hist_collection = hist_collection
       c%collection_id = collection_id
-      allocate(c%pet_list,source=pet_list,stat=status)
-      _VERIFY(status)
-      c%connector_comm = connector_comm
-      c%server_comm = server_comm
-      allocate(c%server_ranks,source=server_ranks,stat=status)
-      _VERIFY(status)
-      allocate(c%writer_ranks,source=writer_ranks,stat=status)
-      _VERIFY(status)
+      c%front_back_connection = mpi_connection
       c%bundle = ESMF_FieldBundleCreate(_RC)
       _RETURN(_SUCCESS)
 
@@ -183,30 +164,38 @@ contains
       ! send data
       ! how do we send the actual filename? what the heck the file should look like including time?
       integer, allocatable :: originPetList(:),targetPetList(:)
-      integer :: i,server_size,worker_rank
+      integer :: server_size,worker_rank
       integer :: MPI_STAT(MPI_STATUS_SIZE)
+      integer :: connector_comm,front_comm
+      integer, allocatable :: front_ranks(:),back_ranks(:),front_pets(:),back_pets(:)
 
-      if (this%i_am_server_root()) then
-         call MPI_Send(this%collection_id,1,MPI_INTEGER,this%writer_ranks(1), &
-             this%writer_ranks(1),this%connector_comm,status)
+      connector_comm = this%front_back_connection%get_connection_comm()
+      front_comm = this%front_back_connection%get_front_comm()
+      front_pets = this%front_back_connection%get_front_pets()
+      back_pets = this%front_back_connection%get_back_pets()
+      front_ranks = this%front_back_connection%get_front_mpi_ranks()
+      back_ranks = this%front_back_connection%get_back_mpi_ranks()
+
+      if (this%front_back_connection%am_i_front_root()) then
+         call MPI_Send(this%collection_id,1,MPI_INTEGER,back_ranks(1), &
+             back_ranks(1),connector_comm,status)
          _VERIFY(status)
-         call MPI_Recv(worker_rank,1,MPI_INTEGER,this%writer_ranks(1), &
-              this%server_ranks(1),this%connector_comm,MPI_STAT,status)
+         call MPI_Recv(worker_rank,1,MPI_INTEGER,back_ranks(1), &
+              front_ranks(1),connector_comm,MPI_STAT,status)
          _VERIFY(status)
       end if
-      call MPI_Bcast(worker_rank,1,MPI_INTEGER,this%server_ranks(1),this%server_comm,status)
+      call MPI_Bcast(worker_rank,1,MPI_INTEGER,front_ranks(1),front_comm,status)
       _VERIFY(status)
 
       ! transfer prototype
-      server_size = this%pet_list(2,2)-this%pet_list(2,1)+1
+      
+      server_size = size(front_pets)
       allocate(originPetList(server_size+1))
       allocate(targetPetList(server_size+1))
-      do i=1,server_size
-         originPetList(i)=this%pet_list(2,1)+i-1
-         targetPetList(i)=this%pet_list(2,1)+i-1
-      enddo
-      originPetList(server_size+1)=this%pet_list(3,1)
-      targetPetList(server_size+1)=this%pet_list(3,1)+worker_rank
+      originPetList(1:server_size)=front_pets
+      targetPetList(1:server_size)=front_pets
+      originPetList(server_size+1)=back_pets(1)
+      targetPetList(server_size+1)=back_pets(1)+worker_rank
       this%writer_conn = this%writer_prototype_conn%transfer_rh(originPetList,targetPetList,_RC)
       
       _RETURN(_SUCCESS)
