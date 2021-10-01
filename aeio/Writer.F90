@@ -11,6 +11,7 @@ module AEIO_Writer
    use AEIO_RHConnector
    use AEIO_CollectionDescriptor
    use AEIO_CollectionDescriptorVector
+   use AEIO_MpiConnection
    
    implicit none
    private
@@ -18,15 +19,14 @@ module AEIO_Writer
    public :: Writer
 
    type Writer
+      type(MpiConnection) :: front_back_connection
       integer, allocatable :: writer_ranks(:)
       integer, allocatable :: server_ranks(:)
-      integer, allocatable :: pet_list(:,:)
       type(CollectionDescriptorVector) :: collection_descriptors
       integer :: connector_comm
       integer :: writer_comm
    contains
       procedure :: start_writer
-      procedure :: i_am_back_root
       procedure :: add_collection
       procedure :: create_server_writer_rh
       procedure :: write_collection
@@ -39,20 +39,8 @@ module AEIO_Writer
 
 contains
 
-   function i_am_back_root(this) result(I_am_root)
-      class(writer), intent(inout) :: this
-      logical :: i_am_root
-      integer :: rank, status
-      call MPI_COMM_RANK(this%writer_comm,rank,status)
-      i_am_root=(rank==0)
-   end function
-
-   function new_writer(pet_list,server_ranks,writer_ranks,connector_comm,writer_comm,rc) result(c)
-      integer, intent(in)          :: pet_list(:,:)
-      integer, intent(in)          :: server_ranks(:)
-      integer, intent(in)          :: writer_ranks(:)
-      integer, intent(in)          :: connector_comm
-      integer, intent(in)          :: writer_comm
+   function new_writer(front_back_connection,rc) result(c)
+      type(MpiConnection), intent(in) :: front_back_connection
       integer, optional, intent(out) :: rc
       type(writer) :: c
       integer :: status,myPet
@@ -60,11 +48,7 @@ contains
 
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMGet(vm,localPet=myPet,_RC)
-      allocate(c%pet_list,source=pet_list)
-      allocate(c%server_ranks,source=server_ranks)
-      allocate(c%writer_ranks,source=writer_ranks)
-      c%connector_comm=connector_comm
-      c%writer_comm=writer_comm
+      c%front_back_connection=front_back_connection
 
    end function new_writer
 
@@ -103,16 +87,23 @@ contains
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type(RHConnector) :: rh,rh_new
       type(CollectionDescriptor) :: collection_descriptor
+      integer :: back_comm, connector_comm
+      integer, allocatable :: writer_ranks(:),server_ranks(:)
 
-      call MPI_COMM_RANK(this%writer_comm,back_local_rank,status)
+      back_comm = this%front_back_connection%get_back_comm()
+      connector_comm = this%front_back_connection%get_connection_comm()
+      writer_ranks = this%front_back_connection%get_back_mpi_ranks()
+      server_ranks = this%front_back_connection%get_front_mpi_ranks()
+
+      call MPI_COMM_RANK(back_comm,back_local_rank,status)
       _VERIFY(status)
-      nwriters = size(this%writer_ranks)-1
+      nwriters = size(writer_ranks)-1
       allocate(busy(nwriters))
       busy = .false.
-      if (this%i_am_back_root()) then
+      if (this%front_back_connection%am_i_back_root()) then
          do while (.true.)
             call MPI_recv(collection_id, 1, MPI_INTEGER, &
-            this%server_ranks(1),this%writer_ranks(1),this%connector_comm, &
+            server_ranks(1),writer_ranks(1),connector_comm, &
             MPI_STAT, status)
             _VERIFY(status)
             if (collection_id >= 1) then
@@ -126,18 +117,18 @@ contains
 
                 if (free_worker ==0) then
                     call mpi_recv(free_worker,1, MPI_INTEGER, &
-                         MPI_ANY_SOURCE,stag,this%writer_comm, &
+                         MPI_ANY_SOURCE,stag,back_comm, &
                          MPI_STAT, status)
                     _VERIFY(status)
                 end if
 
                 busy(free_worker) = .true.
 
-                call MPI_send(free_worker,1,MPI_INTEGER,  this%server_ranks(1), &
-                     this%server_ranks(1),this%connector_comm,status)
+                call MPI_send(free_worker,1,MPI_INTEGER,  server_ranks(1), &
+                     server_ranks(1),connector_comm,status)
                 _VERIFY(status)
                 call MPI_Send(collection_id,1,MPI_INTEGER, free_worker, &
-                     free_worker,this%writer_comm,status)
+                     free_worker,back_comm,status)
                 _VERIFY(status)
                 collection_descriptor=this%collection_descriptors%at(collection_id)
                 rh=collection_descriptor%get_rh()
@@ -146,14 +137,14 @@ contains
                no_job=-1
                do i=1,nwriters
                   if (.not.busy(i)) then
-                     call MPI_send(no_job,1,MPI_INTEGER,i,i,this%writer_comm,status)
+                     call MPI_send(no_job,1,MPI_INTEGER,i,i,back_comm,status)
                      _VERIFY(status)
                   else
                      call MPI_recv(free,1,MPI_INTEGER, &
-                                   i,stag,this%writer_comm, MPI_STAT,status)
+                                   i,stag,back_comm, MPI_STAT,status)
                      _VERIFY(status)
                      if (free /= i) stop("free should be i")
-                     call MPI_send(no_job,1,MPI_INTEGER,i,i,this%writer_comm,status)
+                     call MPI_send(no_job,1,MPI_INTEGER,i,i,back_comm,status)
                      _VERIFY(status)
                   end if
                end do
@@ -164,14 +155,14 @@ contains
          do while (.true.)
             ! which collection am I working on
             call MPI_Recv(collection_id,1,MPI_INTEGER, &
-                         0,back_local_rank,this%writer_comm, &
+                         0,back_local_rank,back_comm, &
                          MPI_STAT,status)
             _VERIFY(status)
             if (collection_id < 0) exit
             ! do stuff
             call this%write_collection(collection_id,_RC)
             ! send back I am done
-            call MPI_send(back_local_rank,1,MPI_INTEGER,0,stag,this%writer_comm,status)
+            call MPI_send(back_local_rank,1,MPI_INTEGER,0,stag,back_comm,status)
             _VERIFY(status)                      
 
          enddo
@@ -199,8 +190,13 @@ contains
       character(len=ESMF_MAXSTR), allocatable :: fieldNames(:)
       integer :: rank,lb(1),ub(1),gdims(3)
       character(len=:), allocatable :: coll_name
+      integer, allocatable :: back_pets(:)
+      integer :: writer_comm
 
-      call MPI_COMM_RANK(this%writer_comm,local_rank,status)
+      back_pets = this%front_back_connection%get_back_pets()
+      writer_comm = this%front_back_connection%get_back_comm()
+
+      call MPI_COMM_RANK(writer_comm,local_rank,status)
       _VERIFY(status)
       collection_descriptor = this%collection_descriptors%at(collection_id)
       rh = collection_descriptor%get_rh()
@@ -213,7 +209,7 @@ contains
       allocate(fieldNames(fieldCount))
       call ESMF_FieldBundleGet(bundle,fieldNameList=fieldNames,_RC)
       call MAPL_GridGet(grid,globalCellCountPerDim=gdims,_RC)
-      de_layout = ESMF_DELayoutCreate(deCount=1,petList=[this%pet_list(3,1)+local_rank],_RC)
+      de_layout = ESMF_DELayoutCreate(deCount=1,petList=[back_pets(1)+local_rank],_RC)
       dist_grid = ESMF_DistGridCreate([1,1],[gdims(1),gdims(2)],regDecomp=[1,1],delayout=de_layout,_RC)
       output_bundle = ESMF_ArrayBundleCreate(_RC)
 
@@ -260,19 +256,21 @@ contains
       integer, optional, intent(out) :: rc
 
       type(RHConnector) :: new_rh
+      integer, allocatable :: front_pets(:),back_pets(:)
       
       integer :: status,front_size,i
       integer, allocatable :: originPetList(:),targetPetList(:) 
 
-      front_size=size(this%server_ranks)
+      front_pets = this%front_back_connection%get_front_pets()
+      back_pets = this%front_back_connection%get_back_pets()
+
+      front_size=size(front_pets)
       allocate(originPetList(front_size+1),targetPetList(front_size+1))
       
-      do i=1,front_size
-         originPetList(i)=this%pet_list(2,1)+i-1
-         targetPetList(i)=this%pet_list(2,1)+i-1
-      enddo
-      originPetList(front_size+1)=this%pet_list(3,1)
-      targetPetList(front_size+1)=this%pet_list(3,1)+transfer_rank
+      originPetList(1:front_size)=front_pets
+      targetPetList(1:front_size)=front_pets
+      originPetList(front_size+1)=back_pets(1)
+      targetPetList(front_size+1)=back_pets(1)+transfer_rank
       new_rh=rh%transfer_rh(originPetList,targetPetList,_RC)
       _RETURN(_SUCCESS)
    end function setup_transfer

@@ -65,38 +65,26 @@ contains
       integer                      :: STATUS
       type (ESMF_VM) :: VM
       type(ExtData_DriverGridComp), target :: cap
-      integer :: mypet,i,pet_count
-      integer, allocatable :: pet_list(:,:)
-      integer, allocatable :: model_pets(:)
-      logical :: model,front,back
+      integer :: mypet,i,pet_count,rank
+      logical :: model
       type(ESMF_State) :: export
       type(IOController) :: io_controller
       type(ESMF_Clock) :: clock
+      integer :: comm
       character(len=:), allocatable :: hist_config
-
-      model=.false.
-      front=.false.
-      back=.false.
-      allocate(pet_list(3,2))
-
-      pet_list(1,1)=0
-      pet_list(1,2)=this%cap_options%npes_model-1
-      pet_list(2,1)=this%cap_options%npes_model
-      pet_list(2,2)=this%cap_options%npes_model+this%cap_options%npes_input_server(1)-1
-      pet_list(3,1)=this%cap_options%npes_model+this%cap_options%npes_input_server(1)
-      pet_list(3,2)=this%cap_options%npes_model+this%cap_options%npes_input_server(1)+this%cap_options%npes_output_server(1)-1
+      integer, allocatable :: model_pets(:)
 
       call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, rc=status)
       _VERIFY(STATUS)
-      call ESMF_VMGet(vm,localPet=mypet,petCount=pet_count,__RC__)
-      model = mypet <= pet_list(1,2)
+      call ESMF_VMGet(vm,localPet=mypet,petCount=pet_count,mpiCommunicator=comm,__RC__)
+      call MPI_COMM_RANK(comm,rank,status)
+      _VERIFY(status)
+
+      model = (rank < this%cap_options%npes_model)
       allocate(model_pets(this%cap_options%npes_model))
       do i=1,this%cap_options%npes_model
-         model_pets(i) = i-1
+         model_pets(i)=i-1
       enddo
-
-      front = mypet >= pet_list(2,1) .and. mypet <= pet_list(2,2)
-      back = mypet >= pet_list(3,1) .and. mypet <= pet_list(3,2)
 
       export = ESMF_StateCreate()
       cap = new_ExtData_DriverGridComp(root_setservices, name=this%name, configFileName="CAP.rc",pet_list=model_pets)
@@ -109,24 +97,21 @@ contains
       call ESMF_StateReconcile(export,__RC__)
       call ESMF_VMBarrier(vm,__RC__)
       hist_config="newhist.yaml"
-      call io_controller%initialize(export,hist_config,clock,pet_list,rc=status)
+      call io_controller%initialize(export,hist_config,clock,this%cap_options%npes_model,this%cap_options%npes_backend_pernode,rc=status)
       _VERIFY(status)
 
-      if (back) then
-         call io_controller%start_writer(_RC)
-      else if (model .or. front) then
-         do i=1,10
-            if (model) then
-               call cap%run(export,clock, rc=status)
-               _VERIFY(status)
-            end if
-            if (model .or. front) then
-               call io_controller%run(clock,_RC)
-            end if
-         enddo 
-         call io_controller%stop_writer(_RC)
-      end if
+      call io_controller%start_writer(_RC)
+      do i=1,1
+         if (model) then
+            call cap%run(export,clock, rc=status)
+            _VERIFY(status)
+         end if
+         call io_controller%run(clock,_RC)
+      enddo 
+      call io_controller%stop_writer(_RC)
+       write(*,*)"bmaa end front"
       call ESMF_VMBarrier(vm,_RC)
+      write(*,*)"bmaa all done ",mypet
       call MPI_Barrier(MPI_COMM_WORLD,status)
       call cap%finalize(rc = status)
       _VERIFY(status)

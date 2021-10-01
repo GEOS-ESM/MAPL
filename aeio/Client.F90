@@ -21,7 +21,7 @@ module AEIO_Client
       procedure get_bundle
       procedure set_client_server_connector
       procedure transfer_data_to_server
-      procedure get_connector !bmaa
+      procedure get_connector
    end type
 
    interface Client

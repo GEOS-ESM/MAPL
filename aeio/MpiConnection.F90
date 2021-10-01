@@ -29,6 +29,8 @@ module AEIO_MpiConnection
       procedure :: get_back_mpi_ranks
       procedure :: get_front_pets
       procedure :: get_back_pets
+      procedure :: am_i_front_root
+      procedure :: am_i_back_root
    end type
 
    interface MpiConnection
@@ -38,7 +40,8 @@ module AEIO_MpiConnection
 
 contains
 
-   function create_from_comm(comm,writers_per_node,vm,rc) result(new_instance)
+   function create_from_comm(global_comm,comm,writers_per_node,vm,rc) result(new_instance)
+      integer, intent(in) :: global_comm
       integer, intent(in) :: comm
       integer, intent(in) :: writers_per_node
       type(ESMF_VM), intent(in) :: vm
@@ -47,83 +50,106 @@ contains
       type(MpiConnection) :: new_instance
       type(SimpleCommSplitter) :: splitter
       type (SplitCommunicator)   ::  c_comm
-      integer :: c_size,front_size,back_size,c_pet,c_rank,local_rank
+      integer :: c_size,front_size,back_size,c_pet,c_rank,local_rank,global_size
       integer :: status
       integer, allocatable :: node_sizes(:),front_mpi_ranks(:),back_mpi_ranks(:),front_pets(:),back_pets(:)
       character(len=:), allocatable :: c_name
       integer :: MPI_STAT(MPI_STATUS_SIZE)
 
-       write(*,*)"bmaa create from comm"
+      new_instance%I_am_front_root = .false.
+      new_instance%I_am_back_root = .false.
+      call MPI_COMM_SIZE(global_comm,global_size,status)
+      _VERIFY(status)
       new_instance%connection_comm = comm 
       new_instance%front_comm = MPI_COMM_NULL
       new_instance%back_comm = MPI_COMM_NULL
-      splitter = SimpleCommsplitter(new_instance%connection_comm)
-      call MPI_COMM_SIZE(new_instance%connection_comm,c_size,status)
+      if (comm /= mpi_comm_null) then
+         splitter = SimpleCommsplitter(new_instance%connection_comm)
+         call MPI_COMM_SIZE(new_instance%connection_comm,c_size,status)
+         _VERIFY(status)
+         node_sizes = splitter%get_node_sizes()
+         back_size = size(node_sizes)*writers_per_node
+         front_size = c_size - back_size
+         write(*,*) "bmaa size ",node_sizes,back_size,front_size
+         allocate(new_instance%front_mpi_ranks(front_size))
+         allocate(new_instance%back_mpi_ranks(back_size))
+         allocate(new_instance%front_pets(front_size))
+         allocate(new_instance%back_pets(back_size))
+     
+         if (c_size < node_sizes(1)) then
+            call splitter%add_group(npes = c_size - writers_per_node, name="server_front", isolate_nodes=.false.)
+            call splitter%add_group(npes = writers_per_node,          name="server_back",  isolate_nodes=.false.)
+         else
+            call splitter%add_group(npes_per_node = node_sizes(1)-writers_per_node, name="server_front", isolate_nodes=.false.)
+            call splitter%add_group(npes_per_node = writers_per_node,               name="server_back",  isolate_nodes=.false.)
+         endif
+
+         c_comm = splitter%split(_RC)
+         call MPI_Comm_rank(new_instance%connection_comm, c_rank,status)
+         _VERIFY(status)
+         call ESMF_VMGet(vm,localPet=c_pet,_RC)
+         c_name = c_comm%get_name()
+
+         if (index(c_name, 'server_front') /=0) then
+            new_instance%front_comm = c_comm%get_subcommunicator()
+            call MPI_Comm_rank(new_instance%front_comm, local_rank, status)
+            if (c_rank == 0) then
+              _ASSERT( local_rank == 0, "re-arrange the rank of the server_comm")
+              new_instance%I_am_front_root = .true.
+              call MPI_recv(new_instance%back_mpi_ranks, back_size, MPI_INTEGER, MPI_ANY_SOURCE, 666, new_instance%connection_comm, MPI_STAT,status)
+              call MPI_recv(new_instance%back_pets, back_size, MPI_INTEGER, MPI_ANY_SOURCE, 666, new_instance%connection_comm, MPI_STAT,status)
+            endif
+            call MPI_Bcast(new_instance%back_mpi_ranks, back_size, MPI_INTEGER, 0, new_instance%front_comm, status)
+            call MPI_Bcast(new_instance%back_pets, back_size, MPI_INTEGER, 0, new_instance%front_comm, status)
+
+            call MPI_AllGather(c_rank, 1, MPI_INTEGER, new_instance%front_mpi_ranks, 1, MPI_INTEGER, new_instance%front_comm, status)
+            call MPI_AllGather(c_pet, 1, MPI_INTEGER, new_instance%front_pets, 1, MPI_INTEGER, new_instance%front_comm, status)
+            if (local_rank ==0 ) then
+               call MPI_Send(new_instance%front_mpi_ranks, c_size-back_size, MPI_INTEGER, new_instance%back_mpi_ranks(1), 777, new_instance%connection_comm, status)
+               call MPI_Send(new_instance%front_pets, c_size-back_size, MPI_INTEGER, new_instance%back_mpi_ranks(1), 777, new_instance%connection_comm, status)
+            endif
+         endif
+
+         if (index(c_name, 'server_back') /=0) then
+            new_instance%back_comm =c_comm%get_subcommunicator()
+            call MPI_AllGather(c_rank, 1, MPI_INTEGER, new_instance%back_mpi_ranks, 1, MPI_INTEGER, new_instance%back_comm, status)
+            call MPI_AllGather(c_pet, 1, MPI_INTEGER, new_instance%back_pets, 1, MPI_INTEGER, new_instance%back_comm, status)
+            call MPI_Comm_rank(new_instance%back_comm, local_rank, status)
+            if (local_rank ==0 ) then
+               new_instance%I_am_back_root = .true.
+               call MPI_Send(new_instance%back_mpi_ranks, back_size, MPI_INTEGER, 0, 666, new_instance%connection_comm, status)
+               call MPI_Send(new_instance%back_pets, back_size, MPI_INTEGER, 0, 666, new_instance%connection_comm, status)
+            endif
+
+            if (c_rank == new_instance%back_mpi_ranks(1)) then
+               _ASSERT( local_rank == 0, "re-arrange the rank of the server_comm")
+               call MPI_recv(new_instance%front_mpi_ranks, front_size, MPI_INTEGER, MPI_ANY_SOURCE, 777, new_instance%connection_comm, MPI_STAT,status)
+               call MPI_recv(new_instance%front_pets, front_size, MPI_INTEGER, MPI_ANY_SOURCE, 777, new_instance%connection_comm, MPI_STAT,status)
+            endif
+
+            call MPI_Bcast(new_instance%front_mpi_ranks, front_size, MPI_INTEGER, 0, new_instance%back_comm, status)
+            call MPI_Bcast(new_instance%front_pets, front_size, MPI_INTEGER, 0, new_instance%back_comm, status)
+         endif
+
+      endif
+      call MPI_Bcast(front_size,1,MPI_INTEGER,global_size-1,global_comm,status)
       _VERIFY(status)
-      node_sizes = splitter%get_node_sizes()
-      back_size = size(node_sizes)*writers_per_node
-      front_size = c_size - back_size
-      write(*,*) "bmaa size ",node_sizes,back_size,front_size
-      allocate(new_instance%front_mpi_ranks(front_size))
-      allocate(new_instance%back_mpi_ranks(back_size))
-      allocate(new_instance%front_pets(front_size))
-      allocate(new_instance%back_pets(back_size))
-  
-      if (c_size < node_sizes(1)) then
-         call splitter%add_group(npes = c_size - writers_per_node, name="server_front", isolate_nodes=.false.)
-         call splitter%add_group(npes = writers_per_node,          name="server_back",  isolate_nodes=.false.)
-      else
-         call splitter%add_group(npes_per_node = node_sizes(1)-writers_per_node, name="server_front", isolate_nodes=.false.)
-         call splitter%add_group(npes_per_node = writers_per_node,               name="server_back",  isolate_nodes=.false.)
-      endif
-
-      c_comm = splitter%split(_RC)
-      call MPI_Comm_rank(new_instance%connection_comm, c_rank,status)
+      call MPI_Bcast(back_size,1,MPI_INTEGER,global_size-1,global_comm,status)
       _VERIFY(status)
-      call ESMF_VMGet(vm,localPet=c_pet,_RC)
-      c_name = c_comm%get_name()
-
-      new_instance%I_am_front_root = .false.
-      new_instance%I_am_back_root = .false.
-      if (index(c_name, 'server_front') /=0) then
-         new_instance%front_comm = c_comm%get_subcommunicator()
-         call MPI_Comm_rank(new_instance%front_comm, local_rank, status)
-         if (c_rank == 0) then
-           _ASSERT( local_rank == 0, "re-arrange the rank of the server_comm")
-           new_instance%I_am_front_root = .true.
-           call MPI_recv(new_instance%back_mpi_ranks, back_size, MPI_INTEGER, MPI_ANY_SOURCE, 666, new_instance%connection_comm, MPI_STAT,status)
-           call MPI_recv(new_instance%back_pets, back_size, MPI_INTEGER, MPI_ANY_SOURCE, 666, new_instance%connection_comm, MPI_STAT,status)
-         endif
-         call MPI_Bcast(new_instance%back_mpi_ranks, back_size, MPI_INTEGER, 0, new_instance%front_comm, status)
-
-         call MPI_AllGather(c_rank, 1, MPI_INTEGER, new_instance%front_mpi_ranks, 1, MPI_INTEGER, new_instance%front_comm, status)
-         call MPI_AllGather(c_pet, 1, MPI_INTEGER, new_instance%front_pets, 1, MPI_INTEGER, new_instance%front_comm, status)
-         if (local_rank ==0 ) then
-            call MPI_Send(new_instance%front_mpi_ranks, c_size-back_size, MPI_INTEGER, new_instance%back_mpi_ranks(1), 777, new_instance%connection_comm, status)
-            call MPI_Send(new_instance%front_pets, c_size-back_size, MPI_INTEGER, new_instance%back_mpi_ranks(1), 777, new_instance%connection_comm, status)
-         endif
-      endif
-
-      if (index(c_name, 'server_back') /=0) then
-         new_instance%back_comm =c_comm%get_subcommunicator()
-         call MPI_AllGather(c_rank, 1, MPI_INTEGER, new_instance%back_mpi_ranks, 1, MPI_INTEGER, new_instance%back_comm, status)
-         call MPI_AllGather(c_pet, 1, MPI_INTEGER, new_instance%back_pets, 1, MPI_INTEGER, new_instance%back_comm, status)
-         call MPI_Comm_rank(new_instance%back_comm, local_rank, status)
-         if (local_rank ==0 ) then
-            new_instance%I_am_back_root = .true.
-            call MPI_Send(new_instance%back_mpi_ranks, back_size, MPI_INTEGER, 0, 666, new_instance%connection_comm, status)
-            call MPI_Send(new_instance%back_pets, back_size, MPI_INTEGER, 0, 666, new_instance%connection_comm, status)
-         endif
-
-         if (c_rank == new_instance%back_mpi_ranks(1)) then
-            _ASSERT( local_rank == 0, "re-arrange the rank of the server_comm")
-            call MPI_recv(new_instance%front_mpi_ranks, front_size, MPI_INTEGER, MPI_ANY_SOURCE, 777, new_instance%connection_comm, MPI_STAT,status)
-            call MPI_recv(new_instance%front_pets, front_size, MPI_INTEGER, MPI_ANY_SOURCE, 777, new_instance%connection_comm, MPI_STAT,status)
-         endif
-
-         call MPI_Bcast(new_instance%front_mpi_ranks, front_size, MPI_INTEGER, 0, new_instance%back_comm, status)
-         call MPI_Bcast(new_instance%front_pets, front_size, MPI_INTEGER, 0, new_instance%back_comm, status)
-      endif
+      if (new_instance%connection_comm == MPI_COMM_NULL) then
+         allocate(new_instance%front_mpi_ranks(front_size))
+         allocate(new_instance%front_pets(front_size))
+         allocate(new_instance%back_mpi_ranks(back_size))
+         allocate(new_instance%back_pets(back_size))
+      end if
+      call mpi_bcast(new_instance%front_mpi_ranks,front_size,mpi_integer,global_size-1,global_comm,status)
+      _VERIFY(status)
+      call mpi_bcast(new_instance%front_pets,front_size,mpi_integer,global_size-1,global_comm,status)
+      _VERIFY(status)
+      call mpi_bcast(new_instance%back_mpi_ranks,back_size,mpi_integer,global_size-1,global_comm,status)
+      _VERIFY(status)
+      call mpi_bcast(new_instance%back_pets,back_size,mpi_integer,global_size-1,global_comm,status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
 
@@ -204,20 +230,20 @@ contains
 
    end function get_front_pets
 
-   function get_i_am_front_root(this) result(i_am_front_root) 
+   function am_i_front_root(this) result(i_am_front_root) 
       class(MpiConnection), intent(in) :: this
       logical :: i_am_front_root
 
       i_am_front_root = this%i_am_front_root
 
-   end function get_i_am_front_root
+   end function am_i_front_root
 
-   function get_i_am_back_root(this) result(i_am_back_root) 
+   function am_i_back_root(this) result(i_am_back_root) 
       class(MpiConnection), intent(in) :: this
       logical :: i_am_back_root
 
       i_am_back_root = this%i_am_back_root
 
-   end function get_i_am_back_root
+   end function am_i_back_root
 
 end module
