@@ -88,12 +88,13 @@ contains
       type(RHConnector) :: rh,rh_new
       type(CollectionDescriptor) :: collection_descriptor
       integer :: back_comm, connector_comm
-      integer, allocatable :: writer_ranks(:),server_ranks(:)
+      integer, allocatable :: writer_ranks(:),server_ranks(:),back_pets(:)
 
       back_comm = this%front_back_connection%get_back_comm()
       connector_comm = this%front_back_connection%get_connection_comm()
       writer_ranks = this%front_back_connection%get_back_mpi_ranks()
       server_ranks = this%front_back_connection%get_front_mpi_ranks()
+      back_pets = this%front_back_connection%get_back_pets()
 
       call MPI_COMM_RANK(back_comm,back_local_rank,status)
       _VERIFY(status)
@@ -124,7 +125,7 @@ contains
 
                 busy(free_worker) = .true.
 
-                call MPI_send(free_worker,1,MPI_INTEGER,  server_ranks(1), &
+                call MPI_send(back_pets(1+free_worker),1,MPI_INTEGER,  server_ranks(1), &
                      server_ranks(1),connector_comm,status)
                 _VERIFY(status)
                 call MPI_Send(collection_id,1,MPI_INTEGER, free_worker, &
@@ -132,7 +133,7 @@ contains
                 _VERIFY(status)
                 collection_descriptor=this%collection_descriptors%at(collection_id)
                 rh=collection_descriptor%get_rh()
-                rh_new = this%setup_transfer(rh,free_worker,_RC)
+                rh_new = this%setup_transfer(rh,back_pets(1+free_worker),_RC)
             else
                no_job=-1
                do i=1,nwriters
@@ -201,7 +202,7 @@ contains
       collection_descriptor = this%collection_descriptors%at(collection_id)
       rh = collection_descriptor%get_rh()
       coll_name = collection_descriptor%get_coll_name()
-      rh_new = this%setup_transfer(rh,local_rank,_RC)
+      rh_new = this%setup_transfer(rh,back_pets(1+local_rank),_RC)
 
       bundle = collection_descriptor%get_bundle()
       ! transfer arrays
@@ -209,7 +210,7 @@ contains
       allocate(fieldNames(fieldCount))
       call ESMF_FieldBundleGet(bundle,fieldNameList=fieldNames,_RC)
       call MAPL_GridGet(grid,globalCellCountPerDim=gdims,_RC)
-      de_layout = ESMF_DELayoutCreate(deCount=1,petList=[back_pets(1)+local_rank],_RC)
+      de_layout = ESMF_DELayoutCreate(deCount=1,petList=[back_pets(1+local_rank)],_RC)
       dist_grid = ESMF_DistGridCreate([1,1],[gdims(1),gdims(2)],regDecomp=[1,1],delayout=de_layout,_RC)
       output_bundle = ESMF_ArrayBundleCreate(_RC)
 
@@ -270,7 +271,7 @@ contains
       originPetList(1:front_size)=front_pets
       targetPetList(1:front_size)=front_pets
       originPetList(front_size+1)=back_pets(1)
-      targetPetList(front_size+1)=back_pets(1)+transfer_rank
+      targetPetList(front_size+1)=transfer_rank
       new_rh=rh%transfer_rh(originPetList,targetPetList,_RC)
       _RETURN(_SUCCESS)
    end function setup_transfer

@@ -195,7 +195,7 @@ contains
       originPetList(1:server_size)=front_pets
       targetPetList(1:server_size)=front_pets
       originPetList(server_size+1)=back_pets(1)
-      targetPetList(server_size+1)=back_pets(1)+worker_rank
+      targetPetList(server_size+1)=worker_rank
       this%writer_conn = this%writer_prototype_conn%transfer_rh(originPetList,targetPetList,_RC)
       
       _RETURN(_SUCCESS)

@@ -70,7 +70,6 @@ contains
          node_sizes = splitter%get_node_sizes()
          back_size = size(node_sizes)*writers_per_node
          front_size = c_size - back_size
-         write(*,*) "bmaa size ",node_sizes,back_size,front_size
          allocate(new_instance%front_mpi_ranks(front_size))
          allocate(new_instance%back_mpi_ranks(back_size))
          allocate(new_instance%front_pets(front_size))
@@ -150,6 +149,11 @@ contains
       _VERIFY(status)
       call mpi_bcast(new_instance%back_pets,back_size,mpi_integer,global_size-1,global_comm,status)
       _VERIFY(status)
+
+      !if (new_instance%i_am_front_root) then
+         !write(*,*)"fpet ",new_instance%front_pets 
+         !write(*,*)"bpet ",new_instance%back_pets 
+      !end if
 
       _RETURN(_SUCCESS)
 
