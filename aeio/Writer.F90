@@ -12,6 +12,7 @@ module AEIO_Writer
    use AEIO_CollectionDescriptor
    use AEIO_CollectionDescriptorVector
    use AEIO_MpiConnection
+   use MAPL_Profiler
    
    implicit none
    private
@@ -23,12 +24,10 @@ module AEIO_Writer
       integer, allocatable :: writer_ranks(:)
       integer, allocatable :: server_ranks(:)
       type(CollectionDescriptorVector) :: collection_descriptors
-      integer :: connector_comm
-      integer :: writer_comm
+      type(DistributedProfiler) :: io_prof
    contains
       procedure :: start_writer
       procedure :: add_collection
-      procedure :: create_server_writer_rh
       procedure :: write_collection
       procedure :: setup_transfer
    end type
@@ -39,8 +38,9 @@ module AEIO_Writer
 
 contains
 
-   function new_writer(front_back_connection,rc) result(c)
+   function new_writer(front_back_connection,io_prof,rc) result(c)
       type(MpiConnection), intent(in) :: front_back_connection
+      type(DistributedProfiler), intent(in) :: io_prof
       integer, optional, intent(out) :: rc
       type(writer) :: c
       integer :: status,myPet
@@ -49,6 +49,7 @@ contains
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMGet(vm,localPet=myPet,_RC)
       c%front_back_connection=front_back_connection
+      c%io_prof=io_prof
 
    end function new_writer
 
@@ -65,17 +66,6 @@ contains
       call this%collection_descriptors%push_back(collection_descriptor)
       _RETURN(_SUCCESS)
    end subroutine add_collection
-
-   subroutine create_server_writer_rh(this,rc)
-      class(Writer), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer, allocatable :: originPetList(:), targetPetList(:)
-
-      _RETURN(_SUCCESS) 
-
-   end subroutine create_server_writer_rh
 
    subroutine start_writer(this,rc)
       class(Writer), intent(inout) :: this
@@ -216,6 +206,7 @@ contains
 
       call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
 
+      call this%io_prof%start('start_write_epoch')
       do i=1,fieldCount
          call ESMF_FieldBundleGet(bundle,trim(fieldNames(i)),field=field,_RC)
          call ESMF_FieldGet(field,rank=rank,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
@@ -238,6 +229,7 @@ contains
          end block
       enddo
       
+      call this%io_prof%stop('start_write_epoch')
       call ESMF_VMEpochExit()
 
       call rh_new%destroy(_RC)
@@ -259,7 +251,7 @@ contains
       type(RHConnector) :: new_rh
       integer, allocatable :: front_pets(:),back_pets(:)
       
-      integer :: status,front_size,i
+      integer :: status,front_size
       integer, allocatable :: originPetList(:),targetPetList(:) 
 
       front_pets = this%front_back_connection%get_front_pets()
@@ -272,7 +264,9 @@ contains
       targetPetList(1:front_size)=front_pets
       originPetList(front_size+1)=back_pets(1)
       targetPetList(front_size+1)=transfer_rank
+      call this%io_prof%start('trans-on-back')
       new_rh=rh%transfer_rh(originPetList,targetPetList,_RC)
+      call this%io_prof%stop('trans-on-back')
       _RETURN(_SUCCESS)
    end function setup_transfer
 

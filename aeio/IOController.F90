@@ -138,7 +138,7 @@ contains
       enddo
 
       ! create writer
-      this%writer_comp = writer(this%mpi_connection,_RC)
+      this%writer_comp = writer(this%mpi_connection,this%io_prof,_RC)
       enabled_iter = this%enabled%begin()
       do while(enabled_iter /= this%enabled%end())
          key=enabled_iter%get()
