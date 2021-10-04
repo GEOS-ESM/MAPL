@@ -48,12 +48,6 @@ contains
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMGet(vm,localPet=myPet,_RC)
       c%front_back_connection=front_back_connection
-      call io_prof%start('start_writer')
-      call io_prof%stop('start_writer')
-      call io_prof%start('start_write_epoch')
-      call io_prof%stop('start_write_epoch')
-      call io_prof%start('trans-on-back')
-      call io_prof%stop('trans-on-back')
 
    end function new_writer
 
@@ -93,6 +87,7 @@ contains
 
       call MPI_COMM_RANK(back_comm,back_local_rank,status)
       _VERIFY(status)
+      write(*,*)"Starting writer on local rank: ",back_local_rank
       nwriters = size(writer_ranks)-1
       allocate(busy(nwriters))
       busy = .false.
