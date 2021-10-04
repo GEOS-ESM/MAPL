@@ -18,4 +18,5 @@ module AEIO
    use FieldEntryMapMod
    use AEIO_IOController
    use HistoryConfigMod
+   use AEIO_IOProfiler
 end module AEIO

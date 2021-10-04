@@ -13,6 +13,7 @@ module AEIO_Writer
    use AEIO_CollectionDescriptorVector
    use AEIO_MpiConnection
    use MAPL_Profiler
+   use AEIO_IOProfiler
    
    implicit none
    private
@@ -24,7 +25,6 @@ module AEIO_Writer
       integer, allocatable :: writer_ranks(:)
       integer, allocatable :: server_ranks(:)
       type(CollectionDescriptorVector) :: collection_descriptors
-      type(DistributedProfiler) :: io_prof
    contains
       procedure :: start_writer
       procedure :: add_collection
@@ -38,9 +38,8 @@ module AEIO_Writer
 
 contains
 
-   function new_writer(front_back_connection,io_prof,rc) result(c)
+   function new_writer(front_back_connection,rc) result(c)
       type(MpiConnection), intent(in) :: front_back_connection
-      type(DistributedProfiler), intent(in) :: io_prof
       integer, optional, intent(out) :: rc
       type(writer) :: c
       integer :: status,myPet
@@ -49,7 +48,12 @@ contains
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMGet(vm,localPet=myPet,_RC)
       c%front_back_connection=front_back_connection
-      c%io_prof=io_prof
+      call io_prof%start('start_writer')
+      call io_prof%stop('start_writer')
+      call io_prof%start('start_write_epoch')
+      call io_prof%stop('start_write_epoch')
+      call io_prof%start('trans-on-back')
+      call io_prof%stop('trans-on-back')
 
    end function new_writer
 
@@ -81,6 +85,7 @@ contains
       integer, allocatable :: writer_ranks(:),server_ranks(:),back_pets(:)
 
       back_comm = this%front_back_connection%get_back_comm()
+      call io_prof%start('start_writer')
       connector_comm = this%front_back_connection%get_connection_comm()
       writer_ranks = this%front_back_connection%get_back_mpi_ranks()
       server_ranks = this%front_back_connection%get_front_mpi_ranks()
@@ -139,6 +144,7 @@ contains
                      _VERIFY(status)
                   end if
                end do
+               call io_prof%stop('start_writer')
                exit
             end if
          enddo
@@ -149,7 +155,10 @@ contains
                          0,back_local_rank,back_comm, &
                          MPI_STAT,status)
             _VERIFY(status)
-            if (collection_id < 0) exit
+            if (collection_id < 0) then
+               call io_prof%stop('start_writer')
+               exit
+            end if
             ! do stuff
             call this%write_collection(collection_id,_RC)
             ! send back I am done
@@ -158,6 +167,7 @@ contains
 
          enddo
       end if
+
       _RETURN(_SUCCESS)
 
    end subroutine start_writer
@@ -204,9 +214,9 @@ contains
       dist_grid = ESMF_DistGridCreate([1,1],[gdims(1),gdims(2)],regDecomp=[1,1],delayout=de_layout,_RC)
       output_bundle = ESMF_ArrayBundleCreate(_RC)
 
+      call io_prof%start('start_write_epoch')
       call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
 
-      call this%io_prof%start('start_write_epoch')
       do i=1,fieldCount
          call ESMF_FieldBundleGet(bundle,trim(fieldNames(i)),field=field,_RC)
          call ESMF_FieldGet(field,rank=rank,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
@@ -229,7 +239,7 @@ contains
          end block
       enddo
       
-      call this%io_prof%stop('start_write_epoch')
+      call io_prof%stop('start_write_epoch')
       call ESMF_VMEpochExit()
 
       call rh_new%destroy(_RC)
@@ -264,9 +274,9 @@ contains
       targetPetList(1:front_size)=front_pets
       originPetList(front_size+1)=back_pets(1)
       targetPetList(front_size+1)=transfer_rank
-      call this%io_prof%start('trans-on-back')
+      call io_prof%start('trans-on-back')
       new_rh=rh%transfer_rh(originPetList,targetPetList,_RC)
-      call this%io_prof%stop('trans-on-back')
+      call io_prof%stop('trans-on-back')
       _RETURN(_SUCCESS)
    end function setup_transfer
 

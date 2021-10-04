@@ -19,6 +19,7 @@ module AEIO_IOController
    use AEIO_Writer
    use AEIO_MpiConnection
    use MAPL_Profiler
+   use AEIO_IOProfiler
    
    implicit none
    private
@@ -32,7 +33,6 @@ module AEIO_IOController
       type(writer) :: writer_comp
       type(StringVector) :: enabled
       type(MpiConnection) :: mpi_connection
-      type(DistributedProfiler) :: io_prof
    contains
       procedure :: initialize
       procedure :: run
@@ -48,7 +48,6 @@ module AEIO_IOController
       procedure :: create_comms
       procedure :: start_writer
       procedure :: stop_writer
-      procedure :: generate_run_summary
    end type
 
 contains
@@ -76,9 +75,7 @@ contains
 
       integer :: status
 
-      this%io_prof=DistributedProfiler('io_controller',MpiTimerGauge(),MPI_COMM_WORLD)
-      call this%io_prof%start(_RC)
-      call this%io_prof%start('initialize')
+      call io_prof%start('io_initialize')
 
       call this%create_comms(model_pets,writers_per_node,_RC)
 
@@ -110,9 +107,9 @@ contains
       enddo
 
       ! first communication - send grid
-      call this%io_prof%start('trans_grid_to_front')       
+      call io_prof%start('trans_grid_to_front')       
       call this%transfer_grids_to_front(_RC)
-      call this%io_prof%stop('trans_grid_to_front')       
+      call io_prof%stop('trans_grid_to_front')       
       !call this%transfer_grids_to_back(_RC)
 
       ! fill bundle on front end of server for each collection
@@ -128,17 +125,17 @@ contains
       enabled_iter = this%enabled%begin()
       do while(enabled_iter /= this%enabled%end())
          key=enabled_iter%get()
-         call this%io_prof%start('client_server_rh_gen')
+         call io_prof%start('client_server_rh_gen')
          call this%connect_client_server(key,_RC)
-         call this%io_prof%stop('client_server_rh_gen')
-         call this%io_prof%start('server_writer_rh_gen')
+         call io_prof%stop('client_server_rh_gen')
+         call io_prof%start('server_writer_rh_gen')
          call this%generate_server_writer_prototype(key,_RC)
-         call this%io_prof%stop('server_writer_rh_gen')
+         call io_prof%stop('server_writer_rh_gen')
          call enabled_iter%next()
       enddo
 
       ! create writer
-      this%writer_comp = writer(this%mpi_connection,this%io_prof,_RC)
+      this%writer_comp = writer(this%mpi_connection,_RC)
       enabled_iter = this%enabled%begin()
       do while(enabled_iter /= this%enabled%end())
          key=enabled_iter%get()
@@ -146,7 +143,7 @@ contains
          call enabled_iter%next()
       enddo
          
-      call this%io_prof%stop('initialize')
+      call io_prof%stop('io_initialize')
       _RETURN(_SUCCESS)
    end subroutine initialize
 
@@ -195,7 +192,7 @@ contains
 
       integer :: writer_comm
 
-      call this%io_prof%start('io_run')
+      call io_prof%start('io_run')
       writer_comm = this%mpi_connection%get_back_comm()
       if (writer_comm == MPI_COMM_NULL) then
          ! here the client might do some work
@@ -203,16 +200,16 @@ contains
          ! then we would probably want to check if it is time to write
 
          ! if time to write
-         call this%io_prof%start('client-server-trans')
+         call io_prof%start('client-server-trans')
          call this%transfer_data_client_server(_RC)
-         call this%io_prof%stop('client-server-trans')
+         call io_prof%stop('client-server-trans')
 
-         call this%io_prof%start('server-writer-trans')
+         call io_prof%start('server-writer-trans')
          ! on correct Pets offload data
          call this%offload_server_data(_RC)
-         call this%io_prof%stop('server-writer-trans')
+         call io_prof%stop('server-writer-trans')
       end if
-      call this%io_prof%stop('io_run')
+      call io_prof%stop('io_run')
       _RETURN(_SUCCESS)
    end subroutine run
 
@@ -568,38 +565,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine offload_server_data
  
-   subroutine generate_run_summary(this)
-      class(IOController), intent(inout) :: this
-
-      type (ProfileReporter) :: reporter
-         character(:), allocatable :: report_lines(:)
-         integer :: i
-         character(1) :: empty(0)
-
-         integer :: rank
-
-         call this%io_prof%finalize()
-         call this%io_prof%reduce()
-         call MPI_COMM_RANK(MPI_COMM_WORLD,rank,i)
-         reporter = ProfileReporter(empty)
-         call reporter%add_column(NameColumn(20))
-         call reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
-         call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
-         call reporter%add_column(FormattedTextColumn('Exclusive','(f9.6)', 9, ExclusiveColumn('MEAN')))
-         call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))
-         call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.6)', 9, ExclusiveColumn('MAX')))
-         call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.6)', 9, ExclusiveColumn('MIN')))
-         call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
-         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
-        report_lines = reporter%generate_report(this%io_prof)
-         if (rank==0) then
-            write(*,'(a)')'Final profile'
-            write(*,'(a)')'============='
-            do i = 1, size(report_lines)
-               write(*,'(a)') report_lines(i)
-            end do
-            write(*,'(a)') ''
-         end if
-
-   end subroutine
 end module AEIO_IOController

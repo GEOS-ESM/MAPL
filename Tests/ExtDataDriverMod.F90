@@ -97,11 +97,12 @@ contains
       call ESMF_StateReconcile(export,__RC__)
       call ESMF_VMBarrier(vm,__RC__)
       hist_config="newhist.yaml"
+      call start_io_prof(MPI_COMM_WORLD)
       call io_controller%initialize(export,hist_config,clock,this%cap_options%npes_model,this%cap_options%npes_backend_pernode,rc=status)
       _VERIFY(status)
 
       call io_controller%start_writer(_RC)
-      do i=1,1
+      do i=1,3
          if (model) then
             call cap%run(export,clock, rc=status)
             _VERIFY(status)
@@ -109,15 +110,21 @@ contains
          call io_controller%run(clock,_RC)
       enddo 
       call io_controller%stop_writer(_RC)
-       write(*,*)"bmaa end front"
+      write(*,*)"all done on rank: ",rank
       call ESMF_VMBarrier(vm,_RC)
-      write(*,*)"bmaa all done ",mypet
+      
+      call MPI_Barrier(MPI_COMM_WORLD,status)
+      call generate_io_summary(rank)
+      write(*,*)"after io summ: ",rank
       call MPI_Barrier(MPI_COMM_WORLD,status)
       call cap%finalize(rc = status)
       _VERIFY(status)
 
+      call MPI_Barrier(MPI_COMM_WORLD,status)
+      write(*,*)"we exit on rank: ",rank
       call MAPL_Finalize(rc=status)
       _VERIFY(status) 
+      !call MPI_Finalize(status)
 
       _RETURN(ESMF_SUCCESS)
 

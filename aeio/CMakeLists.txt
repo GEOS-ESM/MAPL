@@ -28,6 +28,7 @@ set (srcs
     Template.F90
     TransferGridComp.F90
     MpiConnection.F90
+    IOProfiler.F90
     AEIO.F90
     )
 
