@@ -135,15 +135,15 @@ esma_add_subdirectory (ESMA_env FOUND ESMA_env_FOUND)
 
 # Install the Python directory
 install (
-   DIRECTORY Python
-   DESTINATION lib
-   USE_SOURCE_PERMISSIONS
-   )
+  DIRECTORY Python
+  DESTINATION lib
+  USE_SOURCE_PERMISSIONS
+  )
 
 install (
-   DIRECTORY cmake
-      DESTINATION ${INSTALL_CMAKE_DIR}
-   )
+  DIRECTORY cmake
+  DESTINATION ${INSTALL_CMAKE_DIR}
+  )
 
 # https://www.scivision.dev/cmake-auto-gitignore-build-dir/
 # --- auto-ignore build directory
@@ -153,9 +153,9 @@ endif()
 
 # Piggyback that file into install
 install(
-   FILES ${PROJECT_BINARY_DIR}/.gitignore
-   DESTINATION ${CMAKE_INSTALL_PREFIX}
-   )
+  FILES ${PROJECT_BINARY_DIR}/.gitignore
+  DESTINATION ${CMAKE_INSTALL_PREFIX}
+  )
 
 ecbuild_install_project (NAME MAPL)
 
