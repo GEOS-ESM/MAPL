@@ -142,7 +142,7 @@ install (
 
 install (
    DIRECTORY cmake
-   DESTINATION ${INSTALL_DATA_DIR}
+      DESTINATION ${INSTALL_CMAKE_DIR}
    )
 
 # https://www.scivision.dev/cmake-auto-gitignore-build-dir/

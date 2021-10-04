@@ -30,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored MAPL_IO by separating it into a Binary (BinIO.F90) and NetCDF (NCIO.F90) modules. Shared subroutines and
   types have been moved to FileIOShared.F90. MAPL_IO becomes a package module to hold these aforementioned three modules.
 
+- Changed location of installed MAPL cmake macros to facilitate UFS.   The new location is more conventional.  Also added ecbuild logic to add
+  new location to module path.  I.e., now it's done in a better way, and maybe even the "right"(TM) way.
+
+
 ### Fixed
 
 - Fixed #338. Added a workaround for a gfortran bug that handles end-of-file incorrectly (returns IOSTAT=5001).
