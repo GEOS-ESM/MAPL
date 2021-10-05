@@ -259,6 +259,7 @@ CONTAINS
 !   extra things for cubed sphere
     integer                       :: IM, JM, face
     real(ESMF_KIND_R8), pointer                 :: EdgeLons(:,:), EdgeLats(:,:)
+    type(ESMF_Info) :: infoh
 ! Begin... 
 
 ! Get the target components name and set-up traceback handle.
@@ -301,7 +302,9 @@ CONTAINS
 
     ! find out what type of grid we are on, if so 
     gridtype_default='Lat-Lon'
-    call ESMF_AttributeGet(Grid,'GridType',gridtype,gridtype_default)
+!    call ESMF_AttributeGet(Grid,'GridType',gridtype,gridtype_default)
+    call ESMF_InfoGetFromHost(Grid,infoh,rc=status)
+    call ESMF_InfoGet(infoh,key='GridType',value=gridtype,default=gridtype_default,rc=status)
     if (gridtype=='Cubed-Sphere') then
 
        call MAPL_GetObjectFromGC(GC,MAPL_OBJ,rc=status)
@@ -381,6 +384,7 @@ CONTAINS
   character(len=ESMF_MAXSTR)    :: gridtype
 
   type(ESMF_FieldBundle)        :: BUNDLE
+  type(ESMF_Info)               :: infoh
   integer                       :: NORB
   integer                       :: IM_world,JM_world,counts(5),imsize
   integer                       :: status
@@ -416,7 +420,9 @@ CONTAINS
 !  Figure out what type of grid we are on 
 
    gridtype_default='Lat-Lon'
-   call ESMF_AttributeGet(Grid,'GridType',gridtype,gridtype_default)
+!   call ESMF_AttributeGet(Grid,'GridType',gridtype,gridtype_default)
+   call ESMF_InfoGetFromHost(Grid,infoh,rc=status)
+   call ESMF_InfoGet(infoh,key='GridType',value=gridtype,default=gridtype_default,rc=status)
 
 !  Get the time interval, and start and end time
 !   timeinterval=timeinterval/2

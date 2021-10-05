@@ -164,6 +164,7 @@ contains
       integer :: sz, tileCount
       logical :: plocal, pglobal, lxtradim
       logical :: isPresent,hasDE
+      type(ESMF_Info) :: infoh
 
       pglobal = present(globalCellCountPerDim)
       plocal  = present(localCellCountPerDim)
@@ -175,18 +176,24 @@ contains
 !ALT kludge
          lxtradim = .false.
          if (gridRank == 1) then
-            call ESMF_AttributeGet(grid, name='GRID_EXTRADIM', isPresent=isPresent, rc=status)
+!            call ESMF_AttributeGet(grid, name='GRID_EXTRADIM', isPresent=isPresent, rc=status)
+            call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+            isPresent = ESMF_InfoIsPresent(infoh,'GRID_EXTRADIM',rc=status)
             _VERIFY(STATUS)
             if (isPresent) then
-               call ESMF_AttributeGet(grid, name='GRID_EXTRADIM', value=UNGRID, rc=status)
+!               call ESMF_AttributeGet(grid, name='GRID_EXTRADIM', value=UNGRID, rc=status)
+               call ESMF_InfoGet(infoh,'GRID_EXTRADIM',UNGRID,rc=status)
                _VERIFY(STATUS)
                lxtradim = .true.
             end if
          else if (gridRank == 2) then
-            call ESMF_AttributeGet(grid, name='GRID_LM', isPresent=isPresent, rc=status)
+!            call ESMF_AttributeGet(grid, name='GRID_LM', isPresent=isPresent, rc=status)
+            call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+            isPresent = ESMF_InfoIsPresent(infoh,'GRID_LM',rc=status)
             _VERIFY(STATUS)
             if (isPresent) then
-               call ESMF_AttributeGet(grid, name='GRID_LM', value=UNGRID, rc=status)
+!               call ESMF_AttributeGet(grid, name='GRID_LM', value=UNGRID, rc=status)
+               call ESMF_InfoGet(infoh,'GRID_LM',UNGRID,rc=status)
                _VERIFY(STATUS)
                lxtradim = .true.
             end if

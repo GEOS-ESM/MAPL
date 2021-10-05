@@ -130,6 +130,7 @@ contains
     integer                               :: griddedDims
     integer                               :: lb1, lb2, lb3
     integer                               :: ub1, ub2, ub3
+    type(ESMF_Info)                       :: infoh
 
     call ESMF_FieldGet(field, grid=GRID, RC=STATUS)
     _VERIFY(STATUS)
@@ -2014,6 +2015,7 @@ contains
     real(ESMF_KIND_R8)              :: deltaX, deltaY
     type (ESMF_VM), pointer         :: VM_
     integer                         :: I, J, I1, IN, J1, JN
+    type(ESMF_Info)                 :: infoh
 
     real(ESMF_KIND_R8), pointer     :: centerX(:,:)
     real(ESMF_KIND_R8), pointer     :: centerY(:,:)
@@ -2165,7 +2167,9 @@ contains
             rc=status)
        _VERIFY(STATUS)
 
-       call ESMF_AttributeSet(grid, name='GRID_LM', value=LM_World, rc=status)
+!       call ESMF_AttributeSet(grid, name='GRID_LM', value=LM_World, rc=status)
+       call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+       call ESMF_InfoSet(infoh,'GRID_LM',LM_World,rc=status)
        _VERIFY(STATUS)
 
 #endif
@@ -2311,32 +2315,41 @@ contains
     logical :: hasLons,hasLats
     real(ESMF_KIND_R8), allocatable :: r8ptr(:),lons1d(:),lats1d(:)
     type(ESMF_CoordSys_Flag) :: coordSys
+    type(ESMF_Info) :: infoh
 
     call MAPL_GridGet(grid,localCellCountPerDim=counts,rc=status)
     _VERIFY(status)
     im=counts(1)
     jm=counts(2)
     ! check if we have corners
-    call ESMF_AttributeGet(grid,  NAME='GridCornerLons:', &
-         isPresent=hasLons, RC=STATUS)
+!    call ESMF_AttributeGet(grid,  NAME='GridCornerLons:', &
+!         isPresent=hasLons, RC=STATUS)
+    call ESMF_InfoGetFromHost(grid,infoh,RC=STATUS)
+    hasLons = ESMF_InfoIsPresent(infoh,'GridCornerLons',RC=STATUS)
     _VERIFY(status)
-    call ESMF_AttributeGet(grid,  NAME='GridCornerLats:', &
-         isPresent=hasLats, RC=STATUS)
+!    call ESMF_AttributeGet(grid,  NAME='GridCornerLats:', &
+!         isPresent=hasLats, RC=STATUS)
+    call ESMF_InfoGetFromHost(grid,infoh,RC=STATUS)
+    hasLats = ESMF_InfoIsPresent(infoh,'GridCornerLats',RC=STATUS)
     _VERIFY(status)
     if (hasLons .and. hasLats) then
-       call ESMF_AttributeGet(grid,  NAME='GridCornerLons:', &
-            itemcount=lsz, RC=STATUS)
+!       call ESMF_AttributeGet(grid,  NAME='GridCornerLons:', &
+!            itemcount=lsz, RC=STATUS)
+       call ESMF_InfoGet(infoh,key='GridCornerLons',size=lsz,RC=STATUS)
        _VERIFY(STATUS)
        _ASSERT(size(gridCornerLons,1)*size(gridCornerLons,2)==lsz,"stored corner sizes to not match grid")
-       call ESMF_AttributeGet(grid,  NAME='GridCornerLats:', &
-            itemcount=lsz, RC=STATUS)
+!       call ESMF_AttributeGet(grid,  NAME='GridCornerLats:', &
+!            itemcount=lsz, RC=STATUS)
+       call ESMF_InfoGet(infoh,key='GridCornerLats',size=lsz,RC=STATUS)
        _VERIFY(STATUS)
        _ASSERT(size(gridCornerLats,1)*size(gridCornerLats,2)==lsz,"stored corner sizes to not match grid")
        allocate(r8ptr(lsz),stat=status)
        _VERIFY(status)
 
-       call ESMF_AttributeGet(grid,  NAME='GridCornerLons:', &
-            VALUELIST=r8ptr, RC=STATUS)
+!       call ESMF_AttributeGet(grid,  NAME='GridCornerLons:', &
+!            VALUELIST=r8ptr, RC=STATUS)
+       call ESMF_InfoGetFromHost(grid,infoh,RC=STATUS)
+       call ESMF_InfoGet(infoh,key='GridCornerLons',values=r8ptr,RC=STATUS)
        _VERIFY(STATUS)
 
        idx = 0
@@ -2347,8 +2360,10 @@ contains
           end do
        end do
 
-       call ESMF_AttributeGet(grid,  NAME='GridCornerLats:', &
-            VALUELIST=r8ptr, RC=STATUS)
+!       call ESMF_AttributeGet(grid,  NAME='GridCornerLats:', &
+!            VALUELIST=r8ptr, RC=STATUS)
+       call ESMF_InfoGetFromHost(grid,infoh,RC=STATUS)
+       call ESMF_InfoGet(infoh,key='GridCornerLats',values=r8ptr,RC=STATUS)
        _VERIFY(STATUS)
 
        idx = 0
@@ -2411,11 +2426,15 @@ contains
              lats1d(idx)=gridCornerLats(i,j)
           enddo
        enddo
-       call ESMF_AttributeSet(grid, name='GridCornerLons:', &
-            itemCount = idx, valueList=lons1d, rc=status)
+!       call ESMF_AttributeSet(grid, name='GridCornerLons:', &
+!            itemCount = idx, valueList=lons1d, rc=status)
+       call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+       call ESMF_InfoSet(infoh,key='GridCornerLons:',values=lons1d,rc=status)
        _VERIFY(STATUS)
-       call ESMF_AttributeSet(grid, name='GridCornerLats:', &
-            itemCount = idx, valueList=lats1d, rc=status)
+!       call ESMF_AttributeSet(grid, name='GridCornerLats:', &
+!            itemCount = idx, valueList=lats1d, rc=status)
+       call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+       call ESMF_InfoSet(infoh,key='GridCornerLats:',values=lats1d,rc=status)
        _VERIFY(STATUS)
        deallocate(lons1d,lats1d)
     end if

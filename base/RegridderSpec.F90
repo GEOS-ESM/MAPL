@@ -85,16 +85,21 @@ contains
       character(len=*), optional, intent(out) :: grid_type_out
       integer, optional, intent(out) :: rc
 
+      type(ESMF_Info) :: infohin, infohout
       integer :: status
 
       _UNUSED_DUMMY(unusable)
 
       if (present(grid_type_in)) then
-         call ESMF_AttributeGet(this%grid_in,'GridType',grid_type_in,rc=status)
+!         call ESMF_AttributeGet(this%grid_in,'GridType',grid_type_in,rc=status)
+         call ESMF_InfoGetFromHost(this%grid_in,infohin,rc=status)
+         call ESMF_InfoGet(infohin,'GridType',grid_type_in,rc=status)
          _VERIFY(status)
       end if
       if (present(grid_type_out)) then
-         call ESMF_AttributeGet(this%grid_out,'GridType',grid_type_out,rc=status)
+!         call ESMF_AttributeGet(this%grid_out,'GridType',grid_type_out,rc=status)
+         call ESMF_InfoGetFromHost(this%grid_out,infohout,rc=status)
+         call ESMF_InfoGet(infohout,'GridType',grid_type_out,rc=status)
          _VERIFY(status)
       end if
       _RETURN(_SUCCESS)

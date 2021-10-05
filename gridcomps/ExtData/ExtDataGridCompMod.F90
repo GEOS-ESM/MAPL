@@ -4212,6 +4212,7 @@ CONTAINS
      type(ESMF_Config)         :: cflocal
      real :: temp_real
      logical :: isPresent
+     type(ESMF_Info) :: infoh
 
      IAM = "MAPL_ExtDataGridChangeLev"
 
@@ -4240,28 +4241,37 @@ CONTAINS
         call MAPL_ConfigSetAttribute(cflocal,value=trim(gname), label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"GRIDNAME:",rc=status)
         _VERIFY(status)
 
-        call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', isPresent=isPresent, rc=status)
+!        call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', isPresent=isPresent, rc=status)
+        call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+        isPresent = ESMF_InfoIsPresent(infoh,'STRETCH_FACTOR',rc=status)
         _VERIFY(status)
         if (isPresent) then
-           call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', value=temp_real, rc=status)
+!           call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', value=temp_real, rc=status)
+           call ESMF_InfoGet(infoh,'STRETCH_FACTOR',temp_real,rc=status)
            _VERIFY(status)
            call MAPL_ConfigSetAttribute(cflocal,value=temp_real, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"STRETCH_FACTOR:",rc=status)
            _VERIFY(status)
         endif
 
-        call ESMF_AttributeGet(grid, name='TARGET_LON', isPresent=isPresent, rc=status)
+!        call ESMF_AttributeGet(grid, name='TARGET_LON', isPresent=isPresent, rc=status)
+        call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+        isPresent = ESMF_InfoIsPresent(infoh,'TARGET_LON',rc=status)
         _VERIFY(status)
         if (isPresent) then
-           call ESMF_AttributeGet(grid, name='TARGET_LON', value=temp_real, rc=status)
+!           call ESMF_AttributeGet(grid, name='TARGET_LON', value=temp_real, rc=status)
+           call ESMF_InfoGet(infoh,'TARGET_LON',temp_real,rc=status)
            _VERIFY(status)
            call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LON:",rc=status)
            _VERIFY(status)
         endif
 
-        call ESMF_AttributeGet(grid, name='TARGET_LAT', isPresent=isPresent, rc=status)
+!        call ESMF_AttributeGet(grid, name='TARGET_LAT', isPresent=isPresent, rc=status)
+        call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+        isPresent = ESMF_InfoIsPresent(infoh,'TARGET_LAT',rc=status)
         _VERIFY(status)
         if (isPresent) then
-           call ESMF_AttributeGet(grid, name='TARGET_LAT', value=temp_real, rc=status)
+!           call ESMF_AttributeGet(grid, name='TARGET_LAT', value=temp_real, rc=status)
+           call ESMF_InfoGet(infoh,'TARGET_LAT',temp_real,rc=status)
            _VERIFY(status)
            call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LAT:",rc=status)
            _VERIFY(status)

@@ -191,8 +191,11 @@ contains
 
          integer :: status
          character(len=ESMF_MAXSTR) :: buffer
+         type(ESMF_Info) :: infoh
 
-         call ESMF_AttributeGet(grid, 'GridType', buffer, rc=status)
+!         call ESMF_AttributeGet(grid, 'GridType', buffer, rc=status)
+         call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+         call ESMF_InfoGet(infoh,'GridType',buffer,rc=status)
          _VERIFY(status)
 
          grid_type = trim(buffer)

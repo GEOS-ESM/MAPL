@@ -1900,6 +1900,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    type(ESMF_VM)    :: vm
    type(ESMF_Grid)  :: srcGrid   ! grid associated with source bundle
    type(ESMF_Grid)  :: dstGrid   ! grid associated with destination bundle
+   type(ESMF_Info)  :: infoh
    Logical          :: flip_poles
    Logical          :: flip_lons
    integer          :: numVars   ! number of fields in bundles
@@ -2162,27 +2163,36 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    end if
    call ESMF_VMBroadcast(vm, srcLons, ims_world, MAPL_Root, rc=status)
 
-   call ESMF_AttributeGet(dstGrid, 'VERBOSE', isPresent=isPresent, rc=status)
+!   call ESMF_AttributeGet(dstGrid, 'VERBOSE', isPresent=isPresent, rc=status)
+   call ESMF_InfoGetFromHost(dstGrid,infoh,rc=status)
+   isPresent = ESMF_InfoIsPresent(infoh,'VERBOSE',rc=status)
    if (isPresent) then
-      call ESMF_AttributeGet(dstGrid, 'VERBOSE', verbose, rc=status)
+!      call ESMF_AttributeGet(dstGrid, 'VERBOSE', verbose, rc=status)
+      call ESMF_InfoGet(infoh,'VERBOSE',verbose,rc=status)
       _VERIFY(STATUS)
    else
       verbose =.FALSE.
    end if
 
-   call ESMF_AttributeGet(dstGrid, 'FLIP_LONS', isPresent=isPresent, rc=status)
+!   call ESMF_AttributeGet(dstGrid, 'FLIP_LONS', isPresent=isPresent, rc=status)
+   call ESMF_InfoGetFromHost(dstGrid,infoh,rc=status)
+   isPresent = ESMF_InfoIsPresent(infoh,'FLIP_LONS',rc=status)
    _VERIFY(STATUS)
    if (isPresent) then
-      call ESMF_AttributeGet(dstGrid, 'FLIP_LONS', flip_lons, rc=status)
+!      call ESMF_AttributeGet(dstGrid, 'FLIP_LONS', flip_lons, rc=status)
+      call ESMF_InfoGet(infoh,'FLIP_LONS',flip_lons,rc=status)
       _VERIFY(STATUS)
    else
       flip_lons = .FALSE.
    end if
 
-   call ESMF_AttributeGet(dstGrid, 'FLIP_POLES', isPresent=isPresent, rc=status)
+!   call ESMF_AttributeGet(dstGrid, 'FLIP_POLES', isPresent=isPresent, rc=status)
+   call ESMF_InfoGetFromHost(dstGrid,infoh,rc=status)
+   isPresent = ESMF_InfoIsPresent(infoh,'FLIP_POLES',rc=status)
    _VERIFY(STATUS)
    if (isPresent) then
-      call ESMF_AttributeGet(dstGrid, 'FLIP_POLES', flip_poles, rc=status)
+!      call ESMF_AttributeGet(dstGrid, 'FLIP_POLES', flip_poles, rc=status)
+      call ESMF_InfoGet(infoh,'FLIP_POLES',flip_poles,rc=status)
       _VERIFY(STATUS)
    else
       flip_poles = .FALSE.

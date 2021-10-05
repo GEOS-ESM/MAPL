@@ -362,6 +362,7 @@ contains
     type(ESMF_TIME)     :: TIME
     type(ESMF_ALARM)    :: PERPETUAL
     type(ESMF_VM)       :: VM
+    type(ESMF_Info)     :: infoh
 
     type(ESMF_CFIOVarInfo), pointer :: vars(:)
     type(ESMF_CFIOGrid),    pointer :: cfiogrid
@@ -1006,10 +1007,13 @@ contains
 
        endif
 
-       call ESMF_AttributeGet(ESMFGRID, name="GridType", isPresent=isPresent, rc=STATUS)
+!       call ESMF_AttributeGet(ESMFGRID, name="GridType", isPresent=isPresent, rc=STATUS)
+       call ESMF_InfoGetFromHost(ESMFGRID,infoh,rc=STATUS)
+       isPresent = ESMF_InfoIsPresent(infoh,'GridType',rc=STATUS)
        _VERIFY(STATUS)
        if (isPresent) then
-          call ESMF_AttributeGet(ESMFGRID, name="GridType", value=GridTypeAttribute, rc=STATUS)
+!          call ESMF_AttributeGet(ESMFGRID, name="GridType", value=GridTypeAttribute, rc=STATUS)
+          call ESMF_InfoGet(infoh,'GridType',GridTypeAttribute,rc=STATUS)
           _VERIFY(STATUS)
        else
           GridTypeAttribute = 'UNKNOWN'
@@ -1421,10 +1425,13 @@ contains
 ! -------------
 
     if(HAVE3D) then
-       call ESMF_AttributeGet(ESMFGRID, NAME='ak', isPresent=isPresent, RC=STATUS)
+!       call ESMF_AttributeGet(ESMFGRID, NAME='ak', isPresent=isPresent, RC=STATUS)
+       call ESMF_InfoGetFromHost(ESMFGRID,infoh,RC=STATUS)
+       isPresent = ESMF_InfoIsPresent(infoh,'ak',RC=STATUS)
        _VERIFY(STATUS)
        if (isPresent) then
-          call ESMF_AttributeGet(ESMFGRID, NAME='ak', itemcount=CNT, RC=STATUS)
+!          call ESMF_AttributeGet(ESMFGRID, NAME='ak', itemcount=CNT, RC=STATUS)
+          call ESMF_InfoGet(infoh,key='ak',size=CNT,RC=STATUS)
           _VERIFY(STATUS)
        else
           CNT=0
@@ -1433,11 +1440,15 @@ contains
           allocate ( ak(CNT), bk(CNT), stat=status )
           _VERIFY(STATUS)
 
-          call ESMF_AttributeGet(ESMFGRID, name='ak', valueList=ak, rc=STATUS)
+!          call ESMF_AttributeGet(ESMFGRID, name='ak', valueList=ak, rc=STATUS)
+          call ESMF_InfoGetFromHost(ESMFGRID,infoh,rc=STATUS)
+          call ESMF_InfoGet(infoh,key='ak',values=ak,rc=STATUS)
           _VERIFY(STATUS)
           call ESMF_CFIOSet(MCFIO%cfio, attRealName='ak', attReal=ak )
 
-          call ESMF_AttributeGet(ESMFGRID, name='bk', valuelist=bk, rc=STATUS)
+!          call ESMF_AttributeGet(ESMFGRID, name='bk', valuelist=bk, rc=STATUS)
+          call ESMF_InfoGetFromHost(ESMFGRID,infoh,rc=STATUS)
+          call ESMF_InfoGet(infoh,key='bk',values=bk,rc=STATUS)
           _VERIFY(STATUS)
           call ESMF_CFIOSet(MCFIO%cfio, attRealName='bk', attReal=bk )
 

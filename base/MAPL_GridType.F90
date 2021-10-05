@@ -42,10 +42,14 @@ contains
 
       character(len=60) :: name
       logical :: isPresent
+      type(ESMF_Info) :: infoh
 
-      call ESMF_AttributeGet(grid, name='GridType', isPresent=isPresent)
+!      call ESMF_AttributeGet(grid, name='GridType', isPresent=isPresent)
+      call ESMF_InfoGetFromHost(grid,infoh)
+      isPresent = ESMF_InfoIsPresent(infoh,'GridType')
       if (isPresent) then
-         call ESMF_AttributeGet(grid, name='GridType', value=name)
+!         call ESMF_AttributeGet(grid, name='GridType', value=name)
+         call ESMF_InfoGet(infoh,'GridType',name)
 
          grid_type%name = name
       end if

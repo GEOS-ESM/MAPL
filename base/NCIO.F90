@@ -3254,27 +3254,40 @@ module NCIOMod
     logical :: is_stretched
     character(len=ESMF_MAXSTR) :: positive
     type(StringVector) :: flip_vars
+    type(ESMF_Info) :: infoh
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
 
-    call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",isPresent=have_target_lon,rc=status)
+!    call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",isPresent=have_target_lon,rc=status)
+    call ESMF_InfoGetFromHost(arrdes%grid,infoh,rc=status)
+    have_target_lon = ESMF_InfoIsPresent(infoh,'TARGET_LON',rc=status)
     _VERIFY(status)
-    call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",isPresent=have_target_lat,rc=status)
+!    call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",isPresent=have_target_lat,rc=status)
+    call ESMF_InfoGetFromHost(arrdes%grid,infoh,rc=status)
+    have_target_lat = ESMF_InfoIsPresent(infoh,'TARGET_LAT',rc=status)
     _VERIFY(status)
-    call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",isPresent=have_stretch_factor,rc=status)
+!    call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",isPresent=have_stretch_factor,rc=status)
+    call ESMF_InfoGetFromHost(arrdes%grid,infoh,rc=status)
+    have_stretch_factor = ESMF_InfoIsPresent(infoh,'STRETCH_FACTOR',rc=status)
     _VERIFY(status)
     if (have_target_lon .and. have_target_lat .and. have_stretch_factor) then
        is_stretched = .true.
-       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",value=target_lon,rc=status)
+!       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",value=target_lon,rc=status)
+       call ESMF_InfoGetFromHost(arrdes%grid,infoh,rc=status)
+       call ESMF_InfoGet(infoh,'TARGET_LON',target_lon,rc=status)
        _VERIFY(status)
-       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",value=target_lat,rc=status)
+!       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",value=target_lat,rc=status)
+       call ESMF_InfoGetFromHost(arrdes%grid,infoh,rc=status)
+       call ESMF_InfoGet(infoh,'TARGET_LAT',target_lat,rc=status)
        _VERIFY(status)
-       call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",value=stretch_factor,rc=status)
+!       call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",value=stretch_factor,rc=status)
+       call ESMF_InfoGetFromHost(arrdes%grid,infoh,rc=status)
+       call ESMF_InfoGet(infoh,'STRETCH_FACTOR',stretch_factor,rc=status)
        _VERIFY(status)
     else
        is_stretched = .false.
-    end if
+    end if    
        
 
     ! verify that file is compatible with fields in bundle we are reading

@@ -916,6 +916,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   type(ESMF_State), pointer :: child_import_state
   type(ESMF_State), pointer :: child_export_state
   type(ESMF_State), pointer :: internal_state
+  type(ESMF_Info)           :: infoh
 !=============================================================================
 
 ! Begin...
@@ -1216,10 +1217,13 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   _VERIFY(STATUS)
 
   gridTypeAttribute = ''
-  call ESMF_AttributeGet(MYGRID%ESMFGRID, name='GridType', isPresent=isPresent, RC=status)
+!  call ESMF_AttributeGet(MYGRID%ESMFGRID, name='GridType', isPresent=isPresent, RC=status)
+  call ESMF_InfoGetFromHost(MYGRID%ESMFGRID,infoh,RC=status)
+  isPresent = ESMF_InfoIsPresent(infoh,'GridType',RC=status)
   _VERIFY(STATUS)
   if (isPresent) then
-     call ESMF_AttributeGet(MYGRID%ESMFGRID, name='GridType', value=gridTypeAttribute, RC=status)
+!     call ESMF_AttributeGet(MYGRID%ESMFGRID, name='GridType', value=gridTypeAttribute, RC=status)
+     call ESMF_InfoGet(infoh,'GridType',gridTypeAttribute,RC=status)
      _VERIFY(STATUS)
      if (gridTypeAttribute == 'Doubly-Periodic') then
 
@@ -5659,6 +5663,7 @@ end function MAPL_AddChildFromDSO
     logical                               :: FileExists
 
     type(ESMF_Grid) :: TILEGRID
+    type(ESMF_Info) :: infoh
     integer :: COUNTS(2)
     integer :: io_nodes, io_rank
     integer :: attr
@@ -5928,10 +5933,13 @@ end function MAPL_AddChildFromDSO
           call ArrDescrSetNCPar(arrdes,MPL,tile=.TRUE.,num_readers=mpl%grid%num_readers,RC=STATUS)
           _VERIFY(STATUS)
        else
-          call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',isPresent=isPresent,rc=status)
+!          call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',isPresent=isPresent,rc=status)
+          call ESMF_InfoGetFromHost(MPL%GRID%ESMFGRID,infoh,rc=status)
+          isPresent = ESMF_InfoIsPresent(infoh,'GridType',rc=status)
           _VERIFY(status)
           if (isPresent) then
-             call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',value=grid_type,rc=status)
+!             call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',value=grid_type,rc=status)
+             call ESMF_InfoGet(infoh,'GridType',grid_type,rc=status)
              _VERIFY(status)
           end if
           !note this only works for geos cubed-sphere restarts currently because of 

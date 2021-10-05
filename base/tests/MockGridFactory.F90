@@ -77,14 +77,19 @@ contains
       class (MockGridFactory), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
+      type(ESMF_Info) :: infoh
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(rc)
 
       grid = ESMF_GridEmptyCreate()
-      call ESMF_AttributeSet(grid, 'GRID_NAME', this%name)
-      call ESMF_AttributeSet(grid, 'GridType', this%name)
+!      call ESMF_AttributeSet(grid, 'GRID_NAME', this%name)
+      call ESMF_InfoGetFromHost(grid,infoh)
+      call ESMF_InfoSet(infoh,'GRID_NAME',this%name)
+!      call ESMF_AttributeSet(grid, 'GridType', this%name)
+      call ESMF_InfoGetFromHost(grid,infoh)
+      call ESMF_InfoSet(infoh,'GridType',this%name)
 
       _RETURN(_SUCCESS)
 

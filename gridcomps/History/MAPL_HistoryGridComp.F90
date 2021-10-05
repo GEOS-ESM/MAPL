@@ -423,6 +423,7 @@ contains
     logical, allocatable :: needSplit(:)
     type(ESMF_Field), allocatable :: fldList(:)
     character(len=ESMF_MAXSTR), allocatable :: regexList(:)
+    type(ESMF_Info) :: infoh
     
 ! Begin
 !------
@@ -1764,8 +1765,10 @@ ENDDO PARSER
 !           as INTEGER(KIND=INT64) attribute and we are using a C routine to 
 !           set the pointer to LocStream
 
-            call ESMF_AttributeGet(grid_in, name='TILEGRID_LOCSTREAM_ADDR', &
-                 value=ADDR, rc=status)
+!            call ESMF_AttributeGet(grid_in, name='TILEGRID_LOCSTREAM_ADDR', &
+!                 value=ADDR, rc=status)
+            call ESMF_InfoGetFromHost(grid_in,infoh,rc=status)
+            call ESMF_InfoGet(infoh,'TILEGRID_LOCSTREAM_ADDR',ADDR,rc=status)
             _VERIFY(STATUS)
             call c_MAPL_LocStreamRestorePtr(exch, ADDR)
 
