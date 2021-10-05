@@ -390,32 +390,47 @@ contains
       call ESMF_VMGetCurrent(vm)
       call ESMF_VMGet(vm,localPet=myPet,_RC)
 
+      ! Create a fake grid comp for the sole purpose of getting a VM
       fake_gridcomp = ESMF_GridCompCreate(petList=pets,_RC)
       call ESMF_GridCompSetServices(fake_gridcomp,set_services,_RC)
       fake_state=ESMF_StateCreate(_RC)
 
+      ! Run fake state phase 1 init, which creates an empty field in the
+      ! import state so I can get the vm out
       call ESMF_GridCompInitialize(fake_gridcomp,importState=fake_state,phase=1,_RC)
       call ESMF_StateReconcile(fake_state,_RC)
       call ESMF_StateGet(fake_state,"empty",fake_field,_RC)
       call ESMF_FieldGet(fake_field,vm=target_vm,_RC)
 
+      ! Get the dist grid of the input field
       call ESMF_GridGet(grid,distGrid=input_distGrid,_RC)
       call ESMF_GridGet(grid,name=grid_name,_RC)
+      ! Now create a new distgrid on the target_vm
       output_distgrid=ESMF_DistGridCreate(input_distGrid,vm=target_vm,_RC)
 
+      ! Now create a grid on the new distgrid on target vm and set in field in import state
       empty_grid = ESMF_GridEmptyCreate(vm=target_vm,_RC)
       call ESMF_GridSet(empty_grid,name="temp_grid",distGrid=output_distgrid,vm=target_vm,_RC)
       call ESMF_FieldEmptySet(fake_field,grid=empty_grid,vm=target_vm,_RC)
+      ! Now run phase two, this takes the dist grid I just created
+      ! and creates a new distgrid with the balance flag
+      ! Create a grid with this distgrid and set in the field in the improt state
       call ESMF_GridCompInitialize(fake_gridcomp,importState=fake_state,phase=2,_RC)
 
+      !reconcile fake_state 
       call ESMF_StateReconcile(fake_state,_RC)
 
+      ! now create a new grid with this so called balanced distgrid from the 
+      ! field in the grid comp
       call ESMF_FieldGet(fake_field,grid=empty_grid,_RC)
       call ESMF_GridGet(empty_grid,distGrid=balanced_distGrid,_RC)
       redistributed_grid = ESMF_GridCreate(grid,balanced_distGrid,copyAttributes=.true.,_RC)
 
+      ! finally one more reconcile so that the grid gets reconcile
+      ! why can't we reconcile fields and grids individually?
       call ESMF_StateReconcile(fake_state,_RC)
 
+      ! destroy gridcomp, no need for it
       call ESMF_GridCompDestroy(fake_gridcomp,_RC)
       _RETURN(_SUCCESS)
    end function transfer_grid_to_pets
