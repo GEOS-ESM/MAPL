@@ -32,6 +32,7 @@ module AEIO_Writer
       procedure :: write_collection
       procedure :: setup_transfer
       procedure :: run_writer_process
+      procedure :: run_coordinator
    end type
 
    interface Writer
@@ -76,7 +77,29 @@ contains
    subroutine start_writer(this,rc)
       class(Writer), intent(inout) :: this
       integer, optional, intent(out) :: rc
-      !integer, parameter :: stag = 6782
+      integer :: status,back_local_rank
+      integer :: back_comm
+
+      back_comm = this%front_back_connection%get_back_comm()
+      call writer_prof%start('start_writer')
+      call MPI_Barrier(back_comm,status)
+
+      call MPI_COMM_RANK(back_comm,back_local_rank,status)
+      _VERIFY(status)
+      write(*,*)"Starting writer on local rank: ",back_local_rank
+      if (this%front_back_connection%am_i_back_root()) then
+         call this%run_coordinator(_RC)
+      else
+         call this%run_writer_process(_RC)
+      end if
+
+      _RETURN(_SUCCESS)
+
+   end subroutine start_writer
+
+   subroutine run_coordinator(this,rc)
+      class(Writer), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       integer :: collection_id
       logical, allocatable :: busy(:)
       integer :: nwriters,free_worker,free,no_job,i,status,back_local_rank
@@ -87,8 +110,6 @@ contains
       integer, allocatable :: writer_ranks(:),server_ranks(:),back_pets(:)
 
       back_comm = this%front_back_connection%get_back_comm()
-      call writer_prof%start('start_writer')
-      call MPI_Barrier(back_comm,status)
       connector_comm = this%front_back_connection%get_connection_comm()
       writer_ranks = this%front_back_connection%get_back_mpi_ranks()
       server_ranks = this%front_back_connection%get_front_mpi_ranks()
@@ -96,70 +117,66 @@ contains
 
       call MPI_COMM_RANK(back_comm,back_local_rank,status)
       _VERIFY(status)
-      write(*,*)"Starting writer on local rank: ",back_local_rank
+      write(*,*)"Starting coordinator on local rank: ",back_local_rank
       nwriters = size(writer_ranks)-1
       allocate(busy(nwriters))
       busy = .false.
-      if (this%front_back_connection%am_i_back_root()) then
-         do while (.true.)
-            call MPI_recv(collection_id, 1, MPI_INTEGER, &
-            server_ranks(1),writer_ranks(1),connector_comm, &
-            MPI_STAT, status)
-            _VERIFY(status)
-            if (collection_id >= 1) then
-                free_worker = 0
-                do i=1,nwriters
-                   if (busy(i) .eqv. .false.) then
-                      free_worker = i
-                      exit
-                   end if
-                enddo
-
-                if (free_worker ==0) then
-                    call mpi_recv(free_worker,1, MPI_INTEGER, &
-                         MPI_ANY_SOURCE,stag,back_comm, &
-                         MPI_STAT, status)
-                    _VERIFY(status)
+      do while (.true.)
+         call MPI_recv(collection_id, 1, MPI_INTEGER, &
+         server_ranks(1),writer_ranks(1),connector_comm, &
+         MPI_STAT, status)
+         _VERIFY(status)
+         if (collection_id >= 1) then
+             free_worker = 0
+             do i=1,nwriters
+                if (busy(i) .eqv. .false.) then
+                   free_worker = i
+                   exit
                 end if
+             enddo
 
-                busy(free_worker) = .true.
+             if (free_worker ==0) then
+                 call mpi_recv(free_worker,1, MPI_INTEGER, &
+                      MPI_ANY_SOURCE,stag,back_comm, &
+                      MPI_STAT, status)
+                 _VERIFY(status)
+             end if
 
-                call MPI_send(back_pets(1+free_worker),1,MPI_INTEGER,  server_ranks(1), &
-                     server_ranks(1),connector_comm,status)
-                _VERIFY(status)
-                call MPI_Send(collection_id,1,MPI_INTEGER, free_worker, &
-                     free_worker,back_comm,status)
-                _VERIFY(status)
-                collection_descriptor=this%collection_descriptors%at(collection_id)
-                rh=collection_descriptor%get_rh()
-                rh_new = this%setup_transfer(rh,back_pets(1+free_worker),_RC)
-            else
-               no_job=-1
-               do i=1,nwriters
-                  if (.not.busy(i)) then
-                     call MPI_send(no_job,1,MPI_INTEGER,i,i,back_comm,status)
-                     _VERIFY(status)
-                  else
-                     call MPI_recv(free,1,MPI_INTEGER, &
-                                   i,stag,back_comm, MPI_STAT,status)
-                     _VERIFY(status)
-                     if (free /= i) stop("free should be i")
-                     call MPI_send(no_job,1,MPI_INTEGER,i,i,back_comm,status)
-                     _VERIFY(status)
-                  end if
-               end do
-               write(*,*)"Exiting writer on rank: ",back_local_rank
-               call writer_prof%stop('start_writer')
-               exit
-            end if
-         enddo
-      else
-         call this%run_writer_process(_RC)
-      end if
+             busy(free_worker) = .true.
+
+             call MPI_send(back_pets(1+free_worker),1,MPI_INTEGER,  server_ranks(1), &
+                  server_ranks(1),connector_comm,status)
+             _VERIFY(status)
+             call MPI_Send(collection_id,1,MPI_INTEGER, free_worker, &
+                  free_worker,back_comm,status)
+             _VERIFY(status)
+             collection_descriptor=this%collection_descriptors%at(collection_id)
+             rh=collection_descriptor%get_rh()
+             rh_new = this%setup_transfer(rh,back_pets(1+free_worker),_RC)
+         else
+            no_job=-1
+            do i=1,nwriters
+               if (.not.busy(i)) then
+                  call MPI_send(no_job,1,MPI_INTEGER,i,i,back_comm,status)
+                  _VERIFY(status)
+               else
+                  call MPI_recv(free,1,MPI_INTEGER, &
+                                i,stag,back_comm, MPI_STAT,status)
+                  _VERIFY(status)
+                  if (free /= i) stop("free should be i")
+                  call MPI_send(no_job,1,MPI_INTEGER,i,i,back_comm,status)
+                  _VERIFY(status)
+               end if
+            end do
+            write(*,*)"Exiting writer on rank: ",back_local_rank
+            call writer_prof%stop('start_writer')
+            exit
+         end if
+      enddo
 
       _RETURN(_SUCCESS)
 
-   end subroutine start_writer
+   end subroutine run_coordinator
 
    subroutine run_writer_process(this,rc)
       class(Writer), intent(inout) :: this
