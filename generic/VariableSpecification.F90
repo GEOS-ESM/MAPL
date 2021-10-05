@@ -94,12 +94,12 @@ module mapl_VariableSpecification
       character(len=ESMF_MAXSTR), allocatable      :: VAR_LIST(:)
    end type MAPL_VarRequestedServiceType
 
-   type, public :: MAPL_VarServiceConnectionType
+   type, public :: ServiceConnectionType
 !!$      private
       character(len=ESMF_MAXSTR)               :: SERVICE_NAME
       character(len=ESMF_MAXSTR)               :: PROVIDER_NAME
       character(len=ESMF_MAXSTR)               :: REQUESTER_NAME
-   end type MAPL_VarServiceConnectionType
+   end type ServiceConnectionType
 
    type, public :: MAPL_VarProvidedServicePtr
 !!$      private
@@ -111,8 +111,4 @@ module mapl_VariableSpecification
       type(MAPL_VarRequestedServiceType), pointer :: Ptr => null()
    end type MAPL_VarRequestedServicePtr
 
-   type, public :: MAPL_VarServiceConnectionPtr
-!!$      private
-      type(MAPL_VarServiceConnectionType), pointer :: Ptr => null()
-   end type MAPL_VarServiceConnectionPtr
 end module mapl_VariableSpecification

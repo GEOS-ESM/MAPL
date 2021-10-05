@@ -367,7 +367,7 @@ end type  MAPL_InitialState
 type MAPL_Connectivity
    type (MAPL_VarConn), pointer :: CONNECT(:)       => null()
    type (MAPL_VarConn), pointer :: DONOTCONN(:)     => null()
-   type (MAPL_VarServiceConnectionPtr), pointer :: ServiceConnection(:) => null()
+   type (ServiceConnectionItemVector) :: ServiceConnectionItems
 end type MAPL_Connectivity
 
 type MAPL_LinkType
@@ -5255,7 +5255,7 @@ end function MAPL_AddChildFromDSO
     call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
     _VERIFY(STATUS)
 
-    call MAPL_VarServiceConnectionCreate(CONN%ServiceConnection, &
+    call MAPL_ServiceConnectionCreate(CONN%ServiceConnectionItems, &
          provider=provider, &
          requester=requester, &
          service=service, &
@@ -5367,25 +5367,21 @@ end function MAPL_AddChildFromDSO
     integer, optional,           intent(  OUT) :: RC     ! Error code:
 
     integer :: status
-    integer :: I, N
-    integer :: K, NF
     type (MAPL_Connectivity), pointer     :: conn
+    type (ServiceConnectionItemVectorIterator) :: iter
+    type (ServiceConnectionType), pointer :: item
     type(ESMF_FieldBundle) :: PBUNDLE, RBUNDLE
     type(ESMF_Field) :: FIELD
+    integer :: K, NF
     character(len=ESMF_MAXSTR) :: service, provider, requester
-
     conn => meta%connectList
 
-    if (.not. associated(conn%ServiceConnection)) then
-       N = 0
-    else
-       N = size(conn%ServiceConnection)
-    end if
-
+    iter = conn%ServiceConnectionItems%begin()
     ! loop over service connections
-    DO I=1,N
+    do while (iter /= conn%ServiceConnectionItems%end())
+       item => iter%get()
        ! retrieve connection info
-       call MAPL_VarServiceConnectionGet(conn%ServiceConnection(I), &
+       call MAPL_ServiceConnectionGet(item, &
             service=service, provider=provider, requester=requester, &
             rc=status)
        _VERIFY(status)
@@ -5409,6 +5405,7 @@ end function MAPL_AddChildFromDSO
           call MAPL_FieldBundleAdd(PBUNDLE, FIELD, multiflag=.true., RC=STATUS)
           _VERIFY(STATUS)
        END DO
+       call iter%next()
     END DO
     
     _RETURN(ESMF_SUCCESS)

@@ -17,6 +17,8 @@ module MAPL_VarSpecMod
    use MAPL_ExceptionHandling
    use mapl_VariableSpecification
    use mapl_VarSpecVector
+   use mapl_ServiceConnectionItemVectorMod
+
 ! !PUBLIC MEMBER FUNCTIONS:
 
 implicit none
@@ -43,8 +45,8 @@ public MAPL_VarSpecSamePrec
 
 public MAPL_VarProvidedServiceListAppend
 public MAPL_VarRequestedServiceListAppend
-public MAPL_VarServiceConnectionCreate
-public MAPL_VarServiceConnectionGet
+public MAPL_ServiceConnectionCreate
+public MAPL_ServiceConnectionGet
 public MAPL_VarProvidedServiceGet
 public MAPL_VarProvidedServiceSet
 public MAPL_VarRequestedServiceGet
@@ -2360,72 +2362,54 @@ contains
 
   end subroutine MAPL_VarRequestedServiceListAppend
 
-  subroutine MAPL_VarServiceConnectionCreate(CLIST, &
+  subroutine MAPL_ServiceConnectionCreate(CLIST, &
        PROVIDER, REQUESTER, SERVICE, RC)
 
-    type (MAPL_VarServiceConnectionPtr), pointer  :: CLIST(:)
+    type (ServiceConnectionItemVector)  :: CLIST
     character (len=*)             , intent(IN   ) :: PROVIDER
     character (len=*)             , intent(IN   ) :: REQUESTER
     character (len=*)             , intent(IN   ) :: SERVICE
     integer,              optional, intent(  OUT) :: RC     ! Error code:
     
     integer                                :: STATUS
-    integer                                :: I
-    type (MAPL_VarServiceConnectionPtr ), pointer  :: TMP(:) => null()
+    type (ServiceConnectionType)           :: item
 
 
-    if(.not. associated(CLIST)) then
-       allocate(CLIST(0),stat=STATUS)
-       _VERIFY(STATUS)
-    else
 !ALT: we might want to check for duplicates ???
-    endif
     
-        
-    I = size(CLIST)
-
-    allocate(TMP(I+1),stat=STATUS)
-    _VERIFY(STATUS)
+    item%Service_name = SERVICE
+    item%Provider_name = PROVIDER
+    item%Requester_name = REQUESTER
       
-    TMP(1:I) = CLIST
-    deallocate(CLIST)
-
-    allocate(TMP(I+1)%Ptr,stat=STATUS)
-    _VERIFY(STATUS)
-    
-    TMP(I+1)%Ptr%Service_name = SERVICE
-    TMP(I+1)%Ptr%Provider_name = PROVIDER
-    TMP(I+1)%Ptr%Requester_name = REQUESTER
-      
-    CLIST => TMP
+    call clist%push_back(item)
     
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_VarServiceConnectionCreate
+  end subroutine MAPL_ServiceConnectionCreate
 
-  subroutine MAPL_VarServiceConnectionGet(item, &
+  subroutine MAPL_ServiceConnectionGet(item, &
             Service, Provider, Requester, RC)
 
-    type (MAPL_VarServiceConnectionPtr), intent(IN)  :: ITEM
+    type (ServiceConnectionType), intent(IN)  :: ITEM
     character (len=*), optional, intent(  OUT) :: SERVICE
     character (len=*), optional, intent(  OUT) :: PROVIDER
     character (len=*), optional, intent(  OUT) :: REQUESTER
     integer,           optional, intent(  OUT) :: RC     ! Error code:
     
     if (present(Service)) then
-       Service = item%Ptr%Service_name
+       Service = item%Service_name
     end if
 
     if (present(Provider)) then
-       Provider = item%Ptr%Provider_name
+       Provider = item%Provider_name
     end if
 
     if (present(requester)) then
-       requester = item%Ptr%requester_name
+       requester = item%requester_name
     end if
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_VarServiceConnectionGet
+  end subroutine MAPL_ServiceConnectionGet
 
   subroutine MAPL_VarProvidedServiceGet(provider_list, advertised_service, bundle, rc)
     type(MAPL_VarProvidedServicePtr), pointer, intent(IN) :: provider_list(:)
