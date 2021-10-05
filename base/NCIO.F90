@@ -3946,6 +3946,7 @@ module NCIOMod
 ! Local vars
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
+    type (ESMF_Info)                     :: infoh
     integer                              :: status
     integer                              :: I, J, ITEMCOUNT
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
@@ -3998,7 +3999,9 @@ module NCIOMod
     call ESMF_FieldBundleSet(bundle_write,grid=arrdes%grid,rc=STATUS)
     _VERIFY(STATUS)
 
-    call ESMF_AttributeGet(state,name="POSITIVE",value=positive,rc=status)
+!    call ESMF_AttributeGet(state,name="POSITIVE",value=positive,rc=status)
+    call ESMF_InfoGetFromHost(state,infoh,rc=status)
+    call ESMF_InfoGet(infoh,'POSITIVE',positive,rc=status)
     _VERIFY(status)
     call ESMF_AttributeSet(bundle_write,name="POSITIVE",value=positive,rc=status)
     _VERIFY(status)

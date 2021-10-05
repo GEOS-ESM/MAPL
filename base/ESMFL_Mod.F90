@@ -4142,6 +4142,7 @@ CONTAINS
     character(len=ESMF_MAXSTR)           :: attrName
     character(len=ESMF_MAXSTR), allocatable :: currList(:)
     integer                                 :: natt
+    type(ESMF_Info)                      :: infoh
 
 !                           ---
 
@@ -4168,7 +4169,9 @@ CONTAINS
 !   Loop over each item on STATE
 !   ----------------------------
     attrName = MAPL_StateItemOrderList
-    call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
+!    call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
+    call ESMF_InfoGetFromHost(state,infoh,RC=STATUS)
+    call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
     _VERIFY(STATUS)
 
     _ASSERT(natt > 0, 'natt should be > 0')
@@ -4178,7 +4181,9 @@ CONTAINS
     _VERIFY(STATUS)
 
     ! get the current list
-    call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
+!    call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
+    call ESMF_InfoGetFromHost(state,infoh,rc=status)
+    call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
     _VERIFY(STATUS)
 
     orderList = -1 ! not found

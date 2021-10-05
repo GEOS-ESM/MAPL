@@ -1591,7 +1591,9 @@ endif
       endif
    end if
 
-   call ESMF_AttributeSet(import,'POSITIVE',trim(positive),rc=status)
+!   call ESMF_AttributeSet(import,'POSITIVE',trim(positive),rc=status)
+   call ESMF_InfoGetFromHost(import,infoh,rc=status)
+   call ESMF_InfoSet(infoh,key='POSITIVE',value=trim(positive),rc=status)
    _VERIFY(status)
 ! Create internal and initialize state variables
 ! -----------------------------------------------
@@ -1611,7 +1613,9 @@ endif
                                         RC=STATUS       )
       end if
       _VERIFY(STATUS)
-      call ESMF_AttributeSet(internal_state,'POSITIVE',trim(positive),rc=status)
+!      call ESMF_AttributeSet(internal_state,'POSITIVE',trim(positive),rc=status)
+      call ESMF_InfoGetFromHost(internal_state,infoh,rc=status)
+      call ESMF_InfoSet(infoh,key='POSITIVE',value=trim(positive),rc=status)
       _VERIFY(status)
 
       id_string = ""
@@ -5390,6 +5394,7 @@ end function MAPL_AddChildFromDSO
     !logical                               :: amIRoot
     !type (ESMF_VM)                        :: vm
     logical :: empty
+    type(ESMF_Info)                       :: infoh
 
 ! Check if state is empty. If "yes", simply return
     empty = MAPL_IsStateEmpty(state, __RC__)
@@ -5425,7 +5430,9 @@ end function MAPL_AddChildFromDSO
 
        AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
 
-       call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
+!       call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
+       call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+       call ESMF_InfoGet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
        _VERIFY(STATUS)
        TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
           _ASSERT(IAND(ATTR, MAPL_AttrGrid) == 0,'needs informative message') ! no hybrid allowed
@@ -5517,7 +5524,9 @@ end function MAPL_AddChildFromDSO
        end if
 #endif
        AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
-       call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
+!       call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
+       call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+       call ESMF_InfoGet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
        _VERIFY(STATUS)
        PNC4_TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
           _ASSERT(IAND(ATTR, MAPL_AttrGrid) == 0,'needs informative message') ! no hybrid allowed
@@ -5728,10 +5737,13 @@ end function MAPL_AddChildFromDSO
     end if
 
     ! get the "required restart" attribute from the state
-    call ESMF_AttributeGet(STATE, NAME="MAPL_RestartRequired", isPresent=isPresent, RC=STATUS)
+!    call ESMF_AttributeGet(STATE, NAME="MAPL_RestartRequired", isPresent=isPresent, RC=STATUS)
+    call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+    isPresent = ESMF_InfoIsPresent(infoh,'MAPL_RestartRequired',RC=STATUS)
     _VERIFY(STATUS) 
     if (isPresent) then
-       call ESMF_AttributeGet(STATE, NAME="MAPL_RestartRequired", VALUE=rstReq, RC=STATUS)
+!       call ESMF_AttributeGet(STATE, NAME="MAPL_RestartRequired", VALUE=rstReq, RC=STATUS)
+       call ESMF_InfoGet(infoh,'MAPL_RestartRequired',rstReq,RC=STATUS)
        _VERIFY(STATUS) 
     else
        rstReq = 0
@@ -5843,7 +5855,9 @@ end function MAPL_AddChildFromDSO
 
        AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
 
-       call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
+!       call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
+       call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+       call ESMF_InfoGet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
        _VERIFY(STATUS)
        TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
           _ASSERT(IAND(ATTR, MAPL_AttrGrid) == 0,'needs informative message') ! no hybrid allowed
@@ -5926,7 +5940,9 @@ end function MAPL_AddChildFromDSO
        end if
 #endif
        AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
-       call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
+!       call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
+       call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+       call ESMF_InfoGet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
        _VERIFY(STATUS)
        PNC4_TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
           _ASSERT(IAND(ATTR, MAPL_AttrGrid) == 0,'needs informative message') ! no hybrid allowed
@@ -6006,10 +6022,14 @@ end function MAPL_AddChildFromDSO
        _VERIFY(STATUS)
     endif
 
-    call ESMF_AttributeSet(STATE,'MAPL_Initialized', .TRUE.,RC=STATUS)
+!    call ESMF_AttributeSet(STATE,'MAPL_Initialized', .TRUE.,RC=STATUS)
+    call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+    call ESMF_InfoSet(infoh,key='MAPL_Initialized',value=.TRUE.,RC=STATUS)
     _VERIFY(STATUS)
 
     call MAPL_AttributeSet(STATE, NAME="MAPL_InitStatus", VALUE=MAPL_InitialRestart, RC=STATUS)
+!    call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+!    call ESMF_InfoSet(infoh,key='MAPL_InitStatus',value=MAPL_InitialRestart,RC=STATUS)
     _VERIFY(STATUS)      
 
     _RETURN(ESMF_SUCCESS)
@@ -6142,6 +6162,7 @@ end subroutine MAPL_StateCreateFromVarSpecNew
     type (ESMF_FieldBundle) :: BUNDLE
     type (ESMF_Field)       :: SPEC_FIELD
     type (ESMF_FieldBundle) :: SPEC_BUNDLE
+    type (ESMF_Info)      :: infoh
     real(kind=ESMF_KIND_R4), pointer         :: VAR_1D(:), VAR_2D(:,:), VAR_3D(:,:,:), VAR_4d(:,:,:,:)
     real(kind=ESMF_KIND_R8), pointer         :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
     logical               :: usableDEFER
@@ -6271,7 +6292,9 @@ end subroutine MAPL_StateCreateFromVarSpecNew
          call MAPL_VarSpecSet(varspec,STATE=nestState,RC=STATUS)
          _VERIFY(STATUS)
 
-         call ESMF_AttributeSet(nestState, NAME='RESTART', VALUE=RESTART, RC=STATUS)
+!         call ESMF_AttributeSet(nestState, NAME='RESTART', VALUE=RESTART, RC=STATUS)
+         call ESMF_InfoGetFromHost(nestState,infoh,RC=STATUS)
+         call ESMF_InfoSet(infoh,'RESTART',RESTART,RC=STATUS)
          _VERIFY(STATUS)
       
 ! Put the BUNDLE in the state
@@ -6603,9 +6626,13 @@ end subroutine MAPL_StateCreateFromVarSpecNew
       end if
 
    enddo
-   call ESMF_AttributeSet(STATE, NAME="MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
+!   call ESMF_AttributeSet(STATE, NAME="MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
+   call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+   call ESMF_InfoSet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
    _VERIFY(STATUS)
-   call ESMF_AttributeSet(STATE, NAME="MAPL_RestartRequired", VALUE=rstReq, RC=STATUS)
+!   call ESMF_AttributeSet(STATE, NAME="MAPL_RestartRequired", VALUE=rstReq, RC=STATUS)
+   call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+   call ESMF_InfoSet(infoh,'MAPL_RestartRequired',rstReq,RC=STATUS)
    _VERIFY(STATUS)
 
    _RETURN(ESMF_SUCCESS)
@@ -7625,6 +7652,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     logical                                 :: AddPrefix_
     character(len=ESMF_MAXSTR)              :: GC_NAME, fieldname
     type(ESMF_GridComp), pointer :: gridcomp
+    type(ESMF_Info) :: infoh
 
 ! Get my MAPL_Generic state
 !--------------------------
@@ -7675,10 +7703,13 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     _VERIFY(STATUS)
 
     attrName = MAPL_StateItemOrderList
-    call ESMF_AttributeGet(internal, NAME=attrName, isPresent=haveAttr, RC=STATUS)
+!    call ESMF_AttributeGet(internal, NAME=attrName, isPresent=haveAttr, RC=STATUS)
+       call ESMF_InfoGetFromHost(internal,infoh,RC=STATUS)
+    haveAttr = ESMF_InfoIsPresent(infoh,attrName,RC=STATUS)
     _VERIFY(STATUS)
     if (haveAttr) then
-       call ESMF_AttributeGet(internal, NAME=attrName, itemcount=natt, RC=STATUS)
+!       call ESMF_AttributeGet(internal, NAME=attrName, itemcount=natt, RC=STATUS)
+       call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
        _VERIFY(STATUS)
     else
        natt = N
@@ -7695,7 +7726,9 @@ recursive subroutine MAPL_WireComponent(GC, RC)
        _VERIFY(STATUS)
 
        ! get the current list
-       call ESMF_AttributeGet(internal, NAME=attrName, VALUELIST=currList, rc=status)
+!       call ESMF_AttributeGet(internal, NAME=attrName, VALUELIST=currList, rc=status)
+       call ESMF_InfoGetFromHost(internal,infoh,rc=status)
+       call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
        _VERIFY(STATUS)
 
        orderList = -1 ! not found

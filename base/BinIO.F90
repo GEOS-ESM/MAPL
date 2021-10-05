@@ -295,6 +295,7 @@ module  BinIOMod
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
     type (ESMF_Grid)                     :: grid
+    type (ESMF_Info)                     :: infoh
     integer                              :: status
     integer                              :: I
     integer                              :: ITEMCOUNT
@@ -341,7 +342,9 @@ module  BinIOMod
     endif
 
     attrName = MAPL_StateItemOrderList
-    call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
+!    call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
+    call ESMF_InfoGetFromHost(state,infoh,RC=STATUS)
+    call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
     _VERIFY(STATUS)
 
     _ASSERT(natt > 0, 'natt not > 0')
@@ -351,7 +354,9 @@ module  BinIOMod
     _VERIFY(STATUS)
 
     ! get the current list
-    call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
+!    call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
+    call ESMF_InfoGetFromHost(state,infoh,rc=status)
+    call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
     _VERIFY(STATUS)
 
     orderList = -1 ! not found
@@ -1909,6 +1914,7 @@ module  BinIOMod
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
     type (ESMF_Grid)                     :: grid
+    type (ESMF_Info)                     :: infoh
     integer                              :: status
     integer                              :: I, ITEMCOUNT
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
@@ -1955,7 +1961,9 @@ module  BinIOMod
     endif
 
     attrName = MAPL_StateItemOrderList
-    call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
+!    call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
+    call ESMF_InfoGetFromHost(state,infoh,RC=STATUS)
+    call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
     _VERIFY(STATUS)
 
     _ASSERT(natt > 0, 'natt not > 0')
@@ -1965,7 +1973,9 @@ module  BinIOMod
     _VERIFY(STATUS)
 
     ! get the current list
-    call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
+!    call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
+    call ESMF_InfoGetFromHost(state,infoh,rc=status)
+    call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
     _VERIFY(STATUS)
 
     orderList = -1 ! not found

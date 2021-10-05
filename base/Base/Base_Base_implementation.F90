@@ -2567,12 +2567,15 @@ contains
     type(ESMF_State)                      :: nestedSTATE
     type(ESMF_Field)                      :: FIELD
     type(ESMF_FieldBundle)                :: BUNDLE
+    type(ESMF_Info)                       :: infoh
     type (ESMF_StateItem_Flag), pointer   :: ITEMTYPES(:)
     character(len=ESMF_MAXSTR ), pointer  :: ITEMNAMES(:)
     integer                               :: ITEMCOUNT
     integer                               :: I
 
-    call ESMF_AttributeSet(STATE, NAME, VALUE, RC=status)
+!    call ESMF_AttributeSet(STATE, NAME, VALUE, RC=status)
+    call ESMF_InfoGetFromHost(STATE,infoh,RC=status)
+    call ESMF_InfoSet(infoh,NAME,VALUE,RC=status)
     _VERIFY(STATUS)
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
@@ -2777,6 +2780,7 @@ contains
     integer                                 :: na
     type(ESMF_Field)                        :: Fields(1)
     logical                                 :: haveAttr
+    type(ESMF_Info)                         :: infoh
 
 
     fields(1) = field
@@ -2790,10 +2794,13 @@ contains
 
     ! check for attribute
 
-    call ESMF_AttributeGet(state, NAME=attrName, isPresent=haveAttr, RC=STATUS)
+!    call ESMF_AttributeGet(state, NAME=attrName, isPresent=haveAttr, RC=STATUS)
+    call ESMF_InfoGetFromHost(state,infoh,RC=STATUS)
+    haveAttr = ESMF_InfoIsPresent(infoh,attrName,RC=STATUS)
     _VERIFY(STATUS)
     if (haveAttr) then
-       call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
+!       call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
+       call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
        _VERIFY(STATUS)
     else
        natt = 0
@@ -2803,10 +2810,14 @@ contains
 
     if (natt > 0) then
        ! get the current list
-       call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
+!       call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
+       call ESMF_InfoGetFromHost(state,infoh,rc=status)
+       call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
        _VERIFY(STATUS)
        !ALT delete/destroy this attribute to prevent memory leaks
-       call ESMF_AttributeRemove(state, NAME=attrName, rc=status)
+!       call ESMF_AttributeRemove(state, NAME=attrName, rc=status)
+       call ESMF_InfoGetFromHost(state,infoh,rc=status)
+       call ESMF_InfoRemove(infoh,attrName,rc=status)
        _VERIFY(STATUS)
     end if
 
@@ -2821,7 +2832,9 @@ contains
 
     thisList(na) = name
 
-    call ESMF_AttributeSet(state, NAME=attrName, itemcount=na, VALUELIST=thisList, rc=status)
+!    call ESMF_AttributeSet(state, NAME=attrName, itemcount=na, VALUELIST=thisList, rc=status)
+    call ESMF_InfoGetFromHost(state,infoh,rc=status)
+    call ESMF_InfoSet(infoh,key=attrName,values=thisList,rc=status)
     _VERIFY(STATUS)
 
     deallocate(thisList)
@@ -2849,6 +2862,7 @@ contains
     integer                                 :: na
     type(ESMF_FieldBundle)                  :: Bundles(1)
     logical                                 :: haveAttr
+    type(ESMF_Info)                         :: infoh
 
     bundles(1) = bundle
     call ESMF_StateAdd(state, Bundles, RC=status)
@@ -2856,10 +2870,13 @@ contains
 
     ! check for attribute
 
-    call ESMF_AttributeGet(state, NAME=attrName, isPresent=haveAttr, RC=STATUS)
+!    call ESMF_AttributeGet(state, NAME=attrName, isPresent=haveAttr, RC=STATUS)
+     call ESMF_InfoGetFromHost(state,infoh,RC=STATUS)
+     haveAttr = ESMF_InfoIsPresent(infoh,attrName,RC=STATUS)
     _VERIFY(STATUS)
     if (haveAttr) then
-       call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
+!       call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
+       call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
        _VERIFY(STATUS)
     else
        natt = 0
@@ -2869,10 +2886,14 @@ contains
 
     if (natt > 0) then
        ! get the current list
-       call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
+!       call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
+       call ESMF_InfoGetFromHost(state,infoh,rc=status)
+       call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
        _VERIFY(STATUS)
        !ALT delete/destroy this attribute to prevent memory leaks
-       call ESMF_AttributeRemove(state, NAME=attrName, rc=status)
+!       call ESMF_AttributeRemove(state, NAME=attrName, rc=status)
+       call ESMF_InfoGetFromHost(state,infoh,rc=status)
+       call ESMF_InfoRemove(infoh,attrName,rc=status)
        _VERIFY(STATUS)
     end if
 
@@ -2887,7 +2908,9 @@ contains
 
     thisList(na) = name
 
-    call ESMF_AttributeSet(state, NAME=attrName, itemcount=na, VALUELIST=thisList, rc=status)
+!    call ESMF_AttributeSet(state, NAME=attrName, itemcount=na, VALUELIST=thisList, rc=status)
+    call ESMF_InfoGetFromHost(state,infoh,rc=status)
+    call ESMF_InfoSet(infoh,key=attrName,values=thisList,rc=status)
     _VERIFY(STATUS)
 
     deallocate(thisList)
