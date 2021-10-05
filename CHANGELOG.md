@@ -25,8 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Moved BundleRead and BundleWrite modules from base to griddedio
     - Moved Regrid_Util.F90 from base to griddedio  due to griddedio dependency on base. Executable still generated in install/bin
 - Updated `components.yaml`
-    - ESMA_cmake v3.5.7 (Bug fix for NAG, support for mepo styles)
-    - ESMA_env v3.3.1
+    - ESMA_cmake v3.6.1 (Bug fix for NAG, support for mepo styles, `Release` flags are now vectorized)
+    - ESMA_env v3.4.0 (Support for Cascade Lake, moves to Intel 2021.2)
 - Refactored MAPL_IO by separating it into a Binary (BinIO.F90) and NetCDF (NCIO.F90) modules. Shared subroutines and
   types have been moved to FileIOShared.F90. MAPL_IO becomes a package module to hold these aforementioned three modules.
 
@@ -34,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed #338. Added a workaround for a gfortran bug that handles end-of-file incorrectly (returns IOSTAT=5001).
 - Fixed ESMF logging errors from MAPL_IO (#1032)
+- Make `BUILD_WITH_PFLOGGER` a CMake `option()`
+- MAPL finds yaFyaml in CMake through `PFLOGGER::pflogger`, so if you build the stub, specifically add it as a dependency
+- Fix annoying misspelling of FLAP
 
 ## [2.8.6] - 2021-09-13
 
