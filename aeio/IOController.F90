@@ -270,13 +270,16 @@ contains
       integer, allocatable :: back_pets(:)
 
       back_pets = this%mpi_connection%get_back_pets()
-      
+     
+      ! For now make an array redist for htis 
       server_ptr => this%servers%at(collection_name)
       server_bundle = server_ptr%get_bundle()
       call ESMF_FieldBundleGet(server_bundle,grid=grid,_RC)
       call ESMF_GridGet(grid,distGrid=dist_grid_in,_RC)
       call MAPL_GridGet(grid,globalCellCountPerDim=grid_size,_RC)
+      ! create a delayout the "controller" proces on the writer pet
       de_layout=ESMF_DELayoutCreate(deCount=1,petList=[back_pets(1)],_RC)
+      ! now create a distgrid on this delayout using the global size of the grid
       dist_grid_out=ESMF_DistGridCreate([1,1],[grid_size(1),grid_size(2)],regDecomp=[1,1],delayout=de_layout,_RC)
       array_in = ESMF_ArrayCreate(dist_grid_in,ESMF_TYPEKIND_R4,_RC)
       array_out = ESMF_ArrayCreate(dist_grid_out,ESMF_TYPEKIND_R4,_RC)
