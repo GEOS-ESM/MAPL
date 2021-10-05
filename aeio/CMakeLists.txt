@@ -29,6 +29,7 @@ set (srcs
     TransferGridComp.F90
     MpiConnection.F90
     IOProfiler.F90
+    WriterProfiler.F90
     AEIO.F90
     )
 

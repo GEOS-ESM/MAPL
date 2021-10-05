@@ -96,10 +96,16 @@ contains
       call ESMF_VMBarrier(vm,__RC__)
       call ESMF_StateReconcile(export,__RC__)
       call ESMF_VMBarrier(vm,__RC__)
+      write(*,*)"starting on rank: ",rank
       hist_config="newhist.yaml"
       call start_io_prof(MPI_COMM_WORLD)
+      call start_writer_prof(MPI_COMM_WORLD)
+      call ESMF_VMBarrier(vm,__RC__)
+      call MPI_Barrier(MPI_COMM_WORLD,status)
       call io_controller%initialize(export,hist_config,clock,this%cap_options%npes_model,this%cap_options%npes_backend_pernode,rc=status)
       _VERIFY(status)
+      call ESMF_VMBarrier(vm,__RC__)
+      call MPI_Barrier(MPI_COMM_WORLD,status)
 
       call io_controller%start_writer(_RC)
       do i=1,3
@@ -114,17 +120,20 @@ contains
       call ESMF_VMBarrier(vm,_RC)
       
       call MPI_Barrier(MPI_COMM_WORLD,status)
+      call generate_writer_summary(rank)
+      call MPI_Barrier(MPI_COMM_WORLD,status)
       call generate_io_summary(rank)
       write(*,*)"after io summ: ",rank
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      call cap%finalize(rc = status)
+      if (model) call cap%finalize(rc = status)
       _VERIFY(status)
 
+      write(*,*)"after cap fin on rank: ",rank
       call MPI_Barrier(MPI_COMM_WORLD,status)
       write(*,*)"we exit on rank: ",rank
       call MAPL_Finalize(rc=status)
       _VERIFY(status) 
-      !call MPI_Finalize(status)
+      call MPI_Finalize(status)
 
       _RETURN(ESMF_SUCCESS)
 

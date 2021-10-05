@@ -193,8 +193,14 @@ contains
       integer :: writer_comm
 
       call io_prof%start('io_run')
+      call io_prof%start('client-server-trans')
+      call io_prof%stop('client-server-trans')
+      call io_prof%start('server-writer-trans')
+      call io_prof%stop('server-writer-trans')
+      call io_prof%stop('io_run')
       writer_comm = this%mpi_connection%get_back_comm()
       if (writer_comm == MPI_COMM_NULL) then
+         call io_prof%start('io_run')
          ! here the client might do some work
 
          ! then we would probably want to check if it is time to write
@@ -208,8 +214,8 @@ contains
          ! on correct Pets offload data
          call this%offload_server_data(_RC)
          call io_prof%stop('server-writer-trans')
+         call io_prof%stop('io_run')
       end if
-      call io_prof%stop('io_run')
       _RETURN(_SUCCESS)
    end subroutine run
 

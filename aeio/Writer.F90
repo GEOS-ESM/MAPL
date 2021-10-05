@@ -13,13 +13,14 @@ module AEIO_Writer
    use AEIO_CollectionDescriptorVector
    use AEIO_MpiConnection
    use MAPL_Profiler
-   use AEIO_IOProfiler
+   use AEIO_WriterProfiler
    
    implicit none
    private
 
    public :: Writer
 
+   integer, parameter :: stag = 6782
    type Writer
       type(MpiConnection) :: front_back_connection
       integer, allocatable :: writer_ranks(:)
@@ -30,6 +31,7 @@ module AEIO_Writer
       procedure :: add_collection
       procedure :: write_collection
       procedure :: setup_transfer
+      procedure :: run_writer_process
    end type
 
    interface Writer
@@ -49,6 +51,12 @@ contains
       call ESMF_VMGet(vm,localPet=myPet,_RC)
       c%front_back_connection=front_back_connection
 
+      call writer_prof%start('start_writer')
+      call writer_prof%start('start_write_epoch')
+      call writer_prof%stop('start_write_epoch')
+      call writer_prof%start('trans-on-back')
+      call writer_prof%stop('trans-on-back')
+      call writer_prof%stop('start_writer')
    end function new_writer
 
    subroutine add_collection(this,coll_name,bundle,rh,rc)
@@ -68,7 +76,7 @@ contains
    subroutine start_writer(this,rc)
       class(Writer), intent(inout) :: this
       integer, optional, intent(out) :: rc
-      integer, parameter :: stag = 6782
+      !integer, parameter :: stag = 6782
       integer :: collection_id
       logical, allocatable :: busy(:)
       integer :: nwriters,free_worker,free,no_job,i,status,back_local_rank
@@ -79,7 +87,8 @@ contains
       integer, allocatable :: writer_ranks(:),server_ranks(:),back_pets(:)
 
       back_comm = this%front_back_connection%get_back_comm()
-      call io_prof%start('start_writer')
+      call writer_prof%start('start_writer')
+      call MPI_Barrier(back_comm,status)
       connector_comm = this%front_back_connection%get_connection_comm()
       writer_ranks = this%front_back_connection%get_back_mpi_ranks()
       server_ranks = this%front_back_connection%get_front_mpi_ranks()
@@ -139,33 +148,49 @@ contains
                      _VERIFY(status)
                   end if
                end do
-               call io_prof%stop('start_writer')
+               write(*,*)"Exiting writer on rank: ",back_local_rank
+               call writer_prof%stop('start_writer')
                exit
             end if
          enddo
       else
-         do while (.true.)
-            ! which collection am I working on
-            call MPI_Recv(collection_id,1,MPI_INTEGER, &
-                         0,back_local_rank,back_comm, &
-                         MPI_STAT,status)
-            _VERIFY(status)
-            if (collection_id < 0) then
-               call io_prof%stop('start_writer')
-               exit
-            end if
-            ! do stuff
-            call this%write_collection(collection_id,_RC)
-            ! send back I am done
-            call MPI_send(back_local_rank,1,MPI_INTEGER,0,stag,back_comm,status)
-            _VERIFY(status)                      
-
-         enddo
+         call this%run_writer_process(_RC)
       end if
 
       _RETURN(_SUCCESS)
 
    end subroutine start_writer
+
+   subroutine run_writer_process(this,rc)
+      class(Writer), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: MPI_STAT(MPI_STATUS_SIZE)
+      integer :: back_comm,back_local_rank,collection_id,status
+
+      back_comm = this%front_back_connection%get_back_comm()
+      call MPI_COMM_RANK(back_comm,back_local_rank,status)
+      _VERIFY(status)
+      do while (.true.)
+         ! which collection am I working on
+         call MPI_Recv(collection_id,1,MPI_INTEGER, &
+                      0,back_local_rank,back_comm, &
+                      MPI_STAT,status)
+         _VERIFY(status)
+         if (collection_id < 0) then
+            write(*,*)"Exiting writer on rank: ",back_local_rank
+            call writer_prof%stop('start_writer')
+            exit
+         end if
+         ! do stuff
+         call this%write_collection(collection_id,_RC)
+         ! send back I am done
+         call MPI_send(back_local_rank,1,MPI_INTEGER,0,stag,back_comm,status)
+         _VERIFY(status)                      
+
+      enddo
+      _RETURN(_SUCCESS)
+   end subroutine run_writer_process
 
    subroutine write_collection(this,collection_id,rc)
       class(Writer), intent(inout) :: this
@@ -209,7 +234,7 @@ contains
       dist_grid = ESMF_DistGridCreate([1,1],[gdims(1),gdims(2)],regDecomp=[1,1],delayout=de_layout,_RC)
       output_bundle = ESMF_ArrayBundleCreate(_RC)
 
-      call io_prof%start('start_write_epoch')
+      call writer_prof%start('start_write_epoch')
       call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
 
       do i=1,fieldCount
@@ -234,7 +259,7 @@ contains
          end block
       enddo
       
-      call io_prof%stop('start_write_epoch')
+      call writer_prof%stop('start_write_epoch')
       call ESMF_VMEpochExit()
 
       call rh_new%destroy(_RC)
@@ -269,9 +294,9 @@ contains
       targetPetList(1:front_size)=front_pets
       originPetList(front_size+1)=back_pets(1)
       targetPetList(front_size+1)=transfer_rank
-      call io_prof%start('trans-on-back')
+      call writer_prof%start('trans-on-back')
       new_rh=rh%transfer_rh(originPetList,targetPetList,_RC)
-      call io_prof%stop('trans-on-back')
+      call writer_prof%stop('trans-on-back')
       _RETURN(_SUCCESS)
    end function setup_transfer
 

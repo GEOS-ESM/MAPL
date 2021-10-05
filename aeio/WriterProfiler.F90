@@ -1,23 +1,23 @@
-module AEIO_IOProfiler
+module AEIO_WriterProfiler
    use MAPL_Profiler
    implicit none
    private
  
-   public io_prof
-   public generate_io_summary
-   public start_io_prof
+   public writer_prof
+   public generate_writer_summary
+   public start_writer_prof
 
-   type(DistributedProfiler), save :: io_prof
+   type(DistributedProfiler), save :: writer_prof
 
 contains
 
-   subroutine start_io_prof(comm)
+   subroutine start_writer_prof(comm)
         integer, intent(in) :: comm
-        io_prof = DistributedProfiler('io_controller',MpiTimerGauge(),comm)
-        call io_prof%start()
-   end subroutine start_io_prof
+        writer_prof = DistributedProfiler('writer',MpiTimerGauge(),comm)
+        call writer_prof%start()
+   end subroutine start_writer_prof
 
-   subroutine generate_io_summary(rank)
+   subroutine generate_writer_summary(rank)
       integer, intent(in) :: rank
       type (ProfileReporter) :: reporter
          character(:), allocatable :: report_lines(:)
@@ -25,8 +25,8 @@ contains
          character(1) :: empty(0)
 
 
-         call io_prof%finalize()
-         call io_prof%reduce()
+         call writer_prof%finalize()
+         call writer_prof%reduce()
          reporter = ProfileReporter(empty)
          call reporter%add_column(NameColumn(30))
          call reporter%add_column(FormattedTextColumn('Inclusive','(f9.2)', 11, InclusiveColumn('MEAN')))
@@ -37,7 +37,7 @@ contains
          call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.2)', 11, ExclusiveColumn('MIN')))
          call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
          call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
-        report_lines = reporter%generate_report(io_prof)
+        report_lines = reporter%generate_report(writer_prof)
          if (rank==0) then
             write(*,'(a)')'Final profile'
             write(*,'(a)')'============='
@@ -50,4 +50,4 @@ contains
    end subroutine
 
 
-end module AEIO_IOProfiler
+end module AEIO_WriterProfiler
