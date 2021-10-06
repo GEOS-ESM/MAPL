@@ -1173,7 +1173,7 @@ contains
              if (done) exit
           endif
 
-          if ( .not. reverse_time ) then
+          if ( reverse_time == 0 ) then
              call cap%step(status)
           else
              call cap%step_reverse(n .eq. 1, status)
