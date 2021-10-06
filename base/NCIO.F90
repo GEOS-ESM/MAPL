@@ -2828,6 +2828,7 @@ module NCIOMod
 ! Local vars
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
+    type (ESMF_Info)                     :: infoh
     integer                              :: status
     integer                              :: I, K
     integer                              :: J, ITEMCOUNT
@@ -2931,10 +2932,13 @@ module NCIOMod
              _VERIFY(STATUS)
 
              skipReading = .false.
-             call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+!             call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+             call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+             isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+!                call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                 _VERIFY(STATUS)
              else
                 RST = MAPL_RestartOptional
@@ -3446,7 +3450,9 @@ module NCIOMod
        call ArrDescrSet(arrdes, JM_WORLD=JM_WORLD)
     end if
 
-    call ESMF_AttributeGet(bundle,"POSITIVE",positive,rc=status)
+!    call ESMF_AttributeGet(bundle,"POSITIVE",positive,rc=status)
+    call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+    call ESMF_InfoGet(infoh,'POSITIVE',positive,rc=status)
     _VERIFY(status)
     ! count dimensions for NCIO
     ndims = 0
@@ -4003,7 +4009,9 @@ module NCIOMod
     call ESMF_InfoGetFromHost(state,infoh,rc=status)
     call ESMF_InfoGet(infoh,'POSITIVE',positive,rc=status)
     _VERIFY(status)
-    call ESMF_AttributeSet(bundle_write,name="POSITIVE",value=positive,rc=status)
+!    call ESMF_AttributeSet(bundle_write,name="POSITIVE",value=positive,rc=status)
+    call ESMF_InfoGetFromHost(bundle_write,infoh,rc=status)
+    call ESMF_InfoSet(infoh,'POSITIVE',positive,rc=status)
     _VERIFY(status)
     flip = trim(positive)=="up"
 
@@ -4018,10 +4026,13 @@ module NCIOMod
 
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+!                call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+                call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+                isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
                 _VERIFY(STATUS)
                 if (isPresent) then
-                   call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+!                   call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                   call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                    _VERIFY(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if

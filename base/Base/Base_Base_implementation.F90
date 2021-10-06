@@ -2627,10 +2627,13 @@ contains
     integer                               :: STATUS
 
     type(ESMF_Field)                      :: FIELD
+    type(ESMF_Info)                       :: infoh
     integer                               :: FIELDCOUNT
     integer                               :: I
 
-    call ESMF_AttributeSet(BUNDLE, NAME, VALUE, RC=status)
+!    call ESMF_AttributeSet(BUNDLE, NAME, VALUE, RC=status)
+    call ESMF_InfoGetFromHost(BUNDLE,infoh,RC=status)
+    call ESMF_InfoSet(infoh,NAME,VALUE,RC=status)
     _VERIFY(STATUS)
 
     call ESMF_FieldBundleGet(BUNDLE, FieldCount=FIELDCOUNT, RC=STATUS)
@@ -2938,6 +2941,7 @@ contains
     integer                                 :: na
     type(ESMF_Field)                        :: Fields(1)
     logical                                 :: haveAttr
+    type(ESMF_Info)                         :: infoh
 
 
     fields(1) = field
@@ -2946,10 +2950,13 @@ contains
 
     ! check for attribute
 
-    call ESMF_AttributeGet(Bundle, NAME=attrName, isPresent=haveAttr, RC=STATUS)
+!    call ESMF_AttributeGet(Bundle, NAME=attrName, isPresent=haveAttr, RC=STATUS)
+    call ESMF_InfoGetFromHost(Bundle,infoh,RC=STATUS)
+    haveAttr = ESMF_InfoIsPresent(infoh,attrName,RC=STATUS)
     _VERIFY(STATUS)
     if (haveAttr) then
-       call ESMF_AttributeGet(Bundle, NAME=attrName, itemcount=natt, RC=STATUS)
+!       call ESMF_AttributeGet(Bundle, NAME=attrName, itemcount=natt, RC=STATUS)
+       call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
        _VERIFY(STATUS)
     else
        natt = 0
@@ -2959,10 +2966,14 @@ contains
 
     if (natt > 0) then
        ! get the current list
-       call ESMF_AttributeGet(Bundle, NAME=attrName, VALUELIST=currList, rc=status)
+!       call ESMF_AttributeGet(Bundle, NAME=attrName, VALUELIST=currList, rc=status)
+       call ESMF_InfoGetFromHost(Bundle,infoh,rc=status)
+       call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
        _VERIFY(STATUS)
        !ALT delete/destroy this attribute to prevent memory leaks
-       call ESMF_AttributeRemove(bundle, NAME=attrName, rc=status)
+!       call ESMF_AttributeRemove(bundle, NAME=attrName, rc=status)
+       call ESMF_InfoGetFromHost(Bundle,infoh,rc=status)
+       call ESMF_InfoRemove(infoh,attrName,rc=status)
        _VERIFY(STATUS)
     end if
 
@@ -2977,7 +2988,9 @@ contains
 
     thisList(na) = name
 
-    call ESMF_AttributeSet(bundle, NAME=attrName, itemcount=na, VALUELIST=thisList, rc=status)
+!    call ESMF_AttributeSet(bundle, NAME=attrName, itemcount=na, VALUELIST=thisList, rc=status)
+    call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+    call ESMF_InfoSet(infoh,key=attrName,values=thisList,rc=status)
     _VERIFY(STATUS)
 
     deallocate(thisList)
@@ -3001,17 +3014,22 @@ contains
     character(len=ESMF_MAXSTR)              :: name
     character(len=ESMF_MAXSTR), allocatable :: currList(:)
     integer                                 :: natt
+    type(ESMF_Info)                         :: infoh
 
 
     ! check for attribute
 
-    call ESMF_AttributeGet(Bundle, NAME=attrName, itemcount=natt, RC=STATUS)
+!    call ESMF_AttributeGet(Bundle, NAME=attrName, itemcount=natt, RC=STATUS)
+    call ESMF_InfoGetFromHost(Bundle,infoh,RC=STATUS)
+    call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
     _VERIFY(STATUS)
     allocate(currList(natt), stat=status)
     _VERIFY(STATUS)
 
     ! get the current list
-    call ESMF_AttributeGet(Bundle, NAME=attrName, VALUELIST=currList, rc=status)
+!    call ESMF_AttributeGet(Bundle, NAME=attrName, VALUELIST=currList, rc=status)
+    call ESMF_InfoGetFromHost(Bundle,infoh,rc=status)
+    call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
     _VERIFY(STATUS)
 
     name = currList(fieldIndex)

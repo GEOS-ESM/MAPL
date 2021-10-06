@@ -6323,7 +6323,9 @@ end subroutine MAPL_StateCreateFromVarSpecNew
          call MAPL_VarSpecSet(varspec,BUNDLE=BUNDLE,RC=STATUS)
          _VERIFY(STATUS)
 
-         call ESMF_AttributeSet(BUNDLE, NAME='RESTART', VALUE=RESTART, RC=STATUS)
+!         call ESMF_AttributeSet(BUNDLE, NAME='RESTART', VALUE=RESTART, RC=STATUS)
+         call ESMF_InfoGetFromHost(BUNDLE,infoh,RC=STATUS)
+         call ESMF_InfoSet(infoh,'RESTART',RESTART,RC=STATUS)
          _VERIFY(STATUS)
       
 ! Put the BUNDLE in the state
@@ -6607,9 +6609,13 @@ end subroutine MAPL_StateCreateFromVarSpecNew
             END IF
             if (N1 <= N2 .and. N2 > 0) then
                if (IAND(STAT, MAPL_BundleItem) /= 0) then
-                  call ESMF_AttributeSet(BUNDLE, &
-                       NAME='FriendlyTo'//trim(FRIENDLYTO(N1:N2)), &
-                       VALUE=.TRUE., RC=STATUS)
+!                  call ESMF_AttributeSet(BUNDLE, &
+!                       NAME='FriendlyTo'//trim(FRIENDLYTO(N1:N2)), &
+!                       VALUE=.TRUE., RC=STATUS)
+                  call ESMF_InfoGetFromHost(BUNDLE,infoh,RC=STATUS)
+                  call ESMF_InfoSet(infoh, &
+                       key='FriendlyTo'//trim(FRIENDLYTO(N1:N2)), &
+                       value=.TRUE.,RC=STATUS)
                   _VERIFY(STATUS)
                else
 !print *,"DEBUG: setting FieldAttr:FriendlyTo"//trim(FRIENDLYTO(N1:N2))
@@ -7925,14 +7931,18 @@ recursive subroutine MAPL_WireComponent(GC, RC)
      integer,           intent(OUT) :: RC
      logical            :: FRIENDLY, isPresent
      integer            :: I, STATUS
+     type(ESMF_Info) :: infoh
      RC = ESMF_FAILURE    
      do I = 1, size(TO)
         FRIENDLY = .false.
-        call ESMF_AttributeGet (BUNDLE, NAME="FriendlyTo"//trim(TO(I)), &
-                                isPresent=isPresent, RC=STATUS)
+!        call ESMF_AttributeGet (BUNDLE, NAME="FriendlyTo"//trim(TO(I)), &
+!                                isPresent=isPresent, RC=STATUS)
+        call ESMF_InfoGetFromHost(BUNDLE,infoh,RC=STATUS)
+        isPresent = ESMF_InfoIsPresent(infoh,key="FriendlyTo"//trim(TO(I)),RC=STATUS)
         if (isPresent) then
-           call ESMF_AttributeGet (BUNDLE, NAME="FriendlyTo"//trim(TO(I)), &
-                                   VALUE=FRIENDLY, RC=STATUS)
+!           call ESMF_AttributeGet (BUNDLE, NAME="FriendlyTo"//trim(TO(I)), &
+!                                   VALUE=FRIENDLY, RC=STATUS)
+           call ESMF_InfoGet(infoh,key="FriendlyTo"//trim(TO(I)),value=FRIENDLY,RC=STATUS)
            if (FRIENDLY) RC = ESMF_SUCCESS
         endif
      end do

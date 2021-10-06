@@ -4962,6 +4962,7 @@ CONTAINS
     real, pointer    :: levsfile(:) => null()
     type(ESMF_CFIO), pointer :: cfiop
     type(CFIOCollection), pointer :: collection
+    type(ESMF_Info)  :: infoh
 
     call ESMF_VMGetCurrent(vm,rc=status)
     _VERIFY(STATUS)
@@ -5217,10 +5218,13 @@ CONTAINS
        allocate(mCFIO%needVar(size(mCFIO%varname)),stat=status)
        _VERIFY(status)
        mCFIO%needVar=0
-       call ESMF_AttributeGet(bundlein,name="VectorList:",isPresent=isPresent,rc=status)
+!       call ESMF_AttributeGet(bundlein,name="VectorList:",isPresent=isPresent,rc=status)
+       call ESMF_InfoGetFromHost(bundlein,infoh,rc=status)
+       isPresent = ESMF_InfoIsPresent(infoh,"VectorList:",rc=status)
        _VERIFY(STATUS)
        if (isPresent) then
-          call ESMF_AttributeGet(bundlein,name="VectorList:",valuelist=vectorlist,rc=status)
+!          call ESMF_AttributeGet(bundlein,name="VectorList:",valuelist=vectorlist,rc=status)
+          call ESMF_InfoGet(infoh,key="VectorList:",values=vectorlist,rc=status)
           _VERIFY(STATUS)
 
           do i=1,size(mCFIO%varname)

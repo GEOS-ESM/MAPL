@@ -393,10 +393,13 @@ module  BinIOMod
              _VERIFY(STATUS)
 
              skipReading = .false.
-             call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+!             call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+             call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+             isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+!                call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                 _VERIFY(STATUS)
              else
                 RST = MAPL_RestartOptional
@@ -2006,10 +2009,13 @@ module  BinIOMod
 
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+!                call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+                call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+                isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
                 _VERIFY(STATUS)
                 if (isPresent) then
-                   call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+!                   call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                   call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                    _VERIFY(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
