@@ -13,8 +13,7 @@ module AEIO_Writer
    use AEIO_CollectionDescriptorVector
    use AEIO_MpiConnection
    use MAPL_Profiler
-   use AEIO_WriterProfiler
-   
+   use AEIO_IOProfiler 
    implicit none
    private
 
@@ -52,12 +51,6 @@ contains
       call ESMF_VMGet(vm,localPet=myPet,_RC)
       c%front_back_connection=front_back_connection
 
-      call writer_prof%start('start_writer')
-      call writer_prof%start('start_write_epoch')
-      call writer_prof%stop('start_write_epoch')
-      call writer_prof%start('trans-on-back')
-      call writer_prof%stop('trans-on-back')
-      call writer_prof%stop('start_writer')
    end function new_writer
 
    subroutine add_collection(this,coll_name,bundle,rh,rc)
@@ -81,7 +74,7 @@ contains
       integer :: back_comm
 
       back_comm = this%front_back_connection%get_back_comm()
-      call writer_prof%start('start_writer')
+      call io_prof%start('start_writer')
       call MPI_Barrier(back_comm,status)
 
       call MPI_COMM_RANK(back_comm,back_local_rank,status)
@@ -169,7 +162,7 @@ contains
                end if
             end do
             write(*,*)"Exiting writer on rank: ",back_local_rank
-            call writer_prof%stop('start_writer')
+            call io_prof%stop('start_writer')
             exit
          end if
       enddo
@@ -196,7 +189,7 @@ contains
          _VERIFY(status)
          if (collection_id < 0) then
             write(*,*)"Exiting writer on rank: ",back_local_rank
-            call writer_prof%stop('start_writer')
+            call io_prof%stop('start_writer')
             exit
          end if
          ! do stuff
@@ -231,6 +224,7 @@ contains
       integer, allocatable :: back_pets(:)
       integer :: writer_comm
 
+      call io_prof%start('write_collection')
       back_pets = this%front_back_connection%get_back_pets()
       writer_comm = this%front_back_connection%get_back_comm()
 
@@ -251,7 +245,7 @@ contains
       dist_grid = ESMF_DistGridCreate([1,1],[gdims(1),gdims(2)],regDecomp=[1,1],delayout=de_layout,_RC)
       output_bundle = ESMF_ArrayBundleCreate(_RC)
 
-      call writer_prof%start('start_write_epoch')
+      call io_prof%start('start_write_epoch')
       call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
 
       do i=1,fieldCount
@@ -276,7 +270,7 @@ contains
          end block
       enddo
       
-      call writer_prof%stop('start_write_epoch')
+      call io_prof%stop('start_write_epoch')
       call ESMF_VMEpochExit()
 
       call rh_new%destroy(_RC)
@@ -286,6 +280,7 @@ contains
       enddo
       call ESMF_ArrayBundleDestroy(output_bundle,noGarbage=.true.,_RC)
       
+      call io_prof%stop('write_collection')
       _RETURN(_SUCCESS)
    end subroutine write_collection
 
@@ -311,9 +306,7 @@ contains
       targetPetList(1:front_size)=front_pets
       originPetList(front_size+1)=back_pets(1)
       targetPetList(front_size+1)=transfer_rank
-      call writer_prof%start('trans-on-back')
       new_rh=rh%transfer_rh(originPetList,targetPetList,_RC)
-      call writer_prof%stop('trans-on-back')
       _RETURN(_SUCCESS)
    end function setup_transfer
 
