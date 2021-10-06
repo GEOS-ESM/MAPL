@@ -1096,20 +1096,7 @@ contains
        _VERIFY(STATUS)
 
        if ( reverse_time == 1 ) then
-          ! call ESMF_ClockGetAlarmList(cap%clock, ESMF_ALARMLIST_ALL, &
-          !      alarmList=alarm, alarmCount=alarmCount, rc = status )
-          ! _VERIFY(STATUS)
-
-          ! call ESMF_ClockGetAlarmList(cap%clock_hist, ESMF_ALARMLIST_ALL, &
-          !      alarmList=hist_alarm, alarmCount=hist_alarmCount, rc = status )
-          ! _VERIFY(STATUS)
-
           if (MAPL_Am_I_Root()) THEN
-
-             ! WRITE(*,1003) 'clock', alarmCount
-
-             ! WRITE(*,1003) 'clock_hist', hist_alarmCount
-
              WRITE(*,1001) cap%nsteps
           endif
 1001      FORMAT('  MAPL_CapGC running for ', i3, ' timesteps')
@@ -1590,13 +1577,6 @@ contains
     !  Note that we are not doing a Record for History.
     ! ------------------------------------------------------
     ! don't output reverse checkpoints
-    ! call ESMF_GridCompWriteRestart(this%gcs(this%root_id), importstate = this%child_imports(this%root_id), &
-    !      exportstate = this%child_exports(this%root_id), &
-    !      clock = this%clock_hist, userrc = status)
-    ! _VERIFY(status)
-
-    ! Advance the Clock before running History and Record
-    ! ---------------------------------------------------
 
     if (.not. first) THEN
     call ESMF_ClockAdvance(this%clock, rc = status)

@@ -1192,15 +1192,6 @@ contains
 
        if (list(n)%disabled) cycle
 
-       ! if(list(n)%mode == "instantaneous" .or. list(n)%ForceOffsetZero) then
-       !    sec = 0
-       ! else
-       !    IntState%average(n) = .true.
-       !    sec = MAPL_nsecf(list(n)%acc_interval) / 2
-       ! endif
-       ! call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, rc=status )
-       ! _VERIFY(STATUS)
-
 ! His and Seg Alarms based on Reference Date and Time
 ! ---------------------------------------------------
        REF_TIME(1) =     list(n)%ref_date/10000
