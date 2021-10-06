@@ -21,9 +21,9 @@ set (srcs
   MAPL_VarSpecMod.F90
   StateSpecification.F90
   ComponentSpecification.F90
-  MAPL_ServiceConnectionItem.F90
-  MAPL_ProvidedServiceItem.F90
-  MAPL_RequestedServiceItem.F90
+  MAPL_ServiceConnectionItemVector.F90
+  MAPL_ProvidedServiceItemVector.F90
+  MAPL_RequestedServiceItemVector.F90
 
   BaseFrameworkComponent.F90
   MaplGenericComponent.F90

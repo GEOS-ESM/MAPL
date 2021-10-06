@@ -5278,7 +5278,7 @@ end function MAPL_AddChildFromDSO
     call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, RC=STATUS )
     _VERIFY(STATUS)
 
-    call ProvidedServiceListAppend(maplobj%provided_services, &
+    call ProvidedServiceList(maplobj%provided_services, &
          SERVICE=SERVICE, &
          BUNDLE=BUNDLE, &
          RC=STATUS  )
@@ -5300,7 +5300,7 @@ end function MAPL_AddChildFromDSO
     call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, RC=STATUS )
     _VERIFY(STATUS)
 
-    call RequestedServiceListAppend(maplobj%requested_services, &
+    call RequestedServiceList(maplobj%requested_services, &
          service=service, &
          vars = vars, &
          rc=status  )

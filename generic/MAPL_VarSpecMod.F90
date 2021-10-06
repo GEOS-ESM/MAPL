@@ -45,8 +45,8 @@ public MAPL_ConnCheckUnused
 public MAPL_ConnCheckReq
 public MAPL_VarSpecSamePrec
 
-public ProvidedServiceListAppend
-public RequestedServiceListAppend
+public ProvidedServiceList
+public RequestedServiceList
 public MAPL_ServiceConnectionCreate
 public MAPL_ServiceConnectionGet
 public ProvidedServiceGet
@@ -2281,7 +2281,7 @@ contains
 
   end subroutine MAPL_ConnCheckReq
 
-  subroutine ProvidedServiceListAppend(PLIST, SERVICE, BUNDLE, RC)
+  subroutine ProvidedServiceList(PLIST, SERVICE, BUNDLE, RC)
 
     type (ProvidedServiceItemVector) :: PLIST
     character (len=*)             , intent(IN   ) :: SERVICE
@@ -2297,9 +2297,9 @@ contains
     
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine ProvidedServiceListAppend
+  end subroutine ProvidedServiceList
 
-  subroutine RequestedServiceListAppend(SLIST, SERVICE, VARS, RC)
+  subroutine RequestedServiceList(SLIST, SERVICE, VARS, RC)
 
     type (RequestedServiceItemVector) :: SLIST
     character (len=*)             , intent(IN   ) :: SERVICE
@@ -2319,7 +2319,7 @@ contains
     
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine RequestedServiceListAppend
+  end subroutine RequestedServiceList
 
   subroutine MAPL_ServiceConnectionCreate(CLIST, &
        PROVIDER, REQUESTER, SERVICE, RC)
