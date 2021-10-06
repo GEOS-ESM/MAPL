@@ -18,6 +18,8 @@ module MAPL_VarSpecMod
    use mapl_VariableSpecification
    use mapl_VarSpecVector
    use mapl_ServiceConnectionItemVectorMod
+   use mapl_ProvidedServiceItemVectorMod
+   use mapl_RequestedServiceItemVectorMod
 
 ! !PUBLIC MEMBER FUNCTIONS:
 
@@ -43,13 +45,13 @@ public MAPL_ConnCheckUnused
 public MAPL_ConnCheckReq
 public MAPL_VarSpecSamePrec
 
-public MAPL_VarProvidedServiceListAppend
-public MAPL_VarRequestedServiceListAppend
+public ProvidedServiceListAppend
+public RequestedServiceListAppend
 public MAPL_ServiceConnectionCreate
 public MAPL_ServiceConnectionGet
-public MAPL_VarProvidedServiceGet
-public MAPL_VarProvidedServiceSet
-public MAPL_VarRequestedServiceGet
+public ProvidedServiceGet
+public ProvidedServiceSet
+public RequestedServiceGet
 public MAPL_VarFillRequestBundle
 
 
@@ -2279,88 +2281,45 @@ contains
 
   end subroutine MAPL_ConnCheckReq
 
-  subroutine MAPL_VarProvidedServiceListAppend(PLIST, SERVICE, BUNDLE, RC)
+  subroutine ProvidedServiceListAppend(PLIST, SERVICE, BUNDLE, RC)
 
-    type (MAPL_VarProvidedServicePtr),      pointer     :: PLIST(:)
+    type (ProvidedServiceItemVector) :: PLIST
     character (len=*)             , intent(IN   ) :: SERVICE
     character (len=*)             , intent(IN   ) :: BUNDLE
-    integer,              optional, intent(  OUT) :: RC     ! Error code:
+    integer,              optional, intent(  OUT) :: RC     !
     
-    integer                                :: STATUS
-    integer                                :: I
-    type (MAPL_VarProvidedServicePtr ), pointer  :: TMP(:) => null()
-
-
-    if(.not. associated(PLIST)) then
-       allocate(PLIST(0),stat=STATUS)
-       _VERIFY(STATUS)
-    else
-!ALT: we might want to check for duplicates ???
-    endif
+    type (ProvidedServiceType)           :: item
+            
+    item%Service_name = SERVICE
+    item%Bundle_name = BUNDLE
     
-        
-    I = size(PLIST)
-
-    allocate(TMP(I+1),stat=STATUS)
-    _VERIFY(STATUS)
-      
-    TMP(1:I) = PLIST
-    deallocate(PLIST)
-
-    allocate(TMP(I+1)%Ptr,stat=STATUS)
-    _VERIFY(STATUS)
-    
-    TMP(I+1)%Ptr%Service_name = SERVICE
-    TMP(I+1)%Ptr%Bundle_name = BUNDLE
-    
-      
-    PLIST => TMP
+    call plist%push_back(item)
     
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_VarProvidedServiceListAppend
+  end subroutine ProvidedServiceListAppend
 
-  subroutine MAPL_VarRequestedServiceListAppend(SLIST, SERVICE, VARS, RC)
+  subroutine RequestedServiceListAppend(SLIST, SERVICE, VARS, RC)
 
-    type (MAPL_VarRequestedServicePtr), pointer     :: SLIST(:)
+    type (RequestedServiceItemVector) :: SLIST
     character (len=*)             , intent(IN   ) :: SERVICE
     character (len=*)             , intent(IN   ) :: VARS(:)
-    integer,              optional, intent(  OUT) :: RC     ! Error code:
-    
-    integer                                :: STATUS
-    integer                                :: I
-    type (MAPL_VarRequestedServicePtr ), pointer  :: TMP(:) => null()
+    integer,              optional, intent(  OUT) :: RC     !
 
+! Error code:
+    integer :: status
+    type (RequestedServiceType )  :: item
 
-    if(.not. associated(SLIST)) then
-       allocate(SLIST(0),stat=STATUS)
-       _VERIFY(STATUS)
-    else
-!ALT: we might want to check for duplicates ???
-    endif
-    
-        
-    I = size(SLIST)
-
-    allocate(TMP(I+1),stat=STATUS)
+    item%Service_name = SERVICE
+    item%VAR_LIST = VARS
+    item%BUNDLE = ESMF_FieldBundleCreate(NAME=SERVICE, RC=STATUS)
     _VERIFY(STATUS)
       
-    TMP(1:I) = SLIST
-    deallocate(SLIST)
-
-    allocate(TMP(I+1)%Ptr,stat=STATUS)
-    _VERIFY(STATUS)
-    
-    TMP(I+1)%Ptr%Service_name = SERVICE
-    TMP(I+1)%Ptr%VAR_LIST = VARS
-    TMP(I+1)%Ptr%BUNDLE = ESMF_FieldBundleCreate(NAME=SERVICE, RC=STATUS)
-    _VERIFY(STATUS)
-      
-    SLIST => TMP
+    call slist%push_back(item)
     
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_VarRequestedServiceListAppend
+  end subroutine RequestedServiceListAppend
 
   subroutine MAPL_ServiceConnectionCreate(CLIST, &
        PROVIDER, REQUESTER, SERVICE, RC)
@@ -2411,100 +2370,119 @@ contains
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ServiceConnectionGet
 
-  subroutine MAPL_VarProvidedServiceGet(provider_list, advertised_service, bundle, rc)
-    type(MAPL_VarProvidedServicePtr), pointer, intent(IN) :: provider_list(:)
+  subroutine ProvidedServiceGet(provider_list, advertised_service, bundle, rc)
+    type(ProvidedServiceItemVector), intent(IN) :: provider_list
     character(len=*), intent(IN) :: advertised_service
     type(ESMF_FieldBundle), intent(OUT) :: bundle
     integer, optional, intent(out) :: rc
     
     integer :: status
-    integer :: i
     logical :: found
+    type (ProvidedServiceItemVectorIterator) :: iter
+    type (ProvidedServiceType), pointer :: item
     
-    _ASSERT(associated(provider_list),'provider_list should not be empty')
+    _ASSERT(provider_list%size()>0,'provider_list should not be empty')
     
     found = .false.
-    DO I=1,size(provider_list)
-       if(provider_list(i)%ptr%service_name == advertised_service) then
+    iter = provider_list%begin()
+    ! loop over provided services
+    do while (iter /= provider_list%end())
+       item => iter%get()
+       if(item%service_name == advertised_service) then
           found = .true.
-          bundle = provider_list(i)%ptr%bundle
+          bundle = item%bundle
           exit
        end if
-    END DO
+    end do
     _ASSERT(found, 'No match found for service')
+    call iter%next()
     _RETURN(_SUCCESS)
-  end subroutine MAPL_VarProvidedServiceGet
+  end subroutine ProvidedServiceGet
    
-  subroutine MAPL_VarProvidedServiceSet(provider_list, state, rc)
-    type(MAPL_VarProvidedServicePtr), pointer, intent(IN) :: provider_list(:)
+  subroutine ProvidedServiceSet(provider_list, state, rc)
+    type(ProvidedServiceItemVector), intent(IN) :: provider_list
     type(ESMF_State), intent(IN) :: state
     integer, optional, intent(out) :: rc
     
     integer :: status
-    integer :: i
+    type (ProvidedServiceItemVectorIterator) :: iter
+    type (ProvidedServiceType), pointer :: item
     
-    _ASSERT(associated(provider_list),'provider_list should not be empty')
+    _ASSERT(provider_list%size()>0,'provider_list should not be empty')
     
-    DO I=1,size(provider_list)
-       call ESMF_StateGet(state, provider_list(i)%ptr%bundle_name, &
-            provider_list(i)%ptr%bundle, rc=status)
+    iter = provider_list%begin()
+    ! loop over provided services
+    do while (iter /= provider_list%end())
+       item => iter%get()
+       call ESMF_StateGet(state, item%bundle_name, &
+            item%bundle, rc=status)
        _VERIFY(status)
-    END DO
+       call iter%next()
+    end do
 
     _RETURN(_SUCCESS)
-  end subroutine MAPL_VarProvidedServiceSet
+  end subroutine ProvidedServiceSet
    
-  subroutine MAPL_VarRequestedServiceGet(request_list, service, bundle, rc)
-    type(MAPL_VarRequestedServicePtr), pointer, intent(IN) :: request_list(:)
+  subroutine RequestedServiceGet(request_list, service, bundle, rc)
+    type(RequestedServiceItemVector), intent(IN) :: request_list
     character(len=*), intent(IN) :: service
     type(ESMF_FieldBundle), intent(OUT) :: bundle
     integer, optional, intent(out) :: rc
     
     integer :: status
-    integer :: i
     logical :: found
+    type (RequestedServiceItemVectorIterator) :: iter
+    type (RequestedServiceType), pointer :: item
     
-    _ASSERT(associated(request_list),'request_list should not be empty')
+    _ASSERT(request_list%size()>0,'request_list should not be empty')
     
     found = .false.
-    DO I=1,size(request_list)
-       if(request_list(i)%ptr%service_name == service) then
+    iter = request_list%begin()
+    ! loop over requested services
+    do while (iter /= request_list%end())
+       item => iter%get()
+       if(item%service_name == service) then
           found = .true.
-          bundle = request_list(i)%ptr%bundle
+          bundle = item%bundle
           exit
        end if
     END DO
     _ASSERT(found, 'No match found for service')
     _RETURN(_SUCCESS)
-  end subroutine MAPL_VarRequestedServiceGet
+  end subroutine RequestedServiceGet
    
   subroutine MAPL_VarFillRequestBundle(request_list, state, rc)
-    type(MAPL_VarRequestedServicePtr), pointer, intent(INOUT) :: request_list(:)
+    type(RequestedServiceItemVector), intent(INOUT) :: request_list
     type(ESMF_State), intent(IN) :: state
     integer, optional, intent(out) :: rc
     
     integer :: status
-    integer :: n, i, nl
+    integer :: i, nl
     type(ESMF_Field), allocatable :: fields(:)
+    type (RequestedServiceItemVectorIterator) :: iter
+    type (RequestedServiceType), pointer :: item
     
-    _ASSERT(associated(request_list),'request_list should not be empty')
-    
-    DO N=1,size(request_list)
-       if (allocated(request_list(n)%ptr%var_list)) then
-          nl = size(request_list(n)%ptr%var_list)
+    _ASSERT(request_list%size()>0,'request_list should not be empty')
+
+    iter = request_list%begin()
+    ! loop over requested services
+    do while (iter /= request_list%end())
+       item => iter%get()
+       if (allocated(item%var_list)) then
+          nl = size(item%var_list)
           allocate(fields(nl), stat=status)
           _VERIFY(status)
-          do I=1, nl
-             call ESMF_StateGet(state, request_list(n)%ptr%var_list(i), &
+          do i=1, nl
+             call ESMF_StateGet(state, item%var_list(i), &
                   fields(i), rc=status)
              _VERIFY(status)
           end do
-          call ESMF_FieldBundleAdd(request_list(n)%ptr%bundle, fields, rc=status)
+          call ESMF_FieldBundleAdd(item%bundle, fields, rc=status)
           _VERIFY(status)
           deallocate(fields)
        end if
-
-    END DO
+       call iter%next()
+    end do
     
     _RETURN(_SUCCESS)
   end subroutine MAPL_VarFillRequestBundle

@@ -442,9 +442,8 @@ type, extends(MaplGenericComponent) ::  MAPL_MetaComp
    ! Could become ExtData if Tiles could be handled???
    type (ESMF_State)                        :: FORCING
    ! Service-Services related fields
-   type(MAPL_VarProvidedServicePtr), pointer :: provided_services(:) => null()
-   type(MAPL_VarRequestedServicePtr), pointer :: requested_services(:) => null()
-
+   type(ProvidedServiceItemVector) :: provided_services
+   type(RequestedServiceItemVector) :: requested_services
 
 contains
 
@@ -1710,13 +1709,13 @@ endif
 
    ! Service services processing:
    ! process any providers
-   if (associated(state%provided_services)) then
-      call MAPL_VarProvidedServiceSet(state%provided_services, import, rc=status)
+   if (state%provided_services%size()>0) then
+      call ProvidedServiceSet(state%provided_services, import, rc=status)
       _VERIFY(STATUS)
    end if
 
    ! process any requesters
-   if (associated(state%requested_services)) then
+   if (state%requested_services%size()>0) then
       call MAPL_VarFillRequestBundle(state%requested_services, state%get_internal_state(), rc=status)
       _VERIFY(STATUS)
    end if
@@ -5273,21 +5272,13 @@ end function MAPL_AddChildFromDSO
     integer,              optional, intent(  OUT) :: RC     ! Error code:
 
     integer :: status
-    type(MAPL_VarProvidedServicePtr), pointer :: provided_services(:) => null()
-
-    
-!    call MAPL_ProvidedServiceGet(gc, provided_services=provided_services, RC=status)
-!    _VERIFY(STATUS)
-
     type (MAPL_MetaComp), pointer     :: MAPLOBJ
 
     !get MAPL
     call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, RC=STATUS )
     _VERIFY(STATUS)
 
-!    provided_services => maplobj%provided_services
-
-    call MAPL_VarProvidedServiceListAppend(maplobj%provided_services, &
+    call ProvidedServiceListAppend(maplobj%provided_services, &
          SERVICE=SERVICE, &
          BUNDLE=BUNDLE, &
          RC=STATUS  )
@@ -5303,20 +5294,13 @@ end function MAPL_AddChildFromDSO
     integer,              optional, intent(  OUT) :: RC     ! Error code:
 
     integer :: status
-    type(MAPL_VarRequestedServicePtr), pointer :: requested_services(:) => null()
-    
-!    call MAPL_ServiceRequestGet(gc, requested_services=requested_services, RC=status)
-!    _VERIFY(STATUS)
-
     type (MAPL_MetaComp), pointer     :: MAPLOBJ
 
     !get MAPL
     call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, RC=STATUS )
     _VERIFY(STATUS)
 
-!    provided_services => maplobj%provided_services
-
-    call MAPL_VarRequestedServiceListAppend(maplobj%requested_services, &
+    call RequestedServiceListAppend(maplobj%requested_services, &
          service=service, &
          vars = vars, &
          rc=status  )
@@ -5329,7 +5313,7 @@ end function MAPL_AddChildFromDSO
 
   subroutine MAPL_ProvidedServiceGet(gc, provided_services, rc)
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
-    type(MAPL_VarProvidedServicePtr), pointer :: provided_services(:)
+    type(ProvidedServiceItemVector), pointer :: provided_services
     integer,              optional, intent(  OUT) :: RC     ! Error code:
 
     integer :: status
@@ -5346,7 +5330,7 @@ end function MAPL_AddChildFromDSO
 
   subroutine MAPL_ServiceRequestGet(GC, requested_services, RC)
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
-    type(MAPL_VarRequestedServicePtr), pointer :: requested_services(:)
+    type(RequestedServiceItemVector), pointer :: requested_services
     integer,              optional, intent(  OUT) :: RC     ! Error code:
 
     integer :: status
@@ -5442,10 +5426,10 @@ end function MAPL_AddChildFromDSO
     _ASSERT(associated(cmeta), 'No child found')
     ! find the appropriate object (P, or R) matching SERVICE
     if (do_requester) then
-       call MAPL_VarRequestedServiceGet(cmeta%requested_services, service, bundle, rc=status)
+       call RequestedServiceGet(cmeta%requested_services, service, bundle, rc=status)
        _VERIFY(STATUS)
     else ! must be provider
-       call MAPL_VarProvidedServiceGet(cmeta%provided_services, service, bundle, rc=status)
+       call ProvidedServiceGet(cmeta%provided_services, service, bundle, rc=status)
        _VERIFY(STATUS)
     end if
     ! return the saved bundle
