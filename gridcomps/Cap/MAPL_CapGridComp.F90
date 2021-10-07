@@ -1135,9 +1135,9 @@ contains
                WRITE(*,*) '  MAPL_CapGC finished time loop, reversing clocks'
           ! Reverse the direction of the clocks
           call ESMF_ClockSet( cap%clock, direction=ESMF_DIRECTION_REVERSE, &
-                              advanceCount=0, rc=status )
+                              advanceCount=0_8, rc=status )
           call ESMF_ClockSet( cap%clock_hist, direction=ESMF_DIRECTION_REVERSE, &
-                              advanceCount=0, rc=status )
+                              advanceCount=0_8, rc=status )
           cap%nsteps = cap%nsteps + 1
        endif ! reverse_time == 1
 
@@ -1913,7 +1913,7 @@ contains
          rc = STATUS  )
     _VERIFY(STATUS)
 
-    if (endTime < startTime) duration = duration * -1
+    if (endTime < startTime) duration = -duration
 
     stopTime = currTime + duration
 
