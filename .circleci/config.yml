@@ -84,107 +84,134 @@ commands:
     parameters:
       compiler:
         type: string
+        default: ""
     steps:
-      - run: mpirun --version && << parameters.compiler >> --version && echo $BASEDIR && pwd && ls && echo "$(nproc)"
+      - run: 
+          name: "Versions, etc."
+          command: |
+            mpirun --version && << parameters.compiler >> --version && echo $BASEDIR && pwd && ls && echo "$(nproc)"
 
   checkout_fixture:
     description: "Checkout fixture"
     parameters:
       repo:
         type: string
+        default: ""
     steps:
-      - run: |
-          cd ${CIRCLE_WORKING_DIRECTORY}
-          git clone https://github.com/GEOS-ESM/<< parameters.repo >>.git
+      - run: 
+          name: "Checkout fixture"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}
+            git clone https://github.com/GEOS-ESM/<< parameters.repo >>.git
 
   checkout_branch_on_fixture:
     description: "Checkout branch on fixture"
     parameters:
       repo:
         type: string
+        default: ""
       branch:
         type: string
+        default: ""
     steps:
-      - run: |
-          cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
-          git checkout << parameters.branch >>
+      - run: 
+          name: "Checkout branch on fixture"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
+            git checkout << parameters.branch >>
 
   mepoclone:
     description: "Mepo clone external repos"
     parameters:
       repo:
         type: string
+        default: ""
     steps:
-      - run: |
-          cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
-          mepo clone
-          mepo status
+      - run: 
+          name: "Mepo clone external repos"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
+            mepo clone
+            mepo status
 
   mepodevelop:
     description: "Mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared"
     parameters:
       repo:
         type: string
+        default: ""
     steps:
-      - run: |
-          cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
-          mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared
-          mepo status
+      - run: 
+          name: "Mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
+            mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared
+            mepo status
 
   cmake:
     description: "Run CMake"
     parameters:
       repo:
         type: string
+        default: ""
       compiler:
         type: string
+        default: ""
     steps:
-      - run: |
-          mkdir -p /logfiles
-          cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
-          mkdir -p ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
-          cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
-          cmake ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >> -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-<< parameters.repo >> |& tee /logfiles/cmake.log
+      - run: 
+          name: "Run CMake"
+          command: |
+            mkdir -p /logfiles
+            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
+            mkdir -p ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
+            cmake ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >> -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-<< parameters.repo >> |& tee /logfiles/cmake.log
 
   buildinstall:
     description: "Build and install"
     parameters:
       repo:
         type: string
+        default: ""
     steps:
-      - run: |
-          cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
-          make -j"$(nproc)" install |& tee /logfiles/make.log
-          #MEDIUM# make -j4 install |& tee /logfiles/make.log
+      - run: 
+          name: "Build and install"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
+            make -j"$(nproc)" install |& tee /logfiles/make.log
+            #MEDIUM# make -j4 install |& tee /logfiles/make.log
 
   checkout_mapl_branch:
     description: "Mepo checkout MAPL branch"
     parameters:
       repo:
         type: string
+        default: ""
     steps:
-      - run: |
-          cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>/src/Shared/@MAPL
+      - run: 
+          name: "Mepo checkout MAPL branch"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>/src/Shared/@MAPL
 
-          # Based a bit on: https://stackoverflow.com/a/55940371/1876449
-          #
-          # CIRCLE_PR_NUMBER is only available on forked PRs:
-          #
-          # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
-          #
-          # so if it exists we fetch the PR's branch. This fetch was
-          # figured out by looking at the MAPL build-and-test above
-          # which did work!
-          if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
-              git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
-          fi
+            # Based a bit on: https://stackoverflow.com/a/55940371/1876449
+            #
+            # CIRCLE_PR_NUMBER is only available on forked PRs:
+            #
+            # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
+            #
+            # so if it exists we fetch the PR's branch. This fetch was
+            # figured out by looking at the MAPL build-and-test above
+            # which did work!
+            if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
+                git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
+            fi
 
-          mepo checkout ${CIRCLE_BRANCH} MAPL
-          if [ "${CIRCLE_BRANCH}" != "develop" ] && [ "${CIRCLE_BRANCH}" != "main" ]
-          then
-              mepo checkout-if-exists ${CIRCLE_BRANCH}
-          fi
-          mepo status
+            mepo checkout ${CIRCLE_BRANCH} MAPL
+            if [ "${CIRCLE_BRANCH}" != "develop" ] && [ "${CIRCLE_BRANCH}" != "main" ]
+            then
+                mepo checkout-if-exists ${CIRCLE_BRANCH}
+            fi
+            mepo status
 
 jobs:
   build-and-test-MAPL:
