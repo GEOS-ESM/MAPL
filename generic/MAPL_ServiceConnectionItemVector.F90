@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module MAPL_ServiceConnectionItemVectorMod
+module MAPL_ServiceConnectionItemVector
   use MAPL_VariableSpecification, only: ServiceConnectionType
 
 #define _type type(ServiceConnectionType)
@@ -13,4 +13,4 @@ module MAPL_ServiceConnectionItemVectorMod
 #undef _vector
 #undef _type_type
 
-end module MAPL_ServiceConnectionItemVectorMod
+end module MAPL_ServiceConnectionItemVector

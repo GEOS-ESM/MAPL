@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module MAPL_ProvidedServiceItemVectorMod
+module MAPL_ProvidedServiceItemVector
   use MAPL_VariableSpecification, only: ProvidedServiceType
 
 #define _type type(ProvidedServiceType)
@@ -13,4 +13,4 @@ module MAPL_ProvidedServiceItemVectorMod
 #undef _vector
 #undef _type_type
 
-end module MAPL_ProvidedServiceItemVectorMod
+end module MAPL_ProvidedServiceItemVector

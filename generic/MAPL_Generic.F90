@@ -1716,7 +1716,7 @@ endif
 
    ! process any requesters
    if (state%requested_services%size()>0) then
-      call MAPL_VarFillRequestBundle(state%requested_services, state%get_internal_state(), rc=status)
+      call FillRequestBundle(state%requested_services, state%get_internal_state(), rc=status)
       _VERIFY(STATUS)
    end if
 
@@ -5254,12 +5254,11 @@ end function MAPL_AddChildFromDSO
     call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
     _VERIFY(STATUS)
 
-    call MAPL_ServiceConnectionCreate(CONN%ServiceConnectionItems, &
-         provider=provider, &
-         requester=requester, &
-         service=service, &
-         rc=status  )
-    _VERIFY(STATUS)
+    call conn%ServiceConnectionItems%push_back( &
+         ServiceConnectionType( &
+         provider_name=provider, &
+         requester_name=requester, &
+         service_name=service))
 
     _RETURN(ESMF_SUCCESS)
 
@@ -5278,11 +5277,10 @@ end function MAPL_AddChildFromDSO
     call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, RC=STATUS )
     _VERIFY(STATUS)
 
-    call ProvidedServiceList(maplobj%provided_services, &
+    call maplobj%provided_services%push_back( &
+         ProvidedServiceType( &
          SERVICE=SERVICE, &
-         BUNDLE=BUNDLE, &
-         RC=STATUS  )
-    _VERIFY(STATUS)
+         BUNDLE=BUNDLE))
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_AdvertiseService
@@ -5295,18 +5293,18 @@ end function MAPL_AddChildFromDSO
 
     integer :: status
     type (MAPL_MetaComp), pointer     :: MAPLOBJ
+    type (ESMF_FieldBundle) :: bundle
 
     !get MAPL
-    call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, RC=STATUS )
-    _VERIFY(STATUS)
+    call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, __RC__ )
 
-    call RequestedServiceList(maplobj%requested_services, &
-         service=service, &
-         vars = vars, &
-         rc=status  )
+    bundle = ESMF_FieldBundleCreate(NAME=SERVICE, __RC__)
+    call maplobj%requested_services%push_back( &
+         RequestedServiceType( &
+         service_name=service, &
+         var_list = vars, &
+         bundle = bundle ))
 
-    _VERIFY(STATUS)
-    
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_RequestService
@@ -5365,7 +5363,7 @@ end function MAPL_AddChildFromDSO
     do while (iter /= conn%ServiceConnectionItems%end())
        item => iter%get()
        ! retrieve connection info
-       call MAPL_ServiceConnectionGet(item, &
+       call ServiceConnectionGet(item, &
             service=service, provider=provider, requester=requester, &
             rc=status)
        _VERIFY(status)

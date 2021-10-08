@@ -89,9 +89,9 @@ module mapl_VariableSpecification
    type, public :: RequestedServiceType
 !!$      private
       character(len=ESMF_MAXSTR)               :: SERVICE_NAME
-      type(ESMF_FieldBundle)                   :: BUNDLE
       !ALT currect assumption is the bundle for the request will be in the export state
       character(len=ESMF_MAXSTR), allocatable      :: VAR_LIST(:)
+      type(ESMF_FieldBundle)                   :: BUNDLE
    end type RequestedServiceType
 
    type, public :: ServiceConnectionType
