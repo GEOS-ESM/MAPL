@@ -6,9 +6,9 @@ module MaplGeneric
    use mapl_StateSpecification
    use mapl_VarSpecVector
    use mapl_VarSpecMod
-   use mapl_ServiceConnectionItemVectorMod
-   use mapl_ProvidedServiceItemVectorMod
-   use mapl_RequestedServiceItemVectorMod
+   use mapl_ServiceConnectionItemVector
+   use mapl_ProvidedServiceItemVector
+   use mapl_RequestedServiceItemVector
    use mapl_ServiceServices
    use mapl_AbstractFrameworkComponent
    use mapl_maplgenericcomponent

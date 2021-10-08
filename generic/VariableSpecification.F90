@@ -80,25 +80,25 @@ module mapl_VariableSpecification
 
    type, public :: ProvidedServiceType
 !!$      private
-      character(len=ESMF_MAXSTR)               :: SERVICE_NAME
-      character(len=ESMF_MAXSTR)               :: BUNDLE_NAME
-      type(ESMF_FieldBundle)                   :: BUNDLE
+      character(len=:), allocatable :: SERVICE_NAME
+      character(len=:), allocatable :: BUNDLE_NAME
+      type(ESMF_FieldBundle)        :: BUNDLE
       !ALT currect assumption is the bundle for the provider will be in the import state
    end type ProvidedServiceType
 
    type, public :: RequestedServiceType
 !!$      private
-      character(len=ESMF_MAXSTR)               :: SERVICE_NAME
+      character(len=:), allocatable :: SERVICE_NAME
       !ALT currect assumption is the bundle for the request will be in the export state
-      character(len=ESMF_MAXSTR), allocatable      :: VAR_LIST(:)
-      type(ESMF_FieldBundle)                   :: BUNDLE
+      character(len=:), allocatable :: VAR_LIST(:)
+      type(ESMF_FieldBundle)        :: BUNDLE
    end type RequestedServiceType
 
    type, public :: ServiceConnectionType
 !!$      private
-      character(len=ESMF_MAXSTR)               :: SERVICE_NAME
-      character(len=ESMF_MAXSTR)               :: PROVIDER_NAME
-      character(len=ESMF_MAXSTR)               :: REQUESTER_NAME
+      character(len=:), allocatable :: SERVICE_NAME
+      character(len=:), allocatable :: PROVIDER_NAME
+      character(len=:), allocatable :: REQUESTER_NAME
    end type ServiceConnectionType
 
 end module mapl_VariableSpecification
