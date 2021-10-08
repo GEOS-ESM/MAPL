@@ -44,6 +44,8 @@ module CollectionMod
       procedure :: set_groups
       procedure :: get_fields
       procedure :: set_fields
+      procedure :: initialize_frequency
+      procedure :: is_time_to_write
 
       procedure :: register
 
@@ -95,6 +97,29 @@ contains
 
       freq = this%frequency
    end function get_frequency
+
+   subroutine initialize_frequency(this,clock,rc)
+      class(Collection), intent(inout) :: this
+      type(ESMF_Clock), intent(inout) :: clock
+      integer, intent(out), optional :: rc
+
+      integer :: status
+
+      call this%frequency%set_alarm(clock,_RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_frequency
+
+   function is_time_to_write(this,rc) result(time_to_write)
+      class(collection), intent(inout) :: this
+      integer, intent(out), optional :: rc
+      logical :: time_to_write
+      integer :: status
+
+      time_to_write = this%frequency%check_if_ringing(_RC)
+      _RETURN(_SUCCESS)
+
+   end function is_time_to_write
 
    function get_groups(this) result(gps)
       type(StringVector) :: gps

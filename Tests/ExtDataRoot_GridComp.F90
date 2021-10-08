@@ -50,6 +50,7 @@ MODULE ExtDataUtRoot_GridCompMod
       character(len=*), parameter :: runModeFillExportFromImport = "FillExportsFromImports"
       character(len=*), parameter :: runModeFillImport = "FillImport"
       character(len=*), parameter :: wrap_name = "SyntheticFieldWrapperName"
+      integer :: delay
 
       include "mpif.h"
 
@@ -224,6 +225,8 @@ MODULE ExtDataUtRoot_GridCompMod
 
          call ESMF_ConfigGetAttribute(cf,value=synth%runMode,label="RUN_MODE:",rc=status)
          _VERIFY(status)
+         call ESMF_ConfigGetAttribute(cf,value=delay,label="DELAY:",rc=status)
+         _VERIFY(status)
 !  Create grid for this GC
 !  ------------------------
 
@@ -357,6 +360,7 @@ MODULE ExtDataUtRoot_GridCompMod
 
          end select
 
+         call sleep(delay)
 !  --------
          _RETURN(ESMF_SUCCESS)
 

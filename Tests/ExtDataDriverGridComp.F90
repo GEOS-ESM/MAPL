@@ -14,6 +14,7 @@ module ExtData_DriverGridCompMod
 
   public :: ExtData_DriverGridComp
   public :: new_ExtData_DriverGridComp
+  public :: driver_clockinit
 
   type :: ExtData_DriverGridComp
      private
@@ -23,7 +24,7 @@ module ExtData_DriverGridCompMod
      logical :: amiroot
      integer :: root_id, printspec
      integer :: nsteps
-     type(ESMF_Clock) :: clock
+     !type(ESMF_Clock) :: clock
      type(ESMF_Config) :: cf_ext, cf_root, config
      type(ESMF_GridComp), allocatable :: gcs(:)
      type(ESMF_State),    allocatable :: imports(:), exports(:)
@@ -38,7 +39,7 @@ module ExtData_DriverGridCompMod
      procedure :: finalize
      procedure :: get_am_i_root
      procedure :: parseTimes
-     procedure :: advanceClockToTime
+     !procedure :: advanceClockToTime
   end type ExtData_DriverGridComp
 
   type :: ExtData_DriverGridComp_Wrapper
@@ -262,8 +263,8 @@ contains
     call MAPL_Set(MAPLOBJ, CF=CAP%CF_ROOT, RC=STATUS)
     _VERIFY(STATUS)
 
-    call MAPL_ClockInit(cap%config, cap%clock, cap%nsteps, rc = status)
-    _VERIFY(status)
+    !call driver_clockinit(cap%config, cap%clock, cap%nsteps, rc = status)
+    !_VERIFY(status)
 
     root_set_services => cap%root_set_services
 
@@ -286,14 +287,15 @@ contains
     !----------------------------------------
 
     call ESMF_GridCompInitialize(cap%gcs(cap%root_id), importState = cap%imports(cap%root_id), &
-         exportState = cap%exports(cap%root_id), clock = cap%clock, userRC = status)
+         exportState = cap%exports(cap%root_id), clock = clock, userRC = status)
+         !exportState = cap%exports(cap%root_id), clock = cap%clock, userRC = status)
     _VERIFY(status)
 
     export_state=cap%exports(cap%root_id)
-    call ESMF_GridCompSet(gc,clock=cap%clock,rc=status)
-    _VERIFY(status)
-    clock=cap%clock
-    call cap%parseTimes(rc=status)
+    !call ESMF_GridCompSet(gc,clock=cap%clock,rc=status)
+    !_VERIFY(status)
+    !clock=cap%clock
+    !call cap%parseTimes(rc=status)
     _VERIFY(status)
 
     _RETURN(ESMF_SUCCESS)
@@ -314,7 +316,7 @@ contains
     _UNUSED_DUMMY(export)
     _UNUSED_DUMMY(clock)
 
-    call run_MultipleTimes(gc, export, clock, rc=status)
+    call run_once(gc, export, clock, rc=status)
     _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
 
@@ -340,7 +342,8 @@ contains
     MAPLOBJ => get_MetaComp_from_gc(gc)
 
     call ESMF_GridCompFinalize(cap%gcs(cap%root_id), importstate = cap%imports(cap%root_id), &
-         exportstate=cap%exports(cap%root_id), clock = cap%clock, userrc = status)
+         exportstate=cap%exports(cap%root_id), clock = clock, userrc = status)
+         !exportstate=cap%exports(cap%root_id), clock = cap%clock, userrc = status)
     _VERIFY(status)
 
     call ESMF_ConfigDestroy(cap%cf_root, rc = status)
@@ -388,9 +391,9 @@ contains
     
     integer :: status
  
-    call ESMF_GridCompInitialize(this%gc, exportState=export, userRc = status)
+    call ESMF_GridCompInitialize(this%gc, exportState=export, clock=clock, userRc = status)
     _VERIFY(status)
-    call ESMF_GridCompGet(this%gc,exportState=export,clock=clock,rc=status)
+    call ESMF_GridCompGet(this%gc,exportState=export,rc=status)
     _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
   end subroutine initialize
@@ -405,9 +408,9 @@ contains
     integer :: status
     integer :: userRc
 
-    call ESMF_GridCompRun(this%gc, userRC=userRC, exportState=export, rc=status)
+    call ESMF_GridCompRun(this%gc, userRC=userRC, exportState=export, clock=clock, rc=status)
     _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'run failed')
-    call ESMF_GridCompGet(this%gc,exportState=export,clock=clock,rc=status)
+    call ESMF_GridCompGet(this%gc,exportState=export,rc=status)
     _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
 
@@ -459,7 +462,7 @@ contains
   end function get_MetaComp_from_gc
 
 
-  subroutine run_MultipleTimes(gc, export, clock, rc)
+  subroutine run_once(gc, export, clock, rc)
     type (ESMF_Gridcomp) :: gc
     type (ESMF_State), intent(inout) :: export
     type (ESMF_Clock), intent(inout) :: clock
@@ -474,30 +477,20 @@ contains
     cap => get_CapGridComp_from_gc(gc)
     MAPLOBJ => get_MetaComp_from_gc(gc)
 
-    !if (allocated(cap%times)) then
-       !do n=1,size(cap%times)
-          !call cap%AdvanceClockToTime(cap%times(n),rc=status)
-          !_VERIFY(status)
-          !call cap%run_one_step(export,status)
-          !_VERIFY(status)
-       !enddo
-    !else
-       !do n=1,cap%nsteps
-          call ESMF_ClockAdvance(cap%clock,rc=status)
-          _VERIFY(status)
-          call cap%run_one_step(export,status)
-          _VERIFY(status)
-       !enddo
-    !endif
-    clock=cap%clock
+    !call ESMF_ClockAdvance(cap%clock,rc=status)
+    !_VERIFY(status)
+    call cap%run_one_step(export,clock,status)
+    _VERIFY(status)
+    !clock=cap%clock
 
     _RETURN(ESMF_SUCCESS)
-  end subroutine run_MultipleTimes
+  end subroutine run_once
 
 
-  subroutine run_one_step(this, export, rc)
+  subroutine run_one_step(this, export, clock, rc)
     class(ExtData_DriverGridComp), intent(inout) :: this
     type(ESMF_State), intent(inout) :: export
+    type(ESMF_Clock), intent(inout) :: clock
     integer, intent(out) :: rc
     integer :: AGCM_YY, AGCM_MM, AGCM_DD, AGCM_H, AGCM_M, AGCM_S
     integer :: status
@@ -505,7 +498,8 @@ contains
     type(ESMF_Time) :: currTime
     real            :: mem_total, mem_commit, mem_percent
 
-    call ESMF_ClockGet(this%clock, CurrTime = currTime, rc = status)
+    !call ESMF_ClockGet(this%clock, CurrTime = currTime, rc = status)
+    call ESMF_ClockGet(clock, CurrTime = currTime, rc = status)
     _VERIFY(status)
     call ESMF_TimeGet(CurrTime, YY = AGCM_YY, &
          MM = AGCM_MM, &
@@ -521,7 +515,8 @@ contains
     ! --------------------------
     call ESMF_GridCompRun(this%gcs(this%root_id), importstate = this%imports(this%root_id), &
          exportstate = this%exports(this%root_id), &
-         clock = this%clock, userrc = status)
+         clock = clock, userrc = status)
+         !clock = this%clock, userrc = status)
     export = this%exports(this%root_id)
     _VERIFY(status)
 
@@ -534,17 +529,18 @@ contains
   end subroutine run_one_step
 
 
-  ! !IROUTINE: MAPL_ClockInit -- Sets the clock
+  ! !IROUTINE: driver_clockinit -- Sets the clock
 
   ! !INTERFACE: 
 
-  subroutine MAPL_ClockInit ( cf, Clock, nsteps, rc)
+  !subroutine driver_clockinit ( cf, Clock, nsteps, rc)
+  subroutine driver_clockinit ( cf, Clock, rc)
 
     ! !ARGUMENTS:
 
     type(ESMF_Config), intent(inout) :: cf
     type(ESMF_Clock),    intent(  out) :: Clock
-    integer, intent(out)               :: nsteps
+    !integer, intent(out)               :: nsteps
     integer, optional,   intent(  out) :: rc
 
     integer        :: CUR_YY, DUR_YY
@@ -620,10 +616,10 @@ contains
          startTime = currTime, &
          rc = STATUS  )
     _VERIFY(STATUS)
-    nsteps = duration/timeInterval
+    !nsteps = duration/timeInterval
     _RETURN(ESMF_SUCCESS)
 
-  end subroutine MAPL_ClockInit
+  end subroutine driver_clockinit
 
 
   subroutine parseTimes(this, rc)
@@ -652,31 +648,31 @@ contains
 
   end subroutine parseTimes
 
-  subroutine advanceClockToTime(this, time,rc)
-    class(ExtData_DriverGridComp), intent(inout) :: this
-    type(ESMF_Time), intent(inout) :: time
-    integer, intent(out), optional :: rc
-    integer :: status
-
-    type(ESMF_Time) :: currTime
-    logical :: matched
-
-    call ESMF_ClockGet(this%clock,currTime=currTime,rc=status)
-    _VERIFY(status)
-    if (time==currTime) then
-       _RETURN(ESMF_SUCCESS)
-    end if
-
-    matched = .false.
-    do while (.not. matched)
-       call ESMF_ClockAdvance(this%clock,rc=status)
-       _VERIFY(status)
-       call ESMF_ClockGet(this%clock,currTime=currTime,rc=status)
-       _VERIFY(status)
-       if (currTime==Time) matched = .true.
-    enddo
-    _RETURN(ESMF_SUCCESS)
-
-  end subroutine advanceClockToTime
+  !subroutine advanceClockToTime(this, time,rc)
+    !class(ExtData_DriverGridComp), intent(inout) :: this
+    !type(ESMF_Time), intent(inout) :: time
+    !integer, intent(out), optional :: rc
+    !integer :: status
+!
+    !type(ESMF_Time) :: currTime
+    !logical :: matched
+!
+    !call ESMF_ClockGet(this%clock,currTime=currTime,rc=status)
+    !_VERIFY(status)
+    !if (time==currTime) then
+       !_RETURN(ESMF_SUCCESS)
+    !end if
+!
+    !matched = .false.
+    !do while (.not. matched)
+       !call ESMF_ClockAdvance(this%clock,rc=status)
+       !_VERIFY(status)
+       !call ESMF_ClockGet(this%clock,currTime=currTime,rc=status)
+       !_VERIFY(status)
+       !if (currTime==Time) matched = .true.
+    !enddo
+    !_RETURN(ESMF_SUCCESS)
+!
+  !end subroutine advanceClockToTime
 
 end module ExtData_DriverGridCompMod

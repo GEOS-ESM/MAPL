@@ -79,7 +79,7 @@ contains
 
       call MPI_COMM_RANK(back_comm,back_local_rank,status)
       _VERIFY(status)
-      write(*,*)"Starting writer on local rank: ",back_local_rank
+      !write(*,*)"Starting writer on local rank: ",back_local_rank
       if (this%front_back_connection%am_i_back_root()) then
          call this%run_coordinator(_RC)
       else
@@ -94,13 +94,21 @@ contains
       class(Writer), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: collection_id
+      integer, allocatable :: collection_ids(:),free_workers(:),free_workers_global(:)
+      integer :: num_collections,current_free,collections_to_write
       logical, allocatable :: busy(:)
-      integer :: nwriters,free_worker,free,no_job,i,status,back_local_rank
+      integer :: nwriters,free_worker,free,no_job,i,j,status,back_local_rank
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type(RHConnector) :: rh,rh_new
       type(CollectionDescriptor) :: collection_descriptor
       integer :: back_comm, connector_comm
       integer, allocatable :: writer_ranks(:),server_ranks(:),back_pets(:)
+
+      num_collections = this%collection_descriptors%size()
+      allocate(collection_ids(num_collections))
+      allocate(free_workers(num_collections))
+      allocate(free_workers_global(num_collections))
+      free_workers_global = -1
 
       back_comm = this%front_back_connection%get_back_comm()
       connector_comm = this%front_back_connection%get_connection_comm()
@@ -110,42 +118,75 @@ contains
 
       call MPI_COMM_RANK(back_comm,back_local_rank,status)
       _VERIFY(status)
-      write(*,*)"Starting coordinator on local rank: ",back_local_rank
+      !write(*,*)"Starting coordinator on local rank: ",back_local_rank
       nwriters = size(writer_ranks)-1
       allocate(busy(nwriters))
+      _ASSERT(num_collections <= nwriters,"need more writers")
       busy = .false.
       do while (.true.)
-         call MPI_recv(collection_id, 1, MPI_INTEGER, &
+         call MPI_recv(collection_ids, num_collections, MPI_INTEGER, &
          server_ranks(1),writer_ranks(1),connector_comm, &
          MPI_STAT, status)
          _VERIFY(status)
-         if (collection_id >= 1) then
-             free_worker = 0
-             do i=1,nwriters
-                if (busy(i) .eqv. .false.) then
-                   free_worker = i
-                   exit
-                end if
-             enddo
+         if (any(collection_ids > 0)) then
 
-             if (free_worker ==0) then
-                 call mpi_recv(free_worker,1, MPI_INTEGER, &
-                      MPI_ANY_SOURCE,stag,back_comm, &
-                      MPI_STAT, status)
-                 _VERIFY(status)
-             end if
+             current_free = nwriters-count(busy)
+             collections_to_write = count(collection_ids > 0)
 
-             busy(free_worker) = .true.
+             if (collections_to_write <= current_free) then
+                do j=1,num_collections
+                   if (collection_ids(j) > 0) then
+                      do i=1,nwriters
+                         if (busy(i).eqv. .false.) then
+                            busy(i) = .true.
+                            free_workers(j) =  i
+                            free_workers_global(j) = back_pets(1+i)
+                            exit
+                         endif   
+                      enddo
+                   end if
+                enddo
 
-             call MPI_send(back_pets(1+free_worker),1,MPI_INTEGER,  server_ranks(1), &
+             else
+
+                do j=1,num_collections
+                   if (collection_ids(j) > 0) then
+                      if (all(busy)) then
+                         call mpi_recv(free_worker,1, MPI_INTEGER, &
+                            MPI_ANY_SOURCE,stag,back_comm, &
+                            MPI_STAT, status)
+                         _VERIFY(status)
+                         busy(free_worker)=.true.
+                         free_workers(j) = free_worker
+                         free_workers_global(j) = back_pets(1+free_worker)
+                      else
+                         do i=1,nwriters
+                            if (busy(i).eqv. .false.) then
+                               busy(i) = .true.
+                               free_workers(j) =  i
+                               free_workers_global(j) = back_pets(1+i)
+                               exit
+                            endif   
+                         enddo
+                      end if
+                   end if
+                enddo
+             end if 
+             call MPI_send(free_workers_global,num_collections,MPI_INTEGER,  server_ranks(1), &
                   server_ranks(1),connector_comm,status)
              _VERIFY(status)
-             call MPI_Send(collection_id,1,MPI_INTEGER, free_worker, &
-                  free_worker,back_comm,status)
-             _VERIFY(status)
-             collection_descriptor=this%collection_descriptors%at(collection_id)
-             rh=collection_descriptor%get_rh()
-             rh_new = this%setup_transfer(rh,back_pets(1+free_worker),_RC)
+             do i=1,num_collections
+                if (collection_ids(i) > 0) then
+                  
+                   call MPI_Send(collection_ids(i),1,MPI_INTEGER, free_workers(i), &
+                        free_workers(i),back_comm,status)
+                   _VERIFY(status)
+                   collection_descriptor=this%collection_descriptors%at(collection_ids(i))
+                   rh=collection_descriptor%get_rh()
+                   rh_new = this%setup_transfer(rh,back_pets(1+free_workers(i)),_RC)
+
+                end if
+             enddo
          else
             no_job=-1
             do i=1,nwriters
@@ -161,7 +202,7 @@ contains
                   _VERIFY(status)
                end if
             end do
-            write(*,*)"Exiting writer on rank: ",back_local_rank
+            !write(*,*)"Exiting writer on rank: ",back_local_rank
             call io_prof%stop('start_writer')
             exit
          end if
@@ -188,7 +229,7 @@ contains
                       MPI_STAT,status)
          _VERIFY(status)
          if (collection_id < 0) then
-            write(*,*)"Exiting writer on rank: ",back_local_rank
+            !write(*,*)"Exiting writer on rank: ",back_local_rank
             call io_prof%stop('start_writer')
             exit
          end if
@@ -262,6 +303,7 @@ contains
             real, pointer :: ptr2d(:,:),ptr3d(:,:,:)
             if (rank==2) then
                call ESMF_ArrayGet(array,farrayptr=ptr2d,_RC)
+               write(*,*)trim(coll_name)," ",trim(fieldNames(i)),size(ptr2d,1),size(ptr2d,2)
                write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr2d),maxval(ptr2d)
             else if (rank==3) then
                call ESMF_ArrayGet(array,farrayptr=ptr3d,_RC)

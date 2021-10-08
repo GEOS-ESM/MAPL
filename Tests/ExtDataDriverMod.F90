@@ -5,7 +5,7 @@ module ExtDataDriverMod
    use MPI  
    use ESMF
    use MAPL
-   use ExtData_DriverGridCompMod, only: ExtData_DriverGridComp, new_ExtData_DriverGridComp
+   use ExtData_DriverGridCompMod, only: ExtData_DriverGridComp, new_ExtData_DriverGridComp, driver_clockInit
    use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
    use gFTL_StringVector
    use MAPL_ApplicationSupport
@@ -73,6 +73,8 @@ contains
       integer :: comm
       character(len=:), allocatable :: hist_config
       integer, allocatable :: model_pets(:)
+      integer :: nstep
+      type(ESMF_Config) :: cf
 
       call ESMF_Initialize (vm=vm, logKindFlag=this%cap_options%esmf_logging_mode, rc=status)
       _VERIFY(STATUS)
@@ -80,14 +82,20 @@ contains
       call MPI_COMM_RANK(comm,rank,status)
       _VERIFY(status)
 
+      nstep = this%cap_options%nsteps
       model = (rank < this%cap_options%npes_model)
       allocate(model_pets(this%cap_options%npes_model))
       do i=1,this%cap_options%npes_model
          model_pets(i)=i-1
       enddo
 
+      call start_io_prof(MPI_COMM_WORLD)
       export = ESMF_StateCreate()
       cap = new_ExtData_DriverGridComp(root_setservices, name=this%name, configFileName="CAP.rc",pet_list=model_pets)
+      
+      cf = ESMF_ConfigCreate()
+      call ESMF_ConfigLoadFile(cf,"CAP.rc",_RC)
+      call driver_clockInit(cf,clock,_RC)
       call cap%set_services(rc = status)
       _VERIFY(status)
       call cap%initialize(export,clock,rc = status)
@@ -97,7 +105,6 @@ contains
       call ESMF_StateReconcile(export,__RC__)
       call ESMF_VMBarrier(vm,__RC__)
       hist_config="newhist.yaml"
-      call start_io_prof(MPI_COMM_WORLD)
       call ESMF_VMBarrier(vm,__RC__)
       call MPI_Barrier(MPI_COMM_WORLD,status)
       call io_controller%initialize(export,hist_config,clock,this%cap_options%npes_model,this%cap_options%npes_backend_pernode,rc=status)
@@ -106,11 +113,11 @@ contains
       call MPI_Barrier(MPI_COMM_WORLD,status)
 
       call io_controller%start_writer(_RC)
-      do i=1,2
+      do i=1,nstep
          if (model) then
-            call cap%run(export,clock, rc=status)
-            _VERIFY(status)
+            call cap%run(export,clock,_RC)
          end if
+         call ESMF_ClockAdvance(clock,_RC)
          call io_controller%run(clock,_RC)
       enddo 
       call io_controller%stop_writer(_RC)
@@ -119,8 +126,9 @@ contains
       call MPI_Barrier(MPI_COMM_WORLD,status)
       call generate_io_summary(rank)
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      if (model) call cap%finalize(rc = status)
-      _VERIFY(status)
+      !if (model) call cap%finalize(rc = status)
+      !call cap%finalize(rc = status)
+      !_VERIFY(status)
 
       call MAPL_Finalize(rc=status)
       _VERIFY(status) 

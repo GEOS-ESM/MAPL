@@ -58,7 +58,7 @@ contains
       character(len=*), intent(inout) :: configuration_file
       integer, intent(in) :: model_pets
       integer, intent(in) :: writers_per_node
-      type(ESMF_Clock), intent(in) :: clock
+      type(ESMF_Clock), intent(inout) :: clock
       integer, optional, intent(out) :: rc
 
 
@@ -89,6 +89,7 @@ contains
       do while(enabled_iter /= this%enabled%end())
          key=enabled_iter%get()
          hist_coll=coll_registry%at(key)
+         call hist_coll%initialize_frequency(clock,_RC)
          collection_id=collection_id+1
          output_server=Server(hist_coll,collection_id,this%mpi_connection,_RC)
          call this%servers%insert(key,output_server)
@@ -167,15 +168,18 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: terminate = -1
       integer, allocatable :: writer_ranks(:)
-      integer :: server_comm
+      integer :: server_comm,num_collections
+      integer, allocatable :: terminate(:)
 
+      num_collections = this%enabled%size()
+      allocate(terminate(num_collections),source=-1)
+      
       server_comm = this%mpi_connection%get_connection_comm()
       if (server_comm /= MPI_COMM_NULL) then 
          writer_ranks = this%mpi_connection%get_back_mpi_ranks()
          if (this%mpi_connection%am_i_front_root()) then
-            call MPI_Send(terminate,1,MPI_INTEGER,writer_ranks(1), &
+            call MPI_Send(terminate,num_collections,MPI_INTEGER,writer_ranks(1), &
                  writer_ranks(1),server_comm,status)
             _VERIFY(status)
          end if
@@ -190,10 +194,11 @@ contains
 
       integer :: status
 
-      integer :: writer_comm
+      integer :: model_comm,front_comm
 
-      writer_comm = this%mpi_connection%get_back_comm()
-      if (writer_comm == MPI_COMM_NULL) then
+      front_comm = this%mpi_connection%get_front_comm()
+      model_comm = this%mpi_connection%get_model_comm()
+      if (model_comm /= MPI_COMM_NULL .or. front_comm /= MPI_COMM_NULL) then
          call io_prof%start('server_run')
          ! here the client might do some work
 
@@ -498,12 +503,13 @@ contains
       if (rank >= model_pets) server_color=1
       
 
-      server_comm = MPI_COMM_NULL
-
-      call mpi_comm_split(mpi_comm,server_color,0,server_comm,status)
-      _VERIFY(status)
-
-      this%mpi_connection = MpiConnection(mpi_comm,server_comm,writers_per_node,vm,_RC)
+      !server_comm = MPI_COMM_NULL
+!
+      !call mpi_comm_split(mpi_comm,server_color,0,server_comm,status)
+      !_VERIFY(status)
+!
+      !this%mpi_connection = MpiConnection(mpi_comm,server_comm,writers_per_node,vm,_RC)
+      this%mpi_connection = MpiConnection(mpi_comm,model_pets,writers_per_node,vm,_RC)
 
       _RETURN(_SUCCESS)
    end subroutine create_comms
@@ -517,13 +523,14 @@ contains
       type(Server), pointer :: server_ptr
       type(StringVectorIterator) :: enabled_iter
       character(:), allocatable :: coll_name
-      integer :: connection_comm,front_comm,back_comm
+      integer :: model_comm,front_comm
+      type(Collection) :: hist_coll
+      logical :: is_time_to_write
 
-      connection_comm = this%mpi_connection%get_connection_comm()
+      model_comm = this%mpi_connection%get_model_comm()
       front_comm = this%mpi_connection%get_front_comm() 
-      back_comm = this%mpi_connection%get_back_comm() 
 
-      if (back_comm == MPI_COMM_NULL) then
+      if (model_comm /= MPI_COMM_NULL .or. front_comm /= MPI_COMM_NULL) then
 
          call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
 
@@ -532,11 +539,16 @@ contains
             coll_name=enabled_iter%get()
             server_ptr => this%servers%at(coll_name)
             client_ptr => this%clients%at(coll_name)
-            if (connection_comm == MPI_COMM_NULL) then
-               call client_ptr%transfer_data_to_server(_RC)
-            end if
-            if (front_comm /= MPI_COMM_NULL) then
-               call server_ptr%get_data_from_client(_RC)
+            hist_coll = server_ptr%get_collection()
+            is_time_to_write = hist_coll%is_time_to_write(_RC)
+            if (this%mpi_connection%am_i_front_root() .and. is_time_to_write) write(*,*)"writing coll: ",trim(coll_name)
+            if (is_time_to_write) then
+               if (model_comm /= MPI_COMM_NULL) then
+                  call client_ptr%transfer_data_to_server(_RC)
+               end if
+               if (front_comm /= MPI_COMM_NULL) then
+                  call server_ptr%get_data_from_client(_RC)
+               end if
             end if
             call enabled_iter%next()
          enddo
@@ -552,29 +564,74 @@ contains
       class(IOController), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status,front_comm
+      integer :: status,front_comm,connector_comm,num_collections
       type(Server), pointer :: server_ptr
       type(StringVectorIterator) :: enabled_iter
-      character(:), allocatable :: coll_name 
+      character(:), allocatable :: coll_name
+      integer, allocatable :: writing(:),back_ranks(:),front_ranks(:),worker_pets(:)
+      integer :: i
+      integer :: MPI_STAT(MPI_STATUS_SIZE)
+      type(Collection) :: hist_coll
 
       front_comm = this%mpi_connection%get_front_comm()
+      connector_comm = this%mpi_connection%get_connection_comm()
+      front_ranks = this%mpi_connection%get_front_mpi_ranks()
+      back_ranks = this%mpi_connection%get_back_mpi_ranks()
+      num_collections = this%enabled%size()
+      allocate(worker_pets(num_collections))
 
       if (front_comm/=MPI_COMM_NULL) then
          ! first round
+         ! until implemented all are true
+         !allocate(writing(num_collections),source=[(i,i=1,num_collections)])
+         allocate(writing(num_collections),source=-1)
          enabled_iter = this%enabled%begin()
+         i=0
          do while(enabled_iter /= this%enabled%end())
-            coll_name=enabled_iter%get()
+            i=i+1
+            coll_name = enabled_iter%get()
             server_ptr => this%servers%at(coll_name)
-            call server_ptr%get_writer(_RC)
+            hist_coll = server_ptr%get_collection()
+            if (hist_coll%is_time_to_write()) writing(i)=i
+            call enabled_iter%next()
+         enddo
+
+         if (any(writing/=-1)) then
+            if (this%mpi_connection%am_i_front_root()) then
+               call MPI_Send(writing,num_collections,MPI_INTEGER,back_ranks(1), &
+                   back_ranks(1),connector_comm,status)
+               _VERIFY(status)
+               call MPI_Recv(worker_pets,num_collections,MPI_INTEGER,back_ranks(1), &
+                    front_ranks(1),connector_comm,MPI_STAT,status)
+               _VERIFY(status)
+            end if
+            call MPI_Bcast(worker_pets,num_collections,MPI_INTEGER,front_ranks(1),front_comm,status)
+            _VERIFY(status)
+         end if
+
+         enabled_iter = this%enabled%begin()
+         i = 0
+         do while(enabled_iter /= this%enabled%end())
+            i=i+1
+            if (writing(i)/=-1) then
+               coll_name=enabled_iter%get()
+               server_ptr => this%servers%at(coll_name)
+               !call server_ptr%get_writer(_RC)
+               call server_ptr%create_rh_from_proto(worker_pets(i))
+            end if
             call enabled_iter%next()
          enddo
          ! second round enter epoch
          call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
          enabled_iter = this%enabled%begin()
+         i=0
          do while(enabled_iter /= this%enabled%end())
-            coll_name=enabled_iter%get()
-            server_ptr => this%servers%at(coll_name)
-            call server_ptr%offload_data(_RC)
+            i=i+1
+            if (writing(i)/=-1) then
+               coll_name=enabled_iter%get()
+               server_ptr => this%servers%at(coll_name)
+               call server_ptr%offload_data(_RC)
+            end if
             call enabled_iter%next()
          enddo
          call ESMF_VMEpochExit()

@@ -19,6 +19,7 @@ module AEIO_Client
       procedure initialize
       procedure get_grid
       procedure get_bundle
+      procedure get_collection
       procedure set_client_server_connector
       procedure transfer_data_to_server
       procedure get_connector
@@ -55,6 +56,12 @@ contains
       _RETURN(_SUCCESS)
 
    end function new_Client
+
+   function get_collection(this) result(hist_coll)
+      class(Client), intent(inout) :: this
+      type(collection) :: hist_coll
+      hist_coll=this%hist_collection
+   end function
 
    function get_bundle(this) result(bundle)
       class(Client), intent(inout) :: this

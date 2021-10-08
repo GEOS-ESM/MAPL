@@ -28,11 +28,13 @@ module AEIO_Server
       procedure set_grid
       procedure get_grid
       procedure get_bundle
+      procedure get_collection
       procedure set_client_server_connector
       procedure set_server_writer_prototype
       procedure get_server_writer_prototype
       procedure get_data_from_client
       procedure get_writer
+      procedure create_rh_from_proto
       procedure offload_data
       procedure get_connector
       procedure i_am_server_root
@@ -87,6 +89,12 @@ contains
       _RETURN(_SUCCESS)
 
    end function new_Server
+
+   function get_collection(this) result(hist_coll)
+      class(Server), intent(inout) :: this
+      type(collection) :: hist_coll
+      hist_coll=this%hist_collection
+   end function
 
    function get_bundle(this) result(bundle)
       class(Server), intent(inout) :: this
@@ -152,6 +160,38 @@ contains
       call this%client_connection%redist_fieldBundles(dstFieldBundle=this%bundle,_RC)
       _RETURN(_SUCCESS)
    end subroutine get_data_from_client
+
+   subroutine create_rh_from_proto(this,worker_rank,rc)
+      class(server), intent(inout) :: this
+      integer, intent(in) :: worker_rank
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      ! here is where we 
+      ! get work we will talk to
+      ! generate new rh from prototype
+      ! send data
+      ! how do we send the actual filename? what the heck the file should look like including time?
+      integer, allocatable :: originPetList(:),targetPetList(:)
+      integer, allocatable :: front_pets(:),back_pets(:)
+      integer :: server_size
+
+      front_pets = this%front_back_connection%get_front_pets()
+      back_pets = this%front_back_connection%get_back_pets()
+
+      ! transfer prototype
+      
+      server_size = size(front_pets)
+      allocate(originPetList(server_size+1))
+      allocate(targetPetList(server_size+1))
+      originPetList(1:server_size)=front_pets
+      targetPetList(1:server_size)=front_pets
+      originPetList(server_size+1)=back_pets(1)
+      targetPetList(server_size+1)=worker_rank
+      this%writer_conn = this%writer_prototype_conn%transfer_rh(originPetList,targetPetList,_RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine create_rh_from_proto
 
    subroutine get_writer(this,rc)
       class(server), intent(inout) :: this
