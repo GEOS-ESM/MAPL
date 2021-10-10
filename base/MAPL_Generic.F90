@@ -214,6 +214,8 @@ module MAPL_GenericMod
   public MAPL_DestroyStateSave
   public MAPL_GenericStateSave
   public MAPL_GenericStateRestore
+  public MAPL_RootGcRetrieve
+  
 !BOP  
   ! !PUBLIC TYPES:
 
@@ -10149,7 +10151,12 @@ end subroutine MAPL_READFORCINGX
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GetRootGC
 
-
+  function MAPL_RootGcRetrieve (meta) result(GC)
+    type (MAPL_MetaComp), intent(IN) :: META 
+    type(ESMF_GridComp) :: GC
+    
+    GC = meta%rootGC
+  end function MAPL_RootGcRetrieve
 
   integer function MAPL_AddMethod(PHASE, RC)
     integer, pointer               :: PHASE(:)
