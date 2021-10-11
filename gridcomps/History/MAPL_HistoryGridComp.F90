@@ -3460,13 +3460,6 @@ ENDDO PARSER
           _VERIFY(STATUS)
        endif
 
-       if( NewSeg .and. list(n)%unit /= 0 .and. list(n)%duration /= 0 ) then
-          if (list(n)%unit > 0 ) then
-             call FREE_FILE( list(n)%unit )
-          end if
-          list(n)%unit = 0
-       endif
-
    end do
 
    if(any(Writing)) call WRITE_PARALLEL("")
@@ -3646,6 +3639,13 @@ ENDDO PARSER
          end if
 
       endif OUTTIME
+
+      if( NewSeg .and. list(n)%unit /= 0 .and. list(n)%duration /= 0 ) then
+         if (list(n)%unit > 0 ) then
+            call FREE_FILE( list(n)%unit )
+         end if
+         list(n)%unit = 0
+       endif
 
    enddo POSTLOOP
 
