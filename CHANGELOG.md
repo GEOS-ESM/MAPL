@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added GEOSldas CI build test
 - Added option to regrid to a regional lat-lon grid in the Regrid_Util.x utility
 - Added [scc](https://github.com/boyter/scc) badges to README
+- Added Service-Services functionality. Components could advertise services they can provide, they can request services to be done to a list of variables, and 
+rrent components could connect services.
 
 ### Changed
 
@@ -37,6 +39,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make `BUILD_WITH_PFLOGGER` a CMake `option()`
 - MAPL finds yaFyaml in CMake through `PFLOGGER::pflogger`, so if you build the stub, specifically add it as a dependency
 - Fix annoying misspelling of FLAP
+
+## [2.8.7] - 2021-10-12
+
+### Fixed
+
+- Fixes #1064. This is bug has been in MAPL for a long time. It shows only when the user specifies a non-default duration, and the last step of the duration interval is written to a new, separate file
 
 ## [2.8.6] - 2021-09-13
 
