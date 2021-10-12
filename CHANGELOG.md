@@ -11,9 +11,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added option to flip vertical orientation of checkpoint files from the provided orientation which is assumed to be down (TOA -> surface) as index increases. User can provide a per grid comp INTERNAL_CHECKPOINT_POSITIVE: and IMPORT_CHECKPOINT_POSITIVE: option with the default as down. If this is set to up 3D fields that are vlocationedge or vlocationcenter will be flipped on writing and positive in the lev variable will be up. Likewise restarts with positive up will be flipped relative to the orientation in the file.
+- Added GEOSldas CI build test
+- Added option to regrid to a regional lat-lon grid in the Regrid_Util.x utility
+- Added [scc](https://github.com/boyter/scc) badges to README
+- Added Service-Services functionality. Components could advertise services they can provide, they can request services to be done to a list of variables, and 
+rrent components could connect services.
 ### Changed
 
+- Moved newcfio modules from base into new griddedio directory
+    - Renamed newCFIO modules and routines to GriddedIO
+- Refactored ExtData modules. Because of the dependencies, the following changes were also done:
+    - Moved Collection ExtData modules into griddedio directory. Removed the Ext prefix for collection modules and subroutines and types
+    - Moved BundleRead and BundleWrite modules from base to griddedio
+    - Moved Regrid_Util.F90 from base to griddedio  due to griddedio dependency on base. Executable still generated in install/bin
+- Updated `components.yaml`
+    - ESMA_cmake v3.5.7 (Bug fix for NAG, support for mepo styles)
+    - ESMA_env v3.3.1
+- Refactored MAPL_IO by separating it into a Binary (BinIO.F90) and NetCDF (NCIO.F90) modules. Shared subroutines and
+  types have been moved to FileIOShared.F90. MAPL_IO becomes a package module to hold these aforementioned three modules.
+
 ### Fixed
+
+- Fixed #338. Added a workaround for a gfortran bug that handles end-of-file incorrectly (returns IOSTAT=5001).
+- Fixed ESMF logging errors from MAPL_IO (#1032)
 
 ## [2.8.7] - 2021-10-12
 
