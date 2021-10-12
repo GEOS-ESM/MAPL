@@ -36,6 +36,12 @@ rrent components could connect services.
 - Fixed #338. Added a workaround for a gfortran bug that handles end-of-file incorrectly (returns IOSTAT=5001).
 - Fixed ESMF logging errors from MAPL_IO (#1032)
 
+## [2.8.7] - 2021-10-12
+
+### Fixed
+
+- Fixes #1064. This is bug has been in MAPL for a long time. It shows only when the user specifies a non-default duration, and the last step of the duration interval is written to a new, separate file
+
 ## [2.8.6] - 2021-09-13
 
 ### Added
