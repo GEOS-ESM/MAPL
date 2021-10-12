@@ -22,7 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added GEOSldas CI build test
 - Added option to regrid to a regional lat-lon grid in the Regrid_Util.x utility
 - Added [scc](https://github.com/boyter/scc) badges to README
-
+- Added Service-Services functionality. Components could advertise services they can provide, they can request services to be done to a list of variables, and 
+rrent components could connect services.
 ### Changed
 
 - Moved newcfio modules from base into new griddedio directory
