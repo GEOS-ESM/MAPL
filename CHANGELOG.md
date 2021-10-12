@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
-
+- Fixes #1064. This is bug has been in MAPL for a long time. It shows only when the user specifies a non-default duration, and the last step of the duration interval is written to a new, separate file
 ## [2.8.6] - 2021-09-13
 
 ### Added
