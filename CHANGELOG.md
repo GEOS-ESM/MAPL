@@ -40,6 +40,12 @@ rrent components could connect services.
 - MAPL finds yaFyaml in CMake through `PFLOGGER::pflogger`, so if you build the stub, specifically add it as a dependency
 - Fix annoying misspelling of FLAP
 
+## [2.8.8] - 2021-10-13
+
+### Fixed
+
+- Reverts the change in 2.8.7, #1069, as this caused bad History behavior (see #1074)
+
 ## [2.8.7] - 2021-10-12
 
 ### Fixed
