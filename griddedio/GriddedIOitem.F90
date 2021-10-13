@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module MAPL_newCFIOitemMod
+module MAPL_GriddedIOitemMod
   use ESMF
   use, intrinsic :: ISO_C_BINDING
   implicit none
@@ -15,26 +15,26 @@ module MAPL_newCFIOitemMod
      enumerator :: ItemTypeVector = 1
   end enum
 
-  type, public :: newCFIOitem
+  type, public :: GriddedIOitem
      integer :: itemType
      character(len=ESMF_MAXSTR) :: xname, yname
      type(ESMF_Field) :: xfield, yfield
      type(ESMF_Field) :: xfield_out,yfield_out
-  end type newCFIOitem
+  end type GriddedIOitem
 
-end module MAPL_newCFIOitemMod
+end module MAPL_GriddedIOitemMod
 
-module MAPL_newCFIOitemVectorMod
-  use MAPL_newCFIOitemMod
+module MAPL_GriddedIOitemVectorMod
+  use MAPL_GriddedIOitemMod
 
-#define _type type(newCFIOitem)
+#define _type type(GriddedIOitem)
 #define _allocatable
-#define _vector newCFIOitemVector
-#define _iterator newCFIOitemVectorIterator
+#define _vector GriddedIOitemVector
+#define _iterator GriddedIOitemVectorIterator
 #include "templates/vector.inc"
 
 #undef _iterator
 #undef _vector
 #undef _type_type
 
-end module MAPL_newCFIOitemVectorMod
+end module MAPL_GriddedIOitemVectorMod
