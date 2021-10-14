@@ -118,7 +118,7 @@ contains
       class(keywordenforcer), optional, intent(  out) :: unusable
       integer,                optional, intent(  out) :: rc
 
-      character(:), pointer       :: key
+      character(:), allocatable   :: key
       type(ConfigurationIterator) :: iter
       type(Configuration)         :: sub_config
 
@@ -131,17 +131,17 @@ contains
 
       iter = config%begin()
       do while(iter /= config%end())
-         key => iter%key()
+         call iter%get_key(key)
 
          select case (key)
          case (enabled_key)
-            sub_config = iter%value()
+            call iter%get_value(sub_config)
             call this%import_enabled(sub_config, __RC__)
          case (groups_key)
-            sub_config = iter%value()
+            call iter%get_value(sub_config)
             call this%groups%import_groups(sub_config, __RC__)
          case (collections_key)
-            sub_config = iter%value()
+            call iter%get_value(sub_config)
             call this%collections%import_collections(sub_config, __RC__)
          end select
 
@@ -181,17 +181,19 @@ contains
       character(:), allocatable   :: collection_name
       type(ConfigurationIterator) :: iter
 
-      integer :: status
+      integer :: status,i
 
       _UNUSED_DUMMY(unusable)
 
       if (config%is_sequence()) then
-         iter = config%begin()
-         do while(iter /= config%end())
-            collection_name = iter%get()
+         !iter = config%begin()
+         !do while(iter /= config%end())
+         do i= 1,config%size()
+            !collection_name = iter%get()
+            collection_name = config%of(i)
             call this%enabled%push_back(collection_name)
 
-            call iter%next()
+            !call iter%next()
          end do
 
          status = 0

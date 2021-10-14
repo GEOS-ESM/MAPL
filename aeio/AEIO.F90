@@ -19,5 +19,4 @@ module AEIO
    use AEIO_IOController
    use HistoryConfigMod
    use AEIO_IOProfiler
-   use AEIO_WriterProfiler
 end module AEIO

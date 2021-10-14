@@ -303,11 +303,11 @@ contains
             real, pointer :: ptr2d(:,:),ptr3d(:,:,:)
             if (rank==2) then
                call ESMF_ArrayGet(array,farrayptr=ptr2d,_RC)
-               write(*,*)trim(coll_name)," ",trim(fieldNames(i)),size(ptr2d,1),size(ptr2d,2)
-               write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr2d),maxval(ptr2d)
+               !write(*,*)trim(coll_name)," ",trim(fieldNames(i)),size(ptr2d,1),size(ptr2d,2)
+               !write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr2d),maxval(ptr2d)
             else if (rank==3) then
                call ESMF_ArrayGet(array,farrayptr=ptr3d,_RC)
-               write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr3d),maxval(ptr3d)
+               !write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr3d),maxval(ptr3d)
             end if
          end block
       enddo

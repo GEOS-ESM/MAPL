@@ -89,6 +89,14 @@ contains
            error=status)
       _VERIFY(status)
 
+      call options%add(switch='--nsteps', &
+           help='# number of steps to run', &
+           required=.false., &
+           act='store', &
+           def='1', &
+           error=status)
+      _VERIFY(status)
+
       call options%add(switch='--n_members', &
            help='# MPI processes used by model CapGridComp1', &
            required=.false., &

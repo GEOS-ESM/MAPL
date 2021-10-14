@@ -80,7 +80,7 @@ contains
       class(KeywordEnforcer), optional, intent(  out) :: unusable
       integer,                optional, intent(  out) :: rc
 
-      character(:), pointer       :: key
+      character(:), allocatable   :: key
       type(ConfigurationIterator) :: iter
       type(Configuration)         :: sub_config
 
@@ -90,8 +90,8 @@ contains
 
       iter = config%begin()
       do while(iter /= config%end())
-         key        => iter%key()
-         sub_config =  iter%value()
+         call iter%get_key(key)
+         call iter%get_value(sub_config)
 
          call this%import_collection(key, sub_config, __RC__)
          call iter%next()

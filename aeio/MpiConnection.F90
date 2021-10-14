@@ -72,10 +72,9 @@ contains
             exit
          end if
       enddo
-      write(*,*)"bmaa server ",server_nodes
-      call msplitter%add_group(npes=npes_model,name='model',isolate_nodes=.true.)
+      call msplitter%add_group(npes=npes_model,name='model',isolate_nodes=.false.)
       if (size(m_node_sizes)==1) then
-         call msplitter%add_group(npes=global_size-npes_model,name='server_nodes',isolate_nodes=.true.)
+         call msplitter%add_group(npes=global_size-npes_model,name='server_nodes',isolate_nodes=.false.)
       else
          call msplitter%add_group(nnodes=server_nodes,name='server_nodes',isolate_nodes=.true.)
       end if
@@ -243,7 +242,9 @@ contains
               call MPI_recv(new_instance%back_pets, back_size, MPI_INTEGER, MPI_ANY_SOURCE, 666, new_instance%connection_comm, MPI_STAT,status)
             endif
             call MPI_Bcast(new_instance%back_mpi_ranks, back_size, MPI_INTEGER, 0, new_instance%front_comm, status)
+            _VERIFY(status)
             call MPI_Bcast(new_instance%back_pets, back_size, MPI_INTEGER, 0, new_instance%front_comm, status)
+            _VERIFY(status)
 
             call MPI_AllGather(c_rank, 1, MPI_INTEGER, new_instance%front_mpi_ranks, 1, MPI_INTEGER, new_instance%front_comm, status)
             call MPI_AllGather(c_pet, 1, MPI_INTEGER, new_instance%front_pets, 1, MPI_INTEGER, new_instance%front_comm, status)
@@ -271,7 +272,9 @@ contains
             endif
 
             call MPI_Bcast(new_instance%front_mpi_ranks, front_size, MPI_INTEGER, 0, new_instance%back_comm, status)
+            _VERIFY(status)
             call MPI_Bcast(new_instance%front_pets, front_size, MPI_INTEGER, 0, new_instance%back_comm, status)
+            _VERIFY(status)
          endif
 
       endif
@@ -294,10 +297,10 @@ contains
       call mpi_bcast(new_instance%back_pets,back_size,mpi_integer,global_size-1,global_comm,status)
       _VERIFY(status)
 
-      !if (new_instance%i_am_front_root) then
-         !write(*,*)"fpet ",new_instance%front_pets 
-         !write(*,*)"bpet ",new_instance%back_pets 
-      !end if
+      if (new_instance%i_am_front_root) then
+         write(*,*)"fpet ",new_instance%front_pets 
+         write(*,*)"bpet ",new_instance%back_pets 
+      end if
 
       _RETURN(_SUCCESS)
 

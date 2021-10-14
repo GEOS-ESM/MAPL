@@ -186,7 +186,7 @@ contains
       integer,                optional, intent(  out) :: rc
 
       character(:), allocatable   :: config_value
-      character(:), pointer       :: key
+      character(:), allocatable   :: key
       type(ConfigurationIterator) :: iter
       type(Configuration)         :: sub_config
 
@@ -204,17 +204,17 @@ contains
       ! Import everything else
       iter = config%begin()
       do while(iter /= config%end())
-         key => iter%key()
+         call iter%get_key(key)
 
          select case (key)
          case (template_key)
-            config_value = iter%value()
+            call iter%get_value(config_value)
             call this%template%initialize(config_value)
          case (frequency_key)
-            config_value = iter%value()
+            call iter%get_value(config_value)
             call this%frequency%initialize(config_value)
          case (groups_key)
-            sub_config = iter%value()
+            call iter%get_value(sub_config)
             call this%import_groups(sub_config)
          end select
 
@@ -231,19 +231,22 @@ contains
       integer,                optional, intent(  out) :: rc
 
       character(:), allocatable   :: group_name
-      type(ConfigurationIterator) :: iter
+      !type(ConfigurationIterator) :: iter
+      integer :: i
 
       integer :: status
 
       _UNUSED_DUMMY(unusable)
 
       if (config%is_sequence()) then
-         iter = config%begin()
-         do while(iter /= config%end())
-            group_name = iter%get()
+         !iter = config%begin()
+         !do while(iter /= config%end())
+         do i= 1, config%size()
+            !group_name = iter%get()
+            group_name = config%of(i)
             call this%groups%push_back(group_name)
 
-            call iter%next()
+            !call iter%next()
          end do
 
          status = 0

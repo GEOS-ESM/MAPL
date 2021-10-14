@@ -200,7 +200,7 @@ contains
       class(KeywordEnforcer), optional, intent(  out) :: unusable
       integer,                optional, intent(  out) :: rc
 
-      character(:), pointer       :: component_name
+      character(:), allocatable       :: component_name
       type(ConfigurationIterator) :: iter
       type(Configuration)         :: sub_config
 
@@ -210,8 +210,8 @@ contains
 
       iter = config%begin()
       do while(iter /= config%end())
-         component_name => iter%key()
-         sub_config     =  iter%value()
+         call iter%get_key(component_name)
+         call iter%get_value(sub_config)
 
          call this%import_component(component_name, sub_config, __RC__)
          call iter%next()
@@ -227,7 +227,7 @@ contains
       class(KeywordEnforcer), optional, intent(  out) :: unusable
       integer,                optional, intent(  out) :: rc
 
-      character(:), pointer       :: short_name
+      character(:), allocatable   :: short_name
       type(ConfigurationIterator) :: iter
       type(Configuration)         :: sub_config
 
@@ -237,8 +237,8 @@ contains
 
       iter = config%begin()
       do while(iter /= config%end())
-         short_name => iter%key()
-         sub_config =  iter%value()
+         call iter%get_key(short_name)
+         call iter%get_value(sub_config)
 
          call this%import_field(short_name, component_name, sub_config, __RC__)
          call iter%next()
@@ -259,7 +259,7 @@ contains
       character(:), allocatable  :: units
       type(FieldGroupEntry) :: field_entry
 
-      character(:), pointer       :: key
+      character(:), allocatable   :: key
       type(ConfigurationIterator) :: iter
 
       integer :: status
@@ -270,14 +270,14 @@ contains
 
       iter =  config%begin()
       do while(iter /= config%end())
-         key => iter%key()
+         call iter%get_key(key)
 
          select case (key)
          case (alias_key)
-            alias = iter%value()
+            call iter%get_value(alias)
             call field_entry%set_alias_name(alias, __RC__)
          case (units_key)
-            units = iter%value()
+            call iter%get_value(units)
             call field_entry%set_units(units, __RC__)
          end select
 
