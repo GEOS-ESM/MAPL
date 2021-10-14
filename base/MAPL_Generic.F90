@@ -5999,7 +5999,8 @@ end function MAPL_AddChildFromDSO
        _VERIFY(STATUS)
 !ALT we should also check if we have a valid grid in the spec so we do not overwrite it
 
-       if (IAND(STAT, MAPL_BundleItem) /= 0) then
+       if (IAND(STAT, MAPL_BundleItem) /= 0 .or. &
+            IAND(STAT, MAPL_StateItem) /= 0) then
           GRD = GRID
        else
 ! choose the grid         
