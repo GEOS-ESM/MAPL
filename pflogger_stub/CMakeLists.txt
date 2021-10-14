@@ -6,7 +6,7 @@ set (srcs
   pflogger_stub.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared YAFYAML::yafyaml TYPE ${MAPL_LIBRARY_TYPE})
 add_library(PFLOGGER::pflogger ALIAS ${this})
 
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
