@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [2.6.10] - 2021-10-15
+
+### Fixed
+
+- Added a proper handling for new segment logic in History. This addressed issues #1064 and #1067
+
 ## [2.6.9] - 2021-08-04
 
 ### Added
