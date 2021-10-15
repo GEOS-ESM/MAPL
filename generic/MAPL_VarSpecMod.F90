@@ -17,6 +17,7 @@ module MAPL_VarSpecMod
    use MAPL_ExceptionHandling
    use mapl_VariableSpecification
    use mapl_VarSpecVector
+
 ! !PUBLIC MEMBER FUNCTIONS:
 
 implicit none
@@ -103,7 +104,7 @@ end interface
 interface MAPL_VarSpecPrint
    module procedure MAPL_VarSpecPrintOne
    module procedure MAPL_VarSpecPrintMany
-end interface
+end interface MAPL_VarSpecPrint
 
 !EOP
 

@@ -9,15 +9,15 @@
 module MAPL_ExtData_IOBundleMod
   use ESMF
   use MAPL_BaseMod
-  use MAPL_newCFIOMod
+  use MAPL_GriddedIOMod
   use MAPL_ExceptionHandling
-  use MAPL_newCFIOItemMod
-  use MAPL_newCFIOItemVectorMod
+  use MAPL_GriddedIOItemMod
+  use MAPL_GriddedIOItemVectorMod
 
   public :: ExtData_IoBundle
 
   type ExtData_IoBundle
-     type (MAPL_newCFIO) :: cfio
+     type (MAPL_GriddedIO) :: cfio
      type (ESMF_FieldBundle) :: pbundle
      character(:), allocatable :: template
      integer :: regrid_method
@@ -29,7 +29,7 @@ module MAPL_ExtData_IOBundleMod
      integer :: fraction
      integer :: metadata_coll_id
      integer :: server_coll_id
-     type(newCFIOItemVector) :: items
+     type(GriddedIOItemVector) :: items
      
    contains
      
@@ -58,7 +58,7 @@ contains
     character(len=*), intent(in) :: template
     integer, intent(in) :: metadata_coll_id
     integer, intent(in) :: server_coll_id
-    type(newCFIOItemVector) :: items
+    type(GriddedIOItemVector) :: items
     integer, optional, intent(out) :: rc
 
     io_bundle%bracket_side = bracket_side
@@ -94,7 +94,7 @@ contains
     class (ExtData_IoBundle), intent(inout) :: this
     integer, optional, intent(out) :: rc
 
-     this%cfio = MAPL_NewCFIO(output_bundle=this%pbundle,regrid_method=this%regrid_method, &
+     this%cfio = MAPL_GriddedIO(output_bundle=this%pbundle,regrid_method=this%regrid_method, &
                         read_collection_id=this%server_coll_id, &
                         metadata_collection_id = this%metadata_coll_id, fraction = this%fraction, &
                         items=this%items)
