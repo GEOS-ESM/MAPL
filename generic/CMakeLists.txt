@@ -16,9 +16,19 @@ set (srcs
   DecoratorComponent.F90
   StubComponent.F90
 
+  # Specs
+  VarSpecType.F90
+  VarSpec.F90
+  VarSpecPtr.F90
+  VarConnPoint.F90
+  VarConnType.F90
   VariableSpecification.F90
+  VarSpecMiscMod.F90
   VarSpecVector.F90
-  MAPL_VarSpecMod.F90
+  VarConnPoint.F90
+  VarConnType.F90
+  VarConnVector.F90
+  VarConn.F90
   StateSpecification.F90
   ComponentSpecification.F90
   MAPL_ServiceConnectionItemVector.F90
@@ -42,7 +52,12 @@ endif ()
 find_package(GFTL REQUIRED)
 find_package(GFTL_SHARED REQUIRED)
 
-esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler MAPL.base PFLOGGER::pflogger GFTL_SHARED::gftl-shared GFTL::gftl TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library(${this}
+  SRCS ${srcs}
+  DEPENDENCIES MAPL.oomph MAPL.shared MAPL.profiler MAPL.base
+               PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL_SHARED::gftl-shared-v1 GFTL::gftl
+  TYPE ${MAPL_LIBRARY_TYPE}
+  )
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 target_link_libraries (${this} PUBLIC esmf NetCDF::NetCDF_Fortran)
