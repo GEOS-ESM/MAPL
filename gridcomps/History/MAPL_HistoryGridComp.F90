@@ -3282,7 +3282,7 @@ ENDDO PARSER
     character(len=ESMF_MAXSTR)     :: fntmpl
     character(len=ESMF_MAXSTR),pointer     :: filename(:)
     integer                        :: n,m
-    logical                        :: NewSeg
+    logical, allocatable           :: NewSeg(:)
     logical, allocatable           :: Writing(:)
     type(ESMF_State)               :: state_out
     integer                        :: nymd, nhms
@@ -3408,7 +3408,9 @@ ENDDO PARSER
    _VERIFY(STATUS)
    allocate(filename(nlist), stat=status)
    _VERIFY(STATUS)
-
+   allocate(NewSeg (nlist), __STAT__)
+   newSeg = .false.
+   
   ! decide if we are writing based on alarms
 
    do n=1,nlist
@@ -3453,18 +3455,11 @@ ENDDO PARSER
        ! Check for new segment
        !----------------------
 
-       NewSeg = ESMF_AlarmIsRinging ( list(n)%seg_alarm )
+       NewSeg(n) = ESMF_AlarmIsRinging ( list(n)%seg_alarm )
 
-       if( NewSeg) then 
+       if( NewSeg(n)) then 
           call ESMF_AlarmRingerOff( list(n)%seg_alarm,rc=status )
           _VERIFY(STATUS)
-       endif
-
-       if( NewSeg .and. list(n)%unit /= 0 .and. list(n)%duration /= 0 ) then
-          if (list(n)%unit > 0 ) then
-             call FREE_FILE( list(n)%unit )
-          end if
-          list(n)%unit = 0
        endif
 
    end do
@@ -3511,7 +3506,7 @@ ENDDO PARSER
             list(n)%currentFile = filename(n)
          end if
 
-         if( NewSeg) then 
+         if( NewSeg(n)) then 
             list(n)%partial = .false.
             if (list(n)%monthly) then
                ! get the number of seconds in this month
@@ -3647,6 +3642,13 @@ ENDDO PARSER
 
       endif OUTTIME
 
+      if( NewSeg(n) .and. list(n)%unit /= 0 .and. list(n)%duration /= 0 ) then
+         if (list(n)%unit > 0 ) then
+            call FREE_FILE( list(n)%unit )
+         end if
+         list(n)%unit = 0
+       endif
+
    enddo POSTLOOP
 
    if (any(writing)) then
@@ -3698,6 +3700,7 @@ ENDDO PARSER
 
    if(any(Writing)) call WRITE_PARALLEL("")
 
+   deallocate(NewSeg)
    deallocate(filename)
    deallocate(Writing)
    deallocate(Ignore)

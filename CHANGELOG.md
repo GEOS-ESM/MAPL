@@ -50,6 +50,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MAPL finds yaFyaml in CMake through `PFLOGGER::pflogger`, so if you build the stub, specifically add it as a dependency
 - Fix annoying misspelling of FLAP
 
+## [2.8.9] - 2021-10-15
+
+### Fixed
+
+- Added a proper handling for new segment logic in History. This addressed issues #1064 and #1067
+
 ## [2.8.8] - 2021-10-13
 
 ### Fixed
