@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
+-- Fixed a missing copy of the output after ESMF_FieldHalo
 
 ## [2.8.9] - 2021-10-15
 
