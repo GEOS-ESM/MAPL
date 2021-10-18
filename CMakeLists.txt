@@ -73,6 +73,8 @@ endif ()
 
 ecbuild_declare_project()
 
+option(BUILD_WITH_PFLOGGER "Build MAPL with pFlogger library support" ON)
+
 if (NOT Baselibs_FOUND)
   find_package(NetCDF REQUIRED Fortran)
   add_definitions(-DHAS_NETCDF4)
@@ -86,8 +88,6 @@ if (NOT Baselibs_FOUND)
   endif()
 
   find_package(ESMF MODULE REQUIRED)
-
-  find_package(YAFYAML REQUIRED)
 
   find_package(GFTL REQUIRED)
   find_package(GFTL_SHARED REQUIRED)
@@ -115,6 +115,7 @@ add_subdirectory (include)
 add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
+add_subdirectory (griddedio)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)

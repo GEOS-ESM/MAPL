@@ -34,7 +34,7 @@ if (APPLE AND CMAKE_Fortran_COMPILER_ID MATCHES Intel AND CMAKE_Fortran_COMPILER
       "MAPL developers have found an issue with Intel oneAPI on macOS\n"
       "where GEOSgcm.x would not work. Debugging found the issue was\n"
       "that command_argument_count() would return -1 which should *NEVER*\n"
-      "happen per Fortran Standard and then this broke FlAP.\n"
+      "happen per Fortran Standard and then this broke FLAP.\n"
       "A workaround was found that if the ${this} library was compiled\n"
       "as TYPE STATIC, the model would work. So we are setting ${this} as\n"
       "a TYPE STATIC library. Note: This might interfere with coupled model.")
