@@ -423,6 +423,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
 
    type(ESMF_Array)                 :: ARRAY
    type(ESMF_Field)                 :: FIELD
+   type(ESMF_Info)                  :: infoh
    integer                          :: RANK
    integer                          :: I
    integer                          :: ITEMCOUNT
@@ -464,10 +465,13 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
          call ESMF_StateGet(STATE, trim(ITEMNAMELIST(I)), FIELD, RC=STATUS)
          _VERIFY(STATUS)
 
-         call ESMF_AttributeGet  (FIELD, NAME="Needed", isPresent=isPresent, RC=STATUS)
+!         call ESMF_AttributeGet  (FIELD, NAME="Needed", isPresent=isPresent, RC=STATUS)
+         call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
+         isPresent = ESMF_InfoIsPresent(infoh,'Needed',RC=STATUS)
          _VERIFY(STATUS)
          if(isPresent) then
-            call ESMF_AttributeGet  (FIELD, NAME="Needed",VALUE=NEEDED, RC=STATUS)
+!            call ESMF_AttributeGet  (FIELD, NAME="Needed",VALUE=NEEDED, RC=STATUS)
+            call ESMF_InfoGet(infoh,'Needed',NEEDED,RC=STATUS)
             _VERIFY(STATUS)
          else
             NEEDED = .false.
@@ -526,11 +530,14 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
    integer                          :: STATUS
 
    type(ESMF_Field)                 :: FIELD
+   type(ESMF_Info)                  :: infoh
 
    call ESMF_StateGet(STATE, trim(NAME), FIELD, RC=STATUS)
    _VERIFY(STATUS)
 
-   call ESMF_AttributeSet  (FIELD, NAME="Needed",VALUE=.false., RC=STATUS)
+!   call ESMF_AttributeSet  (FIELD, NAME="Needed",VALUE=.false., RC=STATUS)
+   call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
+   call ESMF_InfoSet(infoh,key="Needed",value=.false.,RC=STATUS)
    _VERIFY(STATUS)
 
    _RETURN(ESMF_SUCCESS)
@@ -546,11 +553,14 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    integer                          :: STATUS
 
    type(ESMF_Field)                 :: FIELD
+   type(ESMF_Info)                  :: infoh
 
    call ESMF_StateGet(STATE, trim(NAME), FIELD, RC=STATUS)
    _VERIFY(STATUS)
 
-   call ESMF_AttributeSet  (FIELD, NAME="Needed",VALUE=NEEDED, RC=STATUS)
+!   call ESMF_AttributeSet  (FIELD, NAME="Needed",VALUE=NEEDED, RC=STATUS)
+   call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
+   call ESMF_InfoSet(infoh,'Needed',NEEDED,RC=STATUS)
    if(STATUS /= ESMF_SUCCESS) NEEDED = .false.
 
    _RETURN(ESMF_SUCCESS)
@@ -2325,6 +2335,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 ! locals
 
    type(ESMF_Field) :: FLD   ! ESMF field
+   type(ESMF_Info)  :: infoh
    integer          :: n     ! number of vars in a bundle counter
    integer          :: L     ! vertical dim counter
    integer          :: rank  ! field rank
@@ -2352,8 +2363,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
      if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
      ! check if field has halo, initialize to no halo
      hw = 0
-     call ESMF_AttributeGet(FLD, "HALOWIDTH", halowidth, &
-                            rc=status)
+!     call ESMF_AttributeGet(FLD, "HALOWIDTH", halowidth, &
+!                            rc=status)
+     call ESMF_InfoGetFromHost(FLD,infoh,rc=status)
+     call ESMF_InfoGet(infoh,'HALOWIDTH',halowidth,rc=status)
      if (status == ESMF_SUCCESS) hw = halowidth
      if (verbose .and. mype==MAPL_Root .and. n==1) print *, ' halowidth = ',hw
 
@@ -2500,6 +2513,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 ! locals
 
    type(ESMF_Field) :: FLD
+   type(ESMF_Info)  :: infoh
    integer          :: n     ! number of vars in a bundle counter
    integer          :: L     ! vertical dim counter
    integer          :: rank  ! field rank
@@ -2526,8 +2540,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
      if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
      ! check if field has halo, initialize to no halo
      hw = 0
-     call ESMF_AttributeGet(FLD, "HALOWIDTH", halowidth, &
-                                 rc=status)
+!     call ESMF_AttributeGet(FLD, "HALOWIDTH", halowidth, &
+!                                 rc=status)
+     call ESMF_InfoGetFromHost(FLD,infoh,rc=status)
+     call ESMF_InfoGet(infoh,'HALOWIDTH',halowidth,rc=status)
      if (status == ESMF_SUCCESS) hw = halowidth
      if (verbose .and. mype==MAPL_Root .and. n==1) print *, ' halowidth = ',hw
 

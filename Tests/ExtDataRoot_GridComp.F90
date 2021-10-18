@@ -666,6 +666,7 @@ MODULE ExtDataUtRoot_GridCompMod
          character(len=ESMF_MAXSTR), allocatable :: NameList(:)
          type (ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
          type(ESMF_Field) :: Field
+         type(ESMF_Info) :: infoh
 
          call ESMF_StateGet(State,itemcount=itemCount,__RC__)
          allocate(NameList(itemCount),stat=status)
@@ -679,7 +680,9 @@ MODULE ExtDataUtRoot_GridCompMod
          do ii=1,itemCount
             if (itemTypeList(ii)==ESMF_STATEITEM_FIELD) then
                call ESMF_StateGet(State,trim(nameList(ii)),field,__RC__)
-               call ESMF_AttributeGet(field,name='DIMS',value=dims,__RC__)
+!               call ESMF_AttributeGet(field,name='DIMS',value=dims,__RC__)
+               call ESMF_InfoGetFromHost(field,infoh,__RC__)
+               call ESMF_InfoGet(infoh,'DIMS',dims,__RC__)
                if (dims==MAPL_DimsHorzOnly) then
                   call MAPL_GetPointer(state,ptr2d,trim(nameList(ii)),alloc=.true.,__RC__)
                else if (dims==MAPL_DimsHorzVert) then

@@ -2022,13 +2022,19 @@ ENDDO PARSER
          _VERIFY(STATUS)
          if (list(n)%field_set%fields(4,m) /= BLANK) then
             if (list(n)%field_set%fields(4,m) == 'MIN') then
-               call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplMin, RC=STATUS)
+!               call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplMin, RC=STATUS)
+               call ESMF_InfoGetFromHost(f,infoh,rc=status)
+               call ESMF_InfoSet(infoh,'CPLFUNC',MAPL_CplMin,rc=status)
                _VERIFY(STATUS)
             else if (list(n)%field_set%fields(4,m) == 'MAX') then
-               call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplMax, RC=STATUS)
+!               call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplMax, RC=STATUS)
+               call ESMF_InfoGetFromHost(f,infoh,rc=status)
+               call ESMF_InfoSet(infoh,'CPLFUNC',MAPL_CplMax,rc=status)
                _VERIFY(STATUS)
             else if (list(n)%field_set%fields(4,m) == 'ACCUMULATE') then
-               call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplAccumulate, RC=STATUS)
+!               call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplAccumulate, RC=STATUS)
+               call ESMF_InfoGetFromHost(f,infoh,rc=status)
+               call ESMF_InfoSet(infoh,'CPLFUNC',MAPL_CplAccumulate,rc=status)
                _VERIFY(STATUS)
             else
                call WRITE_PARALLEL("Functionality not supported yet")
@@ -2044,20 +2050,34 @@ ENDDO PARSER
             call ESMF_FieldGet(f, name=short_name, grid=grid, rc=status)
             _VERIFY(STATUS)
 
-            call ESMF_AttributeGet(FIELD, NAME='DIMS', VALUE=DIMS, RC=STATUS)
+!            call ESMF_AttributeGet(FIELD, NAME='DIMS', VALUE=DIMS, RC=STATUS)
+            call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+            call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
             _VERIFY(STATUS)
-            call ESMF_AttributeGet(FIELD, NAME='VLOCATION', VALUE=VLOCATION, RC=STATUS)
+!            call ESMF_AttributeGet(FIELD, NAME='VLOCATION', VALUE=VLOCATION, RC=STATUS)
+            call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+            call ESMF_InfoGet(infoh,'VLOCATION',VLOCATION,rc=status)
             _VERIFY(STATUS)
-            call ESMF_AttributeGet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
+!            call ESMF_AttributeGet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
+            call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+            call ESMF_InfoGet(infoh,'LONG_NAME',LONG_NAME,rc=status)
             _VERIFY(STATUS)
-            call ESMF_AttributeGet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
+!            call ESMF_AttributeGet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
+            call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+            call ESMF_InfoGet(infoh,'UNITS',UNITS,rc=status)
             _VERIFY(STATUS)
-            call ESMF_AttributeGet(FIELD, NAME='FIELD_TYPE', VALUE=FIELD_TYPE, RC=STATUS)
+!            call ESMF_AttributeGet(FIELD, NAME='FIELD_TYPE', VALUE=FIELD_TYPE, RC=STATUS)
+            call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+            call ESMF_InfoGet(infoh,'FIELD_TYPE',FIELD_TYPE,rc=status)
             _VERIFY(STATUS)
 
-            call ESMF_AttributeGet(FIELD, NAME='REFRESH_INTERVAL', VALUE=REFRESH, RC=STATUS)
+!            call ESMF_AttributeGet(FIELD, NAME='REFRESH_INTERVAL', VALUE=REFRESH, RC=STATUS)
+            call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+            call ESMF_InfoGet(infoh,'REFRESH_INTERVAL',REFRESH,rc=status)
             _VERIFY(STATUS)
-            call ESMF_AttributeGet(FIELD, NAME='AVERAGING_INTERVAL', VALUE=avgint, RC=STATUS)
+!            call ESMF_AttributeGet(FIELD, NAME='AVERAGING_INTERVAL', VALUE=avgint, RC=STATUS)
+            call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+            call ESMF_InfoGet(infoh,'AVERAGING_INTERVAL',avgint,rc=status)
             _VERIFY(STATUS)
 
             call ESMF_FieldGet(FIELD, dimCount=fieldRank, RC=STATUS)
@@ -2109,19 +2129,29 @@ ENDDO PARSER
                _VERIFY(STATUS)
 
                ungrd = ungriddedUBound - ungriddedLBound + 1
-               call ESMF_AttributeGet(field,name="UNGRIDDED_UNIT",value=ungridded_unit,rc=status)
+!               call ESMF_AttributeGet(field,name="UNGRIDDED_UNIT",value=ungridded_unit,rc=status)
+               call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+               call ESMF_InfoGet(infoh,'UNGRIDDED_UNIT',ungridded_unit,rc=status)
                _VERIFY(STATUS)
-               call ESMF_AttributeGet(field,name="UNGRIDDED_NAME",value=ungridded_name,rc=status)
+!               call ESMF_AttributeGet(field,name="UNGRIDDED_NAME",value=ungridded_name,rc=status)
+               call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+               call ESMF_InfoGet(infoh,'UNGRIDDED_NAME',ungridded_name,rc=status)
                _VERIFY(STATUS)
-               call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",isPresent=isPresent,rc=status)
+!               call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",isPresent=isPresent,rc=status)
+               call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+               isPresent = ESMF_InfoIsPresent(infoh,'UNGRIDDED_COORDS',rc=status)
                _VERIFY(STATUS)
                if (isPresent) then
-                  call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",itemcount=ungrdsize,rc=status)
+!                  call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",itemcount=ungrdsize,rc=status)
+               call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+               call ESMF_InfoGet(infoh,key='UNGRIDDED_COORDS',size=ungrdsize,rc=status)
                   _VERIFY(STATUS)
                   if ( ungrdsize /= 0 ) then
                      allocate(ungridded_coord(ungrdsize),stat=status)
                      _VERIFY(STATUS)
-                     call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",valuelist=ungridded_coord,rc=status)
+!                     call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",valuelist=ungridded_coord,rc=status)
+                     call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+                     call ESMF_InfoGet(infoh,key='UNGRIDDED_COORDS',values=ungridded_coord,rc=status)
                      _VERIFY(STATUS)
                   end if
                else
@@ -2234,9 +2264,13 @@ ENDDO PARSER
 
             REFRESH = MAPL_nsecf(list(n)%acc_interval)
             AVGINT  = MAPL_nsecf( list(n)%frequency )
-            call ESMF_AttributeSet(F, NAME='REFRESH_INTERVAL', VALUE=REFRESH, RC=STATUS)
+!            call ESMF_AttributeSet(F, NAME='REFRESH_INTERVAL', VALUE=REFRESH, RC=STATUS)
+            call ESMF_InfoGetFromHost(F,infoh,rc=status)
+            call ESMF_InfoSet(infoh,'REFRESH_INTERVAL',REFRESH,rc=status)
             _VERIFY(STATUS)
-            call ESMF_AttributeSet(F, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, RC=STATUS)
+!            call ESMF_AttributeSet(F, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, RC=STATUS)
+            call ESMF_InfoGetFromHost(F,infoh,rc=status)
+            call ESMF_InfoSet(infoh,'AVERAGING_INTERVAL',AVGINT,rc=status)
             _VERIFY(STATUS)
             call MAPL_StateAdd(IntState%GIM(N), f, rc=status)
             _VERIFY(STATUS)
@@ -2998,11 +3032,15 @@ ENDDO PARSER
          okToSplit = .true.
       else if (fldRank == 3) then
          ! split ONLY if X and Y are "gridded" and Z is "ungridded"
-         call ESMF_AttributeGet(fld, name='DIMS', value=dims, rc=status)
+!         call ESMF_AttributeGet(fld, name='DIMS', value=dims, rc=status)
+         call ESMF_InfoGetFromHost(fld,infoh,rc=status)
+         call ESMF_InfoGet(infoh,'DIMS',dims,rc=status)
         _VERIFY(STATUS)
         if (dims == MAPL_DimsHorzOnly) then
-           call ESMF_AttributeGet(fld, name='UNGRIDDED_DIMS', &
-                isPresent=has_ungrd, rc=status)
+!           call ESMF_AttributeGet(fld, name='UNGRIDDED_DIMS', &
+!                isPresent=has_ungrd, rc=status)
+            call ESMF_InfoGetFromHost(fld,infoh,rc=status)
+            has_ungrd = ESMF_InfoIsPresent(infoh,'UNGRIDDED_DIMS',rc=status)
             _VERIFY(STATUS)
             if (has_ungrd) then
                okToSplit = .true.
@@ -4820,6 +4858,7 @@ ENDDO PARSER
   integer                                 :: dims
   logical, allocatable                    :: isBundle(:)
   logical                                 :: hasField
+  type(ESMF_Info)                         :: infoh
 
 ! Set rewrite flag and tmpfields.
 ! To keep consistency, all the arithmetic parsing output fields must
@@ -4968,10 +5007,14 @@ ENDDO PARSER
        _VERIFY(STATUS)
        call MAPL_StateGet(state,fields(1,i),field,rc=status)
        _VERIFY(STATUS)
-       call ESMF_AttributeGet(field,name='DIMS',value=dims,rc=status)
+!       call ESMF_AttributeGet(field,name='DIMS',value=dims,rc=status)
+       call ESMF_InfoGetFromHost(field,infoh,rc=status)
+       call ESMF_InfoGet(infoh,'DIMS',dims,rc=status)
        _VERIFY(STATUS)
        TotRank(iRealFields) = dims
-       call ESMF_AttributeGet(field,name='VLOCATION',value=dims,rc=status)
+!       call ESMF_AttributeGet(field,name='VLOCATION',value=dims,rc=status)
+       call ESMF_InfoGetFromHost(field,infoh,rc=status)
+       call ESMF_InfoGet(infoh,'VLOCATION',dims,rc=status)
        _VERIFY(STATUS)
        TotLoc(iRealFields) = dims
            
@@ -4989,10 +5032,14 @@ ENDDO PARSER
         call MAPL_StateGet(state, NonUniqueVarNames(i,1),field,rc=status)
         _VERIFY(STATUS)
 
-        call ESMF_AttributeGet(field,name='DIMS',value=dims,rc=status)
+!        call ESMF_AttributeGet(field,name='DIMS',value=dims,rc=status)
+        call ESMF_InfoGetFromHost(field,infoh,rc=status)
+        call ESMF_InfoGet(infoh,'DIMS',dims,rc=status)
         _VERIFY(STATUS)
         TotRank(iRealFields+nUniqueExtraFields) = dims
-        call ESMF_AttributeGet(field,name='VLOCATION',value=dims,rc=status)
+!        call ESMF_AttributeGet(field,name='VLOCATION',value=dims,rc=status)
+        call ESMF_InfoGetFromHost(field,infoh,rc=status)
+        call ESMF_InfoGet(infoh,'VLOCATION',dims,rc=status)
         _VERIFY(STATUS)
         TotLoc(iRealFields+nUniqueExtraFields) = dims
      end if

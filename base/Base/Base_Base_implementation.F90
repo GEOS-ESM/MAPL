@@ -15,6 +15,7 @@ submodule (MAPL_Base) Base_Implementation
   use MAPL_SphericalGeometry
   use mapl_MaplGrid, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
   use MAPL_ExceptionHandling
+  use MAPL_Profiler
   implicit NONE
 
 contains
@@ -38,6 +39,7 @@ contains
     logical          :: has_ungrd
     logical          :: defaultProvided
     real             :: default_value
+    type (ESMF_Info) :: infoh
 
     call ESMF_FieldGet(field, status=fieldStatus, rc=status)
     _VERIFY(STATUS)
@@ -47,29 +49,58 @@ contains
        !ALT: if the attributeGet calls fail, this would very likely indicate
        !     that the field was NOT created by MAPL (or something terrible happened)
        !     For now we just abort
-       call ESMF_AttributeGet(FIELD, NAME='DIMS', VALUE=DIMS, RC=STATUS)
+!       call ESMF_AttributeGet(FIELD, NAME='DIMS', VALUE=DIMS, RC=STATUS)
+       call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
        _VERIFY(STATUS)
-       call ESMF_AttributeGet(FIELD, NAME='VLOCATION', VALUE=LOCATION, RC=STATUS)
+       call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
        _VERIFY(STATUS)
-       call ESMF_AttributeGet(FIELD, NAME='HALOWIDTH', VALUE=HW, RC=STATUS)
+!       call ESMF_AttributeGet(FIELD, NAME='VLOCATION', VALUE=LOCATION, RC=STATUS)
+       call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
        _VERIFY(STATUS)
-       call ESMF_AttributeGet(FIELD, NAME='PRECISION', VALUE=KND, RC=STATUS)
+       call ESMF_InfoGet(infoh,'VLOCATION',LOCATION,rc=status)
        _VERIFY(STATUS)
-       call ESMF_AttributeGet(FIELD, NAME='DEFAULT_PROVIDED', value=defaultProvided, RC=STATUS)
+!       call ESMF_AttributeGet(FIELD, NAME='HALOWIDTH', VALUE=HW, RC=STATUS)
+       call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+       _VERIFY(STATUS)
+       call ESMF_InfoGet(infoh,'HALOWIDTH',HW,rc=status)
+       _VERIFY(STATUS)
+!       call ESMF_AttributeGet(FIELD, NAME='PRECISION', VALUE=KND, RC=STATUS)
+       call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+       _VERIFY(STATUS)
+       call ESMF_InfoGet(infoh,'PRECISION',KND,rc=status)
+       _VERIFY(STATUS)
+!       call ESMF_AttributeGet(FIELD, NAME='DEFAULT_PROVIDED', value=defaultProvided, RC=STATUS)
+       call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+       _VERIFY(STATUS)
+       call ESMF_InfoGet(infoh,'DEFAULT_PROVIDED',defaultProvided,rc=status)
        _VERIFY(STATUS)
        if(defaultProvided) then
-          call ESMF_AttributeGet(FIELD, NAME='DEFAULT_VALUE', value=default_value, RC=STATUS)
+!          call ESMF_AttributeGet(FIELD, NAME='DEFAULT_VALUE', value=default_value, RC=STATUS)
+          call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+          _VERIFY(STATUS)
+          call ESMF_InfoGet(infoh,'DEFAULT_VALUE',default_value,rc=status)
           _VERIFY(STATUS)
        end if
 
-       call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
+!       call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
+       call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+       _VERIFY(STATUS)
+       has_ungrd = ESMF_InfoIsPresent(infoh,'UNGRIDDED_DIMS',RC=STATUS)
        _VERIFY(STATUS)
        if (has_ungrd) then
-          call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+!          call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+          call ESMF_InfoGet(infoh,key='UNGRIDDED_DIMS',size=UNGRD_CNT,RC=STATUS)
           _VERIFY(STATUS)
+          !This might need to be
+          !call
+          !ESMF_InfoGet(infoh,key='UNGRIDDED_DIMS',itemcount=UNGRD_CNT,values=UNGRD,RC=STATUS)
+          !or
+          ! esmf_infoallocate
           allocate(ungrd(UNGRD_CNT), stat=status)
           _VERIFY(STATUS)
-          call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+!          call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+          call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
+          call ESMF_InfoGet(infoh,key='UNGRIDDED_DIMS',values=UNGRD,RC=STATUS)
           _VERIFY(STATUS)
           if (defaultProvided) then
              call MAPL_FieldAllocCommit(field, dims=dims, location=location, typekind=knd, &
@@ -517,6 +548,8 @@ contains
     if (present(default_value)) then
        call MAPL_AttributeSet(field, NAME="MAPL_InitStatus", &
             VALUE=MAPL_InitialDefault, RC=STATUS)
+!       call ESMF_InfoGetFromHost(field,infoh,rc=status)
+!       call ESMF_InfoSet(infoh,'MAPL_InitStatus',MAPL_InitialDefault,rc=status)
        _VERIFY(STATUS)      
     end if
 
@@ -1201,13 +1234,17 @@ contains
     integer                                :: HOUR, MINUTE, SCND
     character(len=ESMF_MAXSTR)             :: TIMESTAMP
     logical                                :: isPresent
+    type(ESMF_Info)                        :: infoh
 
-    call ESMF_AttributeGet(FIELD, NAME="TimeStamp", isPresent=isPresent, RC=STATUS)
+!    call ESMF_AttributeGet(FIELD, NAME="TimeStamp", isPresent=isPresent, RC=STATUS)
+    call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+    isPresent = ESMF_InfoIsPresent(infoh,'TimeStamp',rc=status)
     _VERIFY(STATUS)
     if(.not. isPresent) then
        call ESMF_TimeSet          (TIME,      YY=0,                RC=STATUS)
     else
-       call ESMF_AttributeGet(FIELD, NAME="TimeStamp", VALUE=TIMESTAMP, RC=STATUS)
+!       call ESMF_AttributeGet(FIELD, NAME="TimeStamp", VALUE=TIMESTAMP, RC=STATUS)
+       call ESMF_InfoGet(infoh,'TimeStamp',TIMESTAMP,rc=status)
        _VERIFY(STATUS)
 
        call MAPL_TimeStringGet    (TIMESTAMP, YY=YEAR, MM=MONTH,  DD=DAY,   & 
@@ -1233,10 +1270,13 @@ contains
     integer                                :: STATUS
 
     character(len=ESMF_MAXSTR)             :: TIMESTAMP
+    type(ESMF_Info)                        :: infoh
 
     call ESMF_TimeGet          (TIME,  timeString=TIMESTAMP,             RC=STATUS)
     _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME="TimeStamp", VALUE=TIMESTAMP, RC=STATUS)
+!    call ESMF_AttributeSet(FIELD, NAME="TimeStamp", VALUE=TIMESTAMP, RC=STATUS)
+    call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+    call ESMF_InfoSet(infoh,'TimeStamp',TIMESTAMP,rc=status)
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
@@ -1443,6 +1483,7 @@ contains
     character(len=*), optional, intent(IN) :: newName
     integer, optional, intent(  OUT) :: RC
     type (ESMF_Field)                :: F
+    type (ESMF_Info)                 :: infoh
 
     !   we are creating new field so that we can change the grid of the field 
     !   (and allocate array accordingly);
@@ -1569,7 +1610,9 @@ contains
     _VERIFY(STATUS)
     ! we are saving DIMS attribute in case the FIELD did not contain one
     ! otherwise we will overwrite it
-    call ESMF_AttributeSet(F, NAME='DIMS', VALUE=DIMS, RC=STATUS)
+!    call ESMF_AttributeSet(F, NAME='DIMS', VALUE=DIMS, RC=STATUS)
+    call ESMF_InfoGetFromHost(F,infoh,rc=status)
+    call ESMF_InfoSet(infoh,'DIMS',DIMS,rc=status)
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
@@ -2605,6 +2648,8 @@ contains
              call ESMF_StateGet(STATE, itemNames(I), FIELD, RC=STATUS)
              _VERIFY(STATUS)
              call MAPL_AttributeSet(FIELD, NAME, VALUE, RC=status)
+!             call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+!             call ESMF_InfoSet(infoh,NAME,VALUE,rc=status)
              _VERIFY(STATUS)
           end if
        end do
@@ -2631,6 +2676,7 @@ contains
     integer                               :: FIELDCOUNT
     integer                               :: I
 
+!GVO SET timer
 !    call ESMF_AttributeSet(BUNDLE, NAME, VALUE, RC=status)
     call ESMF_InfoGetFromHost(BUNDLE,infoh,RC=status)
     call ESMF_InfoSet(infoh,NAME,VALUE,RC=status)
@@ -2642,7 +2688,9 @@ contains
     do I = 1, FIELDCOUNT
        call ESMF_FieldBundleGet(BUNDLE, I, FIELD, RC=STATUS)
        _VERIFY(STATUS)
-       call ESMF_AttributeSet(FIELD, NAME, VALUE, RC=status)
+!       call ESMF_AttributeSet(FIELD, NAME, VALUE, RC=status)
+         call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+         call ESMF_InfoSet(infoh,NAME,VALUE,rc=status)
        _VERIFY(STATUS)
     end do
 
@@ -2661,9 +2709,12 @@ contains
 
     type(ESMF_Array)                        :: array
     type(ESMF_FieldStatus_Flag)             :: fieldStatus
+    type(ESMF_Info)                         :: infoh
 
 
-    call ESMF_AttributeSet(FIELD, NAME, VALUE, RC=status)
+!    call ESMF_AttributeSet(FIELD, NAME, VALUE, RC=status)
+    call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+    call ESMF_InfoSet(infoh,NAME,VALUE,rc=status)
     _VERIFY(STATUS)
 
     call ESMF_FieldGet(field, status=fieldStatus, rc=status)
@@ -2672,7 +2723,9 @@ contains
     if(fieldStatus == ESMF_FIELDSTATUS_COMPLETE) then
        call ESMF_FieldGet(field, Array=array, rc=status)
        _VERIFY(STATUS)
-       call ESMF_AttributeSet(array, NAME, VALUE, RC=status)
+!       call SMF_AttributeSet(array, NAME, VALUE, RC=status)
+       call ESMF_InfoGetFromHost(array,infoh,RC=status)
+       call ESMF_InfoSet(infoh,NAME,VALUE,RC=status)
        _VERIFY(STATUS)
     end if
 
@@ -2949,7 +3002,6 @@ contains
     _VERIFY(STATUS)
 
     ! check for attribute
-
 !    call ESMF_AttributeGet(Bundle, NAME=attrName, isPresent=haveAttr, RC=STATUS)
     call ESMF_InfoGetFromHost(Bundle,infoh,RC=STATUS)
     haveAttr = ESMF_InfoIsPresent(infoh,attrName,RC=STATUS)
@@ -3416,6 +3468,7 @@ contains
     integer, allocatable :: gridToFieldMap(:)
     integer :: gridRank
     type(ESMF_Field) :: field
+    type(ESMF_Info)  :: infoh
 
     allocate(localIs2D(size(fieldNames)),stat=status)
     _VERIFY(STATUS)
@@ -3473,9 +3526,13 @@ contains
                name=fieldNames(i), RC=STATUS)
           _VERIFY(STATUS)
           deallocate(gridToFieldMap)
-          call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzOnly, RC=STATUS)
+!          call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzOnly, RC=STATUS)
+          call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+          call ESMF_InfoSet(infoh,key='DIMS',value=MAPL_DimsHorzOnly,rc=status)
           _VERIFY(STATUS)
-          call ESMF_AttributeSet(FIELD, NAME='VLOCATION', VALUE=MAPL_VLocationNone, RC=STATUS)
+!          call ESMF_AttributeSet(FIELD, NAME='VLOCATION', VALUE=MAPL_VLocationNone, RC=STATUS)
+          call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+          call ESMF_InfoSet(infoh,key='VLOCATION',value=MAPL_VLocationNone,rc=status)
           _VERIFY(STATUS)
 
        else
@@ -3490,29 +3547,44 @@ contains
           FIELD = ESMF_FieldCreate(grid=GRID, &
                datacopyFlag = ESMF_DATACOPY_REFERENCE,   &
                farrayPtr=PTR3, name=fieldNames(i), RC=STATUS)
-          call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzVert, RC=STATUS)
+!          call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzVert, RC=STATUS)
+          call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+          call ESMF_InfoSet(infoh,key='DIMS',value=MAPL_DimsHorzVert,rc=status)
           _VERIFY(STATUS)
           if (localIsEdge(i)) then
-             call ESMF_AttributeSet(FIELD, NAME='VLOCATION', VALUE=MAPL_VLocationEdge, RC=STATUS)
+!             call ESMF_AttributeSet(FIELD, NAME='VLOCATION', VALUE=MAPL_VLocationEdge, RC=STATUS)
+             call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+             call ESMF_InfoSet(infoh,key='VLOCATION',value=MAPL_VLocationEdge,rc=status)
              _VERIFY(STATUS)
           else
-             call ESMF_AttributeSet(FIELD, NAME='VLOCATION', VALUE=MAPL_VLocationCenter, RC=STATUS)
+!             call ESMF_AttributeSet(FIELD, NAME='VLOCATION', VALUE=MAPL_VLocationCenter, RC=STATUS)
+             call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+             call ESMF_InfoSet(infoh,key='VLOCATION',value=MAPL_VLocationCenter,rc=status)
              _VERIFY(STATUS)
           end if
-
+!!GVO: This part could use default but needs to be rethought as it is based on
+!key and not on value
        end if
        if (present(long_names)) then
-          call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=long_names(i), RC=STATUS)
+!          call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=long_names(i), RC=STATUS)
+          call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+          call ESMF_InfoSet(infoh,key='LONG_NAME',value=long_names(i),rc=status)
           _VERIFY(STATUS)
        else
-          call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE="UNKNOWN", RC=STATUS)
+!          call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE="UNKNOWN", RC=STATUS)
+          call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+          call ESMF_InfoSet(infoh,key='LONG_NAME',value="UNKNOWN",rc=status)          
           _VERIFY(STATUS)
        end if
        if (present(units)) then
-          call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=units(i), RC=STATUS)
+!          call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=units(i), RC=STATUS)
+          call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+          call ESMF_InfoSet(infoh,key='LONG_NAME',value=units(i),rc=status)
           _VERIFY(STATUS)
        else
-          call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE="UNKNOWN", RC=STATUS)
+!          call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE="UNKNOWN", RC=STATUS)
+          call ESMF_InfoGetFromHost(FIELD,infoh,rc=status)
+          call ESMF_InfoSet(infoh,key='LONG_NAME',value="UNKNOWN",rc=status)
           _VERIFY(STATUS)
        end if
        call MAPL_FieldBundleAdd(B, FIELD, RC=STATUS)
@@ -3571,6 +3643,7 @@ contains
     character(len=ESMF_MAXSTR) :: name
     character(len=ESMF_MAXSTR) :: splitName
     character(len=ESMF_MAXSTR), allocatable :: splitNameArray(:)
+    TYPE(ESMF_Info)            :: infoh1,infoh2
 
     ! get ptr
     ! loop over 3-d or 4-d dim
@@ -3623,21 +3696,31 @@ contains
              _VERIFY(STATUS)
 
              ! adjust ungridded dims attribute (if any)
-             call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
+!             call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
+             call ESMF_InfoGetFromHost(FIELD,infoh1,RC=STATUS)
+             has_ungrd = ESMF_InfoIsPresent(infoh1,'UNGRIDDED_DIMS',RC=STATUS)
              _VERIFY(STATUS)
              if (has_ungrd) then
-                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+!                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+                call ESMF_InfoGetFromHost(F,infoh2,RC=STATUS)
+                call ESMF_InfoGet(infoh2,key='UNGRIDDED_DIMS',size=UNGRD_CNT,RC=STATUS)
                 _VERIFY(STATUS)
                 allocate(ungrd(UNGRD_CNT), stat=status)
                 _VERIFY(STATUS)
-                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+!                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+                call ESMF_InfoGetFromHost(F,infoh2,RC=STATUS)
+                call ESMF_InfoGet(infoh2,key='UNGRIDDED_DIMS',values=UNGRD,RC=STATUS)
                 _VERIFY(STATUS)
-                call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
+!                call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
+                call ESMF_InfoGetFromHost(F,infoh2,RC=STATUS)
+                call ESMF_InfoRemove(infoh2,'UNGRIDDED_DIMS',RC=STATUS)
                 _VERIFY(STATUS)
                 if (ungrd_cnt > 1) then
                    ungrd_cnt = ungrd_cnt - 1
-                   call ESMF_AttributeSet(F, NAME='UNGRIDDED_DIMS', &
-                        valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+!                   call ESMF_AttributeSet(F, NAME='UNGRIDDED_DIMS', &
+!                        valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+                   call ESMF_InfoGetFromHost(F,infoh2,RC=STATUS)
+                   call ESMF_InfoSet(infoh2,key='UNGRIDDED_DIMS',values=UNGRD(1:ungrd_cnt),RC=STATUS)
                    _VERIFY(STATUS)
                 else
                    has_ungrd = .false.
@@ -3678,21 +3761,31 @@ contains
              _VERIFY(STATUS)
 
              ! adjust ungridded dims attribute (if any)
-             call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
+!             call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
+             call ESMF_InfoGetFromHost(FIELD,infoh1,RC=STATUS)
+             has_ungrd = ESMF_InfoIsPresent(infoh1,'UNGRIDDED_DIMS',RC=STATUS)
              _VERIFY(STATUS)
              if (has_ungrd) then
-                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+!                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+                call ESMF_InfoGetFromHost(F,infoh2,RC=STATUS)
+                call ESMF_InfoGet(infoh2,key='UNGRIDDED_DIMS',size=UNGRD_CNT,RC=STATUS)
                 _VERIFY(STATUS)
                 allocate(ungrd(UNGRD_CNT), stat=status)
                 _VERIFY(STATUS)
-                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+!                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+                call ESMF_InfoGetFromHost(F,infoh2,RC=STATUS)
+                call ESMF_InfoGet(infoh2,key='UNGRIDDED_DIMS',values=UNGRD,RC=STATUS)
                 _VERIFY(STATUS)
-                call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
+!                call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
+                call ESMF_InfoGetFromHost(F,infoh2,RC=STATUS)
+                call ESMF_InfoRemove(infoh2,'UNGRIDDED_DIMS',RC=STATUS)
                 _VERIFY(STATUS)
                 if (ungrd_cnt > 1) then
                    ungrd_cnt = ungrd_cnt - 1
-                   call ESMF_AttributeSet(F, NAME='UNGRIDDED_DIMS', &
-                        valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+!                   call ESMF_AttributeSet(F, NAME='UNGRIDDED_DIMS', &
+!                        valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+                   call ESMF_InfoGetFromHost(F,infoh2,RC=STATUS)
+                   call ESMF_InfoSet(infoh2,key='UNGRIDDED_DIMS',values=UNGRD(1:ungrd_cnt),RC=STATUS)
                    _VERIFY(STATUS)
                 else
                    has_ungrd = .false.

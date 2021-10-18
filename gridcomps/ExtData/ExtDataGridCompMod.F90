@@ -441,6 +441,7 @@ CONTAINS
    type(ESMF_VM) :: vm
    type(MAPL_MetaComp),pointer :: MAPLSTATE
    type(ESMF_StateItem_Flag)   :: itemType
+   type(ESMF_Info)             :: infoh
 
 
 !  Get my name and set-up traceback handle
@@ -1089,9 +1090,13 @@ CONTAINS
          block
             integer :: gridRotation1, gridRotation2
             call ESMF_StateGet(self%ExtDataState, trim(item%vcomp1), field,__RC__)
-            call ESMF_AttributeGet(field, NAME='ROTATION', value=gridRotation1, __RC__)
+!            call ESMF_AttributeGet(field, NAME='ROTATION', value=gridRotation1, __RC__)
+            call ESMF_InfoGetFromHost(field, infoh, __RC__)
+            call ESMF_InfoGet(infoh,'ROTATION', gridRotation1, __RC__)
             call ESMF_StateGet(self%ExtDataState, trim(item%vcomp2), field,__RC__)
-            call ESMF_AttributeGet(field, NAME='ROTATION', value=gridRotation2, __RC__)
+!            call ESMF_AttributeGet(field, NAME='ROTATION', value=gridRotation2, __RC__)
+            call ESMF_InfoGetFromHost(field, infoh, __RC__)
+            call ESMF_InfoGet(infoh,'ROTATION', gridRotation2, __RC__)
             _ASSERT(GridRotation1 == gridRotation2,'Grid rotations must match when performing vector re-gridding')
          end block
 
