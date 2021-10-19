@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.8.10
+  VERSION 2.9.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the default build type to release
@@ -99,7 +99,7 @@ endif ()
 
 if (BUILD_WITH_PFLOGGER)
   add_definitions(-DBUILD_WITH_PFLOGGER)
-else ()  
+else ()
   add_subdirectory (pflogger_stub)
 endif ()
 
