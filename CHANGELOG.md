@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added [EditorConfig](https://editorconfig.org/) file
   - 4 spaces for Python
   - 2 spaces for CMake and YAML
+- Preload available macros in CMake package configuration file.
 
 ### Changed
 
