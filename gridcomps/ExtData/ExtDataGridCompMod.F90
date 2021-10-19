@@ -47,13 +47,13 @@
    use MAPL_ExtData_IOBundleMod
    use MAPL_ExtData_IOBundleVectorMod
    use MAPL_ExceptionHandling
-   use MAPL_ExtDataCollectionMod
+   use MAPL_DataCollectionMod
    use MAPL_CollectionVectorMod
-   use MAPL_ExtDataCollectionManagerMod
+   use MAPL_DataCollectionManagerMod
    use MAPL_FileMetadataUtilsMod
    use pFIO_ClientManagerMod, only : i_Clients
-   use MAPL_newCFIOItemMod
-   use MAPL_newCFIOItemVectorMod
+   use MAPL_GriddedIOItemMod
+   use MAPL_GriddedIOItemVectorMod
    use MAPL_SimpleAlarm
    use MAPL_StringTemplate
    use pFlogger
@@ -132,7 +132,7 @@
      character(len=ESMF_MAXSTR)   :: vcomp1, vcomp2
      ! the corresponding names of the two vector components on file
      character(len=ESMF_MAXSTR)   :: fcomp1, fcomp2
-     type(newCFIOitem)            :: fileVars
+     type(GriddedIOitem)            :: fileVars
      type(SimpleAlarm)            :: update_alarm 
 
      integer                      :: collection_id
@@ -952,7 +952,7 @@ CONTAINS
 
       call lgr%debug('ExtData Initialize_(): PrimaryLoop: ')
 
-      item%pfioCollection_id = MAPL_ExtDataAddCollection(item%file,use_file_coords=self%use_file_coords)
+      item%pfioCollection_id = MAPL_DataAddCollection(item%file,use_file_coords=self%use_file_coords)
 
       ! parse refresh template to see if we have a time shift during constant updating
       k = index(item%refresh_template,';')
@@ -2769,9 +2769,9 @@ CONTAINS
         integer, intent(in)                       :: collection_id
         type(FileMetadataUtils), pointer, intent(inout)   :: metadata
         integer, optional,          intent(out  ) :: rc
-        type(MAPLExtDataCollection), pointer :: collection => null()
+        type(MAPLDataCollection), pointer :: collection => null()
 
-        Collection => ExtDataCollections%at(collection_id)
+        Collection => DataCollections%at(collection_id)
         metadata => collection%find(file)
         call lgr%debug(' Retrieving formatter for: %a', trim(file))
         _RETURN(_SUCCESS)
@@ -4671,7 +4671,7 @@ CONTAINS
      integer :: status
 
      type (ExtData_IOBundle) :: io_bundle
-     type (NewCFIOItemVector) :: items
+     type (GriddedIOItemVector) :: items
 
      call items%push_back(item%fileVars)
      io_bundle = ExtData_IOBundle(bside, entry_num, file, time_index, item%trans, item%fracval, item%file, &
