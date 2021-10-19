@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed last `NETCDF_LIBRARIES` reference from CMake
+
 ### Removed
 
 ## [2.9.0] - 2021-10-19
