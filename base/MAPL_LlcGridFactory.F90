@@ -181,16 +181,15 @@ contains
       ! Allocate coords at default stagger location
       call ESMF_GridAddCoord(grid, rc=status)
       _VERIFY(status)
+
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
       
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-!         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
-         call ESMF_InfoGetFromHost(grid,infoh,rc=status)
          call ESMF_InfoSet(infoh,'GRID_LM',this%lm,rc=status)
          _VERIFY(status)
       end if
       
-!      call ESMF_AttributeSet(grid, 'GridType', 'Llc', rc=status)
-      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
       call ESMF_InfoSet(infoh,'GridType','Llc',rc=status)
       _VERIFY(status)
 

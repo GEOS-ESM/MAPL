@@ -302,9 +302,10 @@ CONTAINS
 
     ! find out what type of grid we are on, if so 
     gridtype_default='Lat-Lon'
-!    call ESMF_AttributeGet(Grid,'GridType',gridtype,gridtype_default)
     call ESMF_InfoGetFromHost(Grid,infoh,rc=status)
+    _VERIFY(STATUS)
     call ESMF_InfoGet(infoh,key='GridType',value=gridtype,default=gridtype_default,rc=status)
+    _VERIFY(STATUS)
     if (gridtype=='Cubed-Sphere') then
 
        call MAPL_GetObjectFromGC(GC,MAPL_OBJ,rc=status)
@@ -420,9 +421,10 @@ CONTAINS
 !  Figure out what type of grid we are on 
 
    gridtype_default='Lat-Lon'
-!   call ESMF_AttributeGet(Grid,'GridType',gridtype,gridtype_default)
    call ESMF_InfoGetFromHost(Grid,infoh,rc=status)
+   _VERIFY(STATUS)
    call ESMF_InfoGet(infoh,key='GridType',value=gridtype,default=gridtype_default,rc=status)
+   _VERIFY(STATUS)
 
 !  Get the time interval, and start and end time
 !   timeinterval=timeinterval/2

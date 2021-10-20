@@ -680,7 +680,6 @@ MODULE ExtDataUtRoot_GridCompMod
          do ii=1,itemCount
             if (itemTypeList(ii)==ESMF_STATEITEM_FIELD) then
                call ESMF_StateGet(State,trim(nameList(ii)),field,__RC__)
-!               call ESMF_AttributeGet(field,name='DIMS',value=dims,__RC__)
                call ESMF_InfoGetFromHost(field,infoh,__RC__)
                call ESMF_InfoGet(infoh,'DIMS',dims,__RC__)
                if (dims==MAPL_DimsHorzOnly) then

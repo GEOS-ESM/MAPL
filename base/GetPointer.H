@@ -89,7 +89,6 @@
 #if 0
    block
      integer :: DIMS
-!     call ESMF_AttributeGet(field, name='VLOCATION', value=DIMS, rc=status)
      call ESMF_InfoGetFromHost(field,infoh,rc=status)
      call ESMF_InfoGet(infoh,'VLOCATION',DIMS,rc=status)
      if (STATUS==ESMF_SUCCESS) then

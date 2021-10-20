@@ -458,12 +458,10 @@ contains
 
        call ESMF_StateGet(src, NAME, field, rc=status)
        _VERIFY(STATUS)
-!       call ESMF_AttributeGet(field, NAME="CPLFUNC", isPresent=isPresent, RC=STATUS)
        call ESMF_InfoGetFromHost(field,infoh,RC=STATUS)
        isPresent = ESMF_InfoIsPresent(infoh,'CPLFUNC',RC=STATUS)
        _VERIFY(STATUS)
        if (isPresent) then
-!          call ESMF_AttributeGet(field, NAME="CPLFUNC", VALUE=cplfunc, RC=STATUS)
           call ESMF_InfoGet(infoh,'CPLFUNC',cplfunc,RC=STATUS)
           _VERIFY(STATUS)
        else
@@ -1235,8 +1233,8 @@ contains
           _VERIFY(status)
 
           rank = state%accum_rank(i)
-!          call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
           call ESMF_InfoGetFromHost(field,infoh,rc=status)
+          _VERIFY(STATUS)
           call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
           _VERIFY(STATUS)
           mask => null()
@@ -1419,8 +1417,8 @@ contains
        _VERIFY(status)
 
        rank = state%accum_rank(i)
-!       call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
        call ESMF_InfoGetFromHost(field,infoh,rc=status)
+       _VERIFY(STATUS)
        call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
        _VERIFY(STATUS)
        mask => null()

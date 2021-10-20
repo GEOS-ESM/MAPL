@@ -465,12 +465,11 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
          call ESMF_StateGet(STATE, trim(ITEMNAMELIST(I)), FIELD, RC=STATUS)
          _VERIFY(STATUS)
 
-!         call ESMF_AttributeGet  (FIELD, NAME="Needed", isPresent=isPresent, RC=STATUS)
          call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
+         _VERIFY(STATUS)
          isPresent = ESMF_InfoIsPresent(infoh,'Needed',RC=STATUS)
          _VERIFY(STATUS)
          if(isPresent) then
-!            call ESMF_AttributeGet  (FIELD, NAME="Needed",VALUE=NEEDED, RC=STATUS)
             call ESMF_InfoGet(infoh,'Needed',NEEDED,RC=STATUS)
             _VERIFY(STATUS)
          else
@@ -535,8 +534,8 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
    call ESMF_StateGet(STATE, trim(NAME), FIELD, RC=STATUS)
    _VERIFY(STATUS)
 
-!   call ESMF_AttributeSet  (FIELD, NAME="Needed",VALUE=.false., RC=STATUS)
    call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
+   _VERIFY(STATUS)
    call ESMF_InfoSet(infoh,key="Needed",value=.false.,RC=STATUS)
    _VERIFY(STATUS)
 
@@ -558,8 +557,8 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call ESMF_StateGet(STATE, trim(NAME), FIELD, RC=STATUS)
    _VERIFY(STATUS)
 
-!   call ESMF_AttributeSet  (FIELD, NAME="Needed",VALUE=NEEDED, RC=STATUS)
    call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
+   _VERIFY(STATUS)
    call ESMF_InfoSet(infoh,'Needed',NEEDED,RC=STATUS)
    if(STATUS /= ESMF_SUCCESS) NEEDED = .false.
 
@@ -2173,35 +2172,28 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    end if
    call ESMF_VMBroadcast(vm, srcLons, ims_world, MAPL_Root, rc=status)
 
-!   call ESMF_AttributeGet(dstGrid, 'VERBOSE', isPresent=isPresent, rc=status)
    call ESMF_InfoGetFromHost(dstGrid,infoh,rc=status)
+   _VERIFY(STATUS)
    isPresent = ESMF_InfoIsPresent(infoh,'VERBOSE',rc=status)
    if (isPresent) then
-!      call ESMF_AttributeGet(dstGrid, 'VERBOSE', verbose, rc=status)
       call ESMF_InfoGet(infoh,'VERBOSE',verbose,rc=status)
       _VERIFY(STATUS)
    else
       verbose =.FALSE.
    end if
 
-!   call ESMF_AttributeGet(dstGrid, 'FLIP_LONS', isPresent=isPresent, rc=status)
-   call ESMF_InfoGetFromHost(dstGrid,infoh,rc=status)
    isPresent = ESMF_InfoIsPresent(infoh,'FLIP_LONS',rc=status)
    _VERIFY(STATUS)
    if (isPresent) then
-!      call ESMF_AttributeGet(dstGrid, 'FLIP_LONS', flip_lons, rc=status)
       call ESMF_InfoGet(infoh,'FLIP_LONS',flip_lons,rc=status)
       _VERIFY(STATUS)
    else
       flip_lons = .FALSE.
    end if
 
-!   call ESMF_AttributeGet(dstGrid, 'FLIP_POLES', isPresent=isPresent, rc=status)
-   call ESMF_InfoGetFromHost(dstGrid,infoh,rc=status)
    isPresent = ESMF_InfoIsPresent(infoh,'FLIP_POLES',rc=status)
    _VERIFY(STATUS)
    if (isPresent) then
-!      call ESMF_AttributeGet(dstGrid, 'FLIP_POLES', flip_poles, rc=status)
       call ESMF_InfoGet(infoh,'FLIP_POLES',flip_poles,rc=status)
       _VERIFY(STATUS)
    else
@@ -2363,9 +2355,8 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
      if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
      ! check if field has halo, initialize to no halo
      hw = 0
-!     call ESMF_AttributeGet(FLD, "HALOWIDTH", halowidth, &
-!                            rc=status)
      call ESMF_InfoGetFromHost(FLD,infoh,rc=status)
+     if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
      call ESMF_InfoGet(infoh,'HALOWIDTH',halowidth,rc=status)
      if (status == ESMF_SUCCESS) hw = halowidth
      if (verbose .and. mype==MAPL_Root .and. n==1) print *, ' halowidth = ',hw
@@ -2540,9 +2531,8 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
      if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
      ! check if field has halo, initialize to no halo
      hw = 0
-!     call ESMF_AttributeGet(FLD, "HALOWIDTH", halowidth, &
-!                                 rc=status)
      call ESMF_InfoGetFromHost(FLD,infoh,rc=status)
+     if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
      call ESMF_InfoGet(infoh,'HALOWIDTH',halowidth,rc=status)
      if (status == ESMF_SUCCESS) hw = halowidth
      if (verbose .and. mype==MAPL_Root .and. n==1) print *, ' halowidth = ',hw
@@ -4185,8 +4175,8 @@ CONTAINS
 !   Loop over each item on STATE
 !   ----------------------------
     attrName = MAPL_StateItemOrderList
-!    call ESMF_AttributeGet(state, NAME=attrName, itemcount=natt, RC=STATUS)
     call ESMF_InfoGetFromHost(state,infoh,RC=STATUS)
+    _VERIFY(STATUS)
     call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
     _VERIFY(STATUS)
 
@@ -4197,8 +4187,6 @@ CONTAINS
     _VERIFY(STATUS)
 
     ! get the current list
-!    call ESMF_AttributeGet(state, NAME=attrName, VALUELIST=currList, rc=status)
-    call ESMF_InfoGetFromHost(state,infoh,rc=status)
     call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
     _VERIFY(STATUS)
 

@@ -176,16 +176,14 @@ contains
       _VERIFY(status)
       call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CORNER, rc=status)
       _VERIFY(status)
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
       
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-!         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
-         call ESMF_InfoGetFromHost(grid,infoh,rc=status)
          call ESMF_InfoSet(infoh,'GRID_LM',this%lm,rc=status)
          _VERIFY(status)
       end if
       
-!      call ESMF_AttributeSet(grid, 'GridType', 'Tripolar', rc=status)
-      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
       call ESMF_InfoSet(infoh,'GridType','Tripolar',rc=status)
       _VERIFY(status)
 

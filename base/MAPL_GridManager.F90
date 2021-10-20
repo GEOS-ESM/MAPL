@@ -204,8 +204,8 @@ contains
 
       ! TODO: this should only be done if the grid is new, rather than cached, in which case
       ! the attribute is already set.
-!      call ESMF_AttributeSet(grid, factory_id_attribute, factory_id, rc=status)
       call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
       call ESMF_InfoSet(infoh,factory_id_attribute,factory_id,rc=status)
       _VERIFY(status)
 
@@ -252,8 +252,8 @@ contains
       _VERIFY(status)
 
       ! TLC: Using 'GridType' instead of 'GRID_TYPE' for legacy reasons.
-!      call ESMF_AttributeSet(grid, 'GridType', grid_type, rc=status)
       call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
       call ESMF_InfoSet(infoh,'GridType',grid_type,rc=status)
       _VERIFY(status)
 
@@ -286,8 +286,8 @@ contains
       _VERIFY(status)
 
       ! TLC: Using 'GridType' instead of 'GRID_TYPE' for legacy reasons.
-!      call ESMF_AttributeSet(grid, 'GridType', grid_type, rc=status)
       call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
       call ESMF_InfoSet(infoh,'GridType',grid_type,rc=status)
       _VERIFY(status)
 
@@ -393,8 +393,8 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-!      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
       call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
       call ESMF_InfoGet(infoh,factory_id_attribute,id,rc=status)
       _VERIFY(status)
 
@@ -562,8 +562,8 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-!      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
       call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
       call ESMF_InfoGet(infoh,factory_id_attribute,id,rc=status)
       _VERIFY(status)
 

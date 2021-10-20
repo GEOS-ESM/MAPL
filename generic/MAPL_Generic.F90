@@ -1224,12 +1224,10 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   _VERIFY(STATUS)
 
   gridTypeAttribute = ''
-!  call ESMF_AttributeGet(MYGRID%ESMFGRID, name='GridType', isPresent=isPresent, RC=status)
   call ESMF_InfoGetFromHost(MYGRID%ESMFGRID,infoh,RC=status)
   isPresent = ESMF_InfoIsPresent(infoh,'GridType',RC=status)
   _VERIFY(STATUS)
   if (isPresent) then
-!     call ESMF_AttributeGet(MYGRID%ESMFGRID, name='GridType', value=gridTypeAttribute, RC=status)
      call ESMF_InfoGet(infoh,'GridType',gridTypeAttribute,RC=status)
      _VERIFY(STATUS)
      if (gridTypeAttribute == 'Doubly-Periodic') then
@@ -1598,7 +1596,6 @@ endif
       endif
    end if
 
-!   call ESMF_AttributeSet(import,'POSITIVE',trim(positive),rc=status)
    call ESMF_InfoGetFromHost(import,infoh,rc=status)
    call ESMF_InfoSet(infoh,key='POSITIVE',value=trim(positive),rc=status)
    _VERIFY(status)
@@ -1620,7 +1617,6 @@ endif
                                         RC=STATUS       )
       end if
       _VERIFY(STATUS)
-!      call ESMF_AttributeSet(internal_state,'POSITIVE',trim(positive),rc=status)
       call ESMF_InfoGetFromHost(internal_state,infoh,rc=status)
       call ESMF_InfoSet(infoh,key='POSITIVE',value=trim(positive),rc=status)
       _VERIFY(status)
@@ -5686,7 +5682,6 @@ end function MAPL_AddChildFromDSO
 
        AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
 
-!       call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
        call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
        call ESMF_InfoGet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
        _VERIFY(STATUS)
@@ -5780,8 +5775,8 @@ end function MAPL_AddChildFromDSO
        end if
 #endif
        AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
-!       call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
        call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+       _VERIFY(STATUS)
        call ESMF_InfoGet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
        _VERIFY(STATUS)
        PNC4_TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
@@ -5993,12 +5988,10 @@ end function MAPL_AddChildFromDSO
     end if
 
     ! get the "required restart" attribute from the state
-!    call ESMF_AttributeGet(STATE, NAME="MAPL_RestartRequired", isPresent=isPresent, RC=STATUS)
     call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
     isPresent = ESMF_InfoIsPresent(infoh,'MAPL_RestartRequired',RC=STATUS)
     _VERIFY(STATUS) 
     if (isPresent) then
-!       call ESMF_AttributeGet(STATE, NAME="MAPL_RestartRequired", VALUE=rstReq, RC=STATUS)
        call ESMF_InfoGet(infoh,'MAPL_RestartRequired',rstReq,RC=STATUS)
        _VERIFY(STATUS) 
     else
@@ -6111,8 +6104,6 @@ end function MAPL_AddChildFromDSO
 
        AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
 
-!       call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
-       call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
        call ESMF_InfoGet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
        _VERIFY(STATUS)
        TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
@@ -6196,8 +6187,6 @@ end function MAPL_AddChildFromDSO
        end if
 #endif
        AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
-!       call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
-       call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
        call ESMF_InfoGet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
        _VERIFY(STATUS)
        PNC4_TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
@@ -6205,12 +6194,10 @@ end function MAPL_AddChildFromDSO
           call ArrDescrSetNCPar(arrdes,MPL,tile=.TRUE.,num_readers=mpl%grid%num_readers,RC=STATUS)
           _VERIFY(STATUS)
        else
-!          call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',isPresent=isPresent,rc=status)
           call ESMF_InfoGetFromHost(MPL%GRID%ESMFGRID,infoh,rc=status)
           isPresent = ESMF_InfoIsPresent(infoh,'GridType',rc=status)
           _VERIFY(status)
           if (isPresent) then
-!             call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',value=grid_type,rc=status)
              call ESMF_InfoGet(infoh,'GridType',grid_type,rc=status)
              _VERIFY(status)
           end if
@@ -6278,14 +6265,11 @@ end function MAPL_AddChildFromDSO
        _VERIFY(STATUS)
     endif
 
-!    call ESMF_AttributeSet(STATE,'MAPL_Initialized', .TRUE.,RC=STATUS)
     call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
     call ESMF_InfoSet(infoh,key='MAPL_Initialized',value=.TRUE.,RC=STATUS)
     _VERIFY(STATUS)
 
     call MAPL_AttributeSet(STATE, NAME="MAPL_InitStatus", VALUE=MAPL_InitialRestart, RC=STATUS)
-!    call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
-!    call ESMF_InfoSet(infoh,key='MAPL_InitStatus',value=MAPL_InitialRestart,RC=STATUS)
     _VERIFY(STATUS)      
 
     _RETURN(ESMF_SUCCESS)
@@ -6548,7 +6532,6 @@ end subroutine MAPL_StateCreateFromVarSpecNew
          call MAPL_VarSpecSet(varspec,STATE=nestState,RC=STATUS)
          _VERIFY(STATUS)
 
-!         call ESMF_AttributeSet(nestState, NAME='RESTART', VALUE=RESTART, RC=STATUS)
          call ESMF_InfoGetFromHost(nestState,infoh,RC=STATUS)
          call ESMF_InfoSet(infoh,'RESTART',RESTART,RC=STATUS)
          _VERIFY(STATUS)
@@ -6579,7 +6562,6 @@ end subroutine MAPL_StateCreateFromVarSpecNew
          call MAPL_VarSpecSet(varspec,BUNDLE=BUNDLE,RC=STATUS)
          _VERIFY(STATUS)
 
-!         call ESMF_AttributeSet(BUNDLE, NAME='RESTART', VALUE=RESTART, RC=STATUS)
          call ESMF_InfoGetFromHost(BUNDLE,infoh,RC=STATUS)
          call ESMF_InfoSet(infoh,'RESTART',RESTART,RC=STATUS)
          _VERIFY(STATUS)
@@ -6611,12 +6593,10 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 
          call ESMF_FieldGet(field, Array=array, rc=status)
          _VERIFY(STATUS)
-!         call ESMF_AttributeGet(field, NAME="MAPL_InitStatus", isPresent=isPresent, RC=STATUS)
          call ESMF_InfoGetFromHost(field, infoh, RC=status)
          isPresent = ESMF_InfoIsPresent(infoh,'MAPL_InitStatus',RC=STATUS)
          _VERIFY(STATUS)
          if (isPresent) then
-!            call ESMF_AttributeGet(field, NAME="MAPL_InitStatus", VALUE=initStatus, RC=STATUS)
             call ESMF_InfoGet(infoh,'MAPL_InitStatus',initStatus, RC=status)
             _VERIFY(STATUS)
          else
@@ -6715,8 +6695,6 @@ end subroutine MAPL_StateCreateFromVarSpecNew
                end if
                call MAPL_AttributeSet(field, NAME="MAPL_InitStatus", &
                                       VALUE=initStatus, RC=STATUS)
-!               call ESMF_InfoGetFromHost(field,infoh,rc=status)
-!               call ESMF_InfoSet(infoh,'MAPL_InitStatus',initStatus,rc=status)
                _VERIFY(STATUS)      
             end if
          end if
@@ -6726,6 +6704,8 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 ! ---------------------------------
 
          field = MAPL_FieldCreateEmpty(name=SHORT_NAME, grid=grid, rc=status)
+         _VERIFY(STATUS)
+         call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
          _VERIFY(STATUS)
 
          has_ungrd = associated(UNGRD)
@@ -6757,25 +6737,15 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 
                end if
             else
-!               call ESMF_AttributeSet(FIELD, NAME='doNotAllocate', VALUE=1, RC=STATUS)
-               call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
                call ESMF_InfoSet(infoh,'doNotAllocate',1, RC=status)
                _VERIFY(STATUS)
             end if
          else
-!            call ESMF_AttributeSet(FIELD, NAME='PRECISION', VALUE=KND, RC=STATUS)
-            call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
             call ESMF_InfoSet(infoh,'PRECISION',KND, RC=status)
             _VERIFY(STATUS)
-!            call ESMF_AttributeSet(FIELD, NAME='DEFAULT_PROVIDED', &
-!                 value=defaultProvided, RC=STATUS)
-            call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
             call ESMF_InfoSet(infoh,'DEFAULT_PROVIDED',defaultProvided, RC=status)
             _VERIFY(STATUS)
             if (defaultProvided) then
-!               call ESMF_AttributeSet(FIELD, NAME='DEFAULT_VALUE', &
-!                    value=default_value, RC=STATUS)
-               call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
                call ESMF_InfoSet(infoh,'DEFAULT_VALUE',default_value, RC=status)
                _VERIFY(STATUS)
             end if
@@ -6805,73 +6775,40 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 
 ! Add SPECs to the FIELD
 
-!      call ESMF_AttributeSet(FIELD, NAME='STAT', VALUE=STAT, RC=STATUS)
-      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoSet(infoh,'STAT',STAT, RC=status)
       _VERIFY(STATUS)
-!      call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=DIMS, RC=STATUS)
-      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoSet(infoh,'DIMS',DIMS, RC=status)
       _VERIFY(STATUS)
-!      call ESMF_AttributeSet(FIELD, NAME='VLOCATION', VALUE=LOCATION, RC=STATUS)
-      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoSet(infoh,'VLOCATION',LOCATION, RC=status)
       _VERIFY(STATUS)
-!      call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
-      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoSet(infoh,'LONG_NAME',LONG_NAME, RC=status)
       _VERIFY(STATUS)
-!      call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
-      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoSet(infoh,'UNITS',UNITS, RC=status)
       _VERIFY(STATUS)
 
-!      call ESMF_AttributeSet(FIELD, NAME='REFRESH_INTERVAL', VALUE=REFRESH, RC=STATUS)
-      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoSet(infoh,'REFRESH_INTERVAL',REFRESH, RC=status)
       _VERIFY(STATUS)
-!      call ESMF_AttributeSet(FIELD, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, RC=STATUS)
-      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoSet(infoh,'AVERAGING_INTERVAL',AVGINT, RC=status)
       _VERIFY(STATUS)
-!      call ESMF_AttributeSet(FIELD, NAME='HALOWIDTH', VALUE=HW, RC=STATUS)
-      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoSet(infoh,'HALOWIDTH',HW, RC=status)
       _VERIFY(STATUS)
-!      call ESMF_AttributeSet(FIELD, NAME='RESTART', VALUE=RESTART, RC=STATUS)
-      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoSet(infoh,'RESTART',RESTART, RC=status)
       _VERIFY(STATUS)
-!      call ESMF_AttributeSet(FIELD, NAME='FIELD_TYPE', VALUE=FIELD_TYPE, RC=STATUS)
-      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoSet(infoh,'FIELD_TYPE',FIELD_TYPE, RC=status)
       _VERIFY(STATUS)
-!      call ESMF_AttributeSet(FIELD, NAME='STAGGERING', VALUE=STAGGERING, RC=STATUS)
-      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoSet(infoh,'STAGGERING',STAGGERING, RC=status)
       _VERIFY(STATUS)
-!      call ESMF_AttributeSet(FIELD, NAME='ROTATION', VALUE=ROTATION, RC=STATUS)
-      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoSet(infoh,'ROTATION',ROTATION, RC=status)
       _VERIFY(STATUS)
       if (associated(UNGRD)) Then
-!         call ESMF_AttributeSet(FIELD, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
-          call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
           call ESMF_InfoSet(infoh,key='UNGRIDDED_DIMS',values=UNGRD, RC=status)
          _VERIFY(STATUS)
-!         call ESMF_AttributeSet(FIELD, NAME='UNGRIDDED_NAME', VALUE=UNGRIDDED_NAME, RC=STATUS)
-          call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
           call ESMF_InfoSet(infoh,'UNGRIDDED_NAME',UNGRIDDED_NAME, RC=status)
          _VERIFY(STATUS)
-!         call ESMF_AttributeSet(FIELD, NAME='UNGRIDDED_UNIT', VALUE=UNGRIDDED_UNIT, RC=STATUS)
-          call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
           call ESMF_InfoSet(infoh,'UNGRIDDED_UNIT',UNGRIDDED_UNIT, RC=status)
          _VERIFY(STATUS)
          if (associated(UNGRIDDED_COORDS)) then
             szUngrd = size(ungridded_coords)
-!            call ESMF_AttributeSet(FIELD, NAME='UNGRIDDED_COORDS', itemCount=szUngrd, &
-!                                   valuelist=ungridded_coords, rc=status)
-            call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
             call ESMF_InfoSet(infoh,'UNGRIDDED_COORDS',values=ungridded_coords, RC=status)
             _VERIFY(STATUS)
          end if      
@@ -6879,9 +6816,6 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 
       if (associated(ATTR_RNAMES)) then
          DO N = 1, size(ATTR_RNAMES) 
-!            call ESMF_AttributeSet(FIELD, NAME=trim(ATTR_RNAMES(N)), &
-!                                        VALUE=ATTR_RVALUES(N), RC=STATUS)
-            call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
             call ESMF_InfoSet(infoh,key=trim(ATTR_RNAMES(N)) ,value=ATTR_RVALUES(N), RC=status)
             _VERIFY(STATUS)
          END DO
@@ -6889,9 +6823,6 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 
       if (associated(ATTR_INAMES)) then
          DO N = 1, size(ATTR_INAMES) 
-!            call ESMF_AttributeSet(FIELD, NAME=trim(ATTR_INAMES(N)), &
-!                                        VALUE=ATTR_IVALUES(N), RC=STATUS)
-            call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
             call ESMF_InfoSet(infoh,key=trim(ATTR_INAMES(N)),value=ATTR_IVALUES(N), RC=status)
             _VERIFY(STATUS)
          END DO
@@ -6914,9 +6845,6 @@ end subroutine MAPL_StateCreateFromVarSpecNew
             END IF
             if (N1 <= N2 .and. N2 > 0) then
                if (IAND(STAT, MAPL_BundleItem) /= 0) then
-!                  call ESMF_AttributeSet(BUNDLE, &
-!                       NAME='FriendlyTo'//trim(FRIENDLYTO(N1:N2)), &
-!                       VALUE=.TRUE., RC=STATUS)
                   call ESMF_InfoGetFromHost(BUNDLE,infoh,RC=STATUS)
                   call ESMF_InfoSet(infoh, &
                        key='FriendlyTo'//trim(FRIENDLYTO(N1:N2)), &
@@ -6924,9 +6852,6 @@ end subroutine MAPL_StateCreateFromVarSpecNew
                   _VERIFY(STATUS)
                else
 !print *,"DEBUG: setting FieldAttr:FriendlyTo"//trim(FRIENDLYTO(N1:N2))
-!                  call ESMF_AttributeSet(FIELD, &
-!                       NAME='FriendlyTo'//trim(FRIENDLYTO(N1:N2)), &
-!                       VALUE=.TRUE., RC=STATUS)
                   call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
                   call ESMF_InfoSet(infoh,key='FriendlyTo'//trim(FRIENDLYTO(N1:N2)),value=.TRUE., RC=status)
                   _VERIFY(STATUS)
@@ -6939,12 +6864,9 @@ end subroutine MAPL_StateCreateFromVarSpecNew
       end if
 
    enddo
-!   call ESMF_AttributeSet(STATE, NAME="MAPL_GridTypeBits", VALUE=ATTR, RC=STATUS)
    call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
    call ESMF_InfoSet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
    _VERIFY(STATUS)
-!   call ESMF_AttributeSet(STATE, NAME="MAPL_RestartRequired", VALUE=rstReq, RC=STATUS)
-   call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
    call ESMF_InfoSet(infoh,'MAPL_RestartRequired',rstReq,RC=STATUS)
    _VERIFY(STATUS)
 
@@ -7785,7 +7707,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
     type (MAPL_MetaComp),              pointer  :: STATE 
     type (MAPL_VarSpec),               pointer  :: SPEC(:)
-    type (ESMF_Info)                            :: infoh
 
 
 ! Retrieve the pointer to the internal state of Root. 
@@ -7859,11 +7780,10 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
     call ESMF_StateGet(STATE%get_internal_state(), NAME, FIELD, RC=STATUS)
     _VERIFY(STATUS)
+    call ESMF_InfoGetFromHost(FIELD,infoh,RC=status)
+    _VERIFY(STATUS)
 
     if (present(REQUESTER)) then
-!       call ESMF_AttributeGet  (FIELD, NAME="FriendlyTo"//trim(REQUESTOR),VALUE=FRIENDLY, RC=STATUS)
-       call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
-       _VERIFY(STATUS)
        call ESMF_InfoGet(infoh,key='FriendlyTo'//trim(REQUESTER),value=FRIENDLY, RC=status)
        _VERIFY(STATUS)
        _ASSERT(FRIENDLY,'needs informative message')
@@ -7913,24 +7833,20 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     type(ESMF_INFO)                       :: infohin
     type(ESMF_INFO)                       :: infohout
 
-!    call ESMF_AttributeGet(FIELDIN, count=NF, RC=STATUS)
     call ESMF_InfoGetFromHost(FIELDIN, infohin, RC=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGetFromHost(FIELDOUT,infohout,RC=STATUS)
+    _VERIFY(STATUS)
     call ESMF_InfoGet(infohin,size=NF,RC=STATUS)
     _VERIFY(STATUS)
 
     do I=1,NF
-!       call ESMF_AttributeGet(FIELDIN,attributeIndex=I,NAME=NAME,RC=STATUS)
-       call ESMF_InfoGetFromHost(FIELDIN,infohin,RC=status)
        call ESMF_InfoGet(infohin, idx=I,ikey=NAME, RC=status)
        _VERIFY(STATUS)
        NAME = trim(NAME)
        if(NAME(1:10)=='FriendlyTo') then
-!          call ESMF_AttributeGet(FIELDIN , NAME=NAME, VALUE=VALUE, RC=STATUS)
-          call ESMF_InfoGetFromHost(FIELDIN,infohin,RC=STATUS)
           call ESMF_InfoGet(infohin,key=NAME,value=VALUE, RC=status)
           _VERIFY(STATUS)
-!          call ESMF_AttributeSet(FIELDOUT, NAME=NAME, VALUE=VALUE, RC=STATUS)
-           call ESMF_InfoGetFromHost(FIELDOUT,infohout,RC=STATUS)
            call ESMF_InfoSet(infohout,NAME,VALUE, RC=status)
           _VERIFY(STATUS)
        end if
@@ -8031,12 +7947,10 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     _VERIFY(STATUS)
 
     attrName = MAPL_StateItemOrderList
-!    call ESMF_AttributeGet(internal, NAME=attrName, isPresent=haveAttr, RC=STATUS)
        call ESMF_InfoGetFromHost(internal,infoh,RC=STATUS)
     haveAttr = ESMF_InfoIsPresent(infoh,attrName,RC=STATUS)
     _VERIFY(STATUS)
     if (haveAttr) then
-!       call ESMF_AttributeGet(internal, NAME=attrName, itemcount=natt, RC=STATUS)
        call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
        _VERIFY(STATUS)
     else
@@ -8054,8 +7968,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
        _VERIFY(STATUS)
 
        ! get the current list
-!       call ESMF_AttributeGet(internal, NAME=attrName, VALUELIST=currList, rc=status)
-       call ESMF_InfoGetFromHost(internal,infoh,rc=status)
        call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
        _VERIFY(STATUS)
 
@@ -8206,7 +8118,6 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     call ESMF_FieldGet(FIELD, dimCount=fieldRank, rc=status)
     _VERIFY(status)
     if (fieldRank == 4) then
-!       call ESMF_AttributeGet(FIELD, NAME='DIMS', VALUE=DIMS, rc=status)
       call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
       call ESMF_InfoGet(infoh,'DIMS',DIMS, RC=status)
        _VERIFY(status)
@@ -8238,15 +8149,13 @@ recursive subroutine MAPL_WireComponent(GC, RC)
      logical            :: FRIENDLY, isPresent
      integer            :: I, STATUS
      type(ESMF_Info)    :: infoh
-     RC = ESMF_FAILURE    
+     RC = ESMF_FAILURE   
+
+     call ESMF_InfoGetFromHost(FIELD,infoh,RC=status)
+    _VERIFY(STATUS) 
      do I = 1, size(TO)
-!        call ESMF_AttributeGet  (FIELD, NAME="FriendlyTo"//trim(TO(I)), &
-!                                 isPresent=isPresent, RC=STATUS)
-        call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
         isPresent = ESMF_InfoIsPresent(infoh,key="FriendlyTo"//trim(TO(I)),RC=STATUS)
         if (isPresent) then
-!           call ESMF_AttributeGet  (FIELD, NAME="FriendlyTo"//trim(TO(I)), &
-!                                    VALUE=FRIENDLY, RC=STATUS)
           call ESMF_InfoGet(infoh,key="FriendlyTo"//trim(TO(I)),value=FRIENDLY, RC=status)
            RC = ESMF_SUCCESS
         endif
@@ -8261,16 +8170,14 @@ recursive subroutine MAPL_WireComponent(GC, RC)
      logical            :: FRIENDLY, isPresent
      integer            :: I, STATUS
      type(ESMF_Info) :: infoh
-     RC = ESMF_FAILURE    
+     RC = ESMF_FAILURE   
+
+     call ESMF_InfoGetFromHost(BUNDLE,infoh,RC=STATUS)
+    _VERIFY(STATUS) 
      do I = 1, size(TO)
         FRIENDLY = .false.
-!        call ESMF_AttributeGet (BUNDLE, NAME="FriendlyTo"//trim(TO(I)), &
-!                                isPresent=isPresent, RC=STATUS)
-        call ESMF_InfoGetFromHost(BUNDLE,infoh,RC=STATUS)
         isPresent = ESMF_InfoIsPresent(infoh,key="FriendlyTo"//trim(TO(I)),RC=STATUS)
         if (isPresent) then
-!           call ESMF_AttributeGet (BUNDLE, NAME="FriendlyTo"//trim(TO(I)), &
-!                                   VALUE=FRIENDLY, RC=STATUS)
            call ESMF_InfoGet(infoh,key="FriendlyTo"//trim(TO(I)),value=FRIENDLY,RC=STATUS)
            if (FRIENDLY) RC = ESMF_SUCCESS
         endif
@@ -9418,14 +9325,10 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     logical                               :: isPresent
     type(ESMF_INFO)                       :: infoh
 
-!    call ESMF_AttributeGet  (FIELD, NAME="FriendlyTo"//trim(FRIEND2COMP), &
-!                                        isPresent=isPresent, RC=STATUS)
     call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
     isPresent=ESMF_InfoIsPresent(infoh,key="FriendlyTo"//trim(FRIEND2COMP),RC=STATUS)
     _VERIFY(STATUS)
     if(isPresent) then
-!       call ESMF_AttributeGet  (FIELD, NAME="FriendlyTo"//trim(FRIEND2COMP), &
-!                                        VALUE=FRIENDLY, RC=STATUS)
       call ESMF_InfoGet(infoh,key="FriendlyTo"//trim(FRIEND2COMP),value=FRIENDLY, RC=status)
        _VERIFY(STATUS)
     else

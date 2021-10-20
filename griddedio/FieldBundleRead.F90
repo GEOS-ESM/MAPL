@@ -120,12 +120,10 @@ module MAPL_ESMFFieldBundleRead
                    field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
                       rc=status)
                end if
-!               call ESMF_AttributeSet(field,name='DIMS',value=dims,rc=status)
                call ESMF_InfoGetFromHost(field,infoh,rc=status)
+               _VERIFY(status)
                call ESMF_InfoSet(infoh,'DIMS',dims,rc=status)
                _VERIFY(status)
-!               call ESMF_AttributeSet(field,name='VLOCATION',value=location,rc=status)
-               call ESMF_InfoGetFromHost(field,infoh,rc=status)
                call ESMF_InfoSet(infoh,'VLOCATION',location,rc=status)
                _VERIFY(status)
                attr => this_variable%get_attribute('units')
@@ -136,8 +134,6 @@ module MAPL_ESMFFieldBundleRead
                class default
                   _ASSERT(.false.,'unsupport subclass for units')
                end select
-!               call ESMF_AttributeSet(field,name='UNITS',value=units,rc=status)
-               call ESMF_InfoGetFromHost(field,infoh,rc=status)
                call ESMF_InfoSet(infoh,'UNITS',units,rc=status)
                _VERIFY(status)
                attr => this_variable%get_attribute('long_name')
@@ -148,8 +144,6 @@ module MAPL_ESMFFieldBundleRead
                class default
                   _ASSERT(.false.,'unsupport subclass for units')
                end select
-!               call ESMF_AttributeSet(field,name='LONG_NAME',value=long_name,rc=status)
-               call ESMF_InfoGetFromHost(field,infoh,rc=status)
                call ESMF_InfoSet(infoh,'LONG_NAME',long_name,rc=status)
                _VERIFY(status)
                call MAPL_FieldBundleAdd(bundle,field,rc=status)

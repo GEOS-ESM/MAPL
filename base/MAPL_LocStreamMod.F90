@@ -1641,8 +1641,8 @@ contains
     call ESMF_GridCommit(tilegrid, rc=status)
     _VERIFY(STATUS)
 
-!    call ESMF_AttributeSet(tilegrid, name='GRID_EXTRADIM', value=DUMMY_NSUBTILES, rc=status)
     call ESMF_InfoGetFromHost(tilegrid,infoh,rc=status)
+    _VERIFY(STATUS)
     call ESMF_InfoSet(infoh,'GRID_EXTRADIM',DUMMY_NSUBTILES,rc=status)
     _VERIFY(STATUS)
 
@@ -1651,9 +1651,6 @@ contains
 !ALT: here we are using a C routine to get the pointer to LocStream
 !     and we are going to store it in TILEGRID as INTEGER*8 attribute
     call c_MAPL_LocStreamRetrievePtr(LocStream, ADDR)
-!    call ESMF_AttributeSet(tilegrid, name='TILEGRID_LOCSTREAM_ADDR', &
-!         value=ADDR, rc=status)
-    call ESMF_InfoGetFromHost(tilegrid,infoh,rc=status)
     call ESMF_InfoSet(infoh,'TILEGRID_LOCSTREAM_ADDR',ADDR,rc=status)
     _VERIFY(STATUS)
 
@@ -1687,9 +1684,8 @@ contains
 !-------------------------------------------------
 
     if (stream%current_tiling > 0) then
-!       call ESMF_AttributeSet(stream%tilegrid, name='GRID_EXTRADIM', &
-!            value=NSUBTILES, rc=status)
        call ESMF_InfoGetFromHost(stream%tilegrid,infoh,rc=status)
+       _VERIFY(STATUS)
        call ESMF_InfoSet(infoh,'GRID_EXTRADIM',NSUBTILES,rc=status)
        _VERIFY(STATUS)
     end if

@@ -91,14 +91,14 @@ contains
       _UNUSED_DUMMY(unusable)
 
       if (present(grid_type_in)) then
-!         call ESMF_AttributeGet(this%grid_in,'GridType',grid_type_in,rc=status)
          call ESMF_InfoGetFromHost(this%grid_in,infohin,rc=status)
+         _VERIFY(status)
          call ESMF_InfoGet(infohin,'GridType',grid_type_in,rc=status)
          _VERIFY(status)
       end if
       if (present(grid_type_out)) then
-!         call ESMF_AttributeGet(this%grid_out,'GridType',grid_type_out,rc=status)
          call ESMF_InfoGetFromHost(this%grid_out,infohout,rc=status)
+         _VERIFY(status)
          call ESMF_InfoGet(infohout,'GridType',grid_type_out,rc=status)
          _VERIFY(status)
       end if

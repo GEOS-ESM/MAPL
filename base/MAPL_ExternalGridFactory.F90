@@ -91,20 +91,17 @@ contains
       end if
 
       if (allocated(this%lm)) then
-!         call ESMF_AttributeGet(grid, name='GRID_LM', isPresent=is_present, rc=status)
          call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+         _VERIFY(status)
          is_present = ESMF_InfoIsPresent(infoh,'GRID_LM',rc=status)
          _VERIFY(status)
 
          if (is_present) then
-!            call ESMF_AttributeGet(grid, name='GRID_LM', value=lm, rc=status)
             call ESMF_InfoGet(infoh,'GRID_LM',lm,rc=status)
             _VERIFY(status)
 
             _ASSERT(lm == this%lm,'inconsistent levels')
          else
-!            call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
-            call ESMF_InfoGetFromHost(grid,infoh,rc=status)
             call ESMF_InfoSet(infoh,'GRID_LM',this%lm,rc=status)
             _VERIFY(status)
          end if

@@ -84,11 +84,8 @@ contains
       _UNUSED_DUMMY(rc)
 
       grid = ESMF_GridEmptyCreate()
-!      call ESMF_AttributeSet(grid, 'GRID_NAME', this%name)
       call ESMF_InfoGetFromHost(grid,infoh)
       call ESMF_InfoSet(infoh,'GRID_NAME',this%name)
-!      call ESMF_AttributeSet(grid, 'GridType', this%name)
-      call ESMF_InfoGetFromHost(grid,infoh)
       call ESMF_InfoSet(infoh,'GridType',this%name)
 
       _RETURN(_SUCCESS)
