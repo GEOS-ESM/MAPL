@@ -6197,12 +6197,6 @@ end subroutine MAPL_StateCreateFromVarSpecNew
          rstReq = 1
       end if
 
-      if (DIMS == MAPL_DimsTileOnly .OR. DIMS == MAPL_DimsTileTile) then
-         ATTR = IOR(ATTR, MAPL_AttrTile)
-      else
-         ATTR = IOR(ATTR, MAPL_AttrGrid)
-      end if
-      
       if (IAND(STAT, MAPL_StateItem) /= 0) then
          isCreated = ESMF_StateIsCreated(SPEC_STATE, rc=status)
          _VERIFY(STATUS)
@@ -6259,6 +6253,12 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 !!!         cycle
       endif
 
+      if (DIMS == MAPL_DimsTileOnly .OR. DIMS == MAPL_DimsTileTile) then
+         ATTR = IOR(ATTR, MAPL_AttrTile)
+      else
+         ATTR = IOR(ATTR, MAPL_AttrGrid)
+      end if
+      
       deferAlloc = usableDefer
       if (usableDefer) deferAlloc = .not. alwaysAllocate
 
