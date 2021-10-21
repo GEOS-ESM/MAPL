@@ -1119,9 +1119,9 @@ contains
 
        ! Time Loop starts by checking for Segment Ending Time
        !-----------------------------------------------------
-       call ESMF_VMBarrier(cap%vm,rc=status)
-       _VERIFY(status)
        if (cap%compute_throughput) then
+          call ESMF_VMBarrier(cap%vm,rc=status)
+          _VERIFY(status)
           cap%starts%loop_start_timer = MPI_WTime(status)
           cap%started_loop_timer = .true.
        end if
