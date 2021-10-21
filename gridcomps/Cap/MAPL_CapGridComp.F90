@@ -1200,11 +1200,6 @@ contains
 
     endif !phase_ == last
 
-    ! Synchronize for Next TimeStep
-    ! -----------------------------
-    call ESMF_VMBarrier(this%vm, rc = status)
-    _VERIFY(STATUS)
-
     _RETURN(ESMF_SUCCESS)
 
   contains
