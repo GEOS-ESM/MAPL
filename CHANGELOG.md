@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Exposed `TO_NAME` argument in `MAPL_StateAddExportSpecFrmChld()` to
+  allow renaming of EXPORTS. Needed for GOCART-2G.
+
 ### Fixed
 
 ## [2.8.6] - 2021-09-13
