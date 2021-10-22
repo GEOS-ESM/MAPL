@@ -3378,13 +3378,15 @@ end subroutine MAPL_DateStampGet
   ! !IIROUTINE: MAPL_StateAddExportSpecFrmChld --- Add \texttt{EXPORT} spec from child
 
   !INTERFACE:
-  subroutine MAPL_StateAddExportSpecFrmChld ( GC, SHORT_NAME, CHILD_ID, RC )
+  subroutine MAPL_StateAddExportSpecFrmChld ( GC, SHORT_NAME, CHILD_ID, RC, TO_NAME )
 
     !ARGUMENTS:
     type(ESMF_GridComp),              intent(INOUT)   :: GC 
-    character (len=*)               , intent(IN)      :: SHORT_NAME
+    character (len=*)               , intent(IN)      :: SHORT_NAME ! NAME in CHILD
     integer                         , intent(IN)      :: CHILD_ID
     integer            , optional   , intent(OUT)     :: RC
+    character (len=*),      optional, intent(IN)      :: TO_NAME ! NAME to appear is EXPORT;
+                                                                 ! default is SHORT_NAME
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_StateAddExportSpecFrmChld"
@@ -3392,6 +3394,7 @@ end subroutine MAPL_DateStampGet
 
 
     call MAPL_AddConnectivityE2E ( GC, SHORT_NAME, &
+                                TO_NAME = TO_NAME, &
                                 SRC_ID = CHILD_ID, &
                                 TO_EXPORT = MAPL_Self, RC=STATUS  )
     _VERIFY(STATUS)
@@ -4952,10 +4955,11 @@ end function MAPL_AddChildFromDSO
   end subroutine MAPL_AddConnectivityOld
 
   subroutine MAPL_AddConnectivityE2E ( GC, SHORT_NAME, &
-       SRC_ID, TO_EXPORT, RC  )
+       SRC_ID, TO_EXPORT, TO_NAME, RC )
 
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
     character (len=*),              intent(IN   ) :: SHORT_NAME
+    character (len=*),      optional, intent(IN)  :: TO_NAME !name in TO_EXPORT
     integer,                        intent(IN   ) :: SRC_ID !FROM_EXPORT
     integer,                        intent(IN   ) :: TO_EXPORT
     integer,              optional, intent(  OUT) :: RC     ! Error code:
@@ -4968,6 +4972,7 @@ end function MAPL_AddChildFromDSO
     _VERIFY(STATUS)
 
     call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME, &
+                            TO_NAME = TO_NAME,  &
                             FROM_EXPORT=SRC_ID, &
                             TO_EXPORT=TO_EXPORT, RC=STATUS  )
     _VERIFY(STATUS)

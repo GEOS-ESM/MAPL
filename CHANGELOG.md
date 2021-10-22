@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Exposed `TO_NAME` argument in `MAPL_StateAddExportSpecFrmChld()` to
+  allow renaming of EXPORTS. Needed for GOCART-2G.
+
 ### Changed
 
 - Changed all ESMF_AttributeGet and ESMF_AttributeSet to ESMF_InfoGet and ESMF_InfoSet respectively as old calls will be deprecated soon.
