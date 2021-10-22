@@ -4955,7 +4955,7 @@ end function MAPL_AddChildFromDSO
 
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
     character (len=*),              intent(IN   ) :: SHORT_NAME
-    character (len=*),      optional, intent(IN)  :: TO_NAME: name in TO_EXPORT
+    character (len=*),      optional, intent(IN)  :: TO_NAME !name in TO_EXPORT
     integer,                        intent(IN   ) :: SRC_ID !FROM_EXPORT
     integer,                        intent(IN   ) :: TO_EXPORT
     integer,              optional, intent(  OUT) :: RC     ! Error code:
