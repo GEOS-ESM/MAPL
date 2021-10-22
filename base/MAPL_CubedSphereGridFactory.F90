@@ -195,6 +195,7 @@ contains
       real(kind=ESMF_KIND_R8), pointer :: lats(:,:),lons(:,:)
       type(ESMF_CubedSphereTransform_Args) :: transformArgument
       integer :: status
+      type(ESMF_Info) :: infoh
       character(len=*), parameter :: Iam = MOD_NAME // 'create_basic_grid'
 
       _UNUSED_DUMMY(unusable)
@@ -232,11 +233,13 @@ contains
             _VERIFY(status)
             if (this%stretch_factor/=MAPL_UNDEFINED_REAL .and. this%target_lon/=MAPL_UNDEFINED_REAL .and. &
                 this%target_lat/=MAPL_UNDEFINED_REAL) then
-               call ESMF_AttributeSet(grid, name='STRETCH_FACTOR', value=this%stretch_factor,rc=status)
+               call ESMF_InfoGetFromHost(grid,infoh,rc=status)
                _VERIFY(status)
-               call ESMF_AttributeSet(grid, name='TARGET_LON', value=this%target_lon,rc=status)
+               call ESMF_InfoSet(infoh,'STRETCH_FACTOR',this%stretch_factor,rc=status)
                _VERIFY(status)
-               call ESMF_AttributeSet(grid, name='TARGET_LAT', value=this%target_lat,rc=status)
+               call ESMF_InfoSet(infoh,'TARGET_LON',this%target_lon,rc=status)
+               _VERIFY(status)
+               call ESMF_InfoSet(infoh,'TARGET_LAT',this%target_lat,rc=status)
                _VERIFY(status)
             end if
          else
@@ -245,7 +248,10 @@ contains
                       staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, rc=status)
             _VERIFY(status)
          end if
-         call ESMF_AttributeSet(grid, name='GridType', value='Cubed-Sphere', rc=status)
+         call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+         _VERIFY(status)
+         call ESMF_InfoSet(infoh,'GRID_TYPE','Cubed-Sphere',rc=status)
+         _VERIFY(status) 
       else
          grid = ESMF_GridCreateNoPeriDim( &
               & name = this%grid_name, &
@@ -259,7 +265,9 @@ contains
               & coordSys=ESMF_COORDSYS_SPH_RAD, &
               & rc=status)
          _VERIFY(status)
-         call ESMF_AttributeSet(grid, 'GridType', 'Doubly-Periodic', rc=status)
+         call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+         _VERIFY(status)
+         call ESMF_InfoSet(infoh,'GridType','Doubly-Periodic',rc=status)
          _VERIFY(status)
          call ESMF_GridAddCoord(grid,rc=status)
          _VERIFY(status)
@@ -279,11 +287,13 @@ contains
       deallocate(ims,jms)
 
       if (this%lm /= MAPL_UNDEFINED_INTEGER) then
-         call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, rc=status)
+         call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+         _VERIFY(status)
+         call ESMF_InfoSet(infoh,'GRID_LM',this%lm,rc=status)
          _VERIFY(status)
       end if
 
-      call ESMF_AttributeSet(grid, name='NEW_CUBE', value=1,rc=status)
+      call ESMF_InfoSet(infoh,'NEW_CUBE',1,rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
