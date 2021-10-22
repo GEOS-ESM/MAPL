@@ -4951,7 +4951,7 @@ end function MAPL_AddChildFromDSO
   end subroutine MAPL_AddConnectivityOld
 
   subroutine MAPL_AddConnectivityE2E ( GC, SHORT_NAME, &
-       SRC_ID, TO_EXPORT, RC, TO_NAME  )
+       SRC_ID, TO_EXPORT, TO_NAME, RC )
 
     type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
     character (len=*),              intent(IN   ) :: SHORT_NAME
