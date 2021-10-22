@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Exposed `TO_NAME` argument in `MAPL_StateAddExportSpecFrmChld()` to
+  allow renaming of EXPORTS. Needed for GOCART-2G.
+
 ### Changed
 
 ### Removed
@@ -31,8 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 4 spaces for Python
   - 2 spaces for CMake and YAML
 - Preload available macros in CMake package configuration file.
-- Exposed `TO_NAME` argument in `MAPL_StateAddExportSpecFrmChld()` to
-  allow renaming of EXPORTS. Needed for GOCART-2G.
 
 ### Changed
 
