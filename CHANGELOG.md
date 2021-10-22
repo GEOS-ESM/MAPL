@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-Fixed bug with MAPL_FindChild gfortran debug compilation
+- Reduced runtime impact of communication barriers in Cap gridded component
+- Fixed bug with MAPL_FindChild gfortran debug compilation
 
 ### Added
 
