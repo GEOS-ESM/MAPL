@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Reduced runtime impact of communication barriers in Cap gridded component
-
 ### Added
 
 ### Changed
@@ -18,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed last `NETCDF_LIBRARIES` reference from CMake
 
 ### Removed
+
+## [2.10.0] - 2021-10-22
+
+### Fixed
+
+- Reduced runtime impact of communication barriers in Cap gridded component
+
+### Added
+
+- Exposed `TO_NAME` argument in `MAPL_StateAddExportSpecFrmChld()` to
+  allow renaming of EXPORTS. Needed for GOCART-2G.
 
 ## [2.9.0] - 2021-10-19
 
