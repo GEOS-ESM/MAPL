@@ -36,8 +36,8 @@ module MAPL_HistoryGridCompMod
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
   use mapl_RegridMethods
-  use MAPL_newCFIOitemVectorMod
-  use MAPL_newCFIOitemMod
+  use MAPL_GriddedIOitemVectorMod
+  use MAPL_GriddedIOitemMod
   use pFIO_ClientManagerMod, only: o_Clients
   use pFIO_DownbitMod, only: pFIO_DownBit
   use HistoryTrajectoryMod
@@ -2426,15 +2426,15 @@ ENDDO PARSER
              list(n)%vdata = VerticalData(positive=list(n)%positive,rc=status)
              _VERIFY(status)
           end if
-          call list(n)%mNewCFIO%set_param(deflation=list(n)%deflate,rc=status)
+          call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,rc=status)
           _VERIFY(status)
-          call list(n)%mNewCFIO%set_param(chunking=list(n)%chunkSize,rc=status)
+          call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,rc=status)
           _VERIFY(status)
-          call list(n)%mNewCFIO%set_param(nbits=list(n)%nbits,rc=status)
+          call list(n)%mGriddedIO%set_param(nbits=list(n)%nbits,rc=status)
           _VERIFY(status)
-          call list(n)%mNewCFIO%set_param(regrid_method=list(n)%conservative,rc=status)
+          call list(n)%mGriddedIO%set_param(regrid_method=list(n)%conservative,rc=status)
           _VERIFY(status)
-          call list(n)%mNewCFIO%set_param(itemOrder=intState%fileOrderAlphabetical,rc=status)
+          call list(n)%mGriddedIO%set_param(itemOrder=intState%fileOrderAlphabetical,rc=status)
           _VERIFY(status)
           if (list(n)%monthly) then
                nextMonth = currTime - oneMonth
@@ -2452,14 +2452,14 @@ ENDDO PARSER
           else
              if (trim(list(n)%output_grid_label)/='') then
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label)) 
-                call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,rc=status)
+                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,rc=status)
                 _VERIFY(status)
              else
-                call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
+                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
                 _VERIFY(status)
              end if
-             collection_id = o_Clients%add_hist_collection(list(n)%mNewCFIO%metadata)
-             call list(n)%mNewCFIO%set_param(write_collection_id=collection_id)
+             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata)
+             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
           end if
        end if
    end do
@@ -2577,13 +2577,13 @@ ENDDO PARSER
       integer :: status
       
       integer, pointer :: newExpState(:) => null()
-      type(newCFIOitemVectorIterator) :: iter
-      type(newCFIOitem), pointer :: item
+      type(GriddedIOitemVectorIterator) :: iter
+      type(GriddedIOitem), pointer :: item
       integer :: nfields
       integer :: nregex
       character(len=ESMF_MAXSTR), allocatable :: fieldNames(:)
       type(ESMF_State) :: expState
-      type(newCFIOItemVector), pointer  :: newItems
+      type(GriddedIOItemVector), pointer  :: newItems
       character(ESMF_MAXSTR) :: fldName, stateName
       logical :: expand
       integer :: k, i
@@ -2804,13 +2804,13 @@ ENDDO PARSER
       integer :: status
       
       integer, pointer :: newExpState(:) => null()
-      type(newCFIOitemVectorIterator) :: iter
-      type(newCFIOitem), pointer :: item
+      type(GriddedIOitemVectorIterator) :: iter
+      type(GriddedIOitem), pointer :: item
       integer :: nfields
       integer :: nsplit
       type(ESMF_Field), pointer :: splitFields(:) => null()
       type(ESMF_State) :: expState
-      type(newCFIOItemVector), pointer  :: newItems
+      type(GriddedIOItemVector), pointer  :: newItems
       character(ESMF_MAXSTR) :: fldName, stateName
       character(ESMF_MAXSTR) :: aliasName, alias
       logical :: split
@@ -3104,14 +3104,14 @@ ENDDO PARSER
        type(ESMF_Config), intent(inout) :: cfg
        character(*), intent(in) :: label
        type (FieldSet), intent(inout) :: field_set
-       type(newCFIOitemVector), intent(inout), optional :: items
+       type(GriddedIOitemVector), intent(inout), optional :: items
        integer, optional, intent(out) :: rc
        logical :: table_end
        logical :: vectorDone
        integer :: m
        character(ESMF_MAXSTR), pointer:: fields (:,:)
 
-       type(newCFIOitem) :: item
+       type(GriddedIOitem) :: item
        integer :: status
        
        call ESMF_ConfigFindLabel ( cfg, label=label//':', rc=status)
@@ -3282,7 +3282,7 @@ ENDDO PARSER
     character(len=ESMF_MAXSTR)     :: fntmpl
     character(len=ESMF_MAXSTR),pointer     :: filename(:)
     integer                        :: n,m
-    logical                        :: NewSeg
+    logical, allocatable           :: NewSeg(:)
     logical, allocatable           :: Writing(:)
     type(ESMF_State)               :: state_out
     integer                        :: nymd, nhms
@@ -3408,7 +3408,9 @@ ENDDO PARSER
    _VERIFY(STATUS)
    allocate(filename(nlist), stat=status)
    _VERIFY(STATUS)
-
+   allocate(NewSeg (nlist), __STAT__)
+   newSeg = .false.
+   
   ! decide if we are writing based on alarms
 
    do n=1,nlist
@@ -3453,18 +3455,11 @@ ENDDO PARSER
        ! Check for new segment
        !----------------------
 
-       NewSeg = ESMF_AlarmIsRinging ( list(n)%seg_alarm )
+       NewSeg(n) = ESMF_AlarmIsRinging ( list(n)%seg_alarm )
 
-       if( NewSeg) then 
+       if( NewSeg(n)) then 
           call ESMF_AlarmRingerOff( list(n)%seg_alarm,rc=status )
           _VERIFY(STATUS)
-       endif
-
-       if( NewSeg .and. list(n)%unit /= 0 .and. list(n)%duration /= 0 ) then
-          if (list(n)%unit > 0 ) then
-             call FREE_FILE( list(n)%unit )
-          end if
-          list(n)%unit = 0
        endif
 
    end do
@@ -3511,7 +3506,7 @@ ENDDO PARSER
             list(n)%currentFile = filename(n)
          end if
 
-         if( NewSeg) then 
+         if( NewSeg(n)) then 
             list(n)%partial = .false.
             if (list(n)%monthly) then
                ! get the number of seconds in this month
@@ -3525,7 +3520,7 @@ ENDDO PARSER
                lastMonth = current_time - oneMonth
                dur = current_time - lastMonth
                call ESMF_TimeIntervalGet(dur, s=sec, __RC__)
-               call list(n)%mNewCFIO%modifyTimeIncrement(sec, __RC__)
+               call list(n)%mGriddedIO%modifyTimeIncrement(sec, __RC__)
             end if
          endif
 
@@ -3543,7 +3538,7 @@ ENDDO PARSER
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
-                  call list(n)%mNewCFIO%modifyTime(oClients=o_Clients,rc=status)
+                  call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,rc=status)
                   _VERIFY(status)
                   list(n)%currentFile = filename(n)
                   list(n)%unit = -1
@@ -3619,7 +3614,7 @@ ENDDO PARSER
          if (.not.list(n)%timeseries_output) then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
 
-               call list(n)%mNewCFIO%bundlepost(list(n)%currentFile,oClients=o_Clients,rc=status)
+               call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,rc=status)
                _VERIFY(status)
 
             else
@@ -3647,6 +3642,13 @@ ENDDO PARSER
 
       endif OUTTIME
 
+      if( NewSeg(n) .and. list(n)%unit /= 0 .and. list(n)%duration /= 0 ) then
+         if (list(n)%unit > 0 ) then
+            call FREE_FILE( list(n)%unit )
+         end if
+         list(n)%unit = 0
+       endif
+
    enddo POSTLOOP
 
    if (any(writing)) then
@@ -3663,7 +3665,7 @@ ENDDO PARSER
 
       if( Writing(n) .and. list(n)%unit < 0) then
          ! cleanup times
-         if (allocated(list(n)%mNewCFIO%times)) deallocate(list(n)%mNewCFIO%times)
+         if (allocated(list(n)%mGriddedIO%times)) deallocate(list(n)%mGriddedIO%times)
       end if
 
    enddo WAITLOOP
@@ -3698,6 +3700,7 @@ ENDDO PARSER
 
    if(any(Writing)) call WRITE_PARALLEL("")
 
+   deallocate(NewSeg)
    deallocate(filename)
    deallocate(Writing)
    deallocate(Ignore)

@@ -906,6 +906,7 @@ contains
       ptr = array
       call ESMF_FieldHalo(field,this%rh,rc=status)
       _VERIFY(status)
+      array = ptr
       call ESMF_FieldDestroy(field,rc=status)
       _VERIFY(status)
       
