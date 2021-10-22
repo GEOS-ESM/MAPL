@@ -20,6 +20,7 @@ module MAPL_ESMFFieldBundleWrite
       contains
          procedure :: create_from_bundle
          procedure :: write_to_file
+         procedure :: start_new_file
    end type
    interface MAPL_Write_Bundle
       module procedure Write_bundle_single_time
@@ -39,7 +40,7 @@ module MAPL_ESMFFieldBundleWrite
 
          type(FieldBundleWriter) :: newWriter
 
-         call newWriter%create_from_bundle(bundle,clock,output_File,n_steps=1,time_interval=0,nbits=nbits,deflate=deflate,rc=status)
+         call newWriter%create_from_bundle(bundle,clock,output_file=output_File,n_steps=1,time_interval=0,nbits=nbits,deflate=deflate,rc=status)
          _VERIFY(status)
          call newWriter%write_to_file(rc=status)
          _VERIFY(status)
@@ -50,7 +51,7 @@ module MAPL_ESMFFieldBundleWrite
          class(FieldBundleWRiter), intent(inout) :: this
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
-         character(len=*), intent(in) :: output_file
+         character(len=*), optional, intent(in) :: output_file
          integer, optional, intent(in)  :: n_steps
          integer, optional, intent(in)  :: time_interval
          integer, optional, intent(in)  :: nbits
@@ -78,6 +79,7 @@ module MAPL_ESMFFieldBundleWrite
             time_interval_=0
          end if
 
+         call this%cfio%set_param(nbits=nbits,deflation=deflate)
          time_info = TimeData(clock,file_steps,time_interval_,offset)
          call ESMF_FieldBundleGet(bundle, fieldCount=num_fields,rc=status)
          _VERIFY(status)
@@ -92,9 +94,9 @@ module MAPL_ESMFFieldBundleWrite
          enddo
          call this%cfio%createFileMetadata(items,bundle,time_info,rc=status)
          _VERIFY(status) 
-         this%file_name = output_file
+         if (present(output_file)) this%file_name = output_file
          collection_id = o_clients%add_hist_collection(this%cfio%metadata)
-         call this%cfio%set_param(write_collection_id=collection_id,nbits=nbits,deflation=deflate)
+         call this%cfio%set_param(write_collection_id=collection_id)
          _RETURN(_SUCCESS)
 
       end subroutine create_from_bundle
@@ -111,5 +113,17 @@ module MAPL_ESMFFieldBundleWrite
          call o_Clients%wait()
 
       end subroutine write_to_file
+
+      subroutine start_new_file(this,filename,rc)
+         class(fieldBundleWriter),intent(inout) :: this
+         character(len=*), intent(in) :: filename
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         this%file_name=filename
+         call this%cfio%modifyTime(oClients=o_clients,_RC)
+         _RETURN(_SUCCESS)
+      end subroutine start_new_file
 
 end module MAPL_ESMFFieldBundleWrite
