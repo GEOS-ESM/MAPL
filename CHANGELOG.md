@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added ability to regrid multiple files in one execution of Regrid_Util.x
 
+- Exposed `TO_NAME` argument in `MAPL_StateAddExportSpecFrmChld()` to
+  allow renaming of EXPORTS. Needed for GOCART-2G.
+
 ### Changed
 
 ### Removed
