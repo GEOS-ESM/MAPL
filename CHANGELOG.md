@@ -9,16 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+## [2.10.0] - 2021-10-22
+
+### Fixed
+
 - Reduced runtime impact of communication barriers in Cap gridded component
 
 ### Added
 
 - Exposed `TO_NAME` argument in `MAPL_StateAddExportSpecFrmChld()` to
   allow renaming of EXPORTS. Needed for GOCART-2G.
-
-### Changed
-
-### Removed
 
 ## [2.9.0] - 2021-10-19
 
