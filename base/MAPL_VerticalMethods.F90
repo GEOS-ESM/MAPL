@@ -2,7 +2,6 @@
 
 module MAPL_VerticalDataMod
   use ESMF
-  use MAPL_GenericMod
   use MAPL_BaseMod
   use pFIO
   use MAPL_AbstractRegridderMod

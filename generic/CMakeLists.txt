@@ -21,13 +21,20 @@ set (srcs
   MAPL_VarSpecMod.F90
   StateSpecification.F90
   ComponentSpecification.F90
-  
+  MAPL_ServiceConnectionItemVector.F90
+  MAPL_ProvidedServiceItemVector.F90
+  MAPL_RequestedServiceItemVector.F90
+  MAPL_ServiceServices.F90
+
   BaseFrameworkComponent.F90
   MaplGenericComponent.F90
 
-  MaplGrid.F90
-  
+  GenericCplComp.F90
+
   MaplGeneric.F90
+
+  MAPL_Generic.F90
+
   )
 if (BUILD_WITH_PFLOGGER)
   find_package(PFLOGGER REQUIRED)
@@ -35,7 +42,7 @@ endif ()
 find_package(GFTL REQUIRED)
 find_package(GFTL_SHARED REQUIRED)
 
-esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared PFLOGGER::pflogger GFTL_SHARED::gftl-shared GFTL::gftl TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library(${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler MAPL.base PFLOGGER::pflogger GFTL_SHARED::gftl-shared GFTL::gftl TYPE ${MAPL_LIBRARY_TYPE})
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 target_link_libraries (${this} PUBLIC esmf NetCDF::NetCDF_Fortran)

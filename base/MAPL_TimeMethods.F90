@@ -2,7 +2,6 @@
 
 module MAPL_TimeDataMod
   use ESMF
-  use MAPL_GenericMod
   use MAPL_BaseMod
   use pFIO
   use MAPL_ExceptionHandling

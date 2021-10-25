@@ -13,7 +13,6 @@ set (TEST_SRCS
     Test_LatLon_Corners.pf
     Test_MAPL_Config.pf
     test_DirPath.pf
-    Test_VarSpec.pf
   )
 
 # SRCS are mostly mocks to facilitate tests
@@ -49,7 +48,7 @@ ecbuild_add_executable (
   TARGET ${TESTIO}
   NOINSTALL
   SOURCES mapl_bundleio_test.F90
-  LIBS MAPL.base MAPL.shared MAPL.constants MAPL.pfio ${NETCDF_LIBRARIES} MPI::MPI_Fortran
+  LIBS MAPL.base MAPL.shared MAPL.constants MAPL.pfio MAPL.griddedio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
 set_target_properties(${TESTIO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
@@ -60,3 +59,4 @@ add_test(NAME bundleio_tests_cube
   COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 6 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 1 -ny 6 -ogrid PE12x72-CF)
 
 add_dependencies(build-tests ${TESTIO})
+

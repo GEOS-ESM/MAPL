@@ -805,7 +805,7 @@ end module MAPL_Base
 module MAPL_BaseMod
   use MAPL_Base
   use MAPL_RangeMod, only:   MAPL_Range
-  use MaplGeneric, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
+  use mapl_MaplGrid, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
   use MAPL_Constants
    
 
