@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed last `NETCDF_LIBRARIES` reference from CMake
+
 ### Removed
 
 - Removed yaFyaml dependency when building with BUILD_WITH_PFLOGGER=NO
