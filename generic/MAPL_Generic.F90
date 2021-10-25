@@ -5451,11 +5451,13 @@ end function MAPL_AddChildFromDSO
     integer :: nc
     type (MAPL_MetaComp), pointer :: cmeta => null()
     character(len=ESMF_MAXSTR) :: cname
+    type (ESMF_GridComp) :: gc
     
     nc = meta%get_num_children()
     if(nc > 0) then
        do I=1, nc
-          call MAPL_InternalStateRetrieve(meta%get_child_gridcomp(i), cmeta, RC=STATUS)
+          gc = meta%get_child_gridcomp(i)
+          call MAPL_InternalStateRetrieve(gc, cmeta, RC=STATUS)
           _VERIFY(STATUS)
           if (cmeta%compname == name) then ! found it!!!
              result => cmeta

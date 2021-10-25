@@ -9,6 +9,7 @@ module MaplGeneric
    use mapl_ServiceConnectionItemVector
    use mapl_ProvidedServiceItemVector
    use mapl_RequestedServiceItemVector
+   use mapl_ServiceServicesTypes
    use mapl_ServiceServices
    use mapl_AbstractFrameworkComponent
    use mapl_maplgenericcomponent
