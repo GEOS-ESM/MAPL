@@ -323,9 +323,11 @@ module MAPL_GriddedIOMod
         _VERIFY(status)
         call this%metadata%modify_variable('time',v,rc=status)
         _VERIFY(status)
-        call var_map%insert('time',v)
-        call oClients%modify_metadata(this%write_collection_id, var_map=var_map, rc=status)
-        _VERIFY(status)
+        if (present(oClients)) then
+           call var_map%insert('time',v)
+           call oClients%modify_metadata(this%write_collection_id, var_map=var_map, rc=status)
+           _VERIFY(status)
+        end if
         _RETURN(ESMF_SUCCESS)
 
      end subroutine modifyTime

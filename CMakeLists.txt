@@ -91,7 +91,6 @@ if (NOT Baselibs_FOUND)
 
   find_package(GFTL REQUIRED)
   find_package(GFTL_SHARED REQUIRED)
-  find_package(YAFYAML REQUIRED)
   if (BUILD_WITH_PFLOGGER)
     find_package(PFLOGGER REQUIRED)
   endif ()
