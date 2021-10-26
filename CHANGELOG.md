@@ -37,13 +37,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- OOMPH
-    - Introduced new oomph subdirectory
-	- Modified old MAPL_VarConnPoint to use new ConnectionPoint (partial).
-	- Introduced gFTL vector to replace CONN ptr arrays.
-	- Split types into separate files.
-
-
+- OOMPH: Lots of work to tease apart low level "specs" into separate
+         files/classes.  At the same time new classes (mostly unused
+         as yet) are being introduced for nextgen specs.
+    Some details:
+    - Introduced new oomph subdirectory and namespace.
+	- Replaced some "manual containers" with gFTL Vectors.
+	- Updated some gFTL containers to v2 containers.
 - Moved newcfio modules from base into new griddedio directory
     - Renamed newCFIO modules and routines to GriddedIO
 - Refactored ExtData modules. Because of the dependencies, the following changes were also done:
