@@ -15,7 +15,7 @@ program ExtData_Driver
 
   integer :: status
   character(len=*), parameter :: Iam="ExtData_Driver"
-  type(ExtDataDriver) :: Driver 
+  type(ExtDataDriver) :: Driver
   type (MAPL_CapOptions) :: cap_options
   type (MAPL_FlapCLI) :: cli
 
@@ -25,6 +25,6 @@ program ExtData_Driver
   driver = ExtDataDriver('ExtDataApp',Root_SetServices,cap_options=cap_options,_RC)
   call driver%run(_RC)
 
-  call exit(0)
+  stop
 
 end program ExtData_Driver
