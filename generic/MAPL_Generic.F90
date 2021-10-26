@@ -118,6 +118,7 @@ module MAPL_GenericMod
   use MAPL_Constants
   use MAPL_SunMod
   use mapl_MaplGrid
+  use mapl_VarSpecMod
   use MaplGeneric
   use MAPL_GenericCplCompMod
   use MAPL_LocStreamMod
@@ -298,7 +299,6 @@ module MAPL_GenericMod
      module procedure MAPL_AddConnectivityRename
      module procedure MAPL_AddConnectivityRenameMany
      module procedure MAPL_AddConnectivityMany
-     ! module procedure MAPL_AddConnectivityOld
   end interface
   
   interface  MAPL_GridCompGetFriendlies
@@ -365,8 +365,8 @@ end type  MAPL_InitialState
 
 
 type MAPL_Connectivity
-   type (MAPL_VarConn), pointer :: CONNECT(:)       => null()
-   type (MAPL_VarConn), pointer :: DONOTCONN(:)     => null()
+   type (VarConn) :: CONNECT
+   type (VarConn) :: DONOTCONN
    type (ServiceConnectionItemVector) :: ServiceConnectionItems
 end type MAPL_Connectivity
 
@@ -448,7 +448,7 @@ type, extends(MaplGenericComponent) ::  MAPL_MetaComp
 contains
 
    procedure :: get_ith_child
-
+   procedure :: get_child_idx
    procedure :: get_child_gridcomp
    procedure :: get_child_import_state
    procedure :: get_child_export_state
@@ -551,7 +551,7 @@ type(ESMF_FieldBundle), pointer   :: BUNDLE
 type(ESMF_State), pointer         :: STATE
 type(ESMF_VM)                     :: VM
 
-type (MAPL_VarConn),      pointer :: CONNECT(:)
+type (VarConn), pointer :: CONNECT
 type (MAPL_VarSpec),      pointer :: IM_SPECS(:)
 type (MAPL_VarSpec),      pointer :: EX_SPECS(:)
 type (MAPL_VarSpecPtr),   pointer :: ImSpecPtr(:)
@@ -632,7 +632,7 @@ type(ESMF_GridComp), pointer :: gridcomp
             ExSpecPtr(I)%Spec => EX_SPECS
          END DO
 
-         call MAPL_ConnCheckReq(CONNECT, ImSpecPtr, ExSpecPtr, rc=status)
+         call connect%checkReq(ImSpecPtr, ExSpecPtr, rc=status)
          _VERIFY(STATUS)
 
          deallocate (ImSpecPtr, ExSpecPtr)
@@ -2052,7 +2052,9 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   type (MAPL_MetaComp), pointer               :: STATE
   integer                                     :: I
   logical                                     :: final_checkpoint
+#ifndef H5_HAVE_PARALLEL
   logical                                     :: nwrgt1
+#endif
   integer                                     :: NC
   integer                                     :: PHASE
   integer                                     :: NUMPHASES
@@ -3373,6 +3375,8 @@ end subroutine MAPL_DateStampGet
   !BOPI
   ! !IIROUTINE: MAPL_StateAddExportSpecFrmChld --- Add \texttt{EXPORT} spec from child
 
+  ! This is an odd procedure in that it not only adds an export spec, it also adds
+  ! a connectivity.
   !INTERFACE:
   subroutine MAPL_StateAddExportSpecFrmChld ( GC, SHORT_NAME, CHILD_ID, RC, TO_NAME )
 
@@ -3386,18 +3390,46 @@ end subroutine MAPL_DateStampGet
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_StateAddExportSpecFrmChld"
-    integer                               :: STATUS
+    integer                               :: status
+    type(MAPL_MetaComp), pointer :: maplobj
 
 
-    call MAPL_AddConnectivityE2E ( GC, SHORT_NAME, &
-                                TO_NAME = TO_NAME, &
-                                SRC_ID = CHILD_ID, &
-                                TO_EXPORT = MAPL_Self, RC=STATUS  )
-    _VERIFY(STATUS)
-
+    call MAPL_InternalStateRetrieve(gc, maplobj, _RC)
+    call MAPL_StateAddExportSpecFrmChldName(gc, short_name, maplobj%gcnamelist(child_id), TO_NAME=TO_NAME, _RC)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_StateAddExportSpecFrmChld
+
+  !BOPI
+  ! !IIROUTINE: MAPL_StateAddExportSpecFrmChld --- Add \texttt{EXPORT} spec from child
+
+  !INTERFACE:
+  subroutine MAPL_StateAddExportSpecFrmChldName ( GC, short_name, child_name, rc, TO_NAME )
+
+    !ARGUMENTS:
+    type(ESMF_GridComp),              intent(INOUT)   :: GC 
+    character (len=*)               , intent(IN)      :: short_name
+    character(*), intent(in) :: child_name
+    integer            , optional   , intent(OUT)     :: rc
+    character (len=*),      optional, intent(IN)      :: TO_NAME ! NAME to appear is EXPORT;
+                                                                 ! default is SHORT_NAME
+    !EOPI
+
+    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_StateAddExportSpecFrmChld"
+    integer  :: child_id
+    integer  :: status
+    type(MAPL_MetaComp), pointer :: maplobj
+
+    call MAPL_InternalStateRetrieve(gc, maplobj, _RC)
+    child_id = maplobj%get_child_idx(child_name)
+    
+    call MAPL_AddConnectivityE2E ( GC, SHORT_NAME, &
+                                TO_NAME = TO_NAME, &
+                                SRC_ID = CHILD_ID, &
+                                TO_EXPORT = MAPL_Self, _RC)
+
+    _RETURN(ESMF_SUCCESS)
+ end subroutine MAPL_StateAddExportSpecFrmChldName
 
 
   !BOPI
@@ -4922,34 +4954,6 @@ end function MAPL_AddChildFromDSO
 
 
 
-  subroutine MAPL_AddConnectivityOld ( GC, SHORT_NAME, TO_NAME, &
-       FROM_IMPORT, FROM_EXPORT, TO_IMPORT, TO_EXPORT, RC  )
-
-    type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
-    character (len=*)             , intent(IN   ) :: SHORT_NAME
-    character (len=*),    optional, intent(IN   ) :: TO_NAME
-    integer,              optional, intent(IN   ) :: FROM_IMPORT
-    integer,              optional, intent(IN   ) :: FROM_EXPORT
-    integer,              optional, intent(IN   ) :: TO_IMPORT
-    integer,              optional, intent(IN   ) :: TO_EXPORT
-    integer,              optional, intent(  OUT) :: RC     ! Error code:
-
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_AddConnectivity"
-    integer                               :: STATUS
-    type (MAPL_Connectivity), pointer     :: conn
-
-
-    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
-    _VERIFY(STATUS)
-
-    call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME, TO_NAME=TO_NAME,        &
-                            FROM_IMPORT=FROM_IMPORT, FROM_EXPORT=FROM_EXPORT, &
-                            TO_IMPORT  =TO_IMPORT,   TO_EXPORT  =TO_EXPORT, RC=STATUS  )
-    _VERIFY(STATUS)
-
-    _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_AddConnectivityOld
-
   subroutine MAPL_AddConnectivityE2E ( GC, SHORT_NAME, &
        SRC_ID, TO_EXPORT, TO_NAME, RC )
 
@@ -4964,14 +4968,10 @@ end function MAPL_AddChildFromDSO
     integer                               :: STATUS
     type (MAPL_Connectivity), pointer     :: conn
 
-    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
-    _VERIFY(STATUS)
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, _RC)
 
-    call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME, &
-                            TO_NAME = TO_NAME,  &
-                            FROM_EXPORT=SRC_ID, &
-                            TO_EXPORT=TO_EXPORT, RC=STATUS  )
-    _VERIFY(STATUS)
+    call conn%connect%append(SHORT_NAME, TO_NAME=TO_NAME, &
+                             FROM_EXPORT=SRC_ID, TO_IMPORT=TO_EXPORT, _RC)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_AddConnectivityE2E
@@ -5004,9 +5004,8 @@ end function MAPL_AddChildFromDSO
     call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
     _VERIFY(STATUS)
 
-    call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME=SRC_NAME, TO_NAME=DST_NAME,        &
-                            FROM_EXPORT=SRC_ID, TO_IMPORT=DST_ID, RC=STATUS  )
-    _VERIFY(STATUS)
+    call CONN%CONNECT%append(SHORT_NAME=SRC_NAME, TO_NAME=DST_NAME,        &
+                            FROM_EXPORT=SRC_ID, TO_IMPORT=DST_ID, _RC)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_AddConnectivityRename
@@ -5093,9 +5092,7 @@ end function MAPL_AddChildFromDSO
     call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
     _VERIFY(STATUS)
 
-    call MAPL_VarConnCreate(CONN%DONOTCONN, SHORT_NAME, &
-       FROM_IMPORT=CHILD, RC=STATUS  )
-    _VERIFY(STATUS)
+    call CONN%DONOTCONN%append(SHORT_NAME, TO_IMPORT=CHILD, _RC)
 
 
     _RETURN(ESMF_SUCCESS)
@@ -5174,7 +5171,7 @@ end function MAPL_AddChildFromDSO
     logical                               :: SKIP
     character(len=ESMF_MAXSTR), allocatable :: SNAMES(:)
     type (MAPL_Connectivity), pointer     :: conn
-    type (MAPL_VarConn), pointer          :: CONNECT(:)
+    type (VarConn), pointer          :: CONNECT
     logical :: isConnected
     type(ESMF_GridComp), pointer :: gridcomp
 
@@ -5196,7 +5193,7 @@ end function MAPL_AddChildFromDSO
           _VERIFY(STATUS)
           do J=1 ,size(META_CHILD%component_spec%import%old_var_specs)
              call MAPL_VarSpecGet(META_CHILD%component_spec%import%old_var_specs(J),SHORT_NAME=SHORT_NAME,RC=STATUS)
-             isConnected = MAPL_VarIsConnected(connect,short_name,I,rc=status)
+             isConnected = connect%varIsConnected(short_name,I,rc=status)
              SKIP = ANY(SNAMES==TRIM(SHORT_NAME)) .and. (ANY(CHILD_IDS==I))
              if ((.not.isConnected) .and. (.not.skip)) then
                 call MAPL_DoNotConnect(GC, SHORT_NAME, I, RC=status)
@@ -5450,7 +5447,6 @@ end function MAPL_AddChildFromDSO
     integer :: i
     integer :: nc
     type (MAPL_MetaComp), pointer :: cmeta => null()
-    character(len=ESMF_MAXSTR) :: cname
     type(ESMF_GridComp), pointer :: childgridcomp
     
     nc = meta%get_num_children()
@@ -5937,12 +5933,10 @@ end function MAPL_AddChildFromDSO
     character(len=ESMF_MAXSTR)            :: FileType
     integer                               :: isNC4
     logical                               :: isPresent
-    logical                               :: is_tile
     class(AbstractGridFactory), pointer :: app_factory
     class (AbstractGridFactory), allocatable :: file_factory
     character(len=ESMF_MAXSTR) :: grid_type
     logical :: empty
-    class(Logger), pointer :: lgr
 
     _UNUSED_DUMMY(CLOCK)
 
@@ -7030,8 +7024,8 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     logical                                     :: SATISFIED
     logical                                     :: PARENTIMPORT
     type (MAPL_Connectivity), pointer           :: conn
-    type (MAPL_VarConn), pointer                :: CONNECT(:)
-    type (MAPL_VarConn), pointer                :: DONOTCONN(:)
+    type (VarConn), pointer                :: CONNECT
+    type (VarConn), pointer                :: DONOTCONN
     type(ESMF_GridComp), pointer :: gridcomp
 ! Begin
 
@@ -7089,8 +7083,8 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
        do K=1,size(EX_SPECS)
           call MAPL_VarSpecGet(EX_SPECS(K), SHORT_NAME=SHORT_NAME, RC=STATUS) 
-          if (MAPL_VarIsConnected(CONNECT, SHORT_NAME=SHORT_NAME, &
-                                  FROM_EXPORT=I, TO_EXPORT=MAPL_Self, &
+          if (connect%varIsConnected(IMPORT_NAME=SHORT_NAME, &
+                                  export=I, import=MAPL_Self, &
                                   RC=STATUS)) then
 
              _VERIFY(STATUS)
@@ -7113,7 +7107,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
 ! check "do not connect" list for 
        PARENTIMPORT = .true.
-       if (MAPL_VarIsListed(DONOTCONN, SHORT_NAME="MAPL_AnyChildImport", &
+       if (DONOTCONN%varIsListed(SHORT_NAME="MAPL_AnyChildImport", &
                             IMPORT=I, RC=STATUS)) then
           _VERIFY(STATUS)
           PARENTIMPORT = .false.
@@ -7141,7 +7135,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 #endif
 
 ! check "do not connect" list 
-          if (MAPL_VarIsListed(DONOTCONN, SHORT_NAME=SHORT_NAME, &
+          if (DONOTCONN%varIsListed(SHORT_NAME=SHORT_NAME, &
                                IMPORT=I, RC=STATUS)) then
              _VERIFY(STATUS)
              cycle
@@ -7157,7 +7151,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
           do J=1,NC      
              if(I==J) cycle
 ! then check if this is internally satisfied
-             if (MAPL_VarIsConnected(CONNECT, IMPORT_NAME=SHORT_NAME, &
+             if (connect%varIsConnected(IMPORT_NAME=SHORT_NAME, &
                                      IMPORT=I, EXPORT=J, RC=STATUS)) then
                 
                 _VERIFY(STATUS) 
@@ -7183,8 +7177,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
 
 ! then check if this is internally satisfied
-             if (MAPL_VarIsConnected(CONNECT, &
-                                     IMPORT_NAME=SHORT_NAME, EXPORT_NAME=ENAME, &
+             if (connect%varIsConnected(IMPORT_NAME=SHORT_NAME, EXPORT_NAME=ENAME, &
                                      IMPORT=I, EXPORT=J, RC=STATUS)) then
 ! If a match is found, add it to that coupler's src and dst specs
 ! ?? Mark the import satisfied and the export needed.
@@ -8345,12 +8338,12 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     conn => state%connectList
       
     err = .false.
-    if (.not. MAPL_ConnCheckUnused(CONN%CONNECT)) then
+    if (.not. conn%connect%checkUnused()) then
        err = .true.
        CALL WRITE_PARALLEL("CONNECT ERRORS FOUND in " // trim(COMP_NAME))
     end if
 
-    if (.not. MAPL_ConnCheckUnused(CONN%DONOTCONN)) then
+    if (.not. CONN%DONOTCONN%checkUnused()) then
        err = .true.
        CALL WRITE_PARALLEL("DO_NOT_CONNECT ERRORS FOUND in " // trim(COMP_NAME))
     end if
@@ -11370,6 +11363,21 @@ end subroutine MAPL_GenericStateRestore
       end select
 
    end function get_ith_child
+
+   integer function get_child_idx(this, child_name) result(idx)
+      class(MAPL_MetaComp), target, intent(in) :: this
+      character(*), intent(in) :: child_name
+
+      integer :: i
+
+      idx = -1
+      do i = 1, this%get_num_children()
+         if (this%gcnamelist(i) == trim(child_name)) then
+            idx = i
+            return
+         end if
+      end do
+   end function get_child_idx
 
 
 
