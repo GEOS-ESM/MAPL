@@ -24,6 +24,7 @@ set (srcs
   MAPL_ServiceConnectionItemVector.F90
   MAPL_ProvidedServiceItemVector.F90
   MAPL_RequestedServiceItemVector.F90
+  MAPL_ServiceServicesTypes.F90
   MAPL_ServiceServices.F90
 
   BaseFrameworkComponent.F90
