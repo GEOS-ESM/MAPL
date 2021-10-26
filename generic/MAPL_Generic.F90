@@ -2052,7 +2052,9 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   type (MAPL_MetaComp), pointer               :: STATE
   integer                                     :: I
   logical                                     :: final_checkpoint
+#ifndef H5_HAVE_PARALLEL
   logical                                     :: nwrgt1
+#endif
   integer                                     :: NC
   integer                                     :: PHASE
   integer                                     :: NUMPHASES
@@ -3393,7 +3395,7 @@ end subroutine MAPL_DateStampGet
 
 
     call MAPL_InternalStateRetrieve(gc, maplobj, _RC)
-    call MAPL_StateAddExportSpecFrmChldName(gc, short_name, maplobj%gcnamelist(child_id), _RC)
+    call MAPL_StateAddExportSpecFrmChldName(gc, short_name, maplobj%gcnamelist(child_id), TO_NAME=TO_NAME, _RC)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_StateAddExportSpecFrmChld
@@ -3402,13 +3404,15 @@ end subroutine MAPL_DateStampGet
   ! !IIROUTINE: MAPL_StateAddExportSpecFrmChld --- Add \texttt{EXPORT} spec from child
 
   !INTERFACE:
-  subroutine MAPL_StateAddExportSpecFrmChldName ( GC, short_name, child_name, rc )
+  subroutine MAPL_StateAddExportSpecFrmChldName ( GC, short_name, child_name, rc, TO_NAME )
 
     !ARGUMENTS:
     type(ESMF_GridComp),              intent(INOUT)   :: GC 
     character (len=*)               , intent(IN)      :: short_name
     character(*), intent(in) :: child_name
     integer            , optional   , intent(OUT)     :: rc
+    character (len=*),      optional, intent(IN)      :: TO_NAME ! NAME to appear is EXPORT;
+                                                                 ! default is SHORT_NAME
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_StateAddExportSpecFrmChld"
@@ -5443,7 +5447,6 @@ end function MAPL_AddChildFromDSO
     integer :: i
     integer :: nc
     type (MAPL_MetaComp), pointer :: cmeta => null()
-    character(len=ESMF_MAXSTR) :: cname
     type(ESMF_GridComp), pointer :: childgridcomp
     
     nc = meta%get_num_children()
@@ -5930,12 +5933,10 @@ end function MAPL_AddChildFromDSO
     character(len=ESMF_MAXSTR)            :: FileType
     integer                               :: isNC4
     logical                               :: isPresent
-    logical                               :: is_tile
     class(AbstractGridFactory), pointer :: app_factory
     class (AbstractGridFactory), allocatable :: file_factory
     character(len=ESMF_MAXSTR) :: grid_type
     logical :: empty
-    class(Logger), pointer :: lgr
 
     _UNUSED_DUMMY(CLOCK)
 
