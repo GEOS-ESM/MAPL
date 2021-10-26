@@ -4,8 +4,11 @@ module MaplGeneric
    use mapl_ComponentSpecification
    use mapl_VariableSpecification
    use mapl_StateSpecification
+   use mapl_VarSpecMiscMod
    use mapl_VarSpecVector
-   use mapl_VarSpecMod
+   use mapl_VarConnType
+   use mapl_VarConnVector
+   use mapl_VarConn
    use mapl_ServiceConnectionItemVector
    use mapl_ProvidedServiceItemVector
    use mapl_RequestedServiceItemVector

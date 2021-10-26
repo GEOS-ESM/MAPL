@@ -12,7 +12,7 @@ module MAPL_HistoryGridCompMod
   use ESMF
   use ESMFL_Mod
   use MAPL_BaseMod
-  use MAPL_VarSpecMod
+  use MAPL_VarSpecMiscMod
   use MAPL_Constants
   use MAPL_IOMod
   use MAPL_CommsMod
