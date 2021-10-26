@@ -100,12 +100,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Reverts the change in 2.8.7, #1069, as this caused bad History behavior (see #1074)
 
-## [2.8.8] - 2021-10-13
-
-### Fixed
-
-- Reverts the change in 2.8.7, #1069, as this caused bad HISTORY behavior (see #1074)
-
 ## [2.8.7] - 2021-10-12
 
 ### Fixed
