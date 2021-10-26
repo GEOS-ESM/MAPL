@@ -8,8 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+
 - Fixed bug with MAPL_FindChild gfortran debug compilation
 - Fixes #1115. NAG flagged several issues, related to how different derived type are brought in MAPL by different modules, which quite possibly are violation of the standard. Similarly, a procedure call was used as an argument with intent(INOUT).
+- Fixed issues with NAG and Tests (#1106)
+  - Changed non-Fortran Standard `call exit` to `stop` in `ExtDataDriver.F90`
+  - Changed `kind=8` to `kind=REAL64` in `pfio_MAPL_demo.F90`
+  - Reenabled build with NAG (works with NAG 7.0.7048)
 
 ### Added
 
