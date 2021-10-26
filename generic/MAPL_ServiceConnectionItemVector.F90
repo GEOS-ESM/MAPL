@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module MAPL_ServiceConnectionItemVector
-  use MAPL_VariableSpecification, only: ServiceConnectionType
+  use mapl_ServiceServicesTypes, only: ServiceConnectionType
 
 #define _type type(ServiceConnectionType)
 #define _allocatable

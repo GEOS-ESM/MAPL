@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed bug with MAPL_FindChild gfortran debug compilation
+- Fixes #1115. NAG flagged several issues, related to how different derived type are brought in MAPL by different modules, which quite possibly are violation of the standard. Similarly, a procedure call was used as an argument with intent(INOUT).
+- Fixed issues with NAG and Tests (#1106)
+  - Changed non-Fortran Standard `call exit` to `stop` in `ExtDataDriver.F90`
+  - Changed `kind=8` to `kind=REAL64` in `pfio_MAPL_demo.F90`
+  - Reenabled build with NAG (works with NAG 7.0.7048)
 - Added PFIO support for `NF90_STRING` (as opposed to `NF90_CHAR`).  This fixes use of some netCDF files.
 
 ### Added
@@ -17,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Removed last `NETCDF_LIBRARIES` reference from CMake
+- OOMPH: Lots of work to tease apart low level "specs" into separate
+         files/classes.  At the same time new classes (mostly unused
+         as yet) are being introduced for nextgen specs.
+    Some details:
+        - Introduced new oomph subdirectory and namespace.
+	- Replaced some "manual containers" with gFTL Vectors.
+	- Updated some gFTL containers to v2 containers.
 
 ### Removed
 
