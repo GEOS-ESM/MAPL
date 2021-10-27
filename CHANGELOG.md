@@ -34,10 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OOMPH: Lots of work to tease apart low level "specs" into separate
          files/classes.  At the same time new classes (mostly unused
          as yet) are being introduced for nextgen specs.
-    Some details:
-        - Introduced new oomph subdirectory and namespace.
-	- Replaced some "manual containers" with gFTL Vectors.
-	- Updated some gFTL containers to v2 containers.
+   Some details:
+   - Introduced new oomph subdirectory and namespace.
+   - Replaced some "manual containers" with gFTL Vectors.
+   - Updated some gFTL containers to v2 containers.
+- Require gFTL v1.5.1
+  - Updated `components.yaml` to ESMA_env v3.5.0 (Baselibs 6.2.8)
+  - Update CI images to Baselibs 6.2.8
 
 ### Removed
 
