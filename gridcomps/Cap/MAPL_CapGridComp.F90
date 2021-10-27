@@ -2066,7 +2066,7 @@ contains
     _ASSERT(NUM_DT>=0, 'NUM_DT should be >= 0.')
     _ASSERT(DEN_DT> 0, 'DEN_DT should be > 0.')
     _ASSERT(NUM_DT<DEN_DT, 'NUM_DT should be < DEN_DT')
-    !_ASSERT(HEARTBEAT_DT>=0, 'HEARTBEAT_DT should be >= 0.')
+    _ASSERT(HEARTBEAT_DT>=0, 'HEARTBEAT_DT should be >= 0.')
 
     ! initialize calendar to be Gregorian type
     ! ----------------------------------------
@@ -2165,8 +2165,6 @@ contains
          startTime = currTime, &
          rc = STATUS  )
     _VERIFY(STATUS)
-
-    if (endTime < startTime) duration = duration * -1
 
     stopTime = currTime + duration
 
