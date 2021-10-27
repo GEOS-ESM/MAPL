@@ -92,9 +92,6 @@ if (NOT Baselibs_FOUND)
 
   find_package(ESMF MODULE REQUIRED)
 
-  # MAPL currently requires at least GFTL 1.5.1
-  find_package(GFTL 1.5.1 REQUIRED)
-
   find_package(GFTL_SHARED REQUIRED)
   if (BUILD_WITH_PFLOGGER)
     find_package(PFLOGGER REQUIRED)

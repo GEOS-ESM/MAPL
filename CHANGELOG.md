@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Removed yaFyaml dependency when building with BUILD_WITH_PFLOGGER=NO
+- Remove duplicate gFTL `find_package`
 
 ## [2.10.0] - 2021-10-22
 
