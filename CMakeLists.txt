@@ -70,7 +70,7 @@ message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 find_package(GFTL 1.5.1 REQUIRED)
 find_package(GFTL_SHARED REQUIRED)
 find_package(FARGPARSE QUIET)
-find_package(YAFYAML REQUIRED)
+find_package(YAFYAML QUIET)
 
 option(BUILD_WITH_PFLOGGER "Build MAPL with pFlogger library support" ON)
 if (BUILD_WITH_PFLOGGER)
