@@ -66,15 +66,29 @@ else ()
 endif()
 message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 
-# MAPL currently requires at least GFTL 1.5.1
-find_package(GFTL 1.5.1 REQUIRED)
-find_package(GFTL_SHARED REQUIRED)
-find_package(FARGPARSE QUIET)
-find_package(YAFYAML QUIET)
+# Some users of MAPL build GFE libraries inline with their application
+# using an add_subdirectory() call rather than as a pre-build library.
+# This would then populate the target already leading to find_package()
+# errors.
+if(NOT TARGET GFTL::gftl)
+  # MAPL currently requires at least GFTL 1.5.1
+  find_package(GFTL 1.5.1 REQUIRED)
+endif()
+if(NOT TARGET GFTL_SHARED::gftl-shared)
+  find_package(GFTL_SHARED REQUIRED)
+endif()
+if(NOT TARGET FARGPARSE::fargparse)
+  find_package(FARGPARSE QUIET)
+endif()
+if(NOT TARGET YAFYAML::yafyaml)
+  find_package(YAFYAML QUIET)
+endif()
 
 option(BUILD_WITH_PFLOGGER "Build MAPL with pFlogger library support" ON)
 if (BUILD_WITH_PFLOGGER)
-  find_package(PFLOGGER REQUIRED)
+  if(NOT TARGET PFLOGGER::pflogger)
+    find_package(PFLOGGER REQUIRED)
+  endif()
 endif()
 
 option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
