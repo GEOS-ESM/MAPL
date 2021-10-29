@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Changed non-Fortran Standard `call exit` to `stop` in `ExtDataDriver.F90`
   - Changed `kind=8` to `kind=REAL64` in `pfio_MAPL_demo.F90`
   - Reenabled build with NAG (works with NAG 7.0.7048)
+  - Fixes handling of nested states in MAPL. Removed the requirement to specify horizonatl or vertical grid specs for such states. Added a public method to retrieve rootGC
 
 ### Added
 
