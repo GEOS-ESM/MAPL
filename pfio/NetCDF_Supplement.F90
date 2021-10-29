@@ -15,7 +15,7 @@ module pfio_NetCDF_Supplement
          integer :: stat
          integer(kind=C_INT), value, intent(in) :: ncid
          integer(kind=C_INT), value, intent(in) :: varid
-         type(C_PTR), intent(in) :: name
+         character(kind=C_CHAR), intent(in) :: name(*)
          type(C_PTR), intent(in) :: characters
          type(C_PTR), intent(in) :: attlen
       end function c_f_pfio_get_att_string
@@ -41,6 +41,7 @@ contains
       integer(kind=C_SIZE_T), target :: attlen
       integer :: name_len
       character(kind=C_CHAR, len=:), target, allocatable :: c_name
+      type(C_PTR) :: str
 
       ! C requires null termination
       name_len = len_trim(name)
@@ -48,7 +49,9 @@ contains
       c_name(1:name_len) = name
       c_name(name_len+1:name_len+1) = C_NULL_CHAR
 
-      status = c_f_pfio_get_att_string(ncid, varid, c_loc(c_name), c_loc(characters), c_loc(attlen))
+      status = c_f_pfio_get_att_string(ncid, varid, c_name, str, c_loc(attlen))
+
+      ! need to convert str to fortran string
 
       ! Must copy C char array into Fortran string and then free the C memory
       allocate(character(len=attlen) :: string)

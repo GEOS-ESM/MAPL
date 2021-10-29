@@ -15,7 +15,8 @@ int pfio_get_att_string(int ncid, int varid, const char* name, char** value, siz
   int stat;
  
   *attlen = 0;
-  stat = nc_inq_attlen(ncid, varid, "attribute", attlen); pfio_check(stat);
+  printf("%s passed in\n",name);
+  stat = nc_inq_attlen(ncid, varid, name, attlen); pfio_check(stat);
  
   char **string_attr = (char**)malloc(*attlen * sizeof(char*));
   memset(string_attr, 0, *attlen * sizeof(char*));
