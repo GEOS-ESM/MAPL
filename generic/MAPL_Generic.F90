@@ -221,6 +221,8 @@ module MAPL_GenericMod
   public MAPL_DestroyStateSave
   public MAPL_GenericStateSave
   public MAPL_GenericStateRestore
+  public MAPL_RootGcRetrieve
+  
 !BOP  
   ! !PUBLIC TYPES:
 
@@ -6314,7 +6316,8 @@ end function MAPL_AddChildFromDSO
        _VERIFY(STATUS)
 !ALT we should also check if we have a valid grid in the spec so we do not overwrite it
 
-       if (IAND(STAT, MAPL_BundleItem) /= 0) then
+       if (IAND(STAT, MAPL_BundleItem) /= 0 .or. &
+            IAND(STAT, MAPL_StateItem) /= 0) then
           GRD = GRID
        else
 ! choose the grid         
@@ -6512,12 +6515,6 @@ end subroutine MAPL_StateCreateFromVarSpecNew
          rstReq = 1
       end if
 
-      if (DIMS == MAPL_DimsTileOnly .OR. DIMS == MAPL_DimsTileTile) then
-         ATTR = IOR(ATTR, MAPL_AttrTile)
-      else
-         ATTR = IOR(ATTR, MAPL_AttrGrid)
-      end if
-      
       if (IAND(STAT, MAPL_StateItem) /= 0) then
          isCreated = ESMF_StateIsCreated(SPEC_STATE, rc=status)
          _VERIFY(STATUS)
@@ -6576,6 +6573,12 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 !!!         cycle
       endif
 
+      if (DIMS == MAPL_DimsTileOnly .OR. DIMS == MAPL_DimsTileTile) then
+         ATTR = IOR(ATTR, MAPL_AttrTile)
+      else
+         ATTR = IOR(ATTR, MAPL_AttrGrid)
+      end if
+      
       deferAlloc = usableDefer
       if (usableDefer) deferAlloc = .not. alwaysAllocate
 
@@ -10483,7 +10486,12 @@ end subroutine MAPL_READFORCINGX
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GetRootGC
 
-
+  function MAPL_RootGcRetrieve (meta) result(GC)
+    type (MAPL_MetaComp), intent(IN) :: META 
+    type(ESMF_GridComp) :: GC
+    
+    GC = meta%rootGC
+  end function MAPL_RootGcRetrieve
 
   integer function MAPL_AddMethod(PHASE, RC)
     integer, pointer               :: PHASE(:)
