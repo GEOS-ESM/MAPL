@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.10.0
+  VERSION 2.11.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the default build type to release
@@ -66,6 +66,9 @@ else ()
 endif()
 message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 
+# MAPL currently requires at least GFTL 1.5.1
+find_package(GFTL 1.5.1 REQUIRED)
+
 option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
 if (BUILD_WITH_FLAP)
   find_package(FLAP REQUIRED)
@@ -89,7 +92,9 @@ if (NOT Baselibs_FOUND)
 
   find_package(ESMF MODULE REQUIRED)
 
-  find_package(GFTL REQUIRED)
+  # MAPL currently requires at least GFTL 1.5.1
+  find_package(GFTL 1.5.1 REQUIRED)
+
   find_package(GFTL_SHARED REQUIRED)
   if (BUILD_WITH_PFLOGGER)
     find_package(PFLOGGER REQUIRED)
@@ -109,6 +114,7 @@ add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic)
+add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
 add_subdirectory (include)
 add_subdirectory (base)
