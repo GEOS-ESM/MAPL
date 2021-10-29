@@ -321,7 +321,8 @@ contains
 
       class(FieldGroupEntry), pointer  :: field_entry
       type(FieldGroupEntryMapIterator) :: iter
-      type(FieldEntry), allocatable :: field
+      !type(FieldEntry), allocatable :: field
+      type(FieldEntry) :: field
       character(:), allocatable :: short_name
 
       iter = this%map%begin()
@@ -331,7 +332,7 @@ contains
          short_name=field%get_short_name()
          call field_names%push_back(short_name)
          deallocate(short_name)
-         deallocate(field)
+         !deallocate(field)
          call iter%next()
       end do
 

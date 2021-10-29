@@ -99,7 +99,8 @@ contains
      
       integer :: status
 
-      call this%server_connection%redist_fieldBundles(srcFieldBundle=this%bundle,_RC)
+      !call this%server_connection%redist_fieldBundles(srcFieldBundle=this%bundle,_RC)
+      call this%server_connection%regrid_fieldBundles(srcFieldBundle=this%bundle,_RC)
       _RETURN(_SUCCESS)
 
    end subroutine transfer_data_to_server

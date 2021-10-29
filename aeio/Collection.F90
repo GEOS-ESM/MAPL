@@ -24,6 +24,7 @@ module CollectionMod
    character(*), parameter :: template_key  = 'template'
    character(*), parameter :: frequency_key = 'frequency'
    character(*), parameter :: groups_key    = 'groups'
+   character(*), parameter :: grid_key    = 'output_grid'
 
    type :: Collection
       private
@@ -31,6 +32,7 @@ module CollectionMod
 
       type(Template)  :: template
       type(Frequency) :: frequency
+      character(:), allocatable :: output_grid
 
       type(StringVector) :: groups
 
@@ -40,6 +42,7 @@ module CollectionMod
       procedure :: set_name
       procedure :: get_template
       procedure :: get_frequency
+      procedure :: get_grid
       procedure :: get_groups
       procedure :: set_groups
       procedure :: get_fields
@@ -97,6 +100,13 @@ contains
 
       freq = this%frequency
    end function get_frequency
+
+   function get_grid(this) result(grid_name)
+      character(len=:), allocatable :: grid_name
+      class(Collection), intent(in) :: this
+
+      if (allocated(this%output_grid)) grid_name=this%output_grid
+   end function get_grid
 
    subroutine initialize_frequency(this,clock,rc)
       class(Collection), intent(inout) :: this
@@ -213,6 +223,9 @@ contains
          case (frequency_key)
             call iter%get_value(config_value)
             call this%frequency%initialize(config_value)
+         case (grid_key)
+            call iter%get_value(config_value)
+            this%output_grid = config_value
          case (groups_key)
             call iter%get_value(sub_config)
             call this%import_groups(sub_config)

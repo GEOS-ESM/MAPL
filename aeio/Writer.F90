@@ -5,6 +5,7 @@ module AEIO_Writer
    use MPI
    use ESMF
    use MAPL_BaseMod
+   use MAPL_MemUtilsMod
    use CollectionMod
    use MAPL_ExceptionHandling
    use gFTL_StringVector
@@ -24,7 +25,7 @@ module AEIO_Writer
       type(MpiConnection) :: front_back_connection
       integer, allocatable :: writer_ranks(:)
       integer, allocatable :: server_ranks(:)
-      type(CollectionDescriptorVector) :: collection_descriptors
+      type(CollectionDescriptorVector)  :: collection_descriptors
    contains
       procedure :: start_writer
       procedure :: add_collection
@@ -100,9 +101,10 @@ contains
       integer :: nwriters,free_worker,free,no_job,i,j,status,back_local_rank
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type(RHConnector) :: rh,rh_new
-      type(CollectionDescriptor) :: collection_descriptor
+      type(CollectionDescriptor), pointer :: collection_descriptor
       integer :: back_comm, connector_comm
       integer, allocatable :: writer_ranks(:),server_ranks(:),back_pets(:)
+      real :: mem_total,mem_commit,mem_percent
 
       num_collections = this%collection_descriptors%size()
       allocate(collection_ids(num_collections))
@@ -128,6 +130,8 @@ contains
          server_ranks(1),writer_ranks(1),connector_comm, &
          MPI_STAT, status)
          _VERIFY(status)
+         call MAPL_MemCommited ( mem_total, mem_commit, mem_percent)
+         write(*,'(A,1x,f10.2,f10.2,f10.2)')"writer memory total, committed, percent: ",mem_total/1024.0, mem_commit/1024.0,mem_percent
          if (any(collection_ids > 0)) then
 
              current_free = nwriters-count(busy)
@@ -181,7 +185,7 @@ contains
                    call MPI_Send(collection_ids(i),1,MPI_INTEGER, free_workers(i), &
                         free_workers(i),back_comm,status)
                    _VERIFY(status)
-                   collection_descriptor=this%collection_descriptors%at(collection_ids(i))
+                   collection_descriptor => this%collection_descriptors%at(collection_ids(i))
                    rh=collection_descriptor%get_rh()
                    rh_new = this%setup_transfer(rh,back_pets(1+free_workers(i)),_RC)
 
@@ -197,7 +201,7 @@ contains
                   call MPI_recv(free,1,MPI_INTEGER, &
                                 i,stag,back_comm, MPI_STAT,status)
                   _VERIFY(status)
-                  if (free /= i) stop("free should be i")
+                  if (free /= i) stop 'free should be i'
                   call MPI_send(no_job,1,MPI_INTEGER,i,i,back_comm,status)
                   _VERIFY(status)
                end if
@@ -250,7 +254,7 @@ contains
 
       type(RHConnector) :: rh,rh_new
       integer :: status,i,local_rank
-      type(CollectionDescriptor) :: collection_descriptor
+      type(CollectionDescriptor), pointer :: collection_descriptor
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_ArrayBundle) :: output_bundle
       integer :: fieldCount
@@ -264,14 +268,16 @@ contains
       character(len=:), allocatable :: coll_name
       integer, allocatable :: back_pets(:)
       integer :: writer_comm
+      character(len=1) :: ic
 
-      call io_prof%start('write_collection')
+      write(ic,"(I1)")collection_id
+      call io_prof%start('write_collection_'//ic)
       back_pets = this%front_back_connection%get_back_pets()
       writer_comm = this%front_back_connection%get_back_comm()
 
       call MPI_COMM_RANK(writer_comm,local_rank,status)
       _VERIFY(status)
-      collection_descriptor = this%collection_descriptors%at(collection_id)
+      collection_descriptor => this%collection_descriptors%at(collection_id)
       rh = collection_descriptor%get_rh()
       coll_name = collection_descriptor%get_coll_name()
       rh_new = this%setup_transfer(rh,back_pets(1+local_rank),_RC)
@@ -286,8 +292,8 @@ contains
       dist_grid = ESMF_DistGridCreate([1,1],[gdims(1),gdims(2)],regDecomp=[1,1],delayout=de_layout,_RC)
       output_bundle = ESMF_ArrayBundleCreate(_RC)
 
-      call io_prof%start('start_write_epoch')
-      call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
+      call io_prof%start('start_write_epoch_'//ic)
+      call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)!,throttle=1)
 
       do i=1,fieldCount
          call ESMF_FieldBundleGet(bundle,trim(fieldNames(i)),field=field,_RC)
@@ -312,17 +318,32 @@ contains
          end block
       enddo
       
-      call io_prof%stop('start_write_epoch')
-      call ESMF_VMEpochExit()
+      !call rh_new%redist_arraybundles(dstArrayBundle=output_bundle,_RC)
+      call io_prof%stop('start_write_epoch_'//ic)
+      call ESMF_VMEpochExit( keepAlloc=.false.)
 
       call rh_new%destroy(_RC)
       do i=1,fieldCount
          call ESMF_ArrayBundleGet(output_bundle,trim(fieldNames(i)),array=array,_RC)
+         !block
+            !integer :: rank
+            !real, pointer :: ptr2d(:,:),ptr3d(:,:,:)
+            !call ESMF_ArrayGet(array,rank=rank,_RC)
+            !if (rank==2) then
+               !call ESMF_ArrayGet(array,farrayptr=ptr2d,_RC)
+               !!write(*,*)trim(coll_name)," ",trim(fieldNames(i)),size(ptr2d,1),size(ptr2d,2)
+               !!write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr2d),maxval(ptr2d)
+            !else if (rank==3) then
+               !call ESMF_ArrayGet(array,farrayptr=ptr3d,_RC)
+               !!write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr3d),maxval(ptr3d)
+            !end if
+         !end block
          call ESMF_ArrayDestroy(array,noGarbage=.true.,_RC)
       enddo
       call ESMF_ArrayBundleDestroy(output_bundle,noGarbage=.true.,_RC)
+      call ESMF_DistGridDestroy(dist_grid,noGarbage=.true.,_RC)
       
-      call io_prof%stop('write_collection')
+      call io_prof%stop('write_collection_'//ic)
       _RETURN(_SUCCESS)
    end subroutine write_collection
 

@@ -157,7 +157,8 @@ contains
 
       integer :: status
 
-      call this%client_connection%redist_fieldBundles(dstFieldBundle=this%bundle,_RC)
+      !call this%client_connection%redist_fieldBundles(dstFieldBundle=this%bundle,_RC)
+      call this%client_connection%regrid_fieldBundles(dstFieldBundle=this%bundle,_RC)
       _RETURN(_SUCCESS)
    end subroutine get_data_from_client
 
@@ -251,16 +252,21 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_Array) :: array
       character(len=ESMF_MAXSTR), allocatable :: fieldNames(:)
+      type(ESMF_ArrayBundle) :: array_bundle
 
       ! transfer arrays
+      array_bundle=ESMF_ArrayBundleCreate(_RC)
       call ESMF_FieldBundleGet(this%bundle,fieldCount=fieldCount,_RC)
       allocate(fieldNames(fieldCount))
       call ESMF_FieldBundleGet(this%bundle,fieldNameList=fieldNames,_RC)
       do i=1,fieldCount
          call ESMF_FieldBundleGet(this%bundle,trim(fieldNames(i)),field=field,_RC)
          call ESMF_FieldGet(field,array=array,_RC)
+          
+         call ESMF_ArrayBundleAdd(array_bundle,[array],_RC)
          call this%writer_conn%redist_arrays(srcArray=array,_RC)
       enddo
+      !call this%writer_conn%redist_arraybundles(srcArrayBundle=array_bundle,_RC)
 
       call this%writer_conn%destroy(_RC)
      

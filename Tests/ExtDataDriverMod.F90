@@ -89,7 +89,7 @@ contains
          model_pets(i)=i-1
       enddo
 
-      call start_io_prof(MPI_COMM_WORLD)
+      !call start_io_prof(MPI_COMM_WORLD)
       export = ESMF_StateCreate()
       cap = new_ExtData_DriverGridComp(root_setservices, name=this%name, configFileName="CAP.rc",pet_list=model_pets)
       

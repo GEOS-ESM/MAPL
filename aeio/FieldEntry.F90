@@ -19,9 +19,9 @@ module FieldEntryMod
 
    type :: FieldEntry
       private
-      character(:), allocatable :: short_name
-      character(:), allocatable :: component_name
-      character(:), allocatable :: units
+      character(len=:), allocatable :: short_name
+      character(len=:), allocatable :: component_name
+      character(len=:), allocatable :: units
 
    contains
       procedure :: initialize

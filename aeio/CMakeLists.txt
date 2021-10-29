@@ -24,6 +24,7 @@ set (srcs
     Group.F90
     GroupMap.F90
     GroupRegistry.F90
+    GridRegistry.F90
     HistoryConfig.F90
     Template.F90
     TransferGridComp.F90

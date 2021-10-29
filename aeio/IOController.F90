@@ -13,6 +13,7 @@ module AEIO_IOController
    use HistoryConfigMod
    use CollectionMod
    use CollectionRegistryMod
+   use GridRegistryMod
    use gFTL_StringVector
    use AEIO_TransferGridComp
    use AEIO_RHConnector
@@ -32,6 +33,7 @@ module AEIO_IOController
       type(ServerMap) :: servers
       type(writer) :: writer_comp
       type(StringVector) :: enabled
+      type(GridRegistry) :: grids
       type(MpiConnection) :: mpi_connection
    contains
       procedure :: initialize
@@ -63,10 +65,10 @@ contains
 
 
       type(HistoryConfig) :: hist_config
-      integer :: collection_id
+      integer :: collection_id,ncolls
       type(CollectionRegistry) :: coll_registry
       type(StringVectorIterator) :: enabled_iter
-      type(Collection) :: hist_coll
+      type(Collection), pointer :: hist_coll
       character(:), allocatable :: key
       type(Server) :: output_server
       type(Client) :: output_client
@@ -75,20 +77,24 @@ contains
 
       integer :: status
 
-      call io_prof%start('io_initialize')
-
       call this%create_comms(model_pets,writers_per_node,_RC)
 
       call hist_config%import_yaml_file(configuration_file,_RC)
 
       ! create client and server for each collection
       this%enabled = hist_config%get_enabled()
+
+      ncolls = this%enabled%size()
+      call start_io_prof(MPI_COMM_WORLD,ncolls)
+      call io_prof%start('io_initialize')
+
       coll_registry=hist_config%get_collections()
+      this%grids = hist_config%get_grids()
       enabled_iter = this%enabled%begin()
       collection_id = 0
       do while(enabled_iter /= this%enabled%end())
          key=enabled_iter%get()
-         hist_coll=coll_registry%at(key)
+         hist_coll => coll_registry%at(key)
          call hist_coll%initialize_frequency(clock,_RC)
          collection_id=collection_id+1
          output_server=Server(hist_coll,collection_id,this%mpi_connection,_RC)
@@ -252,7 +258,8 @@ contains
       server_bundle = server_ptr%get_bundle()
       client_bundle = client_ptr%get_bundle()
     
-      call connector%redist_store_fieldBundles(client_bundle,server_bundle,_RC)
+      !call connector%redist_store_fieldBundles(client_bundle,server_bundle,_RC)
+      call connector%regrid_store_fieldBundles(client_bundle,server_bundle,_RC)
       call client_ptr%set_client_server_connector(connector)
       call server_ptr%set_client_server_connector(connector)
 
@@ -273,6 +280,10 @@ contains
       integer :: grid_size(3)
       integer :: status
       integer, allocatable :: back_pets(:)
+      character(len=ESMF_MAXSTR), allocatable :: field_names(:)
+      integer :: field_count,ub(1),lb(1),i,rank
+      type(ESMF_Field) :: field
+      !type(ESMF_ArrayBundle) :: array_bundle_in,array_bundle_out
 
       back_pets = this%mpi_connection%get_back_pets()
      
@@ -282,16 +293,47 @@ contains
       call ESMF_FieldBundleGet(server_bundle,grid=grid,_RC)
       call ESMF_GridGet(grid,distGrid=dist_grid_in,_RC)
       call MAPL_GridGet(grid,globalCellCountPerDim=grid_size,_RC)
+
       ! create a delayout the "controller" proces on the writer pet
       de_layout=ESMF_DELayoutCreate(deCount=1,petList=[back_pets(1)],_RC)
+
       ! now create a distgrid on this delayout using the global size of the grid
       dist_grid_out=ESMF_DistGridCreate([1,1],[grid_size(1),grid_size(2)],regDecomp=[1,1],delayout=de_layout,_RC)
+
+      !call ESMF_FieldBundleGet(server_bundle,fieldCount=field_count,_RC)
+      !allocate(field_names(field_count))
+      !call ESMF_FieldBundleGet(server_bundle,fieldNameList=field_names,_RC)
+
+      !array_bundle_in = ESMF_ArrayBundleCreate(_RC)
+      !array_bundle_out = ESMF_ArrayBundleCreate(_RC)
+
+      !do i=1,field_count
+         !call ESMF_FieldBundleGet(server_bundle,trim(field_names(i)),field=field,_RC)
+         !call ESMF_FieldGet(field,array=array_in,_RC)
+         !call ESMF_FieldGet(field,rank=rank,_RC)
+         !if (rank==2) then
+            !array_out = ESMF_ArrayCreate(dist_grid_out,ESMF_TYPEKIND_R4,name=trim(field_names(i)),_RC)
+         !else if (rank==3) then
+            !call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+            !array_out = ESMF_ArrayCreate(dist_grid_out,ESMF_TYPEKIND_R4,name=trim(field_names(i)),undistLBound=lb,undistUBound=ub,_RC)
+         !end if
+         !call ESMF_ArrayBundleAdd(array_bundle_in,[Array_in],_RC)
+         !call ESMF_ArrayBundleAdd(array_bundle_out,[Array_out],_RC)
+      !enddo
+
       array_in = ESMF_ArrayCreate(dist_grid_in,ESMF_TYPEKIND_R4,_RC)
       array_out = ESMF_ArrayCreate(dist_grid_out,ESMF_TYPEKIND_R4,_RC)
 
       call connector%redist_store_arrays(array_in,array_out,_RC)
+      !call connector%redist_store_arraybundles(array_bundle_in,array_bundle_out,_RC)
       call connector%set_sender(.true.)
       call server_ptr%set_server_writer_prototype(connector)
+      !do i=1,field_count
+         !call ESMF_ArrayBundleGet(array_bundle_out,trim(field_names(i)),array=array_out,_RC)
+         !call ESMF_ArrayDestroy(array_out,nogarbage=.true.,_RC)
+      !enddo
+      !call ESMF_ArrayBundleDestroy(array_bundle_out,nogarbage=.true.,_RC)
+      !call ESMF_ArrayBundleDestroy(array_bundle_in,nogarbage=.true.,_RC)
       call ESMF_ArrayDestroy(array_in,nogarbage=.true.,_RC)
       call ESMF_ArrayDestroy(array_out,nogarbage=.true.,_RC)
 
@@ -326,13 +368,20 @@ contains
       type(Server), pointer :: collection_server
       integer :: status
       integer, allocatable :: front_pets(:)
+      type(Collection) :: hist_coll
+      character(len=:), allocatable :: grid_name
 
       front_pets = this%mpi_connection%get_front_pets()
 
       collection_client =>  this%clients%at(coll_name)
-      client_grid = collection_client%get_grid(_RC)
-
-      front_server_grid = transfer_grid_to_pets(client_grid,front_pets,_RC)
+      hist_coll = collection_client%get_collection()
+      grid_name = hist_coll%get_grid()
+      if (allocated(grid_name)) then
+         front_server_grid = this%grids%make_grid(grid_name,front_pets,_RC) 
+      else
+         client_grid = collection_client%get_grid(_RC)
+         front_server_grid = transfer_grid_to_pets(client_grid,front_pets,_RC)
+      end if
       collection_server => this%servers%at(coll_name)
       call collection_server%set_grid(front_server_grid,_RC)
 
@@ -493,22 +542,11 @@ contains
       integer, optional, intent(out) :: rc
     
       type(ESMF_VM) :: vm
-      integer :: status, mpi_comm,rank
-      integer :: server_color,server_comm
+      integer :: status, mpi_comm
      
-      server_color = MPI_UNDEFINED
       call ESMF_VMGetCurrent(vm,_RC)
       call ESMF_VMGet(vm,mpiCommunicator=mpi_comm,_RC)
-      call mpi_comm_rank(mpi_comm,rank,status)
-      if (rank >= model_pets) server_color=1
-      
-
-      !server_comm = MPI_COMM_NULL
-!
-      !call mpi_comm_split(mpi_comm,server_color,0,server_comm,status)
-      !_VERIFY(status)
-!
-      !this%mpi_connection = MpiConnection(mpi_comm,server_comm,writers_per_node,vm,_RC)
+     
       this%mpi_connection = MpiConnection(mpi_comm,model_pets,writers_per_node,vm,_RC)
 
       _RETURN(_SUCCESS)
@@ -526,16 +564,21 @@ contains
       integer :: model_comm,front_comm
       type(Collection) :: hist_coll
       logical :: is_time_to_write
+      integer :: collection_id
+      character(len=1) :: ic
 
       model_comm = this%mpi_connection%get_model_comm()
       front_comm = this%mpi_connection%get_front_comm() 
 
       if (model_comm /= MPI_COMM_NULL .or. front_comm /= MPI_COMM_NULL) then
 
-         call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
+         call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)!,throttle=1)
 
          enabled_iter = this%enabled%begin()
+         collection_id=0
          do while(enabled_iter /= this%enabled%end())
+            collection_id=collection_id+1
+            write(ic,"(I1)")collection_id
             coll_name=enabled_iter%get()
             server_ptr => this%servers%at(coll_name)
             client_ptr => this%clients%at(coll_name)
@@ -544,16 +587,20 @@ contains
             if (this%mpi_connection%am_i_front_root() .and. is_time_to_write) write(*,*)"writing coll: ",trim(coll_name)
             if (is_time_to_write) then
                if (model_comm /= MPI_COMM_NULL) then
+                  call io_prof%start('data_to_server_'//ic)
                   call client_ptr%transfer_data_to_server(_RC)
+                  call io_prof%stop('data_to_server_'//ic)
                end if
                if (front_comm /= MPI_COMM_NULL) then
+                  call io_prof%start('data_from_client_'//ic)
                   call server_ptr%get_data_from_client(_RC)
+                  call io_prof%stop('data_from_client_'//ic)
                end if
             end if
             call enabled_iter%next()
          enddo
 
-         call ESMF_VMEpochExit()
+         call ESMF_VMEpochExit (keepAlloc=.false.)
          
       end if
 
@@ -572,6 +619,7 @@ contains
       integer :: i
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type(Collection) :: hist_coll
+      character(len=1) :: ic
 
       front_comm = this%mpi_connection%get_front_comm()
       connector_comm = this%mpi_connection%get_connection_comm()
@@ -614,27 +662,33 @@ contains
          do while(enabled_iter /= this%enabled%end())
             i=i+1
             if (writing(i)/=-1) then
+               write(ic,"(I1)")i
                coll_name=enabled_iter%get()
                server_ptr => this%servers%at(coll_name)
                !call server_ptr%get_writer(_RC)
+               call io_prof%start('transfer_rh_'//ic) 
                call server_ptr%create_rh_from_proto(worker_pets(i))
+               call io_prof%stop('transfer_rh_'//ic) 
             end if
             call enabled_iter%next()
          enddo
          ! second round enter epoch
-         call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)
+         call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)!,throttle=1)
          enabled_iter = this%enabled%begin()
          i=0
          do while(enabled_iter /= this%enabled%end())
             i=i+1
             if (writing(i)/=-1) then
+               write(ic,"(I1)")i
                coll_name=enabled_iter%get()
                server_ptr => this%servers%at(coll_name)
+               call io_prof%start('offload_data_'//ic)
                call server_ptr%offload_data(_RC)
+               call io_prof%stop('offload_data_'//ic)
             end if
             call enabled_iter%next()
          enddo
-         call ESMF_VMEpochExit()
+         call ESMF_VMEpochExit( keepAlloc=.false.)
       end if
 
       _RETURN(_SUCCESS)

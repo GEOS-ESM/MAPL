@@ -19,7 +19,8 @@ module FieldGroupEntryMod
 
    type :: FieldGroupEntry
       private
-      class(FieldEntry), allocatable :: field_entry
+      !class(FieldEntry), allocatable :: field_entry
+      type(FieldEntry) :: field_entry
 
       character(:), allocatable :: alias_name
    contains
@@ -48,7 +49,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      if (.not. allocated(this%field_entry)) allocate(this%field_entry)
+      !if (.not. allocated(this%field_entry)) allocate(this%field_entry)
       call this%field_entry%initialize(short_name, component_name, units=units)
 
       if (present(alias_name)) then
@@ -59,7 +60,8 @@ contains
    end subroutine initialize
 
    function get_field_entry(this) result(field_entry)
-      class(FieldEntry), allocatable :: field_entry
+      !class(FieldEntry), allocatable :: field_entry
+      type(FieldEntry) :: field_entry
       class(FieldGroupEntry), intent(in) :: this
 
       field_entry = this%field_entry

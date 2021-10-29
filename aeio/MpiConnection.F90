@@ -38,7 +38,7 @@ module AEIO_MpiConnection
    interface MpiConnection
       !module procedure create_from_comm
       module procedure create_from_comm_world
-      module procedure new_MpiConnection
+      !module procedure new_MpiConnection
    end interface
 
 contains
@@ -80,8 +80,8 @@ contains
       end if
       m_comm = msplitter%split(_RC)
       m_name = m_comm%get_name()
-      if (index(m_name,'model')) new_instance%model_comm = m_comm%get_subcommunicator()
-      if (index(m_name,'server_nodes')) new_instance%connection_comm = m_comm%get_subcommunicator()
+      if (index(m_name,'model') /=0 ) new_instance%model_comm = m_comm%get_subcommunicator()
+      if (index(m_name,'server_nodes') /= 0) new_instance%connection_comm = m_comm%get_subcommunicator()
 
       new_instance%I_am_front_root = .false.
       new_instance%I_am_back_root = .false.
@@ -306,29 +306,33 @@ contains
 
    end function create_from_comm
 
-   function new_MpiConnection(model_comm,connection_comm,front_comm,back_comm,&
-            front_mpi_ranks,back_mpi_ranks,front_pets,back_pets) result (new_instance)
-      integer, intent(in) :: model_comm
-      integer, intent(in) :: connection_comm
-      integer, intent(in) :: front_comm
-      integer, intent(in) :: back_comm
-      integer, allocatable, intent(in) :: front_mpi_ranks(:)
-      integer, allocatable, intent(in) :: back_mpi_ranks(:)
-      integer, allocatable, intent(in) :: front_pets(:)
-      integer, allocatable, intent(in) :: back_pets(:)
+   !function new_MpiConnection(model_comm,connection_comm,front_comm,back_comm,&
+            !front_mpi_ranks,back_mpi_ranks,front_pets,back_pets,i_am_front_root,i_am_back_root) result (new_instance)
+      !integer, intent(in) :: model_comm
+      !integer, intent(in) :: connection_comm
+      !integer, intent(in) :: front_comm
+      !integer, intent(in) :: back_comm
+      !integer, allocatable, intent(in) :: front_mpi_ranks(:)
+      !integer, allocatable, intent(in) :: back_mpi_ranks(:)
+      !integer, allocatable, intent(in) :: front_pets(:)
+      !integer, allocatable, intent(in) :: back_pets(:)
+      !logical, intent(in) :: i_am_front_root
+      !logical, intent(in) :: i_am_back_root
 
-      type(MpiConnection) :: new_instance
+      !type(MpiConnection) :: new_instance
 
-      new_instance%model_comm=model_comm
-      new_instance%connection_comm=connection_comm
-      new_instance%front_comm=front_comm
-      new_instance%back_comm=back_comm
-      allocate(new_instance%front_mpi_ranks,source=front_mpi_ranks)
-      allocate(new_instance%back_mpi_ranks,source=back_mpi_ranks)
-      allocate(new_instance%front_pets,source=front_pets)
-      allocate(new_instance%back_pets,source=back_pets)
+      !new_instance%model_comm=model_comm
+      !new_instance%connection_comm=connection_comm
+      !new_instance%front_comm=front_comm
+      !new_instance%back_comm=back_comm
+      !allocate(new_instance%front_mpi_ranks,source=front_mpi_ranks)
+      !allocate(new_instance%back_mpi_ranks,source=back_mpi_ranks)
+      !allocate(new_instance%front_pets,source=front_pets)
+      !allocate(new_instance%back_pets,source=back_pets)
+      !new_instance%i_am_front_root=i_am_front_root
+      !new_instance%i_am_back_root=i_am_back_root
 
-   end function new_MpiConnection
+   !end function new_MpiConnection
 
    function get_model_comm(this) result(model_comm)
       class(MpiConnection), intent(in) :: this

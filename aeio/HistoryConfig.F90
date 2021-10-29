@@ -12,6 +12,7 @@ module HistoryConfigMod
 
    Use FieldRegistryMod
    use GroupRegistryMod
+   use GridRegistryMod
    use CollectionMod
    use CollectionRegistryMod
 
@@ -31,10 +32,12 @@ module HistoryConfigMod
       class(FieldRegistry),      allocatable :: fields
       class(GroupRegistry),      allocatable :: groups
       class(CollectionRegistry), allocatable :: collections
+      type(GridRegistry) :: grids
    contains
       procedure :: get_enabled
       procedure :: set_enabled
       procedure :: get_fields
+      procedure :: get_grids
       procedure :: get_groups
       procedure :: get_collections
       procedure :: set_collections
@@ -48,6 +51,13 @@ module HistoryConfigMod
       procedure :: fill_field_registry
    end type HistoryConfig
 contains
+
+   function get_grids(this) result(grids)
+      class(HistoryConfig), intent(in) :: this
+      type(GridRegistry) :: grids
+      grids=this%grids
+   end function get_grids
+   
    function get_enabled(this) result(enabled)
       type(StringVector) :: enabled
       class(HistoryConfig), intent(in) :: this
@@ -136,13 +146,13 @@ contains
          select case (key)
          case (enabled_key)
             call iter%get_value(sub_config)
-            call this%import_enabled(sub_config, __RC__)
+            call this%import_enabled(sub_config, _RC)
          case (groups_key)
             call iter%get_value(sub_config)
-            call this%groups%import_groups(sub_config, __RC__)
+            call this%groups%import_groups(sub_config, _RC)
          case (collections_key)
             call iter%get_value(sub_config)
-            call this%collections%import_collections(sub_config, __RC__)
+            call this%collections%import_collections(sub_config, _RC)
          end select
 
          call iter%next()
@@ -167,6 +177,8 @@ contains
       yaml_config=p%load(file_stream)
       call this%import_yaml(yaml_config,rc=status)
       _VERIFY(status)
+      ! kluge for grids for now
+      call this%grids%import_grids(yaml_file)
       call this%finish_import()
       _RETURN(_SUCCESS)
 
@@ -213,8 +225,8 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call this%fill_collection_groups(__RC__)
-      call this%fill_field_registry(__RC__)
+      call this%fill_collection_groups(_RC)
+      call this%fill_field_registry(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine finish_import
@@ -242,7 +254,7 @@ contains
          if (this%collections%count(collection_name) > 0) then
             collection_entry => this%collections%at(collection_name)
 
-            call collection_entry%fill_groups(this%groups, __RC__)
+            call collection_entry%fill_groups(this%groups, _RC)
          else
             status = 1
             exit

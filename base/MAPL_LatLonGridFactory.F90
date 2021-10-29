@@ -49,6 +49,8 @@ module MAPL_LatLonGridFactoryMod
       integer :: ny = UNDEFINED_INTEGER
       integer, allocatable :: ims(:)
       integer, allocatable :: jms(:)
+      ! Pets
+      integer, allocatable :: pet_list(:,:,:)
       ! Grid conventions:
       character(len=:), allocatable :: pole
       character(len=:), allocatable :: dateline
@@ -182,7 +184,7 @@ contains
 
    function LatLonGridFactory_from_parameters(unusable, grid_name, &
         & im_world, jm_world, lm, nx, ny, ims, jms, &
-        & pole, dateline, lon_range, lat_range, force_decomposition, rc) result(factory)
+        & pole, dateline, lon_range, lat_range, force_decomposition, pet_list, rc) result(factory)
       type (LatLonGridFactory) :: factory
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: grid_name
@@ -202,6 +204,7 @@ contains
       integer, optional, intent(in) :: ims(:)
       integer, optional, intent(in) :: jms(:)
       logical, optional, intent(in) :: force_decomposition 
+      integer, optional, intent(in) :: pet_list(:,:)
 
       integer, optional, intent(out) :: rc
 
@@ -222,6 +225,13 @@ contains
       ! default is unallocated
       if (present(ims)) factory%ims = ims
       if (present(jms)) factory%jms = jms
+  
+      if (present(pet_list)) then
+          _ASSERT(size(pet_list,1)==nx,'pet_list must match nx and ny')
+          _ASSERT(size(pet_list,2)==ny,'pet_list must match nx and ny')
+          allocate(factory%pet_list(nx,ny,1))
+          factory%pet_list(:,:,1) = pet_list
+      end if
 
       call set_with_default(factory%pole, pole, UNDEFINED_CHAR)
       call set_with_default(factory%dateline, dateline, UNDEFINED_CHAR)
@@ -279,32 +289,64 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      if (this%periodic) then
-         grid = ESMF_GridCreate1PeriDim( &
-              & name = this%grid_name, &
-              & countsPerDEDim1=this%ims, &
-              & countsPerDEDim2=this%jms, &
-              & indexFlag=ESMF_INDEX_DELOCAL, &
-              & gridEdgeLWidth=[0,0], &
-              & gridEdgeUWidth=[0,1], &
-              & coordDep1=[1,2], &
-              & coordDep2=[1,2], &
-              & coordSys=ESMF_COORDSYS_SPH_RAD, &
-              & rc=status)
-         _VERIFY(status)
+      if (allocated(this%pet_list)) then
+         if (this%periodic) then
+            grid = ESMF_GridCreate1PeriDim( &
+                 & name = this%grid_name, &
+                 & countsPerDEDim1=this%ims, &
+                 & countsPerDEDim2=this%jms, &
+                 & indexFlag=ESMF_INDEX_DELOCAL, &
+                 & gridEdgeLWidth=[0,0], &
+                 & gridEdgeUWidth=[0,1], &
+                 & coordDep1=[1,2], &
+                 & coordDep2=[1,2], &
+                 & coordSys=ESMF_COORDSYS_SPH_RAD, &
+                 & petMap=this%pet_list, &
+                 & rc=status)
+            _VERIFY(status)
+         else
+            grid = ESMF_GridCreateNoPeriDim( &
+                 & name = this%grid_name, &
+                 & countsPerDEDim1=this%ims, &
+                 & countsPerDEDim2=this%jms, &
+                 & indexFlag=ESMF_INDEX_DELOCAL, &
+                 & gridEdgeLWidth=[0,0], &
+                 & gridEdgeUWidth=[1,1], &
+                 & coordDep1=[1,2], &
+                 & coordDep2=[1,2], &
+                 & coordSys=ESMF_COORDSYS_SPH_RAD, &
+                 & petMap=this%pet_list, &
+                 & rc=status)
+            _VERIFY(status)
+         end if
       else
-         grid = ESMF_GridCreateNoPeriDim( &
-              & name = this%grid_name, &
-              & countsPerDEDim1=this%ims, &
-              & countsPerDEDim2=this%jms, &
-              & indexFlag=ESMF_INDEX_DELOCAL, &
-              & gridEdgeLWidth=[0,0], &
-              & gridEdgeUWidth=[1,1], &
-              & coordDep1=[1,2], &
-              & coordDep2=[1,2], &
-              & coordSys=ESMF_COORDSYS_SPH_RAD, &
-              & rc=status)
-         _VERIFY(status)
+         if (this%periodic) then
+            grid = ESMF_GridCreate1PeriDim( &
+                 & name = this%grid_name, &
+                 & countsPerDEDim1=this%ims, &
+                 & countsPerDEDim2=this%jms, &
+                 & indexFlag=ESMF_INDEX_DELOCAL, &
+                 & gridEdgeLWidth=[0,0], &
+                 & gridEdgeUWidth=[0,1], &
+                 & coordDep1=[1,2], &
+                 & coordDep2=[1,2], &
+                 & coordSys=ESMF_COORDSYS_SPH_RAD, &
+                 & rc=status)
+            _VERIFY(status)
+         else
+            grid = ESMF_GridCreateNoPeriDim( &
+                 & name = this%grid_name, &
+                 & countsPerDEDim1=this%ims, &
+                 & countsPerDEDim2=this%jms, &
+                 & indexFlag=ESMF_INDEX_DELOCAL, &
+                 & gridEdgeLWidth=[0,0], &
+                 & gridEdgeUWidth=[1,1], &
+                 & coordDep1=[1,2], &
+                 & coordDep2=[1,2], &
+                 & coordSys=ESMF_COORDSYS_SPH_RAD, &
+                 & rc=status)
+            _VERIFY(status)
+         end if
       end if
 
       ! Allocate coords at default stagger location

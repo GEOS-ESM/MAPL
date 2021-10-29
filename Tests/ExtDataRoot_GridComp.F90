@@ -360,7 +360,7 @@ MODULE ExtDataUtRoot_GridCompMod
 
          end select
 
-         call sleep(delay)
+         if (delay >0) call sleep(delay)
 !  --------
          _RETURN(ESMF_SUCCESS)
 
