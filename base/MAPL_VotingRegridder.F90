@@ -3,6 +3,7 @@ module MAPL_VotingRegridderMod
    use MAPL_AbstractRegridderMod
    use MAPL_TilingRegridderMod
    use MAPL_BaseMod, only: MAPL_UNDEF
+   use MAPL_Constants
    use ESMF
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none

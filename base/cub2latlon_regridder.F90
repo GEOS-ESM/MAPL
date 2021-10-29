@@ -14,7 +14,7 @@ module SupportMod
    use MAPL_ExceptionHandling
    use MAPL_BaseMod
    use pFIO
-   use MAPL_ConstantsMod
+   use MAPL_Constants
    use MAPL_RangeMod
    use MAPL_StringRouteHandleMapMod
    use gFTL_StringVector
@@ -976,7 +976,7 @@ contains
       real(kind=REAL64), intent(in) :: x
       real(kind=REAL64) :: s
 
-      s = sin(x * MAPL_DEGREES_TO_RADIANS)
+      s = sin(x * MAPL_DEGREES_TO_RADIANS_R8)
       
    end function sind
 
@@ -984,7 +984,7 @@ contains
       real(kind=REAL64), intent(in) :: x
       real(kind=REAL64) :: c
 
-      c = cos(x * MAPL_DEGREES_TO_RADIANS)
+      c = cos(x * MAPL_DEGREES_TO_RADIANS_R8)
       
    end function cosd
 

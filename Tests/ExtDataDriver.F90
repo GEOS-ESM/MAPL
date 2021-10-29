@@ -15,7 +15,7 @@ program ExtData_Driver
 
   integer :: status
   character(len=*), parameter :: Iam="ExtData_Driver"
-  type(ExtDataDriver) :: Driver 
+  type(ExtDataDriver) :: Driver
   type (MAPL_CapOptions) :: cap_options
   type (MAPL_FlapCLI) :: cli
 

@@ -3,7 +3,7 @@ version: 2.1
 executors:
   gfortran:
     docker:
-      - image: gmao/ubuntu20-geos-env-mkl:v6.2.4-openmpi_4.0.5-gcc_10.3.0
+      - image: gmao/ubuntu20-geos-env-mkl:v6.2.8-openmpi_4.0.6-gcc_11.2.0
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_AUTH_TOKEN
@@ -17,7 +17,7 @@ executors:
 
   ifort:
     docker:
-      - image: gmao/ubuntu20-geos-env:v6.2.4-intelmpi_2021.2.0-intel_2021.2.0
+      - image: gmao/ubuntu20-geos-env:v6.2.8-intelmpi_2021.2.0-intel_2021.2.0
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_AUTH_TOKEN
@@ -61,6 +61,13 @@ workflows:
       #     requires:                                   #
       #       - make-FV3-exp-on-<< matrix.compiler >>   #
       ###################################################
+      - build-GEOSldas:
+          name: build-GEOSldas-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          context: 
+            - docker-hub-creds
       #####################################################
       # - build-GEOSadas:                                 #
       #     name: build-GEOSadas-on-<< matrix.compiler >> #
@@ -70,6 +77,141 @@ workflows:
       #     context:                                      #
       #       - docker-hub-creds                          #
       #####################################################
+
+commands:
+  versions:
+    description: "Versions, etc."
+    parameters:
+      compiler:
+        type: string
+        default: ""
+    steps:
+      - run: 
+          name: "Versions, etc."
+          command: |
+            mpirun --version && << parameters.compiler >> --version && echo $BASEDIR && pwd && ls && echo "$(nproc)"
+
+  checkout_fixture:
+    description: "Checkout fixture"
+    parameters:
+      repo:
+        type: string
+        default: ""
+    steps:
+      - run: 
+          name: "Checkout fixture"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}
+            git clone https://github.com/GEOS-ESM/<< parameters.repo >>.git
+
+  checkout_branch_on_fixture:
+    description: "Checkout branch on fixture"
+    parameters:
+      repo:
+        type: string
+        default: ""
+      branch:
+        type: string
+        default: ""
+    steps:
+      - run: 
+          name: "Checkout branch on fixture"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
+            git checkout << parameters.branch >>
+
+  mepoclone:
+    description: "Mepo clone external repos"
+    parameters:
+      repo:
+        type: string
+        default: ""
+    steps:
+      - run: 
+          name: "Mepo clone external repos"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
+            mepo clone
+            mepo status
+
+  mepodevelop:
+    description: "Mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared"
+    parameters:
+      repo:
+        type: string
+        default: ""
+    steps:
+      - run: 
+          name: "Mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
+            mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared
+            mepo status
+
+  cmake:
+    description: "Run CMake"
+    parameters:
+      repo:
+        type: string
+        default: ""
+      compiler:
+        type: string
+        default: ""
+    steps:
+      - run: 
+          name: "Run CMake"
+          command: |
+            mkdir -p /logfiles
+            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
+            mkdir -p ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
+            cmake ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >> -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-<< parameters.repo >> |& tee /logfiles/cmake.log
+
+  buildinstall:
+    description: "Build and install"
+    parameters:
+      repo:
+        type: string
+        default: ""
+    steps:
+      - run: 
+          name: "Build and install"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
+            make -j"$(nproc)" install |& tee /logfiles/make.log
+            #MEDIUM# make -j4 install |& tee /logfiles/make.log
+
+  checkout_mapl_branch:
+    description: "Mepo checkout MAPL branch"
+    parameters:
+      repo:
+        type: string
+        default: ""
+    steps:
+      - run: 
+          name: "Mepo checkout MAPL branch"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>/src/Shared/@MAPL
+
+            # Based a bit on: https://stackoverflow.com/a/55940371/1876449
+            #
+            # CIRCLE_PR_NUMBER is only available on forked PRs:
+            #
+            # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
+            #
+            # so if it exists we fetch the PR's branch. This fetch was
+            # figured out by looking at the MAPL build-and-test above
+            # which did work!
+            if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
+                git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
+            fi
+
+            mepo checkout ${CIRCLE_BRANCH} MAPL
+            if [ "${CIRCLE_BRANCH}" != "develop" ] && [ "${CIRCLE_BRANCH}" != "main" ]
+            then
+                mepo checkout-if-exists ${CIRCLE_BRANCH}
+            fi
+            mepo status
 
 jobs:
   build-and-test-MAPL:
@@ -81,38 +223,25 @@ jobs:
     steps:
       - checkout:
           path: MAPL
-      - run:
-          name: "Versions etc"
-          command: mpirun --version && << parameters.compiler >> --version && echo $BASEDIR && pwd && ls && echo "$(nproc)"
-      - run:
-          name: "Mepo clone external repos"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/MAPL
-            mepo clone
-            mepo status
-      - run:
-          name: "CMake"
-          command: |
-            mkdir -p /logfiles
-            mkdir -p ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            cmake ${CIRCLE_WORKING_DIRECTORY}/MAPL -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/install-MAPL |& tee /logfiles/cmake.log
-      - run:
-          name: "Build and install"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            make -j"$(nproc)" install |& tee /logfiles/make.log
-            #MEDIUM# make -j4 install |& tee /logfiles/make.log
+      - versions:
+          compiler: << parameters.compiler >>
+      - mepoclone:
+          repo: MAPL
+      - cmake:
+          repo: MAPL
+          compiler: << parameters.compiler >>
+      - buildinstall:
+          repo: MAPL
       - run:
           name: "Build MAPL Unit Tests"
           command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
             make -j"$(nproc)" build-tests |& tee /logfiles/build-tests.log
             #MEDIUM# make -j4 build-tests |& tee /logfiles/build-tests.log
       - run:
           name: "Run MAPL Unit Tests"
           command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
             # skip Performance tests (maybe doable on CircleCI?)
             ctest -R MAPL -LE PERFORMANCE --output-on-failure |& tee /logfiles/ctest.log
       - store_artifacts:
@@ -125,56 +254,19 @@ jobs:
     executor: << parameters.compiler >>
     working_directory: /root/project
     steps:
-      - run:
-          name: "Checkout GEOSgcm fixture"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}
-            git clone https://github.com/GEOS-ESM/GEOSgcm.git
-      - run:
-          name: "Mepo clone external repos"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm
-            mepo clone
-            mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared
-            mepo status
-      - run:
-          name: "Mepo checkout MAPL branch"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm/src/Shared/@MAPL
-
-            # Based a bit on: https://stackoverflow.com/a/55940371/1876449
-            #
-            # CIRCLE_PR_NUMBER is only available on forked PRs:
-            #
-            # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
-            #
-            # so if it exists we fetch the PR's branch. This fetch was
-            # figured out by looking at the MAPL build-and-test above
-            # which did work!
-            if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
-               git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
-            fi
-
-            mepo checkout ${CIRCLE_BRANCH} MAPL
-            if [ "${CIRCLE_BRANCH}" != "develop" ] && [ "${CIRCLE_BRANCH}" != "main" ]
-            then
-               mepo checkout-if-exists ${CIRCLE_BRANCH}
-            fi
-            mepo status
-      - run:
-          name: "CMake"
-          command: |
-            mkdir -p /logfiles
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm
-            mkdir -p  ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSgcm
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSgcm
-            cmake ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSgcm -DUSE_F2PY=OFF |& tee /logfiles/cmake.log
-      - run:
-          name: "Build and install"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSgcm
-            make -j"$(nproc)" install |& tee /logfiles/make.log
-            #MEDIUM# make -j4 install |& tee /logfiles/make.log
+      - checkout_fixture:
+          repo: GEOSgcm
+      - mepoclone:
+          repo: GEOSgcm
+      - mepodevelop:
+          repo: GEOSgcm
+      - checkout_mapl_branch:
+          repo: GEOSgcm
+      - cmake:
+          repo: GEOSgcm
+          compiler: << parameters.compiler >>
+      - buildinstall:
+          repo: GEOSgcm
       - store_artifacts:
           path: /logfiles
 
@@ -187,63 +279,53 @@ jobs:
       #       - install-GEOSgcm                            #
       ######################################################
 
-  build-GEOSadas:
+  build-GEOSldas:
     parameters:
       compiler:
         type: string
     executor: << parameters.compiler >>
     working_directory: /root/project
     steps:
-      - run:
-          name: "Checkout GEOSadas fixture"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}
-            git clone https://github.com/GEOS-ESM/GEOSadas.git
-      - run:
-          name: "Mepo clone external repos"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSadas
-            mepo clone
-            mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared
-            mepo status
-      - run:
-          name: "Mepo checkout MAPL branch"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSadas/src/Shared/@MAPL
+      - checkout_fixture:
+          repo: GEOSldas
+      - checkout_branch_on_fixture:
+          repo: GEOSldas
+          branch: develop
+      - mepoclone:
+          repo: GEOSldas
+      - checkout_mapl_branch:
+          repo: GEOSldas
+      - cmake:
+          repo: GEOSldas
+          compiler: << parameters.compiler >>
+      - buildinstall:
+          repo: GEOSldas
+      - store_artifacts:
+          path: /logfiles
 
-            # Based a bit on: https://stackoverflow.com/a/55940371/1876449
-            #
-            # CIRCLE_PR_NUMBER is only available on forked PRs:
-            #
-            # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
-            #
-            # so if it exists we fetch the PR's branch. This fetch was
-            # figured out by looking at the MAPL build-and-test above
-            # which did work!
-            if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
-               git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
-            fi
-
-            mepo checkout ${CIRCLE_BRANCH} MAPL
-            if [ "${CIRCLE_BRANCH}" != "develop" ] && [ "${CIRCLE_BRANCH}" != "main" ]
-            then
-               mepo checkout-if-exists ${CIRCLE_BRANCH}
-            fi
-            mepo status
-      - run:
-          name: "CMake"
-          command: |
-            mkdir -p /logfiles
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSadas
-            mkdir -p  ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSadas
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSadas
-            cmake ${CIRCLE_WORKING_DIRECTORY}/GEOSadas -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSadas -DUSE_F2PY=OFF |& tee /logfiles/cmake.log
-      - run:
-          name: "Build and install"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSadas
-            make -j"$(nproc)" install |& tee /logfiles/make.log
-            #MEDIUM# make -j4 install |& tee /logfiles/make.log
+  build-GEOSadas:
+    parameters:
+      compiler:
+        type: string
+    executor: << parameters.compiler >>
+    resource_class: xlarge
+    working_directory: /root/project
+    steps:
+      - checkout_fixture:
+          repo: GEOSadas
+      - mepoclone:
+          repo: GEOSadas
+      - mepodevelop:
+          repo: GEOSadas
+      - checkout_mapl_branch:
+          repo: GEOSadas
+      - cmake:
+          repo: GEOSadas
+          compiler: << parameters.compiler >>
+      - buildinstall:
+          repo: GEOSadas
+      - store_artifacts:
+          path: /logfiles
       - store_artifacts:
           path: /logfiles
 

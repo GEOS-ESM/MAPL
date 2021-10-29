@@ -7,7 +7,7 @@
    Program utCFIO
 
    use ESMF
-   use MAPL_Mod
+   use MAPLBase_Mod
 
    implicit NONE
 

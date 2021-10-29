@@ -5,7 +5,7 @@ module MAPL_CapGridCompMod
   use ESMF
   use MAPL_ExceptionHandling
   use MAPL_BaseMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler, get_global_memory_profiler
   use MAPL_ProfMod
   use MAPL_MemUtilsMod
@@ -1119,9 +1119,9 @@ contains
 
        ! Time Loop starts by checking for Segment Ending Time
        !-----------------------------------------------------
-       call ESMF_VMBarrier(cap%vm,rc=status)
-       _VERIFY(status)
        if (cap%compute_throughput) then
+          call ESMF_VMBarrier(cap%vm,rc=status)
+          _VERIFY(status)
           cap%starts%loop_start_timer = MPI_WTime(status)
           cap%started_loop_timer = .true.
        end if
@@ -1199,11 +1199,6 @@ contains
        _VERIFY(STATUS)
 
     endif !phase_ == last
-
-    ! Synchronize for Next TimeStep
-    ! -----------------------------
-    call ESMF_VMBarrier(this%vm, rc = status)
-    _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
 
