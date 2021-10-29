@@ -33,7 +33,7 @@ set (srcs
     AEIO.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler TYPE SHARED)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler MAPL.generic TYPE SHARED)
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared ${ESMF_LIBRARIES}
                                PRIVATE MPI::MPI_Fortran)
 target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF}
