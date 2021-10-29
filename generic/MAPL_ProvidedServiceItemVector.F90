@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module MAPL_ProvidedServiceItemVector
-  use MAPL_VariableSpecification, only: ProvidedServiceType
+  use mapl_ServiceServicesTypes, only: ProvidedServiceType
 
 #define _type type(ProvidedServiceType)
 #define _allocatable

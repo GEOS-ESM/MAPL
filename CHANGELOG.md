@@ -15,6 +15,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [2.11.0] - 2021-10-29
+
+### Fixed
+
+- Fixed bug with MAPL_FindChild gfortran debug compilation
+- Fixes #1115. NAG flagged several issues, related to how different derived type are brought in MAPL by different modules, which quite possibly are violation of the standard. Similarly, a procedure call was used as an argument with intent(INOUT).
+- Fixed issues with NAG and Tests (#1106)
+  - Changed non-Fortran Standard `call exit` to `stop` in `ExtDataDriver.F90`
+  - Changed `kind=8` to `kind=REAL64` in `pfio_MAPL_demo.F90`
+  - Reenabled build with NAG (works with NAG 7.0.7048)
+
+### Changed
+
+- Removed last `NETCDF_LIBRARIES` reference from CMake
+- OOMPH: Lots of work to tease apart low level "specs" into separate
+         files/classes.  At the same time new classes (mostly unused
+         as yet) are being introduced for nextgen specs.
+   Some details:
+   - Introduced new oomph subdirectory and namespace.
+   - Replaced some "manual containers" with gFTL Vectors.
+   - Updated some gFTL containers to v2 containers.
+- Require gFTL v1.5.1
+  - Updated `components.yaml` to ESMA_env v3.5.0 (Baselibs 6.2.8)
+  - Update CI images to Baselibs 6.2.8
+
+### Removed
+
+- Removed yaFyaml dependency when building with BUILD_WITH_PFLOGGER=NO
+
 ## [2.10.0] - 2021-10-22
 
 ### Fixed
@@ -22,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reduced runtime impact of communication barriers in Cap gridded component
 
 ### Added
+- Added ability to regrid multiple files in one execution of Regrid_Util.x
 
 - Exposed `TO_NAME` argument in `MAPL_StateAddExportSpecFrmChld()` to
   allow renaming of EXPORTS. Needed for GOCART-2G.

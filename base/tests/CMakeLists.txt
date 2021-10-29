@@ -48,7 +48,7 @@ ecbuild_add_executable (
   TARGET ${TESTIO}
   NOINSTALL
   SOURCES mapl_bundleio_test.F90
-  LIBS MAPL.base MAPL.shared MAPL.constants MAPL.pfio MAPL.griddedio ${NETCDF_LIBRARIES} MPI::MPI_Fortran
+  LIBS MAPL.base MAPL.shared MAPL.constants MAPL.pfio MAPL.griddedio NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   DEFINITIONS USE_MPI)
 set_target_properties(${TESTIO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
