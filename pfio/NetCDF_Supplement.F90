@@ -8,59 +8,42 @@ module pfio_NetCDF_Supplement
 
    public :: pfio_get_att_string
    interface
-      function c_f_pfio_get_att_string(ncid, varid, name, characters, attlen) &
+      function c_f_pfio_get_att_string(ncid, name, string, attlen) &
            & result(stat) bind(C, name='pfio_get_att_string')
          use, intrinsic :: iso_c_binding
          implicit none
          integer :: stat
          integer(kind=C_INT), value, intent(in) :: ncid
-         integer(kind=C_INT), value, intent(in) :: varid
          character(kind=C_CHAR), intent(in) :: name(*)
-         type(C_PTR), intent(in) :: characters
-         type(C_PTR), intent(in) :: attlen
+         character(kind=C_CHAR), intent(inout) :: string(*)
+         integer(kind=C_INT), intent(inout) :: attlen
       end function c_f_pfio_get_att_string
-      subroutine c_f_pfio_free_string(value) bind(C, name='pfio_free_string')
-         use, intrinsic :: iso_c_binding
-         implicit none
-         type(C_PTR), intent(in) :: value
-      end subroutine c_f_pfio_free_string
-
    end interface
 
 contains
 
-   function pfio_get_att_string(ncid, varid, name, string) result(status)
+   function pfio_get_att_string(ncid, name, string) result(status)
       integer :: status
       integer(kind=C_INT), intent(in) :: ncid
-      integer(kind=C_INT), intent(in) :: varid
       character(*), intent(in) :: name
       character(:), allocatable, intent(out) :: string
       
-      integer :: i
-      character(kind=C_CHAR), pointer :: characters(:)
-      integer(kind=C_SIZE_T), target :: attlen
       integer :: name_len
+      integer(kind=C_INT),target :: attlen
       character(kind=C_CHAR, len=:), target, allocatable :: c_name
-      type(C_PTR) :: str
+      character(len=512) :: tmp_str
 
       ! C requires null termination
       name_len = len_trim(name)
       allocate(character(kind=C_CHAR,len=name_len+1) :: c_name)
-      c_name(1:name_len) = name
+      c_name(1:name_len) = name(1:name_len)
       c_name(name_len+1:name_len+1) = C_NULL_CHAR
-
-      status = c_f_pfio_get_att_string(ncid, varid, c_name, str, c_loc(attlen))
-
-      ! need to convert str to fortran string
-
-      ! Must copy C char array into Fortran string and then free the C memory
+      tmp_str = ''
+      ! This c-call would fill tmp_str with the global attribute
+      status = c_f_pfio_get_att_string(ncid, c_name, tmp_str, attlen)
       allocate(character(len=attlen) :: string)
-      do i = 1, attlen
-         string(i:i) = characters(i)
-      end do
-
-      call c_f_pfio_free_string(c_loc(characters))
-      
+      string = trim(tmp_str)
+      deallocate(c_name)
    end function pfio_get_att_string
 
 end module pfio_NetCDF_Supplement

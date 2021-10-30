@@ -855,7 +855,6 @@ contains
       status = nf90_inquire(this%ncid, nAttributes=nAttributes)
       !$omp end critical
       _VERIFY(status)
-
       do attnum = 1, nAttributes
          !$omp critical
          status = nf90_inq_attname(this%ncid, varid, attnum, attr_name)
@@ -907,8 +906,10 @@ contains
             call cf%add_attribute(trim(attr_name), str)
             deallocate(str)
          case (NF90_STRING)
+            ! W.Y. Note: pfio only supports global string attributes.
+            ! varid is not passed in. NC_GLOBAL is used inside the call 
             !$omp critical
-            status = pfio_get_att_string(this%ncid, varid, trim(attr_name), str)
+            status = pfio_get_att_string(this%ncid, trim(attr_name), str)
             !$omp end critical
             _VERIFY(status)
             call cf%add_attribute(trim(attr_name), str)
@@ -1003,12 +1004,9 @@ contains
             call var%add_attribute(trim(attr_name), str)
             deallocate(str)
          case (NF90_STRING)
-            !$omp critical
-            status = pfio_get_att_string(this%ncid, varid, trim(attr_name), str)
-            !$omp end critical
-            _VERIFY(status)
-            call var%add_attribute(trim(attr_name), str)
-            deallocate(str)
+            !W.Y. Note: pfio does not support variable's string attribute
+            !  It only supports global 1-d string attribute
+            cycle
          case default
             _RETURN(_FAILURE)
          end select
