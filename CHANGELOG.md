@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug when comparing grid equality in the cubed-sphere factory
+- Fixes handling of nested states in MAPL. Removed the requirement to specify horizontal or vertical grid specs for such states. Added a public method to retrieve rootGC
+
+### Added
+
+### Changed
+
+### Removed
+
+## [2.11.0] - 2021-10-29
+
+### Fixed
+
 - Fixed bug with MAPL_FindChild gfortran debug compilation
 - Fixes #1115. NAG flagged several issues, related to how different derived type are brought in MAPL by different modules, which quite possibly are violation of the standard. Similarly, a procedure call was used as an argument with intent(INOUT).
 - Fixed issues with NAG and Tests (#1106)
@@ -18,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added PFIO support for `NF90_STRING` (as opposed to `NF90_CHAR`).  This fixes use of some netCDF files.
 
 ### Added
+
+- Added ability to regrid multiple files in one execution of Regrid_Util.x
 
 ### Changed
 
@@ -44,7 +59,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reduced runtime impact of communication barriers in Cap gridded component
 
 ### Added
-- Added ability to regrid multiple files in one execution of Regrid_Util.x
 
 - Exposed `TO_NAME` argument in `MAPL_StateAddExportSpecFrmChld()` to
   allow renaming of EXPORTS. Needed for GOCART-2G.
