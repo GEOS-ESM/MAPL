@@ -9,8 +9,8 @@ module HistoryTrajectoryMod
    use MAPL_FileMetadataUtilsMod
    use LocStreamFactoryMod
    use pFIO
-   use MAPL_newCFIOItemVectorMod
-   use MAPL_newCFIOItemMod
+   use MAPL_GriddedIOItemVectorMod
+   use MAPL_GriddedIOItemMod
    use MAPL_TimeDataMod
    use MAPL_VerticalDataMod
    use MAPL_BaseMod
@@ -32,7 +32,7 @@ module HistoryTrajectoryMod
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_FieldBundle) :: output_bundle
       integer :: number_written
-      type(newCFIOitemVector) :: items
+      type(GriddedIOitemVector) :: items
       type(FileMetadata) :: metadata
       type(VerticalData) :: vdata
       logical :: do_vertical_regrid
@@ -108,7 +108,7 @@ module HistoryTrajectoryMod
 
       subroutine initialize(this,items,bundle,timeInfo,unusable,vdata,recycle_track,rc)
          class(HistoryTrajectory), intent(inout) :: this
-         type(newCFIOitemVector), target, intent(inout) :: items
+         type(GriddedIOitemVector), target, intent(inout) :: items
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(TimeData), intent(inout) :: timeInfo
          class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -120,8 +120,8 @@ module HistoryTrajectoryMod
          type(ESMF_Grid) :: grid
          type(ESMF_Clock) :: clock
          type(variable) :: v
-         type(newCFIOitemVectorIterator) :: iter
-         type(newCFIOitem), pointer :: item
+         type(GriddedIOitemVectorIterator) :: iter
+         type(GriddedIOitem), pointer :: item
 
          _UNUSED_DUMMY(unusable)
 
@@ -316,8 +316,8 @@ module HistoryTrajectoryMod
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(newCFIOitemVectorIterator) :: iter
-         type(newCFIOitem), pointer :: item
+         type(GriddedIOitemVectorIterator) :: iter
+         type(GriddedIOitem), pointer :: item
          type(ESMF_Field) :: src_field,dst_field
          integer :: rank,lb(1),ub(1)
 
@@ -403,8 +403,8 @@ module HistoryTrajectoryMod
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(newCFIOitemVectorIterator) :: iter
-         type(newCFIOitem), pointer :: item
+         type(GriddedIOitemVectorIterator) :: iter
+         type(GriddedIOitem), pointer :: item
          type(ESMF_Field) :: src_field,dst_field
          integer :: rank,interval(2),number_to_write,previous_day,current_day
          real(kind=REAL32), allocatable :: p_new_lev(:,:,:)

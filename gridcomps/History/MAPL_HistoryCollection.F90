@@ -3,9 +3,9 @@
 module MAPL_HistoryCollectionMod
   use ESMF
   use MAPL_CFIOMod
-  use MAPL_newCFIOMod
+  use MAPL_GriddedIOMod
   use MAPL_ExceptionHandling
-  use MAPL_newCFIOitemVectorMod
+  use MAPL_GriddedIOitemVectorMod
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
   use HistoryTrajectoryMod
@@ -40,7 +40,7 @@ module MAPL_HistoryCollectionMod
      integer                            :: unit
      type(ESMF_FieldBundle)             :: bundle
      type(MAPL_CFIO)                    :: MCFIO
-     type(MAPL_newCFIO)                    :: mNewCFIO
+     type(MAPL_GriddedIO)                    :: mGriddedIO
      type(VerticalData) :: vdata
      type(TimeData) :: timeInfo
      real   , pointer                   :: levels(:)     => null()
@@ -80,7 +80,7 @@ module MAPL_HistoryCollectionMod
      type(ESMF_FIELD), pointer          :: r8(:) => null()
      type(ESMF_FIELD), pointer          :: r4(:) => null()
      character(len=ESMF_MAXSTR)         :: output_grid_label
-     type(newCFIOItemVector)            :: items
+     type(GriddedIOItemVector)            :: items
      character(len=ESMF_MAXSTR)         :: currentFile
      character(len=ESMF_MAXPATHLEN)     :: trackFile
      logical                            :: splitField

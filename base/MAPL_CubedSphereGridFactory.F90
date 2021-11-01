@@ -777,6 +777,10 @@ contains
          equal = .false.
       class is (CubedSphereGridFactory)
          equal = .true.
+         equal = size(a%ims) == size(this%ims)
+         if (.not. equal) return
+         equal = size(a%jms) == size(this%jms)
+         if (.not. equal) return
          equal = all(a%ims == this%ims) 
          if (.not. equal) return
 
@@ -826,7 +830,6 @@ contains
    logical function equals(a, b)
       class (CubedSphereGridFactory), intent(in) :: a
       class (AbstractGridFactory), intent(in) :: b
-      integer :: a_nx,b_nx,a_ny,b_ny
 
       select type (b)
       class default
@@ -906,6 +909,7 @@ contains
       ptr = array
       call ESMF_FieldHalo(field,this%rh,rc=status)
       _VERIFY(status)
+      array = ptr
       call ESMF_FieldDestroy(field,rc=status)
       _VERIFY(status)
       
@@ -1301,7 +1305,6 @@ contains
       integer :: status
       integer :: global_dim(3),i1,j1,in,jn,tile
       integer :: face_i1, face_j1, is, js
-      integer :: nf
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
       _UNUSED_DUMMY(this)
 
