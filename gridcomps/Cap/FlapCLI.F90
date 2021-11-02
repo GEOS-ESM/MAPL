@@ -7,9 +7,7 @@ module MAPL_FlapCLIMod
    use FLAP
    use mapl_KeywordEnforcerMod
    use mapl_ExceptionHandling
-!   use mapl_CapOptionsMod, only: MAPL_FlapCli => MAPL_CapOptions
    use mapl_CapOptionsMod, only:  MAPL_CapOptions !Rename is for backward compatibility. Remove renaming for 3.0
-!   use mapl_CapOptionsFlapMod
    implicit none
    private
 
