@@ -49,7 +49,7 @@ module mapl_CapOptionsMod
    interface MAPL_CapOptions
       module procedure new_CapOptions
       module procedure new_CapOptions_copy ! for backward compatibility ! delete for 3.0
-   end interface
+   end interface MAPL_CapOptions
 
 contains
 
@@ -82,7 +82,7 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end function
+   end function new_CapOptions
 
    function new_CapOptions_copy(options) result(copy)
       type(MAPL_CapOptions) :: copy

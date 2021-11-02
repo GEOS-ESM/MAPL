@@ -76,7 +76,8 @@ program main
       ! Read and parse the command line, and set parameters
       cap_options = MAPL_FlapCLI( &
            description = 'GEOS AGCM', &
-           authors     = 'GMAO')
+           authors     = 'GMAO', &
+           dummy       = '')
 
       call MPI_init(ierror)
 
