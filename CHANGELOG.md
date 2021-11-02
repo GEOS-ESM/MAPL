@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Changed non-Fortran Standard `call exit` to `stop` in `ExtDataDriver.F90`
   - Changed `kind=8` to `kind=REAL64` in `pfio_MAPL_demo.F90`
   - Reenabled build with NAG (works with NAG 7.0.7048)
+- Added PFIO support for `NF90_STRING` (as opposed to `NF90_CHAR`).  This fixes use of some netCDF files.
 
 ### Added
 
