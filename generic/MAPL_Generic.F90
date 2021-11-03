@@ -5958,13 +5958,6 @@ end function MAPL_AddChildFromDSO
        _RETURN(ESMF_SUCCESS)
     end if
 
-! Implemented a suggestion by Arlindo to allow files beginning with "-" (dash)
-! to be skipped if file does not exist and values defaulted
-
-! Implemented a suggestion by Larry to allow files beginning with "+" (plus)
-! to not fail if they do not contain enough variables or skipped alltogether
-! if file does not exist. In both case values are defaulted
-
     FNAME = adjustl(FILENAME)
     bootstrapable = .false.
 
@@ -5979,16 +5972,6 @@ end function MAPL_AddChildFromDSO
     bootstrapable = (rstBoot /= 'NO')
 
     firstChar = FNAME(1:1)
-
-    if (firstChar == "-" .or. firstChar == '+') then
-       TMP = FNAME(2:)
-       FNAME = TMP
-       if (.not. bootstrapable) then
-          call WRITE_PARALLEL("WARNING: use of '+' or '-' in the restart name '"//&
-               trim(FNAME)//"' allows bootstrapping!")
-       end if
-       bootstrapable = .true.
-    end if
 
     ! get the "required restart" attribute from the state
     call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
