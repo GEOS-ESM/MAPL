@@ -13,20 +13,16 @@ module MAPL_FlapCLIMod
 
    public :: MAPL_FlapCLI
 
-   type :: MAPL_FlapCLI
+   type :: MAPL_FlapCLI_Type
      type(command_line_interface) :: cli_options
    contains
       procedure, nopass :: add_command_line_options
       procedure :: fill_cap_options
-   end type MAPL_FlapCLI
-
-   interface MAPL_FlapCLI
-      module procedure new_CapOptions_from_flap
-   end interface MAPL_FlapCLI
+   end type MAPL_FlapCLI_Type
 
 contains
 
-   function new_CapOptions_from_flap(unusable, description, authors, rc) result (cap_options)
+   function MAPL_FlapCLI(unusable, description, authors, rc) result (cap_options)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type (MAPL_CapOptions) :: cap_options
       character(*), intent(in) :: description
@@ -34,7 +30,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      type(MAPL_FlapCLI) :: flap_cli
+      type(MAPL_FlapCLI_Type) :: flap_cli
 
       call flap_cli%cli_options%init( &
         description = trim(description), &
@@ -50,7 +46,7 @@ contains
       
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function new_CapOptions_from_flap
+   end function MAPL_FlapCLI
 
    ! Static method
    subroutine add_command_line_options(options, unusable, rc)
@@ -234,7 +230,7 @@ contains
    end subroutine add_command_line_options
 
    subroutine fill_cap_options(flapCLI, cap_options, unusable, rc)
-      class(MAPL_FlapCLI), intent(inout) :: flapCLI
+      class(MAPL_FlapCLI_Type), intent(inout) :: flapCLI
       type(MAPL_CapOptions), intent(out) :: cap_options
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc

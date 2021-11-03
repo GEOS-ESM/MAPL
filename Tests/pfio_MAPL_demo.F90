@@ -17,8 +17,6 @@ program main
       use, intrinsic :: iso_fortran_env, only: REAL64
       use mpi
       use MAPL
-!      use MAPL_FlapCliMod
-!      use MAPL_CapOptionsMod
       use pFIO_UnlimitedEntityMod
       implicit none
 
@@ -75,7 +73,7 @@ program main
 
       ! Read and parse the command line, and set parameters
       cap_options = MAPL_FlapCLI( &
-           description = 'GEOS AGCM', &
+           description = 'pfio demo', &
            authors     = 'GMAO')
 
       call MPI_init(ierror)
