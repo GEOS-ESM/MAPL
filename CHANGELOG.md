@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Removed MKL dependency in `Tests/`
+- Removed +/- in front of restart name logic in MAPL_Generic.F90
 
 ## [2.11.0] - 2021-10-29
 
