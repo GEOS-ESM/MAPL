@@ -7,7 +7,6 @@ program ExtData_Driver
   use ESMF
   use ExtData_DriverGridCompMod, only: ExtData_DriverGridComp, new_ExtData_DriverGridComp
   use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
-  use FLAP
   use ExtDataDriverMod
   use MAPL
 
