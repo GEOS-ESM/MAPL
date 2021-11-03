@@ -15,6 +15,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+### Deprecated
+
+## [2.12.0] - 2021-11-03
+
+### Fixed
+
+- Fixes #951. Adjusted the size for the internal write, which is compiler dependent. For reals: 15 for Inter, 16 for NAG and Portland group, 18 for gfortran.
+- Fixed bug when comparing grid equality in the cubed-sphere factory
+- Fixes handling of nested states in MAPL. Removed the requirement to specify horizontal or vertical grid specs for such states. Added a public method to retrieve rootGC
+
+### Added
+
+- Add find_package() calls to main `CMakeLists.txt` for all paths (Baselibs or not). Needed so these calls can be removed in
+  `FindBaselibs.cmake` in ESMA_cmake
+
+### Changed
+
+- Relocated CapOptions related modules to `./gridcomps/Cap`. Also simplified the
+  FLAP options layer. Had to introduce some minor naming kludges to keep high level GEOS interfaces working.
+  FlapCLI.F90 and CapOptions.F90 changes that should be revisited in 3.0 has been commented for backward compatibility.
+  This should be revisited under 3.0.
+- Updated to ESMA_cmake v3.7.0
+
+### Removed
+
+- Removed MKL dependency in `Tests/`
+- Removed support for +/- option for restart names in MAPL_Generic.F90.   Found to be unused, and kludgy.
+
 ## [2.11.0] - 2021-10-29
 
 ### Fixed
@@ -25,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Changed non-Fortran Standard `call exit` to `stop` in `ExtDataDriver.F90`
   - Changed `kind=8` to `kind=REAL64` in `pfio_MAPL_demo.F90`
   - Reenabled build with NAG (works with NAG 7.0.7048)
+- Added PFIO support for `NF90_STRING` (as opposed to `NF90_CHAR`).  This fixes use of some netCDF files.
 
 ### Added
 
