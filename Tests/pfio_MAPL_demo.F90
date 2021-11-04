@@ -72,7 +72,7 @@ program main
 !BOC
 
       ! Read and parse the command line, and set parameters
-      cap_options = MAPL_FlapCLI( &
+      cap_options = FlapCLI( &
            description = 'pfio demo', &
            authors     = 'GMAO')
 

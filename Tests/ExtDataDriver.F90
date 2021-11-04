@@ -8,7 +8,7 @@ program ExtData_Driver
   use ExtData_DriverGridCompMod, only: ExtData_DriverGridComp, new_ExtData_DriverGridComp
   use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
   use ExtDataDriverMod
-  use MAPL
+  use MAPL, only: FlapCLI, MAPL_CapOptions
 
   implicit none
 
@@ -17,7 +17,7 @@ program ExtData_Driver
   type(ExtDataDriver) :: Driver
   type (MAPL_CapOptions) :: cap_options
 
-  cap_options = MAPL_FlapCLI(description='extdata driver',authors='gmao')
+  cap_options = FlapCLI(description='extdata driver',authors='gmao')
 
   driver = ExtDataDriver('ExtDataApp',Root_SetServices,cap_options=cap_options,_RC)
   call driver%run(_RC)
