@@ -8,7 +8,7 @@ program ExtData_Driver
   use ExtData_DriverGridCompMod, only: ExtData_DriverGridComp, new_ExtData_DriverGridComp
   use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
   use ExtDataDriverMod
-  use MAPL, only: FlapCLI, MAPL_CapOptions
+  use MAPL
 
   implicit none
 
