@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v3.0.0 - Development]
 
 ### Removed
+
+- Removes backward compatibility for MAPL_FlapCLI functions. Only accepts function usage in which the result is of
+  MAPL_CapOptions type.
+
 ### Added
 ### Changed
 
