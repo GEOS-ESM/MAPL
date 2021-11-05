@@ -23,6 +23,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+- Added ability to generate monthly checkpoints (fixes issue #1065)
+
+### Changed
+
+- Updated `components.yaml`
+  - ESMA_env v3.6.0 (Use MPT 2.25 at NAS on TOSS)
+  - ESMA_cmake v3.7.1 (Fixes FindBaselibs issue found by @sdrabenh)
+
+### Removed
+
+### Deprecated
+
+## [2.12.0] - 2021-11-03
+
+### Fixed
+
 - Fixes #951. Adjusted the size for the internal write, which is compiler dependent. For reals: 15 for Inter, 16 for NAG and Portland group, 18 for gfortran.
 - Fixed bug when comparing grid equality in the cubed-sphere factory
 - Fixes handling of nested states in MAPL. Removed the requirement to specify horizontal or vertical grid specs for such states. Added a public method to retrieve rootGC
