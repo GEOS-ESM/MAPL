@@ -870,7 +870,9 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   type (ESMF_Alarm)             :: recordAlarm
   type (ESMF_Alarm), allocatable :: R_ALARM(:)
   integer, allocatable          :: R_FILETYPE(:)
-  integer, dimension(:), allocatable :: ref_date, ref_time, ref_freq
+  integer, dimension(:), allocatable :: ref_date, ref_time, freq
+  character(len=ESMF_MAXSTR), allocatable :: freq_string(:)
+  logical                       :: mnthly
   integer                       :: NRA, sec
   character(len=ESMF_MAXSTR)    :: AlarmName
   character(len=3)              :: alarmNum
@@ -1376,24 +1378,23 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
       nra = ESMF_ConfigGetLen( STATE%CF, RC = STATUS)
       _ASSERT( NRA > 0,'Empty list is not allowed')
 
-      allocate (ref_date(NRA), ref_time(NRA), ref_freq(NRA), stat=STATUS)
+      allocate(ref_date(NRA), ref_time(NRA), freq(NRA), freq_string(NRA), stat=STATUS)
       _VERIFY(STATUS)
 
       call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_FREQUENCY:", RC=STATUS)
-      call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_freq, count=NRA, RC=STATUS)
+      call ESMF_ConfigGetAttribute( STATE%CF, valueList=freq_string, count=NRA, RC=STATUS)
       _VERIFY(STATUS)
 
-      call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_DATE:", RC=STATUS)
-      _VERIFY(STATUS)
-!      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
-      call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_date, count=NRA, RC=STATUS)
-      _VERIFY(STATUS)
+      if (.not. all(freq_string == 'monthly')) then
 
-      call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_TIME:", RC=STATUS)
-      _VERIFY(STATUS)
-!      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
-      call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_time, count=NRA, RC=STATUS)
-      _VERIFY(STATUS)
+         call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_DATE:", __RC__)
+         !      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
+         call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_date, count=NRA, __RC__)
+
+         call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_TIME:", __RC__)
+         !      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
+         call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_time, count=NRA, __RC__)
+      end if
 
       allocate (R_ALARM(NRA), STAT=STATUS)
       _VERIFY(STATUS)
@@ -1406,33 +1407,48 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
          AlarmName = "RecordAlarm" // alarmNum
          call ESMF_ClockGetAlarm(clock, trim(AlarmName), recordAlarm, rc=status)
          if (STATUS/=ESMF_SUCCESS) then
+            monthly: if (freq_string(i) == 'monthly') then
+               ! monthly alarm
+               mnthly = .true.
+               ! This should ring on the first of each month at midnight
+               call ESMF_TimeSet( RefTime, YY = year, MM = month, &
+                    DD = 1, H = 0, M = 0, S = 0, calendar=cal, __RC__ )
+               call ESMF_TimeIntervalSet( frequency, MM=1, __RC__ )
+               RingTime = RefTime
+!               print *,'DEBUG: creating MONTHLY record alarm'
+            else
+               mnthly = .false.
+               read(freq_string(i),*) freq(i)
+               call ESMF_TimeSet( RefTime, YY = ref_date(I)/10000, &
+                    MM = mod(ref_date(I),10000)/100, &
+                    DD = mod(ref_date(I),100), &
+                    H = ref_time(I)/10000, &
+                    M = mod(ref_time(I),10000)/100, &
+                    S = mod(ref_time(I),100), calendar=cal, rc=status )
+               if (status /= 0) then
+                  print *,'Error: ref_date/time ',ref_date(i), ref_time(i)
+               endif
+               _VERIFY(STATUS)
+
+               nhms = freq(I)
+               sec = nhms/10000*3600 + mod(nhms,10000)/100*60 + mod(nhms,100)
+               call ESMF_TimeIntervalSet( frequency, S=sec, rc=status )
+               _VERIFY(STATUS)
+               RingTime = RefTime
+               if (RingTime < currTime .and. sec /= 0) then
+                  RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
+               endif
+            end if monthly
+            
             ! create alarm
-            call ESMF_TimeSet( RefTime, YY = ref_date(I)/10000, &
-                               MM = mod(ref_date(I),10000)/100, &
-                               DD = mod(ref_date(I),100), &
-                               H = ref_time(I)/10000, &
-                               M = mod(ref_time(I),10000)/100, &
-                               S = mod(ref_time(I),100), calendar=cal, rc=status )
-if (status /= 0) then
-   print *,'Error: ref_date/time ',ref_date(i), ref_time(i)
-endif
-            _VERIFY(STATUS)
-
-            nhms = ref_freq(I)
-            sec = nhms/10000*3600 + mod(nhms,10000)/100*60 + mod(nhms,100)
-            call ESMF_TimeIntervalSet( frequency, S=sec, rc=status )
-            _VERIFY(STATUS)
-            RingTime = RefTime
-            if (RingTime < currTime .and. sec /= 0) then
-               RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
-            endif
-
             RecordAlarm = ESMF_AlarmCreate( name=trim(AlarmName), clock=clock, RingInterval=Frequency, &
                                              RingTime=RingTime, sticky=.false.,rc=status )
             _VERIFY(STATUS)
 
-            if(ringTime == currTime) then
+            if(ringTime == currTime .and. .not.mnthly) then
                call ESMF_AlarmRingerOn(RecordAlarm, rc=status); _VERIFY(STATUS)
+            else
+               call ESMF_AlarmRingerOff(RecordAlarm, rc=status); _VERIFY(STATUS)
             end if
 
          end if
@@ -1441,7 +1457,7 @@ endif
       END DO
       call MAPL_AddRecord(STATE, R_ALARM, R_FILETYPE, RC=STATUS)
       _VERIFY(STATUS)
-      deallocate (ref_freq, ref_time, ref_date)
+      deallocate (freq, ref_time, ref_date, freq_string)
       deallocate(R_FILETYPE, R_ALARM)
    endif
 
