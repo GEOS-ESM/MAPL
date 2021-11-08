@@ -18,7 +18,6 @@ module MAPL_CubedSphereGridFactoryMod
    use pFIO
    use MAPL_CommsMod
    use MAPL_Constants
-   use MAPL_IOMod, only : GETFILE, FREE_FILE 
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32
    implicit none
    private
@@ -507,7 +506,7 @@ contains
 
          elseif (MAPL_AM_I_Root(VM)) then
 
-            UNIT = GETFILE ( trim(file_name), form="formatted", rc=status )
+            open(newunit=UNIT,file=trim(file_name), form="formatted", iostat=status )
             _VERIFY(STATUS)
             read(UNIT,*) total, max_procs
             if (total /= N_proc) then
@@ -517,7 +516,7 @@ contains
             do i = 1,total
                 read(UNIT,*) values_tmp(i)
             enddo
-            call FREE_FILE(UNIT)
+            close(UNIT)
          endif
 
          call MAPL_CommsBcast(VM, max_procs,  n=1, ROOT=MAPL_Root, rc=status)
