@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated `components.yaml`
   - ESMA_env v3.6.0 (Use MPT 2.25 at NAS on TOSS)
-  - ESMA_cmake v3.7.1 (Fixes FindBaselibs issue found by @sdrabenh)
+  - ESMA_cmake v3.7.2 (Fixes FindBaselibs issue found by @sdrabenh, f2py order fix)
 
 ### Removed
 
