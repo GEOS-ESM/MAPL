@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fragile CMake logic for checking minimum version requirements for gFTL.
+
 ### Added
 
 - Added ability to generate monthly checkpoints (fixes issue #1065)
