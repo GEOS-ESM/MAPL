@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fragile CMake logic for checking minimum version requirements for gFTL.
-
 ### Added
 
 ### Changed
@@ -18,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.12.1] - 2021-11-08
+
+### Fixed
+
+- Fixes #1186.  Fragile CMake logic for checking minimum version requirements for gFTL.
 
 ## [2.12.0] - 2021-11-03
 
