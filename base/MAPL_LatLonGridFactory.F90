@@ -942,21 +942,12 @@ contains
       call ESMF_ConfigGetAttribute(config, this%jm_world, label=prefix//'JM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
-      if ( status == _SUCCESS ) then
-         call get_ims_from_file(this%ims, trim(tmp),this%nx, rc=status)
-         _VERIFY(status)
-      else
-         call get_multi_integer(this%ims, 'IMS:', rc=status)
-         _VERIFY(status)
-      endif
+
+      call get_multi_integer(this%ims, 'IMS:', rc=status)
+
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'JMS_FILE:', rc=status)
-      if ( status == _SUCCESS ) then
-         call get_ims_from_file(this%jms, trim(tmp),this%ny, rc=status)
-         _VERIFY(status)
-      else
-         call get_multi_integer(this%jms, 'JMS:', rc=status)
-         _VERIFY(status)
-      endif
+
+      call get_multi_integer(this%jms, 'JMS:', rc=status)
 
       call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
 
@@ -1028,45 +1019,6 @@ contains
          _RETURN(_SUCCESS)
 
       end subroutine get_multi_integer
-
-      subroutine get_ims_from_file(values, file_name, n, rc)
-         integer, allocatable, intent(out) :: values(:)
-         character(len=*), intent(in) :: file_name
-         integer, intent(in) :: n
-         integer, optional, intent(out) :: rc
-
-         logical :: FileExists
-         integer :: i, total, unit
-         integer :: status
-
-         inquire(FILE = trim(file_name), EXIST=FileExists)
-         allocate(values(n), stat=status) ! no point in checking status
-         _VERIFY(status)
-
-         if ( .not. FileExists) then
-             print*, file_name // "   not found"
-             _RETURN(_FAILURE)
-
-         elseif (MAPL_AM_I_Root(VM)) then
-
-            open(newunit=UNIT, file=trim(file_name), form="formatted", iostat=status )
-            _VERIFY(STATUS)
-            read(UNIT,*) total
-            if (total /= n) then
-                print*, file_name // " n is different from ", total
-                _RETURN(_FAILURE)
-            endif
-            do i = 1,total
-                read(UNIT,*) values(i)
-            enddo
-            close(UNIT)
-         endif
-
-         call MAPL_CommsBcast(VM, values, n=N, ROOT=MAPL_Root, rc=status)
-         _VERIFY(STATUS)
-         _RETURN(_SUCCESS)
-
-      end subroutine get_ims_from_file
 
       subroutine get_range(range, label, rc)
          type(RealMinMax), intent(out) :: range
