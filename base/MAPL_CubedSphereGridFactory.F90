@@ -418,7 +418,13 @@ contains
       _VERIFY(status)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'JMS_FILE:', rc=status)
-      call get_multi_integer(this%jms, 'JMS:', rc=status)
+      if (status == _SUCCESS) then
+         call get_jms_from_file(this%jms_2d, trim(tmp),this%ny, rc=status)
+         _VERIFY(status)
+      else
+         call get_multi_integer(this%jms, 'JMS:', rc=status)
+         _VERIFY(status)
+      endif
 
       call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
 
@@ -476,6 +482,65 @@ contains
          _RETURN(_SUCCESS)
 
       end subroutine get_multi_integer
+
+      subroutine get_jms_from_file(values, file_name, n, rc)
+         integer, allocatable, intent(out) :: values(:,:)
+         character(len=*), intent(in) :: file_name
+         integer, intent(in) :: n
+         integer, optional, intent(out) :: rc
+
+         logical :: FileExists
+         integer :: i,k,face,total, unit, max_procs
+         integer :: status, N_proc,NF
+         integer, allocatable :: values_tmp(:), values_(:,:)
+
+    
+         N_proc = n*6 ! it has been devided by 6. get back the original NY
+         allocate(values_tmp(N_proc), stat=status) ! no point in checking status
+         _VERIFY(status)
+
+         inquire(FILE = trim(file_name), EXIST=FileExists)
+         if ( .not. FileExists) then
+            print*, file_name //  " does not exist"
+             _RETURN(_FAILURE)
+
+         elseif (MAPL_AM_I_Root(VM)) then
+
+            open(newunit=UNIT,file=trim(file_name), form="formatted", iostat=status )
+            _VERIFY(STATUS)
+            read(UNIT,*) total, max_procs
+            if (total /= N_proc) then
+                print*, "n /= total"
+                _RETURN(_FAILURE)
+            endif
+            do i = 1,total
+                read(UNIT,*) values_tmp(i)
+            enddo
+            close(UNIT)
+         endif
+
+         call MAPL_CommsBcast(VM, max_procs,  n=1, ROOT=MAPL_Root, rc=status)
+         call MAPL_CommsBcast(VM, values_tmp, n=N_proc, ROOT=MAPL_Root, rc=status)
+         _VERIFY(STATUS)
+
+         ! distributed to 6 faces
+         allocate(values_(max_procs,6))
+         values_ = 0
+         k = 1
+         do NF = 1, 6
+            face = 0
+            do i = 1, max_procs
+               values_(i,NF) = values_tmp(k)
+               face = face + values_tmp(k)
+               k = k+1
+               if (face == this%im_world) exit
+            enddo             
+          enddo
+          values = values_
+
+         _RETURN(_SUCCESS)
+
+      end subroutine get_jms_from_file
 
       subroutine get_bounds(bounds, label, rc)
          type(RealMinMax), intent(out) :: bounds
