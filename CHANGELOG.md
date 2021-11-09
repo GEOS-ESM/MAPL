@@ -31,11 +31,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated `components.yaml`
   - ESMA_env v3.6.0 (Use MPT 2.25 at NAS on TOSS)
-  - ESMA_cmake v3.7.1 (Fixes FindBaselibs issue found by @sdrabenh)
+  - ESMA_cmake v3.7.2 (Fixes FindBaselibs issue found by @sdrabenh, f2py order fix)
 
 ### Removed
 
 ### Deprecated
+
+## [2.12.1] - 2021-11-08
+
+### Fixed
+
+- Fixes #1186.  Fragile CMake logic for checking minimum version requirements for gFTL.
 
 ## [2.12.0] - 2021-11-03
 
