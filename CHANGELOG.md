@@ -12,10 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Fixed
+- Corrected bug in HorizontalFluxRegridder.  Fluxes need to be
+  multiplied by edge length for correct treatment.
 
-### Removed
-
-### Deprecated
 
 ## [2.37.0] - 2023-04-03
 
