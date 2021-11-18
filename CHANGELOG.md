@@ -8,14 +8,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- Fixed bug with MAPL_FindChild gfortran debug compilation
-- Fixes #1115. NAG flagged several issues, related to how different derived type are brought in MAPL by different modules, which quite possibly are violation of the standard. Similarly, a procedure call was used as an argument with intent(INOUT).
 
 ### Added
+
+- Added ability to generate monthly checkpoints (fixes issue #1065)
+
+### Changed
+
+- Updated `components.yaml`
+  - ESMA_env v3.6.0 (Use MPT 2.25 at NAS on TOSS)
+  - ESMA_cmake v3.7.2 (Fixes FindBaselibs issue found by @sdrabenh, f2py order fix)
+
+### Removed
+
+### Deprecated
+
+## [2.12.1] - 2021-11-08
+
+### Fixed
+
+- Fixes #1186.  Fragile CMake logic for checking minimum version requirements for gFTL.
+
+## [2.12.0] - 2021-11-03
+
+### Fixed
+
+- Fixes #951. Adjusted the size for the internal write, which is compiler dependent. For reals: 15 for Inter, 16 for NAG and Portland group, 18 for gfortran.
+- Fixed bug when comparing grid equality in the cubed-sphere factory
+- Fixes handling of nested states in MAPL. Removed the requirement to specify horizontal or vertical grid specs for such states. Added a public method to retrieve rootGC
+
+### Added
+
+- Add find_package() calls to main `CMakeLists.txt` for all paths (Baselibs or not). Needed so these calls can be removed in
+  `FindBaselibs.cmake` in ESMA_cmake
+
+### Changed
+
+- Relocated CapOptions related modules to `./gridcomps/Cap`. Also simplified the
+  FLAP options layer. Had to introduce some minor naming kludges to keep high level GEOS interfaces working.
+  FlapCLI.F90 and CapOptions.F90 changes that should be revisited in 3.0 has been commented for backward compatibility.
+  This should be revisited under 3.0.
+- Updated to ESMA_cmake v3.7.0
+
+### Removed
+
+- Removed MKL dependency in `Tests/`
+- Removed support for +/- option for restart names in MAPL_Generic.F90.   Found to be unused, and kludgy.
+
+## [2.11.0] - 2021-10-29
+
+### Fixed
+
+- Fixed bug with MAPL_FindChild gfortran debug compilation
+- Fixes #1115. NAG flagged several issues, related to how different derived type are brought in MAPL by different modules, which quite possibly are violation of the standard. Similarly, a procedure call was used as an argument with intent(INOUT).
+- Fixed issues with NAG and Tests (#1106)
+  - Changed non-Fortran Standard `call exit` to `stop` in `ExtDataDriver.F90`
+  - Changed `kind=8` to `kind=REAL64` in `pfio_MAPL_demo.F90`
+  - Reenabled build with NAG (works with NAG 7.0.7048)
+- Added PFIO support for `NF90_STRING` (as opposed to `NF90_CHAR`).  This fixes use of some netCDF files.
+
+### Added
+
+- Added ability to regrid multiple files in one execution of Regrid_Util.x
 
 ### Changed
 
 - Removed last `NETCDF_LIBRARIES` reference from CMake
+- OOMPH: Lots of work to tease apart low level "specs" into separate
+         files/classes.  At the same time new classes (mostly unused
+         as yet) are being introduced for nextgen specs.
+   Some details:
+   - Introduced new oomph subdirectory and namespace.
+   - Replaced some "manual containers" with gFTL Vectors.
+   - Updated some gFTL containers to v2 containers.
+- Require gFTL v1.5.1
+  - Updated `components.yaml` to ESMA_env v3.5.0 (Baselibs 6.2.8)
+  - Update CI images to Baselibs 6.2.8
 
 ### Removed
 
@@ -28,7 +96,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reduced runtime impact of communication barriers in Cap gridded component
 
 ### Added
-- Added ability to regrid multiple files in one execution of Regrid_Util.x
 
 - Exposed `TO_NAME` argument in `MAPL_StateAddExportSpecFrmChld()` to
   allow renaming of EXPORTS. Needed for GOCART-2G.

@@ -118,6 +118,7 @@ module MAPL_GenericMod
   use MAPL_Constants
   use MAPL_SunMod
   use mapl_MaplGrid
+  use mapl_VarSpecMod
   use MaplGeneric
   use MAPL_GenericCplCompMod
   use MAPL_LocStreamMod
@@ -220,6 +221,8 @@ module MAPL_GenericMod
   public MAPL_DestroyStateSave
   public MAPL_GenericStateSave
   public MAPL_GenericStateRestore
+  public MAPL_RootGcRetrieve
+  
 !BOP  
   ! !PUBLIC TYPES:
 
@@ -298,7 +301,6 @@ module MAPL_GenericMod
      module procedure MAPL_AddConnectivityRename
      module procedure MAPL_AddConnectivityRenameMany
      module procedure MAPL_AddConnectivityMany
-     ! module procedure MAPL_AddConnectivityOld
   end interface
   
   interface  MAPL_GridCompGetFriendlies
@@ -365,8 +367,8 @@ end type  MAPL_InitialState
 
 
 type MAPL_Connectivity
-   type (MAPL_VarConn), pointer :: CONNECT(:)       => null()
-   type (MAPL_VarConn), pointer :: DONOTCONN(:)     => null()
+   type (VarConn) :: CONNECT
+   type (VarConn) :: DONOTCONN
    type (ServiceConnectionItemVector) :: ServiceConnectionItems
 end type MAPL_Connectivity
 
@@ -448,7 +450,7 @@ type, extends(MaplGenericComponent) ::  MAPL_MetaComp
 contains
 
    procedure :: get_ith_child
-
+   procedure :: get_child_idx
    procedure :: get_child_gridcomp
    procedure :: get_child_import_state
    procedure :: get_child_export_state
@@ -551,7 +553,7 @@ type(ESMF_FieldBundle), pointer   :: BUNDLE
 type(ESMF_State), pointer         :: STATE
 type(ESMF_VM)                     :: VM
 
-type (MAPL_VarConn),      pointer :: CONNECT(:)
+type (VarConn), pointer :: CONNECT
 type (MAPL_VarSpec),      pointer :: IM_SPECS(:)
 type (MAPL_VarSpec),      pointer :: EX_SPECS(:)
 type (MAPL_VarSpecPtr),   pointer :: ImSpecPtr(:)
@@ -632,7 +634,7 @@ type(ESMF_GridComp), pointer :: gridcomp
             ExSpecPtr(I)%Spec => EX_SPECS
          END DO
 
-         call MAPL_ConnCheckReq(CONNECT, ImSpecPtr, ExSpecPtr, rc=status)
+         call connect%checkReq(ImSpecPtr, ExSpecPtr, rc=status)
          _VERIFY(STATUS)
 
          deallocate (ImSpecPtr, ExSpecPtr)
@@ -868,7 +870,9 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
   type (ESMF_Alarm)             :: recordAlarm
   type (ESMF_Alarm), allocatable :: R_ALARM(:)
   integer, allocatable          :: R_FILETYPE(:)
-  integer, dimension(:), allocatable :: ref_date, ref_time, ref_freq
+  integer, dimension(:), allocatable :: ref_date, ref_time, freq
+  character(len=ESMF_MAXSTR), allocatable :: freq_string(:)
+  logical                       :: mnthly
   integer                       :: NRA, sec
   character(len=ESMF_MAXSTR)    :: AlarmName
   character(len=3)              :: alarmNum
@@ -1372,24 +1376,23 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
       nra = ESMF_ConfigGetLen( STATE%CF, RC = STATUS)
       _ASSERT( NRA > 0,'Empty list is not allowed')
 
-      allocate (ref_date(NRA), ref_time(NRA), ref_freq(NRA), stat=STATUS)
+      allocate(ref_date(NRA), ref_time(NRA), freq(NRA), freq_string(NRA), stat=STATUS)
       _VERIFY(STATUS)
 
       call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_FREQUENCY:", RC=STATUS)
-      call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_freq, count=NRA, RC=STATUS)
+      call ESMF_ConfigGetAttribute( STATE%CF, valueList=freq_string, count=NRA, RC=STATUS)
       _VERIFY(STATUS)
 
-      call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_DATE:", RC=STATUS)
-      _VERIFY(STATUS)
-!      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
-      call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_date, count=NRA, RC=STATUS)
-      _VERIFY(STATUS)
+      if (.not. all(freq_string == 'monthly')) then
 
-      call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_TIME:", RC=STATUS)
-      _VERIFY(STATUS)
-!      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
-      call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_time, count=NRA, RC=STATUS)
-      _VERIFY(STATUS)
+         call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_DATE:", __RC__)
+         !      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
+         call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_date, count=NRA, __RC__)
+
+         call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_TIME:", __RC__)
+         !      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
+         call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_time, count=NRA, __RC__)
+      end if
 
       allocate (R_ALARM(NRA), STAT=STATUS)
       _VERIFY(STATUS)
@@ -1402,33 +1405,48 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
          AlarmName = "RecordAlarm" // alarmNum
          call ESMF_ClockGetAlarm(clock, trim(AlarmName), recordAlarm, rc=status)
          if (STATUS/=ESMF_SUCCESS) then
+            monthly: if (freq_string(i) == 'monthly') then
+               ! monthly alarm
+               mnthly = .true.
+               ! This should ring on the first of each month at midnight
+               call ESMF_TimeSet( RefTime, YY = year, MM = month, &
+                    DD = 1, H = 0, M = 0, S = 0, calendar=cal, __RC__ )
+               call ESMF_TimeIntervalSet( frequency, MM=1, __RC__ )
+               RingTime = RefTime
+!               print *,'DEBUG: creating MONTHLY record alarm'
+            else
+               mnthly = .false.
+               read(freq_string(i),*) freq(i)
+               call ESMF_TimeSet( RefTime, YY = ref_date(I)/10000, &
+                    MM = mod(ref_date(I),10000)/100, &
+                    DD = mod(ref_date(I),100), &
+                    H = ref_time(I)/10000, &
+                    M = mod(ref_time(I),10000)/100, &
+                    S = mod(ref_time(I),100), calendar=cal, rc=status )
+               if (status /= 0) then
+                  print *,'Error: ref_date/time ',ref_date(i), ref_time(i)
+               endif
+               _VERIFY(STATUS)
+
+               nhms = freq(I)
+               sec = nhms/10000*3600 + mod(nhms,10000)/100*60 + mod(nhms,100)
+               call ESMF_TimeIntervalSet( frequency, S=sec, rc=status )
+               _VERIFY(STATUS)
+               RingTime = RefTime
+               if (RingTime < currTime .and. sec /= 0) then
+                  RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
+               endif
+            end if monthly
+            
             ! create alarm
-            call ESMF_TimeSet( RefTime, YY = ref_date(I)/10000, &
-                               MM = mod(ref_date(I),10000)/100, &
-                               DD = mod(ref_date(I),100), &
-                               H = ref_time(I)/10000, &
-                               M = mod(ref_time(I),10000)/100, &
-                               S = mod(ref_time(I),100), calendar=cal, rc=status )
-if (status /= 0) then
-   print *,'Error: ref_date/time ',ref_date(i), ref_time(i)
-endif
-            _VERIFY(STATUS)
-
-            nhms = ref_freq(I)
-            sec = nhms/10000*3600 + mod(nhms,10000)/100*60 + mod(nhms,100)
-            call ESMF_TimeIntervalSet( frequency, S=sec, rc=status )
-            _VERIFY(STATUS)
-            RingTime = RefTime
-            if (RingTime < currTime .and. sec /= 0) then
-               RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
-            endif
-
             RecordAlarm = ESMF_AlarmCreate( name=trim(AlarmName), clock=clock, RingInterval=Frequency, &
                                              RingTime=RingTime, sticky=.false.,rc=status )
             _VERIFY(STATUS)
 
-            if(ringTime == currTime) then
+            if(ringTime == currTime .and. .not.mnthly) then
                call ESMF_AlarmRingerOn(RecordAlarm, rc=status); _VERIFY(STATUS)
+            else
+               call ESMF_AlarmRingerOff(RecordAlarm, rc=status); _VERIFY(STATUS)
             end if
 
          end if
@@ -1437,7 +1455,7 @@ endif
       END DO
       call MAPL_AddRecord(STATE, R_ALARM, R_FILETYPE, RC=STATUS)
       _VERIFY(STATUS)
-      deallocate (ref_freq, ref_time, ref_date)
+      deallocate (freq, ref_time, ref_date, freq_string)
       deallocate(R_FILETYPE, R_ALARM)
    endif
 
@@ -2052,7 +2070,9 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
   type (MAPL_MetaComp), pointer               :: STATE
   integer                                     :: I
   logical                                     :: final_checkpoint
+#ifndef H5_HAVE_PARALLEL
   logical                                     :: nwrgt1
+#endif
   integer                                     :: NC
   integer                                     :: PHASE
   integer                                     :: NUMPHASES
@@ -3373,6 +3393,8 @@ end subroutine MAPL_DateStampGet
   !BOPI
   ! !IIROUTINE: MAPL_StateAddExportSpecFrmChld --- Add \texttt{EXPORT} spec from child
 
+  ! This is an odd procedure in that it not only adds an export spec, it also adds
+  ! a connectivity.
   !INTERFACE:
   subroutine MAPL_StateAddExportSpecFrmChld ( GC, SHORT_NAME, CHILD_ID, RC, TO_NAME )
 
@@ -3386,18 +3408,46 @@ end subroutine MAPL_DateStampGet
     !EOPI
 
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_StateAddExportSpecFrmChld"
-    integer                               :: STATUS
+    integer                               :: status
+    type(MAPL_MetaComp), pointer :: maplobj
 
 
-    call MAPL_AddConnectivityE2E ( GC, SHORT_NAME, &
-                                TO_NAME = TO_NAME, &
-                                SRC_ID = CHILD_ID, &
-                                TO_EXPORT = MAPL_Self, RC=STATUS  )
-    _VERIFY(STATUS)
-
+    call MAPL_InternalStateRetrieve(gc, maplobj, _RC)
+    call MAPL_StateAddExportSpecFrmChldName(gc, short_name, maplobj%gcnamelist(child_id), TO_NAME=TO_NAME, _RC)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_StateAddExportSpecFrmChld
+
+  !BOPI
+  ! !IIROUTINE: MAPL_StateAddExportSpecFrmChld --- Add \texttt{EXPORT} spec from child
+
+  !INTERFACE:
+  subroutine MAPL_StateAddExportSpecFrmChldName ( GC, short_name, child_name, rc, TO_NAME )
+
+    !ARGUMENTS:
+    type(ESMF_GridComp),              intent(INOUT)   :: GC 
+    character (len=*)               , intent(IN)      :: short_name
+    character(*), intent(in) :: child_name
+    integer            , optional   , intent(OUT)     :: rc
+    character (len=*),      optional, intent(IN)      :: TO_NAME ! NAME to appear is EXPORT;
+                                                                 ! default is SHORT_NAME
+    !EOPI
+
+    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_StateAddExportSpecFrmChld"
+    integer  :: child_id
+    integer  :: status
+    type(MAPL_MetaComp), pointer :: maplobj
+
+    call MAPL_InternalStateRetrieve(gc, maplobj, _RC)
+    child_id = maplobj%get_child_idx(child_name)
+    
+    call MAPL_AddConnectivityE2E ( GC, SHORT_NAME, &
+                                TO_NAME = TO_NAME, &
+                                SRC_ID = CHILD_ID, &
+                                TO_EXPORT = MAPL_Self, _RC)
+
+    _RETURN(ESMF_SUCCESS)
+ end subroutine MAPL_StateAddExportSpecFrmChldName
 
 
   !BOPI
@@ -4922,34 +4972,6 @@ end function MAPL_AddChildFromDSO
 
 
 
-  subroutine MAPL_AddConnectivityOld ( GC, SHORT_NAME, TO_NAME, &
-       FROM_IMPORT, FROM_EXPORT, TO_IMPORT, TO_EXPORT, RC  )
-
-    type(ESMF_GridComp),            intent(INOUT) :: GC ! Gridded component
-    character (len=*)             , intent(IN   ) :: SHORT_NAME
-    character (len=*),    optional, intent(IN   ) :: TO_NAME
-    integer,              optional, intent(IN   ) :: FROM_IMPORT
-    integer,              optional, intent(IN   ) :: FROM_EXPORT
-    integer,              optional, intent(IN   ) :: TO_IMPORT
-    integer,              optional, intent(IN   ) :: TO_EXPORT
-    integer,              optional, intent(  OUT) :: RC     ! Error code:
-
-    character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_AddConnectivity"
-    integer                               :: STATUS
-    type (MAPL_Connectivity), pointer     :: conn
-
-
-    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
-    _VERIFY(STATUS)
-
-    call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME, TO_NAME=TO_NAME,        &
-                            FROM_IMPORT=FROM_IMPORT, FROM_EXPORT=FROM_EXPORT, &
-                            TO_IMPORT  =TO_IMPORT,   TO_EXPORT  =TO_EXPORT, RC=STATUS  )
-    _VERIFY(STATUS)
-
-    _RETURN(ESMF_SUCCESS)
-  end subroutine MAPL_AddConnectivityOld
-
   subroutine MAPL_AddConnectivityE2E ( GC, SHORT_NAME, &
        SRC_ID, TO_EXPORT, TO_NAME, RC )
 
@@ -4964,14 +4986,10 @@ end function MAPL_AddChildFromDSO
     integer                               :: STATUS
     type (MAPL_Connectivity), pointer     :: conn
 
-    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
-    _VERIFY(STATUS)
+    call MAPL_ConnectivityGet(gc, connectivityPtr=conn, _RC)
 
-    call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME, &
-                            TO_NAME = TO_NAME,  &
-                            FROM_EXPORT=SRC_ID, &
-                            TO_EXPORT=TO_EXPORT, RC=STATUS  )
-    _VERIFY(STATUS)
+    call conn%connect%append(SHORT_NAME, TO_NAME=TO_NAME, &
+                             FROM_EXPORT=SRC_ID, TO_IMPORT=TO_EXPORT, _RC)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_AddConnectivityE2E
@@ -5004,9 +5022,8 @@ end function MAPL_AddChildFromDSO
     call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
     _VERIFY(STATUS)
 
-    call MAPL_VarConnCreate(CONN%CONNECT, SHORT_NAME=SRC_NAME, TO_NAME=DST_NAME,        &
-                            FROM_EXPORT=SRC_ID, TO_IMPORT=DST_ID, RC=STATUS  )
-    _VERIFY(STATUS)
+    call CONN%CONNECT%append(SHORT_NAME=SRC_NAME, TO_NAME=DST_NAME,        &
+                            FROM_EXPORT=SRC_ID, TO_IMPORT=DST_ID, _RC)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_AddConnectivityRename
@@ -5093,9 +5110,7 @@ end function MAPL_AddChildFromDSO
     call MAPL_ConnectivityGet(gc, connectivityPtr=conn, RC=status)
     _VERIFY(STATUS)
 
-    call MAPL_VarConnCreate(CONN%DONOTCONN, SHORT_NAME, &
-       FROM_IMPORT=CHILD, RC=STATUS  )
-    _VERIFY(STATUS)
+    call CONN%DONOTCONN%append(SHORT_NAME, TO_IMPORT=CHILD, _RC)
 
 
     _RETURN(ESMF_SUCCESS)
@@ -5174,7 +5189,7 @@ end function MAPL_AddChildFromDSO
     logical                               :: SKIP
     character(len=ESMF_MAXSTR), allocatable :: SNAMES(:)
     type (MAPL_Connectivity), pointer     :: conn
-    type (MAPL_VarConn), pointer          :: CONNECT(:)
+    type (VarConn), pointer          :: CONNECT
     logical :: isConnected
     type(ESMF_GridComp), pointer :: gridcomp
 
@@ -5196,7 +5211,7 @@ end function MAPL_AddChildFromDSO
           _VERIFY(STATUS)
           do J=1 ,size(META_CHILD%component_spec%import%old_var_specs)
              call MAPL_VarSpecGet(META_CHILD%component_spec%import%old_var_specs(J),SHORT_NAME=SHORT_NAME,RC=STATUS)
-             isConnected = MAPL_VarIsConnected(connect,short_name,I,rc=status)
+             isConnected = connect%varIsConnected(short_name,I,rc=status)
              SKIP = ANY(SNAMES==TRIM(SHORT_NAME)) .and. (ANY(CHILD_IDS==I))
              if ((.not.isConnected) .and. (.not.skip)) then
                 call MAPL_DoNotConnect(GC, SHORT_NAME, I, RC=status)
@@ -5450,7 +5465,6 @@ end function MAPL_AddChildFromDSO
     integer :: i
     integer :: nc
     type (MAPL_MetaComp), pointer :: cmeta => null()
-    character(len=ESMF_MAXSTR) :: cname
     type(ESMF_GridComp), pointer :: childgridcomp
     
     nc = meta%get_num_children()
@@ -5937,12 +5951,10 @@ end function MAPL_AddChildFromDSO
     character(len=ESMF_MAXSTR)            :: FileType
     integer                               :: isNC4
     logical                               :: isPresent
-    logical                               :: is_tile
     class(AbstractGridFactory), pointer :: app_factory
     class (AbstractGridFactory), allocatable :: file_factory
     character(len=ESMF_MAXSTR) :: grid_type
     logical :: empty
-    class(Logger), pointer :: lgr
 
     _UNUSED_DUMMY(CLOCK)
 
@@ -5952,13 +5964,6 @@ end function MAPL_AddChildFromDSO
        call warn_empty('Restart '//trim(filename), MPL, __RC__)
        _RETURN(ESMF_SUCCESS)
     end if
-
-! Implemented a suggestion by Arlindo to allow files beginning with "-" (dash)
-! to be skipped if file does not exist and values defaulted
-
-! Implemented a suggestion by Larry to allow files beginning with "+" (plus)
-! to not fail if they do not contain enough variables or skipped alltogether
-! if file does not exist. In both case values are defaulted
 
     FNAME = adjustl(FILENAME)
     bootstrapable = .false.
@@ -5974,16 +5979,6 @@ end function MAPL_AddChildFromDSO
     bootstrapable = (rstBoot /= 'NO')
 
     firstChar = FNAME(1:1)
-
-    if (firstChar == "-" .or. firstChar == '+') then
-       TMP = FNAME(2:)
-       FNAME = TMP
-       if (.not. bootstrapable) then
-          call WRITE_PARALLEL("WARNING: use of '+' or '-' in the restart name '"//&
-               trim(FNAME)//"' allows bootstrapping!")
-       end if
-       bootstrapable = .true.
-    end if
 
     ! get the "required restart" attribute from the state
     call ESMF_AttributeGet(STATE, NAME="MAPL_RestartRequired", isPresent=isPresent, RC=STATUS)
@@ -6308,7 +6303,8 @@ end function MAPL_AddChildFromDSO
        _VERIFY(STATUS)
 !ALT we should also check if we have a valid grid in the spec so we do not overwrite it
 
-       if (IAND(STAT, MAPL_BundleItem) /= 0) then
+       if (IAND(STAT, MAPL_BundleItem) /= 0 .or. &
+            IAND(STAT, MAPL_StateItem) /= 0) then
           GRD = GRID
        else
 ! choose the grid         
@@ -6505,12 +6501,6 @@ end subroutine MAPL_StateCreateFromVarSpecNew
          rstReq = 1
       end if
 
-      if (DIMS == MAPL_DimsTileOnly .OR. DIMS == MAPL_DimsTileTile) then
-         ATTR = IOR(ATTR, MAPL_AttrTile)
-      else
-         ATTR = IOR(ATTR, MAPL_AttrGrid)
-      end if
-      
       if (IAND(STAT, MAPL_StateItem) /= 0) then
          isCreated = ESMF_StateIsCreated(SPEC_STATE, rc=status)
          _VERIFY(STATUS)
@@ -6567,6 +6557,12 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 !!!         cycle
       endif
 
+      if (DIMS == MAPL_DimsTileOnly .OR. DIMS == MAPL_DimsTileTile) then
+         ATTR = IOR(ATTR, MAPL_AttrTile)
+      else
+         ATTR = IOR(ATTR, MAPL_AttrGrid)
+      end if
+      
       deferAlloc = usableDefer
       if (usableDefer) deferAlloc = .not. alwaysAllocate
 
@@ -7030,8 +7026,8 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     logical                                     :: SATISFIED
     logical                                     :: PARENTIMPORT
     type (MAPL_Connectivity), pointer           :: conn
-    type (MAPL_VarConn), pointer                :: CONNECT(:)
-    type (MAPL_VarConn), pointer                :: DONOTCONN(:)
+    type (VarConn), pointer                :: CONNECT
+    type (VarConn), pointer                :: DONOTCONN
     type(ESMF_GridComp), pointer :: gridcomp
 ! Begin
 
@@ -7089,8 +7085,8 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
        do K=1,size(EX_SPECS)
           call MAPL_VarSpecGet(EX_SPECS(K), SHORT_NAME=SHORT_NAME, RC=STATUS) 
-          if (MAPL_VarIsConnected(CONNECT, SHORT_NAME=SHORT_NAME, &
-                                  FROM_EXPORT=I, TO_EXPORT=MAPL_Self, &
+          if (connect%varIsConnected(IMPORT_NAME=SHORT_NAME, &
+                                  export=I, import=MAPL_Self, &
                                   RC=STATUS)) then
 
              _VERIFY(STATUS)
@@ -7113,7 +7109,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
 ! check "do not connect" list for 
        PARENTIMPORT = .true.
-       if (MAPL_VarIsListed(DONOTCONN, SHORT_NAME="MAPL_AnyChildImport", &
+       if (DONOTCONN%varIsListed(SHORT_NAME="MAPL_AnyChildImport", &
                             IMPORT=I, RC=STATUS)) then
           _VERIFY(STATUS)
           PARENTIMPORT = .false.
@@ -7141,7 +7137,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 #endif
 
 ! check "do not connect" list 
-          if (MAPL_VarIsListed(DONOTCONN, SHORT_NAME=SHORT_NAME, &
+          if (DONOTCONN%varIsListed(SHORT_NAME=SHORT_NAME, &
                                IMPORT=I, RC=STATUS)) then
              _VERIFY(STATUS)
              cycle
@@ -7157,7 +7153,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
           do J=1,NC      
              if(I==J) cycle
 ! then check if this is internally satisfied
-             if (MAPL_VarIsConnected(CONNECT, IMPORT_NAME=SHORT_NAME, &
+             if (connect%varIsConnected(IMPORT_NAME=SHORT_NAME, &
                                      IMPORT=I, EXPORT=J, RC=STATUS)) then
                 
                 _VERIFY(STATUS) 
@@ -7183,8 +7179,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
 
 
 ! then check if this is internally satisfied
-             if (MAPL_VarIsConnected(CONNECT, &
-                                     IMPORT_NAME=SHORT_NAME, EXPORT_NAME=ENAME, &
+             if (connect%varIsConnected(IMPORT_NAME=SHORT_NAME, EXPORT_NAME=ENAME, &
                                      IMPORT=I, EXPORT=J, RC=STATUS)) then
 ! If a match is found, add it to that coupler's src and dst specs
 ! ?? Mark the import satisfied and the export needed.
@@ -8345,12 +8340,12 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     conn => state%connectList
       
     err = .false.
-    if (.not. MAPL_ConnCheckUnused(CONN%CONNECT)) then
+    if (.not. conn%connect%checkUnused()) then
        err = .true.
        CALL WRITE_PARALLEL("CONNECT ERRORS FOUND in " // trim(COMP_NAME))
     end if
 
-    if (.not. MAPL_ConnCheckUnused(CONN%DONOTCONN)) then
+    if (.not. CONN%DONOTCONN%checkUnused()) then
        err = .true.
        CALL WRITE_PARALLEL("DO_NOT_CONNECT ERRORS FOUND in " // trim(COMP_NAME))
     end if
@@ -10459,7 +10454,12 @@ end subroutine MAPL_READFORCINGX
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_GetRootGC
 
-
+  function MAPL_RootGcRetrieve (meta) result(GC)
+    type (MAPL_MetaComp), intent(IN) :: META 
+    type(ESMF_GridComp) :: GC
+    
+    GC = meta%rootGC
+  end function MAPL_RootGcRetrieve
 
   integer function MAPL_AddMethod(PHASE, RC)
     integer, pointer               :: PHASE(:)
@@ -11370,6 +11370,21 @@ end subroutine MAPL_GenericStateRestore
       end select
 
    end function get_ith_child
+
+   integer function get_child_idx(this, child_name) result(idx)
+      class(MAPL_MetaComp), target, intent(in) :: this
+      character(*), intent(in) :: child_name
+
+      integer :: i
+
+      idx = -1
+      do i = 1, this%get_num_children()
+         if (this%gcnamelist(i) == trim(child_name)) then
+            idx = i
+            return
+         end if
+      end do
+   end function get_child_idx
 
 
 
