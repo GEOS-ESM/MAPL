@@ -4,28 +4,44 @@ module mapl_SphericalGeometry
    use mapl_ErrorHandlingMod
    use ESMF
    use mapl_Constants
-   use, intrinsic :: iso_fortran_env, only: REAL64,REAL32
+   use, intrinsic :: iso_fortran_env, only: REAL64, REAL32
    implicit none
    private
 
    public :: get_points_in_spherical_domain
    public :: distance
-   
+
+
+   interface distance
+      module procedure distance_r32
+      module procedure distance_r64
+   end interface distance
+
 contains
 
    ! Computes distance between two points (in lat lon as radians),
    ! and returns distance in radians (unit sphere)
    ! Using formulae from: https://www.movable-type.co.uk/scripts/latlong.html
 
-   elemental real function distance(lon1, lat1, lon2, lat2) result(d)
-      real, intent(in) :: lon1, lat1
-      real, intent(in) :: lon2, lat2
+   elemental real(kind=REAL64) function distance_r64(lon1, lat1, lon2, lat2) result(d)
+      real(kind=REAL64), intent(in) :: lon1, lat1
+      real(kind=REAL64), intent(in) :: lon2, lat2
 
       associate(a => sin(lat2-lat1)**2 + cos(lat1)*cos(lat2)*sin((lon2-lon1)/2)**2)
         d = 2*atan2(sqrt(a), sqrt(1-a))
       end associate
 
-   end function distance
+   end function distance_r64
+
+   elemental real(kind=REAL32) function distance_r32(lon1, lat1, lon2, lat2) result(d)
+      real(kind=REAL32), intent(in) :: lon1, lat1
+      real(kind=REAL32), intent(in) :: lon2, lat2
+
+      associate(a => sin(lat2-lat1)**2 + cos(lat1)*cos(lat2)*sin((lon2-lon1)/2)**2)
+        d = 2*atan2(sqrt(a), sqrt(1-a))
+      end associate
+
+   end function distance_r32
 
    subroutine get_points_in_spherical_domain(center_lons,center_lats,corner_lons,corner_lats,lons,lats,ii,jj,rc)
       real(real64), intent(in) :: center_lats(:,:),center_lons(:,:)

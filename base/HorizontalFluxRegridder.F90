@@ -74,7 +74,7 @@ contains
      integer :: counts(5)
      integer :: status
      integer :: units ! unused
-     real, pointer :: lons(:,:), lats(:,:)
+     real(kind=ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
 
      _UNUSED_DUMMY(unusable)
      spec = this%get_spec()
