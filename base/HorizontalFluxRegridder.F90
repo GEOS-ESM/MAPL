@@ -10,6 +10,7 @@ module mapl_HorizontalFluxRegridder
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
    use mapl_BaseMod
+   use mapl_SphericalGeometry
    implicit none
    private
 
@@ -20,6 +21,8 @@ module mapl_HorizontalFluxRegridder
       integer :: resolution_ratio = -1
       integer :: im_in, jm_in
       integer :: im_out, jm_out
+      real, allocatable :: dx_in(:,:), dy_in(:,:)
+      real, allocatable :: dx_out(:,:), dy_out(:,:)
    contains
       procedure, nopass :: supports
       procedure :: initialize_subclass
@@ -70,6 +73,8 @@ contains
 
      integer :: counts(5)
      integer :: status
+     integer :: units ! unused
+     real, pointer :: lons(:,:), lats(:,:)
 
      _UNUSED_DUMMY(unusable)
      spec = this%get_spec()
@@ -91,8 +96,36 @@ contains
          _ASSERT((IM_in / IM_out) == (JM_in / JM_out), 'inconsistent aspect ratio')
          
          this%resolution_ratio = (IM_in / IM_out)
+
+         call ESMF_GridGetCoord(grid_in, coordDim=1, farrayPtr=lons, &
+              localDE=0, staggerLoc=ESMF_STAGGERLOC_CORNER, __RC__)
+         call ESMF_GridGetCoord(grid_in, coordDim=2, farrayPtr=lats, &
+              localDE=0, staggerLoc=ESMF_STAGGERLOC_CORNER, __RC__)
+
+         this%dx_in = distance( &
+              lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
+              lons(2:IM_in+1,1:JM_in), lats(2:IM_in+1,1:JM_in))
+
+         this%dy_in = distance( &
+              lons(1:IM_in,1:JM_in), lats(1:IM_in,1:JM_in), &
+              lons(1:IM_in,2:JM_in+1), lats(1:IM_in,2:JM_in+1))
+
+         call ESMF_GridGetCoord(grid_out, coordDim=1, farrayPtr=lons, &
+              localDE=0, staggerLoc=ESMF_STAGGERLOC_CORNER, __RC__)
+         call ESMF_GridGetCoord(grid_out, coordDim=2, farrayPtr=lats, &
+              localDE=0, staggerLoc=ESMF_STAGGERLOC_CORNER, __RC__)
+
+         this%dx_out = distance( &
+              lons(1:IM_out,1:JM_out), lats(1:IM_out,1:JM_out), &
+              lons(2:IM_out+1,1:JM_out), lats(2:IM_out+1,1:JM_out))
+
+         this%dy_out = distance( &
+              lons(1:IM_out,1:JM_out), lats(1:IM_out,1:JM_out), &
+              lons(1:IM_out,2:JM_out+1), lats(1:IM_out,2:JM_out+1))
+
        end associate
      end associate
+
      
      _RETURN(_SUCCESS)
   end subroutine initialize_subclass
@@ -129,9 +162,14 @@ contains
              do i  = 1, IM
                 m_y = 0
                 do ii = 1 + (i-1)*N, i*N
-                   m_y = m_y + v_in(ii,jj)
+                   associate (d_in => this%dx_in(ii,jj))
+                     m_y = m_y + v_in(ii,jj) * d_in
+                   end associate
                 end do
-                v_out(i,j) = m_y
+
+                associate (d_out => this%dx_out(i,j))
+                  v_out(i,j) = m_y / d_out
+                end associate
              end do
           end do
           
@@ -141,9 +179,13 @@ contains
              do j  = 1, JM
                 m_x = 0
                 do jj = 1 + (j-1)*N, j*N
-                   m_x = m_x + u_in(ii,jj)
+                   associate (d_in => this%dy_in(ii,jj))
+                     m_x = m_x + u_in(ii,jj) * d_in
+                   end associate
                 end do
-                u_out(i,j) = m_x
+                associate (d_out => this%dy_out(i,j))
+                  u_out(i,j) = m_x / d_out
+                end associate
              end do
           end do
 
@@ -186,9 +228,13 @@ contains
              do i  = 1, IM
                 m_y = 0
                 do ii = 1 + (i-1)*N, i*N
-                   m_y = m_y + v_in(ii,jj)
+                   associate (d_in => this%dx_in(ii,jj))
+                     m_y = m_y + v_in(ii,jj) * d_in
+                   end associate
                 end do
-                v_out(i,j) = m_y
+                associate (d_out => this%dx_out(i,j))
+                  v_out(i,j) = m_y / d_out
+                end associate
              end do
           end do
           
@@ -198,9 +244,13 @@ contains
              do j  = 1, JM
                 m_x = 0
                 do jj = 1 + (j-1)*N, j*N
-                   m_x = m_x + u_in(ii,jj)
+                   associate (d_in => this%dy_in(ii,jj))
+                     m_x = m_x + u_in(ii,jj) * d_in
+                   end associate
                 end do
-                u_out(i,j) = m_x
+                associate (d_out => this%dy_out(i,j))
+                  u_out(i,j) = m_x / d_out
+                end associate
              end do
           end do
 

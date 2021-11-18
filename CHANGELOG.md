@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
 ### Removed
 
 ### Added
@@ -55,6 +57,7 @@ rrent components could connect services.
 
 ### Fixed
 
+- Fixed bug in HorizontalFluxRegridder.  Fluxes need to be scaled by edge lengths to be consistent with GEOS conventions.
 - Fixed issue #486. Empty state restarts will now be ignored (with warning) for writing (the code also protects reading, but the existing code already had a different protection)
 - Added default `CMAKE_BUILD_TYPE` for MAPL standalone. Defaults to `Release` build if not set on command line
 
