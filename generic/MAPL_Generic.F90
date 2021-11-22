@@ -4637,7 +4637,7 @@ end subroutine MAPL_DateStampGet
 
   integer                                     :: I
   type(MAPL_MetaComp), pointer                :: CHILD_META, tmp_meta
-  class(AbstractFrameworkComponent), pointer :: tmp_framework
+  class(AbstractFrameworkComponent), pointer  :: tmp_framework
   character(len=ESMF_MAXSTR), allocatable     :: TMPNL(:)
   character(len=ESMF_MAXSTR)                  :: FNAME, PNAME
   type(ESMF_GridComp)                         :: pGC
@@ -4651,6 +4651,7 @@ end subroutine MAPL_DateStampGet
   type(StubComponent) :: stub_component
   type(ESMF_VM) :: vm
   integer :: comm
+  integer :: userRC
 
   lgr => logging%get_logger('MAPL.GENERIC')
 
@@ -4700,21 +4701,21 @@ end subroutine MAPL_DateStampGet
 
      gridcomp => child_meta%gridcomp
      if (present(configfile)) then
-        gridcomp = ESMF_GridCompCreate   (     &
-             NAME   = trim(FNAME),                 &
-             CONFIGFILE = configfile,             &
-             grid = grid,                         &
-             petList = petList,                   &
-             contextFlag = contextFlag,           &
+        gridcomp = ESMF_GridCompCreate   ( &
+             NAME   = trim(FNAME),         &
+             CONFIGFILE = configfile,      &
+             grid = grid,                  &
+             petList = petList,            &
+             contextFlag = contextFlag,    &
              RC=STATUS )
         _VERIFY(STATUS)
      else
-        gridcomp = ESMF_GridCompCreate   (     &
-             NAME   = trim(FNAME),                 &
-             CONFIG = META%CF,                    &
-             grid = grid,                         &
-             petList = petList,                   &
-             contextFlag = contextFlag,           &
+        gridcomp = ESMF_GridCompCreate   ( &
+             NAME   = trim(FNAME),         &
+             CONFIG = META%CF,             &
+             grid = grid,                  &
+             petList = petList,            &
+             contextFlag = contextFlag,    &
              RC=STATUS )
         _VERIFY(STATUS)
      end if
@@ -4723,16 +4724,16 @@ end subroutine MAPL_DateStampGet
 ! ----------------------------------
 
      child_import_state => META%get_child_import_state(i)
-     child_import_state = ESMF_StateCreate (                         &
+     child_import_state = ESMF_StateCreate (             &
           NAME = trim(META%GCNameList(I)) // '_Imports', &
-          stateIntent = ESMF_STATEINTENT_IMPORT, &
+          stateIntent = ESMF_STATEINTENT_IMPORT,         &
           RC=STATUS )
      _VERIFY(STATUS)
 
      child_export_state => META%get_child_export_state(i)
-     child_export_state = ESMF_StateCreate (                         &
+     child_export_state = ESMF_StateCreate (             &
           NAME = trim(META%GCNameList(I)) // '_Exports', &
-          stateIntent = ESMF_STATEINTENT_EXPORT, &
+          stateIntent = ESMF_STATEINTENT_EXPORT,         &
        RC=STATUS )
   _VERIFY(STATUS)
 
@@ -4765,7 +4766,8 @@ end subroutine MAPL_DateStampGet
   call CHILD_META%t_profiler%start(__RC__)
   call CHILD_META%t_profiler%start('SetService',__RC__)
   gridcomp => META%GET_CHILD_GRIDCOMP(I)
-  call ESMF_GridCompSetServices ( gridcomp, SS, RC=status )
+  call ESMF_GridCompSetServices ( gridcomp, SS, userRC=userRC, RC=status )
+  _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'issue with MAPL_AddChildFromMeta')
   call CHILD_META%t_profiler%stop('SetService',__RC__)
   call CHILD_META%t_profiler%stop(__RC__)
   call t_p%stop(trim(NAME),__RC__)
@@ -4821,14 +4823,15 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
   integer, optional  , intent(  OUT) :: rc
   !EOP
 
-  character(len=ESMF_MAXSTR)                  :: IAm
-  integer                                     :: STATUS
+  character(len=ESMF_MAXSTR) :: IAm
+  integer                    :: STATUS
+  integer                    :: userRC
 
   type(MAPL_MetaComp), pointer                :: META
 
   integer                                     :: I
   type(MAPL_MetaComp), pointer                :: CHILD_META, tmp_meta
-  class(AbstractFrameworkComponent), pointer :: tmp_framework
+  class(AbstractFrameworkComponent), pointer  :: tmp_framework
   character(len=ESMF_MAXSTR), allocatable     :: TMPNL(:)
   character(len=ESMF_MAXSTR)                  :: FNAME, PNAME
   type(ESMF_GridComp)                         :: pGC
@@ -4899,21 +4902,21 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
 
         gridcomp => child_meta%gridcomp
         if (present(configfile)) then
-           gridcomp = ESMF_GridCompCreate   (     &
-                NAME   = trim(FNAME),                 &
-                CONFIGFILE = configfile,             &
-                grid = grid,                         &
-                petList = petList,                   &
-                contextFlag = contextFlag,           &
+           gridcomp = ESMF_GridCompCreate   ( &
+                NAME   = trim(FNAME),         &
+                CONFIGFILE = configfile,      &
+                grid = grid,                  &
+                petList = petList,            &
+                contextFlag = contextFlag,    &
                 RC=STATUS )
            _VERIFY(STATUS)
         else
-           gridcomp = ESMF_GridCompCreate   (     &
-                NAME   = trim(FNAME),                 &
-                CONFIG = META%CF,                    &
-                grid = grid,                         &
-                petList = petList,                   &
-                contextFlag = contextFlag,           &
+           gridcomp = ESMF_GridCompCreate   ( &
+                NAME   = trim(FNAME),         &
+                CONFIG = META%CF,             &
+                grid = grid,                  &
+                petList = petList,            &
+                contextFlag = contextFlag,    &
                 RC=STATUS )
            _VERIFY(STATUS)
         end if
@@ -4922,16 +4925,16 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
 ! --   --------------------------------
 
         child_import_state => META%get_child_import_state(i)
-        child_import_state = ESMF_StateCreate (                         &
+        child_import_state = ESMF_StateCreate (             &
              NAME = trim(META%GCNameList(I)) // '_Imports', &
-             stateIntent = ESMF_STATEINTENT_IMPORT, &
+             stateIntent = ESMF_STATEINTENT_IMPORT,         &
              RC=STATUS )
         _VERIFY(STATUS)
 
         child_export_state => META%get_child_export_state(i)
-        child_export_state = ESMF_StateCreate (                         &
+        child_export_state = ESMF_StateCreate (             &
              NAME = trim(META%GCNameList(I)) // '_Exports', &
-             stateIntent = ESMF_STATEINTENT_EXPORT, &
+             stateIntent = ESMF_STATEINTENT_EXPORT,         &
           RC=STATUS )
         _VERIFY(STATUS)
 
@@ -4964,14 +4967,16 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
 
   shared_object_library_basename = get_file_basename(SharedObj)
   system_dso_suffix = get_system_dso_suffix()
-  shared_object_library_with_system_dso_suffix = trim(shared_object_library_basename)//trim(system_dso_suffix)
+  shared_object_library_with_system_dso_suffix = shared_object_library_basename // system_dso_suffix
 
   t_p => get_global_time_profiler()
   call t_p%start(trim(NAME),__RC__)
   call CHILD_META%t_profiler%start(__RC__)
   call CHILD_META%t_profiler%start('SetService',__RC__)
   gridcomp => META%GET_CHILD_GRIDCOMP(I)
-  call ESMF_GridCompSetServices ( gridcomp, userRoutine, sharedObj=shared_object_library_with_system_dso_suffix,__RC__)
+  call ESMF_GridCompSetServices ( gridcomp, userRoutine, &
+     sharedObj=shared_object_library_with_system_dso_suffix,userRC=userRC,RC=status)
+  _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'DSO library was not found')
   call CHILD_META%t_profiler%stop('SetService',__RC__)
   call CHILD_META%t_profiler%stop(__RC__)
   call t_p%stop(trim(NAME),__RC__)

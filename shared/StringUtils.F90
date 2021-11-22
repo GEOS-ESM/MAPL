@@ -22,10 +22,10 @@ contains
       character(len=:), allocatable :: extension
       integer :: dot_index
 
-      dot_index = find_extension_index(filename)
+      dot_index = find_extension_index(trim(filename))
       ! If the filename has no extension, return blank string
       if (dot_index > 0) then
-         extension = filename(dot_index:)
+         extension = trim(filename(dot_index:))
       else
          extension = ''
       endif
@@ -38,12 +38,12 @@ contains
       character(len=:), allocatable :: basename
       integer :: dot_index
 
-      dot_index = find_extension_index(filename)
+      dot_index = find_extension_index(trim(filename))
       ! If the filename has no extension, return the filename
       if (dot_index > 0) then
-         basename = filename(1:dot_index-1)
+         basename = trim(filename(1:dot_index-1))
       else
-         basename = filename
+         basename = trim(filename)
       end if
    end function get_file_basename
 
@@ -69,9 +69,9 @@ contains
       detected_dso_suffix = SYSTEM_DSO_SUFFIX
       if (remove_dot_) then
          dot_index = find_extension_index(detected_dso_suffix)
-         suffix = detected_dso_suffix(dot_index+1:)
+         suffix = trim(detected_dso_suffix(dot_index+1:))
       else
-         suffix = detected_dso_suffix
+         suffix = trim(detected_dso_suffix)
       end if
    end function get_system_dso_suffix
 
