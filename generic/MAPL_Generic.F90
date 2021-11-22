@@ -4962,11 +4962,8 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
 
   ! Construct a valid shared object library name
 
-  ! 1. Get the basename of the file without the extension
   shared_object_library_basename = get_file_basename(SharedObj)
-  ! 2. Get the system dso suffix
   system_dso_suffix = get_system_dso_suffix()
-  ! 3. Make a new shared object name
   shared_object_library_with_system_dso_suffix = trim(shared_object_library_basename)//trim(system_dso_suffix)
 
   t_p => get_global_time_profiler()
