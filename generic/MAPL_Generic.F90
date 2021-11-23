@@ -131,7 +131,7 @@ module MAPL_GenericMod
   use pFlogger, only: logging, Logger
   use MAPL_AbstractGridFactoryMod
   use MAPL_GridManagerMod, only: grid_manager,get_factory
-  use MAPL_StringUtilsMod, only: get_file_basename, get_system_dso_suffix
+  use MAPL_StringUtilsMod, only: get_file_basename, get_system_dso_suffix, get_file_extension, validate_dso_suffix
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
   use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
@@ -4846,8 +4846,10 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
   type(ESMF_VM) :: vm
   integer :: comm
 
-  character(len=:), allocatable :: shared_object_library_basename
+  character(len=:), allocatable :: requested_shared_object_library_basename
+  character(len=:), allocatable :: requested_shared_object_library_extension
   character(len=:), allocatable :: shared_object_library_with_system_dso_suffix
+  character(len=:), allocatable :: shared_object_library_to_load
   character(len=:), allocatable :: system_dso_suffix
 
   lgr => logging%get_logger('MAPL.GENERIC')
@@ -4965,9 +4967,28 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
 
   ! Construct a valid shared object library name
 
-  shared_object_library_basename = get_file_basename(SharedObj)
+  call lgr%debug('  MAPL_AddChildFromDSO: Requested shared library [%a] for component [%a] ',trim(SharedObj), trim(fname))
+  requested_shared_object_library_basename = get_file_basename(SharedObj)
+  requested_shared_object_library_extension = get_file_extension(SharedObj)
   system_dso_suffix = get_system_dso_suffix()
-  shared_object_library_with_system_dso_suffix = shared_object_library_basename // system_dso_suffix
+  shared_object_library_with_system_dso_suffix = requested_shared_object_library_basename // system_dso_suffix
+
+  if (requested_shared_object_library_extension == '') then
+     call lgr%info('MAPL_AddChildFromDSO: Requested shared library %a for component %a has no extension but system uses %a', &
+        trim(SharedObj), trim(fname), system_dso_suffix )
+     call lgr%info('MAPL_AddChildFromDSO: Will use shared library %a for component %a', &
+        shared_object_library_with_system_dso_suffix, trim(fname) )
+     shared_object_library_to_load = shared_object_library_with_system_dso_suffix
+  else if (requested_shared_object_library_extension /= system_dso_suffix) then
+     _ASSERT(validate_dso_suffix(requested_shared_object_library_extension), 'Provided ['//trim(SharedObj)//'] for component ['//trim(fname)//']. Only .so, .dylib, and .dll are allowed DSO suffixes')
+     call lgr%info('MAPL_AddChildFromDSO: Requested shared library %a for component %a has extension %a but system uses %a', &
+        trim(SharedObj), trim(fname), requested_shared_object_library_extension, system_dso_suffix )
+     call lgr%info('MAPL_AddChildFromDSO: Will use shared library %a for component %a', &
+        shared_object_library_with_system_dso_suffix, trim(fname) )
+     shared_object_library_to_load = shared_object_library_with_system_dso_suffix
+  else
+     shared_object_library_to_load = trim(SharedObj)
+  end if
 
   t_p => get_global_time_profiler()
   call t_p%start(trim(NAME),__RC__)
@@ -4975,8 +4996,8 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
   call CHILD_META%t_profiler%start('SetService',__RC__)
   gridcomp => META%GET_CHILD_GRIDCOMP(I)
   call ESMF_GridCompSetServices ( gridcomp, userRoutine, &
-     sharedObj=shared_object_library_with_system_dso_suffix,userRC=userRC,RC=status)
-  _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'DSO library was not found')
+     sharedObj=shared_object_library_to_load,userRC=userRC,RC=status)
+  _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'DSO library load of ['//shared_object_library_to_load//'] from ['//trim(fname)//'] failed')
   call CHILD_META%t_profiler%stop('SetService',__RC__)
   call CHILD_META%t_profiler%stop(__RC__)
   call t_p%stop(trim(NAME),__RC__)
