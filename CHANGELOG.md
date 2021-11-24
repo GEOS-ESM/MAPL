@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add the i and j index as variables to use to generate synthetic data in ExtDataDriver.x
 - Added ability to generate monthly checkpoints (fixes issue #1065)
 
 ### Changed
@@ -33,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `components.yaml`
   - ESMA_env v3.6.0 (Use MPT 2.25 at NAS on TOSS)
   - ESMA_cmake v3.7.2 (Fixes FindBaselibs issue found by @sdrabenh, f2py order fix)
+- Made the `MAPL_AddChildFromDSO` function system agnostic by using the CMake detected DSO suffix
 
 ### Removed
 

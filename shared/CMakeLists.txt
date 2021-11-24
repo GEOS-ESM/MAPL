@@ -22,6 +22,7 @@ set (srcs
     String.F90
     MaplShared.F90
     TimeUtils.F90
+    StringUtils.F90
 # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
@@ -30,6 +31,8 @@ set (srcs
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.constants GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
 
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+
+target_compile_definitions(${this} PRIVATE SYSTEM_DSO_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 if (PFUNIT_FOUND)
   add_subdirectory (tests)

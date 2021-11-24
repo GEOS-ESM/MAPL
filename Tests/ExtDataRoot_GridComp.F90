@@ -133,6 +133,18 @@ MODULE ExtDataUtRoot_GridCompMod
                units = 'na', &
                dims = MAPL_DimsHorzOnly, &
                vlocation = MAPL_VLocationCenter, rc=status)
+         call MAPL_AddInternalSpec(GC,&
+               short_name='i_index', &
+               long_name='na' , &
+               units = 'na', &
+               dims = MAPL_DimsHorzOnly, &
+               vlocation = MAPL_VLocationCenter, rc=status)
+         call MAPL_AddInternalSpec(GC,&
+               short_name='j_index', &
+               long_name='na' , &
+               units = 'na', &
+               dims = MAPL_DimsHorzOnly, &
+               vlocation = MAPL_VLocationCenter, rc=status)
 
 !   Generic Set Services
 !   --------------------
@@ -343,10 +355,10 @@ MODULE ExtDataUtRoot_GridCompMod
 
          case(RunModeGenerateExports)
 
-            call FillState(internal,export,currTime,synth,__RC__) 
+            call FillState(internal,export,currTime,grid,synth,__RC__) 
 
          case(runModecompareImports)
-            call FillState(internal,export,currTime,synth,__RC__)
+            call FillState(internal,export,currTime,grid,synth,__RC__)
             call CompareState(import,export,0.001,__RC__) 
 
          case(runModeFillImport)
@@ -535,24 +547,27 @@ MODULE ExtDataUtRoot_GridCompMod
 
    end subroutine CopyState
 
-   subroutine FillState(inState,outState,time,Synth,rc)
+   subroutine FillState(inState,outState,time,grid,Synth,rc)
 
       type(ESMF_State), intent(inout) :: inState
       type(ESMF_State), intent(inout) :: outState
       type(ESMF_Time),  intent(Inout) :: time
+      type(ESMF_Grid),  intent(inout) :: grid
       type(SyntheticFieldSupport) :: synth
       integer, optional, intent(out) :: rc
 
       integer :: status
       character(len=*), parameter :: Iam=__FILE__//"::FillState"
-      integer                             :: I
       real, pointer                       :: Exptr2(:,:) => null()
       integer :: itemcount
       character(len=ESMF_MAXSTR), allocatable :: outNameList(:)
-      type(ESMF_Field) :: expf,farray(3)
+      type(ESMF_Field) :: expf,farray(5)
       type(ESMF_State) :: pstate
       character(len=:), pointer :: fexpr
+      integer :: i1,in,j1,jn,ldims(3),i,j
 
+      call MAPL_GridGet(grid,localcellcountperdim=ldims,__RC__)
+      call MAPL_Grid_Interior(grid,i1,in,j1,jn)
       call ESMF_StateGet(outState,itemcount=itemCount,__RC__)
       allocate(outNameList(itemCount),stat=status)
       _VERIFY(status)
@@ -562,11 +577,29 @@ MODULE ExtDataUtRoot_GridCompMod
       _VERIFY(status)
       exPtr2=synth%tFunc%evaluateTime(Time,rc=status)
       _VERIFY(status)
+
+      call MAPL_GetPointer(inState,exPtr2,'i_index',__RC__)
+      do j = 1,ldims(2)
+         do i=1,ldims(1)
+            exPtr2(i,j)=i1+i-1
+         enddo
+      enddo
+      call MAPL_GetPointer(inState,exPtr2,'j_index',__RC__)
+      do i = 1,ldims(1)
+         do j=1,ldims(2)
+            exPtr2(i,j)=j1+j-1
+         enddo
+      enddo
+
       call ESMF_StateGet(inState,'time',farray(1),rc=status)
       _VERIFY(status)
       call ESMF_StateGet(inState,'lons',farray(2),rc=status)
       _VERIFY(status)
       call ESMF_StateGet(inState,'lats',farray(3),rc=status)
+      _VERIFY(status)
+      call ESMF_StateGet(inState,'i_index',farray(4),rc=status)
+      _VERIFY(status)
+      call ESMF_StateGet(inState,'j_index',farray(5),rc=status)
       _VERIFY(status)
       pstate = ESMF_StateCreate(rc=status)
       _VERIFY(status)
