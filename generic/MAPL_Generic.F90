@@ -1539,8 +1539,8 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
                     importState=child_import_state, &
                     exportState=child_export_state, &
                     clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_INIT(PHASE), &
-                    userRC=userRC, RC=STATUS )
-               _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
+                    userRC=userRC, __RC__ )
+               _VERIFY(userRC)
                call MAPL_GenericStateClockOff(STATE,trim(CHILD_NAME))
             end if
          end do
@@ -1571,8 +1571,8 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
                call ESMF_CplCompInitialize (STATE%CCS(J,I), &
                     importState=child_export_state, &
                     exportState=child_import_state, &
-                    clock=CLOCK, userRC=userRC, RC=STATUS )
-               _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
+                    clock=CLOCK, userRC=userRC, __RC__ )
+               _VERIFY(userRC)
             endif
          enddo
 ! ---------------------------------------------------
@@ -1677,10 +1677,10 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
             _VERIFY(STATUS)
             GCCS%compp = GC%compp
             call ESMF_GridCompReadRestart(GC, importState=import, &
-                 exportState=export, clock=CLOCK, userRC=userRC, RC=STATUS)
+                 exportState=export, clock=CLOCK, userRC=userRC, __RC__)
             GC%compp = GCCS%compp
             deallocate(GCCS%compp)
-            _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
+            _VERIFY(userRC)
          endif
 
       endif
@@ -1893,8 +1893,8 @@ recursive subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
        importState=IMPORT, &
        exportState=EXPORT, &
        clock=CLOCK, PHASE=PHASE_, &
-       userRC=userRC, RC=STATUS )
-  _ASSERT_SUCCESS(userRC, STATUS,'needs informative message')
+       userRC=userRC, __RC__ )
+  _VERIFY(userRC)
 
   ! TIMERS off
   if (associated(timers)) then
@@ -2010,8 +2010,8 @@ call MAPL_GenericStateClockOn (STATE,"TOTAL")
                  importState=child_import_state, &
                  exportState=child_export_state, &
                  clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_RUN(PHASE), &
-                 userRC=userRC, RC=STATUS )
-            _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
+                 userRC=userRC, __RC__ )
+            _VERIFY(userRC)
             call MAPL_GenericStateClockOff(STATE,trim(CHILD_NAME))
          end if
 
@@ -2024,8 +2024,8 @@ call MAPL_GenericStateClockOn (STATE,"TOTAL")
                   call ESMF_CplCompRun (STATE%CCS(I,J), &
                        importState=child_export_state, &
                        exportState=child_import_state, &
-                       clock=CLOCK, userRC=userRC, RC=STATUS)
-                  _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
+                       clock=CLOCK, userRC=userRC, __RC__)
+                  _VERIFY(userRC)
                endif
             enddo
          end if
@@ -2141,8 +2141,8 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
                     importState=child_import_state, &
                     exportState=child_export_state, &
                     clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_FINAL(PHASE), &
-                    userRC=userRC, RC=STATUS )
-               _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
+                    userRC=userRC, __RC__ )
+               _VERIFY(userRC)
                call MAPL_GenericStateClockOff(STATE,trim(CHILD_NAME))
             end if
          enddo
@@ -2394,8 +2394,8 @@ end subroutine MAPL_GenericFinalize
         call ESMF_GridCompWriteRestart (gridcomp, &
              importState=child_import_state, &
              exportState=child_export_state, &
-             clock=CLOCK, userRC=userRC, RC=STATUS ) ! number of phases is currently limited to 1
-        _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
+             clock=CLOCK, userRC=userRC, __RC__ ) ! number of phases is currently limited to 1
+        _VERIFY(userRC)
         call MAPL_GenericStateClockOff(STATE,trim(CHILD_NAME))
      enddo
 
@@ -4507,8 +4507,8 @@ end subroutine MAPL_DateStampGet
            call ESMF_CplCompRun (STATE%CCS(CHILD,J), &
                 importState=child_export_state, &
                 exportState=child_import_state, &
-                clock=CLOCK, userRC=userRC, RC=STATUS )
-             _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
+                clock=CLOCK, userRC=userRC, __RC__ )
+             _VERIFY(userRC)
           endif
        enddo
 
