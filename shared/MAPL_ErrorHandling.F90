@@ -47,8 +47,6 @@ module MAPL_ErrorHandlingMod
    interface MAPL_Assert
       module procedure MAPL_Assert_condition
       module procedure MAPL_Assert_return_code
-      module procedure MAPL_Assert_success
-      module procedure MAPL_Assert_andconditional
    end interface MAPL_Assert
 
    interface MAPL_VRFY
@@ -104,44 +102,6 @@ contains
       end if
 
    end function MAPL_Assert_return_code
-
-   logical function MAPL_Assert_success(var1, var2, success, message, return_code, filename, line, rc) result(fail)
-      integer, intent(in) :: var1
-      integer, intent(in) :: var2
-      integer, intent(in) :: success
-      character(*), intent(in) :: message
-      integer, intent(in) :: return_code
-      character(*), intent(in) :: filename
-      integer, intent(in) :: line
-      integer, optional, intent(out) :: rc ! Not present in MAIN
-
-      fail = .not. (var1 == success) .and. .not. (var2 == success)
-
-      if (fail) then
-         call MAPL_throw_exception(filename, line, message=message)
-         if (present(rc)) rc =return_code
-      end if
-
-      end function MAPL_Assert_success
-
-   logical function MAPL_Assert_andconditional(condition1, condition2, message, return_code, filename, line, rc) result(fail)
-      logical, intent(in) :: condition1
-      logical, intent(in) :: condition2
-      character(*), intent(in) :: message
-      integer, intent(in) :: return_code
-      character(*), intent(in) :: filename
-      integer, intent(in) :: line
-      integer, optional, intent(out) :: rc ! Not present in MAIN
-
-      fail = .not. condition1 .and. .not. condition2
-
-      if (fail) then
-         call MAPL_throw_exception(filename, line, message=message)
-         if (present(rc)) rc = return_code
-      end if
-
-   end function MAPL_Assert_andconditional      
-
 
 
    logical function MAPL_Verify(status, filename, line, rc) result(fail)
