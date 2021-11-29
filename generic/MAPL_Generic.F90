@@ -1539,7 +1539,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
                     exportState=child_export_state, &
                     clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_INIT(PHASE), &
                     userRC=userRC, RC=STATUS )
-               _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
+               _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
                call MAPL_GenericStateClockOff(STATE,trim(CHILD_NAME))
             end if
          end do
@@ -1571,7 +1571,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
                     importState=child_export_state, &
                     exportState=child_import_state, &
                     clock=CLOCK, userRC=userRC, RC=STATUS )
-               _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
+               _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
             endif
          enddo
 ! ---------------------------------------------------
@@ -1679,7 +1679,7 @@ recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
                  exportState=export, clock=CLOCK, userRC=userRC, RC=STATUS)
             GC%compp = GCCS%compp
             deallocate(GCCS%compp)
-            _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
+            _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
          endif
 
       endif
@@ -1893,7 +1893,7 @@ recursive subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
        exportState=EXPORT, &
        clock=CLOCK, PHASE=PHASE_, &
        userRC=userRC, RC=STATUS )
-  _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
+  _ASSERT_SUCCESS(userRC, STATUS,'needs informative message')
 
   ! TIMERS off
   if (associated(timers)) then
@@ -2010,7 +2010,7 @@ call MAPL_GenericStateClockOn (STATE,"TOTAL")
                  exportState=child_export_state, &
                  clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_RUN(PHASE), &
                  userRC=userRC, RC=STATUS )
-            _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
+            _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
             call MAPL_GenericStateClockOff(STATE,trim(CHILD_NAME))
          end if
 
@@ -2024,7 +2024,7 @@ call MAPL_GenericStateClockOn (STATE,"TOTAL")
                        importState=child_export_state, &
                        exportState=child_import_state, &
                        clock=CLOCK, userRC=userRC, RC=STATUS)
-                  _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
+                  _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
                endif
             enddo
          end if
@@ -2141,7 +2141,7 @@ recursive subroutine MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC )
                     exportState=child_export_state, &
                     clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_FINAL(PHASE), &
                     userRC=userRC, RC=STATUS )
-               _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
+               _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
                call MAPL_GenericStateClockOff(STATE,trim(CHILD_NAME))
             end if
          enddo
@@ -2394,7 +2394,7 @@ end subroutine MAPL_GenericFinalize
              importState=child_import_state, &
              exportState=child_export_state, &
              clock=CLOCK, userRC=userRC, RC=STATUS ) ! number of phases is currently limited to 1
-        _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
+        _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
         call MAPL_GenericStateClockOff(STATE,trim(CHILD_NAME))
      enddo
 
@@ -4507,7 +4507,7 @@ end subroutine MAPL_DateStampGet
                 importState=child_export_state, &
                 exportState=child_import_state, &
                 clock=CLOCK, userRC=userRC, RC=STATUS )
-             _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'needs informative message')
+             _ASSERT_SUCCESS(userRC,STATUS,'needs informative message')
           endif
        enddo
     
