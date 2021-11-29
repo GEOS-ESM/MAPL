@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add new macro ASSERT_SUCCESS for verification of multiple return codes and applies it throughout MAPL
+- Add new macro ASSERTS for checks with conditional .and. and applies it throughout MAPL
 - Add the i and j index as variables to use to generate synthetic data in ExtDataDriver.x
 - Added ability to generate monthly checkpoints (fixes issue #1065)
 
