@@ -3744,7 +3744,7 @@ end subroutine MAPL_DateStampGet
        DO I=1,K
 
           J = MAPL_VarSpecGetIndex(STATE%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS,NAMES(I))
-          _ASSERT(J > 0 .and. J <= N,'needs informative message')
+          _ASSERTS(J > 0, J <= N,'needs informative message')
 
           call MAPL_VarSpecSet(STATE%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS(J),                         &
                alwaysAllocate = .true.,                                     &
