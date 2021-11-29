@@ -637,7 +637,7 @@ contains
       if ( (this%target_lon /= MAPL_UNDEFINED_REAL) .and. &
            (this%target_lat /= MAPL_UNDEFINED_REAL) .and. &
            (this%stretch_factor /= MAPL_UNDEFINED_REAL) ) then
-         _ASSERTS(this%target_lat >= -90.0, this%target_lat <= 90, 'latitude out of range')
+         _ASSERT( (this%target_lat >= -90.0) .and. (this%target_lat <= 90), 'latitude out of range')
          this%stretched_cube = .true.
          this%target_lon=this%target_lon*pi/180.d0
          this%target_lat=this%target_lat*pi/180.d0

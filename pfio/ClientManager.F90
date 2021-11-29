@@ -443,7 +443,7 @@ contains
       integer :: ith_
       ith_ = 1
       if (present(ith)) ith_ = ith
-      _ASSERTS( 1<=ith_, ith_<=this%size(), "exceeding the clients number")
+      _ASSERT( 1<=ith_ .and. ith_<=this%size(), "exceeding the clients number")
       this%current_client = ith_
       _RETURN(_SUCCESS)
    end subroutine set_current

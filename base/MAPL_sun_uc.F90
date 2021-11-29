@@ -2994,7 +2994,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          ! obliquity fixed in this case
          OBQ = ORBIT%OB * (MAPL_PI/180.)
       endif
-      _ASSERTS(0. <= OBQ, OBQ < MAPL_PI, 'Strange obliquity!')
+      _ASSERT(0. <= OBQ .and. OBQ < MAPL_PI, 'Strange obliquity!')
 
       ! Maximum daylight duration at summer solstice [secs]
       !   (an even function of latitude)

@@ -4241,7 +4241,7 @@ ENDDO PARSER
        call ESMF_ArrayGet(array_out, rank=rank_out, rc=status)
        _VERIFY(STATUS)
        _ASSERT(rank_in == rank_out,'needs informative message')
-       _ASSERTS(rank_in >=2,rank_in <= 3,'needs informative message')
+       _ASSERT(rank_in >=2 .and. rank_in <= 3,'needs informative message')
 
        if (rank_in == 2) then
           LM = 1
@@ -4399,7 +4399,7 @@ ENDDO PARSER
        _VERIFY(STATUS)
 
        _ASSERT(rank_in+1 == rank_out,'needs informative message')
-       _ASSERTS(rank_in >=1,rank_in <= 3,'needs informative message')
+       _ASSERT(rank_in >=1 .and. rank_in <= 3,'needs informative message')
 
        KM = 1
        if (rank_in == 1) then
