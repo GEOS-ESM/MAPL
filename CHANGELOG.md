@@ -11,13 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add new macro ASSERT_SUCCESS for verification of multiple return codes and applies it throughout MAPL
-- Add new macro ASSERTS for checks with conditional .and. and applies it throughout MAPL
 - Add the i and j index as variables to use to generate synthetic data in ExtDataDriver.x
 - Added ability to generate monthly checkpoints (fixes issue #1065)
 
 ### Changed
 
+- Changed error checking _ASSERT to use __RC__ macro and _VERIFY for UserRC
 - Changed usage of MAPL_IO subroutines in CubedSphere and LatLon Grid Factories to open command with newunit clause
 - Updated `components.yaml`
   - ESMA_env v3.6.0 (Use MPT 2.25 at NAS on TOSS)
