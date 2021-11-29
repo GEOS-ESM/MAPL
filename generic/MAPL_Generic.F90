@@ -3745,7 +3745,8 @@ end subroutine MAPL_DateStampGet
        DO I=1,K
 
           J = MAPL_VarSpecGetIndex(STATE%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS,NAMES(I))
-          _ASSERT(J > 0 .and. J <= N,'needs informative message')
+          _ASSERT(J > 0, 'J is equal or less than 0')
+          _ASSERT(J <= N, 'J is greater than N')
 
           call MAPL_VarSpecSet(STATE%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS(J),                         &
                alwaysAllocate = .true.,                                     &
@@ -4766,8 +4767,8 @@ end subroutine MAPL_DateStampGet
   call CHILD_META%t_profiler%start(__RC__)
   call CHILD_META%t_profiler%start('SetService',__RC__)
   gridcomp => META%GET_CHILD_GRIDCOMP(I)
-  call ESMF_GridCompSetServices ( gridcomp, SS, userRC=userRC, RC=status )
-  _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'issue with MAPL_AddChildFromMeta')
+  call ESMF_GridCompSetServices ( gridcomp, SS, userRC=userRC, __RC__ )
+  _VERIFY(userRC)
   call CHILD_META%t_profiler%stop('SetService',__RC__)
   call CHILD_META%t_profiler%stop(__RC__)
   call t_p%stop(trim(NAME),__RC__)
@@ -4996,8 +4997,8 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
   call CHILD_META%t_profiler%start('SetService',__RC__)
   gridcomp => META%GET_CHILD_GRIDCOMP(I)
   call ESMF_GridCompSetServices ( gridcomp, userRoutine, &
-     sharedObj=shared_object_library_to_load,userRC=userRC,RC=status)
-  _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'DSO library load of ['//shared_object_library_to_load//'] from ['//trim(fname)//'] failed')
+     sharedObj=shared_object_library_to_load,userRC=userRC,__RC__)
+  _VERIFY(userRC)
   call CHILD_META%t_profiler%stop('SetService',__RC__)
   call CHILD_META%t_profiler%stop(__RC__)
   call t_p%stop(trim(NAME),__RC__)
