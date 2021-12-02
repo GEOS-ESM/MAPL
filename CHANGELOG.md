@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- return 0 when there is no data for bit shave
+
 ### Added
 
 - Add the i and j index as variables to use to generate synthetic data in ExtDataDriver.x
