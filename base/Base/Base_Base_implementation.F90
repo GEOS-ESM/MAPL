@@ -832,7 +832,7 @@ contains
 
     type (ESMF_VM) :: vm
     integer :: pet_count
-
+    integer :: bias
     character(len=*), parameter :: Iam= __FILE__ // '::MAPL_MakeDecomposition()'
     integer :: status
 
@@ -842,11 +842,18 @@ contains
     _VERIFY(status)
     call ESMF_VMGet(vm, petCount=pet_count, rc=status)
     _VERIFY(status)
-    if (present(reduceFactor)) pet_count=pet_count/reduceFactor
+    if (present(reduceFactor)) then
+       pet_count=pet_count/reduceFactor
+       ! Assume CS
+       bias = 1
+    else
+       ! Assume Lat-Lon
+       bias =2
+    end if
 
     ! count down from sqrt(n)
     ! Note: inal iteration (nx=1) is guaranteed to succeed.
-    do nx = floor(sqrt(real(2*pet_count))), 1, -1
+    do nx = nint(sqrt(real(bias*pet_count))), 1, -1
        if (mod(pet_count, nx) == 0) then ! found a decomposition
           ny = pet_count / nx
           exit

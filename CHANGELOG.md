@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Changed default decomposition algorithm in Base/base.
+  . More optimal for CS case
+  . Hopefully aligns with common choices for native decomp to reduce need for nontrivial regridding.
 - Changed usage of MAPL_IO subroutines in CubedSphere and LatLon Grid Factories to open command with newunit clause
 - Updated `components.yaml`
   - ESMA_env v3.6.0 (Use MPT 2.25 at NAS on TOSS)
