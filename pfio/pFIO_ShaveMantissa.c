@@ -117,9 +117,13 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
     uint32  i;
   } aa;
 
+  if ( len == 0 ) {
+    // if there is no data, do nothing
+    return 0;
+  }
   /* sanity checks */
 
-  if ( len < 1 || xbits < 1 ) {
+  if ( len < 0 || xbits < 1 ) {
     fprintf(stderr,
           "ShaveMantissa32: Bad length of mask bits: len= %d, xbits= %d\n",
           len, xbits );
