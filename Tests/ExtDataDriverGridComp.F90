@@ -544,8 +544,8 @@ contains
     integer :: status
     integer :: userRc
 
-    call ESMF_GridCompRun(this%gc, userRC=userRC,rc=status)
-    _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'run failed')
+    call ESMF_GridCompRun(this%gc, userRC=userRC,__RC__)
+    _VERIFY(userRC)
     _RETURN(ESMF_SUCCESS)
 
   end subroutine run

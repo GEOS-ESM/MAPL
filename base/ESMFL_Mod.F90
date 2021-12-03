@@ -3689,7 +3689,8 @@ CONTAINS
          _VERIFY(STATUS)
          ! make sure that type kind rank agrees between 
          ! fld and stateField
-         _ASSERT(dst_fieldRank == src_fieldRank .and. dst_tk == src_tk, 'TKR mismatch between fld and stateField')
+         _ASSERT(dst_fieldRank == src_fieldRank, 'Rank mismatch between fld and stateField')
+         _ASSERT(dst_tk == src_tk, 'Type Kind mismatch between fld and stateField')
          ! for appropriate TKR:
          if (dst_tk == ESMF_TypeKind_R4) then
             select case (dst_fieldRank)
