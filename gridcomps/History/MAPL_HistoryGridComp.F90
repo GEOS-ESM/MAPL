@@ -174,21 +174,6 @@ contains
     call ESMF_GridCompSetInternalState(gc, wrap, status)
     _VERIFY(status)
 
-! Set the Profiling timers
-! ------------------------
-
-    call MAPL_TimerAdd (gc,name="Initialize"     ,rc=status)
-    call MAPL_TimerAdd (gc,name="Finalize"       ,rc=status)
-    call MAPL_TimerAdd (gc,name="Run"            ,rc=status)
-    call MAPL_TimerAdd (gc,name="--Couplers"     ,rc=status)
-    call MAPL_TimerAdd (gc,name="--I/O"          ,rc=status)
-    call MAPL_TimerAdd (gc,name="----IO Create"  ,rc=status)
-    call MAPL_TimerAdd (gc,name="----IO Write"   ,rc=status)
-    call MAPL_TimerAdd (gc,name="-----IO Post"   ,rc=status)
-    call MAPL_TimerAdd (gc,name="-----IO Wait"   ,rc=status)
-    call MAPL_TimerAdd (gc,name="-----IO Write"  ,rc=status)
-    call MAPL_TimerAdd (gc,name="-ParserRun"     ,rc=status)
-
 ! Generic Set Services
 ! --------------------
     call MAPL_GenericSetServices ( gc,RC=STATUS )
@@ -431,9 +416,6 @@ contains
 
     call MAPL_GetObjectFromGC ( gc, GENSTATE, RC=STATUS)
     _VERIFY(STATUS)
-
-    call MAPL_TimerOn(GENSTATE,"TOTAL")
-    call MAPL_TimerOn(GENSTATE,"Initialize")
 
 ! Retrieve the pointer to the state
     call ESMF_GridCompGetInternalState(gc, wrap, status)
@@ -2563,9 +2545,6 @@ ENDDO PARSER
     call MAPL_GenericInitialize( gc, import, dumexport, clock, rc=status )
     _VERIFY(status)
 
-    call MAPL_TimerOff(GENSTATE,"Initialize")
-    call MAPL_TimerOff(GENSTATE,"TOTAL")
-
     _RETURN(ESMF_SUCCESS)
 
   contains
@@ -3327,9 +3306,6 @@ ENDDO PARSER
     call MAPL_GetObjectFromGC ( gc, GENSTATE, RC=STATUS)
     _VERIFY(STATUS)
 
-    call MAPL_TimerOn(GENSTATE,"TOTAL")
-    call MAPL_TimerOn(GENSTATE,"Run"  )
-
 !   Get clocks' direction
     FWD = .not. ESMF_ClockIsReverse(clock)
 
@@ -3705,9 +3681,6 @@ ENDDO PARSER
    deallocate(Writing)
    deallocate(Ignore)
 
-   call MAPL_TimerOff(GENSTATE,"Run"         )
-   call MAPL_TimerOff(GENSTATE,"TOTAL"       )
-
    _RETURN(ESMF_SUCCESS)
  end subroutine Run
 
@@ -3738,9 +3711,6 @@ ENDDO PARSER
 
     call MAPL_GetObjectFromGC ( gc, GENSTATE, RC=STATUS)
     _VERIFY(STATUS)
-
-    call MAPL_TimerOn(GENSTATE,"TOTAL")
-    call MAPL_TimerOn(GENSTATE,"Finalize")
 
 ! Retrieve the pointer to the state
 
@@ -3790,9 +3760,6 @@ ENDDO PARSER
    enddo
 #endif
 
-
-    call MAPL_TimerOff(GENSTATE,"Finalize")
-    call MAPL_TimerOff(GENSTATE,"TOTAL")
 
     call  MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC=status )
     _VERIFY(STATUS)
