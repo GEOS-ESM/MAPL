@@ -171,9 +171,10 @@ contains
          call s%set_status(1)
          call s%add_connection(dummy_socket)
          allocate(s%buffers(s%nfront))
+         call s%init(s%back_comm, s_name)
       endif
 
-      if (s_rank == 0) print*, "MultiServer Start: nfront, nback", s%nfront, s%nwriter
+      if (s_rank == 0) print*, "MultiServer Start: nfront, nwriter", s%nfront, s%nwriter-1
 
    end function new_MultiGroupServer
 
@@ -377,16 +378,16 @@ contains
         ! root asks for idle writer and sends axtra file metadata
         if (this%I_am_front_root) then
            collection_id = collection_ids%at(collection_counter)
+           call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
+           ! here thread_ptr can point to any thread
+           hist_collection => thread_ptr%hist_collections%at(collection_id)
+           call hist_collection%fmd%serialize(buffer)
         endif
 
         call Mpi_Bcast( collection_id, 1, MPI_INTEGER, 0, this%front_comm, ierror)
         if (associated(ioserver_profiler)) call ioserver_profiler%start("collection_"//i_to_string(collection_id))
 
         if (this%I_am_front_root) then
-           call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
-           ! here thread_ptr can point to any thread
-           hist_collection => thread_ptr%hist_collections%at(collection_id)
-           call hist_collection%fmd%serialize(buffer)
 
            call Mpi_Recv(back_local_rank, 1, MPI_INTEGER, this%back_ranks(1), &
                 this%front_ranks(1), this%server_comm, MPI_STAT, ierror)
@@ -423,7 +424,6 @@ contains
      integer :: MPI_STAT(MPI_STATUS_SIZE)
      integer :: i, j, idle, no_job, idle_worker
      integer :: collection_id 
-     integer, allocatable :: busy(:)
      integer :: msg_size, back_local_rank
      
      type (MessageVectorIterator) :: iter
@@ -447,65 +447,103 @@ contains
      type (c_ptr) :: address
      type (ForwardDataAndMessage), target :: f_d_m
      type (FileMetaData) :: fmd
-
+     logical :: flag
+     integer :: nwriter_per_node
+     integer, allocatable :: idleRank(:,:)   ! idle processors  
+     integer, allocatable :: num_idlePEs(:) ! how many idle processors in each node of backend server 
+     integer :: local_rank, node_rank, nth_writer
 
      call MPI_Comm_rank(this%back_comm, back_local_rank, ierr)
      thread_ptr => this%threads%at(1)
 
-     allocate(busy(this%nwriter-1), source =0)
     
      allocate(this%serverthread_done_msgs(1))
      this%serverthread_done_msgs(:) = .false.
- 
+     nwriter_per_node = this%nwriter/this%Node_Num
+     allocate(num_idlePEs(0:this%Node_Num-1))
+     allocate(idleRank(0:this%Node_Num-1, 0:nwriter_per_node-1), source=-1)
+
      if ( this%I_am_back_root ) then ! captain node is distributing work
+        ! all local ranks are idle at the beginning
+        do local_rank = 1, this%nwriter-1
+           node_rank = this%node_ranks(local_rank)
+           nth_writer = mod(local_rank, nwriter_per_node)
+           idleRank(node_rank, nth_writer) = local_rank
+        enddo    
+
+        num_idlePEs = count(idleRank /=-1, dim = 2)
+
         do while (.true.)
            ! 1) captain node of back_comm is waiting command from front_comm
            call MPI_recv( collection_id, 1, MPI_INTEGER, &
                 this%front_ranks(1), this%back_ranks(1), this%server_comm, &
                 MPI_STAT, ierr)
-           if (collection_id >= 1) then ! front_comm is asking for a writing node 
-  
-               ! check idle woker
-               idle_worker = 0
-               do i = 1, this%nwriter -1
-                  if (busy(i) == 0) then
-                     idle_worker = i
-                     exit
-                  endif
-               enddo
 
-               ! if all workers are busy, wait for one
-               if (idle_worker == 0) then 
-                  call MPI_recv( idle_worker, 1, MPI_INTEGER, &
-                      MPI_ANY_SOURCE, stag, this%back_comm, &
-                      MPI_STAT, ierr)
-               endif
+           if (collection_id >= 1) then ! front_comm is asking for a writing node 
+
+               do while (.true.) ! try to retrieve idle writers
+                  ! non block probe writers
+                  do local_rank = 1, this%nwriter-1
+                     flag = .false.
+                     call MPI_Iprobe( local_rank, stag, this%back_comm, flag, MPI_STAT, ierr)             
+                     if (flag) then
+                        call MPI_recv(idle_worker, 1, MPI_INTEGER, &
+                                      local_rank, stag, this%back_comm, &
+                                      MPI_STAT, ierr)
+                        _ASSERT(local_rank == idle_worker, "local_rank and idle_worker should match")
+                        node_rank = this%node_ranks(local_rank)
+                        num_idlePEs(node_rank) = num_idlePEs(node_rank) + 1
+                        nth_writer = mod(local_rank, nwriter_per_node)
+                        idleRank(node_rank, nth_writer) = local_rank
+                     endif
+                  enddo
+                  ! if there is no idle node, get back to probe
+                  if (all(num_idlePEs == 0)) cycle
+                  ! get the node with the most idle processors
+                  node_rank = maxloc(num_idlePEs, dim=1) - 1 
+                  do i = 0, nwriter_per_node -1
+                     if (idleRank(node_rank,i) >=1) then ! >=1, rank 0 is used as captain
+                        idle_worker = idleRank(node_rank,i)
+                        idleRank(node_rank,i) = -1 ! set to -1 when it becomes busy
+                        num_idlePEs(node_rank) = num_idlePEs(node_rank)-1
+                        exit
+                     endif
+                  enddo
+                  _ASSERT(1<= idle_worker .and. idle_worker <= this%nwriter-1, "wrong local rank of writer")
+                  exit 
+               enddo ! get one idle writer
 
                ! tell front comm which idel_worker is ready
                call MPI_send(idle_worker, 1, MPI_INTEGER, this%front_ranks(1), &
                              this%front_ranks(1), this%server_comm, ierr)
-               busy(idle_worker) = 1
+
                ! forward the collection_id to the idle_worker 
                call MPI_send(collection_id, 1, MPI_INTEGER, idle_worker, idle_worker,this%back_comm, ierr)
 
-            else ! command /=1, notify the worker to quit and finalize
+           else ! command /=1, notify the worker to quit and finalize
+              no_job = -1
+              do local_rank = 1, this%nwriter -1
+                 node_rank = this%node_ranks(local_rank)
+                 nth_writer = mod(local_rank, nwriter_per_node)                 
 
-               no_job = -1
-               do i = 1, this%nwriter -1
-                  if ( busy(i) == 0) then
-                     call MPI_send(no_job, 1, MPI_INTEGER, i, i, this%back_comm, ierr)
-                  else
-                     call MPI_recv( idle, 1, MPI_INTEGER, &
-                          i, stag, this%back_comm, &
-                          MPI_STAT, ierr)
-                     if (idle /= i ) stop ("idle should be i")
-                     call MPI_send(no_job, 1, MPI_INTEGER, i, i, this%back_comm, ierr)
-                  endif  
-               enddo  
-               exit
-            endif
-         enddo
+                 if ( idleRank(node_rank, nth_writer) >=1) then
+                    ! send no_job directly to terminate
+                    call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
+                 else
+                    ! For busy worker, wait to receive idle_worker and the send no_job
+                    call MPI_recv( idle_worker, 1, MPI_INTEGER, &
+                         local_rank, stag, this%back_comm, &
+                         MPI_STAT, ierr)
+                    _ASSERT(local_rank == idle_worker, "local_rank and idle_worker should match")
+                    call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
+                 endif  
+              enddo  
+              exit ! while true
+           endif
+        enddo ! while .true.
+
       else ! not root but writers 
+
         do while (.true.)
            
            ! 1) get collection id from captain
@@ -537,7 +575,7 @@ contains
               call MPI_Irecv( this%buffers(i)%buffer(1), msg_size, MPI_INTEGER, &
                    this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(i)%request, &
                    ierr)
-           enddo
+           enddo ! nfront
 
            ! re-org data
            vars_map = StringAttributeMap()
@@ -667,9 +705,9 @@ contains
                     q%count(1) = q%count(1)/word_size(q%type_kind)
                     q%start(1) = (q%start(1)-1)/word_size(q%type_kind)+1
                  end select
-               end do
+               end do ! message vec size
                if(allocated(f_d_m%idata))deallocate(f_d_m%idata)
-           enddo
+           enddo ! nfront
 
            call FileMetadata_deserialize(buffer_fmd, fmd)
 
