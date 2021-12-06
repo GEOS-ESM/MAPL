@@ -79,7 +79,7 @@ module pFIO_MultiGroupServerMod
       procedure :: create_remote_win
       procedure :: put_dataToFile
       procedure :: clean_up
-      procedure :: terminate_back
+      procedure :: terminate_backend_server
    end type MultiGroupServer
 
    interface MultiGroupServer
@@ -225,7 +225,7 @@ contains
          enddo
    
          call this%threads%clear()
-         call this%terminate_back()
+         call this%terminate_backend_server()
 
          if (associated(ioserver_profiler)) call ioserver_profiler%stop()
          call this%report_profile()
@@ -420,13 +420,9 @@ contains
      class (MultiGroupServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
      integer, parameter :: stag = 6782
-     integer :: ierr
 
-     integer :: MPI_STAT(MPI_STATUS_SIZE)
-     integer :: collection_id 
      integer :: status
 
-    
      allocate(this%serverthread_done_msgs(1))
      this%serverthread_done_msgs(:) = .false.
 
@@ -445,11 +441,13 @@ contains
      subroutine start_back_captain(rc)
        integer, optional, intent(out) :: rc
        logical :: flag
+       integer :: collection_id
        integer :: nwriter_per_node
        integer, allocatable :: idleRank(:,:)   ! idle processors  
        integer, allocatable :: num_idlePEs(:) ! how many idle processors in each node of backend server 
        integer :: i, no_job, local_rank, node_rank, nth_writer
-       integer :: terminate, idle_worker 
+       integer :: terminate, idle_writer, ierr
+       integer :: MPI_STAT(MPI_STATUS_SIZE)
 
        nwriter_per_node = this%nwriter/this%Node_Num
        allocate(num_idlePEs(0:this%Node_Num-1))
@@ -469,81 +467,113 @@ contains
          call MPI_recv( collection_id, 1, MPI_INTEGER, &
               this%front_ranks(1), this%back_ranks(1), this%server_comm, &
               MPI_STAT, ierr)
+         if (collection_id == -1) exit
+         ! 2) get an idle processor and notify front root
+         call dispatch_work(collection_id, idleRank, num_idlePEs, rc=status)
+         _VERIFY(status)
+       enddo ! while .true.
 
-         if (collection_id >= 1) then ! front_comm is asking for a writing node 
-            do while (.true.) ! try to retrieve idle writers
-              ! non block probe writers
-              do local_rank = 1, this%nwriter-1
-                flag = .false.
-                call MPI_Iprobe( local_rank, stag, this%back_comm, flag, MPI_STAT, ierr)             
-                if (flag) then
-                  call MPI_recv(idle_worker, 1, MPI_INTEGER, &
-                                local_rank, stag, this%back_comm, &
-                                MPI_STAT, ierr)
-                  _ASSERT(local_rank == idle_worker, "local_rank and idle_worker should match")
-                  node_rank = this%node_ranks(local_rank)
-                  num_idlePEs(node_rank) = num_idlePEs(node_rank) + 1
-                  nth_writer = mod(local_rank, nwriter_per_node)
-                  idleRank(node_rank, nth_writer) = local_rank
-                endif
-              enddo
-              ! if there is no idle node, get back to probe
-              if (all(num_idlePEs == 0)) cycle
-              ! get the node with the most idle processors
-              node_rank = maxloc(num_idlePEs, dim=1) - 1 
-              do i = 0, nwriter_per_node -1
-                if (idleRank(node_rank,i) >=1) then ! >=1, rank 0 is used as captain
-                  idle_worker = idleRank(node_rank,i)
-                  idleRank(node_rank,i) = -1 ! set to -1 when it becomes busy
-                  num_idlePEs(node_rank) = num_idlePEs(node_rank)-1
-                  exit
-                endif
-              enddo
-              _ASSERT(1<= idle_worker .and. idle_worker <= this%nwriter-1, "wrong local rank of writer")
-              exit 
-            enddo ! get one idle writer
-
-            ! tell front comm which idel_worker is ready
-            call MPI_send(idle_worker, 1, MPI_INTEGER, this%front_ranks(1), &
-                         this%front_ranks(1), this%server_comm, ierr)
-
-            ! forward the collection_id to the idle_worker 
-            call MPI_send(collection_id, 1, MPI_INTEGER, idle_worker, idle_worker,this%back_comm, ierr)
-
-         else ! command /=1, notify the worker to quit and finalize
-           no_job = -1
-           do local_rank = 1, this%nwriter -1
-             node_rank = this%node_ranks(local_rank)
-             nth_writer = mod(local_rank, nwriter_per_node)                 
-
-             if (idleRank(node_rank, nth_writer) >=1) then
-               ! send no_job directly to terminate
-               call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
-             else
-               ! For busy worker, wait to receive idle_worker and the send no_job
-               call MPI_recv( idle_worker, 1, MPI_INTEGER, &
-                       local_rank, stag, this%back_comm, &
-                       MPI_STAT, ierr)
-               _ASSERT(local_rank == idle_worker, "local_rank and idle_worker should match")
-               call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
-             endif  
-           enddo  
-           exit ! while true
-         endif
-        enddo ! while .true.
-
+       ! terminate writers ( or soldiers) first
+       call terminate_back_writers(idleRank, rc=status)
+       _VERIFY(status)
        ! at the end , send done message to root of oserver
        ! this serves the syncronization with oserver
        terminate = -1
        call MPI_send(terminate, 1, MPI_INTEGER, 0, 0, this%server_comm, ierr)
+       deallocate(num_idlePEs, idleRank)
        _RETURN(_SUCCESS) 
      end subroutine start_back_captain
 
+     subroutine dispatch_work(collection_id, idleRank, num_idlePEs, rc)
+       integer, intent(in) :: collection_id
+       integer, intent(inout) :: idleRank(:,:)
+       integer, intent(inout) :: num_idlePEs(:)
+       integer, optional, intent(out) :: rc
+
+       integer :: MPI_STAT(MPI_STATUS_SIZE)
+       integer :: local_rank, idle_writer, nth_writer, node_rank
+       integer :: i, ierr, nwriter_per_node
+       logical :: flag
+       
+       ! 2.1)  try to retrieve idle writers
+       !       keep looping (waiting) until there are idle processors
+       nwriter_per_node = size(idleRank,2)
+       do while (.true.)
+          ! non block probe writers
+          do local_rank = 1, this%nwriter-1
+             flag = .false.
+             call MPI_Iprobe( local_rank, stag, this%back_comm, flag, MPI_STAT, ierr)             
+             if (flag) then
+               call MPI_recv(idle_writer, 1, MPI_INTEGER, &
+                             local_rank, stag, this%back_comm, &
+                             MPI_STAT, ierr)
+               _ASSERT(local_rank == idle_writer, "local_rank and idle_writer should match")
+               node_rank = this%node_ranks(local_rank)
+               num_idlePEs(node_rank) = num_idlePEs(node_rank) + 1
+               nth_writer = mod(local_rank, nwriter_per_node)
+               idleRank(node_rank, nth_writer) = local_rank
+             endif
+          enddo
+          ! if there is no idle processor, get back to probe
+          if (all(num_idlePEs == 0)) cycle
+              
+          ! get the node with the most idle processors
+          node_rank = maxloc(num_idlePEs, dim=1) - 1 
+          do i = 0, nwriter_per_node -1
+            if (idleRank(node_rank,i) == -1) cycle
+            idle_writer = idleRank(node_rank,i)
+            idleRank(node_rank,i) = -1 ! set to -1 when it becomes busy
+            num_idlePEs(node_rank) = num_idlePEs(node_rank)-1
+            exit
+          enddo
+          _ASSERT(1<= idle_writer .and. idle_writer <= this%nwriter-1, "wrong local rank of writer")
+          exit ! exit while loop after get one idle processor
+       enddo ! while,  get one idle writer
+
+       ! 2.2) tell front comm which idel_worker is ready
+       call MPI_send(idle_writer, 1, MPI_INTEGER, this%front_ranks(1), &
+                     this%front_ranks(1), this%server_comm, ierr)
+
+       ! 2.3) forward the collection_id to the idle_writer 
+       call MPI_send(collection_id, 1, MPI_INTEGER, idle_writer, idle_writer,this%back_comm, ierr)
+       _RETURN(_SUCCESS)
+     end subroutine dispatch_work
+
+     subroutine terminate_back_writers(idleRank, rc)
+       integer, intent(in) :: idleRank(:,:)
+       integer, optional, intent(out) :: rc
+       integer :: MPI_STAT(MPI_STATUS_SIZE)
+       integer :: node_rank, local_rank, nth_writer
+       integer :: ierr, no_job, nwriter_per_node, idle_writer
+
+       no_job = -1
+       nwriter_per_node = size(idleRank, 2)
+       do local_rank = 1, this%nwriter -1
+          node_rank = this%node_ranks(local_rank)
+          nth_writer = mod(local_rank, nwriter_per_node)                 
+
+          if (idleRank(node_rank, nth_writer) >=1) then
+             ! send no_job directly to terminate
+             call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
+          else
+             ! For busy worker, wait to receive idle_writer and the send no_job
+             call MPI_recv( idle_writer, 1, MPI_INTEGER, &
+                            local_rank, stag, this%back_comm, &
+                            MPI_STAT, ierr)
+             _ASSERT(local_rank == idle_writer, "local_rank and idle_writer should match")
+             call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
+          endif  
+       enddo  
+       _RETURN(_SUCCESS)
+     end subroutine terminate_back_writers 
+
      subroutine start_back_writers(rc)
        integer, optional, intent(out) :: rc
+       integer :: collection_id
        integer :: i, j
        integer :: msg_size, back_local_rank
        
+       integer :: MPI_STAT(MPI_STATUS_SIZE), ierr
        type (MessageVectorIterator) :: iter
        class (AbstractMessage), pointer :: msg
        class(ServerThread), pointer :: thread_ptr
@@ -768,12 +798,13 @@ contains
 
    end subroutine start_back
 
-   subroutine terminate_back(this)
+   subroutine terminate_backend_server(this)
       class (MultiGroupServer), intent(inout) :: this
-      integer :: terminate = -1
+      integer :: terminate 
       integer :: ierr, i
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       
+      terminate = -1
       ! starting from 2, no backend root
       do i = 2, this%nwriter
         if (allocated(this%buffers(i)%buffer)) call MPI_Wait(this%buffers(i)%request, MPI_STAT, ierr)
@@ -788,6 +819,6 @@ contains
               this%front_ranks(1), this%server_comm, MPI_STAT, ierr)
       endif
 
-   end subroutine terminate_back
+   end subroutine terminate_backend_server
 
 end module pFIO_MultiGroupServerMod
