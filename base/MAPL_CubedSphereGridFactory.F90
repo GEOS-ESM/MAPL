@@ -18,7 +18,6 @@ module MAPL_CubedSphereGridFactoryMod
    use pFIO
    use MAPL_CommsMod
    use MAPL_Constants
-   use MAPL_IOMod, only : GETFILE, FREE_FILE 
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32
    implicit none
    private
@@ -507,7 +506,7 @@ contains
 
          elseif (MAPL_AM_I_Root(VM)) then
 
-            UNIT = GETFILE ( trim(file_name), form="formatted", rc=status )
+            open(newunit=UNIT,file=trim(file_name), form="formatted", iostat=status )
             _VERIFY(STATUS)
             read(UNIT,*) total, max_procs
             if (total /= N_proc) then
@@ -517,7 +516,7 @@ contains
             do i = 1,total
                 read(UNIT,*) values_tmp(i)
             enddo
-            call FREE_FILE(UNIT)
+            close(UNIT)
          endif
 
          call MAPL_CommsBcast(VM, max_procs,  n=1, ROOT=MAPL_Root, rc=status)
@@ -638,7 +637,8 @@ contains
       if ( (this%target_lon /= MAPL_UNDEFINED_REAL) .and. &
            (this%target_lat /= MAPL_UNDEFINED_REAL) .and. &
            (this%stretch_factor /= MAPL_UNDEFINED_REAL) ) then
-         _ASSERT( (this%target_lat >= -90.0) .and. (this%target_lat <= 90), 'latitude out of range')
+         _ASSERT(this%target_lat >= -90.0, 'Latitude should be greater than -90.0 degrees')
+         _ASSERT(this%target_lat <= 90, 'Latitude should be less than 90.0 degrees')
          this%stretched_cube = .true.
          this%target_lon=this%target_lon*pi/180.d0
          this%target_lat=this%target_lat*pi/180.d0

@@ -35,7 +35,7 @@ subroutine SUB_ ( data, UNIT, ARRDES, format, RC)
       _VERIFY(STATUS)
    endif
 
-#if (RANK_ == 0) 
+#if (RANK_ == 0)
 #if (VARTYPE_ == 0)
    recl = len(data)*4
    call MPI_FILE_WRITE(UNIT, recl, 1,         MPI_INTEGER, MPI_STATUS_IGNORE, STATUS)
@@ -66,7 +66,7 @@ subroutine SUB_ ( data, UNIT, ARRDES, format, RC)
 
   endif
 
-#if (RANK_ == 0) 
+#if (RANK_ == 0)
 #if (VARTYPE_ == 0)
    arrdes%offset = arrdes%offset + len(data)*4 + 8
 #else
@@ -108,17 +108,17 @@ subroutine SUB_ ( data, UNIT, ARRDES, format, RC)
         endif
 
 #if (RANK_ == 0)
-        call dealloc_(munit%Records(munit%prevrec),rc=status)	
+        call dealloc_(munit%Records(munit%prevrec),rc=status)
         _VERIFY(STATUS)
 #endif
 
 #if (RANK_ == 1)
-        call alloc_(munit%Records(munit%prevrec),TKR_,size(data,1),rc=status)	
+        call alloc_(munit%Records(munit%prevrec),TKR_,size(data,1),rc=status)
         _VERIFY(STATUS)
 #endif
 
 #if (RANK_ == 2)
-        call alloc_(munit%Records(munit%prevrec),TKR_,size(data,1),size(data,2),rc=status)	
+        call alloc_(munit%Records(munit%prevrec),TKR_,size(data,1),size(data,2),rc=status)
         _VERIFY(STATUS)
 #endif
 
