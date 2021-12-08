@@ -928,7 +928,8 @@ CONTAINS
           ! put in a special check if it is a vector item
           ! both components must have bubbled up
           if (self%primary%item(counter)%isVector) then
-             _ASSERT( self%primary%item(counter)%foundComp1 .and. self%primary%item(counter)%foundComp2 ,'Did not find both vector items')
+             _ASSERT( self%primary%item(counter)%foundComp1, 'Did not find Component 1 vector item')
+             _ASSERT( self%primary%item(counter)%foundComp2 ,'Did not find both Component 2 vector item')
           end if
        end if
     end do

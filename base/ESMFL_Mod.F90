@@ -3,8 +3,8 @@
 #if 0
 stubbed routines
  ESMFL_RegridStore
- FieldRegrid1 
- BundleRegrid1 
+ FieldRegrid1
+ BundleRegrid1
  BundlePrep_ (no grid attributes)
  ESMFL_FieldGetDims
  ESMFL_GridDistBlockSet
@@ -28,7 +28,7 @@ module ESMFL_MOD
   private
 
 !
-!ALT These need to be changed!!! values here are just to compile 
+!ALT These need to be changed!!! values here are just to compile
 !
 
   !DEFINED PARAMETERS:
@@ -50,11 +50,11 @@ module ESMFL_MOD
   public ESMFL_FieldGetDims
   public ESMFL_GridDistBlockSet
 
-  public ESMFL_FieldRegrid ! alt: this should be MAPL_FieldRegrid 
+  public ESMFL_FieldRegrid ! alt: this should be MAPL_FieldRegrid
                            !      (topo_bin may need to be here)
 
   public ESMFL_RegridStore ! only used for regridding using ESMF_FieldRegrid
-  public ESMFL_Regrid      
+  public ESMFL_Regrid
   public ESMFL_State2Bundle
   public ESMFL_Bundle2State
   public ESMFL_Bundles2Bundle
@@ -67,7 +67,7 @@ module ESMFL_MOD
   !EOP
 
   ! regridding
-  interface ESMFL_Regrid          
+  interface ESMFL_Regrid
 
      module procedure BundleRegrid  ! Uses Larry's hinterp
      module procedure StateRegrid   ! Uses Larry's hinterp
@@ -117,7 +117,7 @@ module ESMFL_MOD
      module procedure ESMFL_StateGetPtrToDataR8_3
      module procedure ESMFL_StateGetPtrToDataR8_4
   end interface
-  
+
   interface ESMFL_FieldGetPointerToData
      module procedure ESMFL_FieldGetPtrToDataR4_1
      module procedure ESMFL_FieldGetPtrToDataR4_2
@@ -128,7 +128,7 @@ module ESMFL_MOD
      module procedure ESMFL_FieldGetPtrToDataR8_3
      module procedure ESMFL_FieldGetPtrToDataR8_4
   end interface
-  
+
   interface ESMFL_BundleGetPointerToData
      module procedure ESMFL_BundleGetPointerByIndex2
      module procedure ESMFL_BundleGetPointerByIndex3
@@ -220,7 +220,7 @@ contains
 
    type(ESMF_StateItem_Flag)  :: itemType
    logical                    :: isPresent
-   
+
 !   integer                    :: gridRank
 
 !  Adds fields from a state to a bundle. If a field
@@ -243,7 +243,7 @@ contains
 ! Make sure field is not in bundle
 
       call ESMF_FieldBundleGet(BUNDLE, FIELDNAME=NameInBundle, isPresent=isPresent, rc=STATUS)
-      _VERIFY(STATUS) 
+      _VERIFY(STATUS)
       _ASSERT(.not. isPresent, trim(NameInBundle) // ' not found in bundle.')
 
 ! Get Field from State
@@ -258,7 +258,7 @@ contains
          call ESMF_StateGet (STATE, NameInState, StateFIELD,  RC=STATUS)
          _VERIFY(STATUS)
       end if
-      
+
       NeedNewField = NotInState .or. (NameInState/=NameInBundle)
 
       if (.not. NotInState) then
@@ -315,7 +315,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
    integer, optional              :: rc
  !EOP
 
-!	local variables
+! local variables
   integer                   :: rank
   type(ESMF_CoordSys_Flag)  :: crdSys
   type(ESMF_TypeKind_Flag)  :: tk
@@ -335,7 +335,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
 
   call ESMF_GridGet(grid, coordSys=crdSys, coordTypeKind=tk, &
           dimCount=rank, coordDimCount=coordDimCount, rc=status)
-  _VERIFY(STATUS) 
+  _VERIFY(STATUS)
 
   if (name == "Longitude") then
     crdOrder = 1
@@ -363,7 +363,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
         do J=1, counts(2)
            if (crdOrder == 1) then
               coord(i,j) = i !ALT + I1 - 1
-           else 
+           else
               coord(i,j) = j !ALT + J1 - 1
            end if
         end do
@@ -388,7 +388,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
              staggerloc=location, &
              computationalCount=COUNTS,  &
              farrayPtr=R4D2, rc=status)
-        _VERIFY(STATUS) 
+        _VERIFY(STATUS)
         allocate(coord(counts(1), counts(2)), STAT=status)
         _VERIFY(STATUS)
         coord = conv2rad * R4D2
@@ -401,7 +401,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
              staggerloc=location, &
              computationalCount=COUNTS,  &
              farrayPtr=R8D2, rc=status)
-        _VERIFY(STATUS) 
+        _VERIFY(STATUS)
         allocate(coord(counts(1), counts(2)), STAT=status)
         _VERIFY(STATUS)
         coord = conv2rad * R8D2
@@ -412,13 +412,13 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
      _RETURN(ESMF_FAILURE)
   endif
   _RETURN(ESMF_SUCCESS)
-  
+
  end subroutine ESMFL_GridCoordGet
 
  subroutine ESMFL_StateFreePointers(STATE, RC)
    type(ESMF_State),  intent(INOUT) :: STATE
    integer, optional, intent(  OUT) :: RC
-   
+
    integer                          :: STATUS
 
    type(ESMF_Array)                 :: ARRAY
@@ -514,7 +514,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
    _VERIFY(STATUS)
 
    _RETURN(ESMF_SUCCESS)
-   
+
  end subroutine ESMFL_StateFreePointers
 
 
@@ -522,7 +522,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
    type(ESMF_State),  intent(INOUT) :: STATE
    character(len=*),  intent(IN   ) :: NAME
    integer, optional, intent(  OUT) :: RC
-   
+
    integer                          :: STATUS
 
    type(ESMF_Field)                 :: FIELD
@@ -534,7 +534,7 @@ subroutine ESMFL_GridCoordGet(GRID, coord, name, Location, Units, rc)
    _VERIFY(STATUS)
 
    _RETURN(ESMF_SUCCESS)
-   
+
  end subroutine ESMFL_StateSetFieldNeeded
 
 function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
@@ -542,7 +542,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    character(len=*),  intent(IN   ) :: NAME
    integer, optional, intent(  OUT) :: RC
    logical                          :: NEEDED
-   
+
    integer                          :: STATUS
 
    type(ESMF_Field)                 :: FIELD
@@ -554,7 +554,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    if(STATUS /= ESMF_SUCCESS) NEEDED = .false.
 
    _RETURN(ESMF_SUCCESS)
-   
+
  end function ESMFL_StateFieldIsNeeded
 
 
@@ -631,7 +631,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    real(KIND=ESMF_KIND_R4), pointer :: PTR(:,:,:)
    integer                          :: I1, IN, J1, JN, L1, LN
    real(KIND=ESMF_KIND_R4), target  :: A(I1:IN,J1:JN,L1:LN)
-   
+
 
    ptr => A
  end subroutine AdjustPtrBounds3dr4
@@ -640,7 +640,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    real(KIND=ESMF_KIND_R8), pointer :: PTR(:,:,:)
    integer                          :: I1, IN, J1, JN, L1, LN
    real(KIND=ESMF_KIND_R8), target  :: A(I1:IN,J1:JN,L1:LN)
-   
+
 
    ptr => A
  end subroutine AdjustPtrBounds3dr8
@@ -765,7 +765,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
      FIELD1 = MAPL_FieldCreate(FIELD, name = name, RC=STATUS )
      _VERIFY(STATUS)
- 
+
      call MAPL_FieldBundleAdd (BUNDLE, FIELD1, RC=STATUS )
      _VERIFY(STATUS)
 
@@ -816,12 +816,12 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    integer, pointer, dimension(:)            :: recvcounts, displs
    integer                                       :: nDEs
    integer                                       :: sendcount
-   
+
    integer                                       :: I, J, de, deId
    integer                                       :: I1, IN
    integer                                       :: gridRank
-    
-    
+
+
    call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
    _VERIFY(STATUS)
 
@@ -858,7 +858,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
       endif
       displs(I) = displs(J) + recvcounts(I)
    enddo
-           
+
 
    _ASSERT(sendcount == size(input), 'inconsistent sendcount')
    _ASSERT(sum(recvcounts) == size(fullinput), 'inconsistent recvcount')
@@ -891,12 +891,12 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    integer, pointer, dimension(:)            :: recvcounts, displs
    integer                                       :: nDEs
    integer                                       :: sendcount
-   
+
    integer                                       :: I, J, de, deId
    integer                                       :: I1, IN
    integer                                       :: gridRank
-    
-    
+
+
    call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
    _VERIFY(STATUS)
 
@@ -933,7 +933,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
       endif
       displs(I) = displs(J) + recvcounts(I)
    enddo
-           
+
    _ASSERT(sendcount == size(input), 'inconsistent sendcount')
    _ASSERT(sum(recvcounts) == size(fullinput), 'inconsistent recvcount')
 
@@ -965,12 +965,12 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    integer, pointer, dimension(:)            :: recvcounts, displs
    integer                                       :: nDEs
    integer                                       :: sendcount
-   
+
    integer                                       :: I, J, de, deId
    integer                                       :: I1, IN
    integer                                       :: gridRank
-    
-    
+
+
    call ESMF_GridGet(GRID, dimCount=gridRank, rc=STATUS)
    _VERIFY(STATUS)
 
@@ -1007,7 +1007,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
       endif
       displs(I) = displs(J) + recvcounts(I)
    enddo
-           
+
    _ASSERT(sendcount == size(input), 'inconsistent sendcount')
    _ASSERT(sum(recvcounts) == size(fullinput), 'inconsistent recvcount')
 
@@ -1032,7 +1032,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    type (ESMF_Grid) :: srcgrid, dstgrid
    type (ESMF_DELayout) :: layout
    type (ESMF_Array)    :: array
-   integer              :: DIMS(3) 
+   integer              :: DIMS(3)
    integer              :: IM_SRC, JM_SRC
    integer              :: IM_DST, JM_DST
    integer              :: J
@@ -1082,7 +1082,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    _VERIFY(STATUS)
 
 
-   
+
    call ESMF_FieldAllGather(src, array=array, rc=status)
    _VERIFY(STATUS)
 
@@ -1224,18 +1224,18 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
    NX = decpd(1)
    NY = decpd(2)
-   
+
    allocate (ims(NX), jms(NY), stat=status)
    _VERIFY(STATUS)
-   
-   call ESMF_GridGet(grid3D, & 
+
+   call ESMF_GridGet(grid3D, &
                      horzRelLoc=ESMF_CELL_CENTER, vertRelLoc=ESMF_CELL_CELL, &
                      globalCellCountPerDim=gccpd, &
                      minGlobalCoordPerDim=min, &
-                     maxGlobalCoordPerDim=max, & 
+                     maxGlobalCoordPerDim=max, &
                      rc=status)
    _VERIFY(status)
-   
+
 #if 0
    ! kludge min,max DEGREE/RADIANS conversion
    if (min(1) < 0.0) then
@@ -1262,7 +1262,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    !_VERIFY(status)
    ! instead use the following...
    deltaX = 2.0*MAPL_PI/gccpd(1)
-   deltaY = MAPL_PI/(gccpd(2)-1) 
+   deltaY = MAPL_PI/(gccpd(2)-1)
    SRCGrid2D = ESMF_GridCreateHorzLatLonUni(         &
          counts = gccpd(1:2),        &
          minGlobalCoordPerDim=min(1:2),     &
@@ -1271,10 +1271,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
          periodic=(/ESMF_TRUE, ESMF_FALSE/),     &
          name='SRC 2D grid', rc=status)
    _VERIFY(STATUS)
-  
+
    allocate (AI(nDEs,gridRank), stat=status)
    _VERIFY(STATUS)
-   
+
    if (gridRank == 3) then
       call ESMF_GridGetAllAxisIndex(grid3d, &
                                     horzRelLoc=ESMF_CELL_CENTER, &
@@ -1334,7 +1334,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
                  haloWidth=0, &
                  name   = "PS", rc=status )  ! can be any name, all we want
    _VERIFY(STATUS)                           ! is the route handle
-   
+
    ! DESTINATION FIELD
 
    call ESMF_FieldGet(dstFLD, grid=grid3D, rc=status)
@@ -1344,13 +1344,13 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    _VERIFY(STATUS)
 
    call ESMF_DELayoutGet(layout, deCount=nDEs, deCountPerDim = decpd, rc=status)
-   
+
    NX = decpd(1)
    NY = decpd(2)
 
    allocate (ims(NX), jms(NY), stat=status)
    _VERIFY(STATUS)
-   
+
    call ESMF_GridGet(grid3D, &
                      horzRelLoc=ESMF_CELL_CENTER, vertRelLoc=ESMF_CELL_CELL, &
                      globalCellCountPerDim=gccpd, &
@@ -1358,7 +1358,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
                      maxGlobalCoordPerDim=max, &
                      rc=status)
    _VERIFY(status)
-   
+
    ! this is probably incorrect unless parent grid is XYuni
    !DSTGrid2D = ESMF_GridCreateHorzXYUni( &
    !                           counts=gccpd(1:2), &
@@ -1443,7 +1443,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
                  haloWidth=0, &
                  name   = "PS", rc=status )  ! can be any name, all we want
    _VERIFY(STATUS)                           ! is the correct route handle
-   
+
    call ESMF_FIELDRegridStore(srcFLD2D, dstFLD2D, vm, rh,  &
                              regridmethod=ESMF_REGRID_METHOD_BILINEAR, &
                              rc=status)
@@ -1479,10 +1479,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    type(ESMF_Field), intent(in)          :: srcFLD
    type(ESMF_Field), intent(inout)       :: dstFLD
-   type(ESMF_Grid), intent(in)           :: Sgrid2D 
+   type(ESMF_Grid), intent(in)           :: Sgrid2D
    type(ESMF_Grid), intent(in)           :: Dgrid2D
    type(ESMF_RouteHandle), intent(inout) :: rh
    type(ESMF_VM), intent(inout)          :: vm
@@ -1550,7 +1550,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    _VERIFY(STATUS)
    ! get dCPD from Dgrid2D
    call ESMF_FieldGet(dstFLD, grid=grid3D, rc=status)
-   _VERIFY(STATUS)  
+   _VERIFY(STATUS)
    call ESMF_GridGetDELocalInfo(grid3D, &
          horzRelLoc=ESMF_CELL_CENTER, &
          vertRelLoc=ESMF_CELL_CELL, &
@@ -1558,18 +1558,18 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    _VERIFY(STATUS)
 
    ! for MAPL and GSI sCPD(3) = dCPD(3)
-   
+
    ! assume 2D field
    kmax=1
    ! if rank is three then km = # levels in srcFLD
    if (rank==3) kmax=sCPD(3)
-   
+
    ! get array from srcFLD and dstFLD
    call ESMF_FieldGetArray(srcFLD, srcARR, rc=status)
    _VERIFY(status)
    call ESMF_FieldGetArray(dstFLD, dstARR, rc=status)
    _VERIFY(status)
-   
+
    ! allocate f90 pointer to hold data
    ! note halo width = 0
    if(rank==3) then
@@ -1637,10 +1637,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
      end if
 
    end do
-   
+
    deallocate(sptr, dptr, stat=status)
    _VERIFY(STATUS)
-#endif   
+#endif
 
    if (present(rc)) then
       rc = 0
@@ -1666,10 +1666,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    type(ESMF_FieldBundle), intent(inOUT)      :: srcBUN
    type(ESMF_FieldBundle), intent(inout)      :: dstBUN
-   type(ESMF_Grid), intent(in)           :: Sgrid2D 
+   type(ESMF_Grid), intent(in)           :: Sgrid2D
    type(ESMF_Grid), intent(in)           :: Dgrid2D
    type(ESMF_RouteHandle), intent(inout) :: rh
    type(ESMF_VM), intent(inout)          :: vm
@@ -1729,23 +1729,23 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    _VERIFY(STATUS)
    ! get dCPD from Dgrid2D
    call ESMF_FieldGet(dstFLD, grid=grid3D, rc=status)
-   _VERIFY(STATUS)  
+   _VERIFY(STATUS)
    call MAPL_GridGet(grid3D, &
          localCellCountPerDim=dCPD,RC=STATUS)
    _VERIFY(STATUS)
 
    ! for MAPL and GSI sCPD(3) = dCPD(3)
-   
+
    ! assume 2D field
    kmax=1
    ! if rank is three then km = # levels in srcFLD
    if (rank==3) kmax=sCPD(3)
-  
+
 
 #if 0
    ! loop over fields in bundle
- 
-   do L=1,NumVars   
+
+   do L=1,NumVars
 
      call ESMF_FieldBundleGet     (srcBUN, L, srcFLD,           RC=STATUS)
      _VERIFY(STATUS)
@@ -1785,7 +1785,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
      srcFLD2D = ESMF_FieldCreate(Sgrid2D, newSrcARR,    &
                    horzRelloc = ESMF_CELL_CENTER,         &
                    datamap=dmap,                       &
-                   haloWidth=0, & 
+                   haloWidth=0, &
                    name   = fname, rc=status )
      _VERIFY(STATUS)
      dstFLD2D = ESMF_FieldCreate(Dgrid2D, newDstARR,    &
@@ -1820,10 +1820,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
      end if
 
      end do ! k
-   
+
      deallocate(sptr, dptr, stat=status)
      _VERIFY(STATUS)
-   
+
    end do ! L
 
 #else
@@ -1848,7 +1848,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    type(ESMF_FieldBundle), intent(inout)      :: srcBUN ! source bundle
    type(ESMF_FieldBundle), intent(inout)      :: dstBUN ! destination bundle
    integer, optional, intent(out)        :: rc     ! return code
@@ -1856,7 +1856,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 ! !DESCRIPTION:
 !     Regrid a source bundle (srcBUN) into a destination bundle (dstBUN)
 !     using hinterp. A bundle is thought of as being comprised of n 2D
-!     slices (nslices) distributed among the n PEs (ns\_per\_pe). The 
+!     slices (nslices) distributed among the n PEs (ns\_per\_pe). The
 !     limits among each ns\_per\_pe region are given by n1 and n2 which
 !     are functions of mype (the local PE):
 !     \begin{verbatim}
@@ -1876,11 +1876,11 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !              .                                         .
 !              .                                         .
 !              .                                         .
-!          ns ---                                  slice_pe(ns)    
+!          ns ---                                  slice_pe(ns)
 !              .                                         .
 !              .                                         .
 !              .                                         .
-!     nslices --- n2(pe=n)                        -->   npe    
+!     nslices --- n2(pe=n)                        -->   npe
 !
 !     \end{verbatim}
 !     Each slice is gathered, regridded (hinterp), and scattered on
@@ -1926,10 +1926,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    integer, allocatable, dimension(:    ) :: n1, n2
    real(kind=REAL32), allocatable, dimension(:,:,:) :: srcBUF  ! src buffer
    real(kind=REAL32), allocatable, dimension(:,:,:) :: dstBUF  ! dst buffer
-   real(kind=REAL32),     pointer, dimension(:,:  ) :: llons, llats 
-   real(kind=REAL32), allocatable, dimension(:,:  ) :: glons, glats 
-   real(kind=REAL32), allocatable, dimension(:    ) :: srcLons, srcLats 
-   real(kind=REAL32), allocatable, dimension(:,:  ) :: srcWork 
+   real(kind=REAL32),     pointer, dimension(:,:  ) :: llons, llats
+   real(kind=REAL32), allocatable, dimension(:,:  ) :: glons, glats
+   real(kind=REAL32), allocatable, dimension(:    ) :: srcLons, srcLats
+   real(kind=REAL32), allocatable, dimension(:,:  ) :: srcWork
    real(kind=REAL32), allocatable, dimension(:,:  ) :: dstWork
    character(len=ESMF_MAXSTR), parameter  :: IAm = 'BundleRegrid'
 
@@ -1943,7 +1943,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 ! global and local counts perdimension, km_world, nslices, numVars
 
    call Bundle_Prep_ (srcBUN, dstBUN)
-  
+
 ! assign slices to PEs - create slice_pe array
 
    allocate(slice_pe(nslices), stat = status)
@@ -1964,10 +1964,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
    if(verbose .and. mype==MAPL_Root) print *,' - Gather...'
    call Do_Gathers_ (srcBUN, srcBUF)
-  
+
 ! loop through slices and interpolate, use local addressing
 
-   if(verbose .and. mype==MAPL_Root) then 
+   if(verbose .and. mype==MAPL_Root) then
       print *,' - Regrid ',nslices,' slices '
       print *,' SRC res ',ims_world,' x ', jms_world,&
            ' DST res ',imd_world,' x ', jmd_world
@@ -1990,7 +1990,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    deallocate(slice_pe, ns_per_pe, n1, n2, stat=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
    call dealloc_
-   
+
    _RETURN(ESMF_SUCCESS)
 
    contains
@@ -2005,18 +2005,18 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 ! !INTERFACE:
 
    subroutine Bundle_Prep_ (srcBUN, dstBUN, only_vars)
-                      
+
 !
 ! !USES:
 !
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    type(ESMF_FieldBundle), intent(inout)      :: srcBUN !ALT: intent(in)
    type(ESMF_FieldBundle), intent(inout)      :: dstBUN
    character(len=*), optional, intent(in):: only_vars ! comma separated,
-                                                      ! no spaces  
+                                                      ! no spaces
 ! !DESCRIPTION:
 !     Prepare for regridding
 !
@@ -2035,8 +2035,8 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    integer :: rank
    integer :: sCPD(3), dCPD(3)   ! src and dst counts per dimension (local)
    integer :: gsCPD(3), gdCPD(3) ! src and dst counts per dimension (global)
-   integer :: srcLM              ! src vertical levels 
-   integer :: dstLM              ! dst                
+   integer :: srcLM              ! src vertical levels
+   integer :: dstLM              ! dst
    integer :: dstNvars           ! numVars can be redefined if only_vars
                                  ! is specified
    integer :: L
@@ -2049,7 +2049,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
    call ESMF_FieldBundleGet (srcBUN, FieldCount=NumVars, RC=STATUS)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-   
+
    nslices = 0
    dstNvars = 0
    do L = 1, NumVars
@@ -2061,7 +2061,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
      if ( present(ONLY_VARS) ) then
        if ( index(','//trim(ONLY_VARS)  //',', &
-       ','//trim(name)//',') < 1 ) cycle 
+       ','//trim(name)//',') < 1 ) cycle
      endif
      dstNvars = dstNvars + 1
 
@@ -2079,7 +2079,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
        _RETURN(ESMF_FAILURE)
      end if
      km_world = srcLM
-     
+
      call ESMF_FieldGet(srcFLD, Array=srcARR, rc=status)
      if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
      call ESMF_ArrayGet(srcARR, RANK=rank, rc=status)
@@ -2213,13 +2213,13 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    integer, intent(in)    :: nslices       ! number of slices
    integer, intent(in)    :: mype          ! local PE
    integer, intent(in)    :: npe           ! number of PEs
    integer, intent(inout) :: slice_pe(:)   ! slice-to-pe map
-   integer, intent(out)   :: nfirst     
-   integer, intent(out)   :: nlast   
+   integer, intent(out)   :: nfirst
+   integer, intent(out)   :: nlast
 
 ! !DESCRIPTION:
 !     Determine number of bundle slices per PE and "load balanced"
@@ -2246,7 +2246,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
    ns_per_pe = nslices/npe
    ns_rem  = mod(nslices,npe)
-  
+
 ! redistribute remaining slices
 
    allocate(displ(npe), stat = status)
@@ -2296,7 +2296,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    type(ESMF_FieldBundle), intent(inout)         :: BUN
    real(kind=REAL32), intent(inout), dimension(:,:,:) :: BUF
 
@@ -2353,10 +2353,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
      else
        call ESMF_FieldGet (FLD, localDE=0, farrayPtr=ptr3d, rc = status)
        if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-     end if    
+     end if
 
      do L = 1, lmFLD
- 
+
        ns = ns + 1
 
        ! gather from distributed pointer to global buffer BUF
@@ -2387,7 +2387,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
        if(mype==slice_pe(ns)) then
          BUF(:,:,bufi) = srcWork
-       else                   
+       else
          srcWork = 0.0
        end if
 
@@ -2471,7 +2471,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    type(ESMF_FieldBundle), intent(inout)         :: BUN
    real(kind=REAL32), intent(inout), dimension(:,:,:) :: BUF
 
@@ -2527,7 +2527,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
      else
        call ESMF_FieldGet (FLD, localDE=0, farrayPtr=ptr3d, rc = status)
        if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-     end if    
+     end if
 
      do L = 1, lmFLD
 
@@ -2546,7 +2546,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
        if(mype==slice_pe(ns)) then
          dstWork = BUF(:,:,bufi)
-       else                   
+       else
          dstWork = 0.0
        end if
 
@@ -2588,7 +2588,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !
    integer :: status
    character(len=ESMF_MAXSTR), parameter :: IAm = 'alloc_'
-! 
+!
    allocate(srcBUF(1:ims,1:jms,nfirst:nlast), STAT=STATUS)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
    srcBUF = 0.0
@@ -2600,10 +2600,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    allocate(dstWork(1:imd,1:jmd), STAT=STATUS)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
-   end subroutine alloc_ 
+   end subroutine alloc_
 
 !-------------------------------------------------------------------------
-   subroutine dealloc_ 
+   subroutine dealloc_
 !-------------------------------------------------------------------------
 
    integer :: status
@@ -2623,7 +2623,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    deallocate(gLons, gLats, STAT=STATUS)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
-   end subroutine dealloc_ 
+   end subroutine dealloc_
 
 !-------------------------------------------------------------------------
    subroutine FlipLons_(q)
@@ -2656,7 +2656,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
      real(kind=REAL32),dimension(:,:),intent(inout) :: rbufr
      real(kind=REAL32),allocatable, dimension(:,:) :: sfcin
      integer :: im,jm
-     
+
      im=size(rbufr,1)
      jm=size(rbufr,2)
      allocate(sfcin(im,jm))
@@ -2684,7 +2684,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    type(ESMF_State), intent(inout)  :: srcSTA
    type(ESMF_State), intent(inout)  :: dstSTA
    integer, optional, intent(out)   :: rc     ! return code
@@ -2712,7 +2712,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    character (len=ESMF_MAXSTR), allocatable  :: dstNames(:)
    character (len=ESMF_MAXSTR), allocatable  :: srcNames(:)
    type(ESMF_StateItem_Flag)  , pointer  :: itemtypelist(:)
-   character(len=ESMF_MAXSTR)            :: name 
+   character(len=ESMF_MAXSTR)            :: name
    character(len=ESMF_MAXSTR), parameter :: IAm = 'StateRegrid'
 
 ! start
@@ -2722,7 +2722,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
 ! Get information from src state
 !-------------------------------
-! query the states for item number and types. If item type is other 
+! query the states for item number and types. If item type is other
 ! than a field then return(1)
 
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
@@ -2744,7 +2744,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    srcFCount=0
    do i=1,itemcount
       if(itemtypelist(i)==ESMF_STATEITEM_FIELD) then
-        srcFCount=srcFCount+1 
+        srcFCount=srcFCount+1
         !call ESMFL_FailedRC(mype,trim(Iam)//': State item '//trim(itemNameList(i))//' is not a field.')
       end if
    end do
@@ -2756,7 +2756,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
         srcNames(srcFCount)=trim(itemNameList(i))
       end if
    end do
-    
+
 ! get grid from first field in state, and create bundle
 
    if(verbose .and. mype==MAPL_Root) print *, ' Get grid from ',trim(srcNames(1))
@@ -2765,7 +2765,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' ESMF_StateGetField failed')
    call ESMF_StateGet(srcSTA, name=name, rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' ESMF_StateGet failed')
-   name = name//'to bundle' 
+   name = name//'to bundle'
    call ESMF_FieldGet (FLD, grid=GRID, rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' ESMF_FieldGet failed')
    ! create bundle with input grid
@@ -2774,7 +2774,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call ESMF_FieldBundleSet(srcBUN, grid, rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' src ESMF_FieldBundleSet failed' )
 
-! populate source bundle   
+! populate source bundle
 
    call ESMFL_StateGetField(srcSTA, srcNames , srcBUN, RC=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' SRC ESMFL_StateGetField failed')
@@ -2784,7 +2784,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
    call ESMF_StateGet(dstSTA, itemcount=itemcount, rc=status)
    _VERIFY(status)
-   deallocate(itemNameList) 
+   deallocate(itemNameList)
    deallocate(itemTypeList)
    allocate(itemNameList(itemCount))
    allocate(itemTypeList(itemCount))
@@ -2794,7 +2794,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    dstFCount=0
    do i=1,itemcount
       if(itemtypelist(i)==ESMF_STATEITEM_FIELD) then
-        dstFCount=dstFCount+1 
+        dstFCount=dstFCount+1
       end if
    end do
    allocate(dstNames(dstFCount))
@@ -2805,7 +2805,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
         dstNames(dstFCount)=trim(itemNameList(i))
       end if
    end do
-   _ASSERT(dstFCount==srcFCount,"source and destination bundle sizes do not match") 
+   _ASSERT(dstFCount==srcFCount,"source and destination bundle sizes do not match")
 ! get grid from first field in state, and create bundle
 
    if(verbose .and. mype==MAPL_Root) print *, ' Get grid from ',trim(dstNames(1))
@@ -2819,11 +2819,11 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' ESMF_FieldGet failed')
    ! create bundle with input grid
    dstBUN = ESMF_FieldBundleCreate ( name=name, rc=status )
-   if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' ESMF_FieldBundleCreate failed' )    
+   if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' ESMF_FieldBundleCreate failed' )
    call ESMF_FieldBundleSet(dstBUN, grid, rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' src ESMF_FieldBundleSet failed' )
 
-! populate destination bundle   
+! populate destination bundle
 
    call ESMFL_StateGetField(dstSTA, dstNames, dstBUN, RC=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam//' DST ESMFL_StateGetField failed')
@@ -2861,13 +2861,13 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    type(ESMF_Field), intent(inout)         :: FLD !ALT: intent(in)
    integer, optional, intent(out)       :: gCPD(3)
    integer, optional, intent(out)       :: lCPD(3)
    integer, optional, intent(out)       :: lm
    integer, optional, intent(out)       :: ar
-   
+
 ! !DESCRIPTION:
 !     Return some grid information associated from an ESMF field
 !
@@ -2900,7 +2900,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call MAPL_GridGet(GRID, &
         globalCellCountPerDim=globalCPD, &
         localCellCountPerDim=localCPD, &
-	rc=status)
+        rc=status)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
    if (present(gCPD)) gCPD = globalCPD
@@ -2940,7 +2940,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    type(ESMF_FieldBundle), intent(inout) :: srcBUN
    type(ESMF_FieldBundle), optional, intent(inout) :: dstBUN
    integer, optional, intent(out)   :: rc     ! return code
@@ -2999,10 +2999,10 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
    ! loop over fields in bundle
- 
+
    if(verbose .and. mype==MAPL_Root) print *,' Loop through bundles'
 
-   do L=1,NumVars   
+   do L=1,NumVars
 
      call ESMF_FieldBundleGet     (srcBUN, L, srcFLD, RC=STATUS)
      if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
@@ -3060,21 +3060,21 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
           if (rank==4) then
             call ArrayGather(sptr4d(:,:,k,u), srcBuf, grid3D, RC=STATUS)
             if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-            if (present(dstBUN)) then 
+            if (present(dstBUN)) then
                call ArrayGather(dptr4d(:,:,k,u), dstBuf, grid3D, RC=STATUS)
                if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
             endif
           elseif (rank==3) then
             call ArrayGather(sptr3d(:,:,k), srcBuf, grid3D, RC=STATUS)
             if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-            if (present(dstBUN)) then 
+            if (present(dstBUN)) then
                call ArrayGather(dptr3d(:,:,k), dstBuf, grid3D, RC=STATUS)
                if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
             endif
           else
             call ArrayGather(sptr2d, srcBuf, grid3D, RC=STATUS)
             if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
-            if (present(dstBUN)) then 
+            if (present(dstBUN)) then
               call ArrayGather(dptr2d, dstBuf, grid3D, RC=STATUS)
               if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
             endif
@@ -3179,7 +3179,7 @@ CONTAINS
               write(lu,'(a,1x,a,5x,a,6x,a,9x,a,15x,a)') 'lvl',&
                'count','mean','stdev','maxi','mini'
 
-           endif ! present 
+           endif ! present
         end if ! k==1
 
 ! compute some statistics on diff
@@ -3217,7 +3217,7 @@ CONTAINS
             end do
           end do
           dev=sqrt(dev/max(1,cnt-1))
-     
+
           amx=a(1,1)
           amn=a(1,1)
           first=.true.
@@ -3283,7 +3283,7 @@ CONTAINS
   implicit NONE
 
 ! !ARGUMENTS:
-   
+
    type(ESMF_State), intent(inout)  :: srcSTA
    type(ESMF_State),optional, intent(inout)  :: dstSTA
    integer, optional, intent(out)   :: rc     ! return code
@@ -3317,7 +3317,7 @@ CONTAINS
 
 ! Get information from state
 !---------------------------
-! query the states for item number and types. If item type is other 
+! query the states for item number and types. If item type is other
 ! than a field then return(1)
 
    call ESMF_StateGet(srcSTA, itemcount=itemcount, rc=status)
@@ -3371,7 +3371,7 @@ CONTAINS
       call BundleDiff (srcBUN, rc=status)
       if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
 
-    endif  
+    endif
 
    _RETURN(ESMF_SUCCESS)
 
@@ -3423,8 +3423,8 @@ CONTAINS
 
    type(ESMF_Grid), intent(inout)      :: Egrid
    integer, intent(in), dimension(:):: ist, jst, il, jl
-   real(kind=REAL64), optional, dimension(:)     :: rlats 
-   real(kind=REAL64), optional, dimension(:)     :: rlons 
+   real(kind=REAL64), optional, dimension(:)     :: rlats
+   real(kind=REAL64), optional, dimension(:)     :: rlons
    integer, optional, intent(out)      :: rc    ! return code
 
    _UNUSED_DUMMY(Egrid)
@@ -3437,13 +3437,13 @@ CONTAINS
 
 #if 0
 ! !DESCRIPTION:
-!   
+!
 !EOP
-!  
+!
 ! !REVISION HISTORY:
 !
 !  16Jun2006  Cruz  Initial code.
-!  
+!
 !-------------------------------------------------------------------------
 
    integer, allocatable, dimension(:) :: iAI
@@ -3549,7 +3549,7 @@ CONTAINS
    character (len=ESMF_MAXSTR)           :: fldname
    character (len=ESMF_MAXSTR), pointer  :: namelist(:)
    type(ESMF_StateItem_Flag)  , pointer  :: typelist(:)
-   character(len=ESMF_MAXSTR)            :: name 
+   character(len=ESMF_MAXSTR)            :: name
    character(len=ESMF_MAXSTR), parameter :: IAm='State2Bundle'
    logical                               :: field_found_already
 
@@ -3564,12 +3564,12 @@ CONTAINS
       if (verbose) print *,' state is empty'
       _RETURN(ESMF_FAILURE)
    end if
-   
+
    allocate(namelist(itemcount), stat=status)
    _VERIFY(STATUS)
    allocate(typelist(itemcount), stat=status)
    _VERIFY(STATUS)
-   
+
    call ESMF_StateGet(STA, itemnamelist=namelist, &
                       itemtypelist=typelist, rc=status)
    _VERIFY(STATUS)
@@ -3594,12 +3594,12 @@ CONTAINS
          ! create bundle with input grid
          BUN = ESMF_FieldBundleCreate ( name=name, rc=status )
          _VERIFY(STATUS)
-	 call ESMF_FieldBundleSet(BUN, grid=grid, rc=status)
+         call ESMF_FieldBundleSet(BUN, grid=grid, rc=status)
          _VERIFY(STATUS)
 
       end if
 
-     ! populate bundle   
+     ! populate bundle
 
      if (present(usrfldlist) ) then
          call ESMF_FieldGet(FLD, NAME=fldname, rc=status )
@@ -3687,9 +3687,10 @@ CONTAINS
          call ESMF_FieldGet(FLD, dimCount=src_fieldRank, &
               typeKind=src_tk, rc=status)
          _VERIFY(STATUS)
-         ! make sure that type kind rank agrees between 
+         ! make sure that type kind rank agrees between
          ! fld and stateField
-         _ASSERT(dst_fieldRank == src_fieldRank .and. dst_tk == src_tk, 'TKR mismatch between fld and stateField')
+         _ASSERT(dst_fieldRank == src_fieldRank, 'Rank mismatch between fld and stateField')
+         _ASSERT(dst_tk == src_tk, 'Type Kind mismatch between fld and stateField')
          ! for appropriate TKR:
          if (dst_tk == ESMF_TypeKind_R4) then
             select case (dst_fieldRank)
@@ -3757,7 +3758,7 @@ CONTAINS
    integer :: status, mype, L, numVars1, numVars2
    character(len=ESMF_MAXSTR)            :: name1, name2, name3
    character(len=ESMF_MAXSTR), parameter :: IAm = 'Bundles2Bundle'
-   
+
 ! begin
 
    call ESMF_VMGetCurrent(vm)
@@ -3810,7 +3811,7 @@ CONTAINS
    integer :: status, mype, L, numVars1, numVars2
    character(len=ESMF_MAXSTR)            :: name1, name2
    character(len=ESMF_MAXSTR), parameter :: IAm = 'Add2Bundle'
-   
+
 ! begin
 
    call ESMF_VMGetCurrent(vm)
@@ -3901,7 +3902,7 @@ CONTAINS
         logical                               :: isCube = .false.
         logical                               :: inUse = .false.
      end type HaloType
-     
+
      type(HaloType), save                     :: myHaloTypes(MAX_HALOTYPES)
      type(HaloType)                           :: thisHaloType
      logical                                  :: found
@@ -4003,7 +4004,7 @@ CONTAINS
         jsd = lbound(input,2)
         jed = ubound(input,2)
         ! fill the corners with MAPL_UNDEF, they will be overwritten
-        ! by the CubeHalo, unless these are the actual cube corners 
+        ! by the CubeHalo, unless these are the actual cube corners
         input(isd,jsd) = MAPL_UNDEF
         input(ied,jsd) = MAPL_UNDEF
         input(isd,jed) = MAPL_UNDEF
@@ -4042,7 +4043,7 @@ CONTAINS
 
 !  Fill NORTHERN ghost region
 
-     LAST = SIZE(INPUT,2)-1 
+     LAST = SIZE(INPUT,2)-1
      LEN1 = SIZE(INPUT,1)
 
      call MAPL_CommsSendRecv(LAYOUT, &
@@ -4108,7 +4109,7 @@ CONTAINS
 !
 ! !DESCRIPTION: Extracts fields from an ESMF State and adds them to a
 !               ESMF Bundle. In essesence, it serializes an ESMF state
-!  in a flat Bundle. The BUNDLE must have been created prior to calling 
+!  in a flat Bundle. The BUNDLE must have been created prior to calling
 !  this routine.
 !
 !EOP
@@ -4135,7 +4136,7 @@ CONTAINS
 
 !                           ---
 
-    
+
     if ( present(validate) ) validate_ = validate
 
 !   Query state for number of items and allocate space for them
@@ -4255,9 +4256,9 @@ CONTAINS
 !   Make sure field names are unique
 !   --------------------------------
     allocate ( FieldNames(FieldCount), stat=STATUS )
-    _VERIFY(STATUS) 
+    _VERIFY(STATUS)
     call ESMF_FieldBundleGet ( BUNDLE, FieldNameList=FieldNames, rc=STATUS )
-    _VERIFY(STATUS) 
+    _VERIFY(STATUS)
 
 !   Make sure field names are unique
 !   --------------------------------
@@ -4300,7 +4301,7 @@ CONTAINS
     implicit none
 
     ! Arguments
-    real(kind=REAL64), intent(  OUT) :: qave 
+    real(kind=REAL64), intent(  OUT) :: qave
     real,              intent(IN   ) :: q(:,:)
     real,              intent(IN   ) :: area(:,:)
     type(ESMF_Grid),   intent(INout) :: grid
@@ -4390,7 +4391,7 @@ CONTAINS
     implicit none
 
     ! Arguments
-    real(kind=REAL64), intent(  OUT) :: qave 
+    real(kind=REAL64), intent(  OUT) :: qave
     real,              intent(IN   ) :: q(:,:)
     real,              intent(IN   ) :: area(:,:)
     type(ESMF_Grid),   intent(INout) :: grid

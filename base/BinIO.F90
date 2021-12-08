@@ -36,7 +36,7 @@ module  BinIOMod
   public MAPL_Skip
   public MAPL_Backspace
   public MAPL_Rewind
-  public MAPL_ClimUpdate 
+  public MAPL_ClimUpdate
   public MAPL_DestroyFile
   public MAPL_MemFileInquire
 
@@ -187,10 +187,10 @@ module  BinIOMod
     IMPLICIT NONE
     character(LEN=*), intent(in   )           :: Name
     integer         , intent(  out), OPTIONAL :: RC
-     
+
     integer :: i
     logical :: found
-     
+
     found = .false.
     do i = 2, last_unit
        if(name==Mname(i)) then
@@ -198,7 +198,7 @@ module  BinIOMod
           exit
        end if
     end do
-     
+
     if (.not. found) then
        do i = 2,last_unit
           if(.not.MTAKEN(i)) then
@@ -212,11 +212,11 @@ module  BinIOMod
        if(present(rc)) rc = 1
        return
     endif
-     
-    mname(i)   = name 
+
+    mname(i)   = name
     mtaken(i)  = .true.
     getfileunit = i
-     
+
     if(present(rc)) rc = 0
     return
   end function getfileunit
@@ -246,7 +246,7 @@ module  BinIOMod
           _RETURN(ESMF_FAILURE)
        ELSE
           TAKEN(UNIT) = .FALSE.
-          MTAKEN(UNIT) = .FALSE. 
+          MTAKEN(UNIT) = .FALSE.
        ENDIF
     end if
 
@@ -303,7 +303,7 @@ module  BinIOMod
     logical, pointer                     :: DOIT(:)
     integer                              :: DIMS
     integer, pointer                     :: MASK(:) => null()
-    
+
     logical                            :: skipReading
     integer                            :: RST
     integer                            :: dna
@@ -316,7 +316,7 @@ module  BinIOMod
     character(len=ESMF_MAXSTR)           :: attrName
     character(len=ESMF_MAXSTR), allocatable :: currList(:)
     integer                                 :: natt
-    
+
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
     _VERIFY(STATUS)
 
@@ -448,7 +448,7 @@ module  BinIOMod
 !@                   allocate(Mask(1))
                 endif
              endif
-      
+
              call MAPL_FieldRead(unit, field, arrdes=arrdes, HomePE=Mask, ignoreEOF=ignoreEOF, rc=status)
              _VERIFY(STATUS)
 
@@ -520,12 +520,12 @@ module  BinIOMod
        end if
        skipReading = (RST == MAPL_RestartSkip)
        if (skipReading) cycle
-       
+
        ignoreEOF=.false.
        if (bootstrapable_ .and. (RST == MAPL_RestartOptional)) then
           ignoreEOF = .true.
        end if
-       
+
        call MAPL_FieldRead(unit, field, arrdes=ARRDES,  ignoreEOF=ignoreEOF, rc=status)
        _VERIFY(STATUS)
 
@@ -587,7 +587,7 @@ module  BinIOMod
     _VERIFY(STATUS)
 
     if (ignoreEOF_ .and. (unit > 0)) then
-       ! test for end-of-file by 
+       ! test for end-of-file by
        ! making a blank read followed by backspace
 
        if (MAPL_am_i_root(layout)) then
@@ -631,7 +631,7 @@ module  BinIOMod
                 _VERIFY(STATUS)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call READ_PARALLEL(layout, var_1d, unit, arrdes=arrdes, rc=status)
-             else 
+             else
                 _RETURN(ESMF_FAILURE)
              endif
           end if
@@ -643,7 +643,7 @@ module  BinIOMod
                 call MAPL_VarRead(unit, grid, vr8_1d, arrdes=arrdes, mask=mask, rc=status)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call READ_PARALLEL(layout, vr8_1d, unit, arrdes=arrdes, rc=status)
-             else 
+             else
                 _RETURN(ESMF_FAILURE)
              endif
           end if
@@ -837,9 +837,9 @@ module  BinIOMod
 
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           if(arrdes%offset<=0) then
-             offset = 4 
+             offset = 4
           else
-             offset = arrdes%offset 
+             offset = arrdes%offset
           endif
 
           loffset = offset + (first-1)*4
@@ -894,7 +894,7 @@ module  BinIOMod
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -1048,7 +1048,7 @@ module  BinIOMod
        if (.not. MAPL_ShmInitialized) then
           call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
           _VERIFY(STATUS)
-    
+
           deallocate(VAR)
        else
           call ArrayScatterShm(A, VAR, grid, mask=mask, rc=status)
@@ -1057,7 +1057,7 @@ module  BinIOMod
           _VERIFY(STATUS)
        end if
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_1d
 
@@ -1157,16 +1157,16 @@ module  BinIOMod
           _VERIFY(STATUS)
 
           if(arrdes%offset<=0) then
-             offset = 4 
+             offset = 4
           else
-             offset = arrdes%offset 
+             offset = arrdes%offset
           endif
 
           offset = offset + (arrdes%j1(myrow+1)-1)*IM_WORLD*4
           cnt = IM_WORLD*jsize
           call MPI_FILE_READ_AT_ALL(UNIT, offset, VAR, cnt, MPI_REAL, mpistatus, STATUS)
           _VERIFY(STATUS)
-          call MPI_GET_COUNT( mpistatus, MPI_REAL, numread, STATUS ) 
+          call MPI_GET_COUNT( mpistatus, MPI_REAL, numread, STATUS )
           _VERIFY(STATUS)
           _ASSERT(cnt == numread, 'inconsistent numread')
           offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*4
@@ -1205,7 +1205,7 @@ module  BinIOMod
             0, arrdes%ioscattercomm, status )
        _VERIFY(STATUS)
 
-       if(myiorank==0) then 
+       if(myiorank==0) then
           deallocate(VAR, stat=status)
           _VERIFY(STATUS)
 !          deallocate(buf, stat=status)
@@ -1291,7 +1291,7 @@ module  BinIOMod
   if (MAPL_AM_I_Root()) write(*,'(a64,3es11.3)') 'MPIIO Read Bandwidth (MB per second): ', peak_ioread_bandwidth, bwidth, mean_ioread_bandwidth/ioread_counter
   endif
 #endif
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_2d
 
@@ -1317,7 +1317,7 @@ module  BinIOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_3d
-  
+
 !---------------------------
   subroutine MAPL_VarRead_R4_4d(UNIT, GRID, A, Arrdes, RC)
 
@@ -1340,7 +1340,7 @@ module  BinIOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R4_4d
-  
+
 !---------------------------
   subroutine MAPL_VarRead_R8_1d(UNIT, GRID, A, MASK, arrdes, RC)
 
@@ -1424,9 +1424,9 @@ module  BinIOMod
 
        if(arrdes%readers_comm /= MPI_COMM_NULL) then
           if(arrdes%offset<=0) then
-             offset = 4 
+             offset = 4
           else
-             offset = arrdes%offset 
+             offset = arrdes%offset
           endif
 
           loffset = offset + (first-1)*8
@@ -1482,7 +1482,7 @@ module  BinIOMod
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -1624,11 +1624,11 @@ module  BinIOMod
 
     call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
     _VERIFY(STATUS)
-    
+
     deallocate(VAR)
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_1d
 
@@ -1705,7 +1705,7 @@ module  BinIOMod
 
        allocate (sendcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
        _VERIFY(STATUS)
-       
+
        if(myiorank==0) then
           do j=1,num_io_rows
              jsize = arrdes%jn(myrow+j) - arrdes%j1(myrow+j) + 1
@@ -1824,7 +1824,7 @@ module  BinIOMod
     end if
     call ArrayScatter(A, VAR, grid, mask=mask, rc=status)
     _VERIFY(STATUS)
-    
+
     deallocate(VAR)
 
     END IF
@@ -1833,7 +1833,7 @@ module  BinIOMod
   call MPI_BARRIER(MPI_COMM_WORLD,STATUS)
   _VERIFY(STATUS)
   itime_end = MPI_Wtime(STATUS)
-  _VERIFY(STATUS) 
+  _VERIFY(STATUS)
   bwidth = REAL(IM_WORLD*JM_WORLD*8/1024.0/1024.0,kind=8)
   bwidth = bwidth/(itime_end-itime_beg)
   if (bwidth > peak_ioread_bandwidth) peak_ioread_bandwidth = bwidth
@@ -1842,8 +1842,8 @@ module  BinIOMod
   if (mod(ioread_counter,72.d0)==0) then
   if (MAPL_AM_I_Root()) write(*,'(a64,3es11.3)') 'MPIIO Read Bandwidth (MB per second): ', peak_ioread_bandwidth, bwidth, mean_ioread_bandwidth/ioread_counter
   endif
-#endif 
-    
+#endif
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_2d
 
@@ -1869,7 +1869,7 @@ module  BinIOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_3d
-  
+
 !---------------------------
   subroutine MAPL_VarRead_R8_4d(UNIT, GRID, A, arrdes, RC)
 
@@ -1892,7 +1892,7 @@ module  BinIOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarRead_R8_4d
-  
+
 !---------------------------
 ! Write routines
 !---------------------------
@@ -1919,7 +1919,7 @@ module  BinIOMod
     logical                              :: forceWriteNoRestart_
     integer                              :: DIMS
     integer, pointer                     :: MASK(:) => null()
-    
+
     integer, allocatable :: orderlist(:)
     integer :: jj
     character(len=ESMF_MAXSTR)           :: attrName
@@ -1983,7 +1983,7 @@ module  BinIOMod
 
     do JJ = 1, natt
        I = ORDERLIST(JJ)
-    
+
        IF (DOIT     (I)) then
 
 #ifdef TIME_MPIIO
@@ -2131,7 +2131,7 @@ module  BinIOMod
     character(len=ESMF_MAXSTR)         :: FORMATTED
     integer                            :: J,K
     type (ESMF_DistGrid)               :: distGrid
-    
+
     if (unit < 0 .or. present(arrdes)) then
        FORMATTED = "NO"
     else
@@ -2164,7 +2164,7 @@ module  BinIOMod
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_1d, rc=status)
           _VERIFY(STATUS)
-          if (associated(var_1d)) then 
+          if (associated(var_1d)) then
              if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                 call MAPL_VarWrite(unit, grid, var_1d, arrdes=arrdes, mask=mask, rc=status)
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
@@ -2323,7 +2323,7 @@ module  BinIOMod
          deallocate(munit%Records)
          munit%Records => REC
       endif
-      call alloc_(munit%Records(munit%prevrec),i4_1,size(A),rc=status)	
+      call alloc_(munit%Records(munit%prevrec),i4_1,size(A),rc=status)
       _VERIFY(STATUS)
       munit%Records(munit%prevrec)%I4_1  = A
 
@@ -2348,7 +2348,7 @@ module  BinIOMod
        write (UNIT, IOSTAT=status) VAR
        _VERIFY(STATUS)
     end if
-    
+
     deallocate(VAR)
 
     endif
@@ -2396,13 +2396,13 @@ module  BinIOMod
     integer, allocatable                  :: activeranks(:)
     integer, allocatable                  :: activerecvcounts(:)
     integer                               :: recl
-    logical                               :: useWriteFCtrl 
+    logical                               :: useWriteFCtrl
 
     integer :: mpistatus(MPI_STATUS_SIZE)
     logical :: amIRoot
 
     if(present(writeFCtrl)) then
-       useWriteFCtrl = writeFCtrl 
+       useWriteFCtrl = writeFCtrl
     else
        useWriteFCtrl = .true.
     end if
@@ -2479,7 +2479,7 @@ module  BinIOMod
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -2570,9 +2570,9 @@ module  BinIOMod
 
                 do I=1,Rsize
                    K = inv_pes(MSK(I))
-                   II = displs(K)+1 ! var is 1-based 
+                   II = displs(K)+1 ! var is 1-based
                    GVAR(I) = VAR(II)
-                   displs(K) = displs(K) + 1 
+                   displs(K) = displs(K) + 1
                 end do
              endif
              offset = offset + sendcount
@@ -2584,9 +2584,9 @@ module  BinIOMod
        enddo
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           if(arrdes%offset<=0) then
-             offset = 4 
+             offset = 4
           else
-             offset = arrdes%offset 
+             offset = arrdes%offset
           endif
           if(useWriteFCtrl .and. mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset-4, MPI_SEEK_SET, STATUS)
@@ -2649,7 +2649,7 @@ module  BinIOMod
          deallocate(munit%Records)
          munit%Records => REC
       endif
-      call alloc_(munit%Records(munit%prevrec),R4_1,size(A),rc=status)	
+      call alloc_(munit%Records(munit%prevrec),R4_1,size(A),rc=status)
       _VERIFY(STATUS)
       munit%Records(munit%prevrec)%R4_1  = A
 
@@ -2681,11 +2681,11 @@ module  BinIOMod
        write (UNIT, IOSTAT=status) VAR
        _VERIFY(STATUS)
     end if
-    
+
     deallocate(VAR)
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_1d
 
@@ -2747,15 +2747,15 @@ module  BinIOMod
 
        if(present(mask)) then
           JM_WORLD=size(a,2)
-       
+
 !          arrdes%offset = 0
 
 ! write Fortran control
           if(arrdes%writers_comm /= MPI_COMM_NULL) then
              if(arrdes%offset<=0) then
-                offset = 4 
+                offset = 4
              else
-                offset = arrdes%offset 
+                offset = arrdes%offset
              endif
 
              recl = IM_WORLD*JM_WORLD*4
@@ -2831,7 +2831,7 @@ module  BinIOMod
             0, arrdes%iogathercomm, status )
        _VERIFY(STATUS)
 
-       if(myiorank==0) then 
+       if(myiorank==0) then
 
           jprev = 0
           k=1
@@ -2910,7 +2910,7 @@ module  BinIOMod
          deallocate(munit%Records)
          munit%Records => REC
       endif
-      call alloc_(munit%Records(munit%prevrec),r4_2,size(A,1),size(a,2),rc=status)	
+      call alloc_(munit%Records(munit%prevrec),r4_2,size(A,1),size(a,2),rc=status)
       _VERIFY(STATUS)
       munit%Records(munit%prevrec)%R4_2  = A
 
@@ -2946,7 +2946,7 @@ module  BinIOMod
          write (UNIT, IOSTAT=status) VAR
          _VERIFY(STATUS)
       end if
-    
+
       deallocate(VAR)
 
    end if
@@ -2964,8 +2964,8 @@ module  BinIOMod
   if (mod(iowrite_counter,72.d0)==0) then
     if (MAPL_AM_I_Root()) write(*,'(a64,3es11.3)') 'MPIIO Write Bandwidth (MB per second): ', peak_iowrite_bandwidth, bwidth, mean_iowrite_bandwidth/iowrite_counter
   endif
-#endif 
-    
+#endif
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_2d
 
@@ -2991,7 +2991,7 @@ module  BinIOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_3d
-  
+
 !---------------------------
   subroutine MAPL_VarWrite_R4_4d(UNIT, GRID, A, ARRDES, RC)
 
@@ -3014,7 +3014,7 @@ module  BinIOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R4_4d
-  
+
 !---------------------------
   subroutine MAPL_VarWrite_R8_1d(UNIT, GRID, A, MASK, arrdes, writeFCtrl, RC)
 
@@ -3055,12 +3055,12 @@ module  BinIOMod
     integer, allocatable                  :: activeranks(:)
     integer, allocatable                  :: activerecvcounts(:)
     integer                               :: recl
-    logical                               :: useWriteFCtrl 
+    logical                               :: useWriteFCtrl
 
     integer :: mpistatus(MPI_STATUS_SIZE)
 
     if(present(writeFCtrl)) then
-       useWriteFCtrl = writeFCtrl 
+       useWriteFCtrl = writeFCtrl
     else
        useWriteFCtrl = .true.
     end if
@@ -3137,7 +3137,7 @@ module  BinIOMod
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -3228,9 +3228,9 @@ module  BinIOMod
 
                 do I=1,Rsize
                    K = inv_pes(MSK(I))
-                   II = displs(K)+1 ! var is 1-based 
+                   II = displs(K)+1 ! var is 1-based
                    GVAR(I) = VAR(II)
-                   displs(K) = displs(K) + 1 
+                   displs(K) = displs(K) + 1
                 end do
              endif
              offset = offset + sendcount
@@ -3242,9 +3242,9 @@ module  BinIOMod
        enddo
        if(arrdes%writers_comm /= MPI_COMM_NULL) then
           if(arrdes%offset<=0) then
-             offset = 4 
+             offset = 4
           else
-             offset = arrdes%offset 
+             offset = arrdes%offset
           endif
           if(useWriteFCtrl .and. mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset-4, MPI_SEEK_SET, STATUS)
@@ -3307,7 +3307,7 @@ module  BinIOMod
          deallocate(munit%Records)
          munit%Records => REC
       endif
-      call alloc_(munit%Records(munit%prevrec),R8_1,size(A),rc=status)	
+      call alloc_(munit%Records(munit%prevrec),R8_1,size(A),rc=status)
       _VERIFY(STATUS)
       munit%Records(munit%prevrec)%R8_1  = A
 
@@ -3332,11 +3332,11 @@ module  BinIOMod
        write (UNIT, IOSTAT=status) VAR
        _VERIFY(STATUS)
     end if
-    
+
     deallocate(VAR)
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_1d
 
@@ -3400,9 +3400,9 @@ module  BinIOMod
 ! write Fortran control
           if(arrdes%writers_comm /= MPI_COMM_NULL) then
              if(arrdes%offset<=0) then
-                offset = 4 
+                offset = 4
              else
-                offset = arrdes%offset 
+                offset = arrdes%offset
              endif
 
              recl = IM_WORLD*JM_WORLD*8
@@ -3478,7 +3478,7 @@ module  BinIOMod
             0, arrdes%iogathercomm, status )
        _VERIFY(STATUS)
 
-       if(myiorank==0) then 
+       if(myiorank==0) then
 
           jprev = 0
           k=1
@@ -3517,9 +3517,9 @@ module  BinIOMod
           offset = offset + (arrdes%j1(myrow+1)-1)*IM_WORLD*8
           call MPI_FILE_WRITE_AT_ALL(UNIT, offset, VAR, IM_WORLD*jsize, MPI_DOUBLE_PRECISION, mpistatus, STATUS)
           _VERIFY(STATUS)
-          offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*8 
+          offset = offset - (arrdes%j1(myrow+1)-1)*IM_WORLD*8
 
-          offset = offset + IM_WORLD*JM_WORLD*8 
+          offset = offset + IM_WORLD*JM_WORLD*8
           if (mypeWr==0) then
              call MPI_FILE_SEEK(UNIT, offset, MPI_SEEK_SET, STATUS)
              _VERIFY(STATUS)
@@ -3557,7 +3557,7 @@ module  BinIOMod
          deallocate(munit%Records)
          munit%Records => REC
       endif
-      call alloc_(munit%Records(munit%prevrec),r8_2,size(A,1),size(a,2),rc=status)	
+      call alloc_(munit%Records(munit%prevrec),r8_2,size(A,1),size(a,2),rc=status)
       _VERIFY(STATUS)
       munit%Records(munit%prevrec)%R8_2  = A
 
@@ -3587,7 +3587,7 @@ module  BinIOMod
          write (UNIT, IOSTAT=status) VAR
          _VERIFY(STATUS)
       end if
-    
+
       deallocate(VAR)
 
     end if
@@ -3605,8 +3605,8 @@ module  BinIOMod
   if (mod(iowrite_counter,72.d0)==0) then
   if (MAPL_AM_I_Root()) write(*,'(a64,3es11.3)') 'MPIIO Write Bandwidth (MB per second): ', peak_iowrite_bandwidth, bwidth, mean_iowrite_bandwidth/iowrite_counter
   endif
-#endif 
-    
+#endif
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_2d
 
@@ -3632,7 +3632,7 @@ module  BinIOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_3d
-  
+
 !---------------------------
   subroutine MAPL_VarWrite_R8_4d(UNIT, GRID, A, ARRDES, RC)
 
@@ -3655,7 +3655,7 @@ module  BinIOMod
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWrite_R8_4d
-  
+
 !---------------------------
 !---------------------------
 !---------------------------
@@ -3806,7 +3806,7 @@ module  BinIOMod
            end do
 
            call FREE_FILE ( Unit )
- 
+
     ! --------------------------------------------------------------------------
     !  Reset the time on all fields
     ! --------------------------------------------------------------------------
@@ -3817,7 +3817,7 @@ module  BinIOMod
               call MAPL_FieldSetTime (  NEXT(I), AFTER , rc=STATUS )
               _VERIFY(STATUS)
            end do
-   
+
         endif
 
         deallocate(NEXT)
@@ -3857,7 +3857,7 @@ module  BinIOMod
 
         _RETURN(ESMF_SUCCESS)
     end subroutine MAPL_GetClimMonths
-    
+
   subroutine MAPL_Skip(UNIT, LAYOUT, COUNT, RC)
 
     integer                     , intent(IN   ) :: UNIT
@@ -3889,7 +3889,7 @@ module  BinIOMod
           _VERIFY(STATUS)
        end do
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_Skip
 
@@ -3917,7 +3917,7 @@ module  BinIOMod
           _VERIFY(STATUS)
        end do
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_Backspace
 
@@ -3935,7 +3935,7 @@ module  BinIOMod
        rewind(unit=UNIT, IOSTAT=status)
        _VERIFY(STATUS)
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_Rewind
 
@@ -3949,7 +3949,7 @@ module  BinIOMod
     type (ESMF_Grid)                          :: grid
     integer, optional,          intent(IN   ) :: mask(:)
     integer, optional,          intent(  OUT) :: rc
-    
+
 ! Local variables
 
     integer                               :: status
@@ -3974,8 +3974,8 @@ module  BinIOMod
     logical                               :: use_shmem
 
 ! Works only on 1D and 2D arrays
-! Note: for tile variables the gridRank is 1 
-! and the case RANK_=2 needs additional attention 
+! Note: for tile variables the gridRank is 1
+! and the case RANK_=2 needs additional attention
 
 ! use_shmem controls communication (bcastToNodes+local copy vs scatterv)
     use_shmem = .true.
@@ -3986,7 +3986,7 @@ module  BinIOMod
 ! Optional change of source PE. Default=MAPL_Root
 
     srcPE = MAPL_Root
- 
+
 ! Initialize
     alloc_var = .true.
 
@@ -4041,7 +4041,7 @@ module  BinIOMod
 
     recvcount = sendcounts(deId)
 
-! Put VAR together at the srcPE 
+! Put VAR together at the srcPE
 
     if (deId == srcPE) then
 
@@ -4056,9 +4056,9 @@ module  BinIOMod
        end do
 
        myglob => global_array
-       
+
 ! Fill the VAR vector
-       
+
        if (present(mask)) then
           allocate(VAR(displs(deId):displs(deId+1)-1), stat=status)
           _VERIFY(STATUS)
@@ -4069,7 +4069,7 @@ module  BinIOMod
              if(K == deId) then
                 II = KK
                 VAR(II) = MYGLOB(I)
-                KK = KK + 1 
+                KK = KK + 1
              end if
           end do
 
@@ -4208,13 +4208,13 @@ module  BinIOMod
 !         Write an error message
 !         Return Error status
 !      ENDIF there are no available logical units
-!  
+!
        IF ( .NOT. FOUND ) THEN
           WRITE (0,*) ' COULD NOT FIND ANY AVAILABLE UNITS '
           _RETURN(ESMF_FAILURE)
        ENDIF
 
-    ENDIF ! the file isnt already open 
+    ENDIF ! the file isnt already open
 
     _RETURN(ESMF_SUCCESS)
   END FUNCTION GETFILE

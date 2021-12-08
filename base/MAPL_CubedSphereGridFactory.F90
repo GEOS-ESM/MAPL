@@ -18,7 +18,6 @@ module MAPL_CubedSphereGridFactoryMod
    use pFIO
    use MAPL_CommsMod
    use MAPL_Constants
-   use MAPL_IOMod, only : GETFILE, FREE_FILE 
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32
    implicit none
    private
@@ -507,7 +506,7 @@ contains
 
          elseif (MAPL_AM_I_Root(VM)) then
 
-            UNIT = GETFILE ( trim(file_name), form="formatted", rc=status )
+            open(newunit=UNIT,file=trim(file_name), form="formatted", iostat=status )
             _VERIFY(STATUS)
             read(UNIT,*) total, max_procs
             if (total /= N_proc) then
@@ -517,7 +516,7 @@ contains
             do i = 1,total
                 read(UNIT,*) values_tmp(i)
             enddo
-            call FREE_FILE(UNIT)
+            close(UNIT)
          endif
 
          call MAPL_CommsBcast(VM, max_procs,  n=1, ROOT=MAPL_Root, rc=status)
@@ -638,7 +637,8 @@ contains
       if ( (this%target_lon /= MAPL_UNDEFINED_REAL) .and. &
            (this%target_lat /= MAPL_UNDEFINED_REAL) .and. &
            (this%stretch_factor /= MAPL_UNDEFINED_REAL) ) then
-         _ASSERT( (this%target_lat >= -90.0) .and. (this%target_lat <= 90), 'latitude out of range')
+         _ASSERT(this%target_lat >= -90.0, 'Latitude should be greater than -90.0 degrees')
+         _ASSERT(this%target_lat <= 90, 'Latitude should be less than 90.0 degrees')
          this%stretched_cube = .true.
          this%target_lon=this%target_lon*pi/180.d0
          this%target_lat=this%target_lat*pi/180.d0
@@ -777,6 +777,10 @@ contains
          equal = .false.
       class is (CubedSphereGridFactory)
          equal = .true.
+         equal = size(a%ims) == size(this%ims)
+         if (.not. equal) return
+         equal = size(a%jms) == size(this%jms)
+         if (.not. equal) return
          equal = all(a%ims == this%ims) 
          if (.not. equal) return
 
@@ -826,7 +830,6 @@ contains
    logical function equals(a, b)
       class (CubedSphereGridFactory), intent(in) :: a
       class (AbstractGridFactory), intent(in) :: b
-      integer :: a_nx,b_nx,a_ny,b_ny
 
       select type (b)
       class default
@@ -1302,7 +1305,6 @@ contains
       integer :: status
       integer :: global_dim(3),i1,j1,in,jn,tile
       integer :: face_i1, face_j1, is, js
-      integer :: nf
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
       _UNUSED_DUMMY(this)
 

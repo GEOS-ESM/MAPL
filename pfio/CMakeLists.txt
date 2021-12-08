@@ -23,6 +23,8 @@ set (srcs
   FileMetadata.F90
   FileMetadataVector.F90
   NetCDF4_FileFormatter.F90
+  pfio_get_att_string.c
+  NetCDF_Supplement.F90
   pFIO_Utilities.F90
   pFIO.F90
 

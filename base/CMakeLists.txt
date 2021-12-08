@@ -26,7 +26,7 @@ set (srcs
   MAPL_StringRouteHandleMap.F90
   MAPL_IdentityRegridder.F90            MAPL_stubs.F90
   MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
-  MAPL_CapOptions.F90                   MAPL_TilingRegridder.F90
+  MAPL_TilingRegridder.F90
   MAPL_CFIO.F90                         MAPL_TimeMethods.F90
   FileIOShared.F90                      BinIO.F90                           NCIO.F90
   MAPL_IO.F90
@@ -55,9 +55,6 @@ set (srcs
   # tstqsat.F90
   )
 
-if (BUILD_WITH_FLAP)
-  list (APPEND srcs MAPL_FlapCLI.F90)
-endif()
 
 esma_add_library(
   ${this} SRCS ${srcs}
@@ -77,11 +74,6 @@ target_compile_definitions (${this} PRIVATE TWO_SIDED_COMM MAPL_MODE)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
-
-if (BUILD_WITH_FLAP)
-  target_link_libraries(${this} PRIVATE FLAP::FLAP)
-  target_compile_definitions (${this} PRIVATE USE_FLAP)
-endif()
 
 # Kludge for OSX security and DYLD_LIBRARY_PATH ...
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
