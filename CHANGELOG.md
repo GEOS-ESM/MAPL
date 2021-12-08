@@ -9,7 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- return 0 when there is no data for bit shave
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.13.0] - 2021-12-08
+
+### Fixed
+
+- Return 0 when there is no data for bit shave
 - Removed tab characters from Fortran (and C) code
 
 ### Added
@@ -19,19 +31,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Changed the way how a writer is chosen. Previousely, a wrting processor is chosen as long as it is idle.
-  Now, a idle processor is chosen from a node with the most idle processors.
-- Changed error checking _ASSERT to use __RC__ macro and _VERIFY for UserRC
-- Changed _ASSERT with .and. conditional to separate _ASSERT to improve error message
+- Changed the way how a writer is chosen. Previously, a writing processor is chosen as long as it is idle.
+  Now, an idle processor is chosen from a node with the most idle processors.
+- Changed error checking `_ASSERT` to use `__RC__` macro and `_VERIFY` for UserRC
+- Changed `_ASSERT` with `.and.` conditional to separate `_ASSERT` to improve error message
 - Changed usage of MAPL_IO subroutines in CubedSphere and LatLon Grid Factories to open command with newunit clause
 - Updated `components.yaml`
-  - ESMA_env v3.6.0 (Use MPT 2.25 at NAS on TOSS)
+  - ESMA_env v3.7.0 (Use MPT 2.25 at NAS on TOSS)
   - ESMA_cmake v3.7.2 (Fixes FindBaselibs issue found by @sdrabenh, f2py order fix)
 - Made the `MAPL_AddChildFromDSO` function system agnostic by using the CMake detected DSO suffix
-
-### Removed
-
-### Deprecated
 
 ## [2.12.1] - 2021-11-08
 
