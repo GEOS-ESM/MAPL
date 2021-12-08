@@ -22,7 +22,7 @@
     integer :: nSteps, t, k
     real :: amiss
     logical :: twoD
-    real, pointer :: lev(:), lat(:), lon(:)  
+    real, pointer :: lev(:), lat(:), lon(:)
     real, pointer :: lev_out(:)
     real :: ak(19)=(/291.70,  792.92,  2155.39,  4918.34,  8314.25,      &
                7993.08, 7577.38,  7057.52,  6429.63,  5698.38,      &
@@ -45,7 +45,7 @@
     character(len=256) :: inFile
 
     argc = command_argument_count()
-    if ( argc < 1 ) then 
+    if ( argc < 1 ) then
        inFile = "GEOS5.ana.hdf"
     else
        call get_command_argument ( 1, inFile )
@@ -88,12 +88,12 @@
        call ESMF_CFIOVarInfoGet(vars(i), vName=vName, grid=grid, amiss=amiss, &
                                 twoDimVar=twoD, standardName=standardName)
 
-!      get dimensions 
+!      get dimensions
        call ESMF_CFIOGridGet(grid, im=im, jm=jm, km=km)
 !       allocate(lev(km), lon(im), lat(jm))
 !       call ESMF_CFIOGridGet(grid, lev=lev,lon=lon,lat=lat)
 
-       if ( twoD ) then 
+       if ( twoD ) then
           allocate(tmpu(im,jm,1))
           km=1
        else
@@ -102,7 +102,7 @@
 
        if (new_file) then
          allocate(lev_out(km_out))
-         lev_out = lev 
+         lev_out = lev
 !        allocate(ggrid)
 !         ggrid = ESMF_CFIOGridCreate(gName='prs_grid')
          call ESMF_CFIOGridSet(ggrid,levUnit='hPa')
@@ -116,17 +116,17 @@
                    grid=ggrid, date=date, BegTime=BegTime, timeInc=timeInc)
 !                   grid=grid, date=date, BegTime=BegTime, timeInc=timeInc)
          call ESMF_CFIOSet(cfio_out, title=title, source=source)
-!	 call ESMF_CFIOFileCreate(cfio_out)
-	 call ESMF_CFIOFileCreate(cfio_out, format='GrADS')
+!         call ESMF_CFIOFileCreate(cfio_out)
+         call ESMF_CFIOFileCreate(cfio_out, format='GrADS')
          new_file = .false.
        end if
-         
+
 !      read the data
           call ESMF_CFIOVarRead(cfio, vName, tmpu, date, curTime, rc=rc)
           call ESMF_CFIOVarWrite(cfio_out, vName, tmpu, date, curTime, rc=rc)
 !          if ( twoD ) then
 !            print *, "vName: ", tmpu(10,:,1)
-!          else 
+!          else
 !             print *, "vName: ", tmpu(10,:,2)
 !          end if
           if (rc .ne. 0) passed = .false.
@@ -144,4 +144,4 @@
     else
        print *, "testr_gd_wr: NOT Passed"
     end if
-  end 
+  end

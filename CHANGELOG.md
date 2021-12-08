@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - return 0 when there is no data for bit shave
+- Removed tab characters from Fortran (and C) code
 
 ### Added
 
