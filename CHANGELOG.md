@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - return 0 when there is no data for bit shave
+- Removed tab characters from Fortran (and C) code
 
 ### Added
 
@@ -32,6 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Changed the way how a writer is chosen. Previousely, a wrting processor is chosen as long as it is idle.
+  Now, a idle processor is chosen from a node with the most idle processors.
+- Changed error checking _ASSERT to use __RC__ macro and _VERIFY for UserRC
+- Changed _ASSERT with .and. conditional to separate _ASSERT to improve error message
 - Changed usage of MAPL_IO subroutines in CubedSphere and LatLon Grid Factories to open command with newunit clause
 - Updated `components.yaml`
   - ESMA_env v3.6.0 (Use MPT 2.25 at NAS on TOSS)

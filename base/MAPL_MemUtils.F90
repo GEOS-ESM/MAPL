@@ -79,18 +79,18 @@ module MAPL_MemUtilsMod
     end function MAPL_MemUtilsIsDisabled
 
 !********************************************************
-         
+
     subroutine MAPL_MemUtilsDisable(RC)
       integer, optional, intent(OUT)   :: RC
-         
+
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_MemUtilsDisable"
-               
+
       DISABLED = .true.
-            
+
       _RETURN(ESMF_SUCCESS)
 
     end subroutine MAPL_MemUtilsDisable
-            
+
 !********************************************************
 
 !********************************************************
@@ -125,14 +125,14 @@ module MAPL_MemUtilsMod
       pe = SHMEM_MY_PE()
 #endif
       memutils_initialized = .TRUE.
- 
+
       gmax_save = 0.0
       if (present(mode)) then
          MAPL_MemUtilsMode=mode
       else
          MAPL_memUtilsMode=MAPL_MemUtilsModeBase
       endif
-     
+
       _RETURN(ESMF_SUCCESS)
     end subroutine MAPL_MemUtilsInit
 
@@ -286,7 +286,7 @@ module MAPL_MemUtilsMod
     integer, intent(out), optional :: hpalloc, hplargest, hpshrink, hpgrow, hpfirst, hplast
     integer :: IHPSTAT
 
-    hplen = IHPSTAT(1)	                      !Heap length
+    hplen = IHPSTAT(1)                              !Heap length
     if( present(hpalloc  ) )hpalloc   = IHPSTAT( 4) !Blocks allocated
     if( present(hplargest) )hplargest = IHPSTAT(10) !Largest free block size
     if( present(hpshrink ) )hpshrink  = IHPSTAT(11) !Amount heap can shrink
@@ -304,7 +304,7 @@ module MAPL_MemUtilsMod
     integer :: istat(20)
 
     call STKSTAT(istat)
-    stklen = istat(1)	!Stack length
+    stklen = istat(1)                            !Stack length
     if( present(stkhiwm  ) )stkhiwm   = istat(2) !stack hiwatermark
     if( present(stknumber) )stknumber = istat(3) !current #stacks
     if( present(stktotal ) )stktotal  = istat(4) !total #stacks
@@ -391,7 +391,7 @@ module MAPL_MemUtilsMod
     m = memuse()*1e-3
 #else
     call mem_dump(mhwm, mrss, memused, swapused, commitlimit, committed_as)
-#endif 
+#endif
     call MPI_Comm_Size(comm_,npes,status)
     if (MAPL_MemUtilsMode == MAPL_MemUtilsModeFull) then
        lhwm = mhwm; call MPI_AllReduce(lhwm,ghwm,1,MPI_REAL,MPI_MAX,comm_,status)
