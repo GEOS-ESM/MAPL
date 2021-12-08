@@ -104,8 +104,12 @@ contains
    function get_grid(this) result(grid_name)
       character(len=:), allocatable :: grid_name
       class(Collection), intent(in) :: this
-
-      if (allocated(this%output_grid)) grid_name=this%output_grid
+      
+      if (allocated(this%output_grid)) then
+         grid_name=this%output_grid
+      else
+         grid_name='native'
+      end if
    end function get_grid
 
    subroutine initialize_frequency(this,clock,rc)

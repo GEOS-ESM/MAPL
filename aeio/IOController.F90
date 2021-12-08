@@ -376,7 +376,7 @@ contains
       collection_client =>  this%clients%at(coll_name)
       hist_coll = collection_client%get_collection()
       grid_name = hist_coll%get_grid()
-      if (allocated(grid_name)) then
+      if (trim(grid_name)/="native") then
          front_server_grid = this%grids%make_grid(grid_name,front_pets,_RC) 
       else
          client_grid = collection_client%get_grid(_RC)
@@ -673,7 +673,8 @@ contains
             call enabled_iter%next()
          enddo
          ! second round enter epoch
-         call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)!,throttle=1)
+         call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER,keepAlloc=.false.)!,throttle=1)
+         !call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)!,throttle=1)
          enabled_iter = this%enabled%begin()
          i=0
          do while(enabled_iter /= this%enabled%end())

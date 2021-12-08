@@ -43,6 +43,8 @@ module AEIO_MpiConnection
 
 contains
 
+   ! slip into 3 communicators and for 2nd and 3rd, partition so each node in 3rd has ranks=wrters_per_node
+   ! and 1st comm has npes_model ranks on packed nodes
    function create_from_comm_world(global_comm,npes_model,writers_per_node,vm,rc) result(new_instance)
       integer, intent(in) :: global_comm
       integer, intent(in) :: npes_model

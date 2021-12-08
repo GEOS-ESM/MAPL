@@ -25,6 +25,8 @@ module AEIO_Writer
       type(MpiConnection) :: front_back_connection
       integer, allocatable :: writer_ranks(:)
       integer, allocatable :: server_ranks(:)
+      integer, allocatable :: node_ranks(:)
+      integer :: node_num
       type(CollectionDescriptorVector)  :: collection_descriptors
    contains
       procedure :: start_writer
@@ -33,6 +35,7 @@ module AEIO_Writer
       procedure :: setup_transfer
       procedure :: run_writer_process
       procedure :: run_coordinator
+      procedure :: get_node_info
    end type
 
    interface Writer
@@ -75,12 +78,14 @@ contains
       integer :: back_comm
 
       back_comm = this%front_back_connection%get_back_comm()
+      call this%get_node_info(back_comm,_RC)
+
       call io_prof%start('start_writer')
       call MPI_Barrier(back_comm,status)
 
       call MPI_COMM_RANK(back_comm,back_local_rank,status)
       _VERIFY(status)
-      !write(*,*)"Starting writer on local rank: ",back_local_rank
+      write(*,*)"Starting writer on local rank: ",back_local_rank
       if (this%front_back_connection%am_i_back_root()) then
          call this%run_coordinator(_RC)
       else
@@ -94,17 +99,20 @@ contains
    subroutine run_coordinator(this,rc)
       class(Writer), intent(inout) :: this
       integer, optional, intent(out) :: rc
-      integer :: collection_id
+      !integer :: collection_id
       integer, allocatable :: collection_ids(:),free_workers(:),free_workers_global(:)
-      integer :: num_collections,current_free,collections_to_write
+      integer :: num_collections!,current_free,collections_to_write
       logical, allocatable :: busy(:)
-      integer :: nwriters,free_worker,free,no_job,i,j,status,back_local_rank
+      integer :: nwriters,free_worker,free,no_job,i,j,status,back_local_rank,local_rank
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type(RHConnector) :: rh,rh_new
       type(CollectionDescriptor), pointer :: collection_descriptor
       integer :: back_comm, connector_comm
       integer, allocatable :: writer_ranks(:),server_ranks(:),back_pets(:)
       real :: mem_total,mem_commit,mem_percent
+      integer :: node_rank,writers_per_node,idle_pet
+      integer, allocatable :: num_idle_pets(:), idleRank(:,:)
+      logical :: i_free
 
       num_collections = this%collection_descriptors%size()
       allocate(collection_ids(num_collections))
@@ -120,8 +128,19 @@ contains
 
       call MPI_COMM_RANK(back_comm,back_local_rank,status)
       _VERIFY(status)
-      !write(*,*)"Starting coordinator on local rank: ",back_local_rank
+      write(*,*)"Starting coordinator on local rank: ",back_local_rank
       nwriters = size(writer_ranks)-1
+      writers_per_node=size(writer_ranks)/this%node_num
+      allocate(num_idle_pets(0:this%node_num-1))
+      num_idle_pets = writers_per_node
+      num_idle_pets(0) = writers_per_node - 1  
+      allocate(idleRank(0:this%node_num-1,0:writers_per_node-1),source=-1)
+      do i=0,nwriters
+         node_rank=this%node_ranks(i+1)
+         idleRank(node_rank,mod(i,writers_per_node))=i
+      enddo
+      idleRank(0,0)=-1
+      
       allocate(busy(nwriters))
       _ASSERT(num_collections <= nwriters,"need more writers")
       busy = .false.
@@ -134,54 +153,47 @@ contains
          write(*,'(A,1x,f10.2,f10.2,f10.2)')"writer memory total, committed, percent: ",mem_total/1024.0, mem_commit/1024.0,mem_percent
          if (any(collection_ids > 0)) then
 
-             current_free = nwriters-count(busy)
-             collections_to_write = count(collection_ids > 0)
+            do while(.true.)            
+               do local_rank=1,nwriters
+                  i_free=.false.
+                  call MPI_Iprobe(local_rank,stag,back_comm,i_free,MPI_Stat,status)
+                  if (i_free) then
+                     call mpi_recv(free_worker,1, MPI_INTEGER, &
+                        local_rank,stag,back_comm, &
+                        MPI_STAT, status)
+                     _VERIFY(status)
+                     _ASSERT(free_worker==local_rank,"local_rank and idle_writer should match")
+                     node_rank = this%node_ranks(local_rank)
+                     num_idle_pets(node_rank) = num_idle_pets(node_rank)+1
+                     idleRank(node_rank,mod(local_rank,writers_per_node))=local_rank
+                     busy(local_rank) = .false. 
+                  end if
+               enddo
+               if ((nwriters-count(busy)) >= size(collection_ids)) exit 
+            end do
 
-             if (collections_to_write <= current_free) then
-                do j=1,num_collections
-                   if (collection_ids(j) > 0) then
-                      do i=1,nwriters
-                         if (busy(i).eqv. .false.) then
-                            busy(i) = .true.
-                            free_workers(j) =  i
-                            free_workers_global(j) = back_pets(1+i)
-                            exit
-                         endif   
-                      enddo
-                   end if
-                enddo
+            do j=1,num_collections
+               if (collection_ids(j) > 0) then
+                  node_rank = maxloc(num_idle_pets,dim=1) -1
+                  do i=0,writers_per_node-1
+                     if (idleRank(node_rank,i) == -1) cycle
+                     idle_pet = idleRank(node_rank,i)
+                     free_workers(j) = idle_pet
+                     free_workers_global(j) = back_pets(idle_pet+1)
+                     busy(idle_pet) = .true.
+                     idleRank(node_rank,i) = -1
+                     num_idle_pets(node_rank) = num_idle_pets(node_rank)-1
+                     exit
+                  enddo
+               end if
+            enddo
 
-             else
-
-                do j=1,num_collections
-                   if (collection_ids(j) > 0) then
-                      if (all(busy)) then
-                         call mpi_recv(free_worker,1, MPI_INTEGER, &
-                            MPI_ANY_SOURCE,stag,back_comm, &
-                            MPI_STAT, status)
-                         _VERIFY(status)
-                         busy(free_worker)=.true.
-                         free_workers(j) = free_worker
-                         free_workers_global(j) = back_pets(1+free_worker)
-                      else
-                         do i=1,nwriters
-                            if (busy(i).eqv. .false.) then
-                               busy(i) = .true.
-                               free_workers(j) =  i
-                               free_workers_global(j) = back_pets(1+i)
-                               exit
-                            endif   
-                         enddo
-                      end if
-                   end if
-                enddo
-             end if 
              call MPI_send(free_workers_global,num_collections,MPI_INTEGER,  server_ranks(1), &
                   server_ranks(1),connector_comm,status)
              _VERIFY(status)
              do i=1,num_collections
                 if (collection_ids(i) > 0) then
-                  
+             
                    call MPI_Send(collection_ids(i),1,MPI_INTEGER, free_workers(i), &
                         free_workers(i),back_comm,status)
                    _VERIFY(status)
@@ -293,7 +305,8 @@ contains
       output_bundle = ESMF_ArrayBundleCreate(_RC)
 
       call io_prof%start('start_write_epoch_'//ic)
-      call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)!,throttle=1)
+      call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER,keepAlloc=.false.)!,throttle=1)
+      !call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)!,throttle=1)
 
       do i=1,fieldCount
          call ESMF_FieldBundleGet(bundle,trim(fieldNames(i)),field=field,_RC)
@@ -323,6 +336,7 @@ contains
       call ESMF_VMEpochExit( keepAlloc=.false.)
 
       call rh_new%destroy(_RC)
+      write(*,*)"bmaa writer writing this many fields: ",fieldCount,local_rank
       do i=1,fieldCount
          call ESMF_ArrayBundleGet(output_bundle,trim(fieldNames(i)),array=array,_RC)
          !block
@@ -372,6 +386,51 @@ contains
       new_rh=rh%transfer_rh(originPetList,targetPetList,_RC)
       _RETURN(_SUCCESS)
    end function setup_transfer
+
+   subroutine get_node_info(this,comm,rc) 
+      class(Writer), intent(inout) :: this
+      integer, intent(in) :: comm
+      integer, intent(out), optional :: rc
+
+      integer :: status, rank, t_ranks, node_comm,node_rank,node_size,mycolor,node_root_comm
+
+      call mpi_comm_size(comm,t_ranks,status)
+      _VERIFY(status)
+      call mpi_comm_rank(comm,rank,status)
+      _VERIFY(status)
+      call mpi_comm_split_type(comm,MPI_COMM_TYPE_SHARED,0,MPI_INFO_NULL,node_comm,status)
+      _VERIFY(status)
+      call mpi_comm_size(node_comm,node_size,status)
+      _VERIFY(status)
+      call mpi_comm_rank(node_comm,node_rank,status)
+      _VERIFY(status)
+            
+      mycolor=0
+      if (node_rank==0) mycolor=1
+      call mpi_comm_split(comm,mycolor,rank,node_root_comm,status)
+      _VERIFY(status)
+
+      if (mycolor==0) then
+         node_root_comm=MPI_COMM_NULL
+      else
+         call mpi_comm_size(node_root_comm,this%node_num,status)
+         _VERIFY(status)
+         call mpi_comm_rank(node_root_comm,node_rank,status)
+         _VERIFY(status)
+      end if
+
+      call mpi_bcast(node_rank,1,MPI_INTEGER,0,node_comm,status)
+      _VERIFY(status)
+      call mpi_bcast(this%node_num,1,MPI_INTEGER,0,node_comm,status)
+      _VERIFY(status)
+       
+      allocate(this%node_ranks(t_ranks))
+      call mpi_allgather(node_rank,1,MPI_INTEGER,this%node_ranks,1,MPI_INTEGER,comm,status)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+   end subroutine
+         
 
 
 end module AEIO_Writer
