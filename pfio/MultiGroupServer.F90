@@ -486,8 +486,8 @@ contains
 
      subroutine dispatch_work(collection_id, idleRank, num_idlePEs, rc)
        integer, intent(in) :: collection_id
-       integer, intent(inout) :: idleRank(:,:)
-       integer, intent(inout) :: num_idlePEs(:)
+       integer, intent(inout) :: idleRank(0:,0:)
+       integer, intent(inout) :: num_idlePEs(0:)
        integer, optional, intent(out) :: rc
 
        integer :: MPI_STAT(MPI_STATUS_SIZE)
@@ -540,7 +540,7 @@ contains
      end subroutine dispatch_work
 
      subroutine terminate_back_writers(idleRank, rc)
-       integer, intent(in) :: idleRank(:,:)
+       integer, intent(in) :: idleRank(0:,0:)
        integer, optional, intent(out) :: rc
        integer :: MPI_STAT(MPI_STATUS_SIZE)
        integer :: node_rank, local_rank, nth_writer
