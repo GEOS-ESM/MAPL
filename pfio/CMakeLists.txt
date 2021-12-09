@@ -107,6 +107,12 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
 endforeach()
 
 ecbuild_add_executable (
+   TARGET pfio_open_close.x
+   SOURCES pfio_open_close.F90
+   LIBS ${this} )
+set_target_properties (pfio_open_close.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+
+ecbuild_add_executable (
    TARGET pfio_server_demo.x
    SOURCES pfio_server_demo.F90
    LIBS ${this} MPI::MPI_Fortran)
