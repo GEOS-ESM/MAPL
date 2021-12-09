@@ -348,7 +348,8 @@
 
       ! Sanity check
       timerMode = mode
-      _ASSERT(timerMode >= MAPL_TimerModeOld .and. timerMode <= MAPL_TimerModeMinMax,'needs informative message')
+      _ASSERT(timerMode >= MAPL_TimerModeOld, 'timerMode less than Old timerMode')
+      _ASSERT(timerMode <= MAPL_TimerModeMinMax, 'timerMode greater than timerModeMinMax')
 
       _RETURN(ESMF_SUCCESS)
       

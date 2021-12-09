@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h> 
+#include <math.h>
 #include "pFIO_ShaveMantissa.h"   /* protype */
 
 #define MAXBITS 20
@@ -18,7 +18,7 @@
 #  define isUndef(A)  ((float32)fabs(undef-(A))<tol) /* robust but expensive */
 #endif
 
-#define SKIP(I,A)  (isZNN(I) || isUndef(A) || isNAN(I)) 
+#define SKIP(I,A)  (isZNN(I) || isUndef(A) || isNAN(I))
 
 //========================================
 
@@ -39,7 +39,7 @@ float32 pfio_SetOffset(float32 minv, float32 maxv)
 //---------------------------------------------------------------------------
 //BOP
 //
-// !ROUTINE: ShaveMantissa32 - Degrades Precison of 32-bit Float Array 
+// !ROUTINE: ShaveMantissa32 - Degrades Precison of 32-bit Float Array
 //
 // !INTERFACE:
 */
@@ -51,8 +51,8 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
 
 // int32   len;        /* size of a[] */
 // int     xbits;      /* number of bits to excludes from mantissa */
-// int     has_undef;  /* whether field has missing (undef) values */ 
-// int32   chunksize;  /* find mid range over chunksize chunks     */ 
+// int     has_undef;  /* whether field has missing (undef) values */
+// int32   chunksize;  /* find mid range over chunksize chunks     */
 // float32 undef;      /* missing (undefined) value */
 // float32 ain[];      /* input array */
 
@@ -63,12 +63,12 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
 // float32 a[];    // output "shaved" array; can share storage with ain[]
 
 /*
-// !DESCRIPTION:  
+// !DESCRIPTION:
 //
 //  This routine returns a lower precision version of the input array {\tt a}.
 //
 //  This is done by clearing the low-order {\tt xbits} bits of the mantissa of
-//  a suitably offset version of the data, and then reshifting it to the original 
+//  a suitably offset version of the data, and then reshifting it to the original
 //  offset. The offsetting procedure prevents the shaving from "throwing out
 //  the baby with the bathwater", for variables, such as Kelvin temperatures
 //  or geopotentials, that may have large offsets.
@@ -79,9 +79,9 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
 //  internal GZIP compression by HDF-4.
 //
 //  For variables without large offsets, this algorithm produces very
-//  similar results as the standard GRIB encoding with fixed number of bits  
+//  similar results as the standard GRIB encoding with fixed number of bits
 //  ({\tt nbits = 24 - xbits}) and power of 2 binary scaling. For most files,
-//  it produces comparable compression to GRIB while using only standard 
+//  it produces comparable compression to GRIB while using only standard
 //  compression techniques (e.g. GZIP).
 //
 // !REVISION HISTORY:
@@ -89,7 +89,7 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
 //  08Dec2006  Suarez    First version.
 //  09Dec2006  da Silva  Minor revisions for IA64 build, prologue.
 //  11Dec2006  da Silva  Merged with Max's newest version handling Inf, NAN
-//                       and bug fixes. 
+//                       and bug fixes.
 //  18Dec2006  Suarez    Eliminated test for overflow, which I verified was
 //                       unnecessary. Treat zeros like undef. Eliminated a
 //                       leftover conversion of nan to undef. Corrected macro
@@ -101,7 +101,7 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
 //                       was not copying input to output arrays.
 //  10Mar2009  Suarez    Used a union for the shaving. Also changed the
 //                       SKIP  checks and protected the max and min.
-//  24oct2009  da Silva  Changed abs() to fabs() in pfio_SetOffset; moved float32 
+//  24oct2009  da Silva  Changed abs() to fabs() in pfio_SetOffset; moved float32
 //                       defs to header so that it can be used with prototype.
 //  28oct2010  da Silva  Changed another occurence of abs() -> fabs()
 //EOP
@@ -117,19 +117,23 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
     uint32  i;
   } aa;
 
+  if ( len == 0 ) {
+    // if there is no data, do nothing
+    return 0;
+  }
   /* sanity checks */
 
-  if ( len < 1 || xbits < 1 ) {
+  if ( len < 0 || xbits < 1 ) {
     fprintf(stderr,
-	    "ShaveMantissa32: Bad length of mask bits: len= %d, xbits= %d\n", 
-	    len, xbits );
+          "ShaveMantissa32: Bad length of mask bits: len= %d, xbits= %d\n",
+          len, xbits );
     return 1;
   }
 
   if ( xbits > MAXBITS ) {
     fprintf(stderr,
-	    "ShaveMantissa32: Shaving too many bits: %d; maximum allowed is %d\n",
-	    xbits, MAXBITS );
+          "ShaveMantissa32: Shaving too many bits: %d; maximum allowed is %d\n",
+          xbits, MAXBITS );
     return 2;
   }
 
@@ -185,8 +189,8 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
       aa.x = *a;
       e    = aa.i & EXPMSK;
       if(!SKIP(e,aa.x)) {
-	if(aa.x<minv) minv=aa.x;
-	if(aa.x>maxv) maxv=aa.x;
+         if(aa.x<minv) minv=aa.x;
+         if(aa.x>maxv) maxv=aa.x;
       }
     }
 
@@ -205,12 +209,12 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
       aa.x = *a;
       e    = aa.i & EXPMSK;
       if(!SKIP(e,aa.x)) {
-	aa.x -= offset;
-	aa.i  = ((aa.i + round) & mask);
-	aa.x += offset;
-	if(aa.x>maxv) aa.x=maxv;
-	if(aa.x<minv) aa.x=minv;
-	*a    = aa.x;
+         aa.x -= offset;
+         aa.i  = ((aa.i + round) & mask);
+         aa.x += offset;
+         if(aa.x>maxv) aa.x=maxv;
+         if(aa.x<minv) aa.x=minv;
+         *a    = aa.x;
       }
     }
 
@@ -227,19 +231,19 @@ int pFIO_ShaveMantissa32 ( float32 a[], float32 ain[], int32 len, int xbits, int
 
 //    Simple hook for FORTRAN interface.
 
-int pFIO_SHAVEMANTISSA32 (float32 *a, float32 *ain, int32 *len, int *xbits, 
+int pFIO_SHAVEMANTISSA32 (float32 *a, float32 *ain, int32 *len, int *xbits,
                      int *has_undef, float32 *undef, int32 *chunksize)
 {return (int)pFIO_ShaveMantissa32(a,ain,*len,*xbits,*has_undef,*undef,*chunksize);}
 
-int pFIO_SHAVEMANTISSA32_ (float32 *a, float32 *ain, int32 *len, int *xbits, 
+int pFIO_SHAVEMANTISSA32_ (float32 *a, float32 *ain, int32 *len, int *xbits,
                       int *has_undef, float32 *undef, int32 *chunksize)
 {return (int)pFIO_ShaveMantissa32(a,ain,*len,*xbits,*has_undef,*undef,*chunksize);}
 
-int pfio_shavemantissa32 (float32 *a, float32 *ain, int32 *len, int *xbits, 
+int pfio_shavemantissa32 (float32 *a, float32 *ain, int32 *len, int *xbits,
                      int *has_undef, float32 *undef, int32 *chunksize)
 {return (int)pFIO_ShaveMantissa32(a,ain,*len,*xbits,*has_undef,*undef,*chunksize);}
 
-int pfio_shavemantissa32_ (float32 *a, float32 *ain, int32 *len, int *xbits, 
+int pfio_shavemantissa32_ (float32 *a, float32 *ain, int32 *len, int *xbits,
                       int *has_undef, float32 *undef, int32 *chunksize)
 {return (int)pFIO_ShaveMantissa32(a,ain,*len,*xbits,*has_undef,*undef,*chunksize);}
 
