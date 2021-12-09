@@ -43,6 +43,7 @@ module mapl_CapOptionsMod
       character(:), allocatable :: logging_config
       character(:), allocatable :: oserver_type
       integer :: npes_backend_pernode = 0
+      integer :: nsteps = 1
 
    end type MAPL_CapOptions
 
