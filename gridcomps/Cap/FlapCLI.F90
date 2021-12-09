@@ -382,6 +382,7 @@ contains
       endif
 
       call flapCLI%cli_options%get(val=cap_options%npes_model, switch='--npes_model', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%nsteps, switch='--nsteps', error=status); _VERIFY(status)
       call flapCLI%cli_options%get(val=compress_nodes, switch='--compress_nodes', error=status); _VERIFY(status)
       cap_options%isolate_nodes = .not. compress_nodes
       call flapCLI%cli_options%get(val=cap_options%fast_oclient, switch='--fast_oclient', error=status); _VERIFY(status)
