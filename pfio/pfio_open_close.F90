@@ -13,7 +13,7 @@ program main
   integer :: status
 
   call formatter%open('test_in.nc4', pFIO_READ, rc=status)
-  _ASSERT(status==0, "Wrong in open test_in.nc4")
+  _ASSERT(status==0, "Failed to open 'test_in.nc4'")
   file_metadata = formatter%read(rc=status)
   _ASSERT(status==0, "Wrong in reading test_in.nc4")
   call formatter%close(rc=status)
