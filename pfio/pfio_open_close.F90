@@ -1,4 +1,4 @@
-#DEFINE I_AM_MAIN
+#define I_AM_MAIN
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
