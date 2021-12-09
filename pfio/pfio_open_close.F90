@@ -15,7 +15,7 @@ program main
   call formatter%open('test_in.nc4', pFIO_READ, rc=status)
   _ASSERT(status==0, "Failed to open 'test_in.nc4'")
   file_metadata = formatter%read(rc=status)
-  _ASSERT(status==0, "Wrong in reading test_in.nc4")
+  _ASSERT(status==0, "Failed while reading 'test_in.nc4'")
   call formatter%close(rc=status)
   _ASSERT(status==0, "Wrong in closing test_in.nc4")
   print*, "Successfully open, read and close test_in.nc4"
