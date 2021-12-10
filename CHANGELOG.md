@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Refactored support for using DSO's for components.  No change to interfaces.
+
 ### Removed
 
 ### Deprecated
