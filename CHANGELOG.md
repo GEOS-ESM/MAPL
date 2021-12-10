@@ -13,7 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated MAPL to exclusively use new timers - with improved format.
+
 ### Removed
+
+- Legacy timer profiling
 
 ### Deprecated
 
@@ -25,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed tab characters from Fortran (and C) code
 
 ### Added
+
+- MAPL_TimerOn/Off now invoke new timers as well as legacy timers.
 - Add  pfio_open_close.F90 file
 - Add the i and j index as variables to use to generate synthetic data in ExtDataDriver.x
 - Added ability to generate monthly checkpoints (fixes issue #1065)
@@ -40,6 +46,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_env v3.7.0 (Use MPT 2.25 at NAS on TOSS)
   - ESMA_cmake v3.7.2 (Fixes FindBaselibs issue found by @sdrabenh, f2py order fix)
 - Made the `MAPL_AddChildFromDSO` function system agnostic by using the CMake detected DSO suffix
+- Component level timer formatting is changed to provide more information.
+
+### Removed
+
+### Deprecated
 
 ## [2.12.1] - 2021-11-08
 
