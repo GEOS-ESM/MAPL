@@ -23,7 +23,7 @@
 !
    USE ESMF
    use MAPL_GenericMod, only: MAPL_GenericSetServices, MAPL_GenericInitialize, MAPL_GenericFinalize
-   use MAPL_GenericMod, only: MAPL_TimerAdd, MAPL_TimerOn, MAPL_TimerOff, MAPL_GetLogger
+   use MAPL_GenericMod, only: MAPL_TimerOn, MAPL_TimerOff, MAPL_GetLogger
    use MAPL_GenericMod, only: MAPL_MetaComp, MAPL_GetObjectFromGC, MAPL_GridCompSetEntryPoint
    use MAPL_BaseMod
    use MAPL_CommsMod
@@ -293,46 +293,6 @@ CONTAINS
     _VERIFY(STATUS)
   
 
-    call MAPL_TimerAdd(gc,name="Initialize", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="Run", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="-Read_Loop", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="--CheckUpd", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="--Read", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="--GridCreate", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="--IclientWait", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="--PRead", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="---CreateCFIO", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="---prefetch", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="----add-collection", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="----make-reference", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="----RegridStore", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="----request", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="---IclientDone", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="----RegridApply", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="---read-prefetch", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="--Swap", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="--Bracket", rc=status)
-    _VERIFY(STATUS)
-    call MAPL_TimerAdd(gc,name="-Interpolate", rc=status)
-    _VERIFY(STATUS)
 !   Generic Set Services
 !   --------------------
     call MAPL_GenericSetServices ( GC, __RC__ )
@@ -463,7 +423,6 @@ CONTAINS
 !  -----------------
    call MAPL_GetObjectFromGC ( gc, MAPLSTATE, RC=STATUS)
    _VERIFY(STATUS) 
-   call MAPL_TimerOn(MAPLSTATE,"TOTAL")
    call MAPL_TimerOn(MAPLSTATE,"Initialize")
 
 ! Get information from export state
@@ -485,7 +444,6 @@ CONTAINS
 
     if (.not.self%active) then
        call MAPL_TimerOff(MAPLSTATE,"Initialize")
-       call MAPL_TimerOff(MAPLSTATE,"TOTAL")
        _RETURN(ESMF_SUCCESS)
     end if
 
@@ -1229,7 +1187,6 @@ CONTAINS
    hasRun = .false.
 
    call MAPL_TimerOff(MAPLSTATE,"Initialize")
-   call MAPL_TimerOff(MAPLSTATE,"TOTAL")
 !  All done
 !  --------
 
@@ -1338,7 +1295,6 @@ CONTAINS
 
    call MAPL_GetObjectFromGC ( gc, MAPLSTATE, RC=STATUS)
    _VERIFY(STATUS) 
-   call MAPL_TimerOn(MAPLSTATE,"TOTAL")
    call MAPL_TimerOn(MAPLSTATE,"Run")
 
    call ESMF_ClockGet(CLOCK, currTIME=time0, __RC__)
@@ -1646,7 +1602,6 @@ CONTAINS
 
    if (hasRun .eqv. .false.) hasRun = .true.
    call MAPL_TimerOff(MAPLSTATE,"Run")
-   call MAPL_TimerOff(MAPLSTATE,"TOTAL")
 
    _RETURN(ESMF_SUCCESS)
 

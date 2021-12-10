@@ -1,13 +1,13 @@
 #include "unused_dummy.H"
 
-module MAPL_TimeProfiler_private
-   use MAPL_BaseProfiler, only: BaseProfiler
-   use MAPL_BaseProfiler, only: TimeProfilerIterator => BaseProfilerIterator
+module mapl_TimeProfiler_private
+   use mapl_BaseProfiler, only: BaseProfiler
+   use mapl_BaseProfiler, only: TimeProfilerIterator => BaseProfilerIterator
 
-   use MAPL_MpiTimerGauge
-   use MAPL_AdvancedMeter
-   use MAPL_AbstractMeter
-   use MAPL_MeterNode
+   use mapl_MpiTimerGauge
+   use mapl_AdvancedMeter
+   use mapl_AbstractMeter
+   use mapl_MeterNode
    implicit none
    private
 
@@ -41,6 +41,7 @@ contains
 
    end function new_TimeProfiler
 
+
    function make_meter(this) result(meter)
       class(AbstractMeter), allocatable :: meter
       class(TimeProfiler), intent(in) :: this
@@ -66,13 +67,13 @@ contains
    end subroutine copy
 
 
-end module MAPL_TimeProfiler_Private
+end module mapl_TimeProfiler_Private
 
 
 
-module MAPL_TimeProfiler
-   use MAPL_BaseProfiler
-   use MAPL_TimeProfiler_private
+module mapl_TimeProfiler
+   use mapl_BaseProfiler
+   use mapl_TimeProfiler_private
    implicit none
    private
 
@@ -136,4 +137,4 @@ contains
    end subroutine stop_global_time_profiler
 
 
-end module MAPL_TimeProfiler
+end module mapl_TimeProfiler

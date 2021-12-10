@@ -1,5 +1,5 @@
 program main
-   use MAPL_Profiler
+   use mapl_Profiler
    use MPI
    implicit none
 
@@ -13,6 +13,7 @@ program main
    character(:), allocatable :: report_lines(:)
    integer :: i
    integer :: rank, ierror
+   character(1) :: empty(0)
 
 !!$   mem_prof = MemoryProfiler('TOTAL')
 
@@ -25,6 +26,7 @@ program main
    call lap_prof%start()
 
    call main_prof%start('init reporter')
+   reporter = ProfileReporter(empty)
    call reporter%add_column(NameColumn(20))
    call reporter%add_column(FormattedTextColumn('#-cycles','(i5.0)', 5, NumCyclesColumn()))
    call reporter%add_column(FormattedTextColumn(' T(inc)','(f9.6)', 9, InclusiveColumn()))
@@ -37,6 +39,7 @@ program main
    call reporter%add_column(FormattedTextColumn('  min cyc ','(f12.8)', 12, MinCycleColumn()))
    call reporter%add_column(FormattedTextColumn(' mean cyc','(f12.8)', 12, MeanCycleColumn()))
 
+   main_reporter = ProfileReporter(empty)
    call main_reporter%add_column(NameColumn(20))
    call main_reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
    call main_reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
