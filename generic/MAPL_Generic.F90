@@ -2888,8 +2888,6 @@ end subroutine MAPL_DateStampGet
     call ESMF_UserCompSetInternalState(GC, "MAPL_GenericInternalState", WRAP, status)
     _VERIFY(status)
 
-    call ESMF_GridCompGet( GC, CONFIG = MAPLOBJ%CF, __RC__)
-
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_InternalStateCreate
 
