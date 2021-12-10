@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - MAPL_TimerOn/Off now invoke new timers as well as legacy timers.
+- Add  pfio_open_close.F90 file
 - Add the i and j index as variables to use to generate synthetic data in ExtDataDriver.x
 - Added ability to generate monthly checkpoints (fixes issue #1065)
 
