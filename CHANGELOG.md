@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Updates to `mapl_tree.py` to let it work in the git GEOS
+
 ### Added
 
 ### Changed
