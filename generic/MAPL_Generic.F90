@@ -4628,7 +4628,6 @@ end subroutine MAPL_DateStampGet
      character(*), intent(in) :: name
      type(ESMF_Grid),  optional,    intent(INout) :: grid
      character(len=*), optional,    intent(IN   ) :: configfile
-     external                                     :: ss
      type(ESMF_GridComp), optional, intent(IN   ) :: parent_gc
      integer,           optional  , intent(IN   ) :: petList(:)
      type(MAPL_MetaComp), pointer                :: child_meta
