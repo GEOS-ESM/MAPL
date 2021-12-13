@@ -32,14 +32,14 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
-          context: 
+          context:
             - docker-hub-creds
       - build-GEOSgcm:
           name: build-GEOSgcm-on-<< matrix.compiler >>
           matrix:
             parameters:
               compiler: [gfortran, ifort]
-          context: 
+          context:
             - docker-hub-creds
       ###################################################
       # - make-FV3-exp:                                 #
@@ -66,7 +66,7 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
-          context: 
+          context:
             - docker-hub-creds
       #####################################################
       # - build-GEOSadas:                                 #
@@ -86,7 +86,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Versions, etc."
           command: |
             mpirun --version && << parameters.compiler >> --version && echo $BASEDIR && pwd && ls && echo "$(nproc)"
@@ -98,7 +98,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Checkout fixture"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}
@@ -114,7 +114,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Checkout branch on fixture"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
@@ -127,7 +127,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Mepo clone external repos"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
@@ -141,7 +141,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
@@ -158,7 +158,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Run CMake"
           command: |
             mkdir -p /logfiles
@@ -174,7 +174,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Build and install"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
@@ -188,7 +188,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Mepo checkout MAPL branch"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>/src/Shared/@MAPL
@@ -211,6 +211,22 @@ commands:
             then
                 mepo checkout-if-exists ${CIRCLE_BRANCH}
             fi
+            mepo status
+
+  # NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE   #
+  # This will need to go away once MAPL v3 goes into develop #
+  checkout_mapl3_release_branch:
+    description: "Mepo checkout release/MAPL-v3 branches"
+    parameters:
+      repo:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: "Mepo checkout release/MAPL-v3 branches"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
+            mepo checkout-if-exists release/MAPL-v3
             mepo status
 
 jobs:
@@ -260,6 +276,8 @@ jobs:
           repo: GEOSgcm
       - mepodevelop:
           repo: GEOSgcm
+      - checkout_mapl3_release_branch:
+          repo: GEOSgcm
       - checkout_mapl_branch:
           repo: GEOSgcm
       - cmake:
@@ -290,8 +308,10 @@ jobs:
           repo: GEOSldas
       - checkout_branch_on_fixture:
           repo: GEOSldas
-          branch: develop
+          branch: release/MAPL-v3
       - mepoclone:
+          repo: GEOSldas
+      - checkout_mapl3_release_branch:
           repo: GEOSldas
       - checkout_mapl_branch:
           repo: GEOSldas
@@ -316,6 +336,8 @@ jobs:
       - mepoclone:
           repo: GEOSadas
       - mepodevelop:
+          repo: GEOSadas
+      - checkout_mapl3_release_branch:
           repo: GEOSadas
       - checkout_mapl_branch:
           repo: GEOSadas
