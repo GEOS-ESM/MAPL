@@ -131,7 +131,8 @@ module MAPL_GenericMod
   use pFlogger, only: logging, Logger
   use MAPL_AbstractGridFactoryMod
   use MAPL_GridManagerMod, only: grid_manager,get_factory
-  use MAPL_StringUtilsMod, only: get_file_basename, get_system_dso_suffix, get_file_extension, validate_dso_suffix
+  use MaplShared, only: SYSTEM_DSO_EXTENSION, adjust_dso_name, is_valid_dso_name, is_supported_dso_name
+  use MaplShared, only: get_file_extension
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
   use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
@@ -237,9 +238,10 @@ module MAPL_GenericMod
 !EOP
 
   interface MAPL_AddChild
-     module procedure MAPL_AddChildFromGC
-     module procedure MAPL_AddChildFromMeta
-     module procedure MAPL_AddChildFromDSO
+     module procedure AddChildFromGC
+     module procedure AddChildFromMeta
+     module procedure AddChildFromDSO_old
+     module procedure AddChildFromDSO
   end interface
 
   interface MAPL_AddImportSpec
@@ -2846,14 +2848,8 @@ end subroutine MAPL_DateStampGet
 ! Have ESMF save pointer to the wrapped internal state in the G.C.
 ! ----------------------------------------------------------------
 
-    call ESMF_UserCompSetInternalState(GC, "MAPL_GenericInternalState", WRAP, STATUS)
-    _VERIFY(STATUS)
-
-! Initialize the config and grid in the generic state.
-!-----------------------------------------------------
-
-    call ESMF_GridCompGet( GC, CONFIG = MAPLOBJ%CF, RC=STATUS )
-    _VERIFY(STATUS)
+    call ESMF_UserCompSetInternalState(GC, "MAPL_GenericInternalState", WRAP, status)
+    _VERIFY(status)
 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_InternalStateCreate
@@ -4391,10 +4387,8 @@ end subroutine MAPL_DateStampGet
      endif
 
      if(present(ConfigFile)) then
-        State%CF = ESMF_ConfigCreate(rc=status)
-        _VERIFY(STATUS)
-        call ESMF_ConfigLoadFile(State%CF,ConfigFile,rc=STATUS)
-        _VERIFY(STATUS)
+        State%CF = ESMF_ConfigCreate(__RC__)
+        call ESMF_ConfigLoadFile(State%CF,ConfigFile,__RC__)
      endif
 
      if (present(component)) then
@@ -4577,281 +4571,97 @@ end subroutine MAPL_DateStampGet
 
   !BOPI
   ! !IROUTINE: MAPL_AddChild
-  ! !IIROUTINE: MAPL_AddChildFromMeta --- From Meta
+  ! !IIROUTINE: AddChildFromMeta --- From Meta
 
   !INTERFACE:
-  recursive integer function MAPL_AddChildFromMeta(META, NAME, GRID, &
-                                                   CONFIGFILE, SS, PARENTGC, &
-                                                   petList, RC)
+  recursive integer function AddChildFromMeta(META, NAME, GRID, &
+       CONFIGFILE, SS, PARENTGC, &
+       petList, RC)
 
-    !ARGUMENTS:
-    type(MAPL_MetaComp), target,   intent(INOUT) :: META
-    character(len=*),              intent(IN   ) :: NAME
-    type(ESMF_Grid),  optional,    intent(INout) :: GRID
-    character(len=*), optional,    intent(IN   ) :: CONFIGFILE
-    external                                     :: SS
-    type(ESMF_GridComp), optional, intent(IN   ) :: parentGC
-    integer,           optional  , intent(IN   ) :: petList(:)
-    integer,           optional  , intent(  OUT) :: rc
-    !EOPI
+     !ARGUMENTS:
+     type(MAPL_MetaComp), target,   intent(INOUT) :: META
+     character(len=*),              intent(IN   ) :: NAME
+     type(ESMF_Grid),  optional,    intent(INout) :: GRID
+     character(len=*), optional,    intent(IN   ) :: CONFIGFILE
+     external                                     :: SS
+     type(ESMF_GridComp), optional, intent(IN   ) :: parentGC
+     integer,           optional  , intent(IN   ) :: petList(:)
+     integer,           optional  , intent(  OUT) :: rc
+     !EOPI
 
-  integer                                     :: STATUS
+     integer                                     :: status
 
-  integer                                     :: I
-  type(MAPL_MetaComp), pointer                :: CHILD_META, tmp_meta
-  class(AbstractFrameworkComponent), pointer  :: tmp_framework
-  character(len=ESMF_MAXSTR), allocatable     :: TMPNL(:)
-  character(len=ESMF_MAXSTR)                  :: FNAME, PNAME
-  type(ESMF_GridComp)                         :: pGC
-  type(ESMF_Context_Flag)                     :: contextFlag
-  class(BaseProfiler), pointer                :: t_p
+     integer                                     :: I
+     type(MAPL_MetaComp), pointer                :: child_meta
+     class(BaseProfiler), pointer                :: t_p
+     integer :: userRC
 
-  class(Logger), pointer :: lgr
-  type(ESMF_GridComp), pointer :: gridcomp
-  type(ESMF_State), pointer :: child_import_state
-  type(ESMF_State), pointer :: child_export_state
-  type(StubComponent) :: stub_component
-  type(ESMF_VM) :: vm
-  integer :: comm
-  integer :: userRC
-
-  lgr => logging%get_logger('MAPL.GENERIC')
-
-
-  if (.not.allocated(META%GCNameList)) then
-     ! this is the first child to be added
-     allocate(META%GCNameList(0), stat=status)
-     _VERIFY(STATUS)
-  end if
-
-  I = META%get_num_children() + 1
-  MAPL_AddChildFromMeta = I
-! realloc gcnamelist
-  allocate(TMPNL(I), stat=status)
-  _VERIFY(STATUS)
-  TMPNL(1:I-1) = META%GCNameList
-  deallocate(META%GCNameList)
-  META%GCNameList = TMPNL
-
-  FNAME = trim(NAME)
-  if (index(NAME,":") == 0) then
-     if (present(parentGC)) then
-        pGC = parentGC
-        call ESMF_GridCompGet(pGC, name = PNAME, RC=STATUS)
-        _VERIFY(STATUS)
-        FNAME = PNAME(1:index(PNAME,":"))//trim(NAME)
-     end if
-  end if
-
-  allocate(tmp_meta, __STAT__)
-  tmp_framework => META%add_child(FNAME, tmp_meta)
-  deallocate(tmp_meta)
-  _ASSERT(associated(tmp_framework),'add_child() failed')
-
-  select type (tmp_framework)
-  class is (MAPL_MetaComp)
-     child_meta => tmp_framework
-     call child_meta%set_component(stub_component)
-
-     if (present(petList)) then
-        contextFlag = ESMF_CONTEXT_OWN_VM ! this is default
-     else
-        contextFlag = ESMF_CONTEXT_PARENT_VM ! more efficient
+     if (.not.allocated(META%GCNameList)) then
+        ! this is the first child to be added
+        allocate(META%GCNameList(0), __STAT__)
      end if
 
-     META%GCNameList(I) = trim(FNAME)
+     I = META%get_num_children() + 1
+     AddChildFromMeta = I
 
-     gridcomp => child_meta%gridcomp
-     if (present(configfile)) then
-        gridcomp = ESMF_GridCompCreate   ( &
-             NAME   = trim(FNAME),         &
-             CONFIGFILE = configfile,      &
-             grid = grid,                  &
-             petList = petList,            &
-             contextFlag = contextFlag,    &
-             RC=STATUS )
-        _VERIFY(STATUS)
-     else
-        gridcomp = ESMF_GridCompCreate   ( &
-             NAME   = trim(FNAME),         &
-             CONFIG = META%CF,             &
-             grid = grid,                  &
-             petList = petList,            &
-             contextFlag = contextFlag,    &
-             RC=STATUS )
-        _VERIFY(STATUS)
-     end if
+     call AddChild_preamble(meta, I, name, grid, configfile, parentgc, petlist, child_meta, __RC__)
+     t_p => get_global_time_profiler()
+     call t_p%start(trim(NAME),__RC__)
+     call child_meta%t_profiler%start(__RC__)
+     call child_meta%t_profiler%start('SetService',__RC__)
 
-! Create each child's import/export state
-! ----------------------------------
+!!$     gridcomp => META%GET_CHILD_GRIDCOMP(I)
+     call ESMF_GridCompSetServices ( child_meta%gridcomp, SS, userRC=userRC, __RC__ )
+     _VERIFY(userRC)
 
-     child_import_state => META%get_child_import_state(i)
-     child_import_state = ESMF_StateCreate (             &
-          NAME = trim(META%GCNameList(I)) // '_Imports', &
-          stateIntent = ESMF_STATEINTENT_IMPORT,         &
-          RC=STATUS )
+     call child_meta%t_profiler%stop('SetService',__RC__)
+     call child_meta%t_profiler%stop(__RC__)
+     call t_p%stop(trim(NAME),__RC__)
+
      _VERIFY(STATUS)
 
-     child_export_state => META%get_child_export_state(i)
-     child_export_state = ESMF_StateCreate (             &
-          NAME = trim(META%GCNameList(I)) // '_Exports', &
-          stateIntent = ESMF_STATEINTENT_EXPORT,         &
-       RC=STATUS )
-  _VERIFY(STATUS)
-
-! create MAPL_Meta
-  call MAPL_InternalStateCreate ( gridcomp, CHILD_META, RC=STATUS)
-  _VERIFY(STATUS)
-
-  end select
-
-! put parentGC there
-  if (present(parentGC)) then
-     allocate(CHILD_META%parentGC, stat=status)
-     _VERIFY(STATUS)
-     CHILD_META%parentGC = parentGC
-  end if
-
-  call lgr%debug('Adding logger for component %a ',trim(fname))
-  child_meta%full_name = meta%full_name // SEPARATOR // trim(fname)
-  child_meta%compname = trim(fname)
-  call child_meta%set_logger(logging%get_logger(child_meta%full_name))
-
-  ! copy communicator to childs mapl_metacomp
-  call ESMF_VMGetCurrent(vm, __RC__)
-  call ESMF_VMGet(vm, mpiCommunicator=comm, __RC__)
-  CHILD_META%t_profiler = DistributedProfiler(trim(name), MpiTimerGauge(), comm=comm)
-
-  t_p => get_global_time_profiler()
-
-  call t_p%start(trim(NAME),__RC__)
-  call CHILD_META%t_profiler%start(__RC__)
-  call CHILD_META%t_profiler%start('SetService',__RC__)
-  gridcomp => META%GET_CHILD_GRIDCOMP(I)
-  call ESMF_GridCompSetServices ( gridcomp, SS, userRC=userRC, __RC__ )
-  _VERIFY(userRC)
-  call CHILD_META%t_profiler%stop('SetService',__RC__)
-  call CHILD_META%t_profiler%stop(__RC__)
-  call t_p%stop(trim(NAME),__RC__)
-
-  _VERIFY(STATUS)
-
-  _RETURN(ESMF_SUCCESS)
-end function MAPL_AddChildFromMeta
+     _RETURN(ESMF_SUCCESS)
 
 
-!BOPI
-! !IIROUTINE: MAPL_AddChildFromGC --- From gc
+  contains
 
-!INTERFACE:
-recursive integer function MAPL_AddChildFromGC(GC, NAME, SS, petList, configFile, RC)
+  end function AddChildFromMeta
 
-  !ARGUMENTS:
-  type(ESMF_GridComp), intent(INOUT) :: GC
-  character(len=*),    intent(IN   ) :: NAME
-  external                           :: SS
-  integer, optional  , intent(IN   ) :: petList(:)
-  character(len=*), optional, intent(IN   ) :: configFile
-  integer, optional  , intent(  OUT) :: rc
-  !EOPI
+  recursive subroutine AddChild_preamble(meta, I, name, grid, configfile, parent_gc, petlist, child_meta, unusable, rc)
+     type(MAPL_MetaComp), target,   intent(INOUT) :: meta
+     integer, intent(in) :: I
+     character(*), intent(in) :: name
+     type(ESMF_Grid),  optional,    intent(INout) :: grid
+     character(len=*), optional,    intent(IN   ) :: configfile
+     type(ESMF_GridComp), optional, intent(IN   ) :: parent_gc
+     integer,           optional  , intent(IN   ) :: petList(:)
+     type(MAPL_MetaComp), pointer                :: child_meta
+     class(KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc
 
-  character(len=ESMF_MAXSTR)                  :: IAm
-  integer                                     :: STATUS
+     integer                                     :: STATUS
 
-  type(MAPL_MetaComp), pointer                :: META
+     type(MAPL_MetaComp), pointer                :: tmp_meta
+     class(AbstractFrameworkComponent), pointer  :: tmp_framework
+     character(len=ESMF_MAXSTR)                  :: child_name
+     type(ESMF_Context_Flag)                     :: contextFlag
 
-  Iam = "MAPL_AddChildFromGC"
-  call MAPL_InternalStateRetrieve(GC, META, RC=status)
-  _VERIFY(STATUS)
+     class(Logger), pointer :: lgr
+     type(ESMF_State), pointer :: child_import_state
+     type(ESMF_State), pointer :: child_export_state
+     type(StubComponent) :: stub_component
+     type(ESMF_VM) :: vm
+     integer :: comm
 
-  MAPL_AddChildFromGC = MAPL_AddChildFromMeta(Meta, NAME, SS=SS, PARENTGC = GC, petList=petList, configFile=configFile, RC=status)
-  _VERIFY(STATUS)
+     call make_full_name(name, child_name, parent_gc, __RC__)
+     call grow_children_names(meta%GCNamelist, child_name, __RC__)
 
-  _RETURN(ESMF_SUCCESS)
-end function MAPL_AddChildFromGC
+     allocate(tmp_meta, __STAT__)
+     tmp_framework => META%add_child(child_name, tmp_meta)
+     deallocate(tmp_meta)
+     _ASSERT(associated(tmp_framework),'add_child() failed')
 
-!INTERFACE:
-recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentGC, SharedObj, petList, configFile, RC)
-
-  !ARGUMENTS:
-  character(len=*), intent(IN)    :: NAME
-  character(len=*), intent(in)    :: userRoutine
-  type(ESMF_Grid),  optional,    intent(INout) :: grid
-  type(ESMF_GridComp), optional, intent(INOUT) :: ParentGC
-  character(len=*), optional, intent(in)       :: sharedObj
-
-  integer, optional  , intent(IN   ) :: petList(:)
-  character(len=*), optional, intent(IN   ) :: configFile
-  integer, optional  , intent(  OUT) :: rc
-  !EOP
-
-  character(len=ESMF_MAXSTR) :: IAm
-  integer                    :: STATUS
-  integer                    :: userRC
-
-  type(MAPL_MetaComp), pointer                :: META
-
-  integer                                     :: I
-  type(MAPL_MetaComp), pointer                :: CHILD_META, tmp_meta
-  class(AbstractFrameworkComponent), pointer  :: tmp_framework
-  character(len=ESMF_MAXSTR), allocatable     :: TMPNL(:)
-  character(len=ESMF_MAXSTR)                  :: FNAME, PNAME
-  type(ESMF_GridComp)                         :: pGC
-  type(ESMF_Context_Flag)                     :: contextFlag
-  class(BaseProfiler), pointer                :: t_p
-
-  class(Logger), pointer :: lgr
-  type(ESMF_GridComp), pointer :: gridcomp
-  type(ESMF_State), pointer :: child_import_state
-  type(ESMF_State), pointer :: child_export_state
-  type(StubComponent) :: stub_component
-  type(ESMF_VM) :: vm
-  integer :: comm
-
-  character(len=:), allocatable :: requested_shared_object_library_basename
-  character(len=:), allocatable :: requested_shared_object_library_extension
-  character(len=:), allocatable :: shared_object_library_with_system_dso_suffix
-  character(len=:), allocatable :: shared_object_library_to_load
-  character(len=:), allocatable :: system_dso_suffix
-
-  lgr => logging%get_logger('MAPL.GENERIC')
-
-  Iam = "MAPL_AddChildFromDSO"
-
-  if (present(ParentGC)) then
-     call MAPL_InternalStateRetrieve(ParentGC, META, RC=status)
-     _VERIFY(STATUS)
-  endif
-
-  if (.not. allocated(META%GCNamelist)) then
-     ! this is the first child to be added
-     allocate(META%GCNameList(0), stat=status)
-     _VERIFY(STATUS)
-  end if
-
-  I = META%get_num_children() + 1
-  MAPL_AddChildFromDSO = I
-  allocate(TMPNL(I), stat=status)
-  _VERIFY(STATUS)
-  TMPNL(1:I-1) = META%GCNameList
-  META%GCNameList = TMPNL
-
-  FNAME = trim(NAME)
-  if (index(NAME,":") == 0) then
-     if (present(parentGC)) then
-        pGC = parentGC
-        call ESMF_GridCompGet(pGC, name = PNAME, RC=STATUS)
-        _VERIFY(STATUS)
-        FNAME = PNAME(1:index(PNAME,":"))//trim(NAME)
-     end if
-  end if
-
-  allocate(tmp_meta, __STAT__)
-  tmp_framework => META%add_child(FNAME, tmp_meta)
-  deallocate(tmp_meta)
-  _ASSERT(associated(tmp_framework),'add_child() failed')
-
-  select type (tmp_framework)
+     select type (tmp_framework)
      class is (MAPL_MetaComp)
         child_meta => tmp_framework
         call child_meta%set_component(stub_component)
@@ -4862,112 +4672,231 @@ recursive integer function MAPL_AddChildFromDSO(NAME, userRoutine, grid, ParentG
            contextFlag = ESMF_CONTEXT_PARENT_VM ! more efficient
         end if
 
-        META%GCNameList(I) = trim(FNAME)
-
-        gridcomp => child_meta%gridcomp
         if (present(configfile)) then
-           gridcomp = ESMF_GridCompCreate   ( &
-                NAME   = trim(FNAME),         &
-                CONFIGFILE = configfile,      &
-                grid = grid,                  &
-                petList = petList,            &
-                contextFlag = contextFlag,    &
-                RC=STATUS )
-           _VERIFY(STATUS)
-        else
-           gridcomp = ESMF_GridCompCreate   ( &
-                NAME   = trim(FNAME),         &
-                CONFIG = META%CF,             &
-                grid = grid,                  &
-                petList = petList,            &
-                contextFlag = contextFlag,    &
-                RC=STATUS )
-           _VERIFY(STATUS)
+           child_meta%cf = ESMF_ConfigCreate(__RC__)
+           call ESMF_ConfigLoadFile(child_meta%cf, configfile, __RC__)
+        else ! use parents config
+           child_meta%cf = meta%cf
         end if
 
-! Create each child's import/export state
-! --   --------------------------------
+        child_meta%gridcomp = ESMF_GridCompCreate   ( &
+             name   = child_name,          &
+             CONFIG = child_meta%cf,             &
+             grid = grid,                  &
+             petList = petList,            &
+             contextFlag = contextFlag,    &
+             __RC__)
 
+        ! Create each child's import/export state
+        ! ----------------------------------
         child_import_state => META%get_child_import_state(i)
         child_import_state = ESMF_StateCreate (             &
-             NAME = trim(META%GCNameList(I)) // '_Imports', &
-             stateIntent = ESMF_STATEINTENT_IMPORT,         &
-             RC=STATUS )
-        _VERIFY(STATUS)
+             name = trim(META%GCNameList(I)) // '_Imports', &
+             stateIntent = ESMF_STATEINTENT_IMPORT, __RC__)
 
         child_export_state => META%get_child_export_state(i)
         child_export_state = ESMF_StateCreate (             &
-             NAME = trim(META%GCNameList(I)) // '_Exports', &
-             stateIntent = ESMF_STATEINTENT_EXPORT,         &
-          RC=STATUS )
-        _VERIFY(STATUS)
+             name = trim(META%GCNameList(I)) // '_Exports', &
+             stateIntent = ESMF_STATEINTENT_EXPORT, __RC__)
 
-! create MAPL_Meta
-        call MAPL_InternalStateCreate ( gridcomp, CHILD_META, RC=STATUS)
-        _VERIFY(STATUS)
-     class default
-        _ASSERT(.false., "wrong framework type")
+        ! create MAPL_Meta
+        call MAPL_InternalStateCreate ( child_meta%gridcomp, child_meta, __RC__)
 
-  end select
+        ! Create child components time profiler
+        call ESMF_VMGetCurrent(vm, __RC__)
+        call ESMF_VMGet(vm, mpiCommunicator=comm, __RC__)
+        CHILD_META%t_profiler = DistributedProfiler(trim(name), MpiTimerGauge(), comm=comm)
 
-! put parentGC there
-  if (present(parentGC)) then
-     allocate(CHILD_META%parentGC, stat=status)
+     end select
+
+     ! put parentGC there
+     if (present(parent_gc)) then
+        allocate(child_meta%parentGC, __STAT__)
+        child_meta%parentGC = parent_gc
+     end if
+
+     lgr => logging%get_logger('MAPL.GENERIC')
+     call lgr%debug('Adding logger for component %a ',trim(child_name))
+     child_meta%full_name = meta%full_name // SEPARATOR // trim(child_name)
+     child_meta%compname = trim(child_name)
+     call child_meta%set_logger(logging%get_logger(child_meta%full_name))
+
+     ! copy communicator to childs mapl_metacomp
+     call ESMF_VMGetCurrent(vm, __RC__)
+     call ESMF_VMGet(vm, mpiCommunicator=comm, __RC__)
+
+     _RETURN(ESMF_SUCCESS)
+     _UNUSED_DUMMY(unusable)
+  contains
+
+     subroutine make_full_name(name, child_name, parent_gc, unusable, rc)
+        character(*), intent(in) :: name
+        character(*), intent(out) :: child_name
+        type(ESMF_GridComp), optional, intent(in) :: parent_gc
+        class(KeywordEnforcer), optional, intent(in) :: unusable
+        integer, optional, intent(out) :: rc
+        
+        integer :: status
+        character(ESMF_MAXSTR) :: pname
+        type(ESMF_GridComp) :: tmp_gc ! kludge because ESMF makes things INTENT(INOUT)
+        
+        child_name = trim(name)
+        ! Adjust with parent name if provided
+        if (index(name,":") == 0) then
+           if (present(parent_gc)) then
+              tmp_gc = parent_gc
+              call ESMF_GridCompGet(tmp_gc, name=pname, __RC__)
+              child_name = pname(1:index(pname,":"))//trim(name)
+           end if
+        end if
+        
+        _RETURN(ESMF_SUCCESS)
+        _UNUSED_DUMMY(unusable)
+     end subroutine make_full_name
+     
+     subroutine grow_children_names(names, child_name, unusable, rc)
+        character(ESMF_MAXSTR), allocatable, intent(inout) :: names(:)
+        character(*), intent(in) :: child_name
+        class(KeywordEnforcer), optional, intent(in) :: unusable
+        integer, optional, intent(out) :: rc
+
+        character(ESMF_MAXSTR), allocatable :: tmp(:)
+
+        integer :: n
+        integer :: status
+        ! realloc names
+        n = size(names)
+        allocate(tmp(n+1), __STAT__)
+        tmp(1:n) = names
+        deallocate(names)
+
+        call move_alloc(from=tmp, to=names)
+        names(n+1) = child_name
+
+        _RETURN(ESMF_SUCCESS)
+        _UNUSED_DUMMY(unusable)
+     end subroutine grow_children_names
+
+  end subroutine AddChild_preamble
+
+
+  !BOPI
+  ! !IIROUTINE: AddChildFromGC --- From gc
+
+  !INTERFACE:
+  recursive integer function AddChildFromGC(GC, name, SS, petList, configFile, RC)
+
+     !ARGUMENTS:
+     type(ESMF_GridComp), intent(INOUT) :: GC
+     character(len=*),    intent(IN   ) :: name
+     external                           :: SS
+     integer, optional  , intent(IN   ) :: petList(:)
+     character(len=*), optional, intent(IN   ) :: configFile
+     integer, optional  , intent(  OUT) :: rc
+     !EOPI
+
+     integer                                     :: STATUS
+
+     type(MAPL_MetaComp), pointer                :: META
+
+     call MAPL_InternalStateRetrieve(GC, META, RC=status)
      _VERIFY(STATUS)
-     CHILD_META%parentGC = parentGC
-  end if
 
-  call lgr%debug('Adding logger for component %a ',trim(fname))
-  child_meta%full_name = meta%full_name // SEPARATOR // trim(fname)
-  child_meta%compname = trim(fname)
-  call child_meta%set_logger(logging%get_logger(child_meta%full_name))
+     AddChildFromGC = AddChildFromMeta(Meta, name, SS=SS, PARENTGC=GC, petList=petList, configFile=configFile, RC=status)
+     _VERIFY(STATUS)
 
-  ! copy communicator to childs mapl_metacomp
-  call ESMF_VMGetCurrent(vm, __RC__)
-  call ESMF_VMGet(vm, mpiCommunicator=comm, __RC__)
-  CHILD_META%t_profiler = DistributedProfiler(trim(NAME), MpiTimerGauge(), comm=comm)
+     _RETURN(ESMF_SUCCESS)
+  end function AddChildFromGC
 
-  ! Construct a valid shared object library name
+  !INTERFACE:
+  recursive integer function AddChildFromDSO(gc, name, userRoutine, grid, sharedObj, petList, configFile, RC)
 
-  call lgr%debug('  MAPL_AddChildFromDSO: Requested shared library [%a] for component [%a] ',trim(SharedObj), trim(fname))
-  requested_shared_object_library_basename = get_file_basename(SharedObj)
-  requested_shared_object_library_extension = get_file_extension(SharedObj)
-  system_dso_suffix = get_system_dso_suffix()
-  shared_object_library_with_system_dso_suffix = requested_shared_object_library_basename // system_dso_suffix
+     !ARGUMENTS:
+     type(ESMF_GridComp), intent(INOUT) :: gc
+     character(len=*), intent(IN)    :: name
+     character(len=*), intent(in)    :: userRoutine
+     type(ESMF_Grid),  optional,    intent(INout) :: grid
+     character(len=*), optional, intent(in)       :: sharedObj
 
-  if (requested_shared_object_library_extension == '') then
-     call lgr%info('MAPL_AddChildFromDSO: Requested shared library %a for component %a has no extension but system uses %a', &
-        trim(SharedObj), trim(fname), system_dso_suffix )
-     call lgr%info('MAPL_AddChildFromDSO: Will use shared library %a for component %a', &
-        shared_object_library_with_system_dso_suffix, trim(fname) )
-     shared_object_library_to_load = shared_object_library_with_system_dso_suffix
-  else if (requested_shared_object_library_extension /= system_dso_suffix) then
-     _ASSERT(validate_dso_suffix(requested_shared_object_library_extension), 'Provided ['//trim(SharedObj)//'] for component ['//trim(fname)//']. Only .so, .dylib, and .dll are allowed DSO suffixes')
-     call lgr%info('MAPL_AddChildFromDSO: Requested shared library %a for component %a has extension %a but system uses %a', &
-        trim(SharedObj), trim(fname), requested_shared_object_library_extension, system_dso_suffix )
-     call lgr%info('MAPL_AddChildFromDSO: Will use shared library %a for component %a', &
-        shared_object_library_with_system_dso_suffix, trim(fname) )
-     shared_object_library_to_load = shared_object_library_with_system_dso_suffix
-  else
-     shared_object_library_to_load = trim(SharedObj)
-  end if
+     integer, optional  , intent(IN   ) :: petList(:)
+     character(len=*), optional, intent(IN   ) :: configFile
+     integer, optional  , intent(  OUT) :: rc
+     !EOP
 
-  t_p => get_global_time_profiler()
-  call t_p%start(trim(NAME),__RC__)
-  call CHILD_META%t_profiler%start(__RC__)
-  call CHILD_META%t_profiler%start('SetService',__RC__)
-  gridcomp => META%GET_CHILD_GRIDCOMP(I)
-  call ESMF_GridCompSetServices ( gridcomp, userRoutine, &
-     sharedObj=shared_object_library_to_load,userRC=userRC,__RC__)
-  _VERIFY(userRC)
-  call CHILD_META%t_profiler%stop('SetService',__RC__)
-  call CHILD_META%t_profiler%stop(__RC__)
-  call t_p%stop(trim(NAME),__RC__)
+     integer                    :: status
+     integer                    :: userRC
 
-  _VERIFY(STATUS)
+     type(MAPL_MetaComp), pointer                :: META
 
-  _RETURN(ESMF_SUCCESS)
-end function MAPL_AddChildFromDSO
+     integer                                     :: I
+     type(MAPL_MetaComp), pointer                :: child_meta
+     class(BaseProfiler), pointer                :: t_p
+
+     class(Logger), pointer :: lgr
+     character(len=:), allocatable :: shared_object_library_to_load
+
+     call MAPL_InternalStateRetrieve(gc, meta, __RC__)
+  
+     if (.not.allocated(meta%GCNameList)) then
+        ! this is the first child to be added
+        allocate(meta%GCNameList(0), __STAT__)
+     end if
+
+     I = meta%get_num_children() + 1
+     AddChildFromDSO = I
+
+     call AddChild_preamble(meta, I, name, grid, configfile, gc, petlist, child_meta, __RC__)
+
+     t_p => get_global_time_profiler()
+     call t_p%start(trim(name),__RC__)
+     call child_meta%t_profiler%start(__RC__)
+     call child_meta%t_profiler%start('SetService',__RC__)
+
+     associate (extension => get_file_extension(SharedObj))
+       _ASSERT(is_supported_dso_name(SharedObj), "AddChildFromDSO: Unsupported shared library extension '"//extension//",.")
+       if (.not. is_valid_dso_name(SharedObj)) then
+          lgr => logging%get_logger('MAPL.GENERIC')
+          call lgr%warning("AddChildFromDSO: changing shared library extension '%a~' to system specific extension '%a~'.", &
+               extension, SYSTEM_DSO_EXTENSION)
+       end if
+     end associate
+
+     shared_object_library_to_load = adjust_dso_name(sharedObj)
+
+     call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
+          sharedObj=shared_object_library_to_load,userRC=userRC,__RC__)
+     _VERIFY(userRC)
+
+     call child_meta%t_profiler%stop('SetService',__RC__)
+     call child_meta%t_profiler%stop(__RC__)
+     call t_p%stop(trim(name),__RC__)
+
+     _RETURN(ESMF_SUCCESS)
+  end function AddChildFromDSO
+
+
+  !INTERFACE:
+  recursive integer function AddChildFromDSO_old(name, userRoutine, grid, ParentGC, SharedObj, petList, configFile, RC)
+
+     !ARGUMENTS:
+     character(len=*), intent(IN)    :: name
+     character(len=*), intent(in)    :: userRoutine
+     type(ESMF_Grid),  optional,    intent(INout) :: grid
+     type(ESMF_GridComp), optional, intent(INOUT) :: ParentGC
+     character(len=*), optional, intent(in)       :: SharedObj
+
+     integer, optional  , intent(IN   ) :: petList(:)
+     character(len=*), optional, intent(IN   ) :: configFile
+     integer, optional  , intent(  OUT) :: rc
+     !EOP
+
+     integer                    :: status
+
+     _ASSERT(present(ParentGC),'must have a parent to use this interface')
+     addchildfromdso_old = addChildFromDSO(parentGC, name, userRoutine, grid, sharedObj, petList, configFile, __RC__)
+
+     _RETURN(ESMF_SUCCESS)
+  end function AddChildFromDSO_Old
 
 
 
