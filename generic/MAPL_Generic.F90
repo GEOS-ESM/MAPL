@@ -4830,7 +4830,6 @@ end subroutine MAPL_DateStampGet
 
      class(Logger), pointer :: lgr
      character(len=:), allocatable :: shared_object_library_to_load
-     logical :: exists
 
      call MAPL_InternalStateRetrieve(parentGC, meta, __RC__)
   
@@ -4859,8 +4858,6 @@ end subroutine MAPL_DateStampGet
      end associate
 
      shared_object_library_to_load = adjust_dso_name(sharedObj)
-     inquire(file=shared_object_library_to_load, exist=exists)
-     _ASSERT(exists,"AddChildFromDSO: Requested shared library '"//shared_object_library_to_load//"' not found.")
 
      call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
           sharedObj=shared_object_library_to_load,userRC=userRC,__RC__)
