@@ -4805,10 +4805,10 @@ end subroutine MAPL_DateStampGet
   end function AddChildFromGC
 
   !INTERFACE:
-  recursive integer function AddChildFromDSO(parentGC, name, userRoutine, grid, sharedObj, petList, configFile, RC)
+  recursive integer function AddChildFromDSO(gc, name, userRoutine, grid, sharedObj, petList, configFile, RC)
 
      !ARGUMENTS:
-     type(ESMF_GridComp), optional, intent(INOUT) :: parentGC
+     type(ESMF_GridComp), optional, intent(INOUT) :: gc
      character(len=*), intent(IN)    :: name
      character(len=*), intent(in)    :: userRoutine
      type(ESMF_Grid),  optional,    intent(INout) :: grid
@@ -4831,7 +4831,7 @@ end subroutine MAPL_DateStampGet
      class(Logger), pointer :: lgr
      character(len=:), allocatable :: shared_object_library_to_load
 
-     call MAPL_InternalStateRetrieve(parentGC, meta, __RC__)
+     call MAPL_InternalStateRetrieve(gc, meta, __RC__)
   
      if (.not.allocated(meta%GCNameList)) then
         ! this is the first child to be added
@@ -4841,7 +4841,7 @@ end subroutine MAPL_DateStampGet
      I = meta%get_num_children() + 1
      AddChildFromDSO = I
 
-     call AddChild_preamble(meta, I, name, grid, configfile, parentGC, petlist, child_meta, __RC__)
+     call AddChild_preamble(meta, I, name, grid, configfile, gc, petlist, child_meta, __RC__)
 
      t_p => get_global_time_profiler()
      call t_p%start(trim(name),__RC__)
