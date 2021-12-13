@@ -411,20 +411,6 @@ contains
        timerModeStr = ESMF_UtilStringUpperCase(timerModeStr, rc=STATUS)
        _VERIFY(STATUS) 
 
-       TestTimerMode: select case(timerModeStr)
-       case("OLD")
-          timerMode = MAPL_TimerModeOld      ! this has barriers
-       case("ROOTONLY")
-          timerMode = MAPL_TimerModeRootOnly ! this is the fastest
-       case("MAX")
-          timerMode = MAPL_TimerModeMax      ! this is the default
-       case("MINMAX")
-          timerMode = MAPL_TimerModeMinMax      ! this is the default
-       case default
-          _FAIL('Unsupported option for timerModeStr: '//trim(timerModeStr))
-       end select TestTimerMode
-       call MAPL_TimerModeSet(timerMode, RC=status)
-       _VERIFY(status)
     end if
     cap%started_loop_timer=.false.
 

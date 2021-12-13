@@ -5,6 +5,7 @@ set (srcs
   AbstractMeterNode.F90
   AbstractMeterFactory.F90
   MeterNodeVector.F90
+  MeterNodePtr.F90
   MeterNodeStack.F90
 
   # Low-level measures
@@ -14,44 +15,38 @@ set (srcs
   RssMemoryGauge.F90
   VmstatMemoryGauge.F90
 
-
-  
   AdvancedMeter.F90
   DistributedMeter.F90
-
   MeterNode.F90
-
-  AbstractColumn.F90
-  SimpleColumn.F90
-  TextColumn.F90
-  SimpleTextColumn.F90
-  NameColumn.F90
-
-  FormattedTextColumn.F90
-  MemoryTextColumn.F90
-  SeparatorColumn.F90
-  NumCyclesColumn.F90
-  InclusiveColumn.F90
-  ExclusiveColumn.F90
-  StdDevColumn.F90
-  MinCycleColumn.F90
-  MeanCycleColumn.F90
-  MaxCycleColumn.F90
-  MinCycleColumn.F90
-  PercentageColumn.F90
-  ColumnVector.F90
-  TextColumnVector.F90
-  MultiColumn.F90
-
   BaseProfiler.F90
   TimeProfiler.F90
   MemoryProfiler.F90
   DistributedProfiler.F90
-  ProfileReporter.F90
+
+  reporting/ProfileReporter.F90
+  reporting/AbstractColumn.F90
+  reporting/SimpleColumn.F90
+  reporting/TextColumn.F90
+  reporting/SimpleTextColumn.F90
+  reporting/NameColumn.F90
+  reporting/FormattedTextColumn.F90
+  reporting/MemoryTextColumn.F90
+  reporting/SeparatorColumn.F90
+  reporting/NumCyclesColumn.F90
+  reporting/InclusiveColumn.F90
+  reporting/ExclusiveColumn.F90
+  reporting/StdDevColumn.F90
+  reporting/MinCycleColumn.F90
+  reporting/MeanCycleColumn.F90
+  reporting/MaxCycleColumn.F90
+  reporting/MinCycleColumn.F90
+  reporting/PercentageColumn.F90
+  reporting/ColumnVector.F90
+  reporting/TextColumnVector.F90
+  reporting/MultiColumn.F90
 
   # The package
   MAPL_Profiler.F90
-
   )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl MAPL.shared MPI::MPI_Fortran TYPE ${MAPL_LIBRARY_TYPE})
