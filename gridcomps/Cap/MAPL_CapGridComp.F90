@@ -129,25 +129,22 @@ contains
     cap%n_run_phases = 1
     if (present(n_run_phases)) cap%n_run_phases = n_run_phases
 
-    cap%config = ESMF_ConfigCreate(rc=status)
-    _VERIFY(status)
-    call ESMF_ConfigLoadFile(cap%config,cap%cap_rc_file,rc=STATUS)
-    _VERIFY(STATUS)
+    cap%config = ESMF_ConfigCreate(__RC__)
+    call ESMF_ConfigLoadFile(cap%config, cap%cap_rc_file,__RC__)
 
     allocate(cap%name, source=name)
-    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, rc=status)
-    _VERIFY(status)
+    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, __RC__)
 
     meta => null()
-    call MAPL_InternalStateCreate(cap%gc, meta, rc=status)
-    _VERIFY(status)
+    call MAPL_InternalStateCreate(cap%gc, meta, __RC__)
+    call MAPL_Set(meta, CF=cap%config, __RC__)
 
-    call MAPL_Set(meta, name=cap_name, component=stub_component, rc=status)
-    _VERIFY(status)
+    call MAPL_Set(meta, name=cap_name, component=stub_component, __RC__)
 
     cap_wrapper%ptr => cap
     call ESMF_UserCompSetInternalState(cap%gc, internal_cap_name, cap_wrapper, status)
     _VERIFY(status)
+
 
     _RETURN(_SUCCESS)
 
