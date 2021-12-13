@@ -240,6 +240,7 @@ module MAPL_GenericMod
   interface MAPL_AddChild
      module procedure AddChildFromGC
      module procedure AddChildFromMeta
+     module procedure AddChildFromDSO_old
      module procedure AddChildFromDSO
   end interface
 
@@ -4675,7 +4676,7 @@ end subroutine MAPL_DateStampGet
         end if
 
         child_meta%gridcomp = ESMF_GridCompCreate   ( &
-             NAME   = child_name,          &
+             name   = child_name,          &
              CONFIG = child_meta%cf,             &
              grid = grid,                  &
              petList = petList,            &
@@ -4686,12 +4687,12 @@ end subroutine MAPL_DateStampGet
         ! ----------------------------------
         child_import_state => META%get_child_import_state(i)
         child_import_state = ESMF_StateCreate (             &
-             NAME = trim(META%GCNameList(I)) // '_Imports', &
+             name = trim(META%GCNameList(I)) // '_Imports', &
              stateIntent = ESMF_STATEINTENT_IMPORT, __RC__)
 
         child_export_state => META%get_child_export_state(i)
         child_export_state = ESMF_StateCreate (             &
-             NAME = trim(META%GCNameList(I)) // '_Exports', &
+             name = trim(META%GCNameList(I)) // '_Exports', &
              stateIntent = ESMF_STATEINTENT_EXPORT, __RC__)
 
         ! create MAPL_Meta
@@ -4779,11 +4780,11 @@ end subroutine MAPL_DateStampGet
   ! !IIROUTINE: AddChildFromGC --- From gc
 
   !INTERFACE:
-  recursive integer function AddChildFromGC(GC, NAME, SS, petList, configFile, RC)
+  recursive integer function AddChildFromGC(GC, name, SS, petList, configFile, RC)
 
      !ARGUMENTS:
      type(ESMF_GridComp), intent(INOUT) :: GC
-     character(len=*),    intent(IN   ) :: NAME
+     character(len=*),    intent(IN   ) :: name
      external                           :: SS
      integer, optional  , intent(IN   ) :: petList(:)
      character(len=*), optional, intent(IN   ) :: configFile
@@ -4797,21 +4798,21 @@ end subroutine MAPL_DateStampGet
      call MAPL_InternalStateRetrieve(GC, META, RC=status)
      _VERIFY(STATUS)
 
-     AddChildFromGC = AddChildFromMeta(Meta, NAME, SS=SS, PARENTGC = GC, petList=petList, configFile=configFile, RC=status)
+     AddChildFromGC = AddChildFromMeta(Meta, name, SS=SS, PARENTGC=GC, petList=petList, configFile=configFile, RC=status)
      _VERIFY(STATUS)
 
      _RETURN(ESMF_SUCCESS)
   end function AddChildFromGC
 
   !INTERFACE:
-  recursive integer function AddChildFromDSO(NAME, userRoutine, grid, ParentGC, SharedObj, petList, configFile, RC)
+  recursive integer function AddChildFromDSO(parentGC, name, userRoutine, grid, sharedObj, petList, configFile, RC)
 
      !ARGUMENTS:
-     character(len=*), intent(IN)    :: NAME
+     type(ESMF_GridComp), optional, intent(INOUT) :: parentGC
+     character(len=*), intent(IN)    :: name
      character(len=*), intent(in)    :: userRoutine
      type(ESMF_Grid),  optional,    intent(INout) :: grid
-     type(ESMF_GridComp), optional, intent(INOUT) :: ParentGC
-     character(len=*), optional, intent(in)       :: SharedObj
+     character(len=*), optional, intent(in)       :: sharedObj
 
      integer, optional  , intent(IN   ) :: petList(:)
      character(len=*), optional, intent(IN   ) :: configFile
@@ -4831,18 +4832,20 @@ end subroutine MAPL_DateStampGet
      character(len=:), allocatable :: shared_object_library_to_load
      logical :: exists
 
-     if (.not.allocated(META%GCNameList)) then
+     call MAPL_InternalStateRetrieve(parentGC, meta, __RC__)
+  
+     if (.not.allocated(meta%GCNameList)) then
         ! this is the first child to be added
-        allocate(META%GCNameList(0), __STAT__)
+        allocate(meta%GCNameList(0), __STAT__)
      end if
 
-     I = META%get_num_children() + 1
+     I = meta%get_num_children() + 1
      AddChildFromDSO = I
 
-     call AddChild_preamble(meta, I, name, grid, configfile, parentgc, petlist, child_meta, __RC__)
+     call AddChild_preamble(meta, I, name, grid, configfile, parentGC, petlist, child_meta, __RC__)
 
      t_p => get_global_time_profiler()
-     call t_p%start(trim(NAME),__RC__)
+     call t_p%start(trim(name),__RC__)
      call child_meta%t_profiler%start(__RC__)
      call child_meta%t_profiler%start('SetService',__RC__)
 
@@ -4865,12 +4868,34 @@ end subroutine MAPL_DateStampGet
 
      call child_meta%t_profiler%stop('SetService',__RC__)
      call child_meta%t_profiler%stop(__RC__)
-     call t_p%stop(trim(NAME),__RC__)
-
-     _VERIFY(STATUS)
+     call t_p%stop(trim(name),__RC__)
 
      _RETURN(ESMF_SUCCESS)
   end function AddChildFromDSO
+
+
+  !INTERFACE:
+  recursive integer function AddChildFromDSO_old(name, userRoutine, grid, ParentGC, SharedObj, petList, configFile, RC)
+
+     !ARGUMENTS:
+     character(len=*), intent(IN)    :: name
+     character(len=*), intent(in)    :: userRoutine
+     type(ESMF_Grid),  optional,    intent(INout) :: grid
+     type(ESMF_GridComp), optional, intent(INOUT) :: ParentGC
+     character(len=*), optional, intent(in)       :: SharedObj
+
+     integer, optional  , intent(IN   ) :: petList(:)
+     character(len=*), optional, intent(IN   ) :: configFile
+     integer, optional  , intent(  OUT) :: rc
+     !EOP
+
+     integer                    :: status
+
+     _ASSERT(present(ParentGC),'must have a parent to use this interface')
+     addchildfromdso_old = addChildFromDSO(parentGC, name, userRoutine, grid, sharedObj, petList, configFile, __RC__)
+
+     _RETURN(ESMF_SUCCESS)
+  end function AddChildFromDSO_Old
 
 
 
