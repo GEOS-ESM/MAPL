@@ -4719,7 +4719,6 @@ end subroutine MAPL_DateStampGet
      ! copy communicator to childs mapl_metacomp
      call ESMF_VMGetCurrent(vm, __RC__)
      call ESMF_VMGet(vm, mpiCommunicator=comm, __RC__)
-     child_meta%t_profiler = TimeProfiler(trim(NAME), comm_world=comm)
 
      _RETURN(ESMF_SUCCESS)
      _UNUSED_DUMMY(unusable)
