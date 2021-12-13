@@ -4808,7 +4808,7 @@ end subroutine MAPL_DateStampGet
   recursive integer function AddChildFromDSO(gc, name, userRoutine, grid, sharedObj, petList, configFile, RC)
 
      !ARGUMENTS:
-     type(ESMF_GridComp), optional, intent(INOUT) :: gc
+     type(ESMF_GridComp), intent(INOUT) :: gc
      character(len=*), intent(IN)    :: name
      character(len=*), intent(in)    :: userRoutine
      type(ESMF_Grid),  optional,    intent(INout) :: grid
