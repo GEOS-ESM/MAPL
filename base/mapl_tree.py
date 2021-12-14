@@ -298,11 +298,11 @@ class MAPL_Tree():
         # option if you wish to see them
         # --------------------------------------------------------------
         if not self.full_tree:
-            dirs_to_stop_traversing = ['@ecbuild','@FMS','@mom','@mom6','@geos-chem','@HEMCO']
+            dirs_to_stop_traversing = ['ecbuild','FMS','mom','mom6','geos-chem','HEMCO']
         else:
             dirs_to_stop_traversing = []
 
-        if os.path.basename(parentdir) not in dirs_to_stop_traversing:
+        if os.path.basename(parentdir).strip('@') not in dirs_to_stop_traversing:
             # get subdirectories of parentdir, consider
             # only those that end with _GridComp or ModPlug
             # ---------------------------------------------
