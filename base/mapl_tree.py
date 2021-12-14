@@ -315,7 +315,15 @@ class MAPL_Tree():
 
             for subdir in dirlist:
                 if os.path.isdir(parentdir + os.sep + subdir):
-                    if (subdir not in dirs_to_ignore):
+
+                    # We also want to ignore any build or install directories
+                    # -------------------------------------------------------
+                    rules_to_ignore = [subdir in dirs_to_ignore,
+                            subdir.startswith('build'),
+                            subdir.startswith('install')]
+
+                    # This bypasses any subdir that matches our ignore rules
+                    if not any(rules_to_ignore):
                         chdirs.append(parentdir + os.sep + subdir)
 
             # if chdirs is non-empty, recurse, else do nothing
