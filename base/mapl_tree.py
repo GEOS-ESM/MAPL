@@ -3,7 +3,6 @@
 import os, sys, glob
 import itertools, argparse
 
-
 class MAPL_Tree():
     """
     #-----------------------------------------------------------------------
@@ -21,9 +20,13 @@ class MAPL_Tree():
         # attributes:
         #   name
         #   dict gc_dir
-        #   out_typ
+        #   out_format
+        #   out_color
+        #   out_link
+        #   full_tree
+        #   space
         #
-        # for output type mindmap, prints <map version="0.9.0">
+        # for output format mm, prints <map version="0.9.0">
         #-----------------------------------------------------------------------
         """
 
@@ -55,14 +58,14 @@ class MAPL_Tree():
         # Trim Grid Component names, etc
         # ------------------------------
         self.trim = trim
-        
+
         # header for mindmap output
         # -------------------------
         if self.out_format=='mm':
             print('<map version="0.9.0">')
 
-        # the dictionary
-        # --------------
+        # the dictionary (used by non-maintained chname style)
+        # ----------------------------------------------------
         self.gc_dir = dict()
         self.gc_dir['gcs'] = '@GEOSgcs_GridComp'
         self.gc_dir['gcm'] = '@GEOSgcm_GridComp'
@@ -167,7 +170,7 @@ class MAPL_Tree():
     def write_comp(self, compname_, level):
         """
         #-----------------------------------------------------------------------
-        # write gridcomp name to stdout in the format specified by self.out_typ
+        # write gridcomp name to stdout in the format specified by self.out_format
         # On output return True/False if component name has been written/suppressed
         #-----------------------------------------------------------------------
         """
@@ -181,13 +184,13 @@ class MAPL_Tree():
                        Satsim     = 'SatSim',
                        Seaice     = 'SeaIce',
                        Datasea    = 'DataSea',
-                       Dataseaice = 'DataSeaIcea',
+                       Dataseaice = 'DataSeaIce',
                        Landice    = 'LandIce',
                        Saltwater  = 'SaltWater',
                        Gwd        = 'GWD',
                        Vegdyn     = 'VegDyn',
                        )
-                       
+
         if self.trim:
             if not 'GridComp' in compname_:
                 return False # not written
@@ -201,7 +204,7 @@ class MAPL_Tree():
                     compname = Alias[compname]
         else:
             compname = compname_
-                
+
         if self.add_link: MYLINK = self.get_link(compname)
         else: MYLINK = None
         if self.out_color: MYCOLOR = self.get_color(compname)
@@ -220,8 +223,8 @@ class MAPL_Tree():
         else:
             raise Exception('output format [%s] not recognized' % self.out_format)
 
-        return True # component has been written out 
-        
+        return True # component has been written out
+
     def write_end(self, level):
         """
         #-----------------------------------------------------------------------
@@ -236,15 +239,15 @@ class MAPL_Tree():
         """
         #-----------------------------------------------------------------------
         # recursive function that traverses the directory struture and prints
-        # out either an ascii table or xml type tree structure of GEOS-5
+        # out either an ascii table or xml type tree structure of GEOS
         #
         # inputs:
-        #    parentdir:  root GEOS-5 directory
+        #    parentdir:  root GEOS directory
         #    parentcomp: name of the root component
         #    level:      counter for recursion (default 0)
         #
         # output:
-        #    tree structure of GEOS-5 component names (children)
+        #    tree structure of GEOS component names (children)
         #-----------------------------------------------------------------------
         """
 
@@ -289,7 +292,7 @@ class MAPL_Tree():
         # process gridcomp src file and return a list of children components
         #
         # inputs:
-        #    fortsrc: fortran src file
+        #    fortsrc: Fortran src file
         #
         # output:
         #    list of children components
@@ -308,16 +311,16 @@ class MAPL_Tree():
     def traverse_dirname(self, parentdir, level=0):
         """
         #-----------------------------------------------------------------------
-        # recursive function that traverses the directory struture and prints
-        # out either an ascii table or xml type tree structure of GEOS-5 by
+        # recursive function that traverses the directory structure and prints
+        # out either an ascii table or xml type tree structure of GEOS by
         # processing the dir names
         #
         # inputs:
-        #    parentdir:  root GEOS-5 directory
+        #    parentdir:  root GEOS directory
         #    level:      counter for recursion (default 0)
         #
         # output:
-        #    tree structure of GEOS-5 component names (directory names)
+        #    tree structure of GEOS component names (directory names)
         #-----------------------------------------------------------------------
         """
 
@@ -327,11 +330,11 @@ class MAPL_Tree():
         # -------------------------
         NAM2WRT = parentdir.split('/')[-1]
 
-        written = self.write_comp(NAM2WRT, level) 
+        written = self.write_comp(NAM2WRT, level)
 
         if not written:
-            level = level - 1 # witing may have been suppressed when trimming
-        
+            level = level - 1 # writing may have been suppressed when trimming
+
         # Some of the external sub-repos in GEOS are very deep and
         # noisy. For most cases, we don't really care how deep they are
         # as we can't easily control that. So by default, we will "stop"
@@ -343,8 +346,10 @@ class MAPL_Tree():
         else:
             dirs_to_stop_traversing = []
 
+        # We strip off the commercial-at which might be prefixed or postfixed
+        # -------------------------------------------------------------------
         if os.path.basename(parentdir).strip('@') not in dirs_to_stop_traversing:
-            
+
             # get subdirectories of parentdir, consider
             # only those that end with _GridComp or ModPlug
             # ---------------------------------------------
@@ -365,6 +370,7 @@ class MAPL_Tree():
                             subdir.startswith('install')]
 
                     # This bypasses any subdir that matches our ignore rules
+                    # ------------------------------------------------------
                     if not any(rules_to_ignore):
                         chdirs.append(parentdir + os.sep + subdir)
 
@@ -377,7 +383,7 @@ class MAPL_Tree():
         # write end to stdout (xml)
         # -------------------------
         if written:
-                self.write_end(level)
+            self.write_end(level)
 
 # end class MAPL_Tree
 
@@ -396,10 +402,10 @@ def main():
     OUT_COLOR = comm_opts['color']
     ADD_LINK  = comm_opts['link']
     FULL_TREE = comm_opts['full']
-    TRIM = comm_opts['trim']
+    TRIM      = comm_opts['trim']
 
     MT = MAPL_Tree(OUT_FORM, OUT_COLOR, ADD_LINK, FULL_TREE, TRIM)
-    
+
     if OUT_TYPE=='chname':
         MT.traverse_chname(ROOTDIR, ROOTCOMP) # TO DO: remove this option
     elif OUT_TYPE=='dirname':
@@ -437,12 +443,11 @@ def parse_args():
 
     args = vars(p.parse_args()) # vars converts to dict
 
-    
     # checks on input values
     # ----------------------
     if not os.path.isdir(args['dir']):
         raise Exception('root directory [%s] does not exist' % args['dir'])
-    
+
     ### if args['mode'] == 'chname' and not args['rootcomp']:
     ###    p.error("--outtype=chname requires --rootcomp")
 
