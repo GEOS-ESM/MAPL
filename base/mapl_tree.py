@@ -291,6 +291,12 @@ class MAPL_Tree():
         NAM2WRT = parentdir.split('/')[-1]
         self.write_comp(NAM2WRT, level)
 
+        # Some of the external sub-repos in GEOS are very deep and
+        # noisy. For most cases, we don't really care how deep they are
+        # as we can't easily control that. So by default, we will "stop"
+        # these directories from being traversed. You can use the --full
+        # option if you wish to see them
+        # --------------------------------------------------------------
         if not self.full_tree:
             dirs_to_stop_traversing = ['@ecbuild','@FMS','@mom','@mom6','@geos-chem','@HEMCO']
         else:
@@ -303,6 +309,8 @@ class MAPL_Tree():
             dirlist = os.listdir(parentdir)
             chdirs = list()
 
+            # There are some directories we don't need to display with tree
+            # -------------------------------------------------------------
             dirs_to_ignore = ['.git', '.github', '.circleci','.mepo','.codebuild']
 
             for subdir in dirlist:
