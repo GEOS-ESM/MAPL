@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [2.10.1] - 2021-12-15
+
+### Fixed
+
+- Return 0 when there is no data for bit shave
+
 ## [2.10.0] - 2021-10-22
 
 ### Fixed
