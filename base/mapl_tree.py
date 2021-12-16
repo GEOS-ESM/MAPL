@@ -3,6 +3,8 @@
 import os, sys, glob
 import itertools, argparse
 
+__VERSION__ = '1.0.0'
+
 class MAPL_Tree():
     """
     #-----------------------------------------------------------------------
@@ -12,7 +14,8 @@ class MAPL_Tree():
     #-----------------------------------------------------------------------
     """
 
-    def __init__(self, output_format='txt', output_color=False, add_link=False, full_tree=False, trim=False):
+    def __init__(self, output_format='txt', output_color=False, add_link=False,
+                 full_tree=False, trim=False, repo=False):
         """
         #-----------------------------------------------------------------------
         # defines the following:
@@ -58,6 +61,10 @@ class MAPL_Tree():
         # Trim Grid Component names, etc
         # ------------------------------
         self.trim = trim
+
+        # Meanty for repository hierarchy
+        # -------------------------------
+        self.repo = repo
 
         # header for mindmap output
         # -------------------------
@@ -167,7 +174,7 @@ class MAPL_Tree():
         else:
             return None
 
-    def write_comp(self, compname_, level):
+    def write_comp(self, compname_, level, isRoot=False):
         """
         #-----------------------------------------------------------------------
         # write gridcomp name to stdout in the format specified by self.out_format
@@ -179,6 +186,7 @@ class MAPL_Tree():
         # ---------------------------------------------------
         Alias = dict ( Gcm        = 'GCM',
                        Mkiau      = 'MkIAU',
+                       Superdyn   = 'SuperDyn',
                        Datmodyn   = 'DatmoDyn',
                        Dataatm    = 'DataAtm',
                        Satsim     = 'SatSim',
@@ -191,15 +199,20 @@ class MAPL_Tree():
                        Vegdyn     = 'VegDyn',
                        )
 
-        if self.trim:
-            if not 'GridComp' in compname_:
+        if self.trim or self.repo:
+            is_not_comp = not ( 'GridComp' in compname_ )
+            is_not_repo = not ( isRoot or compname_[0]=='@' or compname_[-1]=='@' )
+            if self.trim and is_not_comp:
+                return False # not written
+            elif self.repo and is_not_repo:
                 return False # not written
             else:
-                compname = compname_.replace('@','')\
-                                    .replace('GridComp','')\
-                                    .replace('_','')\
-                                    .replace('GEOS','')
-                compname = compname[0].upper() + compname[1:]
+                compname = compname_.replace('@','')
+                if self.trim:
+                    compname = compname.replace('GridComp','')\
+                                       .replace('_','')\
+                                       .replace('GEOS','')
+                    compname = compname[0].upper() + compname[1:]
                 if compname in Alias:
                     compname = Alias[compname]
         else:
@@ -308,7 +321,7 @@ class MAPL_Tree():
         fin.close()
         return children
 
-    def traverse_dirname(self, parentdir, level=0):
+    def traverse_dirname(self, parentdir, level=0, isRoot=False):
         """
         #-----------------------------------------------------------------------
         # recursive function that traverses the directory structure and prints
@@ -330,7 +343,7 @@ class MAPL_Tree():
         # -------------------------
         NAM2WRT = parentdir.split('/')[-1]
 
-        written = self.write_comp(NAM2WRT, level)
+        written = self.write_comp(NAM2WRT, level, isRoot=isRoot)
 
         if not written:
             level = level - 1 # writing may have been suppressed when trimming
@@ -403,13 +416,18 @@ def main():
     ADD_LINK  = comm_opts['link']
     FULL_TREE = comm_opts['full']
     TRIM      = comm_opts['trim']
+    REPO      = comm_opts['repo']
 
-    MT = MAPL_Tree(OUT_FORM, OUT_COLOR, ADD_LINK, FULL_TREE, TRIM)
+    if ( REPO ):
+         FULL_TREE = True
+         TRIM = False
+    
+    MT = MAPL_Tree(OUT_FORM, OUT_COLOR, ADD_LINK, FULL_TREE, TRIM, REPO)
 
     if OUT_TYPE=='chname':
         MT.traverse_chname(ROOTDIR, ROOTCOMP) # TO DO: remove this option
     elif OUT_TYPE=='dirname':
-        MT.traverse_dirname(ROOTDIR)
+        MT.traverse_dirname(ROOTDIR,isRoot=True)
     else:
         raise Exception('output type [%s] not recognized' % OUT_TYPE)
 
@@ -435,6 +453,7 @@ def parse_args():
     p.add_argument('-F','--full', help='display full tree', action='store_true')
     p.add_argument('-l','--link', help='add external link to nodes (edit MAPL_Tree::get_link)', action='store_true')
     p.add_argument('-t','--trim', help='skip non GridComps, shorten names, use bult-in aliases',action='store_true')
+    p.add_argument('-r','--repo', help='shows only the repository hierarchy',action='store_true')
 
     # Do not document this, it should be removed
     # ------------------------------------------
