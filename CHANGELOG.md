@@ -17,6 +17,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.14.0] - 2021-12-16
+
+### Fixed
+
+- Move out allocatable string from if condition block in `VarConn.F90`
+- Updates to `mapl_tree.py` to let it work in the git GEOS
+  - Note that the interface has changed since the last time this worked, please see script help usage
+  - Disabled the `chname` style of running it as that does not work at the moment
+
+### Changed
+
+- Refactored support for using DSO's for components.  No change to interfaces.
+- Updated MAPL to exclusively use new timers - with improved format.
+
+### Removed
+
+- Legacy timer profiling
+
+### Deprecated
+
+- An interface for `MAPL_AddChild` allowing specification of a DSO has
+been deprecated due to non-conventional ordering of its arguments.  A
+new interface with conventional ordering has been introduced.
+
 ## [2.13.0] - 2021-12-08
 
 ### Fixed
@@ -26,6 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- MAPL_TimerOn/Off now invoke new timers as well as legacy timers.
+- Add  pfio_open_close.F90 file
 - Add the i and j index as variables to use to generate synthetic data in ExtDataDriver.x
 - Added ability to generate monthly checkpoints (fixes issue #1065)
 
@@ -40,6 +66,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_env v3.7.0 (Use MPT 2.25 at NAS on TOSS)
   - ESMA_cmake v3.7.2 (Fixes FindBaselibs issue found by @sdrabenh, f2py order fix)
 - Made the `MAPL_AddChildFromDSO` function system agnostic by using the CMake detected DSO suffix
+- Component level timer formatting is changed to provide more information.
+
+### Removed
+
+### Deprecated
 
 ## [2.12.1] - 2021-11-08
 

@@ -230,7 +230,6 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) ::rc
 
-      type (ESMF_VM) :: vm
       integer(kind=INT64) :: start_tick, stop_tick, tick_rate
       integer :: status
       class(Logger), pointer :: lgr
