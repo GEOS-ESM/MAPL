@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- move out allocatabe string from if condition block
 - Updates to `mapl_tree.py` to let it work in the git GEOS
   - Note that the interface has changed since the last time this worked, please see script help usage
   - Disabled the `chname` style of running it as that does not work at the moment
