@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated `components.yaml`
+  - ESMA_env v3.8.0 (Use Intel 2021.3)
+  - ESMA_cmake v3.8.0 (Use `-march=core-avx2` for Intel Fortran)
+  - These are non-zero-diff for GEOS
+- Updated the Intel CI image to Intel 2021.3
+
 ### Removed
 
 ### Deprecated
