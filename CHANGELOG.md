@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- gfortran can not assoicate an allocated string. Such blocks are changed 
+
 ### Added
 
 ### Changed

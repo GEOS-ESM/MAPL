@@ -4600,7 +4600,7 @@ end subroutine MAPL_DateStampGet
      I = META%get_num_children() + 1
      AddChildFromMeta = I
 
-     call AddChild_preamble(meta, I, name, grid, configfile, parentgc, petlist, child_meta, __RC__)
+     call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentgc, petList=petlist, child_meta=child_meta, __RC__)
      t_p => get_global_time_profiler()
      call t_p%start(trim(NAME),__RC__)
      call child_meta%t_profiler%start(__RC__)
@@ -4623,13 +4623,13 @@ end subroutine MAPL_DateStampGet
 
   end function AddChildFromMeta
 
-  recursive subroutine AddChild_preamble(meta, I, name, grid, configfile, parent_gc, petlist, child_meta, unusable, rc)
+  recursive subroutine AddChild_preamble(meta, I, name, grid, configfile, parentGC, petlist, child_meta, unusable, rc)
      type(MAPL_MetaComp), target,   intent(INOUT) :: meta
      integer, intent(in) :: I
      character(*), intent(in) :: name
      type(ESMF_Grid),  optional,    intent(INout) :: grid
      character(len=*), optional,    intent(IN   ) :: configfile
-     type(ESMF_GridComp), optional, intent(IN   ) :: parent_gc
+     type(ESMF_GridComp), optional, intent(IN   ) :: parentGC
      integer,           optional  , intent(IN   ) :: petList(:)
      type(MAPL_MetaComp), pointer                :: child_meta
      class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -4649,7 +4649,7 @@ end subroutine MAPL_DateStampGet
      type(ESMF_VM) :: vm
      integer :: comm
 
-     call make_full_name(name, child_name, parent_gc, __RC__)
+     call make_full_name(name, child_name, parentGC, __RC__)
      call grow_children_names(meta%GCNamelist, child_name, __RC__)
 
      allocate(tmp_meta, __STAT__)
@@ -4706,9 +4706,9 @@ end subroutine MAPL_DateStampGet
      end select
 
      ! put parentGC there
-     if (present(parent_gc)) then
+     if (present(parentGC)) then
         allocate(child_meta%parentGC, __STAT__)
-        child_meta%parentGC = parent_gc
+        child_meta%parentGC = parentGC
      end if
 
      lgr => logging%get_logger('MAPL.GENERIC')
@@ -4725,10 +4725,10 @@ end subroutine MAPL_DateStampGet
      _UNUSED_DUMMY(unusable)
   contains
 
-     subroutine make_full_name(name, child_name, parent_gc, unusable, rc)
+     subroutine make_full_name(name, child_name, parentGC, unusable, rc)
         character(*), intent(in) :: name
         character(*), intent(out) :: child_name
-        type(ESMF_GridComp), optional, intent(in) :: parent_gc
+        type(ESMF_GridComp), optional, intent(in) :: parentGC
         class(KeywordEnforcer), optional, intent(in) :: unusable
         integer, optional, intent(out) :: rc
         
@@ -4739,8 +4739,8 @@ end subroutine MAPL_DateStampGet
         child_name = trim(name)
         ! Adjust with parent name if provided
         if (index(name,":") == 0) then
-           if (present(parent_gc)) then
-              tmp_gc = parent_gc
+           if (present(parentGC)) then
+              tmp_gc = parentGC
               call ESMF_GridCompGet(tmp_gc, name=pname, __RC__)
               child_name = pname(1:index(pname,":"))//trim(name)
            end if
@@ -4830,6 +4830,7 @@ end subroutine MAPL_DateStampGet
 
      class(Logger), pointer :: lgr
      character(len=:), allocatable :: shared_object_library_to_load
+     character(len=6) :: extension
 
      call MAPL_InternalStateRetrieve(gc, meta, __RC__)
   
@@ -4841,24 +4842,23 @@ end subroutine MAPL_DateStampGet
      I = meta%get_num_children() + 1
      AddChildFromDSO = I
 
-     call AddChild_preamble(meta, I, name, grid, configfile, gc, petlist, child_meta, __RC__)
+     call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=gc, petList=petlist, child_meta=child_meta, __RC__)
 
      t_p => get_global_time_profiler()
      call t_p%start(trim(name),__RC__)
      call child_meta%t_profiler%start(__RC__)
      call child_meta%t_profiler%start('SetService',__RC__)
 
-     associate (extension => get_file_extension(SharedObj))
-       _ASSERT(is_supported_dso_name(SharedObj), "AddChildFromDSO: Unsupported shared library extension '"//extension//",.")
-       if (.not. is_valid_dso_name(SharedObj)) then
-          lgr => logging%get_logger('MAPL.GENERIC')
-          call lgr%warning("AddChildFromDSO: changing shared library extension '%a~' to system specific extension '%a~'.", &
-               extension, SYSTEM_DSO_EXTENSION)
-       end if
-     end associate
+     _ASSERT(is_supported_dso_name(SharedObj), "AddChildFromDSO: Unsupported shared library extension '"//extension//",.")
+
+     if (.not. is_valid_dso_name(SharedObj)) then
+        lgr => logging%get_logger('MAPL.GENERIC')
+        extension = get_file_extension(SharedObj)
+        call lgr%warning("AddChildFromDSO: changing shared library extension '%a~' to system specific extension '%a~'.", &
+            extension, SYSTEM_DSO_EXTENSION)
+     end if
 
      shared_object_library_to_load = adjust_dso_name(sharedObj)
-
      call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
           sharedObj=shared_object_library_to_load,userRC=userRC,__RC__)
      _VERIFY(userRC)
@@ -4889,7 +4889,7 @@ end subroutine MAPL_DateStampGet
      integer                    :: status
 
      _ASSERT(present(ParentGC),'must have a parent to use this interface')
-     addchildfromdso_old = addChildFromDSO(parentGC, name, userRoutine, grid, sharedObj, petList, configFile, __RC__)
+     addchildfromdso_old = addChildFromDSO(parentGC, name, userRoutine, grid=grid, sharedObj=sharedObj, petList=petList, configFile=configFile, __RC__)
 
      _RETURN(ESMF_SUCCESS)
   end function AddChildFromDSO_Old

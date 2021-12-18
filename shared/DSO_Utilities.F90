@@ -50,9 +50,7 @@ contains
       character(:), allocatable :: adjust_dso_name
       character(*), intent(in) :: guess
 
-      associate (basename => get_file_basename(guess), extension => get_file_extension(guess))
-        adjust_dso_name = basename // SYSTEM_DSO_EXTENSION
-     end associate
+      adjust_dso_name = get_file_basename(guess) // SYSTEM_DSO_EXTENSION
 
   end function adjust_dso_name
 
