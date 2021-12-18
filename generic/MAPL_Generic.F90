@@ -4848,12 +4848,12 @@ end subroutine MAPL_DateStampGet
      call t_p%start(trim(name),__RC__)
      call child_meta%t_profiler%start(__RC__)
      call child_meta%t_profiler%start('SetService',__RC__)
-
+     
+     extension = get_file_extension(SharedObj)
      _ASSERT(is_supported_dso_name(SharedObj), "AddChildFromDSO: Unsupported shared library extension '"//extension//",.")
 
      if (.not. is_valid_dso_name(SharedObj)) then
         lgr => logging%get_logger('MAPL.GENERIC')
-        extension = get_file_extension(SharedObj)
         call lgr%warning("AddChildFromDSO: changing shared library extension '%a~' to system specific extension '%a~'.", &
             extension, SYSTEM_DSO_EXTENSION)
      end if
