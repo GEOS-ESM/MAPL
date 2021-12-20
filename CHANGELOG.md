@@ -9,9 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- gfortran can not assoicate an allocated string. Such blocks are changed 
-
 ### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.14.1] - 2021-12-20
+
+### Fixed
+
+- gfortran can not associate an allocated string. Such blocks are changed
 
 ### Changed
 
@@ -20,10 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_cmake v3.8.0 (Use `-march=core-avx2` for Intel Fortran)
   - These are non-zero-diff for GEOS
 - Updated the Intel CI image to Intel 2021.3
-
-### Removed
-
-### Deprecated
 
 ## [2.14.0] - 2021-12-16
 
