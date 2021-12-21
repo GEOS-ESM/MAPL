@@ -213,6 +213,22 @@ commands:
             fi
             mepo status
 
+  # NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE   #
+  # This will need to go away once MAPL v3 goes into develop #
+  checkout_mapl3_release_branch:
+    description: "Mepo checkout release/MAPL-v3 branches"
+    parameters:
+      repo:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: "Mepo checkout release/MAPL-v3 branches"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
+            mepo checkout-if-exists release/MAPL-v3
+            mepo status
+
 jobs:
   build-and-test-MAPL:
     parameters:
@@ -260,6 +276,8 @@ jobs:
           repo: GEOSgcm
       - mepodevelop:
           repo: GEOSgcm
+      - checkout_mapl3_release_branch:
+          repo: GEOSgcm
       - checkout_mapl_branch:
           repo: GEOSgcm
       - cmake:
@@ -290,8 +308,10 @@ jobs:
           repo: GEOSldas
       - checkout_branch_on_fixture:
           repo: GEOSldas
-          branch: develop
+          branch: release/MAPL-v3
       - mepoclone:
+          repo: GEOSldas
+      - checkout_mapl3_release_branch:
           repo: GEOSldas
       - checkout_mapl_branch:
           repo: GEOSldas
@@ -316,6 +336,8 @@ jobs:
       - mepoclone:
           repo: GEOSadas
       - mepodevelop:
+          repo: GEOSadas
+      - checkout_mapl3_release_branch:
           repo: GEOSadas
       - checkout_mapl_branch:
           repo: GEOSadas
