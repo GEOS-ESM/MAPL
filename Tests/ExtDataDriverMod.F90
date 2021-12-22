@@ -26,7 +26,7 @@ module ExtDataDriverMod
       type(MpiServer), pointer :: i_server=>null()
       type(MpiServer), pointer :: o_server=>null()
       type(DirectoryService) :: directory_service
-      class (MAPL_CapOptions), allocatable :: cap_options
+      type (MAPL_CapOptions) :: cap_options
       type(SplitCommunicator) :: split_comm
 
    contains
@@ -45,8 +45,8 @@ contains
       type(ExtDataDriver) :: driver
       character(*), intent(in) :: name
       procedure() :: set_services
-      class (KeywordEnforcer),  optional, intent(in) :: unusable
-      class ( MAPL_CapOptions), optional, intent(in) :: cap_options
+      class(KeywordEnforcer),  optional, intent(in) :: unusable
+      class(MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
      
       integer :: status
@@ -55,9 +55,9 @@ contains
       driver%name = name
       driver%set_services => set_services
       if (present(cap_options)) then
-         allocate(driver%cap_options, source = cap_options)
+         driver%cap_options = cap_options
       else
-         allocate(driver%cap_options, source = MAPL_CapOptions())
+         driver%cap_options = MAPL_CapOptions()
       endif
       call driver%initialize_mpi()
       call MAPL_Initialize(rc=status)

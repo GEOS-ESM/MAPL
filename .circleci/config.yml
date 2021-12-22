@@ -17,7 +17,7 @@ executors:
 
   ifort:
     docker:
-      - image: gmao/ubuntu20-geos-env:v6.2.8-intelmpi_2021.2.0-intel_2021.2.0
+      - image: gmao/ubuntu20-geos-env:v6.2.8-intelmpi_2021.3.0-intel_2021.3.0
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_AUTH_TOKEN
@@ -32,14 +32,14 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
-          context: 
+          context:
             - docker-hub-creds
       - build-GEOSgcm:
           name: build-GEOSgcm-on-<< matrix.compiler >>
           matrix:
             parameters:
               compiler: [gfortran, ifort]
-          context: 
+          context:
             - docker-hub-creds
       ###################################################
       # - make-FV3-exp:                                 #
@@ -66,7 +66,7 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
-          context: 
+          context:
             - docker-hub-creds
       - build-GEOSadas:
           name: build-GEOSadas-on-<< matrix.compiler >>
@@ -84,7 +84,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Versions, etc."
           command: |
             mpirun --version && << parameters.compiler >> --version && echo $BASEDIR && pwd && ls && echo "$(nproc)"
@@ -96,7 +96,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Checkout fixture"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}
@@ -112,7 +112,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Checkout branch on fixture"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
@@ -125,7 +125,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Mepo clone external repos"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
@@ -139,7 +139,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
@@ -156,7 +156,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Run CMake"
           command: |
             mkdir -p /logfiles
@@ -172,7 +172,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Build and install"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
@@ -186,7 +186,7 @@ commands:
         type: string
         default: ""
     steps:
-      - run: 
+      - run:
           name: "Mepo checkout MAPL branch"
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>/src/Shared/@MAPL

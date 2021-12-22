@@ -23,6 +23,8 @@ set (srcs
   FileMetadata.F90
   FileMetadataVector.F90
   NetCDF4_FileFormatter.F90
+  pfio_get_att_string.c
+  NetCDF_Supplement.F90
   pFIO_Utilities.F90
   pFIO.F90
 
@@ -103,6 +105,12 @@ set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${t
 foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
+
+ecbuild_add_executable (
+   TARGET pfio_open_close.x
+   SOURCES pfio_open_close.F90
+   LIBS ${this} )
+set_target_properties (pfio_open_close.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 ecbuild_add_executable (
    TARGET pfio_server_demo.x

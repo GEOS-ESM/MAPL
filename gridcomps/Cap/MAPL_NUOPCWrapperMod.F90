@@ -19,6 +19,7 @@ module MAPL_NUOPCWrapperMod
     use pFIO
     use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler
     use pflogger, only: pfl_initialize => initialize
+    use mapl_CapOptionsMod
 
     implicit none
     private

@@ -147,6 +147,7 @@ contains
       integer                               :: I
       class(Logger), pointer :: lgr
       type(VarConnType), pointer :: conn
+      character(len=ESMF_MAXSTR)            :: from_name, to_name
 
       associate (conn_v => this%conn_v)
         checkUnused = .true.
@@ -157,9 +158,11 @@ contains
            if (.not. conn%USED) then
               checkUnused = .false.
               lgr => logging%get_logger('MAPL.GENERIC')
+              from_name = conn%FROM%get_short_name()
+              to_name   = conn%TO%get_short_name()
               call lgr%error( &
                    'SRC_NAME: <%a~>  DST_NAME: <%a~> is not satisfied', &
-                   trim(conn%FROM%get_short_name()),trim(conn%TO%get_short_name()))
+                   trim(from_name),trim(to_name))
            end if
         end do
       end associate
@@ -181,6 +184,7 @@ contains
       integer                               :: I
       integer                               :: TI, FE
       type(VarConnType), pointer :: conn
+      character(len=ESMF_MAXSTR) :: name
 
       varIsConnected_IE = .false.
 
@@ -188,7 +192,8 @@ contains
       associate (conn_v => this%conn_v)
         do I = 1, conn_v%size()
            conn => conn_v%of(i)
-           if (conn%TO%get_short_name() /= IMPORT_NAME) then
+           name = conn%TO%get_short_name()
+           if (name /= IMPORT_NAME) then
               cycle
            end if
            TI = conn%to%get_gc_id()
@@ -225,6 +230,7 @@ contains
       integer                               :: I
       integer                               :: TI
       type(VarConnType), pointer :: conn
+      character(len=ESMF_MAXSTR) :: name
 
       varIsConnected_name = .false.
 
@@ -232,7 +238,8 @@ contains
         ! try to find a match with "TO"
         do I = 1, conn_v%size()
            conn => conn_v%of(i)
-           if (conn%to%get_short_name() /= IMPORT_NAME) then
+           name = conn%to%get_short_name()
+           if (name /= IMPORT_NAME) then
               cycle
            end if
            
@@ -260,11 +267,13 @@ contains
       type(VarConnType), pointer :: conn
       integer                               :: I
       integer                               :: TI
+      character(len=ESMF_MAXSTR) :: name
 
       associate (conn_v => this%conn_v)
         do I = 1, conn_v%size()
            conn => conn_v%of(i)
-           if (conn%FROM%get_short_name() /= SHORT_NAME) then
+           name = conn%FROM%get_short_name()
+           if (name /= SHORT_NAME) then
               cycle
            end if
            TI = conn%to%get_gc_id()

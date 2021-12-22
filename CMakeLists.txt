@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.11.0
+  VERSION 2.14.1
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the default build type to release
@@ -73,6 +73,10 @@ message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 if(NOT TARGET GFTL::gftl)
   # MAPL currently requires at least GFTL 1.5.1
   find_package(GFTL 1.5.1 REQUIRED)
+else()
+  if (GFTL_VERSION VERSION_LESS 1.5.1)
+    message(FATAL_ERROR "GFTL must be at least 1.5.1 - check baselibs version.")
+  endif ()
 endif()
 if(NOT TARGET GFTL_SHARED::gftl-shared)
   find_package(GFTL_SHARED REQUIRED)

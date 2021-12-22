@@ -17,11 +17,11 @@ program main
       use, intrinsic :: iso_fortran_env, only: REAL64
       use mpi
       use MAPL
+      use MAPL_FlapCliMod
+      use MAPL_CapOptionsMod
       use pFIO_UnlimitedEntityMod
-
       implicit none
 
-      type(MAPL_FlapCLI)      :: cli
       type(MAPL_CapOptions)   :: cap_options
       type(ServerManager)     :: ioserver_manager
       type(SplitCommunicator) :: split_comm
@@ -57,9 +57,9 @@ program main
       integer, allocatable :: map_domainY(:,:,:)
       integer, allocatable :: map_proc(:,:)
 
-      integer :: client_comm,rank, npes, ierror, provided,required
-      integer :: status, pe_id, rc
-      integer :: i, j, k, hist_id, stage_id, n, num_steps
+      integer :: client_comm, npes, ierror
+      integer :: status, pe_id
+      integer :: i, j, k, hist_id, n, num_steps
       integer :: i1, i2, j1, j2, k1, k2
       real :: hh
       real, allocatable :: local_temp(:,:,:)
@@ -74,9 +74,10 @@ program main
 !BOC
 
       ! Read and parse the command line, and set parameters
-      cli = MAPL_FlapCLI(description = 'GEOS AGCM', &
-                         authors     = 'GMAO')
-      cap_options = MAPL_CapOptions(cli)
+      cap_options = MAPL_FlapCLI( &
+           description = 'GEOS AGCM', &
+           authors     = 'GMAO', &
+           dummy       = '')
 
       call MPI_init(ierror)
 

@@ -23,7 +23,7 @@ typedef struct{
   entry_t *entry_list;
   int next_entry, size;
 }  bucket_t;
-  
+
 typedef struct {
   bucket_t *bucket_list;
   int num_entries, num_buckets;
@@ -88,7 +88,7 @@ int create_hash(int nbuckets)
   // If newhash requires bigger heap, reallocate it
 
   if(newhash==hash_heap_size) {
-    hash_heap = 
+    hash_heap =
       (hash_t *)realloc(hash_heap,sizeof(hash_t)*(hash_heap_size+=HEAPCHUNK));
 
     if(!hash_heap) {
@@ -96,7 +96,7 @@ int create_hash(int nbuckets)
       exit(1);
     }
 
-    for(i=newhash;i<hash_heap_size;i++) 
+    for(i=newhash;i<hash_heap_size;i++)
       hash_heap[i].bucket_list=(bucket_t *)NULL;
   }
 
@@ -117,9 +117,9 @@ void destroy_hash(int h)
   } else if(!hash_heap[h].bucket_list) {
     printf("hash.c line=%d : Attempt to destroy uninitalized hash\n",__LINE__);
     exit(1);
-  } else { 
+  } else {
     for(i=0;i<hash_heap[h].num_buckets;i++) {
-	FREE(hash_heap[h].bucket_list[i].entry_list);
+       FREE(hash_heap[h].bucket_list[i].entry_list);
     }
     FREE(hash_heap[h].bucket_list);
   }
@@ -194,7 +194,7 @@ int increment_hash(int h, int i, int j, int k)
   } else if(!(hash_heap[h].bucket_list)) {
 
     printf("hash.c line=%d : Attempt to increment uninitalized hash %d i=%d j=%d %ld\n",
-	   __LINE__,h,i,j,(long) hash_heap[h].bucket_list);
+          __LINE__,h,i,j,(long) hash_heap[h].bucket_list);
     exit(1);
 
   } else {
@@ -211,7 +211,7 @@ int increment_hash(int h, int i, int j, int k)
       key=hash1(i);
     else if(k==INT_MAX)
       key=hash2(i,j);
-    else 
+    else
       key=hash2(hash2(i,j),k);
 
     hash   = hash_heap+h;
@@ -226,19 +226,19 @@ int increment_hash(int h, int i, int j, int k)
 
       int m;
       for(m=bucket->next_entry-1; m>=0; m--) {
-	entry = (bucket->entry_list) + m;
-	if(entry->i==i && entry->j==j && entry->k==k)
-	  return entry->m;
+         entry = (bucket->entry_list) + m;
+         if(entry->i==i && entry->j==j && entry->k==k)
+            return entry->m;
       }
 
       if(bucket->next_entry == bucket->size) {
-	bucket->size      += HASHCHUNK;
-	bucket->entry_list = 
-	  (entry_t *)realloc(bucket->entry_list,sizeof(entry_t)*bucket->size);
-	if(!bucket->entry_list) {
-	  printf("hash.c line=%d : Could not reallocate entry list\n",__LINE__);
-	  exit(1);
-	}
+         bucket->size      += HASHCHUNK;
+         bucket->entry_list =
+            (entry_t *)realloc(bucket->entry_list,sizeof(entry_t)*bucket->size);
+         if(!bucket->entry_list) {
+            printf("hash.c line=%d : Could not reallocate entry list\n",__LINE__);
+            exit(1);
+         }
       }
 
     }
@@ -253,7 +253,7 @@ int increment_hash(int h, int i, int j, int k)
     entry->m = hash->num_entries;
 
     return entry->m;
-  }  
+  }
 }
 
 // Hash function from 2 ints to 1 int

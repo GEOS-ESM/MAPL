@@ -15,7 +15,6 @@ module MAPL_LatLonGridFactoryMod
    use ESMF
    use pFIO
    use MAPL_CommsMod
-   use MAPL_IOMod, only : GETFILE, FREE_FILE
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -1050,7 +1049,7 @@ contains
 
          elseif (MAPL_AM_I_Root(VM)) then
 
-            UNIT = GETFILE ( trim(file_name), form="formatted", rc=status )
+            open(newunit=UNIT, file=trim(file_name), form="formatted", iostat=status )
             _VERIFY(STATUS)
             read(UNIT,*) total
             if (total /= n) then
@@ -1060,7 +1059,7 @@ contains
             do i = 1,total
                 read(UNIT,*) values(i)
             enddo
-            call FREE_FILE(UNIT)
+            close(UNIT)
          endif
 
          call MAPL_CommsBcast(VM, values, n=N, ROOT=MAPL_Root, rc=status)

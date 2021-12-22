@@ -3,6 +3,7 @@
 import os, sys, glob
 import itertools, argparse
 
+__VERSION__ = '1.0.0'
 
 class MAPL_Tree():
     """
@@ -10,27 +11,32 @@ class MAPL_Tree():
     # defines a dict gc_dir with key: comp_name, val: corresponding_dir
     # the method getDirFromComp returns takes a component name and returns
     # the corresponding dir name
-    #-----------------------------------------------------------------------    
+    #-----------------------------------------------------------------------
     """
 
-    def __init__(self, output_format='ascii', output_color=False, add_link=False):
+    def __init__(self, output_format='txt', output_color=False, add_link=False,
+                 full_tree=False, trim=False, repo=False):
         """
-        #-----------------------------------------------------------------------    
+        #-----------------------------------------------------------------------
         # defines the following:
         #
         # attributes:
         #   name
         #   dict gc_dir
-        #   out_typ
-        # 
-        # for output type mindmap, prints <map version="0.9.0">
-        #-----------------------------------------------------------------------    
+        #   out_format
+        #   out_color
+        #   out_link
+        #   full_tree
+        #   space
+        #
+        # for output format mm, prints <map version="0.9.0">
+        #-----------------------------------------------------------------------
         """
 
         # who am i
         # --------
         self.name = 'mapl_tree'
-        
+
         # output format
         # -------------
         self.out_format = output_format
@@ -44,20 +50,32 @@ class MAPL_Tree():
         # ------------------
         self.add_link = add_link
 
+        # Option to display full tree
+        # ---------------------------
+        self.full_tree = full_tree
+
         # how much space
         # --------------
         self.space = '    '
 
+        # Trim Grid Component names, etc
+        # ------------------------------
+        self.trim = trim
+
+        # Meanty for repository hierarchy
+        # -------------------------------
+        self.repo = repo
+
         # header for mindmap output
         # -------------------------
-        if self.out_format=='mindmap':
+        if self.out_format=='mm':
             print('<map version="0.9.0">')
 
-        # the dictionary
-        # --------------
+        # the dictionary (used by non-maintained chname style)
+        # ----------------------------------------------------
         self.gc_dir = dict()
-        self.gc_dir['gcs'] = 'GEOSgcs_GridComp'
-        self.gc_dir['gcm'] = 'GEOSgcm_GridComp'
+        self.gc_dir['gcs'] = '@GEOSgcs_GridComp'
+        self.gc_dir['gcm'] = '@GEOSgcm_GridComp'
         self.gc_dir['ana'] = None
         self.gc_dir['dataatm'] = None
         self.gc_dir['agcm'] = 'GEOSagcm_GridComp'
@@ -67,51 +85,50 @@ class MAPL_Tree():
         self.gc_dir['scmdynamics'] = None
         self.gc_dir['superdynamics'] = 'GEOSsuperdyn_GridComp'
         self.gc_dir['physics'] = 'GEOSphysics_GridComp'
-        self.gc_dir['dyn'] = 'FVdycoreCubed_GridComp'
+        self.gc_dir['dyn'] = '@FVdycoreCubed_GridComp'
         self.gc_dir['gwd'] = 'GEOSgwd_GridComp'
         self.gc_dir['moist'] = 'GEOSmoist_GridComp'
         self.gc_dir['surface'] = 'GEOSsurface_GridComp'
         self.gc_dir['turbulence'] = 'GEOSturbulence_GridComp'
-        self.gc_dir['chemistry'] = 'GEOSchem_GridComp'
+        self.gc_dir['chemistry'] = '@GEOSchem_GridComp'
         self.gc_dir['radiation'] = 'GEOSradiation_GridComp'
         self.gc_dir['saltwater'] = 'GEOSsaltwater_GridComp'
         self.gc_dir['lake'] = 'GEOSlake_GridComp'
         self.gc_dir['landice'] = 'GEOSlandice_GridComp'
         self.gc_dir['land'] = 'GEOSland_GridComp'
-        self.gc_dir['vegdyn'] = 'GEOSvegdyn_GridComp' 
+        self.gc_dir['vegdyn'] = 'GEOSvegdyn_GridComp'
         self.gc_dir['catch'] = 'GEOScatch_GridComp'
         self.gc_dir['chemenv'] = None
         self.gc_dir['pchem'] = 'GEOSpchem_GridComp'
+        self.gc_dir['GOCART'] = '@GOCART'
         self.gc_dir['gocart'] = 'GOCART_GridComp'
+        self.gc_dir['gocart2g'] = 'GOCART2G_GridComp'
         self.gc_dir['gaas'] = 'GAAS_GridComp'
         self.gc_dir['h2o'] = None
         self.gc_dir['stratchem'] = 'StratChem_GridComp'
         self.gc_dir['gmichem'] = 'GMIchem_GridComp'
         self.gc_dir['carma'] = 'CARMAchem_GridComp'
-        self.gc_dir['geoschem'] = None
-        self.gc_dir['matrix'] = None
+        self.gc_dir['geoschem'] = 'GEOSCHEMchem_GridComp'
+        self.gc_dir['matrix'] = 'MATRIXchem_GridComp'
         self.gc_dir['mam'] = 'MAMchem_GridComp'
         self.gc_dir['solar'] = 'GEOSsolar_GridComp'
         self.gc_dir['irrad'] = 'GEOSirrad_GridComp'
         self.gc_dir['satsim'] = 'GEOSsatsim_GridComp'
-        self.gc_dir['obio'] = 'GEOSoceanbiogeochem_GridComp'
-        self.gc_dir['orad'] = 'GEOSorad_GridComp'
+        #self.gc_dir['obio'] = 'GEOS_OceanBioGeoChemGridComp'
+        self.gc_dir['obio'] = None
+        self.gc_dir['orad'] = 'GEOS_OradGridComp'
         self.gc_dir['seaice'] = 'GEOSseaice_GridComp'
-        self.gc_dir['ocean'] = 'GEOSocean_GridComp'
-
-
+        self.gc_dir['ocean'] = 'GEOS_OceanGridComp'
 
     def __del__(self):
         """
-        #-----------------------------------------------------------------------    
+        #-----------------------------------------------------------------------
         # for output format mindmap, prints </map>
-        #-----------------------------------------------------------------------    
+        #-----------------------------------------------------------------------
         """
 
-        if self.out_format=='mindmap':
+        if self.out_format=='mm':
             print('</map>')
-
-
 
     def getDirFromComp(self, comp):
         """
@@ -127,8 +144,6 @@ class MAPL_Tree():
         else:
             return None
 
-
-
     def get_link(self, compname):
         """
         #-----------------------------------------------------------------------
@@ -136,7 +151,7 @@ class MAPL_Tree():
         # if no link exists, returns None
         #-----------------------------------------------------------------------
         """
-        
+
         if compname.lower() == 'agcm':
             return 'http://geos5.org/wiki/index.php?title=AGCM_Structure'
         elif compname.lower() == 'ogcm':
@@ -146,8 +161,6 @@ class MAPL_Tree():
         else:
             return None
 
-
-
     def get_color(self, compname):
         """
         #-----------------------------------------------------------------------
@@ -155,40 +168,75 @@ class MAPL_Tree():
         #-----------------------------------------------------------------------
         """
 
-        if compname.lower() in ['surface', 'lake', 'landice', 
+        if compname.lower() in ['surface', 'lake', 'landice',
                                 'land', 'saltwater', 'vegdyn', 'catch']:
             return '#008000'
         else:
             return None
 
-
-
-    def write_comp(self, compname, level):
+    def write_comp(self, compname_, level, isRoot=False):
         """
         #-----------------------------------------------------------------------
-        # write gridcomp name to stdout in the format specified by self.out_typ
+        # write gridcomp name to stdout in the format specified by self.out_format
+        # On output return True/False if component name has been written/suppressed
         #-----------------------------------------------------------------------
         """
+
+        # Adhoc name patches for readability (trim mode only)
+        # ---------------------------------------------------
+        Alias = dict ( Gcm        = 'GCM',
+                       Mkiau      = 'MkIAU',
+                       Superdyn   = 'SuperDyn',
+                       Datmodyn   = 'DatmoDyn',
+                       Dataatm    = 'DataAtm',
+                       Satsim     = 'SatSim',
+                       Seaice     = 'SeaIce',
+                       Datasea    = 'DataSea',
+                       Dataseaice = 'DataSeaIce',
+                       Landice    = 'LandIce',
+                       Saltwater  = 'SaltWater',
+                       Gwd        = 'GWD',
+                       Vegdyn     = 'VegDyn',
+                       )
+
+        if self.trim or self.repo:
+            is_not_comp = not ( 'GridComp' in compname_ )
+            is_not_repo = not ( isRoot or compname_[0]=='@' or compname_[-1]=='@' )
+            if self.trim and is_not_comp:
+                return False # not written
+            elif self.repo and is_not_repo:
+                return False # not written
+            else:
+                compname = compname_.replace('@','')
+                if self.trim:
+                    compname = compname.replace('GridComp','')\
+                                       .replace('_','')\
+                                       .replace('GEOS','')
+                    compname = compname[0].upper() + compname[1:]
+                if compname in Alias:
+                    compname = Alias[compname]
+        else:
+            compname = compname_
 
         if self.add_link: MYLINK = self.get_link(compname)
         else: MYLINK = None
         if self.out_color: MYCOLOR = self.get_color(compname)
         else: MYCOLOR = None
 
-        if self.out_format=='mindmap':
+        if self.out_format=='mm':
             txt2prnt = level*self.space + '<node TEXT="' + compname + '"'
             if MYLINK:
                 txt2prnt += ' LINK="' + MYLINK + '"'
             if MYCOLOR:
                 txt2prnt += ' COLOR="' + MYCOLOR + '"'
             print(txt2prnt +'>')
-            
-        elif self.out_format=='ascii':
+
+        elif self.out_format=='txt':
             print(level*('|'+self.space) + compname)
         else:
             raise Exception('output format [%s] not recognized' % self.out_format)
-            
 
+        return True # component has been written out
 
     def write_end(self, level):
         """
@@ -197,24 +245,22 @@ class MAPL_Tree():
         #-----------------------------------------------------------------------
         """
 
-        if self.out_format=='mindmap':
+        if self.out_format=='mm':
             print(level*self.space + '</node>')
-
-
 
     def traverse_chname(self, parentdir, parentcomp, level=0):
         """
         #-----------------------------------------------------------------------
         # recursive function that traverses the directory struture and prints
-        # out either an ascii table or xml type tree structure of GEOS-5
+        # out either an ascii table or xml type tree structure of GEOS
         #
         # inputs:
-        #    parentdir:  root GEOS-5 directory
+        #    parentdir:  root GEOS directory
         #    parentcomp: name of the root component
         #    level:      counter for recursion (default 0)
         #
         # output:
-        #    tree structure of GEOS-5 component names (children)
+        #    tree structure of GEOS component names (children)
         #-----------------------------------------------------------------------
         """
 
@@ -225,7 +271,6 @@ class MAPL_Tree():
         filelist = os.listdir(parentdir)
         src_files = glob.glob(parentdir+os.sep+'*GridComp.F90')
 
-
         # get children comp names from src files
         # ch_comps is a list of lists, and needs to be flattened
         # ------------------------------------------------------
@@ -234,11 +279,9 @@ class MAPL_Tree():
             ch_comps.append(self.parse_fort_src(file))
         ch_comps = list(itertools.chain(*ch_comps))
 
-
         # write comp name to stdout
         # -------------------------
         self.write_comp(parentcomp, level)
-
 
         # for each child comp, if a corresponding
         # directory exists, recurse. else print child name
@@ -252,12 +295,9 @@ class MAPL_Tree():
                 self.write_comp(child_comp, level+1)
                 self.write_end(level+1)
 
-
         # write end to stdout (xml)
         # -------------------------
         self.write_end(level)
-
-
 
     def parse_fort_src(self, fortsrc):
         """
@@ -265,7 +305,7 @@ class MAPL_Tree():
         # process gridcomp src file and return a list of children components
         #
         # inputs:
-        #    fortsrc: fortran src file
+        #    fortsrc: Fortran src file
         #
         # output:
         #    list of children components
@@ -281,20 +321,19 @@ class MAPL_Tree():
         fin.close()
         return children
 
-
-    def traverse_dirname(self, parentdir, level=0):
+    def traverse_dirname(self, parentdir, level=0, isRoot=False):
         """
         #-----------------------------------------------------------------------
-        # recursive function that traverses the directory struture and prints
-        # out either an ascii table or xml type tree structure of GEOS-5 by
+        # recursive function that traverses the directory structure and prints
+        # out either an ascii table or xml type tree structure of GEOS by
         # processing the dir names
         #
         # inputs:
-        #    parentdir:  root GEOS-5 directory
+        #    parentdir:  root GEOS directory
         #    level:      counter for recursion (default 0)
         #
         # output:
-        #    tree structure of GEOS-5 component names (directory names)
+        #    tree structure of GEOS component names (directory names)
         #-----------------------------------------------------------------------
         """
 
@@ -302,33 +341,64 @@ class MAPL_Tree():
 
         # write comp name to stdout
         # -------------------------
-        NAM2WRT = parentdir.split('/')[-1].split('_')[0].replace('GEOS','').replace('GMAO','')
-        self.write_comp(NAM2WRT, level)
+        NAM2WRT = parentdir.split('/')[-1]
 
-        # get subdirectories of parentdir, consider 
-        # only those that end with _GridComp or ModPlug
-        # ---------------------------------------------
-        dirlist = os.listdir(parentdir)
-        chdirs = list()
-        for subdir in dirlist:
-            if os.path.isdir(parentdir + os.sep + subdir):
-                if ('_GridComp' in subdir) or ('PlugMod' in subdir):
-                    chdirs.append(parentdir + os.sep + subdir)
+        written = self.write_comp(NAM2WRT, level, isRoot=isRoot)
 
-        # if chdirs is non-empty, recurse, else do nothing
-        # ------------------------------------------------
-        if chdirs:
-            for chdir in chdirs:
-                self.traverse_dirname(chdir, level+1)
+        if not written:
+            level = level - 1 # writing may have been suppressed when trimming
+
+        # Some of the external sub-repos in GEOS are very deep and
+        # noisy. For most cases, we don't really care how deep they are
+        # as we can't easily control that. So by default, we will "stop"
+        # these directories from being traversed. You can use the --full
+        # option if you wish to see them
+        # --------------------------------------------------------------
+        if not self.full_tree:
+            dirs_to_stop_traversing = ['ecbuild','FMS','mom','mom6','geos-chem','HEMCO']
+        else:
+            dirs_to_stop_traversing = []
+
+        # We strip off the commercial-at which might be prefixed or postfixed
+        # -------------------------------------------------------------------
+        if os.path.basename(parentdir).strip('@') not in dirs_to_stop_traversing:
+
+            # get subdirectories of parentdir, consider
+            # only those that end with _GridComp or ModPlug
+            # ---------------------------------------------
+            dirlist = os.listdir(parentdir)
+            chdirs = list()
+
+            # There are some directories we don't need to display with tree
+            # -------------------------------------------------------------
+            dirs_to_ignore = ['.git', '.github', '.circleci','.mepo','.codebuild']
+
+            for subdir in dirlist:
+                if os.path.isdir(parentdir + os.sep + subdir):
+
+                    # We also want to ignore any build or install directories
+                    # -------------------------------------------------------
+                    rules_to_ignore = [subdir in dirs_to_ignore,
+                            subdir.startswith('build'),
+                            subdir.startswith('install')]
+
+                    # This bypasses any subdir that matches our ignore rules
+                    # ------------------------------------------------------
+                    if not any(rules_to_ignore):
+                        chdirs.append(parentdir + os.sep + subdir)
+
+            # if chdirs is non-empty, recurse, else do nothing
+            # ------------------------------------------------
+            if chdirs:
+                for chdir in chdirs:
+                    self.traverse_dirname(chdir, level+1)
 
         # write end to stdout (xml)
         # -------------------------
-        self.write_end(level)
-
+        if written:
+            self.write_end(level)
 
 # end class MAPL_Tree
-
-
 
 def main():
     """
@@ -338,19 +408,28 @@ def main():
     """
 
     comm_opts = parse_args()
-    ROOTDIR   = comm_opts['rootdir']
-    ROOTCOMP  = comm_opts['rootcomp']
-    OUT_TYPE  = comm_opts['outtype']
-    OUT_FORM  = comm_opts['outform']
+    ROOTDIR   = comm_opts['dir']
+    ROOTCOMP  = None # comm_opts['rootcomp']
+    OUT_TYPE  = 'dirname'  # comm_opts['outtype']
+    OUT_FORM  = comm_opts['format']
     OUT_COLOR = comm_opts['color']
     ADD_LINK  = comm_opts['link']
+    FULL_TREE = comm_opts['full']
+    TRIM      = comm_opts['trim']
+    REPO      = comm_opts['repo']
 
-    MT = MAPL_Tree(OUT_FORM, OUT_COLOR, ADD_LINK)
-    if OUT_TYPE=='chname': MT.traverse_chname(ROOTDIR, ROOTCOMP)
-    elif OUT_TYPE=='dirname': MT.traverse_dirname(ROOTDIR)
-    else: raise Exception('output type [%s] not recognized' % OUT_TYPE)
+    if ( REPO ):
+         FULL_TREE = True
+         TRIM = False
+    
+    MT = MAPL_Tree(OUT_FORM, OUT_COLOR, ADD_LINK, FULL_TREE, TRIM, REPO)
 
-
+    if OUT_TYPE=='chname':
+        MT.traverse_chname(ROOTDIR, ROOTCOMP) # TO DO: remove this option
+    elif OUT_TYPE=='dirname':
+        MT.traverse_dirname(ROOTDIR,isRoot=True)
+    else:
+        raise Exception('output type [%s] not recognized' % OUT_TYPE)
 
 def parse_args():
     """
@@ -367,30 +446,32 @@ def parse_args():
 
     # top level directory, output type
     # --------------------------------
-    p.add_argument('--rootdir', help='top level GridComp directory', required=True)
-    p.add_argument('--rootcomp', help='top level GridComp name', required=True)
-    p.add_argument('--outtype', help='output type (dirname/chname)', required=True)
-    p.add_argument('--outform', help='output format (ascii/mindmap)', required=True)
-    p.add_argument('--color', help='color nodes (edit MAPL_Tree::get_color)', action='store_true')
-    p.add_argument('--link', help='add external link to nodes (edit MAPL_Tree::get_link)', action='store_true')
+    p.add_argument('-c','--color', help='color nodes (edit MAPL_Tree::get_color)', action='store_true')
+    p.add_argument('-d', '--dir', help='top level GridComp directory', default='.')
+    p.add_argument('-f','--format', help='output format: ascii (txt) or mindmap (mm)',
+                    choices=['txt','mm'], default='txt')
+    p.add_argument('-F','--full', help='display full tree', action='store_true')
+    p.add_argument('-l','--link', help='add external link to nodes (edit MAPL_Tree::get_link)', action='store_true')
+    p.add_argument('-t','--trim', help='skip non GridComps, shorten names, use bult-in aliases',action='store_true')
+    p.add_argument('-r','--repo', help='shows only the repository hierarchy',action='store_true')
+
+    # Do not document this, it should be removed
+    # ------------------------------------------
+    # p.add_argument('-m', '--mode', help='output mode (dirname/chname)', choices=['dirname','chname'], default='dirname')
+    # p.add_argument('-c','--comp', help='top level GridComp name', required=False)
 
     args = vars(p.parse_args()) # vars converts to dict
 
     # checks on input values
     # ----------------------
-    if '_GridComp' not in args['rootdir']:
-        raise Exception('rootdir is not a GridComp')
-    if not os.path.isdir(args['rootdir']):
-        raise Exception('rootdir [%s] does not exist' % args['rootdir'])
-    if args['outtype'] not in ['dirname', 'chname']:
-        raise Exception('output type is one of dirname/chname, not [%s]' % args['outtype'])
-    if args['outform'] not in ['ascii', 'mindmap']:
-        raise Exception('output format is one of ascii/mindmap, not [%s]' % args['outform'])
+    if not os.path.isdir(args['dir']):
+        raise Exception('root directory [%s] does not exist' % args['dir'])
+
+    ### if args['mode'] == 'chname' and not args['rootcomp']:
+    ###    p.error("--outtype=chname requires --rootcomp")
 
     return args
 
-
-
 if __name__=="__main__":
     main()
-    
+

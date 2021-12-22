@@ -9,6 +9,94 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.14.1] - 2021-12-20
+
+### Fixed
+
+- gfortran can not associate an allocated string. Such blocks are changed
+
+### Changed
+
+- Updated `components.yaml`
+  - ESMA_env v3.8.0 (Use Intel 2021.3)
+  - ESMA_cmake v3.8.0 (Use `-march=core-avx2` for Intel Fortran)
+  - These are non-zero-diff for GEOS
+- Updated the Intel CI image to Intel 2021.3
+
+## [2.14.0] - 2021-12-16
+
+### Fixed
+
+- Move out allocatable string from if condition block in `VarConn.F90`
+- Updates to `mapl_tree.py` to let it work in the git GEOS
+  - Note that the interface has changed since the last time this worked, please see script help usage
+  - Disabled the `chname` style of running it as that does not work at the moment
+
+### Changed
+
+- Refactored support for using DSO's for components.  No change to interfaces.
+- Updated MAPL to exclusively use new timers - with improved format.
+
+### Removed
+
+- Legacy timer profiling
+
+### Deprecated
+
+- An interface for `MAPL_AddChild` allowing specification of a DSO has
+been deprecated due to non-conventional ordering of its arguments.  A
+new interface with conventional ordering has been introduced.
+
+## [2.13.0] - 2021-12-08
+
+### Fixed
+
+- Return 0 when there is no data for bit shave
+- Removed tab characters from Fortran (and C) code
+
+### Added
+
+- MAPL_TimerOn/Off now invoke new timers as well as legacy timers.
+- Add  pfio_open_close.F90 file
+- Add the i and j index as variables to use to generate synthetic data in ExtDataDriver.x
+- Added ability to generate monthly checkpoints (fixes issue #1065)
+
+### Changed
+
+- Changed the way how a writer is chosen. Previously, a writing processor is chosen as long as it is idle.
+  Now, an idle processor is chosen from a node with the most idle processors.
+- Changed error checking `_ASSERT` to use `__RC__` macro and `_VERIFY` for UserRC
+- Changed `_ASSERT` with `.and.` conditional to separate `_ASSERT` to improve error message
+- Changed usage of MAPL_IO subroutines in CubedSphere and LatLon Grid Factories to open command with newunit clause
+- Updated `components.yaml`
+  - ESMA_env v3.7.0 (Use MPT 2.25 at NAS on TOSS)
+  - ESMA_cmake v3.7.2 (Fixes FindBaselibs issue found by @sdrabenh, f2py order fix)
+- Made the `MAPL_AddChildFromDSO` function system agnostic by using the CMake detected DSO suffix
+- Component level timer formatting is changed to provide more information.
+
+### Removed
+
+### Deprecated
+
+## [2.12.1] - 2021-11-08
+
+### Fixed
+
+- Fixes #1186.  Fragile CMake logic for checking minimum version requirements for gFTL.
+
+## [2.12.0] - 2021-11-03
+
+### Fixed
+
+- Fixes #951. Adjusted the size for the internal write, which is compiler dependent. For reals: 15 for Inter, 16 for NAG and Portland group, 18 for gfortran.
 - Fixed bug when comparing grid equality in the cubed-sphere factory
 - Fixes handling of nested states in MAPL. Removed the requirement to specify horizontal or vertical grid specs for such states. Added a public method to retrieve rootGC
 
@@ -20,7 +108,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Relocated CapOptions related modules to `./gridcomps/Cap`. Also simplified the
+  FLAP options layer. Had to introduce some minor naming kludges to keep high level GEOS interfaces working.
+  FlapCLI.F90 and CapOptions.F90 changes that should be revisited in 3.0 has been commented for backward compatibility.
+  This should be revisited under 3.0.
+- Updated to ESMA_cmake v3.7.0
+
 ### Removed
+
+- Removed MKL dependency in `Tests/`
+- Removed support for +/- option for restart names in MAPL_Generic.F90.   Found to be unused, and kludgy.
 
 ## [2.11.0] - 2021-10-29
 
@@ -32,6 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Changed non-Fortran Standard `call exit` to `stop` in `ExtDataDriver.F90`
   - Changed `kind=8` to `kind=REAL64` in `pfio_MAPL_demo.F90`
   - Reenabled build with NAG (works with NAG 7.0.7048)
+- Added PFIO support for `NF90_STRING` (as opposed to `NF90_CHAR`).  This fixes use of some netCDF files.
 
 ### Added
 
