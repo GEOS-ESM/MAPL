@@ -98,15 +98,13 @@ workflows:
               compiler: [gfortran, ifort]
           context:
             - docker-hub-creds
-      #####################################################
-      # - build-GEOSadas:                                 #
-      #     name: build-GEOSadas-on-<< matrix.compiler >> #
-      #     matrix:                                       #
-      #       parameters:                                 #
-      #         compiler: [ifort]                         #
-      #     context:                                      #
-      #       - docker-hub-creds                          #
-      #####################################################
+      - build-GEOSadas:
+          name: build-GEOSadas-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [ifort]
+          context:
+            - docker-hub-creds
 
 commands:
   versions:
