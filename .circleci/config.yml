@@ -62,26 +62,24 @@ workflows:
               compiler: [gfortran, ifort]
           context:
             - docker-hub-creds
-      ###################################################
-      # - make-FV3-exp:                                 #
-      #     name: make-FV3-exp-on-<< matrix.compiler >> #
-      #     matrix:                                     #
-      #       parameters:                               #
-      #         compiler: [gfortran, ifort]             #
-      #     context:                                    #
-      #       - docker-hub-creds                        #
-      #     requires:                                   #
-      #       - build-GEOSgcm-on-<< matrix.compiler >>  #
-      # - run-FV3:                                      #
-      #     name: run-FV3-on-<< matrix.compiler >>      #
-      #     matrix:                                     #
-      #       parameters:                               #
-      #         compiler: [gfortran, ifort]             #
-      #     context:                                    #
-      #       - docker-hub-creds                        #
-      #     requires:                                   #
-      #       - make-FV3-exp-on-<< matrix.compiler >>   #
-      ###################################################
+      - make-FV3-exp:
+          name: make-FV3-exp-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          context:
+            - docker-hub-creds
+          requires:
+            - build-GEOSgcm-on-<< matrix.compiler >>
+      - run-FV3:
+          name: run-FV3-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          context:
+            - docker-hub-creds
+          requires:
+            - make-FV3-exp-on-<< matrix.compiler >>
       - run-gcm-exp:
           name: run-gcm-exp-on-<< matrix.compiler >>
           matrix:
@@ -98,13 +96,15 @@ workflows:
               compiler: [gfortran, ifort]
           context:
             - docker-hub-creds
-      - build-GEOSadas:
-          name: build-GEOSadas-on-<< matrix.compiler >>
-          matrix:
-            parameters:
-              compiler: [ifort]
-          context:
-            - docker-hub-creds
+      #####################################################
+      # - build-GEOSadas:                                 #
+      #     name: build-GEOSadas-on-<< matrix.compiler >> #
+      #     matrix:                                       #
+      #       parameters:                                 #
+      #         compiler: [ifort]                         #
+      #     context:                                      #
+      #       - docker-hub-creds                          #
+      #####################################################
 
 commands:
   versions:
