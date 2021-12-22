@@ -299,15 +299,12 @@ jobs:
           repo: GEOSgcm
       - store_artifacts:
           path: /logfiles
-
-      ######################################################
-      # # We need to persist the install for the next step #
-      # # but only if we are running FV3 tests             #
-      # - persist_to_workspace:                            #
-      #     root: workspace                                #
-      #     paths:                                         #
-      #       - install-GEOSgcm                            #
-      ######################################################
+      # We need to persist the install for the next step
+      # but only if we are running FV3 or GCM tests
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - install-GEOSgcm
 
   build-GEOSldas:
     parameters:
@@ -342,6 +339,9 @@ jobs:
     steps:
       - checkout_fixture:
           repo: GEOSadas
+      - checkout_branch_on_fixture:
+          repo: GEOSadas
+          branch: develop
       - mepoclone:
           repo: GEOSadas
       - mepodevelop:
