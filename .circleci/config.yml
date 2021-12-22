@@ -1,9 +1,9 @@
 version: 2.1
 
 executors:
-  gfortran:
+  gfortran-large:
     docker:
-      - image: gmao/ubuntu20-geos-env-mkl:v6.2.8-openmpi_4.0.6-gcc_11.2.0
+      - image: gmao/ubuntu20-geos-env-bcs:v6.2.8-openmpi_4.0.6-gcc_11.2.0-bcs_v10.19.4
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_AUTH_TOKEN
@@ -15,14 +15,35 @@ executors:
     resource_class: large
     #MEDIUM# resource_class: medium
 
-  ifort:
+  gfortran-xlarge:
     docker:
-      - image: gmao/ubuntu20-geos-env:v6.2.8-intelmpi_2021.3.0-intel_2021.3.0
+      - image: gmao/ubuntu20-geos-env-bcs:v6.2.8-openmpi_4.0.6-gcc_11.2.0-bcs_v10.19.4
+        auth:
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_AUTH_TOKEN
+    environment:
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      MPIEXEC_PREFLAGS: --oversubscribe
+    resource_class: xlarge
+
+  ifort-large:
+    docker:
+      - image: gmao/ubuntu20-geos-env-bcs:v6.2.8-intelmpi_2021.3.0-intel_2021.3.0-bcs_v10.19.4
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_AUTH_TOKEN
     resource_class: large
     #MEDIUM# resource_class: medium
+
+  ifort-xlarge:
+    docker:
+      - image: gmao/ubuntu20-geos-env-bcs:v6.2.8-intelmpi_2021.3.0-intel_2021.3.0-bcs_v10.19.4
+        auth:
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_AUTH_TOKEN
+    resource_class: xlarge
 
 workflows:
   build-and-test:
@@ -61,6 +82,15 @@ workflows:
       #     requires:                                   #
       #       - make-FV3-exp-on-<< matrix.compiler >>   #
       ###################################################
+      - run-gcm-exp:
+          name: run-gcm-exp-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          context:
+            - docker-hub-creds
+          requires:
+            - build-GEOSgcm-on-<< matrix.compiler >>
       - build-GEOSldas:
           name: build-GEOSldas-on-<< matrix.compiler >>
           matrix:
@@ -218,7 +248,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: << parameters.compiler >>-large
     working_directory: /root/project
     steps:
       - checkout:
@@ -251,7 +281,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: << parameters.compiler >>-large
     working_directory: /root/project
     steps:
       - checkout_fixture:
@@ -283,7 +313,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: << parameters.compiler >>-large
     working_directory: /root/project
     steps:
       - checkout_fixture:
@@ -307,8 +337,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
-    resource_class: xlarge
+    executor: << parameters.compiler >>-xlarge
     working_directory: /root/project
     steps:
       - checkout_fixture:
@@ -333,7 +362,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: << parameters.compiler >>-large
     working_directory: /root/project
     steps:
       - attach_workspace:
@@ -378,7 +407,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: << parameters.compiler >>-large
     working_directory: /root/project
     steps:
       - attach_workspace:
@@ -397,6 +426,46 @@ jobs:
             # The scratch directory for fv3 standalone isn't consistent
             SCRDIR=$(find . -type d -name 'scratch*')
 
+            if [[ -f $SCRDIR/EGRESS ]]
+            then
+               echo "EGRESS found!"
+            else
+               echo "EGRESS not found!"
+               exit 1
+            fi
+      - store_artifacts:
+          path: /logfiles
+
+  run-gcm-exp:
+    parameters:
+      compiler:
+        type: string
+    executor: << parameters.compiler >>-xlarge
+    working_directory: /root/project
+    steps:
+      - attach_workspace:
+          at: workspace
+      - run:
+          name: "Run gcm_setup"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSgcm/bin
+            /TinyBCs-GitV10/scripts/create_expt.py test-gcm-c12 --expdir ${CIRCLE_WORKING_DIRECTORY}/workspace
+      - run:
+          name: "Run makeoneday"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/test-gcm-c12
+            /TinyBCs-GitV10/scripts/makeoneday.bash 6hr nxy 1 6
+      - run:
+          name: "Run gcm_run.j"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/test-gcm-c12
+            mkdir -p /logfiles
+            ./gcm_run.j |& tee /logfiles/gcm_run.log
+      - run:
+          name: "Check for EGRESS"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/test-gcm-c12
+            SCRDIR=$(find . -type d -name 'scratch*')
             if [[ -f $SCRDIR/EGRESS ]]
             then
                echo "EGRESS found!"
