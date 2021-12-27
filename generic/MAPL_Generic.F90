@@ -6496,9 +6496,14 @@ end subroutine MAPL_StateCreateFromVarSpecNew
       isCreated = ESMF_FieldIsCreated(SPEC_FIELD, rc=status)
       _VERIFY(STATUS)
       if (isCreated) then
-         call MAPL_AllocateCoupling( SPEC_FIELD, RC=STATUS ) ! if 'DEFER' this allocates the data
-         _VERIFY(STATUS)
-
+         if (.not. deferAlloc) then
+            call MAPL_AllocateCoupling( SPEC_FIELD, RC=STATUS ) ! if 'DEFER' this allocates the data
+            _VERIFY(STATUS)
+         else
+            field = spec_field
+            goto 20
+         end if
+         
 
 !ALT we are creating new field so that we can optionally change the name of the field;
 !    the important thing is that the data (ESMF_Array) is the SAME as the one in SPEC_Field
@@ -6611,6 +6616,7 @@ end subroutine MAPL_StateCreateFromVarSpecNew
                _VERIFY(STATUS)
             end if
          end if
+20       continue
       else
 
 ! Create the appropriate ESMF FIELD
