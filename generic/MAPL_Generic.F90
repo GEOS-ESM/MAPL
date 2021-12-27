@@ -6368,6 +6368,7 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 
     integer :: range_(2)
     type(MAPL_VarSpec), pointer :: varspec
+    character(len=ESMF_MAXSTR) :: fname
 
     if (present(range)) then
        range_ = range
@@ -6496,7 +6497,8 @@ end subroutine MAPL_StateCreateFromVarSpecNew
       isCreated = ESMF_FieldIsCreated(SPEC_FIELD, rc=status)
       _VERIFY(STATUS)
       if (isCreated) then
-         if (.not. deferAlloc) then
+         call ESMF_FieldGet(SPEC_FIELD, name=fname, __RC__)
+         if (.not. deferAlloc .or. short_name/=fname) then
             call MAPL_AllocateCoupling( SPEC_FIELD, RC=STATUS ) ! if 'DEFER' this allocates the data
             _VERIFY(STATUS)
          else
