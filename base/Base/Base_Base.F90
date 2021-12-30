@@ -67,7 +67,6 @@ module MAPL_Base
 
   real,    public, parameter :: MAPL_UNDEF              = 1.0e15  
 
-  integer, public, parameter :: MAPL_TileNameLength = 128
 
   character(len=ESMF_MAXSTR), public, parameter :: MAPL_StateItemOrderList = 'MAPL_StateItemOrderList'
   character(len=ESMF_MAXSTR), public, parameter :: MAPL_BundleItemOrderList = 'MAPL_BundleItemOrderList'
@@ -806,8 +805,8 @@ end module MAPL_Base
 module MAPL_BaseMod
   use MAPL_Base
   use MAPL_RangeMod, only:   MAPL_Range
-  use MaplGeneric, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
-  use Mapl_Enumerators
+  use mapl_MaplGrid, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
+  use MAPL_Constants
    
 
 

@@ -13,7 +13,7 @@ module MAPL_HistoryGridCompMod
   use ESMFL_Mod
   use MAPL_BaseMod
   use MAPL_VarSpecMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use MAPL_IOMod
   use MAPL_CommsMod
   use MAPL_GenericMod
@@ -39,6 +39,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_newCFIOitemVectorMod
   use MAPL_newCFIOitemMod
   use pFIO_ClientManagerMod, only: o_Clients
+  use pFIO_DownbitMod, only: pFIO_DownBit
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
@@ -890,6 +891,18 @@ contains
        end if
 
        list(n)%field_set => field_set
+
+! Decide on orientation of output
+! -------------------------------
+
+          call ESMF_ConfigFindLabel(cfg,trim(string)//'positive:',isPresent=isPresent,rc=status)
+          if (isPresent) then
+             call ESMF_ConfigGetAttribute(cfg,value=list(n)%positive,rc=status)
+             _VERIFY(status)
+             _ASSERT(list(n)%positive=='down'.or.list(n)%positive=='up',"positive value for collection must be down or up")
+          else
+             list(n)%positive = 'down'
+          end if
 
 ! Get an optional list of output levels
 ! -------------------------------------
@@ -2410,7 +2423,7 @@ ENDDO PARSER
              list(n)%vdata = VerticalData(levels=list(n)%levels,rc=status)
              _VERIFY(status)
           else
-             list(n)%vdata = VerticalData(rc=status)
+             list(n)%vdata = VerticalData(positive=list(n)%positive,rc=status)
              _VERIFY(status)
           end if
           call list(n)%mNewCFIO%set_param(deflation=list(n)%deflate,rc=status)
@@ -3269,7 +3282,7 @@ ENDDO PARSER
     character(len=ESMF_MAXSTR)     :: fntmpl
     character(len=ESMF_MAXSTR),pointer     :: filename(:)
     integer                        :: n,m
-    logical                        :: NewSeg
+    logical, allocatable           :: NewSeg(:)
     logical, allocatable           :: Writing(:)
     type(ESMF_State)               :: state_out
     integer                        :: nymd, nhms
@@ -3395,7 +3408,9 @@ ENDDO PARSER
    _VERIFY(STATUS)
    allocate(filename(nlist), stat=status)
    _VERIFY(STATUS)
-
+   allocate(NewSeg (nlist), __STAT__)
+   newSeg = .false.
+   
   ! decide if we are writing based on alarms
 
    do n=1,nlist
@@ -3440,18 +3455,11 @@ ENDDO PARSER
        ! Check for new segment
        !----------------------
 
-       NewSeg = ESMF_AlarmIsRinging ( list(n)%seg_alarm )
+       NewSeg(n) = ESMF_AlarmIsRinging ( list(n)%seg_alarm )
 
-       if( NewSeg) then 
+       if( NewSeg(n)) then 
           call ESMF_AlarmRingerOff( list(n)%seg_alarm,rc=status )
           _VERIFY(STATUS)
-       endif
-
-       if( NewSeg .and. list(n)%unit /= 0 .and. list(n)%duration /= 0 ) then
-          if (list(n)%unit > 0 ) then
-             call FREE_FILE( list(n)%unit )
-          end if
-          list(n)%unit = 0
        endif
 
    end do
@@ -3498,7 +3506,7 @@ ENDDO PARSER
             list(n)%currentFile = filename(n)
          end if
 
-         if( NewSeg) then 
+         if( NewSeg(n)) then 
             list(n)%partial = .false.
             if (list(n)%monthly) then
                ! get the number of seconds in this month
@@ -3617,6 +3625,9 @@ ENDDO PARSER
                        list(n)%descr, intstate%output_grids,rc )
                   INTSTATE%LCTL(n) = .false.
                endif
+             
+               call shavebits(state_out, list(n), rc=status)
+               _VERIFY(STATUS)
 
                do m=1,list(n)%field_set%nfields
                   call MAPL_VarWrite ( list(n)%unit, STATE=state_out, &
@@ -3630,6 +3641,13 @@ ENDDO PARSER
          end if
 
       endif OUTTIME
+
+      if( NewSeg(n) .and. list(n)%unit /= 0 .and. list(n)%duration /= 0 ) then
+         if (list(n)%unit > 0 ) then
+            call FREE_FILE( list(n)%unit )
+         end if
+         list(n)%unit = 0
+       endif
 
    enddo POSTLOOP
 
@@ -3682,6 +3700,7 @@ ENDDO PARSER
 
    if(any(Writing)) call WRITE_PARALLEL("")
 
+   deallocate(NewSeg)
    deallocate(filename)
    deallocate(Writing)
    deallocate(Ignore)
@@ -5282,6 +5301,47 @@ ENDDO PARSER
 
     _RETURN(ESMF_SUCCESS)
   end subroutine checkIfStateHasField
+
+  subroutine shavebits( state, list, rc)
+    type(ESMF_state), intent(inout) :: state
+    type (HistoryCollection), intent(in) :: list
+    integer, optional, intent(out):: rc
+
+    integer :: m, fieldRank, status
+    type(ESMF_Field) :: field
+    real, pointer :: ptr1d(:), ptr2d(:,:), ptr3d(:,:,:)
+
+    if (list%nbits >=24) then
+       _RETURN(ESMF_SUCCESS)
+    endif
+
+    do m=1,list%field_set%nfields
+       call ESMF_StateGet(state, trim(list%field_set%fields(3,m)),field,rc=status )
+       _VERIFY(STATUS)
+       call ESMF_FieldGet(field, rank=fieldRank,rc=status)
+       if (fieldRank ==1) then
+          call ESMF_FieldGet(field, farrayptr=ptr1d, rc=status)
+          _VERIFY(STATUS)
+          call pFIO_DownBit(ptr1d,ptr1d,list%nbits,undef=MAPL_undef,rc=status)
+          _VERIFY(STATUS)
+       elseif (fieldRank ==2) then
+          call ESMF_FieldGet(field, farrayptr=ptr2d, rc=status)
+          _VERIFY(STATUS)
+          call pFIO_DownBit(ptr2d,ptr2d,list%nbits,undef=MAPL_undef,rc=status)
+          _VERIFY(STATUS)
+       elseif (fieldRank ==3) then
+          call ESMF_FieldGet(field, farrayptr=ptr3d, rc=status)
+          _VERIFY(STATUS)
+          call pFIO_DownBit(ptr3d,ptr3d,list%nbits,undef=MAPL_undef,rc=status)
+          _VERIFY(STATUS)
+       else
+          _ASSERT(.false. ,'The field rank is not implmented')
+       endif
+    enddo
+
+    _RETURN(ESMF_SUCCESS)
+
+  end subroutine
     
 end module MAPL_HistoryGridCompMod
 

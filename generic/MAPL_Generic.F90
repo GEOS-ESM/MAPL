@@ -115,8 +115,9 @@ module MAPL_GenericMod
   use MAPL_Profiler
   use MAPL_MemUtilsMod
   use MAPL_CommsMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use MAPL_SunMod
+  use mapl_MaplGrid
   use MaplGeneric
   use MAPL_GenericCplCompMod
   use MAPL_LocStreamMod
@@ -127,6 +128,8 @@ module MAPL_GenericMod
   use mpi
   use netcdf
   use pFlogger, only: logging, Logger
+  use MAPL_AbstractGridFactoryMod
+  use MAPL_GridManagerMod, only: grid_manager,get_factory
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
   use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
@@ -337,8 +340,6 @@ module MAPL_GenericMod
 
 
 integer, parameter :: LAST_ALARM = 99
-
-character(len=*), parameter :: CF_COMPONENT_SEPARATOR = '.'
 
 type MAPL_GenericWrap
    type(MAPL_MetaComp       ), pointer :: MAPLOBJ
@@ -1705,7 +1706,7 @@ end subroutine MAPL_GenericInitialize
 !=============================================================================
 !=============================================================================
 
-subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
+recursive subroutine MAPL_GenericWrapper ( GC, IMPORT, EXPORT, CLOCK, RC)
 
   !ARGUMENTS:
   type(ESMF_GridComp)  :: GC     ! Gridded component 
@@ -5371,6 +5372,14 @@ end function MAPL_AddChildFromDSO
     !real(kind=ESMF_KIND_R8),save ::  total_time = 0.0d0
     !logical                               :: amIRoot
     !type (ESMF_VM)                        :: vm
+    logical :: empty
+
+! Check if state is empty. If "yes", simply return
+    empty = MAPL_IsStateEmpty(state, __RC__)
+    if (empty) then
+       call warn_empty('Checkpoint '//trim(filename), MPL, __RC__)
+       _RETURN(ESMF_SUCCESS)
+    end if
 
 ! Open file
 !----------
@@ -5652,8 +5661,21 @@ end function MAPL_AddChildFromDSO
     character(len=ESMF_MAXSTR)            :: FileType
     integer                               :: isNC4
     logical                               :: isPresent
+    logical                               :: is_tile
+    class(AbstractGridFactory), pointer :: app_factory
+    class (AbstractGridFactory), allocatable :: file_factory
+    character(len=ESMF_MAXSTR) :: grid_type
+    logical :: empty
+    class(Logger), pointer :: lgr
 
     _UNUSED_DUMMY(CLOCK)
+
+! Check if state is empty. If "yes", simply return
+    empty = MAPL_IsStateEmpty(state, __RC__)
+    if (empty) then
+       call warn_empty('Restart '//trim(filename), MPL, __RC__)
+       _RETURN(ESMF_SUCCESS)
+    end if
 
 ! Implemented a suggestion by Arlindo to allow files beginning with "-" (dash)
 ! to be skipped if file does not exist and values defaulted
@@ -5893,6 +5915,19 @@ end function MAPL_AddChildFromDSO
           call ArrDescrSetNCPar(arrdes,MPL,tile=.TRUE.,num_readers=mpl%grid%num_readers,RC=STATUS)
           _VERIFY(STATUS)
        else
+          call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',isPresent=isPresent,rc=status)
+          _VERIFY(status)
+          if (isPresent) then
+             call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',value=grid_type,rc=status)
+             _VERIFY(status)
+          end if
+          !note this only works for geos cubed-sphere restarts currently because of 
+          !possible insufficent metadata in the other restarts to support the other grid factories
+          if (trim(grid_type) == 'Cubed-Sphere') then
+             app_factory => get_factory(MPL%GRID%ESMFGRID)
+             allocate(file_factory,source=grid_manager%make_factory(trim(fname)))
+             _ASSERT(file_factory%physical_params_are_equal(app_factory),"Factories not equal")
+          end if
           call ArrDescrSetNCPar(arrdes,MPL,num_readers=mpl%grid%num_readers,RC=STATUS)
           _VERIFY(STATUS)
        end if PNC4_TILE
@@ -6135,6 +6170,7 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 
     integer :: range_(2)
     type(MAPL_VarSpec), pointer :: varspec
+    character(len=ESMF_MAXSTR) :: fname
 
     if (present(range)) then
        range_ = range
@@ -6263,8 +6299,14 @@ end subroutine MAPL_StateCreateFromVarSpecNew
       isCreated = ESMF_FieldIsCreated(SPEC_FIELD, rc=status)
       _VERIFY(STATUS)
       if (isCreated) then
-         call MAPL_AllocateCoupling( SPEC_FIELD, RC=STATUS ) ! if 'DEFER' this allocates the data
-         _VERIFY(STATUS)
+         call ESMF_FieldGet(SPEC_FIELD, name=fname, __RC__)
+         if (.not. deferAlloc .or. short_name/=fname) then
+            call MAPL_AllocateCoupling( SPEC_FIELD, RC=STATUS ) ! if 'DEFER' this allocates the data
+            _VERIFY(STATUS)
+         else
+            field = spec_field
+            goto 20
+         end if
          
 
 !ALT we are creating new field so that we can optionally change the name of the field;
@@ -6378,6 +6420,7 @@ end subroutine MAPL_StateCreateFromVarSpecNew
                _VERIFY(STATUS)      
             end if
          end if
+20       continue
       else
 
 ! Create the appropriate ESMF FIELD
@@ -8071,7 +8114,7 @@ recursive subroutine MAPL_WireComponent(GC, RC)
     labels_with_prefix(1) = trim(component_name)//"_"//trim(label)
     labels_with_prefix(2) = trim(component_type)//"_"//trim(label)
     labels_with_prefix(3) = trim(label)
-    labels_with_prefix(4) = trim(component_name)//CF_COMPONENT_SEPARATOR//trim(label)
+    labels_with_prefix(4) = trim(component_name)//MAPL_CF_COMPONENT_SEPARATOR//trim(label)
   end function get_labels_with_prefix  
 
 
@@ -9921,7 +9964,6 @@ end subroutine MAPL_READFORCINGX
 
   
   subroutine MAPL_GridCreate(GC, MAPLOBJ, ESMFGRID, srcGC, rc)
-    use MAPL_GridManagerMod, only: grid_manager
     type(ESMF_GridComp), optional,         intent(INOUT) :: GC
     type (MAPL_MetaComp),optional, target, intent(INOUT) :: MAPLOBJ
     type (ESMF_Grid),    optional,         intent(  OUT) :: ESMFGRID
@@ -9986,23 +10028,23 @@ end subroutine MAPL_READFORCINGX
        _ASSERT(.false.,'needs informative message')
     endif
 
-    call MAPL_ConfigPrepend(state%cf,trim(comp_name),CF_COMPONENT_SEPARATOR,'NX:',rc=status)
+    call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NX:',rc=status)
     _VERIFY(status)
-    call MAPL_ConfigPrepend(state%cf,trim(comp_name),CF_COMPONENT_SEPARATOR,'NY:',rc=status)
+    call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NY:',rc=status)
     _VERIFY(status)
    
-    call ESMF_ConfigGetAttribute(state%cf,gridname,label=trim(comp_name)//CF_COMPONENT_SEPARATOR//'GRIDNAME:',rc=status)
+    call ESMF_ConfigGetAttribute(state%cf,gridname,label=trim(comp_name)//MAPL_CF_COMPONENT_SEPARATOR//'GRIDNAME:',rc=status)
     _VERIFY(status)
     nn = len_trim(gridname)
     dateline = gridname(nn-1:nn)
     if (dateline == 'CF') then
-       call ESMF_ConfigGetAttribute(state%CF,ny,label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//'NY:',rc=status)
+       call ESMF_ConfigGetAttribute(state%CF,ny,label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//'NY:',rc=status)
        _VERIFY(status)
-       call MAPL_ConfigSetAttribute(state%CF, value=ny/6, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//'NY:',rc=status)
+       call MAPL_ConfigSetAttribute(state%CF, value=ny/6, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//'NY:',rc=status)
        _VERIFY(status)
     end if
 
-    grid = grid_manager%make_grid(state%CF, prefix=trim(COMP_Name)//CF_COMPONENT_SEPARATOR, rc=status)
+    grid = grid_manager%make_grid(state%CF, prefix=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR, rc=status)
     _VERIFY(status)
 
     call state%grid%set(grid, __RC__)
@@ -11099,5 +11141,37 @@ end subroutine MAPL_GenericStateRestore
 
    end function get_child_export_state
 
-      
+
+   function MAPL_IsStateEmpty(state, rc) result(empty)
+     type(ESMF_State), intent(in) :: state
+     integer, optional, intent(out) :: rc
+     logical                        :: empty
+
+     integer :: itemcount
+     integer :: status
+
+     empty = .true.
+     call ESMF_StateGet(state,itemcount=itemcount,rc=status)
+     _VERIFY(status)
+
+     if (itemcount /= 0) empty = .false.
+     _RETURN(ESMF_SUCCESS)
+   end function MAPL_IsStateEmpty
+
+   subroutine warn_empty(string, MPL, rc)
+     character (len=*), intent(in) :: string
+     type(MAPL_MetaComp),              intent(INOUT) :: MPL
+     integer, optional,                intent(  OUT) :: RC
+
+     class(Logger), pointer :: lgr
+     integer :: status 
+
+     if (MAPL_Am_I_Root()) then
+        call MAPL_GetLogger(mpl, lgr, __RC__)
+        call lgr%warning(string //&
+             ' requested, but state is empty. Ignored...')
+     end if
+     _RETURN(ESMF_SUCCESS)
+   end subroutine warn_empty
+
 end module MAPL_GenericMod

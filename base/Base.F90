@@ -1,6 +1,6 @@
 
 
-module MAPL_Mod
+module MAPLBase_Mod
 
   use ESMFL_Mod         !  Stopgap
   use MAPL_ExceptionHandling
@@ -11,9 +11,9 @@ module MAPL_Mod
   use MAPL_IOMod
   use MAPL_CFIOMod
   use MAPL_CommsMod
-  use MAPL_GenericMod
-  use MAPL_VarSpecMod
+! For temporary backward compatibility after Constants Library
   use MAPL_ConstantsMod
+  use MAPL_ConstantsMod, only: MAPL_PI_R8
   use MAPL_ConfigMod
   use MAPL_SortMod
   use MAPL_ProfMod
@@ -29,7 +29,6 @@ module MAPL_Mod
   use MAPL_MemUtilsMod
   use MAPL_HashMod
   use MAPL_LoadBalanceMod
-  use MAPL_ExtDataGridCompMod, only : T_EXTDATA_STATE, EXTDATA_WRAP
   use MAPL_AbstractGridFactoryMod
   use MAPL_AbstractRegridderMod
   use MAPL_RegridderManagerMod
@@ -58,4 +57,4 @@ module MAPL_Mod
   use MAPL_ServerManager
   logical, save, private :: mapl_is_initialized = .false.
 
-end module MAPL_Mod
+end module MAPLBase_Mod

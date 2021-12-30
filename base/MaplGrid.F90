@@ -135,7 +135,7 @@ contains
     this%NY0 = this%MYID/this%NX + 1
 
 
-    lgr => logging%get_logger('MAPL.GENERIC')
+    lgr => logging%get_logger('MAPL.BASE')
     call lgr%debug("grid global max= [%3(i0,:,',')~]", WrapArray(counts))
     call lgr%debug(" NX: %i0 ;   NY: %i0", this%nx, this%ny)
     call lgr%debug("NX0: %i0 ;  NY0: %i0", this%nx0, this%ny0)

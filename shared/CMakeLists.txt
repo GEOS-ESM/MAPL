@@ -3,7 +3,6 @@ esma_set_this (OVERRIDE MAPL.shared)
 set (srcs
     hash.c
     hinterp.F
-    MAPL_Constants.F90
     MAPL_DirPath.F90
     MAPL_ErrorHandling.F90
     MAPL_Hash.F90
@@ -21,7 +20,6 @@ set (srcs
     sort.c
     MAPL_ExceptionHandling.F90
     String.F90
-    Enumerators.F90
     MaplShared.F90
     TimeUtils.F90
 # Fortran submodules
@@ -29,7 +27,7 @@ set (srcs
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.constants GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
 
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
@@ -37,4 +35,5 @@ if (PFUNIT_FOUND)
   add_subdirectory (tests)
 endif ()
 
+add_subdirectory(Constants)
 #add_subdirectory(tests EXCLUDE_FROM_ALL)

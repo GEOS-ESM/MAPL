@@ -2,13 +2,12 @@
 
 module MAPL_DirPathMod
    use MAPL_KeywordEnforcerMod
+   use MAPL_Constants
    use gFTL_StringVector
    private
 
    public :: DirPath
    public :: dirpaths
-   public :: MAPL_SUCCESS
-   public :: MAPL_FILE_NOT_FOUND
 
    type, extends(StringVector) :: DirPath
       private
@@ -18,9 +17,6 @@ module MAPL_DirPathMod
    end type DirPath
 
    type(DirPath) :: dirpaths
-
-   integer, parameter :: MAPL_SUCCESS = 0
-   integer, parameter :: MAPL_FILE_NOT_FOUND = 1
 
 contains
 

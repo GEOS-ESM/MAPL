@@ -9,7 +9,6 @@ module MaplGeneric
    use mapl_AbstractFrameworkComponent
    use mapl_maplgenericcomponent
    use mapl_StubComponent
-   use mapl_MaplGrid
    
    implicit none
 end module MaplGeneric

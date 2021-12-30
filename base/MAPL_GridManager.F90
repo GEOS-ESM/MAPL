@@ -62,8 +62,6 @@ module MAPL_GridManager_private
 
    end type GridManager
 
-   integer(kind=INT64), parameter :: NOT_FOUND = 1 - HUGE(1_INT64)
-
    character(len=*), parameter :: MOD_NAME = 'MAPL_GridManager_private::'
    character(len=*), parameter :: factory_id_attribute = 'MAPL_grid_factory_id'
 
@@ -87,7 +85,7 @@ contains
      use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
      use MAPL_LlcGridFactoryMod, only: LlcGridFactory
      use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
-     use MAPL_OldCubedSphereGridFactoryMod, only: OldCubedSphereGridFactory
+     !use MAPL_OldCubedSphereGridFactoryMod, only: OldCubedSphereGridFactory
       class (AbstractGridFactory), allocatable :: factory
       class (GridManager), intent(inout) :: this
       character(len=*), intent(in) :: grid_type
@@ -107,7 +105,7 @@ contains
       logical, save :: initialized = .false.
       type (LatLonGridFactory) :: latlon_factory
       type (CubedSphereGridFactory) :: cubed_factory
-      type (OldCubedSphereGridFactory) :: old_cubed_factory
+      !type (OldCubedSphereGridFactory) :: old_cubed_factory
       type (TripolarGridFactory) :: tripolar_factory
       type (LlcGridFactory) :: llc_factory
       type (ExternalGridFactory) :: external_factory
@@ -117,7 +115,7 @@ contains
       if (.not. initialized) then
            call this%prototypes%insert('LatLon', latlon_factory)
            call this%prototypes%insert('Cubed-Sphere', cubed_factory)
-           call this%prototypes%insert('Old-Cubed-Sphere', old_cubed_factory)
+           !call this%prototypes%insert('Old-Cubed-Sphere', old_cubed_factory)
            call this%prototypes%insert('Tripolar',  tripolar_factory)
            call this%prototypes%insert('llc',  llc_factory)
            call this%prototypes%insert('External', external_factory)
@@ -229,8 +227,6 @@ contains
       character(len=ESMF_MAXSTR) :: grid_type
 
       character(len=:), allocatable :: label
-
-      character(len=*), parameter :: CF_COMPONENT_SEPARATOR = '.'
 
       _UNUSED_DUMMY(unusable)
 
@@ -471,7 +467,7 @@ contains
             jm = file_metadata%get_dimension('Ydim',rc=status)
             _VERIFY(status)
             if (jm == 6*im) then 
-               allocate(factory, source=this%make_clone('Old-Cubed-Sphere'))
+               allocate(factory, source=this%make_clone('Cubed-Sphere'))
             else
                nf = file_metadata%get_dimension('nf',rc=status)
                if (status == _SUCCESS) then
@@ -494,7 +490,7 @@ contains
          end if
 
          if (jm == 6*im) then ! old-format cubed-sphere
-            allocate(factory, source=this%make_clone('Old-Cubed-Sphere'))
+            allocate(factory, source=this%make_clone('Cubed-Sphere'))
 !!$        elseif (...) then ! something that is true for tripolar?
 !!$           factory = this%make_clone('tripolar')
          else

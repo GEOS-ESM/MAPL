@@ -8,9 +8,136 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Removed
+
 ### Added
+
 ### Changed
+
 ### Fixed
+
+## [2.8.10] - 2021-10-15
+
+### Fixed
+
+- Fixed a missing copy of the output after ESMF_FieldHalo (see #1090)
+
+## [2.8.9] - 2021-10-15
+
+### Fixed
+
+- Added a proper handling for new segment logic in History. This addressed issues #1064 and #1067
+
+## [2.8.8] - 2021-10-13
+
+### Fixed
+
+- Reverts the change in 2.8.7, #1069, as this caused bad History behavior (see #1074)
+
+## [2.8.7] - 2021-10-12
+
+### Fixed
+
+- Fixes #1064. This is bug has been in MAPL for a long time. It shows only when the user specifies a non-default duration, and the last step of the duration interval is written to a new, separate file
+
+## [2.8.6] - 2021-09-13
+
+### Added
+
+- Added the feature which can use nbits ( shave bit) in history binary output
+- Added script to automatically make a complete, mepo'd tarball on release
+
+### Changed
+
+- Refactored MAPL_Generic.F90 and MAPL_GenericCplComp.F90 from base to generic. This removes generic dependency from
+  base
+- Renamed MAPL_GenericCplComp.F90 to GenericCplComp.F90
+- Moved MAPL_ExtDataGridCompMod.F90, MAPL_OrbGridCompMod.F90, and MAPL_OrbGridComp.rc from base to gridcomps
+  subdirectories
+- Renamed Base.F90, Base_implementation.F90, and MAPL_Mod.F90 to Base_Base.F90, Base_Base_implementation.F90, and
+  Base.F90 respectively.
+
+### Fixed
+
+- Fixed issue #486. Empty state restarts will now be ignored (with warning) for writing (the code also protects reading, but the existing code already had a different protection)
+- Added default `CMAKE_BUILD_TYPE` for MAPL standalone. Defaults to `Release` build if not set on command line
+
+## [2.8.5] - 2021-09-03
+
+### Fixed
+
+- Added missing recursive declaration to MAPL_GenericWrapper
+
+## [2.8.4] - 2021-08-27
+
+### Added
+
+- Added `esma_cpack` include for tarring ability
+
+### Changed
+
+- Updated ESMA_cmake to v3.5.4
+
+### Fixed
+
+- Fix bug when restart name has a "-" at the beginning
+
+## [2.8.3] - 2021-08-19
+
+### Removed
+
+- Removed Pandas dependency
+- Removed unused functions from NominalOrbits Module
+
+### Added
+
+- Added error message to pFIO_NetCDF4_FileFormatterMod if nf90_open() fails. 
+- Add option to flip native level output in History relative to input
+- Added `MAPL_AllocNodeArray_6DR8` and `MAPL_DeAllocNodeArray_6DR8` to Shmem
+- Refactors Constants into its own library and consolidated mathematical/physical constants used throughout code to use those from library
+- Added single precision Degrees to Radian Conversion
+
+### Changed
+
+- Simplified implementation of MAPL_FieldCopyAttributes
+- Updated `components.yaml`
+  - ESMA_cmake v3.5.3
+
+### Fixed
+
+- Added npes for pfio_MAPL_demo.F90 when --npes_model is not specified in command line
+- Fixed bug in ExtData when doing vector pairs
+
+## [2.8.2] - 2021-07-29
+
+### Removed
+
+- Removed unneeded `.gitrepo` files
+
+### Fixed
+
+- Only check the restart grid compared to component if component grid is Cubed-Sphere. Other factories not yet supported.
+
+## [2.8.1] - 2021-07-28
+
+### Removed
+
+- Removed MAPL_OldCubedShereGridFactory.F90 and consilidated with MAPL_CubedSphereGridFactory.F90 
+
+### Added
+
+- Add stretch parameters to restarts and check the file grid compared to MAPL grid
+  when reading restarts
+- Add `CMakePresets.json` file
+  - Note: requires CMake 3.21.0 to use
+  - Per CMake advice, add `CMakeUserPresets.json` to `.gitignore`
+
+### Changed
+
+- Widened the throughput timer format
+
+### Fixed
+
+- Fixed bug with tripolar grids and restarts to not check the file grid matches the application grid if application grid is tripolar 
 
 ## [2.8.0] - 2021-07-12
 
