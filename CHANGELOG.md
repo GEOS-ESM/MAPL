@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Make EXPID and EXPDSC optional. Default is empty string
 - Updated `changelog-enforcer` to version 3
 
 ### Removed
