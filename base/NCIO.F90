@@ -2516,13 +2516,14 @@ module NCIOMod
 
 !---------------------------
 
-  subroutine MAPL_VarReadNCpar_R8_2d(formatter, name, A, ARRDES, lev, RC)
+  subroutine MAPL_VarReadNCpar_R8_2d(formatter, name, A, ARRDES, lev, offset2, RC)
   
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:)
     type(ArrDescr),    optional , intent(INOUT) :: ARRDES
     integer,           optional , intent(IN   ) :: lev
+    integer,           optional , intent(IN   ) :: offset2
     integer,           optional , intent(  OUT) :: RC
 
 ! Local variables
@@ -2590,6 +2591,7 @@ module NCIOMod
           start(3) = 1
           if (present(lev)) start(3)=lev
           start(4) = 1
+          if (present(offset2)) start(4) = offset2
           cnt(1) = IM_WORLD
           cnt(2) = jsize
           cnt(3) = 1
@@ -2647,6 +2649,7 @@ module NCIOMod
        start(3) = 1
        if (present(lev) ) start(3) = lev
        start(4) = 1
+       if (present(offset2)) start(4) = offset2
        cnt(1) = size(a,1)
        cnt(2) = size(a,2)
        cnt(3) = 1
