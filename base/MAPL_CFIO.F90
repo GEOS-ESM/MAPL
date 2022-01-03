@@ -362,6 +362,7 @@ contains
     type(ESMF_TIME)     :: TIME
     type(ESMF_ALARM)    :: PERPETUAL
     type(ESMF_VM)       :: VM
+    type(ESMF_Info)     :: infoh
 
     type(ESMF_CFIOVarInfo), pointer :: vars(:)
     type(ESMF_CFIOGrid),    pointer :: cfiogrid
@@ -678,10 +679,12 @@ contains
 
           MCFIO%VarDims(I) = fieldRank
 
-          call ESMF_AttributeGet(FIELD, NAME="VLOCATION", isPresent=isPresent, RC=STATUS)
+          call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
+          _VERIFY(STATUS)
+          isPresent = ESMF_InfoIsPresent(infoh,'VLOCATION',RC=STATUS)
           _VERIFY(STATUS)
           if ( isPresent ) then
-             call ESMF_AttributeGet(FIELD, NAME="VLOCATION", VALUE=LOCATION(I), RC=STATUS)
+             call ESMF_InfoGet(infoh,key='VLOCATION',value=LOCATION(I),RC=STATUS)
              _VERIFY(STATUS)
           else
              LOCATION(I) = MAPL_VLocationNone
@@ -695,16 +698,18 @@ contains
 
           if (fieldRank >= 3 .and. location(I) == MAPL_VLocationNone) then
              hasUngrid(I) = .true.
-             call ESMF_AttributeGet(field,NAME="UNGRIDDED_UNIT",value=ungridded_unit,rc=status)
+             call ESMF_InfoGetFromHost(field,infoh,rc=status)
              _VERIFY(STATUS)
-             call ESMF_AttributeGet(field,NAME="UNGRIDDED_NAME",value=ungridded_name,rc=status)
+             call ESMF_InfoGet(infoh,'UNGRIDDED_UNIT',ungridded_unit,rc=status)
+             _VERIFY(STATUS)
+             call ESMF_InfoGet(infoh,'UNGRIDDED_NAME',ungridded_name,rc=status)
              _VERIFY(STATUS)
              ungridded_names(i) = ungridded_name
              ungridded_units(i) = ungridded_unit
-             call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",isPresent=isPresent,rc=status)
+             isPresent = ESMF_InfoIsPresent(infoh,'UNGRIDDED_COORDS',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",itemcount=ungrdsize,rc=status)
+                call ESMF_InfoGet(infoh,key='UNGRIDDED_COORDS',size=ungrdsize,rc=status)
                 _VERIFY(STATUS)
              else
                 ungrdsize=0
@@ -714,7 +719,7 @@ contains
                 if (.not.allocated(ungridded_coord)) allocate(ungridded_coord(ungrdsize),stat=status)
                 if (.not.allocated(ungridded_coords)) allocate(ungridded_coords(NumVars,ungrdsize),stat=status)
                 _VERIFY(STATUS)
-                call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",valuelist=ungridded_coord,rc=status)
+                call ESMF_InfoGet(infoh,key='UNGRIDDED_COORDS',values=ungridded_coord,rc=status)
                 _VERIFY(STATUS)
                 ungridded_coords(i,:) = ungridded_coord
              end if
@@ -1006,10 +1011,12 @@ contains
 
        endif
 
-       call ESMF_AttributeGet(ESMFGRID, name="GridType", isPresent=isPresent, rc=STATUS)
+       call ESMF_InfoGetFromHost(ESMFGRID,infoh,rc=STATUS)
+       _VERIFY(STATUS)
+       isPresent = ESMF_InfoIsPresent(infoh,'GridType',rc=STATUS)
        _VERIFY(STATUS)
        if (isPresent) then
-          call ESMF_AttributeGet(ESMFGRID, name="GridType", value=GridTypeAttribute, rc=STATUS)
+          call ESMF_InfoGet(infoh,'GridType',GridTypeAttribute,rc=STATUS)
           _VERIFY(STATUS)
        else
           GridTypeAttribute = 'UNKNOWN'
@@ -1193,7 +1200,9 @@ contains
           mCFIO%unmodifiedLevs=mCFIO%unmodifiedLevs*MCFIO%vscale
 
           if( trim(vunits).eq."" ) then
-             call ESMF_AttributeGet(FIELD, NAME="UNITS", VALUE=units,         RC=STATUS)
+             call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
+             _VERIFY(STATUS)
+             call ESMF_InfoGet(infoh,'UNITS',units,RC=STATUS)
              _VERIFY(STATUS)
              call ESMF_CFIOGridSet(cfiogrid, levUnit=trim(units),             RC=STATUS)
              _VERIFY(STATUS)
@@ -1264,28 +1273,30 @@ contains
        call ESMF_FieldBundleGet(BUNDLE, mCFIO%varName(L), field=FIELD,                       RC=STATUS)
        _VERIFY(STATUS)
 
-       call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",isPresent=isPresent, RC=STATUS)
+       call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
+       _VERIFY(STATUS)
+       isPresent = ESMF_InfoIsPresent(infoh,'LONG_NAME',RC=STATUS)
        _VERIFY(STATUS)
        if ( isPresent ) then
-          call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=LongName, RC=STATUS)
+          call ESMF_InfoGet(infoh,'LONG_NAME',LongName,RC=STATUS)
           _VERIFY(STATUS)
        else
           LongName = mCFIO%VarName(L)
        endif
 
-       call ESMF_AttributeGet  (FIELD, NAME="UNITS"    ,isPresent=isPresent, RC=STATUS)
+       isPresent = ESMF_InfoIsPresent(infoh,'UNITS',RC=STATUS)
        _VERIFY(STATUS)
        if ( isPresent ) then
-          call ESMF_AttributeGet  (FIELD, NAME="UNITS"    ,VALUE=Units, RC=STATUS)
+          call ESMF_InfoGet(infoh,'UNITS',Units,RC=STATUS)
           _VERIFY(STATUS)
        else
           Units = 'unknown'
        end if
 
-       call ESMF_AttributeGet  (FIELD, NAME="FIELD_TYPE",isPresent=isPresent, RC=STATUS)
+       isPresent = ESMF_InfoIsPresent(infoh,'FIELD_TYPE',RC=STATUS)
        _VERIFY(STATUS)
        if ( isPresent ) then
-          call ESMF_AttributeGet  (FIELD, NAME="FIELD_TYPE",VALUE=Field_Type, RC=STATUS)
+           call ESMF_InfoGet(infoh,'FIELD_TYPE',Field_Type,RC=STATUS)
           _VERIFY(STATUS)
        else
           Field_Type = MAPL_ScalarField
@@ -1421,10 +1432,12 @@ contains
 ! -------------
 
     if(HAVE3D) then
-       call ESMF_AttributeGet(ESMFGRID, NAME='ak', isPresent=isPresent, RC=STATUS)
+       call ESMF_InfoGetFromHost(ESMFGRID,infoh,RC=STATUS)
+       _VERIFY(STATUS)
+       isPresent = ESMF_InfoIsPresent(infoh,'ak',RC=STATUS)
        _VERIFY(STATUS)
        if (isPresent) then
-          call ESMF_AttributeGet(ESMFGRID, NAME='ak', itemcount=CNT, RC=STATUS)
+          call ESMF_InfoGet(infoh,key='ak',size=CNT,RC=STATUS)
           _VERIFY(STATUS)
        else
           CNT=0
@@ -1433,11 +1446,11 @@ contains
           allocate ( ak(CNT), bk(CNT), stat=status )
           _VERIFY(STATUS)
 
-          call ESMF_AttributeGet(ESMFGRID, name='ak', valueList=ak, rc=STATUS)
+          call ESMF_InfoGet(infoh,key='ak',values=ak,rc=STATUS)
           _VERIFY(STATUS)
           call ESMF_CFIOSet(MCFIO%cfio, attRealName='ak', attReal=ak )
 
-          call ESMF_AttributeGet(ESMFGRID, name='bk', valuelist=bk, rc=STATUS)
+          call ESMF_InfoGet(infoh,key='bk',values=bk,rc=STATUS)
           _VERIFY(STATUS)
           call ESMF_CFIOSet(MCFIO%cfio, attRealName='bk', attReal=bk )
 
@@ -2810,6 +2823,7 @@ contains
     type(ESMF_FIELD)             :: FIELD
     type(ESMF_ARRAY)             :: ARRAY
     type(ESMF_VM)                :: VM
+    type(ESMF_INFO)              :: infoh
 
     type(ESMF_CFIOVarInfo), pointer :: VARS(:)
 
@@ -3070,14 +3084,15 @@ contains
             deallocate(gridToFieldMap)
 
 !ALT: for now we add only HorzOnly (no tiles)
-            call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
+            call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
             _VERIFY(STATUS)
-            call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
+            call ESMF_InfoSet(infoh,'LONG_NAME',LONG_NAME,RC=STATUS)
             _VERIFY(STATUS)
-            call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzOnly, RC=STATUS)
+            call ESMF_InfoSet(infoh,'UNITS',UNITS,RC=STATUS)
             _VERIFY(STATUS)
-            call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
-                                        VALUE=MAPL_VLocationNone, RC=STATUS)
+            call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzOnly,RC=STATUS)
+            _VERIFY(STATUS)
+            call ESMF_InfoSet(infoh,'VLOCATION',MAPL_VLocationNone,RC=STATUS)
             _VERIFY(STATUS) 
 
           else
@@ -3124,18 +3139,18 @@ contains
                             rc = status)
             _VERIFY(STATUS)
 !ALT: for now we add only HorzVert (no tiles)
-            call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
+            call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
             _VERIFY(STATUS)
-            call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
+            call ESMF_InfoSet(infoh,'LONG_NAME',LONG_NAME,RC=STATUS)
             _VERIFY(STATUS)
-            call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzVert, RC=STATUS)
+            call ESMF_InfoSet(infoh,'UNITS',UNITS,RC=STATUS)
+            _VERIFY(STATUS)
+            call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzVert,RC=STATUS)
             _VERIFY(STATUS)
             if (lm == counts(3)) then
-               call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
-                                           VALUE=MAPL_VLocationCenter, RC=STATUS)
+            call ESMF_InfoSet(infoh,'VLOCATION',MAPL_VLocationCenter,RC=STATUS)
             else if (lm == (counts(3)+1)) then
-               call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
-                                           VALUE=MAPL_VLocationEdge, RC=STATUS)
+            call ESMF_InfoSet(infoh,'VLOCATION',MAPL_VLocationEdge,RC=STATUS)
             end if
 
             _VERIFY(STATUS)
@@ -4951,6 +4966,7 @@ CONTAINS
     real, pointer    :: levsfile(:) => null()
     type(ESMF_CFIO), pointer :: cfiop
     type(CFIOCollection), pointer :: collection
+    type(ESMF_Info)  :: infoh
 
     call ESMF_VMGetCurrent(vm,rc=status)
     _VERIFY(STATUS)
@@ -5100,14 +5116,15 @@ CONTAINS
 
              deallocate(gridToFieldMap)
 
-             call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
+             call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
              _VERIFY(STATUS)
-             call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
+             call ESMF_InfoSet(infoh,'LONG_NAME',LONG_NAME,RC=STATUS)
              _VERIFY(STATUS)
-             call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzOnly, RC=STATUS)
+             call ESMF_InfoSet(infoh,'UNITS',UNITS,RC=STATUS)
              _VERIFY(STATUS)
-             call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
-                                        VALUE=MAPL_VLocationNone, RC=STATUS)
+             call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzOnly,RC=STATUS)
+             _VERIFY(STATUS)
+             call ESMF_InfoSet(infoh,'VLOCATION',MAPL_VLocationNone,RC=STATUS)
              _VERIFY(STATUS)
 
           else
@@ -5133,18 +5150,18 @@ CONTAINS
                                rc = status)
                _VERIFY(STATUS)
    !ALT: for now we add only HorzVert (no tiles)
-               call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
+               call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
                _VERIFY(STATUS)
-               call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
+               call ESMF_InfoSet(infoh,'LONG_NAME',LONG_NAME,RC=STATUS)
                _VERIFY(STATUS)
-               call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzVert, RC=STATUS)
+               call ESMF_InfoSet(infoh,'UNITS',UNITS,RC=STATUS)
+               _VERIFY(STATUS)
+               call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzVert,RC=STATUS)
                _VERIFY(STATUS)
                if (lm == counts(3)) then
-                  call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
-                                              VALUE=MAPL_VLocationCenter, RC=STATUS)
+                  call ESMF_InfoSet(infoh,'VLOCATION',MAPL_VLocationCenter,RC=STATUS)
                else if (lm == (counts(3)+1)) then
-                  call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
-                                              VALUE=MAPL_VLocationEdge, RC=STATUS)
+                  call ESMF_InfoSet(infoh,'VLOCATION',MAPL_VLocationEdge,RC=STATUS)
                end if
 
                _VERIFY(STATUS)
@@ -5203,13 +5220,16 @@ CONTAINS
        integer :: j
        integer :: rotation,gridstagger,rotation1,rotation2,gridStagger1,gridStagger2
        type(ESMF_Field) :: field1,field2
+       type(ESMF_Info) :: infoh
        allocate(mCFIO%needVar(size(mCFIO%varname)),stat=status)
        _VERIFY(status)
        mCFIO%needVar=0
-       call ESMF_AttributeGet(bundlein,name="VectorList:",isPresent=isPresent,rc=status)
+       call ESMF_InfoGetFromHost(bundlein,infoh,rc=status)
+       _VERIFY(STATUS)
+       isPresent = ESMF_InfoIsPresent(infoh,"VectorList:",rc=status)
        _VERIFY(STATUS)
        if (isPresent) then
-          call ESMF_AttributeGet(bundlein,name="VectorList:",valuelist=vectorlist,rc=status)
+          call ESMF_InfoGet(infoh,key="VectorList:",values=vectorlist,rc=status)
           _VERIFY(STATUS)
 
           do i=1,size(mCFIO%varname)
@@ -5241,10 +5261,19 @@ CONTAINS
           call ESMF_FieldBundleGet(MCFIO%BUNDLE, trim(vectorList(2)), field=FIELD2,RC=STATUS)
           _VERIFY(STATUS)
           mCFIO%doRotate=.false.
-          call ESMF_AttributeGet(field1,name='ROTATION',value=rotation1,rc=status)
-          call ESMF_AttributeGet(field1,name='STAGGERING',value=gridStagger1,rc=status)
-          call ESMF_AttributeGet(field2,name='ROTATION',value=rotation2,rc=status)
-          call ESMF_AttributeGet(field2,name='STAGGERING',value=gridStagger2,rc=status)
+          call ESMF_InfoGetFromHost(field1,infoh,rc=status)
+          _VERIFY(STATUS)
+          call ESMF_InfoGet(infoh,'ROTATION',rotation1,rc=status)
+          _VERIFY(STATUS)
+          call ESMF_InfoGet(infoh,'STAGGERING',gridStagger1,rc=status)
+          _VERIFY(STATUS)
+
+          call ESMF_InfoGetFromHost(field2,infoh,rc=status)
+          _VERIFY(STATUS)
+          call ESMF_InfoGet(infoh,'ROTATION',rotation2,rc=status)
+          _VERIFY(STATUS)
+          call ESMF_InfoGet(infoh,'STAGGERING',gridStagger2,rc=status)
+          _VERIFY(STATUS)
           _ASSERT(rotation1==rotation2,'rotation does not match')
           _ASSERT(gridStagger1==gridStagger2,'stagger does not match')
           rotation=rotation1
