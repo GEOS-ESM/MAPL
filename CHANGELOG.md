@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated `changelog-enforcer` to version 3
 - Compress CircleCI artifacts
+- Updated VarRead_2d_r8 interface to match VarRead_2d_r4 interface in NCIO module
 
 ### Removed
 
