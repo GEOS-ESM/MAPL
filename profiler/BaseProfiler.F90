@@ -215,6 +215,7 @@ contains
       call this%stack%pop_back()
       t => this%root_node%get_meter()
       call t%stop()
+      call t%finalize()
 
    end subroutine finalize
 
