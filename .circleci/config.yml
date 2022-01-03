@@ -91,6 +91,14 @@ commands:
           command: |
             mpirun --version && << parameters.compiler >> --version && echo $BASEDIR && pwd && ls && echo "$(nproc)"
 
+  compress_artifacts:
+    description: "Compress artifacts"
+    steps:
+      - run:
+          name: "Compress artifacts"
+          command: |
+            gzip -9 /logfiles/*
+
   checkout_fixture:
     description: "Checkout fixture"
     parameters:
@@ -260,6 +268,7 @@ jobs:
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
             # skip Performance tests (maybe doable on CircleCI?)
             ctest -R MAPL -LE PERFORMANCE --output-on-failure |& tee /logfiles/ctest.log
+      - compress_artifacts
       - store_artifacts:
           path: /logfiles
 
@@ -285,6 +294,7 @@ jobs:
           compiler: << parameters.compiler >>
       - buildinstall:
           repo: GEOSgcm
+      - compress_artifacts
       - store_artifacts:
           path: /logfiles
 
@@ -320,6 +330,7 @@ jobs:
           compiler: << parameters.compiler >>
       - buildinstall:
           repo: GEOSldas
+      - compress_artifacts
       - store_artifacts:
           path: /logfiles
 
@@ -346,8 +357,7 @@ jobs:
           compiler: << parameters.compiler >>
       - buildinstall:
           repo: GEOSadas
-      - store_artifacts:
-          path: /logfiles
+      - compress_artifacts
       - store_artifacts:
           path: /logfiles
 
@@ -426,6 +436,7 @@ jobs:
                echo "EGRESS not found!"
                exit 1
             fi
+      - compress_artifacts
       - store_artifacts:
           path: /logfiles
 
