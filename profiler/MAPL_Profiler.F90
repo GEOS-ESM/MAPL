@@ -39,5 +39,15 @@ module mapl_Profiler
    use mapl_SeparatorColumn
    
    implicit none
-   
+contains 
+
+   subroutine initialize_profiler(comm)
+      integer, optional, intent(in) :: comm
+      call initialize_global_time_profiler(comm = comm)
+   end subroutine initialize_profiler
+
+   subroutine finalize_profiler()
+      call finalize_global_time_profiler()
+   end subroutine finalize_profiler
+
 end module mapl_Profiler

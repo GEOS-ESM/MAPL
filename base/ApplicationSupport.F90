@@ -39,7 +39,7 @@ module MAPL_ApplicationSupport
       call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file,rc=status)
       _VERIFY(status)
 #endif
-      call initialize_global_time_profiler(comm=comm_world)
+      call initialize_profiler(comm=comm_world)
       call start_global_time_profiler()
       _RETURN(_SUCCESS)
 
@@ -61,8 +61,8 @@ module MAPL_ApplicationSupport
       end if
       call stop_global_time_profiler()
       call report_global_profiler(comm=comm_world)
+      call finalize_profiler()
       call finalize_pflogger()
-      call finalize_global_time_profiler()
 
    end subroutine MAPL_Finalize
 
