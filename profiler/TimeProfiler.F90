@@ -72,8 +72,11 @@ end module mapl_TimeProfiler_Private
 
 
 module mapl_TimeProfiler
+   use mpi
    use mapl_BaseProfiler
    use mapl_TimeProfiler_private
+   use MAPL_KeywordEnforcerMod
+
    implicit none
    private
 
@@ -87,20 +90,29 @@ module mapl_TimeProfiler
 
 contains
 
-   subroutine initialize_global_time_profiler(name)
+   subroutine initialize_global_time_profiler(unusable, name, comm)
+      class (KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: name
+      integer, optional, intent(in) :: comm
 
       type(TimeProfiler), pointer :: time_profiler
       character(:), allocatable :: name_
+      integer :: world_comm
 
       if (present(name)) then
          name_ = name
       else
-         name_ = 'top'
+         name_ = 'All'
+      end if
+
+      if (present(comm)) then
+         world_comm = comm
+      else
+         world_comm = MPI_COMM_WORLD
       end if
 
       time_profiler => get_global_time_profiler()
-      time_profiler = TimeProfiler(name_)
+      time_profiler = TimeProfiler(name_, comm_world = world_comm)
 
    end subroutine initialize_global_time_profiler
 
@@ -115,24 +127,38 @@ contains
    end subroutine finalize_global_time_profiler
 
 
-   subroutine start_global_time_profiler(name)
-      character(*), intent(in) :: name
-      
+   subroutine start_global_time_profiler(unusable, name)
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: name
+      character(:), allocatable :: name_
       type(TimeProfiler), pointer :: time_profiler
+ 
+      if (present(name)) then
+         name_ = name
+      else
+         name_ = 'All'
+      end if
 
       time_profiler => get_global_time_profiler()
-      call time_profiler%start(name)
+      call time_profiler%start(name_)
 
    end subroutine start_global_time_profiler
 
    
-   subroutine stop_global_time_profiler(name)
-      character(*), intent(in) :: name
-
+   subroutine stop_global_time_profiler(unusable, name)
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: name
+      character(:), allocatable :: name_
       type(TimeProfiler), pointer :: time_profiler
 
+      if (present(name)) then
+         name_ = name
+      else
+         name_ = 'All'
+      end if
+
       time_profiler => get_global_time_profiler()
-      call time_profiler%stop(name)
+      call time_profiler%stop(name_)
 
    end subroutine stop_global_time_profiler
 
