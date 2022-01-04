@@ -6368,6 +6368,7 @@ end subroutine MAPL_StateCreateFromVarSpecNew
 
     integer :: range_(2)
     type(MAPL_VarSpec), pointer :: varspec
+    character(len=ESMF_MAXSTR) :: fname
 
     if (present(range)) then
        range_ = range
@@ -6496,9 +6497,15 @@ end subroutine MAPL_StateCreateFromVarSpecNew
       isCreated = ESMF_FieldIsCreated(SPEC_FIELD, rc=status)
       _VERIFY(STATUS)
       if (isCreated) then
-         call MAPL_AllocateCoupling( SPEC_FIELD, RC=STATUS ) ! if 'DEFER' this allocates the data
-         _VERIFY(STATUS)
-
+         call ESMF_FieldGet(SPEC_FIELD, name=fname, __RC__)
+         if (.not. deferAlloc .or. short_name/=fname) then
+            call MAPL_AllocateCoupling( SPEC_FIELD, RC=STATUS ) ! if 'DEFER' this allocates the data
+            _VERIFY(STATUS)
+         else
+            field = spec_field
+            goto 20
+         end if
+         
 
 !ALT we are creating new field so that we can optionally change the name of the field;
 !    the important thing is that the data (ESMF_Array) is the SAME as the one in SPEC_Field
@@ -6611,6 +6618,7 @@ end subroutine MAPL_StateCreateFromVarSpecNew
                _VERIFY(STATUS)
             end if
          end if
+20       continue
       else
 
 ! Create the appropriate ESMF FIELD
