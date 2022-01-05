@@ -12,7 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
-- Refactored MAPL_Generic.F90 - lots of changes. 
+- Refactored MAPL_Generic.F90 - lots of changes.
+  - consistent indentation (emacs mode)
+  - extracted helper procedures in GenericInitialize
 
 ### Removed
 

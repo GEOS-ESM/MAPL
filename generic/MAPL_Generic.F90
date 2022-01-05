@@ -758,7 +758,7 @@ contains
    ! !IROUTINE: MAPL_GenericInitialize -- Initializes the component and its children
 
    ! !INTERFACE:
-   recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
+   recursive subroutine MAPL_GenericInitialize ( GC, import, EXPORT, CLOCK, RC )
       
       !ARGUMENTS:
       type(ESMF_GridComp), intent(INOUT) :: GC     ! Gridded component
@@ -1034,121 +1034,13 @@ contains
       call initialize_children_and_couplers(_RC)
       call MAPL_TimerOn(STATE,"generic")
 
-      ! Create import and initialize state variables
-      ! --------------------------------------------
-      if (associated(STATE%COMPONENT_SPEC%IMPORT%OLD_VAR_SPECS) .and. isGridValid) then
-
-         is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
-         if (is_associated) then
-            call MAPL_StateCreateFromVarSpecNew(IMPORT,STATE%COMPONENT_SPEC%IMPORT,     &
-                 MYGRID%ESMFGRID,              &
-                 TILEGRID=TILEGRID,            &
-                 __RC__       )
-         else
-            call MAPL_StateCreateFromVarSpecNew(IMPORT,STATE%COMPONENT_SPEC%IMPORT,     &
-                 MYGRID%ESMFGRID,              &
-                 __RC__       )
-         endif
-
-         call MAPL_GetResource( STATE   , FILENAME,         &
-              LABEL="IMPORT_RESTART_FILE:", &
-              RC=status)
-         if(status==ESMF_SUCCESS) then
-
-            call MAPL_ESMFStateReadFromFile(IMPORT, CLOCK, FILENAME, &
-                 STATE, .FALSE., rc=status)
-            if (status /= ESMF_SUCCESS) then
-               if (MAPL_AM_I_Root(VM)) then
-                  call ESMF_StatePrint(Import)
-               end if
-            end if
-         endif
-      end if
+      call create_import_and_initialize_state_variables(__RC__)
 
       call ESMF_AttributeSet(import,'POSITIVE',trim(positive),__RC__)
-      ! Create internal and initialize state variables
-      ! -----------------------------------------------
 
-      internal_state => STATE%get_internal_state()
-      internal_state = ESMF_StateCreate(name = trim(comp_name) // "_INTERNAL", __RC__)
+      call create_internal_and_initialize_state_variables(__RC__)
 
-      if (associated(STATE%COMPONENT_SPEC%INTERNAL%OLD_VAR_SPECS)) then
-         is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
-         if (is_associated) then
-            call MAPL_StateCreateFromVarSpecNew(internal_state,STATE%COMPONENT_SPEC%INTERNAL, &
-                 MYGRID%ESMFGRID,             &
-                 TILEGRID=TILEGRID,           &
-                 __RC__       )
-         else
-            call MAPL_StateCreateFromVarSpecNew(internal_state,STATE%COMPONENT_SPEC%INTERNAL, &
-                 MYGRID%ESMFGRID,             &
-                 __RC__       )
-         end if
-         call ESMF_AttributeSet(internal_state,'POSITIVE',trim(positive),__RC__)
-
-         id_string = ""
-         tmp_label = "INTERNAL_RESTART_FILE:"
-         call MAPL_GetResource( STATE   , FILEtpl,         &
-              LABEL=trim(tmp_label), &
-              rc=status)
-         if((status /=ESMF_SUCCESS) .and. ens_id_width >0) then
-            i = len(trim(comp_name))
-            id_string = comp_name(i-ens_id_width+1:i)
-            tmp_label =comp_name(1:i-ens_id_width)//"_"//trim(tmp_label)
-            call MAPL_GetResource( STATE   , FILEtpl,         &
-                 LABEL=trim(tmp_label), &
-                 rc=status)
-         endif
-
-         if(status==ESMF_SUCCESS) then
-            ! if the filename is tempate
-            call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), &
-                 nymd=yyyymmdd,nhms=hhmmss,__RC__)
-            call MAPL_GetResource( STATE   , hdr,         &
-                 default=0, &
-                 LABEL="INTERNAL_HEADER:", &
-                 __RC__)
-            call MAPL_ESMFStateReadFromFile(internal_state, CLOCK, FILENAME, &
-                 STATE, hdr/=0, rc=status)
-            if (status /= ESMF_SUCCESS) then
-               if (MAPL_AM_I_Root(VM)) then
-                  call ESMF_StatePrint(internal_state)
-               end if
-               _RETURN(ESMF_FAILURE)
-            end if
-         else
-            ! try to coldstart the internal state
-            ! -------------------------------
-            if (associated(STATE%phase_coldstart)) then
-               ! ALT: workaround bug 3004440 in ESMF (fixed in ESMF_5_1_0)
-               ! please, do not remove, nor change order until we move to 510 or later
-               allocate(GCCS%compp, stat=status)
-               GCCS%compp = GC%compp
-               call ESMF_GridCompReadRestart(GC, importState=import, &
-                    exportState=export, clock=CLOCK, userRC=userRC, __RC__)
-               GC%compp = GCCS%compp
-               deallocate(GCCS%compp)
-            endif
-
-         endif
-      end if
-
-      ! Create export state variables
-      !------------------------------
-
-      if (associated(STATE%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS)) then
-         is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
-         if (is_associated) then
-            call MAPL_StateCreateFromVarSpecNew(EXPORT,STATE%COMPONENT_SPEC%EXPORT,     &
-                 MYGRID%ESMFGRID,              &
-                 TILEGRID=TILEGRID,            &
-                 DEFER=.true., __RC__       )
-         else
-            call MAPL_StateCreateFromVarSpecNew(EXPORT,STATE%COMPONENT_SPEC%EXPORT,     &
-                 MYGRID%ESMFGRID,              &
-                 DEFER=.true., __RC__       )
-         end if
-      end if
+      call create_export_state_variables(__RC__)
 
       ! Create forcing state
       STATE%FORCING = ESMF_StateCreate(name = trim(comp_name) // "_FORCING", &
@@ -1167,19 +1059,7 @@ contains
          call MAPL_AdjustIsNeeded(GC, EXPORT, __RC__)
       end if
 
-      ! Service services processing:
-      ! process any providers
-      if (state%provided_services%size()>0) then
-         call ProvidedServiceSet(state%provided_services, import, __RC__)
-      end if
-
-      ! process any requesters
-      if (state%requested_services%size()>0) then
-         call FillRequestBundle(state%requested_services, state%get_internal_state(), __RC__)
-      end if
-
-      ! process any service connections
-      call MAPL_ProcessServiceConnections(state, __RC__)
+      call handle_services(__RC__)
 
       ! Write Memory Use Statistics.
       ! -------------------------------------------
@@ -1326,6 +1206,7 @@ contains
             j = MYGRID%NY0 - mod(MYGRID%NY0-1,ny_by_writers)
             call MPI_COMM_SPLIT(COMM, j, MYGRID%MYID, mygrid%IOgathercomm, status)
          endif
+         _RETURN(ESMF_SUCCESS)
       end subroutine handle_readers_and_writers
 
       recursive subroutine initialize_children_and_couplers(rc)
@@ -1414,6 +1295,7 @@ contains
                ! ---------------------------------------------------
             enddo
          endif
+         _RETURN(ESMF_SUCCESS)
       end subroutine initialize_children_and_couplers
 
       subroutine handle_clock_and_main_alarm(clock, unusable, rc)
@@ -1496,6 +1378,7 @@ contains
          if(ringTime == currTime) then
             call ESMF_AlarmRingerOn(STATE%ALARM(0), __RC__)
          end if
+         _RETURN(ESMF_SUCCESS)
 
       end subroutine handle_clock_and_main_alarm
 
@@ -1629,7 +1512,156 @@ contains
                STATE%RECORD%INT_LEN = 0
             end if
          end if
+         _RETURN(ESMF_SUCCESS)
       end subroutine handle_record
+
+      subroutine create_import_and_initialize_state_variables(rc)
+         integer, optional, intent(out) :: rc
+         ! Create import and initialize state variables
+         ! --------------------------------------------
+         if (associated(STATE%COMPONENT_SPEC%IMPORT%OLD_VAR_SPECS) .and. isGridValid) then
+
+            is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
+            if (is_associated) then
+               call MAPL_StateCreateFromVarSpecNew(IMPORT,STATE%COMPONENT_SPEC%IMPORT,     &
+                    MYGRID%ESMFGRID,              &
+                    TILEGRID=TILEGRID,            &
+                    __RC__       )
+            else
+               call MAPL_StateCreateFromVarSpecNew(IMPORT,STATE%COMPONENT_SPEC%IMPORT,     &
+                    MYGRID%ESMFGRID,              &
+                    __RC__       )
+            endif
+
+            call MAPL_GetResource( STATE   , FILENAME,         &
+                 LABEL="IMPORT_RESTART_FILE:", &
+                 RC=status)
+            if(status==ESMF_SUCCESS) then
+
+               call MAPL_ESMFStateReadFromFile(IMPORT, CLOCK, FILENAME, &
+                    STATE, .FALSE., rc=status)
+               if (status /= ESMF_SUCCESS) then
+                  if (MAPL_AM_I_Root(VM)) then
+                     call ESMF_StatePrint(Import)
+                  end if
+               end if
+            endif
+         end if
+         _RETURN(ESMF_SUCCESS)
+      end subroutine create_import_and_initialize_state_variables
+
+      subroutine create_internal_and_initialize_state_variables(rc)
+         integer, optional, intent(out) :: rc
+         ! Create internal and initialize state variables
+         ! -----------------------------------------------
+
+         internal_state => STATE%get_internal_state()
+         internal_state = ESMF_StateCreate(name = trim(comp_name) // "_INTERNAL", __RC__)
+
+         if (associated(STATE%COMPONENT_SPEC%INTERNAL%OLD_VAR_SPECS)) then
+            is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
+            if (is_associated) then
+               call MAPL_StateCreateFromVarSpecNew(internal_state,STATE%COMPONENT_SPEC%INTERNAL, &
+                    MYGRID%ESMFGRID,             &
+                    TILEGRID=TILEGRID,           &
+                    __RC__       )
+            else
+               call MAPL_StateCreateFromVarSpecNew(internal_state,STATE%COMPONENT_SPEC%INTERNAL, &
+                    MYGRID%ESMFGRID,             &
+                    __RC__       )
+            end if
+            call ESMF_AttributeSet(internal_state,'POSITIVE',trim(positive),__RC__)
+
+            id_string = ""
+            tmp_label = "INTERNAL_RESTART_FILE:"
+            call MAPL_GetResource( STATE   , FILEtpl,         &
+                 LABEL=trim(tmp_label), &
+                 rc=status)
+            if((status /=ESMF_SUCCESS) .and. ens_id_width >0) then
+               i = len(trim(comp_name))
+               id_string = comp_name(i-ens_id_width+1:i)
+               tmp_label =comp_name(1:i-ens_id_width)//"_"//trim(tmp_label)
+               call MAPL_GetResource( STATE   , FILEtpl,         &
+                    LABEL=trim(tmp_label), &
+                    rc=status)
+            endif
+
+            if(status==ESMF_SUCCESS) then
+               ! if the filename is tempate
+               call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), &
+                    nymd=yyyymmdd,nhms=hhmmss,__RC__)
+               call MAPL_GetResource( STATE   , hdr,         &
+                    default=0, &
+                    LABEL="INTERNAL_HEADER:", &
+                    __RC__)
+               call MAPL_ESMFStateReadFromFile(internal_state, CLOCK, FILENAME, &
+                    STATE, hdr/=0, rc=status)
+               if (status /= ESMF_SUCCESS) then
+                  if (MAPL_AM_I_Root(VM)) then
+                     call ESMF_StatePrint(internal_state)
+                  end if
+                  _RETURN(ESMF_FAILURE)
+               end if
+            else
+               ! try to coldstart the internal state
+               ! -------------------------------
+               if (associated(STATE%phase_coldstart)) then
+                  ! ALT: workaround bug 3004440 in ESMF (fixed in ESMF_5_1_0)
+                  ! please, do not remove, nor change order until we move to 510 or later
+                  allocate(GCCS%compp, stat=status)
+                  GCCS%compp = GC%compp
+                  call ESMF_GridCompReadRestart(GC, importState=import, &
+                       exportState=export, clock=CLOCK, userRC=userRC, __RC__)
+                  GC%compp = GCCS%compp
+                  deallocate(GCCS%compp)
+               endif
+
+            endif
+         end if
+         _RETURN(ESMF_SUCCESS)
+      end subroutine create_internal_and_initialize_state_variables
+
+      subroutine create_export_state_variables(rc)
+         integer, optional, intent(out) :: rc
+
+
+         ! Create export state variables
+         !------------------------------
+
+         if (associated(STATE%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS)) then
+            is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
+            if (is_associated) then
+               call MAPL_StateCreateFromVarSpecNew(EXPORT,STATE%COMPONENT_SPEC%EXPORT,     &
+                    MYGRID%ESMFGRID,              &
+                    TILEGRID=TILEGRID,            &
+                    DEFER=.true., __RC__       )
+            else
+               call MAPL_StateCreateFromVarSpecNew(EXPORT,STATE%COMPONENT_SPEC%EXPORT,     &
+                    MYGRID%ESMFGRID,              &
+                    DEFER=.true., __RC__       )
+            end if
+         end if
+         _RETURN(ESMF_SUCCESS)
+      end subroutine create_export_state_variables
+
+      subroutine handle_services(rc)
+         integer, optional, intent(out) :: rc
+         ! Service services processing:
+         ! process any providers
+         if (state%provided_services%size()>0) then
+            call ProvidedServiceSet(state%provided_services, import, __RC__)
+         end if
+
+         ! process any requesters
+         if (state%requested_services%size()>0) then
+            call FillRequestBundle(state%requested_services, state%get_internal_state(), __RC__)
+         end if
+         
+         ! process any service connections
+         call MAPL_ProcessServiceConnections(state, __RC__)
+
+         _RETURN(ESMF_SUCCESS)
+      end subroutine handle_services
 
    end subroutine MAPL_GenericInitialize
 
