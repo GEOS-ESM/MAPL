@@ -43,6 +43,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
+  use gFTL_StringStringMap
   !use ESMF_CFIOMOD
 
   implicit none
@@ -422,6 +423,7 @@ contains
     logical, allocatable :: needSplit(:)
     type(ESMF_Field), allocatable :: fldList(:)
     character(len=ESMF_MAXSTR), allocatable :: regexList(:)
+    type(StringStringMap) :: global_attributes
     
 ! Begin
 !------
@@ -2437,12 +2439,13 @@ ENDDO PARSER
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,rc=status)
              _VERIFY(status)
           else
+             global_attributes = list(n)%define_collection_attributes(_RC)
              if (trim(list(n)%output_grid_label)/='') then
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label)) 
-                call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,rc=status)
+                call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,rc=status)
                 _VERIFY(status)
              else
-                call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
+                call list(n)%mNewCFIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,rc=status)
                 _VERIFY(status)
              end if
              collection_id = o_Clients%add_hist_collection(list(n)%mNewCFIO%metadata)

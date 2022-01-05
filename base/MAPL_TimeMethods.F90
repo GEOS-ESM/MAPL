@@ -87,16 +87,13 @@ contains
     character(len=ESMF_MAXSTR) :: startTime,timeUnits
     type(ESMF_Time) :: currTime
     integer :: i1,i2,i3,i123,ipos1,ipos2,isc,imn,ihr,ifreq
+    logical :: integer_time
 
     call ESMF_CLockGet(this%clock,currTime=currTime,rc=status)
     _VERIFY(status)
     currTime = currTime - this%offset
     call ESMF_TimeGet(currTime,timeString=StartTime,rc=status)
     _VERIFY(status)
-    timeUnits = trim(this%funits)//" since "//startTime( 1: 10)//" "//startTime(12:19)
-    v = Variable(type=PFIO_REAL32,dimensions='time')
-    call v%add_attribute('long_name','time')
-    call v%add_attribute('units',trim(timeUnits))
   
     ipos1=index(startTime,"-")
     ipos2=index(startTime,"-",back=.true.)
@@ -117,6 +114,7 @@ contains
     select case(trim(this%funits))
     case('minutes')
        isc=mod(this%frequency,60)
+       integer_time = mod(this%frequency,60) == 0
        i2=this%frequency-isc
        i2=i2/60
        imn=mod(i2,60)
@@ -125,6 +123,7 @@ contains
        ifreq=10000*ihr+100*imn+isc 
     case('days')
        ifreq = this%frequency/86400
+       integer_time = mod(this%frequency,86400) == 0
     case default
        _ASSERT(.false., 'Not supported yet')
     end select
@@ -132,6 +131,17 @@ contains
 
     call this%tvec%clear()
     this%tcount=0
+    call ESMF_TimeGet(currTime,timeString=StartTime,rc=status)
+    _VERIFY(status)
+    timeUnits = trim(this%funits)//" since "//startTime( 1: 10)//" "//startTime(12:19)
+    if (integer_time) then
+       v = Variable(type=PFIO_INT32,dimensions='time')
+    else
+       v = Variable(type=PFIO_REAL32,dimensions='time')
+    end if
+    call v%add_attribute('long_name','time')
+    call v%add_attribute('units',trim(timeUnits))
+  
     
     _RETURN(ESMF_SUCCESS)
 

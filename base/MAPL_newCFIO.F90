@@ -21,6 +21,7 @@ module MAPL_newCFIOMod
   use MAPL_ExtDataCollectionMod
   use MAPL_ExtDataCOllectionManagerMod
   use gFTL_StringVector
+  use gFTL_StringStringMap
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
@@ -99,13 +100,14 @@ module MAPL_newCFIOMod
         _RETURN(ESMF_SUCCESS)
      end function new_MAPL_newCFIO
 
-     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,rc)
+     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,rc)
         class (MAPL_newCFIO), intent(inout) :: this
         type(newCFIOitemVector), target, intent(inout) :: items
         type(ESMF_FieldBundle), intent(inout) :: bundle
         type(TimeData), intent(inout) :: timeInfo
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
+        type(StringStringMap), intent(in), optional :: global_attributes
         integer, intent(out), optional :: rc
 
         type(ESMF_Grid) :: input_grid
@@ -115,7 +117,8 @@ module MAPL_newCFIOMod
         type(newCFIOitem), pointer :: item
         type(stringVector) :: order
         integer :: metadataVarsSize
-
+        type(StringStringMapIterator) :: s_iter
+        character(len=:), pointer :: attr_name, attr_val
         integer :: status
 
         this%items = items
@@ -181,6 +184,16 @@ module MAPL_newCFIOMod
         if (this%itemOrderAlphabetical) then
            call this%alphabatize_variables(metadataVarsSize,rc=status)
            _VERIFY(status)
+        end if
+
+        if (present(global_attributes)) then
+           s_iter = global_attributes%begin()
+           do while(s_iter /= global_attributes%end())
+              attr_name => s_iter%key()
+              attr_val => s_iter%value()
+              call this%metadata%add_attribute(attr_name,attr_val,_RC)
+              call s_iter%next()
+           enddo
         end if
        
      end subroutine CreateFileMetaData

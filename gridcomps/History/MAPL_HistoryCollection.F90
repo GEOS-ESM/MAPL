@@ -9,6 +9,7 @@ module MAPL_HistoryCollectionMod
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
   use HistoryTrajectoryMod
+  use gFTL_StringStringMap
   implicit none
   
   private
@@ -90,9 +91,30 @@ module MAPL_HistoryCollectionMod
      type(HistoryTrajectory)            :: trajectory
      contains
         procedure :: AddGrid
+        procedure :: define_collection_attributes
   end type HistoryCollection
 
   contains
+
+     function define_collection_attributes(this,rc) result(global_attributes)
+        class(HistoryCollection), intent(inout) :: this
+        integer, optional, intent(out) :: rc
+
+        type(StringStringMap) :: global_attributes
+        integer :: status
+
+        call global_attributes%insert("Title",trim(this%descr))
+        call global_attributes%insert("History","File written by MAPL_PFIO")
+        call global_attributes%insert("Source","unknown")
+        call global_attributes%insert("Contact","http://gmao.gsfc.nasa.gov")
+        call global_attributes%insert("Convention","CF")
+        call global_attributes%insert("Institution","NASA Global Modeling and Assimilation Office")
+        call global_attributes%insert("References","see MAPL documentation")
+        call global_attributes%insert("Filename",trim(this%filename))
+        call global_attributes%insert("Comment","NetCDF-4")
+
+        _RETURN(_SUCCESS)
+     end function define_collection_attributes
 
      subroutine AddGrid(this,output_grids,resolution,rc) 
         use MAPL_GridManagerMod
