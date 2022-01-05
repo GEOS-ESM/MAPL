@@ -812,6 +812,7 @@ enddo
   character(len=ESMF_MAXSTR)    :: CHILD_NAME
   type(ESMF_Grid)               :: CHLGRID
   type(ESMF_DistGrid)           :: distGRID
+  type(ESMF_Info)               :: infoh
 
   integer                          :: nhms  ! Current Time date and hour/minute
   integer                          :: PHASE
@@ -1098,9 +1099,10 @@ enddo
               RC       = status                    )
 
   gridTypeAttribute = ''
-         call ESMF_AttributeGet(MYGRID%ESMFGRID, name='GridType', isPresent=isPresent, __RC__)
+  call ESMF_InfoGetFromHost(MYGRID%ESMFGRID,infoh,RC=status)
+  isPresent = ESMF_InfoIsPresent(infoh,'GridType',__RC__)
   if (isPresent) then
-            call ESMF_AttributeGet(MYGRID%ESMFGRID, name='GridType', value=gridTypeAttribute, __RC__)
+     call ESMF_InfoGet(infoh,'GridType',gridTypeAttribute,__RC__)
      if (gridTypeAttribute == 'Doubly-Periodic') then
 
         ! this is special case: doubly periodic grid
@@ -1443,7 +1445,8 @@ enddo
       endif
    end if
 
-      call ESMF_AttributeSet(import,'POSITIVE',trim(positive),__RC__)
+   call ESMF_InfoGetFromHost(import,infoh,rc=status)
+   call ESMF_InfoSet(infoh,key='POSITIVE',value=trim(positive),__RC__)
       ! Create internal and initialize state variables
       ! -----------------------------------------------
 
@@ -1462,7 +1465,9 @@ enddo
                                         MYGRID%ESMFGRID,             &
                  __RC__       )
       end if
-         call ESMF_AttributeSet(internal_state,'POSITIVE',trim(positive),__RC__)
+      _VERIFY(STATUS)
+      call ESMF_InfoGetFromHost(internal_state,infoh,rc=status)
+      call ESMF_InfoSet(infoh,key='POSITIVE',value=trim(positive),__RC__)
 
       id_string = ""
       tmp_label = "INTERNAL_RESTART_FILE:"
@@ -1655,8 +1660,7 @@ enddo
 
   Iam = "MAPL_GenericWrapper"
       call ESMF_GridCompGet( GC, NAME=comp_name, currentPhase=PHASE, &
-           currentMethod=method, RC=status )
-      _VERIFY(status)
+           currentMethod=method, __RC__)
       Iam = trim(comp_name) // trim(Iam)
 
   call ESMF_VmGetCurrent(VM)
@@ -5465,6 +5469,7 @@ enddo
     !logical                               :: amIRoot
     !type (ESMF_VM)                        :: vm
     logical :: empty
+    type(ESMF_Info)                       :: infoh
 
       ! Check if state is empty. If "yes", simply return
     empty = MAPL_IsStateEmpty(state, __RC__)
@@ -5500,8 +5505,9 @@ enddo
 
        AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
 
-         call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
-         _VERIFY(status)
+       call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+       call ESMF_InfoGet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
+       _VERIFY(STATUS)
        TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
           _ASSERT(IAND(ATTR, MAPL_AttrGrid) == 0,'needs informative message') ! no hybrid allowed
             _ASSERT(MAPL_LocStreamIsAssociated(MPL%LOCSTREAM,RC=status),'needs informative message')
@@ -5592,8 +5598,10 @@ enddo
        end if
 #endif
        AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
-         call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
-         _VERIFY(status)
+       call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+       _VERIFY(STATUS)
+       call ESMF_InfoGet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
+       _VERIFY(STATUS)
        PNC4_TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
           _ASSERT(IAND(ATTR, MAPL_AttrGrid) == 0,'needs informative message') ! no hybrid allowed
             call ArrDescrSetNCPar(arrdes,MPL,tile=.TRUE.,num_writers=mpl%grid%num_writers,RC=status)
@@ -5737,6 +5745,7 @@ enddo
     logical                               :: FileExists
 
     type(ESMF_Grid) :: TILEGRID
+    type(ESMF_Info) :: infoh
     integer :: COUNTS(2)
     integer :: io_nodes, io_rank
     integer :: attr
@@ -5782,11 +5791,12 @@ enddo
     firstChar = FNAME(1:1)
 
     ! get the "required restart" attribute from the state
-      call ESMF_AttributeGet(STATE, NAME="MAPL_RestartRequired", isPresent=isPresent, RC=status)
-      _VERIFY(status)
+    call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+    isPresent = ESMF_InfoIsPresent(infoh,'MAPL_RestartRequired',RC=STATUS)
+    _VERIFY(STATUS)
     if (isPresent) then
-         call ESMF_AttributeGet(STATE, NAME="MAPL_RestartRequired", VALUE=rstReq, RC=status)
-         _VERIFY(status)
+       call ESMF_InfoGet(infoh,'MAPL_RestartRequired',rstReq,RC=STATUS)
+       _VERIFY(STATUS)
     else
        rstReq = 0
     end if
@@ -5897,8 +5907,8 @@ enddo
 
        AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
 
-         call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
-         _VERIFY(status)
+       call ESMF_InfoGet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
+       _VERIFY(STATUS)
        TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
           _ASSERT(IAND(ATTR, MAPL_AttrGrid) == 0,'needs informative message') ! no hybrid allowed
             _ASSERT(MAPL_LocStreamIsAssociated(MPL%LOCSTREAM,RC=status),'needs informative message')
@@ -5980,17 +5990,18 @@ enddo
        end if
 #endif
        AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
-         call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
-         _VERIFY(status)
+       call ESMF_InfoGet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
+       _VERIFY(STATUS)
        PNC4_TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
           _ASSERT(IAND(ATTR, MAPL_AttrGrid) == 0,'needs informative message') ! no hybrid allowed
             call ArrDescrSetNCPar(arrdes,MPL,tile=.TRUE.,num_readers=mpl%grid%num_readers,RC=status)
             _VERIFY(status)
        else
-          call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',isPresent=isPresent,rc=status)
+          call ESMF_InfoGetFromHost(MPL%GRID%ESMFGRID,infoh,rc=status)
+          isPresent = ESMF_InfoIsPresent(infoh,'GridType',rc=status)
           _VERIFY(status)
           if (isPresent) then
-             call ESMF_AttributeGet(MPL%GRID%ESMFGRID,'GridType',value=grid_type,rc=status)
+             call ESMF_InfoGet(infoh,'GridType',grid_type,rc=status)
              _VERIFY(status)
           end if
           !note this only works for geos cubed-sphere restarts currently because of
@@ -6057,8 +6068,9 @@ enddo
          _VERIFY(status)
     endif
 
-      call ESMF_AttributeSet(STATE,'MAPL_Initialized', .TRUE.,RC=status)
-      _VERIFY(status)
+    call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+    call ESMF_InfoSet(infoh,key='MAPL_Initialized',value=.TRUE.,RC=STATUS)
+    _VERIFY(STATUS)
 
       call MAPL_AttributeSet(STATE, NAME="MAPL_InitStatus", VALUE=MAPL_InitialRestart, RC=status)
       _VERIFY(status)
@@ -6194,6 +6206,7 @@ enddo
     type (ESMF_FieldBundle) :: BUNDLE
     type (ESMF_Field)       :: SPEC_FIELD
     type (ESMF_FieldBundle) :: SPEC_BUNDLE
+    type (ESMF_Info)      :: infoh
     real(kind=ESMF_KIND_R4), pointer         :: VAR_1D(:), VAR_2D(:,:), VAR_3D(:,:,:), VAR_4d(:,:,:,:)
     real(kind=ESMF_KIND_R8), pointer         :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
     logical               :: usableDEFER
@@ -6317,8 +6330,9 @@ enddo
             call MAPL_VarSpecSet(varspec,STATE=nestState,RC=status)
             _VERIFY(status)
 
-            call ESMF_AttributeSet(nestState, NAME='RESTART', VALUE=RESTART, RC=status)
-            _VERIFY(status)
+         call ESMF_InfoGetFromHost(nestState,infoh,RC=STATUS)
+         call ESMF_InfoSet(infoh,'RESTART',RESTART,RC=STATUS)
+         _VERIFY(STATUS)
 
             ! Put the BUNDLE in the state
             ! --------------------------
@@ -6346,8 +6360,9 @@ enddo
             call MAPL_VarSpecSet(varspec,BUNDLE=BUNDLE,RC=status)
             _VERIFY(status)
 
-            call ESMF_AttributeSet(BUNDLE, NAME='RESTART', VALUE=RESTART, RC=status)
-            _VERIFY(status)
+         call ESMF_InfoGetFromHost(BUNDLE,infoh,RC=STATUS)
+         call ESMF_InfoSet(infoh,'RESTART',RESTART,RC=STATUS)
+         _VERIFY(STATUS)
 
             ! Put the BUNDLE in the state
             ! --------------------------
@@ -6381,12 +6396,13 @@ enddo
             _VERIFY(status)
 
          call ESMF_FieldGet(field, Array=array, rc=status)
-            _VERIFY(status)
-            call ESMF_AttributeGet(field, NAME="MAPL_InitStatus", isPresent=isPresent, RC=status)
-            _VERIFY(status)
+         _VERIFY(STATUS)
+         call ESMF_InfoGetFromHost(field, infoh, RC=status)
+         isPresent = ESMF_InfoIsPresent(infoh,'MAPL_InitStatus',RC=STATUS)
+         _VERIFY(STATUS)
          if (isPresent) then
-               call ESMF_AttributeGet(field, NAME="MAPL_InitStatus", VALUE=initStatus, RC=status)
-               _VERIFY(status)
+            call ESMF_InfoGet(infoh,'MAPL_InitStatus',initStatus, RC=status)
+            _VERIFY(STATUS)
          else
             initStatus = MAPL_UnInitialized
          end if
@@ -6492,7 +6508,9 @@ enddo
             ! ---------------------------------
 
          field = MAPL_FieldCreateEmpty(name=SHORT_NAME, grid=grid, rc=status)
-            _VERIFY(status)
+         _VERIFY(STATUS)
+         call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
+         _VERIFY(STATUS)
 
          has_ungrd = associated(UNGRD)
 
@@ -6523,19 +6541,17 @@ enddo
 
                end if
             else
-                  call ESMF_AttributeSet(FIELD, NAME='doNotAllocate', VALUE=1, RC=status)
-                  _VERIFY(status)
+               call ESMF_InfoSet(infoh,'doNotAllocate',1, RC=status)
+               _VERIFY(STATUS)
             end if
          else
-               call ESMF_AttributeSet(FIELD, NAME='PRECISION', VALUE=KND, RC=status)
-               _VERIFY(status)
-            call ESMF_AttributeSet(FIELD, NAME='DEFAULT_PROVIDED', &
-                    value=defaultProvided, RC=status)
-               _VERIFY(status)
+            call ESMF_InfoSet(infoh,'PRECISION',KND, RC=status)
+            _VERIFY(STATUS)
+            call ESMF_InfoSet(infoh,'DEFAULT_PROVIDED',defaultProvided, RC=status)
+            _VERIFY(STATUS)
             if (defaultProvided) then
-               call ESMF_AttributeSet(FIELD, NAME='DEFAULT_VALUE', &
-                       value=default_value, RC=status)
-                  _VERIFY(status)
+               call ESMF_InfoSet(infoh,'DEFAULT_VALUE',default_value, RC=status)
+               _VERIFY(STATUS)
             end if
          end if
 
@@ -6563,59 +6579,56 @@ enddo
 
          ! Add SPECs to the FIELD
 
-         call ESMF_AttributeSet(FIELD, NAME='STAT', VALUE=STAT, RC=status)
-         _VERIFY(status)
-         call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=DIMS, RC=status)
-         _VERIFY(status)
-         call ESMF_AttributeSet(FIELD, NAME='VLOCATION', VALUE=LOCATION, RC=status)
-         _VERIFY(status)
-         call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=status)
-         _VERIFY(status)
-         call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=status)
-         _VERIFY(status)
+      call ESMF_InfoSet(infoh,'STAT',STAT, RC=status)
+      _VERIFY(STATUS)
+      call ESMF_InfoSet(infoh,'DIMS',DIMS, RC=status)
+      _VERIFY(STATUS)
+      call ESMF_InfoSet(infoh,'VLOCATION',LOCATION, RC=status)
+      _VERIFY(STATUS)
+      call ESMF_InfoSet(infoh,'LONG_NAME',LONG_NAME, RC=status)
+      _VERIFY(STATUS)
+      call ESMF_InfoSet(infoh,'UNITS',UNITS, RC=status)
+      _VERIFY(STATUS)
 
-         call ESMF_AttributeSet(FIELD, NAME='REFRESH_INTERVAL', VALUE=REFRESH, RC=status)
-         _VERIFY(status)
-         call ESMF_AttributeSet(FIELD, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, RC=status)
-         _VERIFY(status)
-         call ESMF_AttributeSet(FIELD, NAME='HALOWIDTH', VALUE=HW, RC=status)
-         _VERIFY(status)
-         call ESMF_AttributeSet(FIELD, NAME='RESTART', VALUE=RESTART, RC=status)
-         _VERIFY(status)
-         call ESMF_AttributeSet(FIELD, NAME='FIELD_TYPE', VALUE=FIELD_TYPE, RC=status)
-         _VERIFY(status)
-         call ESMF_AttributeSet(FIELD, NAME='STAGGERING', VALUE=STAGGERING, RC=status)
-         _VERIFY(status)
-         call ESMF_AttributeSet(FIELD, NAME='ROTATION', VALUE=ROTATION, RC=status)
-         _VERIFY(status)
+      call ESMF_InfoSet(infoh,'REFRESH_INTERVAL',REFRESH, RC=status)
+      _VERIFY(STATUS)
+      call ESMF_InfoSet(infoh,'AVERAGING_INTERVAL',AVGINT, RC=status)
+      _VERIFY(STATUS)
+      call ESMF_InfoSet(infoh,'HALOWIDTH',HW, RC=status)
+      _VERIFY(STATUS)
+      call ESMF_InfoSet(infoh,'RESTART',RESTART, RC=status)
+      _VERIFY(STATUS)
+      call ESMF_InfoSet(infoh,'FIELD_TYPE',FIELD_TYPE, RC=status)
+      _VERIFY(STATUS)
+      call ESMF_InfoSet(infoh,'STAGGERING',STAGGERING, RC=status)
+      _VERIFY(STATUS)
+      call ESMF_InfoSet(infoh,'ROTATION',ROTATION, RC=status)
+      _VERIFY(STATUS)
       if (associated(UNGRD)) Then
-            call ESMF_AttributeSet(FIELD, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=status)
-            _VERIFY(status)
-            call ESMF_AttributeSet(FIELD, NAME='UNGRIDDED_NAME', VALUE=UNGRIDDED_NAME, RC=status)
-            _VERIFY(status)
-            call ESMF_AttributeSet(FIELD, NAME='UNGRIDDED_UNIT', VALUE=UNGRIDDED_UNIT, RC=status)
-            _VERIFY(status)
+          call ESMF_InfoSet(infoh,key='UNGRIDDED_DIMS',values=UNGRD, RC=status)
+         _VERIFY(STATUS)
+          call ESMF_InfoSet(infoh,'UNGRIDDED_NAME',UNGRIDDED_NAME, RC=status)
+         _VERIFY(STATUS)
+          call ESMF_InfoSet(infoh,'UNGRIDDED_UNIT',UNGRIDDED_UNIT, RC=status)
+         _VERIFY(STATUS)
          if (associated(UNGRIDDED_COORDS)) then
             szUngrd = size(ungridded_coords)
-            call ESMF_AttributeSet(FIELD, NAME='UNGRIDDED_COORDS', itemCount=szUngrd, &
-                                   valuelist=ungridded_coords, rc=status)
-               _VERIFY(status)
+            call ESMF_InfoSet(infoh,'UNGRIDDED_COORDS',values=ungridded_coords, RC=status)
+            _VERIFY(STATUS)
          end if
       end if
 
       if (associated(ATTR_RNAMES)) then
          DO N = 1, size(ATTR_RNAMES)
-            call ESMF_AttributeSet(FIELD, NAME=trim(ATTR_RNAMES(N)), &
-                    VALUE=ATTR_RVALUES(N), RC=status)
-               _VERIFY(status)
+            call ESMF_InfoSet(infoh,key=trim(ATTR_RNAMES(N)) ,value=ATTR_RVALUES(N), RC=status)
+            _VERIFY(STATUS)
          END DO
       end if
 
       if (associated(ATTR_INAMES)) then
          DO N = 1, size(ATTR_INAMES)
-            call ESMF_AttributeSet(FIELD, NAME=trim(ATTR_INAMES(N)), &
-                    VALUE=ATTR_IVALUES(N), RC=status)
-               _VERIFY(status)
+            call ESMF_InfoSet(infoh,key=trim(ATTR_INAMES(N)),value=ATTR_IVALUES(N), RC=status)
+            _VERIFY(STATUS)
          END DO
       end if
 
@@ -6636,16 +6649,16 @@ enddo
             END IF
             if (N1 <= N2 .and. N2 > 0) then
                if (IAND(STAT, MAPL_BundleItem) /= 0) then
-                  call ESMF_AttributeSet(BUNDLE, &
-                       NAME='FriendlyTo'//trim(FRIENDLYTO(N1:N2)), &
-                          VALUE=.TRUE., RC=status)
-                     _VERIFY(status)
+                  call ESMF_InfoGetFromHost(BUNDLE,infoh,RC=STATUS)
+                  call ESMF_InfoSet(infoh, &
+                       key='FriendlyTo'//trim(FRIENDLYTO(N1:N2)), &
+                       value=.TRUE.,RC=STATUS)
+                  _VERIFY(STATUS)
                else
                      !print *,"DEBUG: setting FieldAttr:FriendlyTo"//trim(FRIENDLYTO(N1:N2))
-                  call ESMF_AttributeSet(FIELD, &
-                       NAME='FriendlyTo'//trim(FRIENDLYTO(N1:N2)), &
-                          VALUE=.TRUE., RC=status)
-                     _VERIFY(status)
+                  call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
+                  call ESMF_InfoSet(infoh,key='FriendlyTo'//trim(FRIENDLYTO(N1:N2)),value=.TRUE., RC=status)
+                  _VERIFY(STATUS)
                end if
             end if
 
@@ -6655,10 +6668,11 @@ enddo
       end if
 
    enddo
-      call ESMF_AttributeSet(STATE, NAME="MAPL_GridTypeBits", VALUE=ATTR, RC=status)
-      _VERIFY(status)
-      call ESMF_AttributeSet(STATE, NAME="MAPL_RestartRequired", VALUE=rstReq, RC=status)
-      _VERIFY(status)
+   call ESMF_InfoGetFromHost(STATE,infoh,RC=STATUS)
+   call ESMF_InfoSet(infoh,'MAPL_GridTypeBits',ATTR,RC=STATUS)
+   _VERIFY(STATUS)
+   call ESMF_InfoSet(infoh,'MAPL_RestartRequired',rstReq,RC=STATUS)
+   _VERIFY(STATUS)
 
    _RETURN(ESMF_SUCCESS)
 
@@ -7528,6 +7542,7 @@ enddo
     logical                                     :: FRIENDLY
 
     integer                                     :: N, STAT
+    type (ESMF_Info)                            :: infoh
 
 
       ! Retrieve the pointer to the internal state of Root.
@@ -7548,12 +7563,14 @@ enddo
 
     _ASSERT(iand(STAT, MAPL_FriendlyVariable) /= 0,'needs informative message')
 
-      call ESMF_StateGet(STATE%get_internal_state(), NAME, FIELD, RC=status)
-      _VERIFY(status)
+    call ESMF_StateGet(STATE%get_internal_state(), NAME, FIELD, RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_InfoGetFromHost(FIELD,infoh,RC=status)
+    _VERIFY(STATUS)
 
     if (present(REQUESTER)) then
-         call ESMF_AttributeGet  (FIELD, NAME="FriendlyTo"//trim(REQUESTER),VALUE=FRIENDLY, RC=status)
-         _VERIFY(status)
+       call ESMF_InfoGet(infoh,key='FriendlyTo'//trim(REQUESTER),value=FRIENDLY, RC=status)
+       _VERIFY(STATUS)
        _ASSERT(FRIENDLY,'needs informative message')
     end if
 
@@ -7598,19 +7615,25 @@ enddo
     integer                               :: I, NF
     character(len=ESMF_MAXSTR)            :: NAME
     logical                               :: VALUE
+    type(ESMF_INFO)                       :: infohin
+    type(ESMF_INFO)                       :: infohout
 
-      call ESMF_AttributeGet(FIELDIN, count=NF, RC=status)
-      _VERIFY(status)
+    call ESMF_InfoGetFromHost(FIELDIN, infohin, RC=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGetFromHost(FIELDOUT,infohout,RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infohin,size=NF,RC=STATUS)
+    _VERIFY(STATUS)
 
     do I=1,NF
-         call ESMF_AttributeGet(FIELDIN,attributeIndex=I,NAME=NAME,RC=status)
-         _VERIFY(status)
+       call ESMF_InfoGet(infohin, idx=I,ikey=NAME, RC=status)
+       _VERIFY(STATUS)
        NAME = trim(NAME)
        if(NAME(1:10)=='FriendlyTo') then
-            call ESMF_AttributeGet(FIELDIN , NAME=NAME, VALUE=VALUE, RC=status)
-            _VERIFY(status)
-            call ESMF_AttributeSet(FIELDOUT, NAME=NAME, VALUE=VALUE, RC=status)
-            _VERIFY(status)
+          call ESMF_InfoGet(infohin,key=NAME,value=VALUE, RC=status)
+          _VERIFY(STATUS)
+           call ESMF_InfoSet(infohout,NAME,VALUE, RC=status)
+          _VERIFY(STATUS)
        end if
     end do
 
@@ -7658,6 +7681,7 @@ enddo
     logical                                 :: AddPrefix_
     character(len=ESMF_MAXSTR)              :: GC_NAME, fieldname
     type(ESMF_GridComp), pointer :: gridcomp
+    type(ESMF_Info) :: infoh
 
       ! Get my MAPL_Generic state
       !--------------------------
@@ -7708,11 +7732,12 @@ enddo
       _VERIFY(status)
 
     attrName = MAPL_StateItemOrderList
-      call ESMF_AttributeGet(internal, NAME=attrName, isPresent=haveAttr, RC=status)
-      _VERIFY(status)
+       call ESMF_InfoGetFromHost(internal,infoh,RC=STATUS)
+    haveAttr = ESMF_InfoIsPresent(infoh,attrName,RC=STATUS)
+    _VERIFY(STATUS)
     if (haveAttr) then
-         call ESMF_AttributeGet(internal, NAME=attrName, itemcount=natt, RC=status)
-         _VERIFY(status)
+       call ESMF_InfoGet(infoh,key=attrName,size=natt,RC=STATUS)
+       _VERIFY(STATUS)
     else
        natt = N
     end if
@@ -7728,8 +7753,8 @@ enddo
          _VERIFY(status)
 
        ! get the current list
-       call ESMF_AttributeGet(internal, NAME=attrName, VALUELIST=currList, rc=status)
-         _VERIFY(status)
+       call ESMF_InfoGet(infoh,key=attrName,values=currList,rc=status)
+       _VERIFY(STATUS)
 
        orderList = -1 ! not found
        do i = 1, natt
@@ -7872,12 +7897,14 @@ enddo
     integer                   :: DIMS, I
     integer                   :: fieldRank
     type(ESMF_Field), pointer :: splitFields(:) => null()
+    type(ESMF_Info)           :: infoh
 
     _UNUSED_DUMMY(multiflag)
     call ESMF_FieldGet(FIELD, dimCount=fieldRank, rc=status)
     _VERIFY(status)
     if (fieldRank == 4) then
-       call ESMF_AttributeGet(FIELD, NAME='DIMS', VALUE=DIMS, rc=status)
+      call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
+      call ESMF_InfoGet(infoh,'DIMS',DIMS, RC=status)
        _VERIFY(status)
        if (DIMS == MAPL_DimsHorzVert) then
           call MAPL_FieldSplit(field, splitFields, RC=status)
@@ -7905,14 +7932,16 @@ enddo
      character(len=*),  intent(IN)  :: TO(:)
      integer,           intent(OUT) :: RC
      logical            :: FRIENDLY, isPresent
-      integer            :: I, status
+     integer            :: I, STATUS
+     type(ESMF_Info)    :: infoh
      RC = ESMF_FAILURE
+
+     call ESMF_InfoGetFromHost(FIELD,infoh,RC=status)
+    _VERIFY(STATUS)
      do I = 1, size(TO)
-        call ESMF_AttributeGet  (FIELD, NAME="FriendlyTo"//trim(TO(I)), &
-              isPresent=isPresent, RC=status)
+        isPresent = ESMF_InfoIsPresent(infoh,key="FriendlyTo"//trim(TO(I)),RC=STATUS)
         if (isPresent) then
-           call ESMF_AttributeGet  (FIELD, NAME="FriendlyTo"//trim(TO(I)), &
-                 VALUE=FRIENDLY, RC=status)
+          call ESMF_InfoGet(infoh,key="FriendlyTo"//trim(TO(I)),value=FRIENDLY, RC=status)
            RC = ESMF_SUCCESS
         endif
      end do
@@ -7924,15 +7953,17 @@ enddo
      character(len=*),  intent(IN)  :: TO(:)
      integer,           intent(OUT) :: RC
      logical            :: FRIENDLY, isPresent
-      integer            :: I, status
+     integer            :: I, STATUS
+     type(ESMF_Info) :: infoh
      RC = ESMF_FAILURE
+
+     call ESMF_InfoGetFromHost(BUNDLE,infoh,RC=STATUS)
+    _VERIFY(STATUS)
      do I = 1, size(TO)
         FRIENDLY = .false.
-        call ESMF_AttributeGet (BUNDLE, NAME="FriendlyTo"//trim(TO(I)), &
-              isPresent=isPresent, RC=status)
+        isPresent = ESMF_InfoIsPresent(infoh,key="FriendlyTo"//trim(TO(I)),RC=STATUS)
         if (isPresent) then
-           call ESMF_AttributeGet (BUNDLE, NAME="FriendlyTo"//trim(TO(I)), &
-                 VALUE=FRIENDLY, RC=status)
+           call ESMF_InfoGet(infoh,key="FriendlyTo"//trim(TO(I)),value=FRIENDLY,RC=STATUS)
            if (FRIENDLY) RC = ESMF_SUCCESS
         endif
      end do
@@ -9077,14 +9108,13 @@ enddo
     character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_VerifyFriendlyField"
       integer                               :: status
     logical                               :: isPresent
+    type(ESMF_INFO)                       :: infoh
 
-    call ESMF_AttributeGet  (FIELD, NAME="FriendlyTo"//trim(FRIEND2COMP), &
-           isPresent=isPresent, RC=status)
-      _VERIFY(status)
+    call ESMF_InfoGetFromHost(FIELD, infoh, RC=status)
+    isPresent=ESMF_InfoIsPresent(infoh,key="FriendlyTo"//trim(FRIEND2COMP),RC=STATUS)
+    _VERIFY(STATUS)
     if(isPresent) then
-       call ESMF_AttributeGet  (FIELD, NAME="FriendlyTo"//trim(FRIEND2COMP), &
-              VALUE=FRIENDLY, RC=status)
-         _VERIFY(status)
+      call ESMF_InfoGet(infoh,key="FriendlyTo"//trim(FRIEND2COMP),value=FRIENDLY, __RC__)
     else
        FRIENDLY = .false.
     end if
