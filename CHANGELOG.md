@@ -17,7 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Coordinate Variables
     - `lon` and `lat` are now 64-bit (double) in lat-lon History files rather than 32-bit (single)
     - `lons`, `lats`, `corner_lons`, and `corner_lats` are now 64-bit (double) in  History files rather than 32-bit (single)
-    - `time` is now an integer *if* the History is output at a frequency that is not a fraction of the time unit
   - Variable Metadata
     - Added `fmissing_value` (equal to `_FillValue` aka `MAPL_UNDEF`)
     - Added `missing_value` (equal to `_FillValue` aka `MAPL_UNDEF`)
