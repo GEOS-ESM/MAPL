@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Add back attributes at the variable level and global level in History output that were accidentally eliminated when Hisotyr moved from CFIO to PFIO. Also revert the coordinate variables in the lat-lon output to double precision
+
 ### Added
 
 ### Changed
