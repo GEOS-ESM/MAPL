@@ -9,11 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Add back attributes at the variable level and global level in History output that were accidentally eliminated when Hisotyr moved from CFIO to PFIO. Also revert the coordinate variables in the lat-lon output to double precision
-
 ### Added
 
 ### Changed
+
+- Changes to make MAPL 2 History output match GEOS FP file spec
+  - Coordinate Variables
+    - `lon` and `lat` are now 64-bit (double) in lat-lon History files rather than 32-bit (single)
+    - `lons`, `lats`, `corner_lons`, and `corner_lats` are now 64-bit (double) in  History files rather than 32-bit (single)
+    - `time` is now an integer *if* the History is output at a frequency that is not a fraction of the time unit
+  - Variable Metadata
+    - Added `fmissing_value` (equal to `_FillValue` aka `MAPL_UNDEF`)
+    - Added `missing_value` (equal to `_FillValue` aka `MAPL_UNDEF`)
+    - Added `vmin` (equal to `-MAPL_UNDEF`)
+    - Added `vmax` (equal to `+MAPL_UNDEF`)
+    - Added `add_offset` (equal to 0.0)
+    - Added `scale_factor` (equal to 1.0)
+    - Added `standard_name` (equal to `long_name`)
+  - Global Metadata
+    - Added `Title`, `History`, `Source`, `Contact`, `Convention`, `Institution`, `References`, `Filename`, `Comment`
+      - These currently have hardcoded values roughly equivalent to the GEOS FP 5.27 output
 
 ### Removed
 
