@@ -8,22 +8,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-
 - Free types and operation created by profiler
 - Finalize profiler in MAPL_finalize call
 
 ### Added
 
 ### Changed
-
-- Make EXPID and EXPDSC optional. Default is empty string
-- Updated `changelog-enforcer` to version 3
-- Compress CircleCI artifacts
-- Updated VarRead_2d_r8 interface to match VarRead_2d_r4 interface in NCIO module
+- Refactored MAPL_Generic.F90 - lots of changes. 
 
 ### Removed
 
 ### Deprecated
+
+## [2.15.0] - 2022-01-04
+
+### Fixed
+
+- Free types and operation created by profiler
+
+### Changed
+
+- Refactored MAPL_Generic.F90 - lots of changes.
+- Make EXPID and EXPDSC optional. Default is empty string
+- Updated `changelog-enforcer` to version 3
+- Compress CircleCI artifacts
+- Updated VarRead_2d_r8 interface to match VarRead_2d_r4 interface in NCIO module
 
 ## [2.14.1] - 2021-12-20
 
