@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+### Removed
+
+### Deprecated
+
+## [2.15.1] - 2022-01-06
+
+### Changed
+
 - Changes to make MAPL 2 History output match GEOS FP file spec
   - Coordinate Variables
     - `lon` and `lat` are now 64-bit (double) in lat-lon History files rather than 32-bit (single)
@@ -28,10 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Global Metadata
     - Added `Title`, `History`, `Source`, `Contact`, `Convention`, `Institution`, `References`, `Filename`, `Comment`
       - These currently have hardcoded values roughly equivalent to the GEOS FP 5.27 output
-
-### Removed
-
-### Deprecated
 
 ## [2.15.0] - 2022-01-04
 
