@@ -20,6 +20,7 @@ module MAPL_GriddedIOMod
   use MAPL_DataCollectionMod
   use MAPL_DataCollectionManagerMod
   use gFTL_StringVector
+  use gFTL_StringStringMap
   use MAPL_FileMetadataUtilsMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
@@ -99,13 +100,14 @@ module MAPL_GriddedIOMod
         _RETURN(ESMF_SUCCESS)
      end function new_MAPL_GriddedIO
 
-     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,rc)
+     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
         type(GriddedIOitemVector), target, intent(inout) :: items
         type(ESMF_FieldBundle), intent(inout) :: bundle
         type(TimeData), intent(inout) :: timeInfo
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
+        type(StringStringMap), intent(in), optional :: global_attributes
         integer, intent(out), optional :: rc
 
         type(ESMF_Grid) :: input_grid
@@ -115,7 +117,8 @@ module MAPL_GriddedIOMod
         type(GriddedIOitem), pointer :: item
         type(stringVector) :: order
         integer :: metadataVarsSize
-
+        type(StringStringMapIterator) :: s_iter
+        character(len=:), pointer :: attr_name, attr_val
         integer :: status
 
         this%items = items
@@ -182,7 +185,17 @@ module MAPL_GriddedIOMod
            call this%alphabatize_variables(metadataVarsSize,rc=status)
            _VERIFY(status)
         end if
-       
+
+        if (present(global_attributes)) then
+           s_iter = global_attributes%begin()
+           do while(s_iter /= global_attributes%end())
+              attr_name => s_iter%key()       
+              attr_val => s_iter%value()
+              call this%metadata%add_attribute(attr_name,attr_val,_RC) 
+              call s_iter%next()
+           enddo
+        end if
+
      end subroutine CreateFileMetaData
 
      subroutine set_param(this,deflation,chunking,nbits,regrid_method,itemOrder,write_collection_id,rc)
@@ -292,7 +305,13 @@ module MAPL_GriddedIOMod
         v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel)
         call v%add_attribute('units',trim(units))
         call v%add_attribute('long_name',trim(longName))
+        call v%add_attribute('standard_name',trim(longName))
         call v%add_attribute('missing_value',MAPL_UNDEF)
+        call v%add_attribute('fmissing_value',MAPL_UNDEF)
+        call v%add_attribute('vmax',MAPL_UNDEF)
+        call v%add_attribute('vmin',-MAPL_UNDEF)
+        call v%add_attribute('scale_factor',1.0)
+        call v%add_attribute('add_offset',0.0)
         call v%add_attribute('_FillValue',MAPL_UNDEF)
         call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
         call factory%append_variable_metadata(v)
