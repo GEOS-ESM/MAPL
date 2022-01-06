@@ -266,6 +266,7 @@ module MAPL_GriddedIOMod
         character(len=:), allocatable :: grid_dims
         character(len=:), allocatable :: vdims
         type(Variable) :: v
+        type(ESMF_Info) :: infoh
 
         call ESMF_FieldBundleGet(this%input_bundle,itemName,field=field,rc=status)
         _VERIFY(status)
@@ -276,18 +277,19 @@ module MAPL_GriddedIOMod
         _VERIFY(status)
         call ESMF_FieldGet(field,name=varName,rc=status)
         _VERIFY(status)
-        call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=isPresent,rc=status)
+        call ESMF_InfoGetFromHost(field,infoh,rc=status)
+        isPresent = ESMF_InfoIsPresent(infoh,"LONG_NAME",rc=status)
         _VERIFY(status)
         if ( isPresent ) then
-           call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=LongName, RC=STATUS)
+           call ESMF_InfoGet(infoh,'LONG_NAME',LongName,RC=STATUS)
            _VERIFY(STATUS)
         else
            LongName = varName
         endif
-        call ESMF_AttributeGet(field,name="UNITS",isPresent=isPresent,rc=status)
+        isPresent = ESMF_InfoIsPresent(infoh,"UNITS",rc=status)
         _VERIFY(status)
         if ( isPresent ) then
-           call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, RC=STATUS)
+           call ESMF_InfoGet(infoh,'UNITS',units,RC=STATUS)
            _VERIFY(STATUS)
         else
            units = 'unknown'
