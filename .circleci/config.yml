@@ -188,6 +188,13 @@ commands:
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
             make -j"$(nproc)" install |& tee /logfiles/make.log
             #MEDIUM# make -j4 install |& tee /logfiles/make.log
+      - run:
+          name: "Retry build and install after failure"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
+            make -j"$(nproc)" install |& tee /logfiles/make-retry.log
+            #MEDIUM# make -j4 install |& tee /logfiles/make-retry.log
+          when: on_fail
 
   checkout_mapl_branch:
     description: "Mepo checkout MAPL branch"
