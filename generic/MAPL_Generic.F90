@@ -758,8 +758,8 @@ contains
    ! !IROUTINE: MAPL_GenericInitialize -- Initializes the component and its children
 
    ! !INTERFACE:
-   recursive subroutine MAPL_GenericInitialize ( GC, IMPORT, EXPORT, CLOCK, RC )
-
+   recursive subroutine MAPL_GenericInitialize ( GC, import, EXPORT, CLOCK, RC )
+      
       !ARGUMENTS:
       type(ESMF_GridComp), intent(INOUT) :: GC     ! Gridded component
       type(ESMF_State),    intent(INOUT) :: IMPORT ! Import state
@@ -1015,81 +1015,7 @@ contains
       ! Put the clock passed down in the generic state
       !-----------------------------------------------
 
-      STATE%CLOCK = CLOCK
-      call ESMF_ClockGet(CLOCK, TIMESTEP = DELT, __RC__)
-      call ESMF_TimeIntervalGet(DELT, S=DELTSEC, __RC__)
-      _ASSERT(DELTSEC /= 0,'needs informative message')
-      STATE%HEARTBEAT = DELTSEC
-
-      ! We get our calling interval from the configuration,
-      ! set the alarm, and attach it to the callers clock.
-      ! ---------------------------------------------------
-
-      call ESMF_ClockGet(clock, calendar = cal, currTime=currTime, timestep=tstep, __RC__)
-      call ESMF_ConfigGetAttribute( state%CF, DEFDT, Label="RUN_DT:", __RC__)
-
-      DTSECS = nint(DEFDT)
-      ! Make sure this component clock's DT is multiple of RUN_DT (heartbeat)
-      ! It should be the same unless we have create a special clock for this
-      ! component
-      _ASSERT(MOD(DELTSEC,DTSECS)==0,'needs informative message')
-
-      call MAPL_GetResource( STATE   , DT, Label="DT:", default=DEFDT, __RC__)
-
-      _ASSERT(DT /= 0.0,'needs informative message')
-
-      DTSECS = nint(DT)
-      ! Make sure this component's DT is multiple of CLOCK's timestep
-      _ASSERT(MOD(DTSECS,DELTSEC)==0,'needs informative message')
-
-      call ESMF_TimeIntervalSet(TIMEINT,  S=DTSECS , calendar=cal, __RC__)
-
-      ! get current time from clock and create a reference time with optonal override
-      call ESMF_TimeGet( currTime, YY = YEAR, MM = MONTH, DD = DAY, H=HH, M=MM, S=SS, rc = status  )
-
-      yyyymmdd = year*10000 + month*100 + day
-      hhmmss   = HH*10000 + MM*100 + SS
-
-      !  Get Alarm reference date and time from resouce, it defaults to midnight of the current day
-      call MAPL_GetResource (STATE, reference_date, label='REFERENCE_DATE:', &
-           default=yyyymmdd, __RC__ )
-
-      call MAPL_GetResource (STATE, reference_time, label='REFERENCE_TIME:', &
-           default=0, __RC__ )
-
-      YEAR = reference_date/10000
-      MONTH = mod(reference_date,10000)/100
-      DAY = mod(reference_date,100)
-
-      HH = reference_time/10000
-      MM = mod(reference_time,10000)/100
-      SS = mod(reference_time,100)
-
-      call ESMF_TimeSet( ringTime, YY = YEAR, MM = MONTH, DD = DAY, &
-           H = HH, M = MM, S = SS, rc = status  )
-
-      if (ringTime > currTime) then
-         ringTime = ringTime - (INT((ringTime - currTime)/TIMEINT)+1)*TIMEINT
-      end if
-
-      ringTime = ringTime-TSTEP ! we back off current time with clock's dt since
-      ! we advance the clock AFTER run method
-
-      ! make sure that ringTime is not in the past
-      do while (ringTime < currTime)
-         ringTime = ringTime + TIMEINT
-      end do
-
-      STATE%ALARM(0) = ESMF_AlarmCreate(CLOCK = CLOCK, &
-           name = trim(comp_name) // "_Alarm" , &
-           RingInterval = TIMEINT  ,  &
-           RingTime     = ringTime,  &
-                                !        Enabled      = .true.   ,  &
-           sticky       = .false.  ,  &
-           RC           = status      )
-      if(ringTime == currTime) then
-         call ESMF_AlarmRingerOn(STATE%ALARM(0), __RC__)
-      end if
+      call handle_clock_and_main_alarm(clock, __RC__)
 
       ! Create tiling for all gridded components with associated LocationStream
       ! -----------------------------------------------------------------------
@@ -1101,254 +1027,20 @@ contains
          call MAPL_LocStreamGet(STATE%LocStream, TILEGRID=TILEGRID, __RC__)
       endif
 
-      ! Copy RECORD struct from parent
+      call handle_record(__RC__)
 
-      if (associated(STATE%parentGC)) then
-         call MAPL_GetObjectFromGC(STATE%parentGC, PMAPL, __RC__)
-         if (associated(PMAPL%RECORD)) then
-            call MAPL_AddRecord(STATE, PMAPL%RECORD%ALARM, PMAPL%RECORD%FILETYPE, __RC__)
-         end if
-      end if
-      ! Add this component's own RECORD
-
-      call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_FREQUENCY:", isPresent=isPresent, __RC__)
-      if (isPresent) then
-         nra = ESMF_ConfigGetLen( STATE%CF, RC = status)
-         _ASSERT( NRA > 0,'Empty list is not allowed')
-
-         allocate(ref_date(NRA), ref_time(NRA), freq(NRA), freq_string(NRA), stat=status)
-
-         call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_FREQUENCY:", __RC__)
-         call ESMF_ConfigGetAttribute( STATE%CF, valueList=freq_string, count=NRA, __RC__)
-
-         if (.not. all(freq_string == 'monthly')) then
-
-            call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_DATE:", __RC__)
-            !      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
-            call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_date, count=NRA, __RC__)
-
-            call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_TIME:", __RC__)
-            !      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
-            call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_time, count=NRA, __RC__)
-         end if
-
-         allocate (R_ALARM(NRA), STAT=status)
-
-         allocate (R_FILETYPE(NRA), STAT=status)
-
-         DO  I = 1, NRA
-            write(alarmNum,'(I3.3)') I
-            AlarmName = "RecordAlarm" // alarmNum
-            call ESMF_ClockGetAlarm(clock, trim(AlarmName), recordAlarm, rc=status)
-            if (status/=ESMF_SUCCESS) then
-               monthly: if (freq_string(i) == 'monthly') then
-                  ! monthly alarm
-                  mnthly = .true.
-                  ! This should ring on the first of each month at midnight
-                  call ESMF_TimeSet( RefTime, YY = year, MM = month, &
-                       DD = 1, H = 0, M = 0, S = 0, calendar=cal, __RC__ )
-                  call ESMF_TimeIntervalSet( frequency, MM=1, __RC__ )
-                  RingTime = RefTime
-                  !               print *,'DEBUG: creating MONTHLY record alarm'
-               else
-                  mnthly = .false.
-                  read(freq_string(i),*) freq(i)
-                  call ESMF_TimeSet( RefTime, YY = ref_date(I)/10000, &
-                       MM = mod(ref_date(I),10000)/100, &
-                       DD = mod(ref_date(I),100), &
-                       H = ref_time(I)/10000, &
-                       M = mod(ref_time(I),10000)/100, &
-                       S = mod(ref_time(I),100), calendar=cal, rc=status)
-                  if (status /= 0) then
-                     print *,'Error: ref_date/time ',ref_date(i), ref_time(i)
-                  endif
-
-                  nhms = freq(I)
-                  sec = nhms/10000*3600 + mod(nhms,10000)/100*60 + mod(nhms,100)
-                  call ESMF_TimeIntervalSet( frequency, S=sec, __RC__ )
-                  RingTime = RefTime
-                  if (RingTime < currTime .and. sec /= 0) then
-                     RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
-                  endif
-               end if monthly
-
-               ! create alarm
-               RecordAlarm = ESMF_AlarmCreate( name=trim(AlarmName), clock=clock, RingInterval=Frequency, &
-                    RingTime=RingTime, sticky=.false.,__RC__ )
-
-               if(ringTime == currTime .and. .not.mnthly) then
-                  call ESMF_AlarmRingerOn(RecordAlarm, __RC__)
-               else
-                  call ESMF_AlarmRingerOff(RecordAlarm, __RC__)
-               end if
-
-            end if
-            R_ALARM(I) = recordAlarm
-            R_FILETYPE(I) = MAPL_Write2DIsk ! default
-         END DO
-         call MAPL_AddRecord(STATE, R_ALARM, R_FILETYPE, __RC__)
-         deallocate (freq, ref_time, ref_date, freq_string)
-         deallocate(R_FILETYPE, R_ALARM)
-      endif
-
-      call MAPL_GetResource( STATE, ens_id_width,         &
-           LABEL="ENS_ID_WIDTH:", default=0, &
-           __RC__)
-
-      if (associated(STATE%RECORD)) then
-         call MAPL_GetResource( STATE, FILENAME,         &
-              LABEL="IMPORT_CHECKPOINT_FILE:", &
-              rc=status)
-         if(status==ESMF_SUCCESS) then
-            STATE%RECORD%IMP_FNAME = FILENAME
-            STATE%RECORD%IMP_LEN = LEN_TRIM(FILENAME)
-         else
-            STATE%RECORD%IMP_LEN = 0
-         end if
-
-         id_string=""
-         tmp_label = "INTERNAL_CHECKPOINT_FILE:"
-         call MAPL_GetResource( STATE   , FILEtpl,         &
-              LABEL=trim(tmp_label), &
-              rc=status)
-         if((status /= ESMF_SUCCESS) .and. ens_id_width > 0) then
-            i = len(trim(comp_name))
-            id_string = comp_name(i-ens_id_width+1:i)
-            tmp_label =comp_name(1:i-ens_id_width)//"_"//trim(tmp_label)
-            call MAPL_GetResource( STATE   , FILEtpl,      &
-                 LABEL=trim(tmp_label), &
-                 rc=status)
-         endif
-
-         if(status==ESMF_SUCCESS) then
-            ! if the filename is tempate
-            call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), nymd=yyyymmdd,nhms=hhmmss,__RC__)
-            STATE%RECORD%INT_FNAME = FILENAME
-            STATE%RECORD%INT_LEN = LEN_TRIM(FILENAME)
-         else
-            STATE%RECORD%INT_LEN = 0
-         end if
-      end if
 !!$   call MAPL_TimerOff(STATE,"generic",__RC__)
 
       call initialize_children_and_couplers(_RC)
       call MAPL_TimerOn(STATE,"generic")
 
-      ! Create import and initialize state variables
-      ! --------------------------------------------
-      if (associated(STATE%COMPONENT_SPEC%IMPORT%OLD_VAR_SPECS) .and. isGridValid) then
-
-         is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
-         if (is_associated) then
-            call MAPL_StateCreateFromVarSpecNew(IMPORT,STATE%COMPONENT_SPEC%IMPORT,     &
-                 MYGRID%ESMFGRID,              &
-                 TILEGRID=TILEGRID,            &
-                 __RC__       )
-         else
-            call MAPL_StateCreateFromVarSpecNew(IMPORT,STATE%COMPONENT_SPEC%IMPORT,     &
-                 MYGRID%ESMFGRID,              &
-                 __RC__       )
-         endif
-
-         call MAPL_GetResource( STATE   , FILENAME,         &
-              LABEL="IMPORT_RESTART_FILE:", &
-              RC=status)
-         if(status==ESMF_SUCCESS) then
-
-            call MAPL_ESMFStateReadFromFile(IMPORT, CLOCK, FILENAME, &
-                 STATE, .FALSE., rc=status)
-            if (status /= ESMF_SUCCESS) then
-               if (MAPL_AM_I_Root(VM)) then
-                  call ESMF_StatePrint(Import)
-               end if
-            end if
-         endif
-      end if
+      call create_import_and_initialize_state_variables(__RC__)
 
       call ESMF_AttributeSet(import,'POSITIVE',trim(positive),__RC__)
-      ! Create internal and initialize state variables
-      ! -----------------------------------------------
 
-      internal_state => STATE%get_internal_state()
-      internal_state = ESMF_StateCreate(name = trim(comp_name) // "_INTERNAL", __RC__)
+      call create_internal_and_initialize_state_variables(__RC__)
 
-      if (associated(STATE%COMPONENT_SPEC%INTERNAL%OLD_VAR_SPECS)) then
-         is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
-         if (is_associated) then
-            call MAPL_StateCreateFromVarSpecNew(internal_state,STATE%COMPONENT_SPEC%INTERNAL, &
-                 MYGRID%ESMFGRID,             &
-                 TILEGRID=TILEGRID,           &
-                 __RC__       )
-         else
-            call MAPL_StateCreateFromVarSpecNew(internal_state,STATE%COMPONENT_SPEC%INTERNAL, &
-                 MYGRID%ESMFGRID,             &
-                 __RC__       )
-         end if
-         call ESMF_AttributeSet(internal_state,'POSITIVE',trim(positive),__RC__)
-
-         id_string = ""
-         tmp_label = "INTERNAL_RESTART_FILE:"
-         call MAPL_GetResource( STATE   , FILEtpl,         &
-              LABEL=trim(tmp_label), &
-              rc=status)
-         if((status /=ESMF_SUCCESS) .and. ens_id_width >0) then
-            i = len(trim(comp_name))
-            id_string = comp_name(i-ens_id_width+1:i)
-            tmp_label =comp_name(1:i-ens_id_width)//"_"//trim(tmp_label)
-            call MAPL_GetResource( STATE   , FILEtpl,         &
-                 LABEL=trim(tmp_label), &
-                 rc=status)
-         endif
-
-         if(status==ESMF_SUCCESS) then
-            ! if the filename is tempate
-            call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), &
-                 nymd=yyyymmdd,nhms=hhmmss,__RC__)
-            call MAPL_GetResource( STATE   , hdr,         &
-                 default=0, &
-                 LABEL="INTERNAL_HEADER:", &
-                 __RC__)
-            call MAPL_ESMFStateReadFromFile(internal_state, CLOCK, FILENAME, &
-                 STATE, hdr/=0, rc=status)
-            if (status /= ESMF_SUCCESS) then
-               if (MAPL_AM_I_Root(VM)) then
-                  call ESMF_StatePrint(internal_state)
-               end if
-               _RETURN(ESMF_FAILURE)
-            end if
-         else
-            ! try to coldstart the internal state
-            ! -------------------------------
-            if (associated(STATE%phase_coldstart)) then
-               ! ALT: workaround bug 3004440 in ESMF (fixed in ESMF_5_1_0)
-               ! please, do not remove, nor change order until we move to 510 or later
-               allocate(GCCS%compp, stat=status)
-               GCCS%compp = GC%compp
-               call ESMF_GridCompReadRestart(GC, importState=import, &
-                    exportState=export, clock=CLOCK, userRC=userRC, __RC__)
-               GC%compp = GCCS%compp
-               deallocate(GCCS%compp)
-            endif
-
-         endif
-      end if
-
-      ! Create export state variables
-      !------------------------------
-
-      if (associated(STATE%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS)) then
-         is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
-         if (is_associated) then
-            call MAPL_StateCreateFromVarSpecNew(EXPORT,STATE%COMPONENT_SPEC%EXPORT,     &
-                 MYGRID%ESMFGRID,              &
-                 TILEGRID=TILEGRID,            &
-                 DEFER=.true., __RC__       )
-         else
-            call MAPL_StateCreateFromVarSpecNew(EXPORT,STATE%COMPONENT_SPEC%EXPORT,     &
-                 MYGRID%ESMFGRID,              &
-                 DEFER=.true., __RC__       )
-         end if
-      end if
+      call create_export_state_variables(__RC__)
 
       ! Create forcing state
       STATE%FORCING = ESMF_StateCreate(name = trim(comp_name) // "_FORCING", &
@@ -1367,19 +1059,7 @@ contains
          call MAPL_AdjustIsNeeded(GC, EXPORT, __RC__)
       end if
 
-      ! Service services processing:
-      ! process any providers
-      if (state%provided_services%size()>0) then
-         call ProvidedServiceSet(state%provided_services, import, __RC__)
-      end if
-
-      ! process any requesters
-      if (state%requested_services%size()>0) then
-         call FillRequestBundle(state%requested_services, state%get_internal_state(), __RC__)
-      end if
-
-      ! process any service connections
-      call MAPL_ProcessServiceConnections(state, __RC__)
+      call handle_services(__RC__)
 
       ! Write Memory Use Statistics.
       ! -------------------------------------------
@@ -1526,9 +1206,10 @@ contains
             j = MYGRID%NY0 - mod(MYGRID%NY0-1,ny_by_writers)
             call MPI_COMM_SPLIT(COMM, j, MYGRID%MYID, mygrid%IOgathercomm, status)
          endif
+         _RETURN(ESMF_SUCCESS)
       end subroutine handle_readers_and_writers
 
-      subroutine initialize_children_and_couplers(rc)
+      recursive subroutine initialize_children_and_couplers(rc)
          integer, optional, intent(out) :: rc
 
          integer                       :: NC
@@ -1614,7 +1295,373 @@ contains
                ! ---------------------------------------------------
             enddo
          endif
+         _RETURN(ESMF_SUCCESS)
       end subroutine initialize_children_and_couplers
+
+      subroutine handle_clock_and_main_alarm(clock, unusable, rc)
+         type(ESMF_Clock), intent(in) :: clock
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+
+         STATE%CLOCK = CLOCK
+         call ESMF_ClockGet(CLOCK, TIMESTEP = DELT, __RC__)
+         call ESMF_TimeIntervalGet(DELT, S=DELTSEC, __RC__)
+         _ASSERT(DELTSEC /= 0,'needs informative message')
+         STATE%HEARTBEAT = DELTSEC
+
+         ! We get our calling interval from the configuration,
+         ! set the alarm, and attach it to the callers clock.
+         ! ---------------------------------------------------
+
+         call ESMF_ClockGet(clock, calendar = cal, currTime=currTime, timestep=tstep, __RC__)
+         call ESMF_ConfigGetAttribute( state%CF, DEFDT, Label="RUN_DT:", __RC__)
+
+         DTSECS = nint(DEFDT)
+         ! Make sure this component clock's DT is multiple of RUN_DT (heartbeat)
+         ! It should be the same unless we have create a special clock for this
+         ! component
+         _ASSERT(MOD(DELTSEC,DTSECS)==0,'needs informative message')
+
+         call MAPL_GetResource( STATE   , DT, Label="DT:", default=DEFDT, __RC__)
+
+         _ASSERT(DT /= 0.0,'needs informative message')
+
+         DTSECS = nint(DT)
+         ! Make sure this component's DT is multiple of CLOCK's timestep
+         _ASSERT(MOD(DTSECS,DELTSEC)==0,'needs informative message')
+
+         call ESMF_TimeIntervalSet(TIMEINT,  S=DTSECS , calendar=cal, __RC__)
+
+         ! get current time from clock and create a reference time with optonal override
+         call ESMF_TimeGet( currTime, YY = YEAR, MM = MONTH, DD = DAY, H=HH, M=MM, S=SS, rc = status  )
+
+         yyyymmdd = year*10000 + month*100 + day
+         hhmmss   = HH*10000 + MM*100 + SS
+
+         !  Get Alarm reference date and time from resouce, it defaults to midnight of the current day
+         call MAPL_GetResource (STATE, reference_date, label='REFERENCE_DATE:', &
+              default=yyyymmdd, __RC__ )
+
+         call MAPL_GetResource (STATE, reference_time, label='REFERENCE_TIME:', &
+              default=0, __RC__ )
+
+         YEAR = reference_date/10000
+         MONTH = mod(reference_date,10000)/100
+         DAY = mod(reference_date,100)
+
+         HH = reference_time/10000
+         MM = mod(reference_time,10000)/100
+         SS = mod(reference_time,100)
+
+         call ESMF_TimeSet( ringTime, YY = YEAR, MM = MONTH, DD = DAY, &
+              H = HH, M = MM, S = SS, rc = status  )
+
+         if (ringTime > currTime) then
+            ringTime = ringTime - (INT((ringTime - currTime)/TIMEINT)+1)*TIMEINT
+         end if
+
+         ringTime = ringTime-TSTEP ! we back off current time with clock's dt since
+         ! we advance the clock AFTER run method
+
+         ! make sure that ringTime is not in the past
+         do while (ringTime < currTime)
+            ringTime = ringTime + TIMEINT
+         end do
+
+         STATE%ALARM(0) = ESMF_AlarmCreate(CLOCK = CLOCK, &
+              name = trim(comp_name) // "_Alarm" , &
+              RingInterval = TIMEINT  ,  &
+              RingTime     = ringTime,  &
+                                !        Enabled      = .true.   ,  &
+              sticky       = .false.  ,  &
+              RC           = status      )
+         if(ringTime == currTime) then
+            call ESMF_AlarmRingerOn(STATE%ALARM(0), __RC__)
+         end if
+         _RETURN(ESMF_SUCCESS)
+
+      end subroutine handle_clock_and_main_alarm
+
+      subroutine handle_record(rc)
+         integer, optional, intent(out) :: rc
+         ! Copy RECORD struct from parent
+
+         if (associated(STATE%parentGC)) then
+            call MAPL_GetObjectFromGC(STATE%parentGC, PMAPL, __RC__)
+            if (associated(PMAPL%RECORD)) then
+               call MAPL_AddRecord(STATE, PMAPL%RECORD%ALARM, PMAPL%RECORD%FILETYPE, __RC__)
+            end if
+         end if
+         ! Add this component's own RECORD
+
+         call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_FREQUENCY:", isPresent=isPresent, __RC__)
+         if (isPresent) then
+            nra = ESMF_ConfigGetLen( STATE%CF, RC = status)
+            _ASSERT( NRA > 0,'Empty list is not allowed')
+
+            allocate(ref_date(NRA), ref_time(NRA), freq(NRA), freq_string(NRA), stat=status)
+
+            call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_FREQUENCY:", __RC__)
+            call ESMF_ConfigGetAttribute( STATE%CF, valueList=freq_string, count=NRA, __RC__)
+
+            if (.not. all(freq_string == 'monthly')) then
+
+               call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_DATE:", __RC__)
+               !      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
+               call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_date, count=NRA, __RC__)
+
+               call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_TIME:", __RC__)
+               !      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
+               call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_time, count=NRA, __RC__)
+            end if
+
+            allocate (R_ALARM(NRA), STAT=status)
+
+            allocate (R_FILETYPE(NRA), STAT=status)
+
+            DO  I = 1, NRA
+               write(alarmNum,'(I3.3)') I
+               AlarmName = "RecordAlarm" // alarmNum
+               call ESMF_ClockGetAlarm(clock, trim(AlarmName), recordAlarm, rc=status)
+               if (status/=ESMF_SUCCESS) then
+                  monthly: if (freq_string(i) == 'monthly') then
+                     ! monthly alarm
+                     mnthly = .true.
+                     ! This should ring on the first of each month at midnight
+                     call ESMF_TimeSet( RefTime, YY = year, MM = month, &
+                          DD = 1, H = 0, M = 0, S = 0, calendar=cal, __RC__ )
+                     call ESMF_TimeIntervalSet( frequency, MM=1, __RC__ )
+                     RingTime = RefTime
+                     !               print *,'DEBUG: creating MONTHLY record alarm'
+                  else
+                     mnthly = .false.
+                     read(freq_string(i),*) freq(i)
+                     call ESMF_TimeSet( RefTime, YY = ref_date(I)/10000, &
+                          MM = mod(ref_date(I),10000)/100, &
+                          DD = mod(ref_date(I),100), &
+                          H = ref_time(I)/10000, &
+                          M = mod(ref_time(I),10000)/100, &
+                          S = mod(ref_time(I),100), calendar=cal, rc=status)
+                     if (status /= 0) then
+                        print *,'Error: ref_date/time ',ref_date(i), ref_time(i)
+                     endif
+
+                     nhms = freq(I)
+                     sec = nhms/10000*3600 + mod(nhms,10000)/100*60 + mod(nhms,100)
+                     call ESMF_TimeIntervalSet( frequency, S=sec, __RC__ )
+                     RingTime = RefTime
+                     if (RingTime < currTime .and. sec /= 0) then
+                        RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
+                     endif
+                  end if monthly
+
+                  ! create alarm
+                  RecordAlarm = ESMF_AlarmCreate( name=trim(AlarmName), clock=clock, RingInterval=Frequency, &
+                       RingTime=RingTime, sticky=.false.,__RC__ )
+
+                  if(ringTime == currTime .and. .not.mnthly) then
+                     call ESMF_AlarmRingerOn(RecordAlarm, __RC__)
+                  else
+                     call ESMF_AlarmRingerOff(RecordAlarm, __RC__)
+                  end if
+
+               end if
+               R_ALARM(I) = recordAlarm
+               R_FILETYPE(I) = MAPL_Write2DIsk ! default
+            END DO
+            call MAPL_AddRecord(STATE, R_ALARM, R_FILETYPE, __RC__)
+            deallocate (freq, ref_time, ref_date, freq_string)
+            deallocate(R_FILETYPE, R_ALARM)
+         endif
+
+         call MAPL_GetResource( STATE, ens_id_width,         &
+              LABEL="ENS_ID_WIDTH:", default=0, &
+              __RC__)
+
+         if (associated(STATE%RECORD)) then
+            call MAPL_GetResource( STATE, FILENAME,         &
+                 LABEL="IMPORT_CHECKPOINT_FILE:", &
+                 rc=status)
+            if(status==ESMF_SUCCESS) then
+               STATE%RECORD%IMP_FNAME = FILENAME
+               STATE%RECORD%IMP_LEN = LEN_TRIM(FILENAME)
+            else
+               STATE%RECORD%IMP_LEN = 0
+            end if
+
+            id_string=""
+            tmp_label = "INTERNAL_CHECKPOINT_FILE:"
+            call MAPL_GetResource( STATE   , FILEtpl,         &
+                 LABEL=trim(tmp_label), &
+                 rc=status)
+            if((status /= ESMF_SUCCESS) .and. ens_id_width > 0) then
+               i = len(trim(comp_name))
+               id_string = comp_name(i-ens_id_width+1:i)
+               tmp_label =comp_name(1:i-ens_id_width)//"_"//trim(tmp_label)
+               call MAPL_GetResource( STATE   , FILEtpl,      &
+                    LABEL=trim(tmp_label), &
+                    rc=status)
+            endif
+
+            if(status==ESMF_SUCCESS) then
+               ! if the filename is tempate
+               call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), nymd=yyyymmdd,nhms=hhmmss,__RC__)
+               STATE%RECORD%INT_FNAME = FILENAME
+               STATE%RECORD%INT_LEN = LEN_TRIM(FILENAME)
+            else
+               STATE%RECORD%INT_LEN = 0
+            end if
+         end if
+         _RETURN(ESMF_SUCCESS)
+      end subroutine handle_record
+
+      subroutine create_import_and_initialize_state_variables(rc)
+         integer, optional, intent(out) :: rc
+         ! Create import and initialize state variables
+         ! --------------------------------------------
+         if (associated(STATE%COMPONENT_SPEC%IMPORT%OLD_VAR_SPECS) .and. isGridValid) then
+
+            is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
+            if (is_associated) then
+               call MAPL_StateCreateFromVarSpecNew(IMPORT,STATE%COMPONENT_SPEC%IMPORT,     &
+                    MYGRID%ESMFGRID,              &
+                    TILEGRID=TILEGRID,            &
+                    __RC__       )
+            else
+               call MAPL_StateCreateFromVarSpecNew(IMPORT,STATE%COMPONENT_SPEC%IMPORT,     &
+                    MYGRID%ESMFGRID,              &
+                    __RC__       )
+            endif
+
+            call MAPL_GetResource( STATE   , FILENAME,         &
+                 LABEL="IMPORT_RESTART_FILE:", &
+                 RC=status)
+            if(status==ESMF_SUCCESS) then
+
+               call MAPL_ESMFStateReadFromFile(IMPORT, CLOCK, FILENAME, &
+                    STATE, .FALSE., rc=status)
+               if (status /= ESMF_SUCCESS) then
+                  if (MAPL_AM_I_Root(VM)) then
+                     call ESMF_StatePrint(Import)
+                  end if
+               end if
+            endif
+         end if
+         _RETURN(ESMF_SUCCESS)
+      end subroutine create_import_and_initialize_state_variables
+
+      subroutine create_internal_and_initialize_state_variables(rc)
+         integer, optional, intent(out) :: rc
+         ! Create internal and initialize state variables
+         ! -----------------------------------------------
+
+         internal_state => STATE%get_internal_state()
+         internal_state = ESMF_StateCreate(name = trim(comp_name) // "_INTERNAL", __RC__)
+
+         if (associated(STATE%COMPONENT_SPEC%INTERNAL%OLD_VAR_SPECS)) then
+            is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
+            if (is_associated) then
+               call MAPL_StateCreateFromVarSpecNew(internal_state,STATE%COMPONENT_SPEC%INTERNAL, &
+                    MYGRID%ESMFGRID,             &
+                    TILEGRID=TILEGRID,           &
+                    __RC__       )
+            else
+               call MAPL_StateCreateFromVarSpecNew(internal_state,STATE%COMPONENT_SPEC%INTERNAL, &
+                    MYGRID%ESMFGRID,             &
+                    __RC__       )
+            end if
+            call ESMF_AttributeSet(internal_state,'POSITIVE',trim(positive),__RC__)
+
+            id_string = ""
+            tmp_label = "INTERNAL_RESTART_FILE:"
+            call MAPL_GetResource( STATE   , FILEtpl,         &
+                 LABEL=trim(tmp_label), &
+                 rc=status)
+            if((status /=ESMF_SUCCESS) .and. ens_id_width >0) then
+               i = len(trim(comp_name))
+               id_string = comp_name(i-ens_id_width+1:i)
+               tmp_label =comp_name(1:i-ens_id_width)//"_"//trim(tmp_label)
+               call MAPL_GetResource( STATE   , FILEtpl,         &
+                    LABEL=trim(tmp_label), &
+                    rc=status)
+            endif
+
+            if(status==ESMF_SUCCESS) then
+               ! if the filename is tempate
+               call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), &
+                    nymd=yyyymmdd,nhms=hhmmss,__RC__)
+               call MAPL_GetResource( STATE   , hdr,         &
+                    default=0, &
+                    LABEL="INTERNAL_HEADER:", &
+                    __RC__)
+               call MAPL_ESMFStateReadFromFile(internal_state, CLOCK, FILENAME, &
+                    STATE, hdr/=0, rc=status)
+               if (status /= ESMF_SUCCESS) then
+                  if (MAPL_AM_I_Root(VM)) then
+                     call ESMF_StatePrint(internal_state)
+                  end if
+                  _RETURN(ESMF_FAILURE)
+               end if
+            else
+               ! try to coldstart the internal state
+               ! -------------------------------
+               if (associated(STATE%phase_coldstart)) then
+                  ! ALT: workaround bug 3004440 in ESMF (fixed in ESMF_5_1_0)
+                  ! please, do not remove, nor change order until we move to 510 or later
+                  allocate(GCCS%compp, stat=status)
+                  GCCS%compp = GC%compp
+                  call ESMF_GridCompReadRestart(GC, importState=import, &
+                       exportState=export, clock=CLOCK, userRC=userRC, __RC__)
+                  GC%compp = GCCS%compp
+                  deallocate(GCCS%compp)
+               endif
+
+            endif
+         end if
+         _RETURN(ESMF_SUCCESS)
+      end subroutine create_internal_and_initialize_state_variables
+
+      subroutine create_export_state_variables(rc)
+         integer, optional, intent(out) :: rc
+
+
+         ! Create export state variables
+         !------------------------------
+
+         if (associated(STATE%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS)) then
+            is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
+            if (is_associated) then
+               call MAPL_StateCreateFromVarSpecNew(EXPORT,STATE%COMPONENT_SPEC%EXPORT,     &
+                    MYGRID%ESMFGRID,              &
+                    TILEGRID=TILEGRID,            &
+                    DEFER=.true., __RC__       )
+            else
+               call MAPL_StateCreateFromVarSpecNew(EXPORT,STATE%COMPONENT_SPEC%EXPORT,     &
+                    MYGRID%ESMFGRID,              &
+                    DEFER=.true., __RC__       )
+            end if
+         end if
+         _RETURN(ESMF_SUCCESS)
+      end subroutine create_export_state_variables
+
+      subroutine handle_services(rc)
+         integer, optional, intent(out) :: rc
+         ! Service services processing:
+         ! process any providers
+         if (state%provided_services%size()>0) then
+            call ProvidedServiceSet(state%provided_services, import, __RC__)
+         end if
+
+         ! process any requesters
+         if (state%requested_services%size()>0) then
+            call FillRequestBundle(state%requested_services, state%get_internal_state(), __RC__)
+         end if
+         
+         ! process any service connections
+         call MAPL_ProcessServiceConnections(state, __RC__)
+
+         _RETURN(ESMF_SUCCESS)
+      end subroutine handle_services
 
    end subroutine MAPL_GenericInitialize
 
