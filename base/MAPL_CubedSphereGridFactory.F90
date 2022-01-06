@@ -1038,27 +1038,27 @@ contains
       call metadata%add_variable('anchor', v)
 
       call Metadata%add_attribute('grid_mapping_name', 'gnomonic cubed-sphere')
-      call Metadata%add_attribute('file_format_version', '2.91')
+      call Metadata%add_attribute('file_format_version', '2.92')
       call Metadata%add_attribute('additional_vars', 'contacts,orientation,anchor')
       write(gridspec_file_name,'("C",i0,"_gridspec.nc4")') this%im_world
       call Metadata%add_attribute('gridspec_file', trim(gridspec_file_name))
 
-      v = Variable(type=PFIO_REAL32, dimensions='Xdim,Ydim,nf')
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf')
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
       call metadata%add_variable('lons',v)
 
-      v = Variable(type=PFIO_REAL32, dimensions='Xdim,Ydim,nf')
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf')
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('lats',v)
 
-      v = Variable(type=PFIO_REAL32, dimensions='XCdim,YCdim,nf')
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim,nf')
       call v%add_attribute('long_name','longitude')
       call v%add_attribute('units','degrees_east')
       call metadata%add_variable('corner_lons',v)
 
-      v = Variable(type=PFIO_REAL32, dimensions='XCdim,YCdim,nf')
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim,nf')
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('corner_lats',v)
