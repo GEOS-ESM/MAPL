@@ -5,7 +5,8 @@ module MAPL_ApplicationSupport
  use MAPL_KeywordEnforcerMod
  use pflogger, only: logging
  use pflogger, only: Logger
- use MAPL_Profiler
+ use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
+
  implicit none
  private
 
@@ -40,7 +41,8 @@ module MAPL_ApplicationSupport
       _VERIFY(status)
 #endif
       call initialize_profiler(comm=comm_world)
-      call start_global_time_profiler()
+      call start_global_time_profiler(rc=status)
+      _VERIFY(status)
       _RETURN(_SUCCESS)
 
    end subroutine MAPL_Initialize
@@ -59,10 +61,12 @@ module MAPL_ApplicationSupport
       else
          comm_world=MPI_COMM_WORLD
       end if
-      call stop_global_time_profiler()
+      call stop_global_time_profiler(rc=status)
+      _VERIFY(status)
       call report_global_profiler(comm=comm_world)
       call finalize_profiler()
       call finalize_pflogger()
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_Finalize
 

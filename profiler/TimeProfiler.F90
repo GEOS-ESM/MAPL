@@ -1,4 +1,5 @@
 #include "unused_dummy.H"
+#include "MAPL_ErrLog.h"
 
 module mapl_TimeProfiler_private
    use mapl_BaseProfiler, only: BaseProfiler
@@ -30,7 +31,6 @@ module mapl_TimeProfiler_private
 
 contains
 
-
    function new_TimeProfiler(name, comm_world) result(prof)
       type(TimeProfiler), target :: prof
       character(*), intent(in) :: name
@@ -41,7 +41,6 @@ contains
 
    end function new_TimeProfiler
 
-
    function make_meter(this) result(meter)
       class(AbstractMeter), allocatable :: meter
       class(TimeProfiler), intent(in) :: this
@@ -49,14 +48,12 @@ contains
       meter = AdvancedMeter(MpiTimerGauge())
    end function make_meter
 
-
    function get_global_time_profiler() result(time_profiler)
       type(TimeProfiler), pointer :: time_profiler
 
       time_profiler => global_time_profiler
 
    end function get_global_time_profiler
-
 
    subroutine copy(new, old)
       class(TimeProfiler), target, intent(inout) :: new
@@ -66,16 +63,14 @@ contains
 
    end subroutine copy
 
-
 end module mapl_TimeProfiler_Private
-
-
 
 module mapl_TimeProfiler
    use mpi
    use mapl_BaseProfiler
    use mapl_TimeProfiler_private
-   use MAPL_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
+   use mapl_ExceptionHandling
 
    implicit none
    private
@@ -116,7 +111,6 @@ contains
 
    end subroutine initialize_global_time_profiler
 
-
    subroutine finalize_global_time_profiler()
 
       type(TimeProfiler), pointer :: time_profiler
@@ -126,13 +120,14 @@ contains
 
    end subroutine finalize_global_time_profiler
 
-
-   subroutine start_global_time_profiler(unusable, name)
+   subroutine start_global_time_profiler(unusable, name, rc)
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: name
+      integer, optional, intent(out) :: rc
       character(:), allocatable :: name_
       type(TimeProfiler), pointer :: time_profiler
- 
+      integer :: status
+
       if (present(name)) then
          name_ = name
       else
@@ -140,16 +135,18 @@ contains
       end if
 
       time_profiler => get_global_time_profiler()
-      call time_profiler%start(name_)
-
+      call time_profiler%start(name_, rc=status)
+      _VERIFY(status)
+      _RETURN(_SUCCESS)
    end subroutine start_global_time_profiler
-
    
-   subroutine stop_global_time_profiler(unusable, name)
+   subroutine stop_global_time_profiler(unusable, name, rc)
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: name
+      integer, optional, intent(out) :: rc
       character(:), allocatable :: name_
       type(TimeProfiler), pointer :: time_profiler
+      integer :: status
 
       if (present(name)) then
          name_ = name
@@ -158,9 +155,9 @@ contains
       end if
 
       time_profiler => get_global_time_profiler()
-      call time_profiler%stop(name_)
-
+      call time_profiler%stop(name_, rc=status)
+      _VERIFY(status)
+      _RETURN(_SUCCESS)
    end subroutine stop_global_time_profiler
-
 
 end module mapl_TimeProfiler

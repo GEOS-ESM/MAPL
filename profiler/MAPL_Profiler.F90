@@ -41,13 +41,13 @@ module mapl_Profiler
    implicit none
 contains 
 
-   subroutine initialize_profiler(comm)
+   subroutine initialize(comm)
       integer, optional, intent(in) :: comm
       call initialize_global_time_profiler(comm = comm)
-   end subroutine initialize_profiler
+   end subroutine initialize
 
-   subroutine finalize_profiler()
+   subroutine finalize()
       call finalize_global_time_profiler()
-   end subroutine finalize_profiler
+   end subroutine finalize
 
 end module mapl_Profiler
