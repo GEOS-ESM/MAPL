@@ -12,16 +12,51 @@ module mapl_MaplGenericComponent
    use mapl_MaplComponent
    use mapl_ErrorHandlingMod
    use pFlogger
+   use mapl_OpenMP_Support
+   use mapl_MaplGrid
+   !$ use omp_lib
    implicit none
    private
 
    public :: MaplGenericComponent
+   public :: get_grid
+
+   procedure(), pointer :: user_method => null()
+
+   type SubComponent
+      type(ESMF_GridComp) :: gridcomp
+      type(ESMF_State) :: internal_state
+      type(ESMF_State) :: import_state
+      type(ESMF_State) :: export_state
+      type(MaplGrid) :: grid
+   end type SubComponent
+
+   abstract interface
+      subroutine UserMethod(gc, import, export, clock, rc)
+         use ESMF
+         implicit none
+         type (ESMF_GridComp), intent(inout) :: gc     ! Gridded component 
+         type (ESMF_State),    intent(inout) :: import ! Import state
+         type (ESMF_State),    intent(inout) :: export ! Export state
+         type (ESMF_Clock),    intent(inout) :: clock  ! The clock
+         integer, optional,    intent(  out) :: rc     ! Error code:
+      end subroutine UserMethod
+   end interface
 
    type, extends(BaseFrameworkComponent) :: MaplGenericComponent
 !!$      private
       type(ESMF_GridComp) :: gridcomp
+      type(SubComponent), allocatable :: subcomponents(:)
+!!$      procedure(UserMethod), pointer, nopass :: run_entry_point => null()
+      procedure(), pointer, nopass :: run_entry_point => null()
       type(ESMF_State) :: import_state
       type(ESMF_State) :: export_state
+      type(ESMF_State) :: internal_state
+      !type(MaplGrid) :: grid
+
+      logical :: threading_active = .FALSE.
+
+
    contains
       procedure :: initialize => stub
       procedure :: run => stub
@@ -32,12 +67,22 @@ module mapl_MaplGenericComponent
       procedure :: finalize_child => stub_child
 
       procedure :: add_child_component
+      
+      procedure :: activate_threading
+      procedure :: deactivate_threading
 
+      procedure :: make_subgridcomps
+      procedure :: create_subobjects
 
       ! accessors
-
       procedure :: get_logger
       procedure :: set_logger
+      procedure :: is_threading_active
+      procedure :: get_internal_state
+      procedure :: get_import_state
+      procedure :: get_export_state
+      procedure :: get_grid
+      procedure :: get_gridcomp
    end type MaplGenericComponent
 
 contains
@@ -166,5 +211,223 @@ contains
       call component%set_logger(lgr)
       
    end subroutine set_logger
+
+   function is_threading_active(this) result(threading_active)
+     class(MaplGenericComponent), intent(in) :: this
+     logical :: threading_active
+     
+     threading_active = this%threading_active
+   end function is_threading_active
+
+   function get_internal_state(this) result(internal_state)
+      class(MaplGenericComponent), target, intent(in) :: this
+      type(ESMF_State), pointer :: internal_state
+      integer :: thread 
+
+      if (.NOT. this%is_threading_active()) then
+        internal_state => this%internal_state
+     else
+        thread = 0
+        !$ thread = omp_get_thread_num()
+        internal_state => this%subcomponents(thread+1)%internal_state
+     end if
+   end function get_internal_state
+
+   function get_import_state(this) result(import_state)
+     class(MaplGenericComponent), target, intent(in) :: this
+     type(ESMF_State), pointer :: import_state
+     integer :: thread
+
+     if (.NOT. this%is_threading_active()) then
+        import_state => this%import_state
+     else
+        thread = 0
+        !$ thread = omp_get_thread_num()
+        import_state => this%subcomponents(thread+1)%import_state
+     end if
+   end function get_import_state
+
+   function get_export_state(this) result(export_state)
+     class(MaplGenericComponent), target, intent(in) :: this
+     type(ESMF_State), pointer :: export_state
+     integer :: thread
+
+     if (.NOT. this%is_threading_active()) then
+        export_state => this%export_state
+     else
+        thread = 0
+        !$ thread = omp_get_thread_num()
+        export_state => this%subcomponents(thread+1)%export_state
+     end if
+   end function get_export_state
+
+   function get_grid(this) result(grid)
+     class(MaplGenericComponent), target, intent(in) :: this
+     type(MaplGrid), pointer :: grid
+     integer :: thread
+
+     if (.NOT. this%is_threading_active()) then
+        grid => this%grid
+     else
+        thread = 0
+        !$ thread = omp_get_thread_num()
+        grid => this%subcomponents(thread+1)%grid ! subgrids is of type ESMF_Grid because of the return type of make_subgrids
+     end if
+   end function get_grid
+
+
+   recursive subroutine activate_threading(this, num_threads, unusable, rc) 
+     class(MaplGenericComponent), intent(inout) :: this
+     integer, intent(in) :: num_threads
+     class(KeywordEnforcer), optional :: unusable
+     integer, optional, intent(out) :: rc
+     class(AbstractFrameworkComponent), pointer :: child
+     integer :: num_children, i, status
+      
+     this%threading_active = .TRUE.
+     num_children = this%get_num_children()
+
+     if (.NOT. allocated(this%subcomponents)) then
+        call this%create_subobjects(num_threads, __RC__)
+     end if
+
+     do i = 1, num_children
+        child => this%get_child(i) 
+        SELECT TYPE (child)
+        CLASS IS (MaplGenericComponent)
+           call child%activate_threading(num_threads)
+        CLASS DEFAULT
+           _FAIL('illegal type for child')
+        END SELECT
+     end do
+     _RETURN(0)
+   end subroutine activate_threading
+
+   subroutine create_subobjects(this, num_threads, unusable, rc)
+     class(MaplGenericComponent), intent(inout) :: this
+     integer, intent(in) :: num_threads
+     class(KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc
+     integer :: i, status
+     type(ESMF_Grid), allocatable :: subgrids(:)
+
+     allocate(this%subcomponents(num_threads))
+     
+     this%subcomponents(:)%import_state = make_substates(this%import_state, num_threads, __RC__)
+     this%subcomponents(:)%export_state = make_substates(this%export_state, num_threads, __RC__)
+     this%subcomponents(:)%internal_state = make_substates(this%internal_state, num_threads, __RC__)
+
+     subgrids = make_subgrids(this%grid%ESMFGrid, num_threads, __RC__) ! make_subgrids requires grid of type ESMF_Grid
+     do i = 1, size(subgrids)
+        call this%subcomponents(i)%grid%set(subgrids(i), __RC__)
+     end do
+     deallocate(subgrids)
+
+     this%subcomponents(:)%gridcomp = this%make_subgridcomps(num_threads, __RC__)
+
+     _RETURN(0)
+   end subroutine create_subobjects
+
+   subroutine deactivate_threading(this, unusable, rc)
+     class(MaplGenericComponent), intent(inout) :: this
+     class(KeywordEnforcer), optional :: unusable
+     integer, optional, intent(out) :: rc
+     class(AbstractFrameworkComponent), pointer :: child
+     integer :: num_children, i
+     
+     num_children = this%get_num_children()
+     do i = 1, num_children
+        child => this%get_child(i) 
+        SELECT TYPE (child)
+        CLASS IS (MaplGenericComponent)
+           call child%deactivate_threading()
+        CLASS DEFAULT
+           _FAIL('illegal type for child')
+        END SELECT
+     end do
+     
+     this%threading_active = .FALSE.
+     _RETURN(0)
+   end subroutine deactivate_threading
+
+
+
+   function get_gridcomp(this) result(gridcomp)
+      class(MaplGenericComponent), target, intent(in) :: this
+      type(ESMF_GridComp), pointer :: gridcomp
+
+      integer :: thread 
+
+      if (.NOT. this%is_threading_active()) then
+         gridcomp => this%gridcomp
+     else
+        thread = 0
+        !$ thread = omp_get_thread_num()
+        gridcomp => this%subcomponents(thread+1)%gridcomp
+     end if
+
+  end function get_gridcomp
+
+  function make_subgridcomps(this, num_grids, unusable, rc) result(subgridcomps)
+      type(ESMF_GridComp), allocatable :: subgridcomps(:)
+      class(MaplGenericComponent), intent(inout) :: this
+      integer, intent(in) :: num_grids
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status, user_status
+      type(ESMF_VM) :: vm
+      integer :: myPet, i
+      logical :: has_private_state
+
+      type MAPL_GenericWrap
+         type(ESMF_Clock), pointer :: dummy
+      end type MAPL_GenericWrap
+
+      type (MAPL_GenericWrap) :: wrap, wrap_private
+      character(len=ESMF_MAXSTR) :: comp_name
+
+      allocate(subgridcomps(num_grids))
+
+      call ESMF_VMGetCurrent(vm, __RC__)
+      call ESMF_VMGet(vm, localPET=myPET, __RC__)
+
+      call ESMF_GridCompGet(this%gridcomp, name=comp_name, __RC__)
+      print*,__FILE__,__LINE__, 'splitting component: <',trim(comp_name),'>'
+      call ESMF_UserCompGetInternalState(this%gridcomp, "MAPL_GenericInternalState", wrap, status)
+      _VERIFY(status)
+      call ESMF_UserCompGetInternalState(this%gridcomp, trim(comp_name)//"2G_GridComp", wrap_private, status)
+      has_private_state = (status == ESMF_SUCCESS)
+
+      do i = 1, num_grids
+         associate (gc => subgridcomps(i) )
+           gc = ESMF_GridCompCreate(name=trim(comp_name), petlist=[myPet], &
+                & contextflag=ESMF_CONTEXT_OWN_VM, __RC__)
+           _ASSERT(associated(this%run_entry_point),'no run method found')
+           user_method => this%run_entry_point
+           call ESMF_GridCompSetServices(gc, stub_setservices, userrc=user_status, rc=status)
+           _VERIFY(user_status)
+           _VERIFY(status)
+           call ESMF_UserCompSetInternalState(gc, "MAPL_GenericInternalState", wrap, status)
+           _VERIFY(status)
+           if (has_private_state) then
+              call ESMF_UserCompSetInternalState(gc, trim(comp_name)//"2G_GridComp", wrap_private, status)
+              _VERIFY(status)
+           end if
+         end associate
+      end do
+
+      _RETURN(ESMF_SUCCESS)
+   end function make_subgridcomps
+
+   subroutine stub_setservices(gc, rc)
+      type(ESMF_GridComp) :: gc
+      integer, intent(out):: rc
+
+      integer :: status
+
+      call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=1, userroutine=user_method, __RC__)
+      _RETURN(ESMF_SUCCESS)
+   end subroutine stub_setservices
 
 end module mapl_MaplGenericComponent

@@ -3786,7 +3786,7 @@ contains
    subroutine MAPL_GenericStateGet (STATE, IM, JM, LM, VERTDIM,                &
         NX, NY, NX0, NY0, LAYOUT,                  &
         GCNames,                                   &
-        LONS, LATS, ORBIT, RUNALARM,               &
+        LONS, LATS, grid, ORBIT, RUNALARM,               &
         IMPORTspec, EXPORTspec, INTERNALspec,      &
         INTERNAL_ESMF_STATE,                       &
         TILETYPES, TILEKIND,                       &
@@ -3811,6 +3811,7 @@ contains
       type (ESMF_DELayout), optional, intent(  OUT) :: LAYOUT
       real, pointer,        optional                :: LONS(:,:)
       real, pointer,        optional                :: LATS(:,:)
+      type(ESMF_Grid),      optional                :: grid
       integer,              optional, intent(  OUT) :: RC     ! Error code:
       type (MAPL_VarSpec),  optional, pointer       :: IMPORTspec(:)
       type (MAPL_VarSpec),  optional, pointer       :: EXPORTspec(:)
@@ -3898,13 +3899,16 @@ contains
            ORB2B_ECC_REF, ORB2B_ECC_RATE, &
            ORB2B_OBQ_REF, ORB2B_OBQ_RATE, &
            ORB2B_LAMBDAP_REF, ORB2B_LAMBDAP_RATE
+      type(MaplGrid), pointer :: temp_grid
 
       if(present(IM)) then
          IM=STATE%GRID%IM
       endif
 
       if(present(JM)) then
-         JM=STATE%GRID%JM
+         !JM=STATE%GRID%JM
+         temp_grid => state%get_grid()
+         JM=temp_GRID%JM
       endif
 
       if(present(LM)) then
@@ -4085,11 +4089,20 @@ contains
       endif
 
       if(present(LONS    )) then
-         LONS   =>STATE%GRID%LONS
+         !LONS   =>STATE%GRID%LONS
+         temp_grid => STATE%get_grid()
+         LONS   => temp_grid%LONS
       endif
 
       if(present(LATS    )) then
-         LATS   =>STATE%GRID%LATS
+         !LATS   =>STATE%GRID%LATS
+         temp_grid => STATE%get_grid()
+         LATS   => temp_grid%LATS
+      endif
+
+      if(present(grid)) then
+         temp_grid => STATE%get_grid()
+         grid = temp_grid%ESMFGrid
       endif
 
       if(present(IMPORTspec)) then

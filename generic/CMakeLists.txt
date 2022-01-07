@@ -46,6 +46,7 @@ set (srcs
 
   MAPL_Generic.F90
 
+  OpenMP_Support.F90
   )
 if (BUILD_WITH_PFLOGGER)
   find_package(PFLOGGER REQUIRED)
