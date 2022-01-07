@@ -120,42 +120,26 @@ contains
 
    end subroutine finalize_global_time_profiler
 
-   subroutine start_global_time_profiler(unusable, name, rc)
+   subroutine start_global_time_profiler(unusable, rc)
       class (KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
-      character(:), allocatable :: name_
       type(TimeProfiler), pointer :: time_profiler
       integer :: status
 
-      if (present(name)) then
-         name_ = name
-      else
-         name_ = 'All'
-      end if
-
       time_profiler => get_global_time_profiler()
-      call time_profiler%start(name_, rc=status)
+      call time_profiler%start(rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
    end subroutine start_global_time_profiler
    
-   subroutine stop_global_time_profiler(unusable, name, rc)
+   subroutine stop_global_time_profiler(unusable, rc)
       class (KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
-      character(:), allocatable :: name_
       type(TimeProfiler), pointer :: time_profiler
       integer :: status
 
-      if (present(name)) then
-         name_ = name
-      else
-         name_ = 'All'
-      end if
-
       time_profiler => get_global_time_profiler()
-      call time_profiler%stop(name_, rc=status)
+      call time_profiler%stop(rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
    end subroutine stop_global_time_profiler
