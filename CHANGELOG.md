@@ -8,11 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+
 - more error trappings in pFIO
+- Free types and operation created by profiler
+- Finalize profiler in MAPL_finalize call
+
 ### Added
 
 ### Changed
 
+- Updated README.md
 - Refactored MAPL_Generic.F90 - lots of changes.
   - consistent indentation (emacs mode)
   - extracted helper procedures in GenericInitialize
