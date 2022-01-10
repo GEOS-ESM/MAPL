@@ -159,14 +159,19 @@ contains
             npes_in(1)  == 0 .and. nodes_in(1)  == 0) profiler_name = "io_server_client"
 
         if (npes_in(1) == 0 .and. nodes_in(1) == 0) then
-           allocate(this%i_server, source = MpiServer(client_comm, 'i_server'//trim(i_to_string(1)),profiler_name=profiler_name, with_profiler=with_profiler))
+           allocate(this%i_server, source = MpiServer(client_comm, 'i_server'//trim(i_to_string(1)),profiler_name=profiler_name, &
+                                                      with_profiler=with_profiler, rc=status))
+           _VERIFY(status)
            call this%directory_service%publish(PortInfo('i_server'//trim(i_to_string(1)), this%i_server), this%i_server)
            if (rank == 0 ) then
               write(*,'(A,I0,A)')" Starting pFIO input server on Clients"
            endif
         end if
         if (npes_out(1) == 0 .and. nodes_out(1) == 0) then
-           allocate(this%o_server, source = MpiServer(client_comm, 'o_server'//trim(i_to_string(1)),profiler_name=profiler_name, with_profiler=with_profiler))
+           allocate(this%o_server, source = MpiServer(client_comm, 'o_server'//trim(i_to_string(1)),profiler_name=profiler_name, &
+                                                      with_profiler=with_profiler, rc=status))
+           _VERIFY(status)
+
            call this%directory_service%publish(PortInfo('o_server'//trim(i_to_string(1)), this%o_server), this%o_server)
            if (rank == 0 ) then
               write(*,'(A,I0,A)')" Starting pFIO output server on Clients"
@@ -218,11 +223,13 @@ contains
 
            else if (oserver_type_ == 'multigroup' ) then
 
-              allocate(this%o_server, source = MultiGroupServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend, with_profiler=with_profiler))
-
+              allocate(this%o_server, source = MultiGroupServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend, &
+                                                                with_profiler=with_profiler, rc=status))
+              _VERIFY(status)
            else
 
-              allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler))
+              allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler, rc=status))
+              _VERIFY(status)
 
            endif
            call this%directory_service%publish(PortInfo(s_name,this%o_server), this%o_server)
@@ -248,11 +255,13 @@ contains
      enddo
 
      if ( index(s_name, 'o_server') /=0 ) then
-        call this%o_server%start()
+        call this%o_server%start(rc=status)
+        _VERIFY(status)
      endif
 
      if ( index(s_name, 'i_server') /=0 ) then
-        call this%i_server%start()
+        call this%i_server%start(rc=status)
+        _VERIFY(status)
      endif
 
      if ( index(s_name, 'model') /=0 ) then

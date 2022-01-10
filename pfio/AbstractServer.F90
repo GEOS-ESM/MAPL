@@ -86,10 +86,11 @@ module pFIO_AbstractServerMod
 
    abstract interface 
 
-      subroutine start(this)
+      subroutine start(this, rc)
          use pFIO_AbstractSocketVectorMod
          import AbstractServer
          class(AbstractServer),target,intent(inout) :: this
+         integer, optional, intent(out) :: rc
       end subroutine start
 
       subroutine clear_RequestHandle(this)
@@ -121,47 +122,57 @@ module pFIO_AbstractServerMod
 
 contains
 
-   subroutine init(this,comm, port_name, profiler_name, with_profiler)
+   subroutine init(this,comm, port_name, profiler_name, with_profiler, rc)
       class (AbstractServer),intent(inout) :: this
       integer, intent(in) :: comm
       character(*), intent(in) :: port_name
       character(*), optional, intent(in) :: profiler_name
       logical, optional, intent(in) :: with_profiler
+      integer, optional, intent(out) :: rc
 
-      integer :: ierror, MyColor
+      integer :: status, MyColor
       character(len=:), allocatable :: p_name
 
       this%comm = comm
-      call MPI_Comm_rank(this%comm, this%rank, ierror)
-      call MPI_Comm_size(this%comm, this%npes, ierror)
+      call MPI_Comm_rank(this%comm, this%rank, status)
+      _VERIFY(status)
+      call MPI_Comm_size(this%comm, this%npes, status)
+      _VERIFY(status)
 
       this%num_clients = 0
       this%all_backlog_is_empty = .true.
       this%status = UNALLOCATED
 
-      call MPI_Comm_split_type(this%comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%InNode_Comm,ierror)
-      call MPI_Comm_size(this%InNode_Comm, this%InNode_npes,ierror)
-      call MPI_Comm_rank(this%InNode_Comm, this%InNode_Rank, ierror)
+      call MPI_Comm_split_type(this%comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%InNode_Comm,status)
+      _VERIFY(status)
+      call MPI_Comm_size(this%InNode_Comm, this%InNode_npes,status)
+      _VERIFY(status)
+      call MPI_Comm_rank(this%InNode_Comm, this%InNode_Rank, status)
+      _VERIFY(status)
        
       MyColor = 0
       if (this%InNode_Rank == 0) MyColor = 1
 
-      call MPI_COMM_SPLIT( comm, MyColor, this%rank, this%NodeRoot_Comm, ierror)
+      call MPI_COMM_SPLIT( comm, MyColor, this%rank, this%NodeRoot_Comm, status)
+      _VERIFY(status)
 
       if (MyColor==0) then
          this%NodeRoot_Comm=MPI_COMM_NULL
       else
-         call MPI_COMM_SIZE(this%NodeRoot_Comm, this%Node_Num, ierror)
-         call MPI_COMM_RANK(this%NodeRoot_Comm, this%Node_Rank, ierror)
+         call MPI_COMM_SIZE(this%NodeRoot_Comm, this%Node_Num, status)
+         _VERIFY(status)
+         call MPI_COMM_RANK(this%NodeRoot_Comm, this%Node_Rank, status)
+         _VERIFY(status)
       endif
 
-      call Mpi_Bcast(this%Node_Rank, 1, MPI_INTEGER, 0, this%InNode_Comm, ierror) 
-      call Mpi_Bcast(this%Node_Num,  1, MPI_INTEGER, 0, this%InNode_Comm, ierror) 
+      call Mpi_Bcast(this%Node_Rank, 1, MPI_INTEGER, 0, this%InNode_Comm, status) 
+      call Mpi_Bcast(this%Node_Num,  1, MPI_INTEGER, 0, this%InNode_Comm, status) 
      
       allocate(This%Node_Ranks(0:this%npes-1))
 
       call Mpi_AllGather(this%Node_Rank,  1, MPI_INTEGER, &
-                         this%Node_Ranks, 1, MPI_INTEGER, comm,ierror)
+                         this%Node_Ranks, 1, MPI_INTEGER, comm,status)
+      _VERIFY(status)
 
       if (present(profiler_name)) then
          p_name = profiler_name
@@ -178,7 +189,8 @@ contains
          endif
       endif
 
-      call MPI_Barrier(comm, ierror)
+      call MPI_Barrier(comm, status)
+      _RETURN(_SUCCESS)
    end subroutine init
 
    function get_status(this) result(status)

@@ -136,7 +136,8 @@ contains
       s%I_am_back_root = .false.
       if (index(s_name, 'o_server_front') /=0) then
          s%front_comm = s_comm%get_subcommunicator()
-         call s%init(s%front_comm, s_name, with_profiler = with_profiler)
+         call s%init(s%front_comm, s_name, with_profiler = with_profiler, rc=status)
+         _VERIFY(status)
          s%port_name = trim(port_name)
          call MPI_Comm_rank(s%front_comm, local_rank, ierror)
          if (s_rank == 0) then 
@@ -171,29 +172,37 @@ contains
          call s%set_status(1)
          call s%add_connection(dummy_socket)
          allocate(s%buffers(s%nfront))
-         call s%init(s%back_comm, s_name)
+         call s%init(s%back_comm, s_name, rc=status)
+         _VERIFY(status)
       endif
 
       if (s_rank == 0) print*, "MultiServer Start: nfront, nwriter", s%nfront, s%nwriter-1
-
+      _RETURN(_SUCCESS)
    end function new_MultiGroupServer
 
-   subroutine start(this)
+   subroutine start(this, rc)
       class (MultiGroupServer), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
 
       if ( this%front_comm /= MPI_COMM_NULL) then
-         call start_front()
+         call start_front(rc=status)
+         _VERIFY(status)
       endif
 
       if ( this%back_comm /= MPI_COMM_NULL) then
-         call this%start_back()      
+         call this%start_back(rc=status)      
+         _VERIFY(status)
       endif
       call this%splitter%free_sub_comm()
+      _RETURN(_SUCCESS)
    contains
 
-      subroutine start_front()
+      subroutine start_front(rc)
+         integer, optional, intent(out) :: rc
+        
          class (ServerThread), pointer :: thread_ptr => null()
-         integer :: i,client_size
+         integer :: i,client_size, status
          logical, allocatable :: mask(:)
          integer :: terminate = -1
 
@@ -213,7 +222,8 @@ contains
    
                thread_ptr=>this%threads%at(i)
                !handle the message
-               call thread_ptr%run()
+               call thread_ptr%run(rc=status)
+               _VERIFY(status)
                !delete the thread object if it terminates 
                if(thread_ptr%do_terminate()) then
                   mask(i) = .true.
@@ -231,7 +241,7 @@ contains
          call this%report_profile()
   
          deallocate(mask)
-   
+         _RETURN(_SUCCESS)
       end subroutine start_front
 
    end subroutine start

@@ -1,4 +1,7 @@
+#include "MAPL_ErrLog.h"
+
 module pFIO_MpiServerMod
+   use MAPL_ExceptionHandling
    use MAPL_Profiler
    use pFIO_AbstractDirectoryServiceMod
    use pFIO_ServerThreadMod
@@ -26,24 +29,29 @@ module pFIO_MpiServerMod
 
 contains
 
-   function new_MpiServer(comm, port_name, profiler_name, with_profiler) result(s)
+   function new_MpiServer(comm, port_name, profiler_name, with_profiler, rc) result(s)
       type (MpiServer) :: s
       integer, intent(in) :: comm
       character(*), intent(in) :: port_name
       character(*), optional, intent(in) :: profiler_name
       logical, optional, intent(in) :: with_profiler
+      integer, optional, intent(out) :: rc
+      integer :: status
 
-      call s%init(comm, port_name, profiler_name=profiler_name, with_profiler = with_profiler )
+      call s%init(comm, port_name, profiler_name=profiler_name, with_profiler = with_profiler, rc=status)
+      _VERIFY(status)
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
+      _RETURN(_SUCCESS)
    end function new_MpiServer
 
-   subroutine start(this)
+   subroutine start(this, rc)
       class (MpiServer), target, intent(inout) :: this
-
+      integer, optional, intent(out) :: rc
       class (ServerThread), pointer :: thread_ptr => null()
       integer :: i,client_size
       logical, allocatable :: mask(:)
+      integer :: status
 
       client_size = this%threads%size()
 
@@ -61,7 +69,8 @@ contains
 
             thread_ptr=>this%threads%at(i)
             !handle the message
-            call thread_ptr%run()
+            call thread_ptr%run(rc=status)
+            _VERIFY(status)
             !delete the thread object if it terminates 
             if(thread_ptr%do_terminate()) then
                mask(i) = .true.
@@ -76,7 +85,9 @@ contains
       deallocate(mask)
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop()
-      call this%report_profile() 
+      call this%report_profile()
+
+      _RETURN(_SUCCESS)
    end subroutine start
 
 end module pFIO_MpiServerMod

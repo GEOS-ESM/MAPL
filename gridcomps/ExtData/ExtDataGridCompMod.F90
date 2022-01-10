@@ -2726,9 +2726,11 @@ CONTAINS
         type(FileMetadataUtils), pointer, intent(inout)   :: metadata
         integer, optional,          intent(out  ) :: rc
         type(MAPLDataCollection), pointer :: collection => null()
+        integer :: status
 
         Collection => DataCollections%at(collection_id)
-        metadata => collection%find(file)
+        metadata => collection%find(file, rc=status)
+        _VERIFY(status)
         call lgr%debug(' Retrieving formatter for: %a', trim(file))
         _RETURN(_SUCCESS)
 

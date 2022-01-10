@@ -2945,7 +2945,8 @@ contains
     cfioIsCreated = .false. 
     if (present(collection_id)) then
        collection => collections%at(collection_id)
-       cfio => collection%find(filename) 
+       cfio => collection%find(filename, rc=status) 
+       _VERIFY(STATUS)
     else
        allocate(CFIO)
        cfio=ESMF_CFIOCreate(RC=status)
@@ -4808,7 +4809,8 @@ CONTAINS
         cfio(n)%collection_id = MAPL_CFIOAddCollection(filelist(n))
         cfio(n)%fname = filelist(n)
         collection => collections%at(cfio(n)%collection_id)
-        pcfio => collection%find(cfio(n)%fname)
+        pcfio => collection%find(cfio(n)%fname, rc=status)
+        _VERIFY(STATUS)
         if (present(timelist)) then
           call getTIndex(pcfio,timelist(n),nn,rc=status)
         else
@@ -4958,7 +4960,8 @@ CONTAINS
     _VERIFY(STATUS)
 
     collection => collections%at(mcfio%collection_ID)
-    cfiop => collection%find(mcfio%fname)
+    cfiop => collection%find(mcfio%fname, rc=status)
+    _VERIFY(STATUS)
 
     call ESMF_CFIOGet       (cfiop,     grid=CFIOGRID,                     RC=STATUS)
     _VERIFY(STATUS)
@@ -5319,7 +5322,8 @@ CONTAINS
     end if
 
     collection => collections%at(mcfio%collection_id)
-    cfiop => collection%find(trim(mcfio%fname))
+    cfiop => collection%find(trim(mcfio%fname), rc=status)
+    _VERIFY(STATUS)
 
     call MAPL_GridGet( MCFIO%GRID, globalCellCountPerDim=COUNTS, RC=STATUS)
     _VERIFY(STATUS)

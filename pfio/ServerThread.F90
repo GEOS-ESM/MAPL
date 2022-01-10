@@ -375,7 +375,7 @@ contains
                offset    = g_offset + offset 
                address   = c_loc(i_ptr(offset+1))
                 ! (2) read data
-               call this%get_DataFromFile(q, address, status)
+               call this%get_DataFromFile(q, address, rc=status)
                _VERIFY(status)
                call this%containing_server%prefetch_offset%insert(i_to_string(q%request_id)//'done',0_Int64)
             endif
@@ -666,10 +666,11 @@ contains
       type (ExtDataCollection), pointer :: collection
 
       integer, allocatable :: start(:),count(:)
-
+      integer :: status
 
       collection => this%ext_collections%at(message%collection_id)
-      formatter => collection%find(message%file_name)
+      formatter => collection%find(message%file_name, rc=status)
+      _VERIFY(status)
 
       select type (message)
       type is (PrefetchDataMessage)
@@ -784,14 +785,16 @@ contains
       real(kind=REAL64), pointer :: values_real64_1d(:)
 
       integer, allocatable :: start(:),count(:)
+      integer :: status
 
       if (this%hist_collections%size() == 1) then
          hist_collection=>this%hist_collections%at(1)
       else
          hist_collection=>this%hist_collections%at(message%collection_id)
       endif
-      formatter =>hist_collection%find(message%file_name)
- 
+      formatter =>hist_collection%find(message%file_name, rc=status)
+      _VERIFY(status)
+
       select type (message)
       type is (StageDataMessage)
         start = message%start
@@ -1031,6 +1034,7 @@ contains
      call this%clear_RequestHandle()
      call this%clear_hist_collections()
 
+     _RETURN(_SUCCESS)
    end subroutine handle_Done_stage
 
    recursive subroutine handle_Done_prefetch(this, message, rc)
@@ -1054,7 +1058,7 @@ contains
          type is (PrefetchDataMessage)
              mem_data_reference=LocalMemReference(q%type_kind,q%count)
 
-             call this%get_DataFromFile(q,mem_data_reference%base_address, status)
+             call this%get_DataFromFile(q,mem_data_reference%base_address, rc=status)
              _VERIFY(status)
 
              call this%insert_RequestHandle(q%request_id, &

@@ -80,11 +80,11 @@ contains
 
    end function new_MultiLayerServer
 
-   subroutine start(this)
+   subroutine start(this, rc)
       class (MultiLayerServer), target, intent(inout) :: this
-
+      integer, optional, intent(out) :: rc
       class (ServerThread), pointer :: thread_ptr => null()
-      integer :: i,client_size
+      integer :: i, client_size, status
       logical, allocatable :: mask(:)
 
       client_size = this%threads%size()
@@ -103,7 +103,8 @@ contains
 
             thread_ptr=>this%threads%at(i)
             !handle the message
-            call thread_ptr%run()
+            call thread_ptr%run(rc=status)
+            _VERIFY(status)
             !delete the thread object if it terminates 
             if(thread_ptr%do_terminate()) then
                mask(i) = .true.
@@ -117,7 +118,7 @@ contains
       call this%threads%clear()
       call this%terminate_writers()
       deallocate(mask)
-
+      _RETURN(_SUCCESS)
    end subroutine start
 
    subroutine terminate_writers(this)

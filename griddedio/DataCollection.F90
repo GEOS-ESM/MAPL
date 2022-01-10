@@ -110,7 +110,7 @@ contains
        ! size() returns 64-bit integer;  cast to 32 bit for this usage.
        call this%file_ids%insert(file_name, int(this%metadatas%size()))
     end if
-
+    _RETURN(_SUCCESS)
   end function find
 
 end module MAPL_DataCollectionMod

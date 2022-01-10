@@ -58,7 +58,8 @@ module MAPL_ESMFFieldBundleRead
          character(len=:), allocatable :: units,long_name
 
          collection => DataCollections%at(metadata_id)
-         metadata => collection%find(trim(file_name))
+         metadata => collection%find(trim(file_name), rc=status)
+         _VERIFY(status)
          file_grid=collection%src_grid
          lev_name = metadata%get_level_name(rc=status)
          _VERIFY(status)
@@ -180,7 +181,8 @@ module MAPL_ESMFFieldBundleRead
 
          metadata_id = MAPL_DataAddCollection(trim(file_tmpl))
          collection => DataCollections%at(metadata_id)
-         metadata => collection%find(trim(file_name))
+         metadata => collection%find(trim(file_name), rc=status)
+         _VERIFY(status)
          call metadata%get_time_info(timeVector=time_series,rc=status)
          _VERIFY(status)
          time_index=-1

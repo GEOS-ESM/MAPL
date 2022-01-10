@@ -149,25 +149,30 @@ contains
          call s%set_status(1)
          call s%add_connection(dummy_socket)
       endif 
-
+      _RETURN(_SUCCESS)
    end function new_MultiCommServer
 
-   subroutine start(this)
+   subroutine start(this, rc)
       class (MultiCommServer), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
 
       if ( this%front_comm /= MPI_COMM_NULL) then
-         call start_front()
+         call start_front(rc=status)
+         _VERIFY(status)
       endif
 
       if ( this%back_comm /= MPI_COMM_NULL) then
-         call start_back()      
+         call start_back(rc=status)
+         _VERIFY(status)      
       endif
 
       call this%splitter%free_sub_comm()
- 
+      _RETURN(_SUCCESS) 
    contains
 
-      subroutine start_back()
+      subroutine start_back(rc)
+         integer, optional, intent(out) :: rc
          integer :: collection_counter, collection_total  
          integer :: ierr, rank
          integer :: my_rank, cmd, status
@@ -182,20 +187,26 @@ contains
             call MPI_Bcast(cmd, 1, MPI_INTEGER, 0, this%server_comm, ierr)
             if (cmd == -1) exit
             call this%create_remote_win(rc=status) 
-            call this%receive_output_data()
-            call this%put_dataToFile()
+            _VERIFY(status)
+            call this%receive_output_data(rc=status)
+            _VERIFY(status)
+            call this%put_dataToFile(rc=status)
+            _VERIFY(status)
 
             call this%clean_up() 
            
          enddo
-
+         _RETURN(_SUCCESS)
       end subroutine start_back
       
-      subroutine start_front()
+      subroutine start_front(rc)
+         integer, optional, intent(out) :: rc
          class (ServerThread), pointer :: thread_ptr => null()
          integer :: i,client_size,ierr
          logical, allocatable :: mask(:)
          integer :: terminate = -1
+         integer :: status
+
          client_size = this%threads%size()
    
          allocate(this%serverthread_done_msgs(client_size))
@@ -212,7 +223,8 @@ contains
    
                thread_ptr=>this%threads%at(i)
                !handle the message
-               call thread_ptr%run()
+               call thread_ptr%run(rc=status)
+               _VERIFY(status)
                !delete the thread object if it terminates 
                if(thread_ptr%do_terminate()) then
                   mask(i) = .true.
@@ -226,7 +238,7 @@ contains
          call this%threads%clear()
          call MPI_Bcast(terminate, 1, MPI_INTEGER, 0, this%server_comm, ierr)
          deallocate(mask)
-   
+         _RETURN(status)
       end subroutine start_front
 
    end subroutine start
