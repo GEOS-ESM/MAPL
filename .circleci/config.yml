@@ -1,31 +1,7 @@
 version: 2.1
 
 orbs:
-  circleci-tools: geos-esm/circleci-tools@0.1.0
-
-executors:
-  gfortran:
-    docker:
-      - image: gmao/ubuntu20-geos-env-mkl:v6.2.8-openmpi_4.0.6-gcc_11.2.0
-        auth:
-          username: $DOCKERHUB_USER
-          password: $DOCKERHUB_AUTH_TOKEN
-    environment:
-      OMPI_ALLOW_RUN_AS_ROOT: 1
-      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-      OMPI_MCA_btl_vader_single_copy_mechanism: none
-      MPIEXEC_PREFLAGS: --oversubscribe
-    resource_class: large
-    #MEDIUM# resource_class: medium
-
-  ifort:
-    docker:
-      - image: gmao/ubuntu20-geos-env:v6.2.8-intelmpi_2021.3.0-intel_2021.3.0
-        auth:
-          username: $DOCKERHUB_USER
-          password: $DOCKERHUB_AUTH_TOKEN
-    resource_class: large
-    #MEDIUM# resource_class: medium
+  circleci-tools: geos-esm/circleci-tools@0.3.0
 
 workflows:
   build-and-test:
@@ -86,7 +62,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: circleci-tools/<< parameters.compiler >>
     working_directory: /root/project
     steps:
       - checkout:
@@ -120,7 +96,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: circleci-tools/<< parameters.compiler >>
     working_directory: /root/project
     steps:
       - circleci-tools/checkout_fixture
@@ -147,7 +123,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: circleci-tools/<< parameters.compiler >>
     working_directory: /root/project
     steps:
       - circleci-tools/checkout_fixture:
@@ -172,7 +148,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: circleci-tools/<< parameters.compiler >>
     resource_class: xlarge
     working_directory: /root/project
     steps:
@@ -197,7 +173,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: circleci-tools/<< parameters.compiler >>
     working_directory: /root/project
     steps:
       - attach_workspace:
@@ -242,7 +218,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: circleci-tools/<< parameters.compiler >>
     working_directory: /root/project
     steps:
       - attach_workspace:
