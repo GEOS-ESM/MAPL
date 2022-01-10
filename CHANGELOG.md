@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - consistent indentation (emacs mode)
   - extracted helper procedures in GenericInitialize
 - Added new step to CircleCI to try and re-run build on failure.
+- Updated CircleCI config to use new [GEOS-ESM/circleci-tools orb](https://circleci.com/developer/orbs/orb/geos-esm/circleci-tools)
 
 ### Removed
 
