@@ -2729,8 +2729,7 @@ CONTAINS
         integer :: status
 
         Collection => DataCollections%at(collection_id)
-        metadata => collection%find(file, rc=status)
-        _VERIFY(status)
+        metadata => collection%find(file, __RC__)
         call lgr%debug(' Retrieving formatter for: %a', trim(file))
         _RETURN(_SUCCESS)
 

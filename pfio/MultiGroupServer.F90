@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL_Exceptions.h"
 #include "unused_dummy.H"
 
 module pFIO_MultiGroupServerMod
@@ -107,7 +107,7 @@ contains
 
       s%server_comm = server_comm
       call MPI_Comm_size(s%server_comm, s_size , ierror)
-
+      _VERIFY(ierror)
       s%splitter = SimpleCommsplitter(s%server_comm)
       node_sizes = s%splitter%get_node_sizes()
 
@@ -120,7 +120,7 @@ contains
          call s%splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
       endif
  
-      s_comm = s%splitter%split(rc=status); _VERIFY(status)
+      s_comm = s%splitter%split(__RC__)
 
       nwriter = nwriter_per_node*size(node_sizes)
       s%front_comm = MPI_COMM_NULL
@@ -131,25 +131,30 @@ contains
       allocate(s%back_ranks(nwriter))
       allocate(s%front_ranks(s%nfront))
       call MPI_Comm_rank(s%server_comm, s_rank, ierror)
+      _VERIFY(ierror)
       s_name = s_comm%get_name()
       s%I_am_front_root = .false.
       s%I_am_back_root = .false.
       if (index(s_name, 'o_server_front') /=0) then
          s%front_comm = s_comm%get_subcommunicator()
-         call s%init(s%front_comm, s_name, with_profiler = with_profiler, rc=status)
-         _VERIFY(status)
+         call s%init(s%front_comm, s_name, with_profiler = with_profiler, __RC__)
          s%port_name = trim(port_name)
          call MPI_Comm_rank(s%front_comm, local_rank, ierror)
+         _VERIFY(ierror)
          if (s_rank == 0) then 
            _ASSERT( local_rank == 0, "re-arrange the rank of the server_comm") 
            s%I_am_front_root = .true.          
            call MPI_recv(s%back_ranks, nwriter, MPI_INTEGER, MPI_ANY_SOURCE, 666, s%server_comm, MPI_STAT,ierror)
+           _VERIFY(ierror)
          endif
          call MPI_Bcast(s%back_ranks, nwriter, MPI_INTEGER, 0, s%front_comm, ierror)
+         _VERIFY(ierror)
 
          call MPI_AllGather(s_rank, 1, MPI_INTEGER, s%front_ranks, 1, MPI_INTEGER, s%front_comm, ierror)
+         _VERIFY(ierror)
          if (local_rank ==0 ) then
             call MPI_Send(s%front_ranks, s_size-nwriter, MPI_INTEGER, s%back_ranks(1), 777, s%server_comm, ierror)
+            _VERIFY(ierror)
          endif
          allocate(s%buffers(s%nwriter))
       endif
@@ -157,23 +162,27 @@ contains
       if (index(s_name, 'o_server_back') /=0) then
          s%back_comm = s_comm%get_subcommunicator()
          call MPI_AllGather(s_rank, 1, MPI_INTEGER, s%back_ranks, 1, MPI_INTEGER, s%back_comm, ierror)
+         _VERIFY(ierror)
          call MPI_Comm_rank(s%back_comm, local_rank, ierror)
+         _VERIFY(ierror)
          if (local_rank ==0 ) then
             s%I_am_back_root = .true.          
             call MPI_Send(s%back_ranks, nwriter, MPI_INTEGER, 0, 666, s%server_comm, ierror)
+            _VERIFY(ierror)
          endif
 
          if (s_rank == s%back_ranks(1)) then
             _ASSERT( local_rank == 0, "re-arrange the rank of the server_comm")           
             call MPI_recv(s%front_ranks, s%nfront, MPI_INTEGER, MPI_ANY_SOURCE, 777, s%server_comm, MPI_STAT,ierror)
+            _VERIFY(ierror)
          endif
          
          call MPI_Bcast(s%front_ranks, s%nfront, MPI_INTEGER, 0, s%back_comm, ierror)
+         _VERIFY(ierror)
          call s%set_status(1)
          call s%add_connection(dummy_socket)
          allocate(s%buffers(s%nfront))
-         call s%init(s%back_comm, s_name, rc=status)
-         _VERIFY(status)
+         call s%init(s%back_comm, s_name, __RC__)
       endif
 
       if (s_rank == 0) print*, "MultiServer Start: nfront, nwriter", s%nfront, s%nwriter-1
@@ -186,13 +195,11 @@ contains
       integer :: status
 
       if ( this%front_comm /= MPI_COMM_NULL) then
-         call start_front(rc=status)
-         _VERIFY(status)
+         call start_front(__RC__)
       endif
 
       if ( this%back_comm /= MPI_COMM_NULL) then
-         call this%start_back(rc=status)      
-         _VERIFY(status)
+         call this%start_back(__RC__)
       endif
       call this%splitter%free_sub_comm()
       _RETURN(_SUCCESS)
@@ -222,8 +229,7 @@ contains
    
                thread_ptr=>this%threads%at(i)
                !handle the message
-               call thread_ptr%run(rc=status)
-               _VERIFY(status)
+               call thread_ptr%run(__RC__)
                !delete the thread object if it terminates 
                if(thread_ptr%do_terminate()) then
                   mask(i) = .true.
@@ -437,11 +443,9 @@ contains
      this%serverthread_done_msgs(:) = .false.
 
      if ( this%I_am_back_root ) then 
-        call start_back_captain(rc=status)
-        _VERIFY(status)
+        call start_back_captain(__RC__)
      else 
-        call start_back_writers(rc=status)
-        _VERIFY(status)
+        call start_back_writers(__RC__)
      endif
 
      _RETURN(_SUCCESS)

@@ -1,4 +1,5 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL_Exceptions.h"
+
 module pFIO_ExtDataCollectionMod
   use gFTL_StringIntegerMap
   use pFIO_NetCDF4_FileFormatterMod
@@ -87,8 +88,7 @@ contains
 
        allocate(formatter)
        
-       call formatter%open(file_name, pFIO_READ, rc=status)
-       _VERIFY(status)
+       call formatter%open(file_name, pFIO_READ, __RC__)
        call this%formatters%push_back(formatter)
        deallocate(formatter)
        formatter => this%formatters%back()

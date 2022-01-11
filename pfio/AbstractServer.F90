@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL_Exceptions.h"
 #include "unused_dummy.H"
 
 module pFIO_AbstractServerMod
@@ -130,49 +130,51 @@ contains
       logical, optional, intent(in) :: with_profiler
       integer, optional, intent(out) :: rc
 
-      integer :: status, MyColor
+      integer :: ierror, MyColor
       character(len=:), allocatable :: p_name
 
       this%comm = comm
-      call MPI_Comm_rank(this%comm, this%rank, status)
-      _VERIFY(status)
-      call MPI_Comm_size(this%comm, this%npes, status)
-      _VERIFY(status)
+      call MPI_Comm_rank(this%comm, this%rank, ierror)
+      _VERIFY(ierror)
+      call MPI_Comm_size(this%comm, this%npes, ierror)
+      _VERIFY(ierror)
 
       this%num_clients = 0
       this%all_backlog_is_empty = .true.
       this%status = UNALLOCATED
 
-      call MPI_Comm_split_type(this%comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%InNode_Comm,status)
-      _VERIFY(status)
-      call MPI_Comm_size(this%InNode_Comm, this%InNode_npes,status)
-      _VERIFY(status)
-      call MPI_Comm_rank(this%InNode_Comm, this%InNode_Rank, status)
-      _VERIFY(status)
+      call MPI_Comm_split_type(this%comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%InNode_Comm,ierror)
+      _VERIFY(ierror)
+      call MPI_Comm_size(this%InNode_Comm, this%InNode_npes,ierror)
+      _VERIFY(ierror)
+      call MPI_Comm_rank(this%InNode_Comm, this%InNode_Rank,ierror)
+      _VERIFY(ierror)
        
       MyColor = 0
       if (this%InNode_Rank == 0) MyColor = 1
 
-      call MPI_COMM_SPLIT( comm, MyColor, this%rank, this%NodeRoot_Comm, status)
-      _VERIFY(status)
+      call MPI_COMM_SPLIT( comm, MyColor, this%rank, this%NodeRoot_Comm, ierror)
+      _VERIFY(ierror)
 
       if (MyColor==0) then
          this%NodeRoot_Comm=MPI_COMM_NULL
       else
-         call MPI_COMM_SIZE(this%NodeRoot_Comm, this%Node_Num, status)
-         _VERIFY(status)
-         call MPI_COMM_RANK(this%NodeRoot_Comm, this%Node_Rank, status)
-         _VERIFY(status)
+         call MPI_COMM_SIZE(this%NodeRoot_Comm, this%Node_Num, ierror)
+         _VERIFY(ierror)
+         call MPI_COMM_RANK(this%NodeRoot_Comm, this%Node_Rank, ierror)
+         _VERIFY(ierror)
       endif
 
-      call Mpi_Bcast(this%Node_Rank, 1, MPI_INTEGER, 0, this%InNode_Comm, status) 
-      call Mpi_Bcast(this%Node_Num,  1, MPI_INTEGER, 0, this%InNode_Comm, status) 
+      call Mpi_Bcast(this%Node_Rank, 1, MPI_INTEGER, 0, this%InNode_Comm, ierror) 
+      _VERIFY(ierror)
+      call Mpi_Bcast(this%Node_Num,  1, MPI_INTEGER, 0, this%InNode_Comm, ierror) 
+      _VERIFY(ierror)
      
       allocate(This%Node_Ranks(0:this%npes-1))
 
       call Mpi_AllGather(this%Node_Rank,  1, MPI_INTEGER, &
-                         this%Node_Ranks, 1, MPI_INTEGER, comm,status)
-      _VERIFY(status)
+                         this%Node_Ranks, 1, MPI_INTEGER, comm,ierror)
+      _VERIFY(ierror)
 
       if (present(profiler_name)) then
          p_name = profiler_name
@@ -189,7 +191,8 @@ contains
          endif
       endif
 
-      call MPI_Barrier(comm, status)
+      call MPI_Barrier(comm, ierror)
+      _VERIFY(ierror)
       _RETURN(_SUCCESS)
    end subroutine init
 

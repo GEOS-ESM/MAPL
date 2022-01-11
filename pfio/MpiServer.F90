@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL_Exceptions.h"
 
 module pFIO_MpiServerMod
    use MAPL_ExceptionHandling
@@ -38,8 +38,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call s%init(comm, port_name, profiler_name=profiler_name, with_profiler = with_profiler, rc=status)
-      _VERIFY(status)
+      call s%init(comm, port_name, profiler_name=profiler_name, with_profiler = with_profiler, __RC__)
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
       _RETURN(_SUCCESS)
@@ -69,8 +68,7 @@ contains
 
             thread_ptr=>this%threads%at(i)
             !handle the message
-            call thread_ptr%run(rc=status)
-            _VERIFY(status)
+            call thread_ptr%run(__RC__)
             !delete the thread object if it terminates 
             if(thread_ptr%do_terminate()) then
                mask(i) = .true.

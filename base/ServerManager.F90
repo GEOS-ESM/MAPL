@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL_Exceptions.h"
 #include "unused_dummy.H"
 
 module MAPL_ServerManager
@@ -255,12 +255,11 @@ contains
      enddo
 
      if ( index(s_name, 'o_server') /=0 ) then
-        call this%o_server%start(rc=status)
-        _VERIFY(status)
+        call this%o_server%start(__RC__)
      endif
 
      if ( index(s_name, 'i_server') /=0 ) then
-        call this%i_server%start(rc=status)
+        call this%i_server%start(__RC__)
         _VERIFY(status)
      endif
 

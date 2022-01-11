@@ -932,8 +932,7 @@ module MAPL_GriddedIOMod
      type(fileMetadataUtils), pointer :: metadata
 
      collection => Datacollections%at(this%metadata_collection_id)
-     metadata => collection%find(filename, rc=status)
-     _VERIFY(status)
+     metadata => collection%find(filename, __RC__)
 
      filegrid = collection%src_grid
      factory => get_factory(filegrid)

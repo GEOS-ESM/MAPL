@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL_Exceptions.h"
 #include "unused_dummy.H"
 
 module pFIO_MultiLayerServerMod
@@ -74,10 +74,10 @@ contains
 
       call MPI_Comm_spawn( pfio_writer , MPI_ARGV_NULL, s%nwriters, MPI_INFO_NULL, 0, &
                    s%comm, s%Inter_Comm, MPI_ERRCODES_IGNORE, ierror)
-
+      _VERIFY(ierror)
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
-
+      _RETURN(_SUCCESS)
    end function new_MultiLayerServer
 
    subroutine start(this, rc)
@@ -103,8 +103,7 @@ contains
 
             thread_ptr=>this%threads%at(i)
             !handle the message
-            call thread_ptr%run(rc=status)
-            _VERIFY(status)
+            call thread_ptr%run(__RC__)
             !delete the thread object if it terminates 
             if(thread_ptr%do_terminate()) then
                mask(i) = .true.
