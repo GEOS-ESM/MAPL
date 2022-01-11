@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL_Exceptions.h"
 #include "unused_dummy.H"
 
 module pFIO_MultiCommServerMod
@@ -158,13 +158,11 @@ contains
       integer :: status
 
       if ( this%front_comm /= MPI_COMM_NULL) then
-         call start_front(rc=status)
-         _VERIFY(status)
+         call start_front(__RC__)
       endif
 
       if ( this%back_comm /= MPI_COMM_NULL) then
-         call start_back(rc=status)
-         _VERIFY(status)      
+         call start_back(__RC__)
       endif
 
       call this%splitter%free_sub_comm()
@@ -186,12 +184,9 @@ contains
 
             call MPI_Bcast(cmd, 1, MPI_INTEGER, 0, this%server_comm, ierr)
             if (cmd == -1) exit
-            call this%create_remote_win(rc=status) 
-            _VERIFY(status)
-            call this%receive_output_data(rc=status)
-            _VERIFY(status)
-            call this%put_dataToFile(rc=status)
-            _VERIFY(status)
+            call this%create_remote_win(__RC__)
+            call this%receive_output_data(__RC__)
+            call this%put_dataToFile(__RC__)
 
             call this%clean_up() 
            
@@ -223,8 +218,7 @@ contains
    
                thread_ptr=>this%threads%at(i)
                !handle the message
-               call thread_ptr%run(rc=status)
-               _VERIFY(status)
+               call thread_ptr%run(__RC__)
                !delete the thread object if it terminates 
                if(thread_ptr%do_terminate()) then
                   mask(i) = .true.
@@ -238,7 +232,7 @@ contains
          call this%threads%clear()
          call MPI_Bcast(terminate, 1, MPI_INTEGER, 0, this%server_comm, ierr)
          deallocate(mask)
-         _RETURN(status)
+         _RETURN(_SUCCESS)
       end subroutine start_front
 
    end subroutine start
