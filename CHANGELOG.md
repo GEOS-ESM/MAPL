@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+
 - Free types and operation created by profiler
 - Finalize profiler in MAPL_finalize call
+- Fix issue with logger message and single quotes
 
 ### Added
 
