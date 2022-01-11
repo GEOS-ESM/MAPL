@@ -102,7 +102,7 @@ contains
       type is (SimpleSocket)
          if (allocated(connection%msg)) deallocate(connection%msg)
          allocate(connection%msg , source = message)
-         call connection%msg%dispatch(this%visitor)
+         call connection%msg%dispatch(this%visitor, __RC__)
       class default
          _ASSERT(.false.,"Simple should connect Simple")
       end select
