@@ -260,7 +260,6 @@ contains
 
      if ( index(s_name, 'i_server') /=0 ) then
         call this%i_server%start(__RC__)
-        _VERIFY(status)
      endif
 
      if ( index(s_name, 'model') /=0 ) then
