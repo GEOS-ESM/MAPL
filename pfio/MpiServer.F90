@@ -82,8 +82,10 @@ contains
       call this%threads%clear()
       deallocate(mask)
 
-      if (associated(ioserver_profiler)) call ioserver_profiler%stop()
-      call this%report_profile()
+      if (associated(ioserver_profiler)) then
+        call ioserver_profiler%stop(__RC__)
+      endif
+      call this%report_profile(__RC__)
 
       _RETURN(_SUCCESS)
    end subroutine start

@@ -241,10 +241,12 @@ contains
          enddo
    
          call this%threads%clear()
-         call this%terminate_backend_server()
+         call this%terminate_backend_server(__RC__)
 
-         if (associated(ioserver_profiler)) call ioserver_profiler%stop()
-         call this%report_profile()
+         if (associated(ioserver_profiler)) then
+            call ioserver_profiler%stop(__RC__)
+         endif
+         call this%report_profile(__RC__)
   
          deallocate(mask)
          _RETURN(_SUCCESS)
@@ -812,8 +814,9 @@ contains
 
    end subroutine start_back
 
-   subroutine terminate_backend_server(this)
+   subroutine terminate_backend_server(this, rc)
       class (MultiGroupServer), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       integer :: terminate 
       integer :: ierr, i
       integer :: MPI_STAT(MPI_STATUS_SIZE)
@@ -821,7 +824,10 @@ contains
       terminate = -1
       ! starting from 2, no backend root
       do i = 2, this%nwriter
-        if (allocated(this%buffers(i)%buffer)) call MPI_Wait(this%buffers(i)%request, MPI_STAT, ierr)
+        if (allocated(this%buffers(i)%buffer)) then
+           call MPI_Wait(this%buffers(i)%request, MPI_STAT, ierr)
+           _VERIFY(ierr)
+        endif
       enddo
 
       ! The front root rank sends termination signal to the back root 
@@ -829,10 +835,12 @@ contains
       if (this%I_am_front_root) then
          call MPI_send(terminate, 1, MPI_INTEGER, this%back_ranks(1), &
               this%back_ranks(1),  this%server_comm, ierr)
+         _VERIFY(ierr)
          call MPI_recv(terminate, 1, MPI_INTEGER, this%back_ranks(1), &
               this%front_ranks(1), this%server_comm, MPI_STAT, ierr)
+         _VERIFY(ierr)
       endif
-
+      _RETURN(_SUCCESS)
    end subroutine terminate_backend_server
 
 end module pFIO_MultiGroupServerMod

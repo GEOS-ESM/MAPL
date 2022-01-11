@@ -57,7 +57,7 @@ contains
       integer :: npes_out_backend, server_size
 
       integer :: client_comm
-      integer :: status, i, rank,npes_model,n_oserver_group, n_iserver_group
+      integer :: status, stat_alloc, i, rank,npes_model,n_oserver_group, n_iserver_group
       character(len=:), allocatable :: s_name, profiler_name
       character(len=:), allocatable :: oserver_type_
       type(ClientThread), pointer :: clientPtr
@@ -160,8 +160,9 @@ contains
 
         if (npes_in(1) == 0 .and. nodes_in(1) == 0) then
            allocate(this%i_server, source = MpiServer(client_comm, 'i_server'//trim(i_to_string(1)),profiler_name=profiler_name, &
-                                                      with_profiler=with_profiler, rc=status))
+                                                      with_profiler=with_profiler, rc=status), stat=stat_alloc)
            _VERIFY(status)
+           _VERIFY(stat_alloc)
            call this%directory_service%publish(PortInfo('i_server'//trim(i_to_string(1)), this%i_server), this%i_server)
            if (rank == 0 ) then
               write(*,'(A,I0,A)')" Starting pFIO input server on Clients"
@@ -169,8 +170,9 @@ contains
         end if
         if (npes_out(1) == 0 .and. nodes_out(1) == 0) then
            allocate(this%o_server, source = MpiServer(client_comm, 'o_server'//trim(i_to_string(1)),profiler_name=profiler_name, &
-                                                      with_profiler=with_profiler, rc=status))
+                                                      with_profiler=with_profiler, rc=status), stat=stat_alloc)
            _VERIFY(status)
+           _VERIFY(stat_alloc)
 
            call this%directory_service%publish(PortInfo('o_server'//trim(i_to_string(1)), this%o_server), this%o_server)
            if (rank == 0 ) then
@@ -185,7 +187,10 @@ contains
      do i = 1, n_iserver_group
 
         if ( trim(s_name) =='i_server'//trim(i_to_string(i)) ) then
-           allocate(this%i_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler))
+           allocate(this%i_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler, rc=status), stat=stat_alloc)
+           _VERIFY(status)
+           _VERIFY(stat_alloc)
+           
            call this%directory_service%publish(PortInfo(s_name,this%i_server), this%i_server)
            call this%directory_service%connect_to_client(s_name, this%i_server)
            call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
@@ -224,12 +229,14 @@ contains
            else if (oserver_type_ == 'multigroup' ) then
 
               allocate(this%o_server, source = MultiGroupServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend, &
-                                                                with_profiler=with_profiler, rc=status))
+                                                                with_profiler=with_profiler, rc=status), stat=stat_alloc)
               _VERIFY(status)
+              _VERIFY(stat_alloc)
            else
 
-              allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler, rc=status))
+              allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler, rc=status), stat=stat_alloc)
               _VERIFY(status)
+              _VERIFY(stat_alloc)
 
            endif
            call this%directory_service%publish(PortInfo(s_name,this%o_server), this%o_server)
