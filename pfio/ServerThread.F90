@@ -188,7 +188,7 @@ contains
       integer :: status
 
       if ( .not. this%have_done) then
-        call dMessage%dispatch(this)
+        call dMessage%dispatch(this, __RC__)
         _RETURN(_SUCCESS)
       endif
       
@@ -236,7 +236,7 @@ contains
          this%have_done = .false.
           ! Simple server will continue, but no effect for other server type
          dMessage=>this%containing_server%get_dmessage()
-         call dmessage%dispatch(this)
+         call dmessage%dispatch(this, __RC__)
          deallocate(dmessage)
          _RETURN(_SUCCESS)
       endif
@@ -292,7 +292,7 @@ contains
        !if it is SimpleServer, DoneMessge will recursively call handle_done until the back_log is empty.
        !if it is Not SimpleServer, DummyMessage will do nothing and leave the subroutine
        dMessage=>this%containing_server%get_dmessage()
-       call dmessage%dispatch(this) 
+       call dmessage%dispatch(this, __RC__) 
        deallocate(dmessage)
        _RETURN(_SUCCESS)  
        _UNUSED_DUMMY(message)

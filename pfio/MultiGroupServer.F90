@@ -587,7 +587,7 @@ contains
        integer, optional, intent(out) :: rc
        integer :: collection_id
        integer :: i, j
-       integer :: msg_size, back_local_rank
+       integer :: msg_size, back_local_rank, status
        
        integer :: MPI_STAT(MPI_STATUS_SIZE), ierr
        type (MessageVectorIterator) :: iter
@@ -796,7 +796,7 @@ contains
             end select
             select type (q=>msg)
             class is (AbstractDataMessage) 
-               call thread_ptr%put_dataToFile(q, address) 
+               call thread_ptr%put_dataToFile(q, address, __RC__) 
             end select
             call msg_iter%next()
          enddo

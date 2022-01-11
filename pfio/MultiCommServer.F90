@@ -188,7 +188,7 @@ contains
             call this%receive_output_data(__RC__)
             call this%put_dataToFile(__RC__)
 
-            call this%clean_up() 
+            call this%clean_up(__RC__) 
            
          enddo
          _RETURN(_SUCCESS)
@@ -442,7 +442,7 @@ contains
       integer :: collection_counter
       class (AbstractDataReference), pointer :: dataRefPtr
       integer(kind=MPI_ADDRESS_KIND) :: offset
-      integer :: w_rank, l_rank, ierr
+      integer :: w_rank, l_rank, ierr, status
       type(StringInteger64MapIterator) :: iter
 
 
@@ -492,7 +492,7 @@ contains
                   offset     = this%stage_offset%at(i_to_string(q%request_id))
                   offset_address   = c_loc(i_ptr(offset+1))
                   ! (2) write data
-                  call threadPtr%put_DataToFile(q,offset_address)
+                  call threadPtr%put_DataToFile(q,offset_address, __RC__)
                   !  (3) leave a mark, it has been written
                   call this%stage_offset%insert(i_to_string(q%request_id)//'done',0_MPI_ADDRESS_KIND)
                endif
