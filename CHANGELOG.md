@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- A bug in splitting the fields for History when an alias contains a single entry (#1296)
 - Free types and operation created by profiler
 - Finalize profiler in MAPL_finalize call
 
