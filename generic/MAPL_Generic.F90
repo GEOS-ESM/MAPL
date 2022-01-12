@@ -4772,7 +4772,7 @@ contains
 
       class(Logger), pointer :: lgr
       character(len=:), allocatable :: shared_object_library_to_load
-      character(len=6) :: extension
+      character(len=:), allocatable :: extension
 
       call MAPL_InternalStateRetrieve(gc, meta, __RC__)
 
