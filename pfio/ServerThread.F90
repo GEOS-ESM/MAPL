@@ -9,7 +9,7 @@ module pFIO_ServerThreadMod
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use MAPL_ExceptionHandling
    use MAPL_Profiler
-   use pFIO_UtilitiesMod, only: word_size, i_to_string 
+   use pFIO_UtilitiesMod, only: word_size, i_to_string
    use pFIO_AbstractSocketMod
    use pFIO_AbstractMessageMod
    use pFIO_AbstractServerMod
@@ -59,7 +59,7 @@ module pFIO_ServerThreadMod
    private
 
    public :: ServerThread
-   
+
    type, extends(BaseThread) :: ServerThread
       private
 
@@ -107,7 +107,7 @@ module pFIO_ServerThreadMod
       procedure :: clear_hist_collections
       procedure :: clear_backlog
       procedure :: clear_subarray
- 
+
    end type ServerThread
 
    interface ServerThread
@@ -116,14 +116,14 @@ module pFIO_ServerThreadMod
 
    ! Just for convenience. Will be removed after the better strategy is chosen.
 
-   logical ::  multi_data_read = .true.  !: each node will choose one pe to read all data. No exchange between nodes 
-   !logical :: multi_data_read = .false. !: each node will choose one pe to read part of the data, then exchange between nodes 
+   logical ::  multi_data_read = .true.  !: each node will choose one pe to read all data. No exchange between nodes
+   !logical :: multi_data_read = .false. !: each node will choose one pe to read part of the data, then exchange between nodes
 
    ! WY notes:
    ! output strategy (1) ( deleted after the test ) :
    ! Each node chooses one PE and takes turns to write part of the data to the file. No data exchange among nodes. It is very slow
    ! output strategy (2) ( implemented ):
-   ! Choose one PE among  servers to write. The other PE in the servers use MPI_put to forward the data the the chosen one. 
+   ! Choose one PE among  servers to write. The other PE in the servers use MPI_put to forward the data the the chosen one.
 
 contains
 
@@ -142,7 +142,7 @@ contains
       _RETURN(_SUCCESS)
    end function new_ServerThread
 
-   subroutine init(this, sckt, server, rc) 
+   subroutine init(this, sckt, server, rc)
       class (ServerThread), intent(inout) :: this
       class (AbstractSocket), target, intent(in) :: sckt
       class (AbstractServer), target, intent(in) :: server
@@ -191,9 +191,9 @@ contains
         call dMessage%dispatch(this, __RC__)
         _RETURN(_SUCCESS)
       endif
-      
+
       ! wait until all the backlogs are empty
-      all_backlog_is_empty = this%containing_server%get_AllBacklogIsEmpty() 
+      all_backlog_is_empty = this%containing_server%get_AllBacklogIsEmpty()
       if (.not. all_backlog_is_empty) then
         _RETURN(_SUCCESS)
       endif
@@ -231,7 +231,7 @@ contains
       integer :: status
 
       ! first time handling the "Done" message, simple return
-      this%containing_server%serverthread_done_msgs(this%thread_rank) = .true. 
+      this%containing_server%serverthread_done_msgs(this%thread_rank) = .true.
       if ( this%have_done) then
          this%have_done = .false.
           ! Simple server will continue, but no effect for other server type
@@ -242,7 +242,7 @@ contains
       endif
 
       if ( this%request_backlog%empty()) then
-        ! done issued more than once 
+        ! done issued more than once
         this%have_done = .true.
         call this%containing_server%set_AllBacklogIsEmpty(.true.)
          _RETURN(_SUCCESS)
@@ -256,45 +256,45 @@ contains
       select type (q=>msg)
       type is (PrefetchDataMessage)
          _ASSERT(.false., "please use done_prefetch")
-         _RETURN(_SUCCESS)  
+         _RETURN(_SUCCESS)
       type is (CollectivePrefetchDataMessage)
          _ASSERT(.false., "please use done_collective_prefetch")
-         _RETURN(_SUCCESS)  
+         _RETURN(_SUCCESS)
       type is (StageDataMessage)
          _ASSERT(.false., "please use done_stage")
-         _RETURN(_SUCCESS)  
+         _RETURN(_SUCCESS)
       type is (CollectiveStageDataMessage)
          _ASSERT(.false., "please use done_collective_stage")
-         _RETURN(_SUCCESS)  
+         _RETURN(_SUCCESS)
       class default
          _ASSERT(.false., "Wrong message type")
       end select
 
 
-      if ( this%request_backlog%empty()) then 
+      if ( this%request_backlog%empty()) then
 
           this%have_done = .true.
-          call this%containing_server%set_AllBacklogIsEmpty(.true.) 
+          call this%containing_server%set_AllBacklogIsEmpty(.true.)
 
           if (this%there_is_collective_request) then
             !prepare for the next round of "done" message
              this%there_is_collective_request = .false.
             !! make sure this server thread will wait for all the other threads to finsh their backlog
-             call this%containing_server%set_AllBacklogIsEmpty(.false.) 
-            ! It reduces counter untill no threads need the shared mem 
+             call this%containing_server%set_AllBacklogIsEmpty(.false.)
+            ! It reduces counter untill no threads need the shared mem
             ! then it  set backlog flag to empty and status to UNALLOCATED, deallocate share mem, erase prefetch_offset
              call this%containing_server%update_status()
           endif
 
-          _RETURN(_SUCCESS)  
+          _RETURN(_SUCCESS)
        endif ! empty no collective request
 
        !if it is SimpleServer, DoneMessge will recursively call handle_done until the back_log is empty.
        !if it is Not SimpleServer, DummyMessage will do nothing and leave the subroutine
        dMessage=>this%containing_server%get_dmessage()
-       call dmessage%dispatch(this, __RC__) 
+       call dmessage%dispatch(this, __RC__)
        deallocate(dmessage)
-       _RETURN(_SUCCESS)  
+       _RETURN(_SUCCESS)
        _UNUSED_DUMMY(message)
    end subroutine handle_Done
 
@@ -372,7 +372,7 @@ contains
                node_rank = this%containing_server%Node_Rank
                g_offset  = g_offsets(node_rank)
                offset    = this%containing_server%prefetch_offset%at(i_to_string(q%request_id))
-               offset    = g_offset + offset 
+               offset    = g_offset + offset
                address   = c_loc(i_ptr(offset+1))
                 ! (2) read data
                call this%get_DataFromFile(q, address, __RC__)
@@ -380,11 +380,11 @@ contains
             endif
          end select
          call iter%next()
-      enddo 
+      enddo
 
       call dataRefPtr%fence(rc=status)
       _VERIFY(status)
-      ! (4) root nodes exchange the shared data 
+      ! (4) root nodes exchange the shared data
       if(this%containing_server%I_am_NodeRoot() .and. this%containing_server%Node_Num > 1 ) then
 
         node_rank = this%containing_server%Node_Rank
@@ -396,7 +396,7 @@ contains
                             this%containing_server%NodeRoot_Comm,status)
         deallocate(locals)
 
-      endif 
+      endif
 
       call dataRefPtr%fence(rc=status)
       _VERIFY(status)
@@ -474,7 +474,7 @@ contains
 
          end select
          call iter%next()
-      enddo 
+      enddo
 
       call dataRefPtr%fence(rc=status)
       _VERIFY(status)
@@ -486,7 +486,7 @@ contains
       type (AddExtCollectionMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      integer :: n
+      integer :: n, status
       logical :: found
       type (ExtCollectionVectorIterator) :: iter
       type (ExtDataCollection), pointer :: collection
@@ -494,7 +494,7 @@ contains
       class(AbstractSocket),pointer :: connection
 
       if (associated(ioserver_profiler)) call ioserver_profiler%start("add_Extcollection")
-      
+
       iter = this%ext_collections%begin()
       n = 1
 
@@ -514,10 +514,10 @@ contains
          c = new_ExtDataCollection(message%template)
          call this%ext_collections%push_back(c)
       end if
-      connection=>this%get_connection()      
-      call connection%send(IdMessage(n))         
-     
-      if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Extcollection") 
+      connection=>this%get_connection()
+      call connection%send(IdMessage(n),__RC__)
+
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Extcollection")
       _RETURN(_SUCCESS)
    end subroutine handle_AddExtCollection
 
@@ -526,12 +526,12 @@ contains
       type (AddHistCollectionMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      integer :: n
+      integer :: n, status
       type (HistoryCollection) :: hist_collection
       class(AbstractSocket),pointer :: connection
-     
-      if (associated(ioserver_profiler)) call ioserver_profiler%start("add_Histcollection") 
-      if ( message%collection_id == -1 ) then 
+
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("add_Histcollection")
+      if ( message%collection_id == -1 ) then
          n = this%hist_collections%size()+1
       else
          n = message%collection_id
@@ -544,9 +544,9 @@ contains
          call this%hist_collections%set(n,hist_collection)
       endif
 
-      connection=>this%get_connection()      
-      call connection%send(IdMessage(n))
-      if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Histcollection") 
+      connection=>this%get_connection()
+      call connection%send(IdMessage(n),__RC__)
+      if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Histcollection")
       _RETURN(_SUCCESS)
    end subroutine handle_AddHistCollection
 
@@ -557,9 +557,10 @@ contains
 
       class(AbstractSocket),pointer :: connection
       type (DummyMessage) :: handshake_msg
+      integer :: status
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg)
+      call connection%send(handshake_msg,__RC__)
       call this%request_backlog%push_back(message)
 
       _RETURN(_SUCCESS)
@@ -572,9 +573,10 @@ contains
 
       class(AbstractSocket),pointer :: connection
       type (DummyMessage) :: handshake_msg
+      integer :: status
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg)
+      call connection%send(handshake_msg,__RC__)
       call this%request_backlog%push_back(message)
 
       _RETURN(_SUCCESS)
@@ -588,12 +590,13 @@ contains
       type (HistoryCollection),pointer :: hist_collection
       class(AbstractSocket),pointer :: connection
       type (DummyMessage) :: handshake_msg
+      integer :: status
 
-      hist_collection=>this%hist_collections%at(message%collection_id) 
+      hist_collection=>this%hist_collections%at(message%collection_id)
       call hist_collection%ModifyMetadata(message%var_map)
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg)
+      call connection%send(handshake_msg,__RC__)
 
       _RETURN(_SUCCESS)
    end subroutine handle_ModifyMetadata
@@ -602,14 +605,15 @@ contains
       class (ServerThread), target, intent(inout) :: this
       type (HandShakeMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-     
+
       class(AbstractSocket),pointer :: connection
       type (DummyMessage) :: handshake_msg
+      integer :: status
 
       _UNUSED_DUMMY(message)
- 
+
       connection=>this%get_connection()
-      call connection%send(handshake_msg)
+      call connection%send(handshake_msg,__RC__)
       _RETURN(_SUCCESS)
 
    end subroutine handle_HandShake
@@ -629,7 +633,7 @@ contains
       class (ServerThread), intent(inout) :: this
       logical, intent(in) :: request
       logical, intent(in) :: have_done
-     
+
       this%there_is_collective_request = request
       this%have_done = have_done
    end subroutine set_collective_request
@@ -677,7 +681,7 @@ contains
         start = message%global_start
         count = message%global_count
       class default
-        _ASSERT(.false., "wrong PrefetchDataMessage type")  
+        _ASSERT(.false., "wrong PrefetchDataMessage type")
       end select
 
 !      if (product(count) /= product(file_data_reference%shape)) stop "memory size not match"
@@ -729,9 +733,10 @@ contains
       class(AbstractSocket),pointer :: connection
       type(LocalMemReference) :: mem_data_reference
       type(DummyMessage) :: handshake_msg
+      integer :: status
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg)
+      call connection%send(handshake_msg,__RC__)
       call this%request_backlog%push_back(message)
 
       mem_data_reference=LocalMemReference(message%type_kind,message%count)
@@ -750,9 +755,10 @@ contains
       class(AbstractSocket),pointer :: connection
       type(LocalMemReference) :: mem_data_reference
       type(DummyMessage) :: handshake_msg
+      integer :: status
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg)
+      call connection%send(handshake_msg,__RC__)
       call this%request_backlog%push_back(message)
 
       mem_data_reference=LocalMemReference(message%type_kind,message%count)
@@ -908,7 +914,7 @@ contains
                call this%sub_array_types%push_back(sub_arr_type)
                nullify(k_ptr)
 
-            endif ! local_size > 0   
+            endif ! local_size > 0
         class default
             _ASSERT(.false., "receive_output_data")
         end select
@@ -922,7 +928,7 @@ contains
     class (ServerThread),intent(inout) :: this
     integer :: i
     type(HistoryCollection),pointer :: hist
-  
+
     do i = 1, this%hist_collections%size()
       hist=>this%hist_collections%at(i)
       call hist%clear()
@@ -938,7 +944,7 @@ contains
     do while (iter /= this%request_backlog%end())
        call this%request_backlog%erase(iter)
        iter = this%request_backlog%begin()
-    enddo 
+    enddo
 
   end subroutine clear_backlog
 
@@ -966,17 +972,17 @@ contains
 
       _UNUSED_DUMMY(message)
 
-      this%containing_server%serverthread_done_msgs(this%thread_rank) = .true. 
+      this%containing_server%serverthread_done_msgs(this%thread_rank) = .true.
       if ( .not. all(this%containing_server%serverthread_done_msgs)) then
          _RETURN(_SUCCESS)
       endif
 
-      _ASSERT( associated(this%containing_server), "need server") 
+      _ASSERT( associated(this%containing_server), "need server")
 
       call this%containing_server%create_remote_win(rc=status)
       _VERIFY(status)
 
-      call this%containing_server%receive_output_data(rc=status) 
+      call this%containing_server%receive_output_data(rc=status)
       _VERIFY(status)
 
       call this%containing_server%put_dataToFile(rc=status)
@@ -984,7 +990,7 @@ contains
 
       call this%containing_server%clean_up()
 
-      _RETURN(_SUCCESS)  
+      _RETURN(_SUCCESS)
    end subroutine handle_Done_collective_stage
 
    recursive subroutine handle_Done_stage(this, message, rc)
@@ -1068,7 +1074,7 @@ contains
 
        call this%clear_RequestHandle()
 
-       _RETURN(_SUCCESS)  
+       _RETURN(_SUCCESS)
        _UNUSED_DUMMY(message)
    end subroutine handle_Done_prefetch
 
@@ -1081,7 +1087,7 @@ contains
       integer :: status
 
       ! first time handling the "Done" message, simple return
-      this%containing_server%serverthread_done_msgs(this%thread_rank) = .true. 
+      this%containing_server%serverthread_done_msgs(this%thread_rank) = .true.
       if ( .not. all(this%containing_server%serverthread_done_msgs)) then
          _RETURN(_SUCCESS)
       endif
@@ -1106,8 +1112,8 @@ contains
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("send_data")
 
       call this%containing_server%clean_up()
- 
-      _RETURN(_SUCCESS)  
+
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(message)
    end subroutine handle_Done_collective_prefetch
 
@@ -1124,7 +1130,7 @@ contains
       type (MessageVectorIterator) :: iter
       class (AbstractMessage), pointer :: msg
       class(AbstractSocket),pointer :: connection
-      integer :: status      
+      integer :: status
 
       connection=>this%get_connection(status)
       _VERIFY(status)
