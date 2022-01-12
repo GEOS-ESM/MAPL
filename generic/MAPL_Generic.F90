@@ -4797,7 +4797,7 @@ contains
       if (.not. is_valid_dso_name(SharedObj)) then
          lgr => logging%get_logger('MAPL.GENERIC')
          call lgr%warning("AddChildFromDSO: changing shared library extension from %a~ to system specific extension %a~", &
-              extension, SYSTEM_DSO_EXTENSION)
+              "'"//extension//"'", "'"//SYSTEM_DSO_EXTENSION//"'")
       end if
 
       shared_object_library_to_load = adjust_dso_name(sharedObj)
