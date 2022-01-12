@@ -396,6 +396,7 @@ contains
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
 
+      _RETURN(_SUCCESS)
    end subroutine shake_hand
    ! Tell server that ClientThread is done making new requests for the
    ! moment.  This allows the server to be more responsive during the
@@ -408,6 +409,7 @@ contains
 
       connection=>this%get_connection()
       call connection%send(DoneMessage(),__RC__)
+      _RETURN(_SUCCESS)
    end subroutine done
 
    subroutine done_prefetch(this, rc)
@@ -418,6 +420,7 @@ contains
 
       connection=>this%get_connection()
       call connection%send(PrefetchDoneMessage(),__RC__)
+      _RETURN(_SUCCESS)
    end subroutine done_prefetch
 
    subroutine done_collective_prefetch(this, rc)
@@ -428,6 +431,7 @@ contains
 
       connection=>this%get_connection()
       call connection%send(CollectivePrefetchDoneMessage(),__RC__)
+      _RETURN(_SUCCESS)
    end subroutine done_collective_prefetch
 
    subroutine done_stage(this, rc)
@@ -438,6 +442,7 @@ contains
 
       connection=>this%get_connection()
       call connection%send(StageDoneMessage(),__RC__)
+      _RETURN(_SUCCESS)
    end subroutine done_stage
 
    subroutine done_collective_stage(this, rc)
@@ -448,6 +453,7 @@ contains
 
       connection=>this%get_connection()
       call connection%send(CollectiveStageDoneMessage(),__RC__)
+      _RETURN(_SUCCESS)
    end subroutine done_collective_stage
 
    subroutine wait(this, request_id)
@@ -506,6 +512,7 @@ contains
 
       connection=>this%get_connection()
       call connection%send(TerminateMessage(),__RC__)
+      _RETURN(_SUCCESS)
    end subroutine terminate
 
 end module pFIO_ClientThreadMod
