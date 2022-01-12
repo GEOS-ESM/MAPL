@@ -1,4 +1,4 @@
-#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_FastClientThreadMod
@@ -60,7 +60,7 @@ contains
            collection_id, &
            file_name, &
            var_name, &
-           data_reference,unusable=unusable,start=start),__RC__)
+           data_reference,unusable=unusable,start=start),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -111,7 +111,7 @@ contains
            file_name, &
            var_name, &
            data_reference,unusable=unusable, start=start,&
-           global_start=global_start,global_count=global_count),__RC__)
+           global_start=global_start,global_count=global_count),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -157,7 +157,7 @@ contains
            collection_id, &
            file_name, &
            var_name, &
-           data_reference),__RC__)
+           data_reference),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)

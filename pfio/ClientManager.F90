@@ -1,4 +1,4 @@
-#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_ClientManagerMod
@@ -379,7 +379,7 @@ contains
       integer :: status
 
       clientPtr =>this%current()
-      call clientPtr%done_collective_stage(__RC__)
+      call clientPtr%done_collective_stage(_RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

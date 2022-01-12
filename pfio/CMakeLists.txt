@@ -18,8 +18,8 @@ set (srcs
   Variable.F90
   CoordinateVariable.F90
   StringVariableMap.F90
-  pfio_base.F90 
-  
+  pfio_base.F90
+
   FileMetadata.F90
   FileMetadataVector.F90
   NetCDF4_FileFormatter.F90
@@ -92,7 +92,7 @@ set (srcs
   )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran TYPE ${MAPL_LIBRARY_TYPE})
-target_link_libraries (${this} PUBLIC esmf GFTL_SHARED::gftl-shared PRIVATE MPI::MPI_Fortran)
+target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PRIVATE MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
@@ -121,7 +121,7 @@ set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(pfio_server_demo.x OpenMP::OpenMP_Fortran)
 endif ()
-   
+
 ecbuild_add_executable (
    TARGET pfio_collective_demo.x
    SOURCES pfio_collective_demo.F90
@@ -144,7 +144,7 @@ set_target_properties (pfio_writer.x PROPERTIES Fortran_MODULE_DIRECTORY ${inclu
 # in the other libaries, but this make it explicit which aspects are externally
 # used.
 
-# Users guide 
+# Users guide
 if (LATEX_FOUND)
 #  add_subdirectory (TeX)
 endif ()

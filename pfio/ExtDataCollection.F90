@@ -1,4 +1,4 @@
-#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
 
 module pFIO_ExtDataCollectionMod
   use gFTL_StringIntegerMap
@@ -37,7 +37,7 @@ contains
     type (ExtDataCollection) :: collection
     character(len=*), intent(in) :: template
 
-    collection%template = template 
+    collection%template = template
 
   end function new_ExtDataCollection
 
@@ -83,12 +83,12 @@ contains
              file_id = file_id -1
              call iter%next()
           end do
-          
+
        end if
 
        allocate(formatter)
-       
-       call formatter%open(file_name, pFIO_READ, __RC__)
+
+       call formatter%open(file_name, pFIO_READ, _RC)
        call this%formatters%push_back(formatter)
        deallocate(formatter)
        formatter => this%formatters%back()
@@ -104,7 +104,7 @@ contains
     call this%formatter%close()
     deallocate(this%formatter)
     nullify(this%formatter)
-    
+
   end subroutine unfind
 
 end module pFIO_ExtDataCollectionMod
@@ -112,14 +112,14 @@ end module pFIO_ExtDataCollectionMod
 
 module pFIO_ExtCollectionVectorMod
    use pFIO_ExtDataCollectionMod
-   
+
    ! Create a map (associative array) between names and pFIO_Attributes.
-   
+
 #define _type type (ExtDataCollection)
 #define _vector ExtCollectionVector
 #define _iterator ExtCollectionVectorIterator
 
 #include "templates/vector.inc"
-   
+
 end module pFIO_ExtCollectionVectorMod
 

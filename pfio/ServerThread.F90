@@ -1,4 +1,4 @@
-#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_ServerThreadMod
@@ -188,7 +188,7 @@ contains
       integer :: status
 
       if ( .not. this%have_done) then
-        call dMessage%dispatch(this, __RC__)
+        call dMessage%dispatch(this, _RC)
         _RETURN(_SUCCESS)
       endif
 
@@ -236,7 +236,7 @@ contains
          this%have_done = .false.
           ! Simple server will continue, but no effect for other server type
          dMessage=>this%containing_server%get_dmessage()
-         call dmessage%dispatch(this, __RC__)
+         call dmessage%dispatch(this, _RC)
          deallocate(dmessage)
          _RETURN(_SUCCESS)
       endif
@@ -292,7 +292,7 @@ contains
        !if it is SimpleServer, DoneMessge will recursively call handle_done until the back_log is empty.
        !if it is Not SimpleServer, DummyMessage will do nothing and leave the subroutine
        dMessage=>this%containing_server%get_dmessage()
-       call dmessage%dispatch(this, __RC__)
+       call dmessage%dispatch(this, _RC)
        deallocate(dmessage)
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(message)
@@ -375,7 +375,7 @@ contains
                offset    = g_offset + offset
                address   = c_loc(i_ptr(offset+1))
                 ! (2) read data
-               call this%get_DataFromFile(q, address, __RC__)
+               call this%get_DataFromFile(q, address, _RC)
                call this%containing_server%prefetch_offset%insert(i_to_string(q%request_id)//'done',0_Int64)
             endif
          end select
@@ -466,7 +466,7 @@ contains
                  offset    = this%containing_server%prefetch_offset%at(i_to_string(q%request_id))
                  address   = c_loc(i_ptr(offset+1))
                  ! (2) read data
-                 call this%get_DataFromFile(q, address, __RC__)
+                 call this%get_DataFromFile(q, address, _RC)
                  ! (3) leave a mark, it has been read
                  call this%containing_server%prefetch_offset%insert(i_to_string(q%request_id)//'done',0_Int64)
               endif
@@ -515,7 +515,7 @@ contains
          call this%ext_collections%push_back(c)
       end if
       connection=>this%get_connection()
-      call connection%send(IdMessage(n),__RC__)
+      call connection%send(IdMessage(n),_RC)
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Extcollection")
       _RETURN(_SUCCESS)
@@ -545,7 +545,7 @@ contains
       endif
 
       connection=>this%get_connection()
-      call connection%send(IdMessage(n),__RC__)
+      call connection%send(IdMessage(n),_RC)
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("add_Histcollection")
       _RETURN(_SUCCESS)
    end subroutine handle_AddHistCollection
@@ -560,7 +560,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg,__RC__)
+      call connection%send(handshake_msg,_RC)
       call this%request_backlog%push_back(message)
 
       _RETURN(_SUCCESS)
@@ -576,7 +576,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg,__RC__)
+      call connection%send(handshake_msg,_RC)
       call this%request_backlog%push_back(message)
 
       _RETURN(_SUCCESS)
@@ -596,7 +596,7 @@ contains
       call hist_collection%ModifyMetadata(message%var_map)
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg,__RC__)
+      call connection%send(handshake_msg,_RC)
 
       _RETURN(_SUCCESS)
    end subroutine handle_ModifyMetadata
@@ -613,7 +613,7 @@ contains
       _UNUSED_DUMMY(message)
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg,__RC__)
+      call connection%send(handshake_msg,_RC)
       _RETURN(_SUCCESS)
 
    end subroutine handle_HandShake
@@ -671,7 +671,7 @@ contains
       integer :: status
 
       collection => this%ext_collections%at(message%collection_id)
-      formatter => collection%find(message%file_name, __RC__)
+      formatter => collection%find(message%file_name, _RC)
 
       select type (message)
       type is (PrefetchDataMessage)
@@ -690,16 +690,16 @@ contains
           select case (message%type_kind)
           case (pFIO_INT32)
               call c_f_pointer(address, values_int32_0d)
-              call formatter%get_var(message%var_name, values_int32_0d, __RC__)
+              call formatter%get_var(message%var_name, values_int32_0d, _RC)
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_0d)
-              call formatter%get_var(message%var_name, values_real32_0d, __RC__)
+              call formatter%get_var(message%var_name, values_real32_0d, _RC)
           case (pFIO_INT64)
               call c_f_pointer(address, values_int64_0d)
-              call formatter%get_var(message%var_name, values_int64_0d, __RC__)
+              call formatter%get_var(message%var_name, values_int64_0d, _RC)
           case (pFIO_REAL64)
               call c_f_pointer(address, values_real64_0d)
-              call formatter%get_var(message%var_name, values_real64_0d, __RC__)
+              call formatter%get_var(message%var_name, values_real64_0d, _RC)
           case default
               _ASSERT(.false., "Not supported type")
           end select
@@ -707,16 +707,16 @@ contains
           select case (message%type_kind)
           case (pFIO_INT32)
               call c_f_pointer(address, values_int32_1d, [product(count)])
-              call formatter%get_var(message%var_name, values_int32_1d, start=start, count=count, __RC__)
+              call formatter%get_var(message%var_name, values_int32_1d, start=start, count=count, _RC)
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_1d, [product(count)])
-              call formatter%get_var(message%var_name, values_real32_1d, start=start, count=count, __RC__)
+              call formatter%get_var(message%var_name, values_real32_1d, start=start, count=count, _RC)
           case (pFIO_INT64)
               call c_f_pointer(address, values_int64_1d, [product(count)])
-              call formatter%get_var(message%var_name, values_int64_1d, start=start, count=count, __RC__)
+              call formatter%get_var(message%var_name, values_int64_1d, start=start, count=count, _RC)
           case (pFIO_REAL64)
               call c_f_pointer(address, values_real64_1d, [product(count)])
-              call formatter%get_var(message%var_name, values_real64_1d, start=start, count=count, __RC__)
+              call formatter%get_var(message%var_name, values_real64_1d, start=start, count=count, _RC)
           case default
               _ASSERT(.false., "Not supported type")
           end select
@@ -736,7 +736,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg,__RC__)
+      call connection%send(handshake_msg,_RC)
       call this%request_backlog%push_back(message)
 
       mem_data_reference=LocalMemReference(message%type_kind,message%count)
@@ -758,7 +758,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(handshake_msg,__RC__)
+      call connection%send(handshake_msg,_RC)
       call this%request_backlog%push_back(message)
 
       mem_data_reference=LocalMemReference(message%type_kind,message%count)
@@ -795,7 +795,7 @@ contains
       else
          hist_collection=>this%hist_collections%at(message%collection_id)
       endif
-      formatter =>hist_collection%find(message%file_name, __RC__)
+      formatter =>hist_collection%find(message%file_name, _RC)
 
       select type (message)
       type is (StageDataMessage)
@@ -816,16 +816,16 @@ contains
           select case (message%type_kind)
           case (pFIO_INT32)
               call c_f_pointer(address, values_int32_0d)
-              call formatter%put_var(message%var_name, values_int32_0d, __RC__)
+              call formatter%put_var(message%var_name, values_int32_0d, _RC)
           case (pFIO_INT64)
               call c_f_pointer(address, values_int64_0d)
-              call formatter%put_var(message%var_name, values_int64_0d, __RC__)
+              call formatter%put_var(message%var_name, values_int64_0d, _RC)
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_0d)
-              call formatter%put_var(message%var_name, values_real32_0d, __RC__)
+              call formatter%put_var(message%var_name, values_real32_0d, _RC)
           case (pFIO_REAL64)
               call c_f_pointer(address, values_real64_0d)
-              call formatter%put_var(message%var_name, values_real64_0d, __RC__)
+              call formatter%put_var(message%var_name, values_real64_0d, _RC)
           case default
               _ASSERT(.false., "not supported type")
           end select
@@ -833,16 +833,16 @@ contains
           select case (message%type_kind)
           case (pFIO_INT32)
               call c_f_pointer(address, values_int32_1d, [product(count)])
-              call formatter%put_var(message%var_name, values_int32_1d, start=start, count=count, __RC__)
+              call formatter%put_var(message%var_name, values_int32_1d, start=start, count=count, _RC)
           case (pFIO_INT64)
               call c_f_pointer(address, values_int64_1d, [product(count)])
-              call formatter%put_var(message%var_name, values_int64_1d, start=start, count=count, __RC__)
+              call formatter%put_var(message%var_name, values_int64_1d, start=start, count=count, _RC)
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_1d, [product(count)])
-              call formatter%put_var(message%var_name, values_real32_1d, start=start, count=count, __RC__)
+              call formatter%put_var(message%var_name, values_real32_1d, start=start, count=count, _RC)
           case (pFIO_REAL64)
               call c_f_pointer(address, values_real64_1d, [product(count)])
-              call formatter%put_var(message%var_name, values_real64_1d, start=start, count=count, __RC__)
+              call formatter%put_var(message%var_name, values_real64_1d, start=start, count=count, _RC)
           case default
               _ASSERT(.false., "not supported type")
           end select
@@ -1060,7 +1060,7 @@ contains
          type is (PrefetchDataMessage)
              mem_data_reference=LocalMemReference(q%type_kind,q%count)
 
-             call this%get_DataFromFile(q,mem_data_reference%base_address, __RC__)
+             call this%get_DataFromFile(q,mem_data_reference%base_address, _RC)
 
              call this%insert_RequestHandle(q%request_id, &
               & connection%put(q%request_id, mem_data_reference))
@@ -1107,7 +1107,7 @@ contains
       if (associated(ioserver_profiler)) call ioserver_profiler%start("send_data")
       ! now dataRefPtr on each node has all the data
       call this%containing_server%add_DataReference(dataRefPtr)
-      call this%containing_server%get_DataFromMem(multi_data_read, __RC__)
+      call this%containing_server%get_DataFromMem(multi_data_read, _RC)
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("send_data")
 

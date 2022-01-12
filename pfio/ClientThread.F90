@@ -1,4 +1,4 @@
-#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module pFIO_ClientThreadMod
@@ -117,7 +117,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(AddExtCollectionMessage(template),__RC__)
+      call connection%send(AddExtCollectionMessage(template),_RC)
       message => connection%receive()
       select type(message)
       type is(IDMessage)
@@ -165,7 +165,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(AddHistCollectionMessage(fmd,hist_collection_id),__RC__)
+      call connection%send(AddHistCollectionMessage(fmd,hist_collection_id),_RC)
 
       message => connection%receive()
       select type(message)
@@ -202,7 +202,7 @@ contains
            collection_id, &
            file_name, &
            var_name, &
-           data_reference,unusable=unusable,start=start),__RC__)
+           data_reference,unusable=unusable,start=start),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -227,7 +227,7 @@ contains
       connection=>this%get_connection()
       call connection%send(ModifyMetadataMessage( &
            collection_id, &
-           var_map=var_map),__RC__)
+           var_map=var_map),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -263,7 +263,7 @@ contains
            file_name, &
            var_name, &
            data_reference,unusable=unusable, start=start,&
-           global_start=global_start,global_count=global_count),__RC__)
+           global_start=global_start,global_count=global_count),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -298,7 +298,7 @@ contains
            collection_id, &
            file_name, &
            var_name, &
-           data_reference,unusable=unusable,start=start),__RC__)
+           data_reference,unusable=unusable,start=start),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -337,7 +337,7 @@ contains
            file_name, &
            var_name, &
            data_reference,unusable=unusable, start=start,&
-           global_start=global_start,global_count=global_count),__RC__)
+           global_start=global_start,global_count=global_count),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -391,7 +391,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(HandShakeMessage(),__RC__)
+      call connection%send(HandShakeMessage(),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -408,7 +408,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(DoneMessage(),__RC__)
+      call connection%send(DoneMessage(),_RC)
       _RETURN(_SUCCESS)
    end subroutine done
 
@@ -419,7 +419,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(PrefetchDoneMessage(),__RC__)
+      call connection%send(PrefetchDoneMessage(),_RC)
       _RETURN(_SUCCESS)
    end subroutine done_prefetch
 
@@ -430,7 +430,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(CollectivePrefetchDoneMessage(),__RC__)
+      call connection%send(CollectivePrefetchDoneMessage(),_RC)
       _RETURN(_SUCCESS)
    end subroutine done_collective_prefetch
 
@@ -441,7 +441,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(StageDoneMessage(),__RC__)
+      call connection%send(StageDoneMessage(),_RC)
       _RETURN(_SUCCESS)
    end subroutine done_stage
 
@@ -452,7 +452,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(CollectiveStageDoneMessage(),__RC__)
+      call connection%send(CollectiveStageDoneMessage(),_RC)
       _RETURN(_SUCCESS)
    end subroutine done_collective_stage
 
@@ -511,7 +511,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(TerminateMessage(),__RC__)
+      call connection%send(TerminateMessage(),_RC)
       _RETURN(_SUCCESS)
    end subroutine terminate
 

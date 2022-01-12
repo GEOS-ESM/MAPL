@@ -1,4 +1,4 @@
-#include "MAPL_Exceptions.h"
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
 module MAPL_ServerManager
@@ -94,10 +94,10 @@ contains
       else
          nodes_out = [0]
       end if
-      
+
       oserver_type_ = 'single'
-      if (present(oserver_type)) oserver_type_ = oserver_type 
-      
+      if (present(oserver_type)) oserver_type_ = oserver_type
+
       npes_out_backend = 0
       if (present(npes_backend_pernode)) npes_out_backend = npes_backend_pernode
 
@@ -190,7 +190,7 @@ contains
            allocate(this%i_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler, rc=status), stat=stat_alloc)
            _VERIFY(status)
            _VERIFY(stat_alloc)
-           
+
            call this%directory_service%publish(PortInfo(s_name,this%i_server), this%i_server)
            call this%directory_service%connect_to_client(s_name, this%i_server)
            call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
@@ -262,11 +262,11 @@ contains
      enddo
 
      if ( index(s_name, 'o_server') /=0 ) then
-        call this%o_server%start(__RC__)
+        call this%o_server%start(_RC)
      endif
 
      if ( index(s_name, 'i_server') /=0 ) then
-        call this%i_server%start(__RC__)
+        call this%i_server%start(_RC)
      endif
 
      if ( index(s_name, 'model') /=0 ) then
