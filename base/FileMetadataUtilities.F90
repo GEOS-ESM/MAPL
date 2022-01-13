@@ -21,6 +21,11 @@ module MAPL_FileMetadataUtilsMod
       procedure :: get_level_name
       procedure :: is_var_present
       procedure :: get_file_name
+      procedure :: var_get_missing_value
+      procedure :: var_has_missing_value
+      procedure :: var_has_attr
+      procedure :: get_var_attr_real32
+      procedure :: get_var_attr_string
    end type FileMetadataUtils
 
    interface FileMetadataUtils
@@ -46,6 +51,110 @@ module MAPL_FileMetadataUtilsMod
       this%filename = fName
    end subroutine create
 
+   function var_get_missing_value(this,var_name,rc) result(missing_value)
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      integer, optional, intent(out) :: rc
+
+      real(REAL32) :: missing_value
+      integer :: status
+      type(Variable), pointer :: var
+
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      ! check _FillValue, we could do more, not sure what to do here like also check for missing_value ...
+      if (this%var_has_attr(var_name,"_FillValue")) then
+         missing_value = this%get_var_attr_real32(var_name,"_FillValue",_RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end function var_get_missing_value
+
+   logical function var_has_missing_value(this,var_name,rc)
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      integer, optional, intent(out) :: rc
+     
+      integer :: status
+      type(Variable), pointer :: var
+
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      var_has_missing_value = var%is_attribute_present("_FillValue")
+
+      _RETURN(_SUCCESS)
+   end function var_has_missing_value
+
+   logical function var_has_attr(this,var_name,attr_name,rc)
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+     
+      integer :: status
+      type(Variable), pointer :: var
+
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      var_has_attr = var%is_attribute_present(attr_name)
+      _RETURN(_SUCCESS)
+   end function var_has_attr
+
+   function get_var_attr_real32(this,var_name,attr_name,rc) result(attr_real32)
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      real(REAL32) :: attr_real32
+      real(REAL32) :: tmp(1)
+      integer :: status
+      type(Attribute), pointer :: attr
+      type(Variable), pointer :: var
+      class(*), pointer :: attr_val(:)
+
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      attr => var%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in file")
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(real(kind=REAL32))
+         tmp = attr_val
+         attr_real32 = tmp(1)
+      class default
+         _ASSERT(.false.,'unsupport subclass for units')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_var_attr_real32
+
+   function get_var_attr_string(this,var_name,attr_name,rc) result(attr_string)
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      character(len=:), allocatable :: attr_string
+      integer :: status
+      type(Attribute), pointer :: attr
+      type(Variable), pointer :: var
+      class(*), pointer :: attr_val
+
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      attr => var%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in file")
+      attr_val => attr%get_value()
+      select type(attr_val)
+      type is(character(*))
+         attr_string = attr_val
+      class default
+         _ASSERT(.false.,'unsupport subclass for units')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_var_attr_string
 
    subroutine get_time_info(this,startTime,startyear,startmonth,startday,starthour,startmin,startsec,units,timeVector,rc)
       class (FileMetadataUtils), intent(inout) :: this
