@@ -111,6 +111,7 @@ module MAPL_ESMFFieldBundleWrite
          _VERIFY(status)
          call o_Clients%done_collective_stage(__RC__)
          call o_Clients%wait()
+         _RETURN(_SUCCESS)
 
       end subroutine write_to_file
 
