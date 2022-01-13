@@ -1,28 +1,7 @@
 version: 2.1
 
-executors:
-  gfortran:
-    docker:
-      - image: gmao/ubuntu20-geos-env-mkl:v6.2.8-openmpi_4.0.6-gcc_11.2.0
-        auth:
-          username: $DOCKERHUB_USER
-          password: $DOCKERHUB_AUTH_TOKEN
-    environment:
-      OMPI_ALLOW_RUN_AS_ROOT: 1
-      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-      OMPI_MCA_btl_vader_single_copy_mechanism: none
-      MPIEXEC_PREFLAGS: --oversubscribe
-    resource_class: large
-    #MEDIUM# resource_class: medium
-
-  ifort:
-    docker:
-      - image: gmao/ubuntu20-geos-env:v6.2.8-intelmpi_2021.3.0-intel_2021.3.0
-        auth:
-          username: $DOCKERHUB_USER
-          password: $DOCKERHUB_AUTH_TOKEN
-    resource_class: large
-    #MEDIUM# resource_class: medium
+orbs:
+  circleci-tools: geos-esm/circleci-tools@0.5.0
 
 workflows:
   build-and-test:
@@ -78,167 +57,24 @@ workflows:
       #       - docker-hub-creds                          #
       #####################################################
 
-commands:
-  versions:
-    description: "Versions, etc."
-    parameters:
-      compiler:
-        type: string
-        default: ""
-    steps:
-      - run:
-          name: "Versions, etc."
-          command: |
-            mpirun --version && << parameters.compiler >> --version && echo $BASEDIR && pwd && ls && echo "$(nproc)"
-
-  compress_artifacts:
-    description: "Compress artifacts"
-    steps:
-      - run:
-          name: "Compress artifacts"
-          command: |
-            gzip -9 /logfiles/*
-
-  checkout_fixture:
-    description: "Checkout fixture"
-    parameters:
-      repo:
-        type: string
-        default: ""
-    steps:
-      - run:
-          name: "Checkout fixture"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}
-            git clone https://github.com/GEOS-ESM/<< parameters.repo >>.git
-
-  checkout_branch_on_fixture:
-    description: "Checkout branch on fixture"
-    parameters:
-      repo:
-        type: string
-        default: ""
-      branch:
-        type: string
-        default: ""
-    steps:
-      - run:
-          name: "Checkout branch on fixture"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
-            git checkout << parameters.branch >>
-
-  mepoclone:
-    description: "Mepo clone external repos"
-    parameters:
-      repo:
-        type: string
-        default: ""
-    steps:
-      - run:
-          name: "Mepo clone external repos"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
-            mepo clone
-            mepo status
-
-  mepodevelop:
-    description: "Mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared"
-    parameters:
-      repo:
-        type: string
-        default: ""
-    steps:
-      - run:
-          name: "Mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
-            mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared
-            mepo status
-
-  cmake:
-    description: "Run CMake"
-    parameters:
-      repo:
-        type: string
-        default: ""
-      compiler:
-        type: string
-        default: ""
-    steps:
-      - run:
-          name: "Run CMake"
-          command: |
-            mkdir -p /logfiles
-            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>
-            mkdir -p ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
-            cmake ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >> -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-<< parameters.repo >> |& tee /logfiles/cmake.log
-
-  buildinstall:
-    description: "Build and install"
-    parameters:
-      repo:
-        type: string
-        default: ""
-    steps:
-      - run:
-          name: "Build and install"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-<< parameters.repo >>
-            make -j"$(nproc)" install |& tee /logfiles/make.log || make -j4 install |& tee /logfiles/make-retry.log
-            #MEDIUM# make -j4 install |& tee /logfiles/make.log
-
-  checkout_mapl_branch:
-    description: "Mepo checkout MAPL branch"
-    parameters:
-      repo:
-        type: string
-        default: ""
-    steps:
-      - run:
-          name: "Mepo checkout MAPL branch"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/<< parameters.repo >>/src/Shared/@MAPL
-
-            # Based a bit on: https://stackoverflow.com/a/55940371/1876449
-            #
-            # CIRCLE_PR_NUMBER is only available on forked PRs:
-            #
-            # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
-            #
-            # so if it exists we fetch the PR's branch. This fetch was
-            # figured out by looking at the MAPL build-and-test above
-            # which did work!
-            if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
-                git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
-            fi
-
-            mepo checkout ${CIRCLE_BRANCH} MAPL
-            if [ "${CIRCLE_BRANCH}" != "develop" ] && [ "${CIRCLE_BRANCH}" != "main" ]
-            then
-                mepo checkout-if-exists ${CIRCLE_BRANCH}
-            fi
-            mepo status
-
 jobs:
   build-and-test-MAPL:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: circleci-tools/<< parameters.compiler >>
     working_directory: /root/project
     steps:
       - checkout:
           path: MAPL
-      - versions:
+      - circleci-tools/versions:
           compiler: << parameters.compiler >>
-      - mepoclone:
+      - circleci-tools/mepoclone:
           repo: MAPL
-      - cmake:
+      - circleci-tools/cmake:
           repo: MAPL
           compiler: << parameters.compiler >>
-      - buildinstall:
+      - circleci-tools/buildinstall:
           repo: MAPL
       - run:
           name: "Build MAPL Unit Tests"
@@ -252,7 +88,7 @@ jobs:
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
             # skip Performance tests (maybe doable on CircleCI?)
             ctest -R MAPL -LE PERFORMANCE --output-on-failure |& tee /logfiles/ctest.log
-      - compress_artifacts
+      - circleci-tools/compress_artifacts
       - store_artifacts:
           path: /logfiles
 
@@ -260,23 +96,17 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: circleci-tools/<< parameters.compiler >>
     working_directory: /root/project
     steps:
-      - checkout_fixture:
-          repo: GEOSgcm
-      - mepoclone:
-          repo: GEOSgcm
-      - mepodevelop:
-          repo: GEOSgcm
-      - checkout_mapl_branch:
-          repo: GEOSgcm
-      - cmake:
-          repo: GEOSgcm
+      - circleci-tools/checkout_fixture
+      - circleci-tools/mepoclone
+      - circleci-tools/mepodevelop
+      - circleci-tools/checkout_mapl_branch
+      - circleci-tools/cmake:
           compiler: << parameters.compiler >>
-      - buildinstall:
-          repo: GEOSgcm
-      - compress_artifacts
+      - circleci-tools/buildinstall
+      - circleci-tools/compress_artifacts
       - store_artifacts:
           path: /logfiles
 
@@ -293,24 +123,24 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: circleci-tools/<< parameters.compiler >>
     working_directory: /root/project
     steps:
-      - checkout_fixture:
+      - circleci-tools/checkout_fixture:
           repo: GEOSldas
-      - checkout_branch_on_fixture:
+      - circleci-tools/checkout_branch_on_fixture:
           repo: GEOSldas
           branch: develop
-      - mepoclone:
+      - circleci-tools/mepoclone:
           repo: GEOSldas
-      - checkout_mapl_branch:
+      - circleci-tools/checkout_mapl_branch:
           repo: GEOSldas
-      - cmake:
+      - circleci-tools/cmake:
           repo: GEOSldas
           compiler: << parameters.compiler >>
-      - buildinstall:
+      - circleci-tools/buildinstall:
           repo: GEOSldas
-      - compress_artifacts
+      - circleci-tools/compress_artifacts
       - store_artifacts:
           path: /logfiles
 
@@ -318,24 +148,24 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: circleci-tools/<< parameters.compiler >>
     resource_class: xlarge
     working_directory: /root/project
     steps:
-      - checkout_fixture:
+      - circleci-tools/checkout_fixture:
           repo: GEOSadas
-      - mepoclone:
+      - circleci-tools/mepoclone:
           repo: GEOSadas
-      - mepodevelop:
+      - circleci-tools/mepodevelop:
           repo: GEOSadas
-      - checkout_mapl_branch:
+      - circleci-tools/checkout_mapl_branch:
           repo: GEOSadas
-      - cmake:
+      - circleci-tools/cmake:
           repo: GEOSadas
           compiler: << parameters.compiler >>
-      - buildinstall:
+      - circleci-tools/buildinstall:
           repo: GEOSadas
-      - compress_artifacts
+      - circleci-tools/compress_artifacts
       - store_artifacts:
           path: /logfiles
 
@@ -343,7 +173,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: circleci-tools/<< parameters.compiler >>
     working_directory: /root/project
     steps:
       - attach_workspace:
@@ -388,7 +218,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: << parameters.compiler >>
+    executor: circleci-tools/<< parameters.compiler >>
     working_directory: /root/project
     steps:
       - attach_workspace:
@@ -414,7 +244,7 @@ jobs:
                echo "EGRESS not found!"
                exit 1
             fi
-      - compress_artifacts
+      - circleci-tools/compress_artifacts
       - store_artifacts:
           path: /logfiles
 
