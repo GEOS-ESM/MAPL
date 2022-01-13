@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Finalize profiler in MAPL_finalize call
 - Fix how a retry-build is done in CI
 - Fix issue with logger message and single quotes
+- Fix bug with profiler reporting in programs
 
 ### Changed
 
@@ -36,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - extracted helper procedures in GenericInitialize
 - Added new step to CircleCI to try and re-run build on failure.
 - Updated CircleCI config to use new [GEOS-ESM/circleci-tools orb](https://circleci.com/developer/orbs/orb/geos-esm/circleci-tools)
+- Added Markdown rules to `.editorconfig`
 
 ## [2.15.1] - 2022-01-06
 
