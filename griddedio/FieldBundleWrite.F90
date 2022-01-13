@@ -25,9 +25,9 @@ module MAPL_ESMFFieldBundleWrite
    interface MAPL_Write_Bundle
       module procedure Write_bundle_single_time
    end interface
-   
+
    contains
-      
+
       subroutine write_bundle_single_time(bundle,clock,output_file,nbits,deflate,rc)
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
@@ -65,7 +65,7 @@ module MAPL_ESMFFieldBundleWrite
          type(GriddedIOItem) :: item
          type(ESMF_TimeInterval) :: offset
          integer :: time_interval_
-       
+
          call ESMF_TimeIntervalSet(offset,s=0,rc=status)
          _VERIFY(status)
          if (present(n_steps)) then
@@ -93,7 +93,7 @@ module MAPL_ESMFFieldBundleWrite
             call items%push_back(item)
          enddo
          call this%cfio%createFileMetadata(items,bundle,time_info,rc=status)
-         _VERIFY(status) 
+         _VERIFY(status)
          if (present(output_file)) this%file_name = output_file
          collection_id = o_clients%add_hist_collection(this%cfio%metadata)
          call this%cfio%set_param(write_collection_id=collection_id)
@@ -104,13 +104,14 @@ module MAPL_ESMFFieldBundleWrite
       subroutine write_to_file(this,rc)
          class(FieldBundleWriter), intent(inout) :: this
          integer, optional, intent(out) :: rc
-         
+
          integer :: status
 
          call this%cfio%bundlepost(this%file_name,oClients=o_clients,rc=status)
          _VERIFY(status)
-         call o_Clients%done_collective_stage()
+         call o_Clients%done_collective_stage(__RC__)
          call o_Clients%wait()
+         _RETURN(_SUCCESS)
 
       end subroutine write_to_file
 
