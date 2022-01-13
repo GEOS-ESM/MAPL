@@ -450,8 +450,9 @@ CONTAINS
    call ESMF_VMBarrier(VM,_RC)
 
    call io_server%finalize()
-   call t_prof%finalize()
+   call t_prof%stop()
    call t_prof%reduce()
+   call t_prof%finalize()
    call generate_report()
    call MAPL_Finalize(_RC)
    call ESMF_Finalize ( _RC )
