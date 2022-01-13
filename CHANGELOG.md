@@ -23,12 +23,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A bug in splitting the fields for History when an alias contains a single entry (#1296)
+- Trap more errors in pFIO
+- Free types and operation created by profiler
+- Finalize profiler in MAPL_finalize call
+- Fix how a retry-build is done in CI
+- Fix issue with logger message and single quotes
+
 ### Added
 
 ### Changed
+
+- Updated README.md
 - Refactored MAPL_Generic.F90 - lots of changes.
   - consistent indentation (emacs mode)
   - extracted helper procedures in GenericInitialize
+- Added new step to CircleCI to try and re-run build on failure.
 
 ### Removed
 

@@ -335,7 +335,6 @@ contains
 
       integer(kind=MPI_ADDRESS_KIND) :: displacements(2)
       integer(kind=MPI_ADDRESS_KIND) :: lb, sz, sz2
-      integer :: type_dist_real64, type_dist_integer
 
       _UNUSED_DUMMY(d)
       call this%make_mpi_type(this%statistics%total, type_dist_real64, ierror)

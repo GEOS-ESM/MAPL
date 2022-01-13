@@ -3735,7 +3735,7 @@ contains
             end if
          end do
          if (count == 0) then
-            if (name == aliasName) then
+            if (n > 1) then
                do i=1,n
                   write(splitNameArray(i),'(A,I3.3)') trim(aliasName), i
                end do

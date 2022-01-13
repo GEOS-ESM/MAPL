@@ -4778,7 +4778,7 @@ contains
 
       class(Logger), pointer :: lgr
       character(len=:), allocatable :: shared_object_library_to_load
-      character(len=6) :: extension
+      character(len=:), allocatable :: extension
 
       call MAPL_InternalStateRetrieve(gc, meta, __RC__)
 
@@ -4802,8 +4802,8 @@ contains
 
       if (.not. is_valid_dso_name(SharedObj)) then
          lgr => logging%get_logger('MAPL.GENERIC')
-         call lgr%warning("AddChildFromDSO: changing shared library extension '%a~' to system specific extension '%a~'.", &
-              extension, SYSTEM_DSO_EXTENSION)
+         call lgr%warning("AddChildFromDSO: changing shared library extension from %a~ to system specific extension %a~", &
+              "'"//extension//"'", "'"//SYSTEM_DSO_EXTENSION//"'")
       end if
 
       shared_object_library_to_load = adjust_dso_name(sharedObj)

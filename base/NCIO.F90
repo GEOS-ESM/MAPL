@@ -1,5 +1,5 @@
 
-#include "MAPL_ErrLog.h"
+#include "MAPL_Exceptions.h"
 #define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
 
 !BOP
@@ -149,7 +149,7 @@ module NCIOMod
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call MAPL_VarRead(formatter, name, var_1d, layout=layout, arrdes=arrdes, rc=status)
                 _VERIFY(STATUS)
-             else 
+             else
                 _RETURN(ESMF_FAILURE)
              endif
           end if
@@ -163,7 +163,7 @@ module NCIOMod
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 call MAPL_VarRead(formatter, name, vr8_1d, layout=layout, arrdes=arrdes, rc=status)
                 _VERIFY(STATUS)
-             else 
+             else
                 _RETURN(ESMF_FAILURE)
              endif
           end if
@@ -239,7 +239,7 @@ module NCIOMod
              end if
           end if
        endif
-       
+
     else if (rank == 4) then
        if (tk == ESMF_TYPEKIND_R4) then
           call ESMF_ArrayGet(array, localDE=0, farrayptr=var_4d, rc=status)
@@ -319,8 +319,8 @@ module NCIOMod
     type (LocalMemReference) :: lMemRef
     integer :: size_1d
     type (ESMF_Info)                   :: infoh
-    
- 
+
+
     call ESMF_FieldGet(field, grid=grid, rc=status)
     _VERIFY(STATUS)
     call ESMF_GridGet(grid, distGrid=distGrid, rc=STATUS)
@@ -334,7 +334,7 @@ module NCIOMod
 
     call ESMF_InfoGetFromHost(field,infoh,rc=status)
     _VERIFY(STATUS)
-    call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)    
+    call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
     _VERIFY(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then
@@ -360,7 +360,7 @@ module NCIOMod
              else if (DIMS == MAPL_DimsVertOnly .or. DIMS==MAPL_DimsNone) then
                 size_1d = size(var_1d,1)
              endif
- 
+
              if (arrdes%write_restart_by_oserver) then
                 if( MAPL_AM_I_ROOT())  then
                    lMemRef = LocalMemReference(pFIO_REAL32,[size_1d])
@@ -370,7 +370,7 @@ module NCIOMod
                    lMemRef = LocalMemReference(pFIO_REAL32,[0])
                    call c_f_pointer(lMemRef%base_address, gvar_1d, shape=[0])
                 endif
-                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then 
+                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call ArrayGather(var_1d, gvar_1d, grid, mask=mask, rc=status)
                 endif
                 call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1], &
@@ -410,7 +410,7 @@ module NCIOMod
                    call c_f_pointer(lMemRef%base_address, gvr8_1d, shape=[0])
                 endif
 
-                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then 
+                if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
                    call ArrayGather(vr8_1d, gvr8_1d, grid, mask=mask, rc=status)
                 endif
                 call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1], &
@@ -465,7 +465,7 @@ module NCIOMod
              endif ! dims
           else
              _ASSERT(.false., "Cannot write unassociated var-2d")
-          endif ! associated 
+          endif ! associated
        else
           call ESMF_ArrayGet(array, localDE=0, farrayptr=vr8_2d, rc=status)
           _VERIFY(STATUS)
@@ -481,7 +481,7 @@ module NCIOMod
                       call c_f_pointer(lMemRef%base_address, gvr8_2d, shape=[0,size(vr8_2d,2)])
                    endif
                    do J = 1,size(vr8_2d,2)
-                      call ArrayGather(vr8_2d(:,J), gvr8_2d(:,J), grid, mask=mask, rc=status) 
+                      call ArrayGather(vr8_2d(:,J), gvr8_2d(:,J), grid, mask=mask, rc=status)
                    enddo
                    call oClients%collective_stage_data(arrdes%collection_id, trim(arrdes%filename), name, lMemRef, start=[1,1], &
                                  global_start=[1,1], global_count=[arrdes%im_world,size(vr8_2d,2)])
@@ -569,7 +569,7 @@ module NCIOMod
                            & offset1=j, offset2=k, rc=status)
                       end do
                    end do
-                
+
                 endif
 
              else
@@ -659,7 +659,7 @@ module NCIOMod
        end do
     end do
     _RETURN(ESMF_SUCCESS)
-    
+
     !    MORE HERE
   end subroutine MAPL_VarWriteNCpar_R8_4d
 !---------------------------
@@ -705,7 +705,7 @@ module NCIOMod
 !---------------------------
 
   subroutine MAPL_VarReadNCpar_R4_3d(formatter, name, A, ARRDES, RC)
-  
+
     type (Netcdf4_Fileformatter)          , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(INOUT) :: A(:,:,:)
@@ -770,7 +770,7 @@ module NCIOMod
 !---------------------------
 
   subroutine MAPL_VarReadNCpar_R8_3d(formatter, name, A, ARRDES, RC)
-  
+
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:,:)
@@ -825,7 +825,7 @@ module NCIOMod
           call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
           _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i1 not match")
           _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j1 not match")
-       
+
           ref = ArrayReference(A)
           _ASSERT( size(a,1) == in-i1+1, "size not match")
           _ASSERT( size(a,2) == jn-j1+1, "size not match")
@@ -970,7 +970,7 @@ module NCIOMod
 !---------------------------
 
   subroutine MAPL_VarReadNCpar_R4_2d(formatter, name, A, ARRDES, lev, offset2, RC)
-  
+
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(INOUT) :: A(:,:)
@@ -991,7 +991,7 @@ module NCIOMod
     integer                               :: jsize, jprev, num_io_rows
     integer, allocatable                  :: sendcounts(:), displs(:)
 
-    logical :: AM_READER 
+    logical :: AM_READER
 
     AM_READER = .false.
     if (present(arrdes)) then
@@ -1001,7 +1001,7 @@ module NCIOMod
     else
        AM_READER = .true.
     end if
-      
+
     if (present(arrdes) ) then
 
        IM_WORLD = arrdes%im_world
@@ -1049,12 +1049,12 @@ module NCIOMod
           cnt(2) = jsize
           cnt(3) = 1
           cnt(4) = 1
-    
+
           if(arrdes%read_restart_by_face) then
              start(2) = start(2) - (arrdes%face_index-1)*IM_WORLD
           endif
 
-          call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)   
+          call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,'Error reading variable ',status
              print*, NF_STRERROR(status)
@@ -1107,8 +1107,8 @@ module NCIOMod
        cnt(2) = size(a,2)
        cnt(3) = 1
        cnt(4) = 1
- 
-       call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status) 
+
+       call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
        if(status /= nf_noerr) then
           print*,'Error reading variable ',status
           print*, NF_STRERROR(status)
@@ -1238,7 +1238,7 @@ module NCIOMod
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -1329,9 +1329,9 @@ module NCIOMod
 
                 do I=1,Rsize
                    K = inv_pes(MSK(I))
-                   II = displs(K)+1 ! var is 1-based 
+                   II = displs(K)+1 ! var is 1-based
                    GVAR(I) = VAR(II)
-                   displs(K) = displs(K) + 1 
+                   displs(K) = displs(K) + 1
                 end do
              endif
              offset = offset + sendcount
@@ -1388,7 +1388,7 @@ module NCIOMod
     else
 
 ! Comments
-! This routine is used to write PREF to moist_import_checkpoint 
+! This routine is used to write PREF to moist_import_checkpoint
 
        start(1) = 1
        start(2) = 1
@@ -1434,7 +1434,7 @@ module NCIOMod
        end if
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWriteNCpar_R4_1d
 
@@ -1554,7 +1554,7 @@ module NCIOMod
           deallocate(rpes)
        end if
        call MAPL_CommsBcast(layout, r2g, nwrts, 0, rc = status)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -1645,9 +1645,9 @@ module NCIOMod
 
                 do I=1,Rsize
                    K = inv_pes(MSK(I))
-                   II = displs(K)+1 ! var is 1-based 
+                   II = displs(K)+1 ! var is 1-based
                    GVAR(I) = VAR(II)
-                   displs(K) = displs(K) + 1 
+                   displs(K) = displs(K) + 1
                 end do
              endif
              offset = offset + sendcount
@@ -1682,7 +1682,7 @@ module NCIOMod
           cnt(4) = 1
 !          print*,'start values are ',start
 !          print*,'count values are ',cnt
- 
+
           call formatter%put_var(trim(name),gvar,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
              print*,'Error writing variable ', status
@@ -1704,7 +1704,7 @@ module NCIOMod
     else
 
 ! Comments
-! This routine is used to write PREF to moist_import_checkpoint 
+! This routine is used to write PREF to moist_import_checkpoint
 
        start(1) = 1
        start(2) = 1
@@ -1751,7 +1751,7 @@ module NCIOMod
        end if
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarWriteNCpar_R8_1d
 
@@ -1903,7 +1903,7 @@ module NCIOMod
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
        _VERIFY(STATUS)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -2046,7 +2046,7 @@ module NCIOMod
        end if
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarReadNCpar_R4_1d
 
@@ -2196,7 +2196,7 @@ module NCIOMod
        end if
        call MAPL_CommsBcast(layout, r2g, nrdrs, 0, rc = status)
        _VERIFY(STATUS)
-       
+
 #else
        do n=0,nrdrs-1
           r2g(n) = (npes/nrdrs)*n
@@ -2338,7 +2338,7 @@ module NCIOMod
        end if
 
     end if
-    
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_VarReadNCpar_R8_1d
 
@@ -2508,7 +2508,7 @@ module NCIOMod
        cnt(3) = 1
        cnt(4) = 1
 
-       call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status) 
+       call formatter%put_var(trim(name),A,start=start,count=cnt,rc=status)
        if(status /= nf_noerr) then
           print*,'Error writing variable ',status
           print*, NF_STRERROR(status)
@@ -2523,7 +2523,7 @@ module NCIOMod
 !---------------------------
 
   subroutine MAPL_VarReadNCpar_R8_2d(formatter, name, A, ARRDES, lev, offset2, RC)
-  
+
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R8)     , intent(INOUT) :: A(:,:)
@@ -2602,12 +2602,12 @@ module NCIOMod
           cnt(2) = jsize
           cnt(3) = 1
           cnt(4) = 1
-         
+
           if(arrdes%read_restart_by_face) then
              start(2) = start(2) - (arrdes%face_index-1)*IM_WORLD
           endif
 
-          call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status) 
+          call formatter%get_var(trim(name),VAR,start=start,count=cnt,rc=status)
           if(status /= nf_noerr) then
                   print*,'Error reading variable ',status
                   print*, NF_STRERROR(status)
@@ -2661,7 +2661,7 @@ module NCIOMod
        cnt(3) = 1
        cnt(4) = 1
 
-       call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status) 
+       call formatter%get_var(trim(name),A,start=start,count=cnt,rc=status)
        if(status /= nf_noerr) then
                print*,'Error reading variable ',status
                print*, NF_STRERROR(status)
@@ -2775,24 +2775,24 @@ module NCIOMod
 
       call MAPL_FieldReadNCPar(formatter, FieldName, field, arrdes=arrdes, HomePE=mask, rc=status)
       _VERIFY(STATUS)
-      if (flip) then 
+      if (flip) then
           call flip_field(field,rc=status)
           _VERIFY(status)
       end if
-        
+
     enddo
 
     if(associated(MASK)) then
        DEALOC_(MASK)
     end if
- 
+
     if (arrdes%readers_comm/=MPI_COMM_NULL) then
        call formatter%close()
        _VERIFY(STATUS)
        call MPI_Info_free(info, status)
        _VERIFY(STATUS)
     end if
-  
+
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_BundleReadNCPar
@@ -2847,7 +2847,7 @@ module NCIOMod
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
     character(len=ESMF_MAXSTR ), pointer :: ITEMNAMES(:)
     logical, pointer                     :: DOIT(:)
-    
+
     integer                            :: ind
     logical                            :: skipReading
     integer                            :: RST
@@ -2857,7 +2857,7 @@ module NCIOMod
     type (ESMF_FieldBundle)            :: bundle_read
     integer                            :: nBundle
     logical                            :: tile
- 
+
     integer                            :: nVarFile, ncid
     character(len=ESMF_MAXSTR), pointer :: VarNamesFile(:) => null()
     type(ESMF_VM)                      :: VM
@@ -2865,8 +2865,8 @@ module NCIOMod
     integer                            :: dna
     logical                            :: bootstrapable_
     logical                            :: isPresent
-    character(len=:), allocatable      :: fname_by_face 
-    ! get a list of variables in the file so we can skip if the 
+    character(len=:), allocatable      :: fname_by_face
+    ! get a list of variables in the file so we can skip if the
     ! variable in the state is not in the file and it is bootstrapable
     ! will just let root do this since everybody will need it
     ! and avoid complications with doing later on when only readers_comm has opened file
@@ -2905,7 +2905,7 @@ module NCIOMod
        call MAPL_CommsBcast(vm, VarNamesFile(i), N=ESMF_MAXSTR, ROOT=MAPL_Root, rc=status)
        _VERIFY(STATUS)
     end do
-    
+
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
     _VERIFY(STATUS)
 
@@ -2996,11 +2996,11 @@ module NCIOMod
                foundInFile = .false.
                do k=1,nVarFile
                   if (trim(FieldName) == trim(VarNamesFile(k))) then
-                     FoundInFile = .true. 
+                     FoundInFile = .true.
                      exit
-                  end if          
+                  end if
                end do
-               
+
                if (foundInFile) then
                   new_field = MAPL_FieldCreate(Field,FieldName,rc=status)
                   _VERIFY(STATUS)
@@ -3047,7 +3047,7 @@ module NCIOMod
                 skipReading = (DNA /= 0)
              end if
              if (skipReading) cycle
-            
+
              ! now check if the field is in the list of available fields
              ! ---------------------------------------------------------
              foundInFile = .false.
@@ -3193,7 +3193,7 @@ module NCIOMod
   _VERIFY(STATUS)
   call ESMF_InfoGetFromHost(field,infoh,rc=status)
   _VERIFY(STATUS)
-  call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzVert,rc=status)  
+  call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzVert,rc=status)
   _VERIFY(STATUS)
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
   _VERIFY(STATUS)
@@ -3304,14 +3304,14 @@ module NCIOMod
        _VERIFY(status)
     else
        is_stretched = .false.
-    end if    
-       
+    end if
+
 
     ! verify that file is compatible with fields in bundle we are reading
 
     if (nVars == 0) then
        _ASSERT(.false., "The bundle you are trying to write is empty")
-    endif 
+    endif
 
     ! first we need to prep the netcdf file for writing
     allocate(LOCATION(nVars), stat=STATUS)
@@ -3347,7 +3347,7 @@ module NCIOMod
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var_3d,3)
           elseif (tk == ESMF_TYPEKIND_R8) then
-             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_3d, rc=status) 
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_3d, rc=status)
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_3d,3)
           endif
@@ -3357,7 +3357,7 @@ module NCIOMod
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var_2d,2)
           elseif (tk == ESMF_TYPEKIND_R8) then
-             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_2d, rc=status) 
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_2d, rc=status)
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_2d,2)
           endif
@@ -3367,7 +3367,7 @@ module NCIOMod
              _VERIFY(STATUS)
              JM_WORLD = max(JM_WORLD,size(var_2d,2))
           elseif (tk == ESMF_TYPEKIND_R8) then
-             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_2d, rc=status) 
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_2d, rc=status)
              _VERIFY(STATUS)
              JM_WORLD = max(JM_WORLD,size(var_2d,2))
           endif
@@ -3377,7 +3377,7 @@ module NCIOMod
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var_1d)
           elseif (tk == ESMF_TYPEKIND_R8) then
-             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_1d, rc=status) 
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_1d, rc=status)
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_1d)
           endif
@@ -3388,7 +3388,7 @@ module NCIOMod
              UNGRID_DIMS(I,1) = size(var_3d,2)
              UNGRID_DIMS(I,2) = size(var_3d,3)
           elseif (tk == ESMF_TYPEKIND_R8) then
-             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_3d, rc=status) 
+             call ESMF_ArrayGet(array, localDE=0, farrayptr=var8_3d, rc=status)
              _VERIFY(STATUS)
              UNGRID_DIMS(I,1) = size(var8_3d,2)
              UNGRID_DIMS(I,2) = size(var8_3d,3)
@@ -3436,26 +3436,26 @@ module NCIOMod
     n_unique_ungrid_dims = 0
     if (ungrid_dim_max_size /= 0) then
 
-       n_unique_ungrid_dims = 0 
+       n_unique_ungrid_dims = 0
        do i = 1,ungrid_dim_max_size
           if (any(ungrid_dims == i)) n_unique_ungrid_dims = n_unique_ungrid_dims + 1
        end do
- 
+
        allocate(unique_ungrid_dims(n_unique_ungrid_dims),stat=status)
        _VERIFY(STATUS)
        allocate(unique_ungrid_dim_name(n_unique_ungrid_dims),stat=status)
        _VERIFY(STATUS)
        allocate(ungriddim(n_unique_ungrid_dims),stat=status)
        _VERIFY(STATUS)
- 
-       n_unique_ungrid_dims = 0 
+
+       n_unique_ungrid_dims = 0
        do i = 1,ungrid_dim_max_size
           if (any(ungrid_dims == i)) then
              n_unique_ungrid_dims = n_unique_ungrid_dims + 1
              unique_ungrid_dims(n_unique_ungrid_dims) = i
           end if
        end do
- 
+
     endif
 
     deallocate(DIMS)
@@ -3513,7 +3513,7 @@ module NCIOMod
           call cf%add_variable('lon',var,rc=status)
           _VERIFY(status)
           deallocate(var,coordinate_data)
-          
+
           if (isCubed) then
              x0=1.0d0
              x1=dble(arrdes%JM_WORLD)
@@ -3527,7 +3527,7 @@ module NCIOMod
              end if
           endif
           lat = MAPL_Range(x0,x1,arrdes%JM_WORLD)
-          
+
           if (arrdes%write_restart_by_face) then
              call cf%add_dimension('lat',arrdes%im_world,rc=status)
              _VERIFY(status)
@@ -3620,7 +3620,7 @@ module NCIOMod
              unique_ungrid_dim_name(i)=ungrid_dim_name
              call cf%add_dimension(trim(ungrid_dim_name),unique_ungrid_dims(i),rc=status)
              _VERIFY(status)
-          end do 
+          end do
        endif
 
        ! Time variable
@@ -3874,7 +3874,7 @@ module NCIOMod
              call formatter%write(cf,rc=status)
              _VERIFY(STATUS)
           end if
-       endif ! write_restart_by_oserver 
+       endif ! write_restart_by_oserver
 
     endif !am writer or write_restart_by_oserver
 
@@ -3888,7 +3888,7 @@ module NCIOMod
        if (ind> 0) then
           FieldName = trim(FieldName(ind+2:))
        end if
-       
+
        call ESMF_InfoGetFromHost(field,infoh,rc=status)
        _VERIFY(STATUS)
 
@@ -3914,11 +3914,11 @@ module NCIOMod
             _VERIFY(status)
          end if
        end if
-       
+
     enddo
 
     if (arrdes%write_restart_by_oserver) then
-       call oClients%done_collective_stage()
+       call oClients%done_collective_stage(__RC__)
        call oClients%post_wait()
        call MPI_Info_free(info, status)
        _VERIFY(STATUS)
@@ -3951,11 +3951,11 @@ module NCIOMod
 
        fvar = Variable(type=vtype,dimensions=dims)
        call fvar%add_attribute('units',trim(units))
-       call fvar%add_attribute('long_name',trim(long_name)) 
+       call fvar%add_attribute('long_name',trim(long_name))
        call cf%add_variable(trim(vname),fvar,rc=status)
        _VERIFY(status)
-       
-       end subroutine add_fvar 
+
+       end subroutine add_fvar
 
   end subroutine MAPL_BundleWriteNCPar
 
@@ -3989,7 +3989,7 @@ module NCIOMod
     logical                            :: isPresent
     character(len=ESMF_MAXSTR)         :: positive
     logical                            :: flip
-   
+
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
     _VERIFY(STATUS)
@@ -4037,7 +4037,7 @@ module NCIOMod
 
     DO I = 1, ITEMCOUNT
 
-    
+
        IF (DOIT     (I)) then
 
           IF (ITEMTYPES(I) == ESMF_StateItem_FieldBundle) then
@@ -4098,7 +4098,7 @@ module NCIOMod
              if (skipWriting) cycle
 
              isPresent = ESMF_InfoIsPresent(infoh,'doNotAllocate',rc=status)
-             _VERIFY(STATUS) 
+             _VERIFY(STATUS)
              if (isPresent) then
                 call ESMF_InfoGet(infoh,'foNotAllocate',dna,rc=status)
                 _VERIFY(STATUS)
@@ -4180,7 +4180,7 @@ module NCIOMod
    end if
    ! Attempt to identify as fortran binary
    cwrd = transfer(TwoWords(1:4), irec)
-   ! check if divisible by 4 
+   ! check if divisible by 4
    irec = cwrd/4
    filetype = irec
    if (cwrd /= 4*irec) then
@@ -4218,7 +4218,7 @@ module NCIOMod
   _RETURN(ESMF_SUCCESS)
 
   contains
- 
+
       subroutine modify_grid_dimensions(rc)
          integer, optional, intent(out) :: rc
          integer :: status
@@ -4317,7 +4317,7 @@ module NCIOMod
   vars => cf%get_variables()
   iter = vars%begin()
   do while(iter/=vars%end())
-     
+
      name =>  iter%key()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) nvars=nvars+1
@@ -4345,7 +4345,7 @@ module NCIOMod
   vars => cf%get_variables()
   iter = vars%begin()
   do while(iter/=vars%end())
-     
+
      name =>  iter%key()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) call nondim_vars%push_back(trim(name))
@@ -4378,7 +4378,7 @@ module NCIOMod
   vars => cf%get_variables()
   iter = vars%begin()
   do while(iter/=vars%end())
-     
+
      name => iter%key()
      var => iter%value()
      dimsize => dims%at(trim(name))
@@ -4411,12 +4411,12 @@ module NCIOMod
   integer, intent(out), optional :: rc
 
   integer :: status
-  
+
   class(Variable), pointer :: var
   type(Attribute), pointer :: attr
   class(*), pointer :: units
   integer :: year,month,day,hour,min,sec
- 
+
   var => cf%get_variable('time',rc=status)
   _VERIFY(status)
   attr => var%get_attribute('units')
@@ -4587,7 +4587,7 @@ module NCIOMod
                else
                   positive => null()
                end if
-               if (associated(positive)) then 
+               if (associated(positive)) then
                   flip = (trim(positive) == "up")
                   _RETURN(_SUCCESS)
                end if
@@ -4610,7 +4610,7 @@ module NCIOMod
       type(ESMF_TypeKind_Flag) :: tk
       integer :: vloc,i,lb,ub,ii
       type(ESMF_Info) :: infoh
-     
+
       call ESMF_FieldGet(field,rank=rank,typeKind=tk,rc=status)
       _VERIFY(status)
       if (rank/=3) then
@@ -4661,8 +4661,13 @@ module NCIOMod
       type(ESMF_TYPEKIND_FLAG) :: tk
       real(KIND=ESMF_KIND_R4), pointer :: ptr_r4_in(:,:,:),ptr_r4_out(:,:,:)
       real(KIND=ESMF_KIND_R8), pointer :: ptr_r8_in(:,:,:),ptr_r8_out(:,:,:)
-      type(ESMF_Info) :: infoh 
-     
+<<<<<<< HEAD
+
+
+=======
+      type(ESMF_Info) :: infoh
+
+>>>>>>> release/MAPL-v3
       call ESMF_FieldGet(field,rank=rank,name=fname,rc=status)
       _VERIFY(status)
       if (rank==3) then
@@ -4700,7 +4705,7 @@ module NCIOMod
             flipped_field=field
          end if
       else
-         flipped_field=field   
+         flipped_field=field
       end if
       _RETURN(_SUCCESS)
    end function create_flipped_field
