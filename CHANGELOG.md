@@ -9,14 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.16.0] - 2022-01-13
+
+### Fixed
+
 - A bug in splitting the fields for History when an alias contains a single entry (#1296)
 - Trap more errors in pFIO
 - Free types and operation created by profiler
 - Finalize profiler in MAPL_finalize call
 - Fix how a retry-build is done in CI
 - Fix issue with logger message and single quotes
-
-### Added
 
 ### Changed
 
@@ -26,10 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - extracted helper procedures in GenericInitialize
 - Added new step to CircleCI to try and re-run build on failure.
 - Updated CircleCI config to use new [GEOS-ESM/circleci-tools orb](https://circleci.com/developer/orbs/orb/geos-esm/circleci-tools)
-
-### Removed
-
-### Deprecated
 
 ## [2.15.1] - 2022-01-06
 
