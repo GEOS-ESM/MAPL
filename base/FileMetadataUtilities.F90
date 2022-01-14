@@ -133,7 +133,7 @@ module MAPL_FileMetadataUtilsMod
    end function get_var_attr_real32
 
    function get_var_attr_real64(this,var_name,attr_name,rc) result(attr_real64)
-      real(REAL32) :: attr_real64
+      real(REAL64) :: attr_real64
       class(FileMetadataUtils), intent(inout) :: this
       character(len=*), intent(in) :: var_name
       character(len=*), intent(in) :: attr_name
