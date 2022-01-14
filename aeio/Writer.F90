@@ -4,6 +4,7 @@
 module AEIO_Writer
    use MPI
    use ESMF
+   use pFIO
    use MAPL_BaseMod
    use MAPL_MemUtilsMod
    use CollectionMod
@@ -36,6 +37,9 @@ module AEIO_Writer
       procedure :: run_writer_process
       procedure :: run_coordinator
       procedure :: get_node_info
+      procedure :: receive_coll_information
+      procedure :: send_worker_information
+      procedure :: receive_worker_information
    end type
 
    interface Writer
@@ -101,7 +105,8 @@ contains
       integer, optional, intent(out) :: rc
       !integer :: collection_id
       integer, allocatable :: collection_ids(:),free_workers(:),free_workers_global(:)
-      integer :: num_collections!,current_free,collections_to_write
+      character(len=ESMF_MAXPATHLEN), allocatable :: filenames(:)
+      integer :: num_collections,num_writing
       logical, allocatable :: busy(:)
       integer :: nwriters,free_worker,free,no_job,i,j,status,back_local_rank,local_rank
       integer :: MPI_STAT(MPI_STATUS_SIZE)
@@ -113,12 +118,10 @@ contains
       integer :: node_rank,writers_per_node,idle_pet
       integer, allocatable :: num_idle_pets(:), idleRank(:,:)
       logical :: i_free
+      character(len=:), allocatable :: no_file
 
       num_collections = this%collection_descriptors%size()
-      allocate(collection_ids(num_collections))
-      allocate(free_workers(num_collections))
       allocate(free_workers_global(num_collections))
-      free_workers_global = -1
 
       back_comm = this%front_back_connection%get_back_comm()
       connector_comm = this%front_back_connection%get_connection_comm()
@@ -145,13 +148,12 @@ contains
       _ASSERT(num_collections <= nwriters,"need more writers")
       busy = .false.
       do while (.true.)
-         call MPI_recv(collection_ids, num_collections, MPI_INTEGER, &
-         server_ranks(1),writer_ranks(1),connector_comm, &
-         MPI_STAT, status)
-         _VERIFY(status)
+
+         call this%receive_coll_information(collection_ids,filenames,_RC)
+
          call MAPL_MemCommited ( mem_total, mem_commit, mem_percent)
          write(*,'(A,1x,f10.2,f10.2,f10.2)')"writer memory total, committed, percent: ",mem_total/1024.0, mem_commit/1024.0,mem_percent
-         if (any(collection_ids > 0)) then
+         if (all(collection_ids > 0)) then
 
             do while(.true.)            
                do local_rank=1,nwriters
@@ -172,50 +174,48 @@ contains
                if ((nwriters-count(busy)) >= size(collection_ids)) exit 
             end do
 
-            do j=1,num_collections
-               if (collection_ids(j) > 0) then
-                  node_rank = maxloc(num_idle_pets,dim=1) -1
-                  do i=0,writers_per_node-1
-                     if (idleRank(node_rank,i) == -1) cycle
-                     idle_pet = idleRank(node_rank,i)
-                     free_workers(j) = idle_pet
-                     free_workers_global(j) = back_pets(idle_pet+1)
-                     busy(idle_pet) = .true.
-                     idleRank(node_rank,i) = -1
-                     num_idle_pets(node_rank) = num_idle_pets(node_rank)-1
-                     exit
-                  enddo
-               end if
+            num_writing = size(collection_ids)
+            if (allocated(free_workers)) deallocate(free_workers)
+            allocate(free_workers(num_writing))
+            free_workers_global = -1
+
+            do j=1,num_writing
+               node_rank = maxloc(num_idle_pets,dim=1) -1
+               do i=0,writers_per_node-1
+                  if (idleRank(node_rank,i) == -1) cycle
+                  idle_pet = idleRank(node_rank,i)
+                  free_workers(j) = idle_pet
+                  free_workers_global(collection_ids(j)) = back_pets(idle_pet+1)
+                  busy(idle_pet) = .true.
+                  idleRank(node_rank,i) = -1
+                  num_idle_pets(node_rank) = num_idle_pets(node_rank)-1
+                  exit
+               enddo
             enddo
 
              call MPI_send(free_workers_global,num_collections,MPI_INTEGER,  server_ranks(1), &
                   server_ranks(1),connector_comm,status)
              _VERIFY(status)
-             do i=1,num_collections
-                if (collection_ids(i) > 0) then
-             
-                   call MPI_Send(collection_ids(i),1,MPI_INTEGER, free_workers(i), &
-                        free_workers(i),back_comm,status)
-                   _VERIFY(status)
-                   collection_descriptor => this%collection_descriptors%at(collection_ids(i))
-                   rh=collection_descriptor%get_rh()
-                   rh_new = this%setup_transfer(rh,back_pets(1+free_workers(i)),_RC)
+             do i=1,num_writing
+          
+                call this%send_worker_information(collection_ids(i),filenames(i),free_workers(i),_RC)
+                collection_descriptor => this%collection_descriptors%at(collection_ids(i))
+                rh=collection_descriptor%get_rh()
+                rh_new = this%setup_transfer(rh,back_pets(1+free_workers(i)),_RC)
 
-                end if
              enddo
          else
             no_job=-1
+            no_file="no_file"
             do i=1,nwriters
                if (.not.busy(i)) then
-                  call MPI_send(no_job,1,MPI_INTEGER,i,i,back_comm,status)
-                  _VERIFY(status)
+                  call this%send_worker_information(no_job,no_file,i,_RC)
                else
                   call MPI_recv(free,1,MPI_INTEGER, &
                                 i,stag,back_comm, MPI_STAT,status)
                   _VERIFY(status)
-                  if (free /= i) stop 'free should be i'
-                  call MPI_send(no_job,1,MPI_INTEGER,i,i,back_comm,status)
-                  _VERIFY(status)
+                  _ASSERT(free == i,"free should be i")
+                  call this%send_worker_information(no_job,no_file,i,_RC)
                end if
             end do
             !write(*,*)"Exiting writer on rank: ",back_local_rank
@@ -232,36 +232,31 @@ contains
       class(Writer), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: MPI_STAT(MPI_STATUS_SIZE)
       integer :: back_comm,back_local_rank,collection_id,status
+      character(len=:), allocatable :: filename
 
       back_comm = this%front_back_connection%get_back_comm()
       call MPI_COMM_RANK(back_comm,back_local_rank,status)
       _VERIFY(status)
       do while (.true.)
-         ! which collection am I working on
-         call MPI_Recv(collection_id,1,MPI_INTEGER, &
-                      0,back_local_rank,back_comm, &
-                      MPI_STAT,status)
-         _VERIFY(status)
+         call this%receive_worker_information(collection_id,filename,_RC)
          if (collection_id < 0) then
-            !write(*,*)"Exiting writer on rank: ",back_local_rank
             call io_prof%stop('start_writer')
             exit
          end if
-         ! do stuff
-         call this%write_collection(collection_id,_RC)
-         ! send back I am done
+         call this%write_collection(collection_id,filename,_RC)
          call MPI_send(back_local_rank,1,MPI_INTEGER,0,stag,back_comm,status)
-         _VERIFY(status)                      
+         _VERIFY(status)
+         deallocate(filename)
 
       enddo
       _RETURN(_SUCCESS)
    end subroutine run_writer_process
 
-   subroutine write_collection(this,collection_id,rc)
+   subroutine write_collection(this,collection_id,filename,rc)
       class(Writer), intent(inout) :: this
       integer, intent(in) :: collection_id
+      character(len=*), intent(in) :: filename
       integer, optional, intent(out) :: rc
 
       type(RHConnector) :: rh,rh_new
@@ -336,7 +331,8 @@ contains
       call ESMF_VMEpochExit( keepAlloc=.false.)
 
       call rh_new%destroy(_RC)
-      write(*,*)"bmaa writer writing this many fields: ",fieldCount,local_rank
+      write(*,'(A,I3,I3,1x,A)')"bmaa write file: ",fieldCount,local_rank,trim(filename)
+      call collection_descriptor%write_bundle_from_array(output_bundle,filename,_RC)
       do i=1,fieldCount
          call ESMF_ArrayBundleGet(output_bundle,trim(fieldNames(i)),array=array,_RC)
          !block
@@ -430,7 +426,97 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine
-         
+ 
+   subroutine receive_coll_information(this,collection_ids,filenames,rc)
+      class(Writer), intent(inout) :: this
+      integer, intent(out), allocatable :: collection_ids(:)
+      character(len=ESMF_MAXPATHLEN), intent(out), allocatable :: filenames(:)
+      integer, intent(out), optional :: rc
+ 
+      integer :: n,num_colls,i
+      character(len=:), allocatable :: filename
+      integer, allocatable :: buffer(:)
+      integer :: connector_comm, buffer_size
+      integer, allocatable :: server_ranks(:), writer_ranks(:)
+      integer :: MPI_STAT(MPI_STATUS_SIZE)
+      integer :: status
+      
+      writer_ranks = this%front_back_connection%get_back_mpi_ranks()
+      server_ranks = this%front_back_connection%get_front_mpi_ranks()
+      connector_comm = this%front_back_connection%get_connection_comm()
 
+      call MPI_Probe(server_ranks(1),writer_ranks(1),connector_comm,mpi_stat,status)
+      _VERIFY(status)
+      call MPI_Get_Count(mpi_stat,MPI_INTEGER,buffer_size,status)
+      _VERIFY(status)
+      allocate(buffer(buffer_size))
+      call MPI_Recv(buffer,buffer_size,MPI_INTEGER,server_ranks(1),writer_ranks(1),connector_comm,MPI_stat,status)
+      _VERIFY(status)
+
+      n = 1
+      call deserialize_intrinsic(buffer(n:),num_colls,_RC)
+      n = n + serialize_buffer_length(num_colls,_RC)
+      allocate(collection_ids(num_colls),filenames(num_colls))
+      do i=1,num_colls
+         call deserialize_intrinsic(buffer(n:),collection_ids(i),_RC)
+         n = n + serialize_buffer_length(collection_ids(i))
+         if (allocated(filename)) deallocate(filename)
+         call deserialize_intrinsic(buffer(n:),filename,_RC)
+         n = n + serialize_buffer_length(filename)
+         filenames(i)=filename
+      enddo
+      _RETURN(_SUCCESS)
+
+   end subroutine receive_coll_information
+
+   subroutine send_worker_information(this,collection_id,filename,worker_id,rc)
+      class(Writer), intent(inout) :: this
+      integer, intent(in) :: collection_id
+      character(len=*), intent(in) :: filename
+      integer, intent(in) :: worker_id
+      integer, intent(out), optional :: rc
+
+      integer :: back_comm
+      integer :: status
+      integer, allocatable :: buffer(:)
+
+      buffer = serialize_intrinsic(collection_id,_RC)
+      buffer = [buffer,serialize_intrinsic(filename)]
+
+      back_comm = this%front_back_connection%get_back_comm()
+      call MPI_Send(buffer,size(buffer),MPI_INTEGER, worker_id, &
+           worker_id,back_comm,status)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+   end subroutine send_worker_information
+
+   subroutine receive_worker_information(this,collection_id,filename,rc)
+      class(Writer), intent(inout) :: this
+      integer, intent(inout) :: collection_id
+      character(len=:), allocatable, intent(out) :: filename
+      integer, intent(out), optional :: rc
+
+      integer :: back_comm,buffer_size,back_local_rank,n
+      integer :: status
+      integer, allocatable :: buffer(:)
+      integer :: MPI_STAT(MPI_STATUS_SIZE)
+
+      back_comm = this%front_back_connection%get_back_comm()
+      call MPI_COMM_RANK(back_comm,back_local_rank,status)
+      _VERIFY(status)
+      call MPI_Probe(0,back_local_rank,back_comm,mpi_stat,status)
+      _VERIFY(status)
+      call MPI_Get_Count(mpi_stat,MPI_INTEGER,buffer_size,status)
+      _VERIFY(status)
+      allocate(buffer(buffer_size))
+      call MPI_Recv(buffer,buffer_size,MPI_INTEGER,0,back_local_rank,back_comm,MPI_STAT,status)
+      _VERIFY(status)
+      n = 1
+      call deserialize_intrinsic(buffer(n:),collection_id,_RC)
+      n = n + serialize_buffer_length(collection_id)
+      call deserialize_intrinsic(buffer(n:),filename,_RC)
+      _RETURN(_SUCCESS)
+   end subroutine receive_worker_information
 
 end module AEIO_Writer

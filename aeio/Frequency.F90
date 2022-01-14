@@ -10,29 +10,28 @@ module FrequencyMod
    implicit none
    private
 
-   public :: Frequency
+   public :: hinterval
 
-   type :: Frequency
+   type :: hinterval
       private
       !character(:), allocatable :: frequency
-      integer :: frequency
+      integer :: int_frequency
       type(ESMF_Alarm) :: alarm
    contains
       procedure :: initialize
       procedure :: get_frequency
       procedure :: set_alarm
       procedure :: check_if_ringing
-   end type Frequency
+   end type hinterval
 contains
    subroutine initialize(this, freq, rc)
-      class(Frequency), intent(inout) :: this
+      class(hinterval), intent(inout) :: this
       character(*),     intent(in   ) :: freq
       integer, optional, intent(out) :: rc
       !integer,     intent(in   ) :: freq
       integer :: status
 
-      !this%frequency = freq
-      read(freq,*,iostat=status)this%frequency 
+      read(freq,*,iostat=status)this%int_frequency 
       _VERIFY(status)
       _RETURN(_SUCCESS)
    end subroutine initialize
@@ -40,13 +39,13 @@ contains
    function get_frequency(this) result(freq)
       !character(:), allocatable :: freq
       integer :: freq
-      class(Frequency), intent(inout) :: this
+      class(hinterval), intent(inout) :: this
 
-      freq = this%frequency
+      freq = this%int_frequency
    end function get_frequency
 
    subroutine set_alarm(this, clock, rc)
-      class(Frequency), intent(inout) ::  this
+      class(hinterval), intent(inout) ::  this
       type(ESMF_Clock), intent(inout) :: clock
       integer, optional, intent(out) :: rc
 
@@ -54,9 +53,9 @@ contains
       type(ESMF_Time) :: current_time,ring_time
       integer :: hour,minute,second,status
 
-      hour = this%frequency/10000
-      minute = mod(this%frequency/100,100)
-      second = mod(this%frequency,100)
+      hour = this%int_frequency/10000
+      minute = mod(this%int_frequency/100,100)
+      second = mod(this%int_frequency,100)
       call ESMF_TimeIntervalSet(time_interval,h=hour,m=minute,s=second,_RC)
       call ESMF_ClockGet(clock,currTime=current_time,_RC)
       ring_time = current_time+time_interval
@@ -66,7 +65,7 @@ contains
    end subroutine set_alarm
 
    function check_if_ringing(this,rc) result(ringing)
-      class(Frequency), intent(inout) ::  this
+      class(hinterval), intent(inout) ::  this
       integer, optional, intent(out) :: rc
 
       logical :: ringing

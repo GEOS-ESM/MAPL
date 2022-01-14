@@ -9,7 +9,13 @@ implicit none
 private
 
 public fill_grads_template
+public create_filename_from_template
 public StrTemplate
+
+!interface fill_grads_template
+   !module procedure create_grads_template
+   !module procedure fill_grads_template_fixed
+!end interface
 
 character(len=2), parameter :: valid_tokens(14) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2","S2"]
 character(len=3),parameter :: mon_lc(12) = [&
@@ -34,6 +40,34 @@ contains
       call fill_grads_template(str, tmpl, &
             experiment_id=xid, nymd=nymd, nhms=nhms,preserve=preserve, rc=stat)
    end subroutine StrTemplate
+
+  function create_filename_from_template(template,unusable,experiment_id,nymd,nhms,time,preserve,rc)  result(output_string)
+      character(len=*), intent(in)  :: template
+      class(keywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), intent(in), optional :: experiment_id
+      integer, intent(in), optional :: nymd
+      integer, intent(in), optional :: nhms
+      type(ESMF_Time), intent(in), optional :: time
+      logical, intent(in), optional :: preserve
+      integer, intent(out), optional :: rc
+
+      character(len=:),allocatable :: output_string
+
+      character(len=ESMF_MAXPATHLEN) :: tstring
+      integer :: status
+
+      _UNUSED_DUMMY(unusable)
+
+      call fill_grads_template(tstring,template,experiment_id=experiment_id, &
+                                               nymd=nymd, &
+                                               nhms=nhms, &
+                                               time=time, &
+                                               preserve=preserve, &
+                                               _RC)
+      output_string=trim(tstring)
+      _RETURN(_SUCCESS)
+   end function create_filename_from_template
+      
 
    subroutine fill_grads_template(output_string,template,unusable,experiment_id,nymd,nhms,time,preserve,rc)
       character(len=*), intent(out) :: output_string

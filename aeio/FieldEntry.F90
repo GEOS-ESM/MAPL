@@ -133,19 +133,22 @@ contains
       std_name = this%short_name // '.' // this%component_name
    end function standard_name
 
-   subroutine add_to_bundle(this, state, bundle, unusable, grid, rc)
+   subroutine add_to_bundle(this, state, bundle, unusable, grid, alias, rc)
       class(FieldEntry),                intent(inout) :: this
       type(ESMF_State),                 intent(inout) :: state
       type(ESMF_FieldBundle),           intent(inout) :: bundle
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
       type(ESMF_Grid),        optional, intent(in   ) :: grid
+      character(len=*),       optional, intent(in   ) :: alias
       integer,                optional, intent(  out) :: rc
 
       integer :: status
+      type(ESMF_Grid) :: original_grid
       type(ESMF_State) :: export_state
       type(ESMF_Field) :: field,new_field
       integer :: lb(1),ub(1),rank, local_des
       real(ESMF_KIND_R4), pointer :: ptr2d(:,:),ptr3d(:,:,:)
+      character(len=:), allocatable :: alias_
 
       _UNUSED_DUMMY(unusable)
 
@@ -153,10 +156,17 @@ contains
       _VERIFY(status)
       call ESMF_StateGet(export_state,trim(this%short_name),field,rc=status)
       _VERIFY(status)
+      call MAPL_AllocateCoupling(field, _RC)
+      if (present(alias)) then
+         alias_=alias
+      else
+         alias_=this%short_name
+      end if
+
       if (present(grid)) then
          call ESMF_FieldGet(field,rank=rank,rc=status)
          if (rank==2) then
-            new_field = ESMF_FieldCreate(grid,ESMF_TYPEKIND_R4,name=trim(this%short_name),rc=status)
+            new_field = ESMF_FieldCreate(grid,ESMF_TYPEKIND_R4,name=alias_,rc=status)
             _VERIFY(status)
             call ESMF_FieldGet(new_field,localDECount=local_des,rc=status)
             _VERIFY(status)
@@ -167,7 +177,7 @@ contains
             end if
          else if (rank==3) then
             call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
-            new_field = ESMF_FieldCreate(grid,ESMF_TYPEKIND_R4,name=trim(this%short_name), &
+            new_field = ESMF_FieldCreate(grid,ESMF_TYPEKIND_R4,name=alias_, &
                         ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
             _VERIFY(status)
             call ESMF_FieldGet(new_field,localDECount=local_des,rc=status)
@@ -181,8 +191,38 @@ contains
          call ESMF_FieldBundleAdd(bundle,[new_field],rc=status)
          _VERIFY(status)
       else
-         call ESMF_FieldBundleAdd(bundle,[field],rc=status)
-         _VERIFY(status)
+         if (present(alias)) then
+            call ESMF_FieldGet(field,rank=rank,grid=original_grid,rc=status)
+            if (rank==2) then
+               call ESMF_FieldGet(field,localDECount=local_des,rc=status)
+               _VERIFY(status)
+               if (local_des >0) then
+                  call ESMF_FieldGet(field,localDE=0,farrayPtr=ptr2d,rc=status)
+                  _VERIFY(status)
+               else
+                  allocate(ptr2d(0,0))
+               end if
+               new_field = ESMF_FieldCreate(original_grid,ptr2d,ESMF_INDEX_DELOCAL,name=alias_,rc=status)
+               _VERIFY(status)
+            else if (rank==3) then
+               call ESMF_FieldGet(field,localDECount=local_des,ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
+               _VERIFY(status)
+               if (local_des >0) then
+                  call ESMF_FieldGet(field,localDE=0,farrayPtr=ptr3d,rc=status)
+                  _VERIFY(status)
+               else
+                  allocate(ptr3d(0,0,0))
+               end if
+               new_field = ESMF_FieldCreate(original_grid,ptr3d,ESMF_INDEX_DELOCAL, name=alias_, &
+                           ungriddedLBound=lb,ungriddedUBound=ub,rc=status)
+               _VERIFY(status)
+            end if
+            call ESMF_FieldBundleAdd(bundle,[new_field],rc=status)
+            _VERIFY(status)
+         else
+            call ESMF_FieldBundleAdd(bundle,[field],rc=status)
+            _VERIFY(status)
+         end if
       end if
 
       _RETURN(_SUCCESS)

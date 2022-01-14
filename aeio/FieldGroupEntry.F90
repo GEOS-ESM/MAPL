@@ -150,7 +150,11 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      call this%field_entry%add_to_bundle(state,bundle, grid=grid, __RC__)
+      if (this%alias_name == default_alias) then 
+         call this%field_entry%add_to_bundle(state,bundle, grid=grid, __RC__)
+      else
+         call this%field_entry%add_to_bundle(state,bundle, grid=grid, alias=this%alias_name, __RC__)
+      end if  
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle

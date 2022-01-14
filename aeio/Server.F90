@@ -4,6 +4,7 @@
 module AEIO_Server
    use MPI
    use ESMF
+   use pfio
    use CollectionMod
    use MAPL_ExceptionHandling
    use gFTL_StringVector
@@ -199,11 +200,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      ! here is where we 
-      ! get work we will talk to
-      ! generate new rh from prototype
-      ! send data
-      ! how do we send the actual filename? what the heck the file should look like including time?
       integer, allocatable :: originPetList(:),targetPetList(:)
       integer :: server_size,worker_rank
       integer :: MPI_STAT(MPI_STATUS_SIZE)

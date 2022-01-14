@@ -6,6 +6,8 @@ module AEIO_CollectionDescriptor
    use MAPL_ExceptionHandling
    use gFTL_StringVector
    use AEIO_RHConnector
+   use pFIO
+   use MAPL_BaseMod
    
    implicit none
    private
@@ -19,7 +21,8 @@ module AEIO_CollectionDescriptor
    contains
       procedure get_bundle
       procedure get_rh
-      procedure get_coll_name    
+      procedure get_coll_name
+      procedure write_bundle_from_array 
    end type CollectionDescriptor 
 
    interface collectionDescriptor
@@ -56,5 +59,61 @@ contains
       character(len=:), allocatable :: coll_name
       coll_name = this%coll_name
    end function get_coll_name
+
+   subroutine write_bundle_from_array(this,arrays,output_file,rc)
+      class(CollectionDescriptor), intent(inout) :: this
+      type(ESMF_ArrayBundle), intent(inout) :: arrays
+      character(len=*), intent(in) :: output_file
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(len=:), allocatable :: vdims
+      integer :: fieldCount
+      integer :: gdims(3),i,rank,lb(1),ub(1)
+      type(ESMF_Grid) :: grid
+      type(ESMF_Array) :: array
+      type(ESMF_Field) :: field
+      type(FileMetaData) :: metadata
+      type(NetCDF4_FileFormatter) :: formatter
+      type(Variable) :: v 
+      character(len=ESMF_MAXSTR), allocatable :: fieldNames(:)
+      real, pointer :: ptr2d(:,:),ptr3d(:,:,:)
+
+      call ESMF_FieldBundleGet(this%bundle,fieldCount=fieldCount,grid=grid,_RC)
+      allocate(fieldNames(fieldCount))
+      call ESMF_FieldBundleGet(this%bundle,fieldNameList=fieldNames,_RC)
+
+      call MAPL_GridGet(grid,globalCellCountPerDim=gdims,_RC)
+      call metadata%add_dimension('Xdim',gdims(1),_RC)
+      call metadata%add_dimension('Ydim',gdims(2),_RC)
+      call metadata%add_dimension('lev',gdims(3),_RC)
+      call metadata%add_dimension('time',1,_RC)
+      do i=1,fieldCount
+         call ESMF_FieldBundleGet(this%bundle,trim(fieldNames(i)),field=field,_RC)
+         call ESMF_FieldGet(field,rank=rank,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+         if (rank ==2) then
+            vdims ="Xdim,Ydim,time"
+         else if (rank==3) then
+            vdims ="Xdim,Ydim,lev,time"
+         end if
+         v = Variable(type=PFIO_REAL32,dimensions=vdims,_RC)
+         call metadata%add_variable(trim(fieldNames(i)),v,_RC)
+      enddo
+      call formatter%create(output_file,_RC)
+      call formatter%write(metadata,_RC)
+      do i=1,fieldCount
+         call ESMF_ArrayBundleGet(arrays,trim(fieldNames(i)),array=array,_RC)
+         call ESMF_ArrayGet(array,rank=rank,undistLBound=lb,undistUBound=ub,_RC)
+         if (rank ==2) then
+           call ESMF_ArrayGet(array,farrayPtr=ptr2d,_RC)
+           call formatter%put_var(trim(fieldNames(i)),ptr2d,_RC)
+         else if (rank==3) then
+           call ESMF_ArrayGet(array,farrayPtr=ptr3d,_RC)
+           call formatter%put_var(trim(fieldNames(i)),ptr3d,_RC)
+         end if
+      enddo
+      _RETURN(_SUCCESS)
+
+   end subroutine write_bundle_from_array
 
 end module AEIO_CollectionDescriptor

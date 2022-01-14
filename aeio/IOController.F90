@@ -4,7 +4,9 @@ module AEIO_IOController
    use MPI
    use MAPL_ExceptionHandling
    use MAPL_BaseMod
+   use MAPL_StringTemplate
    use ESMF
+   use pFIO
    use AEIO_Client
    use AEIO_ClientMap
    use AEIO_Server
@@ -50,6 +52,8 @@ module AEIO_IOController
       procedure :: create_comms
       procedure :: start_writer
       procedure :: stop_writer
+      procedure :: generate_kill_message
+      procedure :: serialize_coll_information
    end type
 
 contains
@@ -119,6 +123,12 @@ contains
       call io_prof%stop('trans_grid_to_front')       
       !call this%transfer_grids_to_back(_RC)
 
+      block
+         type(ESMF_VM) :: vm
+         call ESMF_VMGetCurrent(vm)
+         call ESMF_VMBarrier(vm)
+         call sleep(2)
+      end block
       ! fill bundle on front end of server for each collection
       enabled_iter = this%enabled%begin()
       do while(enabled_iter /= this%enabled%end())
@@ -175,17 +185,20 @@ contains
 
       integer :: status
       integer, allocatable :: writer_ranks(:)
-      integer :: server_comm,num_collections
-      integer, allocatable :: terminate(:)
+      integer :: server_comm!,num_collections
+      integer, allocatable :: buffer(:)
 
-      num_collections = this%enabled%size()
-      allocate(terminate(num_collections),source=-1)
-      
+      !num_collections = this%enabled%size()
+      !allocate(terminate(num_collections),source=-1)
+     
+      buffer = this%generate_kill_message(_RC) 
       server_comm = this%mpi_connection%get_connection_comm()
       if (server_comm /= MPI_COMM_NULL) then 
          writer_ranks = this%mpi_connection%get_back_mpi_ranks()
          if (this%mpi_connection%am_i_front_root()) then
-            call MPI_Send(terminate,num_collections,MPI_INTEGER,writer_ranks(1), &
+            !call MPI_Send(terminate,num_collections,MPI_INTEGER,writer_ranks(1), &
+                 !writer_ranks(1),server_comm,status)
+            call MPI_Send(buffer,size(buffer),MPI_INTEGER,writer_ranks(1), &
                  writer_ranks(1),server_comm,status)
             _VERIFY(status)
          end if
@@ -199,7 +212,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-
+      type(ESMF_Time) :: current_time
       integer :: model_comm,front_comm
 
       front_comm = this%mpi_connection%get_front_comm()
@@ -217,7 +230,8 @@ contains
 
          call io_prof%start('server-writer-trans')
          ! on correct Pets offload data
-         call this%offload_server_data(_RC)
+         call ESMF_ClockGet(clock,currTime=current_time,_RC)
+         call this%offload_server_data(current_time,_RC)
          call io_prof%stop('server-writer-trans')
          call io_prof%stop('server_run')
       end if
@@ -607,19 +621,22 @@ contains
       _RETURN(_SUCCESS)
    end subroutine transfer_data_client_server
 
-   subroutine offload_server_data(this,rc)
+   subroutine offload_server_data(this,current_time,rc)
       class(IOController), intent(inout) :: this
+      type(ESMF_Time), intent(in) :: current_time
       integer, optional, intent(out) :: rc
 
       integer :: status,front_comm,connector_comm,num_collections
       type(Server), pointer :: server_ptr
       type(StringVectorIterator) :: enabled_iter
       character(:), allocatable :: coll_name
-      integer, allocatable :: writing(:),back_ranks(:),front_ranks(:),worker_pets(:)
+      integer, allocatable :: back_ranks(:),front_ranks(:),worker_pets(:)
       integer :: i
+      logical, allocatable :: writing(:)
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type(Collection) :: hist_coll
       character(len=1) :: ic
+      integer, allocatable :: buffer(:)
 
       front_comm = this%mpi_connection%get_front_comm()
       connector_comm = this%mpi_connection%get_connection_comm()
@@ -629,10 +646,7 @@ contains
       allocate(worker_pets(num_collections))
 
       if (front_comm/=MPI_COMM_NULL) then
-         ! first round
-         ! until implemented all are true
-         !allocate(writing(num_collections),source=[(i,i=1,num_collections)])
-         allocate(writing(num_collections),source=-1)
+         allocate(writing(num_collections),source=.false.)
          enabled_iter = this%enabled%begin()
          i=0
          do while(enabled_iter /= this%enabled%end())
@@ -640,13 +654,16 @@ contains
             coll_name = enabled_iter%get()
             server_ptr => this%servers%at(coll_name)
             hist_coll = server_ptr%get_collection()
-            if (hist_coll%is_time_to_write()) writing(i)=i
+            if (hist_coll%is_time_to_write()) writing(i)=.true.
             call enabled_iter%next()
          enddo
 
-         if (any(writing/=-1)) then
+         if (any(writing)) then
             if (this%mpi_connection%am_i_front_root()) then
-               call MPI_Send(writing,num_collections,MPI_INTEGER,back_ranks(1), &
+               buffer = this%serialize_coll_information(writing,current_time,_RC)
+               !call MPI_Send(writing,num_collections,MPI_INTEGER,back_ranks(1), &
+                   !back_ranks(1),connector_comm,status)
+               call MPI_Send(buffer,size(buffer),MPI_INTEGER,back_ranks(1), &
                    back_ranks(1),connector_comm,status)
                _VERIFY(status)
                call MPI_Recv(worker_pets,num_collections,MPI_INTEGER,back_ranks(1), &
@@ -661,7 +678,7 @@ contains
          i = 0
          do while(enabled_iter /= this%enabled%end())
             i=i+1
-            if (writing(i)/=-1) then
+            if (writing(i)) then
                write(ic,"(I1)")i
                coll_name=enabled_iter%get()
                server_ptr => this%servers%at(coll_name)
@@ -679,10 +696,11 @@ contains
          i=0
          do while(enabled_iter /= this%enabled%end())
             i=i+1
-            if (writing(i)/=-1) then
+            if (writing(i)) then
                write(ic,"(I1)")i
                coll_name=enabled_iter%get()
                server_ptr => this%servers%at(coll_name)
+               hist_coll = server_ptr%get_collection()
                call io_prof%start('offload_data_'//ic)
                call server_ptr%offload_data(_RC)
                call io_prof%stop('offload_data_'//ic)
@@ -694,5 +712,63 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine offload_server_data
+
+   function serialize_coll_information(this,writing,current_time,rc) result(buffer)
+      class(IOController), intent(inout) :: this
+      logical, intent(in) :: writing(:)
+      type(ESMF_Time), intent(in) :: current_time
+      integer, optional, intent(out) :: rc
+
+      integer, allocatable :: buffer(:)
+
+      character(len=:), allocatable :: filename
+      character(len=:), allocatable :: file_template
+      integer :: collection_id,num_writing,i
+      type(Server), pointer :: server_ptr
+      type(StringVectorIterator) :: enabled_iter
+      type(Collection) :: hist_coll
+      character(:), allocatable :: coll_name
+      integer :: status
+
+      num_writing = count(writing)
+      buffer = [serialize_intrinsic(num_writing)]
+      
+      enabled_iter = this%enabled%begin()
+      i = 0
+      do while(enabled_iter /= this%enabled%end())
+         i=i+1
+         if (writing(i)) then
+            coll_name=enabled_iter%get()
+            server_ptr => this%servers%at(coll_name)
+            hist_coll = server_ptr%get_collection()
+            file_template = hist_coll%get_file_template()
+            filename = create_filename_from_template(file_template,time=current_time,_RC)
+            filename = trim(coll_name)//"_"//filename 
+            collection_id=i
+            buffer = [buffer,serialize_intrinsic(collection_id)]
+            buffer = [buffer,serialize_intrinsic(filename)]
+         end if
+         call enabled_iter%next()
+      enddo
+      _RETURN(_SUCCESS)
+
+   end function serialize_coll_information
+
+   function generate_kill_message(this,rc) result(buffer)
+      class(IOController), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer, allocatable :: buffer(:)
+
+      character(len=:), allocatable :: filename
+      integer :: status
+
+      buffer = [serialize_intrinsic(1)]
+      filename = "dummy"
+      buffer = [buffer,serialize_intrinsic(-1)]
+      buffer = [buffer,serialize_intrinsic(filename)]
+      _RETURN(_SUCCESS)
+
+   end function generate_kill_message
  
 end module AEIO_IOController

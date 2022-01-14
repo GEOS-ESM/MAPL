@@ -31,7 +31,7 @@ module CollectionMod
       character(:), allocatable :: name
 
       type(Template)  :: template
-      type(Frequency) :: frequency
+      type(hinterval) :: coll_frequency
       character(:), allocatable :: output_grid
 
       type(StringVector) :: groups
@@ -40,7 +40,8 @@ module CollectionMod
    contains
       procedure :: get_name
       procedure :: set_name
-      procedure :: get_template
+      procedure :: get_template_object
+      procedure :: get_file_template
       procedure :: get_frequency
       procedure :: get_grid
       procedure :: get_groups
@@ -87,18 +88,29 @@ contains
       if (present(rc)) rc = status
    end subroutine set_name
 
-   function get_template(this) result(tmplt)
+   function get_template_object(this) result(tmplt)
       type(Template) :: tmplt
       class(Collection), intent(in) :: this
 
       tmplt = this%template
-   end function get_template
+   end function get_template_object
 
-   function get_frequency(this) result(freq)
-      type(Frequency) :: freq
+   function get_file_template(this) result(file_template)
+      type(Template) :: tmplt
       class(Collection), intent(in) :: this
 
-      freq = this%frequency
+      character(len=:), allocatable :: file_template
+
+      tmplt = this%template
+      file_template = tmplt%get_template()
+
+   end function get_file_template
+
+   function get_frequency(this) result(freq)
+      type(hinterval) :: freq
+      class(Collection), intent(in) :: this
+
+      freq = this%coll_frequency
    end function get_frequency
 
    function get_grid(this) result(grid_name)
@@ -119,7 +131,7 @@ contains
 
       integer :: status
 
-      call this%frequency%set_alarm(clock,_RC)
+      call this%coll_frequency%set_alarm(clock,_RC)
       _RETURN(_SUCCESS)
 
    end subroutine initialize_frequency
@@ -130,7 +142,7 @@ contains
       logical :: time_to_write
       integer :: status
 
-      time_to_write = this%frequency%check_if_ringing(_RC)
+      time_to_write = this%coll_frequency%check_if_ringing(_RC)
       _RETURN(_SUCCESS)
 
    end function is_time_to_write
@@ -226,7 +238,7 @@ contains
             call this%template%initialize(config_value)
          case (frequency_key)
             call iter%get_value(config_value)
-            call this%frequency%initialize(config_value)
+            call this%coll_frequency%initialize(config_value)
          case (grid_key)
             call iter%get_value(config_value)
             this%output_grid = config_value
