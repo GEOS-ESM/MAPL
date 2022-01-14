@@ -123,12 +123,6 @@ contains
       call io_prof%stop('trans_grid_to_front')       
       !call this%transfer_grids_to_back(_RC)
 
-      block
-         type(ESMF_VM) :: vm
-         call ESMF_VMGetCurrent(vm)
-         call ESMF_VMBarrier(vm)
-         call sleep(2)
-      end block
       ! fill bundle on front end of server for each collection
       enabled_iter = this%enabled%begin()
       do while(enabled_iter /= this%enabled%end())
