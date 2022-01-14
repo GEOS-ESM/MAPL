@@ -430,8 +430,8 @@ contains
          _RETURN(_SUCCESS)
       endif
 
-      call ioserver_profiler%finalize()
       call ioserver_profiler%reduce()
+      call ioserver_profiler%finalize()
 
       reporter = ProfileReporter(empty)
       call reporter%add_column(NameColumn(20))
