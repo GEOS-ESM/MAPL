@@ -2471,6 +2471,9 @@ ENDDO PARSER
          print *, '       Nbits: ',       list(n)%nbits
          print *, '      Slices: ',       list(n)%Slices
          print *, '     Deflate: ',       list(n)%deflate
+         if (associated(list(n)%chunksize)) then
+            print *, '   ChunkSize: ',       list(n)%chunksize
+         end if
          if (list(n)%monthly) then
             print *, '   Frequency: ',       'monthly'
          else
