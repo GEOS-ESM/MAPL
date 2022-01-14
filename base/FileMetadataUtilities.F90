@@ -25,6 +25,9 @@ module MAPL_FileMetadataUtilsMod
       procedure :: var_has_missing_value
       procedure :: var_has_attr
       procedure :: get_var_attr_real32
+      procedure :: get_var_attr_real64
+      procedure :: get_var_attr_int32
+      procedure :: get_var_attr_int64
       procedure :: get_var_attr_string
    end type FileMetadataUtils
 
@@ -52,11 +55,11 @@ module MAPL_FileMetadataUtilsMod
    end subroutine create
 
    function var_get_missing_value(this,var_name,rc) result(missing_value)
+      real(REAL32) :: missing_value
       class(FileMetadataUtils), intent(inout) :: this
       character(len=*), intent(in) :: var_name
       integer, optional, intent(out) :: rc
 
-      real(REAL32) :: missing_value
       integer :: status
       type(Variable), pointer :: var
 
@@ -101,12 +104,12 @@ module MAPL_FileMetadataUtilsMod
    end function var_has_attr
 
    function get_var_attr_real32(this,var_name,attr_name,rc) result(attr_real32)
+      real(REAL32) :: attr_real32
       class(FileMetadataUtils), intent(inout) :: this
       character(len=*), intent(in) :: var_name
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
 
-      real(REAL32) :: attr_real32
       real(REAL32) :: tmp(1)
       integer :: status
       type(Attribute), pointer :: attr
@@ -129,13 +132,100 @@ module MAPL_FileMetadataUtilsMod
       _RETURN(_SUCCESS)
    end function get_var_attr_real32
 
-   function get_var_attr_string(this,var_name,attr_name,rc) result(attr_string)
+   function get_var_attr_real64(this,var_name,attr_name,rc) result(attr_real64)
+      real(REAL32) :: attr_real64
       class(FileMetadataUtils), intent(inout) :: this
       character(len=*), intent(in) :: var_name
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
 
+      real(REAL64) :: tmp(1)
+      integer :: status
+      type(Attribute), pointer :: attr
+      type(Variable), pointer :: var
+      class(*), pointer :: attr_val(:)
+
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      attr => var%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in file")
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(real(kind=REAL64))
+         tmp = attr_val
+         attr_real64 = tmp(1)
+      class default
+         _ASSERT(.false.,'unsupport subclass for units')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_var_attr_real64
+
+   function get_var_attr_int32(this,var_name,attr_name,rc) result(attr_int32)
+      integer(INT32) :: attr_int32
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      integer(INT32) :: tmp(1)
+      integer :: status
+      type(Attribute), pointer :: attr
+      type(Variable), pointer :: var
+      class(*), pointer :: attr_val(:)
+
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      attr => var%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in file")
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(integer(kind=INT32))
+         tmp = attr_val
+         attr_int32 = tmp(1)
+      class default
+         _ASSERT(.false.,'unsupport subclass for units')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_var_attr_int32
+
+   function get_var_attr_int64(this,var_name,attr_name,rc) result(attr_int64)
+      integer(INT64) :: attr_int64
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      integer(INT64) :: tmp(1)
+      integer :: status
+      type(Attribute), pointer :: attr
+      type(Variable), pointer :: var
+      class(*), pointer :: attr_val(:)
+
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      attr => var%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in file")
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(integer(kind=INT64))
+         tmp = attr_val
+         attr_int64 = tmp(1)
+      class default
+         _ASSERT(.false.,'unsupport subclass for units')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_var_attr_int64
+
+   function get_var_attr_string(this,var_name,attr_name,rc) result(attr_string)
       character(len=:), allocatable :: attr_string
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
       integer :: status
       type(Attribute), pointer :: attr
       type(Variable), pointer :: var
