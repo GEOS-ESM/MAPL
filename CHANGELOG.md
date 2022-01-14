@@ -23,9 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Files read by GriddedIOMod now respect the file defined _FillValue rather than assuming it is MAPL_UNDEF
+
 ### Added
 
 ### Changed
+
+- History initialization will display chunksize for any collections that are chunked
 
 ### Removed
 

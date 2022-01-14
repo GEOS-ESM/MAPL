@@ -53,8 +53,6 @@ module MAPL_ESMFFieldBundleRead
          type (StringVector), pointer :: dimensions
          type (StringVectorIterator) :: dim_iter
          integer :: lev_size, grid_size(3)
-         type(Attribute), pointer :: attr
-         class(*), pointer :: attr_val
          character(len=:), allocatable :: units,long_name
          type(ESMF_Info) :: infoh
 
@@ -126,24 +124,10 @@ module MAPL_ESMFFieldBundleRead
                _VERIFY(status)
                call ESMF_InfoSet(infoh,'VLOCATION',location,rc=status)
                _VERIFY(status)
-               attr => this_variable%get_attribute('units')
-               attr_val=>attr%get_value()
-               select type(attr_val)
-               type is (character(*))
-                  units=attr_val
-               class default
-                  _ASSERT(.false.,'unsupport subclass for units')
-               end select
+               units = metadata%get_var_attr_string(var_name,'units',_RC)
+               long_name = metadata%get_var_attr_string(var_name,'long_name',_RC)
                call ESMF_InfoSet(infoh,'UNITS',units,rc=status)
                _VERIFY(status)
-               attr => this_variable%get_attribute('long_name')
-               attr_val=>attr%get_value()
-               select type(attr_val)
-               type is (character(*))
-                  long_name=attr_val
-               class default
-                  _ASSERT(.false.,'unsupport subclass for units')
-               end select
                call ESMF_InfoSet(infoh,'LONG_NAME',long_name,rc=status)
                _VERIFY(status)
                call MAPL_FieldBundleAdd(bundle,field,rc=status)
