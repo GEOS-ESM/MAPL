@@ -430,7 +430,6 @@ contains
          _RETURN(_SUCCESS)
       endif
 
-      call ioserver_profiler%finalize()
       call ioserver_profiler%reduce()
 
       reporter = ProfileReporter(empty)
