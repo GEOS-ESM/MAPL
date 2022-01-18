@@ -4661,13 +4661,8 @@ module NCIOMod
       type(ESMF_TYPEKIND_FLAG) :: tk
       real(KIND=ESMF_KIND_R4), pointer :: ptr_r4_in(:,:,:),ptr_r4_out(:,:,:)
       real(KIND=ESMF_KIND_R8), pointer :: ptr_r8_in(:,:,:),ptr_r8_out(:,:,:)
-<<<<<<< HEAD
-
-
-=======
       type(ESMF_Info) :: infoh
 
->>>>>>> release/MAPL-v3
       call ESMF_FieldGet(field,rank=rank,name=fname,rc=status)
       _VERIFY(status)
       if (rank==3) then
