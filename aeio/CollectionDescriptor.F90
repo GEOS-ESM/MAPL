@@ -78,15 +78,27 @@ contains
       type(Variable) :: v 
       character(len=ESMF_MAXSTR), allocatable :: fieldNames(:)
       real, pointer :: ptr2d(:,:),ptr3d(:,:,:)
+      logical :: have_lev
+      integer :: lev_size
 
       call ESMF_FieldBundleGet(this%bundle,fieldCount=fieldCount,grid=grid,_RC)
       allocate(fieldNames(fieldCount))
       call ESMF_FieldBundleGet(this%bundle,fieldNameList=fieldNames,_RC)
+      have_lev = .false.
+      do i=1,fieldCount
+         call ESMF_ArrayBundleGet(arrays,trim(fieldNames(i)),array=array,_RC)
+         call ESMF_ArrayGet(array,rank=rank,_RC)
+         if (rank==3) then
+           call ESMF_ArrayGet(array,farrayPtr=ptr3d,_RC)
+           have_lev = .true.
+           lev_size = size(ptr3d,3)
+         end if
+      enddo
 
       call MAPL_GridGet(grid,globalCellCountPerDim=gdims,_RC)
       call metadata%add_dimension('Xdim',gdims(1),_RC)
       call metadata%add_dimension('Ydim',gdims(2),_RC)
-      call metadata%add_dimension('lev',gdims(3),_RC)
+      call metadata%add_dimension('lev',lev_size,_RC)
       call metadata%add_dimension('time',1,_RC)
       do i=1,fieldCount
          call ESMF_FieldBundleGet(this%bundle,trim(fieldNames(i)),field=field,_RC)
@@ -112,6 +124,7 @@ contains
            call formatter%put_var(trim(fieldNames(i)),ptr3d,_RC)
          end if
       enddo
+      call formatter%close()
       _RETURN(_SUCCESS)
 
    end subroutine write_bundle_from_array
