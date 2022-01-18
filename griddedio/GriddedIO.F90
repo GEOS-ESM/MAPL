@@ -1012,7 +1012,7 @@ module MAPL_GriddedIOMod
         deallocate(localStart,globalStart,globalCount)
         if (missing_value /= MAPL_UNDEF) then
            call ESMF_InfoGetFromHost(input_fields(i),infoh,_RC)
-           call ESMF_InfoSet(infoh,name=fill_value_label,value=missing_value,_RC)
+           call ESMF_InfoSet(infoh,key=fill_value_label,value=missing_value,_RC)
         end if
      enddo
      deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)
@@ -1085,11 +1085,11 @@ module MAPL_GriddedIOMod
 
      call ESMF_FieldBundleGet(this%input_bundle,fname,field=field,_RC)
      call ESMF_InfoGetFromHost(field,infoh,_RC)
-     has_custom_fill_val = ESMF_InfoIsPresent(infoh,name=fill_value_label,_RC)
+     has_custom_fill_val = ESMF_InfoIsPresent(infoh,key=fill_value_label,_RC)
 
      if (has_custom_fill_val) then
 
-        call ESMF_InfoGet(infoh,name=fill_value_label,value=fill_value,_RC)
+        call ESMF_InfoGet(infoh,key=fill_value_label,value=fill_value,_RC)
         call ESMF_FieldGet(field,rank=fieldRank,_RC)
         _VERIFY(status)
         call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,_RC)
