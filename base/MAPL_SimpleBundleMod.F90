@@ -25,10 +25,12 @@
    use ESMFL_Mod
    use MAPL_BaseMod
    use MAPL_CFIOMod
+   use MAPL_StringTemplate
    use MAPL_MaxMinMod
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    use MAPL_ConstantsMod, only: MAPL_PI
    use MAPL_ExceptionHandling
+   use MAPL_ESMFFieldBundleRead
 
    implicit NONE
    private
@@ -776,14 +778,22 @@ CONTAINS
 
     integer :: status
     type(ESMF_FieldBundle),  pointer :: Bundle
+    character(len=ESMF_MAXSTR) :: untemplated_filename
+    integer :: datetime(2),iyy,imm,idd,ihh,imn,isc
 
     allocate(Bundle, stat=STATUS)
     _VERIFY(STATUS)
 
     Bundle = ESMF_FieldBundleCreate ( name=bundle_name, __RC__ )
     call ESMF_FieldBundleSet ( bundle, grid=Grid, __RC__ )
-    call MAPL_CFIORead  ( filename, Time, Bundle, verbose=verbose, &
-                          ONLY_VARS=only_vars, expid=expid, __RC__ )
+    call ESMF_TimeGet(time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=isc,__RC__)
+    call MAPL_PackDateTime(datetime,iyy,imm,idd,ihh,imn,isc)
+    if (present(expid)) then
+       call fill_grads_template(untemplated_filename,filename,experiment_id=expid,nymd=datetime(1),nhms=datetime(2),__RC__)
+    else
+       call fill_grads_template(untemplated_filename,filename,nymd=datetime(2),nhms=datetime(1),__RC__)
+    end if
+    call MAPL_read_bundle(bundle,untemplated_filename,time,only_vars=only_vars,__RC__)
     self = MAPL_SimpleBundleCreate ( Bundle, __RC__ )
     self%bundleAlloc = .true.
 
