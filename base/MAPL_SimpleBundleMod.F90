@@ -98,6 +98,7 @@
       type(SimpleArray_1D), pointer :: r1(:) => null()
       type(SimpleArray_2D), pointer :: r2(:) => null()
       type(SimpleArray_3D), pointer :: r3(:) => null()
+      logical :: esmf_alloc_fields = .false.
    end type MAPL_SimpleBundle
 
 ! !DESCRIPTION: This module implements the MAPL SimpleBundle class which
@@ -722,16 +723,31 @@ CONTAINS
 !EOP
 !-----------------------------------------------------------------------------
 
-    integer :: status
+    integer :: status,i,fieldCount
+    type(ESMF_Field) :: field
 
     deallocate(self%coords%Lons, self%coords%Lats, self%coords%Levs, __STAT__) 
 !    deallocate(self%r1, self%r2, self%r3, __STAT__)
-    if(associated(self%r1)) deallocate(self%r1)
-    if(associated(self%r2)) deallocate(self%r2)
-    if(associated(self%r3)) deallocate(self%r3)
+    if (.not. self%esmf_alloc_fields) then
+       if(associated(self%r1)) deallocate(self%r1)
+       if(associated(self%r2)) deallocate(self%r2)
+       if(associated(self%r3)) deallocate(self%r3)
+    end if
 
     if (associated(self%bundle)) then
-       call MAPL_FieldBundleDestroy(self%bundle, __RC__)
+       if (self%esmf_alloc_fields) then
+          call ESMF_FieldBundleGet(self%BUNDLE, FieldCount=FIELDCOUNT, RC=STATUS)
+          _VERIFY(STATUS)
+          do I = 1, FIELDCOUNT
+             call ESMF_FieldBundleGet(self%BUNDLE, I, FIELD, RC=STATUS)
+             _VERIFY(STATUS)
+             call ESMF_FieldDestroy(FIELD, RC=status)
+             _VERIFY(STATUS)
+          end do
+       else
+          call MAPL_FieldBundleDestroy(self%bundle,rc=status)
+          _VERIFY(status)
+       end if
     end if
 
     if (self%bundleAlloc) then
@@ -796,6 +812,7 @@ CONTAINS
     call MAPL_read_bundle(bundle,untemplated_filename,time,only_vars=only_vars,__RC__)
     self = MAPL_SimpleBundleCreate ( Bundle, __RC__ )
     self%bundleAlloc = .true.
+    self%esmf_alloc_fields = .true.
 
     _RETURN(_SUCCESS)
 
