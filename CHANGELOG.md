@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Changed MAPL_SimpleBundleRead from using MAPL_CFIORead to the more modern mapl_read_bundle so that the ESMF regridding infrastructure is used
+- Changed MAPL_SimpleBundleRead from using MAPL_CFIORead to the more modern MAPL_read_bundle so that the ESMF regridding infrastructure is used
 
 ## [2.8.0.1] - 2022-01-05
 
