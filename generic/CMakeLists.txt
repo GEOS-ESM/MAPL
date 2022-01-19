@@ -47,11 +47,11 @@ set (srcs
   MAPL_Generic.F90
 
   )
-if (BUILD_WITH_PFLOGGER)
-  find_package(PFLOGGER REQUIRED)
-endif ()
-find_package(GFTL REQUIRED)
-find_package(GFTL_SHARED REQUIRED)
+#if (BUILD_WITH_PFLOGGER)
+#  find_package(PFLOGGER REQUIRED)
+#endif ()
+#find_package(GFTL REQUIRED)
+#find_package(GFTL_SHARED REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}

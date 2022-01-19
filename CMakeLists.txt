@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.17)
+cmake_minimum_required (VERSION 3.14)
 cmake_policy (SET CMP0053 NEW)
 cmake_policy (SET CMP0054 NEW)
 
@@ -74,9 +74,9 @@ if(NOT TARGET GFTL::gftl)
   # MAPL currently requires at least GFTL 1.5.1
   find_package(GFTL 1.5.1 REQUIRED)
 else()
-  if (GFTL_VERSION VERSION_LESS 1.5.1)
-    message(FATAL_ERROR "GFTL must be at least 1.5.1 - check baselibs version.")
-  endif ()
+  #if (GFTL_VERSION VERSION_LESS 1.5.1)
+  #  message(FATAL_ERROR "GFTL must be at least 1.5.1 - check baselibs version.")
+  #endif ()
 endif()
 if(NOT TARGET GFTL_SHARED::gftl-shared)
   find_package(GFTL_SHARED REQUIRED)

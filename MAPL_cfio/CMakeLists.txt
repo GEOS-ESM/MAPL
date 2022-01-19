@@ -47,14 +47,6 @@ esma_add_library (${lib}
   DEPENDENCIES esmf NetCDF::NetCDF_Fortran
   TYPE ${LIBRARY_TYPE}
   )
-target_link_libraries(${lib} PUBLIC Baselibs)
-#---- MAPL original ----
-#esma_add_library (${lib}
-#  SRCS ${srcs}
-#  DEPENDENCIES esmf NetCDF::NetCDF_Fortran
-#  TYPE SHARED
-#  )
-#-----------------------
 
 if (precision MATCHES "r8")
   string (REPLACE " " ";" flags ${FREAL8})
