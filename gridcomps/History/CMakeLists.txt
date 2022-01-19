@@ -6,18 +6,12 @@ set (srcs
      MAPL_HistoryGridComp.F90
     )
 
-# GCHP note: customized
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler)
-target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF})
-target_link_libraries (${this} PUBLIC gftl gftl-shared ${ESMF_LIBRARIES} ${NETCDF_LIBRARIES}
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.generic MAPL.profiler MAPL.griddedio
+                                                    TYPE ${MAPL_LIBRARY_TYPE})
+target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared esmf NetCDF::NetCDF_Fortran
                                PRIVATE MPI::MPI_Fortran)
-#---- MAPL original ----
-#esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler TYPE SHARED)
-#target_link_libraries (${this} PUBLIC gftl gftl-shared esmf NetCDF::NetCDF_Fortran
-#                               PRIVATE MPI::MPI_Fortran)
-#-----------------------
 
-# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()

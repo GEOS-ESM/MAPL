@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 ! A RegridderSpec is used to indicate which subclass of regridder will be used.
 module mapl_RegridderTypeSpec
-   use MAPL_BaseMod, only: MAPL_UNDEF
+   use MAPL_Constants
    use MAPL_KeywordEnforcerMod
    use mapl_RegridMethods
    use ESMF

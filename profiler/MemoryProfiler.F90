@@ -1,3 +1,4 @@
+#include "unused_dummy.H"
 module MAPL_MemoryProfiler_private
    use MAPL_BaseProfiler, only: BaseProfiler
    use MAPL_BaseProfiler, only: MemoryProfilerIterator => BaseProfilerIterator
@@ -45,6 +46,8 @@ contains
    function make_meter(this) result(meter)
       class(AbstractMeter), allocatable :: meter
       class(MemoryProfiler), intent(in) :: this
+
+      _UNUSED_DUMMY(this)
       meter = AdvancedMeter(RssMemoryGauge())
 !!$      meter = AdvancedMeter(VmstatMemoryGauge())
    end function make_meter

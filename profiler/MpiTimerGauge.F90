@@ -15,20 +15,9 @@ module MAPL_MpiTimerGauge
       procedure :: get_measurement
    end type MpiTimerGauge
 
-   interface MpiTimerGauge
-      module procedure :: new_MpiTimerGauge
-   end interface MpiTimerGauge
-
 
 contains
 
-
-   ! Constructor is for convenience - avoids the need of naming a temp
-   ! variable when constructing advanced timers.
-   function new_MpiTimerGauge() result(gauge)
-      type (MpiTimerGauge) :: gauge
-      
-   end function new_MpiTimerGauge
 
    function get_measurement(this) result(measurement)
       real(kind=REAL64) :: measurement

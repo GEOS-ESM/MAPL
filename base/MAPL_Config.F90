@@ -623,7 +623,7 @@ contains
         j = len_trim(buffer)
         write(tmpStr, *) value(i) ! ALT: check if enough space to write
         newVal = adjustl(tmpStr)
-        _ASSERT(j + len_trim(newVal) < LSZ,'not enough space to write')
+        _ASSERT(j + len_trim(newVal) <= LSZ,'not enough space to write')
         write(buffer(j+1:), *) trim(newVal)
      end do
      call MAPL_ConfigSetAttribute(config, value=buffer, label=label, __RC__)
@@ -640,15 +640,25 @@ contains
      integer, intent(out), optional               :: rc   
 ! BOPI -------------------------------------------------------------------
 !
-! !IROUTINE: MAPL_ConfigSetAttribute - Set an array of 4-byte integer numbers
+! !IROUTINE: MAPL_ConfigSetAttribute - Set an array of 4-byte real numbers
 
+     ! This uses existing overload of MAPL_ConfogSetAttribute for vector of
+     ! character strings. This limits the number of reals to about 92
+     
 !
 ! !INTERFACE:
       ! Private name; call using MAPL_ConfigSetAttribute()
 
+     ! The next variable, IWSZ, is used for sizing a buffer for internal write
+     ! The value varies between different compilers
+     ! 15 is big enough for Intel
+     ! 16 is good for NAG and Portland Group
+     ! 18 is needed for gfortran
+     ! Hopefully 32 is large enough to fit-all.
+#define IWSZ 32
      integer,   parameter :: LSZ = max (1024,ESMF_MAXPATHLEN)  ! Maximum line size
      character(len=LSZ) :: buffer
-     character(len=15) :: tmpStr, newVal
+     character(len=IWSZ) :: tmpStr, newVal
      integer :: count, i, j
      integer :: status
 
@@ -658,7 +668,7 @@ contains
         j = len_trim(buffer)
         write(tmpStr, *) value(i) ! ALT: check if enough space to write
         newVal = adjustl(tmpStr)
-        _ASSERT(j + len_trim(newVal) < LSZ,'not enough space to write')
+        _ASSERT(j + len_trim(newVal) <= LSZ,'not enough space to write')
         write(buffer(j+1:), *) trim(newVal)
      end do
      call MAPL_ConfigSetAttribute(config, value=buffer, label=label, __RC__)

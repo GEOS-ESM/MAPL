@@ -25,7 +25,7 @@ void QSswap(long long a[], int b[], int i, int j, int m, int n)
 
      if     (n>0) {
        for(k=0;k< n;k++) {s=b[n*i+k]; b[n*i+k]=b[n*j+k]; b[n*j+k]=s;}
-     } 
+     }
      else if(n<0) {
        for(k=0;k<-n;k++) {s=b[i+m*k]; b[i+m*k]=b[j+m*k]; b[j+m*k]=s;}
      }
@@ -42,7 +42,7 @@ void QuickSort(long long a[], int b[], int l, int r, int m, int n)
 
   if (len<=1) {
     return;
-  } 
+  }
   else if (len==2) {
     if (a[l]>a[r]) QSswap(a,b,l,r,m,n);
     return;
@@ -78,7 +78,7 @@ void QSswapS(int a[], int b[], int i, int j, int m, int n)
 
      if     (n>1) {
        for(k=0;k< n;k++) {s=b[n*i+k]; b[n*i+k]=b[n*j+k]; b[n*j+k]=s;}
-     } 
+     }
      else if(n<-1) {
        for(k=0;k<-n;k++) {s=b[i+m*k]; b[i+m*k]=b[j+m*k]; b[j+m*k]=s;}
      }
@@ -97,7 +97,7 @@ void QuickSortS(int a[], int b[], int l, int r, int m, int n)
 
   if (len<=1) {
     return;
-  } 
+  }
   else if (len==2) {
     if (a[l]>a[r]) QSswapS(a,b,l,r,m,n);
     return;
@@ -114,11 +114,11 @@ void QuickSortS(int a[], int b[], int l, int r, int m, int n)
       while(a[--j]>v && j>l);
       if (j<=i) break;
       if(abs(n)==1) {
-	s=a[i]; a[i]=a[j]; a[j]=s;
-	s=b[i]; b[i]=b[j]; b[j]=s;
+         s=a[i]; a[i]=a[j]; a[j]=s;
+         s=b[i]; b[i]=b[j]; b[j]=s;
       }
       else {
-	QSswapS(a,b,i,j,m,n);
+         QSswapS(a,b,i,j,m,n);
       }
     }
 

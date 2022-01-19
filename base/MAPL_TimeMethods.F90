@@ -2,7 +2,6 @@
 
 module MAPL_TimeDataMod
   use ESMF
-  use MAPL_GenericMod
   use MAPL_BaseMod
   use pFIO
   use MAPL_ExceptionHandling
@@ -68,14 +67,15 @@ contains
   end subroutine get
        
   subroutine setFrequency(this,frequency,rc)
-     class(TimeData) :: this
+     class(TimeData), intent(inout) :: this
      integer, intent(in) :: frequency
      integer, optional, intent(out) :: rc
 
      this%frequency = frequency
 
      _RETURN(_SUCCESS)
-  end subroutine setFrequency
+   end subroutine setFrequency
+       
 
   function define_time_variable(this,rc) result(v)
     class(TimeData), intent(inout) :: this
@@ -126,8 +126,8 @@ contains
        ifreq = this%frequency/86400
     case default
        _ASSERT(.false., 'Not supported yet')
-    end select   
-     call v%add_attribute('time_increment',ifreq)
+    end select
+    call v%add_attribute('time_increment',ifreq)
 
     call this%tvec%clear()
     this%tcount=0

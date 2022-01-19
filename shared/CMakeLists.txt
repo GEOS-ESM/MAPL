@@ -3,17 +3,14 @@ esma_set_this (OVERRIDE MAPL.shared)
 set (srcs
     hash.c
     hinterp.F
-    MAPL_Constants.F90
     MAPL_DirPath.F90
     MAPL_ErrorHandling.F90
     MAPL_Hash.F90
     MAPL_HeapMod.F90
-    MAPL_InterpMod.F90
     MAPL_KeywordEnforcer.F90
     MAPL_LoadBalance.F90
     MAPL_MinMax.F90
     MAPL_Range.F90
-    MAPL_ShmemMod.F90
     MAPL_Sort.F90
     MAPL_Throw.F90
     AbstractCommSplitter.F90
@@ -23,22 +20,24 @@ set (srcs
     sort.c
     MAPL_ExceptionHandling.F90
     String.F90
-    Enumerators.F90
     MaplShared.F90
     TimeUtils.F90
-  )
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES gftl-shared MPI::MPI_Fortran pflogger 
-  # TYPE SHARED           (in GCHP we want STATIC libs)
-)
-target_include_directories (${this} PUBLIC
-          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+    FileSystemUtilities.F90
+    DSO_Utilities.F90
+# Fortran submodules
+    Interp/Interp.F90 Interp/Interp_implementation.F90
+    Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
+    )
 
-#file (COPY MAPL_ErrLogMain.h DESTINATION ${esma_include}/${this})
-#file (COPY MAPL_ErrLog.h DESTINATION ${esma_include}/${this})
-#file (COPY MAPL_Exceptions.h DESTINATION ${esma_include}/${this})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.constants GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
+
+target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+
+target_compile_definitions(${this} PRIVATE SYSTEM_DSO_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 if (PFUNIT_FOUND)
   add_subdirectory (tests)
 endif ()
 
+add_subdirectory(Constants)
 #add_subdirectory(tests EXCLUDE_FROM_ALL)

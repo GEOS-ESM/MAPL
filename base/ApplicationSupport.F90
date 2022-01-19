@@ -5,7 +5,8 @@ module MAPL_ApplicationSupport
  use MAPL_KeywordEnforcerMod
  use pflogger, only: logging
  use pflogger, only: Logger
- use MAPL_Profiler
+ use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
+
  implicit none
  private
 
@@ -31,14 +32,16 @@ module MAPL_ApplicationSupport
          logging_configuration_file=''
       end if
       if (present(comm)) then
-         call MPI_comm_dup(comm,comm_world,status)
-         _VERIFY(status)
+         comm_world = comm
       else
          comm_world=MPI_COMM_WORLD
       end if
+#ifdef BUILD_WITH_PFLOGGER
       call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file,rc=status)
       _VERIFY(status)
-      call start_global_profiler(comm=comm_world,rc=status)
+#endif
+      call initialize_profiler(comm=comm_world)
+      call start_global_time_profiler(rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
 
@@ -54,14 +57,16 @@ module MAPL_ApplicationSupport
       _UNUSED_DUMMY(unusable)
       
       if (present(comm)) then
-         call MPI_comm_dup(comm,comm_world,status)
-         _VERIFY(status)
+         comm_world = comm
       else
          comm_world=MPI_COMM_WORLD
       end if
-      call stop_global_profiler()
+      call stop_global_time_profiler(rc=status)
+      _VERIFY(status)
       call report_global_profiler(comm=comm_world)
+      call finalize_profiler()
       call finalize_pflogger()
+      _RETURN(_SUCCESS)
 
    end subroutine MAPL_Finalize
 
@@ -69,11 +74,13 @@ module MAPL_ApplicationSupport
       call logging%free()
    end subroutine finalize_pflogger
 
+#ifdef BUILD_WITH_PFLOGGER
    subroutine initialize_pflogger(unusable,comm,logging_config,rc)
       use pflogger, only: pfl_initialize => initialize
       use pflogger, only: StreamHandler, FileHandler, HandlerVector
       use pflogger, only: MpiLock, MpiFormatter
       use pflogger, only: INFO, WARNING
+
       use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
 
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -96,8 +103,7 @@ module MAPL_ApplicationSupport
          logging_configuration_file=''
       end if
       if (present(comm)) then
-         call MPI_Comm_dup(comm,comm_world,status)
-         _VERIFY(status)
+         comm_world = comm
       else
          comm_world=MPI_COMM_WORLD
       end if
@@ -138,32 +144,7 @@ module MAPL_ApplicationSupport
       _RETURN(_SUCCESS)
 
    end subroutine initialize_pflogger
-
-   subroutine start_global_profiler(unusable,comm,rc)
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: comm
-      integer, optional, intent(out) :: rc
-      class (BaseProfiler), pointer :: t_p
-      integer :: world_comm,status
-
-      _UNUSED_DUMMY(unusable)
-      if (present(comm)) then
-         call MPI_Comm_dup(comm,world_comm,status)
-         _VERIFY(status)
-      else
-         world_comm=MPI_COMM_WORLD
-      end if
-      t_p => get_global_time_profiler()
-      t_p = TimeProfiler('All', comm_world = world_comm)
-      call t_p%start()
-   end subroutine start_global_profiler
-
-   subroutine stop_global_profiler()
-      class (BaseProfiler), pointer :: t_p
-
-      t_p => get_global_time_profiler()
-      call t_p%stop('All')
-   end subroutine stop_global_profiler
+#endif
 
    subroutine report_global_profiler(unusable,comm,rc)
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -180,8 +161,7 @@ module MAPL_ApplicationSupport
 
       _UNUSED_DUMMY(unusable)
       if (present(comm)) then
-         call MPI_comm_dup(comm,world_comm,ierror)
-         _VERIFY(ierror)
+         world_comm = comm
       else
          world_comm=MPI_COMM_WORLD
       end if

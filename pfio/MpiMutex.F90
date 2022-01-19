@@ -168,6 +168,7 @@ contains
          call c_f_pointer(this%locks_ptr, scratchpad, [this%npes])
          call MPI_Free_mem(scratchpad, ierror)
       end if
+      call Mpi_comm_free(this%comm, ierror)
 
    end subroutine free_mpi_resources
 

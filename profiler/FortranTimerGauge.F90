@@ -23,7 +23,7 @@ contains
 
    function new_FortranTimerGauge() result(gauge)
       type (FortranTimerGauge) :: gauge
-      integer(kind=REAL64) :: count_rate
+      integer(kind=INT64) :: count_rate
 
       call system_clock(count_rate=count_rate)
       gauge%denominator = 1._REAL64/count_rate

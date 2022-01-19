@@ -7,7 +7,6 @@ program ExtData_Driver
   use ESMF
   use ExtData_DriverGridCompMod, only: ExtData_DriverGridComp, new_ExtData_DriverGridComp
   use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
-  use FLAP
   use ExtDataDriverMod
   use MAPL
 
@@ -15,14 +14,16 @@ program ExtData_Driver
 
   integer :: status
   character(len=*), parameter :: Iam="ExtData_Driver"
-  type(ExtDataDriver) :: Driver 
-  type (MAPL_FlapCapOptions) :: cap_options
+  type(ExtDataDriver) :: Driver
+  type (MAPL_CapOptions) :: cap_options
+  type (MAPL_FlapCLI) :: cli
 
-  cap_options=MAPL_FlapCapOptions(description='extdata driver',authors='gmao')
+  cli = MAPL_FlapCLI(description='extdata driver',authors='gmao')
+  cap_options=MAPL_CapOptions(cli)
 
   driver = ExtDataDriver('ExtDataApp',Root_SetServices,cap_options=cap_options,_RC)
   call driver%run(_RC)
 
-  call exit(0)
+  stop
 
 end program ExtData_Driver

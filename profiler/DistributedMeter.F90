@@ -1,5 +1,8 @@
+#include "unused_dummy.H"
+
 module MAPL_DistributedMeter
    use, intrinsic :: iso_fortran_env, only: REAL64
+   use MAPL_AbstractMeter
    use MAPL_AdvancedMeter
    use MAPL_AbstractGauge
    use MPI
@@ -87,11 +90,6 @@ module MAPL_DistributedMeter
    end interface DistributedMeter
 
 
-   logical, save :: initialized = .false.
-
-   integer, save :: mpi_dist_type
-   integer, save :: mpi_reduce_op
-
 contains
 
    function new_DistributedReal64(value, rank) result(distributed_real64)
@@ -128,9 +126,9 @@ contains
 
       integer :: ierror
    
-      if (.not. initialized) then
+      if (.not. dist_initialized) then
          call initialize(ierror)
-         initialized = .true.
+         dist_initialized = .true.
       end if
 
       distributed_meter%AdvancedMeter = AdvancedMeter(gauge)
@@ -143,11 +141,11 @@ contains
       type (DistributedMeter) :: dummy
       logical :: commute
       
-      call dummy%make_mpi_type(dummy%statistics, mpi_dist_type, ierror)
-      call MPI_Type_commit(mpi_dist_type, ierror)
+      call dummy%make_mpi_type(dummy%statistics, type_dist_struct, ierror)
+      call MPI_Type_commit(type_dist_struct, ierror)
 
       commute = .true.
-      call MPI_Op_create(true_reduce, commute, mpi_reduce_op, ierror)
+      call MPI_Op_create(true_reduce, commute, dist_reduce_op, ierror)
 
    end subroutine initialize
 
@@ -276,9 +274,8 @@ contains
 
       integer :: ierror
 
-      integer :: dist_type
       integer :: rank
-      type(DistributedStatistics) :: tmp, tmp2
+      type(DistributedStatistics) :: tmp
 
       call MPI_Comm_rank(comm, rank, ierror)
 
@@ -290,7 +287,7 @@ contains
       this%statistics%num_cycles = DistributedInteger(this%get_num_cycles(), rank)
 
       tmp = this%statistics
-      call MPI_Reduce(tmp, this%statistics, 1, mpi_dist_type, mpi_reduce_op, 0, comm, ierror)
+      call MPI_Reduce(tmp, this%statistics, 1, type_dist_struct, dist_reduce_op, 0, comm, ierror)
 
    end subroutine reduce_mpi
 
@@ -304,6 +301,8 @@ contains
       integer(kind=MPI_ADDRESS_KIND) :: displacements(2)
       integer(kind=MPI_ADDRESS_KIND) :: lb, sz
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(r64)
       call MPI_Type_get_extent_x(MPI_REAL8, lb, sz, ierror)
       displacements = [0_MPI_ADDRESS_KIND, 3*sz]
 
@@ -320,6 +319,8 @@ contains
 
       integer(kind=MPI_ADDRESS_KIND) :: displacements(1)
 
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(int)
       displacements = [0_MPI_ADDRESS_KIND]
       call MPI_Type_create_struct(1, [6], displacements, [MPI_INTEGER], new_type, ierror)
 
@@ -334,8 +335,8 @@ contains
 
       integer(kind=MPI_ADDRESS_KIND) :: displacements(2)
       integer(kind=MPI_ADDRESS_KIND) :: lb, sz, sz2
-      integer :: type_dist_real64, type_dist_integer
 
+      _UNUSED_DUMMY(d)
       call this%make_mpi_type(this%statistics%total, type_dist_real64, ierror)
       call this%make_mpi_type(this%statistics%num_cycles, type_dist_integer, ierror)
 
@@ -356,6 +357,8 @@ contains
 
       integer :: i
 
+      _UNUSED_DUMMY(type)
+      
       do i = 1, len
          inoutvec(i) = invec(i) .reduce. inoutvec(i)
       end do

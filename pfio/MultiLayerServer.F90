@@ -7,7 +7,7 @@ module pFIO_MultiLayerServerMod
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use MAPL_ErrorHandlingMod
    use pFIO_ConstantsMod
    use pFIO_CollectiveStageDataMessageMod
@@ -41,7 +41,7 @@ module pFIO_MultiLayerServerMod
    public :: MultiLayerServer
 
    type,extends (BaseServer) :: MultiLayerServer
-      character(len=:), allocatable :: port_name 
+      character(len=:), allocatable :: port_name
       integer :: nwriters
       integer :: Inter_Comm
 
@@ -65,7 +65,7 @@ contains
       character(*), intent(in) :: pfio_writer
       integer, optional, intent(out) :: rc
       integer :: ierror
- 
+
       call s%init(comm, port_name)
 
       s%Inter_Comm = MPI_COMM_NULL
@@ -74,17 +74,17 @@ contains
 
       call MPI_Comm_spawn( pfio_writer , MPI_ARGV_NULL, s%nwriters, MPI_INFO_NULL, 0, &
                    s%comm, s%Inter_Comm, MPI_ERRCODES_IGNORE, ierror)
-
+      _VERIFY(ierror)
       s%port_name = trim(port_name)
       s%threads = ServerThreadVector()
-
+      _RETURN(_SUCCESS)
    end function new_MultiLayerServer
 
-   subroutine start(this)
+   subroutine start(this, rc)
       class (MultiLayerServer), target, intent(inout) :: this
-
+      integer, optional, intent(out) :: rc
       class (ServerThread), pointer :: thread_ptr => null()
-      integer :: i,client_size
+      integer :: i, client_size, status
       logical, allocatable :: mask(:)
 
       client_size = this%threads%size()
@@ -103,8 +103,8 @@ contains
 
             thread_ptr=>this%threads%at(i)
             !handle the message
-            call thread_ptr%run()
-            !delete the thread object if it terminates 
+            call thread_ptr%run(_RC)
+            !delete the thread object if it terminates
             if(thread_ptr%do_terminate()) then
                mask(i) = .true.
             endif
@@ -117,7 +117,7 @@ contains
       call this%threads%clear()
       call this%terminate_writers()
       deallocate(mask)
-
+      _RETURN(_SUCCESS)
    end subroutine start
 
    subroutine terminate_writers(this)
@@ -125,7 +125,7 @@ contains
       integer :: terminate = -1
       integer :: ierr
       integer :: MPI_STAT(MPI_STATUS_SIZE)
-      ! The root rank sends termination signal to the root of the spawned children which would 
+      ! The root rank sends termination signal to the root of the spawned children which would
       ! send terminate back for synchronization
       ! if no syncrohization, the writer may be still writing while the main testing node is comparing
       if( this%rank == 0 .and. this%nwriters > 1 ) then
@@ -166,7 +166,7 @@ contains
         threadPtr=>this%threads%at(n)
         if( n == 1) then ! only need to check one thread
            iter = threadPtr%request_backlog%begin()
-          ! t0 = mpi_wtime()         
+          ! t0 = mpi_wtime()
            do while (iter /= threadPtr%request_backlog%end())
               msg => iter%get()
               select type (q=>msg)
@@ -224,7 +224,7 @@ contains
               call forData%clear()
            endif
            call MPI_Barrier(this%comm, status)
-        endif ! first thread n==1 
+        endif ! first thread n==1
         call threadPtr%clear_backlog()
         call threadPtr%clear_hist_collections()
         call threadPtr%clear_subarray()
@@ -233,29 +233,29 @@ contains
      !   print*, "this rank",this%rank,"spending ", t1-t0, " seconds writing"
      !endif
      _RETURN(_SUCCESS)
-   contains 
+   contains
 
       subroutine forward_DataToWriter(forwardVec, forwardData, rc)
          type (MessageVector), intent(in) ::      forwardVec
          type (StringAttributeMap), intent(in) :: forwardData
          integer, optional, intent(out) :: rc
-   
+
          integer :: writer_rank, bsize, ksize, k, rank
          integer :: command, ierr, MPI_STAT(MPI_STATUS_SIZE)
          integer, allocatable :: buffer(:)
          integer :: status
          type (MessageVectorIterator) :: iter
-   
-   
+
+
          command = 1
          call serialize_message_vector(forwardVec,buffer)
          bsize = size(buffer)
-   
+
          call MPI_send(command, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, ierr)
          call MPI_recv(writer_rank, 1, MPI_INTEGER, &
                    0, pFIO_s_tag, this%Inter_Comm , &
                    MPI_STAT, ierr)
-         !forward Message 
+         !forward Message
          call MPI_send(bsize,  1,     MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
          call MPI_send(buffer, bsize, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
          !send number of collections
@@ -264,7 +264,7 @@ contains
          call MPI_send(bsize,  1, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
          call MPI_send(buffer, bsize, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
          !2) send the data
-   
+
          _RETURN(_SUCCESS)
       end subroutine forward_dataToWriter
 

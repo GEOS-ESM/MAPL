@@ -7,7 +7,7 @@ module pFIO_MultiGroupServerMod
    use, intrinsic :: iso_c_binding, only: c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use MAPL_Profiler
    use MAPL_ErrorHandlingMod
    use pFIO_ConstantsMod
@@ -59,7 +59,7 @@ module pFIO_MultiGroupServerMod
    end type
 
    type,extends (BaseServer) :: MultiGroupServer
-      character(len=:), allocatable :: port_name 
+      character(len=:), allocatable :: port_name
       integer :: front_Comm
       integer :: back_Comm
       integer :: server_Comm
@@ -70,6 +70,7 @@ module pFIO_MultiGroupServerMod
       integer, allocatable :: back_ranks(:)
       integer, allocatable :: front_ranks(:)
       class(vector_array), allocatable :: buffers(:)
+      type(SimpleCommSplitter) :: splitter
    contains
       procedure :: start
       procedure :: start_back
@@ -78,7 +79,7 @@ module pFIO_MultiGroupServerMod
       procedure :: create_remote_win
       procedure :: put_dataToFile
       procedure :: clean_up
-      procedure :: terminate_back
+      procedure :: terminate_backend_server
    end type MultiGroupServer
 
    interface MultiGroupServer
@@ -87,32 +88,39 @@ module pFIO_MultiGroupServerMod
 
 contains
 
-   function new_MultiGroupServer(server_comm, port_name, nwriter_per_node, rc) result(s)
+   function new_MultiGroupServer(server_comm, port_name, nwriter_per_node, with_profiler, rc) result(s)
       type (MultiGroupServer) :: s
       integer, intent(in) :: server_comm
       character(*), intent(in) :: port_name
       integer, intent (in) :: nwriter_per_node
+      logical, optional, intent(in) :: with_profiler
       integer, optional, intent(out) :: rc
+
       integer :: s_rank, s_size
       integer :: ierror, status, local_rank
-      type (SimpleCommSplitter) :: splitter
       type (SplitCommunicator)   ::  s_comm
       character(len=:), allocatable :: s_name
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type (MpiSocket), target :: dummy_socket
       integer :: nwriter
-      integer, allocatable :: ranks(:)
       integer, allocatable :: node_sizes(:)
 
-      call MPI_Comm_dup(server_comm, s%server_comm, ierror)
+      s%server_comm = server_comm
       call MPI_Comm_size(s%server_comm, s_size , ierror)
+      _VERIFY(ierror)
+      s%splitter = SimpleCommsplitter(s%server_comm)
+      node_sizes = s%splitter%get_node_sizes()
 
-      splitter = SimpleCommsplitter(s%server_comm)
-      node_sizes = splitter%get_node_sizes()
-      call splitter%add_group(npes_per_node = node_sizes(1)-nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
-      call splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
- 
-      s_comm = splitter%split(rc=status); _VERIFY(status)
+      ! if oserver size is smaller than one-node, than it means oserver and model coexist in one node
+      if (s_size < node_sizes(1)) then
+         call s%splitter%add_group(npes = s_size - nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
+         call s%splitter%add_group(npes = nwriter_per_node,          name="o_server_back",  isolate_nodes=.false.)
+      else
+         call s%splitter%add_group(npes_per_node = node_sizes(1)-nwriter_per_node, name="o_server_front", isolate_nodes=.false.)
+         call s%splitter%add_group(npes_per_node = nwriter_per_node,               name="o_server_back",  isolate_nodes=.false.)
+      endif
+
+      s_comm = s%splitter%split(_RC)
 
       nwriter = nwriter_per_node*size(node_sizes)
       s%front_comm = MPI_COMM_NULL
@@ -123,24 +131,30 @@ contains
       allocate(s%back_ranks(nwriter))
       allocate(s%front_ranks(s%nfront))
       call MPI_Comm_rank(s%server_comm, s_rank, ierror)
+      _VERIFY(ierror)
       s_name = s_comm%get_name()
       s%I_am_front_root = .false.
       s%I_am_back_root = .false.
       if (index(s_name, 'o_server_front') /=0) then
          s%front_comm = s_comm%get_subcommunicator()
-         call s%init(s%front_comm, s_name)
+         call s%init(s%front_comm, s_name, with_profiler = with_profiler, _RC)
          s%port_name = trim(port_name)
          call MPI_Comm_rank(s%front_comm, local_rank, ierror)
-         if (s_rank == 0) then 
-           _ASSERT( local_rank == 0, "re-arrange the rank of the server_comm") 
-           s%I_am_front_root = .true.          
+         _VERIFY(ierror)
+         if (s_rank == 0) then
+           _ASSERT( local_rank == 0, "re-arrange the rank of the server_comm")
+           s%I_am_front_root = .true.
            call MPI_recv(s%back_ranks, nwriter, MPI_INTEGER, MPI_ANY_SOURCE, 666, s%server_comm, MPI_STAT,ierror)
+           _VERIFY(ierror)
          endif
          call MPI_Bcast(s%back_ranks, nwriter, MPI_INTEGER, 0, s%front_comm, ierror)
+         _VERIFY(ierror)
 
          call MPI_AllGather(s_rank, 1, MPI_INTEGER, s%front_ranks, 1, MPI_INTEGER, s%front_comm, ierror)
+         _VERIFY(ierror)
          if (local_rank ==0 ) then
             call MPI_Send(s%front_ranks, s_size-nwriter, MPI_INTEGER, s%back_ranks(1), 777, s%server_comm, ierror)
+            _VERIFY(ierror)
          endif
          allocate(s%buffers(s%nwriter))
       endif
@@ -148,81 +162,94 @@ contains
       if (index(s_name, 'o_server_back') /=0) then
          s%back_comm = s_comm%get_subcommunicator()
          call MPI_AllGather(s_rank, 1, MPI_INTEGER, s%back_ranks, 1, MPI_INTEGER, s%back_comm, ierror)
+         _VERIFY(ierror)
          call MPI_Comm_rank(s%back_comm, local_rank, ierror)
+         _VERIFY(ierror)
          if (local_rank ==0 ) then
-            s%I_am_back_root = .true.          
+            s%I_am_back_root = .true.
             call MPI_Send(s%back_ranks, nwriter, MPI_INTEGER, 0, 666, s%server_comm, ierror)
+            _VERIFY(ierror)
          endif
 
          if (s_rank == s%back_ranks(1)) then
-            _ASSERT( local_rank == 0, "re-arrange the rank of the server_comm")           
+            _ASSERT( local_rank == 0, "re-arrange the rank of the server_comm")
             call MPI_recv(s%front_ranks, s%nfront, MPI_INTEGER, MPI_ANY_SOURCE, 777, s%server_comm, MPI_STAT,ierror)
+            _VERIFY(ierror)
          endif
-         
+
          call MPI_Bcast(s%front_ranks, s%nfront, MPI_INTEGER, 0, s%back_comm, ierror)
+         _VERIFY(ierror)
          call s%set_status(1)
          call s%add_connection(dummy_socket)
          allocate(s%buffers(s%nfront))
+         call s%init(s%back_comm, s_name, _RC)
       endif
 
-      if (s_rank == 0) print*, "MultiServer Start: nfront, nback", s%nfront, s%nwriter
-
+      if (s_rank == 0) print*, "MultiServer Start: nfront, nwriter", s%nfront, s%nwriter-1
+      _RETURN(_SUCCESS)
    end function new_MultiGroupServer
 
-   subroutine start(this)
+   subroutine start(this, rc)
       class (MultiGroupServer), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
 
       if ( this%front_comm /= MPI_COMM_NULL) then
-         call start_front()
+         call start_front(_RC)
       endif
 
       if ( this%back_comm /= MPI_COMM_NULL) then
-         call this%start_back()      
+         call this%start_back(_RC)
       endif
-
+      call this%splitter%free_sub_comm()
+      _RETURN(_SUCCESS)
    contains
 
-      subroutine start_front()
+      subroutine start_front(rc)
+         integer, optional, intent(out) :: rc
+
          class (ServerThread), pointer :: thread_ptr => null()
-         integer :: i,client_size
+         integer :: i,client_size, status
          logical, allocatable :: mask(:)
          integer :: terminate = -1
 
          client_size = this%threads%size()
-   
+
          allocate(this%serverthread_done_msgs(client_size))
          this%serverthread_done_msgs(:) = .false.
-   
+
          allocate(mask(client_size))
          mask = .false.
          ! loop untill terminate
          do while (.true.)
-   
+
             do i = 1,client_size
-   
+
                if ( mask(i)) cycle
-   
+
                thread_ptr=>this%threads%at(i)
                !handle the message
-               call thread_ptr%run()
-               !delete the thread object if it terminates 
+               call thread_ptr%run(_RC)
+               !delete the thread object if it terminates
                if(thread_ptr%do_terminate()) then
                   mask(i) = .true.
                endif
             enddo
-   
-            if (all(mask)) exit
-   
-         enddo
-   
-         call this%threads%clear()
-         call this%terminate_back()
 
-         if (associated(ioserver_profiler)) call ioserver_profiler%stop()
-         call this%report_profile()
-  
+            if (all(mask)) exit
+
+         enddo
+
+         call this%threads%clear()
+         call this%terminate_backend_server(_RC)
+
+         if (associated(ioserver_profiler)) then
+            call ioserver_profiler%stop(_RC)
+         endif
+         call this%report_profile(_RC)
+
          deallocate(mask)
-   
+         _RETURN(_SUCCESS)
       end subroutine start_front
 
    end subroutine start
@@ -236,11 +263,11 @@ contains
    subroutine put_DataToFile(this, rc)
      class (MultiGroupServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
-     if (this%front_Comm == MPI_COMM_NULL) then 
+     if (this%front_Comm == MPI_COMM_NULL) then
         _ASSERT(.false. , "hey backend does not call this")
      else
         _RETURN(_SUCCESS)
-     endif  
+     endif
    end subroutine put_DataToFile
 
    subroutine clean_up(this, rc)
@@ -250,10 +277,10 @@ contains
       integer :: num_clients, n
       class (ServerThread),pointer :: thread_ptr
 
-      if (this%front_Comm == MPI_COMM_NULL) then 
+      if (this%front_Comm == MPI_COMM_NULL) then
          _RETURN(_SUCCESS)
       endif
- 
+
       if (associated(ioserver_profiler)) call ioserver_profiler%start("clean up")
 
       num_clients = this%threads%size()
@@ -369,16 +396,16 @@ contains
         ! root asks for idle writer and sends axtra file metadata
         if (this%I_am_front_root) then
            collection_id = collection_ids%at(collection_counter)
+           call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
+           ! here thread_ptr can point to any thread
+           hist_collection => thread_ptr%hist_collections%at(collection_id)
+           call hist_collection%fmd%serialize(buffer)
         endif
 
         call Mpi_Bcast( collection_id, 1, MPI_INTEGER, 0, this%front_comm, ierror)
         if (associated(ioserver_profiler)) call ioserver_profiler%start("collection_"//i_to_string(collection_id))
 
         if (this%I_am_front_root) then
-           call Mpi_Send(collection_id, 1, MPI_INTEGER, this%back_ranks(1), this%back_ranks(1), this%server_comm, ierror)
-           ! here thread_ptr can point to any thread
-           hist_collection => thread_ptr%hist_collections%at(collection_id)
-           call hist_collection%fmd%serialize(buffer)
 
            call Mpi_Recv(back_local_rank, 1, MPI_INTEGER, this%back_ranks(1), &
                 this%front_ranks(1), this%server_comm, MPI_STAT, ierror)
@@ -410,324 +437,410 @@ contains
    subroutine start_back(this, rc)
      class (MultiGroupServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
-     integer :: ierr
-
-     integer :: MPI_STAT(MPI_STATUS_SIZE)
-     integer :: i, j, idle, no_job, idle_worker
-     integer :: collection_id 
-     integer, allocatable :: busy(:)
-     integer :: msg_size, back_local_rank
-     
-     type (MessageVectorIterator) :: iter
-     class (AbstractMessage), pointer :: msg
-     class (ServerThread),pointer :: thread_ptr
      integer, parameter :: stag = 6782
-     integer, allocatable :: buffer_fmd(:)
 
-     integer, pointer :: g_1d(:), l_1d(:), g_2d(:,:), l_2d(:,:), g_3d(:,:,:), l_3d(:,:,:)
-     integer, pointer :: g_4d(:,:,:,:), l_4d(:,:,:,:), g_5d(:,:,:,:,:), l_5d(:,:,:,:,:)
-     integer :: msize_word, d_rank, request_id
-     integer :: s0, e0, s1, e1, s2, e2, s3, e3, s4, e4, s5, e5
-     type (StringAttributeMap) :: vars_map
-     type (StringAttributeMapIterator) :: var_iter
-     type (IntegerMessageMap) :: msg_map
-     type (IntegerMessageMapIterator) :: msg_iter
+     integer :: status
 
-     class (*), pointer :: x_ptr(:) 
-     integer , allocatable :: buffer_v(:)
-     type (Attribute), pointer :: attr_ptr
-     type (c_ptr) :: address
-     type (ForwardDataAndMessage), target :: f_d_m
-     type (FileMetaData) :: fmd
-
-
-     call MPI_Comm_rank(this%back_comm, back_local_rank, ierr)
-     thread_ptr => this%threads%at(1)
-
-     allocate(busy(this%nwriter-1), source =0)
-    
      allocate(this%serverthread_done_msgs(1))
      this%serverthread_done_msgs(:) = .false.
- 
-     if ( this%I_am_back_root ) then ! captain node is distributing work
-        do while (.true.)
-           ! 1) captain node of back_comm is waiting command from front_comm
-           call MPI_recv( collection_id, 1, MPI_INTEGER, &
-                this%front_ranks(1), this%back_ranks(1), this%server_comm, &
-                MPI_STAT, ierr)
-           if (collection_id >= 1) then ! front_comm is asking for a writing node 
-  
-               ! check idle woker
-               idle_worker = 0
-               do i = 1, this%nwriter -1
-                  if (busy(i) == 0) then
-                     idle_worker = i
-                     exit
-                  endif
-               enddo
 
-               ! if all workers are busy, wait for one
-               if (idle_worker == 0) then 
-                  call MPI_recv( idle_worker, 1, MPI_INTEGER, &
-                      MPI_ANY_SOURCE, stag, this%back_comm, &
-                      MPI_STAT, ierr)
-               endif
+     if ( this%I_am_back_root ) then
+        call start_back_captain(_RC)
+     else
+        call start_back_writers(_RC)
+     endif
 
-               ! tell front comm which idel_worker is ready
-               call MPI_send(idle_worker, 1, MPI_INTEGER, this%front_ranks(1), &
-                             this%front_ranks(1), this%server_comm, ierr)
-               busy(idle_worker) = 1
-               ! forward the collection_id to the idle_worker 
-               call MPI_send(collection_id, 1, MPI_INTEGER, idle_worker, idle_worker,this%back_comm, ierr)
+     _RETURN(_SUCCESS)
 
-            else ! command /=1, notify the worker to quit and finalize
+   contains
 
-               no_job = -1
-               do i = 1, this%nwriter -1
-                  if ( busy(i) == 0) then
-                     call MPI_send(no_job, 1, MPI_INTEGER, i, i, this%back_comm, ierr)
-                  else
-                     call MPI_recv( idle, 1, MPI_INTEGER, &
-                          i, stag, this%back_comm, &
-                          MPI_STAT, ierr)
-                     if (idle /= i ) stop ("idle should be i")
-                     call MPI_send(no_job, 1, MPI_INTEGER, i, i, this%back_comm, ierr)
-                  endif  
-               enddo  
-               exit
-            endif
-         enddo
-      else ! not root but writers 
-        do while (.true.)
-           
-           ! 1) get collection id from captain
-           call MPI_recv( collection_id, 1, MPI_INTEGER, &
-                  0, back_local_rank, this%back_comm, &
-                  MPI_STAT, ierr)
-           if (collection_id == -1 ) exit
+     subroutine start_back_captain(rc)
+       integer, optional, intent(out) :: rc
+       logical :: flag
+       integer :: collection_id
+       integer :: nwriter_per_node
+       integer, allocatable :: idleRank(:,:)   ! idle processors
+       integer, allocatable :: num_idlePEs(:) ! how many idle processors in each node of backend server
+       integer :: i, no_job, local_rank, node_rank, nth_writer
+       integer :: terminate, idle_writer, ierr
+       integer :: MPI_STAT(MPI_STATUS_SIZE)
+
+       nwriter_per_node = this%nwriter/this%Node_Num
+       allocate(num_idlePEs(0:this%Node_Num-1))
+       allocate(idleRank(0:this%Node_Num-1, 0:nwriter_per_node-1), source=-1)
+
+        ! all local ranks are idle at the beginning
+       do local_rank = 1, this%nwriter-1
+          node_rank = this%node_ranks(local_rank)
+          nth_writer = mod(local_rank, nwriter_per_node)
+          idleRank(node_rank, nth_writer) = local_rank
+       enddo
+
+       num_idlePEs = count(idleRank /=-1, dim = 2)
+
+       do while (.true.)
+         ! 1) captain node of back_comm is waiting command from front_comm
+         call MPI_recv( collection_id, 1, MPI_INTEGER, &
+              this%front_ranks(1), this%back_ranks(1), this%server_comm, &
+              MPI_STAT, ierr)
+         if (collection_id == -1) exit
+         ! 2) get an idle processor and notify front root
+         call dispatch_work(collection_id, idleRank, num_idlePEs, rc=status)
+         _VERIFY(status)
+       enddo ! while .true.
+
+       ! terminate writers ( or soldiers) first
+       call terminate_back_writers(idleRank, rc=status)
+       _VERIFY(status)
+       ! at the end , send done message to root of oserver
+       ! this serves the syncronization with oserver
+       terminate = -1
+       call MPI_send(terminate, 1, MPI_INTEGER, 0, 0, this%server_comm, ierr)
+       deallocate(num_idlePEs, idleRank)
+       _RETURN(_SUCCESS)
+     end subroutine start_back_captain
+
+     subroutine dispatch_work(collection_id, idleRank, num_idlePEs, rc)
+       integer, intent(in) :: collection_id
+       integer, intent(inout) :: idleRank(0:,0:)
+       integer, intent(inout) :: num_idlePEs(0:)
+       integer, optional, intent(out) :: rc
+
+       integer :: MPI_STAT(MPI_STATUS_SIZE)
+       integer :: local_rank, idle_writer, nth_writer, node_rank
+       integer :: i, ierr, nwriter_per_node
+       logical :: flag
+
+       ! 2.1)  try to retrieve idle writers
+       !       keep looping (waiting) until there are idle processors
+       nwriter_per_node = size(idleRank,2)
+       do while (.true.)
+          ! non block probe writers
+          do local_rank = 1, this%nwriter-1
+             flag = .false.
+             call MPI_Iprobe( local_rank, stag, this%back_comm, flag, MPI_STAT, ierr)
+             if (flag) then
+               call MPI_recv(idle_writer, 1, MPI_INTEGER, &
+                             local_rank, stag, this%back_comm, &
+                             MPI_STAT, ierr)
+               _ASSERT(local_rank == idle_writer, "local_rank and idle_writer should match")
+               node_rank = this%node_ranks(local_rank)
+               num_idlePEs(node_rank) = num_idlePEs(node_rank) + 1
+               nth_writer = mod(local_rank, nwriter_per_node)
+               idleRank(node_rank, nth_writer) = local_rank
+             endif
+          enddo
+          ! if there is no idle processor, get back to probe
+          if (all(num_idlePEs == 0)) cycle
+
+          ! get the node with the most idle processors
+          node_rank = maxloc(num_idlePEs, dim=1) - 1
+          do i = 0, nwriter_per_node -1
+            if (idleRank(node_rank,i) == -1) cycle
+            idle_writer = idleRank(node_rank,i)
+            idleRank(node_rank,i) = -1 ! set to -1 when it becomes busy
+            num_idlePEs(node_rank) = num_idlePEs(node_rank)-1
+            exit
+          enddo
+          _ASSERT(1<= idle_writer .and. idle_writer <= this%nwriter-1, "wrong local rank of writer")
+          exit ! exit while loop after get one idle processor
+       enddo ! while,  get one idle writer
+
+       ! 2.2) tell front comm which idel_worker is ready
+       call MPI_send(idle_writer, 1, MPI_INTEGER, this%front_ranks(1), &
+                     this%front_ranks(1), this%server_comm, ierr)
+
+       ! 2.3) forward the collection_id to the idle_writer
+       call MPI_send(collection_id, 1, MPI_INTEGER, idle_writer, idle_writer,this%back_comm, ierr)
+       _RETURN(_SUCCESS)
+     end subroutine dispatch_work
+
+     subroutine terminate_back_writers(idleRank, rc)
+       integer, intent(in) :: idleRank(0:,0:)
+       integer, optional, intent(out) :: rc
+       integer :: MPI_STAT(MPI_STATUS_SIZE)
+       integer :: node_rank, local_rank, nth_writer
+       integer :: ierr, no_job, nwriter_per_node, idle_writer
+
+       no_job = -1
+       nwriter_per_node = size(idleRank, 2)
+       do local_rank = 1, this%nwriter -1
+          node_rank = this%node_ranks(local_rank)
+          nth_writer = mod(local_rank, nwriter_per_node)
+
+          if (idleRank(node_rank, nth_writer) >=1) then
+             ! send no_job directly to terminate
+             call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
+          else
+             ! For busy worker, wait to receive idle_writer and the send no_job
+             call MPI_recv( idle_writer, 1, MPI_INTEGER, &
+                            local_rank, stag, this%back_comm, &
+                            MPI_STAT, ierr)
+             _ASSERT(local_rank == idle_writer, "local_rank and idle_writer should match")
+             call MPI_send(no_job, 1, MPI_INTEGER, local_rank, local_rank, this%back_comm, ierr)
+          endif
+       enddo
+       _RETURN(_SUCCESS)
+     end subroutine terminate_back_writers
+
+     subroutine start_back_writers(rc)
+       integer, optional, intent(out) :: rc
+       integer :: collection_id
+       integer :: i, j
+       integer :: msg_size, back_local_rank, status
+
+       integer :: MPI_STAT(MPI_STATUS_SIZE), ierr
+       type (MessageVectorIterator) :: iter
+       class (AbstractMessage), pointer :: msg
+       class(ServerThread), pointer :: thread_ptr
+       integer, allocatable :: buffer_fmd(:)
+
+       integer, pointer :: g_1d(:), l_1d(:), g_2d(:,:), l_2d(:,:), g_3d(:,:,:), l_3d(:,:,:)
+       integer, pointer :: g_4d(:,:,:,:), l_4d(:,:,:,:), g_5d(:,:,:,:,:), l_5d(:,:,:,:,:)
+       integer :: msize_word, d_rank, request_id
+       integer :: s0, e0, s1, e1, s2, e2, s3, e3, s4, e4, s5, e5
+       type (StringAttributeMap) :: vars_map
+       type (StringAttributeMapIterator) :: var_iter
+       type (IntegerMessageMap) :: msg_map
+       type (IntegerMessageMapIterator) :: msg_iter
+
+       class (*), pointer :: x_ptr(:)
+       integer , allocatable :: buffer_v(:)
+       type (Attribute), pointer :: attr_ptr
+       type (c_ptr) :: address
+       type (ForwardDataAndMessage), target :: f_d_m
+       type (FileMetaData) :: fmd
+
+       back_local_rank = this%rank
+       thread_ptr => this%threads%at(1)
+       do while (.true.)
+
+         ! 1) get collection id from captain
+         call MPI_recv( collection_id, 1, MPI_INTEGER, &
+               0, back_local_rank, this%back_comm, &
+               MPI_STAT, ierr)
+         if (collection_id == -1 ) exit ! exit when get terminate signal
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! sync with create_remote_win from front_com
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-           do i = 1, this%nfront
-              ! receive extra metadata from front root
-              if (i == 1) then
-                 call MPI_recv( msg_size, 1, MPI_INTEGER,    &
-                      this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, &
-                      MPI_STAT, ierr)
-                 allocate(buffer_fmd(msg_size))
-                 call MPI_recv( buffer_fmd(1), msg_size, MPI_INTEGER, &
+         do i = 1, this%nfront
+            ! receive extra metadata from front root
+            if (i == 1) then
+               call MPI_recv( msg_size, 1, MPI_INTEGER,    &
+                    this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, &
+                    MPI_STAT, ierr)
+               allocate(buffer_fmd(msg_size))
+               call MPI_recv( buffer_fmd(1), msg_size, MPI_INTEGER, &
                    this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, &
                    MPI_STAT, ierr)
-              endif
+            endif
 
-              call MPI_recv( msg_size, 1, MPI_INTEGER,    &
+            call MPI_recv( msg_size, 1, MPI_INTEGER,    &
                    this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, &
                    MPI_STAT, ierr)
-              if (allocated(this%buffers(i)%buffer)) deallocate (this%buffers(i)%buffer) 
+            if (allocated(this%buffers(i)%buffer)) deallocate (this%buffers(i)%buffer)
               allocate(this%buffers(i)%buffer(msg_size))
               call MPI_Irecv( this%buffers(i)%buffer(1), msg_size, MPI_INTEGER, &
                    this%front_ranks(i), this%back_ranks(back_local_rank+1), this%server_comm, this%buffers(i)%request, &
                    ierr)
-           enddo
+         enddo ! nfront
 
-           ! re-org data
-           vars_map = StringAttributeMap()
-           msg_map  = IntegerMessageMap()
+         ! re-org data
+         vars_map = StringAttributeMap()
+         msg_map  = IntegerMessageMap()
 
-           do i = 1, this%nfront
-              s0 = 1
-              f_d_m = ForwardDataAndMessage()
-              call MPI_Wait(this%buffers(i)%request, MPI_STAT, ierr)
-              call f_d_m%deserialize(this%buffers(i)%buffer)
-              deallocate(this%buffers(i)%buffer)
-              if (size(f_d_m%idata) ==0) cycle
-              iter = f_d_m%msg_vec%begin()
-              do j = 1, f_d_m%msg_vec%size()
-                 msg => f_d_m%msg_vec%at(j)
-                 select type (q=>msg)
-                 type is (CollectiveStageDataMessage)
-                    var_iter = vars_map%find(i_to_string(q%request_id))
-                    if (var_iter == vars_map%end()) then
-                       msize_word = word_size(q%type_kind)*product(q%global_count)
-                       allocate(buffer_v(msize_word), source = -1)
-                       call vars_map%insert(i_to_string(q%request_id), Attribute(buffer_v))
-                       var_iter = vars_map%find(i_to_string(q%request_id))
-                       deallocate(buffer_v)
-                       call msg_map%insert(q%request_id, q)
-                    endif
-                    attr_ptr => var_iter%value()
-                    x_ptr => attr_ptr%get_values()
-                    select type (ptr=>x_ptr)
-                    type is (integer(INT32))
-                       address = c_loc(ptr(1))
-                    end select
-                    d_rank = size(q%global_count)
-                    ! first dimension increases
-                    q%global_count(1) = word_size(q%type_kind)*q%global_count(1)
-                    q%count(1) = word_size(q%type_kind)*q%count(1)
-                    q%start(1) = word_size(q%type_kind)*(q%start(1)-1)+1
-                    select case (d_rank)
-                    case (0)
-                       _ASSERT(.false., "scalar ?? ")
-                    case (1)
-                       call c_f_pointer(address, g_1d, shape=q%global_count)
-                       msize_word = product(q%count)
-                       e0 = s0 + msize_word - 1
-                       l_1d(1:q%count(1))=> f_d_m%idata(s0:e0)
-                       s1 = q%start(1)
-                       e1 = s1 + q%count(1) - 1 
-                       g_1d(s1:e1) = l_1d(:)
-                       s0 = e0 + 1
-                    case (2)
-                       call c_f_pointer(address, g_2d, shape=q%global_count)
-                       msize_word = product(q%count)
-                       e0 = s0 + msize_word - 1
-                       l_2d(1:q%count(1),1:q%count(2))=> f_d_m%idata(s0:e0)
-                       s1 = q%start(1)
-                       e1 = s1 + q%count(1) - 1
- 
-                       s2 = q%start(2)
-                       e2 = s2 + q%count(2) - 1 
+         do i = 1, this%nfront
+            s0 = 1
+            f_d_m = ForwardDataAndMessage()
+            call MPI_Wait(this%buffers(i)%request, MPI_STAT, ierr)
+            call f_d_m%deserialize(this%buffers(i)%buffer)
+            deallocate(this%buffers(i)%buffer)
+            if (size(f_d_m%idata) ==0) cycle
+            iter = f_d_m%msg_vec%begin()
+            do j = 1, f_d_m%msg_vec%size()
+               msg => f_d_m%msg_vec%at(j)
+               select type (q=>msg)
+               type is (CollectiveStageDataMessage)
+                  var_iter = vars_map%find(i_to_string(q%request_id))
+                  if (var_iter == vars_map%end()) then
+                     msize_word = word_size(q%type_kind)*product(q%global_count)
+                     allocate(buffer_v(msize_word), source = -1)
+                     call vars_map%insert(i_to_string(q%request_id), Attribute(buffer_v))
+                     var_iter = vars_map%find(i_to_string(q%request_id))
+                     deallocate(buffer_v)
+                     call msg_map%insert(q%request_id, q)
+                  endif
+                  attr_ptr => var_iter%value()
+                  x_ptr => attr_ptr%get_values()
+                  select type (ptr=>x_ptr)
+                  type is (integer(INT32))
+                     address = c_loc(ptr(1))
+                  end select
+                  d_rank = size(q%global_count)
+                  ! first dimension increases
+                  q%global_count(1) = word_size(q%type_kind)*q%global_count(1)
+                  q%count(1) = word_size(q%type_kind)*q%count(1)
+                  q%start(1) = word_size(q%type_kind)*(q%start(1)-1)+1
+                  select case (d_rank)
+                  case (0)
+                     _ASSERT(.false., "scalar ?? ")
+                  case (1)
+                     call c_f_pointer(address, g_1d, shape=q%global_count)
+                     msize_word = product(q%count)
+                     e0 = s0 + msize_word - 1
+                     l_1d(1:q%count(1))=> f_d_m%idata(s0:e0)
+                     s1 = q%start(1)
+                     e1 = s1 + q%count(1) - 1
+                     g_1d(s1:e1) = l_1d(:)
+                     s0 = e0 + 1
+                  case (2)
+                     call c_f_pointer(address, g_2d, shape=q%global_count)
+                     msize_word = product(q%count)
+                     e0 = s0 + msize_word - 1
+                     l_2d(1:q%count(1),1:q%count(2))=> f_d_m%idata(s0:e0)
+                     s1 = q%start(1)
+                     e1 = s1 + q%count(1) - 1
 
-                       g_2d(s1:e1,s2:e2) = l_2d(:,:)
+                     s2 = q%start(2)
+                     e2 = s2 + q%count(2) - 1
 
-                       s0 = e0 + 1
+                     g_2d(s1:e1,s2:e2) = l_2d(:,:)
 
-                    case (3)
-                       call c_f_pointer(address, g_3d, shape=q%global_count)
-                       msize_word = product(q%count)
-                       e0 = s0 + msize_word - 1
-                       l_3d(1:q%count(1),1:q%count(2),1:q%count(3))=> f_d_m%idata(s0:e0)
-                       s1 = q%start(1)
-                       e1 = s1 + q%count(1) - 1
- 
-                       s2 = q%start(2)
-                       e2 = s2 + q%count(2) - 1 
+                     s0 = e0 + 1
 
-                       s3 = q%start(3)
-                       e3 = s3 + q%count(3) - 1 
+                  case (3)
+                     call c_f_pointer(address, g_3d, shape=q%global_count)
+                     msize_word = product(q%count)
+                     e0 = s0 + msize_word - 1
+                     l_3d(1:q%count(1),1:q%count(2),1:q%count(3))=> f_d_m%idata(s0:e0)
+                     s1 = q%start(1)
+                     e1 = s1 + q%count(1) - 1
 
-                       g_3d(s1:e1,s2:e2,s3:e3) = l_3d(:,:,:)
+                     s2 = q%start(2)
+                     e2 = s2 + q%count(2) - 1
 
-                       s0 = e0 + 1
-                    case (4)
-                       call c_f_pointer(address, g_4d, shape=q%global_count)
-                       msize_word = product(q%count)
-                       e0 = s0 + msize_word - 1
-                       l_4d(1:q%count(1),1:q%count(2),1:q%count(3),1:q%count(4))=> f_d_m%idata(s0:e0)
-                       s1 = q%start(1)
-                       e1 = s1 + q%count(1) - 1
- 
-                       s2 = q%start(2)
-                       e2 = s2 + q%count(2) - 1 
+                     s3 = q%start(3)
+                     e3 = s3 + q%count(3) - 1
 
-                       s3 = q%start(3)
-                       e3 = s3 + q%count(3) - 1 
+                     g_3d(s1:e1,s2:e2,s3:e3) = l_3d(:,:,:)
 
-                       s4 = q%start(4)
-                       e4 = s4 + q%count(4) - 1 
+                     s0 = e0 + 1
+                  case (4)
+                     call c_f_pointer(address, g_4d, shape=q%global_count)
+                     msize_word = product(q%count)
+                     e0 = s0 + msize_word - 1
+                     l_4d(1:q%count(1),1:q%count(2),1:q%count(3),1:q%count(4))=> f_d_m%idata(s0:e0)
+                     s1 = q%start(1)
+                     e1 = s1 + q%count(1) - 1
 
-                       g_4d(s1:e1,s2:e2,s3:e3,s4:e4) = l_4d(:,:,:,:)
+                     s2 = q%start(2)
+                     e2 = s2 + q%count(2) - 1
 
-                       s0 = e0 + 1
-                    case (5)
-                       call c_f_pointer(address, g_5d, shape=q%global_count)
-                       msize_word = product(q%count)
-                       e0 = s0 + msize_word - 1
-                       l_5d(1:q%count(1),1:q%count(2),1:q%count(3),1:q%count(4), 1:q%count(5))=> f_d_m%idata(s0:e0)
-                       s1 = q%start(1)
-                       e1 = s1 + q%count(1) - 1
- 
-                       s2 = q%start(2)
-                       e2 = s2 + q%count(2) - 1 
+                     s3 = q%start(3)
+                     e3 = s3 + q%count(3) - 1
 
-                       s3 = q%start(3)
-                       e3 = s3 + q%count(3) - 1 
+                     s4 = q%start(4)
+                     e4 = s4 + q%count(4) - 1
 
-                       s4 = q%start(4)
-                       e4 = s4 + q%count(4) - 1 
+                     g_4d(s1:e1,s2:e2,s3:e3,s4:e4) = l_4d(:,:,:,:)
 
-                       s5 = q%start(5)
-                       e5 = s5 + q%count(5) - 1 
-                       g_5d(s1:e1,s2:e2,s3:e3,s4:e4,s5:e5) = l_5d(:,:,:,:,:)
+                     s0 = e0 + 1
+                  case (5)
+                     call c_f_pointer(address, g_5d, shape=q%global_count)
+                     msize_word = product(q%count)
+                     e0 = s0 + msize_word - 1
+                     l_5d(1:q%count(1),1:q%count(2),1:q%count(3),1:q%count(4), 1:q%count(5))=> f_d_m%idata(s0:e0)
+                     s1 = q%start(1)
+                     e1 = s1 + q%count(1) - 1
 
-                       s0 = e0 + 1
-                    end select
-                    ! return to its orignal value
-                    q%global_count(1) = q%global_count(1)/word_size(q%type_kind)
-                    q%count(1) = q%count(1)/word_size(q%type_kind)
-                    q%start(1) = (q%start(1)-1)/word_size(q%type_kind)+1
-                 end select
-               end do
-               if(allocated(f_d_m%idata))deallocate(f_d_m%idata)
-           enddo
+                     s2 = q%start(2)
+                     e2 = s2 + q%count(2) - 1
 
-           call FileMetadata_deserialize(buffer_fmd, fmd)
+                     s3 = q%start(3)
+                     e3 = s3 + q%count(3) - 1
 
-           thread_ptr => this%threads%at(1) ! backend only has one thread
-           call thread_ptr%hist_collections%push_back(HistoryCollection(fmd))
+                     s4 = q%start(4)
+                     e4 = s4 + q%count(4) - 1
 
-           msg_iter = msg_map%begin()
-           do while (msg_iter /= msg_map%end())
-              request_id = msg_iter%key()
-              msg =>msg_iter%value()
+                     s5 = q%start(5)
+                     e5 = s5 + q%count(5) - 1
+                     g_5d(s1:e1,s2:e2,s3:e3,s4:e4,s5:e5) = l_5d(:,:,:,:,:)
 
-              var_iter = vars_map%find(i_to_string(request_id))
-              attr_ptr =>var_iter%value()
-              x_ptr => attr_ptr%get_values()
-              select type (ptr=>x_ptr)
-              type is (integer(INT32))
-                   address = c_loc(ptr(1))
-              end select
-              select type (q=>msg)
-              class is (AbstractDataMessage) 
-                 call thread_ptr%put_dataToFile(q, address) 
-              end select
-              call msg_iter%next()
-           enddo
-           call thread_ptr%clear_hist_collections()
-           call thread_ptr%hist_collections%clear()
-           deallocate (buffer_fmd) 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! telling captain, I am the soldier that is ready to have more work
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                     s0 = e0 + 1
+                  end select
+                  ! return to its orignal value
+                  q%global_count(1) = q%global_count(1)/word_size(q%type_kind)
+                  q%count(1) = q%count(1)/word_size(q%type_kind)
+                  q%start(1) = (q%start(1)-1)/word_size(q%type_kind)+1
+               end select
+             end do ! message vec size
+             if(allocated(f_d_m%idata))deallocate(f_d_m%idata)
+         enddo ! nfront
 
-           call MPI_send(back_local_rank, 1, MPI_INTEGER, 0, stag, this%back_comm , ierr)
+         call FileMetadata_deserialize(buffer_fmd, fmd)
 
+         call thread_ptr%hist_collections%push_back(HistoryCollection(fmd))
+
+         msg_iter = msg_map%begin()
+         do while (msg_iter /= msg_map%end())
+            request_id = msg_iter%key()
+            msg =>msg_iter%value()
+
+            var_iter = vars_map%find(i_to_string(request_id))
+            attr_ptr =>var_iter%value()
+            x_ptr => attr_ptr%get_values()
+            select type (ptr=>x_ptr)
+            type is (integer(INT32))
+                 address = c_loc(ptr(1))
+            end select
+            select type (q=>msg)
+            class is (AbstractDataMessage)
+               call thread_ptr%put_dataToFile(q, address, _RC)
+            end select
+            call msg_iter%next()
          enddo
-         
-      endif
+         call thread_ptr%clear_hist_collections()
+         call thread_ptr%hist_collections%clear()
+         deallocate (buffer_fmd)
 
-      if (this%I_am_back_root) then
-         ! send done message to server
-         ! this serves the syncronization with oserver
-         collection_id = -1
-         call MPI_send(collection_id, 1, MPI_INTEGER, 0, 0, this%server_comm, ierr)
-      endif
+         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         ! telling captain it is idle by sending its own rank
+         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         call MPI_send(back_local_rank, 1, MPI_INTEGER, 0, stag, this%back_comm , ierr)
+       enddo
+       _RETURN(_SUCCESS)
+     end subroutine start_back_writers
 
    end subroutine start_back
 
-   subroutine terminate_back(this)
+   subroutine terminate_backend_server(this, rc)
       class (MultiGroupServer), intent(inout) :: this
-      integer :: terminate = -1
+      integer, optional, intent(out) :: rc
+      integer :: terminate
       integer :: ierr, i
       integer :: MPI_STAT(MPI_STATUS_SIZE)
-      
+
+      terminate = -1
       ! starting from 2, no backend root
       do i = 2, this%nwriter
-        if (allocated(this%buffers(i)%buffer)) call MPI_Wait(this%buffers(i)%request, MPI_STAT, ierr)
+        if (allocated(this%buffers(i)%buffer)) then
+           call MPI_Wait(this%buffers(i)%request, MPI_STAT, ierr)
+           _VERIFY(ierr)
+        endif
       enddo
 
-      ! The front root rank sends termination signal to the back root 
+      ! The front root rank sends termination signal to the back root
       ! The back root send terminate back for synchronization
       if (this%I_am_front_root) then
          call MPI_send(terminate, 1, MPI_INTEGER, this%back_ranks(1), &
               this%back_ranks(1),  this%server_comm, ierr)
+         _VERIFY(ierr)
          call MPI_recv(terminate, 1, MPI_INTEGER, this%back_ranks(1), &
               this%front_ranks(1), this%server_comm, MPI_STAT, ierr)
+         _VERIFY(ierr)
       endif
-
-   end subroutine terminate_back
+      _RETURN(_SUCCESS)
+   end subroutine terminate_backend_server
 
 end module pFIO_MultiGroupServerMod
