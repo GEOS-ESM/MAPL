@@ -571,45 +571,59 @@ contains
       character(:), allocatable :: coll_name
       integer :: model_comm,front_comm
       type(Collection) :: hist_coll
-      logical :: is_time_to_write
       integer :: collection_id
       character(len=1) :: ic
+      logical, allocatable :: writing(:)
 
       model_comm = this%mpi_connection%get_model_comm()
       front_comm = this%mpi_connection%get_front_comm() 
 
       if (model_comm /= MPI_COMM_NULL .or. front_comm /= MPI_COMM_NULL) then
 
-         call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)!,throttle=1)
-
+         allocate(writing(this%enabled%size()))
          enabled_iter = this%enabled%begin()
          collection_id=0
          do while(enabled_iter /= this%enabled%end())
             collection_id=collection_id+1
-            write(ic,"(I1)")collection_id
             coll_name=enabled_iter%get()
             server_ptr => this%servers%at(coll_name)
-            client_ptr => this%clients%at(coll_name)
             hist_coll = server_ptr%get_collection()
-            is_time_to_write = hist_coll%is_time_to_write(_RC)
-            if (this%mpi_connection%am_i_front_root() .and. is_time_to_write) write(*,*)"writing coll: ",trim(coll_name)
-            if (is_time_to_write) then
-               if (model_comm /= MPI_COMM_NULL) then
-                  call io_prof%start('data_to_server_'//ic)
-                  call client_ptr%transfer_data_to_server(_RC)
-                  call io_prof%stop('data_to_server_'//ic)
-               end if
-               if (front_comm /= MPI_COMM_NULL) then
-                  call io_prof%start('data_from_client_'//ic)
-                  call server_ptr%get_data_from_client(_RC)
-                  call io_prof%stop('data_from_client_'//ic)
-               end if
-            end if
+            writing(collection_id) = hist_coll%is_time_to_write(_RC)
             call enabled_iter%next()
-         enddo
+         end do
 
-         call ESMF_VMEpochExit (keepAlloc=.false.)
-         
+         if (any(writing)) then
+
+            call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)!,throttle=1)
+
+            enabled_iter = this%enabled%begin()
+            collection_id=0
+            do while(enabled_iter /= this%enabled%end())
+               collection_id=collection_id+1
+               write(ic,"(I1)")collection_id
+               coll_name=enabled_iter%get()
+               server_ptr => this%servers%at(coll_name)
+               client_ptr => this%clients%at(coll_name)
+               if (this%mpi_connection%am_i_front_root() .and. writing(collection_id)) write(*,*)"writing coll: ",trim(coll_name)
+               if (writing(collection_id)) then
+                  if (model_comm /= MPI_COMM_NULL) then
+                     call io_prof%start('data_to_server_'//ic)
+                     call client_ptr%transfer_data_to_server(_RC)
+                     call io_prof%stop('data_to_server_'//ic)
+                  end if
+                  if (front_comm /= MPI_COMM_NULL) then
+                     call io_prof%start('data_from_client_'//ic)
+                     call server_ptr%get_data_from_client(_RC)
+                     call io_prof%stop('data_from_client_'//ic)
+                  end if
+               end if
+               call enabled_iter%next()
+            enddo
+
+            call ESMF_VMEpochExit (keepAlloc=.false.)
+
+         end if 
+
       end if
 
       _RETURN(_SUCCESS)
@@ -666,42 +680,42 @@ contains
             end if
             call MPI_Bcast(worker_pets,num_collections,MPI_INTEGER,front_ranks(1),front_comm,status)
             _VERIFY(status)
-         end if
 
-         enabled_iter = this%enabled%begin()
-         i = 0
-         do while(enabled_iter /= this%enabled%end())
-            i=i+1
-            if (writing(i)) then
-               write(ic,"(I1)")i
-               coll_name=enabled_iter%get()
-               server_ptr => this%servers%at(coll_name)
-               !call server_ptr%get_writer(_RC)
-               call io_prof%start('transfer_rh_'//ic) 
-               call server_ptr%create_rh_from_proto(worker_pets(i))
-               call io_prof%stop('transfer_rh_'//ic) 
-            end if
-            call enabled_iter%next()
-         enddo
-         ! second round enter epoch
-         call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER,keepAlloc=.false.)!,throttle=1)
-         !call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)!,throttle=1)
-         enabled_iter = this%enabled%begin()
-         i=0
-         do while(enabled_iter /= this%enabled%end())
-            i=i+1
-            if (writing(i)) then
-               write(ic,"(I1)")i
-               coll_name=enabled_iter%get()
-               server_ptr => this%servers%at(coll_name)
-               hist_coll = server_ptr%get_collection()
-               call io_prof%start('offload_data_'//ic)
-               call server_ptr%offload_data(_RC)
-               call io_prof%stop('offload_data_'//ic)
-            end if
-            call enabled_iter%next()
-         enddo
-         call ESMF_VMEpochExit( keepAlloc=.false.)
+            enabled_iter = this%enabled%begin()
+            i = 0
+            do while(enabled_iter /= this%enabled%end())
+               i=i+1
+               if (writing(i)) then
+                  write(ic,"(I1)")i
+                  coll_name=enabled_iter%get()
+                  server_ptr => this%servers%at(coll_name)
+                  !call server_ptr%get_writer(_RC)
+                  call io_prof%start('transfer_rh_'//ic) 
+                  call server_ptr%create_rh_from_proto(worker_pets(i))
+                  call io_prof%stop('transfer_rh_'//ic) 
+               end if
+               call enabled_iter%next()
+            enddo
+            ! second round enter epoch
+            call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER,keepAlloc=.false.)!,throttle=1)
+            !call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)!,throttle=1)
+            enabled_iter = this%enabled%begin()
+            i=0
+            do while(enabled_iter /= this%enabled%end())
+               i=i+1
+               if (writing(i)) then
+                  write(ic,"(I1)")i
+                  coll_name=enabled_iter%get()
+                  server_ptr => this%servers%at(coll_name)
+                  hist_coll = server_ptr%get_collection()
+                  call io_prof%start('offload_data_'//ic)
+                  call server_ptr%offload_data(_RC)
+                  call io_prof%stop('offload_data_'//ic)
+               end if
+               call enabled_iter%next()
+            enddo
+            call ESMF_VMEpochExit( keepAlloc=.false.)
+         end if
       end if
 
       _RETURN(_SUCCESS)
