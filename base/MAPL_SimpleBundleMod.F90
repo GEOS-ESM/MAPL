@@ -807,7 +807,7 @@ CONTAINS
     if (present(expid)) then
        call fill_grads_template(untemplated_filename,filename,experiment_id=expid,nymd=datetime(1),nhms=datetime(2),__RC__)
     else
-       call fill_grads_template(untemplated_filename,filename,nymd=datetime(2),nhms=datetime(1),__RC__)
+       call fill_grads_template(untemplated_filename,filename,nymd=datetime(1),nhms=datetime(2),__RC__)
     end if
     call MAPL_read_bundle(bundle,untemplated_filename,time,only_vars=only_vars,__RC__)
     self = MAPL_SimpleBundleCreate ( Bundle, __RC__ )
