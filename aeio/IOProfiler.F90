@@ -16,7 +16,7 @@ contains
         integer, intent(in) :: ncolls
 
         integer :: i
-        character(len=1) :: ic
+        character(len=2) :: ic
         io_prof = DistributedProfiler('io_controller',MpiTimerGauge(),comm)
         call io_prof%start()
         call io_prof%start('full_app')
@@ -31,24 +31,24 @@ contains
         call io_prof%start('server_run')
            call io_prof%start('client-server-trans')
            do i=1,ncolls
-              write(ic,"(I1)")i
+              write(ic,"(I2.2)")i
               call io_prof%start('data_from_client_'//ic)
               call io_prof%stop('data_from_client_'//ic)
            enddo
            do i=1,ncolls
-              write(ic,"(I1)")i
+              write(ic,"(I2.2)")i
               call io_prof%start('data_to_server_'//ic)
               call io_prof%stop('data_to_server_'//ic)
            enddo
            call io_prof%stop('client-server-trans')
            call io_prof%start('server-writer-trans')
            do i=1,ncolls
-              write(ic,"(I1)")i
+              write(ic,"(I2.2)")i
               call io_prof%start('transfer_rh_'//ic)
               call io_prof%stop('transfer_rh_'//ic)
            enddo
            do i=1,ncolls
-              write(ic,"(I1)")i
+              write(ic,"(I2.2)")i
               call io_prof%start('offload_data_'//ic)
               call io_prof%stop('offload_data_'//ic)
            enddo
@@ -56,7 +56,7 @@ contains
         call io_prof%stop('server_run')
         call io_prof%start('start_writer')
            do i=1,ncolls
-              write(ic,"(I1)")i
+              write(ic,"(I2.2)")i
               call io_prof%start('write_collection_'//ic)
                  call io_prof%start('start_write_epoch_'//ic)
                  call io_prof%stop('start_write_epoch_'//ic)

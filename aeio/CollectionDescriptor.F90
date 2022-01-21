@@ -68,8 +68,8 @@ contains
 
       integer :: status
       character(len=:), allocatable :: vdims
-      integer :: fieldCount
-      integer :: gdims(3),i,rank,lb(1),ub(1)
+      integer :: fieldCount,rank
+      integer :: gdims(3),i
       type(ESMF_Grid) :: grid
       type(ESMF_Array) :: array
       type(ESMF_Field) :: field
@@ -79,34 +79,48 @@ contains
       character(len=ESMF_MAXSTR), allocatable :: fieldNames(:)
       real, pointer :: ptr2d(:,:),ptr3d(:,:,:)
       logical :: have_lev
-      integer :: lev_size
+      logical :: have_edge
+      integer :: edge_size,lev_size
+      edge_size = 73
+      lev_size = 72
 
       call ESMF_FieldBundleGet(this%bundle,fieldCount=fieldCount,grid=grid,_RC)
       allocate(fieldNames(fieldCount))
       call ESMF_FieldBundleGet(this%bundle,fieldNameList=fieldNames,_RC)
       have_lev = .false.
+      have_edge = .false.
       do i=1,fieldCount
          call ESMF_ArrayBundleGet(arrays,trim(fieldNames(i)),array=array,_RC)
          call ESMF_ArrayGet(array,rank=rank,_RC)
          if (rank==3) then
            call ESMF_ArrayGet(array,farrayPtr=ptr3d,_RC)
-           have_lev = .true.
-           lev_size = size(ptr3d,3)
+           have_lev = size(ptr3d,3) == lev_size
+           have_edge = size(ptr3d,3) == edge_size
          end if
       enddo
 
       call MAPL_GridGet(grid,globalCellCountPerDim=gdims,_RC)
       call metadata%add_dimension('Xdim',gdims(1),_RC)
       call metadata%add_dimension('Ydim',gdims(2),_RC)
-      call metadata%add_dimension('lev',lev_size,_RC)
+      if (have_lev) then
+         call metadata%add_dimension('lev',lev_size,_RC)
+      end if
+      if (have_edge) then
+         call metadata%add_dimension('edge',edge_size,_RC)
+      end if
       call metadata%add_dimension('time',1,_RC)
       do i=1,fieldCount
          call ESMF_FieldBundleGet(this%bundle,trim(fieldNames(i)),field=field,_RC)
-         call ESMF_FieldGet(field,rank=rank,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+         call ESMF_FieldGet(field,rank=rank,_RC)
+         call ESMF_ArrayBundleGet(arrays,trim(fieldNames(i)),array=array,_RC)
          if (rank ==2) then
             vdims ="Xdim,Ydim,time"
          else if (rank==3) then
-            vdims ="Xdim,Ydim,lev,time"
+           call ESMF_ArrayGet(array,farrayPtr=ptr3d,_RC)
+           have_lev = size(ptr3d,3) == lev_size
+           have_edge = size(ptr3d,3) == edge_size
+           if (have_lev) vdims = "Xdim,Ydim,lev,time"
+           if (have_edge) vdims = "Xdim,Ydim,edge,time"
          end if
          v = Variable(type=PFIO_REAL32,dimensions=vdims,_RC)
          call metadata%add_variable(trim(fieldNames(i)),v,_RC)
@@ -115,7 +129,7 @@ contains
       call formatter%write(metadata,_RC)
       do i=1,fieldCount
          call ESMF_ArrayBundleGet(arrays,trim(fieldNames(i)),array=array,_RC)
-         call ESMF_ArrayGet(array,rank=rank,undistLBound=lb,undistUBound=ub,_RC)
+         call ESMF_ArrayGet(array,rank=rank,_RC)
          if (rank ==2) then
            call ESMF_ArrayGet(array,farrayPtr=ptr2d,_RC)
            call formatter%put_var(trim(fieldNames(i)),ptr2d,_RC)
