@@ -275,9 +275,9 @@ contains
       character(len=:), allocatable :: coll_name
       integer, allocatable :: back_pets(:)
       integer :: writer_comm
-      character(len=2) :: ic
+      character(len=:), allocatable :: ic
 
-      write(ic,"(I2.2)")collection_id
+      ic = int_to_char(collection_id)
       call io_prof%start('write_collection_'//ic)
       back_pets = this%front_back_connection%get_back_pets()
       writer_comm = this%front_back_connection%get_back_comm()

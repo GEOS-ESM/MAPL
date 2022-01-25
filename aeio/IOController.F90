@@ -577,7 +577,7 @@ contains
       integer :: model_comm,front_comm
       type(Collection) :: hist_coll
       integer :: collection_id
-      character(len=2) :: ic
+      character(len=:), allocatable :: ic
       logical, allocatable :: writing(:)
 
       model_comm = this%mpi_connection%get_model_comm()
@@ -605,7 +605,7 @@ contains
             collection_id=0
             do while(enabled_iter /= this%enabled%end())
                collection_id=collection_id+1
-               write(ic,"(I2.2)")collection_id
+               ic = int_to_char(collection_id)
                coll_name=enabled_iter%get()
                server_ptr => this%servers%at(coll_name)
                client_ptr => this%clients%at(coll_name)
@@ -648,7 +648,7 @@ contains
       logical, allocatable :: writing(:)
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type(Collection) :: hist_coll
-      character(len=2) :: ic
+      character(len=:), allocatable :: ic
       integer, allocatable :: buffer(:)
 
       front_comm = this%mpi_connection%get_front_comm()
@@ -692,7 +692,7 @@ contains
             do while(enabled_iter /= this%enabled%end())
                i=i+1
                if (writing(i)) then
-                  write(ic,"(I2.2)")i
+                  ic=int_to_char(i)
                   coll_name=enabled_iter%get()
                   server_ptr => this%servers%at(coll_name)
                   !call server_ptr%get_writer(_RC)
@@ -710,7 +710,7 @@ contains
             do while(enabled_iter /= this%enabled%end())
                i=i+1
                if (writing(i)) then
-                  write(ic,"(I2.2)")i
+                  ic=int_to_char(i)
                   coll_name=enabled_iter%get()
                   server_ptr => this%servers%at(coll_name)
                   hist_coll = server_ptr%get_collection()

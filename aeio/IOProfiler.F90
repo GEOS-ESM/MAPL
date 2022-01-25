@@ -6,17 +6,25 @@ module AEIO_IOProfiler
    public io_prof
    public generate_io_summary
    public start_io_prof
+   public int_to_char
 
    type(DistributedProfiler), save :: io_prof
 
 contains
+
+   function int_to_char(i) result(ic)
+      character(len=2) :: ic
+      integer, intent(in) :: i
+
+      write(ic,"(I2.2)")i
+   end function int_to_char
 
    subroutine start_io_prof(comm,ncolls)
         integer, intent(in) :: comm
         integer, intent(in) :: ncolls
 
         integer :: i
-        character(len=2) :: ic
+        character(len=:), allocatable :: ic
         io_prof = DistributedProfiler('io_controller',MpiTimerGauge(),comm)
         call io_prof%start()
         call io_prof%start('full_app')
@@ -31,24 +39,24 @@ contains
         call io_prof%start('server_run')
            call io_prof%start('client-server-trans')
            do i=1,ncolls
-              write(ic,"(I2.2)")i
+              ic = int_to_char(I)
               call io_prof%start('data_from_client_'//ic)
               call io_prof%stop('data_from_client_'//ic)
            enddo
            do i=1,ncolls
-              write(ic,"(I2.2)")i
+              ic = int_to_char(I)
               call io_prof%start('data_to_server_'//ic)
               call io_prof%stop('data_to_server_'//ic)
            enddo
            call io_prof%stop('client-server-trans')
            call io_prof%start('server-writer-trans')
            do i=1,ncolls
-              write(ic,"(I2.2)")i
+              ic = int_to_char(I)
               call io_prof%start('transfer_rh_'//ic)
               call io_prof%stop('transfer_rh_'//ic)
            enddo
            do i=1,ncolls
-              write(ic,"(I2.2)")i
+              ic = int_to_char(I)
               call io_prof%start('offload_data_'//ic)
               call io_prof%stop('offload_data_'//ic)
            enddo
@@ -56,7 +64,7 @@ contains
         call io_prof%stop('server_run')
         call io_prof%start('start_writer')
            do i=1,ncolls
-              write(ic,"(I2.2)")i
+              ic = int_to_char(I)
               call io_prof%start('write_collection_'//ic)
                  call io_prof%start('start_write_epoch_'//ic)
                  call io_prof%stop('start_write_epoch_'//ic)
