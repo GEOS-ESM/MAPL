@@ -4,7 +4,7 @@
 module ExtData_DriverGridCompMod
   use ESMF
   use MAPL
-  use MAPL_Profiler
+  use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
 
   implicit none
   private
@@ -115,8 +115,6 @@ contains
 
     integer :: status
 
-    character(len=ESMF_MAXSTR )           :: timerModeStr
-    integer                               :: timerMode
     character(len=ESMF_MAXSTR)   :: ROOT_NAME
 
     ! Misc locals
@@ -210,28 +208,6 @@ contains
 
     if (enableTimers /= 'YES') then
        call MAPL_ProfDisable(rc = status)
-       _VERIFY(status)
-    else
-       call MAPL_GetResource(MAPLOBJ, timerModeStr, "MAPL_TIMER_MODE:", &
-            default='MAX', RC=STATUS )
-       _VERIFY(STATUS)
-
-       timerModeStr = ESMF_UtilStringUpperCase(timerModeStr, rc=STATUS)
-       _VERIFY(STATUS) 
-
-       TestTimerMode: select case(timerModeStr)
-       case("OLD")
-          timerMode = MAPL_TimerModeOld      ! this has barriers
-       case("ROOTONLY")
-          timerMode = MAPL_TimerModeRootOnly ! this is the fastest
-       case("MAX")
-          timerMode = MAPL_TimerModeMax      ! this is the default
-       case("MINMAX")
-          timerMode = MAPL_TimerModeMinMax      ! this is the default
-       case default
-          _ASSERT(.false.,'needs informative message')
-       end select TestTimerMode
-       call MAPL_TimerModeSet(timerMode, RC=status)
        _VERIFY(status)
     end if
 

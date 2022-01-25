@@ -44,6 +44,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
+  use gFTL_StringStringMap
   !use ESMF_CFIOMOD
 
   implicit none
@@ -173,21 +174,6 @@ contains
     wrap%ptr => internal_state
     call ESMF_GridCompSetInternalState(gc, wrap, status)
     _VERIFY(status)
-
-! Set the Profiling timers
-! ------------------------
-
-    call MAPL_TimerAdd (gc,name="Initialize"     ,rc=status)
-    call MAPL_TimerAdd (gc,name="Finalize"       ,rc=status)
-    call MAPL_TimerAdd (gc,name="Run"            ,rc=status)
-    call MAPL_TimerAdd (gc,name="--Couplers"     ,rc=status)
-    call MAPL_TimerAdd (gc,name="--I/O"          ,rc=status)
-    call MAPL_TimerAdd (gc,name="----IO Create"  ,rc=status)
-    call MAPL_TimerAdd (gc,name="----IO Write"   ,rc=status)
-    call MAPL_TimerAdd (gc,name="-----IO Post"   ,rc=status)
-    call MAPL_TimerAdd (gc,name="-----IO Wait"   ,rc=status)
-    call MAPL_TimerAdd (gc,name="-----IO Write"  ,rc=status)
-    call MAPL_TimerAdd (gc,name="-ParserRun"     ,rc=status)
 
 ! Generic Set Services
 ! --------------------
@@ -423,6 +409,7 @@ contains
     logical, allocatable :: needSplit(:)
     type(ESMF_Field), allocatable :: fldList(:)
     character(len=ESMF_MAXSTR), allocatable :: regexList(:)
+    type(StringStringMap) :: global_attributes
 
 ! Begin
 !------
@@ -431,9 +418,6 @@ contains
 
     call MAPL_GetObjectFromGC ( gc, GENSTATE, RC=STATUS)
     _VERIFY(STATUS)
-
-    call MAPL_TimerOn(GENSTATE,"TOTAL")
-    call MAPL_TimerOn(GENSTATE,"Initialize")
 
 ! Retrieve the pointer to the state
     call ESMF_GridCompGetInternalState(gc, wrap, status)
@@ -2450,12 +2434,13 @@ ENDDO PARSER
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,rc=status)
              _VERIFY(status)
           else
+             global_attributes = list(n)%define_collection_attributes(_RC)
              if (trim(list(n)%output_grid_label)/='') then
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
-                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,rc=status)
+                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,rc=status)
                 _VERIFY(status)
              else
-                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,rc=status)
+                call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,rc=status)
                 _VERIFY(status)
              end if
              collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata)
@@ -2486,6 +2471,9 @@ ENDDO PARSER
          print *, '       Nbits: ',       list(n)%nbits
          print *, '      Slices: ',       list(n)%Slices
          print *, '     Deflate: ',       list(n)%deflate
+         if (associated(list(n)%chunksize)) then
+            print *, '   ChunkSize: ',       list(n)%chunksize
+         end if
          if (list(n)%monthly) then
             print *, '   Frequency: ',       'monthly'
          else
@@ -2562,9 +2550,6 @@ ENDDO PARSER
 
     call MAPL_GenericInitialize( gc, import, dumexport, clock, rc=status )
     _VERIFY(status)
-
-    call MAPL_TimerOff(GENSTATE,"Initialize")
-    call MAPL_TimerOff(GENSTATE,"TOTAL")
 
     _RETURN(ESMF_SUCCESS)
 
@@ -3327,9 +3312,6 @@ ENDDO PARSER
     call MAPL_GetObjectFromGC ( gc, GENSTATE, RC=STATUS)
     _VERIFY(STATUS)
 
-    call MAPL_TimerOn(GENSTATE,"TOTAL")
-    call MAPL_TimerOn(GENSTATE,"Run"  )
-
 !   Get clocks' direction
     FWD = .not. ESMF_ClockIsReverse(clock)
 
@@ -3652,7 +3634,7 @@ ENDDO PARSER
    enddo POSTLOOP
 
    if (any(writing)) then
-      call o_Clients%done_collective_stage()
+      call o_Clients%done_collective_stage(__RC__)
       call o_Clients%post_wait()
    endif
    call MAPL_TimerOff(GENSTATE,"-----IO Post")
@@ -3705,9 +3687,6 @@ ENDDO PARSER
    deallocate(Writing)
    deallocate(Ignore)
 
-   call MAPL_TimerOff(GENSTATE,"Run"         )
-   call MAPL_TimerOff(GENSTATE,"TOTAL"       )
-
    _RETURN(ESMF_SUCCESS)
  end subroutine Run
 
@@ -3738,9 +3717,6 @@ ENDDO PARSER
 
     call MAPL_GetObjectFromGC ( gc, GENSTATE, RC=STATUS)
     _VERIFY(STATUS)
-
-    call MAPL_TimerOn(GENSTATE,"TOTAL")
-    call MAPL_TimerOn(GENSTATE,"Finalize")
 
 ! Retrieve the pointer to the state
 
@@ -3790,9 +3766,6 @@ ENDDO PARSER
    enddo
 #endif
 
-
-    call MAPL_TimerOff(GENSTATE,"Finalize")
-    call MAPL_TimerOff(GENSTATE,"TOTAL")
 
     call  MAPL_GenericFinalize ( GC, IMPORT, EXPORT, CLOCK, RC=status )
     _VERIFY(STATUS)

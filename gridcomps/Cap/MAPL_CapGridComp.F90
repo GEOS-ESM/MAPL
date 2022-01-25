@@ -129,25 +129,22 @@ contains
     cap%n_run_phases = 1
     if (present(n_run_phases)) cap%n_run_phases = n_run_phases
 
-    cap%config = ESMF_ConfigCreate(rc=status)
-    _VERIFY(status)
-    call ESMF_ConfigLoadFile(cap%config,cap%cap_rc_file,rc=STATUS)
-    _VERIFY(STATUS)
+    cap%config = ESMF_ConfigCreate(__RC__)
+    call ESMF_ConfigLoadFile(cap%config, cap%cap_rc_file,__RC__)
 
     allocate(cap%name, source=name)
-    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, rc=status)
-    _VERIFY(status)
+    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, __RC__)
 
     meta => null()
-    call MAPL_InternalStateCreate(cap%gc, meta, rc=status)
-    _VERIFY(status)
+    call MAPL_InternalStateCreate(cap%gc, meta, __RC__)
+    call MAPL_Set(meta, CF=cap%config, __RC__)
 
-    call MAPL_Set(meta, name=cap_name, component=stub_component, rc=status)
-    _VERIFY(status)
+    call MAPL_Set(meta, name=cap_name, component=stub_component, __RC__)
 
     cap_wrapper%ptr => cap
     call ESMF_UserCompSetInternalState(cap%gc, internal_cap_name, cap_wrapper, status)
     _VERIFY(status)
+
 
     _RETURN(_SUCCESS)
 
@@ -414,20 +411,6 @@ contains
        timerModeStr = ESMF_UtilStringUpperCase(timerModeStr, rc=STATUS)
        _VERIFY(STATUS) 
 
-       TestTimerMode: select case(timerModeStr)
-       case("OLD")
-          timerMode = MAPL_TimerModeOld      ! this has barriers
-       case("ROOTONLY")
-          timerMode = MAPL_TimerModeRootOnly ! this is the fastest
-       case("MAX")
-          timerMode = MAPL_TimerModeMax      ! this is the default
-       case("MINMAX")
-          timerMode = MAPL_TimerModeMinMax      ! this is the default
-       case default
-          _FAIL('Unsupported option for timerModeStr: '//trim(timerModeStr))
-       end select TestTimerMode
-       call MAPL_TimerModeSet(timerMode, RC=status)
-       _VERIFY(status)
     end if
     cap%started_loop_timer=.false.
 
@@ -490,9 +473,9 @@ contains
     call MAPL_ConfigSetAttribute(cap%cf_hist, value=HIST_CF, Label="HIST_CF:", rc=status)
     _VERIFY(STATUS)
 
-    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPID,  Label="EXPID:",  rc=status)
+    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPID,  Label="EXPID:", default='',  rc=status)
     _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPDSC, Label="EXPDSC:", rc=status)
+    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPDSC, Label="EXPDSC:", default='', rc=status)
     _VERIFY(STATUS)
 
     call MAPL_ConfigSetAttribute(cap%cf_hist, value=heartbeat_dt, Label="RUN_DT:", rc=status)

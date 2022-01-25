@@ -9,13 +9,112 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- io profiler is fixed due to the change of profiler finalize
+- Files read by GriddedIOMod now respect the file defined _FillValue rather than assuming it is MAPL_UNDEF
+
 ### Added
 
 ### Changed
 
+- History initialization will display chunksize for any collections that are chunked
+
 ### Removed
 
 ### Deprecated
+
+## [2.16.0] - 2022-01-13
+
+### Fixed
+
+- A bug in splitting the fields for History when an alias contains a single entry (#1296)
+- Trap more errors in pFIO
+- Free types and operation created by profiler
+- Finalize profiler in MAPL_finalize call
+- Fix how a retry-build is done in CI
+- Fix issue with logger message and single quotes
+- Fix bug with profiler reporting in programs
+
+### Changed
+
+- Updated README.md
+- Refactored MAPL_Generic.F90 - lots of changes.
+  - consistent indentation (emacs mode)
+  - extracted helper procedures in GenericInitialize
+- Added new step to CircleCI to try and re-run build on failure.
+- Updated CircleCI config to use new [GEOS-ESM/circleci-tools orb](https://circleci.com/developer/orbs/orb/geos-esm/circleci-tools)
+- Added Markdown rules to `.editorconfig`
+
+## [2.15.1] - 2022-01-06
+
+### Changed
+
+- Changes to make MAPL 2 History output match GEOS FP file spec
+  - Coordinate Variables
+    - `lon` and `lat` are now 64-bit (double) in lat-lon History files rather than 32-bit (single)
+    - `lons`, `lats`, `corner_lons`, and `corner_lats` are now 64-bit (double) in  History files rather than 32-bit (single)
+  - Variable Metadata
+    - Added `fmissing_value` (equal to `_FillValue` aka `MAPL_UNDEF`)
+    - Added `missing_value` (equal to `_FillValue` aka `MAPL_UNDEF`)
+    - Added `vmin` (equal to `-MAPL_UNDEF`)
+    - Added `vmax` (equal to `+MAPL_UNDEF`)
+    - Added `add_offset` (equal to 0.0)
+    - Added `scale_factor` (equal to 1.0)
+    - Added `standard_name` (equal to `long_name`)
+  - Global Metadata
+    - Added `Title`, `History`, `Source`, `Contact`, `Convention`, `Institution`, `References`, `Filename`, `Comment`
+      - These currently have hardcoded values roughly equivalent to the GEOS FP 5.27 output
+
+## [2.15.0] - 2022-01-04
+
+### Fixed
+
+- Free types and operation created by profiler
+
+### Changed
+
+- Refactored MAPL_Generic.F90 - lots of changes.
+- Make EXPID and EXPDSC optional. Default is empty string
+- Updated `changelog-enforcer` to version 3
+- Compress CircleCI artifacts
+- Updated VarRead_2d_r8 interface to match VarRead_2d_r4 interface in NCIO module
+
+## [2.14.1] - 2021-12-20
+
+### Fixed
+
+- gfortran can not associate an allocated string. Such blocks are changed
+
+### Changed
+
+- Updated `components.yaml`
+  - ESMA_env v3.8.0 (Use Intel 2021.3)
+  - ESMA_cmake v3.8.0 (Use `-march=core-avx2` for Intel Fortran)
+  - These are non-zero-diff for GEOS
+- Updated the Intel CI image to Intel 2021.3
+
+## [2.14.0] - 2021-12-16
+
+### Fixed
+
+- Move out allocatable string from if condition block in `VarConn.F90`
+- Updates to `mapl_tree.py` to let it work in the git GEOS
+  - Note that the interface has changed since the last time this worked, please see script help usage
+  - Disabled the `chname` style of running it as that does not work at the moment
+
+### Changed
+
+- Refactored support for using DSO's for components.  No change to interfaces.
+- Updated MAPL to exclusively use new timers - with improved format.
+
+### Removed
+
+- Legacy timer profiling
+
+### Deprecated
+
+- An interface for `MAPL_AddChild` allowing specification of a DSO has
+been deprecated due to non-conventional ordering of its arguments.  A
+new interface with conventional ordering has been introduced.
 
 ## [2.13.0] - 2021-12-08
 
@@ -26,6 +125,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- MAPL_TimerOn/Off now invoke new timers as well as legacy timers.
+- Add  pfio_open_close.F90 file
 - Add the i and j index as variables to use to generate synthetic data in ExtDataDriver.x
 - Added ability to generate monthly checkpoints (fixes issue #1065)
 
@@ -40,6 +141,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_env v3.7.0 (Use MPT 2.25 at NAS on TOSS)
   - ESMA_cmake v3.7.2 (Fixes FindBaselibs issue found by @sdrabenh, f2py order fix)
 - Made the `MAPL_AddChildFromDSO` function system agnostic by using the CMake detected DSO suffix
+- Component level timer formatting is changed to provide more information.
+
+### Removed
+
+### Deprecated
 
 ## [2.12.1] - 2021-11-08
 

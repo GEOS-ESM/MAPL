@@ -21,7 +21,7 @@ module AEIO_IOController
    use AEIO_RHConnector
    use AEIO_Writer
    use AEIO_MpiConnection
-   use MAPL_Profiler
+   use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
    use AEIO_IOProfiler
    
    implicit none

@@ -39,7 +39,7 @@ module pFIO_AbstractServerMod
       integer :: rank   ! rank in all server processes
       integer :: npes   ! number of processes of the server
       integer :: status ! counter, UNALLOCATED, PENDING
-      logical :: all_backlog_is_empty = .true. 
+      logical :: all_backlog_is_empty = .true.
       integer :: num_clients = 0
       logical :: terminate
       integer :: InNode_Comm  ! communicator in a node
@@ -49,7 +49,7 @@ module pFIO_AbstractServerMod
       integer :: Node_Num     ! number of server nodes
       integer :: Node_Rank    ! rank of server nodes
 
-      ! save info about which process belongs to which node 
+      ! save info about which process belongs to which node
       ! all processes keep this info
       integer,allocatable    :: Node_Ranks(:)
       type(StringInteger64Map) :: prefetch_offset
@@ -84,12 +84,13 @@ module pFIO_AbstractServerMod
       procedure :: report_profile
    end type AbstractServer
 
-   abstract interface 
+   abstract interface
 
-      subroutine start(this)
+      subroutine start(this, rc)
          use pFIO_AbstractSocketVectorMod
          import AbstractServer
          class(AbstractServer),target,intent(inout) :: this
+         integer, optional, intent(out) :: rc
       end subroutine start
 
       subroutine clear_RequestHandle(this)
@@ -103,7 +104,7 @@ module pFIO_AbstractServerMod
          logical, intent(in) :: request, have_done
       end subroutine set_collective_request
 
-      function get_dmessage(this, rc) result(dmessage) 
+      function get_dmessage(this, rc) result(dmessage)
          import AbstractServer
          import AbstractMessage
          class (AbstractServer), target, intent(in) :: this
@@ -121,47 +122,59 @@ module pFIO_AbstractServerMod
 
 contains
 
-   subroutine init(this,comm, port_name, profiler_name, with_profiler)
+   subroutine init(this,comm, port_name, profiler_name, with_profiler, rc)
       class (AbstractServer),intent(inout) :: this
       integer, intent(in) :: comm
       character(*), intent(in) :: port_name
       character(*), optional, intent(in) :: profiler_name
       logical, optional, intent(in) :: with_profiler
+      integer, optional, intent(out) :: rc
 
       integer :: ierror, MyColor
       character(len=:), allocatable :: p_name
 
       this%comm = comm
       call MPI_Comm_rank(this%comm, this%rank, ierror)
+      _VERIFY(ierror)
       call MPI_Comm_size(this%comm, this%npes, ierror)
+      _VERIFY(ierror)
 
       this%num_clients = 0
       this%all_backlog_is_empty = .true.
       this%status = UNALLOCATED
 
       call MPI_Comm_split_type(this%comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, this%InNode_Comm,ierror)
+      _VERIFY(ierror)
       call MPI_Comm_size(this%InNode_Comm, this%InNode_npes,ierror)
-      call MPI_Comm_rank(this%InNode_Comm, this%InNode_Rank, ierror)
-       
+      _VERIFY(ierror)
+      call MPI_Comm_rank(this%InNode_Comm, this%InNode_Rank,ierror)
+      _VERIFY(ierror)
+
       MyColor = 0
       if (this%InNode_Rank == 0) MyColor = 1
 
       call MPI_COMM_SPLIT( comm, MyColor, this%rank, this%NodeRoot_Comm, ierror)
+      _VERIFY(ierror)
 
       if (MyColor==0) then
          this%NodeRoot_Comm=MPI_COMM_NULL
       else
          call MPI_COMM_SIZE(this%NodeRoot_Comm, this%Node_Num, ierror)
+         _VERIFY(ierror)
          call MPI_COMM_RANK(this%NodeRoot_Comm, this%Node_Rank, ierror)
+         _VERIFY(ierror)
       endif
 
-      call Mpi_Bcast(this%Node_Rank, 1, MPI_INTEGER, 0, this%InNode_Comm, ierror) 
-      call Mpi_Bcast(this%Node_Num,  1, MPI_INTEGER, 0, this%InNode_Comm, ierror) 
-     
+      call Mpi_Bcast(this%Node_Rank, 1, MPI_INTEGER, 0, this%InNode_Comm, ierror)
+      _VERIFY(ierror)
+      call Mpi_Bcast(this%Node_Num,  1, MPI_INTEGER, 0, this%InNode_Comm, ierror)
+      _VERIFY(ierror)
+
       allocate(This%Node_Ranks(0:this%npes-1))
 
       call Mpi_AllGather(this%Node_Rank,  1, MPI_INTEGER, &
                          this%Node_Ranks, 1, MPI_INTEGER, comm,ierror)
+      _VERIFY(ierror)
 
       if (present(profiler_name)) then
          p_name = profiler_name
@@ -179,6 +192,8 @@ contains
       endif
 
       call MPI_Barrier(comm, ierror)
+      _VERIFY(ierror)
+      _RETURN(_SUCCESS)
    end subroutine init
 
    function get_status(this) result(status)
@@ -200,7 +215,7 @@ contains
       !$omp end critical (counter_status)
    end subroutine  set_status
 
-   subroutine update_status(this, rc) 
+   subroutine update_status(this, rc)
       class(AbstractServer),intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
@@ -214,20 +229,20 @@ contains
         _RETURN(_SUCCESS)
       endif
       ! status ==0, means the last server thread in the backlog
-      
+
       call this%clear_DataReference()
       call this%clear_RequestHandle()
       call this%set_status(UNALLOCATED)
       call this%set_AllBacklogIsEmpty(.true.)
 
       iter = this%prefetch_offset%begin()
-      do while (iter /= this%prefetch_offset%end()) 
+      do while (iter /= this%prefetch_offset%end())
          call this%prefetch_offset%erase(iter)
          iter = this%prefetch_offset%begin()
       enddo
 
       iter = this%stage_offset%begin()
-      do while (iter /= this%stage_offset%end()) 
+      do while (iter /= this%stage_offset%end())
          call this%stage_offset%erase(iter)
          iter = this%stage_offset%begin()
       enddo
@@ -236,32 +251,32 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update_status
 
-   subroutine clean_up(this, rc) 
+   subroutine clean_up(this, rc)
       class(AbstractServer),intent(inout) :: this
       integer, optional, intent(out) :: rc
       type(StringInteger64MapIterator) :: iter
- 
-      if (associated(ioserver_profiler)) call ioserver_profiler%start("clean_up")     
- 
+
+      if (associated(ioserver_profiler)) call ioserver_profiler%start("clean_up")
+
       call this%clear_DataReference()
       call this%clear_RequestHandle()
       call this%set_AllBacklogIsEmpty(.true.)
       this%serverthread_done_msgs(:) = .false.
 
       iter = this%prefetch_offset%begin()
-      do while (iter /= this%prefetch_offset%end()) 
+      do while (iter /= this%prefetch_offset%end())
          call this%prefetch_offset%erase(iter)
          iter = this%prefetch_offset%begin()
       enddo
 
       iter = this%stage_offset%begin()
-      do while (iter /= this%stage_offset%end()) 
+      do while (iter /= this%stage_offset%end())
          call this%stage_offset%erase(iter)
          iter = this%stage_offset%begin()
       enddo
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("clean_up")
-     
+
       _RETURN(_SUCCESS)
    end subroutine clean_up
 
@@ -287,13 +302,13 @@ contains
    function I_am_NodeRoot(this) result (yes)
       class (AbstractServer), intent(in) :: this
       logical :: yes
-      yes = (this%NodeRoot_Comm /= MPI_COMM_NULL) 
+      yes = (this%NodeRoot_Comm /= MPI_COMM_NULL)
    end function
 
    function I_am_ServerRoot(this) result (yes)
       class (AbstractServer), intent(in) :: this
       logical :: yes
-      yes = (this%rank == 0) 
+      yes = (this%rank == 0)
    end function I_am_ServerRoot
 
    subroutine receive_output_data(this, rc)
@@ -366,7 +381,7 @@ contains
       class (AbstractServer),target, intent(in) :: this
       integer,optional, intent(in) :: ith
       class(AbstractDataReference),pointer :: DataRef
-      integer :: i    
+      integer :: i
       i=1
       if(present(ith)) i = ith
       DataRef => this%dataRefPtrs%at(i)
@@ -386,13 +401,13 @@ contains
       class (AbstractServer), intent(inout) :: this
       class (AbstractDataReference), pointer :: datarefPtr
       integer :: n, i
-       
+
       n = this%dataRefPtrs%size()
       do i = 1, n
          dataRefPtr => this%dataRefPtrs%at(i)
          call dataRefPtr%deallocate()
       enddo
-      call this%dataRefPtrs%erase(this%dataRefPtrs%begin(), this%dataRefPtrs%end())      
+      call this%dataRefPtrs%erase(this%dataRefPtrs%begin(), this%dataRefPtrs%end())
 
    end subroutine clear_DataReference
 
@@ -415,7 +430,6 @@ contains
          _RETURN(_SUCCESS)
       endif
 
-      call ioserver_profiler%finalize()
       call ioserver_profiler%reduce()
 
       reporter = ProfileReporter(empty)
