@@ -122,20 +122,22 @@ contains
       enddo 
       call io_controller%stop_writer(_RC)
       call ESMF_VMBarrier(vm,_RC)
-      
+     
       call MPI_Barrier(MPI_COMM_WORLD,status)
       call generate_io_summary(rank)
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      !if (model) call cap%finalize(rc = status)
-      !call cap%finalize(rc = status)
-      !_VERIFY(status)
+      call ESMF_VMBarrier(vm,_RC)
+
+      if (model) call cap%finalize(clock,rc = status)
+      _VERIFY(status)
+      call MPI_Barrier(MPI_COMM_WORLD,status)
+      call MPI_Barrier(MPI_COMM_WORLD,status)
 
       call MAPL_Finalize(rc=status)
-      _VERIFY(status) 
+      _VERIFY(status)
       call MPI_Finalize(status)
-
+ 
       _RETURN(ESMF_SUCCESS)
-
 
    end subroutine run
 

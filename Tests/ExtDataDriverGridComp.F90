@@ -266,6 +266,7 @@ contains
     !call driver_clockinit(cap%config, cap%clock, cap%nsteps, rc = status)
     !_VERIFY(status)
 
+    call t_p%start('SetService')
     root_set_services => cap%root_set_services
 
     if (allocated(cap%pet_list)) then
@@ -276,6 +277,7 @@ contains
        _VERIFY(status)
     end if
 
+    call t_p%stop('SetService')
     !  Query MAPL for the the children's for GCS, IMPORTS, EXPORTS
     !-------------------------------------------------------------
 
@@ -286,10 +288,12 @@ contains
     !  Initialize the Computational Hierarchy
     !----------------------------------------
 
+    call t_p%start('Initialize')
     call ESMF_GridCompInitialize(cap%gcs(cap%root_id), importState = cap%imports(cap%root_id), &
          exportState = cap%exports(cap%root_id), clock = clock, userRC = status)
          !exportState = cap%exports(cap%root_id), clock = cap%clock, userRC = status)
     _VERIFY(status)
+    call t_p%stop('Initialize')
 
     export_state=cap%exports(cap%root_id)
     !call ESMF_GridCompSet(gc,clock=cap%clock,rc=status)
@@ -311,13 +315,17 @@ contains
     integer, intent(out) :: RC     ! Error code:
 
     integer :: status
+    class(BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import)
     _UNUSED_DUMMY(export)
     _UNUSED_DUMMY(clock)
 
+    t_p => get_global_time_profiler()
+    call t_p%start('Run')
     call run_once(gc, export, clock, rc=status)
     _VERIFY(status)
+    call t_p%stop('Run')
     _RETURN(ESMF_SUCCESS)
 
   end subroutine run_gc
@@ -330,6 +338,7 @@ contains
     integer, intent(out) :: rc
 
     integer :: status
+    class(BaseProfiler), pointer :: t_p
 
     type(ExtData_DriverGridComp), pointer :: cap
     type(MAPL_MetaComp), pointer :: MAPLOBJ
@@ -340,11 +349,15 @@ contains
     
     cap => get_CapGridComp_from_gc(gc)
     MAPLOBJ => get_MetaComp_from_gc(gc)
+    t_p => get_global_time_profiler()
+    call t_p%start('Finalize')
+    
 
     call ESMF_GridCompFinalize(cap%gcs(cap%root_id), importstate = cap%imports(cap%root_id), &
          exportstate=cap%exports(cap%root_id), clock = clock, userrc = status)
          !exportstate=cap%exports(cap%root_id), clock = cap%clock, userrc = status)
     _VERIFY(status)
+    call t_p%stop('Finalize')
 
     call ESMF_ConfigDestroy(cap%cf_root, rc = status)
     _VERIFY(status)
@@ -417,13 +430,14 @@ contains
   end subroutine run
 
 
-  subroutine finalize(this, rc)
+  subroutine finalize(this, clock, rc)
     class(ExtData_DriverGridComp), intent(inout) :: this
+    type(ESMF_Clock), intent(inout) :: clock
     integer, optional, intent(out) :: rc
     
     integer :: status    
     
-    call ESMF_GridCompFinalize(this%gc, rc = status)
+    call ESMF_GridCompFinalize(this%gc, clock=clock, rc = status)
     _VERIFY(status)
     _RETURN(ESMF_SUCCESS)
   end subroutine finalize

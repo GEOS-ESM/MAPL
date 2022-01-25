@@ -8,11 +8,12 @@ module AEIO_MpiConnection
 
    implicit none
    private
-   
+ 
    public :: MpiConnection
 
    type MpiConnection
       integer :: model_comm
+      integer :: model_front_comm
       integer :: connection_comm
       integer :: front_comm
       integer :: back_comm
@@ -27,6 +28,7 @@ module AEIO_MpiConnection
       procedure :: get_connection_comm
       procedure :: get_front_comm
       procedure :: get_back_comm
+      procedure :: get_model_front_comm
       procedure :: get_front_mpi_ranks
       procedure :: get_back_mpi_ranks
       procedure :: get_front_pets
@@ -180,6 +182,8 @@ contains
          write(*,*)"fpet ",new_instance%front_pets 
          write(*,*)"bpet ",new_instance%back_pets 
       end if
+
+      new_instance%model_front_comm = join_comm(global_comm,new_instance%model_comm,new_instance%front_comm,_RC)
 
       _RETURN(_SUCCESS)
 
@@ -364,6 +368,13 @@ contains
       back_comm=this%back_comm
    end function get_back_comm
 
+   function get_model_front_comm(this) result(model_front_comm)
+      class(MpiConnection), intent(in) :: this
+      integer :: model_front_comm
+
+      model_front_comm = this%model_front_comm
+   end function get_model_front_comm
+
    function get_back_mpi_ranks(this) result(back_mpi_ranks)
       class(MpiConnection), intent(in) :: this
       integer, allocatable :: back_mpi_ranks(:)
@@ -411,5 +422,24 @@ contains
       i_am_back_root = this%i_am_back_root
 
    end function am_i_back_root
+
+   function join_comm(comm_world,comm1,comm2,rc) result(comm_union)
+      integer :: comm_union
+      integer, intent(in) :: comm_world
+      integer, intent(in) :: comm1
+      integer, intent(in) :: comm2
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: mycolor
+      mycolor = MPI_UNDEFINED
+      if (comm1/= MPI_COMM_NULL .or. comm2 /= MPI_COMM_NULL) then
+         mycolor = 100
+      end if
+      call MPI_Comm_Split(comm_world,mycolor,0,comm_union,status)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+   end function join_comm
 
 end module

@@ -207,11 +207,16 @@ contains
 
       integer :: status
       type(ESMF_Time) :: current_time
-      integer :: model_comm,front_comm
+      !integer :: model_comm,front_comm
+      integer :: model_front_comm
 
-      front_comm = this%mpi_connection%get_front_comm()
-      model_comm = this%mpi_connection%get_model_comm()
-      if (model_comm /= MPI_COMM_NULL .or. front_comm /= MPI_COMM_NULL) then
+      !front_comm = this%mpi_connection%get_front_comm()
+      !model_comm = this%mpi_connection%get_model_comm()
+      !if (model_comm /= MPI_COMM_NULL .or. front_comm /= MPI_COMM_NULL) then
+      model_front_comm = this%mpi_connection%get_model_front_comm()
+      if (model_front_comm /= MPI_COMM_NULL) then
+         call MPI_Barrier(model_front_comm,status)
+         _VERIFY(status)
          call io_prof%start('server_run')
          ! here the client might do some work
 
@@ -572,7 +577,7 @@ contains
       integer :: model_comm,front_comm
       type(Collection) :: hist_coll
       integer :: collection_id
-      character(len=1) :: ic
+      character(len=2) :: ic
       logical, allocatable :: writing(:)
 
       model_comm = this%mpi_connection%get_model_comm()
@@ -600,11 +605,11 @@ contains
             collection_id=0
             do while(enabled_iter /= this%enabled%end())
                collection_id=collection_id+1
-               write(ic,"(I1)")collection_id
+               write(ic,"(I2.2)")collection_id
                coll_name=enabled_iter%get()
                server_ptr => this%servers%at(coll_name)
                client_ptr => this%clients%at(coll_name)
-               if (this%mpi_connection%am_i_front_root() .and. writing(collection_id)) write(*,*)"writing coll: ",trim(coll_name)
+               if (this%mpi_connection%am_i_front_root() .and. writing(collection_id)) write(*,*)"client-server: ",trim(coll_name)
                if (writing(collection_id)) then
                   if (model_comm /= MPI_COMM_NULL) then
                      call io_prof%start('data_to_server_'//ic)
@@ -643,7 +648,7 @@ contains
       logical, allocatable :: writing(:)
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type(Collection) :: hist_coll
-      character(len=1) :: ic
+      character(len=2) :: ic
       integer, allocatable :: buffer(:)
 
       front_comm = this%mpi_connection%get_front_comm()
@@ -663,6 +668,7 @@ contains
             server_ptr => this%servers%at(coll_name)
             hist_coll = server_ptr%get_collection()
             if (hist_coll%is_time_to_write()) writing(i)=.true.
+            if (this%mpi_connection%am_i_front_root() .and. writing(i)) write(*,*)"offload server: ",trim(coll_name)
             call enabled_iter%next()
          enddo
 
@@ -686,7 +692,7 @@ contains
             do while(enabled_iter /= this%enabled%end())
                i=i+1
                if (writing(i)) then
-                  write(ic,"(I1)")i
+                  write(ic,"(I2.2)")i
                   coll_name=enabled_iter%get()
                   server_ptr => this%servers%at(coll_name)
                   !call server_ptr%get_writer(_RC)
@@ -704,7 +710,7 @@ contains
             do while(enabled_iter /= this%enabled%end())
                i=i+1
                if (writing(i)) then
-                  write(ic,"(I1)")i
+                  write(ic,"(I2.2)")i
                   coll_name=enabled_iter%get()
                   server_ptr => this%servers%at(coll_name)
                   hist_coll = server_ptr%get_collection()

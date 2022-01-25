@@ -275,9 +275,9 @@ contains
       character(len=:), allocatable :: coll_name
       integer, allocatable :: back_pets(:)
       integer :: writer_comm
-      character(len=1) :: ic
+      character(len=2) :: ic
 
-      write(ic,"(I1)")collection_id
+      write(ic,"(I2.2)")collection_id
       call io_prof%start('write_collection_'//ic)
       back_pets = this%front_back_connection%get_back_pets()
       writer_comm = this%front_back_connection%get_back_comm()
@@ -313,17 +313,6 @@ contains
          end if
          call ESMF_ArrayBundleAdd(output_bundle,[array],_RC)
          call rh_new%redist_arrays(dstArray=array,_RC)
-         block
-            real, pointer :: ptr2d(:,:),ptr3d(:,:,:)
-            if (rank==2) then
-               call ESMF_ArrayGet(array,farrayptr=ptr2d,_RC)
-               !write(*,*)trim(coll_name)," ",trim(fieldNames(i)),size(ptr2d,1),size(ptr2d,2)
-               !write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr2d),maxval(ptr2d)
-            else if (rank==3) then
-               call ESMF_ArrayGet(array,farrayptr=ptr3d,_RC)
-               !write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr3d),maxval(ptr3d)
-            end if
-         end block
       enddo
       
       !call rh_new%redist_arraybundles(dstArrayBundle=output_bundle,_RC)
@@ -341,11 +330,11 @@ contains
             !call ESMF_ArrayGet(array,rank=rank,_RC)
             !if (rank==2) then
                !call ESMF_ArrayGet(array,farrayptr=ptr2d,_RC)
-               !!write(*,*)trim(coll_name)," ",trim(fieldNames(i)),size(ptr2d,1),size(ptr2d,2)
-               !!write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr2d),maxval(ptr2d)
+               !write(*,*)trim(coll_name)," ",trim(fieldNames(i)),size(ptr2d,1),size(ptr2d,2)
+               !write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr2d),maxval(ptr2d)
             !else if (rank==3) then
                !call ESMF_ArrayGet(array,farrayptr=ptr3d,_RC)
-               !!write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr3d),maxval(ptr3d)
+               !write(*,*)trim(coll_name)," ",trim(fieldNames(i)),local_rank,minval(ptr3d),maxval(ptr3d)
             !end if
          !end block
          call ESMF_ArrayDestroy(array,noGarbage=.true.,_RC)
