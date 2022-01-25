@@ -675,8 +675,6 @@ contains
          if (any(writing)) then
             if (this%mpi_connection%am_i_front_root()) then
                buffer = this%serialize_coll_information(writing,current_time,_RC)
-               !call MPI_Send(writing,num_collections,MPI_INTEGER,back_ranks(1), &
-                   !back_ranks(1),connector_comm,status)
                call MPI_Send(buffer,size(buffer),MPI_INTEGER,back_ranks(1), &
                    back_ranks(1),connector_comm,status)
                _VERIFY(status)
@@ -695,7 +693,6 @@ contains
                   ic=int_to_char(i)
                   coll_name=enabled_iter%get()
                   server_ptr => this%servers%at(coll_name)
-                  !call server_ptr%get_writer(_RC)
                   call io_prof%start('transfer_rh_'//ic) 
                   call server_ptr%create_rh_from_proto(worker_pets(i))
                   call io_prof%stop('transfer_rh_'//ic) 
