@@ -120,18 +120,13 @@ contains
          call ESMF_ClockAdvance(clock,_RC)
          call io_controller%run(clock,_RC)
       enddo 
-      call io_controller%stop_writer(_RC)
-      call ESMF_VMBarrier(vm,_RC)
      
-      call MPI_Barrier(MPI_COMM_WORLD,status)
-      call generate_io_summary(rank)
-      call MPI_Barrier(MPI_COMM_WORLD,status)
-      call ESMF_VMBarrier(vm,_RC)
-
       if (model) call cap%finalize(clock,rc = status)
       _VERIFY(status)
+
+      call io_controller%stop_writer(_RC)
       call MPI_Barrier(MPI_COMM_WORLD,status)
-      call MPI_Barrier(MPI_COMM_WORLD,status)
+      call generate_io_summary(rank)
 
       call MAPL_Finalize(rc=status)
       _VERIFY(status)
