@@ -275,10 +275,7 @@ contains
       character(len=:), allocatable :: coll_name
       integer, allocatable :: back_pets(:)
       integer :: writer_comm
-      character(len=:), allocatable :: ic
 
-      ic = int_to_char(collection_id)
-      call io_prof%start('write_collection_'//ic)
       back_pets = this%front_back_connection%get_back_pets()
       writer_comm = this%front_back_connection%get_back_comm()
 
@@ -288,6 +285,7 @@ contains
       rh = collection_descriptor%get_rh()
       coll_name = collection_descriptor%get_coll_name()
       rh_new = this%setup_transfer(rh,back_pets(1+local_rank),_RC)
+      call io_prof%start('write_collection_'//coll_name)
 
       bundle = collection_descriptor%get_bundle()
       ! transfer arrays
@@ -299,7 +297,7 @@ contains
       dist_grid = ESMF_DistGridCreate([1,1],[gdims(1),gdims(2)],regDecomp=[1,1],delayout=de_layout,_RC)
       output_bundle = ESMF_ArrayBundleCreate(_RC)
 
-      call io_prof%start('start_write_epoch_'//ic)
+      call io_prof%start('start_write_epoch_'//coll_name)
       call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER,keepAlloc=.false.)!,throttle=1)
       !call ESMF_VMEpochEnter(epoch=ESMF_VMEPOCH_BUFFER)!,throttle=1)
 
@@ -316,7 +314,7 @@ contains
       enddo
       
       !call rh_new%redist_arraybundles(dstArrayBundle=output_bundle,_RC)
-      call io_prof%stop('start_write_epoch_'//ic)
+      call io_prof%stop('start_write_epoch_'//coll_name)
       call ESMF_VMEpochExit( keepAlloc=.false.)
 
       call rh_new%destroy(_RC)
@@ -342,7 +340,7 @@ contains
       call ESMF_ArrayBundleDestroy(output_bundle,noGarbage=.true.,_RC)
       call ESMF_DistGridDestroy(dist_grid,noGarbage=.true.,_RC)
       
-      call io_prof%stop('write_collection_'//ic)
+      call io_prof%stop('write_collection_'//coll_name)
       _RETURN(_SUCCESS)
    end subroutine write_collection
 

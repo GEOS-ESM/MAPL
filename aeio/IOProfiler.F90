@@ -1,30 +1,24 @@
 module AEIO_IOProfiler
    use MAPL_Profiler
+   use gFTL_StringVector
    implicit none
    private
  
    public io_prof
    public generate_io_summary
    public start_io_prof
-   public int_to_char
 
    type(DistributedProfiler), save :: io_prof
 
 contains
 
-   function int_to_char(i) result(ic)
-      character(len=2) :: ic
-      integer, intent(in) :: i
-
-      write(ic,"(I2.2)")i
-   end function int_to_char
-
-   subroutine start_io_prof(comm,ncolls)
+   subroutine start_io_prof(comm,collections)
         integer, intent(in) :: comm
-        integer, intent(in) :: ncolls
+        type(StringVector), intent(in) :: collections
 
-        integer :: i
-        character(len=:), allocatable :: ic
+        character(len=:), allocatable :: collection_name
+        type(StringVectorIterator) :: collection_iter
+
         io_prof = DistributedProfiler('io_controller',MpiTimerGauge(),comm)
         call io_prof%start()
         call io_prof%start('full_app')
@@ -38,38 +32,48 @@ contains
         call io_prof%stop('io_initialize')
         call io_prof%start('server_run')
            call io_prof%start('client-server-trans')
-           do i=1,ncolls
-              ic = int_to_char(I)
-              call io_prof%start('data_from_client_'//ic)
-              call io_prof%stop('data_from_client_'//ic)
-           enddo
-           do i=1,ncolls
-              ic = int_to_char(I)
-              call io_prof%start('data_to_server_'//ic)
-              call io_prof%stop('data_to_server_'//ic)
-           enddo
+           collection_iter = collections%begin()
+           do while(collection_iter/=collections%end())
+              collection_name = collection_iter%get()
+              call io_prof%start('data_from_client_'//collection_name)
+              call io_prof%stop('data_from_client_'//collection_name)
+              call collection_iter%next()
+           enddo 
+           collection_iter = collections%begin()
+           do while(collection_iter/=collections%end())
+              collection_name = collection_iter%get()
+              call io_prof%start('data_to_server_'//collection_name)
+              call io_prof%stop('data_to_server_'//collection_name)
+              call collection_iter%next()
+           enddo 
            call io_prof%stop('client-server-trans')
            call io_prof%start('server-writer-trans')
-           do i=1,ncolls
-              ic = int_to_char(I)
-              call io_prof%start('transfer_rh_'//ic)
-              call io_prof%stop('transfer_rh_'//ic)
-           enddo
-           do i=1,ncolls
-              ic = int_to_char(I)
-              call io_prof%start('offload_data_'//ic)
-              call io_prof%stop('offload_data_'//ic)
-           enddo
+           collection_iter = collections%begin()
+           do while(collection_iter/=collections%end())
+              collection_name = collection_iter%get()
+              call io_prof%start('transfer_rh_'//collection_name)
+              call io_prof%stop('transfer_rh_'//collection_name)
+              call collection_iter%next()
+           enddo 
+           collection_iter = collections%begin()
+           do while(collection_iter/=collections%end())
+              collection_name = collection_iter%get()
+              call io_prof%start('offload_data_'//collection_name)
+              call io_prof%stop('offload_data_'//collection_name)
+              call collection_iter%next()
+           enddo 
            call io_prof%stop('server-writer-trans')
         call io_prof%stop('server_run')
         call io_prof%start('start_writer')
-           do i=1,ncolls
-              ic = int_to_char(I)
-              call io_prof%start('write_collection_'//ic)
-                 call io_prof%start('start_write_epoch_'//ic)
-                 call io_prof%stop('start_write_epoch_'//ic)
-              call io_prof%stop('write_collection_'//ic)
-           enddo
+           collection_iter = collections%begin()
+           do while(collection_iter/=collections%end())
+              collection_name = collection_iter%get()
+              call io_prof%start('write_collection_'//collection_name)
+                 call io_prof%start('start_write_epoch_'//collection_name)
+                 call io_prof%stop('start_write_epoch_'//collection_name)
+              call io_prof%stop('write_collection_'//collection_name)
+              call collection_iter%next()
+           enddo 
         call io_prof%stop('start_writer')
    end subroutine start_io_prof
 
@@ -84,7 +88,7 @@ contains
          call io_prof%finalize()
          call io_prof%reduce()
          reporter = ProfileReporter(empty)
-         call reporter%add_column(NameColumn(30))
+         call reporter%add_column(NameColumn(40))
          call reporter%add_column(FormattedTextColumn('Inclusive','(f9.2)', 11, InclusiveColumn('MEAN')))
          call reporter%add_column(FormattedTextColumn('% Incl','(f9.2)', 11, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
          call reporter%add_column(FormattedTextColumn(' Max Incl)','(f9.2)', 11, InclusiveColumn('MAX')))

@@ -89,7 +89,8 @@ contains
       this%enabled = hist_config%get_enabled()
 
       ncolls = this%enabled%size()
-      call start_io_prof(MPI_COMM_WORLD,ncolls)
+      !call start_io_prof(MPI_COMM_WORLD,ncolls)
+      call start_io_prof(MPI_COMM_WORLD,this%enabled)
       call io_prof%start('io_initialize')
 
       coll_registry=hist_config%get_collections()
@@ -577,7 +578,6 @@ contains
       integer :: model_comm,front_comm
       type(Collection) :: hist_coll
       integer :: collection_id
-      character(len=:), allocatable :: ic
       logical, allocatable :: writing(:)
 
       model_comm = this%mpi_connection%get_model_comm()
@@ -605,21 +605,20 @@ contains
             collection_id=0
             do while(enabled_iter /= this%enabled%end())
                collection_id=collection_id+1
-               ic = int_to_char(collection_id)
                coll_name=enabled_iter%get()
                server_ptr => this%servers%at(coll_name)
                client_ptr => this%clients%at(coll_name)
                if (this%mpi_connection%am_i_front_root() .and. writing(collection_id)) write(*,*)"client-server: ",trim(coll_name)
                if (writing(collection_id)) then
                   if (model_comm /= MPI_COMM_NULL) then
-                     call io_prof%start('data_to_server_'//ic)
+                     call io_prof%start('data_to_server_'//coll_name)
                      call client_ptr%transfer_data_to_server(_RC)
-                     call io_prof%stop('data_to_server_'//ic)
+                     call io_prof%stop('data_to_server_'//coll_name)
                   end if
                   if (front_comm /= MPI_COMM_NULL) then
-                     call io_prof%start('data_from_client_'//ic)
+                     call io_prof%start('data_from_client_'//coll_name)
                      call server_ptr%get_data_from_client(_RC)
-                     call io_prof%stop('data_from_client_'//ic)
+                     call io_prof%stop('data_from_client_'//coll_name)
                   end if
                end if
                call enabled_iter%next()
@@ -648,7 +647,6 @@ contains
       logical, allocatable :: writing(:)
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       type(Collection) :: hist_coll
-      character(len=:), allocatable :: ic
       integer, allocatable :: buffer(:)
 
       front_comm = this%mpi_connection%get_front_comm()
@@ -690,12 +688,11 @@ contains
             do while(enabled_iter /= this%enabled%end())
                i=i+1
                if (writing(i)) then
-                  ic=int_to_char(i)
                   coll_name=enabled_iter%get()
                   server_ptr => this%servers%at(coll_name)
-                  call io_prof%start('transfer_rh_'//ic) 
+                  call io_prof%start('transfer_rh_'//coll_name) 
                   call server_ptr%create_rh_from_proto(worker_pets(i))
-                  call io_prof%stop('transfer_rh_'//ic) 
+                  call io_prof%stop('transfer_rh_'//coll_name) 
                end if
                call enabled_iter%next()
             enddo
@@ -707,13 +704,12 @@ contains
             do while(enabled_iter /= this%enabled%end())
                i=i+1
                if (writing(i)) then
-                  ic=int_to_char(i)
                   coll_name=enabled_iter%get()
                   server_ptr => this%servers%at(coll_name)
                   hist_coll = server_ptr%get_collection()
-                  call io_prof%start('offload_data_'//ic)
+                  call io_prof%start('offload_data_'//coll_name)
                   call server_ptr%offload_data(_RC)
-                  call io_prof%stop('offload_data_'//ic)
+                  call io_prof%stop('offload_data_'//coll_name)
                end if
                call enabled_iter%next()
             enddo
