@@ -3735,14 +3735,9 @@ contains
             end if
          end do
          if (count == 0) then
-            if (n > 1) then
-               do i=1,n
-                  write(splitNameArray(i),'(A,I3.3)') trim(aliasName), i
-               end do
-            else
-               count = count+1
-               splitNameArray(count) = aliasName
-            end if
+            do i=1,n
+               write(splitNameArray(i),'(A,I3.3)') trim(aliasName), i
+            end do
          else if(count == n-1) then
             k2 = kk
             count = count+1
