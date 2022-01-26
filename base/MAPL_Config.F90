@@ -58,13 +58,13 @@ contains
       subroutine MAPL_ConfigSetAttribute_real64( config, value, label, rc )
          use, intrinsic :: iso_fortran_env, only: REAL64
 ! !ARGUMENTS:
-      type(ESMF_Config), intent(inout)             :: config     
+      type(ESMF_Config), intent(inout)             :: config
       real(kind=REAL64), intent(in)                :: value
-      character(len=*), intent(in), optional       :: label 
-      integer, intent(out), optional               :: rc   
+      character(len=*), intent(in), optional       :: label
+      integer, intent(out), optional               :: rc
 
 !
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !  Sets an integer {\tt value} in the {\tt config} object.
 !
 !   The arguments are:
@@ -72,9 +72,9 @@ contains
 !   \item [config]
 !     Already created {\tt ESMF\_Config} object.
 !   \item [value]
-!     Integer value to set. 
+!     Integer value to set.
 !   \item [{[label]}]
-!     Identifying attribute label. 
+!     Identifying attribute label.
 !   \item [{[rc]}]
 !     Return code; equals {\tt ESMF\_SUCCESS} if there are no errors.
 !   \end{description}
@@ -88,9 +88,9 @@ contains
                                           ! of non-blank/comment lines
                                           ! (because most lines are shorter
                                           ! then LSZ)
- 
+
        integer,   parameter :: NBUF_MAX = MSZ*LSZ ! max size of buffer
-       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;  
+       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
                                                   ! assumes an average line
                                                   ! size of 16, the code
                                                   ! will do a bound check
@@ -151,7 +151,7 @@ contains
         if ( (j-i) .gt. LSZ) then
            write(logmsg, *) ", attribute label, value & EOL are ", j-i, &
                " characters long, only ", LSZ, " characters allowed per line"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
 
         ! check if enough space left in config buffer
@@ -159,7 +159,7 @@ contains
            write(logmsg, *) ", attribute label & value require ", j-i+1, &
                " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                " characters left in config buffer"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
       endif
 
@@ -184,7 +184,7 @@ contains
             if (j-m+1 .gt. LSZ) then
                write(logmsg, *) ", attribute label, value & EOL are ", j-m+1, &
                   " characters long, only ", LSZ, " characters allowed per line"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ! check if enough space left in config buffer to extend line
@@ -192,7 +192,7 @@ contains
                write(logmsg, *) ", attribute label & value require ", j-m+1, &
                    " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                    " characters left in config buffer"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ninsert = nchar - lenThisLine
@@ -226,7 +226,7 @@ contains
         if ( iret .eq. ESMF_RC_NOT_FOUND ) iret = ESMF_SUCCESS
         rc = iret
       endif
-      
+
       return
    end subroutine MAPL_ConfigSetAttribute_real64
 
@@ -241,13 +241,13 @@ contains
       subroutine MAPL_ConfigSetAttribute_real32( config, value, label, rc )
          use, intrinsic :: iso_fortran_env, only: REAL32
 ! !ARGUMENTS:
-      type(ESMF_Config), intent(inout)             :: config     
+      type(ESMF_Config), intent(inout)             :: config
       real(kind=REAL32), intent(in)                :: value
-      character(len=*), intent(in), optional       :: label 
-      integer, intent(out), optional               :: rc   
+      character(len=*), intent(in), optional       :: label
+      integer, intent(out), optional               :: rc
 
 !
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !  Sets an integer {\tt value} in the {\tt config} object.
 !
 !   The arguments are:
@@ -255,9 +255,9 @@ contains
 !   \item [config]
 !     Already created {\tt ESMF\_Config} object.
 !   \item [value]
-!     Integer value to set. 
+!     Integer value to set.
 !   \item [{[label]}]
-!     Identifying attribute label. 
+!     Identifying attribute label.
 !   \item [{[rc]}]
 !     Return code; equals {\tt ESMF\_SUCCESS} if there are no errors.
 !   \end{description}
@@ -271,9 +271,9 @@ contains
                                           ! of non-blank/comment lines
                                           ! (because most lines are shorter
                                           ! then LSZ)
- 
+
        integer,   parameter :: NBUF_MAX = MSZ*LSZ ! max size of buffer
-       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;  
+       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
                                                   ! assumes an average line
                                                   ! size of 16, the code
                                                   ! will do a bound check
@@ -334,7 +334,7 @@ contains
         if ( (j-i) .gt. LSZ) then
            write(logmsg, *) ", attribute label, value & EOL are ", j-i, &
                " characters long, only ", LSZ, " characters allowed per line"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
 
         ! check if enough space left in config buffer
@@ -342,7 +342,7 @@ contains
            write(logmsg, *) ", attribute label & value require ", j-i+1, &
                " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                " characters left in config buffer"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
       endif
 
@@ -367,7 +367,7 @@ contains
             if (j-m+1 .gt. LSZ) then
                write(logmsg, *) ", attribute label, value & EOL are ", j-m+1, &
                   " characters long, only ", LSZ, " characters allowed per line"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ! check if enough space left in config buffer to extend line
@@ -375,7 +375,7 @@ contains
                write(logmsg, *) ", attribute label & value require ", j-m+1, &
                    " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                    " characters left in config buffer"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ninsert = nchar - lenThisLine
@@ -409,7 +409,7 @@ contains
         if ( iret .eq. ESMF_RC_NOT_FOUND ) iret = ESMF_SUCCESS
         rc = iret
       endif
-      
+
       return
    end subroutine MAPL_ConfigSetAttribute_real32
 
@@ -424,13 +424,13 @@ contains
       subroutine MAPL_ConfigSetAttribute_int32( config, value, label, rc )
          use, intrinsic :: iso_fortran_env, only: INT32
 ! !ARGUMENTS:
-      type(ESMF_Config), intent(inout)             :: config     
+      type(ESMF_Config), intent(inout)             :: config
       integer(kind=INT32), intent(in)            :: value
-      character(len=*), intent(in), optional       :: label 
-      integer, intent(out), optional               :: rc   
+      character(len=*), intent(in), optional       :: label
+      integer, intent(out), optional               :: rc
 
 !
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !  Sets an integer {\tt value} in the {\tt config} object.
 !
 !   The arguments are:
@@ -438,9 +438,9 @@ contains
 !   \item [config]
 !     Already created {\tt ESMF\_Config} object.
 !   \item [value]
-!     Integer value to set. 
+!     Integer value to set.
 !   \item [{[label]}]
-!     Identifying attribute label. 
+!     Identifying attribute label.
 !   \item [{[rc]}]
 !     Return code; equals {\tt ESMF\_SUCCESS} if there are no errors.
 !   \end{description}
@@ -454,9 +454,9 @@ contains
                                           ! of non-blank/comment lines
                                           ! (because most lines are shorter
                                           ! then LSZ)
- 
+
        integer,   parameter :: NBUF_MAX = MSZ*LSZ ! max size of buffer
-       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;  
+       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
                                                   ! assumes an average line
                                                   ! size of 16, the code
                                                   ! will do a bound check
@@ -517,7 +517,7 @@ contains
         if ( (j-i) .gt. LSZ) then
            write(logmsg, *) ", attribute label, value & EOL are ", j-i, &
                " characters long, only ", LSZ, " characters allowed per line"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
 
         ! check if enough space left in config buffer
@@ -525,7 +525,7 @@ contains
            write(logmsg, *) ", attribute label & value require ", j-i+1, &
                " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                " characters left in config buffer"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
       endif
 
@@ -550,7 +550,7 @@ contains
             if (j-m+1 .gt. LSZ) then
                write(logmsg, *) ", attribute label, value & EOL are ", j-m+1, &
                   " characters long, only ", LSZ, " characters allowed per line"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ! check if enough space left in config buffer to extend line
@@ -558,7 +558,7 @@ contains
                write(logmsg, *) ", attribute label & value require ", j-m+1, &
                    " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                    " characters left in config buffer"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ninsert = nchar - lenThisLine
@@ -592,17 +592,17 @@ contains
         if ( iret .eq. ESMF_RC_NOT_FOUND ) iret = ESMF_SUCCESS
         rc = iret
       endif
-      
+
       return
    end subroutine MAPL_ConfigSetAttribute_int32
 
    subroutine MAPL_ConfigSetAttribute_ints32( config, value, label, rc )
      use, intrinsic :: iso_fortran_env, only: INT32
 ! !ARGUMENTS:
-     type(ESMF_Config), intent(inout)             :: config     
+     type(ESMF_Config), intent(inout)             :: config
      integer(kind=INT32), intent(in)              :: value(:)
-     character(len=*), intent(in), optional       :: label 
-     integer, intent(out), optional               :: rc   
+     character(len=*), intent(in), optional       :: label
+     integer, intent(out), optional               :: rc
 ! BOPI -------------------------------------------------------------------
 !
 ! !IROUTINE: MAPL_ConfigSetAttribute - Set an array of 4-byte integer numbers
@@ -616,9 +616,9 @@ contains
      character(len=12) :: tmpStr, newVal
      integer :: count, i, j
      integer :: status
-     
+
      count = size(value)
-     buffer = '' ! initialize to 
+     buffer = '' ! initialize to
      do i = 1, count
         j = len_trim(buffer)
         write(tmpStr, *) value(i) ! ALT: check if enough space to write
@@ -634,17 +634,17 @@ contains
    subroutine MAPL_ConfigSetAttribute_reals32( config, value, label, rc )
      use, intrinsic :: iso_fortran_env, only: REAL32
 ! !ARGUMENTS:
-     type(ESMF_Config), intent(inout)             :: config     
+     type(ESMF_Config), intent(inout)             :: config
      real(kind=REAL32), intent(in)                :: value(:)
-     character(len=*), intent(in), optional       :: label 
-     integer, intent(out), optional               :: rc   
+     character(len=*), intent(in), optional       :: label
+     integer, intent(out), optional               :: rc
 ! BOPI -------------------------------------------------------------------
 !
 ! !IROUTINE: MAPL_ConfigSetAttribute - Set an array of 4-byte real numbers
 
      ! This uses existing overload of MAPL_ConfogSetAttribute for vector of
      ! character strings. This limits the number of reals to about 92
-     
+
 !
 ! !INTERFACE:
       ! Private name; call using MAPL_ConfigSetAttribute()
@@ -663,7 +663,7 @@ contains
      integer :: status
 
      count = size(value)
-     buffer = '' ! initialize to 
+     buffer = '' ! initialize to
      do i = 1, count
         j = len_trim(buffer)
         write(tmpStr, *) value(i) ! ALT: check if enough space to write
@@ -678,13 +678,13 @@ contains
 
    subroutine MAPL_ConfigSetAttribute_string(config, value, label, rc)
 ! !ARGUMENTS:
-      type(ESMF_Config), intent(inout)             :: config     
+      type(ESMF_Config), intent(inout)             :: config
       character(len=*), intent(in)                 :: value
-      character(len=*), intent(in), optional       :: label 
-      integer, intent(out), optional               :: rc   
+      character(len=*), intent(in), optional       :: label
+      integer, intent(out), optional               :: rc
 
 !
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !  Sets an integer {\tt value} in the {\tt config} object.
 !
 !   The arguments are:
@@ -692,9 +692,9 @@ contains
 !   \item [config]
 !     Already created {\tt ESMF\_Config} object.
 !   \item [value]
-!     Integer value to set. 
+!     Integer value to set.
 !   \item [{[label]}]
-!     Identifying attribute label. 
+!     Identifying attribute label.
 !   \item [{[rc]}]
 !     Return code; equals {\tt ESMF\_SUCCESS} if there are no errors.
 !   \end{description}
@@ -708,9 +708,9 @@ contains
                                           ! of non-blank/comment lines
                                           ! (because most lines are shorter
                                           ! then LSZ)
- 
+
        integer,   parameter :: NBUF_MAX = MSZ*LSZ ! max size of buffer
-       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;  
+       integer,   parameter :: NATT_MAX = NBUF_MAX/64 ! max # attributes;
                                                   ! assumes an average line
                                                   ! size of 16, the code
                                                   ! will do a bound check
@@ -771,7 +771,7 @@ contains
         if ( (j-i) .gt. LSZ) then
            write(logmsg, *) ", attribute label, value & EOL are ", j-i, &
                " characters long, only ", LSZ, " characters allowed per line"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
 
         ! check if enough space left in config buffer
@@ -779,7 +779,7 @@ contains
            write(logmsg, *) ", attribute label & value require ", j-i+1, &
                " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                " characters left in config buffer"
-           _RETURN(ESMC_RC_LONG_STR)
+           _RETURN(ESMF_RC_LONG_STR)
         endif
       endif
 
@@ -803,7 +803,7 @@ contains
             if (j-m+1 .gt. LSZ) then
                write(logmsg, *) ", attribute label, value & EOL are ", j-m+1, &
                   " characters long, only ", LSZ, " characters allowed per line"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ! check if enough space left in config buffer to extend line
@@ -811,7 +811,7 @@ contains
                write(logmsg, *) ", attribute label & value require ", j-m+1, &
                    " characters (including EOL & EOB), only ", NBUF_MAX-i, &
                    " characters left in config buffer"
-               _RETURN(ESMC_RC_LONG_STR)
+               _RETURN(ESMF_RC_LONG_STR)
             endif
 
             ninsert = nchar - lenThisLine
@@ -845,7 +845,7 @@ contains
         if ( iret .eq. ESMF_RC_NOT_FOUND ) iret = ESMF_SUCCESS
         rc = iret
       endif
-      
+
       _RETURN(_SUCCESS)
 
    end subroutine MAPL_ConfigSetAttribute_string
