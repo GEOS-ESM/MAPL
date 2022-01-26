@@ -728,11 +728,9 @@ CONTAINS
 
     deallocate(self%coords%Lons, self%coords%Lats, self%coords%Levs, __STAT__) 
 !    deallocate(self%r1, self%r2, self%r3, __STAT__)
-    if (.not. self%esmf_alloc_fields) then
-       if(associated(self%r1)) deallocate(self%r1)
-       if(associated(self%r2)) deallocate(self%r2)
-       if(associated(self%r3)) deallocate(self%r3)
-    end if
+    if(associated(self%r1)) deallocate(self%r1)
+    if(associated(self%r2)) deallocate(self%r2)
+    if(associated(self%r3)) deallocate(self%r3)
 
     if (associated(self%bundle)) then
        if (self%esmf_alloc_fields) then
