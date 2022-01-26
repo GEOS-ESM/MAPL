@@ -17,6 +17,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.17.0] - 2022-01-26
+
+### Fixed
+
+- io profiler is fixed due to the change of profiler finalize
+- Files read by GriddedIOMod now respect the file defined _FillValue rather than assuming it is MAPL_UNDEF
+- Fix bug so that fields with an ungridded dimension of size 1 can be written via History
+- Updated `components.yaml`
+  - ESMA_env v3.11.0 (Mainly updates for NAS)
+
+### Changed
+
+- History initialization will display chunksize for any collections that are chunked
+- Removed include of `ESMC_ReturnCodes.h`. Changed some `ESMC_RC` codes to `ESMF_RC` codes
+
 ## [2.16.0] - 2022-01-13
 
 ### Fixed
