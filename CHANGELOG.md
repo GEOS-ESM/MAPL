@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - io profiler is fixed due to the change of profiler finalize
 - Files read by GriddedIOMod now respect the file defined _FillValue rather than assuming it is MAPL_UNDEF
+- Fix bug so that fields with an ungridded dimension of size 1 can be written via History
 - Updated `components.yaml`
   - ESMA_env v3.10.0 (Mainly updates for NAS)
 
