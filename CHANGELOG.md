@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - History initialization will display chunksize for any collections that are chunked
+- Removed include of `ESMC_ReturnCodes.h`. Changed some `ESMC_RC` codes to `ESMF_RC` codes
 
 ### Removed
 
