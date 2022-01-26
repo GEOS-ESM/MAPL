@@ -351,7 +351,7 @@ module MAPL_VerticalDataMod
            _VERIFY(status)
            call ESMF_AttributeGet(field,name="VLOCATION", value=location(i),rc=status)
            if (fieldRank==2) then
-              varDims(i)=1
+              varDims(i)=0
            else if (fieldRank==3) then
               call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
               _VERIFY(status)
@@ -403,12 +403,12 @@ module MAPL_VerticalDataMod
 
         found_mixed_ce=.false.
         lm=1
-        haveVert = any(varDims/=1)
+        haveVert = any(varDims/=0)
         if (haveVert) then
-           vlast=1
+           vlast=0
            do i=1,numVars
-              if (varDims(i)/=1) then
-                 if (vlast/=1) then
+              if (varDims(i)/=0) then
+                 if (vlast/=0) then
                     if (vlast /= varDims(i)) then
                        found_mixed_ce=.true.
                     end if
