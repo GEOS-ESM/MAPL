@@ -85,7 +85,8 @@ contains
          character(1) :: empty(0)
 
          call io_prof%stop('full_app')
-         call io_prof%finalize()
+         call io_prof%stop()
+         !call io_prof%finalize()
          call io_prof%reduce()
          reporter = ProfileReporter(empty)
          call reporter%add_column(NameColumn(40))
@@ -93,12 +94,12 @@ contains
          call reporter%add_column(FormattedTextColumn('% Incl','(f9.2)', 11, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
          call reporter%add_column(FormattedTextColumn(' Max Incl)','(f9.2)', 11, InclusiveColumn('MAX')))
          call reporter%add_column(FormattedTextColumn(' Min INcl)','(f9.2)', 11, InclusiveColumn('MIN')))
-         !call reporter%add_column(FormattedTextColumn('Exclusive','(f9.2)', 11, ExclusiveColumn('MEAN')))
-         !call reporter%add_column(FormattedTextColumn('% Excl','(f9.2)', 11, PercentageColumn(ExclusiveColumn('MEAN'))))
-         !call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.2)', 11, ExclusiveColumn('MAX')))
-         !call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.2)', 11, ExclusiveColumn('MIN')))
-         !call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
-         !call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
+         call reporter%add_column(FormattedTextColumn('Exclusive','(f9.2)', 11, ExclusiveColumn('MEAN')))
+         call reporter%add_column(FormattedTextColumn('% Excl','(f9.2)', 11, PercentageColumn(ExclusiveColumn('MEAN'))))
+         call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.2)', 11, ExclusiveColumn('MAX')))
+         call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.2)', 11, ExclusiveColumn('MIN')))
+         call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
+         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
         report_lines = reporter%generate_report(io_prof)
          if (rank==0) then
             write(*,'(a)')'Final profile'

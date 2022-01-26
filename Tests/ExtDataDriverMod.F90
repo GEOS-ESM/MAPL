@@ -121,8 +121,10 @@ contains
          call io_controller%run(clock,_RC)
       enddo 
      
-      if (model) call cap%finalize(clock,rc = status)
-      _VERIFY(status)
+      if (model) then 
+         call cap%finalize(clock,rc = status)
+         _VERIFY(status)
+      end if
 
       call io_controller%stop_writer(_RC)
       call MPI_Barrier(MPI_COMM_WORLD,status)

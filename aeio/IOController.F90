@@ -89,7 +89,6 @@ contains
       this%enabled = hist_config%get_enabled()
 
       ncolls = this%enabled%size()
-      !call start_io_prof(MPI_COMM_WORLD,ncolls)
       call start_io_prof(MPI_COMM_WORLD,this%enabled)
       call io_prof%start('io_initialize')
 
