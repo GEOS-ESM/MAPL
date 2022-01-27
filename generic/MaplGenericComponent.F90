@@ -398,7 +398,6 @@ contains
       _VERIFY(status)
       call ESMF_UserCompGetInternalState(this%gridcomp, trim(comp_name)//"2G_GridComp", wrap_private, status)
       has_private_state = (status == ESMF_SUCCESS)
-
       do i = 1, num_grids
          associate (gc => subgridcomps(i) )
            gc = ESMF_GridCompCreate(name=trim(comp_name), petlist=[myPet], &

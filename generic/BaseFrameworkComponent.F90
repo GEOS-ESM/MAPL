@@ -20,7 +20,7 @@ module mapl_BaseFrameworkComponent
    contains
       procedure :: set_component
       procedure :: get_component
-      procedure :: get_internal_state
+      !procedure :: get_internal_state
    end type BaseFrameworkComponent
 
 contains
@@ -43,11 +43,11 @@ contains
    end function get_component
 
    
-   function get_internal_state(this) result(state)
-      type(ESMF_State), pointer :: state
-      class(BaseFrameworkComponent), target, intent(in) :: this
-
-      state => this%component%get_internal_state()
-   end function get_internal_state
+   !function get_internal_state(this) result(state)
+   !   type(ESMF_State), pointer :: state
+   !   class(BaseFrameworkComponent), target, intent(in) :: this
+   !
+   !  state => this%component%get_internal_state()
+   !nd function get_internal_state
 
 end module mapl_BaseFrameworkComponent

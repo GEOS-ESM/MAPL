@@ -205,8 +205,13 @@ module MAPL_OpenMP_Support
         type(ESMF_Grid), allocatable :: subgrids(:)
         type(Interval), allocatable :: bounds(:)
         type(ESMF_Grid) :: primary_grid
+        real(kind=ESMF_KIND_R4), pointer :: temp_ptr(:,:,:)
+        type(ESMF_VM) :: vm
+        integer :: me
          
 
+        call ESMF_VMGetCurrent(vm,__RC__)
+        call ESMF_VMGet(vm, localPet=me, __RC__)
         call ESMF_FieldGet(primary_field, grid=primary_grid, typekind=typekind, rank=rank, name=name,  __RC__)
         !print*, 'No failure with field named:', name
         call MAPL_GridGet(primary_grid,localcellcountPerDim=local_count, __RC__)
@@ -225,6 +230,8 @@ module MAPL_OpenMP_Support
               new_ptr_2d_r4 => old_ptr_2d_r4(:,bounds(i)%min:bounds(i)%max)
               subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_r4, name=name,  __RC__)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC__)
+              call ESMF_FieldGet(subfields(i), name=name,  __RC__)
+              if (trim(name) == "WET1") print *, trim(name), shape(new_ptr_2d_r4)
            end do
        
         ! 2d, r8
@@ -243,6 +250,11 @@ module MAPL_OpenMP_Support
               new_ptr_3d_r4 => old_ptr_3d_r4(:,bounds(i)%min:bounds(i)%max,:) 
               subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_r4, name=name, __RC__)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC__)
+              call ESMF_FieldGet(subfields(i), farrayPtr=temp_ptr, __RC__)
+              call ESMF_FieldGet(subfields(i), name=name, __RC__)
+              if (me == 0) then
+                 if (trim(name) == "DELP") print *, i, bounds(i)%min, bounds(i)%max, trim(name), shape(temp_ptr)
+              endif
            end do
        
         ! 3d, r8

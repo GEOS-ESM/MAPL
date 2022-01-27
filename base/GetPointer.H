@@ -83,20 +83,24 @@
          _VERIFY(STATUS)
       endif
    endif
-
+   
 !ALT I dont think the next lines are needed anymore
-#if 0
+!#if 0
    block
      integer :: DIMS
      call ESMF_AttributeGet(field, name='VLOCATION', value=DIMS, rc=status)
      if (STATUS==ESMF_SUCCESS) then
         if (DIMS == MAPL_VLocationEdge .and. associated(ptr)) then
+#if RANK_ == 3
            call AdjustPtrBounds(ptr, ptr, 1, size(ptr,1), 1, size(ptr,2), 0, size(ptr,3)-1)
+#elif RANK_ == 1
+           call AdjustPtrBounds(ptr, ptr, 0, size(ptr,1)-1)
+#endif
         end if
      end if
    end block
-#endif
-   
+!#endif
+
    _RETURN(ESMF_SUCCESS)
    
  end subroutine SUB_
@@ -104,4 +108,3 @@
 #undef DIMENSIONS_
 #undef RANK_
 #undef RANKSTR_
-   
