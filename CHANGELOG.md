@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed issue in `CMakePresets.json` where Ninja presets were broken
+
 ### Added
 
 ### Changed
