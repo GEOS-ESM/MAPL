@@ -1379,6 +1379,7 @@ contains
      logical :: global, isPresent
      type(RegridderSpecRouteHandleMap), pointer :: route_handles, transpose_route_handles
      type(ESMF_RouteHandle) :: route_handle, transpose_route_handle
+     type(ESMF_Info) :: infoh
     
      if (kind == ESMF_TYPEKIND_R4) then
         route_handles => route_handles_r4
@@ -1429,9 +1430,11 @@ contains
         counter = counter + 1
 
         srcTermProcessing=0
-        call ESMF_AttributeGet(spec%grid_in, name='Global',isPresent=isPresent,rc=status)
+        call ESMF_InfoGetFromHost(spec%grid_in,infoh,rc=status)
+        _VERIFY(status)
+        isPresent = ESMF_InfoIsPresent(infoh,'Global',rc=status)
         if (isPresent) then
-           call ESMF_AttributeGet(spec%grid_in, name='Global',value=global,rc=status)
+           call ESMF_InfoGet(infoh,'Global',global,rc=status)
            if (.not.global) unmappedaction=ESMF_UNMAPPEDACTION_IGNORE
         end if
         select case (spec%regrid_method)
