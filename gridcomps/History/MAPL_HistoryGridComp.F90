@@ -101,10 +101,16 @@ module MAPL_HistoryGridCompMod
      type (SpecWrapper),         pointer :: SRCS(:)       => null()
      type (SpecWrapper),         pointer :: DSTS(:)       => null()
      type (StringGridMap)                :: output_grids
-     type (StringFieldSetMap)           :: field_sets
+     type (StringFieldSetMap)            :: field_sets
      character(len=ESMF_MAXSTR)          :: expsrc
      character(len=ESMF_MAXSTR)          :: expid
      character(len=ESMF_MAXSTR)          :: expdsc
+     character(len=ESMF_MAXSTR)          :: comment
+     character(len=ESMF_MAXSTR)          :: contact
+     character(len=ESMF_MAXSTR)          :: convention
+     character(len=ESMF_MAXSTR)          :: institution
+     character(len=ESMF_MAXSTR)          :: references
+     character(len=ESMF_MAXSTR)          :: source
      integer                             :: CoresPerNode, mype, npes
      integer                             :: AvoidRootNodeThreshold
      integer                             :: blocksize
@@ -227,6 +233,18 @@ contains
 ! \item[format]       Character string defining file format ("flat" or "CFIO"). Default = "flat".
 ! \item[mode]         Character string equal to "instantaneous" or "time-averaged". Default = "instantaneous".
 ! \item[descr]        Character string equal to the list description. Defaults to "expdsc".
+! \item[commment]     Character string defining a comment.
+!                     Defaults to "NetCDF-4". Can be globally set for all collections with "COMMENT:"
+! \item[contact]      Character string defining a contact.
+!                     Defaults to "http://gmao.gsfc.nasa.gov". Can be globally set for all collections with "CONTACT:"
+! \item[convention]   Character string defining the convention.
+!                     Defaults to "CF". Can be globally set for all collections with "CONVENTION:"
+! \item[institution]  Character string defining an institution.
+!                     Defaults to "NASA Global Modeling and Assimilation Office". Can be globally set for all collections with "INSTITUTION:"
+! \item[references]   Character string defining references.
+!                     Defaults to "see MAPL documentation". Can be globally set for all collections with "REFERENCES:"
+! \item[source]       Character string defining source.
+!                     Defaults to "unknown". Can be globally set for all collections with "SOURCE:"
 ! \item[frequency]    Integer (HHMMSS) for the frequency of output.  Default = 060000.
 ! \item[acc_interval] Integer (HHMMSS) for the acculation interval (<= frequency) for time-averaged diagnostics.
 !                     Default = Diagnostic Frequency.
@@ -489,6 +507,24 @@ contains
     _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expdsc, &
                                    label ='EXPDSC:', default='', rc=status )
+    _VERIFY(STATUS)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%institution, &
+                                   label ='INSTITUTION:', default='NASA Global Modeling and Assimilation Office', rc=status )
+    _VERIFY(STATUS)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%references, &
+                                   label ='REFERENCES:', default='see MAPL documentation', rc=status )
+    _VERIFY(STATUS)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%contact, &
+                                   label ='CONTACT:', default='http://gmao.gsfc.nasa.gov', rc=status )
+    _VERIFY(STATUS)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%comment, &
+                                   label ='COMMENT:', default='NetCDF-4', rc=status )
+    _VERIFY(STATUS)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%convention, &
+                                   label ='CONVENTION:', default='CF', rc=status )
+    _VERIFY(STATUS)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%source, &
+                                   label ='SOURCE:', default='unknown', rc=status )
     _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%CoresPerNode, &
                                    label ='CoresPerNode:', default=min(npes,8), rc=status )
@@ -755,9 +791,39 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%mode,default='instantaneous', &
                                       label=trim(string) // 'mode:' ,rc=status )
        _VERIFY(STATUS)
-       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%descr, &
+
+       ! Fill the global attributes
+
+       ! filename is special as it does double duty, so we fill directly
+       ! from HistoryCollection object
+       list(n)%global_atts%filename = list(n)%filename
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%descr, &
                                       default=INTSTATE%expdsc, &
                                       label=trim(string) // 'descr:' ,rc=status )
+       _VERIFY(STATUS)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%comment, &
+                                      default=INTSTATE%comment, &
+                                      label=trim(string) // 'comment:' ,rc=status )
+       _VERIFY(STATUS)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%contact, &
+                                      default=INTSTATE%contact, &
+                                      label=trim(string) // 'contact:' ,rc=status )
+       _VERIFY(STATUS)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%convention, &
+                                      default=INTSTATE%convention, &
+                                      label=trim(string) // 'convention:' ,rc=status )
+       _VERIFY(STATUS)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%institution, &
+                                      default=INTSTATE%institution, &
+                                      label=trim(string) // 'institution:' ,rc=status )
+       _VERIFY(STATUS)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%references, &
+                                      default=INTSTATE%references, &
+                                      label=trim(string) // 'references:' ,rc=status )
+       _VERIFY(STATUS)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%source, &
+                                      default=INTSTATE%source, &
+                                      label=trim(string) // 'source:' ,rc=status )
        _VERIFY(STATUS)
 
        call ESMF_ConfigGetAttribute ( cfg, mntly, default=0, &
@@ -2434,7 +2500,7 @@ ENDDO PARSER
              call list(n)%trajectory%initialize(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,recycle_track=list(n)%recycle_track,rc=status)
              _VERIFY(status)
           else
-             global_attributes = list(n)%define_collection_attributes(_RC)
+             global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              if (trim(list(n)%output_grid_label)/='') then
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
                 call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,rc=status)
@@ -3604,7 +3670,7 @@ ENDDO PARSER
                if( INTSTATE%LCTL(n) ) then
                   call MAPL_GradsCtlWrite ( clock, state_out, list(n), &
                        filename(n), INTSTATE%expid, &
-                       list(n)%descr, intstate%output_grids,rc )
+                       list(n)%global_atts%descr, intstate%output_grids,rc )
                   INTSTATE%LCTL(n) = .false.
                endif
 
