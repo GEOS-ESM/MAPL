@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- a small performance improvement. cycle => exit in MAPL_Genenic.F90
+
 ### Removed
 
 ### Deprecated
