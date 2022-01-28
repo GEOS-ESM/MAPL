@@ -28,7 +28,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_ConfigMod
   use, intrinsic :: iso_fortran_env, only: INT64
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-  use MAPL_HistoryCollectionMod, only: HistoryCollection, FieldSet
+  use MAPL_HistoryCollectionMod, only: HistoryCollection, FieldSet, HistoryCollectionGlobalAttributes
   use MAPL_HistoryCollectionVectorMod, only: HistoryCollectionVector
   use MAPL_StringFieldSetMapMod, only: StringFieldSetMap
   use MAPL_StringFieldSetMapMod, only: StringFieldSetMapIterator
@@ -105,12 +105,7 @@ module MAPL_HistoryGridCompMod
      character(len=ESMF_MAXSTR)          :: expsrc
      character(len=ESMF_MAXSTR)          :: expid
      character(len=ESMF_MAXSTR)          :: expdsc
-     character(len=ESMF_MAXSTR)          :: comment
-     character(len=ESMF_MAXSTR)          :: contact
-     character(len=ESMF_MAXSTR)          :: convention
-     character(len=ESMF_MAXSTR)          :: institution
-     character(len=ESMF_MAXSTR)          :: references
-     character(len=ESMF_MAXSTR)          :: source
+     type(HistoryCollectionGlobalAttributes) :: global_atts
      integer                             :: CoresPerNode, mype, npes
      integer                             :: AvoidRootNodeThreshold
      integer                             :: blocksize
@@ -508,23 +503,23 @@ contains
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%expdsc, &
                                    label ='EXPDSC:', default='', rc=status )
     _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%institution, &
-                                   label ='INSTITUTION:', default='NASA Global Modeling and Assimilation Office', rc=status )
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%institution, &
+                                   label ='INSTITUTION:', default='NASA Global Modeling and Assimilation Office', _RC)
     _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%references, &
-                                   label ='REFERENCES:', default='see MAPL documentation', rc=status )
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%references, &
+                                   label ='REFERENCES:', default='see MAPL documentation', _RC)
     _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%contact, &
-                                   label ='CONTACT:', default='http://gmao.gsfc.nasa.gov', rc=status )
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%contact, &
+                                   label ='CONTACT:', default='http://gmao.gsfc.nasa.gov', _RC)
     _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%comment, &
-                                   label ='COMMENT:', default='NetCDF-4', rc=status )
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%comment, &
+                                   label ='COMMENT:', default='NetCDF-4', _RC)
     _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%convention, &
-                                   label ='CONVENTION:', default='CF', rc=status )
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%convention, &
+                                   label ='CONVENTION:', default='CF', _RC)
     _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%source, &
-                                   label ='SOURCE:', default='unknown', rc=status )
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%source, &
+                                   label ='SOURCE:', default='unknown', _RC)
     _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%CoresPerNode, &
                                    label ='CoresPerNode:', default=min(npes,8), rc=status )
@@ -802,28 +797,28 @@ contains
                                       label=trim(string) // 'descr:' ,rc=status )
        _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%comment, &
-                                      default=INTSTATE%comment, &
-                                      label=trim(string) // 'comment:' ,rc=status )
+                                      default=INTSTATE%global_atts%comment, &
+                                      label=trim(string) // 'comment:' ,_RC)
        _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%contact, &
-                                      default=INTSTATE%contact, &
-                                      label=trim(string) // 'contact:' ,rc=status )
+                                      default=INTSTATE%global_atts%contact, &
+                                      label=trim(string) // 'contact:' ,_RC)
        _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%convention, &
-                                      default=INTSTATE%convention, &
-                                      label=trim(string) // 'convention:' ,rc=status )
+                                      default=INTSTATE%global_atts%convention, &
+                                      label=trim(string) // 'convention:' ,_RC)
        _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%institution, &
-                                      default=INTSTATE%institution, &
-                                      label=trim(string) // 'institution:' ,rc=status )
+                                      default=INTSTATE%global_atts%institution, &
+                                      label=trim(string) // 'institution:' ,_RC)
        _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%references, &
-                                      default=INTSTATE%references, &
-                                      label=trim(string) // 'references:' ,rc=status )
+                                      default=INTSTATE%global_atts%references, &
+                                      label=trim(string) // 'references:' ,_RC)
        _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%source, &
-                                      default=INTSTATE%source, &
-                                      label=trim(string) // 'source:' ,rc=status )
+                                      default=INTSTATE%global_atts%source, &
+                                      label=trim(string) // 'source:' ,_RC)
        _VERIFY(STATUS)
 
        call ESMF_ConfigGetAttribute ( cfg, mntly, default=0, &

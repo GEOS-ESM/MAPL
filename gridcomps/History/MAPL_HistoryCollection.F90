@@ -142,7 +142,7 @@ module MAPL_HistoryCollectionMod
         integer, intent(inout), optional :: rc
 
         integer :: status
-        character(len=ESMF_MAXSTR), parameter :: Iam = "AddGrid"
+        character(len=*), parameter :: Iam = "AddGrid"
         type(ESMF_Config) :: cfg
         integer :: nx,ny,im_world,jm_world
         character(len=ESMF_MAXSTR) :: tlabel
