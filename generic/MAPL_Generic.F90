@@ -7019,18 +7019,15 @@ contains
 
                   _VERIFY(status)
                   SATISFIED = .true.
-                  cycle
+                  STAT = ior(STAT,MAPL_CplSATISFIED)
+                  call MAPL_VarSpecSet(IM_SPECS(K), STAT=STAT, RC=status)
+                  _VERIFY(status)
+                  exit
                end if
             end do
 
-            if (SATISFIED) then
-               STAT = ior(STAT,MAPL_CplSATISFIED)
-               call MAPL_VarSpecSet(IM_SPECS(K), STAT=STAT, RC=status)
-               _VERIFY(status)
-            end if
-
-
             do J=1,NC
+               if(I==J) cycle
                gridcomp => STATE%get_child_gridcomp(J)
                call MAPL_GridCompGetVarSpecs(gridcomp, EXPORT=EX_SPECS, RC=status)
                _VERIFY(status)
