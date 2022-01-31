@@ -7027,7 +7027,6 @@ contains
             end do
 
             do J=1,NC
-               if(I==J) cycle
                gridcomp => STATE%get_child_gridcomp(J)
                call MAPL_GridCompGetVarSpecs(gridcomp, EXPORT=EX_SPECS, RC=status)
                _VERIFY(status)
