@@ -799,27 +799,21 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%comment, &
                                       default=INTSTATE%global_atts%comment, &
                                       label=trim(string) // 'comment:' ,_RC)
-       _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%contact, &
                                       default=INTSTATE%global_atts%contact, &
                                       label=trim(string) // 'contact:' ,_RC)
-       _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%convention, &
                                       default=INTSTATE%global_atts%convention, &
                                       label=trim(string) // 'convention:' ,_RC)
-       _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%institution, &
                                       default=INTSTATE%global_atts%institution, &
                                       label=trim(string) // 'institution:' ,_RC)
-       _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%references, &
                                       default=INTSTATE%global_atts%references, &
                                       label=trim(string) // 'references:' ,_RC)
-       _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%source, &
                                       default=INTSTATE%global_atts%source, &
                                       label=trim(string) // 'source:' ,_RC)
-       _VERIFY(STATUS)
 
        call ESMF_ConfigGetAttribute ( cfg, mntly, default=0, &
                                       label=trim(string) // 'monthly:',rc=status )
