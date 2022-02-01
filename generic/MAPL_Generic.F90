@@ -7040,16 +7040,12 @@ contains
 
                   _VERIFY(status)
                   SATISFIED = .true.
-                  cycle
+                  STAT = ior(STAT,MAPL_CplSATISFIED)
+                  call MAPL_VarSpecSet(IM_SPECS(K), STAT=STAT, RC=status)
+                  _VERIFY(status)
+                  exit
                end if
             end do
-
-            if (SATISFIED) then
-               STAT = ior(STAT,MAPL_CplSATISFIED)
-               call MAPL_VarSpecSet(IM_SPECS(K), STAT=STAT, RC=status)
-               _VERIFY(status)
-            end if
-
 
             do J=1,NC
                gridcomp => STATE%get_child_gridcomp(J)

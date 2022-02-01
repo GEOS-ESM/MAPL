@@ -24,10 +24,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed issue in `CMakePresets.json` where Ninja presets were broken
+- Fixed io profiler report format
 
 ### Added
 
 ### Changed
+
+- A small performance improvement. cycle => exit in MAPL_Generic.F90
+- Made history global metadata configurable. This can be done in two ways
+  1. Globally for all collections by setting `COMMENT:`, `CONTACT:`, `CONVENTION:`, `INSTITUTION:`, `REFERENCES:`, and `SOURCE:` at the top of `HISTORY.rc` like `EXPDSC:`
+  2. On a per-collection bases by setting `collection.comment:`, `collection.contact:`, `collection.convention:`, `collection.institution:`, `collection.references:`, and `collection.source:`
+  - The default settings for these are to match that of MAPL 2.17.0
 
 ### Removed
 
