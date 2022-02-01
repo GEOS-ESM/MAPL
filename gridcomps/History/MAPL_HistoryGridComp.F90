@@ -505,22 +505,16 @@ contains
     _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%institution, &
                                    label ='INSTITUTION:', default='NASA Global Modeling and Assimilation Office', _RC)
-    _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%references, &
                                    label ='REFERENCES:', default='see MAPL documentation', _RC)
-    _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%contact, &
                                    label ='CONTACT:', default='http://gmao.gsfc.nasa.gov', _RC)
-    _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%comment, &
                                    label ='COMMENT:', default='NetCDF-4', _RC)
-    _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%convention, &
                                    label ='CONVENTION:', default='CF', _RC)
-    _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%source, &
                                    label ='SOURCE:', default='unknown', _RC)
-    _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%CoresPerNode, &
                                    label ='CoresPerNode:', default=min(npes,8), rc=status )
     _VERIFY(STATUS)
