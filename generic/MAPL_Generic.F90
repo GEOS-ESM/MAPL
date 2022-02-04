@@ -759,7 +759,7 @@ contains
 
    ! !INTERFACE:
    recursive subroutine MAPL_GenericInitialize ( GC, import, EXPORT, CLOCK, RC )
-      
+
       !ARGUMENTS:
       type(ESMF_GridComp), intent(INOUT) :: GC     ! Gridded component
       type(ESMF_State),    intent(INOUT) :: IMPORT ! Import state
@@ -1656,7 +1656,7 @@ contains
          if (state%requested_services%size()>0) then
             call FillRequestBundle(state%requested_services, state%get_internal_state(), __RC__)
          end if
-         
+
          ! process any service connections
          call MAPL_ProcessServiceConnections(state, __RC__)
 
@@ -4788,7 +4788,7 @@ contains
 
       class(Logger), pointer :: lgr
       character(len=:), allocatable :: shared_object_library_to_load
-      character(len=6) :: extension
+      character(len=:), allocatable :: extension
 
       call MAPL_InternalStateRetrieve(gc, meta, __RC__)
 
@@ -4812,8 +4812,8 @@ contains
 
       if (.not. is_valid_dso_name(SharedObj)) then
          lgr => logging%get_logger('MAPL.GENERIC')
-         call lgr%warning("AddChildFromDSO: changing shared library extension '%a~' to system specific extension '%a~'.", &
-              extension, SYSTEM_DSO_EXTENSION)
+         call lgr%warning("AddChildFromDSO: changing shared library extension from %a~ to system specific extension %a~", &
+              "'"//extension//"'", "'"//SYSTEM_DSO_EXTENSION//"'")
       end if
 
       shared_object_library_to_load = adjust_dso_name(sharedObj)
@@ -7035,16 +7035,12 @@ contains
 
                   _VERIFY(status)
                   SATISFIED = .true.
-                  cycle
+                  STAT = ior(STAT,MAPL_CplSATISFIED)
+                  call MAPL_VarSpecSet(IM_SPECS(K), STAT=STAT, RC=status)
+                  _VERIFY(status)
+                  exit
                end if
             end do
-
-            if (SATISFIED) then
-               STAT = ior(STAT,MAPL_CplSATISFIED)
-               call MAPL_VarSpecSet(IM_SPECS(K), STAT=STAT, RC=status)
-               _VERIFY(status)
-            end if
-
 
             do J=1,NC
                gridcomp => STATE%get_child_gridcomp(J)

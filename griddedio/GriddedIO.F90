@@ -28,6 +28,8 @@ module MAPL_GriddedIOMod
   
   private
 
+  character(len=20), parameter :: fill_value_label = "GriddedIO_Fill_Value"
+
   type, public :: MAPL_GriddedIO
      type(FileMetaData) :: metadata
      integer :: write_collection_id
@@ -66,6 +68,7 @@ module MAPL_GriddedIOMod
         procedure :: alphabatize_variables
         procedure :: request_data_from_file
         procedure :: process_data_from_file
+        procedure :: swap_undef_value
   end type MAPL_GriddedIO
 
   interface MAPL_GriddedIO
@@ -930,9 +933,11 @@ module MAPL_GriddedIOMod
      logical :: hasDE
      class(AbstractGridFactory), pointer :: factory
      type(fileMetadataUtils), pointer :: metadata
+     real(REAL32) :: missing_value
 
      collection => Datacollections%at(this%metadata_collection_id)
-     metadata => collection%find(filename)
+     metadata => collection%find(filename, __RC__)
+
      filegrid = collection%src_grid
      factory => get_factory(filegrid)
      hasDE=MAPL_GridHasDE(filegrid,rc=status)
@@ -961,6 +966,10 @@ module MAPL_GriddedIOMod
         _VERIFY(status)
         call ESMF_FieldGet(output_field,rank=rank,rc=status)
         _VERIFY(status)
+        missing_value = MAPL_UNDEF
+        if (metadata%var_has_missing_value(trim(names(i)))) then
+           missing_value = metadata%var_get_missing_value(trim(names(i)),_RC)
+        end if
         if (rank==2) then
            input_fields(i) = ESMF_FieldCreate(filegrid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2],name=trim(names(i)),rc=status)
            _VERIFY(status)
@@ -998,6 +1007,9 @@ module MAPL_GriddedIOMod
              this%read_collection_id, fileName, trim(names(i)), &
              & ref, start=localStart, global_start=globalStart, global_count=globalCount)
         deallocate(localStart,globalStart,globalCount)
+        if (missing_value /= MAPL_UNDEF) then
+           call ESMF_AttributeSet(input_fields(i),name=fill_value_label,value=missing_value,_RC)
+        end if
      enddo
      deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)
      this%input_bundle = ESMF_FieldBundleCreate(fieldList=input_fields,rc=status)
@@ -1027,9 +1039,12 @@ module MAPL_GriddedIOMod
      do while(iter /= this%items%end())
         item => iter%get()
         if (item%itemType == ItemTypeScalar) then
+           call this%swap_undef_value(trim(item%xname),_RC)
            call this%regridScalar(trim(item%xname),rc=status)
            _VERIFY(status)
         else if (item%itemType == ItemTypeVector) then
+           call this%swap_undef_value(trim(item%xname),_RC)
+           call this%swap_undef_value(trim(item%yname),_RC)
            call this%regridVector(trim(item%xname),trim(item%yname),rc=status)
            _VERIFY(status)
         end if
@@ -1047,5 +1062,53 @@ module MAPL_GriddedIOMod
      _RETURN(_SUCCESS)
 
   end subroutine process_data_from_file
+
+  subroutine swap_undef_value(this,fname,rc)
+     class (MAPL_GriddedIO), intent(inout) :: this
+     character(len=*), intent(in) :: fname
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+
+     type(ESMF_Field) :: field
+     integer :: fieldRank
+     real, pointer :: ptr3d(:,:,:)
+     real, pointer :: ptr2d(:,:)
+     type(ESMF_Grid) :: gridIn
+     logical :: hasDE_in,has_custom_fill_val
+     real(REAL32) :: fill_value
+
+     call ESMF_FieldBundleGet(this%input_bundle,fname,field=field,_RC)
+     call ESMF_AttributeGet(field,name=fill_value_label,isPresent=has_custom_fill_val,_RC)
+
+     if (has_custom_fill_val) then
+
+        call ESMF_AttributeGet(field,name=fill_value_label,value=fill_value,_RC)
+        call ESMF_FieldGet(field,rank=fieldRank,_RC)
+        _VERIFY(status)
+        call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,_RC)
+        hasDE_in = MAPL_GridHasDE(gridIn,_RC)
+
+        if (fieldRank==2) then
+           if (hasDE_in) then
+              call MAPL_FieldGetPointer(field,ptr2d,_RC)
+           else
+              allocate(ptr2d(0,0))
+           end if
+           where(ptr2d==fill_value) ptr2d=MAPL_UNDEF
+        else if (fieldRank==3) then
+           if (hasDE_in) then
+              call ESMF_FieldGet(field,farrayPtr=ptr3d,_RC)
+           else
+               allocate(ptr3d(0,0,0))
+           end if
+           where(ptr3d==fill_value) ptr3d=MAPL_UNDEF
+        else
+           _ASSERT(.false.,'rank not supported')
+        end if
+     end if
+     _RETURN(_SUCCESS)
+
+  end subroutine swap_undef_value
 
 end module MAPL_GriddedIOMod

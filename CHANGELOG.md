@@ -9,16 +9,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed issue in `CMakePresets.json` where Ninja presets were broken
+- Fixed io profiler report format
+
 ### Added
 
 ### Changed
-- Refactored MAPL_Generic.F90 - lots of changes.
-  - consistent indentation (emacs mode)
-  - extracted helper procedures in GenericInitialize
+
+- A small performance improvement. cycle => exit in MAPL_Generic.F90
+- Made history global metadata configurable. This can be done in two ways
+  1. Globally for all collections by setting `COMMENT:`, `CONTACT:`, `CONVENTION:`, `INSTITUTION:`, `REFERENCES:`, and `SOURCE:` at the top of `HISTORY.rc` like `EXPDSC:`
+  2. On a per-collection bases by setting `collection.comment:`, `collection.contact:`, `collection.convention:`, `collection.institution:`, `collection.references:`, and `collection.source:`
+  - The default settings for these are to match that of MAPL 2.17.0
 
 ### Removed
 
 ### Deprecated
+
+## [2.17.0] - 2022-01-26
+
+### Fixed
+
+- io profiler is fixed due to the change of profiler finalize
+- Files read by GriddedIOMod now respect the file defined _FillValue rather than assuming it is MAPL_UNDEF
+- Fix bug so that fields with an ungridded dimension of size 1 can be written via History
+- Updated `components.yaml`
+  - ESMA_env v3.11.0 (Mainly updates for NAS)
+
+### Changed
+
+- History initialization will display chunksize for any collections that are chunked
+- Removed include of `ESMC_ReturnCodes.h`. Changed some `ESMC_RC` codes to `ESMF_RC` codes
+
+## [2.16.0] - 2022-01-13
+
+### Fixed
+
+- A bug in splitting the fields for History when an alias contains a single entry (#1296)
+- Trap more errors in pFIO
+- Free types and operation created by profiler
+- Finalize profiler in MAPL_finalize call
+- Fix how a retry-build is done in CI
+- Fix issue with logger message and single quotes
+- Fix bug with profiler reporting in programs
+
+### Changed
+
+- Updated README.md
+- Refactored MAPL_Generic.F90 - lots of changes.
+  - consistent indentation (emacs mode)
+  - extracted helper procedures in GenericInitialize
+- Added new step to CircleCI to try and re-run build on failure.
+- Updated CircleCI config to use new [GEOS-ESM/circleci-tools orb](https://circleci.com/developer/orbs/orb/geos-esm/circleci-tools)
+- Added Markdown rules to `.editorconfig`
 
 ## [2.15.1] - 2022-01-06
 
