@@ -48,6 +48,6 @@ contains
    !   class(BaseFrameworkComponent), target, intent(in) :: this
    !
    !  state => this%component%get_internal_state()
-   !nd function get_internal_state
+   !end function get_internal_state
 
 end module mapl_BaseFrameworkComponent

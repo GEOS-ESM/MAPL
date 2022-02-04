@@ -3,8 +3,7 @@
 
 module MAPL_OpenMP_Support
     use ESMF
-    use MAPL_BaseMod, only : MAPL_GridGetCorners
-    use MAPL_MaplGrid, only : MAPL_GridGet
+    use MAPL_maplgrid
     use MAPL_ExceptionHandling
     use mapl_KeywordEnforcerMod
 
@@ -62,6 +61,7 @@ module MAPL_OpenMP_Support
     end function make_subgrids_from_num_grids
 
     function make_subgrids_from_bounds(primary_grid, bounds, unusable, rc) result(subgrids)
+        use MAPL_BaseMod, only : MAPL_GridGetCorners
         type(ESMF_Grid), allocatable :: subgrids(:)
         type(ESMF_Grid), intent(inout) :: primary_grid ! inout to use MAPL_GridGetCorners
         type(Interval), intent(in) :: bounds(:)
@@ -205,13 +205,8 @@ module MAPL_OpenMP_Support
         type(ESMF_Grid), allocatable :: subgrids(:)
         type(Interval), allocatable :: bounds(:)
         type(ESMF_Grid) :: primary_grid
-        real(kind=ESMF_KIND_R4), pointer :: temp_ptr(:,:,:)
-        type(ESMF_VM) :: vm
-        integer :: me
          
 
-        call ESMF_VMGetCurrent(vm,__RC__)
-        call ESMF_VMGet(vm, localPet=me, __RC__)
         call ESMF_FieldGet(primary_field, grid=primary_grid, typekind=typekind, rank=rank, name=name,  __RC__)
         !print*, 'No failure with field named:', name
         call MAPL_GridGet(primary_grid,localcellcountPerDim=local_count, __RC__)
@@ -219,6 +214,7 @@ module MAPL_OpenMP_Support
         bounds = find_bounds(local_count(2), num_subgrids)
         subgrids = make_subgrids(primary_grid, num_subgrids, __RC__)
         allocate(subfields(size(bounds)))
+        !print *, __FILE__,__LINE__, num_subgrids, size(bounds), trim(name)
         
         ! 1d, r4 or r8
         if (rank == 1) then
@@ -230,8 +226,6 @@ module MAPL_OpenMP_Support
               new_ptr_2d_r4 => old_ptr_2d_r4(:,bounds(i)%min:bounds(i)%max)
               subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_r4, name=name,  __RC__)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC__)
-              call ESMF_FieldGet(subfields(i), name=name,  __RC__)
-              if (trim(name) == "WET1") print *, trim(name), shape(new_ptr_2d_r4)
            end do
        
         ! 2d, r8
@@ -250,11 +244,6 @@ module MAPL_OpenMP_Support
               new_ptr_3d_r4 => old_ptr_3d_r4(:,bounds(i)%min:bounds(i)%max,:) 
               subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_r4, name=name, __RC__)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, __RC__)
-              call ESMF_FieldGet(subfields(i), farrayPtr=temp_ptr, __RC__)
-              call ESMF_FieldGet(subfields(i), name=name, __RC__)
-              if (me == 0) then
-                 if (trim(name) == "DELP") print *, i, bounds(i)%min, bounds(i)%max, trim(name), shape(temp_ptr)
-              endif
            end do
        
         ! 3d, r8

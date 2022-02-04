@@ -31,7 +31,8 @@ set (srcs
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.constants GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
 
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
+#if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
+if (OMP)
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
 

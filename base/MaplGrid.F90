@@ -6,6 +6,7 @@ module mapl_MaplGrid
    use pFlogger, only: logging, Logger, WrapArray
    use MAPL_ErrorHandlingMod
    use MAPL_KeywordEnforcerMod
+   use MAPL_ConstantsMod, only : MAPL_PI_R8
    implicit none
    private
 
@@ -144,9 +145,130 @@ contains
   
     deallocate(jms, ims)
 
+    call GridCoordGet(   this%ESMFGRID, this%LATS       , &
+         Name     = "Latitude"              , &
+         Location = ESMF_STAGGERLOC_CENTER  , &
+         Units    = 99                      , & !ESMFL_UnitsRadians
+         RC       = STATUS                    )
+    _VERIFY(STATUS)
+
+    call GridCoordGet(   this%ESMFGRID, this%LONS       , &
+         Name     = "Longitude"             , &
+         Location = ESMF_STAGGERLOC_CENTER  , &
+         Units    = 99                      , & !ESMFL_UnitsRadians
+         RC       = STATUS                    )
+    _VERIFY(STATUS)
     _RETURN(ESMF_SUCCESS)
  end subroutine set
 
+subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
+
+  !ARGUMENTS:
+   type(ESMF_Grid),   intent(INout ) :: GRID
+   real, dimension(:,:), pointer  :: coord
+   character (len=*) , intent(IN) :: name
+   type(ESMF_StaggerLoc)          :: location
+   integer                        :: units
+   integer, optional              :: rc
+ !EOP
+
+   !local variables
+  integer                   :: rank
+  type(ESMF_CoordSys_Flag)  :: crdSys
+  type(ESMF_TypeKind_Flag)  :: tk
+  integer                   :: counts(ESMF_MAXDIM)
+  integer                   :: crdOrder
+  real(ESMF_KIND_R4), pointer :: r4d2(:,:)
+  real(ESMF_KIND_R8), pointer :: r8d2(:,:)
+  real(ESMF_KIND_R8)        :: conv2rad
+  integer                   :: STATUS
+  integer                   :: i
+  integer                   :: j
+!ALT  integer                   :: i1, in, j1, jn
+  integer                   :: coordDimCount(ESMF_MAXDIM)
+  character(len=ESMF_MAXSTR):: gridname
+
+  _UNUSED_DUMMY(Units)
+
+  call ESMF_GridGet(grid, coordSys=crdSys, coordTypeKind=tk, &
+          dimCount=rank, coordDimCount=coordDimCount, rc=status)
+  _VERIFY(STATUS) 
+
+  if (name == "Longitude") then
+    crdOrder = 1
+  else if (name == "Latitude") then
+    crdOrder = 2
+  else
+   STATUS=ESMF_FAILURE
+   _VERIFY(STATUS)
+  endif
+
+  call ESMF_GridGet(grid, name=gridname, rc=status)
+  _VERIFY(STATUS)
+
+  if (gridname(1:10) == 'tile_grid_') then
+
+     call MAPL_GridGet(GRID, localCellCountPerDim=counts, rc=status)
+     _VERIFY(STATUS)
+     allocate(coord(counts(1), counts(2)), STAT=status)
+     _VERIFY(STATUS)
+     coord = 0.0 ! initialize just in case
+
+     do I=1, counts(1)
+        do J=1, counts(2)
+           if (crdOrder == 1) then
+              coord(i,j) = i !ALT + I1 - 1
+           else 
+              coord(i,j) = j !ALT + J1 - 1
+           end if
+        end do
+     end do
+
+     coord = coord * (MAPL_PI_R8 / 180.d+0)
+
+     _RETURN(ESMF_SUCCESS)
+  end if
+
+  if (crdSys == ESMF_COORDSYS_SPH_DEG) then
+     conv2rad = MAPL_PI_R8 / 180._ESMF_KIND_R8
+  else if (crdSys == ESMF_COORDSYS_SPH_RAD) then
+     conv2rad = 1._ESMF_KIND_R8
+  else
+     _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
+  end if
+
+  if (tk == ESMF_TYPEKIND_R4) then
+     if (coordDimCount(crdOrder)==2) then
+        call ESMF_GridGetCoord(grid, localDE=0, coordDim=crdOrder, &
+             staggerloc=location, &
+             computationalCount=COUNTS,  &
+             farrayPtr=R4D2, rc=status)
+        _VERIFY(STATUS) 
+        allocate(coord(counts(1), counts(2)), STAT=status)
+        _VERIFY(STATUS)
+        coord = conv2rad * R4D2
+     else
+        _RETURN(ESMF_FAILURE)
+     endif
+  else if (tk == ESMF_TYPEKIND_R8) then
+     if (coordDimCount(crdOrder)==2) then
+        call ESMF_GridGetCoord(grid, localDE=0, coordDim=crdOrder, &
+             staggerloc=location, &
+             computationalCount=COUNTS,  &
+             farrayPtr=R8D2, rc=status)
+        _VERIFY(STATUS) 
+        allocate(coord(counts(1), counts(2)), STAT=status)
+        _VERIFY(STATUS)
+        coord = conv2rad * R8D2
+     else
+        _RETURN(ESMF_FAILURE)
+     endif
+  else
+     _RETURN(ESMF_FAILURE)
+  endif
+  _RETURN(ESMF_SUCCESS)
+  
+ end subroutine GridCoordGet
    
   subroutine MAPL_GridGet(GRID, globalCellCountPerDim, localCellCountPerDim, RC)
       type (ESMF_Grid), intent(IN) :: GRID
