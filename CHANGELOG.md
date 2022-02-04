@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Update profiler dependency on gftl-v2
+
 ### Added
 
 ### Changed
