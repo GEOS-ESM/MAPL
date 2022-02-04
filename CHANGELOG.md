@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Update profiler dependency on gftl-v2
-
 ### Added
 
 ### Changed
@@ -18,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.17.1] - 2022-02-04
+
+### Fixed
+
+- Update profiler dependency on gftl-v2
 
 ## [2.17.0] - 2022-01-26
 
