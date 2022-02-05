@@ -86,8 +86,9 @@ contains
     integer :: status
     character(len=ESMF_MAXSTR) :: startTime,timeUnits
     type(ESMF_Time) :: currTime
-    integer :: i1,i2,i3,i123,ipos1,ipos2,isc,imn,ihr,ifreq
+    integer :: i1,i2,i3,i123,ipos1,ipos2,isc,imn,ihr,time_increment
     logical :: integer_time
+    integer :: begin_date, begin_time
 
     call ESMF_CLockGet(this%clock,currTime=currTime,rc=status)
     _VERIFY(status)
@@ -100,16 +101,14 @@ contains
     read(startTime(1:ipos1-1),'(i4)')i1
     read(startTime(ipos1+1:ipos2-1),'(i2)')i2
     read(startTime(ipos2+1:10),'(i2)')i3
-    i123=10000*i1+100*i2+i3
-    call v%add_attribute('begin_date',i123)
+    begin_date=10000*i1+100*i2+i3
 
     ipos1=index(startTime,":")
     ipos2=index(startTime,":",back=.true.)
     read(startTime(12:ipos1-1),'(i2)')i1
     read(startTime(ipos1+1:ipos2-1),'(i2)')i2
     read(startTime(ipos2+1:19),'(i2)')i3
-    i123=10000*i1+100*i2+i3
-    call v%add_attribute('begin_time',i123)
+    begin_time=10000*i1+100*i2+i3
 
     select case(trim(this%funits))
     case('minutes')
@@ -120,14 +119,13 @@ contains
        imn=mod(i2,60)
        i2=i2-imn
        ihr=i2/60
-       ifreq=10000*ihr+100*imn+isc 
+       time_increment=10000*ihr+100*imn+isc 
     case('days')
-       ifreq = this%frequency/86400
+       time_increment = this%frequency/86400
        integer_time = mod(this%frequency,86400) == 0
     case default
        _ASSERT(.false., 'Not supported yet')
     end select
-    call v%add_attribute('time_increment',ifreq)
 
     call this%tvec%clear()
     this%tcount=0
@@ -141,6 +139,9 @@ contains
     end if
     call v%add_attribute('long_name','time')
     call v%add_attribute('units',trim(timeUnits))
+    call v%add_attribute('begin_date',begin_date)
+    call v%add_attribute('begin_time',begin_time)
+    call v%add_attribute('time_increment',time_increment)
   
     
     _RETURN(ESMF_SUCCESS)
