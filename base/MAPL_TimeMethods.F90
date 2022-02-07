@@ -131,17 +131,17 @@ contains
        time_increment = packed_hms
     case('minutes')
        if (this%integer_time) then
-          ASSERT(mod(this%frequency,60)==0,"Requested output frequency not representable as an integer minute")
+          _ASSERT(mod(this%frequency,60)==0,"Requested output frequency not representable as an integer minute")
        end if
        time_increment = packed_hms
     case('hours')
        if (this%integer_time) then
-          ASSERT(mod(this%frequency,3600)==0,"Requested output frequency not representable as an integer hour")
+          _ASSERT(mod(this%frequency,3600)==0,"Requested output frequency not representable as an integer hour")
        end if
        time_increment = packed_hms
     case('days')
        if (this%integer_time) then
-          ASSERT(mod(this%frequency,86400)==0,"Requested output frequency not representable as an integer day")
+          _ASSERT(mod(this%frequency,86400)==0,"Requested output frequency not representable as an integer day")
        end if
        time_increment = this%frequency/86400
     case default
