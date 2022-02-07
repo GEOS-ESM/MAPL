@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add explicit dependence of gFTL whenerver it is used
 
 ### Changed
 
@@ -23,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Update profiler dependency on gftl-v2
+- Add explicit dependence of gFTL-v1 and -v2 whenever both are used (currently profiler and generic)
 
 ## [2.17.0] - 2022-01-26
 
