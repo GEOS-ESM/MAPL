@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   1. Globally for all collections by setting `COMMENT:`, `CONTACT:`, `CONVENTION:`, `INSTITUTION:`, `REFERENCES:`, and `SOURCE:` at the top of `HISTORY.rc` like `EXPDSC:`
   2. On a per-collection bases by setting `collection.comment:`, `collection.contact:`, `collection.convention:`, `collection.institution:`, `collection.references:`, and `collection.source:`
   - The default settings for these are to match that of MAPL 2.17.0
+- Updated `components.yaml`. These changes are to support using Spack to build MAPL
+  - ESMA_cmake v3.10.0 (add `FindESMF.cmake` from NOAA-EMC)
+  - ecbuild geos/v1.2.0 (updat `FindNetCDF.cmake` to that from NOAA-EMC)
 
 ### Removed
 
