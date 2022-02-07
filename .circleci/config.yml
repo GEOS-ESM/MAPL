@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  circleci-tools: geos-esm/circleci-tools@0.5.0
+  circleci-tools: geos-esm/circleci-tools@0.6.0
 
 workflows:
   build-and-test:
@@ -146,12 +146,16 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: circleci-tools/<< parameters.compiler >>
-    resource_class: xlarge
+    executor:
+      name: circleci-tools/<< parameters.compiler >>
+      resource_class: xlarge
     working_directory: /root/project
     steps:
       - circleci-tools/checkout_fixture:
           repo: GEOSadas
+      - circleci-tools/checkout_branch_on_fixture:
+          repo: GEOSadas
+          branch: develop
       - circleci-tools/mepoclone:
           repo: GEOSadas
       - circleci-tools/mepodevelop:
