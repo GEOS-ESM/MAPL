@@ -29,6 +29,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.17.1] - 2022-02-04
+
+### Fixed
+
+- Add explicit dependence of gFTL-v1 and -v2 whenever both are used (currently profiler and generic)
+
 ## [2.17.0] - 2022-01-26
 
 ### Fixed
