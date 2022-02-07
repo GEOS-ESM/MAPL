@@ -94,10 +94,9 @@ contains
     character(len=ESMF_MAXSTR) :: startTime,timeUnits
     type(ESMF_Time) :: currTime
     integer :: i1,i2,i3,ipos1,ipos2,isc,imn,ihr
-    logical :: integer_representable
     integer :: begin_date, begin_time, time_increment, packed_hms
 
-    _ASSERT(this%frequency/=TimeData_uninit_int,"TimeData object was not created before use")
+    _ASSERT(this%frequency/=TimeData_uninit_int,"Frequency component was not set before use.")
 
     call ESMF_ClockGet(this%clock,currTime=currTime,rc=status)
     _VERIFY(status)
@@ -129,24 +128,25 @@ contains
     packed_hms=10000*ihr+100*imn+isc 
     select case(trim(this%funits))
     case('seconds')
-       integer_representable = .true.
        time_increment = packed_hms
     case('minutes')
-       integer_representable = mod(this%frequency,60)==0
+       if (this%integer_time) then
+          ASSERT(mod(this%frequency,60)==0,"Requested output frequency not representable as an integer minute")
+       end if
        time_increment = packed_hms
     case('hours')
-       integer_representable = mod(this%frequency,3600) == 0
+       if (this%integer_time) then
+          ASSERT(mod(this%frequency,3600)==0,"Requested output frequency not representable as an integer hour")
+       end if
        time_increment = packed_hms
     case('days')
-       integer_representable = mod(this%frequency,86400) == 0
+       if (this%integer_time) then
+          ASSERT(mod(this%frequency,86400)==0,"Requested output frequency not representable as an integer day")
+       end if
        time_increment = this%frequency/86400
     case default
        _ASSERT(.false., 'Not supported yet')
     end select
-
-    if (this%integer_time) then
-        _ASSERT(integer_representable,"time interval requested not integer representable")
-    end if
 
     call this%tvec%clear()
     this%tcount=0
