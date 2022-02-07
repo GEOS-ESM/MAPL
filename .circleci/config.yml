@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  circleci-tools: geos-esm/circleci-tools@0.6.0
+  circleci-tools: geos-esm/circleci-tools@0.7.0
 
 workflows:
   build-and-test:
@@ -162,6 +162,11 @@ jobs:
           repo: GEOSadas
       - circleci-tools/checkout_mapl_branch:
           repo: GEOSadas
+      # Until GEOSadas is closer to modern GEOSgcm, we need to update the ESMA_cmake
+      - circleci-tools/checkout_branch_on_subrepo:
+          repo: GEOSadas
+          branch: develop
+          subrepo: cmake
       - circleci-tools/cmake:
           repo: GEOSadas
           compiler: << parameters.compiler >>
