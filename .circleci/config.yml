@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  circleci-tools: geos-esm/circleci-tools@0.7.0
+  circleci-tools: geos-esm/circleci-tools@0.8.0
 
 workflows:
   build-and-test:
@@ -170,6 +170,7 @@ jobs:
           compiler: << parameters.compiler >>
       - circleci-tools/buildinstall:
           repo: GEOSadas
+          rebuild_procs: 8
       - circleci-tools/compress_artifacts
       - store_artifacts:
           path: /logfiles
