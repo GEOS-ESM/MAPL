@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added GEOSadas CI ifort build test
+
 ### Changed
 
 - A small performance improvement. cycle => exit in MAPL_Generic.F90
@@ -187,7 +189,6 @@ new interface with conventional ordering has been introduced.
 
 - Add find_package() calls to main `CMakeLists.txt` for all paths (Baselibs or not). Needed so these calls can be removed in
   `FindBaselibs.cmake` in ESMA_cmake
-- Added GEOSadas CI ifort build test
 
 ### Changed
 
