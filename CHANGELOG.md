@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add "like-UFS" build to CI. This is no FLAP and pFlogger, and static build
+
 ### Changed
 
 - A small performance improvement. cycle => exit in MAPL_Generic.F90
