@@ -9,13 +9,96 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed issue in `CMakePresets.json` where Ninja presets were broken
+- Fixed io profiler report format
+
 ### Added
 
 ### Changed
 
+- A small performance improvement. cycle => exit in MAPL_Generic.F90
+- Made history global metadata configurable. This can be done in two ways
+  1. Globally for all collections by setting `COMMENT:`, `CONTACT:`, `CONVENTION:`, `INSTITUTION:`, `REFERENCES:`, and `SOURCE:` at the top of `HISTORY.rc` like `EXPDSC:`
+  2. On a per-collection bases by setting `collection.comment:`, `collection.contact:`, `collection.convention:`, `collection.institution:`, `collection.references:`, and `collection.source:`
+  - The default settings for these are to match that of MAPL 2.17.0
+- Updated `components.yaml`. These changes are to support using Spack to build MAPL
+  - ESMA_cmake v3.10.0 (add `FindESMF.cmake` from NOAA-EMC)
+  - ecbuild geos/v1.2.0 (updat `FindNetCDF.cmake` to that from NOAA-EMC)
+
 ### Removed
 
 ### Deprecated
+
+## [2.17.0] - 2022-01-26
+
+### Fixed
+
+- io profiler is fixed due to the change of profiler finalize
+- Files read by GriddedIOMod now respect the file defined _FillValue rather than assuming it is MAPL_UNDEF
+- Fix bug so that fields with an ungridded dimension of size 1 can be written via History
+- Updated `components.yaml`
+  - ESMA_env v3.11.0 (Mainly updates for NAS)
+
+### Changed
+
+- History initialization will display chunksize for any collections that are chunked
+- Removed include of `ESMC_ReturnCodes.h`. Changed some `ESMC_RC` codes to `ESMF_RC` codes
+
+## [2.16.0] - 2022-01-13
+
+### Fixed
+
+- A bug in splitting the fields for History when an alias contains a single entry (#1296)
+- Trap more errors in pFIO
+- Free types and operation created by profiler
+- Finalize profiler in MAPL_finalize call
+- Fix how a retry-build is done in CI
+- Fix issue with logger message and single quotes
+- Fix bug with profiler reporting in programs
+
+### Changed
+
+- Updated README.md
+- Refactored MAPL_Generic.F90 - lots of changes.
+  - consistent indentation (emacs mode)
+  - extracted helper procedures in GenericInitialize
+- Added new step to CircleCI to try and re-run build on failure.
+- Updated CircleCI config to use new [GEOS-ESM/circleci-tools orb](https://circleci.com/developer/orbs/orb/geos-esm/circleci-tools)
+- Added Markdown rules to `.editorconfig`
+
+## [2.15.1] - 2022-01-06
+
+### Changed
+
+- Changes to make MAPL 2 History output match GEOS FP file spec
+  - Coordinate Variables
+    - `lon` and `lat` are now 64-bit (double) in lat-lon History files rather than 32-bit (single)
+    - `lons`, `lats`, `corner_lons`, and `corner_lats` are now 64-bit (double) in  History files rather than 32-bit (single)
+  - Variable Metadata
+    - Added `fmissing_value` (equal to `_FillValue` aka `MAPL_UNDEF`)
+    - Added `missing_value` (equal to `_FillValue` aka `MAPL_UNDEF`)
+    - Added `vmin` (equal to `-MAPL_UNDEF`)
+    - Added `vmax` (equal to `+MAPL_UNDEF`)
+    - Added `add_offset` (equal to 0.0)
+    - Added `scale_factor` (equal to 1.0)
+    - Added `standard_name` (equal to `long_name`)
+  - Global Metadata
+    - Added `Title`, `History`, `Source`, `Contact`, `Convention`, `Institution`, `References`, `Filename`, `Comment`
+      - These currently have hardcoded values roughly equivalent to the GEOS FP 5.27 output
+
+## [2.15.0] - 2022-01-04
+
+### Fixed
+
+- Free types and operation created by profiler
+
+### Changed
+
+- Refactored MAPL_Generic.F90 - lots of changes.
+- Make EXPID and EXPDSC optional. Default is empty string
+- Updated `changelog-enforcer` to version 3
+- Compress CircleCI artifacts
+- Updated VarRead_2d_r8 interface to match VarRead_2d_r4 interface in NCIO module
 
 ## [2.14.1] - 2021-12-20
 
