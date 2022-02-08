@@ -54,15 +54,13 @@ workflows:
               compiler: [gfortran, ifort]
           context:
             - docker-hub-creds
-      #####################################################
-      # - build-GEOSadas:                                 #
-      #     name: build-GEOSadas-on-<< matrix.compiler >> #
-      #     matrix:                                       #
-      #       parameters:                                 #
-      #         compiler: [ifort]                         #
-      #     context:                                      #
-      #       - docker-hub-creds                          #
-      #####################################################
+      - build-GEOSadas:
+          name: build-GEOSadas-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [ifort]
+          context:
+            - docker-hub-creds
 
 jobs:
   build-and-test-MAPL:
@@ -188,23 +186,36 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: circleci-tools/<< parameters.compiler >>
-    resource_class: xlarge
+    executor:
+      name: circleci-tools/<< parameters.compiler >>
+      resource_class: xlarge
     working_directory: /root/project
     steps:
       - circleci-tools/checkout_fixture:
           repo: GEOSadas
-      - circleci-tools/mepoclone:
+      - circleci-tools/checkout_branch_on_fixture:
           repo: GEOSadas
-      - circleci-tools/mepodevelop:
+          branch: develop
+      - circleci-tools/mepoclone:
           repo: GEOSadas
       - circleci-tools/checkout_mapl_branch:
           repo: GEOSadas
+      # Until GEOSadas is closer to modern GEOSgcm, we need to update the ESMA_cmake
+      - circleci-tools/checkout_branch_on_subrepo:
+          repo: GEOSadas
+          branch: develop
+          subrepo: cmake
+      # There is currently an issue building GEOSadas with Debug Intel.
+      - circleci-tools/checkout_branch_on_subrepo:
+          repo: GEOSadas
+          branch: feature/mathomp4/add-extended-source-prepbykx
+          subrepo: GEOSana_GridComp
       - circleci-tools/cmake:
           repo: GEOSadas
           compiler: << parameters.compiler >>
       - circleci-tools/buildinstall:
           repo: GEOSadas
+          rebuild_procs: 8
       - circleci-tools/compress_artifacts
       - store_artifacts:
           path: /logfiles
