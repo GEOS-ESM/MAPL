@@ -491,17 +491,22 @@ contains
       real(kind=REAL64) :: xMaxIn,xMaxOut,xMinIn,xMinOut,rngIn,rngOut
       type(dimensionSpec) :: dimspec
       character(len=ESMF_MAXSTR) :: grid_type
+      type(ESMF_Info) :: infohin, infohout
 
       _UNUSED_DUMMY(unusable)
 
       spec = this%get_spec()
 
       ! Verify that grids are of the support type: 'LatLon'
-      call ESMF_AttributeGet(spec%grid_in , name="GridType", value=grid_type, rc=status)
+      call ESMF_InfoGetFromHost(spec%grid_in,infohin,rc=status)
+      _VERIFY(status)
+      call ESMF_InfoGet(infohin,'GridType',grid_type,rc=status)
       _VERIFY(status)
       _ASSERT(trim(grid_type) == 'LatLon', 'unsupported grid_in type: '//trim(grid_type))
         
-      call ESMF_AttributeGet(spec%grid_out , name="GridType", value=grid_type, rc=status)
+      call ESMF_InfoGetFromHost(spec%grid_out,infohout,rc=status)
+      _VERIFY(status)
+      call ESMF_InfoGet(infohout,'GridType',grid_type,rc=status)
       _VERIFY(status)
       _ASSERT(trim(grid_type) == 'LatLon', 'unsupported grid_out type: '//trim(grid_type))
       
