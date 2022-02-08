@@ -113,6 +113,7 @@ module MAPL_HistoryGridCompMod
      integer                             :: PrePost
      integer                             :: version
      logical                             :: fileOrderAlphabetical
+     logical                             :: integer_time
      integer                             :: collectionWriteSplit
      integer                             :: serverSizeSplit
   end type HISTORY_STATE
@@ -539,6 +540,8 @@ contains
     else
        _ASSERT(.false.,'needs informative message')
     end if
+
+    call ESMF_ConfigGetAttribute(config, value=intstate%integer_time,label="IntegerTime:", default=.false.,_RC)
 
     call ESMF_ConfigGetAttribute(config, value=IntState%collectionWriteSplit, &
          label = 'CollectionWriteSplit:', default=0, rc=status)
@@ -2473,9 +2476,9 @@ ENDDO PARSER
                nextMonth = currTime - oneMonth
                dur = nextMonth - currTime
                call ESMF_TimeIntervalGet(dur, s=sec, __RC__)
-             list(n)%timeInfo = TimeData(clock,tm,sec,IntState%stampoffset(n),'days')
+             list(n)%timeInfo = TimeData(clock,tm,sec,IntState%stampoffset(n),funits='days')
           else
-             list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n))
+             list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(trim(list(n)%trackfile),rc=status)
