@@ -8,6 +8,7 @@ module MAPL
    use ESMF_CFIOMod
    use pFIO
    use MAPL_GridCompsMod
+   use mapl_StubComponent
    implicit none
 end module MAPL
 
