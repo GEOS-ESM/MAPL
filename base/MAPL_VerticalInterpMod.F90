@@ -67,6 +67,7 @@ CONTAINS
       type(ESMF_Grid) :: grid
       real, pointer   :: vMod(:,:,:), vPres(:,:,:), vPS(:,:), vPHIS(:,:)
       character(ESMF_MAXSTR) :: vname, units
+      type(ESMF_Info) :: infoh
 !
 !EOP
 !------------------------------------------------------------------------------
@@ -75,9 +76,11 @@ CONTAINS
       ! get dimensions, allocate
       call ESMF_FieldGet(fModel,grid=grid,rc=status)
       _VERIFY(STATUS)
-      call ESMF_AttributeGet(fModel,name='UNITS',value=units,rc=status)
+      call ESMF_InfoGetFromHost(fModel,infoh,rc=status)
       _VERIFY(STATUS)
-      call ESMF_AttributeGet(fModel,name='LONG_NAME',value=vname,rc=status)
+      call ESMF_InfoGet(infoh,'UNITS',units,rc=status)
+      _VERIFY(STATUS)
+      call ESMF_InfoGet(infoh,'LONG_NAME',vname,rc=status)
       _VERIFY(STATUS)
       vname = ESMF_UtilStringLowerCase(vname,rc=status)
       call MAPL_GridGet(grid, localCellCountPerDim=dims,rc=status)
@@ -109,9 +112,11 @@ CONTAINS
       _VERIFY(STATUS)
       call ESMF_FieldGet(PS,grid=grid,rc=status)
       _VERIFY(STATUS)
-      call ESMF_AttributeGet(grid,name="GridAK",valuelist=ak,rc=status)
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
       _VERIFY(STATUS)
-      call ESMF_AttributeGet(grid,name="GridBK",valuelist=bk,rc=status)
+      call ESMF_InfoGet(infoh,key='GridAK',values=ak,rc=status)
+      _VERIFY(STATUS)
+      call ESMF_InfoGet(infoh,key='GridBK',values=bk,rc=status)      
       _VERIFY(STATUS)
       do i=1,lmmod+1
          ple_mod(:,:,i)=ak(i)+bk(i)*vPS(:,:)
