@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed failures to fully trap errors in
+  . History GC
+  . MemUtils
+  . `register_generic_entry_points`
 - Fixed issue in `CMakePresets.json` where Ninja presets were broken
 - Fixed io profiler report format
 - Fixed issue on macOS where enabling memutils caused crash
+
 
 ### Added
 
@@ -23,6 +28,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Major refactoring of GenericSetServices
+  Work is not completed, but a new layer is introduced with the intent that the user SetServices is called
+  from with in the new layer as opposed to the previous mechanism that obligated user SetServices to call
+  generic.   That call is now deprecated.   Significant cleanup remains.
+- Improved diagnostic message for profiler imbalances at end of run.
+  Now gives the name of the timer that has not been stopped when
+  finalizing a profiler.
 - A small performance improvement. cycle => exit in MAPL_Generic.F90
 - Made history global metadata configurable. This can be done in two ways
   1. Globally for all collections by setting `COMMENT:`, `CONTACT:`, `CONVENTION:`, `INSTITUTION:`, `REFERENCES:`, and `SOURCE:` at the top of `HISTORY.rc` like `EXPDSC:`

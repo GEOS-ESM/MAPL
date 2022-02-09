@@ -923,7 +923,8 @@ contains
        if (old_fields_style) then
           field_set_name = trim(string) // 'fields'
           allocate(field_set)
-          call parse_fields(cfg, trim(field_set_name), field_set, list(n)%items, rc=status)
+          print*,__FILE__,__LINE__,'looking for ', trim(field_set_name)
+          call parse_fields(cfg, trim(field_set_name), field_set, list(n)%items, _RC)
        end if
 
        list(n)%field_set => field_set
