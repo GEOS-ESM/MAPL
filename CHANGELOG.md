@@ -11,12 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed issue in `CMakePresets.json` where Ninja presets were broken
 - Fixed io profiler report format
+- Fixed issue on macOS where enabling memutils caused crash
 
 ### Added
 
 - Option to force integer time variable in History output via the History.rc file (IntegerTime: .true./.false. default .false.) rather than the default float time variable if allowed by frequency of output
 - Added GEOSadas CI ifort build test
-- Added mapl_StubComponent to MAPL package 
+- Added mapl_StubComponent to MAPL package
 
 ### Changed
 

@@ -60,7 +60,12 @@ module MAPL_MemUtilsMod
 #ifdef _CRAYT90
   public :: stklen
 #endif
+
+#ifdef sysDarwin
+  logical,    save :: DISABLED  = .true.
+#else
   logical,    save :: DISABLED  = .false.
+#endif
 
   integer, public, parameter :: MAPL_MemUtilsModeNode = 2
   integer, public, parameter :: MAPL_MemUtilsModeFull = 1
