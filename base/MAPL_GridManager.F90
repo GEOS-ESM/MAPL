@@ -191,6 +191,7 @@ contains
       character(len=*), parameter :: Iam= MOD_NAME // 'make_grid'
       integer(kind=INT64) :: factory_id
       class (AbstractGridFactory), pointer :: f
+      type(ESMF_Info) :: infoh
 
       _UNUSED_DUMMY(unusable)
 
@@ -203,7 +204,9 @@ contains
 
       ! TODO: this should only be done if the grid is new, rather than cached, in which case
       ! the attribute is already set.
-      call ESMF_AttributeSet(grid, factory_id_attribute, factory_id, rc=status)
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+      call ESMF_InfoSet(infoh,factory_id_attribute,factory_id,rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -225,6 +228,7 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'make_grid_from_config'
       character(len=ESMF_MAXSTR) :: grid_type
+      type(ESMF_Info) :: infoh
 
       character(len=:), allocatable :: label
 
@@ -248,7 +252,9 @@ contains
       _VERIFY(status)
 
       ! TLC: Using 'GridType' instead of 'GRID_TYPE' for legacy reasons.
-      call ESMF_AttributeSet(grid, 'GridType', grid_type, rc=status)
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+      call ESMF_InfoSet(infoh,'GridType',grid_type,rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -268,6 +274,7 @@ contains
 
       class (AbstractGridFactory), allocatable :: factory
       integer :: status
+      type(ESMF_Info) :: infoh
       character(len=*), parameter :: Iam= MOD_NAME // 'make_grid_from_distGrid'
 
       _UNUSED_DUMMY(unusable)
@@ -279,7 +286,9 @@ contains
       _VERIFY(status)
 
       ! TLC: Using 'GridType' instead of 'GRID_TYPE' for legacy reasons.
-      call ESMF_AttributeSet(grid, 'GridType', grid_type, rc=status)
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+      call ESMF_InfoSet(infoh,'GridType',grid_type,rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -380,10 +389,13 @@ contains
       integer (kind=ESMF_KIND_I8) :: id
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'get_factory'
+      type(ESMF_Info) :: infoh
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+      call ESMF_InfoGet(infoh,factory_id_attribute,id,rc=status)
       _VERIFY(status)
 
       factory => this%factories%at(id)
@@ -546,10 +558,13 @@ contains
 
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'get_factory_id'
+      type(ESMF_Info) :: infoh
 
       _UNUSED_DUMMY(unusable)
 
-      call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
+      call ESMF_InfoGetFromHost(grid,infoh,rc=status)
+      _VERIFY(status)
+      call ESMF_InfoGet(infoh,factory_id_attribute,id,rc=status)
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
