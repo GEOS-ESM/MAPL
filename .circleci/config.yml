@@ -13,6 +13,13 @@ workflows:
               compiler: [gfortran, ifort]
           context:
             - docker-hub-creds
+      - build-UFS-MAPL:
+          name: build-UFS-MAPL-on-<< matrix.compiler >>
+          matrix:
+            parameters:
+              compiler: [ifort]
+          context:
+            - docker-hub-creds
       - build-GEOSgcm:
           name: build-GEOSgcm-on-<< matrix.compiler >>
           matrix:
@@ -79,7 +86,40 @@ jobs:
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
             make -j"$(nproc)" build-tests |& tee /logfiles/build-tests.log
-            #MEDIUM# make -j4 build-tests |& tee /logfiles/build-tests.log
+      - run:
+          name: "Run MAPL Unit Tests"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
+            # skip Performance tests (maybe doable on CircleCI?)
+            ctest -R MAPL -LE PERFORMANCE --output-on-failure |& tee /logfiles/ctest.log
+      - circleci-tools/compress_artifacts
+      - store_artifacts:
+          path: /logfiles
+
+  build-UFS-MAPL:
+    parameters:
+      compiler:
+        type: string
+    executor: circleci-tools/<< parameters.compiler >>
+    working_directory: /root/project
+    steps:
+      - checkout:
+          path: MAPL
+      - circleci-tools/versions:
+          compiler: << parameters.compiler >>
+      - circleci-tools/mepoclone:
+          repo: MAPL
+      - circleci-tools/cmake:
+          repo: MAPL
+          compiler: << parameters.compiler >>
+          extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_SHARED_MAPL=OFF"
+      - circleci-tools/buildinstall:
+          repo: MAPL
+      - run:
+          name: "Build MAPL Unit Tests"
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
+            make -j"$(nproc)" build-tests |& tee /logfiles/build-tests.log
       - run:
           name: "Run MAPL Unit Tests"
           command: |
