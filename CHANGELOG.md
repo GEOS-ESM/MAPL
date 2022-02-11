@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed issue in `CMakePresets.json` where Ninja presets were broken
 - Fixed io profiler report format
+- Fixed issue on macOS where enabling memutils caused crash
 
 ### Added
 
