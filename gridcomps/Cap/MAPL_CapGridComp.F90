@@ -145,11 +145,6 @@ contains
     meta%user_setservices_wrapper = ProcSetServicesWrapper(set_services_gc)
     call MAPL_Set(meta, CF=cap%config, __RC__)
 
-    block
-      character(ESMF_MAXSTR) :: root_name
-      call MAPL_GetResource(meta, root_name, "ROOT_NAME:", default = "ROOT", _RC)
-    end block
-
     call MAPL_Set(meta, name=cap_name, component=stub_component, __RC__)
 
     cap_wrapper%ptr => cap
