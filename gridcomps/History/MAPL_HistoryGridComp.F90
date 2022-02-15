@@ -275,6 +275,7 @@ contains
 
     type(ESMF_State), pointer      :: export (:) => null()
     type(ESMF_State), pointer      :: exptmp (:)
+    type(ESMF_State)               :: expsrc, expdst
     type(ESMF_Time)                :: StartTime
     type(ESMF_Time)                :: CurrTime
     type(ESMF_Time)                ::  RingTime
@@ -424,6 +425,7 @@ contains
     type(ESMF_Field), allocatable :: fldList(:)
     character(len=ESMF_MAXSTR), allocatable :: regexList(:)
     type(StringStringMap) :: global_attributes
+    character(len=ESMF_MAXSTR) :: name
 
 ! Begin
 !------
@@ -1427,7 +1429,7 @@ contains
 ! Get Output Export States
 ! ------------------------
 
-    allocate ( exptmp (size0), stat=status )
+    allocate ( exptmp(size0), stat=status )
     _VERIFY(STATUS)
     exptmp(1) = import
     allocate ( export(nstatelist), stat=status )
@@ -1624,6 +1626,17 @@ ENDDO PARSER
     end if
     _ASSERT(.not. errorFound,'needs informative message')
     deallocate ( exptmp )
+
+! Create a copy of the original (i.e. gridded component's export) to
+! be able to modify if safely (for example by splitField)
+! ------------------------------------------------------------------
+    do n=1,nstatelist
+       expsrc = export(n)
+       call ESMF_StateGet(expsrc, name=name, __RC__)
+       expdst = ESMF_StateCreate(name=name, __RC__)
+       call CopyStateItems(src=expsrc, dst=expdst, __RC__)
+       export(n) = expdst
+    end do
 
 ! Associate Output Names with EXPORT State Index
 ! ----------------------------------------------
@@ -2927,6 +2940,10 @@ ENDDO PARSER
 
                expState = export(list(n)%expSTATE(k))
 
+! remove the original unsplit field from the export state copy
+               call ESMF_FieldGet(fldList(k), name=fldName, __RC__)
+               call ESMF_StateRemove(expState, itemName=fldName, __RC__)
+               
                do i=1,size(splitFields)
                   call ESMF_FieldGet(splitFields(i), name=fldName, &
                        rc=status)
@@ -5369,6 +5386,43 @@ ENDDO PARSER
     _RETURN(ESMF_SUCCESS)
 
   end subroutine
+
+  subroutine CopyStateItems(src, dst, rc)
+    type(ESMF_State), intent(in) :: src
+    type(ESMF_State), intent(inout) :: dst
+    integer, optional, intent(out) :: rc
+
+! local vars
+    type (ESMF_StateItem_Flag), pointer  :: itemTypes(:)
+    character(len=ESMF_MAXSTR ), pointer :: itemNames(:)
+    integer :: status
+    integer :: n, itemCount
+    type(ESMF_Field) :: field(1)
+    type(ESMF_FieldBundle) :: bundle(1)
+
+    call ESMF_StateGet(src,  itemCount=itemCount, __RC__)
+
+    allocate(itemnames(itemcount), __STAT__)
+    allocate(itemtypes(itemcount), __STAT__)
+
+    call ESMF_StateGet(src, itemNameList=itemNames, &
+                       itemTypeList=itemTypes, __RC__)
+
+    do n=1,itemCount
+       if(itemTypes(n)==ESMF_STATEITEM_FIELD) then
+          call ESMF_StateGet(src, itemNames(n), field(1), __RC__)
+          call ESMF_StateAdd(dst, field, __RC__)
+       else if(itemTypes(n)==ESMF_STATEITEM_FieldBundle) then
+          call ESMF_StateGet(src, itemNames(n), bundle(1), __RC__)
+          call ESMF_StateAdd(dst, bundle, __RC__)
+       end if
+    end do
+
+    deallocate(itemTypes)
+    deallocate(itemNames)
+
+    _RETURN(ESMF_SUCCESS)
+  end subroutine CopyStateItems
 
 end module MAPL_HistoryGridCompMod
 
