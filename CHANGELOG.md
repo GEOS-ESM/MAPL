@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Now History creates a copy of the export state(s) so that we can remove the original un-split field to avoid duplicates
-- Changed the naming convention for the split name(s)
+- Changed the naming convention for the split name(s): we now take the entries from the field alias(es) without appeding any digits. Also allowing the user to specify more entries in the alias, so that HISTORY.rc does not need to change when running GOCART with more wavelenghts.
 - A small performance improvement. cycle => exit in MAPL_Generic.F90
 - Made history global metadata configurable. This can be done in two ways
   1. Globally for all collections by setting `COMMENT:`, `CONTACT:`, `CONVENTION:`, `INSTITUTION:`, `REFERENCES:`, and `SOURCE:` at the top of `HISTORY.rc` like `EXPDSC:`
