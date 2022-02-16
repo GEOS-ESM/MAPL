@@ -740,6 +740,7 @@ contains
        list(n)%monthly = .false.
        list(n)%splitField = .false.
        list(n)%regex = .false.
+       list(n)%source = INTSTATE%expsrc
 
        cfg = ESMF_ConfigCreate(rc=STATUS)
        _VERIFY(STATUS)
