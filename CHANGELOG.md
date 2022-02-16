@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.17.2] - 2022-02-16
 
+### Fixed
+
 - Fixes for Global Attributes to match FP 5.27
   - Changed `lev` variable `standard_name` to `model_layers`
   - Changed global attribute `Convention` to `Conventions`
