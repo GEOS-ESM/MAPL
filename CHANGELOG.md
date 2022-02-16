@@ -10,9 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed failures to fully trap errors in
-  . History GC
-  . MemUtils
-  . `register_generic_entry_points`
+  - History GC
+  - MemUtils
+  - `register_generic_entry_points`
 - Fixed issue in `CMakePresets.json` where Ninja presets were broken
 - Fixed io profiler report format
 - Fixed issue on macOS where enabling memutils caused crash
