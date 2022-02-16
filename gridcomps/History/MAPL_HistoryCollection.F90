@@ -19,14 +19,25 @@ module MAPL_HistoryCollectionMod
      integer :: nfields = 0
   end type FieldSet
 
+  type, public :: HistoryCollectionGlobalAttributes
+     character(len=ESMF_MAXSTR) :: filename
+     character(len=ESMF_MAXSTR) :: descr
+     character(len=ESMF_MAXSTR) :: comment
+     character(len=ESMF_MAXSTR) :: contact
+     character(len=ESMF_MAXSTR) :: convention
+     character(len=ESMF_MAXSTR) :: institution
+     character(len=ESMF_MAXSTR) :: references
+     character(len=ESMF_MAXSTR) :: source
+     contains
+        procedure :: define_collection_attributes
+  end type HistoryCollectionGlobalAttributes
+
   type, public :: HistoryCollection
      character(len=ESMF_MAXSTR)         :: collection
      character(len=ESMF_MAXSTR)         :: filename
      character(len=ESMF_MAXSTR)         :: template
      character(len=ESMF_MAXSTR)         :: format
      character(len=ESMF_MAXSTR)         :: mode
-     character(len=ESMF_MAXSTR)         :: descr
-     character(len=ESMF_MAXSTR)         :: source
      integer                            :: frequency
      integer                            :: acc_interval
      integer                            :: ref_date
@@ -42,7 +53,7 @@ module MAPL_HistoryCollectionMod
      integer                            :: unit
      type(ESMF_FieldBundle)             :: bundle
      type(MAPL_CFIO)                    :: MCFIO
-     type(MAPL_GriddedIO)                    :: mGriddedIO
+     type(MAPL_GriddedIO)               :: mGriddedIO
      type(VerticalData) :: vdata
      type(TimeData) :: timeInfo
      real   , pointer                   :: levels(:)     => null()
@@ -82,7 +93,7 @@ module MAPL_HistoryCollectionMod
      type(ESMF_FIELD), pointer          :: r8(:) => null()
      type(ESMF_FIELD), pointer          :: r4(:) => null()
      character(len=ESMF_MAXSTR)         :: output_grid_label
-     type(GriddedIOItemVector)            :: items
+     type(GriddedIOItemVector)          :: items
      character(len=ESMF_MAXSTR)         :: currentFile
      character(len=ESMF_MAXPATHLEN)     :: trackFile
      logical                            :: splitField
@@ -91,15 +102,15 @@ module MAPL_HistoryCollectionMod
      logical                            :: recycle_track = .false.
      type(HistoryTrajectory)            :: trajectory
      character(len=ESMF_MAXSTR)         :: positive
+     type(HistoryCollectionGlobalAttributes) :: global_atts
      contains
         procedure :: AddGrid
-        procedure :: define_collection_attributes
   end type HistoryCollection
 
   contains
 
      function define_collection_attributes(this,rc) result(global_attributes)
-        class(HistoryCollection), intent(inout) :: this
+        class(HistoryCollectionGlobalAttributes), intent(inout) :: this
         integer, optional, intent(out) :: rc
 
         type(StringStringMap) :: global_attributes
@@ -108,12 +119,12 @@ module MAPL_HistoryCollectionMod
         call global_attributes%insert("Title",trim(this%descr))
         call global_attributes%insert("History","File written by MAPL_PFIO")
         call global_attributes%insert("Source",trim(this%source))
-        call global_attributes%insert("Contact","http://gmao.gsfc.nasa.gov")
-        call global_attributes%insert("Conventions","CF")
-        call global_attributes%insert("Institution","NASA Global Modeling and Assimilation Office")
-        call global_attributes%insert("References","see MAPL documentation")
+        call global_attributes%insert("Contact",trim(this%contact))
+        call global_attributes%insert("Convention",trim(this%convention))
+        call global_attributes%insert("Institution",trim(this%institution))
+        call global_attributes%insert("References",trim(this%references))
         call global_attributes%insert("Filename",trim(this%filename))
-        call global_attributes%insert("Comment","NetCDF-4")
+        call global_attributes%insert("Comment",trim(this%comment))
 
         _RETURN(_SUCCESS)
      end function define_collection_attributes
@@ -131,7 +142,7 @@ module MAPL_HistoryCollectionMod
         integer, intent(inout), optional :: rc
 
         integer :: status
-        character(len=ESMF_MAXSTR), parameter :: Iam = "AddGrid"
+        character(len=*), parameter :: Iam = "AddGrid"
         type(ESMF_Config) :: cfg
         integer :: nx,ny,im_world,jm_world
         character(len=ESMF_MAXSTR) :: tlabel
