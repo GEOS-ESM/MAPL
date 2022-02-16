@@ -233,8 +233,8 @@ contains
 !                     Defaults to "NetCDF-4". Can be globally set for all collections with "COMMENT:"
 ! \item[contact]      Character string defining a contact.
 !                     Defaults to "http://gmao.gsfc.nasa.gov". Can be globally set for all collections with "CONTACT:"
-! \item[convention]   Character string defining the convention.
-!                     Defaults to "CF". Can be globally set for all collections with "CONVENTION:"
+! \item[conventions]  Character string defining the conventions.
+!                     Defaults to "CF". Can be globally set for all collections with "CONVENTIONS:"
 ! \item[institution]  Character string defining an institution.
 !                     Defaults to "NASA Global Modeling and Assimilation Office". Can be globally set for all collections with "INSTITUTION:"
 ! \item[references]   Character string defining references.
@@ -513,10 +513,11 @@ contains
                                    label ='CONTACT:', default='http://gmao.gsfc.nasa.gov', _RC)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%comment, &
                                    label ='COMMENT:', default='NetCDF-4', _RC)
-    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%convention, &
-                                   label ='CONVENTION:', default='CF', _RC)
+    call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%conventions, &
+                                   label ='CONVENTIONS:', default='CF', _RC)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%source, &
-                                   label ='SOURCE:', default='unknown', _RC)
+                                   label ='SOURCE:', &
+                                   default=trim(INTSTATE%expsrc) // ' experiment_id: ' // trim(INTSTATE%expid), _RC)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%CoresPerNode, &
                                    label ='CoresPerNode:', default=min(npes,8), rc=status )
     _VERIFY(STATUS)
@@ -800,9 +801,9 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%contact, &
                                       default=INTSTATE%global_atts%contact, &
                                       label=trim(string) // 'contact:' ,_RC)
-       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%convention, &
-                                      default=INTSTATE%global_atts%convention, &
-                                      label=trim(string) // 'convention:' ,_RC)
+       call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%conventions, &
+                                      default=INTSTATE%global_atts%conventions, &
+                                      label=trim(string) // 'conventions:' ,_RC)
        call ESMF_ConfigGetAttribute ( cfg, value=list(n)%global_atts%institution, &
                                       default=INTSTATE%global_atts%institution, &
                                       label=trim(string) // 'institution:' ,_RC)

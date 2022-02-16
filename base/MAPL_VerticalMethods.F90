@@ -9,7 +9,7 @@ module MAPL_VerticalDataMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
-  
+
   private
 
   public :: VERTICAL_METHOD_NONE
@@ -56,7 +56,7 @@ module MAPL_VerticalDataMod
   end interface
 
   contains
-  
+
      function newVerticalData(levels,vcoord,vscale,vunit,positive,rc) result(vdata)
         type(VerticalData) :: vData
         real, pointer, intent(in), optional :: levels(:)
@@ -65,14 +65,14 @@ module MAPL_VerticalDataMod
         character(len=*), optional, intent(in) :: vunit
         character(len=*), optional, intent(in) :: positive
         integer, optional, intent(Out) :: rc
-        
+
 
         if (present(positive)) then
            _ASSERT(trim(positive)=='up'.or.trim(positive)=='down',trim(positive)//" not allowed for positive argument")
            vdata%positive=trim(positive)
         else
            vdata%positive='down'
-        end if         
+        end if
 
         if (.not.present(levels)) then
            if (trim(vdata%positive)=='down') then
@@ -109,7 +109,7 @@ module MAPL_VerticalDataMod
            else
               vdata%interp_levels = vdata%scaled_levels
            endif
-        else 
+        else
            vdata%regrid_type = VERTICAL_METHOD_SELECT
         end if
      end function newVerticalData
@@ -166,7 +166,7 @@ module MAPL_VerticalDataMod
              this%pl3d  =    ( 0.5*(ptr3(:,:,1:)+ptr3(:,:,0:ubound(ptr3,3)-1)) )
           end if
           orig_surface_level = ptr3(:,:,ubound(ptr3,3))
-          this%ascending = (ptr3(1,1,0)<ptr3(1,1,1)) 
+          this%ascending = (ptr3(1,1,0)<ptr3(1,1,1))
        else
 
 ! the ptr3 interpolating variable is a (1-lm) mid-layer variable
@@ -201,7 +201,7 @@ module MAPL_VerticalDataMod
           _ASSERT(present(regrid_handle),"Must provide regridding handle")
           call MAPL_GridGet(output_grid,localCellCountPerDim=counts,rc=status)
           _VERIFY(status)
-          if (.not.allocated(this%surface_level)) then 
+          if (.not.allocated(this%surface_level)) then
               allocate(this%surface_level(counts(1),counts(2)),stat=status)
              _VERIFY(status)
           end if
@@ -241,15 +241,15 @@ module MAPL_VerticalDataMod
         integer :: km
 
         _ASSERT(all(shape(ptrin)==shape(ptrout)),"array must match shape to flip")
-        
+
         km = size(ptrin,3)
-        
+
         ptrout(:,:,1:km)=ptrin(:,:,km:1:-1)
         _RETURN(_SUCCESS)
 
      end subroutine flip_levels
 
-     subroutine correct_topo(this,field,rc) 
+     subroutine correct_topo(this,field,rc)
         class(verticalData), intent(inout) :: this
         type(ESMF_Field), intent(inout) :: field
         integer, optional, intent(out) :: rc
@@ -286,7 +286,7 @@ module MAPL_VerticalDataMod
         integer :: i
 
         do i=1,size(this%levs)
-           ptrOut(:,:,i)=ptrIn(:,:,nint(this%levs(i))) 
+           ptrOut(:,:,i)=ptrIn(:,:,nint(this%levs(i)))
         enddo
         _RETURN(ESMF_SUCCESS)
 
@@ -316,16 +316,16 @@ module MAPL_VerticalDataMod
         type(ESMF_Field) :: field
         real, pointer :: ptr3d(:,:,:)
         logical :: haveVert
- 
+
         logical, allocatable        :: HasUngrid(:)
         character(len=ESMF_MAXSTR), allocatable :: ungridded_units(:)
-        character(len=ESMF_MAXSTR), allocatable :: ungridded_names(:) 
+        character(len=ESMF_MAXSTR), allocatable :: ungridded_names(:)
         character(len=ESMF_MAXSTR)  :: ungridded_unit, ungridded_name
         integer                     :: ungrdsize
         real, allocatable           :: ungridded_coord(:)
         real, allocatable           :: ungridded_coords(:,:)
         logical                     :: unGrdNameCheck, unGrdUnitCheck, unGrdCoordCheck, have_ungrd, found_mixed_ce
-      
+
         integer :: status
         type(Variable) :: v
         logical :: isPresent
@@ -431,7 +431,7 @@ module MAPL_VerticalDataMod
               vlb = 0
            else
               vlb = 1
-           end if         
+           end if
         end if
 
         if (this%regrid_type == VERTICAL_METHOD_ETA2LEV) then
@@ -449,7 +449,7 @@ module MAPL_VerticalDataMod
         if (this%regrid_type == VERTICAL_METHOD_NONE) then
            _ASSERT(.not.(found_mixed_ce),'have mixed level/edge')
         end if
-           
+
 
         if (haveVert) then
            this%lm=lm
@@ -464,7 +464,7 @@ module MAPL_VerticalDataMod
                  if (allocated(ungridded_coord)) then
                    this%levs=ungridded_coord
                  end if
-             
+
                  call metadata%add_dimension('lev', lm, rc=status)
                  v = Variable(type=PFIO_REAL64, dimensions='lev')
                  call v%add_attribute('units',ungridded_unit)
@@ -473,14 +473,14 @@ module MAPL_VerticalDataMod
                  call v%add_const_value(UnlimitedEntity(this%levs))
                  call metadata%add_variable('lev',v,rc=status)
                  _VERIFY(status)
-              else 
+              else
                  call metadata%add_dimension('lev', lm, rc=status)
                  v = Variable(type=PFIO_REAL64, dimensions='lev')
                  call v%add_attribute('long_name','vertical level')
                  call v%add_attribute('units','layer')
                  call v%add_attribute('positive',trim(this%positive))
                  call v%add_attribute('coordinate','eta')
-                 call v%add_attribute('standard_name','model_layer')
+                 call v%add_attribute('standard_name','model_layers')
                  call v%add_const_value(UnlimitedEntity(this%levs))
                  call metadata%add_variable('lev',v,rc=status)
                  _VERIFY(status)
@@ -509,7 +509,7 @@ module MAPL_VerticalDataMod
               call v%add_attribute('units','layer')
               call v%add_attribute('positive','down')
               call v%add_attribute('coordinate','eta')
-              call v%add_attribute('standard_name','model_layer')
+              call v%add_attribute('standard_name','model_layers')
               call v%add_const_value(UnlimitedEntity(this%levs))
               call metadata%add_variable('lev',v,rc=status)
               _VERIFY(status)

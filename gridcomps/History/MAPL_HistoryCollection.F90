@@ -24,7 +24,7 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR) :: descr
      character(len=ESMF_MAXSTR) :: comment
      character(len=ESMF_MAXSTR) :: contact
-     character(len=ESMF_MAXSTR) :: convention
+     character(len=ESMF_MAXSTR) :: conventions
      character(len=ESMF_MAXSTR) :: institution
      character(len=ESMF_MAXSTR) :: references
      character(len=ESMF_MAXSTR) :: source
@@ -120,7 +120,7 @@ module MAPL_HistoryCollectionMod
         call global_attributes%insert("History","File written by MAPL_PFIO")
         call global_attributes%insert("Source",trim(this%source))
         call global_attributes%insert("Contact",trim(this%contact))
-        call global_attributes%insert("Convention",trim(this%convention))
+        call global_attributes%insert("Conventions",trim(this%conventions))
         call global_attributes%insert("Institution",trim(this%institution))
         call global_attributes%insert("References",trim(this%references))
         call global_attributes%insert("Filename",trim(this%filename))

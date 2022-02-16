@@ -223,7 +223,7 @@ program main
                              rc        = status)
 
          ! Set File attributes
-         call fmd%add_attribute('Convention', 'COARDS')
+         call fmd%add_attribute('Conventions', 'COARDS')
          call fmd%add_attribute('Source', 'GMAO')
          call fmd%add_attribute('Title', 'Sample code to test PFIO')
          call fmd%add_attribute('HISTORY', 'File writtem by PFIO vx.x.x')
