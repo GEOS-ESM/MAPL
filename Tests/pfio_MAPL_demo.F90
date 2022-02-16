@@ -6,7 +6,7 @@
 ! It writes out 2D & 3D geolocated variables in a netCDF file.
 !
 ! Usage:
-!   If we reserve 2 haswell nodes (28 cores in each), want to run the model on 28 cores 
+!   If we reserve 2 haswell nodes (28 cores in each), want to run the model on 28 cores
 !   and use 1 MultiGroup with 5 backend processes, then the execution command is:
 !      mpiexec -np 56 pfio_MAPL_demo.x --npes_model 28 --oserver_type multigroup --nodes_output_server 1 --npes_backend_pernode 5
 !------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ program main
       cap_options = MAPL_CapOptions(cli)
 
       call MPI_init(ierror)
-   
+
       ! Initialize the IO Server Manager using parameters defined above
       call ioserver_manager%initialize(MPI_COMM_WORLD, &
                     application_size     = cap_options%npes_model, &
@@ -156,7 +156,7 @@ program main
          !--------------------------------------------------------------
 
          !fmd = FileMetadata()
- 
+
          ! Define dimensions
          !----------------------
          call fmd%add_dimension('lon', im_world, rc=status)
@@ -220,7 +220,7 @@ program main
                              rc        = status)
 
          ! Set File attributes
-         call fmd%add_attribute('Convention', 'COARDS')
+         call fmd%add_attribute('Conventions', 'COARDS')
          call fmd%add_attribute('Source', 'GMAO')
          call fmd%add_attribute('Title', 'Sample code to test PFIO')
          call fmd%add_attribute('HISTORY', 'File writtem by PFIO vx.x.x')
