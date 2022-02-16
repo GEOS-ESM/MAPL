@@ -26,6 +26,7 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: format
      character(len=ESMF_MAXSTR)         :: mode
      character(len=ESMF_MAXSTR)         :: descr
+     character(len=ESMF_MAXSTR)         :: source
      integer                            :: frequency
      integer                            :: acc_interval
      integer                            :: ref_date
