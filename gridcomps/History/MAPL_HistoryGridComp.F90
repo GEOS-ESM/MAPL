@@ -768,6 +768,7 @@ contains
        list(n)%monthly = .false.
        list(n)%splitField = .false.
        list(n)%regex = .false.
+       list(n)%source = trim(INTSTATE%expsrc) // ' experiment_id: ' // trim(INTSTATE%expid)
 
        cfg = ESMF_ConfigCreate(rc=STATUS)
        _VERIFY(STATUS)
