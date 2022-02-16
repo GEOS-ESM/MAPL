@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 	reasonable results.  Should nicely complement other tools that
 	measure HWM.
 - Option to force integer time variable in History output via the History.rc file (IntegerTime: .true./.false. default .false.) rather than the default float time variable if allowed by frequency of output
-- Added mapl_StubComponent to MAPL package 
+- Added mapl_StubComponent to MAPL package
 - Updates to CircleCI
   - Added GEOSadas CI ifort build test
   - Add "like-UFS" build to CI. This is no FLAP and pFlogger, and static build
@@ -39,6 +39,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.17.2] - 2022-02-16
+
+### Fixed
+
+- Fixes for Global Attributes to match FP 5.27
+  - Changed `lev` variable `standard_name` to `model_layers`
+  - Changed global attribute `Convention` to `Conventions`
+  - Fill `Source` with a string "<EXPSRC> experiment_id: <EXPID>" where EXPSRC and EXPID are from the `EXPSRC:` and `EXPID:` lines in HISTORY.rc
 
 ## [2.17.1] - 2022-02-04
 
