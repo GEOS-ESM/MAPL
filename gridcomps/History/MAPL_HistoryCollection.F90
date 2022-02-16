@@ -11,7 +11,7 @@ module MAPL_HistoryCollectionMod
   use HistoryTrajectoryMod
   use gFTL_StringStringMap
   implicit none
-  
+
   private
 
   type, public :: FieldSet
@@ -26,6 +26,7 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: format
      character(len=ESMF_MAXSTR)         :: mode
      character(len=ESMF_MAXSTR)         :: descr
+     character(len=ESMF_MAXSTR)         :: source
      integer                            :: frequency
      integer                            :: acc_interval
      integer                            :: ref_date
@@ -61,7 +62,7 @@ module MAPL_HistoryCollectionMod
      integer                            :: conservative
      integer                            :: voting
      integer                            :: nbits
-     integer                            :: deflate 
+     integer                            :: deflate
      integer                            :: slices
      integer                            :: Root
      integer                            :: Psize
@@ -89,7 +90,7 @@ module MAPL_HistoryCollectionMod
      logical                            :: timeseries_output = .false.
      logical                            :: recycle_track = .false.
      type(HistoryTrajectory)            :: trajectory
-     character(len=ESMF_MAXSTR)         :: positive 
+     character(len=ESMF_MAXSTR)         :: positive
      contains
         procedure :: AddGrid
         procedure :: define_collection_attributes
@@ -106,9 +107,9 @@ module MAPL_HistoryCollectionMod
 
         call global_attributes%insert("Title",trim(this%descr))
         call global_attributes%insert("History","File written by MAPL_PFIO")
-        call global_attributes%insert("Source","unknown")
+        call global_attributes%insert("Source",trim(this%source))
         call global_attributes%insert("Contact","http://gmao.gsfc.nasa.gov")
-        call global_attributes%insert("Convention","CF")
+        call global_attributes%insert("Conventions","CF")
         call global_attributes%insert("Institution","NASA Global Modeling and Assimilation Office")
         call global_attributes%insert("References","see MAPL documentation")
         call global_attributes%insert("Filename",trim(this%filename))
@@ -117,7 +118,7 @@ module MAPL_HistoryCollectionMod
         _RETURN(_SUCCESS)
      end function define_collection_attributes
 
-     subroutine AddGrid(this,output_grids,resolution,rc) 
+     subroutine AddGrid(this,output_grids,resolution,rc)
         use MAPL_GridManagerMod
         use MAPL_AbstractGridFactoryMod
         use MAPL_ConfigMod
@@ -130,7 +131,7 @@ module MAPL_HistoryCollectionMod
         integer, intent(inout), optional :: rc
 
         integer :: status
-        character(len=ESMF_MAXSTR), parameter :: Iam = "AddGrid" 
+        character(len=ESMF_MAXSTR), parameter :: Iam = "AddGrid"
         type(ESMF_Config) :: cfg
         integer :: nx,ny,im_world,jm_world
         character(len=ESMF_MAXSTR) :: tlabel
@@ -155,7 +156,7 @@ module MAPL_HistoryCollectionMod
         _VERIFY(status)
         call MAPL_ConfigSetAttribute(cfg,value=ny, label=trim(tlabel)//".NY:",rc=status)
         _VERIFY(status)
-       
+
         if (resolution(2)==resolution(1)*6) then
           call MAPL_ConfigSetAttribute(cfg,value="Cubed-Sphere", label=trim(tlabel)//".GRID_TYPE:",rc=status)
           _VERIFY(status)
@@ -177,20 +178,20 @@ module MAPL_HistoryCollectionMod
         end if
         output_grid = grid_manager%make_grid(cfg,prefix=trim(tlabel)//'.',rc=status)
         _VERIFY(status)
-        
+
         factory => grid_manager%get_factory(output_grid,rc=status)
         _VERIFY(status)
         this%output_grid_label = factory%generate_grid_name()
         lgrid => output_grids%at(trim(this%output_grid_label))
-        if (.not.associated(lgrid)) call output_grids%insert(this%output_grid_label,output_grid) 
+        if (.not.associated(lgrid)) call output_grids%insert(this%output_grid_label,output_grid)
 
      end subroutine AddGrid
-  
+
 end module MAPL_HistoryCollectionMod
 
 module MAPL_HistoryCollectionVectorMod
   use MAPL_HistoryCollectionMod
-  
+
 #define _type type (HistoryCollection)
 #define _vector HistoryCollectionVector
 #define _iterator HistoryCollectionVectorIterator
@@ -200,7 +201,7 @@ module MAPL_HistoryCollectionVectorMod
 #undef _iterator
 #undef _vector
 #undef _type
-  
+
 end module MAPL_HistoryCollectionVectorMod
 
 module MAPL_StringFieldSetMapMod
@@ -218,5 +219,5 @@ module MAPL_StringFieldSetMapMod
 #undef _map
 #undef _value
 #undef _key
-  
+
 end module MAPL_StringFieldSetMapMod
