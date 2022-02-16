@@ -107,7 +107,7 @@ module MAPL_HistoryCollectionMod
         call global_attributes%insert("History","File written by MAPL_PFIO")
         call global_attributes%insert("Source","unknown")
         call global_attributes%insert("Contact","http://gmao.gsfc.nasa.gov")
-        call global_attributes%insert("Convention","CF")
+        call global_attributes%insert("Conventions","CF")
         call global_attributes%insert("Institution","NASA Global Modeling and Assimilation Office")
         call global_attributes%insert("References","see MAPL documentation")
         call global_attributes%insert("Filename",trim(this%filename))
