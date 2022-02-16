@@ -440,7 +440,7 @@ module MAPL_VerticalDataMod
                  call v%add_attribute('units','layer')
                  call v%add_attribute('positive','down')
                  call v%add_attribute('coordinate','eta')
-                 call v%add_attribute('standard_name','model_layer')
+                 call v%add_attribute('standard_name','model_layers')
                  call v%add_const_value(UnlimitedEntity(this%levs))
                  call metadata%add_variable('lev',v,rc=status)
               end if
@@ -467,7 +467,7 @@ module MAPL_VerticalDataMod
               call v%add_attribute('units','layer')
               call v%add_attribute('positive','down')
               call v%add_attribute('coordinate','eta')
-              call v%add_attribute('standard_name','model_layer')
+              call v%add_attribute('standard_name','model_layers')
               call v%add_const_value(UnlimitedEntity(this%levs))
               call metadata%add_variable('lev',v,rc=status)
            end if

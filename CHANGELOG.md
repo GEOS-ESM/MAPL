@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [2.8.0.4] - 2022-02-16
+
+### Fixed
+
+- Changed `lev` variable `standard_name` to `model_layers` to match FP 5.27
+
 ## [2.8.0.3] - 2022-02-05
 
 ### Fixed
