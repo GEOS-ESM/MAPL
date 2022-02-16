@@ -1889,6 +1889,7 @@ CONTAINS
         character(len=ESMF_MAXSTR) :: creffTime, ctInt
        
         integer :: status
+        logical :: found
  
         creffTime = ''
         ctInt     = ''
@@ -1933,6 +1934,10 @@ CONTAINS
            else
               ! couldn't find any tokens so all the data must be on one file
               call ESMF_TimeIntervalSet(item%frequency,__RC__)
+
+              ! check if non-token file exists
+              inquire(file=trim(item%file),EXIST=found)
+              _ASSERT(found,'File ' // trim(item%file) // ' not found')
            end if
         else
            ! Reference time should look like:
