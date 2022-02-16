@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixes for Global Attributes to match FP 5.27
   - Changed `lev` variable `standard_name` to `model_layers`
   - Changed global attribute `Convention` to `Conventions`
-  - Fill `Source` with `EXPSRC:` 
+  - Fill `Source` with a string "<EXPSRC> experiment_id: <EXPID>" where EXPSRC and EXPID are from the `EXPSRC:` and `EXPID:` lines in HISTORY.rc
 
 ## [2.8.0.3] - 2022-02-05
 
