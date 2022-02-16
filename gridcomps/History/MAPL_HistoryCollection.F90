@@ -26,6 +26,7 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: format
      character(len=ESMF_MAXSTR)         :: mode
      character(len=ESMF_MAXSTR)         :: descr
+     character(len=ESMF_MAXSTR)         :: source
      integer                            :: frequency
      integer                            :: acc_interval
      integer                            :: ref_date
@@ -105,7 +106,7 @@ module MAPL_HistoryCollectionMod
 
         call global_attributes%insert("Title",trim(this%descr))
         call global_attributes%insert("History","File written by MAPL_PFIO")
-        call global_attributes%insert("Source","unknown")
+        call global_attributes%insert("Source",trim(this%source))
         call global_attributes%insert("Contact","http://gmao.gsfc.nasa.gov")
         call global_attributes%insert("Conventions","CF")
         call global_attributes%insert("Institution","NASA Global Modeling and Assimilation Office")
