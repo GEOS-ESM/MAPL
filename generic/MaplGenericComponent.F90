@@ -377,15 +377,16 @@ contains
 
       integer :: status, user_status
       type(ESMF_VM) :: vm
-      integer :: myPet, i
+      integer :: myPet, i, ilabel
       logical :: has_private_state
 
       type MAPL_GenericWrap
          type(ESMF_Clock), pointer :: dummy
       end type MAPL_GenericWrap
 
-      type (MAPL_GenericWrap) :: wrap, wrap_private
+      type (MAPL_GenericWrap) :: wrap !, wrap_private
       character(len=ESMF_MAXSTR) :: comp_name
+      character(len=:), allocatable :: labels(:)
 
       allocate(subgridcomps(num_grids))
 
@@ -393,27 +394,32 @@ contains
       call ESMF_VMGet(vm, localPET=myPET, __RC__)
 
       call ESMF_GridCompGet(this%gridcomp, name=comp_name, __RC__)
+      call ESMF_InternalStateGet(this%gridcomp, labelList=labels, __RC__)
+      if(myPET==0) print*,__FILE__,__LINE__, 'internal states labels : <',trim(comp_name), (/(trim(labels(i)),i=1,size(labels))/), '>'
       print*,__FILE__,__LINE__, 'splitting component: <',trim(comp_name),'>'
-      call ESMF_UserCompGetInternalState(this%gridcomp, "MAPL_GenericInternalState", wrap, status)
-      _VERIFY(status)
-      call ESMF_UserCompGetInternalState(this%gridcomp, trim(comp_name)//"2G_GridComp", wrap_private, status)
-      has_private_state = (status == ESMF_SUCCESS)
       do i = 1, num_grids
-         associate (gc => subgridcomps(i) )
-           gc = ESMF_GridCompCreate(name=trim(comp_name), petlist=[myPet], &
-                & contextflag=ESMF_CONTEXT_OWN_VM, __RC__)
-           _ASSERT(associated(this%run_entry_point),'no run method found')
-           user_method => this%run_entry_point
-           call ESMF_GridCompSetServices(gc, stub_setservices, userrc=user_status, rc=status)
-           _VERIFY(user_status)
-           _VERIFY(status)
-           call ESMF_UserCompSetInternalState(gc, "MAPL_GenericInternalState", wrap, status)
-           _VERIFY(status)
-           if (has_private_state) then
-              call ESMF_UserCompSetInternalState(gc, trim(comp_name)//"2G_GridComp", wrap_private, status)
-              _VERIFY(status)
-           end if
-         end associate
+        associate (gc => subgridcomps(i) )
+          gc = ESMF_GridCompCreate(name=trim(comp_name), petlist=[myPet], &
+               & contextflag=ESMF_CONTEXT_OWN_VM, __RC__)
+          _ASSERT(associated(this%run_entry_point),'no run method found')
+          user_method => this%run_entry_point
+          call ESMF_GridCompSetServices(gc, stub_setservices, userrc=user_status, rc=status)
+          _VERIFY(user_status)
+          _VERIFY(status)
+        end associate
+      end do
+
+      do ilabel = 1, size(labels)
+         call ESMF_UserCompGetInternalState(this%gridcomp, trim(labels(ilabel)), wrap, status)
+         has_private_state = (status == ESMF_SUCCESS)
+         do i = 1, num_grids
+            associate (gc => subgridcomps(i) )
+              if (has_private_state) then
+                 call ESMF_UserCompSetInternalState(gc, trim(labels(ilabel)), wrap, status)
+                 _VERIFY(status)
+              end if
+            end associate
+         end do
       end do
 
       _RETURN(ESMF_SUCCESS)
