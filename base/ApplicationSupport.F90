@@ -213,7 +213,7 @@ module MAPL_ApplicationSupport
 
       exclusive = MultiColumn(['Exclusive'], separator='=')
       call exclusive%add_column(MemoryTextColumn(['  MEM  '],'(i4,1x,a2)', 9, ExclusiveColumn(), separator='-'))
-      call exclusive%add_column(FormattedTextColumn(' MEM (KB)','(-3p,f9.3, 0p)', 9, ExclusiveColumn(), separator='-'))
+      call exclusive%add_column(FormattedTextColumn(' MEM (KB)','(-3p,f15.3, 0p)', 15, ExclusiveColumn(), separator='-'))
 !!$      call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
       call reporter%add_column(exclusive)
 
