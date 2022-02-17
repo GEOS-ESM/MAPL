@@ -69,8 +69,7 @@ module MAPL_ApplicationSupport
       else
          comm_world=MPI_COMM_WORLD
       end if
-      call stop_global_time_profiler(rc=status)
-      _VERIFY(status)
+      call stop_global_time_profiler(_RC)
       call report_global_profiler(comm=comm_world)
       call finalize_profiler()
       call finalize_pflogger()
