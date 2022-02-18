@@ -2527,7 +2527,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             ! Belt and suspenders check that all data was read
             _ASSERT(size(yearTable) == numlines,"Inconsistency in NRL number of lines")
 
-            call close(unit, _IOSTAT)
+            close(unit, _IOSTAT)
 
          end if
 
