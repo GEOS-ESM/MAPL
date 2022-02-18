@@ -44,10 +44,12 @@ contains
    subroutine initialize(comm)
       integer, optional, intent(in) :: comm
       call initialize_global_time_profiler(comm = comm)
+      call initialize_global_memory_profiler() !comm = comm)
    end subroutine initialize
 
    subroutine finalize()
       call finalize_global_time_profiler()
+      call finalize_global_memory_profiler()
    end subroutine finalize
 
 end module mapl_Profiler
