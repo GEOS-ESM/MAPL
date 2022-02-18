@@ -2493,11 +2493,11 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             numlines = num_lines_in_file(UNIT)
             call lgr%debug("Solar Table Data Points: %i0", numlines)
 
-            ! Broadcast the number of lines
-            ! -----------------------------
-            call MAPL_CommsBcast(vm, DATA=numlines, N=1, ROOT=0, _RC)
-
          end if
+
+         ! Broadcast the number of lines
+         ! -----------------------------
+         call MAPL_CommsBcast(vm, DATA=numlines, N=1, ROOT=0, _RC)
 
          ! Allocate our arrays on all processes
          ! ------------------------------------
