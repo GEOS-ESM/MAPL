@@ -1492,15 +1492,10 @@ contains
        enddo
     enddo
 
-    ! Important: the next 2 calls modify the field's list
+    ! Important: the next modifies the field's list
     ! first we check if any regex expressions need to expanded
     !---------------------------------------------------------
     call wildCardExpand(rc=status)
-    _VERIFY(status)
-
-    ! Deal with splitting fields with ungriddeds dims
-    !------------------------------------------------
-    call splitUngriddedFields(rc=status)
     _VERIFY(status)
 
     do n=1,nlist
@@ -2041,268 +2036,262 @@ ENDDO PARSER
 
       end if
 
+      block
+        type (ESMF_Field), pointer :: splitFields(:)
+        logical :: split
+        character(ESMF_MAXSTR) :: field_name, alias_name, special_name
+        integer :: m1, big
+        logical, allocatable               :: tmp_r8_to_r4(:)
+        type(ESMF_FIELD), allocatable      :: tmp_r8(:)
+        type(ESMF_FIELD), allocatable      :: tmp_r4(:)
+
       do m=1,list(n)%field_set%nfields
+         field_name = list(n)%field_set%fields(1,m)
+         alias_name = list(n)%field_set%fields(3,m)
+         special_name = list(n)%field_set%fields(4,m)
+
          call MAPL_StateGet( export(list(n)%expSTATE(m)), &
-                             trim(list(n)%field_set%fields(1,m)), field, rc=status )
-         _VERIFY(STATUS)
+                             trim(field_name), field, __RC__ )
 
-         call ESMF_FieldGet(FIELD, typekind=tk, RC=STATUS)
-         _VERIFY(STATUS)
-         if (tk == ESMF_TypeKind_R8) then
-            list(n)%r8_to_r4(m) = .true.
-            list(n)%r8(m) = field
-            ! Create a new field with R4 precision
-            r4field = MAPL_FieldCreate(field,RC=status)
-            _VERIFY(STATUS)
-            field=r4field
-            list(n)%r4(m) = field
+         split = hasSplitField(field, __RC__)
+         ! check if split is needed
+         if (.not. split) then
+            allocate(splitFields(1), __STAT__)
+            splitFields(1) = field
          else
-            list(n)%r8_to_r4(m) = .false.
-         end if
-
-         if (.not.list(n)%rewrite(m) .or.list(n)%field_set%fields(4,m) /= BLANK ) then
-          f = MAPL_FieldCreate(field, name=list(n)%field_set%fields(3,m), rc=status)
-         else
-          DoCopy=.True.
-          f = MAPL_FieldCreate(field, name=list(n)%field_set%fields(3,m), DoCopy=DoCopy, rc=status)
+            call MAPL_FieldSplit(field, splitFields, aliasName=alias_name, __RC__)
          endif
-         _VERIFY(STATUS)
-         if (list(n)%field_set%fields(4,m) /= BLANK) then
-            if (list(n)%field_set%fields(4,m) == 'MIN') then
-               call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplMin, RC=STATUS)
-               _VERIFY(STATUS)
-            else if (list(n)%field_set%fields(4,m) == 'MAX') then
-               call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplMax, RC=STATUS)
-               _VERIFY(STATUS)
-            else if (list(n)%field_set%fields(4,m) == 'ACCUMULATE') then
-               call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplAccumulate, RC=STATUS)
-               _VERIFY(STATUS)
-            else
-               call WRITE_PARALLEL("Functionality not supported yet")
+
+         do j=1,size(splitFields)
+            m1 = m - 1 + j
+            if (m1 > size(list(n)%r8_to_r4)) then
+               ! grow
+               big = size(list(n)%r8_to_r4) + 1
+               allocate(tmp_r4(big), tmp_r8(big), tmp_r8_to_r4(big), __STAT__)
+               call move_alloc(tmp_r4, list(n)%r4)
+               call move_alloc(tmp_r8, list(n)%r8)
+               call move_alloc(tmp_r8_to_r4, list(n)%r8_to_r4)
             end if
-         end if
+            field = splitFields(j)
+            ! reset alias name when split
+            if (split) then
+               call ESMF_FieldGet(field, name=alias_name, __RC__)
+            end if
+            call ESMF_FieldGet(FIELD, typekind=tk, __RC__)
+            if (tk == ESMF_TypeKind_R8) then
+               list(n)%r8_to_r4(m1) = .true.
+               list(n)%r8(m1) = field
+               ! Create a new field with R4 precision
+               r4field = MAPL_FieldCreate(field,__RC__)
+               field=r4field
+               list(n)%r4(m1) = field
+            else
+               list(n)%r8_to_r4(m1) = .false.
+            end if
 
-         if (IntState%average(n)) then
-            call MAPL_StateAdd(IntState%CIM(N), f, rc=status)
-            _VERIFY(STATUS)
-
-            ! borrow SPEC from FIELD
-            ! modify SPEC to reflect accum/avg
-            call ESMF_FieldGet(f, name=short_name, grid=grid, rc=status)
-            _VERIFY(STATUS)
-
-            call ESMF_AttributeGet(FIELD, NAME='DIMS', VALUE=DIMS, RC=STATUS)
-            _VERIFY(STATUS)
-            call ESMF_AttributeGet(FIELD, NAME='VLOCATION', VALUE=VLOCATION, RC=STATUS)
-            _VERIFY(STATUS)
-            call ESMF_AttributeGet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=STATUS)
-            _VERIFY(STATUS)
-            call ESMF_AttributeGet(FIELD, NAME='UNITS', VALUE=UNITS, RC=STATUS)
-            _VERIFY(STATUS)
-            call ESMF_AttributeGet(FIELD, NAME='FIELD_TYPE', VALUE=FIELD_TYPE, RC=STATUS)
-            _VERIFY(STATUS)
-
-            call ESMF_AttributeGet(FIELD, NAME='REFRESH_INTERVAL', VALUE=REFRESH, RC=STATUS)
-            _VERIFY(STATUS)
-            call ESMF_AttributeGet(FIELD, NAME='AVERAGING_INTERVAL', VALUE=avgint, RC=STATUS)
-            _VERIFY(STATUS)
-
-            call ESMF_FieldGet(FIELD, dimCount=fieldRank, RC=STATUS)
-            _VERIFY(STATUS)
-            call ESMF_GridGet(GRID, dimCount=gridRank, rc=status)
-            _VERIFY(STATUS)
-            allocate(gridToFieldMap(gridRank), stat=status)
-            _VERIFY(STATUS)
-            call ESMF_FieldGet(FIELD, gridToFieldMap=gridToFieldMap, RC=STATUS)
-            _VERIFY(STATUS)
-
-            notGridded = count(gridToFieldMap==0)
-            unGridDims = fieldRank - gridRank + notGridded
-
-            hasUngridDims = .false.
-            if (unGridDims > 0) then
-               hasUngridDims = .true.
-!ALT: special handling for 2d-MAPL grid (the vertical is treated as ungridded)
-               if ((gridRank == 2) .and. (DIMS == MAPL_DimsHorzVert) .and. &
-                    (unGridDims == 1)) then
-                  hasUngridDims = .false.
+            if (.not.list(n)%rewrite(m) .or.special_name /= BLANK ) then
+               f = MAPL_FieldCreate(field, name=alias_name, __RC__)
+            else
+               DoCopy=.True.
+               f = MAPL_FieldCreate(field, name=alias_name, DoCopy=DoCopy, __RC__)
+            endif
+            if (special_name /= BLANK) then
+               if (special_name == 'MIN') then
+                  call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplMin, __RC__)
+               else if (special_name == 'MAX') then
+                  call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplMax, __RC__)
+               else if (special_name == 'ACCUMULATE') then
+                  call ESMF_AttributeSet(f, NAME='CPLFUNC', VALUE=MAPL_CplAccumulate, __RC__)
+               else
+                  call WRITE_PARALLEL("Functionality not supported yet")
                end if
+            end if
+
+            if (IntState%average(n)) then
+               call MAPL_StateAdd(IntState%CIM(N), f, __RC__)
+
+               ! borrow SPEC from FIELD
+               ! modify SPEC to reflect accum/avg
+               call ESMF_FieldGet(f, name=short_name, grid=grid, __RC__)
+
+               call ESMF_AttributeGet(FIELD, NAME='DIMS', VALUE=DIMS, __RC__)
+               call ESMF_AttributeGet(FIELD, NAME='VLOCATION', VALUE=VLOCATION, __RC__)
+               call ESMF_AttributeGet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, __RC__)
+               call ESMF_AttributeGet(FIELD, NAME='UNITS', VALUE=UNITS, __RC__)
+               call ESMF_AttributeGet(FIELD, NAME='FIELD_TYPE', VALUE=FIELD_TYPE, __RC__)
+
+               call ESMF_AttributeGet(FIELD, NAME='REFRESH_INTERVAL', VALUE=REFRESH, __RC__)
+               call ESMF_AttributeGet(FIELD, NAME='AVERAGING_INTERVAL', VALUE=avgint, __RC__)
+
+               call ESMF_FieldGet(FIELD, dimCount=fieldRank, __RC__)
+               call ESMF_GridGet(GRID, dimCount=gridRank, __RC__)
+               allocate(gridToFieldMap(gridRank), __STAT__)
+               call ESMF_FieldGet(FIELD, gridToFieldMap=gridToFieldMap, __RC__)
+
+               notGridded = count(gridToFieldMap==0)
+               unGridDims = fieldRank - gridRank + notGridded
+
+               hasUngridDims = .false.
+               if (unGridDims > 0) then
+                  hasUngridDims = .true.
+                  !ALT: special handling for 2d-MAPL grid (the vertical is treated as ungridded)
+                  if ((gridRank == 2) .and. (DIMS == MAPL_DimsHorzVert) .and. &
+                       (unGridDims == 1)) then
+                     hasUngridDims = .false.
+                  end if
+               endif
+
+               if (hasUngridDims) then
+                  allocate(ungriddedLBound(unGridDims), &
+                       ungriddedUBound(unGridDims), &
+                       ungrd(unGridDims),           &
+                       __STAT__)
+
+                  call ESMF_FieldGet(field, Array=array, __RC__)
+
+                  call ESMF_ArrayGet(array, rank=rank, dimCount=dimCount, __RC__)
+                  undist = rank-dimCount
+                  _ASSERT(undist == ungridDims,'needs informative message')
+
+                  call ESMF_ArrayGet(array, undistLBound=ungriddedLBound, &
+                       undistUBound=ungriddedUBound, __RC__)
+
+                  ungrd = ungriddedUBound - ungriddedLBound + 1
+                  call ESMF_AttributeGet(field,name="UNGRIDDED_UNIT",value=ungridded_unit,__RC__)
+                  call ESMF_AttributeGet(field,name="UNGRIDDED_NAME",value=ungridded_name,__RC__)
+                  call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",isPresent=isPresent,__RC__)
+                  if (isPresent) then
+                     call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",itemcount=ungrdsize,__RC__)
+                     if ( ungrdsize /= 0 ) then
+                        allocate(ungridded_coord(ungrdsize),__STAT__)
+                        call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",valuelist=ungridded_coord,__RC__)
+                     end if
+                  else
+                     ungrdsize = 0
+                  end if
+
+                  deallocate(ungriddedLBound,ungriddedUBound)
+
+                  if (ungrdsize > 0) then
+                     call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,   &
+                          SHORT_NAME = SHORT_NAME,                          &
+                          LONG_NAME  = LONG_NAME,                           &
+                          UNITS      = UNITS,                               &
+                          DIMS       = DIMS,                                &
+                          UNGRIDDED_DIMS = UNGRD,                           &
+                          UNGRIDDED_NAME = ungridded_name,                  &
+                          UNGRIDDED_UNIT = ungridded_unit,                  &
+                          UNGRIDDED_COORDS = ungridded_coord,               &
+                          ACCMLT_INTERVAL= avgint,                          &
+                          COUPLE_INTERVAL= REFRESH,                         &
+                          VLOCATION  = VLOCATION,                           &
+                          FIELD_TYPE = FIELD_TYPE,                          &
+                          __RC__)
+
+                     call MAPL_VarSpecCreateInList(INTSTATE%DSTS(n)%SPEC,   &
+                          SHORT_NAME = alias_name,                          &
+                          LONG_NAME  = LONG_NAME,                           &
+                          UNITS      = UNITS,                               &
+                          DIMS       = DIMS,                                &
+                          UNGRIDDED_DIMS = UNGRD,                           &
+                          UNGRIDDED_NAME = ungridded_name,                  &
+                          UNGRIDDED_UNIT = ungridded_unit,                  &
+                          UNGRIDDED_COORDS = ungridded_coord,               &
+                          ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),&
+                          COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),&
+                          VLOCATION  = VLOCATION,                           &
+                          GRID       = GRID,                                &
+                          FIELD_TYPE = FIELD_TYPE,                          &
+                          __RC__)
+                  else
+
+                     call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,   &
+                          SHORT_NAME = SHORT_NAME,                          &
+                          LONG_NAME  = LONG_NAME,                           &
+                          UNITS      = UNITS,                               &
+                          DIMS       = DIMS,                                &
+                          UNGRIDDED_DIMS = UNGRD,                           &
+                          UNGRIDDED_NAME = ungridded_name,                  &
+                          UNGRIDDED_UNIT = ungridded_unit,                  &
+                          ACCMLT_INTERVAL= avgint,                          &
+                          COUPLE_INTERVAL= REFRESH,                         &
+                          VLOCATION  = VLOCATION,                           &
+                          FIELD_TYPE = FIELD_TYPE,                          &
+                          __RC__)
+
+                     call MAPL_VarSpecCreateInList(INTSTATE%DSTS(n)%SPEC,   &
+                          SHORT_NAME = alias_name,                          &
+                          LONG_NAME  = LONG_NAME,                           &
+                          UNITS      = UNITS,                               &
+                          DIMS       = DIMS,                                &
+                          UNGRIDDED_DIMS = UNGRD,                           &
+                          UNGRIDDED_NAME = ungridded_name,                  &
+                          UNGRIDDED_UNIT = ungridded_unit,                  &
+                          ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),&
+                          COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),&
+                          VLOCATION  = VLOCATION,                           &
+                          GRID       = GRID,                                &
+                          FIELD_TYPE = FIELD_TYPE,                          &
+                          __RC__)
+                  end if
+                  deallocate(ungrd)
+                  if (allocated(ungridded_coord)) deallocate(ungridded_coord)
+
+               else
+
+                  call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,     &
+                       SHORT_NAME = SHORT_NAME,                            &
+                       LONG_NAME  = LONG_NAME,                             &
+                       UNITS      = UNITS,                                 &
+                       DIMS       = DIMS,                                  &
+                       ACCMLT_INTERVAL= avgint,                            &
+                       COUPLE_INTERVAL= REFRESH,                           &
+                       VLOCATION  = VLOCATION,                             &
+                       FIELD_TYPE = FIELD_TYPE,                            &
+                       __RC__)
+
+                  call MAPL_VarSpecCreateInList(INTSTATE%DSTS(n)%SPEC,     &
+                       SHORT_NAME = alias_name,                            &
+                       LONG_NAME  = LONG_NAME,                             &
+                       UNITS      = UNITS,                                 &
+                       DIMS       = DIMS,                                  &
+                       ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),  &
+                       COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),  &
+                       VLOCATION  = VLOCATION,                             &
+                       GRID       = GRID,                                  &
+                       FIELD_TYPE = FIELD_TYPE,                            &
+                       __RC__)
+
+               endif ! has_ungrid
+               deallocate(gridToFieldMap)
+
+            else ! else for if averaged
+
+               REFRESH = MAPL_nsecf(list(n)%acc_interval)
+               AVGINT  = MAPL_nsecf( list(n)%frequency )
+               call ESMF_AttributeSet(F, NAME='REFRESH_INTERVAL', VALUE=REFRESH, __RC__)
+               call ESMF_AttributeSet(F, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, __RC__)
+               call MAPL_StateAdd(IntState%GIM(N), f, __RC__)
+
             endif
 
-            if (hasUngridDims) then
-               allocate(ungriddedLBound(unGridDims), &
-                        ungriddedUBound(unGridDims), &
-                        ungrd(unGridDims),           &
-                        stat=status)
-               _VERIFY(STATUS)
+            ! Handle possible regridding through user supplied exchange grid
+            !---------------------------------------------------------------
+            if (associated(IntState%Regrid(n)%PTR)) then
+               ! replace field with newly created fld on grid_out
+               field = MAPL_FieldCreate(f, grid_out, __RC__)
+               ! add field to state_out
+               call MAPL_StateAdd(IntState%Regrid(N)%PTR%state_out, &
+                    field, __RC__)
+            endif
+         end do ! j-loop
+         deallocate(splitFields)
+      end do ! m-loop
+      end block
 
-!@               call ESMF_FieldGet(FIELD, &
-!@                    ungriddedLBound=ungriddedLBound, &
-!@                    ungriddedUBound=ungriddedUBound, &
-!@                    RC=STATUS)
-!@               _VERIFY(STATUS)
-
-
-               call ESMF_FieldGet(field, Array=array, rc=status)
-               _VERIFY(STATUS)
-
-               call ESMF_ArrayGet(array, rank=rank, dimCount=dimCount, rc=status)
-               _VERIFY(STATUS)
-               undist = rank-dimCount
-               _ASSERT(undist == ungridDims,'needs informative message')
-
-               call ESMF_ArrayGet(array, undistLBound=ungriddedLBound, &
-                    undistUBound=ungriddedUBound, rc=status)
-               _VERIFY(STATUS)
-
-               ungrd = ungriddedUBound - ungriddedLBound + 1
-               call ESMF_AttributeGet(field,name="UNGRIDDED_UNIT",value=ungridded_unit,rc=status)
-               _VERIFY(STATUS)
-               call ESMF_AttributeGet(field,name="UNGRIDDED_NAME",value=ungridded_name,rc=status)
-               _VERIFY(STATUS)
-               call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",isPresent=isPresent,rc=status)
-               _VERIFY(STATUS)
-               if (isPresent) then
-                  call ESMF_AttributeGet(field,name="UNGRIDDED_COORDS",itemcount=ungrdsize,rc=status)
-                  _VERIFY(STATUS)
-                  if ( ungrdsize /= 0 ) then
-                     allocate(ungridded_coord(ungrdsize),stat=status)
-                     _VERIFY(STATUS)
-                     call ESMF_AttributeGet(field,NAME="UNGRIDDED_COORDS",valuelist=ungridded_coord,rc=status)
-                     _VERIFY(STATUS)
-                  end if
-               else
-                  ungrdsize = 0
-               end if
-
-               deallocate(ungriddedLBound,ungriddedUBound)
-
-               if (ungrdsize > 0) then
-                  call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,          &
-                       SHORT_NAME = SHORT_NAME,                                 &
-                       LONG_NAME  = LONG_NAME,                                  &
-                       UNITS      = UNITS,                                      &
-                       DIMS       = DIMS,                                       &
-                       UNGRIDDED_DIMS = UNGRD,                                  &
-                       UNGRIDDED_NAME = ungridded_name,                       &
-                       UNGRIDDED_UNIT = ungridded_unit,                       &
-                       UNGRIDDED_COORDS = ungridded_coord,                      &
-                       ACCMLT_INTERVAL= avgint,                                 &
-                       COUPLE_INTERVAL= REFRESH,                                &
-                       VLOCATION  = VLOCATION,                                  &
-                       FIELD_TYPE = FIELD_TYPE,                                 &
-                       RC=STATUS  )
-                  _VERIFY(STATUS)
-
-                  call MAPL_VarSpecCreateInList(INTSTATE%DSTS(n)%SPEC,          &
-                       SHORT_NAME = list(n)%field_set%fields(3,m),                        &
-                       LONG_NAME  = LONG_NAME,                                  &
-                       UNITS      = UNITS,                                      &
-                       DIMS       = DIMS,                                       &
-                       UNGRIDDED_DIMS = UNGRD,                                  &
-                       UNGRIDDED_NAME = ungridded_name,                       &
-                       UNGRIDDED_UNIT = ungridded_unit,                       &
-                       UNGRIDDED_COORDS = ungridded_coord,                      &
-                       ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),       &
-                       COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),       &
-                       VLOCATION  = VLOCATION,                                  &
-                       GRID       = GRID,                                       &
-                       FIELD_TYPE = FIELD_TYPE,                                 &
-                       RC=STATUS  )
-                  _VERIFY(STATUS)
-               else
-
-                  call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,          &
-                       SHORT_NAME = SHORT_NAME,                                 &
-                       LONG_NAME  = LONG_NAME,                                  &
-                       UNITS      = UNITS,                                      &
-                       DIMS       = DIMS,                                       &
-                       UNGRIDDED_DIMS = UNGRD,                                  &
-                       UNGRIDDED_NAME = ungridded_name,                       &
-                       UNGRIDDED_UNIT = ungridded_unit,                       &
-                       ACCMLT_INTERVAL= avgint,                                 &
-                       COUPLE_INTERVAL= REFRESH,                                &
-                       VLOCATION  = VLOCATION,                                  &
-                       FIELD_TYPE = FIELD_TYPE,                                 &
-                       RC=STATUS  )
-                  _VERIFY(STATUS)
-
-                  call MAPL_VarSpecCreateInList(INTSTATE%DSTS(n)%SPEC,          &
-                       SHORT_NAME = list(n)%field_set%fields(3,m),                        &
-                       LONG_NAME  = LONG_NAME,                                  &
-                       UNITS      = UNITS,                                      &
-                       DIMS       = DIMS,                                       &
-                       UNGRIDDED_DIMS = UNGRD,                                  &
-                       UNGRIDDED_NAME = ungridded_name,                       &
-                       UNGRIDDED_UNIT = ungridded_unit,                       &
-                       ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),       &
-                       COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),       &
-                       VLOCATION  = VLOCATION,                                  &
-                       GRID       = GRID,                                       &
-                       FIELD_TYPE = FIELD_TYPE,                                 &
-                       RC=STATUS  )
-                  _VERIFY(STATUS)
-
-               end if
-               deallocate(ungrd)
-               if (allocated(ungridded_coord)) deallocate(ungridded_coord)
-
-            else
-
-               call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,    &
-                    SHORT_NAME = SHORT_NAME,                                 &
-                    LONG_NAME  = LONG_NAME,                                  &
-                    UNITS      = UNITS,                                      &
-                    DIMS       = DIMS,                                       &
-                    ACCMLT_INTERVAL= avgint,                                 &
-                    COUPLE_INTERVAL= REFRESH,                                &
-                    VLOCATION  = VLOCATION,                                  &
-                    FIELD_TYPE = FIELD_TYPE,                                 &
-                    RC=STATUS  )
-               _VERIFY(STATUS)
-
-               call MAPL_VarSpecCreateInList(INTSTATE%DSTS(n)%SPEC,    &
-                    SHORT_NAME = list(n)%field_set%fields(3,m),                        &
-                    LONG_NAME  = LONG_NAME,                                  &
-                    UNITS      = UNITS,                                      &
-                    DIMS       = DIMS,                                       &
-                    ACCMLT_INTERVAL= MAPL_nsecf(list(n)%acc_interval),       &
-                    COUPLE_INTERVAL= MAPL_nsecf(list(n)%frequency   ),       &
-                    VLOCATION  = VLOCATION,                                  &
-                    GRID       = GRID,                                       &
-                    FIELD_TYPE = FIELD_TYPE,                                 &
-                    RC=STATUS  )
-               _VERIFY(STATUS)
-
-            endif ! has_ungrid
-            deallocate(gridToFieldMap)
-
-         else ! else for if averaged
-
-            REFRESH = MAPL_nsecf(list(n)%acc_interval)
-            AVGINT  = MAPL_nsecf( list(n)%frequency )
-            call ESMF_AttributeSet(F, NAME='REFRESH_INTERVAL', VALUE=REFRESH, RC=STATUS)
-            _VERIFY(STATUS)
-            call ESMF_AttributeSet(F, NAME='AVERAGING_INTERVAL', VALUE=AVGINT, RC=STATUS)
-            _VERIFY(STATUS)
-            call MAPL_StateAdd(IntState%GIM(N), f, rc=status)
-            _VERIFY(STATUS)
-
-         endif
-
-! Handle possible regridding through user supplied exchange grid
-!---------------------------------------------------------------
-         if (associated(IntState%Regrid(n)%PTR)) then
-! replace field with newly created fld on grid_out
-            field = MAPL_FieldCreate(f, grid_out, rc=status)
-            _VERIFY(STATUS)
-! add field to state_out
-            call MAPL_StateAdd(IntState%Regrid(N)%PTR%state_out, &
-                 field, rc=status)
-            _VERIFY(STATUS)
-         endif
-
-      end do
+      ! reset list(n)%field_set and list(n)%items, if split
+      !----------------------------------------------------
+      call splitUngriddedFields(__RC__)
 
    end do
 
@@ -2870,132 +2859,115 @@ ENDDO PARSER
 
       ! Restrictions:
       ! 1) we do not split vectors
-      do n = 1, nlist
-         if (.not.list(n)%splitField) cycle
-         fld_set => list(n)%field_set
-         nfields = fld_set%nfields
-         allocate(needSplit(nfields), fldList(nfields), stat=status)
+!@@      do n = 1, nlist
+      if (.not.list(n)%splitField) then
+         _RETURN(ESMF_SUCCESS)
+      end if
+      fld_set => list(n)%field_set
+      nfields = fld_set%nfields
+      allocate(needSplit(nfields), fldList(nfields), stat=status)
+      _VERIFY(status)
+
+      allocate(newItems, stat=status); _VERIFY(status)
+
+      needSplit = .false.
+
+      iter = list(n)%items%begin()
+      m = 0 ! m is the "old" field-index
+      do while(iter /= list(n)%items%end())
+         split = .false.
+         item => iter%get()
+         if (item%itemType == ItemTypeScalar) then
+            split = hasSplitableField(fldName=item%xname, rc=status)
+            _VERIFY(status)
+            if (.not.split) call newItems%push_back(item)
+         else if (item%itemType == ItemTypeVector) then
+            ! Lets' not allow field split for vectors (at least for now);
+            ! it is easy to implement; just tedious
+
+            split = hasSplitableField(fldName=item%xname, rc=status)
+            _VERIFY(status)
+            split = split.or.hasSplitableField(fldName=item%yname, rc=status)
+            _VERIFY(status)
+            if (.not.split) call newItems%push_back(item)
+
+            _ASSERT(.not. split, 'split field vectors of not allowed yet')
+
+         end if
+
+         needSplit(m) = split
+         call iter%next()
+      end do
+
+      ! re-pack field_set
+      nsplit = count(needSplit)
+
+      if (nsplit /= 0) then
+         nfields = nfields - nsplit
+         allocate(newExpState(nfields), stat=status)
          _VERIFY(status)
 
-         allocate(newItems, stat=status); _VERIFY(status)
+         allocate(newFieldSet, stat=status); _VERIFY(status)
+         allocate(fields(4,nfields), stat=status); _VERIFY(status)
+         do k = 1, size(fld_set%fields,1) ! 4
+            fields(k,:) = pack(fld_set%fields(k,:), mask=.not.needSplit)
+         end do
+         newFieldSet%fields => fields
+         newFieldSet%nfields = nfields
 
-         needSplit = .false.
+         newExpState = pack(list(n)%expState, mask=.not.needSplit)
 
-         iter = list(n)%items%begin()
-         m = 0 ! m is the "old" field-index
-         split = .false.
-         do while(iter /= list(n)%items%end())
-            item => iter%get()
-            if (item%itemType == ItemTypeScalar) then
-               split = hasSplitableField(fldName=item%xname, rc=status)
+         ! split and add the splitted fields to the list
+
+         do k = 1, size(needSplit) ! loop over "old" fld_set
+            if (.not. needSplit(k)) cycle
+
+            stateName = fld_set%fields(2,k)
+            aliasName = fld_set%fields(3,k)
+
+            call MAPL_FieldSplit(fldList(k), splitFields, aliasName=aliasName, RC=status)
+            _VERIFY(STATUS)
+
+            expState = export(list(n)%expSTATE(k))
+
+            do i=1,size(splitFields)
+               call ESMF_FieldGet(splitFields(i), name=fldName, &
+                    rc=status)
                _VERIFY(status)
-               if (.not.split) call newItems%push_back(item)
-            else if (item%itemType == ItemTypeVector) then
-               ! Lets' not allow field split for vectors (at least for now);
-               ! it is easy to implement; just tedious
 
-               split = hasSplitableField(fldName=item%xname, rc=status)
+               alias = fldName
+
+               call appendFieldSet(newFieldSet, fldName, &
+                    stateName=stateName, &
+                    aliasName=alias, &
+                    specialName='', rc=status)
+
                _VERIFY(status)
-               split = split.or.hasSplitableField(fldName=item%yname, rc=status)
+               ! append expState
+               call appendArray(newExpState,idx=list(n)%expState(k),rc=status)
                _VERIFY(status)
-               if (.not.split) call newItems%push_back(item)
 
-               _ASSERT(.not. split, 'split field vectors of not allowed yet')
+               item%itemType = ItemTypeScalar
+               item%xname = trim(alias)
+               item%yname = ''
 
-            end if
+               call newItems%push_back(item)
 
-            call iter%next()
+            end do
+
+            deallocate(splitFields)
+            NULLIFY(splitFields)
          end do
 
-         ! re-pack field_set
-         nsplit = count(needSplit)
+         ! set nfields to ...
 
-         if (nsplit /= 0) then
-            nfields = nfields - nsplit
-            allocate(newExpState(nfields), stat=status)
-            _VERIFY(status)
-            ! do the same for statename
-            !create/if_needed newFieldSet (nfields=0;allocate%fields)
-            !          if (associated(newFieldSet%fields)) deallocate(newFieldSet%fields)
-            !          items = list(n)%items
-            allocate(newFieldSet, stat=status); _VERIFY(status)
-            allocate(fields(4,nfields), stat=status); _VERIFY(status)
-            do k = 1, size(fld_set%fields,1) ! 4
-               fields(k,:) = pack(fld_set%fields(k,:), mask=.not.needSplit)
-            end do
-            newFieldSet%fields => fields
-            newFieldSet%nfields = nfields
-
-            newExpState = pack(list(n)%expState, mask=.not.needSplit)
-
-            ! split and add the splitted fields to the list
-
-            do k = 1, size(needSplit) ! loop over "old" fld_set
-               if (.not. needSplit(k)) cycle
-
-               stateName = fld_set%fields(2,k)
-               aliasName = fld_set%fields(3,k)
-
-               call MAPL_FieldSplit(fldList(k), splitFields, aliasName=aliasName, RC=status)
-               _VERIFY(STATUS)
-
-               expState = export(list(n)%expSTATE(k))
-
-! remove the original unsplit field from the export state copy
-               call ESMF_FieldGet(fldList(k), name=fldName, __RC__)
-               call ESMF_StateRemove(expState, itemName=fldName, __RC__)
-               
-               do i=1,size(splitFields)
-                  call ESMF_FieldGet(splitFields(i), name=fldName, &
-                       rc=status)
-                  _VERIFY(status)
-
-                  alias = fldName
-
-                  call appendFieldSet(newFieldSet, fldName, &
-                       stateName=stateName, &
-                       aliasName=alias, &
-                       specialName='', rc=status)
-
-                  _VERIFY(status)
-                  ! append expState
-                  call appendArray(newExpState,idx=list(n)%expState(k),rc=status)
-                  _VERIFY(status)
-
-                  ! ALT: this is ONLY a very simple test to make sure that this is not a duplicate
-                  ! this issue might be revisited to assure that possible duplicates have
-                  ! identical content. Otherwise the split fields should be put in its own container
-                  ! perhaps per collection, but this
-                  hasField = .false. ! initialize just in case
-                  call checkIfStateHasField(expState, fieldName=fldName, hasField=hasField, rc=status)
-                  _VERIFY(status)
-                  if (.not. hasField) then
-                     call MAPL_StateAdd(expState, field=splitFields(i), rc=status)
-                     _VERIFY(status)
-                  end if
-
-                  item%itemType = ItemTypeScalar
-                  item%xname = trim(alias)
-                  item%yname = ''
-
-                  call newItems%push_back(item)
-
-               end do
-
-               deallocate(splitFields)
-               NULLIFY(splitFields)
-            end do
-
-            ! set nfields to ...
-
-            list(n)%field_set => newFieldSet
-            deallocate(list(n)%expState)
-            list(n)%expState => newExpState
-            list(n)%items = newItems
-         end if
-         ! clean-up
-         deallocate(needSplit, fldList)
-      enddo
+         list(n)%field_set => newFieldSet
+         deallocate(list(n)%expState)
+         list(n)%expState => newExpState
+         list(n)%items = newItems
+      end if
+      ! clean-up
+      deallocate(needSplit, fldList)
 
       _RETURN(ESMF_SUCCESS)
     end subroutine splitUngriddedFields
@@ -3007,13 +2979,9 @@ ENDDO PARSER
 
       ! local vars
       integer :: k
-      integer :: fldRank
-      integer :: dims
       integer :: status
-      logical :: has_ungrd
       type(ESMF_State) :: exp_state
       type(ESMF_Field) :: fld
-      type(ESMF_FieldStatus_Flag) :: fieldStatus
       character(ESMF_MAXSTR) :: baseName
 
       ! and these vars are declared in the caller
@@ -3021,7 +2989,6 @@ ENDDO PARSER
       ! m
 
       okToSplit = .false.
-      fldRank = 0
 
       m = m + 1
       _ASSERT(fldName == fld_set%fields(3,m), 'Incorrect order') ! we got "m" right
@@ -3030,8 +2997,36 @@ ENDDO PARSER
       k = list(n)%expSTATE(m)
       exp_state = export(k)
 
-      call MAPL_StateGet(exp_state,baseName,fld,rc=status )
-      _VERIFY(status)
+      call MAPL_StateGet(exp_state,baseName,fld,__RC__)
+      
+      okToSplit = hasSplitField(fld, __RC__)
+
+      if (okToSplit) then
+         fldList(m) = fld
+      end if
+      needSplit(m) = okToSplit
+
+      _RETURN(ESMF_SUCCESS)
+    end function hasSplitableField
+
+    function hasSplitField(fld, rc) result(okToSplit)
+      logical :: okToSplit
+      type(ESMF_Field),  intent(inout)   :: fld
+      integer, optional, intent(out) :: rc
+
+      ! local vars
+      integer :: fldRank
+      integer :: dims
+      integer :: status
+      logical :: has_ungrd
+      type(ESMF_FieldStatus_Flag) :: fieldStatus
+
+      ! and these vars are declared in the caller
+      ! fld_set
+      ! m
+
+      okToSplit = .false.
+      fldRank = 0
 
       call ESMF_FieldGet(fld, status=fieldStatus, rc=status)
       _VERIFY(STATUS)
@@ -3062,14 +3057,9 @@ ENDDO PARSER
          end if
       end if
 
-      if (okToSplit) then
-         fldList(m) = fld
-      end if
-      needSplit(m) = okToSplit
-
       _RETURN(ESMF_SUCCESS)
 
-    end function hasSplitableField
+    end function hasSplitField
 
     subroutine appendArray(array, idx, rc)
       integer, pointer,  intent(inout)   :: array(:)
