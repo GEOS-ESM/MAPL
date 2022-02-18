@@ -2485,7 +2485,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             ! -------------
             filename = trim(filename_in)
             open(newunit=unit, file=filename, form="formatted", status="old", iostat=status)
-            _ASSERT(status==0,'Could not find NRL data file '// filename )
+            _ASSERT(status==0,'Could not find NRL data file '// trim(filename ))
 
             ! Determine length of file
             ! ------------------------
