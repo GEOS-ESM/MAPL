@@ -17,7 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed io profiler report format
 - Fixed issue on macOS where enabling memutils caused crash
 
-
 ### Added
 
 - New gauge for measuring memory allocation based upon mallinfo().
@@ -29,9 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updates to CircleCI
   - Added GEOSadas CI ifort build test
   - Add "like-UFS" build to CI. This is no FLAP and pFlogger, and static build
+- Added new `_STAT` and `_IOSTAT` macros a la `_RC`
 
 ### Changed
 
+- Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
 - Major refactoring of GenericSetServices
   Work is not completed, but a new layer is introduced with the intent that the user SetServices is called
   from with in the new layer as opposed to the previous mechanism that obligated user SetServices to call

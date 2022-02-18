@@ -2475,54 +2475,45 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
       CREATE_TABLE: if (.not. TableCreated) then
 
-         ! Open the file
-         ! -------------
-
-         filename = trim(filename_in)
-
-         ! Does the file exist?
-         inquire( FILE=filename, EXIST=found )
-         _ASSERT( found ,'Could not find NRL data file '//trim(filename) )
-
-         UNIT = GETFILE(filename, DO_OPEN=0, form="formatted", rc=status)
-         _VERIFY(STATUS)
-
-         open(unit=unit, file=filename)
+         ! First we open the file on root to get the
+         ! number of lines so we can allocate our tables
+         ! ---------------------------------------------
 
          if (amIRoot) then
 
+            ! Open the file
+            ! -------------
+            filename = trim(filename_in)
+            open(newunit=unit, file=filename, form="formatted", status="old", iostat=status)
+            _ASSERT(status==0,'Could not find NRL data file '// filename )
+
             ! Determine length of file
             ! ------------------------
-
             call lgr%debug("Scanning the Solar Table to determine number of data points")
-
             numlines = num_lines_in_file(UNIT)
-
             call lgr%debug("Solar Table Data Points: %i0", numlines)
 
-            ! Allocate our arrays
-            ! -------------------
+            ! Broadcast the number of lines
+            ! -----------------------------
+            call MAPL_CommsBcast(vm, DATA=numlines, N=1, ROOT=0, _RC)
 
-            allocate(yearTable(numlines), source=0, stat=status)
-            _VERIFY(STATUS)
+         end if
 
-            allocate(doyTable(numlines), source=0, stat=status)
-            _VERIFY(STATUS)
+         ! Allocate our arrays on all processes
+         ! ------------------------------------
 
-            allocate(tsi(numlines), source=0.0, stat=status)
-            _VERIFY(STATUS)
+         allocate(yearTable(numlines), source=0,   _STAT)
+         allocate(doyTable(numlines),  source=0,   _STAT)
+         allocate(tsi(numlines),       source=0.0, _STAT)
+         allocate(mgindex(numlines),   source=0.0, _STAT)
+         allocate(sbindex(numlines),   source=0.0, _STAT)
 
-            allocate(mgindex(numlines), source=0.0, stat=status)
-            _VERIFY(STATUS)
+         ! Back to root to read in the values
+         ! ----------------------------------
 
-            allocate(sbindex(numlines), source=0.0, stat=status)
-            _VERIFY(STATUS)
-
-            ! Read in arrays
-            ! --------------
+         if (amIRoot) then
 
             call lgr%debug("Reading the Solar Table")
-
             i = 1
             do
                read(unit,'(A)',iostat=stat) line
@@ -2536,221 +2527,195 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
             ! Belt and suspenders check that all data was read
             _ASSERT(size(yearTable) == numlines,"Inconsistency in NRL number of lines")
 
+            call close(unit, _IOSTAT)
+
          end if
 
-         ! Close the file
-         ! --------------
+         ! Broadcast the tables
+         ! --------------------
 
-         call FREE_FILE(UNIT)
+         call MAPL_CommsBcast(vm, DATA=yearTable, N=numlines, ROOT=0, _RC)
+         call MAPL_CommsBcast(vm, DATA=doyTable,  N=numlines, ROOT=0, _RC)
+         call MAPL_CommsBcast(vm, DATA=tsi,       N=numlines, ROOT=0, _RC)
+         call MAPL_CommsBcast(vm, DATA=mgindex,   N=numlines, ROOT=0, _RC)
+         call MAPL_CommsBcast(vm, DATA=sbindex,   N=numlines, ROOT=0, _RC)
 
          TableCreated = .TRUE.
 
       end if CREATE_TABLE
 
-      ON_ROOT: if (amIRoot) then
+      ! Now we need to find the two bracketing days
+      ! -------------------------------------------
 
-         ! Now we need to find the two bracketing days
+      ! Get current time
+      ! ----------------
+      call ESMF_ClockGet(CLOCK, CURRTIME=currentTime, _RC)
+
+      call ESMF_TimeGet( currentTime, YY = currentYear,   &
+                                      MM = currentMon,    &
+                                      DD = currentDay,    &
+                               dayOfYear = currentDOY, _RC)
+
+      ! Test if current time is outside our file
+      ! ----------------------------------------
+
+      outOfTable = .FALSE.
+
+      ! First is current year higher than last in file...
+      if ( currentYear > yearTable(numlines) ) then
+         outOfTable = .TRUE.
+      ! ...or if a partial year, are we near the end
+      else if ( currentYear == yearTable(numlines) .and. currentDOY >= doyTable(numlines)) then
+         outOfTable = .TRUE.
+      end if
+
+      ! If we are out of the table and not persisting, we must
+      ! recenter our day to be based on the last complete Solar Cycle
+      ! -------------------------------------------------------------
+      OUT_OF_TABLE_AND_CYCLE: if ( outOfTable .and. (.not. PersistSolar_) ) then
+
+         ! Create an ESMF_Time at start of Cycle 24
+         ! ----------------------------------------
+         call ESMF_TimeSet( startCycle24, YY = 2008,  &
+                                          MM = 12,    &
+                                          DD = 1,     &
+                                           H = 12,    &
+                                           M = 00,    &
+                                           S = 00, _RC)
+
+         ! Create an ESMF_Time at start of Cycle 25
+         ! ----------------------------------------
+         call ESMF_TimeSet( startCycle25, YY = 2019,  &
+                                          MM = 12,    &
+                                          DD = 1,     &
+                                           H = 12,    &
+                                           M = 00,    &
+                                           S = 00, _RC)
+
+         ! Create TimeInterval based on interval
+         ! from start of latest Cycle 25
+         ! -------------------------------------
+
+         timeSinceStartOfCycle25 = currentTime - startCycle25
+
+         ! Make a new time based on that
+         ! interval past start of Cycle 24
+         ! -------------------------------
+
+         timeBasedOnCycle24 = startCycle24 + timeSinceStartOfCycle25
+
+         ! Store our original time just in case
+         ! ------------------------------------
+         origTime     = currentTime
+         originalYear = currentYear
+         originalMon  = currentMon
+         originalDay  = currentDay
+         origDOY      = currentDOY
+
+         ! Make our "current" time the one calculated above
+         ! ------------------------------------------------
+         currentTime = timeBasedOnCycle24
+
+         ! Get new currentYear, currentMon, currentDay
          ! -------------------------------------------
 
-         ! Get current time
-         ! ----------------
-         call ESMF_ClockGet(CLOCK, CURRTIME=currentTime, RC=STATUS)
-         _VERIFY(STATUS)
+         call ESMF_TimeGet( currentTime, YY = currentYear,   &
+                                         MM = currentMon,    &
+                                         DD = currentDay,    &
+                                  dayOfYear = currentDOY, _RC)
 
-         call ESMF_TimeGet( currentTime, YY = currentYear, &
+         call lgr%debug('Off the end of table, moving into last complete cycle')
+         call lgr%debug('  Original Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', originalYear,originalMon,originalDay)
+         call lgr%debug('  Original Day of Year: %i0', origDOY)
+         call lgr%debug('  New Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', currentYear,currentMon,currentDay)
+         call lgr%debug('  New Day of Year: %i0', currentDOY)
+
+      end if OUT_OF_TABLE_AND_CYCLE
+
+      ! Create an ESMF_Time on noon of current day
+      ! ------------------------------------------
+      call ESMF_TimeSet( noonCurrentDay, YY = currentYear, &
                                          MM = currentMon,  &
                                          DD = currentDay,  &
-                                  dayOfYear = currentDOY,  &
-                                         RC = STATUS       )
-         _VERIFY(STATUS)
+                                          H = 12,          &
+                                          M = 00,          &
+                                          S = 00,       _RC)
 
-         ! Test if current time is outside our file
-         ! ----------------------------------------
+      ! Figure out bracketing days for interpolation
+      ! NOTE: nextNoon is mainly for debugging purposes
+      ! -----------------------------------------------
+      call ESMF_TimeIntervalSet(oneDayInterval, D=1, _RC)
+      if (currentTime <= noonCurrentDay) then
+         prevNoon = noonCurrentDay - oneDayInterval
+         nextNoon = noonCurrentDay
+      else
+         prevNoon = noonCurrentDay
+         nextNoon = noonCurrentDay + oneDayInterval
+      end if
 
-         outOfTable = .FALSE.
+      ! Get the DOYs
+      ! ------------
+      call ESMF_TimeGet( prevNoon, YY = prevNoonYear, dayOfYear = prevDOY, _RC)
+      call ESMF_TimeGet( nextNoon, YY = nextNoonYear, dayOfYear = nextDOY, _RC)
 
-         ! First is current year higher than last in file...
-         if ( currentYear > yearTable(numlines) ) then
-            outOfTable = .TRUE.
-         ! ...or if a partial year, are we near the end
-         else if ( currentYear == yearTable(numlines) .and. currentDOY >= doyTable(numlines)) then
-            outOfTable = .TRUE.
-         end if
+      ! Our interpolation factor is based of when we are compared to the next noon
+      ! --------------------------------------------------------------------------
+      intToNextNoon = nextNoon-currentTime
 
-         ! If we are out of the table and not persisting, we must
-         ! recenter our day to be based on the last complete Solar Cycle
-         ! -------------------------------------------------------------
-         OUT_OF_TABLE_AND_CYCLE: if ( outOfTable .and. (.not. PersistSolar_) ) then
+      ! The FAC for interpolating is just the real version
+      ! of the size of the timeinterval to the next noon
+      ! --------------------------------------------------
+      call ESMF_TimeIntervalGet(intToNextNoon, d_r8=days_r8, _RC)
+      FAC = real(days_r8)
 
-            ! Create an ESMF_Time at start of Cycle 24
-            ! ----------------------------------------
-            call ESMF_TimeSet( startCycle24, YY = 2008,  &
-                                             MM = 12,    &
-                                             DD = 1,     &
-                                              H = 12,    &
-                                              M = 00,    &
-                                              S = 00,    &
-                                             RC = STATUS )
-            _VERIFY(STATUS)
+      ! Use our find_file_index function to get the index for previous noon
+      ! -------------------------------------------------------------------
+      INDX1 = find_file_index(numlines, yearTable, prevNoonYear, prevDOY)
+      INDX2 = INDX1 + 1
 
-            ! Create an ESMF_Time at start of Cycle 25
-            ! ----------------------------------------
-            call ESMF_TimeSet( startCycle25, YY = 2019,  &
-                                             MM = 12,    &
-                                             DD = 1,     &
-                                              H = 12,    &
-                                              M = 00,    &
-                                              S = 00,    &
-                                             RC = STATUS )
-            _VERIFY(STATUS)
+      ! If we are outOfTable and we have the PersistSolar
+      ! option we just use the last value in the table...
+      ! -------------------------------------------------
+      OUT_OF_TABLE_AND_PERSIST: if ( outOfTable .and. PersistSolar_) then
 
-            ! Create TimeInterval based on interval
-            ! from start of latest Cycle 25
-            ! -------------------------------------
+         SC =     tsi(numlines)
+         MG = mgindex(numlines)
+         SB = sbindex(numlines)
 
-            timeSinceStartOfCycle25 = currentTime - startCycle25
+         call lgr%debug('Off the end of table, persisting last values')
+         call lgr%debug('  tsi at end of table: %F8.3', tsi(numlines))
+         call lgr%debug('  mgindex at end of table: %F8.6', mgindex(numlines))
+         call lgr%debug('  sbindex at end of table: %F9.4', sbindex(numlines))
 
-            ! Make a new time based on that
-            ! interval past start of Cycle 24
-            ! -------------------------------
+      ! Otherwise we interpolate to the table
+      ! -------------------------------------
+      else
 
-            timeBasedOnCycle24 = startCycle24 + timeSinceStartOfCycle25
+         ! Linear Interpolation to the given day-of-month
+         ! ----------------------------------------------
 
-            ! Store our original time just in case
-            ! ------------------------------------
-            origTime     = currentTime
-            originalYear = currentYear
-            originalMon  = currentMon
-            originalDay  = currentDay
-            origDOY      = currentDOY
+         SC =     tsi(INDX1)*FAC +     tsi(INDX2)*(1.0-FAC)
+         MG = mgindex(INDX1)*FAC + mgindex(INDX2)*(1.0-FAC)
+         SB = sbindex(INDX1)*FAC + sbindex(INDX2)*(1.0-FAC)
 
-            ! Make our "current" time the one calculated above
-            ! ------------------------------------------------
-            currentTime = timeBasedOnCycle24
+         call lgr%debug('  First DOY to Find:     %i3', prevDOY)
+         call lgr%debug('    file_index for date: %i6', INDX1)
+         call lgr%debug('    yearTable(date):     %i4', yearTable(INDX1))
+         call lgr%debug('    doyTable(date):      %i3', doyTable(INDX1))
+         call lgr%debug('    tsi(date):           %f8.3', tsi(INDX1))
+         call lgr%debug('    mgindex(date):       %f8.6', mgindex(INDX1))
+         call lgr%debug('    sbindex(date):       %f9.4', sbindex(INDX1))
 
-            ! Get new currentYear, currentMon, currentDay
-            ! -------------------------------------------
+         call lgr%debug('  Second DOY to Find:    %i3', nextDOY)
+         call lgr%debug('    file_index for date: %i6', INDX2)
+         call lgr%debug('    yearTable(date):     %i4', yearTable(INDX2))
+         call lgr%debug('    doyTable(date):      %i3', doyTable(INDX2))
+         call lgr%debug('    tsi(date):           %f8.3', tsi(INDX2))
+         call lgr%debug('    mgindex(date):       %f8.6', mgindex(INDX2))
+         call lgr%debug('    sbindex(date):       %f9.4', sbindex(INDX2))
 
-            call ESMF_TimeGet( currentTime, YY = currentYear, &
-                                            MM = currentMon,  &
-                                            DD = currentDay,  &
-                                     dayOfYear = currentDOY,  &
-                                            RC = STATUS       )
-            _VERIFY(STATUS)
-
-
-            ! Debugging Prints
-            ! ----------------
-            call lgr%debug('Off the end of table, moving into last complete cycle')
-            call lgr%debug('  Original Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', originalYear,originalMon,originalDay)
-            call lgr%debug('  Original Day of Year: %i0', origDOY)
-            call lgr%debug('  New Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', currentYear,currentMon,currentDay)
-            call lgr%debug('  New Day of Year: %i0', currentDOY)
-
-         end if OUT_OF_TABLE_AND_CYCLE
-
-         ! Create an ESMF_Time on noon of current day
-         ! ------------------------------------------
-         call ESMF_TimeSet( noonCurrentDay, YY = currentYear, &
-                                            MM = currentMon,  &
-                                            DD = currentDay,  &
-                                             H = 12,          &
-                                             M = 00,          &
-                                             S = 00,          &
-                                            RC = STATUS       )
-         _VERIFY(STATUS)
-
-         ! Figure out bracketing days for interpolation
-         ! NOTE: nextNoon is mainly for debugging purposes
-         ! -----------------------------------------------
-         call ESMF_TimeIntervalSet(oneDayInterval, D=1, rc=status)
-         if (currentTime <= noonCurrentDay) then
-            prevNoon = noonCurrentDay - oneDayInterval
-            nextNoon = noonCurrentDay
-         else
-            prevNoon = noonCurrentDay
-            nextNoon = noonCurrentDay + oneDayInterval
-         end if
-
-         ! Get the DOYs
-         ! ------------
-         call ESMF_TimeGet( prevNoon, YY = prevNoonYear, dayOfYear = prevDOY, rc = status )
-         call ESMF_TimeGet( nextNoon, YY = nextNoonYear, dayOfYear = nextDOY, rc = status )
-
-         ! Our interpolation factor is based of when we are compared to the next noon
-         ! --------------------------------------------------------------------------
-         intToNextNoon = nextNoon-currentTime
-
-         ! The FAC for interpolating is just the real version
-         ! of the size of the timeinterval to the next noon
-         ! --------------------------------------------------
-         call ESMF_TimeIntervalGet(intToNextNoon, d_r8=days_r8, rc=STATUS)
-         _VERIFY(STATUS)
-         FAC = real(days_r8)
-
-         ! Use our find_file_index function to get the index for previous noon
-         ! -------------------------------------------------------------------
-         INDX1 = find_file_index(numlines, yearTable, prevNoonYear, prevDOY)
-         INDX2 = INDX1 + 1
-
-         ! If we are outOfTable and we have the PersistSolar
-         ! option we just use the last value in the table...
-         ! -------------------------------------------------
-         OUT_OF_TABLE_AND_PERSIST: if ( outOfTable .and. PersistSolar_) then
-
-            SC =     tsi(numlines)
-            MG = mgindex(numlines)
-            SB = sbindex(numlines)
-
-            ! Debugging Prints
-            ! ----------------
-            call lgr%debug('Off the end of table, persisting last values')
-            call lgr%debug('  tsi at end of table: %F8.3', tsi(numlines))
-            call lgr%debug('  mgindex at end of table: %F8.6', mgindex(numlines))
-            call lgr%debug('  sbindex at end of table: %F9.4', sbindex(numlines))
-
-         ! Otherwise we interpolate to the table
-         ! -------------------------------------
-         else
-
-            ! Linear Interpolation to the given day-of-month
-            ! ----------------------------------------------
-
-            SC =     tsi(INDX1)*FAC +     tsi(INDX2)*(1.0-FAC)
-            MG = mgindex(INDX1)*FAC + mgindex(INDX2)*(1.0-FAC)
-            SB = sbindex(INDX1)*FAC + sbindex(INDX2)*(1.0-FAC)
-
-            ! Debugging Prints
-            ! ----------------
-            call lgr%debug('  First DOY to Find:     %i3', prevDOY)
-            call lgr%debug('    file_index for date: %i6', INDX1)
-            call lgr%debug('    yearTable(date):     %i4', yearTable(INDX1))
-            call lgr%debug('    doyTable(date):      %i3', doyTable(INDX1))
-            call lgr%debug('    tsi(date):           %f8.3', tsi(INDX1))
-            call lgr%debug('    mgindex(date):       %f8.6', mgindex(INDX1))
-            call lgr%debug('    sbindex(date):       %f9.4', sbindex(INDX1))
-
-            call lgr%debug('  Second DOY to Find:    %i3', nextDOY)
-            call lgr%debug('    file_index for date: %i6', INDX2)
-            call lgr%debug('    yearTable(date):     %i4', yearTable(INDX2))
-            call lgr%debug('    doyTable(date):      %i3', doyTable(INDX2))
-            call lgr%debug('    tsi(date):           %f8.3', tsi(INDX2))
-            call lgr%debug('    mgindex(date):       %f8.6', mgindex(INDX2))
-            call lgr%debug('    sbindex(date):       %f9.4', sbindex(INDX2))
-
-            call lgr%debug('  Interpolation Factor:  %f8.6', FAC)
-         end if OUT_OF_TABLE_AND_PERSIST
-      end if ON_ROOT
-
-      ! Broadcast the values
-      ! --------------------
-
-      call MAPL_CommsBcast(vm, DATA=SC, N=1, ROOT=0, RC=status)
-      _VERIFY(STATUS)
-      call MAPL_CommsBcast(vm, DATA=MG, N=1, ROOT=0, RC=status)
-      _VERIFY(STATUS)
-      call MAPL_CommsBcast(vm, DATA=SB, N=1, ROOT=0, RC=status)
-      _VERIFY(STATUS)
+         call lgr%debug('  Interpolation Factor:  %f8.6', FAC)
+      end if OUT_OF_TABLE_AND_PERSIST
 
       _RETURN(ESMF_SUCCESS)
 
