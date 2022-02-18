@@ -2671,9 +2671,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       ! Use our find_file_index function to get the index for previous noon
       ! -------------------------------------------------------------------
       INDX1 = find_file_index(numlines, yearTable, prevNoonYear, prevDOY)
-      _ASSERT(INDX1 /= YEAR_NOT_FOUND, 'dropped off end of NRL table v1')
       INDX2 = INDX1 + 1
-      _ASSERT(INDX2 <= numlines, 'dropped off end of NRL table v2')
 
       ! If we are outOfTable and we have the PersistSolar
       ! option we just use the last value in the table...
