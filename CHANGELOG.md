@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
 - Fixed failures to fully trap errors in
   - History GC
   - MemUtils
