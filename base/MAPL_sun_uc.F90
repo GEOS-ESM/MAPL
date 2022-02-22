@@ -2569,68 +2569,93 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          outOfTable = .TRUE.
       end if
 
-      ! If we are out of the table and not persisting, we must
-      ! recenter our day to be based on the last complete Solar Cycle
-      ! -------------------------------------------------------------
-      OUT_OF_TABLE_AND_CYCLE: if ( outOfTable .and. (.not. PersistSolar_) ) then
+      ! If we are out of the table...
+      ! -----------------------------
 
-         ! Create an ESMF_Time at start of Cycle 24
-         ! ----------------------------------------
-         call ESMF_TimeSet( startCycle24, YY = 2008,  &
-                                          MM = 12,    &
-                                          DD = 1,     &
-                                           H = 12,    &
-                                           M = 00,    &
-                                           S = 00, _RC)
+      OUT_OF_TABLE: if ( outOfTable ) then
 
-         ! Create an ESMF_Time at start of Cycle 25
-         ! ----------------------------------------
-         call ESMF_TimeSet( startCycle25, YY = 2019,  &
-                                          MM = 12,    &
-                                          DD = 1,     &
-                                           H = 12,    &
-                                           M = 00,    &
-                                           S = 00, _RC)
+         PERSIST_SOLAR: if ( PersistSolar_ ) then
 
-         ! Create TimeInterval based on interval
-         ! from start of latest Cycle 25
-         ! -------------------------------------
+            ! If we are outOfTable and we have the PersistSolar
+            ! option we just use the last value in the table...
+            ! -------------------------------------------------
 
-         timeSinceStartOfCycle25 = currentTime - startCycle25
+            SC =     tsi(numlines)
+            MG = mgindex(numlines)
+            SB = sbindex(numlines)
 
-         ! Make a new time based on that
-         ! interval past start of Cycle 24
-         ! -------------------------------
+            call lgr%debug('Off the end of table, persisting last values')
+            call lgr%debug('  tsi at end of table: %F8.3', tsi(numlines))
+            call lgr%debug('  mgindex at end of table: %F8.6', mgindex(numlines))
+            call lgr%debug('  sbindex at end of table: %F9.4', sbindex(numlines))
 
-         timeBasedOnCycle24 = startCycle24 + timeSinceStartOfCycle25
+            _RETURN(ESMF_SUCCESS)
 
-         ! Store our original time just in case
-         ! ------------------------------------
-         origTime     = currentTime
-         originalYear = currentYear
-         originalMon  = currentMon
-         originalDay  = currentDay
-         origDOY      = currentDOY
+         else
 
-         ! Make our "current" time the one calculated above
-         ! ------------------------------------------------
-         currentTime = timeBasedOnCycle24
+            ! If we are out of the table and not persisting, we must
+            ! recenter our day to be based on the last complete Solar Cycle
+            ! -------------------------------------------------------------
 
-         ! Get new currentYear, currentMon, currentDay
-         ! -------------------------------------------
+            ! Create an ESMF_Time at start of Cycle 24
+            ! ----------------------------------------
+            call ESMF_TimeSet( startCycle24, YY = 2008,  &
+                                             MM = 12,    &
+                                             DD = 1,     &
+                                              H = 12,    &
+                                              M = 00,    &
+                                              S = 00, _RC)
 
-         call ESMF_TimeGet( currentTime, YY = currentYear,   &
-                                         MM = currentMon,    &
-                                         DD = currentDay,    &
-                                  dayOfYear = currentDOY, _RC)
+            ! Create an ESMF_Time at start of Cycle 25
+            ! ----------------------------------------
+            call ESMF_TimeSet( startCycle25, YY = 2019,  &
+                                             MM = 12,    &
+                                             DD = 1,     &
+                                              H = 12,    &
+                                              M = 00,    &
+                                              S = 00, _RC)
 
-         call lgr%debug('Off the end of table, moving into last complete cycle')
-         call lgr%debug('  Original Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', originalYear,originalMon,originalDay)
-         call lgr%debug('  Original Day of Year: %i0', origDOY)
-         call lgr%debug('  New Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', currentYear,currentMon,currentDay)
-         call lgr%debug('  New Day of Year: %i0', currentDOY)
+            ! Create TimeInterval based on interval
+            ! from start of latest Cycle 25
+            ! -------------------------------------
 
-      end if OUT_OF_TABLE_AND_CYCLE
+            timeSinceStartOfCycle25 = currentTime - startCycle25
+
+            ! Make a new time based on that
+            ! interval past start of Cycle 24
+            ! -------------------------------
+
+            timeBasedOnCycle24 = startCycle24 + timeSinceStartOfCycle25
+
+            ! Store our original time just in case
+            ! ------------------------------------
+            origTime     = currentTime
+            originalYear = currentYear
+            originalMon  = currentMon
+            originalDay  = currentDay
+            origDOY      = currentDOY
+
+            ! Make our "current" time the one calculated above
+            ! ------------------------------------------------
+            currentTime = timeBasedOnCycle24
+
+            ! Get new currentYear, currentMon, currentDay
+            ! -------------------------------------------
+
+            call ESMF_TimeGet( currentTime, YY = currentYear,   &
+                                            MM = currentMon,    &
+                                            DD = currentDay,    &
+                                     dayOfYear = currentDOY, _RC)
+
+            call lgr%debug('Off the end of table, moving into last complete cycle')
+            call lgr%debug('  Original Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', originalYear,originalMon,originalDay)
+            call lgr%debug('  Original Day of Year: %i0', origDOY)
+            call lgr%debug('  New Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2', currentYear,currentMon,currentDay)
+            call lgr%debug('  New Day of Year: %i0', currentDOY)
+
+         end if PERSIST_SOLAR
+
+      end if OUT_OF_TABLE
 
       ! Create an ESMF_Time on noon of current day
       ! ------------------------------------------
@@ -2673,49 +2698,30 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       INDX1 = find_file_index(numlines, yearTable, prevNoonYear, prevDOY)
       INDX2 = INDX1 + 1
 
-      ! If we are outOfTable and we have the PersistSolar
-      ! option we just use the last value in the table...
-      ! -------------------------------------------------
-      OUT_OF_TABLE_AND_PERSIST: if ( outOfTable .and. PersistSolar_) then
+      ! Linear Interpolation to the given day-of-month
+      ! ----------------------------------------------
 
-         SC =     tsi(numlines)
-         MG = mgindex(numlines)
-         SB = sbindex(numlines)
+      SC =     tsi(INDX1)*FAC +     tsi(INDX2)*(1.0-FAC)
+      MG = mgindex(INDX1)*FAC + mgindex(INDX2)*(1.0-FAC)
+      SB = sbindex(INDX1)*FAC + sbindex(INDX2)*(1.0-FAC)
 
-         call lgr%debug('Off the end of table, persisting last values')
-         call lgr%debug('  tsi at end of table: %F8.3', tsi(numlines))
-         call lgr%debug('  mgindex at end of table: %F8.6', mgindex(numlines))
-         call lgr%debug('  sbindex at end of table: %F9.4', sbindex(numlines))
+      call lgr%debug('  First DOY to Find:     %i3', prevDOY)
+      call lgr%debug('    file_index for date: %i6', INDX1)
+      call lgr%debug('    yearTable(date):     %i4', yearTable(INDX1))
+      call lgr%debug('    doyTable(date):      %i3', doyTable(INDX1))
+      call lgr%debug('    tsi(date):           %f8.3', tsi(INDX1))
+      call lgr%debug('    mgindex(date):       %f8.6', mgindex(INDX1))
+      call lgr%debug('    sbindex(date):       %f9.4', sbindex(INDX1))
 
-      ! Otherwise we interpolate to the table
-      ! -------------------------------------
-      else
+      call lgr%debug('  Second DOY to Find:    %i3', nextDOY)
+      call lgr%debug('    file_index for date: %i6', INDX2)
+      call lgr%debug('    yearTable(date):     %i4', yearTable(INDX2))
+      call lgr%debug('    doyTable(date):      %i3', doyTable(INDX2))
+      call lgr%debug('    tsi(date):           %f8.3', tsi(INDX2))
+      call lgr%debug('    mgindex(date):       %f8.6', mgindex(INDX2))
+      call lgr%debug('    sbindex(date):       %f9.4', sbindex(INDX2))
 
-         ! Linear Interpolation to the given day-of-month
-         ! ----------------------------------------------
-
-         SC =     tsi(INDX1)*FAC +     tsi(INDX2)*(1.0-FAC)
-         MG = mgindex(INDX1)*FAC + mgindex(INDX2)*(1.0-FAC)
-         SB = sbindex(INDX1)*FAC + sbindex(INDX2)*(1.0-FAC)
-
-         call lgr%debug('  First DOY to Find:     %i3', prevDOY)
-         call lgr%debug('    file_index for date: %i6', INDX1)
-         call lgr%debug('    yearTable(date):     %i4', yearTable(INDX1))
-         call lgr%debug('    doyTable(date):      %i3', doyTable(INDX1))
-         call lgr%debug('    tsi(date):           %f8.3', tsi(INDX1))
-         call lgr%debug('    mgindex(date):       %f8.6', mgindex(INDX1))
-         call lgr%debug('    sbindex(date):       %f9.4', sbindex(INDX1))
-
-         call lgr%debug('  Second DOY to Find:    %i3', nextDOY)
-         call lgr%debug('    file_index for date: %i6', INDX2)
-         call lgr%debug('    yearTable(date):     %i4', yearTable(INDX2))
-         call lgr%debug('    doyTable(date):      %i3', doyTable(INDX2))
-         call lgr%debug('    tsi(date):           %f8.3', tsi(INDX2))
-         call lgr%debug('    mgindex(date):       %f8.6', mgindex(INDX2))
-         call lgr%debug('    sbindex(date):       %f9.4', sbindex(INDX2))
-
-         call lgr%debug('  Interpolation Factor:  %f8.6', FAC)
-      end if OUT_OF_TABLE_AND_PERSIST
+      call lgr%debug('  Interpolation Factor:  %f8.6', FAC)
 
       _RETURN(ESMF_SUCCESS)
 
