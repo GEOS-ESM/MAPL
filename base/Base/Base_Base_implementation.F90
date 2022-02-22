@@ -3658,13 +3658,20 @@ contains
       integer :: n
       character(len=*) :: name
       character(len=*), allocatable :: splitNameArray(:)
-      character(len=*) :: aliasName
+      character(len=*), optional :: aliasName
       integer, optional :: rc
 
       integer :: i, k
       integer :: k1, k2, kk, count
       integer :: nn
       character(len=ESMF_MAXSTR), allocatable :: tmp(:)
+      character(len=ESMF_MAXSTR) :: aliasName_
+
+      if (present(aliasName)) then
+         aliasName_ = aliasName
+      else
+         aliasName_ = name
+      end if
 
       allocate(splitNameArray(n), stat=status)
       _VERIFY(status)
@@ -3673,9 +3680,9 @@ contains
       ! count the separators (";") in aliasName
       count = 0
       k1 = 1
-      kk = len_trim(aliasName)
+      kk = len_trim(aliasName_)
       do k=1,kk
-         if (aliasName(k:k) == ";") then
+         if (aliasName_(k:k) == ";") then
             count = count+1
          end if
       end do
@@ -3684,17 +3691,17 @@ contains
 
       count = 0
       do k=1,kk
-         if (aliasName(k:k) == ";") then
+         if (aliasName_(k:k) == ";") then
             count = count+1
             k2=k-1
             if (count > n) exit ! use atmost n of the aliases
-            tmp(count) = aliasName(k1:k2)
+            tmp(count) = aliasName_(k1:k2)
             k1 = k+1
          end if
       end do
       count = count+1
       k2 = kk
-      tmp(count) = aliasName(k1:k2)
+      tmp(count) = aliasName_(k1:k2)
 
       do i=1,min(nn,n)
          splitNameArray(i) = tmp(i)
