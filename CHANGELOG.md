@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.18.0] - 2022-02-23
+
+### Fixed
+
 - Fixed issue in `CMakePresets.json` where Ninja presets were broken
 - Fixed io profiler report format
 - Fixed issue on macOS where enabling memutils caused crash
@@ -32,10 +44,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `components.yaml`. These changes are to support using Spack to build MAPL
   - ESMA_cmake v3.10.0 (add `FindESMF.cmake` from NOAA-EMC)
   - ecbuild geos/v1.2.0 (updat `FindNetCDF.cmake` to that from NOAA-EMC)
-
-### Removed
-
-### Deprecated
 
 ## [2.17.2] - 2022-02-16
 
