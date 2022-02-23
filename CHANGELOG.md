@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- New command line switches for activating global time and memory
+    profiling.  The default is off.  Use `--enable_global_timeprof` and
+    `--enable_global_memprof` to activate.
+- New gauge for measuring memory allocation based upon mallinfo().
+	MAPL is now instrumented with this memory profiler and it produces
+	reasonable results.  Should nicely complement other tools that
+	measure HWM.
+
 ### Changed
 
 - Profile reporting has been relocated into the `./profile` directory.
@@ -48,13 +56,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- New command line switches for activating global time and memory
-    profiling.  The default is off.  Use `--enable_global_timeprof` and
-    `--enable_global_memprof` to activate.
-- New gauge for measuring memory allocation based upon mallinfo().
-	MAPL is now instrumented with this memory profiler and it produces
-	reasonable results.  Should nicely complement other tools that
-	measure HWM.
 - Option to force integer time variable in History output via the
     History.rc file (IntegerTime: .true./.false. default .false.)
     rather than the default float time variable if allowed by
