@@ -14,10 +14,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - History GC
   - MemUtils
   - `register_generic_entry_points`
+
+### Added
+
+### Changed
+
+- Profile reporting has been relocated into the `./profile` directory.
+- Major refactoring of GenericSetServices
+    Work is not completed, but a new layer is introduced with the
+    intent that the user SetServices is called from with in the new
+    layer as opposed to the previous mechanism that obligated user
+    SetServices to call generic.  That call is now deprecated.
+    Significant cleanup remains.
+- Major refactoring of GenericSetServices
+  Work is not completed, but a new layer is introduced with the intent that the user SetServices is called
+  from with in the new layer as opposed to the previous mechanism that obligated user SetServices to call
+  generic.   That call is now deprecated.   Significant cleanup remains.
+- Improved diagnostic message for profiler imbalances at end of run.
+  Now gives the name of the timer that has not been stopped when
+  finalizing a profiler.
+
+### Removed
+
+### Deprecated
+
+## [2.18.0] - 2022-02-23
+
+### Fixed
+
 - Fixed issue in `CMakePresets.json` where Ninja presets were broken
 - Fixed io profiler report format
 - Fixed issue on macOS where enabling memutils caused crash
-
 
 ### Added
 
@@ -39,28 +66,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Profile reporting has been relocated into the `./profile` directory.
-- Major refactoring of GenericSetServices
-    Work is not completed, but a new layer is introduced with the
-    intent that the user SetServices is called from with in the new
-    layer as opposed to the previous mechanism that obligated user
-    SetServices to call generic.  That call is now deprecated.
-    Significant cleanup remains.
-- Improved diagnostic message for profiler imbalances at end of run.
-  Now gives the name of the timer that has not been stopped when
-  finalizing a profiler.
+- Changed the naming convention for the split name(s): we now take the entries from the field alias(es) without appending any digits. Also allowing the user to specify more entries in the alias, so that HISTORY.rc does not need to change when running GOCART with more wavelengths
 - A small performance improvement. cycle => exit in MAPL_Generic.F90
 - Made history global metadata configurable. This can be done in two ways
-  1. Globally for all collections by setting `COMMENT:`, `CONTACT:`, `CONVENTION:`, `INSTITUTION:`, `REFERENCES:`, and `SOURCE:` at the top of `HISTORY.rc` like `EXPDSC:`
-  2. On a per-collection bases by setting `collection.comment:`, `collection.contact:`, `collection.convention:`, `collection.institution:`, `collection.references:`, and `collection.source:`
+  1. Globally for all collections by setting `COMMENT:`, `CONTACT:`, `CONVENTIONS:`, `INSTITUTION:`, `REFERENCES:`, and `SOURCE:` at the top of `HISTORY.rc` like `EXPDSC:`
+  2. On a per-collection bases by setting `collection.comment:`, `collection.contact:`, `collection.conventions:`, `collection.institution:`, `collection.references:`, and `collection.source:`
   - The default settings for these are to match that of MAPL 2.17.0
 - Updated `components.yaml`. These changes are to support using Spack to build MAPL
   - ESMA_cmake v3.10.0 (add `FindESMF.cmake` from NOAA-EMC)
   - ecbuild geos/v1.2.0 (updat `FindNetCDF.cmake` to that from NOAA-EMC)
-
-### Removed
-
-### Deprecated
 
 ## [2.17.2] - 2022-02-16
 
