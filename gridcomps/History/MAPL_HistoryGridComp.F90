@@ -2040,11 +2040,12 @@ ENDDO PARSER
         type (ESMF_Field), pointer :: splitFields(:)
         logical :: split
         character(ESMF_MAXSTR) :: field_name, alias_name, special_name
-        integer :: m1, big
+        integer :: m1, big, szf, szr
         logical, allocatable               :: tmp_r8_to_r4(:)
         type(ESMF_FIELD), allocatable      :: tmp_r8(:)
         type(ESMF_FIELD), allocatable      :: tmp_r4(:)
 
+      m1 = 0
       do m=1,list(n)%field_set%nfields
          field_name = list(n)%field_set%fields(1,m)
          alias_name = list(n)%field_set%fields(3,m)
@@ -2062,16 +2063,21 @@ ENDDO PARSER
             call MAPL_FieldSplit(field, splitFields, aliasName=alias_name, __RC__)
          endif
 
-         do j=1,size(splitFields)
-            m1 = m - 1 + j
-            if (m1 > size(list(n)%r8_to_r4)) then
-               ! grow
-               big = size(list(n)%r8_to_r4) + 1
-               allocate(tmp_r4(big), tmp_r8(big), tmp_r8_to_r4(big), __STAT__)
-               call move_alloc(tmp_r4, list(n)%r4)
-               call move_alloc(tmp_r8, list(n)%r8)
-               call move_alloc(tmp_r8_to_r4, list(n)%r8_to_r4)
-            end if
+         szf = size(splitFields)
+         big = m1 + szf
+         szr = size(list(n)%r4)
+         if (big > szr) then
+            ! grow
+            allocate(tmp_r4(big), tmp_r8(big), tmp_r8_to_r4(big), __STAT__)
+            tmp_r4(1:szr) = list(n)%r4
+            tmp_r8(1:szr) = list(n)%r8
+            tmp_r8_to_r4(1:szr) = list(n)%r8_to_r4
+            call move_alloc(tmp_r4, list(n)%r4)
+            call move_alloc(tmp_r8, list(n)%r8)
+            call move_alloc(tmp_r8_to_r4, list(n)%r8_to_r4)
+         end if
+         do j=1,szf
+            m1 = m1 + 1
             field = splitFields(j)
             ! reset alias name when split
             if (split) then
@@ -2285,6 +2291,11 @@ ENDDO PARSER
                     field, __RC__)
             endif
          end do ! j-loop
+         if (split) then
+            do j=1,szf
+               call ESMF_FieldDestroy(splitFields(j), __RC__)
+            end do
+         end if
          deallocate(splitFields)
       end do ! m-loop
       end block
