@@ -10,12 +10,12 @@ contains
 
    @test
    subroutine test_simple_report_timer()
-      type (TimeProfiler), target :: prof
-      type (ProfileReporter), target :: reporter
+      type(DistributedProfiler), target :: prof
+      type(ProfileReporter), target :: reporter
 
       character(:), allocatable :: report_lines(:)
 
-      prof = TimeProfiler('top')   ! timer 1
+      prof = DistributedProfiler('top', FortranTimerGauge(),comm=0)   ! timer 1
       call prof%start()
       call prof%start('timer_1') ! 2
       call prof%start('timer_1a')! 3
@@ -64,12 +64,12 @@ contains
 
    @test
    subroutine test_simple_report_timer_b()
-      type (TimeProfiler), target :: prof
+      type (DistributedProfiler), target :: prof
       type (ProfileReporter) :: reporter
       
       character(:), allocatable :: report_lines(:)
 
-      prof = TimeProfiler('top')   ! timer 1
+      prof = DistributedProfiler('top', FortranTimerGauge(), comm=0)   ! timer 1
       call prof%start()
       call prof%start('timer_1') ! 2
       call prof%start('timer_1a')! 3
