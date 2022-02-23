@@ -1,3 +1,4 @@
+#include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
@@ -3662,45 +3663,56 @@ contains
 
       integer :: i, k
       integer :: k1, k2, kk, count
-      allocate(splitNameArray(n), stat=status)
-      _VERIFY(status)
+      integer :: nn
+      character(len=ESMF_MAXSTR), allocatable :: tmp(:)
+      character(len=ESMF_MAXSTR) :: aliasName_
+
       if (present(aliasName)) then
-         ! count the separators (";") in aliasName
-         ! if they match n (i.e. the count = n-1) use each
-         ! else if count is 0, append 00i to aliasName
-         ! else return an error
-
-         ! parse the aliasName
-         count = 0
-         k1 = 1
-         kk = len_trim(aliasName)
-         do k=1,kk
-            if (aliasName(k:k) == ";") then
-               count = count+1
-               k2=k-1
-               _ASSERT(count < n, 'Too many split separators')
-               splitNameArray(count) = aliasName(k1:k2)
-               k1 = k+1
-            end if
-         end do
-         if (count == 0) then
-            do i=1,n
-               write(splitNameArray(i),'(A,I3.3)') trim(aliasName), i
-            end do
-         else if(count == n-1) then
-            k2 = kk
-            count = count+1
-            splitNameArray(count) = aliasName(k1:k2)
-         else
-            _ASSERT(.false.,'Inconsistent number of split separators')
-         end if
-
+         aliasName_ = aliasName
       else
-         do i=1,n
-            write(splitNameArray(i),'(A,I3.3)') trim(name), i
-         end do
+         aliasName_ = name
       end if
 
+      allocate(splitNameArray(n), stat=status)
+      _VERIFY(status)
+
+      ! parse the aliasName
+      ! count the separators (";") in aliasName
+      count = 0
+      k1 = 1
+      kk = len_trim(aliasName_)
+      do k=1,kk
+         if (aliasName_(k:k) == ";") then
+            count = count+1
+         end if
+      end do
+      nn = count+1
+      allocate(tmp(nn), __STAT__)
+
+      count = 0
+      do k=1,kk
+         if (aliasName_(k:k) == ";") then
+            count = count+1
+            k2=k-1
+            if (count > n) exit ! use atmost n of the aliases
+            tmp(count) = aliasName_(k1:k2)
+            k1 = k+1
+         end if
+      end do
+      count = count+1
+      k2 = kk
+      tmp(count) = aliasName_(k1:k2)
+
+      do i=1,min(nn,n)
+         splitNameArray(i) = tmp(i)
+      end do
+      deallocate(tmp)
+      ! if the user did no supply enough separated alias field names,
+      ! append 00i to the original field name
+      do i=nn+1,n
+         write(splitNameArray(i),'(A,I3.3)') trim(name), i
+      end do
+      
       _RETURN(ESMF_SUCCESS)
     end subroutine GenAlias
   end subroutine MAPL_FieldSplit
