@@ -126,6 +126,7 @@ module MAPL_GenericMod
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
    use MAPL_StringTemplate
+   use MAPL_SetServicesWrapper
    use mpi
    use netcdf
    use pFlogger, only: logging, Logger
@@ -143,6 +144,7 @@ module MAPL_GenericMod
    private
 
    public MAPL_GenericSetServices
+   public new_generic_setservices
    public MAPL_GenericInitialize
    public MAPL_GenericRunChildren
    public MAPL_GenericFinalize
@@ -391,13 +393,14 @@ module MAPL_GenericMod
    !BOP
    !BOC
    type, extends(MaplGenericComponent) ::  MAPL_MetaComp
-      private
+!      private
       ! Move to Base ?
       character(len=ESMF_MAXSTR)               :: COMPNAME
       type (ESMF_Config             )          :: CF
       character(:), allocatable :: full_name ! Period separated list of ancestor names
       real                                     :: HEARTBEAT
 
+      class(AbstractSetServicesWrapper), allocatable, public :: user_setservices_wrapper
       ! Move to decorator?
       type (DistributedProfiler), public :: t_profiler
 
@@ -548,202 +551,17 @@ contains
       ! Create the generic state, intializing its configuration and grid.
       !----------------------------------------------------------
       call MAPL_InternalStateRetrieve( GC, meta, __RC__)
-
-      call meta%t_profiler%start('generic',__RC__)
-
-      call register_generic_entry_points(gc, __RC__)
+!!$
+!!$      call meta%t_profiler%start('generic',__RC__)
+!!$
+!!$      call register_generic_entry_points(gc, __RC__)
       call MAPL_GetRootGC(GC, meta%rootGC, __RC__)
-      call setup_children(meta, __RC__)
 
-      call meta%t_profiler%stop('generic',__RC__)
-
+!!$      call meta%t_profiler%stop('generic',__RC__)
+!!$
       _RETURN(ESMF_SUCCESS)
 
    contains
-
-      subroutine register_generic_entry_points(gc, rc)
-         type(ESMF_GridComp), intent(inout) :: gc
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-
-         if (.not. associated(meta%phase_init)) then
-            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_INITIALIZE, MAPL_GenericInitialize,  __RC__)
-         endif
-
-         if (.not. associated(meta%phase_run)) then
-            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_RUN, MAPL_GenericRunChildren,  __RC__)
-         endif
-
-
-         if (.not. associated(meta%phase_final)) then
-            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_FINALIZE, MAPL_GenericFinalize,  __RC__)
-         endif
-
-         !ALT check record!!!
-         if (.not. associated(meta%phase_record)) then
-            call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_WRITERESTART, MAPL_GenericRecord, __RC__)
-         end if
-         _ASSERT(size(meta%phase_record)==1,'needs informative message')  !ALT: currently we support only 1 record
-
-         if (.not.associated(meta%phase_coldstart)) then
-            !ALT: this part is not supported yet
-            !      call MAPL_GridCompSetEntryPoint(GC, ESMF_METHOD_READRESTART, &
-            !                                      MAPL_Coldstart, __RC__)
-         endif
-      end subroutine register_generic_entry_points
-
-#define LOWEST_(c) m=0; do while (m /= c) ;\
-      m = c; c=label(c);\
-   enddo
-
-      ! Complex algorithm - difficult to explain
-      recursive subroutine setup_children(meta, rc)
-         type (MAPL_MetaComp), target, intent(inout) :: meta
-         integer, optional, intent(out) :: rc
-
-         integer :: nc
-         integer :: i
-         integer :: ts
-         integer :: lbl, k, m
-         type (VarConn), pointer :: connect
-         type(StateSpecification) :: specs
-         type (MAPL_VarSpec), pointer :: im_specs(:)
-         type (MAPL_VarSpec), pointer :: ex_specs(:)
-         type (MAPL_VarSpecPtr), pointer :: ImSpecPtr(:)
-         type (MAPL_VarSpecPtr), pointer :: ExSpecPtr(:)
-         type(ESMF_Field), pointer :: field
-         type(ESMF_FieldBundle), pointer :: bundle
-         type(ESMF_State), pointer :: state
-         integer :: fLBL, tLBL
-         integer :: good_label, bad_label
-         integer, pointer :: label(:)
-
-         NC = meta%get_num_children()
-         CHILDREN: if(nc > 0) then
-
-            do I=1,NC
-               call MAPL_GenericStateClockAdd(GC, name=trim(meta%GCNameList(I)), __RC__)
-            end do
-
-
-            ! The child should've been already created by MAPL_AddChild
-            ! and set his services should've been called.
-            ! -------------------------------------
-
-            ! Create internal couplers and composite
-            ! component's Im/Ex specs.
-            !---------------------------------------
-
-            call MAPL_WireComponent(GC, __RC__)
-
-            ! Relax connectivity for non-existing imports
-            if (NC > 0) then
-
-               CONNECT => meta%connectList%CONNECT
-
-               allocate (ImSpecPtr(NC), ExSpecPtr(NC), __STAT__)
-
-               DO I = 1, NC
-                  gridcomp => meta%get_child_gridcomp(i)
-                  call MAPL_GridCompGetVarSpecs(gridcomp, &
-                       IMPORT=IM_SPECS, EXPORT=EX_SPECS, __RC__)
-                  ImSpecPtr(I)%Spec => IM_SPECS
-                  ExSpecPtr(I)%Spec => EX_SPECS
-               END DO
-
-               call connect%checkReq(ImSpecPtr, ExSpecPtr, __RC__)
-
-               deallocate (ImSpecPtr, ExSpecPtr)
-
-            end if
-
-            ! If I am root call Label from here; everybody else
-            !  will be called recursively from Label
-            !--------------------------------------------------
-            ROOT: if (.not. associated(meta%parentGC)) then
-
-               call MAPL_GenericConnCheck(GC, __RC__)
-
-               ! Collect all IMPORT and EXPORT specs in the entire tree in one list
-               !-------------------------------------------------------------------
-               call MAPL_GenericSpecEnum(GC, SPECS, __RC__)
-
-               ! Label each spec by its place on the list--sort of.
-               !--------------------------------------------------
-
-               TS = SPECS%var_specs%size()
-               allocate(LABEL(TS), __STAT__)
-
-               do I = 1, TS
-                  LABEL(I)=I
-               end do
-
-               ! For each spec...
-               !-----------------
-
-               do I = 1, TS
-
-                  !  Get the LABEL attribute on the spec
-                  !-------------------------------------
-                  call MAPL_VarSpecGet(SPECS%old_var_specs(I), LABEL=LBL, __RC__)
-                  _ASSERT(LBL > 0, "GenericSetServices :: Expected LBL > 0.")
-
-                  ! Do something to sort labels???
-                  !-------------------------------
-                  LOWEST_(LBL)
-
-                  good_label = min(lbl, i)
-                  bad_label = max(lbl, i)
-                  label(bad_label) = good_label
-
-
-               end do
-
-               if (associated(meta%LINK)) then
-                  do I = 1, size(meta%LINK)
-                     fLBL = MAPL_LabelGet(meta%LINK(I)%ptr%FROM, __RC__)
-                     tLBL = MAPL_LabelGet(meta%LINK(I)%ptr%TO,   __RC__)
-                     LOWEST_(fLBL)
-                     LOWEST_(tLBL)
-
-                     if (fLBL < tLBL) then
-                        good_label = fLBL
-                        bad_label  = tLBL
-                     else
-                        good_label = tLBL
-                        bad_label  = fLBL
-                     end if
-                     label(bad_label) = good_label
-                  end do
-               end if
-
-               K=0
-               do I = 1, TS
-                  LBL = LABEL(I)
-                  LOWEST_(LBL)
-
-                  if (LBL == I) then
-                     K = K+1
-                  else
-                     call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), FIELDPTR = FIELD, __RC__)
-                     call MAPL_VarSpecSet(SPECS%old_var_specs(I), FIELDPTR = FIELD, __RC__)
-                     call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), BUNDLEPTR = BUNDLE, __RC__  )
-                     call MAPL_VarSpecSet(SPECS%old_var_specs(I), BUNDLEPTR = BUNDLE, __RC__  )
-                     call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), STATEPTR = STATE, __RC__  )
-                     call MAPL_VarSpecSet(SPECS%old_var_specs(I), STATEPTR = STATE, __RC__  )
-                  end if
-
-                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), LABEL=LBL, __RC__)
-               end do
-
-               deallocate(LABEL, __STAT__)
-
-            end if ROOT
-
-         end if CHILDREN  !  Setup children
-      end subroutine setup_children
-#undef LOWEST_
 
    end subroutine MAPL_GenericSetServices
 
@@ -846,6 +664,7 @@ contains
       type(ESMF_State), pointer :: child_export_state
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: internal_state
+      class(BaseProfiler), pointer :: m_p
       !=============================================================================
 
       ! Begin...
@@ -1031,16 +850,25 @@ contains
 
 !!$   call MAPL_TimerOff(STATE,"generic",__RC__)
 
+      m_p => get_global_memory_profiler()
+      call m_p%start('children')
       call initialize_children_and_couplers(_RC)
+      call m_p%stop('children')
       call MAPL_TimerOn(STATE,"generic")
 
+      call m_p%start('import vars')
       call create_import_and_initialize_state_variables(__RC__)
+      call m_p%stop('import vars')
 
       call ESMF_AttributeSet(import,'POSITIVE',trim(positive),__RC__)
 
+      call m_p%start('internal vars')
       call create_internal_and_initialize_state_variables(__RC__)
+      call m_p%stop('internal vars')
 
+      call m_p%start('export vars')
       call create_export_state_variables(__RC__)
+      call m_p%stop('export vars')
 
       ! Create forcing state
       STATE%FORCING = ESMF_StateCreate(name = trim(comp_name) // "_FORCING", &
@@ -1699,6 +1527,7 @@ contains
       type(ESMF_Method_Flag)           :: method
       type(ESMF_VM) :: VM
       class(BaseProfiler), pointer :: t_p
+      class(BaseProfiler), pointer :: m_p
       character(1) :: char_phase
 
       character(len=12), pointer :: timers(:) => NULL()
@@ -1735,7 +1564,9 @@ contains
 
       ! TIMERS on
       t_p => get_global_time_profiler()
+      m_p => get_global_memory_profiler()
       call t_p%start(trim(state%compname),__RC__)
+      call m_p%start(trim(state%compname),__RC__)
 
       phase_ = MAPL_MAX_PHASES+phase ! this is the "actual" phase, i.e. the one user registered
 
@@ -1812,6 +1643,7 @@ contains
             call state%t_profiler%stop(__RC__)
          end if
          call t_p%stop(trim(state%compname),__RC__)
+         call m_p%stop(trim(state%compname),__RC__)
       endif
 
 
@@ -1987,6 +1819,7 @@ contains
       integer                                     :: ens_id_width
       type(ESMF_Time)                             :: CurrTime
       class(BaseProfiler), pointer                :: t_p
+      class(BaseProfiler), pointer                :: m_p
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
@@ -2012,6 +1845,7 @@ contains
       ! ---------------------
 
       t_p => get_global_time_profiler()
+      m_p => get_global_memory_profiler()
 
       NC = STATE%get_num_children()
       allocate(CHLDMAPL(NC), stat=status)
@@ -2151,6 +1985,7 @@ contains
       end if
 
       call t_p%stop(trim(state%compname),__RC__)
+      call m_p%stop(trim(state%compname),__RC__)
 
       ! Clean-up
       !---------
@@ -2268,7 +2103,7 @@ contains
 
       integer                                     :: K
       logical                                     :: ftype(0:1)
-      class(BaseProfiler), pointer                :: t_p
+      class(BaseProfiler), pointer                :: t_p, m_p
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
@@ -2288,6 +2123,7 @@ contains
       _VERIFY(status)
 
       t_p => get_global_time_profiler()
+      m_p => get_global_memory_profiler()
       call state%t_profiler%start(__RC__)
       call state%t_profiler%start('Record',__RC__)
 
@@ -2492,6 +2328,7 @@ contains
       character(len=4)                            :: extension
       integer                                     :: hdr
       class(BaseProfiler), pointer                :: t_p
+      class(BaseProfiler), pointer                :: m_p
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
@@ -2510,7 +2347,6 @@ contains
       call MAPL_InternalStateRetrieve(GC, STATE, RC=status)
       _VERIFY(status)
 
-      t_p => get_global_time_profiler()
       call state%t_profiler%start(__RC__)
       call state%t_profiler%start('Refresh',__RC__)
 
@@ -4532,6 +4368,7 @@ contains
       integer                                     :: I
       type(MAPL_MetaComp), pointer                :: child_meta
       class(BaseProfiler), pointer                :: t_p
+      class(BaseProfiler), pointer                :: m_p
       integer :: userRC
 
       if (.not.allocated(META%GCNameList)) then
@@ -4544,17 +4381,21 @@ contains
 
       call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentgc, petList=petlist, child_meta=child_meta, __RC__)
       t_p => get_global_time_profiler()
+      m_p => get_global_memory_profiler()
       call t_p%start(trim(NAME),__RC__)
+      call m_p%start(trim(NAME),__RC__)
       call child_meta%t_profiler%start(__RC__)
       call child_meta%t_profiler%start('SetService',__RC__)
 
 !!$     gridcomp => META%GET_CHILD_GRIDCOMP(I)
-      call ESMF_GridCompSetServices ( child_meta%gridcomp, SS, userRC=userRC, __RC__ )
-      _VERIFY(userRC)
+      child_meta%user_setservices_wrapper = ProcSetServicesWrapper(SS)
+!!$      call ESMF_GridCompSetServices ( child_meta%gridcomp, SS, userRC=userRC, __RC__ )
+!!$      _VERIFY(userRC)
 
       call child_meta%t_profiler%stop('SetService',__RC__)
       call child_meta%t_profiler%stop(__RC__)
       call t_p%stop(trim(NAME),__RC__)
+      call m_p%stop(trim(NAME),__RC__)
 
       _VERIFY(status)
 
@@ -4769,6 +4610,7 @@ contains
       integer                                     :: I
       type(MAPL_MetaComp), pointer                :: child_meta
       class(BaseProfiler), pointer                :: t_p
+      class(BaseProfiler), pointer                :: m_p
 
       class(Logger), pointer :: lgr
       character(len=:), allocatable :: shared_object_library_to_load
@@ -4787,7 +4629,9 @@ contains
       call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=gc, petList=petlist, child_meta=child_meta, __RC__)
 
       t_p => get_global_time_profiler()
+      m_p => get_global_memory_profiler()
       call t_p%start(trim(name),__RC__)
+      call m_p%start(trim(name),__RC__)
       call child_meta%t_profiler%start(__RC__)
       call child_meta%t_profiler%start('SetService',__RC__)
 
@@ -4801,13 +4645,15 @@ contains
       end if
 
       shared_object_library_to_load = adjust_dso_name(sharedObj)
-      call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
-           sharedObj=shared_object_library_to_load,userRC=userRC,__RC__)
-      _VERIFY(userRC)
+!!$      call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
+!!$           sharedObj=shared_object_library_to_load,userRC=userRC,__RC__)
+!!$      _VERIFY(userRC)
 
+      child_meta%user_setservices_wrapper = DSO_SetServicesWrapper(sharedObj, userRoutine)
       call child_meta%t_profiler%stop('SetService',__RC__)
       call child_meta%t_profiler%stop(__RC__)
       call t_p%stop(trim(name),__RC__)
+      call m_p%stop(trim(name),__RC__)
 
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromDSO
@@ -11299,5 +11145,220 @@ contains
       end if
       _RETURN(ESMF_SUCCESS)
    end subroutine warn_empty
+
+   ! Interface mandated by ESMF
+   recursive subroutine new_generic_setservices(gc, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      integer, intent(out) :: rc
+
+      type(MAPL_MetaComp), pointer :: meta
+      integer :: status
+
+      call MAPL_InternalStateGet (gc, meta, _RC)
+      call meta%t_profiler%start(_RC)
+
+      call meta%user_setservices_wrapper%run(gc, _RC)
+      ! TODO: Fix this is a terrible kludge.
+      if (meta%compname /= 'CAP') then
+         call register_generic_entry_points(gc, _RC)
+      end if
+      call run_children_generic_setservices(meta,_RC)
+
+      ! TODO: Fix this is a terrible kludge.
+      if (meta%compname /= 'CAP') then
+         call process_connections(meta,_RC) ! needs better name
+      end if
+
+      call meta%t_profiler%stop(_RC)
+
+      _RETURN(_SUCCESS)
+   contains
+
+#define LOWEST_(c) m=0; do while (m /= c) ; m = c; c=label(c); enddo
+
+      recursive subroutine run_children_generic_setservices(meta, rc)
+         type(MAPL_MetaComp), pointer :: meta
+         integer, intent(out) :: rc
+
+         integer :: status, i
+         type(ESMF_GridComp), pointer :: child_gc
+
+         do i = 1, meta%get_num_children()
+            child_gc => meta%get_child_gridcomp(i)
+            call new_generic_setservices(child_gc, _RC)
+         end do
+
+         _RETURN(_SUCCESS)
+      end subroutine run_children_generic_setservices
+
+      recursive subroutine process_connections(meta, rc)
+         type(MAPL_MetaComp), pointer :: meta
+         integer, intent(out) :: rc
+
+         integer :: status
+         integer :: i, m, k
+         integer :: ts
+         integer :: fLBL, tLBL, lbl
+         integer :: good_label, bad_label
+         integer, pointer :: label(:)
+         type(StateSpecification) :: specs
+         type(ESMF_Field), pointer :: field
+         type(ESMF_FieldBundle), pointer :: bundle
+         type(ESMF_State), pointer :: state
+         type (MAPL_VarSpec), pointer :: im_specs(:)
+         type (MAPL_VarSpec), pointer :: ex_specs(:)
+         type (MAPL_VarSpecPtr), pointer :: ImSpecPtr(:)
+         type (MAPL_VarSpecPtr), pointer :: ExSpecPtr(:)
+         type (VarConn), pointer :: connect
+         type(ESMF_GridComp), pointer :: child_gc
+         integer :: nc
+         nc = meta%get_num_children()
+
+         call MAPL_WireComponent(gc, _RC)
+
+         nc = meta%get_num_children()
+
+         ! Relax connectivity for non-existing imports
+         CONNECT => meta%connectList%CONNECT
+
+         allocate (ImSpecPtr(nc), ExSpecPtr(nc), __STAT__)
+
+         do I = 1, nc
+            child_gc => meta%get_child_gridcomp(i)
+            call MAPL_GridCompGetVarSpecs(child_gc, &
+                 import=IM_SPECS, EXPORT=EX_SPECS, __RC__)
+            ImSpecPtr(I)%Spec => IM_SPECS
+            ExSpecPtr(I)%Spec => EX_SPECS
+         end do
+
+         call connect%checkReq(ImSpecPtr, ExSpecPtr, __RC__)
+
+         deallocate (ImSpecPtr, ExSpecPtr)
+
+
+
+
+         ! If I am root call Label from here; everybody else
+         !  will be called recursively from Label
+         !--------------------------------------------------
+         ROOT: if (.not. associated(meta%parentGC)) then
+
+            call MAPL_GenericConnCheck(GC, __RC__)
+
+            ! Collect all IMPORT and EXPORT specs in the entire tree in one list
+            !-------------------------------------------------------------------
+            call MAPL_GenericSpecEnum(GC, SPECS, __RC__)
+
+            ! Label each spec by its place on the list--sort of.
+            !--------------------------------------------------
+
+            TS = SPECS%var_specs%size()
+            allocate(LABEL(TS), __STAT__)
+
+            do I = 1, TS
+               LABEL(I)=I
+            end do
+
+            ! For each spec...
+            !-----------------
+
+            do I = 1, TS
+
+               !  Get the LABEL attribute on the spec
+               !-------------------------------------
+               call MAPL_VarSpecGet(SPECS%old_var_specs(I), LABEL=LBL, __RC__)
+               _ASSERT(LBL > 0, "GenericSetServices :: Expected LBL > 0.")
+
+               ! Do something to sort labels???
+               !-------------------------------
+               LOWEST_(LBL)
+
+               good_label = min(lbl, i)
+               bad_label = max(lbl, i)
+               label(bad_label) = good_label
+
+
+            end do
+
+            if (associated(meta%LINK)) then
+               do I = 1, size(meta%LINK)
+                  fLBL = MAPL_LabelGet(meta%LINK(I)%ptr%FROM, __RC__)
+                  tLBL = MAPL_LabelGet(meta%LINK(I)%ptr%TO,   __RC__)
+                  LOWEST_(fLBL)
+                  LOWEST_(tLBL)
+
+                  if (fLBL < tLBL) then
+                     good_label = fLBL
+                     bad_label  = tLBL
+                  else
+                     good_label = tLBL
+                     bad_label  = fLBL
+                  end if
+                  label(bad_label) = good_label
+               end do
+            end if
+
+            K=0
+            do I = 1, TS
+               LBL = LABEL(I)
+               LOWEST_(LBL)
+
+               if (LBL == I) then
+                  K = K+1
+               else
+                  call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), FIELDPTR = FIELD, __RC__)
+                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), FIELDPTR = FIELD, __RC__)
+                  call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), BUNDLEPTR = BUNDLE, __RC__  )
+                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), BUNDLEPTR = BUNDLE, __RC__  )
+                  call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), STATEPTR = STATE, __RC__  )
+                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), STATEPTR = STATE, __RC__  )
+               end if
+
+               call MAPL_VarSpecSet(SPECS%old_var_specs(I), LABEL=LBL, __RC__)
+            end do
+
+            deallocate(LABEL, __STAT__)
+
+         end if ROOT
+
+         _RETURN(_SUCCESS)
+      end subroutine process_connections
+#undef LOWEST_
+
+
+      subroutine register_generic_entry_points(gc, rc)
+         type(ESMF_GridComp), intent(inout) :: gc
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         if (.not. associated(meta%phase_init)) then
+            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_INITIALIZE, MAPL_GenericInitialize,  __RC__)
+         endif
+
+         if (.not. associated(meta%phase_run)) then
+            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_RUN, MAPL_GenericRunChildren,  __RC__)
+         endif
+
+
+         if (.not. associated(meta%phase_final)) then
+            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_FINALIZE, MAPL_GenericFinalize,  __RC__)
+         endif
+
+         if (.not. associated(meta%phase_record)) then
+            call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_WRITERESTART, MAPL_GenericRecord, __RC__)
+         end if
+         _ASSERT(size(meta%phase_record)==1,'Currently, only 1 record is supported.')
+
+         if (.not.associated(meta%phase_coldstart)) then
+            ! not supported
+         endif
+         _RETURN(_SUCCESS)
+      end subroutine register_generic_entry_points
+
+
+
+   end subroutine new_generic_setservices
+
 
 end module MAPL_GenericMod

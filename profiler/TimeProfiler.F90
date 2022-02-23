@@ -70,7 +70,7 @@ module mapl_TimeProfiler
    use mapl_BaseProfiler
    use mapl_TimeProfiler_private
    use mapl_KeywordEnforcerMod
-   use mapl_ExceptionHandling
+   use mapl_ErrorHandlingMod
 
    implicit none
    private
