@@ -17,6 +17,8 @@ module mapl_Profiler
 
    use mapl_DistributedMeter
    use mapl_DistributedProfiler
+   use mapl_TimeProfiler
+   use mapl_MemoryProfiler
 
    use mapl_ProfileReporter
    use mapl_AbstractColumn
@@ -82,7 +84,6 @@ contains
       _UNUSED_DUMMY(unusable)
 
    end subroutine finalize
-
 
    subroutine report_global_profiler(unusable,comm,rc)
       use mapl_KeywordEnforcerMod

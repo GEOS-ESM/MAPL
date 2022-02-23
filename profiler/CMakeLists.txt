@@ -22,8 +22,8 @@ set (srcs
   MeterNode.F90
   BaseProfiler.F90
   GlobalProfilers.F90
-#  TimeProfiler.F90
-#  MemoryProfiler.F90
+  TimeProfiler.F90
+  MemoryProfiler.F90
   DistributedProfiler.F90
   StubProfiler.F90
 

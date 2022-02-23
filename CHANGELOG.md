@@ -60,10 +60,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- TimeProfiler.F90 and MemoryProfile.F90 were removed and the functionality is
-  now coming from DistributedProfiler.  (Which was all that was being used
-  in practice anyway.)
-
 ### Deprecated
 
 ## [2.17.2] - 2022-02-16
