@@ -60,7 +60,12 @@ module MAPL_MemUtilsMod
 #ifdef _CRAYT90
   public :: stklen
 #endif
+
+#ifdef sysDarwin
+  logical,    save :: DISABLED  = .true.
+#else
   logical,    save :: DISABLED  = .false.
+#endif
 
   integer, public, parameter :: MAPL_MemUtilsModeNode = 2
   integer, public, parameter :: MAPL_MemUtilsModeFull = 1
@@ -390,7 +395,7 @@ module MAPL_MemUtilsMod
 #if defined(__sgi) || defined(__aix) || defined(__SX)
     m = memuse()*1e-3
 #else
-    call mem_dump(mhwm, mrss, memused, swapused, commitlimit, committed_as)
+    call mem_dump(mhwm, mrss, memused, swapused, commitlimit, committed_as, _RC)
 #endif
     call MPI_Comm_Size(comm_,npes,status)
     if (MAPL_MemUtilsMode == MAPL_MemUtilsModeFull) then
