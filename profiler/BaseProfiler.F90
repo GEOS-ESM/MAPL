@@ -8,7 +8,7 @@ module mapl_BaseProfiler
    use mapl_MeterNode
    use mapl_MeterNodePtr
    use mapl_MeterNodeStack
-   use mapl_ExceptionHandling
+   use mapl_ErrorHandlingMod
    use mapl_KeywordEnforcerMod
    implicit none
    private
@@ -104,7 +104,7 @@ contains
       _ASSERT_RC(this%stack%size()== 0,"Timer "//this%root_node%get_name()// " is not a fresh self start",INCORRECTLY_NESTED_METERS)
 
       call this%start(this%root_node)
-
+   
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine start_self
@@ -138,17 +138,17 @@ contains
 
       if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
       _ASSERT_RC(.not. this%stack%empty(),"Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
-
+      
       node_ptr => this%stack%back()
       node => node_ptr%ptr
       if (.not. node%has_child(name)) then
          m = this%make_meter()
          call node%add_child(name, m) !this%make_meter())
       end if
-
+      
       node => node%get_child(name)
       call this%start(node)
-
+   
       _RETURN(_SUCCESS)
    end subroutine start_name
 
@@ -165,7 +165,7 @@ contains
       node => node_ptr%ptr
       if (name /= node%get_name()) this%status = INCORRECTLY_NESTED_METERS
       _ASSERT_RC(name == node%get_name(),"Timer <"//name// "> does not match start timer <"//node%get_name()//">",INCORRECTLY_NESTED_METERS)
-
+      
       call this%stop(node)
 
       _RETURN(_SUCCESS)
@@ -184,10 +184,11 @@ contains
          node => node_ptr%ptr
          _ASSERT_RC(this%stack%size()== 1,"Stack not empty when timer stopped.  Active timer: " // node%get_name(),INCORRECTLY_NESTED_METERS)
       end if
-
+      
       node_ptr => this%stack%back()
       node => node_ptr%ptr
       call this%stop(node)
+   
       _RETURN(_SUCCESS)
    end subroutine stop_self
 
@@ -350,8 +351,8 @@ contains
 
 
    subroutine set_node(this, node)
-      class (BaseProfiler), intent(inout) :: this
-      type (MeterNode), intent(in) :: node
+      class(BaseProfiler), intent(inout) :: this
+      class(MeterNode), intent(in) :: node
       this%root_node = node
    end subroutine set_node
 
@@ -426,6 +427,7 @@ contains
       print*
         
    end subroutine print_stack
+
 end module mapl_BaseProfiler
 
 

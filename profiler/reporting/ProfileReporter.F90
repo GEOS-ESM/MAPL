@@ -43,12 +43,17 @@ contains
       character(:), allocatable :: header(:)
       class (AbstractMeterNode), pointer :: node
 
+      print*,__FILE__,__LINE__
       call this%get_header(header)
+      print*,__FILE__,__LINE__
       node => p%get_root_node()
+      print*,__FILE__,__LINE__, associated(node)
+      print*,__FILE__,__LINE__, node%get_num_nodes()
       call this%get_rows(node, rows)
+      print*,__FILE__,__LINE__, size(rows)
       width = this%get_width()
       height = size(header) + size(rows)
-
+      
       allocate(character(len=width) :: report_lines(height))
       do i = 1, size(header)
          report_lines(i) = header(i)
