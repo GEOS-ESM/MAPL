@@ -5,15 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v3.0.0 - Development]
 
-### Fixed
+### Removed
 
-- Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
-- Fixed failures to fully trap errors in
-  - History GC
-  - MemUtils
-  - `register_generic_entry_points`
+- Removes backward compatibility for MAPL_FlapCLI functions. Only accepts function usage in which the result is of
+  MAPL_CapOptions type.
 
 ### Added
 
@@ -37,6 +34,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved diagnostic message for profiler imbalances at end of run.
   Now gives the name of the timer that has not been stopped when
   finalizing a profiler.
+- Changed all ESMF_AttributeGet and ESMF_AttributeSet to ESMF_InfoGet and ESMF_InfoSet respectively as old calls will be deprecated soon.
+
+### Fixed
+
+- Fixed failures to fully trap errors in
+  - History GC
+  - MemUtils
+  - `register_generic_entry_points`
+
+## [Unreleased]
+
+### Fixed
+
+- Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
+
+### Added
+
+### Changed
+
+- Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
 
 ### Removed
 
@@ -60,6 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updates to CircleCI
   - Added GEOSadas CI ifort build test
   - Add "like-UFS" build to CI. This is no FLAP and pFlogger, and static build
+- Added new `_STAT` and `_IOSTAT` macros a la `_RC`
 
 ### Changed
 
