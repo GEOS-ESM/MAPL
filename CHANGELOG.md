@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- MAPL_ESMFFieldBundleRead/Write modules are now available in when using MAPL
+
 ### Changed
 
 ### Removed
