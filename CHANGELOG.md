@@ -15,9 +15,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 ### Changed
 
+- Major refactoring of GenericSetServices
+  Work is not completed, but a new layer is introduced with the intent that the user SetServices is called
+  from with in the new layer as opposed to the previous mechanism that obligated user SetServices to call
+  generic.   That call is now deprecated.   Significant cleanup remains.
+- Improved diagnostic message for profiler imbalances at end of run.
+  Now gives the name of the timer that has not been stopped when
+  finalizing a profiler.
 - Changed all ESMF_AttributeGet and ESMF_AttributeSet to ESMF_InfoGet and ESMF_InfoSet respectively as old calls will be deprecated soon.
 
 ### Fixed
+
+- Fixed failures to fully trap errors in
+  - History GC
+  - MemUtils
+  - `register_generic_entry_points`
 
 ## [Unreleased]
 
@@ -45,6 +57,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- New gauge for measuring memory allocation based upon mallinfo().
+	MAPL is now instrumented with this memory profiler and it produces
+	reasonable results.  Should nicely complement other tools that
+	measure HWM.
 - Option to force integer time variable in History output via the History.rc file (IntegerTime: .true./.false. default .false.) rather than the default float time variable if allowed by frequency of output
 - Added mapl_StubComponent to MAPL package
 - Updates to CircleCI

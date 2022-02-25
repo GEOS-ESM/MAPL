@@ -4,9 +4,11 @@
 module ExtData_DriverGridCompMod
   use ESMF
   use MAPL
+  use MPI
+  use MAPL_GenericMod
   use MAPL_ExtDataGridCompMod, only : ExtData_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
-  use MAPL_Profiler, only : get_global_time_profiler, BaseProfiler
+  use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler, get_global_memory_profiler,mpitimergauge,distributedProfiler
 
   implicit none
   private
@@ -50,20 +52,22 @@ module ExtData_DriverGridCompMod
      type(MAPL_MetaComp), pointer :: ptr => null()
   end type MAPL_MetaComp_Wrapper
   
-  include "mpif.h"
 
 contains
 
   function new_ExtData_DriverGridComp(root_set_services, configFileName, name) result(cap)
+    use MAPL_SetServicesWrapper
     procedure() :: root_set_services
     character(len=*), optional, intent(in) :: name
     character(len=*), optional, intent(in) :: configFileName
     type(ExtData_DriverGridComp) :: cap
 
     type(ExtData_DriverGridComp_Wrapper) :: cap_wrapper
-    type(MAPL_MetaComp_Wrapper) :: meta_comp_wrapper
 
     integer :: status, rc
+    type(StubComponent) :: stub_component
+    type(MAPL_MetaComp), pointer :: meta => null()
+    character(len=:), allocatable :: cap_name
 
     cap%root_set_services => root_set_services
 
@@ -79,25 +83,31 @@ contains
        allocate(cap%configFile, source='CAP.rc')
     end if
 
-    cap%gc = ESMF_GridCompCreate(name='ExtData_DriverGridComp', rc = status)
+    !cap_name = 'ExtData_DriverGridComp'
+    cap_name = 'CAP'
+    meta => null()
+    cap%gc = ESMF_GridCompCreate(name=cap_name, rc = status)
     _VERIFY(status)
+    call MAPL_InternalStateCreate(cap%gc, meta, __RC__)
+    meta%t_profiler = DistributedProfiler(cap_name, MpiTimerGauge(), comm=MPI_COMM_WORLD)
 
     allocate(cap_wrapper%ptr)
     cap_wrapper%ptr = cap
+    call MAPL_Set(meta, name=cap_name, component=stub_component, __RC__)
+
+    meta%user_setservices_wrapper = ProcSetServicesWrapper(set_services_gc)
+
     call ESMF_UserCompSetInternalState(cap%gc, internal_cap_name, cap_wrapper, status)
     _VERIFY(status)
 
-    allocate(meta_comp_wrapper%ptr)
-    call ESMF_UserCompSetInternalState(cap%gc, internal_meta_comp_name, meta_comp_wrapper, status)
-    _VERIFY(status)
+    !allocate(meta_comp_wrapper%ptr)
+    !call ESMF_UserCompSetInternalState(cap%gc, internal_meta_comp_name, meta_comp_wrapper, status)
+    !_VERIFY(status)
 
   end function new_ExtData_DriverGridComp
 
-
-  subroutine initialize_gc(gc, import_state, export_state, clock, rc)
+  subroutine set_services_gc(gc, rc)
     type(ESMF_GridComp) :: gc
-    type(ESMF_State) :: import_state, export_state
-    type(ESMF_Clock) :: clock
     integer, intent(out) :: rc
 
     integer :: comm
@@ -112,22 +122,8 @@ contains
 
     character(len=ESMF_MAXSTR)   :: ROOT_NAME
 
-    ! Misc locals
-    !------------
     character(len=ESMF_MAXSTR)   :: EXPID
     character(len=ESMF_MAXSTR)   :: EXPDSC
-
-
-    ! Handles to the CAP's Gridded Components GCs
-    ! -------------------------------------------
-
-    integer                               :: i, itemcount
-    type (ESMF_Field)                     :: field
-    type (ESMF_FieldBundle)               :: bundle
-
-
-    type (ESMF_StateItem_Flag), pointer   :: ITEMTYPES(:)
-    character(len=ESMF_MAXSTR ), pointer  :: ITEMNAMES(:)
 
     integer                      :: RUN_DT
     integer :: nx
@@ -141,14 +137,19 @@ contains
     type(ExtData_DriverGridComp), pointer :: cap
     class(BaseProfiler), pointer :: t_p
 
-    _UNUSED_DUMMY(import_state)
-    _UNUSED_DUMMY(export_state)
-    _UNUSED_DUMMY(clock)
+
+    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, userRoutine = initialize_gc, rc = status)
+    _VERIFY(status)
+    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, userRoutine = run_gc, rc = status)
+    _VERIFY(status)
+    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, userRoutine = finalize_gc, rc = status)
+    _VERIFY(status)
 
     t_p => get_global_time_profiler()
 
     cap => get_CapGridComp_from_gc(gc)
-    maplobj => get_MetaComp_from_gc(gc) 
+    call MAPL_InternalStateRetrieve(gc,maplobj,_RC)
+    !maplobj => get_MetaComp_from_gc(gc) 
 
     call ESMF_GridCompGet(gc, vm = cap%vm, rc = status)
     _VERIFY(status)
@@ -175,10 +176,10 @@ contains
     !  CAP's MAPL MetaComp
     !---------------------
 
-    call MAPL_Set(MAPLOBJ,rc = status)
-    _VERIFY(STATUS)
-
-    call MAPL_Set(MAPLOBJ, name = cap%name, cf = cap%config, rc = status)
+    !call MAPL_Set(MAPLOBJ,rc = status)
+    !_VERIFY(STATUS)
+!
+    call MAPL_Set(MAPLOBJ, cf = cap%config, rc = status)
     _VERIFY(status)
 
     call ESMF_ConfigGetAttribute(cap%config,cap%run_hist,label="RUN_HISTORY:",default=.true.)
@@ -325,15 +326,55 @@ contains
     
     end if
 
+    _RETURN(ESMF_SUCCESS)
+  end subroutine set_services_gc
+
+
+  subroutine initialize_gc(gc, import_state, export_state, clock, rc)
+    type(ESMF_GridComp) :: gc
+    type(ESMF_State) :: import_state, export_state
+    type(ESMF_Clock) :: clock
+    integer, intent(out) :: rc
+
+    integer :: comm
+    integer                      :: NPES
+
+    integer :: status
+
+    integer                               :: i, itemcount
+    type (ESMF_Field)                     :: field
+    type (ESMF_FieldBundle)               :: bundle
+
+
+    type (ESMF_StateItem_Flag), pointer   :: ITEMTYPES(:)
+    character(len=ESMF_MAXSTR ), pointer  :: ITEMNAMES(:)
+
+    type (MAPL_MetaComp), pointer :: MAPLOBJ
+    procedure(), pointer :: root_set_services
+    type(ExtData_DriverGridComp), pointer :: cap
+    class(BaseProfiler), pointer :: t_p
+
+    _UNUSED_DUMMY(import_state)
+    _UNUSED_DUMMY(export_state)
+    _UNUSED_DUMMY(clock)
+
+    t_p => get_global_time_profiler()
+
+    cap => get_CapGridComp_from_gc(gc)
+    call MAPL_InternalStateRetrieve(gc,maplobj,_RC)
+    !maplobj => get_MetaComp_from_gc(gc) 
+
+    call ESMF_GridCompGet(gc, vm = cap%vm, rc = status)
+    _VERIFY(status)
+    call ESMF_VMGet(cap%vm, petcount = NPES, mpiCommunicator = comm, rc = status)
+    _VERIFY(status)
+
     !  Query MAPL for the the children's for GCS, IMPORTS, EXPORTS
     !-------------------------------------------------------------
 
     call MAPL_Get(MAPLOBJ, childrens_gridcomps = cap%gcs, &
          childrens_import_states = cap%imports, childrens_export_states = cap%exports, rc = status)
     _VERIFY(status)
-
-    !  Initialize the Computational Hierarchy
-    !----------------------------------------
 
     call ESMF_GridCompInitialize(cap%gcs(cap%root_id), importState = cap%imports(cap%root_id), &
          exportState = cap%exports(cap%root_id), clock = cap%clock, userRC = status)
@@ -472,31 +513,14 @@ contains
     _RETURN(ESMF_SUCCESS)
   end subroutine finalize_gc
 
-
-  subroutine set_services_gc(gc, rc)
-    type (ESMF_GridComp) :: gc
-    integer, intent(out) :: rc
-
-    integer :: status
-
-    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, userRoutine = initialize_gc, rc = status)
-    _VERIFY(status)
-    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, userRoutine = run_gc, rc = status)
-    _VERIFY(status)
-    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, userRoutine = finalize_gc, rc = status)
-    _VERIFY(status)
-    _RETURN(ESMF_SUCCESS)
-
-  end subroutine set_services_gc
-
-
   subroutine set_services(this, rc)
     class(ExtData_DriverGridComp), intent(inout) :: this
     integer, optional, intent(out) :: rc
     integer :: status
 
-    call ESMF_GridCompSetServices(this%gc, set_services_gc, rc = status)
-    _VERIFY(status)
+    call new_generic_setservices(this%gc, _RC)
+    !call ESMF_GridCompSetServices(this%gc, set_services_gc, rc = status)
+    !_VERIFY(status)
     _RETURN(ESMF_SUCCESS)
   end subroutine set_services
 
@@ -579,11 +603,9 @@ contains
     integer :: n, status
 
     type(ExtData_DriverGridComp), pointer :: cap
-    type (MAPL_MetaComp), pointer :: MAPLOBJ
     procedure(), pointer :: root_set_services
 
     cap => get_CapGridComp_from_gc(gc)
-    MAPLOBJ => get_MetaComp_from_gc(gc)
 
     if (allocated(cap%times)) then
        do n=1,size(cap%times)
