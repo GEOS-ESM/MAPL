@@ -214,7 +214,6 @@ contains
     procedure(), pointer :: root_set_services
     type(MAPL_CapGridComp), pointer :: cap
     class(BaseProfiler), pointer :: t_p
-    class(BaseProfiler), pointer :: m_p
     class(Logger), pointer :: lgr
     type(ESMF_Clock) :: cap_clock
 
@@ -227,7 +226,6 @@ contains
     _VERIFY(status)
 
     t_p => get_global_time_profiler()
-    m_p => get_global_memory_profiler()
 
     call ESMF_GridCompGet(gc, vm = cap%vm, rc = status)
     _VERIFY(status)
@@ -503,7 +501,6 @@ contains
     root_set_services => cap%root_set_services
 
     call t_p%start('SetService')
-
 !!$    cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)  
 !!$    _VERIFY(status)
 !!$    root_gc => maplobj%get_child_gridcomp(cap%root_id)
@@ -586,7 +583,6 @@ contains
        !----------------------------------------
 
        call t_p%start('Initialize')
-       call m_p%start('Initialize')
        call ESMF_GridCompInitialize(cap%gcs(cap%root_id), importState = cap%child_imports(cap%root_id), &
             exportState = cap%child_exports(cap%root_id), clock = cap%clock, userRC = status)
        _VERIFY(status)
@@ -613,7 +609,6 @@ contains
           ExtData_internal_state%expState = CAP%CHILD_EXPORTS(cap%extdata_id) 
        end if
        call t_p%stop('Initialize')
-       call m_p%stop('Initialize')
     end if
 
 
@@ -757,16 +752,14 @@ contains
     integer, intent(out) :: RC     ! Error code:
 
     integer :: status, phase
-    class (BaseProfiler), pointer :: t_p, m_p
+    class (BaseProfiler), pointer :: t_p
 
     _UNUSED_DUMMY(import)
     _UNUSED_DUMMY(export)
     _UNUSED_DUMMY(clock)
 
     t_p => get_global_time_profiler()
-    m_p => get_global_memory_profiler()
     call t_p%start('Run')
-    call m_p%start('Run')
 
     call ESMF_GridCompGet( gc, currentPhase=phase, RC=status )
     VERIFY_(status)
@@ -775,7 +768,6 @@ contains
     _VERIFY(status)
 
     call t_p%stop('Run')
-    call m_p%stop('Run')
 
     _RETURN(ESMF_SUCCESS)
 
@@ -793,7 +785,6 @@ contains
     type(MAPL_CapGridComp), pointer :: cap
     type(MAPL_MetaComp), pointer :: maplobj
     class (BaseProfiler), pointer :: t_p
-    class (BaseProfiler), pointer :: m_p
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -804,9 +795,7 @@ contains
     _VERIFY(status)
 
     t_p => get_global_time_profiler()
-    m_p => get_global_memory_profiler()
     call t_p%start('Finalize')
-    call m_p%start('Finalize')
 
     if (.not. cap%printspec > 0) then
 
@@ -852,7 +841,6 @@ contains
     end if
 
     call t_p%stop('Finalize')
-    call m_p%stop('Finalize')
 
     _RETURN(ESMF_SUCCESS)
   end subroutine finalize_gc
