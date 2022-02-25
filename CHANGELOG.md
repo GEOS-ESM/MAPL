@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
+
 ### Removed
 
 ### Deprecated
@@ -34,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updates to CircleCI
   - Added GEOSadas CI ifort build test
   - Add "like-UFS" build to CI. This is no FLAP and pFlogger, and static build
+- Added new `_STAT` and `_IOSTAT` macros a la `_RC`
 
 ### Changed
 
