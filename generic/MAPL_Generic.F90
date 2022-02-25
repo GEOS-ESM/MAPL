@@ -665,6 +665,7 @@ contains
       type(ESMF_State), pointer :: child_export_state
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: internal_state
+      class(BaseProfiler), pointer :: m_p
       !=============================================================================
 
       ! Begin...
@@ -853,18 +854,27 @@ contains
 
 !!$   call MAPL_TimerOff(STATE,"generic",__RC__)
 
+      m_p => get_global_memory_profiler()
+      call m_p%start('children')
       call initialize_children_and_couplers(_RC)
+      call m_p%stop('children')
       call MAPL_TimerOn(STATE,"generic")
 
+      call m_p%start('import vars')
       call create_import_and_initialize_state_variables(__RC__)
+      call m_p%stop('import vars')
 
       call ESMF_InfoGetFromHost(import,infoh,rc=status)
       call ESMF_InfoSet(infoh,key='POSITIVE',value=trim(positive),rc=status)
       _VERIFY(status)
 
+      call m_p%start('internal vars')
       call create_internal_and_initialize_state_variables(__RC__)
+      call m_p%stop('internal vars')
 
+      call m_p%start('export vars')
       call create_export_state_variables(__RC__)
+      call m_p%stop('export vars')
 
       ! Create forcing state
       STATE%FORCING = ESMF_StateCreate(name = trim(comp_name) // "_FORCING", &
@@ -1525,6 +1535,7 @@ contains
       type(ESMF_Method_Flag)           :: method
       type(ESMF_VM) :: VM
       class(BaseProfiler), pointer :: t_p
+      class(BaseProfiler), pointer :: m_p
       character(1) :: char_phase
 
       character(len=12), pointer :: timers(:) => NULL()
@@ -1560,7 +1571,9 @@ contains
 
       ! TIMERS on
       t_p => get_global_time_profiler()
+      m_p => get_global_memory_profiler()
       call t_p%start(trim(state%compname),__RC__)
+      call m_p%start(trim(state%compname),__RC__)
 
       phase_ = MAPL_MAX_PHASES+phase ! this is the "actual" phase, i.e. the one user registered
 
@@ -1637,6 +1650,7 @@ contains
             call state%t_profiler%stop(__RC__)
          end if
          call t_p%stop(trim(state%compname),__RC__)
+         call m_p%stop(trim(state%compname),__RC__)
       endif
 
 
@@ -1812,6 +1826,7 @@ contains
       integer                                     :: ens_id_width
       type(ESMF_Time)                             :: CurrTime
       class(BaseProfiler), pointer                :: t_p
+      class(BaseProfiler), pointer                :: m_p
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
@@ -1837,6 +1852,7 @@ contains
       ! ---------------------
 
       t_p => get_global_time_profiler()
+      m_p => get_global_memory_profiler()
 
       NC = STATE%get_num_children()
       allocate(CHLDMAPL(NC), stat=status)
@@ -1976,6 +1992,7 @@ contains
       end if
 
       call t_p%stop(trim(state%compname),__RC__)
+      call m_p%stop(trim(state%compname),__RC__)
 
       ! Clean-up
       !---------
@@ -2093,7 +2110,7 @@ contains
 
       integer                                     :: K
       logical                                     :: ftype(0:1)
-      class(BaseProfiler), pointer                :: t_p
+      class(BaseProfiler), pointer                :: t_p, m_p
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
@@ -2113,6 +2130,7 @@ contains
       _VERIFY(status)
 
       t_p => get_global_time_profiler()
+      m_p => get_global_memory_profiler()
       call state%t_profiler%start(__RC__)
       call state%t_profiler%start('Record',__RC__)
 
@@ -2317,6 +2335,7 @@ contains
       character(len=4)                            :: extension
       integer                                     :: hdr
       class(BaseProfiler), pointer                :: t_p
+      class(BaseProfiler), pointer                :: m_p
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
@@ -2335,7 +2354,6 @@ contains
       call MAPL_InternalStateRetrieve(GC, STATE, RC=status)
       _VERIFY(status)
 
-      t_p => get_global_time_profiler()
       call state%t_profiler%start(__RC__)
       call state%t_profiler%start('Refresh',__RC__)
 
@@ -4356,6 +4374,7 @@ contains
       integer                                     :: I
       type(MAPL_MetaComp), pointer                :: child_meta
       class(BaseProfiler), pointer                :: t_p
+      class(BaseProfiler), pointer                :: m_p
       integer :: userRC
 
       if (.not.allocated(META%GCNameList)) then
@@ -4368,7 +4387,9 @@ contains
 
       call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentgc, petList=petlist, child_meta=child_meta, __RC__)
       t_p => get_global_time_profiler()
+      m_p => get_global_memory_profiler()
       call t_p%start(trim(NAME),__RC__)
+      call m_p%start(trim(NAME),__RC__)
       call child_meta%t_profiler%start(__RC__)
       call child_meta%t_profiler%start('SetService',__RC__)
 
@@ -4380,6 +4401,7 @@ contains
       call child_meta%t_profiler%stop('SetService',__RC__)
       call child_meta%t_profiler%stop(__RC__)
       call t_p%stop(trim(NAME),__RC__)
+      call m_p%stop(trim(NAME),__RC__)
 
       _VERIFY(status)
 
@@ -4594,6 +4616,7 @@ contains
       integer                                     :: I
       type(MAPL_MetaComp), pointer                :: child_meta
       class(BaseProfiler), pointer                :: t_p
+      class(BaseProfiler), pointer                :: m_p
 
       class(Logger), pointer :: lgr
       character(len=:), allocatable :: shared_object_library_to_load
@@ -4612,7 +4635,9 @@ contains
       call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=gc, petList=petlist, child_meta=child_meta, __RC__)
 
       t_p => get_global_time_profiler()
+      m_p => get_global_memory_profiler()
       call t_p%start(trim(name),__RC__)
+      call m_p%start(trim(name),__RC__)
       call child_meta%t_profiler%start(__RC__)
       call child_meta%t_profiler%start('SetService',__RC__)
 
@@ -4634,6 +4659,7 @@ contains
       call child_meta%t_profiler%stop('SetService',__RC__)
       call child_meta%t_profiler%stop(__RC__)
       call t_p%stop(trim(name),__RC__)
+      call m_p%stop(trim(name),__RC__)
 
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromDSO
