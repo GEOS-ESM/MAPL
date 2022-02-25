@@ -125,7 +125,7 @@ contains
          integer(kind=INT64) :: ix
          integer(kind=INT64) :: KB = 1024
 
-         ix = ceiling(abs(x),kind=INT64)
+         ix = ceiling(abs(x))
          if (ix < KB) then
             suffix = ' B'
          elseif (ix < KB**2) then
@@ -147,7 +147,8 @@ contains
 
          integer(kind=INT64) :: KB = 1024
 
-         ix = ceiling(abs(x), kind=INT64)
+         ix = ceiling(abs(x))
+
          if (ix < KB) then
             ix = ix
          elseif (ix < KB**2) then
