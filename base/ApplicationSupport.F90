@@ -23,16 +23,8 @@ module MAPL_ApplicationSupport
 
       character(:), allocatable :: logging_configuration_file
       integer :: comm_world,status
-      class (BaseProfiler), pointer :: m_p
      
       _UNUSED_DUMMY(unusable)
-
-      call initialize_profiler(comm=comm_world)
-      call start_global_time_profiler(_RC)
-      call start_global_memory_profiler(_RC)
-
-      m_p => get_global_memory_profiler()
-      call m_p%start('init pflogger', _RC)
 
       if (present(logging_config)) then
          logging_configuration_file=logging_config
@@ -44,15 +36,15 @@ module MAPL_ApplicationSupport
       else
          comm_world=MPI_COMM_WORLD
       end if
-
-
 #ifdef BUILD_WITH_PFLOGGER
       call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file,rc=status)
       _VERIFY(status)
 #endif
-      call m_p%stop('init pflogger', _RC)
-
+      call initialize_profiler(comm=comm_world)
+      call start_global_time_profiler(rc=status)
+      _VERIFY(status)
       _RETURN(_SUCCESS)
+
    end subroutine MAPL_Initialize
 
    subroutine MAPL_Finalize(unusable,comm,rc)
@@ -165,7 +157,6 @@ module MAPL_ApplicationSupport
       integer :: npes, my_rank, ierror
       character(1) :: empty(0)
       class (BaseProfiler), pointer :: t_p
-      class (BaseProfiler), pointer :: m_p
 
       _UNUSED_DUMMY(unusable)
       if (present(comm)) then
@@ -174,7 +165,6 @@ module MAPL_ApplicationSupport
          world_comm=MPI_COMM_WORLD
       end if
       t_p => get_global_time_profiler()
-      m_p => get_global_memory_profiler()
 
       reporter = ProfileReporter(empty)
       call reporter%add_column(NameColumn(50, separator= " "))
@@ -200,37 +190,7 @@ module MAPL_ApplicationSupport
                write(*,'(a)') report_lines(i)
             end do
        end if
-
-#if  (!defined(sysDarwin) && (defined(__INTEL_COMPILER) || defined(__GFORTRAN)))
-      reporter = ProfileReporter(empty)
-      call reporter%add_column(NameColumn(50, separator= " "))
-
-      inclusive = MultiColumn(['Inclusive'], separator='=')
-      call inclusive%add_column(MemoryTextColumn(['  MEM  '],'(i4,1x,a2)', 9, InclusiveColumn(), separator='-'))
-!!$      call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn()), separator='-'))
-      call reporter%add_column(inclusive)
-
-      exclusive = MultiColumn(['Exclusive'], separator='=')
-      call exclusive%add_column(MemoryTextColumn(['  MEM  '],'(i4,1x,a2)', 9, ExclusiveColumn(), separator='-'))
-      call exclusive%add_column(FormattedTextColumn(' MEM (KB)','(-3p,f15.3, 0p)', 15, ExclusiveColumn(), separator='-'))
-!!$      call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
-      call reporter%add_column(exclusive)
-
-      call MPI_Comm_size(world_comm, npes, ierror)
-      call MPI_Comm_Rank(world_comm, my_rank, ierror)
-
-      if (my_rank == 0) then
-            report_lines = reporter%generate_report(m_p)
-            write(*,'(a,1x,i0)')'Report on process: ', my_rank
-            do i = 1, size(report_lines)
-               write(*,'(a)') report_lines(i)
-            end do
-       end if
-#endif
-
        call MPI_Barrier(world_comm, ierror)
-
-       _RETURN(_SUCCESS)
 
    end subroutine report_global_profiler
 

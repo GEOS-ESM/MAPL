@@ -1,9 +1,8 @@
-#include "MAPL_ErrLog.h"
+#include "unused_dummy.H"
 module MAPL_MemoryProfiler_private
    use MAPL_BaseProfiler, only: BaseProfiler
    use MAPL_BaseProfiler, only: MemoryProfilerIterator => BaseProfilerIterator
 
-   use MAPL_MallocGauge
    use MAPL_RssMemoryGauge
    use MAPL_VmstatMemoryGauge
    use MAPL_AdvancedMeter
@@ -40,6 +39,7 @@ contains
 
       call prof%set_comm_world(comm_world = comm_world)
       call prof%set_node(MeterNode(name, prof%make_meter()))
+      call prof%start()
 
    end function new_MemoryProfiler
 
@@ -47,9 +47,9 @@ contains
       class(AbstractMeter), allocatable :: meter
       class(MemoryProfiler), intent(in) :: this
 
-      meter = AdvancedMeter(MallocGauge())
-
       _UNUSED_DUMMY(this)
+      meter = AdvancedMeter(RssMemoryGauge())
+!!$      meter = AdvancedMeter(VmstatMemoryGauge())
    end function make_meter
 
 
@@ -77,8 +77,6 @@ end module MAPL_MemoryProfiler_private
 module MAPL_MemoryProfiler
    use MAPL_BaseProfiler
    use MAPL_MemoryProfiler_private
-   use mapl_KeywordEnforcerMod
-   use mapl_ErrorHandlingMod
    implicit none
    private
 
@@ -120,18 +118,14 @@ contains
    end subroutine finalize_global_memory_profiler
 
 
-   subroutine start_global_memory_profiler(unusable, rc)
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
+   subroutine start_global_memory_profiler(name)
+      character(*), intent(in) :: name
       
-      integer :: status
       type(MemoryProfiler), pointer :: memory_profiler
 
       memory_profiler => get_global_memory_profiler()
-      call memory_profiler%start(_RC)
+      call memory_profiler%start(name)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
    end subroutine start_global_memory_profiler
 
    
