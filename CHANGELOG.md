@@ -24,22 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
-- Fixed failures to fully trap errors in
-  - History GC
-  - MemUtils
-  - `register_generic_entry_points`
 
 ### Added
 
 ### Changed
-
-- Major refactoring of GenericSetServices
-  Work is not completed, but a new layer is introduced with the intent that the user SetServices is called
-  from with in the new layer as opposed to the previous mechanism that obligated user SetServices to call
-  generic.   That call is now deprecated.   Significant cleanup remains.
-- Improved diagnostic message for profiler imbalances at end of run.
-  Now gives the name of the timer that has not been stopped when
-  finalizing a profiler.
 
 ### Removed
 

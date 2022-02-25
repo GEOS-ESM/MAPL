@@ -395,7 +395,7 @@ module MAPL_MemUtilsMod
 #if defined(__sgi) || defined(__aix) || defined(__SX)
     m = memuse()*1e-3
 #else
-    call mem_dump(mhwm, mrss, memused, swapused, commitlimit, committed_as, _RC)
+    call mem_dump(mhwm, mrss, memused, swapused, commitlimit, committed_as)
 #endif
     call MPI_Comm_Size(comm_,npes,status)
     if (MAPL_MemUtilsMode == MAPL_MemUtilsModeFull) then
