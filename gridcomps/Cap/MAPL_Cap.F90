@@ -315,7 +315,7 @@ contains
      _UNUSED_DUMMY(unusable)
 
      call MAPL_CapGridCompCreate(this%cap_gc, this%set_services, this%get_cap_rc_file(), &
-           this%name, this%get_egress_file(), this%comm_world, n_run_phases=n_run_phases, rc=status)
+           this%name, this%get_egress_file(), n_run_phases=n_run_phases, rc=status)
      _VERIFY(status)
      _RETURN(_SUCCESS)
    end subroutine initialize_cap_gc

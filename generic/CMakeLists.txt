@@ -42,7 +42,6 @@ set (srcs
 
   GenericCplComp.F90
 
-  SetServicesWrapper.F90
   MaplGeneric.F90
 
   MAPL_Generic.F90
