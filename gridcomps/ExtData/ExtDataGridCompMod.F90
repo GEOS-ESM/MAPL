@@ -64,8 +64,6 @@
 ! !PUBLIC MEMBER FUNCTIONS:
 
    PUBLIC SetServices
-   public T_EXTDATA_STATE
-   public EXTDATA_WRAP
 !EOP
 !
 ! !REVISION HISTORY:
@@ -211,17 +209,6 @@
   type MAPL_ExtData_Wrap
      type (MAPL_ExtData_State), pointer :: PTR => null()
   end type MAPL_ExtData_WRAP
-
-  type T_EXTDATA_STATE
-     type(ESMF_State)    :: expState
-     type(ESMF_GridComp) :: gc
-  end type T_EXTDATA_STATE
-
-  ! Wrapper for extracting internal state
-  ! -------------------------------------
-  type EXTDATA_WRAP
-     type (T_EXTDATA_STATE), pointer :: PTR
-  end type EXTDATA_WRAP
 
   class(Logger), pointer :: lgr
 

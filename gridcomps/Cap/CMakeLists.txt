@@ -4,6 +4,7 @@ set (srcs
      MAPL_CapGridComp.F90
      MAPL_NUOPCWrapperMod.F90
      CapOptions.F90
+     ExternalGCStorage.F90
     )
 if (BUILD_WITH_FLAP)
   list (APPEND srcs FlapCLI.F90)
@@ -11,7 +12,7 @@ endif()
 
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.profiler MAPL.history
-                  ${EXTDATA_TARGET} TYPE ${MAPL_LIBRARY_TYPE})
+                  ${EXTDATA_TARGET} ${EXTDATA2G_TARGET} TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared esmf NetCDF::NetCDF_Fortran
                                PRIVATE MPI::MPI_Fortran $<$<BOOL:${BUILD_WITH_FLAP}>:FLAP::FLAP>)
 

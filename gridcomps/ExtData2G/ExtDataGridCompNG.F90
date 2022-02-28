@@ -6,7 +6,7 @@
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 910.1     !
 !-------------------------------------------------------------------------
 
-   MODULE MAPL_ExtDataGridCompNG
+   MODULE MAPL_ExtDataGridComp2G
 
 !BOP
 ! !MODULE: MAPL_ExtDataGridCompMod - Implements Interface to External Data
@@ -63,8 +63,6 @@
 ! !PUBLIC MEMBER FUNCTIONS:
 
    PUBLIC SetServices
-   public t_extdata_state
-   public extdata_wrap
 !EOP
 !
 ! !REVISION HISTORY:
@@ -115,18 +113,6 @@
   type MAPL_ExtData_Wrap
      type (MAPL_ExtData_State), pointer :: PTR => null()
   end type MAPL_ExtData_WRAP
-
-  type t_extdata_state
-     type(ESMF_State)    :: expState
-     type(ESMF_GridComp) :: gc
-  end type t_extdata_state
-
-  ! Wrapper for extracting internal state
-  ! -------------------------------------
-  type extdata_wrap
-     type (t_extdata_state), pointer :: PTR
-  end type extdata_wrap
-
 
 CONTAINS
 
@@ -2298,4 +2284,4 @@ CONTAINS
 
   end subroutine IOBundle_Add_Entry
 
- END MODULE MAPL_ExtDataGridCompNG
+ END MODULE MAPL_ExtDataGridComp2G
