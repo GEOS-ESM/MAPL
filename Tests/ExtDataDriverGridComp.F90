@@ -4,7 +4,11 @@
 module ExtData_DriverGridCompMod
   use ESMF
   use MAPL
+#if defined(BUILD_WITH_EXTDATA2G)
+  use MAPL_ExtDataGridCompNG, only : ExtData_SetServices => SetServices
+#else
   use MAPL_ExtDataGridCompMod, only : ExtData_SetServices => SetServices
+#endif
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_Profiler, only : get_global_time_profiler, BaseProfiler
 

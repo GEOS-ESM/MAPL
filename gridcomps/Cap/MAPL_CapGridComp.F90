@@ -17,8 +17,13 @@ module MAPL_CapGridCompMod
   use MAPL_ShmemMod
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : HISTORY_ExchangeListWrap
+#if defined(BUILD_WITH_EXTDATA2G)
+  use MAPL_ExtDataGridCompNG, only : ExtData_SetServices => SetServices
+  use MAPL_ExtDataGridCompNG, only : T_EXTDATA_STATE, EXTDATA_WRAP
+#else
   use MAPL_ExtDataGridCompMod, only : ExtData_SetServices => SetServices
   use MAPL_ExtDataGridCompMod, only : T_EXTDATA_STATE, EXTDATA_WRAP
+#endif
   use MAPL_ConfigMod
   use MAPL_DirPathMod
   use MAPL_KeywordEnforcerMod
