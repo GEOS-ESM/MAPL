@@ -366,6 +366,7 @@ CONTAINS
 !  -----------------------
    call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock,  __RC__ )
 
+   call extdata_lgr%error("Using ExtData2G, note this is still in BETA stage")
 
 !                         ---------------------------
 !                         Parse ExtData Resource File

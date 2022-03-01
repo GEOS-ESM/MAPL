@@ -403,6 +403,7 @@ contains
     !EOR
     enableTimers = ESMF_UtilStringUpperCase(enableTimers, rc = status)
     _VERIFY(status)
+    call MAPL_GetResource(maplobj,use_extdata2g,"USE_EXTDATA2G:",default=.false.,_RC)
 
     if (enableTimers /= 'YES') then
        call MAPL_ProfDisable(rc = status)
@@ -570,9 +571,8 @@ contains
     call MAPL_Set(MAPLOBJ, CF=CAP%CF_EXT, RC=STATUS)
     _VERIFY(STATUS)
 
-    call MAPL_GetResource(maplobj,use_extdata2g,"USE_EXTDATA2G:",default=.false.,_RC)
     if (use_extdata2g) then
-#if defined(USE_EXTDATA2G) 
+#if defined(BUILD_WITH_EXTDATA2G) 
        cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData2G_SetServices, _RC)
 #else
        call lgr%error('ExtData2G requested but not built')
