@@ -176,8 +176,8 @@ contains
 
     integer :: status
 
-    type (externalGCStorage), pointer       :: ExtData_internal_state => null()
-    type (externalGCStorageWrap)                   :: wrap
+    type (t_extdata_state), pointer       :: ExtData_internal_state => null()
+    type (extdata_wrap)                   :: wrap
 
 
     character(len=ESMF_MAXSTR )           :: timerModeStr

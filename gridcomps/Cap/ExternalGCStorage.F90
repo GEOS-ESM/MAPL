@@ -2,13 +2,13 @@ module MAPL_ExternalGCStorage
 use esmf
 implicit none
 
-type ExternalGCStorage
+type t_extdata_state
   type(ESMF_State)    :: expState
   type(ESMF_GridComp) :: gc
-end type ExternalGCStorage
+end type t_extdata_state
 
-type ExternalGCStorageWrap
-  type (ExternalGCStorage), pointer :: PTR
-end type ExternalGCStorageWrap
+type extdata_wrap
+  type (t_extdata_state), pointer :: PTR
+end type extdata_wrap
 
 end module MAPL_ExternalGCStorage
