@@ -4217,7 +4217,7 @@ module NCIOMod
 
          iter = vars%begin()
          do while (iter /= vars%end())
-            name => iter%key()
+            name => iter%first()
             newExtent => newDims%at(trim(name))
             if (associated(newExtent)) then
                cvar => cfOut%get_coordinate_variable(trim(name),rc=status)
@@ -4272,7 +4272,7 @@ module NCIOMod
   iter = vars%begin()
   do while(iter/=vars%end())
 
-     name =>  iter%key()
+     name =>  iter%first()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) nvars=nvars+1
      if (associated(dimsize)) nullify(dimsize)
@@ -4300,7 +4300,7 @@ module NCIOMod
   iter = vars%begin()
   do while(iter/=vars%end())
 
-     name =>  iter%key()
+     name =>  iter%first()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) call nondim_vars%push_back(trim(name))
      if (associated(dimsize)) nullify(dimsize)
@@ -4333,8 +4333,8 @@ module NCIOMod
   iter = vars%begin()
   do while(iter/=vars%end())
 
-     name => iter%key()
-     var => iter%value()
+     name => iter%first()
+     var => iter%second()
      dimsize => dims%at(trim(name))
      if (.not.associated(dimsize)) then
         vdims => var%get_dimensions()
@@ -4523,7 +4523,7 @@ module NCIOMod
       vars => metadata%get_variables()
       var_iter = vars%begin()
       do while(var_iter /=vars%end())
-         var_name => var_iter%key()
+         var_name => var_iter%first()
          var => metadata%get_coordinate_variable(trim(var_name))
          if (associated(var)) then
             if (index(var_name,'lev') .ne. 0 .or. index(var_name,'edge') .ne. 0) then

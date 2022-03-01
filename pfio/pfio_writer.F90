@@ -154,9 +154,9 @@ program main
         ! cleanup formatters
         iter = formatters%begin()
         do while (iter /= formatters%end())
-           formatter => iter%value()
+           formatter => iter%second()
            call formatter%close(rc=status)
-           call formatters%erase(iter)
+           iter = formatters%erase(iter)
            iter = formatters%begin()
         enddo
         

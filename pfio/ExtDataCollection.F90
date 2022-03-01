@@ -19,7 +19,7 @@ module pFIO_ExtDataCollectionMod
 
     type (NetCDF4_FileFormatter), pointer :: formatter => null()
   contains
-    procedure :: find
+    procedure :: find_formatter
     procedure :: unfind
   end type ExtDataCollection
 
@@ -43,7 +43,7 @@ contains
 
 
 
-  function find(this, file_name, rc) result(formatter)
+  function find_formatter(this, file_name, rc) result(formatter)
     type (NetCDF4_FileFormatter), pointer :: formatter
     class (ExtDataCollection), intent(inout) :: this
     character(len=*), intent(in) :: file_name
@@ -52,6 +52,7 @@ contains
     integer, pointer :: file_id
     type (StringIntegerMapIterator) :: iter
     integer :: status
+    type (FormatterPtrVectorIterator) :: f_iter_tmp
 
 
     file_id => this%file_ids%at(file_name)
@@ -62,7 +63,7 @@ contains
           formatter => this%formatters%front()
           call formatter%close(rc=status)
           _VERIFY(status)
-          call this%formatters%erase(this%formatters%begin())
+          f_iter_tmp = this%formatters%erase(this%formatters%begin())
           !deallocate(formatter)
           nullify(formatter)
 
@@ -96,7 +97,7 @@ contains
        call this%file_ids%insert(file_name, int(this%formatters%size()))
     end if
     _RETURN(_SUCCESS)
-  end function find
+  end function find_formatter
 
   subroutine unfind(this)
     class (ExtDataCollection), intent(inout) :: this
@@ -110,16 +111,20 @@ contains
 end module pFIO_ExtDataCollectionMod
 
 
-module pFIO_ExtCollectionVectorMod
+module pFIO_ExtdataCollectionVectorMod
    use pFIO_ExtDataCollectionMod
 
    ! Create a map (associative array) between names and pFIO_Attributes.
 
-#define _type type (ExtDataCollection)
-#define _vector ExtCollectionVector
-#define _iterator ExtCollectionVectorIterator
+#define T ExtDataCollection 
+#define Vector ExtDataCollectionVector
+#define VectorIterator ExtDataCollectionVectorIterator
+#define VectorRIterator ExtDataCollectionRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T
 
-#include "templates/vector.inc"
-
-end module pFIO_ExtCollectionVectorMod
+end module pFIO_ExtdataCollectionVectorMod
 

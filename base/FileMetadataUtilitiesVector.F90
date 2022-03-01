@@ -1,9 +1,14 @@
 module MAPL_FileMetadataUtilsVectorMod
    use MAPL_FileMetadataUtilsMod
 
-#define _type type (FileMetadataUtils)
-#define _vector FileMetadataUtilsVector
-#define _iterator FileMetadataUtilsVectorIterator
-#include "templates/vector.inc"
+#define T FileMetadataUtils
+#define Vector FileMetadataUtilsVector
+#define VectorIterator FileMetadataUtilsVectorIterator
+#define VectorRIterator FileMetadataUtilsVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T
 
 end module MAPL_FileMetadataUtilsVectorMod

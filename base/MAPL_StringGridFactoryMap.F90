@@ -6,13 +6,20 @@ module MAPL_StringGridFactoryMapMod
    ! memory, so this enables the regridding system to avoid creating
    ! duplicates.
 
-#include "types/key_deferredLengthString.inc"   
-#define _value class(AbstractGridFactory)
-#define _value_allocatable
+#define Key __CHARACTER_DEFERRED
+#define T AbstractGridFactory
+#define T_polymorphic
 
-#define _map StringGridFactoryMap
-#define _iterator StringGridFactoryMapIterator
-#define _alt
-#include "templates/map.inc"
-   
+#define Map StringGridFactoryMap
+#define MapIterator StringGridFactoryMapIterator
+#define Pair StringGridFactoryPair
+
+#include "map/template.inc"
+
+#undef Pair
+#undef MapIterator
+#undef Map
+#undef T
+#undef Key
+ 
 end module MAPL_StringGridFactoryMapMod

@@ -260,8 +260,8 @@ contains
             attributes => cs%get_attributes()
             iter = attributes%begin()
             do while (iter /= attributes%end())
-               name => iter%key()
-               attr => iter%value()
+               name => iter%first()
+               attr => iter%second()
 
                call ll%add_attribute(name, attr)
    
@@ -289,7 +289,7 @@ contains
          variables => cs%get_variables()
          var_iter = variables%begin()
          do while (var_iter /= variables%end())
-            var_name => var_iter%key()
+            var_name => var_iter%first()
             select case (var_name)
                ! CS specific variables
             case ('nf', 'ncontact', 'cubed_sphere', &
@@ -301,7 +301,7 @@ contains
 
                if (keep_var(var_name, this%requested_variables)) then
 
-                  cs_variable => var_iter%value()
+                  cs_variable => var_iter%second()
 
                   cs_var_dimensions => cs_variable%get_dimensions()
                   ll_var_dimensions = make_dim_string(cs_var_dimensions)
@@ -341,12 +341,12 @@ contains
          attributes => from%get_attributes()
          attr_iter = attributes%begin()
          do while (attr_iter /= attributes%end())
-            attr_name => attr_iter%key()
+            attr_name => attr_iter%first()
             select case (attr_name)
             case ('grid_mapping','coordinates') ! CS specific attributes
                ! skip
             case default
-               call to%add_attribute(attr_name, attr_iter%value())
+               call to%add_attribute(attr_name, attr_iter%second())
             end select
             call attr_iter%next()
          end do
@@ -421,15 +421,15 @@ contains
          type (StringAttributeMap), pointer :: attrs
          type (Attribute), pointer :: attr
          character(len=:), allocatable :: trial
-         integer :: idx
+         integer :: idx, status
          class (*), pointer :: a
 
          north_component = '' ! unless
          var_iter = vars%begin()
          do while (var_iter /= vars%end())
-            var => var_iter%value()
+            var => var_iter%second()
             attrs => var%get_attributes()
-            attr => attrs%at('long_name')
+            attr => attrs%at('long_name', _RC)
 
             if (associated(attr)) then
                a => attr%get_value()
@@ -445,7 +445,7 @@ contains
                if (idx /= 0) then
                   trial = trial(1:idx-1) // 'east' // trial(idx+5:)
                   if (trial == long_name) then ! success
-                     north_component = var_iter%key()
+                     north_component = var_iter%first()
                   end if
                end if
             end if
@@ -783,7 +783,7 @@ contains
       variables => this%cfio_cubed_sphere%get_variables()
       var_iter = variables%begin()
       do while (var_iter /= variables%end())
-         var_name => var_iter%key()
+         var_name => var_iter%first()
 
          select case (var_name)
          case ('nf', 'ncontact', 'cubed_sphere', &
@@ -797,7 +797,7 @@ contains
                print*, 'var = ', var_name
             end if
 
-            var => var_iter%value()
+            var => var_iter%second()
             missing_attr => var%get_attribute('missing_value')
             missing_ptr => missing_attr%get_values()
 

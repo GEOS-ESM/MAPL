@@ -134,10 +134,15 @@ end module VarspecDescriptionMod
 module VarspecDescriptionVectorMod
    use VarspecDescriptionMod
 
-#define _type type (VarspecDescription)
-#define _vector VarspecDescriptionVector
-#define _iterator VarspecDescriptionVectorIterator
-#include "templates/vector.inc"
-   
+#define T VarspecDescription 
+#define Vector VarspecDescriptionVector
+#define VectorIterator VarspecDescriptionVectorIterator
+#define VectorRIterator VarspecDescriptionVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T
+
 end module VarspecDescriptionVectorMod
 

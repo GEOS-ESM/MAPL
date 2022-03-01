@@ -1,10 +1,16 @@
 module pFIO_AbstractSocketVectorMod
    use pFIO_AbstractSocketMod
 
-#define _type class(AbstractSocket)
-#define _allocatable
-#define _vector AbstractSocketVector
-#define _iterator AbstractSocketVectorIterator
-#include "templates/vector.inc"
+#define T AbstractSocket
+#define T_polymorphic
+#define Vector AbstractSocketVector
+#define VectorIterator AbstractSocketVectorIterator
+#define VectorRIterator AbstractSocketVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T_polymorphic
+#undef T
 
 end module pFIO_AbstractSocketVectorMod

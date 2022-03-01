@@ -1,5 +1,7 @@
+#include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 module pFIO_ProtocolParserMod
+   use MAPL_ExceptionHandling
    use pFIO_AbstractMessageMod
    use pFIO_IntegerMessageMapMod
    use pFIO_FileMetadataMod
@@ -108,14 +110,16 @@ contains
    end subroutine initialize
 
 
-   function make_message(this, type_id) result(message)
+   function make_message(this, type_id, rc) result(message)
       class (AbstractMessage), allocatable :: message
       class (ProtocolParser), intent(in) :: this
       integer, intent(in) :: type_id
+      integer, optional, intent(out) :: rc
+      integer :: status
 
       class (AbstractMessage), pointer :: prototype
       
-      prototype => this%prototypes%at(type_id)
+      prototype => this%prototypes%at(type_id,_RC)
       allocate(message, source=prototype)
       
    end function make_message
@@ -138,14 +142,16 @@ contains
    end function encode
 
    
-   function decode(this, buffer) result(message)
+   function decode(this, buffer, rc) result(message)
       class (ProtocolParser), intent(in) :: this
       class (AbstractMessage), allocatable :: message
       integer, intent(in) :: buffer(:)
-
-      allocate(message, source=this%prototypes%at(buffer(1)))
+      integer, optional, intent(out) :: rc
+      integer :: status
+      allocate(message, source=this%prototypes%at(buffer(1), rc=status))
       call message%deserialize(buffer(2:))
-      
+      _VERIFY(status)
+      _RETURN(_SUCCESS) 
    end function decode
 
 

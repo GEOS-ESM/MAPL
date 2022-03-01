@@ -78,9 +78,9 @@ contains
 
       iter = this%regridders%begin()
       do while (iter /= this%regridders%end())
-         match => iter%get()
+         match => iter%of()
          if (associated(match, regridder)) then
-            call this%regridders%erase(iter)
+            iter = this%regridders%erase(iter)
             exit
          end if
          call iter%next()
@@ -173,7 +173,7 @@ contains
 
          iter = this%regridders%begin()
          do while (iter /= this%regridders%end())
-            match => iter%get()
+            match => iter%of()
             if (match%get_spec() == spec) return
            call iter%next()
         end do

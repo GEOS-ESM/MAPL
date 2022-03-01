@@ -533,7 +533,7 @@ module MAPL_FileMetadataUtilsMod
       vars => this%get_variables()
       var_iter = vars%begin()
       do while(var_iter /=vars%end())
-         var_name => var_iter%key()
+         var_name => var_iter%first()
          var => this%get_coordinate_variable(trim(var_name))
          if (associated(var)) then
             if (index(var_name,'lev') .ne. 0 .or. index(var_name,'height') .ne. 0) then

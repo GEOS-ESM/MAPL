@@ -27,14 +27,16 @@ end module MAPL_GriddedIOitemMod
 module MAPL_GriddedIOitemVectorMod
   use MAPL_GriddedIOitemMod
 
-#define _type type(GriddedIOitem)
-#define _allocatable
-#define _vector GriddedIOitemVector
-#define _iterator GriddedIOitemVectorIterator
-#include "templates/vector.inc"
-
-#undef _iterator
-#undef _vector
-#undef _type_type
+#define T GriddedIOitem 
+#define T_polymorphic
+#define Vector GriddedIOitemVector
+#define VectorIterator GriddedIOitemVectorIterator
+#define VectorRIterator GriddedIOitemVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T_polymorphic
+#undef T
 
 end module MAPL_GriddedIOitemVectorMod

@@ -140,14 +140,15 @@ end module MAPL_CommGroupDescriptionMod
 module MAPL_CommGroupDescriptionVectorMod
    use MAPL_CommGroupDescriptionMod
 
-#define _type type(CommGroupDescription)
-#define _vector CommGroupDescriptionVector
-#define _iterator CommGroupDescriptionVectorIterator
+#define T CommGroupDescription
+#define Vector CommGroupDescriptionVector
+#define VectorIterator CommGroupDescriptionVectorIterator
+#define VectorRIterator CommGroupDescriptionVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T
 
-#include "templates/vector.inc"
-
-#undef _iterator
-#undef _vector
-#undef _type
 end module MAPL_CommGroupDescriptionVectorMod
 

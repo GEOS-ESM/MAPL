@@ -233,8 +233,8 @@ contains
       character(len=*), intent(in) :: var_name
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-
-      var => this%variables%at(var_name)
+      integer:: status
+      var => this%variables%at(var_name, _RC)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function get_variable
@@ -249,11 +249,11 @@ contains
       character(len=*), intent(in) :: var_name
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-
+      integer :: status
       class (Variable), pointer :: tmp
       
 
-      tmp => this%variables%at(var_name)
+      tmp => this%variables%at(var_name, _RC)
 
       _ASSERT(associated(tmp),'can not find '//trim(var_name))
 
@@ -275,10 +275,10 @@ contains
 
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-
+      integer :: status
       class (Variable), pointer :: tmp
       
-      tmp => this%variables%at(var_name)
+      tmp => this%variables%at(var_name, _RC)
 
       _ASSERT(associated(tmp), 'can not find the varaible '//trim(var_name))
       select type (tmp)
@@ -318,7 +318,7 @@ contains
       type (StringVector), intent(in) :: newOrder
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-
+      integer:: status
       type(StringVectorIterator) :: iter
       class (Variable), pointer :: var
       character(len=:), pointer :: var_name
@@ -329,7 +329,7 @@ contains
       iter = this%order%begin()
       do while (iter/=this%order%end())
          var_name => iter%get()
-         var => this%variables%at(var_name)
+         var => this%variables%at(var_name, _RC)
          _ASSERT(associated(var),trim(var_name)//' not in metadata')
          call iter%next()
       enddo
@@ -507,6 +507,7 @@ contains
          type (StringVariableMapIterator) :: iter
          class (Variable), pointer :: var_a, var_b
          character(len=:), pointer :: var_name
+         integer :: status
 
          equal = a%variables%size() == b%variables%size()
          if (.not. equal) return
@@ -514,13 +515,13 @@ contains
          iter = a%variables%begin()
          do while (iter /= a%variables%end())
             
-            var_name => iter%key()
-            var_b => b%variables%at(var_name)
+            var_name => iter%first()
+            var_b => b%variables%at(var_name, rc=status)
             
             equal = (associated(var_b))
             if (.not. equal) return
             
-            var_a => iter%value()
+            var_a => iter%second()
             equal = (var_a == var_b)
             if (.not. equal) return
             

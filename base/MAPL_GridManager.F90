@@ -123,7 +123,7 @@ contains
       end if
 
 
-      prototype => this%prototypes%at(grid_type)
+      prototype => this%prototypes%at(grid_type, _RC)
 
       if (associated(prototype)) then
          allocate(factory, source=prototype%clone(), stat=status)
@@ -148,10 +148,10 @@ contains
       ! First check to see if we already have it:
       iter = this%factories%begin()
       do while (iter /= this%factories%end())
-         other => iter%value()
+         other => iter%second()
          if (factory == other) then
             if (present(id)) then
-               id = iter%key()
+               id = iter%first()
             end if
             return
          end if
@@ -196,7 +196,7 @@ contains
 
       call this%add_factory(factory, factory_id)
       
-      f => this%factories%at(factory_id)
+      f => this%factories%at(factory_id, _RC)
 
       grid = f%make_grid(rc=status)
       _VERIFY(status)
@@ -386,7 +386,7 @@ contains
       call ESMF_AttributeGet(grid, factory_id_attribute, id, rc=status)
       _VERIFY(status)
 
-      factory => this%factories%at(id)
+      factory => this%factories%at(id, _RC)
 
       _RETURN(_SUCCESS)
 

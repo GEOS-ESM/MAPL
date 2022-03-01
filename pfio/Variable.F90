@@ -205,8 +205,9 @@ contains
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
       logical :: isPresent
-
-      attr => this%attributes%at(attr_name)
+      integer :: status
+ 
+      attr => this%attributes%at(attr_name, _RC)
       isPresent = associated(attr)
       _RETURN(_SUCCESS)
 
@@ -217,8 +218,9 @@ contains
       class (Variable), target, intent(in) :: this
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
+      integer :: status
 
-      attr => this%attributes%at(attr_name)
+      attr => this%attributes%at(attr_name, _RC)
       _ASSERT(associated(attr), "no such attribute : " // trim(attr_name))
       _RETURN(_SUCCESS)
    end function get_attribute
@@ -273,7 +275,7 @@ contains
       type (StringAttributeMapIterator) :: iter
       type (Attribute), pointer :: attr_a, attr_b
       character(len=:), pointer :: attr_name
-
+      integer:: status
       ! special case : both are empty
       equal = (a%const_value == b%const_value)
       if (.not. equal) return
@@ -297,12 +299,12 @@ contains
       iter = a%attributes%begin()
       do while (iter /= a%attributes%end())
 
-         attr_name => iter%key()
-         attr_b => b%attributes%at(attr_name)
+         attr_name => iter%first()
+         attr_b => b%attributes%at(attr_name, rc=status)
          equal = (associated(attr_b))
          if (.not. equal) return
 
-         attr_a => iter%value()
+         attr_a => iter%second()
 
          equal = (attr_a == attr_b)
          if (.not. equal) return

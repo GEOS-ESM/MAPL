@@ -203,32 +203,32 @@ end module MAPL_HistoryCollectionMod
 module MAPL_HistoryCollectionVectorMod
   use MAPL_HistoryCollectionMod
 
-#define _type type (HistoryCollection)
-#define _vector HistoryCollectionVector
-#define _iterator HistoryCollectionVectorIterator
-
-#include "templates/vector.inc"
-
-#undef _iterator
-#undef _vector
-#undef _type
+#define T HistoryCollection
+#define Vector HistoryCollectionVector
+#define VectorIterator HistoryCollectionVectorIterator
+#define VectorRIterator HistoryCollectionVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T
 
 end module MAPL_HistoryCollectionVectorMod
 
 module MAPL_StringFieldSetMapMod
-  use MAPL_HistoryCollectionMod
+   use MAPL_HistoryCollectionMod
 
-#include "types/key_deferredLengthString.inc"
-#define _value type (FieldSet)
-#define _map StringFieldSetMap
-#define _iterator StringFieldSetMapIterator
+#define Key __CHARACTER_DEFERRED
+#define T FieldSet
+#define Map StringFieldSetMap
+#define MapIterator StringFieldSetMapIterator
+#define Pair StringFieldSetPair
 
-#include "templates/map.inc"
+#include "map/template.inc"
 
-
-#undef _iterator
-#undef _map
-#undef _value
-#undef _key
+#undef Pair
+#undef MapIterator
+#undef Map
+#undef T
 
 end module MAPL_StringFieldSetMapMod

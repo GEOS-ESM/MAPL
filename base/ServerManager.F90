@@ -206,7 +206,7 @@ contains
            call this%directory_service%connect_to_server('i_server'//trim(i_to_string(i)), clientPtr, &
                               this%split_comm%get_subcommunicator(), server_size = server_size)
            call i_Clients%set_server_size(server_size)
-           call i_Clients%next()
+           call i_Clients%next_client()
         endif
 
         call mpi_barrier(comm, status)
@@ -254,7 +254,7 @@ contains
            call this%directory_service%connect_to_server('o_server'//trim(i_to_string(i)), clientPtr, &
                        this%split_comm%get_subcommunicator(), server_size = server_size)
            call o_Clients%set_server_size(server_size)
-           call o_Clients%next()
+           call o_Clients%next_client()
         endif
 
         call mpi_barrier(comm, status)

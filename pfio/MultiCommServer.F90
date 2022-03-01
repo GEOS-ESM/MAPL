@@ -323,7 +323,7 @@ contains
       !(1) loop to get the total number of collection
       iter   = thread_ptr%request_backlog%begin()
       do while (iter /= thread_ptr%request_backlog%end())
-         msg => iter%get()
+         msg => iter%of()
 
          select type (q=>msg)
          type is (CollectiveStageDataMessage)
@@ -342,7 +342,7 @@ contains
       offset = 0
       iter   = thread_ptr%request_backlog%begin()
       do while (iter /= thread_ptr%request_backlog%end())
-         msg => iter%get()
+         msg => iter%of()
 
          select type (q=>msg)
          type is (CollectiveStageDataMessage)
@@ -472,7 +472,7 @@ contains
          threadPtr=>this%threads%at(1)
          msg_iter = threadPtr%request_backlog%begin()
          do while (msg_iter /= threadPtr%request_backlog%end())
-            msg => msg_iter%get()
+            msg => msg_iter%of()
             select type (q=>msg)
             type is (CollectiveStageDataMessage)
                collection_counter = this%stage_offset%of(i_to_string(q%collection_id))

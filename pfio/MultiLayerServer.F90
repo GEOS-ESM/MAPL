@@ -168,7 +168,7 @@ contains
            iter = threadPtr%request_backlog%begin()
           ! t0 = mpi_wtime()
            do while (iter /= threadPtr%request_backlog%end())
-              msg => iter%get()
+              msg => iter%of()
               select type (q=>msg)
               type is (CollectiveStageDataMessage)
                  collection_counter = this%stage_offset%of(i_to_string(q%collection_id))

@@ -417,7 +417,7 @@ MODULE ExtDataUtRoot_GridCompMod
       end if
       iter = VarspecVec%begin()
       do while (iter /= VarspecVec%end())
-         VarspecPtr => iter%get()
+         VarspecPtr => iter%of()
          call VarspecPtr%addNewSpec(gc,stateType,rc=status)
          _VERIFY(status)
          call iter%next()

@@ -400,6 +400,7 @@ contains
    subroutine clear_DataReference(this)
       class (AbstractServer), intent(inout) :: this
       class (AbstractDataReference), pointer :: datarefPtr
+      type (AbstractDataReferenceVectorIterator) :: iter
       integer :: n, i
 
       n = this%dataRefPtrs%size()

@@ -6,8 +6,8 @@ module ESMF_CFIOCollectionMod
   use MAPL_BaseMod, only : MAPL_GridGet
   use ESMF_CFIOUtilMod
   use ESMF_CFIOFileMod
-  use ESMF_CFIOPtrVectorMod
-  use PFIO_VectorMod
+  use ESMF_CFIOVectorMod, only : ESMF_CFIOVector, ESMF_CFIOVectorIterator
+  use pFIO_FileMetadataVectorMod, only : FileMetaDataVector,FileMetadataVectorIterator
   use pFIO
   use MAPL_GridManagerMod
   use MAPL_AbstractGridFactoryMod
@@ -22,14 +22,14 @@ module ESMF_CFIOCollectionMod
   type :: CFIOCollection
      type (ESMF_Grid), allocatable :: src_grid ! filled in on first use
      character(len=:), allocatable :: template
-     type (ESMF_CFIOPtrVector) :: formatters
-     type (PFIO_Vector) :: files
+     type (ESMF_CFIOVector) :: formatters
+     type (FileMetaDataVector) :: files
      type (StringIntegerMap) :: file_ids
      integer :: scollection_id = -1
      type (ESMF_CFIO), pointer :: formatter => null()
      type (FileMetadata), pointer :: file => null()
   contains
-    procedure :: find
+    procedure :: find_cfio
     procedure :: unfind
   end type CFIOCollection
 
@@ -42,7 +42,6 @@ module ESMF_CFIOCollectionMod
 
 contains
 
-
   function new_CFIOCollection(template) result(collection)
     type (CFIOCollection) :: collection
     character(len=*), intent(in) :: template
@@ -51,9 +50,7 @@ contains
 
   end function new_CFIOCollection
 
-
-
-  function find(this, file_name, rc) result(formatter)
+  function find_cfio(this, file_name, rc) result(formatter)
     type (ESMF_CFIO), pointer :: formatter
     class (CFIOCollection), target, intent(inout) :: this
     character(len=*), intent(in) :: file_name
@@ -61,6 +58,8 @@ contains
 
     integer, pointer :: file_id
     type (StringIntegerMapIterator) :: iter
+    type (ESMF_CFIOVectorIterator)  :: formatter_iter
+    type (FileMetaDataVectorIterator)   :: meta_iter
 
     type (NetCDF4_FileFormatter) :: fmtr
     integer :: status
@@ -68,17 +67,17 @@ contains
 
     file_id => this%file_ids%at(trim(file_name))
     if (associated(file_id)) then
-       formatter => this%formatters%at(file_id)
-       this%file => this%files%at(file_id)
+       formatter => this%formatters%at(file_id,_RC)
+       this%file => this%files%at(file_id,_RC)
     else
        if (this%formatters%size() >= MAX_FORMATTERS) then
           formatter => this%formatters%front()
           call ESMF_CFIODestroy(formatter)
-          call this%formatters%erase(this%formatters%begin())
+          formatter_iter = this%formatters%erase(this%formatters%begin())
           deallocate(formatter)
           nullify(formatter) 
 
-          call this%files%erase(this%files%begin())
+          meta_iter = this%files%erase(this%files%begin())
 
           iter = this%file_ids%begin()
           do while (iter /= this%file_ids%end())
@@ -127,7 +126,7 @@ contains
        
     end if
 
-  end function find
+  end function find_cfio
 
   subroutine unfind(this)
     class (CFIOCollection), intent(inout) :: this

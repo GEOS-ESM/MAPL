@@ -2,14 +2,13 @@ module MAPL_RegridderTypeSpecRegridderMapMod
    use MAPL_RegridderTypeSpec, only: RegridderTypeSpec
    use MAPL_AbstractRegridderMod
 
-#define _key type(RegridderTypeSpec)
-#define _key_less_than_defined   
-#define _value class (AbstractRegridder)
-#define _value_allocatable
+#define Key RegridderTypeSpec
+#define Key_LT(a,b) (a<b)
+#define T AbstractRegridder
+#define T_polymorphic
+#define Map RegridderTypeSpecRegridderMap
+#define MapIterator RegridderTypeSpecRegridderMapIterator
+#define Pair RegridderTypeSpecRegridderPair
+#include "map/template.inc"
 
-#define _map RegridderTypeSpecRegridderMap
-#define _iterator RegridderTypeSpecRegridderMapIterator
-#define _alt
-#include "templates/map.inc"
-   
 end module MAPL_RegridderTypeSpecRegridderMapMod

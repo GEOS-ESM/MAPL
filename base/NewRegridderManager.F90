@@ -109,7 +109,7 @@ contains
 
          iter = vector%begin()
          do while (iter /= vector%end())
-            match => iter%get()
+            match => iter%of()
             if (match%get_spec() == spec) return
            call iter%next()
         end do
@@ -135,7 +135,7 @@ contains
 
       iter = this%prototypes%begin()
       do while (iter /= this%prototypes%end())
-         prototype => iter%get()
+         prototype => iter%of()
          supports = prototype%supports(spec,__RC__)
          if (supports) then
             _RETURN(_SUCCESS)

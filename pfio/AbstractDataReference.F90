@@ -467,4 +467,16 @@ module pFIO_AbstractDataReferenceVectorMod
 #define _iterator AbstractDataReferenceVectorIterator
 #include "templates/vector.inc"
 
+!#define T AbstractDataReference
+!#define T_polymorphic
+!#define Vector AbstractDataReferenceVector
+!#define VectorIterator AbstractDataReferenceVectorIterator
+!#define VectorRIterator AbstractDataReferenceVectorRIterator
+!#include "vector/template.inc"
+!#undef VectorRIterator
+!#undef VectorIterator
+!#undef Vector
+!#undef T_polymorphic
+!#undef T
+
 end module pFIO_AbstractDataReferenceVectorMod

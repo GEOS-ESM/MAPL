@@ -372,8 +372,8 @@ contains
       attributes => cf%get_attributes()
       iter = attributes%begin()
       do while (iter /= attributes%end())
-         attr_name => iter%key()
-         p_attribute => iter%value()
+         attr_name => iter%first()
+         p_attribute => iter%second()
          shp = p_attribute%get_shape()
 
          if (size(shp) > 0) then 
@@ -463,8 +463,8 @@ contains
 
       var_iter = vars%begin()
       do while (var_iter /= vars%end())
-         var_name => var_iter%key()
-         var => var_iter%value()
+         var_name => var_iter%first()
+         var => var_iter%second()
          const_value_ptr => var%get_const_value()
          if ( .not. const_value_ptr%is_empty()) then
             shp = const_value_ptr%get_shape()
@@ -515,7 +515,7 @@ contains
 
       var_iter = vars%begin()
       do while (var_iter /= vars%end())
-         var_name => var_iter%key()
+         var_name => var_iter%first()
          var => cf%get_coordinate_variable(trim(var_name),rc=status)
          _VERIFY(status)
          if (associated(var))  then ! is a coordinate variable
@@ -566,9 +566,9 @@ contains
       attributes => var%get_attributes()
       iter = attributes%begin()
       do while (iter /= attributes%end())
-         attr_name => iter%key()
+         attr_name => iter%first()
 
-         p_attribute => iter%value()
+         p_attribute => iter%second()
          shp = p_attribute%get_shape()
          if (size(shp) == 0) then ! scalar
             attr_value => p_attribute%get_value()
@@ -1284,35 +1284,44 @@ end module pFIO_NetCDF4_FileFormatterMod
 module pFIO_FormatterPtrVectorMod
   use pFIO_NetCDF4_FileFormatterMod
 
-#define _type type(NetCDF4_FileFormatter)
+#define T NetCDF4_FileFormatter 
+#define T_polymorphic
+#define Vector FormatterPtrVector
+#define VectorIterator FormatterPtrVectorIterator
+#define VectorRIterator FormatterPtrVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T_polymorphic
+#undef T
 
-#define _vector FormatterPtrVector
-#define _iterator FormatterPtrVectorIterator
-#include "templates/vector.inc"
+!#define _type type(NetCDF4_FileFormatter)
+!#define _vector FormatterPtrVector
+!#define _iterator FormatterPtrVectorIterator
+!#include "templates/vector.inc"
 
-#undef _iterator
-#undef _vector
-#undef _type
+!#undef _iterator
+!#undef _vector
+!#undef _type
 end module pFIO_FormatterPtrVectorMod
 
 module pFIO_StringNetCDF4_FileFormatterMapMod
    use pFIO_NetCDF4_FileFormatterMod
 
-#include "types/key_deferredLengthString.inc"
-#define _value type (NetCDF4_FileFormatter)
-#define _value_equal_defined
+#define Key __CHARACTER_DEFERRED
+#define T NetCDF4_FileFormatter
+#define Key_LT(a,b) (a<b)
+#define Map StringNetCDF4_FileFormatterMap
+#define MapIterator StringNetCDF4_FileFormatterMapIterator
+#define Pair StringNetCDF4_FileFormatterPair
 
-#define _map StringNetCDF4_FileFormatterMap
-#define _iterator StringNetCDF4_FileFormatterMapIterator
+#include "map/template.inc"
 
-#define _alt
+#undef Pair
+#undef MapIterator
+#undef Map
+#undef T
+#undef Key
 
-#include "templates/map.inc"
-
-#undef _alt
-#undef _iterator
-#undef _map
-#undef _value
-#undef _key
-#undef _value_equal_defined
 end module pFIO_StringNetCDF4_FileFormatterMapMod

@@ -91,8 +91,8 @@ set (srcs
   StringVectorUtil.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran TYPE ${MAPL_LIBRARY_TYPE})
-target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PRIVATE MPI::MPI_Fortran)
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler GFTL::gftl-v2 NetCDF::NetCDF_Fortran TYPE ${MAPL_LIBRARY_TYPE})
+target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared PRIVATE MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)

@@ -16,7 +16,7 @@ set (srcs
   RegridderTypeSpec.F90                 RegridderSpec.F90                   RegridderSpecRouteHandleMap.F90
   RegridMethods.F90                     HorizontalFluxRegridder.F90
   MAPL_FractionalRegridder.F90          MAPL_RegridderTypeSpecRegridderMap.F90
-  ESMF_CFIOPtrVectorMod.F90             MAPL_RegridderVector.F90
+  ESMF_CFIOVectorMod.F90             MAPL_RegridderVector.F90
   ESMFL_Mod.F90                         MAPL_SatVapor.F90
   FileMetadataUtilities.F90             MAPL_GetLatLonCoord.F90             MAPL_SimpleAlarm.F90
   FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                MAPL_SimpleBundleMod.F90 
@@ -44,7 +44,6 @@ set (srcs
   MAPL_LocStreamFactoryMod.F90          MAPL_LocstreamRegridder.F90
   MAPL_ExternalGridFactory.F90
   ServerManager.F90 ApplicationSupport.F90
-  ESMF_CFIOPtrVectorMod.F90 
   CFIOCollection.F90                    MAPL_CFIO.F90
   regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90 
   regex_F.c
@@ -58,7 +57,7 @@ set (srcs
 
 esma_add_library(
   ${this} SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4 PFLOGGER::pflogger GFTL_SHARED::gftl-shared
+  DEPENDENCIES MAPL.shared MAPL.constants MAPL.profiler MAPL.pfio MAPL_cfio_r4  GFTL::gftl-v2  PFLOGGER::pflogger GFTL_SHARED::gftl-shared
                esmf NetCDF::NetCDF_Fortran MPI::MPI_Fortran
   TYPE ${MAPL_LIBRARY_TYPE})
 

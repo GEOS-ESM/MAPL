@@ -194,7 +194,7 @@ contains
     i=0
     do while (iter /= this%tvec%end())
        i=i+1
-       tptr => iter%get()
+       tptr => iter%of()
        tint = tptr - startTime
        select case(trim(this%funits))
        case('seconds')

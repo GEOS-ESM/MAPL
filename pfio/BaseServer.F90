@@ -112,7 +112,7 @@ contains
      iter = threadPtr%request_backlog%begin()
      ! t0 = mpi_wtime()
      do while (iter /= threadPtr%request_backlog%end())
-        msg => iter%get()
+        msg => iter%of()
         select type (q=>msg)
         type is (CollectiveStageDataMessage)
            if (associated(ioserver_profiler)) call ioserver_profiler%start("collection_"//i_to_string(q%collection_id))
@@ -281,7 +281,7 @@ contains
       !(1) loop to get the total number of collection
       iter   = thread_ptr%request_backlog%begin()
       do while (iter /= thread_ptr%request_backlog%end())
-         msg => iter%get()
+         msg => iter%of()
 
          select type (q=>msg)
          type is (CollectiveStageDataMessage)
@@ -300,7 +300,7 @@ contains
       offset = 0
       iter   = thread_ptr%request_backlog%begin()
       do while (iter /= thread_ptr%request_backlog%end())
-         msg => iter%get()
+         msg => iter%of()
 
          select type (q=>msg)
          type is (CollectiveStageDataMessage)

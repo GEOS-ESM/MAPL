@@ -2,7 +2,7 @@
 
 module MAPL_DataCollectionMod
   use pFIO
-  use MAPL_FileMetadataUtilsVectorMod
+  use MAPL_FileMetadataUtilsVectorMod, only : FileMetadataUtilsVector, FileMetadataUtilsVectorIterator
   use MAPL_FileMetadataUtilsMod
   use MAPL_GridManagerMod
   use MAPL_AbstractGridFactoryMod
@@ -20,7 +20,7 @@ module MAPL_DataCollectionMod
     type (StringIntegerMap) :: file_ids
     type(ESMF_Grid), allocatable :: src_grid
   contains
-    procedure :: find
+    procedure :: find_meta
   end type MAPLDataCollection
 
   interface MAPLDataCollection
@@ -49,7 +49,7 @@ contains
 
 
 
-  function find(this, file_name, rc) result(metadata)
+  function find_meta(this, file_name, rc) result(metadata)
     type (FileMetadataUtils), pointer :: metadata
     class (MAPLDataCollection), intent(inout) :: this
     character(len=*), intent(in) :: file_name
@@ -59,6 +59,7 @@ contains
     type (FileMetadata) :: basic_metadata
     integer, pointer :: file_id
     type (StringIntegerMapIterator) :: iter
+    type (FileMetadataUtilsVectorIterator) :: m_iter_tmp
     class (AbstractGridFactory), allocatable :: factory
     integer :: status
 
@@ -69,7 +70,7 @@ contains
     else
        if (this%metadatas%size() >= MAX_FORMATTERS) then
           metadata => this%metadatas%front()
-          call this%metadatas%erase(this%metadatas%begin())
+          m_iter_tmp =  this%metadatas%erase(this%metadatas%begin())
           nullify(metadata)
 
           iter = this%file_ids%begin()
@@ -111,7 +112,7 @@ contains
        call this%file_ids%insert(file_name, int(this%metadatas%size()))
     end if
     _RETURN(_SUCCESS)
-  end function find
+  end function find_meta
 
 end module MAPL_DataCollectionMod
 

@@ -156,7 +156,7 @@ module HistoryTrajectoryMod
          iter = this%items%begin()
 
          do while (iter /= this%items%end())
-            item => iter%get()
+            item => iter%of()
             if (item%itemType == ItemTypeScalar) then
                call this%create_variable(item%xname,rc=status)
                _VERIFY(status)
@@ -325,7 +325,7 @@ module HistoryTrajectoryMod
          _VERIFY(status)
          iter = this%items%begin()
          do while (iter /= this%items%end())
-            item => iter%get()
+            item => iter%of()
             if (item%itemType == ItemTypeScalar) then
                call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,rc=status)
                _VERIFY(status)
@@ -439,7 +439,7 @@ module HistoryTrajectoryMod
             deallocate(rtimes)
             iter = this%items%begin()
             do while (iter /= this%items%end())
-               item => iter%get()
+               item => iter%of()
                if (item%itemType == ItemTypeScalar) then
                   call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,rc=status)
                   _VERIFY(status)

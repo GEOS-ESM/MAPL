@@ -171,7 +171,7 @@ module MAPL_GriddedIOMod
         metadataVarsSize = order%size()
          
         do while (iter /= this%items%end())
-           item => iter%get()
+           item => iter%of()
            if (item%itemType == ItemTypeScalar) then 
               call this%CreateVariable(item%xname,rc=status)
               _VERIFY(status)
@@ -399,7 +399,7 @@ module MAPL_GriddedIOMod
 
         iter = this%items%begin()
         do while (iter /= this%items%end())
-           item => iter%get()
+           item => iter%of()
            if (item%itemType == ItemTypeScalar) then
               call this%RegridScalar(item%xname,rc=status)
               _VERIFY(status)
@@ -936,7 +936,7 @@ module MAPL_GriddedIOMod
      real(REAL32) :: missing_value
 
      collection => Datacollections%at(this%metadata_collection_id)
-     metadata => collection%find(filename, __RC__)
+     metadata => collection%find_meta(filename, __RC__)
 
      filegrid = collection%src_grid
      factory => get_factory(filegrid)
@@ -1037,7 +1037,7 @@ module MAPL_GriddedIOMod
      _VERIFY(status)
      iter = this%items%begin()
      do while(iter /= this%items%end())
-        item => iter%get()
+        item => iter%of()
         if (item%itemType == ItemTypeScalar) then
            call this%swap_undef_value(trim(item%xname),_RC)
            call this%regridScalar(trim(item%xname),rc=status)

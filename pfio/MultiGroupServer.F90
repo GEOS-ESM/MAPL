@@ -349,7 +349,7 @@ contains
      thread_ptr=> this%threads%at(1)
      iter   = thread_ptr%request_backlog%begin()
      do while (iter /= thread_ptr%request_backlog%end())
-        msg => iter%get()
+        msg => iter%of()
         select type (q=>msg)
         type is (CollectiveStageDataMessage)
            request_iter = this%stage_offset%find(i_to_string(q%collection_id))
@@ -368,7 +368,7 @@ contains
         thread_ptr=>this%threads%at(i)
         iter   = thread_ptr%request_backlog%begin()
         do while (iter /= thread_ptr%request_backlog%end())
-           msg => iter%get()
+           msg => iter%of()
            select type (q=>msg)
            class is (AbstractCollectiveDataMessage)
               if (associated(ioserver_profiler)) call ioserver_profiler%start("collection_"//i_to_string(q%collection_id))
@@ -599,8 +599,8 @@ contains
        integer, pointer :: g_4d(:,:,:,:), l_4d(:,:,:,:), g_5d(:,:,:,:,:), l_5d(:,:,:,:,:)
        integer :: msize_word, d_rank, request_id
        integer :: s0, e0, s1, e1, s2, e2, s3, e3, s4, e4, s5, e5
-       type (StringAttributeMap) :: vars_map
-       type (StringAttributeMapIterator) :: var_iter
+       type (StringAttributeMap) :: atts_map
+       type (StringAttributeMapIterator) :: att_iter
        type (IntegerMessageMap) :: msg_map
        type (IntegerMessageMapIterator) :: msg_iter
 
@@ -647,7 +647,7 @@ contains
          enddo ! nfront
 
          ! re-org data
-         vars_map = StringAttributeMap()
+         atts_map = StringAttributeMap()
          msg_map  = IntegerMessageMap()
 
          do i = 1, this%nfront
@@ -662,16 +662,16 @@ contains
                msg => f_d_m%msg_vec%at(j)
                select type (q=>msg)
                type is (CollectiveStageDataMessage)
-                  var_iter = vars_map%find(i_to_string(q%request_id))
-                  if (var_iter == vars_map%end()) then
+                  att_iter = atts_map%find(i_to_string(q%request_id))
+                  if (att_iter == atts_map%end()) then
                      msize_word = word_size(q%type_kind)*product(q%global_count)
                      allocate(buffer_v(msize_word), source = -1)
-                     call vars_map%insert(i_to_string(q%request_id), Attribute(buffer_v))
-                     var_iter = vars_map%find(i_to_string(q%request_id))
+                     call atts_map%insert(i_to_string(q%request_id), Attribute(buffer_v))
+                     att_iter = atts_map%find(i_to_string(q%request_id))
                      deallocate(buffer_v)
                      call msg_map%insert(q%request_id, q)
                   endif
-                  attr_ptr => var_iter%value()
+                  attr_ptr => att_iter%second()
                   x_ptr => attr_ptr%get_values()
                   select type (ptr=>x_ptr)
                   type is (integer(INT32))
@@ -784,11 +784,11 @@ contains
 
          msg_iter = msg_map%begin()
          do while (msg_iter /= msg_map%end())
-            request_id = msg_iter%key()
-            msg =>msg_iter%value()
+            request_id = msg_iter%first()
+            msg =>msg_iter%second()
 
-            var_iter = vars_map%find(i_to_string(request_id))
-            attr_ptr =>var_iter%value()
+            att_iter = atts_map%find(i_to_string(request_id))
+            attr_ptr =>att_iter%second()
             x_ptr => attr_ptr%get_values()
             select type (ptr=>x_ptr)
             type is (integer(INT32))

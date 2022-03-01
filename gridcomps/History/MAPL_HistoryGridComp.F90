@@ -30,8 +30,7 @@ module MAPL_HistoryGridCompMod
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   use MAPL_HistoryCollectionMod, only: HistoryCollection, FieldSet, HistoryCollectionGlobalAttributes
   use MAPL_HistoryCollectionVectorMod, only: HistoryCollectionVector
-  use MAPL_StringFieldSetMapMod, only: StringFieldSetMap
-  use MAPL_StringFieldSetMapMod, only: StringFieldSetMapIterator
+  use MAPL_StringFieldSetMapMod
   use MAPL_ExceptionHandling
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
@@ -639,7 +638,7 @@ contains
 
           iter = IntState%output_grids%begin()
           do while (iter /= IntState%output_grids%end())
-             key => iter%key()
+             key => iter%first()
              call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",rc=status)
              _VERIFY(status)
              call  ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,rc=status)
@@ -683,8 +682,8 @@ contains
 
        field_set_iter = intState%field_sets%begin()
        do while (field_set_iter /= intState%field_sets%end())
-          key => field_set_iter%key()
-          field_set => field_set_iter%value()
+          key => field_set_iter%first()
+          field_set => field_set_iter%second()
           call parse_fields(config, key, field_set, rc=status)
           _VERIFY(status)
           call field_set_iter%next()
@@ -1121,7 +1120,7 @@ contains
              if( i1.eq.1 )  tmpstring = adjustl( tmpstring(2:)   )
              j1 = index(tmpstring(:),",")-1
              if( j1.gt.0 )  tmpstring = adjustl( tmpstring(1:j1) )
-             pgrid => IntState%output_grids%at(trim(tmpString))
+             pgrid => IntState%output_grids%at(trim(tmpString), _RC)
              ! If user specifies a grid label, then it is required.
              ! Do not default to native in this case
              _ASSERT(associated(pgrid),'needs informative message')
@@ -1966,7 +1965,7 @@ ENDDO PARSER
 !@@            end if
 ! create grid_out
 
-            pgrid => IntState%output_grids%at(trim(gnames(ng)))
+            pgrid => IntState%output_grids%at(trim(gnames(ng)), _RC)
 ! create and attach loc_out to grid_out
             grid_out=pgrid
             call MAPL_LocStreamCreate(IntState%Regrid(n)%PTR%locOut, &
@@ -2489,7 +2488,7 @@ ENDDO PARSER
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              if (trim(list(n)%output_grid_label)/='') then
-                pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
+                pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label),_RC)
                 call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,ogrid=pgrid,vdata=list(n)%vdata,global_attributes=global_attributes,rc=status)
                 _VERIFY(status)
              else
@@ -2548,7 +2547,7 @@ ENDDO PARSER
 
          block
             integer :: im_world, jm_world,dims(3)
-            pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
+            pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label),_RC)
             if (associated(pgrid)) then
                call MAPL_GridGet(pgrid,globalCellCountPerDim=dims,RC=status)
                _VERIFY(status)
@@ -2645,7 +2644,7 @@ ENDDO PARSER
          iter = list(n)%items%begin()
          m = 0 ! m is the "old" field-index
          do while(iter /= list(n)%items%end())
-            item => iter%get()
+            item => iter%of()
             if (item%itemType == ItemTypeScalar) then
                expand = hasRegex(fldName=item%xname, rc=status)
                _VERIFY(status)
@@ -2872,7 +2871,7 @@ ENDDO PARSER
          m = 0 ! m is the "old" field-index
          split = .false.
          do while(iter /= list(n)%items%end())
-            item => iter%get()
+            item => iter%of()
             if (item%itemType == ItemTypeScalar) then
                split = hasSplitableField(fldName=item%xname, rc=status)
                _VERIFY(status)
@@ -3982,7 +3981,7 @@ ENDDO PARSER
 ! -------------------------------------------------------------------------
       block
          integer :: dims(3)
-         pgrid => output_grids%at(trim(list%output_grid_label))
+         pgrid => output_grids%at(trim(list%output_grid_label), _RC)
          if (associated(pgrid)) then
             call MAPL_GridGet(pgrid,globalCellCountPerDim=dims,RC=status)
             _VERIFY(status)

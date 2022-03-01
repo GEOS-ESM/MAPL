@@ -1,10 +1,14 @@
 module pFIO_IntegerMessageMapMod
    use pFIO_AbstractMessageMod
-#include "types/key_integer.inc"
-#define _value class(AbstractMessage)
-#define _value_allocatable
-#define _alt
-#define _map IntegerMessageMap
-#define _iterator IntegerMessageMapIterator
-#include "templates/map.inc"
+
+#define Key __INTEGER
+#define Key_LT(a,b) (a<b)
+#define T AbstractMessage
+#define T_polymorphic
+
+#define Map IntegerMessageMap
+#define MapIterator IntegerMessageMapIterator
+#define Pair IntegerMessagePair
+#include "map/template.inc"
+
 end module pFIO_IntegerMessageMapMod

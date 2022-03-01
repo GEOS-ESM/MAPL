@@ -10,7 +10,7 @@ module pFIO_ClientManagerMod
    use pFIO_FileMetadataMod
    use pFIO_ClientThreadMod
    use pFIO_FastClientThreadMod
-   use pFIO_ClientThreadVectorMod
+   use pFIO_ClientThreadVectorMod, only : ClientThreadVector
    use pFIO_StringVariableMapMod
    use gFTL_IntegerVector
 
@@ -57,7 +57,7 @@ module pFIO_ClientManagerMod
       procedure :: terminate
 
       procedure :: size
-      procedure :: next
+      procedure :: next_client
       procedure :: current
       procedure :: set_current
       procedure :: set_optimal_server
@@ -431,11 +431,11 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine terminate
 
-   subroutine next(this)
+   subroutine next_client(this)
       class (ClientManager), target,intent(inout) :: this
       this%current_client = this%current_client + 1
       if (this%current_client > this%clients%size()) this%current_client = 1
-   end subroutine next
+   end subroutine next_client
 
    subroutine set_current(this, ith, rc)
       class (ClientManager), intent(inout) :: this
@@ -474,7 +474,7 @@ contains
       tsize = this%server_sizes%size()
 
       if (ssize == 0) then
-         call this%next()
+         call this%next_client()
          call this%wait()
          _RETURN(_SUCCESS)
       endif

@@ -6,14 +6,13 @@ module MAPL_Integer64GridFactoryMapMod
    ! regridders.  Regridder constructors can be expensive in time and
    ! memory, so this enables the regridding system to avoid creating
    ! duplicates.
+#define Key __INTEGER64
+#define T AbstractGridFactory
+#define T_polymorphic
 
-#  define _key integer(kind=INT64)
-#  define _value class(AbstractGridFactory)
-#  define _value_allocatable
+#define Map Integer64GridFactoryMap
+#define MapIterator Integer64GridFactoryMapIterator
+#define Pair Integer64GridFactoryPair
+#include "map/template.inc" 
 
-#  define _map Integer64GridFactoryMap
-#  define _iterator Integer64GridFactoryMapIterator
-#  define _alt
-#  include "templates/map.inc"
-   
 end module MAPL_Integer64GridFactoryMapMod

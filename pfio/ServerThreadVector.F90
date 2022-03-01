@@ -1,10 +1,14 @@
 module pFIO_ServerThreadVectorMod
    use pFIO_ServerThreadMod
 
-#define _type class (ServerThread)
-#define _pointer
-#define _vector ServerThreadVector
-#define _iterator ServerThreadVectorIterator
-#include "templates/vector.inc"
+#define T ServerThread
+#define Vector ServerThreadVector
+#define VectorIterator ServerThreadVectorIterator
+#define VectorRIterator ServerThreadVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T
 
 end module pFIO_ServerThreadVectorMod

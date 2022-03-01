@@ -6,6 +6,7 @@ module pFIO_HistoryCollectionMod
   use gFTL_StringIntegerMap
   use pFIO_NetCDF4_FileFormatterMod
   use pFIO_StringNetCDF4_FileFormatterMapMod
+!, only: StringNetCDF4_FileFormatterMap, StringNetCDF4_FileFormatterMapIterator 
   use pFIO_FileMetadataMod
   use pFIO_StringVariableMapMod
   use pFIO_ConstantsMod
@@ -20,7 +21,7 @@ module pFIO_HistoryCollectionMod
     type (StringNetCDF4_FileFormatterMap) :: formatters
 
   contains
-    procedure :: find
+    procedure :: find_formatter
     procedure :: ModifyMetadata
     procedure :: clear
   end type HistoryCollection
@@ -40,7 +41,7 @@ contains
 
   end function new_HistoryCollection
 
-  function find(this, file_name,rc) result(formatter)
+  function find_formatter(this, file_name,rc) result(formatter)
     class (HistoryCollection), intent(inout) :: this
     character(len=*), intent(in) :: file_name
     integer,optional,intent(out) :: rc 
@@ -67,9 +68,9 @@ contains
        call this%formatters%insert( trim(file_name),fm)
        iter = this%formatters%find(trim(file_name))
     end if
-    formatter => iter%value()
+    formatter => iter%second()
     _RETURN(_SUCCESS)
-  end function find
+  end function find_formatter
 
   subroutine  ModifyMetadata(this,var_map,rc)
     class (HistoryCollection), intent(inout) :: this
@@ -82,7 +83,7 @@ contains
 
     iter = var_map%begin()
     do while (iter /= var_map%end()) 
-       call this%fmd%modify_variable(iter%key(), iter%value(), rc=status)
+       call this%fmd%modify_variable(iter%first(), iter%second(), rc=status)
        _VERIFY(status)
        call iter%next()
     enddo
@@ -101,12 +102,12 @@ contains
 
     iter = this%formatters%begin()
     do while (iter /= this%formatters%end())
-      file_name => iter%key()
+      file_name => iter%first()
       f_ptr => this%formatters%at(file_name)
       call f_ptr%close(rc=status)
       _VERIFY(status)
       ! remove the files
-      call this%formatters%erase(iter)
+      iter = this%formatters%erase(iter)
       iter = this%formatters%begin()
     enddo
     _RETURN(_SUCCESS)
@@ -119,12 +120,15 @@ module pFIO_HistoryCollectionVectorMod
    use pFIO_HistoryCollectionMod
    
    ! Create a map (associative array) between names and pFIO_Attributes.
-   
-#define _type type (HistoryCollection)
-#define _vector HistoryCollectionVector
-#define _iterator HistoryCollectionVectorIterator
-
-#include "templates/vector.inc"
+#define T HistoryCollection 
+#define Vector HistoryCollectionVector
+#define VectorIterator HistoryCollectionVectorIterator
+#define VectorRIterator HistoryCollectionRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T
    
 end module pFIO_HistoryCollectionVectorMod
 

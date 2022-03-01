@@ -94,16 +94,30 @@ end module pFIO_AttributeMod
 
 module pFIO_StringAttributeMapMod
    use pFIO_AttributeMod
+
+#define Key __CHARACTER_DEFERRED
+#define T Attribute
+#define Map StringAttributeMap
+#define MapIterator StringAttributeMapIterator
+#define Pair StringAttributePair
+
+#include "map/template.inc"
+
+#undef Pair
+#undef MapIterator
+#undef Map
+#undef T
+#undef Key
    
-#include "types/key_deferredLengthString.inc"   
-#define _value type (Attribute)
-#define _value_equal_defined
+!#include "types/key_deferredLengthString.inc"   
+!#define _value type (Attribute)
+!#define _value_equal_defined
 
-#define _map StringAttributeMap
-#define _iterator StringAttributeMapIterator
+!#define _map StringAttributeMap
+!#define _iterator StringAttributeMapIterator
 
-#define _alt
-#include "templates/map.inc"
+!#define _alt
+!#include "templates/map.inc"
    
 end module pFIO_StringAttributeMapMod
 
@@ -135,9 +149,9 @@ contains
        allocate(buffer(0))
        iter = map%begin()
        do while (iter /= map%end())
-          key => iter%key()
+          key => iter%first()
           buffer=[buffer,serialize_intrinsic(key)]
-          attr_ptr => iter%value()
+          attr_ptr => iter%second()
           call attr_ptr%serialize(tmp_buffer)
           buffer = [buffer, tmp_buffer]
           deallocate(tmp_buffer)

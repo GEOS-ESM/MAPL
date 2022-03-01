@@ -1,15 +1,21 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
+
 module pFIO_MessageVectorMod
    use pFIO_AbstractMessageMod
 
-#define _type class(AbstractMessage)
-#define _allocatable
-#define _vector MessageVector
-#define _iterator MessageVectorIterator
-#define _niterator MessageVectorRIterator
-#include "templates/vector.inc"
+#define T AbstractMessage
+#define T_polymorphic
+#define Vector MessageVector
+#define VectorIterator MessageVectorIterator
+#define VectorRIterator MessageVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T_polymorphic
+#undef T
 
 end module pFIO_MessageVectorMod
 

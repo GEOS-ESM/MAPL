@@ -17,7 +17,7 @@ module pFIO_ServerThreadMod
    use pFIO_MessageVisitorMod
    use pFIO_BaseThreadMod
    use pFIO_ExtDataCollectionMod
-   use pFIO_ExtCollectionVectorMod
+   use pFIO_ExtdataCollectionVectorMod
    use pFIO_AbstractRequestHandleMod
    use pFIO_IntegerRequestMapMod
    use pFIO_IntegerSocketMapMod
@@ -63,7 +63,7 @@ module pFIO_ServerThreadMod
    type, extends(BaseThread) :: ServerThread
       private
 
-      type (ExtCollectionVector)        :: ext_collections
+      type (ExtdataCollectionVector)        :: ext_collections
       type (HistoryCollectionVector), public :: hist_collections
 
       logical                  :: there_is_collective_request = .false.
@@ -249,7 +249,7 @@ contains
       endif
 
       iter = this%request_backlog%begin()
-      msg => iter%get()
+      msg => iter%of()
       connection=>this%get_connection(status)
       _VERIFY(status)
 
@@ -326,7 +326,7 @@ contains
       !(1) loop to get the total size and offset of each request
       iter = this%request_backlog%begin()
       do while (iter /= this%request_backlog%end())
-         msg => iter%get()
+         msg => iter%of()
 
          select type (q=>msg)
          type is (CollectivePrefetchDataMessage)
@@ -361,7 +361,7 @@ contains
       call c_f_pointer(dataRefPtr%base_address,i_ptr,shape=[msize_word])
       iter = this%request_backlog%begin()
       do while (iter /= this%request_backlog%end())
-         msg => iter%get()
+         msg => iter%of()
 
          select type (q=>msg)
          type is (CollectivePrefetchDataMessage)
@@ -427,7 +427,7 @@ contains
       offset = 0
       iter   = this%request_backlog%begin()
       do while (iter /= this%request_backlog%end())
-         msg => iter%get()
+         msg => iter%of()
 
          select type (q=>msg)
          type is (CollectivePrefetchDataMessage)
@@ -451,7 +451,7 @@ contains
       call c_f_pointer(dataRefPtr%base_address,i_ptr,shape=[msize_word])
       iter = this%request_backlog%begin()
       do while (iter /= this%request_backlog%end())
-         msg => iter%get()
+         msg => iter%of()
 
          select type (q=>msg)
          type is (CollectivePrefetchDataMessage)
@@ -488,7 +488,7 @@ contains
 
       integer :: n, status
       logical :: found
-      type (ExtCollectionVectorIterator) :: iter
+      type (ExtdataCollectionVectorIterator) :: iter
       type (ExtDataCollection), pointer :: collection
       type (ExtDataCollection) :: c
       class(AbstractSocket),pointer :: connection
@@ -501,7 +501,7 @@ contains
       ! Is it a new collection?
       found = .false.
       do while (iter /= this%ext_collections%end())
-         collection => iter%get()
+         collection => iter%of()
          if (message%template == collection%template) then
             found = .true.
             exit
@@ -671,7 +671,7 @@ contains
       integer :: status
 
       collection => this%ext_collections%at(message%collection_id)
-      formatter => collection%find(message%file_name, _RC)
+      formatter => collection%find_formatter(message%file_name, _RC)
 
       select type (message)
       type is (PrefetchDataMessage)
@@ -795,7 +795,7 @@ contains
       else
          hist_collection=>this%hist_collections%at(message%collection_id)
       endif
-      formatter =>hist_collection%find(message%file_name, _RC)
+      formatter =>hist_collection%find_formatter(message%file_name, _RC)
 
       select type (message)
       type is (StageDataMessage)
@@ -871,7 +871,7 @@ contains
 
      iter = this%request_backlog%begin()
      do while (iter /= this%request_backlog%end())
-        msg=>iter%get()
+        msg=>iter%of()
         select type(msg)
         type is (CollectiveStageDataMessage)
             handle => this%get_RequestHandle(msg%request_id)
@@ -942,7 +942,7 @@ contains
 
     iter = this%request_backlog%begin()
     do while (iter /= this%request_backlog%end())
-       call this%request_backlog%erase(iter)
+       iter = this%request_backlog%erase(iter)
        iter = this%request_backlog%begin()
     enddo
 
@@ -1012,7 +1012,7 @@ contains
 
       iter = this%request_backlog%begin()
       do while ( iter /= this%request_backlog%end())
-         msg => iter%get()
+         msg => iter%of()
          connection=>this%get_connection(status)
          _VERIFY(status)
 
@@ -1025,7 +1025,7 @@ contains
             call this%put_DataToFile(q,handle%data_reference%base_address,rc=status)
             _VERIFY(status)
 
-            call this%request_backlog%erase(iter)
+            iter =  this%request_backlog%erase(iter)
 
          class default
             _ASSERT(.false., "Wrong message type")
@@ -1052,7 +1052,7 @@ contains
 
       iter = this%request_backlog%begin()
       do while ( iter /= this%request_backlog%end())
-         msg => iter%get()
+         msg => iter%of()
          connection=>this%get_connection(status)
          _VERIFY(status)
 
@@ -1064,7 +1064,7 @@ contains
 
              call this%insert_RequestHandle(q%request_id, &
               & connection%put(q%request_id, mem_data_reference))
-             call this%request_backlog%erase(iter)
+             iter = this%request_backlog%erase(iter)
 
          class default
             _ASSERT(.false., "Wrong message type")
@@ -1137,7 +1137,7 @@ contains
 
       iter = this%request_backlog%begin()
       do while (iter /= this%request_backlog%end())
-         msg => iter%get()
+         msg => iter%of()
          select type (q=>msg)
          type is (CollectivePrefetchDataMessage)
             mem_data_reference = LocalMemReference(q%type_kind,q%count)
@@ -1162,7 +1162,7 @@ contains
            call this%insert_RequestHandle(q%request_id, &
               & connection%put(q%request_id, mem_data_reference))
 
-           call this%request_backlog%erase(iter)
+           iter = this%request_backlog%erase(iter)
          class default
            _ASSERT(.false., "Message type should be CollectivePrefetchDataMessage ")
          end select
