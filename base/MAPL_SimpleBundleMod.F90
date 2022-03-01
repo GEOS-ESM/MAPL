@@ -763,7 +763,8 @@ CONTAINS
     logical, OPTIONAL,           intent(in)    :: verbose
     character(len=*), optional,  intent(IN)    :: only_vars 
     character(len=*), optional,  intent(IN)    :: expid
-    logical,          optional,  intent(IN)    :: voting
+    class(KeywordEnforcer), optional, intent(in) :: unused
+    logical,          optional,  intent(in)    :: voting
     integer, OPTIONAL,           intent(out)   :: rc
 
 !  !DESCRIPTION:
