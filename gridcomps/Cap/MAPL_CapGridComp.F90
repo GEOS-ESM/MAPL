@@ -575,7 +575,7 @@ contains
 #if defined(USE_EXTDATA2G) 
        cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData2G_SetServices, _RC)
 #else
-       call lgr%error('ExtData2G reque3sted but not built')
+       call lgr%error('ExtData2G requested but not built')
        _FAIL('ExtData2G requested but not built')
 #endif
     else
