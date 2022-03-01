@@ -750,6 +750,7 @@ CONTAINS
 
   Function MAPL_SimpleBundleRead (filename, bundle_name, grid, time, verbose, &
                                   only_vars, expid, voting, rc ) result (self)
+         use mapl_KeywordEnforcerMod
 
 ! !ARGUMENTS:
 
