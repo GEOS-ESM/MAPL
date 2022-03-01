@@ -2145,6 +2145,7 @@ CONTAINS
 
            file = item%file
            Inquire(file=trim(file),EXIST=found)
+           _ASSERT(found,'File ' // trim(item%file) // ' not found')
 
         else
            buff = trim(item%refresh_template)
