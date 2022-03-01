@@ -57,9 +57,9 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(unusable)
       this%expression=''
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine set_defaults
 
    subroutine display(this)
