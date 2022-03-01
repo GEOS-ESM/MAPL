@@ -14,7 +14,7 @@ module MAPL_CommsMod
   use ESMF
   use MAPL_BaseMod
   use MAPL_ShmemMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants, only: MAPL_Unknown, MAPL_IsGather, MAPL_IsScatter
   use MAPL_ExceptionHandling
   implicit none
   private
@@ -47,10 +47,6 @@ module MAPL_CommsMod
   public MAPL_RoundRobinPEList
   public MAPL_BcastShared
 
-  integer, parameter, public :: MAPL_Unknown   = 0
-  integer, parameter, public :: MAPL_IsGather  = 1
-  integer, parameter, public :: MAPL_IsScatter = 2
-
   type ArrPtr
      real, pointer :: A(:,:)
   end type ArrPtr
@@ -72,7 +68,7 @@ module MAPL_CommsMod
      logical          :: active=.false., amRoot=.false.
      logical          :: IsPrePosted
      integer          :: RequestType=MAPL_Unknown
-     integer	      :: tag, s_rqst
+     integer          :: tag, s_rqst
   end type MAPL_CommRequest
 
   interface MAPL_Am_I_Root
@@ -149,7 +145,7 @@ module MAPL_CommsMod
   interface MAPL_ArrayIScatter
      module procedure MAPL_ArrayIScatter_R4_2
   end interface
-  
+
   interface MAPL_CommsAllGatherV
      module procedure MAPL_CommsAllGatherV_I4_1
      module procedure MAPL_CommsAllGatherV_R4_1
@@ -333,7 +329,7 @@ module MAPL_CommsMod
     logical,      optional,  intent(IN   ) :: PrePost
     integer,      optional,  intent(IN   ) :: hw
     integer,      optional,  intent(  OUT) :: rc
-    
+
 ! Local variables
 
     integer                    :: status
@@ -425,7 +421,7 @@ module MAPL_CommsMod
     request%root          =  root
     request%RequestType   =  RequestType
     request%tag           =  tag
-   
+
     request%I1 = AL(1,:)-hw_
     request%In = AU(1,:)+hw_
     request%J1 = AL(2,:)-hw_
@@ -487,7 +483,7 @@ module MAPL_CommsMod
 
 ! We also PrePost the request here
 !---------------------------------
-    
+
     POST_REQUEST: if(request%IsPrePosted) then
        if(requestType==MAPL_IsGather) then
           if(request%amRoot) then
@@ -521,7 +517,7 @@ module MAPL_CommsMod
     real,                    intent(IN   ) :: local_array (:,:)
     type (MAPL_CommRequest), intent(INOUT) :: request
     integer, optional,       intent(  OUT) :: rc
-    
+
 ! Local variables
 
     integer                    :: status
@@ -559,7 +555,7 @@ module MAPL_CommsMod
     type (MAPL_CommRequest), intent(INOUT) :: request
     integer, optional,       intent(   IN) :: hw
     integer, optional,       intent(  OUT) :: rc
-    
+
 ! Local variables
 
     integer                    :: status
@@ -607,7 +603,7 @@ module MAPL_CommsMod
                  request%DstArray = Global_Array(i1:in,j1:jn)
              end if
           else
-             allocate(request%Buff(n)%A(request%im(n), request%jm(n))) 
+             allocate(request%Buff(n)%A(request%im(n), request%jm(n)))
              if (hw_ > 0) then
                   request%Buff(n)%A = Global_Array_(i1:in,j1:jn)
              else
@@ -636,7 +632,7 @@ module MAPL_CommsMod
 
     integer               :: i,j,k,n
     integer               :: count
- 
+
     REQUEST_TYPE: if(request%RequestType==MAPL_IsGather) then
 
        ROOT_GATH: if(request%amRoot) then
@@ -754,7 +750,7 @@ module MAPL_CommsMod
     integer                       :: LM, L, nc, npes, mype, dims(5)
     type(ESMF_VM)                 :: VM
     integer                       :: comm
-    
+
 ! Begin
 !------
 
@@ -845,7 +841,7 @@ module MAPL_CommsMod
     logical                       :: HaveGlobal
     integer                       :: comm
     integer                       :: hw_
-    
+
 ! Begin
 !------
 
@@ -879,7 +875,7 @@ module MAPL_CommsMod
 
     if(HaveGlobal) then
        _ASSERT(size(GlobArray,3)==NC, 'inconsisntent rank')
-       
+
        nn = 0
        do L=1,LM
           if(Root(L)==mype) then
@@ -1181,7 +1177,7 @@ module MAPL_CommsMod
 
 
 !--AllReduceMin -----------------
-    
+
 ! Rank 0
 !---------------------------
 #define RANK_ 0
@@ -1411,7 +1407,7 @@ module MAPL_CommsMod
 !---------------------------
 !---------------------------
 #define RANK_ 1
-#define VARTYPE_ 4 
+#define VARTYPE_ 4
 #include "allgatherv.H"
 
 !---------------------------

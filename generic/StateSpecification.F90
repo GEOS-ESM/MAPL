@@ -3,10 +3,10 @@
 module mapl_StateSpecification
    use ESMF
    use pFlogger
-   use mapl_Enumerators
+   use mapl_Constants
    use mapl_ErrorHandlingMod
    use mapl_VarSpecVector
-   use mapl_VarSpecMod
+   use mapl_VarSpecMiscMod
    use mapl_VariableSpecification
    implicit none
 

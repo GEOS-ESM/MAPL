@@ -38,12 +38,12 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
 
  if(present(arrdes)) then
   if (MAPL_AM_I_ROOT(layout)) then
-   if(arrdes%offset>0) then 
+   if(arrdes%offset>0) then
       call MPI_FILE_SEEK(UNIT, arrdes%offset, MPI_SEEK_SET, STATUS)
       _VERIFY(STATUS)
    endif
 
-#if (RANK_ == 0) 
+#if (RANK_ == 0)
 #if (VARTYPE_ == 0)
    call MPI_FILE_READ(UNIT, data, len(data), MPITYPE_, MPI_STATUS_IGNORE, STATUS)
 #else
@@ -66,7 +66,7 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
 #endif
    _VERIFY(status)
 
-#if (RANK_ == 0) 
+#if (RANK_ == 0)
 #if (VARTYPE_ == 0)
    arrdes%offset = arrdes%offset + len(data)*4 + 8
 #else
@@ -124,11 +124,11 @@ subroutine SUB_ ( layout, DATA, UNIT, FORMAT, arrdes, RC)
                  integer :: dim2,i
                  dim2 = size(data,2)
                  do i = 1, dim2
-	                 read(USABLE_UNIT, IOSTAT=IOSTAT) DATA(:,i)
+                    read(USABLE_UNIT, IOSTAT=IOSTAT) DATA(:,i)
                  enddo
               end block
 #else
-	           read(USABLE_UNIT, IOSTAT=IOSTAT) DATA
+              read(USABLE_UNIT, IOSTAT=IOSTAT) DATA
 #endif
            end if
 #if (RANK_ == 1 && VARTYPE_ == 4)

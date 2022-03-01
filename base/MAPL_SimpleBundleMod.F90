@@ -27,7 +27,7 @@
    use MAPL_CFIOMod
    use MAPL_MaxMinMod
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
-   use MAPL_ConstantsMod, only: MAPL_PI
+   use MAPL_Constants, only: MAPL_PI
    use MAPL_ExceptionHandling
 
    implicit NONE
@@ -104,8 +104,6 @@
 !
 !EOP
 !----------------------------------------------------------------------------
-
-   integer, parameter :: READ_ONLY=1
 
    interface MAPL_SimpleBundleWrite
       module procedure MAPL_SimpleBundleWrite1

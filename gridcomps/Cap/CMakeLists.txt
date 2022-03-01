@@ -1,24 +1,29 @@
 esma_set_this (OVERRIDE MAPL.cap)
-
 set (srcs
      MAPL_Cap.F90
      MAPL_CapGridComp.F90
      MAPL_NUOPCWrapperMod.F90
+     CapOptions.F90
     )
+if (BUILD_WITH_FLAP)
+  list (APPEND srcs FlapCLI.F90)
+endif()
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.profiler MAPL.history TYPE ${MAPL_LIBRARY_TYPE})
-if (ESMA_USE_GFE_NAMESPACE)
-   target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared esmf NetCDF::NetCDF_Fortran
-                                 PRIVATE MPI::MPI_Fortran $<$<BOOL:${BUILD_WITH_FLAP}>:FLAP::FLAP>)
-else ()
-   target_link_libraries (${this} PUBLIC gftl gftl-shared esmf NetCDF::NetCDF_Fortran
-                                 PRIVATE MPI::MPI_Fortran $<$<BOOL:${BUILD_WITH_FLAP}>:FLAP::FLAP>)
-endif ()
+
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.profiler MAPL.history
+                  MAPL.ExtData TYPE ${MAPL_LIBRARY_TYPE})
+target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared esmf NetCDF::NetCDF_Fortran
+                               PRIVATE MPI::MPI_Fortran $<$<BOOL:${BUILD_WITH_FLAP}>:FLAP::FLAP>)
 
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+if (BUILD_WITH_FLAP)
+  target_link_libraries(${this} PRIVATE FLAP::FLAP)
+  target_compile_definitions (${this} PRIVATE USE_FLAP)
+endif()
+
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})

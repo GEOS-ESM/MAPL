@@ -1,6 +1,8 @@
 ! Package
 module MaplShared
    use mapl_String
+   use mapl_FileSystemUtilities
+   use mapl_DSO_Utilities
    use mapl_SplitCommunicatorMod
    use mapl_SimpleCommSplitterMod
    use mapl_SortMod
@@ -15,9 +17,8 @@ module MaplShared
    use mapl_HashMod
    use mapl_ErrorHandlingMod
    use mapl_DirPathMod
-   use mapl_ConstantsMod
+   use mapl_Constants
    use mapl_CommGroupDescriptionMod
    use mapl_AbstractCommSplitterMod
-   use mapl_Enumerators
    
 end module MaplShared

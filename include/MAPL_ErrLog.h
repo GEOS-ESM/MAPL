@@ -2,7 +2,7 @@
 
 ! The error logging may eventually evolve into a module based
 ! on the ESMF logger.  For now these macros provide simple
-! traceback capability. 
+! traceback capability.
 
 #ifndef MAPL_ErrLog_DONE
 
@@ -44,6 +44,12 @@
 #  ifdef _RC
 #    undef _RC
 #  endif
+#  ifdef _STAT
+#    undef _STAT
+#  endif
+#  ifdef _IOSTAT
+#    undef _IOSTAT
+#  endif
 #  ifdef __return
 #    undef __return
 #  endif
@@ -55,7 +61,7 @@
 
 #  ifdef I_AM_MAIN
 #    define __return call MAPL_abort()
-#    define __rc(rc) 
+#    define __rc(rc)
 #  else
 #    define __return return
 #    define __rc(rc) ,rc
@@ -81,11 +87,19 @@
 
 
 #    define _FILE_ __FILE__
-#    define _RETURN(A)     call MAPL_Return(A,_FILE_,__LINE__ __rc(rc)); __return
-#    define _VERIFY(A)     if(MAPL_Verify(A,_FILE_,__LINE__ __rc(rc))) __return
+#    if defined(I_AM_FUNIT)
+#       define _VERIFY(A)     call assert_that(A, is(0), SourceLocation(_FILE_,__LINE__));if(anyExceptions())return
+#    elif defined(I_AM_PFUNIT)
+#       define _VERIFY(A)     call assert_that(A, is(0), SourceLocation(_FILE_,__LINE__));if(anyExceptions(this%context))return
+#    else
+#       define _RETURN(A)     call MAPL_Return(A,_FILE_,__LINE__ __rc(rc)); __return
+#       define _VERIFY(A)     if(MAPL_Verify(A,_FILE_,__LINE__ __rc(rc))) __return
+#    endif
 #    define _RC_(rc,status) rc=status);_VERIFY(status
 #    define _RC _RC_(rc,status)
 
+#    define _STAT _RC_(stat,status)
+#    define _IOSTAT _RC_(iostat,status)
 
 #    define _ASSERT_MSG_AND_LOC_AND_RC(A,msg,stat,file,line,rc)  if(MAPL_Assert(A,msg,stat,file,line __rc(rc))) __return
 

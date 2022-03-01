@@ -5,7 +5,7 @@ module MAPL_SatVaporMod
 
 
 #ifdef MAPL_MODE
-  use MAPL_ConstantsMod
+  use MAPL_Constants
 #endif
 
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
@@ -30,7 +30,7 @@ module MAPL_SatVaporMod
 
 ! !USES:
 !
-!  use MAPL_ConstantsMod
+!  use MAPL_Constants
 !
   implicit none
   private
@@ -45,11 +45,6 @@ module MAPL_SatVaporMod
 !
 ! !PUBLIC DATA MEMBERS:
 !
-! Enumeration values for the saturation vapor pressure formulation to be used.
-
-    public MAPL_UseStarrQsat     
-    public MAPL_UseGoffGratchQsat       
-    public MAPL_UseMurphyKoopQsat
 
 ! !FILES USED:
 !
@@ -160,9 +155,6 @@ module MAPL_SatVaporMod
   integer,   parameter :: GoffGratch = 2 
   integer,   parameter :: MurphyKoop = 3 
 
-  integer,   parameter :: MAPL_UseStarrQsat      = Starr     
-  integer,   parameter :: MAPL_UseGoffGratchQsat = GoffGratch       
-  integer,   parameter :: MAPL_UseMurphyKoopQsat = MurphyKoop
 
 
 ! Tables and other Global variables

@@ -1,0 +1,1687 @@
+#include "MAPL_ErrLog.h"
+module MAPL_VarSpecMod
+   use ESMF
+   use MAPL_VarSpecTypeMod
+   use MAPL_ErrorHandlingMod
+   use MAPL_Constants
+   use pFlogger
+   implicit none
+   private
+
+   public :: MAPL_VarSpec
+
+   public :: MAPL_VarSpecCreateInList
+   public :: MAPL_VarSpecAddToList
+   public :: MAPL_VarSpecSet
+   public :: MAPL_VarSpecGet
+   public :: MAPL_VarSpecDestroy
+   public :: MAPL_VarSpecAddChildName
+   public :: MAPL_VarSpecReconnect
+   public :: MAPL_VarSpecGetIndex
+   public :: MAPL_VarSpecAddRefToList
+   public :: MAPL_VarSpecPrint
+   public :: MAPL_VarSpecPrintCSV
+   public MAPL_VarSpecSamePrec
+
+   public operator(==)
+
+   type :: MAPL_VarSpec
+!!$      private
+      type(MAPL_VarSpecType), pointer :: SpecPtr => null()
+   end type MAPL_VarSpec
+
+
+   interface MAPL_VarSpecAddToList
+      module procedure MAPL_VarSpecAddFromItem
+      module procedure MAPL_VarSpecAddFromList
+   end interface MAPL_VarSpecAddToList
+
+   interface MAPL_VarSpecDestroy
+      module procedure MAPL_VarSpecDestroy0
+      module procedure MAPL_VarSpecDestroy1
+   end interface MAPL_VarSpecDestroy
+
+   interface MAPL_VarSpecSet
+      module procedure MAPL_VarSpecSetRegular
+      module procedure MAPL_VarSpecSetFieldPtr
+      module procedure MAPL_VarSpecSetBundlePtr
+      module procedure MAPL_VarSpecSetStatePtr
+   end interface MAPL_VarSpecSet
+
+   interface MAPL_VarSpecGet
+      module procedure MAPL_VarSpecGetRegular
+      module procedure MAPL_VarSpecGetNew
+      module procedure MAPL_VarSpecGetFieldPtr
+      module procedure MAPL_VarSpecGetBundlePtr
+      module procedure MAPL_VarSpecGetStatePtr
+   end interface MAPL_VarSpecGet
+
+   interface MAPL_VarSpecPrint
+      module procedure MAPL_VarSpecPrintOne
+      module procedure MAPL_VarSpecPrintMany
+   end interface MAPL_VarSpecPrint
+
+   interface MAPL_VarSpecAddRefToList
+      module procedure MAPL_VarSpecAddRefFromItem
+      module procedure MAPL_VarSpecAddRefFromList
+   end interface MAPL_VarSpecAddRefToList
+   
+   interface MAPL_VarSpecGetIndex
+      module procedure MAPL_VarSpecGetIndexByName
+      module procedure MAPL_VarSpecGetIndexOfItem
+   end interface MAPL_VarSpecGetIndex
+   
+
+
+   interface operator (==)
+      module procedure MAPL_VarSpecEQ
+   end interface operator (==)
+
+contains
+
+
+   subroutine MAPL_VarSpecCreateInList(SPEC, SHORT_NAME, LONG_NAME,     &
+        UNITS,  Dims, VLocation, FIELD, BUNDLE, STATE, &
+        NUM_SUBTILES, &
+        STAT, ACCMLT_INTERVAL, COUPLE_INTERVAL, OFFSET, &
+        DEFAULT, FRIENDLYTO, &
+        HALOWIDTH, PRECISION, &
+        RESTART, &
+        ATTR_RNAMES, ATTR_INAMES, &
+        ATTR_RVALUES, ATTR_IVALUES, &
+        UNGRIDDED_DIMS, &
+        UNGRIDDED_UNIT, &
+        UNGRIDDED_NAME, &
+        UNGRIDDED_COORDS, &
+        FIELD_TYPE, &
+        STAGGERING, &
+        ROTATION,   & 
+        GRID, &
+        RC  )
+
+      type (MAPL_VarSpec ),             pointer         :: SPEC(:)
+      character (len=*)               , intent(IN)      :: SHORT_NAME
+      character (len=*)  , optional   , intent(IN)      :: LONG_NAME
+      character (len=*)  , optional   , intent(IN)      :: UNITS
+      character (len=*)  , optional   , intent(IN)      :: FRIENDLYTO
+      integer            , optional   , intent(IN)      :: DIMS
+      integer            , optional   , intent(IN)      :: VLOCATION
+      integer            , optional   , intent(IN)      :: NUM_SUBTILES
+      integer            , optional   , intent(IN)      :: ACCMLT_INTERVAL
+      integer            , optional   , intent(IN)      :: COUPLE_INTERVAL
+      integer            , optional   , intent(IN)      :: OFFSET
+      integer            , optional   , intent(IN)      :: STAT
+      real               , optional   , intent(IN)      :: DEFAULT
+      type(ESMF_Field)   , optional   , intent(IN), target :: FIELD
+      type(ESMF_FieldBundle)  , optional   , intent(IN), target :: BUNDLE
+      type(ESMF_State)   , optional   , intent(IN), target :: STATE
+      integer            , optional   , intent(IN)      :: HALOWIDTH
+      integer            , optional   , intent(IN)      :: PRECISION
+      integer            , optional   , intent(IN)      :: RESTART
+      character (len=*)  , optional   , intent(IN)      :: ATTR_INAMES(:)
+      character (len=*)  , optional   , intent(IN)      :: ATTR_RNAMES(:)
+      integer            , optional   , intent(IN)      :: ATTR_IVALUES(:)
+      real               , optional   , intent(IN)      :: ATTR_RVALUES(:)
+      integer            , optional   , intent(IN)      :: UNGRIDDED_DIMS(:)
+      character (len=*)  , optional   , intent(IN)      :: UNGRIDDED_UNIT
+      character (len=*)  , optional   , intent(IN)      :: UNGRIDDED_NAME
+      real               , optional   , intent(IN)      :: UNGRIDDED_COORDS(:)
+      integer            , optional   , intent(IN)      :: FIELD_TYPE
+      integer            , optional   , intent(IN)      :: STAGGERING
+      integer            , optional   , intent(IN)      :: ROTATION
+      type(ESMF_Grid)    , optional   , intent(IN)      :: GRID
+      integer            , optional   , intent(OUT)     :: RC
+
+
+
+      integer                               :: STATUS
+
+      type (MAPL_VarSpec ), pointer         :: TMP(:) => null()
+
+      integer                    :: usableDIMS
+      integer                    :: usableVLOC
+      integer                    :: usableACCMLT
+      integer                    :: usableCOUPLE
+      integer                    :: usableOFFSET
+      integer                    :: usableSTAT
+      integer                    :: usableNUM_SUBTILES
+      integer                    :: usableHALOWIDTH
+      integer                    :: usablePRECISION
+      integer                    :: usableFIELD_TYPE
+      integer                    :: usableSTAGGERING
+      integer                    :: usableROTATION
+      integer                    :: usableRESTART
+      character(len=ESMF_MAXSTR) :: usableLONG
+      character(len=ESMF_MAXSTR) :: usableUNIT
+      character(len=ESMF_MAXSTR) :: usableFRIENDLYTO
+      character(len=ESMF_MAXSTR), pointer :: usableATTR_INAMES(:) => NULL()
+      character(len=ESMF_MAXSTR), pointer :: usableATTR_RNAMES(:) => NULL()
+      integer                   , pointer :: usableATTR_IVALUES(:) => NULL()
+      real                      , pointer :: usableATTR_RVALUES(:) => NULL()
+      integer                   , pointer :: usableUNGRIDDED_DIMS(:) => null()
+      real                       :: usableDEFAULT
+      type(ESMF_Grid)            :: usableGRID
+      type(ESMF_Field), pointer  :: usableFIELD => null()
+      type(ESMF_FieldBundle), pointer :: usableBUNDLE => null()
+      type(ESMF_State), pointer  :: usableSTATE => null()
+      character(len=ESMF_MAXSTR) :: useableUngrd_Unit
+      character(len=ESMF_MAXSTR) :: useableUngrd_Name
+      real                      , pointer :: usableUNGRIDDED_COORDS(:) => NULL()
+
+      INTEGER :: I
+      integer :: szINAMES, szRNAMES, szIVALUES, szRVALUES
+      integer :: szUNGRD
+      logical :: defaultProvided
+
+      if(associated(SPEC)) then
+         if(MAPL_VarSpecGetIndex(SPEC, SHORT_NAME)/=-1) then
+            _RETURN(ESMF_FAILURE)
+         endif
+      else
+         allocate(SPEC(0),stat=STATUS)
+         _VERIFY(STATUS)
+      endif
+
+      if(present(STAT)) then
+         usableSTAT=STAT
+      else
+         usableSTAT=MAPL_FieldItem !ALT: not sure if needs special attn for bundles
+      endif
+
+      if(present(ACCMLT_INTERVAL)) then
+         usableACCMLT=ACCMLT_INTERVAL
+      else
+         usableACCMLT=0
+      endif
+
+      if(present(COUPLE_INTERVAL)) then
+         usableCOUPLE=COUPLE_INTERVAL
+      else
+         usableCOUPLE=0
+      endif
+
+      if(present(OFFSET)) then
+         usableOFFSET=OFFSET
+      else
+         usableOFFSET=0
+      endif
+
+      if(present(LONG_NAME)) then
+         usableLONG=LONG_NAME
+      else
+         usableLONG=SHORT_NAME
+      endif
+
+      if(present(UNITS)) then
+         usableUNIT=UNITS
+      else
+         usableUNIT=""
+      endif
+
+      if(present(FRIENDLYTO)) then
+         usableFRIENDLYTO=FRIENDLYTO
+         if (LEN(TRIM(FRIENDLYTO)) /= 0) then 
+            usableSTAT = ior(usableSTAT,MAPL_FriendlyVariable)
+         end if
+      else
+         usableFRIENDLYTO=""
+      endif
+
+      if(present(DIMS)) then
+         usableDIMS=DIMS
+      else
+         usableDIMS=MAPL_DimsUnknown
+      endif
+
+      if(present(VLOCATION)) then
+         usableVLOC=VLOCATION
+      else
+         usableVLOC=MAPL_VLocationNone
+      endif
+
+      if(present(NUM_SUBTILES)) then
+         usableNUM_SUBTILES=NUM_SUBTILES
+      else
+         usableNUM_SUBTILES=0
+      endif
+
+      if(present(DEFAULT)) then
+         defaultProvided=.true.
+         usableDEFAULT=DEFAULT
+      else
+         defaultProvided=.false.
+         usableDEFAULT=0.0 ! ALT: this could be NaN
+         !         usableDEFAULT=Z'7F800001' ! DSK: set to NaN, dies in FV Init
+         !         usableDEFAULT=-999. ! DSK
+      endif
+
+      if (present(FIELD_TYPE)) then
+         usableFIELD_TYPE=FIELD_TYPE
+      else
+         usableFIELD_TYPE=MAPL_ScalarField 
+      endif
+
+      if (present(STAGGERING)) then
+         usableSTAGGERING=STAGGERING
+      else
+         usableSTAGGERING=MAPL_AGrid
+      endif
+
+      if (present(ROTATION)) then
+         usableROTATION=ROTATION
+      else
+         usableROTATION=MAPL_RotateLL
+      endif
+
+      if(present(GRID)) then
+         usableGRID=GRID
+      else
+         !         usableGRID = ESMF_GridEmptyCreate(RC=STATUS)
+         !         _VERIFY(STATUS)
+         !         call ESMF_GridDestroy(usableGRID) !ALT we do not need RC
+
+         ! Initialize this grid object as invalid
+         usableGrid%this = ESMF_NULL_POINTER
+      endif
+
+      if(present(FIELD)) then
+         usableFIELD=>FIELD
+      else
+         allocate(usableFIELD, STAT=STATUS)
+         _VERIFY(STATUS)
+         !         usableFIELD = ESMF_FieldEmptyCreate(NAME=SHORT_NAME,RC=STATUS)
+         !         _VERIFY(STATUS)
+         !         call ESMF_FieldDestroy(usableFIELD) !ALT we do not need RC
+
+         ! Initialize this field object as invalid
+         usableField%ftypep => NULL()
+      endif
+
+      if(present(BUNDLE)) then
+         usableBUNDLE=>BUNDLE
+      else
+         allocate(usableBUNDLE, STAT=STATUS)
+         _VERIFY(STATUS)
+         !         usableBUNDLE = ESMF_FieldBundleCreate(NAME=SHORT_NAME,RC=STATUS)
+         !         _VERIFY(STATUS)
+         !         call ESMF_FieldBundleDestroy(usableBUNDLE) !ALT we do not need RC
+
+         ! Initialize this fieldBundle object as invalid
+         usableBundle%this => NULL()
+      endif
+
+      if(present(STATE)) then
+         usableSTATE=>STATE
+      else
+         allocate(usableSTATE, STAT=STATUS)
+         _VERIFY(STATUS)
+         !         usableSTATE = ESMF_StateCreate(NAME=SHORT_NAME,RC=STATUS)
+         !         _VERIFY(STATUS)
+         !         call ESMF_StateDestroy(usableSTATE) !ALT we do not need RC
+
+         ! Initialize this state object as invalid
+         usableState%statep => NULL()
+      endif
+
+      if(present(HALOWIDTH)) then
+         usableHALOWIDTH=HALOWIDTH
+      else
+         usableHALOWIDTH=0
+      endif
+
+      if(present(RESTART)) then
+         usableRESTART=RESTART
+      else
+         usableRESTART=MAPL_RestartOptional ! default
+      endif
+
+      if(present(PRECISION)) then
+         usablePRECISION=PRECISION
+      else
+         usablePRECISION=kind(0.0) ! default "real" kind
+      endif
+
+      ! Sanity checks
+      if (usablePRECISION /= ESMF_KIND_R4 .AND. usablePRECISION /= ESMF_KIND_R8) then
+         ! only those 2 values are allowed
+         _RETURN(ESMF_FAILURE) 
+      end if
+
+      szRNAMES = 0
+      if (present(ATTR_RNAMES)) then
+         szRNAMES = size(ATTR_RNAMES)
+         allocate(usableATTR_RNAMES(szRNAMES), stat=status)
+         _VERIFY(STATUS)
+         usableATTR_RNAMES = ATTR_RNAMES
+      end if
+
+      szINAMES = 0
+      if (present(ATTR_INAMES)) then
+         szINAMES = size(ATTR_INAMES)
+         allocate(usableATTR_INAMES(szINAMES), stat=status)
+         _VERIFY(STATUS)
+         usableATTR_INAMES = ATTR_INAMES
+      end if
+
+      szRVALUES = 0
+      if (present(ATTR_RVALUES)) then
+         szRVALUES = size(ATTR_RVALUES)
+         allocate(usableATTR_RVALUES(szRVALUES), stat=status)
+         _VERIFY(STATUS)
+         usableATTR_RVALUES = ATTR_RVALUES
+      end if
+
+      szIVALUES = 0
+      if (present(ATTR_IVALUES)) then
+         szIVALUES = size(ATTR_INAMES)
+         allocate(usableATTR_IVALUES(szIVALUES), stat=status)
+         _VERIFY(STATUS)
+         usableATTR_IVALUES = ATTR_IVALUES
+      end if
+      _ASSERT(szIVALUES == szINAMES,'needs informative message')
+      _ASSERT(szRVALUES == szRNAMES,'needs informative message')
+
+      szUNGRD = 0
+      if (present(UNGRIDDED_DIMS)) then
+         szUNGRD = size(UNGRIDDED_DIMS)
+         allocate(usableUNGRIDDED_DIMS(szUNGRD), stat=status)
+         _VERIFY(STATUS)
+         usableUNGRIDDED_DIMS = UNGRIDDED_DIMS
+      else
+         NULLIFY(usableUNGRIDDED_DIMS)
+      end if
+
+      if (present(UNGRIDDED_UNIT)) then
+         useableUngrd_Unit = UNGRIDDED_UNIT
+      else
+         useableUngrd_Unit = "level" ! ALT: we are changing the default from "N/A" to "level" to make GrADS happy
+      end if
+      if (present(UNGRIDDED_NAME)) then
+         useableUngrd_NAME = UNGRIDDED_NAME
+      else
+         useableUngrd_NAME = "N/A"
+      end if
+
+      szUNGRD = 0
+      if (present(UNGRIDDED_COORDS)) then
+         szUNGRD = size(UNGRIDDED_COORDS)
+         allocate(usableUNGRIDDED_COORDS(szUNGRD), stat=status)
+         _VERIFY(STATUS)
+         usableUNGRIDDED_COORDS = UNGRIDDED_COORDS
+      end if
+
+      I = size(SPEC)
+
+      allocate(TMP(I+1),stat=STATUS)
+      _VERIFY(STATUS)
+
+      TMP(1:I) = SPEC
+      deallocate(SPEC)
+
+      allocate(TMP(I+1)%SPECPtr,stat=STATUS)
+      _VERIFY(STATUS)
+
+      TMP(I+1)%SPECPtr%SHORT_NAME =  SHORT_NAME
+      TMP(I+1)%SPECPtr%LONG_NAME  =  usableLONG
+      TMP(I+1)%SPECPtr%UNITS      =  usableUNIT
+      TMP(I+1)%SPECPtr%DIMS       =  usableDIMS
+      TMP(I+1)%SPECPtr%LOCATION   =  usableVLOC
+      TMP(I+1)%SPECPtr%NUM_SUBTILES = usableNUM_SUBTILES
+      TMP(I+1)%SPECPtr%STAT       =  usableSTAT
+      TMP(I+1)%SPECPtr%ACCMLT_INTERVAL  =  usableACCMLT
+      TMP(I+1)%SPECPtr%COUPLE_INTERVAL  =  usableCOUPLE
+      TMP(I+1)%SPECPtr%OFFSET     =  usableOFFSET
+      TMP(I+1)%SPECPtr%LABEL      =  0
+      TMP(I+1)%SPECPtr%DEFAULT    =  usableDEFAULT
+      TMP(I+1)%SPECPtr%defaultProvided = defaultProvided
+      TMP(I+1)%SPECPtr%FIELD      => usableFIELD
+      TMP(I+1)%SPECPtr%BUNDLE     => usableBUNDLE
+      TMP(I+1)%SPECPtr%STATE      => usableSTATE
+      TMP(I+1)%SPECPtr%GRID       =  usableGRID
+      TMP(I+1)%SPECPtr%FRIENDLYTO =  usableFRIENDLYTO
+      TMP(I+1)%SPECPtr%HALOWIDTH  =  usableHALOWIDTH
+      TMP(I+1)%SPECPtr%RESTART    =  usableRESTART
+      TMP(I+1)%SPECPtr%PRECISION  =  usablePRECISION
+      TMP(I+1)%SPECPtr%FIELD_TYPE =  usableFIELD_TYPE
+      TMP(I+1)%SPECPtr%UNGRIDDED_UNIT =  useableUngrd_Unit
+      TMP(I+1)%SPECPtr%UNGRIDDED_NAME =  useableUngrd_Name
+      TMP(I+1)%SPECPtr%STAGGERING =  usableSTAGGERING
+      TMP(I+1)%SPECPtr%ROTATION =  usableROTATION
+      TMP(I+1)%SPECPtr%doNotAllocate    =  .false.
+      TMP(I+1)%SPECPtr%alwaysAllocate   =  .false.
+      if(associated(usableATTR_IVALUES)) then
+         TMP(I+1)%SPECPtr%ATTR_IVALUES  =>  usableATTR_IVALUES
+      else
+         NULLIFY(TMP(I+1)%SPECPtr%ATTR_IVALUES)
+      endif
+      if(associated(usableATTR_RVALUES)) then
+         TMP(I+1)%SPECPtr%ATTR_RVALUES  =>  usableATTR_RVALUES
+      else
+         NULLIFY(TMP(I+1)%SPECPtr%ATTR_RVALUES)
+      endif
+      if(associated(usableUNGRIDDED_DIMS)) then
+         TMP(I+1)%SPECPtr%UNGRIDDED_DIMS  =>  usableUNGRIDDED_DIMS
+      else
+         NULLIFY(TMP(I+1)%SPECPtr%UNGRIDDED_DIMS)
+      endif
+      if(associated(usableUNGRIDDED_COORDS)) then
+         TMP(I+1)%SPECPtr%UNGRIDDED_COORDS  =>  usableUNGRIDDED_COORDS
+      else
+         NULLIFY(TMP(I+1)%SPECPtr%UNGRIDDED_COORDS)
+      endif
+      if(associated(usableATTR_RNAMES)) then
+         TMP(I+1)%SPECPtr%ATTR_RNAMES=>  usableATTR_RNAMES
+      else
+         NULLIFY(TMP(I+1)%SPECPtr%ATTR_RNAMES)
+      endif
+      if(associated(usableATTR_INAMES)) then
+         TMP(I+1)%SPECPtr%ATTR_INAMES=>  usableATTR_INAMES
+      else
+         NULLIFY(TMP(I+1)%SPECPtr%ATTR_INAMES)
+      endif
+
+      SPEC => TMP
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecCreateInList
+
+
+   subroutine MAPL_VarSpecAddFromItem(SPEC,ITEM,RC)
+
+      type (MAPL_VarSpec ), pointer         :: SPEC(:)
+      type (MAPL_VarSpec ), intent(IN )     :: ITEM
+      integer, optional   , intent(OUT)     :: RC
+
+
+
+      integer                               :: STATUS
+
+
+      if(.not.associated(ITEM%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      call MAPL_VarSpecCreateInList(SPEC,                                             &
+           SHORT_NAME      = ITEM%SPECPTR%SHORT_NAME,        &
+           LONG_NAME       = ITEM%SPECPTR%LONG_NAME,         &
+           UNITS           = ITEM%SPECPTR%UNITS,             &
+           DIMS            = ITEM%SPECPTR%Dims,              &
+           VLOCATION       = ITEM%SPECPTR%Location,          &
+           STAT            = ITEM%SPECPTR%STAT,              &
+           ACCMLT_INTERVAL = ITEM%SPECPTR%ACCMLT_INTERVAL,   &
+           COUPLE_INTERVAL = ITEM%SPECPTR%COUPLE_INTERVAL,   &
+           DEFAULT         = ITEM%SPECPTR%DEFAULT,           &
+           FIELD           = ITEM%SPECPTR%FIELD,             &
+           BUNDLE          = ITEM%SPECPTR%BUNDLE,            &
+           STATE           = ITEM%SPECPTR%STATE,            &
+           HALOWIDTH       = ITEM%SPECPTR%HALOWIDTH,         &
+           RESTART         = ITEM%SPECPTR%RESTART,           &
+           PRECISION       = ITEM%SPECPTR%PRECISION,         &
+           ATTR_INAMES     = ITEM%SPECPTR%ATTR_INAMES,       &
+           ATTR_RNAMES     = ITEM%SPECPTR%ATTR_RNAMES,       &
+           ATTR_IVALUES    = ITEM%SPECPTR%ATTR_IVALUES,      &
+           ATTR_RVALUES    = ITEM%SPECPTR%ATTR_RVALUES,      &
+           UNGRIDDED_DIMS  = ITEM%SPECPTR%UNGRIDDED_DIMS,    &
+           FIELD_TYPE      = ITEM%SPECPTR%FIELD_TYPE,        &
+           STAGGERING      = ITEM%SPECPTR%STAGGERING,        &
+           ROTATION        = ITEM%SPECPTR%ROTATION,          &
+           GRID            = ITEM%SPECPTR%GRID,              &
+           RC=STATUS  )     
+      _VERIFY(STATUS)
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecAddFromItem
+
+
+   subroutine MAPL_VarSpecAddFromList(SPEC,ITEM,RC)
+
+      type (MAPL_VarSpec ), pointer         :: SPEC(:)
+      type (MAPL_VarSpec ), intent(IN )     :: ITEM(:)
+      integer, optional   , intent(OUT)     :: RC
+
+
+
+      integer                               :: STATUS
+
+      integer I
+
+      do I=1,size(ITEM)
+         call MAPL_VarSpecAddFromItem(SPEC,ITEM(I),RC=STATUS)
+         _VERIFY(STATUS)
+      enddo
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecAddFromList
+
+
+   subroutine MAPL_VarSpecDestroy0(SPEC, RC )
+
+      type (MAPL_VarSpec ),             intent(INOUT)   :: SPEC
+      integer            , optional   , intent(OUT)     :: RC
+
+
+
+
+      if(associated(SPEC%SPECPtr)) then
+         deallocate(SPEC%SPECPtr)
+      endif
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecDestroy0
+
+   subroutine MAPL_VarSpecDestroy1(SPEC, RC )
+
+      type (MAPL_VarSpec ),             pointer      :: SPEC(:)
+      integer            , optional   , intent(OUT)  :: RC
+
+
+
+      integer :: i
+
+      if (associated(SPEC)) then
+         do I=1,size(SPEC)
+            call MAPL_VarSpecDestroy0(spec(i))
+         end do
+         deallocate(SPEC)
+      end if
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecDestroy1
+
+
+   subroutine MAPL_VarSpecSetRegular(SPEC, SHORT_NAME, LONG_NAME, UNITS,       &
+        Dims, VLocation, FIELD, BUNDLE, STATE,    &
+        STAT, ACCMLT_INTERVAL, COUPLE_INTERVAL,   &
+        OFFSET, LABEL,                            &
+        FRIENDLYTO,                               &
+        FIELD_TYPE,                               &
+        STAGGERING,                               &
+        ROTATION,                                 &
+        GRID,                                     &
+        doNotAllocate,                            &
+        alwaysAllocate,                            &
+        RC )
+
+      type (MAPL_VarSpec ),             intent(INOUT)   :: SPEC
+      character(len=*)   , optional   , intent(IN)      :: SHORT_NAME
+      character(len=*)   , optional   , intent(IN)      :: LONG_NAME
+      character(len=*)   , optional   , intent(IN)      :: UNITS
+      integer            , optional   , intent(IN)      :: DIMS
+      integer            , optional   , intent(IN)      :: VLOCATION
+      integer            , optional   , intent(IN)      :: ACCMLT_INTERVAL
+      integer            , optional   , intent(IN)      :: COUPLE_INTERVAL
+      integer            , optional   , intent(IN)      :: OFFSET
+      integer            , optional   , intent(IN)      :: STAT
+      integer            , optional   , intent(IN)      :: LABEL
+      type(ESMF_Field)   , optional   , intent(IN)      :: FIELD
+      type(ESMF_FieldBundle)  , optional   , intent(IN) :: BUNDLE
+      type(ESMF_State)   , optional   , intent(IN)      :: STATE
+      character(len=*)   , optional   , intent(IN)      :: FRIENDLYTO
+      integer            , optional   , intent(in)      :: FIELD_TYPE
+      integer            , optional   , intent(in)      :: STAGGERING
+      integer            , optional   , intent(in)      :: ROTATION
+      type(ESMF_Grid)    , optional   , intent(IN)      :: GRID
+      logical            , optional   , intent(IN)      :: doNotAllocate
+      logical            , optional   , intent(IN)      :: alwaysAllocate
+      integer            , optional   , intent(OUT)     :: RC
+
+
+
+
+      if(.not.associated(SPEC%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      if(present(SHORT_NAME)) then
+         SPEC%SPECPtr%SHORT_NAME = SHORT_NAME
+      endif
+
+      if(present(LONG_NAME)) then
+         SPEC%SPECPtr%LONG_NAME = LONG_NAME
+      endif
+
+      if(present(UNITS)) then
+         SPEC%SPECPtr%UNITS = UNITS
+      endif
+
+      if(present(FRIENDLYTO)) then
+         SPEC%SPECPtr%FRIENDLYTO = FRIENDLYTO
+      endif
+
+      if(present(STAT)) then
+         SPEC%SPECPtr%STAT=STAT
+      endif
+
+      if(present(DIMS)) then
+         SPEC%SPECPtr%DIMS=DIMS
+      endif
+
+      if(present(VLOCATION)) then
+         SPEC%SPECPtr%LOCATION=VLOCATION
+      endif
+
+      if(present(ACCMLT_INTERVAL)) then
+         SPEC%SPECPtr%ACCMLT_INTERVAL=ACCMLT_INTERVAL
+      endif
+
+      if(present(COUPLE_INTERVAL)) then
+         SPEC%SPECPtr%COUPLE_INTERVAL=COUPLE_INTERVAL
+      endif
+
+      if(present(OFFSET)) then
+         SPEC%SPECPtr%OFFSET=OFFSET
+      endif
+
+      if(present(LABEL)) then
+         SPEC%SPECPtr%LABEL=LABEL
+      endif
+
+      if(present(FIELD)) then
+         SPEC%SPECPtr%FIELD = FIELD
+      endif
+
+      if(present(BUNDLE)) then
+         SPEC%SPECPtr%BUNDLE = BUNDLE
+      endif
+
+      if(present(STATE)) then
+         SPEC%SPECPtr%STATE = STATE
+      endif
+
+      if(present(GRID)) then
+         SPEC%SPECPtr%GRID = GRID
+      endif
+
+      if(present(FIELD_TYPE)) then
+         SPEC%SPECPtr%FIELD_TYPE = FIELD_TYPE
+      endif
+
+      if(present(STAGGERING)) then
+         SPEC%SPECPtr%STAGGERING = STAGGERING
+      endif
+
+      if(present(ROTATION)) then
+         SPEC%SPECPtr%ROTATION = ROTATION
+      endif
+
+      if(present(doNotAllocate)) then
+         SPEC%SPECPtr%doNotAllocate = doNotAllocate
+      endif
+
+      if(present(alwaysAllocate)) then
+         SPEC%SPECPtr%alwaysAllocate = alwaysAllocate
+      endif
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecSetRegular
+
+   subroutine MAPL_VarSpecSetFieldPtr(SPEC, FIELDPTR, RC )
+
+      type (MAPL_VarSpec ),             intent(INOUT)   :: SPEC
+      type(ESMF_Field)   ,              pointer         :: FIELDPTR
+      integer            , optional   , intent(  OUT)   :: RC
+
+
+
+
+      if(.not.associated(SPEC%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      SPEC%SPECPtr%FIELD => FIELDPTR
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecSetFieldPtr
+
+   subroutine MAPL_VarSpecSetBundlePtr(SPEC, BUNDLEPTR, RC )
+
+      type (MAPL_VarSpec ),             intent(INOUT)   :: SPEC
+      type(ESMF_FieldBundle)  ,         pointer         :: BUNDLEPTR
+      integer            , optional   , intent(  OUT)   :: RC
+
+
+
+
+      if(.not.associated(SPEC%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      SPEC%SPECPtr%BUNDLE => BUNDLEPTR
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecSetBundlePtr
+
+   subroutine MAPL_VarSpecSetStatePtr(SPEC, STATEPTR, RC )
+
+      type (MAPL_VarSpec ),             intent(INOUT)   :: SPEC
+      type(ESMF_State)  ,               pointer         :: STATEPTR
+      integer            , optional   , intent(  OUT)   :: RC
+
+
+
+
+      if(.not.associated(SPEC%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      SPEC%SPECPtr%STATE => STATEPTR
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecSetStatePtr
+
+
+
+   subroutine MAPL_VarSpecGetRegular(SPEC, SHORT_NAME, LONG_NAME, UNITS,       &
+        Dims, VLocation, FIELD, BUNDLE, STATE, &
+        NUM_SUBTILES,      &
+        STAT, ACCMLT_INTERVAL, COUPLE_INTERVAL,   &
+        OFFSET, LABEL, DEFAULT, defaultProvided,  &
+        FRIENDLYTO,                               &
+        RESTART,                                  &
+        HALOWIDTH,                                &
+        PRECISION,                                &
+        ATTR_RNAMES, ATTR_INAMES,                 &
+        ATTR_RVALUES, ATTR_IVALUES,               &
+        UNGRIDDED_DIMS,                           &
+        UNGRIDDED_UNIT,                          &
+        UNGRIDDED_NAME,                          &
+        UNGRIDDED_COORDS,                         &
+        FIELD_TYPE,                               &
+        STAGGERING,                               &
+        ROTATION,                                 &
+        GRID,                                     &
+        doNotAllocate,                            &
+        alwaysAllocate,                           &
+        RC )
+
+      type (MAPL_VarSpec ),             intent(IN )     :: SPEC
+      character(len=*)   , optional   , intent(OUT)     :: SHORT_NAME
+      character(len=*)   , optional   , intent(OUT)     :: LONG_NAME
+      character(len=*)   , optional   , intent(OUT)     :: UNITS
+      integer            , optional   , intent(OUT)     :: DIMS
+      integer            , optional   , intent(OUT)     :: VLOCATION
+      integer            , optional   , intent(OUT)     :: NUM_SUBTILES
+      integer            , optional   , intent(OUT)     :: ACCMLT_INTERVAL
+      integer            , optional   , intent(OUT)     :: COUPLE_INTERVAL
+      integer            , optional   , intent(OUT)     :: OFFSET
+      integer            , optional   , intent(OUT)     :: STAT
+      integer            , optional   , intent(OUT)     :: LABEL
+      real               , optional   , intent(OUT)     :: DEFAULT
+      logical            , optional   , intent(OUT)     :: defaultProvided
+      type(ESMF_Field)   , optional   , intent(OUT)     :: FIELD
+      type(ESMF_FieldBundle)  , optional   , intent(OUT)     :: BUNDLE
+      type(ESMF_State)   , optional   , intent(OUT)     :: STATE
+      character(len=*)   , optional   , intent(OUT)     :: FRIENDLYTO
+      integer            , optional   , intent(OUT)     :: HALOWIDTH
+      integer            , optional   , intent(OUT)     :: PRECISION
+      integer            , optional   , intent(OUT)     :: RESTART
+      character(len=ESMF_MAXSTR), optional, pointer     :: ATTR_INAMES(:)
+      character(len=ESMF_MAXSTR), optional, pointer     :: ATTR_RNAMES(:)
+      integer,                    optional, pointer     :: ATTR_IVALUES(:)
+      real,                       optional, pointer     :: ATTR_RVALUES(:)
+      integer,                    optional, pointer     :: UNGRIDDED_DIMS(:)
+      character(len=*)   , optional   , intent(OUT)     :: UNGRIDDED_UNIT
+      character(len=*)   , optional   , intent(OUT)     :: UNGRIDDED_NAME
+      real,                       optional, pointer     :: UNGRIDDED_COORDS(:)
+      integer,                    optional              :: FIELD_TYPE
+      integer,                    optional              :: STAGGERING
+      integer,                    optional              :: ROTATION
+      type(ESMF_Grid)    , optional   , intent(OUT)     :: GRID
+      logical            , optional   , intent(OUT)     :: doNotAllocate
+      logical            , optional   , intent(OUT)     :: alwaysAllocate
+      integer            , optional   , intent(OUT)     :: RC
+
+
+
+
+      if(.not.associated(SPEC%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      if(present(STAT)) then
+         STAT = SPEC%SPECPtr%STAT
+      endif
+
+      if(present(SHORT_NAME)) then
+         SHORT_NAME = SPEC%SPECPtr%SHORT_NAME
+      endif
+
+      if(present(LONG_NAME)) then
+         LONG_NAME = SPEC%SPECPtr%LONG_NAME
+      endif
+
+      if(present(UNITS)) then
+         UNITS = SPEC%SPECPtr%UNITS
+      endif
+
+      if(present(FRIENDLYTO)) then
+         FRIENDLYTO = SPEC%SPECPtr%FRIENDLYTO
+      endif
+
+      if(present(DIMS)) then
+         DIMS = SPEC%SPECPtr%DIMS
+      endif
+
+      if(present(VLOCATION)) then
+         VLOCATION = SPEC%SPECPtr%LOCATION
+      endif
+
+      if(present(NUM_SUBTILES)) then
+         NUM_SUBTILES = SPEC%SPECPtr%NUM_SUBTILES
+      endif
+
+      if(present(ACCMLT_INTERVAL)) then
+         ACCMLT_INTERVAL = SPEC%SPECPtr%ACCMLT_INTERVAL
+      endif
+
+      if(present(COUPLE_INTERVAL)) then
+         COUPLE_INTERVAL = SPEC%SPECPtr%COUPLE_INTERVAL
+      endif
+
+      if(present(OFFSET)) then
+         OFFSET = SPEC%SPECPtr%OFFSET
+      endif
+
+      if(present(LABEL)) then
+         LABEL = SPEC%SPECPtr%LABEL
+      endif
+
+      if(present(DEFAULT)) then
+         DEFAULT = SPEC%SPECPtr%DEFAULT
+      endif
+
+      if(present(defaultProvided)) then
+         defaultProvided= SPEC%SPECPtr%defaultProvided
+      endif
+
+      if(present(FIELD)) then
+         FIELD = SPEC%SPECPtr%FIELD
+      endif
+
+      if(present(BUNDLE)) then
+         BUNDLE = SPEC%SPECPtr%BUNDLE
+      endif
+
+      if(present(STATE)) then
+         STATE = SPEC%SPECPtr%STATE
+      endif
+
+      if(present(HALOWIDTH)) then
+         HALOWIDTH = SPEC%SPECPtr%HALOWIDTH
+      endif
+
+      if(present(PRECISION)) then
+         PRECISION = SPEC%SPECPtr%PRECISION
+      endif
+
+      if(present(RESTART)) then
+         RESTART = SPEC%SPECPtr%RESTART
+      endif
+
+      if(present(ATTR_INAMES)) then
+         ATTR_INAMES => SPEC%SPECPtr%ATTR_INAMES
+      endif
+
+      if(present(ATTR_RNAMES)) then
+         ATTR_RNAMES => SPEC%SPECPtr%ATTR_RNAMES
+      endif
+
+      if(present(ATTR_IVALUES)) then
+         ATTR_IVALUES => SPEC%SPECPtr%ATTR_IVALUES
+      endif
+
+      if(present(ATTR_RVALUES)) then
+         ATTR_RVALUES => SPEC%SPECPtr%ATTR_RVALUES
+      endif
+
+      if(present(UNGRIDDED_DIMS)) then
+         UNGRIDDED_DIMS => SPEC%SPECPtr%UNGRIDDED_DIMS
+      endif
+
+      if(present(UNGRIDDED_UNIT)) then
+         UNGRIDDED_UNIT = SPEC%SPECPtr%UNGRIDDED_UNIT
+      endif
+
+      if(present(UNGRIDDED_NAME)) then
+         UNGRIDDED_NAME = SPEC%SPECPtr%UNGRIDDED_NAME
+      endif
+
+      if(present(UNGRIDDED_COORDS)) then
+         UNGRIDDED_COORDS => SPEC%SPECPtr%UNGRIDDED_COORDS
+      endif
+
+      if(present(FIELD_TYPE)) then
+         FIELD_TYPE = SPEC%SPECPtr%FIELD_TYPE
+      endif
+
+      if(present(STAGGERING)) then
+         STAGGERING = SPEC%SPECPtr%STAGGERING
+      endif
+
+      if(present(ROTATION)) then
+         ROTATION = SPEC%SPECPtr%ROTATION
+      endif
+
+      if(present(GRID)) then
+         GRID = SPEC%SPECPtr%GRID
+      endif
+
+      if(present(doNotAllocate)) then
+         doNotAllocate = SPEC%SPECPtr%doNotAllocate
+      endif
+
+      if(present(alwaysAllocate)) then
+         alwaysAllocate = SPEC%SPECPtr%alwaysAllocate
+      endif
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecGetRegular
+
+   subroutine MAPL_VarSpecGetNew(SPEC, SHORT_NAME, LONG_NAME, UNITS,       &
+        Dims, VLocation, FIELD, BUNDLE, STATE, &
+        NUM_SUBTILES,      &
+        STAT, ACCMLT_INTERVAL, COUPLE_INTERVAL,   &
+        OFFSET, LABEL, DEFAULT, defaultProvided,  &
+        FRIENDLYTO,                               &
+        RESTART,                                  &
+        HALOWIDTH,                                &
+        PRECISION,                                &
+        ATTR_RNAMES, ATTR_INAMES,                 &
+        ATTR_RVALUES, ATTR_IVALUES,               &
+        UNGRIDDED_DIMS,                           &
+        UNGRIDDED_UNIT,                          &
+        UNGRIDDED_NAME,                          &
+        UNGRIDDED_COORDS,                         &
+        FIELD_TYPE,                               &
+        STAGGERING,                               &
+        ROTATION,                                 &
+        GRID,                                     &
+        doNotAllocate,                            &
+        alwaysAllocate,                           &
+        RC )
+
+      type (MAPL_VarSpecType),             intent(IN )     :: SPEC
+      character(len=*)   , optional   , intent(OUT)     :: SHORT_NAME
+      character(len=*)   , optional   , intent(OUT)     :: LONG_NAME
+      character(len=*)   , optional   , intent(OUT)     :: UNITS
+      integer            , optional   , intent(OUT)     :: DIMS
+      integer            , optional   , intent(OUT)     :: VLOCATION
+      integer            , optional   , intent(OUT)     :: NUM_SUBTILES
+      integer            , optional   , intent(OUT)     :: ACCMLT_INTERVAL
+      integer            , optional   , intent(OUT)     :: COUPLE_INTERVAL
+      integer            , optional   , intent(OUT)     :: OFFSET
+      integer            , optional   , intent(OUT)     :: STAT
+      integer            , optional   , intent(OUT)     :: LABEL
+      real               , optional   , intent(OUT)     :: DEFAULT
+      logical            , optional   , intent(OUT)     :: defaultProvided
+      type(ESMF_Field)   , optional   , intent(OUT)     :: FIELD
+      type(ESMF_FieldBundle)  , optional   , intent(OUT)     :: BUNDLE
+      type(ESMF_State)   , optional   , intent(OUT)     :: STATE
+      character(len=*)   , optional   , intent(OUT)     :: FRIENDLYTO
+      integer            , optional   , intent(OUT)     :: HALOWIDTH
+      integer            , optional   , intent(OUT)     :: PRECISION
+      integer            , optional   , intent(OUT)     :: RESTART
+      character(len=ESMF_MAXSTR), optional, pointer     :: ATTR_INAMES(:)
+      character(len=ESMF_MAXSTR), optional, pointer     :: ATTR_RNAMES(:)
+      integer,                    optional, pointer     :: ATTR_IVALUES(:)
+      real,                       optional, pointer     :: ATTR_RVALUES(:)
+      integer,                    optional, pointer     :: UNGRIDDED_DIMS(:)
+      character(len=*)   , optional   , intent(OUT)     :: UNGRIDDED_UNIT
+      character(len=*)   , optional   , intent(OUT)     :: UNGRIDDED_NAME
+      real,                       optional, pointer     :: UNGRIDDED_COORDS(:)
+      integer,                    optional              :: FIELD_TYPE
+      integer,                    optional              :: STAGGERING
+      integer,                    optional              :: ROTATION
+      type(ESMF_Grid)    , optional   , intent(OUT)     :: GRID
+      logical            , optional   , intent(OUT)     :: doNotAllocate
+      logical            , optional   , intent(OUT)     :: alwaysAllocate
+      integer            , optional   , intent(OUT)     :: RC
+
+
+
+
+      if(present(STAT)) then
+         STAT = SPEC%STAT
+      endif
+
+      if(present(SHORT_NAME)) then
+         SHORT_NAME = SPEC%SHORT_NAME
+      endif
+
+      if(present(LONG_NAME)) then
+         LONG_NAME = SPEC%LONG_NAME
+      endif
+
+      if(present(UNITS)) then
+         UNITS = SPEC%UNITS
+      endif
+
+      if(present(FRIENDLYTO)) then
+         FRIENDLYTO = SPEC%FRIENDLYTO
+      endif
+
+      if(present(DIMS)) then
+         DIMS = SPEC%DIMS
+      endif
+
+      if(present(VLOCATION)) then
+         VLOCATION = SPEC%LOCATION
+      endif
+
+      if(present(NUM_SUBTILES)) then
+         NUM_SUBTILES = SPEC%NUM_SUBTILES
+      endif
+
+      if(present(ACCMLT_INTERVAL)) then
+         ACCMLT_INTERVAL = SPEC%ACCMLT_INTERVAL
+      endif
+
+      if(present(COUPLE_INTERVAL)) then
+         COUPLE_INTERVAL = SPEC%COUPLE_INTERVAL
+      endif
+
+      if(present(OFFSET)) then
+         OFFSET = SPEC%OFFSET
+      endif
+
+      if(present(LABEL)) then
+         LABEL = SPEC%LABEL
+      endif
+
+      if(present(DEFAULT)) then
+         DEFAULT = SPEC%DEFAULT
+      endif
+
+      if(present(defaultProvided)) then
+         defaultProvided= SPEC%defaultProvided
+      endif
+
+      if(present(FIELD)) then
+         FIELD = SPEC%FIELD
+      endif
+
+      if(present(BUNDLE)) then
+         BUNDLE = SPEC%BUNDLE
+      endif
+
+      if(present(STATE)) then
+         STATE = SPEC%STATE
+      endif
+
+      if(present(HALOWIDTH)) then
+         HALOWIDTH = SPEC%HALOWIDTH
+      endif
+
+      if(present(PRECISION)) then
+         PRECISION = SPEC%PRECISION
+      endif
+
+      if(present(RESTART)) then
+         RESTART = SPEC%RESTART
+      endif
+
+      if(present(ATTR_INAMES)) then
+         ATTR_INAMES => SPEC%ATTR_INAMES
+      endif
+
+      if(present(ATTR_RNAMES)) then
+         ATTR_RNAMES => SPEC%ATTR_RNAMES
+      endif
+
+      if(present(ATTR_IVALUES)) then
+         ATTR_IVALUES => SPEC%ATTR_IVALUES
+      endif
+
+      if(present(ATTR_RVALUES)) then
+         ATTR_RVALUES => SPEC%ATTR_RVALUES
+      endif
+
+      if(present(UNGRIDDED_DIMS)) then
+         UNGRIDDED_DIMS => SPEC%UNGRIDDED_DIMS
+      endif
+
+      if(present(UNGRIDDED_UNIT)) then
+         UNGRIDDED_UNIT = SPEC%UNGRIDDED_UNIT
+      endif
+
+      if(present(UNGRIDDED_NAME)) then
+         UNGRIDDED_NAME = SPEC%UNGRIDDED_NAME
+      endif
+
+      if(present(UNGRIDDED_COORDS)) then
+         UNGRIDDED_COORDS => SPEC%UNGRIDDED_COORDS
+      endif
+
+      if(present(FIELD_TYPE)) then
+         FIELD_TYPE = SPEC%FIELD_TYPE
+      endif
+
+      if(present(STAGGERING)) then
+         STAGGERING = SPEC%STAGGERING
+      endif
+
+      if(present(ROTATION)) then
+         ROTATION = SPEC%ROTATION
+      endif
+
+      if(present(GRID)) then
+         GRID = SPEC%GRID
+      endif
+
+      if(present(doNotAllocate)) then
+         doNotAllocate = SPEC%doNotAllocate
+      endif
+
+      if(present(alwaysAllocate)) then
+         alwaysAllocate = SPEC%alwaysAllocate
+      endif
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecGetNew
+
+
+   subroutine MAPL_VarSpecGetFieldPtr(SPEC, FIELDPTR, RC )
+
+      type (MAPL_VarSpec ),             intent(IN )     :: SPEC
+      type(ESMF_Field)   ,              pointer         :: FIELDPTR
+      integer            , optional   , intent(OUT)     :: RC
+
+
+
+
+      if(.not.associated(SPEC%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      FIELDPTR => SPEC%SPECPtr%FIELD
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecGetFieldPtr
+
+   subroutine MAPL_VarSpecGetBundlePtr(SPEC, BundlePTR, RC )
+
+      type (MAPL_VarSpec ),             intent(IN )     :: SPEC
+      type(ESMF_FieldBundle)  ,         pointer         :: BUNDLEPTR
+      integer            , optional   , intent(OUT)     :: RC
+
+
+
+
+      if(.not.associated(SPEC%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      BUNDLEPTR => SPEC%SPECPtr%BUNDLE
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecGetBundlePtr
+
+   subroutine MAPL_VarSpecGetStatePtr(SPEC, StatePTR, RC )
+
+      type (MAPL_VarSpec ),             intent(IN )     :: SPEC
+      type(ESMF_State)  ,               pointer         :: STATEPTR
+      integer            , optional   , intent(OUT)     :: RC
+
+
+
+
+
+      if(.not.associated(SPEC%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      STATEPTR => SPEC%SPECPtr%STATE
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecGetStatePtr
+
+
+   subroutine MAPL_VarSpecAddChildName(SPEC,CN,RC)
+
+      type (MAPL_VarSpec ), pointer           :: SPEC(:)
+      character(len=ESMF_MAXSTR), intent(IN ) :: CN
+      integer, optional   , intent(OUT)       :: RC
+
+
+
+
+      integer K
+
+      DO K=1,SIZE(SPEC)
+         SPEC(K)%SPECptr%LONG_NAME = trim(SPEC(K)%SPECptr%LONG_NAME) // trim(CN)
+      END DO
+
+
+      _RETURN(ESMF_SUCCESS)
+   END subroutine MAPL_VarSpecAddChildName
+
+
+   subroutine MAPL_VarSpecReconnect(SPEC,ITEM,RC)
+
+      type (MAPL_VarSpec ), pointer         :: SPEC(:)
+      type (MAPL_VarSpec ), intent(INOUT)   :: ITEM
+      integer, optional   , intent(OUT)     :: RC
+
+
+
+      integer                               :: STATUS
+
+      type(ESMF_Field), pointer             :: FIELD
+      type(ESMF_FieldBundle), pointer       :: BUNDLE
+      type(ESMF_State), pointer       :: STATE
+      integer I
+
+      if(.not.associated(ITEM%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      if(.not.associated(SPEC)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      I=MAPL_VarSpecGetIndex(SPEC, ITEM, RC=STATUS)
+      _VERIFY(STATUS)
+
+      if (I == -1) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      if (associated(ITEM%SPECptr%FIELD)) then
+         deallocate(ITEM%SPECptr%FIELD, STAT=STATUS)
+         _VERIFY(STATUS)
+      end if
+      call MAPL_VarSpecGet(SPEC(I), FIELDPTR=FIELD, RC=STATUS)
+      _VERIFY(STATUS)
+
+      call MAPL_VarSpecSet(ITEM, FIELDPTR=FIELD, RC=STATUS)
+      _VERIFY(STATUS)
+
+      if (associated(ITEM%SPECptr%BUNDLE)) then
+         deallocate(ITEM%SPECptr%BUNDLE, STAT=STATUS)
+         _VERIFY(STATUS)
+      end if
+      call MAPL_VarSpecGet(SPEC(I), BUNDLEPTR=BUNDLE, RC=STATUS)
+      _VERIFY(STATUS)
+
+      call MAPL_VarSpecSet(ITEM, BUNDLEPTR=BUNDLE, RC=STATUS)
+      _VERIFY(STATUS)
+
+      if (associated(ITEM%SPECptr%STATE)) then
+         deallocate(ITEM%SPECptr%STATE, STAT=STATUS)
+         _VERIFY(STATUS)
+      end if
+      call MAPL_VarSpecGet(SPEC(I), STATEPTR=STATE, RC=STATUS)
+      _VERIFY(STATUS)
+
+      call MAPL_VarSpecSet(ITEM, STATEPTR=STATE, RC=STATUS)
+      _VERIFY(STATUS)
+
+      !      deallocate(ITEM%SPECptr, stat=status)
+      !      _VERIFY(STATUS)
+
+      !!      ITEM%SPECptr => SPEC(I)%SPECPtr
+
+      _RETURN(ESMF_SUCCESS)
+
+
+   end subroutine MAPL_VarSpecReconnect
+
+   function MAPL_VarSpecEQ(s1, s2)
+      type (MAPL_VarSpec ), intent(in) :: s1, s2
+      logical                          :: MAPL_VarSpecEQ
+
+      MAPL_VarSpecEQ = .FALSE.
+
+      if (S1%SPECPtr%SHORT_NAME      /= S2%SPECPtr%SHORT_NAME      ) RETURN
+      !ALT: for now we do not compare LONG_NAME nor UNITS
+      !BMA: we also are not comparing FIELD_TYPE i.e. vector or scalar
+      if (S1%SPECPtr%DIMS            /= S2%SPECPtr%DIMS            ) RETURN
+      if (S1%SPECPtr%LOCATION        /= S2%SPECPtr%LOCATION        ) RETURN
+      if (S1%SPECPtr%HALOWIDTH       /= S2%SPECPtr%HALOWIDTH       ) RETURN
+      if (S1%SPECPtr%PRECISION       /= S2%SPECPtr%PRECISION       ) RETURN
+#if 0
+      if (IOR(S1%SPECPtr%STAT,MAPL_CplSATISFIED) &
+           /= IOR(S2%SPECPtr%STAT,MAPL_CplSATISFIED)) then
+         RETURN
+      end if
+#endif
+      if (S1%SPECPtr%ACCMLT_INTERVAL /= 0 .and. &
+           S2%SPECPtr%ACCMLT_INTERVAL /= 0) then
+
+         if (S1%SPECPtr%ACCMLT_INTERVAL /= S2%SPECPtr%ACCMLT_INTERVAL ) RETURN
+         if (S1%SPECPtr%COUPLE_INTERVAL /= S2%SPECPtr%COUPLE_INTERVAL ) RETURN
+      end if
+
+      MAPL_VarSpecEQ = .TRUE.
+      RETURN
+   end function MAPL_VarSpecEQ
+
+   function MAPL_VarSpecSamePrec(s1, s2)
+      type (MAPL_VarSpec ), intent(in) :: s1, s2
+      logical                          :: MAPL_VarSpecSamePrec
+
+      MAPL_VarSpecSamePrec = .FALSE.
+
+      if (S1%SPECPtr%PRECISION /= S2%SPECPtr%PRECISION       ) RETURN
+
+      MAPL_VarSpecSamePrec = .TRUE.
+      RETURN
+   end function MAPL_VarSpecSamePrec
+
+   subroutine MAPL_VarSpecPrintOne(SPEC, RC )
+
+      type (MAPL_VarSpec ),             intent(IN )     :: SPEC
+      integer            , optional   , intent(OUT)     :: RC
+
+      class(Logger), pointer :: lgr
+
+      if(.not.associated(SPEC%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      call lgr%info('NAME = %a~:%a~:%i3.3', &
+           trim(spec%specptr%short_name), trim(spec%specptr%long_name), spec%specptr%label)
+      call lgr%info('ACCUMT = %i0',SPEC%SPECPtr%ACCMLT_INTERVAL)
+      call lgr%info('COUPLE = %i0',SPEC%SPECPtr%COUPLE_INTERVAL)
+!!$    call lgr%info('DIMS   = %i0',SPEC%SPECPtr%DIMS)
+!!$    call lgr%info('LOCATION = %dims   = %i0',SPEC%SPECPtr%location)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine MAPL_VarSpecPrintOne
+
+   subroutine MAPL_VarSpecPrintMany(SPEC, RC )
+
+      type (MAPL_VarSpec ),             intent(IN )     :: SPEC(:)
+      integer            , optional   , intent(OUT)     :: RC
+
+
+
+      integer                               :: STATUS
+      integer                               :: I
+
+      !    if(.not.associated(SPEC)) then
+      !       _RETURN(ESMF_FAILURE)
+      !    endif
+
+      DO I = 1, size(SPEC)
+         call MAPL_VarSpecPrint(Spec(I), RC=status)
+         _VERIFY(STATUS)
+      END DO
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine MAPL_VarSpecPrintMany
+
+
+   subroutine MAPL_VarSpecPrintCSV(SPEC, compName, RC )
+
+      type (MAPL_VarSpec ),             intent(in )     :: spec(:)
+      character(len=*),                 intent(in )     :: compName
+      integer            , optional   , intent(out)     :: RC
+
+      integer                               :: status
+      integer                               :: i
+
+      do I = 1, size(spec)
+         call MAPL_VarSpecPrint1CSV(Spec(I), compName, RC=status)
+         _VERIFY(status)
+      end do
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine MAPL_VarSpecPrintCSV
+
+   subroutine MAPL_VarSpecPrint1CSV(spec, compName, rc )
+      use pFlogger
+      type (MAPL_VarSpec ),             intent(in )     :: spec
+      character(len=*),                 intent(in )     :: compName
+      integer            , optional   , intent(out)     :: RC
+
+      class(Logger), pointer :: lgr
+
+      if(.not.associated(SPEC%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      lgr => logging%get_logger('MAPL.GENERIC')
+      call lgr%info('%a~, %a~, %a~, %i3', &
+           trim(compName), trim(spec%specptr%short_name), trim(spec%specptr%long_name), &
+           spec%specptr%dims)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine MAPL_VarSpecPrint1CSV
+
+   subroutine MAPL_VarSpecAddRefFromItem(SPEC, ITEM, ALLOW_DUPLICATES, RC)
+
+      type (MAPL_VarSpec ), pointer         :: SPEC(:)
+      type (MAPL_VarSpec ), intent(IN )     :: ITEM
+      logical, optional   , intent(IN)      :: ALLOW_DUPLICATES
+      integer, optional   , intent(OUT)     :: RC
+
+
+
+      integer                               :: STATUS
+
+      type (MAPL_VarSpec ), pointer         :: TMP(:) => null()
+      integer                               :: I
+      logical                               :: usableALLOW_DUPLICATES
+      class(Logger), pointer :: lgr
+
+
+      if(present(ALLOW_DUPLICATES)) then
+         usableALLOW_DUPLICATES=ALLOW_DUPLICATES
+      else
+         usableALLOW_DUPLICATES=.FALSE.
+      endif
+
+
+      if(.not.associated(ITEM%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      if(associated(SPEC)) then
+         if (.not. usableALLOW_DUPLICATES) then
+            I = MAPL_VarSpecGetIndex(SPEC, ITEM, RC=STATUS)
+            _VERIFY(STATUS)
+            if(I /= -1) then
+               if (SPEC(I) == ITEM) THEN
+                  if(present(RC)) then
+                     RC=MAPL_DuplicateEntry
+                  end if
+                  return
+               else
+                  lgr => logging%get_logger('MAPL.GENERIC')
+                  call lgr%error("Duplicate SHORT_NAME %a with different attributes.", trim(ITEM%SPECPtr%short_name))
+                  call MAPL_VarSpecPrint(ITEM)
+                  call MAPL_VarSpecPrint(SPEC(I))
+                  _RETURN(ESMF_FAILURE)
+               end if
+            endif
+         end if
+      else
+         allocate(SPEC(0),stat=STATUS)
+         _VERIFY(STATUS)
+      endif
+
+      I = size(SPEC)
+
+      allocate(TMP(I+1),stat=STATUS)
+      _VERIFY(STATUS)
+
+      TMP(1:I) = SPEC
+      deallocate(SPEC)
+
+      TMP(I+1)%SPECPtr => ITEM%SPECPtr
+      SPEC => TMP
+
+      _RETURN(ESMF_SUCCESS)
+
+
+   end subroutine MAPL_VarSpecAddRefFromItem
+
+   subroutine MAPL_VarSpecAddRefFromList(SPEC,ITEM,RC)
+
+      type (MAPL_VarSpec ), pointer         :: SPEC(:)
+      type (MAPL_VarSpec ), intent(IN )     :: ITEM(:)
+      integer, optional   , intent(OUT)     :: RC
+
+
+
+      integer                               :: STATUS
+
+      integer I
+
+      do I=1,size(ITEM)
+         call MAPL_VarSpecAddRefFromItem(SPEC,ITEM(I),RC=STATUS)
+         IF (STATUS /= MAPL_DuplicateEntry) then
+            _VERIFY(STATUS)
+         END IF
+      enddo
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_VarSpecAddRefFromList
+
+
+   function MAPL_VarSpecGetIndexByName(SPEC, NAME, RC) result (INDEX)
+      type (MAPL_VarSpec )            , intent(in)   :: SPEC(:)
+      character (len=*)               , intent(IN)   :: NAME
+      integer, optional               , intent(OUT)  :: RC
+      integer                                        :: INDEX
+
+
+      integer :: I
+
+
+      do I = 1, size(SPEC)
+         if(.not.associated(SPEC(I)%SPECPtr)) then
+            _RETURN(ESMF_FAILURE)
+         endif
+         if (trim(SPEC(I)%SPECPtr%SHORT_NAME) == trim(NAME)) then
+            INDEX = I
+            _RETURN(ESMF_SUCCESS)
+         endif
+      enddo
+
+      INDEX = -1 ! not found
+      _RETURN(ESMF_SUCCESS)
+
+   end function MAPL_VarSpecGetIndexByName
+
+
+
+   subroutine MAPL_VarSpecGetDataByName(SPEC, NAME, PTR1, PTR2, PTR3, RC)
+      type (MAPL_VarSpec )            , intent(INout):: SPEC(:)
+      character (len=*)               , intent(IN)   :: NAME
+      real,    optional, pointer                     :: PTR1(:)
+      real,    optional, pointer                     :: PTR2(:,:)
+      real,    optional, pointer                     :: PTR3(:,:,:)
+      integer, optional               , intent(OUT)  :: RC
+
+
+      integer :: STATUS
+
+      integer :: I
+
+      do I = 1, size(SPEC)
+         if(.not.associated(SPEC(I)%SPECPtr)) then
+            _RETURN(ESMF_FAILURE)
+         endif
+
+         if (trim(SPEC(I)%SPECPtr%SHORT_NAME) == trim(NAME)) then
+            call MAPL_VarSpecGetData(SPEC(I),PTR1,PTR2,PTR3,RC=STATUS)
+            _VERIFY(STATUS)
+            _RETURN(ESMF_SUCCESS)
+         endif
+      enddo
+
+      _RETURN(ESMF_FAILURE)
+
+   end subroutine MAPL_VarSpecGetDataByName
+
+
+   subroutine MAPL_VarSpecGetData(SPEC, PTR1, PTR2, PTR3, RC)
+      type (MAPL_VarSpec )            , intent(INout):: SPEC
+      real,    optional, pointer                     :: PTR1(:)
+      real,    optional, pointer                     :: PTR2(:,:)
+      real,    optional, pointer                     :: PTR3(:,:,:)
+      integer, optional               , intent(OUT)  :: RC
+
+
+      integer :: STATUS
+
+      type(ESMF_Array) :: ARRAY
+
+      if(.not.associated(SPEC%SPECPtr)) then
+         _RETURN(ESMF_FAILURE)
+      endif
+
+      call ESMF_FieldGet(SPEC%SPECPtr%FIELD,Array=ARRAY,rc=STATUS)
+      _VERIFY(STATUS)
+
+      if (present(PTR1)) then
+         call ESMF_ArrayGet(ARRAY, localDE=0, farrayptr=PTR1, RC=STATUS)
+         _VERIFY(STATUS)
+         _ASSERT(.not.present(PTR2),'needs informative message')
+         _ASSERT(.not.present(PTR3),'needs informative message')
+         _RETURN(ESMF_SUCCESS)
+      endif
+
+      if (present(PTR2)) then
+         call ESMF_ArrayGet(ARRAY, localDE=0, farrayptr=PTR2, RC=STATUS)
+         _VERIFY(STATUS)
+         _ASSERT(.not.present(PTR3),'needs informative message')
+         _RETURN(ESMF_SUCCESS)
+      endif
+
+      if (present(PTR3)) then
+         call ESMF_ArrayGet(ARRAY, localDE=0, farrayptr=PTR3, RC=STATUS)
+         _VERIFY(STATUS)
+         _RETURN(ESMF_SUCCESS)
+      endif
+
+      _RETURN(ESMF_FAILURE)
+
+   end subroutine MAPL_VarSpecGetData
+
+   function MAPL_VarSpecGetIndexOfItem(SPEC, ITEM, RC) result (INDEX)
+      type (MAPL_VarSpec )            , intent(in)   :: SPEC(:)
+      type (MAPL_VarSpec )            , intent(in)   :: ITEM
+      integer, optional               , intent(OUT)  :: RC
+      integer                                        :: INDEX
+
+
+
+      integer :: I
+
+      do I = 1, size(SPEC)
+         if(.not.associated(SPEC(I)%SPECPtr)) then
+            _RETURN(ESMF_FAILURE)
+         endif
+
+         if (trim(SPEC(I)%SPECPtr%SHORT_NAME) == trim(ITEM%SPECPtr%SHORT_NAME)) then
+            if (SPEC(I) == ITEM) then
+               INDEX = I
+               _RETURN(ESMF_SUCCESS)
+            end if
+         endif
+      enddo
+
+      INDEX = -1 ! not found
+      _RETURN(ESMF_SUCCESS)
+
+   end function MAPL_VarSpecGetIndexOfItem
+
+end module MAPL_VarSpecMod
