@@ -73,10 +73,8 @@ class MAPL_DataSpec:
 
     @staticmethod
     def internal_name(name):
-        if name[-1] == '*':
-            return name[:-1]
-        else:
-            return name
+        return name.replace('*','')
+
     @staticmethod
     def mangled_name(name):
         return "'" + name.replace("*","'//trim(comp_name)//'") + "'"
