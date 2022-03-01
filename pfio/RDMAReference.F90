@@ -144,6 +144,8 @@ contains
          _VERIFY(status)
          call MPI_Win_free(this%win,status)
          _VERIFY(status)
+         call MPi_comm_free(this%comm, status)
+         _VERIFY(status)
       endif
 
       this%RDMA_allocated = .false.

@@ -89,7 +89,7 @@ contains
       type (MpiSocket), target :: dummy_socket
       integer, allocatable :: node_sizes(:)
 
-      call MPI_Comm_dup(server_comm, s%server_comm, ierror)
+      s%server_comm = server_comm
       call MPI_Comm_size(s%server_comm, s_size , ierror)
       
       splitter = SimpleCommsplitter(s%server_comm)
