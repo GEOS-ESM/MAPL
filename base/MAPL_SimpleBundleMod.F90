@@ -751,7 +751,7 @@ CONTAINS
 !
 
   Function MAPL_SimpleBundleRead (filename, bundle_name, grid, time, verbose, &
-                                  only_vars, expid, rc ) result (self)
+                                  only_vars, expid, voting, rc ) result (self)
 
 ! !ARGUMENTS:
 
@@ -764,6 +764,7 @@ CONTAINS
     logical, OPTIONAL,           intent(in)    :: verbose
     character(len=*), optional,  intent(IN)    :: only_vars 
     character(len=*), optional,  intent(IN)    :: expid
+    logical,          optional,  intent(IN)    :: voting
     integer, OPTIONAL,           intent(out)   :: rc
 
 !  !DESCRIPTION:
@@ -783,7 +784,7 @@ CONTAINS
     Bundle = ESMF_FieldBundleCreate ( name=bundle_name, __RC__ )
     call ESMF_FieldBundleSet ( bundle, grid=Grid, __RC__ )
     call MAPL_CFIORead  ( filename, Time, Bundle, verbose=verbose, &
-                          ONLY_VARS=only_vars, expid=expid, __RC__ )
+                          ONLY_VARS=only_vars, expid=expid, voting=voting, __RC__ )
     self = MAPL_SimpleBundleCreate ( Bundle, __RC__ )
     self%bundleAlloc = .true.
 
