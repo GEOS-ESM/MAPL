@@ -675,10 +675,6 @@ CONTAINS
                            primary%item(totalPrimaryEntries)%cyclic='n'
                         end if
 
-
-                        if ( primary%item(totalPrimaryEntries)%isConst .eqv. .false. )  then
-                           call CreateTimeInterval(primary%item(totalPrimaryEntries),clock,__RC__)
-                        end if
                      end if
                   enddo
                !  Derived Exports
@@ -911,6 +907,10 @@ CONTAINS
 
       call lgr%debug('ExtData Initialize_(): PrimaryLoop: ')
 
+      if ( .not. item%isConst )  then
+         call CreateTimeInterval(item,clock,__RC__)
+      end if
+      
       item%pfioCollection_id = MAPL_DataAddCollection(item%file,use_file_coords=self%use_file_coords)
 
       ! parse refresh template to see if we have a time shift during constant updating
@@ -1889,6 +1889,7 @@ CONTAINS
         character(len=ESMF_MAXSTR) :: creffTime, ctInt
        
         integer :: status
+        logical :: found
  
         creffTime = ''
         ctInt     = ''
@@ -1933,6 +1934,10 @@ CONTAINS
            else
               ! couldn't find any tokens so all the data must be on one file
               call ESMF_TimeIntervalSet(item%frequency,__RC__)
+
+              ! check if non-token file exists
+              inquire(file=trim(item%file),EXIST=found)
+              _ASSERT(found,'File ' // trim(item%file) // ' not found')
            end if
         else
            ! Reference time should look like:
