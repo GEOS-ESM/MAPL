@@ -86,7 +86,7 @@ if(NOT TARGET FARGPARSE::fargparse)
 endif()
 
 
-set (EXTDATA_TARGET "MAPL.ExtData" CACHE STRING "ExtData Target")
+#set (EXTDATA_TARGET "MAPL.ExtData" CACHE STRING "ExtData Target")
 option(USE_EXTDATA2G "Use ExtData2G" ON)
 if(USE_EXTDATA2G)
   set (EXTDATA2G_TARGET "MAPL.ExtData2G" CACHE STRING "ExtData2G Target")
