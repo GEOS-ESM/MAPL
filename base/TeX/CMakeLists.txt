@@ -24,8 +24,8 @@ foreach(src
     base/Base/Base_Base_implementation.F90
     base/ESMFL_Mod.F90
     gridcomps/History/MAPL_HistoryGridComp.F90
-    generic/MAPL_GenericCplComp.F90
-    gridcomps/ExtData/MAPL_ExtDataGridCompMod.F90
+    generic/GenericCplComp.F90
+    gridcomps/ExtData/ExtDataGridCompMod.F90
     )
   LIST (APPEND mapl_api_srcs ${PROJECT_SOURCE_DIR}/${src})
 endforeach()
