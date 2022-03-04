@@ -10,18 +10,22 @@ set (srcs
 
   # Low-level measures
   AbstractGauge.F90
+  NullGauge.F90
   MpiTimerGauge.F90
   FortranTimerGauge.F90
   RssMemoryGauge.F90
+  MallocGauge.F90
   VmstatMemoryGauge.F90
 
   AdvancedMeter.F90
   DistributedMeter.F90
   MeterNode.F90
   BaseProfiler.F90
+  GlobalProfilers.F90
   TimeProfiler.F90
   MemoryProfiler.F90
   DistributedProfiler.F90
+  StubProfiler.F90
 
   reporting/ProfileReporter.F90
   reporting/AbstractColumn.F90
