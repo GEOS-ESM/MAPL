@@ -6,7 +6,7 @@ module MAPL_CapGridCompMod
   use MAPL_ExceptionHandling
   use MAPL_BaseMod
   use MAPL_Constants
-  use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler, get_global_memory_profiler
+  use MAPL_Profiler, only: DistributedProfiler, get_global_time_profiler, get_global_memory_profiler
   use MAPL_ProfMod
   use MAPL_MemUtilsMod
   use MAPL_IOMod
@@ -102,6 +102,154 @@ module MAPL_CapGridCompMod
 
 contains
 
+  subroutine set_services_gc(gc, rc)
+    type (ESMF_GridComp) :: gc
+    integer, intent(out) :: rc
+
+    integer :: status, phase
+    type(MAPL_CapGridComp), pointer :: cap
+    type(MAPL_MetaComp), pointer :: meta, root_meta
+    class(DistributedProfiler), pointer :: t_p, m_p
+
+    type (ESMF_GridComp), pointer :: root_gc
+    character(len=ESMF_MAXSTR)   :: ROOT_NAME
+    procedure(), pointer :: root_set_services
+    class(Logger), pointer :: lgr
+    character(len=ESMF_MAXSTR)   :: HIST_CF, ROOT_CF, EXTDATA_CF
+    integer                      :: RUN_DT
+    integer                      :: heartbeat_dt
+    integer :: NX, NY
+    integer                      :: MemUtilsMode
+    character(len=ESMF_MAXSTR)   :: enableMemUtils
+    type(ESMF_GridComp), pointer :: child_gc
+    type(MAPL_MetaComp), pointer :: child_meta
+    character(len=ESMF_MAXSTR)   :: EXPID
+    character(len=ESMF_MAXSTR)   :: EXPDSC
+    logical                      :: cap_clock_is_present
+    type(ESMF_TimeInterval)      :: Frequency
+
+    cap => get_CapGridComp_from_gc(gc)
+    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, userRoutine = initialize_gc, _RC)
+
+    do phase = 1, cap%n_run_phases
+       call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, userRoutine = run_gc, _RC)
+    enddo
+
+    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, userRoutine = finalize_gc, _RC)
+
+    call ESMF_GridCompGet(gc, clockIsPresent=cap_clock_is_present, _RC)
+
+    if (cap_clock_is_present) then
+       call ESMF_ClockGet(cap%clock, timeStep=frequency, _RC)
+       call ESMF_TimeIntervalGet(frequency, s=heartbeat_dt, _RC)
+    else
+       call ESMF_ConfigGetAttribute(cap%config, value = heartbeat_dt, Label = "HEARTBEAT_DT:", _RC)
+       call ESMF_TimeIntervalSet(frequency, s = heartbeat_dt, _RC)
+    end if
+
+    cap%heartbeat_dt = heartbeat_dt
+
+    ! Register the children with MAPL
+    !--------------------------------
+
+    !  Create Root child
+    !-------------------
+    call MAPL_InternalStateRetrieve(gc, meta, _RC)
+!!$    call MAPL_Set(meta, CF=CAP%CF_ROOT, _RC)
+    call MAPL_GetLogger(gc, lgr, _RC)
+
+    t_p => get_global_time_profiler()
+    m_p => get_global_memory_profiler()
+
+    call t_p%start('SetService')
+    call m_p%start('SetService')
+
+    ! !RESOURCE_ITEM: string :: Name to assign to the ROOT component
+    call MAPL_GetResource(meta, root_name, "ROOT_NAME:", default = "ROOT", _RC)
+    call MAPL_GetResource(meta, ROOT_CF, "ROOT_CF:", default = "ROOT.rc", _RC)
+    root_set_services => cap%root_set_services
+    cap%root_id = MAPL_AddChild(meta, name = root_name, SS=root_set_services, configFile=ROOT_CF, _RC)  
+
+      child_gc => meta%get_child_gridcomp(cap%root_id)
+      call MAPL_InternalStateRetrieve(child_gc, child_meta, _RC)
+      call MAPL_Get(child_meta, cf=cap%cf_root, _RC)
+      ! Add NX and NY from ROOT config to ExtData config
+      call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", _RC)
+      call ESMF_ConfigGetAttribute(cap%cf_root, value = NY, Label="NY:", _RC)
+      call ESMF_ConfigSetAttribute(cap%cf_root, value = heartbeat_dt, Label="RUN_DT:", _RC)
+
+    !  Create History child
+    !----------------------
+
+    ! !RESOURCE_ITEM: string :: Name of HISTORY's config file 
+    call MAPL_GetResource(meta, HIST_CF, "HIST_CF:", default = "HIST.rc", _RC)
+    cap%history_id = MAPL_AddChild( meta, name='HIST', SS=HIST_SetServices, configFile=HIST_CF, _RC)  
+
+    child_gc => meta%get_child_gridcomp(cap%history_id)
+    call MAPL_InternalStateRetrieve(child_gc, child_meta, _RC)
+    call MAPL_Get(child_meta, cf=cap%cf_hist, _RC)
+    call ESMF_ConfigLoadFile(cap%cf_hist, HIST_CF, _RC)
+
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value=HIST_CF, Label="HIST_CF:", _RC)
+    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPID,  Label="EXPID:", default='', _RC)
+    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPDSC, Label="EXPDSC:", default='', _RC)
+    call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPID,  Label="EXPID:",  _RC)
+    call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPDSC, Label="EXPDSC:", _RC)
+
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value=heartbeat_dt, Label="RUN_DT:", _RC)
+
+    call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", _RC)
+    call ESMF_ConfigGetAttribute(cap%cf_root, value = NY, Label="NY:", _RC)
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value = NX, Label="NX:",  _RC)
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value = NY, Label="NY:",  _RC)
+
+    !  Create ExtData child
+    !----------------------
+    cap%cf_ext = ESMF_ConfigCreate(_RC)
+    call MAPL_GetResource(meta, EXTDATA_CF, "EXTDATA_CF:", default = "ExtData.rc", _RC)
+    call ESMF_ConfigLoadFile(cap%cf_ext, EXTDATA_CF, _RC)
+
+
+    cap%extdata_id = MAPL_AddChild (meta, name='EXTDATA', SS=ExtData_SetServices, configFile=EXTDATA_CF, _RC)
+    child_gc => meta%get_child_gridcomp(cap%extdata_id)
+    call MAPL_InternalStateRetrieve(child_gc, child_meta, _RC)
+    call MAPL_Get(child_meta, cf=cap%cf_ext, _RC)
+    call MAPL_ConfigSetAttribute(cap%cf_ext, value=NX,  Label="NX:",  _RC)
+    call MAPL_ConfigSetAttribute(cap%cf_ext, value=NY,  Label="NY:",  _RC)
+
+    call ESMF_ConfigGetAttribute(cap%cf_ext, value=RUN_DT, Label="RUN_DT:", rc=status)
+    if (status == ESMF_SUCCESS) then
+       if (heartbeat_dt /= run_dt) then
+          call lgr%error('inconsistent values of heartbeat_dt (%g0) and ExtData RUN_DT (%g0)', heartbeat_dt, run_dt)
+          _FAIL('inconsistent values of heartbeat_dt and RUN_DT')
+       end if
+    else
+       call MAPL_ConfigSetAttribute(cap%cf_ext, value=heartbeat_dt, Label="RUN_DT:", _RC)
+    endif
+    call MAPL_ConfigSetAttribute(cap%cf_ext, value=EXTDATA_CF,  Label="CF_EXTDATA:",  _RC)
+
+      
+    call t_p%stop('SetService')
+    call m_p%stop('SetService')
+
+
+    ! !RESOURCE_ITEM: string :: Control Memory Diagnostic Utility 
+    call MAPL_GetResource(meta, enableMemUtils, "MAPL_ENABLE_MEMUTILS:", default='NO', _RC)
+    call MAPL_GetResource(meta, MemUtilsMode, "MAPL_MEMUTILS_MODE:", default = MAPL_MemUtilsModeBase, _RC)
+    enableMemUtils = ESMF_UtilStringUpperCase(enableMemUtils, _RC)
+
+    if (enableMemUtils /= 'YES') then
+       call MAPL_MemUtilsDisable(_RC)
+    else
+       call MAPL_MemUtilsInit( mode=MemUtilsMode, _RC)
+    end if
+
+    _RETURN(ESMF_SUCCESS)
+
+ contains
+
+  end subroutine set_services_gc
+
   
    subroutine MAPL_CapGridCompCreate(cap, root_set_services, cap_rc, name, final_file, comm_world, unusable, n_run_phases, rc)
       use MAPL_SetServicesWrapper
@@ -122,8 +270,6 @@ contains
     character(*), parameter :: cap_name = "CAP"
     type(StubComponent) :: stub_component
     
-    _UNUSED_DUMMY(unusable)
-
     cap%cap_rc_file = cap_rc
     cap%root_set_services => root_set_services
     if (present(final_file)) then
@@ -142,6 +288,7 @@ contains
     call MAPL_InternalStateCreate(cap%gc, meta, __RC__)
 
     meta%t_profiler = DistributedProfiler(trim(cap_name), MpiTimerGauge(), comm=comm_world)
+
     meta%user_setservices_wrapper = ProcSetServicesWrapper(set_services_gc)
     call MAPL_Set(meta, CF=cap%config, __RC__)
 
@@ -153,7 +300,7 @@ contains
 
 
     _RETURN(_SUCCESS)
-
+    _UNUSED_DUMMY(unusable)
   end subroutine MAPL_CapGridCompCreate
 
 
@@ -172,7 +319,6 @@ contains
     integer :: corespernode
 
     logical :: amIRoot_
-    character(len=ESMF_MAXSTR)   :: enableTimers
     character(len=ESMF_MAXSTR)   :: enableMemUtils
     integer                      :: MemUtilsMode
     integer                               :: useShmem
@@ -213,8 +359,7 @@ contains
     type (ESMF_GridComp), pointer :: root_gc
     procedure(), pointer :: root_set_services
     type(MAPL_CapGridComp), pointer :: cap
-    class(BaseProfiler), pointer :: t_p
-    class(BaseProfiler), pointer :: m_p
+    class(DistributedProfiler), pointer :: t_p, m_p
     class(Logger), pointer :: lgr
     type(ESMF_Clock) :: cap_clock
 
@@ -391,26 +536,6 @@ contains
     call MAPL_GetResource(MAPLOBJ, EXTDATA_CF, "EXTDATA_CF:", default = 'ExtData.rc', rc = status)
     _VERIFY(status)
 
-    ! !RESOURCE_ITEM: string :: Control Timers 
-    call MAPL_GetResource(MAPLOBJ, enableTimers, "MAPL_ENABLE_TIMERS:", default = 'NO', rc = status)
-    _VERIFY(status)
-
-    !EOR
-    enableTimers = ESMF_UtilStringUpperCase(enableTimers, rc = status)
-    _VERIFY(status)
-
-    if (enableTimers /= 'YES') then
-       call MAPL_ProfDisable(rc = status)
-       _VERIFY(status)
-    else
-       call MAPL_GetResource(MAPLOBJ, timerModeStr, "MAPL_TIMER_MODE:", &
-            default='MINMAX', RC=STATUS )
-       _VERIFY(STATUS)
-
-       timerModeStr = ESMF_UtilStringUpperCase(timerModeStr, rc=STATUS)
-       _VERIFY(STATUS) 
-
-    end if
 
     cap%started_loop_timer=.false.
 
@@ -502,7 +627,8 @@ contains
 !!$
     root_set_services => cap%root_set_services
 
-    call t_p%start('SetService')
+    call t_p%start('Initialize')
+    call m_p%start('Initialize')
 
 !!$    cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)  
 !!$    _VERIFY(status)
@@ -543,7 +669,8 @@ contains
 !!$
 !!$    cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData_SetServices, rc = status)
 !!$    _VERIFY(status)
-    call t_p%stop('SetService')
+    call t_p%stop('Initialize')
+    call m_p%stop('Initialize')
 !!$
 !!$    ! Add NX and NY from AGCM.rc to ExtData.rc as well as name of ExtData rc file
 !!$    call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", rc=status)
@@ -757,7 +884,7 @@ contains
     integer, intent(out) :: RC     ! Error code:
 
     integer :: status, phase
-    class (BaseProfiler), pointer :: t_p, m_p
+    class (DistributedProfiler), pointer :: t_p, m_p
 
     _UNUSED_DUMMY(import)
     _UNUSED_DUMMY(export)
@@ -789,19 +916,15 @@ contains
     integer, intent(out) :: rc
 
     integer :: status
+    integer :: userRC
 
     type(MAPL_CapGridComp), pointer :: cap
     type(MAPL_MetaComp), pointer :: maplobj
-    class (BaseProfiler), pointer :: t_p
-    class (BaseProfiler), pointer :: m_p
+    class(DistributedProfiler), pointer :: t_p, m_p
 
-    _UNUSED_DUMMY(import_state)
-    _UNUSED_DUMMY(export_state)
-    _UNUSED_DUMMY(clock)
     
     cap => get_CapGridComp_from_gc(gc)
-    call MAPL_GetObjectFromGC(gc, maplobj, rc=status)
-    _VERIFY(status)
+    call MAPL_GetObjectFromGC(gc, maplobj, _RC)
 
     t_p => get_global_time_profiler()
     m_p => get_global_memory_profiler()
@@ -811,32 +934,27 @@ contains
     if (.not. cap%printspec > 0) then
 
        call ESMF_GridCompFinalize(cap%gcs(cap%root_id), importstate = cap%child_imports(cap%root_id), &
-            exportstate=cap%child_exports(cap%root_id), clock = cap%clock, userrc = status)
-       _VERIFY(status)
+            exportstate=cap%child_exports(cap%root_id), clock = cap%clock, userrc=userRC, _RC)
+       _VERIFY(userRC)
 
        call ESMF_GridCompFinalize(cap%gcs(cap%history_id), importstate = cap%child_imports(cap%history_id), &
-            exportstate = cap%child_exports(cap%history_id), clock = cap%clock_hist, userrc = status)
-       _VERIFY(status)
+            exportstate = cap%child_exports(cap%history_id), clock = cap%clock_hist, userrc=userRC, _RC)
+       _VERIFY(userRC)
 
        call ESMF_GridCompFinalize(cap%gcs(cap%extdata_id), importstate = cap%child_imports(cap%extdata_id), &
-            exportstate = cap%child_exports(cap%extdata_id), clock = cap%clock, userrc = status)
-       _VERIFY(status)
+            exportstate = cap%child_exports(cap%extdata_id), clock = cap%clock, userrc=userRC, _RC)
+       _VERIFY(userRC)
 
 
        call CAP_Finalize(CAP%CLOCK_HIST, "cap_restart", rc=STATUS)
        _VERIFY(status)
 
-       call ESMF_ConfigDestroy(cap%cf_ext, rc = status)
-       _VERIFY(status)
-       call ESMF_ConfigDestroy(cap%cf_hist, rc = status)
-       _VERIFY(status)
-       call ESMF_ConfigDestroy(cap%cf_root, rc = status)
-       _VERIFY(status)
-       call ESMF_ConfigDestroy(cap%config, rc = status)
-       _VERIFY(status)
+       call ESMF_ConfigDestroy(cap%cf_ext, _RC)
+       call ESMF_ConfigDestroy(cap%cf_hist, _RC)
+       call ESMF_ConfigDestroy(cap%cf_root, _RC)
+       call ESMF_ConfigDestroy(cap%config, _RC)
 
-       call MAPL_FinalizeShmem(rc = status)
-       _VERIFY(STATUS)
+       call MAPL_FinalizeShmem(_RC)
 
        ! Write EGRESS file
        !------------------
@@ -855,151 +973,12 @@ contains
     call m_p%stop('Finalize')
 
     _RETURN(ESMF_SUCCESS)
+    _UNUSED_DUMMY(import_state)
+    _UNUSED_DUMMY(export_state)
+    _UNUSED_DUMMY(clock)
+    
   end subroutine finalize_gc
 
-
-  subroutine set_services_gc(gc, rc)
-    type (ESMF_GridComp) :: gc
-    integer, intent(out) :: rc
-
-    integer :: status, phase
-    type(MAPL_CapGridComp), pointer :: cap
-    type(MAPL_MetaComp), pointer :: meta, root_meta
-    class(BaseProfiler), pointer :: t_p
-
-    type (ESMF_GridComp), pointer :: root_gc
-    character(len=ESMF_MAXSTR)   :: ROOT_NAME
-    procedure(), pointer :: root_set_services
-    class(Logger), pointer :: lgr
-    character(len=ESMF_MAXSTR)   :: HIST_CF, ROOT_CF, EXTDATA_CF
-    integer                      :: RUN_DT
-    integer                      :: heartbeat_dt
-    integer :: NX, NY
-    integer                      :: MemUtilsMode
-    character(len=ESMF_MAXSTR)   :: enableMemUtils
-    character(len=ESMF_MAXSTR)   :: enableTimers
-    type(ESMF_GridComp), pointer :: child_gc
-    type(MAPL_MetaComp), pointer :: child_meta
-    character(len=ESMF_MAXSTR)   :: EXPID
-    character(len=ESMF_MAXSTR)   :: EXPDSC
-    logical                      :: cap_clock_is_present
-    type(ESMF_TimeInterval)      :: Frequency
-
-    cap => get_CapGridComp_from_gc(gc)
-    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, userRoutine = initialize_gc, _RC)
-
-    do phase = 1, cap%n_run_phases
-       call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, userRoutine = run_gc, _RC)
-    enddo
-
-    call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE, userRoutine = finalize_gc, _RC)
-
-    call ESMF_GridCompGet(gc, clockIsPresent=cap_clock_is_present, _RC)
-
-    if (cap_clock_is_present) then
-       call ESMF_ClockGet(cap%clock, timeStep=frequency, _RC)
-       call ESMF_TimeIntervalGet(frequency, s=heartbeat_dt, _RC)
-    else
-       call ESMF_ConfigGetAttribute(cap%config, value = heartbeat_dt, Label = "HEARTBEAT_DT:", _RC)
-       call ESMF_TimeIntervalSet(frequency, s = heartbeat_dt, _RC)
-    end if
-
-    cap%heartbeat_dt = heartbeat_dt
-
-    ! Register the children with MAPL
-    !--------------------------------
-
-    !  Create Root child
-    !-------------------
-    call MAPL_InternalStateRetrieve(gc, meta, _RC)
-!!$    call MAPL_Set(meta, CF=CAP%CF_ROOT, _RC)
-    call MAPL_GetLogger(gc, lgr, _RC)
-
-    t_p => get_global_time_profiler()
-    call t_p%start('SetService')
-
-    ! !RESOURCE_ITEM: string :: Name to assign to the ROOT component
-    call MAPL_GetResource(meta, root_name, "ROOT_NAME:", default = "ROOT", _RC)
-    call MAPL_GetResource(meta, ROOT_CF, "ROOT_CF:", default = "ROOT.rc", _RC)
-    root_set_services => cap%root_set_services
-    cap%root_id = MAPL_AddChild(meta, name = root_name, SS=root_set_services, configFile=ROOT_CF, _RC)  
-
-      child_gc => meta%get_child_gridcomp(cap%root_id)
-      call MAPL_InternalStateRetrieve(child_gc, child_meta, _RC)
-      call MAPL_Get(child_meta, cf=cap%cf_root, _RC)
-      ! Add NX and NY from ROOT config to ExtData config
-      call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", _RC)
-      call ESMF_ConfigGetAttribute(cap%cf_root, value = NY, Label="NY:", _RC)
-      call ESMF_ConfigSetAttribute(cap%cf_root, value = heartbeat_dt, Label="RUN_DT:", _RC)
-
-    !  Create History child
-    !----------------------
-
-    ! !RESOURCE_ITEM: string :: Name of HISTORY's config file 
-    call MAPL_GetResource(meta, HIST_CF, "HIST_CF:", default = "HIST.rc", _RC)
-    cap%history_id = MAPL_AddChild( meta, name='HIST', SS=HIST_SetServices, configFile=HIST_CF, _RC)  
-
-    child_gc => meta%get_child_gridcomp(cap%history_id)
-    call MAPL_InternalStateRetrieve(child_gc, child_meta, _RC)
-    call MAPL_Get(child_meta, cf=cap%cf_hist, _RC)
-    call ESMF_ConfigLoadFile(cap%cf_hist, HIST_CF, _RC)
-
-    call MAPL_ConfigSetAttribute(cap%cf_hist, value=HIST_CF, Label="HIST_CF:", _RC)
-    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPID,  Label="EXPID:", default='', _RC)
-    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPDSC, Label="EXPDSC:", default='', _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPID,  Label="EXPID:",  _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_root, value=EXPDSC, Label="EXPDSC:", _RC)
-
-    call MAPL_ConfigSetAttribute(cap%cf_hist, value=heartbeat_dt, Label="RUN_DT:", _RC)
-
-    call ESMF_ConfigGetAttribute(cap%cf_root, value = NX, Label="NX:", _RC)
-    call ESMF_ConfigGetAttribute(cap%cf_root, value = NY, Label="NY:", _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_hist, value = NX, Label="NX:",  _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_hist, value = NY, Label="NY:",  _RC)
-
-    !  Create ExtData child
-    !----------------------
-    cap%cf_ext = ESMF_ConfigCreate(_RC)
-    call MAPL_GetResource(meta, EXTDATA_CF, "EXTDATA_CF:", default = "ExtData.rc", _RC)
-    call ESMF_ConfigLoadFile(cap%cf_ext, EXTDATA_CF, _RC)
-
-
-    cap%extdata_id = MAPL_AddChild (meta, name='EXTDATA', SS=ExtData_SetServices, configFile=EXTDATA_CF, _RC)
-    child_gc => meta%get_child_gridcomp(cap%extdata_id)
-    call MAPL_InternalStateRetrieve(child_gc, child_meta, _RC)
-    call MAPL_Get(child_meta, cf=cap%cf_ext, _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_ext, value=NX,  Label="NX:",  _RC)
-    call MAPL_ConfigSetAttribute(cap%cf_ext, value=NY,  Label="NY:",  _RC)
-
-    call ESMF_ConfigGetAttribute(cap%cf_ext, value=RUN_DT, Label="RUN_DT:", rc=status)
-    if (status == ESMF_SUCCESS) then
-       if (heartbeat_dt /= run_dt) then
-          call lgr%error('inconsistent values of heartbeat_dt (%g0) and ExtData RUN_DT (%g0)', heartbeat_dt, run_dt)
-          _FAIL('inconsistent values of heartbeat_dt and RUN_DT')
-       end if
-    else
-       call MAPL_ConfigSetAttribute(cap%cf_ext, value=heartbeat_dt, Label="RUN_DT:", _RC)
-    endif
-    call MAPL_ConfigSetAttribute(cap%cf_ext, value=EXTDATA_CF,  Label="CF_EXTDATA:",  _RC)
-
-      
-    call t_p%stop('SetService')
-
-
-    ! !RESOURCE_ITEM: string :: Control Memory Diagnostic Utility 
-    call MAPL_GetResource(meta, enableMemUtils, "MAPL_ENABLE_MEMUTILS:", default='NO', _RC)
-    call MAPL_GetResource(meta, MemUtilsMode, "MAPL_MEMUTILS_MODE:", default = MAPL_MemUtilsModeBase, _RC)
-    enableMemUtils = ESMF_UtilStringUpperCase(enableMemUtils, _RC)
-
-    if (enableMemUtils /= 'YES') then
-       call MAPL_MemUtilsDisable(_RC)
-    else
-       call MAPL_MemUtilsInit( mode=MemUtilsMode, _RC)
-    end if
-
-    _RETURN(ESMF_SUCCESS)
-
-  end subroutine set_services_gc
 
 
   subroutine set_services(this, rc)
@@ -1008,8 +987,7 @@ contains
     integer :: status
 
     call new_generic_setservices(this%gc, _RC)
-!!$    call ESMF_GridCompSetServices(this%gc, set_services_gc, rc = status)
-!!$    _VERIFY(status)
+
     _RETURN(ESMF_SUCCESS)
   end subroutine set_services
 
@@ -1050,8 +1028,8 @@ contains
     
     integer :: status    
     
-    call ESMF_GridCompFinalize(this%gc, rc = status)
-    _VERIFY(status)
+    call ESMF_GridCompFinalize(this%gc, _RC)
+
     _RETURN(ESMF_SUCCESS)
   end subroutine finalize
 

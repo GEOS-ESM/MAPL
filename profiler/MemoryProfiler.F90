@@ -14,8 +14,6 @@ module MAPL_MemoryProfiler_private
 
    public :: MemoryProfiler
    public :: MemoryProfilerIterator
-   public :: get_global_memory_profiler
-
 
    type, extends(BaseProfiler) :: MemoryProfiler
       private
@@ -27,8 +25,6 @@ module MAPL_MemoryProfiler_private
    interface MemoryProfiler
       module procedure new_MemoryProfiler
    end interface MemoryProfiler
-
-   type(MemoryProfiler), protected, target :: global_memory_profiler
 
 contains
 
@@ -51,14 +47,6 @@ contains
 
       _UNUSED_DUMMY(this)
    end function make_meter
-
-
-   function get_global_memory_profiler() result(memory_profiler)
-      type(MemoryProfiler), pointer :: memory_profiler
-
-      memory_profiler => global_memory_profiler
-
-   end function get_global_memory_profiler
 
 
    subroutine copy(new, old)
@@ -84,67 +72,8 @@ module MAPL_MemoryProfiler
 
    public :: MemoryProfiler
    public :: MemoryProfilerIterator
-   public :: get_global_memory_profiler
-   public :: initialize_global_memory_profiler
-   public :: finalize_global_memory_profiler
-   public :: start_global_memory_profiler
-   public :: stop_global_memory_profiler
 
 contains
-
-   subroutine initialize_global_memory_profiler(name)
-      character(*), optional, intent(in) :: name
-
-      type(MemoryProfiler), pointer :: memory_profiler
-      character(:), allocatable :: name_
-
-      if (present(name)) then
-         name_ = name
-      else
-         name_ = 'top'
-      end if
-
-      memory_profiler => get_global_memory_profiler()
-      memory_profiler = MemoryProfiler(name_)
-
-   end subroutine initialize_global_memory_profiler
-
-
-   subroutine finalize_global_memory_profiler()
-
-      type(MemoryProfiler), pointer :: memory_profiler
-
-      memory_profiler => get_global_memory_profiler()
-      call memory_profiler%finalize()
-
-   end subroutine finalize_global_memory_profiler
-
-
-   subroutine start_global_memory_profiler(unusable, rc)
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-      
-      integer :: status
-      type(MemoryProfiler), pointer :: memory_profiler
-
-      memory_profiler => get_global_memory_profiler()
-      call memory_profiler%start(_RC)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine start_global_memory_profiler
-
-   
-   subroutine stop_global_memory_profiler(name)
-      character(*), intent(in) :: name
-
-      type(MemoryProfiler), pointer :: memory_profiler
-
-      memory_profiler => get_global_memory_profiler()
-      call memory_profiler%stop(name)
-
-   end subroutine stop_global_memory_profiler
-
 
 
 end module MAPL_MemoryProfiler

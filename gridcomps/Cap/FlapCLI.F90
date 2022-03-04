@@ -225,6 +225,22 @@ contains
            error=status)
       _VERIFY(status)
 
+      call options%add(switch='--enable_global_timeprof', &
+           help='Enables global time profiler', &
+           required=.false., &
+           def='.false.', &
+           act='store_true', &
+           error=status)
+      _VERIFY(status)
+
+      call options%add(switch='--enable_global_memprof', &
+           help='Enables global memory profiler', &
+           required=.false., &
+           def='.false.', &
+           act='store_true', &
+           error=status)
+      _VERIFY(status)
+
       _RETURN(_SUCCESS)
 
    end subroutine add_command_line_options
@@ -305,6 +321,10 @@ contains
       call flapCLI%cli_options%get(val=buffer, switch='--oserver_type', error=status); _VERIFY(status)
       cap_options%oserver_type = trim(buffer)
       call flapCLI%cli_options%get(val=cap_options%npes_backend_pernode, switch='--npes_backend_pernode', error=status); _VERIFY(status)
+
+      ! Profiling options
+      call flapCLI%cli_options%get(val=cap_options%enable_global_timeprof, switch='--enable_global_timeprof', error=status); _VERIFY(status)
+      call flapCLI%cli_options%get(val=cap_options%enable_global_memprof, switch='--enable_global_memprof', error=status); _VERIFY(status)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

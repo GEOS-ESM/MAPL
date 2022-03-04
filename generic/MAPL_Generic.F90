@@ -665,7 +665,7 @@ contains
       type(ESMF_State), pointer :: child_export_state
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: internal_state
-      class(BaseProfiler), pointer :: m_p
+      class(DistributedProfiler), pointer :: m_p
       !=============================================================================
 
       ! Begin...
@@ -1534,8 +1534,8 @@ contains
       integer                          :: I
       type(ESMF_Method_Flag)           :: method
       type(ESMF_VM) :: VM
-      class(BaseProfiler), pointer :: t_p
-      class(BaseProfiler), pointer :: m_p
+      class(DistributedProfiler), pointer :: t_p
+      class(DistributedProfiler), pointer :: m_p
       character(1) :: char_phase
 
       character(len=12), pointer :: timers(:) => NULL()
@@ -1825,8 +1825,8 @@ contains
       character(len=ESMF_MAXSTR)                  :: id_string
       integer                                     :: ens_id_width
       type(ESMF_Time)                             :: CurrTime
-      class(BaseProfiler), pointer                :: t_p
-      class(BaseProfiler), pointer                :: m_p
+      class(DistributedProfiler), pointer                :: t_p
+      class(DistributedProfiler), pointer                :: m_p
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
@@ -2012,8 +2012,7 @@ contains
          type (ESMF_VM) :: vm
          character(1) :: empty(0)
 
-         call ESMF_VmGetCurrent(vm, rc=status)
-         _VERIFY(status)
+         call ESMF_VmGetCurrent(vm, _RC)
 
          ! Generate stats _across_ processes covered by this timer
          ! Requires consistent call trees for now.
@@ -2056,7 +2055,6 @@ contains
             call reporter%add_column(pe_multi)
             call reporter%add_column(SeparatorColumn('|'))
             call reporter%add_column(n_cyc_multi)
-
 
             report = reporter%generate_report(state%t_profiler)
             write(OUTPUT_UNIT,*)''
@@ -2110,7 +2108,7 @@ contains
 
       integer                                     :: K
       logical                                     :: ftype(0:1)
-      class(BaseProfiler), pointer                :: t_p, m_p
+      class(DistributedProfiler), pointer                :: t_p, m_p
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
@@ -2334,8 +2332,8 @@ contains
       character(len=ESMF_MAXSTR)                  :: filetypechar
       character(len=4)                            :: extension
       integer                                     :: hdr
-      class(BaseProfiler), pointer                :: t_p
-      class(BaseProfiler), pointer                :: m_p
+      class(DistributedProfiler), pointer                :: t_p
+      class(DistributedProfiler), pointer                :: m_p
       type(ESMF_GridComp), pointer :: gridcomp
       type(ESMF_State), pointer :: child_import_state
       type(ESMF_State), pointer :: child_export_state
@@ -4373,8 +4371,8 @@ contains
 
       integer                                     :: I
       type(MAPL_MetaComp), pointer                :: child_meta
-      class(BaseProfiler), pointer                :: t_p
-      class(BaseProfiler), pointer                :: m_p
+      class(DistributedProfiler), pointer                :: t_p
+      class(DistributedProfiler), pointer                :: m_p
       integer :: userRC
 
       if (.not.allocated(META%GCNameList)) then
@@ -4386,6 +4384,8 @@ contains
       AddChildFromMeta = I
 
       call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentgc, petList=petlist, child_meta=child_meta, __RC__)
+
+
       t_p => get_global_time_profiler()
       m_p => get_global_memory_profiler()
       call t_p%start(trim(NAME),__RC__)
@@ -4490,8 +4490,9 @@ contains
          ! Create child components time profiler
          call ESMF_VMGetCurrent(vm, __RC__)
          call ESMF_VMGet(vm, mpiCommunicator=comm, __RC__)
-         CHILD_META%t_profiler = DistributedProfiler(trim(name), MpiTimerGauge(), comm=comm)
 
+         CHILD_META%t_profiler = DistributedProfiler(trim(name), MpiTimerGauge(), comm=comm)
+            
       end select
 
       ! put parentGC there
@@ -4615,8 +4616,8 @@ contains
 
       integer                                     :: I
       type(MAPL_MetaComp), pointer                :: child_meta
-      class(BaseProfiler), pointer                :: t_p
-      class(BaseProfiler), pointer                :: m_p
+      class(DistributedProfiler), pointer                :: t_p
+      class(DistributedProfiler), pointer                :: m_p
 
       class(Logger), pointer :: lgr
       character(len=:), allocatable :: shared_object_library_to_load

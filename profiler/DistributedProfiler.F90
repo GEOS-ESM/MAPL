@@ -53,7 +53,7 @@ contains
       class(DistributedProfiler), intent(in) :: this
 
       meter = DistributedMeter(this%gauge)
-!!$      meter = DistributedMeter(MpiTimerGauge())
+
    end function make_meter
 
 
@@ -69,14 +69,14 @@ contains
       do while (iter /= root%end())
          node => iter%get()
          m => iter%get_meter()
-
+         
          select type (m)
          class is (DistributedMeter)
             call m%reduce(this%comm, node%get_exclusive())
          class default
             print*,'error - wrong type (other)'
          end select
-
+         
          call iter%next()
       end do
       
