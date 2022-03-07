@@ -18,6 +18,12 @@ Fixes DO_NOT_CONNECT errors when calling MAPL_TerminateAnyImport
 
 ### Deprecated
 
+## [2.18.1] - 2022-03-07
+
+### Fixed
+
+- Fixed the alarms in the couplers to account if they are called before ESMF_ClockAdvance is called
+
 ## [2.18.0] - 2022-02-23
 
 ### Fixed
