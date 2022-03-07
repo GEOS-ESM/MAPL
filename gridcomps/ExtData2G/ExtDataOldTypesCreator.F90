@@ -75,7 +75,6 @@ module MAPL_ExtDataOldTypesCreator
 
       _UNUSED_DUMMY(unusable)
       rule => this%rule_map%at(trim(item_name))
-      write(*,*)"bmaa associated rule ",associated(rule)
       time_sample => this%sample_map%at(rule%sample_key)
       
       if(.not.associated(time_sample)) then
