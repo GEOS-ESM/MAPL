@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- Fixed the alarms in the couplers to account if they are called before ESMF_ClockAdvance is called
 
 ### Added
 
@@ -17,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.18.1] - 2022-03-07
+
+### Fixed
+
+- Fixed the alarms in the couplers to account if they are called before ESMF_ClockAdvance is called
 
 ## [2.18.0] - 2022-02-23
 
