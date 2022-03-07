@@ -24,7 +24,7 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR) :: descr
      character(len=ESMF_MAXSTR) :: comment
      character(len=ESMF_MAXSTR) :: contact
-     character(len=ESMF_MAXSTR) :: convention
+     character(len=ESMF_MAXSTR) :: conventions
      character(len=ESMF_MAXSTR) :: institution
      character(len=ESMF_MAXSTR) :: references
      character(len=ESMF_MAXSTR) :: source
@@ -89,9 +89,9 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR),pointer :: PExtraFields(:) => null()
      character(len=ESMF_MAXSTR),pointer :: PExtraGridComp(:) => null()
      type (FieldSet), pointer :: field_set
-     logical, pointer                   :: r8_to_r4(:) => null()
-     type(ESMF_FIELD), pointer          :: r8(:) => null()
-     type(ESMF_FIELD), pointer          :: r4(:) => null()
+     logical, allocatable               :: r8_to_r4(:)
+     type(ESMF_FIELD), allocatable      :: r8(:)
+     type(ESMF_FIELD), allocatable      :: r4(:)
      character(len=ESMF_MAXSTR)         :: output_grid_label
      type(GriddedIOItemVector)          :: items
      character(len=ESMF_MAXSTR)         :: currentFile
@@ -114,13 +114,12 @@ module MAPL_HistoryCollectionMod
         integer, optional, intent(out) :: rc
 
         type(StringStringMap) :: global_attributes
-        integer :: status
 
         call global_attributes%insert("Title",trim(this%descr))
         call global_attributes%insert("History","File written by MAPL_PFIO")
         call global_attributes%insert("Source",trim(this%source))
         call global_attributes%insert("Contact",trim(this%contact))
-        call global_attributes%insert("Convention",trim(this%convention))
+        call global_attributes%insert("Conventions",trim(this%conventions))
         call global_attributes%insert("Institution",trim(this%institution))
         call global_attributes%insert("References",trim(this%references))
         call global_attributes%insert("Filename",trim(this%filename))

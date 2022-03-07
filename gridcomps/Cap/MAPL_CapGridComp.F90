@@ -1573,6 +1573,7 @@ contains
     type(ESMF_Time)          :: CurrTime     ! Current     Current Time of Experiment
     type(ESMF_TimeInterval)  :: timeStep     ! HEARTBEAT
     type(ESMF_TimeInterval)  :: duration
+    type(ESMF_TimeInterval)  :: maxDuration
     type(ESMF_Calendar)      :: cal
     character(ESMF_MAXSTR)   :: calendar
 
@@ -1823,6 +1824,9 @@ contains
          startTime = currTime, &
          rc = STATUS  )
     _VERIFY(STATUS)
+
+    maxDuration = EndTime - currTime
+    if (duration > maxDuration) duration = maxDuration
 
     stopTime = currTime + duration
 
