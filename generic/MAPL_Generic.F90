@@ -7021,6 +7021,7 @@ contains
 
                   STATE%CCcreated(J,I) = .true.
 
+                  call ESMF_AttributeSet(CCS(J,I), name='ClockYetToAdvance', value=.true., _RC)
                   call WRITE_PARALLEL("Coupler needed for "//trim(SRCNAME)// ' and ' //&
                        trim(DSTNAME))
                   call ESMF_CplCompSetServices (CCS(J,I), GenericCplSetServices, RC=status )
