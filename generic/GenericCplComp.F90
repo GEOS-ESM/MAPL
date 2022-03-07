@@ -9,7 +9,7 @@
 
 ! !DESCRIPTION:
 !
-!  This is a generic coupler component used by \ggn\ to instantiate 
+!  This is a generic coupler component used by \ggn\ to instantiate
 !  the automatic couplers it needs.
 !  \newline
 
@@ -90,9 +90,9 @@ contains
 
 ! !ARGUMENTS:
 
-    type (ESMF_CplComp  )                          :: CC  
+    type (ESMF_CplComp  )                          :: CC
     integer,                         intent(  OUT) :: RC
-    
+
 !EOPI
 
 ! ErrLog Variables
@@ -162,11 +162,11 @@ contains
   end subroutine GenericCplSetServices
 
   subroutine MAPL_CplCompSetVarSpecs ( CC, SRC_SPEC, DST_SPEC, RC )
-    type (ESMF_CplComp  ),           intent(INOUT) :: CC  
+    type (ESMF_CplComp  ),           intent(INOUT) :: CC
     type (MAPL_VarSpec  ), target,   intent(IN   ) :: SRC_SPEC(:)
     type (MAPL_VarSpec  ), target,   intent(IN   ) :: DST_SPEC(:)
     integer, optional,               intent(  OUT) :: RC
-    
+
 ! ErrLog Variables
 
     character(len=ESMF_MAXSTR)    :: IAm
@@ -262,9 +262,9 @@ contains
     type (ESMF_TimeInterval   )           :: TCLR
     type (ESMF_TimeInterval   )           :: TS
     type (ESMF_TimeInterval   )           :: TOFF ! offset for alarms
-    type (ESMF_Time           )           :: TM0 
+    type (ESMF_Time           )           :: TM0
     type (ESMF_Time           )           :: currTime ! current time of the clock
-    type (ESMF_Time           )           :: rTime 
+    type (ESMF_Time           )           :: rTime
     type (ESMF_Calendar       )           :: cal
     type (ESMF_Info           )           :: infoh
     integer                               :: J, L1, LN
@@ -350,11 +350,10 @@ contains
 
     TM0 = currTime
 
-    call ESMF_AttributeGet(CC, name='ClockYetToAdvance', &
-         isPresent=isPresent, _RC)
+    call ESMF_InfoGetFromHost(CC,infoh,_RC)
+    isPresent = ESMF_InfoIsPresent(infoh,'ClockYetToAdvance',_RC)
     if (isPresent) then
-       call ESMF_AttributeGet(CC, name='ClockYetToAdvance', &
-            value=clockYetToAdvance, _RC)
+       call ESMF_InfoGet(infoh,key='ClockYetToAdvance',value=clockYetToAdvance,_RC)
     else
        clockYetToAdvance = .false.
     endif
@@ -431,14 +430,14 @@ contains
 
           rTime = TM0 + TOFF - TCLR
 
-          do while (rTime < currTime) 
+          do while (rTime < currTime)
              rTime = rTime + TCPL
           end do
 
           STATE%TIME_TO_CLEAR(J) = ESMF_AlarmCreate(NAME='TIME2CLEAR_' // trim(COMP_NAME) &
                // '_' // trim(NAME),   &
                clock        = CLOCK,   &
-               ringInterval = TCPL,    & 
+               ringInterval = TCPL,    &
                ringTime     = rTime,   &
                sticky       = .false., &
                rc=STATUS   )
@@ -517,7 +516,7 @@ contains
 ! Put pointer in accumulator
           STATE%ACCUMULATORS(J)=ESMF_LocalArrayCreate( PTR30, RC=STATUS)
           _VERIFY(STATUS)
-          
+
        case(2)
           call MAPL_GetPointer(SRC, PTR2, NAME, ALLOC=.TRUE., RC=STATUS)
           _VERIFY(STATUS)
@@ -564,7 +563,7 @@ contains
 ! !INTERFACE:
 
   subroutine Run(CC, SRC, DST, CLOCK, RC)
-    
+
 ! !ARGUMENTS:
 
     type (ESMF_CplComp)      :: CC
@@ -608,10 +607,10 @@ contains
 
 ! If the state is inactive, src and dst are the same
 ! --------------------------------------------------
-    
+
     if(STATE%ACTIVE) then
 
-! Make sure SRC and DST descriptors exist 
+! Make sure SRC and DST descriptors exist
 !----------------------------------------
 
        _ASSERT(associated(STATE%SRC_SPEC),'needs informative message')
@@ -643,7 +642,7 @@ contains
   subroutine ACCUMULATE(SRC, STATE, RC)
     type (ESMF_State)           :: SRC
     type (MAPL_GenericCplState) :: STATE
-    integer, optional           :: RC 
+    integer, optional           :: RC
 
 ! local vars
 
@@ -681,7 +680,7 @@ contains
        DIMS = STATE%ACCUM_RANK(J)
 
 ! Process the 3 dimensions
-!------------------------- 
+!-------------------------
 
        select case(DIMS)
 
@@ -718,7 +717,7 @@ contains
                    DO I3=1,size(PTR3,3)
                       if (PTR30(I1,I2,I3)== MAPL_Undef) then
                          PTR30(I1,I2,I3) = PTR3(I1,I2,I3)
-                      else 
+                      else
                          if (couplerType == MAPL_CplMax) then
                             PTR30(I1,I2,I3) = max(PTR30(I1,I2,I3),PTR3(I1,I2,I3))
                          else if (couplerType == MAPL_CplMin) then
@@ -762,7 +761,7 @@ contains
                 DO I2=1,size(PTR2,2)
                    if (PTR20(I1,I2)== MAPL_Undef) then
                       PTR20(I1,I2) = PTR2(I1,I2)
-                   else 
+                   else
                       if (couplerType == MAPL_CplMax) then
                          PTR20(I1,I2) = max(PTR20(I1,I2),PTR2(I1,I2))
                       else if (couplerType == MAPL_CplMin) then
@@ -804,7 +803,7 @@ contains
              DO I1=1,size(PTR1,1)
                 if (PTR10(I1)== MAPL_Undef) then
                    PTR10(I1) = PTR1(I1)
-                else 
+                else
                    if (couplerType == MAPL_CplMax) then
                       PTR10(I1) = max(PTR10(I1),PTR1(I1))
                    else if (couplerType == MAPL_CplMin) then
@@ -819,7 +818,7 @@ contains
 
        end select
 
-       if(couplerType == MAPL_CplMax .or. couplerType == MAPL_CplMin) then 
+       if(couplerType == MAPL_CplMax .or. couplerType == MAPL_CplMin) then
         STATE%ACCUM_COUNT(J) = 1
        else
         STATE%ACCUM_COUNT(J) = STATE%ACCUM_COUNT(J) + 1
@@ -833,7 +832,7 @@ contains
 
   subroutine ZERO_CLEAR_COUNT(STATE, RC)
     type (MAPL_GenericCplState) :: STATE
-    integer, optional           :: RC 
+    integer, optional           :: RC
 
 ! local vars
 
@@ -854,7 +853,7 @@ contains
 
        RINGING = ESMF_AlarmIsRinging(STATE%TIME_TO_CLEAR(J), RC=STATUS)
        _VERIFY(STATUS)
-       
+
        if (RINGING) then
           if(.not.associated(STATE%TIME2CPL_ALARM)) then
              call ESMF_AlarmRingerOff(STATE%TIME_TO_CLEAR(J), RC=STATUS)
@@ -927,7 +926,7 @@ contains
   subroutine COUPLE(SRC, STATE, RC)
     type (ESMF_State)           :: SRC
     type (MAPL_GenericCplState) :: STATE
-    integer, optional           :: RC 
+    integer, optional           :: RC
 
 ! local vars
 
@@ -954,7 +953,7 @@ contains
        couplerType = state%couplerType(J)
        RINGING = ESMF_AlarmIsRinging(STATE%TIME_TO_COUPLE(J), RC=STATUS)
        _VERIFY(STATUS)
-       
+
        if (RINGING) then
 
           if(.not.associated(STATE%TIME2CPL_ALARM)) then
@@ -979,13 +978,13 @@ contains
              PTR3c => STATE%ARRAY_COUNT(J)%PTR3C
              if(associated(PTR3C)) then
                 if (couplerType /= MAPL_CplAccumulate) then
-                   where (PTR3C /= 0) 
+                   where (PTR3C /= 0)
                       PTR30 = PTR30 / PTR3C
                    elsewhere
                       PTR30 = MAPL_Undef
                    end where
                 else
-                   where (PTR3C /= 0) 
+                   where (PTR3C /= 0)
                       PTR30 = PTR30
                    elsewhere
                       PTR30 = MAPL_Undef
@@ -1047,13 +1046,13 @@ contains
              PTR1c => STATE%ARRAY_COUNT(J)%PTR1C
              if(associated(PTR1C)) then
                 if (couplerType /= MAPL_CplAccumulate) then
-                   where (PTR1C /= 0) 
+                   where (PTR1C /= 0)
                       PTR10 = PTR10 / PTR1C
                    elsewhere
                       PTR10 = MAPL_Undef
                    end where
                 else
-                   where (PTR1C /= 0) 
+                   where (PTR1C /= 0)
                       PTR10 = PTR10
                    elsewhere
                       PTR10 = MAPL_Undef
@@ -1215,7 +1214,7 @@ contains
 !ALT: Uncomment when done
 !strategy
 !root tries to open the restart (or inquire)
-!if the file is there 
+!if the file is there
 ! read the restart:
 !==================
 !    call ESMF_CplCompGet(CC, vm=vm, name=name, rc=status)
@@ -1252,7 +1251,7 @@ contains
           ! varname we can get from query SHORT_NAME in state%src_spec(i)
           call MAPL_VarSpecGet(state%src_spec(i), SHORT_NAME=name, rc=status)
           _VERIFY(status)
-          call ESMF_StateGet(SRC, name, field=field, rc=status) 
+          call ESMF_StateGet(SRC, name, field=field, rc=status)
           _VERIFY(status)
           call ESMF_FieldGet(field, grid=grid, rc=status)
           _VERIFY(status)
@@ -1268,7 +1267,7 @@ contains
              _VERIFY(STATUS)
           end if
           ! ALT note: calling a procedure with optional argument, and passing NULL pointer to indicate "absent", needs ifort16 or newer
-          
+
           if (am_i_root) then
              read(unit) n_count
           end if
@@ -1287,7 +1286,7 @@ contains
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(i), &
                   farrayPtr=ptr3, RC=status)
              _VERIFY(status)
-             
+
              call MAPL_VarRead(unit, grid, ptr3, rc=status)
              _VERIFY(STATUS)
              if (n_undefs /=0) then
@@ -1306,7 +1305,7 @@ contains
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(i), &
                   farrayPtr=ptr2, RC=status)
              _VERIFY(status)
-             
+
              call MAPL_VarRead(unit, grid, ptr2, mask=mask, rc=status)
              _VERIFY(STATUS)
              if (n_undefs /=0) then
@@ -1325,7 +1324,7 @@ contains
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(i), &
                   farrayPtr=ptr1, RC=status)
              _VERIFY(status)
-             
+
              call MAPL_VarRead(unit, grid, ptr1, mask=mask, rc=status)
              _VERIFY(STATUS)
              if (n_undefs /=0) then
@@ -1436,7 +1435,7 @@ contains
        ! varname we can get from query SHORT_NAME in state%src_spec(i)
        call MAPL_VarSpecGet(state%src_spec(i), SHORT_NAME=name, rc=status)
        _VERIFY(status)
-       call ESMF_StateGet(SRC, name, field=field, rc=status) 
+       call ESMF_StateGet(SRC, name, field=field, rc=status)
        _VERIFY(status)
        call ESMF_FieldGet(field, grid=grid, rc=status)
        _VERIFY(status)
@@ -1452,7 +1451,7 @@ contains
           _VERIFY(STATUS)
        end if
 
-       !we need to get the MAX n_count         
+       !we need to get the MAX n_count
        call MAPL_CommsAllReduceMax(vm, sendbuf=state%accum_count(i), &
             recvbuf=n_count, cnt=1, RC=status)
        _VERIFY(status)
@@ -1484,7 +1483,7 @@ contains
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(i), &
                   farrayPtr=ptr3, RC=status)
              _VERIFY(status)
-             
+
              call MAPL_VarWrite(unit, grid, ptr3, rc=status)
              _VERIFY(STATUS)
              if (n_undefs /=0) then
@@ -1503,7 +1502,7 @@ contains
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(i), &
                   farrayPtr=ptr2, RC=status)
              _VERIFY(status)
-             
+
              call MAPL_VarWrite(unit, grid, ptr2, mask=mask, rc=status)
              _VERIFY(STATUS)
              if (n_undefs /=0) then
@@ -1522,7 +1521,7 @@ contains
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(i), &
                   farrayPtr=ptr1, RC=status)
              _VERIFY(status)
-             
+
              call MAPL_VarWrite(unit, grid, ptr1, mask=mask, rc=status)
              _VERIFY(STATUS)
              if (n_undefs /=0) then
@@ -1550,10 +1549,10 @@ contains
   end subroutine WriteRestart
 
   subroutine MAPL_CplCompSetAlarm ( CC, ALARM, RC )
-    type (ESMF_CplComp  ),           intent(INOUT) :: CC  
+    type (ESMF_CplComp  ),           intent(INOUT) :: CC
     type (ESMF_Alarm), target,       intent(IN   ) :: ALARM
     integer, optional,               intent(  OUT) :: RC
-    
+
 ! ErrLog Variables
 
     character(len=ESMF_MAXSTR)    :: IAm

@@ -4492,7 +4492,7 @@ contains
          call ESMF_VMGet(vm, mpiCommunicator=comm, __RC__)
 
          CHILD_META%t_profiler = DistributedProfiler(trim(name), MpiTimerGauge(), comm=comm)
-            
+
       end select
 
       ! put parentGC there
@@ -6766,6 +6766,8 @@ contains
       type (VarConn), pointer                :: CONNECT
       type (VarConn), pointer                :: DONOTCONN
       type(ESMF_GridComp), pointer :: gridcomp
+      type (ESMF_Info) :: infoh
+
       ! Begin
 
       ! Get my name and set-up traceback handle
@@ -7021,7 +7023,8 @@ contains
 
                   STATE%CCcreated(J,I) = .true.
 
-                  call ESMF_AttributeSet(CCS(J,I), name='ClockYetToAdvance', value=.true., _RC)
+                  call ESMF_InfoGetFromHost(CCS(J,I), infoh, _RC)
+                  call ESMF_InfoSet(infoh,key='ClockYetToAdvance', value=.true., _RC)
                   call WRITE_PARALLEL("Coupler needed for "//trim(SRCNAME)// ' and ' //&
                        trim(DSTNAME))
                   call ESMF_CplCompSetServices (CCS(J,I), GenericCplSetServices, RC=status )
