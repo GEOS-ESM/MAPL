@@ -27,7 +27,7 @@ module MAPL_ExtDataTypeDef
      character(len=ESMF_MAXSTR)   :: units=''
      integer                      :: Trans
      character(len=ESMF_MAXSTR)   :: var
-     character(len=ESMF_MAXPATHLEN)   :: file ! remove
+     character(len=ESMF_MAXPATHLEN)   :: file_template ! remove
 
      logical                      :: isConst
      real                         :: Const !remove

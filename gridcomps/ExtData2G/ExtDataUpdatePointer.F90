@@ -7,6 +7,9 @@ module MAPL_ExtDataPointerUpdate
    use MAPL_ExceptionHandling
    use MAPL_TimeStringConversion
    implicit none
+   private
+
+   public :: ExtDataPointerUpdate
 
    type :: ExtDataPointerUpdate
       private

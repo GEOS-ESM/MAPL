@@ -75,6 +75,7 @@ module MAPL_ExtDataOldTypesCreator
 
       _UNUSED_DUMMY(unusable)
       rule => this%rule_map%at(trim(item_name))
+      write(*,*)"bmaa associated rule ",associated(rule)
       time_sample => this%sample_map%at(rule%sample_key)
       
       if(.not.associated(time_sample)) then
@@ -143,10 +144,10 @@ module MAPL_ExtDataOldTypesCreator
       primary_item%isConst = .false.
       if (index(rule%collection,"/dev/null")==0) then
          dataset => this%file_stream_map%at(trim(rule%collection))
-         primary_item%file = dataset%file_template
+         primary_item%file_template = dataset%file_template
          call dataset%detect_metadata(primary_item%file_metadata,time,get_range=(trim(time_sample%extrap_outside) /= "none"),__RC__)
       else
-         primary_item%file = rule%collection
+         primary_item%file_template = rule%collection
       end if
 
       if (index(rule%collection,'/dev/null') /= 0) then

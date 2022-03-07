@@ -5,8 +5,6 @@ module MAPL_ExtdataSimpleFileHandler
    use MAPL_ExtDataAbstractFileHandler
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use MAPL_ExtDataFileStream
-   use MAPL_ExtDataFileStreamMap
    use MAPL_DataCollectionMod
    use MAPL_CollectionVectorMod
    use MAPL_DataCollectionManagerMod
@@ -39,7 +37,7 @@ contains
 
       type(ESMF_Time) :: time
       integer :: time_index
-      character(len=ESMF_MAXPATHLEN) :: file
+      character(len=ESMF_MAXPATHLEN) :: current_file
       logical :: get_left, get_right,in_range,was_set
       type(ESMF_Time) :: target_time
 
@@ -72,11 +70,11 @@ contains
 
       call ESMF_TimeIntervalSet(zero,__RC__)      
       if (this%frequency == zero) then
-         file = this%file_template
+         current_file = this%file_template
          if (get_left) then
-            call this%get_time_on_file(file,target_time,'L',time_index,time,__RC__)
+            call this%get_time_on_file(current_file,target_time,'L',time_index,time,__RC__)
             _ASSERT(time_index/=time_not_found,"Time not found in file")
-            call bracket%set_node('L',file=file,time_index=time_index,time=time,__RC__)
+            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,__RC__)
             if (in_range .and. (bracket%left_node == bracket%right_node)) then
                call bracket%swap_node_fields(rc=status)
                _VERIFY(status)
@@ -86,21 +84,21 @@ contains
             end if
          end if
          if (get_right) then
-            call this%get_time_on_file(file,target_time,'R',time_index,time,__RC__)
+            call this%get_time_on_file(current_file,target_time,'R',time_index,time,__RC__)
             _ASSERT(time_index/=time_not_found,"Time not found in file")
-            call bracket%set_node('R',file=file,time_index=time_index,time=time,__RC__)
+            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,__RC__)
             bracket%new_file_right=.true.
          end if
       else
          if (get_left) then
-            call this%get_file(file,target_time,0,__RC__)
-            call this%get_time_on_file(file,target_time,'L',time_index,time,__RC__)
+            call this%get_file(current_file,target_time,0,__RC__)
+            call this%get_time_on_file(current_file,target_time,'L',time_index,time,__RC__)
             if (time_index == time_not_found) then
-               call this%get_file(file,target_time,-1,__RC__)
-               call this%get_time_on_file(file,target_time,'L',time_index,time,__RC__)
+               call this%get_file(current_file,target_time,-1,__RC__)
+               call this%get_time_on_file(current_file,target_time,'L',time_index,time,__RC__)
                _ASSERT(time_index/=time_not_found,"Time not found in file")
             end if
-            call bracket%set_node('L',file=file,time_index=time_index,time=time,__RC__)
+            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,__RC__)
             if (in_range .and. (bracket%left_node == bracket%right_node)) then
                call bracket%swap_node_fields(rc=status)
                _VERIFY(status)
@@ -111,14 +109,14 @@ contains
          end if
 
          if (get_right) then
-            call this%get_file(file,target_time,0,__RC__)
-            call this%get_time_on_file(file,target_time,'R',time_index,time,__RC__)
+            call this%get_file(current_file,target_time,0,__RC__)
+            call this%get_time_on_file(current_file,target_time,'R',time_index,time,__RC__)
             if (time_index == time_not_found) then
-               call this%get_file(file,target_time,1,__RC__)
-               call this%get_time_on_file(file,target_time,'R',time_index,time,__RC__)
+               call this%get_file(current_file,target_time,1,__RC__)
+               call this%get_time_on_file(current_file,target_time,'R',time_index,time,__RC__)
                _ASSERT(time_index /= time_not_found,"Time not found in file")
             end if
-            call bracket%set_node('R',file=file,time_index=time_index,time=time,__RC__)
+            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,__RC__)
             bracket%new_file_right=.true.
          end if
 

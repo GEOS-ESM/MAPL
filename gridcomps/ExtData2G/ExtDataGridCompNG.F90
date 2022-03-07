@@ -39,8 +39,8 @@
    use ESMF_CFIOCollectionMod
    use MAPL_ConfigMod
    use MAPL_GridManagerMod
-   use MAPL_ExtData_IOBundleMod
-   use MAPL_ExtData_IOBundleVectorMod
+   use MAPL_ExtDataNG_IOBundleMod
+   use MAPL_ExtDataNG_IOBundleVectorMod
    use MAPL_ExceptionHandling
    use MAPL_DataCollectionMod
    use MAPL_CollectionVectorMod
@@ -420,7 +420,7 @@ CONTAINS
 
       item => self%primary%item(i)
 
-      item%pfioCollection_id = MAPL_DataAddCollection(item%file)
+      item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
 
 !  Read the single step files (read interval equal to zero)
 !  --------------------------------------------------------
@@ -464,7 +464,7 @@ CONTAINS
       call GetLevs(item,__RC__)
       call ESMF_VMBarrier(vm)
       ! register collections
-      item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file))
+      item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file_template))
       ! create interpolating fields, check if the vertical levels match the file
       if (item%vartype == MAPL_FieldItem) then
 
@@ -659,9 +659,9 @@ CONTAINS
 
    integer                           :: bracket_side
    integer                           :: entry_num
-   type(IOBundleVector), target     :: IOBundles
-   type(IOBundleVectorIterator) :: bundle_iter
-   type(ExtData_IOBundle), pointer :: io_bundle
+   type(IOBundleNGVector), target     :: IOBundles
+   type(IOBundleNGVectorIterator) :: bundle_iter
+   type(ExtDataNG_IOBundle), pointer :: io_bundle
 
    _UNUSED_DUMMY(IMPORT)
    _UNUSED_DUMMY(EXPORT)
@@ -721,7 +721,7 @@ CONTAINS
       IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
          Write(*,*) ' '
          Write(*,'(a,I0.3,a,I0.3,a,a)') 'ExtData Run_: READ_LOOP: variable ', i, ' of ', self%primary%nItems, ': ', trim(item%var)
-         Write(*,*) '   ==> file: ', trim(item%file)
+         Write(*,*) '   ==> file: ', trim(item%file_template)
          Write(*,*) '   ==> isConst: ', item%isConst
       ENDIF
 
@@ -825,7 +825,7 @@ CONTAINS
             Write(*,*) ' '
             Write(*,'(a)') 'ExtData Run_: INTERP_LOOP: interpolating between bracket times'
             Write(*,*) '   ==> variable: ', trim(item%var)
-            Write(*,*) '   ==> file: ', trim(item%file)
+            Write(*,*) '   ==> file: ', trim(item%file_template)
          ENDIF
         
          ! finally interpolate between bracketing times
@@ -1000,7 +1000,7 @@ CONTAINS
       type(PrimaryExport), intent(in) :: item
 
       if ( item%update_freq%is_single_shot() .or. &
-           trim(item%file) == '/dev/null' ) then
+           trim(item%file_template) == '/dev/null' ) then
           PrimaryExportIsConstant_ = .true. 
       else
           PrimaryExportIsConstant_ = .false.
@@ -1115,13 +1115,13 @@ CONTAINS
         var => null()
         if (item%isVector) then
            var=>item%file_metadata%get_variable(trim(item%fcomp1))
-           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file))
+           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file_template))
            var => null()
            var=>item%file_metadata%get_variable(trim(item%fcomp2))
-           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp2)//" not found in file "//TRIM(item%file))
+           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp2)//" not found in file "//TRIM(item%file_template))
         else
            var=>item%file_metadata%get_variable(trim(item%var))
-           _ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file))
+           _ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file_template))
         end if
    
         levName = item%file_metadata%get_level_name(rc=status)
@@ -2144,11 +2144,11 @@ CONTAINS
   end subroutine MAPL_ExtDataPopulateBundle
 
   subroutine MAPL_ExtDataCreateCFIO(IOBundles, rc)
-    type(IOBundleVector), target, intent(inout) :: IOBundles
+    type(IOBundleNGVector), target, intent(inout) :: IOBundles
     integer, optional,      intent(out  ) :: rc
 
-     type (IoBundleVectorIterator) :: bundle_iter
-     type (ExtData_IoBundle), pointer :: io_bundle
+     type (IOBundleNGVectorIterator) :: bundle_iter
+     type (ExtDataNG_IOBundle), pointer :: io_bundle
      integer :: status
     
      bundle_iter = IOBundles%begin()
@@ -2163,11 +2163,11 @@ CONTAINS
   end subroutine MAPL_ExtDataCreateCFIO
 
   subroutine MAPL_ExtDataDestroyCFIO(IOBundles,rc)
-     type(IOBundleVector), target, intent(inout) :: IOBundles
+     type(IOBundleNGVector), target, intent(inout) :: IOBundles
      integer, optional,      intent(out  ) :: rc
 
-     type(IoBundleVectorIterator) :: bundle_iter
-     type (ExtData_IoBundle), pointer :: io_bundle
+     type(IOBundleNGVectorIterator) :: bundle_iter
+     type (ExtDataNG_IOBundle), pointer :: io_bundle
      integer :: status
 
      bundle_iter = IOBundles%begin()
@@ -2183,11 +2183,11 @@ CONTAINS
   end subroutine MAPL_ExtDataDestroyCFIO
 
   subroutine MAPL_ExtDataPrefetch(IOBundles,rc)
-     type(IoBundleVector), target, intent(inout) :: IOBundles
+     type(IOBundleNGVector), target, intent(inout) :: IOBundles
      integer, optional,      intent(out  ) :: rc
 
      integer :: n,nfiles
-     type(ExtData_IoBundle), pointer :: io_bundle => null()
+     type(ExtDataNG_IOBundle), pointer :: io_bundle => null()
      integer :: status
 
      nfiles = IOBundles%size()
@@ -2203,11 +2203,11 @@ CONTAINS
   end subroutine MAPL_ExtDataPrefetch
 
   subroutine MAPL_ExtDataReadPrefetch(IOBundles,rc)
-     type(IOBundleVector), target, intent(inout) :: IOBundles
+     type(IOBundleNGVector), target, intent(inout) :: IOBundles
      integer, optional,      intent(out  ) :: rc
 
      integer :: nfiles, n
-     type (ExtData_IoBundle), pointer :: io_bundle
+     type (ExtDataNG_IOBundle), pointer :: io_bundle
      integer :: status
 
 
@@ -2249,36 +2249,36 @@ CONTAINS
 
 
   subroutine IOBundle_Add_Entry(IOBundles,item,entry_num,rc)
-     type(Iobundlevector), intent(inout) :: IOBundles
+     type(IOBundleNGVector), intent(inout) :: IOBundles
      type(primaryExport), intent(inout)        :: item 
      integer, intent(in)                    :: entry_num
      integer, intent(out), optional         :: rc
 
      integer :: status
 
-     type (ExtData_IOBundle) :: io_bundle
+     type (ExtDataNG_IOBundle) :: io_bundle
      type (GriddedIOItemVector) :: items
      logical :: update
-     character(len=ESMF_MAXPATHLEN) :: file
+     character(len=ESMF_MAXPATHLEN) :: current_file
      integer :: time_index
 
-     call item%modelGridFields%comp1%get_parameters('L',update=update,file=file,time_index=time_index)
+     call item%modelGridFields%comp1%get_parameters('L',update=update,file=current_file,time_index=time_index)
      if (update) then    
         call items%push_back(item%fileVars)
-        io_bundle = ExtData_IOBundle(MAPL_ExtDataLeft, entry_num, file, time_index, item%trans, item%fracval, item%file, &
+        io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataLeft, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
             item%pfioCollection_id,item%iclient_collection_id,items,rc=status)
         _VERIFY(status)
         call IOBundles%push_back(io_bundle)
-        call extdata_lgr%info('%a update L with with: %a %i2 ',item%name, file, time_index)
+        call extdata_lgr%info('%a update L with with: %a %i2 ',item%name, current_file, time_index)
      end if
-     call item%modelGridFields%comp1%get_parameters('R',update=update,file=file,time_index=time_index)
+     call item%modelGridFields%comp1%get_parameters('R',update=update,file=current_file,time_index=time_index)
      if (update) then    
         call items%push_back(item%fileVars)
-        io_bundle = ExtData_IOBundle(MAPL_ExtDataRight, entry_num, file, time_index, item%trans, item%fracval, item%file, &
+        io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataRight, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
             item%pfioCollection_id,item%iclient_collection_id,items,rc=status)
         _VERIFY(status)
         call IOBundles%push_back(io_bundle)
-        call extdata_lgr%info('%a update R with with: %a %i2 ',item%name,file, time_index)
+        call extdata_lgr%info('%a update R with with: %a %i2 ',item%name,current_file, time_index)
      end if
 
      _RETURN(ESMF_SUCCESS)
