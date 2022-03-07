@@ -140,6 +140,7 @@ jobs:
       - circleci-tools/checkout_fixture
       - circleci-tools/mepoclone
       - circleci-tools/mepodevelop
+      - circleci-tools/checkout_mapl3_release_branch
       - circleci-tools/checkout_mapl_branch
       - circleci-tools/cmake:
           compiler: << parameters.compiler >>
@@ -168,7 +169,7 @@ jobs:
           repo: GEOSldas
       - circleci-tools/checkout_branch_on_fixture:
           repo: GEOSldas
-          branch: develop
+          branch: release/MAPL-v3
       - circleci-tools/mepoclone:
           repo: GEOSldas
       - circleci-tools/checkout_mapl_branch:
@@ -195,8 +196,10 @@ jobs:
           repo: GEOSadas
       - circleci-tools/checkout_branch_on_fixture:
           repo: GEOSadas
-          branch: develop
+          branch: release/MAPL-v3
       - circleci-tools/mepoclone:
+          repo: GEOSadas
+      - circleci-tools/checkout_mapl3_release_branch:
           repo: GEOSadas
       - circleci-tools/checkout_mapl_branch:
           repo: GEOSadas

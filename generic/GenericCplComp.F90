@@ -266,6 +266,7 @@ contains
     type (ESMF_Time           )           :: currTime ! current time of the clock
     type (ESMF_Time           )           :: rTime 
     type (ESMF_Calendar       )           :: cal
+    type (ESMF_Info           )           :: infoh
     integer                               :: J, L1, LN
     integer                               :: NCPLS
     integer                               :: DIMS
@@ -482,10 +483,11 @@ contains
 
        call ESMF_StateGet(src, NAME, field, rc=status)
        _VERIFY(STATUS)
-       call ESMF_AttributeGet(field, NAME="CPLFUNC", isPresent=isPresent, RC=STATUS)
+       call ESMF_InfoGetFromHost(field,infoh,RC=STATUS)
+       isPresent = ESMF_InfoIsPresent(infoh,'CPLFUNC',RC=STATUS)
        _VERIFY(STATUS)
        if (isPresent) then
-          call ESMF_AttributeGet(field, NAME="CPLFUNC", VALUE=cplfunc, RC=STATUS)
+          call ESMF_InfoGet(infoh,'CPLFUNC',cplfunc,RC=STATUS)
           _VERIFY(STATUS)
        else
           cplfunc = MAPL_CplAverage
@@ -1171,6 +1173,7 @@ contains
     type(ESMF_VM)                         :: VM
     type(ESMF_Grid)                       :: grid
     type(ESMF_Field)                      :: field
+    type(ESMF_Info)                       :: infoh
     character(len=ESMF_MAXSTR)            :: name
     character(len=ESMF_MAXSTR)            :: filename
     logical                               :: file_exists
@@ -1255,7 +1258,9 @@ contains
           _VERIFY(status)
 
           rank = state%accum_rank(i)
-          call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+          call ESMF_InfoGetFromHost(field,infoh,rc=status)
+          _VERIFY(STATUS)
+          call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
           _VERIFY(STATUS)
           mask => null()
           if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
@@ -1375,6 +1380,7 @@ contains
     type(ESMF_VM)                         :: VM
     type(ESMF_Grid)                       :: grid
     type(ESMF_Field)                      :: field
+    type(ESMF_Info)                       :: infoh
     character(len=ESMF_MAXSTR)            :: name
     character(len=ESMF_MAXSTR)            :: filename
     logical                               :: am_i_root
@@ -1436,7 +1442,9 @@ contains
        _VERIFY(status)
 
        rank = state%accum_rank(i)
-       call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+       call ESMF_InfoGetFromHost(field,infoh,rc=status)
+       _VERIFY(STATUS)
+       call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
        _VERIFY(STATUS)
        mask => null()
        if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
