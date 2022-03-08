@@ -113,7 +113,7 @@ contains
       if (this%messages%size() > 0) then
          allocate(message, source= this%messages%front())
          iter = this%messages%begin()
-         call this%messages%erase(iter)
+         iter = this%messages%erase(iter)
 
          select type (message)
          type is (TerminateMessage)
