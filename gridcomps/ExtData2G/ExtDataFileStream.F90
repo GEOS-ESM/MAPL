@@ -169,10 +169,6 @@ contains
             this%valid_range(2)=time_series(size(time_series))
          end if
       end if
-      if (get_range_) then
-         call ESMF_TimePrint(this%valid_range(1),options='string')
-         call ESMF_TimePrint(this%valid_range(2),options='string')
-      end if
 
       if (get_range_) then
          call fill_grads_template(filename,this%file_template,time=this%valid_range(1),__RC__)

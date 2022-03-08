@@ -39,11 +39,12 @@ contains
       this%new_file_left =.false.
    end subroutine reset
 
-   logical function time_in_bracket(this,time)
+   function time_in_bracket(this,time) result(in_bracket)
       class(ExtDataBracket), intent(in) :: this
+      logical :: in_bracket
       type(ESMF_Time), intent(in) :: time
 
-      time_in_bracket = (this%left_node%time <=time) .and. (time < this%right_node%time)
+      in_bracket = (this%left_node%time <=time) .and. (time < this%right_node%time)
 
    end function time_in_bracket
 

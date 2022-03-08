@@ -73,6 +73,8 @@ contains
          else
             _ASSERT(.false.,"sample entry unsupported")
          end if
+      else 
+         rule%sample_key = ""
       end if
 
       if (allocated(rule%linear_trans)) deallocate(rule%linear_trans)

@@ -64,7 +64,9 @@ contains
       this%file_template = file_series%file_template
       this%frequency = file_series%frequency
       this%reff_time = file_series%reff_time
-      allocate(this%valid_range,source=file_series%valid_range)
+      if (allocated(file_series%valid_range)) then
+          allocate(this%valid_range,source=file_series%valid_range)
+      end if
       this%collection_id = file_series%collection_id
       if (present(persist_closest)) then
          this%persist_closest = persist_closest

@@ -41,21 +41,20 @@ contains
       logical :: get_left, get_right,in_range,was_set
       type(ESMF_Time) :: target_time
 
-
       get_left=.true.
       get_right=.true.
       in_range=.true.
       target_time=input_time
       call bracket%set_parameters(intermittent_disable=.false.)
       if (this%persist_closest) then
-         if (input_time < this%valid_range(1)) then
+         if (input_time <= this%valid_range(1)) then
             target_time = this%valid_range(1)
             get_right = .false.
             in_range = .false.
             call bracket%get_node('L',was_set=was_set)
             if (was_set) get_left=.false.
             call bracket%set_parameters(intermittent_disable=.true.)
-         else if (input_time > this%valid_range(2)) then
+         else if (input_time >= this%valid_range(2)) then
             target_time = this%valid_range(2)
             get_right = .false.
             in_range = .false.

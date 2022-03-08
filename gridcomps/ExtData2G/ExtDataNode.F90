@@ -13,7 +13,7 @@ module MAPL_ExtDataNode
       type(ESMF_Time)  :: time
       character(len=ESMF_MAXPATHLEN) :: file
       integer :: time_index
-      logical :: was_set
+      logical :: was_set = .false.
       contains
          procedure :: set
          procedure :: get

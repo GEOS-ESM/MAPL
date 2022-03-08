@@ -68,7 +68,8 @@ contains
       call ESMF_TimeGet(target_time,yy=target_year,__RC__)
       original_year=target_year
 
-      if (size(source_years)>0) then
+      !if (size(source_years)>0) then
+      if (allocated(source_years)) then
          if (target_year < source_years(1)) then
             target_year = source_years(1)
             this%clim_year = target_year 
