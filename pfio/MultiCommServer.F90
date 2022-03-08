@@ -57,7 +57,7 @@ module pFIO_MultiCommServerMod
       logical :: I_am_back_root
       integer, allocatable :: back_ranks(:)
       integer, allocatable :: front_ranks(:)
-      type(AbstractDataReferenceVector) :: MemdataRefPtrs
+      type(AbstractDataReferenceVector) :: MemdataRefVec
       type (SimpleCommSplitter) :: splitter
    contains
       procedure :: start
@@ -250,7 +250,7 @@ contains
    subroutine create_remote_win(this, rc)
       class (MultiCommServer), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
-      class (AbstractDataReference), pointer :: remotePtr
+      class (AbstractDataReference), allocatable :: RDMA_data
       integer :: rank
       integer(KIND=INT64) :: offset, msize_word
       integer(KIND=INT64),allocatable :: offsets(:), msize_words(:)
@@ -365,9 +365,8 @@ contains
          msize_word = msize_words(collection_counter)
          call this%stage_offset%insert(i_to_string(MSIZE_ID + collection_counter ),msize_word)
 
-         allocate(remotePtr, source  = RDMAReference(pFIO_INT32,msize_word, this%server_comm, rank ))
-         call this%add_DataReference(remotePtr)
-         remotePtr=>null()
+         allocate(RDMA_data, source  = RDMAReference(pFIO_INT32,msize_word, this%server_comm, rank ))
+         call this%add_DataReference(RDMA_data)
       enddo
 
       _RETURN(_SUCCESS)
@@ -382,7 +381,7 @@ contains
      integer,pointer :: i_ptr(:)
      integer :: collection_counter
      class (AbstractDataReference), pointer :: dataRefPtr
-     type (LocalMemReference), pointer :: memdataPtr=>null()
+     type (LocalMemReference) :: mem_data
      integer(kind=MPI_ADDRESS_KIND) :: msize
      integer :: num_clients, l_rank, w_rank, ierr, empty(0)
      !real(KIND=REAL64) :: t0, t1
@@ -399,20 +398,19 @@ contains
 
         call MPI_comm_rank(this%back_comm, l_rank, ierr)
         ! copy and save the data
-        do collection_counter = 1, this%dataRefPtrs%size()
+        do collection_counter = 1, this%dataRefVec%size()
               dataRefPtr => this%get_dataReference(collection_counter)
               msize  = this%stage_offset%of(i_to_string(MSIZE_ID+collection_counter))
               call c_f_pointer(dataRefPtr%base_address,i_ptr,shape=[msize])
               w_rank = this%get_writing_PE(collection_counter)
               if ( w_rank == this%back_ranks(l_rank+1)) then !
-                 allocate(memdataPtr, source = LocalMemReference(i_ptr))
-                 call this%MemdataRefPtrs%push_back(memdataPtr)
+                 mem_data = LocalMemReference(i_ptr)
+                 call this%MemdataRefVec%push_back(mem_data)
               else
                  ! push null ptr, make sure the total is collection_total
-                 allocate(memdataPtr, source = LocalMemReference(empty))
-                 call this%MemdataRefPtrs%push_back(memdataPtr)
+                 mem_data = LocalMemReference(empty)
+                 call this%MemdataRefVec%push_back(mem_data)
               endif
-              memdataPtr => null()
          enddo
 
      endif
@@ -441,6 +439,7 @@ contains
       type(c_ptr) :: offset_address
       integer :: collection_counter
       class (AbstractDataReference), pointer :: dataRefPtr
+      type (AbstractDataReferenceVectorIterator) :: data_iter
       integer(kind=MPI_ADDRESS_KIND) :: offset
       integer :: w_rank, l_rank, ierr, status
       type(StringInteger64MapIterator) :: iter
@@ -476,7 +475,7 @@ contains
             select type (q=>msg)
             type is (CollectiveStageDataMessage)
                collection_counter = this%stage_offset%of(i_to_string(q%collection_id))
-               dataRefPtr => this%MemdataRefPtrs%at(collection_counter)
+               dataRefPtr => this%MemdataRefVec%at(collection_counter)
 
                select type(dataRefPtr)
                type is (LocalMemReference)
@@ -511,11 +510,11 @@ contains
             iter = this%stage_offset%begin()
          enddo
 
-         do collection_counter =  1, this%MemdataRefPtrs%size()
-            dataRefPtr => this%MemdataRefPtrs%at(collection_counter)
+         do collection_counter =  1, this%MemdataRefVec%size()
+            dataRefPtr => this%MemdataRefVec%at(collection_counter)
             call dataRefPtr%deallocate()
          enddo
-         call this%MemdataRefPtrs%erase(this%MemdataRefPtrs%begin(), this%MemdataRefPtrs%end())
+         data_iter = this%MemdataRefVec%erase(this%MemdataRefVec%begin(), this%MemdataRefVec%end())
       end if
 
       _RETURN(_SUCCESS)
@@ -546,7 +545,7 @@ contains
        enddo
      endif
 
-     do i = 1, this%dataRefPtrs%size()
+     do i = 1, this%dataRefVec%size()
         dataRefPtr => this%get_dataReference(i)
         call dataRefPtr%fence(rc=status)
          _VERIFY(status)

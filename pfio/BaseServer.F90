@@ -70,7 +70,7 @@ contains
          _VERIFY(status)
      enddo
 
-     do i = 1, this%dataRefPtrs%size()
+     do i = 1, this%dataRefVec%size()
         dataRefPtr => this%get_dataReference(i)
         call dataRefPtr%fence(rc=status)
          _VERIFY(status)
@@ -258,7 +258,7 @@ contains
    subroutine create_remote_win(this, rc)
       class (BaseServer), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
-      class (AbstractDataReference), pointer :: remotePtr
+      class (AbstractDataReference), allocatable :: RDMA_data
       integer :: rank
       integer(KIND=INT64) :: offset, msize_word
       integer(KIND=INT64),allocatable :: offsets(:), msize_words(:)
@@ -321,9 +321,8 @@ contains
          rank = this%get_writing_PE(collection_counter)
          msize_word = msize_words(collection_counter)
          call this%stage_offset%insert(i_to_string(MSIZE_ID + collection_counter ),msize_word)
-         allocate(remotePtr, source  = RDMAReference(pFIO_INT32,msize_word, this%comm, rank ))
-         call this%add_DataReference(remotePtr)
-         remotePtr=>null()
+         allocate(RDMA_data, source  = RDMAReference(pFIO_INT32,msize_word, this%comm, rank ))
+         call this%add_DataReference(RDMA_data)
       enddo
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("create_shared_mem")

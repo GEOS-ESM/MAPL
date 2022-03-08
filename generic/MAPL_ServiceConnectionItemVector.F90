@@ -3,14 +3,17 @@
 module MAPL_ServiceConnectionItemVector
   use mapl_ServiceServicesTypes, only: ServiceConnectionType
 
-#define _type type(ServiceConnectionType)
-#define _allocatable
-#define _vector serviceConnectionItemVector
-#define _iterator serviceConnectionItemVectorIterator
-#include "templates/vector.inc"
 
-#undef _iterator
-#undef _vector
-#undef _type_type
+#define T ServiceConnectionType 
+#define T_polymorphic
+#define Vector serviceConnectionItemVector
+#define VectorIterator serviceConnectionItemVectorIterator
+#define VectorRIterator serviceConnectionItemVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T_polymorphic
+#undef T
 
 end module MAPL_ServiceConnectionItemVector

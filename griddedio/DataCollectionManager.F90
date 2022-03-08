@@ -4,7 +4,7 @@ use MAPL_DataCollectionMod
 implicit none
 private
 
-type(MAPLCollectionVector) :: DataCollections
+type(MAPLDataCollectionVector) :: DataCollections
 
 public DataCollections
 public MAPL_DataAddCollection
@@ -16,7 +16,7 @@ contains
      logical, optional, intent(in) :: use_file_coords
       integer :: n
       logical :: found
-      type (MAPLCollectionVectorIterator) :: iter
+      type (MAPLDataCollectionVectorIterator) :: iter
       type (MAPLDataCollection), pointer :: collection
       type (MAPLDataCollection) :: c
       integer :: id
@@ -27,7 +27,7 @@ contains
       ! Is it a new collection?
       found = .false.
       do while (iter /= Datacollections%end())
-         collection => iter%get()
+         collection => iter%of()
          if (template == collection%template) then
             found = .true.
             exit

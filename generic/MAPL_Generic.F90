@@ -5093,7 +5093,7 @@ contains
       iter = conn%ServiceConnectionItems%begin()
       ! loop over service connections
       do while (iter /= conn%ServiceConnectionItems%end())
-         item => iter%get()
+         item => iter%of()
          ! retrieve connection info
          call ServiceConnectionGet(item, &
               service=service, provider=provider, requester=requester, &

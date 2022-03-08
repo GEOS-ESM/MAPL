@@ -3,7 +3,7 @@
 module pFIO_ExtDataCollectionMod
   use gFTL_StringIntegerMap
   use pFIO_NetCDF4_FileFormatterMod
-  use pFIO_FormatterPtrVectorMod
+  use pFIO_FormatterVectorMod
   use pFIO_ConstantsMod
   use MAPL_ExceptionHandling
   implicit none
@@ -14,13 +14,11 @@ module pFIO_ExtDataCollectionMod
 
   type :: ExtDataCollection
     character(len=:), allocatable :: template
-    type (FormatterPtrVector) :: formatters
+    type (FormatterVector) :: formatters
     type (StringIntegerMap) :: file_ids
 
-    type (NetCDF4_FileFormatter), pointer :: formatter => null()
   contains
     procedure :: find_formatter
-    procedure :: unfind
   end type ExtDataCollection
 
   interface ExtDataCollection
@@ -52,7 +50,8 @@ contains
     integer, pointer :: file_id
     type (StringIntegerMapIterator) :: iter
     integer :: status
-    type (FormatterPtrVectorIterator) :: f_iter_tmp
+    type (FormatterVectorIterator) :: f_iter_tmp
+    type (NetCDF4_FileFormatter) :: formatter_tmp
 
 
     file_id => this%file_ids%at(file_name)
@@ -87,26 +86,14 @@ contains
 
        end if
 
-       allocate(formatter)
-
-       call formatter%open(file_name, pFIO_READ, _RC)
-       call this%formatters%push_back(formatter)
-       deallocate(formatter)
+       call formatter_tmp%open(file_name, pFIO_READ, _RC)
+       call this%formatters%push_back(formatter_tmp)
        formatter => this%formatters%back()
        ! size() returns 64-bit integer;  cast to 32 bit for this usage.
        call this%file_ids%insert(file_name, int(this%formatters%size()))
     end if
     _RETURN(_SUCCESS)
   end function find_formatter
-
-  subroutine unfind(this)
-    class (ExtDataCollection), intent(inout) :: this
-
-    call this%formatter%close()
-    deallocate(this%formatter)
-    nullify(this%formatter)
-
-  end subroutine unfind
 
 end module pFIO_ExtDataCollectionMod
 

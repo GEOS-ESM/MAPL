@@ -1,12 +1,13 @@
 module pFIO_IntegerSocketMapMod
    use pFIO_AbstractSocketMod
 
-#include "types/key_integer.inc"
-#define _value class(AbstractSocket)
-#define _value_allocatable
-#define _alt
-#define _map IntegerSocketMap
-#define _iterator IntegerSocketMapIterator
+#define Key __INTEGER
+#define T AbstractSocket 
+#define T_polymorphic
 
-#include "templates/map.inc"
+#define Map IntegerSocketMap
+#define MapIterator IntegerSocketMapIterator
+#define Pair IntegerSocketPair
+#include "map/template.inc"
+
 end module pFIO_IntegerSocketMapMod

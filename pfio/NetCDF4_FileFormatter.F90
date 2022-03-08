@@ -1281,30 +1281,20 @@ contains
 
 end module pFIO_NetCDF4_FileFormatterMod
 
-module pFIO_FormatterPtrVectorMod
+module pFIO_FormatterVectorMod
   use pFIO_NetCDF4_FileFormatterMod
 
 #define T NetCDF4_FileFormatter 
-#define T_polymorphic
-#define Vector FormatterPtrVector
-#define VectorIterator FormatterPtrVectorIterator
-#define VectorRIterator FormatterPtrVectorRIterator
+#define Vector FormatterVector
+#define VectorIterator FormatterVectorIterator
+#define VectorRIterator FormatterVectorRIterator
 #include "vector/template.inc"
 #undef VectorRIterator
 #undef VectorIterator
 #undef Vector
-#undef T_polymorphic
 #undef T
 
-!#define _type type(NetCDF4_FileFormatter)
-!#define _vector FormatterPtrVector
-!#define _iterator FormatterPtrVectorIterator
-!#include "templates/vector.inc"
-
-!#undef _iterator
-!#undef _vector
-!#undef _type
-end module pFIO_FormatterPtrVectorMod
+end module pFIO_FormatterVectorMod
 
 module pFIO_StringNetCDF4_FileFormatterMapMod
    use pFIO_NetCDF4_FileFormatterMod

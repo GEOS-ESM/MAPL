@@ -30,7 +30,7 @@ module pFIO
    use pFIO_StringVariableMapMod
    use pFIO_DownBitMod
    use pFIO_LocalMemReferenceMod
-   use pFIO_FormatterPtrVectorMod
+   use pFIO_FormatterVectorMod
 
    integer, save :: debug_unit = 0
 

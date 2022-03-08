@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Adapted to gFTL version2
 - Major refactoring of GenericSetServices
   Work is not completed, but a new layer is introduced with the intent that the user SetServices is called
   from with in the new layer as opposed to the previous mechanism that obligated user SetServices to call

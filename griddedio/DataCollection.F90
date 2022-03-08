@@ -122,14 +122,16 @@ module MAPL_CollectionVectorMod
    use MAPL_DataCollectionMod
    
    ! Create a map (associative array) between names and pFIO_Attributes.
-   
-#define _type type (MAPLDataCollection)
-#define _vector MAPLCollectionVector
-#define _iterator MAPLCollectionVectorIterator
 
-#define _FTL_THROW pFIO_throw_exception
+#define T MAPLDataCollection
+#define Vector MAPLDataCollectionVector
+#define VectorIterator MAPLDataCollectionVectorIterator
+#define VectorRIterator MAPLDataCollectionVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T   
 
-#include "templates/vector.inc"
-   
 end module MAPL_CollectionVectorMod
 

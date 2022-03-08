@@ -30,7 +30,6 @@ module ESMF_CFIOCollectionMod
      type (FileMetadata), pointer :: file => null()
   contains
     procedure :: find_cfio
-    procedure :: unfind
   end type CFIOCollection
 
   interface CFIOCollection
@@ -128,15 +127,6 @@ contains
 
   end function find_cfio
 
-  subroutine unfind(this)
-    class (CFIOCollection), intent(inout) :: this
-
-    call ESMF_CFIODestroy(this%formatter)
-    deallocate(this%formatter)
-    nullify(this%formatter)
-    
-  end subroutine unfind
-
 end module ESMF_CFIOCollectionMod
 
 
@@ -145,14 +135,16 @@ module ESMF_CFIOCollectionVectorMod
    use ESMF_CFIOCollectionMod
    
    ! Create a map (associative array) between names and pFIO_Attributes.
-   
-#define _type type (CFIOCollection)
-#define _vector CFIOCollectionVector
-#define _iterator CFIOCollectionVectorIterator
 
-#define _FTL_THROW pFIO_throw_exception
-
-#include "templates/vector.inc"
+#define T CFIOCollection
+#define Vector CFIOCollectionVector
+#define VectorIterator CFIOCollectionVectorIterator
+#define VectorRIterator CFIOCollectionVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T
    
 end module ESMF_CFIOCollectionVectorMod
 

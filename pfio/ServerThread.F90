@@ -300,10 +300,10 @@ contains
 
    ! W.J note: This subroutine is different for "read_and_share"
    ! To avoid duplicate reading, each node choose a PE to read part of the file, then gather and share
-   function read_and_gather(this, rc) result(dataRefPtr)
+   function read_and_gather(this, rc) result(data_ref)
       class (ServerThread), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
-      class (AbstractDataReference), pointer :: dataRefPtr
+      class (AbstractDataReference), allocatable :: data_ref
       integer :: node_rank,innode_rank, local_size
       integer(KIND=INT64) ::  msize_word
       integer(KIND=MPI_OFFSET_KIND) :: g_offset, offset
@@ -355,10 +355,10 @@ contains
       ! (2) allocate the memory
       msize_word = sum(offsets)
       call this%containing_server%prefetch_offset%insert(i_to_string(MSIZE_ID),msize_word)
-      allocate(dataRefPtr, source = ShmemReference(pFIO_INT32,msize_word, this%containing_server%InNode_Comm))
+      data_Ref = ShmemReference(pFIO_INT32,msize_word, this%containing_server%InNode_Comm)
 
       ! (3) loop to read file into the its slot of memory
-      call c_f_pointer(dataRefPtr%base_address,i_ptr,shape=[msize_word])
+      call c_f_pointer(data_Ref%base_address,i_ptr,shape=[msize_word])
       iter = this%request_backlog%begin()
       do while (iter /= this%request_backlog%end())
          msg => iter%of()
@@ -382,7 +382,7 @@ contains
          call iter%next()
       enddo
 
-      call dataRefPtr%fence(rc=status)
+      call data_ref%fence(rc=status)
       _VERIFY(status)
       ! (4) root nodes exchange the shared data
       if(this%containing_server%I_am_NodeRoot() .and. this%containing_server%Node_Num > 1 ) then
@@ -398,7 +398,7 @@ contains
 
       endif
 
-      call dataRefPtr%fence(rc=status)
+      call data_ref%fence(rc=status)
       _VERIFY(status)
 
       deallocate(g_offsets,offsets)
@@ -407,10 +407,10 @@ contains
 
    ! W.J note: This subroutine is different for "read_and_gather"
    ! To avoid exchanging data among nodes, each node choose a PE to read the file
-   function read_and_share(this, rc) result(dataRefPtr)
+   function read_and_share(this, rc) result(data_ref)
       class (ServerThread), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
-      class (AbstractDataReference), pointer :: dataRefPtr
+      class (AbstractDataReference),allocatable :: data_ref
 
       integer :: node_rank, innode_rank, status
       integer(KIND=INT64) :: offset, msize_word
@@ -445,10 +445,10 @@ contains
       ! (2) allocate the memory
       msize_word = offset  ! last offset is the total size
       call this%containing_server%prefetch_offset%insert(i_to_string(MSIZE_ID),msize_word)
-      allocate(dataRefPtr, source = ShmemReference(pFIO_INT32,msize_word, this%containing_server%InNode_Comm))
+      data_ref = ShmemReference(pFIO_INT32,msize_word, this%containing_server%InNode_Comm)
 
       ! (3) loop to read file into the its slot of memory
-      call c_f_pointer(dataRefPtr%base_address,i_ptr,shape=[msize_word])
+      call c_f_pointer(data_ref%base_address,i_ptr,shape=[msize_word])
       iter = this%request_backlog%begin()
       do while (iter /= this%request_backlog%end())
          msg => iter%of()
@@ -476,7 +476,7 @@ contains
          call iter%next()
       enddo
 
-      call dataRefPtr%fence(rc=status)
+      call data_ref%fence(rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
    end function read_and_share
@@ -1083,7 +1083,7 @@ contains
       type (CollectivePrefetchDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
-      class(AbstractDataReference),pointer :: dataRefPtr
+      class(AbstractDataReference), allocatable :: data_ref
       integer :: status
 
       ! first time handling the "Done" message, simple return
@@ -1095,18 +1095,18 @@ contains
       if( .not. multi_data_read) then
         ! each node read part of a file, then exchange
          if (associated(ioserver_profiler)) call ioserver_profiler%start("read_gather")
-         dataRefPtr=> this%read_and_gather(rc=status)
+         data_ref = this%read_and_gather(rc=status)
          _VERIFY(status)
          if (associated(ioserver_profiler)) call ioserver_profiler%stop("read_gather")
       else
          if (associated(ioserver_profiler)) call ioserver_profiler%start("read_share")
-         dataRefPtr=> this%read_and_share(rc=status)
+         data_ref = this%read_and_share(rc=status)
          _VERIFY(status)
          if (associated(ioserver_profiler)) call ioserver_profiler%stop("read_share")
       endif
       if (associated(ioserver_profiler)) call ioserver_profiler%start("send_data")
-      ! now dataRefPtr on each node has all the data
-      call this%containing_server%add_DataReference(dataRefPtr)
+      ! now data_ref on each node has all the data
+      call this%containing_server%add_DataReference(data_ref)
       call this%containing_server%get_DataFromMem(multi_data_read, _RC)
 
       if (associated(ioserver_profiler)) call ioserver_profiler%stop("send_data")
@@ -1122,7 +1122,7 @@ contains
       logical, intent(in) :: multi_data_read
       integer, optional, intent(out) :: rc
       type (LocalMemReference) :: mem_data_reference
-      class(AbstractDataReference),pointer :: dataRefPtr
+      class(AbstractDataReference),pointer :: data_ref
       integer :: node_rank, innode_rank
       integer(kind=INT64) :: g_offset, offset,msize_word
       type(c_ptr) :: offset_address
@@ -1152,8 +1152,8 @@ contains
 
            msize_word  = this%containing_server%prefetch_offset%at(i_to_string(MSIZE_ID))
 
-           dataRefPtr => this%containing_server%get_dataReference()
-           call c_f_pointer(dataRefPtr%base_address,i_ptr,shape=[msize_word])
+           data_ref => this%containing_server%get_dataReference()
+           call c_f_pointer(data_ref%base_address,i_ptr,shape=[msize_word])
 
            offset_address = c_loc(i_ptr(offset+1))
 

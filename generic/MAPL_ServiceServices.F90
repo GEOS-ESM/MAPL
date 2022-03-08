@@ -33,7 +33,7 @@ contains
     iter = provider_list%begin()
     ! loop over provided services
     do while (iter /= provider_list%end())
-       item => iter%get()
+       item => iter%of()
        if(item%service_name == advertised_service) then
           found = .true.
           bundle = item%bundle
@@ -59,7 +59,7 @@ contains
     iter = provider_list%begin()
     ! loop over provided services
     do while (iter /= provider_list%end())
-       item => iter%get()
+       item => iter%of()
        call ESMF_StateGet(state, item%bundle_name, &
             item%bundle, rc=status)
        _VERIFY(status)
@@ -85,7 +85,7 @@ contains
     iter = request_list%begin()
     ! loop over requested services
     do while (iter /= request_list%end())
-       item => iter%get()
+       item => iter%of()
        if(item%service_name == service) then
           found = .true.
           bundle = item%bundle
@@ -112,7 +112,7 @@ contains
     iter = request_list%begin()
     ! loop over requested services
     do while (iter /= request_list%end())
-       item => iter%get()
+       item => iter%of()
        if (allocated(item%var_list)) then
           nl = size(item%var_list)
           allocate(fields(nl), stat=status)

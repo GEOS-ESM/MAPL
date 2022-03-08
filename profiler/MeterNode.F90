@@ -37,8 +37,8 @@ module MAPL_MeterNode
       procedure :: accumulate
       procedure :: reset
 
-      procedure :: begin
-      procedure :: end
+      procedure :: begin => begin_node
+      procedure :: end => end_node
    end type MeterNode
 
 
@@ -56,7 +56,7 @@ module MAPL_MeterNode
       procedure :: get_meter => get_meter_iter
       procedure :: equals
       procedure :: not_equals
-      procedure :: next
+      procedure :: next =>next_node
    end type MeterNodeIterator
 
 
@@ -130,7 +130,7 @@ contains
 
       iter = this%children%begin()
       do while (iter /= this%children%end())
-         child => iter%get()
+         child => iter%of()
          tmp = tmp - child%get_inclusive()
          call iter%next()
       end do
@@ -236,7 +236,7 @@ contains
       num_nodes = 1
       iter = this%children%begin()
       do while (iter /= this%children%end())
-         child => iter%get()
+         child => iter%of()
          num_nodes = num_nodes + child%get_num_nodes()
          call iter%next()
       end do
@@ -263,18 +263,18 @@ contains
    end function new_MeterNodeIterator
 
 
-   function begin(this) result(iterator)
+   function begin_node(this) result(iterator)
       class (AbstractMeterNodeIterator), allocatable :: iterator
       class (MeterNode), target, intent(in) :: this
 
 !!$      iterator = MeterNodeIterator(this)
       allocate(iterator, source=MeterNodeIterator(this))
 
-   end function begin
+   end function begin_node
       
 
 
-   function end(this) result(iterator)
+   function end_node(this) result(iterator)
       class (AbstractMeterNodeIterator), allocatable :: iterator
       class (MeterNode), target, intent(in) :: this
 
@@ -291,10 +291,10 @@ contains
          print*,'uh oh'
       end select
 
-   end function end
+   end function end_node
 
    
-   recursive subroutine next(this)
+   recursive subroutine next_node(this)
       class (MeterNodeIterator), intent(inout) :: this
       class (AbstractMeterNode), pointer :: current_child
 
@@ -304,7 +304,7 @@ contains
       if (.not. allocated(this%iterator_over_children)) then
          this%iterator_over_children = this%reference%children%begin()
          if (this%iterator_over_children /= this%reference%children%end()) then
-            current_child => this%iterator_over_children%get()
+            current_child => this%iterator_over_children%of()
             this%iterator_of_current_child = current_child%begin()
             this%current => this%iterator_of_current_child%get()
          else
@@ -320,14 +320,14 @@ contains
             if (this%iterator_over_children == this%reference%children%end()) then ! done
                deallocate(this%iterator_over_children) 
             else
-               current_child => this%iterator_over_children%get()
+               current_child => this%iterator_over_children%of()
                this%iterator_of_current_child = current_child%begin() ! always at least one node
                this%current => this%iterator_of_current_child%get()
             end if
          end if
       end if
       
-   end subroutine next
+   end subroutine next_node
 
 
    function get(this) result(tree)
@@ -392,7 +392,7 @@ contains
 
       iter = this%children%begin()
       do while (iter /= this%children%end())
-         child => iter%get()
+         child => iter%of()
          call child%reset()
          call iter%next()
       end do

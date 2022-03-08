@@ -71,8 +71,8 @@ contains
       class(AbstractComposite), pointer :: child
       class(ConcreteComposite), intent(in) :: this
       character(*), intent(in) :: name
-
-      child => this%children%at(name)
+      integer :: status
+      child => this%children%at(name, rc=status)
 
    end function get_child
 
@@ -84,7 +84,7 @@ contains
       class(AbstractComposite), intent(in) :: composite
 
       call this%children%insert(name, composite)
-      child => this%children%at(name)
+      child => this%children%of(name)
 
    end function add_child
 

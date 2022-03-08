@@ -694,16 +694,31 @@ end module pFIO_UnlimitedEntityMod
 
 module pFIO_StringUnlimitedEntityMapMod
    use pFIO_UnlimitedEntityMod
+
+#define Key __CHARACTER_DEFERRED
+#define T UnlimitedEntity
+
+#define Map StringUnlimitedEntityMap
+#define MapIterator StringUnlimitedEntityMapIterator
+#define Pair StringUnlimitedEntityPair
+
+#include "map/template.inc"
+
+#undef Pair
+#undef MapIterator
+#undef Map
+#undef T
+#undef Key
    
-#include "types/key_deferredLengthString.inc"   
-#define _value type (UnlimitedEntity)
-#define _value_equal_defined
+!#include "types/key_deferredLengthString.inc"   
+!#define _value type (UnlimitedEntity)
+!#define _value_equal_defined
 
-#define _map StringUnlimitedEntityMap
-#define _iterator StringUnlimitedEntityMapIterator
+!#define _map StringUnlimitedEntityMap
+!#define _iterator StringUnlimitedEntityMapIterator
 
-#define _alt
-#include "templates/map.inc"
+!#define _alt
+!#include "templates/map.inc"
    
 end module pFIO_StringUnlimitedEntityMapMod
 
@@ -733,9 +748,9 @@ contains
        allocate(buffer(0))
        iter = map%begin()
        do while (iter /= map%end())
-          key => iter%key()
+          key => iter%first()
           buffer=[buffer,serialize_intrinsic(key)]
-          attr_ptr => iter%value()
+          attr_ptr => iter%second()
           call attr_ptr%serialize(tmp_buffer)
           buffer = [buffer, tmp_buffer]
           deallocate(tmp_buffer)

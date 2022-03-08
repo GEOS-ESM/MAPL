@@ -1,10 +1,14 @@
 module MAPL_ExtData_IOBundleVectorMod
   use MAPL_ExtData_IOBundleMod
   
-#define _type type(ExtData_IoBundle)
-#define _vector IoBundleVector
-#define _iterator IoBundleVectorIterator
-
-#include "templates/vector.inc"
+#define T ExtData_IoBundle 
+#define Vector IoBundleVector
+#define VectorIterator IoBundleVectorIterator
+#define VectorRIterator IoBundleVectorRIterator
+#include "vector/template.inc"
+#undef VectorRIterator
+#undef VectorIterator
+#undef Vector
+#undef T
 
 end module MAPL_ExtData_IOBundleVectorMod

@@ -164,12 +164,11 @@ end module pFIO_ShmemReferenceMod
 module pFIO_IntegerShmemReferenceMapMod
    use pFIO_ShmemReferenceMod
 
-#include "types/key_integer.inc"
-#define _value type(ShmemReference)
-
-#define _map IntegerShmemReferenceMap
-#define _iterator IntegerShmemReferenceMapIterator
-#define _alt
-#include "templates/map.inc"
+#define Key __INTEGER
+#define T ShmemReference 
+#define Map IntegerShmemReferenceMap
+#define MapIterator IntegerShmemReferenceMapIterator
+#define Pair IntegerShmemReferenceMapPair
+#include "map/template.inc"
 
 end module pFIO_IntegerShmemReferenceMapMod

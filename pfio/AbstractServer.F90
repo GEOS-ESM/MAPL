@@ -55,7 +55,7 @@ module pFIO_AbstractServerMod
       type(StringInteger64Map) :: prefetch_offset
       type(StringInteger64Map) :: stage_offset
       logical , allocatable :: serverthread_done_msgs(:)
-      type(AbstractDataReferenceVector) :: dataRefPtrs
+      type(AbstractDataReferenceVector) :: dataRefVec
    contains
       procedure :: init
       procedure(start),deferred :: start
@@ -384,7 +384,7 @@ contains
       integer :: i
       i=1
       if(present(ith)) i = ith
-      DataRef => this%dataRefPtrs%at(i)
+      DataRef => this%dataRefVec%at(i)
 
    end function get_DataReference
 
@@ -392,7 +392,7 @@ contains
       class (AbstractServer), intent(inout) :: this
       class(AbstractDataReference),target,intent(in) :: DataRef
 
-      call this%dataRefPtrs%push_back(DataRef)
+      call this%dataRefVec%push_back(DataRef)
       call this%set_status(this%num_clients)
 
    end subroutine add_DataReference
@@ -403,12 +403,12 @@ contains
       type (AbstractDataReferenceVectorIterator) :: iter
       integer :: n, i
 
-      n = this%dataRefPtrs%size()
+      n = this%dataRefVec%size()
       do i = 1, n
-         dataRefPtr => this%dataRefPtrs%at(i)
+         dataRefPtr => this%dataRefVec%at(i)
          call dataRefPtr%deallocate()
       enddo
-      call this%dataRefPtrs%erase(this%dataRefPtrs%begin(), this%dataRefPtrs%end())
+      iter = this%dataRefVec%erase(this%dataRefVec%begin(), this%dataRefVec%end())
 
    end subroutine clear_DataReference
 

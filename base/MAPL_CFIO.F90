@@ -5939,7 +5939,7 @@ CONTAINS
       ! Is it a new collection?
       found = .false.
       do while (iter /= collections%end())
-         collection => iter%get()
+         collection => iter%of()
          if (template == collection%template) then
             found = .true.
             exit
