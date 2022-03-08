@@ -71,6 +71,7 @@ contains
       new_conn => CONN%conn_v%back()
       new_conn%From = VarConnPoint(SHORT_NAME, gc_id=usableFROM_EXPORT)
       new_conn%To   = VarConnPoint(usableTONAME, gc_id=usableTO_IMPORT)
+      if(short_name == "MAPL_AnyChildImport") new_conn%used = .true.
 
       _RETURN(ESMF_SUCCESS)
 

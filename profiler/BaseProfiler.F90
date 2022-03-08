@@ -179,11 +179,7 @@ contains
       class(AbstractMeterNode), pointer :: node
 
       if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
-      if (this%stack%size() /= 1) then
-         node_ptr => this%stack%back()
-         node => node_ptr%ptr
-         _ASSERT_RC(this%stack%size()== 1,"Stack not empty when timer stopped.  Active timer: " // node%get_name(),INCORRECTLY_NESTED_METERS)
-      end if
+      _ASSERT_RC(this%stack%size()== 1,"Stack not empty when timer stopped.",INCORRECTLY_NESTED_METERS)
 
       node_ptr => this%stack%back()
       node => node_ptr%ptr

@@ -10,30 +10,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
-- Fixed failures to fully trap errors in
-  - History GC
-  - MemUtils
-  - `register_generic_entry_points`
+
+### Added
+
+- MAPL_ESMFFieldBundleRead/Write modules are now available in when using MAPL
+
+### Changed
+
+- Adapted to gFTL version2
+- Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
+- Add voting interpolation method as optional argument to SimpleBundleRead method
+
+### Removed
+
+### Deprecated
+
+## [2.18.1] - 2022-03-07
+
+### Fixed
+
+- Fix build bug with NAG in `cub2latlon_regridder.F90`
+- Fixes DO_NOT_CONNECT errors when calling MAPL_TerminateAnyImport
+- Fixed the alarms in the couplers to account if they are called before ESMF_ClockAdvance is called
+- Reverted generic/VarSpec.F90 to hash b02e8ff (fix for #1410)
+
+## [2.18.0] - 2022-02-23
+
+### Fixed
+
 - Fixed issue in `CMakePresets.json` where Ninja presets were broken
 - Fixed io profiler report format
 - Fixed issue on macOS where enabling memutils caused crash
 
-
 ### Added
 
-- New gauge for measuring memory allocation based upon mallinfo().
-	MAPL is now instrumented with this memory profiler and it produces
-	reasonable results.  Should nicely complement other tools that
-	measure HWM.
 - Option to force integer time variable in History output via the History.rc file (IntegerTime: .true./.false. default .false.) rather than the default float time variable if allowed by frequency of output
 - Added mapl_StubComponent to MAPL package
 - Updates to CircleCI
   - Added GEOSadas CI ifort build test
   - Add "like-UFS" build to CI. This is no FLAP and pFlogger, and static build
+- Added new `_STAT` and `_IOSTAT` macros a la `_RC`
 
 ### Changed
 
-- Adapted to gFTL version2
 - Major refactoring of GenericSetServices
   Work is not completed, but a new layer is introduced with the intent that the user SetServices is called
   from with in the new layer as opposed to the previous mechanism that obligated user SetServices to call
@@ -41,18 +60,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved diagnostic message for profiler imbalances at end of run.
   Now gives the name of the timer that has not been stopped when
   finalizing a profiler.
+- Changed the naming convention for the split name(s): we now take the entries from the field alias(es) without appending any digits. Also allowing the user to specify more entries in the alias, so that HISTORY.rc does not need to change when running GOCART with more wavelengths
 - A small performance improvement. cycle => exit in MAPL_Generic.F90
 - Made history global metadata configurable. This can be done in two ways
-  1. Globally for all collections by setting `COMMENT:`, `CONTACT:`, `CONVENTION:`, `INSTITUTION:`, `REFERENCES:`, and `SOURCE:` at the top of `HISTORY.rc` like `EXPDSC:`
-  2. On a per-collection bases by setting `collection.comment:`, `collection.contact:`, `collection.convention:`, `collection.institution:`, `collection.references:`, and `collection.source:`
+  1. Globally for all collections by setting `COMMENT:`, `CONTACT:`, `CONVENTIONS:`, `INSTITUTION:`, `REFERENCES:`, and `SOURCE:` at the top of `HISTORY.rc` like `EXPDSC:`
+  2. On a per-collection bases by setting `collection.comment:`, `collection.contact:`, `collection.conventions:`, `collection.institution:`, `collection.references:`, and `collection.source:`
   - The default settings for these are to match that of MAPL 2.17.0
 - Updated `components.yaml`. These changes are to support using Spack to build MAPL
   - ESMA_cmake v3.10.0 (add `FindESMF.cmake` from NOAA-EMC)
   - ecbuild geos/v1.2.0 (updat `FindNetCDF.cmake` to that from NOAA-EMC)
-
-### Removed
-
-### Deprecated
+- Improved file-not-found error handling in ExtData for non-templated filenames
 
 ## [2.17.2] - 2022-02-16
 
