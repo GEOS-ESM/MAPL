@@ -12,8 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
 
 ### Added
-- New cmake option USE_EXTDATA2G to enable the next generation of ExtData for development, by default uses 1st generation ExtData
 
+- New cmake option USE_EXTDATA2G to enable the next generation of ExtData for development, by default uses 1st generation ExtData
 - MAPL_ESMFFieldBundleRead/Write modules are now available in when using MAPL
 
 ### Changed
@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adapted to gFTL version2
 - Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
 - Add voting interpolation method as optional argument to SimpleBundleRead method
+- Updated to circleci-tools 0.12.0
+  - Moves images to Baselibs 6.2.13 (updates gFTL and yaFyaml)
 
 ### Removed
 
