@@ -96,19 +96,19 @@ end module MAPL_ExtDataTimeSample
 module MAPL_ExtDataTimeSampleMap
    use MAPL_ExtDataTimeSample
 
-#include "types/key_deferredLengthString.inc"
-#define _value type(ExtDataTimeSample)
-#define _alt
+#define Key __CHARACTER_DEFERRED
+#define T ExtDataTimeSample 
 
-#define _map ExtDataTimeSampleMap
-#define _iterator ExtDataTimeSampleMapIterator
+#define Map ExtDataTimeSampleMap
+#define MapIterator ExtDataTimeSampleMapIterator
+#define Pair ExtDataTimeSamplePair
 
-#include "templates/map.inc"
+#include "map/template.inc"
 
-#undef _iterator
-#undef _map
-
-#undef _alt
-#undef _value
+#undef Pair
+#undef MapIterator
+#undef Map
+#undef T
+#undef Key
 
 end module MAPL_ExtDataTimeSampleMap

@@ -159,7 +159,7 @@ contains
       type(MAPLDataCollection), pointer :: collection => null()
  
       Collection => DataCollections%at(this%collection_id)
-      metadata => collection%find(file)
+      metadata => collection%find_meta(file)
      _RETURN(_SUCCESS)
 
   end subroutine make_metadata

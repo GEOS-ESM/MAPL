@@ -162,7 +162,7 @@ contains
       collection => DataCollections%at(this%collection_id)
       if (get_range_ .and. (.not.allocated(this%valid_range))) then
          if (index('%',this%file_template) == 0) then
-            metadata => collection%find(this%file_template)
+            metadata => collection%find_meta(this%file_template)
             call metadata%get_time_info(timeVector=time_series,__RC__)
             allocate(this%valid_range(2))
             this%valid_range(1)=time_series(1)
@@ -175,7 +175,7 @@ contains
       else
          call fill_grads_template(filename,this%file_template,time=time,__RC__)
       end if
-      metadata => collection%find(filename,__RC__)
+      metadata => collection%find_meta(filename,__RC__)
       metadata_out = metadata
       _RETURN(_SUCCESS)
 
@@ -186,19 +186,19 @@ end module MAPL_ExtDataFileStream
 module MAPL_ExtDataFileStreamMap
    use MAPL_ExtDataFileStream
 
-#include "types/key_deferredLengthString.inc"
-#define _value type(ExtDataFileStream)
-#define _alt
+#define Key __CHARACTER_DEFERRED
+#define T ExtDataFileStream 
 
-#define _map ExtDataFileStreamMap
-#define _iterator ExtDataFileStreamMapIterator
+#define Map ExtDataFileStreamMap
+#define MapIterator ExtDataFileStreamMapIterator
+#define Pair ExtDataFileStreamPair
 
-#include "templates/map.inc"
+#include "map/template.inc"
 
-#undef _iterator
-#undef _map
-
-#undef _alt
-#undef _value
+#undef Pair
+#undef MapIterator
+#undef Map
+#undef T
+#undef Key
 
 end module MAPL_ExtDataFileStreamMap

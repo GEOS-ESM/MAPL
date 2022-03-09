@@ -72,19 +72,19 @@ end module MAPL_ExtDataDerived
 module MAPL_ExtDataDerivedMap
    use MAPL_ExtDataDerived
 
-#include "types/key_deferredLengthString.inc"
-#define _value type(ExtDataDerived)
-#define _alt
+#define Key __CHARACTER_DEFERRED
+#define T ExtDataDerived 
 
-#define _map ExtDataDerivedMap
-#define _iterator ExtDataDerivedMapIterator
+#define Map ExtDataDerivedMap
+#define MapIterator ExtDataDerivedMapIterator
+#define Pair ExtDataDerivedPair
 
-#include "templates/map.inc"
+#include "map/template.inc"
 
-#undef _iterator
-#undef _map
-
-#undef _alt
-#undef _value
+#undef Pair
+#undef MapIterator
+#undef Map
+#undef T
+#undef Key
 
 end module MAPL_ExtDataDerivedMap

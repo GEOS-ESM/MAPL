@@ -142,19 +142,19 @@ end module MAPL_ExtDataRule
 module MAPL_ExtDataRuleMap
    use MAPL_ExtDataRule
 
-#include "types/key_deferredLengthString.inc"
-#define _value type(ExtDataRule)
-#define _alt
+#define Key __CHARACTER_DEFERRED
+#define T ExtDataRule 
 
-#define _map ExtDataRuleMap
-#define _iterator ExtDataRuleMapIterator
+#define Map ExtDataRuleMap
+#define MapIterator ExtDataRuleMapIterator
+#define Pair ExtDataRulePair
 
-#include "templates/map.inc"
+#include "map/template.inc"
 
-#undef _iterator
-#undef _map
-
-#undef _alt
-#undef _value
+#undef Pair
+#undef MapIterator
+#undef Map
+#undef T
+#undef Key
 
 end module MAPL_ExtDataRuleMap
