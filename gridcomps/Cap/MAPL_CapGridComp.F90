@@ -17,8 +17,10 @@ module MAPL_CapGridCompMod
   use MAPL_ShmemMod
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : HISTORY_ExchangeListWrap
-  use MAPL_ExtDataGridCompMod, only : ExtData_SetServices => SetServices
-  use MAPL_ExtDataGridCompMod, only : T_EXTDATA_STATE, EXTDATA_WRAP
+#if defined(BUILD_WITH_EXTDATA2G)
+  use MAPL_ExtDataGridComp2G, only : ExtData2G_SetServices => SetServices
+#endif
+  use MAPL_ExtDataGridCompMod, only : ExtData1G_SetServices => SetServices
   use MAPL_ConfigMod
   use MAPL_DirPathMod
   use MAPL_KeywordEnforcerMod
@@ -28,6 +30,7 @@ module MAPL_CapGridCompMod
   use gFTL_StringVector
   use pflogger, only: logging, Logger
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
+  use MAPL_ExternalGCStorage
 
   use iso_fortran_env
   
@@ -173,8 +176,8 @@ contains
 
     integer :: status
 
-    type (T_ExtData_STATE), pointer       :: ExtData_internal_state => null()
-    type (ExtData_wrap)                   :: wrap
+    type (t_extdata_state), pointer       :: ExtData_internal_state => null()
+    type (extdata_wrap)                   :: wrap
 
 
     character(len=ESMF_MAXSTR )           :: timerModeStr
@@ -210,6 +213,7 @@ contains
     class(BaseProfiler), pointer :: t_p
     class(Logger), pointer :: lgr
     type(ESMF_Clock) :: cap_clock
+    logical :: use_extdata2g
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -399,6 +403,7 @@ contains
     !EOR
     enableTimers = ESMF_UtilStringUpperCase(enableTimers, rc = status)
     _VERIFY(status)
+    call MAPL_GetResource(maplobj,use_extdata2g,"USE_EXTDATA2G:",default=.false.,_RC)
 
     if (enableTimers /= 'YES') then
        call MAPL_ProfDisable(rc = status)
@@ -566,8 +571,16 @@ contains
     call MAPL_Set(MAPLOBJ, CF=CAP%CF_EXT, RC=STATUS)
     _VERIFY(STATUS)
 
-    cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData_SetServices, rc = status)
-    _VERIFY(status)
+    if (use_extdata2g) then
+#if defined(BUILD_WITH_EXTDATA2G) 
+       cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData2G_SetServices, _RC)
+#else
+       call lgr%error('ExtData2G requested but not built')
+       _FAIL('ExtData2G requested but not built')
+#endif
+    else
+       cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData1G_SetServices, _RC)
+    end if
     call t_p%stop('SetService')
 
     ! Add NX and NY from AGCM.rc to ExtData.rc as well as name of ExtData rc file
