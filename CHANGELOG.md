@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Adapted to gFTL version2
+  - This *requires* gFTL 1.5.5
 - Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
 - Add voting interpolation method as optional argument to SimpleBundleRead method
 - Updated to circleci-tools 0.12.0

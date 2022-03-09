@@ -71,11 +71,11 @@ message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 # This would then populate the target already leading to find_package()
 # errors.
 if(NOT TARGET GFTL::gftl)
-  # MAPL currently requires at least GFTL 1.5.1
-  find_package(GFTL 1.5.1 REQUIRED)
+  # MAPL currently requires at least GFTL 1.5.5
+  find_package(GFTL 1.5.5 REQUIRED)
 else()
-  if (GFTL_VERSION VERSION_LESS 1.5.1)
-    message(FATAL_ERROR "GFTL must be at least 1.5.1 - check baselibs version.")
+  if (GFTL_VERSION VERSION_LESS 1.5.4)
+    message(FATAL_ERROR "GFTL must be at least 1.5.5 - check baselibs version.")
   endif ()
 endif()
 if(NOT TARGET GFTL_SHARED::gftl-shared)
