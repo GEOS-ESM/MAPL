@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Adapted to gFTL version2
   - This *requires* gFTL 1.5.5
+- Updated `components.yaml` for gFTL v2 work
+  - ESMA_env v3.12.0 (Baselibs 6.2.13 --> gFTL v1.5.5)
+  - ESMA_cmake v3.11.0 (Updates for Spack)
 - Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
 - Add voting interpolation method as optional argument to SimpleBundleRead method
 - Updated to circleci-tools 0.12.0
