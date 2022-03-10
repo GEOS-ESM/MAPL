@@ -215,7 +215,7 @@ contains
 
     call MAPL_GetResource(meta,use_extdata2g,"USE_EXTDATA2G:",default=.false.,_RC)
 
-    if (use_extdata2g)
+    if (use_extdata2g) then
 #if defined(BUILD_WITH_EXTDATA2G)
        cap%extdata_id = MAPL_AddChild (meta, name = 'EXTDATA', SS = ExtData2G_SetServices, configFile=EXTDATA_CF, _RC)
 #else
@@ -378,7 +378,6 @@ contains
     class(DistributedProfiler), pointer :: t_p, m_p
     class(Logger), pointer :: lgr
     type(ESMF_Clock) :: cap_clock
-    logical :: use_extdata2g
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
