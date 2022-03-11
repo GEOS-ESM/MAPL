@@ -40,6 +40,8 @@ module MAPL_LatLonGridFactoryMod
       integer :: lm = UNDEFINED_INTEGER
       real(kind=REAL64), allocatable :: lon_centers(:)
       real(kind=REAL64), allocatable :: lat_centers(:)
+      real(kind=REAL64), allocatable :: lon_centers_degrees(:)
+      real(kind=REAL64), allocatable :: lat_centers_degrees(:)
       real(kind=REAL64), allocatable :: lon_corners(:)
       real(kind=REAL64), allocatable :: lat_corners(:)
       logical :: force_decomposition = .false.
@@ -63,7 +65,9 @@ module MAPL_LatLonGridFactoryMod
    contains
       procedure :: make_new_grid
       procedure :: create_basic_grid
+      procedure :: get_longitudes_degrees
       procedure :: get_longitudes
+      procedure :: get_latitudes_degrees
       procedure :: get_latitudes
       procedure :: compute_lon_centers
       procedure :: compute_lat_centers
@@ -236,6 +240,12 @@ contains
       _VERIFY(status)
       factory%lat_centers = factory%compute_lat_centers(factory%pole, rc=status)
       _VERIFY(status)
+      factory%lon_centers_degrees = factory%compute_lon_centers(factory%dateline, &
+            convert_to_radians = .false.,  rc=status)
+      _VERIFY(status)
+      factory%lat_centers_degrees = factory%compute_lat_centers(factory%pole, &
+            convert_to_radians = .false.,  rc=status)
+      _VERIFY(status)
       factory%lon_corners = factory%compute_lon_corners(factory%dateline, rc=status)
       _VERIFY(status)
       factory%lat_corners = factory%compute_lat_corners(factory%pole, rc=status)
@@ -341,13 +351,26 @@ contains
       _RETURN(_SUCCESS)
    end function get_longitudes
 
+   function get_longitudes_degrees(this, unusable, rc) result(longitudes)
+      use MAPL_BaseMod
+      class (LatLonGridFactory), intent(in) :: this
+      real(kind=REAL64), allocatable :: longitudes(:)
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(unusable)
+
+      longitudes = this%lon_centers_degrees
+      _RETURN(_SUCCESS)
+   end function get_longitudes_degrees
+
 
    ! in radians
    function get_latitudes(this, unusable, rc) result(latitudes)
-      use MAPL_BaseMod
-      class (LatLonGridFactory), intent(in) :: this
-      real(kind=REAL64), allocatable :: latitudes(:)
-      class (KeywordEnforcer), optional, intent(in) :: unusable
+      use mapl_basemod
+      class (latlongridfactory), intent(in) :: this
+      real(kind=real64), allocatable :: latitudes(:)
+      class (keywordenforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
       _UNUSED_DUMMY(unusable)
@@ -356,21 +379,41 @@ contains
       _RETURN(_SUCCESS)
    end function get_latitudes
 
+   function get_latitudes_degrees(this, unusable, rc) result(latitudes)
+      use MAPL_BaseMod
+      class (LatLonGridFactory), intent(in) :: this
+      real(kind=REAL64), allocatable :: latitudes(:)
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(unusable)
+
+      latitudes = this%lat_centers_degrees
+      _RETURN(_SUCCESS)
+   end function get_latitudes_degrees
+
    ! in radians
-   function compute_lon_centers(this, dateline, unusable, rc) result(lon_centers)
+   function compute_lon_centers(this, dateline, unusable, convert_to_radians, rc) result(lon_centers)
       use MAPL_ConstantsMod, only:MAPL_DEGREES_TO_RADIANS
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lon_centers(:)
       class (LatLonGridFactory), intent(in) :: this
       character(2), intent(in) :: dateline
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      logical, intent(in), optional :: convert_to_radians
       integer, optional, intent(out) :: rc
 
       real(kind=REAL64) :: delta, min_coord, max_coord
+      logical :: local_convert_to_radians
       logical :: regional
       integer :: status
 
       _UNUSED_DUMMY(unusable)
+      if (present(convert_to_radians)) then
+         local_convert_to_radians = convert_to_radians
+      else
+         local_convert_to_radians = .true.
+      end if
 
       allocate(lon_centers(this%im_world))
 
@@ -397,9 +440,14 @@ contains
          end select
       end if
 
-      lon_centers = MAPL_Range(min_coord, max_coord, this%im_world, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
-      _VERIFY(status)
+      if (local_convert_to_radians) then
+         lon_centers = MAPL_Range(min_coord, max_coord, this%im_world, &
+              & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+         _VERIFY(status)
+      else
+         lon_centers = MAPL_Range(min_coord, max_coord, this%im_world, rc=status)
+         _VERIFY(status)
+      end if
 
       _RETURN(_SUCCESS)
    end function compute_lon_centers
@@ -484,20 +532,27 @@ contains
    end function get_lat_corners
 
 
-   function compute_lat_centers(this, pole, unusable, rc) result(lat_centers)
+   function compute_lat_centers(this, pole, unusable, convert_to_radians,  rc) result(lat_centers)
       use MAPL_ConstantsMod, only: MAPL_DEGREES_TO_RADIANS
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lat_centers(:)
       class (LatLonGridFactory), intent(in) :: this
       character(2), intent(in) :: pole
       class (KeywordEnforcer), optional, intent(in) :: unusable
+      logical, intent(in), optional :: convert_to_radians
       integer, optional, intent(out) :: rc
 
       real(kind=REAL64) :: delta, min_coord, max_coord
       logical :: regional
+      logical :: local_convert_to_radians
       integer :: status
 
       _UNUSED_DUMMY(unusable)
+      if (present(convert_to_radians)) then
+         local_convert_to_radians = convert_to_radians
+      else
+         local_convert_to_radians = .true.
+      end if
 
       allocate(lat_centers(this%jm_world))
 
@@ -520,8 +575,12 @@ contains
          end select
       end if
 
-      lat_centers = MAPL_Range(min_coord, max_coord, this%jm_world, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+      if (local_convert_to_radians) then
+         lat_centers = MAPL_Range(min_coord, max_coord, this%jm_world, &
+              & conversion_factor=MAPL_DEGREES_TO_RADIANS, rc=status)
+      else
+         lat_centers = MAPL_Range(min_coord, max_coord, this%jm_world, rc=status)
+      end if
 
       _RETURN(_SUCCESS)
 
@@ -883,10 +942,15 @@ contains
             if (compute_lons .and. compute_lats) then
                this%lon_centers = this%compute_lon_centers(this%dateline, rc=status)
                _VERIFY(status)
+               this%lon_centers_degrees = this%compute_lon_centers(this%dateline, & 
+                      convert_to_radians=.false., rc=status)
+               _VERIFY(status)
                this%lon_corners = this%compute_lon_corners(this%dateline, rc=status)
                _VERIFY(status)
                this%lat_centers = this%compute_lat_centers(this%pole, rc=status)
                _VERIFY(status)
+               this%lat_centers_degrees = this%compute_lat_centers(this%dateline, & 
+                      convert_to_radians=.false., rc=status)
                this%lat_corners = this%compute_lat_corners(this%pole, rc=status)
                _VERIFY(status)
             else
@@ -980,8 +1044,13 @@ contains
       ! Compute the centers and corners
       this%lon_centers = this%compute_lon_centers(this%dateline, rc=status)
       _VERIFY(status)
+      this%lon_centers_degrees = this%compute_lon_centers(this%dateline, &
+               convert_to_radians = .false., rc=status)
+      _VERIFY(status)
       this%lat_centers = this%compute_lat_centers(this%pole, rc=status)
       _VERIFY(status)
+      this%lat_centers_degrees = this%compute_lat_centers(this%pole, &
+               convert_to_radians = .false., rc=status)
       this%lon_corners = this%compute_lon_corners(this%dateline, rc=status)
       _VERIFY(status)
       this%lat_corners = this%compute_lat_corners(this%pole, rc=status)
@@ -1730,13 +1799,13 @@ contains
       v = Variable(type=PFIO_REAL64, dimensions='lon')
       call v%add_attribute('long_name', 'longitude')
       call v%add_attribute('units', 'degrees_east')
-      call v%add_const_value(UnlimitedEntity(MAPL_RADIANS_TO_DEGREES*this%get_longitudes()))
+      call v%add_const_value(UnlimitedEntity(this%get_longitudes_degrees()))
       call metadata%add_variable('lon', v)
 
       v = Variable(type=PFIO_REAL64, dimensions='lat')
       call v%add_attribute('long_name', 'latitude')
       call v%add_attribute('units', 'degrees_north')
-      call v%add_const_value(UnlimitedEntity(MAPL_RADIANS_TO_DEGREES*this%get_latitudes()))
+      call v%add_const_value(UnlimitedEntity(this%get_latitudes_degrees()))
       call metadata%add_variable('lat', v)
 
    end subroutine append_metadata
