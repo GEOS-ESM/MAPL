@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [2.8.0.5] - 2022-03-11
+
+### Fixed
+
+- Fixes for Lats and Lons in Lat/Lon files to match FP 5.27
+  - Store lat-lons when using lat-lon grids in degrees to avoid a floating point round off created by conversion to or from radians
+
 ## [2.8.0.4] - 2022-02-16
 
 ### Fixed
