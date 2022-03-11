@@ -954,6 +954,8 @@ contains
                this%lat_corners = this%compute_lat_corners(this%pole, rc=status)
                _VERIFY(status)
             else
+               this%lon_centers_degrees = this%lon_centers
+               this%lat_centers_degrees = this%lat_centers
                this%lon_centers = MAPL_DEGREES_TO_RADIANS * this%lon_centers
                this%lat_centers = MAPL_DEGREES_TO_RADIANS * this%lat_centers
                this%lon_corners = MAPL_DEGREES_TO_RADIANS * this%lon_corners
