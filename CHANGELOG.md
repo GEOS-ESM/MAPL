@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Save copy of original lat/lons in degrees when creating lat-lon grid factory to use in file metadata to elimiante floating point conversion noise
-
 ### Added
 
 ### Changed
@@ -18,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.18.2] - 2022-03-11
+
+### Fixed
+
+- Save copy of original lat/lons in degrees when creating lat-lon grid factory to use in file metadata to elimiante floating point conversion noise
 
 ## [2.18.1] - 2022-03-07
 
