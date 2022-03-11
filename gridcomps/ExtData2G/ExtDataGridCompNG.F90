@@ -1820,6 +1820,7 @@ CONTAINS
      character(len=*), parameter :: CF_COMPONENT_SEPARATOR = '.'
      real :: temp_real
      type(ESMF_Info) :: infoh
+     logical :: isPresent
 
      IAM = "MAPL_ExtDataGridChangeLev"
 
