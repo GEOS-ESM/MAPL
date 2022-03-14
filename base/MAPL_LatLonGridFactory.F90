@@ -949,7 +949,7 @@ contains
                _VERIFY(status)
                this%lat_centers = this%compute_lat_centers(this%pole, rc=status)
                _VERIFY(status)
-               this%lat_centers_degrees = this%compute_lat_centers(this%dateline, & 
+               this%lat_centers_degrees = this%compute_lat_centers(this%pole, & 
                       convert_to_radians=.false., rc=status)
                this%lat_corners = this%compute_lat_corners(this%pole, rc=status)
                _VERIFY(status)
