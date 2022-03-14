@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed bug in 2.8.0.6 release when computing lats in degrees lat-lon grid factory
+- Fixed bug in 2.8.0.5 release when computing lats in degrees lat-lon grid factory
 
 ## [2.8.0.5] - 2022-03-11
 
