@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed GNU bug when defining file metadata in lat-lon grid factory
+
 ### Added
 
 ### Changed
