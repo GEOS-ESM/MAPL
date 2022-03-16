@@ -1,5 +1,5 @@
 module MAPL_MeterNode
-   use, intrinsic :: iso_fortran_env, only: REAL64, REAL128
+   use, intrinsic :: iso_fortran_env, only: REAL64
    use MAPL_AbstractMeter
    use MAPL_AbstractMeterNode
    use MAPL_MeterNodeVector
@@ -67,10 +67,10 @@ module MAPL_MeterNode
    interface MeterNodeIterator
       module procedure new_MeterNodeIterator
    end interface MeterNodeIterator
-      
+
 
    integer, parameter :: NOT_FOUND = -1
-   
+
 contains
 
 
@@ -79,7 +79,7 @@ contains
       character(*), intent(in) :: name
       class(AbstractMeter), intent(in) :: meter
       integer, optional, intent(in) :: depth
-      
+
       tree%name = name
       tree%meter = meter
 
@@ -99,14 +99,14 @@ contains
       class (MeterNode), target, intent(in) :: this
       meter => this%meter
    end function get_meter
-   
+
 
    function get_name(this) result(name)
       character(:), pointer :: name
       class (MeterNode), target, intent(in) :: this
       name => this%name
    end function get_name
-   
+
 
    function get_inclusive(this) result(inclusive)
       real(kind=REAL64) :: inclusive
@@ -121,7 +121,7 @@ contains
 
       type (MeterNodevectorIterator) :: iter
       class (AbstractMeterNode), pointer :: child
-      real(kind=REAL128) :: tmp
+      real(kind=REAL64) :: tmp
 
       ! Subtract time of submeters from time of node meter.  Note the
       ! use of 128-bit precision to avoid negative exclusive times due
@@ -178,7 +178,7 @@ contains
       character(*), intent(in) :: name
 
       integer :: idx
-      
+
       idx = this%find_child(name)
       if (idx /= NOT_FOUND) then
          child => this%children%at(idx)
@@ -232,7 +232,7 @@ contains
       type (MeterNodeVectorIterator) :: iter
 
       class (AbstractMeterNode), pointer :: child
-      
+
       num_nodes = 1
       iter = this%children%begin()
       do while (iter /= this%children%end())
@@ -271,7 +271,7 @@ contains
       allocate(iterator, source=MeterNodeIterator(this))
 
    end function begin
-      
+
 
 
    function end(this) result(iterator)
@@ -293,7 +293,7 @@ contains
 
    end function end
 
-   
+
    recursive subroutine next(this)
       class (MeterNodeIterator), intent(inout) :: this
       class (AbstractMeterNode), pointer :: current_child
@@ -318,7 +318,7 @@ contains
             deallocate(this%iterator_of_current_child)
             call this%iterator_over_children%next()
             if (this%iterator_over_children == this%reference%children%end()) then ! done
-               deallocate(this%iterator_over_children) 
+               deallocate(this%iterator_over_children)
             else
                current_child => this%iterator_over_children%get()
                this%iterator_of_current_child = current_child%begin() ! always at least one node
@@ -326,7 +326,7 @@ contains
             end if
          end if
       end if
-      
+
    end subroutine next
 
 
@@ -360,7 +360,7 @@ contains
       type is (MeterNodeIterator)
          equals = associated(a%reference, b%reference)
          if (.not. equals) return
-         
+
          equals = associated(a%current) .eqv. associated(b%current)
          if (.not. equals) return
 
@@ -423,7 +423,7 @@ contains
          call t%reset()
       end if
       call t%accumulate(other%get_meter())
-         
+
       ! recurse over children of other
       iter = other%begin()
       call iter%next() ! skip top node (already handled)
@@ -434,5 +434,5 @@ contains
 
    end subroutine accumulate
 
-   
+
 end module MAPL_MeterNode

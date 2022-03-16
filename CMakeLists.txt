@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.12.1
+  VERSION 2.12.2
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the default build type to release
@@ -114,7 +114,9 @@ if (NOT Baselibs_FOUND)
      add_definitions(-DH5_HAVE_PARALLEL)
   endif()
 
-  find_package(ESMF MODULE REQUIRED)
+  if (NOT TARGET esmf)
+    find_package(ESMF MODULE REQUIRED)
+  endif ()
 endif ()
 
 if (BUILD_WITH_PFLOGGER)

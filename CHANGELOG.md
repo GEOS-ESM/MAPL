@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.12.2] - 2022-03-16
+
+### Fixed
+
+- Fixes for M1 build in profiler (remove REAL128)
+- Fix for CMake when `esmf` is already a target
+
 ## [2.12.1] - 2021-11-08
 
 ### Fixed
