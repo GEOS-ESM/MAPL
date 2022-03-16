@@ -147,6 +147,7 @@ module MAPL_ApplicationSupport
 #endif
 
    subroutine report_global_profiler(unusable,comm,rc)
+      use pflogger, only: logging, Logger
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: comm
       integer, optional, intent(out) :: rc
@@ -157,7 +158,8 @@ module MAPL_ApplicationSupport
       type (MultiColumn) :: exclusive
       integer :: npes, my_rank, ierror
       character(1) :: empty(0)
-      class (BaseProfiler), pointer :: t_p
+      class(BaseProfiler), pointer :: t_p
+      class(Logger), pointer :: lgr
 
       _UNUSED_DUMMY(unusable)
       if (present(comm)) then
@@ -172,7 +174,7 @@ module MAPL_ApplicationSupport
       call reporter%add_column(FormattedTextColumn('#-cycles','(i8.0)', 8, NumCyclesColumn(),separator='-'))
 
       inclusive = MultiColumn(['Inclusive'], separator='=')
-      call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))
+      call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f10.2)', 10, InclusiveColumn(), separator='-'))
       call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn(),'MAX'),separator='-'))
       call reporter%add_column(inclusive)
 
@@ -185,10 +187,11 @@ module MAPL_ApplicationSupport
       call MPI_Comm_Rank(world_comm, my_rank, ierror)
 
       if (my_rank == 0) then
-            report_lines = reporter%generate_report(t_p)
+         lgr => logging%get_logger('MAPL.PROF')
+         report_lines = reporter%generate_report(t_p)
             write(*,'(a,1x,i0)')'Report on process: ', my_rank
             do i = 1, size(report_lines)
-               write(*,'(a)') report_lines(i)
+               call lgr%info('%a', report_lines(i))
             end do
        end if
        call MPI_Barrier(world_comm, ierror)

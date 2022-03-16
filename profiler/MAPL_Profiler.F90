@@ -26,6 +26,7 @@ module mapl_Profiler
    use mapl_FormattedTextColumn
    use mapl_MemoryTextColumn
    use mapl_NameColumn
+   use mapl_FullNameColumn
    use mapl_NumCyclesColumn
    use mapl_InclusiveColumn
    use mapl_ExclusiveColumn

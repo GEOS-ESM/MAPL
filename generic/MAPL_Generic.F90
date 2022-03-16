@@ -2163,12 +2163,14 @@ contains
    contains
 
       subroutine report_generic_profile( rc )
+         use pflogger, only: logging, Logger
          integer, optional,   intent(  out) :: RC     ! Error code:
          character(:), allocatable :: report(:)
          type (ProfileReporter) :: reporter
          type (MultiColumn) :: min_multi, mean_multi, max_multi, pe_multi, n_cyc_multi
          type (ESMF_VM) :: vm
          character(1) :: empty(0)
+         class(Logger), pointer :: lgr
 
          call ESMF_VmGetCurrent(vm, rc=status)
          _VERIFY(status)
@@ -2180,49 +2182,63 @@ contains
 
          if  (MAPL_AM_I_Root(vm)) then
             reporter = ProfileReporter(empty)
-            call reporter%add_column(NameColumn(25, separator=" "))
+!!$            call reporter%add_column(NameColumn(25, separator=" "))
+            call reporter%add_column(FullNameColumn(50, separator=" "))
 
             min_multi = MultiColumn(['Min'], separator='=')
             call min_multi%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MIN')), separator='-'))
-            call min_multi%add_column(FormattedTextColumn('inclusive', '(f9.2)', 9, InclusiveColumn('MIN'), separator='-'))
-            call min_multi%add_column(FormattedTextColumn('exclusive', '(f9.2)',9, ExclusiveColumn('MIN'), separator='-'))
+            call min_multi%add_column(SeparatorColumn(','))
+            call min_multi%add_column(FormattedTextColumn('inclusive', '(f10.2)', 10, InclusiveColumn('MIN'), separator='-'))
+            call min_multi%add_column(SeparatorColumn(','))
+            call min_multi%add_column(FormattedTextColumn('exclusive', '(f10.2)', 10, ExclusiveColumn('MIN'), separator='-'))
 
             mean_multi = MultiColumn(['Mean'], separator='=')
             call mean_multi%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN')), separator='-'))
-            call mean_multi%add_column(FormattedTextColumn('inclusive', '(f9.2)', 9, InclusiveColumn('MEAN'), separator='-'))
-            call mean_multi%add_column(FormattedTextColumn('exclusive', '(f9.2)', 9, ExclusiveColumn('MEAN'), separator='-'))
+            call mean_multi%add_column(SeparatorColumn(','))
+            call mean_multi%add_column(FormattedTextColumn('inclusive', '(f10.2)', 10, InclusiveColumn('MEAN'), separator='-'))
+            call mean_multi%add_column(SeparatorColumn(','))
+            call mean_multi%add_column(FormattedTextColumn('exclusive', '(f10.2)', 10, ExclusiveColumn('MEAN'), separator='-'))
 
             max_multi = MultiColumn(['Max'], separator='=')
             call max_multi%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MAX')), separator='-'))
-            call max_multi%add_column(FormattedTextColumn('inclusive', '(f9.2)', 9, InclusiveColumn('MAX'), separator='-'))
-            call max_multi%add_column(FormattedTextColumn('exclusive', '(f9.2)', 9, ExclusiveColumn('MAX'), separator='-'))
+            call max_multi%add_column(SeparatorColumn(','))
+            call max_multi%add_column(FormattedTextColumn('inclusive', '(f10.2)', 10, InclusiveColumn('MAX'), separator='-'))
+            call max_multi%add_column(SeparatorColumn(','))
+            call max_multi%add_column(FormattedTextColumn('exclusive', '(f10.2)', 10, ExclusiveColumn('MAX'), separator='-'))
 
             pe_multi = MultiColumn(['PE'], separator='=')
             call pe_multi%add_column(FormattedTextColumn('max','(1x,i5.5)', 6, ExclusiveColumn('MAX_PE'), separator='-'))
+            call pe_multi%add_column(SeparatorColumn(','))
             call pe_multi%add_column(FormattedTextColumn('min','(1x,i5.5)', 6, ExclusiveColumn('MIN_PE'),separator='-'))
 
             n_cyc_multi = MultiColumn(['# cycles'], separator='=')
             call n_cyc_multi%add_column(FormattedTextColumn('', '(i8.0)', 8, NumCyclesColumn(),separator=' '))
 
-            call reporter%add_column(SeparatorColumn('|'))
+!!$            call reporter%add_column(SeparatorColumn('|')
+            call reporter%add_column(SeparatorColumn(','))
             call reporter%add_column(min_multi)
-            call reporter%add_column(SeparatorColumn('|'))
+!!$            call reporter%add_column(SeparatorColumn('|'))
+            call reporter%add_column(SeparatorColumn(','))
             call reporter%add_column(mean_multi)
-            call reporter%add_column(SeparatorColumn('|'))
+!!$            call reporter%add_column(SeparatorColumn('|'))
+            call reporter%add_column(SeparatorColumn(','))
             call reporter%add_column(max_multi)
-            call reporter%add_column(SeparatorColumn('|'))
+!!$            call reporter%add_column(SeparatorColumn('|'))
+            call reporter%add_column(SeparatorColumn(','))
             call reporter%add_column(pe_multi)
-            call reporter%add_column(SeparatorColumn('|'))
+!!$            call reporter%add_column(SeparatorColumn('|'))
+            call reporter%add_column(SeparatorColumn(','))
             call reporter%add_column(n_cyc_multi)
 
 
             report = reporter%generate_report(state%t_profiler)
-            write(OUTPUT_UNIT,*)''
-            write(OUTPUT_UNIT,*)'Times for component <' // trim(comp_name) // '>'
+            lgr => logging%get_logger('MAPL.PROF')
+            call lgr%info(' ')
+            call lgr%info('Times for component <%a~>', trim(comp_name))
             do i = 1, size(report)
-               write(OUTPUT_UNIT,'(a)')report(i)
+               call lgr%info('%a',report(i))
             end do
-            write(OUTPUT_UNIT,*)''
+            call lgr%info(' ')
          end if
 
          _RETURN(ESMF_SUCCESS)

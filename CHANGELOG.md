@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
 
 ### Added
+- Various options for performance profiler
+  1. Output is now routed through pFlogger, which allows run time control of where to send data.
+  2. Option to use CSV formatting for output. 
 - New cmake option USE_EXTDATA2G to enable the next generation of ExtData for development, by default uses 1st generation ExtData
 
 - MAPL_ESMFFieldBundleRead/Write modules are now available in when using MAPL

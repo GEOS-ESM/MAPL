@@ -12,6 +12,7 @@ module MAPL_ProfileReporter
 
    type, extends(MultiColumn) :: ProfileReporter
       private
+      logical :: csv = .false.
    contains
       procedure :: generate_report_profiler
       generic :: generate_report => generate_report_profiler
@@ -20,6 +21,7 @@ module MAPL_ProfileReporter
 
    interface ProfileReporter
       module procedure :: new_ProfileReporter
+      module procedure :: new_ProfileReporter_csv
    end interface ProfileReporter
 
    
@@ -30,6 +32,14 @@ contains
       character(*), intent(in) :: header(:)
       reporter%MultiColumn = MultiColumn(header)
    end function new_ProfileReporter
+
+   function new_ProfileReporter_csv(header, csv) result(reporter)
+      type(ProfileReporter) :: reporter
+      character(*), intent(in) :: header(:)
+      logical, intent(in) :: csv
+      reporter%MultiColumn = MultiColumn(header)
+      reporter%csv = csv
+   end function new_ProfileReporter_csv
 
 
    function generate_report_profiler(this, p) result(report_lines)

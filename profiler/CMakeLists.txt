@@ -29,6 +29,7 @@ set (srcs
   reporting/TextColumn.F90
   reporting/SimpleTextColumn.F90
   reporting/NameColumn.F90
+  reporting/FullNameColumn.F90
   reporting/FormattedTextColumn.F90
   reporting/MemoryTextColumn.F90
   reporting/SeparatorColumn.F90
