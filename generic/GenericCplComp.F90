@@ -281,6 +281,10 @@ contains
     type(ESMF_Field)                      :: field
     integer                               :: cplfunc
     logical                               :: isPresent
+    integer                               :: globalOffset
+    integer                               :: specOffset
+    logical                               :: clockYetToAdvance
+    integer                               :: timeStep ! in seconds
 
 ! Begin...
 
@@ -345,6 +349,21 @@ contains
 
     TM0 = currTime
 
+    call ESMF_AttributeGet(CC, name='ClockYetToAdvance', &
+         isPresent=isPresent, _RC)
+    if (isPresent) then
+       call ESMF_AttributeGet(CC, name='ClockYetToAdvance', &
+            value=clockYetToAdvance, _RC)
+    else
+       clockYetToAdvance = .false.
+    endif
+
+    globalOffset = 0
+    if (clockYetToAdvance) then
+       call ESMF_TimeIntervalGet(TS, S=timeStep, _RC)
+       globalOffset = -timeStep
+    end if
+
 ! Initialize the counters to 0. This may do some unnecessary
 !   accumulations immediately after initialize
 !-----------------------------------------------------------
@@ -359,13 +378,15 @@ contains
        call MAPL_VarSpecGet(STATE%DST_SPEC(J),        &
             ACCMLT_INTERVAL = STATE%CLEAR_INTERVAL(J), &
             COUPLE_INTERVAL = STATE%COUPLE_INTERVAL(J), &
-            OFFSET          = OFFSET, &
+            OFFSET          = specOffset, &
             SHORT_NAME      = NAME, &
                                             RC = STATUS )
        _VERIFY(STATUS)
 
 ! Initalize COUPLE ALARM from destination properties
 !---------------------------------------------------
+
+       OFFSET = specOffset + globalOffset
 
        call ESMF_TimeIntervalSet(TCPL, S=STATE%COUPLE_INTERVAL(J), &
             calendar=cal, RC=STATUS)
@@ -376,6 +397,10 @@ contains
        _VERIFY(STATUS)
 
        rTime = TM0 + TOFF
+
+       do while (rTime < currTime)
+          rTime = rTime + TCPL
+       end do
 
        if (associated(STATE%TIME2CPL_ALARM)) then
           STATE%TIME_TO_COUPLE(J) = STATE%TIME2CPL_ALARM
