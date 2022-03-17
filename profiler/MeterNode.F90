@@ -123,9 +123,12 @@ contains
       class (AbstractMeterNode), pointer :: child
       real(kind=REAL64) :: tmp
 
-      ! Subtract time of submeters from time of node meter.  Note the
-      ! use of 128-bit precision to avoid negative exclusive times due
-      ! to roundoff.
+      ! Subtract time of submeters from time of node meter.
+      ! Previously, this used 128-bit precision to avoid negative
+      ! exclusive times due to roundoff. But the GNU on M1 and NVHPC do
+      ! not allow REAL128. So tmp is now 64-bit and we use a max(tmp,0)
+      ! below to try and cap negatives
+
       tmp = this%get_inclusive()
 
       iter = this%children%begin()
@@ -135,7 +138,7 @@ contains
          call iter%next()
       end do
 
-      exclusive = tmp
+      exclusive = max(tmp,0.0)
    end function get_exclusive
 
 
