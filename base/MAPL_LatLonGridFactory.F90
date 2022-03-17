@@ -1792,6 +1792,7 @@ contains
       type (FileMetadata), intent(inout) :: metadata
 
       type (Variable) :: v
+      real(kind=REAL64), allocatable :: temp_coords(:)
      
       ! Horizontal grid dimensions
       call metadata%add_dimension('lon', this%im_world)
@@ -1801,13 +1802,16 @@ contains
       v = Variable(type=PFIO_REAL64, dimensions='lon')
       call v%add_attribute('long_name', 'longitude')
       call v%add_attribute('units', 'degrees_east')
-      call v%add_const_value(UnlimitedEntity(this%get_longitudes_degrees()))
+      temp_coords = this%get_longitudes_degrees()
+      call v%add_const_value(UnlimitedEntity(temp_coords))
       call metadata%add_variable('lon', v)
+      deallocate(temp_coords)
 
       v = Variable(type=PFIO_REAL64, dimensions='lat')
       call v%add_attribute('long_name', 'latitude')
       call v%add_attribute('units', 'degrees_north')
-      call v%add_const_value(UnlimitedEntity(this%get_latitudes_degrees()))
+      temp_coords = this%get_latitudes_degrees()
+      call v%add_const_value(UnlimitedEntity(temp_coords))
       call metadata%add_variable('lat', v)
 
    end subroutine append_metadata
