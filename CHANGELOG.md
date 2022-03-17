@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Replaced a wild card "*" in any position of a string in MAPL_GridCompSpecs_ACG.py   
 - Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
 - Add voting interpolation method as optional argument to SimpleBundleRead method
 
