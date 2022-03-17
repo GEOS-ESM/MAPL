@@ -25,10 +25,12 @@
    use ESMFL_Mod
    use MAPL_BaseMod
    use MAPL_CFIOMod
+   use MAPL_StringTemplate
    use MAPL_MaxMinMod
    use MAPL_CommsMod, only: MAPL_AM_I_ROOT
    use MAPL_ConstantsMod, only: MAPL_PI
    use MAPL_ExceptionHandling
+   use MAPL_ESMFFieldBundleRead
 
    implicit NONE
    private
@@ -96,6 +98,7 @@
       type(SimpleArray_1D), pointer :: r1(:) => null()
       type(SimpleArray_2D), pointer :: r2(:) => null()
       type(SimpleArray_3D), pointer :: r3(:) => null()
+      logical :: esmf_alloc_fields = .false.
    end type MAPL_SimpleBundle
 
 ! !DESCRIPTION: This module implements the MAPL SimpleBundle class which
@@ -720,7 +723,8 @@ CONTAINS
 !EOP
 !-----------------------------------------------------------------------------
 
-    integer :: status
+    integer :: status,i,fieldCount
+    type(ESMF_Field) :: field
 
     deallocate(self%coords%Lons, self%coords%Lats, self%coords%Levs, __STAT__) 
 !    deallocate(self%r1, self%r2, self%r3, __STAT__)
@@ -729,7 +733,21 @@ CONTAINS
     if(associated(self%r3)) deallocate(self%r3)
 
     if (associated(self%bundle)) then
-       call MAPL_FieldBundleDestroy(self%bundle, __RC__)
+!       call MAPL_FieldBundleDestroy(self%bundle, __RC__)
+!    end if
+       if (self%esmf_alloc_fields) then
+          call ESMF_FieldBundleGet(self%BUNDLE, FieldCount=FIELDCOUNT, RC=STATUS)
+          _VERIFY(STATUS)
+          do I = 1, FIELDCOUNT
+             call ESMF_FieldBundleGet(self%BUNDLE, I, FIELD, RC=STATUS)
+             _VERIFY(STATUS)
+             call ESMF_FieldDestroy(FIELD, RC=status)
+             _VERIFY(STATUS)
+          end do
+       else
+          call MAPL_FieldBundleDestroy(self%bundle,rc=status)
+          _VERIFY(status)
+       end if
     end if
 
     if (self%bundleAlloc) then
@@ -751,7 +769,7 @@ CONTAINS
 !
 
   Function MAPL_SimpleBundleRead (filename, bundle_name, grid, time, verbose, &
-                                  only_vars, expid, voting, rc ) result (self)
+                                  only_vars, expid, regrid_method, rc ) result (self)
 
 ! !ARGUMENTS:
 
@@ -759,12 +777,12 @@ CONTAINS
 
     character(len=*),            intent(in)    :: filename
     character(len=*),            intent(in)    :: bundle_name
-    type(ESMF_Time),             intent(inout) :: Time
     type(ESMF_Grid),             intent(in)    :: Grid
+    type(ESMF_Time),             intent(inout) :: Time
     logical, OPTIONAL,           intent(in)    :: verbose
     character(len=*), optional,  intent(IN)    :: only_vars 
     character(len=*), optional,  intent(IN)    :: expid
-    logical,          optional,  intent(IN)    :: voting
+    integer,          optional,  intent(IN)    :: regrid_method 
     integer, OPTIONAL,           intent(out)   :: rc
 
 !  !DESCRIPTION:
@@ -777,16 +795,31 @@ CONTAINS
 
     integer :: status
     type(ESMF_FieldBundle),  pointer :: Bundle
+    character(len=ESMF_MAXSTR) :: untemplated_filename
+    integer :: datetime(2),iyy,imm,idd,ihh,imn,isc
 
     allocate(Bundle, stat=STATUS)
     _VERIFY(STATUS)
 
     Bundle = ESMF_FieldBundleCreate ( name=bundle_name, __RC__ )
     call ESMF_FieldBundleSet ( bundle, grid=Grid, __RC__ )
-    call MAPL_CFIORead  ( filename, Time, Bundle, verbose=verbose, &
-                          ONLY_VARS=only_vars, expid=expid, voting=voting, __RC__ )
+
+    call ESMF_TimeGet(time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=isc,__RC__)
+    call MAPL_PackDateTime(datetime,iyy,imm,idd,ihh,imn,isc)
+    if (present(expid)) then
+       call fill_grads_template(untemplated_filename,filename,experiment_id=expid,nymd=datetime(1),nhms=datetime(2),__RC__)
+    else
+       call fill_grads_template(untemplated_filename,filename,nymd=datetime(1),nhms=datetime(2),__RC__)
+    end if
+    call MAPL_read_bundle(bundle,untemplated_filename,time,only_vars=only_vars,regrid_method=regrid_method,__RC__)
     self = MAPL_SimpleBundleCreate ( Bundle, __RC__ )
     self%bundleAlloc = .true.
+    self%esmf_alloc_fields = .true.
+
+!    call MAPL_CFIORead  ( filename, Time, Bundle, verbose=verbose, &
+!                          ONLY_VARS=only_vars, expid=expid, voting=voting_, __RC__ )
+!    self = MAPL_SimpleBundleCreate ( Bundle, __RC__ )
+!    self%bundleAlloc = .true.
 
     _RETURN(_SUCCESS)
 
