@@ -2323,12 +2323,8 @@ CONTAINS
               ! This approach causes a problem if cTime and item%reff_time are too far
               ! apart - do it the hard way instead... 
               ftime = item%reff_time
-              n = 0
-              ! SDE DEBUG: This caused problems in the past but the
-              ! alternative is far too slow... need to keep an eye 
-              ! on this but the Max(0,...) should help.
-              n = max(0,floor((cTime-item%reff_time)/item%frequency))
-              if (n>0) fTime = fTime + (n*item%frequency)
+              ftime = compute_closest_time(cTime,item%reff_time,item%frequency,_RC)
+              n=0
               do while (.not.found)
                  ! SDE: This needs to be ">"
                  found = ((ftime + item%frequency) > ctime)
@@ -4675,5 +4671,27 @@ CONTAINS
      _RETURN(ESMF_SUCCESS)
 
   end subroutine IOBundle_Add_Entry
+
+  function compute_closest_time(current_time,reference_time,frequency,rc) result(closest_time)
+     type(ESMF_Time) :: closest_time
+     type(ESMF_Time), intent(in) :: current_time
+     type(ESMF_Time), intent(in) :: reference_time
+     type(ESMF_TimeInterval), intent(in) :: frequency
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+
+     closest_time = reference_time
+     if (current_time > reference_time) then
+        do while(ESMF_TimeIntervalAbsValue(current_time-closest_time) > frequency)
+           closest_time = closest_time + frequency
+        end do
+      else
+          do while(ESMF_TimeIntervalAbsValue(current_time-closest_time) > frequency)
+           closest_time = closest_time - frequency
+        end do
+     end if
+     _RETURN(_SUCCESS)
+  end function compute_closest_time
 
  END MODULE MAPL_ExtDataGridCompMod

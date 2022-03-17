@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [2.8.0.8] - 2022-03-18
+
+### Fixed
+
+- Fixed tweeked file search algorithm in ExtData to avoid time integer division
+
 ## [2.8.0.7] - 2022-03-17
 
 ### Fixed
