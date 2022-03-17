@@ -138,7 +138,7 @@ contains
          call iter%next()
       end do
 
-      exclusive = max(tmp,0.0)
+      exclusive = max(tmp, 0.0_REAL64)
    end function get_exclusive
 
 
