@@ -122,7 +122,9 @@ if (NOT Baselibs_FOUND)
      add_definitions(-DH5_HAVE_PARALLEL)
   endif()
 
-  find_package(ESMF MODULE REQUIRED)
+  if (NOT TARGET esmf)
+    find_package(ESMF MODULE REQUIRED)
+  endif ()
 endif ()
 
 if (BUILD_WITH_PFLOGGER)

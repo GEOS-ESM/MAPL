@@ -10,10 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
+- Fixes for compiling on M1 Macs (remove REAL128)
+- Fix for CMake when `esmf` is already a target
 
 ### Added
-- New cmake option USE_EXTDATA2G to enable the next generation of ExtData for development, by default uses 1st generation ExtData
 
+- New cmake option USE_EXTDATA2G to enable the next generation of ExtData for development, by default uses 1st generation ExtData
 - MAPL_ESMFFieldBundleRead/Write modules are now available in when using MAPL
 
 ### Changed
