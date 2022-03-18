@@ -47,6 +47,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.19.0] - 2022-03-18
+
+### Fixed
+
 - Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
 - Fixes for compiling on M1 Macs (remove REAL128)
 - Fix for CMake when `esmf` is already a target
@@ -58,13 +70,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Replaced a wild card "*" in any position of a string in MAPL_GridCompSpecs_ACG.py   
+- Replaced a wild card "*" in any position of a string in MAPL_GridCompSpecs_ACG.py
 - Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
 - Add voting interpolation method as optional argument to SimpleBundleRead method
-
-### Removed
-
-### Deprecated
 
 ## [2.18.3] - 2022-03-15
 
