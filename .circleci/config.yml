@@ -1,30 +1,39 @@
 version: 2.1
 
 orbs:
-  circleci-tools: geos-esm/circleci-tools@0.11.0
+  ci: geos-esm/circleci-tools@0
 
 workflows:
   build-and-test:
     jobs:
-      - build-and-test-MAPL:
+      - ci/build:
           name: build-and-test-MAPL-on-<< matrix.compiler >>
           matrix:
             parameters:
               compiler: [gfortran, ifort]
+          repo: MAPL
+          run_unit_tests: true
           context:
             - docker-hub-creds
-      - build-UFS-MAPL:
+      - ci/build:
           name: build-UFS-MAPL-on-<< matrix.compiler >>
           matrix:
             parameters:
               compiler: [ifort]
+          repo: MAPL
+          run_unit_tests: true
+          extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_SHARED_MAPL=OFF"
           context:
             - docker-hub-creds
-      - build-GEOSgcm:
+      - ci/build:
           name: build-GEOSgcm-on-<< matrix.compiler >>
           matrix:
             parameters:
               compiler: [gfortran, ifort]
+          repo: GEOSgcm
+          checkout_fixture: true
+          mepodevelop: true
+          checkout_mapl_branch: true
           context:
             - docker-hub-creds
       ###################################################
@@ -47,11 +56,15 @@ workflows:
       #     requires:                                   #
       #       - make-FV3-exp-on-<< matrix.compiler >>   #
       ###################################################
-      - build-GEOSldas:
+      - ci/build:
           name: build-GEOSldas-on-<< matrix.compiler >>
           matrix:
             parameters:
               compiler: [gfortran, ifort]
+          repo: GEOSldas
+          checkout_fixture: true
+          fixture_branch: develop
+          checkout_mapl_branch: true
           context:
             - docker-hub-creds
       - build-GEOSadas:
@@ -63,168 +76,59 @@ workflows:
             - docker-hub-creds
 
 jobs:
-  build-and-test-MAPL:
-    parameters:
-      compiler:
-        type: string
-    executor: circleci-tools/<< parameters.compiler >>
-    working_directory: /root/project
-    steps:
-      - checkout:
-          path: MAPL
-      - circleci-tools/versions:
-          compiler: << parameters.compiler >>
-      - circleci-tools/mepoclone:
-          repo: MAPL
-      - circleci-tools/cmake:
-          repo: MAPL
-          compiler: << parameters.compiler >>
-      - circleci-tools/buildinstall:
-          repo: MAPL
-      - run:
-          name: "Build MAPL Unit Tests"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
-            make -j"$(nproc)" build-tests |& tee /logfiles/build-tests.log
-      - run:
-          name: "Run MAPL Unit Tests"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
-            # skip Performance tests (maybe doable on CircleCI?)
-            ctest -R MAPL -LE PERFORMANCE --output-on-failure |& tee /logfiles/ctest.log
-      - circleci-tools/compress_artifacts
-      - store_artifacts:
-          path: /logfiles
-
-  build-UFS-MAPL:
-    parameters:
-      compiler:
-        type: string
-    executor: circleci-tools/<< parameters.compiler >>
-    working_directory: /root/project
-    steps:
-      - checkout:
-          path: MAPL
-      - circleci-tools/versions:
-          compiler: << parameters.compiler >>
-      - circleci-tools/mepoclone:
-          repo: MAPL
-      - circleci-tools/cmake:
-          repo: MAPL
-          compiler: << parameters.compiler >>
-          extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_SHARED_MAPL=OFF"
-      - circleci-tools/buildinstall:
-          repo: MAPL
-      - run:
-          name: "Build MAPL Unit Tests"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
-            make -j"$(nproc)" build-tests |& tee /logfiles/build-tests.log
-      - run:
-          name: "Run MAPL Unit Tests"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-MAPL
-            # skip Performance tests (maybe doable on CircleCI?)
-            ctest -R MAPL -LE PERFORMANCE --output-on-failure |& tee /logfiles/ctest.log
-      - circleci-tools/compress_artifacts
-      - store_artifacts:
-          path: /logfiles
-
-  build-GEOSgcm:
-    parameters:
-      compiler:
-        type: string
-    executor: circleci-tools/<< parameters.compiler >>
-    working_directory: /root/project
-    steps:
-      - circleci-tools/checkout_fixture
-      - circleci-tools/mepoclone
-      - circleci-tools/mepodevelop
-      - circleci-tools/checkout_mapl_branch
-      - circleci-tools/cmake:
-          compiler: << parameters.compiler >>
-      - circleci-tools/buildinstall
-      - circleci-tools/compress_artifacts
-      - store_artifacts:
-          path: /logfiles
-
-      ######################################################
-      # # We need to persist the install for the next step #
-      # # but only if we are running FV3 tests             #
-      # - persist_to_workspace:                            #
-      #     root: workspace                                #
-      #     paths:                                         #
-      #       - install-GEOSgcm                            #
-      ######################################################
-
-  build-GEOSldas:
-    parameters:
-      compiler:
-        type: string
-    executor: circleci-tools/<< parameters.compiler >>
-    working_directory: /root/project
-    steps:
-      - circleci-tools/checkout_fixture:
-          repo: GEOSldas
-      - circleci-tools/checkout_branch_on_fixture:
-          repo: GEOSldas
-          branch: develop
-      - circleci-tools/mepoclone:
-          repo: GEOSldas
-      - circleci-tools/checkout_mapl_branch:
-          repo: GEOSldas
-      - circleci-tools/cmake:
-          repo: GEOSldas
-          compiler: << parameters.compiler >>
-      - circleci-tools/buildinstall:
-          repo: GEOSldas
-      - circleci-tools/compress_artifacts
-      - store_artifacts:
-          path: /logfiles
-
   build-GEOSadas:
     parameters:
       compiler:
         type: string
     executor:
-      name: circleci-tools/<< parameters.compiler >>
+      name: ci/<< parameters.compiler >>
       resource_class: xlarge
     working_directory: /root/project
     steps:
-      - circleci-tools/checkout_fixture:
+      - ci/checkout_fixture:
           repo: GEOSadas
-      - circleci-tools/checkout_branch_on_fixture:
+      - ci/checkout_branch_on_fixture:
           repo: GEOSadas
           branch: develop
-      - circleci-tools/mepoclone:
+      - ci/mepoclone:
           repo: GEOSadas
-      - circleci-tools/checkout_mapl_branch:
+      - ci/checkout_mapl_branch:
           repo: GEOSadas
       # Until GEOSadas is closer to modern GEOSgcm, we need to update the ESMA_cmake
-      - circleci-tools/checkout_branch_on_subrepo:
+      - ci/checkout_branch_on_subrepo:
           repo: GEOSadas
           branch: develop
           subrepo: cmake
       # There is currently an issue building GEOSadas with Debug Intel.
-      - circleci-tools/checkout_branch_on_subrepo:
+      - ci/checkout_branch_on_subrepo:
           repo: GEOSadas
           branch: develop
           subrepo: GEOSana_GridComp
-      - circleci-tools/cmake:
+      - ci/cmake:
           repo: GEOSadas
           compiler: << parameters.compiler >>
-      - circleci-tools/buildinstall:
+      - ci/buildinstall:
           repo: GEOSadas
           rebuild_procs: 8
-      - circleci-tools/compress_artifacts
+      - ci/compress_artifacts
       - store_artifacts:
           path: /logfiles
+
+  ######################################################
+  # ### For future reference ###                       #
+  # # We need to persist the install for the next step #
+  # # but only if we are running FV3 tests             #
+  # - persist_to_workspace:                            #
+  #     root: workspace                                #
+  #     paths:                                         #
+  #       - install-GEOSgcm                            #
+  ######################################################
 
   make-FV3-exp:
     parameters:
       compiler:
         type: string
-    executor: circleci-tools/<< parameters.compiler >>
+    executor: ci/<< parameters.compiler >>
     working_directory: /root/project
     steps:
       - attach_workspace:
@@ -269,7 +173,7 @@ jobs:
     parameters:
       compiler:
         type: string
-    executor: circleci-tools/<< parameters.compiler >>
+    executor: ci/<< parameters.compiler >>
     working_directory: /root/project
     steps:
       - attach_workspace:
@@ -295,7 +199,7 @@ jobs:
                echo "EGRESS not found!"
                exit 1
             fi
-      - circleci-tools/compress_artifacts
+      - ci/compress_artifacts
       - store_artifacts:
           path: /logfiles
 

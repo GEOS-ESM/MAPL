@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Cleaned up a bit of old CMake
+- Updated CircleCI config to use new orb `build` job
+- Updated `components.yaml` to match GEOSgcm v10.22.1
+  - ESMA_env v3.13.0
+  - ESMA_cmake v3.12.0
 
 ### Removed
 
