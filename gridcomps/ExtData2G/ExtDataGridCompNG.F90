@@ -271,7 +271,6 @@ CONTAINS
 !-------------------------------------------------------------------------
 
    type(MAPL_ExtData_state), pointer :: self        ! Legacy state
-   type(ESMF_Grid)                   :: GRID        ! Grid
    type(ESMF_Config)                 :: CF_master          ! Universal Config 
 
    character(len=ESMF_MAXSTR)        :: comp_name
@@ -285,15 +284,11 @@ CONTAINS
 
    type(ESMF_Time)                   :: time
 
-   type (ESMF_Field)                 :: field,left_field,right_field
-   integer                           :: fieldRank, lm
+   type (ESMF_Field)                 :: field
    type (ESMF_StateItem_Flag), pointer    :: ITEMTYPES(:)
    character(len=ESMF_MAXSTR), allocatable   :: ITEMNAMES(:)
 
-   real, pointer                     :: ptr2d(:,:) => null()
-   real, pointer                     :: ptr3d(:,:,:) => null()
    integer           :: idx
-   type(ESMF_VM) :: vm
    type(MAPL_MetaComp),pointer :: MAPLSTATE
 
    type(ExtDataOldTypesCreator),target :: config_yaml
@@ -429,79 +424,8 @@ CONTAINS
          call set_constant_field(item,self%extDataState,_RC)
          cycle
       end if
- 
-      ! get levels, other information
-      call GetLevs(item,__RC__)
-      call ESMF_VMBarrier(vm)
-      ! register collections
-      item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file_template))
-      ! create interpolating fields, check if the vertical levels match the file
-      if (item%vartype == MAPL_FieldItem) then
 
-         call ESMF_StateGet(self%ExtDataState, trim(item%name), field,__RC__)
-         call ESMF_FieldGet(field,grid=grid,rank=fieldRank,__RC__)
-
-         lm=0
-         if (fieldRank==3) then
-            call ESMF_FieldGet(field,0,farrayPtr=ptr3d,__RC__)
-            lm = size(ptr3d,3)
-         end if   
-         if (item%lm /= lm .and. lm /= 0 .and. item%havePressure) then
-            item%do_VertInterp = .true.
-         else if (item%lm /= lm .and. lm /= 0) then
-            item%do_Fill = .true.
-         end if
-         left_field = MAPL_FieldCreate(field,item%var,doCopy=.true.,__RC__)
-         right_field = MAPL_FieldCreate(field,item%var,doCopy=.true.,__RC__)
-         call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, __RC__)
-         if (item%do_fill .or. item%do_vertInterp) then
-            call createFileLevBracket(item,cf_master,__RC__)
-         end if
-
-      else if (item%vartype == MAPL_VectorField) then
-    
-         ! check that we are not asking for conservative regridding
-!!$         if (item%Trans /= MAPL_HorzTransOrderBilinear) then
-         if (item%Trans /= REGRID_METHOD_BILINEAR) then
-            _ASSERT(.false.,'No conservative re-gridding with vectors')
-         end if 
-
-         block
-            integer :: gridRotation1, gridRotation2
-            call ESMF_StateGet(self%ExtDataState, trim(item%vcomp1), field,__RC__)
-            call ESMF_AttributeGet(field, NAME='ROTATION', value=gridRotation1, __RC__)
-            call ESMF_StateGet(self%ExtDataState, trim(item%vcomp2), field,__RC__)
-            call ESMF_AttributeGet(field, NAME='ROTATION', value=gridRotation2, __RC__)
-            _ASSERT(GridRotation1 == gridRotation2,'Grid rotations must match when performing vector re-gridding')
-         end block
-
-         call ESMF_StateGet(self%ExtDataState, trim(item%vcomp1), field,__RC__)
-         call ESMF_FieldGet(field,grid=grid,rank=fieldRank,__RC__)
-
-         lm = 0 
-         if (fieldRank==3) then
-            call ESMF_FieldGet(field,0,farrayPtr=ptr3d,__RC__)
-            lm = size(ptr3d,3)
-         end if
-         if (item%lm /= lm .and. item%havePressure) then
-            item%do_VertInterp = .true.
-         else if (item%lm /= lm .and. lm /= 0) then
-            item%do_Fill = .true.
-         end if
-
-         left_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,__RC__)
-         right_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,__RC__)
-         call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, __RC__)
-         call ESMF_StateGet(self%ExtDataState, trim(item%vcomp2), field,__RC__)
-         left_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,__RC__)
-         right_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,__RC__)
-         call item%modelGridFields%comp2%set_parameters(left_field=left_field,right_field=right_field, __RC__)
-
-         if (item%do_fill .or. item%do_vertInterp) then
-            call createFileLevBracket(item,cf_master,__RC__)
-         end if
-
-      end if
+      call create_bracketing_fields(item,self%ExtDataState,cf_master,rc) 
 
    end do PrimaryLoop
 
@@ -2264,42 +2188,120 @@ CONTAINS
      integer :: status,fieldRank
      real(kind=REAL32), pointer :: ptr2d(:,:),ptr3d(:,:,:)
      type(ESMF_Field) :: field
-     if (item%isConst) then
 
-        if (item%vartype == MAPL_FieldItem) then
-           call ESMF_StateGet(ExtDataState,trim(item%name),field,__RC__)
-           call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
-           if (fieldRank == 2) then
-              call MAPL_GetPointer(ExtDataState, ptr2d, trim(item%name),__RC__)
-              ptr2d = item%const
-           else if (fieldRank == 3) then
-              call MAPL_GetPointer(ExtDataState, ptr3d, trim(item%name), __RC__)
-              ptr3d = item%const
-            endif
-        else if (item%vartype == MAPL_VectorField) then
-           call ESMF_StateGet(ExtDataState,trim(item%vcomp1),field,__RC__)
-           call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
-            if (fieldRank == 2) then
-                  call MAPL_GetPointer(ExtDataState, ptr2d, trim(item%vcomp1),__RC__)
-                  ptr2d = item%const
-            else if (fieldRank == 3) then
-                  call MAPL_GetPointer(ExtDataState, ptr3d, trim(item%vcomp1), __RC__)
-                  ptr3d = item%const
-            endif
-            call ESMF_StateGet(ExtDataState,trim(item%vcomp2),field,__RC__)
-            call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
-            if (fieldRank == 2) then
-                  call MAPL_GetPointer(ExtDataState, ptr2d, trim(item%vcomp2),__RC__)
-                  ptr2d = item%const
-            else if (fieldRank == 3) then
-                  call MAPL_GetPointer(ExtDataState, ptr3d, trim(item%vcomp2), __RC__)
-                  ptr3d = item%const
-            endif
-         end if
+     if (item%vartype == MAPL_FieldItem) then
+        call ESMF_StateGet(ExtDataState,trim(item%name),field,__RC__)
+        call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
+        if (fieldRank == 2) then
+           call MAPL_GetPointer(ExtDataState, ptr2d, trim(item%name),__RC__)
+           ptr2d = item%const
+        else if (fieldRank == 3) then
+           call MAPL_GetPointer(ExtDataState, ptr3d, trim(item%name), __RC__)
+           ptr3d = item%const
+         endif
+     else if (item%vartype == MAPL_VectorField) then
+        call ESMF_StateGet(ExtDataState,trim(item%vcomp1),field,__RC__)
+        call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
+         if (fieldRank == 2) then
+               call MAPL_GetPointer(ExtDataState, ptr2d, trim(item%vcomp1),__RC__)
+               ptr2d = item%const
+         else if (fieldRank == 3) then
+               call MAPL_GetPointer(ExtDataState, ptr3d, trim(item%vcomp1), __RC__)
+               ptr3d = item%const
+         endif
+         call ESMF_StateGet(ExtDataState,trim(item%vcomp2),field,__RC__)
+         call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
+         if (fieldRank == 2) then
+               call MAPL_GetPointer(ExtDataState, ptr2d, trim(item%vcomp2),__RC__)
+               ptr2d = item%const
+         else if (fieldRank == 3) then
+               call MAPL_GetPointer(ExtDataState, ptr3d, trim(item%vcomp2), __RC__)
+               ptr3d = item%const
+         endif
+      end if
+
+     _RETURN(_SUCCESS)
+  end subroutine set_constant_field
+
+  subroutine create_bracketing_fields(item,ExtDataState,cf,rc)
+     type(PrimaryExport), intent(inout) :: item
+     type(ESMF_State), intent(inout) :: extDataState
+     type(ESMF_Config), intent(inout) :: cf
+     integer, intent(out), optional :: rc
+
+     integer :: status,lm,fieldRank
+     type(ESMF_Field) :: field,left_field,right_field
+     type(ESMF_Grid)  :: grid
+     real(kind=REAL32), pointer :: ptr3d(:,:,:)
+
+     call GetLevs(item,__RC__)
+     item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file_template))
+     if (item%vartype == MAPL_FieldItem) then
+
+        call ESMF_StateGet(ExtDataState, trim(item%name), field,__RC__)
+        call ESMF_FieldGet(field,grid=grid,rank=fieldRank,__RC__)
+
+        lm=0
+        if (fieldRank==3) then
+           call ESMF_FieldGet(field,0,farrayPtr=ptr3d,__RC__)
+           lm = size(ptr3d,3)
+        end if
+        if (item%lm /= lm .and. lm /= 0 .and. item%havePressure) then
+           item%do_VertInterp = .true.
+        else if (item%lm /= lm .and. lm /= 0) then
+           item%do_Fill = .true.
+        end if
+        left_field = MAPL_FieldCreate(field,item%var,doCopy=.true.,__RC__)
+        right_field = MAPL_FieldCreate(field,item%var,doCopy=.true.,__RC__)
+        call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, __RC__)
+        if (item%do_fill .or. item%do_vertInterp) then
+           call createFileLevBracket(item,cf,__RC__)
+        end if
+
+     else if (item%vartype == MAPL_VectorField) then
+
+        if (item%Trans /= REGRID_METHOD_BILINEAR) then
+           _ASSERT(.false.,'No conservative re-gridding with vectors')
+        end if
+
+        block
+           integer :: gridRotation1, gridRotation2
+           call ESMF_StateGet(ExtDataState, trim(item%vcomp1), field,__RC__)
+           call ESMF_AttributeGet(field, NAME='ROTATION', value=gridRotation1, __RC__)
+           call ESMF_StateGet(ExtDataState, trim(item%vcomp2), field,__RC__)
+           call ESMF_AttributeGet(field, NAME='ROTATION', value=gridRotation2, __RC__)
+           _ASSERT(GridRotation1 == gridRotation2,'Grid rotations must match when performing vector re-gridding')
+        end block
+
+        call ESMF_StateGet(ExtDataState, trim(item%vcomp1), field,__RC__)
+        call ESMF_FieldGet(field,grid=grid,rank=fieldRank,__RC__)
+
+        lm = 0
+        if (fieldRank==3) then
+           call ESMF_FieldGet(field,0,farrayPtr=ptr3d,__RC__)
+           lm = size(ptr3d,3)
+        end if
+        if (item%lm /= lm .and. item%havePressure) then
+           item%do_VertInterp = .true.
+        else if (item%lm /= lm .and. lm /= 0) then
+           item%do_Fill = .true.
+        end if
+
+        left_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,__RC__)
+        right_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,__RC__)
+        call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, __RC__)
+        call ESMF_StateGet(ExtDataState, trim(item%vcomp2), field,__RC__)
+        left_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,__RC__)
+        right_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,__RC__)
+        call item%modelGridFields%comp2%set_parameters(left_field=left_field,right_field=right_field, __RC__)
+
+        if (item%do_fill .or. item%do_vertInterp) then
+           call createFileLevBracket(item,cf,__RC__)
+        end if
 
      end if
 
      _RETURN(_SUCCESS)
-  end subroutine set_constant_field
+  end subroutine create_bracketing_fields
 
  END MODULE MAPL_ExtDataGridComp2G

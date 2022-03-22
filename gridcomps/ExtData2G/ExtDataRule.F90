@@ -52,12 +52,12 @@ contains
       rule%collection = config%of("collection")
 
       if (allocated(tempc)) deallocate(tempc)
-      is_present = config%has("vname")
+      is_present = config%has("variable")
       if (index(rule%collection,"/dev/null")==0) then
-         _ASSERT(is_present,"no vname present in ExtData export")
+         _ASSERT(is_present,"no variable present in ExtData export")
       end if
       if (is_present) then
-         tempc = config%of("vname")
+         tempc = config%of("variable")
          rule%file_var=tempc
       else
          _ASSERT(.false.,"no variable name in rule")

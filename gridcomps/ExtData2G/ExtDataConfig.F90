@@ -150,7 +150,6 @@ contains
          call config%get(ext_config%debug,"debug",rc=status)
          _VERIFY(status)
       end if
-      ts_grr =>ext_config%sample_map%at('sample_0')
 
       _RETURN(_SUCCESS)
    end subroutine new_ExtDataConfig_from_yaml
