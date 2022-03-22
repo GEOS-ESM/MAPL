@@ -69,53 +69,23 @@ workflows:
           checkout_mapl_branch: true
           context:
             - docker-hub-creds
-      - build-GEOSadas:
+      - ci/build:
           name: build-GEOSadas-on-<< matrix.compiler >>
           matrix:
             parameters:
               compiler: [ifort]
+          resource_class: xlarge
+          repo: GEOSadas
+          checkout_fixture: true
+          fixture_branch: develop
+          checkout_mapl_branch: true
+          mepodevelop: true
+          develop_repos: "cmake GEOSana_GridComp"
+          rebuild_procs: 8
           context:
             - docker-hub-creds
 
 jobs:
-  build-GEOSadas:
-    parameters:
-      compiler:
-        type: string
-    executor:
-      name: ci/<< parameters.compiler >>
-      resource_class: xlarge
-    working_directory: /root/project
-    steps:
-      - ci/checkout_fixture:
-          repo: GEOSadas
-      - ci/checkout_branch_on_fixture:
-          repo: GEOSadas
-          branch: develop
-      - ci/mepoclone:
-          repo: GEOSadas
-      - ci/checkout_mapl_branch:
-          repo: GEOSadas
-      # Until GEOSadas is closer to modern GEOSgcm, we need to update the ESMA_cmake
-      - ci/checkout_branch_on_subrepo:
-          repo: GEOSadas
-          branch: develop
-          subrepo: cmake
-      # There is currently an issue building GEOSadas with Debug Intel.
-      - ci/checkout_branch_on_subrepo:
-          repo: GEOSadas
-          branch: develop
-          subrepo: GEOSana_GridComp
-      - ci/cmake:
-          repo: GEOSadas
-          compiler: << parameters.compiler >>
-      - ci/buildinstall:
-          repo: GEOSadas
-          rebuild_procs: 8
-      - ci/compress_artifacts
-      - store_artifacts:
-          path: /logfiles
-
   ######################################################
   # ### For future reference ###                       #
   # # We need to persist the install for the next step #
