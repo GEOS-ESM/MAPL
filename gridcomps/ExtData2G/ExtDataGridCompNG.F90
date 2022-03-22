@@ -426,37 +426,7 @@ CONTAINS
 !  --------------------------------------------------------
 
       if (item%isConst) then
-
-         if (item%vartype == MAPL_FieldItem) then
-            call ESMF_StateGet(self%ExtDataState,trim(item%name),field,__RC__)
-            call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
-            if (fieldRank == 2) then
-                  call MAPL_GetPointer(self%ExtDataState, ptr2d, trim(item%name),__RC__)
-                  ptr2d = item%const
-            else if (fieldRank == 3) then
-                  call MAPL_GetPointer(self%ExtDataState, ptr3d, trim(item%name), __RC__)
-                  ptr3d = item%const
-            endif
-         else if (item%vartype == MAPL_VectorField) then
-            call ESMF_StateGet(self%ExtDataState,trim(item%vcomp1),field,__RC__)
-            call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
-            if (fieldRank == 2) then 
-                  call MAPL_GetPointer(self%ExtDataState, ptr2d, trim(item%vcomp1),__RC__)
-                  ptr2d = item%const
-            else if (fieldRank == 3) then 
-                  call MAPL_GetPointer(self%ExtDataState, ptr3d, trim(item%vcomp1), __RC__)
-                  ptr3d = item%const
-            endif
-            call ESMF_StateGet(self%ExtDataState,trim(item%vcomp2),field,__RC__)
-            call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
-            if (fieldRank == 2) then 
-                  call MAPL_GetPointer(self%ExtDataState, ptr2d, trim(item%vcomp2),__RC__)
-                  ptr2d = item%const
-            else if (fieldRank == 3) then 
-                  call MAPL_GetPointer(self%ExtDataState, ptr3d, trim(item%vcomp2), __RC__)
-                  ptr3d = item%const
-            endif
-         end if
+         call set_constant_field(item,self%extDataState,_RC)
          cycle
       end if
  
@@ -2285,5 +2255,51 @@ CONTAINS
      _RETURN(ESMF_SUCCESS)
 
   end subroutine IOBundle_Add_Entry
+
+  subroutine set_constant_field(item,ExtDataState,rc)
+     type(PrimaryExport), intent(inout) :: item
+     type(ESMF_State), intent(inout) :: extDataState
+     integer, intent(out), optional :: rc
+
+     integer :: status,fieldRank
+     real(kind=REAL32), pointer :: ptr2d(:,:),ptr3d(:,:,:)
+     type(ESMF_Field) :: field
+     if (item%isConst) then
+
+        if (item%vartype == MAPL_FieldItem) then
+           call ESMF_StateGet(ExtDataState,trim(item%name),field,__RC__)
+           call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
+           if (fieldRank == 2) then
+              call MAPL_GetPointer(ExtDataState, ptr2d, trim(item%name),__RC__)
+              ptr2d = item%const
+           else if (fieldRank == 3) then
+              call MAPL_GetPointer(ExtDataState, ptr3d, trim(item%name), __RC__)
+              ptr3d = item%const
+            endif
+        else if (item%vartype == MAPL_VectorField) then
+           call ESMF_StateGet(ExtDataState,trim(item%vcomp1),field,__RC__)
+           call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
+            if (fieldRank == 2) then
+                  call MAPL_GetPointer(ExtDataState, ptr2d, trim(item%vcomp1),__RC__)
+                  ptr2d = item%const
+            else if (fieldRank == 3) then
+                  call MAPL_GetPointer(ExtDataState, ptr3d, trim(item%vcomp1), __RC__)
+                  ptr3d = item%const
+            endif
+            call ESMF_StateGet(ExtDataState,trim(item%vcomp2),field,__RC__)
+            call ESMF_FieldGet(field,dimCount=fieldRank,__RC__)
+            if (fieldRank == 2) then
+                  call MAPL_GetPointer(ExtDataState, ptr2d, trim(item%vcomp2),__RC__)
+                  ptr2d = item%const
+            else if (fieldRank == 3) then
+                  call MAPL_GetPointer(ExtDataState, ptr3d, trim(item%vcomp2), __RC__)
+                  ptr3d = item%const
+            endif
+         end if
+
+     end if
+
+     _RETURN(_SUCCESS)
+  end subroutine set_constant_field
 
  END MODULE MAPL_ExtDataGridComp2G

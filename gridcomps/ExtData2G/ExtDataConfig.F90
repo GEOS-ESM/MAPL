@@ -117,7 +117,7 @@ contains
                call ext_config%add_new_rule(key,subcfg,_RC)
             else if (subcfg%is_sequence()) then
                num_rules = subcfg%size()
-               do i=num_rules
+               do i=1,num_rules
                   rule_map = subcfg%of(i)
                   write(i_char,'(I1)')i
                   new_key = key//i_char
