@@ -25,6 +25,7 @@ module MAPL_ExtDataConfig
       type(ExtDataTimeSampleMap) :: sample_map
       
       contains
+         procedure :: add_new_rule
          procedure :: get_item_type
          procedure :: get_debug_flag
          procedure :: new_ExtDataConfig_from_yaml
@@ -42,23 +43,21 @@ contains
       type(Parser)              :: p
       type(Configuration) :: config, subcfg, ds_config, rule_config, derived_config, sample_config
       type(ConfigurationIterator) :: iter
-      character(len=:), allocatable :: key
+      character(len=:), allocatable :: key,new_key
       type(ExtDataFileStream) :: ds
       type(ExtDataDerived) :: derived
-      type(ExtDataRule) :: rule,ucomp,vcomp
       type(ExtDataTimeSample) :: ts
-      integer :: status, semi_pos
-      character(len=:), allocatable :: uname,vname
+      integer :: status
       type(FileStream) :: fstream
 
       type(ExtDataFileStream), pointer :: temp_ds
       type(ExtDataTimeSample), pointer :: temp_ts
-      type(ExtDataRule), pointer :: temp_rule
       type(ExtDataDerived), pointer :: temp_derived
 
-      type(Configuration) :: subconfigs
+      type(Configuration) :: subconfigs,rule_map
       character(len=:), allocatable :: sub_file
-      integer :: i
+      integer :: i,num_rules
+      character(len=1) :: i_char
 
       type(ExtDataTimeSample), pointer :: ts_grr
 
@@ -112,26 +111,20 @@ contains
          rule_config = config%of("Exports")
          iter = rule_config%begin()
          do while (iter /= rule_config%end())
-            call rule%set_defaults(rc=status)
-            _VERIFY(status)
             call iter%get_key(key)
             call iter%get_value(subcfg)
-            rule = ExtDataRule(subcfg,ext_config%sample_map,key,_RC)
-            semi_pos = index(key,";")
-            if (semi_pos > 0) then
-               call rule%split_vector(key,ucomp,vcomp,rc=status)
-               uname = key(1:semi_pos-1)
-               vname = key(semi_pos+1:len_trim(key))
-               temp_rule => ext_config%rule_map%at(trim(uname))
-               _ASSERT(.not.associated(temp_rule),"duplicated export entry key")
-               call ext_config%rule_map%insert(trim(uname),ucomp)
-               temp_rule => ext_config%rule_map%at(trim(vname))
-               _ASSERT(.not.associated(temp_rule),"duplicated export entry key")
-               call ext_config%rule_map%insert(trim(vname),vcomp)
+            if (subcfg%is_mapping()) then
+               call ext_config%add_new_rule(key,subcfg,_RC)
+            else if (subcfg%is_sequence()) then
+               num_rules = subcfg%size()
+               do i=num_rules
+                  rule_map = subcfg%of(i)
+                  write(i_char,'(I1)')i
+                  new_key = key//i_char
+                  call ext_config%add_new_rule(new_key,rule_map,_RC)
+               enddo 
             else
-               temp_rule => ext_config%rule_map%at(trim(key))
-               _ASSERT(.not.associated(temp_rule),"duplicated export entry key")
-               call ext_config%rule_map%insert(trim(key),rule)
+               _ASSERT(.false.,"Exports must be sequence or map")
             end if
             call iter%next()
          enddo
@@ -146,7 +139,7 @@ contains
             call iter%get_key(key)
             call iter%get_value(subcfg)
             derived = ExtDataDerived(subcfg,_RC)
-            temp_derived => ext_config%derived_map%at(trim(uname))
+            temp_derived => ext_config%derived_map%at(trim(key))
              _ASSERT(.not.associated(temp_derived),"duplicated derived entry key")
             call ext_config%derived_map%insert(trim(key),derived)
             call iter%next()
@@ -191,6 +184,40 @@ contains
       end if
       _RETURN(_SUCCESS)
    end function get_item_type
+
+   subroutine add_new_rule(this,key,export_rule,rc) 
+      class(ExtDataConfig), intent(inout) :: this
+      character(len=*), intent(in) :: key
+      type(configuration), intent(in) :: export_rule
+      integer, intent(out), optional :: rc
+
+      integer :: semi_pos,status
+      type(ExtDataRule) :: rule,ucomp,vcomp
+      type(ExtDataRule), pointer :: temp_rule
+      character(len=:), allocatable :: uname,vname
+
+      call rule%set_defaults(rc=status)
+      _VERIFY(status)
+      rule = ExtDataRule(export_rule,this%sample_map,key,_RC)
+      semi_pos = index(key,";")
+      if (semi_pos > 0) then
+         call rule%split_vector(key,ucomp,vcomp,rc=status)
+         uname = key(1:semi_pos-1)
+         vname = key(semi_pos+1:len_trim(key))
+         temp_rule => this%rule_map%at(trim(uname))
+         _ASSERT(.not.associated(temp_rule),"duplicated export entry key")
+         call this%rule_map%insert(trim(uname),ucomp)
+         temp_rule => this%rule_map%at(trim(vname))
+         _ASSERT(.not.associated(temp_rule),"duplicated export entry key")
+         call this%rule_map%insert(trim(vname),vcomp)
+      else
+         temp_rule => this%rule_map%at(trim(key))
+         _ASSERT(.not.associated(temp_rule),"duplicated export entry key")
+         call this%rule_map%insert(trim(key),rule)
+      end if
+      _RETURN(_SUCCESS)
+   end subroutine add_new_rule
+
  
    integer function get_debug_flag(this)
       class(ExtDataConfig), intent(inout) :: this

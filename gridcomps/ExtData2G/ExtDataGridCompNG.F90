@@ -739,7 +739,8 @@ CONTAINS
       call MAPL_TimerOff(MAPLSTATE,"--CheckUpd")
 
       DO_UPDATE: if (doUpdate(i)) then
- 
+
+          call extdata_lgr%info('Going to update %a with file template: %a ',item%name, item%file_template) 
          call item%modelGridFields%comp1%reset()
          call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp1,__RC__)
          call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i))
@@ -2269,7 +2270,7 @@ CONTAINS
             item%pfioCollection_id,item%iclient_collection_id,items,rc=status)
         _VERIFY(status)
         call IOBundles%push_back(io_bundle)
-        call extdata_lgr%info('%a update L with with: %a %i2 ',item%name, current_file, time_index)
+        call extdata_lgr%info('%a updated L bracket with: %a at time index %i2 ',item%name, current_file, time_index)
      end if
      call item%modelGridFields%comp1%get_parameters('R',update=update,file=current_file,time_index=time_index)
      if (update) then    
@@ -2278,7 +2279,7 @@ CONTAINS
             item%pfioCollection_id,item%iclient_collection_id,items,rc=status)
         _VERIFY(status)
         call IOBundles%push_back(io_bundle)
-        call extdata_lgr%info('%a update R with with: %a %i2 ',item%name,current_file, time_index)
+        call extdata_lgr%info('%a updated R bracket with: %a at time index %i2 ',item%name,current_file, time_index)
      end if
 
      _RETURN(ESMF_SUCCESS)

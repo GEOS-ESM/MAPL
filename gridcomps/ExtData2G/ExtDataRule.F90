@@ -11,6 +11,7 @@ module MAPL_ExtDataRule
    private
 
    type, public :: ExtDataRule
+      character(:)  allocatable :: start_time
       character(:), allocatable :: collection
       character(:), allocatable :: file_var
       character(:), allocatable :: sample_key
@@ -90,6 +91,11 @@ contains
          rule%regrid_method=tempc
       else 
          rule%regrid_method="BILINEAR"
+      end if
+
+      if (config%has"start") then
+         tempc = config%of("start")
+         rule%start_time = tempc
       end if
 
       _RETURN(_SUCCESS)
