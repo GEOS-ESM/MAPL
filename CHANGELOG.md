@@ -47,9 +47,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix issue where ACG was called when no file had changed
+
 ### Added
 
 ### Changed
+
+- Cleaned up a bit of old CMake
 
 ### Removed
 
