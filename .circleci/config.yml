@@ -1,11 +1,13 @@
 version: 2.1
 
 orbs:
-  ci: geos-esm/circleci-tools@0
+  ci: geos-esm/circleci-tools@1
 
 workflows:
   build-and-test:
     jobs:
+
+      # Builds MAPL in a "default" way
       - ci/build:
           name: build-and-test-MAPL-on-<< matrix.compiler >>
           context:
@@ -17,6 +19,8 @@ workflows:
           mepodevelop: false
           run_unit_tests: true
           ctest_options: "-R MAPL -LE PERFORMANCE --output-on-failure"
+
+      # Builds MAPL like UFS does (no FLAP and pFlogger, static)
       - ci/build:
           name: build-UFS-MAPL-on-<< matrix.compiler >>
           context:
@@ -29,6 +33,8 @@ workflows:
           extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_SHARED_MAPL=OFF"
           run_unit_tests: true
           ctest_options: "-R MAPL -LE PERFORMANCE --output-on-failure"
+
+      # Build GEOSgcm
       - ci/build:
           name: build-GEOSgcm-on-<< matrix.compiler >>
           context:
@@ -40,17 +46,9 @@ workflows:
           checkout_fixture: true
           mepodevelop: true
           checkout_mapl_branch: true
-          persist_workspace: true # Needs to be true to run fv3/gcm experiment
-      - ci/run_fv3:
-          name: run-FV3-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          requires:
-            - build-GEOSgcm-on-<< matrix.compiler >>
-          repo: GEOSgcm
+          persist_workspace: false # Needs to be true to run fv3/gcm experiment, costs extra
+
+      # Build GEOSldas
       - ci/build:
           name: build-GEOSldas-on-<< matrix.compiler >>
           context:
@@ -63,6 +61,8 @@ workflows:
           checkout_fixture: true
           fixture_branch: develop
           checkout_mapl_branch: true
+
+      # Build GEOSadas (ifort only, needs a couple develop branches)
       - ci/build:
           name: build-GEOSadas-on-<< matrix.compiler >>
           context:
@@ -76,5 +76,17 @@ workflows:
           fixture_branch: develop
           checkout_mapl_branch: true
           mepodevelop: true
-          develop_repos: "cmake GEOSana_GridComp"
+          develop_repos: "cmake GEOSana_GridComp" # GEOSadas needs some extra branches to work with mainline MAPL
           rebuild_procs: 8
+      ##################################################
+      # - ci/run_fv3:                                  #
+      #     name: run-FV3-on-<< matrix.compiler >>     #
+      #     context:                                   #
+      #       - docker-hub-creds                       #
+      #     matrix:                                    #
+      #       parameters:                              #
+      #         compiler: [gfortran, ifort]            #
+      #     requires:                                  #
+      #       - build-GEOSgcm-on-<< matrix.compiler >> #
+      #     repo: GEOSgcm                              #
+      ##################################################
