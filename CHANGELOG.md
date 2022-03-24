@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- fixes a bug deallocating a pointer potentially pointing to shared memory allocated by MAPL_Shmem
 
 ### Added
 
