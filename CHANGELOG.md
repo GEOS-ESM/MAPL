@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.19.1] - 2022-03-24
+
+### Fixed
+
+- Fix a bug deallocating a pointer potentially pointing to shared memory allocated by MAPL_Shmem
+
 ## [2.19.0] - 2022-03-18
 
 ### Fixed
