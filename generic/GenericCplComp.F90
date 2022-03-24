@@ -1,5 +1,14 @@
-#define DEALOC_(A) if(associated(A))then;if(MAPL_ShmInitialized)then;call MAPL_SyncSharedMemory(rc=STATUS);call MAPL_DeAllocNodeArray(A,rc=STATUS);else;deallocate(A,stat=STATUS);endif;_VERIFY(STATUS);NULLIFY(A);endif
-
+#define _DEALLOC(A) \
+    if(associated(A))then; \
+          if(MAPL_ShmInitialized)then; \
+              call MAPL_SyncSharedMemory(rc=STATUS); \
+              call MAPL_DeAllocNodeArray(A,rc=STATUS); \
+           else; \
+              deallocate(A,stat=STATUS); \
+           endif; \
+       _VERIFY(STATUS); \
+       NULLIFY(A); \
+    endif
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
 
@@ -1340,7 +1349,7 @@ contains
           case default
              _ASSERT(.false., "Unsupported rank")
           end select
-          DEALOC_(mask)
+          _DEALLOC(mask)
        end do
 
        if (am_i_root) call Free_File(unit = UNIT, rc=STATUS)
@@ -1534,7 +1543,7 @@ contains
           case default
              _ASSERT(.false.," Unsupported rank")
           end select
-          DEALOC_(mask)
+          _DEALLOC(mask)
        end do
 
        if(am_i_root) call Free_File(unit = UNIT, rc=STATUS)
