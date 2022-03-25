@@ -82,12 +82,13 @@ contains
 
       integer :: total_width, height
       character(:), allocatable :: column(:)
-      
+
       total_width = this%get_width()
       height = node%get_num_nodes()
       
       allocate(character(total_width) :: rows(height))
-
+      if (height == 0) return
+      
       w0 = 1
       do i = 1, this%columns%size()
          
