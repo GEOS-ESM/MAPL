@@ -73,16 +73,11 @@ class MAPL_DataSpec:
 
     @staticmethod
     def internal_name(name):
-        if name[-1] == '*':
-            return name[:-1]
-        else:
-            return name
+        return name.replace('*','')
+
     @staticmethod
     def mangled_name(name):
-        if name[-1] == '*':
-            return "'" + name[:-1] + "'//trim(comp_name)"
-        else:
-            return "'" + name + "'"
+        return "'" + name.replace("*","'//trim(comp_name)//'") + "'"
 
     # Pointers must be declared regardless of COND status.  Deactivated
     # pointers should not be _referenced_ but such sections should still
