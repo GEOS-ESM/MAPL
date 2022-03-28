@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed GNU bug when defining file metadata in cubed-sphere grid factory (similar to Issue #1433 and its solution)
+-  Provided workaround for  GNU bug when defining file metadata in cubed-sphere grid factory (similar to Issue #1433 and its solution)
 
 ## [2.19.1] - 2022-03-24
 
