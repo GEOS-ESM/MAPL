@@ -943,7 +943,7 @@ contains
       integer, allocatable :: ivar(:,:)
       integer, allocatable :: ivar2(:,:,:)
 
-      real(REAL64), allocatable :: temp_coords
+      real(REAL64), allocatable :: temp_coords(:)
 
       integer :: status
       integer, parameter :: ncontact = 4
