@@ -14,6 +14,7 @@ module MAPL_ExtDataConfig
    use MAPL_ExtDataConstants
    use MAPL_ExtDataTimeSample
    use MAPL_ExtDataTimeSampleMap
+   use MAPL_TimeStringConversion
    implicit none
    private
 
@@ -29,6 +30,8 @@ module MAPL_ExtDataConfig
          procedure :: get_item_type
          procedure :: get_debug_flag
          procedure :: new_ExtDataConfig_from_yaml
+         procedure :: count_rules_for_item
+         procedure :: get_time_range
    end type
 
 contains
@@ -57,9 +60,8 @@ contains
       type(Configuration) :: subconfigs,rule_map
       character(len=:), allocatable :: sub_file
       integer :: i,num_rules
+      integer, allocatable :: sorted_rules(:)
       character(len=1) :: i_char
-
-      type(ExtDataTimeSample), pointer :: ts_grr
 
       _UNUSED_DUMMY(unusable)
 
@@ -116,9 +118,10 @@ contains
             if (subcfg%is_mapping()) then
                call ext_config%add_new_rule(key,subcfg,_RC)
             else if (subcfg%is_sequence()) then
+               sorted_rules = sort_rules_by_start(subcfg,_RC) 
                num_rules = subcfg%size()
                do i=1,num_rules
-                  rule_map = subcfg%of(i)
+                  rule_map = subcfg%of(sorted_rules(i))
                   write(i_char,'(I1)')i
                   new_key = key//i_char
                   call ext_config%add_new_rule(new_key,rule_map,_RC)
@@ -154,6 +157,100 @@ contains
       _RETURN(_SUCCESS)
    end subroutine new_ExtDataConfig_from_yaml
 
+   function count_rules_for_item(this,item_name,rc) result(number_of_rules)
+      integer :: number_of_rules
+      class(ExtDataConfig), intent(in) :: this
+      character(len=*), intent(in) :: item_name
+      integer, optional, intent(out) :: rc
+ 
+      type(ExtDataRuleMapIterator) :: rule_iterator
+      character(len=:), pointer :: key
+      rule_iterator = this%rule_map%begin()
+      number_of_rules = 0
+      do while(rule_iterator /= this%rule_map%end())
+         key => rule_iterator%key()
+         if (index(key,trim(item_name))/=0) number_of_rules = number_of_rules + 1
+         call rule_iterator%next()
+      enddo
+
+      _RETURN(_SUCCESS)
+   end function count_rules_for_item
+
+   function get_time_range(this,item_name,rc) result(time_range)
+      type(ESMF_Time), allocatable :: time_range(:)
+      class(ExtDataConfig), intent(in) :: this
+      character(len=*), intent(in) :: item_name
+      integer, optional, intent(out) :: rc
+
+      type(ExtDataRuleMapIterator) :: rule_iterator
+      character(len=:), pointer :: key
+      type(StringVector) :: start_times
+      integer :: num_rules
+      type(ExtDataRule), pointer :: rule
+      integer :: i,status
+      type(ESMF_Time) :: very_future_time
+ 
+      rule_iterator = this%rule_map%begin()
+      do while(rule_iterator /= this%rule_map%end())
+         key => rule_iterator%key()
+         if (index(key,trim(item_name))/=0) then
+            rule => rule_iterator%value()
+            call start_times%push_back(rule%start_time)
+         end if
+         call rule_iterator%next()
+      enddo
+
+      num_rules = start_times%size()
+      allocate(time_range(num_rules+1))
+      do i=1,num_rules
+          time_range(i) = string_to_esmf_time(start_times%at(i))
+      enddo
+      call ESMF_TimeSet(very_future_time,yy=2365,mm=1,dd=1,_RC)
+      time_range(num_rules+1) = very_future_time
+
+      _RETURN(_SUCCESS)
+   end function get_time_range
+
+   function sort_rules_by_start(yaml_sequence,rc) result(sorted_index)
+      integer, allocatable :: sorted_index(:)
+      class(Configuration), intent(inout) :: yaml_sequence
+      integer, optional, intent(out) :: rc
+
+      integer :: num_rules,i,j,i_temp,imin
+      logical :: found_start
+      type(configuration) :: yaml_dict
+      character(len=:), allocatable :: start_time
+      type(ESMF_Time), allocatable :: start_times(:)
+      type(ESMF_Time) :: temp_time
+
+      num_rules = yaml_sequence%size()
+      allocate(start_times(num_rules))
+      allocate(sorted_index(num_rules),source=[(i,i=1,num_rules)])
+
+      do i=1,num_rules
+         yaml_dict = yaml_sequence%of(i)
+         found_start = yaml_dict%has("starting")
+         _ASSERT(found_start,"no start key in multirule export of extdata")
+         start_time = yaml_dict%of("starting")
+         start_times(i) = string_to_esmf_time(start_time)
+      enddo
+
+      do i=1,num_rules-1
+         imin = i
+         do j=i+1,num_rules
+            if (start_times(j) < start_times(imin)) then
+               temp_time = start_times(imin)
+               start_times(imin) = start_times(i)
+               start_times(i) = temp_time
+               i_temp = sorted_index(imin)
+               sorted_index(imin) = sorted_index(i)
+               sorted_index(i) = i_temp
+            end if
+         enddo
+      enddo
+      _RETURN(_SUCCESS)
+   end function sort_rules_by_start
+
    function get_item_type(this,item_name,unusable,rc) result(item_type)
       class(ExtDataConfig), intent(inout) :: this
       character(len=*), intent(in) :: item_name
@@ -163,9 +260,29 @@ contains
       type(ExtDataRule), pointer :: rule
       type(ExtDataDerived), pointer :: derived
 
+      type(ExtDataRuleMapIterator) :: rule_iterator
+      character(len=:), pointer :: key
+      character(len=:), allocatable :: found_key
+      logical :: found_rule
+
       _UNUSED_DUMMY(unusable)
       item_type=ExtData_not_found
-      rule => this%rule_map%at(trim(item_name))
+ 
+      found_rule = .false.
+      rule_iterator = this%rule_map%begin()
+      do while(rule_iterator /= this%rule_map%end())
+         key => rule_iterator%key()
+         if (index(key,trim(item_name))/=0) then
+            found_rule = .true.
+            found_key = key
+            exit
+         end if
+         call rule_iterator%next()
+      enddo
+      _ASSERT(found_rule,"no rule for "//trim(item_name))
+
+      !rule => this%rule_map%at(trim(item_name))
+      rule => this%rule_map%at(found_key)
       if (associated(rule)) then
          if (allocated(rule%vector_component)) then
             if (rule%vector_component=='EW') then

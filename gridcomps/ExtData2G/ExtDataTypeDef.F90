@@ -66,6 +66,10 @@ module MAPL_ExtDataTypeDef
      logical                      :: cycling
      logical                      :: persist_closest
      type(ESMF_Time), allocatable :: source_time(:)
+
+     ! for multiple collections
+     type(ESMF_Time), allocatable :: start_end_time(:)
+     logical :: initialized = .false.
   end type PrimaryExport
   
   type DerivedExport

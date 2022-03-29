@@ -23,6 +23,7 @@
 !
    USE ESMF
    use gFTL_StringVector
+   use gFTL_IntegerVector
    use MAPL_BaseMod
    use MAPL_CommsMod
    use MAPL_ShmemMod
@@ -80,13 +81,19 @@
   type PrimaryExports
      PRIVATE
      integer :: nItems = 0
+     type(integerVector) :: export_id_start
+     type(integerVector) :: number_of_rules
+     type(stringVector)  :: import_names
      logical :: have_phis
-     type(PrimaryExport), pointer :: item(:) => null() 
+     type(PrimaryExport), pointer :: item(:) => null()
+     contains 
+        procedure :: get_item_index 
   end type PrimaryExports
 
   type DerivedExports
      PRIVATE
      integer :: nItems = 0
+     type(stringVector)  :: import_names
      type(DerivedExport), pointer :: item(:) => null()
   end type DerivedExports
 
@@ -278,7 +285,7 @@ CONTAINS
    integer                           :: Status
 
    type(PrimaryExport), pointer      :: item
-   integer                           :: i
+   integer                           :: i,j
    integer                           :: ItemCount
    integer                           :: PrimaryItemCount, DerivedItemCount
 
@@ -294,9 +301,12 @@ CONTAINS
    type(ExtDataOldTypesCreator),target :: config_yaml
    character(len=:), allocatable :: new_rc_file
    logical :: found_in_config
-   integer :: num_primary,num_derived
+   integer :: num_primary,num_derived,num_rules
    integer, allocatable :: item_types(:)
    type(StringVector) :: unsatisfied_imports
+   character(len=:), pointer :: current_base_name
+   type(ESMF_Time), allocatable :: time_ranges(:)
+   character(len=1) :: sidx
    !class(logger), pointer :: lgr
 
 !  Get my name and set-up traceback handle
@@ -377,9 +387,11 @@ CONTAINS
       found_in_config = (item_types(i)/= ExtData_not_found)
       if (.not.found_in_config) call unsatisfied_imports%push_back(itemnames(i))
       if (item_types(i) == derived_type) then
+         call self%derived%import_names%push_back(trim(itemnames(i)))
          deriveditemcount=deriveditemcount+1
       else
-         primaryitemcount=primaryitemcount+1
+         call self%primary%import_names%push_back(trim(itemnames(i)))
+         primaryitemcount=primaryitemcount+config_yaml%count_rules_for_item(trim(itemnames(i)),_RC)
       end if
    enddo
    if (unsatisfied_imports%size() > 0) then
@@ -398,33 +410,51 @@ CONTAINS
    self%ExtDataState = ESMF_StateCreate(Name="ExtDataNameSpace",__RC__)
    num_primary=0
    num_derived=0 
-   do i=1,size(itemnames)
-      if (item_types(i)==Primary_Type_Scalar .or. item_types(i)==Primary_Type_Vector_comp1) then
+   do i=1,self%primary%import_names%size()
+      current_base_name => self%primary%import_names%at(i)
+      num_rules = config_yaml%count_rules_for_item(current_base_name)
+      call self%primary%number_of_rules%push_back(num_rules)
+      call self%primary%export_id_start%push_back(num_primary+1) 
+      if (num_rules > 1) then
+         if (allocated(time_ranges)) deallocate(time_ranges)
+         allocate(time_ranges(num_rules))
+         time_ranges = config_yaml%get_time_range(current_base_name,_RC)
+         do j=1,num_rules
+            num_primary=num_primary+1
+            write(sidx,'(I1)')j
+            call config_yaml%fillin_primary(current_base_name//sidx,current_base_name,self%primary%item(num_primary),time,clock,__RC__)
+            allocate(self%primary%item(num_primary)%start_end_time(2))
+            self%primary%item(num_primary)%start_end_time(1)=time_ranges(j)
+            self%primary%item(num_primary)%start_end_time(2)=time_ranges(j+1)
+         enddo
+      else
          num_primary=num_primary+1
-         call config_yaml%fillin_primary(trim(itemnames(i)),self%primary%item(num_primary),time,clock,__RC__)
-      else if (item_types(i)==Derived_type) then
-         num_derived=num_derived+1
-         call config_yaml%fillin_derived(trim(itemnames(i)),self%derived%item(num_derived),time,clock,__RC__)
+         call config_yaml%fillin_primary(current_base_name,current_base_name,self%primary%item(num_primary),time,clock,__RC__)
       end if
-      call ESMF_StateGet(Export,trim(itemnames(i)),field,__RC__)
+      call ESMF_StateGet(Export,current_base_name,field,__RC__)
       call MAPL_StateAdd(self%ExtDataState,field,__RC__)
    enddo
-!  note: handle case if variables in derived expression need to be allocated!
+   do i=1,self%derived%import_names%size()
+      current_base_name => self%derived%import_names%at(i)
+      num_derived=num_derived+1
+      call config_yaml%fillin_derived(current_base_name,self%derived%item(num_derived),time,clock,__RC__)
+      call ESMF_StateGet(Export,current_base_name,field,__RC__)
+      call MAPL_StateAdd(self%ExtDataState,field,__RC__)
+   enddo
    
-   PrimaryLoop: do i = 1, self%primary%nItems
+   !PrimaryLoop: do i = 1, self%primary%nItems
+   PrimaryLoop: do i=1,self%primary%import_names%size()
 
-      item => self%primary%item(i)
+      current_base_name => self%primary%import_names%at(i)
+      idx = self%primary%get_item_index(current_base_name,time,_RC)
+      item => self%primary%item(idx)
+      item%initialized = .true.
 
       item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
-
-!  Read the single step files (read interval equal to zero)
-!  --------------------------------------------------------
-
       if (item%isConst) then
          call set_constant_field(item,self%extDataState,_RC)
          cycle
       end if
-
       call create_bracketing_fields(item,self%ExtDataState,cf_master,rc) 
 
    end do PrimaryLoop
@@ -435,34 +465,34 @@ CONTAINS
    do i=1,size(self%primary%item)
       self%primaryOrder(i)=i
    enddo
-!  check for PS
-   idx = -1
-   if (any(self%primary%item%do_VertInterp .eqv. .true.)) then
-      do i=1,size(self%primary%item)
-         if (self%primary%item(i)%name=='PS') then
-            idx =i
-         end if
-      enddo
-      _ASSERT(idx/=-1,'Surface pressure not present for vertical interpolation')
-      self%primaryOrder(1)=idx
-      self%primaryOrder(idx)=1
-      self%primary%item(idx)%units = ESMF_UtilStringUppercase(self%primary%item(idx)%units,rc=status)
-      _ASSERT(trim(self%primary%item(idx)%units)=="PA",'PS must be in units of PA')
-   end if
-!  check for PHIS
-   idx = -1
-   if (any(self%primary%item%do_VertInterp .eqv. .true.)) then
-      do i=1,size(self%primary%item)
-         if (self%primary%item(i)%name=='PHIS') then
-            idx =i
-         end if
-      enddo
-      if (idx/=-1) then
-         self%primaryOrder(2)=idx
-         self%primaryOrder(idx)=2
-         self%primary%have_phis=.true.
-      end if
-   end if
+!!  check for PS
+   !idx = -1
+   !if (any(self%primary%item%do_VertInterp .eqv. .true.)) then
+      !do i=1,size(self%primary%item)
+         !if (self%primary%item(i)%name=='PS') then
+            !idx =i
+         !end if
+      !enddo
+      !_ASSERT(idx/=-1,'Surface pressure not present for vertical interpolation')
+      !self%primaryOrder(1)=idx
+      !self%primaryOrder(idx)=1
+      !self%primary%item(idx)%units = ESMF_UtilStringUppercase(self%primary%item(idx)%units,rc=status)
+      !_ASSERT(trim(self%primary%item(idx)%units)=="PA",'PS must be in units of PA')
+   !end if
+!!  check for PHIS
+   !idx = -1
+   !if (any(self%primary%item%do_VertInterp .eqv. .true.)) then
+      !do i=1,size(self%primary%item)
+         !if (self%primary%item(i)%name=='PHIS') then
+            !idx =i
+         !end if
+      !enddo
+      !if (idx/=-1) then
+         !self%primaryOrder(2)=idx
+         !self%primaryOrder(idx)=2
+         !self%primary%have_phis=.true.
+      !end if
+   !end if
 
    call extdata_lgr%info('*******************************************************')
    call extdata_lgr%info('** Variables to be provided by the ExtData Component **')
@@ -556,6 +586,9 @@ CONTAINS
    type(IOBundleNGVector), target     :: IOBundles
    type(IOBundleNGVectorIterator) :: bundle_iter
    type(ExtDataNG_IOBundle), pointer :: io_bundle
+   character(len=:), pointer :: current_base_name
+   integer :: idx
+   type(ESMF_Config) :: cf_master
 
    _UNUSED_DUMMY(IMPORT)
    _UNUSED_DUMMY(EXPORT)
@@ -567,14 +600,8 @@ CONTAINS
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
    Iam = 'Run_'
-   call ESMF_GridCompGet( GC, name=comp_name, __RC__ )
+   call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, __RC__ )
    Iam = trim(comp_name) // '::' // trim(Iam)
-
-
-!  Call Run for every Child
-!  -------------------------
-!ALT   call MAPL_GenericRunChildren ( GC, IMPORT, EXPORT, CLOCK,  __RC__)
-
 
 !  Extract relevant runtime information
 !  ------------------------------------
@@ -590,7 +617,6 @@ CONTAINS
    call MAPL_TimerOn(MAPLSTATE,"Run")
 
    call ESMF_ClockGet(CLOCK, currTIME=time0, __RC__)
-
 
 !  Fill in the internal state with data from the files 
 !  ---------------------------------------------------
@@ -608,9 +634,23 @@ CONTAINS
       Write(*,*) 'ExtData Run_: READ_LOOP: Start'
    ENDIF
 
-   READ_LOOP: do i = 1, self%primary%nItems
+   !READ_LOOP: do i = 1, self%primary%nItems
+   READ_LOOP: do i=1,self%primary%import_names%size()
 
-      item => self%primary%item(self%primaryOrder(i))
+      current_base_name => self%primary%import_names%at(i)
+      idx = self%primary%get_item_index(current_base_name,time0,_RC)
+      item => self%primary%item(idx)
+      if (.not.item%initialized) then
+         item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
+         if (item%isConst) then
+            call set_constant_field(item,self%extDataState,_RC)
+            cycle
+         end if
+         call create_bracketing_fields(item,self%ExtDataState,cf_master, rc)
+         item%initialized=.true.
+      end if
+
+      !item => self%primary%item(self%primaryOrder(i))
 
       IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
          Write(*,*) ' '
@@ -634,10 +674,11 @@ CONTAINS
 
       DO_UPDATE: if (doUpdate(i)) then
 
-          call extdata_lgr%info('Going to update %a with file template: %a ',item%name, item%file_template) 
+         call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template) 
          call item%modelGridFields%comp1%reset()
          call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp1,__RC__)
-         call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i))
+         !call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i))
+         call IOBundle_Add_Entry(IOBundles,item,idx)
          useTime(i)=time
 
       end if DO_UPDATE
@@ -710,18 +751,28 @@ CONTAINS
       Write(*,*) 'ExtData Run_: INTERP_LOOP: Start'
    ENDIF
 
-   INTERP_LOOP: do i = 1, self%primary%nItems
+   INTERP_LOOP: do i=1,self%primary%import_names%size()
 
-      item => self%primary%item(self%primaryOrder(i))
+      current_base_name => self%primary%import_names%at(i)
+      idx = self%primary%get_item_index(current_base_name,time0,_RC)
+      item => self%primary%item(idx)
+      !if (.not.item%initialized) then
+         !item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
+         !if (item%isConst) then
+            !call set_constant_field(item,self%extDataState,_RC)
+            !cycle
+         !end if
+         !call create_bracketing_fields(item,self%ExtDataState,cf_master, rc)
+      !end if
 
       if (doUpdate(i)) then
 
-         IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
+         IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN 
             Write(*,*) ' '
             Write(*,'(a)') 'ExtData Run_: INTERP_LOOP: interpolating between bracket times'
             Write(*,*) '   ==> variable: ', trim(item%var)
             Write(*,*) '   ==> file: ', trim(item%file_template)
-         ENDIF
+         ENDIF 
         
          ! finally interpolate between bracketing times
 
@@ -2152,25 +2203,25 @@ CONTAINS
      integer :: status
 
      type (ExtDataNG_IOBundle) :: io_bundle
-     type (GriddedIOItemVector) :: items
+     type (GriddedIOItemVector) :: itemsL, itemsR
      logical :: update
      character(len=ESMF_MAXPATHLEN) :: current_file
      integer :: time_index
 
      call item%modelGridFields%comp1%get_parameters('L',update=update,file=current_file,time_index=time_index)
      if (update) then    
-        call items%push_back(item%fileVars)
+        call itemsL%push_back(item%fileVars)
         io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataLeft, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
-            item%pfioCollection_id,item%iclient_collection_id,items,rc=status)
+            item%pfioCollection_id,item%iclient_collection_id,itemsL,rc=status)
         _VERIFY(status)
         call IOBundles%push_back(io_bundle)
         call extdata_lgr%info('%a updated L bracket with: %a at time index %i2 ',item%name, current_file, time_index)
      end if
      call item%modelGridFields%comp1%get_parameters('R',update=update,file=current_file,time_index=time_index)
      if (update) then    
-        call items%push_back(item%fileVars)
+        call itemsR%push_back(item%fileVars)
         io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataRight, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
-            item%pfioCollection_id,item%iclient_collection_id,items,rc=status)
+            item%pfioCollection_id,item%iclient_collection_id,itemsR,rc=status)
         _VERIFY(status)
         call IOBundles%push_back(io_bundle)
         call extdata_lgr%info('%a updated R bracket with: %a at time index %i2 ',item%name,current_file, time_index)
@@ -2303,5 +2354,46 @@ CONTAINS
 
      _RETURN(_SUCCESS)
   end subroutine create_bracketing_fields
+
+  function get_item_index(this,base_name,current_time,rc) result(item_index)
+     integer :: item_index
+     class(primaryExports), intent(in) :: this
+     type(ESMF_Time) :: current_time
+     character(len=*),intent(in) :: base_name
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+     character(len=:), pointer :: cname
+     integer :: i
+     integer, pointer :: num_rules,i_start
+     logical :: found
+
+     found = .false.
+     do i=1,this%import_names%size()
+        cname => this%import_names%at(i)
+        if (cname == base_name) then 
+           found = .true.
+           i_start => this%export_id_start%at(i)
+           num_rules => this%number_of_rules%at(i)
+           exit
+        end if
+     enddo
+     _ASSERT(found,"no item with that basename found")
+
+     item_index = -1
+     if (num_rules == 1) then
+        item_index = i_start
+     else if (num_rules > 1) then
+        do i=1,num_rules
+           if (current_time >= this%item(i_start+i-1)%start_end_time(1) .and. &
+               current_time <  this%item(i_start+i-1)%start_end_time(2)) then
+              item_index = i_start + i -1
+              exit
+           endif
+        enddo
+     end if
+     _ASSERT(item_index/=-1,"did not find item")
+     _RETURN(_SUCCESS)
+  end function get_item_index
 
  END MODULE MAPL_ExtDataGridComp2G

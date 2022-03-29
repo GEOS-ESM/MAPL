@@ -93,8 +93,8 @@ contains
          rule%regrid_method="BILINEAR"
       end if
 
-      if (config%has("start")) then
-         tempc = config%of("start")
+      if (config%has("starting")) then
+         tempc = config%of("starting")
          rule%start_time = tempc
       end if
 

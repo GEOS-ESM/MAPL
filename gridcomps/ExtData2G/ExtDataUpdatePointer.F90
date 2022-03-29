@@ -17,6 +17,10 @@ module MAPL_ExtDataPointerUpdate
       type(ESMF_Alarm) :: update_alarm
       type(ESMF_TimeInterval) :: offset
       logical :: single_shot = .false.
+      type(ESMF_TimeInterval) :: update_freq
+      type(ESMF_Time) :: last_ring
+      type(ESMF_Time) :: reference_time
+      logical :: simple_alarm_created = .false.
       contains
          procedure :: create_from_parameters
          procedure :: check_update
@@ -36,21 +40,21 @@ module MAPL_ExtDataPointerUpdate
       type(ESMF_Clock), intent(inout) :: clock
       integer, optional, intent(out) :: rc
 
-      type(ESMF_Time) :: reference_time
-      type(ESMF_TimeInterval) :: reference_freq
       integer :: status,int_time,year,month,day,hour,minute,second
 
       if (update_freq == "-") then
          this%single_shot = .true.
       else if (update_freq /= "PT0S") then
+         this%simple_alarm_created = .true.
          int_time = string_to_integer_time(update_time)
          hour=int_time/10000
          minute=mod(int_time/100,100)
          second=mod(int_time,100)
          call ESMF_TimeGet(time,yy=year,mm=month,dd=day,__RC__)
-         call ESMF_TimeSet(reference_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,__RC__)
-         reference_freq = string_to_esmf_timeinterval(update_freq,__RC__)
-         this%update_alarm = ESMF_AlarmCreate(clock,ringTime=reference_time,ringInterval=reference_freq,sticky=.false.,__RC__)
+         call ESMF_TimeSet(this%reference_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,__RC__)
+         this%last_ring = this%reference_time
+         this%update_freq = string_to_esmf_timeinterval(update_freq,__RC__)
+         !this%update_alarm = ESMF_AlarmCreate(clock,ringTime=reference_time,ringInterval=reference_freq,sticky=.false.,__RC__)
       end if
       this%offset=string_to_esmf_timeinterval(update_offset,__RC__)
       _RETURN(_SUCCESS)
@@ -64,7 +68,8 @@ module MAPL_ExtDataPointerUpdate
       type(ESMF_Time), intent(inout) :: current_time
       logical, intent(in) :: first_time
       integer, optional, intent(out) :: rc
-      type(ESMF_Time) :: previous_ring
+      type(ESMF_Time) :: previous_ring, temp_time
+      type(ESMF_TimeInterval) :: delta,new_delta
 
       integer :: status
 
@@ -72,14 +77,47 @@ module MAPL_ExtDataPointerUpdate
          do_update = .false.
          _RETURN(_SUCCESS)
       end if
-      if (ESMF_AlarmIsCreated(this%update_alarm)) then
+      !if (ESMF_AlarmIsCreated(this%update_alarm)) then
+      if (this%simple_alarm_created) then
          if (first_time) then
             call ESMF_AlarmGet(this%update_alarm,prevRingTime=previous_ring,__RC__)
-            working_time =previous_ring+this%offset
+            working_time =this%last_ring+this%offset
             do_update = .true.
          else
-            do_update = ESMF_AlarmIsRinging(this%update_alarm,__RC__)
+            !do_update = ESMF_AlarmIsRinging(this%update_alarm,__RC__)
             working_time = current_time+this%offset
+            ! now find closest time less than 1 delta to the working time
+            ! if that time equals the working time, the alarm is ringing
+            !if (working_time == this%last_ring) then
+               !do_update = .true.
+               !this%last_ring = working_time
+            !end if
+            delta = ESMF_TimeIntervalAbsValue(this%last_ring-working_time)
+            if (ESMF_TimeIntervalAbsValue(delta) > this%update_freq) then
+               if (working_time > this%last_ring) then
+                  new_delta = delta
+                  temp_time = this%last_ring
+                  do while (new_delta >= delta)
+                     temp_time = temp_time + this%update_freq
+                     new_delta = ESMF_TimeIntervalAbsValue(working_time-temp_time)
+                  enddo
+                  if (working_time == this%last_ring) then
+                     do_update = .true.
+                     this%last_ring = working_time
+                  end if
+               else if (working_time < this%last_ring) then
+                  new_delta = delta
+                  temp_time = this%last_ring
+                  do while (new_delta >= delta)
+                     temp_time = temp_time + this%update_freq
+                     new_delta = ESMF_TimeIntervalAbsValue(working_time-temp_time)
+                  enddo
+                  if (working_time == this%last_ring) then
+                     do_update = .true.
+                     this%last_ring = working_time
+                  end if
+               end if
+            end if
          end if
       else
          do_update = .true.

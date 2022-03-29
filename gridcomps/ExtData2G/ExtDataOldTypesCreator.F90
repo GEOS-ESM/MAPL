@@ -55,9 +55,10 @@ module MAPL_ExtDataOldTypesCreator
    end function new_ExtDataOldTypesCreator
 
    
-   subroutine fillin_primary(this,item_name,primary_item,time,clock,unusable,rc)
+   subroutine fillin_primary(this,item_name,base_name,primary_item,time,clock,unusable,rc)
       class(ExtDataOldTypesCreator), intent(inout) :: this
       character(len=*), intent(in) :: item_name
+      character(len=*), intent(in) :: base_name
       type(PrimaryExport), intent(inout) :: primary_item
       type(ESMF_Time), intent(inout) :: time
       type(ESMF_Clock), intent(inout) :: clock
@@ -83,10 +84,13 @@ module MAPL_ExtDataOldTypesCreator
       end if
       primary_item%isVector = allocated(rule%vector_partner)
       ! name and file var
-      primary_item%name = trim(item_name)
+      !primary_item%name = trim(item_name)
+      primary_item%name = trim(base_name)
       if (primary_item%isVector) then
+         write(*,*)"bmaa vv 1"
          primary_item%vartype = MAPL_VectorField
-         primary_item%vcomp1 = trim(item_name)
+         !primary_item%vcomp1 = trim(item_name)
+         primary_item%vcomp1 = trim(base_name)
          primary_item%vcomp2 = trim(rule%vector_partner)
          primary_item%var = rule%file_var
          primary_item%fcomp1 = rule%file_var
@@ -96,7 +100,9 @@ module MAPL_ExtDataOldTypesCreator
          primary_item%fileVars%yname  = trim(rule%vector_file_partner)
       else
          primary_item%vartype = MAPL_FieldItem
-         primary_item%vcomp1 = trim(item_name)
+         write(*,*)"bmaa vv 2 ",primary_item%vartype
+         !primary_item%vcomp1 = trim(item_name)
+         primary_item%vcomp1 = trim(base_name)
          primary_item%var = rule%file_var
          primary_item%fcomp1 = rule%file_var
          primary_item%fileVars%itemType = ItemTypeScalar
