@@ -126,7 +126,7 @@ module MAPL_FileMetadataUtilsMod
          tmp = attr_val
          attr_real32 = tmp(1)
       class default
-         _ASSERT(.false.,'unsupport subclass for units')
+         _ASSERT(.false.,'unsupport subclass for units: '//attr_name//" in "//var_name)
       end select
 
       _RETURN(_SUCCESS)
