@@ -3680,7 +3680,9 @@ contains
       else if (registeredMethod == ESMF_METHOD_RUN) then
          phase = MAPL_AddMethod(META%phase_run, RC=status)
          if (phase == MAPL_FirstPhase) then
-            META%run_entry_point => usersRoutine
+            META%run_entry_points(1)%run_entry_point => usersRoutine
+         else 
+            META%run_entry_points(2)%run_entry_point => usersRoutine
          end if
       else if (registeredMethod == ESMF_METHOD_FINALIZE) then
          phase = MAPL_AddMethod(META%phase_final, RC=status)

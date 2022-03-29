@@ -21,7 +21,8 @@ module mapl_MaplGenericComponent
    public :: MaplGenericComponent
    public :: get_grid
 
-   procedure(), pointer :: user_method => null()
+   procedure(), pointer :: user_method1 => null()
+   procedure(), pointer :: user_method2 => null()
 
    type SubComponent
       type(ESMF_GridComp) :: gridcomp
@@ -43,12 +44,15 @@ module mapl_MaplGenericComponent
       end subroutine UserMethod
    end interface
 
+   type :: runEntryPoint
+      procedure(), pointer, nopass :: run_entry_point => null()
+   end type
+
    type, extends(BaseFrameworkComponent) :: MaplGenericComponent
 !!$      private
       type(ESMF_GridComp) :: gridcomp
       type(SubComponent), allocatable :: subcomponents(:)
-!!$      procedure(UserMethod), pointer, nopass :: run_entry_point => null()
-      procedure(), pointer, nopass :: run_entry_point => null()
+      type(runEntryPoint) :: run_entry_points(2)
       type(ESMF_State) :: import_state
       type(ESMF_State) :: export_state
       type(ESMF_State) :: internal_state
@@ -387,6 +391,7 @@ contains
       type (MAPL_GenericWrap) :: wrap !, wrap_private
       character(len=ESMF_MAXSTR) :: comp_name
       character(len=:), allocatable :: labels(:)
+      integer :: phase
 
       allocate(subgridcomps(num_grids))
 
@@ -401,11 +406,21 @@ contains
         associate (gc => subgridcomps(i) )
           gc = ESMF_GridCompCreate(name=trim(comp_name), petlist=[myPet], &
                & contextflag=ESMF_CONTEXT_OWN_VM, __RC__)
-          _ASSERT(associated(this%run_entry_point),'no run method found')
-          user_method => this%run_entry_point
-          call ESMF_GridCompSetServices(gc, stub_setservices, userrc=user_status, rc=status)
+             if(associated(this%run_entry_points(1)%run_entry_point)) &
+                user_method1 => this%run_entry_points(1)%run_entry_point
+             if(associated(this%run_entry_points(2)%run_entry_point)) &
+                user_method2 => this%run_entry_points(2)%run_entry_point
+          !do phase = 1,2
+          !   print *, __FILE__, __LINE__, 'phase =', phase
+          !   if(associated(this%run_entry_points(phase)%run_entry_point)) then
+          !      user_method => this%run_entry_points(phase)%run_entry_point
+             
+                !call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=phase, userroutine=user_method, __RC__)
+          !    end if
+          !end do
+          call ESMF_GridCompSetServices(gc, set_services, userrc=user_status, __RC__)
           _VERIFY(user_status)
-          _VERIFY(status)
+          !_VERIFY(status)
         end associate
       end do
 
@@ -425,14 +440,15 @@ contains
       _RETURN(ESMF_SUCCESS)
    end function make_subgridcomps
 
-   subroutine stub_setservices(gc, rc)
+   subroutine set_services(gc, rc)
       type(ESMF_GridComp) :: gc
       integer, intent(out):: rc
 
       integer :: status
 
-      call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=1, userroutine=user_method, __RC__)
+      call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=1, userroutine=user_method1, __RC__)
+      call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=2, userroutine=user_method2, __RC__)
       _RETURN(ESMF_SUCCESS)
-   end subroutine stub_setservices
+   end subroutine set_services
 
 end module mapl_MaplGenericComponent
