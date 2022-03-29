@@ -87,7 +87,6 @@ module MAPL_ExtDataOldTypesCreator
       !primary_item%name = trim(item_name)
       primary_item%name = trim(base_name)
       if (primary_item%isVector) then
-         write(*,*)"bmaa vv 1"
          primary_item%vartype = MAPL_VectorField
          !primary_item%vcomp1 = trim(item_name)
          primary_item%vcomp1 = trim(base_name)
@@ -100,7 +99,6 @@ module MAPL_ExtDataOldTypesCreator
          primary_item%fileVars%yname  = trim(rule%vector_file_partner)
       else
          primary_item%vartype = MAPL_FieldItem
-         write(*,*)"bmaa vv 2 ",primary_item%vartype
          !primary_item%vcomp1 = trim(item_name)
          primary_item%vcomp1 = trim(base_name)
          primary_item%var = rule%file_var

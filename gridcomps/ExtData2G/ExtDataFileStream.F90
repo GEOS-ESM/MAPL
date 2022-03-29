@@ -109,7 +109,7 @@ contains
       end if
 
       if (range_str /= '') then
-         idx = index(range_str,',')
+         idx = index(range_str,'/')
          _ASSERT(idx/=0,'invalid specification of time range')
          if (allocated(data_set%valid_range)) deallocate(data_set%valid_range)
          allocate(data_set%valid_range(2))
