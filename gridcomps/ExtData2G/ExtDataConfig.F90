@@ -285,9 +285,9 @@ contains
          if (associated(rule)) then
             if (allocated(rule%vector_component)) then
                if (rule%vector_component=='EW') then
-                  item_type=Primary_Type_Vector_comp2
-               else if (rule%vector_component=='NS') then
                   item_type=Primary_Type_Vector_comp1
+               else if (rule%vector_component=='NS') then
+                  item_type=Primary_Type_Vector_comp2
                end if
             else
                item_type=Primary_Type_scalar

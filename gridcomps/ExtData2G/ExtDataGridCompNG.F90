@@ -300,7 +300,7 @@ CONTAINS
    character(len=:), allocatable :: new_rc_file
    logical :: found_in_config
    integer :: num_primary,num_derived,num_rules
-   integer, allocatable :: item_types(:)
+   integer :: item_type
    type(StringVector) :: unsatisfied_imports
    character(len=:), pointer :: current_base_name
    type(ESMF_Time), allocatable :: time_ranges(:)
@@ -378,16 +378,15 @@ CONTAINS
    num_derived=0
    primaryitemcount=0
    deriveditemcount=0
-   allocate(item_types(size(itemnames)),__STAT__)
    do i=1,size(itemnames)
-      item_types(i) = config_yaml%get_item_type(trim(itemnames(i)),rc=status)
+      item_type = config_yaml%get_item_type(trim(itemnames(i)),rc=status)
       _VERIFY(status)
-      found_in_config = (item_types(i)/= ExtData_not_found)
+      found_in_config = (item_type/= ExtData_not_found)
       if (.not.found_in_config) call unsatisfied_imports%push_back(itemnames(i))
-      if (item_types(i) == derived_type) then
+      if (item_type == derived_type) then
          call self%derived%import_names%push_back(trim(itemnames(i)))
          deriveditemcount=deriveditemcount+1
-      else
+      else if (item_type==Primary_Type_Scalar .or. item_type==Primary_Type_Vector_comp1) then
          call self%primary%import_names%push_back(trim(itemnames(i)))
          primaryitemcount=primaryitemcount+config_yaml%count_rules_for_item(trim(itemnames(i)),_RC)
       end if
@@ -431,6 +430,11 @@ CONTAINS
       end if
       call ESMF_StateGet(Export,current_base_name,field,__RC__)
       call MAPL_StateAdd(self%ExtDataState,field,__RC__)
+      item_type = config_yaml%get_item_type(current_base_name)
+      if (item_type == Primary_Type_Vector_comp1) then
+         call ESMF_StateGet(Export,self%primary%item(num_primary)%vcomp2,field,_RC)
+         call MAPL_StateAdd(self%ExtDataState,field,_RC)
+      end if
    enddo
    do i=1,self%derived%import_names%size()
       current_base_name => self%derived%import_names%at(i)
@@ -452,7 +456,7 @@ CONTAINS
          call set_constant_field(item,self%extDataState,_RC)
          cycle
       end if
-      call create_bracketing_fields(item,self%ExtDataState,cf_master,rc) 
+      call create_bracketing_fields(item,self%ExtDataState,cf_master,_RC) 
 
    end do PrimaryLoop
 
@@ -622,7 +626,7 @@ CONTAINS
             call set_constant_field(item,self%extDataState,_RC)
             cycle
          end if
-         call create_bracketing_fields(item,self%ExtDataState,cf_master, rc)
+         call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
          item%initialized=.true.
       end if
 
@@ -650,6 +654,9 @@ CONTAINS
          call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template) 
          call item%modelGridFields%comp1%reset()
          call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp1,__RC__)
+         if (item%vartype == MAPL_VectorField) then
+            call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp2,__RC__)
+         end if
          call IOBundle_Add_Entry(IOBundles,item,idx)
          useTime(i)=time
 
@@ -1108,7 +1115,7 @@ CONTAINS
      call ESMF_StateGet(state,item%vcomp1,field,__RC__)
      call item%modelGridFields%comp1%interpolate_to_time(field,time,__RC__)
      if (item%vartype == MAPL_VectorField) then
-        call ESMF_StateGet(state,item%vcomp1,field,__RC__)
+        call ESMF_StateGet(state,item%vcomp2,field,__RC__)
         call item%modelGridFields%comp2%interpolate_to_time(field,time,__RC__)
      end if        
      _RETURN(ESMF_SUCCESS)
@@ -2023,15 +2030,6 @@ CONTAINS
          call MAPL_FieldBundleAdd(pbundle,Field2,rc=status)
          _VERIFY(STATUS)
 
-         !block
-            !character(len=ESMF_MAXSTR) :: vectorlist(2)
-            !vectorlist(1) = item%fcomp1
-            !vectorlist(2) = item%fcomp2
-            !call ESMF_AttributeSet(pbundle,name="VectorList:", itemCount=2, &
-                 !valuelist = vectorlist, rc=status)
-            !_VERIFY(STATUS)
-         !end block
-
       else
 
          if (item%do_Fill .or. item%do_VertInterp) then
@@ -2278,15 +2276,6 @@ CONTAINS
         if (item%Trans /= REGRID_METHOD_BILINEAR) then
            _ASSERT(.false.,'No conservative re-gridding with vectors')
         end if
-
-        block
-           integer :: gridRotation1, gridRotation2
-           call ESMF_StateGet(ExtDataState, trim(item%vcomp1), field,__RC__)
-           call ESMF_AttributeGet(field, NAME='ROTATION', value=gridRotation1, __RC__)
-           call ESMF_StateGet(ExtDataState, trim(item%vcomp2), field,__RC__)
-           call ESMF_AttributeGet(field, NAME='ROTATION', value=gridRotation2, __RC__)
-           _ASSERT(GridRotation1 == gridRotation2,'Grid rotations must match when performing vector re-gridding')
-        end block
 
         call ESMF_StateGet(ExtDataState, trim(item%vcomp1), field,__RC__)
         call ESMF_FieldGet(field,grid=grid,rank=fieldRank,__RC__)
