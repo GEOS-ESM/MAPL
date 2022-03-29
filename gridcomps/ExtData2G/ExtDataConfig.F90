@@ -279,25 +279,27 @@ contains
          end if
          call rule_iterator%next()
       enddo
-      _ASSERT(found_rule,"no rule for "//trim(item_name))
 
-      !rule => this%rule_map%at(trim(item_name))
-      rule => this%rule_map%at(found_key)
-      if (associated(rule)) then
-         if (allocated(rule%vector_component)) then
-            if (rule%vector_component=='EW') then
-               item_type=Primary_Type_Vector_comp2
-            else if (rule%vector_component=='NS') then
-               item_type=Primary_Type_Vector_comp1
+      if (found_rule) then
+         rule => this%rule_map%at(found_key)
+         if (associated(rule)) then
+            if (allocated(rule%vector_component)) then
+               if (rule%vector_component=='EW') then
+                  item_type=Primary_Type_Vector_comp2
+               else if (rule%vector_component=='NS') then
+                  item_type=Primary_Type_Vector_comp1
+               end if
+            else
+               item_type=Primary_Type_scalar
             end if
-         else
-            item_type=Primary_Type_scalar
          end if
       end if
       derived => this%derived_map%at(trim(item_name))
       if (associated(derived)) then
          item_type=derived_type
+         found_rule = .true.
       end if
+      _ASSERT(found_rule,"no rule for "//trim(item_name))
       _RETURN(_SUCCESS)
    end function get_item_type
 

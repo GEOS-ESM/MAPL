@@ -84,7 +84,6 @@
      type(integerVector) :: export_id_start
      type(integerVector) :: number_of_rules
      type(stringVector)  :: import_names
-     logical :: have_phis
      type(PrimaryExport), pointer :: item(:) => null()
      contains 
         procedure :: get_item_index 
@@ -112,7 +111,6 @@
      type(ESMF_State)     :: ExtDataState
      type(ESMF_Config)    :: CF
      logical              :: active
-     integer, allocatable :: PrimaryOrder(:)
   end type MAPL_ExtData_State
 
 ! Hook for the ESMF
@@ -442,7 +440,6 @@ CONTAINS
       call MAPL_StateAdd(self%ExtDataState,field,__RC__)
    enddo
    
-   !PrimaryLoop: do i = 1, self%primary%nItems
    PrimaryLoop: do i=1,self%primary%import_names%size()
 
       current_base_name => self%primary%import_names%at(i)
@@ -461,10 +458,6 @@ CONTAINS
 
 ! Check if we have any files that would need to be vertically interpolated
 ! if so ensure that PS is done first
-   allocate(self%primaryOrder(size(self%primary%item)),__STAT__)
-   do i=1,size(self%primary%item)
-      self%primaryOrder(i)=i
-   enddo
 !!  check for PS
    !idx = -1
    !if (any(self%primary%item%do_VertInterp .eqv. .true.)) then
@@ -474,24 +467,8 @@ CONTAINS
          !end if
       !enddo
       !_ASSERT(idx/=-1,'Surface pressure not present for vertical interpolation')
-      !self%primaryOrder(1)=idx
-      !self%primaryOrder(idx)=1
       !self%primary%item(idx)%units = ESMF_UtilStringUppercase(self%primary%item(idx)%units,rc=status)
       !_ASSERT(trim(self%primary%item(idx)%units)=="PA",'PS must be in units of PA')
-   !end if
-!!  check for PHIS
-   !idx = -1
-   !if (any(self%primary%item%do_VertInterp .eqv. .true.)) then
-      !do i=1,size(self%primary%item)
-         !if (self%primary%item(i)%name=='PHIS') then
-            !idx =i
-         !end if
-      !enddo
-      !if (idx/=-1) then
-         !self%primaryOrder(2)=idx
-         !self%primaryOrder(idx)=2
-         !self%primary%have_phis=.true.
-      !end if
    !end if
 
    call extdata_lgr%info('*******************************************************')
@@ -634,7 +611,6 @@ CONTAINS
       Write(*,*) 'ExtData Run_: READ_LOOP: Start'
    ENDIF
 
-   !READ_LOOP: do i = 1, self%primary%nItems
    READ_LOOP: do i=1,self%primary%import_names%size()
 
       current_base_name => self%primary%import_names%at(i)
@@ -649,8 +625,6 @@ CONTAINS
          call create_bracketing_fields(item,self%ExtDataState,cf_master, rc)
          item%initialized=.true.
       end if
-
-      !item => self%primary%item(self%primaryOrder(i))
 
       IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
          Write(*,*) ' '
@@ -669,7 +643,6 @@ CONTAINS
       call MAPL_TimerOn(MAPLSTATE,"--CheckUpd")
 
       call item%update_freq%check_update(doUpdate(i),time,time0,.not.hasRun,__RC__)
-      !doUpdate(i) = doUpdate_ .or. (.not.hasRun)
       call MAPL_TimerOff(MAPLSTATE,"--CheckUpd")
 
       DO_UPDATE: if (doUpdate(i)) then
@@ -677,7 +650,6 @@ CONTAINS
          call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template) 
          call item%modelGridFields%comp1%reset()
          call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp1,__RC__)
-         !call IOBundle_Add_Entry(IOBundles,item,self%primaryOrder(i))
          call IOBundle_Add_Entry(IOBundles,item,idx)
          useTime(i)=time
 
@@ -736,7 +708,7 @@ CONTAINS
       bracket_side = io_bundle%bracket_side
       entry_num = io_bundle%entry_index
       item => self%primary%item(entry_num)
-      call MAPL_ExtDataVerticalInterpolate(self,item,bracket_side,rc=status)
+      call MAPL_ExtDataVerticalInterpolate(self,item,bracket_side,time0,rc=status)
       _VERIFY(status)
       call bundle_iter%next()
    enddo
@@ -756,14 +728,6 @@ CONTAINS
       current_base_name => self%primary%import_names%at(i)
       idx = self%primary%get_item_index(current_base_name,time0,_RC)
       item => self%primary%item(idx)
-      !if (.not.item%initialized) then
-         !item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
-         !if (item%isConst) then
-            !call set_constant_field(item,self%extDataState,_RC)
-            !cycle
-         !end if
-         !call create_bracketing_fields(item,self%ExtDataState,cf_master, rc)
-      !end if
 
       if (doUpdate(i)) then
 
@@ -796,7 +760,6 @@ CONTAINS
       derivedItem => self%derived%item(i)
 
       call derivedItem%update_freq%check_update(doUpdate_,time,time0,.not.hasRun,__RC__)
-      !doUpdate_ = doUpdate_ .or. (.not.hasRun)
 
       if (doUpdate_) then
 
@@ -1151,10 +1114,11 @@ CONTAINS
      _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ExtDataInterpField
 
-  subroutine MAPL_ExtDataVerticalInterpolate(ExtState,item,filec,rc)
+  subroutine MAPL_ExtDataVerticalInterpolate(ExtState,item,filec,current_time,rc)
      type(MAPL_ExtData_State), intent(inout) :: ExtState
      type(PrimaryExport), intent(inout)     :: item
      integer,             intent(in   )     :: filec
+     type(ESMF_Time),     intent(in   )     :: current_time
      integer, optional,   intent(out  )     :: rc
 
      integer :: status
@@ -1171,7 +1135,7 @@ CONTAINS
            _VERIFY(STATUS)
            call MAPL_ExtDataGetBracket(item,filec,Field,rc=status)
            _VERIFY(STATUS)
-           id_ps = ExtState%primaryOrder(1)
+           id_ps = ExtState%primary%get_item_index("PS",current_time,_RC)
            call MAPL_ExtDataGetBracket(ExtState%primary%item(id_ps),filec,field=psF,rc=status)
            _VERIFY(STATUS)
            call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,rc=status)
@@ -1179,7 +1143,7 @@ CONTAINS
   
         else if (item%vartype == MAPL_VectorField) then
 
-           id_ps = ExtState%primaryOrder(1)
+           id_ps = ExtState%primary%get_item_index("PS",current_time,_RC)
            call MAPL_ExtDataGetBracket(ExtState%primary%item(id_ps),filec,field=psF,rc=status)
            _VERIFY(STATUS)
            call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=1,rc=status)
