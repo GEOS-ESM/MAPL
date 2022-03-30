@@ -100,24 +100,17 @@ module MAPL_GriddedIOMod
         _RETURN(ESMF_SUCCESS)
      end function new_MAPL_GriddedIO
 
-<<<<<<< HEAD:base/MAPL_newCFIO.F90
-     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,posDown,rc)
-        class (MAPL_newCFIO), intent(inout) :: this
-        type(newCFIOitemVector), target, intent(inout) :: items
-=======
-     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,rc)
+     ! Use posDown argument in GCHP
+!     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,posDown,rc)
+     subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,posDown,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
         type(GriddedIOitemVector), target, intent(inout) :: items
->>>>>>> feature/mapl-upgrade:griddedio/GriddedIO.F90
         type(ESMF_FieldBundle), intent(inout) :: bundle
         type(TimeData), intent(inout) :: timeInfo
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
-<<<<<<< HEAD:base/MAPL_newCFIO.F90
-        logical, intent(in), optional :: posDown ! Added for GCHP
-=======
         type(StringStringMap), intent(in), optional :: global_attributes
->>>>>>> feature/mapl-upgrade:griddedio/GriddedIO.F90
+        logical, intent(in), optional :: posDown ! Added for GCHP
         integer, intent(out), optional :: rc
 
         type(ESMF_Grid) :: input_grid
