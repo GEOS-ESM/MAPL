@@ -6,9 +6,6 @@ module MAPL_GridSpecMod
    public :: GridSpec
    public :: DimensionSpec
    ! parameters
-   public :: MAPL_DimTopoCyclic
-   public :: MAPL_DimTopoEdge
-   public :: MAPL_DimTopoCenter
 
 
    integer, parameter :: NUM_DIMS = 2
@@ -36,10 +33,6 @@ module MAPL_GridSpecMod
       generic :: operator(/=) => not_equals_grid
    end type GridSpec
 
-
-   integer, parameter :: MAPL_DimTopoCyclic = 0
-   integer, parameter :: MAPL_DimTopoEdge   = -1
-   integer, parameter :: MAPL_DimTopoCenter = 1
 
 
 contains

@@ -10,7 +10,6 @@ endif()
 
 set (srcs
   # pFIO Files
-  KeywordEnforcer.F90
   pFIO_ShaveMantissa.c
   DownBit.F90
   pFIO_Constants.F90
@@ -19,11 +18,13 @@ set (srcs
   Variable.F90
   CoordinateVariable.F90
   StringVariableMap.F90
-  pfio_base.F90 
-  
+  pfio_base.F90
+
   FileMetadata.F90
   FileMetadataVector.F90
   NetCDF4_FileFormatter.F90
+  pfio_get_att_string.c
+  NetCDF_Supplement.F90
   pFIO_Utilities.F90
   pFIO.F90
 
@@ -90,17 +91,9 @@ set (srcs
   StringVectorUtil.F90
   )
 
-# GCHP note: customized
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler)
-target_link_libraries (${this} PUBLIC gftl gftl-shared 
-                               PRIVATE ${NETCDF_LIBRARIES} $<$<BOOL:${OMP}>:OpenMP::OpenMP_Fortran> MPI::MPI_Fortran)
-#------- MAPL original -------
-#esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran TYPE SHARED)
-#target_link_libraries (${this} PUBLIC gftl-shared
-#                               PRIVATE MPI::MPI_Fortran)
-#-----------------------------
-
-# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran TYPE ${MAPL_LIBRARY_TYPE})
+target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PRIVATE MPI::MPI_Fortran)
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 endif ()
@@ -116,26 +109,28 @@ endforeach()
 
 # GCHP note: customize
 ecbuild_add_executable (
+   TARGET pfio_open_close.x
+   SOURCES pfio_open_close.F90
+   LIBS ${this} )
+set_target_properties (pfio_open_close.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+
+ecbuild_add_executable (
    TARGET pfio_server_demo.x
    SOURCES pfio_server_demo.F90
    LIBS ${this} ${NETCDF_LIBRARIES} $<$<BOOL:${OMP}>:OpenMP::OpenMP_Fortran> MPI::MPI_Fortran)
    #LIBS ${this} MPI::MPI_Fortran)
 set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-
-# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(pfio_server_demo.x OpenMP::OpenMP_Fortran)
 endif ()
 
-# GCHP note: customize
 ecbuild_add_executable (
    TARGET pfio_collective_demo.x
    SOURCES pfio_collective_demo.F90
    LIBS ${this} ${NETCDF_LIBRARIES} $<$<BOOL:${OMP}>:OpenMP::OpenMP_Fortran> MPI::MPI_Fortran)
-   #LIBS ${this} MPI::MPI_Fortran)
 set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-
-# CMake has an OpenMP issue with Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
+# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(pfio_collective_demo.x OpenMP::OpenMP_Fortran)
 endif ()
@@ -157,7 +152,7 @@ include_directories (${INC_NETCDF})
 # in the other libaries, but this make it explicit which aspects are externally
 # used.
 
-# Users guide 
+# Users guide
 if (LATEX_FOUND)
 #  add_subdirectory (TeX)
 endif ()

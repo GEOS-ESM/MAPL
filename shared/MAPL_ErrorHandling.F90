@@ -67,9 +67,10 @@ module MAPL_ErrorHandlingMod
 contains
 
 
-   logical function MAPL_Assert_condition(condition, message, filename, line, rc) result(fail)
+   logical function MAPL_Assert_condition(condition, message, return_code, filename, line, rc) result(fail)
       logical, intent(in) :: condition
       character(*), intent(in) :: message
+      integer, intent(in) :: return_code
       character(*), intent(in) :: filename
       integer, intent(in) :: line
       integer, optional, intent(out) :: rc ! Not present in MAIN
@@ -78,7 +79,7 @@ contains
 
       if (fail) then
          call MAPL_throw_exception(filename, line, message=message)
-         if (present(rc)) rc = 1
+         if (present(rc)) rc = return_code
       end if
 
    end function MAPL_Assert_Condition
@@ -97,10 +98,10 @@ contains
       if (fail) then
          message = get_error_message(return_code)
          call MAPL_throw_exception(filename, line, message=message)
-         if (present(rc)) rc = 1
+         if (present(rc)) rc = return_code
       end if
 
-   end function MAPL_Assert_Return_Code
+   end function MAPL_Assert_return_code
 
 
    logical function MAPL_Verify(status, filename, line, rc) result(fail)

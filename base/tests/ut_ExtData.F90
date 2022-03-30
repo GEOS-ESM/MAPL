@@ -57,7 +57,7 @@
 ! !USES:
 !
    USE ESMF_Mod
-   USE MAPL_Mod
+   USE MAPLBase_Mod
 
    use MAPL_ExtDataGridCompMod, only: ExtData_SetServices => SetServices
 
@@ -352,7 +352,7 @@ end module RUTMod
 
 Program ut_ExtData
    
-   use MAPL_Mod
+   use MAPLBase_Mod
 
    use RUTMod,                  only: ROOT_SetServices    => SetServices
    use MAPL_ExtDataGridCompMod, only: ExtData_SetServices => SetServices

@@ -6,7 +6,7 @@ module pFIO_VariableMod
    use MAPL_ExceptionHandling
    use gFTL_StringVector
    use pFIO_StringVectorUtilMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use pFIO_ConstantsMod
    use pFIO_UnlimitedEntityMod
    use pFIO_AttributeMod

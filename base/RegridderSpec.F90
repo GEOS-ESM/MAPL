@@ -2,7 +2,6 @@
 
 ! A RegridderSpec is used to indicate which subclass of regridder will be used.
 module mapl_RegridderSpec
-   use MAPL_BaseMod, only: MAPL_UNDEF
    use MAPL_KeywordEnforcerMod
    use MAPL_ErrorHandlingMod
    use mapl_RegridMethods

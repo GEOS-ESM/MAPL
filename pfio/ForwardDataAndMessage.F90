@@ -7,7 +7,7 @@ module pFIO_ForwardDataAndMessageMod
    use pFIO_AbstractMessageMod
    use pFIO_UtilitiesMod
    use pFIO_AbstractDataReferenceMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use pFIO_AbstractDataMessageMod
    use pFIO_FileMetaDataMod
    use pFIO_MessageVectorMod
@@ -42,14 +42,16 @@ contains
       class (ForwardDataAndMessage), intent(in) :: this
       integer, allocatable, intent(inout) :: buffer(:)
       integer, optional, intent(out) :: rc
-      integer :: i
+      integer :: i,k
       integer, allocatable :: buff_tmp(:)
 
       if (allocated(buffer)) deallocate(buffer)
-
+      k = 0
+      if (allocated(this%idata)) k = size(this%idata)
       call serialize_message_vector(this%msg_vec, buff_tmp)
-      if ( size(this%idata) > 0 ) then
-         i = size(this%idata)+1
+
+      if ( k > 0 ) then
+         i = k + 1
          buffer =[buff_tmp, i, this%idata]
       else
          buffer = buff_tmp

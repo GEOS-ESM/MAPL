@@ -8,7 +8,7 @@ module MAPL_ExternalGridFactoryMod
    use ESMF
    use pFIO
    use MAPL_CommsMod
-   use MAPL_ConstantsMod
+   use MAPL_Constants
    use MAPL_IOMod, only : GETFILE, FREE_FILE 
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32
 
@@ -44,6 +44,8 @@ module MAPL_ExternalGridFactoryMod
       procedure :: generate_file_corner_bounds
       procedure :: generate_file_reference2D
       procedure :: generate_file_reference3D
+      procedure :: decomps_are_equal
+      procedure :: physical_params_are_equal
    end type ExternalGridFactory
 
    interface ExternalGridFactory
@@ -105,6 +107,36 @@ contains
       _RETURN(_SUCCESS)
    end function make_new_grid
 
+   function decomps_are_equal(this,a) result(equal)
+      class(ExternalGridFactory), intent(in) :: this
+      class(AbstractGridFactory), intent(in) :: a
+      logical :: equal
+
+      _UNUSED_DUMMY(this)
+      select type(a)
+      class default
+         equal = .false.
+         return
+      class is (ExternalGridFactory)
+         equal = .true.
+      end select
+   end function decomps_are_equal
+
+   function physical_params_are_equal(this,a) result(equal)
+      class(ExternalGridFactory), intent(in) :: this
+      class(AbstractGridFactory), intent(in) :: a
+      logical :: equal
+
+      _UNUSED_DUMMY(this)
+      select type(a)
+      class default
+         equal = .false.
+         return
+      class is (ExternalGridFactory)
+         equal = .true.
+      end select
+   end function physical_params_are_equal
+
    logical function equals(a, b)
       class(ExternalGridFactory), intent(in) :: a
       class(AbstractGridFactory), intent(in) :: b
@@ -119,10 +151,11 @@ contains
       end select
    end function equals
 
-   subroutine initialize_from_file_metadata(this, file_metadata, unusable, rc)
+   subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
       class(ExternalGridFactory),       intent(inout) :: this
       type(FileMetadata),     target,   intent(in   ) :: file_metadata
       class(KeywordEnforcer), optional, intent(in   ) :: unusable
+      logical, optional, intent(in) :: force_file_coordinates
       integer,                optional, intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'initialize_from_file_metadata'
@@ -237,12 +270,13 @@ contains
       ! TODO: fill in the rest
    end subroutine append_variable_metadata
 
-   subroutine generate_file_bounds(this, grid, local_start, global_start, global_count, rc)
+   subroutine generate_file_bounds(this, grid, local_start, global_start, global_count, metadata, rc)
       class(ExternalGridFactory), intent(inout) :: this
       type(ESMF_Grid),            intent(inout) :: grid
       integer,      allocatable,  intent(  out) :: local_start(:)
       integer,      allocatable,  intent(  out) :: global_start(:)
       integer,      allocatable,  intent(  out) :: global_count(:)
+      type(FileMetaData), intent(in), optional :: metaData
       integer,      optional,     intent(  out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_bounds'
@@ -286,10 +320,11 @@ contains
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
 
-   function generate_file_reference3D(this, fpointer) result(ref)
+   function generate_file_reference3D(this, fpointer, metadata) result(ref)
       type(ArrayReference) :: ref
       class(ExternalGridFactory), intent(inout) :: this
       real, pointer,              intent(in   ) :: fpointer(:,:,:)
+      type(FileMetaData), intent(in), optional :: metaData
 
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)

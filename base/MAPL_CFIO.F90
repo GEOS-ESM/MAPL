@@ -24,7 +24,7 @@ module MAPL_CFIOMod
   use ESMF
   use MAPL_BaseMod
   use MAPL_CommsMod
-  use MAPL_ConstantsMod
+  use MAPL_Constants
   use ESMF_CFIOMod  
   use ESMF_CFIOUtilMod
   use ESMF_CFIOFileMod
@@ -1000,8 +1000,8 @@ contains
              mcfio%xyoffset = xyoffset
           else
              mcfio%xyoffset = 0
-             lons1d = MAPL_Range(-180.,180.-(360./IMO), IMO, conversion_factor=MAPL_DEGREES_TO_RADIANS)
-             lats1d = MAPL_Range(-90., +90., JMO, conversion_factor=MAPL_DEGREES_TO_RADIANS)
+             lons1d = MAPL_Range(-180.,180.-(360./IMO), IMO, conversion_factor=MAPL_DEGREES_TO_RADIANS_R8)
+             lats1d = MAPL_Range(-90., +90., JMO, conversion_factor=MAPL_DEGREES_TO_RADIANS_R8)
           endif
 
        endif
@@ -2945,7 +2945,7 @@ contains
     cfioIsCreated = .false. 
     if (present(collection_id)) then
        collection => collections%at(collection_id)
-       cfio => collection%find(filename) 
+       cfio => collection%find(filename, __RC__)
     else
        allocate(CFIO)
        cfio=ESMF_CFIOCreate(RC=status)
@@ -4808,7 +4808,7 @@ CONTAINS
         cfio(n)%collection_id = MAPL_CFIOAddCollection(filelist(n))
         cfio(n)%fname = filelist(n)
         collection => collections%at(cfio(n)%collection_id)
-        pcfio => collection%find(cfio(n)%fname)
+        pcfio => collection%find(cfio(n)%fname, __RC__)
         if (present(timelist)) then
           call getTIndex(pcfio,timelist(n),nn,rc=status)
         else
@@ -4958,7 +4958,7 @@ CONTAINS
     _VERIFY(STATUS)
 
     collection => collections%at(mcfio%collection_ID)
-    cfiop => collection%find(mcfio%fname)
+    cfiop => collection%find(mcfio%fname, __RC__)
 
     call ESMF_CFIOGet       (cfiop,     grid=CFIOGRID,                     RC=STATUS)
     _VERIFY(STATUS)
@@ -5176,17 +5176,22 @@ CONTAINS
     allocate( MCFIO%pairList(LT),stat=STATUS)
     _VERIFY(STATUS)
 
+
     if (present(regridmethod)) then
        regridmethod_=regridmethod
     else
        regridmethod_=REGRID_METHOD_BILINEAR
     endif
-    mcfio%regrid_method = regridmethod_
 
     mcfio%regrid_type=-1
     if ( (img /= im .or. jmg /= jm) .and. (regridMethod_ /= -1) ) then
        if (regridmethod_==REGRID_METHOD_VOTE .or. regridmethod_==REGRID_METHOD_CONSERVE .or. regridmethod_==REGRID_METHOD_FRACTION) then
           mcfio%regridConservative = .true.
+          mcfio%regridder => make_regridder(esmfgrid,regridMethod_,lonsfile,latsfile,im,jm,counts(3),.false.,localTiles=.false.,rc=status)
+          _VERIFY(status)
+       else if (regridmethod_==REGRID_METHOD_BILINEAR) then
+          mcfio%regridder => make_regridder(ESMFGRID, regridMethod_, LONSfile, LATSfile, IM, JM, counts(3), .false., rc=status)
+          _VERIFY(status)
        end if
        mcfio%regrid_type=regridmethod_
     end if
@@ -5314,7 +5319,7 @@ CONTAINS
     end if
 
     collection => collections%at(mcfio%collection_id)
-    cfiop => collection%find(trim(mcfio%fname))
+    cfiop => collection%find(trim(mcfio%fname), __RC__)
 
     call MAPL_GridGet( MCFIO%GRID, globalCellCountPerDim=COUNTS, RC=STATUS)
     _VERIFY(STATUS)
@@ -5402,6 +5407,7 @@ CONTAINS
                 alloc_ra = 1
                 allocate(mcfio%reqs(nn)%read_array(mcfio%im,mcfio%jm),stat=status)
                 _VERIFY(status)
+
                 globPtrArr(nn)%ptr => mcfio%reqs(nn)%read_array
                 ptrTypeIn(1)%ptr => globPtrArr(nn)%ptr
                 allocate(mcfio%buffer(nn)%ptr(img,jmg),stat=status)
@@ -5495,7 +5501,8 @@ CONTAINS
                 call TransAndSave(mcfio,ptrTypein(1:2),ptrtypeout(1:2),mcfio%reqs(nn),.not.TransAlreadyDone,2,hw_,rc=status)
              end if VECTORTEST
              if (alloc_ra > 0) then
-                deallocate(mcfio%reqs(nn)%read_array)
+                deallocate(mcfio%reqs(nn)%read_array,stat=status)
+                _VERIFY(status)
                 nullify(mcfio%reqs(nn)%read_array)
                 if (alloc_ra > 1) then
                    deallocate(mcfio%reqs(nv)%read_array)
@@ -5549,8 +5556,6 @@ CONTAINS
               _VERIFY(STATUS)
            end if
         end if
-        deallocate(gin)
-        nullify(gin)
         if (mcfio%gsiMode) call shift180Lon2D_(gout)
      else
  
@@ -5580,11 +5585,6 @@ CONTAINS
            call mCFIO%regridder%set_undef_value(MAPL_undef)
            call mCFIO%regridder%regrid(uin, vin, uout, vout, rotate=mCFIO%doRotate, rc=status)
            _VERIFY(status)
-
-           deallocate(PtrIn(1)%ptr)
-           nullify(PtrIn(1)%ptr)
-           deallocate(PtrIn(2)%ptr)
-           nullify(PtrIn(2)%ptr)
 
         end if
 
@@ -5797,7 +5797,7 @@ CONTAINS
     use MAPL_AbstractGridFactoryMod
     use MAPL_LatLonGridFactoryMod
     use MAPL_GridManagerMod
-    use MAPL_ConstantsMod, only: MAPL_RADIANS_TO_DEGREES
+    use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
     type (ESMF_GRid), intent(in) :: grid
 
     real, intent(out) :: lons(:), lats(:)
@@ -5883,8 +5883,8 @@ CONTAINS
     allocate(lons_radians(size(lons)))
     allocate(lats_radians(size(lats)))
     
-    lons_radians = MAPL_DEGREES_TO_RADIANS * lons
-    lats_radians = MAPL_DEGREES_TO_RADIANS * lats
+    lons_radians = MAPL_DEGREES_TO_RADIANS_R8 * lons
+    lats_radians = MAPL_DEGREES_TO_RADIANS_R8 * lats
     
     lon_array = ESMF_LocalArrayCreate(lons_radians, rc=status)
     _VERIFY(status)
