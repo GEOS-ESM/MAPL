@@ -412,8 +412,10 @@ CONTAINS
    do i=1,self%primary%import_names%size()
       current_base_name => self%primary%import_names%at(i)
       num_rules = config_yaml%count_rules_for_item(current_base_name)
+      _ASSERT(num_rules > 0,"no rule found for "//trim(current_base_name))
       call self%primary%number_of_rules%push_back(num_rules)
-      call self%primary%export_id_start%push_back(num_primary+1) 
+      call self%primary%export_id_start%push_back(num_primary+1)
+      call ESMF_VMBarrier 
       if (num_rules > 1) then
          if (allocated(time_ranges)) deallocate(time_ranges)
          allocate(time_ranges(num_rules))
@@ -421,7 +423,7 @@ CONTAINS
          do j=1,num_rules
             num_primary=num_primary+1
             write(sidx,'(I1)')j
-            call config_yaml%fillin_primary(current_base_name//sidx,current_base_name,self%primary%item(num_primary),time,clock,__RC__)
+            call config_yaml%fillin_primary(current_base_name//"+"//sidx,current_base_name,self%primary%item(num_primary),time,clock,__RC__)
             allocate(self%primary%item(num_primary)%start_end_time(2))
             self%primary%item(num_primary)%start_end_time(1)=time_ranges(j)
             self%primary%item(num_primary)%start_end_time(2)=time_ranges(j+1)

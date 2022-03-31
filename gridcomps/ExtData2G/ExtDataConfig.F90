@@ -18,6 +18,8 @@ module MAPL_ExtDataConfig
    implicit none
    private
 
+   character(len=1), parameter :: rule_sep = "+"
+
    type, public :: ExtDataConfig
       integer :: debug
       type(ExtDataRuleMap) :: rule_map
@@ -123,7 +125,7 @@ contains
                do i=1,num_rules
                   rule_map = subcfg%of(sorted_rules(i))
                   write(i_char,'(I1)')i
-                  new_key = key//i_char
+                  new_key = key//rule_sep//i_char
                   call ext_config%add_new_rule(new_key,rule_map,_RC)
                enddo 
             else
@@ -165,11 +167,17 @@ contains
  
       type(ExtDataRuleMapIterator) :: rule_iterator
       character(len=:), pointer :: key
+      integer :: idx
       rule_iterator = this%rule_map%begin()
       number_of_rules = 0
       do while(rule_iterator /= this%rule_map%end())
          key => rule_iterator%key()
-         if (index(key,trim(item_name))/=0) number_of_rules = number_of_rules + 1
+         idx = index(key,rule_sep)
+         if (idx > 0) then
+            if (trim(item_name)==key(1:idx-1)) number_of_rules = number_of_rules + 1
+         else
+            if (trim(item_name) == trim(key)) number_of_rules = number_of_rules + 1
+         end if
          call rule_iterator%next()
       enddo
 
@@ -187,15 +195,18 @@ contains
       type(StringVector) :: start_times
       integer :: num_rules
       type(ExtDataRule), pointer :: rule
-      integer :: i,status
+      integer :: i,status,idx
       type(ESMF_Time) :: very_future_time
  
       rule_iterator = this%rule_map%begin()
       do while(rule_iterator /= this%rule_map%end())
          key => rule_iterator%key()
-         if (index(key,trim(item_name))/=0) then
-            rule => rule_iterator%value()
-            call start_times%push_back(rule%start_time)
+         idx = index(key,rule_sep)
+         if (idx > 0) then
+            if (key(1:idx-1) == trim(item_name)) then
+               rule => rule_iterator%value()
+               call start_times%push_back(rule%start_time)
+            end if
          end if
          call rule_iterator%next()
       enddo
