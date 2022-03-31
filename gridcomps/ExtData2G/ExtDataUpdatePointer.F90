@@ -80,7 +80,7 @@ module MAPL_ExtDataPointerUpdate
       !if (ESMF_AlarmIsCreated(this%update_alarm)) then
       if (this%simple_alarm_created) then
          if (first_time) then
-            call ESMF_AlarmGet(this%update_alarm,prevRingTime=previous_ring,__RC__)
+            !call ESMF_AlarmGet(this%update_alarm,prevRingTime=previous_ring,__RC__)
             working_time =this%last_ring+this%offset
             do_update = .true.
          else

@@ -299,7 +299,6 @@ contains
          item_type=derived_type
          found_rule = .true.
       end if
-      _ASSERT(found_rule,"no rule for "//trim(item_name))
       _RETURN(_SUCCESS)
    end function get_item_type
 

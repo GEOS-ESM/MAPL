@@ -305,12 +305,13 @@ CONTAINS
    character(len=:), pointer :: current_base_name
    type(ESMF_Time), allocatable :: time_ranges(:)
    character(len=1) :: sidx
+   type(ESMF_VM) :: vm
    !class(logger), pointer :: lgr
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
    Iam = 'Initialize_'
-   call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, __RC__ )
+   call ESMF_GridCompGet( GC, name=comp_name, config=CF_master, vm=vm, __RC__ )
    Iam = trim(comp_name) // '::' // trim(Iam)
    call MAPL_GetLogger(gc, extdata_lgr, __RC__)
 
@@ -391,6 +392,7 @@ CONTAINS
          primaryitemcount=primaryitemcount+config_yaml%count_rules_for_item(trim(itemnames(i)),_RC)
       end if
    enddo
+   call ESMF_VMBarrier(vm,_RC)
    if (unsatisfied_imports%size() > 0) then
       do i=1,unsatisfied_imports%size()
          call extdata_lgr%error("In ExtData resource file, could not find: "//trim(unsatisfied_imports%at(i)))
