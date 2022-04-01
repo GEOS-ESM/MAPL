@@ -370,7 +370,7 @@ CONTAINS
 !  -----------------------
    call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock,  __RC__ )
 
-   call extdata_lgr%error("Using ExtData2G, note this is still in BETA stage")
+   call extdata_lgr%info("Using ExtData2G, note this is still in BETA stage")
 
 !                         ---------------------------
 !                         Parse ExtData Resource File
@@ -415,7 +415,6 @@ CONTAINS
       _ASSERT(num_rules > 0,"no rule found for "//trim(current_base_name))
       call self%primary%number_of_rules%push_back(num_rules)
       call self%primary%export_id_start%push_back(num_primary+1)
-      call ESMF_VMBarrier 
       if (num_rules > 1) then
          if (allocated(time_ranges)) deallocate(time_ranges)
          allocate(time_ranges(num_rules))
