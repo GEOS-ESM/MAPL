@@ -46,7 +46,7 @@ workflows:
           checkout_fixture: true
           mepodevelop: true
           checkout_mapl_branch: true
-          persist_workspace: false # Needs to be true to run fv3/gcm experiment, costs extra
+          persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra
 
       # Build GEOSldas
       - ci/build:
@@ -78,15 +78,15 @@ workflows:
           mepodevelop: true
           develop_repos: "cmake GEOSana_GridComp" # GEOSadas needs some extra branches to work with mainline MAPL
           rebuild_procs: 8
-      ##################################################
-      # - ci/run_fv3:                                  #
-      #     name: run-FV3-on-<< matrix.compiler >>     #
-      #     context:                                   #
-      #       - docker-hub-creds                       #
-      #     matrix:                                    #
-      #       parameters:                              #
-      #         compiler: [gfortran, ifort]            #
-      #     requires:                                  #
-      #       - build-GEOSgcm-on-<< matrix.compiler >> #
-      #     repo: GEOSgcm                              #
-      ##################################################
+
+      # Run gcm
+      - ci/run_gcm:
+          name: run-GCM-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          requires:
+            - build-GEOSgcm-on-<< matrix.compiler >>
+          repo: GEOSgcm
