@@ -15,6 +15,7 @@ module MAPL_ExtDataConfig
    use MAPL_ExtDataTimeSample
    use MAPL_ExtDataTimeSampleMap
    use MAPL_TimeStringConversion
+   use MAPL_ExtDataYamlNodeStack
    implicit none
    private
 
@@ -45,7 +46,7 @@ contains
       integer, optional, intent(out) :: rc
 
       type(Parser)              :: p
-      type(Configuration) :: config, subcfg, ds_config, rule_config, derived_config, sample_config
+      type(Configuration) :: config, subcfg, ds_config, rule_config, derived_config, sample_config, subconfigs, rule_map
       type(ConfigurationIterator) :: iter
       character(len=:), allocatable :: key,new_key
       type(ExtDataFileStream) :: ds
@@ -58,7 +59,6 @@ contains
       type(ExtDataTimeSample), pointer :: temp_ts
       type(ExtDataDerived), pointer :: temp_derived
 
-      type(Configuration) :: subconfigs,rule_map
       character(len=:), allocatable :: sub_file
       integer :: i,num_rules
       integer, allocatable :: sorted_rules(:)
@@ -66,13 +66,14 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
+      stack_depth=stack_depth+1
       p = Parser('core')
       fstream=FileStream(config_file)
-      config = p%load(fstream)
+      yaml_node_stack(stack_depth) = p%load(fstream)
       call fstream%close()
 
-      if (config%has("subconfigs")) then 
-         subconfigs = config%at("subconfigs")
+      if (yaml_node_stack(stack_depth)%has("subconfigs")) then 
+         subconfigs = yaml_node_stack(stack_depth)%at("subconfigs")
          _ASSERT(subconfigs%is_sequence(),'subconfigs is not a sequence')
          do i=1,subconfigs%size()
            sub_file = subconfigs%of(i)
@@ -81,8 +82,8 @@ contains
          end do
       end if
          
-      if (config%has("Samplings")) then
-         sample_config = config%of("Samplings")
+      if (yaml_node_stack(stack_depth)%has("Samplings")) then
+         sample_config = yaml_node_stack(stack_depth)%of("Samplings")
          iter = sample_config%begin()
          do while (iter /= sample_config%end())
             call iter%get_key(key)
@@ -96,8 +97,8 @@ contains
          enddo
       end if
 
-      if (config%has("Collections")) then
-         ds_config = config%of("Collections")
+      if (yaml_node_stack(stack_depth)%has("Collections")) then
+         ds_config = yaml_node_stack(stack_depth)%of("Collections")
          iter = ds_config%begin()
          do while (iter /= ds_config%end())
             call iter%get_key(key)
@@ -110,8 +111,8 @@ contains
          enddo
       end if
 
-      if (config%has("Exports")) then
-         rule_config = config%of("Exports")
+      if (yaml_node_stack(stack_depth)%has("Exports")) then
+         rule_config = yaml_node_stack(stack_depth)%of("Exports")
          iter = rule_config%begin()
          do while (iter /= rule_config%end())
             call iter%get_key(key)
@@ -134,8 +135,8 @@ contains
          enddo
       end if
 
-      if (config%has("Derived")) then
-         derived_config = config%at("Derived")
+      if (yaml_node_stack(stack_depth)%has("Derived")) then
+         derived_config = yaml_node_stack(stack_depth)%at("Derived")
          iter = derived_config%begin()
          do while (iter /= derived_config%end())
             call derived%set_defaults(rc=status)
@@ -150,11 +151,12 @@ contains
          enddo
       end if
 
-      if (config%has("debug")) then
+      if (yaml_node_stack(stack_depth)%has("debug")) then
          call config%get(ext_config%debug,"debug",rc=status)
          _VERIFY(status)
       end if
 
+      stack_depth=stack_depth-1
       _RETURN(_SUCCESS)
    end subroutine new_ExtDataConfig_from_yaml
 

@@ -14,7 +14,7 @@ module MAPL_ExtDataPointerUpdate
    type :: ExtDataPointerUpdate
       private
       logical :: disabled = .false.
-      type(ESMF_Alarm) :: update_alarm
+      logical :: first_time_updated = .true.
       type(ESMF_TimeInterval) :: offset
       logical :: single_shot = .false.
       type(ESMF_TimeInterval) :: update_freq
@@ -22,6 +22,7 @@ module MAPL_ExtDataPointerUpdate
       type(ESMF_Time) :: reference_time
       logical :: simple_alarm_created = .false.
       type(ESMF_TIme) :: last_checked
+      type(ESMF_TIme) :: last_updated
       contains
          procedure :: create_from_parameters
          procedure :: check_update
@@ -77,11 +78,12 @@ module MAPL_ExtDataPointerUpdate
          do_update = .false.
          _RETURN(_SUCCESS)
       end if
-      !if (ESMF_AlarmIsCreated(this%update_alarm)) then
       if (this%simple_alarm_created) then
          use_time = current_time+this%offset
          if (first_time) then
             do_update = .true.
+            this%first_time_updated = .true.
+            this%last_updated = current_time
          else
             ! normal flow
             next_ring = this%last_ring
@@ -91,25 +93,41 @@ module MAPL_ExtDataPointerUpdate
                enddo
                if (current_time == next_ring) then
                   do_update = .true.
+                  this%last_updated = current_time
                   this%last_ring = next_ring
+                  this%first_time_updated = .false. 
                end if
             ! if clock went backwards, so we must update, set ringtime to previous ring from working time
             else if (current_time < this%last_checked) then
-
                next_ring = this%last_ring
+               ! the clock must have rewound past last ring
                if (this%last_ring > current_time) then
-                  do while(next_ring >= current_time)
+                  do while(next_ring <= current_time)
                      next_ring=next_ring-this%update_freq
                   enddo
+                  use_time = next_ring+this%offset
+                  this%last_ring = next_ring
+               ! alarm never rang during the previous advance, only update the previous update was the first time
+               else if (this%last_ring < current_time) then
+                    if (this%first_time_updated) then
+                       do_update=.true.
+                       this%first_time_updated = .false.
+                       use_time = this%last_updated + this%offset
+                    end if
+               ! otherwise we land on a time when the alarm would ring and we would update
+               else if (this%last_ring == current_time) then
+                  do_update =.true.
+                  this%first_time_updated = .false.
+                  use_time = current_time+this%offset
+                  this%last_updated = current_time
                end if
-               do_update = .true.
-               this%last_ring = next_ring
             end if
          end if
       else
          do_update = .true.
          if (this%single_shot) this%disabled = .true.
          use_time = current_time+this%offset
+         this%last_updated = current_time
       end if
       this%last_checked = current_time
 
