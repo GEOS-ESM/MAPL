@@ -112,21 +112,23 @@ module MAPL_FileMetadataUtilsMod
 
       real(REAL32) :: tmp(1)
       integer :: status
+      character(len=ESMF_MAXSTR) :: fname
       type(Attribute), pointer :: attr
       type(Variable), pointer :: var
       class(*), pointer :: attr_val(:)
 
+      fname = get_file_name(this,_RC)
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr => var%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in file")
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
       attr_val => attr%get_values()
       select type(attr_val)
       type is(real(kind=REAL32))
          tmp = attr_val
          attr_real32 = tmp(1)
       class default
-         _ASSERT(.false.,'unsupport subclass for units')
+         _ASSERT(.false.,'unsupport subclass for units (attribute named '//attr_name//' in '//var_name//' in '//fname)
       end select
 
       _RETURN(_SUCCESS)
@@ -141,21 +143,22 @@ module MAPL_FileMetadataUtilsMod
 
       real(REAL64) :: tmp(1)
       integer :: status
+      character(len=ESMF_MAXSTR) :: fname
       type(Attribute), pointer :: attr
       type(Variable), pointer :: var
       class(*), pointer :: attr_val(:)
 
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr => var%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in file")
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
       attr_val => attr%get_values()
       select type(attr_val)
       type is(real(kind=REAL64))
          tmp = attr_val
          attr_real64 = tmp(1)
       class default
-         _ASSERT(.false.,'unsupport subclass for units')
+          _ASSERT(.false.,'unsupport subclass for units (attribute named '//attr_name//' in '//var_name//' in '//fname)
       end select
 
       _RETURN(_SUCCESS)
@@ -170,21 +173,23 @@ module MAPL_FileMetadataUtilsMod
 
       integer(INT32) :: tmp(1)
       integer :: status
+      character(len=ESMF_MAXSTR) :: fname
       type(Attribute), pointer :: attr
       type(Variable), pointer :: var
       class(*), pointer :: attr_val(:)
 
+      fname = get_file_name(this,_RC)
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr => var%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in file")
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
       attr_val => attr%get_values()
       select type(attr_val)
       type is(integer(kind=INT32))
          tmp = attr_val
          attr_int32 = tmp(1)
       class default
-         _ASSERT(.false.,'unsupport subclass for units')
+         _ASSERT(.false.,'unsupport subclass for units (attribute named '//attr_name//' in '//var_name//' in '//fname)
       end select
 
       _RETURN(_SUCCESS)
@@ -199,21 +204,23 @@ module MAPL_FileMetadataUtilsMod
 
       integer(INT64) :: tmp(1)
       integer :: status
+      character(len=ESMF_MAXSTR) :: fname
       type(Attribute), pointer :: attr
       type(Variable), pointer :: var
       class(*), pointer :: attr_val(:)
 
+      fname = get_file_name(this,_RC)
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr => var%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in file")
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
       attr_val => attr%get_values()
       select type(attr_val)
       type is(integer(kind=INT64))
          tmp = attr_val
          attr_int64 = tmp(1)
       class default
-         _ASSERT(.false.,'unsupport subclass for units')
+         _ASSERT(.false.,'unsupport subclass for units (attribute named '//attr_name//' in '//var_name//' in '//fname)
       end select
 
       _RETURN(_SUCCESS)
@@ -227,20 +234,22 @@ module MAPL_FileMetadataUtilsMod
       integer, optional, intent(out) :: rc
 
       integer :: status
+      character(len=ESMF_MAXSTR) :: fname
       type(Attribute), pointer :: attr
       type(Variable), pointer :: var
       class(*), pointer :: attr_val
 
+      fname = get_file_name(this,_RC)
       var => this%get_variable(var_name,_RC)
-      _ASSERT(associated(var),"no variable named "//var_name//" in file")
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr => var%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in file")
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
       attr_val => attr%get_value()
       select type(attr_val)
       type is(character(*))
          attr_string = attr_val
       class default
-         _ASSERT(.false.,'unsupport subclass for units')
+         _ASSERT(.false.,'unsupport subclass for units (attribute named '//attr_name//' in '//var_name//' in '//fname)
       end select
 
       _RETURN(_SUCCESS)
