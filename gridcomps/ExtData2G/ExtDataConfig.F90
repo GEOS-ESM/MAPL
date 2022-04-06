@@ -30,7 +30,6 @@ module MAPL_ExtDataConfig
       contains
          procedure :: add_new_rule
          procedure :: get_item_type
-         procedure :: get_debug_flag
          procedure :: new_ExtDataConfig_from_yaml
          procedure :: count_rules_for_item
          procedure :: get_time_range
@@ -77,8 +76,8 @@ contains
          _ASSERT(subconfigs%is_sequence(),'subconfigs is not a sequence')
          do i=1,subconfigs%size()
            sub_file = subconfigs%of(i)
-            call new_ExtDataConfig_from_yaml(ext_config,sub_file,current_time,rc=status)
-            _VERIFY(status)
+           call new_ExtDataConfig_from_yaml(ext_config,sub_file,current_time,rc=status)
+           _VERIFY(status)
          end do
       end if
          
@@ -345,11 +344,5 @@ contains
       end if
       _RETURN(_SUCCESS)
    end subroutine add_new_rule
-
- 
-   integer function get_debug_flag(this)
-      class(ExtDataConfig), intent(inout) :: this
-      get_debug_flag=this%debug
-   end function get_debug_flag 
 
 end module MAPL_ExtDataConfig

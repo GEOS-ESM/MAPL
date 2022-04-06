@@ -21,6 +21,7 @@ module MAPL_ExtDataPointerUpdate
       type(ESMF_Time) :: last_ring
       type(ESMF_Time) :: reference_time
       logical :: simple_alarm_created = .false.
+      type(ESMF_TIme) :: last_checked
       contains
          procedure :: create_from_parameters
          procedure :: check_update
@@ -42,6 +43,7 @@ module MAPL_ExtDataPointerUpdate
 
       integer :: status,int_time,year,month,day,hour,minute,second
 
+      this%last_checked = time
       if (update_freq == "-") then
          this%single_shot = .true.
       else if (update_freq /= "PT0S") then
@@ -54,22 +56,20 @@ module MAPL_ExtDataPointerUpdate
          call ESMF_TimeSet(this%reference_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,__RC__)
          this%last_ring = this%reference_time
          this%update_freq = string_to_esmf_timeinterval(update_freq,__RC__)
-         !this%update_alarm = ESMF_AlarmCreate(clock,ringTime=reference_time,ringInterval=reference_freq,sticky=.false.,__RC__)
       end if
       this%offset=string_to_esmf_timeinterval(update_offset,__RC__)
       _RETURN(_SUCCESS)
 
    end subroutine create_from_parameters
 
-   subroutine check_update(this,do_update,working_time,current_time,first_time,rc)
+   subroutine check_update(this,do_update,use_time,current_time,first_time,rc)
       class(ExtDataPointerUpdate), intent(inout) :: this
       logical, intent(out) :: do_update
-      type(ESMF_Time), intent(inout) :: working_time
+      type(ESMF_Time), intent(inout) :: use_time
       type(ESMF_Time), intent(inout) :: current_time
       logical, intent(in) :: first_time
       integer, optional, intent(out) :: rc
-      type(ESMF_Time) :: previous_ring, temp_time
-      type(ESMF_TimeInterval) :: delta,new_delta
+      type(ESMF_Time) :: next_ring
 
       integer :: status
 
@@ -79,51 +79,43 @@ module MAPL_ExtDataPointerUpdate
       end if
       !if (ESMF_AlarmIsCreated(this%update_alarm)) then
       if (this%simple_alarm_created) then
+         use_time = current_time+this%offset
          if (first_time) then
-            !call ESMF_AlarmGet(this%update_alarm,prevRingTime=previous_ring,__RC__)
-            working_time =this%last_ring+this%offset
             do_update = .true.
+            if (mapl_am_I_root()) write(*,*)"bmaa first time "
          else
-            !do_update = ESMF_AlarmIsRinging(this%update_alarm,__RC__)
-            working_time = current_time+this%offset
-            ! now find closest time less than 1 delta to the working time
-            ! if that time equals the working time, the alarm is ringing
-            !if (working_time == this%last_ring) then
-               !do_update = .true.
-               !this%last_ring = working_time
-            !end if
-            delta = ESMF_TimeIntervalAbsValue(this%last_ring-working_time)
-            if (ESMF_TimeIntervalAbsValue(delta) > this%update_freq) then
-               if (working_time > this%last_ring) then
-                  new_delta = delta
-                  temp_time = this%last_ring
-                  do while (new_delta >= delta)
-                     temp_time = temp_time + this%update_freq
-                     new_delta = ESMF_TimeIntervalAbsValue(working_time-temp_time)
-                  enddo
-                  if (working_time == this%last_ring) then
-                     do_update = .true.
-                     this%last_ring = working_time
-                  end if
-               else if (working_time < this%last_ring) then
-                  new_delta = delta
-                  temp_time = this%last_ring
-                  do while (new_delta >= delta)
-                     temp_time = temp_time + this%update_freq
-                     new_delta = ESMF_TimeIntervalAbsValue(working_time-temp_time)
-                  enddo
-                  if (working_time == this%last_ring) then
-                     do_update = .true.
-                     this%last_ring = working_time
-                  end if
+            ! normal flow
+            next_ring = this%last_ring
+            if (current_time > this%last_checked) then
+               if (mapl_am_i_root()) write(*,*)"bmaa normal flow!"
+               do while (next_ring < current_time)
+                  next_ring=next_ring+this%update_freq
+               enddo
+               if (current_time == next_ring) then
+                  do_update = .true.
+                  this%last_ring = next_ring
+                  if (mapl_am_I_root()) write(*,*)"bmaa update "
                end if
+            ! if clock went backwards, so we must update, set ringtime to previous ring from working time
+            else if (current_time < this%last_checked) then
+               if (mapl_am_i_root()) write(*,*)"bmaa clock went back!"
+
+               next_ring = this%last_ring
+               if (this%last_ring > current_time) then
+                  do while(next_ring >= current_time)
+                     next_ring=next_ring-this%update_freq
+                  enddo
+               end if
+               do_update = .true.
+               this%last_ring = next_ring
             end if
          end if
       else
          do_update = .true.
          if (this%single_shot) this%disabled = .true.
-         working_time = current_time+this%offset
+         use_time = current_time+this%offset
       end if
+      this%last_checked = current_time
 
    end subroutine check_update
 

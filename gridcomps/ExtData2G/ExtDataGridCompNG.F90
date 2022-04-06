@@ -72,7 +72,6 @@
 !
 !-------------------------------------------------------------------------
 
-  integer                    :: Ext_Debug
   integer, parameter         :: MAPL_ExtDataLeft          = 1
   integer, parameter         :: MAPL_ExtDataRight         = 2
   logical                    :: hasRun
@@ -297,7 +296,7 @@ CONTAINS
    type(MAPL_MetaComp),pointer :: MAPLSTATE
 
    type(ExtDataOldTypesCreator),target :: config_yaml
-   character(len=:), allocatable :: new_rc_file
+   character(len=ESMF_MAXSTR) :: new_rc_file
    logical :: found_in_config
    integer :: num_primary,num_derived,num_rules
    integer :: item_type
@@ -327,16 +326,14 @@ CONTAINS
    call MAPL_TimerOn(MAPLSTATE,"TOTAL")
    call MAPL_TimerOn(MAPLSTATE,"Initialize")
 
+   call ESMF_ConfigGetAttribute(cf_master,new_rc_file,label="EXTDATA_YAML_FILE:",default="extdata.yaml",_RC)
+   self%active = am_i_running(new_rc_file)
+
    call ESMF_ClockGet(CLOCK, currTIME=time, __RC__)
-   new_rc_file = "extdata.yaml"
-   config_yaml = ExtDataOldTypesCreator(new_rc_file,time,__RC__)
 ! Get information from export state
 !----------------------------------
     call ESMF_StateGet(EXPORT, ITEMCOUNT=ItemCount, RC=STATUS)
     _VERIFY(STATUS)
-
-    ! set ExtData on by default, let user turn it off if they want
-    call ESMF_ConfigGetAttribute(CF_master,self%active, Label='USE_EXTDATA:',default=.true.,rc=status)
 
     ! no need to run ExtData if there are no imports to fill
     if (ItemCount == 0) then
@@ -349,6 +346,7 @@ CONTAINS
        _RETURN(ESMF_SUCCESS)
     end if
 
+    config_yaml = ExtDataOldTypesCreator(new_rc_file,time,__RC__)
 !   Greetings
 !   ---------
     if (MAPL_am_I_root()) then
@@ -400,7 +398,6 @@ CONTAINS
       _FAIL("Unsatisfied imports in ExtData")
    end if
       
-   ext_debug=config_yaml%get_debug_flag()
    allocate(self%primary%item(PrimaryItemCount),__STAT__)
    allocate(self%derived%item(DerivedItemCount),__STAT__)
    self%primary%nitems = PrimaryItemCount
@@ -499,9 +496,7 @@ CONTAINS
 !  All done
 !  --------
 
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'ExtData Initialize_: End'
-   ENDIF
+   call extdata_lgr%debug('ExtData Initialize_(): End')
 
    _RETURN(ESMF_SUCCESS)
 
@@ -571,7 +566,7 @@ CONTAINS
    type(IOBundleNGVectorIterator) :: bundle_iter
    type(ExtDataNG_IOBundle), pointer :: io_bundle
    character(len=:), pointer :: current_base_name
-   integer :: idx
+   integer :: idx,nitems
    type(ESMF_Config) :: cf_master
 
    _UNUSED_DUMMY(IMPORT)
@@ -612,12 +607,10 @@ CONTAINS
    _VERIFY(STATUS)
 
    call MAPL_TimerOn(MAPLSTATE,"-Read_Loop")
- 
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'ExtData Run_: Start'
-      Write(*,*) 'ExtData Run_: READ_LOOP: Start'
-   ENDIF
 
+   call extdata_lgr%debug('ExtData Rune_(): Start')
+   call extdata_lgr%debug('ExtData Run_(): READ_LOOP: Start')
+ 
    READ_LOOP: do i=1,self%primary%import_names%size()
 
       current_base_name => self%primary%import_names%at(i)
@@ -633,17 +626,13 @@ CONTAINS
          item%initialized=.true.
       end if
 
-      IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-         Write(*,*) ' '
-         Write(*,'(a,I0.3,a,I0.3,a,a)') 'ExtData Run_: READ_LOOP: variable ', i, ' of ', self%primary%nItems, ': ', trim(item%var)
-         Write(*,*) '   ==> file: ', trim(item%file_template)
-         Write(*,*) '   ==> isConst: ', item%isConst
-      ENDIF
+      nitems = self%primary%import_names%size()
+      !call extdata_lgr%debug('ExtData Run_(): READ_LOOP: variable %i0 of %i0~: %a', i, nitems, trim(current_base_name))
+      !call extdata_lgr%debug('   ==> file: %a', trim(item%file_template))
+      !call extdata_lgr%debug('   ==> isConst:: %l1', item%isConst)
 
       if (item%isConst) then
-         IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-            Write(*,*) '   ==> Break loop since isConst is true'
-         ENDIF
+         call extdata_lgr%debug('   ==> Break loop since isConst is true')
          cycle
       endif
 
@@ -654,7 +643,7 @@ CONTAINS
 
       DO_UPDATE: if (doUpdate(i)) then
 
-         call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template) 
+         !call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template) 
          call item%modelGridFields%comp1%reset()
          call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp1,__RC__)
          if (item%vartype == MAPL_VectorField) then
@@ -667,11 +656,10 @@ CONTAINS
 
    end do READ_LOOP
 
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'ExtData Run_: READ_LOOP: Done'
-   ENDIF
+   call extdata_lgr%debug('ExtData Run_: READ_LOOP: Done')
 
    bundle_iter = IOBundles%begin()
+   if (mapl_am_i_root()) write(*,*)"bmaa size: ",iobundles%size()
    do while (bundle_iter /= IoBundles%end())
       io_bundle => bundle_iter%get()
       bracket_side = io_bundle%bracket_side
@@ -728,10 +716,8 @@ CONTAINS
    call MAPL_TimerOff(MAPLSTATE,"-Read_Loop")
 
    call MAPL_TimerOn(MAPLSTATE,"-Interpolate")
- 
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'ExtData Run_: INTERP_LOOP: Start'
-   ENDIF
+
+   call extdata_lgr%debug('ExtData Run_: INTERP_LOOP: Start') 
 
    INTERP_LOOP: do i=1,self%primary%import_names%size()
 
@@ -741,15 +727,9 @@ CONTAINS
 
       if (doUpdate(i)) then
 
-         IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN 
-            Write(*,*) ' '
-            Write(*,'(a)') 'ExtData Run_: INTERP_LOOP: interpolating between bracket times'
-            Write(*,*) '   ==> variable: ', trim(item%var)
-            Write(*,*) '   ==> file: ', trim(item%file_template)
-         ENDIF 
+         call extdata_lgr%debug('ExtData Run_: INTERP_LOOP: interpolating between bracket times, variable: %a, file: %a', &
+              & trim(current_base_name), trim(item%file_template))
         
-         ! finally interpolate between bracketing times
-
          call MAPL_ExtDataInterpField(item,self%ExtDataState,useTime(i),__RC__)
 
       endif
@@ -758,9 +738,7 @@ CONTAINS
 
    end do INTERP_LOOP
 
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'ExtData Run_: INTERP_LOOP: Done'
-   ENDIF
+   call extdata_lgr%debug('ExtData Run_: INTERP_LOOP: Done')
 
    call MAPL_TimerOff(MAPLSTATE,"-Interpolate")
 
@@ -780,9 +758,7 @@ CONTAINS
 
    end do
 
-   IF ( (Ext_Debug > 0) .AND. MAPL_Am_I_Root() ) THEN
-      Write(*,*) 'ExtData Run_: End'
-   ENDIF
+   call extdata_lgr%debug('ExtData Run_: End')
 
 !  All done
 !  --------
@@ -2351,5 +2327,25 @@ CONTAINS
      _ASSERT(item_index/=-1,"did not find item")
      _RETURN(_SUCCESS)
   end function get_item_index
+
+  function am_i_running(yaml_file) result(am_running)
+     logical :: am_running
+     character(len=*), intent(in) :: yaml_file
+
+      type(Parser)              :: p
+      type(FileStream) :: fstream
+      type(Configuration) :: config
+
+      p = Parser('core')
+      fstream=FileStream(yaml_file)
+      config = p%load(fstream)
+      call fstream%close()
+
+      if (config%has("USE_EXTDATA")) then
+         am_running = config%of("USE_EXTDATA")
+      else
+         am_running = .true.
+      end if
+   end function am_i_running
 
  END MODULE MAPL_ExtDataGridComp2G
