@@ -17,6 +17,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.17.2] - 2022-02-16
+
+- Fixes for Global Attributes to match FP 5.27
+  - Changed `lev` variable `standard_name` to `model_layers`
+  - Changed global attribute `Convention` to `Conventions`
+  - Fill `Source` with a string "<EXPSRC> experiment_id: <EXPID>" where EXPSRC and EXPID are from the `EXPSRC:` and `EXPID:` lines in HISTORY.rc
+
+## [2.17.1] - 2022-02-04
+
+### Fixed
+
+- Add explicit dependence of gFTL-v1 and -v2 whenever both are used (currently profiler and generic)
+
+## [2.17.0] - 2022-01-26
+
+### Fixed
+
+- io profiler is fixed due to the change of profiler finalize
+- Files read by GriddedIOMod now respect the file defined _FillValue rather than assuming it is MAPL_UNDEF
+- Fix bug so that fields with an ungridded dimension of size 1 can be written via History
+- Updated `components.yaml`
+  - ESMA_env v3.11.0 (Mainly updates for NAS)
+
+### Changed
+
+- History initialization will display chunksize for any collections that are chunked
+- Removed include of `ESMC_ReturnCodes.h`. Changed some `ESMC_RC` codes to `ESMF_RC` codes
+
 ## [2.16.0] - 2022-01-13
 
 ### Fixed

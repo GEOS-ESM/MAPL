@@ -49,7 +49,9 @@ set (srcs
   MAPL_Profiler.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v2 MAPL.shared MPI::MPI_Fortran TYPE ${MAPL_LIBRARY_TYPE})
+# ewl: Previously in 2.16
+#esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v2 MAPL.shared MPI::MPI_Fortran TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2 MAPL.shared MPI::MPI_Fortran TYPE ${MAPL_LIBRARY_TYPE})
 target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
 
 add_subdirectory (demo EXCLUDE_FROM_ALL)
