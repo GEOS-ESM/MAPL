@@ -84,6 +84,7 @@ module MAPL_ExtDataPointerUpdate
             do_update = .true.
             this%first_time_updated = .true.
             this%last_updated = current_time
+            use_time = this%last_ring + this%offset
          else
             ! normal flow
             next_ring = this%last_ring
