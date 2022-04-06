@@ -82,23 +82,19 @@ module MAPL_ExtDataPointerUpdate
          use_time = current_time+this%offset
          if (first_time) then
             do_update = .true.
-            if (mapl_am_I_root()) write(*,*)"bmaa first time "
          else
             ! normal flow
             next_ring = this%last_ring
             if (current_time > this%last_checked) then
-               if (mapl_am_i_root()) write(*,*)"bmaa normal flow!"
                do while (next_ring < current_time)
                   next_ring=next_ring+this%update_freq
                enddo
                if (current_time == next_ring) then
                   do_update = .true.
                   this%last_ring = next_ring
-                  if (mapl_am_I_root()) write(*,*)"bmaa update "
                end if
             ! if clock went backwards, so we must update, set ringtime to previous ring from working time
             else if (current_time < this%last_checked) then
-               if (mapl_am_i_root()) write(*,*)"bmaa clock went back!"
 
                next_ring = this%last_ring
                if (this%last_ring > current_time) then

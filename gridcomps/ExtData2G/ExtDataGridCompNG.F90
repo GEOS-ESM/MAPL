@@ -659,7 +659,6 @@ CONTAINS
    call extdata_lgr%debug('ExtData Run_: READ_LOOP: Done')
 
    bundle_iter = IOBundles%begin()
-   if (mapl_am_i_root()) write(*,*)"bmaa size: ",iobundles%size()
    do while (bundle_iter /= IoBundles%end())
       io_bundle => bundle_iter%get()
       bracket_side = io_bundle%bracket_side
