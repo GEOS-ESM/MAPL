@@ -975,9 +975,9 @@ module MAPL_GriddedIOMod
         call ESMF_FieldGet(output_field,rank=rank,rc=status)
         _VERIFY(status)
         missing_value = MAPL_UNDEF
-        if (metadata%var_has_missing_value(trim(names(i)))) then
-           missing_value = metadata%var_get_missing_value(trim(names(i)),_RC)
-        end if
+!ewl        if (metadata%var_has_missing_value(trim(names(i)))) then
+!ewl           missing_value = metadata%var_get_missing_value(trim(names(i)),_RC)
+!ewl        end if
         if (rank==2) then
            input_fields(i) = ESMF_FieldCreate(filegrid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2],name=trim(names(i)),rc=status)
            _VERIFY(status)
