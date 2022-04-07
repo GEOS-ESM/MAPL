@@ -6,6 +6,7 @@ module MAPL_ExtDataPointerUpdate
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_TimeStringConversion
+   use MAPL_CommsMod
    implicit none
    private
 
@@ -16,13 +17,11 @@ module MAPL_ExtDataPointerUpdate
       logical :: disabled = .false.
       logical :: first_time_updated = .true.
       type(ESMF_TimeInterval) :: offset
-      logical :: single_shot = .false.
       type(ESMF_TimeInterval) :: update_freq
       type(ESMF_Time) :: last_ring
       type(ESMF_Time) :: reference_time
       logical :: simple_alarm_created = .false.
       type(ESMF_TIme) :: last_checked
-      type(ESMF_TIme) :: last_updated
       contains
          procedure :: create_from_parameters
          procedure :: check_update
@@ -83,7 +82,6 @@ module MAPL_ExtDataPointerUpdate
          if (first_time) then
             do_update = .true.
             this%first_time_updated = .true.
-            this%last_updated = current_time
             use_time = this%last_ring + this%offset
          else
             ! normal flow
@@ -94,7 +92,6 @@ module MAPL_ExtDataPointerUpdate
                enddo
                if (current_time == next_ring) then
                   do_update = .true.
-                  this%last_updated = current_time
                   this%last_ring = next_ring
                   this%first_time_updated = .false. 
                end if
@@ -113,14 +110,13 @@ module MAPL_ExtDataPointerUpdate
                     if (this%first_time_updated) then
                        do_update=.true.
                        this%first_time_updated = .false.
-                       use_time = this%last_updated + this%offset
+                       use_time = this%last_ring + this%offset
                     end if
                ! otherwise we land on a time when the alarm would ring and we would update
                else if (this%last_ring == current_time) then
                   do_update =.true.
                   this%first_time_updated = .false.
                   use_time = current_time+this%offset
-                  this%last_updated = current_time
                end if
             end if
          end if
@@ -128,7 +124,6 @@ module MAPL_ExtDataPointerUpdate
          do_update = .true.
          if (this%single_shot) this%disabled = .true.
          use_time = current_time+this%offset
-         this%last_updated = current_time
       end if
       this%last_checked = current_time
 
