@@ -17,6 +17,7 @@ module MAPL_ExtDataPointerUpdate
       logical :: disabled = .false.
       logical :: first_time_updated = .true.
       type(ESMF_TimeInterval) :: offset
+      logical :: single_shot = .false.
       type(ESMF_TimeInterval) :: update_freq
       type(ESMF_Time) :: last_ring
       type(ESMF_Time) :: reference_time
