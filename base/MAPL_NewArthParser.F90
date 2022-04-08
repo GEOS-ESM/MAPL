@@ -55,11 +55,13 @@ MODULE MAPL_NewArthParserMod
   use MAPL_BaseMod
   use MAPL_CommsMod
   use MAPL_ExceptionHandling
+  use gFTL_StringVector
 
   IMPLICIT NONE
   !------- -------- --------- --------- --------- --------- --------- --------- -------
   PRIVATE
 
+  public                     :: parser_variables_in_expression
   PUBLIC                     :: MAPL_StateEval
   PUBLIC                     :: CheckSyntax
   PUBLIC                     :: RealNum
@@ -742,6 +744,136 @@ CONTAINS
 
   END SUBROUTINE CopyScalarToField
   !
+  function parser_variables_in_expression (FuncStr,rc) result(variables_in_expression)
+    !----- -------- --------- --------- --------- --------- --------- --------- -------
+    ! Check syntax of function string,  returns 0 if syntax is ok
+    !----- -------- --------- --------- --------- --------- --------- --------- -------
+    IMPLICIT NONE
+    type(StringVector) :: variables_in_expression
+    CHARACTER (LEN=*),               INTENT(in) :: FuncStr   ! Original function string
+    INTEGER, OPTIONAL                           :: rc
+    INTEGER                                     :: n
+    CHARACTER (LEN=1)                           :: c
+    REAL                                        :: r
+    LOGICAL                                     :: err
+    INTEGER                                     :: ParCnt, & ! Parenthesis counter
+                                                   j,ib,in,lFunc
+    LOGICAL                                     :: isUndef
+    character(len=ESMF_MAXPATHLEN)              :: func
+    integer, allocatable                        :: ipos(:)
+    character(len=ESMF_MAXSTR), parameter       :: IAm="CheckSyntax"
+    !----- -------- --------- --------- --------- --------- --------- --------- -------
+    Func = FuncStr                                           ! Local copy of function string
+    ALLOCATE (ipos(LEN_TRIM(FuncStr)))
+    CALL Replace ('**','^ ',Func)                            ! Exponent into 1-Char. format
+    CALL RemoveSpaces (Func,ipos)
+    j = 1
+    ParCnt = 0
+    lFunc = LEN_TRIM(Func)
+    step: DO
+       IF (j > lFunc) CALL ParseErrMsg (j, FuncStr, ipos)
+       c = Func(j:j)
+       !-- -------- --------- --------- --------- --------- --------- --------- -------
+       ! Check for valid operand (must appear)
+       !-- -------- --------- --------- --------- --------- --------- --------- -------
+       IF (c == '-' .OR. c == '+') THEN                      ! Check for leading - or +
+          j = j+1
+          IF (j > lFunc) THEN 
+             CALL ParseErrMsg (j, FuncStr, ipos, 'Missing operand')
+             _ASSERT(.FALSE.,'needs informative message')
+          END IF
+          c = Func(j:j)
+          IF (ANY(c == Ops)) THEN
+             CALL ParseErrMsg (j, FuncStr, ipos, 'Multiple operators')
+             _ASSERT(.FALSE.,'needs informative message')
+          END IF
+       END IF
+       n = MathFunctionIndex (Func(j:))
+       IF (n > 0) THEN                                       ! Check for math function
+          j = j+LEN_TRIM(Funcs(n))
+          IF (j > lFunc) THEN 
+             CALL ParseErrMsg (j, FuncStr, ipos, 'Missing function argument')
+             _ASSERT(.FALSE.,'needs informative message')
+          END IF
+          c = Func(j:j)
+          IF (c /= '(') THEN 
+             CALL ParseErrMsg (j, FuncStr, ipos, 'Missing opening parenthesis')
+             _ASSERT(.FALSE.,'needs informative message')
+          END IF
+       END IF
+       IF (c == '(') THEN                                    ! Check for opening parenthesis
+          ParCnt = ParCnt+1
+          j = j+1
+          CYCLE step
+       END IF
+       IF (SCAN(c,'0123456789.') > 0) THEN                   ! Check for number
+          r = RealNum (Func(j:),ib,in,err)
+          IF (err) THEN
+             CALL ParseErrMsg (j, FuncStr, ipos, 'Invalid number format:  '//Func(j+ib-1:j+in-2))
+             _ASSERT(.FALSE.,'needs informative message')
+          END IF
+          j = j+in-1
+          IF (j > lFunc) EXIT
+          c = Func(j:j)
+       ELSE                                                  ! Check for variable
+          isUndef = checkUndef(Func(j:),ib,in)
+          if (isUndef) then
+             j = j+in-1
+             IF (j> lFunc) EXIT
+             c = Func(j:j)
+          else
+             call GetVariables (Func(j:),ib,in)
+             call variables_in_expression%push_back(Func(j+ib-1:j+in-2))
+             j = j+in-1
+             IF (j > lFunc) EXIT
+             c = Func(j:j)
+          end if
+       END IF
+       DO WHILE (c == ')')                                   ! Check for closing parenthesis
+          ParCnt = ParCnt-1
+          IF (ParCnt < 0) THEN
+             CALL ParseErrMsg (j, FuncStr, ipos, 'Mismatched parenthesis')
+             _ASSERT(.FALSE.,'needs informative message')
+          END IF
+          IF (Func(j-1:j-1) == '(') THEN
+             CALL ParseErrMsg (j-1, FuncStr, ipos, 'Empty parentheses')
+             _ASSERT(.FALSE.,'needs informative message')
+          END IF
+          j = j+1
+          IF (j > lFunc) EXIT
+          c = Func(j:j)
+       END DO
+       !-- -------- --------- --------- --------- --------- --------- --------- -------
+       ! Now, we have a legal operand: A legal operator or end of string must follow
+       !-- -------- --------- --------- --------- --------- --------- --------- -------
+       IF (j > lFunc) EXIT
+       IF (ANY(c == Ops)) THEN                               ! Check for multiple operators
+          IF (j+1 > lFunc) THEN
+             CALL ParseErrMsg (j, FuncStr, ipos)
+             _ASSERT(.FALSE.,'needs informative message')
+          END IF
+          IF (ANY(Func(j+1:j+1) == Ops)) THEN
+             CALL ParseErrMsg (j+1, FuncStr, ipos, 'Multiple operators')
+             _ASSERT(.FALSE.,'needs informative message')
+          END IF
+       ELSE                                                  ! Check for next operand
+          CALL ParseErrMsg (j, FuncStr, ipos, 'Missing operator')
+          _ASSERT(.FALSE.,'needs informative message')
+       END IF
+       !-- -------- --------- --------- --------- --------- --------- --------- -------
+       ! Now, we have an operand and an operator: the next loop will check for another 
+       ! operand (must appear)
+       !-- -------- --------- --------- --------- --------- --------- --------- -------
+       j = j+1
+    END DO step
+    IF (ParCnt > 0) THEN
+       CALL ParseErrMsg (j, FuncStr, ipos, 'Missing )')
+       _ASSERT(.FALSE.,'needs informative message')
+    END IF
+    DEALLOCATE(ipos)
+    _RETURN(ESMF_SUCCESS)
+  end function
+
   SUBROUTINE CheckSyntax (FuncStr,Var,needed,ExtVar,rc)
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Check syntax of function string,  returns 0 if syntax is ok
@@ -945,6 +1077,29 @@ CONTAINS
     END DO
   END FUNCTION MathFunctionIndex
   !
+  subroutine GetVariables (str, ibegin, inext)
+    !----- -------- --------- --------- --------- --------- --------- --------- -------
+    ! Return index of variable at begin of string str (returns 0 if no variable found)
+    !----- -------- --------- --------- --------- --------- --------- --------- -------
+    IMPLICIT NONE
+    CHARACTER (LEN=*),               INTENT(in) :: str       ! String
+    INTEGER,                        INTENT(out) :: ibegin, & ! Start position of variable name
+                                                   inext     ! Position of character after name
+    INTEGER                                     :: j,ib,in,lstr
+    !----- -------- --------- --------- --------- --------- --------- --------- -------
+    lstr = LEN_TRIM(str)
+    IF (lstr > 0) THEN
+       DO ib=1,lstr                                          ! Search for first character in str
+          IF (str(ib:ib) /= ' ') EXIT                        ! When lstr>0 at least 1 char in str
+       END DO                        
+       DO in=ib,lstr                                         ! Search for name terminators
+          IF (SCAN(str(in:in),'+-*/^) ') > 0) EXIT
+       END DO
+    END IF
+    ibegin = ib
+    inext  = in
+  end subroutine GetVariables
+
   FUNCTION VariableIndex (str, Var, ibegin, inext) RESULT (n)
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Return index of variable at begin of string str (returns 0 if no variable found)

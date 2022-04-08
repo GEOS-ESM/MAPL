@@ -34,6 +34,7 @@ module MAPL_ExtDataConfig
          procedure :: new_ExtDataConfig_from_yaml
          procedure :: count_rules_for_item
          procedure :: get_time_range
+         procedure :: get_extra_derived_items
    end type
 
 contains
@@ -346,5 +347,63 @@ contains
       end if
       _RETURN(_SUCCESS)
    end subroutine add_new_rule
+
+   function get_extra_derived_items(this,primary_items,derived_items,rc) result(needed_vars)
+      type(StringVector) :: needed_vars
+      class(ExtDataConfig), intent(inout) :: this
+      type(StringVector), intent(in) :: primary_items
+      type(StringVector), intent(in) :: derived_items
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      type(StringVectorIterator) :: string_iter
+      type(ExtDataDerived), pointer :: derived_item
+      type(StringVector) :: variables_in_expression
+      type(StringVector) :: extra_variables_needed
+      character(len=:), pointer :: sval,derived_name
+      type(ExtDataRule), pointer :: rule
+      integer :: i
+
+      if (derived_items%size() ==0) then
+         _RETURN(_SUCCESS)
+      end if
+
+      string_iter = derived_items%begin()
+      do while(string_iter /= derived_items%end() )
+         derived_name => string_iter%get()
+         derived_item => this%derived_map%at(derived_name)
+         variables_in_expression = derived_item%get_variables_in_expression()
+         ! now we have a stringvector of the variables involved in the expression
+         ! check which of this are already in primary_items list, if any are not
+         ! then we need to createa new list of needed variables and the "derived field"
+         ! wence to coppy them 
+         do i=1,variables_in_expression%size()
+            sval => variables_in_expression%at(i)
+            if (.not.string_in_string_vector(sval,primary_items)) then
+               rule => this%rule_map%at(sval)
+               _ASSERT(associated(rule),"no rule for "//trim(sval)//" needed by "//trim(derived_name))
+               call needed_vars%push_back(sval//","//derived_name)                
+            end if
+         enddo
+         call string_iter%next()
+      enddo
+      
+      _RETURN(_SUCCESS)
+   end function
+
+   function string_in_string_vector(target_string,string_vector) result(in_vector)
+      logical :: in_vector
+      character(len=*), intent(in) :: target_string
+      type(StringVector), intent(in) :: string_vector
+
+      type(StringVectorIterator) :: iter
+
+      in_vector = .false.
+      iter = string_vector%begin()
+      do while(iter /= string_vector%end())
+         if (trim(target_string) == iter%get()) in_vector = .true.
+         call iter%next()
+      enddo
+   end function string_in_string_vector
 
 end module MAPL_ExtDataConfig

@@ -75,7 +75,6 @@ module MAPL_ExtDataTypeDef
   type DerivedExport
      character(len=ESMF_MAXSTR)     :: name
      character(len=ESMF_MAXPATHLEN) :: expression
-     logical                        :: ExtDataAlloc
      logical                        :: masking
      type(ExtDataPointerUpdate)     :: update_freq
   end type DerivedExport

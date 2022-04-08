@@ -1302,10 +1302,10 @@ CONTAINS
 
       item => self%primary%item(self%primaryOrder(i))
 
-      call lgr%debug('ExtData Run_(): READ_LOOP: variable %i0 of %i0~: %a', i, self%primary%nItems, trim(item%var))
-      call lgr%debug('   ==> file: %a', trim(item%file))
-      call lgr%debug('   ==> cyclic: %a', trim(item%cyclic))
-      call lgr%debug('   ==> isConst:: %l1', item%isConst)
+      !call lgr%debug('ExtData Run_(): READ_LOOP: variable %i0 of %i0~: %a', i, self%primary%nItems, trim(item%var))
+      !call lgr%debug('   ==> file: %a', trim(item%file))
+      !call lgr%debug('   ==> cyclic: %a', trim(item%cyclic))
+      !call lgr%debug('   ==> isConst:: %l1', item%isConst)
 
       if (item%isConst) then
          call lgr%debug('   ==> Break loop since isConst is true')
@@ -1515,7 +1515,7 @@ CONTAINS
 
       if (doUpdate(i)) then
 
-         call lgr%debug('ExtData Run_: INTERP_LOOP: interpolating between bracket times, variable: %a10, file: %a', &
+         call lgr%debug('ExtData Run_: INTERP_LOOP: interpolating between bracket times, variable: %a, file: %a', &
               & trim(item%var), trim(item%file))
         
          ! finally interpolate between bracketing times
@@ -3254,15 +3254,15 @@ CONTAINS
            nymd2=0
         end if
         
-        if (lgr%isEnabledFor(DEBUG) .and. .not. item%doInterpolate) then
-           call lgr%debug('   MAPL_ExtDataInterpField: Uninterpolated field %a set to sample L %i0.8 %i0.6', trim(item%name),  nymd1, nhms1)
-        else if (time == item%interp_time1) then
-           call lgr%debug('   MAPL_ExtDataInterpField: Interpolated field %a set to sample L %i0.8 %i0.6', trim(item%name),  nymd1, nhms1)
-        else if (time == item%interp_time2) then
-           call lgr%debug('   MAPL_ExtDataInterpField: Interpolated field %a set to sample R %i0.8 %i0.6', trim(item%name),  nymd2, nhms2)
-        else
-           call lgr%debug('   MAPL_ExtDataInterpField: Interpolated field %a between %i0.8 %i0.6 and %i0.8 %i0.6 (%f10.6 fraction)', trim(item%name), nymd1, nhms1, nymd2, nhms2, alpha)
-        end if
+        !if (lgr%isEnabledFor(DEBUG) .and. .not. item%doInterpolate) then
+           !call lgr%debug('   MAPL_ExtDataInterpField: Uninterpolated field %a set to sample L %i0.8 %i0.6', trim(item%name),  nymd1, nhms1)
+        !else if (time == item%interp_time1) then
+           !call lgr%debug('   MAPL_ExtDataInterpField: Interpolated field %a set to sample L %i0.8 %i0.6', trim(item%name),  nymd1, nhms1)
+        !else if (time == item%interp_time2) then
+           !call lgr%debug('   MAPL_ExtDataInterpField: Interpolated field %a set to sample R %i0.8 %i0.6', trim(item%name),  nymd2, nhms2)
+        !else
+           !call lgr%debug('   MAPL_ExtDataInterpField: Interpolated field %a between %i0.8 %i0.6 and %i0.8 %i0.6 (%f10.6 fraction)', trim(item%name), nymd1, nhms1, nymd2, nhms2, alpha)
+        !end if
      end if
 
      call ESMF_FieldGet(FIELD, dimCount=fieldRank,name=name, __RC__)
