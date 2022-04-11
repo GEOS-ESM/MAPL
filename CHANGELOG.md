@@ -9,13 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix issue where ACG was called when no file had changed
+- Add missing `rc=status` in `MAPL_GetResourceFromMAPL_scalar`
+
 ### Added
+- Added support for 4d variables in the coupler. Intentionally decided not to support 4d in the coupler's ReadRestart and WriteRestart to catch errors
 
 ### Changed
+
+- Cleaned up a bit of old CMake
+- Updated CircleCI config to use new orb `build` job
+- Updated `components.yaml` to match GEOSgcm v10.22.1
+  - ESMA_env v3.13.0
+  - ESMA_cmake v3.12.0
 
 ### Removed
 
 ### Deprecated
+
+## [2.19.2] - 2022-03-28
+
+### Fixed
+
+-  Provided workaround for  GNU bug when defining file metadata in cubed-sphere grid factory (similar to Issue #1433 and its solution)
+
+## [2.19.1] - 2022-03-24
+
+### Fixed
+
+- Fix a bug deallocating a pointer potentially pointing to shared memory allocated by MAPL_Shmem
 
 ## [2.19.0] - 2022-03-18
 
