@@ -95,12 +95,13 @@ contains
            if (twovar) then
               tmpstring1 = adjustl(tmpstring(1:i1-1))
               tmpstring2 = adjustl(tmpstring(i1+1:i2-1))
-              call variables_in_mask%push_back(tmpstring1)
-              call variables_in_mask%push_back(tmpstring2)
+              call variables_in_mask%push_back(trim(tmpstring1))
+              call variables_in_mask%push_back(trim(tmpstring2))
            else
               tmpstring1 = adjustl(tmpstring(1:i1-1))
-              call variables_in_mask%push_back(tmpstring1)
+              call variables_in_mask%push_back(trim(tmpstring1))
            end if
+           _RETURN(_SUCCESS)
 
         end function
    end function

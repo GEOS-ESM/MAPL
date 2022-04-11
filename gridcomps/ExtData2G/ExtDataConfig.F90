@@ -389,7 +389,7 @@ contains
       enddo
       
       _RETURN(_SUCCESS)
-   end function
+   end function get_extra_derived_items
 
    function string_in_string_vector(target_string,string_vector) result(in_vector)
       logical :: in_vector
