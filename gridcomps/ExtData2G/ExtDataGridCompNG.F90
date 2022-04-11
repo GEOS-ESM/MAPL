@@ -300,11 +300,15 @@ CONTAINS
    logical :: found_in_config
    integer :: num_primary,num_derived,num_rules
    integer :: item_type
-   type(StringVector) :: unsatisfied_imports
-   character(len=:), pointer :: current_base_name
+   type(StringVector) :: unsatisfied_imports,extra_variables_needed
+   type(StringVectorIterator) :: siter
+   character(len=:), pointer :: current_base_name,extra_var
+   character(len=:), allocatable :: primary_var_name,derived_var_name
    type(ESMF_Time), allocatable :: time_ranges(:)
    character(len=1) :: sidx
    type(ESMF_VM) :: vm
+   type(ESMF_Field) :: new_field,existing_field
+   type(ESMF_StateItem_Flag) :: state_item_type
    !class(logger), pointer :: lgr
 
 !  Get my name and set-up traceback handle
@@ -373,6 +377,7 @@ CONTAINS
 !                         ---------------------------
 !                         Parse ExtData Resource File
 !                         ---------------------------
+   self%ExtDataState = ESMF_StateCreate(Name="ExtDataNameSpace",__RC__)
    num_primary=0
    num_derived=0
    primaryitemcount=0
@@ -390,6 +395,23 @@ CONTAINS
          primaryitemcount=primaryitemcount+config_yaml%count_rules_for_item(trim(itemnames(i)),_RC)
       end if
    enddo
+   extra_variables_needed = config_yaml%get_extra_derived_items(self%primary%import_names,self%derived%import_names,_RC)
+   siter = extra_variables_needed%begin() 
+   do while(siter/=extra_variables_needed%end())
+      extra_var => siter%get()
+      idx = index(extra_var,",")
+      primary_var_name = extra_var(:idx-1) 
+      derived_var_name = extra_var(idx+1:)
+      call self%primary%import_names%push_back(primary_var_name)
+      primaryItemCount=primaryItemCount+config_yaml%count_rules_for_item(primary_var_name,_RC)
+      call ESMF_StateGet(self%ExtDataState,primary_var_name,state_item_type,_RC)
+      if (state_item_type == ESMF_STATEITEM_NOTFOUND) then
+         call ESMF_StateGet(export,derived_var_name,existing_field,_RC)
+         new_field = MAPL_FieldCreate(existing_field,primary_var_name,doCOpy=.true.,_RC)
+         call MAPL_StateAdd(self%ExtDataState,new_field,__RC__)
+      end if
+      call siter%next()
+   enddo 
    call ESMF_VMBarrier(vm,_RC)
    if (unsatisfied_imports%size() > 0) then
       do i=1,unsatisfied_imports%size()
@@ -403,7 +425,6 @@ CONTAINS
    self%primary%nitems = PrimaryItemCount
    self%derived%nitems = DerivedItemCount
 
-   self%ExtDataState = ESMF_StateCreate(Name="ExtDataNameSpace",__RC__)
    num_primary=0
    num_derived=0 
    do i=1,self%primary%import_names%size()
@@ -428,12 +449,15 @@ CONTAINS
          num_primary=num_primary+1
          call config_yaml%fillin_primary(current_base_name,current_base_name,self%primary%item(num_primary),time,clock,__RC__)
       end if
-      call ESMF_StateGet(Export,current_base_name,field,__RC__)
-      call MAPL_StateAdd(self%ExtDataState,field,__RC__)
-      item_type = config_yaml%get_item_type(current_base_name)
-      if (item_type == Primary_Type_Vector_comp1) then
-         call ESMF_StateGet(Export,self%primary%item(num_primary)%vcomp2,field,_RC)
-         call MAPL_StateAdd(self%ExtDataState,field,_RC)
+      call ESMF_StateGet(Export,current_base_name,state_item_type,_RC)
+      if (state_item_type /= ESMF_STATEITEM_NOTFOUND) then
+         call ESMF_StateGet(Export,current_base_name,field,__RC__)
+         call MAPL_StateAdd(self%ExtDataState,field,__RC__)
+         item_type = config_yaml%get_item_type(current_base_name)
+         if (item_type == Primary_Type_Vector_comp1) then
+            call ESMF_StateGet(Export,self%primary%item(num_primary)%vcomp2,field,_RC)
+            call MAPL_StateAdd(self%ExtDataState,field,_RC)
+         end if
       end if
    enddo
    do i=1,self%derived%import_names%size()
