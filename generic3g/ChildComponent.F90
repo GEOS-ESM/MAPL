@@ -4,7 +4,7 @@ module mapl3g_ChildComponent
    use :: esmf, only: ESMF_Clock
    implicit none
    private
-   
+
    public :: ChildComponent
 
    ! This is a _struct_ not a class: components are intentionally
@@ -14,6 +14,7 @@ module mapl3g_ChildComponent
       type(ESMF_State)    :: import_state
       type(ESMF_State)    :: export_state
       type(ESMF_State)    :: internal_state
+      type(CouplerComponentVector) :: couplers
    contains
       procedure, private :: run_self
       generic :: run => run_self

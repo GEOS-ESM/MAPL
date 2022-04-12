@@ -16,8 +16,8 @@ module mapl3g_GenericCouplerComponent
 
    type :: GenericCouplerComponent
       type(ESMF_CplComp) :: cplcomp
-      type(ESMF_State) :: importState
-      type(ESMF_State) :: exportState
+      type(ESMF_State) :: importState ! export of child I
+      type(ESMF_State) :: exportState ! import of child J
    contains
       procedure, private :: run_self
       generic :: run => run_self

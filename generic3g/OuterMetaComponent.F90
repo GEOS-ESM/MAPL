@@ -28,7 +28,7 @@ module mapl3g_OuterMetaComponent
    public :: free_outer_meta
 
    type :: GenericConfig
-      type(ESMF_Config), allocatable :: esmf_cfg
+      type(ESMF_Config),   allocatable :: esmf_cfg
       type(Configuration), allocatable :: yaml_config
    end type GenericConfig
 
@@ -39,32 +39,35 @@ module mapl3g_OuterMetaComponent
       type(ESMF_GridComp)                         :: self_gc
       type(ESMF_GridComp)                         :: user_gc
       type(GenericConfig)                         :: config
-      class(AbstractUserSetServices), allocatable :: user_setservices
+      class(AbstractUserSetServices), allocatable :: user_setServices
       type(MethodPhasesMap)                       :: phases_map
       type(OuterMetaComponent), pointer           :: parent_private_state
 !!$      type(ComponentSpec)                         :: component_spec
 
       type(ChildComponentMap)                     :: children
       type(InnerMetaComponent), allocatable       :: inner_meta
-      type(CouplerComponentVector)                :: couplers
+         
 
-      class(Logger), pointer :: lgr  ! "MAPL.Generic"
+      class(Logger), pointer :: lgr  ! "MAPL.Generic" // name
 
    contains
 
       procedure :: set_esmf_config
       procedure :: set_yaml_config
       generic   :: set_config => set_esmf_config, set_yaml_config
+
       procedure :: get_phases
 !!$      procedure :: get_gridcomp
 !!$      procedure :: get_user_gridcomp
-      procedure :: set_user_setservices
+      procedure :: set_user_setServices
 
       ! Generic methods
-      procedure :: setservices
+      procedure :: setServices
       procedure :: initialize
       procedure :: run
       procedure :: finalize
+      procedure :: read_restart
+      procedure :: write_restart
 
       procedure, private :: add_child_by_name
       procedure, private :: get_child_by_name
@@ -243,7 +246,7 @@ contains
    end function get_phases
 
    ! Reexamine the names of the next 2 procedures when there is a
-   ! clearer use case.  Might only be needd from within inner meta.
+   ! clearer use case.  Might only be needed from within inner meta.
 !!$   type(ESMF_GridComp) function get_gridcomp(this) result(gridcomp)
 !!$      class(OuterMetaComponent), intent(in) :: this
 !!$
@@ -321,6 +324,8 @@ contains
       call ESMF_GridCompRun(this%self_gc, importState=importState, exportState=exportState, &
            clock=clock, phase=phase_idx, userRC=userRC, _RC)
       _VERIFY(userRC)
+
+      call child couplers
 
 
       _RETURN(ESMF_SUCCESS)

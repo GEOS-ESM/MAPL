@@ -33,7 +33,6 @@ module mapl3g_Generic
    public :: MAPL_GetOrbit
    public :: MAPL_GetCoordinates
    public :: MAPL_GetLayout
-   public :: MAPL_
 
    interface MAPL_GetInternalState
       module procedure :: get_internal_state

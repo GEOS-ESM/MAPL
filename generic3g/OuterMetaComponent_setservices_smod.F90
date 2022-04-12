@@ -58,6 +58,7 @@ contains
       end associate
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine set_entry_point
 
 

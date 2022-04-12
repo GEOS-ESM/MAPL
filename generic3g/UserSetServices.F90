@@ -45,7 +45,7 @@ module mapl3g_UserSetServices
    ! consisting of a procuder conforming to the I_SetServices
    ! interface.
    type, extends(AbstractUserSetServices) :: ProcSetServices
-      procedure(I_SetServices), nopass, pointer :: proc_setservices
+      procedure(I_SetServices), nopass, pointer :: userRoutine
    contains
       procedure :: run_setservices => run_proc_setservices
    end type ProcSetServices
@@ -69,11 +69,11 @@ contains
    !----------------------------------
    ! Direct procedure support
 
-   function new_proc_setservices(setservices) result(proc_setservices)
+   function new_proc_setservices(userRoutine) result(proc_setservices)
       type(ProcSetServices) :: proc_setservices
       procedure(I_SetServices) :: setservices
 
-      proc_setservices%proc_setservices => setservices
+      proc_setservices%userRoutine => userRoutine
    end function new_proc_setservices
 
    subroutine run_proc_setservices(this, gridcomp, rc)
@@ -83,7 +83,7 @@ contains
 
       integer :: status, userRC
 
-      call ESMF_GridCompSetServices(gridcomp, this%proc_setservices, userRC=userRC, _RC)
+      call ESMF_GridCompSetServices(gridcomp, this%userRoutine, userRC=userRC, _RC)
       _VERIFY(userRC)
 
       _RETURN(ESMF_SUCCESS)
@@ -110,7 +110,8 @@ contains
 
       integer :: status, userRC
 
-      call ESMF_GridCompSetServices(gridcomp, sharedObj=this%sharedObj, userRoutine=this%userRoutine, userRC=userRC,_RC)
+      call ESMF_GridCompSetServices(gridcomp, sharedObj=this%sharedObj, &
+           userRoutine=this%userRoutine, userRC=userRC, _RC)
       _VERIFY(userRC)
 
       _RETURN(ESMF_SUCCESS)

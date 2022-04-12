@@ -1,3 +1,6 @@
+! The interfaces here are mandated by ESMF.  Unfortunately they do
+! actually provide a named Fortran interface to use.
+
 module mapl3g_ESMF_Interfaces
    implicit none
    private
@@ -13,7 +16,7 @@ module mapl3g_ESMF_Interfaces
       subroutine I_SetServices(gridcomp, rc)
          use ESMF, only: ESMF_GridComp
          implicit none
-         type(ESMF_GridComp) :: gridcomp
+         type(ESMF_GridComp)  :: gridcomp
          integer, intent(out) :: rc
       end subroutine I_SetServices
 
@@ -32,7 +35,7 @@ module mapl3g_ESMF_Interfaces
       subroutine I_CplSetServices(cplcomp, rc)
          use ESMF, only: ESMF_CplComp
          implicit none
-         type(ESMF_CplComp) :: cplcomp
+         type(ESMF_CplComp)   :: cplcomp
          integer, intent(out) :: rc
       end subroutine I_CplSetServices
 

@@ -23,7 +23,8 @@ module mapl3g_GenericGridComp
 
    public :: setServices
    public :: create_grid_comp
-   
+!!$   public :: MAPL_GridCompCreate
+
    interface create_grid_comp
       module procedure create_grid_comp_traditional
       module procedure create_grid_comp_advanced
@@ -143,7 +144,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       
       outer_meta => get_outer_meta(gc, _RC)
-!!$      call outer_meta%initialize(importState, exportState, clock, _RC)
+      call outer_meta%initialize(importState, exportState, clock, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine initialize
@@ -177,7 +178,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta(gc, _RC)
-!!$      call outer_meta%finalize(importState, exportState, clock, _RC)
+      call outer_meta%finalize(importState, exportState, clock, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine finalize
@@ -194,7 +195,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta(gc, _RC)
-!!$      call outer_meta%read_readrestart(importState, exportState, clock, _RC)
+      call outer_meta%read_restart(importState, exportState, clock, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine read_restart
@@ -210,7 +211,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta(gc, _RC)
-!!$      call outer_meta%write_restart(importState, exportState, clock, _RC)
+      call outer_meta%write_restart(importState, exportState, clock, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine write_restart
