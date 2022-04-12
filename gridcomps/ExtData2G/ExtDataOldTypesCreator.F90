@@ -186,11 +186,12 @@ module MAPL_ExtDataOldTypesCreator
 
       _UNUSED_DUMMY(unusable)
       rule => this%derived_map%at(trim(item_name))
+  
       derived_item%name = trim(item_name)
       derived_item%expression = rule%expression
-      time_sample => this%sample_map%at(rule%sample_key)
-
-      if(.not.associated(time_sample)) then
+      if (allocated(rule%sample_key)) then
+         time_sample => this%sample_map%at(rule%sample_key)
+      else
         call default_time_sample%set_defaults()
         time_sample=>default_time_sample
       end if
