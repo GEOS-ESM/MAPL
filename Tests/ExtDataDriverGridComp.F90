@@ -615,11 +615,11 @@ contains
           call cap%run_one_step(status)
           _VERIFY(status)
        enddo
+       call ESMF_ClockSet(cap%clock,direction=ESMF_DIRECTION_REVERSE,_RC)
        do n=1,cap%nsteps
-          call ESMF_ClockSet(cap%clock,direction=ESMF_DIRECTION_REVERSE,_RC)
           call ESMF_ClockAdvance(cap%clock,rc=status)
-          call ESMF_ClockSet(cap%clock,direction=ESMF_DIRECTION_FORWARD,_RC)
        enddo
+       call ESMF_ClockSet(cap%clock,direction=ESMF_DIRECTION_FORWARD,_RC)
        do n=1,cap%nsteps
           call ESMF_ClockAdvance(cap%clock,rc=status)
           _VERIFY(status)
