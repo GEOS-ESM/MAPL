@@ -7019,16 +7019,12 @@ contains
 
                   _VERIFY(status)
                   SATISFIED = .true.
-                  cycle
+                  STAT = ior(STAT,MAPL_CplSATISFIED)
+                  call MAPL_VarSpecSet(IM_SPECS(K), STAT=STAT, RC=status)
+                  _VERIFY(status)
+                  exit
                end if
             end do
-
-            if (SATISFIED) then
-               STAT = ior(STAT,MAPL_CplSATISFIED)
-               call MAPL_VarSpecSet(IM_SPECS(K), STAT=STAT, RC=status)
-               _VERIFY(status)
-            end if
-
 
             do J=1,NC
                gridcomp => STATE%get_child_gridcomp(J)
@@ -7157,6 +7153,7 @@ contains
 
                   STATE%CCcreated(J,I) = .true.
 
+                  call ESMF_AttributeSet(CCS(J,I), name='ClockYetToAdvance', value=.true., _RC)
                   call WRITE_PARALLEL("Coupler needed for "//trim(SRCNAME)// ' and ' //&
                        trim(DSTNAME))
                   call ESMF_CplCompSetServices (CCS(J,I), GenericCplSetServices, RC=status )

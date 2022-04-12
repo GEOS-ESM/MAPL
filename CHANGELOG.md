@@ -17,7 +17,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.18.3] - 2022-03-15
+
+### Fixed
+
+- Fixed bug in 2.18.2 release when computing lats in degrees lat-lon grid factory
+- Fixed GNU bug when defining file metadata in lat-lon grid factory
+
+## [2.18.2] - 2022-03-11
+
+### Fixed
+
+- Save copy of original lat/lons in degrees when creating lat-lon grid factory to use in file metadata to eliminate floating point conversion noise
+
+## [2.18.1] - 2022-03-07
+
+### Fixed
+
+- Fix build bug with NAG in `cub2latlon_regridder.F90`
+- Fixes DO_NOT_CONNECT errors when calling MAPL_TerminateAnyImport
+- Fixed the alarms in the couplers to account if they are called before ESMF_ClockAdvance is called
+- Reverted generic/VarSpec.F90 to hash b02e8ff (fix for #1410)
+
+## [2.18.0] - 2022-02-23
+
+### Fixed
+
+- Fixed issue in `CMakePresets.json` where Ninja presets were broken
+- Fixed io profiler report format
+- Fixed issue on macOS where enabling memutils caused crash
+
+### Added
+
+- Option to force integer time variable in History output via the History.rc file (IntegerTime: .true./.false. default .false.) rather than the default float time variable if allowed by frequency of output
+- Added mapl_StubComponent to MAPL package
+- Updates to CircleCI
+  - Added GEOSadas CI ifort build test
+  - Add "like-UFS" build to CI. This is no FLAP and pFlogger, and static build
+
+### Changed
+
+- Changed the naming convention for the split name(s): we now take the entries from the field alias(es) without appending any digits. Also allowing the user to specify more entries in the alias, so that HISTORY.rc does not need to change when running GOCART with more wavelengths
+- A small performance improvement. cycle => exit in MAPL_Generic.F90
+- Made history global metadata configurable. This can be done in two ways
+  1. Globally for all collections by setting `COMMENT:`, `CONTACT:`, `CONVENTIONS:`, `INSTITUTION:`, `REFERENCES:`, and `SOURCE:` at the top of `HISTORY.rc` like `EXPDSC:`
+  2. On a per-collection bases by setting `collection.comment:`, `collection.contact:`, `collection.conventions:`, `collection.institution:`, `collection.references:`, and `collection.source:`
+  - The default settings for these are to match that of MAPL 2.17.0
+- Updated `components.yaml`. These changes are to support using Spack to build MAPL
+  - ESMA_cmake v3.10.0 (add `FindESMF.cmake` from NOAA-EMC)
+  - ecbuild geos/v1.2.0 (updat `FindNetCDF.cmake` to that from NOAA-EMC)
+
 ## [2.17.2] - 2022-02-16
+
+### Fixed
 
 - Fixes for Global Attributes to match FP 5.27
   - Changed `lev` variable `standard_name` to `model_layers`
