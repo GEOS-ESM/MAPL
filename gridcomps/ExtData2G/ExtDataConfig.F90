@@ -40,23 +40,23 @@ contains
       integer, optional, intent(out) :: rc
 
       type(Parser)              :: p
-      type(Configuration) :: config, subcfg, ds_config, rule_config, derived_config, sample_config
-      type(ConfigurationIterator) :: iter
-      character(len=:), allocatable :: key
+      class(YAML_Node), allocatable :: config
+      class(YAML_Node), pointer :: subcfg, ds_config, rule_config, derived_config, sample_config
+      class(NodeIterator), allocatable :: iter
+      character(len=:), pointer :: key
       type(ExtDataFileStream) :: ds
       type(ExtDataDerived) :: derived
       type(ExtDataRule) :: rule,ucomp,vcomp
       type(ExtDataTimeSample) :: ts
       integer :: status, semi_pos
       character(len=:), allocatable :: uname,vname
-      type(FileStream) :: fstream
 
       type(ExtDataFileStream), pointer :: temp_ds
       type(ExtDataTimeSample), pointer :: temp_ts
       type(ExtDataRule), pointer :: temp_rule
       type(ExtDataDerived), pointer :: temp_derived
 
-      type(Configuration) :: subconfigs
+      class(YAML_Node), pointer :: subconfigs
       character(len=:), allocatable :: sub_file
       integer :: i
 
@@ -65,57 +65,53 @@ contains
       _UNUSED_DUMMY(unusable)
 
       p = Parser('core')
-      fstream=FileStream(config_file)
-      config = p%load(fstream)
-      call fstream%close()
+      config = p%load(config_file)
 
       if (config%has("subconfigs")) then 
-         subconfigs = config%at("subconfigs")
+         subconfigs => config%at("subconfigs")
          _ASSERT(subconfigs%is_sequence(),'subconfigs is not a sequence')
-         do i=1,subconfigs%size()
-           sub_file = subconfigs%of(i)
-            call new_ExtDataConfig_from_yaml(ext_config,sub_file,current_time,rc=status)
-            _VERIFY(status)
+         do i = 1, subconfigs%size()
+            call subconfigs%get(sub_file, i, _RC)
+            call new_ExtDataConfig_from_yaml(ext_config,sub_file,current_time,_RC)
          end do
       end if
          
       if (config%has("Samplings")) then
-         sample_config = config%of("Samplings")
+         sample_config => config%of("Samplings")
          iter = sample_config%begin()
          do while (iter /= sample_config%end())
-            call iter%get_key(key)
+            key => to_string(iter%first(), _RC)
             temp_ts => ext_config%sample_map%at(key)
             _ASSERT(.not.associated(temp_ts),"defined duplicate named sample key")
-            call iter%get_value(subcfg)
-            ts = ExtDataTimeSample(subcfg,_RC)
-            _VERIFY(status)
-            call ext_config%sample_map%insert(trim(key),ts)
+            subcfg => iter%second()
+            ts = ExtDataTimeSample(subcfg, _RC)
+            call ext_config%sample_map%insert(trim(key), ts)
             call iter%next()
          enddo
       end if
 
       if (config%has("Collections")) then
-         ds_config = config%of("Collections")
+         ds_config => config%of("Collections")
          iter = ds_config%begin()
          do while (iter /= ds_config%end())
-            call iter%get_key(key)
+            key => to_string(iter%first(), _RC)
             temp_ds => ext_config%file_stream_map%at(key)
             _ASSERT(.not.associated(temp_ds),"defined duplicate named collection")
-            call iter%get_value(subcfg)
-            ds = ExtDataFileStream(subcfg,current_time,_RC)
+            subcfg => iter%second()
+            ds = ExtDataFileStream(subcfg,current_time, _RC)
             call ext_config%file_stream_map%insert(trim(key),ds)
             call iter%next()
          enddo
       end if
 
       if (config%has("Exports")) then
-         rule_config = config%of("Exports")
+         rule_config => config%of("Exports")
          iter = rule_config%begin()
          do while (iter /= rule_config%end())
             call rule%set_defaults(rc=status)
             _VERIFY(status)
-            call iter%get_key(key)
-            call iter%get_value(subcfg)
+            key => to_string(iter%first(), _RC)
+            subcfg => iter%second()
             rule = ExtDataRule(subcfg,ext_config%sample_map,key,_RC)
             semi_pos = index(key,";")
             if (semi_pos > 0) then
@@ -138,13 +134,13 @@ contains
       end if
 
       if (config%has("Derived")) then
-         derived_config = config%at("Derived")
+         derived_config => config%at("Derived")
          iter = derived_config%begin()
          do while (iter /= derived_config%end())
             call derived%set_defaults(rc=status)
             _VERIFY(status)
-            call iter%get_key(key)
-            call iter%get_value(subcfg)
+            key => to_string(iter%first(), _RC)
+            subcfg => iter%second()
             derived = ExtDataDerived(subcfg,_RC)
             temp_derived => ext_config%derived_map%at(trim(uname))
              _ASSERT(.not.associated(temp_derived),"duplicated derived entry key")
