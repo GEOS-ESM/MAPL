@@ -200,6 +200,8 @@ module MAPL_ExtDataOldTypesCreator
       derived_item%masking=.false.
       if (index(derived_item%expression,"mask") /= 0 ) then
          derived_item%masking=.true.
+         allocate(derived_item%mask_definition)
+         derived_item%mask_definition = ExtDataMask(derived_item%expression,_RC)
       end if
 
       _RETURN(_SUCCESS)
