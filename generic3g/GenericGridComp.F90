@@ -97,10 +97,10 @@ contains
 
    type(ESMF_GridComp) function create_grid_comp_advanced( &
         name, config, unusable, petlist, rc) result(gc)
-      use :: yafyaml, only: Configuration
+      use :: yafyaml, only: YAML_Node
 
       character(len=*), intent(in) :: name
-      type(Configuration), intent(inout) :: config
+      class(YAML_Node), intent(inout) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: petlist(:)
       integer, optional, intent(out) :: rc

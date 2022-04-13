@@ -17,7 +17,7 @@ module mapl3g_OuterMetaComponent
    use :: esmf, only: ESMF_Clock
    use :: esmf, only: ESMF_State
    use :: esmf, only: ESMF_SUCCESS
-   use :: yaFyaml, only: Configuration
+   use :: yaFyaml, only: YAML_Node
    use :: pflogger, only: logging, Logger
    implicit none
    private
@@ -29,7 +29,7 @@ module mapl3g_OuterMetaComponent
 
    type :: GenericConfig
       type(ESMF_Config),   allocatable :: esmf_cfg
-      type(Configuration), allocatable :: yaml_config
+      class(YAML_Node), allocatable :: yaml_config
    end type GenericConfig
 
 
@@ -117,7 +117,7 @@ contains
    subroutine add_child_by_name(this, child_name, config, rc)
       class(OuterMetaComponent), intent(inout) :: this
       character(len=*), intent(in) :: child_name
-      type(Configuration), intent(in) :: config
+      class(YAML_Node), intent(in) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -271,7 +271,7 @@ contains
 
    subroutine set_yaml_config(this, config)
       class(OuterMetaComponent), intent(inout) :: this
-      type(Configuration), intent(in) :: config
+      class(YAML_Node), intent(in) :: config
 
       this%config%yaml_config = config
 
@@ -325,7 +325,7 @@ contains
            clock=clock, phase=phase_idx, userRC=userRC, _RC)
       _VERIFY(userRC)
 
-      call child couplers
+!!$      call child couplers
 
 
       _RETURN(ESMF_SUCCESS)
