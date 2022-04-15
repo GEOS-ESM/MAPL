@@ -184,7 +184,7 @@ CONTAINS
           isConformal = CheckIfConformal(field,state_field,rc=status)
           _VERIFY(STATUS)
           if (.not.isConformal) then
-             _ASSERT(.FALSE.,'needs informative message')
+             _FAIL('needs informative message')
           end if
        end if
     end do
@@ -779,22 +779,22 @@ CONTAINS
        IF (c == '-' .OR. c == '+') THEN                      ! Check for leading - or +
           j = j+1
           IF (j > lFunc) THEN 
-             _ASSERT(.FALSE.,'Missing operand in '//trim(funcstr))
+             _FAIL('Missing operand in '//trim(funcstr))
           END IF
           c = Func(j:j)
           IF (ANY(c == Ops)) THEN
-             _ASSERT(.FALSE.,'Multiple operators in '//trim(funcstr))
+             _FAIL('Multiple operators in '//trim(funcstr))
           END IF
        END IF
        n = MathFunctionIndex (Func(j:))
        IF (n > 0) THEN                                       ! Check for math function
           j = j+LEN_TRIM(Funcs(n))
           IF (j > lFunc) THEN 
-             _ASSERT(.FALSE.,'Missing function argument in '//trim(funcstr))
+             _FAIL('Missing function argument in '//trim(funcstr))
           END IF
           c = Func(j:j)
           IF (c /= '(') THEN 
-             _ASSERT(.FALSE.,'Missing opening parenthesis in '//trim(funcstr))
+             _FAIL('Missing opening parenthesis in '//trim(funcstr))
           END IF
        END IF
        IF (c == '(') THEN                                    ! Check for opening parenthesis
@@ -805,7 +805,7 @@ CONTAINS
        IF (SCAN(c,'0123456789.') > 0) THEN                   ! Check for number
           r = RealNum (Func(j:),ib,in,err)
           IF (err) THEN
-             _ASSERT(.FALSE.,'Invalid number format: '//Func(j+ib-1:j+in-2))
+             _FAIL('Invalid number format: '//Func(j+ib-1:j+in-2))
           END IF
           j = j+in-1
           IF (j > lFunc) EXIT
@@ -827,10 +827,10 @@ CONTAINS
        DO WHILE (c == ')')                                   ! Check for closing parenthesis
           ParCnt = ParCnt-1
           IF (ParCnt < 0) THEN
-             _ASSERT(.FALSE.,'Mismatched parenthesis in '//trim(funcstr))
+             _FAIL('Mismatched parenthesis in '//trim(funcstr))
           END IF
           IF (Func(j-1:j-1) == '(') THEN
-             _ASSERT(.FALSE.,'Empty parentheses in '//trim(funcstr))
+             _FAIL('Empty parentheses in '//trim(funcstr))
           END IF
           j = j+1
           IF (j > lFunc) EXIT
@@ -842,13 +842,13 @@ CONTAINS
        IF (j > lFunc) EXIT
        IF (ANY(c == Ops)) THEN                               ! Check for multiple operators
           IF (j+1 > lFunc) THEN
-             _ASSERT(.FALSE.,'needs informative message')
+             _FAIL('needs informative message')
           END IF
           IF (ANY(Func(j+1:j+1) == Ops)) THEN
-             _ASSERT(.FALSE.,'Multiple operators in '//trim(funcstr))
+             _FAIL('Multiple operators in '//trim(funcstr))
           END IF
        ELSE                                                  ! Check for next operand
-          _ASSERT(.FALSE.,'Missing operator in '//trim(funcstr))
+          _FAIL('Missing operator in '//trim(funcstr))
        END IF
        !-- -------- --------- --------- --------- --------- --------- --------- -------
        ! Now, we have an operand and an operator: the next loop will check for another 
@@ -857,7 +857,7 @@ CONTAINS
        j = j+1
     END DO step
     IF (ParCnt > 0) THEN
-       _ASSERT(.FALSE.,'Missing ) '//trim(funcstr))
+       _FAIL('Missing ) '//trim(funcstr))
     END IF
     DEALLOCATE(ipos)
     _RETURN(ESMF_SUCCESS)
@@ -901,22 +901,22 @@ CONTAINS
        IF (c == '-' .OR. c == '+') THEN                      ! Check for leading - or +
           j = j+1
           IF (j > lFunc) THEN 
-             _ASSERT(.FALSE.,'Missing operand in '//trim(funcstr))
+             _FAIL('Missing operand in '//trim(funcstr))
           END IF
           c = Func(j:j)
           IF (ANY(c == Ops)) THEN
-             _ASSERT(.FALSE.,'Multiple operators in '//trim(funcstr))
+             _FAIL('Multiple operators in '//trim(funcstr))
           END IF
        END IF
        n = MathFunctionIndex (Func(j:))
        IF (n > 0) THEN                                       ! Check for math function
           j = j+LEN_TRIM(Funcs(n))
           IF (j > lFunc) THEN 
-             _ASSERT(.FALSE.,'Missing function argument in '//trim(funcStr))
+             _FAIL('Missing function argument in '//trim(funcStr))
           END IF
           c = Func(j:j)
           IF (c /= '(') THEN 
-             _ASSERT(.FALSE.,'Missing opening parenthesis in '//trim(funcstr))
+             _FAIL('Missing opening parenthesis in '//trim(funcstr))
           END IF
        END IF
        IF (c == '(') THEN                                    ! Check for opening parenthesis
@@ -927,7 +927,7 @@ CONTAINS
        IF (SCAN(c,'0123456789.') > 0) THEN                   ! Check for number
           r = RealNum (Func(j:),ib,in,err)
           IF (err) THEN
-             _ASSERT(.FALSE.,'Invalid number format:  '//Func(j+ib-1:j+in-2))
+             _FAIL('Invalid number format:  '//Func(j+ib-1:j+in-2))
           END IF
           j = j+in-1
           IF (j > lFunc) EXIT
@@ -945,7 +945,7 @@ CONTAINS
                 IF (present(ExtVar)) then
                    ExtVar = trim(ExtVar)//Func(j+ib-1:j+in-2)//","
                 ELSE
-                   _ASSERT(.FALSE.,'Invalid element: '//Func(j+ib-1:j+in-2))
+                   _FAIL('Invalid element: '//Func(j+ib-1:j+in-2))
                 ENDIF
              END IF
              j = j+in-1
@@ -956,10 +956,10 @@ CONTAINS
        DO WHILE (c == ')')                                   ! Check for closing parenthesis
           ParCnt = ParCnt-1
           IF (ParCnt < 0) THEN
-             _ASSERT(.FALSE.,'Mismatched parenthesis in '//trim(funcStr))
+             _FAIL('Mismatched parenthesis in '//trim(funcStr))
           END IF
           IF (Func(j-1:j-1) == '(') THEN
-             _ASSERT(.FALSE.,'Empty paraentheses '//trim(funcstr))
+             _FAIL('Empty paraentheses '//trim(funcstr))
           END IF
           j = j+1
           IF (j > lFunc) EXIT
@@ -971,13 +971,13 @@ CONTAINS
        IF (j > lFunc) EXIT
        IF (ANY(c == Ops)) THEN                               ! Check for multiple operators
           IF (j+1 > lFunc) THEN
-             _ASSERT(.FALSE.,'needs informative message')
+             _FAIL('needs informative message')
           END IF
           IF (ANY(Func(j+1:j+1) == Ops)) THEN
-             _ASSERT(.FALSE.,'Multiple operatos in '//trim(Funcstr))
+             _FAIL('Multiple operatos in '//trim(Funcstr))
           END IF
        ELSE                                                  ! Check for next operand
-          _ASSERT(.FALSE.,'Missing operator in '//trim(funcstr))
+          _FAIL('Missing operator in '//trim(funcstr))
        END IF
        !-- -------- --------- --------- --------- --------- --------- --------- -------
        ! Now, we have an operand and an operator: the next loop will check for another 
@@ -986,7 +986,7 @@ CONTAINS
        j = j+1
     END DO step
     IF (ParCnt > 0) THEN
-       _ASSERT(.FALSE.,'Missing ) in '//trim(funcstr))
+       _FAIL('Missing ) in '//trim(funcstr))
     END IF
     DEALLOCATE(ipos)
     _RETURN(ESMF_SUCCESS)
