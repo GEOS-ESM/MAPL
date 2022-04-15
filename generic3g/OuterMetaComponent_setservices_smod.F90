@@ -2,7 +2,9 @@
 
 submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    use esmf, only: ESMF_GridCompSetEntryPoint
+   use esmf, only: ESMF_GridCompCreate
    use esmf, only: ESMF_Method_Flag
+   use esmf, only: ESMF_METHOD_RUN
    use gFTL2_StringVector
    use mapl3g_ESMF_Interfaces, only: I_Run
    ! Kludge to work around Intel 2021 namespace bug that exposes
@@ -18,7 +20,7 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-!!$      
+
 !!$      call before(this, _RC)
 !!$
 !!$      if (this%has_yaml_config()) then
@@ -26,13 +28,13 @@ contains
 !!$           call this%set_component_spec(build_component_spec(config, _RC))
 !!$         end associate
 !!$      end if
-!!$
-!!$      
-!!$      user_gc = create_user_gridcomp(this, _RC)
-!!$      call this%run_user_setservices(user_gc, _RC)
-!!$
+
+      
+      this%user_gc = create_user_gridcomp(this, _RC)
+      call this%user_setservices%run_setservices(this%user_gc, _RC)
+
 !!$      call set_outer_gc_entry_points(this, _RC)
-!!$
+
 !!$      call <messy stuff>
 !!$
 !!$      ...
@@ -40,20 +42,35 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine SetServices
 
+   function create_user_gridcomp(this, unusable, rc) result(user_gc)
+      type(ESMF_GridComp) :: user_gc
+      class(OuterMetaComponent), intent(in) :: this
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
 
-   subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
+      integer :: status
+      
+      user_gc = ESMF_GridCompCreate(_RC)
+      call attach_inner_meta(user_gc, this%self_gc, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end function create_user_gridcomp
+
+
+   module subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_Method_Flag), intent(in) :: method_flag
       procedure(I_Run) :: userProcedure
       class(KE), optional, intent(in) :: unusable
-      character(len=*), intent(in) :: phase_name
+      character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) ::rc
 
       integer :: status
 
       call add_phase(this%phases_map, method_flag=method_flag, phase_name=phase_name, _RC)
 
-      associate(phase_idx => get_phase_index(this%phases_map%of(method_flag), phase_name))
+      associate(phase_idx => get_phase_index(this%phases_map%of(method_flag), phase_name=phase_name))
         call ESMF_GridCompSetEntryPoint(this%user_gc, method_flag, userProcedure, phase=phase_idx, _RC)
       end associate
 

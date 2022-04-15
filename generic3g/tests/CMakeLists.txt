@@ -1,5 +1,7 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL.generic3g/tests")
 
+add_library(scratchpad scratchpad.F90)
+
 add_subdirectory(simple_leaf_gridcomp)
 
 set (test_srcs
@@ -12,12 +14,14 @@ set (test_srcs
 
 add_pfunit_ctest(MAPL.generic3g.tests
                 TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit
+                LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit scratchpad
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
 		OTHER_SOURCES MockUserGridComp.F90
                 MAX_PES 4
                 )
 set_target_properties(MAPL.generic3g.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+
+set_property(TEST MAPL.generic3g.tests PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}/simple_leaf_gridcomp")
 
 add_dependencies(build-tests MAPL.generic3g.tests)

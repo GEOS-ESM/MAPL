@@ -16,6 +16,8 @@ set(srcs
   OuterMetaComponent_setservices_smod.F90
   GenericGridComp.F90
 
+  MAPL_Generic.F90
+
   # ComponentSpecBuilder.F90
   )
 

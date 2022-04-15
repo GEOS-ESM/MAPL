@@ -71,7 +71,7 @@ contains
 
    function new_proc_setservices(userRoutine) result(proc_setservices)
       type(ProcSetServices) :: proc_setservices
-      procedure(I_SetServices) :: setservices
+      procedure(I_SetServices) :: userRoutine
 
       proc_setservices%userRoutine => userRoutine
    end function new_proc_setservices
@@ -94,6 +94,7 @@ contains
    
    ! Argument names correspond to ESMF arguments.
    function new_dso_setservices(sharedObj, userRoutine) result(dso_setservices)
+      use mapl_DSO_Utilities
       type(DSOSetServices) :: dso_setservices
       character(len=*), intent(in) :: sharedObj
       character(len=*), intent(in) :: userRoutine
@@ -104,15 +105,20 @@ contains
    end function new_dso_setservices
 
    subroutine run_dso_setservices(this, gridcomp, rc)
+      use mapl_DSO_Utilities
       class(DSOSetservices), intent(in) :: this
       type(ESMF_GridComp) :: GridComp
       integer, intent(out) :: rc
 
       integer :: status, userRC
+      logical :: found
 
-      call ESMF_GridCompSetServices(gridcomp, sharedObj=this%sharedObj, &
-           userRoutine=this%userRoutine, userRC=userRC, _RC)
+      _ASSERT(is_supported_dso_name(this%sharedObj), 'unsupported dso name:: <'//this%sharedObj//'>')
+      call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(this%sharedObj), &
+           userRoutine=this%userRoutine, userRoutinefound=found, userRC=userRC, rc=status)
+
       _VERIFY(userRC)
+      _VERIFY(rc)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run_dso_setservices

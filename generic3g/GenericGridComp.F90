@@ -28,7 +28,9 @@ module mapl3g_GenericGridComp
    interface create_grid_comp
       module procedure create_grid_comp_traditional
       module procedure create_grid_comp_advanced
-   end interface
+   end interface create_grid_comp
+
+   public :: initialize
 
 contains
 
@@ -59,10 +61,10 @@ contains
            end do
          end associate
 
-         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE,   initialize,    _RC)
-         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE,     finalize,      _RC)
-         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_READRESTART,  read_restart,  _RC)
-         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_WRITERESTART, write_restart, _RC)
+!!$         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE,   initialize,    _RC)
+!!$         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE,     finalize,      _RC)
+!!$         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_READRESTART,  read_restart,  _RC)
+!!$         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_WRITERESTART, write_restart, _RC)
 
          _RETURN(ESMF_SUCCESS)
       end subroutine set_entry_points
@@ -97,6 +99,7 @@ contains
 
    type(ESMF_GridComp) function create_grid_comp_advanced( &
         name, config, unusable, petlist, rc) result(gc)
+      use :: mapl3g_UserSetServices, only: user_setservices
       use :: yafyaml, only: YAML_Node
 
       character(len=*), intent(in) :: name
@@ -107,10 +110,21 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      class(YAML_Node), pointer :: dso_yaml
+      character(:), allocatable :: sharedObj, userRoutine
       
       gc = make_basic_gridcomp(name=name, petlist=petlist, _RC)
       outer_meta => get_outer_meta(gc, _RC)
       call outer_meta%set_config(config)
+
+      dso_yaml => config%at('setServices', _RC)
+      call dso_yaml%get(sharedObj, 'sharedObj', _RC)
+      if (dso_yaml%has('userRoutine')) then
+         call dso_yaml%get(userRoutine, 'userRoutine', _RC)
+      else
+         userRoutine = 'setservices'
+      end if
+      call outer_meta%set_user_setservices(user_setservices(sharedObj, userRoutine))
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -143,8 +157,8 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
       
-      outer_meta => get_outer_meta(gc, _RC)
-      call outer_meta%initialize(importState, exportState, clock, _RC)
+!!$      outer_meta => get_outer_meta(gc, _RC)
+!!$      call outer_meta%initialize(importState, exportState, clock, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine initialize

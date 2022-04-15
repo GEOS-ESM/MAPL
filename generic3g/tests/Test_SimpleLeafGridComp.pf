@@ -1,0 +1,43 @@
+module Test_SimpleLeafGridComp
+   use mapl3g_GenericGridComp, only: create_grid_comp
+   use mapl3g_GenericGridComp, only: initialize_generic => initialize
+   use mapl3g_GenericGridComp, only: setServices
+   use mapl3g_OuterMetaComponent, only: OuterMetaComponent
+   use mapl3g_OuterMetaComponent, only: get_outer_meta
+   use esmf
+   use pFunit
+   use yaFyaml
+   implicit none
+
+   character(*), parameter :: SELF_NAME = 'esmf_testcase_internal_state'
+
+contains
+
+   @test(npes=[0])
+   subroutine test_wasrun(this)
+      use scratchpad
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      class(YAML_Node), allocatable :: config
+      integer :: status
+      type(Parser) :: p
+      
+      p = Parser('core')
+      config = p%load(TextStream('{setServices: {sharedObj: libsimple_leaf_gridcomp, userRoutine: setservices_}}'))
+
+      outer_gc = create_grid_comp('A', config, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GridCompSetServices(outer_gc, setServices, rc=status)
+      @assert_that(status, is(0))
+
+      if (allocated(log)) deallocate(log)
+      call ESMF_GridCompRun(outer_gc, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual("wasRun", log)
+
+   end subroutine test_wasrun
+
+
+end module Test_SimpleLeafGridComp
