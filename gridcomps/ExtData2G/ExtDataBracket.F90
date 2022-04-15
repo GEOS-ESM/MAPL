@@ -73,7 +73,7 @@ contains
          if (present(file)) this%right_node%file=file
          if (present(was_set)) this%right_node%was_set=was_set
       else
-         _ASSERT(.false.,'wrong bracket side')
+         _FAIL('wrong bracket side')
       end if
       _RETURN(_SUCCESS)
 
@@ -104,7 +104,7 @@ contains
          if (present(file)) file=this%right_node%file
          if (present(was_set)) was_set=this%right_node%was_set
       else
-         _ASSERT(.false.,'wrong bracket side')
+         _FAIL('wrong bracket side')
       end if
       _RETURN(_SUCCESS)
 
@@ -159,7 +159,7 @@ contains
           if (present(time_index)) time_index = this%right_node%time_index
           if (present(update)) update = this%new_file_right
       else
-         _ASSERT(.false.,'invalid bracket side!')
+         _FAIL('invalid bracket side!')
       end if
       _RETURN(_SUCCESS)
 

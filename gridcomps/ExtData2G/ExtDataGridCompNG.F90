@@ -971,7 +971,7 @@ CONTAINS
            ! split the time stamp template into a date and time strings
            i = scan(buff, 't')
            If (.not.(i > 3)) Then
-              _ASSERT(.False.,'ERROR: Time stamp ' // trim(template) // ' uses the fixed format, and must therefore contain a T')
+              _FAIL('ERROR: Time stamp ' // trim(template) // ' uses the fixed format, and must therefore contain a T')
            End If
 
            buff_date = buff(1:i-1)
@@ -1739,7 +1739,7 @@ CONTAINS
      else if (item%vartype == MAPL_VectorField) then
 
         if (item%Trans /= REGRID_METHOD_BILINEAR) then
-           _ASSERT(.false.,'No conservative re-gridding with vectors')
+           _FAIL('No conservative re-gridding with vectors')
         end if
 
         call ESMF_StateGet(ExtDataState, trim(item%vcomp1), field,__RC__)

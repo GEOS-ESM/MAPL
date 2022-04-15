@@ -72,7 +72,7 @@ module MAPL_ExtDataOldTypesCreator
       type(ExtDataSimpleFileHandler) :: simple_handler
       type(ExtDataClimFileHandler) :: clim_handler
       integer :: status, semi_pos
-      logical :: disable_interpolation
+      logical :: disable_interpolation, get_range
 
       _UNUSED_DUMMY(unusable)
       rule => this%rule_map%at(trim(item_name))
@@ -119,7 +119,7 @@ module MAPL_ExtDataOldTypesCreator
          read(rule%regrid_method(semi_pos+1:),*) primary_item%fracVal
          primary_item%trans = REGRID_METHOD_FRACTION
       else 
-         _ASSERT(.false.,"Invalid regridding method")
+         _FAIL("Invalid regridding method")
       end if
 
       if (trim(time_sample%extrap_outside) =="clim") then
@@ -148,7 +148,8 @@ module MAPL_ExtDataOldTypesCreator
       if (index(rule%collection,"/dev/null")==0) then
          dataset => this%file_stream_map%at(trim(rule%collection))
          primary_item%file_template = dataset%file_template
-         call dataset%detect_metadata(primary_item%file_metadata,time,get_range=(trim(time_sample%extrap_outside) /= "none"),__RC__)
+         get_range = trim(time_sample%extrap_outside) /= "none"
+         call dataset%detect_metadata(primary_item%file_metadata,time,rule%multi_rule,get_range=get_range,__RC__)
       else
          primary_item%file_template = rule%collection
       end if

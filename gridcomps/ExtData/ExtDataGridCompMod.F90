@@ -3254,15 +3254,15 @@ CONTAINS
            nymd2=0
         end if
         
-        !if (lgr%isEnabledFor(DEBUG) .and. .not. item%doInterpolate) then
-           !call lgr%debug('   MAPL_ExtDataInterpField: Uninterpolated field %a set to sample L %i0.8 %i0.6', trim(item%name),  nymd1, nhms1)
-        !else if (time == item%interp_time1) then
-           !call lgr%debug('   MAPL_ExtDataInterpField: Interpolated field %a set to sample L %i0.8 %i0.6', trim(item%name),  nymd1, nhms1)
-        !else if (time == item%interp_time2) then
-           !call lgr%debug('   MAPL_ExtDataInterpField: Interpolated field %a set to sample R %i0.8 %i0.6', trim(item%name),  nymd2, nhms2)
-        !else
-           !call lgr%debug('   MAPL_ExtDataInterpField: Interpolated field %a between %i0.8 %i0.6 and %i0.8 %i0.6 (%f10.6 fraction)', trim(item%name), nymd1, nhms1, nymd2, nhms2, alpha)
-        !end if
+        if (lgr%isEnabledFor(DEBUG) .and. .not. item%doInterpolate) then
+           call lgr%debug('   MAPL_ExtDataInterpField: Uninterpolated field %a set to sample L %i0.8 %i0.6', trim(item%name),  nymd1, nhms1)
+        else if (time == item%interp_time1) then
+           call lgr%debug('   MAPL_ExtDataInterpField: Interpolated field %a set to sample L %i0.8 %i0.6', trim(item%name),  nymd1, nhms1)
+        else if (time == item%interp_time2) then
+           call lgr%debug('   MAPL_ExtDataInterpField: Interpolated field %a set to sample R %i0.8 %i0.6', trim(item%name),  nymd2, nhms2)
+        else
+           call lgr%debug('   MAPL_ExtDataInterpField: Interpolated field %a between %i0.8 %i0.6 and %i0.8 %i0.6 (%f10.6 fraction)', trim(item%name), nymd1, nhms1, nymd2, nhms2, alpha)
+        end if
      end if
 
      call ESMF_FieldGet(FIELD, dimCount=fieldRank,name=name, __RC__)

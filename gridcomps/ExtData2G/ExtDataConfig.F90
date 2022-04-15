@@ -128,10 +128,10 @@ contains
                   rule_map = subcfg%of(sorted_rules(i))
                   write(i_char,'(I1)')i
                   new_key = key//rule_sep//i_char
-                  call ext_config%add_new_rule(new_key,rule_map,_RC)
+                  call ext_config%add_new_rule(new_key,rule_map,multi_rule=.true.,_RC)
                enddo 
             else
-               _ASSERT(.false.,"Exports must be sequence or map")
+               _FAIL("Exports must be sequence or map")
             end if
             call iter%next()
          enddo
@@ -316,20 +316,28 @@ contains
       _RETURN(_SUCCESS)
    end function get_item_type
 
-   subroutine add_new_rule(this,key,export_rule,rc) 
+   subroutine add_new_rule(this,key,export_rule,multi_rule,rc) 
       class(ExtDataConfig), intent(inout) :: this
       character(len=*), intent(in) :: key
       type(configuration), intent(in) :: export_rule
+      logical, optional, intent(in) :: multi_rule
       integer, intent(out), optional :: rc
 
       integer :: semi_pos,status
       type(ExtDataRule) :: rule,ucomp,vcomp
       type(ExtDataRule), pointer :: temp_rule
       character(len=:), allocatable :: uname,vname
+      logical :: usable_multi_rule
+
+      if (present(multi_rule)) then
+         usable_multi_rule = multi_rule
+      else
+         usable_multi_rule = .false.
+      end if
 
       call rule%set_defaults(rc=status)
       _VERIFY(status)
-      rule = ExtDataRule(export_rule,this%sample_map,key,_RC)
+      rule = ExtDataRule(export_rule,this%sample_map,key,multi_rule=usable_multi_rule,_RC)
       semi_pos = index(key,";")
       if (semi_pos > 0) then
          call rule%split_vector(key,ucomp,vcomp,rc=status)
@@ -373,7 +381,7 @@ contains
       do while(string_iter /= derived_items%end() )
          derived_name => string_iter%get()
          derived_item => this%derived_map%at(derived_name)
-         variables_in_expression = derived_item%get_variables_in_expression()
+         variables_in_expression = derived_item%get_variables_in_expression(_RC)
          ! now we have a stringvector of the variables involved in the expression
          ! check which of this are already in primary_items list, if any are not
          ! then we need to createa new list of needed variables and the "derived field"

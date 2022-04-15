@@ -148,7 +148,7 @@ module MAPL_ExtDataMask
           call MAPL_GetPointer(state,rvar3d,vartomask,__RC__)
           call MAPL_GetPointer(state,var3d,var_name,__RC__)
        else
-          _ASSERT(.false.,'Rank must be 2 or 3')
+          _FAIL('Rank must be 2 or 3')
        end if
 
        k=32
@@ -237,7 +237,7 @@ module MAPL_ExtDataMask
           call MAPL_GetPointer(state,rvar3d,vartomask,__RC__)
           call MAPL_GetPointer(state,var3d,var_name,__RC__)
        else
-          _ASSERT(.false.,'Rank must be 2 or 3')
+          _FAIL('Rank must be 2 or 3')
        end if
 
        if (rank == 2) then
@@ -385,7 +385,7 @@ module MAPL_ExtDataMask
           call MAPL_GetPointer(state,rvar3d,vartomask,__RC__)
           call MAPL_GetPointer(state,var3d,var_name,__RC__)
        else
-          _ASSERT(.false.,'Rank must be 2 or 3')
+          _FAIL('Rank must be 2 or 3')
        end if
 
        if (rank == 2) then
