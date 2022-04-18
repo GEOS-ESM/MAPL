@@ -1302,10 +1302,10 @@ CONTAINS
 
       item => self%primary%item(self%primaryOrder(i))
 
-      !call lgr%debug('ExtData Run_(): READ_LOOP: variable %i0 of %i0~: %a', i, self%primary%nItems, trim(item%var))
-      !call lgr%debug('   ==> file: %a', trim(item%file))
-      !call lgr%debug('   ==> cyclic: %a', trim(item%cyclic))
-      !call lgr%debug('   ==> isConst:: %l1', item%isConst)
+      call lgr%debug('ExtData Run_(): READ_LOOP: variable %i0 of %i0~: %a', i, self%primary%nItems, trim(item%var))
+      call lgr%debug('   ==> file: %a', trim(item%file))
+      call lgr%debug('   ==> cyclic: %a', trim(item%cyclic))
+      call lgr%debug('   ==> isConst:: %l1', item%isConst)
 
       if (item%isConst) then
          call lgr%debug('   ==> Break loop since isConst is true')
