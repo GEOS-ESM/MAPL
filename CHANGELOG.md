@@ -9,12 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.20.0] - 2022-04-19
+
+### Fixed
+
 - Removed one redundant get_file_extension call
 - Fix issue where ACG was called when no file had changed
 - Add missing `rc=status` in `MAPL_GetResourceFromMAPL_scalar`
 - Fixed bugs with next generation ExtData
 
 ### Added
+
 - Added support for 4d variables in the coupler. Intentionally decided not to support 4d in the coupler's ReadRestart and WriteRestart to catch errors
 - Added ability to use multiple rules for different time periods in next generation ExtData
 
@@ -25,10 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `components.yaml` to match GEOSgcm v10.22.1
   - ESMA_env v3.13.0
   - ESMA_cmake v3.12.0
-
-### Removed
-
-### Deprecated
 
 ## [2.19.2] - 2022-03-28
 
