@@ -16,6 +16,7 @@ module MAPL_OpenMP_Support
     public :: make_subFieldBundles
     public :: make_substates
     public :: find_bounds
+    public :: get_dim2_bounds
     public :: subset_array
 
     
@@ -479,6 +480,24 @@ module MAPL_OpenMP_Support
       end do
       _RETURN(0)
     end function make_substates_from_num_grids
+
+    subroutine get_dim2_bounds(grid, jstart, jend, rc)
+       type(ESMF_Grid), intent(in) :: grid
+       integer, intent(inout) :: jstart(:)
+       integer, intent(inout) :: jend(:)
+       integer, optional, intent(out) :: rc
+
+        integer :: local_count(3)
+        integer :: status
+        type(Interval), allocatable :: bounds(:)
+        
+        call MAPL_GridGet(grid,localcellcountPerDim=local_count, __RC__)
+        bounds = find_bounds(local_count(2), size(jstart))
+        jstart = bounds%min
+        jend = bounds%max
+
+        _RETURN(0)
+    end subroutine get_dim2_bounds
 
 
 end module MAPL_OpenMP_Support 

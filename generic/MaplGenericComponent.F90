@@ -400,7 +400,7 @@ contains
 
       call ESMF_GridCompGet(this%gridcomp, name=comp_name, __RC__)
       call ESMF_InternalStateGet(this%gridcomp, labelList=labels, __RC__)
-      if(myPET==0) print*,__FILE__,__LINE__, 'internal states labels : <',trim(comp_name), (/(trim(labels(i)),i=1,size(labels))/), '>'
+      if(myPET==0) print*,__FILE__,__LINE__, 'internal states labels : <',trim(comp_name), (trim(labels(i)),i=1,size(labels)), '>'
       print*,__FILE__,__LINE__, 'splitting component: <',trim(comp_name),'>'
       do i = 1, num_grids
         associate (gc => subgridcomps(i) )

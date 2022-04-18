@@ -102,7 +102,8 @@ contains
 
       !$omp master
       if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
-      _ASSERT_RC(this%stack%size()== 0,"Timer "//this%root_node%get_name()// " is not a fresh self start",INCORRECTLY_NESTED_METERS)
+      !_ASSERT_RC(this%stack%size()== 0,"Timer "//this%root_node%get_name()// " is not a fresh self start",INCORRECTLY_NESTED_METERS)
+      if(this%stack%size() .ne. 0) print*, "Timer "//this%root_node%get_name()// " is not a fresh self start"
 
       call this%start(this%root_node)
       !$omp end master
@@ -142,7 +143,8 @@ contains
 
       !$omp master
       if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
-      _ASSERT_RC(.not. this%stack%empty(),"Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
+      !_ASSERT_RC(.not. this%stack%empty(),"Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
+      if(this%stack%empty()) print*, "Timer <"//name// "> should not start when empty."
 
       node_ptr => this%stack%back()
       node => node_ptr%ptr
@@ -171,7 +173,8 @@ contains
       node_ptr => this%stack%back()
       node => node_ptr%ptr
       if (name /= node%get_name()) this%status = INCORRECTLY_NESTED_METERS
-      _ASSERT_RC(name == node%get_name(),"Timer <"//name// "> does not match start timer <"//node%get_name()//">",INCORRECTLY_NESTED_METERS)
+      !_ASSERT_RC(name == node%get_name(),"Timer <"//name// "> does not match start timer <"//node%get_name()//">",INCORRECTLY_NESTED_METERS)
+       if(name .ne. node%get_name())  print*, "Timer <"//name// "> does not match start timer <"//node%get_name()//">"
 
       call this%stop(node)
       !$omp end master
@@ -188,7 +191,8 @@ contains
 
       !$omp master
       if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
-      _ASSERT_RC(this%stack%size()== 1,"Stack not empty when timer stopped.",INCORRECTLY_NESTED_METERS)
+      !_ASSERT_RC(this%stack%size()== 1,"Stack not empty when timer stopped.",INCORRECTLY_NESTED_METERS)
+      if(this%stack%size() .ne. 1) print*, "Stack not empty when timer stopped."
 
       node_ptr => this%stack%back()
       node => node_ptr%ptr
@@ -252,21 +256,22 @@ contains
 
       ! Stack always starts with root node of node
 
-      if (old%stack%empty()) return
+      if (.not. old%stack%empty()) then
  
-      iter = old%stack%begin()
-      node_ptr%ptr => subnode
-      call new%stack%push_back(node_ptr)
-      call iter%next()
-
-      do while (iter /= old%stack%end())
-         next_item => iter%of()
-         name => next_item%ptr%get_name()
-         subnode => subnode%get_child(name)
+         iter = old%stack%begin()
          node_ptr%ptr => subnode
          call new%stack%push_back(node_ptr)
          call iter%next()
-      end do
+
+         do while (iter /= old%stack%end())
+            next_item => iter%of()
+            name => next_item%ptr%get_name()
+            subnode => subnode%get_child(name)
+            node_ptr%ptr => subnode
+            call new%stack%push_back(node_ptr)
+            call iter%next()
+         end do
+      end if
       !$omp end master
       
    end subroutine copy_profiler
