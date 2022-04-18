@@ -924,7 +924,7 @@ contains
     real, pointer                         :: PTR10(:)
     real, pointer                         :: PTR20(:,:)
     real, pointer                         :: PTR30(:,:,:)
-    real, pointer                         :: PTR40(:,:,:)
+    real, pointer                         :: PTR40(:,:,:,:)
 
     character(*), parameter       :: IAm="ZERO_CLEAR_COUNT"
     integer                       :: STATUS
