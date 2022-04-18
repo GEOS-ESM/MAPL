@@ -1,3 +1,4 @@
+#include "MAPL_Exceptions.h"
 module MAPL_ExtDataTypeDef
    use ESMF
    use MAPL_GriddedIOItemMod
@@ -5,6 +6,8 @@ module MAPL_ExtDataTypeDef
    use MAPL_ExtDataPointerUpdate
    use MAPL_ExtDataAbstractFileHandler
    use MAPL_FileMetadataUtilsMod
+   use MAPL_NewArthParserMod
+   use MAPL_ExtDataMask
    implicit none
 
    public PrimaryExport
@@ -66,15 +69,39 @@ module MAPL_ExtDataTypeDef
      logical                      :: cycling
      logical                      :: persist_closest
      type(ESMF_Time), allocatable :: source_time(:)
+
+     ! for multiple collections
+     type(ESMF_Time), allocatable :: start_end_time(:)
+     logical :: initialized = .false.
   end type PrimaryExport
   
   type DerivedExport
      character(len=ESMF_MAXSTR)     :: name
      character(len=ESMF_MAXPATHLEN) :: expression
-     logical                        :: ExtDataAlloc
      logical                        :: masking
+     type(ExtDataMask), allocatable :: mask_definition 
      type(ExtDataPointerUpdate)     :: update_freq
+     contains
+        procedure :: evaluate_derived_field
   end type DerivedExport
 
+  contains
+
+      subroutine evaluate_derived_field(this,state,rc)
+         class(DerivedExport), intent(inout) :: this
+         type(ESMF_State), intent(inout) :: state
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(ESMF_Field) :: field
+
+         if (this%masking) then
+            call this%mask_definition%evaluate_mask(state,trim(this%name),_RC)
+         else
+            call ESMF_StateGet(state,trim(this%name),field,_RC)
+            call MAPL_StateEval(state,trim(this%expression),field,_RC)
+         end if
+         _RETURN(_SUCCESS)
+      end subroutine
 
 end module  MAPL_ExtDataTypeDef
