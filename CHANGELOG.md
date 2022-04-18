@@ -9,9 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Removed one redundant get_file_extension call
 - Fix issue where ACG was called when no file had changed
+- Add missing `rc=status` in `MAPL_GetResourceFromMAPL_scalar`
+- Fixed bugs with next generation ExtData
+- Fixed variable PTR40 declaration in GenericCplComp.F90
 
 ### Added
+- Added support for 4d variables in the coupler. Intentionally decided not to support 4d in the coupler's ReadRestart and WriteRestart to catch errors
+- Added ability to use multiple rules for different time periods in next generation ExtData
 
 ### Changed
 
@@ -24,6 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.19.2] - 2022-03-28
+
+### Fixed
+
+-  Provided workaround for  GNU bug when defining file metadata in cubed-sphere grid factory (similar to Issue #1433 and its solution)
 
 ## [2.19.1] - 2022-03-24
 

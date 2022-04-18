@@ -8283,10 +8283,10 @@ contains
       end if
 
       if (label_is_present) then
-         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label_to_use,default,rc)
+         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label_to_use,default,rc = status)
          _VERIFY(status)
       else
-         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label,default,rc)
+         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label,default,rc = status)
          _VERIFY(status)
       end if
 

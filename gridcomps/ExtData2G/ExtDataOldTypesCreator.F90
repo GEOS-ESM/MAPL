@@ -55,9 +55,10 @@ module MAPL_ExtDataOldTypesCreator
    end function new_ExtDataOldTypesCreator
 
    
-   subroutine fillin_primary(this,item_name,primary_item,time,clock,unusable,rc)
+   subroutine fillin_primary(this,item_name,base_name,primary_item,time,clock,unusable,rc)
       class(ExtDataOldTypesCreator), intent(inout) :: this
       character(len=*), intent(in) :: item_name
+      character(len=*), intent(in) :: base_name
       type(PrimaryExport), intent(inout) :: primary_item
       type(ESMF_Time), intent(inout) :: time
       type(ESMF_Clock), intent(inout) :: clock
@@ -71,7 +72,7 @@ module MAPL_ExtDataOldTypesCreator
       type(ExtDataSimpleFileHandler) :: simple_handler
       type(ExtDataClimFileHandler) :: clim_handler
       integer :: status, semi_pos
-      logical :: disable_interpolation
+      logical :: disable_interpolation, get_range
 
       _UNUSED_DUMMY(unusable)
       rule => this%rule_map%at(trim(item_name))
@@ -83,10 +84,12 @@ module MAPL_ExtDataOldTypesCreator
       end if
       primary_item%isVector = allocated(rule%vector_partner)
       ! name and file var
-      primary_item%name = trim(item_name)
+      !primary_item%name = trim(item_name)
+      primary_item%name = trim(base_name)
       if (primary_item%isVector) then
          primary_item%vartype = MAPL_VectorField
-         primary_item%vcomp1 = trim(item_name)
+         !primary_item%vcomp1 = trim(item_name)
+         primary_item%vcomp1 = trim(base_name)
          primary_item%vcomp2 = trim(rule%vector_partner)
          primary_item%var = rule%file_var
          primary_item%fcomp1 = rule%file_var
@@ -96,7 +99,8 @@ module MAPL_ExtDataOldTypesCreator
          primary_item%fileVars%yname  = trim(rule%vector_file_partner)
       else
          primary_item%vartype = MAPL_FieldItem
-         primary_item%vcomp1 = trim(item_name)
+         !primary_item%vcomp1 = trim(item_name)
+         primary_item%vcomp1 = trim(base_name)
          primary_item%var = rule%file_var
          primary_item%fcomp1 = rule%file_var
          primary_item%fileVars%itemType = ItemTypeScalar
@@ -115,7 +119,7 @@ module MAPL_ExtDataOldTypesCreator
          read(rule%regrid_method(semi_pos+1:),*) primary_item%fracVal
          primary_item%trans = REGRID_METHOD_FRACTION
       else 
-         _ASSERT(.false.,"Invalid regridding method")
+         _FAIL("Invalid regridding method")
       end if
 
       if (trim(time_sample%extrap_outside) =="clim") then
@@ -144,7 +148,8 @@ module MAPL_ExtDataOldTypesCreator
       if (index(rule%collection,"/dev/null")==0) then
          dataset => this%file_stream_map%at(trim(rule%collection))
          primary_item%file_template = dataset%file_template
-         call dataset%detect_metadata(primary_item%file_metadata,time,get_range=(trim(time_sample%extrap_outside) /= "none"),__RC__)
+         get_range = trim(time_sample%extrap_outside) /= "none"
+         call dataset%detect_metadata(primary_item%file_metadata,time,rule%multi_rule,get_range=get_range,__RC__)
       else
          primary_item%file_template = rule%collection
       end if
@@ -182,11 +187,12 @@ module MAPL_ExtDataOldTypesCreator
 
       _UNUSED_DUMMY(unusable)
       rule => this%derived_map%at(trim(item_name))
+  
       derived_item%name = trim(item_name)
       derived_item%expression = rule%expression
-      time_sample => this%sample_map%at(rule%sample_key)
-
-      if(.not.associated(time_sample)) then
+      if (allocated(rule%sample_key)) then
+         time_sample => this%sample_map%at(rule%sample_key)
+      else
         call default_time_sample%set_defaults()
         time_sample=>default_time_sample
       end if
@@ -195,6 +201,8 @@ module MAPL_ExtDataOldTypesCreator
       derived_item%masking=.false.
       if (index(derived_item%expression,"mask") /= 0 ) then
          derived_item%masking=.true.
+         allocate(derived_item%mask_definition)
+         derived_item%mask_definition = ExtDataMask(derived_item%expression,_RC)
       end if
 
       _RETURN(_SUCCESS)

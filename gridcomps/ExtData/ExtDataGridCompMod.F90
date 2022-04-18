@@ -1515,7 +1515,7 @@ CONTAINS
 
       if (doUpdate(i)) then
 
-         call lgr%debug('ExtData Run_: INTERP_LOOP: interpolating between bracket times, variable: %a10, file: %a', &
+         call lgr%debug('ExtData Run_: INTERP_LOOP: interpolating between bracket times, variable: %a, file: %a', &
               & trim(item%var), trim(item%file))
         
          ! finally interpolate between bracketing times

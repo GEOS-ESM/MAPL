@@ -130,15 +130,25 @@ contains
       integer year,month,day,hour,min,sec
       integer :: int_time, int_date
       character(len=:), allocatable :: date_string,time_string
+      logical :: have_time
 
       _UNUSED_DUMMY(unusable)
 
       tpos = index(input_string,'T')
-      _ASSERT(tpos >0,"Invalid date/time format, missing date/time separator")
+      if (tpos<=0) then
+         have_time = .false.
+      else
+         have_time = .true.
+      end if
     
-      date_string = input_string(:tpos-1)
-      time_string = input_string(tpos+1:)
-      int_time = string_to_integer_time(time_string,__RC__)
+      if (have_time) then
+         time_string = input_string(tpos+1:)
+         date_string = input_string(:tpos-1)
+         int_time = string_to_integer_time(time_string,__RC__)
+      else
+         date_string = trim(input_string) 
+         int_time = 0
+      end if
       int_date = string_to_integer_date(date_string,__RC__)
 
       year=int_date/10000
