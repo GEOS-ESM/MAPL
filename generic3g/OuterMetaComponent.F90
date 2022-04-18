@@ -13,12 +13,7 @@ module mapl3g_OuterMetaComponent
    use :: mapl_ErrorHandling
    use :: gFTL2_StringVector
    use :: mapl_keywordEnforcer, only: KE => KeywordEnforcer
-   use :: esmf, only: ESMF_GridComp
-   use :: esmf, only: ESMF_Config
-   use :: esmf, only: ESMF_Clock
-   use :: esmf, only: ESMF_State
-   use :: esmf, only: ESMF_Method_Flag
-   use :: esmf, only: ESMF_SUCCESS
+   use esmf
    use :: yaFyaml, only: YAML_Node
    use :: pflogger, only: logging, Logger
    implicit none
@@ -120,6 +115,13 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) ::rc
       end subroutine set_entry_point
 
+      module subroutine add_child_by_name(this, child_name, config, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         character(len=*), intent(in) :: child_name
+         class(YAML_Node), intent(inout) :: config
+         integer, optional, intent(out) :: rc
+      end subroutine add_child_by_name
+
    end interface
 
 
@@ -135,19 +137,6 @@ contains
    end function new_outer_meta
 
 
-   subroutine add_child_by_name(this, child_name, config, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      character(len=*), intent(in) :: child_name
-      class(YAML_Node), intent(in) :: config
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-
-      _RETURN(ESMF_SUCCESS)
-   end subroutine add_child_by_name
-
-
    ! Deep copy of shallow ESMF objects - be careful using result
    ! TODO: Maybe this should return a POINTER
    type(ChildComponent) function get_child_by_name(this, child_name, rc) result(child_component)
@@ -157,6 +146,8 @@ contains
 
       integer :: status
 
+      _HERE, child_name
+      _HERE, this%children%count(child_name)
       child_component = this%children%at(child_name, _RC)
 
       _RETURN(_SUCCESS)
@@ -174,8 +165,11 @@ contains
       type(ChildComponent) :: child
       integer:: phase_idx
 
+      _HERE, child_name
       child = this%get_child(child_name, _RC)
+      _HERE
       call child%run(clock, phase_name=phase_name, _RC)
+      _HERE
 
       _RETURN(_SUCCESS)
    end subroutine run_child_by_name
@@ -249,6 +243,9 @@ contains
 
       call ESMF_UserCompGetInternalState(gridcomp, OUTER_META_PRIVATE_STATE, wrapper, status)
       _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
+
+      call free_inner_meta(wrapper%outer_meta%user_gc)
+      
       deallocate(wrapper%outer_meta)
 
       _RETURN(_SUCCESS)
@@ -314,13 +311,29 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
+      type(ChildComponent), pointer :: child
+      type(ChildComponentMapIterator) :: iter
+
+      call ESMF_GridCompInitialize(this%user_gc, importState=importState, exportState=exportState, &
+           clock=clock, userRC=userRC, _RC)
+      _VERIFY(userRC)
+
+      print*,__FILE__,__LINE__, status, userRC
+      associate(b => this%children%begin(), e => this%children%end())
+        iter = b
+        do while (iter /= e)
+           _HERE, iter%first()
+           child => iter%second()
+           call child%initialize(clock, _RC)
+           call iter%next()
+        end do
+      end associate
+      
 
       _RETURN(ESMF_SUCCESS)
    end subroutine initialize
 
    subroutine run(this, importState, exportState, clock, unusable, phase_name, rc)
-      use :: esmf, only: ESMF_METHOD_RUN
-      use :: esmf, only: ESMF_GridCompRun
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -360,6 +373,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
+
+      call ESMF_GridCompFinalize(this%user_gc, importState=importState, exportState=exportState, &
+           clock=clock, userRC=userRC, _RC)
+      _VERIFY(userRC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine finalize

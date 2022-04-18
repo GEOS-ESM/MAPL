@@ -3,12 +3,11 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.generic3g/tests")
 add_library(scratchpad scratchpad.F90)
 
 add_subdirectory(simple_leaf_gridcomp)
+add_subdirectory(simple_parent_gridcomp)
 
 set (test_srcs
   Test_SimpleLeafGridComp.pf
-#    Test_ConcreteComposite.pf
-#    Test_CompositeComponent.pf
-#    Test_VarSpec.pf
+  Test_RunChild.pf
   )
 
 

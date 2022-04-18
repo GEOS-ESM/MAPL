@@ -3,14 +3,14 @@
 ! See external setservices() procedure at end of file
 
 
-module SimpleLeafGridComp
+module SimpleParentGridComp
    use mapl_ErrorHandling
+   use scratchpad
    use esmf
    implicit none
    private
 
    public :: setservices
-
    
 contains
 
@@ -38,7 +38,7 @@ contains
 
       integer :: status
 
-      call append_message(gc, 'wasRun')
+      call append_message('wasRun')
       
       _RETURN(ESMF_SUCCESS)
    end subroutine run
@@ -52,7 +52,7 @@ contains
 
       integer :: status
 
-      call append_message(gc, 'wasRun_extra')
+      call append_message('wasRun_extra')
       
 
       _RETURN(ESMF_SUCCESS)
@@ -67,7 +67,7 @@ contains
 
       integer :: status
 
-      call append_message(gc, 'wasInit')
+      call append_message('wasInit')
       
       _RETURN(ESMF_SUCCESS)
    end subroutine init
@@ -81,29 +81,18 @@ contains
 
       integer :: status
 
-      call append_message(gc, 'wasFinal')
+      call append_message('wasFinal')
       
       _RETURN(ESMF_SUCCESS)
    end subroutine finalize
 
-   subroutine append_message(gc, message)
-      use scratchpad, only: append_scratchpad_message => append_message
-      type(ESMF_GridComp), intent(in) :: gc
-      character(*), intent(in) :: message
-
-      character(ESMF_MAXSTR) :: name
-      call ESMF_GridCompGet(gc, name=name)
-
-      call append_scratchpad_message(message // '_' // trim(name))
-   end subroutine append_message
-
-end module SimpleLeafGridComp
+end module SimpleParentGridComp
 
 subroutine setServices(gc, rc)
    use esmf, only: ESMF_GridComp
    use esmf, only: ESMF_SUCCESS
    use mapl_ErrorHandling
-   use SimpleLeafGridComp, only: inner_setservices => setservices
+   use SimpleParentGridComp, only: inner_setservices => setservices
    type(ESMF_GridComp) :: gc
    integer, intent(out) :: rc
 

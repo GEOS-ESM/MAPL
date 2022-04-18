@@ -114,6 +114,7 @@ contains
       logical :: found
 
       _ASSERT(is_supported_dso_name(this%sharedObj), 'unsupported dso name:: <'//this%sharedObj//'>')
+      print*,__FILE__,__LINE__, adjust_dso_name(this%sharedObj), ' ', this%userRoutine
       call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(this%sharedObj), &
            userRoutine=this%userRoutine, userRoutinefound=found, userRC=userRC, rc=status)
 

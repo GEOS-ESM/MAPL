@@ -81,12 +81,13 @@ contains
       use yaFyaml
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
-      class(YAML_Node), intent(in) :: config
+      class(YAML_Node), intent(inout) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      _HERE,'add_child_by_name'
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
       call outer_meta%add_child(child_name, config, _RC)
       
@@ -99,13 +100,14 @@ contains
       character(len=*), intent(in) :: child_name
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(len=*), intent(in) :: phase_name
+      character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      _HERE,'run_child_by_name'
+      outer_meta => get_outer_meta(gridcomp, _RC)
       call outer_meta%run_child(child_name, clock, phase_name=phase_name, _RC)
 
       _RETURN(_SUCCESS)
@@ -123,6 +125,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      _HERE,'run_children'
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
       call outer_meta%run_children(clock, phase_name=phase_name, _RC)
 
@@ -138,10 +141,10 @@ contains
 
       integer :: status
       type(InnerMetaComponent), pointer :: inner_meta
-      
+
+      _HERE,'get_outer_gridcomp'
       inner_meta => get_inner_meta(gridcomp, _RC)
       outer_gc = inner_meta%get_outer_gridcomp()
-
       _RETURN(_SUCCESS)
    end function get_outer_gridcomp
 
@@ -157,6 +160,7 @@ contains
       integer :: status
       type(ESMF_GridComp) :: outer_gc
 
+      _HERE,'get_outer_meta_from_inner_gc'
       outer_gc = get_outer_gridcomp(gridcomp, _RC)
       outer_meta => get_outer_meta(outer_gc, _RC)
 
@@ -175,6 +179,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      _HERE,'gridcomp_set_entry_point'
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
       call outer_meta%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
 

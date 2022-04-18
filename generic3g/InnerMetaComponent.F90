@@ -1,9 +1,8 @@
 #include "MAPL_ErrLog.h"
 
 module mapl3g_InnerMetaComponent
-   use :: esmf, only: ESMF_GridComp
-   use :: esmf, only: ESMF_SUCCESS
    use :: mapl_ErrorHandling
+   use esmf
    implicit none
    private
 
@@ -78,6 +77,13 @@ contains
 
       type(InnerMetaWrapper) :: wrapper
       integer :: status
+
+             block
+               character(ESMF_MAXSTR) :: name
+               call ESMF_GridCompGet(self_gc, name=name, _RC)
+               _HERE, '... attach inner meta for <',trim(name),'> '
+             end block
+
 
       allocate(wrapper%inner_meta)
       wrapper%inner_meta = InnerMetaComponent(self_gc, outer_gc)

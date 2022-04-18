@@ -14,6 +14,7 @@ set(srcs
   InnerMetaComponent.F90
   OuterMetaComponent.F90
   OuterMetaComponent_setservices_smod.F90
+  OuterMetaComponent_addChild_smod.F90
   GenericGridComp.F90
 
   MAPL_Generic.F90

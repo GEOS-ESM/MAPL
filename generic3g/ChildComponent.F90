@@ -17,7 +17,9 @@ module mapl3g_ChildComponent
 !!$      type(CouplerComponentVector) :: couplers
    contains
       procedure, private :: run_self
+      procedure, private :: initialize_self
       generic :: run => run_self
+      generic :: initialize => initialize_self
    end type ChildComponent
 
    interface
@@ -31,6 +33,15 @@ module mapl3g_ChildComponent
          character(len=*), optional, intent(in) :: phase_name
          integer, optional, intent(out) :: rc
       end subroutine
+
+      module subroutine initialize_self(this, clock, unusable, rc)
+         use :: MaplShared, only: KeywordEnforcer
+         class(ChildComponent), intent(inout) :: this
+         type(ESMF_Clock), intent(inout) :: clock
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine initialize_self
+
    end interface
 
 end module mapl3g_ChildComponent

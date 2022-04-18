@@ -1,39 +1,92 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
-   use esmf, only: ESMF_GridCompSetEntryPoint
-   use esmf, only: ESMF_GridCompCreate
-   use esmf, only: ESMF_Method_Flag
-   use esmf, only: ESMF_METHOD_RUN
+   use esmf
    use gFTL2_StringVector
    use mapl3g_ESMF_Interfaces, only: I_Run
    ! Kludge to work around Intel 2021 namespace bug that exposes
    ! private names from other modules in unrelated submodules.
    ! Report filed 2022-03-14 (T. Clune)
    use mapl_keywordenforcer, only: KE => KeywordEnforcer
+   use yafyaml
    implicit none
 
 contains
 
    module subroutine SetServices(this, rc)
+      use mapl3g_GenericGridComp, only: generic_setservices => setservices
       class(OuterMetaComponent), intent(inout) :: this
       integer, intent(out) :: rc
 
       integer :: status
+      class(NodeIterator), allocatable :: iter_child_config
+      type(ChildComponentMapIterator), allocatable :: iter_child
+      class(YAML_Node), pointer :: child_config
+      character(:), pointer :: name
 
 !!$      call before(this, _RC)
 !!$
-!!$      if (this%has_yaml_config()) then
-!!$         associate(config => this%get_yaml_config())
+!!$      if (this%config%has_yaml()) then
+!!$         associate( config => this%config%yaml_cfg )
 !!$           call this%set_component_spec(build_component_spec(config, _RC))
 !!$         end associate
 !!$      end if
 
-      
+
+      _HERE
       this%user_gc = create_user_gridcomp(this, _RC)
+
+      if (this%config%has_yaml()) then
+         associate ( config => this%config%yaml_cfg )
+           _HERE, config
+           _HERE, 'has children?' ,config%has('children')
+           if (config%has('children')) then
+              associate ( children => config%of('children') )
+                associate (b => children%begin(), e => children%end() )
+                  iter_child_config = b
+                  do while (iter_child_config /= e)
+                     name => to_string(iter_child_config%first(), _RC)
+                     _HERE, 'child: ', name
+                     child_config => iter_child_config%second()
+                     call this%add_child(name, child_config, _RC)
+                     call iter_child_config%next()
+                  end do
+                end associate
+              end associate
+           end if
+         end associate
+      end if
+
+      _HERE,'run user sets services'
+      block
+        character(ESMF_MAXSTR) :: name
+        call ESMF_GridCompGet(this%self_gc, name=name, _RC)
+        _HERE, 'run user setservices for <',trim(name),'>'
+      end block
       call this%user_setservices%run_setservices(this%user_gc, _RC)
 
-!!$      call set_outer_gc_entry_points(this, _RC)
+      _HERE,'num children: ', this%children%size()
+      associate ( b => this%children%begin(), e => this%children%end() )
+        iter_child = b
+        do while (iter_child /= e)
+           associate (child_comp => iter_child%second())
+             block
+               character(ESMF_MAXSTR) :: name
+               call ESMF_GridCompGet(this%self_gc, name=name, _RC)
+               _HERE, 'run child setservices for <',trim(name),'> ', iter_child%first()
+             end block
+
+             call ESMF_GridCompSetServices(child_comp%gridcomp, generic_setservices, _RC)
+             block
+               character(ESMF_MAXSTR) :: name
+               call ESMF_GridCompGet(this%self_gc, name=name, _RC)
+               _HERE, '... completed child setservices for <',trim(name),'> ', iter_child%first()
+             end block
+
+           end associate
+           call iter_child%next()
+        end do
+      end associate
 
 !!$      call <messy stuff>
 !!$
@@ -48,10 +101,14 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      character(ESMF_MAXSTR) :: name
       integer :: status
-      
-      user_gc = ESMF_GridCompCreate(_RC)
+
+      _HERE
+      call ESMF_GridCompGet(this%self_gc, name=name, _RC)
+      user_gc = ESMF_GridCompCreate(name=name, _RC)
       call attach_inner_meta(user_gc, this%self_gc, _RC)
+      _HERE
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

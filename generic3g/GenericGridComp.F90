@@ -4,18 +4,7 @@ module mapl3g_GenericGridComp
    use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_OuterMetaComponent, only: attach_outer_meta
-   use :: esmf, only: ESMF_GridComp
-   use :: esmf, only: ESMF_GridCompCreate
-   use :: esmf, only: ESMF_GridCompSetEntryPoint
-   use :: esmf, only: ESMF_Config
-   use :: esmf, only: ESMF_State
-   use :: esmf, only: ESMF_Clock
-   use :: esmf, only: ESMF_METHOD_INITIALIZE
-   use :: esmf, only: ESMF_METHOD_RUN
-   use :: esmf, only: ESMF_METHOD_FINALIZE
-   use :: esmf, only: ESMF_METHOD_READRESTART
-   use :: esmf, only: ESMF_METHOD_WRITERESTART
-   use :: esmf, only: ESMF_SUCCESS
+   use esmf
    use :: mapl_KeywordEnforcer, only: KeywordEnforcer
    use :: mapl_ErrorHandling
    implicit none
@@ -23,7 +12,7 @@ module mapl3g_GenericGridComp
 
    public :: setServices
    public :: create_grid_comp
-!!$   public :: MAPL_GridCompCreate
+
 
    interface create_grid_comp
       module procedure create_grid_comp_traditional
@@ -34,7 +23,7 @@ module mapl3g_GenericGridComp
 
 contains
 
-   subroutine setServices(gc, rc)
+   recursive subroutine setServices(gc, rc)
       type(ESMF_GridComp) :: gc
       integer, intent(out) :: rc
 
@@ -61,8 +50,8 @@ contains
            end do
          end associate
 
-!!$         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE,   initialize,    _RC)
-!!$         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE,     finalize,      _RC)
+         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE,   initialize,    _RC)
+         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_FINALIZE,     finalize,      _RC)
 !!$         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_READRESTART,  read_restart,  _RC)
 !!$         call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_WRITERESTART, write_restart, _RC)
 
@@ -157,8 +146,8 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
       
-!!$      outer_meta => get_outer_meta(gc, _RC)
-!!$      call outer_meta%initialize(importState, exportState, clock, _RC)
+      outer_meta => get_outer_meta(gc, _RC)
+      call outer_meta%initialize(importState, exportState, clock, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine initialize
@@ -172,10 +161,16 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
+      integer :: phase
+      character(:), pointer :: phase_name
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta(gc, _RC)
-      call outer_meta%run(importState, exportState, clock, _RC)
+      call ESMF_GridCompGet(gc, currentPhase=phase, _RC)
+      associate (phases => outer_meta%get_phases(ESMF_METHOD_RUN))
+        phase_name => phases%of(phase)
+        call outer_meta%run(importState, exportState, clock, phase_name=phase_name, _RC)
+      end associate
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run

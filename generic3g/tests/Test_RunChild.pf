@@ -1,0 +1,79 @@
+module Test_RunChild
+   use mapl3g_GenericGridComp
+   use mapl3g_Generic
+   use mapl3g_OuterMetaComponent
+   use esmf
+   use pfunit
+   use yafyaml
+   use scratchpad, only: log, clear_log
+   implicit none
+
+contains
+
+   @test(npes=[0])
+   subroutine test_add_child_wasrun(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_GridComp) :: parent_gc
+      class(YAML_Node), allocatable :: config
+      type(ESMF_Clock) :: clock
+      integer :: status
+      type(Parser) :: p
+
+      p = Parser('core')
+      config = p%load(TextStream( '{' // &
+           & 'setServices: {sharedObj: libsimple_parent_gridcomp, userRoutine: setservices_}, ' // &
+           & 'children: {child_1: {setServices: {sharedObj: libsimple_leaf_gridcomp, userRoutine: setservices_}}}' // &
+           & '}'))
+      print*,__FILE__,__LINE__
+      parent_gc = create_grid_comp('parent', config, rc=status)
+      print*,__FILE__,__LINE__
+      @assert_that(status, is(0))
+      
+      call ESMF_GridCompSetServices(parent_gc, setServices, rc=status)
+      @assert_that(status, is(0))
+      call clear_log()
+
+      call MAPL_run_child(parent_gc, child_name='child_1', clock=clock, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual("wasRun_child_1", log)
+
+   end subroutine test_add_child_wasrun
+
+   @test(npes=[0])
+   subroutine test_init_children(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_GridComp) :: parent_gc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(Parser) :: p
+      class(YAML_Node), allocatable :: config
+
+      integer :: status
+
+      p = Parser('core')
+
+      config = p%load(TextStream('setServices: {sharedObj: libsimple_parent_gridcomp, userRoutine: setservices_}'))
+      parent_gc = create_grid_comp('parent', config, rc=status)
+      @assert_that(status, is(0))
+
+      config = p%load(TextStream('setServices: {sharedObj: libsimple_leaf_gridcomp, userRoutine: setservices_}'))
+      parent_meta => get_outer_meta(parent_gc, rc=status)
+
+      call parent_meta%add_child('child_1', config, rc=status)
+      @assert_that(status, is(0))
+      call parent_meta%add_child('child_2', config, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GridCompSetServices(parent_gc, setServices, rc=status)
+      @assert_that(status, is(0))
+      call clear_log()
+      call parent_meta%initialize(importState, exportState, clock, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual("wasInit :: wasInit_child_1 :: wasInit_child_2", log)
+
+   end subroutine test_init_children
+
+end module Test_RunChild

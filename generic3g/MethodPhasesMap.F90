@@ -137,7 +137,7 @@ contains
           phase_index = 1 + distance(b, iter)
         end associate
       end associate
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function get_phase_index_
