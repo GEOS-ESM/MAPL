@@ -20,6 +20,6 @@ add_pfunit_ctest(MAPL.generic3g.tests
                 )
 set_target_properties(MAPL.generic3g.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
-set_property(TEST MAPL.generic3g.tests PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}/simple_leaf_gridcomp")
+set_property(TEST MAPL.generic3g.tests PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}/gridcomps")
 
 add_dependencies(build-tests MAPL.generic3g.tests)

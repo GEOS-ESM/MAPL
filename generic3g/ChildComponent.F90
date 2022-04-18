@@ -18,8 +18,10 @@ module mapl3g_ChildComponent
    contains
       procedure, private :: run_self
       procedure, private :: initialize_self
+      procedure, private :: finalize_self
       generic :: run => run_self
       generic :: initialize => initialize_self
+      generic :: finalize => finalize_self
    end type ChildComponent
 
    interface
@@ -41,6 +43,14 @@ module mapl3g_ChildComponent
          class(KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_self
+
+      module subroutine finalize_self(this, clock, unusable, rc)
+         use :: MaplShared, only: KeywordEnforcer
+         class(ChildComponent), intent(inout) :: this
+         type(ESMF_Clock), intent(inout) :: clock
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine finalize_self
 
    end interface
 

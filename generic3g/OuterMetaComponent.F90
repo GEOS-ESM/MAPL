@@ -146,8 +146,6 @@ contains
 
       integer :: status
 
-      _HERE, child_name
-      _HERE, this%children%count(child_name)
       child_component = this%children%at(child_name, _RC)
 
       _RETURN(_SUCCESS)
@@ -158,18 +156,15 @@ contains
       character(len=*), intent(in) :: child_name
       type(ESMF_Clock), intent(inout) :: clock
       class(KE), optional, intent(in) :: unusable
-      character(len=*), intent(in) :: phase_name
+      character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
       type(ChildComponent) :: child
       integer:: phase_idx
 
-      _HERE, child_name
       child = this%get_child(child_name, _RC)
-      _HERE
       call child%run(clock, phase_name=phase_name, _RC)
-      _HERE
 
       _RETURN(_SUCCESS)
    end subroutine run_child_by_name
@@ -322,13 +317,11 @@ contains
       associate(b => this%children%begin(), e => this%children%end())
         iter = b
         do while (iter /= e)
-           _HERE, iter%first()
            child => iter%second()
            call child%initialize(clock, _RC)
            call iter%next()
         end do
       end associate
-      
 
       _RETURN(ESMF_SUCCESS)
    end subroutine initialize
@@ -372,11 +365,22 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      type(ChildComponent), pointer :: child
+      type(ChildComponentMapIterator) :: iter
       integer :: status, userRC
 
       call ESMF_GridCompFinalize(this%user_gc, importState=importState, exportState=exportState, &
            clock=clock, userRC=userRC, _RC)
       _VERIFY(userRC)
+
+      associate(b => this%children%begin(), e => this%children%end())
+        iter = b
+        do while (iter /= e)
+           child => iter%second()
+           call child%finalize(clock, _RC)
+           call iter%next()
+        end do
+      end associate
 
       _RETURN(ESMF_SUCCESS)
    end subroutine finalize

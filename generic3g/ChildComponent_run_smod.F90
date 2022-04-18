@@ -51,4 +51,25 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_self
 
+   module subroutine finalize_self(this, clock, unusable, rc)
+      use mapl3g_OuterMetaComponent, only: get_outer_meta
+      use mapl3g_OuterMetaComponent, only: OuterMetaComponent
+      class(ChildComponent), intent(inout) :: this
+      type(ESMF_Clock), intent(inout) :: clock
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      outer_meta => get_outer_meta(this%gridcomp, _RC)
+
+      call outer_meta%finalize( &
+           importState=this%import_state, exportState=this%export_state, &
+           clock=clock, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine finalize_self
+
 end submodule ChildComponent_run_smod

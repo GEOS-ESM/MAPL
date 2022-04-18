@@ -19,8 +19,6 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      class(NodeIterator), allocatable :: iter_child_config
-      type(ChildComponentMapIterator), allocatable :: iter_child
       class(YAML_Node), pointer :: child_config, children_config
       character(:), pointer :: name
 
@@ -33,66 +31,74 @@ contains
 !!$      end if
 
 
-      _HERE
       this%user_gc = create_user_gridcomp(this, _RC)
 
       if (this%config%has_yaml()) then
-         associate ( config => this%config%yaml_cfg )
-           _HERE, config
-           _HERE, 'has children?' ,config%has('children')
-           if (config%has('children')) then
-              children_config => config%of('children')
-              associate (b => children_config%begin(), e => children_config%end() )
-                ! ifort 2022.0 polymorphic assign fails for the line below.
-                allocate(iter_child_config, source=b)
-                do while (iter_child_config /= e)
-                   name => to_string(iter_child_config%first(), _RC)
-                   _HERE, 'child: ', name
-                   child_config => iter_child_config%second()
-                   call this%add_child(name, child_config, _RC)
-                   call iter_child_config%next()
-                end do
-              end associate
+         associate( yaml_cfg => this%config%yaml_cfg)
+
+           if (yaml_cfg%has('children')) then
+              call add_children_from_config(yaml_cfg%of('children'), _RC)
            end if
+
          end associate
       end if
 
-      _HERE,'run user sets services'
-      block
-        character(ESMF_MAXSTR) :: name
-        call ESMF_GridCompGet(this%self_gc, name=name, _RC)
-        _HERE, 'run user setservices for <',trim(name),'>'
-      end block
       call this%user_setservices%run_setservices(this%user_gc, _RC)
 
-      _HERE,'num children: ', this%children%size()
-      associate ( b => this%children%begin(), e => this%children%end() )
-        iter_child = b
-        do while (iter_child /= e)
-           associate (child_comp => iter_child%second())
-             block
-               character(ESMF_MAXSTR) :: name
-               call ESMF_GridCompGet(this%self_gc, name=name, _RC)
-               _HERE, 'run child setservices for <',trim(name),'> ', iter_child%first()
-             end block
-
-             call ESMF_GridCompSetServices(child_comp%gridcomp, generic_setservices, _RC)
-             block
-               character(ESMF_MAXSTR) :: name
-               call ESMF_GridCompGet(this%self_gc, name=name, _RC)
-               _HERE, '... completed child setservices for <',trim(name),'> ', iter_child%first()
-             end block
-
-           end associate
-           call iter_child%next()
-        end do
-      end associate
+      call children_setservices(this%children, _RC)
 
 !!$      call <messy stuff>
 !!$
 !!$      ...
       
       _RETURN(ESMF_SUCCESS)
+
+   contains
+
+      
+      subroutine add_children_from_config(children_config, rc)
+         class(YAML_Node), intent(in) :: children_config
+         integer, optional, intent(out) :: rc
+
+         class(NodeIterator), allocatable :: iter
+         integer :: status
+
+         associate (b => children_config%begin(), e => children_config%end() )
+
+           ! ifort 2022.0 polymorphic assign fails for the line below.
+           allocate(iter, source=b)
+
+           do while (iter /= e)
+              name => to_string(iter%first(), _RC)
+              child_config => iter%second()
+              call this%add_child(name, child_config, _RC)
+              call iter%next()
+           end do
+
+         end associate
+
+         _RETURN(ESMF_SUCCESS)
+      end subroutine add_children_from_config
+
+      subroutine children_setservices(children, rc)
+         type(ChildComponentMap), intent(in) :: children
+         integer, optional, intent(out) :: rc
+
+         type(ChildComponentMapIterator), allocatable :: iter
+         integer :: status
+
+         associate ( b => this%children%begin(), e => this%children%end() )
+           iter = b
+           do while (iter /= e)
+              associate (child_comp => iter%second())
+                call ESMF_GridCompSetServices(child_comp%gridcomp, generic_setservices, _RC)
+              end associate
+              call iter%next()
+           end do
+         end associate
+         _RETURN(ESMF_SUCCESS)
+      end subroutine children_setservices
+
    end subroutine SetServices
 
    function create_user_gridcomp(this, unusable, rc) result(user_gc)
@@ -104,11 +110,9 @@ contains
       character(ESMF_MAXSTR) :: name
       integer :: status
 
-      _HERE
       call ESMF_GridCompGet(this%self_gc, name=name, _RC)
       user_gc = ESMF_GridCompCreate(name=name, _RC)
       call attach_inner_meta(user_gc, this%self_gc, _RC)
-      _HERE
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
