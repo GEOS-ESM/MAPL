@@ -64,8 +64,6 @@
 ! !PUBLIC MEMBER FUNCTIONS:
 
    PUBLIC SetServices
-   public T_EXTDATA_STATE
-   public EXTDATA_WRAP
 !EOP
 !
 ! !REVISION HISTORY:
@@ -211,17 +209,6 @@
   type MAPL_ExtData_Wrap
      type (MAPL_ExtData_State), pointer :: PTR => null()
   end type MAPL_ExtData_WRAP
-
-  type T_EXTDATA_STATE
-     type(ESMF_State)    :: expState
-     type(ESMF_GridComp) :: gc
-  end type T_EXTDATA_STATE
-
-  ! Wrapper for extracting internal state
-  ! -------------------------------------
-  type EXTDATA_WRAP
-     type (T_EXTDATA_STATE), pointer :: PTR
-  end type EXTDATA_WRAP
 
   class(Logger), pointer :: lgr
 
@@ -675,10 +662,6 @@ CONTAINS
                            primary%item(totalPrimaryEntries)%cyclic='n'
                         end if
 
-
-                        if ( primary%item(totalPrimaryEntries)%isConst .eqv. .false. )  then
-                           call CreateTimeInterval(primary%item(totalPrimaryEntries),clock,__RC__)
-                        end if
                      end if
                   enddo
                !  Derived Exports
@@ -911,6 +894,10 @@ CONTAINS
 
       call lgr%debug('ExtData Initialize_(): PrimaryLoop: ')
 
+      if ( .not. item%isConst )  then
+         call CreateTimeInterval(item,clock,__RC__)
+      end if
+      
       item%pfioCollection_id = MAPL_DataAddCollection(item%file,use_file_coords=self%use_file_coords)
 
       ! parse refresh template to see if we have a time shift during constant updating
@@ -1315,10 +1302,10 @@ CONTAINS
 
       item => self%primary%item(self%primaryOrder(i))
 
-      call lgr%debug('ExtData Run_(): READ_LOOP: variable %i0 of %i0~: %a', i, self%primary%nItems, trim(item%var))
-      call lgr%debug('   ==> file: %a', trim(item%file))
-      call lgr%debug('   ==> cyclic: %a', trim(item%cyclic))
-      call lgr%debug('   ==> isConst:: %l1', item%isConst)
+      !call lgr%debug('ExtData Run_(): READ_LOOP: variable %i0 of %i0~: %a', i, self%primary%nItems, trim(item%var))
+      !call lgr%debug('   ==> file: %a', trim(item%file))
+      !call lgr%debug('   ==> cyclic: %a', trim(item%cyclic))
+      !call lgr%debug('   ==> isConst:: %l1', item%isConst)
 
       if (item%isConst) then
          call lgr%debug('   ==> Break loop since isConst is true')
@@ -1528,7 +1515,7 @@ CONTAINS
 
       if (doUpdate(i)) then
 
-         call lgr%debug('ExtData Run_: INTERP_LOOP: interpolating between bracket times, variable: %a10, file: %a', &
+         call lgr%debug('ExtData Run_: INTERP_LOOP: interpolating between bracket times, variable: %a, file: %a', &
               & trim(item%var), trim(item%file))
         
          ! finally interpolate between bracketing times
@@ -1889,6 +1876,7 @@ CONTAINS
         character(len=ESMF_MAXSTR) :: creffTime, ctInt
        
         integer :: status
+        logical :: found
  
         creffTime = ''
         ctInt     = ''
@@ -1933,6 +1921,10 @@ CONTAINS
            else
               ! couldn't find any tokens so all the data must be on one file
               call ESMF_TimeIntervalSet(item%frequency,__RC__)
+
+              ! check if non-token file exists
+              inquire(file=trim(item%file),EXIST=found)
+              _ASSERT(found,'File ' // trim(item%file) // ' not found')
            end if
         else
            ! Reference time should look like:

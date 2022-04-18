@@ -7027,7 +7027,6 @@ contains
             end do
 
             do J=1,NC
-               if(I==J) cycle
                gridcomp => STATE%get_child_gridcomp(J)
                call MAPL_GridCompGetVarSpecs(gridcomp, EXPORT=EX_SPECS, RC=status)
                _VERIFY(status)
@@ -7154,6 +7153,7 @@ contains
 
                   STATE%CCcreated(J,I) = .true.
 
+                  call ESMF_AttributeSet(CCS(J,I), name='ClockYetToAdvance', value=.true., _RC)
                   call WRITE_PARALLEL("Coupler needed for "//trim(SRCNAME)// ' and ' //&
                        trim(DSTNAME))
                   call ESMF_CplCompSetServices (CCS(J,I), GenericCplSetServices, RC=status )
@@ -8265,10 +8265,10 @@ contains
       end if
 
       if (label_is_present) then
-         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label_to_use,default,rc)
+         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label_to_use,default,rc = status)
          _VERIFY(status)
       else
-         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label,default,rc)
+         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label,default,rc = status)
          _VERIFY(status)
       end if
 

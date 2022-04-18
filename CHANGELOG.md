@@ -10,17 +10,123 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Removed one redundant get_file_extension call
-- Fixed issue in `CMakePresets.json` where Ninja presets were broken
+- Fix issue where ACG was called when no file had changed
+- Add missing `rc=status` in `MAPL_GetResourceFromMAPL_scalar`
+- Fixed bugs with next generation ExtData
 
 ### Added
+- Added support for 4d variables in the coupler. Intentionally decided not to support 4d in the coupler's ReadRestart and WriteRestart to catch errors
+- Added ability to use multiple rules for different time periods in next generation ExtData
 
 ### Changed
 
-- A small performance improvement. cycle => exit in MAPL_Generic.F90
+- Cleaned up a bit of old CMake
+- Updated CircleCI config to use new orb `build` job
+- Updated `components.yaml` to match GEOSgcm v10.22.1
+  - ESMA_env v3.13.0
+  - ESMA_cmake v3.12.0
 
 ### Removed
 
 ### Deprecated
+
+## [2.19.2] - 2022-03-28
+
+### Fixed
+
+-  Provided workaround for  GNU bug when defining file metadata in cubed-sphere grid factory (similar to Issue #1433 and its solution)
+
+## [2.19.1] - 2022-03-24
+
+### Fixed
+
+- Fix a bug deallocating a pointer potentially pointing to shared memory allocated by MAPL_Shmem
+
+## [2.19.0] - 2022-03-18
+
+### Fixed
+
+- Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
+- Fixes for compiling on M1 Macs (remove REAL128)
+- Fix for CMake when `esmf` is already a target
+
+### Added
+
+- New cmake option USE_EXTDATA2G to enable the next generation of ExtData for development, by default uses 1st generation ExtData
+- MAPL_ESMFFieldBundleRead/Write modules are now available in when using MAPL
+
+### Changed
+
+- Replaced a wild card "*" in any position of a string in MAPL_GridCompSpecs_ACG.py
+- Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
+- Add voting interpolation method as optional argument to SimpleBundleRead method
+
+## [2.18.3] - 2022-03-15
+
+### Fixed
+
+- Fixed bug in 2.18.2 release when computing lats in degrees lat-lon grid factory
+- Fixed GNU bug when defining file metadata in lat-lon grid factory
+
+## [2.18.2] - 2022-03-11
+
+### Fixed
+
+- Save copy of original lat/lons in degrees when creating lat-lon grid factory to use in file metadata to eliminate floating point conversion noise
+
+## [2.18.1] - 2022-03-07
+
+### Fixed
+
+- Fix build bug with NAG in `cub2latlon_regridder.F90`
+- Fixes DO_NOT_CONNECT errors when calling MAPL_TerminateAnyImport
+- Fixed the alarms in the couplers to account if they are called before ESMF_ClockAdvance is called
+- Reverted generic/VarSpec.F90 to hash b02e8ff (fix for #1410)
+
+## [2.18.0] - 2022-02-23
+
+### Fixed
+
+- Fixed issue in `CMakePresets.json` where Ninja presets were broken
+- Fixed io profiler report format
+- Fixed issue on macOS where enabling memutils caused crash
+
+### Added
+
+- Option to force integer time variable in History output via the History.rc file (IntegerTime: .true./.false. default .false.) rather than the default float time variable if allowed by frequency of output
+- Added mapl_StubComponent to MAPL package
+- Updates to CircleCI
+  - Added GEOSadas CI ifort build test
+  - Add "like-UFS" build to CI. This is no FLAP and pFlogger, and static build
+- Added new `_STAT` and `_IOSTAT` macros a la `_RC`
+
+### Changed
+
+- Changed the naming convention for the split name(s): we now take the entries from the field alias(es) without appending any digits. Also allowing the user to specify more entries in the alias, so that HISTORY.rc does not need to change when running GOCART with more wavelengths
+- A small performance improvement. cycle => exit in MAPL_Generic.F90
+- Made history global metadata configurable. This can be done in two ways
+  1. Globally for all collections by setting `COMMENT:`, `CONTACT:`, `CONVENTIONS:`, `INSTITUTION:`, `REFERENCES:`, and `SOURCE:` at the top of `HISTORY.rc` like `EXPDSC:`
+  2. On a per-collection bases by setting `collection.comment:`, `collection.contact:`, `collection.conventions:`, `collection.institution:`, `collection.references:`, and `collection.source:`
+  - The default settings for these are to match that of MAPL 2.17.0
+- Updated `components.yaml`. These changes are to support using Spack to build MAPL
+  - ESMA_cmake v3.10.0 (add `FindESMF.cmake` from NOAA-EMC)
+  - ecbuild geos/v1.2.0 (updat `FindNetCDF.cmake` to that from NOAA-EMC)
+- Improved file-not-found error handling in ExtData for non-templated filenames
+
+## [2.17.2] - 2022-02-16
+
+### Fixed
+
+- Fixes for Global Attributes to match FP 5.27
+  - Changed `lev` variable `standard_name` to `model_layers`
+  - Changed global attribute `Convention` to `Conventions`
+  - Fill `Source` with a string "<EXPSRC> experiment_id: <EXPID>" where EXPSRC and EXPID are from the `EXPSRC:` and `EXPID:` lines in HISTORY.rc
+
+## [2.17.1] - 2022-02-04
+
+### Fixed
+
+- Add explicit dependence of gFTL-v1 and -v2 whenever both are used (currently profiler and generic)
 
 ## [2.17.0] - 2022-01-26
 

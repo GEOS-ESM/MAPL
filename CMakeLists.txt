@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.17.0
+  VERSION 2.19.2
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the default build type to release
@@ -84,8 +84,16 @@ endif()
 if(NOT TARGET FARGPARSE::fargparse)
   find_package(FARGPARSE QUIET)
 endif()
-if(NOT TARGET YAFYAML::yafyaml)
-  find_package(YAFYAML QUIET)
+
+option(USE_EXTDATA2G "Use ExtData2G" ON)
+if(USE_EXTDATA2G)
+  set (EXTDATA2G_TARGET "MAPL.ExtData2G" CACHE STRING "ExtData2G Target")
+  if(NOT TARGET YAFYAML::yafyaml)
+    find_package(YAFYAML REQUIRED)
+  endif()
+  message (STATUS "Building with ExtData2G")
+else()
+  set (EXTDATA2G_TARGET "" CACHE STRING "ExtData2G Target")
 endif()
 
 option(BUILD_WITH_PFLOGGER "Build MAPL with pFlogger library support" ON)
@@ -114,7 +122,9 @@ if (NOT Baselibs_FOUND)
      add_definitions(-DH5_HAVE_PARALLEL)
   endif()
 
-  find_package(ESMF MODULE REQUIRED)
+  if (NOT TARGET esmf)
+    find_package(ESMF MODULE REQUIRED)
+  endif ()
 endif ()
 
 if (BUILD_WITH_PFLOGGER)
