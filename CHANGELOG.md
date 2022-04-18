@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Removed one redundant get_file_extension call
 - Fix issue where ACG was called when no file had changed
 - Add missing `rc=status` in `MAPL_GetResourceFromMAPL_scalar`
 - Fixed bugs with next generation ExtData
