@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
+submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_addChild_smod
    use mapl_keywordenforcer, only: KE => KeywordEnforcer
    use mapl3g_GenericGridComp
    use mapl3g_ChildComponent
@@ -29,4 +29,4 @@ contains
 
 
    
-end submodule OuterMetaComponent_setservices_smod
+end submodule OuterMetaComponent_addChild_smod

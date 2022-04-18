@@ -21,7 +21,7 @@ contains
       integer :: status
       class(NodeIterator), allocatable :: iter_child_config
       type(ChildComponentMapIterator), allocatable :: iter_child
-      class(YAML_Node), pointer :: child_config
+      class(YAML_Node), pointer :: child_config, children_config
       character(:), pointer :: name
 
 !!$      call before(this, _RC)
@@ -41,17 +41,17 @@ contains
            _HERE, config
            _HERE, 'has children?' ,config%has('children')
            if (config%has('children')) then
-              associate ( children => config%of('children') )
-                associate (b => children%begin(), e => children%end() )
-                  iter_child_config = b
-                  do while (iter_child_config /= e)
-                     name => to_string(iter_child_config%first(), _RC)
-                     _HERE, 'child: ', name
-                     child_config => iter_child_config%second()
-                     call this%add_child(name, child_config, _RC)
-                     call iter_child_config%next()
-                  end do
-                end associate
+              children_config => config%of('children')
+              associate (b => children_config%begin(), e => children_config%end() )
+                ! ifort 2022.0 polymorphic assign fails for the line below.
+                allocate(iter_child_config, source=b)
+                do while (iter_child_config /= e)
+                   name => to_string(iter_child_config%first(), _RC)
+                   _HERE, 'child: ', name
+                   child_config => iter_child_config%second()
+                   call this%add_child(name, child_config, _RC)
+                   call iter_child_config%next()
+                end do
               end associate
            end if
          end associate
