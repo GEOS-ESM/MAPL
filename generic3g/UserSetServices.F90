@@ -71,7 +71,7 @@ contains
 
    function new_proc_setservices(userRoutine) result(proc_setservices)
       type(ProcSetServices) :: proc_setservices
-      procedure(I_SetServices) :: setservices
+      procedure(I_SetServices) :: userRoutine
 
       proc_setservices%userRoutine => userRoutine
    end function new_proc_setservices
