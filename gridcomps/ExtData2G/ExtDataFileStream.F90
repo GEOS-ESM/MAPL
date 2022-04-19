@@ -31,7 +31,7 @@ module MAPL_ExtDataFileStream
 contains
 
    function new_ExtDataFileStream(config,current_time,unusable,rc) result(data_set) 
-      class(YAML_Node), intent(in) :: config
+      class(Yaml_node), intent(in) :: config
       type(ESMF_Time), intent(in) :: current_time
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -109,7 +109,7 @@ contains
       end if
 
       if (range_str /= '') then
-         idx = index(range_str,',')
+         idx = index(range_str,'/')
          _ASSERT(idx/=0,'invalid specification of time range')
          if (allocated(data_set%valid_range)) deallocate(data_set%valid_range)
          allocate(data_set%valid_range(2))
@@ -126,7 +126,7 @@ contains
       contains
 
          function get_string_with_default(config,selector) result(string)
-            class(YAML_Node), intent(in) :: config
+            class(Yaml_Node), intent(in) :: config
             character(len=*), intent(In) :: selector
             character(len=:), allocatable :: string
 
@@ -139,10 +139,11 @@ contains
 
    end function new_ExtDataFileStream
 
-   subroutine detect_metadata(this,metadata_out,time,get_range,rc)
+   subroutine detect_metadata(this,metadata_out,time,multi_rule,get_range,rc)
       class(ExtDataFileStream), intent(inout) :: this
       type(FileMetadataUtils), intent(inout) :: metadata_out
       type(ESMF_Time),          intent(in)  :: time
+      logical, intent(in)  :: multi_rule
       logical, optional, intent(in)  :: get_range
       integer, optional, intent(out) :: rc
 
@@ -152,6 +153,10 @@ contains
       type(ESMF_Time), allocatable :: time_series(:)
       integer :: status
       character(len=ESMF_MAXPATHLEN) :: filename
+
+      if (multi_rule) then
+         _ASSERT(allocated(this%valid_range),"must use a collection with valid range")
+      end if
 
       if (present(get_range)) then
          get_range_ = get_range
@@ -170,7 +175,7 @@ contains
          end if
       end if
 
-      if (get_range_) then
+      if (get_range_ .or. multi_rule) then
          call fill_grads_template(filename,this%file_template,time=this%valid_range(1),__RC__)
       else
          call fill_grads_template(filename,this%file_template,time=time,__RC__)
