@@ -233,7 +233,7 @@ contains
          ! time is not representable as absolute time interval (month, year etc...) do this 
          ! brute force way. Not good but ESMF leaves no choice
          ftime=this%reff_time
-         do while (ftime < target_time)
+         do while (ftime <= target_time)
             ftime = ftime + this%frequency
          enddo
          ftime=ftime -this%frequency + shift*this%frequency
