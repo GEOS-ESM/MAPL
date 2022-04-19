@@ -45,6 +45,7 @@ workflows:
           repo: GEOSgcm
           checkout_fixture: true
           mepodevelop: true
+          checkout_mapl3_release_branch: true
           checkout_mapl_branch: true
           persist_workspace: false # Needs to be true to run fv3/gcm experiment, costs extra
 
@@ -59,7 +60,8 @@ workflows:
           repo: GEOSldas
           mepodevelop: false
           checkout_fixture: true
-          fixture_branch: develop
+          fixture_branch: release/MAPL-v3
+          checkout_mapl3_release_branch: true
           checkout_mapl_branch: true
 
       # Build GEOSadas (ifort only, needs a couple develop branches)
@@ -73,7 +75,8 @@ workflows:
           resource_class: xlarge
           repo: GEOSadas
           checkout_fixture: true
-          fixture_branch: develop
+          fixture_branch: release/MAPL-v3
+          checkout_mapl3_release_branch: true
           checkout_mapl_branch: true
           mepodevelop: true
           develop_repos: "cmake GEOSana_GridComp" # GEOSadas needs some extra branches to work with mainline MAPL
