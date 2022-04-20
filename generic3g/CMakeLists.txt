@@ -1,6 +1,13 @@
 esma_set_this (OVERRIDE MAPL.generic3g)
 
+
 set(srcs
+  specs/HorizontalStaggerLoc.F90
+  specs/VerticalStaggerLoc.F90
+  specs/UngriddedDimSpec.F90
+  specs/DimSpec.F90
+  GenericSpecsParser.F90
+
   ESMF_Interfaces.F90
   UserSetServices.F90
   MethodPhasesMap.F90

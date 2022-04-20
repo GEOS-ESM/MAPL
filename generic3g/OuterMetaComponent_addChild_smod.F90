@@ -18,8 +18,6 @@ contains
       type(ESMF_GridComp) :: child_gc
       type(ChildComponent) :: child_comp
 
-      print*,__FILE__,__LINE__, child_name, config
-
       child_gc = create_grid_comp(child_name, config, _RC)
       child_comp%gridcomp = child_gc 
       call this%children%insert(child_name, child_comp)

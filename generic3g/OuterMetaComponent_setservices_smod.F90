@@ -1,3 +1,4 @@
+
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
@@ -13,6 +14,18 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
 
 contains
 
+   !========================================================================
+   ! Generic SetServices order of operations:
+   !
+   ! 1) Parse any generic aspects of the config.
+   ! 2) Create inner user gridcomp and call its setservices.
+   ! 3) Process children
+   ! 4) Process specs
+   !
+   ! Note that specs are processed depth first, but that this may
+   ! reverse when step (3) is moved to a new generic initialization phase.
+   !=========================================================================
+   
    module subroutine SetServices(this, rc)
       use mapl3g_GenericGridComp, only: generic_setservices => setservices
       class(OuterMetaComponent), intent(inout) :: this
@@ -24,38 +37,39 @@ contains
 
 !!$      call before(this, _RC)
 !!$
-!!$      if (this%config%has_yaml()) then
-!!$         associate( config => this%config%yaml_cfg )
-!!$           call this%set_component_spec(build_component_spec(config, _RC))
-!!$         end associate
-!!$      end if
-
-
-      this%user_gc = create_user_gridcomp(this, _RC)
 
       if (this%config%has_yaml()) then
-         associate( yaml_cfg => this%config%yaml_cfg)
-
-           if (yaml_cfg%has('children')) then
-              call add_children_from_config(yaml_cfg%of('children'), _RC)
-           end if
-
-         end associate
+         call parse_config(this, this%config%yaml_cfg, _RC)
       end if
 
-      call this%user_setservices%run_setservices(this%user_gc, _RC)
+      call process_user_gridcomp(this, _RC)
 
-      call children_setservices(this%children, _RC)
+      call process_children(this, _RC)
 
-!!$      call <messy stuff>
-!!$
-!!$      ...
+      ! 4) Process generic specs
+!!$      call process_generic_specs(this, _RC)
+
+!!$    call after(this, _RC)
       
       _RETURN(ESMF_SUCCESS)
 
    contains
 
-      
+      ! Operation(1)
+      subroutine parse_config(this, config, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         class(YAML_Node), intent(inout) :: config
+         integer, optional, intent(out) :: rc
+         
+         integer :: status
+
+         if (config%has('children')) then
+            call add_children_from_config(config%of('children'), _RC)
+         end if
+
+         _RETURN(_SUCCESS)
+      end subroutine parse_config
+
       subroutine add_children_from_config(children_config, rc)
          class(YAML_Node), intent(in) :: children_config
          integer, optional, intent(out) :: rc
@@ -80,10 +94,23 @@ contains
          _RETURN(ESMF_SUCCESS)
       end subroutine add_children_from_config
 
-      subroutine children_setservices(children, rc)
-         type(ChildComponentMap), intent(in) :: children
+      ! Operation (2)
+      subroutine process_user_gridcomp(this, rc)
+         class(OuterMetaComponent), intent(inout) :: this
          integer, optional, intent(out) :: rc
+         
+         integer :: status
+         this%user_gc = create_user_gridcomp(this, _RC)
+         call this%user_setservices%run_setservices(this%user_gc, _RC)
+         _RETURN(ESMF_SUCCESS)
+      end subroutine process_user_gridcomp
+      
 
+      ! Operation (3)
+      subroutine process_children(this, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         integer, optional, intent(out) :: rc
+         
          type(ChildComponentMapIterator), allocatable :: iter
          integer :: status
 
@@ -96,8 +123,11 @@ contains
               call iter%next()
            end do
          end associate
+
          _RETURN(ESMF_SUCCESS)
-      end subroutine children_setservices
+
+      end subroutine process_children
+
 
    end subroutine SetServices
 

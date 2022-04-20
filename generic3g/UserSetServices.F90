@@ -23,7 +23,10 @@ module mapl3g_UserSetServices
 
    public :: user_setservices        ! overloaded factory method
    public :: AbstractUserSetServices  ! Base class for variant SS functors
-
+   public :: DSOSetServices
+   public :: operator(==)
+   public :: operator(/=)
+   
    type, abstract :: AbstractUserSetServices
    contains
       procedure(I_RunSetServices), deferred :: run_setservices
@@ -63,6 +66,16 @@ module mapl3g_UserSetServices
       module procedure new_proc_setservices
       module procedure new_dso_setservices
    end interface user_setservices
+
+   interface operator(==)
+      module procedure equal_ProcSetServices
+      module procedure equal_DSOSetServices
+   end interface operator(==)
+
+   interface operator(/=)
+      module procedure not_equal_ProcSetServices
+      module procedure not_equal_DSOSetServices
+   end interface operator(/=)
 
 contains
 
@@ -124,4 +137,28 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine run_dso_setservices
 
+
+   pure logical function equal_ProcSetServices(a, b) result(equal)
+      type(ProcSetServices), intent(in) :: a, b
+      equal = associated(a%userRoutine, b%userRoutine)
+   end function equal_ProcSetServices
+
+   pure logical function equal_DSOSetServices(a, b) result(equal)
+      type(DSOSetServices), intent(in) :: a, b
+      
+      equal = (a%sharedObj == b%sharedObj) .and. (a%userRoutine == b%userRoutine)
+   end function equal_DSOSetServices
+
+   pure logical function not_equal_ProcSetServices(a, b) result(not_equal)
+      type(ProcSetServices), intent(in) :: a, b
+      not_equal = .not. (a == b)
+   end function not_equal_ProcSetServices
+
+   pure logical function not_equal_DSOSetServices(a, b) result(not_equal)
+      type(DSOSetServices), intent(in) :: a, b
+      not_equal = .not. (a == b)
+   end function not_equal_DSOSetServices
+   
+
+   
 end module mapl3g_UserSetServices

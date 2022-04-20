@@ -35,6 +35,7 @@ module mapl3g_OuterMetaComponent
 
    type :: OuterMetaComponent
       private
+      
       character(len=:), allocatable               :: name
       type(ESMF_GridComp)                         :: self_gc
       type(ESMF_GridComp)                         :: user_gc
