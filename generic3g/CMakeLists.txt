@@ -7,7 +7,8 @@ set(srcs
   specs/UngriddedDimSpec.F90
   specs/DimSpec.F90
   specs/ComponentSpec.F90
-  GenericSpecsParser.F90
+
+  ComponentSpecBuilder.F90
 
   ESMF_Interfaces.F90
   UserSetServices.F90

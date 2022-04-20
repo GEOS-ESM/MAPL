@@ -1,0 +1,31 @@
+module Test_ComponentSpecBuilder
+   use funit
+   use yafyaml
+   use mapl3g_UserSetServices
+   use mapl3g_ComponentSpecBuilder
+   implicit none
+
+contains
+
+
+   ! setServices:
+   !      sharedObj: <dso_name>
+   !      userRoutine: <user_routine>  
+   @test
+   subroutine test_build_setServices()
+
+      class(YAML_Node), allocatable :: config
+      integer :: status
+      type(Parser) :: p
+      type(DSOSetServices) :: ss_expected, ss_found
+
+!!$      p = Parser('core')
+!!$      config = p%load(TextStream('{sharedObj: libA, userRoutine: procB}'))
+!!$
+!!$      ss_expected = DSOSetServices('libA', 'procB')
+!!$      ss_found = parse_setServices(config)
+!!$      @assert_that(ss_found == ss_expected, is(true()))
+      
+   end subroutine test_build_setServices
+
+end module Test_ComponentSpecBuilder

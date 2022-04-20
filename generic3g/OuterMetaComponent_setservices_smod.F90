@@ -6,6 +6,7 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    use gFTL2_StringVector
    use mapl3g_ESMF_Interfaces, only: I_Run
    use mapl3g_UserSetServices, only: user_setservices
+   use mapl3g_ComponentSpecBuilder
    ! Kludge to work around Intel 2021 namespace bug that exposes
    ! private names from other modules in unrelated submodules.
    ! Report filed 2022-03-14 (T. Clune)
@@ -40,7 +41,8 @@ contains
 !!$
 
       if (this%config%has_yaml()) then
-         call parse_config(this, this%config%yaml_cfg, _RC)
+         this%component_spec = build_component_spec(this%config%yaml_cfg, _RC)
+!!$         call parse_config(this, this%config%yaml_cfg, _RC)
       end if
 
       call process_user_gridcomp(this, _RC)
@@ -48,7 +50,7 @@ contains
       call process_children(this, _RC)
 
       ! 4) Process generic specs
-!!$      call process_generic_specs(this, _RC)
+      call process_generic_specs(this, _RC)
 
 !!$    call after(this, _RC)
       
@@ -56,34 +58,6 @@ contains
 
    contains
 
-      ! Operation(1)
-      subroutine parse_config(this, config, rc)
-         class(OuterMetaComponent), intent(inout) :: this
-         class(YAML_Node), target, intent(inout) :: config
-         integer, optional, intent(out) :: rc
-         
-         class(YAML_Node), pointer :: dso_yaml
-         character(:), allocatable :: sharedObj, userRoutine
-         integer :: status
-
-         if (config%has('setServices')) then
-            dso_yaml => config%at('setServices', _RC)
-            call dso_yaml%get(sharedObj, 'sharedObj', _RC)
-            if (dso_yaml%has('userRoutine')) then
-               call dso_yaml%get(userRoutine, 'userRoutine', _RC)
-            else
-               userRoutine = 'setservices'
-            end if
-
-            call this%set_user_setservices(user_setservices(sharedObj, userRoutine))
-         end if
-            
-         if (config%has('children')) then
-            call add_children_from_config(config%of('children'), _RC)
-         end if
-
-         _RETURN(_SUCCESS)
-      end subroutine parse_config
 
       subroutine add_children_from_config(children_config, rc)
          class(YAML_Node), intent(in) :: children_config
@@ -109,7 +83,7 @@ contains
          _RETURN(ESMF_SUCCESS)
       end subroutine add_children_from_config
 
-      ! Operation (2)
+      ! Step 2.
       subroutine process_user_gridcomp(this, rc)
          class(OuterMetaComponent), intent(inout) :: this
          integer, optional, intent(out) :: rc
@@ -122,8 +96,7 @@ contains
          _RETURN(ESMF_SUCCESS)
       end subroutine process_user_gridcomp
       
-
-      ! Operation (3)
+      ! Step 3.
       subroutine process_children(this, rc)
          class(OuterMetaComponent), intent(inout) :: this
          integer, optional, intent(out) :: rc
@@ -142,9 +115,19 @@ contains
          end associate
 
          _RETURN(ESMF_SUCCESS)
-
       end subroutine process_children
 
+      ! Step 4.
+      ! Note that setservices is processed at an earlier step.
+      subroutine process_generic_specs(this, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         integer, optional, intent(out) :: rc
+         
+         integer :: status
+
+
+         _RETURN(ESMF_SUCCESS)
+      end subroutine process_generic_specs
 
    end subroutine SetServices
 
