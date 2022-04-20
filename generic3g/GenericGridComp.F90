@@ -99,21 +99,21 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      class(YAML_Node), pointer :: dso_yaml
-      character(:), allocatable :: sharedObj, userRoutine
+!!$      class(YAML_Node), pointer :: dso_yaml
+!!$      character(:), allocatable :: sharedObj, userRoutine
       
       gc = make_basic_gridcomp(name=name, petlist=petlist, _RC)
       outer_meta => get_outer_meta(gc, _RC)
       call outer_meta%set_config(config)
 
-      dso_yaml => config%at('setServices', _RC)
-      call dso_yaml%get(sharedObj, 'sharedObj', _RC)
-      if (dso_yaml%has('userRoutine')) then
-         call dso_yaml%get(userRoutine, 'userRoutine', _RC)
-      else
-         userRoutine = 'setservices'
-      end if
-      call outer_meta%set_user_setservices(user_setservices(sharedObj, userRoutine))
+!!$      dso_yaml => config%at('setServices', _RC)
+!!$      call dso_yaml%get(sharedObj, 'sharedObj', _RC)
+!!$      if (dso_yaml%has('userRoutine')) then
+!!$         call dso_yaml%get(userRoutine, 'userRoutine', _RC)
+!!$      else
+!!$         userRoutine = 'setservices'
+!!$      end if
+!!$      call outer_meta%set_user_setservices(user_setservices(sharedObj, userRoutine))
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

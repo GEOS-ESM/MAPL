@@ -6,7 +6,7 @@ add_subdirectory(gridcomps)
 
 set (test_srcs
   Test_ParseGenericSpecs.pf
-  Test_AddVarSpec.pf
+#  Test_AddVarSpec.pf
   Test_SimpleLeafGridComp.pf
   Test_RunChild.pf
   )

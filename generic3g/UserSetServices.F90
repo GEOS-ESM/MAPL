@@ -29,7 +29,7 @@ module mapl3g_UserSetServices
    
    type, abstract :: AbstractUserSetServices
    contains
-      procedure(I_RunSetServices), deferred :: run_setservices
+      procedure(I_RunSetServices), deferred :: run
    end type AbstractUserSetServices
 
    abstract interface
@@ -50,7 +50,7 @@ module mapl3g_UserSetServices
    type, extends(AbstractUserSetServices) :: ProcSetServices
       procedure(I_SetServices), nopass, pointer :: userRoutine
    contains
-      procedure :: run_setservices => run_proc_setservices
+      procedure :: run => run_proc_setservices
    end type ProcSetServices
 
    ! Concrete subclass to encapsulate a user setservices procedure
@@ -59,7 +59,7 @@ module mapl3g_UserSetServices
       character(:), allocatable :: sharedObj
       character(:), allocatable :: userRoutine
    contains
-      procedure :: run_setservices => run_dso_setservices
+      procedure :: run => run_dso_setservices
    end type DSOSetServices
 
    interface user_setservices

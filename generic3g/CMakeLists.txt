@@ -6,6 +6,7 @@ set(srcs
   specs/VerticalStaggerLoc.F90
   specs/UngriddedDimSpec.F90
   specs/DimSpec.F90
+  specs/ComponentSpec.F90
   GenericSpecsParser.F90
 
   ESMF_Interfaces.F90

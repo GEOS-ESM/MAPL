@@ -2,6 +2,7 @@
 
 module mapl3g_OuterMetaComponent
    use :: mapl3g_UserSetServices,   only: AbstractUserSetServices
+   use :: mapl3g_ComponentSpec
    use :: mapl3g_ChildComponent
    use :: mapl3g_CouplerComponentVector
    use :: mapl3g_InnerMetaComponent
@@ -40,7 +41,8 @@ module mapl3g_OuterMetaComponent
       type(ESMF_GridComp)                         :: self_gc
       type(ESMF_GridComp)                         :: user_gc
       type(GenericConfig)                         :: config
-      class(AbstractUserSetServices), allocatable :: user_setServices
+
+      type(ComponentSpec)                         :: component_spec
       type(MethodPhasesMap)                       :: phases_map
       type(OuterMetaComponent), pointer           :: parent_private_state
 !!$      type(ComponentSpec)                         :: component_spec
@@ -293,7 +295,7 @@ contains
    subroutine set_user_setservices(this, user_setservices)
       class(OuterMetaComponent), intent(inout) :: this
       class(AbstractUserSetServices), intent(in) :: user_setservices
-      this%user_setservices = user_setservices
+      this%component_spec%user_setServices = user_setservices
    end subroutine set_user_setservices
 
 

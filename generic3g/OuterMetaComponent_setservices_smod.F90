@@ -5,6 +5,7 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    use esmf
    use gFTL2_StringVector
    use mapl3g_ESMF_Interfaces, only: I_Run
+   use mapl3g_UserSetServices, only: user_setservices
    ! Kludge to work around Intel 2021 namespace bug that exposes
    ! private names from other modules in unrelated submodules.
    ! Report filed 2022-03-14 (T. Clune)
@@ -58,11 +59,25 @@ contains
       ! Operation(1)
       subroutine parse_config(this, config, rc)
          class(OuterMetaComponent), intent(inout) :: this
-         class(YAML_Node), intent(inout) :: config
+         class(YAML_Node), target, intent(inout) :: config
          integer, optional, intent(out) :: rc
          
+         class(YAML_Node), pointer :: dso_yaml
+         character(:), allocatable :: sharedObj, userRoutine
          integer :: status
 
+         if (config%has('setServices')) then
+            dso_yaml => config%at('setServices', _RC)
+            call dso_yaml%get(sharedObj, 'sharedObj', _RC)
+            if (dso_yaml%has('userRoutine')) then
+               call dso_yaml%get(userRoutine, 'userRoutine', _RC)
+            else
+               userRoutine = 'setservices'
+            end if
+
+            call this%set_user_setservices(user_setservices(sharedObj, userRoutine))
+         end if
+            
          if (config%has('children')) then
             call add_children_from_config(config%of('children'), _RC)
          end if
@@ -100,8 +115,10 @@ contains
          integer, optional, intent(out) :: rc
          
          integer :: status
+
          this%user_gc = create_user_gridcomp(this, _RC)
-         call this%user_setservices%run_setservices(this%user_gc, _RC)
+         call this%component_spec%user_setServices%run(this%user_gc, _RC)
+
          _RETURN(ESMF_SUCCESS)
       end subroutine process_user_gridcomp
       
