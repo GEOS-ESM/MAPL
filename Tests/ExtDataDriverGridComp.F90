@@ -59,57 +59,6 @@ module ExtData_DriverGridCompMod
 
 contains
 
-  function new_ExtData_DriverGridComp(root_set_services, configFileName, name) result(cap)
-    use MAPL_SetServicesWrapper
-    procedure() :: root_set_services
-    character(len=*), optional, intent(in) :: name
-    character(len=*), optional, intent(in) :: configFileName
-    type(ExtData_DriverGridComp) :: cap
-
-    type(ExtData_DriverGridComp_Wrapper) :: cap_wrapper
-
-    integer :: status, rc
-    type(StubComponent) :: stub_component
-    type(MAPL_MetaComp), pointer :: meta => null()
-    character(len=:), allocatable :: cap_name
-
-    cap%root_set_services => root_set_services
-
-    if (present(name)) then
-       allocate(cap%name, source=name)
-    else
-       allocate(cap%name, source='CAP')
-    end if
-
-    if (present(configFileName)) then
-       allocate(cap%configFile, source=configFileName)
-    else
-       allocate(cap%configFile, source='CAP.rc')
-    end if
-
-    !cap_name = 'ExtData_DriverGridComp'
-    cap_name = 'CAP'
-    meta => null()
-    cap%gc = ESMF_GridCompCreate(name=cap_name, rc = status)
-    _VERIFY(status)
-    call MAPL_InternalStateCreate(cap%gc, meta, __RC__)
-    meta%t_profiler = DistributedProfiler(cap_name, MpiTimerGauge(), comm=MPI_COMM_WORLD)
-
-    allocate(cap_wrapper%ptr)
-    cap_wrapper%ptr = cap
-    call MAPL_Set(meta, name=cap_name, component=stub_component, __RC__)
-
-    meta%user_setservices_wrapper = ProcSetServicesWrapper(set_services_gc)
-
-    call ESMF_UserCompSetInternalState(cap%gc, internal_cap_name, cap_wrapper, status)
-    _VERIFY(status)
-
-    !allocate(meta_comp_wrapper%ptr)
-    !call ESMF_UserCompSetInternalState(cap%gc, internal_meta_comp_name, meta_comp_wrapper, status)
-    !_VERIFY(status)
-
-  end function new_ExtData_DriverGridComp
-
   subroutine set_services_gc(gc, rc)
     type(ESMF_GridComp) :: gc
     integer, intent(out) :: rc
@@ -341,6 +290,58 @@ contains
 
     _RETURN(ESMF_SUCCESS)
   end subroutine set_services_gc
+
+  function new_ExtData_DriverGridComp(root_set_services, configFileName, name) result(cap)
+    use MAPL_SetServicesWrapper
+    procedure() :: root_set_services
+    character(len=*), optional, intent(in) :: name
+    character(len=*), optional, intent(in) :: configFileName
+    type(ExtData_DriverGridComp) :: cap
+
+    type(ExtData_DriverGridComp_Wrapper) :: cap_wrapper
+
+    integer :: status, rc
+    type(StubComponent) :: stub_component
+    type(MAPL_MetaComp), pointer :: meta => null()
+    character(len=:), allocatable :: cap_name
+
+    cap%root_set_services => root_set_services
+
+    if (present(name)) then
+       allocate(cap%name, source=name)
+    else
+       allocate(cap%name, source='CAP')
+    end if
+
+    if (present(configFileName)) then
+       allocate(cap%configFile, source=configFileName)
+    else
+       allocate(cap%configFile, source='CAP.rc')
+    end if
+
+    !cap_name = 'ExtData_DriverGridComp'
+    cap_name = 'CAP'
+    meta => null()
+    cap%gc = ESMF_GridCompCreate(name=cap_name, rc = status)
+    _VERIFY(status)
+    call MAPL_InternalStateCreate(cap%gc, meta, __RC__)
+    meta%t_profiler = DistributedProfiler(cap_name, MpiTimerGauge(), comm=MPI_COMM_WORLD)
+
+    allocate(cap_wrapper%ptr)
+    cap_wrapper%ptr = cap
+    call MAPL_Set(meta, name=cap_name, component=stub_component, __RC__)
+
+    meta%user_setservices_wrapper = ProcSetServicesWrapper(set_services_gc)
+
+    call ESMF_UserCompSetInternalState(cap%gc, internal_cap_name, cap_wrapper, status)
+    _VERIFY(status)
+
+    !allocate(meta_comp_wrapper%ptr)
+    !call ESMF_UserCompSetInternalState(cap%gc, internal_meta_comp_name, meta_comp_wrapper, status)
+    !_VERIFY(status)
+
+  end function new_ExtData_DriverGridComp
+
 
 
   subroutine initialize_gc(gc, import_state, export_state, clock, rc)

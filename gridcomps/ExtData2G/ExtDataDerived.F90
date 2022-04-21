@@ -27,7 +27,7 @@ module MAPL_ExtDataDerived
 contains
 
    function new_ExtDataDerived(config,unusable,rc) result(rule)
-      type(Configuration), intent(in) :: config
+      class(YAML_Node), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
