@@ -15,7 +15,7 @@ module mapl3g_MethodPhasesMap_private
 
 #include "map/template.inc"
 
-#undef MethodPhasesPair
+#undef Pair
 #undef MapIterator
 #undef Map
 #undef T
