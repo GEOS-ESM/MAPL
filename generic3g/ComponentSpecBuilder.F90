@@ -2,6 +2,7 @@
 
 module mapl3g_ComponentSpecBuilder
    use mapl3g_ComponentSpec
+   use mapl3g_ChildSpec
    use mapl_ErrorHandling
    use mapl3g_UserSetServices
    use yaFyaml
@@ -13,6 +14,7 @@ module mapl3g_ComponentSpecBuilder
 
    ! The following interfaces are public only for testing purposes.
    public :: build_setservices
+   public :: build_ChildSpec
    
 contains
 
@@ -46,7 +48,9 @@ contains
       character(:), allocatable :: sharedObj, userRoutine
       integer :: status
 
-      call config%get(sharedObj, 'sharedObj', _RC)
+      call config%get(sharedObj, 'sharedObj', rc=status)
+      _ASSERT(status == 0, 'setServices spec does not specify sharedObj')
+
       if (config%has('userRoutine')) then
          call config%get(userRoutine, 'userRoutine', _RC)
       else
@@ -57,6 +61,27 @@ contains
       
       _RETURN(_SUCCESS)
    end function build_setservices
+
+   type(ChildSpec) function build_ChildSpec(config, rc) result(child_spec)
+      class(YAML_Node), intent(in) :: config
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(config%has('setServices'),"child spec must specify a 'setServices' spec")
+      child_spec%user_setservices = build_setservices(config%of('setServices'), _RC)
+
+      if (config%has('esmf_config')) then
+         call config%get(child_spec%esmf_config_file, 'esmf_config', _RC)
+      end if
+
+      if (config%has('yaml_config')) then
+         call config%get(child_spec%yaml_config_file, 'yaml_config', _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end function build_ChildSpec
+      
 
 !!$   type(StatesSpec) function build_states_spec(config, rc) result(states_spec)
 !!$      type(Configuration), intent(in) :: config

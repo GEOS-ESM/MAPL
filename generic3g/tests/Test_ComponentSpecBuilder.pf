@@ -1,8 +1,11 @@
+#include "MAPL_ErrLog.h"
 module Test_ComponentSpecBuilder
    use funit
    use yafyaml
    use mapl3g_UserSetServices
    use mapl3g_ComponentSpecBuilder
+   use mapl3g_ChildSpec
+   use mapl_ErrorHandling
    implicit none
 
 contains
@@ -42,28 +45,14 @@ contains
    end subroutine test_build_setServices_default
 
    @test
-   subroutine test_equal_child_spec_name_differs()
-      use mapl3g_ChildSpec
-      class(AbstractUserSetServices), allocatable :: ss
-
-      ss = user_setservices('libA', 'setservices_')
-      
-      associate (a => ChildSpec('A', ss), b => ChildSpec('B', ss))
-        @assert_that(a == b, is(false()))
-        @assert_that(a /= b, is(true()))
-      end associate
-   end subroutine test_equal_child_spec_name_differs
-
-   @test
    subroutine test_equal_child_spec_ss_differs()
-      use mapl3g_ChildSpec
       class(AbstractUserSetServices), allocatable :: ss_A
       class(AbstractUserSetServices), allocatable :: ss_B
 
       ss_A = user_setservices('libA', 'setservices_')
       ss_B = user_setservices(gamma)
       
-      associate (a => ChildSpec('A', ss_A), b => ChildSpec('A', ss_B))
+      associate (a => ChildSpec(ss_A), b => ChildSpec(ss_B))
         @assert_that(a == b, is(false()))
         @assert_that(a /= b, is(true()))
       end associate
@@ -79,53 +68,52 @@ contains
 
    @test
    subroutine test_equal_child_spec_cfg_differs()
-      use mapl3g_ChildSpec
       class(AbstractUserSetServices), allocatable :: ss
       class(AbstractUserSetServices), allocatable :: ss_B
 
       ss = user_setservices('libA', 'setservices_')
       
-      associate( a => ChildSpec('A', ss, yaml_config='a.yml') )
+      associate( a => ChildSpec(ss, yaml_config='a.yml') )
 
-        associate( b => ChildSpec('A', ss) )
+        associate( b => ChildSpec(ss) )
           @assert_that(a == b, is(false()))
           @assert_that(a /= b, is(true()))
         end associate
 
-        associate( b => ChildSpec('A', ss, yaml_config='a2.yml') )
+        associate( b => ChildSpec(ss, yaml_config='a2.yml') )
           @assert_that(a == b, is(false()))
           @assert_that(a /= b, is(true()))
         end associate
           
-        associate( b => ChildSpec('A', ss, esmf_config='a2.rc') )
+        associate( b => ChildSpec(ss, esmf_config='a2.rc') )
           @assert_that(a == b, is(false()))
           @assert_that(a /= b, is(true()))
         end associate
 
-        associate( b => ChildSpec('A', ss, esmf_config='a2.rc', yaml_config='a.yml') )
+        associate( b => ChildSpec(ss, esmf_config='a2.rc', yaml_config='a.yml') )
           @assert_that(a == b, is(false()))
           @assert_that(a /= b, is(true()))
         end associate
 
       end associate
 
-      associate( a => ChildSpec('A', ss, esmf_config='a.rc') )
-        associate( b => ChildSpec('A', ss) )
+      associate( a => ChildSpec(ss, esmf_config='a.rc') )
+        associate( b => ChildSpec(ss) )
           @assert_that(a == b, is(false()))
           @assert_that(a /= b, is(true()))
         end associate
 
-        associate( b => ChildSpec('A', ss, yaml_config='a2.yml') )
+        associate( b => ChildSpec(ss, yaml_config='a2.yml') )
           @assert_that(a == b, is(false()))
           @assert_that(a /= b, is(true()))
         end associate
           
-        associate( b => ChildSpec('A', ss, esmf_config='a2.rc') )
+        associate( b => ChildSpec(ss, esmf_config='a2.rc') )
           @assert_that(a == b, is(false()))
           @assert_that(a /= b, is(true()))
         end associate
 
-        associate( b => ChildSpec('A', ss, esmf_config='a.rc', yaml_config='a.yml') )
+        associate( b => ChildSpec(ss, esmf_config='a.rc', yaml_config='a.yml') )
           @assert_that(a == b, is(false()))
           @assert_that(a /= b, is(true()))
         end associate
@@ -139,5 +127,59 @@ contains
       end subroutine gamma
       
    end subroutine test_equal_child_spec_cfg_differs
+
+   @test
+   subroutine test_build_childSpec_basic()
+      type(Parser) :: p
+      class(YAML_Node), allocatable :: config
+      type(ChildSpec) :: found
+      integer :: status, rc
+
+      associate (expected => ChildSpec(user_setservices('libA', 'setservices_')))
+        p = Parser('core')
+        config = p%load(TextStream('{setServices: {sharedObj: libA}}'))
+        found = build_ChildSpec(config, _RC)
+        @assert_that(expected == found, is(true()))
+      end associate
+
+   end subroutine test_build_childSpec_basic
+
+   @test
+   subroutine test_build_childSpec_with_esmf_config()
+      type(Parser) :: p
+      class(YAML_Node), allocatable :: config
+      type(ChildSpec) :: found
+      integer :: status, rc
+
+      associate (ss => user_setservices('libA', 'setservices_'))
+        associate (expected => ChildSpec(ss, esmf_config='a.rc'))
+          p = Parser('core')
+          config = p%load(TextStream('{setServices: {sharedObj: libA}, esmf_config: a.rc}'))
+          found = build_ChildSpec(config, _RC)
+          @assert_that(expected == found, is(true()))
+        end associate
+      end associate
+
+   end subroutine test_build_ChildSpec_with_esmf_config
+
+
+   @test
+   subroutine test_build_childSpec_with_yaml_config()
+      type(Parser) :: p
+      class(YAML_Node), allocatable :: config
+      type(ChildSpec) :: found
+      integer :: status, rc
+
+      associate (ss => user_setservices('libA', 'setservices_'))
+        associate (expected => ChildSpec(ss, yaml_config='a.yml'))
+          p = Parser('core')
+          config = p%load(TextStream('{setServices: {sharedObj: libA}, yaml_config: a.yml}'))
+          found = build_ChildSpec(config, _RC)
+          @assert_that(expected == found, is(true()))
+        end associate
+      end associate
+
+   end subroutine test_build_childSpec_with_yaml_config
+
 
 end module Test_ComponentSpecBuilder
