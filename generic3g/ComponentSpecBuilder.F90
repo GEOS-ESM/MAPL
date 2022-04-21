@@ -7,7 +7,12 @@ module mapl3g_ComponentSpecBuilder
    use yaFyaml
    implicit none
    private
+
+   ! 
    public :: build_component_spec
+
+   ! The following interfaces are public only for testing purposes.
+   public :: build_setservices
    
 contains
 
@@ -23,6 +28,7 @@ contains
          _ASSERT(.not. allocated(spec%user_setservices), 'user setservices already specified')
          spec%user_setservices = build_setservices(config%of('setServices'), _RC)
       end if
+      
 !!$      spec%states_spec = process_states_spec(config%of('states'), _RC)
 !!$      spec%connections_spec = process_connections_spec(config%of('connections'), _RC)
 !!$      spec%children_spec = process_children_spec(config%of('children'), _RC)
@@ -44,7 +50,7 @@ contains
       if (config%has('userRoutine')) then
          call config%get(userRoutine, 'userRoutine', _RC)
       else
-         userRoutine = 'setservices'
+         userRoutine = 'setservices_'
       end if
 
       user_ss = user_setservices(sharedObj, userRoutine)

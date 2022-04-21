@@ -316,7 +316,6 @@ contains
            clock=clock, userRC=userRC, _RC)
       _VERIFY(userRC)
 
-      print*,__FILE__,__LINE__, status, userRC
       associate(b => this%children%begin(), e => this%children%end())
         iter = b
         do while (iter /= e)

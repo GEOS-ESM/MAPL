@@ -68,13 +68,11 @@ module mapl3g_UserSetServices
    end interface user_setservices
 
    interface operator(==)
-      module procedure equal_ProcSetServices
-      module procedure equal_DSOSetServices
+      module procedure equal_setServices
    end interface operator(==)
 
    interface operator(/=)
-      module procedure not_equal_ProcSetServices
-      module procedure not_equal_DSOSetServices
+      module procedure not_equal_setServices
    end interface operator(/=)
 
 contains
@@ -127,7 +125,6 @@ contains
       logical :: found
 
       _ASSERT(is_supported_dso_name(this%sharedObj), 'unsupported dso name:: <'//this%sharedObj//'>')
-      print*,__FILE__,__LINE__, adjust_dso_name(this%sharedObj), ' ', this%userRoutine
       call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(this%sharedObj), &
            userRoutine=this%userRoutine, userRoutinefound=found, userRC=userRC, rc=status)
 
@@ -137,6 +134,35 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine run_dso_setservices
 
+
+   pure logical function equal_setServices(a, b) result(equal)
+      class(AbstractUserSetServices), intent(in) :: a, b
+
+      select type (a)
+      type is (DSOSetservices)
+         select type(b)
+         type is (DSOSetservices)
+            equal = equal_DSOSetServices(a,b)
+         class default
+            equal = .false.
+         end select
+      type is (ProcSetServices)
+         select type(b)
+         type is (ProcSetservices)
+            equal = equal_ProcSetServices(a,b)
+         class default
+            equal = .false.
+         end select
+      class default
+         equal = .false.
+      end select
+
+   end function equal_setServices
+
+   pure logical function not_equal_setServices(a, b) result(not_equal)
+      class(AbstractUserSetServices), intent(in) :: a, b
+      not_equal = .not. (a == b)
+   end function not_equal_setServices
 
    pure logical function equal_ProcSetServices(a, b) result(equal)
       type(ProcSetServices), intent(in) :: a, b

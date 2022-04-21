@@ -7,6 +7,7 @@ set(srcs
   specs/UngriddedDimSpec.F90
   specs/DimSpec.F90
   specs/ComponentSpec.F90
+  specs/ChildSpec.F90
 
   ComponentSpecBuilder.F90
 

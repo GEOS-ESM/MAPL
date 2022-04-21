@@ -78,13 +78,6 @@ contains
       type(InnerMetaWrapper) :: wrapper
       integer :: status
 
-             block
-               character(ESMF_MAXSTR) :: name
-               call ESMF_GridCompGet(self_gc, name=name, _RC)
-               _HERE, '... attach inner meta for <',trim(name),'> '
-             end block
-
-
       allocate(wrapper%inner_meta)
       wrapper%inner_meta = InnerMetaComponent(self_gc, outer_gc)
       call ESMF_UserCompSetInternalState(self_gc, INNER_META_PRIVATE_STATE, wrapper, status)
