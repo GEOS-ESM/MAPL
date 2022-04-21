@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- New generic3g directory intended to replace existing generic directory when completed.
+  - Modules there temporarily have `mapl3g_` as the prefix.
 - New command line switches for activating global time and memory
     profiling.  The default is off.  Use `--enable_global_timeprof` and
     `--enable_global_memprof` to activate.
@@ -35,6 +37,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Now gives the name of the timer that has not been stopped when
   finalizing a profiler.
 - Changed all ESMF_AttributeGet and ESMF_AttributeSet to ESMF_InfoGet and ESMF_InfoSet respectively as old calls will be deprecated soon.
+- Updated `components.yaml`
+  - ESMA_env v4.0.0 (Baselibs 7, new yaFyaml interfaces)
+- Updated CI to use Baselibs 7
 
 ### Fixed
 
