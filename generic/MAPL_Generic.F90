@@ -4279,6 +4279,7 @@ contains
 
       type (MAPL_VarSpec),               pointer  :: IMPORT_SPEC(:)
       type (MAPL_VarSpec),               pointer  :: EXPORT_SPEC(:)
+      type (MAPL_VarSpec),               pointer  :: INTERNAL_SPEC(:)
       integer                                     :: I
       type(ESMF_GridComp), pointer :: gridcomp
 
@@ -4299,11 +4300,12 @@ contains
 
       IMPORT_SPEC => MAPLOBJ%COMPONENT_SPEC%IMPORT%OLD_VAR_SPECS
       EXPORT_SPEC => MAPLOBJ%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS
+      INTERNAL_SPEC => MAPLOBJ%COMPONENT_SPEC%INTERNAL%OLD_VAR_SPECS
 
       if (printSpec == 1) then
          if (associated(IMPORT_SPEC)) then
             call WRITE_PARALLEL("#IMPORT spec for " // trim(comp_name))
-            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS")
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
             if (associated(IMPORT_SPEC)) then
                call MAPL_VarSpecPrintCSV(IMPORT_SPEC, comp_name, RC=status)
                _VERIFY(status)
@@ -4311,16 +4313,24 @@ contains
          end if
          if (associated(EXPORT_SPEC)) then
             call WRITE_PARALLEL("#EXPORT spec for " // trim(comp_name))
-            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS")
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
             if (associated(EXPORT_SPEC)) then
                call MAPL_VarSpecPrintCSV(EXPORT_SPEC, comp_name, RC=status)
+               _VERIFY(status)
+            end if
+         end if
+         if (associated(INTERNAL_SPEC)) then
+            call WRITE_PARALLEL("#INTERNAL spec for " // trim(comp_name))
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
+            if (associated(INTERNAL_SPEC)) then
+               call MAPL_VarSpecPrintCSV(INTERNAL_SPEC, comp_name, RC=status)
                _VERIFY(status)
             end if
          end if
       else if (printSpec == 2) then
          if (associated(IMPORT_SPEC)) then
             call WRITE_PARALLEL("#IMPORT spec for " // trim(comp_name))
-            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS")
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
             if (associated(IMPORT_SPEC)) then
                call MAPL_VarSpecPrintCSV(IMPORT_SPEC, comp_name, RC=status)
                _VERIFY(status)
@@ -4329,9 +4339,18 @@ contains
       else if (printSpec == 3) then
          if (associated(EXPORT_SPEC)) then
             call WRITE_PARALLEL("#EXPORT spec for " // trim(comp_name))
-            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS")
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
             if (associated(EXPORT_SPEC)) then
                call MAPL_VarSpecPrintCSV(EXPORT_SPEC, comp_name, RC=status)
+               _VERIFY(status)
+            end if
+         end if
+      else if (printSpec == 4) then
+         if (associated(INTERNAL_SPEC)) then
+            call WRITE_PARALLEL("#INTERNAL spec for " // trim(comp_name))
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
+            if (associated(INTERNAL_SPEC)) then
+               call MAPL_VarSpecPrintCSV(INTERNAL_SPEC, comp_name, RC=status)
                _VERIFY(status)
             end if
          end if
