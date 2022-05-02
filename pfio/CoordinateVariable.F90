@@ -119,7 +119,7 @@ contains
       type is (real(kind=REAL32))
          coordinate_data => q
       class default ! wrong type
-         _ASSERT(.false., "wrong type")
+         _FAIL( "wrong type")
       end select
 
       _RETURN(_SUCCESS)
@@ -138,7 +138,7 @@ contains
       type is (real(kind=REAL64))
          coordinate_data => q
       class default ! wrong type
-         _ASSERT(.false., 'wrong type')
+         _FAIL( 'wrong type')
       end select
 
       _RETURN(_SUCCESS)
@@ -156,7 +156,7 @@ contains
       type is (integer(kind=INT32))
          coordinate_data => q
       class default ! wrong type
-         _ASSERT(.false., 'wrong type')
+         _FAIL( 'wrong type')
       end select
 
       _RETURN(_SUCCESS)
@@ -174,7 +174,7 @@ contains
       type is (integer(kind=INT64))
          coordinate_data => q
       class default ! wrong type
-         _ASSERT(.false., 'wrong type')
+         _FAIL( 'wrong type')
       end select
 
       _RETURN(_SUCCESS)
@@ -209,7 +209,7 @@ contains
          type_kind = pFIO_REAL64
          buffer =[tmp_buffer, serialize_intrinsic(type_kind),serialize_intrinsic(coord)]
       class default
-         _ASSERT(.false.,"not support coord type")
+         _FAIL("not support coord type")
       end select 
       length = serialize_buffer_length(length)+ serialize_buffer_length(Coord_SERIALIZE_TYPE) + size(buffer)
       buffer = [serialize_intrinsic(length), serialize_intrinsic(Coord_SERIALIZE_TYPE), buffer]
@@ -273,7 +273,7 @@ contains
             call deserialize_intrinsic(buffer(n:),values_REAL64)
             allocate(this%coordinate_data, source = values_real64)
          case default
-            _ASSERT(.false., "not supportted type")
+            _FAIL( "not supportted type")
          end select
          _RETURN(_SUCCESS)
       end subroutine deserialize

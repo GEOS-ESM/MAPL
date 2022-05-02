@@ -188,7 +188,7 @@ contains
                   gridToFieldMap=gridToFieldMap,                      &
                   rc = status)
           case default
-             _ASSERT(.false., 'unsupported rank > 1')
+             _FAIL( 'unsupported rank > 1')
           end select
 
        else
@@ -202,7 +202,7 @@ contains
                   gridToFieldMap=gridToFieldMap,                      &
                   rc = status)
           case default
-             _ASSERT(.false., 'unsupported rank > 1')
+             _FAIL( 'unsupported rank > 1')
           end select
 
        endif
@@ -295,7 +295,7 @@ contains
                   totalUWidth=haloWidth(1:griddedDims),     &
                   rc = status)
           case default
-             _ASSERT(.false., 'only up to 4D are supported')
+             _FAIL( 'only up to 4D are supported')
           end select RankCase2d
        else
           select case (rank)
@@ -330,7 +330,7 @@ contains
                   totalUWidth=haloWidth(1:griddedDims),     &
                   rc = status)
           case default
-             _ASSERT(.false., 'only up to 4D are supported')
+             _FAIL( 'only up to 4D are supported')
           end select
        end if
        _VERIFY(STATUS)
@@ -449,7 +449,7 @@ contains
                   datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
                   rc = status)
           case default
-             _ASSERT(.false., 'only 2D and 3D are supported')
+             _FAIL( 'only 2D and 3D are supported')
           end select
 
        else
@@ -479,7 +479,7 @@ contains
                   datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
                   rc = status)
           case default
-             _ASSERT(.false., 'only 2D and 3D are supported')
+             _FAIL( 'only 2D and 3D are supported')
           end select
 
        endif
@@ -1396,7 +1396,7 @@ contains
                rc = status)
           _VERIFY(STATUS)
        case default
-          _ASSERT(.false., 'only upto 4D are supported')
+          _FAIL( 'only upto 4D are supported')
        end select
     else if (tk == ESMF_TypeKind_R8) then
        select case (fieldRank)
@@ -1433,10 +1433,10 @@ contains
                rc = status)
           _VERIFY(STATUS)
        case default
-          _ASSERT(.false., 'only 2D and 3D are supported')
+          _FAIL( 'only 2D and 3D are supported')
        end select
     else
-       _ASSERT(.false., 'unsupported typekind')
+       _FAIL( 'unsupported typekind')
     endif
 
     deallocate(gridToFieldMap)
@@ -1572,7 +1572,7 @@ contains
           DIMS = MAPL_DimsHorzVert
        end if
     else
-       _ASSERT(.false., 'rank > 4 not supported')
+       _FAIL( 'rank > 4 not supported')
     end if
 
     deallocate(gridToFieldMap)
@@ -1674,7 +1674,7 @@ contains
             rc = status)
        _VERIFY(STATUS)
     case default
-       _ASSERT(.false., 'only 2D and 3D are supported')
+       _FAIL( 'only 2D and 3D are supported')
     end select
 
     deallocate(gridToFieldMap)
@@ -1776,7 +1776,7 @@ contains
        _VERIFY(STATUS)
        var_3d = vr8_3d
     case default
-       _ASSERT(.false., 'unsupported fieldRank (> 3)')
+       _FAIL( 'unsupported fieldRank (> 3)')
     end select
 
     _RETURN(ESMF_SUCCESS)
@@ -2728,7 +2728,7 @@ contains
        deallocate(VR8_3d,stat=status)
        _VERIFY(STATUS)
     else
-       _ASSERT(.false., 'unsupported typekind+rank')
+       _FAIL( 'unsupported typekind+rank')
     end if
     call ESMF_FieldDestroy(Field,rc=status)
     _VERIFY(STATUS)
@@ -3126,7 +3126,7 @@ contains
                staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lats, rc=status)
           _VERIFY(STATUS)
        else
-          _ASSERT(.false.,'if not isCubed, localSearch must be .true.')
+          _FAIL('if not isCubed, localSearch must be .true.')
        end if
        allocate(lons_1d(im),stat=status)
        _VERIFY(STATUS)
@@ -3696,7 +3696,7 @@ contains
           end do
        end if
     else if (tk == ESMF_TYPEKIND_R8) then
-       _ASSERT(.false., "R8 overload not implemented yet")
+       _FAIL( "R8 overload not implemented yet")
     end if
 
     deallocate(gridToFieldMap)

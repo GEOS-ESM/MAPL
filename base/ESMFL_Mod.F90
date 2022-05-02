@@ -3751,7 +3751,7 @@ CONTAINS
               _VERIFY(STATUS)
               dst_pr83d = src_pr83d
             case default
-               _ASSERT(.false., 'unsupported rank (>= 4)')
+               _FAIL( 'unsupported rank (>= 4)')
             end select
          end if
       end if
@@ -3952,7 +3952,7 @@ CONTAINS
 
         if (.not.found) then
            print *, "Error: need bigger MAX_HALOTYPES value"
-           _ASSERT(.false., 'no unused slot for halo types')
+           _FAIL( 'no unused slot for halo types')
         end if
 
         call ESMF_GridGet(GRID,   distGrid=distGrid, dimCount=dimCount, RC=STATUS)

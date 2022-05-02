@@ -460,7 +460,7 @@ module  BinIOMod
              _VERIFY(STATUS)
 
 !ALT          else
-!ALT             _ASSERT(.false.,'failed mapl_statevarread')
+!ALT             _FAIL('failed mapl_statevarread')
 
           end if
 
@@ -752,7 +752,7 @@ module  BinIOMod
           call MAPL_VarRead(unit, grid, vr8_4d, rc=status)
        end if
     else
-       _ASSERT(.false., "ERROR: unsupported RANK")
+       _FAIL( "ERROR: unsupported RANK")
     endif
     _VERIFY(STATUS)
 

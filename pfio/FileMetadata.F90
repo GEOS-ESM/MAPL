@@ -160,7 +160,7 @@ contains
       else
          extent = 0
          if (present(rc)) rc=pFIO_DIMENSION_NOT_FOUND
-         !_ASSERT(.false., 'FileMetadata::get_dimension() - no such dimension <'//dim_name//'>.')
+         !_FAIL( 'FileMetadata::get_dimension() - no such dimension <'//dim_name//'>.')
       end if
       
       _UNUSED_DUMMY(unusable)

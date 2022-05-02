@@ -542,7 +542,7 @@ contains
     else if (trim(cFileOrder) == 'AddOrder') then
        intstate%fileOrderAlphabetical = .false.
     else
-       _ASSERT(.false.,'needs informative message')
+       _FAIL('needs informative message')
     end if
 
     call ESMF_ConfigGetAttribute(config, value=intstate%integer_time,label="IntegerTime:", default=.false.,_RC)
@@ -1422,7 +1422,7 @@ contains
           else
              if (index(list(n)%field_set%fields(1,m),'%') /= 0) then
                 call WRITE_PARALLEL('Can not do arithmetic expression with bundle item')
-                _ASSERT(.false.,'needs informative message')
+                _FAIL('needs informative message')
              end if
           end if
        enddo
@@ -2585,7 +2585,7 @@ ENDDO PARSER
                 case (3)
                            print *, '   XY-offset: ',list(n)%xyoffset,'  (DePe: Dateline Edge, Pole Edge)'
                 case default
-                _ASSERT(.false.,'needs informative message')
+                _FAIL('needs informative message')
          end select
 
          !print *, '      Fields: ',((trim(list(n)%field_set%fields(3,m)),' '),m=1,list(n)%field_set%nfields)
@@ -5097,7 +5097,7 @@ ENDDO PARSER
 
                if (ifound_vloc) then
                   if (ivLoc /= Totloc(i) .and. totloc(i) /= MAPL_VLocationNone) then
-                     _ASSERT(.false.,'arithmetic expression has two different vlocations')
+                     _FAIL('arithmetic expression has two different vlocations')
                   end if
                else
                   if (totloc(i) /= MAPL_VLocationNone) then
@@ -5393,7 +5393,7 @@ ENDDO PARSER
           call pFIO_DownBit(ptr3d,ptr3d,list%nbits,undef=MAPL_undef,rc=status)
           _VERIFY(STATUS)
        else
-          _ASSERT(.false. ,'The field rank is not implmented')
+          _FAIL('The field rank is not implmented')
        endif
     enddo
 

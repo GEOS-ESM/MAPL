@@ -929,7 +929,7 @@ contains
          Segs(pos)%shmid = shmget(key, numBytes, shmflg)
          if (Segs(pos)%shmid < 0) then
             call perror('server shmget():'//C_NULL_CHAR)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
          call MPI_Barrier(MAPL_NodeComm, STATUS)
          _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')

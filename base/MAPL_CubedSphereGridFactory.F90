@@ -326,7 +326,7 @@ contains
             im = file_metadata%get_dimension('lon',rc=status)
             _VERIFY(status)
          else
-            _ASSERT(.false.,"can not identify dimenions of cubed-sphere file")
+            _FAIL("can not identify dimenions of cubed-sphere file")
          end if
       end associate
       call this%make_arbitrary_decomposition(this%nx, this%ny, reduceFactor=6, rc=status)
@@ -342,7 +342,7 @@ contains
          type is (real(kind=REAL32))
             this%stretch_factor = q(1)
          class default
-            _ASSERT(.false.,'unsupport subclass for stretch params')
+            _FAIL('unsupport subclass for stretch params')
          end select
          attr => file_metadata%get_attribute('TARGET_LAT')
          attr_val => attr%get_values()
@@ -350,7 +350,7 @@ contains
          type is (real(kind=REAL32))
             this%target_lon = q(1)
          class default
-            _ASSERT(.false.,'unsupport subclass for stretch params')
+            _FAIL('unsupport subclass for stretch params')
          end select
          attr => file_metadata%get_attribute('TARGET_LON')
          attr_val => attr%get_values()
@@ -358,7 +358,7 @@ contains
          type is (real(kind=REAL32))
             this%target_lat = q(1)
          class default
-            _ASSERT(.false.,'unsupport subclass for stretch params')
+            _FAIL('unsupport subclass for stretch params')
          end select
       end if
 

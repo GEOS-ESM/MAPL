@@ -476,7 +476,7 @@ contains
        print*,'WARNING:   CFIO parameter "order" is no longer used.'
        print*,'           The new regrid facility uses ESMF parameters to'
        print*,'           specify the type of regridding to perform.'
-       _ASSERT(.false., 'Order must be present')
+       _FAIL( 'Order must be present')
        MCFIO%Order = Order
     else
        MCFIO%Order = -1
@@ -744,7 +744,7 @@ contains
                 unGrdCoordCheck = .false.
              end if
              if ( unGrdUnitCheck .or. unGrdNameCheck .or. unGrdCoordCheck) then
-                _ASSERT(.false., 'Ungridded attributes for variables in collection do not match') 
+                _FAIL( 'Ungridded attributes for variables in collection do not match') 
              end if    
           end if
        end do
@@ -812,7 +812,7 @@ contains
        LM = size(ULEVELS)
        HAVE_edge = .false.
        if (HAVE_ungrd) then
-          _ASSERT(.false., 'ERROR: Specifying LEVELS is not allowed for UNGRIDDED vars')
+          _FAIL( 'ERROR: Specifying LEVELS is not allowed for UNGRIDDED vars')
        end if
     else 
 
@@ -822,17 +822,17 @@ contains
           DO I = 1, NumVars
              IF (LOCATION(I)==MAPL_VLocationEdge) print*, mCFIO%VarName(I)
           ENDDO
-          _ASSERT(.false., 'ERROR: Mixed Vlocation in CFIO not allowed unless LEVELS is specified')
+          _FAIL( 'ERROR: Mixed Vlocation in CFIO not allowed unless LEVELS is specified')
        endif
 
        if( all(MCFIO%VarDims==2)) then
           LM = 1
        else if (HAVE_ungrd) then
           if (HAVE_center .or. HAVE_edge) then
-             _ASSERT(.false., 'ERROR: Mixed 3d and UNGRIDDED in CFIO not allowed')
+             _FAIL( 'ERROR: Mixed 3d and UNGRIDDED in CFIO not allowed')
           end if
           if (minval(vsize) /= maxval(vsize)) then
-             _ASSERT(.false., 'ERROR: Outputting variables with different ungridded sizes in one collection')
+             _FAIL( 'ERROR: Outputting variables with different ungridded sizes in one collection')
           end if 
           LM = maxval(vsize)
        else
@@ -963,7 +963,7 @@ contains
              exit
           end do
           if (.not.foundEmpty) then
-             _ASSERT(.false., 'ERROR: Need bigger table with storedCoords')
+             _FAIL( 'ERROR: Need bigger table with storedCoords')
           end if
        end if
     endif
@@ -1000,7 +1000,7 @@ contains
                 lons1d = MAPL_Range(-180.+(180./IMO), 180.-(180./IMO), IMO)
                 lats1d = MAPL_Range(-90.+(90./JMO), +90.-(90./JMO), JMO)
              case default
-                _ASSERT(.false.,'needs informative message')
+                _FAIL('needs informative message')
              end select
              mcfio%xyoffset = xyoffset
           else
@@ -5286,13 +5286,13 @@ CONTAINS
              end if
           else if (gridStagger == MAPL_DGrid) then
              if (rotation /= MAPL_RotateCube) then
-                _ASSERT(.false.,'must rotate LL')
+                _FAIL('must rotate LL')
              else
                 mCFIO%doRotate = .false.
              end if
           else if (gridStagger == MAPL_CGrid) then
              if (rotation /= MAPL_RotateCube) then
-               _ASSERT(.false.,'must rotate LL')
+               _FAIL('must rotate LL')
              else
                 mCFIO%doRotate = .false.
              end if

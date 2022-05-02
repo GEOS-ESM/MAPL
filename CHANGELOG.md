@@ -60,6 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Change many instances of `_ASSERT(.false.,"msg")` to `_FAIL("msg")`
+
 ### Removed
 
 ### Deprecated

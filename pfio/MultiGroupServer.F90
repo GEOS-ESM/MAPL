@@ -264,7 +264,7 @@ contains
      class (MultiGroupServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
      if (this%front_Comm == MPI_COMM_NULL) then
-        _ASSERT(.false. , "hey backend does not call this")
+        _FAIL("hey backend does not call this")
      else
         _RETURN(_SUCCESS)
      endif
@@ -383,7 +383,7 @@ contains
               endif
               if (associated(ioserver_profiler)) call ioserver_profiler%stop("collection_"//i_to_string(q%collection_id))
            class default
-              _ASSERT(.false., "yet to implemented")
+              _FAIL( "yet to implemented")
            end select
            call iter%next()
         end do ! iter
@@ -684,7 +684,7 @@ contains
                   q%start(1) = word_size(q%type_kind)*(q%start(1)-1)+1
                   select case (d_rank)
                   case (0)
-                     _ASSERT(.false., "scalar ?? ")
+                     _FAIL( "scalar ?? ")
                   case (1)
                      call c_f_pointer(address, g_1d, shape=q%global_count)
                      msize_word = product(q%count)
