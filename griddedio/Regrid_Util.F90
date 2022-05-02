@@ -185,7 +185,7 @@
     if (trim(regridMth) .ne. 'bilinear' .and. trim(regridMth ) .ne. 'conservative' .and. trim(regridMth ) .ne. 'conservative2' .and. &
          trim(regridMth).ne.'patch') then
        if (MAPL_AM_I_Root()) write(*,*)'invalid regrid method choose bilinear or conservative'
-       _ASSERT(.false.,'needs informative message')
+       _FAIL('needs informative message')
     end if
     if (trim(regridMth) == 'bilinear') then
        this%regridMethod = REGRID_METHOD_BILINEAR

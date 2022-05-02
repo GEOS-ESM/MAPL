@@ -120,7 +120,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_2d_real32'
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -136,7 +136,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_2d_real64'
 
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -152,7 +152,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_3d_real32'
 
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -168,7 +168,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_scalar_3d_real64'
 
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -187,7 +187,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_2d_real32'
 
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -209,7 +209,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_2d_real64'
 
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -230,7 +230,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real32'
 
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -251,7 +251,7 @@ contains
       integer, optional, intent(out) :: rc
       character(len=*), parameter :: Iam = MOD_NAME//'regrid_vector_3d_real64'
 
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -321,7 +321,7 @@ contains
             end block
 
          case default
-            _ASSERT(.false., 'unsupported typekind')
+            _FAIL( 'unsupported typekind')
          end select
 
       case (3)
@@ -354,11 +354,11 @@ contains
               _VERIFY(status)
             end block
          case default ! unsupported type/kind
-            _ASSERT(.false., 'unsupported type kind')
+            _FAIL( 'unsupported type kind')
          end select
       
       case default ! unsupported rank
-         _ASSERT(.false., 'unsupported rank')
+         _FAIL( 'unsupported rank')
       end select
 
       _RETURN(_SUCCESS)
@@ -445,7 +445,7 @@ contains
             end block
 
          case default ! unsupported typekind
-            _ASSERT(.false., 'unsupported typekind')
+            _FAIL( 'unsupported typekind')
          end select
 
       case (3)
@@ -487,11 +487,11 @@ contains
             end block
 
          case default ! unsupported type/kind
-            _ASSERT(.false., 'unsupported type-kind')
+            _FAIL( 'unsupported type-kind')
          end select
       
       case default ! unsupported rank
-         _ASSERT(.false., 'unsupported rank')
+         _FAIL( 'unsupported rank')
       end select
 
       _RETURN(_SUCCESS)
@@ -509,7 +509,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_scalar_2d_real32'
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -524,7 +524,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_scalar_2d_real64'
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -539,7 +539,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_scalar_3d_real32'
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -555,7 +555,7 @@ contains
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_scalar_3d_real64'
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(q_in)
       q_out = 0
@@ -575,7 +575,7 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_2d_real32'
 
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -600,7 +600,7 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_2d_real64'
 
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -625,7 +625,7 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_3d_real32'
 
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -649,7 +649,7 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME//'transpose_regrid_vector_3d_real64'
 
-      _ASSERT(.false., 'unimplemented - must override in subclass')
+      _FAIL( 'unimplemented - must override in subclass')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(u_in)
       _UNUSED_DUMMY(v_in)
@@ -721,7 +721,7 @@ contains
             end block
 
          case default ! unsupported typekind
-            _ASSERT(.false., 'unsupported typekind')
+            _FAIL( 'unsupported typekind')
          end select
 
       case (3)
@@ -754,11 +754,11 @@ contains
               _VERIFY(status)
             end block
          case default ! unsupported type/kind
-            _ASSERT(.false., 'unsupported typekind')
+            _FAIL( 'unsupported typekind')
          end select
       
       case default ! unsupported rank
-         _ASSERT(.false., 'unsupported rank')
+         _FAIL( 'unsupported rank')
       end select
 
       _RETURN(_SUCCESS)
@@ -845,7 +845,7 @@ contains
             end block
 
          case default ! unsupported typekind
-            _ASSERT(.false., 'unsupported typekind')
+            _FAIL( 'unsupported typekind')
          end select
 
       case (3)
@@ -887,11 +887,11 @@ contains
             end block
 
          case default ! unsupported type/kind
-            _ASSERT(.false., 'unsupported typekind')
+            _FAIL( 'unsupported typekind')
          end select
       
       case default ! unsupported rank
-         _ASSERT(.false., 'unsupported rank')
+         _FAIL( 'unsupported rank')
       end select
 
       _RETURN(_SUCCESS)

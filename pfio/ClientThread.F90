@@ -123,7 +123,7 @@ contains
       type is(IDMessage)
         collection_id = message%id
       class default
-        _ASSERT(.false., " should get id message")
+        _FAIL( " should get id message")
       end select
       _RETURN(_SUCCESS)
    end function add_ext_collection
@@ -146,7 +146,7 @@ contains
       type is(IDMessage)
         hist_collection_id = message%id
       class default
-        _ASSERT(.false., " should get id message")
+        _FAIL( " should get id message")
       end select
 
       _RETURN(_SUCCESS)
@@ -172,7 +172,7 @@ contains
       type is(IDMessage)
         return_id = message%id
       class default
-        _ASSERT(.false., " should get id message")
+        _FAIL( " should get id message")
       end select
 
       _ASSERT( return_id == hist_collection_id, "return id should be the same as the collection_id")

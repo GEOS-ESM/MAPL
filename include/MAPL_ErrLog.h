@@ -109,7 +109,7 @@
 #    define _ASSERT(A,msg) _ASSERT_MSG_AND_LOC(A,msg,1,_FILE_,__LINE__)
 #    define _ASSERT_RC(A,msg,stat) _ASSERT_MSG_AND_LOC(A,msg,stat,_FILE_,__LINE__)
 #    define _ASSERT_NOMSG(A) _ASSERT(A,'needs informative message')
-#    define _FAIL(msg) _ASSERT(.false.,msg)
+#    define _FAIL(msg) _FAIL(msg)
 
 #  endif
 

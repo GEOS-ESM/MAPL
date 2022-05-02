@@ -1047,7 +1047,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
 !   Begin
 
-      _ASSERT(.FALSE.," pmn: this routine is not up to date, is it even used anywhere?")
+      _FAIL(" pmn: this routine is not up to date, is it even used anywhere?")
 
       call ESMF_ArrayGet(LONS, RANK=RANK, RC=STATUS)
       _VERIFY(STATUS)
@@ -1998,7 +1998,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          HK(8) = ChouBand8(i1)*(1.-F) + ChouBand8(i2)*F
          _ASSERT(abs(1.0-sum(HK))<1.e-4,'Chou Solar band weightings do not sum to unity!')
       else
-         _ASSERT(.false.,'HK: Solar band weightings only available for Chou')
+         _FAIL('HK: Solar band weightings only available for Chou')
       endif
    end if
 
@@ -2080,7 +2080,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error opening file ', trim(fileName), status
          write (*,*) nf90_strerror(status)
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
       ! Read in dimensions
@@ -2090,14 +2090,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting ndate dimid', status
          write (*,*) nf90_strerror(status)
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
       status = nf90_inquire_dimension(ncid, dimid_ndate, len = ndate)
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting ndate length', status
          write (*,*) nf90_strerror(status)
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
       if (present(HK)) then
@@ -2105,14 +2105,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting nbin_sorad dimid', status
             write (*,*) nf90_strerror(status)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 
          status = nf90_inquire_dimension(ncid, dimid_nbin_sorad, len = nbin_sorad)
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting nbin_sorad length', status
             write (*,*) nf90_strerror(status)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
       end if
 
@@ -2121,14 +2121,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting nbin_meso_phot dimid', status
             write (*,*) nf90_strerror(status)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 
          status = nf90_inquire_dimension(ncid, dimid_nbin_meso_phot, len = nbin_meso_phot)
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting nbin_meso_phot length', status
             write (*,*) nf90_strerror(status)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
       end if
 
@@ -2137,14 +2137,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting nbin_jcalc4 dimid', status
             write (*,*) nf90_strerror(status)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 
          status = nf90_inquire_dimension(ncid, dimid_nbin_jcalc4, len = nbin_jcalc4)
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting nbin_jcalc4 length', status
             write (*,*) nf90_strerror(status)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
       end if
 
@@ -2182,14 +2182,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting date_year varid', status
          write (*,*) nf90_strerror(status)
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
       status = nf90_get_var(ncid, varid_date_year, date_year)
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting date_year variable', status
          write (*,*) nf90_strerror(status)
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
       ! Read in date_month
@@ -2199,14 +2199,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting date_month varid', status
          write (*,*) nf90_strerror(status)
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
       status = nf90_get_var(ncid, varid_date_month, date_month)
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting date_month variable', status
          write (*,*) nf90_strerror(status)
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
       ! Read in tsi
@@ -2216,14 +2216,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting tsi varid', status
          write (*,*) nf90_strerror(status)
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
       status = nf90_get_var(ncid, varid_tsi, tsi)
       if (STATUS /= NF90_NOERR) then
          write (*,*) trim(Iam)//': Error getting tsi variable', status
          write (*,*) nf90_strerror(status)
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
       ! Read in coef_sorad
@@ -2235,14 +2235,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting coef_sorad varid', status
             write (*,*) nf90_strerror(status)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 
          status = nf90_get_var(ncid, varid_coef_sorad, coef_sorad)
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting coef_sorad variable', status
             write (*,*) nf90_strerror(status)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 
       end if
@@ -2256,14 +2256,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting coef_meso_phot varid', status
             write (*,*) nf90_strerror(status)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 
          status = nf90_get_var(ncid, varid_coef_meso_phot, coef_meso_phot)
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting coef_meso_phot variable', status
             write (*,*) nf90_strerror(status)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 
       end if
@@ -2277,14 +2277,14 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting coef_jcalc4 varid', status
             write (*,*) nf90_strerror(status)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 
          status = nf90_get_var(ncid, varid_coef_jcalc4, coef_jcalc4)
          if (STATUS /= NF90_NOERR) then
             write (*,*) trim(Iam)//': Error getting coef_jcalc4 variable', status
             write (*,*) nf90_strerror(status)
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 
       end if
