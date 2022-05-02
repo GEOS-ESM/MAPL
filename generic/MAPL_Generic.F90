@@ -2099,7 +2099,7 @@ contains
             nwrgt1 = ((state%grid%num_readers > 1) .or. (state%grid%num_writers > 1))
             if(FILETYPE=='pnc4' .and. nwrgt1) then
                print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-               _ASSERT(.false.,'needs informative message')
+               _FAIL('needs informative message')
             endif
 #endif
             call MAPL_GetResource( STATE   , hdr,         &
@@ -2129,7 +2129,7 @@ contains
             nwrgt1 = ((state%grid%num_readers > 1) .or. (state%grid%num_writers > 1))
             if(FILETYPE=='pnc4' .and. nwrgt1) then
                print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-               _ASSERT(.false.,'needs informative message')
+               _FAIL('needs informative message')
             endif
 #endif
             call MAPL_ESMFStateWriteToFile(IMPORT,CLOCK,FILENAME, &
@@ -5674,7 +5674,7 @@ contains
 #ifndef H5_HAVE_PARALLEL
          if (nwrgt1) then
             print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 #endif
          AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
@@ -6062,7 +6062,7 @@ contains
 #ifndef H5_HAVE_PARALLEL
          if (nwrgt1) then
             print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 #endif
          AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
@@ -8376,7 +8376,7 @@ contains
             _VERIFY(status)
          end if
          class default
-         _ASSERT(.false., "Unupported type")
+         _FAIL( "Unupported type")
       end select
 
       call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status)
@@ -8501,7 +8501,7 @@ contains
             _VERIFY(status)
          end if
          class default
-         _ASSERT(.false., "Unsupported type")
+         _FAIL( "Unsupported type")
       end select
 
       _RETURN(ESMF_SUCCESS)
@@ -8573,7 +8573,7 @@ contains
             default_str = intrinsic_to_string(default, 'a')
          end if
          class default
-         _ASSERT(.false.,"Unsupported type")
+         _FAIL("Unsupported type")
       end select
 
       output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)"
@@ -8634,7 +8634,7 @@ contains
       type is(character(len=*))
          formatted_str = trim(val)
          class default
-         _ASSERT(.false., "Unsupported type in intrinsic_to_string")
+         _FAIL( "Unsupported type in intrinsic_to_string")
       end select
 
    end function intrinsic_to_string
@@ -9334,7 +9334,7 @@ contains
       elseif(present(FORCING2)) then
          ONED = .FALSE.
       else
-         _ASSERT(.FALSE.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
       ! Get parameters from generic state.
@@ -9964,7 +9964,7 @@ contains
 
          if(TRANSFORM) then
             if (PRF /= 0) then
-               _ASSERT(.false.,'needs informative message') ! for now
+               _FAIL('needs informative message') ! for now
             else
                ! ALT this LOOKS WRONG. MAPL_VarRead needs a mask for tiles!!!
                call MAPL_VarRead(UNIT, GRID, VAR2, RC=status )
@@ -10154,7 +10154,7 @@ contains
       elseif(present(MAPLOBJ)) then
          STATE => MAPLOBJ
       else
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       endif
 
       call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NX:',rc=status)

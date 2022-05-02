@@ -315,20 +315,20 @@ contains
      class (AbstractServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
 
-     _ASSERT(.false.," no action of receive_output_data")
+     _FAIL(" no action of receive_output_data")
    end subroutine receive_output_data
 
    subroutine put_DataToFile(this, rc)
      class (AbstractServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
-     _ASSERT(.false.," no action of server_put_DataToFile")
+     _FAIL(" no action of server_put_DataToFile")
    end subroutine put_DataToFile
 
    subroutine get_DataFromMem(this,multi, rc)
      class (AbstractServer),target, intent(inout) :: this
      logical, intent(in) :: multi
      integer, optional, intent(out) :: rc
-     _ASSERT(.false.," no action of server_get_DataFromMem")
+     _FAIL(" no action of server_get_DataFromMem")
      _UNUSED_DUMMY(multi)
    end subroutine get_DataFromMem
 
