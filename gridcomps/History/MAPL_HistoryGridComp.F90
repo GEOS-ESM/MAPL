@@ -490,7 +490,7 @@ contains
     ! set up few variables to deal with monthly
     startOfThisMonth = currTime
     call ESMF_TimeSet(startOfThisMonth,dd=1,h=0,m=0,s=0,__RC__)
-    call ESMF_TimeIntervalSet( oneMonth, MM=1, __RC__)
+    call ESMF_TimeIntervalSet( oneMonth, MM=1, StartTime=StartTime, __RC__)
 
 
 ! Read User-Supplied History Lists from Config File
@@ -1257,7 +1257,7 @@ contains
           RingTime = startOfThisMonth
        else
           sec = MAPL_nsecf( list(n)%frequency )
-          call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
+          call ESMF_TimeIntervalSet( Frequency, S=sec, StartTime=StartTime, rc=status ) ; _VERIFY(STATUS)
           RingTime = RefTime
        end if
 
@@ -1280,7 +1280,7 @@ contains
        if( list(n)%duration.ne.0 ) then
           if (.not.list(n)%monthly) then
              sec = MAPL_nsecf( list(n)%duration )
-             call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
+             call ESMF_TimeIntervalSet( Frequency, S=sec, StartTime=StartTime, rc=status ) ; _VERIFY(STATUS)
           else
              Frequency = oneMonth
              !ALT keep the values from above
@@ -3863,6 +3863,7 @@ ENDDO PARSER
    type(ESMF_Grid)                :: grid
    type(ESMF_Time)                :: CurrTime
    type(ESMF_Time)                :: StopTime
+   type(ESMF_Time)                :: StartTime
    type(ESMF_Calendar)            :: cal
    type(ESMF_TimeInterval)        :: ti, Frequency
    integer                        :: nsteps
@@ -3898,9 +3899,10 @@ ENDDO PARSER
                'DTDT'     , 'PHYSICS'    , &
                'DTDT'     , 'GWD'        /
 
-   call ESMF_ClockGet ( clock,  currTime=CurrTime ,rc=STATUS ) ; _VERIFY(STATUS)
-   call ESMF_ClockGet ( clock,  StopTime=StopTime ,rc=STATUS ) ; _VERIFY(STATUS)
-   call ESMF_ClockGet ( clock,  Calendar=cal      ,rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, currTime=CurrTime,   rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, StopTime=StopTime,   rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, StartTime=StartTime, rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, Calendar=cal,        rc=STATUS ) ; _VERIFY(STATUS)
 
    call ESMF_TimeGet  ( CurrTime, timeString=TimeString, rc=status ) ; _VERIFY(STATUS)
 
@@ -3912,7 +3914,7 @@ ENDDO PARSER
 
    ti = StopTime-CurrTime
    freq = MAPL_nsecf( list%frequency )
-   call ESMF_TimeIntervalSet( Frequency, S=freq, calendar=cal, rc=status ) ; _VERIFY(STATUS)
+   call ESMF_TimeIntervalSet( Frequency, S=freq, StartTime=StartTime, rc=status ) ; _VERIFY(STATUS)
 
    nsteps =  ti/Frequency + 1
 
