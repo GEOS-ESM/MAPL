@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Change many instances of `_ASSERT(.false.,"msg")` to `_FAIL("msg")`
+- Extended format width for exclusive and inclusive times in profiler from `f9.2` to `f10.2` (see #1420)
 
 ### Removed
 
