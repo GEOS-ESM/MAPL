@@ -51,6 +51,7 @@ module pFIO_FileMetadataMod
       procedure :: set_order
       procedure :: modify_variable
       procedure :: has_dimension
+      procedure :: has_variable
 
       generic :: operator(==) => equal
       generic :: operator(/=) => not_equal
@@ -238,6 +239,20 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function get_variable
+
+   logical function has_variable(this, var_name, unusable, rc) result(has)
+      class (FileMetadata), target, intent(in) :: this
+      character(len=*), intent(in) :: var_name
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+      class (Variable), pointer :: var
+
+      has = .false.
+      var => this%variables%at(var_name)
+      if (associated(var)) has = .true.
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end function has_variable
 
    ! Returns null pointer unless var_name is a key corresponding to
    ! a CoordinateVariable value.
