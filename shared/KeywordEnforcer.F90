@@ -21,7 +21,7 @@
    ! ABSTRACT extensions can be created, but do not circumvent the
    ! keyword enforcement.
 
-module MAPL_KeywordEnforcerMod
+module mapl_KeywordEnforcer
    implicit none
    private
 
@@ -37,4 +37,8 @@ module MAPL_KeywordEnforcerMod
       end subroutine nonimplementable
    end interface
 
-end module MAPL_KeywordEnforcerMod
+end module mapl_KeywordEnforcer
+
+module mapl_KeywordEnforcerMod
+   use mapl_KeywordEnforcer
+end module mapl_KeywordEnforcerMod
