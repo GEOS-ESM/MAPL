@@ -52,6 +52,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.21.0] - 2022-05-05
+
+### Fixed
+
 - Fixed incorrect legend when using PRINTSPEC option in MAPL Cap
 - Fix ESMF errors exposed by monthly collections
 
@@ -64,10 +76,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Change many instances of `_ASSERT(.false.,"msg")` to `_FAIL("msg")`
 - Extended format width for exclusive and inclusive times in profiler from `f9.2` to `f10.2` (see #1420)
-
-### Removed
-
-### Deprecated
 
 ## [2.20.0] - 2022-04-19
 
