@@ -274,23 +274,26 @@ module HistoryTrajectoryMod
          character(len=ESMF_MAXSTR) :: var_name,long_name,units,vdims
          type(variable) :: v
          logical :: is_present
+         type(ESMF_Info) :: infoh
 
          call ESMF_FieldBundleGet(this%bundle,vname,field=field,rc=status)
          _VERIFY(status)
          call ESMF_FieldGet(field,name=var_name,rank=field_rank,rc=status)
          _VERIFY(status)
-         call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,rc=status)
+         call ESMF_InfoGetFromHost(field,infoh,rc=status)
+         _VERIFY(status)
+         is_present = ESMF_InfoIsPresent(infoh,'LONG_NAME',rc=status)
          _VERIFY(status)
          if ( is_present ) then
-            call ESMF_AttributeGet  (FIELD, NAME="LONG_NAME",VALUE=long_name, RC=STATUS)
+            call ESMF_InfoGet(infoh,'LONG_NAME',long_name,RC=STATUS)
             _VERIFY(STATUS)
          else
             long_name = var_name
          endif
-         call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,rc=status)
+         is_present = ESMF_InfoIsPresent(infoh,'UNITS',rc=status)
          _VERIFY(status)
          if ( is_present ) then
-            call ESMF_AttributeGet  (FIELD, NAME="UNITS",VALUE=units, RC=STATUS)
+            call ESMF_InfoGet(infoh,'UNITS',units,RC=STATUS)
             _VERIFY(STATUS)
          else
             units = 'unknown'

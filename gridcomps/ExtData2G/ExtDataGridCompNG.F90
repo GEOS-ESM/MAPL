@@ -1819,13 +1819,10 @@ CONTAINS
      character(len=*), intent(in) :: yaml_file
 
       type(Parser)              :: p
-      type(FileStream) :: fstream
-      type(Configuration) :: config
+      class(YAML_Node), allocatable :: config
 
       p = Parser('core')
-      fstream=FileStream(yaml_file)
-      config = p%load(fstream)
-      call fstream%close()
+      config = p%load(yaml_file)
 
       if (config%has("USE_EXTDATA")) then
          am_running = config%of("USE_EXTDATA")
