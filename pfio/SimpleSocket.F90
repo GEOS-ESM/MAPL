@@ -106,7 +106,7 @@ contains
          allocate(connection%msg , source = message)
          call connection%msg%dispatch(this%visitor, _RC)
       class default
-         _ASSERT(.false.,"Simple should connect Simple")
+         _FAIL("Simple should connect Simple")
       end select
       _RETURN(_SUCCESS)
      ! call message%dispatch(this%visitor,_RC)

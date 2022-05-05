@@ -55,7 +55,7 @@ contains
       type is (integer(kind=INT64))
          reference%base_address = c_loc(scalar)
       class default
-         _ASSERT(.false., "ArrayRef does not support this type")
+         _FAIL( "ArrayRef does not support this type")
       end select
       reference%shape = shape(scalar)
       reference%type_kind = type_kind(scalar)
@@ -81,7 +81,7 @@ contains
          reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
-         _ASSERT(.false., "ArrayRef does not support this type")
+         _FAIL( "ArrayRef does not support this type")
       end select
       reference%shape = shape(array)
 
@@ -108,7 +108,7 @@ contains
          reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
-         _ASSERT(.false., "ArrayRef does not support this type")
+         _FAIL( "ArrayRef does not support this type")
       end select
       reference%shape = shape(array)
 
@@ -135,7 +135,7 @@ contains
          reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
-         _ASSERT(.false., "ArrayRef does not support this type")
+         _FAIL( "ArrayRef does not support this type")
       end select
       reference%shape = shape(array)
 
@@ -163,7 +163,7 @@ contains
          reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
-         _ASSERT(.false., "ArrayRef does not support this type")
+         _FAIL( "ArrayRef does not support this type")
       end select
       reference%shape = shape(array)
 
@@ -190,7 +190,7 @@ contains
          reference%base_address = c_loc(array)
          reference%type_kind = pFIO_INT64
       class default
-         _ASSERT(.false., "ArrayRef does not support this type")
+         _FAIL( "ArrayRef does not support this type")
       end select
 
       reference%shape = shape(array)
@@ -213,7 +213,7 @@ contains
       type is (real(kind=REAL64))
          type_kind = pFIO_REAL64
       class default
-         _ASSERT(.false.,'kind error')
+         _FAIL('kind error')
       end select
       _RETURN(_SUCCESS)
    end function type_kind
