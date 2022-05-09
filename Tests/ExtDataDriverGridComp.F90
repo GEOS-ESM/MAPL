@@ -414,7 +414,7 @@ contains
     call cap%parseTimes(rc=status)
     _VERIFY(status)
     if (allocated(cap%times) .and. cap%run_fbf ) then
-       _ASSERT(.false.,"can not run forwards and backwards with specific times")
+       _FAIL("can not run forwards and backwards with specific times")
     end if
 
     _RETURN(ESMF_SUCCESS)
@@ -743,7 +743,7 @@ contains
        call ESMF_CalendarSetDefault(ESMF_CALKIND_NOLEAP, RC=STATUS)
        _VERIFY(STATUS)
     else
-       _ASSERT(.false.,'needs informative message')
+       _FAIL('needs informative message')
     endif
 
     call ESMF_ConfigGetAttribute(cf, datetime, label='BEG_DATE:',rc=status)
