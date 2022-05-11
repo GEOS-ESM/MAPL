@@ -117,6 +117,7 @@ module MAPL_FileMetadataUtilsMod
       integer, optional, intent(out) :: rc
 
       real(REAL32) :: tmp(1)
+      real(REAL64) :: tmpd(1)
       integer :: status
       character(len=ESMF_MAXSTR) :: fname
       type(Attribute), pointer :: attr
@@ -133,6 +134,9 @@ module MAPL_FileMetadataUtilsMod
       type is(real(kind=REAL32))
          tmp = attr_val
          attr_real32 = tmp(1)
+      type is(real(kind=REAL64))
+         tmpd = attr_val
+         attr_real32 = REAL(tmpd(1))
       class default
          _ASSERT(.false.,'unsupported subclass for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
       end select
