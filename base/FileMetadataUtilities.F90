@@ -61,10 +61,10 @@ module MAPL_FileMetadataUtilsMod
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=ESMF_MAXSTR) :: fname
+      character(:), allocatable :: fname
       type(Variable), pointer :: var
 
-      fname = get_file_name(this,_RC)
+      fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       ! check _FillValue, we could do more, not sure what to do here like also check for missing_value ...
@@ -81,10 +81,10 @@ module MAPL_FileMetadataUtilsMod
       integer, optional, intent(out) :: rc
      
       integer :: status
-      character(len=ESMF_MAXSTR) :: fname
+      character(:), allocatable :: fname
       type(Variable), pointer :: var
 
-      fname = get_file_name(this,_RC)
+      fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       var_has_missing_value = var%is_attribute_present("_FillValue")
@@ -99,10 +99,10 @@ module MAPL_FileMetadataUtilsMod
       integer, optional, intent(out) :: rc
      
       integer :: status
-      character(len=ESMF_MAXSTR) :: fname
+      character(:), allocatable :: fname
       type(Variable), pointer :: var
 
-      fname = get_file_name(this,_RC)
+      fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       var_has_attr = var%is_attribute_present(attr_name)
@@ -119,12 +119,12 @@ module MAPL_FileMetadataUtilsMod
       real(REAL32) :: tmp(1)
       real(REAL64) :: tmpd(1)
       integer :: status
-      character(len=ESMF_MAXSTR) :: fname
+      character(:), allocatable :: fname
       type(Attribute), pointer :: attr
       type(Variable), pointer :: var
       class(*), pointer :: attr_val(:)
 
-      fname = get_file_name(this,_RC)
+      fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr => var%get_attribute(attr_name,_RC)
@@ -153,12 +153,12 @@ module MAPL_FileMetadataUtilsMod
 
       real(REAL64) :: tmp(1)
       integer :: status
-      character(len=ESMF_MAXSTR) :: fname
+      character(:), allocatable :: fname
       type(Attribute), pointer :: attr
       type(Variable), pointer :: var
       class(*), pointer :: attr_val(:)
 
-      fname = get_file_name(this,_RC)
+      fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr => var%get_attribute(attr_name,_RC)
@@ -184,12 +184,12 @@ module MAPL_FileMetadataUtilsMod
 
       integer(INT32) :: tmp(1)
       integer :: status
-      character(len=ESMF_MAXSTR) :: fname
+      character(:), allocatable :: fname
       type(Attribute), pointer :: attr
       type(Variable), pointer :: var
       class(*), pointer :: attr_val(:)
 
-      fname = get_file_name(this,_RC)
+      fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr => var%get_attribute(attr_name,_RC)
@@ -215,12 +215,12 @@ module MAPL_FileMetadataUtilsMod
 
       integer(INT64) :: tmp(1)
       integer :: status
-      character(len=ESMF_MAXSTR) :: fname
+      character(:), allocatable :: fname
       type(Attribute), pointer :: attr
       type(Variable), pointer :: var
       class(*), pointer :: attr_val(:)
 
-      fname = get_file_name(this,_RC)
+      fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr => var%get_attribute(attr_name,_RC)
@@ -245,12 +245,12 @@ module MAPL_FileMetadataUtilsMod
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=ESMF_MAXSTR) :: fname
+      character(:), allocatable :: fname
       type(Attribute), pointer :: attr
       type(Variable), pointer :: var
       class(*), pointer :: attr_val
 
-      fname = get_file_name(this,_RC)
+      fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr => var%get_attribute(attr_name,_RC)
@@ -281,7 +281,7 @@ module MAPL_FileMetadataUtilsMod
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=ESMF_MAXSTR) :: fname
+      character(:), allocatable :: fname
       class(CoordinateVariable), pointer :: var
       type(Attribute), pointer :: attr
       class(*), pointer :: pTimeUnits
@@ -299,7 +299,7 @@ module MAPL_FileMetadataUtilsMod
       real(REAL64), allocatable :: tr_r64(:)
       type(ESMF_TimeInterval) :: tint
 
-      fname = get_file_name(this,_RC)
+      fname = this%get_file_name(_RC)
       var => this%get_coordinate_variable('time',rc=status)
       _VERIFY(status)
       attr => var%get_attribute('units')
@@ -462,7 +462,7 @@ module MAPL_FileMetadataUtilsMod
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
 
-      character(len=ESMF_MAXSTR) :: fname
+      character(:), allocatable :: fname
       character(len=:), pointer :: units 
       type(Attribute), pointer :: attr => null()
       class(Variable), pointer :: var => null()
@@ -470,7 +470,7 @@ module MAPL_FileMetadataUtilsMod
       logical :: isPresent
       integer :: status
     
-      fname = get_file_name(this,_RC)
+      fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,rc=status)
       _VERIFY(status)
       isPresent = var%is_attribute_present(trim(attr_name))
@@ -499,14 +499,14 @@ module MAPL_FileMetadataUtilsMod
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(len=ESMF_MAXSTR) :: fname
+      character(:), allocatable :: fname
       class(CoordinateVariable), pointer :: var
       type(Attribute), pointer :: attr
       character(len=:), pointer :: vdim
       class(*), pointer :: coordUnitPtr
       class(*), pointer :: ptr(:)
  
-      fname = get_file_name(this,_RC)
+      fname = this%get_file_name(_RC)
       var => this%get_coordinate_variable(trim(coordinate_name),rc=status)
       _VERIFY(status)
    
