@@ -14,8 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add debug loggers for start/stop during stages in MAPL_Generic
+- Handling for double precision input when retrieving single precision attributes
 
 ### Changed
+
+- Modified error messages in FileMetadataUtilities to be unique and print filename
 
 ### Removed
 
