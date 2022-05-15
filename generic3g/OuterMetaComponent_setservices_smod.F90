@@ -1,4 +1,3 @@
-
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
@@ -28,7 +27,7 @@ contains
    ! reverse when step (3) is moved to a new generic initialization phase.
    !=========================================================================
    
-   module subroutine SetServices(this, rc)
+   recursive module subroutine SetServices(this, rc)
       use mapl3g_GenericGridComp, only: generic_setservices => setservices
       class(OuterMetaComponent), intent(inout) :: this
       integer, intent(out) :: rc
@@ -46,7 +45,6 @@ contains
       end if
 
       call process_user_gridcomp(this, _RC)
-
       call process_children(this, _RC)
 
       ! 4) Process generic specs
@@ -97,19 +95,19 @@ contains
       end subroutine process_user_gridcomp
       
       ! Step 3.
-      subroutine process_children(this, rc)
+      recursive subroutine process_children(this, rc)
          class(OuterMetaComponent), intent(inout) :: this
          integer, optional, intent(out) :: rc
          
          type(ChildComponentMapIterator), allocatable :: iter
          integer :: status
+         type(ChildComponent), pointer :: child_comp
 
          associate ( b => this%children%begin(), e => this%children%end() )
            iter = b
            do while (iter /= e)
-              associate (child_comp => iter%second())
-                call ESMF_GridCompSetServices(child_comp%gridcomp, generic_setservices, _RC)
-              end associate
+              child_comp => iter%second()
+              call ESMF_GridCompSetServices(child_comp%gridcomp, generic_setservices, _RC)
               call iter%next()
            end do
          end associate

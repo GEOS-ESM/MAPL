@@ -9,6 +9,8 @@ module mapl3g_ChildSpec
    public :: ChildSpec
    public :: operator(==)
    public :: operator(/=)
+
+   public :: dump
    
    type :: ChildSpec
       character(:), allocatable :: yaml_config_file
@@ -48,7 +50,7 @@ contains
    end function new_ChildSpec
       
 
-   pure logical function equal(a, b)
+   logical function equal(a, b)
       type(ChildSpec), intent(in) :: a
       type(ChildSpec), intent(in) :: b
 
@@ -76,11 +78,19 @@ contains
 
    end function equal
 
-   pure logical function not_equal(a, b)
+   logical function not_equal(a, b)
       type(ChildSpec), intent(in) :: a
       type(ChildSpec), intent(in) :: b
 
       not_equal = .not. (a == b)
    end function not_equal
 
+   subroutine dump(x)
+      type(ChildSpec) :: x
+
+      select type (q => x%user_setservices)
+      type is (Dsosetservices)
+         print*,__FILE__,__LINE__, q%sharedObj, '::', q%userRoutine
+      end select
+   end subroutine dump
 end module mapl3g_ChildSpec

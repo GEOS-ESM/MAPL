@@ -69,16 +69,16 @@ contains
       character(len=*), intent(in) :: name
       procedure(I_SetServices) :: userRoutine
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_config), intent(inout) :: config
+      type(ESMF_config), optional, intent(inout) :: config
       integer, optional, intent(in) :: petlist(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
-      
+
       gridcomp = make_basic_gridcomp(name=name, petlist=petlist, _RC)
       outer_meta => get_outer_meta(gridcomp, _RC)
-      call outer_meta%set_esmf_config(config)
+      if (present(config)) call outer_meta%set_esmf_config(config)
       call outer_meta%set_user_setservices(user_setservices(userRoutine))
 
       _RETURN(ESMF_SUCCESS)
@@ -136,7 +136,7 @@ contains
    end function make_basic_gridcomp
 
 
-   subroutine initialize(gc, importState, exportState, clock, rc)
+   recursive subroutine initialize(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -153,7 +153,8 @@ contains
    end subroutine initialize
 
 
-   subroutine run(gc, importState, exportState, clock, rc)
+   recursive subroutine run(gc, importState, exportState, clock, rc)
+      use gFTL2_StringVector
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -164,19 +165,20 @@ contains
       integer :: phase
       character(:), pointer :: phase_name
       type(OuterMetaComponent), pointer :: outer_meta
-
+      type(StringVector), pointer :: phases
+      
       outer_meta => get_outer_meta(gc, _RC)
       call ESMF_GridCompGet(gc, currentPhase=phase, _RC)
-      associate (phases => outer_meta%get_phases(ESMF_METHOD_RUN))
-        phase_name => phases%of(phase)
-        call outer_meta%run(importState, exportState, clock, phase_name=phase_name, _RC)
-      end associate
+
+      phases => outer_meta%get_phases(ESMF_METHOD_RUN)
+      phase_name => phases%of(phase)
+      call outer_meta%run(importState, exportState, clock, phase_name=phase_name, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run
 
 
-   subroutine finalize(gc, importState, exportState, clock, rc)
+   recursive subroutine finalize(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -193,7 +195,7 @@ contains
    end subroutine finalize
 
 
-   subroutine read_restart(gc, importState, exportState, clock, rc)
+   recursive subroutine read_restart(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -209,7 +211,7 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine read_restart
 
-   subroutine write_restart(gc, importState, exportState, clock, rc)
+   recursive subroutine write_restart(gc, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gc
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState

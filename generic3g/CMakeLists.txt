@@ -8,6 +8,7 @@ set(srcs
   specs/DimSpec.F90
   specs/ComponentSpec.F90
   specs/ChildSpec.F90
+  specs/ChildSpecMap.F90
 
   ComponentSpecBuilder.F90
 

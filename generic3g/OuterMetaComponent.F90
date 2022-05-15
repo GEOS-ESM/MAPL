@@ -35,7 +35,7 @@ module mapl3g_OuterMetaComponent
 
 
    type :: OuterMetaComponent
-      private
+!!$      private
       
       character(len=:), allocatable               :: name
       type(ESMF_GridComp)                         :: self_gc
@@ -54,7 +54,6 @@ module mapl3g_OuterMetaComponent
       class(Logger), pointer :: lgr  ! "MAPL.Generic" // name
 
    contains
-
       procedure :: set_esmf_config
       procedure :: set_yaml_config
       generic   :: set_config => set_esmf_config, set_yaml_config
@@ -104,7 +103,7 @@ module mapl3g_OuterMetaComponent
    ! Submodule interfaces
    interface
 
-      module subroutine SetServices(this, rc)
+      recursive module subroutine SetServices(this, rc)
          class(OuterMetaComponent), intent(inout) :: this
          integer, intent(out) ::rc
       end subroutine
@@ -226,7 +225,11 @@ contains
       _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent already created for this gridcomp?")
 
       outer_meta => wrapper%outer_meta
-      outer_meta = OuterMetaComponent(gridcomp)
+
+      ! GFortran 11.2 fails when using the constructor.
+!!$      outer_meta = OuterMetaComponent(gridcomp)
+      
+      call initialize_meta(outer_meta, gridcomp)
       outer_meta%lgr => logging%get_logger('MAPL.GENERIC')
 
       _RETURN(_SUCCESS)
@@ -299,7 +302,7 @@ contains
    end subroutine set_user_setservices
 
 
-   subroutine initialize(this, importState, exportState, clock, unusable, rc)
+   recursive subroutine initialize(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -328,7 +331,7 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine initialize
 
-   subroutine run(this, importState, exportState, clock, unusable, phase_name, rc)
+   recursive subroutine run(this, importState, exportState, clock, unusable, phase_name, rc)
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -358,7 +361,7 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine run
 
-   subroutine finalize(this, importState, exportState, clock, unusable, rc)
+   recursive subroutine finalize(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -426,4 +429,14 @@ contains
       class(GenericConfig), intent(in) :: this
       has_esmf = allocated(this%esmf_cfg)
    end function has_esmf
+
+
+   subroutine initialize_meta(this, gridcomp)
+      class(OuterMetaComponent), intent(out) :: this
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+
+      this%self_gc = gridcomp
+      call initialize_phases_map(this%phases_map)
+   end subroutine initialize_meta
+
 end module mapl3g_OuterMetaComponent

@@ -1,205 +1,23 @@
-
-module r_mapl3g_UserSetServices
-   implicit none
-   private
-
-   public :: user_setservices        ! overloaded factory method
-   public :: AbstractUserSetServices  ! Base class for variant SS functors
-   public :: DSOSetServices
-   public :: operator(==)
-   public :: operator(/=)
-   
-   type, abstract :: AbstractUserSetServices
-   contains
-      procedure(I_RunSetServices), deferred :: run
-   end type AbstractUserSetServices
-
-   abstract interface
-
-      subroutine I_RunSetServices(this, rc)
-         import AbstractUserSetServices
-         class(AbstractUserSetServices), intent(in) :: this
-         integer, intent(out) :: rc
-      end subroutine I_RunSetServices
-
-   end interface
-
-   type, extends(AbstractUserSetServices) :: DSOSetServices
-      character(:), allocatable :: sharedObj
-      character(:), allocatable :: userRoutine
-   contains
-      procedure :: run => run_dso_setservices
-   end type DSOSetServices
-
-   interface user_setservices
-      module procedure new_dso_setservices
-   end interface user_setservices
-
-   interface operator(==)
-      module procedure equal_setServices
-   end interface operator(==)
-
-   interface operator(/=)
-      module procedure not_equal_setServices
-   end interface operator(/=)
-
-contains
-
-   !----------------------------------
-   ! Direct procedure support
-
-
-   !----------------------------------
-   ! DSO support
-   
-   ! Argument names correspond to ESMF arguments.
-   function new_dso_setservices(sharedObj, userRoutine) result(dso_setservices)
-      type(DSOSetServices) :: dso_setservices
-      character(len=*), intent(in) :: sharedObj
-      character(len=*), intent(in) :: userRoutine
-
-      dso_setservices%sharedObj   = sharedObj
-      dso_setservices%userRoutine = userRoutine
-
-   end function new_dso_setservices
-
-   subroutine run_dso_setservices(this, rc)
-      class(DSOSetservices), intent(in) :: this
-      integer, intent(out) :: rc
-
-      integer :: status, userRC
-      logical :: found
-
-   end subroutine run_dso_setservices
-
-
-   logical function equal_setServices(a, b) result(equal)
-      class(AbstractUserSetServices), intent(in) :: a, b
-
-      select type (a)
-      type is (DSOSetservices)
-         select type(b)
-         type is (DSOSetservices)
-            equal = equal_DSOSetServices(a,b)
-         class default
-            equal = .false.
-         end select
-      class default
-         equal = .false.
-      end select
-
-   end function equal_setServices
-
-   logical function not_equal_setServices(a, b) result(not_equal)
-      class(AbstractUserSetServices), intent(in) :: a, b
-      not_equal = .not. (a == b)
-   end function not_equal_setServices
-
-   logical function equal_DSOSetServices(a, b) result(equal)
-      type(DSOSetServices), intent(in) :: a, b
-      
-      equal = (a%sharedObj == b%sharedObj) .and. (a%userRoutine == b%userRoutine)
-   end function equal_DSOSetServices
-
-   logical function not_equal_DSOSetServices(a, b) result(not_equal)
-      type(DSOSetServices), intent(in) :: a, b
-      not_equal = .not. (a == b)
-   end function not_equal_DSOSetServices
-   
-end module r_mapl3g_UserSetServices
-
-
 module r_mapl3g_ChildSpec
    use r_mapl3g_UserSetServices
    implicit none
    private
 
    public :: ChildSpec
-   public :: operator(==)
-   public :: operator(/=)
 
-   public :: dump
-   
    type :: ChildSpec
-      character(:), allocatable :: yaml_config_file
-      character(:), allocatable :: esmf_config_file
-      class(AbstractUserSetServices), allocatable :: user_setservices
-      ! Prevent default structure constructor
-      integer, private ::  hack
    end type ChildSpec
 
    interface ChildSpec
       module procedure new_ChildSpec
    end interface ChildSpec
 
-   interface operator(==)
-      module procedure equal
-   end interface operator(==)
-      
-   interface operator(/=)
-      module procedure not_equal
-   end interface operator(/=)
-
-
 contains
 
-   pure function new_ChildSpec(user_setservices, yaml_config, esmf_config) result(spec)
+   pure function new_ChildSpec() result(spec)
       type(ChildSpec) :: spec
-      class(AbstractUserSetServices), intent(in) :: user_setservices
-      character(*), optional, intent(in) :: yaml_config
-      character(*), optional, intent(in) :: esmf_config
-
-      spec%user_setservices = user_setservices
-
-      if (present(yaml_config)) spec%yaml_config_file = yaml_config
-      if (present(esmf_config)) spec%esmf_config_file = esmf_config
-
    end function new_ChildSpec
       
-
-   logical function equal(a, b)
-      type(ChildSpec), intent(in) :: a
-      type(ChildSpec), intent(in) :: b
-
-      equal = (a%user_setservices == b%user_setservices)
-      if (.not. equal) return
-      
-      equal = equal_config(a%yaml_config_file, b%yaml_config_file)
-      if (.not. equal) return
-
-      equal = equal_config(a%esmf_config_file, b%esmf_config_file)
-      if (.not. equal) return
-
-   contains
-
-      pure logical function equal_config(a, b) result(equal)
-         character(:), allocatable, intent(in) :: a
-         character(:), allocatable, intent(in) :: b
-
-         equal = (allocated(a) .eqv. allocated(b))
-         if (.not. equal) return
-
-         if (allocated(a)) equal = (a == b)
-
-      end function equal_config
-
-   end function equal
-
-   logical function not_equal(a, b)
-      type(ChildSpec), intent(in) :: a
-      type(ChildSpec), intent(in) :: b
-
-      not_equal = .not. (a == b)
-   end function not_equal
-
-   subroutine dump(x)
-      type(ChildSpec) :: x
-
-      select type (q => x%user_setservices)
-      type is (Dsosetservices)
-         print*,__FILE__,__LINE__, q%sharedObj, '::', q%userRoutine
-      end select
-   end subroutine dump
 end module r_mapl3g_ChildSpec
 
 module r_mapl3g_ChildSpecMap
@@ -225,6 +43,7 @@ module r_mapl3g_ChildSpecMap
    public :: ChildSpecMap
    public :: ChildSpecMapIterator
    public :: ChildSpecPair
+   public :: map_set, map_setiterator
 
    public :: swap
 
@@ -393,7 +212,6 @@ module r_mapl3g_ChildSpecMap
    end interface
 
    type :: map_Set
-      private
       class(map_s_BaseNode), allocatable :: root
       integer(kind=GFTL_SIZE_KIND) :: tsize = 0
    contains
@@ -428,7 +246,7 @@ module r_mapl3g_ChildSpecMap
       procedure :: merge  => map_s_merge
 
       procedure :: deep_copy => map_s_deep_copy
-
+!!$      generic :: assignment(=) => deep_copy
       procedure :: copy_list => map_s_copy_list
       generic :: assignment(=) => copy_list
 
@@ -539,7 +357,6 @@ module r_mapl3g_ChildSpecMap
    end interface ChildSpecMap
 
    type :: ChildSpecMap
-      private
       type(map_Set) :: tree
    contains
       procedure :: empty => map_empty
@@ -571,6 +388,7 @@ module r_mapl3g_ChildSpecMap
 
       procedure :: count => map_count
       procedure :: deep_copy => map_deep_copy
+!!$      generic :: assignment(=) => deep_copy
 
    end type ChildSpecMap
 
@@ -713,7 +531,9 @@ module r_mapl3g_ChildSpecMap
       integer, intent(in) :: side
 
       if (side == 0) then
+         print*,'get_child ',__FILE__,__LINE__
          if (allocated(this%left)) then
+         print*,'get_child ',__FILE__,__LINE__
             select type (q => this%left)
             type is (map_s_Node)
                child => q
@@ -723,7 +543,9 @@ module r_mapl3g_ChildSpecMap
       end if
 
       if (side == 1) then
+         print*,'get_child ',__FILE__,__LINE__, this%value%first
          if (allocated(this%right)) then
+         print*,'get_child ',__FILE__,__LINE__
             select type (q => this%right)
             type is (map_s_Node)
                child => q
@@ -731,7 +553,9 @@ module r_mapl3g_ChildSpecMap
             return
          end if
       end if
+         print*,'get_child ',__FILE__,__LINE__
       child => null()
+         print*,'get_child ',__FILE__,__LINE__
 
    end function map_s_get_child
 
@@ -971,6 +795,7 @@ module r_mapl3g_ChildSpecMap
          allocate(new)
          if (present(iter)) iter%node => new
          call new%set_parent(parent)
+         if(associated(parent)) print*,'insert ',__FILE__,__LINE__,value%first, ' parent: ',parent%value%first
          new%value=value
          call parent%set_child(merge(0, 1, map_key_less_than(value,parent%get_value())),new)
          call this%rebalance(parent, .true.)
@@ -1127,7 +952,9 @@ module r_mapl3g_ChildSpecMap
       type(map_SetIterator) :: begin
 
       begin%tree => this
+      begin%node => null()
       call begin%next()
+
       return
    end function map_s_begin
 
@@ -1136,6 +963,7 @@ module r_mapl3g_ChildSpecMap
       type(map_SetIterator) :: end_
 
       end_%tree => this
+      end_%node => null()
 
       return
    end function map_s_end
@@ -1321,26 +1149,51 @@ subroutine map_s_erase_nonleaf(this, pos, side)
       integer, intent(in) :: dir   ! dir=1 forward, dir=0 backward
       type(map_s_Node), pointer :: prev
 
+      print*,'advpos ', __FILE__,__LINE__
       if (.not.associated(pos)) then
+         print*,'advpos ', __FILE__,__LINE__
          if (.not. allocated(this%root)) return
+         print*,'advpos ', __FILE__,__LINE__
          pos => this%root%to_node()
+         print*,'advpos ', __FILE__,__LINE__
          do while (associated(pos%get_child(1-dir)))
             pos => pos%get_child(1-dir)
          end do
-      else if (associated(pos%get_child(dir))) then
-         pos => pos%get_child(dir)
-         do while (associated(pos%get_child(1-dir)))
-            pos => pos%get_child(1-dir)
-         end do
+         print*,'advpos ', __FILE__,__LINE__
       else
-         prev => pos
-         pos => pos%parent
-         do while (associated(pos))
-            if (.not.associated(pos%get_child(dir), prev)) exit
+         print*,'advpos ', __FILE__,__LINE__, dir, pos%value%first, associated(pos%parent)
+         if (associated(pos%get_child(dir))) then
+            print*,'advpos ', __FILE__,__LINE__
+            pos => pos%get_child(dir)
+            print*,'advpos ', __FILE__,__LINE__
+            do while (associated(pos%get_child(1-dir)))
+               pos => pos%get_child(1-dir)
+            end do
+            print*,'advpos ', __FILE__,__LINE__
+         else
+            print*,'advpos ', __FILE__,__LINE__,associated(pos%parent), pos%value%first
+            print*,'advpos ', __FILE__,__LINE__,associated(pos%parent), pos%value%first, pos%parent%value%first
             prev => pos
             pos => pos%parent
-         end do
-      endif
+            print*,'advpos ', __FILE__,__LINE__,associated(pos), pos%value%first
+            do while (associated(pos))
+               print*,'advpos ', __FILE__,__LINE__
+               block
+                 type(map_s_Node), pointer :: p1, p2
+                 p1 => pos%get_child(dir)
+                 print*,'advpos ', __FILE__,__LINE__, associated(p1)
+                 print*,'advpos ', __FILE__,__LINE__, associated(p1, prev)
+               end block
+               if (.not.associated(pos%get_child(dir), prev)) then
+                  exit
+               end if
+               print*,'advpos ', __FILE__,__LINE__
+               prev => pos
+               pos => pos%parent
+            end do
+            print*,'advpos ', __FILE__,__LINE__
+         endif
+      end if
       return
    end subroutine map_s_advpos
 
@@ -2335,12 +2188,13 @@ module r_mapl3g_ComponentSpecBuilder
    implicit none
    private
 
+   public :: var_build_ChildSpecMap
    public :: build_ChildSpecMap
    
 contains
 
-
-   type(ChildSpecMap) function build_ChildSpecMap(rc) result(specs)
+   function var_build_ChildSpecMap(rc) result(specs)
+      type(ChildSpecMap), target :: specs
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -2349,25 +2203,45 @@ contains
       type(ChildSpec) :: child_spec
 
       integer :: counter
+
+      type(ChildSpecMap), target :: i_map
       
       do counter = 1, 2
            select case(counter)
            case (1)
               child_name = 'A'
-              child_spec = ChildSpec(user_setservices('libA','setservices_'))
-              call specs%insert('A', ChildSpec(user_setservices('libA','setservices_')))
+              child_spec = ChildSpec()
+              call specs%insert('A', ChildSpec())
            case (2)
               child_name = 'B'
-              child_spec = ChildSpec(user_setservices('libB','setservices_'))
-              call specs%insert('B', ChildSpec(user_setservices('libB','setservices_')))
+              child_spec = ChildSpec()
+              call specs%insert('B', ChildSpec())
            end select
         end do
 
       print*,__FILE__,__LINE__, specs%size()
       print*,__FILE__,__LINE__, specs == specs
       rc = 0 
-   end function build_ChildSpecMap
+   end function var_build_ChildSpecMap
 
+   function build_ChildSpecMap(rc) result(specs)
+      type(ChildSpecMap), target :: specs
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: counter
+
+      do counter = 1, 2
+         select case(counter)
+         case (1)
+            call specs%insert('A', ChildSpec())
+         case (2)
+            call specs%insert('B', ChildSpec())
+         end select
+      end do
+
+      rc = 0 
+   end function build_ChildSpecMap
 
 end module r_mapl3g_ComponentSpecBuilder
 
@@ -2378,14 +2252,44 @@ program main
    use r_mapl3g_ComponentSpecBuilder
    implicit none
 
-      type(ChildSpecMap) :: expected, found
-      integer :: status
+   type(ChildSpecMap), target :: expected, found
+   integer :: status
+   integer :: counter
+   type(map_setiterator) :: iter
+   type(ChildSpecMapIterator) :: m_iter
 
-   call expected%insert('A', ChildSpec(user_setservices('libA','setservices_')))
-   call expected%insert('B', ChildSpec(user_setservices('libB','setservices_')))
+   call expected%insert('A', ChildSpec())
+   call expected%insert('B', ChildSpec())
 
+!!$   found = var_build_ChildSpecMap(rc=status)
+!!$
+!!$   counter = 0
+!!$   associate(m => found)
+!!$     associate(b => m%begin(), e=> m%end())
+!!$       m_iter = b
+!!$       do while (m_iter /= e)
+!!$          counter = counter + 1
+!!$          print*,counter, __FILE__,__LINE__, m_iter%first()
+!!$          call m_iter%next()
+!!$       end do
+!!$     end associate
+!!$   end associate
+   
    found = build_ChildSpecMap(rc=status)
-   print*,__FILE__,__LINE__, found == expected
 
+   counter = 0
+   associate(m => found)
+     associate(b => m%begin(), e=> m%end())
+       m_iter = b
+       do while (m_iter /= e)
+          counter = counter + 1
+          print*,counter, __FILE__,__LINE__
+          print*,counter, __FILE__,__LINE__, m_iter%first()
+          call m_iter%next()
+       end do
+     end associate
+   end associate
+
+   print*,found == expected
 end program main
 

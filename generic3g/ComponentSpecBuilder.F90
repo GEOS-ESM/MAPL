@@ -3,6 +3,7 @@
 module mapl3g_ComponentSpecBuilder
    use mapl3g_ComponentSpec
    use mapl3g_ChildSpec
+   use mapl3g_ChildSpecMap
    use mapl_ErrorHandling
    use mapl3g_UserSetServices
    use yaFyaml
@@ -15,6 +16,8 @@ module mapl3g_ComponentSpecBuilder
    ! The following interfaces are public only for testing purposes.
    public :: build_setservices
    public :: build_ChildSpec
+   public :: build_ChildSpecMap
+   public :: var_build_ChildSpecMap
    
 contains
 
@@ -81,7 +84,86 @@ contains
 
       _RETURN(_SUCCESS)
    end function build_ChildSpec
+
+   ! Note: It is convenient to allow a null pointer for the config in
+   ! the case of no child specs.  It spares the higher level procedure
+   ! making the relevant check.
+
+   type(ChildSpecMap) function build_ChildSpecMap(config, rc) result(specs)
+      class(YAML_Node), pointer, intent(in) :: config
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      character(:), pointer :: child_name
+      type(ChildSpec) :: child_spec
+      class(NodeIterator), allocatable :: iter
+      class(YAML_Node), pointer :: subcfg
+
+      if (.not. associated(config)) then
+         specs = ChildSpecMap()
+         _RETURN(_SUCCESS)
+      end if
+      _ASSERT(config%is_mapping(), 'children spec must be mapping of names to child specs')
+
+      associate (b => config%begin(), e => config%end())
+        iter = b
+        do while (iter /= e)
+           child_name => to_string(iter%first(), _RC)
+           subcfg => iter%second()
+           call specs%insert(child_name, build_ChildSpec(iter%second()))
+           call iter%next()
+        end do
+      end associate
+
+
+      _RETURN(_SUCCESS)
+   end function build_ChildSpecMap
+
+   type(ChildSpecMap) function var_build_ChildSpecMap(config, rc) result(specs)
+      class(YAML_Node), pointer, intent(in) :: config
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      character(:), allocatable :: child_name
+      type(ChildSpec) :: child_spec
+      class(NodeIterator), allocatable :: iter
+
+      type(ChildSpecMap) :: kludge
+      integer :: counter
       
+      counter = 0
+!!$      specs = ChildSpecMap()
+      
+      if (.not. associated(config)) then
+         specs = ChildSpecMap()
+         _RETURN(_SUCCESS)
+      end if
+      _ASSERT(config%is_mapping(), 'children spec must be mapping of names to child specs')
+
+      associate (b => config%begin(), e => config%end())
+        iter = b
+        do while (iter /= e)
+           counter = counter + 1
+!!$           child_name => to_string(iter%first(), _RC)
+!!$           child_spec = build_ChildSpec(iter%second(), _RC)
+!!$           child_name = to_string(iter%first(), _RC)
+           select case(counter)
+           case (1)
+              call kludge%insert('A', ChildSpec(user_setservices('libA','setservices_')))
+           case (2)
+              call kludge%insert('B', ChildSpec(user_setservices('libB','setservices_')))
+           end select
+!!$           call specs%insert(child_name, child_spec)
+           call iter%next()
+        end do
+      end associate
+
+!!$      call specs%deep_copy(kludge)
+      specs = kludge
+      _RETURN(_SUCCESS)
+   end function var_build_ChildSpecMap
 
 !!$   type(StatesSpec) function build_states_spec(config, rc) result(states_spec)
 !!$      type(Configuration), intent(in) :: config

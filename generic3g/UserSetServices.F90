@@ -127,15 +127,14 @@ contains
       _ASSERT(is_supported_dso_name(this%sharedObj), 'unsupported dso name:: <'//this%sharedObj//'>')
       call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(this%sharedObj), &
            userRoutine=this%userRoutine, userRoutinefound=found, userRC=userRC, rc=status)
-
       _VERIFY(userRC)
-      _VERIFY(rc)
+      _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run_dso_setservices
 
 
-   pure logical function equal_setServices(a, b) result(equal)
+   logical function equal_setServices(a, b) result(equal)
       class(AbstractUserSetServices), intent(in) :: a, b
 
       select type (a)
@@ -159,28 +158,28 @@ contains
 
    end function equal_setServices
 
-   pure logical function not_equal_setServices(a, b) result(not_equal)
+   logical function not_equal_setServices(a, b) result(not_equal)
       class(AbstractUserSetServices), intent(in) :: a, b
       not_equal = .not. (a == b)
    end function not_equal_setServices
 
-   pure logical function equal_ProcSetServices(a, b) result(equal)
+   logical function equal_ProcSetServices(a, b) result(equal)
       type(ProcSetServices), intent(in) :: a, b
       equal = associated(a%userRoutine, b%userRoutine)
    end function equal_ProcSetServices
 
-   pure logical function equal_DSOSetServices(a, b) result(equal)
+   logical function equal_DSOSetServices(a, b) result(equal)
       type(DSOSetServices), intent(in) :: a, b
       
       equal = (a%sharedObj == b%sharedObj) .and. (a%userRoutine == b%userRoutine)
    end function equal_DSOSetServices
 
-   pure logical function not_equal_ProcSetServices(a, b) result(not_equal)
+   logical function not_equal_ProcSetServices(a, b) result(not_equal)
       type(ProcSetServices), intent(in) :: a, b
       not_equal = .not. (a == b)
    end function not_equal_ProcSetServices
 
-   pure logical function not_equal_DSOSetServices(a, b) result(not_equal)
+   logical function not_equal_DSOSetServices(a, b) result(not_equal)
       type(DSOSetServices), intent(in) :: a, b
       not_equal = .not. (a == b)
    end function not_equal_DSOSetServices

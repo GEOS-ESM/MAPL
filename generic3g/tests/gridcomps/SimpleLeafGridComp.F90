@@ -38,7 +38,7 @@ contains
 
       integer :: status
 
-      call append_message(gc, 'wasRun')
+o      call append_message(gc, 'wasRun')
       
       _RETURN(ESMF_SUCCESS)
    end subroutine run
