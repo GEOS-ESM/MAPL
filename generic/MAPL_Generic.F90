@@ -1940,7 +1940,7 @@ contains
             nwrgt1 = ((state%grid%num_readers > 1) .or. (state%grid%num_writers > 1))
             if(FILETYPE=='pnc4' .and. nwrgt1) then
                print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-               _ASSERT(.false.,'needs informative message')
+               _FAIL('needs informative message')
             endif
 #endif
             call MAPL_GetResource( STATE   , hdr,         &
@@ -1970,7 +1970,7 @@ contains
             nwrgt1 = ((state%grid%num_readers > 1) .or. (state%grid%num_writers > 1))
             if(FILETYPE=='pnc4' .and. nwrgt1) then
                print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-               _ASSERT(.false.,'needs informative message')
+               _FAIL('needs informative message')
             endif
 #endif
             call MAPL_ESMFStateWriteToFile(IMPORT,CLOCK,FILENAME, &
@@ -2025,18 +2025,18 @@ contains
 
             min_multi = MultiColumn(['Min'], separator='=')
             call min_multi%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MIN')), separator='-'))
-            call min_multi%add_column(FormattedTextColumn('inclusive', '(f9.2)', 9, InclusiveColumn('MIN'), separator='-'))
-            call min_multi%add_column(FormattedTextColumn('exclusive', '(f9.2)',9, ExclusiveColumn('MIN'), separator='-'))
+            call min_multi%add_column(FormattedTextColumn('inclusive', '(f10.2)', 10, InclusiveColumn('MIN'), separator='-'))
+            call min_multi%add_column(FormattedTextColumn('exclusive', '(f10.2)',10, ExclusiveColumn('MIN'), separator='-'))
 
             mean_multi = MultiColumn(['Mean'], separator='=')
             call mean_multi%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN')), separator='-'))
-            call mean_multi%add_column(FormattedTextColumn('inclusive', '(f9.2)', 9, InclusiveColumn('MEAN'), separator='-'))
-            call mean_multi%add_column(FormattedTextColumn('exclusive', '(f9.2)', 9, ExclusiveColumn('MEAN'), separator='-'))
+            call mean_multi%add_column(FormattedTextColumn('inclusive', '(f10.2)', 10, InclusiveColumn('MEAN'), separator='-'))
+            call mean_multi%add_column(FormattedTextColumn('exclusive', '(f10.2)', 10, ExclusiveColumn('MEAN'), separator='-'))
 
             max_multi = MultiColumn(['Max'], separator='=')
             call max_multi%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MAX')), separator='-'))
-            call max_multi%add_column(FormattedTextColumn('inclusive', '(f9.2)', 9, InclusiveColumn('MAX'), separator='-'))
-            call max_multi%add_column(FormattedTextColumn('exclusive', '(f9.2)', 9, ExclusiveColumn('MAX'), separator='-'))
+            call max_multi%add_column(FormattedTextColumn('inclusive', '(f10.2)', 10, InclusiveColumn('MAX'), separator='-'))
+            call max_multi%add_column(FormattedTextColumn('exclusive', '(f10.2)', 10, ExclusiveColumn('MAX'), separator='-'))
 
             pe_multi = MultiColumn(['PE'], separator='=')
             call pe_multi%add_column(FormattedTextColumn('max','(1x,i5.5)', 6, ExclusiveColumn('MAX_PE'), separator='-'))
@@ -4279,6 +4279,7 @@ contains
 
       type (MAPL_VarSpec),               pointer  :: IMPORT_SPEC(:)
       type (MAPL_VarSpec),               pointer  :: EXPORT_SPEC(:)
+      type (MAPL_VarSpec),               pointer  :: INTERNAL_SPEC(:)
       integer                                     :: I
       type(ESMF_GridComp), pointer :: gridcomp
 
@@ -4299,11 +4300,12 @@ contains
 
       IMPORT_SPEC => MAPLOBJ%COMPONENT_SPEC%IMPORT%OLD_VAR_SPECS
       EXPORT_SPEC => MAPLOBJ%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS
+      INTERNAL_SPEC => MAPLOBJ%COMPONENT_SPEC%INTERNAL%OLD_VAR_SPECS
 
       if (printSpec == 1) then
          if (associated(IMPORT_SPEC)) then
             call WRITE_PARALLEL("#IMPORT spec for " // trim(comp_name))
-            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS")
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
             if (associated(IMPORT_SPEC)) then
                call MAPL_VarSpecPrintCSV(IMPORT_SPEC, comp_name, RC=status)
                _VERIFY(status)
@@ -4311,16 +4313,24 @@ contains
          end if
          if (associated(EXPORT_SPEC)) then
             call WRITE_PARALLEL("#EXPORT spec for " // trim(comp_name))
-            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS")
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
             if (associated(EXPORT_SPEC)) then
                call MAPL_VarSpecPrintCSV(EXPORT_SPEC, comp_name, RC=status)
+               _VERIFY(status)
+            end if
+         end if
+         if (associated(INTERNAL_SPEC)) then
+            call WRITE_PARALLEL("#INTERNAL spec for " // trim(comp_name))
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
+            if (associated(INTERNAL_SPEC)) then
+               call MAPL_VarSpecPrintCSV(INTERNAL_SPEC, comp_name, RC=status)
                _VERIFY(status)
             end if
          end if
       else if (printSpec == 2) then
          if (associated(IMPORT_SPEC)) then
             call WRITE_PARALLEL("#IMPORT spec for " // trim(comp_name))
-            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS")
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
             if (associated(IMPORT_SPEC)) then
                call MAPL_VarSpecPrintCSV(IMPORT_SPEC, comp_name, RC=status)
                _VERIFY(status)
@@ -4329,9 +4339,18 @@ contains
       else if (printSpec == 3) then
          if (associated(EXPORT_SPEC)) then
             call WRITE_PARALLEL("#EXPORT spec for " // trim(comp_name))
-            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS")
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
             if (associated(EXPORT_SPEC)) then
                call MAPL_VarSpecPrintCSV(EXPORT_SPEC, comp_name, RC=status)
+               _VERIFY(status)
+            end if
+         end if
+      else if (printSpec == 4) then
+         if (associated(INTERNAL_SPEC)) then
+            call WRITE_PARALLEL("#INTERNAL spec for " // trim(comp_name))
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
+            if (associated(INTERNAL_SPEC)) then
+               call MAPL_VarSpecPrintCSV(INTERNAL_SPEC, comp_name, RC=status)
                _VERIFY(status)
             end if
          end if
@@ -5510,7 +5529,7 @@ contains
 #ifndef H5_HAVE_PARALLEL
          if (nwrgt1) then
             print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 #endif
          AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
@@ -5902,7 +5921,7 @@ contains
 #ifndef H5_HAVE_PARALLEL
          if (nwrgt1) then
             print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 #endif
          AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
@@ -8245,7 +8264,7 @@ contains
             _VERIFY(status)
          end if
          class default
-         _ASSERT(.false., "Unupported type")
+         _FAIL( "Unupported type")
       end select
 
       call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status)
@@ -8370,7 +8389,7 @@ contains
             _VERIFY(status)
          end if
          class default
-         _ASSERT(.false., "Unsupported type")
+         _FAIL( "Unsupported type")
       end select
 
       _RETURN(ESMF_SUCCESS)
@@ -8442,7 +8461,7 @@ contains
             default_str = intrinsic_to_string(default, 'a')
          end if
          class default
-         _ASSERT(.false.,"Unsupported type")
+         _FAIL("Unsupported type")
       end select
 
       output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)"
@@ -8503,7 +8522,7 @@ contains
       type is(character(len=*))
          formatted_str = trim(val)
          class default
-         _ASSERT(.false., "Unsupported type in intrinsic_to_string")
+         _FAIL( "Unsupported type in intrinsic_to_string")
       end select
 
    end function intrinsic_to_string
@@ -9203,7 +9222,7 @@ contains
       elseif(present(FORCING2)) then
          ONED = .FALSE.
       else
-         _ASSERT(.FALSE.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
       ! Get parameters from generic state.
@@ -9833,7 +9852,7 @@ contains
 
          if(TRANSFORM) then
             if (PRF /= 0) then
-               _ASSERT(.false.,'needs informative message') ! for now
+               _FAIL('needs informative message') ! for now
             else
                ! ALT this LOOKS WRONG. MAPL_VarRead needs a mask for tiles!!!
                call MAPL_VarRead(UNIT, GRID, VAR2, RC=status )
@@ -10023,7 +10042,7 @@ contains
       elseif(present(MAPLOBJ)) then
          STATE => MAPLOBJ
       else
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       endif
 
       call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NX:',rc=status)

@@ -401,7 +401,7 @@ module MAPL_VerticalDataMod
                    unGrdCoordCheck = .false.
                 end if
                 if ( unGrdUnitCheck .or. unGrdNameCheck .or. unGrdCoordCheck) then
-                   _ASSERT(.false.,'Ungridded attributes for variables in collection do not match')
+                   _FAIL('Ungridded attributes for variables in collection do not match')
                 end if
              end if
           end do

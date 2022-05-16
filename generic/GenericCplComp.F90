@@ -925,7 +925,7 @@ contains
     real, pointer                         :: PTR10(:)
     real, pointer                         :: PTR20(:,:)
     real, pointer                         :: PTR30(:,:,:)
-    real, pointer                         :: PTR40(:,:,:)
+    real, pointer                         :: PTR40(:,:,:,:)
 
     character(*), parameter       :: IAm="ZERO_CLEAR_COUNT"
     integer                       :: STATUS
@@ -1472,7 +1472,7 @@ contains
                 deallocate(buf1)
              end if
           case default
-             _ASSERT(.false., "Unsupported rank")
+             _FAIL( "Unsupported rank")
           end select
           _DEALLOC(mask)
        end do
@@ -1598,7 +1598,7 @@ contains
           case(3)
              local_undefs = associated(state%array_count(i)%ptr3c)
           case default
-             _ASSERT(.false., "Unsupported rank")
+             _FAIL( "Unsupported rank")
           end select
        have_undefs = 0
        n_undefs = 0
@@ -1669,7 +1669,7 @@ contains
                 deallocate(buf1)
              end if
           case default
-             _ASSERT(.false.," Unsupported rank")
+             _FAIL(" Unsupported rank")
           end select
           _DEALLOC(mask)
        end do
@@ -1717,7 +1717,7 @@ contains
     if (.not.associated(STATE%TIME2CPL_ALARM)) then
        STATE%TIME2CPL_ALARM => ALARM
     else
-       _ASSERT(.false., "Alarm is already associated! Cannot set it again!")
+       _FAIL( "Alarm is already associated! Cannot set it again!")
     end if
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CplCompSetAlarm

@@ -240,7 +240,7 @@ CONTAINS
                enddo
             end if
             if (foundDiff(ii)) then
-               _ASSERT(.false.,'found difference when compare state')
+               _FAIL('found difference when compare state')
             end if
          enddo
 

@@ -37,6 +37,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Now gives the name of the timer that has not been stopped when
   finalizing a profiler.
 - Changed all ESMF_AttributeGet and ESMF_AttributeSet to ESMF_InfoGet and ESMF_InfoSet respectively as old calls will be deprecated soon.
+- Updated `components.yaml`
+  - ESMA_env v4.0.0 (Baselibs 7, new yaFyaml interfaces)
+- Updated CI to use Baselibs 7
 
 ### Fixed
 
@@ -49,11 +52,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix issue where ACG was called when no file had changed
-- Add missing `rc=status` in `MAPL_GetResourceFromMAPL_scalar`
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.21.0] - 2022-05-05
+
+### Fixed
+
+- Fixed incorrect legend when using PRINTSPEC option in MAPL Cap
+- Fix ESMF errors exposed by monthly collections
 
 ### Added
+
+- Added has_variable function to FileMetadata
+- Added information about the container type for each item in state when using PRINTSPEC option
+
+### Changed
+
+- Change many instances of `_ASSERT(.false.,"msg")` to `_FAIL("msg")`
+- Extended format width for exclusive and inclusive times in profiler from `f9.2` to `f10.2` (see #1420)
+
+## [2.20.0] - 2022-04-19
+
+### Fixed
+
+- Removed one redundant get_file_extension call
+- Fix issue where ACG was called when no file had changed
+- Add missing `rc=status` in `MAPL_GetResourceFromMAPL_scalar`
+- Fixed bugs with next generation ExtData
+- Fixed variable PTR40 declaration in GenericCplComp.F90
+
+### Added
+
 - Added support for 4d variables in the coupler. Intentionally decided not to support 4d in the coupler's ReadRestart and WriteRestart to catch errors
+- Added ability to use multiple rules for different time periods in next generation ExtData
 
 ### Changed
 
@@ -62,10 +99,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `components.yaml` to match GEOSgcm v10.22.1
   - ESMA_env v3.13.0
   - ESMA_cmake v3.12.0
-
-### Removed
-
-### Deprecated
 
 ## [2.19.2] - 2022-03-28
 

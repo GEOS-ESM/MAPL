@@ -491,7 +491,7 @@ contains
     ! set up few variables to deal with monthly
     startOfThisMonth = currTime
     call ESMF_TimeSet(startOfThisMonth,dd=1,h=0,m=0,s=0,__RC__)
-    call ESMF_TimeIntervalSet( oneMonth, MM=1, __RC__)
+    call ESMF_TimeIntervalSet( oneMonth, MM=1, StartTime=StartTime, __RC__)
 
 
 ! Read User-Supplied History Lists from Config File
@@ -542,7 +542,7 @@ contains
     else if (trim(cFileOrder) == 'AddOrder') then
        intstate%fileOrderAlphabetical = .false.
     else
-       _ASSERT(.false.,'needs informative message')
+       _FAIL('needs informative message')
     end if
 
     call ESMF_ConfigGetAttribute(config, value=intstate%integer_time,label="IntegerTime:", default=.false.,_RC)
@@ -1258,7 +1258,7 @@ contains
           RingTime = startOfThisMonth
        else
           sec = MAPL_nsecf( list(n)%frequency )
-          call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
+          call ESMF_TimeIntervalSet( Frequency, S=sec, StartTime=StartTime, rc=status ) ; _VERIFY(STATUS)
           RingTime = RefTime
        end if
 
@@ -1281,7 +1281,7 @@ contains
        if( list(n)%duration.ne.0 ) then
           if (.not.list(n)%monthly) then
              sec = MAPL_nsecf( list(n)%duration )
-             call ESMF_TimeIntervalSet( Frequency, S=sec, calendar=cal, rc=status ) ; _VERIFY(STATUS)
+             call ESMF_TimeIntervalSet( Frequency, S=sec, StartTime=StartTime, rc=status ) ; _VERIFY(STATUS)
           else
              Frequency = oneMonth
              !ALT keep the values from above
@@ -1422,7 +1422,7 @@ contains
           else
              if (index(list(n)%field_set%fields(1,m),'%') /= 0) then
                 call WRITE_PARALLEL('Can not do arithmetic expression with bundle item')
-                _ASSERT(.false.,'needs informative message')
+                _FAIL('needs informative message')
              end if
           end if
        enddo
@@ -2585,7 +2585,7 @@ ENDDO PARSER
                 case (3)
                            print *, '   XY-offset: ',list(n)%xyoffset,'  (DePe: Dateline Edge, Pole Edge)'
                 case default
-                _ASSERT(.false.,'needs informative message')
+                _FAIL('needs informative message')
          end select
 
          !print *, '      Fields: ',((trim(list(n)%field_set%fields(3,m)),' '),m=1,list(n)%field_set%nfields)
@@ -3870,6 +3870,7 @@ ENDDO PARSER
    type(ESMF_Grid)                :: grid
    type(ESMF_Time)                :: CurrTime
    type(ESMF_Time)                :: StopTime
+   type(ESMF_Time)                :: StartTime
    type(ESMF_Calendar)            :: cal
    type(ESMF_TimeInterval)        :: ti, Frequency
    integer                        :: nsteps
@@ -3905,9 +3906,10 @@ ENDDO PARSER
                'DTDT'     , 'PHYSICS'    , &
                'DTDT'     , 'GWD'        /
 
-   call ESMF_ClockGet ( clock,  currTime=CurrTime ,rc=STATUS ) ; _VERIFY(STATUS)
-   call ESMF_ClockGet ( clock,  StopTime=StopTime ,rc=STATUS ) ; _VERIFY(STATUS)
-   call ESMF_ClockGet ( clock,  Calendar=cal      ,rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, currTime=CurrTime,   rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, StopTime=StopTime,   rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, StartTime=StartTime, rc=STATUS ) ; _VERIFY(STATUS)
+   call ESMF_ClockGet ( clock, Calendar=cal,        rc=STATUS ) ; _VERIFY(STATUS)
 
    call ESMF_TimeGet  ( CurrTime, timeString=TimeString, rc=status ) ; _VERIFY(STATUS)
 
@@ -3919,7 +3921,7 @@ ENDDO PARSER
 
    ti = StopTime-CurrTime
    freq = MAPL_nsecf( list%frequency )
-   call ESMF_TimeIntervalSet( Frequency, S=freq, calendar=cal, rc=status ) ; _VERIFY(STATUS)
+   call ESMF_TimeIntervalSet( Frequency, S=freq, StartTime=StartTime, rc=status ) ; _VERIFY(STATUS)
 
    nsteps =  ti/Frequency + 1
 
@@ -5097,7 +5099,7 @@ ENDDO PARSER
 
                if (ifound_vloc) then
                   if (ivLoc /= Totloc(i) .and. totloc(i) /= MAPL_VLocationNone) then
-                     _ASSERT(.false.,'arithmetic expression has two different vlocations')
+                     _FAIL('arithmetic expression has two different vlocations')
                   end if
                else
                   if (totloc(i) /= MAPL_VLocationNone) then
@@ -5393,7 +5395,7 @@ ENDDO PARSER
           call pFIO_DownBit(ptr3d,ptr3d,list%nbits,undef=MAPL_undef,rc=status)
           _VERIFY(STATUS)
        else
-          _ASSERT(.false. ,'The field rank is not implmented')
+          _FAIL('The field rank is not implmented')
        endif
     enddo
 

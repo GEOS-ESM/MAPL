@@ -126,7 +126,7 @@ module MAPL_FileMetadataUtilsMod
          tmp = attr_val
          attr_real32 = tmp(1)
       class default
-         _ASSERT(.false.,'unsupport subclass for units')
+         _FAIL('unsupport subclass for units')
       end select
 
       _RETURN(_SUCCESS)
@@ -155,7 +155,7 @@ module MAPL_FileMetadataUtilsMod
          tmp = attr_val
          attr_real64 = tmp(1)
       class default
-         _ASSERT(.false.,'unsupport subclass for units')
+         _FAIL('unsupport subclass for units')
       end select
 
       _RETURN(_SUCCESS)
@@ -184,7 +184,7 @@ module MAPL_FileMetadataUtilsMod
          tmp = attr_val
          attr_int32 = tmp(1)
       class default
-         _ASSERT(.false.,'unsupport subclass for units')
+         _FAIL('unsupport subclass for units')
       end select
 
       _RETURN(_SUCCESS)
@@ -213,7 +213,7 @@ module MAPL_FileMetadataUtilsMod
          tmp = attr_val
          attr_int64 = tmp(1)
       class default
-         _ASSERT(.false.,'unsupport subclass for units')
+         _FAIL('unsupport subclass for units')
       end select
 
       _RETURN(_SUCCESS)
@@ -240,7 +240,7 @@ module MAPL_FileMetadataUtilsMod
       type is(character(*))
          attr_string = attr_val
       class default
-         _ASSERT(.false.,'unsupport subclass for units')
+         _FAIL('unsupport subclass for units')
       end select
 
       _RETURN(_SUCCESS)
@@ -356,7 +356,7 @@ module MAPL_FileMetadataUtilsMod
            endif
          endif
       class default
-         _ASSERT(.false.,"Time unit must be character")
+         _FAIL("Time unit must be character")
       end select
       call ESMF_TimeSet(unmodStartTime,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,rc=status)
       _VERIFY(status)
@@ -377,7 +377,7 @@ module MAPL_FileMetadataUtilsMod
       type is (integer(kind=INT32))
          tr_r64=ptr
       class default
-         _ASSERT(.false.,"unsupported time variable type")
+         _FAIL("unsupported time variable type")
       end select
       do i=1,tsize
         select case (trim(tUnits))
@@ -398,7 +398,7 @@ module MAPL_FileMetadataUtilsMod
            _VERIFY(status)
            tvec(i)=unmodStartTime+tint
         case default
-           _ASSERT(.false.,"unsupported time unit")
+           _FAIL("unsupported time unit")
         end select
       enddo
 
@@ -458,7 +458,7 @@ module MAPL_FileMetadataUtilsMod
          type is (character(*))
             units => vunits
          class default
-            _ASSERT(.false.,'units must be string')
+            _FAIL('units must be string')
          end select
       else
          units => null()
@@ -497,7 +497,7 @@ module MAPL_FileMetadataUtilsMod
          type is (character(*))
             coordUnits = trim(coordUnitPtr)
          class default
-            _ASSERT(.false.,'units must be string')
+            _FAIL('units must be string')
          end select
       end if 
 
@@ -514,7 +514,7 @@ module MAPL_FileMetadataUtilsMod
          type is (integer(kind=INT32))
             coords=ptr
          class default
-            _ASSERT(.false.,"unsupported coordel variable type")
+            _FAIL("unsupported coordel variable type")
          end select
       end if
       _RETURN(_SUCCESS)
