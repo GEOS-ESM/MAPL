@@ -234,7 +234,7 @@ contains
       case (pFIO_WRITE)
          omode = NF90_WRITE
       case default
-         _ASSERT(.false.,"read or write mode")
+         _FAIL("read or write mode")
       end select
 
       if (present(comm)) then

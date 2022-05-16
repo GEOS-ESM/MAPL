@@ -110,7 +110,7 @@ contains
 
       select type (values)
       type is (character(len=*)) 
-        _ASSERT(.false., 'unsupported unless shape is [1]')
+        _FAIL( 'unsupported unless shape is [1]')
       class default
          allocate(attr%values, source=values)
          attr%shape = shape(values)
@@ -137,7 +137,7 @@ contains
       type is (logical)
          allocate(values1d, source = reshape(values, [product(shape(values))]))
       class default
-        _ASSERT(.false., 'not support type')
+        _FAIL( 'not support type')
       end select
 
       attr = UnlimitedEntity(values1d)
@@ -165,7 +165,7 @@ contains
       type is (logical)
          allocate(values1d, source = reshape(values, [product(shape(values))]))
       class default
-        _ASSERT(.false., 'not support type')
+        _FAIL( 'not support type')
       end select
 
       attr = UnlimitedEntity(values1d)
@@ -193,7 +193,7 @@ contains
       type is (logical)
          allocate(values1d, source = reshape(values, [product(shape(values))]))
       class default
-        _ASSERT(.false., 'not support type')
+        _FAIL( 'not support type')
       end select
 
       attr = UnlimitedEntity(values1d)
@@ -221,7 +221,7 @@ contains
       type is (logical)
          allocate(values1d, source = reshape(values, [product(shape(values))]))
       class default
-        _ASSERT(.false., 'not support type')
+        _FAIL( 'not support type')
       end select
 
       attr = UnlimitedEntity(values1d)
@@ -544,7 +544,7 @@ contains
                       serialize_intrinsic(type_kind),  &
                       serialize_intrinsic(value%value)]
          class default
-            _ASSERT(.false.," type is not supported")
+            _FAIL(" type is not supported")
          end select
          endif
       case (1:)
@@ -581,7 +581,7 @@ contains
         !              serialize_intrinsic(type_kind),  &
         !              serialize_intrinsic(values)]
          class default
-            _ASSERT(.false.," type is not supported")
+            _FAIL(" type is not supported")
          end select
       end select
       length =  serialize_buffer_length(length) + size(buffer)
@@ -658,7 +658,7 @@ contains
                 ! this is uninitialized case, make sure shape is not allocated even it is empty
                  if (allocated(this%shape))deallocate(this%shape)
             case default
-              _ASSERT(.false., "UnlimitedEntity deserialize not support")
+              _FAIL( "UnlimitedEntity deserialize not support")
             end select
          case (1:)
             select case (type_kind)
@@ -678,7 +678,7 @@ contains
                 call deserialize_intrinsic(buffer(n:),values_logical)
                 allocate(this%values, source =values_logical)
             case default
-              _ASSERT(.false., "UnlimitedEntity deserialize not support")
+              _FAIL( "UnlimitedEntity deserialize not support")
             end select
    
          end select

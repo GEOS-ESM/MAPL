@@ -145,7 +145,7 @@ contains
        end if
        time_increment = this%frequency/86400
     case default
-       _ASSERT(.false., 'Not supported yet')
+       _FAIL( 'Not supported yet')
     end select
 
     call this%tvec%clear()
@@ -265,7 +265,7 @@ contains
        startTime = parse_time_string(units,rc=status)
        _VERIFY(status)
     class default
-       _ASSERT(.false.,'unsupported subclass for units')
+       _FAIL('unsupported subclass for units')
     end select
 
     
@@ -296,7 +296,7 @@ contains
     lastdash  = index(TimeUnits, '-', BACK=.TRUE.)
 
     if (firstdash .LE. 0 .OR. lastdash .LE. 0) then
-       _ASSERT(.false.,'time string is not a valid format')
+       _FAIL('time string is not a valid format')
     endif
     ypos(2) = firstdash - 1
     mpos(1) = firstdash + 1

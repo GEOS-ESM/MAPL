@@ -125,7 +125,7 @@ contains
            type is (RDMAReference)
               remotePtr=>dataRefPtr
            class default
-              _ASSERT(.false., "remote is a must")
+              _FAIL( "remote is a must")
            end select
 
            request_iter = this%stage_offset%find(i_to_string(q%request_id)//'done')
@@ -219,7 +219,7 @@ contains
       type is (MpiSocket)
          allocate(dmessage,source = DummyMessage())
       class default
-         _ASSERT(.false., "wrong socket type")
+         _FAIL( "wrong socket type")
       end select
 
       _RETURN(_SUCCESS)

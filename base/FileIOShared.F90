@@ -208,7 +208,7 @@ module FileIOSharedMod
        _ASSERT(present(jm), 'jm not present for 2d')
        allocate(A%I4_2(IM,JM))
     case default
-       _ASSERT(.false., 'unsupported tkr')
+       _FAIL( 'unsupported tkr')
     end select
 
     a%allocated=type
@@ -254,7 +254,7 @@ module FileIOSharedMod
              nullify(A%i4_2)
           end if
        case default
-          _ASSERT(.false., 'unsupported tkr')
+          _FAIL( 'unsupported tkr')
        end select
        a%allocated=not_allocated
     end if
@@ -367,7 +367,7 @@ module FileIOSharedMod
     enddo
 
 #ifdef NEW
-    _ASSERT(.false., 'unsupported code block') !ALT this section is questionable
+    _FAIL( 'unsupported code block') !ALT this section is questionable
     do I = 0,nDEs-1
        de = I
        I1 = AL(1,I)

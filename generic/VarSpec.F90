@@ -1450,15 +1450,24 @@ contains
       integer            , optional   , intent(out)     :: RC
 
       class(Logger), pointer :: lgr
+      character(len=:), allocatable :: item_type
 
       if(.not.associated(SPEC%SPECPtr)) then
          _RETURN(ESMF_FAILURE)
       endif
 
+      if (iand(spec%specptr%stat,MAPL_BundleItem) /= 0) then
+         item_type = "esmf_bundle"
+      else if (iand(spec%specptr%stat,MAPL_StateItem) /=0) then
+         item_type = "esmf_state"
+      else
+         item_type = "esmf_field"
+      end if
+
       lgr => logging%get_logger('MAPL.GENERIC')
-      call lgr%info('%a~, %a~, %a~, %i3', &
+      call lgr%info('%a~, %a~, %a~, %a~, %i3~, %a~ ', &
            trim(compName), trim(spec%specptr%short_name), trim(spec%specptr%long_name), &
-           spec%specptr%dims)
+           trim(spec%specptr%units),spec%specptr%dims,item_type)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_VarSpecPrint1CSV

@@ -9,7 +9,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+- Adapted to gFTL version2
+  - This *requires* gFTL 1.5.5
+
+### Removed
+
+### Deprecated
+
+## [2.21.0] - 2022-05-05
+
+### Fixed
+
+- Fixed incorrect legend when using PRINTSPEC option in MAPL Cap
+- Fix ESMF errors exposed by monthly collections
+
+### Added
+
+- Added has_variable function to FileMetadata
+- Added information about the container type for each item in state when using PRINTSPEC option
+
+### Changed
+
+- Change many instances of `_ASSERT(.false.,"msg")` to `_FAIL("msg")`
+- Extended format width for exclusive and inclusive times in profiler from `f9.2` to `f10.2` (see #1420)
+
+## [2.20.0] - 2022-04-19
+
+### Fixed
+
+- Removed one redundant get_file_extension call
+- Fix issue where ACG was called when no file had changed
+- Add missing `rc=status` in `MAPL_GetResourceFromMAPL_scalar`
+- Fixed bugs with next generation ExtData
+- Fixed variable PTR40 declaration in GenericCplComp.F90
+
+### Added
+
+- Added support for 4d variables in the coupler. Intentionally decided not to support 4d in the coupler's ReadRestart and WriteRestart to catch errors
+- Added ability to use multiple rules for different time periods in next generation ExtData
+
+### Changed
+
+- Cleaned up a bit of old CMake
+- Updated CircleCI config to use new orb `build` job
+- Updated `components.yaml` to match GEOSgcm v10.22.1
+  - ESMA_env v3.13.0
+  - ESMA_cmake v3.12.0
+
+## [2.19.2] - 2022-03-28
+
+### Fixed
+
+-  Provided workaround for  GNU bug when defining file metadata in cubed-sphere grid factory (similar to Issue #1433 and its solution)
+
+## [2.19.1] - 2022-03-24
+
+### Fixed
+
+- Fix a bug deallocating a pointer potentially pointing to shared memory allocated by MAPL_Shmem
+
+## [2.19.0] - 2022-03-18
+
+### Fixed
+
 - Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
+- Fixes for compiling on M1 Macs (remove REAL128)
+- Fix for CMake when `esmf` is already a target
 
 ### Added
 
@@ -18,19 +87,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Adapted to gFTL version2
-  - This *requires* gFTL 1.5.5
-- Updated `components.yaml` for gFTL v2 work
-  - ESMA_env v3.12.0 (Baselibs 6.2.13 --> gFTL v1.5.5)
-  - ESMA_cmake v3.11.0 (Updates for Spack)
+- Replaced a wild card "*" in any position of a string in MAPL_GridCompSpecs_ACG.py
 - Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
 - Add voting interpolation method as optional argument to SimpleBundleRead method
 - Updated to circleci-tools 0.12.0
   - Moves images to Baselibs 6.2.13 (updates gFTL and yaFyaml)
 
-### Removed
+## [2.18.3] - 2022-03-15
 
-### Deprecated
+### Fixed
+
+- Fixed bug in 2.18.2 release when computing lats in degrees lat-lon grid factory
+- Fixed GNU bug when defining file metadata in lat-lon grid factory
+
+## [2.18.2] - 2022-03-11
+
+### Fixed
+
+- Save copy of original lat/lons in degrees when creating lat-lon grid factory to use in file metadata to eliminate floating point conversion noise
 
 ## [2.18.1] - 2022-03-07
 

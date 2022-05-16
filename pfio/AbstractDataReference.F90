@@ -140,7 +140,7 @@ contains
 
       full_rank = size(global_shape)
       if(size(this%shape) > full_rank) then
-        _ASSERT(.false.,"ranks do not agree (probably fixable)")
+        _FAIL("ranks do not agree (probably fixable)")
       endif
 
       allocate(count(full_rank))
@@ -176,7 +176,7 @@ contains
                call c_f_pointer(offset_address, all_real64_0d)
                values_real64_0d=all_real64_0d
             case default
-               _ASSERT(.false.,"type not supported yet")
+               _FAIL("type not supported yet")
             end select
          case(1)
             s1=start(1)
@@ -199,7 +199,7 @@ contains
                call c_f_pointer(offset_address, all_real64_1d,   global_shape)
                values_real64_1d=all_real64_1d(s1:e1)
             case default
-               _ASSERT(.false.,"type not supported yet")
+               _FAIL("type not supported yet")
             end select
         case(2)
             s1=start(1)
@@ -224,7 +224,7 @@ contains
                call c_f_pointer(offset_address, all_real64_2d,   global_shape)
                values_real64_2d=all_real64_2d(s1:e1,s2:e2)
             case default
-               _ASSERT(.false.,"type not supported yet")
+               _FAIL("type not supported yet")
             end select
         case (3)
             s1=start(1)
@@ -251,7 +251,7 @@ contains
                call c_f_pointer(offset_address, all_real64_3d,   global_shape)
                values_real64_3d=all_real64_3d(s1:e1,s2:e2,s3:e3)
             case default
-               _ASSERT(.false.,"type not supported yet")
+               _FAIL("type not supported yet")
             end select
         case (4)
             s1=start(1)
@@ -280,7 +280,7 @@ contains
                call c_f_pointer(offset_address, all_real64_4d,   global_shape)
                values_real64_4d=all_real64_4d(s1:e1,s2:e2,s3:e3,s4:e4)
             case default
-               _ASSERT(.false.,"type not supported yet")
+               _FAIL("type not supported yet")
             end select
 
         case (5)
@@ -312,11 +312,11 @@ contains
                call c_f_pointer(offset_address, all_real64_5d,   global_shape)
                values_real64_5d=all_real64_5d(s1:e1,s2:e2,s3:e3,s4:e4,s5:e5)
             case default
-               _ASSERT(.false.,"type not supported yet")
+               _FAIL("type not supported yet")
             end select
 
          case default
-            _ASSERT(.false.,"dimension not supported yet")
+            _FAIL("dimension not supported yet")
       end select
 
    end subroutine fetch_data

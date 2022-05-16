@@ -255,19 +255,19 @@ contains
 
       select type (q=>msg)
       type is (PrefetchDataMessage)
-         _ASSERT(.false., "please use done_prefetch")
+         _FAIL( "please use done_prefetch")
          _RETURN(_SUCCESS)
       type is (CollectivePrefetchDataMessage)
-         _ASSERT(.false., "please use done_collective_prefetch")
+         _FAIL( "please use done_collective_prefetch")
          _RETURN(_SUCCESS)
       type is (StageDataMessage)
-         _ASSERT(.false., "please use done_stage")
+         _FAIL( "please use done_stage")
          _RETURN(_SUCCESS)
       type is (CollectiveStageDataMessage)
-         _ASSERT(.false., "please use done_collective_stage")
+         _FAIL( "please use done_collective_stage")
          _RETURN(_SUCCESS)
       class default
-         _ASSERT(.false., "Wrong message type")
+         _FAIL( "Wrong message type")
       end select
 
 
@@ -681,7 +681,7 @@ contains
         start = message%global_start
         count = message%global_count
       class default
-        _ASSERT(.false., "wrong PrefetchDataMessage type")
+        _FAIL( "wrong PrefetchDataMessage type")
       end select
 
 !      if (product(count) /= product(file_data_reference%shape)) stop "memory size not match"
@@ -701,7 +701,7 @@ contains
               call c_f_pointer(address, values_real64_0d)
               call formatter%get_var(message%var_name, values_real64_0d, _RC)
           case default
-              _ASSERT(.false., "Not supported type")
+              _FAIL( "Not supported type")
           end select
       case (1:)
           select case (message%type_kind)
@@ -718,7 +718,7 @@ contains
               call c_f_pointer(address, values_real64_1d, [product(count)])
               call formatter%get_var(message%var_name, values_real64_1d, start=start, count=count, _RC)
           case default
-              _ASSERT(.false., "Not supported type")
+              _FAIL( "Not supported type")
           end select
       end select
 
@@ -808,7 +808,7 @@ contains
         count = message%global_count
 
       class default
-        _ASSERT(.false., "wrong StageDataMessage type")
+        _FAIL( "wrong StageDataMessage type")
       end select
 !      if (product(count) /= product(file_data_reference%shape)) stop "memory size not match"
       select case (size(count)) ! rank
@@ -827,7 +827,7 @@ contains
               call c_f_pointer(address, values_real64_0d)
               call formatter%put_var(message%var_name, values_real64_0d, _RC)
           case default
-              _ASSERT(.false., "not supported type")
+              _FAIL( "not supported type")
           end select
       case (1:)
           select case (message%type_kind)
@@ -844,7 +844,7 @@ contains
               call c_f_pointer(address, values_real64_1d, [product(count)])
               call formatter%put_var(message%var_name, values_real64_1d, start=start, count=count, _RC)
           case default
-              _ASSERT(.false., "not supported type")
+              _FAIL( "not supported type")
           end select
        end select
 
@@ -904,7 +904,7 @@ contains
                type is (RDMAReference)
                   remotePtr=>dataRefPtr
                class default
-                  _ASSERT(.false., " need a remote pointer")
+                  _FAIL( " need a remote pointer")
                end select
 
                rank = remotePtr%mem_rank
@@ -916,7 +916,7 @@ contains
 
             endif ! local_size > 0
         class default
-            _ASSERT(.false., "receive_output_data")
+            _FAIL( "receive_output_data")
         end select
         call iter%next()
      enddo
@@ -1028,7 +1028,7 @@ contains
             iter =  this%request_backlog%erase(iter)
 
          class default
-            _ASSERT(.false., "Wrong message type")
+            _FAIL( "Wrong message type")
          end select
          iter = this%request_backlog%begin()
      enddo
@@ -1067,7 +1067,7 @@ contains
              iter = this%request_backlog%erase(iter)
 
          class default
-            _ASSERT(.false., "Wrong message type")
+            _FAIL( "Wrong message type")
          end select
          iter = this%request_backlog%begin()
        enddo
@@ -1164,7 +1164,7 @@ contains
 
            iter = this%request_backlog%erase(iter)
          class default
-           _ASSERT(.false., "Message type should be CollectivePrefetchDataMessage ")
+           _FAIL( "Message type should be CollectivePrefetchDataMessage ")
          end select
          iter = this%request_backlog%begin()
       enddo

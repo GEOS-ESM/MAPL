@@ -232,7 +232,7 @@ contains
               call c_f_pointer(address, values_real64_0d)
               call formatter%put_var(message%var_name, values_real64_0d)
           case default
-              _ASSERT(.false., "not supported type")
+              _FAIL( "not supported type")
           end select
       case (1:)
           select case (message%type_kind)
@@ -249,7 +249,7 @@ contains
               call c_f_pointer(address, values_real64_1d, [product(count)])
               call formatter%put_var(message%var_name, values_real64_1d, start=start, count=count)
           case default
-              _ASSERT(.false., "not supported type")
+              _FAIL( "not supported type")
           end select
       end select 
    end subroutine

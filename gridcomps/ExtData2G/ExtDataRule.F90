@@ -11,6 +11,7 @@ module MAPL_ExtDataRule
    private
 
    type, public :: ExtDataRule
+      character(:), allocatable :: start_time
       character(:), allocatable :: collection
       character(:), allocatable :: file_var
       character(:), allocatable :: sample_key
@@ -19,6 +20,7 @@ module MAPL_ExtDataRule
       character(:), allocatable :: vector_partner
       character(:), allocatable :: vector_component
       character(:), allocatable :: vector_file_partner
+      logical :: multi_rule
       contains
          procedure :: set_defaults
          procedure :: split_vector
@@ -30,11 +32,12 @@ module MAPL_ExtDataRule
 
 contains
 
-   function new_ExtDataRule(config,sample_map,key,unusable,rc) result(rule)
+   function new_ExtDataRule(config,sample_map,key,unusable,multi_rule,rc) result(rule)
       type(Configuration), intent(in) :: config
       character(len=*), intent(in) :: key
       type(ExtDataTimeSampleMap) :: sample_map
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: multi_rule
       integer, optional, intent(out) :: rc
 
       type(ExtDataRule) :: rule
@@ -43,7 +46,14 @@ contains
       type(Configuration) ::config1
       character(len=:), allocatable :: tempc
       type(ExtDataTimeSample) :: ts
+      logical :: usable_multi_rule
       _UNUSED_DUMMY(unusable)
+
+      if (present(multi_rule)) then
+         usable_multi_rule = multi_rule
+      else
+         usable_multi_rule = .false.
+      end if
 
       if (allocated(tempc)) deallocate(tempc)
       is_present = config%has("collection")
@@ -51,15 +61,15 @@ contains
       rule%collection = config%of("collection")
 
       if (allocated(tempc)) deallocate(tempc)
-      is_present = config%has("vname")
+      is_present = config%has("variable")
       if (index(rule%collection,"/dev/null")==0) then
-         _ASSERT(is_present,"no vname present in ExtData export")
+         _ASSERT(is_present,"no variable present in ExtData export")
       end if
       if (is_present) then
-         tempc = config%of("vname")
+         tempc = config%of("variable")
          rule%file_var=tempc
       else
-         _ASSERT(.false.,"no variable name in rule")
+         _FAIL("no variable name in rule")
       end if
 
       if (config%has("sample")) then
@@ -71,7 +81,7 @@ contains
          else if (config1%is_string()) then
             rule%sample_key=config1
          else
-            _ASSERT(.false.,"sample entry unsupported")
+            _FAIL("sample entry unsupported")
          end if
       else 
          rule%sample_key = ""
@@ -91,6 +101,13 @@ contains
       else 
          rule%regrid_method="BILINEAR"
       end if
+
+      if (config%has("starting")) then
+         tempc = config%of("starting")
+         rule%start_time = tempc
+      end if
+  
+      rule%multi_rule=usable_multi_rule
 
       _RETURN(_SUCCESS)
    end function new_ExtDataRule

@@ -20,13 +20,14 @@ set (srcs
      ExtDataSample.F90
      ExtData_IOBundleMod.F90
      ExtData_IOBundleVectorMod.F90
+     ExtDataYamlNodeStack.F90
+     ExtDataMasking.F90
     )
 
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.generic MAPL.griddedio TYPE SHARED)
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared YAFYAML::yafyaml esmf NetCDF::NetCDF_Fortran
                                PRIVATE MPI::MPI_Fortran)
-target_include_directories (${this} PUBLIC ${INC_ESMF} ${INC_NETCDF}
-          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})

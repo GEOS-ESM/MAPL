@@ -144,7 +144,7 @@ contains
             end if
          end if
       else
-         _ASSERT(.false.,"unknown bracket side")
+         _FAIL("unknown bracket side")
       end if
 
       _RETURN(_SUCCESS)
