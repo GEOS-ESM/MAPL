@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Update CI to work with latest GEOSadas `develop`
+- Update CI to work with latest GEOSadas `develop` (Uses a special branch of GEOSadas)
 
 ### Added
 
