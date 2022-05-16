@@ -82,6 +82,9 @@ module mapl3g_OuterMetaComponent
       generic :: run_child => run_child_by_name
       generic :: run_children => run_children_
 
+
+      procedure :: traverse
+      procedure :: get_name
    end type OuterMetaComponent
 
    type OuterMetaWrapper
@@ -131,13 +134,24 @@ contains
 
 
    type(OuterMetaComponent) function new_outer_meta(gridcomp) result(outer_meta)
-      type(ESMF_GridComp), intent(in) :: gridcomp
+      type(ESMF_GridComp), intent(inout) :: gridcomp
 
-      outer_meta%self_gc = gridcomp
-      call initialize_phases_map(outer_meta%phases_map)
+      call initialize_meta(outer_meta, gridcomp)
 
    end function new_outer_meta
 
+   subroutine initialize_meta(this, gridcomp)
+      class(OuterMetaComponent), intent(out) :: this
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+
+      character(ESMF_MAXSTR) :: name
+
+      this%self_gc = gridcomp
+      call ESMF_GridCompGet(gridcomp, name=name)
+      this%name = trim(name)
+      call initialize_phases_map(this%phases_map)
+
+   end subroutine initialize_meta
 
    ! Deep copy of shallow ESMF objects - be careful using result
    ! TODO: Maybe this should return a POINTER
@@ -175,7 +189,7 @@ contains
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KE), optional, intent(in) :: unusable
-      character(len=*), intent(in) :: phase_name
+      character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
@@ -431,12 +445,56 @@ contains
    end function has_esmf
 
 
-   subroutine initialize_meta(this, gridcomp)
-      class(OuterMetaComponent), intent(out) :: this
-      type(ESMF_GridComp), intent(inout) :: gridcomp
+   function get_name(this) result(name)
+      character(:), allocatable :: name
+      class(OuterMetaComponent), intent(in) :: this
 
-      this%self_gc = gridcomp
-      call initialize_phases_map(this%phases_map)
-   end subroutine initialize_meta
+      name = this%name
+   end function get_name
+
+
+
+   recursive subroutine traverse(this, unusable, pre, post, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      class(KE), optional, intent(in) :: unusable
+      interface
+         subroutine I_NodeOp(node, rc)
+            import OuterMetaComponent
+            class(OuterMetaComponent), intent(inout) :: node
+            integer, optional, intent(out) :: rc
+         end subroutine I_NodeOp
+      end interface
+      
+      procedure(I_NodeOp), optional :: pre
+      procedure(I_NodeOp), optional :: post
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ChildComponentMapIterator) :: iter
+      type(ChildComponent), pointer :: child
+      class(OuterMetaComponent), pointer :: child_meta
+
+
+      if (present(pre)) then
+         call pre(this, _RC)
+      end if
+
+      associate (b => this%children%begin(), e => this%children%end())
+        iter = b
+        do while (iter /= e)
+           child => iter%second()
+           child_meta => get_outer_meta(child%gridcomp, _RC)
+           call child_meta%traverse(pre=pre, post=post, _RC)
+           call iter%next()
+        end do
+      end associate
+
+      if (present(post)) then
+         call post(this, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine traverse
+
 
 end module mapl3g_OuterMetaComponent

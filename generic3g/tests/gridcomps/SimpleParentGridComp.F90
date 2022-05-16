@@ -5,6 +5,7 @@
 
 module SimpleParentGridComp
    use mapl_ErrorHandling
+   use mapl3g_OuterMetaComponent
    use scratchpad
    use esmf
    implicit none
@@ -37,8 +38,11 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
 
       call append_message('wasRun')
+      outer_meta => get_outer_meta(gc, _RC)
+      call outer_meta%run_children(clock, _RC)
       
       _RETURN(ESMF_SUCCESS)
    end subroutine run

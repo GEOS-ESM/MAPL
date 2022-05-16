@@ -87,7 +87,9 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      _HERE
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      _HERE
       call outer_meta%add_child(child_name, config, _RC)
       
       _RETURN(ESMF_SUCCESS)

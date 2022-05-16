@@ -8,6 +8,7 @@ set (test_srcs
   Test_ComponentSpecBuilder.pf
 #  Test_AddVarSpec.pf
   Test_SimpleLeafGridComp.pf
+  Test_Traverse.pf
   Test_RunChild.pf
   )
 

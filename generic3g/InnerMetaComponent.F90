@@ -61,7 +61,7 @@ contains
       type(InnerMetaWrapper) :: wrapper
 
       inner_meta => null()
-      
+
       call ESMF_UserCompGetInternalState(gridcomp, INNER_META_PRIVATE_STATE, wrapper, status)
       _ASSERT(status==ESMF_SUCCESS, "InnerMetaComponent not found for this gridcomp.")
       inner_meta => wrapper%inner_meta
