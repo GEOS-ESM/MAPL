@@ -13,16 +13,20 @@ class MAPL_DataSpec:
     all_options = ['short_name', 'long_name', 'units',
                    'dims', 'vlocation', 'num_subtiles',
                    'refresh_interval', 'averaging_interval', 'halowidth',
-                   'precision','default','restart', 'ungridded_dims',
+                   'precision','default','restart', '_dims',
                    'field_type', 'staggering', 'rotation',
-                   'friendlyto', 'add2export']
+                   'friendlyto', 'add2export', 'datatype', 'restart',
+                   'attr_inames', 'att_rnames', 'attr_ivalues', 'attr_rvalues',
+                   'ungridded_name', 'ungridded_unit', 'ungridded_coords']
 
     # The following arguments are skipped if value is empty string
     optional_options = [ 'dims', 'vlocation', 'num_subtiles',
-                         'refresh_interval', 'averaging_interval', 'halowidth',
-                         'precision','default','restart', 'ungridded_dims',
-                         'field_type', 'staggering', 'rotation',
-                         'friendlyto', 'add2export']
+                   'refresh_interval', 'averaging_interval', 'halowidth',
+                   'precision','default','restart', 'ungridded_dims',
+                   'field_type', 'staggering', 'rotation',
+                   'friendlyto', 'add2export', 'datatype', 'restart',
+                   'attr_inames', 'att_rnames', 'attr_ivalues', 'attr_rvalues',
+                   'ungridded_name', 'ungridded_unit', 'ungridded_coords']
 
     entry_aliases = {'dims': {'z'  : 'MAPL_DimsVertOnly',
                               'xy' : 'MAPL_DimsHorzOnly',
@@ -184,6 +188,12 @@ def read_specs(specs_filename):
             df.append(dict(zip(columns, row)))
         return df
 
+    # Python is case sensitive, so dict lookups are case sensitive.
+    # The column names are Fortran identifiers, which are case insensitive.
+    # So all lookups in the dict below should be converted to UPPERCASE.
+    # New aliases should be UPPERCASE.
+
+    # The column aliases (keys of column_aliases dict) must be UPPERCASE.
     column_aliases = {
         'NAME'       : 'short_name',
         'LONG NAME'  : 'long_name',
@@ -196,15 +206,14 @@ def read_specs(specs_filename):
         'DEFAULT'    : 'default',
         'RESTART'    : 'restart',
         'FRIENDLYTO' : 'friendlyto',
-        'ADD2EXPORT' : 'add2export'
+        'ADD2EXPORT' : 'add2export',
+        'AVERAGING_INTERVAL' : 'averaging_interval'
     }
 
     specs = {}
     with open(specs_filename, 'r') as specs_file:
         specs_reader = csv.reader(specs_file, skipinitialspace=True,delimiter='|')
-        gen = csv_record_reader(specs_reader)
-        schema_version = next(gen)[0].split(' ')[1]
-        component = next(gen)[0].split(' ')[1]
+        gen = csv_record_reader(specs_reader) schema_version = next(gen)[0].split(' ')[1] component = next(gen)[0].split(' ')[1]
 #        print("Generating specification code for component: ",component)
         while True:
             try:
@@ -214,8 +223,9 @@ def read_specs(specs_filename):
                 bare_columns = [c.strip() for c in bare_columns]
                 columns = []
                 for c in bare_columns:
-                    if c in column_aliases:
-                        columns.append(column_aliases[c])
+                    cU = c.upper() # We need the uppercase version. See above.
+                    if cU in column_aliases:
+                        columns.append(column_aliases[cU])
                     else:
                         columns.append(c)
                 specs[category] = dataframe(gen, columns)
@@ -280,7 +290,7 @@ parser.add_argument("-d", "--declare-pointers", action="store", nargs='?',
 args = parser.parse_args()
 
 
-# Process blocked CSV input file using pandas
+# Process blocked CSV input file
 specs = read_specs(args.input)
 
 if args.name:
@@ -309,7 +319,7 @@ if args.get_pointers:
 else:
     f_get_pointers = None
 
-# Generate code from specs (processed above with pandas)
+# Generate code from specs (processed above)
 for category in ("IMPORT","EXPORT","INTERNAL"):
     for item in specs[category]:
         spec = MAPL_DataSpec(category.lower(), item)
@@ -328,8 +338,3 @@ if f_declare_pointers:
     f_declare_pointers.close()
 if f_get_pointers:
     f_get_pointers.close()
-
-
-
-            
-            
