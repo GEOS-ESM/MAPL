@@ -76,7 +76,19 @@ workflows:
           fixture_branch: develop
           checkout_mapl_branch: true
           mepodevelop: true
-          develop_repos: "cmake GEOSana_GridComp" # GEOSadas needs some extra branches to work with mainline MAPL
+          # GEOSadas develop at the moment is in a weird state where MAPL develop
+          # requires a newer version of ESMA_cmake, but not *too* new a version of
+          # ESMA_cmake
+          checkout_branch_on_subrepo:
+            repo: GEOSadas
+            branch: v3.13.0
+            subrepo: cmake
+          # Note: This isn't needed for CI, but it is on discover, so this is a
+          # way to remind me
+          checkout_branch_on_subrepo:
+            repo: GEOSadas
+            branch: v3.13.0
+            subrepo: env
           rebuild_procs: 8
       ##################################################
       # - ci/run_fv3:                                  #
