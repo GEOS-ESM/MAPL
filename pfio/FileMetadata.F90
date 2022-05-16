@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_FileMetadataMod
-   use pFIO_KeywordEnforcerMod
+   use mapl_KeywordEnforcerMod
    use gFTL_StringIntegerMap
    use pFIO_StringIntegerMapUtilMod
    use pFIO_ConstantsMod
@@ -76,6 +76,8 @@ contains
      type (StringVariableMap), optional, intent(in) :: variables
      type (StringVector), optional, intent(in) :: order
 
+     _UNUSED_DUMMY(unusable)
+     
      fmd%dimensions = StringIntegerMap()
      if (present(dimensions)) fmd%dimensions = dimensions
 

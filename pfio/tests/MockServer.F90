@@ -33,8 +33,9 @@ contains
 
    end function new_MockServer
 
-   subroutine start(this)
+   subroutine start(this, rc)
       class (MockServer),target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
    end subroutine
 
 end module MockServerMod

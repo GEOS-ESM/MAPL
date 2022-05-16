@@ -3,7 +3,7 @@ module MAPL_SphericalGeometry
    use MAPL_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
    use ESMF
-   use MAPL_ConstantsMod
+   use MAPL_Constants
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32
 
 implicit none
@@ -21,7 +21,6 @@ contains
     integer :: npts,i,n,niter,im,jm,ilb,jlb,iub,jub,ifound,jfound
     integer :: lold,uold,lnew,unew
     logical :: in_region,in_sub_region
-    integer :: status
 
     npts = size(lats)
 

@@ -28,6 +28,7 @@ module pFIO_StringVariableMapMod
 #undef _value
 #undef _value_allocatable
 #undef _value_equal_defined
+
 end module pFIO_StringVariableMapMod
 
 module pFIO_StringVariableMapUtilMod

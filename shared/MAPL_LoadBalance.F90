@@ -373,7 +373,8 @@ contains
     integer :: Handle_
 
     if (present(Handle)) then 
-       _ASSERT(Handle>=0 .and. Handle<=MAX_NUM_STRATEGIES,'needs informative message')
+       _ASSERT(Handle>=0, 'Handle is less than 0')
+       _ASSERT(Handle<=MAX_NUM_STRATEGIES,'Handle is greater than MAX_NUM_STRATEGIES')
        Handle_ = Handle
     else
        ! If we do not pass in a Handle, assume we wish to destroy
@@ -402,8 +403,9 @@ contains
     integer, optional, intent(OUT) :: BalLen, BufLen, Passes, Comm
     integer, optional, intent(OUT) :: rc
 
-    _ASSERT(Handle>=0 .and. Handle<=MAX_NUM_STRATEGIES,'needs informative message')
-
+    _ASSERT(Handle>=0, 'Handle is less than 0') 
+    _ASSERT(Handle<=MAX_NUM_STRATEGIES,'Handle is greater than MAX_NUM_STATEGIES')
+    
     _ASSERT(associated(THE_STRATEGIES(Handle)%NOP),'needs informative message')
 
     if(present(BalLen)) &

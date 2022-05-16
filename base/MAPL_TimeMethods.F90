@@ -2,7 +2,6 @@
 
 module MAPL_TimeDataMod
   use ESMF
-  use MAPL_GenericMod
   use MAPL_BaseMod
   use pFIO
   use MAPL_ExceptionHandling
@@ -11,15 +10,16 @@ module MAPL_TimeDataMod
   implicit none
 
   private
-
+  integer, parameter :: TimeData_uninit_int = -1
   type, public :: timeData
      type(ESMF_Clock) :: clock
      integer :: ntime
      integer :: tcount
      type(ESMFTimeVector) :: tvec
-     integer :: frequency
+     integer :: frequency = TimeData_uninit_int 
      type(ESMF_TimeInterval) :: offset
      character(len=:), allocatable :: funits
+     logical :: integer_time
    contains
      procedure :: add_time_to_metadata
      procedure :: define_time_variable
@@ -34,13 +34,14 @@ module MAPL_TimeDataMod
   end interface timeData
 contains
 
-  function new_time_data(clock,ntime,frequency,offset,funits,rc) result(tData)
+  function new_time_data(clock,ntime,frequency,offset,funits,integer_time,rc) result(tData)
     type(timeData) :: tData
     type(ESMF_Clock),intent(inout) :: clock
     integer, intent(in) :: ntime
     integer, intent(in) :: frequency
     type(ESMF_TimeInterval) :: offset
     character(len=*), optional, intent(in) :: funits
+    logical, optional, intent(in) :: integer_time
     integer, optional, intent(Out) :: rc
 
     tdata%clock=clock
@@ -51,6 +52,12 @@ contains
        tdata%funits=funits
     else
        tdata%funits="minutes"
+    end if
+
+    if(present(integer_time)) then
+      tdata%integer_time = integer_time
+    else
+      tdata%integer_time = .false.
     end if
 
     _RETURN(ESMF_SUCCESS)
@@ -68,14 +75,15 @@ contains
   end subroutine get
        
   subroutine setFrequency(this,frequency,rc)
-     class(TimeData) :: this
+     class(TimeData), intent(inout) :: this
      integer, intent(in) :: frequency
      integer, optional, intent(out) :: rc
 
      this%frequency = frequency
 
      _RETURN(_SUCCESS)
-  end subroutine setFrequency
+   end subroutine setFrequency
+       
 
   function define_time_variable(this,rc) result(v)
     class(TimeData), intent(inout) :: this
@@ -85,52 +93,74 @@ contains
     integer :: status
     character(len=ESMF_MAXSTR) :: startTime,timeUnits
     type(ESMF_Time) :: currTime
-    integer :: i1,i2,i3,i123,ipos1,ipos2,isc,imn,ihr,ifreq
+    integer :: i1,i2,i3,ipos1,ipos2,isc,imn,ihr
+    integer :: begin_date, begin_time, time_increment, packed_hms
 
-    call ESMF_CLockGet(this%clock,currTime=currTime,rc=status)
+    _ASSERT(this%frequency/=TimeData_uninit_int,"Frequency component was not set before use.")
+
+    call ESMF_ClockGet(this%clock,currTime=currTime,rc=status)
     _VERIFY(status)
     currTime = currTime - this%offset
     call ESMF_TimeGet(currTime,timeString=StartTime,rc=status)
     _VERIFY(status)
     timeUnits = trim(this%funits)//" since "//startTime( 1: 10)//" "//startTime(12:19)
-    v = Variable(type=PFIO_REAL32,dimensions='time')
-    call v%add_attribute('long_name','time')
-    call v%add_attribute('units',trim(timeUnits))
   
     ipos1=index(startTime,"-")
     ipos2=index(startTime,"-",back=.true.)
     read(startTime(1:ipos1-1),'(i4)')i1
     read(startTime(ipos1+1:ipos2-1),'(i2)')i2
     read(startTime(ipos2+1:10),'(i2)')i3
-    i123=10000*i1+100*i2+i3
-    call v%add_attribute('begin_date',i123)
+    begin_date=10000*i1+100*i2+i3
 
     ipos1=index(startTime,":")
     ipos2=index(startTime,":",back=.true.)
     read(startTime(12:ipos1-1),'(i2)')i1
     read(startTime(ipos1+1:ipos2-1),'(i2)')i2
     read(startTime(ipos2+1:19),'(i2)')i3
-    i123=10000*i1+100*i2+i3
-    call v%add_attribute('begin_time',i123)
+    begin_time=10000*i1+100*i2+i3
 
+    isc=mod(this%frequency,60)
+    i2=this%frequency-isc
+    i2=i2/60
+    imn=mod(i2,60)
+    i2=i2-imn
+    ihr=i2/60
+    packed_hms=10000*ihr+100*imn+isc 
     select case(trim(this%funits))
+    case('seconds')
+       time_increment = packed_hms
     case('minutes')
-       isc=mod(this%frequency,60)
-       i2=this%frequency-isc
-       i2=i2/60
-       imn=mod(i2,60)
-       i2=i2-imn
-       ihr=i2/60
-       ifreq=10000*ihr+100*imn+isc 
+       if (this%integer_time) then
+          _ASSERT(mod(this%frequency,60)==0,"Requested output frequency not representable as an integer minute")
+       end if
+       time_increment = packed_hms
+    case('hours')
+       if (this%integer_time) then
+          _ASSERT(mod(this%frequency,3600)==0,"Requested output frequency not representable as an integer hour")
+       end if
+       time_increment = packed_hms
     case('days')
-       ifreq = this%frequency/86400
+       if (this%integer_time) then
+          _ASSERT(mod(this%frequency,86400)==0,"Requested output frequency not representable as an integer day")
+       end if
+       time_increment = this%frequency/86400
     case default
        _ASSERT(.false., 'Not supported yet')
-    end select   
-     call v%add_attribute('time_increment',ifreq)
+    end select
 
     call this%tvec%clear()
     this%tcount=0
+
+    if (this%integer_time) then
+       v = Variable(type=PFIO_INT32,dimensions='time')
+    else
+       v = Variable(type=PFIO_REAL32,dimensions='time')
+    end if
+    call v%add_attribute('long_name','time')
+    call v%add_attribute('units',trim(timeUnits))
+    call v%add_attribute('begin_date',begin_date)
+    call v%add_attribute('begin_time',begin_time)
+    call v%add_attribute('time_increment',time_increment)
     
     _RETURN(ESMF_SUCCESS)
 

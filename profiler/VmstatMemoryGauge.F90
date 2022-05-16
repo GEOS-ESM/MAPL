@@ -1,3 +1,4 @@
+#include "unused_dummy.H"
 module MAPL_VmstatMemoryGauge
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
    use MAPL_AbstractGauge
@@ -24,7 +25,7 @@ contains
 
    function new_VmstatMemoryGauge() result(gauge)
       type (VmstatMemoryGauge) :: gauge
-
+      gauge%baseline = 0
    end function new_VmstatMemoryGauge
 
 
@@ -35,6 +36,8 @@ contains
       integer :: unit
       integer(kind=INT64) :: MEM_UNITS = 4096 ! page size is 4096 bytes
       character(:), allocatable :: tmp_file
+
+      _UNUSED_DUMMY(this)
       block
         use MPI
         integer :: rank, ierror

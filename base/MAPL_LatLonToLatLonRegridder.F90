@@ -6,6 +6,7 @@ module MAPL_LatLonToLatLonRegridderMod
    use mapl_RegridMethods
    use MAPL_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
+   use MAPL_Constants
    use ESMF
    
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -328,6 +329,8 @@ contains
          end associate
       end do
 
+      _RETURN(_SUCCESS)
+
    end subroutine apply_weights_real32
 
 
@@ -391,6 +394,7 @@ contains
            end do
          end associate
       end do
+      _RETURN(_SUCCESS)
 
    end subroutine apply_weights_real64
 
@@ -470,7 +474,7 @@ contains
       use MAPL_RegridderSpec
       use MAPL_BaseMod, only: MAPL_GridGet
       use MAPL_GetLatLonCoordMod
-      use MAPL_ConstantsMod, only: MAPL_PI_R8
+      use MAPL_Constants, only: MAPL_PI_R8
       class (LatLonToLatLonRegridder), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc

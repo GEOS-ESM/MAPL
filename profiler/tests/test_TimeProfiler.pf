@@ -1,4 +1,4 @@
-module test_TimeProfiler
+ module test_TimeProfiler
    use funit
    use MAPL_Profiler
    implicit none
@@ -27,6 +27,7 @@ contains
    @test
    subroutine test_stop_wrong_meter()
       type (TimeProfiler), target :: prof
+      integer :: status
       
       prof = TimeProfiler('top')
       call prof%start()
@@ -34,9 +35,10 @@ contains
       call prof%start('timer_1')
       call prof%start('timer_2')
       @assertEqual(0, prof%get_status())
-      call prof%stop('timer_1') ! not the current timer
+      call prof%stop('timer_1', rc=status) ! not the current timer
 
-      @assertEqual(INCORRECTLY_NESTED_METERS, prof%get_status())
+!!$      @assertEqual(INCORRECTLY_NESTED_METERS, prof%get_status())
+      @assertExceptionRaised('Timer <timer_1> does not match start timer <timer_2>')
       call prof%finalize()
       
    end subroutine test_stop_wrong_meter
