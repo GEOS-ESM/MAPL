@@ -15,6 +15,7 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
+          baselibs_version: v7.0.0
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
@@ -28,6 +29,7 @@ workflows:
           matrix:
             parameters:
               compiler: [ifort]
+          baselibs_version: v7.0.0
           repo: MAPL
           mepodevelop: false
           extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_SHARED_MAPL=OFF"
@@ -42,9 +44,11 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
+          baselibs_version: v7.0.0
           repo: GEOSgcm
           checkout_fixture: true
           mepodevelop: true
+          checkout_mapl3_release_branch: true
           checkout_mapl_branch: true
           persist_workspace: false # Needs to be true to run fv3/gcm experiment, costs extra
 
@@ -56,10 +60,12 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
+          baselibs_version: v7.0.0
           repo: GEOSldas
           mepodevelop: false
           checkout_fixture: true
-          fixture_branch: develop
+          fixture_branch: release/MAPL-v3
+          checkout_mapl3_release_branch: true
           checkout_mapl_branch: true
 
       # Build GEOSadas (ifort only, needs a couple develop branches)
@@ -71,11 +77,11 @@ workflows:
             parameters:
               compiler: [ifort]
           resource_class: xlarge
+          baselibs_version: v7.0.0
           repo: GEOSadas
           checkout_fixture: true
-          # This branch on GEOSadas will be used to track subrepos needed
-          # for GEOSadas + MAPL develop much like how we do with MAPL 3
-          fixture_branch: feature/mathomp4/mapldevelop
+          fixture_branch: release/MAPL-v3
+          checkout_mapl3_release_branch: true
           checkout_mapl_branch: true
           mepodevelop: false
           rebuild_procs: 8
