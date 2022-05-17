@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add debug loggers for start/stop during stages in MAPL_Generic
+- Enable GCM run test in CircleCI
 
 ### Changed
 
@@ -57,7 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Cleaned up a bit of old CMake
 - Updated CircleCI config to use new orb `build` job
-  - Turned on GCM run test
 - Updated `components.yaml` to match GEOSgcm v10.22.1
   - ESMA_env v3.13.0
   - ESMA_cmake v3.12.0
