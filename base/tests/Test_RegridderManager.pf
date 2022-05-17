@@ -22,13 +22,16 @@ contains
 
       class (AbstractRegridderFactory), pointer :: factory
       class (AbstractRegridder), allocatable :: regridder
+      type (ESMF_Info) :: infohin,infohout
 
 
       g1_in = ESMF_GridEmptyCreate()
       g1_out = ESMF_GridEmptyCreate()
 
-      call ESMF_AttributeSet(g1_in, name='GridType', value='A')
-      call ESMF_AttributeSet(g1_out, name='GridType', value='B')
+      call ESMF_InfoGetFromHost(g1_in,infohin)
+      call ESMF_InfoSet(infohin,'GridType','A')
+      call ESMF_InfoGetFromHost(g1_out,infohout)
+      call ESMF_InfoSet(infohout,'GridType','B')
 
       regridder_spec = RegridderSpec(g1_in, g1_out)
       factory_spec = RegridderFactorySpec(regridder_spec)
@@ -59,15 +62,19 @@ contains
 
       class (AbstractRegridderFactory), pointer :: factory
       class (AbstractRegridder), allocatable :: regridder
+      type (ESMF_Info) :: infoha, infohb, infohc
 
 
       g_A = ESMF_GridEmptyCreate()
       g_B = ESMF_GridEmptyCreate()
       g_C = ESMF_GridEmptyCreate()
 
-      call ESMF_AttributeSet(g_A, name='GridType', value='A')
-      call ESMF_AttributeSet(g_B, name='GridType', value='B')
-      call ESMF_AttributeSet(g_C, name='GridType', value='C')
+      call ESMF_InfoGetFromHost(g_A,infoha)
+      call ESMF_InfoSet(infoha,'GridType','A')
+      call ESMF_InfoGetFromHost(g_B,infohb)
+      call ESMF_InfoSet(infohb,'GridType','B')
+      call ESMF_InfoGetFromHost(g_C,infohc)
+      call ESMF_InfoSet(infohc,'GridType','C')
 
       regridder_spec = RegridderSpec(g_A, g_B)
       spec_AB = RegridderFactorySpec(regridder_spec)
