@@ -1707,7 +1707,10 @@ contains
       procedure(ESMF_GridCompRun), pointer :: func_ptr => NULL()
       character(len=12), target :: timers_run(1) = &
            [character(len=12):: 'GenRunMine']
-      character(len=12) :: sbrtn
+      character(len=:), allocatable :: sbrtn
+
+      character(:), allocatable :: stage_description
+      class(Logger), pointer :: lgr
 
 
       !=============================================================================
@@ -1726,6 +1729,8 @@ contains
       _VERIFY(status)
       Iam = trim(comp_name) // trim(Iam)
 
+      lgr => logging%get_logger('MAPL.GENERIC')
+
       call ESMF_VmGetCurrent(VM)
       ! Retrieve the pointer to the internal state. It comes in a wrapper.
       ! ------------------------------------------------------------------
@@ -1735,7 +1740,7 @@ contains
 
       ! TIMERS on
       t_p => get_global_time_profiler()
-      call t_p%start(trim(state%compname),__RC__)
+      call t_p%start(trim(state%compname),_RC)
 
       phase_ = MAPL_MAX_PHASES+phase ! this is the "actual" phase, i.e. the one user registered
 
@@ -1770,10 +1775,12 @@ contains
          sbrtn = 'WriteRestart'
       endif MethodBlock
 
+      stage_description = sbrtn//' stage of the gridded component <'//trim(COMP_NAME)//'>'
+
       ! TIMERS on
       if (method /= ESMF_METHOD_READRESTART .and. method /= ESMF_METHOD_WRITERESTART) then
-         call state%t_profiler%start(__RC__)
-         call state%t_profiler%start(trim(sbrtn),__RC__)
+         call state%t_profiler%start(_RC)
+         call state%t_profiler%start(trim(sbrtn),_RC)
       end if
 
       if (associated(timers)) then
@@ -1784,34 +1791,32 @@ contains
 
       ! Method itself
       ! ----------
-#ifdef DEBUG
-      IF (mapl_am_i_root(vm)) then
-         print *,'DBG: running ', sbrtn, ' phase ',phase,' of ',trim(comp_name)
-      end IF
-#endif
-
+      call lgr%debug('Started %a', stage_description)
 
       call func_ptr (GC, &
            importState=IMPORT, &
            exportState=EXPORT, &
            clock=CLOCK, PHASE=PHASE_, &
-           userRC=userRC, __RC__ )
+           userRC=userRC, _RC )
       _VERIFY(userRC)
+
+      _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
+      call lgr%debug('Finished %a', stage_description)
 
       ! TIMERS off
       if (associated(timers)) then
          do i = size(timers),1,-1
-            call MAPL_TimerOff (STATE,timers(i),__RC__)
+            call MAPL_TimerOff (STATE,timers(i),_RC)
          end do
       end if
 
       if (method /= ESMF_METHOD_FINALIZE) then
          if (method /= ESMF_METHOD_WRITERESTART .and. &
               method /= ESMF_METHOD_READRESTART) then
-            call state%t_profiler%stop(trim(sbrtn),__RC__)
-            call state%t_profiler%stop(__RC__)
+            call state%t_profiler%stop(trim(sbrtn),_RC)
+            call state%t_profiler%stop(_RC)
          end if
-         call t_p%stop(trim(state%compname),__RC__)
+         call t_p%stop(trim(state%compname),_RC)
       endif
 
 
@@ -2099,7 +2104,7 @@ contains
             nwrgt1 = ((state%grid%num_readers > 1) .or. (state%grid%num_writers > 1))
             if(FILETYPE=='pnc4' .and. nwrgt1) then
                print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-               _ASSERT(.false.,'needs informative message')
+               _FAIL('needs informative message')
             endif
 #endif
             call MAPL_GetResource( STATE   , hdr,         &
@@ -2129,7 +2134,7 @@ contains
             nwrgt1 = ((state%grid%num_readers > 1) .or. (state%grid%num_writers > 1))
             if(FILETYPE=='pnc4' .and. nwrgt1) then
                print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-               _ASSERT(.false.,'needs informative message')
+               _FAIL('needs informative message')
             endif
 #endif
             call MAPL_ESMFStateWriteToFile(IMPORT,CLOCK,FILENAME, &
@@ -2184,18 +2189,18 @@ contains
 
             min_multi = MultiColumn(['Min'], separator='=')
             call min_multi%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MIN')), separator='-'))
-            call min_multi%add_column(FormattedTextColumn('inclusive', '(f9.2)', 9, InclusiveColumn('MIN'), separator='-'))
-            call min_multi%add_column(FormattedTextColumn('exclusive', '(f9.2)',9, ExclusiveColumn('MIN'), separator='-'))
+            call min_multi%add_column(FormattedTextColumn('inclusive', '(f10.2)', 10, InclusiveColumn('MIN'), separator='-'))
+            call min_multi%add_column(FormattedTextColumn('exclusive', '(f10.2)',10, ExclusiveColumn('MIN'), separator='-'))
 
             mean_multi = MultiColumn(['Mean'], separator='=')
             call mean_multi%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN')), separator='-'))
-            call mean_multi%add_column(FormattedTextColumn('inclusive', '(f9.2)', 9, InclusiveColumn('MEAN'), separator='-'))
-            call mean_multi%add_column(FormattedTextColumn('exclusive', '(f9.2)', 9, ExclusiveColumn('MEAN'), separator='-'))
+            call mean_multi%add_column(FormattedTextColumn('inclusive', '(f10.2)', 10, InclusiveColumn('MEAN'), separator='-'))
+            call mean_multi%add_column(FormattedTextColumn('exclusive', '(f10.2)', 10, ExclusiveColumn('MEAN'), separator='-'))
 
             max_multi = MultiColumn(['Max'], separator='=')
             call max_multi%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MAX')), separator='-'))
-            call max_multi%add_column(FormattedTextColumn('inclusive', '(f9.2)', 9, InclusiveColumn('MAX'), separator='-'))
-            call max_multi%add_column(FormattedTextColumn('exclusive', '(f9.2)', 9, ExclusiveColumn('MAX'), separator='-'))
+            call max_multi%add_column(FormattedTextColumn('inclusive', '(f10.2)', 10, InclusiveColumn('MAX'), separator='-'))
+            call max_multi%add_column(FormattedTextColumn('exclusive', '(f10.2)', 10, ExclusiveColumn('MAX'), separator='-'))
 
             pe_multi = MultiColumn(['PE'], separator='=')
             call pe_multi%add_column(FormattedTextColumn('max','(1x,i5.5)', 6, ExclusiveColumn('MAX_PE'), separator='-'))
@@ -4439,6 +4444,7 @@ contains
 
       type (MAPL_VarSpec),               pointer  :: IMPORT_SPEC(:)
       type (MAPL_VarSpec),               pointer  :: EXPORT_SPEC(:)
+      type (MAPL_VarSpec),               pointer  :: INTERNAL_SPEC(:)
       integer                                     :: I
       type(ESMF_GridComp), pointer :: gridcomp
 
@@ -4459,11 +4465,12 @@ contains
 
       IMPORT_SPEC => MAPLOBJ%COMPONENT_SPEC%IMPORT%OLD_VAR_SPECS
       EXPORT_SPEC => MAPLOBJ%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS
+      INTERNAL_SPEC => MAPLOBJ%COMPONENT_SPEC%INTERNAL%OLD_VAR_SPECS
 
       if (printSpec == 1) then
          if (associated(IMPORT_SPEC)) then
             call WRITE_PARALLEL("#IMPORT spec for " // trim(comp_name))
-            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS")
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
             if (associated(IMPORT_SPEC)) then
                call MAPL_VarSpecPrintCSV(IMPORT_SPEC, comp_name, RC=status)
                _VERIFY(status)
@@ -4471,16 +4478,24 @@ contains
          end if
          if (associated(EXPORT_SPEC)) then
             call WRITE_PARALLEL("#EXPORT spec for " // trim(comp_name))
-            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS")
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
             if (associated(EXPORT_SPEC)) then
                call MAPL_VarSpecPrintCSV(EXPORT_SPEC, comp_name, RC=status)
+               _VERIFY(status)
+            end if
+         end if
+         if (associated(INTERNAL_SPEC)) then
+            call WRITE_PARALLEL("#INTERNAL spec for " // trim(comp_name))
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
+            if (associated(INTERNAL_SPEC)) then
+               call MAPL_VarSpecPrintCSV(INTERNAL_SPEC, comp_name, RC=status)
                _VERIFY(status)
             end if
          end if
       else if (printSpec == 2) then
          if (associated(IMPORT_SPEC)) then
             call WRITE_PARALLEL("#IMPORT spec for " // trim(comp_name))
-            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS")
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
             if (associated(IMPORT_SPEC)) then
                call MAPL_VarSpecPrintCSV(IMPORT_SPEC, comp_name, RC=status)
                _VERIFY(status)
@@ -4489,9 +4504,18 @@ contains
       else if (printSpec == 3) then
          if (associated(EXPORT_SPEC)) then
             call WRITE_PARALLEL("#EXPORT spec for " // trim(comp_name))
-            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS")
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
             if (associated(EXPORT_SPEC)) then
                call MAPL_VarSpecPrintCSV(EXPORT_SPEC, comp_name, RC=status)
+               _VERIFY(status)
+            end if
+         end if
+      else if (printSpec == 4) then
+         if (associated(INTERNAL_SPEC)) then
+            call WRITE_PARALLEL("#INTERNAL spec for " // trim(comp_name))
+            call WRITE_PARALLEL("#COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE")
+            if (associated(INTERNAL_SPEC)) then
+               call MAPL_VarSpecPrintCSV(INTERNAL_SPEC, comp_name, RC=status)
                _VERIFY(status)
             end if
          end if
@@ -4534,6 +4558,9 @@ contains
       class(BaseProfiler), pointer                :: t_p
       integer :: userRC
 
+      character(:), allocatable :: stage_description
+      class(Logger), pointer :: lgr
+
       if (.not.allocated(META%GCNameList)) then
          ! this is the first child to be added
          allocate(META%GCNameList(0), __STAT__)
@@ -4542,19 +4569,25 @@ contains
       I = META%get_num_children() + 1
       AddChildFromMeta = I
 
-      call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentgc, petList=petlist, child_meta=child_meta, __RC__)
+      call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentgc, petList=petlist, child_meta=child_meta, _RC)
+
+      stage_description = 'setServices() of the gridded component <'//trim(name)//'>'
+      lgr => logging%get_logger('MAPL.GENERIC')
+
       t_p => get_global_time_profiler()
-      call t_p%start(trim(NAME),__RC__)
-      call child_meta%t_profiler%start(__RC__)
-      call child_meta%t_profiler%start('SetService',__RC__)
+      call t_p%start(trim(NAME),_RC)
+      call child_meta%t_profiler%start(_RC)
+      call child_meta%t_profiler%start('SetService',_RC)
 
 !!$     gridcomp => META%GET_CHILD_GRIDCOMP(I)
-      call ESMF_GridCompSetServices ( child_meta%gridcomp, SS, userRC=userRC, __RC__ )
+      call lgr%debug("Started %a", stage_description)
+      call ESMF_GridCompSetServices ( child_meta%gridcomp, SS, userRC=userRC, _RC )
       _VERIFY(userRC)
+      call lgr%debug("Finished %a", stage_description)
 
-      call child_meta%t_profiler%stop('SetService',__RC__)
-      call child_meta%t_profiler%stop(__RC__)
-      call t_p%stop(trim(NAME),__RC__)
+      call child_meta%t_profiler%stop('SetService',_RC)
+      call child_meta%t_profiler%stop(_RC)
+      call t_p%stop(trim(NAME),_RC)
 
       _VERIFY(status)
 
@@ -5655,7 +5688,7 @@ contains
 #ifndef H5_HAVE_PARALLEL
          if (nwrgt1) then
             print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 #endif
          AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
@@ -6043,7 +6076,7 @@ contains
 #ifndef H5_HAVE_PARALLEL
          if (nwrgt1) then
             print*,trim(Iam),': num_readers and number_writers must be 1 with pnc4 unless HDF5 was built with -enable-parallel'
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
 #endif
          AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
@@ -8265,10 +8298,10 @@ contains
       end if
 
       if (label_is_present) then
-         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label_to_use,default,rc)
+         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label_to_use,default,rc = status)
          _VERIFY(status)
       else
-         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label,default,rc)
+         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label,default,rc = status)
          _VERIFY(status)
       end if
 
@@ -8357,7 +8390,7 @@ contains
             _VERIFY(status)
          end if
          class default
-         _ASSERT(.false., "Unupported type")
+         _FAIL( "Unupported type")
       end select
 
       call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status)
@@ -8482,7 +8515,7 @@ contains
             _VERIFY(status)
          end if
          class default
-         _ASSERT(.false., "Unsupported type")
+         _FAIL( "Unsupported type")
       end select
 
       _RETURN(ESMF_SUCCESS)
@@ -8554,7 +8587,7 @@ contains
             default_str = intrinsic_to_string(default, 'a')
          end if
          class default
-         _ASSERT(.false.,"Unsupported type")
+         _FAIL("Unsupported type")
       end select
 
       output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)"
@@ -8615,7 +8648,7 @@ contains
       type is(character(len=*))
          formatted_str = trim(val)
          class default
-         _ASSERT(.false., "Unsupported type in intrinsic_to_string")
+         _FAIL( "Unsupported type in intrinsic_to_string")
       end select
 
    end function intrinsic_to_string
@@ -9315,7 +9348,7 @@ contains
       elseif(present(FORCING2)) then
          ONED = .FALSE.
       else
-         _ASSERT(.FALSE.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
       ! Get parameters from generic state.
@@ -9945,7 +9978,7 @@ contains
 
          if(TRANSFORM) then
             if (PRF /= 0) then
-               _ASSERT(.false.,'needs informative message') ! for now
+               _FAIL('needs informative message') ! for now
             else
                ! ALT this LOOKS WRONG. MAPL_VarRead needs a mask for tiles!!!
                call MAPL_VarRead(UNIT, GRID, VAR2, RC=status )
@@ -10135,7 +10168,7 @@ contains
       elseif(present(MAPLOBJ)) then
          STATE => MAPLOBJ
       else
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       endif
 
       call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NX:',rc=status)

@@ -482,7 +482,7 @@ contains
                type is (LocalMemReference)
                  i_ptr =>dataRefPtr%i_ptr
                class default
-                  _ASSERT(.false., "I expect localmemReference")
+                  _FAIL( "I expect localmemReference")
                end select
 
                iter = this%stage_offset%find(i_to_string(q%request_id)//'done')
@@ -497,7 +497,7 @@ contains
                   call this%stage_offset%insert(i_to_string(q%request_id)//'done',0_MPI_ADDRESS_KIND)
                endif
             class default
-               _ASSERT(.false., "I expect CollectiveStageDataMessage")
+               _FAIL( "I expect CollectiveStageDataMessage")
             end select
             call msg_iter%next()
          enddo

@@ -110,7 +110,7 @@ contains
                   output_string(k:k+1)="%s"
                   k=k+1
                else
-                  _ASSERT(.false.,"Using %s token with no experiment id")
+                  _FAIL("Using %s token with no experiment id")
                end if
             case("%")
                istp=2
@@ -133,7 +133,7 @@ contains
                   output_string(k:m)=sbuf
                   k=m+1
                else
-                  _ASSERT(.false.,"Invalid token in file template: "//c1//c2)
+                  _FAIL("Invalid token in file template: "//c1//c2)
                end if
             end select
          else
