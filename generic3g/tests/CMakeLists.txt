@@ -24,9 +24,9 @@ add_pfunit_ctest(MAPL.generic3g.tests
 set_target_properties(MAPL.generic3g.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
 if (APPLE)
-  set_property(TEST MAPL.generic3g.tests APPEND PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}/gridcomps")
+  set_property(TEST MAPL.generic3g.tests PROPERTY ENVIRONMENT "DYLD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{DYLD_LIBRARY_PATH}")
 else ()
-  set_property(TEST MAPL.generic3g.tests APPEND PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}/gridcomps")
+  set_property(TEST MAPL.generic3g.tests PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{LD_LIBRARY_PATH}")
 endif ()
 
 add_dependencies(build-tests MAPL.generic3g.tests)
