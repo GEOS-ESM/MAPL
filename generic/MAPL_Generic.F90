@@ -1712,7 +1712,10 @@ contains
       procedure(ESMF_GridCompRun), pointer :: func_ptr => NULL()
       character(len=12), target :: timers_run(1) = &
            [character(len=12):: 'GenRunMine']
-      character(len=12) :: sbrtn
+      character(len=:), allocatable :: sbrtn
+
+      character(:), allocatable :: stage_description
+      class(Logger), pointer :: lgr
 
 
       !=============================================================================
@@ -1731,6 +1734,8 @@ contains
       _VERIFY(status)
       Iam = trim(comp_name) // trim(Iam)
 
+      lgr => logging%get_logger('MAPL.GENERIC')
+
       call ESMF_VmGetCurrent(VM)
       ! Retrieve the pointer to the internal state. It comes in a wrapper.
       ! ------------------------------------------------------------------
@@ -1740,7 +1745,7 @@ contains
 
       ! TIMERS on
       t_p => get_global_time_profiler()
-      call t_p%start(trim(state%compname),__RC__)
+      call t_p%start(trim(state%compname),_RC)
 
       phase_ = MAPL_MAX_PHASES+phase ! this is the "actual" phase, i.e. the one user registered
 
@@ -1775,10 +1780,12 @@ contains
          sbrtn = 'WriteRestart'
       endif MethodBlock
 
+      stage_description = sbrtn//' stage of the gridded component <'//trim(COMP_NAME)//'>'
+
       ! TIMERS on
       if (method /= ESMF_METHOD_READRESTART .and. method /= ESMF_METHOD_WRITERESTART) then
-         call state%t_profiler%start(__RC__)
-         call state%t_profiler%start(trim(sbrtn),__RC__)
+         call state%t_profiler%start(_RC)
+         call state%t_profiler%start(trim(sbrtn),_RC)
       end if
 
       if (associated(timers)) then
@@ -1789,34 +1796,32 @@ contains
 
       ! Method itself
       ! ----------
-#ifdef DEBUG
-      IF (mapl_am_i_root(vm)) then
-         print *,'DBG: running ', sbrtn, ' phase ',phase,' of ',trim(comp_name)
-      end IF
-#endif
-
+      call lgr%debug('Started %a', stage_description)
 
       call func_ptr (GC, &
            importState=IMPORT, &
            exportState=EXPORT, &
            clock=CLOCK, PHASE=PHASE_, &
-           userRC=userRC, __RC__ )
+           userRC=userRC, _RC )
       _VERIFY(userRC)
+
+      _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
+      call lgr%debug('Finished %a', stage_description)
 
       ! TIMERS off
       if (associated(timers)) then
          do i = size(timers),1,-1
-            call MAPL_TimerOff (STATE,timers(i),__RC__)
+            call MAPL_TimerOff (STATE,timers(i),_RC)
          end do
       end if
 
       if (method /= ESMF_METHOD_FINALIZE) then
          if (method /= ESMF_METHOD_WRITERESTART .and. &
               method /= ESMF_METHOD_READRESTART) then
-            call state%t_profiler%stop(trim(sbrtn),__RC__)
-            call state%t_profiler%stop(__RC__)
+            call state%t_profiler%stop(trim(sbrtn),_RC)
+            call state%t_profiler%stop(_RC)
          end if
-         call t_p%stop(trim(state%compname),__RC__)
+         call t_p%stop(trim(state%compname),_RC)
       endif
 
 
@@ -4558,6 +4563,9 @@ contains
       class(BaseProfiler), pointer                :: t_p
       integer :: userRC
 
+      character(:), allocatable :: stage_description
+      class(Logger), pointer :: lgr
+
       if (.not.allocated(META%GCNameList)) then
          ! this is the first child to be added
          allocate(META%GCNameList(0), __STAT__)
@@ -4566,19 +4574,25 @@ contains
       I = META%get_num_children() + 1
       AddChildFromMeta = I
 
-      call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentgc, petList=petlist, child_meta=child_meta, __RC__)
+      call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentgc, petList=petlist, child_meta=child_meta, _RC)
+
+      stage_description = 'setServices() of the gridded component <'//trim(name)//'>'
+      lgr => logging%get_logger('MAPL.GENERIC')
+
       t_p => get_global_time_profiler()
-      call t_p%start(trim(NAME),__RC__)
-      call child_meta%t_profiler%start(__RC__)
-      call child_meta%t_profiler%start('SetService',__RC__)
+      call t_p%start(trim(NAME),_RC)
+      call child_meta%t_profiler%start(_RC)
+      call child_meta%t_profiler%start('SetService',_RC)
 
 !!$     gridcomp => META%GET_CHILD_GRIDCOMP(I)
-      call ESMF_GridCompSetServices ( child_meta%gridcomp, SS, userRC=userRC, __RC__ )
+      call lgr%debug("Started %a", stage_description)
+      call ESMF_GridCompSetServices ( child_meta%gridcomp, SS, userRC=userRC, _RC )
       _VERIFY(userRC)
+      call lgr%debug("Finished %a", stage_description)
 
-      call child_meta%t_profiler%stop('SetService',__RC__)
-      call child_meta%t_profiler%stop(__RC__)
-      call t_p%stop(trim(NAME),__RC__)
+      call child_meta%t_profiler%stop('SetService',_RC)
+      call child_meta%t_profiler%stop(_RC)
+      call t_p%stop(trim(NAME),_RC)
 
       _VERIFY(status)
 
