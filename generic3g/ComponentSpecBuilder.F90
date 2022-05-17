@@ -111,11 +111,11 @@ contains
         do while (iter /= e)
            child_name => to_string(iter%first(), _RC)
            subcfg => iter%second()
-           call specs%insert(child_name, build_ChildSpec(iter%second()))
+           child_spec = build_ChildSpec(subcfg)
+           call specs%insert(child_name, child_spec)
            call iter%next()
         end do
       end associate
-
 
       _RETURN(_SUCCESS)
    end function build_ChildSpecMap
@@ -126,7 +126,7 @@ contains
 
       integer :: status
 
-      character(:), allocatable :: child_name
+      character(:), pointer :: child_name
       type(ChildSpec) :: child_spec
       class(NodeIterator), allocatable :: iter
 
@@ -146,16 +146,9 @@ contains
         iter = b
         do while (iter /= e)
            counter = counter + 1
-!!$           child_name => to_string(iter%first(), _RC)
-!!$           child_spec = build_ChildSpec(iter%second(), _RC)
-!!$           child_name = to_string(iter%first(), _RC)
-           select case(counter)
-           case (1)
-              call kludge%insert('A', ChildSpec(user_setservices('libA','setservices_')))
-           case (2)
-              call kludge%insert('B', ChildSpec(user_setservices('libB','setservices_')))
-           end select
-!!$           call specs%insert(child_name, child_spec)
+           child_name => to_string(iter%first(), _RC)
+           child_spec = build_ChildSpec(iter%second(), _RC)
+           call specs%insert(child_name, child_spec)
            call iter%next()
         end do
       end associate

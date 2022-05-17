@@ -1,6 +1,6 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL.generic3g/tests")
 
-add_library(scratchpad scratchpad.F90)
+add_library(scratchpad SHARED scratchpad.F90)
 
 add_subdirectory(gridcomps)
 

@@ -57,8 +57,8 @@ contains
       cs_a = ChildSpec(ss_A)
       cs_b = ChildSpec(ss_B)
 
-      @assert_that('OPERATARO(==)', cs_a == cs_b, is(false()))
-      @assert_that('OPERATARO(/=)', cs_a /= cs_b, is(true()))
+      @assert_that('OPERATOR(==)', cs_a == cs_b, is(false()))
+      @assert_that('OPERATOR(/=)', cs_a /= cs_b, is(true()))
 
 
    contains
@@ -221,6 +221,7 @@ contains
       integer :: status, rc
 
       p = Parser('core')
+
       config = p%load(TextStream('{' // &
            'A: {setServices: {sharedObj: libA}},' // &
            'B: {setServices: {sharedObj: libB}}}'))
@@ -229,12 +230,9 @@ contains
       call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
       call expected%insert('B', ChildSpec(user_setservices('libB', 'setservices_')))
       found = build_ChildSpecMap(config_ptr, _RC)
-!!$      found = var_build_ChildSpecMap(config_ptr, _RC)
-      @assert_that(found == expected, is(true()))
-!!$      @assert_that(expected == found, is(true()))
-!!$      @assert_that(expected == expected, is(true()))
-!!$      @assert_that(found == found, is(true()))
 
+      @assert_that(found%of('A') == expected%of('A'), is(true()))
+      @assert_that(found%of('B') == expected%of('B'), is(true()))
       
    end subroutine test_build_ChildSpecMap_2
 
