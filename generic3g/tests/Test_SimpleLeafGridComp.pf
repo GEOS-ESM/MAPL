@@ -25,15 +25,6 @@ contains
       class(YAML_Node), allocatable :: config
       integer :: status, userRC
       type(Parser) :: p
-      character(:), allocatable :: path
-      integer :: length
-
-      call get_environment_variable('LD_LIBRARY_PATH', length=length, status=status)
-      allocate(character(len=length) :: path)
-      call get_environment_variable('LD_LIBRARY_PATH', value=path, status=status)      
-      print*,__FILE__,__LINE__,'LD_LIBRARY_PATH is <'//path//'>'
-      
-
 
       p = Parser('core')
       config = p%load(TextStream('{setServices: {sharedObj: libsimple_leaf_gridcomp, userRoutine: setservices_}}'))
