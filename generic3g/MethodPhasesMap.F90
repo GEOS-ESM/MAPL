@@ -15,7 +15,7 @@ module mapl3g_MethodPhasesMap_private
 
 #include "map/template.inc"
 
-#undef MethodPhasesPair
+#undef Pair
 #undef MapIterator
 #undef Map
 #undef T
@@ -49,7 +49,10 @@ module mapl3g_MethodPhasesMap_private
          integer :: i
 
          do i = 1, size(METHODS)
-            if (a == METHODS(i)) return
+            if (a == METHODS(i)) then
+               idx = i
+               return
+            end if
          end do
 
          idx = -1 ! should not be reachable
@@ -115,19 +118,26 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine add_phase_
 
-   integer function get_phase_index_(phases, phase_name, unusable, rc) result(phase_index)
+   integer function get_phase_index_(phases, unusable, phase_name, rc) result(phase_index)
       type(StringVector), intent(in) :: phases
-      character(len=*), intent(in) :: phase_name
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
+      character(:), allocatable :: phase_name_
+
+      phase_name_ = DEFAULT_PHASE_NAME
+      if (present(phase_name)) phase_name_ = phase_name
+
+      phase_index = -1
+
       associate (b => phases%begin(), e => phases%end())
-        associate (iter => find(b, e, phase_name))
-          _ASSERT(iter /= phases%end(), "phase <"//trim(phase_name)//"> not found")
+        associate (iter => find(b, e, phase_name_))
+          _ASSERT(iter /= phases%end(), "phase <"//trim(phase_name_)//"> not found")
           phase_index = 1 + distance(b, iter)
         end associate
       end associate
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function get_phase_index_

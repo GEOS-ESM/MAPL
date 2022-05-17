@@ -23,10 +23,13 @@ module mapl3g_UserSetServices
 
    public :: user_setservices        ! overloaded factory method
    public :: AbstractUserSetServices  ! Base class for variant SS functors
-
+   public :: DSOSetServices
+   public :: operator(==)
+   public :: operator(/=)
+   
    type, abstract :: AbstractUserSetServices
    contains
-      procedure(I_RunSetServices), deferred :: run_setservices
+      procedure(I_RunSetServices), deferred :: run
    end type AbstractUserSetServices
 
    abstract interface
@@ -47,7 +50,7 @@ module mapl3g_UserSetServices
    type, extends(AbstractUserSetServices) :: ProcSetServices
       procedure(I_SetServices), nopass, pointer :: userRoutine
    contains
-      procedure :: run_setservices => run_proc_setservices
+      procedure :: run => run_proc_setservices
    end type ProcSetServices
 
    ! Concrete subclass to encapsulate a user setservices procedure
@@ -56,13 +59,21 @@ module mapl3g_UserSetServices
       character(:), allocatable :: sharedObj
       character(:), allocatable :: userRoutine
    contains
-      procedure :: run_setservices => run_dso_setservices
+      procedure :: run => run_dso_setservices
    end type DSOSetServices
 
    interface user_setservices
       module procedure new_proc_setservices
       module procedure new_dso_setservices
    end interface user_setservices
+
+   interface operator(==)
+      module procedure equal_setServices
+   end interface operator(==)
+
+   interface operator(/=)
+      module procedure not_equal_setServices
+   end interface operator(/=)
 
 contains
 
@@ -94,6 +105,7 @@ contains
    
    ! Argument names correspond to ESMF arguments.
    function new_dso_setservices(sharedObj, userRoutine) result(dso_setservices)
+      use mapl_DSO_Utilities
       type(DSOSetServices) :: dso_setservices
       character(len=*), intent(in) :: sharedObj
       character(len=*), intent(in) :: userRoutine
@@ -104,17 +116,74 @@ contains
    end function new_dso_setservices
 
    subroutine run_dso_setservices(this, gridcomp, rc)
+      use mapl_DSO_Utilities
       class(DSOSetservices), intent(in) :: this
       type(ESMF_GridComp) :: GridComp
       integer, intent(out) :: rc
 
       integer :: status, userRC
+      logical :: found
 
-      call ESMF_GridCompSetServices(gridcomp, sharedObj=this%sharedObj, &
-           userRoutine=this%userRoutine, userRC=userRC, _RC)
+      _ASSERT(is_supported_dso_name(this%sharedObj), 'unsupported dso name:: <'//this%sharedObj//'>')
+      call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(this%sharedObj), &
+           userRoutine=this%userRoutine, userRoutinefound=found, userRC=userRC, rc=status)
       _VERIFY(userRC)
+      _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run_dso_setservices
 
+
+   logical function equal_setServices(a, b) result(equal)
+      class(AbstractUserSetServices), intent(in) :: a, b
+
+      select type (a)
+      type is (DSOSetservices)
+         select type(b)
+         type is (DSOSetservices)
+            equal = equal_DSOSetServices(a,b)
+         class default
+            equal = .false.
+         end select
+      type is (ProcSetServices)
+         select type(b)
+         type is (ProcSetservices)
+            equal = equal_ProcSetServices(a,b)
+         class default
+            equal = .false.
+         end select
+      class default
+         equal = .false.
+      end select
+
+   end function equal_setServices
+
+   logical function not_equal_setServices(a, b) result(not_equal)
+      class(AbstractUserSetServices), intent(in) :: a, b
+      not_equal = .not. (a == b)
+   end function not_equal_setServices
+
+   logical function equal_ProcSetServices(a, b) result(equal)
+      type(ProcSetServices), intent(in) :: a, b
+      equal = associated(a%userRoutine, b%userRoutine)
+   end function equal_ProcSetServices
+
+   logical function equal_DSOSetServices(a, b) result(equal)
+      type(DSOSetServices), intent(in) :: a, b
+      
+      equal = (a%sharedObj == b%sharedObj) .and. (a%userRoutine == b%userRoutine)
+   end function equal_DSOSetServices
+
+   logical function not_equal_ProcSetServices(a, b) result(not_equal)
+      type(ProcSetServices), intent(in) :: a, b
+      not_equal = .not. (a == b)
+   end function not_equal_ProcSetServices
+
+   logical function not_equal_DSOSetServices(a, b) result(not_equal)
+      type(DSOSetServices), intent(in) :: a, b
+      not_equal = .not. (a == b)
+   end function not_equal_DSOSetServices
+   
+
+   
 end module mapl3g_UserSetServices

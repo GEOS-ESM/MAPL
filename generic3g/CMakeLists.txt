@@ -1,6 +1,19 @@
 esma_set_this (OVERRIDE MAPL.generic3g)
 
+
 set(srcs
+  Generic3g.F90
+  
+  specs/HorizontalStaggerLoc.F90
+  specs/VerticalStaggerLoc.F90
+  specs/UngriddedDimSpec.F90
+  specs/DimSpec.F90
+  specs/ComponentSpec.F90
+  specs/ChildSpec.F90
+  specs/ChildSpecMap.F90
+
+  ComponentSpecBuilder.F90
+
   ESMF_Interfaces.F90
   UserSetServices.F90
   MethodPhasesMap.F90
@@ -14,7 +27,10 @@ set(srcs
   InnerMetaComponent.F90
   OuterMetaComponent.F90
   OuterMetaComponent_setservices_smod.F90
+  OuterMetaComponent_addChild_smod.F90
   GenericGridComp.F90
+
+  MAPL_Generic.F90
 
   # ComponentSpecBuilder.F90
   )
@@ -29,7 +45,7 @@ find_package (PFLOGGER REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.profiler MAPL.base YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
+  DEPENDENCIES MAPL.oomph MAPL.shared MAPL.profiler MAPL.base YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
   TYPE ${MAPL_LIBRARY_TYPE}
   )
 
