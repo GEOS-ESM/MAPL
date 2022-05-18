@@ -343,7 +343,7 @@ module MAPL_GenericMod
    end interface MAPL_GetLogger
 
    interface MAPL_AddAttributeToFields
-      module procedure MAPL_AddI4AttributeToFields
+      module procedure MAPL_AddAttributeToFields_I4
    end interface
 
 
@@ -11339,7 +11339,7 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine warn_empty
 
-   recursive subroutine MAPL_AddI4AttributeToFields(gc,field_name,att_name,att_val,rc)
+   recursive subroutine MAPL_AddAttributeToFields_I4(gc,field_name,att_name,att_val,rc)
       type(ESMF_GridComp), pointer, intent(inout) :: gc
       character(len=*), intent(in) :: field_name
       character(len=*), intent(in) :: att_name
@@ -11370,10 +11370,10 @@ contains
       nc = state%get_num_children()
       do i=1,nc
          child_gc => state%get_child_gridcomp(i)
-         call MAPL_AddI4AttributeToFields(child_gc,field_name,att_name,att_val,_RC)
+         call MAPL_AddAttributeToFields_I4(child_gc,field_name,att_name,att_val,_RC)
       enddo
       
       _RETURN(_SUCCESS)
-   end subroutine MAPL_AddI4AttributeToFields
+   end subroutine MAPL_AddAttributeToFields_I4
 
 end module MAPL_GenericMod
