@@ -224,6 +224,7 @@ module MAPL_GenericMod
    public MAPL_GenericStateSave
    public MAPL_GenericStateRestore
    public MAPL_RootGcRetrieve
+   public MAPL_AddAttributeToFields
 
    !BOP
    ! !PUBLIC TYPES:
@@ -342,6 +343,10 @@ module MAPL_GenericMod
       module procedure MAPL_GetLogger_gc
       module procedure MAPL_GetLogger_meta
    end interface MAPL_GetLogger
+
+   interface MAPL_AddAttributeToFields
+      module procedure MAPL_AddAttributeToFields_I4
+   end interface
 
 
    ! =======================================================================
@@ -11219,6 +11224,43 @@ contains
       end if
       _RETURN(ESMF_SUCCESS)
    end subroutine warn_empty
+
+   recursive subroutine MAPL_AddAttributeToFields_I4(gc,field_name,att_name,att_val,rc)
+      type(ESMF_GridComp), pointer, intent(inout) :: gc
+      character(len=*), intent(in) :: field_name
+      character(len=*), intent(in) :: att_name
+      integer(int32), intent(in) :: att_val
+      integer, optional, intent(out) :: rc
+
+      integer :: nc,i,status
+      type(MAPL_MetaComp), pointer :: state
+      type(ESMF_GridComp), pointer :: child_gc
+      type(ESMF_Field) :: field
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_TypeKind_Flag) :: item_kind
+      integer :: item_count
+      logical :: is_present
+
+      call MAPL_GetObjectFromGC(gc,state,_RC)
+      call ESMF_StateGet(state%import_state,field_name,item_type,_RC)
+      if (item_type == ESMF_STATEITEM_FIELD) then
+         call ESMF_StateGet(state%import_state,field_name,field,_RC)
+         call ESMF_AttributeGet(field,name=att_name,isPresent=is_Present,_RC)
+         if (is_present) then
+            call ESMF_AttributeGet(field,name=att_name,typekind=item_kind,itemCount=item_count,_RC)
+            _ASSERT(item_kind == ESMF_TYPEKIND_I4,"attribute "//att_name//" in "//field_name//" is not I4")
+            _ASSERT(item_count==1,"attribute "//att_name//" in "//field_name//" is not a scalar")
+         end if
+         call ESMF_AttributeSet(field,name=att_name,value=att_val,_RC)
+      end if
+      nc = state%get_num_children()
+      do i=1,nc
+         child_gc => state%get_child_gridcomp(i)
+         call MAPL_AddAttributeToFields_I4(child_gc,field_name,att_name,att_val,_RC)
+      enddo
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_AddAttributeToFields_I4
 
    ! Interface mandated by ESMF
    recursive subroutine new_generic_setservices(gc, rc)
