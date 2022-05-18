@@ -631,7 +631,7 @@ contains
        call cap%initialize_history(rc=status)
        _VERIFY(status)
 
-       call cap%initialize_extdata(rc=status)
+       call cap%initialize_extdata(root_gc,rc=status)
        _VERIFY(status)
 
        ! Finally check is this is a regular replay
@@ -690,8 +690,9 @@ contains
   end subroutine initialize_history
 
 
-  subroutine initialize_extdata(cap , rc)
+  subroutine initialize_extdata(cap , root_gc, rc)
     class(MAPL_CapGridComp), intent(inout) :: cap
+    type (ESMF_GridComp), intent(inout), pointer :: root_gc
     integer, optional, intent(out) :: rc
     integer :: item_count, status
     type (ESMF_StateItem_Flag), pointer   :: item_types(:)
@@ -758,6 +759,7 @@ contains
        if (item_types(i) == ESMF_StateItem_Field) then
           call ESMF_StateGet(root_imports, item_names(i), field, rc = status)
           _VERIFY(status)
+          call MAPL_AddAttributeToFields(root_gc,trim(item_names(i)),'RESTART',MAPL_RestartSkip,_RC)
           call MAPL_StateAdd(state, field, rc = status)
           _VERIFY(status)
        else if (item_types(i) == ESMF_StateItem_FieldBundle) then
