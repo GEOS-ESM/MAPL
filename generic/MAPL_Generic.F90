@@ -11368,12 +11368,10 @@ contains
          call ESMF_AttributeSet(field,name=att_name,value=att_val,_RC)
       end if
       nc = state%get_num_children()
-      if (nc > 0) then
-         do i=1,nc
-            child_gc => state%get_child_gridcomp(i)
-            call MAPL_AddI4AttributeToFields(child_gc,field_name,att_name,att_val,_RC)
-         enddo
-      end if
+      do i=1,nc
+         child_gc => state%get_child_gridcomp(i)
+         call MAPL_AddI4AttributeToFields(child_gc,field_name,att_name,att_val,_RC)
+      enddo
       
       _RETURN(_SUCCESS)
    end subroutine MAPL_AddI4AttributeToFields
