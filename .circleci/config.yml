@@ -1,5 +1,8 @@
 version: 2.1
 
+# Anchor to prevent forgetting to update a version
+baselibs_version: &baselibs_version v7.0.0
+
 orbs:
   ci: geos-esm/circleci-tools@1
 
@@ -15,7 +18,7 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
-          baselibs_version: v7.0.0
+          baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
@@ -29,7 +32,7 @@ workflows:
           matrix:
             parameters:
               compiler: [ifort]
-          baselibs_version: v7.0.0
+          baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_SHARED_MAPL=OFF"
@@ -44,13 +47,13 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
-          baselibs_version: v7.0.0
+          baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
           mepodevelop: true
           checkout_mapl3_release_branch: true
           checkout_mapl_branch: true
-          persist_workspace: false # Needs to be true to run fv3/gcm experiment, costs extra
+          persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
       # Build GEOSldas
       - ci/build:
@@ -60,7 +63,7 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
-          baselibs_version: v7.0.0
+          baselibs_version: *baselibs_version
           repo: GEOSldas
           mepodevelop: false
           checkout_fixture: true
@@ -77,7 +80,7 @@ workflows:
             parameters:
               compiler: [ifort]
           resource_class: xlarge
-          baselibs_version: v7.0.0
+          baselibs_version: *baselibs_version
           repo: GEOSadas
           checkout_fixture: true
           fixture_branch: release/MAPL-v3
@@ -85,15 +88,16 @@ workflows:
           checkout_mapl_branch: true
           mepodevelop: false
           rebuild_procs: 8
-      ##################################################
-      # - ci/run_fv3:                                  #
-      #     name: run-FV3-on-<< matrix.compiler >>     #
-      #     context:                                   #
-      #       - docker-hub-creds                       #
-      #     matrix:                                    #
-      #       parameters:                              #
-      #         compiler: [gfortran, ifort]            #
-      #     requires:                                  #
-      #       - build-GEOSgcm-on-<< matrix.compiler >> #
-      #     repo: GEOSgcm                              #
-      ##################################################
+
+      # Run GCM (1 hour, no ExtData)
+      - ci/run_gcm:
+          name: run-GCM-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          requires:
+            - build-GEOSgcm-on-<< matrix.compiler >>
+          repo: GEOSgcm
+          baselibs_version: *baselibs_version
