@@ -13,7 +13,7 @@ class MAPL_DataSpec:
     all_options = ['short_name', 'long_name', 'units',
                    'dims', 'vlocation', 'num_subtiles',
                    'refresh_interval', 'averaging_interval', 'halowidth',
-                   'precision','default','restart', '_dims',
+                   'precision','default','restart', 'ungridded_dims',
                    'field_type', 'staggering', 'rotation',
                    'friendlyto', 'add2export', 'datatype', 'restart',
                    'attr_inames', 'att_rnames', 'attr_ivalues', 'attr_rvalues',
@@ -206,14 +206,15 @@ def read_specs(specs_filename):
         'DEFAULT'    : 'default',
         'RESTART'    : 'restart',
         'FRIENDLYTO' : 'friendlyto',
-        'ADD2EXPORT' : 'add2export',
-        'AVERAGING_INTERVAL' : 'averaging_interval'
+        'ADD2EXPORT' : 'add2export'
     }
 
     specs = {}
     with open(specs_filename, 'r') as specs_file:
         specs_reader = csv.reader(specs_file, skipinitialspace=True,delimiter='|')
-        gen = csv_record_reader(specs_reader) schema_version = next(gen)[0].split(' ')[1] component = next(gen)[0].split(' ')[1]
+        gen = csv_record_reader(specs_reader)
+        schema_version = next(gen)[0].split(' ')[1]
+        component = next(gen)[0].split(' ')[1]
 #        print("Generating specification code for component: ",component)
         while True:
             try:
@@ -227,7 +228,7 @@ def read_specs(specs_filename):
                     if cU in column_aliases:
                         columns.append(column_aliases[cU])
                     else:
-                        columns.append(c)
+                        columns.append(c.lower())
                 specs[category] = dataframe(gen, columns)
             except StopIteration:
                 break
