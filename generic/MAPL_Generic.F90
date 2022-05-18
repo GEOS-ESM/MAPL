@@ -11240,18 +11240,20 @@ contains
       type(ESMF_TypeKind_Flag) :: item_kind
       integer :: item_count
       logical :: is_present
+      type(ESMF_Info) :: infoh
 
       call MAPL_GetObjectFromGC(gc,state,_RC)
       call ESMF_StateGet(state%import_state,field_name,item_type,_RC)
       if (item_type == ESMF_STATEITEM_FIELD) then
          call ESMF_StateGet(state%import_state,field_name,field,_RC)
-         call ESMF_AttributeGet(field,name=att_name,isPresent=is_Present,_RC)
+         call ESMF_InfoGetFromHost(field, infoh, RC=status)
+         is_present=ESMF_InfoIsPresent(infoh,key=att_name,_RC)
          if (is_present) then
-            call ESMF_AttributeGet(field,name=att_name,typekind=item_kind,itemCount=item_count,_RC)
+            call ESMF_InfoGet(infoh,key=att_name,typekind=item_kind,size=item_count,_RC)
             _ASSERT(item_kind == ESMF_TYPEKIND_I4,"attribute "//att_name//" in "//field_name//" is not I4")
             _ASSERT(item_count==1,"attribute "//att_name//" in "//field_name//" is not a scalar")
          end if
-         call ESMF_AttributeSet(field,name=att_name,value=att_val,_RC)
+         call ESMF_InfoSet(infoh,key=att_name,value=att_val,_RC)
       end if
       nc = state%get_num_children()
       do i=1,nc
