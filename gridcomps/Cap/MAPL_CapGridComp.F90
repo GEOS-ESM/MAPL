@@ -737,6 +737,7 @@ contains
        call cap%initialize_history(rc=status)
        _VERIFY(status)
 
+       root_gc => maplobj%get_child_gridcomp(cap%root_id)
        call cap%initialize_extdata(root_gc,rc=status)
        _VERIFY(status)
 
