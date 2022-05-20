@@ -58,8 +58,6 @@ contains
       cs_b = ChildSpec(ss_B)
 
       @assert_that('OPERATOR(==)', cs_a == cs_b, is(false()))
-      @assert_that('OPERATOR(/=)', cs_a /= cs_b, is(true()))
-
 
    contains
       subroutine gamma(gc, rc)
@@ -83,37 +81,30 @@ contains
 
       b = ChildSpec(ss)
       @assert_that(a == b, is(false()))
-      @assert_that(a /= b, is(true()))
 
       b = ChildSpec(ss, yaml_config='a2.yml')
       @assert_that(a == b, is(false()))
-      @assert_that(a /= b, is(true()))
+
           
       b = ChildSpec(ss, esmf_config='a2.rc')
       @assert_that(a == b, is(false()))
-      @assert_that(a /= b, is(true()))
 
       b = ChildSpec(ss, esmf_config='a2.rc', yaml_config='a.yml')
       @assert_that(a == b, is(false()))
-      @assert_that(a /= b, is(true()))
 
       a = ChildSpec(ss, esmf_config='a.rc')
 
       b = ChildSpec(ss)
       @assert_that(a == b, is(false()))
-      @assert_that(a /= b, is(true()))
 
       b = ChildSpec(ss, yaml_config='a2.yml')
       @assert_that(a == b, is(false()))
-      @assert_that(a /= b, is(true()))
           
       b = ChildSpec(ss, esmf_config='a2.rc')
       @assert_that(a == b, is(false()))
-      @assert_that(a /= b, is(true()))
 
       b = ChildSpec(ss, esmf_config='a.rc', yaml_config='a.yml')
       @assert_that(a == b, is(false()))
-      @assert_that(a /= b, is(true()))
 
    contains
       subroutine gamma(gc, rc)

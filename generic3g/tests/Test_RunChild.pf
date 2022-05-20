@@ -12,6 +12,7 @@ module Test_RunChild
    implicit none
 
    type(ESMF_GridComp) :: parent_gc
+   type(ESMF_GridComp) :: user_gc
    type(OuterMetaComponent), pointer :: parent_meta
    
 contains
@@ -33,7 +34,8 @@ contains
 
       config = p%load(TextStream('setServices: {sharedObj: libsimple_leaf_gridcomp, userRoutine: setservices_}'))
       parent_meta => get_outer_meta(parent_gc, _RC)
-
+      user_gc = parent_meta%get_gridcomp()
+      
       call parent_meta%add_child('child_1', config, _RC)
       call parent_meta%add_child('child_2', config, _RC)
 
@@ -51,7 +53,8 @@ contains
       
 
    @test(npes=[0])
-   subroutine test_MAPL_Run_child(this)
+   ! MAPL_run_child() is called from withis _user_ gridcomps.
+   subroutine test_MAPL_run_child(this)
       class(MpiTestMethod), intent(inout) :: this
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -60,7 +63,7 @@ contains
 
       call setup(this, _RC)
 
-      call MAPL_run_child(parent_gc, child_name='child_1', clock=clock, _RC)
+      call MAPL_run_child(user_gc, child_name='child_1', clock=clock, _RC)
       @assertEqual("wasRun_child_1", log)
 
       call teardown(this)
@@ -77,7 +80,7 @@ contains
 
       call setup(this, _RC)
 
-      call MAPL_run_child(parent_gc, child_name='child_1', clock=clock, phase_name='extra', _RC)
+      call MAPL_run_child(user_gc, child_name='child_1', clock=clock, phase_name='extra', _RC)
       @assertEqual("wasRun_extra_child_1", log)
 
       call teardown(this)

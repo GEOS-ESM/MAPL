@@ -1,5 +1,12 @@
-! The interfaces here are mandated by ESMF.  Unfortunately they do
-! actually provide a named Fortran interface to use.
+!-------
+! The interfaces specified here are mandated by ESMF. By providing these
+! as an abstract interface,  we enable declaration of corresponding dummy procedure
+! arguments elsewhere in the code in a precise and elegant manner.  E.g.,
+!
+!    procedure(I_SetServices) :: userRoutine
+!
+!-------
+
 
 module mapl3g_ESMF_Interfaces
    implicit none
@@ -21,9 +28,9 @@ module mapl3g_ESMF_Interfaces
       end subroutine I_SetServices
 
       subroutine I_Run(gridcomp, importState, exportState, clock, rc)
-         use :: esmf, only: ESMF_GridComp
-         use :: esmf, only: ESMF_State
-         use :: esmf, only: ESMF_Clock
+         use esmf, only: ESMF_GridComp
+         use esmf, only: ESMF_State
+         use esmf, only: ESMF_Clock
          implicit none
          type(ESMF_GridComp)   :: gridcomp
          type(ESMF_State)      :: importState
