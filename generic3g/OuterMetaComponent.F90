@@ -35,11 +35,11 @@ module mapl3g_OuterMetaComponent
 
 
    type :: OuterMetaComponent
-!!$      private
+      private
       
       character(len=:), allocatable               :: name
-      type(ESMF_GridComp)                         :: self_gc
-      type(ESMF_GridComp)                         :: user_gc
+      type(ESMF_GridComp)                         :: self_gridcomp
+      type(ESMF_GridComp)                         :: user_gridcomp
       type(GenericConfig)                         :: config
 
       type(ComponentSpec)                         :: component_spec
@@ -82,9 +82,10 @@ module mapl3g_OuterMetaComponent
       generic :: run_child => run_child_by_name
       generic :: run_children => run_children_
 
-
       procedure :: traverse
+
       procedure :: get_name
+      procedure :: get_gridcomp
    end type OuterMetaComponent
 
    type OuterMetaWrapper
@@ -146,7 +147,7 @@ contains
 
       character(ESMF_MAXSTR) :: name
 
-      this%self_gc = gridcomp
+      this%self_gridcomp = gridcomp
       call ESMF_GridCompGet(gridcomp, name=name)
       this%name = trim(name)
       call initialize_phases_map(this%phases_map)
@@ -259,7 +260,7 @@ contains
       call ESMF_UserCompGetInternalState(gridcomp, OUTER_META_PRIVATE_STATE, wrapper, status)
       _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
 
-      call free_inner_meta(wrapper%outer_meta%user_gc)
+      call free_inner_meta(wrapper%outer_meta%user_gridcomp)
       
       deallocate(wrapper%outer_meta)
 
@@ -282,14 +283,14 @@ contains
 !!$   type(ESMF_GridComp) function get_gridcomp(this) result(gridcomp)
 !!$      class(OuterMetaComponent), intent(in) :: this
 !!$
-!!$      gridcomp = this%self_gc
+!!$      gridcomp = this%self_gridcomp
 !!$      
 !!$   end function get_gridcomp
 !!$
 !!$   type(ESMF_GridComp) function get_user_gridcomp(this) result(gridcomp)
 !!$      class(OuterMetaComponent), intent(in) :: this
 !!$
-!!$      gridcomp = this%user_gc
+!!$      gridcomp = this%user_gridcomp
 !!$      
 !!$   end function get_user_gridcomp
 
@@ -329,7 +330,7 @@ contains
       type(ChildComponent), pointer :: child
       type(ChildComponentMapIterator) :: iter
 
-      call ESMF_GridCompInitialize(this%user_gc, importState=importState, exportState=exportState, &
+      call ESMF_GridCompInitialize(this%user_gridcomp, importState=importState, exportState=exportState, &
            clock=clock, userRC=userRC, _RC)
       _VERIFY(userRC)
 
@@ -365,7 +366,7 @@ contains
          phase_idx = 1
       end if
 
-      call ESMF_GridCompRun(this%user_gc, importState=importState, exportState=exportState, &
+      call ESMF_GridCompRun(this%user_gridcomp, importState=importState, exportState=exportState, &
            clock=clock, phase=phase_idx, userRC=userRC, _RC)
       _VERIFY(userRC)
 
@@ -388,7 +389,7 @@ contains
       type(ChildComponentMapIterator) :: iter
       integer :: status, userRC
 
-      call ESMF_GridCompFinalize(this%user_gc, importState=importState, exportState=exportState, &
+      call ESMF_GridCompFinalize(this%user_gridcomp, importState=importState, exportState=exportState, &
            clock=clock, userRC=userRC, _RC)
       _VERIFY(userRC)
 
@@ -496,5 +497,13 @@ contains
       _RETURN(_SUCCESS)
    end subroutine traverse
 
+
+   ! Needed for unit testing purposes.
+   
+   function get_gridcomp(this) result(gridcomp)
+      type(ESMF_GridComp) :: gridcomp
+      class(OuterMetaComponent), intent(in) :: this
+      gridcomp = this%self_gridcomp
+   end function get_gridcomp
 
 end module mapl3g_OuterMetaComponent

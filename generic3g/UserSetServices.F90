@@ -48,23 +48,23 @@ module mapl3g_UserSetServices
    ! consisting of a procuder conforming to the I_SetServices
    ! interface.
    type, extends(AbstractUserSetServices) :: ProcSetServices
-      procedure(I_SetServices), nopass, pointer :: userRoutine
+      procedure(I_SetServices), nopass, pointer :: userRoutine ! ESMF naming convention
    contains
-      procedure :: run => run_proc_setservices
+      procedure :: run => run_ProcSetServices
    end type ProcSetServices
 
    ! Concrete subclass to encapsulate a user setservices procedure
    ! contained in a DSO.
    type, extends(AbstractUserSetServices) :: DSOSetServices
-      character(:), allocatable :: sharedObj
-      character(:), allocatable :: userRoutine
+      character(:), allocatable :: sharedObj    ! ESMF naming convention
+      character(:), allocatable :: userRoutine  ! ESMF naming convention
    contains
-      procedure :: run => run_dso_setservices
+      procedure :: run => run_DSOSetServices
    end type DSOSetServices
 
    interface user_setservices
-      module procedure new_proc_setservices
-      module procedure new_dso_setservices
+      module procedure new_ProcSetServices
+      module procedure new_DSOSetservices
    end interface user_setservices
 
    interface operator(==)
@@ -80,14 +80,15 @@ contains
    !----------------------------------
    ! Direct procedure support
 
-   function new_proc_setservices(userRoutine) result(proc_setservices)
+   function new_ProcSetServices(userRoutine) result(proc_setservices)
       type(ProcSetServices) :: proc_setservices
       procedure(I_SetServices) :: userRoutine
 
       proc_setservices%userRoutine => userRoutine
-   end function new_proc_setservices
 
-   subroutine run_proc_setservices(this, gridcomp, rc)
+   end function new_ProcSetServices
+
+   subroutine run_ProcSetServices(this, gridcomp, rc)
       class(ProcSetServices), intent(in) :: this
       type(ESMF_GridComp) :: gridComp
       integer, intent(out) :: rc
@@ -98,13 +99,13 @@ contains
       _VERIFY(userRC)
 
       _RETURN(ESMF_SUCCESS)
-   end subroutine run_proc_setservices
+   end subroutine run_ProcSetServices
 
    !----------------------------------
    ! DSO support
    
    ! Argument names correspond to ESMF arguments.
-   function new_dso_setservices(sharedObj, userRoutine) result(dso_setservices)
+   function new_DSOSetServices(sharedObj, userRoutine) result(dso_setservices)
       use mapl_DSO_Utilities
       type(DSOSetServices) :: dso_setservices
       character(len=*), intent(in) :: sharedObj
@@ -113,9 +114,9 @@ contains
       dso_setservices%sharedObj   = sharedObj
       dso_setservices%userRoutine = userRoutine
 
-   end function new_dso_setservices
+   end function new_DSOSetServices
 
-   subroutine run_dso_setservices(this, gridcomp, rc)
+   subroutine run_DSOSetServices(this, gridcomp, rc)
       use mapl_DSO_Utilities
       class(DSOSetservices), intent(in) :: this
       type(ESMF_GridComp) :: GridComp
@@ -131,16 +132,16 @@ contains
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
-   end subroutine run_dso_setservices
+   end subroutine run_DSOSetServices
 
 
    logical function equal_setServices(a, b) result(equal)
       class(AbstractUserSetServices), intent(in) :: a, b
 
       select type (a)
-      type is (DSOSetservices)
+      type is (DSOSetServices)
          select type(b)
-         type is (DSOSetservices)
+         type is (DSOSetServices)
             equal = equal_DSOSetServices(a,b)
          class default
             equal = .false.

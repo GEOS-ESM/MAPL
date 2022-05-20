@@ -6,6 +6,12 @@
 ! within user-level gridded components.  These are primarily thin
 ! wrappers that access the internal private state of the gridcomp and
 ! then invoke methods on that type.
+!
+! The names of these procedures are meant to be backward compatible
+! with earlier MAPL.  However, not all interfaces will be provided.
+! E.g., MAPL2 usually provided gridcomp and meta overloads for many
+! procedures.  Now the "meta" interfaces are OO methods in either
+! inner or outer MetaComponent.
 ! 
 !---------------------------------------------------------------------
 
@@ -87,15 +93,16 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      _HERE
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      _HERE
       call outer_meta%add_child(child_name, config, _RC)
       
       _RETURN(ESMF_SUCCESS)
    end subroutine add_child_by_name
 
 
+   ! In this procedure, gridcomp is actually an _outer_ gridcomp.   The intent is that
+   ! an inner gridcomp will call this on its child which is a wrapped user comp.
+   
    subroutine run_child_by_name(gridcomp, child_name, clock, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name

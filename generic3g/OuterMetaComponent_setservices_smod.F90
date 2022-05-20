@@ -88,8 +88,8 @@ contains
          
          integer :: status
 
-         this%user_gc = create_user_gridcomp(this, _RC)
-         call this%component_spec%user_setServices%run(this%user_gc, _RC)
+         this%user_gridcomp = create_user_gridcomp(this, _RC)
+         call this%component_spec%user_setServices%run(this%user_gridcomp, _RC)
 
          _RETURN(ESMF_SUCCESS)
       end subroutine process_user_gridcomp
@@ -129,8 +129,8 @@ contains
 
    end subroutine SetServices
 
-   function create_user_gridcomp(this, unusable, rc) result(user_gc)
-      type(ESMF_GridComp) :: user_gc
+   function create_user_gridcomp(this, unusable, rc) result(user_gridcomp)
+      type(ESMF_GridComp) :: user_gridcomp
       class(OuterMetaComponent), intent(in) :: this
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -138,9 +138,9 @@ contains
       character(ESMF_MAXSTR) :: name
       integer :: status
 
-      call ESMF_GridCompGet(this%self_gc, name=name, _RC)
-      user_gc = ESMF_GridCompCreate(name=name, _RC)
-      call attach_inner_meta(user_gc, this%self_gc, _RC)
+      call ESMF_GridCompGet(this%self_gridcomp, name=name, _RC)
+      user_gridcomp = ESMF_GridCompCreate(name=name, _RC)
+      call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -160,7 +160,7 @@ contains
       call add_phase(this%phases_map, method_flag=method_flag, phase_name=phase_name, _RC)
 
       associate(phase_idx => get_phase_index(this%phases_map%of(method_flag), phase_name=phase_name))
-        call ESMF_GridCompSetEntryPoint(this%user_gc, method_flag, userProcedure, phase=phase_idx, _RC)
+        call ESMF_GridCompSetEntryPoint(this%user_gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
       end associate
 
       _RETURN(ESMF_SUCCESS)
