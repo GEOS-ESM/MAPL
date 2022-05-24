@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Adding missing _RETURN and _VERIFY macros in GriddedIO.F90
+
 ### Added
 
 ### Changed
