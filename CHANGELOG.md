@@ -9,11 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Adding missing _RETURN and _VERIFY macros in GriddedIO.F90
+- Update CI to work with latest GEOSadas `develop` (Uses a special branch of GEOSadas)
 
 ### Added
 
+- Updated MAPL_CapGridComp to mark fields going to ExtData to not be checkpointed by components
+- Add debug loggers for start/stop during stages in MAPL_Generic
+- Handling for double precision input when retrieving single precision attributes
+- Enable GCM run test in CircleCI (1-hour, no ExtData)
+
 ### Changed
+
+- Modified error messages in FileMetadataUtilities to be unique and print filename
 
 ### Removed
 
