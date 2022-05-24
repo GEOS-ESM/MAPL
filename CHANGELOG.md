@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.21.1] - 2022-05-24
+
+### Fixed
+
+- Adding missing _RETURN and _VERIFY macros in GriddedIO.F90
+- Update CircleCI to work with latest GEOSadas
+
 ## [2.21.0] - 2022-05-05
 
 ### Fixed
