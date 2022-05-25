@@ -83,8 +83,10 @@ contains
       supports = any(spec%regrid_method  == &
            [ &
            REGRID_METHOD_BILINEAR, &
+           REGRID_METHOD_BILINEAR_MONOTONIC, &
            REGRID_METHOD_BILINEAR_ROTATE, &
            REGRID_METHOD_CONSERVE, &
+           REGRID_METHOD_CONSERVE_MONOTONIC, &
            REGRID_METHOD_VOTE, &
            REGRID_METHOD_FRACTION, &
            REGRID_METHOD_CONSERVE_2ND, &
@@ -1172,7 +1174,56 @@ contains
       rc = ESMF_SUCCESS
    end subroutine simpleDynMaskProcV
 
+   subroutine monotonicDynMaskProcV(dynamicMaskList, dynamicSrcMaskValue, &
+        dynamicDstMaskValue, rc)
+      type(ESMF_DynamicMaskElementR4R8R4V), pointer              :: dynamicMaskList(:)
+      real(ESMF_KIND_R4),            intent(in), optional :: dynamicSrcMaskValue
+      real(ESMF_KIND_R4),            intent(in), optional :: dynamicDstMaskValue
+      integer,                       intent(out)          :: rc
+      integer :: i, j, k, n
+      real(ESMF_KIND_R4), allocatable  :: renorm(:),max_input(:),min_input(:)
 
+      _UNUSED_DUMMY(dynamicDstMaskValue)
+
+      if (associated(dynamicMaskList)) then
+         n = size(dynamicMaskList(1)%srcElement(1)%ptr)
+         allocate(renorm(n),max_input(n),min_input(n))
+
+         do i=1, size(dynamicMaskList)
+            dynamicMaskList(i)%dstElement = 0.0 ! set to zero
+
+            renorm = 0.d0 ! reset
+            max_input = -huge(0.0)
+            min_input = huge(0.0)
+            do j=1, size(dynamicMaskList(i)%factor)
+               do k = 1, size(dynamicMaskList(i)%srcElement(j)%ptr)
+                  if (.not. &
+                       match(dynamicSrcMaskValue,dynamicMaskList(i)%srcElement(j)%ptr(k))) then
+                     dynamicMaskList(i)%dstElement(k) = dynamicMaskList(i)%dstElement(k) &
+                          + dynamicMaskList(i)%factor(j) &
+                          * dynamicMaskList(i)%srcElement(j)%ptr(k)
+                     renorm(k) = renorm(k) + dynamicMaskList(i)%factor(j)
+                     if (dynamicMaskList(i)%srcElement(j)%ptr(k) > max_input(k)) max_input(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
+                     if (dynamicMaskList(i)%srcElement(j)%ptr(k) < min_input(k)) min_input(k) = dynamicMaskList(i)%srcElement(j)%ptr(k)
+                  endif
+               end do
+            end do
+            where (renorm > 0.d0)
+               dynamicMaskList(i)%dstElement = dynamicMaskList(i)%dstElement / renorm
+            elsewhere
+               dynamicMaskList(i)%dstElement = dynamicSrcMaskValue
+            end where
+            where (renorm > 0.d0 .and. dynamicMaskList(i)%dstElement > max_input)
+               dynamicMaskList(i)%dstElement = max_input
+            end where
+            where (renorm > 0.d0 .and. dynamicMaskList(i)%dstElement < min_input)
+               dynamicMaskList(i)%dstElement = min_input
+            end where
+         enddo
+      endif
+      ! return successfully
+      rc = ESMF_SUCCESS
+   end subroutine monotonicDynMaskProcV
 
 
    logical function match(missing,b)
@@ -1337,6 +1388,12 @@ contains
              & dynamicMaskRoutine=simpleDynMaskProcV, &
              & rc=rc)
         _VERIFY(rc)
+     case (REGRID_METHOD_BILINEAR_MONOTONIC, REGRID_METHOD_CONSERVE_MONOTONIC)
+        call ESMF_DynamicMaskSetR4R8R4V(this%dynamic_mask, &
+             & dynamicSrcMaskValue=MAPL_undef, &
+             & dynamicMaskRoutine=monotonicDynMaskProcV, &
+             & rc=rc)
+        _VERIFY(rc)
      case (REGRID_METHOD_VOTE)
         call ESMF_DynamicMaskSetR4R8R4V(this%dynamic_mask, &
              & dynamicSrcMaskValue=MAPL_undef, &
@@ -1435,7 +1492,7 @@ contains
            if (.not.global) unmappedaction=ESMF_UNMAPPEDACTION_IGNORE
         end if
         select case (spec%regrid_method)
-        case (REGRID_METHOD_BILINEAR)
+        case (REGRID_METHOD_BILINEAR, REGRID_METHOD_BILINEAR_MONOTONIC)
 
            call ESMF_FieldRegridStore(src_field, dst_field, &
                 & regridmethod=ESMF_REGRIDMETHOD_BILINEAR, &
@@ -1462,7 +1519,7 @@ contains
                 & factorList=factorList, factorIndexList=factorIndexList, &
                 & routehandle=route_handle, unmappedaction=unmappedaction, rc=status)
            _VERIFY(status)
-        case (REGRID_METHOD_CONSERVE, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
+        case (REGRID_METHOD_CONSERVE, REGRID_METHOD_CONSERVE_MONOTONIC, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
            call ESMF_FieldRegridStore(src_field, dst_field, &
                 & regridmethod=ESMF_REGRIDMETHOD_CONSERVE, &
                 & srcTermProcessing = srcTermProcessing, &
