@@ -198,6 +198,7 @@ module MAPL_GriddedIOMod
               call s_iter%next()
            enddo
         end if
+        _RETURN(_SUCCESS)
 
      end subroutine CreateFileMetaData
 
@@ -325,12 +326,14 @@ module MAPL_GriddedIOMod
            newField = MAPL_FieldCreate(field,this%output_grid,lm=this%vData%lm,rc=status)
            _VERIFY(status)
            call MAPL_FieldBundleAdd(this%output_bundle,newField,rc=status)
+           _VERIFY(status)
         else
            newField = MAPL_FieldCreate(field,this%output_grid,rc=status)
            _VERIFY(status)
            call MAPL_FieldBundleAdd(this%output_bundle,newField,rc=status)
+           _VERIFY(status)
         end if
-
+        _RETURN(_SUCCESS)
 
      end subroutine CreateVariable
 
@@ -391,7 +394,7 @@ module MAPL_GriddedIOMod
 
         tindex = size(this%times)
         if (tindex==1) then
-           call this%stage2DLatLon(filename,oClients=oClients,rc=status)
+           call this%stage2DLatLon(filename,oClients=oClients,_RC)
         end if
 
         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
@@ -547,6 +550,7 @@ module MAPL_GriddedIOMod
         end if
 
         if (allocated(ptr3d_inter)) deallocate(ptr3d_inter)
+        _RETURN(_SUCCESS)
 
      end subroutine RegridScalar
 
@@ -713,6 +717,7 @@ module MAPL_GriddedIOMod
 
         if (allocated(xptr3d_inter)) deallocate(xptr3d_inter)
         if (allocated(yptr3d_inter)) deallocate(yptr3d_inter)
+        _RETURN(_SUCCESS)
 
      end subroutine RegridVector
 
@@ -788,7 +793,7 @@ module MAPL_GriddedIOMod
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lats', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
      end if
-
+     _RETURN(_SUCCESS)
 
   end subroutine stage2DLatLon
 
@@ -857,6 +862,7 @@ module MAPL_GriddedIOMod
       end if
       call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+      _RETURN(_SUCCESS)
 
   end subroutine stageData
 
