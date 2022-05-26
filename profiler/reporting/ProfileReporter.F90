@@ -48,7 +48,7 @@ contains
       call this%get_rows(node, rows)
       width = this%get_width()
       height = size(header) + size(rows)
-
+      
       allocate(character(len=width) :: report_lines(height))
       do i = 1, size(header)
          report_lines(i) = header(i)

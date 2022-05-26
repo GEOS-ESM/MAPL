@@ -33,7 +33,7 @@ module MAPL_ExtDataRule
 contains
 
    function new_ExtDataRule(config,sample_map,key,unusable,multi_rule,rc) result(rule)
-      type(Configuration), intent(in) :: config
+      class(YAML_Node), intent(in) :: config
       character(len=*), intent(in) :: key
       type(ExtDataTimeSampleMap) :: sample_map
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -43,7 +43,7 @@ contains
       type(ExtDataRule) :: rule
       logical :: is_present
       integer :: status
-      type(Configuration) ::config1
+      class(YAML_Node), pointer ::config1
       character(len=:), allocatable :: tempc
       type(ExtDataTimeSample) :: ts
       logical :: usable_multi_rule
@@ -73,7 +73,7 @@ contains
       end if
 
       if (config%has("sample")) then
-         config1=config%at("sample")
+         config1=>config%at("sample")
          if (config1%is_mapping()) then
             ts = ExtDataTimeSample(config1,_RC)
             call sample_map%insert(trim(key)//"_sample",ts)
