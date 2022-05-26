@@ -108,19 +108,14 @@ module MAPL_ExtDataOldTypesCreator
       end if
       
       ! regrid method
-      if (trim(rule%regrid_method) == "BILINEAR") then
-         primary_item%trans = REGRID_METHOD_BILINEAR
-      else if (trim(rule%regrid_method) == "CONSERVE") then
-         primary_item%trans = REGRID_METHOD_CONSERVE
-      else if (trim(rule%regrid_method) == "VOTE") then
-         primary_item%trans = REGRID_METHOD_VOTE
-      else if (index(rule%regrid_method,"FRACTION;")>0) then
+      if (index(rule%regrid_method,"FRACTION;")>0) then
          semi_pos = index(rule%regrid_method,";")
          read(rule%regrid_method(semi_pos+1:),*) primary_item%fracVal
          primary_item%trans = REGRID_METHOD_FRACTION
-      else 
-         _FAIL("Invalid regridding method")
+      else
+         primary_item%trans = get_regrid_method(rule%regrid_method)
       end if
+      _ASSERT(primary_item%trans/=UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
 
       if (trim(time_sample%extrap_outside) =="clim") then
          primary_item%cycling=.true.

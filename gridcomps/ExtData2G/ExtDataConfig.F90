@@ -344,14 +344,14 @@ contains
          uname = key(1:semi_pos-1)
          vname = key(semi_pos+1:len_trim(key))
          temp_rule => this%rule_map%at(trim(uname))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key")
+         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(key))
          call this%rule_map%insert(trim(uname),ucomp)
          temp_rule => this%rule_map%at(trim(vname))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key")
+         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(key))
          call this%rule_map%insert(trim(vname),vcomp)
       else
          temp_rule => this%rule_map%at(trim(key))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key")
+         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(key))
          call this%rule_map%insert(trim(key),rule)
       end if
       _RETURN(_SUCCESS)
