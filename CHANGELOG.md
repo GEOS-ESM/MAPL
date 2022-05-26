@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add debug loggers for start/stop during stages in MAPL_Generic
 - Handling for double precision input when retrieving single precision attributes
 - Enable GCM run test in CircleCI (1-hour, no ExtData)
+- Added monotonic regridding option
+- Make availalbe to History and ExtData2G all supported regridding methods
 
 ### Changed
 
