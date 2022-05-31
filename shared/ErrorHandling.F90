@@ -1,4 +1,4 @@
-module MAPL_ErrorHandlingMod
+module mapl_ErrorHandling
    use MAPL_ThrowMod
    use MPI
    implicit none
@@ -267,4 +267,7 @@ contains
 
   end function get_error_message
 
-end module MAPL_ErrorHandlingMod
+end module mapl_ErrorHandling
+module mapl_ErrorHandlingMod
+   use mapl_ErrorHandling
+end module mapl_ErrorHandlingMod

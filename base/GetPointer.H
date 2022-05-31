@@ -27,6 +27,7 @@
    integer                         :: loc
    type(ESMF_FieldStatus_Flag)     :: fieldStatus
    type(ESMF_StateItem_Flag)       :: itemType
+   type(ESMF_Info)                 :: infoh
 
    NULLIFY(ptr)
    if (present(notFoundOK)) then
@@ -88,7 +89,8 @@
 #if 0
    block
      integer :: DIMS
-     call ESMF_AttributeGet(field, name='VLOCATION', value=DIMS, rc=status)
+     call ESMF_InfoGetFromHost(field,infoh,rc=status)
+     call ESMF_InfoGet(infoh,'VLOCATION',DIMS,rc=status)
      if (STATUS==ESMF_SUCCESS) then
         if (DIMS == MAPL_VLocationEdge .and. associated(ptr)) then
            call AdjustPtrBounds(ptr, ptr, 1, size(ptr,1), 1, size(ptr,2), 0, size(ptr,3)-1)
