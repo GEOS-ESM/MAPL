@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-## [2.21.2] - 2022-05-27
+## [2.21.2] - 2022-05-31
 
 ### Fixed
 
