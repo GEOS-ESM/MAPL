@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.12.3] - 2022-05-31
+
+### Fixed
+
+- Initialize `cap%lperp` in `MAPL_CapGridComp.F90` (see Issue #1530)
+
 ## [2.12.2] - 2022-03-16
 
 ### Fixed
