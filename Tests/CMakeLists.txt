@@ -8,6 +8,13 @@ set (srcs
     VarspecDescription.F90
     )
 
+# We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
+# interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).
+if (DUSTY)
+  set_property( SOURCE ExtDataDriverMod.F90 ExtDataDriverGridComp.F90
+                PROPERTY COMPILE_FLAGS ${DUSTY})
+endif ()
+
 if (BUILD_WITH_FLAP)
 
   ecbuild_add_executable (TARGET ExtDataDriver.x SOURCES ${srcs})
