@@ -1712,9 +1712,15 @@ contains
     type (ESMF_Field), intent(INOUT) :: FIELD_OUT
     integer, optional, intent(  OUT) :: RC
     integer                          :: status
-    
-    call ESMF_AttributeCopy(field_in, field_out, attcopy=ESMF_ATTCOPY_VALUE, rc=status)  
-    _VERIFY(status)
+
+    type(ESMF_Info) :: info_in, info_out
+  
+    call ESMF_InfoGetFromHost(field_in, info_in,_RC)
+
+    call ESMF_InfoGetFromHost(field_out, info_out, _RC)
+      
+    call ESMF_InfoSet(info_out, key="", value=info_in, _RC)
+ 
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldCopyAttributes
 

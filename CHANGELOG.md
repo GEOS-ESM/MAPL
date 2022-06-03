@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 	MAPL is now instrumented with this memory profiler and it produces
 	reasonable results.  Should nicely complement other tools that
 	measure HWM.
+- Replace ESMF_Attribute calls with ESMF_Info calls in MAPL_FieldCopyAttribute
 
 ### Changed
 
