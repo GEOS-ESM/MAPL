@@ -22,10 +22,6 @@ module MAPLBase_Mod
   use MAPL_InterpMod
   use MAPL_HeapMod
   use MAPL_SatVaporMod
-  use MAPL_CapOptionsMod
-#ifdef USE_FLAP
-  use MAPL_FlapCLIMod
-#endif
   use MAPL_MemUtilsMod
   use MAPL_HashMod
   use MAPL_LoadBalanceMod
@@ -52,8 +48,6 @@ module MAPLBase_Mod
   use MAPL_SplitCommunicatorMod
   use MAPL_EtaHybridVerticalCoordinateMod
   use MAPL_ApplicationSupport
-  use MAPL_ESMFFieldBundleRead
-  use MAPL_ESMFFieldBundleWrite
   use MAPL_ServerManager
   logical, save, private :: mapl_is_initialized = .false.
 

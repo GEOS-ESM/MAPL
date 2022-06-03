@@ -87,7 +87,7 @@
       __raise(e,d)__   |  raise exception *e* usinf the string *d*
                        |   as a verbose description of the exception.
       -----------------|---------------------------------------------
- 
+
     IMPORTANT: No do-loops allowed inside __try__/__endtry__ blocks.
                Use the named __Try__/__endTry__ construct in such
                cases.
@@ -98,10 +98,10 @@
 
   !BUGS:
 
-    In the curent implementation, the scope of __try_/__endtry__ blocks 
-    cannot contain Fortran do-loops. Use the alternative "named" 
+    In the curent implementation, the scope of __try_/__endtry__ blocks
+    cannot contain Fortran do-loops. Use the alternative "named"
     __Try__/__endTry__ construct in such cases.
-  
+
  !REVISION HISTORY:
 
   05Nov2008  da Silva  Design and initial implementation
@@ -127,12 +127,12 @@
 #define __STAT__       STAT=STATUS); _VERIFY(STATUS
 
 !
-! Try & catch exception functionality; the __rc__ macro is similar 
+! Try & catch exception functionality; the __rc__ macro is similar
 ! to the __RC__ macro above but it does not invole the _VERIFY(STATUS)
 ! macro. Instead, it jumps out of the TRY block.
 !
 
-#define __try__        do 
+#define __try__        do
 #define __endtry__     exit; end do
 #define __except__     exit; end do; do; if(STATUS==ESMF_SUCCESS) exit
 #define __rc__         RC=STATUS); if(STATUS/=0) exit; IGNORE_(STATUS
@@ -140,7 +140,7 @@
 #define __catch__      select case(STATUS)
 #define __endcatch__   end select
 
-#define __Try__(label)     label: do 
+#define __Try__(label)     label: do
 #define __endTry__(label)  exit label; end do
 #define __Rc__(label)      RC=STATUS); if(STATUS/=ESMF_SUCCESS)exit label; IGNORE_(STATUS
 
@@ -148,13 +148,7 @@
 ! Raising exceptions
 !
 
-#define __raise__(exception,description) print '(a,'': '',a)', "exception", description; _RETURN(exception)  
-
-!
-! ESMF Error codes are defined here
-!                     
-
-#include "ESMC_ReturnCodes.h"
+#define __raise__(exception,description) print '(a,'': '',a)', "exception", description; _RETURN(exception)
 
 !
 ! Pre-defined MAPL error codes

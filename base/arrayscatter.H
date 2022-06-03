@@ -23,7 +23,7 @@
     integer, optional,          intent(IN   ) :: depe
     integer, optional,          intent(IN   ) :: hw
     integer, optional,          intent(  OUT) :: rc
-    
+
 ! Local variables
 
     integer                               :: status
@@ -56,15 +56,15 @@
     type(ESMF_VM)                         :: vm
 
 ! Works only on 1D and 2D arrays
-! Note: for tile variables the gridRank is 1 
-! and the case RANK_=2 needs additional attention 
+! Note: for tile variables the gridRank is 1
+! and the case RANK_=2 needs additional attention
 
     _ASSERT(RANK_ <= 2, 'rank must be <= 2')
 
 ! Optional change of source PE. Default=MAPL_Root
 
     if(present(depe)) then
-       srcPE = depe 
+       srcPE = depe
     else
        srcPE = MAPL_Root
     end if
@@ -83,7 +83,7 @@
        _ASSERT(RANK_ == 2, 'no halo on 1d')
        _ASSERT(.not.present(MASK), 'No halo allowed if 1st dim is permutted')
     end if
- 
+
 ! Initialize
     alloc_var=.false.
 
@@ -138,7 +138,7 @@
 
     recvcount = sendcounts(deId)
 
-! Put VAR together at the srcPE 
+! Put VAR together at the srcPE
 
     if (deId == srcPE) then
 
@@ -157,7 +157,7 @@
 !   otherwise just copy the pointer.
 
        myglob => global_array
-       
+
 #if (RANK_ == 2)
        if (myhw > 0) then
           ISZ = size(GLOBAL_ARRAY,1)
@@ -167,7 +167,7 @@
           myglob(1:isz,1:jsz) = GLOBAL_ARRAY
 
 ! Fill the halo (I is cyclic)
-       
+
           do j=1,myhw
              myglob(1  -j,:) = myglob(isz-j+1,:)
              myglob(isz+j,:) = myglob(    j  ,:)
@@ -178,7 +178,7 @@
 #endif
 
 ! Fill the VAR vector
-       
+
        if (present(mask)) then
           alloc_var = .true.
           allocate(VAR(0:displs(nDEs)-1), stat=status)
@@ -193,12 +193,12 @@
 #if (RANK_ == 1)
              VAR(II) = MYGLOB(I)
 #else
-	    LX = AU(1,K) - AL(1,K) + 1 
+             LX = AU(1,K) - AL(1,K) + 1
              do J=1,JSZ
                 VAR(II+LX*(J-1)) = MYGLOB(I,J)
              end do
 #endif
-             KK(MASK(I)) = KK(MASK(I)) + 1 
+             KK(MASK(I)) = KK(MASK(I)) + 1
           end do
 
           deallocate(KK, stat=status)
@@ -242,7 +242,7 @@
           deallocate(myglob, stat=status)
           _VERIFY(STATUS)
        end if
-    
+
      else
         alloc_var = .true.
         allocate(var(0:1), stat=status)
@@ -253,7 +253,7 @@
 
 
 ! Do the communications
-    
+
     call MAPL_CommsScatterV(layout, var, sendcounts, displs, &
                             local_array, recvcount, srcPE, status)
     _VERIFY(STATUS)
@@ -281,7 +281,7 @@
 
 #undef NAME_
 #undef NAMESTR_
-								  
+
 #undef DIMENSIONS_
 #undef RANK_
 #undef RANKSTR_

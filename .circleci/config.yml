@@ -1,327 +1,92 @@
 version: 2.1
 
-executors:
-  gfortran:
-    docker:
-      - image: gmao/ubuntu20-geos-env-mkl:v6.2.7-openmpi_4.0.6-gcc_11.2.0
-        auth:
-          username: $DOCKERHUB_USER
-          password: $DOCKERHUB_AUTH_TOKEN
-    environment:
-      OMPI_ALLOW_RUN_AS_ROOT: 1
-      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
-      OMPI_MCA_btl_vader_single_copy_mechanism: none
-      MPIEXEC_PREFLAGS: --oversubscribe
-    resource_class: large
-    #MEDIUM# resource_class: medium
-
-  ifort:
-    docker:
-      - image: gmao/ubuntu20-geos-env:v6.2.7-intelmpi_2021.2.0-intel_2021.2.0
-        auth:
-          username: $DOCKERHUB_USER
-          password: $DOCKERHUB_AUTH_TOKEN
-    resource_class: large
-    #MEDIUM# resource_class: medium
+orbs:
+  ci: geos-esm/circleci-tools@1
 
 workflows:
   build-and-test:
     jobs:
-      - build-and-test-MAPL:
+
+      # Builds MAPL in a "default" way
+      - ci/build:
           name: build-and-test-MAPL-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
           matrix:
             parameters:
               compiler: [gfortran, ifort]
-          context: 
+          repo: MAPL
+          mepodevelop: false
+          run_unit_tests: true
+          ctest_options: "-R MAPL -LE PERFORMANCE --output-on-failure"
+
+      # Builds MAPL like UFS does (no FLAP and pFlogger, static)
+      - ci/build:
+          name: build-UFS-MAPL-on-<< matrix.compiler >>
+          context:
             - docker-hub-creds
-      - build-GEOSgcm:
+          matrix:
+            parameters:
+              compiler: [ifort]
+          repo: MAPL
+          mepodevelop: false
+          extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_SHARED_MAPL=OFF"
+          run_unit_tests: true
+          ctest_options: "-R MAPL -LE PERFORMANCE --output-on-failure"
+
+      # Build GEOSgcm
+      - ci/build:
           name: build-GEOSgcm-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
           matrix:
             parameters:
               compiler: [gfortran, ifort]
-          context: 
+          repo: GEOSgcm
+          checkout_fixture: true
+          mepodevelop: true
+          checkout_mapl_branch: true
+          persist_workspace: false # Needs to be true to run fv3/gcm experiment, costs extra
+
+      # Build GEOSldas
+      - ci/build:
+          name: build-GEOSldas-on-<< matrix.compiler >>
+          context:
             - docker-hub-creds
-      ###################################################
-      # - make-FV3-exp:                                 #
-      #     name: make-FV3-exp-on-<< matrix.compiler >> #
-      #     matrix:                                     #
-      #       parameters:                               #
-      #         compiler: [gfortran, ifort]             #
-      #     context:                                    #
-      #       - docker-hub-creds                        #
-      #     requires:                                   #
-      #       - build-GEOSgcm-on-<< matrix.compiler >>  #
-      # - run-FV3:                                      #
-      #     name: run-FV3-on-<< matrix.compiler >>      #
-      #     matrix:                                     #
-      #       parameters:                               #
-      #         compiler: [gfortran, ifort]             #
-      #     context:                                    #
-      #       - docker-hub-creds                        #
-      #     requires:                                   #
-      #       - make-FV3-exp-on-<< matrix.compiler >>   #
-      ###################################################
-      #####################################################
-      # - build-GEOSadas:                                 #
-      #     name: build-GEOSadas-on-<< matrix.compiler >> #
-      #     matrix:                                       #
-      #       parameters:                                 #
-      #         compiler: [ifort]                         #
-      #     context:                                      #
-      #       - docker-hub-creds                          #
-      #####################################################
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          repo: GEOSldas
+          mepodevelop: false
+          checkout_fixture: true
+          fixture_branch: develop
+          checkout_mapl_branch: true
 
-jobs:
-  build-and-test-MAPL:
-    parameters:
-      compiler:
-        type: string
-    executor: << parameters.compiler >>
-    working_directory: /root/project
-    steps:
-      - checkout:
-          path: MAPL
-      - run:
-          name: "Versions etc"
-          command: mpirun --version && << parameters.compiler >> --version && echo $BASEDIR && pwd && ls && echo "$(nproc)"
-      - run:
-          name: "Mepo clone external repos"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/MAPL
-            mepo clone
-            mepo status
-      - run:
-          name: "CMake"
-          command: |
-            mkdir -p /logfiles
-            mkdir -p ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            cmake ${CIRCLE_WORKING_DIRECTORY}/MAPL -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/install-MAPL |& tee /logfiles/cmake.log
-      - run:
-          name: "Build and install"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            make -j"$(nproc)" install |& tee /logfiles/make.log
-            #MEDIUM# make -j4 install |& tee /logfiles/make.log
-      - run:
-          name: "Build MAPL Unit Tests"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            make -j"$(nproc)" build-tests |& tee /logfiles/build-tests.log
-            #MEDIUM# make -j4 build-tests |& tee /logfiles/build-tests.log
-      - run:
-          name: "Run MAPL Unit Tests"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/build-MAPL
-            # skip Performance tests (maybe doable on CircleCI?)
-            ctest -R MAPL -LE PERFORMANCE --output-on-failure |& tee /logfiles/ctest.log
-      - store_artifacts:
-          path: /logfiles
-
-  build-GEOSgcm:
-    parameters:
-      compiler:
-        type: string
-    executor: << parameters.compiler >>
-    working_directory: /root/project
-    steps:
-      - run:
-          name: "Checkout GEOSgcm fixture"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}
-            git clone https://github.com/GEOS-ESM/GEOSgcm.git
-      - run:
-          name: "Mepo clone external repos"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm
-            mepo clone
-            mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared
-            mepo status
-      - run:
-          name: "Mepo checkout MAPL branch"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm/src/Shared/@MAPL
-
-            # Based a bit on: https://stackoverflow.com/a/55940371/1876449
-            #
-            # CIRCLE_PR_NUMBER is only available on forked PRs:
-            #
-            # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
-            #
-            # so if it exists we fetch the PR's branch. This fetch was
-            # figured out by looking at the MAPL build-and-test above
-            # which did work!
-            if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
-               git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
-            fi
-
-            mepo checkout ${CIRCLE_BRANCH} MAPL
-            if [ "${CIRCLE_BRANCH}" != "develop" ] && [ "${CIRCLE_BRANCH}" != "main" ]
-            then
-               mepo checkout-if-exists ${CIRCLE_BRANCH}
-            fi
-            mepo status
-      - run:
-          name: "CMake"
-          command: |
-            mkdir -p /logfiles
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm
-            mkdir -p  ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSgcm
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSgcm
-            cmake ${CIRCLE_WORKING_DIRECTORY}/GEOSgcm -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSgcm -DUSE_F2PY=OFF |& tee /logfiles/cmake.log
-      - run:
-          name: "Build and install"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSgcm
-            make -j"$(nproc)" install |& tee /logfiles/make.log
-            #MEDIUM# make -j4 install |& tee /logfiles/make.log
-      - store_artifacts:
-          path: /logfiles
-
-      ######################################################
-      # # We need to persist the install for the next step #
-      # # but only if we are running FV3 tests             #
-      # - persist_to_workspace:                            #
-      #     root: workspace                                #
-      #     paths:                                         #
-      #       - install-GEOSgcm                            #
-      ######################################################
-
-  build-GEOSadas:
-    parameters:
-      compiler:
-        type: string
-    executor: << parameters.compiler >>
-    working_directory: /root/project
-    steps:
-      - run:
-          name: "Checkout GEOSadas fixture"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}
-            git clone https://github.com/GEOS-ESM/GEOSadas.git
-      - run:
-          name: "Mepo clone external repos"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSadas
-            mepo clone
-            mepo develop GEOSgcm_GridComp GEOSgcm_App GMAO_Shared
-            mepo status
-      - run:
-          name: "Mepo checkout MAPL branch"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSadas/src/Shared/@MAPL
-
-            # Based a bit on: https://stackoverflow.com/a/55940371/1876449
-            #
-            # CIRCLE_PR_NUMBER is only available on forked PRs:
-            #
-            # https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
-            #
-            # so if it exists we fetch the PR's branch. This fetch was
-            # figured out by looking at the MAPL build-and-test above
-            # which did work!
-            if [ ! -z "${CIRCLE_PR_NUMBER}" ]; then
-               git fetch --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
-            fi
-
-            mepo checkout ${CIRCLE_BRANCH} MAPL
-            if [ "${CIRCLE_BRANCH}" != "develop" ] && [ "${CIRCLE_BRANCH}" != "main" ]
-            then
-               mepo checkout-if-exists ${CIRCLE_BRANCH}
-            fi
-            mepo status
-      - run:
-          name: "CMake"
-          command: |
-            mkdir -p /logfiles
-            cd ${CIRCLE_WORKING_DIRECTORY}/GEOSadas
-            mkdir -p  ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSadas
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSadas
-            cmake ${CIRCLE_WORKING_DIRECTORY}/GEOSadas -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=<< parameters.compiler >> -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSadas -DUSE_F2PY=OFF |& tee /logfiles/cmake.log
-      - run:
-          name: "Build and install"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/build-GEOSadas
-            make -j"$(nproc)" install |& tee /logfiles/make.log
-            #MEDIUM# make -j4 install |& tee /logfiles/make.log
-      - store_artifacts:
-          path: /logfiles
-
-  make-FV3-exp:
-    parameters:
-      compiler:
-        type: string
-    executor: << parameters.compiler >>
-    working_directory: /root/project
-    steps:
-      - attach_workspace:
-          at: workspace
-      - run:
-          name: "Run fv3_setup"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/install-GEOSgcm/bin
-
-            INPUT_FOR_SETUP=$(cat \<<END_HEREDOC
-            test-fv3-c12
-            test-fv3-c12
-            12
-            72
-            NO
-            NO
-            ${CIRCLE_WORKING_DIRECTORY}/workspace/test-fv3-c12
-            NULL
-            END_HEREDOC
-            )
-            echo "$INPUT_FOR_SETUP" > /tmp/input.txt
-
-            cat /tmp/input.txt | ./fv3_setup
-      - run:
-          name: "Change FV_NX, FV_NY, and RUN_CMD"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/test-fv3-c12
-            sed -i.bak -e '/set FV_NX/ s/\([0-9]\+\)/1/' -e '/set FV_NY/ s/\([0-9]\+\)/6/' -e '/set RUN_CMD/ c\set RUN_CMD = "mpirun -np "' fv3.j
-      - run:
-          name: "Cat fv3.j"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/test-fv3-c12
-            cat fv3.j
-
-      # We need to persist the install for the next step
-      - persist_to_workspace:
-          root: workspace
-          paths:
-            - test-fv3-c12
-
-  run-FV3:
-    parameters:
-      compiler:
-        type: string
-    executor: << parameters.compiler >>
-    working_directory: /root/project
-    steps:
-      - attach_workspace:
-          at: workspace
-      - run:
-          name: "Run fv3.j"
-          command: |
-            mkdir -p /logfiles
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/test-fv3-c12
-            ./fv3.j |& tee /logfiles/fv3_run.log
-      - run:
-          name: "Check for EGRESS"
-          command: |
-            cd ${CIRCLE_WORKING_DIRECTORY}/workspace/test-fv3-c12
-
-            # The scratch directory for fv3 standalone isn't consistent
-            SCRDIR=$(find . -type d -name 'scratch*')
-
-            if [[ -f $SCRDIR/EGRESS ]]
-            then
-               echo "EGRESS found!"
-            else
-               echo "EGRESS not found!"
-               exit 1
-            fi
-      - store_artifacts:
-          path: /logfiles
-
+      # Build GEOSadas (ifort only, needs a couple develop branches)
+      - ci/build:
+          name: build-GEOSadas-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [ifort]
+          resource_class: xlarge
+          repo: GEOSadas
+          checkout_fixture: true
+          fixture_branch: develop
+          checkout_mapl_branch: true
+          mepodevelop: true
+          develop_repos: "cmake GEOSana_GridComp" # GEOSadas needs some extra branches to work with mainline MAPL
+          rebuild_procs: 8
+      ##################################################
+      # - ci/run_fv3:                                  #
+      #     name: run-FV3-on-<< matrix.compiler >>     #
+      #     context:                                   #
+      #       - docker-hub-creds                       #
+      #     matrix:                                    #
+      #       parameters:                              #
+      #         compiler: [gfortran, ifort]            #
+      #     requires:                                  #
+      #       - build-GEOSgcm-on-<< matrix.compiler >> #
+      #     repo: GEOSgcm                              #
+      ##################################################

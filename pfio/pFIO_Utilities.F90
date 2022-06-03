@@ -514,7 +514,7 @@ contains
       case (pFIO_INT64)
          word_size = c_sizeof(i64)/c_sizeof(i32)
       case default
-         _ASSERT(.false., "unsupported type kind")
+         _FAIL( "unsupported type kind")
       end select
          
       _RETURN(_SUCCESS)

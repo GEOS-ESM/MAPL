@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.8.10
+  VERSION 2.21.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the default build type to release
@@ -66,6 +66,43 @@ else ()
 endif()
 message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 
+# Some users of MAPL build GFE libraries inline with their application
+# using an add_subdirectory() call rather than as a pre-build library.
+# This would then populate the target already leading to find_package()
+# errors.
+if(NOT TARGET GFTL::gftl)
+  # MAPL currently requires at least GFTL 1.5.1
+  find_package(GFTL 1.5.1 REQUIRED)
+else()
+  if (GFTL_VERSION VERSION_LESS 1.5.1)
+    message(FATAL_ERROR "GFTL must be at least 1.5.1 - check baselibs version.")
+  endif ()
+endif()
+if(NOT TARGET GFTL_SHARED::gftl-shared)
+  find_package(GFTL_SHARED REQUIRED)
+endif()
+if(NOT TARGET FARGPARSE::fargparse)
+  find_package(FARGPARSE QUIET)
+endif()
+
+option(USE_EXTDATA2G "Use ExtData2G" ON)
+if(USE_EXTDATA2G)
+  set (EXTDATA2G_TARGET "MAPL.ExtData2G" CACHE STRING "ExtData2G Target")
+  if(NOT TARGET YAFYAML::yafyaml)
+    find_package(YAFYAML REQUIRED)
+  endif()
+  message (STATUS "Building with ExtData2G")
+else()
+  set (EXTDATA2G_TARGET "" CACHE STRING "ExtData2G Target")
+endif()
+
+option(BUILD_WITH_PFLOGGER "Build MAPL with pFlogger library support" ON)
+if (BUILD_WITH_PFLOGGER)
+  if(NOT TARGET PFLOGGER::pflogger)
+    find_package(PFLOGGER REQUIRED)
+  endif()
+endif()
+
 option(BUILD_WITH_FLAP "Use FLAP for command line processing" ON)
 if (BUILD_WITH_FLAP)
   find_package(FLAP REQUIRED)
@@ -85,21 +122,14 @@ if (NOT Baselibs_FOUND)
      add_definitions(-DH5_HAVE_PARALLEL)
   endif()
 
-  find_package(ESMF MODULE REQUIRED)
-
-  find_package(YAFYAML REQUIRED)
-
-  find_package(GFTL REQUIRED)
-  find_package(GFTL_SHARED REQUIRED)
-  find_package(YAFYAML REQUIRED)
-  if (BUILD_WITH_PFLOGGER)
-    find_package(PFLOGGER REQUIRED)
+  if (NOT TARGET esmf)
+    find_package(ESMF MODULE REQUIRED)
   endif ()
 endif ()
 
 if (BUILD_WITH_PFLOGGER)
   add_definitions(-DBUILD_WITH_PFLOGGER)
-else ()  
+else ()
   add_subdirectory (pflogger_stub)
 endif ()
 
@@ -110,11 +140,13 @@ add_subdirectory (MAPL_cfio MAPL_cfio_r8)
 add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic)
+add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
 add_subdirectory (include)
 add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
+add_subdirectory (griddedio)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
@@ -142,6 +174,7 @@ install (
 install (
    DIRECTORY cmake
    DESTINATION ${INSTALL_DATA_DIR}
+   FILES_MATCHING PATTERN "mapl_*.cmake"
    )
 
 # https://www.scivision.dev/cmake-auto-gitignore-build-dir/

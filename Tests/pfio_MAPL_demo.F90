@@ -6,7 +6,7 @@
 ! It writes out 2D & 3D geolocated variables in a netCDF file.
 !
 ! Usage:
-!   If we reserve 2 haswell nodes (28 cores in each), want to run the model on 28 cores 
+!   If we reserve 2 haswell nodes (28 cores in each), want to run the model on 28 cores
 !   and use 1 MultiGroup with 5 backend processes, then the execution command is:
 !      mpiexec -np 56 pfio_MAPL_demo.x --npes_model 28 --oserver_type multigroup --nodes_output_server 1 --npes_backend_pernode 5
 !------------------------------------------------------------------------------
@@ -14,14 +14,14 @@
 #include "unused_dummy.H"
 
 program main
-      use, intrinsic :: iso_fortran_env, only: REAL32
+      use, intrinsic :: iso_fortran_env, only: REAL64
       use mpi
       use MAPL
+      use MAPL_FlapCliMod
+      use MAPL_CapOptionsMod
       use pFIO_UnlimitedEntityMod
-
       implicit none
 
-      type(MAPL_FlapCLI)      :: cli
       type(MAPL_CapOptions)   :: cap_options
       type(ServerManager)     :: ioserver_manager
       type(SplitCommunicator) :: split_comm
@@ -31,7 +31,7 @@ program main
       type(StringVariableMap) :: var_map
 
       integer, parameter :: MAX_STRING_LENGTH = 256
-      real(kind=8), parameter :: PI = 4.0d0*ATAN(1.0d0)
+      real(kind=REAL64), parameter :: PI = 4.0d0*ATAN(1.0d0)
 
       ! Global domain variables
       real, parameter :: lon_min = -180.0, lon_max = 180.0
@@ -57,9 +57,9 @@ program main
       integer, allocatable :: map_domainY(:,:,:)
       integer, allocatable :: map_proc(:,:)
 
-      integer :: client_comm,rank, npes, ierror, provided,required
-      integer :: status, pe_id, rc
-      integer :: i, j, k, hist_id, stage_id, n, num_steps
+      integer :: client_comm, npes, ierror
+      integer :: status, pe_id
+      integer :: i, j, k, hist_id, n, num_steps
       integer :: i1, i2, j1, j2, k1, k2
       real :: hh
       real, allocatable :: local_temp(:,:,:)
@@ -74,9 +74,10 @@ program main
 !BOC
 
       ! Read and parse the command line, and set parameters
-      cli = MAPL_FlapCLI(description = 'GEOS AGCM', &
-                         authors     = 'GMAO')
-      cap_options = MAPL_CapOptions(cli)
+      cap_options = MAPL_FlapCLI( &
+           description = 'GEOS AGCM', &
+           authors     = 'GMAO', &
+           dummy       = '')
 
       call MPI_init(ierror)
 
@@ -161,7 +162,7 @@ program main
          !--------------------------------------------------------------
 
          !fmd = FileMetadata()
- 
+
          ! Define dimensions
          !----------------------
          call fmd%add_dimension('lon', im_world, rc=status)
@@ -225,7 +226,7 @@ program main
                              rc        = status)
 
          ! Set File attributes
-         call fmd%add_attribute('Convention', 'COARDS')
+         call fmd%add_attribute('Conventions', 'COARDS')
          call fmd%add_attribute('Source', 'GMAO')
          call fmd%add_attribute('Title', 'Sample code to test PFIO')
          call fmd%add_attribute('HISTORY', 'File writtem by PFIO vx.x.x')

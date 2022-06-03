@@ -17,8 +17,10 @@ module MAPL_CapGridCompMod
   use MAPL_ShmemMod
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : HISTORY_ExchangeListWrap
-  use MAPL_ExtDataGridCompMod, only : ExtData_SetServices => SetServices
-  use MAPL_ExtDataGridCompMod, only : T_EXTDATA_STATE, EXTDATA_WRAP
+#if defined(BUILD_WITH_EXTDATA2G)
+  use MAPL_ExtDataGridComp2G, only : ExtData2G_SetServices => SetServices
+#endif
+  use MAPL_ExtDataGridCompMod, only : ExtData1G_SetServices => SetServices
   use MAPL_ConfigMod
   use MAPL_DirPathMod
   use MAPL_KeywordEnforcerMod
@@ -28,6 +30,7 @@ module MAPL_CapGridCompMod
   use gFTL_StringVector
   use pflogger, only: logging, Logger
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
+  use MAPL_ExternalGCStorage
 
   use iso_fortran_env
   
@@ -129,25 +132,22 @@ contains
     cap%n_run_phases = 1
     if (present(n_run_phases)) cap%n_run_phases = n_run_phases
 
-    cap%config = ESMF_ConfigCreate(rc=status)
-    _VERIFY(status)
-    call ESMF_ConfigLoadFile(cap%config,cap%cap_rc_file,rc=STATUS)
-    _VERIFY(STATUS)
+    cap%config = ESMF_ConfigCreate(__RC__)
+    call ESMF_ConfigLoadFile(cap%config, cap%cap_rc_file,__RC__)
 
     allocate(cap%name, source=name)
-    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, rc=status)
-    _VERIFY(status)
+    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, __RC__)
 
     meta => null()
-    call MAPL_InternalStateCreate(cap%gc, meta, rc=status)
-    _VERIFY(status)
+    call MAPL_InternalStateCreate(cap%gc, meta, __RC__)
+    call MAPL_Set(meta, CF=cap%config, __RC__)
 
-    call MAPL_Set(meta, name=cap_name, component=stub_component, rc=status)
-    _VERIFY(status)
+    call MAPL_Set(meta, name=cap_name, component=stub_component, __RC__)
 
     cap_wrapper%ptr => cap
     call ESMF_UserCompSetInternalState(cap%gc, internal_cap_name, cap_wrapper, status)
     _VERIFY(status)
+
 
     _RETURN(_SUCCESS)
 
@@ -176,8 +176,8 @@ contains
 
     integer :: status
 
-    type (T_ExtData_STATE), pointer       :: ExtData_internal_state => null()
-    type (ExtData_wrap)                   :: wrap
+    type (t_extdata_state), pointer       :: ExtData_internal_state => null()
+    type (extdata_wrap)                   :: wrap
 
 
     character(len=ESMF_MAXSTR )           :: timerModeStr
@@ -213,6 +213,7 @@ contains
     class(BaseProfiler), pointer :: t_p
     class(Logger), pointer :: lgr
     type(ESMF_Clock) :: cap_clock
+    logical :: use_extdata2g
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -402,6 +403,7 @@ contains
     !EOR
     enableTimers = ESMF_UtilStringUpperCase(enableTimers, rc = status)
     _VERIFY(status)
+    call MAPL_GetResource(maplobj,use_extdata2g,"USE_EXTDATA2G:",default=.false.,_RC)
 
     if (enableTimers /= 'YES') then
        call MAPL_ProfDisable(rc = status)
@@ -414,20 +416,6 @@ contains
        timerModeStr = ESMF_UtilStringUpperCase(timerModeStr, rc=STATUS)
        _VERIFY(STATUS) 
 
-       TestTimerMode: select case(timerModeStr)
-       case("OLD")
-          timerMode = MAPL_TimerModeOld      ! this has barriers
-       case("ROOTONLY")
-          timerMode = MAPL_TimerModeRootOnly ! this is the fastest
-       case("MAX")
-          timerMode = MAPL_TimerModeMax      ! this is the default
-       case("MINMAX")
-          timerMode = MAPL_TimerModeMinMax      ! this is the default
-       case default
-          _FAIL('Unsupported option for timerModeStr: '//trim(timerModeStr))
-       end select TestTimerMode
-       call MAPL_TimerModeSet(timerMode, RC=status)
-       _VERIFY(status)
     end if
     cap%started_loop_timer=.false.
 
@@ -490,9 +478,9 @@ contains
     call MAPL_ConfigSetAttribute(cap%cf_hist, value=HIST_CF, Label="HIST_CF:", rc=status)
     _VERIFY(STATUS)
 
-    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPID,  Label="EXPID:",  rc=status)
+    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPID,  Label="EXPID:", default='',  rc=status)
     _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPDSC, Label="EXPDSC:", rc=status)
+    call ESMF_ConfigGetAttribute(cap%cf_hist, value=EXPDSC, Label="EXPDSC:", default='', rc=status)
     _VERIFY(STATUS)
 
     call MAPL_ConfigSetAttribute(cap%cf_hist, value=heartbeat_dt, Label="RUN_DT:", rc=status)
@@ -583,8 +571,16 @@ contains
     call MAPL_Set(MAPLOBJ, CF=CAP%CF_EXT, RC=STATUS)
     _VERIFY(STATUS)
 
-    cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData_SetServices, rc = status)
-    _VERIFY(status)
+    if (use_extdata2g) then
+#if defined(BUILD_WITH_EXTDATA2G) 
+       cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData2G_SetServices, _RC)
+#else
+       call lgr%error('ExtData2G requested but not built')
+       _FAIL('ExtData2G requested but not built')
+#endif
+    else
+       cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData1G_SetServices, _RC)
+    end if
     call t_p%stop('SetService')
 
     ! Add NX and NY from AGCM.rc to ExtData.rc as well as name of ExtData rc file
@@ -1119,9 +1115,9 @@ contains
 
        ! Time Loop starts by checking for Segment Ending Time
        !-----------------------------------------------------
-       call ESMF_VMBarrier(cap%vm,rc=status)
-       _VERIFY(status)
        if (cap%compute_throughput) then
+          call ESMF_VMBarrier(cap%vm,rc=status)
+          _VERIFY(status)
           cap%starts%loop_start_timer = MPI_WTime(status)
           cap%started_loop_timer = .true.
        end if
@@ -1199,11 +1195,6 @@ contains
        _VERIFY(STATUS)
 
     endif !phase_ == last
-
-    ! Synchronize for Next TimeStep
-    ! -----------------------------
-    call ESMF_VMBarrier(this%vm, rc = status)
-    _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
 
@@ -1595,6 +1586,7 @@ contains
     type(ESMF_Time)          :: CurrTime     ! Current     Current Time of Experiment
     type(ESMF_TimeInterval)  :: timeStep     ! HEARTBEAT
     type(ESMF_TimeInterval)  :: duration
+    type(ESMF_TimeInterval)  :: maxDuration
     type(ESMF_Calendar)      :: cal
     character(ESMF_MAXSTR)   :: calendar
 
@@ -1845,6 +1837,9 @@ contains
          startTime = currTime, &
          rc = STATUS  )
     _VERIFY(STATUS)
+
+    maxDuration = EndTime - currTime
+    if (duration > maxDuration) duration = maxDuration
 
     stopTime = currTime + duration
 

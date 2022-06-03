@@ -2,7 +2,7 @@
 !==============================================================================
 !BOP
 ! !MODULE: ESMF_CFIOUtil.F90 - utility subroutines for CFIO
-                                                                                         
+
        module ESMF_CFIOUtilMod
 !
 ! !DESCRIPTION:
@@ -49,7 +49,7 @@
       integer, parameter :: MLEN = 1024     ! Max. length of an attribute
       integer, parameter :: MVARLEN = 256   ! Max. length of a variable name
 
-! Define a new data type "List" -- private data type for variable and 
+! Define a new data type "List" -- private data type for variable and
 ! global attributes
 
       type iNode
@@ -81,20 +81,20 @@
   private :: die, perr
 
   integer, parameter :: stderr = 6
-  
+
   character(len=*),parameter :: myname='m_StrTemplate'
 
-  character(len=3),parameter,dimension(12) :: mon_lc =	(/	&
-	'jan','feb','mar','apr','may','jun',	&
-	'jul','aug','sep','oct','nov','dec'	/)
+  character(len=3),parameter,dimension(12) :: mon_lc =(/&
+     'jan','feb','mar','apr','may','jun',&
+     'jul','aug','sep','oct','nov','dec'/)
 
-  character(len=3),parameter,dimension(12) :: mon_wd =	(/	&
-	'Jan','Feb','Mar','Apr','May','Jun',	&
-	'Jul','Aug','Sep','Oct','Nov','Dec'	/)
+  character(len=3),parameter,dimension(12) :: mon_wd =(/&
+     'Jan','Feb','Mar','Apr','May','Jun',&
+     'Jul','Aug','Sep','Oct','Nov','Dec'/)
 
-  character(len=3),parameter,dimension(12) :: mon_uc =	(/	&
-	'JAN','FEB','MAR','APR','MAY','JUN',	&
-	'JUL','AUG','SEP','OCT','NOV','DEC'	/)
+  character(len=3),parameter,dimension(12) :: mon_uc =(/&
+     'JAN','FEB','MAR','APR','MAY','JUN',&
+     'JUL','AUG','SEP','OCT','NOV','DEC'/)
 
   interface GetDate
      module procedure GetDateInt8
@@ -117,12 +117,12 @@
 !
 ! !INPUT PARAMETERS:
 !
-           character(len=*), intent(in) :: name 
+           character(len=*), intent(in) :: name
            integer, intent(in) :: count
-           character(len=*), intent(in), OPTIONAL :: vName 
+           character(len=*), intent(in), OPTIONAL :: vName
            integer, intent(in), OPTIONAL :: attInt(*)
            real, intent(in), OPTIONAL :: attReal(*)
-           character(len=MLEN), intent(in), OPTIONAL :: attChar 
+           character(len=MLEN), intent(in), OPTIONAL :: attChar
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -154,14 +154,14 @@
               else
                  q => iList
                  p => iList%next
-                 do while ( associated(p) ) 
+                 do while ( associated(p) )
                      q => p
                      p => p%next
                  end do
 
                  allocate(p)
                  p%count = count
-                 p%name = name 
+                 p%name = name
                  if (present(vName)) p%vName = vName
                  allocate(p%intData(count))
                  do i =1, p%count
@@ -187,14 +187,14 @@
               else
                  rq => rList
                  rp => rList%next
-                 do while ( associated(rp) ) 
+                 do while ( associated(rp) )
                      rq => rp
                      rp => rp%next
                  end do
 
                  allocate(rp)
                  rp%count = count
-                 rp%name = name 
+                 rp%name = name
                  if (present(vName)) rp%vName = vName
                  allocate(rp%RealData(count))
                  do i =1, rp%count
@@ -217,16 +217,16 @@
               else
                  cq => cList
                  cp => cList%next
-                 do while ( associated(cp) ) 
+                 do while ( associated(cp) )
                      cq => cp
                      cp => cp%next
                  end do
 
                  allocate(cp)
                  cp%count = count
-                 cp%name = name 
+                 cp%name = name
                  if (present(vName)) cp%vName = vName
-                 cp%charData = attChar(1:count)  
+                 cp%charData = attChar(1:count)
 
                  cq%next => cp
               end if
@@ -241,7 +241,7 @@
 !
    subroutine getList(iList, nIntAtt, intAttNames, intAttCnts, intAtts,     &
                       rList, nRealAtt, realAttNames, realAttCnts, realAtts, &
-                      cList, nCharAtt, charAttNames, charAttCnts, charAtts, vNames) 
+                      cList, nCharAtt, charAttNames, charAttCnts, charAtts, vNames)
 !
 ! !ARGUMENTS:
 !
@@ -283,7 +283,7 @@
 
 !          get attributes from an integer list
            if ( present(iList) ) then
-              allocate(p) 
+              allocate(p)
               p = iList
               call getMaxLenCnt(maxLen, cnt, iList=iList)
               if ( present(nIntAtt) ) nIntAtt = cnt
@@ -303,7 +303,7 @@
 
 !          get attributes from a real list
            if ( present(rList) ) then
-              allocate(rp) 
+              allocate(rp)
               rp = rList
               call getMaxLenCnt(maxLen, cnt, rList=rList)
               if (present(nRealAtt)) nRealAtt = cnt
@@ -322,7 +322,7 @@
 
 !          get attributes from a char list
            if ( present(cList) ) then
-              allocate(cp) 
+              allocate(cp)
               cp = cList
               call getMaxLenCnt(maxLen, cnt, cList=cList)
               if ( present(nCharAtt) ) nCharAtt = cnt
@@ -343,7 +343,7 @@
 
 !------------------------------------------------------------------------------
 !BOP
-! !ROUTINE: getMaxLenCnt -- get length of a list and max number of data 
+! !ROUTINE: getMaxLenCnt -- get length of a list and max number of data
 !                           in the nodes
 !
 ! !INTERFACE:
@@ -376,7 +376,7 @@
 
 !          get maxLen/count from  a integer list
            if ( present(iList) ) then
-              allocate(p) 
+              allocate(p)
               p = iList
               do while ( associated(p) )
                   if (p%count .gt. maxLen) maxLen = p%count
@@ -387,7 +387,7 @@
 
 !          get maxLen/count from  a real list
            if ( present(rList) ) then
-              allocate(rp) 
+              allocate(rp)
               rp = rList
               do while ( associated(rp) )
                   if (rp%count .gt. maxLen) maxLen = rp%count
@@ -398,7 +398,7 @@
 
 !          get maxLen/count from  a character list
            if ( present(cList) ) then
-              allocate(cp) 
+              allocate(cp)
               cp = cList
               do while ( associated(cp) )
                   if (cp%count .gt. maxLen) maxLen = cp%count
@@ -419,9 +419,9 @@
 ! !ROUTINE:  CFIO_DimInquire -- Gets dimension information from a CFIO file.
 !
 ! !DESCRIPTION: This routine is used to get dimension information from
-!               an existing CFIO file.  This dimension information can 
+!               an existing CFIO file.  This dimension information can
 !               subsequently be used to allocate arrays for reading data
-!               from the file.  For more complete information about the 
+!               from the file.  For more complete information about the
 !               contents of a file, Cfio\_Inquire should be used.
 
 ! !INTERFACE:
@@ -442,7 +442,7 @@
       integer     jm     ! Size of latitudinal dimension
       integer     km     ! Size of vertical dimension
                          !   km=0 if surface-only file
-      integer     lm     ! Number of times 
+      integer     lm     ! Number of times
       integer     nvars  ! Number of variables
       integer     ngatts ! Number of global attributes
       integer, optional :: vdir   ! Positive vertical direction. If "-1", level 1 in
@@ -514,8 +514,8 @@
       endif
 
 ! Get basic information from file.
- 
-    
+
+
       rc = NF90_INQUIRE(fid, nDims, nvars, ngatts, dimId)
       if (err("DimInqure: NF90_INQUIRE failed",rc,-48) .NE. 0)return
 
@@ -546,7 +546,7 @@
 ! Extract dimension information
 
       do i=1,nDims
-        rc = NF90_INQUIRE_DIMENSION (fid, i, dimName, dimSize)  
+        rc = NF90_INQUIRE_DIMENSION (fid, i, dimName, dimSize)
         if (err("DimInqure: can't get dim info",rc,-41) .NE. 0) return
         if (index(dimName,'station') .gt. 0) then
            stationFile = .true.
@@ -554,12 +554,12 @@
            jm = dimSize
            cycle
         end if
-        if (trim(dimName) .eq. 'nv') cycle 
-        if (trim(dimName) .eq. 'nf') cycle 
+        if (trim(dimName) .eq. 'nv') cycle
+        if (trim(dimName) .eq. 'nf') cycle
         if (trim(dimName) .eq. 'ncontact') cycle
-        if (trim(dimName) .eq. 'XCdim') cycle 
-        if (trim(dimName) .eq. 'YCdim') cycle 
-        if (trim(dimName) .eq. 'orientationStrLen') cycle 
+        if (trim(dimName) .eq. 'XCdim') cycle
+        if (trim(dimName) .eq. 'YCdim') cycle
+        if (trim(dimName) .eq. 'orientationStrLen') cycle
 
         rc = NF90_INQ_VARID (fid, dimName, dimId)
         if (err("DimInqure: NF90_INQ_VARID failed",rc,-40) .NE. 0) return
@@ -675,7 +675,7 @@
       integer nDims, nvars, ngatts, dimId
 
 !     Time conversion local variables
-      real(kind=REAL32)    rtime, rtime_array(1) 
+      real(kind=REAL32)    rtime, rtime_array(1)
       real(kind=REAL64)    dtime, dtime_array(1)
       integer(kind=INT16) itime, itime_array(1)
       integer(kind=REAL32) ltime, ltime_array(1)
@@ -695,7 +695,7 @@
       rc = NF90_INQUIRE (fid, nDims, nvars, ngatts, dimId)
       if (err("GetDateTimeVec: NF90_INQUIRE failed",rc,-48) .NE. 0)return
       do i=1,nDims
-        rc = NF90_INQUIRE_DIMENSION (fid, i, dimName, dimSize)  
+        rc = NF90_INQUIRE_DIMENSION (fid, i, dimName, dimSize)
         if (err("GetDateTimeVec: can't get dim info",rc,-41) .NE. 0) return
         if (index(dimName,'station')  .gt. 0) cycle
         if (trim(dimName) .eq. 'nv') cycle
@@ -704,8 +704,8 @@
         if (trim(dimName) .eq. 'nv') cycle
         if (trim(dimName) .eq. 'nf') cycle
         if (trim(dimName) .eq. 'ncontact') cycle
-        if (trim(dimName) .eq. 'XCdim') cycle 
-        if (trim(dimName) .eq. 'YCdim') cycle 
+        if (trim(dimName) .eq. 'XCdim') cycle
+        if (trim(dimName) .eq. 'YCdim') cycle
         if (trim(dimName) .eq. 'orientationStrLen') cycle
 
         rc = NF90_INQ_VARID (fid, dimName, dimId)
@@ -739,7 +739,7 @@
       endif
 
 !     Call to ParseTimeUnits replaces an internal read, that made assumptions
-!     about the format of the Time Units string that were not always true.  
+!     about the format of the Time Units string that were not always true.
 !     (RL: 10/2000)
 
       call ParseTimeUnits ( timeUnits, year, month, day, hour, min, sec, rc )
@@ -752,7 +752,7 @@
           nvAtts)
       if (err("GetDateTimeVec: error in time variable inquire",&
          rc,-52) .NE. 0) return
-    
+
       allocate(incVecLong(dimSize))
       incVecLong(:) = 0
       do i=1,dimsize
@@ -760,7 +760,7 @@
                 corner(1) = i
                 rc = NF90_GET_VAR(fid,timeID,rtime_array,corner,(/1/))
                 rtime = rtime_array(1)
-                incVecLong(i) = int(rtime,INT64) 
+                incVecLong(i) = int(rtime,INT64)
            else if ( type .eq. NF90_DOUBLE ) then
                 corner(1) = i
                 rc = NF90_GET_VAR(fid,timeID,dtime_array,corner,(/1/))
@@ -785,9 +785,9 @@
 !     Convert time increment to seconds if necessary
 !     ----------------------------------------------
       if ( timeUnits(1:6) .eq.  'minute' ) then
-           tMultLong = 60 
+           tMultLong = 60
       else if ( timeUnits(1:4) .eq. 'hour'   ) then
-           tMultLong = 60 * 60 
+           tMultLong = 60 * 60
       else if ( timeUnits(1:3) .eq.  'day' ) then
            tMultLong = 60 * 60 * 24
       else
@@ -880,7 +880,7 @@
       integer nDims, nvars, ngatts, dimId
 
 !     Time conversion local variables
-      real(kind=REAL32) ::   rtime, rtime_array(1) 
+      real(kind=REAL32) ::   rtime, rtime_array(1)
       real(kind=REAL64) ::   dtime, dtime_array(1)
       integer(kind=INT16) :: itime, itime_array(1)
       integer(kind=INT32) :: ltime, ltime_array(1)
@@ -893,7 +893,7 @@
       rc = NF90_INQUIRE (fid, nDims, nvars, ngatts, dimId)
       if (err("GetBegDateTime: NF90_INQUIRE failed",rc,-48) .NE. 0)return
       do i=1,nDims
-        rc = NF90_INQUIRE_DIMENSION (fid, i, dimName, dimSize)  
+        rc = NF90_INQUIRE_DIMENSION (fid, i, dimName, dimSize)
         if (err("GetBegDateTime: can't get dim info",rc,-41) .NE. 0) return
         if (index(dimName,'station')  .gt. 0) cycle
         if (trim(dimName) .eq. 'nv') cycle
@@ -901,8 +901,8 @@
         if (dimName=='nf') cycle
         if (dimName=='orientationStrLen') cycle
         if (dimName=='ncontact') cycle
-        if (trim(dimName) .eq. 'XCdim') cycle 
-        if (trim(dimName) .eq. 'YCdim') cycle 
+        if (trim(dimName) .eq. 'XCdim') cycle
+        if (trim(dimName) .eq. 'YCdim') cycle
         rc = NF90_INQ_VARID (fid, dimName, dimId)
         if (err("GetBegDateTime: NF90_INQ_VARID failed",rc,-40) .NE. 0) return
         ! If it has the standard_name attribute, use that instead
@@ -939,7 +939,7 @@
              return
 !ams     write (strTmp,'(i6)') timinc
 !ams     read (strTmp,'(3I2)') hour, min, sec
-         call CFIO_parseIntTime ( timinc, hour, min, sec )       
+         call CFIO_parseIntTime ( timinc, hour, min, sec )
         incSecs = hour*3600 + min*60 + sec
 !ams     print *, 'begdate, begtime, incsecs: ',begdate, begtime, incsecs
          return                               ! all done.
@@ -957,7 +957,7 @@
       endif
 
 !     Call to ParseTimeUnits replaces an internal read, that made assumptions
-!     about the format of the Time Units string that were not always true.  
+!     about the format of the Time Units string that were not always true.
 !     (RL: 10/2000)
 
       call ParseTimeUnits ( timeUnits, year, month, day, hour, min, sec, rc )
@@ -970,12 +970,12 @@
           nvAtts)
       if (err("GetBegDateTime: error in time variable inquire",&
          rc,-52) .NE. 0) return
-     
+
       if ( type .eq. NF90_FLOAT )  then
            corner(1) = 1
            rc = NF90_GET_VAR(fid,timeID,rtime_array,corner,(/1/))
            rtime = rtime_array(1)
-           t1 = int(rtime) 
+           t1 = int(rtime)
            corner(1) = 2
            rc = NF90_GET_VAR(fid,timeID,rtime_array,corner,(/1/))
            rtime = rtime_array(1)
@@ -1019,9 +1019,9 @@
 !     ----------------------------------------------
       incSecs = t2 - t1
       if ( timeUnits(1:6) .eq.  'minute' ) then
-           tMult = 60 
+           tMult = 60
       else if ( timeUnits(1:4) .eq. 'hour'   ) then
-           tMult = 60 * 60 
+           tMult = 60 * 60
       else if ( timeUnits(1:3) .eq.  'day' ) then
            tMult = 60 * 60 * 24
       else
@@ -1057,8 +1057,8 @@
 ! !ROUTINE:  IdentifyDim - Identify a cooridate variable
 !
 ! !DESCRIPTION: This function attempts to identify a coordiante variable
-!               from the name or units of the variable.  It does so by 
-!               attempting to match the units specified in the COARDS 
+!               from the name or units of the variable.  It does so by
+!               attempting to match the units specified in the COARDS
 !               conventions or by checking the name against commonly used
 !               names.
 ! !INTERFACE:
@@ -1101,7 +1101,7 @@
             return
         end if
 
-        if ( trim(dimName) .eq. "time" ) then 
+        if ( trim(dimName) .eq. "time" ) then
             IdentifyDim = 3
             return
         end if
@@ -1159,9 +1159,9 @@
 
         end function IdentifyDim
 
-      subroutine CFIO_parseIntTime ( hhmmss, hour, min, sec )      
+      subroutine CFIO_parseIntTime ( hhmmss, hour, min, sec )
          integer, intent(in)  :: hhmmss
-         integer, intent(out) :: hour, min, sec 
+         integer, intent(out) :: hour, min, sec
          hour = hhmmss / 10000
          min  = mod(hhmmss,10000)/100
          sec  = mod(hhmmss,100)
@@ -1197,7 +1197,7 @@
 !
       integer, intent(out) :: date
       integer, intent(out) :: begTime
-                                                                                         
+
 ! !REVISION HISTORY:
 !
 !  2004.10.04  B. Yin         first version.
@@ -1208,7 +1208,7 @@
        character(len=MVARLEN) :: sDate, sTime
        character(len=MVARLEN) :: strDate, strTime
        character :: char
-                                                                                         
+
        dLen = index(timeString, 'T' )
        sDate = timeString(1:dLen-1)
        sTime = timeString(dLen+1:len(trim(timeString)))
@@ -1239,15 +1239,15 @@
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
 !-------------------------------------------------------------------------
 !BOP
-! !ROUTINE:  CFIO_Open -- Opens an existing DAO gridded file 
+! !ROUTINE:  CFIO_Open -- Opens an existing DAO gridded file
 !
 !
 ! !DESCRIPTION: This routine opens an existing DAO gridded file.  The file
 !               mode will be read/write.  If the application already knows
 !               the contents of the file, it may begin interaction with the
 !               file using the returned file handle.  Otherwise, the file
-!               handle can be used with the "inquire" routines to gather 
-!               information about the contents.  A negative return code 
+!               handle can be used with the "inquire" routines to gather
+!               information about the contents.  A negative return code
 !               indicates there were problems opening the file.
 !
 !
@@ -1266,8 +1266,8 @@
 !
 
       character*(*)   fname         ! File name
-      integer         fmode         ! File mode:  
-                                    !   0 for READ-WRITE 
+      integer         fmode         ! File mode:
+                                    !   0 for READ-WRITE
                                     !   non-zero for READ-ONLY
 
 !
@@ -1294,7 +1294,7 @@
        endif
        if (fid .LT. 0) then   ! ncopn has a bug.  error codes should
          rc = fid             ! be returned in rc, but in reality they
-       endif                  ! are returned in fid.  
+       endif                  ! are returned in fid.
 
        if (err("Open: error opening file",rc,-39) .NE. 0) return
 
@@ -1431,7 +1431,7 @@
       else if (HUGE(dummy64) .EQ. HUGE(i) .AND. prec .EQ. 1 ) then   ! -i8
         rc = NF90_PUT_ATT ( fid, NF90_GLOBAL, name, buf ) ! 64-bit out
 
-      else 
+      else
         rc = -12
         return
       endif
@@ -1525,10 +1525,10 @@
         enddo
         rc = NF90_PUT_ATT ( fid, NF90_GLOBAL, name, buf32 )
         deallocate (buf32)
-       
+
       else if (HUGE(dummy64) .EQ. huge(r) .AND. prec .EQ. 1) then    ! -r8
         rc = NF90_PUT_ATT ( fid, NF90_GLOBAL, name, buf ) ! 64-bit out
- 
+
       else
         rc = -12
         return
@@ -1655,7 +1655,7 @@
 !-------------------------------------------------------------------------
 
       integer ngattsFile, i
-      integer nDims,dimSize,recDim 
+      integer nDims,dimSize,recDim
 
 ! Check number of attributes against file
 
@@ -1734,9 +1734,9 @@
 ! !NOTES:  The returned integer "type" for 64-bit integer is not supported
 !          in the current implementation of netCDF/HDF.  When a user writes a
 !          64-bit integer attribute using PutIntAtt, it is actually saved as
-!          a 64-bit real by the HDF library.  Thus, upon reading the attribute, 
-!          there is no way for HDF/CFIO to distinguish it from a REAL number.  
-!          The user must realize this variable is really an integer and call 
+!          a 64-bit real by the HDF library.  Thus, upon reading the attribute,
+!          there is no way for HDF/CFIO to distinguish it from a REAL number.
+!          The user must realize this variable is really an integer and call
 !          GetIntAtt to read it.  Even for a 64-bit integer, type=4 will never
 !          be returned unless there are changed to HDF/netCDF.
 !
@@ -1778,7 +1778,7 @@
 !
 ! !ROUTINE:  CFIO_GetIntAtt -- Read a user-defined integer attribute
 !
-! !DESCRIPTION: This routine allows the user to read an integer 
+! !DESCRIPTION: This routine allows the user to read an integer
 !               attribute from an open CFIO file.
 !
 ! !INTERFACE:
@@ -2039,7 +2039,7 @@
 !-------------------------------------------------------------------------
 
       integer length, type
-      character(len=count) :: chartmp 
+      character(len=count) :: chartmp
 
       rc = NF90_INQUIRE_ATTRIBUTE (fid, NF90_GLOBAL, name, type, length)
       if (err("GetCharAtt: error reading attribute info",rc,-58) &
@@ -2057,17 +2057,17 @@
       rc  = NF90_GET_ATT(fid,NF90_GLOBAL,name,chartmp)
       if (err("GetCharAtt: error reading attribute value",rc,-51) &
            .NE. 0) return
- 
+
       buf = chartmp
       rc = 0
       return
       end subroutine CFIO_GetCharAtt
 
 
-!  The following function was taken from the book "Numerical Recipes in 
+!  The following function was taken from the book "Numerical Recipes in
 !  FORTRAN, the art of scientific computing (2nd Ed.), by William H. Press,
-!  Saul A. Teukolsky, William T. Vetterling, and Brian P. Flannery (Cambridge 
-!  University Press, 1992). 
+!  Saul A. Teukolsky, William T. Vetterling, and Brian P. Flannery (Cambridge
+!  University Press, 1992).
 
       INTEGER FUNCTION julday(mm,id,iyyy)
       INTEGER id,iyyy,mm,IGREG
@@ -2121,7 +2121,7 @@
 
        integer(kind=INT64) function DiffDate (yyyymmhh_1,hhmmss_1,yyyymmhh_2,hhmmss_2)
 
-! 
+!
 ! !USES:
 !
 
@@ -2130,7 +2130,7 @@
 !
 ! !INPUT PARAMETERS:
 !
-       
+
        integer yyyymmhh_1               ! First date in YYYYYMMDD format
        integer hhmmss_1                 ! First time in HHMMSS format
        integer yyyymmhh_2               ! Second date in YYYYMMDD format
@@ -2140,17 +2140,17 @@
 ! !OUTPUT PARAMETERS:
 !
 !                 Integer function returns number of seconds between the
-!                 the times given as input.  -1 is returned in the event 
-!                 of an error.  
+!                 the times given as input.  -1 is returned in the event
+!                 of an error.
 !
 ! !DESCRIPTION:   This function returns the number of seconds between two
-!                 times.  Each time is specified with two integers, one 
-!                 representing a date in the format YYYYMMDD and one 
-!                 representing a time in the format HHMMSS.  This function 
+!                 times.  Each time is specified with two integers, one
+!                 representing a date in the format YYYYMMDD and one
+!                 representing a time in the format HHMMSS.  This function
 !                 determines the Julian day of each date using the "julday"
-!                 function from the book "Numerical Recipes in FORTRAN, the 
-!                 art of scientific computing (2nd Ed.), by William H. Press, 
-!                 Saul A. Teukolsky, William T. Vetterling, and Brian P. 
+!                 function from the book "Numerical Recipes in FORTRAN, the
+!                 art of scientific computing (2nd Ed.), by William H. Press,
+!                 Saul A. Teukolsky, William T. Vetterling, and Brian P.
 !                 Flannery (Cambridge University Press, 1992).  The difference
 !                 between the two times is then calculated and returned.  The
 !                 times need not be in chronological order as the function returns
@@ -2192,7 +2192,7 @@
 
 !ams       write (dateString, 200) yyyymmhh_1
 !ams 200    format (I8)
-!ams       read (dateString, 201) 
+!ams       read (dateString, 201)
 !ams 201    format (I4,2I2)
 !ams       write (dateString, 200) yyyymmhh_2
 !ams       read (dateString, 201) year2, mon2, day2
@@ -2211,58 +2211,58 @@
        call CFIO_parseIntTime ( hhmmss_2, hour2, min2, sec2 )
 
 ! Get Julian Days and subtract off a constant (Julian days since 7/14/66)
- 
+
        julian1 = julday (mon1, day1, year1)
        julian2 = julday (mon2, day2, year2)
-      
+
 ! Calculcate Julian seconds
 
        julsec1 = (julian1-1)*86400 + hour1*3600 + min1*60 + sec1
        julsec2 = (julian2-1)*86400 + hour2*3600 + min2*60 + sec2
-       
+
 !!!       DiffDate = iabs (julsec2 - julsec1)
        DiffDate = julsec2 - julsec1
 
        return
        end function DiffDate
 
-      SUBROUTINE CALDAT (JULIAN,MM,ID,IYYY)                        
-!                                                                  
-!C   ROUTINE CONVERTS JULIAN DAY TO MONTH, DAY, & YEAR.               
-!C   THIS CODE IS LIFTED FROM THE BOOK:                                
-!C   W.H. PRESS ET AL., NUMERICAL RECIPES, CAMBRIDGE UNIV. PRESS, 1986.  
+      SUBROUTINE CALDAT (JULIAN,MM,ID,IYYY)
+!
+!C   ROUTINE CONVERTS JULIAN DAY TO MONTH, DAY, & YEAR.
+!C   THIS CODE IS LIFTED FROM THE BOOK:
+!C   W.H. PRESS ET AL., NUMERICAL RECIPES, CAMBRIDGE UNIV. PRESS, 1986.
 !C   THE ONLY MODIFICATION IS THAT REAL ARITHMETIC IS DONE IN R*8.
-!C                                                                 
-!C   THE ROUTINE OUTPUTS THE MONTH, DAY, AND YEAR ON WHICH THE      
-!C   SPECIFIED JULIAN DAY STARTED AT NOON.                           
-!C                                                                     
-!C   TO CONVERT MODIFIED JULIAN DAY, CALL THIS ROUTINE WITH              
-!C     JULIAN = MJD + 2400001                              
-!C                                                          
+!C
+!C   THE ROUTINE OUTPUTS THE MONTH, DAY, AND YEAR ON WHICH THE
+!C   SPECIFIED JULIAN DAY STARTED AT NOON.
+!C
+!C   TO CONVERT MODIFIED JULIAN DAY, CALL THIS ROUTINE WITH
+!C     JULIAN = MJD + 2400001
+!C
       integer(INT64) JULIAN
       integer IGREG
       integer JALPHA, JA, JB, JC, JD, JE, ID, MM, IYYY
-      PARAMETER (IGREG=2299161)                             
-      IF (JULIAN.GE.IGREG) THEN                              
-         JALPHA=INT((DBLE(JULIAN-1867216)-0.25D0)/36524.25D0) 
-         JA=JULIAN+1+JALPHA-INT(0.25D0*DBLE(JALPHA))           
-      ELSE                                                      
-         JA=JULIAN                                               
-      ENDIF                                               
-      JB=JA+1524                                           
-      JC=INT(6680.D0+(DBLE(JB-2439870)-122.1D0)/365.25D0)   
-      JD=365*JC+INT(0.25D0*DBLE(JC))                         
-      JE=INT(DBLE(JB-JD)/30.6001D0)                           
-      ID=JB-JD-INT(30.6001D0*DBLE(JE))                         
-      MM=JE-1                                                   
-      IF (MM.GT.12) MM=MM-12                                     
-      IYYY=JC-4715                                                
-      IF (MM.GT.2) IYYY=IYYY-1                                     
-      IF (IYYY.LE.0) IYYY=IYYY-1                                    
-      RETURN                                                         
-      END subroutine CALDAT                                                            
+      PARAMETER (IGREG=2299161)
+      IF (JULIAN.GE.IGREG) THEN
+         JALPHA=INT((DBLE(JULIAN-1867216)-0.25D0)/36524.25D0)
+         JA=JULIAN+1+JALPHA-INT(0.25D0*DBLE(JALPHA))
+      ELSE
+         JA=JULIAN
+      ENDIF
+      JB=JA+1524
+      JC=INT(6680.D0+(DBLE(JB-2439870)-122.1D0)/365.25D0)
+      JD=365*JC+INT(0.25D0*DBLE(JC))
+      JE=INT(DBLE(JB-JD)/30.6001D0)
+      ID=JB-JD-INT(30.6001D0*DBLE(JE))
+      MM=JE-1
+      IF (MM.GT.12) MM=MM-12
+      IYYY=JC-4715
+      IF (MM.GT.2) IYYY=IYYY-1
+      IF (IYYY.LE.0) IYYY=IYYY-1
+      RETURN
+      END subroutine CALDAT
 
-      integer function err ( outstring, iret, ec ) 
+      integer function err ( outstring, iret, ec )
       character *(*) outstring
       integer ec, iret
 
@@ -2273,9 +2273,9 @@
         iret = ec
         err = ec
       endif
- 
+
       return
-      end function err    
+      end function err
 
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
@@ -2311,7 +2311,7 @@
       integer        rc                 ! return code
                                         !  0 = no error
                                         ! -1 = problem parsing string
- 
+
 ! !REVISION HISTORY:
 !
 !  2000.10.18  Lucchesi       Initial coding.
@@ -2320,42 +2320,42 @@
 !
 !EOP
 !-------------------------------------------------------------------------
- 
- 
+
+
       ! Local variables
- 
+
       integer ypos(2), mpos(2), dpos(2), hpos(2), spos(2)
       integer strlen
       integer firstdash, lastdash
       integer firstcolon, lastcolon
       integer lastspace
- 
+
       strlen = LEN_TRIM (TimeUnits)
-       
+
       firstdash = index(TimeUnits, '-')
       lastdash  = index(TimeUnits, '-', BACK=.TRUE.)
- 
+
       if (firstdash .LE. 0 .OR. lastdash .LE. 0) then
         rc = -1
         return
       endif
-       
+
       ypos(2) = firstdash - 1
       mpos(1) = firstdash + 1
       ypos(1) = ypos(2) - 4
- 
+
       mpos(2) = lastdash - 1
       dpos(1) = lastdash + 1
       dpos(2) = dpos(1) + 2
- 
+
       read ( TimeUnits(ypos(1):ypos(2)), * ) year
       read ( TimeUnits(mpos(1):mpos(2)), * ) month
       read ( TimeUnits(dpos(1):dpos(2)), * ) day
- 
+
       firstcolon = index(TimeUnits, ':')
- 
+
       if (firstcolon .LE. 0) then
-         
+
         ! If no colons, check for hour.
 
         ! Logic below assumes a null character or something else is after the hour
@@ -2363,7 +2363,7 @@
         if (TimeUnits(strlen:strlen) /= char(0)) then
            TimeUnits = trim(TimeUnits)//char(0)
            strlen=len_trim(TimeUnits)
-        endif 
+        endif
         lastspace = index(TRIM(TimeUnits), ' ', BACK=.TRUE.)
         if ((strlen-lastspace).eq.2 .or. (strlen-lastspace).eq.3) then
           hpos(1) = lastspace+1
@@ -2377,7 +2377,7 @@
           min  = 0
           sec  = 0
         endif
- 
+
       else
         hpos(1) = firstcolon - 2
         hpos(2) = firstcolon - 1
@@ -2398,11 +2398,11 @@
           read (TimeUnits(spos(1):spos(2)), * ) sec
         endif
       endif
-        
+
       rc = 0
       return
       end subroutine ParseTimeUnits
-       
+
 
 !-------------------------------------------------------------------------
 !         NASA/GSFC, Data Assimilation Office, Code 910.3, GEOS/DAS      !
@@ -2410,50 +2410,50 @@
 !BOP
 !
 ! !ROUTINE:  CFIO_SPutVar -- Write a variable to the file
-! 
-! !DESCRIPTION: This routine is used to write a variable to an open CFIO 
-!               stream.  Multiple vertical levels can be written at one 
-!               time provided they are contiguous in memory.  Date and time 
-!               must be consistent with the time increment and the starting 
-!               date/time as defined in CFIO\_Create.  Times must fall on 
-!               minute boundaries to allow GrADS to work.  Error checking is 
+!
+! !DESCRIPTION: This routine is used to write a variable to an open CFIO
+!               stream.  Multiple vertical levels can be written at one
+!               time provided they are contiguous in memory.  Date and time
+!               must be consistent with the time increment and the starting
+!               date/time as defined in CFIO\_Create.  Times must fall on
+!               minute boundaries to allow GrADS to work.  Error checking is
 !               done for dimensions that are out of bounds.
 !
 ! !INTERFACE:
 !
       subroutine CFIO_SPutVar ( fid, vname, yyyymmdd, hhmmss, &
                                im, jm, kbeg, kount, grid,     &
-                               rc )  
+                               rc )
 !
 ! !USES:
 
-      Implicit NONE  
+      Implicit NONE
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
       integer        fid                 ! File handle
       character*(*)  vname               ! Variable name
       integer        yyyymmdd            ! Year-month-day, e.g., 19971003
       integer        hhmmss              ! Hour-minute-second, e.g., 120000
- 
+
       integer         im                 ! size of longitudinal dimension
       integer         jm                 ! size of latitudinal  dimension
       integer         kbeg               ! first level to write; if 2-D grid
                                          !   use kbeg = 0.
       integer         kount              ! number of levels to write
       real            grid(im,kount)  ! Gridded data to write at this time
-                                     
+
 
 ! !OUTPUT PARAMETERS:
- 
+
       integer        rc  ! Error return code:
                          !  rc =  0  all is well
-                         !  rc = -2  time is inconsistent with increment 
+                         !  rc = -2  time is inconsistent with increment
                          ! rc = -3  number of levels is incompatible with file
                          !  rc = -4  im is incompatible with file
                          !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary    
-                         !  rc = -7  error in diffdate              
+                         !  rc = -6  time must fall on a minute boundary
+                         !  rc = -7  error in diffdate
                          !  rc = -12  error determining default precision
                          !  rc = -13  error determining variable type
                          !  rc = -15  data outside of valid range
@@ -2473,7 +2473,7 @@
                          !  rc = -52  error from NF90_INQUIRE_VARIABLE
                          !  rc = -53  error from NF90_GET_ATT
 
-! !REVISION HISTORY: 
+! !REVISION HISTORY:
 !
 !  1997.10.13 da Silva/Lucchesi   Initial interface design.
 !  1998.02.10 Lucchesi            Added support for applications running with
@@ -2484,7 +2484,7 @@
 !  1998.09.24 Lucchesi            Changed err codes, removed DIM_CHECK if-def
 !  1998.10.27 Lucchesi            Added support for packing and range checks
 !  1998.12.15 Lucchesi            Added support for skipping times (allTimes)
-!  1999.01.04 Lucchesi            Fixed bug in skipping times (allTimes)/also 
+!  1999.01.04 Lucchesi            Fixed bug in skipping times (allTimes)/also
 !                                 changed variable initialization.
 !  1999.07.13 Lucchesi            Changes for REAL or INT time dimension
 !
@@ -2563,7 +2563,7 @@
         rc = -7
         return
       endif
-      if ( MOD (int(seconds),60) .eq. 0 ) then 
+      if ( MOD (int(seconds),60) .eq. 0 ) then
         minutes = seconds / 60
       else
         print *, 'CFIO_PutVar: Currently, times must fall on minute ',&
@@ -2571,20 +2571,20 @@
         rc = -6
         return
       endif
- 
+
 ! Confirm that this time is consistent with the starting time coupled with
 ! the time increment.
 
       rc = NF90_GET_ATT(fid,timeId,'time_increment',timInc)
       if (err("PutVar: missing time increment",rc,-44) .NE. 0) return
-      
+
 ! Convert time increment to seconds.
 
 !ams      write (strBuf,203) timinc
 !ams 203   format (I6)
 !ams       read (strBuf,204) hour, min, sec
 !ams 204   format (3I2)
-      call CFIO_parseIntTime ( timinc, hour, min, sec ) 
+      call CFIO_parseIntTime ( timinc, hour, min, sec )
       incSecs = hour*3600 + min*60 + sec
 
       if ( MOD (int(seconds), incSecs) .ne. 0 ) then
@@ -2632,7 +2632,7 @@
         enddo
 100     continue
       endif
-      
+
 ! Determine if we are writing single- or double-precision.
 
       rc = NF90_INQUIRE_VARIABLE (fid, vid, varName, type, nvDims, vDims, nvAtts)
@@ -2729,7 +2729,7 @@
 
       rc = NF90_INQ_DIMID(fid, 'time', timeDimId)
       rc = NF90_INQUIRE_DIMENSION (fid, timeDimId, dimName, dimSize)
-      dimSize = dimSize - 1           ! We've already written the 
+      dimSize = dimSize - 1           ! We've already written the
                                       ! the new time.
       allocate ( allTimes (MAX(timeIndex,dimSize)) )
       allocate ( fminutes_32 (MAX(timeIndex,dimSize)) )
@@ -2754,9 +2754,9 @@
             return
       endif
 
-      ! This loop fills the time dimension scale based on the time increment 
-      ! specified in CFIO_Create.  If CFIO ever changes to support variable 
-      ! time increments, this code MUST be changed.   
+      ! This loop fills the time dimension scale based on the time increment
+      ! specified in CFIO_Create.  If CFIO ever changes to support variable
+      ! time increments, this code MUST be changed.
 
       do i=1,timeIndex-1
         fillTime = (i-1) * incSecs/60
@@ -2802,7 +2802,7 @@
 !-------------------------------------------------------------------------
 !BOP
 !
-! !ROUTINE:  CFIO_SGetVar -- Read a variable from the file 
+! !ROUTINE:  CFIO_SGetVar -- Read a variable from the file
 !
 ! !DESCRIPTION: This routine will read one or more levels of "vname"
 !               into the buffer passed in as "grid."  "fid" is the file
@@ -2839,8 +2839,8 @@
                          !  rc = 0   all is well
                          !  rc = -2  time is inconsistent with increment
                          !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file  
-                         !  rc = -5  jm is incompatible with file  
+                         !  rc = -4  im is incompatible with file
+                         !  rc = -5  jm is incompatible with file
                          !  rc = -6  time must fall on a minute boundary
                          !  rc = -7  error in diffdate
                          !  rc = -12  error determining default precision
@@ -2885,7 +2885,7 @@
 
       character*(MAXCHR) dimName
       character*(MAXCHR) stdName
-      character*(MAXCHR) dimUnits 
+      character*(MAXCHR) dimUnits
       character*(MAXCHR) varName
       integer dimSize, dimId
       integer nDims,nvars,ngatts
@@ -2987,7 +2987,7 @@
 
       rc = NF90_INQ_VARID (fid, vname, vid)
       if (err("GetVar: variable not defined",rc,-40) .NE. 0) return
- 
+
 ! Get beginning time & date.  Calculate offset seconds from start.
 
 !ams  rc = NF90_GET_ATT(fid,timeId,'begin_date',begDate)
@@ -2997,7 +2997,7 @@
 
       allocate(incVec(lm))
       call GetDateTimeVec( fID, begDate, begTime, incVec, rc )
-      if (err("GetVar: could not determine begin_date/begin_time",rc,-44)& 
+      if (err("GetVar: could not determine begin_date/begin_time",rc,-44)&
          .NE. 0) return
 
       seconds = DiffDate (begDate, begTime, yyyymmdd, hhmmss)
@@ -3163,7 +3163,7 @@
         return
       endif
       if (err("GetVar: error reading variable",rc,-46) .NE. 0) return
- 
+
       rc = 0
       return
       end subroutine CFIO_SGetVar
@@ -3174,7 +3174,7 @@
 !-------------------------------------------------------------------------
 !BOP
 !
-! !ROUTINE:  CFIO_GetVar -- Read a variable from the file 
+! !ROUTINE:  CFIO_GetVar -- Read a variable from the file
 !
 ! !DESCRIPTION: This routine will read one or more levels of "vname"
 !               into the buffer passed in as "grid."  "fid" is the file
@@ -3213,8 +3213,8 @@
                          !  rc = 0   all is well
                          !  rc = -2  time is inconsistent with increment
                          !  rc = -3  number of levels is incompatible with file
-                         !  rc = -4  im is incompatible with file  
-                         !  rc = -5  jm is incompatible with file  
+                         !  rc = -4  im is incompatible with file
+                         !  rc = -5  jm is incompatible with file
                          !  rc = -6  time must fall on a minute boundary
                          !  rc = -7  error in diffdate
                          !  rc = -12  error determining default precision
@@ -3259,7 +3259,7 @@
 ! Variables for working with dimensions
 
       character*(MAXCHR) dimName
-      character*(MAXCHR) dimUnits 
+      character*(MAXCHR) dimUnits
       character*(MAXCHR) varName
       integer dimSize, dimId
       integer nDims,nvars,ngatts
@@ -3324,8 +3324,8 @@
         if (dimName=='nf') cycle
         if (dimName=='orientationStrLen') cycle
         if (dimName=='ncontact') cycle
-        if (trim(dimName) .eq. 'XCdim') cycle 
-        if (trim(dimName) .eq. 'YCdim') cycle 
+        if (trim(dimName) .eq. 'XCdim') cycle
+        if (trim(dimName) .eq. 'YCdim') cycle
         rc = NF90_INQ_VARID (fid, dimName, dimId)
         if (err("DimInqure: NF90_INQ_VARID failed",rc,-40) .NE. 0) return
         rc = NF90_GET_ATT(fid,dimId,'units',dimUnits)
@@ -3364,7 +3364,7 @@
 
       rc = NF90_INQ_VARID (fid, vname, vid)
       if (err("GetVar: variable not defined",rc,-40) .NE. 0) return
- 
+
 ! Get beginning time & date.  Calculate offset seconds from start.
 
 !ams     rc = NF90_GET_ATT(fid,timeId,'begin_date',begDate)
@@ -3570,7 +3570,7 @@
         return
       endif
       if (err("GetVar: error reading variable",rc,-46) .NE. 0) return
- 
+
       rc = 0
       return
       end subroutine CFIO_GetVar
@@ -3582,13 +3582,13 @@
 !BOP
 !
 ! !ROUTINE:  CFIO_PutVar -- Write a variable to the file
-! 
-! !DESCRIPTION: This routine is used to write a variable to an open CFIO 
-!               stream.  Multiple vertical levels can be written at one 
-!               time provided they are contiguous in memory.  Date and time 
-!               must be consistent with the time increment and the starting 
-!               date/time as defined in CFIO\_Create.  Times must fall on 
-!               minute boundaries to allow GrADS to work.  Error checking is 
+!
+! !DESCRIPTION: This routine is used to write a variable to an open CFIO
+!               stream.  Multiple vertical levels can be written at one
+!               time provided they are contiguous in memory.  Date and time
+!               must be consistent with the time increment and the starting
+!               date/time as defined in CFIO\_Create.  Times must fall on
+!               minute boundaries to allow GrADS to work.  Error checking is
 !               done for dimensions that are out of bounds.
 !
 ! !INTERFACE:
@@ -3596,19 +3596,19 @@
       subroutine CFIO_PutVar ( fid, vname, yyyymmdd, hhmmss, &
                               im, jm, kbeg, kount, grid,     &
                               useFaceDim,                    &
-                              rc )  
+                              rc )
 !
 ! !USES:
 
-      Implicit NONE  
+      Implicit NONE
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
       integer        fid                 ! File handle
       character*(*)  vname               ! Variable name
       integer        yyyymmdd            ! Year-month-day, e.g., 19971003
       integer        hhmmss              ! Hour-minute-second, e.g., 120000
- 
+
       integer         im                 ! size of longitudinal dimension
       integer         jm                 ! size of latitudinal  dimension
       integer         kbeg               ! first level to write; if 2-D grid
@@ -3616,18 +3616,18 @@
       integer         kount              ! number of levels to write
       real            grid(im,jm,kount)  ! Gridded data to write at this time
       logical ::      useFaceDim
-                                     
+
 
 ! !OUTPUT PARAMETERS:
- 
+
       integer        rc  ! Error return code:
                          !  rc =  0  all is well
-                         !  rc = -2  time is inconsistent with increment 
+                         !  rc = -2  time is inconsistent with increment
                          !  rc = -3  number of levels is incompatible with file
                          !  rc = -4  im is incompatible with file
                          !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary    
-                         !  rc = -7  error in diffdate              
+                         !  rc = -6  time must fall on a minute boundary
+                         !  rc = -7  error in diffdate
                          !  rc = -12  error determining default precision
                          !  rc = -13  error determining variable type
                          !  rc = -15  data outside of valid range
@@ -3647,7 +3647,7 @@
                          !  rc = -52  error from NF90_INQUIRE_VARIABLE
                          !  rc = -53  error from NF90_GET_ATT
 
-! !REVISION HISTORY: 
+! !REVISION HISTORY:
 !
 !  1997.10.13 da Silva/Lucchesi   Initial interface design.
 !  1998.02.10 Lucchesi            Added support for applications running with
@@ -3658,7 +3658,7 @@
 !  1998.09.24 Lucchesi            Changed error codes, removed DIM_CHECK if-def
 !  1998.10.27 Lucchesi            Added support for packing and range checks
 !  1998.12.15 Lucchesi            Added support for skipping times (allTimes)
-!  1999.01.04 Lucchesi            Fixed bug in skipping times (allTimes)/also 
+!  1999.01.04 Lucchesi            Fixed bug in skipping times (allTimes)/also
 !                                 changed variable initialization.
 !  1999.07.13 Lucchesi            Changes for REAL or INT time dimension
 !
@@ -3737,7 +3737,7 @@
         rc = -7
         return
       endif
-      if ( MOD (int(seconds),60) .eq. 0 ) then 
+      if ( MOD (int(seconds),60) .eq. 0 ) then
         minutes = seconds / 60
       else
         print *, 'CFIO_PutVar: Currently, times must fall on minute ',&
@@ -3745,20 +3745,20 @@
         rc = -6
         return
       endif
- 
+
 ! Confirm that this time is consistent with the starting time coupled with
 ! the time increment.
 
       rc = NF90_GET_ATT(fid,timeId,'time_increment',timInc)
       if (err("PutVar: missing time increment",rc,-44) .NE. 0) return
-      
+
 ! Convert time increment to seconds.
 
 !ams      write (strBuf,203) timinc
 !ams 203   format (I6)
 !ams      read (strBuf,204) hour, min, sec
 !ams 204   format (3I2)
-      call CFIO_parseIntTime ( timinc, hour, min, sec ) 
+      call CFIO_parseIntTime ( timinc, hour, min, sec )
       incSecs = hour*3600 + min*60 + sec
 
       if ( MOD (int(seconds), incSecs) .ne. 0 ) then
@@ -3822,7 +3822,7 @@
         enddo
 100     continue
       endif
-      
+
 ! Determine if we are writing single- or double-precision.
 
       rc = NF90_INQUIRE_VARIABLE (fid, vid, varName, type, nvDims, vDims, nvAtts)
@@ -3926,7 +3926,7 @@
 ! This will insure missing times are defined with the proper time value.
 
       rc = NF90_INQUIRE_DIMENSION (fid, timeDimId, dimName, dimSize)
-      dimSize = dimSize - 1                           ! We've already written the 
+      dimSize = dimSize - 1                           ! We've already written the
                                                       ! the new time.
       allocate ( allTimes (MAX(timeIndex,dimSize)) )
       allocate ( fminutes_32 (MAX(timeIndex,dimSize)) )
@@ -3952,9 +3952,9 @@
            return
       endif
 
-      ! This loop fills the time dimension scale based on the time increment 
-      ! specified in CFIO_Create.  If CFIO ever changes to support variable 
-      ! time increments, this code MUST be changed.   
+      ! This loop fills the time dimension scale based on the time increment
+      ! specified in CFIO_Create.  If CFIO ever changes to support variable
+      ! time increments, this code MUST be changed.
 
       do i=1,timeIndex-1
         fillTime = (i-1) * incSecs/60
@@ -4004,7 +4004,7 @@
 !
 !  !AFFILIATION: Data Assimilation Office, NASA/GSFC, Greenbelt, MD 20771
 !
-!  !DATE: July 20, 1998   
+!  !DATE: July 20, 1998
 !
 !EOI
 !-------------------------------------------------------------------------
@@ -4013,7 +4013,7 @@
 !-------------------------------------------------------------------------
 !BOP
 !
-! !ROUTINE: GetDateInt8 --- Returns a new date/time from an initial date/time 
+! !ROUTINE: GetDateInt8 --- Returns a new date/time from an initial date/time
 !                       and offset
 !
 ! !INTERFACE:
@@ -4022,7 +4022,7 @@
        subroutine GetDateInt8 (yyyymmdd_1,hhmmss_1,offset, &
                           yyyymmdd_2,hhmmss_2,rc)
 
-! 
+!
 ! !USES:
 !
 
@@ -4126,7 +4126,7 @@
 !-------------------------------------------------------------------------
 !BOP
 !
-! !ROUTINE: GetDateInt4 --- Returns a new date/time from an initial date/time 
+! !ROUTINE: GetDateInt4 --- Returns a new date/time from an initial date/time
 !                       and offset
 !
 ! !INTERFACE:
@@ -4135,7 +4135,7 @@
        subroutine GetDateInt4 (yyyymmdd_1,hhmmss_1,offset, &
                           yyyymmdd_2,hhmmss_2,rc)
 
-! 
+!
 ! !USES:
 !
 
@@ -4266,37 +4266,37 @@
 !
 ! !DESCRIPTION:
 !
-!	A template resolver formatting a string with a string variable
+!   A template resolver formatting a string with a string variable
 !   and time variables.  The format descriptors are similar to those
 !   used in the GrADS.
 !
-!	"%y4"	substitute with a 4 digit year
-!	"%y2"	a 2 digit year
-!	"%m1"	a 1 or 2 digit month
-!	"%m2"	a 2 digit month
-!	"%mc"	a 3 letter month in lower cases
-!	"%Mc"	a 3 letter month with a leading letter in upper case
-!	"%MC"	a 3 letter month in upper cases
-!	"%d1"	a 1 or 2 digit day
-!	"%d2"	a 2 digit day
-!	"%h1"	a 1 or 2 digit hour
-!	"%h2"	a 2 digit hour
-!	"%h3"	a 3 digit hour (?)
-!	"%n2"	a 2 digit minute
-!	"%s"	a string variable
-!	"%%"	a "%"
+!   "%y4"   substitute with a 4 digit year
+!   "%y2"   a 2 digit year
+!   "%m1"   a 1 or 2 digit month
+!   "%m2"   a 2 digit month
+!   "%mc"   a 3 letter month in lower cases
+!   "%Mc"   a 3 letter month with a leading letter in upper case
+!   "%MC"   a 3 letter month in upper cases
+!   "%d1"   a 1 or 2 digit day
+!   "%d2"   a 2 digit day
+!   "%h1"   a 1 or 2 digit hour
+!   "%h2"   a 2 digit hour
+!   "%h3"   a 3 digit hour (?)
+!   "%n2"   a 2 digit minute
+!   "%s"   a string variable
+!   "%%"   a "%"
 !
 ! !INTERFACE:
 
 
 ! !REVISION HISTORY:
-! 	19Dec06	- Jing Guo <guo@gmao.gsfc.nasa.gov>
-!		- Merged changes between 1.1.2.6 and 1.1.2.9 to 1.2,
-!		  including a fix at bug nymd==0 and environment
-!		  variable ($env or ${env}) support if getenv() is
-!		  available from the system.
-! 	01Jun99	- Jing Guo <guo@dao.gsfc.nasa.gov>
-!		- initial prototype/prolog/code
+!   19Dec06 - Jing Guo <guo@gmao.gsfc.nasa.gov>
+!   - Merged changes between 1.1.2.6 and 1.1.2.9 to 1.2,
+!     including a fix at bug nymd==0 and environment
+!     variable ($env or ${env}) support if getenv() is
+!     available from the system.
+!   01Jun99   - Jing Guo <guo@dao.gsfc.nasa.gov>
+!   - initial prototype/prolog/code
 !EOP ___________________________________________________________________
 
 
@@ -4313,33 +4313,33 @@
     subroutine strTemplate_(str,tmpl,class,xid,nymd,nhms,stat)
       implicit none
 
-      character(len=*),intent(out) :: str	! the output
+      character(len=*),intent(out) :: str ! the output
 
-      character(len=*),intent(in ) :: tmpl	! a "format"
+      character(len=*),intent(in ) :: tmpl ! a "format"
 
       character(len=*),intent(in ),optional :: class
-			! choose a UNIX or a GrADS(defulat) type format
+      ! choose a UNIX or a GrADS(defulat) type format
 
       character(len=*),intent(in ),optional :: xid
-			! a string substituting a "%s".  Trailing
-			! spaces will be ignored
+      ! a string substituting a "%s".  Trailing
+      ! spaces will be ignored
 
       integer,intent(in ),optional :: nymd
-			! yyyymmdd, substituting "%y4", "%y2", "%m1",
-			! "%m2", "%mc", "%Mc', and "%MC"
+      ! yyyymmdd, substituting "%y4", "%y2", "%m1",
+      ! "%m2", "%mc", "%Mc', and "%MC"
 
       integer,intent(in ),optional :: nhms
-			! hhmmss, substituting "%h1", "%h2", "%h3",
-			! and "%n2"
+      ! hhmmss, substituting "%h1", "%h2", "%h3",
+      ! and "%n2"
 
       integer,intent(out),optional :: stat
-			! error code
+      ! error code
 
 ! !REVISION HISTORY:
-! 	03Jun99	- Jing Guo <guo@dao.gsfc.nasa.gov>
-!		- initial prototype/prolog/code
-!       08Jan01 - da Silva: moved uppercase() to outside select() to
-!                 avoid coredump on Linux/PGI.
+!  03Jun99 - Jing Guo <guo@dao.gsfc.nasa.gov>
+!  - initial prototype/prolog/code
+!  08Jan01 - da Silva: moved uppercase() to outside select() to
+!                      avoid coredump on Linux/PGI.
 !EOP ___________________________________________________________________
 
   character(len=*),parameter :: myname_=myname//'::strTemplate_'
@@ -4355,7 +4355,7 @@
   case("GX","GRADS")
     call GX_(str,tmpl,xid,nymd,nhms,stat)
 
-  !case("UX","UNIX")	! yet to be implemented
+  !case("UX","UNIX") ! yet to be implemented
   !  call UX_(str,tmpl,xid,nymd,nhms,stat)
 
   case default
@@ -4388,8 +4388,8 @@ end subroutine strTemplate_
       integer,optional,intent(out) :: stat
 
 ! !REVISION HISTORY:
-! 	01Jun99	- Jing Guo <guo@dao.gsfc.nasa.gov>
-!		- initial prototype/prolog/code
+!  01Jun99 - Jing Guo <guo@dao.gsfc.nasa.gov>
+!  - initial prototype/prolog/code
 !EOP ___________________________________________________________________
 
   character(len=*),parameter :: myname_=myname//'::GX_'
@@ -4404,18 +4404,18 @@ end subroutine strTemplate_
   character(len=1) :: c0,c1,c2
   character(len=4) :: sbuf
 !________________________________________
-	! Determine iyr, imo, and idy
+! Determine iyr, imo, and idy
   iy4=-1
   iy2=-1
   imo=-1
   idy=-1
   if(present(nymd)) then
-	if(nymd <= 0) then
-	  call perr(myname_,'nymd <= 0',nymd)
-	  if(.not.present(stat)) call die(myname_)
-	  stat=1
-	  return
-	endif
+    if(nymd <= 0) then
+      call perr(myname_,'nymd <= 0',nymd)
+      if(.not.present(stat)) call die(myname_)
+      stat=1
+      return
+    endif
 
     i=nymd
     iy4=i/10000
@@ -4426,16 +4426,16 @@ end subroutine strTemplate_
     idy=i
   endif
 !________________________________________
-	! Determine ihr and imn
+! Determine ihr and imn
   ihr=-1
   imn=-1
   if(present(nhms)) then
-	if(nhms < 0) then
-	  call perr(myname_,'nhms < 0',nhms)
-	  if(.not.present(stat)) call die(myname_)
-	  stat=1
-	  return
-	endif
+    if(nhms < 0) then
+      call perr(myname_,'nhms < 0',nhms)
+      if(.not.present(stat)) call die(myname_)
+      stat=1
+      return
+    endif
 
     i=nhms
     ihr=i/10000
@@ -4444,8 +4444,8 @@ end subroutine strTemplate_
   endif
 !________________________________________
 
-  ln_tmpl=len_trim(tmpl)	! size of the format template
-  ln_str =len(str)		! size of the output string
+  ln_tmpl=len_trim(tmpl) ! size of the format template
+  ln_str =len(str)       ! size of the output string
 !________________________________________
 
   if(present(stat)) stat=0
@@ -4455,9 +4455,9 @@ str=""
 i=0; istp=1
 k=1; kstp=1
 
-do while( i+istp <= ln_tmpl )	! A loop over all tokens in (tmpl)
+do while( i+istp <= ln_tmpl ) ! A loop over all tokens in (tmpl)
 
-  if(k>ln_Str) exit	! truncate the output here.
+  if(k>ln_Str) exit ! truncate the output here.
 
   i=i+istp
   c0=tmpl(i:i)
@@ -4473,22 +4473,22 @@ do while( i+istp <= ln_tmpl )	! A loop over all tokens in (tmpl)
     endif
 
   case ("%")
-	!________________________________________
+!________________________________________
 
     c1=""
     i1=i+1
     if(i1 <= ln_Tmpl) c1=tmpl(i1:i1)
-	!________________________________________
+!________________________________________
 
     select case(c1)
 
     case("s")
       if(.not.present(xid)) then
-	write(stderr,'(2a)') myname_,	&
-		': optional argument expected, "xid="'
-	if(.not.present(stat)) call die(myname_)
-	stat=1
-	return
+         write(stderr,'(2a)') myname_, &
+            ': optional argument expected, "xid="'
+         if(.not.present(stat)) call die(myname_)
+         stat=1
+         return
       endif
 
       istp=2
@@ -4501,7 +4501,7 @@ do while( i+istp <= ln_tmpl )	! A loop over all tokens in (tmpl)
 
       istp=2
       str(k:k)=c1
-      k=k+1	! kstp=1
+      k=k+1 ! kstp=1
       cycle
 
     case default
@@ -4509,165 +4509,165 @@ do while( i+istp <= ln_tmpl )	! A loop over all tokens in (tmpl)
       c2=""
       i2=i+2
       if(i2 <= ln_Tmpl) c2=tmpl(i2:i2)
-	!________________________________________
+!________________________________________
 
       select case(c1//c2)
 
       case("y4","y2","m1","m2","mc","Mc","MC","d1","d2")
         if(.not.present(nymd)) then
-	  write(stderr,'(2a)') myname_,	&
-		': optional argument expected, "nymd="'
-	  if(.not.present(stat)) call die(myname_)
-	  stat=1
-	  return
+           write(stderr,'(2a)') myname_, &
+              ': optional argument expected, "nymd="'
+           if(.not.present(stat)) call die(myname_)
+           stat=1
+           return
         endif
         istp=3
 
       case("h1","h2","h3","n2")
         if(.not.present(nhms)) then
-	  write(stderr,'(2a)') myname_,	&
-		': optional argument expected, "nhms="'
-	  if(.not.present(stat)) call die(myname_)
-	  stat=1
-	  return
+           write(stderr,'(2a)') myname_, &
+              ': optional argument expected, "nhms="'
+           if(.not.present(stat)) call die(myname_)
+           stat=1
+           return
         endif
         istp=3
 
       case default
 
-        write(stderr,'(4a)') myname_,	&
-	  ': invalid template entry, "',trim(tmpl(i:)),'"'
+        write(stderr,'(4a)') myname_, &
+           ': invalid template entry, "',trim(tmpl(i:)),'"'
         if(.not.present(stat)) call die(myname_)
         stat=2
         return
 
-      end select	  ! case(c1//c2)
-    end select		! case(c1)
-	!________________________________________
+      end select  ! case(c1//c2)
+    end select ! case(c1)
+!________________________________________
 
     select case(c1)
 
     case("y")
       select case(c2)
       case("2")
-	write(sbuf,'(i2.2)') iy2
-	kstp=2
+         write(sbuf,'(i2.2)') iy2
+         kstp=2
       case("4")
-	write(sbuf,'(i4.4)') iy4
-	kstp=4
+         write(sbuf,'(i4.4)') iy4
+         kstp=4
       case default
-	write(stderr,'(4a)') myname_,	&
-	  ': invalid template entry, "',trim(tmpl(i:)),'"'
-	if(.not.present(stat)) call die(myname_)
-	stat=2
-	return
+         write(stderr,'(4a)') myname_, &
+            ': invalid template entry, "',trim(tmpl(i:)),'"'
+         if(.not.present(stat)) call die(myname_)
+         stat=2
+         return
       end select
 
     case("m")
       select case(c2)
       case("1")
-	if(imo < 10) then
-	  write(sbuf,'(i1)') imo
-	  kstp=1
-	else
-	  write(sbuf,'(i2)') imo
-	  kstp=2
-	endif
+         if(imo < 10) then
+            write(sbuf,'(i1)') imo
+            kstp=1
+         else
+            write(sbuf,'(i2)') imo
+            kstp=2
+         endif
       case("2")
-	write(sbuf,'(i2.2)') imo
-	kstp=2
+         write(sbuf,'(i2.2)') imo
+         kstp=2
       case("c")
-	sbuf=mon_lc(imo)
-	kstp=3
+         sbuf=mon_lc(imo)
+         kstp=3
       case default
-	write(stderr,'(4a)') myname_,	&
-	  ': invalid template entry, "',trim(tmpl(i:)),'"'
-	if(.not.present(stat)) call die(myname_)
-	stat=2
-	return
+         write(stderr,'(4a)') myname_, &
+            ': invalid template entry, "',trim(tmpl(i:)),'"'
+         if(.not.present(stat)) call die(myname_)
+         stat=2
+         return
       end select
 
     case("M")
       select case(c2)
       case("c")
-	sbuf=mon_wd(imo)
-	kstp=3
+         sbuf=mon_wd(imo)
+         kstp=3
       case("C")
-	sbuf=mon_uc(imo)
-	kstp=3
+         sbuf=mon_uc(imo)
+         kstp=3
       case default
-	write(stderr,'(4a)') myname_,	&
-	  ': invalid template entry, "',trim(tmpl(i:)),'"'
-	if(.not.present(stat)) call die(myname_)
-	stat=2
-	return
+         write(stderr,'(4a)') myname_, &
+            ': invalid template entry, "',trim(tmpl(i:)),'"'
+         if(.not.present(stat)) call die(myname_)
+         stat=2
+         return
       end select
 
     case("d")
       select case(c2)
       case("1")
-	if(idy < 10) then
-	  write(sbuf,'(i1)') idy
-	  kstp=1
-	else
-	  write(sbuf,'(i2)') idy
-	  kstp=2
-	endif
+         if(idy < 10) then
+            write(sbuf,'(i1)') idy
+            kstp=1
+         else
+            write(sbuf,'(i2)') idy
+            kstp=2
+         endif
       case("2")
-	write(sbuf,'(i2.2)') idy
-	kstp=2
+         write(sbuf,'(i2.2)') idy
+         kstp=2
       case default
-	write(stderr,'(4a)') myname_,	&
-	  ': invalid template entry, "',trim(tmpl(i:)),'"'
-	if(.not.present(stat)) call die(myname_)
-	stat=2
-	return
+         write(stderr,'(4a)') myname_, &
+            ': invalid template entry, "',trim(tmpl(i:)),'"'
+         if(.not.present(stat)) call die(myname_)
+         stat=2
+         return
       end select
 
     case("h")
       select case(c2)
       case("1")
-	if(ihr < 10) then
-	  write(sbuf,'(i1)') ihr
-	  kstp=1
-	else
-	  write(sbuf,'(i2)') ihr
-	  kstp=2
-	endif
+         if(ihr < 10) then
+            write(sbuf,'(i1)') ihr
+            kstp=1
+         else
+            write(sbuf,'(i2)') ihr
+            kstp=2
+         endif
       case("2")
-	write(sbuf,'(i2.2)') ihr
-	kstp=2
+         write(sbuf,'(i2.2)') ihr
+         kstp=2
       case("3")
-	write(sbuf,'(i3.3)') ihr
-	kstp=3
+         write(sbuf,'(i3.3)') ihr
+         kstp=3
       case default
-	write(stderr,'(4a)') myname_,	&
-	  ': invalid template entry, "',trim(tmpl(i:)),'"'
-	if(.not.present(stat)) call die(myname_)
-	stat=2
-	return
+         write(stderr,'(4a)') myname_, &
+            ': invalid template entry, "',trim(tmpl(i:)),'"'
+         if(.not.present(stat)) call die(myname_)
+         stat=2
+         return
       end select
 
     case("n")
       select case(c2)
       case("2")
-	write(sbuf,'(i2.2)') imn
-	kstp=2
+         write(sbuf,'(i2.2)') imn
+         kstp=2
       case default
-	write(stderr,'(4a)') myname_,	&
-	  ': invalid template entry, "',trim(tmpl(i:)),'"'
-	if(.not.present(stat)) call die(myname_)
-	stat=2
-	return
+         write(stderr,'(4a)') myname_, &
+            ': invalid template entry, "',trim(tmpl(i:)),'"'
+         if(.not.present(stat)) call die(myname_)
+         stat=2
+         return
       end select
 
     case default
-	write(stderr,'(4a)') myname_,	&
-	  ': invalid template entry, "',trim(tmpl(i:)),'"'
-	if(.not.present(stat)) call die(myname_)
-	stat=2
-      return
-    end select	! case(c1)
+       write(stderr,'(4a)') myname_, &
+          ': invalid template entry, "',trim(tmpl(i:)),'"'
+       if(.not.present(stat)) call die(myname_)
+       stat=2
+       return
+    end select ! case(c1)
 
     m=min(k+kstp-1,ln_Str)
     str(k:m)=sbuf
@@ -4679,7 +4679,7 @@ do while( i+istp <= ln_tmpl )	! A loop over all tokens in (tmpl)
     str(k:k)=tmpl(i:i)
     k=k+1
 
-  end select	! case(c0)
+  end select ! case(c0)
 end do
 
 contains
@@ -4699,7 +4699,7 @@ subroutine genv_(tmpl,lnt,i,istp,str,lns,k,ier)
   logical :: bracket,more
   character(len=256) :: env
 
-  j=i+1		! skip "$"
+  j=i+1 ! skip "$"
   ier=0
 
   if(j>lnt) then
@@ -4710,8 +4710,8 @@ subroutine genv_(tmpl,lnt,i,istp,str,lns,k,ier)
   bracket = tmpl(j:j)=='{'
   if(bracket) j=j+1
 
-  	! There is at least one a letter (including "_") to start a
-	! variable name
+  ! There is at least one a letter (including "_") to start a
+  ! variable name
 
   select case(tmpl(j:j))
   case ("A":"Z","a":"z","_")
@@ -4729,14 +4729,14 @@ subroutine genv_(tmpl,lnt,i,istp,str,lns,k,ier)
     do while(more)
       select case(tmpl(j:j))
       case ("A":"Z","a":"z","_","0":"9")
-	je=j
-        j=j+1
-      case ("}")	! End if "}" or eos
-        j=j+1
-        exit
+         je=j
+         j=j+1
+      case ("}") ! End if "}" or eos
+         j=j+1
+         exit
       case default
-        ier=3
-        return
+         ier=3
+         return
       end select
       more=j<=lnt
     enddo
@@ -4747,10 +4747,10 @@ subroutine genv_(tmpl,lnt,i,istp,str,lns,k,ier)
     do while(more)
       select case(tmpl(j:j))
       case ("A":"Z","a":"z","_","0":"9")
-        je=j
-	j=j+1
+         je=j
+         j=j+1
       case default
-        exit
+         exit
       end select
       more=j<=lnt
     enddo
@@ -4893,7 +4893,7 @@ end subroutine die
 #endif
 
       ! Functions for SD interface
- 
+
       integer sfsnatt
 
       rc = 0
@@ -4929,7 +4929,7 @@ end subroutine die
       else if (HUGE(dummy64) .EQ. HUGE(i) .AND. prec .EQ. 1 ) then   ! -i8
         rct = sfsnatt( fid, name, DFNT_FLOAT64, count, buf)
 
-      else 
+      else
         rc = -12
         goto 999
       endif
@@ -5112,7 +5112,7 @@ end subroutine die
 
       ! Functions for SD interface
       integer sfscatt
- 
+
       rc = 0
 
 #if defined (HDFEOS)
@@ -5141,20 +5141,20 @@ end subroutine die
 
       subroutine EOS_PutVar ( fid, vname, yyyymmdd, hhmmss, &
                               im, jm, kbeg, kount, grid,     &
-                              do_comp, do_chunk, rc )  
+                              do_comp, do_chunk, rc )
 !
 ! !USES:
 
-      Implicit NONE  
+      Implicit NONE
 !#include "hlimits.h"
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
       integer        fid                 ! File handle
       character*(*)  vname               ! Variable name
       integer        yyyymmdd            ! Year-month-day, e.g., 19971003
       integer        hhmmss              ! Hour-minute-second, e.g., 120000
- 
+
       integer         im                 ! size of longitudinal dimension
       integer         jm                 ! size of latitudinal  dimension
       integer         kbeg               ! first level to write; if 2-D grid
@@ -5166,18 +5166,18 @@ end subroutine die
       integer         comp_num           ! 1 -- COMP_CODE_RLE; 2 -- COMP_CODE_NBIT
                                          ! 3 --COMP_CODE_SKPHUFF; 4 -- COMP_CODE_DEFLATE
                                          ! 5 --COMP_CODE_SZIP
-                                     
+
 
 ! !OUTPUT PARAMETERS:
- 
+
       integer        rc  ! Error return code:
                          !  rc =  0  all is well
-                         !  rc = -2  time is inconsistent with increment 
+                         !  rc = -2  time is inconsistent with increment
                          !  rc = -3  number of levels is incompatible with file
                          !  rc = -4  im is incompatible with file
                          !  rc = -5  jm is incompatible with file
-                         !  rc = -6  time must fall on a minute boundary    
-                         !  rc = -7  error in diffdate              
+                         !  rc = -6  time must fall on a minute boundary
+                         !  rc = -7  error in diffdate
                          !  rc = -12  error determining default precision
                          !  rc = -13  error determining variable type
                          !  rc = -15  data outside of valid range
@@ -5198,7 +5198,7 @@ end subroutine die
                          !  rc = -52  error from NF90_INQUIRE_VARIABLE NOTUSED
                          !  rc = -53  error getting variable attributes
 
-! !REVISION HISTORY: 
+! !REVISION HISTORY:
 !
 !  1997.10.13 da Silva/Lucchesi   Initial interface design.
 !  1998.02.10 Lucchesi            Added support for applications running with
@@ -5295,7 +5295,7 @@ end subroutine die
       integer sfwchnk, sfscchnk, sfschnk
 
 ! Internal CFIO functions
- 
+
 
       rc = 0
       outRange = .FALSE.
@@ -5322,9 +5322,9 @@ end subroutine die
 #endif
 
 ! Get SDS id.
-        
-      sdsIndex = sfn2index (fid, vname) 
-      if (err("PutVar: can't find variable",rc,-40).NE.0) then 
+
+      sdsIndex = sfn2index (fid, vname)
+      if (err("PutVar: can't find variable",rc,-40).NE.0) then
         print *, 'Error details: no index for ',TRIM(vname)
         goto 999
       endif
@@ -5333,7 +5333,7 @@ end subroutine die
         print *, 'Error details: no id for ',TRIM(vname)
         goto 999
       endif
-      
+
 ! Dimension error checking
 
       do i=0,NDIMS_MAX-1
@@ -5342,14 +5342,14 @@ end subroutine die
 
         dimid = sfdimid (sdsId, i)
         rct = sfgdinfo (dimid, dimName, dimSize, type, numAttr)
-         
+
         if (rct .NE. 0) then                   ! No dimensions left.
           exit
         endif
 
         ! look for a "units" attribute.  if none, use a dummy string for units.
 
-        dimUnits = REPEAT(' ',MAXCHR)  ! zero out dimUnits: sfrcatt won't pad 
+        dimUnits = REPEAT(' ',MAXCHR)  ! zero out dimUnits: sfrcatt won't pad
                                        ! with blanks.
         attrIdx = sffattr (dimid, 'units')
         if (attrIdx .GE. 0) then
@@ -5413,7 +5413,7 @@ end subroutine die
           rct = sfrnatt (timeid, attrIdx, timInc)
           if (err("PutVar: error getting time_increment",rc,-44) &
              .NE.0) goto 999
- 
+
           ! Convert time increment to seconds.
 
           write (strBuf,203) timinc
@@ -5435,7 +5435,7 @@ end subroutine die
                   ' is unknown.'
         endif
       enddo
-        
+
 ! Load starting indicies.
 
       if ( kbeg .eq. 0 ) then
@@ -5450,7 +5450,7 @@ end subroutine die
         edges(3)=1
         dim_chunk(1) = im
         dim_chunk(2) = jm
-        dim_chunk(3) = 1 
+        dim_chunk(3) = 1
       else
         corner(1)=0
         corner(2)=0
@@ -5496,7 +5496,7 @@ end subroutine die
         enddo
 100     continue
       endif
-      
+
 ! Determine if we are writing single- or double-precision from the "type"
 ! flag.  Also get the size of the unlimited dimension (time) for later use.
 
@@ -5504,7 +5504,7 @@ end subroutine die
       if (err("PutVar: can't get # of times",rc,-44) .NE. 0) &
          goto 999
       numTimes = dimSizes(nvDims)
-    
+
 ! DO szip compression
       comp_num = 4
       if (comp_num .eq. 5) then
@@ -5530,7 +5530,7 @@ end subroutine die
 !            if( rct .ne. 0 ) then
 !              print *, 'sfscchnk failed for chunk'
 !            endif
-         else   
+         else
             rct = sfscompress(sdsId, comp_type, comp_arg)
             if( rct .ne. 0 ) then
                print *, 'sfscompress failed '
@@ -5548,7 +5548,7 @@ end subroutine die
                origin(2) = 1
                origin(3) = timeIndex
                rct = sfwchnk(sdsId, origin, grid(:,:,1))
-             else   
+             else
                 do k=1,kount
                   origin(1) = 1
                   origin(2) = 1
@@ -5560,7 +5560,7 @@ end subroutine die
              if( rct .ne. 0 ) then
                print *, 'sfwchnk failed for chunk'
              endif
-          else   
+          else
              rct = sfwdata (sdsId, corner, stride, edges, grid)
           end if
           if( rct .ne. 0 ) then
@@ -5581,7 +5581,7 @@ end subroutine die
                origin(2) = 1
                origin(3) = timeIndex
                rct = sfwchnk(sdsId, origin, grid_64(:,:,1))
-             else  
+             else
              do k=1,kount
                origin(1) = 1
                origin(2) = 1
@@ -5638,7 +5638,7 @@ end subroutine die
                origin(2) = 1
                origin(3) = timeIndex
                rct = sfwchnk(sdsId, origin, grid_16(:,:,1))
-             else  
+             else
              do k=1,kount
                origin(1) = 1
                origin(2) = 1
@@ -5675,7 +5675,7 @@ end subroutine die
                origin(2) = 1
                origin(3) = timeIndex
                rct = sfwchnk(sdsId, origin, grid_32(:,:,1))
-             else  
+             else
              do k=1,kount
                origin(1) = 1
                origin(2) = 1
@@ -5702,7 +5702,7 @@ end subroutine die
                origin(2) = 1
                origin(3) = timeIndex
                rct = sfwchnk(sdsId, origin, grid(:,:,1))
-             else   
+             else
              do k=1,kount
                origin(1) = 1
                origin(2) = 1
@@ -5795,7 +5795,7 @@ end subroutine die
         allocate ( timeScale(timeIndex) )
         allocate ( eosTimeScale(timeIndex) )
       endif
-      
+
       rct = sfgdscale (timeid, timeScale)
       if (err("PutVar: can't read times",rc,-44) .NE. 0) goto 999
       do i=1,timeIndex-1
@@ -5814,7 +5814,7 @@ end subroutine die
       ! This code will write out placeholders for the EOS time.  EOS
       ! requires seconds from a date in 1993 and also requires leap seconds.
       ! A post-processing job will use the EOS Toolkit to add this information.
-      
+
       sdsIndex = sfn2index (fid, "Time")
       eosTimeId = sfselect (fid, sdsIndex)
       if (err("PutVar: can't find EOS time coordinate", &

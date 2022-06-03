@@ -28,12 +28,12 @@ function (mapl_acg target specs_file)
   string (REPLACE "_GridComp" "" component_name ${target})
 
   if (ARGS_UNPARSED_ARGUMENTS)
-    ecbuild_error ("maple_acg() - unparsed arguments: ${ARGS_UNPARSED_ARGUMENTS}")
+    ecbuild_error ("mapl_acg() - unparsed arguments: ${ARGS_UNPARSED_ARGUMENTS}")
   endif ()
 
   set (generated) # empty unless
   set (options "")
-
+  set (suffix_for_generated_include_files "___.h")
 
   # Handle oneValueArgs with no value (Python provides default)
   foreach (opt flag default IN ZIP_LISTS oneValueArgs flags defaults)
@@ -44,7 +44,7 @@ function (mapl_acg target specs_file)
       list (APPEND options ${flag} ${ARGS_${opt}})
     elseif (${opt} IN_LIST ARGS_KEYWORDS_MISSING_VALUES)
       string (REPLACE "{component}" component_name fname ${default})
-      list (APPEND generated ${fname})
+      list (APPEND generated "${component_name}_${fname}${suffix_for_generated_include_files}")
       list (APPEND options ${flag})
     endif ()
 
@@ -60,7 +60,7 @@ function (mapl_acg target specs_file)
   add_custom_command (
     OUTPUT ${generated}
     COMMAND ${generator} ${CMAKE_CURRENT_SOURCE_DIR}/${specs_file} ${options}
-    MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/${specs_file} 
+    MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/${specs_file}
     DEPENDS ${generator} ${specs_file}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating automatic code for ${specs_file}"

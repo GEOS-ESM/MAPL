@@ -3,11 +3,13 @@
 module MAPL
    use MAPLBase_mod
    use MAPL_GenericMod
-   use MAPL_VarSpecMod
-   use MAPL_ExtDataGridCompMod, only: T_EXTDATA_STATE, EXTDATA_WRAP
+   use MAPL_VarSpecMiscMod
    use ESMF_CFIOMod
    use pFIO
    use MAPL_GridCompsMod
+   use mapl_StubComponent
+   use MAPL_ESMFFieldBundleRead
+   use MAPL_ESMFFieldBundleWrite
    implicit none
 end module MAPL
 
