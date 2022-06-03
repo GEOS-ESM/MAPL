@@ -1,0 +1,124 @@
+#include "MAPL_ErrLog.h"
+
+module Test_RunChild
+   use mapl3g_GenericGridComp
+   use mapl3g_Generic
+   use mapl3g_OuterMetaComponent
+   use mapl_ErrorHandling
+   use esmf
+   use pfunit
+   use yafyaml
+   use scratchpad, only: log, clear_log
+   implicit none
+
+   type(ESMF_GridComp) :: parent_gc
+   type(ESMF_GridComp) :: user_gc
+   type(OuterMetaComponent), pointer :: parent_meta
+   
+contains
+
+   ! Build a parent gc with 2 children.
+   subroutine setup(this, rc)
+      class(MpiTestMethod), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      type(Parser) :: p
+      class(YAML_Node), allocatable :: config
+
+      integer :: status
+
+      p = Parser('core')
+
+      config = p%load(TextStream('setServices: {sharedObj: libsimple_parent_gridcomp, userRoutine: setservices_}'))
+      parent_gc = create_grid_comp('parent', config, _RC)
+
+      config = p%load(TextStream('setServices: {sharedObj: libsimple_leaf_gridcomp, userRoutine: setservices_}'))
+      parent_meta => get_outer_meta(parent_gc, _RC)
+      user_gc = parent_meta%get_gridcomp()
+      
+      call parent_meta%add_child('child_1', config, _RC)
+      call parent_meta%add_child('child_2', config, _RC)
+
+      call ESMF_GridCompSetServices(parent_gc, setServices, _RC)
+      call clear_log()
+
+      rc = ESMF_SUCCESS
+   end subroutine setup
+
+   subroutine teardown(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      call ESMF_GridCompDestroy(parent_gc)
+   end subroutine teardown
+      
+
+   @test(npes=[0])
+   ! MAPL_run_child() is called from withis _user_ gridcomps.
+   subroutine test_MAPL_run_child(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+
+      integer :: status, rc
+
+      call setup(this, _RC)
+
+      call MAPL_run_child(user_gc, child_name='child_1', clock=clock, _RC)
+      @assertEqual("wasRun_child_1", log)
+
+      call teardown(this)
+      
+   end subroutine test_MAPL_Run_child
+
+   @test(npes=[0])
+   subroutine test_MAPL_Run_child_other_phase(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+
+      integer :: status, rc
+
+      call setup(this, _RC)
+
+      call MAPL_run_child(user_gc, child_name='child_1', clock=clock, phase_name='extra', _RC)
+      @assertEqual("wasRun_extra_child_1", log)
+
+      call teardown(this)
+      
+   end subroutine test_MAPL_Run_child_other_phase
+
+   @test(npes=[0])
+   subroutine test_init_children(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+
+      integer :: status, rc
+
+      call setup(this, _RC)
+
+      call parent_meta%initialize(importState, exportState, clock, _RC)
+      @assertEqual("wasInit :: wasInit_child_1 :: wasInit_child_2", log)
+
+      call teardown(this)
+      
+   end subroutine test_init_children
+
+   @test(npes=[0])
+   subroutine test_finalize_children(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+
+      integer :: status, rc
+
+      call setup(this, _RC)
+
+      call parent_meta%finalize(importState, exportState, clock, _RC)
+      @assertEqual("wasFinal :: wasFinal_child_1 :: wasFinal_child_2", log)
+
+      call teardown(this)
+
+   end subroutine test_finalize_children
+
+end module Test_RunChild

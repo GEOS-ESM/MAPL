@@ -15,7 +15,6 @@ module MAPL_ExtDataConfig
    use MAPL_ExtDataTimeSample
    use MAPL_ExtDataTimeSampleMap
    use MAPL_TimeStringConversion
-   use MAPL_ExtDataYamlNodeStack
    use MAPL_ExtDataMask
    implicit none
    private
@@ -48,50 +47,48 @@ contains
       integer, optional, intent(out) :: rc
 
       type(Parser)              :: p
-      type(Configuration) :: config, subcfg, ds_config, rule_config, derived_config, sample_config, subconfigs, rule_map
-      type(ConfigurationIterator) :: iter
-      character(len=:), allocatable :: key,new_key
+      class(YAML_Node), allocatable :: config
+      class(YAML_Node), pointer :: subcfg, ds_config, rule_config, derived_config, sample_config, subconfigs, rule_map
+      class(NodeIterator), allocatable :: iter
+      character(len=:), pointer :: key
+      character(len=:), allocatable :: new_key
       type(ExtDataFileStream) :: ds
       type(ExtDataDerived) :: derived
       type(ExtDataTimeSample) :: ts
       integer :: status
-      type(FileStream) :: fstream
 
       type(ExtDataFileStream), pointer :: temp_ds
       type(ExtDataTimeSample), pointer :: temp_ts
       type(ExtDataDerived), pointer :: temp_derived
 
-      character(len=:), allocatable :: sub_file
+      character(len=:), pointer :: sub_file
       integer :: i,num_rules
       integer, allocatable :: sorted_rules(:)
       character(len=1) :: i_char
 
       _UNUSED_DUMMY(unusable)
 
-      stack_depth=stack_depth+1
       p = Parser('core')
-      fstream=FileStream(config_file)
-      yaml_node_stack(stack_depth) = p%load(fstream)
-      call fstream%close()
+      config = p%load(config_file)
 
-      if (yaml_node_stack(stack_depth)%has("subconfigs")) then 
-         subconfigs = yaml_node_stack(stack_depth)%at("subconfigs")
+      if (config%has("subconfigs")) then 
+         subconfigs => config%at("subconfigs")
          _ASSERT(subconfigs%is_sequence(),'subconfigs is not a sequence')
          do i=1,subconfigs%size()
-           sub_file = subconfigs%of(i)
+           sub_file => to_string(subconfigs%at(i))
            call new_ExtDataConfig_from_yaml(ext_config,sub_file,current_time,rc=status)
            _VERIFY(status)
          end do
       end if
          
-      if (yaml_node_stack(stack_depth)%has("Samplings")) then
-         sample_config = yaml_node_stack(stack_depth)%of("Samplings")
+      if (config%has("Samplings")) then
+         sample_config => config%of("Samplings")
          iter = sample_config%begin()
          do while (iter /= sample_config%end())
-            call iter%get_key(key)
+            key => to_string(iter%first(),_RC)
             temp_ts => ext_config%sample_map%at(key)
             _ASSERT(.not.associated(temp_ts),"defined duplicate named sample key")
-            call iter%get_value(subcfg)
+            subcfg => iter%second()
             ts = ExtDataTimeSample(subcfg,_RC)
             _VERIFY(status)
             call ext_config%sample_map%insert(trim(key),ts)
@@ -99,33 +96,33 @@ contains
          enddo
       end if
 
-      if (yaml_node_stack(stack_depth)%has("Collections")) then
-         ds_config = yaml_node_stack(stack_depth)%of("Collections")
+      if (config%has("Collections")) then
+         ds_config => config%of("Collections")
          iter = ds_config%begin()
          do while (iter /= ds_config%end())
-            call iter%get_key(key)
+            key => to_string(iter%first(),_RC)
             temp_ds => ext_config%file_stream_map%at(key)
             _ASSERT(.not.associated(temp_ds),"defined duplicate named collection")
-            call iter%get_value(subcfg)
+            subcfg => iter%second()
             ds = ExtDataFileStream(subcfg,current_time,_RC)
             call ext_config%file_stream_map%insert(trim(key),ds)
             call iter%next()
          enddo
       end if
 
-      if (yaml_node_stack(stack_depth)%has("Exports")) then
-         rule_config = yaml_node_stack(stack_depth)%of("Exports")
+      if (config%has("Exports")) then
+         rule_config => config%of("Exports")
          iter = rule_config%begin()
          do while (iter /= rule_config%end())
-            call iter%get_key(key)
-            call iter%get_value(subcfg)
+            key => to_string(iter%first(),_RC)
+            subcfg => iter%second()
             if (subcfg%is_mapping()) then
                call ext_config%add_new_rule(key,subcfg,_RC)
             else if (subcfg%is_sequence()) then
                sorted_rules = sort_rules_by_start(subcfg,_RC) 
                num_rules = subcfg%size()
                do i=1,num_rules
-                  rule_map = subcfg%of(sorted_rules(i))
+                  rule_map => subcfg%of(sorted_rules(i))
                   write(i_char,'(I1)')i
                   new_key = key//rule_sep//i_char
                   call ext_config%add_new_rule(new_key,rule_map,multi_rule=.true.,_RC)
@@ -137,14 +134,14 @@ contains
          enddo
       end if
 
-      if (yaml_node_stack(stack_depth)%has("Derived")) then
-         derived_config = yaml_node_stack(stack_depth)%at("Derived")
+      if (config%has("Derived")) then
+         derived_config => config%at("Derived")
          iter = derived_config%begin()
          do while (iter /= derived_config%end())
             call derived%set_defaults(rc=status)
             _VERIFY(status)
-            call iter%get_key(key)
-            call iter%get_value(subcfg)
+            key => to_string(iter%first(),_RC)
+            subcfg => iter%second()
             derived = ExtDataDerived(subcfg,_RC)
             temp_derived => ext_config%derived_map%at(trim(key))
              _ASSERT(.not.associated(temp_derived),"duplicated derived entry key")
@@ -153,12 +150,11 @@ contains
          enddo
       end if
 
-      if (yaml_node_stack(stack_depth)%has("debug")) then
+      if (config%has("debug")) then
          call config%get(ext_config%debug,"debug",rc=status)
          _VERIFY(status)
       end if
 
-      stack_depth=stack_depth-1
       _RETURN(_SUCCESS)
    end subroutine new_ExtDataConfig_from_yaml
 
@@ -227,12 +223,12 @@ contains
 
    function sort_rules_by_start(yaml_sequence,rc) result(sorted_index)
       integer, allocatable :: sorted_index(:)
-      class(Configuration), intent(inout) :: yaml_sequence
+      class(YAML_Node), intent(inout) :: yaml_sequence
       integer, optional, intent(out) :: rc
 
       integer :: num_rules,i,j,i_temp,imin
       logical :: found_start
-      type(configuration) :: yaml_dict
+      class(YAML_Node), pointer :: yaml_dict
       character(len=:), allocatable :: start_time
       type(ESMF_Time), allocatable :: start_times(:)
       type(ESMF_Time) :: temp_time
@@ -242,7 +238,7 @@ contains
       allocate(sorted_index(num_rules),source=[(i,i=1,num_rules)])
 
       do i=1,num_rules
-         yaml_dict = yaml_sequence%of(i)
+         yaml_dict => yaml_sequence%of(i)
          found_start = yaml_dict%has("starting")
          _ASSERT(found_start,"no start key in multirule export of extdata")
          start_time = yaml_dict%of("starting")
@@ -319,7 +315,7 @@ contains
    subroutine add_new_rule(this,key,export_rule,multi_rule,rc) 
       class(ExtDataConfig), intent(inout) :: this
       character(len=*), intent(in) :: key
-      type(configuration), intent(in) :: export_rule
+      class(YAML_Node), intent(in) :: export_rule
       logical, optional, intent(in) :: multi_rule
       integer, intent(out), optional :: rc
 
@@ -368,7 +364,6 @@ contains
       type(StringVectorIterator) :: string_iter
       type(ExtDataDerived), pointer :: derived_item
       type(StringVector) :: variables_in_expression
-      type(StringVector) :: extra_variables_needed
       character(len=:), pointer :: sval,derived_name
       type(ExtDataRule), pointer :: rule
       integer :: i
