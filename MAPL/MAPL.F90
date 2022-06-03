@@ -10,6 +10,7 @@ module MAPL
    use mapl_StubComponent
    use MAPL_ESMFFieldBundleRead
    use MAPL_ESMFFieldBundleWrite
+   use MAPLShared
    implicit none
 end module MAPL
 
