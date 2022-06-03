@@ -2607,7 +2607,7 @@ ENDDO PARSER
          write (*,'(A)',ADVANCE='NO') '      Fields: '
          do m=1,list(n)%field_set%nfields
             if( trim(list(n)%field_set%fields(3,m)).ne.BLANK ) then
-               write (*,'(A,X)',ADVANCE='NO') trim(list(n)%field_set%fields(3,m))
+               write (*,'(A,1X)',ADVANCE='NO') trim(list(n)%field_set%fields(3,m))
             endif
          enddo
          ! Now advance the write

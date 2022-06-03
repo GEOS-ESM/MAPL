@@ -389,7 +389,9 @@ module MAPL_GriddedIOMod
 
         this%times = this%timeInfo%compute_time_vector(this%metadata,rc=status)
         _VERIFY(status)
-        ref = ArrayReference(this%times)
+        associate (times => this%times)
+          ref = ArrayReference(times)
+        end associate
         call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
 
         tindex = size(this%times)
@@ -750,7 +752,9 @@ module MAPL_GriddedIOMod
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%lons)
+        associate (lons => this%lons)
+          ref = ArrayReference(lons)
+        end associate
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
@@ -759,7 +763,10 @@ module MAPL_GriddedIOMod
         _VERIFY(STATUS)
         if (.not.allocated(this%lats)) allocate(this%lats(size(ptr2d,1),size(ptr2d,2)))
         this%lats=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%lats)
+        associate (lats => this%lats)
+          ref = ArrayReference(lats)
+        end associate
+
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
         deallocate(LocalStart,GlobalStart,GlobalCount)
@@ -780,7 +787,9 @@ module MAPL_GriddedIOMod
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
         this%corner_lons=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%corner_lons)
+        associate (corner_lons => this%corner_lons)
+          ref = ArrayReference(corner_lons)
+        end associate
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lons', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
@@ -789,7 +798,9 @@ module MAPL_GriddedIOMod
         _VERIFY(STATUS)
         if (.not.allocated(this%corner_lats)) allocate(this%corner_lats(size(ptr2d,1),size(ptr2d,2)))
         this%corner_lats=ptr2d*MAPL_RADIANS_TO_DEGREES
-        ref = ArrayReference(this%corner_lats)
+        associate (corner_lats => this%corner_lats)
+          ref = ArrayReference(corner_lats)
+        end associate
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lats', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
      end if

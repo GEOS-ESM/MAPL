@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - History GC
   - MemUtils
   - `register_generic_entry_points`
+- Implemented workaround for NAG related to ArrayReference use in GriddedIO.
+- Implemented workarounds to avoid needing `-dusty` for NAG.  (Related PR in ESMA_CMake.)
 
 ## [Unreleased]
 
