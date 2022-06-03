@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Modified error messages in FileMetadataUtilities to be unique and print filename
+- Updated the ESMA_cmake version to v3.16.0
 
 ### Removed
 
