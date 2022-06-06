@@ -1,0 +1,30 @@
+module Test_FieldDictionary
+   use funit
+   use mapl3g_FieldDictionary
+   use mapl3g_FieldDictionaryItem
+   use yafyaml, only: TextStream
+   implicit none
+
+contains
+
+   @test
+   ! Sanity test - just exercise interfaces
+   subroutine test_add_item()
+      type(FieldDictionary) :: fd
+
+      fd = FieldDictionary() ! empty
+      call fd%add_item('X_Y_Z', FieldDictionaryItem(units='m', long_name='X Y Z'))
+
+   end subroutine test_add_item
+
+   @test
+   subroutine test_from_yaml()
+      type(FieldDictionary) :: fd
+
+      fd = FieldDictionary(TextStream('{X_Y_Z: {units: m, long name: "X Y Z"}}'))
+
+      @assert_that(1, is(fd%size()))
+
+   end subroutine test_from_yaml
+
+end module Test_FieldDictionary

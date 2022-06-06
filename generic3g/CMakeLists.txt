@@ -3,14 +3,12 @@ esma_set_this (OVERRIDE MAPL.generic3g)
 
 set(srcs
   Generic3g.F90
-  
-  specs/HorizontalStaggerLoc.F90
-  specs/VerticalStaggerLoc.F90
-  specs/UngriddedDimSpec.F90
-  specs/DimSpec.F90
-  specs/ComponentSpec.F90
-  specs/ChildSpec.F90
-  specs/ChildSpecMap.F90
+
+  FieldDictionaryItem.F90
+  FieldDictionaryItemMap.F90
+  FieldDictionary.F90 
+
+  GenericGrid.F90
 
   ComponentSpecBuilder.F90
 
@@ -48,6 +46,7 @@ esma_add_library(${this}
   DEPENDENCIES MAPL.oomph MAPL.shared MAPL.profiler MAPL.base YAFYAML::yafyaml PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
   TYPE ${MAPL_LIBRARY_TYPE}
   )
+add_subdirectory(specs)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

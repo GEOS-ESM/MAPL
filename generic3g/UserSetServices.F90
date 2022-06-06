@@ -30,6 +30,8 @@ module mapl3g_UserSetServices
    type, abstract :: AbstractUserSetServices
    contains
       procedure(I_RunSetServices), deferred :: run
+      procedure(I_write_formatted), deferred :: write_formatted
+      generic :: write(formatted) => write_formatted
    end type AbstractUserSetServices
 
    abstract interface
@@ -42,6 +44,16 @@ module mapl3g_UserSetServices
          integer, intent(out) :: rc
       end subroutine I_RunSetServices
 
+      subroutine I_write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+         import AbstractUserSetServices
+         class(AbstractUserSetServices), intent(in) :: this
+         integer, intent(in) :: unit
+         character(*), intent(in) :: iotype
+         integer, intent(in) :: v_list(:)
+         integer, intent(out) :: iostat
+         character(*), intent(inout) :: iomsg
+      end subroutine I_write_formatted
+
    end interface
 
    ! Concrete subclass to encapsulate a traditional user setservices
@@ -51,6 +63,7 @@ module mapl3g_UserSetServices
       procedure(I_SetServices), nopass, pointer :: userRoutine ! ESMF naming convention
    contains
       procedure :: run => run_ProcSetServices
+      procedure :: write_formatted => write_formatted_proc
    end type ProcSetServices
 
    ! Concrete subclass to encapsulate a user setservices procedure
@@ -60,6 +73,7 @@ module mapl3g_UserSetServices
       character(:), allocatable :: userRoutine  ! ESMF naming convention
    contains
       procedure :: run => run_DSOSetServices
+      procedure :: write_formatted => write_formatted_dso
    end type DSOSetServices
 
    interface user_setservices
@@ -101,6 +115,17 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine run_ProcSetServices
 
+   subroutine write_formatted_proc(this, unit, iotype, v_list, iostat, iomsg)
+      class(ProcSetServices), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      write(unit,*,iostat=iostat) "userRoutine: <procedure>"
+   end subroutine write_formatted_proc
+
    !----------------------------------
    ! DSO support
    
@@ -134,8 +159,19 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine run_DSOSetServices
 
+   subroutine write_formatted_dso(this, unit, iotype, v_list, iostat, iomsg)
+      class(DSOSetServices), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
 
-   logical function equal_setServices(a, b) result(equal)
+      write(unit,*,iostat=iostat) "sharedObj: ", this%sharedObj
+      write(unit,*,iostat=iostat) "userRoutine: ", this%userRoutine
+   end subroutine write_formatted_dso
+
+   pure logical function equal_setServices(a, b) result(equal)
       class(AbstractUserSetServices), intent(in) :: a, b
 
       select type (a)
@@ -159,28 +195,28 @@ contains
 
    end function equal_setServices
 
-   logical function not_equal_setServices(a, b) result(not_equal)
+   pure logical function not_equal_setServices(a, b) result(not_equal)
       class(AbstractUserSetServices), intent(in) :: a, b
       not_equal = .not. (a == b)
    end function not_equal_setServices
 
-   logical function equal_ProcSetServices(a, b) result(equal)
+   pure logical function equal_ProcSetServices(a, b) result(equal)
       type(ProcSetServices), intent(in) :: a, b
       equal = associated(a%userRoutine, b%userRoutine)
    end function equal_ProcSetServices
 
-   logical function equal_DSOSetServices(a, b) result(equal)
+   pure logical function equal_DSOSetServices(a, b) result(equal)
       type(DSOSetServices), intent(in) :: a, b
       
       equal = (a%sharedObj == b%sharedObj) .and. (a%userRoutine == b%userRoutine)
    end function equal_DSOSetServices
 
-   logical function not_equal_ProcSetServices(a, b) result(not_equal)
+   pure logical function not_equal_ProcSetServices(a, b) result(not_equal)
       type(ProcSetServices), intent(in) :: a, b
       not_equal = .not. (a == b)
    end function not_equal_ProcSetServices
 
-   logical function not_equal_DSOSetServices(a, b) result(not_equal)
+   pure logical function not_equal_DSOSetServices(a, b) result(not_equal)
       type(DSOSetServices), intent(in) :: a, b
       not_equal = .not. (a == b)
    end function not_equal_DSOSetServices

@@ -6,7 +6,7 @@ module mapl3g_VerticalStaggerLoc
    public :: V_STAGGER_LOC_NONE
    public :: V_STAGGER_LOC_EDGE
    public :: V_STAGGER_LOC_CENTER
-   
+
    integer, parameter :: INVALID = -1
 
    type :: VerticalStaggerLoc

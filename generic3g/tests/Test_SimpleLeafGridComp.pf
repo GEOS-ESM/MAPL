@@ -12,12 +12,6 @@ module Test_SimpleLeafGridComp
 
 contains
 
-   subroutine fake_setservices(gc, rc)
-      type(ESMF_GridComp) :: gc
-      integer, intent(out) :: rc
-      rc = 0
-   end subroutine fake_setservices
-
    subroutine setup(outer_gc, rc)
       type(ESMF_GridComp), intent(inout) :: outer_gc
       integer, intent(out) :: rc
@@ -30,7 +24,6 @@ contains
       config = p%load(TextStream('{setServices: {sharedObj: libsimple_leaf_gridcomp, userRoutine: setservices_}}'))
 
       outer_gc = create_grid_comp('A', config, rc=status)
-!!$      outer_gc = create_grid_comp('A', userRoutine=fake_setservices, rc=status)
       @assert_that(status, is(0))
 
       call ESMF_GridCompSetServices(outer_gc, setServices, userRC=userRC, rc=status)
@@ -50,10 +43,6 @@ contains
 
    subroutine tearDown(outer_gc)
       type(ESMF_GridComp), intent(inout) :: outer_gc
-
-!!$      integer :: status
-!!$      call ESMF_GridCompFinalize(outer_gc, rc=status)
-!!$      @assert_that(status, is(0))
 
       call clear_log()
 

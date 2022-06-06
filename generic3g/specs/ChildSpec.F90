@@ -18,6 +18,9 @@ module mapl3g_ChildSpec
       class(AbstractUserSetServices), allocatable :: user_setservices
       ! Prevent default structure constructor
       integer, private ::  hack
+   contains
+      procedure :: write_formatted
+      generic :: write(formatted) => write_formatted
    end type ChildSpec
 
    interface ChildSpec
@@ -50,7 +53,7 @@ contains
    end function new_ChildSpec
       
 
-   logical function equal(a, b)
+   pure logical function equal(a, b)
       type(ChildSpec), intent(in) :: a
       type(ChildSpec), intent(in) :: b
 
@@ -78,7 +81,7 @@ contains
 
    end function equal
 
-   logical function not_equal(a, b)
+   pure logical function not_equal(a, b)
       type(ChildSpec), intent(in) :: a
       type(ChildSpec), intent(in) :: b
 
@@ -93,4 +96,37 @@ contains
          print*,__FILE__,__LINE__, q%sharedObj, '::', q%userRoutine
       end select
    end subroutine dump
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(ChildSpec), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      character(:), allocatable :: file
+
+      if (allocated(this%yaml_config_file)) then
+         file = this%yaml_config_file
+      else
+         file = '<none>'
+      end if
+      write(unit,'(a,a)',iostat=iostat) 'YAML config file: ', file
+      if (iostat /= 0) return
+      
+      if (allocated(this%esmf_config_file)) then
+         file = this%yaml_config_file
+      else
+         file = '<none>'
+      end if
+      write(unit,'(a,a)',iostat=iostat) 'ESMF config file: ', file
+      if (iostat /= 0) return
+
+      write(unit,'(a, DT)', iostat=iostat) 'UserSetServices: ', this%user_setservices
+      
+   end subroutine write_formatted
+
+
+
 end module mapl3g_ChildSpec

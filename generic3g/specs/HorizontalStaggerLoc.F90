@@ -27,8 +27,8 @@ module mapl3g_HorizontalStaggerLoc
    end type HorizontalStaggerLoc
 
    type(HorizontalStaggerLoc) :: H_STAGGER_LOC_NONE = HorizontalStaggerLoc(0)
-   type(HorizontalStaggerLoc) :: H_STAGGER_LOC_CENTER = HorizontalStaggerLoc(2)
-   type(HorizontalStaggerLoc) :: H_STAGGER_LOC_TILE = HorizontalStaggerLoc(3)
+   type(HorizontalStaggerLoc) :: H_STAGGER_LOC_CENTER = HorizontalStaggerLoc(1)
+   type(HorizontalStaggerLoc) :: H_STAGGER_LOC_TILE = HorizontalStaggerLoc(2)
    
 contains
 
