@@ -53,7 +53,8 @@ module MAPL_CapGridCompMod
      procedure(), pointer, nopass  :: root_set_services => null()
      character(len=:), allocatable :: final_file, name, cap_rc_file
      integer :: nsteps, heartbeat_dt, perpetual_year, perpetual_month, perpetual_day
-     logical :: amiroot, lperp, started_loop_timer
+     logical :: amiroot, started_loop_timer
+     logical :: lperp = .false.
      integer :: extdata_id, history_id, root_id, printspec
      type(ESMF_Clock) :: clock, clock_hist
      type(ESMF_Config) :: cf_ext, cf_root, cf_hist, config

@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 	MAPL is now instrumented with this memory profiler and it produces
 	reasonable results.  Should nicely complement other tools that
 	measure HWM.
+- Replace ESMF_Attribute calls with ESMF_Info calls in MAPL_FieldCopyAttribute
 
 ### Changed
 
@@ -62,14 +63,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add debug loggers for start/stop during stages in MAPL_Generic
 - Handling for double precision input when retrieving single precision attributes
 - Enable GCM run test in CircleCI (1-hour, no ExtData)
+- Added monotonic regridding option
+- Make availalbe to History and ExtData2G all supported regridding methods
 
 ### Changed
 
 - Modified error messages in FileMetadataUtilities to be unique and print filename
+- Updated the ESMA_cmake version to v3.16.0
+- Updated GitHub Actions MAPL build tests
 
 ### Removed
 
 ### Deprecated
+
+## [2.21.2] - 2022-05-31
+
+### Fixed
+
+- Initialize `cap%lperp` in `MAPL_CapGridComp.F90` (see Issue #1530)
+
+## [2.21.1] - 2022-05-24
+
+### Fixed
+
+- Adding missing _RETURN and _VERIFY macros in GriddedIO.F90
+- Update CircleCI to work with latest GEOSadas
 
 ## [2.21.0] - 2022-05-05
 
