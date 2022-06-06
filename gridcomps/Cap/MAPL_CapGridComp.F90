@@ -328,7 +328,8 @@ contains
 
     cap%heartbeat_dt = heartbeat_dt
 
-    perpetual = ESMF_AlarmCreate(clock = cap%clock, name = 'PERPETUAL', ringinterval = frequency, sticky = .false., ringtime = cap%cap_restart_time,  rc = status)
+
+    perpetual = ESMF_AlarmCreate(clock = cap%clock_hist, name = 'PERPETUAL', ringinterval = frequency, sticky = .false., rc = status)
     _VERIFY(status)
     call ESMF_AlarmRingerOff(perpetual, rc = status)
     _VERIFY(status)
