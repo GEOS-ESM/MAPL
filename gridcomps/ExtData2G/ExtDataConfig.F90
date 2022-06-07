@@ -27,7 +27,7 @@ module MAPL_ExtDataConfig
       type(ExtDataDerivedMap) :: derived_map
       type(ExtDataFileStreamMap) :: file_stream_map
       type(ExtDataTimeSampleMap) :: sample_map
-      
+
       contains
          procedure :: add_new_rule
          procedure :: get_item_type
@@ -39,7 +39,7 @@ module MAPL_ExtDataConfig
 
 contains
 
-   recursive subroutine new_ExtDataConfig_from_yaml(ext_config,config_file,current_time,unusable,rc) 
+   recursive subroutine new_ExtDataConfig_from_yaml(ext_config,config_file,current_time,unusable,rc)
       class(ExtDataConfig), intent(inout), target :: ext_config
       character(len=*), intent(in) :: config_file
       type(ESMF_Time), intent(in) :: current_time
@@ -65,13 +65,17 @@ contains
       integer :: i,num_rules
       integer, allocatable :: sorted_rules(:)
       character(len=1) :: i_char
+      logical :: file_found
 
       _UNUSED_DUMMY(unusable)
+
+      inquire(file=trim(config_file),exist=file_found)
+      _ASSERT(file_found,"could not find: "//trim(config_file))
 
       p = Parser('core')
       config = p%load(config_file)
 
-      if (config%has("subconfigs")) then 
+      if (config%has("subconfigs")) then
          subconfigs => config%at("subconfigs")
          _ASSERT(subconfigs%is_sequence(),'subconfigs is not a sequence')
          do i=1,subconfigs%size()
@@ -80,7 +84,7 @@ contains
            _VERIFY(status)
          end do
       end if
-         
+
       if (config%has("Samplings")) then
          sample_config => config%of("Samplings")
          iter = sample_config%begin()
@@ -119,14 +123,14 @@ contains
             if (subcfg%is_mapping()) then
                call ext_config%add_new_rule(key,subcfg,_RC)
             else if (subcfg%is_sequence()) then
-               sorted_rules = sort_rules_by_start(subcfg,_RC) 
+               sorted_rules = sort_rules_by_start(subcfg,_RC)
                num_rules = subcfg%size()
                do i=1,num_rules
                   rule_map => subcfg%of(sorted_rules(i))
                   write(i_char,'(I1)')i
                   new_key = key//rule_sep//i_char
                   call ext_config%add_new_rule(new_key,rule_map,multi_rule=.true.,_RC)
-               enddo 
+               enddo
             else
                _FAIL("Exports must be sequence or map")
             end if
@@ -163,7 +167,7 @@ contains
       class(ExtDataConfig), intent(in) :: this
       character(len=*), intent(in) :: item_name
       integer, optional, intent(out) :: rc
- 
+
       type(ExtDataRuleMapIterator) :: rule_iterator
       character(len=:), pointer :: key
       integer :: idx
@@ -196,7 +200,7 @@ contains
       type(ExtDataRule), pointer :: rule
       integer :: i,status,idx
       type(ESMF_Time) :: very_future_time
- 
+
       rule_iterator = this%rule_map%begin()
       do while(rule_iterator /= this%rule_map%end())
          key => rule_iterator%key()
@@ -277,7 +281,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
       item_type=ExtData_not_found
- 
+
       found_rule = .false.
       rule_iterator = this%rule_map%begin()
       do while(rule_iterator /= this%rule_map%end())
@@ -312,7 +316,7 @@ contains
       _RETURN(_SUCCESS)
    end function get_item_type
 
-   subroutine add_new_rule(this,key,export_rule,multi_rule,rc) 
+   subroutine add_new_rule(this,key,export_rule,multi_rule,rc)
       class(ExtDataConfig), intent(inout) :: this
       character(len=*), intent(in) :: key
       class(YAML_Node), intent(in) :: export_rule
@@ -380,18 +384,18 @@ contains
          ! now we have a stringvector of the variables involved in the expression
          ! check which of this are already in primary_items list, if any are not
          ! then we need to createa new list of needed variables and the "derived field"
-         ! wence to coppy them 
+         ! wence to coppy them
          do i=1,variables_in_expression%size()
             sval => variables_in_expression%at(i)
             if (.not.string_in_string_vector(sval,primary_items)) then
                rule => this%rule_map%at(sval)
                _ASSERT(associated(rule),"no rule for "//trim(sval)//" needed by "//trim(derived_name))
-               call needed_vars%push_back(sval//","//derived_name)                
+               call needed_vars%push_back(sval//","//derived_name)
             end if
          enddo
          call string_iter%next()
       enddo
-      
+
       _RETURN(_SUCCESS)
    end function get_extra_derived_items
 
