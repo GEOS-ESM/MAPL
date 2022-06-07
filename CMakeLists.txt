@@ -127,6 +127,9 @@ if (NOT Baselibs_FOUND)
 
   if (NOT TARGET esmf)
     find_package(ESMF MODULE REQUIRED)
+
+    # MAPL uses lowercase due to historical reasons
+    add_library(esmf ALIAS ESMF)
   endif ()
 endif ()
 
