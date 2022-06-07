@@ -6,9 +6,7 @@
 
 #ifndef MAPL_ErrLog_DONE
 
-
 #  define MAPL_ErrLog_DONE
-
 #  ifdef RETURN_
 #    undef RETURN_
 #  endif
@@ -26,6 +24,9 @@
 #  endif
 
 ! new
+#  ifdef _HERE
+#     undef _HERE
+#  endif
 #  ifdef _RETURN
 #    undef _RETURN
 #  endif
@@ -57,6 +58,7 @@
 #    undef __rc
 #  endif
 
+
 #  define IGNORE_(a) continue
 
 #  ifdef I_AM_MAIN
@@ -66,6 +68,8 @@
 #    define __return return
 #    define __rc(rc) ,rc
 #  endif
+
+#    define _HERE print*,__FILE__,__LINE__
 
 #  ifdef ANSI_CPP
 

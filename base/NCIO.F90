@@ -111,6 +111,7 @@ module NCIOMod
     integer                            :: J, K, L
     integer, pointer                   :: mask(:)
     type (ESMF_DistGrid)               :: distGrid
+    type (ESMF_Info)                   :: infoh
 
     call ESMF_FieldGet(field, grid=grid, rc=status)
     _VERIFY(STATUS)
@@ -119,7 +120,9 @@ module NCIOMod
     call ESMF_DistGridGet(distGrid, delayout=layout, rc=STATUS)
     _VERIFY(STATUS)
 
-    call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+    call ESMF_InfoGetFromHost(field,infoh,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
     _VERIFY(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then
@@ -315,6 +318,7 @@ module NCIOMod
     type (ESMF_DistGrid)               :: distGrid
     type (LocalMemReference) :: lMemRef
     integer :: size_1d
+    type (ESMF_Info)                   :: infoh
 
 
     call ESMF_FieldGet(field, grid=grid, rc=status)
@@ -328,7 +332,9 @@ module NCIOMod
       _ASSERT(present(oClients), "output server is needed")
     endif
 
-    call ESMF_AttributeGet(field, name='DIMS', value=DIMS, rc=status)
+    call ESMF_InfoGetFromHost(field,infoh,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh,'DIMS',DIMS,rc=status)
     _VERIFY(STATUS)
     if (DIMS == MAPL_DimsTileOnly .or. DIMS == MAPL_DimsTileTile) then
        if(present(HomePE)) then
@@ -2697,6 +2703,7 @@ module NCIOMod
     logical :: grid_file_match,flip
     type(ESMF_VM) :: vm
     integer :: comm
+    type(ESMF_INFO) :: infoh
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars,rc=STATUS)
     _VERIFY(STATUS)
@@ -2752,7 +2759,9 @@ module NCIOMod
       end if
 
       if(.not.associated(MASK)) then
-         call ESMF_AttributeGet(field, name='DIMS', value=MAPL_DIMS, rc=status)
+         call ESMF_InfoGetFromHost(field,infoh,rc=status)
+         _VERIFY(STATUS)
+         call ESMF_InfoGet(infoh,'DIMS',MAPL_DIMS,rc=status)
          _VERIFY(STATUS)
          if (MAPL_DIMS == MAPL_DimsTileOnly .or. MAPL_DIMS == MAPL_DimsTileTile) then
             call ESMF_FieldGet   (field, grid=grid, rc=status)
@@ -2831,6 +2840,7 @@ module NCIOMod
 ! Local vars
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
+    type (ESMF_Info)                     :: infoh
     integer                              :: status
     integer                              :: I, K
     integer                              :: J, ITEMCOUNT
@@ -2934,10 +2944,12 @@ module NCIOMod
              _VERIFY(STATUS)
 
              skipReading = .false.
-             call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+             call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+             _VERIFY(STATUS)
+             isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                 _VERIFY(STATUS)
              else
                 RST = MAPL_RestartOptional
@@ -2958,10 +2970,12 @@ module NCIOMod
                _VERIFY(STATUS)
 
                skipReading = .false.
-               call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+               call ESMF_InfoGetFromHost(field,infoh,rc=status)
+               _VERIFY(STATUS)
+               isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
                _VERIFY(STATUS)
                if (isPresent) then
-                  call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                  call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                   _VERIFY(STATUS)
                else
                   RST = MAPL_RestartOptional
@@ -2995,9 +3009,7 @@ module NCIOMod
                else
                   if (bootStrapable_ .and. (RST == MAPL_RestartOptional)) then
                      call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
-                     call ESMF_AttributeSet ( field, name='RESTART', &
-                             value=MAPL_RestartBootstrap, rc=status)
-
+                     call ESMF_InfoSet(infoh,'RESTART',MAPL_RestartBootstrap,rc=status)
                   else
                      _FAIL( "  Could not find field "//trim(FieldName)//" in "//trim(filename))
                   end if
@@ -3015,20 +3027,22 @@ module NCIOMod
                end if
 
              skipReading = .false.
-             call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+             call ESMF_InfoGetFromHost(field,infoh,rc=status)
+             _VERIFY(STATUS)
+             isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                 _VERIFY(STATUS)
              else
                 RST = MAPL_RestartOptional
              end if
              skipReading = (RST == MAPL_RestartSkip)
              if (skipReading) cycle
-             call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
+             isPresent = ESMF_InfoIsPresent(infoh,'doNotAllocate',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(field, name='doNotAllocate', value=DNA, rc=status)
+                call ESMF_InfoGet(infoh,'doNotAllocate',DNA,rc=status)
                 _VERIFY(STATUS)
                 skipReading = (DNA /= 0)
              end if
@@ -3050,8 +3064,9 @@ module NCIOMod
              else
                 if (bootStrapable .and. (RST == MAPL_RestartOptional)) then
                     call WRITE_PARALLEL("  Bootstrapping Variable: "//trim(FieldName)//" in "//trim(filename))
-                    call ESMF_AttributeSet ( field, name='RESTART', &
-                            value=MAPL_RestartBootstrap, rc=status)
+                    call ESMF_InfoGetFromHost(field,infoh,rc=status)
+                    _VERIFY(STATUS)
+                    call ESMF_InfoSet(infoh,'RESTART',MAPL_RestartBootstrap,rc=status)
                 else
                     _FAIL( "  Could not find field "//trim(Fieldname)//" in "//trim(filename))
                 end if
@@ -3088,12 +3103,15 @@ module NCIOMod
   integer                               :: status
   type(ESMF_Field)                      :: field
   type(ESMF_FieldBundle)                :: bundle
+  type(ESMF_Info)                       :: infoh
 
   FIELD = ESMF_FieldCreate(grid=arrDes%grid, datacopyflag=ESMF_DATACOPY_VALUE, &
          farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
   _VERIFY(STATUS)
   if (arrDes%tile) then
-     call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsTileOnly,rc=status)
+     call ESMF_InfoGetFromHost(field,infoh,rc=status)
+     _VERIFY(STATUS)
+     call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsTileOnly,rc=status)
      _VERIFY(STATUS)
   endif
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
@@ -3125,15 +3143,18 @@ module NCIOMod
   integer                               :: status
   type(ESMF_Field)                      :: field
   type(ESMF_FieldBundle)                :: bundle
+  type(ESMF_Info)                       :: infoh
 
   FIELD = ESMF_FieldCreate(grid=arrDes%grid, datacopyflag=ESMF_DATACOPY_VALUE, &
          farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
   _VERIFY(STATUS)
+  call ESMF_InfoGetFromHost(field,infoh,rc=status)
+  _VERIFY(STATUS)
   if (arrDes%tile) then
-     call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsTileTile,rc=status)
+     call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsTileTile,rc=status)
      _VERIFY(STATUS)
   else
-     call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzOnly,rc=status)
+     call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzOnly,rc=status)
      _VERIFY(STATUS)
   endif
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
@@ -3165,11 +3186,14 @@ module NCIOMod
   integer                               :: status
   type(ESMF_Field)                      :: field
   type(ESMF_FieldBundle)                :: bundle
+  type(ESMF_Info)                       :: infoh
 
   FIELD = ESMF_FieldCreate(grid=arrDes%grid, datacopyflag=ESMF_DATACOPY_VALUE, &
          farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
   _VERIFY(STATUS)
-  call ESMF_AttributeSet(field,name='DIMS',value=MAPL_DimsHorzVert,rc=status)
+  call ESMF_InfoGetFromHost(field,infoh,rc=status)
+  _VERIFY(STATUS)
+  call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzVert,rc=status)
   _VERIFY(STATUS)
   BUNDLE =  ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
   _VERIFY(STATUS)
@@ -3257,23 +3281,26 @@ module NCIOMod
     logical :: is_stretched
     character(len=ESMF_MAXSTR) :: positive
     type(StringVector) :: flip_vars
+    type(ESMF_Info) :: infoh
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
     _VERIFY(STATUS)
 
-    call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",isPresent=have_target_lon,rc=status)
+    call ESMF_InfoGetFromHost(arrdes%grid,infoh,rc=status)
+    _VERIFY(STATUS)
+    have_target_lon = ESMF_InfoIsPresent(infoh,'TARGET_LON',rc=status)
     _VERIFY(status)
-    call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",isPresent=have_target_lat,rc=status)
+    have_target_lat = ESMF_InfoIsPresent(infoh,'TARGET_LAT',rc=status)
     _VERIFY(status)
-    call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",isPresent=have_stretch_factor,rc=status)
+    have_stretch_factor = ESMF_InfoIsPresent(infoh,'STRETCH_FACTOR',rc=status)
     _VERIFY(status)
     if (have_target_lon .and. have_target_lat .and. have_stretch_factor) then
        is_stretched = .true.
-       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LON",value=target_lon,rc=status)
+       call ESMF_InfoGet(infoh,'TARGET_LON',target_lon,rc=status)
        _VERIFY(status)
-       call ESMF_AttributeGet(arrdes%grid,name="TARGET_LAT",value=target_lat,rc=status)
+       call ESMF_InfoGet(infoh,'TARGET_LAT',target_lat,rc=status)
        _VERIFY(status)
-       call ESMF_AttributeGet(arrdes%grid,name="STRETCH_FACTOR",value=stretch_factor,rc=status)
+       call ESMF_InfoGet(infoh,'STRETCH_FACTOR',stretch_factor,rc=status)
        _VERIFY(status)
     else
        is_stretched = .false.
@@ -3302,9 +3329,11 @@ module NCIOMod
 
        call ESMF_FieldBundleGet(Bundle,fieldIndex=I, field=field, rc=status)
        _VERIFY(STATUS)
-       call ESMF_AttributeGet(field, NAME='DIMS', VALUE=DIMS(I), rc=status)
+       call ESMF_InfoGetFromHost(field,infoh,rc=status)
        _VERIFY(STATUS)
-       call ESMF_AttributeGet(field, NAME='VLOCATION', VALUE=LOCATION(I), rc=status)
+       call ESMF_InfoGet(infoh,key='DIMS',value=DIMS(I),rc=status)
+       _VERIFY(STATUS)
+       call ESMF_InfoGet(infoh,key='VLOCATION',value=LOCATION(I),rc=status)
        _VERIFY(STATUS)
 
        ! now check if we have an ungridded dimension
@@ -3436,7 +3465,9 @@ module NCIOMod
        call ArrDescrSet(arrdes, JM_WORLD=JM_WORLD)
     end if
 
-    call ESMF_AttributeGet(bundle,"POSITIVE",positive,rc=status)
+    call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+    _VERIFY(status)
+    call ESMF_InfoGet(infoh,'POSITIVE',positive,rc=status)
     _VERIFY(status)
     ! count dimensions for NCIO
     ndims = 0
@@ -3619,16 +3650,18 @@ module NCIOMod
        do i=1,nVars
           call ESMF_FieldBundleGet(Bundle,fieldIndex=I, field=field, rc=status)
           _VERIFY(STATUS)
-          call ESMF_AttributeGet(FIELD, NAME='LONG_NAME'   , VALUE=LONG_NAME , rc=status)
+          call ESMF_InfoGetFromHost(field,infoh,rc=status)
           _VERIFY(STATUS)
-          call ESMF_AttributeGet(FIELD, NAME='UNITS'       , VALUE=UNITS     , rc=status)
+          call ESMF_InfoGet(infoh,key='LONG_NAME',value=LONG_NAME,rc=status)
           _VERIFY(STATUS)
-          call ESMF_AttributeGet(field, NAME='DIMS'        , VALUE=DIMS(1)      , rc=status)
+          call ESMF_InfoGet(infoh,key='UNITS',value=UNITS,rc=status)
           _VERIFY(STATUS)
-          call ESMF_AttributeGet(field, NAME="VLOCATION" , isPresent=isPresent, RC=STATUS)
+          call ESMF_InfoGet(infoh,key='DIMS',value=DIMS(1),rc=status)
+          _VERIFY(STATUS)
+          isPresent = ESMF_InfoIsPresent(infoh,key='VLOCATION',rc=status)
           _VERIFY(STATUS)
           if ( isPresent ) then
-             call ESMF_AttributeGet(field, NAME="VLOCATION" , VALUE=LOCATION(1)  , RC=STATUS)
+             call ESMF_InfoGet(infoh,key='VLOCATION',value=LOCATION(1),rc=status)
              _VERIFY(STATUS)
           else
              LOCATION(1) = MAPL_VLocationNone
@@ -3856,8 +3889,11 @@ module NCIOMod
           FieldName = trim(FieldName(ind+2:))
        end if
 
+       call ESMF_InfoGetFromHost(field,infoh,rc=status)
+       _VERIFY(STATUS)
+
        if (.not.associated(MASK)) then
-          call ESMF_AttributeGet(field, name='DIMS', value=MAPL_DIMS, rc=status)
+          call ESMF_InfoGet(infoh,'DIMS',MAPL_DIMS,rc=status)
           _VERIFY(STATUS)
           if (MAPL_DIMS == MAPL_DimsTileOnly .or. MAPL_DIMS == MAPL_DimsTileTile) then
              call ESMF_FieldGet   (field, grid=grid, rc=status)
@@ -3870,9 +3906,9 @@ module NCIOMod
        call MAPL_FieldWriteNCPar(formatter, fieldName, field, arrdes, HomePE=mask, oClients=oClients, rc=status)
        _VERIFY(STATUS)
 
-       call ESMF_AttributeGet(field,name="FLIPPED",isPresent=isPresent,rc=status)
+       isPresent = ESMF_InfoIsPresent(infoh,key='FLIPPED',rc=status)
        if (isPresent) then
-         call ESMF_AttributeGet(field,name="FLIPPED",value=fieldName,rc=status)
+         call ESMF_InfoGet(infoh,'FLIPPED',fieldName,rc=status)
          if (status == _SUCCESS) then
             call ESMF_FieldDestroy(field,noGarbage=.true.,rc=status)
             _VERIFY(status)
@@ -3936,6 +3972,7 @@ module NCIOMod
 ! Local vars
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
+    type (ESMF_Info)                     :: infoh
     integer                              :: status
     integer                              :: I, J, ITEMCOUNT
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
@@ -3988,9 +4025,13 @@ module NCIOMod
     call ESMF_FieldBundleSet(bundle_write,grid=arrdes%grid,rc=STATUS)
     _VERIFY(STATUS)
 
-    call ESMF_AttributeGet(state,name="POSITIVE",value=positive,rc=status)
+    call ESMF_InfoGetFromHost(state,infoh,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoGet(infoh,'POSITIVE',positive,rc=status)
     _VERIFY(status)
-    call ESMF_AttributeSet(bundle_write,name="POSITIVE",value=positive,rc=status)
+    call ESMF_InfoGetFromHost(bundle_write,infoh,rc=status)
+    _VERIFY(STATUS)
+    call ESMF_InfoSet(infoh,'POSITIVE',positive,rc=status)
     _VERIFY(status)
     flip = trim(positive)=="up"
 
@@ -4005,10 +4046,12 @@ module NCIOMod
 
              skipWriting = .false.
              if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(bundle, name='RESTART', isPresent=isPresent, rc=status)
+                call ESMF_InfoGetFromHost(bundle,infoh,rc=status)
+                _VERIFY(STATUS)
+                isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
                 _VERIFY(STATUS)
                 if (isPresent) then
-                   call ESMF_AttributeGet(bundle, name='RESTART', value=RST, rc=status)
+                   call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                    _VERIFY(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
@@ -4038,11 +4081,14 @@ module NCIOMod
              _VERIFY(STATUS)
 
              skipWriting = .false.
+
+             call ESMF_InfoGetFromHost(field,infoh,rc=status)
+             _VERIFY(STATUS)
              if (.not. forceWriteNoRestart_) then
-                call ESMF_AttributeGet(field, name='RESTART', isPresent=isPresent, rc=status)
+                isPresent = ESMF_InfoIsPresent(infoh,'RESTART',rc=status)
                 _VERIFY(STATUS)
                 if (isPresent) then
-                   call ESMF_AttributeGet(field, name='RESTART', value=RST, rc=status)
+                   call ESMF_InfoGet(infoh,'RESTART',RST,rc=status)
                    _VERIFY(STATUS)
                    skipWriting = (RST == MAPL_RestartSkip)
                 end if
@@ -4051,10 +4097,10 @@ module NCIOMod
              end if
              if (skipWriting) cycle
 
-             call ESMF_AttributeGet(field, name='doNotAllocate', isPresent=isPresent, rc=status)
+             isPresent = ESMF_InfoIsPresent(infoh,'doNotAllocate',rc=status)
              _VERIFY(STATUS)
              if (isPresent) then
-                call ESMF_AttributeGet(field, name='doNotAllocate', value=dna, rc=status)
+                call ESMF_InfoGet(infoh,'foNotAllocate',dna,rc=status)
                 _VERIFY(STATUS)
                 skipWriting = (dna /= 0)
              endif
@@ -4563,13 +4609,16 @@ module NCIOMod
       real(KIND=ESMF_KIND_R8), allocatable :: alloc_r8(:,:,:)
       type(ESMF_TypeKind_Flag) :: tk
       integer :: vloc,i,lb,ub,ii
+      type(ESMF_Info) :: infoh
 
       call ESMF_FieldGet(field,rank=rank,typeKind=tk,rc=status)
       _VERIFY(status)
       if (rank/=3) then
          _RETURN(_SUCCESS)
       else
-         call ESMF_AttributeGet(field,name="VLOCATION",value=vloc,rc=status)
+         call ESMF_InfoGetFromHost(field,infoh,rc=status)
+         _VERIFY(status)
+         call ESMF_InfoGet(infoh,'VLOCATION',vloc,rc=status)
          _VERIFY(status)
          if (vloc==MAPL_VLocationCenter .or. vloc==MAPL_VLocationEdge) then
             if (tk == ESMF_TYPEKIND_R4) then
@@ -4612,12 +4661,14 @@ module NCIOMod
       type(ESMF_TYPEKIND_FLAG) :: tk
       real(KIND=ESMF_KIND_R4), pointer :: ptr_r4_in(:,:,:),ptr_r4_out(:,:,:)
       real(KIND=ESMF_KIND_R8), pointer :: ptr_r8_in(:,:,:),ptr_r8_out(:,:,:)
-
+      type(ESMF_Info) :: infoh
 
       call ESMF_FieldGet(field,rank=rank,name=fname,rc=status)
       _VERIFY(status)
       if (rank==3) then
-         call ESMF_AttributeGet(field,name="VLOCATION",value=vloc,rc=status)
+         call ESMF_InfoGetFromHost(field,infoh,rc=status)
+         _VERIFY(status)
+         call ESMF_InfoGet(infoh,'VLOCATION',vloc,rc=status)
          _VERIFY(status)
          if (vloc==MAPL_VLocationCenter .or. vloc==MAPL_VLocationEdge) then
             call ESMF_FieldGet(Field,grid=grid,ungriddedLbound=lb,ungriddedUBound=ub,typekind=tk,rc=status)
@@ -4641,7 +4692,9 @@ module NCIOMod
             end if
             call flip_field(flipped_field,rc=status)
             _VERIFY(status)
-            call ESMF_AttributeSet(flipped_field,"FLIPPED","flipped",rc=status)
+            call ESMF_InfoGetFromHost(flipped_field,infoh,rc=status)
+            _VERIFY(status)
+            call ESMF_InfoSet(infoh,'FLIPPED',"flipped",rc=status)
             _VERIFY(status)
          else
             flipped_field=field

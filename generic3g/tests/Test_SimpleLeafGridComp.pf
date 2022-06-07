@@ -1,0 +1,153 @@
+module Test_SimpleLeafGridComp
+   use mapl3g_GenericGridComp, only: create_grid_comp
+   use mapl3g_GenericGridComp, only: initialize_generic => initialize
+   use mapl3g_GenericGridComp, only: setServices
+   use mapl3g_OuterMetaComponent, only: OuterMetaComponent
+   use mapl3g_OuterMetaComponent, only: get_outer_meta
+   use esmf
+   use pFunit
+   use yaFyaml
+   use scratchpad
+   implicit none
+
+contains
+
+   subroutine fake_setservices(gc, rc)
+      type(ESMF_GridComp) :: gc
+      integer, intent(out) :: rc
+      rc = 0
+   end subroutine fake_setservices
+
+   subroutine setup(outer_gc, rc)
+      type(ESMF_GridComp), intent(inout) :: outer_gc
+      integer, intent(out) :: rc
+      
+      class(YAML_Node), allocatable :: config
+      integer :: status, userRC
+      type(Parser) :: p
+
+      p = Parser('core')
+      config = p%load(TextStream('{setServices: {sharedObj: libsimple_leaf_gridcomp, userRoutine: setservices_}}'))
+
+      outer_gc = create_grid_comp('A', config, rc=status)
+!!$      outer_gc = create_grid_comp('A', userRoutine=fake_setservices, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GridCompSetServices(outer_gc, setServices, userRC=userRC, rc=status)
+      if (status /= 0) then
+         rc = status
+         return
+      end if
+      if (userRC /= 0) then
+         rc = userRC
+         return
+      end if
+      call clear_log()
+      rc = 0
+
+   end subroutine setup
+
+
+   subroutine tearDown(outer_gc)
+      type(ESMF_GridComp), intent(inout) :: outer_gc
+
+!!$      integer :: status
+!!$      call ESMF_GridCompFinalize(outer_gc, rc=status)
+!!$      @assert_that(status, is(0))
+
+      call clear_log()
+
+   end subroutine tearDown
+
+   @test(npes=[0])
+   subroutine test_wasrun_1(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status, userRC
+      type(ESMF_GridComp) :: outer_gc
+
+      call setup(outer_gc, status)
+      @assert_that('DSO problem', status, is(0))
+
+      call ESMF_GridCompRun(outer_gc, userRC=userRC, phase=1, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(userRC, is(0))
+      @assertEqual("wasRun_A", log)
+
+      call teardown(outer_gc)
+
+      if(.false.) print*,shape(this)
+   end subroutine test_wasrun_1
+
+
+   ! Verify that an optional run phase in the user comp can be
+   ! exercised.  Note at this level, we cannot use the phase_name to
+   ! specify the phase, so the unit test assumes the extra phase has
+   ! index=2.   In real use cases, `run_child()` will be applied in
+   ! which case the phase_name is available.
+   
+   @test(npes=[0])
+   subroutine test_wasrun_extra(this)
+      use scratchpad
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status
+      type(ESMF_GridComp) :: outer_gc
+
+      call setup(outer_gc, status)
+      @assert_that(status, is(0))
+
+      call ESMF_GridCompRun(outer_gc, phase=2, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual("wasRun_extra_A", log)
+
+      call teardown(outer_gc)
+      if(.false.) print*,shape(this)
+   end subroutine test_wasrun_extra
+
+   @test(npes=[0])
+   subroutine test_wasinit(this)
+      use scratchpad
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status
+      type(ESMF_GridComp) :: outer_gc
+
+      call setup(outer_gc, status)
+      @assert_that(status, is(0))
+
+      call ESMF_GridCompInitialize(outer_gc, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual("wasInit_A", log)
+
+      call teardown(outer_gc)
+
+      if(.false.) print*,shape(this)
+   end subroutine test_wasinit
+   
+   @test(npes=[0])
+   subroutine test_wasfinal(this)
+      use scratchpad
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status
+      type(ESMF_GridComp) :: outer_gc
+
+      call setup(outer_gc, status)
+      @assert_that(status, is(0))
+
+      call ESMF_GridCompFinalize(outer_gc, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual("wasFinal_A", log)
+
+
+      ! Node - do not need to call teardown, as we are
+      ! finalizing ourselves.  But .. we do need to check that the
+      ! user_gc has been finalized, and that the various internal states
+      ! have been freed.
+
+      if(.false.) print*,shape(this)
+   end subroutine test_wasfinal
+   
+
+end module Test_SimpleLeafGridComp

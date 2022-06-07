@@ -44,23 +44,26 @@ module mapl_CapOptionsMod
       character(:), allocatable :: oserver_type
       integer :: npes_backend_pernode = 0
 
+      logical :: enable_global_timeprof = .false.
+      logical :: enable_global_memprof  = .false.
+
    end type MAPL_CapOptions
 
    interface MAPL_CapOptions
       module procedure new_CapOptions
-      module procedure new_CapOptions_copy ! for backward compatibility ! delete for 3.0
    end interface MAPL_CapOptions
 
 contains
 
-   function new_CapOptions(unusable, cap_rc_file, egress_file, ensemble_subdir_prefix, esmf_logging_mode, rc) result (cap_options)
+   function new_CapOptions(unusable, cap_rc_file, egress_file, ensemble_subdir_prefix, esmf_logging_mode, enable_global_timeprof, enable_global_memprof, rc) result (cap_options)
       type (MAPL_CapOptions) :: cap_options
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: cap_rc_file
       character(*), optional, intent(in) :: egress_file
       character(*), optional, intent(in) :: ensemble_subdir_prefix 
       type(ESMF_LogKind_Flag), optional, intent(in) :: esmf_logging_mode
-
+      logical, optional, intent(in) :: enable_global_timeprof
+      logical, optional, intent(in) :: enable_global_memprof
       integer, optional, intent(out) :: rc
 
       _UNUSED_DUMMY(unusable)
@@ -79,16 +82,11 @@ contains
       if (present(egress_file)) cap_options%egress_file = egress_file
       if (present(ensemble_subdir_prefix)) cap_options%ensemble_subdir_prefix = ensemble_subdir_prefix
       if (present(esmf_logging_mode)) cap_options%esmf_logging_mode = esmf_logging_mode
-
+      if (present(enable_global_timeprof)) cap_options%enable_global_timeprof = enable_global_timeprof
+      if (present(enable_global_memprof)) cap_options%enable_global_memprof = enable_global_memprof
       _RETURN(_SUCCESS)
 
    end function new_CapOptions
-
-   function new_CapOptions_copy(options) result(copy)
-      type(MAPL_CapOptions) :: copy
-      type(MAPL_CapOptions), intent(in) :: options
-      copy = options
-   end function new_CapOptions_copy
 
 end module MAPL_CapOptionsMod
 
