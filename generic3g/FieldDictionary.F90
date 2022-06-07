@@ -139,6 +139,7 @@ contains
                  short_name_node => iter%at(_RC)
                  _ASSERT(short_name_node%is_string(), 'short name must be a string')
                  call short_names%push_back(to_string(short_name_node))
+                 
                  call iter%next()
               end do
             end associate
@@ -154,12 +155,29 @@ contains
 
 
 
-   subroutine add_item(this, standard_name, field_item)
+   subroutine add_item(this, standard_name, field_item, rc)
       class(FieldDictionary), intent(inout) :: this
       character(*), intent(in) :: standard_name
       type(FieldDictionaryItem), intent(in) :: field_item
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      type(StringVectorIterator) :: iter
+      character(:), pointer :: short_name
 
       call this%entries%insert(standard_name, field_item)
+
+      associate (b => field_item%short_names%begin(), e => field_item%short_names%end())
+        iter = b
+        do while (iter /= e)
+           short_name => iter%of()
+           _ASSERT(this%alias_map%count(short_name) == 0, 'ambiguous short name references more than one item in dictionary')
+           call this%alias_map%insert(short_name, standard_name)
+           call iter%next()
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
    end subroutine add_item
 
 
@@ -217,27 +235,9 @@ contains
       character(*), intent(in) :: alias
       integer, optional, intent(out) :: rc
 
-      type(FieldDictionaryItem), pointer :: item
-      type(FieldDictionaryItemMapIterator) :: iter
-      type(StringVectorIterator) :: alias_iter
       integer :: status
-
-      associate (b => this%entries%begin(), e => this%entries%end())
-        iter = b
-        do while (iter /= e)
-           item => iter%second()
-
-           associate (b_aliases => item%short_names%begin(), e_aliases => item%short_names%end())
-             alias_iter = find(first=b_aliases, last=e_aliases, value=alias)
-             if (alias_iter /=  e_aliases) then
-                standard_name = iter%first()
-                _RETURN(_SUCCESS)
-             end if
-           end associate
-           call iter%next()
-        end do
-      end associate
-      _FAIL('alias <'//alias//'> not found in field dictionary.')
+      
+      standard_name = this%alias_map%at(alias, _RC)
       
       _RETURN(_SUCCESS)
    end function get_standard_name

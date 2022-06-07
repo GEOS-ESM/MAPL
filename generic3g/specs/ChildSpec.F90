@@ -53,7 +53,7 @@ contains
    end function new_ChildSpec
       
 
-   pure logical function equal(a, b)
+   logical function equal(a, b)
       type(ChildSpec), intent(in) :: a
       type(ChildSpec), intent(in) :: b
 
@@ -68,7 +68,7 @@ contains
 
    contains
 
-      pure logical function equal_config(a, b) result(equal)
+      logical function equal_config(a, b) result(equal)
          character(:), allocatable, intent(in) :: a
          character(:), allocatable, intent(in) :: b
 
@@ -81,7 +81,7 @@ contains
 
    end function equal
 
-   pure logical function not_equal(a, b)
+   logical function not_equal(a, b)
       type(ChildSpec), intent(in) :: a
       type(ChildSpec), intent(in) :: b
 
