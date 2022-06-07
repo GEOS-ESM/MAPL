@@ -182,23 +182,8 @@
       end select
     enddo
 
-    if (trim(regridMth) .ne. 'bilinear' .and. trim(regridMth ) .ne. 'conservative' .and. trim(regridMth ) .ne. 'conservative2' .and. &
-         trim(regridMth).ne.'patch') then
-       if (MAPL_AM_I_Root()) write(*,*)'invalid regrid method choose bilinear or conservative'
-       _FAIL('needs informative message')
-    end if
-    if (trim(regridMth) == 'bilinear') then
-       this%regridMethod = REGRID_METHOD_BILINEAR
-    end if
-    if (trim(regridMth) == 'patch') then
-       this%regridMethod = REGRID_METHOD_PATCH
-    end if
-    if (trim(regridMth) == 'conservative') then
-       this%regridMethod = REGRID_METHOD_CONSERVE
-    end if
-    if (trim(regridMth) == 'conservative2') then
-       this%regridMethod = REGRID_METHOD_CONSERVE_2ND
-    end if
+    this%regridMethod = get_regrid_method(regridMth)
+    _ASSERT(this%regridMethod/=UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
 
     this%filenames = split_string(cfilenames,',')
     this%outputfiles = split_string(coutputfiles,',')

@@ -222,6 +222,7 @@ module MAPL_GenericMod
    public MAPL_GenericStateSave
    public MAPL_GenericStateRestore
    public MAPL_RootGcRetrieve
+   public MAPL_AddAttributeToFields
 
    !BOP
    ! !PUBLIC TYPES:
@@ -340,6 +341,10 @@ module MAPL_GenericMod
       module procedure MAPL_GetLogger_gc
       module procedure MAPL_GetLogger_meta
    end interface MAPL_GetLogger
+
+   interface MAPL_AddAttributeToFields
+      module procedure MAPL_AddAttributeToFields_I4
+   end interface
 
 
    ! =======================================================================
@@ -1707,7 +1712,10 @@ contains
       procedure(ESMF_GridCompRun), pointer :: func_ptr => NULL()
       character(len=12), target :: timers_run(1) = &
            [character(len=12):: 'GenRunMine']
-      character(len=12) :: sbrtn
+      character(len=:), allocatable :: sbrtn
+
+      character(:), allocatable :: stage_description
+      class(Logger), pointer :: lgr
 
 
       !=============================================================================
@@ -1726,6 +1734,8 @@ contains
       _VERIFY(status)
       Iam = trim(comp_name) // trim(Iam)
 
+      lgr => logging%get_logger('MAPL.GENERIC')
+
       call ESMF_VmGetCurrent(VM)
       ! Retrieve the pointer to the internal state. It comes in a wrapper.
       ! ------------------------------------------------------------------
@@ -1735,7 +1745,7 @@ contains
 
       ! TIMERS on
       t_p => get_global_time_profiler()
-      call t_p%start(trim(state%compname),__RC__)
+      call t_p%start(trim(state%compname),_RC)
 
       phase_ = MAPL_MAX_PHASES+phase ! this is the "actual" phase, i.e. the one user registered
 
@@ -1770,10 +1780,12 @@ contains
          sbrtn = 'WriteRestart'
       endif MethodBlock
 
+      stage_description = sbrtn//' stage of the gridded component <'//trim(COMP_NAME)//'>'
+
       ! TIMERS on
       if (method /= ESMF_METHOD_READRESTART .and. method /= ESMF_METHOD_WRITERESTART) then
-         call state%t_profiler%start(__RC__)
-         call state%t_profiler%start(trim(sbrtn),__RC__)
+         call state%t_profiler%start(_RC)
+         call state%t_profiler%start(trim(sbrtn),_RC)
       end if
 
       if (associated(timers)) then
@@ -1784,34 +1796,32 @@ contains
 
       ! Method itself
       ! ----------
-#ifdef DEBUG
-      IF (mapl_am_i_root(vm)) then
-         print *,'DBG: running ', sbrtn, ' phase ',phase,' of ',trim(comp_name)
-      end IF
-#endif
-
+      call lgr%debug('Started %a', stage_description)
 
       call func_ptr (GC, &
            importState=IMPORT, &
            exportState=EXPORT, &
            clock=CLOCK, PHASE=PHASE_, &
-           userRC=userRC, __RC__ )
+           userRC=userRC, _RC )
       _VERIFY(userRC)
+
+      _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
+      call lgr%debug('Finished %a', stage_description)
 
       ! TIMERS off
       if (associated(timers)) then
          do i = size(timers),1,-1
-            call MAPL_TimerOff (STATE,timers(i),__RC__)
+            call MAPL_TimerOff (STATE,timers(i),_RC)
          end do
       end if
 
       if (method /= ESMF_METHOD_FINALIZE) then
          if (method /= ESMF_METHOD_WRITERESTART .and. &
               method /= ESMF_METHOD_READRESTART) then
-            call state%t_profiler%stop(trim(sbrtn),__RC__)
-            call state%t_profiler%stop(__RC__)
+            call state%t_profiler%stop(trim(sbrtn),_RC)
+            call state%t_profiler%stop(_RC)
          end if
-         call t_p%stop(trim(state%compname),__RC__)
+         call t_p%stop(trim(state%compname),_RC)
       endif
 
 
@@ -4571,6 +4581,9 @@ contains
       class(BaseProfiler), pointer                :: t_p
       integer :: userRC
 
+      character(:), allocatable :: stage_description
+      class(Logger), pointer :: lgr
+
       if (.not.allocated(META%GCNameList)) then
          ! this is the first child to be added
          allocate(META%GCNameList(0), __STAT__)
@@ -4579,19 +4592,25 @@ contains
       I = META%get_num_children() + 1
       AddChildFromMeta = I
 
-      call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentgc, petList=petlist, child_meta=child_meta, __RC__)
+      call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentgc, petList=petlist, child_meta=child_meta, _RC)
+
+      stage_description = 'setServices() of the gridded component <'//trim(name)//'>'
+      lgr => logging%get_logger('MAPL.GENERIC')
+
       t_p => get_global_time_profiler()
-      call t_p%start(trim(NAME),__RC__)
-      call child_meta%t_profiler%start(__RC__)
-      call child_meta%t_profiler%start('SetService',__RC__)
+      call t_p%start(trim(NAME),_RC)
+      call child_meta%t_profiler%start(_RC)
+      call child_meta%t_profiler%start('SetService',_RC)
 
 !!$     gridcomp => META%GET_CHILD_GRIDCOMP(I)
-      call ESMF_GridCompSetServices ( child_meta%gridcomp, SS, userRC=userRC, __RC__ )
+      call lgr%debug("Started %a", stage_description)
+      call ESMF_GridCompSetServices ( child_meta%gridcomp, SS, userRC=userRC, _RC )
       _VERIFY(userRC)
+      call lgr%debug("Finished %a", stage_description)
 
-      call child_meta%t_profiler%stop('SetService',__RC__)
-      call child_meta%t_profiler%stop(__RC__)
-      call t_p%stop(trim(NAME),__RC__)
+      call child_meta%t_profiler%stop('SetService',_RC)
+      call child_meta%t_profiler%stop(_RC)
+      call t_p%stop(trim(NAME),_RC)
 
       _VERIFY(status)
 
@@ -11337,5 +11356,42 @@ contains
       end if
       _RETURN(ESMF_SUCCESS)
    end subroutine warn_empty
+
+   recursive subroutine MAPL_AddAttributeToFields_I4(gc,field_name,att_name,att_val,rc)
+      type(ESMF_GridComp), pointer, intent(inout) :: gc
+      character(len=*), intent(in) :: field_name
+      character(len=*), intent(in) :: att_name
+      integer(int32), intent(in) :: att_val
+      integer, optional, intent(out) :: rc
+
+      integer :: nc,i,status
+      type(MAPL_MetaComp), pointer :: state
+      type(ESMF_GridComp), pointer :: child_gc
+      type(ESMF_Field) :: field
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_TypeKind_Flag) :: item_kind
+      integer :: item_count
+      logical :: is_present
+
+      call MAPL_GetObjectFromGC(gc,state,_RC)
+      call ESMF_StateGet(state%import_state,field_name,item_type,_RC)
+      if (item_type == ESMF_STATEITEM_FIELD) then
+         call ESMF_StateGet(state%import_state,field_name,field,_RC)
+         call ESMF_AttributeGet(field,name=att_name,isPresent=is_Present,_RC)
+         if (is_present) then
+            call ESMF_AttributeGet(field,name=att_name,typekind=item_kind,itemCount=item_count,_RC)
+            _ASSERT(item_kind == ESMF_TYPEKIND_I4,"attribute "//att_name//" in "//field_name//" is not I4")
+            _ASSERT(item_count==1,"attribute "//att_name//" in "//field_name//" is not a scalar")
+         end if
+         call ESMF_AttributeSet(field,name=att_name,value=att_val,_RC)
+      end if
+      nc = state%get_num_children()
+      do i=1,nc
+         child_gc => state%get_child_gridcomp(i)
+         call MAPL_AddAttributeToFields_I4(child_gc,field_name,att_name,att_val,_RC)
+      enddo
+      
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_AddAttributeToFields_I4
 
 end module MAPL_GenericMod
