@@ -3010,8 +3010,8 @@ contains
 
     integer                         :: IM_World, JM_World, dims(3)
     integer                         :: IM, JM, counts(3)
-    real(ESMF_KIND_R8), pointer     :: lons(:,:) => null()
-    real(ESMF_KIND_R8), pointer     :: lats(:,:) => null()
+    real(ESMF_KIND_R8), pointer     :: lons(:,:) !=> null()
+    real(ESMF_KIND_R8), pointer     :: lats(:,:) !=> null()
     real(ESMF_KIND_R8), allocatable :: lons_1d(:)
     real(ESMF_KIND_R8), allocatable :: lats_1d(:)
     real(ESMF_KIND_R8), allocatable :: elons(:)
