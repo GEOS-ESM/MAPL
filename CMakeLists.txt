@@ -128,6 +128,9 @@ if (NOT Baselibs_FOUND)
   if (NOT TARGET esmf)
     find_package(ESMF MODULE REQUIRED)
 
+    # ESMF as used in MAPL requires MPI
+    target_link_libraries(ESMF INTERFACE MPI::MPI_Fortran)
+
     # MAPL uses lowercase due to historical reasons
     add_library(esmf ALIAS ESMF)
   endif ()
