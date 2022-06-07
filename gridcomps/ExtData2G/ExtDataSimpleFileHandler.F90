@@ -66,7 +66,6 @@ contains
       if (bracket%time_in_bracket(target_time) .and. in_range) then
          _RETURN(_SUCCESS)
       end if
-
       call ESMF_TimeIntervalSet(zero,__RC__)      
       if (this%frequency == zero) then
          current_file = this%file_template
@@ -141,7 +140,7 @@ contains
          ! time is not representable as absolute time interval (month, year etc...) do this
          ! brute force way. Not good but ESMF leaves no choice
          ftime=this%reff_time
-         do while (ftime < input_time)
+         do while (ftime <= input_time)
             ftime = ftime + this%frequency
          enddo
          ftime=ftime -this%frequency + shift*this%frequency

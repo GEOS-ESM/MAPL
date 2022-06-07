@@ -315,20 +315,20 @@ contains
      class (AbstractServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
 
-     _ASSERT(.false.," no action of receive_output_data")
+     _FAIL(" no action of receive_output_data")
    end subroutine receive_output_data
 
    subroutine put_DataToFile(this, rc)
      class (AbstractServer),target, intent(inout) :: this
      integer, optional, intent(out) :: rc
-     _ASSERT(.false.," no action of server_put_DataToFile")
+     _FAIL(" no action of server_put_DataToFile")
    end subroutine put_DataToFile
 
    subroutine get_DataFromMem(this,multi, rc)
      class (AbstractServer),target, intent(inout) :: this
      logical, intent(in) :: multi
      integer, optional, intent(out) :: rc
-     _ASSERT(.false.," no action of server_get_DataFromMem")
+     _FAIL(" no action of server_get_DataFromMem")
      _UNUSED_DUMMY(multi)
    end subroutine get_DataFromMem
 
@@ -434,12 +434,12 @@ contains
 
       reporter = ProfileReporter(empty)
       call reporter%add_column(NameColumn(20))
-      call reporter%add_column(FormattedTextColumn('Inclusive','(f9.2)', 9, InclusiveColumn('MEAN')))
+      call reporter%add_column(FormattedTextColumn('Inclusive','(f10.2)', 10, InclusiveColumn('MEAN')))
       call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
-      call reporter%add_column(FormattedTextColumn('Exclusive','(f9.2)', 9, ExclusiveColumn('MEAN')))
+      call reporter%add_column(FormattedTextColumn('Exclusive','(f10.2)', 10, ExclusiveColumn('MEAN')))
       call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))
-      call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.2)', 9, ExclusiveColumn('MAX')))
-      call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.2)', 9, ExclusiveColumn('MIN')))
+      call reporter%add_column(FormattedTextColumn(' Max Excl)','(f10.2)', 10, ExclusiveColumn('MAX')))
+      call reporter%add_column(FormattedTextColumn(' Min Excl)','(f10.2)', 10, ExclusiveColumn('MIN')))
       call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
       call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
       report_lines = reporter%generate_report(ioserver_profiler)

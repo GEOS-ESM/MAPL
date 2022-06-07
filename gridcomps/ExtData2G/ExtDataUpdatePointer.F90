@@ -6,6 +6,7 @@ module MAPL_ExtDataPointerUpdate
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_TimeStringConversion
+   use MAPL_CommsMod
    implicit none
    private
 
@@ -14,9 +15,14 @@ module MAPL_ExtDataPointerUpdate
    type :: ExtDataPointerUpdate
       private
       logical :: disabled = .false.
-      type(ESMF_Alarm) :: update_alarm
+      logical :: first_time_updated = .true.
       type(ESMF_TimeInterval) :: offset
       logical :: single_shot = .false.
+      type(ESMF_TimeInterval) :: update_freq
+      type(ESMF_Time) :: last_ring
+      type(ESMF_Time) :: reference_time
+      logical :: simple_alarm_created = .false.
+      type(ESMF_TIme) :: last_checked
       contains
          procedure :: create_from_parameters
          procedure :: check_update
@@ -36,35 +42,35 @@ module MAPL_ExtDataPointerUpdate
       type(ESMF_Clock), intent(inout) :: clock
       integer, optional, intent(out) :: rc
 
-      type(ESMF_Time) :: reference_time
-      type(ESMF_TimeInterval) :: reference_freq
       integer :: status,int_time,year,month,day,hour,minute,second
 
+      this%last_checked = time
       if (update_freq == "-") then
          this%single_shot = .true.
       else if (update_freq /= "PT0S") then
+         this%simple_alarm_created = .true.
          int_time = string_to_integer_time(update_time)
          hour=int_time/10000
          minute=mod(int_time/100,100)
          second=mod(int_time,100)
          call ESMF_TimeGet(time,yy=year,mm=month,dd=day,__RC__)
-         call ESMF_TimeSet(reference_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,__RC__)
-         reference_freq = string_to_esmf_timeinterval(update_freq,__RC__)
-         this%update_alarm = ESMF_AlarmCreate(clock,ringTime=reference_time,ringInterval=reference_freq,sticky=.false.,__RC__)
+         call ESMF_TimeSet(this%reference_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,__RC__)
+         this%last_ring = this%reference_time
+         this%update_freq = string_to_esmf_timeinterval(update_freq,__RC__)
       end if
       this%offset=string_to_esmf_timeinterval(update_offset,__RC__)
       _RETURN(_SUCCESS)
 
    end subroutine create_from_parameters
 
-   subroutine check_update(this,do_update,working_time,current_time,first_time,rc)
+   subroutine check_update(this,do_update,use_time,current_time,first_time,rc)
       class(ExtDataPointerUpdate), intent(inout) :: this
       logical, intent(out) :: do_update
-      type(ESMF_Time), intent(inout) :: working_time
+      type(ESMF_Time), intent(inout) :: use_time
       type(ESMF_Time), intent(inout) :: current_time
       logical, intent(in) :: first_time
       integer, optional, intent(out) :: rc
-      type(ESMF_Time) :: previous_ring
+      type(ESMF_Time) :: next_ring
 
       integer :: status
 
@@ -72,20 +78,55 @@ module MAPL_ExtDataPointerUpdate
          do_update = .false.
          _RETURN(_SUCCESS)
       end if
-      if (ESMF_AlarmIsCreated(this%update_alarm)) then
+      if (this%simple_alarm_created) then
+         use_time = current_time+this%offset
          if (first_time) then
-            call ESMF_AlarmGet(this%update_alarm,prevRingTime=previous_ring,__RC__)
-            working_time =previous_ring+this%offset
             do_update = .true.
+            this%first_time_updated = .true.
+            use_time = this%last_ring + this%offset
          else
-            do_update = ESMF_AlarmIsRinging(this%update_alarm,__RC__)
-            working_time = current_time+this%offset
+            ! normal flow
+            next_ring = this%last_ring
+            if (current_time > this%last_checked) then
+               do while (next_ring < current_time)
+                  next_ring=next_ring+this%update_freq
+               enddo
+               if (current_time == next_ring) then
+                  do_update = .true.
+                  this%last_ring = next_ring
+                  this%first_time_updated = .false. 
+               end if
+            ! if clock went backwards, so we must update, set ringtime to previous ring from working time
+            else if (current_time < this%last_checked) then
+               next_ring = this%last_ring
+               ! the clock must have rewound past last ring
+               if (this%last_ring > current_time) then
+                  do while(next_ring <= current_time)
+                     next_ring=next_ring-this%update_freq
+                  enddo
+                  use_time = next_ring+this%offset
+                  this%last_ring = next_ring
+               ! alarm never rang during the previous advance, only update the previous update was the first time
+               else if (this%last_ring < current_time) then
+                    if (this%first_time_updated) then
+                       do_update=.true.
+                       this%first_time_updated = .false.
+                       use_time = this%last_ring + this%offset
+                    end if
+               ! otherwise we land on a time when the alarm would ring and we would update
+               else if (this%last_ring == current_time) then
+                  do_update =.true.
+                  this%first_time_updated = .false.
+                  use_time = current_time+this%offset
+               end if
+            end if
          end if
       else
          do_update = .true.
          if (this%single_shot) this%disabled = .true.
-         working_time = current_time+this%offset
+         use_time = current_time+this%offset
       end if
+      this%last_checked = current_time
 
    end subroutine check_update
 

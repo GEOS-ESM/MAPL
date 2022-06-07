@@ -56,7 +56,7 @@ contains
          call config%get(source_str,"source_time",rc=status)
          _VERIFY(status)
          if (allocated(TimeSample%source_time)) deallocate(TimeSample%source_time)
-         idx = index(source_str,',')
+         idx = index(source_str,'/')
          _ASSERT(idx/=0,'invalid specification of source_time')
          allocate(TimeSample%source_time(2))
          TimeSample%source_time(1)=string_to_esmf_time(source_str(:idx-1))
