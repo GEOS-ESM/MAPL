@@ -26,7 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the ESMA_cmake version to v3.16.0
 - Updated GitHub Actions MAPL build tests
 - Added assert for missing file with ExtData2G
-- Add `find_package(MPI)` for non-Baselibs builds
+- Updates for Sspack support
+   - Add `find_package(MPI)` for non-Baselibs builds
+   - Update all `esmf` target references in CMake to `ESMF`
+   - Add `esmf` alias library for `ESMF` for compatibility
+   - Add explicit interface dependence of `MPI` for `ESMF` target
 
 ### Removed
 

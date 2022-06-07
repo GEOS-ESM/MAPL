@@ -4,12 +4,12 @@ string (REPLACE MAPL_cfio_ "" precision ${this})
 
 set (srcs
   ESMF_CFIOBaseMod.f
-  ESMF_CFIOFileMod.F90    
-  ESMF_CFIOGridMod.F90    
-  ESMF_CFIOMod.F90        
-  ESMF_CFIOSdfMod.F90     
-  ESMF_CFIOUtilMod.F90    
-  ESMF_CFIOVarInfoMod.F90 
+  ESMF_CFIOFileMod.F90
+  ESMF_CFIOGridMod.F90
+  ESMF_CFIOMod.F90
+  ESMF_CFIOSdfMod.F90
+  ESMF_CFIOUtilMod.F90
+  ESMF_CFIOVarInfoMod.F90
   ShaveMantissa.c
   )
 
@@ -44,7 +44,7 @@ endif ()
 
 esma_add_library (${lib}
   SRCS ${srcs}
-  DEPENDENCIES esmf NetCDF::NetCDF_Fortran
+  DEPENDENCIES ESMF NetCDF::NetCDF_Fortran
   TYPE ${LIBRARY_TYPE}
   )
 
