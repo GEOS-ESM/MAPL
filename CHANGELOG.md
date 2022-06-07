@@ -9,9 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Adding missing _RETURN and _VERIFY macros in GriddedIO.F90
-- Fixed bug in non cubed-sphere grid path in MAPL_GetHorzIJIndex
-
 ### Added
 
 ### Changed
@@ -19,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.21.3] - 2022-06-07
+
+### Fixed
+
+- Fixed bug in non cubed-sphere grid path in MAPL_GetHorzIJIndex
 
 ## [2.21.2] - 2022-05-31
 
