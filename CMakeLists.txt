@@ -111,6 +111,9 @@ endif ()
 ecbuild_declare_project()
 
 if (NOT Baselibs_FOUND)
+  set(MPI_DETERMINE_LIBRARY_VERSION TRUE)
+  find_package(MPI)
+
   find_package(NetCDF REQUIRED Fortran)
   add_definitions(-DHAS_NETCDF4)
   add_definitions(-DHAS_NETCDF3)

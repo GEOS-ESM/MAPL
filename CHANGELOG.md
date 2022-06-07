@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the ESMA_cmake version to v3.16.0
 - Updated GitHub Actions MAPL build tests
 - Added assert for missing file with ExtData2G
+- Add `find_package(MPI)` for non-Baselibs builds
 
 ### Removed
 
