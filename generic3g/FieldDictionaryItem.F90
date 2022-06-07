@@ -8,7 +8,7 @@ module mapl3g_FieldDictionaryItem
    type :: FieldDictionaryItem
       character(:), allocatable :: long_name
       character(:), allocatable :: units
-      type(StringVector) :: short_names
+      type(StringVector) :: short_names ! aliases
    end type FieldDictionaryItem
 
    interface FieldDictionaryItem

@@ -1,5 +1,17 @@
 #include "MAPL_ErrLog.h"
 
+! The FieldDictionary serves as a central structure for both ensuring
+! consistent standard names and units across GEOS as well as a convenient
+! mechanism to avoid duplicating such information in the FieldSpec's in
+! various components.
+
+! The dictionary keys are CF standard names, and each entry must include a
+! long name and units.   It may optionally include additional short names that
+! are convenient as alternative keys into the dictionary.
+
+! Note that each short name must be unique such that it is unambiguous
+! as to which entry a short name is referring.
+
 module mapl3g_FieldDictionary
    use yaFyaml
    use mapl_ErrorHandling
@@ -22,12 +34,14 @@ module mapl3g_FieldDictionary
       type(StringStringMap) :: alias_map  ! For efficiency
    contains
 
-      procedure :: add_item => add_item_
+      procedure :: add_item => add_item
 
       ! accessors
-      procedure :: get_units => get_units_
-
-      procedure :: size => size_
+      procedure :: get_item
+      procedure :: get_units
+      procedure :: get_long_name
+      procedure :: get_standard_name
+      procedure :: size
 
    end type FieldDictionary
 
@@ -43,7 +57,6 @@ contains
 
    function new_empty() result(fd)
       type(FieldDictionary) :: fd
-      class(YAML_Node), allocatable :: node
 
       fd = FieldDictionary(TextStream('{}'))
 
@@ -141,25 +154,99 @@ contains
 
 
 
-   subroutine add_item_(this, standard_name, field_item)
+   subroutine add_item(this, standard_name, field_item)
       class(FieldDictionary), intent(inout) :: this
       character(*), intent(in) :: standard_name
       type(FieldDictionaryItem), intent(in) :: field_item
 
       call this%entries%insert(standard_name, field_item)
-   end subroutine add_item_
+   end subroutine add_item
 
-   function get_units_(this, standard_name) result(units)
+
+   ! This accessor returns a copy for safety reasons.  Returning a
+   ! pointer would be more efficient, but it would allow client code
+   ! to modify the dictionary.
+   function get_item(this, standard_name, rc) result(item)
+      type(FieldDictionaryItem) :: item
       class(FieldDictionary), intent(in) :: this
-      character(:), allocatable :: units
       character(*), intent(in) :: standard_name
+      integer, optional, intent(out) :: rc
 
-      units = 'unknown'
-   end function get_units_
+      integer :: status
 
-   integer function size_(this)
+      item = this%entries%at(standard_name, _RC)
+
+      _RETURN(_SUCCESS)
+   end function get_item
+
+
+   function get_units(this, standard_name, rc) result(units)
+      character(:), allocatable :: units
+      class(FieldDictionary), target, intent(in) :: this
+      character(*), intent(in) :: standard_name
+      integer, optional, intent(out) :: rc
+
+      type(FieldDictionaryItem), pointer :: item
+      integer :: status
+
+      item => this%entries%at(standard_name, _RC)
+      units = item%units
+
+      _RETURN(_SUCCESS)
+   end function get_units
+
+
+   function get_long_name(this, standard_name, rc) result(long_name)
+      character(:), allocatable :: long_name
+      class(FieldDictionary), target, intent(in) :: this
+      character(*), intent(in) :: standard_name
+      integer, optional, intent(out) :: rc
+
+      type(FieldDictionaryItem), pointer :: item
+      integer :: status
+
+      item => this%entries%at(standard_name, _RC)
+      long_name = item%long_name
+
+      _RETURN(_SUCCESS)
+   end function get_long_name
+
+   function get_standard_name(this, alias, rc) result(standard_name)
+      character(:), allocatable :: standard_name
+      class(FieldDictionary), target, intent(in) :: this
+      character(*), intent(in) :: alias
+      integer, optional, intent(out) :: rc
+
+      type(FieldDictionaryItem), pointer :: item
+      type(FieldDictionaryItemMapIterator) :: iter
+      type(StringVectorIterator) :: alias_iter
+      integer :: status
+
+      associate (b => this%entries%begin(), e => this%entries%end())
+        iter = b
+        do while (iter /= e)
+           item => iter%second()
+
+           associate (b_aliases => item%short_names%begin(), e_aliases => item%short_names%end())
+             alias_iter = find(first=b_aliases, last=e_aliases, value=alias)
+             if (alias_iter /=  e_aliases) then
+                standard_name = iter%first()
+                _RETURN(_SUCCESS)
+             end if
+           end associate
+           call iter%next()
+        end do
+      end associate
+      _FAIL('alias <'//alias//'> not found in field dictionary.')
+      
+      _RETURN(_SUCCESS)
+   end function get_standard_name
+
+   integer function size(this)
       class(FieldDictionary), intent(in) :: this
 
-      size_ = this%entries%size()
-   end function size_
+      size = this%entries%size()
+   end function size
+
+   
 end module mapl3g_FieldDictionary
