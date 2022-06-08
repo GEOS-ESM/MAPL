@@ -23,7 +23,8 @@ module MAPL_AbstractGridFactoryMod
 
    contains
 
-      procedure, nopass :: make_arbitrary_decomposition
+!!$      procedure, nopass :: make_arbitrary_decomposition
+      procedure :: make_arbitrary_decomposition
       procedure :: make_grid
       procedure :: get_grid
       procedure (make_new_grid), deferred :: make_new_grid
@@ -351,9 +352,11 @@ contains
    ! that is as close as possible to sqrt(npes)*sqrt(npes) with the
    ! leading dimension using fewer processes
    ! --------------------------------------------------------------------
-   subroutine make_arbitrary_decomposition(nx, ny, unusable, reduceFactor, rc)
+!!$   subroutine make_arbitrary_decomposition(nx, ny, unusable, reduceFactor, rc)
+   subroutine make_arbitrary_decomposition(this, nx, ny, unusable, reduceFactor, rc)
       use ESMF
       use MAPL_KeywordEnforcerMod
+      class(AbstractGridFactory), intent(in) :: this
       integer, intent(out) :: nx
       integer, intent(out) :: ny
       class (KeywordEnforcer), optional, intent(in) :: unusable

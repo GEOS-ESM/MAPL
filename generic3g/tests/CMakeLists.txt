@@ -5,11 +5,15 @@ add_library(scratchpad SHARED scratchpad.F90)
 add_subdirectory(gridcomps)
 
 set (test_srcs
-  Test_ComponentSpecBuilder.pf
 #  Test_AddVarSpec.pf
   Test_SimpleLeafGridComp.pf
   Test_Traverse.pf
   Test_RunChild.pf
+
+  Test_AddFieldSpec.pf
+  Test_ComponentSpecBuilder.pf
+
+  Test_FieldDictionary.pf
   )
 
 

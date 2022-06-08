@@ -2,6 +2,7 @@
 
 module mapl3g_InnerMetaComponent
    use :: mapl_ErrorHandling
+   use :: mapl3_GenericGrid
    use esmf
    implicit none
    private
@@ -13,9 +14,12 @@ module mapl3g_InnerMetaComponent
    
    type :: InnerMetaComponent
       private
+      type(ESMF_GridComp) :: outer_gc
+
       character(len=:), allocatable :: name
       type(ESMF_GridComp) :: self_gc ! mabye not needed?
-      type(ESMF_GridComp) :: outer_gc
+
+      type(GenericGrid) :: generic_grid ! maybe should go to outer meta?
 
       real :: heartbeat
 !!$      type(MAPL_SunOrbit) :: orbit

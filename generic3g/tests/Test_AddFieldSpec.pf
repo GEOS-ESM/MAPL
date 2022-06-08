@@ -1,0 +1,52 @@
+module Test_AddFieldSpec
+   use funit
+   use mapl3g_DimsSpec, only: DimsSpec
+   use mapl3g_FieldSpec, only: FieldSpec
+   use mapl3g_StateSpec, only: StateSpec
+   use mapl3g_VerticalStaggerLoc, only: V_STAGGER_LOC_CENTER
+   use mapl3g_AbstractStateItemSpec
+   implicit none
+
+contains
+
+   @test
+   ! This first test really just exercises the interfaces. To compile
+   ! is to pass.
+   subroutine test_add_one_field()
+      type(StateSpec) :: state_spec
+      type(DimsSpec) :: dims_spec
+
+      call state_spec%add_item('A', FieldSpec(DimsSpec(V_STAGGER_LOC_CENTER)))
+   end subroutine test_add_one_field
+   
+   @test
+   ! Just a sanity check that the underling gFTL is being
+   ! correctly wrapped.   First we make sure that we get a failure
+   ! when retrieving an item that does not exist, then we check
+   ! that we succeed when getting an item that does.   (But we do
+   ! not check the contents of that item.)
+
+   subroutine test_get_item()
+      use mapl3g_stateitemspecmap
+      type(StateSpec) :: state_spec
+      type(DimsSpec) :: dims_spec
+      class(AbstractStateItemSpec), pointer :: item_spec
+
+      type(FieldSpec) :: field_spec
+
+
+      field_spec = FieldSpec(DimsSpec(V_STAGGER_LOC_CENTER))
+      call state_spec%add_item('A', field_spec)
+
+      ! Different name/key
+      item_spec => state_spec%get_item('B')
+      @assert_that(associated(item_spec), is(false()))
+
+      ! Same name/key
+      item_spec => state_spec%get_item('A')
+      @assert_that(associated(item_spec), is(true()))
+
+      
+   end subroutine test_get_item
+   
+end module Test_AddFieldSpec

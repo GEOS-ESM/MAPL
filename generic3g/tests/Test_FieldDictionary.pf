@@ -1,0 +1,135 @@
+module Test_FieldDictionary
+   use funit
+   use mapl3g_FieldDictionary
+   use mapl3g_FieldDictionaryItem
+   use yafyaml, only: TextStream
+   implicit none
+
+contains
+
+   @test
+   ! Sanity test - just exercise interfaces
+   subroutine test_add_item()
+      type(FieldDictionary) :: fd
+
+      fd = FieldDictionary() ! empty
+      call fd%add_item('X_Y_Z', FieldDictionaryItem(units='m', long_name='X Y Z'))
+
+   end subroutine test_add_item
+
+   @test
+   subroutine test_from_yaml_size()
+      type(FieldDictionary) :: fd
+
+      fd = FieldDictionary(TextStream('{X_Y_Z: {units: m, long name: "X Y Z"}}'))
+      @assert_that(1, is(fd%size()))
+
+      fd = FieldDictionary(TextStream( '{' // &
+           'X_Y_Z: {units: m, long name: "X Y Z"},' //  &
+           'A_B_C: {units: m, long name: "A B C"} }'))
+      @assert_that(2, is(fd%size()))
+
+   end subroutine test_from_yaml_size
+
+
+   @test
+   subroutine test_get_field_item()
+      type(FieldDictionary) :: fd
+      type(FieldDictionaryItem) :: item
+
+      integer :: status
+      
+      fd = FieldDictionary(TextStream('{X_Y_Z: {units: m, long name: "X Y Z"}}'))
+
+      item = fd%get_item('X_Y_Z', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('m', item%units)
+      @assertEqual('X Y Z', item%long_name)
+      
+   end subroutine test_get_field_item
+
+   @test
+   subroutine test_get_units()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: units
+      integer :: status
+      
+      fd = FieldDictionary(TextStream( '{' // &
+           'X_Y_Z: {units: m, long name: "X Y Z"},' //  &
+           'A_B_C: {units: s, long name: "A B C"} }'))
+
+      units = fd%get_units('A_B_C', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('s', units)
+      
+      units = fd%get_units('X_Y_Z', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('m', units)
+
+   end subroutine test_get_units
+
+   @test
+   subroutine test_get_long_name()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: long_name
+      integer :: status
+      
+      fd = FieldDictionary(TextStream( '{' // &
+           'X_Y_Z: {units: m, long name: "X Y Z"},' //  &
+           'A_B_C: {units: s, long name: "A B C"} }'))
+
+      long_name = fd%get_long_name('A_B_C', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('A B C', long_name)
+      
+      long_name = fd%get_long_name('X_Y_Z', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('X Y Z', long_name)
+
+   end subroutine test_get_long_name
+
+   @test
+   subroutine test_get_standard_name_from_alias()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: standard_name
+      integer :: status
+      
+      fd = FieldDictionary(TextStream( '{' // &
+           'X_Y_Z: {units: m, long name: "X Y Z", short names: [x]},' //  &
+           'A_B_C: {units: s, long name: "A B C", short names: [a]} }'))
+
+      standard_name = fd%get_standard_name('x', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('X_Y_Z', standard_name)
+
+      standard_name = fd%get_standard_name('a', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('A_B_C', standard_name)
+
+   end subroutine test_get_standard_name_from_alias
+
+   @test
+   subroutine test_get_standard_name_from_alias_multi()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: standard_name
+      integer :: status
+      
+      fd = FieldDictionary(TextStream( '{' // &
+           'X_Y_Z: {units: m, long name: "X Y Z", short names: [x, y]},' //  &
+           'A_B_C: {units: s, long name: "A B C", short names: [a, b, c]} }'))
+
+      standard_name = fd%get_standard_name('y', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('X_Y_Z', standard_name)
+
+      standard_name = fd%get_standard_name('b', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('A_B_C', standard_name)
+
+      standard_name = fd%get_standard_name('c', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('A_B_C', standard_name)
+
+   end subroutine test_get_standard_name_from_alias_multi
+
+end module Test_FieldDictionary

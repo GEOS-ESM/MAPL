@@ -87,8 +87,6 @@ module mapl3g_MethodPhasesMapUtils
 contains
 
    subroutine add_phase_(phases_map, method_flag, phase_name, unusable, rc)
-      use :: esmf, only: ESMF_METHOD_INITIALIZE, ESMF_METHOD_RUN, ESMF_METHOD_FINALIZE
-      use :: esmf, only: ESMF_METHOD_READRESTART, ESMF_METHOD_WRITERESTART
       use :: esmf, only: operator(==)
       type(MethodPhasesMap), intent(inout) :: phases_map
       type(ESMF_Method_Flag), intent(in) :: method_flag
@@ -98,8 +96,6 @@ contains
 
       character(len=:), allocatable :: phase_name_
       type(StringVector), pointer :: phase_names
-      integer :: status
-      integer :: i
 
       _ASSERT(phases_map%count(method_flag) > 0, "Unsupported value for 'method_flag'.")
 
