@@ -1389,6 +1389,7 @@ contains
 
       subroutine handle_record(rc)
          integer, optional, intent(out) :: rc
+         type(ESMF_TimeInterval) :: zero
          ! Copy RECORD struct from parent
 
          if (associated(STATE%parentGC)) then
@@ -1424,6 +1425,7 @@ contains
 
             allocate (R_FILETYPE(NRA), STAT=status)
 
+            call ESMF_TimeIntervalSet(zero,s=0,_RC)
             DO  I = 1, NRA
                write(alarmNum,'(I3.3)') I
                AlarmName = "RecordAlarm" // alarmNum
@@ -1461,8 +1463,13 @@ contains
                   end if monthly
 
                   ! create alarm
-                  RecordAlarm = ESMF_AlarmCreate( name=trim(AlarmName), clock=clock, RingInterval=Frequency, &
-                       RingTime=RingTime, sticky=.false.,__RC__ )
+                  if (frequency == zero) then
+                     RecordAlarm = ESMF_AlarmCreate( name=trim(AlarmName), clock=clock, &
+                          RingTime=RingTime, sticky=.false.,__RC__ )
+                  else
+                     RecordAlarm = ESMF_AlarmCreate( name=trim(AlarmName), clock=clock, RingInterval=Frequency, &
+                          RingTime=RingTime, sticky=.false.,__RC__ )
+                  end if
 
                   if(ringTime == currTime .and. .not.mnthly) then
                      call ESMF_AlarmRingerOn(RecordAlarm, __RC__)
