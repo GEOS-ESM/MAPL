@@ -72,7 +72,10 @@ class MAPL_DataSpec:
             if ungridded:
                 extra_dims = ungridded.strip('][').split(',')
                 extra_rank = len(extra_dims)
-        dims = MAPL_DataSpec.entry_aliases['dims'][self.args['dims']]
+        aliases = MAPL_DataSpec.entry_aliases['dims']
+        dims = self.args['dims']
+        if dims in aliases:
+            dims = aliases[dims]
         return ranks[dims] + extra_rank
 
     @staticmethod
@@ -99,6 +102,7 @@ class MAPL_DataSpec:
         if kind:
             text = text + '(kind=' + str(kind) + ')'
         text = text +', pointer, ' + dimension + ' :: ' + MAPL_DataSpec.internal_name(self.args['short_name']) + ' => null()'
+        text = text + self.newline()
         return text
 
     def emit_get_pointers(self):
@@ -195,18 +199,19 @@ def read_specs(specs_filename):
 
     # The column aliases (keys of column_aliases dict) must be UPPERCASE.
     column_aliases = {
-        'NAME'       : 'short_name',
-        'LONG NAME'  : 'long_name',
-        'VLOC'       : 'vlocation',
-        'UNITS'      : 'units',
-        'DIMS'       : 'dims',
-        'UNGRIDDED'  : 'ungridded_dims',
-        'PREC'       : 'precision',
-        'COND'       : 'condition',
-        'DEFAULT'    : 'default',
-        'RESTART'    : 'restart',
-        'FRIENDLYTO' : 'friendlyto',
-        'ADD2EXPORT' : 'add2export'
+        'NAME'         : 'short_name',
+        'LONG NAME'    : 'long_name',
+        'VLOC'         : 'vlocation',
+        'UNITS'        : 'units',
+        'DIMS'         : 'dims',
+        'UNGRIDDED'    : 'ungridded_dims',
+        'PREC'         : 'precision',
+        'COND'         : 'condition',
+        'DEFAULT'      : 'default',
+        'RESTART'      : 'restart',
+        'FRIENDLYTO'   : 'friendlyto',
+        'ADD2EXPORT'   : 'add2export'
+        'NUM_SUBTILES' : 'num_subtiles'
     }
 
     specs = {}
