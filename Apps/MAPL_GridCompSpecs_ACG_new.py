@@ -7,11 +7,13 @@ import csv
 # This avoids repeating these strings in different places which leads to errors.
 CONDITION = 'condition'
 DIMS = 'dims'
-DIMS_ENTRY_ALIASES = {'z': DIMS_VERT_ONLY, 'xy': DIMS_HORZ_ONLY, 'xyz': DIMS_HORZ_VERT}
 DIMS_HORZ_ONLY = 'MAPL_DimsHorzOnly'
 DIMS_HORZ_VERT = 'MAPL_DimsHorzVert'
 DIMS_VERT_ONLY = 'MAPL_DimsVertOnly'
 NAME = 'short_name'
+PRECISION = 'precision'
+UNGRIDDED_DIMS = 'ungridded_dims'
+DIMS_ENTRY_ALIASES = {'z': DIMS_VERT_ONLY, 'xy': DIMS_HORZ_ONLY, 'xyz': DIMS_HORZ_VERT}
 
 def make_entry_parser(aliases):
     """ return entry_parser that looks up aliases for values aliases """
@@ -77,17 +79,17 @@ options = SpecOpt.make_dict([
     SpecOpt('vlocation', parser =
         {'C': 'MAPL_VlocationCenter', 'E': 'MAPL_VlocationEdge', 'N': 'MAPL_VlocationNone'},
         alias = 'VLOC'),
-    SpecOpt('num_subtiles'),
+    SpecOpt('num_subtiles', alias = 'NUM_SUBTILES'),
     SpecOpt('refresh_interval'),
     SpecOpt('averaging_interval', alias = 'AVERAGING_INTERVAL'),
     SpecOpt('halowidth'),
-    SpecOpt('precision', alias = 'PREC'),
+    SpecOpt(PRECISION, alias = 'PREC'),
     SpecOpt('default', alias = 'DEFAULT'),
     SpecOpt('restart', parser =
         {'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_RestartSkip', 'REQ'  : 'MAPL_RestartRequired',
         'BOOT' : 'MAPL_RestartBoot', 'SKIPI': 'MAPL_RestartSkipInitial'}, 
         alias = 'RESTART'),
-    SpecOpt('ungridded_dims', parser = arraylike_parser, alias = 'UNGRIDDED' ),
+    SpecOpt(UNGRIDDED_DIMS, parser = arraylike_parser, alias = 'UNGRIDDED' ),
     SpecOpt('field_type'),
     SpecOpt('staggering'),
     SpecOpt('rotation'),
@@ -109,8 +111,8 @@ options = SpecOpt.make_dict([
 # These may be used in the future. Leaving them here for now for information. 
 #common_options =    [ NAME, 'long_name', 'units', DIMS, 'datatype', 
 #                    'vlocation', 'num_subtiles', 'refresh_interval', 
-#                    'averaging_interval', 'precision', 'default', 'halowidth', 
-#                    'ungridded_dims', 'field_type', 'staggering', 'rotation' ]
+#                    'averaging_interval', PRECISION, 'default', 'halowidth', 
+#                    UNGRIDDED_DIMS, 'field_type', 'staggering', 'rotation' ]
 #
 #internal_options =  [ 'restart', 'friendlyto', 'add2export', 'attr_inames',
 #    'attr_rnames', 'attr_ivalues', 'attr_rvalues' ]
@@ -189,8 +191,8 @@ class MAPL_DataSpec:
     def get_rank(self):
         ranks = {DIMS_HORZ_VERT:3, DIMS_HORZ_ONLY:2, DIMS_VERT_ONLY:1}
         extra_rank = 0 # unless
-        if 'ungridded_dims' in self.args:
-            ungridded = self.args['ungridded_dims']
+        if UNGRIDDED_DIMS in self.args:
+            ungridded = self.args[UNGRIDDED_DIMS]
             if ungridded:
                 extra_dims = ungridded.strip('][').split(',')
                 extra_rank = len(extra_dims)
@@ -199,7 +201,7 @@ class MAPL_DataSpec:
         dims_aliases = DIMS_ENTRY_ALIASES
 
         try:
-            dims = MAPL_DataSpec.get_dict_value(dims_aliases, self.args[DIMS])
+            dims = MAPL_DataSpec.get_dict_value(DIMS_ENTRY_ALIASES, self.args[DIMS])
         except KeyError as err:
             print(self.args)
             sys.exit('Unable to find alias. Exiting')
@@ -220,8 +222,8 @@ class MAPL_DataSpec:
     def emit_declare_pointers(self):
         text = self.newline()
         TYPE_ = 'real'
-        if 'precision' in self.args:
-            kind = self.args['precision']
+        if PRECISION in self.args:
+            kind = self.args[PRECISION]
         else:
             kind = None
         rank = self.get_rank()
