@@ -23,10 +23,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Modified error messages in FileMetadataUtilities to be unique and print filename
+- Updated the ESMA_cmake version to v3.16.0
+- Updated GitHub Actions MAPL build tests
+- Added assert for missing file with ExtData2G
 
 ### Removed
 
 ### Deprecated
+
+## [2.21.3] - 2022-06-07
+
+### Fixed
+
+- Fixed bug in non cubed-sphere grid path in MAPL_GetHorzIJIndex
 
 ## [2.21.2] - 2022-05-31
 
