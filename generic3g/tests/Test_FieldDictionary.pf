@@ -13,7 +13,7 @@ contains
       type(FieldDictionary) :: fd
 
       fd = FieldDictionary() ! empty
-      call fd%add_item('X_Y_Z', FieldDictionaryItem(units='m', long_name='X Y Z'))
+      call fd%add_item('X_Y_Z', FieldDictionaryItem(canonical_units='m', long_name='X Y Z'))
 
    end subroutine test_add_item
 
@@ -21,12 +21,12 @@ contains
    subroutine test_from_yaml_size()
       type(FieldDictionary) :: fd
 
-      fd = FieldDictionary(TextStream('{X_Y_Z: {units: m, long name: "X Y Z"}}'))
+      fd = FieldDictionary(TextStream('{X_Y_Z: {canonical_units: m, long_name: "X Y Z"}}'))
       @assert_that(1, is(fd%size()))
 
       fd = FieldDictionary(TextStream( '{' // &
-           'X_Y_Z: {units: m, long name: "X Y Z"},' //  &
-           'A_B_C: {units: m, long name: "A B C"} }'))
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
+           'A_B_C: {canonical_units: m, long_name: "A B C"} }'))
       @assert_that(2, is(fd%size()))
 
    end subroutine test_from_yaml_size
@@ -39,12 +39,12 @@ contains
 
       integer :: status
       
-      fd = FieldDictionary(TextStream('{X_Y_Z: {units: m, long name: "X Y Z"}}'))
+      fd = FieldDictionary(TextStream('{X_Y_Z: {canonical_units: m, long_name: "X Y Z"}}'))
 
       item = fd%get_item('X_Y_Z', rc=status)
       @assert_that(status, is(0))
-      @assertEqual('m', item%units)
-      @assertEqual('X Y Z', item%long_name)
+      @assertEqual('m', item%get_units())
+      @assertEqual('X Y Z', item%get_long_name())
       
    end subroutine test_get_field_item
 
@@ -53,10 +53,10 @@ contains
       type(FieldDictionary) :: fd
       character(:), allocatable :: units
       integer :: status
-      
+
       fd = FieldDictionary(TextStream( '{' // &
-           'X_Y_Z: {units: m, long name: "X Y Z"},' //  &
-           'A_B_C: {units: s, long name: "A B C"} }'))
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
+           'A_B_C: {canonical_units: s, long_name: "A B C"} }'))
 
       units = fd%get_units('A_B_C', rc=status)
       @assert_that(status, is(0))
@@ -75,8 +75,8 @@ contains
       integer :: status
       
       fd = FieldDictionary(TextStream( '{' // &
-           'X_Y_Z: {units: m, long name: "X Y Z"},' //  &
-           'A_B_C: {units: s, long name: "A B C"} }'))
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
+           'A_B_C: {canonical_units: s, long_name: "A B C"} }'))
 
       long_name = fd%get_long_name('A_B_C', rc=status)
       @assert_that(status, is(0))
@@ -95,8 +95,8 @@ contains
       integer :: status
       
       fd = FieldDictionary(TextStream( '{' // &
-           'X_Y_Z: {units: m, long name: "X Y Z", short names: [x]},' //  &
-           'A_B_C: {units: s, long name: "A B C", short names: [a]} }'))
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x]},' //  &
+           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [a]} }'))
 
       standard_name = fd%get_standard_name('x', rc=status)
       @assert_that(status, is(0))
@@ -115,8 +115,8 @@ contains
       integer :: status
       
       fd = FieldDictionary(TextStream( '{' // &
-           'X_Y_Z: {units: m, long name: "X Y Z", short names: [x, y]},' //  &
-           'A_B_C: {units: s, long name: "A B C", short names: [a, b, c]} }'))
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x, y]},' //  &
+           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [a, b, c]} }'))
 
       standard_name = fd%get_standard_name('y', rc=status)
       @assert_that(status, is(0))

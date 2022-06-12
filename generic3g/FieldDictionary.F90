@@ -26,7 +26,6 @@ module mapl3g_FieldDictionary
    private
 
    public :: FieldDictionary
-   public :: GEOS_Field_Dictionary
 
    type :: FieldDictionary
       private
@@ -34,10 +33,11 @@ module mapl3g_FieldDictionary
       type(StringStringMap) :: alias_map  ! For efficiency
    contains
 
-      procedure :: add_item => add_item
+      procedure :: add_item
+      procedure :: add_aliases
 
       ! accessors
-      procedure :: get_item
+      procedure :: get_item   ! returns a pointer
       procedure :: get_units
       procedure :: get_long_name
       procedure :: get_standard_name
@@ -51,8 +51,6 @@ module mapl3g_FieldDictionary
       module procedure new_from_textstream
    end interface FieldDictionary
 
-   type(FieldDictionary), protected :: GEOS_Field_Dictionary
-   
 contains
 
    function new_empty() result(fd)
@@ -61,6 +59,7 @@ contains
       fd = FieldDictionary(TextStream('{}'))
 
    end function new_empty
+
    
    function new_from_filename(filename, rc) result(fd)
       type(FieldDictionary) :: fd
@@ -74,7 +73,7 @@ contains
       _RETURN(_SUCCESS)
    end function new_from_filename
 
-   ! This interface is to support unit testing
+
    function new_from_textstream(stream, rc) result(fd)
       type(FieldDictionary) :: fd
       class(AbstractTextStream), intent(in) :: stream
@@ -98,6 +97,9 @@ contains
         do while (iter /= e)
 
            standard_name => to_string(iter%first(), _RC)
+           _ASSERT(len_trim(standard_name) /= 0, 'Standard name is all blanks.')
+           _ASSERT(fd%entries%count(standard_name) == 0, 'Duplicate standard name: <'//trim(standard_name)//'>')
+
            item = to_item(iter%second(), _RC)
            call fd%add_item(standard_name, item)
 
@@ -105,7 +107,6 @@ contains
 
         end do
       end associate
-           
       
       _RETURN(_SUCCESS)
 
@@ -119,26 +120,25 @@ contains
 
          integer :: status
          class(NodeIterator), allocatable :: iter
-         class(YAML_Node), pointer :: short_names_node, short_name_node
+         class(YAML_Node), pointer :: aliases_node, alias_node
          character(:), allocatable :: long_name, units
-         type(StringVector) :: short_names
+         type(StringVector) :: aliases
 
          _ASSERT(item_node%is_mapping(), 'Each node in FieldDictionary yaml must be a mapping node')
 
+         call item_node%get(long_name, 'long_name', _RC)
+         call item_node%get(units, 'canonical_units', _RC)
 
-         call item_node%get(long_name, "long name", _RC)
-         call item_node%get(units, "units", _RC)
+         if (item_node%has('aliases')) then
+            aliases_node => item_node%of('aliases')
+            _ASSERT(aliases_node%is_sequence(), "'aliases' must be a sequence")
 
-         if (item_node%has('short names')) then
-            short_names_node => item_node%of('short names')
-            _ASSERT(short_names_node%is_sequence(), 'short names must be a sequence')
-
-            associate (b => short_names_node%begin(), e => short_names_node%end())
+            associate (b => aliases_node%begin(), e => aliases_node%end())
               iter = b
               do while (iter /= e)
-                 short_name_node => iter%at(_RC)
-                 _ASSERT(short_name_node%is_string(), 'short name must be a string')
-                 call short_names%push_back(to_string(short_name_node))
+                 alias_node => iter%at(_RC)
+                 _ASSERT(alias_node%is_string(), 'short name must be a string')
+                 call aliases%push_back(to_string(alias_node))
                  
                  call iter%next()
               end do
@@ -146,7 +146,7 @@ contains
 
          end if
 
-         item = FieldDictionaryItem(long_name, units, short_names)
+         item = FieldDictionaryItem(long_name, units, aliases)
          
          _RETURN(_SUCCESS)
       end function to_item
@@ -162,24 +162,36 @@ contains
       integer, intent(out), optional :: rc
 
       integer :: status
-      type(StringVectorIterator) :: iter
-      character(:), pointer :: short_name
 
       call this%entries%insert(standard_name, field_item)
+      call this%add_aliases(standard_name, field_item%get_aliases(), _RC)
 
-      associate (b => field_item%short_names%begin(), e => field_item%short_names%end())
+      _RETURN(_SUCCESS)
+   end subroutine add_item
+
+   subroutine add_aliases(this, standard_name, aliases, rc)
+      class(FieldDictionary), intent(inout) :: this
+      character(*), intent(in) :: standard_name
+      type(StringVector), intent(in) :: aliases
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StringVectorIterator) :: iter
+      character(:), pointer :: alias
+
+      associate (b => aliases%begin(), e => aliases%end())
         iter = b
         do while (iter /= e)
-           short_name => iter%of()
-           _ASSERT(this%alias_map%count(short_name) == 0, 'ambiguous short name references more than one item in dictionary')
-           call this%alias_map%insert(short_name, standard_name)
+           alias => iter%of()
+           _ASSERT(this%alias_map%count(alias) == 0, 'ambiguous short name references more than one item in dictionary')
+           call this%alias_map%insert(alias, standard_name)
            call iter%next()
         end do
       end associate
 
       _RETURN(_SUCCESS)
-   end subroutine add_item
-
+   end subroutine add_aliases
+      
 
    ! This accessor returns a copy for safety reasons.  Returning a
    ! pointer would be more efficient, but it would allow client code
@@ -198,8 +210,8 @@ contains
    end function get_item
 
 
-   function get_units(this, standard_name, rc) result(units)
-      character(:), allocatable :: units
+   function get_units(this, standard_name, rc) result(canonical_units)
+      character(:), allocatable :: canonical_units
       class(FieldDictionary), target, intent(in) :: this
       character(*), intent(in) :: standard_name
       integer, optional, intent(out) :: rc
@@ -208,7 +220,7 @@ contains
       integer :: status
 
       item => this%entries%at(standard_name, _RC)
-      units = item%units
+      canonical_units = item%get_units()
 
       _RETURN(_SUCCESS)
    end function get_units
@@ -224,10 +236,11 @@ contains
       integer :: status
 
       item => this%entries%at(standard_name, _RC)
-      long_name = item%long_name
+      long_name = item%get_long_name()
 
       _RETURN(_SUCCESS)
    end function get_long_name
+
 
    function get_standard_name(this, alias, rc) result(standard_name)
       character(:), allocatable :: standard_name
@@ -236,15 +249,15 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       standard_name = this%alias_map%at(alias, _RC)
       
       _RETURN(_SUCCESS)
    end function get_standard_name
 
+
    integer function size(this)
       class(FieldDictionary), intent(in) :: this
-
       size = this%entries%size()
    end function size
 
