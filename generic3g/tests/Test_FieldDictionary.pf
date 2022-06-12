@@ -18,6 +18,8 @@ contains
    end subroutine test_add_item
 
    @test
+   ! Process a YAML stream with two entries and verify that the
+   ! resulting dictionary has two entries.
    subroutine test_from_yaml_size()
       type(FieldDictionary) :: fd
 
@@ -33,6 +35,8 @@ contains
 
 
    @test
+   ! Process a single item and verify that the correct item is
+   ! retrieved.
    subroutine test_get_field_item()
       type(FieldDictionary) :: fd
       type(FieldDictionaryItem) :: item
@@ -49,6 +53,8 @@ contains
    end subroutine test_get_field_item
 
    @test
+   ! Process a single item and verify that the correct units are
+   ! retrieved directly from the dictionary.
    subroutine test_get_units()
       type(FieldDictionary) :: fd
       character(:), allocatable :: units
@@ -69,6 +75,8 @@ contains
    end subroutine test_get_units
 
    @test
+   ! Process a single item and verify that the correct long name is
+   ! retrieved directly from the dictionary.
    subroutine test_get_long_name()
       type(FieldDictionary) :: fd
       character(:), allocatable :: long_name
@@ -89,6 +97,9 @@ contains
    end subroutine test_get_long_name
 
    @test
+   ! Process a stream with two items that have aliases and verify that
+   ! the correct standard name is retrievable from the corresponding
+   ! alias.
    subroutine test_get_standard_name_from_alias()
       type(FieldDictionary) :: fd
       character(:), allocatable :: standard_name
@@ -109,6 +120,9 @@ contains
    end subroutine test_get_standard_name_from_alias
 
    @test
+   ! Process a stream with two items that have multiple aliases and
+   ! verify that the correct standard name is retrievable from the
+   ! corresponding any of the aliases.
    subroutine test_get_standard_name_from_alias_multi()
       type(FieldDictionary) :: fd
       character(:), allocatable :: standard_name
