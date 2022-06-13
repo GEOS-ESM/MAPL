@@ -36,7 +36,7 @@ module SupportMod
    type (StringRouteHandleMap) :: route_handles
    integer :: srcTerm
    type (ESMF_RouteHandle), target :: default_route_handle
-   
+
 
    type RegridSupport
      ! Cubed-sphere
@@ -49,7 +49,7 @@ module SupportMod
      type (FileMetadata) :: cfio_cubed_sphere
      type (ESMF_Grid) :: grid_cubed_sphere
      type (Netcdf4_Fileformatter) :: formatter_cubed_sphere
-     
+
      ! Lat-lon
      integer :: IM
      integer :: JM
@@ -61,12 +61,12 @@ module SupportMod
      type (Netcdf4_Fileformatter) :: formatter_lat_lon
      real(kind=ESMF_KIND_R8), allocatable :: longitudes(:)
      real(kind=ESMF_KIND_R8), allocatable :: latitudes(:)
-     
+
      ! Both
      logical :: debug = .false.
      integer :: LM
      integer :: NT
-     
+
      ! Misc
      type (StringVector) :: requested_variables
      type (StringVector) :: scalar_variables
@@ -132,18 +132,18 @@ contains
       end do
 
    contains
-      
+
       function get_next_argument() result(argument)
          character(len=:), allocatable :: argument
-         
+
          integer :: length
-         
+
          i_arg = i_arg + 1
-         
+
          call get_command_argument(i_arg, length=length)
          allocate(character(len=length) :: argument)
          call get_command_argument(i_arg, value=argument)
-         
+
       end function get_next_argument
 
 
@@ -196,7 +196,7 @@ contains
       call add_global_attributes()
       call add_variables()
 
-   contains      
+   contains
 
       subroutine add_grid_dimensions()
          integer :: status
@@ -230,7 +230,7 @@ contains
             !call tmp%add_attribute('units', Attribute('degrees_north'))
             call tmp%add_attribute('units', 'degrees_north')
             call ll%add_variable('lat', tmp, rc=status)
-         
+
             tmp = Variable(type=pFIO_REAL32, dimensions='lon')
             !call tmp%add_attribute('long_name', Attribute('longitudes'))
             call tmp%add_attribute('long_name', 'longitudes')
@@ -264,7 +264,7 @@ contains
                attr => iter%value()
 
                call ll%add_attribute(name, attr)
-   
+
                call iter%next()
             end do
 
@@ -322,7 +322,7 @@ contains
                end if
 
             end select
-               
+
             call var_iter%next()
          end do
 
@@ -333,7 +333,7 @@ contains
       subroutine transfer_attributes(from, to)
          type (Variable), target, intent(in) :: from
          type (Variable), target, intent(inout) :: to
-         
+
          type (StringAttributeMap), pointer :: attributes
          type (StringAttributeMapIterator) :: attr_iter
          character(len=:), pointer :: attr_name
@@ -346,7 +346,9 @@ contains
             case ('grid_mapping','coordinates') ! CS specific attributes
                ! skip
             case default
-               call to%add_attribute(attr_name, attr_iter%value())
+               associate (val => attr_iter%value())
+                  call to%add_attribute(attr_name, val)
+               end associate
             end select
             call attr_iter%next()
          end do
@@ -389,10 +391,10 @@ contains
             _ASSERT(north_component /= '','needs informative message')
             call this%vector_variables(1)%push_back(var_name)
             call this%vector_variables(2)%push_back(north_component)
-         elseif (index(long_name, 'north') == 0) then ! 
+         elseif (index(long_name, 'north') == 0) then !
             call this%scalar_variables%push_back(var_name)
          end if
-         
+
       end subroutine categorize
 
 
@@ -451,21 +453,21 @@ contains
             end if
             call var_iter%next()
          end do
-         
+
       end function find_north_component
 
       logical function keep_var(var_name, requested_vars)
          character(len=*), intent(in) :: var_name
          type (StringVector), intent(in) :: requested_vars
-         
+
          integer :: idx
-         
+
          if (requested_vars%size() == 0) then
             keep_var = .true.
          else
             keep_var = (requested_vars%get_index(var_name) /= 0)
          end if
-         
+
       end function keep_var
 
 
@@ -479,7 +481,7 @@ contains
 
          type (StringVectorIterator) :: dim_iter
          character(len=:), pointer :: d
-         
+
          ll_dims = ''
          dim_iter = cs_dims%begin()
          do while (dim_iter /= cs_dims%end())
@@ -497,7 +499,7 @@ contains
             call dim_iter%next()
          end do
       end function make_dim_string
-               
+
    end subroutine transfer_metadata
 
    function run_length_encode(missing) result(str)
@@ -512,7 +514,7 @@ contains
          str = ''
          return
       end if
-      
+
       count = 1
       value = missing(1)
       str = to_string_bool(value)
@@ -603,7 +605,7 @@ contains
         if (any_missing) then
            local_key = run_length_encode(reshape(src_array,[size(src_array)]) == missing)
            global_key = all_gather(local_key)
-           
+
            handle => route_handles%at(global_key)
            if (.not. associated(handle)) then
               allocate(handle)
@@ -641,7 +643,7 @@ contains
                 & zeroregion=ESMF_REGION_SELECT, &
                 & rc=status)
            _VERIFY(status)
-           
+
            _RETURN(_SUCCESS)
         else
            handle => default_route_handle
@@ -649,7 +651,7 @@ contains
      else
         handle => default_route_handle
      end if
- 
+
      call ESMF_FieldRegrid(srcField, dstField, routeHandle=handle, &
           & termorderflag=ESMF_TERMORDER_SRCSEQ, rc=status)
      _VERIFY(status)
@@ -664,7 +666,7 @@ contains
    subroutine write_data(this, rc)
       class (RegridSupport), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
-      
+
 
       type (StringVariableMapIterator) :: var_iter
       type (StringVariableMap), pointer :: variables
@@ -740,7 +742,7 @@ contains
       allocate(ll_vector_patch(this%i_1:this%i_n, this%j_1:this%j_n,2))
       allocate(ll_uvw(this%i_1:this%i_n, this%j_1:this%j_n,3))
 
-      
+
       allocate(cs_scalar_patch(this%nx_loc,this%ny_loc))
       allocate(cs_vector_patch(this%nx_loc,this%ny_loc,2))
 
@@ -820,14 +822,14 @@ contains
 
             is_scalar = .false.
             is_east_vector_component = .false.
-            
+
             do idx = 1, this%scalar_variables%size()
                if (this%scalar_variables%at(idx) == var_name) then
                   is_scalar = .true.
                   exit
                end if
             end do
-            
+
             if (.not. is_scalar) then
                do idx = 1, this%vector_variables(1)%size()
                   if (this%vector_variables(1)%at(idx) == var_name) then
@@ -837,13 +839,13 @@ contains
                   end if
                end do
             end if
-            
+
             if (.not. (is_scalar .or. is_east_vector_component)) then
                call var_iter%next()
                cycle
             end if
 
-            
+
             do time = 1, this%nt
                do level = 1, num_levels
 
@@ -949,7 +951,7 @@ contains
       integer, optional, intent(out) :: rc
       type (ESMF_VM) :: vm_global
       integer :: status
-      
+
       include 'mpif.h'
 
 !$$      if (local_pet == 0) then
@@ -977,7 +979,7 @@ contains
       real(kind=REAL64) :: s
 
       s = sin(x * MAPL_DEGREES_TO_RADIANS_R8)
-      
+
    end function sind
 
    elemental function cosd(x) result(c)
@@ -985,7 +987,7 @@ contains
       real(kind=REAL64) :: c
 
       c = cos(x * MAPL_DEGREES_TO_RADIANS_R8)
-      
+
    end function cosd
 
    subroutine create_esmf_grids(this, rc)
@@ -1027,7 +1029,7 @@ contains
       nPetPerTile = pet_count/n_tiles
       nx = nint(sqrt(float(nPetPerTile*this%Xdim)/this%Xdim))
       nx = max(nx,1)
-      do while( mod(nPetPerTile,nx).NE.0) 
+      do while( mod(nPetPerTile,nx).NE.0)
          nx = nx - 1
       enddo
       ny=nPetPerTile/nx
@@ -1063,12 +1065,12 @@ contains
             this%y_1=minIndex(2,local_pet)
             this%y_n=maxIndex(2,local_pet)
          case(2)
-            this%x_1=minIndex(1,local_pet) - this%Xdim 
+            this%x_1=minIndex(1,local_pet) - this%Xdim
             this%x_n=maxIndex(1,local_pet) - this%Xdim
             this%y_1=minIndex(2,local_pet)
             this%y_n=maxIndex(2,local_pet)
          case(3)
-            this%x_1=minIndex(1,local_pet) - this%Xdim 
+            this%x_1=minIndex(1,local_pet) - this%Xdim
             this%x_n=maxIndex(1,local_pet) - this%Xdim
             this%y_1=minIndex(2,local_pet) - this%Xdim
             this%y_n=maxIndex(2,local_pet) - this%Xdim
@@ -1245,7 +1247,7 @@ program main
      print*,'num regridders = ',  1 + route_handles%size()
 
    end if
-   
+
    call ESMF_finalize()
 
 contains

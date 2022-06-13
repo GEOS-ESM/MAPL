@@ -87,7 +87,7 @@ subroutine SUB_ ( data, UNIT, ARRDES, format, RC)
 
 #if (RANK_ > 2 || VARTYPE_ <= 0)
 
-        _ASSERT(.FALSE.,'needs informative message')
+        _FAIL('needs informative message')
 
 #else
 

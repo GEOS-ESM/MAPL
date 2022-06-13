@@ -31,7 +31,7 @@ contains
    ! puts a Linux DSO in a resource file.
    pure logical function is_supported_dso_name(name)
       character(len=*), intent(in) :: name
-      is_supported_dso_name = is_supported_dso_extension(get_file_extension(get_file_extension(name)))
+      is_supported_dso_name = is_supported_dso_extension(get_file_extension(name))
    end function is_supported_dso_name
 
    ! We allow users to specify a DSO extensions that is only valid on

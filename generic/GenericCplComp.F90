@@ -1,4 +1,14 @@
-
+#define _DEALLOC(A) \
+    if(associated(A))then; \
+          if(MAPL_ShmInitialized)then; \
+              call MAPL_SyncSharedMemory(rc=STATUS); \
+              call MAPL_DeAllocNodeArray(A,rc=STATUS); \
+           else; \
+              deallocate(A,stat=STATUS); \
+           endif; \
+       _VERIFY(STATUS); \
+       NULLIFY(A); \
+    endif
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
 
@@ -21,6 +31,7 @@ module MAPL_GenericCplCompMod
 
   use ESMF
   use ESMFL_Mod
+  use MAPL_ShmemMod
   use MAPL_BaseMod
   use MAPL_Constants
   use MAPL_IOMod
@@ -42,9 +53,10 @@ module MAPL_GenericCplCompMod
 !EOP
 
   type MAPL_CplCnt
-     integer, pointer  :: PTR1C(:)     => null()
-     integer, pointer  :: PTR2C(:,:)   => null()
-     integer, pointer  :: PTR3C(:,:,:) => null()
+     integer, pointer  :: PTR1C(:)       => null()
+     integer, pointer  :: PTR2C(:,:)     => null()
+     integer, pointer  :: PTR3C(:,:,:)   => null()
+     integer, pointer  :: PTR4C(:,:,:,:) => null()
   end type MAPL_CplCnt
 
   type MAPL_GenericCplState
@@ -272,15 +284,21 @@ contains
     real, pointer                         :: PTR1 (:    )
     real, pointer                         :: PTR2 (:,:  )
     real, pointer                         :: PTR3 (:,:,:)
+    real, pointer                         :: PTR4 (:,:,:,:)
     real, pointer                         :: PTR10(:    )
     real, pointer                         :: PTR20(:,:  )
     real, pointer                         :: PTR30(:,:,:)
+    real, pointer                         :: PTR40(:,:,:,:)
     integer                               :: OFFSET
     integer, pointer                      :: ungrd(:)
     logical                               :: has_ungrd
     type(ESMF_Field)                      :: field
     integer                               :: cplfunc
     logical                               :: isPresent
+    integer                               :: globalOffset
+    integer                               :: specOffset
+    logical                               :: clockYetToAdvance
+    integer                               :: timeStep ! in seconds
 
 ! Begin...
 
@@ -345,6 +363,21 @@ contains
 
     TM0 = currTime
 
+    call ESMF_AttributeGet(CC, name='ClockYetToAdvance', &
+         isPresent=isPresent, _RC)
+    if (isPresent) then
+       call ESMF_AttributeGet(CC, name='ClockYetToAdvance', &
+            value=clockYetToAdvance, _RC)
+    else
+       clockYetToAdvance = .false.
+    endif
+
+    globalOffset = 0
+    if (clockYetToAdvance) then
+       call ESMF_TimeIntervalGet(TS, S=timeStep, _RC)
+       globalOffset = -timeStep
+    end if
+
 ! Initialize the counters to 0. This may do some unnecessary
 !   accumulations immediately after initialize
 !-----------------------------------------------------------
@@ -359,13 +392,15 @@ contains
        call MAPL_VarSpecGet(STATE%DST_SPEC(J),        &
             ACCMLT_INTERVAL = STATE%CLEAR_INTERVAL(J), &
             COUPLE_INTERVAL = STATE%COUPLE_INTERVAL(J), &
-            OFFSET          = OFFSET, &
+            OFFSET          = specOffset, &
             SHORT_NAME      = NAME, &
                                             RC = STATUS )
        _VERIFY(STATUS)
 
 ! Initalize COUPLE ALARM from destination properties
 !---------------------------------------------------
+
+       OFFSET = specOffset + globalOffset
 
        call ESMF_TimeIntervalSet(TCPL, S=STATE%COUPLE_INTERVAL(J), &
             calendar=cal, RC=STATUS)
@@ -376,6 +411,10 @@ contains
        _VERIFY(STATUS)
 
        rTime = TM0 + TOFF
+
+       do while (rTime < currTime)
+          rTime = rTime + TCPL
+       end do
 
        if (associated(STATE%TIME2CPL_ALARM)) then
           STATE%TIME_TO_COUPLE(J) = STATE%TIME2CPL_ALARM
@@ -451,7 +490,7 @@ contains
        if (has_ungrd) then
           DIMS = DIMS + size(UNGRD)
        end if
-       _ASSERT(DIMS < 4,'needs informative message') ! ALT: due to laziness we are supporting only 3 dims
+       _ASSERT(DIMS < 5,'needs informative message') ! ALT: due to laziness we are supporting only 4 dims
 
        STATE%ACCUM_RANK(J) = DIMS
 
@@ -472,6 +511,25 @@ contains
 
        select case(DIMS)
 
+       case(4)
+! Get SRC pointer, making sure it is allocated.
+          call MAPL_GetPointer(SRC, PTR4, NAME, ALLOC=.TRUE., RC=STATUS)
+          _VERIFY(STATUS)
+! Allocate space for accumulator
+          L1 = LBOUND(PTR4,3)
+          LN = UBOUND(PTR4,3)
+          allocate(PTR40(size(PTR4,1),size(PTR4,2),L1:LN,size(PTR4,4)), STAT=STATUS)
+          _VERIFY(STATUS)
+          if (STATE%couplerType(J) /= MAPL_CplAverage .and. STATE%couplerType(J) /= MAPL_CplAccumulate) then
+             PTR40 = MAPL_UNDEF
+          else
+! Set accumulator values to zero
+             PTR40 = 0.0
+          endif
+! Put pointer in accumulator
+          STATE%ACCUMULATORS(J)=ESMF_LocalArrayCreate( PTR40, RC=STATUS)
+          _VERIFY(STATUS)
+          
        case(3)
 ! Get SRC pointer, making sure it is allocated.
           call MAPL_GetPointer(SRC, PTR3, NAME, ALLOC=.TRUE., RC=STATUS)
@@ -621,19 +679,22 @@ contains
 ! local vars
 
     integer                               :: J
-    integer                               :: I1, I2, I3
+    integer                               :: I1, I2, I3, I4
     integer                               :: couplerType
     character (len=ESMF_MAXSTR)           :: NAME
     integer                               :: DIMS
     real, pointer                         :: PTR1 (:)
     real, pointer                         :: PTR2 (:,:)
     real, pointer                         :: PTR3 (:,:,:)
+    real, pointer                         :: PTR4 (:,:,:,:)
     real, pointer                         :: PTR10(:)
     real, pointer                         :: PTR20(:,:)
     real, pointer                         :: PTR30(:,:,:)
+    real, pointer                         :: PTR40(:,:,:,:)
     integer, pointer                      :: PTR1c(:)     => NULL()
     integer, pointer                      :: PTR2c(:,:)   => NULL()
     integer, pointer                      :: PTR3c(:,:,:) => NULL()
+    integer, pointer                      :: PTR4c(:,:,:,:) => NULL()
 
     character(*), parameter       :: IAm="ACCUMULATE"
     integer                       :: STATUS
@@ -657,6 +718,53 @@ contains
 !------------------------- 
 
        select case(DIMS)
+
+       case(4)
+          call MAPL_GetPointer  (SRC, PTR4, NAME,            RC=STATUS)
+          _VERIFY(STATUS)
+          call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR40,RC=STATUS)
+          _VERIFY(STATUS)
+          PTR4c => STATE%ARRAY_COUNT(J)%PTR4C
+
+          if(.not.associated(PTR4C)) then
+             if(  any( PTR4==MAPL_UNDEF ) ) then
+                allocate(PTR4C(size(PTR4,1), size(PTR4,2), size(PTR4,3), size(PTR4,4)),STAT=STATUS)
+                _VERIFY(STATUS)
+                PTR4C = STATE%ACCUM_COUNT(J)
+!               put it back into array
+                STATE%ARRAY_COUNT(J)%PTR4C => PTR4c
+                _VERIFY(STATUS)
+             end if
+          end if
+
+          if (couplerType == MAPL_CplAverage .or. couplerType == MAPL_CplAccumulate) then
+             if(associated(PTR3C)) then
+                where (PTR4 /= MAPL_Undef)
+                   PTR40 = PTR40 + PTR4
+                   PTR4c = PTR4c + 1
+                end where
+             else
+                PTR40 = PTR40 + PTR4
+             end if
+          else
+             DO I1=1,size(PTR4,1)
+                DO I2=1,size(PTR4,2)
+                   DO I3=1,size(PTR4,3)
+                      DO I4=1,size(PTR4,4)
+                         if (PTR40(I1,I2,I3,I4)== MAPL_Undef) then
+                            PTR40(I1,I2,I3,I4) = PTR4(I1,I2,I3,I4)
+                         else 
+                            if (couplerType == MAPL_CplMax) then
+                               PTR40(I1,I2,I3,I4) = max(PTR40(I1,I2,I3,I4),PTR4(I1,I2,I3,I4))
+                            else if (couplerType == MAPL_CplMin) then
+                               PTR40(I1,I2,I3,I4) = min(PTR40(I1,I2,I3,I4),PTR4(I1,I2,I3,I4))
+                            end if
+                         end if
+                      end DO
+                   end DO
+                end DO
+             end DO
+          end if
 
        case(3)
           call MAPL_GetPointer  (SRC, PTR3, NAME,            RC=STATUS)
@@ -813,12 +921,10 @@ contains
     integer                               :: J
     integer                               :: DIMS
     logical                               :: RINGING
-    real, pointer                         :: PTR1 (:)
-    real, pointer                         :: PTR2 (:,:)
-    real, pointer                         :: PTR3 (:,:,:)
     real, pointer                         :: PTR10(:)
     real, pointer                         :: PTR20(:,:)
     real, pointer                         :: PTR30(:,:,:)
+    real, pointer                         :: PTR40(:,:,:,:)
 
     character(*), parameter       :: IAm="ZERO_CLEAR_COUNT"
     integer                       :: STATUS
@@ -836,10 +942,20 @@ contains
 
           DIMS = STATE%ACCUM_RANK(J)
 
-! Process the 3 dimension possibilities
+! Process the 4 dimension possibilities
 !--------------------------------------
 
           select case(DIMS)
+
+          case(4)
+             call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR40,RC=STATUS)
+             _VERIFY(STATUS)
+             if (STATE%couplerType(J) /= MAPL_CplAverage .and. STATE%couplerType(J) /= MAPL_CplAccumulate) then
+                PTR40 = MAPL_UNDEF
+             else
+                PTR40 = 0.0
+             endif
+             if (associated(STATE%ARRAY_COUNT(J)%PTR4C)) STATE%ARRAY_COUNT(J)%PTR4C = 0
 
           case(3)
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR30,RC=STATUS)
@@ -889,6 +1005,10 @@ contains
              deallocate(STATE%ARRAY_COUNT(J)%PTR3C)
              nullify(STATE%ARRAY_COUNT(J)%PTR3C)
           end if
+          if (associated(STATE%ARRAY_COUNT(J)%PTR4C)) then
+             deallocate(STATE%ARRAY_COUNT(J)%PTR4C)
+             nullify(STATE%ARRAY_COUNT(J)%PTR4C)
+          end if
 
        end if
     end do
@@ -910,12 +1030,15 @@ contains
     real, pointer                         :: PTR1 (:)
     real, pointer                         :: PTR2 (:,:)
     real, pointer                         :: PTR3 (:,:,:)
+    real, pointer                         :: PTR4 (:,:,:,:)
     real, pointer                         :: PTR10(:)
     real, pointer                         :: PTR20(:,:)
     real, pointer                         :: PTR30(:,:,:)
+    real, pointer                         :: PTR40(:,:,:,:)
     integer, pointer                      :: PTR1c(:)
     integer, pointer                      :: PTR2c(:,:)
     integer, pointer                      :: PTR3c(:,:,:)
+    integer, pointer                      :: PTR4c(:,:,:,:)
     logical                               :: RINGING
     integer                               :: couplerType
 
@@ -939,10 +1062,44 @@ contains
 
           DIMS = STATE%ACCUM_RANK(J)
 
-! Process the three dimension possibilities
+! Process the four dimension possibilities
 !------------------------------------------
 
           select case(DIMS)
+
+          case(4)
+             call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR40,RC=STATUS)
+             _VERIFY(STATUS)
+             call MAPL_GetPointer  (DST, PTR4, NAME,            RC=STATUS)
+             _VERIFY(STATUS)
+             PTR4c => STATE%ARRAY_COUNT(J)%PTR4C
+             if(associated(PTR4C)) then
+                if (couplerType /= MAPL_CplAccumulate) then
+                   where (PTR4C /= 0) 
+                      PTR40 = PTR40 / PTR4C
+                   elsewhere
+                      PTR40 = MAPL_Undef
+                   end where
+                else
+                   where (PTR4C /= 0) 
+                      PTR40 = PTR40
+                   elsewhere
+                      PTR40 = MAPL_Undef
+                   end where
+                end if
+             elseif(STATE%ACCUM_COUNT(J)>0) then
+                if (couplerType /= MAPL_CplAccumulate) then
+                   PTR40 = PTR40 / STATE%ACCUM_COUNT(J)
+                else
+                   PTR40 = PTR40
+                end if
+             else
+                PTR40 = MAPL_Undef
+             end if
+
+! Regrid stubbed
+
+             PTR4 = PTR40
 
           case(3)
              call ESMF_LocalArrayGet(STATE%ACCUMULATORS(J),farrayPtr=PTR30,RC=STATUS)
@@ -1311,9 +1468,9 @@ contains
                 deallocate(buf1)
              end if
           case default
-             _ASSERT(.false., "Unsupported rank")
+             _FAIL( "Unsupported rank")
           end select
-          if(associated(mask)) deallocate(mask)
+          _DEALLOC(mask)
        end do
 
        if (am_i_root) call Free_File(unit = UNIT, rc=STATUS)
@@ -1434,7 +1591,7 @@ contains
           case(3)
              local_undefs = associated(state%array_count(i)%ptr3c)
           case default
-             _ASSERT(.false., "Unsupported rank")
+             _FAIL( "Unsupported rank")
           end select
        have_undefs = 0
        n_undefs = 0
@@ -1505,9 +1662,9 @@ contains
                 deallocate(buf1)
              end if
           case default
-             _ASSERT(.false.," Unsupported rank")
+             _FAIL(" Unsupported rank")
           end select
-          if(associated(mask)) deallocate(mask)
+          _DEALLOC(mask)
        end do
 
        if(am_i_root) call Free_File(unit = UNIT, rc=STATUS)
@@ -1553,7 +1710,7 @@ contains
     if (.not.associated(STATE%TIME2CPL_ALARM)) then
        STATE%TIME2CPL_ALARM => ALARM
     else
-       _ASSERT(.false., "Alarm is already associated! Cannot set it again!")
+       _FAIL( "Alarm is already associated! Cannot set it again!")
     end if
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CplCompSetAlarm

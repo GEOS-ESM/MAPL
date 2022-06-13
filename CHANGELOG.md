@@ -9,20 +9,141 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
+- Update CI to work with latest GEOSadas `develop` (Uses a special branch of GEOSadas)
+- Fix bundleio tests
 
 ### Added
 
-- MAPL_ESMFFieldBundleRead/Write modules are now available in when using MAPL
+- Updated MAPL_CapGridComp to mark fields going to ExtData to not be checkpointed by components
+- Add debug loggers for start/stop during stages in MAPL_Generic
+- Handling for double precision input when retrieving single precision attributes
+- Enable GCM run test in CircleCI (1-hour, no ExtData)
+- Added monotonic regridding option
+- Make availalbe to History and ExtData2G all supported regridding methods
 
 ### Changed
 
-- Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
-- Add voting interpolation method as optional argument to SimpleBundleRead method
+- Modified error messages in FileMetadataUtilities to be unique and print filename
+- Updated the ESMA_cmake version to v3.16.0
+- Updated GitHub Actions MAPL build tests
+- Added assert for missing file with ExtData2G
+- Re-enable bundleio tests in CI
 
 ### Removed
 
 ### Deprecated
+
+## [2.21.3] - 2022-06-07
+
+### Fixed
+
+- Fixed bug in non cubed-sphere grid path in MAPL_GetHorzIJIndex
+
+## [2.21.2] - 2022-05-31
+
+### Fixed
+
+- Initialize `cap%lperp` in `MAPL_CapGridComp.F90` (see Issue #1530)
+
+## [2.21.1] - 2022-05-24
+
+### Fixed
+
+- Adding missing _RETURN and _VERIFY macros in GriddedIO.F90
+- Update CircleCI to work with latest GEOSadas
+
+## [2.21.0] - 2022-05-05
+
+### Fixed
+
+- Fixed incorrect legend when using PRINTSPEC option in MAPL Cap
+- Fix ESMF errors exposed by monthly collections
+
+### Added
+
+- Added has_variable function to FileMetadata
+- Added information about the container type for each item in state when using PRINTSPEC option
+
+### Changed
+
+- Change many instances of `_ASSERT(.false.,"msg")` to `_FAIL("msg")`
+- Extended format width for exclusive and inclusive times in profiler from `f9.2` to `f10.2` (see #1420)
+
+## [2.20.0] - 2022-04-19
+
+### Fixed
+
+- Removed one redundant get_file_extension call
+- Fix issue where ACG was called when no file had changed
+- Add missing `rc=status` in `MAPL_GetResourceFromMAPL_scalar`
+- Fixed bugs with next generation ExtData
+- Fixed variable PTR40 declaration in GenericCplComp.F90
+
+### Added
+
+- Added support for 4d variables in the coupler. Intentionally decided not to support 4d in the coupler's ReadRestart and WriteRestart to catch errors
+- Added ability to use multiple rules for different time periods in next generation ExtData
+
+### Changed
+
+- Cleaned up a bit of old CMake
+- Updated CircleCI config to use new orb `build` job
+- Updated `components.yaml` to match GEOSgcm v10.22.1
+  - ESMA_env v3.13.0
+  - ESMA_cmake v3.12.0
+
+## [2.19.2] - 2022-03-28
+
+### Fixed
+
+-  Provided workaround for  GNU bug when defining file metadata in cubed-sphere grid factory (similar to Issue #1433 and its solution)
+
+## [2.19.1] - 2022-03-24
+
+### Fixed
+
+- Fix a bug deallocating a pointer potentially pointing to shared memory allocated by MAPL_Shmem
+
+## [2.19.0] - 2022-03-18
+
+### Fixed
+
+- Fixed duration of the clock to be the smaller of the user specified duration and (END_DATE - currTime)
+- Fixes for compiling on M1 Macs (remove REAL128)
+- Fix for CMake when `esmf` is already a target
+
+### Added
+
+- New cmake option USE_EXTDATA2G to enable the next generation of ExtData for development, by default uses 1st generation ExtData
+- MAPL_ESMFFieldBundleRead/Write modules are now available in when using MAPL
+
+### Changed
+
+- Replaced a wild card "*" in any position of a string in MAPL_GridCompSpecs_ACG.py
+- Updated `MAPL_SunGetSolarConstantFromNRLFile` to open NRL Solar Table file only on root and broadcast the tables to all processes.  Now all processes do interpolation.
+- Add voting interpolation method as optional argument to SimpleBundleRead method
+
+## [2.18.3] - 2022-03-15
+
+### Fixed
+
+- Fixed bug in 2.18.2 release when computing lats in degrees lat-lon grid factory
+- Fixed GNU bug when defining file metadata in lat-lon grid factory
+
+## [2.18.2] - 2022-03-11
+
+### Fixed
+
+- Save copy of original lat/lons in degrees when creating lat-lon grid factory to use in file metadata to eliminate floating point conversion noise
+
+## [2.18.1] - 2022-03-07
+
+### Fixed
+
+- Fix build bug with NAG in `cub2latlon_regridder.F90`
+- Fixes DO_NOT_CONNECT errors when calling MAPL_TerminateAnyImport
+- Fixed the alarms in the couplers to account if they are called before ESMF_ClockAdvance is called
+- Reverted generic/VarSpec.F90 to hash b02e8ff (fix for #1410)
 
 ## [2.18.0] - 2022-02-23
 

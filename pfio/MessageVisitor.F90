@@ -126,7 +126,7 @@ contains
         ! if the serverthread sends the dummy directly to clientthread, it will not go through here. 
         _VERIFY(0)
       class default
-         _ASSERT(.false., 'unsupported subclass')
+         _FAIL( 'unsupported subclass')
       end select
       _RETURN(_SUCCESS)
    end subroutine handle
@@ -135,7 +135,7 @@ contains
       class (MessageVisitor), intent(inout) :: this
       type (CollectivePrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_CollectivePrefetchData should not be called")
+      _FAIL( "Warning : dummy handle_CollectivePrefetchData should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_CollectivePrefetchData
@@ -144,7 +144,7 @@ contains
       class (MessageVisitor), intent(inout) :: this
       type (CollectiveStageDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_CollectiveStageData should not be called")
+      _FAIL( "Warning : dummy handle_CollectiveStageData should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_CollectiveStageData
@@ -153,7 +153,7 @@ contains
       class (MessageVisitor), intent(inout) :: this
       type (TerminateMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_Terminate should not be called")
+      _FAIL( "Warning : dummy handle_Terminate should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_Terminate
@@ -162,7 +162,7 @@ contains
       class (MessageVisitor), target, intent(inout) :: this
       type (DoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_Done should not be called")
+      _FAIL( "Warning : dummy handle_Done should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_Done
@@ -171,7 +171,7 @@ contains
       class (MessageVisitor), target, intent(inout) :: this
       type (PrefetchDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_Done_prefetch should not be called")
+      _FAIL( "Warning : dummy handle_Done_prefetch should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_Done_prefetch
@@ -180,7 +180,7 @@ contains
       class (MessageVisitor), target, intent(inout) :: this
       type (CollectivePrefetchDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_Done_collective_prefetch should not be called")
+      _FAIL( "Warning : dummy handle_Done_collective_prefetch should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_Done_collective_prefetch
@@ -189,7 +189,7 @@ contains
       class (MessageVisitor), target, intent(inout) :: this
       type (StageDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_Done_stage should not be called")
+      _FAIL( "Warning : dummy handle_Done_stage should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_Done_stage
@@ -198,7 +198,7 @@ contains
       class (MessageVisitor), target, intent(inout) :: this
       type (CollectiveStageDoneMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_Done_collective_stage should not be called")
+      _FAIL( "Warning : dummy handle_Done_collective_stage should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_Done_collective_stage
@@ -207,7 +207,7 @@ contains
       class (MessageVisitor), target, intent(inout) :: this
       type (AddExtCollectionMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_AddExtCollection should not be called")
+      _FAIL( "Warning : dummy handle_AddExtCollection should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_AddExtCollection
@@ -216,7 +216,7 @@ contains
       class (MessageVisitor), target, intent(inout) :: this
       type (AddHistCollectionMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_AddHistCollection should not be called")
+      _FAIL( "Warning : dummy handle_AddHistCollection should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_AddHistCollection
@@ -225,7 +225,7 @@ contains
       class (MessageVisitor), intent(inout) :: this
       type (IdMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_ID should not be called. hint: maybe server and app are the same?")
+      _FAIL( "Warning : dummy handle_ID should not be called. hint: maybe server and app are the same?")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_Id
@@ -234,7 +234,7 @@ contains
       class (MessageVisitor), intent(inout) :: this
       type (PrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_PrefetchData should not be called")
+      _FAIL( "Warning : dummy handle_PrefetchData should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_PrefetchData
@@ -243,7 +243,7 @@ contains
       class (MessageVisitor), intent(inout) :: this
       type (StageDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_StageData should not be called")
+      _FAIL( "Warning : dummy handle_StageData should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_StageData
@@ -252,7 +252,7 @@ contains
       class (MessageVisitor), intent(inout) :: this
       type (ModifyMetadataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_ModifyMetadata should not be called")
+      _FAIL( "Warning : dummy handle_ModifyMetadata should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_ModifyMetadata
@@ -261,7 +261,7 @@ contains
       class (MessageVisitor), target, intent(inout) :: this
       type (HandShakeMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
-      _ASSERT(.false., "Warning : dummy handle_HandShake should not be called")
+      _FAIL( "Warning : dummy handle_HandShake should not be called")
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
    end subroutine handle_HandShake
