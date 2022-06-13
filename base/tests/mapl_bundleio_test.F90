@@ -97,6 +97,8 @@ CONTAINS
       case('-ny')
          call get_command_argument(i+1,astr)
          read(astr,*)ny
+      case('-o')
+         call get_command_argument(i+1,filename)
       end select
     enddo
 
@@ -157,7 +159,6 @@ CONTAINS
     call MAPL_FieldBundleAdd(bundle,field,__RC__)
 
 
-    filename="temp_file.nc4"
     call newWriter%create_from_bundle(bundle,clock,filename,rc=status)
     _VERIFY(status)
     call newWriter%write_to_file(rc=status)
