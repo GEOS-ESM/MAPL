@@ -7,18 +7,41 @@ workflows:
   build-and-test:
     jobs:
 
-      # Builds MAPL in a "default" way
+      # Builds MAPL in a "default" way - Intel
       - ci/build:
           name: build-and-test-MAPL-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [ifort]
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
           ctest_options: "-LE PERFORMANCE --output-on-failure"
+
+      # Builds MAPL in a "default" way - GNU
+      #
+      # NOTE: Currently Open MPI fails on the bundleio with:
+      #
+      #   The OSC pt2pt component does not support MPI_THREAD_MULTIPLE in this release.
+      #   Workarounds are to run on a single node, or to use a system with an RDMA
+      #   capable network such as Infiniband.
+      #
+      # For now, we run GNU/Open MPI without the bundleio tests. Some indications that
+      # Open MPI 5 will not have this limitation
+
+      - ci/build:
+          name: build-and-test-MAPL-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran]
+          repo: MAPL
+          mepodevelop: false
+          run_unit_tests: true
+          ctest_options: "-E bundleio -LE PERFORMANCE --output-on-failure"
 
       # Builds MAPL like UFS does (no FLAP and pFlogger, static)
       - ci/build:
