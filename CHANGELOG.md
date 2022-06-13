@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Update CI to work with latest GEOSadas `develop` (Uses a special branch of GEOSadas)
+- Fix bundleio tests
 
 ### Added
 
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the ESMA_cmake version to v3.16.0
 - Updated GitHub Actions MAPL build tests
 - Added assert for missing file with ExtData2G
+- Re-enable bundleio tests in CI
 
 ### Removed
 
