@@ -2,7 +2,6 @@ module mapl3g_FieldSpec
    use mapl3g_AbstractStateItemSpec
    use mapl3g_GridSpec
    use mapl3g_DimsSpec
-   use mapl3g_FieldDictionary, only: GEOS_Field_Dictionary
    use esmf, only: ESMF_TypeKind_Flag
    use esmf, only: ESMF_TYPEKIND_R4
 
