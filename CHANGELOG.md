@@ -77,6 +77,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.21.3] - 2022-06-07
+
+### Fixed
+
+- Fixed bug in non cubed-sphere grid path in MAPL_GetHorzIJIndex
+
 ## [2.21.2] - 2022-05-31
 
 ### Fixed
