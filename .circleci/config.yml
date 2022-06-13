@@ -18,7 +18,7 @@ workflows:
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
-          ctest_options: "-R MAPL -LE PERFORMANCE --output-on-failure"
+          ctest_options: "-LE PERFORMANCE --output-on-failure"
 
       # Builds MAPL like UFS does (no FLAP and pFlogger, static)
       - ci/build:
@@ -32,7 +32,7 @@ workflows:
           mepodevelop: false
           extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_SHARED_MAPL=OFF"
           run_unit_tests: true
-          ctest_options: "-R MAPL -LE PERFORMANCE --output-on-failure"
+          ctest_options: "-LE PERFORMANCE --output-on-failure"
 
       # Build GEOSgcm
       - ci/build:
