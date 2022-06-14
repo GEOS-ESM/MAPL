@@ -32,3 +32,4 @@ endif ()
 #install(PROGRAMS ExtDataDriver.x DESTINATION bin)
 #install(TARGETS ExtDataDriver.x DESTINATION bin)
 
+add_subdirectory(ExtData_Testing_Framekwork EXCLUDE_FROM_ALL)
