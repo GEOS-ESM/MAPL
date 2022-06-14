@@ -61,7 +61,15 @@ jobs:
           cd build
           make -j4 build-tests
           # skip performance tests
-          ctest -R MAPL -LE PERFORMANCE --output-on-failure
+          # NOTE: Currently Open MPI fails on the bundleio with:
+          #
+          #   The OSC pt2pt component does not support MPI_THREAD_MULTIPLE in this release.
+          #   Workarounds are to run on a single node, or to use a system with an RDMA
+          #   capable network such as Infiniband.
+          #
+          # For now, we run GNU/Open MPI without the bundleio tests. Some indications that
+          # Open MPI 5 will not have this limitation
+          ctest -E bundleio -LE PERFORMANCE --output-on-failure
   build_test_mapl_intel:
     name: Build and Test MAPL Intel
     runs-on: ubuntu-latest
@@ -106,4 +114,4 @@ jobs:
           cd build
           make -j4 build-tests
           # skip performance tests
-          ctest -R MAPL -LE PERFORMANCE --output-on-failure
+          ctest -LE PERFORMANCE --output-on-failure
