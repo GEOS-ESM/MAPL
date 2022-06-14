@@ -5,7 +5,8 @@ macro(run_case CASE)
       COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/test_cases/${CASE} ${tempdir}
       )
     if (EXISTS "${tempdir}/nproc.rc")
-      file(READ "${tempdir}/nproc.rc" num_procs)
+      file(READ "${tempdir}/nproc.rc" num_procs_temp)
+      string(STRIP ${num_procs_temp} num_procs)
     else()
       set(num_procs "1")
     endif()
@@ -14,7 +15,7 @@ macro(run_case CASE)
        file(APPEND "${tempdir}/CAP2.rc" "USE_EXTDATA2G: .true.")
     endif()
     execute_process(
-      COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${num_procs} ${MY_BINARY_DIR}/ExtDataDriver.x
+      COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs} ${MPIEXEC_PREFLAGS} ${MY_BINARY_DIR}/ExtDataDriver.x
       RESULT_VARIABLE CMD_RESULT
       WORKING_DIRECTORY ${tempdir}
       #COMMAND_ECHO STDOUT
