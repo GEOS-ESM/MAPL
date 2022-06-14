@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Update CI to work with latest GEOSadas `develop` (Uses a special branch of GEOSadas)
+- Fix bundleio tests
+- HistoryGridComp now checks if a file exists already before writing and errors out if so
 
 ### Added
 
@@ -26,7 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the ESMA_cmake version to v3.16.0
 - Updated GitHub Actions MAPL build tests
 - Added assert for missing file with ExtData2G
-- Updates for Sspack support
+- Re-enable bundleio tests in CI
+- Updates for Spack support
    - Add `find_package(MPI)` for non-Baselibs builds
    - Update all `esmf` target references in CMake to `ESMF`
    - Add `esmf` alias library for `ESMF` for compatibility
@@ -35,6 +38,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.21.3] - 2022-06-07
+
+### Fixed
+
+- Fixed bug in non cubed-sphere grid path in MAPL_GetHorzIJIndex
 
 ## [2.21.2] - 2022-05-31
 
