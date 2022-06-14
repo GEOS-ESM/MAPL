@@ -18,7 +18,7 @@ foreach(TEST_CASE ${TEST_CASES})
   else()
      set(num_procs "1")
   endif()
-  if (${TEST_EXTDATA1G})
+  if (TEST_EXTDATA1G)
      add_test(
         NAME "ExtData1G_${TEST_CASE}"
         COMMAND ${CMAKE_COMMAND} 
@@ -36,7 +36,7 @@ foreach(TEST_CASE ${TEST_CASES})
      endif()
         )
   endif()
-  if (${TEST_EXTDATA2G})
+  if (TEST_EXTDATA2G)
      add_test(
         NAME "ExtData2G_${TEST_CASE}"
         COMMAND ${CMAKE_COMMAND} 
