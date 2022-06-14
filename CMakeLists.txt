@@ -131,7 +131,8 @@ if (NOT Baselibs_FOUND)
     # ESMF as used in MAPL requires MPI
     target_link_libraries(ESMF INTERFACE MPI::MPI_Fortran)
 
-    # MAPL and GEOS use lowercase target due to historical reasons
+    # MAPL and GEOS use lowercase target due to historical reasons but
+    # the latest FindESMF.cmake file from ESMF produces an ESMF target.
     add_library(esmf ALIAS ESMF)
   endif ()
 endif ()
