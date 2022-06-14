@@ -9,10 +9,12 @@ macro(run_case CASE)
     else()
       set(num_procs "1")
     endif()
-    file(APPEND "${tempdir}/CAP1.rc" "USE_EXTDATA2G: .true.")
-    file(APPEND "${tempdir}/CAP2.rc" "USE_EXTDATA2G: .true.")
+    if (${IS_EXTDATA2G} STREQUAL "YES")
+       file(APPEND "${tempdir}/CAP1.rc" "USE_EXTDATA2G: .true.")
+       file(APPEND "${tempdir}/CAP2.rc" "USE_EXTDATA2G: .true.")
+    endif()
     execute_process(
-      COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs} ${MY_BINARY_DIR}/ExtDataDriver.x
+      COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${num_procs} ${MY_BINARY_DIR}/ExtDataDriver.x
       RESULT_VARIABLE CMD_RESULT
       WORKING_DIRECTORY ${tempdir}
       #COMMAND_ECHO STDOUT
