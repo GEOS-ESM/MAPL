@@ -28,7 +28,7 @@ set (SRCS
 #  MAPL_Initialize.F90
 #  )
 #target_link_libraries (base_extras MAPL.shared MAPL.pfunit
-#                                   ESMF NetCDF::NetCDF_Fortran)
+#                                   esmf NetCDF::NetCDF_Fortran)
 
 add_pfunit_ctest(MAPL.base.tests
                 TEST_SOURCES ${TEST_SRCS}

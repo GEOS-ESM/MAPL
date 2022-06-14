@@ -125,13 +125,13 @@ if (NOT Baselibs_FOUND)
      add_definitions(-DH5_HAVE_PARALLEL)
   endif()
 
-  if (NOT TARGET ESMF)
+  if (NOT TARGET esmf)
     find_package(ESMF MODULE REQUIRED)
 
     # ESMF as used in MAPL requires MPI
     target_link_libraries(ESMF INTERFACE MPI::MPI_Fortran)
 
-    # MAPL and GEOS used lowercase target due to historical reasons
+    # MAPL and GEOS use lowercase target due to historical reasons
     add_library(esmf ALIAS ESMF)
   endif ()
 endif ()

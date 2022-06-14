@@ -31,9 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Re-enable bundleio tests in CI
 - Updates for Spack support
    - Add `find_package(MPI)` for non-Baselibs builds
-   - Update all `esmf` target references in CMake to `ESMF`
-   - Add `esmf` alias library for `ESMF` for compatibility
    - Add explicit interface dependence of `MPI` for `ESMF` target
+   - Add `esmf` alias library for `ESMF` for compatibility
 
 ### Removed
 
