@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update CI to work with latest GEOSadas `develop` (Uses a special branch of GEOSadas)
 - Fix bundleio tests
 - HistoryGridComp now checks if a file exists already before writing and errors out if so
+- Minor updates for FORD documentation testing
+  - Add `program` statements to some test programs
+  - Remove `pfio/pfio_io_demo.F90` as dead code
+  - Fix redefinition of `_RETURN` in `pflogger_stub.F90`
 
 ### Added
 
