@@ -5,6 +5,7 @@ set (test_srcs
     test_TimeUtils.pf
     test_DSO_Utilities.pf
     test_FileSystemUtilities.pf
+    test_TimeStringConversion.pf
   )
 
 
