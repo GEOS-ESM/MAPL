@@ -3365,7 +3365,7 @@ ENDDO PARSER
     integer                        :: sec
 
 !   variables for "backwards" mode
-    logical                        :: fwd
+    logical                        :: fwd, file_exists
     logical, allocatable           :: Ignore(:)
 
 !   ErrLog vars
@@ -3605,6 +3605,10 @@ ENDDO PARSER
             list(n)%currentFile = filename(n)
          else
             if( list(n)%unit.eq.0 ) then
+               inquire (file=trim(filename(n)),exist=file_exists)
+               if (file_exists) then
+                  _FAIL(trim(filename(n))//" being created for History output already exists")
+               end if
                if (list(n)%format == 'CFIO') then
                   call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,rc=status)
                   _VERIFY(status)

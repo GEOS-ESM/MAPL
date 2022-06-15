@@ -18,7 +18,7 @@ workflows:
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
-          ctest_options: "-LE PERFORMANCE --output-on-failure"
+          ctest_options: "-LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
 
       # Builds MAPL in a "default" way - GNU
       #
@@ -41,7 +41,7 @@ workflows:
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
-          ctest_options: "-E bundleio -LE PERFORMANCE --output-on-failure"
+          ctest_options: "-E bundleio -LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
 
       # Builds MAPL like UFS does (no FLAP and pFlogger, static)
       - ci/build:
@@ -55,7 +55,7 @@ workflows:
           mepodevelop: false
           extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_SHARED_MAPL=OFF"
           run_unit_tests: true
-          ctest_options: "-LE PERFORMANCE --output-on-failure"
+          ctest_options: "-LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
 
       # Build GEOSgcm
       - ci/build:
