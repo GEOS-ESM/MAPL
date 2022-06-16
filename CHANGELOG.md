@@ -31,10 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Modified error messages in FileMetadataUtilities to be unique and print filename
-- Updated the ESMA_cmake version to v3.16.0
+- Updated the ESMA_env version to v3.14.0
+- Updated the ESMA_cmake version to v3.17.0
 - Updated GitHub Actions MAPL build tests
 - Added assert for missing file with ExtData2G
 - Re-enable bundleio tests in CI
+- Updated CircleCI to use latest Baselibs
 
 ### Removed
 
