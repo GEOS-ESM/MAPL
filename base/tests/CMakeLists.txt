@@ -13,6 +13,7 @@ set (TEST_SRCS
     Test_LatLon_Corners.pf
     Test_MAPL_Config.pf
     test_DirPath.pf
+    test_TimeStringConversion.pf
   )
 
 # SRCS are mostly mocks to facilitate tests
