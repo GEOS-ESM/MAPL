@@ -1,0 +1,149 @@
+module Test_FieldDictionary
+   use funit
+   use mapl3g_FieldDictionary
+   use mapl3g_FieldDictionaryItem
+   use yafyaml, only: TextStream
+   implicit none
+
+contains
+
+   @test
+   ! Sanity test - just exercise interfaces
+   subroutine test_add_item()
+      type(FieldDictionary) :: fd
+
+      fd = FieldDictionary() ! empty
+      call fd%add_item('X_Y_Z', FieldDictionaryItem(canonical_units='m', long_name='X Y Z'))
+
+   end subroutine test_add_item
+
+   @test
+   ! Process a YAML stream with two entries and verify that the
+   ! resulting dictionary has two entries.
+   subroutine test_from_yaml_size()
+      type(FieldDictionary) :: fd
+
+      fd = FieldDictionary(TextStream('{X_Y_Z: {canonical_units: m, long_name: "X Y Z"}}'))
+      @assert_that(1, is(fd%size()))
+
+      fd = FieldDictionary(TextStream( '{' // &
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
+           'A_B_C: {canonical_units: m, long_name: "A B C"} }'))
+      @assert_that(2, is(fd%size()))
+
+   end subroutine test_from_yaml_size
+
+
+   @test
+   ! Process a single item and verify that the correct item is
+   ! retrieved.
+   subroutine test_get_field_item()
+      type(FieldDictionary) :: fd
+      type(FieldDictionaryItem) :: item
+
+      integer :: status
+      
+      fd = FieldDictionary(TextStream('{X_Y_Z: {canonical_units: m, long_name: "X Y Z"}}'))
+
+      item = fd%get_item('X_Y_Z', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('m', item%get_units())
+      @assertEqual('X Y Z', item%get_long_name())
+      
+   end subroutine test_get_field_item
+
+   @test
+   ! Process a single item and verify that the correct units are
+   ! retrieved directly from the dictionary.
+   subroutine test_get_units()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: units
+      integer :: status
+
+      fd = FieldDictionary(TextStream( '{' // &
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
+           'A_B_C: {canonical_units: s, long_name: "A B C"} }'))
+
+      units = fd%get_units('A_B_C', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('s', units)
+      
+      units = fd%get_units('X_Y_Z', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('m', units)
+
+   end subroutine test_get_units
+
+   @test
+   ! Process a single item and verify that the correct long name is
+   ! retrieved directly from the dictionary.
+   subroutine test_get_long_name()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: long_name
+      integer :: status
+      
+      fd = FieldDictionary(TextStream( '{' // &
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z"},' //  &
+           'A_B_C: {canonical_units: s, long_name: "A B C"} }'))
+
+      long_name = fd%get_long_name('A_B_C', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('A B C', long_name)
+      
+      long_name = fd%get_long_name('X_Y_Z', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('X Y Z', long_name)
+
+   end subroutine test_get_long_name
+
+   @test
+   ! Process a stream with two items that have aliases and verify that
+   ! the correct standard name is retrievable from the corresponding
+   ! alias.
+   subroutine test_get_standard_name_from_alias()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: standard_name
+      integer :: status
+      
+      fd = FieldDictionary(TextStream( '{' // &
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x]},' //  &
+           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [a]} }'))
+
+      standard_name = fd%get_standard_name('x', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('X_Y_Z', standard_name)
+
+      standard_name = fd%get_standard_name('a', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('A_B_C', standard_name)
+
+   end subroutine test_get_standard_name_from_alias
+
+   @test
+   ! Process a stream with two items that have multiple aliases and
+   ! verify that the correct standard name is retrievable from the
+   ! corresponding any of the aliases.
+   subroutine test_get_standard_name_from_alias_multi()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: standard_name
+      integer :: status
+      
+      fd = FieldDictionary(TextStream( '{' // &
+           'X_Y_Z: {canonical_units: m, long_name: "X Y Z", aliases: [x, y]},' //  &
+           'A_B_C: {canonical_units: s, long_name: "A B C", aliases: [a, b, c]} }'))
+
+      standard_name = fd%get_standard_name('y', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('X_Y_Z', standard_name)
+
+      standard_name = fd%get_standard_name('b', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('A_B_C', standard_name)
+
+      standard_name = fd%get_standard_name('c', rc=status)
+      @assert_that(status, is(0))
+      @assertEqual('A_B_C', standard_name)
+
+   end subroutine test_get_standard_name_from_alias_multi
+
+end module Test_FieldDictionary
