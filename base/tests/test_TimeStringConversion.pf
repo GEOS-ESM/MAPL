@@ -20,12 +20,12 @@ module Test_TimeStringConversion
     implicit none
     private
 
-    public :: test_string_to_integer_time_nodelimiters
     public :: test_string_to_integer_time_delimiters
-    public :: test_string_to_integer_date_nodelimiters
+!    public :: test_string_to_integer_time_nodelimiters
     public :: test_string_to_integer_date_delimiters
-    public :: test_string_to_esmf_time
-    public :: test_string_to_esmf_timeinterval
+!    public :: test_string_to_integer_date_nodelimiters
+!    public :: test_string_to_esmf_time
+!    public :: test_string_to_esmf_timeinterval
 
     integer :: YEAR_FACTOR      = 10000
     integer :: MONTH_FACTOR     =   100
@@ -35,63 +35,68 @@ module Test_TimeStringConversion
     integer :: MINUTE_FACTOR    =   100
     integer :: SECOND_FACTOR    =     1
 
-    logical :: TRUE             = is(true())
-    logical :: FALSE            = is(false())
 contains
 
     @test
-    subroutine test_string_to_integer_time_nodelimiters()
-        character(len=*) :: time_string = '21:00:00'
-        integer :: integer_time = -1
-
-        integer_time = 21*HOUR_FACTOR + 0*MINUTE_FACTOR + 0*SECOND_FACTOR
-         
-        @assert_that(string_to_integer_time(time_string) == integer_time, TRUE)
-
-    end subroutine test_string_to_integer_time_nodelimiters
-
-    @test
     subroutine test_string_to_integer_time_delimiters()
-        character(len=*) :: time_string = '210000'
-        integer :: integer_time
+        character(len=*), parameter :: time_string = '21:00:00'
+        integer :: expected_time = -1
+        integer :: actual_time = -2
 
-        integer_time = 21*HOUR_FACTOR + 0*MINUTE_FACTOR + 0*SECOND_FACTOR
+        expected_time = 21*HOUR_FACTOR + 0*MINUTE_FACTOR + 0*SECOND_FACTOR
+        actual_time = string_to_integer_time(time_string)
          
-        @assert_that(string_to_integer_time(time_string) == integer_time, TRUE)
+        @assertEqual(expected_time, actual_time)
 
     end subroutine test_string_to_integer_time_delimiters
 
+!    @test
+!    subroutine test_string_to_integer_time_nodelimiters()
+!        character(len=*), parameter :: time_string = '210000'
+!        integer :: expected_time = -1
+!        integer :: actual_time = -2
+!
+!        expected_time = 21*HOUR_FACTOR + 0*MINUTE_FACTOR + 0*SECOND_FACTOR
+!        actual_time = string_to_integer_time(time_string)
+!
+!        @assertEqual(expected_time, actual_time)
+!
+!    end subroutine test_string_to_integer_time_nodelimiters
+
     @test
     subroutine test_string_to_integer_date_delimiters()
-        character(len=*) :: date_string = '2000-04-21'
-        integer :: integer_date
+        character(len=*), parameter :: date_string = '2000-04-21'
+        integer :: expected_date = -1
+        integer :: actual_date = -2
 
-        integer_date = 2000*YEAR_FACTOR + 4*MONTH_FACTOR + 0*DAY_FACTOR
-
-        @assert_that(string_to_integer_date(date_string) == integer_date, TRUE)
+        expected_date = 2000*YEAR_FACTOR + 4*MONTH_FACTOR + 21*DAY_FACTOR
+        actual_date = string_to_integer_date(date_string) 
+        @assertEqual(expected_date, actual_date)
 
     end subroutine test_string_to_integer_date_delimiters
 
-    @test
-    subroutine test_string_to_integer_date_nodelimiters()
-        character(len=*) :: date_string = '20000421'
-        integer :: integer_date
-
-        integer_date = 2000*YEAR_FACTOR + 4*MONTH_FACTOR + 0*DAY_FACTOR
-
-        @assert_that(string_to_integer_date(date_string) == integer_date, TRUE)
-
-    end subroutine test_string_to_integer_date_nodelimiters
+!    @test
+!    subroutine test_string_to_integer_date_nodelimiters()
+!        character(len=*), parameter :: date_string = '20000421'
+!        integer :: expected_date = -1
+!        integer :: actual_date = -2
+!
+!        expected_date = 2000*YEAR_FACTOR + 4*MONTH_FACTOR + 21*DAY_FACTOR
+!        actual_date = string_to_integer_date(date_string) 
+!
+!        @assertEqual(expected_date, actual_date)
+!
+!    end subroutine test_string_to_integer_date_nodelimiters
 
 !    @test
 !    subroutine test_string_to_esmf_time()
-!        character(len=*) :: time_string
+!        character(len=*), parameter :: time_string
 !        type(ESMF_Time) :: time_esmf
 !    end subroutine test_string_to_esmf_time
 !
 !    @test
 !    subroutine test_string_to_esmf_timeinterval()
-!        character(len=*) :: time_interval_string
+!        character(len=*), parameter :: time_interval_string
 !        type(ESMF_TimeInterval) :: time_interval_esmf
 !    end subroutine test_string_to_esmf_timeinterval
 
