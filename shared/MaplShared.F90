@@ -20,6 +20,5 @@ module MaplShared
    use mapl_Constants
    use mapl_CommGroupDescriptionMod
    use mapl_AbstractCommSplitterMod
-   use MAPL_AlarmUtils
-
+   
 end module MaplShared
