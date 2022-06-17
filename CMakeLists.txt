@@ -111,6 +111,9 @@ endif ()
 ecbuild_declare_project()
 
 if (NOT Baselibs_FOUND)
+  set(MPI_DETERMINE_LIBRARY_VERSION TRUE)
+  find_package(MPI)
+
   find_package(NetCDF REQUIRED Fortran)
   add_definitions(-DHAS_NETCDF4)
   add_definitions(-DHAS_NETCDF3)
@@ -124,6 +127,13 @@ if (NOT Baselibs_FOUND)
 
   if (NOT TARGET esmf)
     find_package(ESMF MODULE REQUIRED)
+
+    # ESMF as used in MAPL requires MPI
+    target_link_libraries(ESMF INTERFACE MPI::MPI_Fortran)
+
+    # MAPL and GEOS use lowercase target due to historical reasons but
+    # the latest FindESMF.cmake file from ESMF produces an ESMF target.
+    add_library(esmf ALIAS ESMF)
   endif ()
 endif ()
 
