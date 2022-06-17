@@ -37,6 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added assert for missing file with ExtData2G
 - Re-enable bundleio tests in CI
 - Updated CircleCI to use latest Baselibs
+- Updates for Spack support
+   - Add `find_package(MPI)` for non-Baselibs builds
+   - Add explicit interface dependence of `MPI` for `ESMF` target
+   - Add `esmf` alias library for `ESMF` for compatibility
 
 ### Removed
 
