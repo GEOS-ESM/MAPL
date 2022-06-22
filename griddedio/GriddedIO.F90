@@ -1075,13 +1075,14 @@ module MAPL_GriddedIOMod
      logical :: hasDE_in
      real(REAL32) :: fill_value
 
-     if ( .not. this%current_file_metadata%var_has_missing_value(fname) )
+     if ( .not. this%current_file_metadata%var_has_missing_value(fname) ) then
         _RETURN(_SUCCESS)
      endif
 
      fill_value = this%current_file_metadata%var_get_missing_value(fname,_RC)
      
-     call ESMF_FieldBundleGet(this%input_bundle,fname,field=field, grid=gridIn, _RC)
+     call ESMF_FieldBundleGet(this%input_bundle,fname,field=field,_RC)
+     call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,_RC)
      call ESMF_FieldGet(field,rank=fieldRank,_RC)
      hasDE_in = MAPL_GridHasDE(gridIn,_RC)
 
