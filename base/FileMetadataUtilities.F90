@@ -83,28 +83,11 @@ module MAPL_FileMetadataUtilsMod
       integer :: status
       character(:), allocatable :: fname
       type(Variable), pointer :: var
-      class(Attribute), pointer :: attr
-      class(*), pointer :: value
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
-
-      var_has_missing_value = .false.
-      if ( var%is_attribute_present("_FillValue")) then
-         attr=>var%get_attribute("_FillValue")
-         value =>attr%get_value()
-         select type(value)
-         type is (real(kind=REAL64))
-            var_has_missing_value = .true.
-         type is (real(kind=REAL32))
-            var_has_missing_value = .true.
-          type is (integer(kind=INT64))
-            var_has_missing_value = .true.
-         type is (integer(kind=INT32))
-            var_has_missing_value = .true.
-         end select
-      endif
+      var_has_missing_value = var%is_attribute_present("_FillValue")
 
       _RETURN(_SUCCESS)
    end function var_has_missing_value

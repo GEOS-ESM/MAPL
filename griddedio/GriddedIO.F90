@@ -1013,6 +1013,10 @@ module MAPL_GriddedIOMod
              this%read_collection_id, fileName, trim(names(i)), &
              & ref, start=localStart, global_start=globalStart, global_count=globalCount)
         deallocate(localStart,globalStart,globalCount)
+        ! if is Nan, do not set '_FillValue'.
+        ! The pair ESMF_AttributeSet and ESMF_AttributeGet cannot handle Nan
+        if (missing_value /= missing_value) cycle 
+
         if (missing_value /= MAPL_UNDEF) then
            call ESMF_AttributeSet(input_fields(i),name=fill_value_label,value=missing_value,_RC)
         end if
