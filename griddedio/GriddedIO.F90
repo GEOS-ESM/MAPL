@@ -29,10 +29,9 @@ module MAPL_GriddedIOMod
   
   private
 
-  character(len=20), parameter :: fill_value_label = "GriddedIO_Fill_Value"
-
   type, public :: MAPL_GriddedIO
      type(FileMetaData) :: metadata
+     type(fileMetadataUtils), pointer :: current_file_metadata
      integer :: write_collection_id
      integer :: read_collection_id
      integer :: metadata_collection_id
@@ -939,12 +938,10 @@ module MAPL_GriddedIOMod
      type(ESMF_Grid) :: output_grid
      logical :: hasDE
      class(AbstractGridFactory), pointer :: factory
-     type(fileMetadataUtils), pointer :: metadata
      real(REAL32) :: missing_value
 
      collection => Datacollections%at(this%metadata_collection_id)
-     metadata => collection%find(filename, __RC__)
-     this%metadata = metadata
+     this%current_file_metadata => collection%find(filename, __RC__)
      filegrid = collection%src_grid
      factory => get_factory(filegrid)
      hasDE=MAPL_GridHasDE(filegrid,rc=status)
@@ -957,7 +954,7 @@ module MAPL_GriddedIOMod
      end if
      call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
      _VERIFY(status)
-     call factory%generate_file_bounds(fileGrid,gridLocalStart,gridGlobalStart,gridGlobalCount,metadata=metadata%fileMetadata,rc=status)
+     call factory%generate_file_bounds(fileGrid,gridLocalStart,gridGlobalStart,gridGlobalCount,metadata=this%current_file_metadata%fileMetadata,rc=status)
      _VERIFY(status)
      ! create input bundle
      call ESMF_FieldBundleGet(this%output_bundle,fieldCount=numVars,rc=status)
@@ -973,10 +970,6 @@ module MAPL_GriddedIOMod
         _VERIFY(status)
         call ESMF_FieldGet(output_field,rank=rank,rc=status)
         _VERIFY(status)
-        missing_value = MAPL_UNDEF
-        if (metadata%var_has_missing_value(trim(names(i)))) then
-           missing_value = metadata%var_get_missing_value(trim(names(i)),_RC)
-        end if
         if (rank==2) then
            input_fields(i) = ESMF_FieldCreate(filegrid,typekind=ESMF_TYPEKIND_R4,gridToFieldMap=[1,2],name=trim(names(i)),rc=status)
            _VERIFY(status)
@@ -1005,7 +998,7 @@ module MAPL_GriddedIOMod
               allocate(ptr3d(0,0,0),stat=status)
               _VERIFY(status)
            end if
-           ref=factory%generate_file_reference3D(ptr3d,metadata=metadata%filemetadata)
+           ref=factory%generate_file_reference3D(ptr3d,metadata=this%current_file_metadata%filemetadata)
            allocate(localStart,source=[gridLocalStart,1,timeIndex])
            allocate(globalStart,source=[gridGlobalStart,1,timeIndex])
            allocate(globalCount,source=[gridGlobalCount,lm,1]) 
@@ -1082,11 +1075,11 @@ module MAPL_GriddedIOMod
      logical :: hasDE_in
      real(REAL32) :: fill_value
 
-     if ( .not. this%metadata%var_has_missing_value(fname) )
+     if ( .not. this%current_file_metadata%var_has_missing_value(fname) )
         _RETURN(_SUCCESS)
      endif
 
-     fill_value = this%metadata%var_get_missing_value(fname,_RC)
+     fill_value = this%current_file_metadata%var_get_missing_value(fname,_RC)
      
      call ESMF_FieldBundleGet(this%input_bundle,fname,field=field, grid=gridIn, _RC)
      call ESMF_FieldGet(field,rank=fieldRank,_RC)
