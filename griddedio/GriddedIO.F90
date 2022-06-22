@@ -944,7 +944,7 @@ module MAPL_GriddedIOMod
 
      collection => Datacollections%at(this%metadata_collection_id)
      metadata => collection%find(filename, __RC__)
-
+     this%metadata = metadata
      filegrid = collection%src_grid
      factory => get_factory(filegrid)
      hasDE=MAPL_GridHasDE(filegrid,rc=status)
@@ -1014,13 +1014,6 @@ module MAPL_GriddedIOMod
              this%read_collection_id, fileName, trim(names(i)), &
              & ref, start=localStart, global_start=globalStart, global_count=globalCount)
         deallocate(localStart,globalStart,globalCount)
-        ! if is Nan, do not set '_FillValue'.
-        ! The pair ESMF_AttributeSet and ESMF_AttributeGet cannot handle Nan
-        if (isnan(missing_value)) cycle 
-
-        if (missing_value /= MAPL_UNDEF) then
-           call ESMF_AttributeSet(input_fields(i),name=fill_value_label,value=missing_value,_RC)
-        end if
      enddo
      deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)
      this%input_bundle = ESMF_FieldBundleCreate(fieldList=input_fields,rc=status)
@@ -1086,19 +1079,17 @@ module MAPL_GriddedIOMod
      real, pointer :: ptr3d(:,:,:)
      real, pointer :: ptr2d(:,:)
      type(ESMF_Grid) :: gridIn
-     logical :: hasDE_in,has_custom_fill_val
+     logical :: hasDE_in
      real(REAL32) :: fill_value
 
-     call ESMF_FieldBundleGet(this%input_bundle,fname,field=field,_RC)
-     call ESMF_AttributeGet(field,name=fill_value_label,isPresent=has_custom_fill_val,_RC)
-
-     if (has_custom_fill_val) then
-        call ESMF_AttributeGet(field,name=fill_value_label,value=fill_value,_RC)
+     if ( .not. this%metadata%var_has_missing_value(fname) )
+        _RETURN(_SUCCESS)
      endif
- 
+
+     fill_value = this%metadata%var_get_missing_value(fname,_RC)
+     
+     call ESMF_FieldBundleGet(this%input_bundle,fname,field=field, grid=gridIn, _RC)
      call ESMF_FieldGet(field,rank=fieldRank,_RC)
-     _VERIFY(status)
-     call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,_RC)
      hasDE_in = MAPL_GridHasDE(gridIn,_RC)
 
      if (fieldRank==2) then
@@ -1118,16 +1109,16 @@ module MAPL_GriddedIOMod
      end if
 
      if (associated(ptr2d)) then
-        if (has_custom_fill_val) then
-           where(ptr2d==fill_value) ptr2d=MAPL_UNDEF
-        else
+        if (isnan(fill_value)) then
            where(isnan(ptr2d)) ptr2d=MAPL_UNDEF
+        else
+           where(ptr2d==fill_value) ptr2d=MAPL_UNDEF
         endif
      else if (associated(ptr3d)) then
-        if (has_custom_fill_val) then
-           where(ptr3d==fill_value) ptr3d=MAPL_UNDEF
-        else
+        if (isnan(fill_value)) then
            where(isnan(ptr3d)) ptr3d=MAPL_UNDEF
+        else
+           where(ptr3d==fill_value) ptr3d=MAPL_UNDEF
         endif
      endif
 
