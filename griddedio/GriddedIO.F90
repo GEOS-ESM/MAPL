@@ -24,6 +24,7 @@ module MAPL_GriddedIOMod
   use MAPL_FileMetadataUtilsMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
+  use ieee_arithmetic, only: isnan => ieee_is_nan
   implicit none
   
   private
@@ -1015,7 +1016,7 @@ module MAPL_GriddedIOMod
         deallocate(localStart,globalStart,globalCount)
         ! if is Nan, do not set '_FillValue'.
         ! The pair ESMF_AttributeSet and ESMF_AttributeGet cannot handle Nan
-        if (missing_value /= missing_value) cycle 
+        if (isnan(missing_value)) cycle 
 
         if (missing_value /= MAPL_UNDEF) then
            call ESMF_AttributeSet(input_fields(i),name=fill_value_label,value=missing_value,_RC)
@@ -1092,31 +1093,44 @@ module MAPL_GriddedIOMod
      call ESMF_AttributeGet(field,name=fill_value_label,isPresent=has_custom_fill_val,_RC)
 
      if (has_custom_fill_val) then
-
         call ESMF_AttributeGet(field,name=fill_value_label,value=fill_value,_RC)
-        call ESMF_FieldGet(field,rank=fieldRank,_RC)
-        _VERIFY(status)
-        call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,_RC)
-        hasDE_in = MAPL_GridHasDE(gridIn,_RC)
+     endif
+ 
+     call ESMF_FieldGet(field,rank=fieldRank,_RC)
+     _VERIFY(status)
+     call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,_RC)
+     hasDE_in = MAPL_GridHasDE(gridIn,_RC)
 
-        if (fieldRank==2) then
-           if (hasDE_in) then
-              call MAPL_FieldGetPointer(field,ptr2d,_RC)
-           else
-              allocate(ptr2d(0,0))
-           end if
+     if (fieldRank==2) then
+        if (hasDE_in) then
+           call MAPL_FieldGetPointer(field,ptr2d,_RC)
+        else
+           allocate(ptr2d(0,0))
+        end if
+     else if (fieldRank==3) then
+        if (hasDE_in) then
+           call ESMF_FieldGet(field,farrayPtr=ptr3d,_RC)
+        else
+           allocate(ptr3d(0,0,0))
+        end if
+     else
+        _FAIL('rank not supported')
+     end if
+
+     if (associated(ptr2d)) then
+        if (has_custom_fill_val) then
            where(ptr2d==fill_value) ptr2d=MAPL_UNDEF
-        else if (fieldRank==3) then
-           if (hasDE_in) then
-              call ESMF_FieldGet(field,farrayPtr=ptr3d,_RC)
-           else
-               allocate(ptr3d(0,0,0))
-           end if
+        else
+           where(isnan(ptr2d)) ptr2d=MAPL_UNDEF
+        endif
+     else if (associated(ptr3d)) then
+        if (has_custom_fill_val) then
            where(ptr3d==fill_value) ptr3d=MAPL_UNDEF
         else
-           _FAIL('rank not supported')
-        end if
-     end if
+           where(isnan(ptr3d)) ptr3d=MAPL_UNDEF
+        endif
+     endif
+
      _RETURN(_SUCCESS)
 
   end subroutine swap_undef_value
