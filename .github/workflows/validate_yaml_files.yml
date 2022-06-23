@@ -1,0 +1,24 @@
+---
+name: Yaml Lint
+
+on:
+  pull_request:
+      types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+jobs:
+  validate-YAML:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: yaml-lint
+        name: yaml-lint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          no_warnings: true
+          format: colored
+          config_file: .yamllint.yml
+
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: yamllint-logfile
+          path: ${{ steps.yaml-lint.outputs.logfile }}
