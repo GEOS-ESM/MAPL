@@ -1091,29 +1091,29 @@ module MAPL_GriddedIOMod
         else
            allocate(ptr2d(0,0))
         end if
+
+        if (isnan(fill_value)) then
+           where(isnan(ptr2d)) ptr2d=MAPL_UNDEF
+        else
+           where(ptr2d==fill_value) ptr2d=MAPL_UNDEF
+        endif
+
      else if (fieldRank==3) then
         if (hasDE_in) then
            call ESMF_FieldGet(field,farrayPtr=ptr3d,_RC)
         else
            allocate(ptr3d(0,0,0))
         end if
-     else
-        _FAIL('rank not supported')
-     end if
 
-     if (associated(ptr2d)) then
-        if (isnan(fill_value)) then
-           where(isnan(ptr2d)) ptr2d=MAPL_UNDEF
-        else
-           where(ptr2d==fill_value) ptr2d=MAPL_UNDEF
-        endif
-     else if (associated(ptr3d)) then
         if (isnan(fill_value)) then
            where(isnan(ptr3d)) ptr3d=MAPL_UNDEF
         else
            where(ptr3d==fill_value) ptr3d=MAPL_UNDEF
         endif
-     endif
+
+     else
+        _FAIL('rank not supported')
+     end if
 
      _RETURN(_SUCCESS)
 
