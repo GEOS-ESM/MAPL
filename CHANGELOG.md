@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Remove `pfio/pfio_io_demo.F90` as dead code
   - Fix redefinition of `_RETURN` in `pflogger_stub.F90`
   - Removed unused `Test_SimpleClient.pf`
+- Update CMake to require NetCDF C components and add `NetCDF::NetCDF_C` to pfio CMake
 
 ### Added
 
