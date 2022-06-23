@@ -1,9 +1,16 @@
 ---
+
+# Based on code from https://github.com/marketplace/actions/yaml-lint
+
 name: Yaml Lint
 
 on:
   pull_request:
       types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+# This validation is equivalent to running on the command line:
+#   yamllint -d relaxed --no-warnings
+# and is controlled by the .yamllint.yml file
 jobs:
   validate-YAML:
     runs-on: ubuntu-latest
