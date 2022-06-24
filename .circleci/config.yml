@@ -1,7 +1,7 @@
 version: 2.1
 
 # Anchor to prevent forgetting to update a version
-baselibs_version: &baselibs_version v6.3.1
+baselibs_version: &baselibs_version v7.3.1
 
 orbs:
   ci: geos-esm/circleci-tools@1
@@ -75,6 +75,7 @@ workflows:
           repo: GEOSgcm
           checkout_fixture: true
           mepodevelop: true
+          checkout_mapl3_release_branch: true
           checkout_mapl_branch: true
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
@@ -90,7 +91,8 @@ workflows:
           repo: GEOSldas
           mepodevelop: false
           checkout_fixture: true
-          fixture_branch: develop
+          fixture_branch: release/MAPL-v3
+          checkout_mapl3_release_branch: true
           checkout_mapl_branch: true
 
       # Build GEOSadas (ifort only, needs a couple develop branches)
@@ -105,9 +107,8 @@ workflows:
           baselibs_version: *baselibs_version
           repo: GEOSadas
           checkout_fixture: true
-          # This branch on GEOSadas will be used to track subrepos needed
-          # for GEOSadas + MAPL develop much like how we do with MAPL 3
-          fixture_branch: feature/mathomp4/mapldevelop
+          fixture_branch: release/MAPL-v3
+          checkout_mapl3_release_branch: true
           checkout_mapl_branch: true
           mepodevelop: false
           rebuild_procs: 8

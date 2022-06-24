@@ -1,0 +1,230 @@
+#include "MAPL_ErrLog.h"
+module Test_ComponentSpecBuilder
+   use funit
+   use yafyaml
+   use mapl3g_UserSetServices
+   use mapl3g_ComponentSpecBuilder
+   use mapl3g_ChildSpec
+   use mapl3g_ChildSpecMap
+   use mapl_ErrorHandling
+   implicit none
+
+contains
+
+
+   ! setServices:
+   !      sharedObj: <dso_name>
+   !      userRoutine: <user_routine>  
+   @test
+   subroutine test_build_setServices()
+      type(Parser) :: p
+      class(YAML_Node), allocatable :: config
+      integer :: status
+      class(DSOSetServices), allocatable :: ss_expected
+
+      p = Parser('core')
+      config = p%load(TextStream('{sharedObj: libA, userRoutine: procB}'))
+
+      ss_expected = DSOSetServices('libA', 'procB')
+      @assert_that(build_setservices(config) == ss_expected, is(true()))
+      
+   end subroutine test_build_setServices
+
+   @test
+   subroutine test_build_setServices_default()
+      type(Parser) :: p
+      class(YAML_Node), allocatable :: config
+      integer :: status
+      class(DSOSetServices), allocatable :: ss_expected
+
+      p = Parser('core')
+      config = p%load(TextStream('{sharedObj: libA}'))
+
+      ss_expected = DSOSetServices('libA', 'setservices_')
+      @assert_that(build_setservices(config) == ss_expected, is(true()))
+      
+   end subroutine test_build_setServices_default
+
+   @test
+   subroutine test_equal_child_spec_ss_differs()
+      class(AbstractUserSetServices), allocatable :: ss_A
+      class(AbstractUserSetServices), allocatable :: ss_B
+
+      type(ChildSpec) :: cs_a, cs_b
+      ss_A = user_setservices('libA', 'setservices_')
+      ss_B = user_setservices(gamma)
+
+      cs_a = ChildSpec(ss_A)
+      cs_b = ChildSpec(ss_B)
+
+      @assert_that('OPERATOR(==)', cs_a == cs_b, is(false()))
+
+   contains
+      subroutine gamma(gc, rc)
+         use esmf
+         type(ESMF_GridComp) :: gc
+         integer, intent(out) :: rc
+      end subroutine gamma
+      
+   end subroutine test_equal_child_spec_ss_differs
+
+   @test
+   subroutine test_equal_child_spec_cfg_differs()
+      class(AbstractUserSetServices), allocatable :: ss
+      class(AbstractUserSetServices), allocatable :: ss_B
+
+      type(ChildSpec) :: a, b
+      
+      ss = user_setservices('libA', 'setservices_')
+
+      a = ChildSpec(ss, yaml_config='a.yml')
+
+      b = ChildSpec(ss)
+      @assert_that(a == b, is(false()))
+
+      b = ChildSpec(ss, yaml_config='a2.yml')
+      @assert_that(a == b, is(false()))
+
+          
+      b = ChildSpec(ss, esmf_config='a2.rc')
+      @assert_that(a == b, is(false()))
+
+      b = ChildSpec(ss, esmf_config='a2.rc', yaml_config='a.yml')
+      @assert_that(a == b, is(false()))
+
+      a = ChildSpec(ss, esmf_config='a.rc')
+
+      b = ChildSpec(ss)
+      @assert_that(a == b, is(false()))
+
+      b = ChildSpec(ss, yaml_config='a2.yml')
+      @assert_that(a == b, is(false()))
+          
+      b = ChildSpec(ss, esmf_config='a2.rc')
+      @assert_that(a == b, is(false()))
+
+      b = ChildSpec(ss, esmf_config='a.rc', yaml_config='a.yml')
+      @assert_that(a == b, is(false()))
+
+   contains
+      subroutine gamma(gc, rc)
+         use esmf
+         type(ESMF_GridComp) :: gc
+         integer, intent(out) :: rc
+      end subroutine gamma
+      
+   end subroutine test_equal_child_spec_cfg_differs
+
+   @test
+   subroutine test_build_childSpec_basic()
+      type(Parser) :: p
+      class(YAML_Node), allocatable :: config
+      type(ChildSpec) :: found
+      integer :: status, rc
+
+      type(ChildSpec) :: expected
+
+      p = Parser('core')
+      config = p%load(TextStream('{setServices: {sharedObj: libA}}'))
+
+      expected = ChildSpec(user_setservices('libA', 'setservices_'))
+      found = build_ChildSpec(config, _RC)
+      @assert_that(expected == found, is(true()))
+
+   end subroutine test_build_childSpec_basic
+
+   @test
+   subroutine test_build_childSpec_with_esmf_config()
+      type(Parser) :: p
+      class(YAML_Node), allocatable :: config
+      type(ChildSpec) :: found
+      integer :: status, rc
+
+      class(AbstractUserSetServices), allocatable :: ss
+      type(ChildSpec) :: expected
+
+      p = Parser('core')
+      config = p%load(TextStream('{setServices: {sharedObj: libA}, esmf_config: a.rc}'))
+
+      ss = user_setservices('libA', 'setservices_')
+      expected = ChildSpec(ss, esmf_config='a.rc')
+      found = build_ChildSpec(config, _RC)
+      @assert_that(expected == found, is(true()))
+
+   end subroutine test_build_ChildSpec_with_esmf_config
+
+
+   @test
+   subroutine test_build_childSpec_with_yaml_config()
+      type(Parser) :: p
+      class(YAML_Node), allocatable :: config
+      type(ChildSpec) :: found
+      integer :: status, rc
+
+      class(AbstractUserSetServices), allocatable :: ss
+      type(ChildSpec) :: expected
+
+      p = Parser('core')
+      config = p%load(TextStream('{setServices: {sharedObj: libA}, yaml_config: a.yml}'))
+
+      ss = user_setservices('libA', 'setservices_')
+      expected = ChildSpec(ss, yaml_config='a.yml')
+      found = build_ChildSpec(config, _RC)
+      @assert_that(expected == found, is(true()))
+
+   end subroutine test_build_childSpec_with_yaml_config
+
+
+   @test
+   subroutine test_build_ChildSpecMap_empty()
+      type(ChildSpecMap) :: expected, found
+      class(YAML_Node), pointer :: config
+      integer :: status, rc
+
+      found = build_ChildSpecMap(null(), _RC)
+      @assert_that(found == expected, is(true()))
+      
+   end subroutine test_build_ChildSpecMap_empty
+
+   @test
+   subroutine test_build_ChildSpecMap_1()
+      type(Parser) :: p
+      class(YAML_Node), target, allocatable :: config
+      class(YAML_Node), pointer :: config_ptr
+      type(ChildSpecMap) :: expected, found
+      integer :: status, rc
+
+      p = Parser('core')
+      config = p%load(TextStream('{A: {setServices: {sharedObj: libA}}}'))
+      config_ptr => config
+      call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
+      found = build_ChildSpecMap(config_ptr, _RC)
+      @assert_that(found == expected, is(true()))
+      
+   end subroutine test_build_ChildSpecMap_1
+
+   @test
+   subroutine test_build_ChildSpecMap_2()
+      type(Parser) :: p
+      class(YAML_Node), target, allocatable :: config
+      class(YAML_Node), pointer :: config_ptr
+      type(ChildSpecMap) :: expected, found
+      integer :: status, rc
+
+      p = Parser('core')
+
+      config = p%load(TextStream('{' // &
+           'A: {setServices: {sharedObj: libA}},' // &
+           'B: {setServices: {sharedObj: libB}}}'))
+      config_ptr => config
+
+      call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
+      call expected%insert('B', ChildSpec(user_setservices('libB', 'setservices_')))
+      found = build_ChildSpecMap(config_ptr, _RC)
+
+      @assert_that(found%of('A') == expected%of('A'), is(true()))
+      @assert_that(found%of('B') == expected%of('B'), is(true()))
+      
+   end subroutine test_build_ChildSpecMap_2
+
+end module Test_ComponentSpecBuilder
