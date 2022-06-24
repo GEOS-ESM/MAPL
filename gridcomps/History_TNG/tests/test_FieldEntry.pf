@@ -1,0 +1,393 @@
+#include "MAPL_Generic.h"
+#include "NUOPC_ErrLog.h"
+
+module test_FieldEntry
+   use, intrinsic :: iso_fortran_env, only: INT64
+   use pFUnit
+   use ESMF
+   use NUOPC
+   use gFTL_StringVector
+   use MAPL_ExceptionHandling
+   use MAPL_KeywordEnforcerMod
+
+   use FieldEntryMod
+
+   character(*), parameter :: short_name     = 'short_name'
+   character(*), parameter :: component_name = 'component_name'
+   character(*), parameter :: field_units    = 'field_units'
+   character(*), parameter :: standard_name  = 'short_name.component_name'
+
+   character(*), parameter :: short_name_1     = 'short_name_1'
+   character(*), parameter :: short_name_2     = 'short_name_2'
+   character(*), parameter :: component_name_1 = 'component_name_1'
+   character(*), parameter :: component_name_2 = 'component_name_2'
+   character(*), parameter :: standard_name_1  = 'short_name_1.component_name_1'
+   character(*), parameter :: standard_name_2  = 'short_name_2.component_name_2'
+
+   type, extends(FieldEntry) :: mock_FieldEntry_register
+      integer :: has_entry = 0
+      integer :: add_entry = 0
+
+      character(:), allocatable :: has_entry_name
+      character(:), allocatable :: add_entry_name
+      character(:), allocatable :: add_entry_units
+   contains
+      procedure :: NUOPC_has_entry
+      procedure :: NUOPC_add_entry
+   end type mock_FieldEntry_register
+
+   type, extends(FieldEntry) :: mock_FieldEntry_advertise
+      integer :: call_register = 0
+      integer :: call_advert   = 0
+
+      character(:), allocatable :: advert_name
+      character(:), allocatable :: call_TransferOfferGeomObject
+      character(:), allocatable :: call_SharePolicyField
+      character(:), allocatable :: call_SharePolicyGeomObject
+   contains
+      procedure :: register
+      procedure :: NUOPC_advert
+   end type mock_FieldEntry_advertise
+contains
+   subroutine NUOPC_has_entry(this, name, has_entry, unusable, rc)
+      class(mock_FieldEntry_register), intent(inout) :: this
+      character(*),                         intent(in   ) :: name
+      logical,                              intent(  out) :: has_entry
+      class(KeywordEnforcer), optional,     intent(  out) :: unusable
+      integer,                optional,     intent(  out) :: rc
+
+      integer :: status = 0
+
+      _UNUSED_DUMMY(unusable)
+
+      this%has_entry = this%has_entry + 1
+      this%has_entry_name = name
+
+      select case (name)
+      case (standard_name_1)
+         has_entry = .true.
+      case (standard_name_2)
+         has_entry = .false.
+      case default
+         status = 1
+      end select
+
+      _RETURN(status)
+   end subroutine NUOPC_has_entry
+
+   subroutine NUOPC_add_entry(this, name, units, unusable, rc)
+      class(mock_FieldEntry_register), intent(inout) :: this
+      character(*),                         intent(in   ) :: name
+      character(*),                         intent(in   ) :: units
+      class(KeywordEnforcer), optional,     intent(  out) :: unusable
+      integer,                optional,     intent(  out) :: rc
+
+      integer :: status = 0
+
+      _UNUSED_DUMMY(unusable)
+
+      this%add_entry = this%add_entry + 1
+      this%add_entry_name  = name
+      this%add_entry_units = units
+
+      _RETURN(status)
+   end subroutine NUOPC_add_entry
+
+   subroutine register(this, unusable, rc)
+      class(mock_FieldEntry_advertise), intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(  out) :: unusable
+      integer,                optional, intent(  out) :: rc
+
+      integer :: status
+
+      _UNUSED_DUMMY(unusable)
+
+      this%call_register = this%call_register + 1
+
+      _RETURN(_SUCCESS)
+   end subroutine register
+
+   subroutine NUOPC_advert(this, state, standard_name, unusable,&
+         TransferOfferGeomObject, SharePolicyField, SharePolicyGeomObject, rc)
+      class(mock_FieldEntry_advertise), intent(inout) :: this
+      type(ESMF_State),                 intent(inout) :: state
+      character(*),                     intent(in   ) :: standard_name
+      class(KeywordEnforcer), optional, intent(in   ) :: unusable
+      character(*),           optional, intent(in   ) :: TransferOfferGeomObject
+      character(*),           optional, intent(in   ) :: SharePolicyField
+      character(*),           optional, intent(in   ) :: SharePolicyGeomObject
+      integer,                optional, intent(  out) :: rc
+
+      integer :: status
+
+      _UNUSED_DUMMY(unusable)
+
+      this%call_advert = this%call_advert + 1
+      this%advert_name = standard_name
+
+      if (present(TransferOfferGeomObject)) this%call_TransferOfferGeomObject = TransferOfferGeomObject
+      if (present(SharePolicyField))        this%call_SharePolicyField        = SharePolicyField
+      if (present(SharePolicyGeomObject))   this%call_SharePolicyGeomObject   = SharePolicyGeomObject
+
+      _RETURN(_SUCCESS)
+   end subroutine NUOPC_advert
+
+   @test
+   subroutine test_initialize()
+      type(FieldEntry) :: field_entry_no_units
+      type(FieldEntry) :: field_entry_units
+
+      call field_entry_no_units%initialize(short_name, component_name)
+      @assert_that(field_entry_no_units%get_short_name()     == short_name,     is(true()))
+      @assert_that(field_entry_no_units%get_component_name() == component_name, is(true()))
+      @assert_that(field_entry_no_units%get_units()          == default_units,  is(true()))
+
+      call field_entry_units%initialize(short_name, component_name, units=field_units)
+      @assert_that(field_entry_units%get_short_name()     == short_name,     is(true()))
+      @assert_that(field_entry_units%get_component_name() == component_name, is(true()))
+      @assert_that(field_entry_units%get_units()          == field_units,    is(true()))
+   end subroutine test_initialize
+
+   @test
+   subroutine test_set_units()
+      type(FieldEntry) :: field_entry1
+      type(FieldEntry) :: field_entry2
+
+      integer :: status
+
+      @assert_that(field_units == default_units, is(false()))
+
+      call field_entry1%initialize(short_name, component_name)
+      @assert_that(field_entry1%get_units() == default_units,  is(true()))
+
+      call field_entry1%set_units(field_units, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      @assert_that(field_entry1%get_units() == field_units, is(true()))
+
+      call field_entry1%set_units(default_units, rc=status)
+      @assert_that(status, is(equal_to(1)))
+      @assert_that(field_entry1%get_units() == field_units, is(true()))
+
+      call field_entry2%initialize(short_name, component_name)
+      @assert_that(field_entry2%get_units() == default_units,  is(true()))
+
+      call field_entry2%set_units(field_units, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      @assert_that(field_entry2%get_units() == field_units, is(true()))
+
+      call field_entry2%set_units(default_units, rc=status)
+      @assert_that(status, is(equal_to(1)))
+      @assert_that(field_entry2%get_units() == field_units, is(true()))
+   end subroutine test_set_units
+
+   @test
+   subroutine test_equal_to_entry()
+      type(FieldEntry) :: field_entry0
+      type(FieldEntry) :: field_entry1
+      type(FieldEntry) :: field_entry2
+      type(FieldEntry) :: field_entry3
+      type(FieldEntry) :: field_entry4
+      type(FieldEntry) :: field_entry5
+      type(FieldEntry) :: field_entry6
+      type(FieldEntry) :: field_entry7
+      type(FieldEntry) :: field_entry8
+
+      type(mock_FieldEntry_register) :: field_entry_diff_type
+
+      character(*), parameter :: new_short_name     = 'new_short_name'
+      character(*), parameter :: new_component_name = 'new_component_name'
+      character(*), parameter :: new_field_units    = 'new_field_units'
+
+      call field_entry_diff_type%initialize(short_name, component_name, units=field_units)
+
+      call field_entry0%initialize(    short_name,     component_name, units=    field_units)
+      call field_entry1%initialize(    short_name,     component_name, units=    field_units)
+      call field_entry2%initialize(new_short_name,     component_name, units=    field_units)
+      call field_entry3%initialize(    short_name, new_component_name, units=    field_units)
+      call field_entry4%initialize(    short_name,     component_name, units=new_field_units)
+      call field_entry5%initialize(new_short_name, new_component_name, units=    field_units)
+      call field_entry6%initialize(new_short_name,     component_name, units=new_field_units)
+      call field_entry7%initialize(    short_name, new_component_name, units=new_field_units)
+      call field_entry8%initialize(new_short_name, new_component_name, units=new_field_units)
+
+      ! Test different types
+      @assert_that(field_entry0%equal_to_entry(field_entry_diff_type), is(false()))
+      @assert_that(field_entry_diff_type%equal_to_entry(field_entry0), is(false()))
+
+      ! Test true
+      @assert_that(field_entry0%equal_to_entry(field_entry0), is(true()))
+      @assert_that(field_entry0%equal_to_entry(field_entry1), is(true()))
+      @assert_that(field_entry1%equal_to_entry(field_entry0), is(true()))
+      @assert_that(field_entry1%equal_to_entry(field_entry1), is(true()))
+
+      ! Test False
+      @assert_that(field_entry1%equal_to_entry(field_entry2), is(false()))
+      @assert_that(field_entry1%equal_to_entry(field_entry3), is(false()))
+      @assert_that(field_entry1%equal_to_entry(field_entry4), is(false()))
+      @assert_that(field_entry1%equal_to_entry(field_entry5), is(false()))
+      @assert_that(field_entry1%equal_to_entry(field_entry6), is(false()))
+      @assert_that(field_entry1%equal_to_entry(field_entry7), is(false()))
+      @assert_that(field_entry1%equal_to_entry(field_entry8), is(false()))
+
+      @assert_that(field_entry2%equal_to_entry(field_entry1), is(false()))
+      @assert_that(field_entry2%equal_to_entry(field_entry3), is(false()))
+      @assert_that(field_entry2%equal_to_entry(field_entry4), is(false()))
+      @assert_that(field_entry2%equal_to_entry(field_entry5), is(false()))
+      @assert_that(field_entry2%equal_to_entry(field_entry6), is(false()))
+      @assert_that(field_entry2%equal_to_entry(field_entry7), is(false()))
+      @assert_that(field_entry2%equal_to_entry(field_entry8), is(false()))
+
+      @assert_that(field_entry3%equal_to_entry(field_entry1), is(false()))
+      @assert_that(field_entry3%equal_to_entry(field_entry2), is(false()))
+      @assert_that(field_entry3%equal_to_entry(field_entry4), is(false()))
+      @assert_that(field_entry3%equal_to_entry(field_entry5), is(false()))
+      @assert_that(field_entry3%equal_to_entry(field_entry6), is(false()))
+      @assert_that(field_entry3%equal_to_entry(field_entry7), is(false()))
+      @assert_that(field_entry3%equal_to_entry(field_entry8), is(false()))
+
+      @assert_that(field_entry4%equal_to_entry(field_entry1), is(false()))
+      @assert_that(field_entry4%equal_to_entry(field_entry2), is(false()))
+      @assert_that(field_entry4%equal_to_entry(field_entry3), is(false()))
+      @assert_that(field_entry4%equal_to_entry(field_entry5), is(false()))
+      @assert_that(field_entry4%equal_to_entry(field_entry6), is(false()))
+      @assert_that(field_entry4%equal_to_entry(field_entry7), is(false()))
+      @assert_that(field_entry4%equal_to_entry(field_entry8), is(false()))
+
+      @assert_that(field_entry5%equal_to_entry(field_entry1), is(false()))
+      @assert_that(field_entry5%equal_to_entry(field_entry2), is(false()))
+      @assert_that(field_entry5%equal_to_entry(field_entry3), is(false()))
+      @assert_that(field_entry5%equal_to_entry(field_entry4), is(false()))
+      @assert_that(field_entry5%equal_to_entry(field_entry6), is(false()))
+      @assert_that(field_entry5%equal_to_entry(field_entry7), is(false()))
+      @assert_that(field_entry5%equal_to_entry(field_entry8), is(false()))
+
+      @assert_that(field_entry6%equal_to_entry(field_entry1), is(false()))
+      @assert_that(field_entry6%equal_to_entry(field_entry2), is(false()))
+      @assert_that(field_entry6%equal_to_entry(field_entry3), is(false()))
+      @assert_that(field_entry6%equal_to_entry(field_entry4), is(false()))
+      @assert_that(field_entry6%equal_to_entry(field_entry5), is(false()))
+      @assert_that(field_entry6%equal_to_entry(field_entry7), is(false()))
+      @assert_that(field_entry6%equal_to_entry(field_entry8), is(false()))
+
+      @assert_that(field_entry7%equal_to_entry(field_entry1), is(false()))
+      @assert_that(field_entry7%equal_to_entry(field_entry2), is(false()))
+      @assert_that(field_entry7%equal_to_entry(field_entry3), is(false()))
+      @assert_that(field_entry7%equal_to_entry(field_entry4), is(false()))
+      @assert_that(field_entry7%equal_to_entry(field_entry5), is(false()))
+      @assert_that(field_entry7%equal_to_entry(field_entry6), is(false()))
+      @assert_that(field_entry7%equal_to_entry(field_entry8), is(false()))
+
+      @assert_that(field_entry8%equal_to_entry(field_entry1), is(false()))
+      @assert_that(field_entry8%equal_to_entry(field_entry2), is(false()))
+      @assert_that(field_entry8%equal_to_entry(field_entry3), is(false()))
+      @assert_that(field_entry8%equal_to_entry(field_entry4), is(false()))
+      @assert_that(field_entry8%equal_to_entry(field_entry5), is(false()))
+      @assert_that(field_entry8%equal_to_entry(field_entry6), is(false()))
+      @assert_that(field_entry8%equal_to_entry(field_entry7), is(false()))
+   end subroutine test_equal_to_entry
+
+   @test
+   subroutine test_standard_name()
+      type(FieldEntry) :: field_entry
+
+      call field_entry%initialize(short_name, component_name, units=field_units)
+      @assert_that(field_entry%standard_name() == standard_name, is(true()))
+   end subroutine test_standard_name
+
+   @test
+   subroutine test_register()
+      type(mock_FieldEntry_register) :: field_entry_no_add
+      type(mock_FieldEntry_register) :: field_entry_add
+
+      integer :: status
+
+      call field_entry_no_add%initialize(short_name_1, component_name_1, units=field_units)
+      @assert_that(field_entry_no_add%has_entry, is(equal_to(0)))
+      @assert_that(field_entry_no_add%add_entry, is(equal_to(0)))
+      @assert_that(allocated(field_entry_no_add%has_entry_name),  is(false()))
+      @assert_that(allocated(field_entry_no_add%add_entry_name),  is(false()))
+      @assert_that(allocated(field_entry_no_add%add_entry_units), is(false()))
+
+      call field_entry_no_add%register(rc=status)
+      @assert_that(status, is(equal_to(0)))
+      @assert_that(field_entry_no_add%has_entry, is(equal_to(1)))
+      @assert_that(field_entry_no_add%add_entry, is(equal_to(0)))
+      @assert_that(allocated(field_entry_no_add%has_entry_name),  is(true()))
+      @assert_that(allocated(field_entry_no_add%add_entry_name),  is(false()))
+      @assert_that(allocated(field_entry_no_add%add_entry_units), is(false()))
+      @assert_that(field_entry_no_add%has_entry_name == standard_name_1, is(true()))
+
+      call field_entry_add%initialize(short_name_2, component_name_2, units=field_units)
+      @assert_that(field_entry_add%has_entry, is(equal_to(0)))
+      @assert_that(field_entry_add%add_entry, is(equal_to(0)))
+      @assert_that(allocated(field_entry_add%has_entry_name),  is(false()))
+      @assert_that(allocated(field_entry_add%add_entry_name),  is(false()))
+      @assert_that(allocated(field_entry_add%add_entry_units), is(false()))
+
+      call field_entry_add%register(rc=status)
+      @assert_that(status, is(equal_to(0)))
+      @assert_that(field_entry_add%has_entry, is(equal_to(1)))
+      @assert_that(field_entry_add%add_entry, is(equal_to(1)))
+      @assert_that(allocated(field_entry_add%has_entry_name),  is(true()))
+      @assert_that(allocated(field_entry_add%add_entry_name),  is(true()))
+      @assert_that(allocated(field_entry_add%add_entry_units), is(true()))
+      @assert_that(field_entry_add%has_entry_name  == standard_name_2, is(true()))
+      @assert_that(field_entry_add%add_entry_name  == standard_name_2, is(true()))
+      @assert_that(field_entry_add%add_entry_units == field_units,     is(true()))
+   end subroutine test_register
+
+   @test
+   subroutine test_advertise()
+      type(mock_FieldEntry_advertise) :: field_entry_no_optional
+      type(mock_FieldEntry_advertise) :: field_entry_optional
+
+      type(ESMF_State) :: state
+      integer :: status
+
+      call field_entry_no_optional%initialize(short_name, component_name)
+      @assert_that(field_entry_no_optional%call_register, is(equal_to(0)))
+      @assert_that(field_entry_no_optional%call_advert,   is(equal_to(0)))
+      @assert_that(allocated(field_entry_no_optional%advert_name), is(false()))
+      @assert_that(allocated(field_entry_no_optional%call_TransferOfferGeomObject), is(false()))
+      @assert_that(allocated(field_entry_no_optional%call_SharePolicyField),        is(false()))
+      @assert_that(allocated(field_entry_no_optional%call_SharePolicyGeomObject),   is(false()))
+
+      call field_entry_no_optional%advertise(state, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      @assert_that(field_entry_no_optional%call_register, is(equal_to(1)))
+      @assert_that(field_entry_no_optional%call_advert,   is(equal_to(1)))
+      @assert_that(allocated(field_entry_no_optional%advert_name), is(true()))
+      @assert_that(field_entry_no_optional%advert_name == standard_name, is(true()))
+      @assert_that(allocated(field_entry_no_optional%call_TransferOfferGeomObject), is(true()))
+      @assert_that(allocated(field_entry_no_optional%call_SharePolicyField),        is(true()))
+      @assert_that(allocated(field_entry_no_optional%call_SharePolicyGeomObject),   is(true()))
+
+      @assert_that(field_entry_no_optional%call_TransferOfferGeomObject == default_TransferOfferGeomObject, is(true()))
+      @assert_that(field_entry_no_optional%call_SharePolicyField        == default_SharePolicyField,        is(true()))
+      @assert_that(field_entry_no_optional%call_SharePolicyGeomObject   == default_SharePolicyField,        is(true()))
+
+      call field_entry_optional%initialize(short_name, component_name, &
+         TransferOfferGeomObject='test1', &
+         SharePolicyField='test2',&
+         SharePolicyGeomObject='test3')
+      @assert_that(field_entry_optional%call_register, is(equal_to(0)))
+      @assert_that(field_entry_optional%call_advert,   is(equal_to(0)))
+      @assert_that(allocated(field_entry_optional%advert_name), is(false()))
+      @assert_that(allocated(field_entry_optional%call_TransferOfferGeomObject), is(false()))
+      @assert_that(allocated(field_entry_optional%call_SharePolicyField),        is(false()))
+      @assert_that(allocated(field_entry_optional%call_SharePolicyGeomObject),   is(false()))
+
+      call field_entry_optional%advertise(state, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      @assert_that(field_entry_optional%call_register, is(equal_to(1)))
+      @assert_that(field_entry_optional%call_advert,   is(equal_to(1)))
+      @assert_that(allocated(field_entry_optional%advert_name), is(true()))
+      @assert_that(field_entry_optional%advert_name == standard_name, is(true()))
+      @assert_that(allocated(field_entry_optional%call_TransferOfferGeomObject), is(true()))
+      @assert_that(allocated(field_entry_optional%call_SharePolicyField),        is(true()))
+      @assert_that(allocated(field_entry_optional%call_SharePolicyGeomObject),   is(true()))
+      @assert_that(field_entry_optional%call_TransferOfferGeomObject == 'test1', is(true()))
+      @assert_that(field_entry_optional%call_SharePolicyField        == 'test2', is(true()))
+      @assert_that(field_entry_optional%call_SharePolicyGeomObject   == 'test3', is(true()))
+   end subroutine test_advertise
+end module test_FieldEntry

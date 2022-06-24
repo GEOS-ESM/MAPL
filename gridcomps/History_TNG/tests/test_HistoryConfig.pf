@@ -1,0 +1,405 @@
+#include "MAPL_Generic.h"
+#include "NUOPC_ErrLog.h"
+
+module test_HistoryConfig
+   use, intrinsic :: iso_fortran_env, only: INT64
+   use pFUnit
+   use ESMF
+   use NUOPC
+   use yaFyaml
+   use gFTL_StringVector
+   use MAPL_ExceptionHandling
+   use MAPL_KeywordEnforcerMod
+
+   use FieldEntryMod
+   use FieldRegistryMod
+   use FieldGroupEntryMod
+   use FieldGroupMod
+   use GroupMod
+   use GroupRegistryMod
+   use TemplateMod
+   use FrequencyMod
+   use CollectionMod
+   use CollectionRegistryMod
+   use HistoryConfigMod
+
+   character(*), parameter :: test_yaml_file  = 'test_History.yaml'
+   character(*), parameter :: test_config_key = 'HistoryConfig_tests'
+
+   type, extends(Collection) :: mock_Collection
+      integer :: call_fill_groups = 0
+      integer :: call_register    = 0
+   contains
+      procedure :: fill_groups
+      procedure :: register
+   end type mock_Collection
+contains
+   subroutine fill_groups(this, group_registry, unusable, rc)
+      class(mock_Collection),           intent(inout) :: this
+      type(GroupRegistry),              intent(in   ) :: group_registry
+      class(KeywordEnforcer), optional, intent(in   ) :: unusable
+      integer,                optional, intent(  out) :: rc
+
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(group_registry)
+
+      this%call_fill_groups = this%call_fill_groups + 1
+
+      _RETURN(_SUCCESS)
+   end subroutine fill_groups
+
+   subroutine register(this, field_registry)
+      class(mock_Collection), intent(inout) :: this
+      type(FieldRegistry),    intent(inout) :: field_registry
+
+      _UNUSED_DUMMY(field_registry)
+
+      this%call_register = this%call_register + 1
+   end subroutine register
+
+   @test
+   subroutine test_import_yaml()
+      type(HistoryConfig) :: history_config
+
+      type(Parser)     :: P
+      type(FileStream) :: file_stream
+
+      character(:), pointer       :: key
+      type(Configuration)         :: main_config, config
+      type(ConfigurationIterator) :: iter
+
+      type(CollectionRegistry)          :: collection_registry
+      type(Collection),         pointer :: collection_ptr
+
+      type(Template)  :: tmplt
+      type(Frequency) :: freq
+
+      type(StringVector) :: enabled
+      type(StringVector) :: gps
+
+      type(GroupRegistry)            :: group_registry
+      type(Group), pointer           :: group_ptr
+
+      type(Group)                    :: fields
+      type(FieldGroup)               :: field_group
+      type(FieldGroupEntry), pointer :: field_entry
+
+      class(FieldEntry), allocatable :: base_entry
+
+      integer :: status
+
+      P           = Parser('core')
+      file_stream = FileStream(test_yaml_file)
+      main_config = P%load(file_stream)
+
+      iter = main_config%begin()
+      do while(iter /= main_config%end())
+         key => iter%key()
+
+         select case (key)
+         case (test_config_key)
+            config = iter%value()
+            exit
+         end select
+
+         call iter%next()
+      end do
+
+      call file_stream%close()
+
+      call history_config%import_yaml(config, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      enabled = history_config%get_enabled()
+      @assert_that(enabled%size(), is(equal_to(2_INT64)))
+      @assert_that(enabled%at(1) == 'collection_1', is(true()))
+      @assert_that(enabled%at(2) == 'collection_2', is(true()))
+
+      group_registry = history_config%get_groups()
+      @assert_that(group_registry%size(), is(equal_to(2_INT64)))
+      @assert_that(group_registry%count('group_1'), is(equal_to(1_INT64)))
+      group_ptr => group_registry%at(   'group_1')
+      field_group = group_ptr%get_fields()
+      @assert_that(field_group%size(), is(equal_to(3_INT64)))
+      @assert_that(field_group%count('field_1.component_1'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_1.component_1')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_1',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_1', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_2.component_1'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_2.component_1')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_2',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_1', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_3.component_2'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_3.component_2')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_3',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_2', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      field_group = group_ptr%get_aux_fields()
+      @assert_that(field_group%size(), is(equal_to(1_INT64)))
+      @assert_that(field_group%count('field_4.component_3'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_4.component_3')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_4',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_3', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(group_registry%count('group_2'), is(equal_to(1_INT64)))
+      group_ptr => group_registry%at(   'group_2')
+      field_group = group_ptr%get_fields()
+      @assert_that(field_group%size(), is(equal_to(3_INT64)))
+      @assert_that(field_group%count('field_5.component_4'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_5.component_4')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_5',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_4', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_6.component_4'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_6.component_4')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_6',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_4', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_7.component_5'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_7.component_5')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_7',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_5', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      field_group = group_ptr%get_aux_fields()
+      @assert_that(field_group%size(), is(equal_to(1_INT64)))
+      @assert_that(field_group%count('field_8.component_6'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_8.component_6')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_8',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_6', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+
+      collection_registry = history_config%get_collections()
+      @assert_that(collection_registry%size(), is(equal_to(2_INT64)))
+      @assert_that(collection_registry%count(   'collection_1'), is(equal_to(1_INT64)))
+      collection_ptr => collection_registry%at( 'collection_1')
+      @assert_that(collection_ptr%get_name() == 'collection_1', is(true()))
+      tmplt = collection_ptr%get_template()
+      @assert_that(tmplt%get_template() == '%y4%m2%d2_%h2%n2z.nc4', is(true()))
+      freq  = collection_ptr%get_frequency()
+      @assert_that(freq%get_frequency() == '06:00:00',              is(true()))
+      gps = collection_ptr%get_groups()
+      @assert_that(gps%size(), is(equal_to(2_INT64)))
+      @assert_that(gps%at(1) == 'group_1', is(true()))
+      @assert_that(gps%at(2) == 'group_2', is(true()))
+      fields = collection_ptr%get_fields()
+      field_group = fields%get_fields()
+      @assert_that(field_group%size(), is(equal_to(3_INT64)))
+      @assert_that(field_group%count('field_1.component_1'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_1.component_1')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_1',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_1', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_2.component_1'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_2.component_1')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_2',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_1', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_3.component_2'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_3.component_2')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_3',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_2', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      field_group = fields%get_aux_fields()
+      @assert_that(field_group%size(), is(equal_to(1_INT64)))
+      @assert_that(field_group%count('field_4.component_3'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_4.component_3')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_4',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_3', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+
+      @assert_that(collection_registry%count(   'collection_2'), is(equal_to(1_INT64)))
+      collection_ptr => collection_registry%at( 'collection_2')
+      @assert_that(collection_ptr%get_name() == 'collection_2', is(true()))
+      tmplt = collection_ptr%get_template()
+      @assert_that(tmplt%get_template() == '%y4%m2%d2_%h2%n2z.nc4', is(true()))
+      freq  = collection_ptr%get_frequency()
+      @assert_that(freq%get_frequency() == '03:00:00',              is(true()))
+      gps = collection_ptr%get_groups()
+      @assert_that(gps%size(), is(equal_to(2_INT64)))
+      @assert_that(gps%at(1) == 'group_3', is(true()))
+      @assert_that(gps%at(2) == 'group_4', is(true()))
+      fields = collection_ptr%get_fields()
+      field_group = fields%get_fields()
+      @assert_that(field_group%size(), is(equal_to(3_INT64)))
+      @assert_that(field_group%count('field_5.component_4'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_5.component_4')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_5',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_4', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_6.component_4'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_6.component_4')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_6',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_4', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_7.component_5'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_7.component_5')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_7',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_5', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      field_group = fields%get_aux_fields()
+      @assert_that(field_group%size(), is(equal_to(1_INT64)))
+      @assert_that(field_group%count('field_8.component_6'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_8.component_6')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_8',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_6', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+   end subroutine test_import_yaml
+
+   @test
+   subroutine test_fill_collection_groups()
+      type(HistoryConfig) :: history_config
+      type(StringVector)  :: enabled
+
+      type(CollectionRegistry) :: collection_registry, collections
+      type(mock_Collection)    :: collection_1
+      type(mock_Collection)    :: collection_2
+
+      class(Collection), pointer :: collection_ptr
+
+      integer :: status
+
+      call enabled%push_back('collection_1')
+      call enabled%push_back('collection_2')
+
+      call collection_1%set_name('collection_1')
+      call collection_2%set_name('collection_2')
+
+      call collection_registry%insert(collection_1, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      call collection_registry%insert(collection_2, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      ! Run condition
+      call history_config%set_enabled(enabled)
+      call history_config%set_collections(collection_registry, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      call history_config%fill_collection_groups(rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      collections = history_config%get_collections()
+      @assert_that(collections%size(), is(equal_to(2_INT64)))
+
+      @assert_that(collections%count(  'collection_1'), is(equal_to(1_INT64)))
+      collection_ptr => collections%at('collection_1')
+      select type(collection_ptr)
+      type is (mock_Collection)
+         @assert_that(collection_ptr%call_fill_groups, is(equal_to(1)))
+      class default
+         @assertFail('not a mock')
+      end select
+
+      @assert_that(collections%count(  'collection_2'), is(equal_to(1_INT64)))
+      collection_ptr => collections%at('collection_2')
+      select type(collection_ptr)
+      type is (mock_Collection)
+         @assert_that(collection_ptr%call_fill_groups, is(equal_to(1)))
+      class default
+         @assertFail('not a mock')
+      end select
+
+      ! Fail condition
+      call enabled%clear()
+      call enabled%push_back('collection_3')
+      call history_config%set_enabled(enabled)
+
+      call history_config%fill_collection_groups(rc=status)
+      @assert_that(status, is(equal_to(1)))
+   end subroutine test_fill_collection_groups
+
+   @test
+   subroutine test_fill_field_registry()
+      type(HistoryConfig) :: history_config
+      type(StringVector)  :: enabled
+
+      type(CollectionRegistry) :: collection_registry, collections
+      type(mock_Collection)    :: collection_1
+      type(mock_Collection)    :: collection_2
+
+      class(Collection), pointer :: collection_ptr
+
+      integer :: status
+
+      call enabled%push_back('collection_1')
+      call enabled%push_back('collection_2')
+
+      call collection_1%set_name('collection_1')
+      call collection_2%set_name('collection_2')
+
+      call collection_registry%insert(collection_1, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      call collection_registry%insert(collection_2, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      ! Run condition
+      call history_config%set_enabled(enabled)
+      call history_config%set_collections(collection_registry, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      call history_config%fill_field_registry(rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      collections = history_config%get_collections()
+      @assert_that(collections%size(), is(equal_to(2_INT64)))
+
+      @assert_that(collections%count(  'collection_1'), is(equal_to(1_INT64)))
+      collection_ptr => collections%at('collection_1')
+      select type(collection_ptr)
+      type is (mock_Collection)
+         @assert_that(collection_ptr%call_register, is(equal_to(1)))
+      class default
+         @assertFail('not a mock')
+      end select
+
+      @assert_that(collections%count(  'collection_2'), is(equal_to(1_INT64)))
+      collection_ptr => collections%at('collection_2')
+      select type(collection_ptr)
+      type is (mock_Collection)
+         @assert_that(collection_ptr%call_register, is(equal_to(1)))
+      class default
+         @assertFail('not a mock')
+      end select
+
+      ! Fail condition
+      call enabled%clear()
+      call enabled%push_back('collection_3')
+      call history_config%set_enabled(enabled)
+
+      call history_config%fill_field_registry(rc=status)
+      @assert_that(status, is(equal_to(1)))
+   end subroutine test_fill_field_registry
+end module test_HistoryConfig

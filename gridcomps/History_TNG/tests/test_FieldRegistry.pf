@@ -1,0 +1,99 @@
+#include "MAPL_Generic.h"
+#include "NUOPC_ErrLog.h"
+
+module test_FieldRegistry
+   use, intrinsic :: iso_fortran_env, only: INT64
+   use pFUnit
+   use ESMF
+   use NUOPC
+   use MAPL_ExceptionHandling
+   use MAPL_KeywordEnforcerMod
+
+   use FieldEntryMod
+   use FieldRegistryMod
+
+   character(*), parameter :: short_name       = 'short_name'
+   character(*), parameter :: other_name       = 'other_name'
+   character(*), parameter :: component_name   = 'component_name'
+   character(*), parameter :: entry_name       = 'short_name.component_name'
+   character(*), parameter :: other_entry_name = 'other_name.component_name'
+
+   type, extends(FieldEntry) :: mock_FieldEntry
+      integer :: call_advertise = 0
+   contains
+      procedure :: advertise
+   end type mock_FieldEntry
+contains
+   subroutine advertise(this, state, unusable, rc)
+      class(mock_FieldEntry),           intent(inout) :: this
+      type(ESMF_State),                 intent(inout) :: state
+      class(KeywordEnforcer), optional, intent(in   ) :: unusable
+      integer,                optional, intent(  out) :: rc
+
+      integer :: status
+
+      _UNUSED_DUMMY(state)
+      _UNUSED_DUMMY(unusable)
+
+      this%call_advertise = this%call_advertise + 1
+
+      _RETURN(_SUCCESS)
+   end subroutine advertise
+
+   @test
+   subroutine test_map()
+      type(FieldRegistry)       :: field_registry
+      type(FieldEntry)          :: field_entry
+      type(FieldEntry), pointer :: field_registry_entry
+
+      call field_entry%initialize(short_name, component_name)
+
+      @assert_that(field_registry%size(),            is(equal_to(0_INT64)))
+      @assert_that(field_registry%count(entry_name), is(equal_to(0_INT64)))
+      call field_registry%insert(field_entry)
+      @assert_that(field_registry%size(),            is(equal_to(1_INT64)))
+      @assert_that(field_registry%count(entry_name), is(equal_to(1_INT64)))
+
+      field_registry_entry => field_registry%at(entry_name)
+      @assert_that(field_registry_entry%get_short_name()     == short_name,     is(true()))
+      @assert_that(field_registry_entry%get_component_name() == component_name, is(true()))
+   end subroutine test_map
+
+   @test
+   subroutine test_advertise()
+      type(FieldRegistry)   :: field_registry
+      type(mock_FieldEntry) :: field_entry_1
+      type(mock_FieldEntry) :: field_entry_2
+      type(ESMF_State)      :: state
+
+      class(FieldEntry), pointer :: field_entry_ptr1
+      class(FieldEntry), pointer :: field_entry_ptr2
+
+      integer :: status
+
+      call field_entry_1%initialize(short_name, component_name)
+      call field_entry_2%initialize(other_name, component_name)
+      call field_registry%insert(field_entry_1)
+      call field_registry%insert(field_entry_2)
+      @assert_that(field_registry%size(), is(equal_to(2_INT64)))
+
+      call field_registry%advertise(state, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      field_entry_ptr1 => field_registry%at(entry_name)
+      select type (field_entry_ptr1)
+      type is (mock_FieldEntry)
+         @assert_that(field_entry_ptr1%call_advertise, is(equal_to(1)))
+      class default
+         @assertFail('not a mock')
+      end select
+
+      field_entry_ptr2 => field_registry%at(other_entry_name)
+      select type (field_entry_ptr2)
+      type is (mock_FieldEntry)
+         @assert_that(field_entry_ptr2%call_advertise, is(equal_to(1)))
+      class default
+         @assertFail('not a mock')
+      end select
+   end subroutine test_advertise
+end module test_FieldRegistry

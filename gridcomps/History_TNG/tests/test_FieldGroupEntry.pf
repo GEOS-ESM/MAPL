@@ -1,0 +1,131 @@
+#include "MAPL_Generic.h"
+#include "NUOPC_ErrLog.h"
+
+module test_FieldGroupEntry
+   use, intrinsic :: iso_fortran_env, only: INT64
+   use pFUnit
+   use ESMF
+   use NUOPC
+   use MAPL_ExceptionHandling
+
+   use FieldEntryMod
+   use FieldGroupEntryMod
+
+   character(*), parameter :: short_name     = 'short_name'
+   character(*), parameter :: component_name = 'component_name'
+   character(*), parameter :: units          = 'units'
+   character(*), parameter :: alias_name     = 'alias_name'
+   character(*), parameter :: fail_name      = 'fail_name'
+   character(*), parameter :: std_out_name   = 'std_out_name'
+   character(*), parameter :: alias_out_name = 'alias_name.std_out_name'
+
+   type, extends(FieldGroupEntry) :: mock_FieldGroupEntry
+   end type mock_FieldGroupEntry
+contains
+   @test
+   subroutine test_initialize()
+      type(FieldGroupEntry) :: field_entry_no_alias
+      type(FieldGroupEntry) :: field_entry_alias
+
+      class(FieldEntry), allocatable :: field_entry
+
+      call field_entry_no_alias%initialize(short_name, component_name)
+      @assert_that(field_entry_no_alias%get_alias_name() == default_alias, is(true()))
+      field_entry = field_entry_no_alias%get_field_entry()
+      @assert_that(field_entry%get_short_name()     == short_name,     is(true()))
+      @assert_that(field_entry%get_component_name() == component_name, is(true()))
+      @assert_that(field_entry%get_units()          == default_units,  is(true()))
+
+      call field_entry_alias%initialize(short_name, component_name, units=units, alias_name=alias_name)
+      @assert_that(field_entry_alias%get_alias_name() == alias_name, is(true()))
+      field_entry = field_entry_alias%get_field_entry()
+      @assert_that(field_entry%get_short_name()     == short_name,     is(true()))
+      @assert_that(field_entry%get_component_name() == component_name, is(true()))
+      @assert_that(field_entry%get_units()          == units,          is(true()))
+   end subroutine test_initialize
+
+   @test
+   subroutine test_set_alias_name()
+      type(FieldGroupEntry) :: field_entry1
+      type(FieldGroupEntry) :: field_entry2
+
+      integer :: status
+
+      @assert_that(alias_name == '',         is(false()))
+      @assert_that(fail_name  == alias_name, is(false()))
+
+      call field_entry1%initialize(short_name, component_name)
+      @assert_that(field_entry1%get_alias_name() == default_alias, is(true()))
+
+      call field_entry1%set_alias_name(alias_name, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      @assert_that(field_entry1%get_alias_name() == alias_name, is(true()))
+
+      call field_entry1%set_alias_name(fail_name, rc=status)
+      @assert_that(status, is(equal_to(1)))
+      @assert_that(field_entry1%get_alias_name() == alias_name, is(true()))
+
+      @assert_that(alias_name == '',         is(false()))
+      @assert_that(fail_name  == alias_name, is(false()))
+
+      call field_entry2%initialize(short_name, component_name)
+      @assert_that(field_entry2%get_alias_name() == default_alias, is(true()))
+
+      call field_entry2%set_alias_name(alias_name, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      @assert_that(field_entry2%get_alias_name() == alias_name, is(true()))
+
+      call field_entry2%set_alias_name(fail_name, rc=status)
+      @assert_that(status, is(equal_to(1)))
+      @assert_that(field_entry2%get_alias_name() == alias_name, is(true()))
+   end subroutine test_set_alias_name
+
+   @test
+   subroutine test_equals()
+      type(FieldGroupEntry) :: field_entry0
+      type(FieldGroupEntry) :: field_entry1
+      type(FieldGroupEntry) :: field_entry2
+      type(FieldGroupEntry) :: field_entry3
+      type(FieldGroupEntry) :: field_entry4
+
+      type(mock_FieldGroupEntry) :: mock_entry
+
+      character(*), parameter :: new_short_name = 'new_short_name'
+      character(*), parameter :: new_alias_name = 'new_alias_name'
+
+      call mock_entry%initialize(short_name, component_name, alias_name=alias_name)
+
+      call field_entry0%initialize(    short_name, component_name, alias_name=    alias_name)
+      call field_entry1%initialize(    short_name, component_name, alias_name=    alias_name)
+      call field_entry2%initialize(new_short_name, component_name, alias_name=    alias_name)
+      call field_entry3%initialize(    short_name, component_name, alias_name=new_alias_name)
+      call field_entry4%initialize(new_short_name, component_name, alias_name=new_alias_name)
+
+      ! Type missmatch
+      @assert_that(field_entry0 == mock_entry,   is(false()))
+      @assert_that(mock_entry   == field_entry0, is(false()))
+
+      ! True
+      @assert_that(field_entry0 == field_entry0, is(true()))
+      @assert_that(field_entry1 == field_entry0, is(true()))
+      @assert_that(field_entry0 == field_entry1, is(true()))
+      @assert_that(field_entry1 == field_entry1, is(true()))
+
+      ! False
+      @assert_that(field_entry1 == field_entry2, is(false()))
+      @assert_that(field_entry1 == field_entry3, is(false()))
+      @assert_that(field_entry1 == field_entry4, is(false()))
+
+      @assert_that(field_entry2 == field_entry1, is(false()))
+      @assert_that(field_entry2 == field_entry3, is(false()))
+      @assert_that(field_entry2 == field_entry4, is(false()))
+
+      @assert_that(field_entry3 == field_entry1, is(false()))
+      @assert_that(field_entry3 == field_entry2, is(false()))
+      @assert_that(field_entry3 == field_entry4, is(false()))
+
+      @assert_that(field_entry4 == field_entry1, is(false()))
+      @assert_that(field_entry4 == field_entry2, is(false()))
+      @assert_that(field_entry4 == field_entry3, is(false()))
+   end subroutine test_equals
+end module test_FieldGroupEntry

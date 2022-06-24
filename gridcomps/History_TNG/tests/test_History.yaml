@@ -1,0 +1,180 @@
+Field_Group_tests:
+  AGCM:
+    PHIS: {}
+    QITOT:
+      units: unit1
+      alias: QI
+    QLTOT:
+      alias: QL
+  DYN:
+    SLP:
+      units: unit2
+    T: {}
+    PS: {}
+    ZLE:
+      alias: H
+    OMEGA: {}
+  MOIST:
+    QV: {}
+    RH2:
+      alias: RH
+  CHEMISTRY:
+    O3: {}
+
+Group_tests:
+  fields:
+    AGCM:
+      PHIS: {}
+      QITOT:
+        units: unit1
+        alias: QI
+      QLTOT:
+        alias: QL
+    DYN:
+      SLP:
+        units: unit2
+      T: {}
+      PS: {}
+      ZLE:
+        alias: H
+      OMEGA: {}
+    MOIST:
+      QV: {}
+      RH2:
+        alias: RH
+    CHEMISTRY:
+      O3: {}
+
+  aux:
+    DYN:
+      U: {}
+
+Group_Registry_tests:
+  group_1:
+    fields:
+      component_1:
+        field_1: {}
+        field_2: {}
+      component_2:
+        field_3: {}
+    aux:
+      component_3:
+        field_4: {}
+  group_2:
+    fields:
+      component_4:
+        field_5: {}
+        field_6: {}
+      component_5:
+        field_7: {}
+    aux:
+      component_6:
+        field_8: {}
+
+Collection_test:
+  template:   '%y4%m2%d2_%h2%n2z.nc4'
+  frequency:  06:00:00
+  groups:
+    - group_1
+    - group_2
+  fields:
+    component_1:
+      field_1: {}
+      field_2: {}
+    component_2:
+      field_3: {}
+  aux:
+    component_3:
+      field_4: {}
+
+Collection_Registry_tests:
+  collection_1:
+    template:   '%y4%m2%d2_%h2%n2z.nc4'
+    frequency:  06:00:00
+    groups:
+      - group_1
+      - group_2
+    fields:
+      component_1:
+        field_1: {}
+        field_2: {}
+      component_2:
+        field_3: {}
+    aux:
+      component_3:
+        field_4: {}
+  collection_2:
+    template:   '%y4%m2%d2_%h2%n2z.nc4'
+    frequency:  03:00:00
+    groups:
+      - group_3
+      - group_4
+    fields:
+      component_4:
+        field_5: {}
+        field_6: {}
+      component_5:
+        field_7: {}
+    aux:
+      component_6:
+        field_8: {}
+
+HistoryConfig_tests:
+  Enabled:
+    - collection_1
+    - collection_2
+
+  Groups:
+    group_1:
+      fields:
+        component_1:
+          field_1: {}
+          field_2: {}
+        component_2:
+          field_3: {}
+      aux:
+        component_3:
+          field_4: {}
+    group_2:
+      fields:
+        component_4:
+          field_5: {}
+          field_6: {}
+        component_5:
+          field_7: {}
+      aux:
+        component_6:
+          field_8: {}
+
+  Collections:
+    collection_1:
+      template:   '%y4%m2%d2_%h2%n2z.nc4'
+      frequency:  06:00:00
+      groups:
+        - group_1
+        - group_2
+      fields:
+        component_1:
+          field_1: {}
+          field_2: {}
+        component_2:
+          field_3: {}
+      aux:
+        component_3:
+          field_4: {}
+    collection_2:
+      template:   '%y4%m2%d2_%h2%n2z.nc4'
+      frequency:  03:00:00
+      groups:
+        - group_3
+        - group_4
+      fields:
+        component_4:
+          field_5: {}
+          field_6: {}
+        component_5:
+          field_7: {}
+      aux:
+        component_6:
+          field_8: {}
+

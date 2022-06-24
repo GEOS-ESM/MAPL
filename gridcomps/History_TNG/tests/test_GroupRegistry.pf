@@ -1,0 +1,245 @@
+#include "MAPL_Generic.h"
+#include "NUOPC_ErrLog.h"
+
+module test_GroupRegistry
+   use, intrinsic :: iso_fortran_env, only: INT64
+   use pFUnit
+   use ESMF
+   use NUOPC
+   use yaFyaml
+   use MAPL_ExceptionHandling
+   use MAPL_KeywordEnforcerMod
+
+   use FieldEntryMod
+   use FieldGroupEntryMod
+   use FieldGroupMod
+   use GroupMod
+   use GroupMapMod
+   use GroupRegistryMod
+
+   character(*), parameter :: test_yaml_file    = 'test_History.yaml'
+   character(*), parameter :: test_registry_key = 'Group_Registry_tests'
+
+   type, extends(Group) :: mock_Group
+      private
+      integer :: id
+   contains
+      procedure :: init
+      procedure :: get_id
+      procedure :: is_equal_to
+      generic   :: operator(==) => is_equal_to
+   end type mock_Group
+contains
+   subroutine init(this, id)
+      class(mock_Group), intent(inout) :: this
+      integer,           intent(in   ) :: id
+
+      this%id = id
+   end subroutine init
+
+   integer function get_id(this)
+      class(mock_Group), intent(in) :: this
+
+      get_id = this%id
+   end function get_id
+
+   logical function is_equal_to(a, b)
+      class(mock_Group), intent(in) :: a
+      class(mock_Group), intent(in) :: b
+
+      is_equal_to = (a%id == b%get_id())
+   end function is_equal_to
+
+   @test
+   subroutine test_map()
+      type(GroupRegistry)   :: group_registry
+      type(mock_Group)      :: group_entry
+      class(Group), pointer :: group_entry_ptr
+
+      character(*), parameter :: group_name = 'group_name'
+
+      integer :: status
+
+      call group_entry%init(10)
+
+      @assert_that(group_registry%size(),            is(equal_to(0_INT64)))
+      @assert_that(group_registry%count(group_name), is(equal_to(0_INT64)))
+      call group_registry%insert(group_name, group_entry, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      @assert_that(group_registry%size(),            is(equal_to(1_INT64)))
+      @assert_that(group_registry%count(group_name), is(equal_to(1_INT64)))
+
+      group_entry_ptr => group_registry%at(group_name)
+      select type (group_entry_ptr)
+      type is (mock_Group)
+         @assert_that(group_entry_ptr == group_entry, is(true()))
+      class default
+         @assertFail('not a mock')
+      end select
+   end subroutine test_map
+
+   @test
+   subroutine test_insert()
+      type(GroupRegistry)   :: group_registry
+      type(mock_Group)      :: group_entry_1
+      type(mock_Group)      :: group_entry_2
+      class(Group), pointer :: group_entry_ptr
+
+      character(*), parameter :: group_name_1 = 'group_name_1'
+      character(*), parameter :: group_name_2 = 'group_name_2'
+
+      integer :: status
+
+      call group_entry_1%init(1)
+      call group_entry_2%init(2)
+
+      call group_registry%insert(group_name_1, group_entry_1, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      @assert_that(group_registry%size(),              is(equal_to(1_INT64)))
+      @assert_that(group_registry%count(group_name_1), is(equal_to(1_INT64)))
+      @assert_that(group_registry%count(group_name_2), is(equal_to(0_INT64)))
+
+      call group_registry%insert(group_name_1, group_entry_1, rc=status)
+      @assert_that(status, is(equal_to(1)))
+      @assert_that(group_registry%size(),              is(equal_to(1_INT64)))
+      @assert_that(group_registry%count(group_name_1), is(equal_to(1_INT64)))
+      @assert_that(group_registry%count(group_name_2), is(equal_to(0_INT64)))
+
+      call group_registry%insert(group_name_2, group_entry_2, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      @assert_that(group_registry%size(),              is(equal_to(2_INT64)))
+      @assert_that(group_registry%count(group_name_1), is(equal_to(1_INT64)))
+      @assert_that(group_registry%count(group_name_2), is(equal_to(1_INT64)))
+
+      group_entry_ptr => group_registry%at(group_name_1)
+      select type (group_entry_ptr)
+      type is (mock_Group)
+         @assert_that(group_entry_ptr == group_entry_1, is(true()))
+         @assert_that(group_entry_ptr == group_entry_2, is(false()))
+      class default
+         @assertFail('not a mock')
+      end select
+
+      group_entry_ptr => group_registry%at(group_name_2)
+      select type (group_entry_ptr)
+      type is (mock_Group)
+         @assert_that(group_entry_ptr == group_entry_1, is(false()))
+         @assert_that(group_entry_ptr == group_entry_2, is(true()))
+      class default
+         @assertFail('not a mock')
+      end select
+   end subroutine test_insert
+
+   @test
+   subroutine test_import_groups()
+      type(GroupRegistry) :: group_registry
+
+      type(Parser)     :: P
+      type(FileStream) :: file_stream
+
+      character(:), pointer       :: key
+      type(Configuration)         :: main_config, config
+      type(ConfigurationIterator) :: iter
+
+      type(Group), pointer           :: group_ptr
+      type(FieldGroup)               :: field_group
+      type(FieldGroupEntry), pointer :: field_entry
+
+      class(FieldEntry), allocatable :: base_entry
+
+      integer :: status
+
+      P           = Parser('core')
+      file_stream = FileStream(test_yaml_file)
+      main_config = P%load(file_stream)
+
+      iter = main_config%begin()
+      do while(iter /= main_config%end())
+         key => iter%key()
+
+         select case (key)
+         case (test_registry_key)
+            config = iter%value()
+            exit
+         end select
+
+         call iter%next()
+      end do
+
+      call file_stream%close()
+
+      call group_registry%import_groups(config, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      @assert_that(group_registry%size(), is(equal_to(2_INT64)))
+
+      @assert_that(group_registry%count('group_1'), is(equal_to(1_INT64)))
+      group_ptr => group_registry%at(   'group_1')
+      field_group = group_ptr%get_fields()
+      @assert_that(field_group%size(), is(equal_to(3_INT64)))
+      @assert_that(field_group%count('field_1.component_1'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_1.component_1')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_1',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_1', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_2.component_1'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_2.component_1')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_2',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_1', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_3.component_2'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_3.component_2')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_3',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_2', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      field_group = group_ptr%get_aux_fields()
+      @assert_that(field_group%size(), is(equal_to(1_INT64)))
+      @assert_that(field_group%count('field_4.component_3'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_4.component_3')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_4',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_3', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+
+      @assert_that(group_registry%count('group_2'), is(equal_to(1_INT64)))
+      group_ptr => group_registry%at(   'group_2')
+      field_group = group_ptr%get_fields()
+      @assert_that(field_group%size(), is(equal_to(3_INT64)))
+      @assert_that(field_group%count('field_5.component_4'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_5.component_4')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_5',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_4', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_6.component_4'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_6.component_4')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_6',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_4', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_7.component_5'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_7.component_5')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_7',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_5', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      field_group = group_ptr%get_aux_fields()
+      @assert_that(field_group%size(), is(equal_to(1_INT64)))
+      @assert_that(field_group%count('field_8.component_6'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_8.component_6')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_8',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_6', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+   end subroutine test_import_groups
+end module test_GroupRegistry

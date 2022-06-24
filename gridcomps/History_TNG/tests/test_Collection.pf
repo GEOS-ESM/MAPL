@@ -1,0 +1,342 @@
+#include "MAPL_Generic.h"
+#include "NUOPC_ErrLog.h"
+
+module test_Collection
+   use, intrinsic :: iso_fortran_env, only: INT64
+   use pFUnit
+   use ESMF
+   use NUOPC
+   use yaFyaml
+   use gFTL_StringVector
+   use MAPL_ExceptionHandling
+   use MAPL_KeywordEnforcerMod
+
+   use FieldEntryMod
+   use FieldRegistryMod
+   use FieldGroupEntryMod
+   use FieldGroupMod
+   use GroupMod
+   use GroupMapMod
+   use GroupRegistryMod
+   use TemplateMod
+   use FrequencyMod
+   use CollectionMod
+
+   character(*), parameter :: test_yaml_file      = 'test_History.yaml'
+   character(*), parameter :: test_collection_key = 'Collection_test'
+
+   type, extends(Group) :: mock_Group
+      integer :: id
+
+      integer :: call_advertise = 0
+      integer :: call_register  = 0
+      integer :: call_union     = 0
+
+      type(GroupMap) :: union_calls
+   contains
+      procedure :: advertise
+      procedure :: register
+      procedure :: union
+   end type mock_Group
+contains
+   subroutine advertise(this, state, unusable, rc)
+      class(mock_Group),                intent(inout) :: this
+      type(ESMF_State),                 intent(inout) :: state
+      class(KeywordEnforcer), optional, intent(in   ) :: unusable
+      integer,                optional, intent(  out) :: rc
+
+      _UNUSED_DUMMY(state)
+      _UNUSED_DUMMY(unusable)
+
+      this%call_advertise = this%call_advertise + 1
+
+      _RETURN(_SUCCESS)
+   end subroutine advertise
+
+   subroutine register(this, field_registry)
+      class(mock_Group),   intent(inout) :: this
+      type(FieldRegistry), intent(inout) :: field_registry
+
+      _UNUSED_DUMMY(field_registry)
+
+      this%call_register = this%call_register + 1
+   end subroutine register
+
+   subroutine union(this, other, unusable, rc)
+      class(mock_Group),                intent(inout) :: this
+      class(Group),                     intent(inout) :: other
+      class(KeywordEnforcer), optional, intent(  out) :: unusable
+      integer,                optional, intent(  out) :: rc
+
+      _UNUSED_DUMMY(unusable)
+
+      this%call_union = this%call_union + 1
+      call this%union_calls%insert(str(this%call_union), other)
+
+      _RETURN(_SUCCESS)
+   contains
+      function str(x)
+         character(:), allocatable :: str
+         integer, intent(in) :: x
+
+         character(32) :: buffer
+
+         write(buffer,'(g0)') x
+         str = trim(buffer)
+      end function str
+   end subroutine union
+
+   @test
+   subroutine test_set_fields()
+      type(Collection) :: collect1
+      type(Collection) :: collect2
+      type(Group)      :: fields
+
+      integer :: status
+
+      call collect1%set_fields(fields, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      call collect1%set_fields(fields, rc=status)
+      @assert_that(status, is(equal_to(1)))
+
+      call collect2%set_fields(fields, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      call collect2%set_fields(fields, rc=status)
+      @assert_that(status, is(equal_to(1)))
+   end subroutine test_set_fields
+
+   @test
+   subroutine test_advertise()
+      type(Collection) :: collect
+      type(mock_Group) :: fields
+      type(ESMF_State) :: state
+
+      class(Group), allocatable :: collect_fields
+
+      integer :: status
+
+      call collect%set_fields(fields, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      collect_fields = collect%get_fields()
+      select type (collect_fields)
+      type is (mock_Group)
+         @assert_that(collect_fields%call_advertise, is(equal_to(0)))
+      class default
+         @assertFail('not a mock')
+      end select
+
+      call collect%advertise(state, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      collect_fields = collect%get_fields()
+      select type (collect_fields)
+      type is (mock_Group)
+         @assert_that(collect_fields%call_advertise, is(equal_to(1)))
+      class default
+         @assertFail('not a mock')
+      end select
+   end subroutine test_advertise
+
+   @test
+   subroutine test_register()
+      type(Collection)    :: collect
+      type(mock_Group)    :: fields
+      type(FieldRegistry) :: registry
+
+      class(Group), allocatable :: collect_fields
+
+      integer :: status
+
+      call collect%set_fields(fields, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      collect_fields = collect%get_fields()
+      select type (collect_fields)
+      type is (mock_Group)
+         @assert_that(collect_fields%call_register, is(equal_to(0)))
+      class default
+         @assertFail('not a mock')
+      end select
+
+      call collect%register(registry)
+
+      collect_fields = collect%get_fields()
+      select type (collect_fields)
+      type is (mock_Group)
+         @assert_that(collect_fields%call_register, is(equal_to(1)))
+      class default
+         @assertFail('not a mock')
+      end select
+   end subroutine test_register
+
+   @test
+   subroutine test_import_collection()
+      type(Collection) :: collect
+
+      type(Parser)     :: P
+      type(FileStream) :: file_stream
+
+      character(:), allocatable   :: name
+      character(:), pointer       :: key
+      type(Configuration)         :: main_config, config
+      type(ConfigurationIterator) :: iter
+
+      type(Template)  :: tmplt
+      type(Frequency) :: freq
+
+      type(StringVector) :: gps
+
+      type(Group)                    :: fields
+      type(FieldGroup)               :: field_group
+      type(FieldGroupEntry), pointer :: field_entry
+
+      class(FieldEntry), allocatable :: base_entry
+
+      integer :: status
+
+      P           = Parser('core')
+      file_stream = FileStream(test_yaml_file)
+      main_config = P%load(file_stream)
+
+      iter = main_config%begin()
+      do while(iter /= main_config%end())
+         key => iter%key()
+
+         select case (key)
+         case (test_collection_key)
+            name   = key
+            config = iter%value()
+            exit
+         end select
+
+         call iter%next()
+      end do
+
+      call file_stream%close()
+
+      call collect%import_collection(name, config, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      ! Test simple bits
+      @assert_that(collect%get_name() == test_collection_key, is(true()))
+
+      tmplt = collect%get_template()
+      @assert_that(tmplt%get_template() == '%y4%m2%d2_%h2%n2z.nc4', is(true()))
+      freq  = collect%get_frequency()
+      @assert_that(freq%get_frequency() == '06:00:00',              is(true()))
+
+      ! Test the group list
+      gps = collect%get_groups()
+      @assert_that(gps%size(), is(equal_to(2_INT64)))
+      @assert_that(gps%at(1) == 'group_1', is(true()))
+      @assert_that(gps%at(2) == 'group_2', is(true()))
+
+      ! Test the fields were read correctly
+      fields = collect%get_fields()
+      field_group = fields%get_fields()
+      @assert_that(field_group%size(), is(equal_to(3_INT64)))
+      @assert_that(field_group%count('field_1.component_1'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_1.component_1')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_1',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_1', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_2.component_1'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_2.component_1')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_2',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_1', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      @assert_that(field_group%count('field_3.component_2'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_3.component_2')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_3',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_2', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+      field_group = fields%get_aux_fields()
+      @assert_that(field_group%size(), is(equal_to(1_INT64)))
+      @assert_that(field_group%count('field_4.component_3'), is(equal_to(1_INT64)))
+      field_entry => field_group%at( 'field_4.component_3')
+      @assert_that(field_entry%get_alias_name() == default_alias, is(true()))
+      base_entry = field_entry%get_field_entry()
+      @assert_that(base_entry%get_short_name()     == 'field_4',     is(true()))
+      @assert_that(base_entry%get_component_name() == 'component_3', is(true()))
+      @assert_that(base_entry%get_units()          == default_units, is(true()))
+   end subroutine test_import_collection
+
+   @test
+   subroutine test_fill_groups()
+      type(Collection)    :: collect
+      type(GroupRegistry) :: registry
+      type(StringVector)  :: groups
+
+      type(mock_Group) :: fields
+      type(mock_Group) :: group_1
+      type(mock_Group) :: group_2
+
+      class(Group), allocatable :: fields_inside
+      class(Group), allocatable :: call_group
+
+      integer :: status
+
+      group_1%id = 1
+      group_2%id = 2
+
+      call groups%push_back('group_1')
+      call groups%push_back('group_2')
+
+      call registry%insert('group_1', group_1, rc=status)
+      @assert_that(status, is(equal_to(0)))
+      call registry%insert('group_2', group_2, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      ! Run condition
+      call collect%set_groups(groups)
+      call collect%set_fields(fields, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      call collect%fill_groups(registry, rc=status)
+      @assert_that(status, is(equal_to(0)))
+
+      fields_inside = collect%get_fields()
+      select type(fields_inside)
+      type is (mock_Group)
+         @assert_that(fields_inside%call_union, is(equal_to(2)))
+         @assert_that(fields_inside%union_calls%size(), is(equal_to(2_INT64)))
+
+         @assert_that(fields_inside%union_calls%count('1'), is(equal_to(1_INT64)))
+         call_group = fields_inside%union_calls%at('1')
+         select type (call_group)
+         type is (mock_Group)
+            @assert_that(call_group%id, is(equal_to(1)))
+         class default
+            @assertFail('not a mock')
+         end select
+
+         @assert_that(fields_inside%union_calls%count('2'), is(equal_to(1_INT64)))
+         call_group = fields_inside%union_calls%at('2')
+         select type (call_group)
+         type is (mock_Group)
+            @assert_that(call_group%id, is(equal_to(2)))
+         class default
+            @assertFail('not a mock')
+         end select
+      class default
+         @assertFail('not a mock')
+      end select
+
+      ! Fail condition
+      call groups%clear()
+      call groups%push_back('group_3')
+      call collect%set_groups(groups)
+
+      call collect%fill_groups(registry, rc=status)
+      @assert_that(status, is(equal_to(1)))
+   end subroutine test_fill_groups
+end module test_Collection

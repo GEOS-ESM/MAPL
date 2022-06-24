@@ -1,0 +1,176 @@
+#include "MAPL_Generic.h"
+#include "NUOPC_ErrLog.h"
+
+module test_NUOPCmap
+   use, intrinsic :: iso_fortran_env, only: INT64
+   use pfunit
+   use ESMF
+   use NUOPC
+   use MAPL_ExceptionHandling
+   use MAPL_KeywordEnforcerMod
+
+   use NUOPCmapMod
+
+   character(*), parameter :: test_phase_label     = 'test'
+   character(*), parameter :: test_phase_label_bad = 'bad'
+
+   type, extends(NUOPCmap) :: mock_NUOPCmap_read_phase
+      integer :: add_phase_rc
+      integer :: search_phase_map_rc
+
+      integer :: add_phase_called        = 0
+      integer :: search_phase_map_called = 0
+   contains
+      procedure :: add_phase
+      procedure :: search_phase_map
+   end type mock_NUOPCmap_read_phase
+
+   type, extends(mock_NUOPCmap_read_phase) :: mock_NUOPCmap_create_phase_map
+      integer :: read_phase_rc
+
+      integer :: read_phase_called = 0
+   contains
+      procedure :: read_phase
+   end type mock_NUOPCmap_create_phase_map
+contains
+   @test
+   subroutine test_add_phase()
+      type(NUOPCmap)          :: NUOPC_map
+      integer                 :: rc
+
+      @assert_that(NUOPC_map%NUOPC_map%count(1), is(equal_to(0_INT64)))
+
+      call NUOPC_map%add_phase(1, test_phase_label, rc)
+      @assert_that(rc, is(equal_to(ESMF_SUCCESS)))
+      @assert_that(NUOPC_map%NUOPC_map%count(1), is(equal_to(1_INT64)))
+      @assert_that(NUOPC_map%NUOPC_map%at(1), is(equal_to(test_phase_label)))
+      @assert_that(NUOPC_map%NUOPC_map%at(1), is(not(equal_to(test_phase_label_bad))))
+
+      call NUOPC_map%add_phase(1, test_phase_label_bad, rc)
+      @assert_that(rc, is(equal_to(ESMF_RC_OBJ_BAD)))
+      @assert_that(NUOPC_map%NUOPC_map%count(1), is(equal_to(1_INT64)))
+      @assert_that(NUOPC_map%NUOPC_map%at(1), is(not(equal_to(test_phase_label_bad))))
+   end subroutine test_add_phase
+
+   @test
+   subroutine test_get_phase()
+      type(NUOPCmap)          :: NUOPC_map
+      character(:), pointer   :: phase_label
+      integer                 :: rc
+
+      @assert_that(NUOPC_map%NUOPC_map%count(1), is(equal_to(0_INT64)))
+
+      call NUOPC_map%get_phase(1, phase_label, rc)
+      @assert_that(rc, is(equal_to(ESMF_RC_OBJ_BAD)))
+      @assert_that(associated(phase_label), is(false()))
+
+      call NUOPC_map%add_phase(1, test_phase_label, rc)
+      @assert_that(rc, is(equal_to(ESMF_SUCCESS)))
+
+      call NUOPC_map%get_phase(1, phase_label, rc)
+      @assert_that(rc, is(equal_to(ESMF_SUCCESS)))
+      @assert_that(associated(phase_label), is(true()))
+      @assert_that(phase_label, is(equal_to(test_phase_label)))
+   end subroutine test_get_phase
+
+   subroutine add_phase(this, index, phase_label, rc)
+      class(mock_NUOPCmap_read_phase), intent(inout) :: this
+      integer,                         intent(in   ) :: index
+      character(len=*),                intent(in   ) :: phase_label
+      integer, optional,               intent(  out) :: rc
+
+      integer :: status
+
+      this%add_phase_called = this%add_phase_called + 1
+      call this%NUOPCmap%add_phase(index, phase_label, rc=this%add_phase_rc)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_phase
+
+   subroutine search_phase_map(this, gc, phase_label, phase_index, rc)
+      class(mock_NUOPCmap_read_phase), intent(inout) :: this
+      type(ESMF_GridComp),             intent(inout) :: gc
+      character(*),                    intent(in   ) :: phase_label
+      integer,                         intent(  out) :: phase_index
+      integer, optional,               intent(  out) :: rc
+
+      integer :: status
+
+      this%search_phase_map_called = this%search_phase_map_called + 1
+      call this%NUOPCmap%search_phase_map(gc, phase_label, phase_index, &
+            rc=this%search_phase_map_rc)
+
+      status = ESMF_SUCCESS
+
+      select case(phase_label)
+      case(test_phase_label)
+         phase_index = 0
+      case(test_phase_label_bad)
+         phase_index = -1
+      case(phase_label_list(1))
+         phase_index = 100
+      case(phase_label_list(2))
+         phase_index = 400
+      case default
+         status = 1
+      end select
+
+      if (present(rc)) rc = status
+   end subroutine search_phase_map
+
+   @test
+   subroutine test_read_phase()
+      type(mock_NUOPCmap_read_phase) :: NUOPC_map
+      type(ESMF_GridComp)            :: gc
+      integer                        :: rc
+
+      @assert_that(NUOPC_map%NUOPC_map%count(0), is(equal_to(0_INT64)))
+      @assert_that(NUOPC_map%search_phase_map_called, is(equal_to(0)))
+      @assert_that(NUOPC_map%add_phase_called,        is(equal_to(0)))
+
+      call NUOPC_map%read_phase(gc, test_phase_label, rc)
+      @assert_that(rc, is(equal_to(ESMF_SUCCESS)))
+      @assert_that(NUOPC_map%search_phase_map_called, is(equal_to(1)))
+      @assert_that(NUOPC_map%add_phase_called,        is(equal_to(1)))
+
+      @assert_that(NUOPC_map%NUOPC_map%count(0), is(equal_to(1_INT64)))
+      @assert_that(NUOPC_map%NUOPC_map%at(0), is(equal_to(test_phase_label)))
+
+      call NUOPC_map%read_phase(gc, test_phase_label_bad, rc)
+      @assert_that(rc, is(equal_to(ESMF_RC_OBJ_BAD)))
+      @assert_that(NUOPC_map%search_phase_map_called, is(equal_to(2)))
+      @assert_that(NUOPC_map%add_phase_called,        is(equal_to(1)))
+
+      @assert_that(rc, is(equal_to(ESMF_RC_OBJ_BAD)))
+      @assert_that(NUOPC_map%NUOPC_map%count(-1), is(equal_to(0_INT64)))
+   end subroutine test_read_phase
+
+   subroutine read_phase(this, gc, phase_label, rc)
+      class(mock_NUOPCmap_create_phase_map), intent(inout) :: this
+      type(ESMF_GridComp),                   intent(inout) :: gc
+      character(*),                          intent(in   ) :: phase_label
+      integer, optional,                     intent(  out) :: rc
+
+      integer :: status
+
+      this%read_phase_called = this%read_phase_called + 1
+      call this%mock_NUOPCmap_read_phase%read_phase(gc, phase_label, &
+            rc=this%read_phase_rc)
+
+      _RETURN(_SUCCESS)
+   end subroutine read_phase
+
+   @test
+   subroutine test_create_phase_map()
+      type(mock_NUOPCmap_create_phase_map) :: NUOPC_map
+      type(ESMF_GridComp)                  :: gc
+      integer                              :: rc
+
+      integer :: i
+
+      call NUOPC_map%create_phase_map(gc, rc)
+      @assert_that(rc, is(equal_to(ESMF_SUCCESS)))
+
+      @assert_that(NUOPC_map%read_phase_called, is(equal_to(num_phases)))
+   end subroutine test_create_phase_map
+end module test_NUOPCmap
