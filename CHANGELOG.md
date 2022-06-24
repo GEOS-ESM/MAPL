@@ -55,6 +55,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.22.0] - 2022-06-24
+
+### Fixed
+
 - By pass the check of the missing value of Nan
 - Update CI to work with latest GEOSadas `develop` (Uses a special branch of GEOSadas)
 - Fix bundleio tests
@@ -75,6 +87,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added monotonic regridding option
 - Make availalbe to History and ExtData2G all supported regridding methods
 - Add test cases for ExtData
+- Add YAML validator GitHub Action
+  - This action makes sure all YAML files are valid (to a relaxed standard)
 
 ### Changed
 
@@ -89,10 +103,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Add `find_package(MPI)` for non-Baselibs builds
    - Add explicit interface dependence of `MPI` for `ESMF` target
    - Add `esmf` alias library for `ESMF` for compatibility
-
-### Removed
-
-### Deprecated
 
 ## [2.21.3] - 2022-06-07
 
