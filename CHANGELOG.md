@@ -17,6 +17,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.22.0] - 2022-06-24
+
+### Fixed
+
+- By pass the check of the missing value of Nan
+- Update CI to work with latest GEOSadas `develop` (Uses a special branch of GEOSadas)
+- Fix bundleio tests
+- HistoryGridComp now checks if a file exists already before writing and errors out if so
+- Minor updates for FORD documentation testing
+  - Add `program` statements to some test programs
+  - Remove `pfio/pfio_io_demo.F90` as dead code
+  - Fix redefinition of `_RETURN` in `pflogger_stub.F90`
+  - Removed unused `Test_SimpleClient.pf`
+- Update CMake to require NetCDF C components and add `NetCDF::NetCDF_C` to pfio CMake
+
+### Added
+
+- Updated MAPL_CapGridComp to mark fields going to ExtData to not be checkpointed by components
+- Add debug loggers for start/stop during stages in MAPL_Generic
+- Handling for double precision input when retrieving single precision attributes
+- Enable GCM run test in CircleCI (1-hour, no ExtData)
+- Added monotonic regridding option
+- Make availalbe to History and ExtData2G all supported regridding methods
+- Add test cases for ExtData
+- Add YAML validator GitHub Action
+  - This action makes sure all YAML files are valid (to a relaxed standard)
+
+### Changed
+
+- Modified error messages in FileMetadataUtilities to be unique and print filename
+- Updated the ESMA_env version to v3.14.0
+- Updated the ESMA_cmake version to v3.17.0
+- Updated GitHub Actions MAPL build tests
+- Added assert for missing file with ExtData2G
+- Re-enable bundleio tests in CI
+- Updated CircleCI to use latest Baselibs
+- Updates for Spack support
+   - Add `find_package(MPI)` for non-Baselibs builds
+   - Add explicit interface dependence of `MPI` for `ESMF` target
+   - Add `esmf` alias library for `ESMF` for compatibility
+
 ## [2.21.3] - 2022-06-07
 
 ### Fixed

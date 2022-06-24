@@ -1,4 +1,4 @@
-
+program testbin
 use HorzBinMod
 
 type (HorzBinTransform) :: T

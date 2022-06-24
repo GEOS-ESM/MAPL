@@ -1,5 +1,8 @@
 #include "MAPL_ErrLog.h"
 #define _SUCCESS 0
+#ifdef _RETURN
+#undef _RETURN
+#endif
 #define _RETURN(status) if(present(rc))rc=status; return
 
 module PFL_SeverityLevels
@@ -22,7 +25,7 @@ module PFL_SeverityLevels
    end enum
 
 end module PFL_SeverityLevels
-   
+
 module PFL_Logger
    use PFL_SeverityLevels, only: NOTSET
    use PFL_SeverityLevels, only: DEBUG_LEVEL => DEBUG
@@ -60,7 +63,7 @@ contains
    subroutine debug(this, message, ARG_LIST, unusable, extra, line, file, rc)
       class (Logger), target, intent(inout) :: this
       character(len=*), intent(in) :: message
-      include 'recordOptArgs.inc'  
+      include 'recordOptArgs.inc'
       class (KeywordEnforcer), optional, intent(in) :: unusable
       type (StringUnlimitedMap), optional, target, intent(in) :: extra
       integer, optional, intent(in) :: line
@@ -89,7 +92,7 @@ contains
    subroutine info(this, message, ARG_LIST, unusable, extra, line, file, rc)
       class (Logger), target, intent(inout) :: this
       character(len=*), intent(in) :: message
-      include 'recordOptArgs.inc'  
+      include 'recordOptArgs.inc'
       class (KeywordEnforcer), optional, intent(in) :: unusable
       type (StringUnlimitedMap), optional, target, intent(in) :: extra
       integer, optional, intent(in) :: line
@@ -118,13 +121,13 @@ contains
    subroutine warning(this, message, ARG_LIST, unusable, extra, line, file, rc)
       class (Logger), target, intent(inout) :: this
       character(len=*), intent(in) :: message
-      include 'recordOptArgs.inc'  
+      include 'recordOptArgs.inc'
       class (KeywordEnforcer), optional, intent(in) :: unusable
       type (StringUnlimitedMap), optional, target, intent(in) :: extra
       integer, optional, intent(in) :: line
       character(*), optional, intent(in) :: file
       integer, optional, intent(out) :: rc
-      
+
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(message)
       _UNUSED_DUMMY(arg1)
@@ -148,7 +151,7 @@ contains
       ! Log message with the integer severity 'DEBUG'.
       class (Logger), target, intent(inout) :: this
       character(len=*), intent(in) :: message
-      include 'recordOptArgs.inc'  
+      include 'recordOptArgs.inc'
       class (KeywordEnforcer), optional, intent(in) :: unusable
       type (StringUnlimitedMap), optional, target, intent(in) :: extra
       integer, optional, intent(in) :: line
@@ -177,7 +180,7 @@ contains
    subroutine critical(this, message, ARG_LIST, unusable, extra, line, file, rc)
       class (Logger), target, intent(inout) :: this
       character(len=*), intent(in) :: message
-      include 'recordOptArgs.inc'  
+      include 'recordOptArgs.inc'
       class (KeywordEnforcer), optional, intent(in) :: unusable
       type (StringUnlimitedMap), optional, target, intent(in) :: extra
       integer, optional, intent(in) :: line
@@ -208,7 +211,7 @@ contains
       integer, intent(in) :: level
       isEnabledFor = .false.
    end function isEnabledFor
- 
+
 end module PFL_Logger
 
 module PFL_LoggerManager
@@ -228,7 +231,7 @@ module PFL_LoggerManager
       generic :: get_logger => get_logger_root
       procedure :: free
    end type LoggerManager
-   
+
    type (LoggerManager), target, save :: logging
 
 contains

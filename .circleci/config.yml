@@ -1,5 +1,8 @@
 version: 2.1
 
+# Anchor to prevent forgetting to update a version
+baselibs_version: &baselibs_version v6.3.1
+
 orbs:
   ci: geos-esm/circleci-tools@1
 
@@ -7,18 +10,43 @@ workflows:
   build-and-test:
     jobs:
 
-      # Builds MAPL in a "default" way
+      # Builds MAPL in a "default" way - Intel
       - ci/build:
           name: build-and-test-MAPL-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [ifort]
+          baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
-          ctest_options: "-R MAPL -LE PERFORMANCE --output-on-failure"
+          ctest_options: "-LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
+
+      # Builds MAPL in a "default" way - GNU
+      #
+      # NOTE: Currently Open MPI fails on the bundleio with:
+      #
+      #   The OSC pt2pt component does not support MPI_THREAD_MULTIPLE in this release.
+      #   Workarounds are to run on a single node, or to use a system with an RDMA
+      #   capable network such as Infiniband.
+      #
+      # For now, we run GNU/Open MPI without the bundleio tests. Some indications that
+      # Open MPI 5 will not have this limitation
+
+      - ci/build:
+          name: build-and-test-MAPL-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran]
+          baselibs_version: *baselibs_version
+          repo: MAPL
+          mepodevelop: false
+          run_unit_tests: true
+          ctest_options: "-E bundleio -LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
 
       # Builds MAPL like UFS does (no FLAP and pFlogger, static)
       - ci/build:
@@ -28,11 +56,12 @@ workflows:
           matrix:
             parameters:
               compiler: [ifort]
+          baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_SHARED_MAPL=OFF"
           run_unit_tests: true
-          ctest_options: "-R MAPL -LE PERFORMANCE --output-on-failure"
+          ctest_options: "-LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
 
       # Build GEOSgcm
       - ci/build:
@@ -42,11 +71,12 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
+          baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
           mepodevelop: true
           checkout_mapl_branch: true
-          persist_workspace: false # Needs to be true to run fv3/gcm experiment, costs extra
+          persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
       # Build GEOSldas
       - ci/build:
@@ -56,6 +86,7 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
+          baselibs_version: *baselibs_version
           repo: GEOSldas
           mepodevelop: false
           checkout_fixture: true
@@ -71,6 +102,7 @@ workflows:
             parameters:
               compiler: [ifort]
           resource_class: xlarge
+          baselibs_version: *baselibs_version
           repo: GEOSadas
           checkout_fixture: true
           # This branch on GEOSadas will be used to track subrepos needed
@@ -80,15 +112,15 @@ workflows:
           mepodevelop: false
           rebuild_procs: 8
 
-      ##################################################
-      # - ci/run_fv3:                                  #
-      #     name: run-FV3-on-<< matrix.compiler >>     #
-      #     context:                                   #
-      #       - docker-hub-creds                       #
-      #     matrix:                                    #
-      #       parameters:                              #
-      #         compiler: [gfortran, ifort]            #
-      #     requires:                                  #
-      #       - build-GEOSgcm-on-<< matrix.compiler >> #
-      #     repo: GEOSgcm                              #
-      ##################################################
+      # Run GCM (1 hour, no ExtData)
+      - ci/run_gcm:
+          name: run-GCM-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+          requires:
+            - build-GEOSgcm-on-<< matrix.compiler >>
+          repo: GEOSgcm
+          baselibs_version: *baselibs_version

@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.21.3
+  VERSION 2.22.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the default build type to release
@@ -111,7 +111,10 @@ endif ()
 ecbuild_declare_project()
 
 if (NOT Baselibs_FOUND)
-  find_package(NetCDF REQUIRED Fortran)
+  set(MPI_DETERMINE_LIBRARY_VERSION TRUE)
+  find_package(MPI)
+
+  find_package(NetCDF REQUIRED C Fortran)
   add_definitions(-DHAS_NETCDF4)
   add_definitions(-DHAS_NETCDF3)
   add_definitions(-DNETCDF_NEED_NF_MPIIO)
@@ -124,6 +127,19 @@ if (NOT Baselibs_FOUND)
 
   if (NOT TARGET esmf)
     find_package(ESMF MODULE REQUIRED)
+
+    # ESMF as used in MAPL requires MPI
+    # NOTE: This looks odd because some versions of FindESMF.cmake out in the
+    #       world provide an "esmf" target while others provide "ESMF". So we
+    #       need this ugliness to support both.
+    if (TARGET esmf)
+      target_link_libraries(esmf INTERFACE MPI::MPI_Fortran)
+    else()
+      target_link_libraries(ESMF INTERFACE MPI::MPI_Fortran)
+      # MAPL and GEOS use lowercase target due to historical reasons but
+      # the latest FindESMF.cmake file from ESMF produces an ESMF target.
+      add_library(esmf ALIAS ESMF)
+    endif()
   endif ()
 endif ()
 
