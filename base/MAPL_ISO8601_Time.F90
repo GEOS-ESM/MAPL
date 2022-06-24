@@ -6,6 +6,7 @@
 !Allow ordinal dates as input/output
 
 module MAPL_ISO8601_Time
+   use gFTL_StringVector
 
    type :: date_fields
       integer :: year
@@ -51,41 +52,108 @@ module MAPL_ISO8601_Time
 
    character :: DATE_DELIMITER = '-'
    character :: TIME_DELIMITER = ':'
-   integer, parameter :: NUM_MONTHS = 12
+   ! These are open lower(LB) and upper (UB) bounds of components of the date and time.
+   integer, parameter :: LB_YEAR = -1 
+   integer, parameter :: UB_YEAR = 10000
+   integer, parameter :: LB_MONTH = 0
+   integer, parameter :: UB_MONTH = 13
+   integer, parameter :: NUM_MONTHS = UB_MONTH - 1
+   integer, parameter :: LB_DAY = 0
 
 contains
+   
+   pure integer function count_parts(s, d)
+      character(len=*), intent(in) :: s
+      character(len=*), intent(in) :: d
+      integer :: lens = -1
+      integer :: lend = -1
+      integer :: pos = 
+
+      lens = len(s)
+      lend = len(d)
+
+      if(lend < lens) then
+         count_parts = 1
+         while()
+
+
+
+      else
+      
+      endif
+
+   end function count_parts
+
+   function split(s, d)
+      character(len=*), intent(in) :: s
+      character(len=*), intent(in) :: d
+      type(StringVector), intent(out) :: parts
+      integer :: lend = len(d)
+      integer :: lens = len(s)
+      integer :: p = -1
+      integer :: b = 1
+      integer :: e = -1
+
+      parts % clear()
+      
+      p=index(s(b:lens), d)
+      
+      do while p > 0  
+         e = b + p - 1
+         parts % push_back(s(b:e))
+         b = b + p + lend
+         p=index(s(b:lens), d)      
+      end do
+      
+      e = lens
+      parts % push_back(s(b:e))
+
+   end function split
 
    ! Return true if factor divides dividend evenly, false otherwise
-   logical function is_factor(dividend, factor)
+   pure logical function is_factor(dividend, factor)
       integer, intent(in) :: dividend
       integer, intent(in) :: factor
       ! mod returns the remainder of dividend/factor, and if it is 0, factor divides dividend evenly
-      is_factor = mod(dividend, factor) == 0
+      if(factor /= 0) then ! To avoid divide by 0
+          is_factor = mod(dividend, factor) == 0
+      else
+          is_factor = .false.
+      endif
    end function is_factor
 
    ! Return true if factor does not divide dividend evenly, false otherwise
    ! see is_factor
-   logical function is_not_factor(dividend, factor)
+   pure logical function is_not_factor(dividend, factor)
       integer, intent(in) :: dividend
       integer, intent(in) :: factor
       is_not_factor = .not. is_factor(dividend, factor)
    end function is_not_factor
 
+   pure logical function is_between(lower, upper, n) 
+      integer, intent(in) :: lower
+      integer, intent(in) :: upper
+      integer, intent(in) :: n
+      is_between = n > lower .and. n < upper
+   end function is_between
+
    ! Return true if y is a leap year, false otherwise
-   logical function is_leap_year(y)
+   pure logical function is_leap_year(y)
       integer, intent(in) :: y
       ! Leap years are years divisible by 400 or (years divisible by 4 and not divisible by 100)
       is_leap_year = is_factor(y,400) .or. ( is_factor(y, 4) .and. is_not_factor(y, 100) )
    end function is_leap_year
 
    ! Return the last day numbers of each month based on the year
-   function get_month_ends(y) result(month_ends)
+   pure function get_month_ends(y) result(month_ends)
       integer, intent(in) :: y
       integer, dimension(NUM_MONTHS) :: month_ends
       ! last day numbers of months for leap years
-      integer, dimension(NUM_MONTHS) :: MONTH_END_LEAP = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+      integer, dimension(NUM_MONTHS) :: MONTH_END_LEAP
       ! last day numbers of months for regular years
-      integer, dimension(NUM_MONTHS) :: MONTH_END = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+      integer, dimension(NUM_MONTHS) :: MONTH_END 
+      MONTH_END = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+      MONTH_END_LEAP = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
       if(is_leap_year(y)) then
          month_ends = MONTH_END_LEAP 
@@ -95,7 +163,7 @@ contains
    end function get_month_ends
 
    ! Return the last day number of month m in year y
-   integer function get_month_end(y, m)
+   pure integer function get_month_end(y, m)
       integer, intent(in) :: y
       integer, intent(in) :: m
       integer, dimension(NUM_MONTHS) :: month_ends
@@ -107,49 +175,31 @@ contains
    
    ! Return the delimiter for the date.
    ! This allows changing the delimiters if necessary in the future.
-   character function get_date_delimiter()
-      character, parameter :: DATE_DELIMITER = '-'
-      get_date_delimiter = DATE_DELIMITER
+   pure character function get_date_delimiter()
+      get_date_delimiter = '-'
    end function get_date_delimiter
 
    ! Return the delimiter for the date.
    ! This allows changing the delimiters if necessary in the future.
-   character function get_time_delimiter()
-      character, parameter :: TIME_DELIMITER = ':'
-      get_time_delimiter = TIME_DELIMITER
+   pure character function get_time_delimiter()
+      get_time_delimiter = ':'
    end function get_time_delimiter
 
    ! Return s with leading and trailing blank space removed
-   function all_trim(s)
+   pure function all_trim(s)
       character(len=*), intent(in) :: s
       character(:), allocatable :: all_trim
       all_trim = trim(adjustl(s))
    end function all_trim 
 
-   ! Construct an ISO8601Date
-   type(ISO8601Date) function constructISO8601Date(y, m, d) result(date)
-      integer, intent(in) :: y
-      integer, intent(in) :: m
-      integer, intent(in) :: d
-      date % fields % year = y
-      date % fields % month = m
-      date % fields % day = d
-   end function constructISO8601Date
-      
    logical function is_good_year(y)
       integer, intent(in) :: y
-      is_good_year = y >= 0 .and. y < 10000
+      is_good_year = is_between(LB_YEAR, UB_YEAR, y)
    end function is_good_year 
 
-   logical function is_good_month(y, m)
-      integer, intent(in) :: y
+   logical function is_good_month(m)
       integer, intent(in) :: m
-      integer :: month_end
-      if(is_good_year(y)) then
-         is_good_month = m > 0 .and. m <  get_month_end(y, m)+1
-      else
-         is_good_month = false
-      endif 
+      is_good_month = is_between(LB_MONTH, UB_MONTH, m)
    end function is_good_month
 
    logical function is_good_day(y, m, d)
@@ -158,12 +208,23 @@ contains
       integer, intent(in) :: d
       integer :: month_end
 
-      if(is_good_year(y) .and. is_good_month(y, m)) then
-         is_good_day = d > 0 .and. d < get_month_end(y, m)+1
+      if(is_good_year(y) .and. is_good_month(m)) then
+         month_end = get_month_end(y, m)
+         is_good_day = is_between(LB_DAY, month_end, d) 
       else
          is_good_day = .FALSE.
       endif
    end function is_good_day
+      
+   ! Construct an ISO8601Date
+   pure type(ISO8601Date) function constructISO8601Date(y, m, d) result(date)
+      integer, intent(in) :: y
+      integer, intent(in) :: m
+      integer, intent(in) :: d
+      date % fields % year = y
+      date % fields % month = m
+      date % fields % day = d
+   end function constructISO8601Date
       
    ! parse date_string to create a ISO8601Date
    ! ISO 8601 defines several date formats. This function parses these formats:
