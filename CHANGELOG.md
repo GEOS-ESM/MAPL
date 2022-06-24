@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- By pass the check of the missing value of Nan
 - Update CI to work with latest GEOSadas `develop` (Uses a special branch of GEOSadas)
 - Fix bundleio tests
 - HistoryGridComp now checks if a file exists already before writing and errors out if so
@@ -63,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Remove `pfio/pfio_io_demo.F90` as dead code
   - Fix redefinition of `_RETURN` in `pflogger_stub.F90`
   - Removed unused `Test_SimpleClient.pf`
+- Update CMake to require NetCDF C components and add `NetCDF::NetCDF_C` to pfio CMake
 
 ### Added
 
