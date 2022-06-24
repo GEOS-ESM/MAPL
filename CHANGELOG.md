@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added monotonic regridding option
 - Make availalbe to History and ExtData2G all supported regridding methods
 - Add test cases for ExtData
+- Add YAML validator GitHub Action
+  - This action makes sure all YAML files are valid (to a relaxed standard)
 
 ### Changed
 
