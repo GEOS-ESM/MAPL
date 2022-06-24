@@ -14,12 +14,11 @@ module MAPL_NUOPCWrapperMod
         model_label_DataInitialize => label_DataInitialize, &
         model_label_SetClock => label_SetClock, &
         model_label_SetRunClock => label_SetRunClock
-    use MAPLBase_Mod
+    use MAPL_Mod
     use MAPL_CapMod
     use pFIO
     use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler
     use pflogger, only: pfl_initialize => initialize
-    use mapl_CapOptionsMod
 
     implicit none
     private
