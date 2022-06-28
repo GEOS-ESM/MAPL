@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 #include "MAPL_Exceptions.h"
-module Example1_GridComp
+module ParentOneChild_GridComp
 
   use ESMF
   use MAPL
@@ -76,11 +76,11 @@ module Example1_GridComp
 
   end subroutine my_run
 
-end module Example1_GridComp
+end module ParentOneChild_GridComp
 
 subroutine SetServices(gc, rc)
    use ESMF
-   use Example1_GridComp, only : mySetservices=>SetServices
+   use ParentOneChild_GridComp, only : mySetservices=>SetServices
    type(ESMF_GridComp) :: gc
    integer, intent(out) :: rc
    call mySetServices(gc, rc=rc)

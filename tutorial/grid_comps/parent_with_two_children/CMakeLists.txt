@@ -1,6 +1,6 @@
-esma_set_this (OVERRIDE MAPL.two_siblings)
+esma_set_this (OVERRIDE MAPL.parent_two_siblings)
 set (srcs
-    TwoSiblings_GridComp.F90
+    ParentTwoSiblings_GridComp.F90
     )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL TYPE ${MAPL_LIBRARY_TYPE})
