@@ -29,8 +29,8 @@ module Example1_GridComp
                                  dims = MAPL_DimsHorzOnly, &
                                  vlocation = MAPL_VLocationNone, _RC)
  
-     child_aaa = MAPL_AddChild("AAA", "setservices_", sharedObj="libMAPL.aaa.so", _RC)
-     child_aaa = MAPL_AddChild("BBB", "setservices_", sharedObj="libMAPL.bbb.so", _RC)
+     child_aaa = MAPL_AddChild(gc,"AAA", "setservices_", sharedObj="libMAPL.aaa.so", _RC)
+     child_aaa = MAPL_AddChild(gc,"BBB", "setservices_", sharedObj="libMAPL.bbb.so", _RC)
      
      call MAPL_AddConnectivity(gc, &
           src_name = "AAA_output_1", &

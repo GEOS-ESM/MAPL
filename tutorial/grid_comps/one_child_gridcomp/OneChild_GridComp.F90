@@ -28,7 +28,7 @@ module Example1_GridComp
                                  dims = MAPL_DimsHorzOnly, &
                                  vlocation = MAPL_VLocationNone, _RC)
  
-     child_aaa = MAPL_AddChild("AAA", "setservices_", sharedObj="libMAPL.aaa.so", _RC)
+     child_aaa = MAPL_AddChild(gc, "AAA", "setservices_", sharedObj="libMAPL.aaa.so", _RC)
      
      call MAPL_GenericSetServices(gc, _RC)
      _RETURN(_SUCCESS)

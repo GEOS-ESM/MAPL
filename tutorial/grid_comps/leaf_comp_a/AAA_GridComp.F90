@@ -66,7 +66,7 @@ module AAA_GridComp
      call ESMF_ClockGet(clock,currTime=current_time,startTime=start_time,_RC)
      time_interval = current_time - start_time
      call ESMF_TimeIntervalGet(time_interval,h_r8=relative_time,_RC)
-     ptr_2d = relative_time
+     if (associated(ptr_2d)) ptr_2d = relative_time
 
      _RETURN(_SUCCESS)
 
