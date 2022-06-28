@@ -84,7 +84,7 @@ module ParentTwoSiblings_GridComp
      call MAPL_GetObjectFromGC ( GC, MAPL, _RC)
      call MAPL_GetResource(MAPL, my_constant, Label="my_value:", default=17.0,_RC)
      call MAPL_GetPointer(export,ptr_2d,'output1',_RC)
-     ptr_2d = my_constant
+     if (associated(ptr_2d)) ptr_2d = my_constant
 
      call MAPL_GenericRunChildren(gc, import, export, clock, _RC)
 
