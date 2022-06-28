@@ -25,9 +25,11 @@ module MAPL_CapMod
       private
       character(:), allocatable :: name
       procedure(), nopass, pointer :: set_services => null()
+      logical :: non_dso = .false.
       integer :: comm_world 
       integer :: rank
       integer :: npes_member
+      character(:), allocatable :: root_dso
  
       type (MAPL_CapOptions), allocatable :: cap_options
       ! misc
@@ -75,17 +77,20 @@ module MAPL_CapMod
 
 contains
     
-   function new_MAPL_Cap(name, set_services, unusable, cap_options, rc) result(cap)
+   function new_MAPL_Cap(name, unusable,set_services, cap_options, rc) result(cap)
       type (MAPL_Cap) :: cap
       character(*), intent(in) :: name
-      procedure() :: set_services
       class (KeywordEnforcer),  optional, intent(in) :: unusable
+      procedure(), optional :: set_services
       type ( MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
       integer :: status
 
       cap%name = name
-      cap%set_services => set_services
+      if (present(set_services)) then
+         cap%set_services => set_services
+         cap%non_dso = .true.
+      end if
 
       if (present(cap_options)) then
          allocate(cap%cap_options, source = cap_options)
@@ -314,8 +319,14 @@ contains
 
      _UNUSED_DUMMY(unusable)
 
-     call MAPL_CapGridCompCreate(this%cap_gc, this%set_services, this%get_cap_rc_file(), &
-           this%name, this%get_egress_file(), n_run_phases=n_run_phases, rc=status)
+     if (this%non_dso) then
+        call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
+           this%name, this%get_egress_file(), n_run_phases=n_run_phases, root_set_services = this%set_services,rc=status)
+     else 
+        _ASSERT(this%cap_options%root_dso /= 'none',"No set services specified, must pass a dso")
+        call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
+           this%name, this%get_egress_file(), n_run_phases=n_run_phases, root_dso = this%cap_options%root_dso,rc=status)
+     end if
      _VERIFY(status)
      _RETURN(_SUCCESS)
    end subroutine initialize_cap_gc

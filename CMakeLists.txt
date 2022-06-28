@@ -163,6 +163,7 @@ add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
+add_subdirectory (tutorial)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)

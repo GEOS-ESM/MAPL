@@ -2,7 +2,7 @@ esma_set_this (OVERRIDE MAPL.cap)
 set (srcs
      MAPL_Cap.F90
      MAPL_CapGridComp.F90
-     MAPL_NUOPCWrapperMod.F90
+     #MAPL_NUOPCWrapperMod.F90
      CapOptions.F90
      ExternalGCStorage.F90
     )

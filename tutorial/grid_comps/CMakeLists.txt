@@ -1,0 +1,6 @@
+add_subdirectory (hello_world_gridcomp)
+add_subdirectory (no_children_gridcomp)
+add_subdirectory (leaf_comp_a)
+add_subdirectory (leaf_comp_b)
+add_subdirectory (one_child_gridcomp)
+add_subdirectory (two_siblings_gridcomp)
