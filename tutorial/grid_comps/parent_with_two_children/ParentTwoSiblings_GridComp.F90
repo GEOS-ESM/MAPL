@@ -30,11 +30,11 @@ module ParentTwoSiblings_GridComp
                                  vlocation = MAPL_VLocationNone, _RC)
  
      child_aaa = MAPL_AddChild(gc,"AAA", "setservices_", sharedObj="libMAPL.aaa.so", _RC)
-     child_aaa = MAPL_AddChild(gc,"BBB", "setservices_", sharedObj="libMAPL.bbb.so", _RC)
+     child_bbb = MAPL_AddChild(gc,"BBB", "setservices_", sharedObj="libMAPL.bbb.so", _RC)
      
      call MAPL_AddConnectivity(gc, &
           src_name = "AAA_output_1", &
-          dst_name = "BBB_output_1", &
+          dst_name = "BBB_input_1", &
           src_id = child_aaa, &
           dst_id = child_bbb, &
           _RC)

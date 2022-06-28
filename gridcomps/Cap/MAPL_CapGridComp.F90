@@ -546,7 +546,7 @@ contains
        cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)
        _VERIFY(status)
     else
-       sharedObj = "libMAPL."//trim(cap%root_dso)//".so"
+       sharedObj = trim(cap%root_dso)
        cap%root_id = MAPL_AddChild(MAPLOBJ, root_name, 'setservices_', sharedObj=sharedObj, rc=status)
        _VERIFY(status)
     end if
