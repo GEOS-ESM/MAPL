@@ -10,8 +10,8 @@ module ParentTwoSiblings_GridComp
 
   public setservices
 
-  integer :: child_aaa
-  integer :: child_bbb
+  integer :: child1
+  integer :: child2
 
   contains
 
@@ -21,6 +21,15 @@ module ParentTwoSiblings_GridComp
      integer, optional :: rc
 
      integer :: status
+     type(MAPL_MetaComp), pointer :: MAPL
+     character(len=80) :: my_child1_name, my_child1_so
+     character(len=80) :: my_child2_name, my_child2_so
+
+     call MAPL_GetObjectFromGC ( GC, MAPL, _RC)
+     call MAPL_GetResource(MAPL, my_child1_name, Label="my_child1_name:",_RC)
+     call MAPL_GetResource(MAPL, my_child1_so, Label="my_child1_so:",_RC)
+     call MAPL_GetResource(MAPL, my_child2_name, Label="my_child2_name:",_RC)
+     call MAPL_GetResource(MAPL, my_child2_so, Label="my_child2_so:",_RC)
 
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  my_initialize, _RC)
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  my_run, _RC)
@@ -29,14 +38,12 @@ module ParentTwoSiblings_GridComp
                                  dims = MAPL_DimsHorzOnly, &
                                  vlocation = MAPL_VLocationNone, _RC)
  
-     child_aaa = MAPL_AddChild(gc,"AAA", "setservices_", sharedObj="libMAPL.aaa.so", _RC)
-     child_bbb = MAPL_AddChild(gc,"BBB", "setservices_", sharedObj="libMAPL.bbb.so", _RC)
-     
+     child1 = MAPL_AddChild(gc, my_child1_name, "setservices_", sharedObj=my_child1_so, _RC)     
+     child2 = MAPL_AddChild(gc, my_child2_name, "setservices_", sharedObj=my_child2_so, _RC)     
      call MAPL_AddConnectivity(gc, &
-          src_name = "AAA_output_1", &
-          dst_name = "BBB_input_1", &
-          src_id = child_aaa, &
-          dst_id = child_bbb, &
+          short_name = ["field1"],  &
+          src_id = child1, &
+          dst_id = child2, &
           _RC)
           
      call MAPL_GenericSetServices(gc, _RC)

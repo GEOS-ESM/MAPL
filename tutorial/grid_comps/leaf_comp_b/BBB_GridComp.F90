@@ -22,7 +22,7 @@ module BBB_GridComp
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  my_initialize, _RC)
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  my_run, _RC)
 
-     call MAPL_AddImportSpec(gc,short_name='BBB_input_1', long_name='NA',units='NA', &
+     call MAPL_AddImportSpec(gc,short_name='field1', long_name='NA',units='NA', &
                                  dims = MAPL_DimsHorzOnly, &
                                  vlocation = MAPL_VLocationNone, _RC)
  
@@ -59,7 +59,7 @@ module BBB_GridComp
      real, pointer :: ptr_2d(:,:)
      integer :: status
 
-     call MAPL_GetPointer(import,ptr_2d,'BBB_input_1',_RC)
+     call MAPL_GetPointer(import,ptr_2d,'field1',_RC)
      write(*,*)"BBB import 1 maxval: ",maxval(ptr_2d)  
 
      _RETURN(_SUCCESS)

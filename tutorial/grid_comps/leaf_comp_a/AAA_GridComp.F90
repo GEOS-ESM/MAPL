@@ -22,7 +22,7 @@ module AAA_GridComp
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  my_initialize, _RC)
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  my_run, _RC)
 
-     call MAPL_AddExportSpec(gc,short_name='AAA_output_1', long_name='NA',units='NA', &
+     call MAPL_AddExportSpec(gc,short_name='field1', long_name='NA',units='NA', &
                                  dims = MAPL_DimsHorzOnly, &
                                  vlocation = MAPL_VLocationNone, _RC)
  
@@ -62,7 +62,7 @@ module AAA_GridComp
      real(ESMF_KIND_R8) :: relative_time
      integer :: status
 
-     call MAPL_GetPointer(export,ptr_2d,'AAA_output_1',_RC)
+     call MAPL_GetPointer(export,ptr_2d,'field1',_RC)
      call ESMF_ClockGet(clock,currTime=current_time,startTime=start_time,_RC)
      time_interval = current_time - start_time
      call ESMF_TimeIntervalGet(time_interval,h_r8=relative_time,_RC)

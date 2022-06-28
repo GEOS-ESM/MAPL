@@ -10,7 +10,7 @@ module ParentOneChild_GridComp
 
   public setservices
 
-  integer :: child_aaa
+  integer :: child1
 
   contains
 
@@ -20,7 +20,13 @@ module ParentOneChild_GridComp
      integer, optional :: rc
 
      integer :: status
+     type(MAPL_MetaComp), pointer :: MAPL
+     character(len=80) :: my_child_name, my_child_so
 
+     call MAPL_GetObjectFromGC ( GC, MAPL, _RC)
+     call MAPL_GetResource(MAPL, my_child_name, Label="my_child_name:",_RC)
+     call MAPL_GetResource(MAPL, my_child_so, Label="my_child_so:",_RC)
+     
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  my_initialize, _RC)
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  my_run, _RC)
 
@@ -28,7 +34,7 @@ module ParentOneChild_GridComp
                                  dims = MAPL_DimsHorzOnly, &
                                  vlocation = MAPL_VLocationNone, _RC)
  
-     child_aaa = MAPL_AddChild(gc, "AAA", "setservices_", sharedObj="libMAPL.aaa.so", _RC)
+     child1 = MAPL_AddChild(gc, my_child_name, "setservices_", sharedObj=my_child_so, _RC)
      
      call MAPL_GenericSetServices(gc, _RC)
      _RETURN(_SUCCESS)
