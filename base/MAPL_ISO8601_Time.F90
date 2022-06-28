@@ -6,7 +6,7 @@
 !Allow ordinal dates as input/output
 
 module MAPL_ISO8601_Time
-   use gFTL_StringVector
+!   use gFTL_StringVector
 
    type :: date_fields
       integer :: year
@@ -50,8 +50,15 @@ module MAPL_ISO8601_Time
       module procedure :: constructISO8601Date
    end interface ISO8601Date
 
-   character :: DATE_DELIMITER = '-'
-   character :: TIME_DELIMITER = ':'
+   character :: DD = '-' ! Date Field Delimiter
+   character :: TD = ':' ! Time Field Delimiter
+   character :: TP = 'T' ! Time Prefix Character
+   character :: TZ = 'Z' ! Time Zone Character
+   character(len=*), parameter :: FDD = "(i4, 1x, i2, 1x, i2)" ! Format string for delimited date
+   character(len=*), parameter :: FUD = "(i4, i2, i2)" ! Format string for undelimited date
+   character(len=*), parameter :: FDT = "(1x, i2, 1x, i2, 1x, i2, 1x, i3, 1x)" ! Format string for delimited time
+   character(len=*), parameter :: FUT = "(1x, i2, i2, i2, 1x, i3, 1x)" ! Format string for undelimited time
+
    ! These are open lower(LB) and upper (UB) bounds of components of the date and time.
    integer, parameter :: LB_YEAR = -1 
    integer, parameter :: UB_YEAR = 10000
@@ -59,56 +66,111 @@ module MAPL_ISO8601_Time
    integer, parameter :: UB_MONTH = 13
    integer, parameter :: NUM_MONTHS = UB_MONTH - 1
    integer, parameter :: LB_DAY = 0
+   character(len=*), parameter :: DATE_FORMAT = "(4i,a,2i,a,2i)"
+   character(len=*), parameter :: TIME_FORMAT = "(i2,a,2i,a,f)"
 
 contains
-   
-   pure integer function count_parts(s, d)
+
+   elemental pure logical function is_digit(c)
+      character, intent(in) :: c
+      integer, parameter :: lb = iachar('0') - 1
+      integer, parameter :: ub = iachar('9') + 1
+      is_digit = iachar(c) > lb .and. iachar(c) < ub
+   end function is_digit
+
+   pure logical function are_digits(s)
       character(len=*), intent(in) :: s
-      character(len=*), intent(in) :: d
-      integer :: lens = -1
-      integer :: lend = -1
-      integer :: pos = 
+      are_digits = all(is_digit(make_char_array(s)))
+   end function are_digits
 
-      lens = len(s)
-      lend = len(d)
-
-      if(lend < lens) then
-         count_parts = 1
-         while()
-
-
-
-      else
-      
-      endif
-
-   end function count_parts
-
-   function split(s, d)
+   pure function make_char_array(s) result(a)
       character(len=*), intent(in) :: s
-      character(len=*), intent(in) :: d
-      type(StringVector), intent(out) :: parts
-      integer :: lend = len(d)
-      integer :: lens = len(s)
-      integer :: p = -1
-      integer :: b = 1
-      integer :: e = -1
-
-      parts % clear()
-      
-      p=index(s(b:lens), d)
-      
-      do while p > 0  
-         e = b + p - 1
-         parts % push_back(s(b:e))
-         b = b + p + lend
-         p=index(s(b:lens), d)      
+      character, dimension(len(s)) :: a
+      integer :: i
+      do i=1, len(s)
+         a(i) = s(i:i)
       end do
-      
-      e = lens
-      parts % push_back(s(b:e))
+   end function make_char_array
 
-   end function split
+   pure logical function is_delimited_date(s)
+      character(len=*), intent(in) :: s
+      is_delimited_date = len(s)==10 .and. are_digits(s(1:4)) &
+         .and. s(5:5)==DD .and. are_digits(s(6:7)) .and. s(8:8)==DD &
+         .and. are_digits(s(9:10))
+   end function
+   
+   pure logical function is_undelimited_date(s)
+      character(len=*), intent(in) :: s
+      is_undelimited_date = len(s)==8 .and. are_digits(s)
+   end function is_undelimited_date
+
+   pure logical function is_delimited_time(s)
+      character(len=*), intent(in) :: s
+      
+      select case(len(s))
+         case(10)  ! is(s, d, 7)
+            is_delimited_time = s(1:1)==TP .and. are_digits(s(2:3)) &
+               .and. s(4:4)==TD .and. are_digits(s(5:6)) .and. s(7:7)==TD &
+               .and. are_digits(s(8:9)) .and. s(10:10)==TZ
+         case(14)
+            is_delimited_time = s(1:1)==TP .and. are_digits(s(2:3)) &
+               .and. s(4:4)==TD .and. are_digits(s(5:6)) .and. s(7:7)==TD &
+               .and. are_digits(s(8:9)) .and. s(10:10)=='.' &
+               .and. are_digits(s(11:13)) .and. s(14:14)==TZ
+      end select
+
+   end function is_delimited_time
+
+   pure logical function is_undelimited_time(s)
+      character(len=*), intent(in) :: s
+      
+      select case(len(s))
+         case(8)
+            is_undelimited_time = s(1:1)==TP .and. are_digits(s(2:7)) &
+               .and. s(8:8)==TZ
+         case(12)
+            is_undelimited_time = s(1:1)==TP .and. are_digits(s(2:7)) &
+               .and. s(8:8)=='.' .and. are_digits(s(9:11)) .and. s(12:12)==TZ
+      end select
+
+   end function is_undelimited_time
+
+   subroutine parse_isostring(s, fields, fmts, stat)
+      character(len=*), intent(in) :: s
+      integer, dimension(:), intent(inout) :: fields
+      character(len=*), intent(in) :: fmts
+      integer, intent(inout) :: stat
+      read (s, fmt=fmts, iostat=stat) fields
+   end subroutine parse_isostring
+      
+   subroutine parse_datestring(s, fields, stat)
+      character(len=*), intent(in) :: s
+      integer, dimension(:), intent(inout) :: fields
+      integer, intent(inout) :: stat
+      if(is_delimited_date(s)) then
+         call parse_isostring(s, fields, FDD, stat)
+      else if(is_undelimited_date(s)) then
+         call parse_isostring(s, fields, FUD, stat)
+      else
+         stat = -1
+      end if  
+   end subroutine parse_datestring
+
+   subroutine parse_timestring(s, fields, stat)
+      character(len=*), intent(in) :: s
+      integer, dimension(:), intent(in) :: fields
+      integer, intent(inout) :: stat
+      if(is_delimited_time(s)) then
+         call parse_isostring(s, fields, FDT, stat)
+      else if(is_undelimited_time(s)) then
+         call parse_isostring(s, fields, FUT, stat)
+      else
+         stat = -1
+      end if  
+   end subroutine parse_timestring
+
+   subroutine make_date_fields()
+   end subroutine make_date_fields
 
    ! Return true if factor divides dividend evenly, false otherwise
    pure logical function is_factor(dividend, factor)
@@ -116,7 +178,7 @@ contains
       integer, intent(in) :: factor
       ! mod returns the remainder of dividend/factor, and if it is 0, factor divides dividend evenly
       if(factor /= 0) then ! To avoid divide by 0
-          is_factor = mod(dividend, factor) == 0
+          is_factor = mod(dividend, factor)==0
       else
           is_factor = .false.
       endif
@@ -176,13 +238,13 @@ contains
    ! Return the delimiter for the date.
    ! This allows changing the delimiters if necessary in the future.
    pure character function get_date_delimiter()
-      get_date_delimiter = '-'
+      get_date_delimiter = DD
    end function get_date_delimiter
 
    ! Return the delimiter for the date.
    ! This allows changing the delimiters if necessary in the future.
    pure character function get_time_delimiter()
-      get_time_delimiter = ':'
+      get_time_delimiter = TD
    end function get_time_delimiter
 
    ! Return s with leading and trailing blank space removed
@@ -272,3 +334,111 @@ contains
 
 
 end module MAPL_ISO8601_Time
+   
+!   subroutine get_datefields(isostring, dlm, datefields, stat)
+!      character(len=*), intent(in) :: isostring
+!      character(len=*), intent(in) :: dlm
+!      type(date_fields), intent(inout) :: datefields
+!      integer, intent(inout) :: stat
+!      integer, dimension(3) :: parts
+!      integer :: part_index
+!      integer :: p1
+!      integer :: p2
+!      
+!      p1 = 1
+!
+!      do part_index=1,3
+!         p2 = index(isostring(p1:len(isostring)), dlm) 
+!         read(isostring(p1:p2-1),*,iostat=stat) parts(parts_index)
+!         if(stat /= 0) exit
+!         p1 = p2 + len(dlm)
+!      end do
+!
+!      if(stat==0) datefields = date_fields(parts(1), parts(2), parts(3))
+!
+!   end subroutine get_datefields 
+! 
+!   subroutine get_datefields(isostring, datefields, stat)
+!      character(len=*), intent(in) :: isostring
+!      type(date_fields), intent(inout) :: datefields
+!      integer, intent(inout) :: stat
+!      integer, dimension(3) = parts
+!      integer :: part_index
+!      integer, dimension(3,2) :: indices = [[1, 4], [5, 6], [7, 8]]
+!      
+!      do part_index = 1, 3
+!         read(isostring(indices(part_index, 1), indices(part_index, 2)),*,iostat=stat) parts(part_index)
+!         if(stat /= 0) exit
+!      end do
+!
+!      if(stat==0) datefields = date_fields(parts(1), parts(2), parts(3))
+!
+!   end subroutine get_datefields
+!
+!   subroutine get_timefields(isostring, delimiter, timefields, stat)
+!      character(len=*), intent(in) :: isostring
+!      character, intent(in) :: delimiter
+!      type(time_fields), intent(inout) :: timefields
+!      integer, intent(inout) :: stat
+!      integer, dimension(2) :: dpos = [3, 6]
+!      integer, dimension(3) :: indices = [1, 3, 5]
+!      integer, dimension(3) :: offsets = [0, 1, 2]
+!      real :: seconds
+!    
+!      timefields = time_fields()
+!      
+!      if(index(isostring, delimiter) > 0) indices = indices + offsets
+!
+!      read(isostring(indices(1):indices(1)+1),*,iostat=stat) timefields % hour
+!      if(stat /= 0) return
+!
+!      read(isostring(indices(2):indices(2)+1),*,iostat=stat) timefields % minute
+!      if(stat /= 0) return
+!
+!      read(isostring(indices(3):len_trim(isostring),*,iostat=stat) seconds
+!      if(stat /= 0) return
+!
+!      timefields % second = int(seconds)
+!      timefields % millisecond = fraction(seconds)
+!
+!   end subroutine get_timefields
+!   pure is_match(s, d) result (match)
+!      character(len=*), intent(in) :: s
+!      character, intent(in) :: d
+!      logical, dimension(len(s)) :: match
+!      
+!      do i=1,len(s)
+!         match(i) = s(i)==d
+!      end do
+!   end is_match
+!
+!   pure logical is_delimited(s, d)
+!      character(len=*), intent(in) :: s
+!      character, intent(in) :: d
+!      return(any(is_match(s, d)))
+!   end is_delimited
+!
+!   function split(s, d, parts)
+!      character(len=*), intent(in) :: s
+!      character(len=*), intent(in) :: d
+!      character(len=len_trim(adjustl(str))), dimension(:), allocatable, intent(out) :: parts
+!      integer :: lend = len(d)
+!      integer :: lens = len(s)
+!      integer :: p = -1
+!      integer :: b = 1
+!      integer :: e = -1
+!
+!      
+!      p=index(s(b:lens), d)
+!      print*, p
+!      do while p > 0  
+!         e = b + p - 1
+!         parts % push_back(s(b:e))
+!         b = b + p + lend
+!         p=index(s(b:lens), d)      
+!      end do
+!      
+!      e = lens
+!      parts % push_back(s(b:e))
+!
+!   end function split
