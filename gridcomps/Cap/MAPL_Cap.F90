@@ -64,7 +64,8 @@ module MAPL_CapMod
    end type MAPL_Cap
 
    interface MAPL_Cap
-      module procedure new_MAPL_Cap
+      module procedure new_MAPL_Cap_from_set_services
+      module procedure new_MAPL_Cap_from_dso
    end interface MAPL_Cap
 
 
@@ -76,21 +77,19 @@ module MAPL_CapMod
    end interface
 
 contains
-    
-   function new_MAPL_Cap(name, unusable,set_services, cap_options, rc) result(cap)
+
+   function new_MAPL_Cap_from_set_services(name, set_services, unusable, cap_options, rc) result(cap)
       type (MAPL_Cap) :: cap
       character(*), intent(in) :: name
+      procedure() :: set_services
       class (KeywordEnforcer),  optional, intent(in) :: unusable
-      procedure(), optional :: set_services
       type ( MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status    
 
       cap%name = name
-      if (present(set_services)) then
-         cap%set_services => set_services
-         cap%non_dso = .true.
-      end if
+      cap%set_services => set_services
+      cap%non_dso = .true.
 
       if (present(cap_options)) then
          allocate(cap%cap_options, source = cap_options)
@@ -116,7 +115,43 @@ contains
       _RETURN(_SUCCESS)     
       _UNUSED_DUMMY(unusable)
 
-    end function new_MAPL_Cap
+    end function new_MAPL_Cap_from_set_services
+
+   function new_MAPL_Cap_from_dso(name, unusable, cap_options, rc) result(cap)
+      type (MAPL_Cap) :: cap
+      character(*), intent(in) :: name
+      class (KeywordEnforcer),  optional, intent(in) :: unusable
+      type ( MAPL_CapOptions), optional, intent(in) :: cap_options
+      integer, optional, intent(out) :: rc
+      integer :: status    
+
+      cap%name = name
+
+      if (present(cap_options)) then
+         allocate(cap%cap_options, source = cap_options)
+      else
+         allocate(cap%cap_options, source = MAPL_CapOptions())
+      endif
+
+      if (cap%cap_options%use_comm_world) then
+         cap%comm_world       = MPI_COMM_WORLD
+         cap%cap_options%comm = MPI_COMM_WORLD
+      else
+         cap%comm_world = cap%cap_options%comm
+      endif
+
+      call cap%initialize_mpi(rc=status)
+      _VERIFY(status)
+
+      call MAPL_Initialize(comm=cap%comm_world, &
+                           logging_config=cap%cap_options%logging_config, &
+                           rc=status)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)     
+      _UNUSED_DUMMY(unusable)
+
+    end function new_MAPL_Cap_from_dso
 
    
    ! 3. Run the ensemble (default is 1 member)
