@@ -1,6 +1,6 @@
-esma_set_this (OVERRIDE MAPL.one_child)
+esma_set_this (OVERRIDE MAPL.parent_one_child)
 set (srcs
-    OneChild_GridComp.F90
+    ParentOneChild_GridComp.F90
     )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL TYPE ${MAPL_LIBRARY_TYPE})

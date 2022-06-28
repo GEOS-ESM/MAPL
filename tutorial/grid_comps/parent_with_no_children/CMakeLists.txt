@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE MAPL.no_children)
+esma_set_this (OVERRIDE MAPL.parent_no_children)
 set (srcs
     ParentNoChildren_GridComp.F90
     )
