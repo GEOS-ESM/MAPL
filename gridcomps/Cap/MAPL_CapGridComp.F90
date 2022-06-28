@@ -542,7 +542,7 @@ contains
     root_set_services => cap%root_set_services
 
     call t_p%start('SetService')
-    if (cap%root_dso == "none") then
+    if (.not.allocated(cap%root_dso)) then
        cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)
        _VERIFY(status)
     else
