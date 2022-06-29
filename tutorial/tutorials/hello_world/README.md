@@ -98,6 +98,8 @@ NY: 1
 ```
 This says we will be using decomposing each dimension of the grid by 1 (so no decomposition at all!). A rule of thumb, the number of MPI tasks must be equal to NX*NY.
 
+Finally in you should see a "cap_restart" file in the run directory. This is the time the application will actually start at. It must be equal or later than the BEG_DATE  in the CAP.rc and before the END_DATE. Note that generally these are only needed when running real experiments with the model. One final note about the "cap_restart". When the application finishes it overwrites the cap_restart with the final application time.
+
 Now to connect this to the output. We see the that it reports
 ```
 SHMEM: Total PEs = 1

@@ -38,7 +38,7 @@ my_collection.frequency: 060000
 my_collection.fields: 'output1', 'root'
    ::
 ```
-The HISTORY.rc drives the MAPL_HistoryGridComp which is a special service provided by MAPL to allow users to write fields from any components export state to a file. Documentation for the input file can be found here: [History Documentation](https://github.com/GEOS-ESM/MAPL/wiki/MAPL-History-Component).  In this example we are saying every 6 hours write the field 'output1' from the component root. You should see that in your run directory you have 4 files named starting with my collection. If you ncdump them you will see that the variable output1 should be identically 11 in each one.
+The HISTORY.rc drives the MAPL_HistoryGridComp which is a special service provided by MAPL to allow users to write fields from any components export state to a file. Documentation for the input file can be found here: [History Documentation](https://github.com/GEOS-ESM/MAPL/wiki/MAPL-History-Component).  In this example we are saying every 6 hours write the field 'output1' from the component root. You should see that in your run directory you have 4 files named starting with my collection. If you ncdump them you will see that the variable output1 should be identically 11 in each one. Indeed you should see while that the program runs it will write a message when History writes a file.
 
 
 # Exercise for the User
