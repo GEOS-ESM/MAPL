@@ -6,13 +6,38 @@
 !Allow ordinal dates as input/output
 
 module MAPL_ISO8601_Time
-!   use gFTL_StringVector
+
+   private
+
+   ! parameters for processing date, time, and datetime strings
+   character, parameter :: DD = '-' ! Date Field Delimiter
+   character, parameter :: TD = ':' ! Time Field Delimiter
+   character, parameter :: TP = 'T' ! Time Prefix Character
+   character, parameter :: TZ = 'Z' ! Time Zone Character
+   character(len=*), parameter :: FDD = "(i4, 1x, i2, 1x, i2)" ! Format string for delimited date
+   character(len=*), parameter :: FUD = "(i4, i2, i2)" ! Format string for undelimited date
+   character(len=*), parameter :: FDT = "(1x, i2, 1x, i2, 1x, i2, 1x, i3, 1x)" ! Format string for delimited time
+   character(len=*), parameter :: FUT = "(1x, i2, i2, i2, 1x, i3, 1x)" ! Format string for undelimited time
+   character(len=*), parameter :: DATE_FORMAT = "(4i,a,2i,a,2i)"
+   character(len=*), parameter :: TIME_FORMAT = "(i2,a,2i,a,f)"
+
+   ! These are open lower(LB) and upper (UB) bounds of components of the date and time.
+   integer, parameter :: LB_YEAR = -1 
+   integer, parameter :: UB_YEAR = 10000
+   integer, parameter :: LB_MONTH = 0
+   integer, parameter :: UB_MONTH = 13
+   integer, parameter :: NUM_MONTHS = UB_MONTH - 1
+   integer, parameter :: LB_DAY = 0
 
    type :: date_fields
       integer :: year
       integer :: month
       integer :: day
    end type date_fields
+
+   interface date_fields
+      module procedure :: construct_date_fields
+   end interface date_fields
 
    type :: time_fields
       integer :: hour
@@ -21,9 +46,17 @@ module MAPL_ISO8601_Time
       integer :: millisecond
    end type time_fields
 
+   interface time_fields
+      module procedure :: construct_time_fields
+   end interface time_fields
+
    type :: ISO8601Date
       type(date_fields) :: fields
    end type ISO8601Date
+
+   interface ISO8601Date
+      module procedure :: construct_ISO8601Date_fields
+   end interface ISO8601Date
 
    type :: ISO8601Time
       type(time_fields) :: fields
@@ -46,30 +79,36 @@ module MAPL_ISO8601_Time
       integer :: repetitions
    end type ISO8601TimeInterval
 
-   interface ISO8601Date
-      module procedure :: constructISO8601Date
-   end interface ISO8601Date
-
-   character :: DD = '-' ! Date Field Delimiter
-   character :: TD = ':' ! Time Field Delimiter
-   character :: TP = 'T' ! Time Prefix Character
-   character :: TZ = 'Z' ! Time Zone Character
-   character(len=*), parameter :: FDD = "(i4, 1x, i2, 1x, i2)" ! Format string for delimited date
-   character(len=*), parameter :: FUD = "(i4, i2, i2)" ! Format string for undelimited date
-   character(len=*), parameter :: FDT = "(1x, i2, 1x, i2, 1x, i2, 1x, i3, 1x)" ! Format string for delimited time
-   character(len=*), parameter :: FUT = "(1x, i2, i2, i2, 1x, i3, 1x)" ! Format string for undelimited time
-
-   ! These are open lower(LB) and upper (UB) bounds of components of the date and time.
-   integer, parameter :: LB_YEAR = -1 
-   integer, parameter :: UB_YEAR = 10000
-   integer, parameter :: LB_MONTH = 0
-   integer, parameter :: UB_MONTH = 13
-   integer, parameter :: NUM_MONTHS = UB_MONTH - 1
-   integer, parameter :: LB_DAY = 0
-   character(len=*), parameter :: DATE_FORMAT = "(4i,a,2i,a,2i)"
-   character(len=*), parameter :: TIME_FORMAT = "(i2,a,2i,a,f)"
-
 contains
+
+
+! SIMPLE CONSTRUCTORS
+
+   pure function construct_date_fields(f) result(df)
+      integer, dimension(3), intent(in) :: f
+      type(date_fields) :: df
+      df = date_fields(f(1), f(2), f(3))
+   end function construct_date_fields
+
+   pure function construct_time_fields(f) result(tf)
+      integer, dimension(4), intent(in) :: f
+      type(time_fields) :: tf
+      tf = time_fields(f(1), f(2), f(3), f(4))
+   end function construct_time_fields
+
+! END SIMPLE CONSTRUCTORS
+
+
+! LOW-LEVEL UTILITY FUNCTIONS FOR STRING PARSERS
+
+   pure function make_char_array(s) result(a)
+      character(len=*), intent(in) :: s
+      character, dimension(len(s)) :: a
+      integer :: i
+      do i=1, len(s)
+         a(i) = s(i:i)
+      end do
+   end function make_char_array
 
    elemental pure logical function is_digit(c)
       character, intent(in) :: c
@@ -82,15 +121,6 @@ contains
       character(len=*), intent(in) :: s
       are_digits = all(is_digit(make_char_array(s)))
    end function are_digits
-
-   pure function make_char_array(s) result(a)
-      character(len=*), intent(in) :: s
-      character, dimension(len(s)) :: a
-      integer :: i
-      do i=1, len(s)
-         a(i) = s(i:i)
-      end do
-   end function make_char_array
 
    pure logical function is_delimited_date(s)
       character(len=*), intent(in) :: s
@@ -135,6 +165,11 @@ contains
 
    end function is_undelimited_time
 
+! END LOW-LEVEL UTILITY FUNCTIONS FOR STRING PARSERS
+   
+
+! LOW-LEVEL PARSERS
+
    subroutine parse_isostring(s, fields, fmts, stat)
       character(len=*), intent(in) :: s
       integer, dimension(:), intent(inout) :: fields
@@ -145,7 +180,7 @@ contains
       
    subroutine parse_datestring(s, fields, stat)
       character(len=*), intent(in) :: s
-      integer, dimension(:), intent(inout) :: fields
+      type(date_fields), intent(out) ::fields
       integer, intent(inout) :: stat
       if(is_delimited_date(s)) then
          call parse_isostring(s, fields, FDD, stat)
@@ -154,6 +189,9 @@ contains
       else
          stat = -1
       end if  
+      if(stat==0) then
+         df = construct
+      endif
    end subroutine parse_datestring
 
    subroutine parse_timestring(s, fields, stat)
@@ -169,9 +207,10 @@ contains
       end if  
    end subroutine parse_timestring
 
-   subroutine make_date_fields()
-   end subroutine make_date_fields
+! END LOW-LEVEL PARSERS
 
+
+! LOW-LEVEL DATE PROCESSING UTILITIES
    ! Return true if factor divides dividend evenly, false otherwise
    pure logical function is_factor(dividend, factor)
       integer, intent(in) :: dividend
@@ -234,37 +273,18 @@ contains
       get_month_end = month_ends(m)
 
    end function get_month_end
-   
-   ! Return the delimiter for the date.
-   ! This allows changing the delimiters if necessary in the future.
-   pure character function get_date_delimiter()
-      get_date_delimiter = DD
-   end function get_date_delimiter
 
-   ! Return the delimiter for the date.
-   ! This allows changing the delimiters if necessary in the future.
-   pure character function get_time_delimiter()
-      get_time_delimiter = TD
-   end function get_time_delimiter
-
-   ! Return s with leading and trailing blank space removed
-   pure function all_trim(s)
-      character(len=*), intent(in) :: s
-      character(:), allocatable :: all_trim
-      all_trim = trim(adjustl(s))
-   end function all_trim 
-
-   logical function is_good_year(y)
+   pure logical function is_good_year(y)
       integer, intent(in) :: y
       is_good_year = is_between(LB_YEAR, UB_YEAR, y)
    end function is_good_year 
 
-   logical function is_good_month(m)
+   pure logical function is_good_month(m)
       integer, intent(in) :: m
       is_good_month = is_between(LB_MONTH, UB_MONTH, m)
    end function is_good_month
 
-   logical function is_good_day(y, m, d)
+   pure logical function is_good_day_ints(y, m, d)
       integer, intent(in) :: y
       integer, intent(in) :: m
       integer, intent(in) :: d
@@ -276,18 +296,34 @@ contains
       else
          is_good_day = .FALSE.
       endif
-   end function is_good_day
+   end function is_good_day_ints
       
-   ! Construct an ISO8601Date
-   pure type(ISO8601Date) function constructISO8601Date(y, m, d) result(date)
-      integer, intent(in) :: y
-      integer, intent(in) :: m
-      integer, intent(in) :: d
-      date % fields % year = y
-      date % fields % month = m
-      date % fields % day = d
-   end function constructISO8601Date
-      
+! END LOW-LEVEL DATE PROCESSING UTILITIES
+
+
+! DAY VERIFICATION
+
+   pure logical function is_good_day(df)
+      type(date_fields), intent(in) :: df
+      is_good_day_fields = is_good_day_ints(df % year, df % month, df % day)
+   end logical function is_good_day
+
+! END DAY VERIFICATION
+
+
+! HIGH-LEVEL CONSTRUCTORS
+
+   pure type(ISO8601Date) function construct_ISO8601Date_fields(df) result(date)
+      type(date_fields), intent(in) :: df
+      type(ISO8601Date) :: date
+      date % fields = df
+   end function construct_ISO8601Date_fields
+
+! END HIGH-LEVEL CONSTRUCTORS
+
+
+! HIGH-LEVEL PROCESSORS
+
    ! parse date_string to create a ISO8601Date
    ! ISO 8601 defines several date formats. This function parses these formats:
    !  YYYYMMDD
@@ -302,24 +338,17 @@ contains
    function process_date(date_string) result(date)
       character(len=*), intent(in) :: date_string
       type(ISO8601Date) :: date
-      character :: delimiter
-      integer, parameter :: len_undelimited = len('YYYYMMDD')
-      integer, parameter :: len_delimited = len_undelimited + 2
-      character(len=4) :: year
-      character(len=2) :: month
-      character(len=2) :: day
-      character(:), allocatable :: trimmed
-      delimiter = get_date_delimiter()
-      trimmed = all_trim(date_string)
-      select case (len(trimmed))
-         case (len_undelimited) 
-            
-         case (len_delimited)
-            
-         case default
+      type(date_fields) :: df
+      integer :: stat 
 
-      end select
-
+      call parse_datestring(date_string, df, stat)
+      if(stat==0) then
+         if(is_good_day(df)) then
+            date = ISO8601Date(df)
+         else
+            stat = -1
+         end if
+      end if
    end function process_date
 
    function process_time(time_string) result(time)
@@ -331,6 +360,8 @@ contains
       character(len=*), intent(in) :: datetime_string
       type(ISO8601DateTime) :: datetime
    end function process_datetime
+
+! END HIGH-LEVEL PROCESSORS
 
 
 end module MAPL_ISO8601_Time
