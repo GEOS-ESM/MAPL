@@ -20,7 +20,6 @@ source $INSTALL_DIR/bin/g5_modules.sh
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BASEDIR}/${ARCH}/lib:${INSTALL_DIR}/lib
 
 for file in `ls ${TUTORIAL_CASE}`; do
-  echo ${file}
   cp "${TUTORIAL_CASE}/${file}" .
 done
 

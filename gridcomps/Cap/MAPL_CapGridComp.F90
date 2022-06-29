@@ -517,13 +517,13 @@ contains
 
     ! Add a SINGLE_COLUMN flag in HISTORY.rc based on DYCORE value(from AGCM.rc)
     !---------------------------------------------------------------------------
-    !call ESMF_ConfigGetAttribute(cap%cf_root, value=DYCORE,  Label="DYCORE:",  rc=status)
-    !_VERIFY(STATUS)
-    !if (DYCORE == 'DATMO') then
-       !snglcol = 1
-       !call MAPL_ConfigSetAttribute(cap%cf_hist, value=snglcol,  Label="SINGLE_COLUMN:",  rc=status)
-       !_VERIFY(STATUS)
-    !end if
+    call ESMF_ConfigGetAttribute(cap%cf_root, value=DYCORE,  Label="DYCORE:",  default = 'FV3', rc=status)
+    _VERIFY(STATUS)
+    if (DYCORE == 'DATMO') then
+       snglcol = 1
+       call MAPL_ConfigSetAttribute(cap%cf_hist, value=snglcol,  Label="SINGLE_COLUMN:",  rc=status)
+       _VERIFY(STATUS)
+    end if
 
     ! Detect if this a regular replay in the AGCM.rc
     ! ----------------------------------------------
