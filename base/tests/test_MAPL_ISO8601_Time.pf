@@ -1,0 +1,155 @@
+#include "MAPL_Exceptions.h"
+
+module test_MAPL_ISO8601_Time
+     use MAPL_ExceptionHandling
+     use MAPL_ISO8601_Time
+     use funit
+     implicit none
+     private
+
+contains
+
+   @test
+   subroutine test_ISO8601Date()
+   end subroutine test_ISO8601Date
+
+   @test
+   subroutine test_date_fields()
+      integer :: y
+      integer :: m
+      integer :: d
+      type(date_fields) :: df
+      
+      y = 2022
+      m = 06
+      d = 27
+      
+      df = date_fields(y, m, d)
+
+      @assertEqual(y, df % year)
+      @assertEqual(m, df % month)
+      @assertEqual(d, df % day)
+
+   end subroutine test_date_fields
+
+   @test
+   subroutine test_date_fields_custom_constructor()
+      type(date_fields) :: df
+      integer, dimension(:) :: f = [2022, 06, 27]
+      
+      df = date_fields(fields)
+
+      @assertEqual(f(1), df % year)
+      @assertEqual(f(2), df % month)
+      @assertEqual(f(3), df % day)
+
+   end subroutine test_date_fields_custom_constructor
+
+   @test
+   subroutine test_time_fields()
+      integer :: h
+      integer :: m
+      integer :: s
+      integer :: ms
+      type(time_fields) :: tf
+      
+      y = 13
+      m = 02
+      s = 27
+      ms = 37
+      
+      tf = time_fields(h, m, s, ms)
+
+      @assertEqual(h, tf % hour)
+      @assertEqual(m, tf % minute)
+      @assertEqual(s, tf % second)
+      @assertEqual(ms, tf % millisecond)
+
+   end subroutine test_time_fields
+
+   @test
+   subroutine test_time_fields_custom_constructor()
+      type(time_fields) :: tf
+      integer, dimension(:) :: f = [13, 02, 27, 36]
+      
+      tf = time_fields(fields)
+
+      @assertEqual(f(1), tf % hour)
+      @assertEqual(f(2), tf % minute)
+      @assertEqual(f(3), tf % second)
+      @assertEqual(f(4), tf % second)
+
+   end subroutine test_time_fields_custom_constructor
+
+   @test
+   subroutine test_is_digit()
+     character :: c = '0' 
+     @assertTrue(is_digit(c))
+   end subroutine test_is_digit
+
+   @test
+   subroutine test_is_digit_before1()
+      integer :: i0 = iachar('0')
+      character :: c = achar(i0-1)
+      
+      @assertFalse(is_digit(c))
+
+   end subroutine test_is_digit_before1
+
+   @test
+   subroutine test_is_digit_before2()
+      integer :: i0 = iachar('0')
+      character :: c = achar(i0-2)
+      
+      @assertFalse(is_digit(c))
+
+   end subroutine test_is_digit_before2
+
+   @test
+   subroutine test_is_digit_before1()
+      integer :: i0 = iachar('0')
+      character :: c = achar(i0-1)
+      
+      @assertFalse(is_digit(c))
+
+   end subroutine test_is_digit_before1
+
+   @test
+   subroutine test_is_digit_before2()
+      integer :: i0 = iachar('0')
+      character :: c = achar(i0-2)
+      
+      @assertFalse(is_digit(c))
+
+   end subroutine test_is_digit_before2
+
+   @test
+   subroutine test_is_digit_after1()
+      integer :: i0 = iachar('0')
+      character :: c = achar(i0+1)
+      
+      @assertFalse(is_digit(c))
+
+   end subroutine test_is_digit_after1
+
+   @test
+   subroutine test_is_digit_after2()
+      integer :: i0 = iachar('0')
+      character :: c = achar(i0+2)
+      
+      @assertFalse(is_digit(c))
+   end subroutine test_is_digit_after2
+
+   @test
+   subroutine test_not_is_digit()
+     character :: c = 'a' 
+     @assertTrue(is_digit(c))
+   end subroutine test_not_is_digit
+
+   @test
+   subroutine test_dummy()
+      @assertEqual(1, 2)
+   end subroutine test_dummy
+
+   
+end module test_MAPL_ISO8601_Time
