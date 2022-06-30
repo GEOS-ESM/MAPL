@@ -3,15 +3,15 @@ Note the code for the gridded component used by this tutorial can be found here:
 
 tutorial/grid_comps/hello_world_gridcomp/HelloWorld_GridComp.F90
 
-For this tutorial we will make the simplest possible gridded component we can and have it print hello in it's run method.
+For this tutorial we will make the simplest possible gridded component we can and have it print hello in its run method.
 
-The gridded component itself is run from the MAPL "CAP". This is a layer that the user should never have to touch. It's main function as far as the user is concerned is to perform the time stepping controlled via the CAP.rc and run the "root" gridded component (in this example HelloWorld_GridComp.F90) the user or program specified as well as two other special gridded components "History" and "ExtData" that provide services that we will talk about in later tutorials.
+The gridded component itself is run from the MAPL "CAP". This is a layer that the user should never have to touch. Its main function, as far as the user is concerned, is to perform the time stepping controlled via the CAP.rc and run the "root" gridded component (in this example HelloWorld_GridComp.F90) the user or program specified, as well as two other special gridded components, "History" and "ExtData", that provide services that we will talk about in later tutorials.
 
 # HelloWorld_GridComp.F90 Explanation
 
 If you look in the gridded component you will see that it is quite simple and is just about the minumum lines needed to create a gridded component, a grid for the component, and a run method that does something.
 
-The first routine is the setServices. This is where the user registers the actual methods to be used during the initilze and run phases of the gridded component and are specifed via the SetEntryPoint calls. In addition the MAPL_GenericSetServices is called and every MAPL component must call this before ending the subroutine.
+The first routine is the setServices. This is where the user registers the actual methods to be used during the initialize and run phases of the gridded component and are specifed via the SetEntryPoint calls. In addition the MAPL_GenericSetServices is called and every MAPL component must call this before ending the subroutine.
 
 Next we see that a custom initialization routine "my_initialize" is created. It has two calls, the first tells it how to create the grid that is will be used by the gridded component.
 

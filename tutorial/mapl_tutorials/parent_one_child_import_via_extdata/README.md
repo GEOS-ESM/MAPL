@@ -1,5 +1,5 @@
-# Tutorial 5 - Simple Hierarchy with one child and uisng ExtData
-In this tutorial we take things a step further and now create a MAPL hierachy of a parent and one child. This time we use component BBB as the child. Please besure you understand everything in the previous before moving on to this one.
+# Tutorial 5 - Simple Hierarchy with one child and using ExtData
+In this tutorial we take things a step further and now create a MAPL hierarchy of a parent and one child. This time we use component BBB as the child. Please be sure you understand everything in the previous tutorial before moving on to this one.
 
 Note the code for the gridded component used by this tutorial can be found here:
 
@@ -14,7 +14,7 @@ This is the same as the earlier tutorial and the "root" component.
 This is the same as the previous totorial
 
 # Running
-In this example we use the same components you have seen before. But now our child has an import and nobody fills it!. But you see that the print from BBB has a value, how is that possible? The answer is the other special MAPL gridded component, ExtData. In during the run you will see lines like this:
+In this example we use the same components you have seen before. But now our child has an import and nobody fills it!. But you see that the print from BBB has a value. How is that possible? The answer is the other special MAPL gridded component, ExtData. During the run you will see lines like this:
 ```
    EXTDATA: Updating L bracket for field1
    EXTDATA:  ... file processed: extdata_input.200708.nc4
