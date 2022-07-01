@@ -7,7 +7,7 @@
 
 module MAPL_ISO8601_Time
 
-   private
+!   private
 
    ! parameters for processing date, time, and datetime strings
    character, parameter :: DD = '-' ! Date Field Delimiter
@@ -20,6 +20,8 @@ module MAPL_ISO8601_Time
    character(len=*), parameter :: FUT = "(1x, i2, i2, i2, 1x, i3, 1x)" ! Format string for undelimited time
    character(len=*), parameter :: DATE_FORMAT = "(4i,a,2i,a,2i)"
    character(len=*), parameter :: TIME_FORMAT = "(i2,a,2i,a,f)"
+   integer, parameter :: DIM_DF = 3 ! Number of fields in date
+   integer, parameter :: DIM_TF = 4 ! Number of fields in time
 
    ! These are open lower(LB) and upper (UB) bounds of components of the date and time.
    integer, parameter :: LB_YEAR = -1 
@@ -85,13 +87,13 @@ contains
 ! SIMPLE CONSTRUCTORS
 
    pure function construct_date_fields(f) result(df)
-      integer, dimension(3), intent(in) :: f
+      integer, dimension(DIM_DF), intent(in) :: f
       type(date_fields) :: df
       df = date_fields(f(1), f(2), f(3))
    end function construct_date_fields
 
    pure function construct_time_fields(f) result(tf)
-      integer, dimension(4), intent(in) :: f
+      integer, dimension(DIM_TF), intent(in) :: f
       type(time_fields) :: tf
       tf = time_fields(f(1), f(2), f(3), f(4))
    end function construct_time_fields
@@ -182,29 +184,36 @@ contains
       character(len=*), intent(in) :: s
       type(date_fields), intent(out) ::fields
       integer, intent(inout) :: stat
+      integer, dimension(DIM_DF) :: f
       if(is_delimited_date(s)) then
-         call parse_isostring(s, fields, FDD, stat)
+         call parse_isostring(s, f, FDD, stat)
       else if(is_undelimited_date(s)) then
-         call parse_isostring(s, fields, FUD, stat)
+         call parse_isostring(s, f, FUD, stat)
       else
          stat = -1
       end if  
+
       if(stat==0) then
-         df = construct
+         fields = construct_date_fields(f)
       endif
    end subroutine parse_datestring
 
    subroutine parse_timestring(s, fields, stat)
       character(len=*), intent(in) :: s
-      integer, dimension(:), intent(in) :: fields
+      type(time_fields), intent(out) :: fields
       integer, intent(inout) :: stat
+      integer, dimension(DIM_TF) :: f
       if(is_delimited_time(s)) then
-         call parse_isostring(s, fields, FDT, stat)
+         call parse_isostring(s, f, FDT, stat)
       else if(is_undelimited_time(s)) then
-         call parse_isostring(s, fields, FUT, stat)
+         call parse_isostring(s, f, FUT, stat)
       else
          stat = -1
       end if  
+
+      if(stat == 0) then
+         fields = construct_time_fields(f)
+      endif
    end subroutine parse_timestring
 
 ! END LOW-LEVEL PARSERS
@@ -292,9 +301,9 @@ contains
 
       if(is_good_year(y) .and. is_good_month(m)) then
          month_end = get_month_end(y, m)
-         is_good_day = is_between(LB_DAY, month_end, d) 
+         is_good_day_ints = is_between(LB_DAY, month_end, d) 
       else
-         is_good_day = .FALSE.
+         is_good_day_ints = .FALSE.
       endif
    end function is_good_day_ints
       
@@ -305,18 +314,18 @@ contains
 
    pure logical function is_good_day(df)
       type(date_fields), intent(in) :: df
-      is_good_day_fields = is_good_day_ints(df % year, df % month, df % day)
-   end logical function is_good_day
+      is_good_day = is_good_day_ints(df % year, df % month, df % day)
+   end function is_good_day
 
 ! END DAY VERIFICATION
 
 
 ! HIGH-LEVEL CONSTRUCTORS
 
-   pure type(ISO8601Date) function construct_ISO8601Date_fields(df) result(date)
+   pure type(ISO8601Date) function construct_ISO8601Date_fields(df)
       type(date_fields), intent(in) :: df
       type(ISO8601Date) :: date
-      date % fields = df
+      construct_ISO8601Date_fields % fields = df
    end function construct_ISO8601Date_fields
 
 ! END HIGH-LEVEL CONSTRUCTORS
@@ -351,15 +360,15 @@ contains
       end if
    end function process_date
 
-   function process_time(time_string) result(time)
-      character(len=*), intent(in) :: time_string
-      type(ISO8601Time) :: time
-   end function process_time
-
-   function process_datetime(datetime_string) result(datetime)
-      character(len=*), intent(in) :: datetime_string
-      type(ISO8601DateTime) :: datetime
-   end function process_datetime
+!   function process_time(time_string) result(time)
+!      character(len=*), intent(in) :: time_string
+!      type(ISO8601Time) :: time
+!   end function process_time
+!
+!   function process_datetime(datetime_string) result(datetime)
+!      character(len=*), intent(in) :: datetime_string
+!      type(ISO8601DateTime) :: datetime
+!   end function process_datetime
 
 ! END HIGH-LEVEL PROCESSORS
 
