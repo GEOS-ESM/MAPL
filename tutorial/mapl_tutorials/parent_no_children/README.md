@@ -20,7 +20,7 @@ Past the declarations, we see we first retrieve the MAPL_MetaComp from the gridd
 ```
 my_value: 11.0
 ```
-Finally there are two calls to MAPL_GetPointer which is a shorthand way to obtain a pointer to the data in an ESMF_Field in an ESMF_State. Through the magic of MAPL, the user will find that there are indeed two fields in the state named ouput1 and output2! All this was handled by MAPL and ESMF!. Notice we check if the pointer is associated before using it and if so set all the values of the pointer to the constant my_constat. Why do we check the associated status? Because exports might not have been allocated. Imports always are, so the rule is for any pointer from an Export state, always check the associated status before using it.
+Finally there are two calls to MAPL_GetPointer which is a shorthand way to obtain a Fortran pointer to the data in an ESMF_Field, contained in an ESMF_State. Through the magic of MAPL, the user will find that there are indeed two fields in the state named ouput1 and output2! All this was handled by MAPL and ESMF!. Notice that a check is mde to determine if the pointer is associated before using it. Only if the pointer is actually associated can it be used. If it is associated, in this case all the values of the array are set to the constant my_constat. Why do we check the associated status? Because exports might not have been allocated. Imports always are, so the rule is for any pointer from an Export state, always check the associated status before using it.
 
 $ HISTORY.rc
 
@@ -38,10 +38,19 @@ my_collection.frequency: 060000
 my_collection.fields: 'output1', 'root'
    ::
 ```
-The HISTORY.rc drives the MAPL_HistoryGridComp which is a special service provided by MAPL to allow users to write fields from any component's export state to a file. Documentation for the input file can be found here: [History Documentation](https://github.com/GEOS-ESM/MAPL/wiki/MAPL-History-Component).  In this example we are saying every 6 hours write the field 'output1' from the component root. You should see that in your run directory you have 4 files named starting with my_collection. If you ncdump them you will see that the variable output1 should be identically 11 in each one. Indeed you should see while that the program runs it will write a message when History writes a file.
+The HISTORY.rc drives the MAPL_HistoryGridComp which is a special service provided by MAPL to allow users to write fields from any component's export state to a file. Documentation for the input file can be found [here](https://github.com/GEOS-ESM/MAPL/wiki/MAPL-History-Component).  In this example we are saying every 6 hours write the field 'output1' from the component root. You should see that in your run directory you have 4 files named starting with my_collection. If you ncdump them you will see that the variable output1 should be identically 11 in each one. If you examine the output from the run, you will see message when History writes a file, for example:
+```
+ AGCM Date: 2007/08/01  Time: 01:00:00  Throughput(days/day)[Avg Tot Run]:     998447.8    1017616.9   22162362.2  TimeRemaining(Est) 000:00:00    2.8% :  13.5% Mem Comm:Used
+ AGCM Date: 2007/08/01  Time: 02:00:00  Throughput(days/day)[Avg Tot Run]:   24850021.6   12648460.0   51528614.8  TimeRemaining(Est) 000:00:00    2.8% :  13.5% Mem Comm:Used
+ AGCM Date: 2007/08/01  Time: 03:00:00  Throughput(days/day)[Avg Tot Run]:   16222750.9   14134794.7   55756268.3  TimeRemaining(Est) 000:00:00    2.8% :  13.5% Mem Comm:Used
+ AGCM Date: 2007/08/01  Time: 04:00:00  Throughput(days/day)[Avg Tot Run]:   13864970.4   13973735.3   49224105.6  TimeRemaining(Est) 000:00:00    2.8% :  13.5% Mem Comm:Used
+ AGCM Date: 2007/08/01  Time: 05:00:00  Throughput(days/day)[Avg Tot Run]:   12915278.6   14773101.2   58278111.3  TimeRemaining(Est) 000:00:00    2.8% :  13.5% Mem Comm:Used
+
+ Writing:      1 Slices to File:  my_collection.20070801_0600z.nc4
+```
 
 
 # Exercise for the User
 
 The user may want to print the size of the ptr_2d and ptr_3d array to confirm that they match the size of the grid.
-Notice that HISTORY.rc is only outputting output1, add output2.
+The user may also notice that in the files only the output1 field was written. Try adding output2 to the HISTORY.rc and see what happens.

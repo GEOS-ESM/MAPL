@@ -4,13 +4,13 @@ For user education we have provided some simple tutorials. These demonstrate how
 
 Before embarking on these tutorials the new users should review the MAPL/ESMF powerpoint presentation here to get a general sense of what these frameworks are about and become familiar with the terminology.
 
-In addition, to use these tutorials you will have to have either built MAPL as a standalone fixture or as part of another fixture like the GEOSgcm. If you are reading this and have not built either, see the instructions for how to build MAPL here: [How to Build MAPL](https://github.com/GEOS-ESM/MAPL/wiki/Building-and-Testing-MAPL-as-a-standalone). For these exercises we highly recommend building MAPL by itself as your build will be much faster, expecially when you change the code. The build itself takes a short time. We also recommend using the "debug" build rather than the "release" build.
+In addition, to use these tutorials you will have to have either built MAPL as a standalone fixture or as part of another fixture like the GEOSgcm. If you are reading this and have not built either, see the instructions for how to build MAPL [here](https://github.com/GEOS-ESM/MAPL/wiki/Building-and-Testing-MAPL-as-a-standalone). For these exercises we highly recommend building MAPL by itself as your build will be much faster, expecially when you change the code. The build itself takes a short time. We also recommend using the "debug" build rather than the "release" build. This will turn off optimzations and add extra error checking. The build will be faster in this case. Details on how to do this is in the aformentioned wiki page.
 
 Once you have installed either MAPL or the full GEOSgcm, you will have an installation directory whose full path I will refer to as INSTALL_DIR.
 
 Once you have this, you will find a script run_tutorial_case.sh that is in INSTALL_DIR/bin we have created for your convinience.
 
-This script takes two arguments, the path to INSTALL_DIR and the directory name of the test case you wish to run. To run this, go to a tempoary directory then run the script with the arguments. It will copy the input files to that directory and run the Example_Driver.x for that set of input files. Note that if you are at NCCS or NAS you will need to be on an interactive slurm job with a single node.
+This script takes two arguments, the path to INSTALL_DIR and the directory name of the test case you wish to run. To run this, go to a tempoary directory then run the script with the arguments. It will copy the input files to that directory and run the Example_Driver.x for that set of input files. Note that if you are at NCCS or NAS you will need to be on an interactive job with a single node. If you are at NCCS you will be using slurm and instructions can be found [here](https://www.nccs.nasa.gov/nccs-users/instructional/using-slurm). At NAS you would use PBS and instructions can be found [here](https://www.nas.nasa.gov/hecc/support/kb/portable-batch-system-(pbs)-overview_126.html).
 
 The following tutorials are available in the recommended order and represent the tutorial name you would use in the run script.
 - hello_world
@@ -20,7 +20,7 @@ The following tutorials are available in the recommended order and represent the
 - parent_one_child_import_via_extdata
 
 
-As a concrete example, suppose you have installed MAPL here at /discover/nobackup/auser/MAPL/install and want to run hello_world you run this on the command line:
+As a concrete example, suppose you have installed MAPL here at `discover/nobackup/auser/MAPL/install` and want to run the hello_world tutorial you run this on the command line:
 
 ```
 /discover/nobackup/auser/MAPL/install/bin/run_tutorial_case.sh /discover/nobackup/auser/MAPL/install hello_world

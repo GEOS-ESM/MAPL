@@ -11,9 +11,11 @@ The gridded component itself is run from the MAPL "CAP". This is a layer that th
 
 If you look in the gridded component you will see that it is quite simple and is just about the minumum lines needed to create a gridded component, a grid for the component, and a run method that does something.
 
-The first routine is the setServices. This is where the user registers the actual methods to be used during the initialize and run phases of the gridded component and are specifed via the SetEntryPoint calls. In addition the MAPL_GenericSetServices is called and every MAPL component must call this before ending the subroutine.
+The first routine is the setServices. This is the ONLY routine in the module that should be public. Everything else should be private. In addition the SetServices interface must match the interface defined by ESMF>  The main function of the SetServies is to let the user registers the actual methods to be used during the initialize and run phases of the gridded component. These specifed via the SetEntryPoint calls and methods defined in the same module. They also must be defined with the interface prescribed by ESMF. In addition, the MAPL_GenericSetServices is called in this routine and every MAPL component must call this before ending the subroutine. The MAPL_GenericSetServices handles all the extra services provided by MAPL beyond EMSF.
 
-Next we see that a custom initialization routine "my_initialize" is created. It has two calls, the first tells it how to create the grid that is will be used by the gridded component.
+Next we see that a custom initialization routine "my_initialize" is created. Notice the subroutine interface. This is the interface all initialize, run, and finalize methods registered my ESMF SetEntryPoint methods must follow. The import state contains all the fields (as well as possibly other types) that will be needed to run the component. The component should not modify the import state. Likewise the export state is what the gridded component produces for use by other components. Finally the clock is just that, a clock that defines the current temporal situation.
+
+In this exmaple, the initialize routine only has two calls. The first tells it how to create the grid that is will be used by the gridded component.
 
 MAPL_GridCreate actually examines the components RC file which in this case is "hello_world.rc". The user will notice these lines:
 ```
@@ -27,9 +29,35 @@ hello_world.DATELINE: 'DC'
 ```
 Generally the user will not have to modify these are the setup scripts when running the model would define this for you. In this case it is saying the grid will be a 90x45 lat-lon grid with LM vertical levels.
 
-After this call MAPL_GenericInitialize is called. Once again every custom initialize routine must call this. If no custom initialize routine is defined this will be call automatically.
+After this call MAPL_GenericInitialize is called. This is again a MAPL call that handles all the MAPL specify functionality. It also calls the initialize methods of any child, which will be discussed subsequent tutorials. Once again every custom initialize routine must call this. If no custom initialize routine is defined this will be called automatically.
 
-Finally we get to the run method my_run. This was registered and will be executed each time step. As you can see if does very little in this example. It gets the current time from the clock (this literally a clock that is advanced by the MAPL "CAP"), then prints the obligatory "Hello World" and finally uses an ESMF call to print the current time.
+Finally we get to the run method my_run. Notice it has the same interface the initialize method. This was registered and will be executed each time step. As you can see if does very little in this example. It gets the current time from the ESMF clock (this literally a clock that is advanced by the MAPL "CAP"). The time is stored in a variable of `type(ESMF_Time)` declared in the subroutine.  It then prints the obligatory "Hello World" and finally uses an ESMF cal which takes an ESMF time and prints it as a string.
+
+# A Note on Error Handling
+You will notice that the setServices, initialize, and run subroutines all have an optional rc return variable. This is represents a return code that the calling routine can check to see if the subroutine executed successfully or produced an error.  All ESMF and MAPL subroutines and functions have an optional rc value that can be checked when making a call. To check the return status you would do something like this. 
+```
+integer :: status
+
+
+call ESMF_Foo(arg1,arg2,rc=status)
+if (status/=ESMF_SUCCESS) then
+   if present(rc)) then
+      rc =status
+      write(*,*)"Error ",rc," in ",__FILE," on ",__LINE__
+      return
+   end if
+end
+```
+
+This would get very tedious, not to mention make the code hard to read if the user had to do this after every subroutine or function call. To assist the developer MAPL defines a collection of preprocessor macros for error checking .
+
+You will notice that all subroutine calls in this example end with `_RC`. This is a preprocessor macro that expands to `rc=status); _VERIFY(status`. 
+
+`_VERIFY` itself is another macro that essentially implements the lines after the call to `ESMF_Foo` in the previous example. It will check the status and if there is an error report the file and line and return.
+
+At the end of each subroutine you will notice another macro, `_RETURN(_SUCCESS)`. This macro ensures that if the optional rc code is passed, it will be set to the "succes" value if the caller is checking the return code. It general placed at the very end of a subroutine.
+
+All new functions and subroutines should have an optional rc code and use these macros. It will make debugging and crash analysis much easier.
 
 # Running the code
 When you run the code the first few lines will look like this:
