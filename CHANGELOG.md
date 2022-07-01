@@ -10,8 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Added
+- Check return codes for YAML files when parsing in ExtData2G
 
 ### Changed
+- Updated the ESMA_env version to v4.2.0
 
 ### Removed
 
