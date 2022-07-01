@@ -10,10 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Added
+
 - Check return codes for YAML files when parsing in ExtData2G
 
 ### Changed
-- Updated the ESMA_env version to v4.2.0
+
+- Updated the ESMA_env version to v4.2.0 (Baselibs 7.5.0)
+- Update the CI for Baselibs 7.5.0, BCs version 10.22.3
 
 ### Removed
 
