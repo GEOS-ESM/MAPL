@@ -331,7 +331,7 @@ CONTAINS
    call MAPL_TimerOn(MAPLSTATE,"Initialize")
 
    call ESMF_ConfigGetAttribute(cf_master,new_rc_file,label="EXTDATA_YAML_FILE:",default="extdata.yaml",_RC)
-   self%active = am_i_running(new_rc_file)
+   self%active = am_i_running(new_rc_file,_RC)
 
    call ESMF_ClockGet(CLOCK, currTIME=time, __RC__)
 ! Get information from export state
@@ -1830,21 +1830,27 @@ CONTAINS
      _RETURN(_SUCCESS)
   end function get_item_index
 
-  function am_i_running(yaml_file) result(am_running)
+  function am_i_running(yaml_file,rc) result(am_running)
      logical :: am_running
      character(len=*), intent(in) :: yaml_file
+     integer, intent(out), optional :: rc
 
       type(Parser)              :: p
       class(YAML_Node), allocatable :: config
+      integer :: status
 
+      am_running=.true.
       p = Parser('core')
-      config = p%load(yaml_file)
+      config = p%load(yaml_file,rc=status)
+      if (status/=_SUCCESS) then
+          _FAIL("Error parsing: "//trim(yaml_file))
+      end if
 
       if (config%has("USE_EXTDATA")) then
          am_running = config%of("USE_EXTDATA")
-      else
-         am_running = .true.
       end if
+      _RETURN(_SUCCESS)
+
    end function am_i_running
 
  END MODULE MAPL_ExtDataGridComp2G
