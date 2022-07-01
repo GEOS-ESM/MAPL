@@ -5,13 +5,8 @@ module test_MAPL_ISO8601_Time
      use MAPL_ISO8601_Time
      use funit
      implicit none
-     private
 
 contains
-
-   @test
-   subroutine test_ISO8601Date()
-   end subroutine test_ISO8601Date
 
    @test
    subroutine test_date_fields()
@@ -35,9 +30,9 @@ contains
    @test
    subroutine test_date_fields_custom_constructor()
       type(date_fields) :: df
-      integer, dimension(:) :: f = [2022, 06, 27]
+      integer, dimension(3) :: f = [2022, 06, 27]
       
-      df = date_fields(fields)
+      df = date_fields(f)
 
       @assertEqual(f(1), df % year)
       @assertEqual(f(2), df % month)
@@ -53,7 +48,7 @@ contains
       integer :: ms
       type(time_fields) :: tf
       
-      y = 13
+      h = 13
       m = 02
       s = 27
       ms = 37
@@ -70,14 +65,14 @@ contains
    @test
    subroutine test_time_fields_custom_constructor()
       type(time_fields) :: tf
-      integer, dimension(:) :: f = [13, 02, 27, 36]
+      integer, dimension(4) :: f = [13, 02, 27, 36]
       
-      tf = time_fields(fields)
+      tf = time_fields(f)
 
       @assertEqual(f(1), tf % hour)
       @assertEqual(f(2), tf % minute)
       @assertEqual(f(3), tf % second)
-      @assertEqual(f(4), tf % second)
+      @assertEqual(f(4), tf % millisecond)
 
    end subroutine test_time_fields_custom_constructor
 
@@ -89,8 +84,10 @@ contains
 
    @test
    subroutine test_is_digit_before1()
-      integer :: i0 = iachar('0')
-      character :: c = achar(i0-1)
+      integer :: i0 = -1
+      character :: c
+      i0 = iachar('0')
+      c = achar(i0-1)
       
       @assertFalse(is_digit(c))
 
@@ -98,26 +95,10 @@ contains
 
    @test
    subroutine test_is_digit_before2()
-      integer :: i0 = iachar('0')
-      character :: c = achar(i0-2)
-      
-      @assertFalse(is_digit(c))
-
-   end subroutine test_is_digit_before2
-
-   @test
-   subroutine test_is_digit_before1()
-      integer :: i0 = iachar('0')
-      character :: c = achar(i0-1)
-      
-      @assertFalse(is_digit(c))
-
-   end subroutine test_is_digit_before1
-
-   @test
-   subroutine test_is_digit_before2()
-      integer :: i0 = iachar('0')
-      character :: c = achar(i0-2)
+      integer :: i0 = -1
+      character :: c
+      i0 = iachar('0')
+      c = achar(i0-2)
       
       @assertFalse(is_digit(c))
 
@@ -125,8 +106,10 @@ contains
 
    @test
    subroutine test_is_digit_after1()
-      integer :: i0 = iachar('0')
-      character :: c = achar(i0+1)
+      integer :: i0 = -1
+      character :: c
+      i0 = iachar('9')
+      c = achar(i0+1)
       
       @assertFalse(is_digit(c))
 
@@ -134,22 +117,12 @@ contains
 
    @test
    subroutine test_is_digit_after2()
-      integer :: i0 = iachar('0')
-      character :: c = achar(i0+2)
+      integer :: i0 = -1
+      character :: c
+      i0 = iachar('9')
+      c = achar(i0+2)
       
       @assertFalse(is_digit(c))
    end subroutine test_is_digit_after2
 
-   @test
-   subroutine test_not_is_digit()
-     character :: c = 'a' 
-     @assertTrue(is_digit(c))
-   end subroutine test_not_is_digit
-
-   @test
-   subroutine test_dummy()
-      @assertEqual(1, 2)
-   end subroutine test_dummy
-
-   
 end module test_MAPL_ISO8601_Time
