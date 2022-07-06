@@ -1,0 +1,179 @@
+module Test_Traverse
+   use generic3g
+   use esmf
+   use pFunit
+   use yaFyaml
+   use scratchpad
+   implicit none
+   
+contains
+
+   @test(npes=[0])
+   subroutine test_traverse_pre(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      
+      class(YAML_Node), allocatable :: config, child_config
+      integer :: status, userRC
+      type(Parser) :: p
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      call clear_log()
+      
+      p = Parser('core')
+      config = p%load(TextStream('{setServices: {sharedObj: libsimple_parent_gridcomp, userRoutine: setservices_}}'))
+      child_config = p%load(TextStream('{setServices: {sharedObj: libsimple_leaf_gridcomp, userRoutine: setservices_}}'))
+
+      parent_gc = create_grid_comp('A0', config, rc=status)
+      @assert_that(status, is(0))
+      outer_meta => get_outer_meta(parent_gc, rc=status)
+      @assert_that(status, is(0))
+
+      call outer_meta%add_child('A1', child_config, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GridCompSetServices(parent_gc, setServices, userRC=userRC, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(userRC, is(0))
+
+
+      call outer_meta%traverse(pre=pre, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual('pre<A0> :: pre<A1>', log)
+
+      
+   end subroutine test_traverse_pre
+      
+   @test(npes=[0])
+   subroutine test_traverse_post(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      
+      class(YAML_Node), allocatable :: config, child_config
+      integer :: status, userRC
+      type(Parser) :: p
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      call clear_log()
+      
+      p = Parser('core')
+      config = p%load(TextStream('{setServices: {sharedObj: libsimple_parent_gridcomp, userRoutine: setservices_}}'))
+      child_config = p%load(TextStream('{setServices: {sharedObj: libsimple_leaf_gridcomp, userRoutine: setservices_}}'))
+
+      parent_gc = create_grid_comp('A0', config, rc=status)
+      @assert_that(status, is(0))
+      outer_meta => get_outer_meta(parent_gc, rc=status)
+      @assert_that(status, is(0))
+
+      call outer_meta%add_child('A1', child_config, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GridCompSetServices(parent_gc, setServices, userRC=userRC, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(userRC, is(0))
+
+
+      call outer_meta%traverse(post=post, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual('post<A1> :: post<A0>', log)
+      
+   end subroutine test_traverse_post
+      
+   @test(npes=[0])
+   subroutine test_traverse_complex(this)
+      use mapl3g_ChildComponent
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      
+      class(YAML_Node), allocatable :: config, child_config
+      integer :: status, userRC
+      type(Parser) :: p
+      type(OuterMetaComponent), pointer :: outer_meta, child_meta
+      type(ChildComponent) :: child
+      character(:), allocatable :: expected
+      
+      call clear_log()
+      
+      p = Parser('core')
+      config = p%load(TextStream('{setServices: {sharedObj: libsimple_parent_gridcomp, userRoutine: setservices_}}'))
+      child_config = p%load(TextStream('{setServices: {sharedObj: libsimple_leaf_gridcomp, userRoutine: setservices_}}'))
+
+      parent_gc = create_grid_comp('A', config, rc=status)
+      @assert_that(status, is(0))
+      outer_meta => get_outer_meta(parent_gc, rc=status)
+      @assert_that(status, is(0))
+
+      call outer_meta%add_child('AB', config, rc=status)
+      @assert_that(status, is(0))
+      call outer_meta%add_child('AC', config, rc=status)
+      @assert_that(status, is(0))
+
+      child = outer_meta%get_child('AB', rc=status)
+      @assert_that(status, is(0))
+      child_meta => get_outer_meta(child%gridcomp)
+
+      call child_meta%add_child('ABD', child_config, rc=status)
+      @assert_that(status, is(0))
+      call child_meta%add_child('ABE', child_config, rc=status)
+      @assert_that(status, is(0))
+      
+      child = outer_meta%get_child('AC', rc=status)
+      @assert_that(status, is(0))
+      child_meta => get_outer_meta(child%gridcomp)
+
+      call child_meta%add_child('ACF', child_config, rc=status)
+      @assert_that(status, is(0))
+      call child_meta%add_child('ACG', child_config, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_GridCompSetServices(parent_gc, setServices, userRC=userRC, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(userRC, is(0))
+
+      call outer_meta%traverse(post=post, pre=pre, rc=status)
+      @assert_that(status, is(0))
+
+      expected = &
+           'pre<A> :: ' // &
+           'pre<AB> :: pre<ABD> :: post<ABD> :: pre<ABE> :: post<ABE> :: post<AB> :: ' // &
+           'pre<AC> :: pre<ACF> :: post<ACF> :: pre<ACG> :: post<ACG> :: post<AC> :: ' // &
+           'post<A>'
+      @assertEqual(expected, log)
+      
+   end subroutine test_traverse_complex
+
+   ! Helper procedure
+   subroutine pre(meta, rc)
+      class(OuterMetaComponent), intent(inout) :: meta
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: name
+
+      name = meta%get_name()
+      call append_message('pre<'//name//'>')
+
+      if (present(rc)) rc = 0
+
+   end subroutine pre
+
+   ! Helper procedure
+   subroutine post(meta, rc)
+      class(OuterMetaComponent), intent(inout) :: meta
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: name
+
+      name = meta%get_name()
+      call append_message('post<'//name//'>')
+
+      if (present(rc)) rc = 0
+
+   end subroutine post
+
+
+end module Test_Traverse

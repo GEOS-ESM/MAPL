@@ -71,6 +71,23 @@ interface MAPL_Sort
 
    module procedure SORT2AS
    module procedure SORT2AL
+end interface MAPL_Sort
+
+interface 
+   subroutine qsorts(a, b, r, n) bind(C,name="QSORTS")
+      use, intrinsic :: iso_fortran_env, only: INT32
+      integer(kind=INT32), intent(inout) :: a(*)
+      type(*), intent(inout) :: b(*)
+      integer, value, intent(in) :: r
+      integer, value, intent(in) :: n
+   end subroutine qsorts
+   subroutine qsortl(a, b, r, n) bind(C,name="QSORTL")
+      use, intrinsic :: iso_fortran_env, only: INT64
+      integer(kind=INT64), intent(inout) :: a(*)
+      type(*), intent(inout) :: b(*)
+      integer, value, intent(in) :: r
+      integer, value, intent(in) :: n
+   end subroutine qsortl
 end interface
 
 contains

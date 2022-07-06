@@ -53,6 +53,7 @@ CONTAINS
    type(ESMF_Time) :: time
    type(ESMF_TimeInterval) :: timeInterval
    type(ESMF_Clock) :: clock
+   type(ESMF_Info) :: infoh
 
    character(len=ESMF_MAXSTR) :: Iam
    character(len=ESMF_MAXSTR) :: filename
@@ -129,14 +130,15 @@ CONTAINS
 
     field=ESMF_FieldCreate(grid=grid_new,typekind=ESMF_TYPEKIND_R4,name="f2d",rc=status)
     _VERIFY(status)
-    call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE="what_am_i", RC=STATUS)
+    call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
     _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE="NA", RC=STATUS)
+    call ESMF_InfoSet(infoh,'LONG_NAME','what_am_i',RC=STATUS)
     _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzOnly, RC=STATUS)
+    call ESMF_InfoSet(infoh,'UNITS','NA',RC=STATUS)
     _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
-                                  VALUE=MAPL_VLocationNone, RC=STATUS)
+    call ESMF_InfoSet(infoh,'DIMS','MAPL_DimsHorzOnly',RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_InfoSet(infoh,'VLOCATION',MAPL_VLocationNone,RC=STATUS)
     _VERIFY(STATUS)
     call ESMF_FieldGet(field,farrayPtr=ptr2d,__RC__)
     ptr2d=17.0
@@ -145,14 +147,15 @@ CONTAINS
     field=ESMF_FieldCreate(grid=grid_new,typekind=ESMF_TYPEKIND_R4,name="f3d", &
       ungriddedLBound=[1],ungriddedUBound=[lm_world],rc=status)
     _VERIFY(status)
-    call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE="what_am_i", RC=STATUS)
+    call ESMF_InfoGetFromHost(FIELD,infoh,RC=STATUS)
     _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE="NA", RC=STATUS)
+    call ESMF_InfoSet(infoh,'LONG_NAME','what_am_i',RC=STATUS)
     _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzVert, RC=STATUS)
+    call ESMF_InfoSet(infoh,'UNITS','NA',RC=STATUS)
     _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
-                                  VALUE=MAPL_VLocationCenter, RC=STATUS)
+    call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzVert,RC=STATUS)
+    _VERIFY(STATUS)
+    call ESMF_InfoSet(infoh,'VLOCATION',MAPL_VLocationCenter,RC=STATUS)
     _VERIFY(STATUS)
     call ESMF_FieldGet(field,farrayPtr=ptr3d,__RC__)
     ptr3d=17.0

@@ -92,6 +92,14 @@ set (srcs
   )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
+
+# We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
+# interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).
+if (DUSTY)
+  set_property( SOURCE DirectoryService.F90 MultiCommServer.F90 MultiGroupServer.F90 MultiLayerServer.F90 pfio_writer.F90
+                PROPERTY COMPILE_FLAGS ${DUSTY})
+endif ()
+
 target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PRIVATE MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
