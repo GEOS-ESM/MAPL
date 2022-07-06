@@ -73,7 +73,10 @@ contains
       _ASSERT(file_found,"could not find: "//trim(config_file))
 
       p = Parser('core')
-      config = p%load(config_file)
+      config = p%load(config_file,rc=status)
+      if (status/=_SUCCESS) then
+         _FAIL("Error parsing "//trim(config_file))
+      end if
 
       if (config%has("subconfigs")) then
          subconfigs => config%at("subconfigs")
