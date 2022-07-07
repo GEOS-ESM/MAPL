@@ -59,6 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Moved to `checkout@v3` action due to git safe directory issue
+
 ### Removed
 
 ### Deprecated
