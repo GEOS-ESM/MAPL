@@ -14,7 +14,7 @@ on:
 
 jobs:
   build_test_mapl:
-    name: Build and Test MAPL
+    name: Build and Test MAPL GNU
     runs-on: ubuntu-latest
     container:
       image: gmao/ubuntu20-geos-env-mkl:v7.5.0-openmpi_4.1.2-gcc_11.2.0
@@ -34,9 +34,12 @@ jobs:
         with:
           access_token: ${{ github.token }}
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
+      - name: Set all directories as git safe
+        run: |
+          git config --global --add safe.directory '*'
       - name: Versions etc.
         run: |
           gfortran --version
@@ -87,9 +90,12 @@ jobs:
         with:
           access_token: ${{ github.token }}
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
+      - name: Set all directories as git safe
+        run: |
+          git config --global --add safe.directory '*'
       - name: Versions etc.
         run: |
           ifort --version
