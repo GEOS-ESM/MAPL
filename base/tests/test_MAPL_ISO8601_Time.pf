@@ -1,10 +1,13 @@
 #include "MAPL_Exceptions.h"
 
 module test_MAPL_ISO8601_Time
-     use MAPL_ExceptionHandling
-     use MAPL_ISO8601_Time
-     use funit
-     implicit none
+      use MAPL_ExceptionHandling
+      use MAPL_ISO8601_Time
+      use pfunit
+      implicit none
+
+      integer, dimension(12), parameter :: ENDS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+      integer, dimension(size(ENDS)), parameter :: ENDS_LEAP = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 contains
 
@@ -14,11 +17,11 @@ contains
       integer :: m
       integer :: d
       type(date_fields) :: df
-      
+     
       y = 2022
       m = 06
       d = 27
-      
+     
       df = date_fields(y, m, d)
 
       @assertEqual(y, df % year)
@@ -31,7 +34,7 @@ contains
    subroutine test_date_fields_custom_constructor()
       type(date_fields) :: df
       integer, dimension(3) :: f = [2022, 06, 27]
-      
+     
       df = date_fields(f)
 
       @assertEqual(f(1), df % year)
@@ -47,12 +50,12 @@ contains
       integer :: s
       integer :: ms
       type(time_fields) :: tf
-      
+     
       h = 13
       m = 02
       s = 27
       ms = 37
-      
+     
       tf = time_fields(h, m, s, ms)
 
       @assertEqual(h, tf % hour)
@@ -66,7 +69,7 @@ contains
    subroutine test_time_fields_custom_constructor()
       type(time_fields) :: tf
       integer, dimension(4) :: f = [13, 02, 27, 36]
-      
+     
       tf = time_fields(f)
 
       @assertEqual(f(1), tf % hour)
@@ -78,51 +81,406 @@ contains
 
    @test
    subroutine test_is_digit()
-     character :: c = '0' 
-     @assertTrue(is_digit(c))
+      integer :: i = -1
+      integer, parameter :: imin = 0
+      integer, parameter :: imax = 127
+      integer, parameter :: i1 = iachar('0') - 1
+      integer, parameter :: i2 = iachar('9') + 1
+      integer, parameter :: acodes(*) = [(i, i = imin, i1), (i, i = i2, imax)]
+      integer :: i0 = iachar('0')
+
+      do i = 0, 9
+         @assertTrue(is_digit(achar(i0+i)))
+      end do
+
+      do i = 1, size(acodes)
+         @assertFalse(is_digit(achar(acodes(i))))
+      end do
+
    end subroutine test_is_digit
 
    @test
-   subroutine test_is_digit_before1()
-      integer :: i0 = -1
-      character :: c
-      i0 = iachar('0')
-      c = achar(i0-1)
-      
-      @assertFalse(is_digit(c))
-
-   end subroutine test_is_digit_before1
-
-   @test
-   subroutine test_is_digit_before2()
-      integer :: i0 = -1
-      character :: c
-      i0 = iachar('0')
-      c = achar(i0-2)
-      
-      @assertFalse(is_digit(c))
-
-   end subroutine test_is_digit_before2
+   subroutine test_are_digits()
+      @assertTrue(are_digits('0123456789'))
+      @assertTrue(are_digits('0'))
+      @assertTrue(are_digits('9'))
+      @assertFalse(are_digits('ABCD'))
+      @assertFalse(are_digits('A234'))
+      @assertFalse(are_digits('1B34'))
+      @assertFalse(are_digits('123Z'))
+      @assertFalse(are_digits('AB3D'))
+   end subroutine test_are_digits
 
    @test
-   subroutine test_is_digit_after1()
-      integer :: i0 = -1
-      character :: c
-      i0 = iachar('9')
-      c = achar(i0+1)
-      
-      @assertFalse(is_digit(c))
+   subroutine test_make_char_array()
+      character(len=*), parameter :: char_string = 'ABCDEFGHIJ'
+      character, dimension(len(char_string)) :: char_array
+      integer :: i = -1
 
-   end subroutine test_is_digit_after1
+      char_array = make_char_array(char_string)
+
+      @assertEqual(len(char_string), size(char_array))
+      
+      do i=1, len(char_string)
+         @assertEqual(char_string(i:i), char_array(i))
+      end do
+
+   end subroutine test_make_char_array
 
    @test
-   subroutine test_is_digit_after2()
-      integer :: i0 = -1
-      character :: c
-      i0 = iachar('9')
-      c = achar(i0+2)
-      
-      @assertFalse(is_digit(c))
-   end subroutine test_is_digit_after2
+   subroutine test_is_delimited_date()
+      ! Good
+      @assertTrue(is_delimited_date('0000' // DD // '00' // DD // '00'))
+      ! Missing delimiter
+      @assertFalse(is_delimited_date('000000' // DD // '00'))
+      ! 1 digit month
+      @assertFalse(is_delimited_date('0000' // DD // '0' // DD // '00'))
+      ! 1 digit day
+      @assertFalse(is_delimited_date('0000' // DD // '00' // DD // '0'))
+      ! 3 digit day
+      @assertFalse(is_delimited_date('0000' // DD // '00' // DD // '000'))
+      ! No delimiters
+      @assertFalse(is_delimited_date('0000000000'))
+      ! Wrong delimiter
+      @assertFalse(is_delimited_date('0000' // '?' // '00' // '?' // '00'))
+   end subroutine test_is_delimited_date
+
+   @test
+   subroutine test_is_undelimited_date()
+      ! Good
+      @assertTrue(is_undelimited_date('00000000'))
+      ! Delimited
+      @assertFalse(is_undelimited_date('0000-00-00')) 
+      ! Too long
+      @assertFalse(is_undelimited_date('0000000000'))
+      ! Too short
+      @assertFalse(is_undelimited_date('0000000'))
+   end subroutine test_is_undelimited_date
+
+
+   @test
+   subroutine test_is_delimited_time()
+      ! No millisecond
+      @assertTrue(is_delimited_time(TP // '00' // TD // '00' // TD // '00' // TZ)) 
+      ! Millisecond
+      @assertTrue(is_delimited_time(TP // '00' // TD // '00' // TD // '00' // '.000' // TZ)) 
+      ! No delimiters, correct length
+      @assertFalse(is_delimited_time(TP // '00' // '0' // '00' // '0' // '00' // TZ)) 
+      ! No delimiters, wrong length
+      @assertFalse(is_delimited_time(TP // '00' // '00' // '00' // TZ)) 
+      ! Missing prefix, wrong length
+      @assertFalse(is_delimited_time('00' // TD // '00' // TD // '00' // TZ)) 
+      ! Missing prefix, correct length
+      @assertFalse(is_delimited_time('0' // '00' // TD // '00' // TD // '00' // TZ)) 
+      ! Missing timezone, wrong length
+      @assertFalse(is_delimited_time(TD // '00' // TD // '00' // TD // '00' )) 
+      ! Missing timezone, correct length
+      @assertFalse(is_delimited_time(TD // '00' // TD // '00' // TD // '00' // '0')) 
+      ! Millisecond without decimal point
+      @assertFalse(is_delimited_time(TP // '00' // TD // '00' // TD // '00' // '000' // TZ)) 
+   end subroutine test_is_delimited_time
+
+   @test
+   subroutine test_is_undelimited_time()
+      logical :: pred
+      ! Without millisecond
+      @assertTrue(is_undelimited_time(TP // '000000' // TZ)) 
+      ! With millisecond
+      @assertTrue(is_undelimited_time(TP // '000000.000' // TZ)) 
+      ! Missing prefix
+      pred = is_undelimited_time('000000' // TZ)
+      @assertFalse(pred) 
+      ! Wrong prefix
+      @assertFalse(is_undelimited_time('D' // '000000' // TZ)) 
+      ! Missing timezone
+      @assertFalse(is_undelimited_time(TP // '000000')) 
+      ! Wrong timezone
+      @assertFalse(is_undelimited_time(TP // '000000' // '0')) 
+      ! Wrong prefix and timezone
+      @assertFalse(is_undelimited_time('00000000')) 
+      ! Millisecond without decimal point
+      @assertFalse(is_undelimited_time(TP // '000000000' // TZ)) 
+   end subroutine test_is_undelimited_time
+
+   @test
+   subroutine test_parse_isostring()
+      character(len=*), parameter :: fmts = '(1x,i5,1x,i3,1x,i7,1x)'
+      integer, dimension(3) :: fields
+      integer :: stat
+      call parse_isostring('G11234H567P8901234X', fields, fmts, stat)
+      @assertEqual(0, stat)
+      @assertEqual(fields(1), 11234)
+      @assertEqual(fields(2), 567)
+      @assertEqual(fields(3), 8901234)
+      call parse_isostring('XXXXXXXXXXXXXXXXXXXXXXXX', fields, fmts, stat)
+      @assertFalse(stat == 0)
+   end subroutine test_parse_isostring
+
+   @test
+   subroutine test_parse_datestring()
+      character(len=*), parameter :: delimited   = '2022-07-04'
+      character(len=*), parameter :: undelimited = '20220704'
+      character(len=*), parameter :: delimited_bad   = '202207-04'
+      character(len=*), parameter :: undelimited_bad = '2022704'
+      integer :: stat
+      type(date_fields) :: expected_fields = date_fields(2022, 7, 4)
+      type(date_fields) :: actual_fields
+
+      call parse_datestring(delimited, actual_fields, stat)
+      @assertEqual(0, stat)
+      @assertEqual(expected_fields % year, actual_fields % year)
+      @assertEqual(expected_fields % month, actual_fields % month)
+      @assertEqual(expected_fields % day, actual_fields % day)
+
+      call parse_datestring(undelimited, actual_fields, stat)
+      @assertEqual(0, stat)
+      @assertEqual(expected_fields % year, actual_fields % year)
+      @assertEqual(expected_fields % month, actual_fields % month)
+      @assertEqual(expected_fields % day, actual_fields % day)
+
+      call parse_datestring(delimited_bad, actual_fields, stat)
+      @assertFalse(stat == 0)
+
+      call parse_datestring(undelimited_bad, actual_fields, stat)
+      @assertFalse(stat == 0)
+   end subroutine test_parse_datestring
+
+   @test
+   subroutine test_parse_timestring()
+      character(len=*), parameter :: delimited   = 'T11:27:37.456Z'
+      character(len=*), parameter :: undelimited = 'T112737.456Z'
+      character(len=*), parameter :: delimited_bad = '11:27:37.456Z'
+      character(len=*), parameter :: undelimited_bad = 'T112737.456'
+      integer :: stat
+      type(time_fields) :: expected_fields = time_fields(11, 27, 37,456)
+      type(time_fields) :: actual_fields
+
+      call parse_timestring(delimited, actual_fields, stat)
+      @assertEqual(0, stat)
+      @assertEqual(expected_fields % hour, actual_fields % hour)
+      @assertEqual(expected_fields % minute, actual_fields % minute)
+      @assertEqual(expected_fields % second, actual_fields % second)
+      @assertEqual(expected_fields % millisecond, actual_fields % millisecond)
+
+      call parse_timestring(undelimited, actual_fields, stat)
+      @assertEqual(0, stat)
+      @assertEqual(expected_fields % hour, actual_fields % hour)
+      @assertEqual(expected_fields % minute, actual_fields % minute)
+      @assertEqual(expected_fields % second, actual_fields % second)
+      @assertEqual(expected_fields % millisecond, actual_fields % millisecond)
+
+      call parse_timestring(delimited_bad, actual_fields, stat)
+      @assertFalse(stat == 0)
+
+      call parse_timestring(undelimited_bad, actual_fields, stat)
+      @assertFalse(stat == 0)
+   end subroutine test_parse_timestring
+
+   @test
+   subroutine test_is_factor()
+      @assertTrue(is_factor(21, 7))
+      @assertFalse(is_factor(22, 7))
+   end subroutine test_is_factor
+
+   @test
+   subroutine test_is_not_factor()
+      @assertFalse(is_not_factor(21, 7))
+      @assertTrue(is_not_factor(22, 7))
+   end subroutine test_is_not_factor
+
+   @test
+   subroutine test_is_between()
+      integer, parameter :: lower = 36
+      integer, parameter :: upper = 48
+      integer, parameter :: delta = 6
+      @assertTrue(is_between(lower, upper, lower + delta))
+      @assertFalse(is_between(lower, upper, lower))
+      @assertFalse(is_between(lower, upper, lower - 1))
+      @assertFalse(is_between(lower, upper, upper))
+      @assertFalse(is_between(lower, upper, upper + 1))
+   end subroutine test_is_between
+
+   @test
+   subroutine test_is_leap_year()
+      @assertTrue(is_leap_year(2024))
+      @assertFalse(is_leap_year(2023))
+      @assertFalse(is_leap_year(2022))
+      @assertFalse(is_leap_year(2021))
+      @assertFalse(is_leap_year(2100))
+      @assertTrue(is_leap_year(2000))
+   end subroutine test_is_leap_year
+
+   @test
+   subroutine test_get_month_ends()
+      integer, dimension(size(ENDS)) :: actual
+      integer :: i = -1
+
+      actual = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+      actual = get_month_ends(2022)
+      do i = 1, size(actual)
+         @assertEqual(ENDS(i), actual(i))
+      end do
+
+      actual = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+      actual = get_month_ends(2020)
+      do i = 1, size(actual)
+         @assertEqual(ENDS_LEAP(i), actual(i))
+      end do
+   end subroutine test_get_month_ends 
+
+   @test
+   subroutine test_get_month_end()
+      integer, parameter :: year = 2022
+      integer, parameter :: leap_year = 2020
+      integer :: i
+
+      do i = 1, 12
+         @assertEqual(ENDS(i), get_month_end(year, i))
+         @assertEqual(ENDS_LEAP(i), get_month_end(leap_year, i))
+      end do
+
+   end subroutine test_get_month_end
+   
+   @test
+   subroutine test_is_good_year()
+      integer :: year
+      integer :: i
+
+      @assertFalse(is_good_year(-1))
+      @assertFalse(is_good_year(10000))
+      do i = 0, 9999
+         @assertTrue(is_good_year(i))
+      end do
+   end subroutine test_is_good_year
+
+   @test
+   subroutine test_is_good_month()
+      integer :: month
+      integer :: i
+
+      @assertFalse(is_good_month(0))
+      @assertFalse(is_good_month(-1))
+      @assertFalse(is_good_month(13))
+      do i = 1, 12
+         @assertTrue(is_good_month(i))
+      end do
+   end subroutine test_is_good_month
+
+   @test
+   subroutine test_is_good_day_ints()
+      @assertTrue(is_good_day_ints(2022, 7, 7))
+      @assertFalse(is_good_day_ints(2022, 6, 31))
+      @assertTrue(is_good_day_ints(2020, 2, 29))
+      @assertFalse(is_good_day_ints(2021, 2, 29))
+   end subroutine test_is_good_day_ints
+
+   @test
+   subroutine test_is_good_day()
+      @assertTrue(is_good_day(date_fields(2022, 7, 7)))
+      @assertFalse(is_good_day(date_fields(2022, 6, 31)))
+   end subroutine test_is_good_day
+
+   @test
+   subroutine test_construct_ISO8601Date()
+      type(ISO8601Date) :: isodate
+      integer :: year = 2022
+      integer :: month = 07
+      integer :: day = 07
+
+      isodate = construct_ISO8601Date(date_fields(year, month, day)) 
+
+      @assertEqual(year, isodate % fields % year)
+      @assertEqual(month, isodate % fields % month)
+      @assertEqual(day, isodate % fields % day)
+   end subroutine test_construct_ISO8601Date
+
+   @test
+   subroutine test_construct_ISO8601Time()
+      type(ISO8601Time) :: isotime
+      integer :: hour = 15
+      integer :: minute = 49
+      integer :: second = 07
+      integer :: millisecond = 357
+      integer :: timezone = 0
+
+      isotime = construct_ISO8601Time(time_fields(hour, minute, second, millisecond, timezone)) 
+
+      @assertEqual(hour, isotime % fields % hour)
+      @assertEqual(minute, isotime % fields % minute)
+      @assertEqual(second, isotime % fields % second)
+      @assertEqual(millisecond, isotime % fields % millisecond)
+      @assertEqual(timezone, isotime % timezone)
+   end subroutine test_construct_ISO8601Time
+
+   @test
+   subroutine test_construct_ISO8601DateTime()
+      type(ISO8601Date) :: isodate
+      type(ISO8601Time) :: isotime
+      type(ISO8601DateTime) :: isodatetime
+      integer :: year = 2022
+      integer :: month = 07
+      integer :: day = 07
+      integer :: hour = 15
+      integer :: minute = 49
+      integer :: second = 07
+      integer :: millisecond = 357
+      integer :: timezone = 0
+
+      isodate = construct_ISO8601Date(date_fields(year, month, day)) 
+      isotime = construct_ISO8601Time(time_fields(hour, minute, second, millisecond)) 
+      isodatetime = construct_ISO8601DateTime(isodate, isotime)
+      @assertEqual(year, isodatetime % date % fields % year)
+      @assertEqual(month, isodatetime % date % fields % month)
+      @assertEqual(day, isodatetime % date % fields % day)
+      @assertEqual(hour, isodatetime % time % fields % hour)
+      @assertEqual(minute, isodatetime % time % fields % minute)
+      @assertEqual(second, isodatetime % time % fields % second)
+      @assertEqual(millisecond, isodatetime % time % fields % millisecond)
+      @assertEqual(timezone, isodatetime % time % timezone)
+
+   end subroutine test_construct_ISO8601DateTime
+
+   @test
+   subroutine test_process_date()
+      type(ISO8601Date) :: date
+      date = process_date('2022-07-07')
+      @assertEqual(2022, date % fields % year)
+      @assertEqual(7, date % fields % month)
+      @assertEqual(7, date % fields % day)
+      date = process_date('20220707')
+      @assertEqual(2022, date % fields % year)
+      @assertEqual(7, date % fields % month)
+      @assertEqual(7, date % fields % day)
+   end subroutine test_process_date
+
+   @test
+   subroutine test_process_time()
+      type(ISO8601Time) :: time
+      time = process_time('T17:41:07.513Z')
+      @assertEqual(17, time % fields % hour)
+      @assertEqual(41, time % fields % minute)
+      @assertEqual(7, time % fields % second)
+      @assertEqual(513, time % fields % millisecond)
+      time = process_time('20220707')
+      @assertEqual(17, time % fields % hour)
+      @assertEqual(41, time % fields % minute)
+      @assertEqual(7, time % fields % second)
+      @assertEqual(513, time % fields % millisecond)
+   end subroutine test_process_time
+
+   @test
+   subroutine test_process_datetime()
+      type(ISO8601DateTime) :: date
+      date = process_datetime('2022-07-07')
+      @assertEqual(2022, date % fields % year)
+      @assertEqual(7, date % fields % month)
+      @assertEqual(7, date % fields % day)
+      date = process_date('20220707')
+      @assertEqual(2022, date % fields % year)
+      @assertEqual(7, date % fields % month)
+      @assertEqual(7, date % fields % day)
+   end subroutine 
 
 end module test_MAPL_ISO8601_Time
