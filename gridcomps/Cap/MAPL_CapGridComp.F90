@@ -114,6 +114,7 @@ contains
     integer :: status, phase
     type(MAPL_CapGridComp), pointer :: cap
     type(MAPL_MetaComp), pointer :: meta, root_meta
+    character(len=ESMF_MAXSTR) :: sharedObj
     class(DistributedProfiler), pointer :: t_p, m_p
 
     type (ESMF_GridComp), pointer :: root_gc
