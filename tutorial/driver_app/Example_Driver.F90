@@ -11,8 +11,8 @@ program Example_Driver
    type (MAPL_CapOptions) :: cap_options
    integer :: status
 
-   cap_options = MAPL_FlapCLI(description = 'GEOS AGCM', &
-                                  authors = 'GMAO')
+   cap_options = FlapCLI(description = 'GEOS AGCM', &
+                             authors = 'GMAO')
    cap = MAPL_Cap('example', cap_options = cap_options)
    call cap%run(_RC)
 
