@@ -4651,7 +4651,8 @@ contains
 
       integer                                     :: I
       type(MAPL_MetaComp), pointer                :: child_meta
-      class(BaseProfiler), pointer                :: t_p
+      class(DistributedProfiler), pointer         :: t_p
+      class(DistributedProfiler), pointer         :: m_p
 
       class(Logger), pointer :: lgr
       character(len=:), allocatable :: shared_object_library_to_load
@@ -4668,7 +4669,9 @@ contains
       call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentGC, petList=petlist, child_meta=child_meta,__RC__)
 
       t_p => get_global_time_profiler()
+      m_p => get_global_memory_profiler()
       call t_p%start(trim(name),__RC__)
+      call m_p%start(trim(name),__RC__)
       call child_meta%t_profiler%start(__RC__)
       call child_meta%t_profiler%start('SetService',__RC__)
 
@@ -4689,6 +4692,7 @@ contains
       call child_meta%t_profiler%stop('SetService',__RC__)
       call child_meta%t_profiler%stop(__RC__)
       call t_p%stop(trim(name),__RC__)
+      call m_p%stop(trim(name),__RC__)
 
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromDSOMeta

@@ -175,10 +175,10 @@ contains
     call MAPL_GetResource(meta, ROOT_CF, "ROOT_CF:", default = "ROOT.rc", _RC)
     root_set_services => cap%root_set_services
     if (.not.allocated(cap%root_dso)) then
-       cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, configFile=ROOT_CF, _RC)
+       cap%root_id = MAPL_AddChild(meta, name = root_name, SS=root_set_services, configFile=ROOT_CF, _RC)
     else
        sharedObj = trim(cap%root_dso)
-       cap%root_id = MAPL_AddChild(MAPLOBJ, root_name, 'setservices_', sharedObj=sharedObj, configFile=ROOT_CF, _RC)
+       cap%root_id = MAPL_AddChild(meta, name = root_name, userRoutine = 'setservices_', sharedObj=sharedObj, configFile=ROOT_CF, _RC)
     end if
 
       child_gc => meta%get_child_gridcomp(cap%root_id)
