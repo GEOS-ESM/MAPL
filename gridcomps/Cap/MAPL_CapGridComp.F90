@@ -656,6 +656,8 @@ contains
 !!$
     root_set_services => cap%root_set_services
 
+    call t_p%start('Initialize')
+    call m_p%start('Initialize')
 
 !!$    cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)
 !!$    _VERIFY(status)
