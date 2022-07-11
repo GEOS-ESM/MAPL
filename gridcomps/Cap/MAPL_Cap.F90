@@ -25,10 +25,12 @@ module MAPL_CapMod
       private
       character(:), allocatable :: name
       procedure(), nopass, pointer :: set_services => null()
-      integer :: comm_world 
+      logical :: non_dso = .false.
+      integer :: comm_world
       integer :: rank
       integer :: npes_member
- 
+      character(:), allocatable :: root_dso
+
       type (MAPL_CapOptions), allocatable :: cap_options
       ! misc
       logical :: mpi_already_initialized = .false.
@@ -58,11 +60,12 @@ module MAPL_CapMod
       procedure :: get_cap_gc
       procedure :: get_cap_rc_file
       procedure :: get_egress_file
-           
+
    end type MAPL_Cap
 
    interface MAPL_Cap
-      module procedure new_MAPL_Cap
+      module procedure new_MAPL_Cap_from_set_services
+      module procedure new_MAPL_Cap_from_dso
    end interface MAPL_Cap
 
 
@@ -74,8 +77,8 @@ module MAPL_CapMod
    end interface
 
 contains
-    
-   function new_MAPL_Cap(name, set_services, unusable, cap_options, rc) result(cap)
+
+   function new_MAPL_Cap_from_set_services(name, set_services, unusable, cap_options, rc) result(cap)
       type (MAPL_Cap) :: cap
       character(*), intent(in) :: name
       procedure() :: set_services
@@ -86,6 +89,7 @@ contains
 
       cap%name = name
       cap%set_services => set_services
+      cap%non_dso = .true.
 
       if (present(cap_options)) then
          allocate(cap%cap_options, source = cap_options)
@@ -109,11 +113,48 @@ contains
            enable_global_memprof=cap%cap_options%enable_global_memprof, &
            _RC)
 
-      _RETURN(_SUCCESS)     
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-    end function new_MAPL_Cap
 
-   
+    end function new_MAPL_Cap_from_set_services
+
+   function new_MAPL_Cap_from_dso(name, unusable, cap_options, rc) result(cap)
+      type (MAPL_Cap) :: cap
+      character(*), intent(in) :: name
+      class (KeywordEnforcer),  optional, intent(in) :: unusable
+      type ( MAPL_CapOptions), optional, intent(in) :: cap_options
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      cap%name = name
+
+      if (present(cap_options)) then
+         allocate(cap%cap_options, source = cap_options)
+      else
+         allocate(cap%cap_options, source = MAPL_CapOptions())
+      endif
+
+      if (cap%cap_options%use_comm_world) then
+         cap%comm_world       = MPI_COMM_WORLD
+         cap%cap_options%comm = MPI_COMM_WORLD
+      else
+         cap%comm_world = cap%cap_options%comm
+      endif
+
+      call cap%initialize_mpi(rc=status)
+      _VERIFY(status)
+
+      call MAPL_Initialize(comm=cap%comm_world, &
+                           logging_config=cap%cap_options%logging_config, &
+                           rc=status)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+    end function new_MAPL_Cap_from_dso
+
+
    ! 3. Run the ensemble (default is 1 member)
    ! 4. Finalize MPI if initialized locally.
    subroutine run(this, unusable, rc)
@@ -122,7 +163,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 !
-   
+
 
       _UNUSED_DUMMY(unusable)
 
@@ -132,7 +173,7 @@ contains
       _RETURN(_SUCCESS)
 
     end subroutine run
-    
+
 
    ! This layer splits the communicator to support running a
    ! multi-member ensemble.
@@ -145,7 +186,7 @@ contains
       integer :: subcommunicator
 
       _UNUSED_DUMMY(unusable)
-      
+
       subcommunicator = this%create_member_subcommunicator(this%comm_world, rc=status); _VERIFY(status)
       if (subcommunicator /= MPI_COMM_NULL) then
          call this%initialize_io_clients_servers(subcommunicator, rc = status); _VERIFY(status)
@@ -155,7 +196,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-      
+
    end subroutine run_ensemble
 
 
@@ -174,7 +215,7 @@ contains
      end select
      call this%cap_server%finalize()
      _RETURN(_SUCCESS)
- 
+
    end subroutine finalize_io_clients_servers
 
    subroutine initialize_io_clients_servers(this, comm, unusable, rc)
@@ -199,14 +240,14 @@ contains
      _RETURN(_SUCCESS)
      _UNUSED_DUMMY(unusable)
    end subroutine initialize_io_clients_servers
-     
+
    ! This layer splits the communicator to support separate i/o servers
    ! and runs the model via a CapGridComp.
    subroutine run_member(this, rc)
       use MAPL_CFIOMod
       class (MAPL_Cap), intent(inout) :: this
       integer, optional, intent(out) :: rc
-      
+
       integer :: status
       type(SplitCommunicator) :: split_comm
 
@@ -215,7 +256,7 @@ contains
       case('model')
          call this%run_model(comm=split_comm%get_subcommunicator(), rc=status); _VERIFY(status)
       end select
-                  
+
      _RETURN(_SUCCESS)
 
    end subroutine run_member
@@ -231,7 +272,7 @@ contains
       integer(kind=INT64) :: start_tick, stop_tick, tick_rate
       integer :: status
       class(Logger), pointer :: lgr
-      
+
       _UNUSED_DUMMY(unusable)
 
       call start_timer()
@@ -288,11 +329,11 @@ contains
             lgr => logging%get_logger('MAPL')
             call lgr%info("Model Throughput: %f12.3 days per day", model_days_per_day)
          end if
-         
+
       end subroutine report_throughput
 
    end subroutine run_model
-   
+
    subroutine initialize_cap_gc(this, unusable, n_run_phases, rc)
      class(MAPL_Cap), intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -301,13 +342,19 @@ contains
 
      integer :: status
 
-     call MAPL_CapGridCompCreate(this%cap_gc, this%set_services, this%get_cap_rc_file(), &
-           this%name, this%get_egress_file(), this%comm_world, n_run_phases=n_run_phases, _RC)
-
+     if (this%non_dso) then
+        call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
+           this%name, this%get_egress_file(), this%comm_world, n_run_phases=n_run_phases, root_set_services = this%set_services,rc=status)
+     else
+        _ASSERT(this%cap_options%root_dso /= 'none',"No set services specified, must pass a dso")
+        call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
+           this%name, this%get_egress_file(), this%comm_world, n_run_phases=n_run_phases, root_dso = this%cap_options%root_dso,rc=status)
+     end if
+     _VERIFY(status)
      _RETURN(_SUCCESS)
      _UNUSED_DUMMY(unusable)
    end subroutine initialize_cap_gc
-   
+
 
    subroutine step_model(this, rc)
      class(MAPL_Cap), intent(inout) :: this
@@ -316,7 +363,7 @@ contains
      call this%cap_gc%step(rc = status); _VERIFY(status)
      _RETURN(_SUCCESS)
    end subroutine step_model
-  
+
    subroutine rewind_model(this, time, rc)
      class(MAPL_Cap), intent(inout) :: this
      type(ESMF_Time), intent(inout) :: time
@@ -324,14 +371,14 @@ contains
      integer :: status
      call this%cap_gc%rewind_clock(time,rc = status); _VERIFY(status)
      _RETURN(_SUCCESS)
-   end subroutine rewind_model 
+   end subroutine rewind_model
 
    integer function create_member_subcommunicator(this, comm, unusable, rc) result(subcommunicator)
       class (MAPL_Cap), intent(inout) :: this
       integer, intent(in) :: comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      
+
       type (SplitCommunicator) :: split_comm
 
       integer :: status
@@ -339,7 +386,7 @@ contains
 !!$      external :: chdir
 
       _UNUSED_DUMMY(unusable)
-      
+
       subcommunicator = MPI_COMM_NULL ! in case of failure
       this%splitter = SimpleCommSplitter(comm, this%cap_options%n_members, this%npes_member, base_name=this%cap_options%ensemble_subdir_prefix)
       split_comm = this%splitter%split(rc=status); _VERIFY(status)
@@ -350,9 +397,9 @@ contains
          status = c_chdir(dir_name)
          _VERIFY(status)
       end if
-      
+
       _RETURN(_SUCCESS)
-      
+
    end function create_member_subcommunicator
 
 
@@ -401,13 +448,13 @@ contains
       character(*) :: path
       integer, optional, intent(out) :: err
       integer :: loc_err
-      
+
       loc_err =  c_chdir(path//c_null_char)
-      
+
       if (present(err)) err = loc_err
-      
+
    end subroutine chdir
-   
+
    subroutine finalize_mpi(this, unusable, rc)
       class (MAPL_Cap), intent(in) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -416,7 +463,7 @@ contains
       integer :: status
 
       call MAPL_Finalize(comm=this%comm_world)
-      
+
       if (.not. this%mpi_already_initialized) then
          call MPI_Finalize(status)
       end if
@@ -430,7 +477,7 @@ contains
      integer :: npes_model
      npes_model = this%cap_options%npes_model
    end function get_npes_model
-    
+
    function get_comm_world(this) result(comm_world)
      class(MAPL_Cap), intent(in) :: this
      integer :: comm_world
