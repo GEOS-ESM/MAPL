@@ -4685,10 +4685,11 @@ contains
       end if
 
       shared_object_library_to_load = adjust_dso_name(sharedObj)
-      call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
-           sharedObj=shared_object_library_to_load,userRC=userRC,__RC__)
-      _VERIFY(userRC)
+!!$      call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
+!!$           sharedObj=shared_object_library_to_load,userRC=userRC,__RC__)
+!!$     _VERIFY(userRC)
 
+      child_meta%user_setservices_wrapper = DSO_SetServicesWrapper(sharedObj, userRoutine)
       call child_meta%t_profiler%stop('SetService',__RC__)
       call child_meta%t_profiler%stop(__RC__)
       call t_p%stop(trim(name),__RC__)

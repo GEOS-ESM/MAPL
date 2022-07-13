@@ -141,13 +141,14 @@ contains
          cap%comm_world = cap%cap_options%comm
       endif
 
-      call cap%initialize_mpi(rc=status)
-      _VERIFY(status)
+      call cap%initialize_mpi(_RC)
 
-      call MAPL_Initialize(comm=cap%comm_world, &
-                           logging_config=cap%cap_options%logging_config, &
-                           rc=status)
-      _VERIFY(status)
+      call MAPL_Initialize( &
+           comm=cap%comm_world, &
+           logging_config=cap%cap_options%logging_config, &
+           enable_global_timeprof=cap%cap_options%enable_global_timeprof, &
+           enable_global_memprof=cap%cap_options%enable_global_memprof, &
+           _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
