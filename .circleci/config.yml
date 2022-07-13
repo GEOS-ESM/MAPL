@@ -137,7 +137,12 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
-              tutorial_name: [hello_world]
+              tutorial_name:
+                - hello_world
+                - parent_no_children
+                - parent_one_child_import_via_extdata
+                - parent_one_child_no_imports
+                - parent_two_siblings_connect_import_export
           requires:
             - build-and-test-MAPL-on-<< matrix.compiler >>
           baselibs_version: *baselibs_version
