@@ -56,11 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Added
+
 - Add tutorials
 
 ### Changed
 
 - Moved to `checkout@v3` action due to git safe directory issue
+- Added tutorials to CI
 
 ### Removed
 
