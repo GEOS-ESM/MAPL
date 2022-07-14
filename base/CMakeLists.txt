@@ -19,10 +19,10 @@ set (srcs
   ESMF_CFIOPtrVectorMod.F90             MAPL_RegridderVector.F90
   ESMFL_Mod.F90                         MAPL_SatVapor.F90
   FileMetadataUtilities.F90             MAPL_GetLatLonCoord.F90             MAPL_SimpleAlarm.F90
-  FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                MAPL_SimpleBundleMod.F90 
+  FileMetadataUtilitiesVector.F90       MAPL_GridManager.F90                MAPL_SimpleBundleMod.F90
   MAPL_AbstractGridFactory.F90          MAPL_GridSpec.F90                   MAPL_StringGridFactoryMap.F90
   MAPL_GridType.F90                     MAPL_StringGridMap.F90              MaplGrid.F90
-  MAPL_AbstractRegridder.F90                      
+  MAPL_AbstractRegridder.F90
   MAPL_StringRouteHandleMap.F90
   MAPL_IdentityRegridder.F90            MAPL_stubs.F90
   MAPL_Integer64GridFactoryMap.F90      MAPL_sun_uc.F90
@@ -37,16 +37,16 @@ set (srcs
   MAPL_ConservativeRegridder.F90        MAPL_MaxMinMod.F90                  MAPL_VerticalInterpMod.F90
   MAPL_CubedSphereGridFactory.F90       MAPL_MemUtils.F90                   MAPL_VerticalMethods.F90
   MAPL_DefGridName.F90                  Base.F90                        MAPL_VotingRegridder.F90
-  MAPL_EsmfRegridder.F90                MAPL_NewArthParser.F90              
+  MAPL_EsmfRegridder.F90                MAPL_NewArthParser.F90
   MAPL_ESMFTimeVectorMod.F90            Regrid_Functions_Mod.F90
-  MAPL_EtaHybridVerticalCoordinate.F90                  
-  MAPL_NominalOrbitsMod.F90           
+  MAPL_EtaHybridVerticalCoordinate.F90
+  MAPL_NominalOrbitsMod.F90
   MAPL_LocStreamFactoryMod.F90          MAPL_LocstreamRegridder.F90
   MAPL_ExternalGridFactory.F90
   ServerManager.F90 ApplicationSupport.F90
-  ESMF_CFIOPtrVectorMod.F90 
+  ESMF_CFIOPtrVectorMod.F90
   CFIOCollection.F90                    MAPL_CFIO.F90
-  regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90 
+  regex_module.F90 StringTemplate.F90 MAPL_SphericalGeometry.F90
   regex_F.c
   c_mapl_locstream_F.c  getrss.c  memuse.c
   Base/Base_Base.F90 Base/Base_Base_implementation.F90
@@ -92,7 +92,7 @@ if (EXTENDED_SOURCE)
   esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})
 endif()
 
-# Users guide 
+# Users guide
 if (LATEX_FOUND)
   add_subdirectory (TeX)
 endif ()
