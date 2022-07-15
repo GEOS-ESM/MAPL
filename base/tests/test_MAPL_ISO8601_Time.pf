@@ -374,17 +374,6 @@ contains
    end subroutine test_parse_timezone_offset
 
    @test
-   subroutine test_plus_or_minus()
-      character, dimension(:), parameter :: CHARACTERS = ['-', '+', '=', 'B']
-      integer, dimension(size(CHARACTERS)), parameter :: SIGNS = [-1, 1, 1, 1]
-      integer :: i
-
-      do i = 1, size(CHARACTERS), &
-         @assertEqual(SIGNS(i), plus_or_minus(CHARACTERS(i)))
-
-   end subroutine test_plus_or_minus
-
-   @test
    subroutine test_getters()
       character(len=*), parameter :: isostring = '20220707T174107.513Z'
       integer, parameter :: YEAR = 2022

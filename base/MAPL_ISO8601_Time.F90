@@ -1,4 +1,66 @@
-!Allow ordinal dates as input/output?
+! ISO 8601 Date/Time Handling
+! This module implements the ISO 8601 standard for date/time strings.
+! Specifically, it implements ISO 8601-1:2019, but not ISO 8601-1:2019-2
+! Zero-padded strings must be zero padded to their full width, unless
+! otherwise specified.
+
+!      YYYY
+! Years are represented by 4 numerical characters (Y).
+! The range is: '0000' to '9999' representing the years 1 BCE ('0000') to
+! 9999 CE ('9999').
+! Strict ISO 8601-1:2019 compliance disallows years before 1583 CE.
+! Strict ISO 8601-1:2019 compliance can be enabled with 'STRICT_ISO8601'. 
+
+
+!      ±YYYYY
+! The optional ±YYYYY extension is not supported.
+
+! These date formats are supported.
+!      YYYY-MM-DD or YYYYMMDD
+!      YYYY-MM (but not YYYYMM)
+! YYYY is the year as specified above. 
+! MM is the zero-padded month from '01' (January) to '12' (December).
+! DD is the zero-padded day of the month from '01' (1) to '31' (31).
+! The range of allowed DD strings varies according to the actual
+! calendar, though the first day is always '01'.
+
+! These formats are not supported (calendar week and ordinal day).
+!      YYYY-Www	or	YYYYWww
+!      YYYY-Www-D	or	YYYYWwwD
+!      YYYY-DDD	or	YYYYDDD
+
+! Time
+!      Thh:mm:ss.sss	or	Thhmmss.sss
+!      Thh:mm:ss	or	Thhmmss
+!      Thh:mm	or	Thhmm
+!      Thh
+
+! Fully-formed time with time zone. Local time not-supported
+!      <time>Z
+! These time zone formats are not implemented.
+!      <time>±hh:mm
+!      <time>±hhmm
+!      <time>±hh
+
+! Datetime
+!      <date>T<time>
+
+! ISO 8601 Durations
+!      PnYnMnDTnHnMnS
+
+! These ISO 8601 Duration formats are not supported.
+!      PnW
+!      P<date>T<time>
+
+! ISO 8601 Interval
+!      <start>/<end>
+!      <start>/<duration>
+!      <duration>/<end>
+!      <duration>
+
+! Repeating ISO 8601 Intervals are not supported.
+!      Rn/<interval>
+!      R/<interval>
 
 !#define STRICT_ISO8601 !Uncomment for strict ISO8601 compliance
 #include "MAPL_Exceptions.h"
@@ -20,14 +82,20 @@ module MAPL_ISO8601_Time
       module procedure :: divides
    end interface divides
 
+   interface get_integer_digit
+      module procedure :: get_integer_digit_from_character
+      module procedure :: get_integer_digit_from_string
+   end interface get_integer_digit
+
    ! Error handling
    integer, parameter :: SUCCESS = 0
    integer, parameter :: PARSING_ERROR = -2
+   integer, parameter :: INVALID = -1
 
    ! parameters for processing date, time, and datetime strings
    integer, parameter :: NUM_DATE_FIELDS = 3
    integer, parameter :: NUM_TIME_FIELDS = 5
-   character(len=10), parameter :: WHOLE_DIGITS = '0123456789'
+   character(len=10), parameter :: DIGIT_CHARACTERS = '0123456789'
    character, parameter :: TIME_PREFIX = 'T'
    integer, parameter :: MINUTES_PER_HOUR = 60
 
@@ -44,9 +112,17 @@ module MAPL_ISO8601_Time
    integer, parameter :: IT_HOUR = IT_WIDTH * IT_MINUTE
 
    type :: ISO8601Date
-      integer :: year
-      integer :: month
-      integer :: day
+      private
+      integer :: year_
+      integer :: month_
+      integer :: day_
+   contains
+      procedure, public :: get_year
+      procedure, private :: set_year
+      procedure, public :: get_month
+      procedure, private :: set_month
+      procedure, public :: get_day
+      procedure, private :: set_day
    end type ISO8601Date
 
    interface ISO8601Date
@@ -54,18 +130,39 @@ module MAPL_ISO8601_Time
    end interface ISO8601Date
 
    type :: date_fields
-      integer :: year
-      integer :: month
-      integer :: day
-      logical :: is_valid
+      private
+      integer :: year_
+      integer :: month_
+      integer :: day_
+      logical :: is_valid_
+   contains
+      procedure, public :: get_year
+      procedure, private :: set_year
+      procedure, public :: get_month
+      procedure, private :: set_month
+      procedure, public :: get_day
+      procedure, private :: set_day
+      logical :: is_valid_
    end type date_fields
    
    type :: ISO8601Time
-      integer :: hour
-      integer :: minute
-      integer :: second
-      integer :: millisecond
-      integer :: timezone_offset = Z
+      private
+      integer :: hour_
+      integer :: minute_
+      integer :: second_
+      integer :: millisecond_
+      integer :: timezone_offset_ = Z
+   contains
+      procedure, public :: get_hour
+      procedure, private :: set_hour
+      procedure, public :: get_minute
+      procedure, private :: set_minute
+      procedure, public :: get_second
+      procedure, private :: set_second
+      procedure, public :: get_millisecond
+      procedure, private :: set_millisecond
+      procedure, public :: get_timezone_offset
+      procedure, private :: set_timezone_offset
    end type ISO8601Time
 
    interface ISO8601Time
@@ -73,26 +170,53 @@ module MAPL_ISO8601_Time
    end interface ISO8601Time
 
    type :: time_fields
-      integer :: hour
-      integer :: minute
-      integer :: second
-      integer :: millisecond
-      integer :: timezone_offset 
-      logical :: is_valid
+      private
+      integer :: hour_
+      integer :: minute_
+      integer :: second_
+      integer :: millisecond_
+      integer :: timezone_offset_
+      logical :: is_valid_
+   contains
+      procedure, public :: get_hour
+      procedure, private :: set_hour
+      procedure, public :: get_minute
+      procedure, private :: set_minute
+      procedure, public :: get_second
+      procedure, private :: set_second
+      procedure, public :: get_millisecond
+      procedure, private :: set_millisecond
+      procedure, public :: get_timezone_offset
+      procedure, private :: set_timezone_offset
+      procedure, public :: is_valid
+      procedure, private :: set_valid
    end type time_fields
 
    type :: ISO8601DateTime
-      type(ISO8601Date) :: date
-      type(ISO8601Time) :: time
+      private
+      type(ISO8601Date) :: date_
+      type(ISO8601Time) :: time_
    contains
-      procedure, pass(self) :: year
-      procedure, pass(self) :: month
-      procedure, pass(self) :: day
-      procedure, pass(self) :: hour
-      procedure, pass(self) :: minute
-      procedure, pass(self) :: second
-      procedure, pass(self) :: millisecond
-      procedure, pass(self) :: timezone_offset
+      procedure, public :: get_date
+      procedure, private :: set_date
+      procedure, public :: get_time
+      procedure, private :: set_time
+      procedure, public :: get_year
+      procedure, private :: set_year
+      procedure, public :: get_month
+      procedure, private :: set_month
+      procedure, public :: get_day
+      procedure, private :: set_day
+      procedure, public :: get_hour
+      procedure, private :: set_hour
+      procedure, public :: get_minute
+      procedure, private :: set_minute
+      procedure, public :: get_second
+      procedure, private :: set_second
+      procedure, public :: get_millisecond
+      procedure, private :: set_millisecond
+      procedure, public :: get_timezone_offset
+      procedure, private :: set_timezone_offset
    end type ISO8601DateTime
 
    interface ISO8601DateTime
@@ -100,12 +224,26 @@ module MAPL_ISO8601_Time
    end interface ISO8601DateTime
 
    type :: ISO8601Duration
-      integer :: years
-      integer :: months
-      integer :: days
-      integer :: hours
-      integer :: minutes
-      integer :: seconds
+      private
+      integer :: years_
+      integer :: months_
+      integer :: days_
+      integer :: hours_
+      integer :: minutes_
+      integer :: seconds_
+   contains
+      procedure, public :: get_years
+      procedure, private :: set_years
+      procedure, public :: get_months
+      procedure, private :: set_months
+      procedure, public :: get_days
+      procedure, private :: set_days
+      procedure, public :: get_hours
+      procedure, private :: set_hours
+      procedure, public :: get_minutes
+      procedure, private :: set_minutes
+      procedure, public :: get_seconds
+      procedure, private :: set_seconds
    end type ISO8601Duration
 
    interface ISO8601Duration
@@ -113,16 +251,24 @@ module MAPL_ISO8601_Time
    end interface ISO8601Duration
 
    type :: ISO8601TimeInterval
-      type(ISO8601DateTime) :: start_datetime
-      type(ISO8601DateTime) :: end_datetime
-      integer :: repetitions = 1
+      private
+      type(ISO8601DateTime) :: start_datetime_
+      type(ISO8601DateTime) :: end_datetime_
+      integer :: repetitions_ = 1
+   contains
+      procedure, public :: get_start_datetime
+      procedure, private :: set_start_datetime
+      procedure, public :: get_end_datetime
+      procedure, private :: set_end_datetime
+      procedure, public :: get_repetitions
+      procedure, private :: set_repetitions
    end type ISO8601TimeInterval
 
 contains
 
    elemental pure logical function is_digit(c)
       character, intent(in) :: c
-      is_digit = scan(c, WHOLE_DIGITS) > 0
+      is_digit = scan(c, DIGIT_CHARACTERS) > 0
    end function is_digit
 
    pure logical function is_whole_number(n) 
@@ -130,21 +276,21 @@ contains
       is_valid_whole_number = .not. n < 0
    end function is_whole_number
 
-   pure integer function get_whole_number_from_character(c)
+   pure integer function get_integer_digit_from_character(c)
       character, intent(in) :: c
-      get_whole_number_from_character = scan(c, WHOLE_DIGITS) - 1
-   end function get_whole_number_from_character
+      get_integer_digit_from_character = scan(c, DIGIT_CHARACTERS) - 1
+   end function get_integer_digit_from_character
        
-   pure integer function get_whole_number(s, i)
+   pure integer function get_integer_digit_from_string(s, i)
       character(len=*), intent(in) :: s
       integer, intent(in) :: i
 
       if((i>0) .and. (i<len(s)+1) then
-         get_whole_number = get_whole_number_from_character(s(i:i))
+         get_integer_digit_from_string = get_integer_digit(s(i:i))
       else
-         get_whole_number=-1
+         get_integer_digit_from_string = INVALID
       end if
-   end function get_whole_number
+   end function get_integer_digit_from_string
        
    pure integer function read_whole_number(string)
       character(len=*), intent(in) :: string
@@ -164,7 +310,7 @@ contains
             place_value = place_value * BASE
          else
             read_whole_number = digit_value
-            break
+            exit
          end if
       end do
    end function read_whole_number
@@ -195,68 +341,53 @@ contains
       integer, parameter :: MONTH_POSITION = 5
       integer, parameter :: DAY_POSITION = 7
       character(len=LENGTH) :: undelimited
-      integer :: year => fields%year
-      integer :: month => fields%month
-      integer :: day => fields%day
-      logical :: is_valid => fields%is_valid
       
       undelimited=undelimit(datestring, DELIMITER) 
 
-      is_valid=len(undelimited) == LENGTH
-      if(.not. is_valid) return
-      
-      year = read_whole_number(undelimited(YEAR_POSITION, MONTH_POSITION-1))
-      month = read_whole_number(undelimited(MONTH_POSITION, DAY_POSITION-1))
-      day = read_whole_number(undelimited(DAY_POSITION, LENGTH))
-      is_valid = is_valid_date(fields)
+      if(len(undelimited) == LENGTH) then
+         fields%year_ = read_whole_number(undelimited(YEAR_POSITION, MONTH_POSITION-1))
+         fields%month_ = read_whole_number(undelimited(MONTH_POSITION, DAY_POSITION-1))
+         fields%day_ = read_whole_number(undelimited(DAY_POSITION, LENGTH))
+         fields%is_valid_ = is_valid_date(fields)
+      else
+         fields%is_valid_ = .FALSE.
+      end if
  
    end function parse_date
 
-   pure function  parse_timezone_offset(offset, field_width) result(tzo)
+   pure function parse_timezone_offset(offset, field_width) result(tzo)
       character(len=*), intent(in) :: offset
       integer, intent(in) :: field_width
-      integer, parameter :: INVALID_OFFSET = -1
+      integer :: offset_length
       integer :: tzo
       integer :: minutes
       integer :: hours
+      
+      offset_length = len_trim(offset)
 
-      select case(len_trim(offset))
-         case(field_width)
-            hours = read_whole_number(offset)
-            tzo = hours*MINUTES_PER_HOUR
-
-         case(2*field_width)
-            hours = read_whole_number(offset(1:field_width))
-            minutes = read_whole_number(offset(field_width+1:len(offset)))    
-            if(is_whole_number(hours) .and. is_whole_number(minutes) then
-               tzo = hours*MINUTES_PER_HOUR + minutes
-            else
-               tzo = INVALID_OFFSET
-            end if
-
-         case default
-            tzo = INVALID_OFFSET
-
-      end select case
+      if(offset_length == field_width) then
+         hours = read_whole_number(offset)
+         tzo = hours*MINUTES_PER_HOUR
+      elseif (offset_length == 2*field_width) then
+         hours = read_whole_number(offset(1:field_width))
+         minutes = read_whole_number(offset(field_width+1:len(offset)))    
+         if(is_whole_number(hours) .and. is_whole_number(minutes) then
+            tzo = hours*MINUTES_PER_HOUR + minutes
+         else
+            tzo = INVALID
+         end if
+      else
+         tzo = INVALID
+      end if
 
    end function  parse_timezone_offset
  
-   pure integer function plus_or_minus(c)
-      character, intent(in) :: c
-      if(c == '-') then
-         plus_or_minus = -1
-      else
-         plus_or_minus = +1
-      end if
-   end function multiply_by
-
    pure function parse_time(timestring) result(fields)
       character(len=*), intent(in) :: timestring
       type(time_fields) :: fields
       integer, parameter :: LENGTH = 6
       character, parameter :: DELIMITER = ':'
       character, parameter :: DECIMAL_POINT = '.' 
-      character(len=3), parameter :: TIMEZONE_PREFIXES = 'Z+-'
       integer, parameter :: FIELDWIDTH = 2
       integer, parameter :: MS_WIDTH = 3
       integer, parameter :: PSTART = 1
@@ -271,71 +402,83 @@ contains
       integer, parameter :: MS_STOP = MS_START + MS_WIDTH - 1
       logical :: has_millisecond = .FALSE.
       integer :: pos
-      integer :: hour => fields%hour
-      integer :: minute => fields%minute
-      integer :: second => fields%second
-      integer :: millisecond => fields%millisecond
-      integer :: timezone_offset => fields%timezone_offset
-      logical :: is_valid => fields%is_valid
       character(len=LENGTH) :: undelimited
       character :: c
-      integer :: multiplier
       character(len=LENGTH) :: offset
       integer :: offset_minutes = -1
+      integer :: undelimited_length
+      integer :: signum
       
       ! Check for mandatory Time prefix
       pos = PSTART
-      is_valid = timestring(pos:pos) == TIME_PREFIX
-      if(.not. is_valid) return
+
+      if(.not. timestring(pos:pos) == TIME_PREFIX) then
+         fields%is_valid_ = .FALSE.
+         return
+      end if
       
-      ! Parse mandatory timezone offset
-      pos = scan(timestring, TIMEZONE_PREFIXES)
-      is_valid = pos > 0
-      if(.not. is_valid) return
+      pos = scan(timestring, '-Z+')
+
+      if(.not. pos > 0) then
+         fields%is_valid_ = .FALSE.
+         return
+      end if
 
       c = timestring(pos:pos)
 
-      if(c == 'Z') then
-         timezone_offset = Z
-         is_valid = pos == len(timestring)
+      select case(c)
+         case('Z')
+            signum = 0
+         case('-')
+            signum = -1
+         case('+')
+            signum = +1
+         case default
+            fields%is_valid_ = .FALSE.
+            return
+      end select case
+
+      if(signum == 0) then
+         fields%timezone_offset_ = Z
+         fields%is_valid_ = pos == len(timestring)
       else
-         multiplier = plus_or_minus(c)
          offset = undelimit(timestring(pos+1:len(timestring)), DELIMITER)
          offset_minutes = parse_timezone_offset(offset,, FIELDWIDTH)
-         is_valid = is_whole_number(offset_minutes)
-         if(.not. is_valid) return
-         timezone_offset = multiplier * offset_minutes
+         fields%is_valid_ = is_whole_number(offset_minutes)
+         fields%timezone_offset_ = signum * offset_minutes
       end if
 
-      ! Select portion starting at hour and ending before timezone
-      undelimited=timestring(PSTOP+1:pos-1)
+      if(.not. fields%is_valid_) return
+
+      ! Select portion starting at fields%hour and ending before timezone
+      undelimited = timestring(PSTOP+1:pos-1)
 
       ! Remove delimiter and decimal point
       undelimited=undelimit(undelimit(undelimited, DELIMITER), DECIMAL_POINT) 
+      undelimited_length = len_trim(undelimited)
 
-      select case(len_trim(undelimited))
-         case(LENGTH)
-            is_valid == .TRUE.
-         case(LENGTH+MS_WIDTH)
-            has_millisecond = .TRUE.
-            is_valid == .TRUE.
-         case default
-            is_valid = .FALSE.
-      end select case
+      if(undelimited_length == LENGTH) then
+         fields%is_valid_ = .TRUE.
+      elseif(undelimited_length == LENGTH+MS_WIDTH) then
+         has_millisecond = .TRUE.
+         fields%is_valid_ = .TRUE.
+      else
+         fields%is_valid_ = .FALSE.
+      end if 
 
-      if(.not. is_valid) return
+      if(.not. fields%is_valid_) return
 
-      hour = read_whole_number(undelimited(HSTART, HSTOP))
-      minute = read_whole_number(undelimited(MSTART,MSTOP))
-      second = read_whole_number(undelimited(SSTART, SSTOP))
+      fields%hour_ = read_whole_number(undelimited(HSTART, HSTOP))
+      fields%minute_ = read_whole_number(undelimited(MSTART,MSTOP))
+      fields%second_ = read_whole_number(undelimited(SSTART, SSTOP))
 
       if(has_millisecond) then
-         millisecond = read_whole_number(undelimited(MS_START, MS_STOP))
+         fields%millisecond_ = read_whole_number(undelimited(MS_START, MS_STOP))
       else
-         millisecond = 0
+         fields%millisecond_ = 0
       end if
 
-      is_valid = is_valid_time(fields)
+      fields%is_valid_ = is_valid_time(fields)
    end function parse_time
 
 
@@ -459,28 +602,21 @@ contains
       type(date_fields), intent(in) :: date
       integer, parameter :: LB_DAY = 0
       integer :: month_end
-      integer :: year => date%year
-      integer :: month => date%month
-      integer :: day => date%day
 
-      is_valid_date = is_valid_year(year) .and. &
-         is_valid_month(month) .and. &
-         is_between(LB_DAY, get_month_end(year, month)+1, day) 
+      is_valid_date = is_valid_year(date%year_) .and. &
+         is_valid_month(date%month_) .and. &
+         is_between(LB_DAY, get_month_end(date%year_, date%month_)+1, date%day_) 
 
    end function is_valid_date
 
    pure logical function is_valid_time(time)
-      integer :: hour => time%hour
-      integer :: minute => time%minute
-      integer :: second => time%second
-      integer :: millisecond => time%millisecond
-      integer :: timezone_offset => time%timezone_offset
+      type(time_fields), intent(in) :: time
       
-      is_valid_time = is_valid_hour(hour) .and. &
-         is_valid_minute(minute) .and. &
-         is_valid_second(second) .and. &
-         is_valid_millisecond(millisecond) .and. &
-         is_valid_timezone_offset(timezone_offset)
+      is_valid_time = is_valid_hour(time%hour_) .and. &
+         is_valid_minute(time%minute_) .and. &
+         is_valid_second(time%second_) .and. &
+         is_valid_millisecond(time%millisecond_) .and. &
+         is_valid_timezone_offset(time%timezone_offset_)
 
    end function is_valid_time
 
@@ -496,10 +632,10 @@ contains
       integer :: status
       type(date_fields) :: fields
       fields = parse_date(trim(adjustl(isostring)))
-      if(fields%is_valid) then
-         date%year = fields%year
-         date%month = fields%month
-         date%day = fields%day
+      if(fields%is_valid_) then
+         date%year_ = fields%year_
+         date%month_ = fields%month_
+         date%day_ = fields%day_
       else
          status = PARSING_ERROR
       end if
@@ -513,10 +649,10 @@ contains
       integer :: status
       type(time_fields) :: fields
       fields = parse_time(trim(adjustl(isostring)))
-      if(fields%is_valid) then
-         date%year = fields%year
-         date%month = fields%month
-         date%day = fields%day
+      if(fields%is_valid_) then
+         date%year_ = fields%year_
+         date%month_ = fields%month_
+         date%day_ = fields%day_
       else
          status = PARSING_ERROR
       end if
@@ -534,7 +670,7 @@ contains
       integer :: time_index = 0
       time_index = index(isostring,TIME_PREFIX)
       if(time_index > 0) then
-         date=ISO8601Date(isostring(1:time_index-1), __RC__)
+         date=ISO8601Date(isostring(1:time_index-1), _RC)
          time=ISO8601Time(isostring(time_index:len(isostring)), __RC__)
       else
          status = PARSING_ERROR
@@ -555,10 +691,8 @@ contains
       character, parameter :: HOUR_DESIGNATOR = 'H'
       character, parameter :: MINUTE_DESIGNATOR = 'M'
       character, parameter :: SECOND_DESIGNATOR = 'S'
-      
-      character(len=*) :: ljustified
-      character(len=*) :: date
-      character(len=*) :: time
+     !PnYnMnDTnHnMnS
+      character(len=:), allocatable :: ljustified
       logical :: is_duration
       integer :: date_pos
       integer :: time_pos
@@ -595,10 +729,8 @@ contains
                end if
             end if
          end if
-             
-         end select case
       else
-         status = INVALID_DURATION
+         status = INVALID
       end if
       
       rc = status
@@ -613,6 +745,7 @@ contains
       integer, intent(inout) :: rc
       type(ISO8601Interval) :: interval
       integer :: status
+      RC = INVALID
    end function construct_ISO8601Interval
 
 ! END HIGH-LEVEL CONSTRUCTORS
@@ -621,43 +754,43 @@ contains
 ! TYPE-BOUND METHODS
    integer function year(self)
       class(ISO8601DateTime), intent(in) :: self
-      year = self%date%year()
+      year = self%date%year_
    end function year
 
    integer function month(self)
       class(ISO8601DateTime), intent(in) :: self
-      month = self%date%month()
+      month = self%date%month_
    end function month
 
    integer function day(self)
       class(ISO8601DateTime), intent(in) :: self
       integer :: d
-      day = self%date%day()
+      day = self%date%day_
    end function day
 
    integer function hour(self)
       class(ISO8601DateTime), intent(in) :: self
-      hour = self%date%hour()
+      hour = self%date%hour_
    end function hour
 
    integer function minute(self)
       class(ISO8601DateTime), intent(in) :: self
-      minute = self%date%minute()
+      minute = self%date%minute_
    end function minute
 
    integer function second(self)
       class(ISO8601DateTime), intent(in) :: self
-      second = self%date%second()
+      second = self%date%second_
    end function second
 
    integer function millisecond(self)
       class(ISO8601DateTime), intent(in) :: self
-      millisecond = self%date%millisecond()
+      millisecond = self%date%millisecond_
    end function millisecond
 
    integer function timezone_offset(self)
       class(ISO8601DateTime), intent(in) :: self
-      timezone_offset = self%date%timezone_offset()
+      timezone_offset = self%date%timezone_offset_
    end function timezone_offset
 
 ! END TYPE-BOUND METHODS
@@ -745,414 +878,3 @@ contains
 
 ! END HIGH-LEVEL CONVERSION FUNCTIONS
 end module MAPL_ISO8601_Time
-
-! UNUSED
-!! OPERATORS
-!   public :: operator(==)
-!
-!   interface operator(==)
-!      module procedure :: datefields_equal
-!      module procedure :: timefields_equal
-!      module procedure :: iso_date_equal
-!      module procedure :: iso_time_equal
-!      module procedure :: iso_datetime_equal
-!   end interface
-
-!   pure function datefields_equal(datefields_a, datefields_b) result(truth_value)
-!      type(date_fields), intent(in) :: datefields_a
-!      type(date_fields), intent(in) :: datefields_b
-!      logical :: truth_value
-!      truth_value = (datefields_a%year == datefields_b%year) &
-!         .and. (datefields_a%month == datefields_b%month) &
-!         .and. (datefields_a%day == datefields_b%day)
-!   end function datefields_equal
-!   
-!   pure function timefields_equal(timefields_a, timefields_b) result(truth_value)
-!      type(time_fields), intent(in) :: timefields_a
-!      type(time_fields), intent(in) :: timefields_b
-!      logical :: truth_value
-!      truth_value = (timefields_a%hour == timefields_b%hour) &
-!         .and. (timefields_a%minute == timefields_b%minute) &
-!         .and. (timefields_a%second == timefields_b%second) &
-!         .and. (timefields_a%millisecond == timefields_b%millisecond)
-!   end function timefields_equal
-!
-!   pure function iso_date_equal(date_a, date_b) result(truth_value)
-!      type(ISO8601Date), intent(in) :: date_a
-!      type(ISO8601Date), intent(in) :: date_b
-!      logical :: truth_value
-!      truth_value = datefields_equal(date_a%fields, date_b%fields)
-!   end function iso_date_equal
-!
-!   pure function iso_time_equal(time_a, time_b) result(truth_value)
-!      type(ISO8601Date), intent(in) :: time_a
-!      type(ISO8601Date), intent(in) :: time_b
-!      logical :: truth_value
-!      truth_value = timefields_equal(time_a%fields, time_b%fields) &
-!         .and. time_a%timezone_offset == time_b%timezone_offset
-!   end function iso_time_equal
-!
-!   pure function iso_datetime_equal(datetime_a, datetime_b) result(truth_value)
-!      type(ISO8601DateTime), intent(in) :: datetime_a
-!      type(ISO8601DateTime), intent(in) :: datetime_b
-!      logical :: truth_value
-!      truth_value = iso_date_equal(datetime_a%date, datetime_b%date) &
-!         .and. iso_time_equal(datetime_a%time, datetime_b%time)
-!   end function iso_datetime_equal
-!
-!! END OPERATORS
-
-
-   ! <time>Z <timezone_offset>
-   ! <time>+-hh <timezone_offset>
-   ! <time>+-hh:mm <timezone_offset>
-   ! <time>+-hhmm <timezone_offset>
-
-!   function year(date) result(y)
-!      class(ISO8601Date), intent(in) :: date
-!      integer :: y
-!      y = date%year
-!   end function year
-!
-!   function month(date) result(m)
-!      class(ISO8601Date), intent(in) :: date
-!      integer :: m
-!      m = date%month
-!   end function month
-!
-!   function day(date) result(d)
-!      class(ISO8601Date), intent(in) :: date
-!      integer :: d
-!      d = date%day
-!   end function day
-!
-!   function hour(time) result(h)
-!      class(ISO8601Time), intent(in) :: time
-!      integer :: h
-!      h = time%hour
-!   end function hour
-!
-!   function minute(time) result(m)
-!      class(ISO8601Time), intent(in) :: time
-!      integer :: m
-!      m = time%minute
-!   end function minute
-!
-!   function second(time) result(s)
-!      class(ISO8601Time), intent(in) :: time
-!      integer :: s
-!      s = time%second
-!   end function second
-!
-!   function millisecond(time) result(ms)
-!      class(ISO8601Time), intent(in) :: time
-!      integer :: ms
-!      ms = time%millisecond
-!   end function millisecond
-!
-!   function timezone_offset(time) result(tz)
-!      class(ISO8601Time), intent(in) :: time
-!      integer :: tz
-!      tz = time%timezone_offset
-!   end function timezone_offset
-
-!   subroutine parse_datestring(s, fields, status)
-!      character(len=*), intent(in) :: s
-!      integer, dimension(DIM_DF), intent(out) :: fields
-!      integer, intent(inout) :: status
-!      integer, dimension(DIM_DF) :: f
-!      if(is_extended_date(s)) then
-!         call parse_isostring(s, fields, FDD, status)
-!      else if(is_basic_date(s)) then
-!         call parse_isostring(s, fields, FUD, status)
-!      else
-!         status = -1
-!      end if
-!   end subroutine parse_datestring
-!
-!   subroutine parse_timestring(s, fields, status)
-!      character(len=*), intent(in) :: s
-!      integer, dimension(DIM_TF), intent(out) :: fields
-!      integer, intent(inout) :: status
-!
-!      fields(size(fields)) = TIMEZONE_DEFAULT
-!
-!      if(is_extended_time(s)) then
-!         call parse_isostring(s, fields(1:4), FDT, status)
-!      else if(is_basic_time(s)) then
-!         call parse_isostring(s, fields(1:4), FUT, status)
-!      else
-!         status = -1
-!      end if
-!   end subroutine parse_timestring
-!
-!   subroutine parse_datetimestring(s, datefields, timefields, status)
-!      character(len=*), intent(in) :: s
-!      integer, dimension(DIM_DF), intent(out) :: datefields
-!      integer, dimension(DIM_TF), intent(out) :: timefields
-!      integer, intent(inout) :: status
-!      character(len=len(s)), dimension(2) :: parts 
-! 
-!      parts = split_datetime_string(s) 
-!      call parse_datestring(trim(parts(1)),datefields,status)
-!      if(status == SUCCESS) then
-!         call parse_timestring(trim(parts(2)),timefields,status)
-!      else
-!         status = -1
-!      endif
-!   end subroutine parse_datetimestring
-!   subroutine parse_isostring(s, fields, fmts, status)
-!      character(len=*), intent(in) :: s
-!      integer, dimension(:), intent(inout) :: fields
-!      character(len=*), intent(in) :: fmts
-!      integer, intent(inout) :: status
-!      read (s, fmt=fmts, iostat=status) fields
-!   end subroutine parse_isostring
-!   pure logical function is_valid_day_ints(y, m, d)
-!      integer, intent(in) :: y
-!      integer, intent(in) :: m
-!      integer, intent(in) :: d
-!      integer :: month_end
-!
-!      if(is_valid_year(y) .and. is_valid_month(m)) then
-!         month_end = get_month_end(y, m)
-!         is_valid_day_ints = is_between(LB_DAY, month_end+1, d) 
-!      else
-!         is_valid_day_ints = .FALSE.
-!      endif
-!   end function is_valid_day_ints
-! pure function substring(string, n) result(substr)
-!    character(len=*), intent(in) :: string
-!    integer, intent(in) :: n
-!    if(abs(n) > len(string) .or. n == 0) then
-!       substr = ''
-!    else
-!       if(n < 0) then
-!          substr = string(len(string) + n + 1, len(string))
-!       else
-!          substr = string(1, n)
-!    else
-! end function substring
-
-!   pure function split_to_ints(intstr, widths) result(ints)
-!      character(len=*), intent(in) :: intstr
-!      integer, dimension(:), intent(in) :: widths
-!      integer, dimension(size(widths)) :: ints 
-!      integer :: i
-!      integer :: first
-!      do i, len(widths)
-!         read (intstr(first:first+widths(i)-1)), ints(i)
-!         first = first + widths(i)
-!      end do
-!   end function split_to_integer
-
-!! SIMPLE CONSTRUCTORS
-!
-!   pure function construct_date_fields(fields) result(df)
-!      integer, dimension(NUM_DATE_FIELDS), intent(in) :: fields
-!      type(date_fields) :: df
-!      df%year = fields(YEAR_INDEX)
-!      df%month = fields(MONTH_INDEX)
-!      df%day = fields(DAY_INDEX)
-!   end function construct_date_fields
-!
-!   pure function construct_time_fields(fields) result(tf)
-!      integer, dimension(NUM_TIME_FIELDS), intent(in) :: fields
-!      type(time_fields) :: tf
-!      tf%hour = fields(HOUR_INDEX)
-!      tf%minute = fields(MINUTE_INDEX)
-!      tf%second = fields(SECOND_INDEX)
-!      tf%millisecond = fields(MILLISECOND_INDEX)
-!      tf%timezone_offset = fields(TIMEZONE_INDEX)
-!   end function construct_time_fields
-!
-!! END SIMPLE CONSTRUCTORS
-
-!   pure function character_array(s) result(a)
-!      character(len=*), intent(in) :: s
-!      character, dimension(len(s)) :: a
-!      integer :: i
-!      a = [(s(i:i), i= 1, len(s))]
-!   end function character_array
-
-!pure function make_string(a) result(s)
-!   character, dimension(:), intent(in) :: a 
-!   character(len=size(a)) :: s
-!   integer :: i
-!   do i, len(s), s(i:i) = a(i)
-!end function make_string
-
-!   pure function undelimit(string, delimiter) result(undelimited)
-!      character(len=*), intent(in) :: string
-!      character, intent(in) :: delimiter
-!      character(len=*) :: undelimited = ''
-!      integer :: i
-!      integer :: pos = 1
-!      do i = 1, len(string)
-!         if(string(i:i) /= d) then
-!            undelimited(pos:pos) = string(i:i)
-!            pos = pos + 1
-!         end if
-!      end do
-!   end function undelimit
-!
-!   elemental pure logical function is_digit(c)
-!      character, intent(in) :: c
-!      integer, parameter :: lb = iachar('0') - 1
-!      integer, parameter :: ub = iachar('9') + 1
-!      is_digit = iachar(c) > lb .and. iachar(c) < ub
-!   end function is_digit
-!
-!   pure logical function are_digits(s)
-!      character(len=*), intent(in) :: s
-!      are_digits = len(s) > 0 .and. all(is_digit(make_char_array(s)))
-!   end function are_digits
-!
-!   pure logical function is_extended_date(s)
-!      character(len=*), intent(in) :: s
-!      is_extended_date = len(s)==10 .and. are_digits(s(1:4)) &
-!         .and. s(5:5)==DD .and. are_digits(s(6:7)) .and. s(8:8)==DD &
-!         .and. are_digits(s(9:10))
-!   end function
-!   
-!   pure logical function is_basic_date(s)
-!      character(len=*), intent(in) :: s
-!      is_basic_date = len(s)==8 .and. are_digits(s)
-!   end function is_basic_date
-!
-!   pure logical function is_extended_time(s)
-!      character(len=*), intent(in) :: s
-!      
-!      select case(len(s))
-!         case(10)
-!            is_extended_time = s(1:1)==TP .and. are_digits(s(2:3)) &
-!               .and. s(4:4)==TD .and. are_digits(s(5:6)) .and. s(7:7)==TD &
-!               .and. are_digits(s(8:9)) .and. s(10:10)==TZ
-!         case(14)
-!            is_extended_time = s(1:1)==TP .and. are_digits(s(2:3)) &
-!               .and. s(4:4)==TD .and. are_digits(s(5:6)) .and. s(7:7)==TD &
-!               .and. are_digits(s(8:9)) .and. s(10:10)=='.' &
-!               .and. are_digits(s(11:13)) .and. s(14:14)==TZ
-!         case default
-!            is_extended_time = .FALSE.
-!      end select
-!
-!   end function is_extended_time
-!
-!   pure logical function is_basic_time(s)
-!      character(len=*), intent(in) :: s
-!      
-!      select case(len(s))
-!         case(8)
-!            is_basic_time = s(1:1)==TP .and. are_digits(s(2:7)) &
-!               .and. s(8:8)==TZ
-!         case(12)
-!            is_basic_time = s(1:1)==TP .and. are_digits(s(2:7)) &
-!               .and. s(8:8)=='.' .and. are_digits(s(9:11)) .and. s(12:12)==TZ
-!         case default
-!            is_basic_time = .FALSE.
-!      end select
-!
-!   end function is_basic_time
-!   pure function split_datetime_string(s) result(parts)
-!      character(len=*), intent(in) :: s
-!      character(len=len(s)), dimension(2) :: parts
-!      parts = split(s, TP)
-!   end function split_datetime_string
-!
-!   pure function split(s, delimiter) result(parts)
-!      character(len=*), intent(in) :: s
-!      character, intent(in) :: delimiter
-!      integer :: i = -1
-!      i = index(s, delimiter)
-!      if(i > 0) then
-!         parts(1) = adjustl(s(1:i-1))
-!         parts(2) = adjustl(s(i:len(s)))
-!      else
-!         parts(1) = adjustl(s)
-!         parts(2) = ''
-!      endif
-!   end function split
-!
-! HIGH-LEVEL PROCESSORS
-
-   ! parse date_string to create a ISO8601Date
-   ! ISO 8601 defines several date formats. This function parses these formats:
-   !  YYYYMMDD
-   !  YYYY-MM-DD
-   ! Subfields must be 0-padded strings of whole number digits.
-   ! YYYY   : interval [0000, 9999] 
-   ! MM     : interval [01, 12]
-   ! DD     : interval [01, 31]
-   ! Support for this format is not supported:
-   !  YYYY-MM
-   ! More or less than 4 digits is not supported. + or - are not supported.
-!   function process_date(date_string) result(date)
-!      character(len=*), intent(in) :: date_string
-!      type(ISO8601Date) :: date
-!      type(date_fields) :: df
-!      integer, dimension(DIM_DF) :: fields
-!      integer :: status = -1
-!      
-!      call parse_datestring(date_string, fields, status)
-!      if(status == SUCCESS) then
-!         df = date_fields(fields)
-!         if(df%valid) then
-!            date = ISO8601Date(df)
-!         else
-!            status == -1
-!         end if
-!      end if
-!   end function process_date
-
-   ! parse time_string to create a ISO8601Time
-   ! ISO 8601 defines several time formats. This function parses these formats:
-   !  THHMMSS.sssZ
-   !  THH:MM:SS.sssZ
-   ! Subfields must be 0-padded strings of whole number digits.
-   ! HH  : interval [00, 23] 
-   ! MM  : interval [00, 59]
-   ! SS  : interval [00, 59]
-   ! sss : interval [000, 999]
-   ! Support for this format is not supported:
-!   function process_time(time_string) result(time)
-!      character(len=*), intent(in) :: time_string
-!      type(ISO8601Date) :: time
-!      type(time_fields) :: tf
-!      integer, dimension(DIM_TF) :: fields
-!      integer :: status = -1
-!
-!      call parse_timestring(time_string, fields, status)
-!      if(status == SUCCESS) then
-!         tf = time_fields(fields)
-!         if(tf%valid) then
-!            time = ISO8601Time(df)
-!         else
-!            status = -1
-!         end if
-!      end if
-!   end function process_time
-
-   ! parse datetime_string to create a ISO8601DateTime
-   ! ISO 8601 defines several datetime formats. This function parses these formats:
-   !  YYYYMMDDTHHMMSS.sssZ
-   !  YYYY-MM-DDTHH:MM:SS.sssZ
-   ! See process_date and process_time for more detail on strings
-!   function process_datetime(datetime_string) result(datetime)
-!      character(len=*), intent(in) :: datetime_string
-!      integer, dimension(DIM_DF) :: datefields
-!      integer, dimension(DIM_TF) :: timefields
-!      type(ISO8601DateTime) :: datetime
-!      integer :: status 
-!       
-!      call parse_datetimestring(datetime_string, datefields, timefields, status)
-!      if(status==SUCCESS) then
-!         df = date_fields(datefields)
-!         tf = time_fields(timefields)
-!         if((df%valid) .and. (tf%valid)) then
-!            datetime = ISO8601DateTime(ISO8601Date(df), ISO8601Time(tf))
-!         else
-!            status == -1
-!         end if
-!      end if
-!   end function process_datetime
