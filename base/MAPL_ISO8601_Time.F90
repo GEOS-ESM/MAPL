@@ -14,7 +14,7 @@ module MAPL_ISO8601_Time
    public :: convert_ISO8601_to_integer_time
    public :: convert_ISO8601_to_integer_date
    public :: convert_ISO8601_to_esmf_time
-   !public :: convert_ISO8601_to_esmf_timeinterval
+   public :: convert_ISO8601_to_esmf_timeinterval
 
    interface operator(.divides.)
       module procedure :: divides
@@ -120,6 +120,11 @@ module MAPL_ISO8601_Time
 
 contains
 
+   elemental pure logical function is_digit(c)
+      character, intent(in) :: c
+      is_digit = scan(c, WHOLE_DIGITS) > 0
+   end function is_digit
+
    pure logical function is_whole_number(n) 
       integer, intent(in) :: n
       is_valid_whole_number = .not. n < 0
@@ -163,6 +168,23 @@ contains
          end if
       end do
    end function read_whole_number
+
+   pure function get_digits(string) result(digit_string)
+      character(len=*), intent(in) :: string
+      character(len=len_trim(string)) :: digit_string
+      integer :: i, j
+     
+      j = 0
+      do i=1,len(digit_string) 
+         if(is_digit(string(i:i)) then
+            j = j + 1
+            digit_string(j,j) = string(i:i)
+         end
+      end do
+
+      digit_string = trim(digit_string)
+
+   end function get_digits
 
    pure function parse_date(datestring) result(fields)
       character(len=*), intent(in) :: datestring
@@ -316,11 +338,7 @@ contains
       is_valid = is_valid_time(fields)
    end function parse_time
 
-   pure function parse_duration(durationstring) result(duration)
-      character(len=*), intent(in) :: durationstring
-      type(ISO8601Duration) :: duration
 
-   end function parse_duration
 ! LOW-LEVEL DATE & TIME PROCESSING UTILITIES
    ! Return true if factor divides dividend evenly, false otherwise
    pure logical function divides(factor, dividend)
@@ -538,26 +556,57 @@ contains
       character, parameter :: MINUTE_DESIGNATOR = 'M'
       character, parameter :: SECOND_DESIGNATOR = 'S'
       
-      character(len=*) :: trimmed
+      character(len=*) :: ljustified
+      character(len=*) :: date
+      character(len=*) :: time
       logical :: is_duration
+      integer :: date_pos
+      integer :: time_pos
       integer :: year_pos
       integer :: month_pos
       integer :: day_pos
       integer :: hour_pos
       integer :: minute_pos
       integer :: second_pos
+      integer :: year
+      integer :: month
+      integer :: day
+      integer :: hour
+      integer :: minute
+      integer :: second
       integer :: status
  
-      trimmed = trim(adjustl(isostring))
-      if(trimmed(PREFIX_POSITION:PREFIX_POSITION) == DURATION_PREFIX) then
+      ljustified = adjustl(isostring)
+      if(ljustified(PREFIX_POSITION:PREFIX_POSITION) == DURATION_PREFIX) then
          ! Write function to parse based on designator & preceding digits
          ! Return whole_number, 0 if not present
+         
+         date_pos = PREFIX_POSITION+1
+         time_pos = index(ljustified, TIME_PREFIX)
+         if(day_pos < time_pos) then
+            ! Date from day_pos to time_pos-1  
+            ! Date and Time
+            year_pos = index(ljustified(date_pos:time_pos-1), YEAR_DESIGNATOR)
+            month_pos = index(ljustified(date_pos:time_pos-1), YEAR_DESIGNATOR)
+            day_pos = index(ljustified(date_pos:time_pos-1), YEAR_DESIGNATOR)
+            if((year_pos <= month_pos) .and. (month_pos <= day_pos)) then
+               if(year_pos > 0) then
+                  year = 
+               end if
+            end if
+         end if
+             
+         end select case
       else
          status = INVALID_DURATION
       end if
       
       rc = status
    end function construct_ISO8601Duration
+
+   pure integer function parse_duration_field(duration, specifier)
+      character(len=*), intent(in) :: duration
+   end function parse_duration_field
    
    function construct_ISO8601Interval(isostring, rc) result(interval)
       character(len=*), intent(in) :: isostring
@@ -635,6 +684,26 @@ contains
       _UNUSED_DUMMY(unusable)
 
    end function convert_ISO8601_to_esmf_time
+
+   function convert_ISO8601_to_esmf_timeinterval(isostring, unusable, rc) result(interval)
+      character(len=*), intent(in) :: isostring
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+      type(ESMF_TimeInterval) :: interval
+      integer :: status
+ 
+      type(ISO8601Duration) :: duration
+      
+      duration = ISO8601Duration(isostring, __RC__)
+
+      call ESMF_TimeIntervalSet(interval, yy=duration%years, &
+         mm=duration%months, d=duration%days, h=duration%hours, &
+         m=duration%mins, s=duration%secs, __RC__)
+
+      status = SUCCESS
+      if(present(rc)) rc = status
+      _UNUSED_DUMMY(unusable)
+   end function convert_ISO8601_to_esmf_timeinterval
 
    function convert_ISO8601_to_integer_date(string, unusable, rc) result(integer_date)
       character(len=*), intent(in) :: isostring
