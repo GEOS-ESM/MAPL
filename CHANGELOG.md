@@ -22,6 +22,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.23.1] - 2022-07-15
+
+### Fixed
+
+- Fixed the History file existence detection to only run for netCDF output. For still unknown reasons, this detection has an issue
+  with binary output (see https://github.com/GEOS-ESM/GEOSldas/pull/568)
+- Fix GitHub Actions
+
 ## [2.23.0] - 2022-07-06
 
 ### Added
