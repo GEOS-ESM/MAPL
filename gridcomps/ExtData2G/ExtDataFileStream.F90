@@ -31,7 +31,7 @@ module MAPL_ExtDataFileStream
 contains
 
    function new_ExtDataFileStream(config,current_time,unusable,rc) result(data_set) 
-      type(Configuration), intent(in) :: config
+      class(Yaml_node), intent(in) :: config
       type(ESMF_Time), intent(in) :: current_time
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -126,7 +126,7 @@ contains
       contains
 
          function get_string_with_default(config,selector) result(string)
-            type(Configuration), intent(in) :: config
+            class(Yaml_Node), intent(in) :: config
             character(len=*), intent(In) :: selector
             character(len=:), allocatable :: string
 
