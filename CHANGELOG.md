@@ -58,6 +58,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add tutorials
+- Check for duplicate entries in the History.rc file
+- Check that a user provided chunking in the History.rc is compatible with the output grid
+- If a user request CFIOasync in the History.rc print warning and set to CFIO
 
 ### Changed
 

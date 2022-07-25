@@ -2485,6 +2485,10 @@ ENDDO PARSER
 
     do n=1,nlist
        if (list(n)%disabled) cycle
+       if (list(n)%format == 'CFIOasync') then
+          list(n)%format = 'CFIO'
+          if (mapl_am_i_root()) write(*,*)'Chose CFIOasync setting to CFIO, update your History.rc file'
+       end if
        if (list(n)%format == 'CFIO') then
           call Get_Tdim (list(n), clock, tm)
           if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
@@ -3185,8 +3189,8 @@ ENDDO PARSER
        type(GriddedIOitemVector), intent(inout), optional :: items
        integer, optional, intent(out) :: rc
        logical :: table_end
-       logical :: vectorDone
-       integer :: m
+       logical :: vectorDone,match_short_name,match_alias,match_component
+       integer :: m,i,j
        character(ESMF_MAXSTR), pointer:: fields (:,:)
 
        type(GriddedIOitem) :: item
@@ -3330,6 +3334,22 @@ ENDDO PARSER
           if(present(items)) call items%push_back(item)
        enddo
        field_set%nfields = m
+!      check for duplicates
+       do i=1,field_set%nfields-1
+          do j=i+1,field_set%nfields
+             match_short_name = field_set%fields(1,i) == field_set%fields(1,j)
+             match_alias = field_set%fields(3,i) == field_set%fields(3,j)
+             match_component = field_set%fields(2,i) == field_set%fields(2,j)
+             if (match_short_name) then
+                if (match_component) then
+                   _FAIL("Caught collection with duplicate short name: "//trim(field_set%fields(1,i))//" and duplicate component")
+                end if
+             end if
+             if (match_alias) then
+                _FAIL("Caught collection with duplicate alias: "//trim(field_set%fields(3,i)))
+             end if
+          enddo
+       enddo
 
        end subroutine parse_fields
 
