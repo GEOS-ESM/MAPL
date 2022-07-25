@@ -3330,9 +3330,9 @@ ENDDO PARSER
 !      check for duplicates
        do i=1,field_set%nfields-1
           do j=i+1,field_set%nfields
-             match_short_name = trim(field_set%fields(1,i)) == trim(field_set%fields(1,j))
+             match_short_name = field_set%fields(1,i) == field_set%fields(1,j)
              match_alias = trim(field_set%fields(3,i)) == trim(field_set%fields(3,j))
-             match_component = trim(field_set%fields(2,i)) == trim(field_set%fields(2,j))
+             match_component = field_set%fields(2,i) == field_set%fields(2,j)
              if (match_short_name) then
                 if (match_component) then
                    _FAIL("Caught collection with duplicate short name: "//trim(field_set%fields(1,i))//" and duplicate component")
