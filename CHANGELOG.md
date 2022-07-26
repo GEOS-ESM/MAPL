@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Replaced depreciated __RC__ macro with _RC and remove unsed code  in ExtData2G
 - Moved to `checkout@v3` action due to git safe directory issue
 - Added tutorials to CI
 
