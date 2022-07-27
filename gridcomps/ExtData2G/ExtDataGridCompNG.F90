@@ -622,6 +622,16 @@ CONTAINS
       idx = self%primary%get_item_index(current_base_name,time0,_RC)
       item => self%primary%item(idx)
 
+      if (.not.item%initialized) then
+         item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
+         if (item%isConst) then
+            call set_constant_field(item,self%extDataState,_RC)
+            cycle
+         end if
+         call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
+         item%initialized=.true.
+      end if
+
       nitems = self%primary%import_names%size()
       !call extdata_lgr%debug('ExtData Run_(): READ_LOOP: variable %i0 of %i0~: %a', i, nitems, trim(current_base_name))
       !call extdata_lgr%debug('   ==> file: %a', trim(item%file_template))
