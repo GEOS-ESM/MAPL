@@ -205,6 +205,7 @@ CONTAINS
    type(ESMF_Time) :: time
    type(ESMF_TimeInterval) :: timeInterval
    type(ESMF_Clock) :: clock
+   type(ESMF_Info) :: infoh
 
    character(len=ESMF_MAXSTR) :: filename
 
@@ -269,20 +270,22 @@ CONTAINS
     call ESMF_FieldBundleSet(bundle_new,grid=grid_new,_RC)
 
     field=ESMF_FieldCreate(grid=grid_new,typekind=ESMF_TYPEKIND_R4,name="f2d",_RC)
-    call ESMF_AttributeSet(FIELD,'LONG_NAME','what_am_i',_RC)
-    call ESMF_AttributeSet(FIELD,'UNITS','NA',_RC)
-    call ESMF_AttributeSet(FIELD,'DIMS',MAPL_DimsHorzOnly,_RC)
-    call ESMF_AttributeSet(FIELD,'VLOCATION',MAPL_VLocationNone,_RC)
+    call ESMF_InfoGetFromHost(FIELD,infoh,_RC)
+    call ESMF_InfoSet(infoh,'LONG_NAME','what_am_i',_RC)
+    call ESMF_InfoSet(infoh,'UNITS','NA',_RC)
+    call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzOnly,_RC)
+    call ESMF_InfoSet(infoh,'VLOCATION',MAPL_VLocationNone,_RC)
     call ESMF_FieldGet(field,farrayPtr=ptr2d,_RC)
     ptr2d=17.0
     call MAPL_FieldBundleAdd(bundle,field,_RC)
 
     field=ESMF_FieldCreate(grid=grid_new,typekind=ESMF_TYPEKIND_R4,name="f3d", &
       ungriddedLBound=[1],ungriddedUBound=[lm_world],_RC)
-    call ESMF_AttributeSet(FIELD,'LONG_NAME','what_am_i',_RC)
-    call ESMF_AttributeSet(FIELD,'UNITS','NA',_RC)
-    call ESMF_AttributeSet(FIELD,'DIMS',MAPL_DimsHorzVert,_RC)
-    call ESMF_AttributeSet(FIELD,'VLOCATION',MAPL_VLocationCenter,_RC)
+    call ESMF_InfoGetFromHost(FIELD,infoh,_RC)
+    call ESMF_InfoSet(infoh,'LONG_NAME','what_am_i',_RC)
+    call ESMF_InfoSet(infoh,'UNITS','NA',_RC)
+    call ESMF_InfoSet(infoh,'DIMS',MAPL_DimsHorzVert,_RC)
+    call ESMF_InfoSet(infoh,'VLOCATION',MAPL_VLocationCenter,_RC)
     call ESMF_FieldGet(field,farrayPtr=ptr3d,_RC)
     ptr3d=17.0
     call MAPL_FieldBundleAdd(bundle,field,_RC)
