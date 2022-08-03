@@ -424,6 +424,8 @@ contains
     type(ESMF_Field), allocatable :: fldList(:)
     character(len=ESMF_MAXSTR), allocatable :: regexList(:)
     type(StringStringMap) :: global_attributes
+    character(len=ESMF_MAXSTR) :: regrid_method
+    logical :: has_conservative_keyword, has_regrid_keyword
 
 ! Begin
 !------
@@ -843,13 +845,27 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%tm, default=tm_default, &
                                       label=trim(string) // 'tm:', rc=status )
        _VERIFY(STATUS)
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%conservative, default=0, &
-	                              label=trim(string) // 'conservative:'  ,rc=status )
-       _VERIFY(STATUS)
-       if (list(n)%conservative==0) then
-          list(n)%conservative=REGRID_METHOD_BILINEAR
-       else if (list(n)%conservative==1) then
-          list(n)%conservative=REGRID_METHOD_CONSERVE
+
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'conservative:',isPresent=has_conservative_keyword,_RC)
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'regrid_method:',isPresent=has_regrid_keyword,_RC)
+       _ASSERT(.not.(has_conservative_keyword .and. has_regrid_keyword),trim(string)//" specified both conservative and regrid_method")
+
+       list(n)%regrid_method = REGRID_METHOD_BILINEAR
+       if (has_conservative_keyword) then
+          call ESMF_ConfigGetAttribute ( cfg, list(n)%regrid_method, default=0, &
+                                         label=trim(string) // 'conservative:'  ,rc=status )
+          _VERIFY(STATUS)
+          if (list(n)%regrid_method==0) then
+             list(n)%regrid_method=REGRID_METHOD_BILINEAR
+          else if (list(n)%regrid_method==1) then
+             list(n)%regrid_method=REGRID_METHOD_CONSERVE
+          end if
+       end if
+       if (has_regrid_keyword) then
+          call ESMF_ConfigGetAttribute ( cfg, regrid_method, default="REGRID_METHOD_BILINEAR", &
+                                         label=trim(string) // 'regrid_method:'  ,rc=status )
+          _VERIFY(STATUS)
+           list(n)%regrid_method = get_regrid_method(trim(regrid_method))
        end if
 
 ! Get an optional file containing a 1-D track for the output
@@ -2422,7 +2438,7 @@ ENDDO PARSER
           _VERIFY(status)
           call list(n)%mNewCFIO%set_param(nbits=list(n)%nbits,rc=status)
           _VERIFY(status)
-          call list(n)%mNewCFIO%set_param(regrid_method=list(n)%conservative,rc=status)
+          call list(n)%mNewCFIO%set_param(regrid_method=list(n)%regrid_method,rc=status)
           _VERIFY(status)
           call list(n)%mNewCFIO%set_param(itemOrder=intState%fileOrderAlphabetical,rc=status)
           _VERIFY(status)

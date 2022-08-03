@@ -59,7 +59,7 @@ module MAPL_HistoryCollectionMod
      real                               :: vscale
      character(len=ESMF_MAXSTR)         :: vunit
      character(len=ESMF_MAXSTR)         :: vvars(2)
-     integer                            :: conservative
+     integer                            :: regrid_method
      integer                            :: voting
      integer                            :: nbits
      integer                            :: deflate 
