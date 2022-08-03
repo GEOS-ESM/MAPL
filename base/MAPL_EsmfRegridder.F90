@@ -1402,6 +1402,13 @@ contains
              & handleAllElements=.true., &
              & rc=rc)
         _VERIFY(rc)
+     case (REGRID_METHOD_BILINEAR_MONOTONIC, REGRID_METHOD_CONSERVE_MONOTONIC)
+        call ESMF_DynamicMaskSetR4R8R4V(this%dynamic_mask, &
+             & dynamicSrcMaskValue=MAPL_undef, &
+             & dynamicMaskRoutine=monotonicDynMaskProcV, &
+             & handleAllElements=.true., &
+             & rc=rc)
+        _VERIFY(rc)
      end select
 
      _RETURN(_SUCCESS)
