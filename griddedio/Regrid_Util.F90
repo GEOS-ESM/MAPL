@@ -30,7 +30,7 @@
    use MAPL_ServerManager
    use MAPL_FileMetadataUtilsMod
    use gFTL_StringVector
- 
+
    implicit NONE
 
    public
@@ -49,6 +49,7 @@
       real :: cs_stretch_param(3)
       real :: lon_range(2), lat_range(2)
       integer :: deflate, shave
+      integer :: zstandard_level
    contains
       procedure :: create_grid
       procedure :: process_command_line
@@ -99,7 +100,7 @@
     subroutine process_command_line(this,rc)
     class(regrid_support) :: this
     integer, optional, intent(out) :: rc
-    
+
     character(len=ESMF_MAXSTR) :: RegridMth
     integer :: nargs, i, status
     character(len=ESMF_MAXPATHLEN) :: str,astr
@@ -117,6 +118,7 @@
     this%lat_range=uninit
     this%shave=64
     this%deflate=0
+    this%zstandard_level=0
     nargs = command_argument_count()
     do i=1,nargs
       call get_command_argument(i,str)
@@ -173,9 +175,12 @@
       case('-deflate')
          call get_command_argument(i+1,astr)
          read(astr,*)this%deflate
+      case('-zstandard_level')
+         call get_command_argument(i+1,astr)
+         read(astr,*)this%zstandard_level
       case('--help')
          if (mapl_am_I_root()) then
-         
+
          end if
          call MPI_Finalize(status)
          return
@@ -192,7 +197,7 @@
     _ASSERT(this%filenames%size() == this%outputfiles%size(), 'different number of input and output files')
     if (.not.this%alltimes) then
        _ASSERT(this%filenames%size() == 1,'if selecting time from file, can only regrid a single file')
-    end if 
+    end if
 
     call this%create_grid(gridname,_RC)
     _RETURN(_SUCCESS)
@@ -268,7 +273,7 @@
              call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(2),label=trim(grid_name)//".TARGET_LON:",_RC)
              call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(3),label=trim(grid_name)//".TARGET_LAT:",_RC)
           end if
-     
+
        else
           call MAPL_ConfigSetAttribute(cf,value="LatLon", label=trim(grid_name)//".GRID_TYPE:",_RC)
           call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
@@ -284,7 +289,7 @@
           end if
        end if
 
-     end function create_cf 
+     end function create_cf
 
    end module regrid_util_support_mod
 
@@ -319,7 +324,7 @@
    use MAPL_FileMetadataUtilsMod
    use gFTL_StringVector
    use regrid_util_support_mod
- 
+
    implicit NONE
 
    type(DistributedProfiler), target :: t_prof
@@ -328,9 +333,9 @@
    include "mpif.h"
 
    call main()
-    
+
 CONTAINS
- 
+
     subroutine main()
 
    type(regrid_support) :: support
@@ -359,7 +364,7 @@ CONTAINS
    logical :: writer_created
    type(ServerManager) :: io_server
 
- 
+
    call ESMF_Initialize (LogKindFlag=ESMF_LOGKIND_NONE, vm=vm, _RC)
    call ESMF_VMGet(vm, localPET=myPET, petCount=nPet)
    call MAPL_Initialize(_RC)
@@ -369,7 +374,7 @@ CONTAINS
    call support%process_command_line(_RC)
 
    t_prof=DistributedProfiler('Regrid_Util',MpiTimerGauge(),MPI_COMM_WORLD)
-   call t_prof%start(_RC) 
+   call t_prof%start(_RC)
 
    call io_server%initialize(mpi_comm_world)
 
@@ -387,7 +392,7 @@ CONTAINS
    do j=1,support%filenames%size()
 
       filename = support%filenames%at(j)
-      if (j>1) then 
+      if (j>1) then
          if (allocated(tSeries)) deallocate(tSeries)
          call get_file_times(filename,support%itime,support%allTimes,tseries,timeInterval,tint,tsteps,_RC)
       end if
@@ -417,7 +422,7 @@ CONTAINS
 
          call ESMF_ClockSet(clock,currtime=time,_RC)
          if (.not. writer_created) then
-            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits=support%shave,deflate=support%deflate,_RC)
+            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits=support%shave,deflate=support%deflate,zstandard_level=support%zstandard_level,_RC)
             writer_created=.true.
          end if
 
@@ -427,7 +432,7 @@ CONTAINS
          end if
          call newWriter%write_to_file(_RC)
          call t_prof%stop("write")
-    
+
       end do
    enddo
 !   All done
@@ -483,7 +488,7 @@ CONTAINS
       end if
       call ESMF_TimeIntervalGet(TimeInterval,h=hour,m=minute,s=second,_RC)
       tint=hour*10000+minute*100+second
- 
+
       _RETURN(_SUCCESS)
 
    end subroutine get_file_times
@@ -506,19 +511,19 @@ CONTAINS
          character(:), allocatable :: report_lines(:)
          integer :: i
          character(1) :: empty(0)
-   
+
          reporter = ProfileReporter(empty)
          call reporter%add_column(NameColumn(20))
          call reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
          call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
          call reporter%add_column(FormattedTextColumn('Exclusive','(f9.6)', 9, ExclusiveColumn('MEAN')))
-         call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))   
+         call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))
          call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.6)', 9, ExclusiveColumn('MAX')))
          call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.6)', 9, ExclusiveColumn('MIN')))
          call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
-         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE'))) 
+         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
         report_lines = reporter%generate_report(t_prof)
-         if (mapl_am_I_root()) then 
+         if (mapl_am_I_root()) then
             write(*,'(a)')'Final profile'
             write(*,'(a)')'============='
             do i = 1, size(report_lines)
@@ -527,5 +532,5 @@ CONTAINS
             write(*,'(a)') ''
          end if
     end subroutine generate_report
- 
-    end program Regrid_Util 
+
+    end program Regrid_Util

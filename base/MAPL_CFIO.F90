@@ -14,7 +14,7 @@ module MAPL_CFIOMod
 
 ! !MODULE: MAPL_CFIO --- CF Compliant I/O for ESMF
 
-! !DESCRIPTION:  
+! !DESCRIPTION:
 !
 ! \input{MAPL_CFIODescr.tex}
 !
@@ -25,7 +25,7 @@ module MAPL_CFIOMod
   use MAPL_BaseMod
   use MAPL_CommsMod
   use MAPL_Constants
-  use ESMF_CFIOMod  
+  use ESMF_CFIOMod
   use ESMF_CFIOUtilMod
   use ESMF_CFIOFileMod
   use MAPL_IOMod
@@ -48,7 +48,7 @@ module MAPL_CFIOMod
   use, intrinsic :: ISO_C_BINDING
 
   use, intrinsic :: iso_fortran_env, only: REAL64
-  
+
   implicit none
   private
 
@@ -86,7 +86,7 @@ module MAPL_CFIOMod
   public ESMF_ioRead     ! another name for MAPL_CFIORead
   public ESMF_ioCreate   ! another name for MAPL_CFIOCreate
   public ESMF_ioWrite    ! another name for MAPL_CFIOWrite
-  public ESMF_ioDestroy  ! another name for MAPL_CFIODestroy 
+  public ESMF_ioDestroy  ! another name for MAPL_CFIODestroy
 
 ! !PUBLIC TYPES:
 !
@@ -161,10 +161,10 @@ module MAPL_CFIOMod
      real(KIND=REAL64), pointer :: LONS2D(:) => NULL()
      real(KIND=REAL64), pointer :: LATS2D(:) => NULL()
      logical               :: created = .false.
-     integer               :: IM = 0 
-     integer               :: JM = 0 
+     integer               :: IM = 0
+     integer               :: JM = 0
   end type StoredGlobalCoords
-     
+
   !BOP
   !BOC
 
@@ -175,7 +175,7 @@ module MAPL_CFIOMod
   end type MCFIO_VARIABLE
 
   type :: MAPL_CFIO
-     private 
+     private
      logical                    :: CREATED=.false.
      character(len=ESMF_MAXSTR) :: NAME
      character(len=ESMF_MAXPATHLEN) :: fNAME
@@ -219,7 +219,7 @@ module MAPL_CFIOMod
      class (AbstractRegridder), pointer :: regridder => null()
      class (AbstractRegridder), pointer :: new_regridder => null()
      integer :: regrid_method
-     type (ESMF_Grid)           :: output_grid  
+     type (ESMF_Grid)           :: output_grid
      integer                    :: AsyncWorkRank
      integer                    :: globalComm
      logical                    :: regridConservative
@@ -244,8 +244,8 @@ module MAPL_CFIOMod
      ! TLC components used in the new ESMF regrid variant
      integer :: n_vars
      type (MCFIO_Variable), allocatable :: variables(:)
-     
-     
+
+
   end type MAPL_CFIO
   !EOC
   !EOP
@@ -265,7 +265,7 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !BOP
- 
+
 ! !IROUTINE: MAPL_CFIOCreate --- Creates a MAPL CFIO Object
 !
 ! !IIROUTINE: MAPL_CFIOCreateFromBundle --- Creates MAPL CFIO Object from a Bundle
@@ -277,7 +277,7 @@ contains
                                          OUTPUT_GRID, CHUNKSIZE, FREQUENCY, LEVELS, DESCR,    &
                                          XYOFFSET, VCOORD, VUNIT, VSCALE,         &
                                          SOURCE, INSTITUTION, COMMENT, CONTACT,   &
-                                         FORMAT, EXPID, DEFLATE, GC,  ORDER, &
+                                         FORMAT, EXPID, DEFLATE, ZSTANDARD_LEVEL, GC,  ORDER, &
                                          NumCores, nbits, TM, Conservative,  &
                                          VectorList, itemOrder, RC )
 ! !ARGUMENTS:
@@ -296,12 +296,13 @@ contains
     integer,         optional,   intent(IN)  :: XYOFFSET
     real,            optional,   intent(IN)  :: VSCALE
     integer,         optional,   intent(IN)  :: DEFLATE
-    character(len=*),optional,   intent(IN)  :: VUNIT     
-    character(len=*),optional,   intent(IN)  :: VCOORD     
+    integer,         optional,   intent(IN)  :: ZSTANDARD_LEVEL
+    character(len=*),optional,   intent(IN)  :: VUNIT
+    character(len=*),optional,   intent(IN)  :: VCOORD
     character(len=*),optional,   intent(IN)  :: source
-    character(len=*),optional,   intent(IN)  :: institution     
+    character(len=*),optional,   intent(IN)  :: institution
     character(len=*),optional,   intent(IN)  :: comment
-    character(len=*),optional,   intent(IN)  :: contact     
+    character(len=*),optional,   intent(IN)  :: contact
     character(len=*),optional,   intent(IN)  :: format
     character(len=*),optional,   intent(IN)  :: EXPID
     integer,         optional,   intent(IN)  :: Conservative
@@ -322,8 +323,8 @@ contains
    is opaque and its properties can only be set by this method at
    creation. Currently, its properties cannot be queried. The object
    is used only as a handle in write operations. It is not needed for
-   reading. 
-  
+   reading.
+
    Its non-optional arguments associate a {\tt NAME}, an ESMF {\tt
    BUNDLE}, and a {\tt CLOCK} with the object. An ESMF TimeInterval
    {\tt OFFSET} is an optional argument that sets an offset between the
@@ -341,7 +342,7 @@ contains
    attributes in the SDF file.
 
   !REVISION HISTORY:
- 
+
     19Apr2007 Todling  - Added ability to write out ak/bk
                        - Added experiment ID as optional argument
 
@@ -390,6 +391,7 @@ contains
     integer        :: IMBEG, IMEND, JMBEG, JMEND
     integer        :: Field_Type
     integer        :: Df
+    integer        :: Zstd
     integer        :: Num2DVars, Num3dVars
     integer        :: YY,MM,DD,H,M,S
     integer        :: noffset
@@ -405,9 +407,9 @@ contains
     character(len=ESMF_MAXSTR)  :: Units
     character(len=ESMF_MAXSTR)  :: StartTime
     character(len=esmf_maxstr)  :: Usource
-    character(len=esmf_maxstr)  :: Uinstitution     
+    character(len=esmf_maxstr)  :: Uinstitution
     character(len=esmf_maxstr)  :: Ucomment
-    character(len=esmf_maxstr)  :: Ucontact     
+    character(len=esmf_maxstr)  :: Ucontact
     character(len=esmf_maxstr)  :: Utitle
     character(len=esmf_maxstr)  :: GridTypeAttribute
 
@@ -444,7 +446,7 @@ contains
 ! Begin
 !------
 
-    MCFIO%NAME   = NAME 
+    MCFIO%NAME   = NAME
     MCFIO%CLOCK  = CLOCK
     MCFIO%BUNDLE = BUNDLE
 
@@ -469,6 +471,12 @@ contains
        df = deflate
     else
        df = 0
+    endif
+
+    if(present(zstandard_level)) then
+       zstd = zstandard_level
+    else
+       zstd = 0
     endif
 
     if(present(Order)) then
@@ -518,7 +526,7 @@ contains
     endif
 
     if(present(descr )) then
-       Utitle  = descr 
+       Utitle  = descr
     else
        Utitle  = "unknown"
     endif
@@ -609,7 +617,7 @@ contains
        if    (MCFIO%Func=='log') then
           MCFIO%Vvar = adjustl(MCFIO%Vvar(index(MCFIO%Vvar,'(')+1:index(MCFIO%Vvar,')')-1))
        elseif(MCFIO%Func=='pow') then
-          read( MCFIO%Vvar(index(MCFIO%Vvar,',')+1:index(MCFIO%Vvar,')')-1) , *) mCFIO%pow 
+          read( MCFIO%Vvar(index(MCFIO%Vvar,',')+1:index(MCFIO%Vvar,')')-1) , *) mCFIO%pow
           MCFIO%Vvar = adjustl(MCFIO%Vvar(index(MCFIO%Vvar,'(')+1:index(MCFIO%Vvar,',')-1))
        endif
     else
@@ -739,8 +747,8 @@ contains
                 unGrdCoordCheck = .false.
              end if
              if ( unGrdUnitCheck .or. unGrdNameCheck .or. unGrdCoordCheck) then
-                _FAIL( 'Ungridded attributes for variables in collection do not match') 
-             end if    
+                _FAIL( 'Ungridded attributes for variables in collection do not match')
+             end if
           end if
        end do
     end if
@@ -809,7 +817,7 @@ contains
        if (HAVE_ungrd) then
           _FAIL( 'ERROR: Specifying LEVELS is not allowed for UNGRIDDED vars')
        end if
-    else 
+    else
 
 !      Check on proper levels
 !      -----------------------
@@ -828,7 +836,7 @@ contains
           end if
           if (minval(vsize) /= maxval(vsize)) then
              _FAIL( 'ERROR: Outputting variables with different ungridded sizes in one collection')
-          end if 
+          end if
           LM = maxval(vsize)
        else
           LM = COUNTS(3)
@@ -875,7 +883,7 @@ contains
        else
           mcfio%output_grid = mCFIO%grid
        end if
-       
+
        call MAPL_GridGet(mcfio%output_grid, globalCellCountPerDim=dims, rc=status)
        _VERIFY(status)
        IMO = dims(1)
@@ -1028,7 +1036,7 @@ contains
        end if
 
     else ! TRANSFORM
-       
+
 
 ! Arrays of lats and lons from esmfgrid
 !--------------------------------------
@@ -1043,7 +1051,7 @@ contains
        allocate(LATS (IM ,JM ),STAT=STATUS)
        _VERIFY(STATUS)
        allocate(LOCAL(IML,JML),STAT=STATUS)
-       _VERIFY(STATUS) 
+       _VERIFY(STATUS)
 
        call ESMF_GridGetCoord(esmfgrid, localDE=0, coordDim=1, &
             staggerloc=ESMF_STAGGERLOC_CENTER, &
@@ -1052,12 +1060,12 @@ contains
 
        LOCAL = R8D2*(180._REAL64/MAPL_PI_R8)
        call ArrayGather(LOCAL, LONS, ESMFGRID, RC=STATUS)
-       _VERIFY(STATUS) 
+       _VERIFY(STATUS)
 
        call ESMF_GridGetCoord(esmfgrid, localDE=0, coordDim=2, &
             staggerloc=ESMF_STAGGERLOC_CENTER, &
             farrayPtr=R8D2, rc=status)
-       _VERIFY(STATUS) 
+       _VERIFY(STATUS)
 
        LOCAL = R8D2*(180._REAL64/MAPL_PI_R8)
        call ArrayGather(LOCAL, LATS, ESMFGRID, RC=STATUS)
@@ -1151,7 +1159,7 @@ contains
     VERTGRID: if(HAVE3D) THEN
        allocate(LEV(LM), stat=status)
        _VERIFY(STATUS)
-       
+
        if (associated(ULEVELS)) then
           if (mCFIO%Vinterp .or. (size(ulevels) < LMG)) then
              LEV = ULEVELS
@@ -1209,7 +1217,7 @@ contains
           if (present(vunit) .and. trim(vunits) .ne. "") then
              call ESMF_CFIOGridSet(cfiogrid, levUnit      =trim(vunits),         RC=STATUS)
              _VERIFY(STATUS)
-          else 
+          else
              call ESMF_CFIOGridSet(cfiogrid, levUnit      ='layer',              RC=STATUS)
              _VERIFY(STATUS)
           end if
@@ -1371,7 +1379,7 @@ contains
     MCFIO%cfio =  ESMF_CFIOCreate(cfioObjName=trim(Name))
 
 ! Set Internal MetaCode Writing interval. Default of 6 hours. If set to 0
-!  it is reset to 6 hours.Currently CFIO and GFIO expect timeIncrement to be 
+!  it is reset to 6 hours.Currently CFIO and GFIO expect timeIncrement to be
 !  in HHMMSS format, this imposes severe limitations to the frequency of the output:
 !  no writes should be done less frequently than once every 4 days (99 hours)
 ! ------------------------------------------------------------------------------
@@ -1411,9 +1419,10 @@ contains
          convention  = "COARDS",                                  &
          contact     = Ucontact,                                  &
          references  = "http://gmao.gsfc.nasa.gov",               &
-         comment     = Ucomment,                                  & 
+         comment     = Ucomment,                                  &
          prec        = 0,                                         &
          deflate     = df,                                        &
+         zstandard_level = zstd,                                  &
          RC=STATUS )
     _VERIFY(STATUS)
 
@@ -1493,11 +1502,11 @@ contains
     else
        call ESMF_CFIOSet(MCFIO%CFIO, nsteps=1, RC=STATUS)
        _VERIFY(STATUS)
-    endif 
+    endif
 
 ! Get time info from the clock. Note the optional offset
 !-------------------------------------------------------
-    
+
     call ESMF_ClockGet(mCFIO%CLOCK, name=clockname, CurrTime=CurrTime, RC=STATUS)
     _VERIFY(STATUS)
 
@@ -1594,7 +1603,7 @@ contains
                                         LEVELS, DESCR, BUNDLE, &
                                         XYOFFSET, VCOORD, VUNIT, VSCALE,   &
                                         SOURCE, INSTITUTION, COMMENT, CONTACT, &
-                                        FORMAT, EXPID, DEFLATE, GC,  ORDER, &
+                                        FORMAT, EXPID, DEFLATE, ZSTANDARD_LEVEL, GC,  ORDER, &
                                         NumCores, nbits, TM, Conservative,  RC )
 
 !
@@ -1613,16 +1622,17 @@ contains
     real,            optional,   pointer     :: LEVELS(:)
     character(LEN=*),optional,   intent(IN)  :: DESCR
     real,            optional,   intent(IN)  :: VSCALE
-    character(len=*),optional,   intent(IN)  :: VUNIT     
-    character(len=*),optional,   intent(IN)  :: VCOORD     
+    character(len=*),optional,   intent(IN)  :: VUNIT
+    character(len=*),optional,   intent(IN)  :: VCOORD
     integer,         optional,   intent(IN)  :: XYOFFSET
     character(len=*),optional,   intent(IN)  :: source
-    character(len=*),optional,   intent(IN)  :: institution     
+    character(len=*),optional,   intent(IN)  :: institution
     character(len=*),optional,   intent(IN)  :: comment
-    character(len=*),optional,   intent(IN)  :: contact     
+    character(len=*),optional,   intent(IN)  :: contact
     character(len=*),optional,   intent(IN)  :: format
     character(len=*),optional,   intent(IN)  :: EXPID
     integer,         optional,   intent(IN)  :: DEFLATE
+    integer,         optional,   intent(IN)  :: ZSTANDARD_LEVEL
     type(ESMF_GridComp),optional,intent(IN)  :: GC
     integer,         optional,   intent(IN)  :: Order
     integer,         optional,   intent(IN)  :: Nbits
@@ -1633,7 +1643,7 @@ contains
 !
 #ifdef ___PROTEX___
 
-    !DESCRIPTION: 
+    !DESCRIPTION:
 
      Creates a MAPL\_CFIO object from a State. States are written by
      ``serializing'' all Fields in them, whether they are directly in
@@ -1662,7 +1672,7 @@ contains
    attributes in the SDF file.
 
   !REVISION HISTORY:
- 
+
    12Jun2007 Todling  Added EXPID as opt argument
 
 #endif
@@ -1681,7 +1691,7 @@ contains
 
     tBUNDLE = ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
     _VERIFY(STATUS)
-    
+
 !   Serialize the state
 !   -------------------
 
@@ -1692,7 +1702,7 @@ contains
 !   ----------------------
 
     call MAPL_CFIOCreateFromBundle ( MCFIO, NAME, CLOCK, tBUNDLE,        &
-                                     OFFSET = OFFSET,                    & 
+                                     OFFSET = OFFSET,                    &
                                      OUTPUT_GRID=OUTPUT_GRID,            &
                                      CHUNKSIZE=CHUNKSIZE,                &
                                      FREQUENCY=FREQUENCY,                &
@@ -1709,6 +1719,7 @@ contains
                                      FORMAT  = FORMAT,                   &
                                      EXPID   = EXPID,                    &
                                      DEFLATE = DEFLATE,                  &
+                                     ZSTANDARD_LEVEL = ZSTANDARD_LEVEL,  &
                                      GC      = GC,                       &
                                      ORDER   = ORDER,                    &
                                      NumCores= NUMCORES,                 &
@@ -1725,13 +1736,13 @@ contains
     _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_CFIOCreateFromState
-    
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !BOP
 
 ! !IROUTINE: MAPL_CFIOWrite --- Writing Methods
-! !IIROUTINE: MAPL_CFIOWriteBundle --- Writes an ESMF Bundle 
+! !IIROUTINE: MAPL_CFIOWriteBundle --- Writes an ESMF Bundle
 
 ! !INTERFACE:
 !
@@ -1745,7 +1756,7 @@ contains
 !
 #ifdef ___PROTEX___
 
- !DESCRIPTION:  
+ !DESCRIPTION:
 
        Writes an ESMF Bundle to a File. Only the MAPL\_CFIO object is
        a required argument as pointers to the actual data to be
@@ -1754,7 +1765,7 @@ contains
        {\tt CLOCK, BUNDLE} can be used to override the choice
        made at creation, but this is of dubious value, particularly
        for {\tt BUNDLE} since it must be excatly conformant with the
-       creation {\tt BUNDLE}. {\tt NBITS} if the number of bits of 
+       creation {\tt BUNDLE}. {\tt NBITS} if the number of bits of
        the mantissa to retain. This is used to write files with degraded
        precision, which can then be compressed with standard utilities.
        The default is no degradation of precision.
@@ -1771,8 +1782,8 @@ contains
        requires no special handling by the users of the data. In fact,
        they do not even need to know that the data is compressed! At this
        point, MAPL\_CFIO does not activate this GZIP compression
-       feature in the files being written, but the resulting precision 
-       degredaded files can be compressed offline with the HDF-4 
+       feature in the files being written, but the resulting precision
+       degredaded files can be compressed offline with the HDF-4
        {\tt hrepack} utility.
 
 #endif
@@ -1791,7 +1802,7 @@ contains
     real,             pointer  :: layer(:,:),ps0(:,:)
     logical                    :: PrePost_
     integer                    :: globalcount(3)
-    type(ESMF_VM)              :: vm 
+    type(ESMF_VM)              :: vm
 
 !                              ---
 
@@ -1851,7 +1862,7 @@ contains
           if (associated(mCFIO%regridder)) then
              mcfio%ascending = (ptr3(1,1,0)<ptr3(1,1,1))
              call ArrayGather(ptr3(:,:,ubound(ptr3,3)),ps0,mcfio%grid,rc=status)
-             _VERIFY(status) 
+             _VERIFY(status)
           end if
 
        else
@@ -1883,8 +1894,8 @@ contains
           if (associated(mCFIO%regridder)) then
              mcfio%ascending = (ptrx(1,1,0)<ptrx(1,1,1))
              call ArrayGather(ptrx(:,:,ubound(ptrx,3)),ps0,mcfio%grid,rc=status)
-             _VERIFY(status) 
-             
+             _VERIFY(status)
+
           end if
           deallocate(Ptrx)
        end if
@@ -1896,8 +1907,8 @@ contains
              call mCFIO%regridder%regrid(ps0,mcfio%surfaceLayer,rc=status)
              _VERIFY(status)
           end if
-         
-          if (MAPL_ShmInitialized) then 
+
+          if (MAPL_ShmInitialized) then
              call MAPL_DeAllocNodeArray(ps0,rc=status)
              _VERIFY(status)
           else
@@ -1907,7 +1918,7 @@ contains
 
     end if
 
-    call MAPL_CFIOSetVectorPairs(mCFIO,rc=status) 
+    call MAPL_CFIOSetVectorPairs(mCFIO,rc=status)
     _VERIFY(status)
 
 ! Cycle through all variables posting receives.
@@ -1942,7 +1953,7 @@ contains
        call ESMF_FieldBundleGet(MCFIO%BUNDLE, MCFIO%VARNAME(L), FIELD=FIELD,                  RC=STATUS)
        _VERIFY(STATUS)
 
-! We treat only fields with rank 2 (horizontal 2D) and 
+! We treat only fields with rank 2 (horizontal 2D) and
 !  rank 3 (first 2 dimension are horz, third is vert).
 !--------------------------------------------------------
 
@@ -2072,11 +2083,11 @@ contains
 
     nn   = 0
     VARIABLES: do L=1,size(MCFIO%VarDims)
-          
+
        FixPole = (MCFIO%VarType(L) == MAPL_VectorField) .and. &
                  (JM0              == 6*IM0)            .and. &
-                 (Mcfio%JM         /= 6*mcfio%IM)  
- 
+                 (Mcfio%JM         /= 6*mcfio%IM)
+
        RANK: if (MCFIO%VarDims(L)==2) then
           LM = 1
        else  if (MCFIO%VarDims(L)==3) then
@@ -2104,7 +2115,7 @@ contains
                 PtrTypeOut(1)%ptr => Gptr2Out
                 call TransShaveAndSend(PtrTypeIn(1:1),PtrTypeOut(1:1),MCFIO%reqs(nn)%s_rqst,doTrans=.true.,IdxOut=1)
                 _VERIFY(status)
-             else if (nv > 0) then 
+             else if (nv > 0) then
                 ! I am U part of vector
                 if (associated(MCFIO%reqs(nn)%Trans_Array)) then
                    _ASSERT(associated(MCFIO%reqs(nv)%Trans_Array), 'Trans_Array not associated')
@@ -2122,7 +2133,7 @@ contains
                 PtrTypeOut(2)%ptr => MCFIO%reqs(nv)%Trans_Array(:,:,1)
                 call TransShaveAndSend(PtrTypeIn(1:2),PtrTypeOut(1:2),MCFIO%reqs(nn)%s_rqst,doTrans=.not.TransAlreadyDone,IdxOut=1)
                 _VERIFY(status)
-             else 
+             else
                 ! I am V part of vector
                 nv = abs(nv)
                 if (associated(MCFIO%reqs(nn)%Trans_Array)) then
@@ -2169,7 +2180,7 @@ contains
     _RETURN(ESMF_SUCCESS)
 
   contains
-    
+
     subroutine TransShaveAndSend(PtrIn,PtrOut,request,doTrans,idxOut)
       type(Ptr2Arr) :: PtrIn(:)
       type(Ptr2Arr) :: PtrOut(:)
@@ -2231,11 +2242,11 @@ contains
          deallocate(Gin)
          nullify   (Gin)
       else
-         _ASSERT(size(PtrIn) == 2, 'if not scalar, ptrIn must be 2-vector') 
-         _ASSERT(size(PtrOut) == 2, 'if not scalar, ptrOut must be 2-vector') 
+         _ASSERT(size(PtrIn) == 2, 'if not scalar, ptrIn must be 2-vector')
+         _ASSERT(size(PtrOut) == 2, 'if not scalar, ptrOut must be 2-vector')
          Gout => PtrOut(idxOut)%ptr
          ! TLC: Probably do not need this conditional now that there are identity regridders
-         if (doTrans) then 
+         if (doTrans) then
             _ASSERT(associated(mcfio%regridder), 'mcfio%regridder not associated')
             im = size(PtrIn(1)%ptr,1)
             jm = size(PtrIn(1)%ptr,2)
@@ -2243,7 +2254,7 @@ contains
             ! MAT PGI cannot handle C_LOC call inside C_F_POINTER
             cptr = C_loc(PtrIn(1)%ptr(1,1))
             call C_F_pointer (cptr, uin,[im,jm,1])
-            
+
             cptr = C_loc(PtrIn(2)%ptr(1,1))
             call C_F_pointer (cptr, vin,[im,jm,1])
 
@@ -2256,12 +2267,12 @@ contains
 
             cptr = C_loc(PtrOut(1)%ptr(1,1))
             call C_F_pointer (cptr, uout,[im,jm,1])
-            
+
             cptr = C_loc(PtrOut(2)%ptr(1,1))
             call C_F_pointer (cptr, vout,[im,jm,1])
-            
+
 !@#               allocate(uout(im,jm,1), vout(im,jm,1))
-            
+
             call mCFIO%regridder%set_undef_value(MAPL_undef)
             call mCFIO%regridder%regrid(uin, vin, uout, vout, rc=status)
             _VERIFY(status)
@@ -2496,7 +2507,7 @@ contains
 !BOP
 
 ! !IROUTINE: MAPL_CFIOWrite --- Writing Methods
-! !IIROUTINE: MAPL_CFIOWriteBundle --- Writes an ESMF Bundle 
+! !IIROUTINE: MAPL_CFIOWriteBundle --- Writes an ESMF Bundle
 
 ! !INTERFACE:
 !
@@ -2515,7 +2526,7 @@ contains
 !
 #ifdef ___PROTEX___
 
- !DESCRIPTION:  
+ !DESCRIPTION:
 
        Writes an ESMF Bundle to a File. Only the MAPL\_CFIO object is
        a required argument as pointers to the actual data to be
@@ -2524,7 +2535,7 @@ contains
        {\tt CLOCK, BUNDLE} can be used to override the choice
        made at creation, but this is of dubious value, particularly
        for {\tt BUNDLE} since it must be excatly conformant with the
-       creation {\tt BUNDLE}. {\tt NBITS} if the number of bits of 
+       creation {\tt BUNDLE}. {\tt NBITS} if the number of bits of
        the mantissa to retain. This is used to write files with degraded
        precision, which can then be compressed with standard utilities.
        The default is no degradation of precision.
@@ -2541,8 +2552,8 @@ contains
        requires no special handling by the users of the data. In fact,
        they do not even need to know that the data is compressed! At this
        point, MAPL\_CFIO does not activate this GZIP compression
-       feature in the files being written, but the resulting precision 
-       degredaded files can be compressed offline with the HDF-4 
+       feature in the files being written, but the resulting precision
+       degredaded files can be compressed offline with the HDF-4
        {\tt hrepack} utility.
 
 #endif
@@ -2623,7 +2634,7 @@ contains
      {\tt CLOCK, BUNDLE} can be used to override the choice
      made at creation, but this is of dubious value, particularly
      for {\tt BUNDLE} since it must be excatly conformant with the
-     creation {\tt BUNDLE}. {\tt NBITS} if the number of bits of 
+     creation {\tt BUNDLE}. {\tt NBITS} if the number of bits of
      the mantissa to retain. This is used to write files with degraded
      precision, which can then be compressed with standard utilities.
      The default is no degradation of precision.
@@ -2640,8 +2651,8 @@ contains
      requires no special handling by the users of the data. In fact,
      they do not even need to know that the data is compressed! At this
      point, MAPL\_CFIO does not activate this GZIP compression
-     feature in the files being written, but the resulting precision 
-     degredaded files can be compressed offline with the HDF-4 
+     feature in the files being written, but the resulting precision
+     degredaded files can be compressed offline with the HDF-4
      {\tt hrepack} utility.
 
 #endif
@@ -2708,13 +2719,13 @@ contains
     logical, optional,           intent(IN   ) :: NOREAD
     integer, optional,           intent(  OUT) :: RC
     logical, optional,           intent(IN)    :: VERBOSE
-    logical, optional,           intent(IN)    :: FORCE_REGRID 
+    logical, optional,           intent(IN)    :: FORCE_REGRID
     logical, optional,           intent(IN)    :: TIME_IS_CYCLIC
     logical, optional,           intent(IN)    :: TIME_INTERP
     logical, optional,           intent(IN)    :: conservative
     logical, optional,           intent(IN)    :: voting
     logical, optional,           intent(IN)    :: doParallel
-    character(len=*), optional,  intent(IN)    :: ONLY_VARS 
+    character(len=*), optional,  intent(IN)    :: ONLY_VARS
     real,    optional,           intent(IN)    :: ONLY_LEVS(:)
     character(len=*), optional,  intent(IN)    :: EXPID
     logical, optional,           intent(IN)    :: ignoreCase
@@ -2723,7 +2734,7 @@ contains
     integer, optional,           intent(IN)    :: collection_id
 !
 #ifdef ___PROTEX___
-    !DESCRIPTION: 
+    !DESCRIPTION:
 
      Reads an ESMF Bundle from a file on a given time. The file is
      open, read from, and closed on exit. The arguments are:
@@ -2755,7 +2766,7 @@ contains
     file, which in turn can be used to created a MAPL\_CFIO object for
     writing.
 %
-    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.    
+    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.
 %
     \item[{[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
      for debugging.
@@ -2766,13 +2777,13 @@ contains
     \item[{[TIME\_IS\_CYCLIC]}]  If .TRUE. it says that the input file is periodic
     in time. Useful for reading climatological files. For example, if the
     input file has 12 monthly means from January to December of 2001, setting
-    this option to .TRUE. allows one to read this data for any other year. See 
+    this option to .TRUE. allows one to read this data for any other year. See
     note below regarding issues with reading monthly mean data.
 %
     \item[{[TIME\_INTERP]}] If .TRUE., the input file does not have to coincide with the
     actual times on file. In such cases, the data for the bracketing times are
     read and the data is properly interpolated in time. The input time, though,
-    need to be within the range of times present on file 
+    need to be within the range of times present on file
    (unless {\tt TIME\_IS\_CYCLIC} is specified).
 %
     \item[{[ONLY\_VARS]}] A list of comma separated vafriables to be read from the
@@ -2941,8 +2952,8 @@ contains
     !call WRITE_PARALLEL("CFIO: Reading " // trim(filename))
     if (mapl_am_i_root()) write(*,*)"CFIO: Reading ",trim(filename)," at ",nymd," ",nhms
 
-  
-    cfioIsCreated = .false. 
+
+    cfioIsCreated = .false.
     if (present(collection_id)) then
        collection => collections%at(collection_id)
        cfio => collection%find(filename, __RC__)
@@ -2956,8 +2967,8 @@ contains
        call ESMF_CFIOFileOpen  (CFIO, FMODE=1, cyclic=TIME_IS_CYCLIC_, RC=STATUS)
        _VERIFY(STATUS)
     end if
-       
-    
+
+
 
 ! Get info from the bundle
 !-------------------------
@@ -3025,12 +3036,12 @@ contains
        do L=1,NUMVARS
 
           call ESMF_CFIOVarInfoGet(VARS(L),vname=CFIOVARNAME, vtitle=LONG_NAME, vunits=UNITS, twoDimVar=twoD, &
-               & grid=varsGrid, RC=STATUS)   
+               & grid=varsGrid, RC=STATUS)
           _VERIFY(STATUS)
 
           if ( present(ONLY_VARS) ) then
                if ( index(','//trim(ONLY_VARS)  //',', &
-                          ','//trim(CFIOVARNAME)//',') < 1 ) cycle 
+                          ','//trim(CFIOVARNAME)//',') < 1 ) cycle
           endif
           if (trim(CFIOVARNAME)=="lons" .or. trim(CFIOVARNAME)=="lats") cycle
 
@@ -3078,18 +3089,18 @@ contains
             _VERIFY(STATUS)
             call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
                                         VALUE=MAPL_VLocationNone, RC=STATUS)
-            _VERIFY(STATUS) 
+            _VERIFY(STATUS)
 
           else
             ! 3-d case
              call ESMF_CFIOGridGet (varsGrid, lev=levsfile, rc=status)
-             _VERIFY(STATUS) 
+             _VERIFY(STATUS)
              if (levsfile(1) > levsfile(lm)) kreverse = .true.
 
              if (selectedLevels) then
                 if (.not. allocated(levidx)) then
                    allocate(levidx(LM), stat=status)
-                   _VERIFY(STATUS) 
+                   _VERIFY(STATUS)
                    ! build level index
                    DO K = 1, LM
                       found = .false.
@@ -3108,7 +3119,7 @@ contains
             deallocate(levsfile)
             nullify(levsfile)
 
-            if (lm == counts(3)) then 
+            if (lm == counts(3)) then
                allocate(PTR3(1-HW:DIMS(1)+HW,1-HW:DIMS(2)+HW,LM),stat=STATUS)
                _VERIFY(STATUS)
             else if (lm == (counts(3)+1)) then
@@ -3118,7 +3129,7 @@ contains
             PTR3  = 0.0
             FIELD = ESMF_FieldCreate(grid=ESMFGRID, &
                             datacopyFlag = ESMF_DATACOPY_REFERENCE,   &
-                            farrayPtr=PTR3, name=BundleVARNAME,       & 
+                            farrayPtr=PTR3, name=BundleVARNAME,       &
                             totalLWidth=haloWidth(1:2),     &
                             totalUWidth=haloWidth(1:2),     &
                             rc = status)
@@ -3147,7 +3158,7 @@ contains
        NUMVARS = L1  ! could be less than on file if user chooses to
 
     else
-       
+
        do L=1,NumVars
           call ESMF_FieldBundleGet (BUNDLE, L, FIELD,                     RC=STATUS)
           _VERIFY(STATUS)
@@ -3177,11 +3188,11 @@ contains
              end if
           end do
           _ASSERT(found, 'search failed')
-          call ESMF_CFIOVarInfoGet(VARS(K), twoDimVar=twoD, grid=varsGrid, RC=STATUS)   
+          call ESMF_CFIOVarInfoGet(VARS(K), twoDimVar=twoD, grid=varsGrid, RC=STATUS)
           _VERIFY(STATUS)
           if (.not. twoD) then
              call ESMF_CFIOGridGet (varsGrid, lev=levsfile, rc=status)
-             _VERIFY(STATUS) 
+             _VERIFY(STATUS)
              if (levsfile(1) > levsfile(lm)) kreverse = .true.
           end if
           if (selectedLevels) then
@@ -3189,7 +3200,7 @@ contains
                 ! 3-d case
                 if (.not. allocated(levidx)) then
                    allocate(levidx(LM), stat=status)
-                   _VERIFY(STATUS) 
+                   _VERIFY(STATUS)
                    ! build level index
                    DO K = 1, LM
                       found = .false.
@@ -3224,21 +3235,21 @@ contains
 
     if (IM /= IM0 .or. JM /= JM0)  then
         change_resolution = .true.
-    else                              
+    else
         change_resolution = .false.
     end if
 
 ! 180 Degree Shifting and Cubed Sphere
 ! ------------------------------------
-!   
+!
 !   In the earlier revisions of this subroutine there was an implicit assumption
 !   of the input data being on the lat-lon grid. Since there were two
 !   possibilities: Longitudinal origin at dateline, or at the Greewitch meridian,
-!   the code used to perform Longitudinal shifting, if needed, so that the 
-!   output is "properly" oriented at dateline center. 
+!   the code used to perform Longitudinal shifting, if needed, so that the
+!   output is "properly" oriented at dateline center.
 !
 !   Out current strategy is to correct the input (from the file), if needed.
-!   We first check if the input is on the Cubed-Sphere grid. 
+!   We first check if the input is on the Cubed-Sphere grid.
 !   In this case no shifting is done. Otherwise we still assume that the
 !   input is on a lat-lon grid and if shifting is needed,
 !   it will be done prior to the optional MAPL_HorzTransformRun regridding.
@@ -3246,7 +3257,7 @@ contains
 
     if ( JM == 6*IM )  then
         fcubed = .true.
-    else                              
+    else
         fcubed = .false.
     end if
 
@@ -3314,7 +3325,7 @@ contains
           allocate(krank(1) ,stat=status)
        end if
        krank = 0
-   
+
     else
 
        IM0 = counts(1)
@@ -3365,7 +3376,7 @@ contains
     end if
 
 !   Special handling for single column case
-!   Pick out index into file grid for lats and lons of scm grid - 
+!   Pick out index into file grid for lats and lons of scm grid -
 !   Assume that scm grid counts lon from -180 to 180 and lat from -90 to 90
     if(single_point) then
       if(LONSfile(1).lt.0.) then        !  assume lons on file go from -180 to 180
@@ -3389,13 +3400,13 @@ contains
        _VERIFY(STATUS)
        call ESMF_FieldGet       (FIELD, NAME=BundleVarName, array=ARRAY, RC=STATUS)
        _VERIFY(STATUS)
-       
+
        if (ignoreCase_) call getVarNameIgnoreCase(BundleVarName,vars,RC=status)
 
        call ESMF_FieldGet(FIELD,   Grid=ESMFGRID, RC=STATUS)
        _VERIFY(STATUS)
        call ESMF_ArrayGet       (array, rank=arrayRank,                  RC=STATUS)
- 
+
        _VERIFY(STATUS)
 
        if ( VERB .and. IamRoot ) &
@@ -3407,7 +3418,7 @@ contains
 
           call ESMF_ArrayGet(Array, localDE=0, farrayPtr=PTR2, RC=STATUS)
           _VERIFY(STATUS)
-          
+
           ! read the data on root
           if (IamRoot) then
              if ( timeInterp ) then
@@ -3426,10 +3437,10 @@ contains
                  call shift180Lon2D_ ( Gptr2file, im, jm )
              end if
           end if
- 
+
           ! transform and scatter
-          if (change_resolution) then  
-              if (RegridCnv) then 
+          if (change_resolution) then
+              if (RegridCnv) then
                  call MAPL_SyncSharedMemory(rc=status)
                  _VERIFY(STATUS)
                  call MAPL_BcastShared(VM, Data=Gptr2file, N=im*jm, Root=0, RootOnly=.false., rc=status)
@@ -3504,7 +3515,7 @@ contains
                 end if
              end if
 
-             if (change_resolution) then 
+             if (change_resolution) then
                 if (RegridCnv) then
                    call MAPL_SyncSharedMemory(rc=status)
                    _VERIFY(STATUS)
@@ -3521,7 +3532,7 @@ contains
                    L1 = LBOUND(PTR3,3)-1
                    ptr3(:,:,K+L1) = Gptr2bundle
                    call MAPL_SyncSharedMemory(rc=STATUS)
-                   _VERIFY(STATUS) 
+                   _VERIFY(STATUS)
 
                  else
                     if (MyGlobal) then
@@ -3575,7 +3586,7 @@ contains
        deallocate(Gptr3file)
     end if
 
-10  continue 
+10  continue
 ! always do this cleanup
 
     deallocate(LONSfile,LATSfile)
@@ -3689,7 +3700,7 @@ CONTAINS
 !
 #ifdef ___PROTEX___
 !
-    !DESCRIPTION: 
+    !DESCRIPTION:
 
      Serializes an ESMF state into a Bundle and reads its content from
      a file. The file is open, read from, and closed on exit. The
@@ -3721,7 +3732,7 @@ CONTAINS
     file, which in turn can be used to created a MAPL\_CFIO object for
     writing.
 %
-    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.    
+    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.
 %
     \item[{[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
      for debugging.
@@ -3732,13 +3743,13 @@ CONTAINS
     \item[{[TIME\_IS\_CYCLIC]}]  If .TRUE. it says that the input file is periodic
     in time. Useful for reading climatological files. For example, if the
     input file has 12 monthly means from January to December of 2001, setting
-    this option to .TRUE. allows one to read this data for any other year. See 
+    this option to .TRUE. allows one to read this data for any other year. See
     note below regarding issues with reading monthly mean data.
 %
     \item[{[TIME\_INTERP]}] If .TRUE., the input file does not have to coincide with the
     actual times on file. In such cases, the data for the bracketing times are
     read and the data is properly interpolated in time. The input time, though,
-    need to be within the range of times present on file 
+    need to be within the range of times present on file
    (unless {\tt TIME\_IS\_CYCLIC} is specified).
 %
     \item[{[ONLY\_VARS]}] A list of comma separated vafriables to be read from the
@@ -3770,7 +3781,7 @@ CONTAINS
 !   ----------------------
     tBUNDLE = ESMF_FieldBundleCreate ( name=Iam, rc=STATUS )
     _VERIFY(STATUS)
-    
+
 !   Serialize the state
 !   -------------------
     call ESMFL_BundleAddState ( tBUNDLE, STATE, rc=STATUS, VALIDATE=.true. )
@@ -3835,7 +3846,7 @@ CONTAINS
 !
 #ifdef ___PROTEX___
 
-    !DESCRIPTION: 
+    !DESCRIPTION:
 
      Reads a variable from a file and stores it on an ESMF Field.
      The file is open, read from, and closed on exit. The
@@ -3861,7 +3872,7 @@ CONTAINS
 %
     \item[TIME] The ESMF time to read from the file
 %
-    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.    
+    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.
 %
     \item[{[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
      for debugging.
@@ -3872,13 +3883,13 @@ CONTAINS
     \item[{[TIME\_IS\_CYCLIC]}]  If .TRUE. it says that the input file is periodic
     in time. Useful for reading climatological files. For example, if the
     input file has 12 monthly means from January to December of 2001, setting
-    this option to .TRUE. allows one to read this data for any other year. See 
+    this option to .TRUE. allows one to read this data for any other year. See
     note below regarding issues with reading monthly mean data.
 %
     \item[{[TIME\_INTERP]}] If .TRUE., the input file does not have to coincide with the
     actual times on file. In such cases, the data for the bracketing times are
     read and the data is properly interpolated in time. The input time, though,
-    need to be within the range of times present on file 
+    need to be within the range of times present on file
    (unless {\tt TIME\_IS\_CYCLIC} is specified).
 %
     \item[{[ONLY\_VARS]}] A list of comma separated vafriables to be read from the
@@ -3905,7 +3916,7 @@ CONTAINS
 ! Locals
 
     type(ESMF_FIELDBUNDLE)  :: BUNDLE
- 
+
 !   Create a temporary empty bundle
 !   -------------------------------
     call ESMF_FieldGet(Field, grid=Grid, rc=status)
@@ -3933,13 +3944,13 @@ CONTAINS
                               voting = voting, ignoreCase = ignoreCase,  &
                               doParallel = doParallel, getFrac=getFrac,  &
                               RC=STATUS)
-    _VERIFY(STATUS)    
+    _VERIFY(STATUS)
 
 
 !   Destroy temporary bundle; field data will be preserved
 !   ------------------------------------------------------
     call ESMF_FieldBundleDestroy ( BUNDLE, rc=STATUS )
-    _VERIFY(STATUS)    
+    _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
 
@@ -3977,7 +3988,7 @@ CONTAINS
 !
 #ifdef ___PROTEX___
 
-    !DESCRIPTION: 
+    !DESCRIPTION:
 
      Reads a variable from a file and stores it on an 3D Fortrran array.
      The file is open, read from, and closed on exit. The
@@ -4003,10 +4014,10 @@ CONTAINS
 %
     \item[TIME] The ESMF time to read from the file
 %
-    \item[GRID] The ESMF grid associated with the Field. The data will be 
+    \item[GRID] The ESMF grid associated with the Field. The data will be
     (horizontally) interpolated to this grid if necessary.
 %
-    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.    
+    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.
 %
     \item[{[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
      for debugging.
@@ -4017,13 +4028,13 @@ CONTAINS
     \item[{[TIME\_IS\_CYCLIC]}]  If .TRUE. it says that the input file is periodic
     in time. Useful for reading climatological files. For example, if the
     input file has 12 monthly means from January to December of 2001, setting
-    this option to .TRUE. allows one to read this data for any other year. See 
+    this option to .TRUE. allows one to read this data for any other year. See
     note below regarding issues with reading monthly mean data.
 %
     \item[{[TIME\_INTERP]}] If .TRUE., the input file does not have to coincide with the
     actual times on file. In such cases, the data for the bracketing times are
     read and the data is properly interpolated in time. The input time, though,
-    need to be within the range of times present on file 
+    need to be within the range of times present on file
    (unless {\tt TIME\_IS\_CYCLIC} is specified).
 %
     \item[{[ONLY\_VARS]}] A list of comma separated vafriables to be read from the
@@ -4052,10 +4063,10 @@ CONTAINS
 
 !                            ----
 
-!   Special case: when filename is "/dev/null" it is assumed the user 
+!   Special case: when filename is "/dev/null" it is assumed the user
 !   wants to set the variable to a constant
 !   -----------------------------------------------------------------
-    if ( FILETMPL(1:9) == '/dev/null' ) then    
+    if ( FILETMPL(1:9) == '/dev/null' ) then
          ios = -1
          k = index(FILETMPL,':')
          if ( k > 9 ) read(FILETMPL(k+1:),*,iostat=ios) const
@@ -4073,7 +4084,7 @@ CONTAINS
             farrayPtr=farrayPtr, name=trim(varn), RC=STATUS)
     _VERIFY(STATUS)
 
-   
+
 !   Read array data from file
 !   -------------------------
     call MAPL_CFIOReadField ( VARN, FILETMPL, TIME,       FIELD,          &
@@ -4126,7 +4137,7 @@ CONTAINS
 !
 #ifdef ___PROTEX___
 
-    !DESCRIPTION: 
+    !DESCRIPTION:
 
      Reads a variable from a file and stores it on an 3D Fortrran array.
      The file is open, read from, and closed on exit. The
@@ -4152,10 +4163,10 @@ CONTAINS
 %
     \item[TIME] The ESMF time to read from the file
 %
-    \item[GRID] The ESMF grid associated with the Field. The data will be 
+    \item[GRID] The ESMF grid associated with the Field. The data will be
     (horizontally) interpolated to this grid if necessary.
 %
-    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.    
+    \item[{[RC]}] Error return code; set to ESMF\_SUCCESS if all is well.
 %
     \item[{[VERBOSE]}] If .TRUE., prints progress messages to STDOUT; useful
      for debugging.
@@ -4166,13 +4177,13 @@ CONTAINS
     \item[{[TIME\_IS\_CYCLIC]}]  If .TRUE. it says that the input file is periodic
     in time. Useful for reading climatological files. For example, if the
     input file has 12 monthly means from January to December of 2001, setting
-    this option to .TRUE. allows one to read this data for any other year. See 
+    this option to .TRUE. allows one to read this data for any other year. See
     note below regarding issues with reading monthly mean data.
 %
     \item[{[TIME\_INTERP]}] If .TRUE., the input file does not have to coincide with the
     actual times on file. In such cases, the data for the bracketing times are
     read and the data is properly interpolated in time. The input time, though,
-    need to be within the range of times present on file 
+    need to be within the range of times present on file
    (unless {\tt TIME\_IS\_CYCLIC} is specified).
 %
     \item[{[ONLY\_VARS]}] A list of comma separated vafriables to be read from the
@@ -4204,10 +4215,10 @@ CONTAINS
 !                            ----
 
 
-!   Special case: when filename is "/dev/null" it is assumed the user 
+!   Special case: when filename is "/dev/null" it is assumed the user
 !   wants to set the variable to a constant
 !   -----------------------------------------------------------------
-    if ( FILETMPL(1:9) == '/dev/null' ) then    
+    if ( FILETMPL(1:9) == '/dev/null' ) then
          ios = -1
          k = index(FILETMPL,':')
          if ( k > 9 ) read(FILETMPL(k+1:),*,iostat=ios) const
@@ -4240,7 +4251,7 @@ CONTAINS
             datacopyFlag = ESMF_DATACOPY_REFERENCE,   &
             farrayPtr=farrayPtr, name=trim(varn), gridToFieldMap=gridToFieldMap, RC=STATUS)
     _VERIFY(STATUS)
-   
+
     deallocate(gridToFieldMap)
 
 !   Read array data from file
@@ -4278,7 +4289,7 @@ CONTAINS
   type(MAPL_CFIO),             intent(INOUT) :: MCFIO
   integer, optional,           intent(  OUT) :: RC
 
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !
 !    Destroys a MAPL CFIO object. It closes any file associated with
 !    it and deallocates memory.
@@ -4287,7 +4298,7 @@ CONTAINS
 
   integer :: status
 
-  if(associated(MCFIO%Krank     )) deallocate(MCFIO%Krank     )   
+  if(associated(MCFIO%Krank     )) deallocate(MCFIO%Krank     )
   if(associated(MCFIO%reqs      )) deallocate(MCFIO%reqs      )
   if(associated(MCFIO%varname   )) deallocate(MCFIO%varname   )
   if(associated(MCFIO%vardims   )) deallocate(MCFIO%vardims   )
@@ -4298,7 +4309,7 @@ CONTAINS
   if(associated(MCFIO%buffer    )) deallocate(MCFIO%buffer  )
   if(associated(MCFIO%varid     )) deallocate(MCFIO%varid  )
 
-  nullify(MCFIO%Krank     )   
+  nullify(MCFIO%Krank     )
   nullify(MCFIO%reqs      )
   nullify(MCFIO%varname   )
   nullify(MCFIO%vardims   )
@@ -4335,7 +4346,7 @@ CONTAINS
   character(len=*), optional,  intent(IN   ) :: filename
   integer, optional,           intent(  OUT) :: RC
 
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !
 !    Not a full destroy; only closes the file.
 
@@ -4373,7 +4384,7 @@ CONTAINS
   integer, optional,           intent(IN   ) :: fraction
   integer, optional,           intent(  OUT) :: RC
 
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !
 !    Not a full destroy; only closes the file.
 
@@ -4391,7 +4402,7 @@ CONTAINS
   if(present(fName)) then
      mCFIO%fName = fName
   endif
- 
+
   if(present(Krank)) then
     mCFIO%Krank = Krank
   endif
@@ -4452,7 +4463,7 @@ CONTAINS
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 ! This is a candidate for ESMFL, here for dependency reasons
-!  
+!
 
   subroutine GridGetLatLons_ ( grid, lons, lats, rc )
 
@@ -4498,7 +4509,7 @@ CONTAINS
        _VERIFY(status)
        lons = lons*(180._REAL64/MAPL_PI_R8)
        lats = lats*(180._REAL64/MAPL_PI_R8)
-       
+
        _RETURN(ESMF_SUCCESS)
      end subroutine GridGetLatLons_
 
@@ -4554,9 +4565,9 @@ CONTAINS
           if(all(pb<ppx)) exit
           where(ppx>pt .and. ppx<=pb)
              al = (pb-ppx)/(pb-pt)
-             where (v3(:,:,k)   .eq. MAPL_UNDEF ) v2 = v3(:,:,k+1) 
+             where (v3(:,:,k)   .eq. MAPL_UNDEF ) v2 = v3(:,:,k+1)
              where (v3(:,:,k+1) .eq. MAPL_UNDEF ) v2 = v3(:,:,k)
-             where (v3(:,:,k)   .ne. MAPL_UNDEF .and.  v3(:,:,k+1) .ne. MAPL_UNDEF  ) 
+             where (v3(:,:,k)   .ne. MAPL_UNDEF .and.  v3(:,:,k+1) .ne. MAPL_UNDEF  )
                     v2 = v3(:,:,k)*al + v3(:,:,k+1)*(1.0-al)
              end where
           end where
@@ -4594,7 +4605,7 @@ CONTAINS
 
     call ESMF_TimeGet(Time, timeString=DATE, RC=STATUS)
     _VERIFY(STATUS)
-    
+
     call strToInt(DATE, nymd, nhms)
     call fill_grads_template ( Filename, FileTmpl,&
                            experiment_id=EXPID, nymd=nymd, nhms=nhms, rc=status )
@@ -4613,9 +4624,9 @@ CONTAINS
   end function MAPL_CFIOGetFilename
 
   subroutine MAPL_CFIOGetTimeString(mcfio,Clock,Date,rc)
-  
+
     type(MAPL_CFIO  ),          intent(inout) :: MCFIO
-    type(ESMF_Clock),           intent(in   ) :: Clock 
+    type(ESMF_Clock),           intent(in   ) :: Clock
     character(len=ESMF_MAXSTR), intent(inout) :: Date
     integer, optional,          intent(out  ) :: rc
 
@@ -4665,7 +4676,7 @@ CONTAINS
     _RETURN(ESMF_SUCCESS)
 
     end subroutine MAPL_CFIOGetTimeString
-    
+
 
   subroutine MAPL_CFIOPartition(Slices, NumColls, NumNodes, Writing, Psize,Root)
     integer, intent(IN ) :: NumColls
@@ -4678,7 +4689,7 @@ CONTAINS
 
     integer, dimension(NumColls) :: SortedSlices, CollNo
 
-!!!  Returns Psize and Root, the size (in nodes) and root node 
+!!!  Returns Psize and Root, the size (in nodes) and root node
 !!!  of each node partition assigned to active collections.
 
 !!!  NumNodes is the number of nodes being dealt out to the partitions
@@ -4698,7 +4709,7 @@ CONTAINS
     Root  = 1
 
 !!! Sort the collection sizes (# of slices) in ascending order.
-!!!  Also sort the collection index the same way, to fill the 
+!!!  Also sort the collection index the same way, to fill the
 !!!  correct ones later.
 !!!------------------------------------------------------------
     where(writing)
@@ -4720,14 +4731,14 @@ CONTAINS
 !!! and is used as our initial guess.
 
     MaxSlicesPerNode = (sum(Slices,mask=Writing)-1)/NumNodes + 1
-    ! ALT: The above expression could be zero if 
+    ! ALT: The above expression could be zero if
     !      NumNodes==1 and the sum over "writing" slices is 0 (i.e. no writing)
     MaxSlicesPerNode = max(MaxSlicesPerNode,1) ! make sure it is not 0
 
 !!! We try to distribute the slices in active collections as uniformly
 !!!  as possible. "Small" collections (<= MaxSlicesPerNode) are
-!!!  assigned to a single node, others span multiple nodes. 
-!!!  Small collections are grouped in a node without 
+!!!  assigned to a single node, others span multiple nodes.
+!!!  Small collections are grouped in a node without
 !!!  exceeding MaxSlicesPerNode. Multi-node collections are
 !!!  not grouped in nodes. Since MaxSlicesPerNode  is generally
 !!!  too small to fit all the collections, it is then increased,until
@@ -4818,13 +4829,13 @@ CONTAINS
         call tindex%push_back(nn)
      enddo
 
-     if (present(blocksize)) then 
+     if (present(blocksize)) then
         blocksize_=blocksize
      else
         blocksize_=1
      end if
 
-     if (present(regridMethod)) then 
+     if (present(regridMethod)) then
         call regridMethod_%resize(size(filelist))
         do n=1,size(filelist)
            call regridMethod_%set(n,RegridMethod)
@@ -4842,22 +4853,22 @@ CONTAINS
      _VERIFY(status)
 
      nfiles = size(bundlelist)
-     blocksize_ = min(nfiles,blocksize_) 
+     blocksize_ = min(nfiles,blocksize_)
      allocate(slices(blocksize_),psize(blocksize_),root(blocksize_),reading(blocksize_),gslices(nfiles),stat=status)
      _VERIFY(STATUS)
      reading=.false.
      hw=0
-     if (present(gsiMode)) then 
+     if (present(gsiMode)) then
         cfio(:)%gsiMode=gsiMode
         if (gsiMode) hw=1
      end if
      nnodes = size(MAPL_NodeRankList)
      n1=1
-     time_iter = tindex%begin() 
+     time_iter = tindex%begin()
      regrid_iter = RegridMethod_%begin()
 
      do n=1,nfiles
- 
+
         fname = cfio(n)%fname
         myregridmethod = regrid_iter%get()
         collection_id = cfio(n)%collection_id
@@ -4867,7 +4878,7 @@ CONTAINS
         call regrid_iter%next()
         gslices(n)=size(cfio(n)%krank)
 
-     enddo 
+     enddo
      maxSlices = maxval(gslices)
      maxSlices = max(maxSlices,nPet)
 
@@ -4888,7 +4899,7 @@ CONTAINS
         enddo
 
         n2=n1+nn-1
-        call MAPL_CFIOPartition(slices,blocksize_,nNodes,reading,psize,root) 
+        call MAPL_CFIOPartition(slices,blocksize_,nNodes,reading,psize,root)
 
         nn=0
         do n=n1,n2
@@ -4989,7 +5000,7 @@ CONTAINS
          localCellCountPerDim=DIMS, RC=STATUS)
     img=counts(1)
     jmg=counts(2)
-   
+
     ! Get the number of variables we will be reading
     call ESMF_FieldBundleGet(bundlein,fieldCount=bvars,rc=status)
     _VERIFY(status)
@@ -5347,7 +5358,7 @@ CONTAINS
     _VERIFY(status)
     allocate(transDone(lt),source=.false.,stat=status)
     _VERIFY(status)
-    
+
     nn = 0
     VARS1: do L=1,size(MCFIO%VarDims)
 
@@ -5389,7 +5400,7 @@ CONTAINS
           LM = MCFIO%lm
        else
           LM = 0
-       end if 
+       end if
 
        do k = 1,lm
           nn=nn+1
@@ -5520,7 +5531,7 @@ CONTAINS
     _RETURN(ESMF_SUCCESS)
 
     contains
- 
+
   subroutine TransAndSave(mcfio,ptrin,ptrout,req,doTrans,idxOut,hw,rc)
      type(MAPL_CFIO), intent(inout) :: mcfio
      type(Ptr2Arr), intent(inout) :: PtrIn(:)
@@ -5530,7 +5541,7 @@ CONTAINS
      integer, intent(in)  :: idxOut
      integer, intent(in)     :: hw
      integer, optional, intent(out) :: rc
- 
+
      __Iam__('TransAndSave')
      real, pointer  :: gin(:,:)
      real , pointer :: gout(:,:)
@@ -5558,27 +5569,27 @@ CONTAINS
         end if
         if (mcfio%gsiMode) call shift180Lon2D_(gout)
      else
- 
+
         _ASSERT(size(PtrIn) == 2, 'input is neither a scalar nor a tangent (2d) vector')
         _ASSERT(size(PtrOut) == 2, 'input is a vector, but output is not')
         gout => PtrOut(idxOut)%ptr
         if (doTrans) then
- 
+
            im = size(PtrIn(1)%ptr,1)
            jm = size(PtrIn(1)%ptr,2)
- 
+
            cptr = C_loc(PtrIn(1)%ptr(1,1))
            call C_F_pointer (cptr, uin,[im,jm,1])
- 
+
            cptr = C_loc(PtrIn(2)%ptr(1,1))
            call C_F_pointer (cptr, vin,[im,jm,1])
- 
+
            im = size(PtrOut(1)%ptr,1)
            jm = size(PtrOut(1)%ptr,2)
- 
+
            cptr = C_loc(PtrOut(1)%ptr(1,1))
            call C_F_pointer (cptr, uout,[im,jm,1])
- 
+
            cptr = C_loc(PtrOut(2)%ptr(1,1))
            call C_F_pointer (cptr, vout,[im,jm,1])
 
@@ -5803,11 +5814,11 @@ CONTAINS
     real, intent(out) :: lons(:), lats(:)
     integer :: i
     integer, optional, intent(out) :: rc
-  
+
     integer :: status
 
     class (AbstractGridFactory), pointer :: factory
-    
+
     factory => get_factory(grid, rc=status)
     _VERIFY(status)
     select type (factory)
@@ -5822,7 +5833,7 @@ CONTAINS
          lats(i)=i
       enddo
     end select
-    
+
   end subroutine get_latlon_from_factory
 
   function make_regridder(esmfgrid, method, lons, lats, im,jm,lm, runparallel, LocalTiles, rc) result(regridder)
@@ -5844,13 +5855,13 @@ CONTAINS
     integer :: status
 
     type (ESMF_Grid) :: grid
-    
+
     type (ESMF_DistGrid) :: dist_grid
     type (ESMF_LocalArray) :: lon_array, lat_array
-    
+
     integer, allocatable :: krank(:)
     type (ESMF_DELayout) :: layout
-    
+
     real, pointer :: lons_radians(:)
     real, pointer :: lats_radians(:)
     integer :: numNodes, k
@@ -5879,19 +5890,19 @@ CONTAINS
     else
       krank = 0
     end if
-    
+
     allocate(lons_radians(size(lons)))
     allocate(lats_radians(size(lats)))
-    
+
     lons_radians = MAPL_DEGREES_TO_RADIANS_R8 * lons
     lats_radians = MAPL_DEGREES_TO_RADIANS_R8 * lats
-    
+
     lon_array = ESMF_LocalArrayCreate(lons_radians, rc=status)
     _VERIFY(status)
     lat_array = ESMF_LocalArrayCreate(lats_radians, rc=status)
     _VERIFY(status)
-    
-    
+
+
     layout = ESMF_DELayoutCreate(petMap=krank, rc=status)
     _VERIFY(status)
     dist_grid = ESMF_DistGridCreate([1,1,1],[IM,JM,LM], &
@@ -5900,7 +5911,7 @@ CONTAINS
     _VERIFY(status)
     grid = grid_manager%make_grid('LatLon', dist_grid, lon_array, lat_array, rc=status)
     _VERIFY(status)
-    
+
     call ESMF_DistGridDestroy(dist_grid, rc=status)
     _VERIFY(status)
     deallocate(lons_radians, lats_radians)
@@ -5909,8 +5920,8 @@ CONTAINS
     call ESMF_LocalArrayDestroy(lat_array)
     _VERIFY(status)
 
-    if (method == REGRID_METHOD_CONSERVE .or. method == REGRID_METHOD_VOTE .or. & 
-        method == REGRID_METHOD_FRACTION) then    
+    if (method == REGRID_METHOD_CONSERVE .or. method == REGRID_METHOD_VOTE .or. &
+        method == REGRID_METHOD_FRACTION) then
        regridder => regridder_manager%make_regridder(grid, ESMFGRID, &
             & method, hints=regrid_hints, rc=status)
        _VERIFY(status)
@@ -5921,7 +5932,7 @@ CONTAINS
     end if
 
     _RETURN(ESMF_SUCCESS)
-    
+
   end function make_regridder
 
   function MAPL_CFIOAddCollection(template) result(id)

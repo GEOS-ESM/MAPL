@@ -876,6 +876,9 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%deflate, default=0, &
                                       label=trim(string) // 'deflate:' ,rc=status )
        _VERIFY(STATUS)
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%zstandard_level, default=0, &
+                                      label=trim(string) // 'zstandard_level:' ,rc=status )
+       _VERIFY(STATUS)
 
        tm_default = -1
        call ESMF_ConfigGetAttribute ( cfg, list(n)%tm, default=tm_default, &
@@ -2497,6 +2500,8 @@ ENDDO PARSER
           end if
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,rc=status)
           _VERIFY(status)
+          call list(n)%mGriddedIO%set_param(zstandard_level=list(n)%zstandard_level,rc=status)
+          _VERIFY(status)
           call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,rc=status)
           _VERIFY(status)
           call list(n)%mGriddedIO%set_param(nbits=list(n)%nbits,rc=status)
@@ -2556,6 +2561,7 @@ ENDDO PARSER
          print *, '       Nbits: ',       list(n)%nbits
          print *, '      Slices: ',       list(n)%Slices
          print *, '     Deflate: ',       list(n)%deflate
+         print *, '  Zstd Level: ',       list(n)%zstandard_level
          if (associated(list(n)%chunksize)) then
             print *, '   ChunkSize: ',       list(n)%chunksize
          end if

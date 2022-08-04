@@ -6,7 +6,7 @@
 !
 ! !DESCRIPTION:
 !
-! The code in this file provides data type definitions and interface 
+! The code in this file provides data type definitions and interface
 ! specifications
 !
 ! This module provides all the necessary subroutines for users to write/read
@@ -32,20 +32,20 @@
 !------------------------------------------------------------------------------
 ! !PUBLIC MEMBER FUNCTIONS:
 
-      public :: ESMF_CFIOSdfFileCreate      ! Create a CFIO file for writing 
-      public :: ESMF_CFIOSdfFileOpen        ! Open a CFIO file 
-      public :: ESMF_CFIOSdfVarWrite        ! Write a variable to a file 
+      public :: ESMF_CFIOSdfFileCreate      ! Create a CFIO file for writing
+      public :: ESMF_CFIOSdfFileOpen        ! Open a CFIO file
+      public :: ESMF_CFIOSdfVarWrite        ! Write a variable to a file
       public :: ESMF_CFIOSdfVarRead         ! Read a variable from a file
-      public :: ESMF_CFIOSdfVarReadT        ! Read a variable from two files 
+      public :: ESMF_CFIOSdfVarReadT        ! Read a variable from two files
                                          ! with time interpolation
-      public :: ESMF_CFIOSdfFileClose       ! Close an existing CFIO file. 
+      public :: ESMF_CFIOSdfFileClose       ! Close an existing CFIO file.
 
       interface ESMF_CFIOSdfVarWrite; module procedure   &
         ESMF_CFIOSdfVarWrite3D_,  &
         ESMF_CFIOSdfVarWrite2D_,  &
         ESMF_CFIOSdfVarWrite1D_
       end interface
-                                                                                                 
+
       interface ESMF_CFIOSdfVarRead; module procedure   &
         ESMF_CFIOSdfVarRead3D_,  &
         ESMF_CFIOSdfVarRead2D_,  &
@@ -107,14 +107,14 @@
 !------------------------------------------------------------------------------
        integer :: i, rtcode
        !integer :: maxLen
-       character(len=MLEN) :: fNameTmp     ! file name 
+       character(len=MLEN) :: fNameTmp     ! file name
        integer :: date, begTime
        character(len=MLEN) :: fName
 
        call ESMF_CFIOGet(cfio, date=date, begTime=begTime, fName=fName, rc=rtcode)
        if (rtcode .ne. 0) print *, "Problems in ESMF_CFIOGet"
 !      checking file name template
-       if (present(expid)) then 
+       if (present(expid)) then
           call ESMF_CFIOSet(cfio, expid=expid)
           call strTemplate_(fNameTmp,fName,xid=expid,nymd=date, &
                             nhms=begTime, stat=rtcode)
@@ -127,7 +127,7 @@
        end if
 
        call CFIO_Create_(cfio, rtcode)
-       if (err("Error form CFIO_Create_",rtcode,rtcode) .lt. 0) then  
+       if (err("Error form CFIO_Create_",rtcode,rtcode) .lt. 0) then
           if ( present(rc) ) rc = rtcode
           return
        end if
@@ -135,35 +135,35 @@
 !      put global attributes
        call CFIO_PutCharAtt(cfio%fid, 'History', len(trim(cfio%history)),    &
                              cfio%history, rtcode )
-       if (err("can't write History",rtcode,rtcode) .lt. 0) then  
+       if (err("can't write History",rtcode,rtcode) .lt. 0) then
           if ( present(rc) ) rc = rtcode
           return
        end if
 
        call CFIO_PutCharAtt(cfio%fid, 'Source', len(trim(cfio%source)),      &
                              cfio%source, rtcode )
-       if (err("can't write Source",rtcode,rtcode) .lt. 0) then  
+       if (err("can't write Source",rtcode,rtcode) .lt. 0) then
           if ( present(rc) ) rc = rtcode
           return
        end if
 
        call CFIO_PutCharAtt(cfio%fid, 'Title', len(trim(cfio%title)),        &
                              cfio%title, rtcode )
-       if (err("can't write Title",rtcode,rtcode) .lt. 0) then  
+       if (err("can't write Title",rtcode,rtcode) .lt. 0) then
           if ( present(rc) ) rc = rtcode
           return
        end if
 
        call CFIO_PutCharAtt(cfio%fid, 'Contact', len(trim(cfio%contact)),    &
                              cfio%contact, rtcode )
-       if (err("can't write Contact",rtcode,rtcode) .lt. 0) then  
+       if (err("can't write Contact",rtcode,rtcode) .lt. 0) then
           if ( present(rc) ) rc = rtcode
           return
        end if
 
        call CFIO_PutCharAtt(cfio%fid,'Conventions',len(trim(cfio%convention))&
                              ,cfio%convention, rtcode )
-       if (err("can't write Conventions",rtcode,rtcode) .lt. 0) then  
+       if (err("can't write Conventions",rtcode,rtcode) .lt. 0) then
           if ( present(rc) ) rc = rtcode
           return
        end if
@@ -171,21 +171,21 @@
        call CFIO_PutCharAtt(cfio%fid,'Institution',                          &
                             len(trim(cfio%institution)),                     &
                             cfio%institution, rtcode )
-       if (err("can't write Institution",rtcode,rtcode) .lt. 0) then  
+       if (err("can't write Institution",rtcode,rtcode) .lt. 0) then
           if ( present(rc) ) rc = rtcode
           return
        end if
 
        call CFIO_PutCharAtt(cfio%fid,'References',len(trim(cfio%references)),&
                              cfio%references, rtcode )
-       if (err("can't write References",rtcode,rtcode) .lt. 0) then  
+       if (err("can't write References",rtcode,rtcode) .lt. 0) then
           if ( present(rc) ) rc = rtcode
           return
        end if
 
        call CFIO_PutCharAtt(cfio%fid,'Comment',len(trim(cfio%comment)),      &
                              cfio%comment, rtcode )
-       if (err("can't write Comment",rtcode,rtcode) .lt. 0) then  
+       if (err("can't write Comment",rtcode,rtcode) .lt. 0) then
           if ( present(rc) ) rc = rtcode
           return
        end if
@@ -197,7 +197,7 @@
 !@@          allocate(cfio%attIntNames(cfio%nAttInt),                           &
 !@@                   cfio%attIntCnts(cfio%nAttInt),                            &
 !@@                   cfio%attInts(cfio%nAttInt,maxLen), stat=rtcode)
-!@@          if (err("can't allocate mem: attIntCnts",rtcode,-2) .lt. 0) then  
+!@@          if (err("can't allocate mem: attIntCnts",rtcode,-2) .lt. 0) then
 !@@             if ( present(rc) ) rc = rtcode
 !@@             return
 !@@          end if
@@ -233,7 +233,7 @@
 !@@          allocate(cfio%attRealNames(cfio%nAttReal),                       &
 !@@                   cfio%attRealCnts(cfio%nAttReal),                        &
 !@@                   cfio%attReals(cfio%nAttReal,maxLen), stat=rtcode)
-!@@          if (err("can't allocate mem: attRealNames",rtcode,-2) .lt. 0) then  
+!@@          if (err("can't allocate mem: attRealNames",rtcode,-2) .lt. 0) then
 !@@             if ( present(rc) ) rc = rtcode
 !@@             return
 !@@          end if
@@ -270,7 +270,7 @@
 !@@          allocate(cfio%attCharNames(cfio%nAttChar),                      &
 !@@                   cfio%attCharCnts(cfio%nAttChar),                       &
 !@@                   cfio%attChars(cfio%nAttChar), stat=rtcode)
-!@@          if (err("can't allocate mem: attCharNames",rtcode,-2) .lt. 0) then  
+!@@          if (err("can't allocate mem: attCharNames",rtcode,-2) .lt. 0) then
 !@@             if ( present(rc) ) rc = rtcode
 !@@             return
 !@@          end if
@@ -292,7 +292,7 @@
        end if
 
        cfio%isOpen = .true.
- 
+
        rtcode = 0
        if ( present(rc) ) rc = rtcode
 
@@ -393,7 +393,7 @@
       logical :: cs_found
       integer :: nf
 
-      fNameTmp = ''                                                                                   
+      fNameTmp = ''
 !     checking file name template
       if (present(expid)) cfio%expid = expid
       if (present(cyclic)) cfio%isCyclic = cyclic
@@ -404,7 +404,7 @@
          if (cfio%date .gt. 0 .and. cfio%begTime .ge. 0) then
             call strTemplate_(fNameTmp,cfio%fName,nymd=cfio%date, &
                               nhms=cfio%begTime, stat=rtcode)
-         else   
+         else
             if (present(expid)) then
                call strTemplate_(fNameTmp,cfio%fName,xid=expid, stat=rtcode)
             end if
@@ -429,10 +429,10 @@
       fid =cfio%fid
 
 !     get grid information and global meta data
-                                                                                          
+
       call CFIO_DimInquire (cfio%fid, im, jm, km, lm, &
                             cfio%mVars, ngatts, vdir=vdir, rc=rtcode)
-      if (err("CFIO_DimInquire failed",rtcode,rtcode) .lt. 0) then  
+      if (err("CFIO_DimInquire failed",rtcode,rtcode) .lt. 0) then
          if ( present(rc) ) rc = rtcode
          return
       end if
@@ -440,7 +440,7 @@
       cfio%vDir = vdir
 
       rtcode = NF90_INQUIRE (cfio%fid,nDims,allVars,ngatts,recdim)
-      if (err("FileOpen: NF90_INQUIRE failed",rtcode,-48) .NE. 0) then  
+      if (err("FileOpen: NF90_INQUIRE failed",rtcode,-48) .NE. 0) then
          if ( present(rc) ) rc = rtcode
          return
       end if
@@ -455,7 +455,7 @@
       cs_found = .false.
       do i=1,allVars
         rtcode = NF90_INQUIRE_VARIABLE(fid,i,vnameTemp,vtype,nvDims,vDims,nvAtts)
-        if (err("Inquire: variable inquire error",rtcode,-52) .NE. 0) then  
+        if (err("Inquire: variable inquire error",rtcode,-52) .NE. 0) then
            if ( present(rc) ) rc = rtcode
            return
         end if
@@ -486,11 +486,11 @@
 
       do i=1,allVars
         rtcode = NF90_INQUIRE_VARIABLE(fid,i,vnameTemp,vtype,nvDims,vDims,nvAtts)
-        if (err("Inquire: variable inquire error",rtcode,-52) .NE. 0) then  
+        if (err("Inquire: variable inquire error",rtcode,-52) .NE. 0) then
            if ( present(rc) ) rc = rtcode
            return
         end if
-        if (trim(vnameTemp) .eq. 'time_bnds') then 
+        if (trim(vnameTemp) .eq. 'time_bnds') then
            cfio%varObjs(nVars)%timAve = .true.
            cycle
         end if
@@ -512,7 +512,7 @@
         cfio%varObjs(nVars)%grid%stnGrid = .false.
         do iv = 1, nvDims
            rtcode = NF90_INQUIRE_DIMENSION(fid, vDims(iv), dimName(iv), dimSize(iv))
-           if (err("problem in NF90_INQUIRE_DIMENSION",rtcode,-41) .NE. 0) then  
+           if (err("problem in NF90_INQUIRE_DIMENSION",rtcode,-41) .NE. 0) then
               if ( present(rc) ) rc = rtcode
               return
            end if
@@ -532,7 +532,7 @@
            rtcode = NF90_INQ_VARID(fid,dimName(iv),varId)
            dimUnits(iv) = ' '
            rtcode = NF90_GET_ATT(fid,varId,'units',dimUnits(iv))
-           if (err("problem in NF90_GET_ATT",rtcode,-53) .NE. 0) then  
+           if (err("problem in NF90_GET_ATT",rtcode,-53) .NE. 0) then
               if ( present(rc) ) rc = rtcode
               return
            end if
@@ -551,7 +551,7 @@
                  lon =lon_64
                  deallocate(lon_64)
               end if
-              if (err("problem in NF90_GET_VAR",rtcode,-53) .NE. 0) then  
+              if (err("problem in NF90_GET_VAR",rtcode,-53) .NE. 0) then
                  if ( present(rc) ) rc = rtcode
                  return
               end if
@@ -578,7 +578,7 @@
               end if
 !print *, "vDims(iv) varId: ", vDims(iv), varId
 !print *, "dimName dimUnits: ", trim(dimName(iv)), trim(dimUnits(iv))
-              if (err("problem in NF90_GET_VAR",rtcode,-51) .NE. 0) then  
+              if (err("problem in NF90_GET_VAR",rtcode,-51) .NE. 0) then
                  if ( present(rc) ) rc = rtcode
                  return
               end if
@@ -668,18 +668,18 @@
                  cfio%varObjs(nVars)%grid%ptop = ptop
              end if
               rtcode = NF90_GET_ATT(fid,varId,'coordinate',cfio%varObjs(nVars)%grid%coordinate)
-              if (rtcode .ne. 0) cfio%varObjs(nVars)%grid%coordinate = "pressure"  
+              if (rtcode .ne. 0) cfio%varObjs(nVars)%grid%coordinate = "pressure"
               cfio%varObjs(nVars)%grid%levUnits = trim(dimUnits(iv))
 
               allocate(cfio%varObjs(nVars)%grid%lev(dimSize(iv)))
               if (.not.associated(lev))  allocate(lev(dimSize(iv)))
 
               if ( coZType .eq. NF90_FLOAT ) then
-                 rtcode = NF90_GET_VAR(fid, varId, lev, (/1/), (/dimSize(iv)/)) 
+                 rtcode = NF90_GET_VAR(fid, varId, lev, (/1/), (/dimSize(iv)/))
 !print *, "Lev from CFIO SDFFileOpen: ", lev
               else
                  allocate(lev_64(dimSize(iv)))
-                 rtcode = NF90_GET_VAR(fid, varId, lev_64, (/1/), (/dimSize(iv)/)) 
+                 rtcode = NF90_GET_VAR(fid, varId, lev_64, (/1/), (/dimSize(iv)/))
                  lev =lev_64
                  deallocate(lev_64)
               end if
@@ -690,15 +690,15 @@
            end if
         end do
         rtcode = NF90_INQ_VARID (cfio%fid, cfio%varObjs(nVars)%vName, varId)
-        if (rtcode .ne. 0) then 
+        if (rtcode .ne. 0) then
            print *, "problem in getting varId in NF90_INQ_VARID"
-           if ( present(rc) ) rc = -40    
+           if ( present(rc) ) rc = -40
            return
         end if
        rtcode = NF90_GET_ATT(fid,varId,'units',cfio%varObjs(nVars)%vunits)
         if (rtcode .ne. 0) then
            print *, "NF90_GET_ATT failed for units"
-           if ( present(rc) ) rc = -53   
+           if ( present(rc) ) rc = -53
            return
         end if
         cfio%varObjs(nVars)%vtitle = ' '
@@ -738,9 +738,9 @@
         else
           cfio%varObjs(nVars)%validRange(2) = vRange32(2)
         endif
-        
+
       end do
-     
+
       call GetBegDateTime(fid,cfio%date,cfio%begTime,cfio%timeInc,rtcode)
       if (rtcode .ne. 0) then
          print *, "GetBegDateTime failed to get data/time/timeInc"
@@ -756,11 +756,11 @@
       allocate(attNames(ngatts))
       attNames = " "
       call CFIO_GetAttNames ( cfio%fid, ngatts, attNames, rtcode )
-      if (err("CFIO_GetAttNames failed",rtcode,rtcode) .lt. 0) then  
+      if (err("CFIO_GetAttNames failed",rtcode,rtcode) .lt. 0) then
          if ( present(rc) ) rc = rtcode
          return
       end if
- 
+
       iCnt = 0
       rCnt = 0
       cCnt = 0
@@ -809,14 +809,14 @@
 !     get attNames and count, then put them into a cfio obj
       do i =1, ngatts
          call CFIO_AttInquire (cfio%fid, attNames(i), type, count, rtcode)
-         if (err("CFIO_AttInquire failed",rtcode,rtcode) .lt. 0) then  
+         if (err("CFIO_AttInquire failed",rtcode,rtcode) .lt. 0) then
             if ( present(rc) ) rc = rtcode
             return
          end if
          select case  (type)
             case ( 0 )
                iCnt = iCnt + 1
-               cfio%attIntNames(iCnt) = attNames(i)         
+               cfio%attIntNames(iCnt) = attNames(i)
                cfio%attIntCnts(iCnt) = count
             case ( 1 )
                rCnt = rCnt + 1
@@ -856,19 +856,19 @@
          call CFIO_GetRealAtt(cfio%fid,cfio%attRealNames(i),               &
                               cfio%attRealCnts(i),                         &
                               cfio%attReals(i,:), rtcode)
-         if (err("CFIO_GetRealAtt",rtcode,rtcode) .lt. 0) then  
+         if (err("CFIO_GetRealAtt",rtcode,rtcode) .lt. 0) then
             if ( present(rc) ) rc = rtcode
             return
          end if
       end do
-     
+
 !     get global char attributes
       do i = 1, cCnt
          allocate(globalAtt(cfio%attCharCnts(i)))
          call CFIO_GetCharAtt(cfio%fid,cfio%attCharNames(i),   &
                               cfio%attCharCnts(i),             &
                               globalAtt, rtcode)
-         if (err("GetCharAtt",rtcode,rtcode) .lt. 0) then  
+         if (err("GetCharAtt",rtcode,rtcode) .lt. 0) then
             if ( present(rc) ) rc = rtcode
             return
          end if
@@ -909,13 +909,13 @@
 !     get variable meta data
       do i = 1, cfio%mVars
          rtcode = NF90_INQ_VARID (cfio%fid, cfio%varObjs(i)%vName, varId)
-         if (err("NF90_INQ_VARID failed for vName",rtcode,rtcode) .lt. 0) then   
+         if (err("NF90_INQ_VARID failed for vName",rtcode,rtcode) .lt. 0) then
             if ( present(rc) ) rc = -40
             return
          end if
          rtcode = NF90_INQUIRE_VARIABLE(cfio%fid, varId, cfio%varObjs(i)%vName, datatype, &
                      nvdims, vdims, nvatts)
-         if (err("NF90_INQUIRE_VARIABLE failed for vName",rtcode,rtcode) .lt. 0) then  
+         if (err("NF90_INQUIRE_VARIABLE failed for vName",rtcode,rtcode) .lt. 0) then
             if ( present(rc) ) rc = -52
             return
          end if
@@ -929,13 +929,13 @@
 !        get variable int/real/char attribute count
          do iv =1, nvatts
             rtcode = NF90_INQ_ATTNAME(cfio%fid,varId,iv, vAttName)
-            if (err("NF90_INQ_ATTNAME failed for vName",rtcode,rtcode) .lt. 0) then  
-               if ( present(rc) ) rc = -57   
+            if (err("NF90_INQ_ATTNAME failed for vName",rtcode,rtcode) .lt. 0) then
+               if ( present(rc) ) rc = -57
                return
             end if
             rtcode = NF90_INQUIRE_ATTRIBUTE (cfio%fid,varId,vAttName,vtype,count)
             if (err("NF90_INQUIRE_ATTRIBUTE failed for vName",rtcode,rtcode) .lt. 0) then
-               if ( present(rc) ) rc = -58   
+               if ( present(rc) ) rc = -58
                return
             end if
             select case  (vtype)
@@ -956,14 +956,14 @@
                   if ( count .gt. iMaxLen ) iMaxLen = count
             end select
          end do
-                                                                                            
+
          cfio%varObjs(i)%nVarAttChar = cCnt
          cfio%varObjs(i)%nVarAttReal = rCnt
          cfio%varObjs(i)%nVarAttInt = iCnt
-                                                                                            
+
          allocate(cfio%varObjs(i)%attCharCnts(cCnt),  &
                   cfio%varObjs(i)%attRealCnts(rCnt),  &
-                  cfio%varObjs(i)%attIntCnts(iCnt))     
+                  cfio%varObjs(i)%attIntCnts(iCnt))
          allocate(cfio%varObjs(i)%attCharNames(cCnt), &
                   cfio%varObjs(i)%attRealNames(rCnt),&
                   cfio%varObjs(i)%attIntNames(iCnt))
@@ -974,12 +974,12 @@
 !        get variable int/real/char attribute names and counts
          do iv =1, nvatts
             rtcode = NF90_INQ_ATTNAME (cfio%fid, varId, iv, vAttName)
-            if (err("NF90_INQ_ATTNAME failed for vName",rtcode,rtcode) .lt. 0) then  
+            if (err("NF90_INQ_ATTNAME failed for vName",rtcode,rtcode) .lt. 0) then
                if ( present(rc) ) rc = -57
                return
             end if
             rtcode = NF90_INQUIRE_ATTRIBUTE (cfio%fid,varId,vAttName,vtype,count)
-            if (err("NF90_INQUIRE_ATTRIBUTE failed for vName",rtcode,rtcode) .lt. 0) then   
+            if (err("NF90_INQUIRE_ATTRIBUTE failed for vName",rtcode,rtcode) .lt. 0) then
                if ( present(rc) ) rc = -58
                return
             end if
@@ -987,26 +987,26 @@
                case ( NF90_SHORT )
                   iCnt = iCnt + 1
                   cfio%varObjs(i)%attIntNames(iCnt) = vAttName
-                  cfio%varObjs(i)%attIntCnts(iCnt) = count   
+                  cfio%varObjs(i)%attIntCnts(iCnt) = count
                case ( NF90_FLOAT )
                   rCnt = rCnt + 1
                   cfio%varObjs(i)%attRealNames(rCnt) = vAttName
-                  cfio%varObjs(i)%attRealCnts(rCnt) = count   
+                  cfio%varObjs(i)%attRealCnts(rCnt) = count
                case ( NF90_CHAR )
                   cCnt = cCnt + 1
                   cfio%varObjs(i)%attCharNames(cCnt) = vAttName
-                  cfio%varObjs(i)%attCharCnts(cCnt) = count   
+                  cfio%varObjs(i)%attCharCnts(cCnt) = count
                case ( NF90_DOUBLE )
                   rCnt = rCnt + 1
                   cfio%varObjs(i)%attRealNames(rCnt) = vAttName
-                  cfio%varObjs(i)%attRealCnts(rCnt) = count   
+                  cfio%varObjs(i)%attRealCnts(rCnt) = count
                case ( NF90_INT )
                   iCnt = iCnt + 1
                   cfio%varObjs(i)%attIntNames(iCnt) = vAttName
-                  cfio%varObjs(i)%attIntCnts(iCnt) = count   
+                  cfio%varObjs(i)%attIntCnts(iCnt) = count
             end select
          end do
-   
+
          allocate(cfio%varObjs(i)%varAttReals(rCnt, rMaxLen), &
                   cfio%varObjs(i)%varAttInts(iCnt, iMaxLen),  &
                   cfio%varObjs(i)%varAttChars(cCnt))
@@ -1016,7 +1016,7 @@
             allocate(itmp(cfio%varObjs(i)%attIntCnts(ii)))
             rtcode = NF90_GET_ATT(cfio%fid,varId,cfio%varObjs(i)%attIntNames(ii),itmp)
             if (err("NF90_GET_ATT failed for attIntNames",rtcode,rtcode) .lt. 0) then
-               if ( present(rc) ) rc = -53   
+               if ( present(rc) ) rc = -53
                return
             end if
             cfio%varObjs(i)%varAttInts(ii,1:cfio%varObjs(i)%attIntCnts(ii))&
@@ -1041,11 +1041,11 @@
          do ii = 1, cCnt
             rtcode = NF90_GET_ATT(cfio%fid,varId,cfio%varObjs(i)%attCharNames(ii),cfio%varObjs(i)%varAttChars(ii))
             if (err("NF90_GET_ATT failed for attCharNames",rtcode,rtcode) .lt. 0) then
-               if ( present(rc) ) rc = -53   
+               if ( present(rc) ) rc = -53
                return
             end if
             cfio%varObjs(i)%varAttChars(ii)  &
-                 (cfio%varObjs(i)%attCharCnts(ii)+1:MLEN) = ' '             
+                 (cfio%varObjs(i)%attCharCnts(ii)+1:MLEN) = ' '
          end do
 
       end do
@@ -1061,7 +1061,7 @@
       end if
       if ( cfio%mGrids .eq. 1 .and. cfio%varObjs(1)%grid%km .eq. 0) &
          cfio%grids(1)%km = km
-      
+
       if ( cfio%mGrids .gt. 1 ) then
         do i = 2, cfio%mGrids
            iCnt = 1
@@ -1071,7 +1071,7 @@
               do ii = 2, i
                 if (cfio%varObjs(iv)%grid%im .eq. cfio%grids(ii-1)%im .and.  &
                   cfio%varObjs(iv)%grid%jm .eq. cfio%grids(ii-1)%jm .and.  &
-                  cfio%varObjs(iv)%grid%km .eq. cfio%grids(ii-1)%km ) then 
+                  cfio%varObjs(iv)%grid%km .eq. cfio%grids(ii-1)%km ) then
                   new_grid = .false.
                 end if
               end do
@@ -1079,7 +1079,7 @@
            end do
            cfio%grids(i) = cfio%varObjs(iCnt)%grid
         end do
-      end if 
+      end if
 
       rtcode = 0
       if ( present(rc) ) rc = rtcode
@@ -1098,8 +1098,8 @@
 !
 ! !INPUT PARAMETERS:
 !
-      type(ESMF_CFIO), intent(inOut) :: cfio      ! a CFIO obj  
-      character(len=*), intent(in) :: vName       ! Variable name  
+      type(ESMF_CFIO), intent(inOut) :: cfio      ! a CFIO obj
+      character(len=*), intent(in) :: vName       ! Variable name
       real, intent(in) :: field(:,:,:)            ! array contains data
       integer, intent(in), OPTIONAL :: date       ! yyyymmdd
       integer, intent(in), OPTIONAL :: curTime    ! hhmmss
@@ -1145,8 +1145,8 @@
       integer :: myKbeg, myKount
       integer :: myDate, myCurTime
       logical :: useFaceDim
-      character(len=MLEN) :: fNameTmp     ! file name 
-                                                                                         
+      character(len=MLEN) :: fNameTmp     ! file name
+
       fNameTmp = ''
       if ( present(date) ) myDate = date
       if ( present(curTime) ) myCurTime = curTime
@@ -1167,7 +1167,7 @@
             end if
          end if
       end if
-          
+
 !
 !     make sure user provides the right variable name
       do i = 1, cfio%mVars
@@ -1181,7 +1181,7 @@
       end if
 
 !     write 2D variable
-      if ( cfio%varObjs(i)%twoDimVar ) then 
+      if ( cfio%varObjs(i)%twoDimVar ) then
          call CFIO_PutVar (cfio%fid, vName, myDate, myCurTime,             &
                         cfio%varObjs(i)%grid%im, cfio%varObjs(i)%grid%jm,  &
                         0, 1, field, useFaceDim, rtcode )
@@ -1194,7 +1194,7 @@
          myKbeg = 1
          myKount = cfio%varObjs(i)%grid%km
 
-         if ( present(kbeg) ) myKbeg = kbeg 
+         if ( present(kbeg) ) myKbeg = kbeg
          if ( present(kount) ) myKount = kount
 
          call CFIO_PutVar (cfio%fid, vName, myDate, myCurTime,             &
@@ -1217,7 +1217,7 @@
 !------------------------------------------------------------------------------
 !BOP
 ! !ROUTINE: ESMF_CFIOSdfVarWrite1D_ -- Write a variable to a output file
-                                                                                
+
 ! !INTERFACE:
       subroutine ESMF_CFIOSdfVarWrite1D_(cfio, vName, field, date, curTime,  &
                                       timeString, rc)
@@ -1233,7 +1233,7 @@
       integer, intent(in), OPTIONAL :: curTime    ! hhmmss
       character(len=*), intent(in), OPTIONAL :: timeString
                                   ! string expression for date and time
-                                                                                
+
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -1247,12 +1247,12 @@
       integer :: i, rtcode
       integer :: myDate, myCurTime
       character(len=MLEN) :: fNameTmp     ! file name
-                                                                                         
+
       fNameTmp = ''
       if ( present(date) ) myDate = date
       if ( present(curTime) ) myCurTime = curTime
       if ( present(timeString) ) call strToInt(timeString,myDate,myCurTime)
-                                                                                         
+
       if (len(trim(cfio%fNameTmplt)) .gt. 1) then
          call strTemplate_(fNameTmp,cfio%fNameTmplt,xid=cfio%expid,nymd=myDate, &
                            nhms=myCurTime, stat=rtcode)
@@ -1273,7 +1273,7 @@
       do i = 1, cfio%mVars
          if ( trim(vName) .eq. trim(cfio%varObjs(i)%vName) ) exit
       end do
-                                                                                
+
 !     NEED WORK HERE
       if (index(cfio%varObjs(i)%grid%gName,'station') .gt. 0) then
          call CFIO_SPutVar (cfio%fid, vName, myDate, myCurTime,      &
@@ -1292,14 +1292,14 @@
       end if
 
       if ( present(rc) ) rc = rtcode
-                                                                                
+
       end subroutine ESMF_CFIOSdfVarWrite1D_
-                                                                                
-                                                                                
+
+
 !------------------------------------------------------------------------------
 !BOP
 ! !ROUTINE: ESMF_CFIOSdfVarWrite2D_ -- Write a variable to a output file
-                                                                                
+
 ! !INTERFACE:
       subroutine ESMF_CFIOSdfVarWrite2D_(cfio, vName, field, date, curTime, &
                                       kbeg, kount, timeString, rc)
@@ -1317,7 +1317,7 @@
       integer, intent(in), OPTIONAL :: kount    ! number of levels to write
       character(len=*), intent(in), OPTIONAL :: timeString
                                   ! string expression for date and time
-                                                                                
+
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -1333,12 +1333,12 @@
       integer :: myDate, myCurTime
       logical :: useFaceDim
       character(len=MLEN) :: fNameTmp     ! file name
-                                                                                         
+
       fNameTmp = ''
       if ( present(date) ) myDate = date
       if ( present(curTime) ) myCurTime = curTime
       if ( present(timeString) ) call strToInt(timeString,myDate,myCurTime)
-                                                                                         
+
       if (len(trim(cfio%fNameTmplt)) .gt. 1) then
          call strTemplate_(fNameTmp,cfio%fNameTmplt,xid=cfio%expid,nymd=myDate, &
                            nhms=myCurTime, stat=rtcode)
@@ -1360,7 +1360,7 @@
       do i = 1, cfio%mVars
          if ( trim(vName) .eq. trim(cfio%varObjs(i)%vName) ) exit
       end do
-                                                                                
+
 !     write 2D variable
       if (index(cfio%varObjs(i)%grid%gName,'station') .gt. 0) then
          if ( cfio%varObjs(i)%twoDimVar ) then
@@ -1400,15 +1400,15 @@
          end if
 
       end if
-                                                         
+
       if ( cfio%varObjs(i)%timAve ) then
          call writeBnds(cfio, vName, myDate, myCurTime, rtcode)
       end if
 
       if ( present(rc) ) rc = rtcode
-                                                                                
+
       end subroutine ESMF_CFIOSdfVarWrite2D_
-                                                                                
+
 
 !------------------------------------------------------------------------------
 !BOP
@@ -1429,13 +1429,13 @@
       integer, intent(in), OPTIONAL :: curTime    ! hhmmss
       integer, intent(in), OPTIONAL :: kbeg       ! first level to write
       integer, intent(in), OPTIONAL :: kount      ! number of levels to write
-      integer, intent(in), OPTIONAL :: xBeg       ! first point for lon 
+      integer, intent(in), OPTIONAL :: xBeg       ! first point for lon
       integer, intent(in), OPTIONAL :: xCount     ! number of points to read
-      integer, intent(in), OPTIONAL :: yBeg       ! first point for lat 
+      integer, intent(in), OPTIONAL :: yBeg       ! first point for lat
       integer, intent(in), OPTIONAL :: yCount     ! number of points to read
       character(len=*), intent(in), OPTIONAL :: timeString
                                   ! string expression for date and time
-                                                                                       
+
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -1474,9 +1474,9 @@
       real, pointer :: tmp(:,:,:)          ! array contains data
       character(len=MLEN) :: fNameTmp     ! file name
       logical :: useFaceDim
-                                                                                         
+
       fNameTmp = ''
-                                                                                         
+
       if ( present(date) ) myDate = date
       if ( present(curTime) ) myCurTime = curTime
       if ( present(timeString) ) call strToInt(timeString,myDate,myCurTime)
@@ -1544,12 +1544,12 @@
          allocate(tmp(cfio%varObjs(i)%grid%im,cfio%varObjs(i)%grid%jm,1),&
                   stat=rtcode)
          if (rtcode /= 0) print *, "cannot allocate tmp in ESMF_CFIOSdfVarRead3D"
-         
+
          call CFIO_GetVar(cfio%fid,vName,mydate,MYcurTime,                   &
                        cfio%varObjs(i)%grid%im,                          &
                        cfio%varObjs(i)%grid%jm, 0, 1, cfio%tSteps, tmp,  &
                        cfio%isCyclic, useFaceDim, rtcode )
-        if (err("CFIO_GetVar FAILED",rtcode,rtcode) .lt. 0) then  
+        if (err("CFIO_GetVar FAILED",rtcode,rtcode) .lt. 0) then
            if ( present(rc) ) rc = rtcode
            return
         end if
@@ -1565,7 +1565,7 @@
       if ( present(yCount) ) myYount = yCount
 
       if (associated(field) ) then
-         if (size(field,1) < myXount .or. size(field,2) < myYount .or. size(field,3) < myKount) then 
+         if (size(field,1) < myXount .or. size(field,2) < myYount .or. size(field,3) < myKount) then
             print *, "Field is not Large Enough in VarRead3D"
             if (size(field,1) < myXount) rtcode = -4
             if (size(field,2) < myXount) rtcode = -5
@@ -1589,12 +1589,12 @@
       deallocate(tmp)
       if ( present(rc) ) rc = rtcode
 
-      end subroutine ESMF_CFIOSdfVarRead3D_ 
+      end subroutine ESMF_CFIOSdfVarRead3D_
 
 !------------------------------------------------------------------------------
 !BOP
 ! !ROUTINE: ESMF_CFIOSdfVarRead2D_ -- Read a variable from an existing file
-                                                                                
+
 ! !INTERFACE:
       subroutine ESMF_CFIOSdfVarRead2D_(cfio, vName, field, date, curTime, &
                                      kbeg, kount, xBeg, xCount, yBeg,   &
@@ -1656,13 +1656,13 @@
       real, pointer :: tmp(:,:)          ! array contains data
       character(len=MLEN) :: fNameTmp     ! file name
       logical :: useFaceDim
-                                                                                              
+
       fNameTmp = ''
 
       if ( present(date) ) myDate = date
       if ( present(curTime) ) myCurTime = curTime
       if ( present(timeString) ) call strToInt(timeString,myDate,myCurTime)
-                                                                                              
+
       if (len(trim(cfio%fNameTmplt)) .gt. 1) then
          call strTemplate_(fNameTmp,cfio%fNameTmplt,xid=cfio%expid,nymd=MYdate, &
                            nhms=MYcurTime, stat=rtcode)
@@ -1691,7 +1691,7 @@
             return
          endif
       endif
-                                                                                
+
       myXbeg = 1
       myXount = cfio%varObjs(i)%grid%im
       myYbeg = 1
@@ -1720,13 +1720,13 @@
                     cfio%varObjs(i)%grid%im,                            &
                     cfio%varObjs(i)%grid%jm, 0, 1, cfio%tSteps, tmp,    &
                     cfio%isCyclic, useFaceDim, rtcode )
-        if (err("CFIO_GetVar failed",rtcode,rtcode) .lt. 0) then  
+        if (err("CFIO_GetVar failed",rtcode,rtcode) .lt. 0) then
            if ( present(rc) ) rc = rtcode
            return
         end if
- 
+
         if(associated(field)) then
-           if (size(field,1) < myXount .or. size(field,2) < myYount) then 
+           if (size(field,1) < myXount .or. size(field,2) < myYount) then
               print *, "Field is not Large Enough in VarRead2D"
               if (size(field,1) < myXount) rtcode = -4
               if (size(field,2) < myXount) rtcode = -5
@@ -1748,12 +1748,12 @@
            call CFIO_SGetVar(cfio%fid,vName,MYdate,MYcurTime,               &
                     cfio%varObjs(i)%grid%im, cfio%varObjs(i)%grid%jm,   &
                     0,1, cfio%tSteps, tmp, cfio%isCyclic, rtcode )
-           if (err("CFIO_SGetVar failed",rtcode,rtcode) .lt. 0) then  
+           if (err("CFIO_SGetVar failed",rtcode,rtcode) .lt. 0) then
               if ( present(rc) ) rc = rtcode
               return
            end if
            if(associated(field)) then
-              if (size(field,1) < myXount .or. size(field,2) < 1) then 
+              if (size(field,1) < myXount .or. size(field,2) < 1) then
                  print *, "Field is not Large Enough in VarRead2D"
                  if (size(field,1) < myXount) rtcode = -4
                  if (size(field,2) < 1) rtcode = -5
@@ -1772,12 +1772,12 @@
            call CFIO_SGetVar(cfio%fid,vName,MYdate,MYcurTime,               &
                     cfio%varObjs(i)%grid%im, cfio%varObjs(i)%grid%jm,   &
                     myKbeg, myKount, cfio%tSteps, tmp, cfio%isCyclic, rtcode )
-           if (err("CFIO_GetVar failed",rtcode,rtcode) .lt. 0) then  
+           if (err("CFIO_GetVar failed",rtcode,rtcode) .lt. 0) then
               if ( present(rc) ) rc = rtcode
               return
            end if
            if(associated(field)) then
-              if (size(field,1) < myXount .or. size(field,2) < myKount) then 
+              if (size(field,1) < myXount .or. size(field,2) < myKount) then
                  print *, "Field is not Large Enough in VarRead2D"
                  if (size(field,1) < myXount) rtcode = -4
                  if (size(field,2) < myKount) rtcode = -3
@@ -1795,17 +1795,17 @@
 
         end if
       end if
- 
+
       deallocate(tmp)
-                                                                                
+
       if ( present(rc) ) rc = rtcode
-                                                                                
+
       end subroutine ESMF_CFIOSdfVarRead2D_
-                                                                                
+
 !------------------------------------------------------------------------------
 !BOP
 ! !ROUTINE: ESMF_CFIOSdfVarRead1D_ -- Read a variable from an existing file
-                                                                                
+
 ! !INTERFACE:
       subroutine ESMF_CFIOSdfVarRead1D_(cfio, vName, field, date, curTime, &
                                      xBeg, xCount, timestring, rc)
@@ -1835,16 +1835,16 @@
 !------------------------------------------------------------------------------
 
       integer :: i, rtcode
-      integer :: myXbeg, myXount      
+      integer :: myXbeg, myXount
       integer :: myDate, myCurTime
       real, pointer :: tmp(:)          ! array contains data
       character(len=MLEN) :: fNameTmp     ! file name
-                                                                                              
+
       fNameTmp = ''
       if ( present(date) ) myDate = date
       if ( present(curTime) ) myCurTime = curTime
       if ( present(timeString) ) call strToInt(timeString,myDate,myCurTime)
-                                                                                              
+
       if (len(trim(cfio%fNameTmplt)) .gt. 1) then
          call strTemplate_(fNameTmp,cfio%fNameTmplt,xid=cfio%expid,nymd=MYdate, &
                            nhms=MYcurTime, stat=rtcode)
@@ -1860,12 +1860,12 @@
          end if
       end if
 
-                                                                                
+
 !     make sure user provides the right variable name
       do i = 1, cfio%mVars
          if ( trim(vName) .eq. trim(cfio%varObjs(i)%vName) ) exit
       end do
-                                                                                
+
       myXbeg = 1
       myXount = cfio%varObjs(i)%grid%im
 
@@ -1883,11 +1883,11 @@
       end do
 
       deallocate(tmp)
-                                                                                
+
       if ( present(rc) ) rc = rtcode
-                                                                                
+
       end subroutine ESMF_CFIOSdfVarRead1D_
-                                                                                
+
 
 !------------------------------------------------------------------------------
 !BOP
@@ -1916,9 +1916,9 @@
 !------------------------------------------------------------------------------
        integer :: rtcode
 
-       if ( cfio%isOpen ) then 
+       if ( cfio%isOpen ) then
           call CFIO_Close(cfio%fid, rtcode)
-          if (rtcode .ne. 0) then 
+          if (rtcode .ne. 0) then
              print *, "CFIO_Close failed"
           else
              cfio%isOpen = .false.
@@ -1940,7 +1940,7 @@
 !BOP
 !
 ! !ROUTINE:  CFIO_Create_ -- Creates a DAO gridded file for writing
-! 
+!
 ! !DESCRIPTION: This routine is used to open a new file for a CFIO stream.
 !
 !, im, jm, km !INTERFACE:
@@ -1949,9 +1949,9 @@
 !
 ! !USES:
 !
-      Implicit NONE  
+      Implicit NONE
 !
-! !INPUT PARAMETERS: 
+! !INPUT PARAMETERS:
 !
 !
 ! !OUTPUT PARAMETERS:
@@ -1973,13 +1973,14 @@
                              ! -39 Num of real var elements and Cnt differ
                              ! -40 error setting deflate compression routine
                              ! -41 error setting fletcher checksum routine
+                             ! -42 error setting zstandard_level routine
 
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
-     type(ESMF_CFIO), intent(inout) :: cfio 
+     type(ESMF_CFIO), intent(inout) :: cfio
 !
-! !REVISION HISTORY: 
+! !REVISION HISTORY:
 !
 !EOP
 !-------------------------------------------------------------------------
@@ -2024,7 +2025,7 @@
       integer :: nsize
       integer, pointer :: lat2id(:), lon2id(:)
 !      integer corner(4), edges(4)
-      character*80 timeUnits 
+      character*80 timeUnits
       logical surfaceOnly
       integer year,mon,day,hour,minute,sec
       integer count
@@ -2049,7 +2050,7 @@
       integer(kind=INT16) amiss_16
       real(kind=REAL32), pointer ::  pRange_32(:,:),vRange_32(:,:)
       logical packflag
-! Set metadata strings.  These metadata values are specified in the 
+! Set metadata strings.  These metadata values are specified in the
 ! COARDS conventions
 
       character (len=50), pointer :: lonDimName
@@ -2073,7 +2074,7 @@
       real(kind=REAL32) :: scale_factor, add_offset
       character (len=50) :: nameLatDim, nameLonDim
       character (len=50) :: nameLat, nameLon, nameLev, nameEdge
-      character (len=50) :: nameAk, nameBk, namePtop, nameStation 
+      character (len=50) :: nameAk, nameBk, namePtop, nameStation
       logical  bTimeSet
       integer :: sz_lon, sz_lat
       integer :: jm6, nf
@@ -2140,7 +2141,7 @@
          nf = 6
          ncont = 4
       end if
-         
+
 ! Basic error-checking.
 
       if (timinc .eq. 0) then
@@ -2176,7 +2177,7 @@
       jm = cfio%grids(ig)%jm
       km = cfio%grids(ig)%km
       tm = max(tm,cfio%grids(ig)%tm)
-     
+
       if ( index(cfio%grids(ig)%gName, 'station') .gt. &
            0 ) then
          if (im .ne. jm) rtcode = err("It isn't station grid",-1,-1)
@@ -2585,9 +2586,9 @@
   end do
 
       if( tm .LE. 0 ) then
-         rc = NF90_DEF_DIM(fid, 'time', NF90_UNLIMITED, timedim) 
+         rc = NF90_DEF_DIM(fid, 'time', NF90_UNLIMITED, timedim)
       else
-         rc = NF90_DEF_DIM(fid, 'time', tm, timedim) 
+         rc = NF90_DEF_DIM(fid, 'time', tm, timedim)
          bTimeSet = .TRUE.
       endif
       if (err("Create: error defining time",rc,-31) .LT. 0) return
@@ -2631,13 +2632,13 @@
       rc = NF90_PUT_ATT(fid,timeid,'units',timeUnits)
       if (err("Create: error creating time attribute",rc,-33) .LT. 0) &
         return
-      
+
 !ams       write (strBuf,203) timinc
 !ams 203   format (I6)
 !ams       read (strBuf,204) hour, minute, sec
 !ams 204   format (3I2)
 
-      call CFIO_parseIntTime ( timinc, hour, minute, sec ) 
+      call CFIO_parseIntTime ( timinc, hour, minute, sec )
 
       if ( sec .NE. 0) then
         print *, 'CFIO_Create: Time increments not on minute', &
@@ -2676,7 +2677,7 @@
       gDims3D(3,ig) = levdim(ig)
       gDims3D(2,ig) = latdim(ig)
       gDims3D(1,ig) = londim(ig)
-      
+
       gDims2D(4,ig) = 0
       gDims2D(3,ig) = timedim
       gDims2D(2,ig) = latdim(ig)
@@ -2687,7 +2688,7 @@
          gDims3D(3,ig) = timedim
          gDims3D(2,ig) = levdim(ig)
          gDims3D(1,ig) = stationdim(ig)
-      
+
          gDims2D(3,ig) = 0
          gDims2D(2,ig) = timedim
          gDims2D(1,ig) = stationdim(ig)
@@ -2699,7 +2700,7 @@
          gDims3D(3,ig) = facedim(ig)
          gDims3D(2,ig) = latdim(ig)
          gDims3D(1,ig) = londim(ig)
-      
+
          gDims2D(4,ig) = timedim
          gDims2D(3,ig) = facedim(ig)
          gDims2D(2,ig) = latdim(ig)
@@ -2778,7 +2779,7 @@
       scale_32 = 1.0     ! No packing for now.
       offset_32 = 0.0    ! No packing for now.
 
-! Set up packing attributes for each variable.  
+! Set up packing attributes for each variable.
 ! Define physical variables.  Set attributes for physical variables.
 
       do i=1,nvars
@@ -2845,14 +2846,14 @@
 !
 ! Chunksize is set to IM,JM,1,1 works for 2D and 3D variables
 !
-        if ( (associated(cfio%varObjs(i)%ChunkSize)) ) then 
+        if ( (associated(cfio%varObjs(i)%ChunkSize)) ) then
            rc=NF90_DEF_VAR_CHUNKING(fid, vid(i), &
                 NF90_CHUNKED, cfio%varObjs(i)%ChunkSize)
            if (err("Create: error setting Chunked variable",rc,-40) .LT. 0) &
            return
         else
 !
-! Set Chunsize to IM,JM,1,1 by default 
+! Set Chunsize to IM,JM,1,1 by default
 ! If Time (tm) has been set in grid, set the file to contiguous
 !
            if( bTimeSet .eqv. .FALSE. ) then
@@ -2867,7 +2868,7 @@
               nDefaultChunkSize(3)=1 !nf
               nDefaultChunkSize(4)=1
               nDefaultChunkSize(5)=1
-              rc=NF90_DEF_VAR_CHUNKING(fid, vid(i), NF90_CHUNKED,  & 
+              rc=NF90_DEF_VAR_CHUNKING(fid, vid(i), NF90_CHUNKED,  &
                    nDefaultChunkSize(1:chunkDim))
            endif
 
@@ -2878,6 +2879,13 @@
         if (cfio%deflate > 0 .and. cfio%deflate <= 9) then
            rc = NF90_DEF_VAR_deflate(fid, vid(i), 1, 1, cfio%deflate)
            if (err("Create: error setting deflate filter",rc,-40) .LT. 0) return
+        end if
+
+! Handle zstandard_level
+!
+        if (cfio%zstandard_level /= 0) then
+           rc = NF90_DEF_VAR_zstandard(fid, vid(i), cfio%zstandard_level)
+           if (err("Create: error setting zstandard_level filter",rc,-42) .LT. 0) return
         end if
 
 ! enable error checking
@@ -2959,7 +2967,7 @@
                      cfio%varObjs(i)%nVarAttReal), stat=rc)
             realVarAtt = cfio%varObjs(i)%varAttReals(iCnt,:)
             if (cfio%varObjs(i)%attRealCnts(iCnt) .ne. size(realVarAtt)) then
-              rc=err("FileCreate: Num of real var elements and Cnt differ",-39,-39) 
+              rc=err("FileCreate: Num of real var elements and Cnt differ",-39,-39)
               return
             end if
             rc = NF90_PUT_ATT(cfio%fid,vid(i),cfio%varObjs(i)%attRealNames(iCnt),&
@@ -2991,7 +2999,7 @@
                      cfio%varObjs(i)%nVarAttInt), stat=rc)
             intVarAtt = cfio%varObjs(i)%varAttInts(iCnt,:)
             if (cfio%varObjs(i)%attIntCnts(iCnt) .gt. size(intVarAtt)) then
-              rc=err("FileCreate: Num of int var elements and Cnt differ",-39,-39) 
+              rc=err("FileCreate: Num of int var elements and Cnt differ",-39,-39)
               return
             end if
             rc = NF90_PUT_ATT(cfio%fid,vid(i),cfio%varObjs(i)%attIntNames(iCnt),intVarAtt)
@@ -3027,18 +3035,18 @@
 !         write scaleFactor, addOffSet, and standardName to output
 
 !         if ( cfio%varObjs(i)%scaleFactor /= 0 ) then
-            scale_factor = cfio%varObjs(i)%scaleFactor 
+            scale_factor = cfio%varObjs(i)%scaleFactor
             rc = NF90_PUT_ATT(cfio%fid, vid(i), 'scale_factor', scale_factor)
             if (err("FileCreate: error from NF90_PUT_ATT for scale_factor",rc,-35) &
                 .LT. 0) return
 !         end if
 !         if ( cfio%varObjs(i)%addOffSet /= 0 ) then
-            add_offset = cfio%varObjs(i)%addOffSet   
+            add_offset = cfio%varObjs(i)%addOffSet
             rc = NF90_PUT_ATT(cfio%fid, vid(i), 'add_offset', add_offset)
             if (err("FileCreate: error from NF90_PUT_ATT for add_offset",rc,-35) &
                 .LT. 0) return
 !           end if
-              
+
          if ( LEN_TRIM(cfio%varObjs(i)%standardName) .gt. 0 ) then
             rc = NF90_PUT_ATT(cfio%fid, vid(i), 'standard_name', &
                         cfio%varObjs(i)%standardName)
@@ -3101,7 +3109,7 @@
         end if
 
       enddo
- 
+
       if ( aveFile ) then
          dimsbnd(1) = bndsdim
          dimsbnd(2) = timedim
@@ -3130,7 +3138,7 @@
          sz_lat = jm
       end if
       allocate(lon_64(sz_lon), lat_64(sz_lat), levs_64(km), ak_32(km+1),         &
-            bk_32(km+1), layer(km+1), stat = rtcode) 
+            bk_32(km+1), layer(km+1), stat = rtcode)
 
       ptop_32(1) = cfio%grids(ig)%ptop
       do i=1,sz_lon
@@ -3148,7 +3156,7 @@
             xOffset = (im/2)*(jm/6)
             yOffset = (im/2)
          end if
-         allocate(lon2_64(im), lat2_64(jm), stat = rtcode) 
+         allocate(lon2_64(im), lat2_64(jm), stat = rtcode)
          do i=1,im
             if (fVersion < 3) then
                lon2_64(i) = i ! index
@@ -3344,10 +3352,10 @@
 contains
   logical function isFileExtensionNetCDF4(fileName)
     character(len=*) :: fileName
-    
+
     character(len=len(fileName)) :: ext
     integer :: i
-    
+
     isFileExtensionNetCDF4 = .false.
     ext = ''
     i = index(fileName,'.',back=.true.)
@@ -3377,7 +3385,7 @@ contains
 !
       type (ESMF_CFIO), intent(in) :: cfio
       character(len=*), intent(in) :: vName
-      integer, intent(in) :: date 
+      integer, intent(in) :: date
       integer, intent(in) :: curTime
 !
 ! !OUTPUT PARAMETERS:
@@ -3411,17 +3419,17 @@ contains
 !ams          read (strBuf,204) hour, minute, sec
 !ams 204      format (3I2)
 
-         call CFIO_parseIntTime ( timeinc, hour, minute, sec ) 
+         call CFIO_parseIntTime ( timeinc, hour, minute, sec )
 
          incSecs = hour*3600 + minute*60 + sec
 
 !ams         write (strBuf,203) curTime
 !ams         read (strBuf,204) hour, minute, sec
 
-         call CFIO_parseIntTime ( curTime, hour, minute, sec ) 
+         call CFIO_parseIntTime ( curTime, hour, minute, sec )
 
          curSecs = hour*3600 + minute*60 + sec
-                                                                     
+
          timeIndex = seconds/incSecs + 1
          corner(1) = 1
          corner(2) = timeIndex
@@ -3439,19 +3447,19 @@ contains
          end if
 
          rtcode = NF90_INQ_VARID (cfio%fid, 'time_bnds', vid)
-         if ( rtcode .ne. 0 ) then 
+         if ( rtcode .ne. 0 ) then
             print *, "NF90_INQ_VARID failed in NF90_INQ_VARID for time_bnds"
             if ( present(rc) ) rc = rtcode
             return
          end if
          rtcode = NF90_PUT_VAR(cfio%fid,vid,bndsdata,corner,edges)
-         if ( rtcode .ne. 0 ) then 
+         if ( rtcode .ne. 0 ) then
             print *, "NF90_PUT_VAR failed in NF90_PUT_VAR for time_bnds"
             if ( present(rc) ) rc = rtcode
             return
          end if
       end if
- 
+
       if ( present(rc) ) rc = rtcode
 
       end subroutine writeBnds
@@ -3459,7 +3467,7 @@ contains
 !------------------------------------------------------------------------------
 !BOP
 ! !ROUTINE: ESMF_CFIOSdfVarReadT3D_ -- Read a variable from an existing file
-                                                                                                              
+
 ! !INTERFACE:
       subroutine ESMF_CFIOSdfVarReadT3D_ ( cfio, vName, field, &
                                         timeString, cfio2, rc )
@@ -3473,7 +3481,7 @@ contains
       type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  ! second CFIO obj
       character(len=*), intent(in) :: timeString
                                   ! string expression for date and time
-                                                                                                        
+
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -3518,7 +3526,7 @@ contains
            return
       end if
 
-      call ESMF_CFIOSdfVarReadT3D__ ( cfio, vName, date_, curTime_, field, & 
+      call ESMF_CFIOSdfVarReadT3D__ ( cfio, vName, date_, curTime_, field, &
                                    cfio2=cfio2, rc=rc )
 
     end subroutine ESMF_CFIOSdfVarReadT3D_
@@ -3526,7 +3534,7 @@ contains
 !------------------------------------------------------------------------------
 !BOP
 ! !ROUTINE: ESMF_CFIOSdfVarReadT3D_ -- Read a variable from an existing file
-                                                                                                              
+
 ! !INTERFACE:
 
       subroutine ESMF_CFIOSdfVarReadT3D__(cfio, vName, date, curTime, field, rc, cfio2)
@@ -3540,7 +3548,7 @@ contains
       integer, intent(in) :: date                 ! yyyymmdd
       integer, intent(in) :: curTime              ! hhmmss
       type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  ! second CFIO obj
-                                                                                                              
+
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -3576,7 +3584,7 @@ contains
       integer secs, secs1, secs2, nymd1, nymd2, nhms1, nhms2
       integer i, j, k
       integer im, jm, km
-                                                                                         
+
       real    alpha, amiss
       real, pointer ::  field2(:,:,:) => null() ! workspace for interpolation
 
@@ -3598,15 +3606,15 @@ contains
       call GetBegDateTime ( cfio%fid, begDate, begTime, incSecs, rtcode )
       if (err("GetVar: could not determine begin_date/begin_time",rtcode,-44)&
          .NE. 0) go to 999
-                                                                                         
+
       secs = DiffDate (begDate, begTime, date, curTime)
-                                                                                         
+
 !      if (date .LT. begDate .OR. (begDate .EQ. date .AND.  &
 !         curTime .LT. begTime) .or. secs .LT. 0) then
 !         rc = -7
 !         return
 !      endif
- 
+
 !     Determine brackting times
 !     -------------------------
       if ( secs >= 0 ) then
@@ -3619,16 +3627,16 @@ contains
       secs2 = (timeIndex2-1) * incSecs
       call GetDate ( begDate, begTime, secs1, nymd1, nhms1, rtcode )
       call GetDate ( begDate, begTime, secs2, nymd2, nhms2, rtcode )
- 
+
 !     Read grids at first time with GetVar()
 !     --------------------------------------
       call ESMF_CFIOSdfVarRead(cfio, vName, field, date=nymd1, curtime=nhms1,  rc=rtcode)
       if ( rtcode .ne. 0 ) goto 999
-                                                                    
+
       if ( secs1 .eq. secs ) goto 999   ! no interpolation needed
 
       allocate(field2(im,jm,km))
-                                                                                     
+
 !     Read grids at second time with GetVar()
 !     ---------------------------------------
       call ESMF_CFIOSdfVarRead(cfio, vName, field2, date=nymd2, curtime=nhms2, rc=rtcode)
@@ -3638,7 +3646,7 @@ contains
                                   date=nymd2, curtime=nhms2, rc=rtcode)
          if ( rtcode .ne. 0 ) return
       end if
-                                                                                         
+
 !     Get missing value
 !     -----------------
       amiss = CFIO_GetMissing ( cfio%fid, rtcode )
@@ -3663,7 +3671,7 @@ contains
             end do
          end do
       end do
-                                                        
+
       rtcode = 0
 
 !     All done
@@ -3671,14 +3679,14 @@ contains
 999   continue
       if ( associated(field2) ) deallocate(field2)
       if ( present(rc) ) rc = rtcode
-                                                                         
+
       end subroutine ESMF_CFIOSdfVarReadT3D__
 
 
 !------------------------------------------------------------------------------
 !BOP
 ! !ROUTINE: ESMF_CFIOSdfVarReadT2D_ -- Read a variable from an existing file
-                                                                                                              
+
 ! !INTERFACE:
       subroutine ESMF_CFIOSdfVarReadT2D_ ( cfio, vName, field, &
                                         timeString, cfio2, rc )
@@ -3692,7 +3700,7 @@ contains
       type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  ! second CFIO obj
       character(len=*), intent(in) :: timeString
                                   ! string expression for date and time
-                                                                                                        
+
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -3744,7 +3752,7 @@ contains
 !------------------------------------------------------------------------------
 !BOP
 ! !ROUTINE: ESMF_CFIOSdfVarReadT2D_ -- Read a variable from an existing file
-                                                                                                              
+
 ! !INTERFACE:
 
       subroutine ESMF_CFIOSdfVarReadT2D__(cfio, vName, date, curTime, field, rc, cfio2)
@@ -3758,7 +3766,7 @@ contains
       integer, intent(in) :: date                 ! yyyymmdd
       integer, intent(in) :: curTime              ! hhmmss
       type(ESMF_CFIO), intent(inOut), OPTIONAL :: cfio2  ! second CFIO obj
-                                                                                                              
+
 !
 ! !OUTPUT PARAMETERS:
 !
@@ -3794,7 +3802,7 @@ contains
       integer secs, secs1, secs2, nymd1, nymd2, nhms1, nhms2
       integer i, j
       integer im, jm, km
-                                                                                         
+
       real    alpha, amiss
       real, pointer ::  field2(:,:) => null() ! workspace for interpolation
 
@@ -3816,15 +3824,15 @@ contains
       call GetBegDateTime ( cfio%fid, begDate, begTime, incSecs, rtcode )
       if (err("GetVar: could not determine begin_date/begin_time",rtcode,-44)&
          .NE. 0) go to 999
-                                                                                         
+
       secs = DiffDate (begDate, begTime, date, curTime)
-                                                                                         
+
 !      if (date .LT. begDate .OR. (begDate .EQ. date .AND.  &
 !         curTime .LT. begTime) .or. secs .LT. 0) then
 !         rc = -7
 !         return
 !      endif
- 
+
 !     Determine brackting times
 !     -------------------------
       if ( secs >= 0 ) then
@@ -3837,16 +3845,16 @@ contains
       secs2 = (timeIndex2-1) * incSecs
       call GetDate ( begDate, begTime, secs1, nymd1, nhms1, rtcode )
       call GetDate ( begDate, begTime, secs2, nymd2, nhms2, rtcode )
- 
+
 !     Read grids at first time with GetVar()
 !     --------------------------------------
       call ESMF_CFIOSdfVarRead(cfio, vName, field, date=nymd1, curtime=nhms1,  rc=rtcode)
       if ( rtcode .ne. 0 ) goto 999
-                                                                    
+
       if ( secs1 .eq. secs ) goto 999   ! no interpolation needed
 
       allocate(field2(im,jm))
-                                                                                     
+
 !     Read grids at second time with GetVar()
 !     ---------------------------------------
       call ESMF_CFIOSdfVarRead(cfio, vName, field2, date=nymd2, curtime=nhms2, rc=rtcode)
@@ -3856,7 +3864,7 @@ contains
                                   date=nymd2, curtime=nhms2, rc=rtcode)
          if ( rtcode .ne. 0 ) return
       end if
-                                                                                         
+
 !     Get missing value
 !     -----------------
       amiss = CFIO_GetMissing ( cfio%fid, rtcode )
@@ -3875,7 +3883,7 @@ contains
             end if
          end do
       end do
-                                                        
+
       rtcode = 0
 
 !     All done
@@ -3883,7 +3891,7 @@ contains
 999   continue
       if ( associated(field2) ) deallocate(field2)
       if ( present(rc) ) rc = rtcode
-                                                                         
+
       end subroutine ESMF_CFIOSdfVarReadT2D__
 
 !..........................................................................

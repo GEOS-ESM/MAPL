@@ -54,6 +54,7 @@
          integer :: timeInc                   ! time step increment
          integer :: tSteps                    ! total time steps
          integer :: deflate                   ! gzip compress level
+         integer :: zstandard_level           ! zstd compress level
          character(len=MLEN) :: title    ! A title for the data set
          character(len=MLEN) :: source   ! Source of data, e.g. NASA/GMAO
          character(len=MLEN) :: contact  ! Who to contact about the data set
@@ -99,10 +100,10 @@
 
 !------------------------------------------------------------------------------
 !BOP
-! !ROUTINE: ESMF_CFIOCreate -- ESMF_CFIO object constructor   
+! !ROUTINE: ESMF_CFIOCreate -- ESMF_CFIO object constructor
 
 ! !INTERFACE:
-      type (ESMF_CFIO) function ESMF_CFIOCreate (cfioObjName, rc) 
+      type (ESMF_CFIO) function ESMF_CFIOCreate (cfioObjName, rc)
 !
 ! !ARGUMENTS:
 !
@@ -117,14 +118,14 @@
 !
 ! !DESCRIPTION:
 !     Create a CFIO object and initialize vars . The required global metadata
-!     title, institution, source, history, references, and comment are set to 
+!     title, institution, source, history, references, and comment are set to
 !     unknown.
 !EOP
 !------------------------------------------------------------------------------
       type(ESMF_CFIO) :: cfio                   ! a CFIO object
       integer :: rtcode
 
-      if ( present(cfioObjName) ) then 
+      if ( present(cfioObjName) ) then
          cfio%cfioObjName = cfioObjName
       else
          cfio%cfioObjName = 'CFIO'
@@ -185,7 +186,7 @@
                               attCharName, attChar, attRealName, attReal,   &
                               attIntName, attInt, format,           &
                               expid, isCyclic, isOpen, nSteps, fNameTmplt,  &
-                              deflate, formatVersion,                    rc )
+                              deflate, zstandard_level,  formatVersion,  rc )
        implicit NONE
 
 ! !ARGUMENTS:
@@ -193,15 +194,15 @@
 ! !INPUT PARAMETERS:
 !
        character(len=*), intent(in), OPTIONAL :: cfioObjName ! object name
-       type(ESMF_CFIOVarInfo), OPTIONAL :: varObjs(:)! variable objects 
+       type(ESMF_CFIOVarInfo), OPTIONAL :: varObjs(:)! variable objects
        type(ESMF_CFIOGrid), OPTIONAL :: grids(:)     ! grid array
-       type(ESMF_CFIOGrid), OPTIONAL :: grid         
+       type(ESMF_CFIOGrid), OPTIONAL :: grid
 
        character(len=*), intent(in), OPTIONAL :: fName      ! File name
        character(len=*), intent(in), OPTIONAL :: fNameTmplt ! File name
-       character(len=*), intent(in), OPTIONAL :: title      
+       character(len=*), intent(in), OPTIONAL :: title
        character(len=*), intent(in), OPTIONAL :: source     ! Source of data
-       character(len=*), intent(in), OPTIONAL :: contact    ! Who to contact 
+       character(len=*), intent(in), OPTIONAL :: contact    ! Who to contact
        character(len=*), intent(in), OPTIONAL :: history    !
        character(len=*), intent(in), OPTIONAL :: convention ! CFIO or COARDS
        character(len=*), intent(in), OPTIONAL :: institution! File name
@@ -211,70 +212,71 @@
        integer, intent(in), OPTIONAL :: date          ! yyyymmdd
        integer, intent(in), OPTIONAL :: begTime       ! hhmmss
        integer, intent(in), OPTIONAL :: timeInc       ! time step increment
-       character(len=*), intent(in), OPTIONAL :: timeString 
-                                ! string expression of date and time  
+       character(len=*), intent(in), OPTIONAL :: timeString
+                                ! string expression of date and time
        integer, intent(in), OPTIONAL :: prec      ! Desired precision of data:
                                                   ! 0 = 32 bit; 1 = 64 bit
 
-       character(len=*), intent(in), OPTIONAL :: attCharNames(:) 
+       character(len=*), intent(in), OPTIONAL :: attCharNames(:)
                                     ! User defined global char attribute names
        character(len=*), intent(in), OPTIONAL :: attRealNames(:)
-                                    ! User defined global real attribute names 
+                                    ! User defined global real attribute names
        character(len=*), intent(in), OPTIONAL :: attIntNames(:)
                                     ! User defined global int attribute names
        integer, intent(in), OPTIONAL :: attCharCnts(:)! length of attributes
        integer, intent(in), OPTIONAL :: attRealCnts(:)! length of attributes
        integer, intent(in), OPTIONAL :: attIntCnts(:) ! length of attributes
 
-       character(len=*), intent(in), OPTIONAL :: attChars(:) 
-                                    ! User defined global char attribute 
-       real,      intent(in), OPTIONAL :: attReals(:,:) 
-                                    ! User defined global real attribute 
+       character(len=*), intent(in), OPTIONAL :: attChars(:)
+                                    ! User defined global char attribute
+       real,      intent(in), OPTIONAL :: attReals(:,:)
+                                    ! User defined global real attribute
        integer,   intent(in), OPTIONAL :: attInts(:,:)
-                                    ! User defined global int attribute 
+                                    ! User defined global int attribute
 
-       character(len=*), intent(in), OPTIONAL :: attCharName 
+       character(len=*), intent(in), OPTIONAL :: attCharName
                                     ! User defined global char attribute name
        character(len=*), intent(in), OPTIONAL :: attRealName
                                     ! User defined global real attribute name
        character(len=*), intent(in), OPTIONAL :: attIntName
                                     ! User defined global int attribute name
-       character(len=*), intent(in), OPTIONAL :: attChar 
-                                    ! User defined global char attribute 
+       character(len=*), intent(in), OPTIONAL :: attChar
+                                    ! User defined global char attribute
        real,    intent(in), OPTIONAL :: attReal(:)
-                                    ! User defined global real attribute 
+                                    ! User defined global real attribute
        integer, intent(in), OPTIONAL :: attInt(:)
-                                    ! User defined global int attribute 
+                                    ! User defined global int attribute
        character(len=*), intent(in), OPTIONAL :: format
        character(len=*), intent(in), OPTIONAL :: expid
        logical, intent(in), OPTIONAL :: isCyclic
        logical, intent(in), OPTIONAL :: isOpen
        integer, intent(in), OPTIONAL :: nSteps
        integer, intent(in), OPTIONAL :: deflate
+       integer, intent(in), OPTIONAL :: zstandard_level
        real,    intent(in), OPTIONAL :: formatVersion
 !
 ! !OUTPUT PARAMETERS:
 !
-       integer, intent(out), OPTIONAL :: rc 
+       integer, intent(out), OPTIONAL :: rc
                                     ! Error return code:
                                     ! 0   all is well
                                     ! -1  can't allocate memory for grid(s)
-                                    ! -2  can't allocate memory: varObjs    
-                                    ! -3  can't allocate mem: attIntCnts   
-                                    ! -4  can't allocate mem: attIntNames  
-                                    ! -5  can't allocate memory: attInts    
-                                    ! -6  can't allocate mem: attRealCnts   
-                                    ! -7  can't allocate mem: attRealNames  
-                                    ! -8  can't allocate memory: attReals  
-                                    ! -9  can't allocate mem: attCharCnts  
-                                    ! -10  can't allocate mem: attCharNames  
-                                    ! -11  can't allocate memory: attChars  
+                                    ! -2  can't allocate memory: varObjs
+                                    ! -3  can't allocate mem: attIntCnts
+                                    ! -4  can't allocate mem: attIntNames
+                                    ! -5  can't allocate memory: attInts
+                                    ! -6  can't allocate mem: attRealCnts
+                                    ! -7  can't allocate mem: attRealNames
+                                    ! -8  can't allocate memory: attReals
+                                    ! -9  can't allocate mem: attCharCnts
+                                    ! -10  can't allocate mem: attCharNames
+                                    ! -11  can't allocate memory: attChars
 ! !INPUT/OUTPUT PARAMETERS:
 !
        type(ESMF_CFIO), intent(inout) :: cfio    ! a CFIO object
 !
 ! !DESCRIPTION:
-!     Set meta data for a CFIO object with detailed information. 
+!     Set meta data for a CFIO object with detailed information.
 !EOP
 !------------------------------------------------------------------------------
        integer :: iCnt, jCnt, count, rtcode
@@ -292,15 +294,16 @@
        if ( present(institution) ) cfio%institution = institution
        if ( present(references) ) cfio%references = references
        if ( present(comment) ) cfio%comment = comment
-       if ( present(date) ) cfio%date = date    
-       if ( present(begTime) ) cfio%begTime = begTime 
-       if ( present(timeInc) ) cfio%timeInc = timeInc 
+       if ( present(date) ) cfio%date = date
+       if ( present(begTime) ) cfio%begTime = begTime
+       if ( present(timeInc) ) cfio%timeInc = timeInc
        if ( present(format) ) cfio%format = format
        if ( present(expid) ) cfio%expid = expid
        if ( present(isCyclic) ) cfio%isCyclic = isCyclic
        if ( present(isOpen) ) cfio%isOpen = isOpen
        if ( present(nSteps) ) cfio%tSteps = nSteps
        if ( present(deflate) ) cfio%deflate = deflate
+       if ( present(zstandard_level) ) cfio%zstandard_level = zstandard_level
        if ( present(formatVersion) ) cfio%formatVersion = formatVersion
 
        if ( present(timeString) ) then
@@ -310,13 +313,13 @@
 
 !      set grid information
        if ( present(grids) ) then
-          cfio%mGrids = size(grids) 
+          cfio%mGrids = size(grids)
           allocate( cfio%grids(cfio%mGrids), stat = rtcode)
           if (err("can't allocate memory for grids",rtcode,-1) .lt. 0 ) then
              if ( present(rc) ) rc = rtcode
              return
           end if
-          cfio%grids = grids   
+          cfio%grids = grids
           cfio%isGridSet = .true.
        end if
        if ( present(grid) ) then
@@ -326,49 +329,49 @@
              if ( present(rc) ) rc = rtcode
              return
           end if
-          cfio%grids = grid   
+          cfio%grids = grid
           cfio%isGridSet = .true.
        end if
 
 !      set variable
        if ( present(varObjs) ) then
-          cfio%mVars = size(varObjs) 
+          cfio%mVars = size(varObjs)
           allocate( cfio%varObjs(cfio%mVars), stat = rtcode)
           if (err("can't allocate memory: varObjs",rtcode,-2) .lt. 0 ) then
              if ( present(rc) ) rc = rtcode
              return
           end if
 
-          cfio%varObjs = varObjs 
+          cfio%varObjs = varObjs
        end if
 
 !      set integer names, counts and data
-       if ( present(attIntCnts) )  then 
+       if ( present(attIntCnts) )  then
           allocate(cfio%attIntCnts(size(attIntCnts)), stat=rtcode)
-          if (err("can't allocate mem: attIntCnts",rtcode,-3) .lt. 0) then  
+          if (err("can't allocate mem: attIntCnts",rtcode,-3) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
 
-          cfio%attIntCnts = attIntCnts 
+          cfio%attIntCnts = attIntCnts
           cfio%nAttInt = size(attIntCnts)
        end if
-       if ( present(attIntNames) )  then 
+       if ( present(attIntNames) )  then
           cfio%nAttInt = size(attIntNames)
           allocate(cfio%attIntNames(cfio%nAttInt), stat=rtcode)
-          if (err("can't allocate mem: attIntNames",rtcode,-4) .lt. 0) then  
+          if (err("can't allocate mem: attIntNames",rtcode,-4) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
 
           cfio%attIntNames = attIntNames
        end if
-       if ( present(attInts) )  then 
+       if ( present(attInts) )  then
           iCnt = size(cfio%attIntCnts)
           jCnt = size(attInts)/size(cfio%attIntCnts)
           allocate(cfio%attInts(iCnt, jCnt), stat=rtcode)
           rtcode = err("can't allocate memory for attInts", rtcode, -1)
-          if (err("can't allocate memory: attInts",rtcode,-5) .lt. 0) then   
+          if (err("can't allocate memory: attInts",rtcode,-5) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -377,32 +380,32 @@
        end if
 
 !      set real names, counts and data with array
-       if ( present(attRealCnts) )  then 
+       if ( present(attRealCnts) )  then
           allocate(cfio%attRealCnts(size(attRealCnts)), stat=rtcode)
           rtcode = err("can't allocate memory for attRealCnts", rtcode, -1)
-          if (err("can't allocate mem: attRealCnts",rtcode,-6) .lt. 0) then  
+          if (err("can't allocate mem: attRealCnts",rtcode,-6) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
 
-          cfio%attRealCnts = attRealCnts 
+          cfio%attRealCnts = attRealCnts
           cfio%nAttReal = size(attRealCnts)
        end if
-       if ( present(attRealNames) )  then 
+       if ( present(attRealNames) )  then
           cfio%nAttReal = size(attRealNames)
           allocate(cfio%attRealNames(cfio%nAttReal), stat=rtcode)
-          if (err("can't allocate mem: attRealNames",rtcode,-7) .lt. 0) then  
+          if (err("can't allocate mem: attRealNames",rtcode,-7) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
 
           cfio%attRealNames = attRealNames
        end if
-       if ( present(attReals) )  then 
+       if ( present(attReals) )  then
           iCnt = size(cfio%attRealCnts)
           jCnt = size(attReals)/size(cfio%attRealCnts)
           allocate(cfio%attReals(iCnt, jCnt), stat=rtcode)
-          if (err("can't allocate memory: attReals",rtcode,-8) .lt. 0) then  
+          if (err("can't allocate memory: attReals",rtcode,-8) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -411,29 +414,29 @@
        end if
 
 !      set character names, counts and data with array
-       if ( present(attCharCnts) )  then 
+       if ( present(attCharCnts) )  then
           allocate(cfio%attCharCnts(size(attCharCnts)), stat=rtcode)
-          if (err("can't allocate mem: attCharCnts",rtcode,-9) .lt. 0) then  
+          if (err("can't allocate mem: attCharCnts",rtcode,-9) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
 
-          cfio%attCharCnts = attCharCnts 
+          cfio%attCharCnts = attCharCnts
           cfio%nAttChar = size(attCharCnts)
        end if
-       if ( present(attCharNames) )  then 
+       if ( present(attCharNames) )  then
           cfio%nAttChar = size(attCharNames)
           allocate(cfio%attCharNames(cfio%nAttChar), stat=rtcode)
-          if (err("can't allocate mem: attCharNames",rtcode,-10) .lt. 0) then  
+          if (err("can't allocate mem: attCharNames",rtcode,-10) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
 
           cfio%attCharNames = attCharNames
        end if
-       if ( present(attChars) )  then 
+       if ( present(attChars) )  then
           allocate(cfio%attChars(cfio%nAttChar), stat=rtcode)
-          if (err("can't allocate memory: attChars",rtcode,-11) .lt. 0) then   
+          if (err("can't allocate memory: attChars",rtcode,-11) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -582,28 +585,28 @@
 
        if ( present(cfioObjName) ) cfioObjName =cfio%cfioObjName
 
-       if ( present(fName) ) fName =cfio%fName 
+       if ( present(fName) ) fName =cfio%fName
        if ( present(fNameTmplt) ) fNameTmplt =cfio%fNameTmplt
        if ( present(title) ) title = cfio%title
-       if ( present(source) ) source = cfio%source 
+       if ( present(source) ) source = cfio%source
        if ( present(contact) ) contact = cfio%contact
-       if ( present(history) ) history = cfio%history 
+       if ( present(history) ) history = cfio%history
        if ( present(convention) ) convention = cfio%convention
-       if ( present(institution) ) institution = cfio%institution 
-       if ( present(references) ) references = cfio%references 
-       if ( present(comment) ) comment = cfio%comment 
-       if ( present(date) ) date = cfio%date 
+       if ( present(institution) ) institution = cfio%institution
+       if ( present(references) ) references = cfio%references
+       if ( present(comment) ) comment = cfio%comment
+       if ( present(date) ) date = cfio%date
        if ( present(begTime) ) begTime = cfio%begTime
        if ( present(timeInc) ) timeInc = cfio%timeInc
        if ( present(prec) ) prec = cfio%prec
        if ( present(isOpen) ) isOpen = cfio%isOpen
        if ( present(format) ) format = cfio%format
        if ( present(nSteps) ) nSteps = cfio%tSteps
-       if ( present(nVars) ) nVars  = cfio%mVars   
-       if ( present(nGrids) ) nGrids = cfio%mGrids  
+       if ( present(nVars) ) nVars  = cfio%mVars
+       if ( present(nGrids) ) nGrids = cfio%mGrids
        if ( present(grids) ) then
           allocate(grids(size(cfio%grids)), stat=rtcode)
-          if (err("can't allocate memory for grids",rtcode,-1) .lt. 0 ) then  
+          if (err("can't allocate memory for grids",rtcode,-1) .lt. 0 ) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -612,17 +615,17 @@
        end if
        if ( present(grid) ) then
           allocate(grid, stat=rtcode)
-          if (err("can't allocate memory for grid",rtcode,-1) .lt. 0 ) then  
+          if (err("can't allocate memory for grid",rtcode,-1) .lt. 0 ) then
              if ( present(rc) ) rc = rtcode
              return
           end if
 
           grid = cfio%grids(1)
        end if
-                                                                                     
+
        if ( present(varObjs) ) then
           allocate(varObjs(size(cfio%varObjs)), stat=rtcode)
-          if (err("can't allocate memory: varObjs",rtcode,-2) .lt. 0 ) then  
+          if (err("can't allocate memory: varObjs",rtcode,-2) .lt. 0 ) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -637,7 +640,7 @@
 !      get global attribute names as an array.
        if ( present(attCharNames) ) then
           allocate(attCharNames(cfio%nAttChar), stat=rtcode)
-          if (err("can't allocate mem: attCharNames",rtcode,-3) .lt. 0) then  
+          if (err("can't allocate mem: attCharNames",rtcode,-3) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -646,7 +649,7 @@
        end if
        if ( present(attRealNames) ) then
           allocate(attRealNames(cfio%nAttReal), stat=rtcode)
-          if (err("can't allocate mem: attRealNames",rtcode,-4) .lt. 0) then  
+          if (err("can't allocate mem: attRealNames",rtcode,-4) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -655,7 +658,7 @@
        end if
        if ( present(attIntNames) ) then
           allocate(attIntNames(cfio%nAttInt), stat=rtcode)
-          if (err("can't allocate mem: attIntNames",rtcode,-5) .lt. 0) then  
+          if (err("can't allocate mem: attIntNames",rtcode,-5) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -666,7 +669,7 @@
 !      get global attribute counts as an array.
        if ( present(attCharCnts) ) then
           allocate(attCharCnts(cfio%nAttChar), stat=rtcode)
-          if (err("can't allocate mem: attCharCnts",rtcode,-6) .lt. 0) then  
+          if (err("can't allocate mem: attCharCnts",rtcode,-6) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -675,7 +678,7 @@
        end if
        if ( present(attRealCnts) ) then
           allocate(attRealCnts(cfio%nAttReal), stat=rtcode)
-          if (err("can't allocate mem: attRealCnts",rtcode,-7) .lt. 0) then  
+          if (err("can't allocate mem: attRealCnts",rtcode,-7) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -684,7 +687,7 @@
        end if
        if ( present(attIntCnts) ) then
           allocate(attIntCnts(cfio%nAttInt), stat=rtcode)
-          if (err("can't allocate mem: attIntCnts",rtcode,-8) .lt. 0) then  
+          if (err("can't allocate mem: attIntCnts",rtcode,-8) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -695,7 +698,7 @@
 !      get global attributes as an array.
        if ( present(attChars) ) then
           allocate(attChars(cfio%nAttChar), stat=rtcode)
-          if (err("can't allocate mem: attChars",rtcode,-9) .lt. 0) then  
+          if (err("can't allocate mem: attChars",rtcode,-9) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -705,7 +708,7 @@
        if ( present(attReals) ) then
           allocate(attReals(cfio%nAttReal,size(cfio%attReals)/  &
                    cfio%nAttReal), stat=rtcode)
-          if (err("can't allocate mem: attReals",rtcode,-10) .lt. 0) then  
+          if (err("can't allocate mem: attReals",rtcode,-10) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -715,7 +718,7 @@
        if ( present(attInts) ) then
           allocate(attInts(cfio%nAttInt,size(cfio%attInts)/  &
                    cfio%nAttInt), stat=rtcode)
-          if (err("can't allocate mem: attInts",rtcode,-11) .lt. 0) then  
+          if (err("can't allocate mem: attInts",rtcode,-11) .lt. 0) then
              if ( present(rc) ) rc = rtcode
              return
           end if
@@ -739,7 +742,7 @@
                     then
                    allocate(attInt(cfio%attIntCnts(i)))
                    if (err("can't allocate mem: attInt",rtcode,-12) .lt. 0) &
-                      then  
+                      then
                       if ( present(rc) ) rc = rtcode
                       return
                    end if

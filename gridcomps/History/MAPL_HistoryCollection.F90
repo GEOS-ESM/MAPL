@@ -74,6 +74,7 @@ module MAPL_HistoryCollectionMod
      integer                            :: voting
      integer                            :: nbits
      integer                            :: deflate
+     integer                            :: zstandard_level
      integer                            :: slices
      integer                            :: Root
      integer                            :: Psize
