@@ -9,6 +9,8 @@ module pFIO_HistoryCollectionMod
   use pFIO_FileMetadataMod
   use pFIO_StringVariableMapMod
   use pFIO_ConstantsMod
+  use gFTL_StringVector
+  use NetCDF
   implicit none
   private
 
@@ -17,12 +19,14 @@ module pFIO_HistoryCollectionMod
 
   type :: HistoryCollection
     type (Filemetadata) :: fmd
+    type (StringVector) :: files_created
     type (StringNetCDF4_FileFormatterMap) :: formatters
 
   contains
     procedure :: find
     procedure :: ModifyMetadata
     procedure :: clear
+    procedure :: check_if_i_created
   end type HistoryCollection
 
   interface HistoryCollection
@@ -51,18 +55,28 @@ contains
     type(StringNetCDF4_FileFormatterMapIterator) :: iter
     integer :: status
     character(len=*), parameter :: Iam = "HistoryCollection::find()"
-    logical :: f_exist
+    logical :: f_exist, i_created
 
     iter = this%formatters%find(trim(file_name))
     if (iter == this%formatters%end()) then
        inquire(file=file_name, exist=f_exist)
-       if(.not. f_exist) then 
+       if(.not. f_exist) then
          call fm%create(trim(file_name),rc=status)
          _VERIFY(status)
          call fm%write(this%fmd, rc=status)
          _VERIFY(status)
+         call this%files_created%push_back(file_name)
        else
-          call fm%open(trim(file_name), pFIO_WRITE)
+          i_created = this%check_if_i_created(file_name)
+          if (i_created) then
+             call fm%open(trim(file_name), pFIO_WRITE)
+          else
+             call fm%create(trim(file_name),mode=NF90_CLOBBER,rc=status)
+             _VERIFY(status)
+             call fm%write(this%fmd, rc=status)
+             _VERIFY(status)
+             call this%files_created%push_back(file_name)
+          end if
        endif
        call this%formatters%insert( trim(file_name),fm)
        iter = this%formatters%find(trim(file_name))
@@ -111,6 +125,28 @@ contains
     enddo
     _RETURN(_SUCCESS)
   end subroutine clear
+
+  function check_if_i_created(this,input_file,rc) result(i_created)
+    logical :: i_created
+    class (HistoryCollection), intent(inout) :: this
+    character(len=*), intent(in) :: input_file
+    integer, optional, intent(out) :: rc 
+
+    integer :: status
+    character(len=:), pointer :: file_name
+    type(StringVectorIterator) :: iter
+
+    i_created = .false.
+    iter = this%files_created%begin()
+    do while (iter /= this%files_created%end()) 
+       file_name => iter%get()
+       if (file_name == input_file) i_created = .true.
+       call iter%next()
+    enddo
+
+    _RETURN(_SUCCESS)
+
+  end function
 
 end module pFIO_HistoryCollectionMod
 
