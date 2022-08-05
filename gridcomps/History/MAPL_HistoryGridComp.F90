@@ -3632,7 +3632,7 @@ ENDDO PARSER
                if (list(n)%format == 'CFIO') then
                   if (intState%check_if_file_exists) then
                      inquire (file=trim(filename(n)),exist=file_exists)
-                     _ASSERT(file_exists,trim(filename(n))//" being created for History output already exists")
+                     _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
                   call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,rc=status)
                   _VERIFY(status)
