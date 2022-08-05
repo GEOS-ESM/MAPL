@@ -539,7 +539,7 @@ contains
                                          label='FileOrder:', default='ABC', rc=status)
     _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute(config, value=intState%fail_if_file_exists,  &
-                                         label='Fail_If_File_Exists:', default=.fail., _RC)
+                                         label='Fail_If_File_Exists:', default=.false., _RC)
  
     if (trim(cFileOrder) == 'ABC') then
        intstate%fileOrderAlphabetical = .true.
