@@ -1973,7 +1973,6 @@
                              ! -39 Num of real var elements and Cnt differ
                              ! -40 error setting deflate compression routine
                              ! -41 error setting fletcher checksum routine
-                             ! -42 error setting zstandard_level routine
 
 !
 ! !INPUT/OUTPUT PARAMETERS:
@@ -2879,13 +2878,6 @@
         if (cfio%deflate > 0 .and. cfio%deflate <= 9) then
            rc = NF90_DEF_VAR_deflate(fid, vid(i), 1, 1, cfio%deflate)
            if (err("Create: error setting deflate filter",rc,-40) .LT. 0) return
-        end if
-
-! Handle zstandard_level
-!
-        if (cfio%zstandard_level /= 0) then
-           rc = NF90_DEF_VAR_zstandard(fid, vid(i), cfio%zstandard_level)
-           if (err("Create: error setting zstandard_level filter",rc,-42) .LT. 0) return
         end if
 
 ! enable error checking

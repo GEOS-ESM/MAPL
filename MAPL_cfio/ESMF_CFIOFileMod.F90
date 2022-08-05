@@ -54,7 +54,6 @@
          integer :: timeInc                   ! time step increment
          integer :: tSteps                    ! total time steps
          integer :: deflate                   ! gzip compress level
-         integer :: zstandard_level           ! zstd compress level
          character(len=MLEN) :: title    ! A title for the data set
          character(len=MLEN) :: source   ! Source of data, e.g. NASA/GMAO
          character(len=MLEN) :: contact  ! Who to contact about the data set
@@ -186,7 +185,7 @@
                               attCharName, attChar, attRealName, attReal,   &
                               attIntName, attInt, format,           &
                               expid, isCyclic, isOpen, nSteps, fNameTmplt,  &
-                              deflate, zstandard_level,  formatVersion,  rc )
+                              deflate, formatVersion,  rc )
        implicit NONE
 
 ! !ARGUMENTS:
@@ -252,7 +251,6 @@
        logical, intent(in), OPTIONAL :: isOpen
        integer, intent(in), OPTIONAL :: nSteps
        integer, intent(in), OPTIONAL :: deflate
-       integer, intent(in), OPTIONAL :: zstandard_level
        real,    intent(in), OPTIONAL :: formatVersion
 !
 ! !OUTPUT PARAMETERS:
@@ -303,7 +301,6 @@
        if ( present(isOpen) ) cfio%isOpen = isOpen
        if ( present(nSteps) ) cfio%tSteps = nSteps
        if ( present(deflate) ) cfio%deflate = deflate
-       if ( present(zstandard_level) ) cfio%zstandard_level = zstandard_level
        if ( present(formatVersion) ) cfio%formatVersion = formatVersion
 
        if ( present(timeString) ) then

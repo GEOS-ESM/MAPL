@@ -277,7 +277,7 @@ contains
                                          OUTPUT_GRID, CHUNKSIZE, FREQUENCY, LEVELS, DESCR,    &
                                          XYOFFSET, VCOORD, VUNIT, VSCALE,         &
                                          SOURCE, INSTITUTION, COMMENT, CONTACT,   &
-                                         FORMAT, EXPID, DEFLATE, ZSTANDARD_LEVEL, GC,  ORDER, &
+                                         FORMAT, EXPID, DEFLATE, GC,  ORDER, &
                                          NumCores, nbits, TM, Conservative,  &
                                          VectorList, itemOrder, RC )
 ! !ARGUMENTS:
@@ -296,7 +296,6 @@ contains
     integer,         optional,   intent(IN)  :: XYOFFSET
     real,            optional,   intent(IN)  :: VSCALE
     integer,         optional,   intent(IN)  :: DEFLATE
-    integer,         optional,   intent(IN)  :: ZSTANDARD_LEVEL
     character(len=*),optional,   intent(IN)  :: VUNIT
     character(len=*),optional,   intent(IN)  :: VCOORD
     character(len=*),optional,   intent(IN)  :: source
@@ -391,7 +390,6 @@ contains
     integer        :: IMBEG, IMEND, JMBEG, JMEND
     integer        :: Field_Type
     integer        :: Df
-    integer        :: Zstd
     integer        :: Num2DVars, Num3dVars
     integer        :: YY,MM,DD,H,M,S
     integer        :: noffset
@@ -471,12 +469,6 @@ contains
        df = deflate
     else
        df = 0
-    endif
-
-    if(present(zstandard_level)) then
-       zstd = zstandard_level
-    else
-       zstd = 0
     endif
 
     if(present(Order)) then
@@ -1422,7 +1414,6 @@ contains
          comment     = Ucomment,                                  &
          prec        = 0,                                         &
          deflate     = df,                                        &
-         zstandard_level = zstd,                                  &
          RC=STATUS )
     _VERIFY(STATUS)
 
@@ -1603,7 +1594,7 @@ contains
                                         LEVELS, DESCR, BUNDLE, &
                                         XYOFFSET, VCOORD, VUNIT, VSCALE,   &
                                         SOURCE, INSTITUTION, COMMENT, CONTACT, &
-                                        FORMAT, EXPID, DEFLATE, ZSTANDARD_LEVEL, GC,  ORDER, &
+                                        FORMAT, EXPID, DEFLATE, GC,  ORDER, &
                                         NumCores, nbits, TM, Conservative,  RC )
 
 !
@@ -1632,7 +1623,6 @@ contains
     character(len=*),optional,   intent(IN)  :: format
     character(len=*),optional,   intent(IN)  :: EXPID
     integer,         optional,   intent(IN)  :: DEFLATE
-    integer,         optional,   intent(IN)  :: ZSTANDARD_LEVEL
     type(ESMF_GridComp),optional,intent(IN)  :: GC
     integer,         optional,   intent(IN)  :: Order
     integer,         optional,   intent(IN)  :: Nbits
@@ -1719,7 +1709,6 @@ contains
                                      FORMAT  = FORMAT,                   &
                                      EXPID   = EXPID,                    &
                                      DEFLATE = DEFLATE,                  &
-                                     ZSTANDARD_LEVEL = ZSTANDARD_LEVEL,  &
                                      GC      = GC,                       &
                                      ORDER   = ORDER,                    &
                                      NumCores= NUMCORES,                 &
