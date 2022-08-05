@@ -712,10 +712,14 @@ contains
 
          zstandard_level = var%get_zstandard_level()
          if (zstandard_level /= 0) then
+#ifdef NF_HAS_ZSTD
            !$omp critical
            status = nf90_def_var_zstandard(this%ncid, varid, zstandard_level)
            !$omp end critical
            _VERIFY(status)
+#else
+           _FAIL("netcdf was not built with zstandard support")
+#endif
          end if
 
          call this%put_var_attributes(var, varid, rc=status)

@@ -91,6 +91,55 @@ set (srcs
   StringVectorUtil.F90
   )
 
+###############################################################
+# Check to see if quantize capability is present in netcdf-c. #
+###############################################################
+
+include(CheckCSourceCompiles)
+set(CMAKE_REQUIRED_INCLUDES ${NETCDF_INCLUDE_DIR})
+check_c_source_compiles("
+  #include <netcdf_meta.h>
+  #if !NC_HAS_QUANTIZE
+  choke me
+  #endif
+  int main(void) {
+    return 0;
+  }
+  "
+  NETCDF_HAS_QUANTIZE)
+if (NETCDF_HAS_ZSTD)
+  add_definitions(-DNF_HAS_QUANTIZE)
+endif ()
+
+################################################################
+# Check to see if zstandard capability is present in netcdf-c. #
+################################################################
+
+include(CheckCSourceCompiles)
+set(CMAKE_REQUIRED_INCLUDES ${NETCDF_INCLUDE_DIR})
+check_c_source_compiles("
+  #include <netcdf_meta.h>
+  #if !NC_HAS_ZSTD
+  choke me
+  #endif
+  int main(void) {
+    return 0;
+  }
+  "
+  NETCDF_HAS_ZSTD)
+if (NETCDF_HAS_ZSTD)
+  add_definitions(-DNF_HAS_ZSTD)
+  # Now do a check that HDF5_PLUGIN_PATH is set and give a warning if not
+  if (NETCDF_HAS_ZSTD AND NOT DEFINED ENV{HDF5_PLUGIN_PATH})
+    message(WARNING
+      "NetCDF has reported it was built with zstandard support, but you do not have the HDF5_PLUGIN_PATH set\n"
+      "This might lead to runtime failures if zstandard compression is used.\n"
+      )
+  else ()
+    message(STATUS "Detected HDF5_PLUGIN_PATH: $ENV{HDF5_PLUGIN_PATH}")
+  endif ()
+endif ()
+
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PRIVATE MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
