@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.24.0] - 2022-08-08
+
+### Fixed
+
 - Fix error trapping in bundleio test
 
 ### Added
@@ -24,10 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced depreciated __RC__ macro with _RC and remove unsed code  in ExtData2G
 - Moved to `checkout@v3` action due to git safe directory issue
 - Added tutorials to CI
-
-### Removed
-
-### Deprecated
 
 ## [2.23.1] - 2022-07-15
 
