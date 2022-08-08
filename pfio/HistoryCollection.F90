@@ -19,7 +19,7 @@ module pFIO_HistoryCollectionMod
 
   type :: HistoryCollection
     type (Filemetadata) :: fmd
-    character(len=:), allocatable :: file_created
+    character(len=:), allocatable :: last_file_created
     type (StringNetCDF4_FileFormatterMap) :: formatters
 
   contains
@@ -65,7 +65,7 @@ contains
          _VERIFY(status)
          call fm%write(this%fmd, rc=status)
          _VERIFY(status)
-         this%file_created = trim(file_name)
+         this%last_file_created = trim(file_name)
        else
           i_created = this%check_if_i_created(file_name)
           if (i_created) then
@@ -75,7 +75,7 @@ contains
              _VERIFY(status)
              call fm%write(this%fmd, rc=status)
              _VERIFY(status)
-             this%file_created=trim(file_name)
+             this%last_file_created=trim(file_name)
           end if
        endif
        call this%formatters%insert( trim(file_name),fm)
@@ -135,8 +135,8 @@ contains
     integer :: status
 
     i_created = .false.
-    if (allocated(this%file_created)) then
-       if (input_file == this%file_created) i_created=.true.
+    if (allocated(this%last_file_created)) then
+       if (input_file == this%last_file_created) i_created=.true.
     end if
 
     _RETURN(_SUCCESS)
