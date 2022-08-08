@@ -13,8 +13,10 @@ module pFIO_AddHistCollectionMessageMod
 
    type, extends(AbstractMessage) :: AddHistCollectionMessage
       type(FileMetadata) :: fmd
-      ! WY node: -1    : add ( default )
+      ! WY node: -1    : add (clobber,  default )
       !          other : replace
+      ! overload collection_id of the message
+      !    -2 : add and no_clobber for these series of files
       integer :: collection_id = -1
    contains
       procedure, nopass :: get_type_id

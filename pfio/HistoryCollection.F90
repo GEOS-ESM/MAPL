@@ -21,7 +21,7 @@ module pFIO_HistoryCollectionMod
     type (Filemetadata) :: fmd
     character(len=:), allocatable :: last_file_created
     type (StringNetCDF4_FileFormatterMap) :: formatters
-
+    integer :: create_mode
   contains
     procedure :: find
     procedure :: ModifyMetadata
@@ -35,12 +35,19 @@ module pFIO_HistoryCollectionMod
 
 contains
 
-  function new_HistoryCollection(fmd) result(collection)
+  function new_HistoryCollection(fmd, option) result(collection)
     type (HistoryCollection) :: collection
     type (FilemetaData), intent(in) :: fmd
+    integer, optional, intent(in) :: option
 
     collection%fmd = fmd
     collection%formatters = StringNetCDF4_FileFormatterMap() 
+    collection%create_mode = NF90_CLOBBER
+    if (present(option)) then
+      if (option == -2)  then
+         collection%ceate_mode = NF90_NOCLOBBER
+      endif
+    endif
 
   end function new_HistoryCollection
 
@@ -71,7 +78,7 @@ contains
           if (i_created) then
              call fm%open(trim(file_name), pFIO_WRITE)
           else
-             call fm%create(trim(file_name),mode=NF90_CLOBBER,rc=status)
+             call fm%create(trim(file_name),mode=this%create_mode,rc=status)
              _VERIFY(status)
              call fm%write(this%fmd, rc=status)
              _VERIFY(status)
