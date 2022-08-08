@@ -19,7 +19,7 @@ module pFIO_HistoryCollectionMod
 
   type :: HistoryCollection
     type (Filemetadata) :: fmd
-    type (StringVector) :: files_created
+    character(len=:), allocatable :: file_created
     type (StringNetCDF4_FileFormatterMap) :: formatters
 
   contains
@@ -65,7 +65,7 @@ contains
          _VERIFY(status)
          call fm%write(this%fmd, rc=status)
          _VERIFY(status)
-         call this%files_created%push_back(file_name)
+         this%file_created = trim(file_name)
        else
           i_created = this%check_if_i_created(file_name)
           if (i_created) then
@@ -75,7 +75,7 @@ contains
              _VERIFY(status)
              call fm%write(this%fmd, rc=status)
              _VERIFY(status)
-             call this%files_created%push_back(file_name)
+             this%file_created=trim(file_name)
           end if
        endif
        call this%formatters%insert( trim(file_name),fm)
@@ -133,16 +133,11 @@ contains
     integer, optional, intent(out) :: rc 
 
     integer :: status
-    character(len=:), pointer :: file_name
-    type(StringVectorIterator) :: iter
 
     i_created = .false.
-    iter = this%files_created%begin()
-    do while (iter /= this%files_created%end()) 
-       file_name => iter%get()
-       if (file_name == input_file) i_created = .true.
-       call iter%next()
-    enddo
+    if (allocated(this%file_created)) then
+       if (input_file == this%file_created) i_created=.true.
+    end if
 
     _RETURN(_SUCCESS)
 
