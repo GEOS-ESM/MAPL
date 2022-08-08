@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Removed `LatLonGridFactory_basic` factory constructor (dead code)
+
 ### Deprecated
 
 ## [2.24.0] - 2022-08-08
