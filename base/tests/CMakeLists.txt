@@ -14,7 +14,7 @@ set (TEST_SRCS
     Test_MAPL_Config.pf
     test_DirPath.pf
     test_TimeStringConversion.pf
-    test_MAPL_ISO8601_Time.pf
+    test_MAPL_ISO8601_DateTime_ESMF.pf
   )
 
 # SRCS are mostly mocks to facilitate tests
