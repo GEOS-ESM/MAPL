@@ -66,10 +66,9 @@
 !#define STRICT_ISO8601 !Uncomment for strict ISO8601 compliance
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
-module MAPL_ISO8601_Time
+module MAPL_ISO8601_DateTime
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   use ESMF
    implicit none
 
 #ifndef DEBUG
@@ -78,8 +77,6 @@ module MAPL_ISO8601_Time
 
    public :: convert_ISO8601_to_integer_time
    public :: convert_ISO8601_to_integer_date
-   public :: convert_ISO8601_to_esmf_time
-   public :: convert_ISO8601_to_esmf_timeinterval
 
    interface operator(.divides.)
       module procedure :: divides
@@ -628,6 +625,7 @@ contains
       integer, intent(inout) :: rc
       type(ISO8601Date) :: date
       type(date_fields) :: fields
+      integer :: status
       fields = parse_date(trim(adjustl(isostring)))
       if(fields%is_valid_) then
          date%year_ = fields%year_
@@ -644,6 +642,7 @@ contains
       integer, intent(inout) :: rc
       type(ISO8601Time) :: time
       type(time_fields) :: fields
+      integer :: status
       fields = parse_time(trim(adjustl(isostring)))
       if(fields%is_valid_) then
          time%hour_ = fields%hour_
@@ -710,14 +709,12 @@ contains
                      seconds >= 0 .or. istart < 1) cycle
                   hours = read_whole_number_indexed(isostring, istart, istop)
                   if(hours < 0) cycle
-                  duration%hours_= hours ! DEBUG WDB
                   istart = 0
                case('M')
                   if(minutes >= 0 .or. seconds >= 0 .or. istart < 1) cycle
                   minutes = read_whole_number_indexed(isostring, istart, istop)
                   if(minutes < 0) cycle
                   if(hours < 0) hours = 0
-                  duration%minutes_= minutes ! DEBUG WDB
                   istart = 0
                case('S')
                   if(seconds >= 0 .or. istart < 1) cycle
@@ -725,7 +722,6 @@ contains
                   if(seconds < 0) cycle
                   if(hours < 0) hours = 0
                   if(minutes < 0) minutes = 0
-                  duration%seconds_= seconds ! DEBUG WDB
                   istart = 0
                case default
                   if(.not. is_digit(c)) cycle
@@ -744,14 +740,12 @@ contains
                      days >= 0 .or. istart < 1) cycle
                   years = read_whole_number_indexed(isostring, istart, istop)
                   if(years < 0) cycle 
-                  duration%years_= years !DEBUG WDB
                   istart = 0
                case('M')
                   if(months >= 0 .or. days >= 0 .or. istart < 1) cycle
                   months = read_whole_number_indexed(isostring, istart, istop)
                   if(months < 0) cycle
                   if(years < 0) years = 0
-                  duration%months_= months !DEBUG WDB
                   istart = 0
                case('D')
                   if(days >= 0 .or. istart < 1) cycle
@@ -759,7 +753,6 @@ contains
                   if(days < 0) cycle
                   if(years < 0) years = 0
                   if(months < 0) months = 0
-                  duration%days_= days !DEBUG WDB
                   istart = 0
                case default
                   if(.not. is_digit(c)) cycle
@@ -771,21 +764,18 @@ contains
       end do
 
       if(successful) then
-!         duration%years_= years
-!         duration%months_= months
-!         duration%days_= days
-!         duration%hours_= hours
-!         duration%minutes_= minutes
-!         duration%seconds_= seconds
+         duration%years_= years
+         duration%months_= months
+         duration%days_= days
+         duration%hours_= hours
+         duration%minutes_= minutes
+         duration%seconds_= seconds
          _RETURN(_SUCCESS)
       else
          _RETURN(_FAILURE)
       end if
    end function construct_ISO8601Duration
 
-   ! start_date stop_date
-   ! duration stop_date
-   ! start_date duration
    function construct_ISO8601Interval(isostring, rc) result(interval)
       character(len=*), intent(in) :: isostring
       integer, intent(inout) :: rc
@@ -1050,243 +1040,4 @@ contains
 
 ! END HIGH-LEVEL CONVERSION PROCEDURES
 
-end module MAPL_ISO8601_Time
-!   pure function get_digits(string) result(digit_string)
-!      character(len=*), intent(in) :: string
-!      character(len=len_trim(string)) :: digit_string
-!      integer :: i, j
-!
-!      j = 0
-!      do i=1,len(digit_string)
-!         if(is_digit(string(i:i))) then
-!            j = j + 1
-!            digit_string(j:j) = string(i:i)
-!         end if
-!      end do
-!
-!      digit_string = trim(digit_string)
-!
-!   end function get_digits
-
-!   pure function parse_time(timestring) result(fields)
-!      character(len=*), intent(in) :: timestring
-!      type(time_fields) :: fields
-!      integer, parameter :: LENGTH = 6
-!      character, parameter :: DELIMITER = ':'
-!      character, parameter :: DECIMAL_POINT = '.'
-!      integer, parameter :: FIELDWIDTH = 2
-!      integer, parameter :: MS_WIDTH = 3
-!      integer, parameter :: PSTART = 1
-!      integer, parameter :: PSTOP = PSTART + len(TIME_PREFIX) - 1
-!      integer, parameter :: HSTART = 1
-!      integer, parameter :: MSTART = HSTART + FIELDWIDTH
-!      integer, parameter :: SSTART = HSTART + 2*FIELDWIDTH
-!      integer, parameter :: MS_START = HSTART + 3*FIELDWIDTH
-!      integer, parameter :: HSTOP = MSTART - 1
-!      integer, parameter :: MSTOP = SSTART - 1
-!      integer, parameter :: SSTOP = MS_START - 1
-!      integer, parameter :: MS_STOP = MS_START + MS_WIDTH - 1
-!! DEBUG CODES
-!      integer, parameter :: BAD_FIELDS = -1
-!      integer, parameter :: NO_T = -2
-!      integer, parameter :: NO_TZ = -3
-!      integer, parameter :: BAD_TZ = -4
-!      integer, parameter :: BAD_OFFSET = -5
-!      integer, parameter :: WRONG_LENGTH = -6
-!      integer, parameter :: UNSET = -7
-!! END DEBUG CODES
-!      logical :: has_millisecond
-!      integer :: pos
-!      character(len=LENGTH) :: undelimited
-!      character :: c
-!      character(len=LENGTH) :: offset
-!      integer :: offset_minutes
-!      integer :: undelimited_length
-!      integer :: signum
-!
-!      has_millisecond = .FALSE.
-!      offset_minutes = INVALID
-!
-!      fields = time_fields(UNSET, UNSET, UNSET, UNSET, UNSET)
-!      ! Check for mandatory Time prefix
-!      pos = PSTART
-!
-!      if(.not. timestring(pos:pos) == TIME_PREFIX) then
-!         fields%is_valid_ = .FALSE.
-!         return
-!      end if
-!
-!      pos = scan(timestring, '-Z+')
-!
-!      if(.not. pos > 0) then
-!         fields%is_valid_ = .FALSE.
-!         return
-!      end if
-!
-!      c = timestring(pos:pos)
-!
-!      select case(c)
-!         case('Z')
-!            signum = 0
-!         case('-')
-!            signum = -1
-!         case('+')
-!            signum = +1
-!         case default
-!            fields%is_valid_ = .FALSE.
-!            return
-!      end select
-!
-!      if(signum == 0) then
-!         fields%timezone_offset_ = Z
-!         fields%is_valid_ = pos == len(timestring)
-!      else
-!         offset = undelimit(timestring(pos+1:len(timestring)), DELIMITER)
-!         offset_minutes = parse_timezone_offset(offset, FIELDWIDTH)
-!         fields%is_valid_ = is_whole_number(offset_minutes)
-!         fields%timezone_offset_ = signum * offset_minutes
-!      end if
-!
-!      if(.not. fields%is_valid_) return
-!
-!      ! Select portion starting at fields%hour and ending before timezone
-!      undelimited = timestring(PSTOP+1:pos-1)
-!
-!      ! Remove delimiter and decimal point
-!      undelimited=undelimit(undelimit(undelimited, DELIMITER), DECIMAL_POINT)
-!      undelimited_length = len_trim(undelimited)
-!
-!      if(undelimited_length == LENGTH) then
-!         fields%is_valid_ = .TRUE.
-!      elseif(undelimited_length == LENGTH+MS_WIDTH) then
-!         has_millisecond = .TRUE.
-!         fields%is_valid_ = .TRUE.
-!      else
-!         fields%is_valid_ = .FALSE.
-!      end if
-!
-!      if(.not. fields%is_valid_) return
-!
-!      fields%hour_ = read_whole_number(undelimited(HSTART:HSTOP))
-!      fields%minute_ = read_whole_number(undelimited(MSTART:MSTOP))
-!      fields%second_ = read_whole_number(undelimited(SSTART:SSTOP))
-!
-!      if(has_millisecond) then
-!         fields%millisecond_ = read_whole_number(undelimited(MS_START:MS_STOP))
-!      else
-!         fields%millisecond_ = 0
-!      end if
-!
-!      fields%is_valid_ = is_valid_time(fields)
-!   end function parse_time
-!   pure function parse_time(timestring) result(fields)
-!      character(len=*), intent(in) :: timestring
-!      type(time_fields) :: fields
-!      integer, parameter :: LENGTH = 6
-!      character, parameter :: DELIMITER = ':'
-!      character, parameter :: DECIMAL_POINT = '.'
-!      integer, parameter :: FIELDWIDTH = 2
-!      integer, parameter :: MS_WIDTH = 3
-!      integer, parameter :: PSTART = 1
-!      integer, parameter :: PSTOP = PSTART + len(TIME_PREFIX) - 1
-!      integer, parameter :: HSTART = 1
-!      integer, parameter :: MSTART = HSTART + FIELDWIDTH
-!      integer, parameter :: SSTART = HSTART + 2*FIELDWIDTH
-!      integer, parameter :: MS_START = HSTART + 3*FIELDWIDTH
-!      integer, parameter :: HSTOP = MSTART - 1
-!      integer, parameter :: MSTOP = SSTART - 1
-!      integer, parameter :: SSTOP = MS_START - 1
-!      integer, parameter :: MS_STOP = MS_START + MS_WIDTH - 1
-!! DEBUG CODES
-!      integer, parameter :: BAD_FIELDS = -1
-!      integer, parameter :: NO_T = -2
-!      integer, parameter :: NO_TZ = -3
-!      integer, parameter :: BAD_TZ = -4
-!      integer, parameter :: BAD_OFFSET = -5
-!      integer, parameter :: WRONG_LENGTH = -6
-!      integer, parameter :: UNSET = -7
-!! END DEBUG CODES
-!      logical :: has_millisecond
-!      integer :: pos
-!      character(len=LENGTH) :: undelimited
-!      character :: c
-!      character(len=LENGTH) :: offset
-!      integer :: offset_minutes
-!      integer :: undelimited_length
-!      integer :: signum
-!
-!      has_millisecond = .FALSE.
-!      offset_minutes = INVALID
-!
-!      fields = time_fields(UNSET, UNSET, UNSET, UNSET, UNSET)
-!      ! Check for mandatory Time prefix
-!      pos = PSTART
-!
-!      if(.not. timestring(pos:pos) == TIME_PREFIX) then
-!         fields%is_valid_ = .FALSE.
-!         return
-!      end if
-!
-!      pos = scan(timestring, '-Z+')
-!
-!      if(.not. pos > 0) then
-!         fields%is_valid_ = .FALSE.
-!         return
-!      end if
-!
-!      c = timestring(pos:pos)
-!
-!      select case(c)
-!         case('Z')
-!            signum = 0
-!         case('-')
-!            signum = -1
-!         case('+')
-!            signum = +1
-!         case default
-!            fields%is_valid_ = .FALSE.
-!            return
-!      end select
-!
-!      if(signum == 0) then
-!         fields%timezone_offset_ = Z
-!         fields%is_valid_ = pos == len(timestring)
-!      else
-!         offset = undelimit(timestring(pos+1:len(timestring)), DELIMITER)
-!         offset_minutes = parse_timezone_offset(offset, FIELDWIDTH)
-!         fields%is_valid_ = is_whole_number(offset_minutes)
-!         fields%timezone_offset_ = signum * offset_minutes
-!      end if
-!
-!      if(.not. fields%is_valid_) return
-!
-!      ! Select portion starting at fields%hour and ending before timezone
-!      undelimited = timestring(PSTOP+1:pos-1)
-!
-!      ! Remove delimiter and decimal point
-!      undelimited=undelimit(undelimit(undelimited, DELIMITER), DECIMAL_POINT)
-!      undelimited_length = len_trim(undelimited)
-!
-!      if(undelimited_length == LENGTH) then
-!         fields%is_valid_ = .TRUE.
-!      elseif(undelimited_length == LENGTH+MS_WIDTH) then
-!         has_millisecond = .TRUE.
-!         fields%is_valid_ = .TRUE.
-!      else
-!         fields%is_valid_ = .FALSE.
-!      end if
-!
-!      if(.not. fields%is_valid_) return
-!
-!      fields%hour_ = read_whole_number(undelimited(HSTART:HSTOP))
-!      fields%minute_ = read_whole_number(undelimited(MSTART:MSTOP))
-!      fields%second_ = read_whole_number(undelimited(SSTART:SSTOP))
-!
-!      if(has_millisecond) then
-!         fields%millisecond_ = read_whole_number(undelimited(MS_START:MS_STOP))
-!      else
-!         fields%millisecond_ = 0
-!      end if
-!
-!      fields%is_valid_ = is_valid_time(fields)
-!   end function parse_time
+end module MAPL_ISO8601_DateTime
