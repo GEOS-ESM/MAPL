@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.23.1
+  VERSION 2.24.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the default build type to release
@@ -171,6 +171,9 @@ add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
+if (BUILD_WITH_FLAP)
+   add_subdirectory (tutorial)
+endif()
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)

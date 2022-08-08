@@ -17,6 +17,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.24.0] - 2022-08-08
+
+### Fixed
+
+- Fix error trapping in bundleio test
+
+### Added
+
+- Add tutorials
+- Check for duplicate entries in the History.rc file
+- Check that a user-provided chunking in the History.rc is compatible with the output grid
+- If a user requests CFIOasync in the History.rc, print warning and set to CFIO
+- Added option allow writing to pre-existing files with History
+
+### Changed
+
+- Replaced deprecated __RC__ macro with _RC and remove unused code in ExtData2G
+- Moved to `checkout@v3` action due to git safe directory issue
+- Added tutorials to CI
+
 ## [2.23.1] - 2022-07-15
 
 ### Fixed
