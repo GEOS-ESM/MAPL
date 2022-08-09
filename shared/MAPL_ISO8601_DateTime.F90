@@ -225,9 +225,9 @@ module MAPL_ISO8601_DateTime
       procedure, public :: get_repetitions
    end type ISO8601Interval
 
-   interface ISO8601Interval
-      module procedure :: construct_ISO8601Interval
-   end interface ISO8601Interval
+!   interface ISO8601Interval
+!      module procedure :: construct_ISO8601Interval
+!   end interface ISO8601Interval
 
 contains
 
@@ -437,7 +437,6 @@ contains
    pure logical function is_valid_date(date)
       type(date_fields), intent(in) :: date
       integer, parameter :: LB_DAY = 0
-      integer :: month_end
 
       is_valid_date = is_valid_year(date%year_) .and. &
          is_valid_month(date%month_) .and. &
@@ -622,18 +621,17 @@ contains
 ! HIGH-LEVEL CONSTRUCTORS
    function construct_ISO8601Date(isostring, rc) result(date)
       character(len=*), intent(in) :: isostring
-      integer, intent(inout) :: rc
+      integer, intent(out) :: rc
       type(ISO8601Date) :: date
       type(date_fields) :: fields
-      integer :: status
+!      integer :: status
       fields = parse_date(trim(adjustl(isostring)))
       if(fields%is_valid_) then
          date%year_ = fields%year_
          date%month_ = fields%month_
          date%day_ = fields%day_
-         _RETURN(_SUCCESS)
-      else
-         _RETURN(_FAILURE)
+!      else
+!         _FAIL('Invalid ISO 8601 date string')
       end if
    end function construct_ISO8601Date
 
@@ -642,7 +640,7 @@ contains
       integer, intent(inout) :: rc
       type(ISO8601Time) :: time
       type(time_fields) :: fields
-      integer :: status
+!      integer :: status
       fields = parse_time(trim(adjustl(isostring)))
       if(fields%is_valid_) then
          time%hour_ = fields%hour_
@@ -651,8 +649,8 @@ contains
          time%millisecond_ = fields%millisecond_
          time%timezone_offset_ = fields%timezone_offset_
          _RETURN(_SUCCESS)
-      else
-         _RETURN(_FAILURE)
+!      else
+!         _FAIL('Invalid ISO 8601 time string')
       end if
    end function construct_ISO8601Time
 
@@ -661,8 +659,6 @@ contains
       integer, optional, intent(inout) :: rc
       type(ISO8601DateTime) :: datetime
       character, parameter :: DELIMITER = TIME_PREFIX
-      type(ISO8601Date) :: date
-      type(ISO8601Time) :: time
       integer :: status
       integer :: time_index = 0
       time_index = index(isostring,TIME_PREFIX)
@@ -670,8 +666,8 @@ contains
          datetime%date_ = ISO8601Date(isostring(1:time_index-1), _RC)
          datetime%time_ = ISO8601Time(isostring(time_index:len(isostring)), _RC)
          _RETURN(_SUCCESS)
-      else
-         _RETURN(_FAILURE)
+!      else
+!         _FAIL('Invalid ISO 8601 datetime string')
       end if
    end function construct_ISO8601DateTime
 
@@ -689,7 +685,6 @@ contains
       integer :: seconds = -1
       integer :: istart = -1
       integer :: istop = -1
-      logical :: date_found = .FALSE.
       logical :: time_found = .FALSE.
       logical :: successful = .FALSE.
       character :: c
@@ -771,18 +766,18 @@ contains
          duration%minutes_= minutes
          duration%seconds_= seconds
          _RETURN(_SUCCESS)
-      else
-         _RETURN(_FAILURE)
+!      else
+!         _FAIL('Invalid ISO 8601 datetime duration string')
       end if
    end function construct_ISO8601Duration
 
-   function construct_ISO8601Interval(isostring, rc) result(interval)
-      character(len=*), intent(in) :: isostring
-      integer, intent(inout) :: rc
-      type(ISO8601Interval) :: interval
-      integer :: status
-      _RETURN(_FAILURE)
-   end function construct_ISO8601Interval
+!   function construct_ISO8601Interval(isostring, rc) result(interval)
+!      character(len=*), intent(in) :: isostring
+!      integer, intent(inout) :: rc
+!      type(ISO8601Interval) :: interval
+!      integer :: status
+!!      _FAIL('Not implemented')
+!   end function construct_ISO8601Interval
 
 ! END HIGH-LEVEL CONSTRUCTORS
 
@@ -969,44 +964,6 @@ contains
 
 ! HIGH-LEVEL CONVERSION PROCEDURES
 
-   !matched
-   function convert_ISO8601_to_esmf_time(isostring, rc) result(time)
-      character(len=*), intent(in) :: isostring
-      integer, optional, intent(out) :: rc
-      type(ESMF_Time) :: time
-      type(ISO8601DateTime) :: datetime
-      integer :: status
-
-! rc :: inout => out
-      datetime = ISO8601DateTime(isostring, _RC)
-
-      call ESMF_TimeSet(time,yy = datetime%get_year(), mm = datetime%get_month(), &
-         dd = datetime%get_day(), h = datetime%get_hour(), m = datetime%get_minute(), &
-         s= datetime%get_second(), _RC)
-
-      _RETURN(_SUCCESS)
-
-   end function convert_ISO8601_to_esmf_time
-
-   !matched
-   function convert_ISO8601_to_esmf_timeinterval(isostring, rc) result(interval)
-      character(len=*), intent(in) :: isostring
-      integer, optional, intent(out) :: rc
-      type(ESMF_TimeInterval) :: interval
-      type(ISO8601Duration) :: duration
-      integer :: status
-
-      duration = ISO8601Duration(isostring, 0, 1, _RC)
-
-      call ESMF_TimeIntervalSet(interval, yy=duration%get_years(), &
-         mm=duration%get_months(), d=duration%get_days(), &
-         h=duration%get_hours(), m=duration%get_minutes(), &
-         s=duration%get_seconds(), _RC)
-
-      _RETURN(_SUCCESS)
-   end function convert_ISO8601_to_esmf_timeinterval
-
-   !matched
    function convert_ISO8601_to_integer_date(isostring, rc) result(integer_date)
       character(len=*), intent(in) :: isostring
       integer, optional, intent(out) :: rc
@@ -1022,7 +979,6 @@ contains
       _RETURN(_SUCCESS)
    end function convert_ISO8601_to_integer_date
 
-   !matched
    function convert_ISO8601_to_integer_time(isostring, rc) result(integer_time)
       character(len=*), intent(in) :: isostring
       integer, optional, intent(out) :: rc

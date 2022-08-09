@@ -1,8 +1,8 @@
 #include "MAPL_Exceptions.h"
 
-module test_MAPL_ISO8601_Time
+module test_MAPL_ISO8601_DateTime
       use MAPL_ExceptionHandling
-      use MAPL_ISO8601_Time
+      use MAPL_ISO8601_DateTime
       use pfunit
       implicit none
 
@@ -180,7 +180,6 @@ contains
       @assertEqual(TIMEWIDTH1, len_trim(UNDELIMITED_TIME1))
       @assertEqual(trim(UNDELIMITED_TIME2), trim(undelimit(undelimit(TIME2,':'),'.')))
       @assertEqual(TIMEWIDTH2, len_trim(UNDELIMITED_TIME2))
-      @assertTrue(trim(UNDELIMITED_TIME1) /= trim(undelimit(TIME1,'')))
       @assertTrue(trim(UNDELIMITED_TIME1) /= trim(undelimit(TIME1,'.')))
       @assertEqual(trim(UNDELIMITED_TIME1), trim(undelimit(UNDELIMITED_TIME1,':')))
       @assertEqual('', trim(undelimit('',':')))
@@ -231,7 +230,6 @@ contains
 
    @test
    subroutine test_is_valid_year()
-      integer :: year
       integer :: i
 
       @assertFalse(is_valid_year(-1))
@@ -243,7 +241,6 @@ contains
 
    @test
    subroutine test_is_valid_month()
-      integer :: month
       integer :: i
 
       @assertFalse(is_valid_month(0))
@@ -512,7 +509,6 @@ contains
       @assertEqual(DAY, date%get_day())
    end subroutine test_ISO8601Date_getters
 
-   ! unimplemented
    @test
    subroutine test_ISO8601Time_getters()
       type(ISO8601Time) :: time
@@ -534,23 +530,6 @@ contains
       @assertEqual(TZ_OFFSET, time%get_timezone_offset())
       
    end subroutine test_ISO8601Time_getters
-
-   pure function integer2character(i) result(as_char)
-      integer, intent(in) :: i
-      integer, parameter  :: WIDTH = 64
-      character(len=WIDTH) :: as_char
-      character(len=len(as_char)) :: res
-      integer :: stat
-
-      as_char = ''
-      res = ''
-      stat = -1
-      write(res, '(i)', iostat=stat) i
-      if(stat == 0) then
-         as_char = trim(res)
-      endif 
-
-   end function integer2character
 
    @test
    subroutine test_ISO8601DateTime_getters()
@@ -653,20 +632,6 @@ contains
 !      @assertEqual(-300, time%timezone_offset_)
    end subroutine test_parse_time
 
-!   @test
-!   subroutine test_convert_ISO8601_to_esmf_time()
-!      logical :: complete
-!      complete = .FALSE.
-!      @assertFalse(complete)
-!   end subroutine test_convert_ISO8601_to_esmf_time
-
-!   @test
-!   subroutine test_convert_ISO8601_to_esmf_timeinterval()
-!      logical :: complete
-!      complete = .FALSE.
-!      @assertFalse(complete)
-!   end subroutine test_convert_ISO8601_to_esmf_timeinterval
-
    @test
    subroutine test_convert_ISO8601_to_integer_time()
       character(len=8) :: time_string
@@ -697,4 +662,4 @@ contains
 
    end subroutine test_convert_ISO8601_to_integer_date
 
-end module test_MAPL_ISO8601_Time
+end module test_MAPL_ISO8601_DateTime
