@@ -130,18 +130,19 @@ contains
       _UNUSED_DUMMY(unusable)
    end function add_ext_collection
 
-   function add_hist_collection(this, fmd, unusable, rc) result(hist_collection_id)
+   function add_hist_collection(this, fmd, unusable,mode, rc) result(hist_collection_id)
       integer :: hist_collection_id
       class (ClientManager), intent(inout) :: this
       type(FileMetadata),intent(in) :: fmd
       class (KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(in) :: mode
       integer, optional, intent(out) :: rc
       class (ClientThread), pointer :: clientPtr
       integer :: i
 
       do i = 1, this%size()
          ClientPtr => this%clients%at(i)
-         hist_collection_id = clientPtr%add_hist_collection(fmd)
+         hist_collection_id = clientPtr%add_hist_collection(fmd, mode=mode)
       enddo
 
       _RETURN(_SUCCESS)

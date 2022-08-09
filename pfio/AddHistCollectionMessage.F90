@@ -31,12 +31,12 @@ module pFIO_AddHistCollectionMessageMod
 
 contains
 
-   function new_AddHistCollectionMessage(fmd, collection_id) result(message)
+   function new_AddHistCollectionMessage(fmd, mode) result(message)
       type (AddHistCollectionMessage) :: message
       type(FileMetadata), intent(in) :: fmd
-      integer, optional, intent(in) :: collection_id
+      integer, optional, intent(in) :: mode
       message%fmd = fmd
-      if( present(collection_id)) message%collection_id = collection_id
+      if( present(mode)) message%collection_id = mode
    end function new_AddHistCollectionMessage
 
    

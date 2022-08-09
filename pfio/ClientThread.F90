@@ -128,10 +128,12 @@ contains
       _RETURN(_SUCCESS)
    end function add_ext_collection
 
-   function add_hist_collection(this, fmd, rc) result(hist_collection_id)
+   function add_hist_collection(this, fmd, unusable,  mode, rc) result(hist_collection_id)
       integer :: hist_collection_id
       class (ClientThread), intent(inout) :: this
       type(FileMetadata),intent(in) :: fmd
+      class (KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(in) :: mode
       integer, optional, intent(out) :: rc
 
       class (AbstractMessage), pointer :: message
@@ -139,7 +141,7 @@ contains
       integer :: status
 
       connection=>this%get_connection()
-      call connection%send(AddHistCollectionMessage(fmd))
+      call connection%send(AddHistCollectionMessage(fmd, mode=mode))
 
       message => connection%receive()
       select type(message)
