@@ -116,6 +116,7 @@ module MAPL_HistoryGridCompMod
      logical                             :: integer_time
      integer                             :: collectionWriteSplit
      integer                             :: serverSizeSplit
+     logical                             :: allow_overwrite
   end type HISTORY_STATE
 
   type HISTORY_wrap
@@ -537,6 +538,9 @@ contains
     call ESMF_ConfigGetAttribute(config, value=cFileOrder,         &
                                          label='FileOrder:', default='ABC', rc=status)
     _VERIFY(STATUS)
+    call ESMF_ConfigGetAttribute(config, value=intState%allow_overwrite,  &
+                                         label='Allow_Overwrite:', default=.false., _RC)
+ 
     if (trim(cFileOrder) == 'ABC') then
        intstate%fileOrderAlphabetical = .true.
     else if (trim(cFileOrder) == 'AddOrder') then
@@ -3626,9 +3630,9 @@ ENDDO PARSER
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
-                  inquire (file=trim(filename(n)),exist=file_exists)
-                  if (file_exists) then
-                     _FAIL(trim(filename(n))//" being created for History output already exists")
+                  if (.not.intState%allow_overwrite) then
+                     inquire (file=trim(filename(n)),exist=file_exists)
+                     _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
                   call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,rc=status)
                   _VERIFY(status)
