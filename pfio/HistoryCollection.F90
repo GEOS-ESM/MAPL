@@ -45,7 +45,7 @@ contains
     collection%create_mode = NF90_CLOBBER
     if (present(option)) then
       if (option == -2)  then
-         collection%ceate_mode = NF90_NOCLOBBER
+         collection%create_mode = NF90_NOCLOBBER
       endif
     endif
 
