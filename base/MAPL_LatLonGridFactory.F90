@@ -39,7 +39,7 @@ module MAPL_LatLonGridFactoryMod
       real(kind=REAL64), allocatable :: lon_corners(:)
       real(kind=REAL64), allocatable :: lat_corners(:)
       logical :: force_decomposition = .false.
-      
+
       ! Domain decomposition:
       integer :: nx = MAPL_UNDEFINED_INTEGER
       integer :: ny = MAPL_UNDEFINED_INTEGER
@@ -101,7 +101,6 @@ module MAPL_LatLonGridFactoryMod
    character(len=*), parameter :: MOD_NAME = 'MAPL_LatLonGridFactory::'
 
    interface LatLonGridFactory
-      module procedure LatLonGridFactory_basic
       module procedure LatLonGridFactory_from_parameters
    end interface LatLonGridFactory
 
@@ -115,67 +114,6 @@ module MAPL_LatLonGridFactoryMod
 
 
 contains
-
-   ! Note: lats and lons must be in _radians_, as the ESMF_Grid
-   ! constructor is currently assuming that choice.
-   function Latlongridfactory_basic(grid_name, &
-        & lon_centers, lat_centers, lon_corners, lat_corners, &
-        & ims, jms, lm, unusable, rc) result(factory)
-      type (LatLonGridFactory) :: factory
-      character(len=*), intent(in) :: grid_name
-      real(kind=REAL64), intent(in) :: lon_centers(:)
-      real(kind=REAL64), intent(in) :: lat_centers(:)
-      real(kind=REAL64), intent(in) :: lon_corners(:)
-      real(kind=REAL64), intent(in) :: lat_corners(:)
-      integer, intent(in) :: ims(:)
-      integer, intent(in) :: jms(:)
-      integer, intent(in) :: lm
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      type (ESMF_VM) :: vm
-      integer :: nPet
-
-      integer :: status
-      character(*), parameter :: IAM = __FILE__
-
-      _UNUSED_DUMMY(unusable)
-
-      factory%is_regular = .false.
-      
-      factory%grid_name = grid_name
-      factory%lon_centers = lon_centers
-      factory%lat_centers = lat_centers
-      factory%lon_corners = lon_corners
-      factory%lat_corners = lat_corners
-
-      factory%im_world = size(lon_centers)
-      factory%jm_world = size(lon_centers)
-      factory%lm = lm
-
-      ! Decomposition
-      factory%ims = ims
-      factory%jms = jms
-      factory%nx = size(ims)
-      factory%ny = size(jms)
-
-      ! Check consistency
-
-      _ASSERT(size(lon_corners) == size(lon_centers)+1, 'inconsistent shape')
-      _ASSERT(size(lat_corners) == size(lat_centers)+1, 'inconsistent shape')
-
-      _ASSERT(sum(ims) == size(lon_centers),'inconcistent decomposition')
-      _ASSERT(sum(jms) == size(lat_centers),'inconcistent decomposition')
-
-      call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
-      call ESMF_VMGet(vm, PETcount=nPet, rc=status)
-      _VERIFY(status)
-      _ASSERT(factory%nx*factory%ny == nPet,'inconsistent process topology')
-
-      _RETURN(_SUCCESS)
-      
-   end function LatLonGridFactory_basic
 
 
    function LatLonGridFactory_from_parameters(unusable, grid_name, &
@@ -199,7 +137,7 @@ contains
       integer, optional, intent(in) :: ny
       integer, optional, intent(in) :: ims(:)
       integer, optional, intent(in) :: jms(:)
-      logical, optional, intent(in) :: force_decomposition 
+      logical, optional, intent(in) :: force_decomposition
 
       integer, optional, intent(out) :: rc
 
@@ -469,7 +407,7 @@ contains
       regional  = (dateline == 'XY')
       if (regional) then
          delta = (this%lon_range%max - this%lon_range%min) / this%im_world
-         min_coord = this%lon_range%min 
+         min_coord = this%lon_range%min
          max_coord = this%lon_range%max
       else
          delta = 360.d0 / this%im_world
@@ -734,11 +672,11 @@ contains
       integer :: i
       logical :: hasLon, hasLat, hasLongitude, hasLatitude, hasLev,hasLevel,regLat,regLon
       real(kind=REAL64) :: del12,delij
-      
+
       integer :: i_min, i_max
       real(kind=REAL64) :: d_lat, d_lat_temp, extrap_lat
       logical :: is_valid, use_file_coords, compute_lons, compute_lats
-      
+
       _UNUSED_DUMMY(unusable)
 
       if (present(force_file_coordinates)) then
@@ -749,7 +687,7 @@ contains
 
       ! Cannot assume that lats and lons are evenly spaced
       this%is_regular = .false.
-      
+
       associate (im => this%im_world, jm => this%jm_world, lm => this%lm)
          lon_name = 'lon'
          hasLon = file_metadata%has_dimension(lon_name)
@@ -759,7 +697,7 @@ contains
          else
             lon_name = 'longitude'
             hasLongitude = file_metadata%has_dimension(lon_name)
-            if (hasLongitude) then            
+            if (hasLongitude) then
                im = file_metadata%get_dimension(lon_name, rc=status)
                _VERIFY(status)
             else
@@ -774,7 +712,7 @@ contains
          else
             lat_name = 'latitude'
             hasLatitude = file_metadata%has_dimension(lat_name)
-            if (hasLatitude) then            
+            if (hasLatitude) then
                jm = file_metadata%get_dimension(lat_name, rc=status)
                _VERIFY(status)
             else
@@ -795,11 +733,11 @@ contains
                lm = file_metadata%get_dimension(lev_name,rc=status)
                _VERIFY(status)
             end if
-         end if   
-         
+         end if
+
         ! TODO: if 'lat' and 'lon' are not present then
         ! assume ... pole/dateline are ?
-        
+
         ! TODO: check radians vs degrees.  Assume degrees for now.
 
 
@@ -867,12 +805,12 @@ contains
               end if
            end if
         end if
-        
+
 
          ! Corners are the midpoints of centers (and extrapolated at the
          ! poles for lats.)
          allocate(this%lon_corners(im+1), this%lat_corners(jm+1))
-         
+
          this%lon_corners(1) = (this%lon_centers(im) + this%lon_centers(1))/2 - 180
          this%lon_corners(2:im) = (this%lon_centers(1:im-1) + this%lon_centers(2:im))/2
          this%lon_corners(im+1) = (this%lon_centers(im) + this%lon_centers(1))/2 + 180
@@ -894,7 +832,7 @@ contains
          this%lat_corners(1) = this%lat_centers(1) - (this%lat_centers(2)-this%lat_centers(1))/2
          this%lat_corners(2:jm) = (this%lat_centers(1:jm-1) + this%lat_centers(2:jm))/2
          this%lat_corners(jm+1) = this%lat_centers(jm) - (this%lat_centers(jm-1)-this%lat_centers(jm))/2
-         
+
          if (abs(this%lat_centers(1) + 90) < 1000*epsilon(1.0)) then
             this%pole = 'PC'
          else if (abs(this%lat_corners(1) + 90) < 1000*epsilon(1.0)) then
@@ -930,10 +868,10 @@ contains
          else
             compute_lons=.false.
             compute_lats=.false.
-            if (regLon .and. (this%dateline.ne.'XY')) then 
+            if (regLon .and. (this%dateline.ne.'XY')) then
                compute_lons=.true.
             end if
-            if (regLat .and. (this%pole.ne.'XY')) then 
+            if (regLat .and. (this%pole.ne.'XY')) then
                compute_lats=.true.
             end if
             if (compute_lons .and. compute_lats) then
@@ -961,7 +899,7 @@ contains
          end if
 
     end associate
-    
+
     call this%make_arbitrary_decomposition(this%nx, this%ny, rc=status)
     _VERIFY(status)
 
@@ -971,7 +909,7 @@ contains
     allocate(this%jms(0:this%ny-1))
     call MAPL_DecomposeDim(this%im_world, this%ims, this%nx, min_DE_extent=2)
     call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny, min_DE_extent=2)
-    
+
     call this%check_and_fill_consistency(rc=status)
     _VERIFY(status)
 
@@ -997,7 +935,7 @@ contains
 
       call ESMF_VmGetCurrent(VM, rc=status)
       _VERIFY(status)
-      
+
       this%is_regular = .true.
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
@@ -1406,7 +1344,7 @@ contains
 
       ! the code below is kluge to return DE/DC wheither or not the file lons are -180 to 180 or 0 360
       ! it detects whether the first longitudes which are cell centers
-      ! If first longitude is 0 or -180 (DC) it is dateline center in that 0 or -180 is 
+      ! If first longitude is 0 or -180 (DC) it is dateline center in that 0 or -180 is
       ! in the center of a grid cell.
       ! or shifted by half a grid box (DE) so 0 or -180 is the edge of a cell
       ! really should have 4 options dateline edge (DE), dateline center(DC)
@@ -1441,7 +1379,7 @@ contains
 
       nx_guess = nint(sqrt(real(nPet)))
       do nx = nx_guess,1,-1
-         ny=nPet/nx 
+         ny=nPet/nx
          if (nx*ny==nPet) then
             call MAPL_ConfigSetAttribute(config, nx, 'NX:')
             call MAPL_ConfigSetAttribute(config, ny, 'NY:')
@@ -1516,7 +1454,7 @@ contains
             end if
          else
             equal = &
-                 & all(a%lon_centers == this%lon_centers) .and. & 
+                 & all(a%lon_centers == this%lon_centers) .and. &
                  & all(a%lon_corners == this%lon_corners) .and. &
                  & all(a%lat_centers == this%lat_centers) .and. &
                  & all(a%lat_corners == this%lat_corners)
@@ -1614,7 +1552,7 @@ contains
       integer, intent(in) :: im, nd
       integer :: n
       logical :: canNotDecomp
-      
+
       canNotDecomp = .true.
       n = nd
       do while(canNotDecomp)
@@ -1625,7 +1563,7 @@ contains
          end if
       enddo
    end function generate_new_decomp
-            
+
    subroutine init_halo(this, unusable, rc)
       class (LatLonGridFactory), target, intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -1661,7 +1599,7 @@ contains
       this%py = pet / this%nx
 
       this%is_halo_initialized = .true.
-      
+
       _RETURN(_SUCCESS)
 
    end subroutine init_halo
@@ -1690,7 +1628,7 @@ contains
          call this%init_halo(rc=status)
          _VERIFY(status)
       end if
-         
+
       associate (nx => this%nx, ny => this% ny, px => this%px, py => this%py)
         ! Nearest neighbors processor' ids
         pet_north = get_pet(px, py+1, nx, ny)
@@ -1731,7 +1669,7 @@ contains
 
          integer :: len, last
 
-         last = size(array,2)-1 
+         last = size(array,2)-1
          len = size(array,1)
 
          call MAPL_CommsSendRecv(this%layout,        &
@@ -1756,7 +1694,7 @@ contains
 
          integer :: len, last
 
-         last = size(array,2)-1 
+         last = size(array,2)-1
          len = size(array,1)
 
          call MAPL_CommsSendRecv(this%layout,     &
@@ -1782,7 +1720,7 @@ contains
 
          integer :: len, last
 
-         last = size(array,2)-1 
+         last = size(array,2)-1
          len = size(array,1)
 
          call MAPL_CommsSendRecv(this%layout,      &
@@ -1828,7 +1766,7 @@ contains
 
       type (Variable) :: v
       real(kind=REAL64), allocatable :: temp_coords(:)
-     
+
       ! Horizontal grid dimensions
       call metadata%add_dimension('lon', this%im_world)
       call metadata%add_dimension('lat', this%jm_world)
@@ -1899,8 +1837,8 @@ contains
       allocate(local_start,source=[i1,j1])
       allocate(global_start,source=[1,1])
       allocate(global_count,source=[global_dim(1),global_dim(2)])
-       
-      _RETURN(_SUCCESS) 
+
+      _RETURN(_SUCCESS)
 
    end subroutine generate_file_bounds
 
@@ -1931,7 +1869,7 @@ contains
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference2D
-      
+
    function generate_file_reference3D(this,fpointer,metaData) result(ref)
       use pFIO
       type(ArrayReference) :: ref
@@ -1941,6 +1879,6 @@ contains
       _UNUSED_DUMMY(this)
       ref = ArrayReference(fpointer)
    end function generate_file_reference3D
-      
+
 
 end module MAPL_LatLonGridFactoryMod
