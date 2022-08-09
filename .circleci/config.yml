@@ -1,5 +1,9 @@
 version: 2.1
 
+# Anchors to prevent forgetting to update a version
+baselibs_version: &baselibs_version v7.5.0
+bcs_version: &bcs_version v10.22.3
+
 orbs:
   ci: geos-esm/circleci-tools@1
 
@@ -15,10 +19,12 @@ workflows:
           matrix:
             parameters:
               compiler: [ifort]
+          baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
           ctest_options: "-LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
+          persist_workspace: true # Needed for MAPL tutorials
 
       # Builds MAPL in a "default" way - GNU
       #
@@ -38,10 +44,12 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran]
+          baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
           ctest_options: "-E bundleio -LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
+          persist_workspace: true # Needed for MAPL tutorials
 
       # Builds MAPL like UFS does (no FLAP and pFlogger, static)
       - ci/build:
@@ -51,6 +59,7 @@ workflows:
           matrix:
             parameters:
               compiler: [ifort]
+          baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_SHARED_MAPL=OFF"
@@ -65,6 +74,7 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
+          baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
           mepodevelop: true
@@ -79,6 +89,7 @@ workflows:
           matrix:
             parameters:
               compiler: [gfortran, ifort]
+          baselibs_version: *baselibs_version
           repo: GEOSldas
           mepodevelop: false
           checkout_fixture: true
@@ -94,6 +105,7 @@ workflows:
             parameters:
               compiler: [ifort]
           resource_class: xlarge
+          baselibs_version: *baselibs_version
           repo: GEOSadas
           checkout_fixture: true
           # This branch on GEOSadas will be used to track subrepos needed
@@ -114,3 +126,23 @@ workflows:
           requires:
             - build-GEOSgcm-on-<< matrix.compiler >>
           repo: GEOSgcm
+          baselibs_version: *baselibs_version
+          bcs_version: *bcs_version
+
+      # Run MAPL Tutorials
+      - ci/run_mapl_tutorial:
+          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+              tutorial_name:
+                - hello_world
+                - parent_no_children
+                - parent_one_child_import_via_extdata
+                - parent_one_child_no_imports
+                - parent_two_siblings_connect_import_export
+          requires:
+            - build-and-test-MAPL-on-<< matrix.compiler >>
+          baselibs_version: *baselibs_version

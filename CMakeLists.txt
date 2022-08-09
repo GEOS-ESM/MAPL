@@ -4,7 +4,7 @@ cmake_policy (SET CMP0054 NEW)
 
 project (
   MAPL
-  VERSION 2.21.3
+  VERSION 2.24.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the default build type to release
@@ -75,7 +75,7 @@ if(NOT TARGET GFTL::gftl)
   find_package(GFTL 1.5.1 REQUIRED)
 else()
   if (GFTL_VERSION VERSION_LESS 1.5.1)
-    message(FATAL_ERROR "GFTL must be at least 1.5.1 - check baselibs version.")
+    message(FATAL_ERROR "GFTL must be at least 1.5.1")
   endif ()
 endif()
 if(NOT TARGET GFTL_SHARED::gftl-shared)
@@ -89,7 +89,11 @@ option(USE_EXTDATA2G "Use ExtData2G" ON)
 if(USE_EXTDATA2G)
   set (EXTDATA2G_TARGET "MAPL.ExtData2G" CACHE STRING "ExtData2G Target")
   if(NOT TARGET YAFYAML::yafyaml)
-    find_package(YAFYAML REQUIRED)
+    find_package(YAFYAML 1.0.4 REQUIRED)
+  else()
+    if (YAFYAML_VERSION VERSION_LESS 1.0.4)
+      message(FATAL_ERROR "yaFyaml must be at least 1.0.4")
+    endif ()
   endif()
   message (STATUS "Building with ExtData2G")
 else()
@@ -99,7 +103,11 @@ endif()
 option(BUILD_WITH_PFLOGGER "Build MAPL with pFlogger library support" ON)
 if (BUILD_WITH_PFLOGGER)
   if(NOT TARGET PFLOGGER::pflogger)
-    find_package(PFLOGGER REQUIRED)
+    find_package(PFLOGGER 1.9.1 REQUIRED)
+  else()
+    if (PFLOGGER_VERSION VERSION_LESS 1.9.1)
+      message(FATAL_ERROR "pFlogger must be at least 1.9.1")
+    endif ()
   endif()
 endif()
 
@@ -111,7 +119,10 @@ endif ()
 ecbuild_declare_project()
 
 if (NOT Baselibs_FOUND)
-  find_package(NetCDF REQUIRED Fortran)
+  set(MPI_DETERMINE_LIBRARY_VERSION TRUE)
+  find_package(MPI)
+
+  find_package(NetCDF REQUIRED C Fortran)
   add_definitions(-DHAS_NETCDF4)
   add_definitions(-DHAS_NETCDF3)
   add_definitions(-DNETCDF_NEED_NF_MPIIO)
@@ -124,6 +135,19 @@ if (NOT Baselibs_FOUND)
 
   if (NOT TARGET esmf)
     find_package(ESMF MODULE REQUIRED)
+
+    # ESMF as used in MAPL requires MPI
+    # NOTE: This looks odd because some versions of FindESMF.cmake out in the
+    #       world provide an "esmf" target while others provide "ESMF". So we
+    #       need this ugliness to support both.
+    if (TARGET esmf)
+      target_link_libraries(esmf INTERFACE MPI::MPI_Fortran)
+    else()
+      target_link_libraries(ESMF INTERFACE MPI::MPI_Fortran)
+      # MAPL and GEOS use lowercase target due to historical reasons but
+      # the latest FindESMF.cmake file from ESMF produces an ESMF target.
+      add_library(esmf ALIAS ESMF)
+    endif()
   endif ()
 endif ()
 
@@ -147,6 +171,9 @@ add_subdirectory (base)
 add_subdirectory (MAPL)
 add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
+if (BUILD_WITH_FLAP)
+   add_subdirectory (tutorial)
+endif()
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
