@@ -531,18 +531,10 @@ contains
       class(AbstractSocket),pointer :: connection
 
       if (associated(ioserver_profiler)) call ioserver_profiler%start("add_Histcollection")
-      if ( message%collection_id == -1 .or.  message%collection_id == -2 ) then
-         n = this%hist_collections%size()+1
-      else
-         n = message%collection_id
-      endif
 
-      hist_collection = HistoryCollection(message%fmd, message%collection_id)
-      if ( message%collection_id == -1 .or. message%collection_id == -2 ) then
-         call this%hist_collections%push_back(hist_collection)
-      else
-         call this%hist_collections%set(n,hist_collection)
-      endif
+      n = this%hist_collections%size()+1
+      hist_collection = HistoryCollection(message%fmd, message%create_mode)
+      call this%hist_collections%push_back(hist_collection)
 
       connection=>this%get_connection()
       call connection%send(IdMessage(n),_RC)

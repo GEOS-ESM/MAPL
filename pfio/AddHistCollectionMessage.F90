@@ -6,6 +6,7 @@ module pFIO_AddHistCollectionMessageMod
    use pFIO_UtilitiesMod
    use pFIO_AbstractMessageMod
    use pFIO_FileMetadataMod
+   use netcdf
    implicit none
    private
 
@@ -13,11 +14,7 @@ module pFIO_AddHistCollectionMessageMod
 
    type, extends(AbstractMessage) :: AddHistCollectionMessage
       type(FileMetadata) :: fmd
-      ! WY node: -1    : add (clobber,  default )
-      !          other : replace
-      ! overload collection_id of the message
-      !    -2 : add and no_clobber for these series of files
-      integer :: collection_id = -1
+      integer :: create_mode
    contains
       procedure, nopass :: get_type_id
       procedure :: get_length
@@ -36,7 +33,8 @@ contains
       type(FileMetadata), intent(in) :: fmd
       integer, optional, intent(in) :: mode
       message%fmd = fmd
-      if( present(mode)) message%collection_id = mode
+      message%create_mode = NF90_NOCLOBBER
+      if( present(mode)) message%create_mode = mode
    end function new_AddHistCollectionMessage
 
    
@@ -49,7 +47,7 @@ contains
       class (AddHistCollectionMessage), intent(in) :: this
       integer,allocatable :: buffer(:) ! no-op
       call this%fmd%serialize(buffer)
-      length = size(buffer) + 1 ! 1 is the collection_id
+      length = size(buffer) + 1 ! 1 is the create_mode
    end function get_length
 
 
@@ -62,7 +60,7 @@ contains
       integer :: status
       call this%fmd%serialize(tmp_buffer, status)
       _VERIFY(status)
-      buffer = [tmp_buffer,serialize_intrinsic(this%collection_id)]
+      buffer = [tmp_buffer,serialize_intrinsic(this%create_mode)]
       _RETURN(_SUCCESS)
    end subroutine serialize
 
@@ -78,7 +76,7 @@ contains
       _VERIFY(status)
       call deserialize_intrinsic(buffer(n:), length)
       n = n + length 
-      call deserialize_intrinsic(buffer(n:), this%collection_id)
+      call deserialize_intrinsic(buffer(n:), this%create_mode)
       _RETURN(_SUCCESS)
    end subroutine deserialize
 

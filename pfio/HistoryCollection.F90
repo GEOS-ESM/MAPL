@@ -35,19 +35,15 @@ module pFIO_HistoryCollectionMod
 
 contains
 
-  function new_HistoryCollection(fmd, option) result(collection)
+  function new_HistoryCollection(fmd, create_mode) result(collection)
     type (HistoryCollection) :: collection
     type (FilemetaData), intent(in) :: fmd
-    integer, optional, intent(in) :: option
+    integer, optional, intent(in) :: create_mode
 
     collection%fmd = fmd
     collection%formatters = StringNetCDF4_FileFormatterMap() 
     collection%create_mode = NF90_CLOBBER
-    if (present(option)) then
-      if (option == -2)  then
-         collection%create_mode = NF90_NOCLOBBER
-      endif
-    endif
+    if (present(create_mode)) collection%create_mode = create_mode
 
   end function new_HistoryCollection
 

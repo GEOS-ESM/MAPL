@@ -56,7 +56,6 @@ module pFIO_ClientThreadMod
    contains
       procedure :: add_ext_collection
       procedure :: add_hist_collection
-      procedure :: replace_hist_collection
       procedure :: modify_metadata
       procedure :: prefetch_data
       procedure :: stage_data
@@ -153,33 +152,6 @@ contains
 
       _RETURN(_SUCCESS)
    end function add_hist_collection
-
-   subroutine replace_hist_collection(this,hist_collection_id,fmd, rc)
-      class (ClientThread), intent(inout) :: this
-      integer, intent(in) :: hist_collection_id
-      type(FileMetadata),intent(in) :: fmd
-      integer, optional, intent(out) :: rc
-
-      integer :: return_id
-
-      class (AbstractMessage), pointer :: message
-      class(AbstractSocket),pointer :: connection
-      integer :: status
-
-      connection=>this%get_connection()
-      call connection%send(AddHistCollectionMessage(fmd,hist_collection_id),_RC)
-
-      message => connection%receive()
-      select type(message)
-      type is(IDMessage)
-        return_id = message%id
-      class default
-        _FAIL( " should get id message")
-      end select
-
-      _ASSERT( return_id == hist_collection_id, "return id should be the same as the collection_id")
-      _RETURN(_SUCCESS)
-   end subroutine replace_hist_collection
 
    function prefetch_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start, rc) result(request_id)

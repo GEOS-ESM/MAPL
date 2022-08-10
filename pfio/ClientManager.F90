@@ -38,7 +38,6 @@ module pFIO_ClientManagerMod
    contains
       procedure :: add_ext_collection
       procedure :: add_hist_collection
-      procedure :: replace_hist_collection
       procedure :: modify_metadata
       procedure :: modify_metadata_all
       procedure :: prefetch_data
@@ -148,25 +147,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function add_hist_collection
-
-   subroutine replace_hist_collection(this, hist_collection_id, fmd, unusable, rc)
-      class (ClientManager), intent(inout) :: this
-      integer, intent(in) :: hist_collection_id
-      type(FileMetadata),intent(in) :: fmd
-      class (KeywordEnforcer), optional, intent(out) :: unusable
-      integer, optional, intent(out) :: rc
-
-      class (ClientThread), pointer :: clientPtr
-      integer :: i
-
-      do i = 1, this%size()
-         ClientPtr => this%clients%at(i)
-         call clientPtr%replace_hist_collection(hist_collection_id, fmd)
-      enddo
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine replace_hist_collection
 
    subroutine prefetch_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start, rc)
