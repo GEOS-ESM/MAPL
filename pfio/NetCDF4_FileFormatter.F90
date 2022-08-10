@@ -184,7 +184,7 @@ contains
       integer, optional, intent(in) :: info
       integer, optional, intent(out) :: rc
 
-      integer :: comm_,
+      integer :: comm_
       integer :: info_
       integer :: status
       integer :: mode_

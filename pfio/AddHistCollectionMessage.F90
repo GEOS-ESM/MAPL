@@ -6,7 +6,7 @@ module pFIO_AddHistCollectionMessageMod
    use pFIO_UtilitiesMod
    use pFIO_AbstractMessageMod
    use pFIO_FileMetadataMod
-   use netcdf
+   use pFIO_ConstantsMod
    implicit none
    private
 
@@ -33,7 +33,7 @@ contains
       type(FileMetadata), intent(in) :: fmd
       integer, optional, intent(in) :: mode
       message%fmd = fmd
-      message%create_mode = NF90_NOCLOBBER
+      message%create_mode = PFIO_NOCLOBBER
       if( present(mode)) message%create_mode = mode
    end function new_AddHistCollectionMessage
 
