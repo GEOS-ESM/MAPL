@@ -40,12 +40,12 @@ module MAPL_HistoryGridCompMod
   use MAPL_GriddedIOitemMod
   use pFIO_ClientManagerMod, only: o_Clients
   use pFIO_DownbitMod, only: pFIO_DownBit
+  use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
   use gFTL_StringStringMap
-  use netcdf
   !use ESMF_CFIOMOD
 
   implicit none
@@ -542,8 +542,8 @@ contains
     _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute(config, value=allow_overwrite,  &
                                          label='Allow_Overwrite:', default=.false., _RC)
-    create_mode = NF90_NOCLOBBER ! defaut no overwrite
-    if (allow_overwrite) create_mode = NF90_CLOBBER
+    create_mode = PFIO_NOCLOBBER ! defaut no overwrite
+    if (allow_overwrite) create_mode = PFIO_CLOBBER
   
     if (trim(cFileOrder) == 'ABC') then
        intstate%fileOrderAlphabetical = .true.
@@ -3393,7 +3393,7 @@ ENDDO PARSER
     integer                        :: sec
 
 !   variables for "backwards" mode
-    logical                        :: fwd, file_exists
+    logical                        :: fwd
     logical, allocatable           :: Ignore(:)
 
 !   ErrLog vars

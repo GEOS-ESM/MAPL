@@ -24,6 +24,8 @@ module pFIO_ConstantsMod
    ! IO modes
    public :: pFIO_WRITE
    public :: pFIO_READ
+   public :: pFIO_CLOBBER
+   public :: pFIO_NOCLOBBER
    public :: pFIO_s_tag
    public :: pFIO_m_w_tag
    public :: pFIO_w_m_tag
@@ -56,6 +58,11 @@ module pFIO_ConstantsMod
    enum, bind(C)
       enumerator :: pFIO_READ
       enumerator :: pFIO_WRITE
+   end enum
+
+   enum, bind(C)
+      enumerator :: pFIO_CLOBBER
+      enumerator :: pFIO_NOCLOBBER
    end enum
 
    integer, parameter :: pFIO_s_tag   = 9999
