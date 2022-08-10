@@ -42,7 +42,7 @@ contains
 
     collection%fmd = fmd
     collection%formatters = StringNetCDF4_FileFormatterMap() 
-    collection%create_mode = NF90_CLOBBER
+    collection%create_mode = NF90_NOCLOBBER
     if (present(create_mode)) collection%create_mode = create_mode
 
   end function new_HistoryCollection
