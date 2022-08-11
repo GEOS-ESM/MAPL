@@ -155,7 +155,7 @@ contains
       if (present(mode)) then
          pfio_mode=mode
       else
-         pfio_mode=PFIO_CLOBBER
+         pfio_mode=PFIO_NOCLOBBER
       end if
 
       select case (pfio_mode)
@@ -193,7 +193,7 @@ contains
       if (present(mode)) then
          pfio_mode=mode
       else
-         pfio_mode=PFIO_CLOBBER
+         pfio_mode=PFIO_NOCLOBBER
       end if
 
       select case (pfio_mode)
