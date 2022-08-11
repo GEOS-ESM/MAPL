@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an option to PFIO Server to allow for either clobbering or stopping execution if a pre-existing file exists before application starts
+
 ### Changed
 
 ### Removed
