@@ -165,7 +165,7 @@ contains
         _VERIFY(status)
 
         allocate(cap)
-        cap = MAPL_Cap(cap_params%name, cap_params%set_services,  &
+        cap = new_MAPL_Cap_from_set_services(cap_params%name, cap_params%set_services,  &
                 cap_options=cap_options, rc=status)
         _VERIFY(status)
         wrapped_cap%ptr => cap
