@@ -20,7 +20,8 @@ module MAPL_CapMod
    private
 
    public :: MAPL_Cap
-
+   public :: new_MAPL_Cap_from_set_services
+   
    type :: MAPL_Cap
       private
       character(:), allocatable :: name
