@@ -9,8 +9,6 @@ module pFIO_HistoryCollectionMod
   use pFIO_FileMetadataMod
   use pFIO_StringVariableMapMod
   use pFIO_ConstantsMod
-  use gFTL_StringVector
-  use NetCDF
   implicit none
   private
 
@@ -19,14 +17,12 @@ module pFIO_HistoryCollectionMod
 
   type :: HistoryCollection
     type (Filemetadata) :: fmd
-    character(len=:), allocatable :: last_file_created
     type (StringNetCDF4_FileFormatterMap) :: formatters
-    integer :: create_mode
+
   contains
     procedure :: find
     procedure :: ModifyMetadata
     procedure :: clear
-    procedure :: check_if_i_created
   end type HistoryCollection
 
   interface HistoryCollection
@@ -35,15 +31,12 @@ module pFIO_HistoryCollectionMod
 
 contains
 
-  function new_HistoryCollection(fmd, create_mode) result(collection)
+  function new_HistoryCollection(fmd) result(collection)
     type (HistoryCollection) :: collection
     type (FilemetaData), intent(in) :: fmd
-    integer, optional, intent(in) :: create_mode
 
     collection%fmd = fmd
     collection%formatters = StringNetCDF4_FileFormatterMap() 
-    collection%create_mode = PFIO_NOCLOBBER
-    if (present(create_mode)) collection%create_mode = create_mode
 
   end function new_HistoryCollection
 
@@ -58,28 +51,18 @@ contains
     type(StringNetCDF4_FileFormatterMapIterator) :: iter
     integer :: status
     character(len=*), parameter :: Iam = "HistoryCollection::find()"
-    logical :: f_exist, i_created
+    logical :: f_exist
 
     iter = this%formatters%find(trim(file_name))
     if (iter == this%formatters%end()) then
        inquire(file=file_name, exist=f_exist)
-       if(.not. f_exist) then
+       if(.not. f_exist) then 
          call fm%create(trim(file_name),rc=status)
          _VERIFY(status)
          call fm%write(this%fmd, rc=status)
          _VERIFY(status)
-         this%last_file_created = trim(file_name)
        else
-          i_created = this%check_if_i_created(file_name)
-          if (i_created) then
-             call fm%open(trim(file_name), pFIO_WRITE)
-          else
-             call fm%create(trim(file_name),mode=this%create_mode,rc=status)
-             _VERIFY(status)
-             call fm%write(this%fmd, rc=status)
-             _VERIFY(status)
-             this%last_file_created=trim(file_name)
-          end if
+          call fm%open(trim(file_name), pFIO_WRITE)
        endif
        call this%formatters%insert( trim(file_name),fm)
        iter = this%formatters%find(trim(file_name))
@@ -128,23 +111,6 @@ contains
     enddo
     _RETURN(_SUCCESS)
   end subroutine clear
-
-  function check_if_i_created(this,input_file,rc) result(i_created)
-    logical :: i_created
-    class (HistoryCollection), intent(inout) :: this
-    character(len=*), intent(in) :: input_file
-    integer, optional, intent(out) :: rc 
-
-    integer :: status
-
-    i_created = .false.
-    if (allocated(this%last_file_created)) then
-       if (input_file == this%last_file_created) i_created=.true.
-    end if
-
-    _RETURN(_SUCCESS)
-
-  end function
 
 end module pFIO_HistoryCollectionMod
 
