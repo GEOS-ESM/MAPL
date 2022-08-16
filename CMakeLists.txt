@@ -26,6 +26,7 @@ set (ESMA_CMAKE_DIRS
 foreach (dir IN LISTS ESMA_CMAKE_DIRS)
   if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/${dir})
     list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/${dir}")
+    set (ESMA_CMAKE_PATH "${CMAKE_CURRENT_LIST_DIR}/${dir}" CACHE PATH "Path to ESMA_cmake code")
     include (esma)
     set(MAPL_STANDALONE TRUE)
   endif ()
@@ -220,5 +221,17 @@ ecbuild_install_project (NAME MAPL)
 
 # This must be after ecbuild_install_project
 if (MAPL_STANDALONE)
-  include (esma_cpack OPTIONAL)
+  include (esma_cpack OPTIONAL RESULT_VARIABLE esma_cpack_FOUND)
+  if (esma_cpack_FOUND)
+    message(STATUS "esma_cpack_FOUND: ${esma_cpack_FOUND}")
+
+    # This installs a tarball of the source code
+    # in the installation directory.
+    # MUST BE THE LAST CODE IN THIS FILE
+    option(INSTALL_SOURCE_TARFILE "Create and install source tarfile" OFF)
+    if(INSTALL_SOURCE_TARFILE)
+      install(CODE "set(CMAKE_PROJECT_NAME \"${CMAKE_PROJECT_NAME}\")")
+      install(SCRIPT "${ESMA_CMAKE_PATH}/esma_postinstall.cmake")
+    endif()
+  endif ()
 endif ()
