@@ -221,6 +221,7 @@ ecbuild_install_project (NAME MAPL)
 
 # This must be after ecbuild_install_project
 if (MAPL_STANDALONE)
+  # We only care about CPack if MAPL is a standalone
   include (esma_cpack OPTIONAL RESULT_VARIABLE esma_cpack_FOUND)
   if (esma_cpack_FOUND)
     message(STATUS "esma_cpack_FOUND: ${esma_cpack_FOUND}")
