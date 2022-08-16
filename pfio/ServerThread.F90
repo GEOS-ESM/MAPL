@@ -533,7 +533,7 @@ contains
       if (associated(ioserver_profiler)) call ioserver_profiler%start("add_Histcollection")
 
       n = this%hist_collections%size()+1
-      hist_collection = HistoryCollection(message%fmd, message%create_mode)
+      hist_collection = HistoryCollection(message%fmd)
       call this%hist_collections%push_back(hist_collection)
 
       connection=>this%get_connection()

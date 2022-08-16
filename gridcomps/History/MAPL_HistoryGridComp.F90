@@ -117,6 +117,7 @@ module MAPL_HistoryGridCompMod
      logical                             :: integer_time
      integer                             :: collectionWriteSplit
      integer                             :: serverSizeSplit
+     logical                             :: allow_overwrite
   end type HISTORY_STATE
 
   type HISTORY_wrap
@@ -428,7 +429,6 @@ contains
     type(StringStringMap) :: global_attributes
     character(len=ESMF_MAXSTR) :: name,regrid_method
     logical :: has_conservative_keyword, has_regrid_keyword
-    logical :: allow_overwrite
     integer :: create_mode
 
 ! Begin
@@ -540,10 +540,10 @@ contains
     call ESMF_ConfigGetAttribute(config, value=cFileOrder,         &
                                          label='FileOrder:', default='ABC', rc=status)
     _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute(config, value=allow_overwrite,  &
+    call ESMF_ConfigGetAttribute(config, value=intState%allow_overwrite,  &
                                          label='Allow_Overwrite:', default=.false., _RC)
     create_mode = PFIO_NOCLOBBER ! defaut no overwrite
-    if (allow_overwrite) create_mode = PFIO_CLOBBER
+    if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
   
     if (trim(cFileOrder) == 'ABC') then
        intstate%fileOrderAlphabetical = .true.
@@ -3398,6 +3398,7 @@ ENDDO PARSER
 
 !   ErrLog vars
     integer                        :: status
+    logical                        :: file_exists
 
 !=============================================================================
 
@@ -3634,6 +3635,10 @@ ENDDO PARSER
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
+                  if (.not.intState%allow_overwrite) then
+                     inquire (file=trim(filename(n)),exist=file_exists)
+                     _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
+                  end if
                   call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,rc=status)
                   _VERIFY(status)
                   list(n)%currentFile = filename(n)
