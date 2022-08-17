@@ -8,6 +8,7 @@ module MAPL_ExtDataTypeDef
    use MAPL_FileMetadataUtilsMod
    use MAPL_NewArthParserMod
    use MAPL_ExtDataMask
+   use MAPL_ExtDataConstants
    implicit none
 
    public PrimaryExport
@@ -20,9 +21,6 @@ module MAPL_ExtDataTypeDef
      ! fields to store endpoints for interpolation of a vector pair
      type(ExtDataBracket) :: comp1
      type(ExtDataBracket) :: comp2
-     ! if vertically interpolating vector fields
-     type(ExtDataBracket) :: auxiliary1
-     type(ExtDataBracket) :: auxiliary2
   end type BracketingFields
 
   type PrimaryExport
@@ -83,6 +81,7 @@ module MAPL_ExtDataTypeDef
      type(ExtDataPointerUpdate)     :: update_freq
      contains
         procedure :: evaluate_derived_field
+        procedure :: mark_derived_field
   end type DerivedExport
 
   contains
@@ -101,6 +100,23 @@ module MAPL_ExtDataTypeDef
             call ESMF_StateGet(state,trim(this%name),field,_RC)
             call MAPL_StateEval(state,trim(this%expression),field,_RC)
          end if
+         _RETURN(_SUCCESS)
+      end subroutine
+
+      subroutine mark_derived_field(this,state,do_update,rc)
+         class(DerivedExport), intent(inout) :: this
+         type(ESMF_State), intent(inout) :: state
+         logical, optional, intent(in) :: do_update
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(ESMF_Info) :: info
+         type(ESMF_Field) :: field
+
+         call ESMF_StateGet(state,trim(this%name),field,_RC)
+         call ESMF_InfoGetFromHost(field,info,_RC)
+         call ESMF_InfoSet(info,extdata_update,value=do_update,_RC)  
+         call ESMF_InfoSet(info,extdata_expression,value=trim(this%expression),_RC)
          _RETURN(_SUCCESS)
       end subroutine
 

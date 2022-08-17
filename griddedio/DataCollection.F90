@@ -21,6 +21,7 @@ module MAPL_DataCollectionMod
     type(ESMF_Grid), allocatable :: src_grid
   contains
     procedure :: find
+    procedure :: get_source_grid
   end type MAPLDataCollection
 
   interface MAPLDataCollection
@@ -47,7 +48,15 @@ contains
 
   end function new_MAPLDataCollection
 
+  function get_source_grid(this,rc) result(grid)
+    type (ESMF_Grid) :: grid
+    class (MAPLDataCollection), intent(inout) :: this
+    integer, intent(out), optional :: rc
+    
+    grid = this%src_grid
+    _RETURN(_SUCCESS)
 
+  end function get_source_grid
 
   function find(this, file_name, rc) result(metadata)
     type (FileMetadataUtils), pointer :: metadata

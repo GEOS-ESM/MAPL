@@ -5,7 +5,7 @@ module ExtData_DriverGridCompMod
   use ESMF
   use MAPL
 #if defined(BUILD_WITH_EXTDATA2G)
-  use MAPL_ExtDataGridComp2G, only : ExtData2G_SetServices => SetServices
+  use MAPL_ExtDataGridComp_Coupler, only : ExtData2G_SetServices => SetServices
 #endif
   use MAPL_ExtDataGridCompMod, only : ExtData1G_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
@@ -391,10 +391,7 @@ contains
              call MAPL_StateAdd(cap%exports(cap%extdata_id), field, rc = status)
              _VERIFY(status)
           else if (ItemTypes(i) == ESMF_StateItem_FieldBundle) then
-             call ESMF_StateGet(cap%imports(cap%root_id), itemnames(i), bundle, rc = status)
-             _VERIFY(status)
-             call MAPL_StateAdd(cap%exports(cap%extdata_id), bundle, rc = status)
-             _VERIFY(status)
+             _FAIL("no extdata may not fill bundles")
           end if
        END DO
        deallocate(itemtypes)

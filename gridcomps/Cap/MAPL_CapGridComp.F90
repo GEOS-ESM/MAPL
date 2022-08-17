@@ -18,7 +18,7 @@ module MAPL_CapGridCompMod
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : HISTORY_ExchangeListWrap
 #if defined(BUILD_WITH_EXTDATA2G)
-  use MAPL_ExtDataGridComp2G, only : ExtData2G_SetServices => SetServices
+  use MAPL_ExtDataGridComp_Coupler, only : ExtData2G_SetServices => SetServices
 #endif
   use MAPL_ExtDataGridCompMod, only : ExtData1G_SetServices => SetServices
   use MAPL_ConfigMod

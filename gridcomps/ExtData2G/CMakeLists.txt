@@ -5,7 +5,8 @@ set (srcs
      ExtDataRule.F90
      ExtDataDerived.F90
      ExtDataConfig.F90
-     ExtDataGridCompNG.F90
+     ExtDataGridComp_Base.F90
+     ExtDataGridComp_Coupler.F90
      TimeStringConversion.F90
      ExtDataTypeDef.F90
      ExtDataOldTypesCreator.F90

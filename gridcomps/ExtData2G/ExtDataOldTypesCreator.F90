@@ -135,8 +135,6 @@ module MAPL_ExtDataOldTypesCreator
 
       call primary_item%modelGridFields%comp1%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation)
       call primary_item%modelGridFields%comp2%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation)
-      call primary_item%modelGridFields%auxiliary1%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation)
-      call primary_item%modelGridFields%auxiliary2%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation)
 
       ! file_template
       primary_item%isConst = .false.
