@@ -6,6 +6,7 @@ module pFIO_AddHistCollectionMessageMod
    use pFIO_UtilitiesMod
    use pFIO_AbstractMessageMod
    use pFIO_FileMetadataMod
+   use pFIO_ConstantsMod
    implicit none
    private
 
@@ -13,9 +14,7 @@ module pFIO_AddHistCollectionMessageMod
 
    type, extends(AbstractMessage) :: AddHistCollectionMessage
       type(FileMetadata) :: fmd
-      ! WY node: -1    : add ( default )
-      !          other : replace
-      integer :: collection_id = -1
+      integer :: create_mode
    contains
       procedure, nopass :: get_type_id
       procedure :: get_length
@@ -29,12 +28,13 @@ module pFIO_AddHistCollectionMessageMod
 
 contains
 
-   function new_AddHistCollectionMessage(fmd, collection_id) result(message)
+   function new_AddHistCollectionMessage(fmd, mode) result(message)
       type (AddHistCollectionMessage) :: message
       type(FileMetadata), intent(in) :: fmd
-      integer, optional, intent(in) :: collection_id
+      integer, optional, intent(in) :: mode
       message%fmd = fmd
-      if( present(collection_id)) message%collection_id = collection_id
+      message%create_mode = PFIO_NOCLOBBER
+      if( present(mode)) message%create_mode = mode
    end function new_AddHistCollectionMessage
 
    
@@ -47,7 +47,7 @@ contains
       class (AddHistCollectionMessage), intent(in) :: this
       integer,allocatable :: buffer(:) ! no-op
       call this%fmd%serialize(buffer)
-      length = size(buffer) + 1 ! 1 is the collection_id
+      length = size(buffer) + 1 ! 1 is the create_mode
    end function get_length
 
 
@@ -60,7 +60,7 @@ contains
       integer :: status
       call this%fmd%serialize(tmp_buffer, status)
       _VERIFY(status)
-      buffer = [tmp_buffer,serialize_intrinsic(this%collection_id)]
+      buffer = [tmp_buffer,serialize_intrinsic(this%create_mode)]
       _RETURN(_SUCCESS)
    end subroutine serialize
 
@@ -76,7 +76,7 @@ contains
       _VERIFY(status)
       call deserialize_intrinsic(buffer(n:), length)
       n = n + length 
-      call deserialize_intrinsic(buffer(n:), this%collection_id)
+      call deserialize_intrinsic(buffer(n:), this%create_mode)
       _RETURN(_SUCCESS)
    end subroutine deserialize
 

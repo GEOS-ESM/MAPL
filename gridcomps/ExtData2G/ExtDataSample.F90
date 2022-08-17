@@ -26,7 +26,7 @@ module MAPL_ExtDataTimeSample
 contains
 
    function new_ExtDataTimeSample(config,unusable,rc) result(TimeSample)
-      type(Configuration), intent(in) :: config
+      class(YAML_Node), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 

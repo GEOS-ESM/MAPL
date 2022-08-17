@@ -92,6 +92,13 @@ contains
       integer :: status
       _UNUSED_DUMMY(unusable)
 
+      call options%add(switch='--root_dso',        &
+           help='name of root dso to use',                   &
+           required=.false.,                           &
+           def='none',                                 &
+           act='store',                                &
+           error=status)
+      _VERIFY(status)
       call options%add(switch='--esmf_logtype',                   &
            help='ESMF Logging type',                   &
            required=.false.,                           &
@@ -275,6 +282,9 @@ contains
 
       integer, allocatable :: nodes_output_server(:)
 
+      call flapCLI%cli_options%get(val=buffer, switch='--root_dso', error=status); _VERIFY(status)
+      cap_options%root_dso = trim(buffer)
+
       call flapCLI%cli_options%get(val=buffer, switch='--egress_file', error=status); _VERIFY(status)
       cap_options%egress_file = trim(buffer)
 
@@ -357,6 +367,8 @@ contains
 
       integer, allocatable :: nodes_output_server(:)
 
+      call flapCLI%cli_options%get(val=buffer, switch='--root_dso', error=status); _VERIFY(status)
+      cap_options%root_dso = trim(buffer)
       call flapCLI%cli_options%get(val=buffer, switch='--egress_file', error=status); _VERIFY(status)
       cap_options%egress_file = trim(buffer)
 

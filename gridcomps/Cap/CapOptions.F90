@@ -16,6 +16,7 @@ module mapl_CapOptionsMod
       logical :: use_comm_world = .true.
       character(:), allocatable :: egress_file
       character(:), allocatable :: cap_rc_file
+      character(:), allocatable :: root_dso
       type (ESMF_LogKind_Flag) :: esmf_logging_mode = ESMF_LOGKIND_NONE
       integer :: npes_model = -1
       ! only one of the next two options can have nonzero values

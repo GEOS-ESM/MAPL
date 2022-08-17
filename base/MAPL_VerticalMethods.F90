@@ -36,7 +36,7 @@ module MAPL_VerticalDataMod
      real, allocatable :: surface_level(:,:)
      real, allocatable :: ple3d(:,:,:)
      real, allocatable :: pl3d(:,:,:)
-     integer :: lm
+     integer :: lm = 0
      integer :: regrid_type
      type(ESMF_Field) :: interp_var
      logical :: ascending

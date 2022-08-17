@@ -243,6 +243,7 @@ module MAPL_GenericMod
       module procedure AddChildFromMeta
       module procedure AddChildFromDSO_old
       module procedure AddChildFromDSO
+      module procedure AddChildFromDSOMeta
    end interface MAPL_AddChild
 
    interface MAPL_AddImportSpec
@@ -4783,6 +4784,69 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromGC
+
+   recursive integer function AddChildFromDSOMeta(meta, name, userRoutine, grid, sharedObj, petList, configFile, parentGC, RC)
+
+      !ARGUMENTS:
+      type(MAPL_MetaComp), target,   intent(INOUT) :: META
+      character(len=*), intent(IN)    :: name
+      character(len=*), intent(in)    :: userRoutine
+      type(ESMF_Grid),  optional,    intent(INout) :: grid
+      character(len=*), optional, intent(in)       :: sharedObj
+
+      integer, optional  , intent(IN   ) :: petList(:)
+      character(len=*), optional, intent(IN   ) :: configFile
+      type(ESMF_GridComp), optional, intent(IN   ) :: parentGC
+      integer, optional  , intent(  OUT) :: rc
+      !EOP
+
+      integer                    :: status
+      integer                    :: userRC
+
+      integer                                     :: I
+      type(MAPL_MetaComp), pointer                :: child_meta
+      class(BaseProfiler), pointer                :: t_p
+
+      class(Logger), pointer :: lgr
+      character(len=:), allocatable :: shared_object_library_to_load
+      character(len=:), allocatable :: extension
+
+      if (.not.allocated(meta%GCNameList)) then
+         ! this is the first child to be added
+         allocate(meta%GCNameList(0), __STAT__)
+      end if
+
+      I = meta%get_num_children() + 1
+      AddChildFromDSOMeta = I
+
+      call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentGC, petList=petlist, child_meta=child_meta,__RC__)
+
+      t_p => get_global_time_profiler()
+      call t_p%start(trim(name),__RC__)
+      call child_meta%t_profiler%start(__RC__)
+      call child_meta%t_profiler%start('SetService',__RC__)
+
+      extension = get_file_extension(SharedObj)
+      _ASSERT(is_supported_dso_name(SharedObj), "AddChildFromDSO: Unsupported shared library extension '"//extension//",.")
+
+      if (.not. is_valid_dso_name(SharedObj)) then
+         lgr => logging%get_logger('MAPL.GENERIC')
+         call lgr%warning("AddChildFromDSO: changing shared library extension from %a~ to system specific extension %a~", &
+              "'"//extension//"'", "'"//SYSTEM_DSO_EXTENSION//"'")
+      end if
+
+      shared_object_library_to_load = adjust_dso_name(sharedObj)
+      call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
+           sharedObj=shared_object_library_to_load,userRC=userRC,__RC__)
+      _VERIFY(userRC)
+
+      call child_meta%t_profiler%stop('SetService',__RC__)
+      call child_meta%t_profiler%stop(__RC__)
+      call t_p%stop(trim(name),__RC__)
+
+      _RETURN(ESMF_SUCCESS)
+   end function AddChildFromDSOMeta
+
 
    !INTERFACE:
    recursive integer function AddChildFromDSO(gc, name, userRoutine, grid, sharedObj, petList, configFile, RC)
