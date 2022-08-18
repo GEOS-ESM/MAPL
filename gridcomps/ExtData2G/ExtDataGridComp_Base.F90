@@ -173,7 +173,7 @@ CONTAINS
    type(PrimaryExport), pointer      :: item
    integer                           :: i,j
    integer                           :: ItemCount
-   integer                           :: PrimaryItemCount, DerivedItemCount
+   integer                           :: num_primary, num_derived
 
    type(ESMF_Time)                   :: time
 
@@ -259,8 +259,6 @@ CONTAINS
 !                         ---------------------------
    num_primary=0
    num_derived=0
-   primaryitemcount=0
-   deriveditemcount=0
    do i=1,size(itemnames)
       item_type = config_yaml%get_item_type(trim(itemnames(i)),rc=status)
       _VERIFY(status)
@@ -268,10 +266,10 @@ CONTAINS
       if (.not.found_in_config) call unsatisfied_imports%push_back(itemnames(i))
       if (item_type == derived_type) then
          call self%derived%import_names%push_back(trim(itemnames(i)))
-         deriveditemcount=deriveditemcount+1
+         num_derived=num_derived+1
       else if (item_type==Primary_Type_Scalar .or. item_type==Primary_Type_Vector_comp1) then
          call self%primary%import_names%push_back(trim(itemnames(i)))
-         primaryitemcount=primaryitemcount+config_yaml%count_rules_for_item(trim(itemnames(i)),_RC)
+         num_primary=num_primary+config_yaml%count_rules_for_item(trim(itemnames(i)),_RC)
       end if
    enddo
    extra_variables_needed = config_yaml%get_extra_derived_items(self%primary%import_names,self%derived%import_names,_RC)
@@ -282,7 +280,7 @@ CONTAINS
       primary_var_name = extra_var(:idx-1) 
       derived_var_name = extra_var(idx+1:)
       call self%primary%import_names%push_back(primary_var_name)
-      primaryItemCount=primaryItemCount+config_yaml%count_rules_for_item(primary_var_name,_RC)
+      num_primary=num_primary+config_yaml%count_rules_for_item(primary_var_name,_RC)
       call siter%next()
    enddo 
    call ESMF_VMBarrier(vm,_RC)
@@ -293,10 +291,10 @@ CONTAINS
       _FAIL("Unsatisfied imports in ExtData")
    end if
       
-   allocate(self%primary%item(PrimaryItemCount),__STAT__)
-   allocate(self%derived%item(DerivedItemCount),__STAT__)
-   self%primary%nitems = PrimaryItemCount
-   self%derived%nitems = DerivedItemCount
+   allocate(self%primary%item(num_primary),__STAT__)
+   allocate(self%derived%item(num_derived),__STAT__)
+   self%primary%nitems = num_primary
+   self%derived%nitems = num_derived
 
    num_primary=0
    num_derived=0 
@@ -1054,12 +1052,10 @@ CONTAINS
      type(ESMF_Info) :: info
 
      if (item%vartype == MAPL_FieldItem) then
-        write(*,*)"mark scalar"
         call ESMF_StateGet(state,item%name,field,_RC)
         call ESMF_InfoGetFromHost(field,info,_RC)
         call ESMF_InfoSet(info,extdata_regridding_method,value=item%trans,_RC)
      else if (item%vartype == MAPL_VectorField) then
-        write(*,*)"mark vector"
 
         call ESMF_StateGet(state,item%vcomp1,field,_RC)
         call ESMF_InfoGetFromHost(field,info,_RC)
@@ -1200,24 +1196,27 @@ CONTAINS
      _RETURN(_SUCCESS)
   end function get_item_index
 
-  function am_i_running(yaml_file) result(am_running)
+  function am_i_running(yaml_file,rc) result(am_running)
      logical :: am_running
      character(len=*), intent(in) :: yaml_file
+     integer, intent(out), optional :: rc
 
       type(Parser)              :: p
-      type(FileStream) :: fstream
-      type(Configuration) :: config
+      class(YAML_Node), allocatable :: config
+      integer :: status
 
+      am_running=.true.
       p = Parser('core')
-      fstream=FileStream(yaml_file)
-      config = p%load(fstream)
-      call fstream%close()
+      config = p%load(yaml_file,rc=status)
+      if (status/=_SUCCESS) then
+          _FAIL("Error parsing: "//trim(yaml_file))
+      end if
 
       if (config%has("USE_EXTDATA")) then
          am_running = config%of("USE_EXTDATA")
-      else
-         am_running = .true.
       end if
+      _RETURN(_SUCCESS)
+
    end function am_i_running
 
  END MODULE MAPL_ExtDataGridComp_Base
