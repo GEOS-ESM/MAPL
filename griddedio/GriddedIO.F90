@@ -65,6 +65,7 @@ module MAPL_GriddedIOMod
         procedure :: regridVector
         procedure :: set_param
         procedure :: set_default_chunking
+        procedure :: check_chunking
         procedure :: alphabatize_variables
         procedure :: request_data_from_file
         procedure :: process_data_from_file
@@ -164,6 +165,8 @@ module MAPL_GriddedIOMod
         if (.not.allocated(this%chunking)) then
            call this%set_default_chunking(rc=status)
            _VERIFY(status)
+        else
+           call this%check_chunking(this%vdata%lm,_RC)
         end if
 
         order = this%metadata%get_order(rc=status)
@@ -254,6 +257,47 @@ module MAPL_GriddedIOMod
 
      end subroutine set_default_chunking
 
+     subroutine check_chunking(this,lev_size,rc)
+        class (MAPL_GriddedIO), intent(inout) :: this
+        integer, intent(in) :: lev_size
+        integer, optional, intent(out) :: rc
+
+        integer ::  global_dim(3)
+        integer :: status
+        character(len=5) :: c1,c2
+
+        call MAPL_GridGet(this%output_grid,globalCellCountPerDim=global_dim,rc=status)
+        _VERIFY(status)
+        if (global_dim(1)*6 == global_dim(2)) then
+           write(c2,'(I5)')global_dim(1)
+           write(c1,'(I5)')this%chunking(1)
+           _ASSERT(this%chunking(1) <= global_dim(1), "Chunk for Xdim "//c1//" must be less than or equal to "//c2)
+           write(c1,'(I5)')this%chunking(2)
+           _ASSERT(this%chunking(2) <= global_dim(1), "Chunk for Ydim "//c1//" must be less than or equal to "//c2)
+           _ASSERT(this%chunking(3) <= 6, "Chunksize for face dimension must be 6 or less")
+           if (lev_size > 0) then
+              write(c2,'(I5)')lev_size
+              write(c1,'(I5)')this%chunking(4)
+              _ASSERT(this%chunking(4) <= lev_size, "Chunk for level size "//c1//" must be less than or equal to "//c2)
+           end if
+           _ASSERT(this%chunking(5) == 1, "Time must have chunk size of 1")
+        else
+           write(c2,'(I5)')global_dim(1)
+           write(c1,'(I5)')this%chunking(1)
+           _ASSERT(this%chunking(1) <= global_dim(1), "Chunk for lon "//c1//" must be less than or equal to "//c2)
+           write(c2,'(I5)')global_dim(2)
+           write(c1,'(I5)')this%chunking(2)
+           _ASSERT(this%chunking(2) <= global_dim(2), "Chunk for lat "//c1//" must be less than or equal to "//c2)
+           if (lev_size > 0) then
+              write(c2,'(I5)')lev_size
+              write(c1,'(I5)')this%chunking(3)
+              _ASSERT(this%chunking(3) <= lev_size, "Chunk for level size "//c1//" must be less than or equal to "//c2)
+           end if
+           _ASSERT(this%chunking(4) == 1, "Time must have chunk size of 1")
+        endif
+        _RETURN(ESMF_SUCCESS)
+
+     end subroutine check_chunking
 
      subroutine CreateVariable(this,itemName,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
