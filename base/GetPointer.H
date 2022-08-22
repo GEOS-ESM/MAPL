@@ -85,7 +85,7 @@
    endif
    
 !ALT I dont think the next lines are needed anymore
-!#if 0
+#if 0
    block
      integer :: DIMS
      call ESMF_AttributeGet(field, name='VLOCATION', value=DIMS, rc=status)
@@ -99,7 +99,7 @@
         end if
      end if
    end block
-!#endif
+#endif
 
    _RETURN(ESMF_SUCCESS)
    
