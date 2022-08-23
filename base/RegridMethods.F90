@@ -80,7 +80,7 @@ module mapl_RegridMethods
 
    function translate_regrid_method(int_regrid_method) result(string_regrid_method)
       integer, intent(in) :: int_regrid_method
-      character(len=:), allocatable, intent(out) :: string_regrid_method
+      character(len=:), allocatable :: string_regrid_method
 
       select case (int_regrid_method)
       case (REGRID_METHOD_IDENTITY)
