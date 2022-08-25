@@ -30,6 +30,8 @@
 !      YYYY-DDD	or	YYYYDDD
 
 ! Time
+! ISO 8601 allows fractional seconds, but it does not limit the fractional
+! part to milliseconds. Below, 'sss' represents an arbitrary number of digits.
 !      Thh:mm:ss.sss	or	Thhmmss.sss
 !      Thh:mm:ss	or	Thhmmss
 !      Thh:mm	or	Thhmm
@@ -62,7 +64,6 @@
 !      Rn/<interval>
 !      R/<interval>
 
-#define DEBUG
 !#define STRICT_ISO8601 !Uncomment for strict ISO8601 compliance
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
@@ -71,9 +72,7 @@ module MAPL_ISO8601_DateTime
    use MAPL_ExceptionHandling
    implicit none
 
-#ifndef DEBUG
    private
-#endif
 
    public :: convert_ISO8601_to_integer_time
    public :: convert_ISO8601_to_integer_date
@@ -92,8 +91,10 @@ module MAPL_ISO8601_DateTime
    character, parameter :: TIME_PREFIX = 'T'
    integer, parameter :: MINUTES_PER_HOUR = 60
 
+   ! Timezone offset for Timezone Z
    integer, parameter :: Z = 0
 
+   ! Constants for converting ISO 8601 datetime to integer format
    integer, parameter :: ID_WIDTH = 100
    integer, parameter :: ID_DAY = 1
    integer, parameter :: ID_MONTH = ID_WIDTH * ID_DAY
@@ -104,10 +105,9 @@ module MAPL_ISO8601_DateTime
    integer, parameter :: IT_MINUTE = IT_WIDTH * IT_SECOND
    integer, parameter :: IT_HOUR = IT_WIDTH * IT_MINUTE
 
+   ! Derived type used to store fields from ISO 8601 Dates
    type :: ISO8601Date
-#ifndef DEBUG
       private
-#endif
       integer :: year_
       integer :: month_
       integer :: day_
@@ -121,6 +121,7 @@ module MAPL_ISO8601_DateTime
       module procedure :: construct_ISO8601Date
    end interface ISO8601Date
 
+   ! Derived type for communicating date fields internally
    type :: date_fields
       integer :: year_
       integer :: month_
@@ -132,14 +133,15 @@ module MAPL_ISO8601_DateTime
       module procedure :: construct_date_fields
    end interface date_fields
 
+   ! Derived type used to store fields from ISO 8601 Times
    type :: ISO8601Time
-#ifndef DEBUG
       private
-#endif
       integer :: hour_
       integer :: minute_
       integer :: second_
       integer :: millisecond_
+      ! Timezone is stored as offset from Z timezone in minutes
+      ! Currently, only timezone Z offset is used.
       integer :: timezone_offset_ = Z
    contains
       procedure, public :: get_hour
@@ -153,6 +155,7 @@ module MAPL_ISO8601_DateTime
       module procedure :: construct_ISO8601Time
    end interface ISO8601Time
 
+   ! Derived type for communicating time fields internally
    type :: time_fields
       integer :: hour_
       integer :: minute_
@@ -166,10 +169,9 @@ module MAPL_ISO8601_DateTime
       module procedure :: construct_time_fields
    end interface time_fields
 
+   ! Derived type used to store fields from ISO 8601 DateTimes
    type :: ISO8601DateTime
-#ifndef DEBUG
       private
-#endif
       type(ISO8601Date) :: date_
       type(ISO8601Time) :: time_
    contains
@@ -189,10 +191,10 @@ module MAPL_ISO8601_DateTime
       module procedure :: construct_ISO8601DateTime
    end interface ISO8601DateTime
 
+   ! Derived type used to store fields from ISO 8601 Durations
+   ! Note that ISO 8601 Duration corresponds to ESMF Interval.
    type :: ISO8601Duration
-#ifndef DEBUG
       private
-#endif
       integer :: years_
       integer :: months_
       integer :: days_
@@ -212,10 +214,11 @@ module MAPL_ISO8601_DateTime
       module procedure :: construct_ISO8601Duration
    end interface ISO8601Duration
 
+   ! Derived type used to store fields from ISO 8601 Interval
+   ! Note that ISO 8601 Interval is different than ESMF Interval.
+   ! This has not been fully implemented
    type :: ISO8601Interval
-#ifndef DEBUG
       private
-#endif
       type(ISO8601DateTime) :: start_datetime_
       type(ISO8601DateTime) :: end_datetime_
       integer :: repetitions_ = 1
@@ -225,6 +228,7 @@ module MAPL_ISO8601_DateTime
       procedure, public :: get_repetitions
    end type ISO8601Interval
 
+! Currently, not implemented.
 !   interface ISO8601Interval
 !      module procedure :: construct_ISO8601Interval
 !   end interface ISO8601Interval
@@ -245,6 +249,7 @@ contains
       endif
    end function divides
 
+   ! Checks if n is in (open) interval: (lower, upper), [not inclusive]
    pure logical function is_between(lower, upper, n)
       integer, intent(in) :: lower
       integer, intent(in) :: upper
@@ -252,21 +257,25 @@ contains
       is_between = n > lower .and. n < upper
    end function is_between
 
+   ! Check if c is a digit character
    elemental pure logical function is_digit(c)
       character, intent(in) :: c
       is_digit = scan(c, DIGIT_CHARACTERS) > 0
    end function is_digit
 
+   ! Check if n is an integer >= 0
    pure logical function is_whole_number(n)
       integer, intent(in) :: n
       is_whole_number = .not. (n < 0)
    end function is_whole_number
 
+   ! Convert c from digit character to integer
    pure integer function get_integer_digit(c)
       character, intent(in) :: c
       get_integer_digit = index(DIGIT_CHARACTERS, c) - 1
    end function get_integer_digit
 
+   ! Convert index i character from s to integer
    pure integer function get_integer_digit_from_string(s, i)
       character(len=*), intent(in) :: s
       integer, intent(in) :: i
@@ -278,11 +287,13 @@ contains
       end if
    end function get_integer_digit_from_string
 
+   ! Convert string to whole number
    pure integer function read_whole_number(string)
       character(len=*), intent(in) :: string
       read_whole_number = read_whole_number_indexed(string, 1, len(string))
    end function read_whole_number
 
+   ! Convert string(istart: istop) to whole number
    pure integer function read_whole_number_indexed(string, istart, istop)
       character(len=*), intent(in) :: string
       integer, intent(in) :: istart
@@ -295,8 +306,11 @@ contains
 
       read_whole_number_indexed = INVALID
 
+      ! Check indices
       if((istart < 1) .or. (istart > istop) .or. (istop > len(string))) return
 
+      ! Convert characters from string, last to first, to integers,
+      ! multiplies by place value, and adds
       place_value = 1
       n = 0
       do i= istop, istart, -1
@@ -317,6 +331,7 @@ contains
 
 ! LOW-LEVEL STRING PROCESSING PROCEDURES
 
+   ! Strip delimiter from string
    pure function undelimit(string, delimiter) result(undelimited)
       character(len=*), intent(in) :: string
       character, intent(in) :: delimiter
@@ -375,6 +390,7 @@ contains
 
    end function get_month_end
 
+   ! Verify that y is a valid year according the ISO 8601 specification
    pure logical function is_valid_year(y)
       integer, intent(in) :: y
 ! Strict ISO8601 compliance does not allow years before 1583
@@ -388,14 +404,15 @@ contains
       is_valid_year = is_between(LB_YEAR, UB_YEAR, y)
    end function is_valid_year
 
+   ! Verify that m is a valid month number
    pure logical function is_valid_month(m)
       integer, intent(in) :: m
       integer, parameter :: LB_MONTH = 0
       integer, parameter :: UB_MONTH = 13
-      integer, parameter :: NUM_MONTHS = UB_MONTH - 1
       is_valid_month = is_between(LB_MONTH, UB_MONTH, m)
    end function is_valid_month
 
+   ! Verify that hour is a valid hour
    pure logical function is_valid_hour(hour)
       integer, intent(in) :: hour
       integer, parameter :: LB_HOUR = -1
@@ -403,6 +420,7 @@ contains
       is_valid_hour = is_between(LB_HOUR, UB_HOUR, hour)
    end function is_valid_hour
 
+   ! Verify that minute is a valid minute
    pure logical function is_valid_minute(minute)
       integer, intent(in) :: minute
       integer, parameter :: LB_MINUTE = -1
@@ -410,6 +428,9 @@ contains
       is_valid_minute = is_between(LB_MINUTE, UB_MINUTE, minute)
    end function is_valid_minute
 
+   ! Verify that second is a valid second
+   ! ISO 8601 allows second=60 (for leap seconds)
+   ! This function does not check if it is a valid leap second.
    pure logical function is_valid_second(second)
       integer, intent(in) :: second
       integer, parameter :: LB_SECOND = -1
@@ -417,6 +438,9 @@ contains
       is_valid_second = is_between(LB_SECOND, UB_SECOND, second)
    end function is_valid_second
 
+   ! Verify that millisecond is a valid millisecond values
+   ! ISO 8601 allows fractional seconds, but it does not limit the fractional
+   ! part to millisecond.
    pure logical function is_valid_millisecond(millisecond)
       integer, intent(in) :: millisecond
       integer, parameter :: LB_MILLISECOND = -1
@@ -424,6 +448,8 @@ contains
       is_valid_millisecond = is_between(LB_MILLISECOND, UB_MILLISECOND, millisecond)
    end function is_valid_millisecond
 
+   ! Verify that the timezone offset is valid
+   ! Currently, the only valid offset is 0 corresponding to timezone Z.
    pure logical function is_valid_timezone_offset(timezone_offset)
       integer, intent(in) :: timezone_offset
       is_valid_timezone_offset = (timezone_offset == Z)
@@ -434,6 +460,7 @@ contains
 
 ! DATE & TIME VERIFICATION
 
+   ! Verify all the date fields are valid
    pure logical function is_valid_date(date)
       type(date_fields), intent(in) :: date
       integer, parameter :: LB_DAY = 0
@@ -444,6 +471,7 @@ contains
 
    end function is_valid_date
 
+   ! Verify all the time fields are valid
    pure logical function is_valid_time(time)
       type(time_fields), intent(in) :: time
 
@@ -473,9 +501,11 @@ contains
       offset_length = len_trim(offset)
 
       if(offset_length == field_width) then
+         ! Offset with hours only
          hours = read_whole_number(offset)
          tzo = hours*MINUTES_PER_HOUR
       elseif (offset_length == 2*field_width) then
+         ! Offset with hours and minutes
          hours = read_whole_number(offset(1:field_width))
          minutes = read_whole_number(offset(field_width+1:len(offset)))
          if(is_whole_number(hours) .and. is_whole_number(minutes)) then
@@ -489,6 +519,8 @@ contains
 
    end function parse_timezone_offset
 
+   ! Parse ISO 8601 Date string into date fields, check if valid date
+   ! and set is_valid_ flag
    pure function parse_date(datestring) result(fields)
       character(len=*), intent(in) :: datestring
       type(date_fields) :: fields
@@ -499,6 +531,7 @@ contains
       integer, parameter :: DAY_POSITION = 7
       character(len=LENGTH) :: undelimited
 
+      ! Eliminate delimiters so that there is one parsing block
       undelimited=undelimit(datestring, DELIMITER)
 
       if(len(undelimited) == LENGTH) then
@@ -512,6 +545,8 @@ contains
 
    end function parse_date
 
+   ! Parse ISO 8601 Time string into time fields, check if valid time
+   ! and set is_valid_ flag
    pure function parse_time(timestring) result(fields)
       character(len=*), intent(in) :: timestring
       type(time_fields) :: fields
@@ -550,7 +585,8 @@ contains
          fields%is_valid_ = .FALSE.
          return
       end if
-
+      
+      ! Find timezone portion
       pos = scan(timestring, '-Z+')
 
       if(.not. pos > 0) then
@@ -560,6 +596,7 @@ contains
 
       c = timestring(pos:pos)
 
+      ! Check first character of timezone portion
       select case(c)
          case('Z')
             signum = 0
@@ -572,6 +609,7 @@ contains
             return
       end select
 
+      ! Set timezone offset
       if(signum == 0) then
          fields%timezone_offset_ = Z
          fields%is_valid_ = pos == len(timestring)
@@ -591,6 +629,7 @@ contains
       undelimited=undelimit(undelimit(undelimited, DELIMITER), DECIMAL_POINT)
       undelimited_length = len_trim(undelimited)
 
+      ! Check length of undelimited string with or without milliseconds
       if(undelimited_length == LENGTH) then
          fields%is_valid_ = .TRUE.
       elseif(undelimited_length == LENGTH+MS_WIDTH) then
@@ -602,6 +641,7 @@ contains
 
       if(.not. fields%is_valid_) return
 
+      ! Read time fields      
       fields%hour_ = read_whole_number(undelimited(HSTART:HSTOP))
       fields%minute_ = read_whole_number(undelimited(MSTART:MSTOP))
       fields%second_ = read_whole_number(undelimited(SSTART:SSTOP))
@@ -624,14 +664,14 @@ contains
       integer, intent(out) :: rc
       type(ISO8601Date) :: date
       type(date_fields) :: fields
-!      integer :: status
+      integer :: status
       fields = parse_date(trim(adjustl(isostring)))
       if(fields%is_valid_) then
          date%year_ = fields%year_
          date%month_ = fields%month_
          date%day_ = fields%day_
-!      else
-!         _FAIL('Invalid ISO 8601 date string')
+      else
+         _FAIL('Invalid ISO 8601 date string')
       end if
    end function construct_ISO8601Date
 
@@ -640,7 +680,7 @@ contains
       integer, intent(inout) :: rc
       type(ISO8601Time) :: time
       type(time_fields) :: fields
-!      integer :: status
+      integer :: status
       fields = parse_time(trim(adjustl(isostring)))
       if(fields%is_valid_) then
          time%hour_ = fields%hour_
@@ -649,8 +689,8 @@ contains
          time%millisecond_ = fields%millisecond_
          time%timezone_offset_ = fields%timezone_offset_
          _RETURN(_SUCCESS)
-!      else
-!         _FAIL('Invalid ISO 8601 time string')
+      else
+         _FAIL('Invalid ISO 8601 time string')
       end if
    end function construct_ISO8601Time
 
@@ -666,11 +706,13 @@ contains
          datetime%date_ = ISO8601Date(isostring(1:time_index-1), _RC)
          datetime%time_ = ISO8601Time(isostring(time_index:len(isostring)), _RC)
          _RETURN(_SUCCESS)
-!      else
-!         _FAIL('Invalid ISO 8601 datetime string')
+      else
+         _FAIL('Invalid ISO 8601 datetime string')
       end if
    end function construct_ISO8601DateTime
 
+   ! This is not workinbg currently.
+   ! Construct ISO8601Duration from isostring from imin to imax
    function construct_ISO8601Duration(isostring, imin, imax, rc) result(duration)
       character(len=*), intent(in) :: isostring
       integer, intent(in) :: imin
@@ -690,16 +732,39 @@ contains
       character :: c
       integer :: pos
 
+      ! Check indices and first character is 'P'
       successful = ((imin > 0) .and. (imax <= len(isostring)) .and. &
          (imin <= imax) .and. (isostring(imin:imin) == 'P')) 
 
+      pos = imin + 1
+
+      ! This do loop reads a character at a time, digit and nondigit.
+      ! A field string consists of digits forming an integer n followed by
+      ! a field character. A field character must be preceded by an integer. 
+      ! A field character indicates that the preceding digit characters
+      ! should be processed as values for the corresponding field. 
+      ! The field characters are:
+      !  Y(ear)
+      !  M(onth)
+      !  D(ay)
+      !  H(our)
+      !  M(inute)
+      !  S(econd)
+      ! The date and time portions of the string are delimited by T.
+      ! Fields can be omitted, but they must be in order (see above).
+      ! Omitted fields are set to 0.  A zero field cannot be specified by a
+      ! field character without a preceding integer.
       do while(successful .and. (pos <= imax))
          successful = .FALSE.
-         pos = pos + 1
          c = isostring(pos:pos)
          if(time_found) then
+            ! Once the time is found, M should be processed as M(inute).
             select case(c) 
                case('H')
+                  ! Verify the field or preceding fields have not been set.
+                  ! Then process the preceding digit character as an integer.
+                  ! Once processed reset the istart index to start processing
+                  ! digits. The same logic applies for each case below. 
                   if(hours >= 0 .or. minutes >= 0 .or. &
                      seconds >= 0 .or. istart < 1) cycle
                   hours = read_whole_number_indexed(isostring, istart, istop)
@@ -724,6 +789,7 @@ contains
                   istop = pos
             end select
          else
+            ! Until the time is found, M should be processed as M(onth).
             select case(c)
                case('T')
                   time_found = .TRUE.
@@ -751,11 +817,14 @@ contains
                   istart = 0
                case default
                   if(.not. is_digit(c)) cycle
+                  ! istart == 0 indicates that a new integer is being processed.
                   if(istart == 0) istart = pos
+                  ! The istop index should be the current position.
                   istop = pos
             end select
          end if
          successful = .TRUE.
+         pos = pos + 1
       end do
 
       if(successful) then
@@ -766,11 +835,12 @@ contains
          duration%minutes_= minutes
          duration%seconds_= seconds
          _RETURN(_SUCCESS)
-!      else
-!         _FAIL('Invalid ISO 8601 datetime duration string')
+      else
+         _FAIL('Invalid ISO 8601 datetime duration string')
       end if
    end function construct_ISO8601Duration
 
+! Not implemented completely
 !   function construct_ISO8601Interval(isostring, rc) result(interval)
 !      character(len=*), intent(in) :: isostring
 !      integer, intent(inout) :: rc
@@ -813,7 +883,9 @@ contains
 
 
 ! TYPE-BOUND METHODS
+
 ! getters & setters
+
 ! ISO8601Date
 
    integer function get_year(self)
@@ -964,6 +1036,7 @@ contains
 
 ! HIGH-LEVEL CONVERSION PROCEDURES
 
+   ! Convert ISO 8601 string to packed integer YYYYMMDD
    function convert_ISO8601_to_integer_date(isostring, rc) result(integer_date)
       character(len=*), intent(in) :: isostring
       integer, optional, intent(out) :: rc
@@ -979,6 +1052,7 @@ contains
       _RETURN(_SUCCESS)
    end function convert_ISO8601_to_integer_date
 
+   ! Convert ISO 8601 string to packed integer HHMMSS
    function convert_ISO8601_to_integer_time(isostring, rc) result(integer_time)
       character(len=*), intent(in) :: isostring
       integer, optional, intent(out) :: rc
