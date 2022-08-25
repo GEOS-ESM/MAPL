@@ -32,6 +32,7 @@ module pFIO_FileMetadataMod
    contains
 
       procedure :: get_dimensions
+      procedure :: get_global
       procedure :: add_dimension
       procedure :: get_dimension
       procedure :: modify_dimension
@@ -50,6 +51,7 @@ module pFIO_FileMetadataMod
       procedure :: get_order
       procedure :: set_order
       procedure :: modify_variable
+      procedure :: remove_variable
       procedure :: has_dimension
       procedure :: has_variable
 
@@ -100,6 +102,14 @@ contains
       dimensions => this%dimensions
 
    end function get_dimensions
+
+   function get_global(this) result(global)
+      type (Variable), pointer :: global
+      class (FileMetadata), target, intent(in) :: this
+
+      global => this%global
+
+   end function get_global
 
 
    subroutine add_dimension(this, dim_name, extent, unusable, rc)
@@ -393,6 +403,36 @@ contains
       _UNUSED_DUMMY(unusable)
       
    end subroutine add_variable
+   
+   subroutine remove_variable(this, var_name, unusable, rc)
+      class (FileMetadata), target, intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      type (StringVectorIterator)      :: order_iter
+      type (StringVariableMapIterator) :: var_iter
+      character(len=:), pointer :: var_ptr
+
+    
+      order_iter = this%order%begin()
+      do while (order_iter /= this%order%end())
+         var_ptr => order_iter%get()
+         if (var_ptr == var_name) then
+            call this%order%erase(order_iter)
+            exit
+         endif
+      enddo
+
+      _ASSERT(order_iter /= this%order%end(), " No such variable")
+      var_iter   = this%variables%find(var_name)
+      _ASSERT(var_iter /= this%variables%end(), " No such variable")
+      call this%variables%erase(var_iter)
+      call this%order%erase(order_iter)
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+      
+   end subroutine remove_variable
 
    subroutine modify_variable(this, var_name, var, unusable, rc)
       class (FileMetadata), target, intent(inout) :: this
