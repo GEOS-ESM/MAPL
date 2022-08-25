@@ -1,4 +1,97 @@
-
+!!!========================================================================
+!!! MAPL Load Balancing Module:
+!!! Facilitates distributing an unbalanced amount of work among processors.
+!!!========================================================================
+!!!
+!!! Explanation:
+!!! ~~~~~~~~~~~~
+!!! (1) In *basic* operation, each processor has <OrgLen> real values to
+!!! operate on. In typical GCM gridcolumn decomposition, these might be the
+!!! values of a variable at the gridcolumns which satisfy some mask criteria,
+!!! e.g., being sunlit for solar radiative transfer. The idea is to redist-
+!!! ribute these values among the processors so that the rebalanced number
+!!! of values <BalLen> of each processor is similar. E.g., in the solar case,
+!!! processors in the nighttime side of the earth receive values from sunlit
+!!! processors.
+!!!
+!!! (2) This balancing is achieved by a multi-pass pairwise exchange of
+!!! values between processors. In this process, each processor needs a 1D
+!!! real buffer of <BufLen> values, where BufLen is at least OrgLen, and
+!!! may also exceed the final BalLen values due to the multi-pass exchange.
+!!! MAPL_BalanceCreate() returns BalLen and BufLen starting from OrgLen for
+!!! each processor. A <real :: Buf(BufLen)> buffer must be preloaded with
+!!! OrgLen values in indexes 1:OrgLen, then MAPL_BalanceWork(Buf) called to
+!!! <Distribute> the values in a more balanced way. After this rebalancing,
+!!! Buf(1:BalLen) contain the new work (values) for each processor. Once 
+!!! work is done on these values, output values are <Retrieve>d by the
+!!! original processors in a second call to MAPL_BalanceWork(), as
+!!! detailed in the code below.
+!!!
+!!! (3) In the above description, the basic quantum to balance between 
+!!! processors is a single real value. But in typical operation, whole
+!!! gridcolumns (multiple layers or levels) of values, and multiple
+!!! variables (quantities) are associated with each of the OrgLen quanta
+!!! and must be send/received between processors. The way to do this most
+!!! efficiently (cachewise) depends on the dimension ordering in the source
+!!! variables. In typical historical GEOS-5 usage, the gridcolumn indicies
+!!! are inner, so it is most efficient to use a 1D buffer consisting of
+!!! <nBlocks> blocks of BufLen reals each, where nBlocks is the product of
+!!! the number of layers or levels times the number of variables. Additional
+!!! dimensions, such as the number of spectral bands, can also be included
+!!! in this product. Regardless, each contiguous block (BufLen reals) of
+!!! Buf must must have its first Orglen values preloaded (packed), and this
+!!! is repeated, block after block, for each layer/spectral band/variable in
+!!! the order the user chooses. Then, after the <Distribute> ... do the work 
+!!! ... <Retrieve>, the output buffer must be unpacked in similar manners
+!!! into the output variables layers/spectral bands.
+!!!
+!!! (4) Sometimes, however, such as in GCM radiative transfer, it is more
+!!! efficient (cachewise) to have the layer be the innermost dimension of
+!!! variables, then the spectral band, and then the gridcolumn. In such
+!!! cases, an optional inSize argument can be provided to MAPL_BalanceWork(),
+!!! which is the product of dimension sizes *inside of* the packed gridcolumn
+!!! dimension. Then one would use <real :: Buf(inSize*BufLen*nBlocks)>, where
+!!! inSize might be nLayers * nBands, and nBlocks might be the number of var-
+!!! iables that need balancing. Then each block of blockSize = inSize * BufLen
+!!! reals in Buf would have its first inSize * OrgLen values packed from the
+!!! mask, one block per variable.
+!!!
+!!! Glossary/Summary of important variables used in the code:
+!!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! <OrgLen> (input to MAPL_BalanceCreate): number of original (unbalanced)
+!!!    quanta to process on each processor. Typically the number of gridcol-
+!!!    umns on the processor which satisfy some masking criteria. Having
+!!!    multiple variables or layers to balance does not increase this value
+!!!    since they are typically part of a single quantum for balancing.
+!!! <BalLen> (output of MAPL_BalanceCreate): corresponding number of quanta
+!!!    (gridcolmns) on a processor after load balancing.
+!!! <BufLen> (output of MAPL_BalanceCreate): number of quanta that must be
+!!!    reserved in the transfer buffer of a processor to allow the multi-pass
+!!!    load-balancing to work. BufLen will be at least as big as OrgLen and
+!!!    BalLen.
+!!! <nBlocks> (previously Jdim): number of blocks in transfer buffer.
+!!! <blockSize> (previously Idim): the number of reals in a block.
+!!! <inSize> (defaults to 1): the number of *inner* dimension reals
+!!!   associated with each of the OrgLen or BalLen quanta.
+!!!
+!!! A transfer buffer of nBlocks * blockSize reals is made available in the
+!!! calling routine. In fact, different buffers for input or output variables
+!!! are typically needed. Here blockSize = inSize * BufLen. The first OrgLen
+!!! quanta are preloaded (packed from the mask) before load-balancing, and
+!!! the first BalLen quanta are operated on in the load-balanced state.
+!!!
+!!! If the packed gridcolumn dimension is inner in the source variables, as
+!!! per case (3) above, use the default inSize=1 and nBlocks = nLayers*nVars.
+!!! The transfer buffer is loaded one block at a time from the masked grid-
+!!! columns and one block is added for each layer of each variable.
+!!!
+!!! If the layer (and/or band) dimension(s) are inner in the source variables,
+!!! as per case (4) above, use inSize = nLayers * nBands and nBlocks = nVars.
+!!! Each block of the transfer buffer (one per variable) is preloaded with
+!!! all the layers/bands of each masked gridcolumn.
+!!!
+!!! Please see the examples and code below for more details.
+!!!========================================================================
 
 #define LDB_SUCCESS  0
 #include "MAPL_ErrLog.h"
@@ -35,73 +128,126 @@ module MAPL_LoadBalanceMod
 
 !!!===============================================================
 
-!  EXAMPLE
+!  EXAMPLE of case (3)
 
 !      REAL A(IM,JM,LM), B(IM,JM), C(IM,JM,LM)
 !      REAL, allocatable :: AT(:,:), BT(:), CT(:,:)
 !      LOGICAL MASK(IM,JM)
 !      ...
 !      LENGTH = COUNT(MASK)
-!      IRUN   = MAPL_BalanceCreate(LENGTH)
-!      IDIM   = max(length,irun)
-
-!      allocate(AT(IDIM,LM),BT(IDIM),CT(IDIM,LM)
-
+!      call MAPL_BalanceCreate(LENGTH,BalLen=ncols,BufLen=bufLen)
+!
+!      allocate(AT(bufLen,LM),BT(bufLen),CT(bufLen,LM)
+!
 !      BT(1:LENGTH) = PACK(B,MASK)
-
+!
 !      DO L=1,LM
-!       AT(1:LENGTH,L) = PACK(A(:,:,L),MASK)
+!        AT(1:LENGTH,L) = PACK(A(:,:,L),MASK)
 !      ENDDO
-
+!
 !!! DISTRIBUTE THE INPUTS
-
-!      CALL MAPL_BalanceWork(AT,IDIM,LM,Direction=MAPL_Distribute)
-!      CALL MAPL_BalanceWork(BT,IDIM,1 ,Direction=MAPL_Distribute)
-
+!
+!      CALL MAPL_BalanceWork(AT,bufLen,Direction=MAPL_Distribute)
+!      CALL MAPL_BalanceWork(BT,bufLen,Direction=MAPL_Distribute)
+!
 !!! PLUG COMPATIBLE ROUTINE AT(IN), BT(INOUT), CT(OUT)
-
-!      CALL WORKSUB(IRUN,AT,BT,CT)
-
+!
+!      CALL WORKSUB(ncols,AT,BT,CT)
+!
 !!! RETRIEVE THE OUTPUTS
-
-!      CALL MAPL_BalanceWork(CT,IDIM,LM,Direction=MAPL_Retrieve)
-!      CALL MAPL_BalanceWork(BT,IDIM, 1,Direction=MAPL_Retrieve)
-
+!
+!      CALL MAPL_BalanceWork(CT,bufLen,Direction=MAPL_Retrieve)
+!      CALL MAPL_BalanceWork(BT,bufLen,Direction=MAPL_Retrieve)
+!
 !      B = UNPACK(BT(1:LENGTH),MASK,B)
-
+!
 !      DO L=1,LM
-!       C(:,:,L) = UNPACK(CT(1:LENGTH,L),MASK,0)
+!        C(:,:,L) = UNPACK(CT(1:LENGTH,L),MASK,0)
 !      ENDDO
+
+!!!===============================================================
+!  EXAMPLE of case (4)
+
+!      REAL A(LM,IM,JM), B(IM,JM), C(LM,IM,JM)
+!      REAL, allocatable :: AT(:,:), BT(:), CT(:,:)
+!      LOGICAL MASK(IM,JM)
 !      ...
+!      LENGTH = COUNT(MASK)
+!      call MAPL_BalanceCreate(LENGTH,BalLen=ncols,BufLen=bufLen)
+!
+!      allocate(AT(LM,bufLen),BT(bufLen),CT(LM,bufLen)
+!
+!      BT(1:LENGTH) = PACK(B,MASK)
+!
+!      M = 0
+!      DO J=1,JM
+!        DO I=1,IM
+!          IF (MASK(I,J)) THEN
+!            M=M+1
+!            AT(1:LM,M) = A(1:LM,I,J)
+!          ENDIF
+!        ENDDO
+!      ENDDO
+!
+!!! DISTRIBUTE THE INPUTS
+!
+!      CALL MAPL_BalanceWork(AT,bufLen*LM,Direction=MAPL_Distribute,inSize=LM)
+!      CALL MAPL_BalanceWork(BT,bufLen   ,Direction=MAPL_Distribute)
+!
+!!! PLUG COMPATIBLE ROUTINE AT(IN), BT(INOUT), CT(OUT)
+!
+!      CALL WORKSUB(ncols,AT,BT,CT)
+!
+!!! RETRIEVE THE OUTPUTS
+!
+!      CALL MAPL_BalanceWork(CT,bufLen*LM,Direction=MAPL_Retrieve,inSize=LM)
+!      CALL MAPL_BalanceWork(BT,bufLen   ,Direction=MAPL_Retrieve)
+!
+!      B = UNPACK(BT(1:LENGTH),MASK,B)
+!
+!      M = 0
+!      DO J=1,JM
+!        DO I=1,IM
+!          IF (MASK(I,J)) THEN
+!            M=M+1
+!            C((1:LM,I,J) = CT(1:LM,M)
+!          ELSE
+!            C((1:LM,I,J) = 0
+!          ENDIF
+!        ENDDO
+!      ENDDO
 
 !!!===============================================================
 
 contains
 
-  subroutine MAPL_BalanceWork(A, Idim, Direction, Handle, rc)
+  subroutine MAPL_BalanceWork(A, blockSize, Direction, Handle, inSize, rc)
     real,              intent(INOUT) :: A(:)
-    integer,           intent(IN   ) :: Idim, Direction
-    integer, optional, intent(IN   ) :: Handle
+    integer,           intent(IN   ) :: blockSize, Direction
+    integer, optional, intent(IN   ) :: Handle, inSize
     integer, optional, intent(  OUT) :: rc
 
-    integer :: PASS, LENGTH, PROCESSOR, CURSOR, ISTRAT
-    integer :: COMM, Vtype, VLength, STATUS, K1, K2, K3, Jdim
+    integer :: PASS, LENGTH, PROCESSOR, CURSOR, ISTRAT, inSize_
+    integer :: COMM, Vtype, VLength, STATUS, K1, K2, K3, nBlocks
     logical :: SEND, RECV
     integer, pointer :: NOP(:,:)
 
 ! Depending on the argument "Direction", this performs the actual distribution
-!  of work or the gathering of results for a given strategy. The strategy has to
-!  have been predefined by a call to MAPL_BalanceCreate. A strategy "Handle"
-!  obtained from that call can be optionally used to specify the strategy. Otherwise,
-!  a default strategy is assumed (see MAPL_BalanceCreate for details).
-!  Work (Results) is distributed (retrieved) using the buffer A, which is assumed
-!  to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
-!  The blocksize of A (Idim) must be at least as large as the BufLen associated
-!  with the strategy. This size can be obtained by quering the strategy using 
-!  its handle or be saving it from the MAPL_BalanceCreate call. Again, see 
-!  MAPL_BalanceCreate for details.
+!   of work or the gathering of results for a given strategy. The strategy has
+!   to have been predefined by a call to MAPL_BalanceCreate. A strategy "Handle"
+!   obtained from that call can be optionally used to specify the strategy.
+!   Otherwise, a default strategy is assumed (see MAPL_BalanceCreate for details).
+! Work (Results) is distributed (retrieved) using the buffer A, which is assumed
+!   to consist of nBlocks contiguous blocks of size blockSize. nBlocks can be 1.
+! inSize (optional, default 1), is the number of reals associated with the 
+!   dimensions inside of the one that is being balanced (e.g., gridcolumn).
+!   See header to module for more explanation.
+! The blocksize of A must be at least as large as inSize times the BufLen of the
+!   associated strategy. This size can be obtained by quering the strategy using 
+!   its handle or be saving it from the MAPL_BalanceCreate call. Again, see 
+!   MAPL_BalanceCreate for details.
 
-    Jdim = size(A)/Idim
+    nBlocks = size(A)/blockSize
 
     if(present(Handle)) then
        ISTRAT = Handle
@@ -109,26 +255,33 @@ contains
        ISTRAT = 0
     endif
 
+    if(present(inSize)) then
+       _ASSERT(inSize>=1,'inSize must be >= 1')
+       inSize_ = inSize
+    else
+       inSize_ = 1
+    endif
+
     if(THE_STRATEGIES(ISTRAT)%PASSES>0) then ! We have a defined strategy
-       _ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'needs informative message')
+       _ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'missing balancing strategy')
 
 ! Initialize CURSOR, which is the location in the first block of A where 
 ! the next read or write is to occur. K1 and K2 are the limits
 
        if (Direction==MAPL_Distribute) then
-          CURSOR = THE_STRATEGIES(ISTRAT)%UnBALANCED_LENGTH + 1
+          CURSOR = THE_STRATEGIES(ISTRAT)%UnBALANCED_LENGTH * inSize_ + 1
           k1=1
           k2=THE_STRATEGIES(ISTRAT)%PASSES
           k3=1
        else
-          CURSOR = THE_STRATEGIES(ISTRAT)%  BALANCED_LENGTH + 1
+          CURSOR = THE_STRATEGIES(ISTRAT)%  BALANCED_LENGTH * inSize_ + 1
           k1=THE_STRATEGIES(ISTRAT)%PASSES
           k2=1
           k3=-1
        end if
 
-! NOP contains the communication pattern for the strategy, i.e,,
-!  who passes what to whom within COMM.
+! NOP contains the communication pattern for the strategy, 
+!   i.e, who passes what to whom within COMM.
 
        NOP  => THE_STRATEGIES(ISTRAT)%NOP
        COMM =  THE_STRATEGIES(ISTRAT)%COMM
@@ -142,37 +295,37 @@ contains
              RECV   = NOP(1,PASS)>0
           end if
 
-          LENGTH    = abs(NOP(1,PASS))
+          LENGTH    = abs(NOP(1,PASS)) * inSize_
           PROCESSOR = NOP(2,PASS)
 
-          if(Jdim==1) then
+          if(nBlocks==1) then
              Vtype   = MPI_REAL
              VLength = LENGTH
           else
-             call MPI_Type_VECTOR(Jdim, Length, Idim, MPI_REAL, Vtype, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             call MPI_Type_VECTOR(nBlocks, LENGTH, blockSize, MPI_REAL, Vtype, STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'failure defining MPI Vector')
              call MPI_TYPE_COMMIT(Vtype,STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             _ASSERT(STATUS==MPI_SUCCESS,'failure comitting MPI Vector')
              VLength = 1
           end if
 
           if(SEND) then ! -- SENDER
              CURSOR = CURSOR - LENGTH
              call MPI_SEND(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             _ASSERT(STATUS==MPI_SUCCESS,'failure MPI sending')
           endif
 
 
           if(RECV) then ! -- RECEIVER
              call MPI_RECV(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, &
                                                           MPI_STATUS_IGNORE, STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             _ASSERT(STATUS==MPI_SUCCESS,'failure MPI receiving')
              CURSOR = CURSOR + LENGTH
           endif
 
-          if(Jdim>1) then
+          if(nBlocks>1) then
              call MPI_TYPE_FREE(Vtype,STATUS)
-             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             _ASSERT(STATUS==MPI_SUCCESS,'failure freeing MPI type')
           end if
        enddo
     end if
@@ -200,7 +353,7 @@ contains
     integer, allocatable :: WORK(:), RANK(:), NOP(:,:) 
 
 !!! This routine creates a balancing strategy over an MPI communicator (Comm)
-!!!  given the work in the local rank (OrgLen). The startegy can be committed
+!!!  given the work in the local rank (OrgLen). The strategy can be committed
 !!!  and used later through Handle. If a handle is not requested, the latest
 !!!  non-committed strategy is kept at Handle=0, which will be the default strategy
 !!!  for the other methods. The number of passes may be optionally controlled
@@ -229,9 +382,9 @@ contains
 !!!----------------------------
 
     call MPI_COMM_RANK(Comm, MyPE, STATUS)
-    _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+    _ASSERT(STATUS==MPI_SUCCESS,'MPI_COMM_RANK failure')
     call MPI_COMM_SIZE(Comm, NPES, STATUS)
-    _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+    _ASSERT(STATUS==MPI_SUCCESS,'MPI_COMM_SIZE failure')
 
 !!! Allocate temporary space
 !!!-------------------------
@@ -244,7 +397,7 @@ contains
 
     call MPI_AllGather(OrgLen,1,MPI_INTEGER,&
                        Work  ,1,MPI_INTEGER,Comm,status)
-    _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+    _ASSERT(STATUS==MPI_SUCCESS,'MPI_AllGather failure')
 
     forall (J=1:NPES) Rank(J) = J-1
 
@@ -260,7 +413,7 @@ contains
           if(.not.associated(THE_STRATEGIES(Balance)%NOP)) exit
        enddo
 
-       _ASSERT(Balance <= MAX_NUM_STRATEGIES,'needs informative message')
+       _ASSERT(Balance <= MAX_NUM_STRATEGIES,'Load-balancing Strategy table overflow')
        Handle  = Balance
     else
        Balance = 0
