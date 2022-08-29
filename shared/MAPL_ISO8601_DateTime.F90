@@ -711,7 +711,7 @@ contains
       end if
    end function construct_ISO8601DateTime
 
-   ! This is not workinbg currently.
+   ! This is not working currently.
    ! Construct ISO8601Duration from isostring from imin to imax
    function construct_ISO8601Duration(isostring, imin, imax, rc) result(duration)
       character(len=*), intent(in) :: isostring
