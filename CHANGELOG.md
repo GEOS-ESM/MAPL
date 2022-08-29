@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated `components.yaml` to match GEOSgcm v10.22.1
+  - ESMA_env v4.2.0 → v4.4.0 (Update to Intel 2022.1, Add TOSS4 Support at NAS)
+  - ESMA_cmake v3.17.0 → v3.18.0 (Updates to CPack and Provisional M2 Support)
+
 ### Removed
 
 - Removed `LatLonGridFactory_basic` factory constructor (dead code)
