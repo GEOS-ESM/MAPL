@@ -338,7 +338,7 @@ contains
          attr_val => attr%get_values()
          select type(q=>attr_val)
          type is (real(kind=REAL32))
-            this%target_lon = q(1)
+            this%target_lat = q(1)
          class default
             _ASSERT(.false.,'unsupport subclass for stretch params')
          end select
@@ -346,7 +346,7 @@ contains
          attr_val => attr%get_values()
          select type(q=>attr_val)
          type is (real(kind=REAL32))
-            this%target_lat = q(1)
+            this%target_lon = q(1)
          class default
             _ASSERT(.false.,'unsupport subclass for stretch params')
          end select
