@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix setting stretched grid target latitude and longitude from restart file metadata
+
 ### Added
 
 - Add option to build source tarfile when building MAPL standalone. By default this is `OFF`, but can be enabled with
