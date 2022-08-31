@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add option to build source tarfile when building MAPL standalone. By default this is `OFF`, but can be enabled with
+- Added member function get_global_var to FileMetadata
+- Added option to build source tarfile when building MAPL standalone. By default this is `OFF`, but can be enabled with
   `-DINSTALL_SOURCE_TARFILE=ON`
 
 ### Changed
