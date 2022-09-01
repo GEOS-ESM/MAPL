@@ -26,7 +26,7 @@ module MAPL_GriddedIOMod
   use, intrinsic :: iso_fortran_env, only: REAL64
   use ieee_arithmetic, only: isnan => ieee_is_nan
   implicit none
-  
+
   private
 
   type, public :: MAPL_GriddedIO
@@ -92,7 +92,7 @@ module MAPL_GriddedIOMod
         type(GriddedIOitemVector), intent(in), optional :: items
         integer, intent(out), optional :: rc
 
-        if (present(metadata)) GriddedIO%metadata=metadata 
+        if (present(metadata)) GriddedIO%metadata=metadata
         if (present(input_bundle)) GriddedIO%input_bundle=input_bundle
         if (present(output_bundle)) GriddedIO%output_bundle=output_bundle
         if (present(regrid_method)) GriddedIO%regrid_method=regrid_method
@@ -172,10 +172,10 @@ module MAPL_GriddedIOMod
         order = this%metadata%get_order(rc=status)
         _VERIFY(status)
         metadataVarsSize = order%size()
-         
+
         do while (iter /= this%items%end())
            item => iter%get()
-           if (item%itemType == ItemTypeScalar) then 
+           if (item%itemType == ItemTypeScalar) then
               call this%CreateVariable(item%xname,rc=status)
               _VERIFY(status)
            else if (item%itemType == ItemTypeVector) then
@@ -186,7 +186,7 @@ module MAPL_GriddedIOMod
            end if
            call iter%next()
         enddo
-        
+
         if (this%itemOrderAlphabetical) then
            call this%alphabatize_variables(metadataVarsSize,rc=status)
            _VERIFY(status)
@@ -195,9 +195,9 @@ module MAPL_GriddedIOMod
         if (present(global_attributes)) then
            s_iter = global_attributes%begin()
            do while(s_iter /= global_attributes%end())
-              attr_name => s_iter%key()       
+              attr_name => s_iter%key()
               attr_val => s_iter%value()
-              call this%metadata%add_attribute(attr_name,attr_val,_RC) 
+              call this%metadata%add_attribute(attr_name,attr_val,_RC)
               call s_iter%next()
            enddo
         end if
@@ -303,7 +303,7 @@ module MAPL_GriddedIOMod
         class (MAPL_GriddedIO), intent(inout) :: this
         character(len=*), intent(in) :: itemName
         integer, optional, intent(out) :: rc
- 
+
         integer :: status
 
         type(ESMF_Field) :: field,newField
@@ -345,7 +345,7 @@ module MAPL_GriddedIOMod
            vdims=grid_dims//",time"
         else if (fieldRank==3) then
            vdims=grid_dims//",lev,time"
-        else 
+        else
            _FAIL( 'Unsupported field rank')
         end if
         v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel)
@@ -360,6 +360,7 @@ module MAPL_GriddedIOMod
         call v%add_attribute('add_offset',0.0)
         call v%add_attribute('_FillValue',MAPL_UNDEF)
         call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
+        call v%add_attribute('regrid_method', translate_regrid_method(this%regrid_method))
         call factory%append_variable_metadata(v)
         call this%metadata%add_variable(trim(varName),v,rc=status)
         _VERIFY(status)
@@ -379,11 +380,11 @@ module MAPL_GriddedIOMod
 
      end subroutine CreateVariable
 
-     subroutine modifyTime(this, oClients, rc) 
+     subroutine modifyTime(this, oClients, rc)
         class(MAPL_GriddedIO), intent(inout) :: this
         type (ClientManager), optional, intent(inout) :: oClients
         integer, optional, intent(out) :: rc
- 
+
         type(Variable) :: v
         type(StringVariableMap) :: var_map
         integer :: status
@@ -401,11 +402,11 @@ module MAPL_GriddedIOMod
 
      end subroutine modifyTime
 
-     subroutine modifyTimeIncrement(this, frequency, rc) 
+     subroutine modifyTimeIncrement(this, frequency, rc)
         class(MAPL_GriddedIO), intent(inout) :: this
         integer, intent(in) :: frequency
         integer, optional, intent(out) :: rc
- 
+
         integer :: status
 
         call this%timeInfo%setFrequency(frequency, rc=status)
@@ -432,7 +433,7 @@ module MAPL_GriddedIOMod
         this%times = this%timeInfo%compute_time_vector(this%metadata,rc=status)
         _VERIFY(status)
         ref = ArrayReference(this%times)
-        call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref) 
+        call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
 
         tindex = size(this%times)
         if (tindex==1) then
@@ -578,7 +579,7 @@ module MAPL_GriddedIOMod
               call MAPL_FieldGetPointer(OutField,outptr3d,rc=status)
               _VERIFY(status)
            else
-              allocate(outptr3d(0,0,0)) 
+              allocate(outptr3d(0,0,0))
            end if
            if (gridIn==gridOut) then
               outPtr3d=Ptr3d
@@ -776,10 +777,10 @@ module MAPL_GriddedIOMod
      integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
      logical :: hasll
      class(Variable), pointer :: var_lat,var_lon
- 
+
      var_lon => this%metadata%get_variable('lons')
      var_lat => this%metadata%get_variable('lats')
-     
+
      hasll = associated(var_lon) .and. associated(var_lat)
      if (hasll) then
         factory => get_factory(this%output_grid,rc=status)
@@ -809,7 +810,7 @@ module MAPL_GriddedIOMod
 
      var_lon => this%metadata%get_variable('corner_lons')
      var_lat => this%metadata%get_variable('corner_lats')
-     
+
      hasll = associated(var_lon) .and. associated(var_lat)
      if (hasll) then
         factory => get_factory(this%output_grid,rc=status)
@@ -838,8 +839,8 @@ module MAPL_GriddedIOMod
      _RETURN(_SUCCESS)
 
   end subroutine stage2DLatLon
-  
-  subroutine stageData(this, field, fileName, tIndex, oClients, rc) 
+
+  subroutine stageData(this, field, fileName, tIndex, oClients, rc)
      class (MAPL_GriddedIO), intent(inout) :: this
      type(ESMF_Field), intent(inout) :: field
      character(len=*), intent(in) :: fileName
@@ -912,7 +913,7 @@ module MAPL_GriddedIOMod
      class (MAPL_GriddedIO), intent(inout) :: this
      integer, intent(in) :: nFixedVars
      integer, optional, intent(out) :: rc
-      
+
      type(StringVector) :: order
      type(StringVector) :: newOrder
      character(len=:), pointer :: v1
@@ -930,7 +931,7 @@ module MAPL_GriddedIOMod
         v1 => order%at(i)
         if ( i > nFixedVars) temp(i)=trim(v1)
      enddo
- 
+
      swapped = .true.
      do while(swapped)
         swapped = .false.
@@ -957,7 +958,7 @@ module MAPL_GriddedIOMod
      deallocate(temp)
 
      _RETURN(_SUCCESS)
- 
+
   end subroutine alphabatize_variables
 
   subroutine request_data_from_file(this,filename,timeindex,rc)
@@ -1045,7 +1046,7 @@ module MAPL_GriddedIOMod
            ref=factory%generate_file_reference3D(ptr3d,metadata=this%current_file_metadata%filemetadata)
            allocate(localStart,source=[gridLocalStart,1,timeIndex])
            allocate(globalStart,source=[gridGlobalStart,1,timeIndex])
-           allocate(globalCount,source=[gridGlobalCount,lm,1]) 
+           allocate(globalCount,source=[gridGlobalCount,lm,1])
         end if
         call i_Clients%collective_prefetch_data( &
              this%read_collection_id, fileName, trim(names(i)), &
@@ -1063,7 +1064,7 @@ module MAPL_GriddedIOMod
      class(mapl_GriddedIO), intent(inout) :: this
      integer, intent(out), optional :: rc
 
-     integer :: status     
+     integer :: status
      integer :: i,numVars
      character(len=ESMF_MAXSTR), allocatable :: names(:)
      type(ESMF_Field) :: field
@@ -1124,7 +1125,7 @@ module MAPL_GriddedIOMod
      endif
 
      fill_value = this%current_file_metadata%var_get_missing_value(fname,_RC)
-     
+
      call ESMF_FieldBundleGet(this%input_bundle,fname,field=field,_RC)
      call ESMF_FieldBundleGet(this%input_bundle,grid=gridIn,_RC)
      call ESMF_FieldGet(field,rank=fieldRank,_RC)
