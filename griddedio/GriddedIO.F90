@@ -362,6 +362,7 @@ module MAPL_GriddedIOMod
         call v%add_attribute('add_offset',0.0)
         call v%add_attribute('_FillValue',MAPL_UNDEF)
         call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
+        call v%add_attribute('regrid_method', translate_regrid_method(this%regrid_method))
         call factory%append_variable_metadata(v)
         call this%metadata%add_variable(trim(varName),v,rc=status)
         _VERIFY(status)
