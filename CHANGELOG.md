@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### Added
+
+-Added an overloaded interface for MAPL_BalanceWork to handle both REAL32 and REAl64
 ## [Unreleased]
 
 ### Fixed
@@ -13,7 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add option to build source tarfile when building MAPL standalone. By default this is `OFF`, but can be enabled with
+- Added member function get_global_var to FileMetadata
+- Added option to build source tarfile when building MAPL standalone. By default this is `OFF`, but can be enabled with
   `-DINSTALL_SOURCE_TARFILE=ON`
 - Added `regrid_method` metadata to History output
 
