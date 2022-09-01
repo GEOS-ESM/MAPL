@@ -40,6 +40,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_GriddedIOitemMod
   use pFIO_ClientManagerMod, only: o_Clients
   use pFIO_DownbitMod, only: pFIO_DownBit
+  use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
@@ -428,6 +429,7 @@ contains
     type(StringStringMap) :: global_attributes
     character(len=ESMF_MAXSTR) :: name,regrid_method
     logical :: has_conservative_keyword, has_regrid_keyword
+    integer :: create_mode
 
 ! Begin
 !------
@@ -540,7 +542,9 @@ contains
     _VERIFY(STATUS)
     call ESMF_ConfigGetAttribute(config, value=intState%allow_overwrite,  &
                                          label='Allow_Overwrite:', default=.false., _RC)
- 
+    create_mode = PFIO_NOCLOBBER ! defaut no overwrite
+    if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
+  
     if (trim(cFileOrder) == 'ABC') then
        intstate%fileOrderAlphabetical = .true.
     else if (trim(cFileOrder) == 'AddOrder') then
@@ -2532,7 +2536,7 @@ ENDDO PARSER
                 call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,rc=status)
                 _VERIFY(status)
              end if
-             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata)
+             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
              call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
           end if
        end if
@@ -3389,11 +3393,12 @@ ENDDO PARSER
     integer                        :: sec
 
 !   variables for "backwards" mode
-    logical                        :: fwd, file_exists
+    logical                        :: fwd
     logical, allocatable           :: Ignore(:)
 
 !   ErrLog vars
     integer                        :: status
+    logical                        :: file_exists
 
 !=============================================================================
 
