@@ -1799,14 +1799,20 @@ contains
       ! ----------
       call lgr%debug('Started %a', stage_description)
 
-      call func_ptr (GC, &
-           importState=IMPORT, &
-           exportState=EXPORT, &
-           clock=CLOCK, PHASE=PHASE_, &
-           userRC=userRC, _RC )
-      _VERIFY(userRC)
+      if (trim(comp_name) == 'GOCART2G' .and. method == ESMF_METHOD_RUN)  then
+         call omp_driver(GC, import, export, clock, __RC__)  ! compnent threaded with OpenMP
+      else
+         call func_ptr (GC, &
+              importState=IMPORT, &
+              exportState=EXPORT, &
+              clock=CLOCK, PHASE=PHASE_, &
+              userRC=userRC, _RC )
+         _VERIFY(userRC)
 
-      _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
+         _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
+
+      end if
+
       call lgr%debug('Finished %a', stage_description)
 
       ! TIMERS off
@@ -1829,6 +1835,111 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_GenericWrapper
+
+   !=============================================================================
+
+   !BOPI
+
+   ! !IROUTINE: omp_driver
+
+   ! !INTERFACE:
+   subroutine omp_driver(GC, import, export, clock, RC)
+      !$ use omp_lib
+      type (ESMF_GridComp), intent(inout) :: GC     ! Gridded component
+      type (ESMF_State),    intent(inout) :: import ! Import state
+      type (ESMF_State),    intent(inout) :: export ! Export state
+      type (ESMF_Clock),    intent(inout) :: clock  ! The clock
+      integer, optional,    intent(  out) :: RC     ! Error code:
+
+      type (MAPL_MetaComp), pointer :: MAPL
+      !type(GOCART_State), pointer :: self
+      !type(wrap_) :: wrap
+      integer :: thread
+      type(ESMF_State) :: subimport
+      type(ESMF_State) :: subexport
+      integer :: status
+      integer, allocatable :: statuses(:), user_statuses(:)
+      integer :: num_threads
+      character(len=ESMF_MAXSTR) :: Iam = "Run1"
+      type(ESMF_VM) :: vm
+      type(ESMF_GridComp) :: thread_gc
+      integer :: i, me
+      integer :: userRC
+      logical :: use_threads
+      character(len=ESMF_MAXSTR) :: comp_name
+      integer :: phase
+
+      !call start_global_time_profiler('run1()')
+      use_threads=.true.
+      !call ESMF_UserCompGetInternalState (GC, 'GOCART_State', wrap, status)
+      !VERIFY_(status)
+      !self => wrap%ptr
+
+      call ESMF_GridCompGet (GC, vm=vm, NAME=comp_name, currentPhase=phase, __RC__)
+      call ESMF_VMGet(vm, localPet=me, __RC__)
+
+      if(use_threads) then
+         call MAPL_GetObjectFromGC (GC, MAPL, __RC__)
+         if(MAPL%is_threading_active()) then
+            call ESMF_GridCompRun (GC, &
+                 importState=import, &
+                 exportState=export, &
+                 clock=CLOCK, PHASE=phase, &
+                 userRC=userRC, __RC__ )
+            _VERIFY(userRC)
+         else
+            !call start_global_time_profiler('activate_threads')
+            num_threads = 1
+            !$ num_threads = omp_get_max_threads()
+            call MAPL%activate_threading(num_threads, __RC__)
+            !call stop_global_time_profiler('activate_threads')
+            !call start_global_time_profiler('parallel')
+
+            allocate(statuses(num_threads), __STAT__)
+            allocate(user_statuses(num_threads), __STAT__)
+            statuses=0
+            user_statuses=0
+            !$omp parallel default(none), &
+            !$omp& private(thread, subimport, subexport, thread_gc), &
+            !$omp& shared(gc, statuses, user_statuses, clock, PHASE, MAPL)
+
+            thread = 0
+            !$ thread = omp_get_thread_num()
+
+            subimport = MAPL%get_import_state()
+            subexport = MAPL%get_export_state()
+            thread_gc = MAPL%get_gridcomp()
+
+            call ESMF_GridCompRun (thread_gc, &
+                 importState=subimport, &
+                 exportState=subexport, &
+                 clock=CLOCK, PHASE=phase, &
+                 userRC=user_statuses(thread+1), rc=statuses(thread+1) )
+            !$omp end parallel
+            !call stop_global_time_profiler('parallel')
+            if (any(user_statuses /= ESMF_SUCCESS)) then
+               _FAIL('some thread failed for user_statuses')
+            end if
+            if (any(statuses /= ESMF_SUCCESS)) then
+               _FAIL('some thread failed')
+            end if
+            deallocate(statuses, __STAT__)
+            deallocate(user_statuses, __STAT__)
+            !call start_global_time_profiler('deactivate_threads')
+            call MAPL%deactivate_threading(__RC__)
+            !call stop_global_time_profiler('deactivate_threads')
+         end if
+      else
+         call ESMF_GridCompRun (GC, &
+              importState=import, &
+              exportState=export, &
+              clock=CLOCK, PHASE=phase, &
+              userRC=userRC, __RC__ )
+         _VERIFY(userRC)
+      end if
+      !call stop_global_time_profiler('run1()')
+      RETURN_(ESMF_SUCCESS)
+   end subroutine omp_driver
 
    !=============================================================================
    !=============================================================================
