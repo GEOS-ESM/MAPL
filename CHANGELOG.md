@@ -11,17 +11,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add option to build source tarfile when building MAPL standalone. By default this is `OFF`, but can be enabled with
-  `-DINSTALL_SOURCE_TARFILE=ON`
-
 ### Changed
 
 ### Removed
 
-- Removed `LatLonGridFactory_basic` factory constructor (dead code)
-
 ### Deprecated
 
+## [2.25.0] - 2022-09-01
+
+### Fixed
+
+- Fix setting stretched grid target latitude and longitude from restart file metadata
+
+### Added
+
+- Added member function get_global_var to FileMetadata
+- Added option to build source tarfile when building MAPL standalone. By default this is `OFF`, but can be enabled with
+  `-DINSTALL_SOURCE_TARFILE=ON`
+- Added `regrid_method` metadata to History output
+- Added an overloaded interface for MAPL_BalanceWork to handle both REAL32 and REAL64
+
+### Changed
+
+- Updated `components.yaml` to match GEOSgcm v10.22.5 (actually a bit beyond)
+  - ESMA_env v4.2.0 → v4.4.0 (Update to Intel 2022.1, Add TOSS4 Support at NAS)
+  - ESMA_cmake v3.17.0 → v3.18.0 (Updates to CPack and Provisional M2 Support)
+
+### Removed
+
+- Removed `LatLonGridFactory_basic` factory constructor (dead code)
 ## [2.24.0] - 2022-08-08
 
 ### Fixed
