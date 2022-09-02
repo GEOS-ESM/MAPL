@@ -1717,6 +1717,7 @@ contains
 
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
+      logical :: use_threads
 
 
       !=============================================================================
@@ -1799,7 +1800,9 @@ contains
       ! ----------
       call lgr%debug('Started %a', stage_description)
 
-      if (trim(comp_name) == 'GOCART2G' .and. method == ESMF_METHOD_RUN)  then
+      use_threads  = STATE%get_use_threads() ! determine if GC uses OpenMP threading
+
+      if (use_threads .and. method == ESMF_METHOD_RUN)  then
          call omp_driver(GC, import, export, clock, __RC__)  ! compnent threaded with OpenMP
       else
          call func_ptr (GC, &

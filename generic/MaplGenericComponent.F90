@@ -59,6 +59,7 @@ module mapl_MaplGenericComponent
       !type(MaplGrid) :: grid
 
       logical :: threading_active = .FALSE.
+      logical :: use_threads = .FALSE.
 
 
    contains
@@ -81,6 +82,8 @@ module mapl_MaplGenericComponent
       ! accessors
       procedure :: get_logger
       procedure :: set_logger
+      procedure :: set_use_threads
+      procedure :: get_use_threads
       procedure :: is_threading_active
       procedure :: get_internal_state
       procedure :: get_import_state
@@ -215,6 +218,22 @@ contains
       call component%set_logger(lgr)
       
    end subroutine set_logger
+
+   subroutine set_use_threads(this, use_threads)
+      class(MaplGenericComponent), intent(inout) :: this
+      logical, intent(in) :: use_threads
+
+      this%use_threads = use_threads
+      
+   end subroutine set_use_threads
+
+   function get_use_threads(this) result(use_threads)
+      class(MaplGenericComponent), intent(in) :: this
+      logical :: use_threads
+
+      use_threads = this%use_threads
+      
+   end function get_use_threads
 
    function is_threading_active(this) result(threading_active)
      class(MaplGenericComponent), intent(in) :: this
@@ -391,7 +410,6 @@ contains
       type (MAPL_GenericWrap) :: wrap !, wrap_private
       character(len=ESMF_MAXSTR) :: comp_name
       character(len=:), allocatable :: labels(:)
-      integer :: phase
 
       allocate(subgridcomps(num_grids))
 
