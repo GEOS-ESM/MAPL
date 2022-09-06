@@ -6283,7 +6283,7 @@ contains
             call MAPL_VarSpecGet(SPEC%var_specs%of(L), FIELD=SPEC_FIELD, _RC)
             is_created = ESMF_FieldIsCreated(SPEC_FIELD, _RC)
             if (is_created) then
-               call ESMF_FieldGet(field, grid=GRD, _RC)
+               call ESMF_FieldGet(SPEC_FIELD, GRID=GRD, _RC)
             else
              
 
