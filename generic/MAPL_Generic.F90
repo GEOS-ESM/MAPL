@@ -6281,8 +6281,8 @@ contains
          else
             ! choose the grid
             call MAPL_VarSpecGet(SPEC%var_specs%of(L), FIELD=SPEC_FIELD, _RC)
-            isCreated = ESMF_FieldIsCreated(SPEC_FIELD, _RC)
-            if (isCreated) then
+            is_created = ESMF_FieldIsCreated(SPEC_FIELD, _RC)
+            if (is_created) then
                call ESMF_FieldGet(field, grid=GRD, _RC)
             else
              
