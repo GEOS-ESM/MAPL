@@ -41,7 +41,7 @@ contains
       integer, optional, intent(out) :: rc
 
       type(ExtDataRule) :: rule
-      logical :: is_present
+      logical :: collection_present, variable_present
       integer :: status
       class(YAML_Node), pointer ::config1
       character(len=:), allocatable :: tempc
@@ -56,20 +56,20 @@ contains
       end if
 
       if (allocated(tempc)) deallocate(tempc)
-      is_present = config%has("collection")
-      _ASSERT(is_present,"no collection present in ExtData export")
+      collection_present = config%has("collection")
+      _ASSERT(collection_present,"no collection present in ExtData export")
       rule%collection = config%of("collection")
 
       if (allocated(tempc)) deallocate(tempc)
-      is_present = config%has("variable")
+      variable_present = config%has("variable")
       if (index(rule%collection,"/dev/null")==0) then
-         _ASSERT(is_present,"no variable present in ExtData export")
+         _ASSERT(variable_present,"no variable present in ExtData export")
       end if
-      if (is_present) then
+      if (variable_present) then
          tempc = config%of("variable")
          rule%file_var=tempc
       else
-         _FAIL("no variable name in rule")
+         rule%file_var='null'
       end if
 
       if (config%has("sample")) then
