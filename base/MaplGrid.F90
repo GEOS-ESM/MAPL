@@ -214,15 +214,10 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
      _VERIFY(STATUS)
      coord = 0.0 ! initialize just in case
 
-     do I=1, counts(1)
-        do J=1, counts(2)
-           if (crdOrder == 1) then
-              coord(i,j) = i !ALT + I1 - 1
-           else 
-              coord(i,j) = j !ALT + J1 - 1
-           end if
+     do concurrent (i=1:counts(1),j=1:counts(2)
+           coord(i,j) =  merge(i,j,crdorder==1)
         end do
-     end do
+
 
      coord = coord * (MAPL_PI_R8 / 180.d+0)
 
