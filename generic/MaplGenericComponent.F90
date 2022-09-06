@@ -316,12 +316,12 @@ contains
 
      do i = 1, num_children
         child => this%get_child(i) 
-        SELECT TYPE (child)
-        CLASS IS (MaplGenericComponent)
+        select type (child)
+        class is (MaplGenericComponent)
            call child%activate_threading(num_threads)
-        CLASS DEFAULT
+        class default
            _FAIL('illegal type for child')
-        END SELECT
+        end select
      end do
      _RETURN(0)
    end subroutine activate_threading
