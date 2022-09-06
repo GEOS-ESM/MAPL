@@ -361,12 +361,12 @@ contains
      num_children = this%get_num_children()
      do i = 1, num_children
         child => this%get_child(i) 
-        SELECT TYPE (child)
-        CLASS IS (MaplGenericComponent)
+        select type (child)
+        class is (MaplGenericComponent)
            call child%deactivate_threading()
-        CLASS DEFAULT
+        class default
            _FAIL('illegal type for child')
-        END SELECT
+        end select
      end do
      
      this%threading_active = .FALSE.
