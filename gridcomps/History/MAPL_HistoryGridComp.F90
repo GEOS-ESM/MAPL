@@ -109,9 +109,6 @@ module MAPL_HistoryGridCompMod
      type(HistoryCollectionGlobalAttributes) :: global_atts
      integer                             :: CoresPerNode, mype, npes
      integer                             :: AvoidRootNodeThreshold
-     integer                             :: blocksize
-     integer                             :: MarkDone
-     integer                             :: PrePost
      integer                             :: version
      logical                             :: fileOrderAlphabetical
      logical                             :: integer_time
@@ -533,10 +530,6 @@ contains
                                    label ='AvoidRootNodeThreshold:', default=1024, rc=status )
     _VERIFY(STATUS)
 
-    call ESMF_ConfigGetAttribute(config, value=INTSTATE%blocksize,         &
-                                         label='BlockSize:', default=10, rc=status)
-    _VERIFY(STATUS)
-
     call ESMF_ConfigGetAttribute(config, value=cFileOrder,         &
                                          label='FileOrder:', default='ABC', rc=status)
     _VERIFY(STATUS)
@@ -565,14 +558,6 @@ contains
                                       n_hist_split   = IntState%collectionWriteSplit,rc=status)
     _VERIFY(status)
 
-    call ESMF_ConfigGetAttribute(config, value=INTSTATE%MarkDone,          &
-                                         label='MarkDone:', default=0, rc=status)
-    _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute(config, value=INTSTATE%PrePost,          &
-                                         label='PrePost:', default=1, rc=status)
-    _VERIFY(STATUS)
-
-
     call ESMF_ConfigGetAttribute(config, value=snglcol,          &
                                          label='SINGLE_COLUMN:', default=0, rc=status)
     _VERIFY(STATUS)
@@ -585,9 +570,6 @@ contains
        print *, 'EXPID: ',trim(INTSTATE%expid)
        print *, 'Descr: ',trim(INTSTATE%expdsc)
        print *, 'DisableSubVmChecks:', disableSubVmChecks
-       print *, 'BlockSize: '        , INTSTATE%blocksize
-       print *, 'MarkDone:  '        , INTSTATE%MarkDone
-       print *, 'PrePost:   '        , INTSTATE%PrePost
        print *
     endif
 
@@ -3386,7 +3368,6 @@ ENDDO PARSER
     type(ESMF_State)               :: state_out
     integer                        :: nymd, nhms
     character(len=ESMF_MAXSTR)     :: DateStamp
-    integer                        :: CollBlock
     type(ESMF_Time)                :: current_time
     type(ESMF_Time)                :: lastMonth
     type(ESMF_TimeInterval)        :: dur, oneMonth
@@ -3420,7 +3401,6 @@ ENDDO PARSER
     list => IntState%list
     nlist = size(list)
 
-    CollBlock = IntState%blocksize
 ! Retrieve the pointer to the generic state
 !------------------------------------------
 
