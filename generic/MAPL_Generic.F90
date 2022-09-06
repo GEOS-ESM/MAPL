@@ -1871,10 +1871,6 @@ contains
       character(len=ESMF_MAXSTR) :: comp_name
       integer :: phase
 
-      !call start_global_time_profiler('run1()')
-      !call ESMF_UserCompGetInternalState (GC, 'GOCART_State', wrap, status)
-      !VERIFY_(status)
-      !self => wrap%ptr
 
       call ESMF_GridCompGet (GC, vm=vm, NAME=comp_name, currentPhase=phase, __RC__)
       call ESMF_VMGet(vm, localPet=me, __RC__)
