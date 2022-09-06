@@ -198,9 +198,9 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
      allocate(coord(counts(1), counts(2)), __STAT__)
      coord = 0.0 ! initialize just in case
 
-     do concurrent (i=1:counts(1),j=1:counts(2)
-           coord(i,j) =  merge(i,j,crdorder==1)
-        end do
+     do concurrent (i=1:counts(1),j=1:counts(2))
+        coord(i,j) =  merge(i,j,crdorder==1)
+     end do
 
 
      coord = coord * (MAPL_PI_R8 / 180.d+0)
