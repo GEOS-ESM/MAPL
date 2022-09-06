@@ -36,7 +36,6 @@
       else if ( present(count) .and. (.not.present(start)) ) then
          status = nf90_get_var(this%ncid, varid, values, count=count)
       else if ( present(count) .and. present(start) ) then
-         write(*,*)"bmaa get var ",trim(var_name),start,count
          status = nf90_get_var(this%ncid, varid, values, start=start, count=count)
       else if ( (.not.present(start)) .and. (.not.present(count)) ) then
          status = nf90_get_var(this%ncid, varid, values)

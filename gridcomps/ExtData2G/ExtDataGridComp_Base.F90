@@ -186,7 +186,7 @@ CONTAINS
    type(ExtDataOldTypesCreator),target :: config_yaml
    character(len=ESMF_MAXSTR) :: new_rc_file
    logical :: found_in_config
-   integer :: num_primary,num_derived,num_rules
+   integer :: num_rules
    integer :: item_type
    type(StringVector) :: unsatisfied_imports,extra_variables_needed
    type(StringVectorIterator) :: siter
