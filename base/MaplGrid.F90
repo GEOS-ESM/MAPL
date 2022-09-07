@@ -43,6 +43,7 @@ module mapl_MaplGrid
 contains
 
   subroutine set(this, grid, unusable, rc)
+    use ESMFL_Mod, only : ESMFL_UnitsRadians
     class(MaplGrid), intent(inout) :: this
     type(ESMF_Grid), intent(in) :: grid
     class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -138,13 +139,13 @@ contains
     call GridCoordGet(   this%ESMFGRID, this%LATS       , &
          Name     = "Latitude"              , &
          Location = ESMF_STAGGERLOC_CENTER  , &
-         Units    = 99                      , & !ESMFL_UnitsRadians
+         Units    = ESMFL_UnitsRadians      , &
          __RC__                               )
 
     call GridCoordGet(   this%ESMFGRID, this%LONS       , &
          Name     = "Longitude"             , &
          Location = ESMF_STAGGERLOC_CENTER  , &
-         Units    = 99                      , & !ESMFL_UnitsRadians
+         Units    = ESMFL_UnitsRadians      , &
          __RC__                               )
     _RETURN(ESMF_SUCCESS)
  end subroutine set

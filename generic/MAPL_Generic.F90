@@ -1847,7 +1847,8 @@ contains
 
    ! !INTERFACE:
    subroutine omp_driver(GC, import, export, clock, RC)
-      !$ use omp_lib
+      use MAPL_OpenMP_Support, only : get_current_thread_id, set_num_threads
+
       type (ESMF_GridComp), intent(inout) :: GC     ! Gridded component
       type (ESMF_State),    intent(inout) :: import ! Import state
       type (ESMF_State),    intent(inout) :: export ! Export state
@@ -1855,8 +1856,6 @@ contains
       integer, optional,    intent(  out) :: RC     ! Error code:
 
       type (MAPL_MetaComp), pointer :: MAPL
-      !type(GOCART_State), pointer :: self
-      !type(wrap_) :: wrap
       integer :: thread
       type(ESMF_State) :: subimport
       type(ESMF_State) :: subexport
@@ -1885,8 +1884,7 @@ contains
          _VERIFY(userRC)
       else
          !call start_global_time_profiler('activate_threads')
-         num_threads = 1
-         !$ num_threads = omp_get_max_threads()
+         num_threads = set_num_threads()
          call MAPL%activate_threading(num_threads, __RC__)
          !call stop_global_time_profiler('activate_threads')
          !call start_global_time_profiler('parallel')
@@ -1899,8 +1897,7 @@ contains
          !$omp& private(thread, subimport, subexport, thread_gc), &
          !$omp& shared(gc, statuses, user_statuses, clock, PHASE, MAPL)
 
-         thread = 0
-         !$ thread = omp_get_thread_num()
+         thread = get_current_thread_id()
 
          subimport = MAPL%get_import_state()
          subexport = MAPL%get_export_state()

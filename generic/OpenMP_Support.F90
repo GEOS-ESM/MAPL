@@ -6,6 +6,7 @@ module MAPL_OpenMP_Support
     use MAPL_maplgrid
     use MAPL_ExceptionHandling
     use mapl_KeywordEnforcerMod
+    !$ use OMP_LIB
 
     implicit none
     private
@@ -16,10 +17,10 @@ module MAPL_OpenMP_Support
     public :: make_subFieldBundles
     public :: make_substates
     public :: find_bounds
-    public :: get_dim2_bounds
     public :: subset_array
+    public :: get_current_thread_id
+    public :: set_num_threads
 
-    
     type :: Interval
         integer :: min
         integer :: max
@@ -44,6 +45,16 @@ module MAPL_OpenMP_Support
     end interface make_substates
 
     CONTAINS 
+
+    integer function get_current_thread_id() result(current_thread_id)
+        current_thread_id = 0  ! default if OpenMP is not used
+        !$ current_thread_id = omp_get_thread_num() ! get the actual thread id if OpenMP is used
+    end function get_current_thread_id
+
+    integer function set_num_threads() result(num_threads)
+        num_threads = 1  ! default if OpenMP is not used
+        !$ num_threads = omp_get_max_threads() ! get the actual number of threads if OpenMP is used
+    end function set_num_threads
 
     function make_subgrids_from_num_grids(primary_grid, num_grids, unusable, rc) result(subgrids)
         type(ESMF_Grid), allocatable :: subgrids(:)
@@ -480,24 +491,5 @@ module MAPL_OpenMP_Support
       end do
       _RETURN(0)
     end function make_substates_from_num_grids
-
-    subroutine get_dim2_bounds(grid, jstart, jend, rc)
-       type(ESMF_Grid), intent(in) :: grid
-       integer, intent(inout) :: jstart(:)
-       integer, intent(inout) :: jend(:)
-       integer, optional, intent(out) :: rc
-
-        integer :: local_count(3)
-        integer :: status
-        type(Interval), allocatable :: bounds(:)
-        
-        call MAPL_GridGet(grid,localcellcountPerDim=local_count, __RC__)
-        bounds = find_bounds(local_count(2), size(jstart))
-        jstart = bounds%min
-        jend = bounds%max
-
-        _RETURN(0)
-    end subroutine get_dim2_bounds
-
 
 end module MAPL_OpenMP_Support 
