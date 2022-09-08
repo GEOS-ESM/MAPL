@@ -24,7 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.25.0] - 2022-09-01
 
 ### Fixed
-
+- Change the logic to check if the field is already connected to a valid grid. If yes, we bypass the checks for tilegrid (issue #1654)
+	
 - Fix setting stretched grid target latitude and longitude from restart file metadata
 
 ### Added

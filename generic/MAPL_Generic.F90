@@ -6260,7 +6260,9 @@ contains
 
       integer :: range_(2)
       type(MAPL_VarSpec), pointer :: varspec
-
+      logical :: is_created
+      type(ESMF_Field) :: SPEC_FIELD
+      
       if (present(range)) then
          range_ = range
       else
@@ -6278,37 +6280,45 @@ contains
             GRD = GRID
          else
             ! choose the grid
-            Dimensionality: select case(DIMS)
+            call MAPL_VarSpecGet(SPEC%var_specs%of(L), FIELD=SPEC_FIELD, _RC)
+            is_created = ESMF_FieldIsCreated(SPEC_FIELD, _RC)
+            if (is_created) then
+               call ESMF_FieldGet(SPEC_FIELD, GRID=GRD, _RC)
+            else
+             
 
-            case(MAPL_DimsHorzVert)
-               select case(LOCATION)
-               case(MAPL_VLocationCenter)
+               Dimensionality: select case(DIMS)
+                  
+               case(MAPL_DimsHorzVert)
+                  select case(LOCATION)
+                  case(MAPL_VLocationCenter)
+                     GRD = GRID
+                  case(MAPL_VLocationEdge  )
+                     GRD = GRID
+                  case default
+                     _RETURN(ESMF_FAILURE)
+                  end select
+               case(MAPL_DimsHorzOnly)
                   GRD = GRID
-               case(MAPL_VLocationEdge  )
+               case(MAPL_DimsVertOnly)
                   GRD = GRID
+               case(MAPL_DimsNone)
+                  GRD = GRID
+               case(MAPL_DimsTileOnly)
+                  if (.not. present(TILEGRID)) then
+                     _RETURN(ESMF_FAILURE)
+                  endif
+                  GRD = TILEGRID
+               case(MAPL_DimsTileTile)
+                  if (.not. present(TILEGRID)) then
+                     _RETURN(ESMF_FAILURE)
+                  endif
+                  GRD = TILEGRID
                case default
                   _RETURN(ESMF_FAILURE)
-               end select
-            case(MAPL_DimsHorzOnly)
-               GRD = GRID
-            case(MAPL_DimsVertOnly)
-               GRD = GRID
-            case(MAPL_DimsNone)
-               GRD = GRID
-            case(MAPL_DimsTileOnly)
-               if (.not. present(TILEGRID)) then
-                  _RETURN(ESMF_FAILURE)
-               endif
-               GRD = TILEGRID
-            case(MAPL_DimsTileTile)
-               if (.not. present(TILEGRID)) then
-                  _RETURN(ESMF_FAILURE)
-               endif
-               GRD = TILEGRID
-            case default
-               _RETURN(ESMF_FAILURE)
-            end select Dimensionality
-         end if
+               end select Dimensionality
+            end if ! if created
+         end if ! if ISTAT
 
          varspec => SPEC%var_specs%of(L)
          call MAPL_VarSpecSet(varspec, GRID=GRD, RC=status )
