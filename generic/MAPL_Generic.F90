@@ -4826,10 +4826,8 @@ contains
       call child_meta%t_profiler%start(__RC__)
       call child_meta%t_profiler%start('SetService',__RC__)
 
-      extension = get_file_extension(SharedObj)
-      _ASSERT(is_supported_dso_name(SharedObj), "AddChildFromDSO: Unsupported shared library extension '"//extension//",.")
-
       if (.not. is_valid_dso_name(SharedObj)) then
+         extension = get_file_extension(SharedObj)
          lgr => logging%get_logger('MAPL.GENERIC')
          call lgr%warning("AddChildFromDSO: changing shared library extension from %a~ to system specific extension %a~", &
               "'"//extension//"'", "'"//SYSTEM_DSO_EXTENSION//"'")
@@ -4893,10 +4891,8 @@ contains
       call child_meta%t_profiler%start(__RC__)
       call child_meta%t_profiler%start('SetService',__RC__)
 
-      extension = get_file_extension(SharedObj)
-      _ASSERT(is_supported_dso_name(SharedObj), "AddChildFromDSO: Unsupported shared library extension '"//extension//",.")
-
       if (.not. is_valid_dso_name(SharedObj)) then
+         extension = get_file_extension(SharedObj)
          lgr => logging%get_logger('MAPL.GENERIC')
          call lgr%warning("AddChildFromDSO: changing shared library extension from %a~ to system specific extension %a~", &
               "'"//extension//"'", "'"//SYSTEM_DSO_EXTENSION//"'")
