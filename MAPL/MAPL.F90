@@ -1,6 +1,7 @@
 ! This module re-exports the public entities
 ! of the underlying packages.
 module MAPL
+   use MaplShared
    use MAPLBase_mod
    use MAPL_GenericMod
    use MAPL_VarSpecMiscMod
