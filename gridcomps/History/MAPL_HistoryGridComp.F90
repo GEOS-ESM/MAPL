@@ -1771,9 +1771,7 @@ ENDDO PARSER
       case ("time-averaged")
          IntState%average(n) = .true.
          IntState%CIM(n) = ESMF_StateCreate ( name=trim(list(n)%filename), &
-              stateIntent = ESMF_STATEINTENT_IMPORT, &
-              rc=status )
-         _VERIFY(STATUS)
+              stateIntent = ESMF_STATEINTENT_IMPORT, _RC)
          NULLIFY(INTSTATE%SRCS(n)%SPEC)
          NULLIFY(INTSTATE%DSTS(n)%SPEC)
       case default
