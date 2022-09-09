@@ -1764,8 +1764,8 @@ ENDDO PARSER
            stateIntent = ESMF_STATEINTENT_IMPORT, &
            rc=status )
       _VERIFY(STATUS)
-      select case
 
+      select case (list(n)%mode)
       case ("instantaneous")
          IntState%average(n) = .false.
       case ("time-averaged")
