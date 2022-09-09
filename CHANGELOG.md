@@ -9,7 +9,99 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug that required a /dev/null ExtData entry to still have a file variable name
+- Fixed bug with checking for duplicate alias in collection
+
+### Added
+
+### Changed
+
+### Removed
+
+- Removed unused code from History GridComp
+
+### Deprecated
+
+## [2.25.0] - 2022-09-01
+
+### Fixed
+- Change the logic to check if the field is already connected to a valid grid. If yes, we bypass the checks for tilegrid (issue #1654)
+	
+- Fix setting stretched grid target latitude and longitude from restart file metadata
+
+### Added
+
+- Added member function get_global_var to FileMetadata
+- Added option to build source tarfile when building MAPL standalone. By default this is `OFF`, but can be enabled with
+  `-DINSTALL_SOURCE_TARFILE=ON`
+- Added `regrid_method` metadata to History output
+- Added an overloaded interface for MAPL_BalanceWork to handle both REAL32 and REAL64
+
+### Changed
+
+- Updated `components.yaml` to match GEOSgcm v10.22.5 (actually a bit beyond)
+  - ESMA_env v4.2.0 → v4.4.0 (Update to Intel 2022.1, Add TOSS4 Support at NAS)
+  - ESMA_cmake v3.17.0 → v3.18.0 (Updates to CPack and Provisional M2 Support)
+
+### Removed
+
+- Removed `LatLonGridFactory_basic` factory constructor (dead code)
+## [2.24.0] - 2022-08-08
+
+### Fixed
+
+- Fix error trapping in bundleio test
+
+### Added
+
+- Add tutorials
+- Check for duplicate entries in the History.rc file
+- Check that a user-provided chunking in the History.rc is compatible with the output grid
+- If a user requests CFIOasync in the History.rc, print warning and set to CFIO
+- Added option allow writing to pre-existing files with History
+
+### Changed
+
+- Replaced deprecated __RC__ macro with _RC and remove unused code in ExtData2G
+- Moved to `checkout@v3` action due to git safe directory issue
+- Added tutorials to CI
+
+## [2.23.1] - 2022-07-15
+
+### Fixed
+
+- Fixed the History file existence detection to only run for netCDF output. For still unknown reasons, this detection has an issue
+  with binary output (see https://github.com/GEOS-ESM/GEOSldas/pull/568)
+- Fix GitHub Actions
+
+## [2.23.0] - 2022-07-06
+
+### Added
+
+- Check return codes for YAML files when parsing in ExtData2G
+
+### Changed
+
+- Updated the ESMA_env version to v4.2.0 (Baselibs 7.5.0 → GFE v1.4.0)
+  - With this update, MAPL now **requires** these versions of GFE libraries
+    - yaFyaml v1.0.4 (if building with ExtData2G support)
+    - pFlogger v1.9.1 (if building with pFlogger support)
+- Update the CI for Baselibs 7.5.0, BCs version 10.22.3
+
+## [2.22.0] - 2022-06-24
+
+### Fixed
+
+- By pass the check of the missing value of Nan
 - Update CI to work with latest GEOSadas `develop` (Uses a special branch of GEOSadas)
+- Fix bundleio tests
+- HistoryGridComp now checks if a file exists already before writing and errors out if so
+- Minor updates for FORD documentation testing
+  - Add `program` statements to some test programs
+  - Remove `pfio/pfio_io_demo.F90` as dead code
+  - Fix redefinition of `_RETURN` in `pflogger_stub.F90`
+  - Removed unused `Test_SimpleClient.pf`
+- Update CMake to require NetCDF C components and add `NetCDF::NetCDF_C` to pfio CMake
 
 ### Added
 
@@ -19,17 +111,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable GCM run test in CircleCI (1-hour, no ExtData)
 - Added monotonic regridding option
 - Make availalbe to History and ExtData2G all supported regridding methods
+- Add test cases for ExtData
+- Add YAML validator GitHub Action
+  - This action makes sure all YAML files are valid (to a relaxed standard)
 
 ### Changed
 
 - Modified error messages in FileMetadataUtilities to be unique and print filename
-- Updated the ESMA_cmake version to v3.16.0
+- Updated the ESMA_env version to v3.14.0
+- Updated the ESMA_cmake version to v3.17.0
 - Updated GitHub Actions MAPL build tests
 - Added assert for missing file with ExtData2G
-
-### Removed
-
-### Deprecated
+- Re-enable bundleio tests in CI
+- Updated CircleCI to use latest Baselibs
+- Updates for Spack support
+   - Add `find_package(MPI)` for non-Baselibs builds
+   - Add explicit interface dependence of `MPI` for `ESMF` target
+   - Add `esmf` alias library for `ESMF` for compatibility
 
 ## [2.21.3] - 2022-06-07
 
