@@ -537,7 +537,7 @@ contains
                                          label='Allow_Overwrite:', default=.false., _RC)
     create_mode = PFIO_NOCLOBBER ! defaut no overwrite
     if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
-  
+
     if (trim(cFileOrder) == 'ABC') then
        intstate%fileOrderAlphabetical = .true.
     else if (trim(cFileOrder) == 'AddOrder') then
@@ -1764,9 +1764,11 @@ ENDDO PARSER
            stateIntent = ESMF_STATEINTENT_IMPORT, &
            rc=status )
       _VERIFY(STATUS)
-      if(list(n)%mode == "instantaneous") then
+      select case
+
+      case ("instantaneous")
          IntState%average(n) = .false.
-      else
+      case ("time-averaged")
          IntState%average(n) = .true.
          IntState%CIM(n) = ESMF_StateCreate ( name=trim(list(n)%filename), &
               stateIntent = ESMF_STATEINTENT_IMPORT, &
@@ -1774,7 +1776,9 @@ ENDDO PARSER
          _VERIFY(STATUS)
          NULLIFY(INTSTATE%SRCS(n)%SPEC)
          NULLIFY(INTSTATE%DSTS(n)%SPEC)
-      endif
+      case default
+         _FAIL("Invalid mode for output: "//trim(list(n)%mode)//" -- Only 'instantaneous' and 'time-averaged' are supported")
+      end select
 
       if (associated(IntState%Regrid(n)%PTR)) then
          _ASSERT(.not. list(n)%subVm,'needs informative message') ! ALT: currently we are not supporting regridding on subVM
