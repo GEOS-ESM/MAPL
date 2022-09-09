@@ -1775,7 +1775,7 @@ ENDDO PARSER
          NULLIFY(INTSTATE%SRCS(n)%SPEC)
          NULLIFY(INTSTATE%DSTS(n)%SPEC)
       case default
-         _FAIL("Invalid mode <"//trim(list(n)%mode)//"> for collection <"//trim(list(n)%collection)//">. Only 'instantaneous' and 'time-averaged' are supported")
+         _FAIL("Invalid mode ["//trim(list(n)%mode)//"] for collection ["//trim(list(n)%collection)//"]. Only 'instantaneous' and 'time-averaged' are supported")
       end select
 
       if (associated(IntState%Regrid(n)%PTR)) then
