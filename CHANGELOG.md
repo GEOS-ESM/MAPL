@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed unnecessary DSO extension assert
 - Fixed bug that required a /dev/null ExtData entry to still have a file variable name
+- Fixed bug with checking for duplicate alias in collection
+- Added protection in History to only allow `instantaneous` or `time-averaged` modes
 
 ### Added
 
@@ -26,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Change the logic to check if the field is already connected to a valid grid. If yes, we bypass the checks for tilegrid (issue #1654)
-	
+
 - Fix setting stretched grid target latitude and longitude from restart file metadata
 
 ### Added

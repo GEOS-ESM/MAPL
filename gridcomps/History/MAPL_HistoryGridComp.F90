@@ -537,7 +537,7 @@ contains
                                          label='Allow_Overwrite:', default=.false., _RC)
     create_mode = PFIO_NOCLOBBER ! defaut no overwrite
     if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
-  
+
     if (trim(cFileOrder) == 'ABC') then
        intstate%fileOrderAlphabetical = .true.
     else if (trim(cFileOrder) == 'AddOrder') then
@@ -931,7 +931,7 @@ contains
        if (old_fields_style) then
           field_set_name = trim(string) // 'fields'
           allocate(field_set)
-          call parse_fields(cfg, trim(field_set_name), field_set, list(n)%items, _RC)
+          call parse_fields(cfg, trim(field_set_name), field_set, collection_name = list(n)%collection, items = list(n)%items, _RC)
        end if
 
        list(n)%field_set => field_set
@@ -1764,17 +1764,19 @@ ENDDO PARSER
            stateIntent = ESMF_STATEINTENT_IMPORT, &
            rc=status )
       _VERIFY(STATUS)
-      if(list(n)%mode == "instantaneous") then
+
+      select case (list(n)%mode)
+      case ("instantaneous")
          IntState%average(n) = .false.
-      else
+      case ("time-averaged")
          IntState%average(n) = .true.
          IntState%CIM(n) = ESMF_StateCreate ( name=trim(list(n)%filename), &
-              stateIntent = ESMF_STATEINTENT_IMPORT, &
-              rc=status )
-         _VERIFY(STATUS)
+              stateIntent = ESMF_STATEINTENT_IMPORT, _RC)
          NULLIFY(INTSTATE%SRCS(n)%SPEC)
          NULLIFY(INTSTATE%DSTS(n)%SPEC)
-      endif
+      case default
+         _FAIL("Invalid mode ["//trim(list(n)%mode)//"] for collection ["//trim(list(n)%collection)//"]. Only 'instantaneous' and 'time-averaged' are supported")
+      end select
 
       if (associated(IntState%Regrid(n)%PTR)) then
          _ASSERT(.not. list(n)%subVm,'needs informative message') ! ALT: currently we are not supporting regridding on subVM
@@ -3165,20 +3167,27 @@ ENDDO PARSER
     end function extract_unquoted_item
 
 
-    subroutine parse_fields(cfg, label, field_set, items, rc)
+    subroutine parse_fields(cfg, label, field_set, collection_name, items, rc)
        type(ESMF_Config), intent(inout) :: cfg
        character(*), intent(in) :: label
        type (FieldSet), intent(inout) :: field_set
+       character(*), intent(in), optional :: collection_name
        type(GriddedIOitemVector), intent(inout), optional :: items
        integer, optional, intent(out) :: rc
        logical :: table_end
-       logical :: vectorDone,match_short_name,match_alias,match_component
+       logical :: vectorDone,match_alias
        integer :: m,i,j
        character(ESMF_MAXSTR), pointer:: fields (:,:)
 
        type(GriddedIOitem) :: item
        integer :: status
+       character(len=:), allocatable :: usable_collection_name
 
+       if (present(collection_name)) then
+          usable_collection_name = trim(collection_name)
+       else
+          usable_collection_name = "unknown"
+       end if
        call ESMF_ConfigFindLabel ( cfg, label=label//':', rc=status)
        _VERIFY(status)
 
@@ -3320,17 +3329,12 @@ ENDDO PARSER
 !      check for duplicates
        do i=1,field_set%nfields-1
           do j=i+1,field_set%nfields
-             match_short_name = field_set%fields(1,i) == field_set%fields(1,j)
+
              match_alias = field_set%fields(3,i) == field_set%fields(3,j)
-             match_component = field_set%fields(2,i) == field_set%fields(2,j)
-             if (match_short_name) then
-                if (match_component) then
-                   _FAIL("Caught collection with duplicate short name: "//trim(field_set%fields(1,i))//" and duplicate component")
-                end if
-             end if
              if (match_alias) then
-                _FAIL("Caught collection with duplicate alias: "//trim(field_set%fields(3,i)))
+                _FAIL("Caught collection "//usable_collection_name//" with this duplicate alias or shortname if no alias provided: "//trim(field_set%fields(3,i)))
              end if
+
           enddo
        enddo
 
