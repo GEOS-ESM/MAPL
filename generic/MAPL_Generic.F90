@@ -133,6 +133,7 @@ module MAPL_GenericMod
    use MAPL_GridManagerMod, only: grid_manager,get_factory
    use MaplShared, only: SYSTEM_DSO_EXTENSION, adjust_dso_name, is_valid_dso_name, is_supported_dso_name
    use MaplShared, only: get_file_extension
+   use MAPL_RunEntryPoint
    use, intrinsic :: ISO_C_BINDING
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
    use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
@@ -3778,6 +3779,7 @@ contains
 
       type (MAPL_MetaComp),     pointer     :: META
       integer                               :: phase
+      type(runEntryPoint) :: run_entry_point
 
       call MAPL_InternalStateRetrieve( GC, META, RC=status)
       _VERIFY(status)
@@ -3786,11 +3788,8 @@ contains
          phase = MAPL_AddMethod(META%phase_init, RC=status)
       else if (registeredMethod == ESMF_METHOD_RUN) then
          phase = MAPL_AddMethod(META%phase_run, RC=status)
-         if (phase == MAPL_FirstPhase) then
-            META%run_entry_points(1)%run_entry_point => usersRoutine
-         else 
-            META%run_entry_points(2)%run_entry_point => usersRoutine
-         end if
+         run_entry_point%run_entry_point => usersRoutine
+         call META%run_entry_points%push_back(run_entry_point)
       else if (registeredMethod == ESMF_METHOD_FINALIZE) then
          phase = MAPL_AddMethod(META%phase_final, RC=status)
       else if (registeredMethod == ESMF_METHOD_WRITERESTART) then

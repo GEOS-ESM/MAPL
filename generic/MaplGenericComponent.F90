@@ -14,15 +14,15 @@ module mapl_MaplGenericComponent
    use pFlogger
    use mapl_OpenMP_Support
    use mapl_MaplGrid
-   !$ use omp_lib
+   use mapl_RunEntryPoint
+   use mapl_EntryPointVector
    implicit none
    private
 
    public :: MaplGenericComponent
    public :: get_grid
 
-   procedure(), pointer :: user_method1 => null()
-   procedure(), pointer :: user_method2 => null()
+   procedure(), pointer :: user_method => null()
 
    type SubComponent
       type(ESMF_GridComp) :: gridcomp
@@ -44,19 +44,14 @@ module mapl_MaplGenericComponent
       end subroutine UserMethod
    end interface
 
-   type :: runEntryPoint
-      procedure(), pointer, nopass :: run_entry_point => null()
-   end type
-
    type, extends(BaseFrameworkComponent) :: MaplGenericComponent
 !!$      private
       type(ESMF_GridComp) :: gridcomp
       type(SubComponent), allocatable :: subcomponents(:)
-      type(runEntryPoint) :: run_entry_points(2)
+      type(EntryPointVector) :: run_entry_points
       type(ESMF_State) :: import_state
       type(ESMF_State) :: export_state
       type(ESMF_State) :: internal_state
-      !type(MaplGrid) :: grid
 
       logical :: threading_active = .FALSE.
       logical :: use_threads = .FALSE.
@@ -250,8 +245,7 @@ contains
       if (.NOT. this%is_threading_active()) then
         internal_state => this%internal_state
      else
-        thread = 0
-        !$ thread = omp_get_thread_num()
+        thread = get_current_thread_id()
         internal_state => this%subcomponents(thread+1)%internal_state
      end if
    end function get_internal_state
@@ -264,8 +258,7 @@ contains
      if (.NOT. this%is_threading_active()) then
         import_state => this%import_state
      else
-        thread = 0
-        !$ thread = omp_get_thread_num()
+        thread = get_current_thread_id()
         import_state => this%subcomponents(thread+1)%import_state
      end if
    end function get_import_state
@@ -278,8 +271,7 @@ contains
      if (.NOT. this%is_threading_active()) then
         export_state => this%export_state
      else
-        thread = 0
-        !$ thread = omp_get_thread_num()
+        thread = get_current_thread_id()
         export_state => this%subcomponents(thread+1)%export_state
      end if
    end function get_export_state
@@ -292,8 +284,7 @@ contains
      if (.NOT. this%is_threading_active()) then
         grid => this%grid
      else
-        thread = 0
-        !$ thread = omp_get_thread_num()
+        thread = get_current_thread_id()
         grid => this%subcomponents(thread+1)%grid ! subgrids is of type ESMF_Grid because of the return type of make_subgrids
      end if
    end function get_grid
@@ -384,8 +375,7 @@ contains
       if (.NOT. this%is_threading_active()) then
          gridcomp => this%gridcomp
      else
-        thread = 0
-        !$ thread = omp_get_thread_num()
+        thread = get_current_thread_id()
         gridcomp => this%subcomponents(thread+1)%gridcomp
      end if
 
@@ -402,6 +392,7 @@ contains
       type(ESMF_VM) :: vm
       integer :: myPet, i, ilabel
       logical :: has_private_state
+      type(runEntryPoint), pointer :: run_entry_point
 
       type MAPL_GenericWrap
          type(ESMF_Clock), pointer :: dummy
@@ -410,6 +401,7 @@ contains
       type (MAPL_GenericWrap) :: wrap !, wrap_private
       character(len=ESMF_MAXSTR) :: comp_name
       character(len=:), allocatable :: labels(:)
+      integer :: phase
 
       allocate(subgridcomps(num_grids))
 
@@ -424,21 +416,8 @@ contains
         associate (gc => subgridcomps(i) )
           gc = ESMF_GridCompCreate(name=trim(comp_name), petlist=[myPet], &
                & contextflag=ESMF_CONTEXT_OWN_VM, __RC__)
-             if(associated(this%run_entry_points(1)%run_entry_point)) &
-                user_method1 => this%run_entry_points(1)%run_entry_point
-             if(associated(this%run_entry_points(2)%run_entry_point)) &
-                user_method2 => this%run_entry_points(2)%run_entry_point
-          !do phase = 1,2
-          !   print *, __FILE__, __LINE__, 'phase =', phase
-          !   if(associated(this%run_entry_points(phase)%run_entry_point)) then
-          !      user_method => this%run_entry_points(phase)%run_entry_point
-             
-                !call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=phase, userroutine=user_method, __RC__)
-          !    end if
-          !end do
           call ESMF_GridCompSetServices(gc, set_services, userrc=user_status, __RC__)
           _VERIFY(user_status)
-          !_VERIFY(status)
         end associate
       end do
 
@@ -456,17 +435,24 @@ contains
       end do
 
       _RETURN(ESMF_SUCCESS)
+
+      contains 
+
+      subroutine set_services(gc, rc)
+         type(ESMF_GridComp) :: gc
+         integer, intent(out):: rc
+         integer :: status
+          do phase = 1, this%run_entry_points%size()
+             run_entry_point => this%run_entry_points%of(phase)
+             if(associated(run_entry_point%run_entry_point)) then
+                user_method => run_entry_point%run_entry_point
+             
+                call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=phase, userroutine=user_method, __RC__)
+              end if
+          end do
+         _RETURN(ESMF_SUCCESS)
+      end subroutine set_services
+
    end function make_subgridcomps
-
-   subroutine set_services(gc, rc)
-      type(ESMF_GridComp) :: gc
-      integer, intent(out):: rc
-
-      integer :: status
-
-      call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=1, userroutine=user_method1, __RC__)
-      call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=2, userroutine=user_method2, __RC__)
-      _RETURN(ESMF_SUCCESS)
-   end subroutine set_services
 
 end module mapl_MaplGenericComponent

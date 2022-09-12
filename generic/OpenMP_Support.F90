@@ -6,7 +6,7 @@ module MAPL_OpenMP_Support
     use MAPL_maplgrid
     use MAPL_ExceptionHandling
     use mapl_KeywordEnforcerMod
-    !$ use OMP_LIB
+    !$ use omp_lib
 
     implicit none
     private
