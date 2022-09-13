@@ -65,7 +65,7 @@ contains
     _UNUSED_DUMMY(unusable)
     ! At this point, this component must have a valid grid!
     !------------------------------------------------------
-    call ESMF_GridValidate(grid, __RC__)
+    call ESMF_GridValidate(grid, _RC)
 
     this%ESMFGRID = GRID
 
@@ -73,18 +73,18 @@ contains
 ! We keep these in the component's grid  for convenience
 !-------------------------------------------------------
 
-    call ESMF_GridGet(this%ESMFGRID, DistGrid=distgrid, dimCount=dimCount, __RC__)
-    call ESMF_DistGridGet(distGRID, deLayout=this%LAYOUT, __RC__)
+    call ESMF_GridGet(this%ESMFGRID, DistGrid=distgrid, dimCount=dimCount, _RC)
+    call ESMF_DistGridGet(distGRID, deLayout=this%LAYOUT, _RC)
 
-    call ESMF_VmGetCurrent(VM, __RC__)
-    call ESMF_VmGet(VM, localPet=this%MYID, petCount=ndes, __RC__)
+    call ESMF_VmGetCurrent(VM, _RC)
+    call ESMF_VmGet(VM, localPet=this%MYID, petCount=ndes, _RC)
 
 ! Vertical coordinate must exist and be THE THIRD DIMENSION
 ! ---------------------------------------------------------
 
     this%VERTDIM = 3
 
-    call MAPL_GridGet(this%ESMFGRID, localCellCountPerDim=COUNTS, __RC__)
+    call MAPL_GridGet(this%ESMFGRID, localCellCountPerDim=COUNTS, _RC)
 
 #ifdef DEBUG
     print *,'dbg:myId=',this%MYID,trim(Iam)
@@ -98,7 +98,7 @@ contains
     this%JM = COUNTS(2)
     this%LM = COUNTS(3)
 
-    call MAPL_GridGet(this%ESMFGRID, globalCellCountPerDim=COUNTS, __RC__)
+    call MAPL_GridGet(this%ESMFGRID, globalCellCountPerDim=COUNTS, _RC)
 
     this%IM_WORLD = COUNTS(1)
     this%JM_WORLD = COUNTS(2)
@@ -110,10 +110,10 @@ contains
 
     call MAPL_DistGridGet(distgrid, &
          minIndex=minindex, &
-         maxIndex=maxindex, __RC__)
+         maxIndex=maxindex, _RC)
 
     call MAPL_GetImsJms(Imins=minindex(1,:),Imaxs=maxindex(1,:),&
-         Jmins=minindex(2,:),Jmaxs=maxindex(2,:),Ims=ims,Jms=jms,__RC__)
+         Jmins=minindex(2,:),Jmaxs=maxindex(2,:),Ims=ims,Jms=jms,_RC)
 
     deallocate(maxindex, minindex)
 
@@ -140,13 +140,13 @@ contains
          Name     = "Latitude"              , &
          Location = ESMF_STAGGERLOC_CENTER  , &
          Units    = ESMFL_UnitsRadians      , &
-         __RC__                               )
+         _RC                               )
 
     call GridCoordGet(   this%ESMFGRID, this%LONS       , &
          Name     = "Longitude"             , &
          Location = ESMF_STAGGERLOC_CENTER  , &
          Units    = ESMFL_UnitsRadians      , &
-         __RC__                               )
+         _RC                               )
     _RETURN(ESMF_SUCCESS)
  end subroutine set
 
@@ -180,7 +180,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
   _UNUSED_DUMMY(Units)
 
   call ESMF_GridGet(grid, coordSys=crdSys, coordTypeKind=tk, &
-          dimCount=rank, coordDimCount=coordDimCount, __RC__)
+          dimCount=rank, coordDimCount=coordDimCount, _RC)
 
   if (name == "Longitude") then
     crdOrder = 1
@@ -191,11 +191,11 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
    _VERIFY(STATUS)
   endif
 
-  call ESMF_GridGet(grid, name=gridname, __RC__)
+  call ESMF_GridGet(grid, name=gridname, _RC)
 
   if (gridname(1:10) == 'tile_grid_') then
 
-     call MAPL_GridGet(GRID, localCellCountPerDim=counts, __RC__)
+     call MAPL_GridGet(GRID, localCellCountPerDim=counts, _RC)
      allocate(coord(counts(1), counts(2)), __STAT__)
      coord = 0.0 ! initialize just in case
 
@@ -222,7 +222,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
         call ESMF_GridGetCoord(grid, localDE=0, coordDim=crdOrder, &
              staggerloc=location, &
              computationalCount=COUNTS,  &
-             farrayPtr=R4D2, __RC__)
+             farrayPtr=R4D2, _RC)
         allocate(coord(counts(1), counts(2)), __STAT__)
         coord = conv2rad * R4D2
      else
@@ -233,7 +233,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
         call ESMF_GridGetCoord(grid, localDE=0, coordDim=crdOrder, &
              staggerloc=location, &
              computationalCount=COUNTS,  &
-             farrayPtr=R8D2, __RC__)
+             farrayPtr=R8D2, _RC)
         allocate(coord(counts(1), counts(2)), __STAT__)
         coord = conv2rad * R8D2
      else
@@ -267,20 +267,20 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
       plocal  = present(localCellCountPerDim)
 
       if (pglobal .or. plocal) then
-         call ESMF_GridGet(grid, dimCount=gridRank, __RC__)
+         call ESMF_GridGet(grid, dimCount=gridRank, _RC)
 
 !ALT kludge
          lxtradim = .false.
          if (gridRank == 1) then
-            call ESMF_AttributeGet(grid, name='GRID_EXTRADIM', isPresent=isPresent, __RC__)
+            call ESMF_AttributeGet(grid, name='GRID_EXTRADIM', isPresent=isPresent, _RC)
             if (isPresent) then
-               call ESMF_AttributeGet(grid, name='GRID_EXTRADIM', value=UNGRID, __RC__)
+               call ESMF_AttributeGet(grid, name='GRID_EXTRADIM', value=UNGRID, _RC)
                lxtradim = .true.
             end if
          else if (gridRank == 2) then
-            call ESMF_AttributeGet(grid, name='GRID_LM', isPresent=isPresent, __RC__)
+            call ESMF_AttributeGet(grid, name='GRID_LM', isPresent=isPresent, _RC)
             if (isPresent) then
-               call ESMF_AttributeGet(grid, name='GRID_LM', value=UNGRID, __RC__)
+               call ESMF_AttributeGet(grid, name='GRID_LM', value=UNGRID, _RC)
                lxtradim = .true.
             end if
          end if
@@ -289,12 +289,12 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
       if (pglobal) then
 
          globalCellCountPerDim = 1
-         call ESMF_GridGet(grid, tileCount=tileCount,__RC__)
+         call ESMF_GridGet(grid, tileCount=tileCount,_RC)
 
          call ESMF_GridGet(grid, tile=1, staggerLoc=ESMF_STAGGERLOC_CENTER, &
               minIndex=mincounts, &
               maxIndex=maxcounts, &
-              __RC__      )
+              _RC      )
 
          sz = min(gridRank, ESMF_MAXDIM, size(globalCellCountPerDim)) 
          globalCellCountPerDim(1:sz) = maxcounts(1:sz)-mincounts(1:sz)+1
@@ -314,11 +314,11 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
       if (plocal) then
          localCellCountPerDim = 1
 
-         HasDE = MAPL_GridHasDE(grid,__RC__)
+         HasDE = MAPL_GridHasDE(grid,_RC)
          if (HasDE) then
             call ESMF_GridGet(GRID, localDE=0, &
                  staggerloc=ESMF_STAGGERLOC_CENTER, &
-                 exclusiveCount=localCellCountPerDim, __RC__)
+                 exclusiveCount=localCellCountPerDim, _RC)
          end if
 
          if (lxtradim ) then
@@ -350,13 +350,13 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
 
      ESMFCubeSphere = .false.
 
-     call ESMF_DistGridGet(distGrid,tileCount=tileCount,__RC__)
+     call ESMF_DistGridGet(distGrid,tileCount=tileCount,_RC)
 
      if (tileCount==6) ESMFCubeSphere = .true.
 
      if (ESMFCubeSphere) then
         allocate(elementCountPTile(tileCount),__STAT__)
-        call ESMF_DistGridGet(distGrid,elementCountPTile=elementCountPTile,__RC__)
+        call ESMF_DistGridGet(distGrid,elementCountPTile=elementCountPTile,_RC)
         ! All tile should have same number of elements
         tileSize = elementCountPTile(1)
         tileSize = SQRT(real(tileSize))
@@ -367,7 +367,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
         allocate(deToTileMap(deCount),__STAT__)
         allocate(oldMinIndex(2,deCount),oldMaxIndex(2,deCount),__STAT__)
         call ESMF_DistGridGet(distGrid,MaxIndexPDe=oldMaxIndex,MinIndexPDe=oldMinIndex, &
-                              deToTileMap=deToTileMap,__RC__)
+                              deToTileMap=deToTileMap,_RC)
         do i=1,deCount
            tile = deToTileMap(i)
            select case (tile)
@@ -406,7 +406,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
 
      else
 
-        call ESMF_DistGridGet(distGrid,minIndexPDe=minIndex,maxIndexPDe=maxIndex,__RC__)
+        call ESMF_DistGridGet(distGrid,minIndexPDe=minIndex,maxIndexPDe=maxIndex,_RC)
 
      end if
 
@@ -496,9 +496,9 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
      integer :: localDECount
      logical :: hasDE
 
-     call ESMF_GridGet    (GRID, distGrid=distGrid, __RC__)
-     call ESMF_DistGridGet(distGRID, delayout=layout, __RC__)
-     call ESMF_DELayoutGet(layout, localDeCount=localDeCount,__RC__)
+     call ESMF_GridGet    (GRID, distGrid=distGrid, _RC)
+     call ESMF_DistGridGet(distGRID, delayout=layout, _RC)
+     call ESMF_DELayoutGet(layout, localDeCount=localDeCount,_RC)
      hasDe = (localDECount /=0)
      _RETURN(_SUCCESS)
 

@@ -103,7 +103,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       user_component => this%get_component()
-      call user_component%run(this%import_state, this%export_state, clock, phase, __RC__)
+      call user_component%run(this%import_state, this%export_state, clock, phase, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine stub
@@ -122,7 +122,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       child => this%get_child(name)
-      call child%run(clock, phase, __RC__)
+      call child%run(clock, phase, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine stub_child
@@ -166,25 +166,25 @@ contains
       _VERIFY(status)
       component => wrapper%component
 
-      call ESMF_GridCompGet( gridcomp, name=name, currentPhase=phase, currentMethod=method, __RC__)
+      call ESMF_GridCompGet( gridcomp, name=name, currentPhase=phase, currentMethod=method, _RC)
 
       if (method == ESMF_METHOD_INITIALIZE) then
 
 !!$         phase_name => component%init_phase_map%at(phase)
 !!$         _ASSERT(associated(phase_name),'no such phase')
-         call component%initialize(import, export, clock, phase_name, __RC__)
+         call component%initialize(import, export, clock, phase_name, _RC)
 
       else if (method == ESMF_METHOD_RUN) then
 
 !!$         phase_name = component%run_phase_map%at(phase)
 !!$         _ASSERT(associated(phase_name),'no such phase')
-         call component%run(import, export, clock, phase_name, __RC__)
+         call component%run(import, export, clock, phase_name, _RC)
 
       else if (method == ESMF_METHOD_FINALIZE) then
          
 !!$         phase_name = component%finalize_phase_map%at(phase)
 !!$         _ASSERT(associated(phase_name),'no such phase')
-         call component%finalize(import, export, clock, phase_name, __RC__)
+         call component%finalize(import, export, clock, phase_name, _RC)
 
       else
          _FAIL('unknown value for ESMF_METHOD_FLAG')
@@ -301,7 +301,7 @@ contains
      num_children = this%get_num_children()
 
      if (.NOT. allocated(this%subcomponents)) then
-        call this%create_subobjects(num_threads, __RC__)
+        call this%create_subobjects(num_threads, _RC)
      end if
 
      do i = 1, num_children
@@ -326,17 +326,17 @@ contains
 
      allocate(this%subcomponents(num_threads))
      
-     this%subcomponents(:)%import_state = make_substates(this%import_state, num_threads, __RC__)
-     this%subcomponents(:)%export_state = make_substates(this%export_state, num_threads, __RC__)
-     this%subcomponents(:)%internal_state = make_substates(this%internal_state, num_threads, __RC__)
+     this%subcomponents(:)%import_state = make_substates(this%import_state, num_threads, _RC)
+     this%subcomponents(:)%export_state = make_substates(this%export_state, num_threads, _RC)
+     this%subcomponents(:)%internal_state = make_substates(this%internal_state, num_threads, _RC)
 
-     subgrids = make_subgrids(this%grid%ESMFGrid, num_threads, __RC__) ! make_subgrids requires grid of type ESMF_Grid
+     subgrids = make_subgrids(this%grid%ESMFGrid, num_threads, _RC) ! make_subgrids requires grid of type ESMF_Grid
      do i = 1, size(subgrids)
-        call this%subcomponents(i)%grid%set(subgrids(i), __RC__)
+        call this%subcomponents(i)%grid%set(subgrids(i), _RC)
      end do
      deallocate(subgrids)
 
-     this%subcomponents(:)%gridcomp = make_subgridcomps(this%gridcomp, this%run_entry_points, num_threads, __RC__)
+     this%subcomponents(:)%gridcomp = make_subgridcomps(this%gridcomp, this%run_entry_points, num_threads, _RC)
 
      _RETURN(0)
    end subroutine create_subobjects

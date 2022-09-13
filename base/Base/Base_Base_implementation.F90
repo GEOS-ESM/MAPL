@@ -3050,7 +3050,7 @@ contains
     _ASSERT(localSearch,"Global Search for IJ not implemented")   
 
 !AOO change tusing GridType atribute    if (im_world*6==jm_world) then
-    call ESMF_AttributeGet(grid, name='GridType', value=grid_type, __RC__)
+    call ESMF_AttributeGet(grid, name='GridType', value=grid_type, _RC)
     if(trim(grid_type) == "Cubed-Sphere") then
        call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
             staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lons, rc=status)
