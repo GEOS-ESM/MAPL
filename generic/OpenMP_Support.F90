@@ -16,6 +16,7 @@ module MAPL_OpenMP_Support
     public :: make_subfields
     public :: make_subFieldBundles
     public :: make_substates
+    public :: make_subgridcomps
     public :: find_bounds
     public :: subset_array
     public :: get_current_thread_id
@@ -43,6 +44,7 @@ module MAPL_OpenMP_Support
     interface make_substates
        module procedure make_substates_from_num_grids
     end interface make_substates
+
 
     CONTAINS 
 
@@ -491,5 +493,82 @@ module MAPL_OpenMP_Support
       end do
       _RETURN(0)
     end function make_substates_from_num_grids
+
+    function make_subgridcomps(GridComp, run_entry_points, num_grids, unusable, rc) result(subgridcomps)
+        use mapl_RunEntryPoint
+        use mapl_EntryPointVector
+        type(ESMF_GridComp), allocatable :: subgridcomps(:)
+        type(ESMF_GridComp), intent(in)  :: GridComp
+        type(EntryPointVector), intent(in) :: run_entry_points
+        integer, intent(in) :: num_grids
+        class(KeywordEnforcer), optional, intent(in) :: unusable
+        integer, optional, intent(out) :: rc
+
+        integer :: status, user_status
+        type(ESMF_VM) :: vm
+        integer :: myPet, i, ilabel
+        logical :: has_private_state
+        type(runEntryPoint), pointer :: run_entry_point
+        procedure(), pointer :: user_method => null()
+
+        type MAPL_GenericWrap
+           type(ESMF_Clock), pointer :: dummy
+        end type MAPL_GenericWrap
+
+        type (MAPL_GenericWrap) :: wrap !, wrap_private
+        character(len=ESMF_MAXSTR) :: comp_name
+        character(len=:), allocatable :: labels(:)
+        integer :: phase
+
+        allocate(subgridcomps(num_grids))
+
+        call ESMF_VMGetCurrent(vm, __RC__)
+        call ESMF_VMGet(vm, localPET=myPET, __RC__)
+
+        call ESMF_GridCompGet(GridComp, name=comp_name, __RC__)
+        call ESMF_InternalStateGet(GridComp, labelList=labels, __RC__)
+        if(myPET==0) print*,__FILE__,__LINE__, 'internal states labels : <',trim(comp_name), (trim(labels(i)),i=1,size(labels)), '>'
+        print*,__FILE__,__LINE__, 'splitting component: <',trim(comp_name),'>'
+        do i = 1, num_grids
+          associate (gc => subgridcomps(i) )
+            gc = ESMF_GridCompCreate(name=trim(comp_name), petlist=[myPet], &
+                 & contextflag=ESMF_CONTEXT_OWN_VM, __RC__)
+            call ESMF_GridCompSetServices(gc, set_services, userrc=user_status, __RC__)
+            _VERIFY(user_status)
+          end associate
+        end do
+
+        do ilabel = 1, size(labels)
+           call ESMF_UserCompGetInternalState(GridComp, trim(labels(ilabel)), wrap, status)
+           has_private_state = (status == ESMF_SUCCESS)
+           do i = 1, num_grids
+              associate (gc => subgridcomps(i) )
+                if (has_private_state) then
+                   call ESMF_UserCompSetInternalState(gc, trim(labels(ilabel)), wrap, status)
+                   _VERIFY(status)
+                end if
+              end associate
+           end do
+        end do
+
+        _RETURN(ESMF_SUCCESS)
+
+        contains
+
+        subroutine set_services(gc, rc)
+           type(ESMF_GridComp) :: gc
+           integer, intent(out):: rc
+           integer :: status
+            do phase = 1, run_entry_points%size()
+               run_entry_point => run_entry_points%of(phase)
+               if(associated(run_entry_point%run_entry_point)) then
+                  user_method => run_entry_point%run_entry_point
+
+                  call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=phase, userroutine=user_method, __RC__)
+                end if
+            end do
+           _RETURN(ESMF_SUCCESS)
+        end subroutine set_services
+    end function make_subgridcomps
 
 end module MAPL_OpenMP_Support 
