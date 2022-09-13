@@ -27,7 +27,6 @@ module mapl_MaplComponent
 
       procedure :: run_child
 
-      !procedure :: get_internal_state
    end type MaplComponent
 
 contains

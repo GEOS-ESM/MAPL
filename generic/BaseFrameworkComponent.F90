@@ -16,11 +16,9 @@ module mapl_BaseFrameworkComponent
       class(AbstractComponent), allocatable :: component
       type(ComponentSpecification) :: component_spec
       type(MaplGrid) :: grid
-      ! type(PhaseMap) :: run_phase_map
    contains
       procedure :: set_component
       procedure :: get_component
-      !procedure :: get_internal_state
    end type BaseFrameworkComponent
 
 contains

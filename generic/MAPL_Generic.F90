@@ -4017,7 +4017,6 @@ contains
       endif
 
       if(present(JM)) then
-         !JM=STATE%GRID%JM
          temp_grid => state%get_grid()
          JM=temp_GRID%JM
       endif
