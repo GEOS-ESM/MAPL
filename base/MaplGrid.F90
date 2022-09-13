@@ -237,7 +237,7 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
         allocate(coord(counts(1), counts(2)), __STAT__)
         coord = conv2rad * R8D2
      else
-        _RETURN(ESMF_FAILURE)
+        _FAIL('Must have 2 gridded dimensions.')
      endif
   else
      _RETURN(ESMF_FAILURE)
