@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Removed ESMFL_UnitsRadians from ESMFL_Mod.F90 and replaced it with MAPL_UnitsRadians in InternalConstants.F90. Did a global search/replace. This avoid the circular dependency build error when ESMF_UnitsRadians is used in MaplGrid.F90
+
+## [hybrid-openmp] - 2022-09-14
+
+### Fixed
 
 - Removed unnecessary DSO extension assert
 - Fixed bug that required a /dev/null ExtData entry to still have a file variable name
