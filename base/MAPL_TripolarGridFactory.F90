@@ -10,6 +10,7 @@ module MAPL_TripolarGridFactoryMod
    use MAPL_Constants
    use ESMF
    use pFIO
+   use NetCDF
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -32,14 +33,21 @@ module MAPL_TripolarGridFactoryMod
       integer :: ny = MAPL_UNDEFINED_INTEGER
       integer, allocatable :: ims(:)
       integer, allocatable :: jms(:)
+      
       ! Used for halo
       type (ESMF_DELayout) :: layout
       integer :: px, py
       ! global coords
+      real, pointer :: lon_centers(:,:)
+      real, pointer :: lat_centers(:,:)
+      real, pointer :: lon_corners(:,:)
+      real, pointer :: lat_corners(:,:)
+      logical :: initialized_from_metadata = .false.
    contains
       procedure :: make_new_grid
       procedure :: create_basic_grid
-      procedure :: add_horz_coordinates
+      procedure :: add_horz_coordinates_from_file
+      procedure :: add_horz_coordinates_from_memory
       procedure :: init_halo
       procedure :: halo
       
@@ -137,8 +145,13 @@ contains
       grid = this%create_basic_grid(rc=status)
       _VERIFY(status)
 
-      call this%add_horz_coordinates(grid, rc=status)
-      _VERIFY(status)
+      if (this%initialized_from_metadata) then
+         call this%add_horz_coordinates_from_memory(grid, rc=status)
+         _VERIFY(status)
+      else
+         call this%add_horz_coordinates_from_file(grid, rc=status)
+         _VERIFY(status)
+      end if
 
       _RETURN(_SUCCESS)
 
@@ -187,11 +200,10 @@ contains
       _RETURN(_SUCCESS)
    end function create_basic_grid
 
-   subroutine add_horz_coordinates(this, grid, unusable, rc)
+   subroutine add_horz_coordinates_from_file(this, grid, unusable, rc)
       use MAPL_BaseMod, only: MAPL_grid_interior, MAPL_gridget
       use MAPL_CommsMod
       use MAPL_IOMod
-      use NetCDF
       use MAPL_Constants
       class (TripolarGridFactory), intent(in) :: this
       type (ESMF_Grid), intent(inout) :: grid
@@ -237,7 +249,6 @@ contains
 
        call MAPL_AllocateShared(centers,[im_world,jm_world],transroot=.true.,__RC__)
 
-       !allocate(centers(im_world,jm_world),__STAT__)
        call MAPL_SyncSharedMemory(__RC__)
 
        ! do longitudes
@@ -278,7 +289,6 @@ contains
           deallocate(centers)
        end if
        ! now repeat for corners
-       !allocate(corners(im_world+1,jm_world+1),__STAT__)
        call MAPL_AllocateShared(corners,[im_world+1,jm_world+1],transroot=.true.,__RC__)
 
        ! do longitudes
@@ -328,7 +338,78 @@ contains
 
       _RETURN(_SUCCESS)
 
-   end subroutine add_horz_coordinates
+   end subroutine add_horz_coordinates_from_file
+
+   subroutine add_horz_coordinates_from_memory(this, grid, unusable, rc)
+      use MAPL_BaseMod, only: MAPL_grid_interior, MAPL_gridget
+      use MAPL_CommsMod
+      use MAPL_IOMod
+      use MAPL_Constants
+      class (TripolarGridFactory), intent(in) :: this
+      type (ESMF_Grid), intent(inout) :: grid
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(len=*), parameter :: Iam = MOD_NAME // 'add_horz_coordinates'
+
+      integer :: i_1,i_n,j_1,j_n
+      integer :: ic_1,ic_n,jc_1,jc_n ! regional corner bounds
+      real(ESMF_KIND_R8), pointer :: fptr(:,:)
+
+
+      _UNUSED_DUMMY(unusable)
+
+       call MAPL_Grid_Interior(grid, i_1, i_n, j_1, j_n)
+
+       ic_1=i_1
+       ic_n=i_n
+
+       jc_1=j_1
+       if (j_n == this%jm_world) then
+          jc_n=j_n+1
+       else
+          jc_n=j_n
+       end if
+
+       ! do longitudes
+       call MAPL_SyncSharedMemory(__RC__)
+ 
+       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+          staggerloc=ESMF_STAGGERLOC_CENTER, &
+          farrayPtr=fptr, rc=status)
+       fptr=this%lon_centers(i_1:i_n,j_1:j_n)
+       ! do latitudes
+
+       call MAPL_SyncSharedMemory(__RC__)
+
+       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
+          staggerloc=ESMF_STAGGERLOC_CENTER, &
+          farrayPtr=fptr, rc=status)
+       fptr=this%lat_centers(i_1:i_n,j_1:j_n)
+
+       ! do longitudes
+
+       call MAPL_SyncSharedMemory(__RC__)
+
+       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
+          staggerloc=ESMF_STAGGERLOC_CORNER, &
+          farrayPtr=fptr, __RC__)
+       fptr=this%lon_corners(ic_1:ic_n,jc_1:jc_n)
+       ! do latitudes
+
+       call MAPL_SyncSharedMemory(__RC__)
+
+       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
+          staggerloc=ESMF_STAGGERLOC_CORNER, &
+          farrayPtr=fptr, __RC__)
+       fptr=this%lat_corners(ic_1:ic_n,jc_1:jc_n)
+
+       call MAPL_SyncSharedMemory(__RC__)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine add_horz_coordinates_from_memory
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
       use MAPL_KeywordEnforcerMod
@@ -338,8 +419,61 @@ contains
       logical, optional, intent(in) :: force_file_coordinates
       integer, optional, intent(out) :: rc
 
-      character(len=*), parameter :: Iam= MOD_NAME // 'initialize_from_file_metadata()'
+      integer :: ncid,varid,status
 
+      this%im_world = file_metadata%get_dimension('Xdim',_RC)
+      this%jm_world = file_Metadata%get_dimension('Ydim',_RC)
+      if (file_metadata%has_dimension('lev')) then
+         this%lm = file_metadata%get_dimension('lev',_RC)
+      end if 
+
+      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+         status = nf90_open(this%grid_file_name,NF90_NOWRITE,ncid)
+         _VERIFY(status)
+      end if
+
+      call MAPL_AllocateShared(this%lon_centers,[this%im_world,this%jm_world],transroot=.true.,_RC)
+      call MAPL_SyncSharedMemory(_RC)
+      call MAPL_AllocateShared(this%lat_centers,[this%im_world,this%jm_world],transroot=.true.,_RC)
+      call MAPL_SyncSharedMemory(_RC)
+      call MAPL_AllocateShared(this%lon_centers,[this%im_world+1,this%jm_world+1],transroot=.true.,_RC)
+      call MAPL_SyncSharedMemory(_RC)
+      call MAPL_AllocateShared(this%lat_centers,[this%im_world+1,this%jm_world+1],transroot=.true.,_RC)
+      call MAPL_SyncSharedMemory(_RC)
+      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+         status = nf90_inq_varid(ncid,'lons',varid)
+         _VERIFY(status)
+         status = nf90_get_var(ncid,varid,this%lon_centers)
+         _VERIFY(status)
+          this%lon_centers=this%lon_centers*MAPL_PI_R8/180.d0
+      end if
+      call MAPL_SyncSharedMemory(_RC)
+      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+         status = nf90_inq_varid(ncid,'lats',varid)
+         _VERIFY(status)
+         status = nf90_get_var(ncid,varid,this%lat_centers)
+         _VERIFY(status)
+          this%lat_centers=this%lat_centers*MAPL_PI_R8/180.d0
+      end if
+      call MAPL_SyncSharedMemory(_RC)
+      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+         status = nf90_inq_varid(ncid,'corner_lons',varid)
+         _VERIFY(status)
+         status = nf90_get_var(ncid,varid,this%lon_corners)
+         _VERIFY(status)
+          this%lon_corners=this%lon_corners*MAPL_PI_R8/180.d0
+      end if
+      call MAPL_SyncSharedMemory(_RC)
+      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
+         status = nf90_inq_varid(ncid,'corner_lats',varid)
+         _VERIFY(status)
+         status = nf90_get_var(ncid,varid,this%lat_corners)
+         _VERIFY(status)
+          this%lat_corners=this%lat_corners*MAPL_PI_R8/180.d0
+      end if
+      call MAPL_SyncSharedMemory(_RC)
+
+      this%initialized_from_metadata = .true.
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(rc)
@@ -876,6 +1010,8 @@ contains
 
       call metadata%add_dimension('Xdim', this%im_world)
       call metadata%add_dimension('Ydim', this%jm_world)
+      call metadata%add_dimension('XCdim', this%im_world+1)
+      call metadata%add_dimension('YCdim', this%jm_world+1)
 
       allocate(fake_coord(this%im_world))
       do i=1,this%im_world
@@ -911,6 +1047,16 @@ contains
       call v%add_attribute('long_name','latitude')
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('lats',v)
+
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim')
+      call v%add_attribute('long_name','longitude')
+      call v%add_attribute('units','degrees_east')
+      call metadata%add_variable('corner_lons',v)
+
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim')
+      call v%add_attribute('long_name','latitude')
+      call v%add_attribute('units','degrees_north')
+      call metadata%add_variable('corner_lats',v)
 
 
    end subroutine append_metadata
@@ -967,7 +1113,7 @@ contains
    end subroutine generate_file_bounds
 
    subroutine generate_file_corner_bounds(this,grid,local_start,global_start,global_count,rc)
-      use esmf
+      use MAPL_BaseMod
       class (TripolarGridFactory), intent(inout) :: this
       type(ESMF_Grid), intent(inout)      :: grid
       integer, allocatable, intent(out) :: local_start(:)
@@ -977,12 +1123,15 @@ contains
 
       character(len=*), parameter :: Iam = MOD_NAME // 'generate_file_corner_bounds'
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(grid)
-      _UNUSED_DUMMY(local_start)
-      _UNUSED_DUMMY(global_start)
-      _UNUSED_DUMMY(global_count)
-      _FAIL("not yet implemented")
+      integer :: status
+      integer :: global_dim(3), i1,j1,in,jn
+
+      call MAPL_GridGet(grid,globalCellCountPerDim=global_dim,rc=status)
+      _VERIFY(status)
+      call MAPL_GridGetInterior(grid,i1,in,j1,jn)
+      allocate(local_start,source=[i1,j1])
+      allocate(global_start,source=[1,1])
+      allocate(global_count,source=[global_dim(1)+1,global_dim(2)+1])
 
    end subroutine generate_file_corner_bounds
 
