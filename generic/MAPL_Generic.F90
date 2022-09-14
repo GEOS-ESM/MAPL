@@ -989,13 +989,13 @@ contains
          call ESMFL_GridCoordGet(   MYGRID%ESMFGRID, MYGRID%LATS       , &
               Name     = "Latitude"              , &
               Location = ESMF_STAGGERLOC_CENTER  , &
-              Units    = ESMFL_UnitsRadians      , &
+              Units    = MAPL_UnitsRadians      , &
               RC       = status                    )
 
          call ESMFL_GridCoordGet(   MYGRID%ESMFGRID, MYGRID%LONS       , &
               Name     = "Longitude"             , &
               Location = ESMF_STAGGERLOC_CENTER  , &
-              Units    = ESMFL_UnitsRadians      , &
+              Units    = MAPL_UnitsRadians      , &
               RC       = status                    )
 
          gridTypeAttribute = ''

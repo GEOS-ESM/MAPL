@@ -6,7 +6,7 @@ module mapl_MaplGrid
    use pFlogger, only: logging, Logger, WrapArray
    use MAPL_ErrorHandlingMod
    use MAPL_KeywordEnforcerMod
-   use MAPL_ConstantsMod, only : MAPL_PI_R8
+   use MAPL_ConstantsMod, only : MAPL_PI_R8, MAPL_UnitsRadians
    implicit none
    private
 
@@ -43,7 +43,6 @@ module mapl_MaplGrid
 contains
 
   subroutine set(this, grid, unusable, rc)
-    use ESMFL_Mod, only : ESMFL_UnitsRadians
     class(MaplGrid), intent(inout) :: this
     type(ESMF_Grid), intent(in) :: grid
     class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -139,13 +138,13 @@ contains
     call GridCoordGet(   this%ESMFGRID, this%LATS       , &
          Name     = "Latitude"              , &
          Location = ESMF_STAGGERLOC_CENTER  , &
-         Units    = ESMFL_UnitsRadians      , &
+         Units    = MAPL_UnitsRadians      , &
          _RC                               )
 
     call GridCoordGet(   this%ESMFGRID, this%LONS       , &
          Name     = "Longitude"             , &
          Location = ESMF_STAGGERLOC_CENTER  , &
-         Units    = ESMFL_UnitsRadians      , &
+         Units    = MAPL_UnitsRadians      , &
          _RC                               )
     _RETURN(ESMF_SUCCESS)
  end subroutine set
