@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added Ninja build of MAPL to CI
+- Added Ninja build of MAPL to CI tests
 
 ### Changed
 
