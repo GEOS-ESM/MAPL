@@ -100,13 +100,17 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      logical :: empty_stack = .true.
+
       !$omp master
       if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
+      empty_stack = this%stack%size()== 0
       !_ASSERT_RC(this%stack%size()== 0,"Timer "//this%root_node%get_name()// " is not a fresh self start",INCORRECTLY_NESTED_METERS)
-      if(this%stack%size() .ne. 0) print*, "Timer "//this%root_node%get_name()// " is not a fresh self start"
 
-      call this%start(this%root_node)
+      if(empty_stack) call this%start(this%root_node)
       !$omp end master
+
+      _ASSERT_RC(empty_stack,"Timer "//this%root_node%get_name()// " is not a fresh self start",INCORRECTLY_NESTED_METERS)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -141,20 +145,25 @@ contains
       type(MeterNodePtr), pointer :: node_ptr
       class(AbstractMeterNode), pointer :: node
 
+      logical :: stack_is_not_empty = .true.
+
       !$omp master
       if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
+      stack_is_not_empty = .not. this%stack%empty()
       !_ASSERT_RC(.not. this%stack%empty(),"Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
-      if(this%stack%empty()) print*, "Timer <"//name// "> should not start when empty."
 
-      node_ptr => this%stack%back()
-      node => node_ptr%ptr
-      if (.not. node%has_child(name)) then
-         m = this%make_meter()
-         call node%add_child(name, m) !this%make_meter())
+      if(stack_is_not_empty) then
+         node_ptr => this%stack%back()
+         node => node_ptr%ptr
+         if (.not. node%has_child(name)) then
+            m = this%make_meter()
+            call node%add_child(name, m) !this%make_meter())
+         end if
+
+         node => node%get_child(name)
       end if
-
-      node => node%get_child(name)
       !$omp end master
+      _ASSERT_RC(stack_is_not_empty, "Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
       call this%start(node)
 
       _RETURN(_SUCCESS)
@@ -169,15 +178,20 @@ contains
       type(MeterNodePtr), pointer :: node_ptr
       class(AbstractMeterNode), pointer :: node
 
+      logical :: name_is_node_name = .true.
+
       !$omp master
       node_ptr => this%stack%back()
       node => node_ptr%ptr
       if (name /= node%get_name()) this%status = INCORRECTLY_NESTED_METERS
+      name_is_node_name = name == node%get_name()
       !_ASSERT_RC(name == node%get_name(),"Timer <"//name// "> does not match start timer <"//node%get_name()//">",INCORRECTLY_NESTED_METERS)
-       if(name .ne. node%get_name())  print*, "Timer <"//name// "> does not match start timer <"//node%get_name()//">"
+      
 
-      call this%stop(node)
+      if(name_is_node_name) call this%stop(node)
       !$omp end master
+
+      _ASSERT_RC(name_is_node_name,"Timer <"//name// "> does not match start timer <"//node%get_name()//">",INCORRECTLY_NESTED_METERS)
 
       _RETURN(_SUCCESS)
    end subroutine stop_name
@@ -189,15 +203,20 @@ contains
       class(MeterNodePtr), pointer :: node_ptr
       class(AbstractMeterNode), pointer :: node
 
+      logical :: stack_size_is_one = .true.
+
       !$omp master
       if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
+      stack_size_is_one = this%stack%size()== 1
       !_ASSERT_RC(this%stack%size()== 1,"Stack not empty when timer stopped.",INCORRECTLY_NESTED_METERS)
-      if(this%stack%size() .ne. 1) print*, "Stack not empty when timer stopped."
 
-      node_ptr => this%stack%back()
-      node => node_ptr%ptr
-      call this%stop(node)
+      if(stack_size_is_one) then
+        node_ptr => this%stack%back()
+        node => node_ptr%ptr
+        call this%stop(node)
+      end if
       !$omp end master
+      _ASSERT_RC(stack_size_is_one,"Stack not empty when timer stopped.",INCORRECTLY_NESTED_METERS)
       _RETURN(_SUCCESS)
    end subroutine stop_self
 
