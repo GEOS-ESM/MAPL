@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Have `MAPL_AddChildFromDSO` call `MAPL_AddChildFromDSOMeta` (#1598)
+
 ### Removed
 
 - Removed unused code from History GridComp
