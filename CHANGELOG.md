@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.26.0] - 2022-09-16
+
+### Fixed
+
 - Removed unnecessary DSO extension assert
 - Fixed bug that required a /dev/null ExtData entry to still have a file variable name
 - Fixed bug with checking for duplicate alias in collection
@@ -25,8 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Removed unused code from History GridComp
-
-### Deprecated
 
 ## [2.25.0] - 2022-09-01
 
