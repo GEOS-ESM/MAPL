@@ -4599,9 +4599,6 @@ contains
 
       _RETURN(ESMF_SUCCESS)
 
-
-   contains
-
    end function AddChildFromMeta
 
    recursive subroutine AddChild_preamble(meta, I, name, grid, configfile, parentGC, petlist, child_meta, unusable, rc)
@@ -4630,10 +4627,10 @@ contains
       type(ESMF_VM) :: vm
       integer :: comm
 
-      call make_full_name(name, child_name, parentGC, __RC__)
-      call grow_children_names(meta%GCNamelist, child_name, __RC__)
+      call make_full_name(name, child_name, parentGC, _RC)
+      call grow_children_names(meta%GCNamelist, child_name, _RC)
 
-      allocate(tmp_meta, __STAT__)
+      allocate(tmp_meta, _STAT)
       tmp_framework => META%add_child(child_name, tmp_meta)
       deallocate(tmp_meta)
       _ASSERT(associated(tmp_framework),'add_child() failed')
@@ -4650,38 +4647,38 @@ contains
          end if
 
          if (present(configfile)) then
-            child_meta%cf = ESMF_ConfigCreate(__RC__)
-            call ESMF_ConfigLoadFile(child_meta%cf, configfile, __RC__)
+            child_meta%cf = ESMF_ConfigCreate(_RC)
+            call ESMF_ConfigLoadFile(child_meta%cf, configfile, _RC)
          else ! use parents config
             child_meta%cf = meta%cf
          end if
 
          child_meta%gridcomp = ESMF_GridCompCreate   ( &
               name   = child_name,          &
-              CONFIG = child_meta%cf,             &
+              CONFIG = child_meta%cf,       &
               grid = grid,                  &
               petList = petList,            &
               contextFlag = contextFlag,    &
-              __RC__)
+              _RC)
 
          ! Create each child's import/export state
          ! ----------------------------------
          child_import_state => META%get_child_import_state(i)
          child_import_state = ESMF_StateCreate (             &
               name = trim(META%GCNameList(I)) // '_Imports', &
-              stateIntent = ESMF_STATEINTENT_IMPORT, __RC__)
+              stateIntent = ESMF_STATEINTENT_IMPORT, _RC)
 
          child_export_state => META%get_child_export_state(i)
          child_export_state = ESMF_StateCreate (             &
               name = trim(META%GCNameList(I)) // '_Exports', &
-              stateIntent = ESMF_STATEINTENT_EXPORT, __RC__)
+              stateIntent = ESMF_STATEINTENT_EXPORT, _RC)
 
          ! create MAPL_Meta
-         call MAPL_InternalStateCreate ( child_meta%gridcomp, child_meta, __RC__)
+         call MAPL_InternalStateCreate ( child_meta%gridcomp, child_meta, _RC)
 
          ! Create child components time profiler
-         call ESMF_VMGetCurrent(vm, __RC__)
-         call ESMF_VMGet(vm, mpiCommunicator=comm, __RC__)
+         call ESMF_VMGetCurrent(vm, _RC)
+         call ESMF_VMGet(vm, mpiCommunicator=comm, _RC)
          CHILD_META%t_profiler = DistributedProfiler(trim(name), MpiTimerGauge(), comm=comm)
 
       end select
@@ -4776,11 +4773,9 @@ contains
 
       type(MAPL_MetaComp), pointer                :: META
 
-      call MAPL_InternalStateRetrieve(GC, META, RC=status)
-      _VERIFY(status)
+      call MAPL_InternalStateRetrieve(GC, META, _RC)
 
-      AddChildFromGC = AddChildFromMeta(Meta, name, SS=SS, PARENTGC=GC, petList=petList, configFile=configFile, RC=status)
-      _VERIFY(status)
+      AddChildFromGC = AddChildFromMeta(Meta, name, SS=SS, PARENTGC=GC, petList=petList, configFile=configFile, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromGC
@@ -4789,23 +4784,23 @@ contains
 
       !ARGUMENTS:
       type(MAPL_MetaComp), target,   intent(INOUT) :: META
-      character(len=*), intent(IN)    :: name
-      character(len=*), intent(in)    :: userRoutine
-      type(ESMF_Grid),  optional,    intent(INout) :: grid
-      character(len=*), optional, intent(in)       :: sharedObj
+      character(len=*), intent(IN)                 :: name
+      character(len=*), intent(in)                 :: userRoutine
+      type(ESMF_Grid),  optional,    intent(INOUT) :: grid
+      character(len=*), optional, intent(IN)       :: sharedObj
 
-      integer, optional  , intent(IN   ) :: petList(:)
-      character(len=*), optional, intent(IN   ) :: configFile
-      type(ESMF_GridComp), optional, intent(IN   ) :: parentGC
-      integer, optional  , intent(  OUT) :: rc
+      integer, optional, intent(IN)             :: petList(:)
+      character(len=*), optional, intent(IN)    :: configFile
+      type(ESMF_GridComp), optional, intent(IN) :: parentGC
+      integer, optional, intent(OUT)            :: rc
       !EOP
 
-      integer                    :: status
-      integer                    :: userRC
+      integer :: status
+      integer :: userRC
 
-      integer                                     :: I
-      type(MAPL_MetaComp), pointer                :: child_meta
-      class(BaseProfiler), pointer                :: t_p
+      integer :: I
+      type(MAPL_MetaComp), pointer :: child_meta
+      class(BaseProfiler), pointer :: t_p
 
       class(Logger), pointer :: lgr
       character(len=:), allocatable :: shared_object_library_to_load
@@ -4813,23 +4808,21 @@ contains
 
       if (.not.allocated(meta%GCNameList)) then
          ! this is the first child to be added
-         allocate(meta%GCNameList(0), __STAT__)
+         allocate(meta%GCNameList(0), _STAT)
       end if
 
       I = meta%get_num_children() + 1
       AddChildFromDSOMeta = I
 
-      call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentGC, petList=petlist, child_meta=child_meta,__RC__)
+      call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=parentGC, petList=petlist, child_meta=child_meta, _RC)
 
       t_p => get_global_time_profiler()
-      call t_p%start(trim(name),__RC__)
-      call child_meta%t_profiler%start(__RC__)
-      call child_meta%t_profiler%start('SetService',__RC__)
-
-      extension = get_file_extension(SharedObj)
-      _ASSERT(is_supported_dso_name(SharedObj), "AddChildFromDSO: Unsupported shared library extension '"//extension//",.")
+      call t_p%start(trim(name),_RC)
+      call child_meta%t_profiler%start(_RC)
+      call child_meta%t_profiler%start('SetService',_RC)
 
       if (.not. is_valid_dso_name(SharedObj)) then
+         extension = get_file_extension(SharedObj)
          lgr => logging%get_logger('MAPL.GENERIC')
          call lgr%warning("AddChildFromDSO: changing shared library extension from %a~ to system specific extension %a~", &
               "'"//extension//"'", "'"//SYSTEM_DSO_EXTENSION//"'")
@@ -4837,12 +4830,12 @@ contains
 
       shared_object_library_to_load = adjust_dso_name(sharedObj)
       call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
-           sharedObj=shared_object_library_to_load,userRC=userRC,__RC__)
+           sharedObj=shared_object_library_to_load,userRC=userRC,_RC)
       _VERIFY(userRC)
 
-      call child_meta%t_profiler%stop('SetService',__RC__)
-      call child_meta%t_profiler%stop(__RC__)
-      call t_p%stop(trim(name),__RC__)
+      call child_meta%t_profiler%stop('SetService',_RC)
+      call child_meta%t_profiler%stop(_RC)
+      call t_p%stop(trim(name),_RC)
 
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromDSOMeta
@@ -4864,52 +4857,12 @@ contains
       !EOP
 
       integer                    :: status
-      integer                    :: userRC
 
       type(MAPL_MetaComp), pointer                :: META
 
-      integer                                     :: I
-      type(MAPL_MetaComp), pointer                :: child_meta
-      class(BaseProfiler), pointer                :: t_p
+      call MAPL_InternalStateRetrieve(gc, meta, _RC)
 
-      class(Logger), pointer :: lgr
-      character(len=:), allocatable :: shared_object_library_to_load
-      character(len=:), allocatable :: extension
-
-      call MAPL_InternalStateRetrieve(gc, meta, __RC__)
-
-      if (.not.allocated(meta%GCNameList)) then
-         ! this is the first child to be added
-         allocate(meta%GCNameList(0), __STAT__)
-      end if
-
-      I = meta%get_num_children() + 1
-      AddChildFromDSO = I
-
-      call AddChild_preamble(meta, I, name, grid=grid, configfile=configfile, parentGC=gc, petList=petlist, child_meta=child_meta, __RC__)
-
-      t_p => get_global_time_profiler()
-      call t_p%start(trim(name),__RC__)
-      call child_meta%t_profiler%start(__RC__)
-      call child_meta%t_profiler%start('SetService',__RC__)
-
-      extension = get_file_extension(SharedObj)
-      _ASSERT(is_supported_dso_name(SharedObj), "AddChildFromDSO: Unsupported shared library extension '"//extension//",.")
-
-      if (.not. is_valid_dso_name(SharedObj)) then
-         lgr => logging%get_logger('MAPL.GENERIC')
-         call lgr%warning("AddChildFromDSO: changing shared library extension from %a~ to system specific extension %a~", &
-              "'"//extension//"'", "'"//SYSTEM_DSO_EXTENSION//"'")
-      end if
-
-      shared_object_library_to_load = adjust_dso_name(sharedObj)
-      call ESMF_GridCompSetServices ( child_meta%gridcomp, userRoutine, &
-           sharedObj=shared_object_library_to_load,userRC=userRC,__RC__)
-      _VERIFY(userRC)
-
-      call child_meta%t_profiler%stop('SetService',__RC__)
-      call child_meta%t_profiler%stop(__RC__)
-      call t_p%stop(trim(name),__RC__)
+      AddChildFromDSO = AddChildFromDSOMeta(meta, name, userRoutine, grid=grid, sharedObj=sharedObj, petList=petList, configFile=configFile, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromDSO
@@ -4933,7 +4886,7 @@ contains
       integer                    :: status
 
       _ASSERT(present(ParentGC),'must have a parent to use this interface')
-      addchildfromdso_old = addChildFromDSO(parentGC, name, userRoutine, grid=grid, sharedObj=sharedObj, petList=petList, configFile=configFile, __RC__)
+      addchildfromdso_old = addChildFromDSO(parentGC, name, userRoutine, grid=grid, sharedObj=sharedObj, petList=petList, configFile=configFile, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromDSO_Old
@@ -6260,6 +6213,8 @@ contains
 
       integer :: range_(2)
       type(MAPL_VarSpec), pointer :: varspec
+      logical :: is_created
+      type(ESMF_Field) :: SPEC_FIELD
 
       if (present(range)) then
          range_ = range
@@ -6278,37 +6233,45 @@ contains
             GRD = GRID
          else
             ! choose the grid
-            Dimensionality: select case(DIMS)
+            call MAPL_VarSpecGet(SPEC%var_specs%of(L), FIELD=SPEC_FIELD, _RC)
+            is_created = ESMF_FieldIsCreated(SPEC_FIELD, _RC)
+            if (is_created) then
+               call ESMF_FieldGet(SPEC_FIELD, GRID=GRD, _RC)
+            else
 
-            case(MAPL_DimsHorzVert)
-               select case(LOCATION)
-               case(MAPL_VLocationCenter)
+
+               Dimensionality: select case(DIMS)
+
+               case(MAPL_DimsHorzVert)
+                  select case(LOCATION)
+                  case(MAPL_VLocationCenter)
+                     GRD = GRID
+                  case(MAPL_VLocationEdge  )
+                     GRD = GRID
+                  case default
+                     _RETURN(ESMF_FAILURE)
+                  end select
+               case(MAPL_DimsHorzOnly)
                   GRD = GRID
-               case(MAPL_VLocationEdge  )
+               case(MAPL_DimsVertOnly)
                   GRD = GRID
+               case(MAPL_DimsNone)
+                  GRD = GRID
+               case(MAPL_DimsTileOnly)
+                  if (.not. present(TILEGRID)) then
+                     _RETURN(ESMF_FAILURE)
+                  endif
+                  GRD = TILEGRID
+               case(MAPL_DimsTileTile)
+                  if (.not. present(TILEGRID)) then
+                     _RETURN(ESMF_FAILURE)
+                  endif
+                  GRD = TILEGRID
                case default
                   _RETURN(ESMF_FAILURE)
-               end select
-            case(MAPL_DimsHorzOnly)
-               GRD = GRID
-            case(MAPL_DimsVertOnly)
-               GRD = GRID
-            case(MAPL_DimsNone)
-               GRD = GRID
-            case(MAPL_DimsTileOnly)
-               if (.not. present(TILEGRID)) then
-                  _RETURN(ESMF_FAILURE)
-               endif
-               GRD = TILEGRID
-            case(MAPL_DimsTileTile)
-               if (.not. present(TILEGRID)) then
-                  _RETURN(ESMF_FAILURE)
-               endif
-               GRD = TILEGRID
-            case default
-               _RETURN(ESMF_FAILURE)
-            end select Dimensionality
-         end if
+               end select Dimensionality
+            end if ! if created
+         end if ! if ISTAT
 
          varspec => SPEC%var_specs%of(L)
          call MAPL_VarSpecSet(varspec, GRID=GRD, RC=status )
@@ -11436,7 +11399,7 @@ contains
          child_gc => state%get_child_gridcomp(i)
          call MAPL_AddAttributeToFields_I4(child_gc,field_name,att_name,att_val,_RC)
       enddo
-      
+
       _RETURN(_SUCCESS)
    end subroutine MAPL_AddAttributeToFields_I4
 

@@ -17,9 +17,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.26.0] - 2022-09-16
+
+### Fixed
+
+- Removed unnecessary DSO extension assert
+- Fixed bug that required a /dev/null ExtData entry to still have a file variable name
+- Fixed bug with checking for duplicate alias in collection
+- Added protection in History to only allow `instantaneous` or `time-averaged` modes
+
+### Added
+
+- Added Ninja build of MAPL to CI tests
+
+### Changed
+
+- Have `MAPL_AddChildFromDSO` call `MAPL_AddChildFromDSOMeta` (#1598)
+
+### Removed
+
+- Removed unused code from History GridComp
+
 ## [2.25.0] - 2022-09-01
 
 ### Fixed
+- Change the logic to check if the field is already connected to a valid grid. If yes, we bypass the checks for tilegrid (issue #1654)
 
 - Fix setting stretched grid target latitude and longitude from restart file metadata
 
