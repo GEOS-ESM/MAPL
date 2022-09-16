@@ -182,6 +182,9 @@
       end select
     enddo
 
+    if (.not.allocated(this%tripolar_file_out)) then
+       this%tripolar_file_out = "empty"
+    end if
     this%regridMethod = get_regrid_method(regridMth)
     _ASSERT(this%regridMethod/=UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
 
@@ -274,6 +277,7 @@
           call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
           call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",_RC)
           call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_RC)
+          _ASSERT(tripolar_file /= "empty","asked for tripolar output but did not specify the coordinate file")
           call MAPL_ConfigSetAttribute(cf,value=tripolar_file,label=trim(grid_name)//".GRIDSPEC:",_RC)
        else
           call MAPL_ConfigSetAttribute(cf,value="LatLon", label=trim(grid_name)//".GRID_TYPE:",_RC)

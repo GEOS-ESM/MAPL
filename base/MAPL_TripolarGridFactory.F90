@@ -413,6 +413,7 @@ contains
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
       use MAPL_KeywordEnforcerMod
+      use MAPL_BaseMod, only: MAPL_DecomposeDim
       class (TripolarGridFactory), intent(inout)  :: this
       type (FileMetadata), target, intent(in) :: file_metadata
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -420,6 +421,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: ncid,varid,status
+      character(len=:), allocatable :: input_file
+      class(*), pointer :: attr_val
+      type(Attribute), pointer :: attr
 
       this%im_world = file_metadata%get_dimension('Xdim',_RC)
       this%jm_world = file_Metadata%get_dimension('Ydim',_RC)
@@ -427,8 +431,17 @@ contains
          this%lm = file_metadata%get_dimension('lev',_RC)
       end if 
 
+   
+      attr => file_metadata%get_attribute("original_file",_RC)
+      attr_val => attr%get_value()
+      select type(attr_val)
+      type is(character(*))
+         input_file = attr_val
+      class default
+         _FAIL('origin file in metadata must be string')
+      end select 
       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-         status = nf90_open(this%grid_file_name,NF90_NOWRITE,ncid)
+         status = nf90_open(input_file,NF90_NOWRITE,ncid)
          _VERIFY(status)
       end if
 
@@ -436,9 +449,9 @@ contains
       call MAPL_SyncSharedMemory(_RC)
       call MAPL_AllocateShared(this%lat_centers,[this%im_world,this%jm_world],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
-      call MAPL_AllocateShared(this%lon_centers,[this%im_world+1,this%jm_world+1],transroot=.true.,_RC)
+      call MAPL_AllocateShared(this%lon_corners,[this%im_world+1,this%jm_world+1],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
-      call MAPL_AllocateShared(this%lat_centers,[this%im_world+1,this%jm_world+1],transroot=.true.,_RC)
+      call MAPL_AllocateShared(this%lat_corners,[this%im_world+1,this%jm_world+1],transroot=.true.,_RC)
       call MAPL_SyncSharedMemory(_RC)
       if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
          status = nf90_inq_varid(ncid,'lons',varid)
@@ -474,6 +487,19 @@ contains
       call MAPL_SyncSharedMemory(_RC)
 
       this%initialized_from_metadata = .true.
+      call this%make_arbitrary_decomposition(this%nx, this%ny, rc=status)
+      _VERIFY(status)
+
+      ! Determine IMS and JMS with constraint for ESMF that each DE has at least an extent
+      ! of 2.  Required for ESMF_FieldRegrid().
+      allocate(this%ims(0:this%nx-1))
+      allocate(this%jms(0:this%ny-1))
+      call MAPL_DecomposeDim(this%im_world, this%ims, this%nx, min_DE_extent=2)
+      call MAPL_DecomposeDim(this%jm_world, this%jms, this%ny, min_DE_extent=2)
+
+      call this%check_and_fill_consistency(rc=status)
+      _VERIFY(status)
+
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(rc)
@@ -1058,6 +1084,7 @@ contains
       call v%add_attribute('units','degrees_north')
       call metadata%add_variable('corner_lats',v)
 
+     call metadata%add_attribute('grid_type','Tripolar')
 
    end subroutine append_metadata
 
@@ -1077,7 +1104,7 @@ contains
       character(len=:), allocatable :: vars
       _UNUSED_DUMMY(this)
 
-      vars = 'Xdim,Ydim'
+      vars = 'Xdim,Ydim,lons,lats,corner_lons,corner_lats'
 
    end function get_file_format_vars
 
