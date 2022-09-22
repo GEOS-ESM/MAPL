@@ -258,6 +258,7 @@ module MAPL_GenericMod
    interface MAPL_AddExportSpec
       module procedure MAPL_StateAddExportSpec_
       module procedure MAPL_StateAddExportSpecFrmChld
+      module procedure MAPL_StateAddExportSpecFrmChld_all
       module procedure MAPL_StateAddExportSpecFrmAll
    end interface MAPL_AddExportSpec
 
@@ -3296,6 +3297,41 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_StateAddExportSpec_
 
+   !BOPI
+   ! !IIROUTINE: MAPL_StateAddExportSpecFrmChld_all --- Add all \texttt{EXPORT} spec from a child
+
+   ! This is an odd procedure in that it not only adds an export spec, it also adds
+   ! a connectivity. All the names are the same
+   !INTERFACE:
+   subroutine MAPL_StateAddExportSpecFrmChld_All ( GC, CHILD_ID, RC)
+
+      !ARGUMENTS:
+      type(ESMF_GridComp),              intent(INOUT)   :: GC
+      integer                         , intent(IN)      :: CHILD_ID
+      integer            , optional   , intent(OUT)     :: RC
+
+      !EOPI
+      character (len=ESMF_MAXSTR)  :: SHORT_NAME ! NAME in CHILD
+      character (len=ESMF_MAXSTR), parameter :: IAm="MAPL_StateAddExportSpecFrmChld"
+      integer                               :: status
+      type (MAPL_VarSpec),      pointer     :: SPECS(:)
+      integer :: I
+      type(ESMF_GridComp), pointer :: gridcomp
+      type(MAPL_MetaComp), pointer :: maplobj
+
+      call MAPL_InternalStateRetrieve(gc, maplobj, _RC)
+
+      gridcomp => maplobj%GET_CHILD_GRIDCOMP(child_id)
+      call MAPL_GridCompGetVarSpecs(gridcomp, EXPORT=SPECS, _RC)
+       _VERIFY(status)
+
+      do I = 1, size(SPECS)
+         call MAPL_VarSpecGet(SPECS(I), SHORT_NAME=short_name, _RC)
+         call MAPL_StateAddExportSpecFrmChld(gc, short_name, child_id, _RC)
+      enddo
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine MAPL_StateAddExportSpecFrmChld_all
 
    !BOPI
    ! !IIROUTINE: MAPL_StateAddExportSpecFrmChld --- Add \texttt{EXPORT} spec from child
