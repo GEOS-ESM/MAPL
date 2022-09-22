@@ -2,6 +2,7 @@
 import re
 import csv
 import argparse
+from functools import reduce
 
 # Characters for parsing and output
 BLANK = " "
@@ -13,8 +14,6 @@ OUTPUT_COMMENT_CHARACTER = '#'
 
 # Keys for parsing
 CATEGORY_KEY = 'CATEGORY'
-
-'SHORT_NAME', 'UNITS', 'DIMS', 'VLOCATION'
 
 # Leader for output of category
 CATEGORY_LEADER = 'category : '
@@ -298,6 +297,13 @@ def make_output(specs, all_keys, missing):
 
     # Join lines and return
     return "\n".join(lines)
+
+#==============================================================================#
+
+def get_string_lengths(itb_itb_str):
+    """ Given  """
+    maxlens = reduce(map(len, itb_str)
+
 
 #==============================================================================#
 
