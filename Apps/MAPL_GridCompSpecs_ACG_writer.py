@@ -5,50 +5,35 @@ import argparse
 
 # Characters for parsing and output
 BLANK = " "
-OUT_DEL = ' | '
+OUTPUT_DELIMITER = ' | '
 LINE_CHAR = '-'
-CONT_CHAR = '&'
-IN_COMM_CHAR = '!'
-OUT_COMM_CHAR = '#'
+CONTINUATION_CHARACTER = '&'
+INPUT_COMMENT_CHARACTER = '!'
+OUTPUT_COMMENT_CHARACTER = '#'
 
 # Keys for parsing
 CATEGORY_KEY = 'CATEGORY'
-SHORT_NAME_KEY = 'SHORT_NAME'
-UNITS_KEY = 'UNITS'
-DIMS_KEY = 'DIMS'
-VLOC_KEY = 'VLOCATION'
+
+'SHORT_NAME', 'UNITS', 'DIMS', 'VLOCATION'
 
 # Leader for output of category
 CATEGORY_LEADER = 'category : '
 
-REQ_COLUMNS = ( (SHORT_NAME_KEY, 'NAME'),
-                (UNITS_KEY, 'UNITS'),
-                (DIMS_KEY, 'DIMS'),
-                (VLOC_KEY, 'VLOC' ))
-
 # Keys for required fields
-REQ_KEYS = [k for k, _ in REQ_COLUMNS]
+REQ_KEYS = [ 'SHORT_NAME', 'UNITS', 'DIMS', 'VLOCATION' ]
 
 FILE_HEADER = "schema_version: 2.0.0\ncomponent:"
 
-# Headings for field types for output
-HEAD_VAR = "VARIABLE"
-HEAD_DIMS = "DIMENSIONS"
-HEAD_META = "ADDITIONAL METADATA"
-
 # Heading line for heading types
-SPECS_HEADING = ( OUT_COMM_CHAR + BLANK + HEAD_VAR + OUT_DEL +
-    HEAD_DIMS + OUT_DEL + HEAD_META )
-
-# Heading line for required fields
-SPECS_COLUMNS = OUT_DEL.join([h for _, h in REQ_COLUMNS])
+SPECS_HEADING = ( OUTPUT_COMMENT_CHARACTER + BLANK + "VARIABLE" +
+    OUTPUT_DELIMITER + "DIMENSIONS" + OUTPUT_DELIMITER + "ADDITIONAL METADATA" )
 
 # Horizontal line divider in output
-HORZ_LINE = ( OUT_COMM_CHAR + BLANK +
-    LINE_CHAR * (len(SPECS_HEADING) - len(OUT_COMM_CHAR + BLANK)) )
+HORZ_LINE = ( OUTPUT_COMMENT_CHARACTER + BLANK +
+    LINE_CHAR * (len(SPECS_HEADING) - len(OUTPUT_COMMENT_CHARACTER + BLANK)) )
 
 # Missing header
-MISSING_HEADER = OUT_COMM_CHAR + " These specs are missing one or more required fields."
+MISSING_HEADER = OUTPUT_COMMENT_CHARACTER + " These specs are missing one or more required fields."
 
 # Regular expression for parsing the beginning of MAPL_App calls
 # with group names to extract portions of the line
@@ -69,30 +54,29 @@ def strip_char(line, char):
 #==============================================================================#
 
 def strip_continue(line):
-    """ Strip from CONT_CHAR to end of line """
-    return strip_char(line, CONT_CHAR)
+    """ Strip line continuation. """
+    return strip_char(line, CONTINUATION_CHARACTER)
 
 #==============================================================================#
 
 def strip_comment(line):
-    return strip_char(line, IN_COMM_CHAR)
-
-#==============================================================================#
-
-def cmp_insensitive(string, strlist):
-   return string.upper() in [s.upper() in strlist]
+    """ Strip inline comment. """
+    return strip_char(line, INPUT_COMMENT_CHARACTER)
 
 #==============================================================================#
 
 def add_to_tuple_dict(el, dct, key):
-    """ Add element el tuple dictionary dct by key. """
+    """ Add element el tuple dict dct by key. """
+
     # Work on copy to avoid side effects (assuming values are immutable).
     cpy = dct.copy()
-    # Make 1 element tuple from el
+
     t = el,
+
     # If key is found in dct, append el to cpy[key] value.
     if key in cpy:
         t = cpy[key] + t
+
     # Either way, update/add cpy[key]
     cpy[key] = t
     return cpy
@@ -100,64 +84,91 @@ def add_to_tuple_dict(el, dct, key):
 #==============================================================================#
 
 def make_field_string(spec, keys, empty):
-    return OUT_DEL.join([(spec[k] if k in spec else empty) in keys])
+    """ Make a string from the fields of a spec """
+    return OUTPUT_DELIMITER.join([(spec[k] if k in spec else empty) in keys])
 
 #==============================================================================#
 
 def unquote(s):
+    """ Strip single and double quotes. """
     return ''.join(''.join(s.split('"')).split("'"))
 
 #==============================================================================#
 
-def make_output(specs, all_keys, missing):
+def parse_file(filename):
+    """ Parse input source code file into dict of tuples of strings ."""
 
-    # Output lines
-    lines = []
-    lines.append(FILE_HEADER)
-    lines.append('')
+    # Dictionary of tuples
+    records = {}
 
-    for category in specs:
-        # Get keys with required keys first in order.
-        keys = list(REQ_KEYS) + sorted(list(all_keys[category] - set(REQ_KEYS)))
+    with open(filename, 'r') as code:
 
-        # Make keys upper case just in case (no pun intended)
-        keys = [k.upper() for k in keys]
+        # This is line built by concatenating lines based on continuation.
+        joined = ''
 
-        # Get specs for category.
-        category_specs = specs[category]
+        # Initially the category is not set. This serves as
+        # a flag that parsing a MAPL_Add call has begun.
+        category = None
 
-        # Print category.
-        lines.append(CATEGORY_LEADER + category.upper())
-        lines.append(HORZ_LINE)
+        # read first line of file
+        line = code.readline()
 
-        # Print heading for field types
-        lines.append(SPECS_HEADING)
-        lines.append(HORZ_LINE)
+        # Keep reading lines until end of file
+        while line:
 
-        # Print field headings.
-        line = ' ' + OUT_DEL.join(keys)
-        lines.append(line)
-        lines.append(HORZ_LINE)
+            # Strip end of line comments. Then strip leading/trailing spaces.
+            line = strip_comment(line).strip()
 
-        # Create string of fields for each spec.
-        for spec in category_specs:
-            vals = [(spec[k] if k in spec else BLANK) for k in keys]
-            line = ' ' + OUT_DEL.join(vals)
-            lines.append(line)
+            # If line was only comment and spaces, skip.
+            if line:
 
-        lines.append('')
+                # category is None => not a parsing a MAPL_Add call
+                if category is None:
 
-    if missing:
-        lines.append(MISSING_HEADER)
-        for spec in missing:
-            lines.append(IN_COMM_CHAR + spec)
+                    # Parse line with regex.
+                    m = call_re.match(line)
 
-    # Join lines and return
-    return "\n".join(lines)
+                    # match found (MAPL_Add call), start parsing new MAPL_Add.
+                    if m:
+
+                        # Extract category.
+                        category = m.group('category').upper()
+
+                        # line becomes the remaining part of the line
+                        line = m.group('remainder')
+
+                    # line does not begin a MAPL_Add call, so read next line,
+                    # because not already parsing a call (category is None)
+                    else:
+                        line = code.readline()
+                        continue
+
+                # category must be set at this point.
+
+                # Concatenate line to joined after stripping any line continuation
+                joined = joined + strip_continue(line).strip()
+
+                # If line DOES NOT have a continuation, add string (record).
+                # No continuation indicates end of (concatenated) line.
+                if line.find(CONTINUATION_CHARACTER) < 0:
+                    records = add_to_tuple_dict(joined, records, category)
+
+                    # Initialize for next record
+                    joined = ''
+                    category = None
+
+            # Read next line from file
+            line = code.readline()
+
+    return records
 
 #==============================================================================#
 
 def parse_records(records):
+    """ Parse records (strings) to: """
+    """ dict's of fields {field name: field value} (specs), """
+    """ unique field names by category """
+    """ and specs missing required fields (missing) """
 
     # specs keyed by category
     specs = {}
@@ -169,46 +180,68 @@ def parse_records(records):
     missing = []
 
     for category in records:
+
         # Get all records for the current category.
         recs = records[category]
+
         # list of all valid specs for current category
         category_specs = []
+
         # Unique keys for current category
         unique_keys = set()
+
         # csv reader for recs
         reader = csv.reader(recs, skipinitialspace=True)
+
+        # spec is text strings split from lines (strings) by csv_reader
         for spec in reader:
-        # fields of spec
-           fields = {}
-        # each col is either a single string or this form string1 = string2
-           for col in spec:
-               kv = col.split('=')
-               # first element is the key (field name)
-               k = unquote(kv[0].strip().upper())
-               # Continue if it is 'RC=...'
-               if k == 'RC':
-                   continue
-               # If not, parse if there are two strings ('field=value')
-               if len(kv) > 1:
-                   # Second string becomes field value
-                   v = kv[1]
-                   # Use first string as field name and add to fields
-                   fields[k] = unquote(v.strip())
-                   unique_keys = unique_keys | set([k])
 
+            # fields of spec
+            fields = {}
 
-           # if fields.keys() contains all the required keys
-           if set(fields.keys()) >= set(REQ_KEYS):
-               # Add fields for 1 spec.
-               category_specs.append(fields)
-           else:
-           # Some required keys are missing so put in missing list.
-               # First category as a field.
-               fields[CATEGORY_KEY] = category
-               missing.append(fields)
+            # each col is either a single string or this form string1 = string2
+            for col in spec:
+                # Split on '='
+                kv = col.split('=')
 
-        # Add specs keyed by category.
+                # first element is the key (field name)
+                k = unquote(kv[0].strip().upper())
+
+                # Continue if it is 'RC=...' which is irrelevant.
+                if k == 'RC':
+                    continue
+
+                # If not, parse if there are two strings ('field=value')
+                # String without '=' is an input variable, not a field
+                if len(kv) > 1:
+
+                    # Second string becomes field value
+                    v = kv[1]
+
+                    # Use first string as field name and add to fields
+                    fields[k] = unquote(v.strip())
+
+                    # Add key (field name) to list of unique keys (field names)
+                    unique_keys = unique_keys | set([k])
+
+            # All fields for current record have been parsed.
+
+            # if fields.keys() contains all the required keys (field names),
+            # add current fields to sequence of specs (dict's) for category.
+            if set(fields.keys()) >= set(REQ_KEYS):
+
+                # Add fields for 1 spec.
+                category_specs.append(fields)
+
+            # Some required keys are missing so put in missing list.
+            else:
+                #  Add category as a field.
+                fields[CATEGORY_KEY] = category
+                missing.append(fields)
+
+        # Add current specs (dicts) keyed by category.
         specs[category] = category_specs
+
         # Add unique keys keyed by category.
         all_keys[category] = unique_keys
 
@@ -216,52 +249,55 @@ def parse_records(records):
 
 #==============================================================================#
 
-def parse_file(filename):
+def make_output(specs, all_keys, missing):
+    """ Return string of lines from specs (dict's) and missing records (strings) """
 
-    records = {}
+    # These are the lines (strings) for the output.
+    lines = []
 
-    with open(filename, 'r') as code:
-        # This is line being built by concatenating lines based on continuation.
-        joined = ''
-        # Initially the category is not set. This serves as a flag that parsing a
-        # MAPL_Add call has begun.
-        category = None
-        # read first line of file
-        line = code.readline()
-        # Keep reading lines until end of file
-        while line:
-        # Strip comments on the end of line and then strip leading/trailing spaces
-            line = strip_comment(line).strip()
-            # If line is only comment and spaces, skip
-            if line:
-                # If the category has not been set yet, parse line with regex
-                if category is None:
-                    m = call_re.match(line)
-                    # If a match is found (MAPL_Add call), extract category.
-                    if m:
-                        category = m.group('category').upper()
-                        # line becomes the remaining part of the line
-                        line = m.group('remainder')
-                    # The line does not begin a MAPL_Add call, so read next line.
-                    else:
-                        line = code.readline()
-                        continue
+    lines.append(FILE_HEADER)
+    lines.append('')
 
-                # Concatenate line to joined after stripping any line continuation
-                joined = joined + strip_continue(line).strip()
+    # For each category, get keys (field names) for the category.
+    # Build header from keys. Create string for each spec.
+    for category in specs:
 
-                # If line DOES NOT have a continuation, add string (record).
-                if line.find(CONT_CHAR) < 0:
-                    records = add_to_tuple_dict(joined, records, category)
+        # Get keys with required keys first in order.
+        keys = list(REQ_KEYS) + sorted(list(all_keys[category] - set(REQ_KEYS)))
 
-                    # Initialize for next record
-                    joined = ''
-                    category = None
+        # Make keys upper case just in case (no pun intended)
+        keys = [k.upper() for k in keys]
 
-            # Read next line from file
-            line = code.readline()
+        # Get specs for category.
+        category_specs = specs[category]
 
-    return records
+        # Category line.
+        lines.append(CATEGORY_LEADER + category.upper())
+        lines.append(HORZ_LINE)
+
+        # Heading for field types
+        lines.append(SPECS_HEADING)
+        lines.append(HORZ_LINE)
+
+        # field headings.
+        line = ' ' + OUTPUT_DELIMITER.join(keys)
+        lines.append(line)
+        lines.append(HORZ_LINE)
+
+        # string of fields for each spec.
+        for spec in category_specs:
+            vals = [(spec[k] if k in spec else BLANK) for k in keys]
+            line = ' ' + OUTPUT_DELIMITER.join(vals)
+            lines.append(line)
+
+        lines.append('')
+
+    # Strings for incomplete (missing required fields.)
+    if missing:
+        lines = lines + [ MISSING_HEADER ] + [INPUT_COMMENT_CHARACTER + m for m in missing]
+
+    # Join lines and return
+    return "\n".join(lines)
 
 #==============================================================================#
 
@@ -283,146 +319,3 @@ records = parse_file(args.input)
 
 # Print output
 print(make_output(specs, all_keys, missing))
-
-#==============================================================================#
-## Parse input file for MAPL_Add calls concatenating continued lines into strings (records)
-#records = {}
-#filename = args.input
-#
-#with open(filename, 'r') as code:
-#    # This is line being built by concatenating lines based on continuation.
-#    joined = ''
-#    # Initially the category is not set. This serves as a flag that parsing a
-#    # MAPL_Add call has begun.
-#    category = None
-#    # read first line of file
-#    line = code.readline()
-#    # Keep reading lines until end of file
-#    while line:
-#    # Strip comments on the end of line and then strip leading/trailing spaces
-#        line = strip_comment(line).strip()
-#        # If line is only comment and spaces, skip
-#        if line:
-#            # If the category has not been set yet, parse line with regex
-#            if category is None:
-#                m = call_re.match(line)
-#                # If a match is found (MAPL_Add call), extract category.
-#                if m:
-#                    category = m.group('category').upper()
-#                    # line becomes the remaining part of the line
-#                    line = m.group('remainder')
-#                # The line does not begin a MAPL_Add call, so read next line.
-#                else:
-#                    line = code.readline()
-#                    continue
-#
-#            # Concatenate line to joined after stripping any line continuation
-#            joined = joined + strip_continue(line).strip()
-#
-#            # If line DOES NOT have a continuation, add string (record).
-#            if line.find(CONT_CHAR) < 0:
-#                records = add_to_tuple_dict(joined, records, category)
-#
-#                # Initialize for next record
-#                joined = ''
-#                category = None
-#
-#        # Read next line from file
-#        line = code.readline()
-
-## Records that are missing required fields
-#missing = []
-#
-## specs keyed by category
-#specs = {}
-#
-## dict of all the unique keys for each category
-#all_keys = {}
-
-#for category in records:
-#    # Get all records for the current category.
-#    recs = records[category]
-#    # list of all valid specs for current category
-#    category_specs = []
-#    # Unique keys for current category
-#    unique_keys = set()
-#    # csv reader for recs
-#    reader = csv.reader(recs, skipinitialspace=True)
-#    for spec in reader:
-#    # fields of spec
-#       fields = {}
-#    # each col is either a single string or this form string1 = string2
-#       for col in spec:
-#           kv = col.split('=')
-#           # first element is the key (field name)
-#           k = unquote(kv[0].strip().upper())
-#           # Continue if it is 'RC=...'
-#           if k == 'RC':
-#               continue
-#           # If not, parse if there are two strings ('field=value')
-#           if len(kv) > 1:
-#               # Second string becomes field value
-#               v = kv[1]
-#               # Use first string as field name and add to fields
-#               fields[k] = unquote(v.strip())
-#               unique_keys = unique_keys | set([k])
-#
-#
-#       # if fields.keys() contains all the required keys
-#       if set(fields.keys()) >= set(REQ_KEYS):
-#           # Add fields for 1 spec.
-#           category_specs.append(fields)
-#       else:
-#       # Some required keys are missing so put in missing list.
-#           # First category as a field.
-#           fields[CATEGORY_KEY] = category
-#           missing.append(fields)
-#
-#    # Add specs keyed by category.
-#    specs[category] = category_specs
-#    # Add unique keys keyed by category.
-#    all_keys[category] = unique_keys
-
-## Print file
-#lines = []
-#lines.append(FILE_HEADER)
-#lines.append('')
-#
-#for category in specs:
-#    # Get keys with required keys first in order.
-#    keys = list(REQ_KEYS) + sorted(list(all_keys[category] - set(REQ_KEYS)))
-#
-#    # Make keys upper case just in case (no pun intended)
-#    keys = [k.upper() for k in keys]
-#
-#    # Get specs for category.
-#    category_specs = specs[category]
-#
-#    # Print category.
-#    lines.append(CATEGORY_LEADER + category.upper())
-#    lines.append(HORZ_LINE)
-#
-#    # Print heading for field types
-#    lines.append(SPECS_HEADING)
-#    lines.append(HORZ_LINE)
-#
-#    # Print field headings.
-#    line = ' ' + OUT_DEL.join(keys)
-#    lines.append(line)
-#    lines.append(HORZ_LINE)
-#
-#    # Create string of fields for each spec.
-#    for spec in category_specs:
-#        vals = [(spec[k] if k in spec else BLANK) for k in keys]
-#        line = ' ' + OUT_DEL.join(vals)
-#        lines.append(line)
-#
-#    lines.append('')
-#
-#if missing:
-#    lines.append(MISSING_HEADER)
-#    for spec in missing:
-#        lines.append(IN_COMM_CHAR + spec)
-#
-#output = "\n".join(lines)
-#print(output)
