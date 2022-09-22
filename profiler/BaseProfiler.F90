@@ -100,12 +100,12 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      logical :: empty_stack = .true.
+      logical :: empty_stack
 
+      empty_stack = .true.
       !$omp master
       if (this%stack%size()/= 0) this%status = INCORRECTLY_NESTED_METERS
       empty_stack = this%stack%size()== 0
-      !_ASSERT_RC(this%stack%size()== 0,"Timer "//this%root_node%get_name()// " is not a fresh self start",INCORRECTLY_NESTED_METERS)
 
       if(empty_stack) call this%start(this%root_node)
       !$omp end master
@@ -145,12 +145,12 @@ contains
       type(MeterNodePtr), pointer :: node_ptr
       class(AbstractMeterNode), pointer :: node
 
-      logical :: stack_is_not_empty = .true.
+      logical :: stack_is_not_empty
 
+      stack_is_not_empty = .true.
       !$omp master
       if (this%stack%empty()) this%status = INCORRECTLY_NESTED_METERS
       stack_is_not_empty = .not. this%stack%empty()
-      !_ASSERT_RC(.not. this%stack%empty(),"Timer <"//name// "> should not start when empty.",INCORRECTLY_NESTED_METERS)
 
       if(stack_is_not_empty) then
          node_ptr => this%stack%back()
@@ -178,15 +178,14 @@ contains
       type(MeterNodePtr), pointer :: node_ptr
       class(AbstractMeterNode), pointer :: node
 
-      logical :: name_is_node_name = .true.
+      logical :: name_is_node_name
 
+      name_is_node_name = .true.
       !$omp master
       node_ptr => this%stack%back()
       node => node_ptr%ptr
       if (name /= node%get_name()) this%status = INCORRECTLY_NESTED_METERS
       name_is_node_name = name == node%get_name()
-      !_ASSERT_RC(name == node%get_name(),"Timer <"//name// "> does not match start timer <"//node%get_name()//">",INCORRECTLY_NESTED_METERS)
-      
 
       if(name_is_node_name) call this%stop(node)
       !$omp end master
@@ -203,12 +202,12 @@ contains
       class(MeterNodePtr), pointer :: node_ptr
       class(AbstractMeterNode), pointer :: node
 
-      logical :: stack_size_is_one = .true.
+      logical :: stack_size_is_one
 
+      stack_size_is_one = .true.
       !$omp master
       if (this%stack%size()/= 1) this%status = INCORRECTLY_NESTED_METERS
       stack_size_is_one = this%stack%size()== 1
-      !_ASSERT_RC(this%stack%size()== 1,"Stack not empty when timer stopped.",INCORRECTLY_NESTED_METERS)
 
       if(stack_size_is_one) then
         node_ptr => this%stack%back()
