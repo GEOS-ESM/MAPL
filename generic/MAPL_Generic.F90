@@ -1266,6 +1266,7 @@ contains
                        exportState=child_export_state, &
                        clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_INIT(PHASE), &
                        userRC=userRC, _RC )
+                  _VERIFY(userRC)
                   call MAPL_TimerOff(STATE,trim(CHILD_NAME))
                end if
             end do

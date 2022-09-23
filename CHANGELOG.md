@@ -35,6 +35,7 @@ See files OpenMP_Support.F90, EntryPointVector.F90, RunEntryPoint.F90, MaplGener
 - Fixed bug that required a /dev/null ExtData entry to still have a file variable name
 - Fixed bug with checking for duplicate alias in collection
 - Added protection in History to only allow `instantaneous` or `time-averaged` modes
+- Check userRC after ESMF_GridCompInitialize in MAPL_GenericInitialize
 
 ### Added
 
