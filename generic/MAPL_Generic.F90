@@ -8427,22 +8427,19 @@ contains
          _FAIL( "Unupported type")
       end select
 
-      ! Need a printer for arrays.
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      ! call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status) !
-      ! _VERIFY(status)                                                                             !
-      !                                                                                             !
-      ! ! Can set printrc to negative to not print at all                                           !
-      ! if (MAPL_AM_I_Root() .and. printrc >= 0) then                                               !
-      !    if (label_is_present) then                                                               !
-      !       label_to_print = label                                                                !
-      !    else                                                                                     !
-      !       label_to_print = trim(label)                                                          !
-      !    end if                                                                                   !
-      !    call print_resource_scalar(printrc, label_to_print, val, default=default,rc=status)      !
-      !    _VERIFY(status)                                                                          !
-      ! end if                                                                                      !
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status)
+      _VERIFY(status)
+
+      ! Can set printrc to negative to not print at all
+      if (MAPL_AM_I_Root() .and. printrc >= 0) then
+         if (label_is_present) then
+            label_to_print = label
+         else
+            label_to_print = trim(label)
+         end if
+         call print_resource_scalar(printrc, label_to_print, val, default=default,rc=status)
+         _VERIFY(status)
+      end if
 
       _RETURN(ESMF_SUCCESS)
 
@@ -8587,19 +8584,22 @@ contains
          _FAIL( "Unsupported type")
       end select
 
-      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status)
-      _VERIFY(status)
-
-      ! Can set printrc to negative to not print at all
-      if (MAPL_AM_I_Root() .and. printrc >= 0) then
-         if (label_is_present) then
-            label_to_print = label
-         else
-            label_to_print = trim(label)
-         end if
-         call print_resource_array(printrc, label_to_print, vals, default=default,rc=status)
-         _VERIFY(status)
-      end if
+      ! Need a printer for arrays
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      ! call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status) !
+      ! _VERIFY(status)                                                                             !
+      !                                                                                             !
+      ! ! Can set printrc to negative to not print at all                                           !
+      ! if (MAPL_AM_I_Root() .and. printrc >= 0) then                                               !
+      !    if (label_is_present) then                                                               !
+      !       label_to_print = label                                                                !
+      !    else                                                                                     !
+      !       label_to_print = trim(label)                                                          !
+      !    end if                                                                                   !
+      !    call print_resource_array(printrc, label_to_print, vals, default=default,rc=status)      !
+      !    _VERIFY(status)                                                                          !
+      ! end if                                                                                      !
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       _RETURN(ESMF_SUCCESS)
 
