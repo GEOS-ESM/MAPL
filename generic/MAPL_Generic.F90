@@ -8512,7 +8512,7 @@ contains
                if (.not. label_is_present) vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, _RC)
+            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = label, _RC)
          end if
       type is(integer(int64))
          if (default_is_present .and. .not. label_is_present) then
@@ -8521,7 +8521,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, _RC)
+            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = label, _RC)
          end if
       type is(real(real32))
          if (default_is_present .and. .not. label_is_present) then
@@ -8530,7 +8530,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, _RC)
+            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = label, _RC)
          end if
       type is (real(real64))
          if (default_is_present .and. .not. label_is_present) then
@@ -8539,7 +8539,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, _RC)
+            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = label, _RC)
          end if
       type is(character(len=*))
          if (default_is_present .and. .not. label_is_present) then
@@ -8548,7 +8548,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, _RC)
+            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = label, _RC)
          end if
       type is(logical)
          if (default_is_present .and. .not. label_is_present) then
@@ -8557,7 +8557,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, _RC)
+            call ESMF_ConfigGetAttribute(config, valuelist = vals, count = count, label = label, _RC)
          end if
       class default
          _FAIL( "Unsupported type")
