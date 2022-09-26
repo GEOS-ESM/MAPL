@@ -316,7 +316,8 @@ module MAPL_GenericMod
    interface  MAPL_GetResource
       module procedure MAPL_GetResourceFromConfig_scalar
       module procedure MAPL_GetResourceFromMAPL_scalar
-      module procedure MAPL_GetResource_array
+      module procedure MAPL_GetResourceFromConfig_array
+      module procedure MAPL_GetResourceFromMAPL_array
    end interface MAPL_GetResource
 
    interface MAPL_CopyFriendliness
@@ -8422,30 +8423,33 @@ contains
             call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
             _VERIFY(status)
          end if
-         class default
+      class default
          _FAIL( "Unupported type")
       end select
 
-      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status)
-      _VERIFY(status)
-
-      ! Can set printrc to negative to not print at all
-      if (MAPL_AM_I_Root() .and. printrc >= 0) then
-         if (label_is_present) then
-            label_to_print = label
-         else
-            label_to_print = trim(label)
-         end if
-         call print_resource(printrc, label_to_print, val, default=default,rc=status)
-         _VERIFY(status)
-      end if
+      ! Need a printer for arrays.
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      ! call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status) !
+      ! _VERIFY(status)                                                                             !
+      !                                                                                             !
+      ! ! Can set printrc to negative to not print at all                                           !
+      ! if (MAPL_AM_I_Root() .and. printrc >= 0) then                                               !
+      !    if (label_is_present) then                                                               !
+      !       label_to_print = label                                                                !
+      !    else                                                                                     !
+      !       label_to_print = trim(label)                                                          !
+      !    end if                                                                                   !
+      !    call print_resource_scalar(printrc, label_to_print, val, default=default,rc=status)      !
+      !    _VERIFY(status)                                                                          !
+      ! end if                                                                                      !
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       _RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_GetResourceFromConfig_scalar
 
 
-   subroutine MAPL_GetResource_array(state, vals, label, default, rc)
+   subroutine MAPL_GetResourceFromMAPL_array(state, vals, label, default, rc)
       type(MAPL_MetaComp), intent(inout) :: state
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
@@ -8463,8 +8467,8 @@ contains
          _ASSERT(same_type_as(vals, default), "Value and default must have same type")
       end if
 
-      labels_to_try = get_labels_with_prefix(state%compname, label)
       label_is_present = .false.
+      labels_to_try = get_labels_with_prefix(state%compname, label)
 
       ! Try out the label variations to see which one exists in the ESMF_Config
       do i = 1, size(labels_to_try)
@@ -8483,6 +8487,38 @@ contains
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
+
+      if (label_is_present) then
+         call MAPL_GetResourceFromConfig_array(state%cf,vals,label_to_use,default,rc = status)
+         _VERIFY(status)
+      else
+         call MAPL_GetResourceFromConfig_array(state%cf,vals,label,default,rc = status)
+         _VERIFY(status)
+      end if
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine MAPL_GetResourceFromMAPL_array
+
+   subroutine MAPL_GetResourceFromConfig_array(config, vals, label, default, rc)
+      type(ESMF_Config), intent(inout) :: config
+      character(len=*), intent(in) :: label
+      class(*), intent(inout) :: vals(:)
+      class(*), optional, intent(in) :: default(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: i, status, count
+      logical :: label_is_present, default_is_present
+      character(len=:), allocatable :: label_to_print
+
+      default_is_present = present(default)
+
+      if (default_is_present) then
+         _ASSERT(same_type_as(vals, default), "Value and default must have same type")
+      end if
+
+      call ESMF_ConfigFindLabel(config, label = label, isPresent = label_is_present, rc = status)
+      _VERIFY(status)
 
       count = size(vals)
 
@@ -8547,16 +8583,29 @@ contains
             call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
             _VERIFY(status)
          end if
-         class default
+      class default
          _FAIL( "Unsupported type")
       end select
 
+      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status)
+      _VERIFY(status)
+
+      ! Can set printrc to negative to not print at all
+      if (MAPL_AM_I_Root() .and. printrc >= 0) then
+         if (label_is_present) then
+            label_to_print = label
+         else
+            label_to_print = trim(label)
+         end if
+         call print_resource_array(printrc, label_to_print, vals, default=default,rc=status)
+         _VERIFY(status)
+      end if
+
       _RETURN(ESMF_SUCCESS)
 
-   end subroutine MAPL_GetResource_array
+   end subroutine MAPL_GetResourceFromConfig_array
 
-
-   subroutine print_resource(printrc, label, val, default, rc)
+   subroutine print_resource_scalar(printrc, label, val, default, rc)
       integer, intent(in) :: printrc
       character(len=*), intent(in) :: label
       class(*), intent(in) :: val
@@ -8619,7 +8668,7 @@ contains
          if (present(default)) then
             default_str = intrinsic_to_string(default, 'a')
          end if
-         class default
+      class default
          _FAIL("Unsupported type")
       end select
 
@@ -8658,8 +8707,7 @@ contains
 
       end function vector_contains_str
 
-   end subroutine print_resource
-
+   end subroutine print_resource_scalar
 
    function intrinsic_to_string(val, str_format, rc) result(formatted_str)
       class(*), intent(in) :: val
@@ -8680,7 +8728,7 @@ contains
          write(formatted_str, str_format) val
       type is(character(len=*))
          formatted_str = trim(val)
-         class default
+      class default
          _FAIL( "Unsupported type in intrinsic_to_string")
       end select
 
