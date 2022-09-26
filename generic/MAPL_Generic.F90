@@ -8318,8 +8318,7 @@ contains
 
       do i = 1, size(labels_to_try)
          label_to_use = trim(labels_to_try(i))
-         call ESMF_ConfigFindLabel(state%cf, label = label_to_use, isPresent = label_is_present, rc = status)
-         _VERIFY(status)
+         call ESMF_ConfigFindLabel(state%cf, label = label_to_use, isPresent = label_is_present, _RC)
 
          if (label_is_present) then
             exit
@@ -8332,11 +8331,9 @@ contains
       end if
 
       if (label_is_present) then
-         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label_to_use,default,rc = status)
-         _VERIFY(status)
+         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label_to_use,default,_RC)
       else
-         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label,default,rc = status)
-         _VERIFY(status)
+         call MAPL_GetResourceFromConfig_Scalar(state%cf,val,label,default,_RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -8360,7 +8357,7 @@ contains
          _ASSERT(same_type_as(val, default), "Value and default must have same type")
       end if
 
-      call ESMF_ConfigFindLabel(config, label = label, isPresent = label_is_present, rc = status)
+      call ESMF_ConfigFindLabel(config, label = label, isPresent = label_is_present, _RC)
 
       select type(val)
       type is(integer(int32))
@@ -8370,8 +8367,7 @@ contains
                val = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
          end if
       type is(integer(int64))
          if (default_is_present .and. .not. label_is_present) then
@@ -8380,8 +8376,7 @@ contains
                val = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
          end if
       type is(real(real32))
          if (default_is_present .and. .not. label_is_present) then
@@ -8390,8 +8385,7 @@ contains
                val = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
          end if
       type is (real(real64))
          if (default_is_present .and. .not. label_is_present) then
@@ -8400,8 +8394,7 @@ contains
                val = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
          end if
       type is(character(len=*))
          if (default_is_present .and. .not. label_is_present) then
@@ -8410,8 +8403,7 @@ contains
                val = trim(default)
             end select
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
          end if
       type is(logical)
          if (default_is_present .and. .not. label_is_present) then
@@ -8420,15 +8412,13 @@ contains
                val = default
             end select
          else
-            call ESMF_ConfigGetAttribute(config, val, label = label, rc = status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(config, val, label = label, _RC)
          end if
       class default
          _FAIL( "Unupported type")
       end select
 
-      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status)
-      _VERIFY(status)
+      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC)
 
       ! Can set printrc to negative to not print at all
       if (MAPL_AM_I_Root() .and. printrc >= 0) then
@@ -8437,8 +8427,7 @@ contains
          else
             label_to_print = trim(label)
          end if
-         call print_resource_scalar(printrc, label_to_print, val, default=default,rc=status)
-         _VERIFY(status)
+         call print_resource_scalar(printrc, label_to_print, val, default=default,_RC)
       end if
 
       _RETURN(ESMF_SUCCESS)
@@ -8471,8 +8460,7 @@ contains
       do i = 1, size(labels_to_try)
          label_to_use = trim(labels_to_try(i))
 
-         call ESMF_ConfigFindLabel(state%cf, label = label_to_use, isPresent = label_is_present, rc = status)
-         _VERIFY(status)
+         call ESMF_ConfigFindLabel(state%cf, label = label_to_use, isPresent = label_is_present, _RC)
 
          if (label_is_present) then
             exit
@@ -8486,11 +8474,9 @@ contains
       end if
 
       if (label_is_present) then
-         call MAPL_GetResourceFromConfig_array(state%cf,vals,label_to_use,default,rc = status)
-         _VERIFY(status)
+         call MAPL_GetResourceFromConfig_array(state%cf,vals,label_to_use,default,_RC)
       else
-         call MAPL_GetResourceFromConfig_array(state%cf,vals,label,default,rc = status)
-         _VERIFY(status)
+         call MAPL_GetResourceFromConfig_array(state%cf,vals,label,default,_RC)
       end if
 
       _RETURN(ESMF_SUCCESS)
@@ -8514,8 +8500,7 @@ contains
          _ASSERT(same_type_as(vals, default), "Value and default must have same type")
       end if
 
-      call ESMF_ConfigFindLabel(config, label = label, isPresent = label_is_present, rc = status)
-      _VERIFY(status)
+      call ESMF_ConfigFindLabel(config, label = label, isPresent = label_is_present, _RC)
 
       count = size(vals)
 
@@ -8527,8 +8512,7 @@ contains
                if (.not. label_is_present) vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, _RC)
          end if
       type is(integer(int64))
          if (default_is_present .and. .not. label_is_present) then
@@ -8537,8 +8521,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, _RC)
          end if
       type is(real(real32))
          if (default_is_present .and. .not. label_is_present) then
@@ -8547,8 +8530,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, _RC)
          end if
       type is (real(real64))
          if (default_is_present .and. .not. label_is_present) then
@@ -8557,8 +8539,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, _RC)
          end if
       type is(character(len=*))
          if (default_is_present .and. .not. label_is_present) then
@@ -8567,8 +8548,7 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, _RC)
          end if
       type is(logical)
          if (default_is_present .and. .not. label_is_present) then
@@ -8577,29 +8557,26 @@ contains
                vals = default
             end select
          else
-            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, rc = status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(state%cf, valuelist = vals, count = count, label = label_to_use, _RC)
          end if
       class default
          _FAIL( "Unsupported type")
       end select
 
       ! Need a printer for arrays
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      ! call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, rc = status) !
-      ! _VERIFY(status)                                                                             !
-      !                                                                                             !
-      ! ! Can set printrc to negative to not print at all                                           !
-      ! if (MAPL_AM_I_Root() .and. printrc >= 0) then                                               !
-      !    if (label_is_present) then                                                               !
-      !       label_to_print = label                                                                !
-      !    else                                                                                     !
-      !       label_to_print = trim(label)                                                          !
-      !    end if                                                                                   !
-      !    call print_resource_array(printrc, label_to_print, vals, default=default,rc=status)      !
-      !    _VERIFY(status)                                                                          !
-      ! end if                                                                                      !
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      ! call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC) !
+      !                                                                                     !
+      ! ! Can set printrc to negative to not print at all                                   !
+      ! if (MAPL_AM_I_Root() .and. printrc >= 0) then                                       !
+      !    if (label_is_present) then                                                       !
+      !       label_to_print = label                                                        !
+      !    else                                                                             !
+      !       label_to_print = trim(label)                                                  !
+      !    end if                                                                           !
+      !    call print_resource_array(printrc, label_to_print, vals, default=default,_RC)    !
+      ! end if                                                                              !
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       _RETURN(ESMF_SUCCESS)
 
