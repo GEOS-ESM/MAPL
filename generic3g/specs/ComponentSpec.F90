@@ -89,16 +89,15 @@ contains
       class(AbstractStateItemSpec), pointer :: spec
       integer :: status
       type(ESMF_State) :: primary_state
+      type(ConnectionPoint), pointer :: conn_pt
       
-      associate (conn_pt => iter%of())
-        spec => registry%get_item_spec(conn_pt)
-        _ASSERT(associated(spec), 'invalid connection point')
+      conn_pt => iter%of()
+      spec => registry%get_item_spec(conn_pt)
+      _ASSERT(associated(spec), 'invalid connection point')
 
-        call ESMF_StateGet(comp_states, itemName=conn_pt%state_intent, nestedState=primary_state, _RC)
-        call add_to_state(primary_state, conn_pt%relative_pt, spec, _RC)
-        
-      end associate
-
+      call ESMF_StateGet(comp_states, itemName=conn_pt%state_intent, nestedState=primary_state, _RC)
+      call add_to_state(primary_state, conn_pt%relative_pt, spec, _RC)
+      
       _RETURN(_SUCCESS)
    end subroutine add_state_item
 
