@@ -68,6 +68,7 @@ module MAPL_InternalConstantsMod
    integer, parameter :: MAPL_BundleItem        = 16
    integer, parameter :: MAPL_StateItem         = 32
    integer, parameter :: MAPL_NoRestart         = 64  !not used
+   integer, parameter :: MAPL_UnitsRadians      = 99
 
    enum, bind(c)
       enumerator MAPL_Write2Disk

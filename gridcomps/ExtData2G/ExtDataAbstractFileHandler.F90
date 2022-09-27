@@ -101,8 +101,8 @@ contains
       end if
       time_index=time_not_found
 
-      call this%make_metadata(filename,file_metadata,__RC__) 
-      call file_metadata%get_time_info(timeVector=time_series,__RC__)
+      call this%make_metadata(filename,file_metadata,_RC) 
+      call file_metadata%get_time_info(timeVector=time_series,_RC)
       num_times = size(time_series)
       found_time = .false.
       if (bracketside == 'L') then
