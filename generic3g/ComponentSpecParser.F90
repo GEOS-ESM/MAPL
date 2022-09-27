@@ -160,44 +160,6 @@ contains
       _RETURN(_SUCCESS)
    end function var_parse_ChildSpecMap
 
-!!$   type(StateIntentsSpec) function parse_states_spec(config, rc) result(states_spec)
-!!$      type(Configuration), intent(in) :: config
-!!$      integer, optional, intent(out) :: rc
-!!$
-!!$      integer :: status
-!!$
-!!$      states_spec%import_spec = parse_state_spec(config%of('import'), _RC)
-!!$      states_spec%export_spec = parse_state_spec(config%of('export'), _RC)
-!!$      states_spec%internal_spec = parse_state_spec(config%of('internal'), _RC)
-!!$      
-!!$      _RETURN(_SUCCESS)
-!!$   end function parse_states_spec
-!!$
-!!$   type(StatesSpec) function parse_state_spec(config, rc) result(state_spec)
-!!$      type(Configuration), intent(in) :: config
-!!$      integer, optional, intent(out) :: rc
-!!$
-!!$      integer :: status
-!!$
-!!$      state_spec%field_specs = parse_var_specs(config%of('fields'), _RC)
-!!$      state_spec%bundle_specs = parse_var_specs(config%of('bundles'), _RC)
-!!$      state_spec%services_spec = parse_services_spec(config%of('services'), _RC)
-!!$
-!!$      call meta%add_spec(...)
-!!$      
-!!$      _RETURN(_SUCCESS)
-!!$   end function parse_state_spec
-!!$
-!!$   type(ChildrenSpec) function parse_children_spec(config, rc) result(children_spec)
-!!$      type(Configuration), intent(in) :: config
-!!$      integer, optional, intent(out) :: rc
-!!$
-!!$      integer :: status
-!!$
-!!$
-!!$      ...
-!!$      _RETURN(_SUCCESS)
-!!$   end function parse_state_spec
       
 
    function parse_ExtraDimsSpec(config, rc) result(dims_spec)

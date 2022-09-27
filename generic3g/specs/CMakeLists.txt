@@ -16,7 +16,7 @@ target_sources(MAPL.generic3g PRIVATE
 #  ServiceProviderSpec.F90
 #  ServiceRequesterSpec.F90
   StateSpec.F90
-  StateIntentsSpec.F90
+#  StateIntentsSpec.F90
 
    RelativeConnectionPoint.F90
    ConnectionPoint.F90
