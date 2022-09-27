@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-module mapl3g_ComponentSpecBuilder
+module mapl3g_ComponentSpecParser
    use mapl3g_ComponentSpec
    use mapl3g_ChildSpec
    use mapl3g_ChildSpecMap
@@ -11,27 +11,29 @@ module mapl3g_ComponentSpecBuilder
    private
 
    ! 
-   public :: build_component_spec
+   public :: parse_component_spec
 
    ! The following interfaces are public only for testing purposes.
-   public :: build_setservices
-   public :: build_ChildSpec
-   public :: build_ChildSpecMap
-   public :: var_build_ChildSpecMap
+   public :: parse_setservices
+   public :: parse_ChildSpec
+   public :: parse_ChildSpecMap
+   public :: var_parse_ChildSpecMap
+
+   public :: parse_ExtraDimsSpec
    
 contains
 
-   type(ComponentSpec) function build_component_spec(config, rc) result(spec)
+   type(ComponentSpec) function parse_component_spec(config, rc) result(spec)
       class(YAML_Node), intent(inout) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      ! Set services is special because "traditional" MAPL gridcomps may
-      ! have set a procedure during construction of an earlier phase.
+!!$      ! Set services is special because "traditional" MAPL gridcomps may
+!!$      ! have set a procedure during construction of an earlier phase.
       if (config%has('setServices')) then
          _ASSERT(.not. allocated(spec%user_setservices), 'user setservices already specified')
-         spec%user_setservices = build_setservices(config%of('setServices'), _RC)
+         spec%user_setservices = parse_setservices(config%of('setServices'), _RC)
       end if
       
 !!$      spec%states_spec = process_states_spec(config%of('states'), _RC)
@@ -41,10 +43,10 @@ contains
 !!$      spec%services_spec = process_grid_spec(config%of('serviceservices', _RC)
 
       _RETURN(_SUCCESS)
-   end function build_component_spec
+   end function parse_component_spec
 
 
-   type(DSOSetServices) function build_setservices(config, rc) result(user_ss)
+   type(DSOSetServices) function parse_setservices(config, rc) result(user_ss)
       class(YAML_Node), intent(in) :: config
       integer, optional, intent(out) :: rc
 
@@ -63,16 +65,16 @@ contains
       user_ss = user_setservices(sharedObj, userRoutine)
       
       _RETURN(_SUCCESS)
-   end function build_setservices
+   end function parse_setservices
 
-   type(ChildSpec) function build_ChildSpec(config, rc) result(child_spec)
+   type(ChildSpec) function parse_ChildSpec(config, rc) result(child_spec)
       class(YAML_Node), intent(in) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       _ASSERT(config%has('setServices'),"child spec must specify a 'setServices' spec")
-      child_spec%user_setservices = build_setservices(config%of('setServices'), _RC)
+      child_spec%user_setservices = parse_setservices(config%of('setServices'), _RC)
 
       if (config%has('esmf_config')) then
          call config%get(child_spec%esmf_config_file, 'esmf_config', _RC)
@@ -83,13 +85,13 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-   end function build_ChildSpec
+   end function parse_ChildSpec
 
    ! Note: It is convenient to allow a null pointer for the config in
    ! the case of no child specs.  It spares the higher level procedure
    ! making the relevant check.
 
-   type(ChildSpecMap) function build_ChildSpecMap(config, rc) result(specs)
+   type(ChildSpecMap) function parse_ChildSpecMap(config, rc) result(specs)
       class(YAML_Node), pointer, intent(in) :: config
       integer, optional, intent(out) :: rc
 
@@ -111,16 +113,16 @@ contains
         do while (iter /= e)
            child_name => to_string(iter%first(), _RC)
            subcfg => iter%second()
-           child_spec = build_ChildSpec(subcfg)
+           child_spec = parse_ChildSpec(subcfg)
            call specs%insert(child_name, child_spec)
            call iter%next()
         end do
       end associate
 
       _RETURN(_SUCCESS)
-   end function build_ChildSpecMap
+   end function parse_ChildSpecMap
 
-   type(ChildSpecMap) function var_build_ChildSpecMap(config, rc) result(specs)
+   type(ChildSpecMap) function var_parse_ChildSpecMap(config, rc) result(specs)
       class(YAML_Node), pointer, intent(in) :: config
       integer, optional, intent(out) :: rc
 
@@ -147,7 +149,7 @@ contains
         do while (iter /= e)
            counter = counter + 1
            child_name => to_string(iter%first(), _RC)
-           child_spec = build_ChildSpec(iter%second(), _RC)
+           child_spec = parse_ChildSpec(iter%second(), _RC)
            call specs%insert(child_name, child_spec)
            call iter%next()
         end do
@@ -156,35 +158,37 @@ contains
 !!$      call specs%deep_copy(kludge)
       specs = kludge
       _RETURN(_SUCCESS)
-   end function var_build_ChildSpecMap
+   end function var_parse_ChildSpecMap
 
-!!$   type(StatesSpec) function build_states_spec(config, rc) result(states_spec)
+!!$   type(StateIntentsSpec) function parse_states_spec(config, rc) result(states_spec)
 !!$      type(Configuration), intent(in) :: config
 !!$      integer, optional, intent(out) :: rc
 !!$
 !!$      integer :: status
 !!$
-!!$      states_spec%import_spec = build_state_spec(config%of('import'), _RC)
-!!$      states_spec%export_spec = build_state_spec(config%of('export'), _RC)
-!!$      states_spec%internal_spec = build_state_spec(config%of('internal'), _RC)
+!!$      states_spec%import_spec = parse_state_spec(config%of('import'), _RC)
+!!$      states_spec%export_spec = parse_state_spec(config%of('export'), _RC)
+!!$      states_spec%internal_spec = parse_state_spec(config%of('internal'), _RC)
 !!$      
 !!$      _RETURN(_SUCCESS)
-!!$   end function build_states_spec
+!!$   end function parse_states_spec
 !!$
-!!$   type(StatesSpec) function build_state_spec(config, rc) result(state_spec)
+!!$   type(StatesSpec) function parse_state_spec(config, rc) result(state_spec)
 !!$      type(Configuration), intent(in) :: config
 !!$      integer, optional, intent(out) :: rc
 !!$
 !!$      integer :: status
 !!$
-!!$      state_spec%field_specs = build_var_specs(config%of('fields'), _RC)
-!!$      state_spec%bundle_specs = build_var_specs(config%of('bundles'), _RC)
-!!$      state_spec%services_spec = build_services_spec(config%of('services'), _RC)
+!!$      state_spec%field_specs = parse_var_specs(config%of('fields'), _RC)
+!!$      state_spec%bundle_specs = parse_var_specs(config%of('bundles'), _RC)
+!!$      state_spec%services_spec = parse_services_spec(config%of('services'), _RC)
+!!$
+!!$      call meta%add_spec(...)
 !!$      
 !!$      _RETURN(_SUCCESS)
-!!$   end function build_state_spec
+!!$   end function parse_state_spec
 !!$
-!!$   type(ChildrenSpec) function build_state_spec(config, rc) result(children_spec)
+!!$   type(ChildrenSpec) function parse_children_spec(config, rc) result(children_spec)
 !!$      type(Configuration), intent(in) :: config
 !!$      integer, optional, intent(out) :: rc
 !!$
@@ -193,7 +197,17 @@ contains
 !!$
 !!$      ...
 !!$      _RETURN(_SUCCESS)
-!!$   end function build_state_spec
+!!$   end function parse_state_spec
       
 
-end module mapl3g_ComponentSpecBuilder
+   function parse_ExtraDimsSpec(config, rc) result(dims_spec)
+      use mapl3g_ExtraDimsSpec
+      type(ExtraDimsSpec) :: dims_spec
+      class(YAML_Node), pointer, intent(in) :: config
+      integer, optional, intent(out) :: rc
+
+!!$      dims_spec = ExtraDimsSpec()
+      
+   end function parse_ExtraDimsSpec
+   
+end module mapl3g_ComponentSpecParser

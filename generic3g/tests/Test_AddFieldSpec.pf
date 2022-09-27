@@ -1,10 +1,11 @@
 module Test_AddFieldSpec
    use funit
-   use mapl3g_DimsSpec, only: DimsSpec
+   use mapl3g_ExtraDimsSpec, only: ExtraDimsSpec
    use mapl3g_FieldSpec, only: FieldSpec
    use mapl3g_StateSpec, only: StateSpec
-   use mapl3g_VerticalStaggerLoc, only: V_STAGGER_LOC_CENTER
+   use mapl3g_VerticalDimSpec, only: V_STAGGER_LOC_CENTER
    use mapl3g_AbstractStateItemSpec
+   use ESMF
    implicit none
 
 contains
@@ -14,9 +15,9 @@ contains
    ! is to pass.
    subroutine test_add_one_field()
       type(StateSpec) :: state_spec
-      type(DimsSpec) :: dims_spec
-
-      call state_spec%add_item('A', FieldSpec(DimsSpec(V_STAGGER_LOC_CENTER)))
+      type(ExtraDimsSpec) :: dims_spec
+      type(ESMF_Grid) :: grid
+      call state_spec%add_item('A', FieldSpec(ExtraDimsSpec(), grid))
    end subroutine test_add_one_field
    
    @test
@@ -29,13 +30,13 @@ contains
    subroutine test_get_item()
       use mapl3g_stateitemspecmap
       type(StateSpec) :: state_spec
-      type(DimsSpec) :: dims_spec
+      type(ExtraDimsSpec) :: dims_spec
       class(AbstractStateItemSpec), pointer :: item_spec
 
       type(FieldSpec) :: field_spec
+      type(ESMF_Grid) :: grid
 
-
-      field_spec = FieldSpec(DimsSpec(V_STAGGER_LOC_CENTER))
+      field_spec = FieldSpec(ExtraDimsSpec(), Grid)
       call state_spec%add_item('A', field_spec)
 
       ! Different name/key

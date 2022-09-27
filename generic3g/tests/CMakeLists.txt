@@ -11,9 +11,11 @@ set (test_srcs
   Test_RunChild.pf
 
   Test_AddFieldSpec.pf
-  Test_ComponentSpecBuilder.pf
+  Test_ComponentSpecParser.pf
 
   Test_FieldDictionary.pf
+
+  Test_GenericInitialize.pf
   )
 
 

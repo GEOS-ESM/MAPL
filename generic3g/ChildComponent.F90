@@ -2,6 +2,7 @@ module mapl3g_ChildComponent
    use :: esmf, only: ESMF_GridComp
    use :: esmf, only: ESMF_State
    use :: esmf, only: ESMF_Clock
+   use yaFyaml, only: YAML_Node
    implicit none
    private
 
@@ -23,6 +24,10 @@ module mapl3g_ChildComponent
       generic :: initialize => initialize_self
       generic :: finalize => finalize_self
    end type ChildComponent
+
+   interface ChildComponent
+      module procedure new_ChildComponent
+   end interface ChildComponent
 
    interface
       ! run_self() is implemented in submodule to avoid circular dependency
@@ -53,5 +58,15 @@ module mapl3g_ChildComponent
       end subroutine finalize_self
 
    end interface
+
+contains
+
+   function new_ChildComponent(gridcomp) result(child)
+      type(ChildComponent) :: child
+      type(ESMF_GridComp), intent(in) :: gridcomp
+
+      child%gridcomp = gridcomp
+      
+   end function new_ChildComponent
 
 end module mapl3g_ChildComponent

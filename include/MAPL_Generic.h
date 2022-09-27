@@ -1,4 +1,4 @@
-
+#include "MAPL_private_state.h"
 #include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"

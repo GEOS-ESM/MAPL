@@ -11,7 +11,8 @@ module mapl3g_VerticalStaggerLoc
 
    type :: VerticalStaggerLoc
       private
-      integer :: i = INVALID
+      integer :: stagger
+      integer :: num_levels ! LM even for edge pressure
    contains
       procedure :: equal_to
       procedure :: not_equal_to

@@ -1,22 +1,22 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL_Generic.h"
 
 module mapl3g_OuterMetaComponent
-   use :: mapl3g_UserSetServices,   only: AbstractUserSetServices
-   use :: mapl3g_ComponentSpec
-   use :: mapl3g_ChildComponent
-   use :: mapl3g_CouplerComponentVector
-   use :: mapl3g_InnerMetaComponent
-   use :: mapl3g_MethodPhasesMap
-   use :: mapl3g_ChildComponentMap, only: ChildComponentMap
-   use :: mapl3g_ChildComponentMap, only: ChildComponentMapIterator
-   use :: mapl3g_ChildComponentMap, only: operator(/=)
-   use :: mapl3g_ESMF_Interfaces, only: I_Run
-   use :: mapl_ErrorHandling
-   use :: gFTL2_StringVector
-   use :: mapl_keywordEnforcer, only: KE => KeywordEnforcer
+   use mapl3g_UserSetServices,   only: AbstractUserSetServices
+   use mapl3g_ComponentSpec
+   use mapl3g_ChildComponent
+!!$   use mapl3g_CouplerComponentVector
+   use mapl3g_InnerMetaComponent
+   use mapl3g_MethodPhasesMap
+   use mapl3g_ChildComponentMap, only: ChildComponentMap
+   use mapl3g_ChildComponentMap, only: ChildComponentMapIterator
+   use mapl3g_ChildComponentMap, only: operator(/=)
+   use mapl3g_ESMF_Interfaces, only: I_Run
+   use mapl_ErrorHandling
+   use gFTL2_StringVector
+   use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use esmf
-   use :: yaFyaml, only: YAML_Node
-   use :: pflogger, only: logging, Logger
+   use yaFyaml, only: YAML_Node
+   use pflogger, only: logging, Logger
    implicit none
    private
 
@@ -45,11 +45,10 @@ module mapl3g_OuterMetaComponent
       type(ComponentSpec)                         :: component_spec
       type(MethodPhasesMap)                       :: phases_map
       type(OuterMetaComponent), pointer           :: parent_private_state
-!!$      type(ComponentSpec)                         :: component_spec
 
       type(ChildComponentMap)                     :: children
       type(InnerMetaComponent), allocatable       :: inner_meta
-
+      class(AbstractUserSetServices), allocatable :: user_setservices
 
       class(Logger), pointer :: lgr  ! "MAPL.Generic" // name
 
@@ -92,16 +91,17 @@ module mapl3g_OuterMetaComponent
       type(OuterMetaComponent), pointer :: outer_meta
    end type OuterMetaWrapper
 
-   !Constructor
-   interface OuterMetaComponent
-      module procedure new_outer_meta
-   end interface OuterMetaComponent
 
    interface get_outer_meta
       module procedure :: get_outer_meta_from_outer_gc
    end interface get_outer_meta
 
-   character(len=*), parameter :: OUTER_META_PRIVATE_STATE = "OuterMetaCompon`ent Private State"
+   character(len=*), parameter :: OUTER_META_PRIVATE_STATE = "OuterMetaComponent Private State"
+
+   character(*), parameter :: LOWER = 'abcdefghijklmnopqrstuvwxyz'
+   character(*), parameter :: UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+   character(*), parameter :: DIGITS = '0123456789'
+   character(*), parameter :: ALPHANUMERIC = LOWER//UPPER//DIGITS
 
 
    ! Submodule interfaces
@@ -216,13 +216,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(OuterMetaWrapper) :: wrapper
 
-      outer_meta => null()
-
-      call ESMF_UserCompGetInternalState(gridcomp, OUTER_META_PRIVATE_STATE, wrapper, status)
-      _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not found for this gridcomp.")
-      outer_meta => wrapper%outer_meta
+      _GET_NAMED_PRIVATE_STATE(gridcomp, OuterMetaComponent, OUTER_META_PRIVATE_STATE, outer_meta)
 
       _RETURN(_SUCCESS)
    end function get_outer_meta_from_outer_gc
@@ -232,18 +227,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(OuterMetaWrapper) :: wrapper
       type(OuterMetaComponent), pointer :: outer_meta
 
-      allocate(wrapper%outer_meta) ! potential memory leak: use free_outer_meta()
-      call ESMF_UserCompSetInternalState(gridcomp, OUTER_META_PRIVATE_STATE, wrapper, status)
-      _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent already created for this gridcomp?")
+      _SET_NAMED_PRIVATE_STATE(gridcomp, OuterMetaComponent, OUTER_META_PRIVATE_STATE, outer_meta)
 
-      outer_meta => wrapper%outer_meta
-
-      ! GFortran 11.2 fails when using the constructor.
-!!$      outer_meta = OuterMetaComponent(gridcomp)
-      
       call initialize_meta(outer_meta, gridcomp)
       outer_meta%lgr => logging%get_logger('MAPL.GENERIC')
 
@@ -313,22 +300,23 @@ contains
    subroutine set_user_setservices(this, user_setservices)
       class(OuterMetaComponent), intent(inout) :: this
       class(AbstractUserSetServices), intent(in) :: user_setservices
-      this%component_spec%user_setServices = user_setservices
+      this%user_setServices = user_setservices
    end subroutine set_user_setservices
 
 
    recursive subroutine initialize(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
-      type(ESMF_State) :: importState
-      type(ESMF_State) :: exportState
-      type(ESMF_Clock) :: clock
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
+      type(ESMF_State), optional :: importState
+      type(ESMF_State), optional :: exportState
+      type(ESMF_Clock), optional :: clock
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
       type(ChildComponent), pointer :: child
       type(ChildComponentMapIterator) :: iter
+
 
       call ESMF_GridCompInitialize(this%user_gridcomp, importState=importState, exportState=exportState, &
            clock=clock, userRC=userRC, _RC)
@@ -505,5 +493,18 @@ contains
       class(OuterMetaComponent), intent(in) :: this
       gridcomp = this%self_gridcomp
    end function get_gridcomp
+
+!!$   subroutine validate_user_short_name(this, short_name, rc)
+!!$
+!!$      integer :: status
+!!$      _ASSERT(len(short_name) > 0, 'Short names must have at least one character.')
+!!$      _ASSERT(0 == verify(short_name(1:1), LOWER//UPPER), 'Short name must start with a character.')
+!!$      _ASSERT(0 == verify(short_name, ALPHANUMERIC // '_'), 'Illegal short name.')
+!!$
+!!$      _RETURN(_SUCCESS)
+!!$   end subroutine validate_user_short_name
+
+
+
 
 end module mapl3g_OuterMetaComponent

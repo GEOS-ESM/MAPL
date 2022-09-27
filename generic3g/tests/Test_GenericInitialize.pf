@@ -1,0 +1,39 @@
+module Test_GenericInitialize
+   use funit
+   use esmf
+   use yafyaml
+   use mapl3g_GenericGridComp
+   use mapl3g_ESMF_Interfaces
+   use mapl3g_ComponentBuilder
+   use mapl3g_FieldSpec
+   use mapl3g_ExtraDimsSpec
+   use mapl3g_VerticalDimSpec
+   use mapl3g_StateSpec
+   use mapl3g_FieldSpec
+   implicit none
+contains
+
+   @test
+   ! Given a field_spec, create an (unallocated) field
+   ! Verify that the name is as expected.
+   subroutine test_make_field_name()
+      type(ComponentBuilder) :: builder
+      type(FieldSpec) :: field_spec
+      type(ESMF_Field) :: field
+      character(len=ESMF_MAXSTR) :: name
+      integer :: status
+
+      type(ESMF_Grid) :: grid
+
+      field_spec = FieldSpec(ExtraDimsSpec(), grid)
+      field = builder%make_field('A', field_spec, rc=status)
+      @assert_that(status, is(0))
+
+      call ESMF_FieldGet(field, name=name, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual(name, 'A')
+   end subroutine test_make_field_name
+
+
+end module Test_GenericInitialize

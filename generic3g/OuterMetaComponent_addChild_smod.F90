@@ -18,8 +18,9 @@ contains
       type(ESMF_GridComp) :: child_gc
       type(ChildComponent) :: child_comp
 
+!!$      call validate_component_name(child_name, _RC)
       child_gc = create_grid_comp(child_name, config, _RC)
-      child_comp%gridcomp = child_gc 
+      child_comp = ChildComponent(child_gc)
       call this%children%insert(child_name, child_comp)
 
       _RETURN(ESMF_SUCCESS)
