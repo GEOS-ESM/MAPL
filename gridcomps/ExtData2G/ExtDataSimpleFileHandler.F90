@@ -66,13 +66,13 @@ contains
       if (bracket%time_in_bracket(target_time) .and. in_range) then
          _RETURN(_SUCCESS)
       end if
-      call ESMF_TimeIntervalSet(zero,__RC__)      
+      call ESMF_TimeIntervalSet(zero,_RC)      
       if (this%frequency == zero) then
          current_file = this%file_template
          if (get_left) then
-            call this%get_time_on_file(current_file,target_time,'L',time_index,time,__RC__)
+            call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
             _ASSERT(time_index/=time_not_found,"Time not found in file")
-            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,__RC__)
+            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_RC)
             if (in_range .and. (bracket%left_node == bracket%right_node)) then
                call bracket%swap_node_fields(rc=status)
                _VERIFY(status)
@@ -82,21 +82,21 @@ contains
             end if
          end if
          if (get_right) then
-            call this%get_time_on_file(current_file,target_time,'R',time_index,time,__RC__)
+            call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
             _ASSERT(time_index/=time_not_found,"Time not found in file")
-            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,__RC__)
+            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,_RC)
             bracket%new_file_right=.true.
          end if
       else
          if (get_left) then
-            call this%get_file(current_file,target_time,0,__RC__)
-            call this%get_time_on_file(current_file,target_time,'L',time_index,time,__RC__)
+            call this%get_file(current_file,target_time,0,_RC)
+            call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
             if (time_index == time_not_found) then
-               call this%get_file(current_file,target_time,-1,__RC__)
-               call this%get_time_on_file(current_file,target_time,'L',time_index,time,__RC__)
+               call this%get_file(current_file,target_time,-1,_RC)
+               call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
                _ASSERT(time_index/=time_not_found,"Time not found in file")
             end if
-            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,__RC__)
+            call bracket%set_node('L',file=current_file,time_index=time_index,time=time,_RC)
             if (in_range .and. (bracket%left_node == bracket%right_node)) then
                call bracket%swap_node_fields(rc=status)
                _VERIFY(status)
@@ -107,14 +107,14 @@ contains
          end if
 
          if (get_right) then
-            call this%get_file(current_file,target_time,0,__RC__)
-            call this%get_time_on_file(current_file,target_time,'R',time_index,time,__RC__)
+            call this%get_file(current_file,target_time,0,_RC)
+            call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
             if (time_index == time_not_found) then
-               call this%get_file(current_file,target_time,1,__RC__)
-               call this%get_time_on_file(current_file,target_time,'R',time_index,time,__RC__)
+               call this%get_file(current_file,target_time,1,_RC)
+               call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
                _ASSERT(time_index /= time_not_found,"Time not found in file")
             end if
-            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,__RC__)
+            call bracket%set_node('R',file=current_file,time_index=time_index,time=time,_RC)
             bracket%new_file_right=.true.
          end if
 
@@ -148,7 +148,7 @@ contains
          n = (input_time-this%reff_time)/this%frequency 
          ftime = this%reff_time+(n+shift)*this%frequency
       end if
-      call fill_grads_template(filename,this%file_template,time=ftime,__RC__)
+      call fill_grads_template(filename,this%file_template,time=ftime,_RC)
       inquire(file=trim(filename),exist=file_found)
       _ASSERT(file_found,"get_file did not file a file using: "//trim(this%file_template))
       _RETURN(_SUCCESS)
