@@ -40,6 +40,7 @@ module MAPL_HistoryGridCompMod
   use MAPL_GriddedIOitemMod
   use pFIO_ClientManagerMod, only: o_Clients
   use pFIO_DownbitMod, only: pFIO_DownBit
+  use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use MAPL_StringTemplate
   use regex_module
@@ -108,14 +109,12 @@ module MAPL_HistoryGridCompMod
      type(HistoryCollectionGlobalAttributes) :: global_atts
      integer                             :: CoresPerNode, mype, npes
      integer                             :: AvoidRootNodeThreshold
-     integer                             :: blocksize
-     integer                             :: MarkDone
-     integer                             :: PrePost
      integer                             :: version
      logical                             :: fileOrderAlphabetical
      logical                             :: integer_time
      integer                             :: collectionWriteSplit
      integer                             :: serverSizeSplit
+     logical                             :: allow_overwrite
   end type HISTORY_STATE
 
   type HISTORY_wrap
@@ -427,6 +426,7 @@ contains
     type(StringStringMap) :: global_attributes
     character(len=ESMF_MAXSTR) :: name,regrid_method
     logical :: has_conservative_keyword, has_regrid_keyword
+    integer :: create_mode
     type(ESMF_Info) :: infoh
 
 ! Begin
@@ -531,13 +531,14 @@ contains
                                    label ='AvoidRootNodeThreshold:', default=1024, rc=status )
     _VERIFY(STATUS)
 
-    call ESMF_ConfigGetAttribute(config, value=INTSTATE%blocksize,         &
-                                         label='BlockSize:', default=10, rc=status)
-    _VERIFY(STATUS)
-
     call ESMF_ConfigGetAttribute(config, value=cFileOrder,         &
                                          label='FileOrder:', default='ABC', rc=status)
     _VERIFY(STATUS)
+    call ESMF_ConfigGetAttribute(config, value=intState%allow_overwrite,  &
+                                         label='Allow_Overwrite:', default=.false., _RC)
+    create_mode = PFIO_NOCLOBBER ! defaut no overwrite
+    if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
+
     if (trim(cFileOrder) == 'ABC') then
        intstate%fileOrderAlphabetical = .true.
     else if (trim(cFileOrder) == 'AddOrder') then
@@ -558,14 +559,6 @@ contains
                                       n_hist_split   = IntState%collectionWriteSplit,rc=status)
     _VERIFY(status)
 
-    call ESMF_ConfigGetAttribute(config, value=INTSTATE%MarkDone,          &
-                                         label='MarkDone:', default=0, rc=status)
-    _VERIFY(STATUS)
-    call ESMF_ConfigGetAttribute(config, value=INTSTATE%PrePost,          &
-                                         label='PrePost:', default=1, rc=status)
-    _VERIFY(STATUS)
-
-
     call ESMF_ConfigGetAttribute(config, value=snglcol,          &
                                          label='SINGLE_COLUMN:', default=0, rc=status)
     _VERIFY(STATUS)
@@ -578,9 +571,6 @@ contains
        print *, 'EXPID: ',trim(INTSTATE%expid)
        print *, 'Descr: ',trim(INTSTATE%expdsc)
        print *, 'DisableSubVmChecks:', disableSubVmChecks
-       print *, 'BlockSize: '        , INTSTATE%blocksize
-       print *, 'MarkDone:  '        , INTSTATE%MarkDone
-       print *, 'PrePost:   '        , INTSTATE%PrePost
        print *
     endif
 
@@ -942,7 +932,7 @@ contains
        if (old_fields_style) then
           field_set_name = trim(string) // 'fields'
           allocate(field_set)
-          call parse_fields(cfg, trim(field_set_name), field_set, list(n)%items, _RC)
+          call parse_fields(cfg, trim(field_set_name), field_set, collection_name = list(n)%collection, items = list(n)%items, _RC)
        end if
 
        list(n)%field_set => field_set
@@ -1775,17 +1765,19 @@ ENDDO PARSER
            stateIntent = ESMF_STATEINTENT_IMPORT, &
            rc=status )
       _VERIFY(STATUS)
-      if(list(n)%mode == "instantaneous") then
+
+      select case (list(n)%mode)
+      case ("instantaneous")
          IntState%average(n) = .false.
-      else
+      case ("time-averaged")
          IntState%average(n) = .true.
          IntState%CIM(n) = ESMF_StateCreate ( name=trim(list(n)%filename), &
-              stateIntent = ESMF_STATEINTENT_IMPORT, &
-              rc=status )
-         _VERIFY(STATUS)
+              stateIntent = ESMF_STATEINTENT_IMPORT, _RC)
          NULLIFY(INTSTATE%SRCS(n)%SPEC)
          NULLIFY(INTSTATE%DSTS(n)%SPEC)
-      endif
+      case default
+         _FAIL("Invalid mode ["//trim(list(n)%mode)//"] for collection ["//trim(list(n)%collection)//"]. Only 'instantaneous' and 'time-averaged' are supported")
+      end select
 
       if (associated(IntState%Regrid(n)%PTR)) then
          _ASSERT(.not. list(n)%subVm,'needs informative message') ! ALT: currently we are not supporting regridding on subVM
@@ -2485,6 +2477,10 @@ ENDDO PARSER
 
     do n=1,nlist
        if (list(n)%disabled) cycle
+       if (list(n)%format == 'CFIOasync') then
+          list(n)%format = 'CFIO'
+          if (mapl_am_i_root()) write(*,*)'Chose CFIOasync setting to CFIO, update your History.rc file'
+       end if
        if (list(n)%format == 'CFIO') then
           call Get_Tdim (list(n), clock, tm)
           if (associated(list(n)%levels) .and. list(n)%vvars(1) /= "") then
@@ -2530,7 +2526,7 @@ ENDDO PARSER
                 call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,rc=status)
                 _VERIFY(status)
              end if
-             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata)
+             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
              call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
           end if
        end if
@@ -3178,20 +3174,27 @@ ENDDO PARSER
     end function extract_unquoted_item
 
 
-    subroutine parse_fields(cfg, label, field_set, items, rc)
+    subroutine parse_fields(cfg, label, field_set, collection_name, items, rc)
        type(ESMF_Config), intent(inout) :: cfg
        character(*), intent(in) :: label
        type (FieldSet), intent(inout) :: field_set
+       character(*), intent(in), optional :: collection_name
        type(GriddedIOitemVector), intent(inout), optional :: items
        integer, optional, intent(out) :: rc
        logical :: table_end
-       logical :: vectorDone
-       integer :: m
+       logical :: vectorDone,match_alias
+       integer :: m,i,j
        character(ESMF_MAXSTR), pointer:: fields (:,:)
 
        type(GriddedIOitem) :: item
        integer :: status
+       character(len=:), allocatable :: usable_collection_name
 
+       if (present(collection_name)) then
+          usable_collection_name = trim(collection_name)
+       else
+          usable_collection_name = "unknown"
+       end if
        call ESMF_ConfigFindLabel ( cfg, label=label//':', rc=status)
        _VERIFY(status)
 
@@ -3330,6 +3333,17 @@ ENDDO PARSER
           if(present(items)) call items%push_back(item)
        enddo
        field_set%nfields = m
+!      check for duplicates
+       do i=1,field_set%nfields-1
+          do j=i+1,field_set%nfields
+
+             match_alias = field_set%fields(3,i) == field_set%fields(3,j)
+             if (match_alias) then
+                _FAIL("Caught collection "//usable_collection_name//" with this duplicate alias or shortname if no alias provided: "//trim(field_set%fields(3,i)))
+             end if
+
+          enddo
+       enddo
 
        end subroutine parse_fields
 
@@ -3365,7 +3379,6 @@ ENDDO PARSER
     type(ESMF_State)               :: state_out
     integer                        :: nymd, nhms
     character(len=ESMF_MAXSTR)     :: DateStamp
-    integer                        :: CollBlock
     type(ESMF_Time)                :: current_time
     type(ESMF_Time)                :: lastMonth
     type(ESMF_TimeInterval)        :: dur, oneMonth
@@ -3377,6 +3390,7 @@ ENDDO PARSER
 
 !   ErrLog vars
     integer                        :: status
+    logical                        :: file_exists
 
 !=============================================================================
 
@@ -3398,7 +3412,6 @@ ENDDO PARSER
     list => IntState%list
     nlist = size(list)
 
-    CollBlock = IntState%blocksize
 ! Retrieve the pointer to the generic state
 !------------------------------------------
 
@@ -3613,6 +3626,10 @@ ENDDO PARSER
          else
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
+                  if (.not.intState%allow_overwrite) then
+                     inquire (file=trim(filename(n)),exist=file_exists)
+                     _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
+                  end if
                   call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,rc=status)
                   _VERIFY(status)
                   list(n)%currentFile = filename(n)

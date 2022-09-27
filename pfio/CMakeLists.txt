@@ -91,7 +91,7 @@ set (srcs
   StringVectorUtil.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
 
 # We don't want to disable good NAG debugging flags everywhere, but we still need to do it for
 # interfaces (e.g. MPI) that allow multiple types for the same argument (eg buffer).
@@ -143,7 +143,7 @@ endif ()
 ecbuild_add_executable (
   TARGET pfio_writer.x
   SOURCES pfio_writer.F90
-  LIBS ${this} NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
+  LIBS ${this} NetCDF::NetCDF_Fortran NetCDF::NetCDF_C MPI::MPI_Fortran)
 set_target_properties (pfio_writer.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 #--------------------

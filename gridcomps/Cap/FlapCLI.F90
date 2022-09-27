@@ -37,13 +37,13 @@ contains
         authors     = trim(authors))
 
       call flap_cli%add_command_line_options(flap_cli%cli_options, rc=status)
-      _VERIFY(status)   
+      _VERIFY(status)
 
       call flap_cli%cli_options%parse(error=status); _VERIFY(status)
 
       call flap_cli%fill_cap_options(cap_options, rc=status)
       _VERIFY(status)
-      
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function FlapCLI
@@ -57,6 +57,13 @@ contains
       integer :: status
       _UNUSED_DUMMY(unusable)
 
+      call options%add(switch='--root_dso',        &
+           help='name of root dso to use',                   &
+           required=.false.,                           &
+           def='none',                                 &
+           act='store',                                &
+           error=status)
+      _VERIFY(status)
       call options%add(switch='--esmf_logtype',                   &
            help='ESMF Logging type',                   &
            required=.false.,                           &
@@ -131,7 +138,7 @@ contains
            act='store', &
            error=status)
       _VERIFY(status)
-      
+
       call options%add(switch='--npes_output_server', &
            help='# MPI processes used by output server', &
            required=.false., &
@@ -151,7 +158,7 @@ contains
            act='store', &
            error=status)
       _VERIFY(status)
-      
+
       call options%add(switch='--nodes_output_server', &
            help='# NCCS nodes (28 or more processors) used by output server', &
            required=.false., &
@@ -255,6 +262,9 @@ contains
       logical :: one_node_output, compress_nodes, use_sub_comm
 
       integer, allocatable :: nodes_output_server(:)
+
+      call flapCLI%cli_options%get(val=buffer, switch='--root_dso', error=status); _VERIFY(status)
+      cap_options%root_dso = trim(buffer)
 
       call flapCLI%cli_options%get(val=buffer, switch='--egress_file', error=status); _VERIFY(status)
       cap_options%egress_file = trim(buffer)

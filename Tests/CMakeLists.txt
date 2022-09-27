@@ -33,9 +33,6 @@ if (BUILD_WITH_FLAP)
     target_link_libraries(pfio_MAPL_demo.x PRIVATE OpenMP::OpenMP_Fortran)
   endif ()
   set_target_properties(pfio_MAPL_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+  add_subdirectory(ExtData_Testing_Framework EXCLUDE_FROM_ALL)
 
 endif ()
-
-#install(PROGRAMS ExtDataDriver.x DESTINATION bin)
-#install(TARGETS ExtDataDriver.x DESTINATION bin)
-

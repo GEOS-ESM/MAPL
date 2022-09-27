@@ -51,6 +51,7 @@ module MAPL_CapGridCompMod
      private
      type (ESMF_GridComp)          :: gc
      procedure(), pointer, nopass  :: root_set_services => null()
+     character(len=:), allocatable :: root_dso
      character(len=:), allocatable :: final_file, name, cap_rc_file
      integer :: nsteps, heartbeat_dt, perpetual_year, perpetual_month, perpetual_day
      logical :: amiroot, started_loop_timer
@@ -113,6 +114,7 @@ contains
     integer :: status, phase
     type(MAPL_CapGridComp), pointer :: cap
     type(MAPL_MetaComp), pointer :: meta, root_meta
+    character(len=ESMF_MAXSTR) :: sharedObj
     class(DistributedProfiler), pointer :: t_p, m_p
 
     type (ESMF_GridComp), pointer :: root_gc
@@ -173,7 +175,12 @@ contains
     call MAPL_GetResource(meta, root_name, "ROOT_NAME:", default = "ROOT", _RC)
     call MAPL_GetResource(meta, ROOT_CF, "ROOT_CF:", default = "ROOT.rc", _RC)
     root_set_services => cap%root_set_services
-    cap%root_id = MAPL_AddChild(meta, name = root_name, SS=root_set_services, configFile=ROOT_CF, _RC)
+    if (.not.allocated(cap%root_dso)) then
+       cap%root_id = MAPL_AddChild(meta, name = root_name, SS=root_set_services, configFile=ROOT_CF, _RC)
+    else
+       sharedObj = trim(cap%root_dso)
+       cap%root_id = MAPL_AddChild(meta, name = root_name, userRoutine = 'setservices_', sharedObj=sharedObj, configFile=ROOT_CF, _RC)
+    end if
 
       child_gc => meta%get_child_gridcomp(cap%root_id)
       call MAPL_InternalStateRetrieve(child_gc, child_meta, _RC)
@@ -268,16 +275,17 @@ contains
   end subroutine set_services_gc
 
 
-   subroutine MAPL_CapGridCompCreate(cap, root_set_services, cap_rc, name, final_file, comm_world, unusable, n_run_phases, rc)
+   subroutine MAPL_CapGridCompCreate(cap, cap_rc, name, final_file, comm_world, unusable, n_run_phases, root_set_services, root_dso,  rc)
       use MAPL_SetServicesWrapper
       use mapl_StubComponent
       use mapl_profiler
     type(MAPL_CapGridComp), intent(out), target :: cap
-    procedure() :: root_set_services
     character(*), intent(in) :: cap_rc, name
     character(len=*), optional, intent(in) :: final_file
     integer, intent(in) :: comm_world
     class(KeywordEnforcer), optional, intent(in) :: unusable
+    procedure(), optional :: root_set_services
+    character(len=*), optional, intent(in) :: root_dso
     integer, optional, intent(in)  :: n_run_phases
     integer, optional, intent(out) :: rc
 
@@ -288,7 +296,11 @@ contains
     type(StubComponent) :: stub_component
 
     cap%cap_rc_file = cap_rc
-    cap%root_set_services => root_set_services
+    if (present(root_set_services)) cap%root_set_services => root_set_services
+    if (present(root_dso)) cap%root_dso = root_dso
+    if (present(root_dso) .and. present(root_set_services)) then
+       _FAIL("can only specify a setservice pointer or a dso to use")
+    end if
     if (present(final_file)) then
        allocate(cap%final_file, source=final_file)
     end if
@@ -373,6 +385,7 @@ contains
 
 
     type (MAPL_MetaComp), pointer :: maplobj, root_obj
+    character(len=ESMF_MAXSTR)         :: sharedObj
     type (ESMF_GridComp), pointer :: root_gc
     procedure(), pointer :: root_set_services
     type(MAPL_CapGridComp), pointer :: cap
@@ -620,7 +633,7 @@ contains
 
     ! Add a SINGLE_COLUMN flag in HISTORY.rc based on DYCORE value(from AGCM.rc)
     !---------------------------------------------------------------------------
-    call ESMF_ConfigGetAttribute(cap%cf_root, value=DYCORE,  Label="DYCORE:",  rc=status)
+    call ESMF_ConfigGetAttribute(cap%cf_root, value=DYCORE,  Label="DYCORE:",  default = 'FV3', rc=status)
     _VERIFY(STATUS)
     if (DYCORE == 'DATMO') then
        snglcol = 1
@@ -1420,7 +1433,7 @@ contains
                                       LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
                                       mem_committed_percent,mem_used_percent
     1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
-                2x,'Throughput(days/day)[Avg Tot Run]: ',f8.1,1x,f8.1,1x,f8.1,2x,'TimeRemaining(Est) ',i3.3,':',i2.2,':',i2.2,2x, &
+                2x,'Throughput(days/day)[Avg Tot Run]: ',f12.1,1x,f12.1,1x,f12.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x, &
                 f5.1,'% : ',f5.1,'% Mem Comm:Used')
 
         _RETURN(_SUCCESS)
