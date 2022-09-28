@@ -307,21 +307,21 @@ contains
     cap%n_run_phases = 1
     if (present(n_run_phases)) cap%n_run_phases = n_run_phases
 
-    cap%config = ESMF_ConfigCreate(__RC__)
-    call ESMF_ConfigLoadFile(cap%config, cap%cap_rc_file,__RC__)
+    cap%config = ESMF_ConfigCreate(_RC)
+    call ESMF_ConfigLoadFile(cap%config, cap%cap_rc_file,_RC)
 
     allocate(cap%name, source=name)
-    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, __RC__)
+    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, _RC)
 
     meta => null()
-    call MAPL_InternalStateCreate(cap%gc, meta, __RC__)
+    call MAPL_InternalStateCreate(cap%gc, meta, _RC)
 
     meta%t_profiler = DistributedProfiler(trim(cap_name), MpiTimerGauge(), comm=comm_world)
 
     meta%user_setservices_wrapper = ProcSetServicesWrapper(set_services_gc)
-    call MAPL_Set(meta, CF=cap%config, __RC__)
+    call MAPL_Set(meta, CF=cap%config, _RC)
 
-    call MAPL_Set(meta, name=cap_name, component=stub_component, __RC__)
+    call MAPL_Set(meta, name=cap_name, component=stub_component, _RC)
 
     cap_wrapper%ptr => cap
     call ESMF_UserCompSetInternalState(cap%gc, internal_cap_name, cap_wrapper, status)
@@ -725,7 +725,7 @@ contains
     !  Inject grid to root child if grid has been set externally
     !-----------------------------------------------------------
 
-    call cap%inject_external_grid(__RC__)
+    call cap%inject_external_grid(_RC)
 
     ! Run as usual unless PRINTSPEC> 0 as set in CAP.rc. If set then
     ! model will not run completely and instead it will simply run MAPL_SetServices
@@ -1540,10 +1540,10 @@ contains
 
      _UNUSED_DUMMY(unusable)
 
-     external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, __RC__)
-     mapl_grid = grid_manager%make_grid(external_grid_factory, __RC__)
+     external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, _RC)
+     mapl_grid = grid_manager%make_grid(external_grid_factory, _RC)
 
-     call ESMF_GridCompSet(this%gc, grid=mapl_grid, __RC__)
+     call ESMF_GridCompSet(this%gc, grid=mapl_grid, _RC)
 
      _RETURN(_SUCCESS)
   end subroutine set_grid
@@ -1560,22 +1560,22 @@ contains
 
      _UNUSED_DUMMY(unusable)
 
-     call ESMF_GridCompGet(this%gc, gridIsPresent=cap_grid_is_present, __RC__)
+     call ESMF_GridCompGet(this%gc, gridIsPresent=cap_grid_is_present, _RC)
 
      if (cap_grid_is_present) then
-        call ESMF_GridCompGet(this%gc, grid=cap_grid, __RC__)
-        call ESMF_GridValidate(cap_grid, __RC__)
+        call ESMF_GridCompGet(this%gc, grid=cap_grid, _RC)
+        call ESMF_GridValidate(cap_grid, _RC)
 
-        call ESMF_GridCompGet(this%gcs(this%root_id), gridIsPresent=root_grid_is_present, __RC__)
+        call ESMF_GridCompGet(this%gcs(this%root_id), gridIsPresent=root_grid_is_present, _RC)
 
         if (root_grid_is_present) then
-           call ESMF_GridCompGet(this%gcs(this%root_id), grid=root_grid, __RC__)
-           call ESMF_GridValidate(root_grid, __RC__)
+           call ESMF_GridCompGet(this%gcs(this%root_id), grid=root_grid, _RC)
+           call ESMF_GridValidate(root_grid, _RC)
 
-           grid_match = ESMF_GridMatch(cap_grid, root_grid, __RC__)
+           grid_match = ESMF_GridMatch(cap_grid, root_grid, _RC)
            _ASSERT(grid_match == ESMF_GRIDMATCH_EXACT, "Attempting to override root grid with non-matching external grid")
         else
-            call ESMF_GridCompSet(this%gcs(this%root_id), grid=cap_grid, __RC__)
+            call ESMF_GridCompSet(this%gcs(this%root_id), grid=cap_grid, _RC)
         end if
      end if
 
@@ -1592,7 +1592,7 @@ contains
 
      _UNUSED_DUMMY(unusable)
 
-     call ESMF_GridCompSet(this%gc, clock=clock, __RC__)
+     call ESMF_GridCompSet(this%gc, clock=clock, _RC)
 
      _RETURN(_SUCCESS)
   end subroutine set_clock

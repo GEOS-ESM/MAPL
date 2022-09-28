@@ -561,7 +561,7 @@ contains
     integer :: status
     integer :: userRc
 
-    call ESMF_GridCompRun(this%gc, userRC=userRC,__RC__)
+    call ESMF_GridCompRun(this%gc, userRC=userRC,_RC)
     _VERIFY(userRC)
     _RETURN(ESMF_SUCCESS)
 

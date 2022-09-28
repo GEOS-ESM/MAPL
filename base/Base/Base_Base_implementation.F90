@@ -2794,7 +2794,6 @@ contains
     logical                                 :: haveAttr
     type(ESMF_Info)                         :: infoh
 
-
     fields(1) = field
     call ESMF_StateAdd(state, fields, RC=status)
     _VERIFY(STATUS)
@@ -3065,6 +3064,7 @@ contains
     real(ESMF_KIND_R8), allocatable :: target_lons(:),target_lats(:)
     real(ESMF_KIND_R8), allocatable :: corner_lons(:,:),corner_lats(:,:),center_lats(:,:),center_lons(:,:)
     type(ESMF_CoordSys_Flag) :: coordSys
+    character(len=ESMF_MAXSTR) :: grid_type
 
     ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
     ! this also means we are running on a distributed grid
@@ -3093,7 +3093,9 @@ contains
 
     _ASSERT(localSearch,"Global Search for IJ not implemented")   
 
-    if (im_world*6==jm_world) then
+!AOO change tusing GridType atribute    if (im_world*6==jm_world) then
+    call ESMF_AttributeGet(grid, name='GridType', value=grid_type, _RC)
+    if(trim(grid_type) == "Cubed-Sphere") then
        call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
             staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lons, rc=status)
        _VERIFY(STATUS)

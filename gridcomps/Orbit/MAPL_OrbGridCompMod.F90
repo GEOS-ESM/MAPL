@@ -113,7 +113,7 @@ CONTAINS
 
 !   Get my name and set-up traceback handle
 !   ---------------------------------------
-    call ESMF_GridCompGet( GC, name=comp_name, __RC__ )
+    call ESMF_GridCompGet( GC, name=comp_name, _RC )
     Iam = TRIM(comp_name) // '::' // TRIM(Iam)
 
 !   Greetings
@@ -130,19 +130,19 @@ CONTAINS
  
 !   Load private Config Attributes
 !   ------------------------------
-    self%CF = ESMF_ConfigCreate(__RC__)
+    self%CF = ESMF_ConfigCreate(_RC)
     inquire(file="MAPL_OrbGridComp.rc", exist=found)
     if (found) then
        call ESMF_ConfigLoadFile ( self%CF,'MAPL_OrbGridComp.rc',rc=status)
        _VERIFY(STATUS) 
     
-       call ESMF_ConfigGetAttribute(self%CF, self%verbose, Label='verbose:', default=.false. ,  __RC__ )
+       call ESMF_ConfigGetAttribute(self%CF, self%verbose, Label='verbose:', default=.false. ,  _RC )
 
 !                       ------------------------
 !                         Get Mask Definitions
 !                       ------------------------
 
-       call ESMF_ConfigGetDim(self%CF, self%no, nCols, LABEL='Nominal_Orbits::',__RC__)
+       call ESMF_ConfigGetDim(self%CF, self%no, nCols, LABEL='Nominal_Orbits::',_RC)
        _ASSERT(self%no>0,'needs informative message')
        allocate(self%Instrument(self%no), self%Satellite(self%no), & 
           self%Swath(self%no), self%halo(self%no), __STAT__)
@@ -151,13 +151,13 @@ CONTAINS
              write(*,*)"Instrument          Satellite       (km)        Halo Width"
              write(*,*)"---------------    -----------    ---------    -------------"
        end if
-       call ESMF_ConfigFindLabel(self%CF, 'Nominal_Orbits::',__RC__)
+       call ESMF_ConfigFindLabel(self%CF, 'Nominal_Orbits::',_RC)
        do i = 1, self%no
-          call ESMF_ConfigNextLine(self%CF,__RC__)
-          call ESMF_ConfigGetAttribute(self%CF,self%Instrument(i),__RC__)
-          call ESMF_ConfigGetAttribute(self%CF,self%Satellite(i),__RC__)
-          call ESMF_ConfigGetAttribute(self%CF,self%Swath(i),__RC__)
-          call ESMF_ConfigGetAttribute(self%CF,self%halo(i),__RC__)
+          call ESMF_ConfigNextLine(self%CF,_RC)
+          call ESMF_ConfigGetAttribute(self%CF,self%Instrument(i),_RC)
+          call ESMF_ConfigGetAttribute(self%CF,self%Satellite(i),_RC)
+          call ESMF_ConfigGetAttribute(self%CF,self%Swath(i),_RC)
+          call ESMF_ConfigGetAttribute(self%CF,self%halo(i),_RC)
           if ( self%verbose .AND. MAPL_AM_I_ROOT() ) then
              write(*,'(1x,a15,4x,a11,4x,f9.1,4x,i3)') self%Instrument(i), self%Satellite(i), self%Swath(i), self%halo(i)
           end if
@@ -207,7 +207,7 @@ CONTAINS
 
 !   Generic Set Services
 !   --------------------
-    call MAPL_GenericSetServices ( GC, __RC__ )
+    call MAPL_GenericSetServices ( GC, _RC )
  
 !   All done
 !   --------
@@ -395,12 +395,12 @@ CONTAINS
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, VM=VM, __RC__ )
+   call ESMF_GridCompGet( GC, name=comp_name, VM=VM, _RC )
    Iam = trim(comp_name) // '::Run'
 
 !  Extract relevant runtime information
 !  ------------------------------------
-   call extract_ ( GC, CLOCK, self, GRID, CF, time, nymd, nhms, timeinterval,  __RC__)
+   call extract_ ( GC, CLOCK, self, GRID, CF, time, nymd, nhms, timeinterval,  _RC)
 
    if (self%no == 0) then
       _RETURN(ESMF_SUCCESS)
@@ -430,13 +430,13 @@ CONTAINS
 !   timeinterval=timeinterval/2
 !   IntervalTime=time-timeinterval
    IntervalTime=time
-   call ESMF_TimeGet(IntervalTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+   call ESMF_TimeGet(IntervalTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,_RC)
    call MAPL_PackTime(nymd,iyr,imm,idd)
    call MAPL_PackTime(nhms,ihr,imn,isc)
    interval_nymd(1)=nymd
    interval_nhms(1)=nhms
    IntervalTime=time+timeinterval
-   call ESMF_TimeGet(IntervalTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,__RC__)
+   call ESMF_TimeGet(IntervalTime,yy=iyr,mm=imm,dd=idd,h=ihr,m=imn,s=isc,_RC)
    call MAPL_PackTime(nymd,iyr,imm,idd)
    call MAPL_PackTime(nhms,ihr,imn,isc)
    interval_nymd(2)=nymd
@@ -540,7 +540,7 @@ CONTAINS
 
 !   Get my name and set-up traceback handle
 !   ---------------------------------------
-    call ESMF_GridCompGet( GC, NAME=comp_name, __RC__ )
+    call ESMF_GridCompGet( GC, NAME=comp_name, _RC )
     Iam = trim(COMP_NAME) // '::extract_'
 
     rc = 0
@@ -553,18 +553,18 @@ CONTAINS
 
 !   Get the configuration
 !   ---------------------
-    call ESMF_GridCompGet ( GC, config=CF, __RC__ )
+    call ESMF_GridCompGet ( GC, config=CF, _RC )
 
 !   Extract time as simple integers from clock
 !   ------------------------------------------
-    call ESMF_ClockGet(CLOCK,currTIME=TIME,timeStep=TimeInterval,__RC__)
-    call ESMF_TimeGet(TIME ,yy=iyr, mm=imm, dd=idd, h=ihr, m=imn, s=isc, __RC__)
+    call ESMF_ClockGet(CLOCK,currTIME=TIME,timeStep=TimeInterval,_RC)
+    call ESMF_TimeGet(TIME ,yy=iyr, mm=imm, dd=idd, h=ihr, m=imn, s=isc, _RC)
     call MAPL_PackTime(nymd,iyr,imm,idd)
     call MAPL_PackTime(nhms,ihr,imn,isc)
 
 !   Extract the ESMF Grid
 !   ---------------------
-    call ESMF_GridCompGet ( GC, grid=GRID, __RC__)
+    call ESMF_GridCompGet ( GC, grid=GRID, _RC)
 
     _RETURN(ESMF_SUCCESS)
 
