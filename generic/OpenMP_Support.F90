@@ -173,9 +173,9 @@ module MAPL_OpenMP_Support
 
            call ESMF_InfoGetFromHost(subgrids(i), infoh, _RC)
            ! add the these arrays as attributes in the subgrids
-           call ESMF_InfoSet(subgrids(i), name='GridCornerLons:', &
+           call ESMF_InfoSet(infoh, name='GridCornerLons:', &
                 size = count, values=lons1d, _RC)
-           call ESMF_InfoSet(subgrids(i), name='GridCornerLats:', &
+           call ESMF_InfoSet(infoh, name='GridCornerLats:', &
                 size = count, values=lats1d, _RC)
 
             deallocate(lons1d, lats1d)
