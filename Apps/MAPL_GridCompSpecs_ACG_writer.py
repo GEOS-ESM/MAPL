@@ -84,6 +84,66 @@ def unquote(s):
 
 #==============================================================================#
 
+def multifind(string, substring, offset = 0):
+    """ Return arrray of indices of all instances of substring in string """
+    n = string.find(substring, offset)
+    return [] if n < 0 else ([n] + multifind(string, substring, n+1))
+
+#==============================================================================#
+
+def pad_to_width(strings, widths, pad = ' ', center = False, ljust = True):
+    """ Return strings in iterable strings padded to widths """
+    fcenter =   lambda s, w: s.center(w, pad)
+    fleft   =   lambda s, w: s.ljust(w, pad)
+    fright  =   lambda s, w: s.rjust(w, pad)
+    if center:
+        f = fcenter
+    elif ljust:
+        f = fleft
+    else:
+        f = fright
+    return [ f(s,w) for (s, w) in zip(strings, widths) ]
+
+#==============================================================================#
+
+def all_counts_equal(a):
+    """ Return True if all iterables (including strings) have the same len. """
+    """ a is an iterable of iterables. """
+    return all(map(lambda b: b == len(a[0]), map(len, a))) if len(a) else False
+
+#==============================================================================#
+
+def get_max_lens(a):
+    """ Return max len for each element in an iterable of iterables """
+    """ a is an iterable of iterables. """
+    max_lens = None
+    if all_counts_equal(a):
+        alllens = [ len_items(b) for b in a ]
+        max_lens = list(reduce(lambda c, d: map(max, zip(c,d)), alllens))
+    return max_lens
+
+#==============================================================================#
+
+def max_it(a, b):
+    """ Return element by element max between a and b """
+    return [ max(c,d) for (c, d) in zip(a, b) ]
+
+#==============================================================================#
+
+def len_items(a):
+    """ Return length of each element in a """
+    return [ len(b) for b in a ]
+
+#==============================================================================#
+
+def write_lines(filename, lines):
+    """ Write lines (strings) in list to file """
+    with open(filename, 'w') as specs:
+       for line in lines:
+           specs.write(line + '\n')
+
+#==============================================================================#
+
 def parse_file(filename):
     """ Parse input source code file into dict of tuples of strings ."""
 
@@ -300,66 +360,6 @@ def make_output(specs, all_keys, missing):
         lines = lines + [ MISSING_HEADER ] + [OUTPUT_COMMENT + m for m in missing]
 
     return lines
-
-#==============================================================================#
-
-def multifind(string, substring, offset = 0):
-    """ Return arrray of indices of all instances of substring in string """
-    n = string.find(substring, offset)
-    return [] if n < 0 else ([n] + multifind(string, substring, n+1))
-
-#==============================================================================#
-
-def pad_to_width(strings, widths, pad = ' ', center = False, ljust = True):
-    """ Return strings in iterable strings padded to widths """
-    fcenter =   lambda s, w: s.center(w, pad)
-    fleft   =   lambda s, w: s.ljust(w, pad)
-    fright  =   lambda s, w: s.rjust(w, pad)
-    if center:
-        f = fcenter
-    elif ljust:
-        f = fleft
-    else:
-        f = fright
-    return [ f(s,w) for (s, w) in zip(strings, widths) ]
-
-#==============================================================================#
-
-def all_counts_equal(a):
-    """ Return True if all iterables (including strings) have the same len. """
-    """ a is an iterable of iterables. """
-    return all(map(lambda b: b == len(a[0]), map(len, a))) if len(a) else False
-
-#==============================================================================#
-
-def get_max_lens(a):
-    """ Return max len for each element in an iterable of iterables """
-    """ a is an iterable of iterables. """
-    max_lens = None
-    if all_counts_equal(a):
-        alllens = [ len_items(b) for b in a ]
-        max_lens = list(reduce(lambda c, d: map(max, zip(c,d)), alllens))
-    return max_lens
-
-#==============================================================================#
-
-def max_it(a, b):
-    """ Return element by element max between a and b """
-    return [ max(c,d) for (c, d) in zip(a, b) ]
-
-#==============================================================================#
-
-def len_items(a):
-    """ Return length of each element in a """
-    return [ len(b) for b in a ]
-
-#==============================================================================#
-
-def write_lines(filename, lines):
-    """ Write lines (strings) in list to file """
-    with open(filename, 'w') as specs:
-       for line in lines:
-           specs.write(line + '\n')
 
 #==============================================================================#
 
