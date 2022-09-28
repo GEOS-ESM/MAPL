@@ -8718,7 +8718,8 @@ contains
 
       character(len=:), allocatable :: val_str, default_str, output_format, type_str, type_format
       type(StringVector), pointer, save :: already_printed_labels => null()
-      integer :: i, count
+      integer :: i
+      character(len=2) :: size_vals_str
 
       if (.not. associated(already_printed_labels)) then
          allocate(already_printed_labels)
@@ -8731,47 +8732,49 @@ contains
          return
       end if
 
-      count = size(vals)
+      ! Cast the size(vals) to a string making sure to strip any spaces
+      ! We assume we'll never have more than 99 values
+      write(size_vals_str, '(i2)') size(vals)
 
       select type(vals)
       type is(integer(int32))
          type_str = "'Integer*4 '"
-         type_format = '(10(i0.1,1X))'
+         type_format = '('//trim(size_vals_str)//'(i0.1,1X))'
          val_str = intrinsic_to_string(vals, type_format)
          if (present(default)) then
             default_str = intrinsic_to_string(default, type_format)
          end if
       type is(integer(int64))
          type_str = "'Integer*8 '"
-         type_format = '(10(i0.1,1X))'
+         type_format = '('//trim(size_vals_str)//'(i0.1,1X))'
          val_str = intrinsic_to_string(vals, type_format)
          if (present(default)) then
             default_str = intrinsic_to_string(default, type_format)
          end if
       type is(real(real32))
          type_str = "'Real*4 '"
-         type_format = '(10(f0.6,1X))'
+         type_format = '('//trim(size_vals_str)//'(f0.6,1X))'
          val_str = intrinsic_to_string(vals, type_format)
          if (present(default)) then
             default_str = intrinsic_to_string(default, type_format)
          end if
       type is(real(real64))
          type_str = "'Real*8 '"
-         type_format = '(10(f0.6,1X))'
+         type_format = '('//trim(size_vals_str)//'(f0.6,1X))'
          val_str = intrinsic_to_string(vals, type_format)
          if (present(default)) then
             default_str = intrinsic_to_string(default, type_format)
          end if
        type is(logical)
          type_str = "'Logical '"
-         type_format = '(10(l1,1X))'
+         type_format = '('//trim(size_vals_str)//'(l1,1X))'
          val_str = intrinsic_to_string(vals, type_format)
          if (present(default)) then
             default_str = intrinsic_to_string(default, type_format)
          end if
       type is(character(len=*))
          type_str = "'Character '"
-         do i = 1, count
+         do i = 1, size(vals)
             val_str(i:i) = trim(vals(i))
          end do
          if (present(default)) then
