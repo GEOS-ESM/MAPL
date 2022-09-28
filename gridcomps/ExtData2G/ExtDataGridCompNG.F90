@@ -1710,16 +1710,16 @@ CONTAINS
      logical :: must_create
      character(len=ESMF_MAXSTR) :: derived_field_name
 
-     if (index(item%file_template,"/dev/null")/=0) then
-        _FAIL("Asking for ExtData to allocate a field when no file is provided")
-     end if
-
      call ESMF_StateGet(ExtDataState,trim(item%name),field,_RC)
      call ESMF_FieldValidate(field,rc=status)
      call ESMF_AttributeGet(field,name="derived_source",isPresent=must_create,_RC)
      if (.not.must_create) then
         _RETURN(_SUCCESS)
      end if
+     if (index(item%file_template,"/dev/null")/=0) then
+        _FAIL("Asking for ExtData to allocate a field when no file is provided")
+     end if
+
 
      call ESMF_AttributeGet(field,name="derived_source",value=derived_field_name,_RC)
      call ESMF_StateGet(ExtDataState,trim(derived_field_name),derived_field,_RC) 
