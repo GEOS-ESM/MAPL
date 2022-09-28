@@ -5,34 +5,27 @@ import argparse
 from functools import reduce
 
 # Characters for parsing and output
-BLANK = " "
-OUTPUT_DELIMITER = ' | '
+DELIMITER = '|'
 LINE_CHAR = '-'
 CONTINUATION_CHARACTER = '&'
-INPUT_COMMENT_CHARACTER = '!'
-OUTPUT_COMMENT_CHARACTER = '#'
+OUTPUT_COMMENT = '#'
 
 # Keys for parsing
 CATEGORY_KEY = 'CATEGORY'
 
 # Leader for output of category
-CATEGORY_LEADER = 'category : '
+CATEGORY_LEADER = 'category: '
 
 # Keys for required fields
 REQ_KEYS = [ 'SHORT_NAME', 'UNITS', 'DIMS', 'VLOCATION' ]
 
 FILE_HEADER = "schema_version: 2.0.0\ncomponent:"
 
-# Heading line for heading types
-SPECS_HEADING = ( OUTPUT_COMMENT_CHARACTER + BLANK + "VARIABLE" +
-    OUTPUT_DELIMITER + "DIMENSIONS" + OUTPUT_DELIMITER + "ADDITIONAL METADATA" )
+# Headings for groups of fields
+SPECS_HEADINGS = ["VARIABLE", "DIMENSIONS", "ADDITIONAL METADATA"]
 
-# Horizontal line divider in output
-HORZ_LINE = ( OUTPUT_COMMENT_CHARACTER + BLANK +
-    LINE_CHAR * (len(SPECS_HEADING) - len(OUTPUT_COMMENT_CHARACTER + BLANK)) )
-
-# Missing header
-MISSING_HEADER = OUTPUT_COMMENT_CHARACTER + " These specs are missing one or more required fields."
+# Missing header for specs that cannot be processed
+MISSING_HEADER = OUTPUT_COMMENT + " These specs are missing one or more required fields."
 
 # Regular expression for parsing the beginning of MAPL_App calls
 # with group names to extract portions of the line
@@ -40,15 +33,17 @@ call_re = re.compile('^call\s+MAPL_Add(?P<category>\w*?)Spec\((?P<remainder>.*)$
 
 #==============================================================================#
 
+def make_line(strings, delimiter, leader = '', spacing = ' '):
+    """ Return leader + strings joined by spacing+delimiter+spacing """
+    return leader + (spacing + delimiter + spacing).join(strings)
+
+#==============================================================================#
+
 def strip_char(line, char):
     """ Strip all characters (including char) from first instance of char """
+    # If char was found, strip to end; else line
     n = line.find(char)
-    if n < 0:
-        # char was not found, so return line
-        return line
-    else:
-        # char was found, so strip to end
-        return line[:n]
+    return line if n < 0 else line[:n]
 
 #==============================================================================#
 
@@ -60,7 +55,8 @@ def strip_continue(line):
 
 def strip_comment(line):
     """ Strip inline comment. """
-    return strip_char(line, INPUT_COMMENT_CHARACTER)
+    INPUT_COMMENT = '!'
+    return strip_char(line, INPUT_COMMENT)
 
 #==============================================================================#
 
@@ -79,12 +75,6 @@ def add_to_tuple_dict(el, dct, key):
     # Either way, update/add cpy[key]
     cpy[key] = t
     return cpy
-
-#==============================================================================#
-
-def make_field_string(spec, keys, empty):
-    """ Make a string from the fields of a spec """
-    return OUTPUT_DELIMITER.join([(spec[k] if k in spec else empty) in keys])
 
 #==============================================================================#
 
@@ -261,49 +251,115 @@ def make_output(specs, all_keys, missing):
     # Build header from keys. Create string for each spec.
     for category in specs:
 
+        # Get specs for category.
+        category_specs = specs[category]
+
+        # Category line.
+        lines.append(CATEGORY_LEADER + category.upper())
+
         # Get keys with required keys first in order.
         keys = list(REQ_KEYS) + sorted(list(all_keys[category] - set(REQ_KEYS)))
 
         # Make keys upper case just in case (no pun intended)
         keys = [k.upper() for k in keys]
 
-        # Get specs for category.
-        category_specs = specs[category]
+        # Get field values
+        vals = [ [ (spec[k] if k in spec else '') for k in keys ] for spec in category_specs ]
 
-        # Category line.
-        lines.append(CATEGORY_LEADER + category.upper())
-        lines.append(HORZ_LINE)
+        # Find the maximum field length for each field in a list.
+        field_widths = max_it(len_items(keys), get_max_lens(vals))
 
-        # Heading for field types
-        lines.append(SPECS_HEADING)
-        lines.append(HORZ_LINE)
+        # Pad the keys with spaces and build line of field headings.
+        keys = pad_to_width(keys, field_widths, center = True)
+        key_line = make_line(keys, DELIMITER)
 
-        # field headings.
-        line = ' ' + OUTPUT_DELIMITER.join(keys)
-        lines.append(line)
-        lines.append(HORZ_LINE)
+        # Build field type headings line
+        indices = multifind(key_line, DELIMITER)
+        widths = [indices[1]-1, indices[3]-indices[1]-1, len(key_line)-indices[3]-1]
+        type_headings = pad_to_width(SPECS_HEADINGS, widths, center = True)
+        type_line = make_line(type_headings, DELIMITER, leader = OUTPUT_COMMENT, spacing = '')
 
-        # string of fields for each spec.
-        for spec in category_specs:
-            vals = [(spec[k] if k in spec else BLANK) for k in keys]
-            line = ' ' + OUTPUT_DELIMITER.join(vals)
-            lines.append(line)
+        # Build horizontal line divider
+        horz_line = OUTPUT_COMMENT + ' ' + LINE_CHAR * (len(type_line) - 2)
 
+        # Build field value lines (records).
+        vals = [pad_to_width(v, field_widths) for v in vals]
+        vals_lines = [ make_line(v, DELIMITER) for v in vals ]
+
+        # Add lines to list.
+        lines.append(horz_line)
+        lines.append(type_line)
+        lines.append(horz_line)
+        lines.append(key_line)
+        lines.append(horz_line)
+        lines.extend(vals_lines)
         lines.append('')
 
     # Strings for incomplete (missing required fields.)
     if missing:
-        lines = lines + [ MISSING_HEADER ] + [INPUT_COMMENT_CHARACTER + m for m in missing]
+        lines = lines + [ MISSING_HEADER ] + [OUTPUT_COMMENT + m for m in missing]
 
-    # Join lines and return
-    return "\n".join(lines)
+    return lines
 
 #==============================================================================#
 
-def get_string_lengths(itb_itb_str):
-    """ Given  """
-    maxlens = reduce(map(len, itb_str)
+def multifind(string, substring, offset = 0):
+    """ Return arrray of indices of all instances of substring in string """
+    n = string.find(substring, offset)
+    return [] if n < 0 else ([n] + multifind(string, substring, n+1))
 
+#==============================================================================#
+
+def pad_to_width(strings, widths, pad = ' ', center = False, ljust = True):
+    """ Return strings in iterable strings padded to widths """
+    fcenter =   lambda s, w: s.center(w, pad)
+    fleft   =   lambda s, w: s.ljust(w, pad)
+    fright  =   lambda s, w: s.rjust(w, pad)
+    if center:
+        f = fcenter
+    elif ljust:
+        f = fleft
+    else:
+        f = fright
+    return [ f(s,w) for (s, w) in zip(strings, widths) ]
+
+#==============================================================================#
+
+def all_counts_equal(a):
+    """ Return True if all iterables (including strings) have the same len. """
+    """ a is an iterable of iterables. """
+    return all(map(lambda b: b == len(a[0]), map(len, a))) if len(a) else False
+
+#==============================================================================#
+
+def get_max_lens(a):
+    """ Return max len for each element in an iterable of iterables """
+    """ a is an iterable of iterables. """
+    max_lens = None
+    if all_counts_equal(a):
+        alllens = [ len_items(b) for b in a ]
+        max_lens = list(reduce(lambda c, d: map(max, zip(c,d)), alllens))
+    return max_lens
+
+#==============================================================================#
+
+def max_it(a, b):
+    """ Return element by element max between a and b """
+    return [ max(c,d) for (c, d) in zip(a, b) ]
+
+#==============================================================================#
+
+def len_items(a):
+    """ Return length of each element in a """
+    return [ len(b) for b in a ]
+
+#==============================================================================#
+
+def write_lines(filename, lines):
+    """ Write lines (strings) in list to file """
+    with open(filename, 'w') as specs:
+       for line in lines:
+           specs.write(line + '\n')
 
 #==============================================================================#
 
@@ -313,6 +369,7 @@ def get_string_lengths(itb_itb_str):
 description = 'Generate import/export/internal config specs file for MAPL Gridded Component'
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument("input", action='store', help="source Gridded Component filename")
+parser.add_argument("output", action='store', help="destination specs filename")
 
 # Parse command line
 args = parser.parse_args()
@@ -324,4 +381,5 @@ records = parse_file(args.input)
 (specs, all_keys, missing) = parse_records(records)
 
 # Print output
-print(make_output(specs, all_keys, missing))
+output = make_output(specs, all_keys, missing)
+write_lines(args.output, output)
