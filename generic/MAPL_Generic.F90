@@ -8490,7 +8490,7 @@ contains
       class(*), optional, intent(in) :: default(:)
       integer, optional, intent(out) :: rc
 
-      integer :: i, status, count
+      integer :: i, status, count, printrc
       logical :: label_is_present, default_is_present
       character(len=:), allocatable :: label_to_print
 
@@ -8564,19 +8564,17 @@ contains
       end select
 
       ! Need a printer for arrays
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      ! call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC) !
-      !                                                                                     !
-      ! ! Can set printrc to negative to not print at all                                   !
-      ! if (MAPL_AM_I_Root() .and. printrc >= 0) then                                       !
-      !    if (label_is_present) then                                                       !
-      !       label_to_print = label                                                        !
-      !    else                                                                             !
-      !       label_to_print = trim(label)                                                  !
-      !    end if                                                                           !
-      !    call print_resource_array(printrc, label_to_print, vals, default=default,_RC)    !
-      ! end if                                                                              !
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC)
+
+      ! Can set printrc to negative to not print at all
+      if (MAPL_AM_I_Root() .and. printrc >= 0) then
+         if (label_is_present) then
+            label_to_print = label
+         else
+            label_to_print = trim(label)
+         end if
+         call print_resource_array(printrc, label_to_print, vals, default=default,_RC)
+      end if
 
       _RETURN(ESMF_SUCCESS)
 
@@ -8684,32 +8682,170 @@ contains
 
       end function vector_contains_str
 
+      function intrinsic_to_string(val, str_format, rc) result(formatted_str)
+         class(*), intent(in) :: val
+         character(len=*), intent(in) :: str_format
+         character(len=256) :: formatted_str
+         integer, optional, intent(out) :: rc
+
+         select type(val)
+         type is(integer(int32))
+            write(formatted_str, str_format) val
+         type is(integer(int64))
+            write(formatted_str, str_format) val
+         type is(real(real32))
+            write(formatted_str, str_format) val
+         type is(real(real64))
+            write(formatted_str, str_format) val
+         type is(logical)
+            write(formatted_str, str_format) val
+         type is(character(len=*))
+            formatted_str = trim(val)
+         class default
+            _FAIL( "Unsupported type in intrinsic_to_string")
+         end select
+
+      end function intrinsic_to_string
+
    end subroutine print_resource_scalar
 
-   function intrinsic_to_string(val, str_format, rc) result(formatted_str)
-      class(*), intent(in) :: val
-      character(len=*), intent(in) :: str_format
-      character(len=256) :: formatted_str
+   subroutine print_resource_array(printrc, label, vals, default, rc)
+      integer, intent(in) :: printrc
+      character(len=*), intent(in) :: label
+      class(*), intent(in) :: vals(:)
+      class(*), optional, intent(in) :: default(:)
       integer, optional, intent(out) :: rc
 
-      select type(val)
+      character(len=:), allocatable :: val_str, default_str, output_format, type_str, type_format
+      type(StringVector), pointer, save :: already_printed_labels => null()
+      integer :: i, count
+
+      if (.not. associated(already_printed_labels)) then
+         allocate(already_printed_labels)
+      end if
+
+      ! Do not print label more than once
+      if (.not. vector_contains_str(already_printed_labels, trim(label))) then
+         call already_printed_labels%push_back(trim(label))
+      else
+         return
+      end if
+
+      count = size(vals)
+
+      select type(vals)
       type is(integer(int32))
-         write(formatted_str, str_format) val
+         type_str = "'Integer*4 '"
+         type_format = '(10(i0.1,1X))'
+         val_str = intrinsic_to_string(vals, type_format)
+         if (present(default)) then
+            default_str = intrinsic_to_string(default, type_format)
+         end if
       type is(integer(int64))
-         write(formatted_str, str_format) val
+         type_str = "'Integer*8 '"
+         type_format = '(10(i0.1,1X))'
+         val_str = intrinsic_to_string(vals, type_format)
+         if (present(default)) then
+            default_str = intrinsic_to_string(default, type_format)
+         end if
       type is(real(real32))
-         write(formatted_str, str_format) val
+         type_str = "'Real*4 '"
+         type_format = '(10(f0.6,1X))'
+         val_str = intrinsic_to_string(vals, type_format)
+         if (present(default)) then
+            default_str = intrinsic_to_string(default, type_format)
+         end if
       type is(real(real64))
-         write(formatted_str, str_format) val
-      type is(logical)
-         write(formatted_str, str_format) val
+         type_str = "'Real*8 '"
+         type_format = '(10(f0.6,1X))'
+         val_str = intrinsic_to_string(vals, type_format)
+         if (present(default)) then
+            default_str = intrinsic_to_string(default, type_format)
+         end if
+       type is(logical)
+         type_str = "'Logical '"
+         type_format = '(10(l1,1X))'
+         val_str = intrinsic_to_string(vals, type_format)
+         if (present(default)) then
+            default_str = intrinsic_to_string(default, type_format)
+         end if
       type is(character(len=*))
-         formatted_str = trim(val)
+         type_str = "'Character '"
+         do i = 1, count
+            val_str(i:i) = trim(vals(i))
+         end do
+         if (present(default)) then
+            default_str = intrinsic_to_string(default, 'a')
+         end if
       class default
-         _FAIL( "Unsupported type in intrinsic_to_string")
+         _FAIL("Unsupported type")
       end select
 
-   end function intrinsic_to_string
+      output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)"
+
+      ! printrc = 0 - Only print non-default values
+      ! printrc = 1 - Print all values
+      if (present(default)) then
+         if (trim(val_str) /= trim(default_str) .or. printrc == 1) then
+            print output_format, trim(label), trim(val_str)
+         end if
+      else
+         print output_format, trim(label), trim(val_str)
+      end if
+
+   contains
+
+      logical function vector_contains_str(vector, string)
+         type(StringVector), intent(in) :: vector
+         character(len=*), intent(in) :: string
+         type(StringVectorIterator) :: iter
+
+         iter = vector%begin()
+
+         vector_contains_str = .false.
+
+         if (vector%size() /= 0) then
+            do while (iter /= vector%end())
+               if (trim(string) == iter%get()) then
+                  vector_contains_str = .true.
+                  return
+               end if
+               call iter%next()
+            end do
+         end if
+
+      end function vector_contains_str
+
+      function intrinsic_to_string(vals, str_format, rc) result(formatted_str)
+         class(*), intent(in) :: vals(:)
+         character(len=*), intent(in) :: str_format
+         character(len=1024) :: formatted_str
+         integer, optional, intent(out) :: rc
+
+         integer :: i
+
+         select type(vals)
+         type is(integer(int32))
+            write(formatted_str, str_format) vals
+         type is(integer(int64))
+            write(formatted_str, str_format) vals
+         type is(real(real32))
+            write(formatted_str, str_format) vals
+         type is(real(real64))
+            write(formatted_str, str_format) vals
+         type is(logical)
+            write(formatted_str, str_format) vals
+         type is(character(len=*))
+            do i = 1, size(vals)
+               formatted_str(i:i) = vals(i)
+            end do
+         class default
+            _FAIL( "Unsupported type in intrinsic_to_string")
+         end select
+
+      end function intrinsic_to_string
+   end subroutine print_resource_array
+
 
 
 
