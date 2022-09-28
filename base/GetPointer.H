@@ -18,7 +18,7 @@
    logical, optional, intent(IN   ) :: alloc
    logical, optional, intent(IN   ) :: notFoundOK
    integer, optional, intent(  OUT) :: RC
-   
+
    integer                         :: STATUS
 
    type (ESMF_FieldBundle)         :: bundle
@@ -84,7 +84,7 @@
          _VERIFY(STATUS)
       endif
    endif
-   
+
 !ALT I dont think the next lines are needed anymore
 #if 0
    block
@@ -104,7 +104,7 @@
 #endif
 
    _RETURN(ESMF_SUCCESS)
-   
+
  end subroutine SUB_
 
 #undef DIMENSIONS_
