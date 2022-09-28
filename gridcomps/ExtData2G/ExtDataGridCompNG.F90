@@ -303,7 +303,6 @@ CONTAINS
    type(ESMF_Time), allocatable :: time_ranges(:)
    character(len=1) :: sidx
    type(ESMF_VM) :: vm
-   type(ESMF_Field) :: new_field,existing_field
    type(ESMF_StateItem_Flag) :: state_item_type
    !class(logger), pointer :: lgr
 
@@ -390,13 +389,10 @@ CONTAINS
       idx = index(extra_var,",")
       primary_var_name = extra_var(:idx-1)
       derived_var_name = extra_var(idx+1:)
-      call self%primary%import_names%push_back(primary_var_name)
-      primaryItemCount=primaryItemCount+config_yaml%count_rules_for_item(primary_var_name,_RC)
-      call ESMF_StateGet(self%ExtDataState,primary_var_name,state_item_type,_RC)
-      if (state_item_type == ESMF_STATEITEM_NOTFOUND) then
-         call ESMF_StateGet(export,derived_var_name,existing_field,_RC)
-         new_field = MAPL_FieldCreate(existing_field,primary_var_name,doCOpy=.true.,_RC)
-         call MAPL_StateAdd(self%ExtDataState,new_field,_RC)
+      if (.not.string_in_stringVector(primary_var_name,self%primary%import_names)) then
+         call create_holding_field(self%ExtDataState,primary_var_name,derived_var_name,_RC)
+         call self%primary%import_names%push_back(primary_var_name)
+         primaryItemCount=primaryItemCount+config_yaml%count_rules_for_item(primary_var_name,_RC)
       end if
       call siter%next()
    enddo
@@ -464,6 +460,7 @@ CONTAINS
       item%initialized = .true.
 
       item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
+      call create_primary_field(item,self%ExtDataState,_RC) 
       if (item%isConst) then
          call set_constant_field(item,self%extDataState,_RC)
          cycle
@@ -961,7 +958,7 @@ CONTAINS
               end if
            end if
 
-           allocate(item%levs(item%lm),__STAT__)
+           if (.not.allocated(item%levs)) allocate(item%levs(item%lm),__STAT__)
            item%levs=levFile
            if (trim(item%fileVDir)/=trim(item%importVDir)) then
               do i=1,size(levFile)
@@ -996,6 +993,11 @@ CONTAINS
 
      call ESMF_StateGet(state,item%vcomp1,field,_RC)
      call item%modelGridFields%comp1%interpolate_to_time(field,time,_RC)
+     block 
+        character(len=1024) :: fname
+        integer :: rank
+        call ESMF_FieldGet(field,name=fname,rank=rank,_RC)
+     end block
      if (item%vartype == MAPL_VectorField) then
         call ESMF_StateGet(state,item%vcomp2,field,_RC)
         call item%modelGridFields%comp2%interpolate_to_time(field,time,_RC)
@@ -1550,7 +1552,7 @@ CONTAINS
             item%pfioCollection_id,item%iclient_collection_id,itemsL,rc=status)
         _VERIFY(status)
         call IOBundles%push_back(io_bundle)
-        call extdata_lgr%info('%a updated L bracket with: %a at time index %i2 ',item%name, current_file, time_index)
+        call extdata_lgr%info('%a updated L bracket with: %a at time index %i3 ',item%name, current_file, time_index)
      end if
      call item%modelGridFields%comp1%get_parameters('R',update=update,file=current_file,time_index=time_index)
      if (update) then
@@ -1559,7 +1561,7 @@ CONTAINS
             item%pfioCollection_id,item%iclient_collection_id,itemsR,rc=status)
         _VERIFY(status)
         call IOBundles%push_back(io_bundle)
-        call extdata_lgr%info('%a updated R bracket with: %a at time index %i2 ',item%name,current_file, time_index)
+        call extdata_lgr%info('%a updated R bracket with: %a at time index %i3 ',item%name,current_file, time_index)
      end if
 
      _RETURN(ESMF_SUCCESS)
@@ -1634,7 +1636,7 @@ CONTAINS
         end if
         if (item%lm /= lm .and. lm /= 0 .and. item%havePressure) then
            item%do_VertInterp = .true.
-        else if (item%lm /= lm .and. lm /= 0) then
+        else if (item%lm /= lm .and. lm /= 0 .and. item%lm /= 0) then
            item%do_Fill = .true.
         end if
         left_field = MAPL_FieldCreate(field,item%var,doCopy=.true.,_RC)
@@ -1680,6 +1682,85 @@ CONTAINS
 
      _RETURN(_SUCCESS)
   end subroutine create_bracketing_fields
+
+  subroutine create_holding_field(state,primary_name,derived_name,rc)
+     type(ESMF_State), intent(inout) :: state
+     character(len=*), intent(in) :: primary_name
+     character(len=*), intent(in) :: derived_name
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+     type(ESMF_Field) :: field
+
+     field = ESMF_FieldEmptyCreate(name=primary_name,_RC)
+     call ESMF_AttributeSet(field,name="derived_source",value=derived_name,_RC)
+     call MAPL_StateAdd(state,field,_RC)
+
+     _RETURN(_SUCCESS)
+  end subroutine
+
+  subroutine create_primary_field(item,ExtDataState,rc)
+     type(PrimaryExport), intent(inout) :: item
+     type(ESMF_State), intent(inout) :: extDataState
+     integer, intent(out), optional :: rc
+
+     integer :: status
+     type(ESMF_Field) :: field,derived_field
+     type(ESMF_Grid)  :: grid
+     logical :: must_create
+     character(len=ESMF_MAXSTR) :: derived_field_name
+
+     if (index(item%file_template,"/dev/null")/=0) then
+        _FAIL("Asking for ExtData to allocate a field when no file is provided")
+     end if
+
+     call ESMF_StateGet(ExtDataState,trim(item%name),field,_RC)
+     call ESMF_FieldValidate(field,rc=status)
+     call ESMF_AttributeGet(field,name="derived_source",isPresent=must_create,_RC)
+     if (.not.must_create) then
+        _RETURN(_SUCCESS)
+     end if
+
+     call ESMF_AttributeGet(field,name="derived_source",value=derived_field_name,_RC)
+     call ESMF_StateGet(ExtDataState,trim(derived_field_name),derived_field,_RC) 
+     call ESMF_FieldGet(derived_field,grid=grid,_RC)
+
+     call ESMF_StateRemove(ExtDataState,[trim(item%name)],_RC)
+     call ESMF_FieldDestroy(field,noGarbage=.true.,_RC)
+
+     call GetLevs(item,_RC)
+     if (item%vartype == MAPL_FieldItem) then
+        field = create_simple_field(item%name,grid,item%lm,_RC)
+        call MAPL_StateAdd(ExtDataState,field,_RC)
+     else if (item%vartype == MAPL_VectorField) then
+        field = create_simple_field(item%vcomp1,grid,item%lm,_RC)
+        call MAPL_StateAdd(ExtDataState,field,_RC)
+        field = create_simple_field(item%vcomp2,grid,item%lm,_RC)
+        call MAPL_StateAdd(ExtDataState,field,_RC)
+     end if
+
+     _RETURN(_SUCCESS)
+
+     contains
+
+     function create_simple_field(field_name,grid,num_levels,rc) result(new_field)
+        type(ESMF_Field) :: new_field
+        character(len=*), intent(in) :: field_name
+        type(ESMF_Grid), intent(in) :: grid
+        integer, intent(in) :: num_levels
+        integer, optional, intent(out) :: rc
+ 
+        integer :: status
+        if (num_levels ==0) then
+           new_field=ESMF_FieldCreate(grid,name=field_name,typekind=ESMF_TYPEKIND_R4,_RC)
+        else
+           new_field=ESMF_FieldCreate(grid,name=field_name,typekind=ESMF_TYPEKIND_R4,ungriddedLBound=[1],ungriddedUBound=[num_levels],_RC)
+        end if
+        _RETURN(_SUCCESS)
+     end function
+        
+  end subroutine create_primary_field
+
 
   function get_item_index(this,base_name,current_time,rc) result(item_index)
      integer :: item_index
