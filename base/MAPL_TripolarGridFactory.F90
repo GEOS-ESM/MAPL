@@ -37,17 +37,11 @@ module MAPL_TripolarGridFactoryMod
       ! Used for halo
       type (ESMF_DELayout) :: layout
       integer :: px, py
-      ! global coords
-      real, pointer :: lon_centers(:,:)
-      real, pointer :: lat_centers(:,:)
-      real, pointer :: lon_corners(:,:)
-      real, pointer :: lat_corners(:,:)
       logical :: initialized_from_metadata = .false.
    contains
       procedure :: make_new_grid
       procedure :: create_basic_grid
       procedure :: add_horz_coordinates_from_file
-      procedure :: add_horz_coordinates_from_memory
       procedure :: init_halo
       procedure :: halo
       
@@ -145,13 +139,8 @@ contains
       grid = this%create_basic_grid(rc=status)
       _VERIFY(status)
 
-      if (this%initialized_from_metadata) then
-         call this%add_horz_coordinates_from_memory(grid, rc=status)
-         _VERIFY(status)
-      else
-         call this%add_horz_coordinates_from_file(grid, rc=status)
-         _VERIFY(status)
-      end if
+      call this%add_horz_coordinates_from_file(grid, rc=status)
+      _VERIFY(status)
 
       _RETURN(_SUCCESS)
 
@@ -221,9 +210,21 @@ contains
       integer :: IM, JM
       integer :: IM_WORLD, JM_WORLD
       integer :: COUNTS(3), DIMS(3)
+      character(len=:), allocatable :: lon_center_name, lat_center_name, lon_corner_name, lat_corner_name
 
       _UNUSED_DUMMY(unusable)
 
+       if (this%initialized_from_metadata) then
+          lon_center_name = "lons"
+          lat_center_name = "lats"
+          lon_corner_name = "corner_lons"
+          lat_corner_name = "corner_lats"
+       else
+          lon_center_name = "lon_centers"
+          lat_center_name = "lat_centers"
+          lon_corner_name = "lon_corners"
+          lat_corner_name = "lat_corners"
+       end if
        call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, globalCellCountPerDim=DIMS, RC=STATUS)
        _VERIFY(STATUS)
        IM = COUNTS(1)
@@ -253,11 +254,11 @@ contains
 
        ! do longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          status = nf90_inq_varid(ncid,'lon_centers',varid)
+          status = nf90_inq_varid(ncid,lon_center_name,varid)
           _VERIFY(status)
           status = nf90_get_var(ncid,varid,centers)
           _VERIFY(status)
-          centers=centers*MAPL_PI_R8/180.d0
+          centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(__RC__)
  
@@ -269,11 +270,11 @@ contains
 
        call MAPL_SyncSharedMemory(__RC__)
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          status = nf90_inq_varid(ncid,'lat_centers',varid)
+          status = nf90_inq_varid(ncid,lat_center_name,varid)
           _VERIFY(status)
           status = nf90_get_var(ncid,varid,centers)
           _VERIFY(status)
-           centers=centers*MAPL_PI_R8/180.d0
+           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(__RC__)
 
@@ -295,11 +296,11 @@ contains
 
        call MAPL_SyncSharedMemory(__RC__)
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          status = nf90_inq_varid(ncid,'lon_corners',varid)
+          status = nf90_inq_varid(ncid,lon_corner_name,varid)
           _VERIFY(status)
           status = nf90_get_var(ncid,varid,corners)
           _VERIFY(status)
-          corners=corners*MAPL_PI_R8/180.d0
+          corners=corners*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(__RC__)
 
@@ -311,11 +312,11 @@ contains
 
        call MAPL_SyncSharedMemory(__RC__)
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-          status = nf90_inq_varid(ncid,'lat_corners',varid)
+          status = nf90_inq_varid(ncid,lat_corner_name,varid)
           _VERIFY(status)
           status = nf90_get_var(ncid,varid,corners)
           _VERIFY(status)
-          corners=corners*MAPL_PI_R8/180.d0
+          corners=corners*MAPL_DEGREES_TO_RADIANS_R8
        end if
        call MAPL_SyncSharedMemory(__RC__)
 
@@ -339,77 +340,6 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine add_horz_coordinates_from_file
-
-   subroutine add_horz_coordinates_from_memory(this, grid, unusable, rc)
-      use MAPL_BaseMod, only: MAPL_grid_interior, MAPL_gridget
-      use MAPL_CommsMod
-      use MAPL_IOMod
-      use MAPL_Constants
-      class (TripolarGridFactory), intent(in) :: this
-      type (ESMF_Grid), intent(inout) :: grid
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(len=*), parameter :: Iam = MOD_NAME // 'add_horz_coordinates'
-
-      integer :: i_1,i_n,j_1,j_n
-      integer :: ic_1,ic_n,jc_1,jc_n ! regional corner bounds
-      real(ESMF_KIND_R8), pointer :: fptr(:,:)
-
-
-      _UNUSED_DUMMY(unusable)
-
-       call MAPL_Grid_Interior(grid, i_1, i_n, j_1, j_n)
-
-       ic_1=i_1
-       ic_n=i_n
-
-       jc_1=j_1
-       if (j_n == this%jm_world) then
-          jc_n=j_n+1
-       else
-          jc_n=j_n
-       end if
-
-       ! do longitudes
-       call MAPL_SyncSharedMemory(__RC__)
- 
-       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CENTER, &
-          farrayPtr=fptr, rc=status)
-       fptr=this%lon_centers(i_1:i_n,j_1:j_n)
-       ! do latitudes
-
-       call MAPL_SyncSharedMemory(__RC__)
-
-       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CENTER, &
-          farrayPtr=fptr, rc=status)
-       fptr=this%lat_centers(i_1:i_n,j_1:j_n)
-
-       ! do longitudes
-
-       call MAPL_SyncSharedMemory(__RC__)
-
-       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CORNER, &
-          farrayPtr=fptr, __RC__)
-       fptr=this%lon_corners(ic_1:ic_n,jc_1:jc_n)
-       ! do latitudes
-
-       call MAPL_SyncSharedMemory(__RC__)
-
-       call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
-          staggerloc=ESMF_STAGGERLOC_CORNER, &
-          farrayPtr=fptr, __RC__)
-       fptr=this%lat_corners(ic_1:ic_n,jc_1:jc_n)
-
-       call MAPL_SyncSharedMemory(__RC__)
-
-      _RETURN(_SUCCESS)
-
-   end subroutine add_horz_coordinates_from_memory
 
    subroutine initialize_from_file_metadata(this, file_metadata, unusable, force_file_coordinates, rc)
       use MAPL_KeywordEnforcerMod
@@ -436,55 +366,10 @@ contains
       attr_val => attr%get_value()
       select type(attr_val)
       type is(character(*))
-         input_file = attr_val
+         this%grid_file_name = attr_val
       class default
          _FAIL('origin file in metadata must be string')
       end select 
-      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-         status = nf90_open(input_file,NF90_NOWRITE,ncid)
-         _VERIFY(status)
-      end if
-
-      call MAPL_AllocateShared(this%lon_centers,[this%im_world,this%jm_world],transroot=.true.,_RC)
-      call MAPL_SyncSharedMemory(_RC)
-      call MAPL_AllocateShared(this%lat_centers,[this%im_world,this%jm_world],transroot=.true.,_RC)
-      call MAPL_SyncSharedMemory(_RC)
-      call MAPL_AllocateShared(this%lon_corners,[this%im_world+1,this%jm_world+1],transroot=.true.,_RC)
-      call MAPL_SyncSharedMemory(_RC)
-      call MAPL_AllocateShared(this%lat_corners,[this%im_world+1,this%jm_world+1],transroot=.true.,_RC)
-      call MAPL_SyncSharedMemory(_RC)
-      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-         status = nf90_inq_varid(ncid,'lons',varid)
-         _VERIFY(status)
-         status = nf90_get_var(ncid,varid,this%lon_centers)
-         _VERIFY(status)
-          this%lon_centers=this%lon_centers*MAPL_PI_R8/180.d0
-      end if
-      call MAPL_SyncSharedMemory(_RC)
-      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-         status = nf90_inq_varid(ncid,'lats',varid)
-         _VERIFY(status)
-         status = nf90_get_var(ncid,varid,this%lat_centers)
-         _VERIFY(status)
-          this%lat_centers=this%lat_centers*MAPL_PI_R8/180.d0
-      end if
-      call MAPL_SyncSharedMemory(_RC)
-      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-         status = nf90_inq_varid(ncid,'corner_lons',varid)
-         _VERIFY(status)
-         status = nf90_get_var(ncid,varid,this%lon_corners)
-         _VERIFY(status)
-          this%lon_corners=this%lon_corners*MAPL_PI_R8/180.d0
-      end if
-      call MAPL_SyncSharedMemory(_RC)
-      if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
-         status = nf90_inq_varid(ncid,'corner_lats',varid)
-         _VERIFY(status)
-         status = nf90_get_var(ncid,varid,this%lat_corners)
-         _VERIFY(status)
-          this%lat_corners=this%lat_corners*MAPL_PI_R8/180.d0
-      end if
-      call MAPL_SyncSharedMemory(_RC)
 
       this%initialized_from_metadata = .true.
       call this%make_arbitrary_decomposition(this%nx, this%ny, rc=status)
@@ -756,8 +641,8 @@ contains
       class is (TripolarGridFactory)
          equal = .true.
 
-         equal = (a%grid_file_name == this%grid_file_name)
-         if (.not. equal) return
+         !equal = (a%grid_file_name == this%grid_file_name)
+         !if (.not. equal) return
 
          equal = (a%im_world == this%im_world) .and. (a%jm_world == this%jm_world)
          if (.not. equal) return
