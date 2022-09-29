@@ -1865,16 +1865,13 @@ contains
       integer, allocatable :: statuses(:), user_statuses(:)
       integer :: num_threads
       character(len=ESMF_MAXSTR) :: Iam = "Run1"
-      !type(ESMF_VM) :: vm
       type(ESMF_GridComp) :: thread_gc
-      !integer :: me
       integer :: userRC
       character(len=ESMF_MAXSTR) :: comp_name
       integer :: phase
 
 
       call ESMF_GridCompGet (GC, NAME=comp_name, currentPhase=phase, _RC)
-      !call ESMF_VMGet(vm, localPet=me, _RC)
 
       call MAPL_GetObjectFromGC (GC, MAPL, _RC)
       if(MAPL%is_threading_active()) then
@@ -1905,8 +1902,6 @@ contains
          subexport = MAPL%get_export_state()
          thread_gc = MAPL%get_gridcomp()
 
-         !call ESMF_GridCompGet (thread_gc, NAME=thrd_comp_name)
-         !print *, __FILE__, __LINE__, me, thread, phase, trim(thrd_comp_name)
          call ESMF_GridCompRun (thread_gc, &
               importState=subimport, &
               exportState=subexport, &
@@ -1926,7 +1921,6 @@ contains
          call MAPL%deactivate_threading(_RC)
          !call stop_global_time_profiler('deactivate_threads')
       end if
-      !call ESMF_VMBarrier(vm, _RC)
       !call stop_global_time_profiler('run1()')
       RETURN_(ESMF_SUCCESS)
    end subroutine omp_driver
