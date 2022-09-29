@@ -129,7 +129,7 @@ module MAPL_ExtDataOldTypesCreator
       allocate(primary_item%source_time,source=time_sample%source_time)
       ! new refresh
       call primary_item%update_freq%create_from_parameters(time_sample%refresh_time, &
-           time_sample%refresh_frequency, time_sample%refresh_offset, time, clock, __RC__)
+           time_sample%refresh_frequency, time_sample%refresh_offset, time, clock, _RC)
 
       disable_interpolation =  .not.time_sample%time_interpolation 
 
@@ -144,7 +144,7 @@ module MAPL_ExtDataOldTypesCreator
          dataset => this%file_stream_map%at(trim(rule%collection))
          primary_item%file_template = dataset%file_template
          get_range = trim(time_sample%extrap_outside) /= "none"
-         call dataset%detect_metadata(primary_item%file_metadata,time,rule%multi_rule,get_range=get_range,__RC__)
+         call dataset%detect_metadata(primary_item%file_metadata,time,rule%multi_rule,get_range=get_range,_RC)
       else
          primary_item%file_template = rule%collection
       end if
@@ -154,10 +154,10 @@ module MAPL_ExtDataOldTypesCreator
          primary_item%const=rule%linear_trans(1)
       else
          if (primary_item%cycling) then
-            call clim_handler%initialize(dataset,__RC__)
+            call clim_handler%initialize(dataset,_RC)
             allocate(primary_item%filestream,source=clim_handler)
          else
-            call simple_handler%initialize(dataset,persist_closest=primary_item%persist_closest,__RC__)
+            call simple_handler%initialize(dataset,persist_closest=primary_item%persist_closest,_RC)
             allocate(primary_item%filestream,source=simple_handler)
          end if
       end if
@@ -192,7 +192,7 @@ module MAPL_ExtDataOldTypesCreator
         time_sample=>default_time_sample
       end if
       call derived_item%update_freq%create_from_parameters(time_sample%refresh_time, &
-           time_sample%refresh_frequency, time_sample%refresh_offset, time, clock, __RC__)
+           time_sample%refresh_frequency, time_sample%refresh_offset, time, clock, _RC)
       derived_item%masking=.false.
       if (index(derived_item%expression,"mask") /= 0 ) then
          derived_item%masking=.true.

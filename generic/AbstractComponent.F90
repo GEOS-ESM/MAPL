@@ -22,7 +22,7 @@ module mapl_AbstractComponent
       procedure(i_SetLogger), deferred :: set_logger
       procedure(i_GetLogger), deferred :: get_logger
 
-      procedure(i_GetState), deferred :: get_internal_state
+      !procedure(i_GetState), deferred :: get_internal_state
 
    end type AbstractComponent
 

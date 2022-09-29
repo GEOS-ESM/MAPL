@@ -248,9 +248,9 @@ contains
           _VERIFY(status)
        end if
 
-       call MAPL_AllocateShared(centers,[im_world,jm_world],transroot=.true.,__RC__)
+       call MAPL_AllocateShared(centers,[im_world,jm_world],transroot=.true.,_RC)
 
-       call MAPL_SyncSharedMemory(__RC__)
+       call MAPL_SyncSharedMemory(_RC)
 
        ! do longitudes
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
@@ -260,7 +260,7 @@ contains
           _VERIFY(status)
           centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
-       call MAPL_SyncSharedMemory(__RC__)
+       call MAPL_SyncSharedMemory(_RC)
  
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CENTER, &
@@ -268,7 +268,7 @@ contains
        fptr=centers(i_1:i_n,j_1:j_n)
        ! do latitudes
 
-       call MAPL_SyncSharedMemory(__RC__)
+       call MAPL_SyncSharedMemory(_RC)
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           status = nf90_inq_varid(ncid,lat_center_name,varid)
           _VERIFY(status)
@@ -276,25 +276,25 @@ contains
           _VERIFY(status)
            centers=centers*MAPL_DEGREES_TO_RADIANS_R8
        end if
-       call MAPL_SyncSharedMemory(__RC__)
+       call MAPL_SyncSharedMemory(_RC)
 
        call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CENTER, &
           farrayPtr=fptr, rc=status)
        fptr=centers(i_1:i_n,j_1:j_n)
 
-       call MAPL_SyncSharedMemory(__RC__)
+       call MAPL_SyncSharedMemory(_RC)
        if(MAPL_ShmInitialized) then
-          call MAPL_DeAllocNodeArray(centers,__RC__)
+          call MAPL_DeAllocNodeArray(centers,_RC)
        else
           deallocate(centers)
        end if
        ! now repeat for corners
-       call MAPL_AllocateShared(corners,[im_world+1,jm_world+1],transroot=.true.,__RC__)
+       call MAPL_AllocateShared(corners,[im_world+1,jm_world+1],transroot=.true.,_RC)
 
        ! do longitudes
 
-       call MAPL_SyncSharedMemory(__RC__)
+       call MAPL_SyncSharedMemory(_RC)
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           status = nf90_inq_varid(ncid,lon_corner_name,varid)
           _VERIFY(status)
@@ -302,15 +302,15 @@ contains
           _VERIFY(status)
           corners=corners*MAPL_DEGREES_TO_RADIANS_R8
        end if
-       call MAPL_SyncSharedMemory(__RC__)
+       call MAPL_SyncSharedMemory(_RC)
 
        call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CORNER, &
-          farrayPtr=fptr, __RC__)
+          farrayPtr=fptr, _RC)
        fptr=corners(ic_1:ic_n,jc_1:jc_n)
        ! do latitudes
 
-       call MAPL_SyncSharedMemory(__RC__)
+       call MAPL_SyncSharedMemory(_RC)
        if (MAPL_AmNodeRoot .or. (.not. MAPL_ShmInitialized)) then
           status = nf90_inq_varid(ncid,lat_corner_name,varid)
           _VERIFY(status)
@@ -318,16 +318,16 @@ contains
           _VERIFY(status)
           corners=corners*MAPL_DEGREES_TO_RADIANS_R8
        end if
-       call MAPL_SyncSharedMemory(__RC__)
+       call MAPL_SyncSharedMemory(_RC)
 
        call ESMF_GridGetCoord(grid, coordDim=2, localDE=0, &
           staggerloc=ESMF_STAGGERLOC_CORNER, &
-          farrayPtr=fptr, __RC__)
+          farrayPtr=fptr, _RC)
        fptr=corners(ic_1:ic_n,jc_1:jc_n)
 
-       call MAPL_SyncSharedMemory(__RC__)
+       call MAPL_SyncSharedMemory(_RC)
        if(MAPL_ShmInitialized) then
-          call MAPL_DeAllocNodeArray(corners,__RC__)
+          call MAPL_DeAllocNodeArray(corners,_RC)
        else
           deallocate(corners)
        end if
