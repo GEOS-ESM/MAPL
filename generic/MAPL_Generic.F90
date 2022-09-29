@@ -4735,14 +4735,14 @@ contains
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromGC
 
-   recursive integer function AddChildFromDSOMeta(meta, name, userRoutine, grid, sharedObj, petList, configFile, parentGC, RC)
+   recursive integer function AddChildFromDSOMeta(meta, name, userRoutine, sharedObj, grid, petList, configFile, parentGC, RC)
 
       !ARGUMENTS:
       type(MAPL_MetaComp), target,   intent(INOUT) :: META
       character(len=*), intent(IN)                 :: name
       character(len=*), intent(in)                 :: userRoutine
+      character(len=*), intent(IN)                 :: sharedObj
       type(ESMF_Grid),  optional,    intent(INOUT) :: grid
-      character(len=*), optional, intent(IN)       :: sharedObj
 
       integer, optional, intent(IN)             :: petList(:)
       character(len=*), optional, intent(IN)    :: configFile
@@ -4791,7 +4791,7 @@ contains
 !!$           sharedObj=shared_object_library_to_load,userRC=userRC,_RC)
 !!$     _VERIFY(userRC)
 
-      child_meta%user_setservices_wrapper = DSO_SetServicesWrapper(sharedObj, userRoutine)
+      child_meta%user_setservices_wrapper = DSO_SetServicesWrapper(shared_object_library_to_load, userRoutine)
       call child_meta%t_profiler%stop('SetService',_RC)
       call child_meta%t_profiler%stop(_RC)
       call t_p%stop(trim(name),_RC)
