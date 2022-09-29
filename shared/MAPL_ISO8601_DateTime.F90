@@ -3,18 +3,18 @@
 ! Specifically, it implements ISO 8601-1:2019, but not ISO 8601-1:2019-2
 ! Zero-padded strings must be zero padded to their full width, unless
 ! otherwise specified.
-
+!
 !      YYYY
 ! Years are represented by 4 numerical characters (Y).
 ! The range is: '0000' to '9999' representing the years 1 BCE ('0000') to
 ! 9999 CE ('9999').
 ! Strict ISO 8601-1:2019 compliance disallows years before 1583 CE.
 ! Strict ISO 8601-1:2019 compliance can be enabled with 'STRICT_ISO8601'.
-
-
+!
+!
 !      ±YYYYY
 ! The optional ±YYYYY extension is not supported.
-
+!
 ! These date formats are supported.
 !      YYYY-MM-DD or YYYYMMDD
 !      YYYY-MM (but not YYYYMM)
@@ -23,12 +23,12 @@
 ! DD is the zero-padded day of the month from '01' (1) to '31' (31).
 ! The range of allowed DD strings varies according to the actual
 ! calendar, though the first day is always '01'.
-
+!
 ! These formats are not supported (calendar week and ordinal day).
 !      YYYY-Www	or	YYYYWww
 !      YYYY-Www-D	or	YYYYWwwD
 !      YYYY-DDD	or	YYYYDDD
-
+!
 ! Time
 ! ISO 8601 allows fractional seconds, but it does not limit the fractional
 ! part to milliseconds. Below, 'sss' represents an arbitrary number of digits.
@@ -36,30 +36,30 @@
 !      Thh:mm:ss	or	Thhmmss
 !      Thh:mm	or	Thhmm
 !      Thh
-
+!
 ! Fully-formed time with time zone. Local time not-supported
 !      <time>Z
 ! These time zone formats are not implemented.
 !      <time>±hh:mm
 !      <time>±hhmm
 !      <time>±hh
-
+!
 ! Datetime
 !      <date>T<time>
-
+!
 ! ISO 8601 Durations
 !      PnYnMnDTnHnMnS
-
+!
 ! These ISO 8601 Duration formats are not supported.
 !      PnW
 !      P<date>T<time>
-
+!
 ! ISO 8601 Interval
 !      <start>/<end>
 !      <start>/<duration>
 !      <duration>/<end>
 !      <duration>
-
+!
 ! Repeating ISO 8601 Intervals are not supported.
 !      Rn/<interval>
 !      R/<interval>
@@ -846,7 +846,7 @@ contains
 !      integer, intent(inout) :: rc
 !      type(ISO8601Interval) :: interval
 !      integer :: status
-!!      _FAIL('Not implemented')
+!       _FAIL('Not implemented')
 !   end function construct_ISO8601Interval
 
 ! END HIGH-LEVEL CONSTRUCTORS
