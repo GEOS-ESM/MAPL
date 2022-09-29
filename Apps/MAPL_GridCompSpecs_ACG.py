@@ -21,10 +21,10 @@ class MAPL_DataSpec:
 
     # The following arguments are skipped if value is empty string
     optional_options = [ 'dims', 'vlocation', 'num_subtiles',
-                   'refresh_interval', 'averaging_interval', 'halowidth',
-                   'precision','default','restart', 'ungridded_dims',
-                   'field_type', 'staggering', 'rotation',
-                   'friendlyto', 'add2export', 'datatype', 'restart',
+                         'refresh_interval', 'averaging_interval', 'halowidth',
+                         'precision','default','restart', 'ungridded_dims',
+                         'field_type', 'staggering', 'rotation',
+                         'friendlyto', 'add2export', 'datatype', 'restart',
                    'attr_inames', 'att_rnames', 'attr_ivalues', 'attr_rvalues',
                    'ungridded_name', 'ungridded_unit', 'ungridded_coords']
 
@@ -102,7 +102,6 @@ class MAPL_DataSpec:
         if kind:
             text = text + '(kind=' + str(kind) + ')'
         text = text +', pointer, ' + dimension + ' :: ' + MAPL_DataSpec.internal_name(self.args['short_name']) + ' => null()'
-        text = text + self.newline()
         return text
 
     def emit_get_pointers(self):
@@ -199,18 +198,18 @@ def read_specs(specs_filename):
 
     # The column aliases (keys of column_aliases dict) must be UPPERCASE.
     column_aliases = {
-        'NAME'         : 'short_name',
-        'LONG NAME'    : 'long_name',
-        'VLOC'         : 'vlocation',
-        'UNITS'        : 'units',
-        'DIMS'         : 'dims',
-        'UNGRIDDED'    : 'ungridded_dims',
-        'PREC'         : 'precision',
-        'COND'         : 'condition',
-        'DEFAULT'      : 'default',
-        'RESTART'      : 'restart',
-        'FRIENDLYTO'   : 'friendlyto',
-        'ADD2EXPORT'   : 'add2export'
+        'NAME'       : 'short_name',
+        'LONG NAME'  : 'long_name',
+        'VLOC'       : 'vlocation',
+        'UNITS'      : 'units',
+        'DIMS'       : 'dims',
+        'UNGRIDDED'  : 'ungridded_dims',
+        'PREC'       : 'precision',
+        'COND'       : 'condition',
+        'DEFAULT'    : 'default',
+        'RESTART'    : 'restart',
+        'FRIENDLYTO' : 'friendlyto',
+        'ADD2EXPORT' : 'add2export'
         'NUM_SUBTILES' : 'num_subtiles'
     }
 
