@@ -108,7 +108,7 @@ class MAPL_DataSpec:
         text = self.emit_header()
         short_name = MAPL_DataSpec.internal_name(self.args['short_name'])
         mangled_name = MAPL_DataSpec.mangled_name(self.args['short_name'])
-        text = text + "call MAPL_GetPointer(" + self.category + ', ' + short_name + ", " + mangled_name + ", rc=status); VERIFY_(status)" 
+        text = text + "call MAPL_GetPointer(" + self.category + ', ' + short_name + ", " + mangled_name + ", _RC)"
         text = text + self.emit_trailer(nullify=True)
         return text
 
@@ -124,9 +124,8 @@ class MAPL_DataSpec:
         text = "call MAPL_Add" + self.category.capitalize() + "Spec(gc," + self.continue_line()
         for option in MAPL_DataSpec.all_options:
             text = text + self.emit_arg(option)
-        text = text + 'rc=status)' + self.newline()
+        text = text + '_RC)' + self.newline()
         self.indent = self.indent - 5
-        text = text + 'VERIFY_(status)'
         return text
 
     def emit_arg(self, option):
