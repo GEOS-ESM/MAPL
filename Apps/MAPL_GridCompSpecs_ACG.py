@@ -101,7 +101,7 @@ class MAPL_DataSpec:
         text = text + type
         if kind:
             text = text + '(kind=' + str(kind) + ')'
-        text = text +', pointer, ' + dimension + ' :: ' + MAPL_DataSpec.internal_name(self.args['short_name']) + ' => null()'
+        text = text +', pointer, ' + dimension + ' :: ' + MAPL_DataSpec.internal_name(self.args['short_name'])
         return text
 
     def emit_get_pointers(self):
