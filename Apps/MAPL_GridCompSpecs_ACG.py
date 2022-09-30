@@ -15,7 +15,7 @@ class MAPL_DataSpec:
                    'refresh_interval', 'averaging_interval', 'halowidth',
                    'precision','default','restart', 'ungridded_dims',
                    'field_type', 'staggering', 'rotation',
-                   'friendlyto', 'add2export', 'datatype', 'restart',
+                   'friendlyto', 'add2export', 'datatype',
                    'attr_inames', 'att_rnames', 'attr_ivalues', 'attr_rvalues',
                    'ungridded_name', 'ungridded_unit', 'ungridded_coords']
 
@@ -24,9 +24,9 @@ class MAPL_DataSpec:
                          'refresh_interval', 'averaging_interval', 'halowidth',
                          'precision','default','restart', 'ungridded_dims',
                          'field_type', 'staggering', 'rotation',
-                         'friendlyto', 'add2export', 'datatype', 'restart',
-                   'attr_inames', 'att_rnames', 'attr_ivalues', 'attr_rvalues',
-                   'ungridded_name', 'ungridded_unit', 'ungridded_coords']
+                         'friendlyto', 'add2export', 'datatype',
+                         'attr_inames', 'att_rnames', 'attr_ivalues', 'attr_rvalues',
+                         'ungridded_name', 'ungridded_unit', 'ungridded_coords']
 
     entry_aliases = {'dims': {'z'  : 'MAPL_DimsVertOnly',
                               'xy' : 'MAPL_DimsHorzOnly',
@@ -209,8 +209,9 @@ def read_specs(specs_filename):
         'DEFAULT'    : 'default',
         'RESTART'    : 'restart',
         'FRIENDLYTO' : 'friendlyto',
-        'ADD2EXPORT' : 'add2export'
-        'NUM_SUBTILES' : 'num_subtiles'
+        'ADD2EXPORT' : 'add2export',
+        'NUM_SUBTILES' : 'num_subtiles,',
+        'AVERAGING_INTERVAL' : 'averaging_interval'
     }
 
     specs = {}
@@ -219,7 +220,6 @@ def read_specs(specs_filename):
         gen = csv_record_reader(specs_reader)
         schema_version = next(gen)[0].split(' ')[1]
         component = next(gen)[0].split(' ')[1]
-#        print("Generating specification code for component: ",component)
         while True:
             try:
                 gen = csv_record_reader(specs_reader)
@@ -228,18 +228,16 @@ def read_specs(specs_filename):
                 bare_columns = [c.strip() for c in bare_columns]
                 columns = []
                 for c in bare_columns:
-                    cU = c.upper() # We need the uppercase version. See above.
-                    if cU in column_aliases:
-                        columns.append(column_aliases[cU])
-                    else:
-                        columns.append(c.lower())
+                    columns.append(getifin(column_aliases, c))
                 specs[category] = dataframe(gen, columns)
             except StopIteration:
                 break
 
     return specs
 
-
+def getifin(dictionary, key):
+    """ Return dictionary[key.upper()] if key.upper() in dictionary else key """ 
+    return dictionary[key.upper()] if key.upper() in dictionary else key
 
 def header():
     """
