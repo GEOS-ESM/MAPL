@@ -2,7 +2,7 @@ version: 2.1
 
 # Anchors to prevent forgetting to update a version
 baselibs_version: &baselibs_version v7.5.0
-bcs_version: &bcs_version v10.22.3
+bcs_version: &bcs_version v10.23.0
 
 orbs:
   ci: geos-esm/circleci-tools@1
@@ -13,12 +13,13 @@ workflows:
 
       # Builds MAPL in a "default" way - Intel
       - ci/build:
-          name: build-and-test-MAPL-on-<< matrix.compiler >>
+          name: build-and-test-MAPL-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
               compiler: [ifort]
+              cmake_generator: ['Unix Makefiles', 'Ninja']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -38,12 +39,13 @@ workflows:
       # Open MPI 5 will not have this limitation
 
       - ci/build:
-          name: build-and-test-MAPL-on-<< matrix.compiler >>
+          name: build-and-test-MAPL-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
               compiler: [gfortran]
+              cmake_generator: ['Unix Makefiles', 'Ninja']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -143,6 +145,8 @@ workflows:
                 - parent_one_child_import_via_extdata
                 - parent_one_child_no_imports
                 - parent_two_siblings_connect_import_export
+          # We will only run the tutorials with GNU make. No need to double up
+          # as Ninja is a build test only
           requires:
-            - build-and-test-MAPL-on-<< matrix.compiler >>
+            - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version

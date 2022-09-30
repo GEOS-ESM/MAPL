@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Removed ESMFL_UnitsRadians from ESMFL_Mod.F90 and replaced it with MAPL_UnitsRadians in InternalConstants.F90. Did a global search/replace. This avoid the circular dependency build error when ESMF_UnitsRadians is used in MaplGrid.F90
+
+### Added
+- Several changes to support component level hybrid MPI/OpenMP.
+  - See files OpenMP_Support.F90, EntryPointVector.F90, RunEntryPoint.F90, MaplGenericComponent.F90, MAPL_Generic.F90, and BaseProfiler.F90. The first three are new and the rest  are modified.
+
+
+## [hybrid-openmp] - 2022-09-14
+### Fixed
 
 ### Added
 
@@ -15,10 +24,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Removed `LatLonGridFactory_basic` factory constructor (dead code)
-
 ### Deprecated
 
+## [2.26.0] - 2022-09-16
+
+### Fixed
+
+- Change the logic to check if the field is already connected to a valid grid. If yes, we bypass the checks for tilegrid (issue #1654)
+- Removed unnecessary DSO extension assert
+- Fixed bug that required a /dev/null ExtData entry to still have a file variable name
+- Fixed bug with checking for duplicate alias in collection
+- Added protection in History to only allow `instantaneous` or `time-averaged` modes
+- Check userRC after ESMF_GridCompInitialize in MAPL_GenericInitialize
+
+### Added
+
+- Added Ninja build of MAPL to CI tests
+
+### Changed
+
+- Have `MAPL_AddChildFromDSO` call `MAPL_AddChildFromDSOMeta` (#1598)
+
+### Removed
+
+- Removed unused code from History GridComp
+
+## [2.25.0] - 2022-09-01
+
+### Fixed
+
+- Fix setting stretched grid target latitude and longitude from restart file metadata
+
+### Added
+
+- Added member function get_global_var to FileMetadata
+- Added option to build source tarfile when building MAPL standalone. By default this is `OFF`, but can be enabled with
+  `-DINSTALL_SOURCE_TARFILE=ON`
+- Added `regrid_method` metadata to History output
+- Added an overloaded interface for MAPL_BalanceWork to handle both REAL32 and REAL64
+
+### Changed
+
+- Updated `components.yaml` to match GEOSgcm v10.22.5 (actually a bit beyond)
+  - ESMA_env v4.2.0 → v4.4.0 (Update to Intel 2022.1, Add TOSS4 Support at NAS)
+  - ESMA_cmake v3.17.0 → v3.18.0 (Updates to CPack and Provisional M2 Support)
+
+### Removed
+
+- Removed `LatLonGridFactory_basic` factory constructor (dead code)
 ## [2.24.0] - 2022-08-08
 
 ### Fixed

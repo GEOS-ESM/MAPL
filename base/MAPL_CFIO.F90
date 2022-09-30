@@ -1453,7 +1453,7 @@ contains
     deallocate(hasUngrid)
     deallocate(vsize)
     deallocate(location)
-!@    call ESMF_CFIOVarInfoDestroy(vars, __RC__)
+!@    call ESMF_CFIOVarInfoDestroy(vars, _RC)
     deallocate(vars)
 !ALT we should do this:    call ESMF_CFIOGridDestroy(cfiogrid)
     deallocate(cfiogrid)
@@ -2945,7 +2945,7 @@ contains
     cfioIsCreated = .false. 
     if (present(collection_id)) then
        collection => collections%at(collection_id)
-       cfio => collection%find(filename, __RC__)
+       cfio => collection%find(filename, _RC)
     else
        allocate(CFIO)
        cfio=ESMF_CFIOCreate(RC=status)
@@ -3580,7 +3580,7 @@ contains
 
     deallocate(LONSfile,LATSfile)
     deallocate(LONSbundle,LATSbundle)
-!@    call ESMF_CFIOVarInfoDestroy(vars, __RC__)
+!@    call ESMF_CFIOVarInfoDestroy(vars, _RC)
     deallocate(VARS)
 
     if (selectedLevels) then
@@ -4808,7 +4808,7 @@ CONTAINS
         cfio(n)%collection_id = MAPL_CFIOAddCollection(filelist(n))
         cfio(n)%fname = filelist(n)
         collection => collections%at(cfio(n)%collection_id)
-        pcfio => collection%find(cfio(n)%fname, __RC__)
+        pcfio => collection%find(cfio(n)%fname, _RC)
         if (present(timelist)) then
           call getTIndex(pcfio,timelist(n),nn,rc=status)
         else
@@ -4958,7 +4958,7 @@ CONTAINS
     _VERIFY(STATUS)
 
     collection => collections%at(mcfio%collection_ID)
-    cfiop => collection%find(mcfio%fname, __RC__)
+    cfiop => collection%find(mcfio%fname, _RC)
 
     call ESMF_CFIOGet       (cfiop,     grid=CFIOGRID,                     RC=STATUS)
     _VERIFY(STATUS)
@@ -5270,7 +5270,7 @@ CONTAINS
           end if
        end if
     end block
-!@    call ESMF_CFIOVarInfoDestroy(vars, __RC__)
+!@    call ESMF_CFIOVarInfoDestroy(vars, _RC)
     deallocate(vars)
     deallocate(LONSfile,LATSfile)
     if (associated(levsfile)) then
@@ -5319,7 +5319,7 @@ CONTAINS
     end if
 
     collection => collections%at(mcfio%collection_id)
-    cfiop => collection%find(trim(mcfio%fname), __RC__)
+    cfiop => collection%find(trim(mcfio%fname), _RC)
 
     call MAPL_GridGet( MCFIO%GRID, globalCellCountPerDim=COUNTS, RC=STATUS)
     _VERIFY(STATUS)
@@ -5973,14 +5973,14 @@ CONTAINS
 
      tindex=-1
      allocate(tSeriesInt(cfio%tSteps))
-     call getDateTimeVec(cfio%fid,begDate,begTime,tSeriesInt,__RC__)
+     call getDateTimeVec(cfio%fid,begDate,begTime,tSeriesInt,_RC)
 
      do i=1,cfio%tSteps
         iCurrInterval = tSeriesInt(i)
         call GetDate ( begDate, begTime, iCurrInterval, nymdB, nhmsB, status )
         call MAPL_UnpackTime(nymdB,iyr,imm,idd)
         call MAPL_UnpackTime(nhmsB,ihr,imn,isc)
-        call ESMF_TimeSet(ctime, yy=iyr, mm=imm, dd=idd,  h=ihr,  m=imn, s=isc,__RC__)
+        call ESMF_TimeSet(ctime, yy=iyr, mm=imm, dd=idd,  h=ihr,  m=imn, s=isc,_RC)
         if (ctime == time) tindex =i
      enddo
 
