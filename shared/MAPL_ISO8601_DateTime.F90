@@ -72,7 +72,8 @@ module MAPL_ISO8601_DateTime
    use MAPL_ExceptionHandling
    implicit none
 
-   private
+! For testing private methods, leave the following line commented out.
+!   private
 
    public :: convert_ISO8601_to_integer_time
    public :: convert_ISO8601_to_integer_date
