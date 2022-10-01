@@ -4,6 +4,7 @@ module mapl3g_GenericGridComp
    use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_OuterMetaComponent, only: attach_outer_meta
+   use :: mapl3g_GenericConfig
    use esmf
    use :: mapl_KeywordEnforcer, only: KeywordEnforcer
    use :: mapl_ErrorHandling
@@ -15,6 +16,7 @@ module mapl3g_GenericGridComp
 
 
    interface create_grid_comp
+      module procedure create_grid_comp_primary
       module procedure create_grid_comp_traditional
       module procedure create_grid_comp_yaml_dso
       module procedure create_grid_comp_yaml_userroutine
@@ -60,7 +62,33 @@ contains
       end subroutine set_entry_points
 
    end subroutine setServices
+
+
+
    
+   type(ESMF_GridComp) function create_grid_comp_primary( &
+        name, set_services, config, unusable, petlist, rc) result(gridcomp)
+      use :: mapl3g_UserSetServices, only: AbstractUserSetServices
+
+      character(*), intent(in) :: name
+      class(AbstractUserSetServices), intent(in) :: set_services
+      type(GenericConfig), intent(in) :: config
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: petlist(:)
+      integer, optional, intent(out) :: rc
+      
+      type(OuterMetaComponent), pointer :: outer_meta
+      integer :: status
+
+      gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist,  _RC)
+      call attach_outer_meta(gridcomp, _RC)
+      outer_meta => get_outer_meta(gridcomp, _RC)
+      outer_meta = OuterMetaComponent(gridcomp, set_services, config)
+
+      _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end function create_grid_comp_primary
+
 
    type(ESMF_GridComp) function create_grid_comp_traditional( &
         name, userRoutine, unusable, config, petlist, rc) result(gridcomp)

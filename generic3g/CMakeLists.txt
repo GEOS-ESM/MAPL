@@ -8,6 +8,7 @@ set(srcs
   FieldDictionaryItemMap.F90
   FieldDictionary.F90 
 
+  GenericConfig.F90
   GenericGrid.F90
 
   ComponentSpecParser.F90

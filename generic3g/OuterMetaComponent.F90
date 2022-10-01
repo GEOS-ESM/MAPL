@@ -2,6 +2,7 @@
 
 module mapl3g_OuterMetaComponent
    use mapl3g_UserSetServices,   only: AbstractUserSetServices
+   use mapl3g_GenericConfig
    use mapl3g_ComponentSpec
    use mapl3g_ChildComponent
 !!$   use mapl3g_CouplerComponentVector
@@ -25,30 +26,20 @@ module mapl3g_OuterMetaComponent
    public :: attach_outer_meta
    public :: free_outer_meta
 
-   type :: GenericConfig
-      type(ESMF_Config),   allocatable :: esmf_cfg
-      class(YAML_Node), allocatable :: yaml_cfg
-   contains
-      procedure :: has_yaml
-      procedure :: has_esmf
-   end type GenericConfig
-
-
    type :: OuterMetaComponent
       private
       
-      character(len=:), allocatable               :: name
       type(ESMF_GridComp)                         :: self_gridcomp
-      type(ESMF_GridComp)                         :: user_gridcomp
+      class(AbstractUserSetServices), allocatable :: user_setservices
       type(GenericConfig)                         :: config
 
+      type(ESMF_GridComp)                         :: user_gridcomp
       type(ComponentSpec)                         :: component_spec
       type(MethodPhasesMap)                       :: phases_map
       type(OuterMetaComponent), pointer           :: parent_private_state
 
       type(ChildComponentMap)                     :: children
       type(InnerMetaComponent), allocatable       :: inner_meta
-      class(AbstractUserSetServices), allocatable :: user_setservices
 
       class(Logger), pointer :: lgr  ! "MAPL.Generic" // name
 
@@ -130,14 +121,25 @@ module mapl3g_OuterMetaComponent
 
    end interface
 
+   interface OuterMetaComponent
+      module procedure new_outer_meta
+   end interface OuterMetaComponent
+
 
 contains
 
 
-   type(OuterMetaComponent) function new_outer_meta(gridcomp) result(outer_meta)
-      type(ESMF_GridComp), intent(inout) :: gridcomp
+   ! Keep the constructor simple
+   type(OuterMetaComponent) function new_outer_meta(gridcomp, set_services, config) result(outer_meta)
+      type(ESMF_GridComp), intent(in) :: gridcomp
+      class(AbstractUserSetServices), intent(in) :: set_services
+      type(GenericConfig), intent(in) :: config
 
-      call initialize_meta(outer_meta, gridcomp)
+      outer_meta%self_gridcomp = gridcomp
+      outer_meta%user_setservices = set_services
+      outer_meta%config = config
+      !TODO: this may be able to move outside of constructor
+      call initialize_phases_map(outer_meta%phases_map)
 
    end function new_outer_meta
 
@@ -148,8 +150,6 @@ contains
       character(ESMF_MAXSTR) :: name
 
       this%self_gridcomp = gridcomp
-      call ESMF_GridCompGet(gridcomp, name=name)
-      this%name = trim(name)
       call initialize_phases_map(this%phases_map)
 
    end subroutine initialize_meta
@@ -423,22 +423,18 @@ contains
    end subroutine write_restart
 
 
-   pure logical function has_yaml(this)
-      class(GenericConfig), intent(in) :: this
-      has_yaml = allocated(this%yaml_cfg)
-   end function has_yaml
-
-   pure logical function has_esmf(this)
-      class(GenericConfig), intent(in) :: this
-      has_esmf = allocated(this%esmf_cfg)
-   end function has_esmf
-
-
-   function get_name(this) result(name)
+   function get_name(this, rc) result(name)
       character(:), allocatable :: name
       class(OuterMetaComponent), intent(in) :: this
+      integer, optional, intent(out) :: rc
 
-      name = this%name
+      integer :: status
+      character(len=ESMF_MAXSTR) :: buffer
+
+      call ESMF_GridCompGet(this%self_gridcomp, name=buffer, _RC)
+      name=trim(buffer)
+
+      _RETURN(ESMF_SUCCESS)
    end function get_name
 
 
