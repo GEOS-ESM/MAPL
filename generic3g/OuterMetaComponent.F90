@@ -89,10 +89,6 @@ module mapl3g_OuterMetaComponent
 
    character(len=*), parameter :: OUTER_META_PRIVATE_STATE = "OuterMetaComponent Private State"
 
-   character(*), parameter :: LOWER = 'abcdefghijklmnopqrstuvwxyz'
-   character(*), parameter :: UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-   character(*), parameter :: DIGITS = '0123456789'
-   character(*), parameter :: ALPHANUMERIC = LOWER//UPPER//DIGITS
 
 
    ! Submodule interfaces

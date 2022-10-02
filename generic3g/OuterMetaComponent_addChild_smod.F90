@@ -4,6 +4,7 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_addChild_smod
    use mapl_keywordenforcer, only: KE => KeywordEnforcer
    use mapl3g_GenericGridComp
    use mapl3g_ChildComponent
+   use mapl3g_Validation
    implicit none
    
 contains
@@ -19,7 +20,8 @@ contains
       type(ESMF_GridComp) :: child_gc
       type(ChildComponent) :: child_comp
 
-!!$      call validate_component_name(child_name, _RC)
+      _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
+
       child_gc = create_grid_comp(child_name, setservices, config, _RC)
       child_comp = ChildComponent(child_gc)
       call this%children%insert(child_name, child_comp)

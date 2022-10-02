@@ -31,6 +31,7 @@ set(srcs
   GenericGridComp.F90
 
   MAPL_Generic.F90
+  Validation.F90
 
   # ComponentSpecBuilder.F90
   )

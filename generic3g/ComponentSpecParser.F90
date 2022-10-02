@@ -4,8 +4,8 @@ module mapl3g_ComponentSpecParser
    use mapl3g_ComponentSpec
    use mapl3g_ChildSpec
    use mapl3g_ChildSpecMap
-   use mapl_ErrorHandling
    use mapl3g_UserSetServices
+   use mapl_ErrorHandling
    use yaFyaml
    implicit none
    private
@@ -14,9 +14,9 @@ module mapl3g_ComponentSpecParser
    public :: parse_component_spec
 
    ! The following interfaces are public only for testing purposes.
-   public :: parse_setservices
-   public :: parse_ChildSpec
    public :: parse_ChildSpecMap
+   public :: parse_ChildSpec
+   public :: parse_SetServices
    public :: var_parse_ChildSpecMap
 
    public :: parse_ExtraDimsSpec
@@ -29,13 +29,6 @@ contains
 
       integer :: status
 
-!!$      ! Set services is special because "traditional" MAPL gridcomps may
-!!$      ! have set a procedure during construction of an earlier phase.
-      if (config%has('setServices')) then
-         _ASSERT(.not. allocated(spec%user_setservices), 'user setservices already specified')
-         spec%user_setservices = parse_setservices(config%of('setServices'), _RC)
-      end if
-      
 !!$      spec%states_spec = process_states_spec(config%of('states'), _RC)
 !!$      spec%connections_spec = process_connections_spec(config%of('connections'), _RC)
 !!$      spec%children_spec = process_children_spec(config%of('children'), _RC)
@@ -45,6 +38,26 @@ contains
       _RETURN(_SUCCESS)
    end function parse_component_spec
 
+
+   type(ChildSpec) function parse_ChildSpec(config, rc) result(child_spec)
+      class(YAML_Node), intent(in) :: config
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(config%has('setServices'),"child spec must specify a 'setServices' spec")
+      child_spec%user_setservices = parse_setservices(config%of('setServices'), _RC)
+
+      if (config%has('esmf_config')) then
+         call config%get(child_spec%esmf_config_file, 'esmf_config', _RC)
+      end if
+
+      if (config%has('yaml_config')) then
+         call config%get(child_spec%yaml_config_file, 'yaml_config', _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end function parse_ChildSpec
 
    type(DSOSetServices) function parse_setservices(config, rc) result(user_ss)
       class(YAML_Node), intent(in) :: config
@@ -67,25 +80,6 @@ contains
       _RETURN(_SUCCESS)
    end function parse_setservices
 
-   type(ChildSpec) function parse_ChildSpec(config, rc) result(child_spec)
-      class(YAML_Node), intent(in) :: config
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      _ASSERT(config%has('setServices'),"child spec must specify a 'setServices' spec")
-      child_spec%user_setservices = parse_setservices(config%of('setServices'), _RC)
-
-      if (config%has('esmf_config')) then
-         call config%get(child_spec%esmf_config_file, 'esmf_config', _RC)
-      end if
-
-      if (config%has('yaml_config')) then
-         call config%get(child_spec%yaml_config_file, 'yaml_config', _RC)
-      end if
-
-      _RETURN(_SUCCESS)
-   end function parse_ChildSpec
 
    ! Note: It is convenient to allow a null pointer for the config in
    ! the case of no child specs.  It spares the higher level procedure

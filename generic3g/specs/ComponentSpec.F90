@@ -8,7 +8,6 @@ module mapl3g_ComponentSpec
    use mapl3g_ConnectionSpecVector
    use mapl3g_ConnectionSpec
    use mapl3g_FieldRegistry
-   use mapl3g_UserSetServices
    use mapl_ErrorHandling
    use ESMF
    implicit none
@@ -18,7 +17,6 @@ module mapl3g_ComponentSpec
 
    type :: ComponentSpec
 !!$      private
-      class(AbstractUserSetServices), allocatable :: user_setservices
       type(ConnectionPointVector) :: connection_points
       type(ConnectionSpecVector) :: connections
    contains

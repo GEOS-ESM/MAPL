@@ -23,8 +23,6 @@ contains
       integer, intent(out) :: rc
 
       type(GenericConfig) :: config
-      class(AbstractUserSetServices), allocatable :: ss
-
       integer :: status
 
       associate (ss_parent => user_setservices('libsimple_parent_gridcomp'))
@@ -132,4 +130,36 @@ contains
 
    end subroutine test_finalize_children
 
+   @test(npes=[0])
+   subroutine test_MAPL_invalid_name(this)
+      class(MpiTestMethod), intent(inout) :: this
+      
+      type(GenericConfig) :: config
+
+      integer :: status
+
+      associate (ss_parent => user_setservices('libsimple_parent_gridcomp'))
+        parent_gc = create_grid_comp('parent', ss_parent, config, rc=status)
+      end associate
+      @assert_that(status, is(0))
+      parent_meta => get_outer_meta(parent_gc, rc=status)
+      @assert_that(status, is(0))
+      user_gc = parent_meta%get_gridcomp()
+
+      associate (ss_leaf => user_setservices('libsimple_leaf_gridcomp'))
+        ! Empty name
+        call parent_meta%add_child('', ss_leaf, config, rc=status)
+        @assertExceptionRaised('Child name <> does not conform to GEOS standards.')
+
+        ! Illegal starting character
+        call parent_meta%add_child('1A', ss_leaf, config, rc=status)
+        @assertExceptionRaised('Child name <1A> does not conform to GEOS standards.')
+
+        ! Illegal character: hyphen
+        call parent_meta%add_child('A-1', ss_leaf, config, rc=status)
+        @assertExceptionRaised('Child name <A-1> does not conform to GEOS standards.')
+
+      end associate
+
+   end subroutine test_MAPL_invalid_name
 end module Test_RunChild
