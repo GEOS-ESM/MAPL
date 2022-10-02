@@ -83,18 +83,20 @@ module mapl3g_Generic
 
 contains
 
-   subroutine add_child_by_name(gridcomp, child_name, config, rc)
-      use yaFyaml
+   subroutine add_child_by_name(gridcomp, child_name, setservices, config, rc)
+      use mapl3g_UserSetServices
+      use mapl3g_GenericConfig
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
-      class(YAML_Node), intent(inout) :: config
+      class(AbstractUserSetServices), intent(in) :: setservices
+      type(GenericConfig), intent(inout) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      call outer_meta%add_child(child_name, config, _RC)
+      call outer_meta%add_child(child_name, setservices, config, _RC)
       
       _RETURN(ESMF_SUCCESS)
    end subroutine add_child_by_name

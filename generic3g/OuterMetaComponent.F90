@@ -112,10 +112,11 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) ::rc
       end subroutine set_entry_point
 
-      module subroutine add_child_by_name(this, child_name, config, rc)
+      module subroutine add_child_by_name(this, child_name, setservices, config, rc)
          class(OuterMetaComponent), intent(inout) :: this
          character(len=*), intent(in) :: child_name
-         class(YAML_Node), intent(inout) :: config
+         class(AbstractUserSetServices), intent(in) :: setservices
+         type(GenericConfig), intent(in) :: config
          integer, optional, intent(out) :: rc
       end subroutine add_child_by_name
 

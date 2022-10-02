@@ -8,10 +8,11 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_addChild_smod
    
 contains
 
-   module subroutine add_child_by_name(this, child_name, config, rc)
+   module subroutine add_child_by_name(this, child_name, setservices, config, rc)
       class(OuterMetaComponent), intent(inout) :: this
       character(len=*), intent(in) :: child_name
-      class(YAML_Node), intent(inout) :: config
+      class(AbstractUserSetServices), intent(in) :: setservices
+      type(GenericConfig), intent(in) :: config
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -19,7 +20,7 @@ contains
       type(ChildComponent) :: child_comp
 
 !!$      call validate_component_name(child_name, _RC)
-      child_gc = create_grid_comp(child_name, config, _RC)
+      child_gc = create_grid_comp(child_name, setservices, config, _RC)
       child_comp = ChildComponent(child_gc)
       call this%children%insert(child_name, child_comp)
 
