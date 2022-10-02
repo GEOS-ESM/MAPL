@@ -29,7 +29,37 @@ module mapl3g_ConnectionPoint
       module procedure equal_to
    end interface operator(==)
 
+   interface ConnectionPoint
+      module procedure new_connection_point_basic
+      module procedure new_connection_point_simple
+   end interface ConnectionPoint
+
 contains
+
+
+   function new_connection_point_basic(component_name, state_intent, relative_pt) result(conn_pt)
+      type(ConnectionPoint) :: conn_pt
+      character(*), intent(in) :: component_name
+      character(*), intent(in) :: state_intent
+      type(RelativeConnectionPoint), intent(in) :: relative_pt
+
+      conn_pt%component_name = component_name
+      conn_pt%state_intent = state_intent
+      conn_pt%relative_pt = relative_pt
+      
+   end function new_connection_point_basic
+
+   function new_connection_point_simple(component_name, state_intent, short_name) result(conn_pt)
+      type(ConnectionPoint) :: conn_pt
+      character(*), intent(in) :: component_name
+      character(*), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+
+      conn_pt%component_name = component_name
+      conn_pt%state_intent = state_intent
+      conn_pt%relative_pt = RelativeConnectionPoint(short_name)
+      
+   end function new_connection_point_simple
 
    function short_name(this)
       character(:), pointer :: short_name

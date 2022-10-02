@@ -5,12 +5,15 @@ module mapl3g_OuterMetaComponent
    use mapl3g_GenericConfig
    use mapl3g_ComponentSpec
    use mapl3g_ChildComponent
+   use mapl3g_Validation, only: is_valid_name
 !!$   use mapl3g_CouplerComponentVector
    use mapl3g_InnerMetaComponent
    use mapl3g_MethodPhasesMap
    use mapl3g_ChildComponentMap, only: ChildComponentMap
    use mapl3g_ChildComponentMap, only: ChildComponentMapIterator
    use mapl3g_ChildComponentMap, only: operator(/=)
+   use mapl3g_AbstractStateItemSpec
+   use mapl3g_ConnectionPoint
    use mapl3g_ESMF_Interfaces, only: I_Run
    use mapl_ErrorHandling
    use gFTL2_StringVector
@@ -62,6 +65,7 @@ module mapl3g_OuterMetaComponent
       procedure :: read_restart
       procedure :: write_restart
 
+      ! Hierarchy
       procedure, private :: add_child_by_name
       procedure, private :: get_child_by_name
       procedure, private :: run_child_by_name
@@ -71,6 +75,9 @@ module mapl3g_OuterMetaComponent
       generic :: get_child => get_child_by_name
       generic :: run_child => run_child_by_name
       generic :: run_children => run_children_
+
+      ! Specs
+      procedure :: add_spec
 
       procedure :: traverse
 
@@ -498,6 +505,27 @@ contains
 !!$   end subroutine validate_user_short_name
 
 
+   subroutine add_spec(this, state_intent, short_name, spec, unusable, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      character(*), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      class(AbstractStateItemSpec), intent(in) :: spec
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(count(state_intent == ['import  ' ,'export  ', 'internal']) == 1, 'invalid state intent')
+      _ASSERT(is_valid_name(short_name), 'Short name <' // short_name //'> does not conform to GEOS standards.')
+
+      associate(comp_name => this%get_name())
+      
+        associate (conn_pt => ConnectionPoint(comp_name, state_intent, short_name))
+          call this%component_spec%add_connection_point(conn_pt)
+!!$        call this%registry%add_item_spec(conn_pt, spec)
+        end associate
+
+      end associate
+
+   end subroutine add_spec
 
 
 end module mapl3g_OuterMetaComponent

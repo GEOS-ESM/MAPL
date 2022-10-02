@@ -20,7 +20,9 @@ module mapl3g_Generic
    use :: mapl3g_InnerMetaComponent, only: get_inner_meta
    use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
+   use :: mapl3g_Validation, only: is_valid_name
    use :: mapl3g_ESMF_Interfaces, only: I_Run
+   use :: mapl3g_AbstractStateItemSpec
    use :: esmf, only: ESMF_GridComp
    use :: esmf, only: ESMF_Clock
    use :: esmf, only: ESMF_SUCCESS
@@ -36,7 +38,7 @@ module mapl3g_Generic
    public :: MAPL_run_child
 !!$   public :: MAPL_run_children
 
-!!$   public :: MAPL_AddImportSpec
+   public :: MAPL_AddImportSpec
 !!$   public :: MAPL_AddExportSpec
 !!$   public :: MAPL_AddInternalSpec
 !!$
@@ -64,14 +66,18 @@ module mapl3g_Generic
 !!$      module procedure :: run_children
 !!$   end interface MAPL_run_children
 !!$
-!!$   interface MAPL_AddImportSpec
-!!$      module procedure :: add_import_spec
-!!$   end interface MAPL_AddImportSpec
-!!$
-!!$   interface MAPL_AddExportSpec
-!!$      module procedure :: add_import_spec
-!!$   end interface MAPL_AddExportSpec
-!!$
+   interface MAPL_AddImportSpec
+      module procedure :: add_import_spec
+   end interface MAPL_AddImportSpec
+
+   interface MAPL_AddExportSpec
+      module procedure :: add_export_spec
+   end interface MAPL_AddExportSpec
+
+   interface MAPL_AddInternalSpec
+      module procedure :: add_internal_spec
+   end interface MAPL_AddInternalSpec
+
 !!$   interface MAPL_Get
 !!$      module procedure :: get
 !!$   end interface MAPL_Get
@@ -95,6 +101,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
       call outer_meta%add_child(child_name, setservices, config, _RC)
       
@@ -180,7 +187,7 @@ contains
       procedure(I_Run) :: userProcedure
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: phase_name
-      integer, optional, intent(out) ::rc
+      integer, optional, intent(out) :: rc
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
@@ -193,6 +200,54 @@ contains
    end subroutine gridcomp_set_entry_point
 
 
-!!$   subroutine add_import_spec(gridcomp, ...)
-!!$   end subroutine add_import_spec
+   subroutine add_import_spec(gridcomp, short_name, spec, unusable, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: short_name
+      class(AbstractStateItemSpec), intent(in) :: spec
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      call outer_meta%add_spec('import', short_name, spec, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine add_import_spec
+
+   subroutine add_export_spec(gridcomp, short_name, spec, unusable, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: short_name
+      class(AbstractStateItemSpec), intent(in) :: spec
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      call outer_meta%add_spec('export', short_name, spec, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine add_export_spec
+
+   subroutine add_internal_spec(gridcomp, short_name, spec, unusable, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: short_name
+      class(AbstractStateItemSpec), intent(in) :: spec
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+      call outer_meta%add_spec('internal', short_name, spec, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine add_internal_spec
+
+
+
 end module mapl3g_Generic
