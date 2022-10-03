@@ -323,14 +323,15 @@ else:
 
 # Generate code from specs (processed above)
 for category in categories:
-    for item in specs[category]:
-        spec = MAPL_DataSpec(category.lower(), item)
-        if f_specs[category]:
-            f_specs[category].write(spec.emit_specs())
-        if f_declare_pointers:
-            f_declare_pointers.write(spec.emit_declare_pointers())
-        if f_get_pointers:
-            f_get_pointers.write(spec.emit_get_pointers())
+    if category in specs:
+        for item in specs[category]:
+            spec = MAPL_DataSpec(category.lower(), item)
+            if f_specs[category]:
+                f_specs[category].write(spec.emit_specs())
+            if f_declare_pointers:
+                f_declare_pointers.write(spec.emit_declare_pointers())
+            if f_get_pointers:
+                f_get_pointers.write(spec.emit_get_pointers())
 
 # Close output files
 for category, f in list(f_specs.items()):
