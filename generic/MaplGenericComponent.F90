@@ -244,7 +244,7 @@ contains
       if (.NOT. this%is_threading_active()) then
         internal_state => this%internal_state
      else
-        thread = get_current_thread_id()
+        thread = get_current_thread()
         internal_state => this%subcomponents(thread+1)%internal_state
      end if
    end function get_internal_state
@@ -257,7 +257,7 @@ contains
      if (.NOT. this%is_threading_active()) then
         import_state => this%import_state
      else
-        thread = get_current_thread_id()
+        thread = get_current_thread()
         import_state => this%subcomponents(thread+1)%import_state
      end if
    end function get_import_state
@@ -270,7 +270,7 @@ contains
      if (.NOT. this%is_threading_active()) then
         export_state => this%export_state
      else
-        thread = get_current_thread_id()
+        thread = get_current_thread()
         export_state => this%subcomponents(thread+1)%export_state
      end if
    end function get_export_state
@@ -283,7 +283,7 @@ contains
      if (.NOT. this%is_threading_active()) then
         grid => this%grid
      else
-        thread = get_current_thread_id()
+        thread = get_current_thread()
         grid => this%subcomponents(thread+1)%grid ! subgrids is of type ESMF_Grid because of the return type of make_subgrids
      end if
    end function get_grid
@@ -374,7 +374,7 @@ contains
       if (.NOT. this%is_threading_active()) then
          gridcomp => this%gridcomp
      else
-        thread = get_current_thread_id()
+        thread = get_current_thread()
         gridcomp => this%subcomponents(thread+1)%gridcomp
      end if
 

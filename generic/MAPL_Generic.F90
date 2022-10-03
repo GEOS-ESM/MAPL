@@ -1849,7 +1849,7 @@ contains
 
    ! !INTERFACE:
    subroutine omp_driver(GC, import, export, clock, RC)
-      use MAPL_OpenMP_Support, only : get_current_thread_id, set_num_threads
+      use MAPL_OpenMP_Support, only : get_current_thread,  get_num_threads
 
       type (ESMF_GridComp), intent(inout) :: GC     ! Gridded component
       type (ESMF_State),    intent(inout) :: import ! Import state
@@ -1865,16 +1865,13 @@ contains
       integer, allocatable :: statuses(:), user_statuses(:)
       integer :: num_threads
       character(len=ESMF_MAXSTR) :: Iam = "Run1"
-      type(ESMF_VM) :: vm
       type(ESMF_GridComp) :: thread_gc
-      integer :: i, me
       integer :: userRC
       character(len=ESMF_MAXSTR) :: comp_name
       integer :: phase
 
 
-      call ESMF_GridCompGet (GC, vm=vm, NAME=comp_name, currentPhase=phase, _RC)
-      call ESMF_VMGet(vm, localPet=me, _RC)
+      call ESMF_GridCompGet (GC, NAME=comp_name, currentPhase=phase, _RC)
 
       call MAPL_GetObjectFromGC (GC, MAPL, _RC)
       if(MAPL%is_threading_active()) then
@@ -1886,7 +1883,7 @@ contains
          _VERIFY(userRC)
       else
          !call start_global_time_profiler('activate_threads')
-         num_threads = set_num_threads()
+         num_threads = get_num_threads()
          call MAPL%activate_threading(num_threads, _RC)
          !call stop_global_time_profiler('activate_threads')
          !call start_global_time_profiler('parallel')
@@ -1899,7 +1896,7 @@ contains
          !$omp& private(thread, subimport, subexport, thread_gc), &
          !$omp& shared(gc, statuses, user_statuses, clock, PHASE, MAPL)
 
-         thread = get_current_thread_id()
+         thread = get_current_thread()
 
          subimport = MAPL%get_import_state()
          subexport = MAPL%get_export_state()
@@ -4200,13 +4197,11 @@ contains
       endif
 
       if(present(LONS    )) then
-         !LONS   =>STATE%GRID%LONS
          temp_grid => STATE%get_grid()
          LONS   => temp_grid%LONS
       endif
 
       if(present(LATS    )) then
-         !LATS   =>STATE%GRID%LATS
          temp_grid => STATE%get_grid()
          LATS   => temp_grid%LATS
       endif
