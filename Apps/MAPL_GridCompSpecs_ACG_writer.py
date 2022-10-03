@@ -29,7 +29,7 @@ MISSING_HEADER = OUTPUT_COMMENT + " These specs are missing one or more required
 
 # Regular expression for parsing the beginning of MAPL_App calls
 # with group names to extract portions of the line
-call_re = re.compile('^call\s+MAPL_Add(?P<category>\w*?)Spec\((?P<remainder>.*)$', re.I)
+call_re = re.compile('^call\s+MAPL_Add(?P<category>\w*?)Spec\s*\((?P<remainder>.*)$', re.I)
 
 #==============================================================================#
 
@@ -57,6 +57,18 @@ def strip_comment(line):
     """ Strip inline comment. """
     INPUT_COMMENT = '!'
     return strip_char(line, INPUT_COMMENT)
+
+#==============================================================================#
+
+def strip_parentheses(line):
+    """ Strip parentheses from start and end """
+    PARENS = '()'
+    val = line.strip()
+    if val[0] in PARENS:
+        val = val[1:]
+    if val[-1] in PARENS:
+        val = val[:-2]
+    return val
 
 #==============================================================================#
 
@@ -200,6 +212,7 @@ def parse_file(filename):
                 # If line DOES NOT have a continuation, add string (record).
                 # No continuation indicates end of (concatenated) line.
                 if line.find(CONTINUATION_CHARACTER) < 0:
+                    joined = strip_parentheses(joined)
                     records = add_to_tuple_dict(joined, records, category)
 
                     # Initialize for next record
