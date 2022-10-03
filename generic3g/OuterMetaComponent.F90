@@ -35,16 +35,18 @@ module mapl3g_OuterMetaComponent
       type(ESMF_GridComp)                         :: self_gridcomp
       class(AbstractUserSetServices), allocatable :: user_setservices
       type(GenericConfig)                         :: config
+      type(ChildComponentMap)                     :: children
+      logical                                     :: is_root_ = .false.
 
       type(ESMF_GridComp)                         :: user_gridcomp
-      type(ComponentSpec)                         :: component_spec
       type(MethodPhasesMap)                       :: phases_map
-      type(OuterMetaComponent), pointer           :: parent_private_state
-
-      type(ChildComponentMap)                     :: children
       type(InnerMetaComponent), allocatable       :: inner_meta
 
       class(Logger), pointer :: lgr  ! "MAPL.Generic" // name
+
+      type(ComponentSpec)                         :: component_spec
+      type(OuterMetaComponent), pointer           :: parent_private_state
+
 
    contains
       procedure :: set_esmf_config
@@ -83,6 +85,8 @@ module mapl3g_OuterMetaComponent
 
       procedure :: get_name
       procedure :: get_gridcomp
+      procedure :: is_root
+
    end type OuterMetaComponent
 
    type OuterMetaWrapper
@@ -519,13 +523,16 @@ contains
       associate(comp_name => this%get_name())
       
         associate (conn_pt => ConnectionPoint(comp_name, state_intent, short_name))
-          call this%component_spec%add_connection_point(conn_pt)
-!!$        call this%registry%add_item_spec(conn_pt, spec)
+          call this%component_spec%add_item_spec(conn_pt, spec)
         end associate
 
       end associate
 
    end subroutine add_spec
 
+   pure logical function is_root(this)
+      class(OuterMetaComponent), intent(in) :: this
+      is_root = this%is_root_
+   end function is_root
 
 end module mapl3g_OuterMetaComponent

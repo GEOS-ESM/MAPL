@@ -17,9 +17,6 @@ module mapl3g_GenericGridComp
 
    interface create_grid_comp
       module procedure create_grid_comp_primary
-      module procedure create_grid_comp_traditional
-      module procedure create_grid_comp_yaml_dso
-      module procedure create_grid_comp_yaml_userroutine
    end interface create_grid_comp
 
    public :: initialize
@@ -90,79 +87,6 @@ contains
    end function create_grid_comp_primary
 
 
-   type(ESMF_GridComp) function create_grid_comp_traditional( &
-        name, userRoutine, unusable, config, petlist, rc) result(gridcomp)
-      use :: mapl3g_UserSetServices, only: user_setservices
-      use :: mapl3g_ESMF_Interfaces, only: I_SetServices
-      
-      character(len=*), intent(in) :: name
-      procedure(I_SetServices) :: userRoutine
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_config), optional, intent(inout) :: config
-      integer, optional, intent(in) :: petlist(:)
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
-
-      gridcomp = make_basic_gridcomp(name=name, petlist=petlist, _RC)
-      outer_meta => get_outer_meta(gridcomp, _RC)
-      if (present(config)) call outer_meta%set_esmf_config(config)
-      call outer_meta%set_user_setservices(user_setservices(userRoutine))
-
-      _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end function create_grid_comp_traditional
-
-
-   type(ESMF_GridComp) function create_grid_comp_yaml_dso( &
-        name, config, unusable, petlist, rc) result(gridcomp)
-      use :: mapl3g_UserSetServices, only: user_setservices
-      use :: yafyaml, only: YAML_Node
-
-      character(len=*), intent(in) :: name
-      class(YAML_Node), intent(inout) :: config
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: petlist(:)
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
-!!$      class(YAML_Node), pointer :: dso_yaml
-!!$      character(:), allocatable :: sharedObj, userRoutine
-      
-      gridcomp = make_basic_gridcomp(name=name, petlist=petlist, _RC)
-      outer_meta => get_outer_meta(gridcomp, _RC)
-      call outer_meta%set_config(config)
-
-      _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end function create_grid_comp_yaml_dso
-
-   type(ESMF_GridComp) function create_grid_comp_yaml_userroutine( &
-        name, config, userRoutine, unusable, petlist, rc) result(gridcomp)
-      use :: mapl3g_ESMF_Interfaces, only: I_SetServices
-      use :: mapl3g_UserSetServices, only: user_setservices
-      use :: yafyaml, only: YAML_Node
-
-      character(len=*), intent(in) :: name
-      class(YAML_Node), intent(inout) :: config
-      procedure(I_SetServices) :: userRoutine
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: petlist(:)
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
-      
-      gridcomp = make_basic_gridcomp(name=name, petlist=petlist, _RC)
-      outer_meta => get_outer_meta(gridcomp, _RC)
-      call outer_meta%set_config(config)
-      call outer_meta%set_user_setservices(user_setservices(userRoutine))
-
-      _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end function create_grid_comp_yaml_userroutine
 
    ! Create ESMF GridComp, attach an internal state for meta, and a config.
    type(ESMF_GridComp) function make_basic_gridcomp(name, unusable, petlist, rc) result(gridcomp)

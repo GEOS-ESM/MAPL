@@ -7,6 +7,7 @@ module mapl3g_ComponentSpec
    use mapl3g_ConnectionPointVector
    use mapl3g_ConnectionSpecVector
    use mapl3g_ConnectionSpec
+   use mapl3g_ConnPtStateItemSpecMap
    use mapl3g_FieldRegistry
    use mapl_ErrorHandling
    use ESMF
@@ -17,13 +18,13 @@ module mapl3g_ComponentSpec
 
    type :: ComponentSpec
 !!$      private
-      type(ConnectionPointVector) :: connection_points
+      type(ConnPtStateItemSpecMap) :: item_specs
       type(ConnectionSpecVector) :: connections
    contains
-      procedure :: add_connection_point
+      procedure :: add_item_spec
       procedure :: add_connection
-      procedure :: make_primary_states
 
+      procedure :: make_primary_states
       procedure :: process_connections
       procedure :: process_connection
    end type ComponentSpec
@@ -34,21 +35,22 @@ module mapl3g_ComponentSpec
 
 contains
 
-   function new_ComponentSpec(connection_points, connections) result(spec)
+   function new_ComponentSpec(item_specs, connections) result(spec)
       type(ComponentSpec) :: spec
-      type(ConnectionPointVector), optional, intent(in) :: connection_points
+      type(ConnPtStateItemSpecMap), optional, intent(in) :: item_specs
       type(ConnectionSpecVector), optional, intent(in) :: connections
 
-      if (present(connection_points)) spec%connection_points = connection_points
+      if (present(item_specs)) spec%item_specs = item_specs
       if (present(connections)) spec%connections = connections
    end function new_ComponentSpec
 
 
-   subroutine add_connection_point(this, connection_point)
+   subroutine add_item_spec(this, conn_pt, spec)
       class(ComponentSpec), intent(inout) :: this
-      type(ConnectionPoint), intent(in) :: connection_point
-      call this%connection_points%push_back(connection_point)
-   end subroutine add_connection_point
+      type(ConnectionPoint), intent(in) :: conn_pt
+      class(AbstractStateItemSpec), intent(in) :: spec
+      call this%item_specs%insert(conn_pt, spec)
+   end subroutine add_item_spec
 
 
    subroutine add_connection(this, connection)
@@ -65,10 +67,10 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ConnectionPointVectorIterator) :: iter
+      type(ConnPtStateItemSpecMapIterator) :: iter
 
-      associate (e => this%connection_points%end())
-        iter = this%connection_points%begin()
+      associate (e => this%item_specs%end())
+        iter = this%item_specs%begin()
         do while (iter /= e)
            call add_state_item(iter, registry, comp_states, _RC)
            call iter%next()
@@ -79,7 +81,7 @@ contains
    end subroutine make_primary_states
 
    subroutine add_state_item(iter, registry, comp_states, rc)
-      type(ConnectionPointVectorIterator), intent(in) :: iter
+      type(ConnPtStateItemSpecMapIterator), intent(in) :: iter
       type(FieldRegistry), intent(in) :: registry
       type(ESMF_State), intent(in) :: comp_states
       integer, optional, intent(out) :: rc
@@ -89,7 +91,7 @@ contains
       type(ESMF_State) :: primary_state
       type(ConnectionPoint), pointer :: conn_pt
       
-      conn_pt => iter%of()
+      conn_pt => iter%first()
       spec => registry%get_item_spec(conn_pt)
       _ASSERT(associated(spec), 'invalid connection point')
 

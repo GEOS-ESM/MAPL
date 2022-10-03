@@ -32,15 +32,17 @@ module mapl3g_Generic
    implicit none
    private
 
+   
    public :: MAPL_GridCompSetEntryPoint
-!!$   public :: MAPL_GetInternalState
    public :: MAPL_add_child
    public :: MAPL_run_child
-!!$   public :: MAPL_run_children
+   public :: MAPL_run_children
+
+!!$   public :: MAPL_GetInternalState
 
    public :: MAPL_AddImportSpec
-!!$   public :: MAPL_AddExportSpec
-!!$   public :: MAPL_AddInternalSpec
+   public :: MAPL_AddExportSpec
+   public :: MAPL_AddInternalSpec
 !!$
 !!$   public :: MAPL_GetResource
    
@@ -54,6 +56,9 @@ module mapl3g_Generic
 !!$      module procedure :: get_internal_state
 !!$   end interface MAPL_GetInternalState
 
+
+   ! Interfaces
+   
    interface MAPL_add_child
       module procedure :: add_child_by_name
    end interface MAPL_add_child
@@ -62,10 +67,10 @@ module mapl3g_Generic
       module procedure :: run_child_by_name
    end interface MAPL_run_child
 
-!!$   interface MAPL_run_children
-!!$      module procedure :: run_children
-!!$   end interface MAPL_run_children
-!!$
+   interface MAPL_run_children
+      module procedure :: run_children
+   end interface MAPL_run_children
+
    interface MAPL_AddImportSpec
       module procedure :: add_import_spec
    end interface MAPL_AddImportSpec
@@ -131,7 +136,7 @@ contains
    end subroutine run_child_by_name
 
 
-   subroutine run_children_(gridcomp, clock, unusable, phase_name, rc)
+   subroutine run_children(gridcomp, clock, unusable, phase_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -146,7 +151,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine run_children_
+   end subroutine run_children
 
 
    ! Helper functions to access intenal/private state.
