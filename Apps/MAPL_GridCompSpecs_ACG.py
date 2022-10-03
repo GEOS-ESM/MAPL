@@ -192,25 +192,25 @@ def read_specs(specs_filename):
 
     # Python is case sensitive, so dict lookups are case sensitive.
     # The column names are Fortran identifiers, which are case insensitive.
-    # So all lookups in the dict below should be converted to UPPERCASE.
+    # So all lookups in the dict below should be converted to lowercase.
     # New aliases should be UPPERCASE.
 
-    # The column aliases (keys of column_aliases dict) must be UPPERCASE.
+    # The column aliases (keys of column_aliases dict) must be lowercase.
     column_aliases = {
-        'NAME'       : 'short_name',
-        'LONG NAME'  : 'long_name',
-        'VLOC'       : 'vlocation',
-        'UNITS'      : 'units',
-        'DIMS'       : 'dims',
-        'UNGRIDDED'  : 'ungridded_dims',
-        'PREC'       : 'precision',
-        'COND'       : 'condition',
-        'DEFAULT'    : 'default',
-        'RESTART'    : 'restart',
-        'FRIENDLYTO' : 'friendlyto',
-        'ADD2EXPORT' : 'add2export',
-        'NUM_SUBTILES' : 'num_subtiles,',
-        'AVERAGING_INTERVAL' : 'averaging_interval'
+        'name'       : 'short_name',
+        'long name'  : 'long_name',
+        'vloc'       : 'vlocation',
+        'units'      : 'units',
+        'dims'       : 'dims',
+        'ungridded'  : 'ungridded_dims',
+        'prec'       : 'precision',
+        'cond'       : 'condition',
+        'default'    : 'default',
+        'restart'    : 'restart',
+        'friendlyto' : 'friendlyto',
+        'add2export' : 'add2export',
+        'num_subtiles' : 'num_subtiles,',
+        'averaging_interval' : 'averaging_interval'
     }
 
     specs = {}
@@ -235,8 +235,8 @@ def read_specs(specs_filename):
     return specs
 
 def getifin(dictionary, key):
-    """ Return dictionary[key.upper()] if key.upper() in dictionary else key """ 
-    return dictionary[key.upper()] if key.upper() in dictionary else key
+    """ Return dictionary[key.lower()] if key.lower() in dictionary else key """ 
+    return dictionary[key.lower()] if key.lower() in dictionary else key.lower()
 
 def header():
     """
