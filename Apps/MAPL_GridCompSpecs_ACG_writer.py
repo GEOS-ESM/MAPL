@@ -369,7 +369,7 @@ def make_output(specs, all_keys, missing):
 description = 'Generate import/export/internal config specs file for MAPL Gridded Component'
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument("input", action='store', help="source Gridded Component filename")
-parser.add_argument("output", action='store', help="destination specs filename")
+parser.add_argument("-o", "--output", action='store', help="destination specs filename")
 
 # Parse command line
 args = parser.parse_args()
