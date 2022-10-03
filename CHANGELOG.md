@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Several changes to support component level hybrid MPI/OpenMP.
   - See files OpenMP_Support.F90, EntryPointVector.F90, RunEntryPoint.F90, MaplGenericComponent.F90, MAPL_Generic.F90, and BaseProfiler.F90. The first three are new and the rest  are modified.
 - Implement ISO 8601 (Date/Time) support for MAPL
+- Added ability to apply masks to expressions in ExtData2G
 
 ### Fixed
 
