@@ -1725,7 +1725,7 @@ CONTAINS
      end if
 
 
-     call ESMF_InfoGet(infoh,name="derived_source",value=derived_field_name,_RC)
+     call ESMF_InfoGet(infoh,key="derived_source",value=derived_field_name,_RC)
      call ESMF_StateGet(ExtDataState,trim(derived_field_name),derived_field,_RC)
      call ESMF_FieldGet(derived_field,grid=grid,_RC)
 
