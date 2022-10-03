@@ -12,16 +12,51 @@ module mapl_MaplGenericComponent
    use mapl_MaplComponent
    use mapl_ErrorHandlingMod
    use pFlogger
+   use mapl_OpenMP_Support
+   use mapl_MaplGrid
+   use mapl_RunEntryPoint
+   use mapl_EntryPointVector
    implicit none
    private
 
    public :: MaplGenericComponent
+   public :: get_grid
+
+   procedure(), pointer :: user_method => null()
+
+   type SubComponent
+      type(ESMF_GridComp) :: gridcomp
+      type(ESMF_State) :: internal_state
+      type(ESMF_State) :: import_state
+      type(ESMF_State) :: export_state
+      type(MaplGrid) :: grid
+   end type SubComponent
+
+   abstract interface
+      subroutine UserMethod(gc, import, export, clock, rc)
+         use ESMF
+         implicit none
+         type (ESMF_GridComp), intent(inout) :: gc     ! Gridded component 
+         type (ESMF_State),    intent(inout) :: import ! Import state
+         type (ESMF_State),    intent(inout) :: export ! Export state
+         type (ESMF_Clock),    intent(inout) :: clock  ! The clock
+         integer, optional,    intent(  out) :: rc     ! Error code:
+      end subroutine UserMethod
+   end interface
 
    type, extends(BaseFrameworkComponent) :: MaplGenericComponent
 !!$      private
       type(ESMF_GridComp) :: gridcomp
+      type(SubComponent), allocatable :: subcomponents(:)
+      type(EntryPointVector) :: run_entry_points
       type(ESMF_State) :: import_state
       type(ESMF_State) :: export_state
+      type(ESMF_State) :: internal_state
+
+      logical :: threading_active = .FALSE.
+      logical :: use_threads = .FALSE.
+
+
    contains
       procedure :: initialize => stub
       procedure :: run => stub
@@ -32,12 +67,23 @@ module mapl_MaplGenericComponent
       procedure :: finalize_child => stub_child
 
       procedure :: add_child_component
+      
+      procedure :: activate_threading
+      procedure :: deactivate_threading
 
+      procedure :: create_subobjects
 
       ! accessors
-
       procedure :: get_logger
       procedure :: set_logger
+      procedure :: set_use_threads
+      procedure :: get_use_threads
+      procedure :: is_threading_active
+      procedure :: get_internal_state
+      procedure :: get_import_state
+      procedure :: get_export_state
+      procedure :: get_grid
+      procedure :: get_gridcomp
    end type MaplGenericComponent
 
 contains
@@ -57,7 +103,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       user_component => this%get_component()
-      call user_component%run(this%import_state, this%export_state, clock, phase, __RC__)
+      call user_component%run(this%import_state, this%export_state, clock, phase, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine stub
@@ -76,7 +122,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       child => this%get_child(name)
-      call child%run(clock, phase, __RC__)
+      call child%run(clock, phase, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine stub_child
@@ -120,25 +166,25 @@ contains
       _VERIFY(status)
       component => wrapper%component
 
-      call ESMF_GridCompGet( gridcomp, name=name, currentPhase=phase, currentMethod=method, __RC__)
+      call ESMF_GridCompGet( gridcomp, name=name, currentPhase=phase, currentMethod=method, _RC)
 
       if (method == ESMF_METHOD_INITIALIZE) then
 
 !!$         phase_name => component%init_phase_map%at(phase)
 !!$         _ASSERT(associated(phase_name),'no such phase')
-         call component%initialize(import, export, clock, phase_name, __RC__)
+         call component%initialize(import, export, clock, phase_name, _RC)
 
       else if (method == ESMF_METHOD_RUN) then
 
 !!$         phase_name = component%run_phase_map%at(phase)
 !!$         _ASSERT(associated(phase_name),'no such phase')
-         call component%run(import, export, clock, phase_name, __RC__)
+         call component%run(import, export, clock, phase_name, _RC)
 
       else if (method == ESMF_METHOD_FINALIZE) then
          
 !!$         phase_name = component%finalize_phase_map%at(phase)
 !!$         _ASSERT(associated(phase_name),'no such phase')
-         call component%finalize(import, export, clock, phase_name, __RC__)
+         call component%finalize(import, export, clock, phase_name, _RC)
 
       else
          _FAIL('unknown value for ESMF_METHOD_FLAG')
@@ -166,5 +212,172 @@ contains
       call component%set_logger(lgr)
       
    end subroutine set_logger
+
+   subroutine set_use_threads(this, use_threads)
+      class(MaplGenericComponent), intent(inout) :: this
+      logical, intent(in) :: use_threads
+
+      this%use_threads = use_threads
+      
+   end subroutine set_use_threads
+
+   function get_use_threads(this) result(use_threads)
+      class(MaplGenericComponent), intent(in) :: this
+      logical :: use_threads
+
+      use_threads = this%use_threads
+      
+   end function get_use_threads
+
+   function is_threading_active(this) result(threading_active)
+     class(MaplGenericComponent), intent(in) :: this
+     logical :: threading_active
+     
+     threading_active = this%threading_active
+   end function is_threading_active
+
+   function get_internal_state(this) result(internal_state)
+      class(MaplGenericComponent), target, intent(in) :: this
+      type(ESMF_State), pointer :: internal_state
+      integer :: thread 
+
+      if (.NOT. this%is_threading_active()) then
+        internal_state => this%internal_state
+     else
+        thread = get_current_thread()
+        internal_state => this%subcomponents(thread+1)%internal_state
+     end if
+   end function get_internal_state
+
+   function get_import_state(this) result(import_state)
+     class(MaplGenericComponent), target, intent(in) :: this
+     type(ESMF_State), pointer :: import_state
+     integer :: thread
+
+     if (.NOT. this%is_threading_active()) then
+        import_state => this%import_state
+     else
+        thread = get_current_thread()
+        import_state => this%subcomponents(thread+1)%import_state
+     end if
+   end function get_import_state
+
+   function get_export_state(this) result(export_state)
+     class(MaplGenericComponent), target, intent(in) :: this
+     type(ESMF_State), pointer :: export_state
+     integer :: thread
+
+     if (.NOT. this%is_threading_active()) then
+        export_state => this%export_state
+     else
+        thread = get_current_thread()
+        export_state => this%subcomponents(thread+1)%export_state
+     end if
+   end function get_export_state
+
+   function get_grid(this) result(grid)
+     class(MaplGenericComponent), target, intent(in) :: this
+     type(MaplGrid), pointer :: grid
+     integer :: thread
+
+     if (.NOT. this%is_threading_active()) then
+        grid => this%grid
+     else
+        thread = get_current_thread()
+        grid => this%subcomponents(thread+1)%grid ! subgrids is of type ESMF_Grid because of the return type of make_subgrids
+     end if
+   end function get_grid
+
+
+   recursive subroutine activate_threading(this, num_threads, unusable, rc) 
+     class(MaplGenericComponent), intent(inout) :: this
+     integer, intent(in) :: num_threads
+     class(KeywordEnforcer), optional :: unusable
+     integer, optional, intent(out) :: rc
+     class(AbstractFrameworkComponent), pointer :: child
+     integer :: num_children, i, status
+      
+     this%threading_active = .TRUE.
+     num_children = this%get_num_children()
+
+     if (.NOT. allocated(this%subcomponents)) then
+        call this%create_subobjects(num_threads, _RC)
+     end if
+
+     do i = 1, num_children
+        child => this%get_child(i) 
+        select type (child)
+        class is (MaplGenericComponent)
+           call child%activate_threading(num_threads)
+        class default
+           _FAIL('illegal type for child')
+        end select
+     end do
+     _RETURN(0)
+   end subroutine activate_threading
+
+   subroutine create_subobjects(this, num_threads, unusable, rc)
+     class(MaplGenericComponent), intent(inout) :: this
+     integer, intent(in) :: num_threads
+     class(KeywordEnforcer), optional, intent(in) :: unusable
+     integer, optional, intent(out) :: rc
+     integer :: i, status
+     type(ESMF_Grid), allocatable :: subgrids(:)
+
+     allocate(this%subcomponents(num_threads))
+     
+     this%subcomponents(:)%import_state = make_substates(this%import_state, num_threads, _RC)
+     this%subcomponents(:)%export_state = make_substates(this%export_state, num_threads, _RC)
+     this%subcomponents(:)%internal_state = make_substates(this%internal_state, num_threads, _RC)
+
+     subgrids = make_subgrids(this%grid%ESMFGrid, num_threads, _RC) ! make_subgrids requires grid of type ESMF_Grid
+     do i = 1, size(subgrids)
+        call this%subcomponents(i)%grid%set(subgrids(i), _RC)
+     end do
+     deallocate(subgrids)
+
+     this%subcomponents(:)%gridcomp = make_subgridcomps(this%gridcomp, this%run_entry_points, num_threads, _RC)
+
+     _RETURN(0)
+   end subroutine create_subobjects
+
+   subroutine deactivate_threading(this, unusable, rc)
+     class(MaplGenericComponent), intent(inout) :: this
+     class(KeywordEnforcer), optional :: unusable
+     integer, optional, intent(out) :: rc
+     class(AbstractFrameworkComponent), pointer :: child
+     integer :: num_children, i
+     
+     num_children = this%get_num_children()
+     do i = 1, num_children
+        child => this%get_child(i) 
+        select type (child)
+        class is (MaplGenericComponent)
+           call child%deactivate_threading()
+        class default
+           _FAIL('illegal type for child')
+        end select
+     end do
+     
+     this%threading_active = .FALSE.
+     _RETURN(0)
+   end subroutine deactivate_threading
+
+
+
+   function get_gridcomp(this) result(gridcomp)
+      class(MaplGenericComponent), target, intent(in) :: this
+      type(ESMF_GridComp), pointer :: gridcomp
+
+      integer :: thread 
+
+      if (.NOT. this%is_threading_active()) then
+         gridcomp => this%gridcomp
+     else
+        thread = get_current_thread()
+        gridcomp => this%subcomponents(thread+1)%gridcomp
+     end if
+
+  end function get_gridcomp
 
 end module mapl_MaplGenericComponent

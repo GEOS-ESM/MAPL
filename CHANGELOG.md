@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Removed ESMFL_UnitsRadians from ESMFL_Mod.F90 and replaced it with MAPL_UnitsRadians in InternalConstants.F90. Did a global search/replace. This avoid the circular dependency build error when ESMF_UnitsRadians is used in MaplGrid.F90
+
+### Added
+- Changes consistent with MAPL for accessor functions to get number of threads and current thread
+- Several changes to support component level hybrid MPI/OpenMP.
+  - See files OpenMP_Support.F90, EntryPointVector.F90, RunEntryPoint.F90, MaplGenericComponent.F90, MAPL_Generic.F90, and BaseProfiler.F90. The first three are new and the rest  are modified.
+- Implement ISO 8601 (Date/Time) support for MAPL
+- Added ability to apply masks to expressions in ExtData2G
+
+### Fixed
+
 ### Added
 
 ### Changed
@@ -16,6 +27,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.26.0] - 2022-09-16
+
+### Fixed
+
+- Change the logic to check if the field is already connected to a valid grid. If yes, we bypass the checks for tilegrid (issue #1654)
+- Removed unnecessary DSO extension assert
+- Fixed bug that required a /dev/null ExtData entry to still have a file variable name
+- Fixed bug with checking for duplicate alias in collection
+- Added protection in History to only allow `instantaneous` or `time-averaged` modes
+- Check userRC after ESMF_GridCompInitialize in MAPL_GenericInitialize
+
+### Added
+
+- Added Ninja build of MAPL to CI tests
+
+### Changed
+
+- Have `MAPL_AddChildFromDSO` call `MAPL_AddChildFromDSOMeta` (#1598)
+
+### Removed
+
+- Removed unused code from History GridComp
 
 ## [2.25.0] - 2022-09-01
 
