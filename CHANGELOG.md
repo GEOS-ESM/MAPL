@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changes consitent with MAPL for accessor functions to get number of threads and current thread
 - Several changes to support component level hybrid MPI/OpenMP.
   - See files OpenMP_Support.F90, EntryPointVector.F90, RunEntryPoint.F90, MaplGenericComponent.F90, MAPL_Generic.F90, and BaseProfiler.F90. The first three are new and the rest  are modified.
-
+- Implement ISO 8601 (Date/Time) support for MAPL
 
 ## [hybrid-openmp] - 2022-09-14
 ### Fixed
