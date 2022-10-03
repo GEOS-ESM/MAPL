@@ -1,8 +1,6 @@
 module mapl3g_ChildSpecMap
    use mapl3g_ChildSpec
 
-#define MAPL_DEBUG
-   
 #define Key __CHARACTER_DEFERRED
 #define T ChildSpec
 #define Map ChildSpecMap

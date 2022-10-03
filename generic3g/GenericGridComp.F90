@@ -16,7 +16,8 @@ module mapl3g_GenericGridComp
 
    interface create_grid_comp
       module procedure create_grid_comp_traditional
-      module procedure create_grid_comp_advanced
+      module procedure create_grid_comp_yaml_dso
+      module procedure create_grid_comp_yaml_userroutine
    end interface create_grid_comp
 
    public :: initialize
@@ -86,7 +87,7 @@ contains
    end function create_grid_comp_traditional
 
 
-   type(ESMF_GridComp) function create_grid_comp_advanced( &
+   type(ESMF_GridComp) function create_grid_comp_yaml_dso( &
         name, config, unusable, petlist, rc) result(gridcomp)
       use :: mapl3g_UserSetServices, only: user_setservices
       use :: yafyaml, only: YAML_Node
@@ -108,7 +109,32 @@ contains
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function create_grid_comp_advanced
+   end function create_grid_comp_yaml_dso
+
+   type(ESMF_GridComp) function create_grid_comp_yaml_userroutine( &
+        name, config, userRoutine, unusable, petlist, rc) result(gridcomp)
+      use :: mapl3g_ESMF_Interfaces, only: I_SetServices
+      use :: mapl3g_UserSetServices, only: user_setservices
+      use :: yafyaml, only: YAML_Node
+
+      character(len=*), intent(in) :: name
+      class(YAML_Node), intent(inout) :: config
+      procedure(I_SetServices) :: userRoutine
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: petlist(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+      
+      gridcomp = make_basic_gridcomp(name=name, petlist=petlist, _RC)
+      outer_meta => get_outer_meta(gridcomp, _RC)
+      call outer_meta%set_config(config)
+      call outer_meta%set_user_setservices(user_setservices(userRoutine))
+
+      _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end function create_grid_comp_yaml_userroutine
 
    ! Create ESMF GridComp, attach an internal state for meta, and a config.
    type(ESMF_GridComp) function make_basic_gridcomp(name, unusable, petlist, rc) result(gridcomp)

@@ -1,4 +1,4 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL_Generic.h"
 
 module mapl3g_InnerMetaComponent
    use :: mapl_ErrorHandling
@@ -62,13 +62,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(InnerMetaWrapper) :: wrapper
 
-      inner_meta => null()
-
-      call ESMF_UserCompGetInternalState(gridcomp, INNER_META_PRIVATE_STATE, wrapper, status)
-      _ASSERT(status==ESMF_SUCCESS, "InnerMetaComponent not found for this gridcomp.")
-      inner_meta => wrapper%inner_meta
+      _GET_NAMED_PRIVATE_STATE(gridcomp, InnerMetaComponent, INNER_META_PRIVATE_STATE, inner_meta)
       
       _RETURN(_SUCCESS)
    end function get_inner_meta
@@ -76,16 +71,13 @@ contains
    subroutine attach_inner_meta(self_gc, outer_gc, rc)
       type(ESMF_GridComp), intent(inout) :: self_gc
       type(ESMF_GridComp), intent(in) :: outer_gc
-      type(InnerMetaComponent), target :: inner_meta
       integer, optional, intent(out) :: rc
 
-      type(InnerMetaWrapper) :: wrapper
+      type(InnerMetaComponent), pointer :: inner_meta
       integer :: status
 
-      allocate(wrapper%inner_meta)
-      wrapper%inner_meta = InnerMetaComponent(self_gc, outer_gc)
-      call ESMF_UserCompSetInternalState(self_gc, INNER_META_PRIVATE_STATE, wrapper, status)
-      _ASSERT(status==ESMF_SUCCESS, "Unable to set InnerMetaComponent for this gridcomp.")
+      _SET_NAMED_PRIVATE_STATE(self_gc, InnerMetaComponent, INNER_META_PRIVATE_STATE, inner_meta)
+      inner_meta = InnerMetaComponent(self_gc, outer_gc)
       
       _RETURN(_SUCCESS)
    end subroutine attach_inner_meta
@@ -117,6 +109,20 @@ contains
 
       this%outer_gc = gc
    end subroutine set_outer_gridcomp
+
+
+!!$   subroutine add_spec(this, state_intent, short_name, spec)
+!!$      class(InnerMetaComponent), intent(in) :: this
+!!$      character(*), intent(in) :: state_intent
+!!$      character(*), intent(in) :: short_name
+!!$      class(AbstractStateItemSpec), intent(in) :: spec
+!!$
+!!$      call validate_user_short_name(short_name, _RC)
+!!$      associate (comp_spec => this%comp_spec)
+!!$        call comp_spec%add_user_spec(state_intent, short_name, spec)
+!!$      end associate
+!!$
+!!$   end subroutine add_spec
 
 end module mapl3g_InnerMetaComponent
    

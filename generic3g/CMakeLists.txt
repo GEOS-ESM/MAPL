@@ -10,7 +10,8 @@ set(srcs
 
   GenericGrid.F90
 
-  ComponentSpecBuilder.F90
+  ComponentSpecParser.F90
+  ComponentBuilder.F90
 
   ESMF_Interfaces.F90
   UserSetServices.F90
@@ -19,8 +20,8 @@ set(srcs
   ChildComponent.F90
   ChildComponent_run_smod.F90
   ChildComponentMap.F90
-  GenericCouplerComponent.F90
-  CouplerComponentVector.F90
+#  GenericCouplerComponent.F90
+#  CouplerComponentVector.F90
 
   InnerMetaComponent.F90
   OuterMetaComponent.F90
@@ -47,6 +48,7 @@ esma_add_library(${this}
   TYPE ${MAPL_LIBRARY_TYPE}
   )
 add_subdirectory(specs)
+add_subdirectory(registry)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

@@ -1,26 +1,42 @@
+#include "MAPL_Generic.h"
+
 module mapl3g_StateSpec
    use mapl3g_AbstractStateItemSpec
    use mapl3g_StateItemSpecMap
+   use mapl_ErrorHandling
+   use ESMF
    implicit none
    private
 
    public :: StateSpec
    type, extends(AbstractStateItemSpec) :: StateSpec
       private
-      type(StateItemSpecMap) :: items
+      type(ESMF_State) :: payload
+      type(StateItemSpecMap) :: item_specs
    contains
       procedure :: add_item
       procedure :: get_item
+
+      procedure :: create
+      procedure :: destroy
+      procedure :: allocate
+      procedure :: connect_to
+      procedure :: can_connect_to
+      procedure :: requires_extension
+      procedure :: add_to_state
+
    end type StateSpec
 
+
 contains
+
 
    subroutine add_item(this, name, item)
       class(StateSpec), target, intent(inout) :: this
       character(len=*), intent(in) :: name
       class(AbstractStateItemSpec), intent(in) :: item
 
-      call this%items%insert(name, item)
+      call this%item_specs%insert(name, item)
 
    end subroutine add_item
 
@@ -31,8 +47,97 @@ contains
 
       integer :: status
 
-      item => this%items%at(name, rc=status)
+      item => this%item_specs%at(name, rc=status)
 
    end function get_item
+
+
+   subroutine create(this, rc)
+      class(StateSpec), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      
+      this%payload = ESMF_StateCreate(_RC)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine create
+
+   subroutine destroy(this, rc)
+      class(StateSpec), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call ESMF_StateDestroy(this%payload, _RC)
+      call this%set_created(.false.)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine destroy
+
+
+   ! NO-OP
+   subroutine allocate(this, rc)
+      class(StateSpec), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine allocate
+   
+   subroutine connect_to(this, src_spec, rc)
+      class(StateSpec), intent(inout) :: this
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      select type (src_spec)
+      class is (StateSpec)
+         this%payload = src_spec%payload
+      class default
+         _FAIL('Cannot connect field spec to non field spec.')
+      end select
+
+      _RETURN(ESMF_SUCCESS)
+
+   end subroutine connect_to
+
+
+   logical function can_connect_to(this, src_spec)
+      class(StateSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+
+      can_connect_to = same_type_as(src_spec, this)
+
+   end function can_connect_to
+
+
+   logical function requires_extension(this, src_spec)
+      class(StateSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+
+      requires_extension = .false.
+      error stop "unimplemented procedure StateSpec::requires_extension"
+
+   end function requires_extension
+
+   subroutine add_to_state(this, state, short_name, rc)
+      class(StateSpec), intent(in) :: this
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: short_name
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_State) :: alias
+      integer :: status
+
+      _FAIL('unimplemented')
+
+!!$      alias = ESMF_NamedAlias(this%payload, name=short_name, _RC)
+!!$      call ESMF_StateAdd(state, this%payload, short_name, _RC)
+!!$
+
+   end subroutine add_to_state
 
 end module mapl3g_StateSpec

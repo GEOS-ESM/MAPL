@@ -5,7 +5,7 @@ submodule (mapl3g_OuterMetaComponent) OuterMetaComponent_setservices_smod
    use gFTL2_StringVector
    use mapl3g_ESMF_Interfaces, only: I_Run
    use mapl3g_UserSetServices, only: user_setservices
-   use mapl3g_ComponentSpecBuilder
+   use mapl3g_ComponentSpecParser
    ! Kludge to work around Intel 2021 namespace bug that exposes
    ! private names from other modules in unrelated submodules.
    ! Report filed 2022-03-14 (T. Clune)
@@ -40,7 +40,7 @@ contains
 !!$
 
       if (this%config%has_yaml()) then
-         this%component_spec = build_component_spec(this%config%yaml_cfg, _RC)
+         this%component_spec = parse_component_spec(this%config%yaml_cfg, _RC)
 !!$         call parse_config(this, this%config%yaml_cfg, _RC)
       end if
 
@@ -89,6 +89,7 @@ contains
          integer :: status
 
          this%user_gridcomp = create_user_gridcomp(this, _RC)
+!!$         call this%user_setServices%run(this%user_gridcomp, _RC)
          call this%component_spec%user_setServices%run(this%user_gridcomp, _RC)
 
          _RETURN(ESMF_SUCCESS)
@@ -169,7 +170,7 @@ contains
 
 
    ! This should move to a separate module.
-!!$   function build_component_spec(config, rc) result(component_spec)
+!!$   function parse_component_spec(config, rc) result(component_spec)
 !!$      type(ComponentSpec) :: component_spec
 !!$
 !!$      component_spec%setservices_spec = process_setservices_spec(config%of('setservices'), _RC)
@@ -180,6 +181,6 @@ contains
 !!$      component_spec%services_spec = process_grid_spec(config%of('serviceservices', _RC)
 !!$
 !!$      _RETURN(_SUCCESS)
-!!$   end function build_component_spec
+!!$   end function parse_component_spec
 
 end submodule OuterMetaComponent_setservices_smod
