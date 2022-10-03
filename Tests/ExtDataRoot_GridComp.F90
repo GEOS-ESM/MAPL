@@ -1,10 +1,10 @@
-   
+
 !-------------------------------------------------------------------------
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
 !-------------------------------------------------------------------------
 !
 #include "MAPL_Generic.h"
-   
+
 MODULE ExtDataUtRoot_GridCompMod
 !
 ! !USES:
@@ -179,7 +179,7 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_State), intent(inout) :: EXPORT     ! Export State
          integer, intent(out)            :: rc         ! Error return code:
 !  0 - all is well
-!  1 - 
+!  1 -
 
 ! !DESCRIPTION: This is a simple ESMF wrapper.
 !
@@ -191,7 +191,7 @@ MODULE ExtDataUtRoot_GridCompMod
 !-------------------------------------------------------------------------
 
 
-         type(ESMF_Config)           :: CF          ! Universal Config 
+         type(ESMF_Config)           :: CF          ! Universal Config
          character(len=ESMF_MAXSTR)  :: Iam
          integer                     :: status
          character(len=ESMF_MAXSTR)  :: comp_name
@@ -339,33 +339,33 @@ MODULE ExtDataUtRoot_GridCompMod
          call ESMF_UserCompGetInternalState(gc,wrap_name,synthWrap,status)
          _VERIFY(status)
          synth => synthWrap%ptr
-         call ESMF_GridCompGet(GC,grid=grid,__RC__)
-         call MAPL_GetPointer(internal,ptrR4,'lons',__RC__)
+         call ESMF_GridCompGet(GC,grid=grid,_RC)
+         call MAPL_GetPointer(internal,ptrR4,'lons',_RC)
          call ESMF_GridGetCoord (Grid, coordDim=1, localDE=0, &
                            staggerloc=ESMF_STAGGERLOC_CENTER, &
                            farrayPtr=ptrR8, rc=status)
          ptrR4=ptrR8
-         call MAPL_GetPointer(internal,ptrR4,'lats',__RC__)
+         call MAPL_GetPointer(internal,ptrR4,'lats',_RC)
          call ESMF_GridGetCoord (Grid, coordDim=2, localDE=0, &
                            staggerloc=ESMF_STAGGERLOC_CENTER, &
-                           farrayPtr=ptrR8, rc=status) 
+                           farrayPtr=ptrR8, rc=status)
          ptrR4=ptrR8
 
          select case (trim(synth%runMode))
 
          case(RunModeGenerateExports)
 
-            call FillState(internal,export,currTime,grid,synth,__RC__) 
+            call FillState(internal,export,currTime,grid,synth,_RC)
 
          case(runModecompareImports)
-            call FillState(internal,export,currTime,grid,synth,__RC__)
-            call CompareState(import,export,0.001,__RC__) 
+            call FillState(internal,export,currTime,grid,synth,_RC)
+            call CompareState(import,export,0.001,_RC)
 
          case(runModeFillImport)
 ! Nothing to do, we are just letting ExtData run
 
          case(runModeFillExportFromImport)
-            call CopyState(import,export,__RC__)
+            call CopyState(import,export,_RC)
 
          end select
 
@@ -516,33 +516,33 @@ MODULE ExtDataUtRoot_GridCompMod
       character(len=ESMF_MAXSTR), allocatable :: outNameList(:)
       type(ESMF_Field) :: expf,impf
 
-      call ESMF_StateGet(inState,itemcount=itemCountIn,__RC__)
+      call ESMF_StateGet(inState,itemcount=itemCountIn,_RC)
       allocate(InNameList(itemCountIn),stat=status)
       _VERIFY(status)
-      call ESMF_StateGet(inState,itemNameList=InNameList,__RC__)
+      call ESMF_StateGet(inState,itemNameList=InNameList,_RC)
 
-      call ESMF_StateGet(outState,itemcount=ItemCountOut,__RC__)
+      call ESMF_StateGet(outState,itemcount=ItemCountOut,_RC)
       allocate(outNameList(ItemCountOut),stat=status)
       _VERIFY(status)
-      call ESMF_StateGet(outState,itemNameList=outNameList,__RC__)
+      call ESMF_StateGet(outState,itemNameList=outNameList,_RC)
 
       _ASSERT(itemCountIn == itemCountOut,'needs informative message')
-      call ESMF_StateGet(inState,itemNameList=inNameList,__RC__)
+      call ESMF_StateGet(inState,itemNameList=inNameList,_RC)
       do i=1,itemCountIn
-         call ESMF_StateGet(inState,trim(inNameList(i)),impf,__RC__)
-         call ESMF_StateGet(outState,trim(outNameList(i)),expf,__RC__)
-         call ESMF_FieldGet(impf,rank=rank,__RC__)
+         call ESMF_StateGet(inState,trim(inNameList(i)),impf,_RC)
+         call ESMF_StateGet(outState,trim(outNameList(i)),expf,_RC)
+         call ESMF_FieldGet(impf,rank=rank,_RC)
          if (rank==2) then
-            call MAPL_GetPointer(inState,IMptr2,inNameList(i),__RC__)
-            call MAPL_GetPointer(outState,Exptr2,inNameList(i),alloc=.true.,__RC__)
+            call MAPL_GetPointer(inState,IMptr2,inNameList(i),_RC)
+            call MAPL_GetPointer(outState,Exptr2,inNameList(i),alloc=.true.,_RC)
             EXptr2=IMptr2
          else if (rank==3) then
-            call MAPL_GetPointer(inState,IMptr3,inNameList(i),__RC__)
-            call MAPL_GetPointer(outState,EXptr3,inNameList(i),alloc=.true.,__RC__)
+            call MAPL_GetPointer(inState,IMptr3,inNameList(i),_RC)
+            call MAPL_GetPointer(outState,EXptr3,inNameList(i),alloc=.true.,_RC)
             EXptr3=IMptr3
          end if
       end do
-      deallocate(inNameList,outNameList) 
+      deallocate(inNameList,outNameList)
       _RETURN(ESMF_SUCCESS)
 
    end subroutine CopyState
@@ -566,25 +566,25 @@ MODULE ExtDataUtRoot_GridCompMod
       character(len=:), pointer :: fexpr
       integer :: i1,in,j1,jn,ldims(3),i,j
 
-      call MAPL_GridGet(grid,localcellcountperdim=ldims,__RC__)
+      call MAPL_GridGet(grid,localcellcountperdim=ldims,_RC)
       call MAPL_Grid_Interior(grid,i1,in,j1,jn)
-      call ESMF_StateGet(outState,itemcount=itemCount,__RC__)
+      call ESMF_StateGet(outState,itemcount=itemCount,_RC)
       allocate(outNameList(itemCount),stat=status)
       _VERIFY(status)
-      call ESMF_StateGet(outState,itemNameList=outNameList,__RC__)
+      call ESMF_StateGet(outState,itemNameList=outNameList,_RC)
 
       call MAPL_GetPointer(inState,exPtr2,'time',rc=status)
       _VERIFY(status)
       exPtr2=synth%tFunc%evaluateTime(Time,rc=status)
       _VERIFY(status)
 
-      call MAPL_GetPointer(inState,exPtr2,'i_index',__RC__)
+      call MAPL_GetPointer(inState,exPtr2,'i_index',_RC)
       do j = 1,ldims(2)
          do i=1,ldims(1)
             exPtr2(i,j)=i1+i-1
          enddo
       enddo
-      call MAPL_GetPointer(inState,exPtr2,'j_index',__RC__)
+      call MAPL_GetPointer(inState,exPtr2,'j_index',_RC)
       do i = 1,ldims(1)
          do j=1,ldims(2)
             exPtr2(i,j)=j1+j-1
@@ -635,24 +635,24 @@ MODULE ExtDataUtRoot_GridCompMod
       character(len=ESMF_MAXSTR), allocatable :: NameList(:)
       logical, allocatable :: foundDiff(:)
       type(ESMF_Field) :: Field1,Field2
-    
-      call ESMF_StateGet(State1,itemcount=itemCount,__RC__)
+
+      call ESMF_StateGet(State1,itemcount=itemCount,_RC)
          allocate(NameList(itemCount),stat=status)
          _VERIFY(status)
          allocate(foundDiff(itemCount),stat=status)
          _VERIFY(status)
-         call ESMF_StateGet(State1,itemNameList=NameList,__RC__)
+         call ESMF_StateGet(State1,itemNameList=NameList,_RC)
          do ii=1,itemCount
-            call ESMF_StateGet(State1,trim(nameList(ii)),field1,__RC__)
-            call ESMF_StateGet(State2,trim(nameList(ii)),field2,__RC__)
-            call ESMF_FieldGet(field1,rank=rank1,__RC__)
-            call ESMF_FieldGet(field1,rank=rank2,__RC__)
+            call ESMF_StateGet(State1,trim(nameList(ii)),field1,_RC)
+            call ESMF_StateGet(State2,trim(nameList(ii)),field2,_RC)
+            call ESMF_FieldGet(field1,rank=rank1,_RC)
+            call ESMF_FieldGet(field1,rank=rank2,_RC)
             _ASSERT(rank1==rank2,'needs informative message')
             foundDiff(ii)=.false.
             if (rank1==2) then
-               call MAPL_GetPointer(state1,ptr2_1,trim(nameList(ii)),__RC__)
-               call MAPL_GetPointer(state2,ptr2_2,trim(nameList(ii)),__RC__)
-               do i=1,size(ptr2_1,1) 
+               call MAPL_GetPointer(state1,ptr2_1,trim(nameList(ii)),_RC)
+               call MAPL_GetPointer(state2,ptr2_2,trim(nameList(ii)),_RC)
+               do i=1,size(ptr2_1,1)
                   do j=1,size(ptr2_1,2)
                      if (abs(ptr2_1(i,j)-ptr2_2(i,j)) .gt. tol) then
                         foundDiff(ii)=.true.
@@ -661,12 +661,12 @@ MODULE ExtDataUtRoot_GridCompMod
                   enddo
                enddo
             else if (rank1==3) then
-               call MAPL_GetPointer(state1,ptr3_1,trim(nameList(ii)),__RC__)
-               call MAPL_GetPointer(state2,ptr3_2,trim(nameList(ii)),__RC__)
+               call MAPL_GetPointer(state1,ptr3_1,trim(nameList(ii)),_RC)
+               call MAPL_GetPointer(state2,ptr3_2,trim(nameList(ii)),_RC)
                lb=lbound(ptr3_1)
-               ub=ubound(ptr3_1) 
-               do i=1,size(ptr3_1,1) 
-                  do j=1,size(ptr3_1,2) 
+               ub=ubound(ptr3_1)
+               do i=1,size(ptr3_1,1)
+                  do j=1,size(ptr3_1,2)
                      do k=lb(3),ub(3)
                         if (abs(ptr3_1(i,j,k)-ptr3_2(i,j,k)) .gt. tol) then
                            foundDiff(ii)=.true.
@@ -676,11 +676,11 @@ MODULE ExtDataUtRoot_GridCompMod
                   enddo
                enddo
             end if
-            if (foundDiff(ii)) then 
+            if (foundDiff(ii)) then
                _FAIL('found difference when compare state')
             end if
          enddo
-         
+
          _RETURN(ESMF_SUCCESS)
 
       end subroutine CompareState
@@ -688,10 +688,10 @@ MODULE ExtDataUtRoot_GridCompMod
       subroutine ForceAllocation(state,rc)
          type(ESMF_State), intent(inout) :: state
          integer, optional, intent(out) :: rc
-       
+
          integer :: status
          character(len=*), parameter :: Iam=__FILE__//"::ForceAllocation"
-  
+
          real, pointer :: ptr3d(:,:,:)
          real, pointer :: ptr2d(:,:)
          integer       :: ii
@@ -701,24 +701,24 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_Field) :: Field
          type(ESMF_Info) :: infoh
 
-         call ESMF_StateGet(State,itemcount=itemCount,__RC__)
+         call ESMF_StateGet(State,itemcount=itemCount,_RC)
          allocate(NameList(itemCount),stat=status)
          _VERIFY(status)
          allocate(itemTypeList(itemCount),stat=status)
          _VERIFY(status)
-         call ESMF_StateGet(State,itemNameList=NameList,itemTypeList=itemTypeList,__RC__)
+         call ESMF_StateGet(State,itemNameList=NameList,itemTypeList=itemTypeList,_RC)
          if (itemCount == 0) then
             _RETURN(ESMF_SUCCESS)
          end if
          do ii=1,itemCount
             if (itemTypeList(ii)==ESMF_STATEITEM_FIELD) then
-               call ESMF_StateGet(State,trim(nameList(ii)),field,__RC__)
-               call ESMF_InfoGetFromHost(field,infoh,__RC__)
-               call ESMF_InfoGet(infoh,'DIMS',dims,__RC__)
+               call ESMF_StateGet(State,trim(nameList(ii)),field,_RC)
+               call ESMF_InfoGetFromHost(field,infoh,_RC)
+               call ESMF_InfoGet(infoh,'DIMS',dims,_RC)
                if (dims==MAPL_DimsHorzOnly) then
-                  call MAPL_GetPointer(state,ptr2d,trim(nameList(ii)),alloc=.true.,__RC__)
+                  call MAPL_GetPointer(state,ptr2d,trim(nameList(ii)),alloc=.true.,_RC)
                else if (dims==MAPL_DimsHorzVert) then
-                  call MAPL_GetPointer(state,ptr3d,trim(nameList(ii)),alloc=.true.,__RC__)
+                  call MAPL_GetPointer(state,ptr3d,trim(nameList(ii)),alloc=.true.,_RC)
                end if
             end if
          enddo

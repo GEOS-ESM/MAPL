@@ -134,6 +134,7 @@ module MAPL_GenericMod
    use MAPL_GridManagerMod, only: grid_manager,get_factory
    use MaplShared, only: SYSTEM_DSO_EXTENSION, adjust_dso_name, is_valid_dso_name, is_supported_dso_name
    use MaplShared, only: get_file_extension
+   use MAPL_RunEntryPoint
    use, intrinsic :: ISO_C_BINDING
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
    use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
@@ -556,14 +557,14 @@ contains
 
       ! Create the generic state, intializing its configuration and grid.
       !----------------------------------------------------------
-      call MAPL_InternalStateRetrieve( GC, meta, __RC__)
+      call MAPL_InternalStateRetrieve( GC, meta, _RC)
 !!$
-!!$      call meta%t_profiler%start('generic',__RC__)
+!!$      call meta%t_profiler%start('generic',_RC)
 !!$
-!!$      call register_generic_entry_points(gc, __RC__)
-      call MAPL_GetRootGC(GC, meta%rootGC, __RC__)
+!!$      call register_generic_entry_points(gc, _RC)
+      call MAPL_GetRootGC(GC, meta%rootGC, _RC)
 
-!!$      call meta%t_profiler%stop('generic',__RC__)
+!!$      call meta%t_profiler%stop('generic',_RC)
 !!$
       _RETURN(ESMF_SUCCESS)
 
@@ -680,27 +681,27 @@ contains
       ! -----------------------------------------------------------
 
       Iam = "MAPL_GenericInitialize"
-      call ESMF_GridCompGet( GC, NAME=comp_name, __RC__)
+      call ESMF_GridCompGet( GC, NAME=comp_name, _RC)
       Iam = trim(comp_name) // trim(Iam)
 
       ! Retrieve the pointer to the internal state.
       ! -------------------------------------------
-      call MAPL_InternalStateGet ( GC, STATE, __RC__)
+      call MAPL_InternalStateGet ( GC, STATE, _RC)
 
       ! Start my timer
       !---------------
-!!$  call MAPL_TimerOn(STATE,"generic", __RC__)
+!!$  call MAPL_TimerOn(STATE,"generic", _RC)
 
       ! Put the inherited grid in the generic state
       !--------------------------------------------
       MYGRID    =>  STATE%GRID
 
-      call ESMF_VmGetCurrent(VM, __RC__)
-      call ESMF_VmGet(VM, localPet=MYGRID%MYID, petCount=ndes, __RC__)
-      call ESMF_VmGet(VM, mpicommunicator=comm, __RC__)
+      call ESMF_VmGetCurrent(VM, _RC)
+      call ESMF_VmGet(VM, localPet=MYGRID%MYID, petCount=ndes, _RC)
+      call ESMF_VmGet(VM, mpicommunicator=comm, _RC)
 
       ! TODO: esmfgrid should be obtained separately
-      isGridValid = grid_is_valid(gc, mygrid%esmfgrid, __RC__)
+      isGridValid = grid_is_valid(gc, mygrid%esmfgrid, _RC)
 
       ! At this point, this component must have a valid grid!
       !------------------------------------------------------
@@ -711,26 +712,26 @@ contains
             chldGridValid = .false.
             gridcomp => STATE%GET_CHILD_GRIDCOMP(I)
 
-            chldGridValid = grid_is_valid(gridcomp, ChlGrid, __RC__)
+            chldGridValid = grid_is_valid(gridcomp, ChlGrid, _RC)
 
             if (.not. chldGridValid) then
                ! This child does not have a valid grid
-               call ESMF_GridCompSet( gridcomp, GRID = MYGRID%ESMFGRID, __RC__ )
+               call ESMF_GridCompSet( gridcomp, GRID = MYGRID%ESMFGRID, _RC )
             end if
          end do
 
          ! We keep these in the component's grid  for convenience
          !-------------------------------------------------------
 
-         call ESMF_GridGet(MYGRID%ESMFGRID, DistGrid=distgrid, dimCount=dimCount, __RC__)
-         call ESMF_DistGridGet(distGRID, deLayout=MYGRID%LAYOUT, __RC__)
+         call ESMF_GridGet(MYGRID%ESMFGRID, DistGrid=distgrid, dimCount=dimCount, _RC)
+         call ESMF_DistGridGet(distGRID, deLayout=MYGRID%LAYOUT, _RC)
 
          ! Vertical coordinate must exist and be THE THIRD DIMENSION
          ! ---------------------------------------------------------
 
          MYGRID%VERTDIM = 3
 
-         call MAPL_GridGet(MYGRID%ESMFGRID, localCellCountPerDim=COUNTS, __RC__)
+         call MAPL_GridGet(MYGRID%ESMFGRID, localCellCountPerDim=COUNTS, _RC)
 
 #ifdef DEBUG
          print *,'dbg:myId=',MYGRID%MYID,trim(Iam)
@@ -744,7 +745,7 @@ contains
          MYGRID%JM = COUNTS(2)
          MYGRID%LM = COUNTS(3)
 
-         call MAPL_GridGet(MYGRID%ESMFGRID, globalCellCountPerDim=COUNTS, __RC__)
+         call MAPL_GridGet(MYGRID%ESMFGRID, globalCellCountPerDim=COUNTS, _RC)
 
          MYGRID%IM_WORLD = COUNTS(1)
          MYGRID%JM_WORLD = COUNTS(2)
@@ -756,10 +757,10 @@ contains
 
          call MAPl_DistGridGet(distgrid, &
               minIndex=minindex, &
-              maxIndex=maxindex, __RC__)
+              maxIndex=maxindex, _RC)
 
          call MAPL_GetImsJms(Imins=minindex(1,:),Imaxs=maxindex(1,:),&
-              Jmins=minindex(2,:),Jmaxs=maxindex(2,:),Ims=ims,Jms=jms,__RC__)
+              Jmins=minindex(2,:),Jmaxs=maxindex(2,:),Ims=ims,Jms=jms,_RC)
 
          MYGRID%NX = size(ims)
          MYGRID%NY = size(jms)
@@ -778,7 +779,7 @@ contains
          !-------------------------
 
 #if 0
-         call ESMF_DELayoutGetDELocalInfo(delayout=MYGRID%LAYOUT, de=MYGRID%MYID, coord=DECOUNT, __RC__)
+         call ESMF_DELayoutGetDELocalInfo(delayout=MYGRID%LAYOUT, de=MYGRID%MYID, coord=DECOUNT, _RC)
 
          MYGRID%NX0 = DECOUNT(1)
          MYGRID%NY0 = DECOUNT(2)
@@ -808,28 +809,26 @@ contains
          call ESMFL_GridCoordGet(   MYGRID%ESMFGRID, MYGRID%LATS       , &
               Name     = "Latitude"              , &
               Location = ESMF_STAGGERLOC_CENTER  , &
-              Units    = ESMFL_UnitsRadians      , &
+              Units    = MAPL_UnitsRadians      , &
               RC       = status                    )
 
          call ESMFL_GridCoordGet(   MYGRID%ESMFGRID, MYGRID%LONS       , &
               Name     = "Longitude"             , &
               Location = ESMF_STAGGERLOC_CENTER  , &
-              Units    = ESMFL_UnitsRadians      , &
+              Units    = MAPL_UnitsRadians      , &
               RC       = status                    )
 
          gridTypeAttribute = ''
-         call ESMF_InfoGetFromHost(MYGRID%ESMFGRID,infoh,RC=status)
-         isPresent = ESMF_InfoIsPresent(infoh,'GridType',RC=status)
-         _VERIFY(STATUS)
+         call ESMF_InfoGetFromHost(MYGRID%ESMFGRID,infoh,_RC)
+         isPresent = ESMF_InfoIsPresent(infoh,'GridType',_RC)
          if (isPresent) then
-            call ESMF_InfoGet(infoh,'GridType',gridTypeAttribute,RC=status)
-            _VERIFY(STATUS)
+            call ESMF_InfoGet(infoh,'GridType',gridTypeAttribute,_RC)
             if (gridTypeAttribute == 'Doubly-Periodic') then
 
                ! this is special case: doubly periodic grid
                ! we ignore ESMF grid coordinates and set LONS/LATS from resource
-               call MAPL_GetResource( STATE, fixedLons, Label="FIXED_LONS:", __RC__)
-               call MAPL_GetResource( STATE, fixedLats, Label="FIXED_LATS:", __RC__)
+               call MAPL_GetResource( STATE, fixedLons, Label="FIXED_LONS:", _RC)
+               call MAPL_GetResource( STATE, fixedLats, Label="FIXED_LATS:", _RC)
                MYGRID%LONS = fixedLons * (MAPL_PI_R8/180._REAL64)
                MYGRID%LATS = fixedLats * (MAPL_PI_R8/180._REAL64)
             endif ! doubly-periodic
@@ -838,27 +837,27 @@ contains
 
       ! set positive convention
       call MAPL_GetResource( STATE, positive, Label="CHECKPOINT_POSITIVE:", &
-           default='down', __RC__)
-      positive = ESMF_UtilStringLowerCase(positive,__RC__)
+           default='down', _RC)
+      positive = ESMF_UtilStringLowerCase(positive,_RC)
       _ASSERT(trim(positive)=="up".or.trim(positive)=="down","positive must be up or down")
       ! Put the clock passed down in the generic state
       !-----------------------------------------------
 
-      call handle_clock_and_main_alarm(clock, __RC__)
+      call handle_clock_and_main_alarm(clock, _RC)
 
       ! Create tiling for all gridded components with associated LocationStream
       ! -----------------------------------------------------------------------
 
-      is_associated=MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
+      is_associated=MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, _RC)
       if (is_associated) then
-         NSUBTILES = MAPL_GetNumSubtiles(STATE, __RC__)
-         call MAPL_LocStreamAdjustNsubtiles(STATE%LocStream, NSUBTILES, __RC__)
-         call MAPL_LocStreamGet(STATE%LocStream, TILEGRID=TILEGRID, __RC__)
+         NSUBTILES = MAPL_GetNumSubtiles(STATE, _RC)
+         call MAPL_LocStreamAdjustNsubtiles(STATE%LocStream, NSUBTILES, _RC)
+         call MAPL_LocStreamGet(STATE%LocStream, TILEGRID=TILEGRID, _RC)
       endif
 
-      call handle_record(__RC__)
+      call handle_record(_RC)
 
-!!$   call MAPL_TimerOff(STATE,"generic",__RC__)
+!!$   call MAPL_TimerOff(STATE,"generic",_RC)
 
       m_p => get_global_memory_profiler()
       call m_p%start('children')
@@ -867,24 +866,23 @@ contains
       call MAPL_TimerOn(STATE,"generic")
 
       call m_p%start('import vars')
-      call create_import_and_initialize_state_variables(__RC__)
+      call create_import_and_initialize_state_variables(_RC)
       call m_p%stop('import vars')
 
-      call ESMF_InfoGetFromHost(import,infoh,rc=status)
-      call ESMF_InfoSet(infoh,key='POSITIVE',value=trim(positive),rc=status)
-      _VERIFY(status)
+      call ESMF_InfoGetFromHost(import,infoh,_RC)
+      call ESMF_InfoSet(infoh,key='POSITIVE',value=trim(positive),_RC)
 
       call m_p%start('internal vars')
-      call create_internal_and_initialize_state_variables(__RC__)
+      call create_internal_and_initialize_state_variables(_RC)
       call m_p%stop('internal vars')
 
       call m_p%start('export vars')
-      call create_export_state_variables(__RC__)
+      call create_export_state_variables(_RC)
       call m_p%stop('export vars')
 
       ! Create forcing state
       STATE%FORCING = ESMF_StateCreate(name = trim(comp_name) // "_FORCING", &
-           __RC__)
+           _RC)
 
       ! Put the Export state of each child into my export
       ! -------------------------------------------------
@@ -892,20 +890,20 @@ contains
       !ALT: export might have to be declared ESMF_STATELIST
       do i = 1, state%get_num_children()
          child_export_state => state%get_child_export_state(i)
-         call ESMF_StateAdd(EXPORT, [child_export_state], __RC__)
+         call ESMF_StateAdd(EXPORT, [child_export_state], _RC)
       end do
 
       if (.not. associated(STATE%parentGC)) then
-         call MAPL_AdjustIsNeeded(GC, EXPORT, __RC__)
+         call MAPL_AdjustIsNeeded(GC, EXPORT, _RC)
       end if
 
-      call handle_services(__RC__)
+      call handle_services(_RC)
 
       ! Write Memory Use Statistics.
       ! -------------------------------------------
-      call MAPL_MemUtilsWrite(VM, Iam, __RC__ )
+      call MAPL_MemUtilsWrite(VM, Iam, _RC )
 
-      call MAPL_TimerOff(STATE,"generic", __RC__)
+      call MAPL_TimerOff(STATE,"generic", _RC)
 
 
       _RETURN(ESMF_SUCCESS)
@@ -923,14 +921,14 @@ contains
 
          grid_is_valid = .false.
 
-         call ESMF_GridCompGet(gc, gridIsPresent=is_present, __RC__)
+         call ESMF_GridCompGet(gc, gridIsPresent=is_present, _RC)
 
          if (is_present) then
-            call ESMF_GridCompGet(gc, grid=grid, __RC__)
+            call ESMF_GridCompGet(gc, grid=grid, _RC)
 
-            is_created = ESMF_GridIsCreated(grid, __RC__)
+            is_created = ESMF_GridIsCreated(grid, _RC)
             if (is_created) then
-               call ESMF_GridValidate(grid, __RC__)
+               call ESMF_GridValidate(grid, _RC)
                grid_is_valid = .true.
             end if
          end if
@@ -952,20 +950,20 @@ contains
          integer :: status
 
          call MAPL_GetResource( STATE, num_readers, Label="NUM_READERS:", &
-              default=1, __RC__)
+              default=1, _RC)
          call MAPL_GetResource( STATE, num_writers, Label="NUM_WRITERS:", &
-              default=1, __RC__)
+              default=1, _RC)
          call MAPL_GetResource( STATE, write_restart_by_face, Label="WRITE_RESTART_BY_FACE:", &
-              default='NO', __RC__)
-         write_restart_by_face = ESMF_UtilStringUpperCase(write_restart_by_face,__RC__)
+              default='NO', _RC)
+         write_restart_by_face = ESMF_UtilStringUpperCase(write_restart_by_face,_RC)
 
          call MAPL_GetResource( STATE, write_restart_by_oserver, Label="WRITE_RESTART_BY_OSERVER:", &
-              default='NO', __RC__)
-         write_restart_by_oserver = ESMF_UtilStringUpperCase(write_restart_by_oserver,__RC__)
+              default='NO', _RC)
+         write_restart_by_oserver = ESMF_UtilStringUpperCase(write_restart_by_oserver,_RC)
 
          call MAPL_GetResource( STATE, read_restart_by_face, Label="READ_RESTART_BY_FACE:", &
-              default='NO', __RC__)
-         read_restart_by_face = ESMF_UtilStringUpperCase(read_restart_by_face,__RC__)
+              default='NO', _RC)
+         read_restart_by_face = ESMF_UtilStringUpperCase(read_restart_by_face,_RC)
 
          if (trim(write_restart_by_oserver) == 'YES') then
             ! reset other choices
@@ -1071,7 +1069,7 @@ contains
             MAXPHASES = 0
             do I=1,NC
                gridcomp => STATE%GET_CHILD_GRIDCOMP(I)
-               call MAPL_GetObjectFromGC(gridcomp, CHLDMAPL(I)%PTR, __RC__)
+               call MAPL_GetObjectFromGC(gridcomp, CHLDMAPL(I)%PTR, _RC)
                MAXPHASES = MAX(MAXPHASES, SIZE(CHLDMAPL(I)%PTR%PHASE_INIT))
             end do
             if (MAXPHASES > 1) then
@@ -1089,7 +1087,7 @@ contains
                NUMPHASES = SIZE(CHLDMAPL(I)%PTR%PHASE_INIT)
                if (PHASE .le. NUMPHASES) then
                   gridcomp => STATE%GET_CHILD_GRIDCOMP(I)
-                  call ESMF_GridCompGet( gridcomp, NAME=CHILD_NAME, __RC__ )
+                  call ESMF_GridCompGet( gridcomp, NAME=CHILD_NAME, _RC )
 
                   call MAPL_TimerOn (STATE,trim(CHILD_NAME))
                   child_import_state => STATE%get_child_import_state(i)
@@ -1098,7 +1096,7 @@ contains
                        importState=child_import_state, &
                        exportState=child_export_state, &
                        clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_INIT(PHASE), &
-                       userRC=userRC, __RC__ )
+                       userRC=userRC, _RC )
                   _VERIFY(userRC)
                   call MAPL_TimerOff(STATE,trim(CHILD_NAME))
                end if
@@ -1110,7 +1108,7 @@ contains
             !----------------------------------
             if (.not. isGridValid) then
                if (associated(STATE%COMPONENT_SPEC%import%OLD_VAR_SPECS)) then
-                  call MAPL_StateCreateFromSpecNew(IMPORT,STATE%COMPONENT_SPEC%IMPORT,__RC__)
+                  call MAPL_StateCreateFromSpecNew(IMPORT,STATE%COMPONENT_SPEC%IMPORT,_RC)
                end if
             end if
 
@@ -1129,7 +1127,7 @@ contains
                      call ESMF_CplCompInitialize (STATE%CCS(J,I), &
                           importState=child_export_state, &
                           exportState=child_import_state, &
-                          clock=CLOCK, userRC=userRC, __RC__ )
+                          clock=CLOCK, userRC=userRC, _RC )
                      _VERIFY(userRC)
                   endif
                enddo
@@ -1145,8 +1143,8 @@ contains
          integer, optional, intent(out) :: rc
 
          STATE%CLOCK = CLOCK
-         call ESMF_ClockGet(CLOCK, TIMESTEP = DELT, __RC__)
-         call ESMF_TimeIntervalGet(DELT, S=DELTSEC, __RC__)
+         call ESMF_ClockGet(CLOCK, TIMESTEP = DELT, _RC)
+         call ESMF_TimeIntervalGet(DELT, S=DELTSEC, _RC)
          _ASSERT(DELTSEC /= 0,'needs informative message')
          STATE%HEARTBEAT = DELTSEC
 
@@ -1154,8 +1152,8 @@ contains
          ! set the alarm, and attach it to the callers clock.
          ! ---------------------------------------------------
 
-         call ESMF_ClockGet(clock, calendar = cal, currTime=currTime, timestep=tstep, __RC__)
-         call ESMF_ConfigGetAttribute( state%CF, DEFDT, Label="RUN_DT:", __RC__)
+         call ESMF_ClockGet(clock, calendar = cal, currTime=currTime, timestep=tstep, _RC)
+         call ESMF_ConfigGetAttribute( state%CF, DEFDT, Label="RUN_DT:", _RC)
 
          DTSECS = nint(DEFDT)
          ! Make sure this component clock's DT is multiple of RUN_DT (heartbeat)
@@ -1163,7 +1161,7 @@ contains
          ! component
          _ASSERT(MOD(DELTSEC,DTSECS)==0,'needs informative message')
 
-         call MAPL_GetResource( STATE   , DT, Label="DT:", default=DEFDT, __RC__)
+         call MAPL_GetResource( STATE   , DT, Label="DT:", default=DEFDT, _RC)
 
          _ASSERT(DT /= 0.0,'needs informative message')
 
@@ -1171,7 +1169,7 @@ contains
          ! Make sure this component's DT is multiple of CLOCK's timestep
          _ASSERT(MOD(DTSECS,DELTSEC)==0,'needs informative message')
 
-         call ESMF_TimeIntervalSet(TIMEINT,  S=DTSECS , calendar=cal, __RC__)
+         call ESMF_TimeIntervalSet(TIMEINT,  S=DTSECS , calendar=cal, _RC)
 
          ! get current time from clock and create a reference time with optonal override
          call ESMF_TimeGet( currTime, YY = YEAR, MM = MONTH, DD = DAY, H=HH, M=MM, S=SS, rc = status  )
@@ -1181,10 +1179,10 @@ contains
 
          !  Get Alarm reference date and time from resouce, it defaults to midnight of the current day
          call MAPL_GetResource (STATE, reference_date, label='REFERENCE_DATE:', &
-              default=yyyymmdd, __RC__ )
+              default=yyyymmdd, _RC )
 
          call MAPL_GetResource (STATE, reference_time, label='REFERENCE_TIME:', &
-              default=0, __RC__ )
+              default=0, _RC )
 
          YEAR = reference_date/10000
          MONTH = mod(reference_date,10000)/100
@@ -1217,7 +1215,7 @@ contains
               sticky       = .false.  ,  &
               RC           = status      )
          if(ringTime == currTime) then
-            call ESMF_AlarmRingerOn(STATE%ALARM(0), __RC__)
+            call ESMF_AlarmRingerOn(STATE%ALARM(0), _RC)
          end if
          _RETURN(ESMF_SUCCESS)
 
@@ -1228,32 +1226,32 @@ contains
          ! Copy RECORD struct from parent
 
          if (associated(STATE%parentGC)) then
-            call MAPL_GetObjectFromGC(STATE%parentGC, PMAPL, __RC__)
+            call MAPL_GetObjectFromGC(STATE%parentGC, PMAPL, _RC)
             if (associated(PMAPL%RECORD)) then
-               call MAPL_AddRecord(STATE, PMAPL%RECORD%ALARM, PMAPL%RECORD%FILETYPE, __RC__)
+               call MAPL_AddRecord(STATE, PMAPL%RECORD%ALARM, PMAPL%RECORD%FILETYPE, _RC)
             end if
          end if
          ! Add this component's own RECORD
 
-         call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_FREQUENCY:", isPresent=isPresent, __RC__)
+         call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_FREQUENCY:", isPresent=isPresent, _RC)
          if (isPresent) then
             nra = ESMF_ConfigGetLen( STATE%CF, RC = status)
             _ASSERT( NRA > 0,'Empty list is not allowed')
 
             allocate(ref_date(NRA), ref_time(NRA), freq(NRA), freq_string(NRA), stat=status)
 
-            call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_FREQUENCY:", __RC__)
-            call ESMF_ConfigGetAttribute( STATE%CF, valueList=freq_string, count=NRA, __RC__)
+            call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_FREQUENCY:", _RC)
+            call ESMF_ConfigGetAttribute( STATE%CF, valueList=freq_string, count=NRA, _RC)
 
             if (.not. all(freq_string == 'monthly')) then
 
-               call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_DATE:", __RC__)
+               call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_DATE:", _RC)
                !      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
-               call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_date, count=NRA, __RC__)
+               call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_date, count=NRA, _RC)
 
-               call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_TIME:", __RC__)
+               call ESMF_ConfigFindLabel( STATE%CF, LABEL="RECORD_REF_TIME:", _RC)
                !      _ASSERT(NRA == ESMF_ConfigGetLen(STATE%CF),'needs informative message')
-               call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_time, count=NRA, __RC__)
+               call ESMF_ConfigGetAttribute( STATE%CF, valueList=ref_time, count=NRA, _RC)
             end if
 
             allocate (R_ALARM(NRA), STAT=status)
@@ -1270,8 +1268,8 @@ contains
                      mnthly = .true.
                      ! This should ring on the first of each month at midnight
                      call ESMF_TimeSet( RefTime, YY = year, MM = month, &
-                          DD = 1, H = 0, M = 0, S = 0, calendar=cal, __RC__ )
-                     call ESMF_TimeIntervalSet( frequency, MM=1, __RC__ )
+                          DD = 1, H = 0, M = 0, S = 0, calendar=cal, _RC )
+                     call ESMF_TimeIntervalSet( frequency, MM=1, _RC )
                      RingTime = RefTime
                      !               print *,'DEBUG: creating MONTHLY record alarm'
                   else
@@ -1289,7 +1287,7 @@ contains
 
                      nhms = freq(I)
                      sec = nhms/10000*3600 + mod(nhms,10000)/100*60 + mod(nhms,100)
-                     call ESMF_TimeIntervalSet( frequency, S=sec, __RC__ )
+                     call ESMF_TimeIntervalSet( frequency, S=sec, _RC )
                      RingTime = RefTime
                      if (RingTime < currTime .and. sec /= 0) then
                         RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
@@ -1298,26 +1296,26 @@ contains
 
                   ! create alarm
                   RecordAlarm = ESMF_AlarmCreate( name=trim(AlarmName), clock=clock, RingInterval=Frequency, &
-                       RingTime=RingTime, sticky=.false.,__RC__ )
+                       RingTime=RingTime, sticky=.false.,_RC )
 
                   if(ringTime == currTime .and. .not.mnthly) then
-                     call ESMF_AlarmRingerOn(RecordAlarm, __RC__)
+                     call ESMF_AlarmRingerOn(RecordAlarm, _RC)
                   else
-                     call ESMF_AlarmRingerOff(RecordAlarm, __RC__)
+                     call ESMF_AlarmRingerOff(RecordAlarm, _RC)
                   end if
 
                end if
                R_ALARM(I) = recordAlarm
                R_FILETYPE(I) = MAPL_Write2DIsk ! default
             END DO
-            call MAPL_AddRecord(STATE, R_ALARM, R_FILETYPE, __RC__)
+            call MAPL_AddRecord(STATE, R_ALARM, R_FILETYPE, _RC)
             deallocate (freq, ref_time, ref_date, freq_string)
             deallocate(R_FILETYPE, R_ALARM)
          endif
 
          call MAPL_GetResource( STATE, ens_id_width,         &
               LABEL="ENS_ID_WIDTH:", default=0, &
-              __RC__)
+              _RC)
 
          if (associated(STATE%RECORD)) then
             call MAPL_GetResource( STATE, FILENAME,         &
@@ -1346,7 +1344,7 @@ contains
 
             if(status==ESMF_SUCCESS) then
                ! if the filename is tempate
-               call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), nymd=yyyymmdd,nhms=hhmmss,__RC__)
+               call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), nymd=yyyymmdd,nhms=hhmmss,_RC)
                STATE%RECORD%INT_FNAME = FILENAME
                STATE%RECORD%INT_LEN = LEN_TRIM(FILENAME)
             else
@@ -1362,16 +1360,16 @@ contains
          ! --------------------------------------------
          if (associated(STATE%COMPONENT_SPEC%IMPORT%OLD_VAR_SPECS) .and. isGridValid) then
 
-            is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
+            is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, _RC)
             if (is_associated) then
                call MAPL_StateCreateFromVarSpecNew(IMPORT,STATE%COMPONENT_SPEC%IMPORT,     &
                     MYGRID%ESMFGRID,              &
                     TILEGRID=TILEGRID,            &
-                    __RC__       )
+                    _RC       )
             else
                call MAPL_StateCreateFromVarSpecNew(IMPORT,STATE%COMPONENT_SPEC%IMPORT,     &
                     MYGRID%ESMFGRID,              &
-                    __RC__       )
+                    _RC       )
             endif
 
             call MAPL_GetResource( STATE   , FILENAME,         &
@@ -1397,23 +1395,22 @@ contains
          ! -----------------------------------------------
 
          internal_state => STATE%get_internal_state()
-         internal_state = ESMF_StateCreate(name = trim(comp_name) // "_INTERNAL", __RC__)
+         internal_state = ESMF_StateCreate(name = trim(comp_name) // "_INTERNAL", _RC)
 
          if (associated(STATE%COMPONENT_SPEC%INTERNAL%OLD_VAR_SPECS)) then
-            is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
+            is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, _RC)
             if (is_associated) then
                call MAPL_StateCreateFromVarSpecNew(internal_state,STATE%COMPONENT_SPEC%INTERNAL, &
                     MYGRID%ESMFGRID,             &
                     TILEGRID=TILEGRID,           &
-                    __RC__       )
+                    _RC       )
             else
                call MAPL_StateCreateFromVarSpecNew(internal_state,STATE%COMPONENT_SPEC%INTERNAL, &
                     MYGRID%ESMFGRID,             &
-                    __RC__       )
+                    _RC       )
             end if
-            call ESMF_InfoGetFromHost(internal_state,infoh,rc=status)
-            call ESMF_InfoSet(infoh,key='POSITIVE',value=trim(positive),rc=status)
-            _VERIFY(status)
+            call ESMF_InfoGetFromHost(internal_state,infoh,_RC)
+            call ESMF_InfoSet(infoh,key='POSITIVE',value=trim(positive),_RC)
 
             id_string = ""
             tmp_label = "INTERNAL_RESTART_FILE:"
@@ -1432,11 +1429,11 @@ contains
             if(status==ESMF_SUCCESS) then
                ! if the filename is tempate
                call fill_grads_template(filename,trim(adjustl(FILEtpl)),experiment_id=trim(id_string), &
-                    nymd=yyyymmdd,nhms=hhmmss,__RC__)
+                    nymd=yyyymmdd,nhms=hhmmss,_RC)
                call MAPL_GetResource( STATE   , hdr,         &
                     default=0, &
                     LABEL="INTERNAL_HEADER:", &
-                    __RC__)
+                    _RC)
                call MAPL_ESMFStateReadFromFile(internal_state, CLOCK, FILENAME, &
                     STATE, hdr/=0, rc=status)
                if (status /= ESMF_SUCCESS) then
@@ -1454,7 +1451,7 @@ contains
                   allocate(GCCS%compp, stat=status)
                   GCCS%compp = GC%compp
                   call ESMF_GridCompReadRestart(GC, importState=import, &
-                       exportState=export, clock=CLOCK, userRC=userRC, __RC__)
+                       exportState=export, clock=CLOCK, userRC=userRC, _RC)
                   GC%compp = GCCS%compp
                   deallocate(GCCS%compp)
                endif
@@ -1472,16 +1469,16 @@ contains
          !------------------------------
 
          if (associated(STATE%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS)) then
-            is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, __RC__)
+            is_associated = MAPL_LocStreamIsAssociated(STATE%LOCSTREAM, _RC)
             if (is_associated) then
                call MAPL_StateCreateFromVarSpecNew(EXPORT,STATE%COMPONENT_SPEC%EXPORT,     &
                     MYGRID%ESMFGRID,              &
                     TILEGRID=TILEGRID,            &
-                    DEFER=.true., __RC__       )
+                    DEFER=.true., _RC       )
             else
                call MAPL_StateCreateFromVarSpecNew(EXPORT,STATE%COMPONENT_SPEC%EXPORT,     &
                     MYGRID%ESMFGRID,              &
-                    DEFER=.true., __RC__       )
+                    DEFER=.true., _RC       )
             end if
          end if
          _RETURN(ESMF_SUCCESS)
@@ -1492,16 +1489,16 @@ contains
          ! Service services processing:
          ! process any providers
          if (state%provided_services%size()>0) then
-            call ProvidedServiceSet(state%provided_services, import, __RC__)
+            call ProvidedServiceSet(state%provided_services, import, _RC)
          end if
 
          ! process any requesters
          if (state%requested_services%size()>0) then
-            call FillRequestBundle(state%requested_services, state%get_internal_state(), __RC__)
+            call FillRequestBundle(state%requested_services, state%get_internal_state(), _RC)
          end if
 
          ! process any service connections
-         call MAPL_ProcessServiceConnections(state, __RC__)
+         call MAPL_ProcessServiceConnections(state, _RC)
 
          _RETURN(ESMF_SUCCESS)
       end subroutine handle_services
@@ -1555,6 +1552,7 @@ contains
 
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
+      logical :: use_threads
 
 
       !=============================================================================
@@ -1569,7 +1567,7 @@ contains
 
       Iam = "MAPL_GenericWrapper"
       call ESMF_GridCompGet( GC, NAME=comp_name, currentPhase=PHASE, &
-           currentMethod=method, __RC__)
+           currentMethod=method, _RC)
       Iam = trim(comp_name) // trim(Iam)
 
       lgr => logging%get_logger('MAPL.GENERIC')
@@ -1638,14 +1636,22 @@ contains
       ! ----------
       call lgr%debug('Started %a', stage_description)
 
-      call func_ptr (GC, &
-           importState=IMPORT, &
-           exportState=EXPORT, &
-           clock=CLOCK, PHASE=PHASE_, &
-           userRC=userRC, _RC )
-      _VERIFY(userRC)
+      use_threads  = STATE%get_use_threads() ! determine if GC uses OpenMP threading
 
-      _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
+      if (use_threads .and. method == ESMF_METHOD_RUN)  then
+         call omp_driver(GC, import, export, clock, _RC)  ! compnent threaded with OpenMP
+      else
+         call func_ptr (GC, &
+              importState=IMPORT, &
+              exportState=EXPORT, &
+              clock=CLOCK, PHASE=PHASE_, &
+              userRC=userRC, _RC )
+         _VERIFY(userRC)
+
+         _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
+
+      end if
+
       call lgr%debug('Finished %a', stage_description)
 
       ! TIMERS off
@@ -1669,6 +1675,93 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    end subroutine MAPL_GenericWrapper
+
+   !=============================================================================
+
+   !BOPI
+
+   ! !IROUTINE: omp_driver
+
+   ! !INTERFACE:
+   subroutine omp_driver(GC, import, export, clock, RC)
+      use MAPL_OpenMP_Support, only : get_current_thread_id, set_num_threads
+
+      type (ESMF_GridComp), intent(inout) :: GC     ! Gridded component
+      type (ESMF_State),    intent(inout) :: import ! Import state
+      type (ESMF_State),    intent(inout) :: export ! Export state
+      type (ESMF_Clock),    intent(inout) :: clock  ! The clock
+      integer, optional,    intent(  out) :: RC     ! Error code:
+
+      type (MAPL_MetaComp), pointer :: MAPL
+      integer :: thread
+      type(ESMF_State) :: subimport
+      type(ESMF_State) :: subexport
+      integer :: status
+      integer, allocatable :: statuses(:), user_statuses(:)
+      integer :: num_threads
+      character(len=ESMF_MAXSTR) :: Iam = "Run1"
+      type(ESMF_VM) :: vm
+      type(ESMF_GridComp) :: thread_gc
+      integer :: i, me
+      integer :: userRC
+      character(len=ESMF_MAXSTR) :: comp_name
+      integer :: phase
+
+
+      call ESMF_GridCompGet (GC, vm=vm, NAME=comp_name, currentPhase=phase, _RC)
+      call ESMF_VMGet(vm, localPet=me, _RC)
+
+      call MAPL_GetObjectFromGC (GC, MAPL, _RC)
+      if(MAPL%is_threading_active()) then
+         call ESMF_GridCompRun (GC, &
+              importState=import, &
+              exportState=export, &
+              clock=CLOCK, PHASE=phase, &
+              userRC=userRC, _RC )
+         _VERIFY(userRC)
+      else
+         !call start_global_time_profiler('activate_threads')
+         num_threads = set_num_threads()
+         call MAPL%activate_threading(num_threads, _RC)
+         !call stop_global_time_profiler('activate_threads')
+         !call start_global_time_profiler('parallel')
+
+         allocate(statuses(num_threads), __STAT__)
+         allocate(user_statuses(num_threads), __STAT__)
+         statuses=0
+         user_statuses=0
+         !$omp parallel default(none), &
+         !$omp& private(thread, subimport, subexport, thread_gc), &
+         !$omp& shared(gc, statuses, user_statuses, clock, PHASE, MAPL)
+
+         thread = get_current_thread_id()
+
+         subimport = MAPL%get_import_state()
+         subexport = MAPL%get_export_state()
+         thread_gc = MAPL%get_gridcomp()
+
+         call ESMF_GridCompRun (thread_gc, &
+              importState=subimport, &
+              exportState=subexport, &
+              clock=CLOCK, PHASE=phase, &
+              userRC=user_statuses(thread+1), rc=statuses(thread+1) )
+         !$omp end parallel
+         !call stop_global_time_profiler('parallel')
+         if (any(user_statuses /= ESMF_SUCCESS)) then
+            _FAIL('some thread failed for user_statuses')
+         end if
+         if (any(statuses /= ESMF_SUCCESS)) then
+            _FAIL('some thread failed')
+         end if
+         deallocate(statuses, __STAT__)
+         deallocate(user_statuses, __STAT__)
+         !call start_global_time_profiler('deactivate_threads')
+         call MAPL%deactivate_threading(_RC)
+         !call stop_global_time_profiler('deactivate_threads')
+      end if
+      !call stop_global_time_profiler('run1()')
+      RETURN_(ESMF_SUCCESS)
+   end subroutine omp_driver
 
    !=============================================================================
    !=============================================================================
@@ -1762,7 +1855,7 @@ contains
                     importState=child_import_state, &
                     exportState=child_export_state, &
                     clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_RUN(PHASE), &
-                    userRC=userRC, __RC__ )
+                    userRC=userRC, _RC )
                _VERIFY(userRC)
                call MAPL_TimerOff(STATE,trim(CHILD_NAME))
             end if
@@ -1776,7 +1869,7 @@ contains
                      call ESMF_CplCompRun (STATE%CCS(I,J), &
                           importState=child_export_state, &
                           exportState=child_import_state, &
-                          clock=CLOCK, userRC=userRC, __RC__)
+                          clock=CLOCK, userRC=userRC, _RC)
                      _VERIFY(userRC)
                   endif
                enddo
@@ -1891,9 +1984,9 @@ contains
                     importState=child_import_state, &
                     exportState=child_export_state, &
                     clock=CLOCK, PHASE=CHLDMAPL(I)%PTR%PHASE_FINAL(PHASE), &
-                    userRC=userRC, __RC__)
+                    userRC=userRC, _RC)
                _VERIFY(userRC)
-               call MAPL_TimerOff(STATE,trim(CHILD_NAME),__RC__)
+               call MAPL_TimerOff(STATE,trim(CHILD_NAME),_RC)
             end if
          enddo
       end do
@@ -1991,20 +2084,20 @@ contains
          endif
       end if
 
-      call MAPL_TimerOff(STATE,"generic",__RC__)
+      call MAPL_TimerOff(STATE,"generic",_RC)
 
       ! Write summary of profiled times
       !--------------------------------
 
-      call state%t_profiler%stop('Finalize',__RC__)
-      call state%t_profiler%stop(__RC__)
+      call state%t_profiler%stop('Finalize',_RC)
+      call state%t_profiler%stop(_RC)
 
       if (.not. MAPL_ProfIsDisabled()) then
          call report_generic_profile()
       end if
 
-      call t_p%stop(trim(state%compname),__RC__)
-      call m_p%stop(trim(state%compname),__RC__)
+      call t_p%stop(trim(state%compname),_RC)
+      call m_p%stop(trim(state%compname),_RC)
 
       ! Clean-up
       !---------
@@ -2141,8 +2234,8 @@ contains
 
       t_p => get_global_time_profiler()
       m_p => get_global_memory_profiler()
-      call state%t_profiler%start(__RC__)
-      call state%t_profiler%start('Record',__RC__)
+      call state%t_profiler%start(_RC)
+      call state%t_profiler%start('Record',_RC)
 
 
       ! Record the children
@@ -2157,7 +2250,7 @@ contains
          call ESMF_GridCompWriteRestart (gridcomp, &
               importState=child_import_state, &
               exportState=child_export_state, &
-              clock=CLOCK, userRC=userRC, __RC__ ) ! number of phases is currently limited to 1
+              clock=CLOCK, userRC=userRC, _RC ) ! number of phases is currently limited to 1
          _VERIFY(userRC)
          call MAPL_TimerOff(STATE,trim(CHILD_NAME))
       enddo
@@ -2231,10 +2324,10 @@ contains
             end if
          END DO
       endif
-      call MAPL_TimerOff(STATE,"generic",__RC__)
+      call MAPL_TimerOff(STATE,"generic",_RC)
 
-      call state%t_profiler%stop('Record',__RC__)
-      call state%t_profiler%stop(__RC__)
+      call state%t_profiler%stop('Record',_RC)
+      call state%t_profiler%stop(_RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_GenericRecord
@@ -2364,8 +2457,8 @@ contains
       call MAPL_InternalStateRetrieve(GC, STATE, RC=status)
       _VERIFY(status)
 
-      call state%t_profiler%start(__RC__)
-      call state%t_profiler%start('Refresh',__RC__)
+      call state%t_profiler%start(_RC)
+      call state%t_profiler%start('Refresh',_RC)
 
       call MAPL_TimerOn(STATE,"GenRefreshTot")
       ! Refresh the children
@@ -2380,7 +2473,7 @@ contains
          call MAPL_GenericRefresh (gridcomp, child_import_state, child_export_state, CLOCK, &
               RC=status )
          _VERIFY(status)
-         call MAPL_TimerOff(STATE,trim(CHILD_NAME),__RC__)
+         call MAPL_TimerOff(STATE,trim(CHILD_NAME),_RC)
       enddo
 
       ! Do my "own" refresh
@@ -2443,11 +2536,11 @@ contains
          call MAPL_StateRefresh (GC, IMPORT, EXPORT, CLOCK, RC=status )
          _VERIFY(status)
       endif
-      call MAPL_TimerOff(STATE,"GenRefreshMine",__RC__)
-      call MAPL_TimerOff(STATE,"GenRefreshTot",__RC__)
+      call MAPL_TimerOff(STATE,"GenRefreshMine",_RC)
+      call MAPL_TimerOff(STATE,"GenRefreshTot",_RC)
 
-      call state%t_profiler%stop('Refresh',__RC__)
-      call state%t_profiler%stop(__RC__)
+      call state%t_profiler%stop('Refresh',_RC)
+      call state%t_profiler%stop(_RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_GenericRefresh
@@ -2669,7 +2762,7 @@ contains
          isCreated = ESMF_StateIsCreated(internal_state, RC=status)
          _VERIFY(status)
          if (isCreated) then
-            call ESMF_StateDestroy       (internal_state, __RC__)
+            call ESMF_StateDestroy       (internal_state, _RC)
          end if
 
          isCreated = ESMF_StateIsCreated(STATE%FORCING, RC=status)
@@ -3524,6 +3617,7 @@ contains
 
       type (MAPL_MetaComp),     pointer     :: META
       integer                               :: phase
+      type(runEntryPoint) :: run_entry_point
 
       call MAPL_InternalStateRetrieve( GC, META, RC=status)
       _VERIFY(status)
@@ -3532,6 +3626,8 @@ contains
          phase = MAPL_AddMethod(META%phase_init, RC=status)
       else if (registeredMethod == ESMF_METHOD_RUN) then
          phase = MAPL_AddMethod(META%phase_run, RC=status)
+         run_entry_point%run_entry_point => usersRoutine
+         call META%run_entry_points%push_back(run_entry_point)
       else if (registeredMethod == ESMF_METHOD_FINALIZE) then
          phase = MAPL_AddMethod(META%phase_final, RC=status)
       else if (registeredMethod == ESMF_METHOD_WRITERESTART) then
@@ -3638,7 +3734,7 @@ contains
    subroutine MAPL_GenericStateGet (STATE, IM, JM, LM, VERTDIM,                &
         NX, NY, NX0, NY0, LAYOUT,                  &
         GCNames,                                   &
-        LONS, LATS, ORBIT, RUNALARM,               &
+        LONS, LATS, grid, ORBIT, RUNALARM,               &
         IMPORTspec, EXPORTspec, INTERNALspec,      &
         INTERNAL_ESMF_STATE,                       &
         TILETYPES, TILEKIND,                       &
@@ -3663,6 +3759,7 @@ contains
       type (ESMF_DELayout), optional, intent(  OUT) :: LAYOUT
       real, pointer,        optional                :: LONS(:,:)
       real, pointer,        optional                :: LATS(:,:)
+      type(ESMF_Grid),      optional                :: grid
       integer,              optional, intent(  OUT) :: RC     ! Error code:
       type (MAPL_VarSpec),  optional, pointer       :: IMPORTspec(:)
       type (MAPL_VarSpec),  optional, pointer       :: EXPORTspec(:)
@@ -3750,13 +3847,15 @@ contains
            ORB2B_ECC_REF, ORB2B_ECC_RATE, &
            ORB2B_OBQ_REF, ORB2B_OBQ_RATE, &
            ORB2B_LAMBDAP_REF, ORB2B_LAMBDAP_RATE
+      type(MaplGrid), pointer :: temp_grid
 
       if(present(IM)) then
          IM=STATE%GRID%IM
       endif
 
       if(present(JM)) then
-         JM=STATE%GRID%JM
+         temp_grid => state%get_grid()
+         JM=temp_GRID%JM
       endif
 
       if(present(LM)) then
@@ -3937,11 +4036,20 @@ contains
       endif
 
       if(present(LONS    )) then
-         LONS   =>STATE%GRID%LONS
+         !LONS   =>STATE%GRID%LONS
+         temp_grid => STATE%get_grid()
+         LONS   => temp_grid%LONS
       endif
 
       if(present(LATS    )) then
-         LATS   =>STATE%GRID%LATS
+         !LATS   =>STATE%GRID%LATS
+         temp_grid => STATE%get_grid()
+         LATS   => temp_grid%LATS
+      endif
+
+      if(present(grid)) then
+         temp_grid => STATE%get_grid()
+         grid = temp_grid%ESMFGrid
       endif
 
       if(present(IMPORTspec)) then
@@ -4177,8 +4285,8 @@ contains
       endif
 
       if(present(ConfigFile)) then
-         State%CF = ESMF_ConfigCreate(__RC__)
-         call ESMF_ConfigLoadFile(State%CF,ConfigFile,__RC__)
+         State%CF = ESMF_ConfigCreate(_RC)
+         call ESMF_ConfigLoadFile(State%CF,ConfigFile,_RC)
       endif
 
       if (present(component)) then
@@ -4253,7 +4361,7 @@ contains
             call ESMF_CplCompRun (STATE%CCS(CHILD,J), &
                  importState=child_export_state, &
                  exportState=child_import_state, &
-                 clock=CLOCK, userRC=userRC, __RC__ )
+                 clock=CLOCK, userRC=userRC, _RC )
             _VERIFY(userRC)
          endif
       enddo
@@ -4543,8 +4651,8 @@ contains
       call child_meta%set_logger(logging%get_logger(child_meta%full_name))
 
       ! copy communicator to childs mapl_metacomp
-      call ESMF_VMGetCurrent(vm, __RC__)
-      call ESMF_VMGet(vm, mpiCommunicator=comm, __RC__)
+      call ESMF_VMGetCurrent(vm, _RC)
+      call ESMF_VMGet(vm, mpiCommunicator=comm, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -4566,7 +4674,7 @@ contains
          if (index(name,":") == 0) then
             if (present(parentGC)) then
                tmp_gc = parentGC
-               call ESMF_GridCompGet(tmp_gc, name=pname, __RC__)
+               call ESMF_GridCompGet(tmp_gc, name=pname, _RC)
                child_name = pname(1:index(pname,":"))//trim(name)
             end if
          end if
@@ -4627,14 +4735,14 @@ contains
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromGC
 
-   recursive integer function AddChildFromDSOMeta(meta, name, userRoutine, grid, sharedObj, petList, configFile, parentGC, RC)
+   recursive integer function AddChildFromDSOMeta(meta, name, userRoutine, sharedObj, grid, petList, configFile, parentGC, RC)
 
       !ARGUMENTS:
       type(MAPL_MetaComp), target,   intent(INOUT) :: META
       character(len=*), intent(IN)                 :: name
       character(len=*), intent(in)                 :: userRoutine
+      character(len=*), intent(IN)                 :: sharedObj
       type(ESMF_Grid),  optional,    intent(INOUT) :: grid
-      character(len=*), optional, intent(IN)       :: sharedObj
 
       integer, optional, intent(IN)             :: petList(:)
       character(len=*), optional, intent(IN)    :: configFile
@@ -4683,7 +4791,7 @@ contains
 !!$           sharedObj=shared_object_library_to_load,userRC=userRC,_RC)
 !!$     _VERIFY(userRC)
 
-      child_meta%user_setservices_wrapper = DSO_SetServicesWrapper(sharedObj, userRoutine)
+      child_meta%user_setservices_wrapper = DSO_SetServicesWrapper(shared_object_library_to_load, userRoutine)
       call child_meta%t_profiler%stop('SetService',_RC)
       call child_meta%t_profiler%stop(_RC)
       call t_p%stop(trim(name),_RC)
@@ -5089,9 +5197,9 @@ contains
       type (ESMF_FieldBundle) :: bundle
 
       !get MAPL
-      call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, __RC__ )
+      call MAPL_InternalStateRetrieve ( GC, MAPLOBJ, _RC )
 
-      bundle = ESMF_FieldBundleCreate(NAME=SERVICE, __RC__)
+      bundle = ESMF_FieldBundleCreate(NAME=SERVICE, _RC)
       call maplobj%requested_services%push_back( &
            RequestedServiceType( &
            service_name=service, &
@@ -5280,7 +5388,7 @@ contains
       if (trim(name) == 'TOTAL') then
          _RETURN(ESMF_SUCCESS)
       end if
-      call state%t_profiler%start(get_actual_timer_name(name),__RC__)
+      call state%t_profiler%start(get_actual_timer_name(name),_RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_GenericStateClockOn
@@ -5360,7 +5468,7 @@ contains
          _RETURN(ESMF_SUCCESS)
       end if
 
-      call state%t_profiler%stop(get_actual_timer_name(name),__RC__)
+      call state%t_profiler%stop(get_actual_timer_name(name),_RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_GenericStateClockOff
@@ -5442,9 +5550,9 @@ contains
       type(ESMF_Info)                       :: infoh
 
       ! Check if state is empty. If "yes", simply return
-      empty = MAPL_IsStateEmpty(state, __RC__)
+      empty = MAPL_IsStateEmpty(state, _RC)
       if (empty) then
-         call warn_empty('Checkpoint '//trim(filename), MPL, __RC__)
+         call warn_empty('Checkpoint '//trim(filename), MPL, _RC)
          _RETURN(ESMF_SUCCESS)
       end if
 
@@ -5739,9 +5847,9 @@ contains
       _UNUSED_DUMMY(CLOCK)
 
       ! Check if state is empty. If "yes", simply return
-      empty = MAPL_IsStateEmpty(state, __RC__)
+      empty = MAPL_IsStateEmpty(state, _RC)
       if (empty) then
-         call warn_empty('Restart '//trim(filename), MPL, __RC__)
+         call warn_empty('Restart '//trim(filename), MPL, _RC)
          _RETURN(ESMF_SUCCESS)
       end if
 
@@ -6838,13 +6946,13 @@ contains
       ! ---------------------------------------
 
       Iam = 'MAPL_WireComponent'
-      call ESMF_GridCompGet( GC, NAME=comp_name, __RC__)
+      call ESMF_GridCompGet( GC, NAME=comp_name, _RC)
       Iam = trim(comp_name) // trim(Iam)
 
       ! Retrieve the pointer to the child components
       ! --------------------------------------------
 
-      call MAPL_InternalStateRetrieve ( GC, STATE, __RC__)
+      call MAPL_InternalStateRetrieve ( GC, STATE, _RC)
 
       IMPORT_SPECS => STATE%COMPONENT_SPEC%IMPORT%OLD_VAR_SPECS
       EXPORT_SPECS => STATE%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS
@@ -6856,7 +6964,7 @@ contains
          _RETURN(ESMF_SUCCESS)
       end if
 
-      call MAPL_ConnectivityGet(gc, connectivityPtr=conn, __RC__)
+      call MAPL_ConnectivityGet(gc, connectivityPtr=conn, _RC)
 
       CONNECT => CONN%CONNECT
       DONOTCONN => CONN%DONOTCONN
@@ -6876,16 +6984,16 @@ contains
       do I=1,NC       !  Cycle thru children's imports
 
          gridcomp => STATE%get_child_gridcomp(I)
-         call MAPL_GridCompGetVarSpecs(gridcomp, EXPORT=EX_SPECS, __RC__)
+         call MAPL_GridCompGetVarSpecs(gridcomp, EXPORT=EX_SPECS, _RC)
 
          if (.not. associated(EX_SPECS)) then
             cycle
          end if
 
          do K=1,size(EX_SPECS)
-            call MAPL_VarSpecGet(EX_SPECS(K), SHORT_NAME=SHORT_NAME, __RC__)
+            call MAPL_VarSpecGet(EX_SPECS(K), SHORT_NAME=SHORT_NAME, _RC)
             is_connected = connect%varIsConnected(IMPORT_NAME=SHORT_NAME, &
-                 export=I, import=MAPL_Self, __RC__)
+                 export=I, import=MAPL_Self, _RC)
             if (is_connected) then
                call MAPL_VarSpecAddRefToList(STATE%COMPONENT_SPEC%EXPORT, EX_SPECS(K), &
                     rc=status)
@@ -7304,12 +7412,12 @@ contains
       ! Get my name and set-up traceback handle
       !----------------------------------------
 
-      call ESMF_GridCompGet( GC, NAME=comp_name, __RC__)
+      call ESMF_GridCompGet( GC, NAME=comp_name, _RC)
 
       ! Retrieve the pointer to the internal state
       !--------------------------------------------
 
-      call MAPL_InternalStateGet ( GC, STATE, __RC__)
+      call MAPL_InternalStateGet ( GC, STATE, _RC)
 
       IMPORT_SPEC => STATE%COMPONENT_SPEC%IMPORT%OLD_VAR_SPECS
       EXPORT_SPEC => STATE%COMPONENT_SPEC%EXPORT%OLD_VAR_SPECS
@@ -7325,7 +7433,7 @@ contains
                _VERIFY(status)
             end if
             LBL = SPECS%var_specs%size()
-            call MAPL_VarSpecSet(SPECS%old_var_specs(LBL), LABEL=LBL, __RC__)
+            call MAPL_VarSpecSet(SPECS%old_var_specs(LBL), LABEL=LBL, _RC)
          end do
       end if
 
@@ -7341,9 +7449,9 @@ contains
                _VERIFY(status)
             end if
             K = specs%var_specs%size()
-            call MAPL_VarSpecGet(SPECS%old_var_specs(K), LABEL=LBL, __RC__)
+            call MAPL_VarSpecGet(SPECS%old_var_specs(K), LABEL=LBL, _RC)
             if (LBL == 0) then
-               call MAPL_VarSpecSet(SPECS%old_var_specs(K), LABEL=K, __RC__)
+               call MAPL_VarSpecSet(SPECS%old_var_specs(K), LABEL=K, _RC)
             end if
          end do
       end if
@@ -7353,7 +7461,7 @@ contains
 
       do I = 1, STATE%get_num_children()
          gridcomp => STATE%GET_CHILD_GRIDCOMP(I)
-         call MAPL_GenericSpecEnum(gridcomp, SPECS, __RC__)
+         call MAPL_GenericSpecEnum(gridcomp, SPECS, _RC)
       end do
 
       _RETURN(ESMF_SUCCESS)
@@ -10109,7 +10217,7 @@ contains
       grid = grid_manager%make_grid(state%CF, prefix=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR, rc=status)
       _VERIFY(status)
 
-      call state%grid%set(grid, __RC__)
+      call state%grid%set(grid, _RC)
 
       if(present(GC)) then
          call ESMF_GridCompSet(GC, GRID=GRID, RC=status)
@@ -10240,12 +10348,12 @@ contains
       integer                               :: status
       type (MAPL_MetaComp),     pointer     :: meta
 
-      call MAPL_GetObjectFromGC(GC, meta, __RC__)
+      call MAPL_GetObjectFromGC(GC, meta, _RC)
 
       if (.not. associated(meta%parentGC)) then
          rootGC = GC
       else
-         call MAPL_GetRootGC(meta%parentGC, rootGC, __RC__)
+         call MAPL_GetRootGC(meta%parentGC, rootGC, _RC)
       end if
 
       _RETURN(ESMF_SUCCESS)
@@ -11192,7 +11300,7 @@ contains
       class(MaplGenericComponent), pointer :: child
 
       child => this%get_ith_child(i)
-      gridcomp => child%gridcomp
+      gridcomp => child%get_gridcomp()
 
    end function get_child_gridcomp
 
@@ -11204,7 +11312,7 @@ contains
       class(MaplGenericComponent), pointer :: child
 
       child => this%get_ith_child(i)
-      state => child%import_state
+      state => child%get_import_state()
 
    end function get_child_import_state
 
@@ -11216,7 +11324,7 @@ contains
       class(MaplGenericComponent), pointer :: child
 
       child => this%get_ith_child(i)
-      state => child%export_state
+      state => child%get_export_state()
 
    end function get_child_export_state
 
@@ -11246,7 +11354,7 @@ contains
       integer :: status
 
       if (MAPL_Am_I_Root()) then
-         call MAPL_GetLogger(mpl, lgr, __RC__)
+         call MAPL_GetLogger(mpl, lgr, _RC)
          call lgr%warning(string //&
               ' requested, but state is empty. Ignored...')
       end if
@@ -11372,12 +11480,12 @@ contains
          do I = 1, nc
             child_gc => meta%get_child_gridcomp(i)
             call MAPL_GridCompGetVarSpecs(child_gc, &
-                 import=IM_SPECS, EXPORT=EX_SPECS, __RC__)
+                 import=IM_SPECS, EXPORT=EX_SPECS, _RC)
             ImSpecPtr(I)%Spec => IM_SPECS
             ExSpecPtr(I)%Spec => EX_SPECS
          end do
 
-         call connect%checkReq(ImSpecPtr, ExSpecPtr, __RC__)
+         call connect%checkReq(ImSpecPtr, ExSpecPtr, _RC)
 
          deallocate (ImSpecPtr, ExSpecPtr)
 
@@ -11389,11 +11497,11 @@ contains
          !--------------------------------------------------
          ROOT: if (.not. associated(meta%parentGC)) then
 
-            call MAPL_GenericConnCheck(GC, __RC__)
+            call MAPL_GenericConnCheck(GC, _RC)
 
             ! Collect all IMPORT and EXPORT specs in the entire tree in one list
             !-------------------------------------------------------------------
-            call MAPL_GenericSpecEnum(GC, SPECS, __RC__)
+            call MAPL_GenericSpecEnum(GC, SPECS, _RC)
 
             ! Label each spec by its place on the list--sort of.
             !--------------------------------------------------
@@ -11412,7 +11520,7 @@ contains
 
                !  Get the LABEL attribute on the spec
                !-------------------------------------
-               call MAPL_VarSpecGet(SPECS%old_var_specs(I), LABEL=LBL, __RC__)
+               call MAPL_VarSpecGet(SPECS%old_var_specs(I), LABEL=LBL, _RC)
                _ASSERT(LBL > 0, "GenericSetServices :: Expected LBL > 0.")
 
                ! Do something to sort labels???
@@ -11428,8 +11536,8 @@ contains
 
             if (associated(meta%LINK)) then
                do I = 1, size(meta%LINK)
-                  fLBL = MAPL_LabelGet(meta%LINK(I)%ptr%FROM, __RC__)
-                  tLBL = MAPL_LabelGet(meta%LINK(I)%ptr%TO,   __RC__)
+                  fLBL = MAPL_LabelGet(meta%LINK(I)%ptr%FROM, _RC)
+                  tLBL = MAPL_LabelGet(meta%LINK(I)%ptr%TO,   _RC)
                   LOWEST_(fLBL)
                   LOWEST_(tLBL)
 
@@ -11452,15 +11560,15 @@ contains
                if (LBL == I) then
                   K = K+1
                else
-                  call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), FIELDPTR = FIELD, __RC__)
-                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), FIELDPTR = FIELD, __RC__)
-                  call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), BUNDLEPTR = BUNDLE, __RC__  )
-                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), BUNDLEPTR = BUNDLE, __RC__  )
-                  call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), STATEPTR = STATE, __RC__  )
-                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), STATEPTR = STATE, __RC__  )
+                  call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), FIELDPTR = FIELD, _RC)
+                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), FIELDPTR = FIELD, _RC)
+                  call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), BUNDLEPTR = BUNDLE, _RC  )
+                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), BUNDLEPTR = BUNDLE, _RC  )
+                  call MAPL_VarSpecGet(SPECS%old_var_specs(LBL), STATEPTR = STATE, _RC  )
+                  call MAPL_VarSpecSet(SPECS%old_var_specs(I), STATEPTR = STATE, _RC  )
                end if
 
-               call MAPL_VarSpecSet(SPECS%old_var_specs(I), LABEL=LBL, __RC__)
+               call MAPL_VarSpecSet(SPECS%old_var_specs(I), LABEL=LBL, _RC)
             end do
 
             deallocate(LABEL, __STAT__)
@@ -11479,20 +11587,20 @@ contains
          integer :: status
 
          if (.not. associated(meta%phase_init)) then
-            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_INITIALIZE, MAPL_GenericInitialize,  __RC__)
+            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_INITIALIZE, MAPL_GenericInitialize,  _RC)
          endif
 
          if (.not. associated(meta%phase_run)) then
-            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_RUN, MAPL_GenericRunChildren,  __RC__)
+            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_RUN, MAPL_GenericRunChildren,  _RC)
          endif
 
 
          if (.not. associated(meta%phase_final)) then
-            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_FINALIZE, MAPL_GenericFinalize,  __RC__)
+            call MAPL_GridCompSetEntrypoint(GC, ESMF_METHOD_FINALIZE, MAPL_GenericFinalize,  _RC)
          endif
 
          if (.not. associated(meta%phase_record)) then
-            call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_WRITERESTART, MAPL_GenericRecord, __RC__)
+            call MAPL_GridCompSetEntryPoint ( GC, ESMF_METHOD_WRITERESTART, MAPL_GenericRecord, _RC)
          end if
          _ASSERT(size(meta%phase_record)==1,'Currently, only 1 record is supported.')
 

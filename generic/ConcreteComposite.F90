@@ -2,6 +2,7 @@ module mapl_ConcreteComposite
    use mapl_AbstractFrameworkComponent
    use mapl_AbstractComposite
    use mapl_StringCompositeMap
+   use gFTL_StringVector
    implicit none
    private
 
@@ -11,10 +12,11 @@ module mapl_ConcreteComposite
       private
       class(AbstractFrameworkComponent), allocatable :: component
       type(StringCompositeMap) :: children
+      type(StringVector) :: children_names
       class(ConcreteComposite), pointer :: parent => null()
    contains
       procedure :: add_child
-      procedure :: get_child
+      procedure :: get_child_by_name, get_child_by_index
       procedure :: get_parent
       procedure :: get_component
       procedure :: set_component
@@ -55,7 +57,7 @@ contains
    subroutine initialize(this, component)
       class(ConcreteComposite), intent(inout) :: this
       class(AbstractFrameworkComponent), intent(in) :: component
-      this%component = component
+      allocate(this%component, source=component)
       this%parent => null()
    end subroutine initialize
 
@@ -67,14 +69,26 @@ contains
 
    end function new_placeholder
 
-   function get_child(this, name) result(child)
+   function get_child_by_name(this, name) result(child)
       class(AbstractComposite), pointer :: child
-      class(ConcreteComposite), intent(in) :: this
+      class(ConcreteComposite), target, intent(in) :: this
       character(*), intent(in) :: name
 
       child => this%children%at(name)
 
-   end function get_child
+   end function get_child_by_name
+
+   function get_child_by_index(this, i) result(child)
+      class(AbstractComposite), pointer :: child
+      class(ConcreteComposite), target, intent(in) :: this
+      integer, intent(in) :: i
+      
+      character(:), pointer :: child_name
+      
+      child_name => this%children_names%of(i)
+      child => this%get_child(child_name)
+      
+   end function get_child_by_index
 
 
    function add_child(this, name, composite) result(child)
@@ -83,6 +97,7 @@ contains
       character(*), intent(in) :: name
       class(AbstractComposite), intent(in) :: composite
 
+      call this%children_names%push_back(name)
       call this%children%insert(name, composite)
       child => this%children%at(name)
 

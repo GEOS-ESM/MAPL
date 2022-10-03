@@ -258,7 +258,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
       integer :: status
-      character(80) :: buffer
+      character(256) :: buffer
       logical :: one_node_output, compress_nodes, use_sub_comm
 
       integer, allocatable :: nodes_output_server(:)
