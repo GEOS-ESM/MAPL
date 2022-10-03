@@ -10,6 +10,8 @@ module MAPL
    use mapl_StubComponent
    use MAPL_ESMFFieldBundleRead
    use MAPL_ESMFFieldBundleWrite
+   use MAPL_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
+   use MAPL_OpenMP_Support, only : MAPL_get_num_threads => get_num_threads
    implicit none
 end module MAPL
 
