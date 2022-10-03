@@ -460,7 +460,7 @@ CONTAINS
       item%initialized = .true.
 
       item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
-      call create_primary_field(item,self%ExtDataState,_RC) 
+      call create_primary_field(item,self%ExtDataState,_RC)
       if (item%isConst) then
          call set_constant_field(item,self%extDataState,_RC)
          cycle
@@ -993,7 +993,7 @@ CONTAINS
 
      call ESMF_StateGet(state,item%vcomp1,field,_RC)
      call item%modelGridFields%comp1%interpolate_to_time(field,time,_RC)
-     block 
+     block
         character(len=1024) :: fname
         integer :: rank
         call ESMF_FieldGet(field,name=fname,rank=rank,_RC)
@@ -1691,9 +1691,11 @@ CONTAINS
 
      integer :: status
      type(ESMF_Field) :: field
+     type(ESMF_Info) :: infoh
 
      field = ESMF_FieldEmptyCreate(name=primary_name,_RC)
-     call ESMF_AttributeSet(field,name="derived_source",value=derived_name,_RC)
+     call ESMF_InfoGetFromHost(field,infoh,_RC)
+     call ESMF_InfoSet(infoh,key="derived_source",value=derived_name,_RC)
      call MAPL_StateAdd(state,field,_RC)
 
      _RETURN(_SUCCESS)
@@ -1709,10 +1711,12 @@ CONTAINS
      type(ESMF_Grid)  :: grid
      logical :: must_create
      character(len=ESMF_MAXSTR) :: derived_field_name
+     type(ESMF_Info) :: infoh
 
      call ESMF_StateGet(ExtDataState,trim(item%name),field,_RC)
      call ESMF_FieldValidate(field,rc=status)
-     call ESMF_AttributeGet(field,name="derived_source",isPresent=must_create,_RC)
+     call ESMF_InfoGetFromHost(field,infoh,_RC)
+     must_create = ESMF_InfoIsPresent(infoh,key="derived_source",_RC)
      if (.not.must_create) then
         _RETURN(_SUCCESS)
      end if
@@ -1721,8 +1725,8 @@ CONTAINS
      end if
 
 
-     call ESMF_AttributeGet(field,name="derived_source",value=derived_field_name,_RC)
-     call ESMF_StateGet(ExtDataState,trim(derived_field_name),derived_field,_RC) 
+     call ESMF_InfoGet(infoh,name="derived_source",value=derived_field_name,_RC)
+     call ESMF_StateGet(ExtDataState,trim(derived_field_name),derived_field,_RC)
      call ESMF_FieldGet(derived_field,grid=grid,_RC)
 
      call ESMF_StateRemove(ExtDataState,[trim(item%name)],_RC)
@@ -1749,7 +1753,7 @@ CONTAINS
         type(ESMF_Grid), intent(in) :: grid
         integer, intent(in) :: num_levels
         integer, optional, intent(out) :: rc
- 
+
         integer :: status
         if (num_levels ==0) then
            new_field=ESMF_FieldCreate(grid,name=field_name,typekind=ESMF_TYPEKIND_R4,_RC)
@@ -1758,7 +1762,7 @@ CONTAINS
         end if
         _RETURN(_SUCCESS)
      end function
-        
+
   end subroutine create_primary_field
 
 
