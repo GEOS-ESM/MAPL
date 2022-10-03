@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `_RETURN` and `RETURN_` macros are no longer defined `I_AM_MAIN` is defined.  These macros were only meant to be used in procedures and would erroneously abort when used in a successful main program.
+- 
 ### Added
 
 ### Changed
