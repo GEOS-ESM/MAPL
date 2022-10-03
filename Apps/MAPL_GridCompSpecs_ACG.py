@@ -261,7 +261,7 @@ def open_with_header(filename):
     f.write(header())
     return f
 
-
+categories = ("IMPORT","EXPORT","INTERNAL")
 
 #############################################
 # Main program begins here
@@ -304,7 +304,7 @@ else:
 
 # open all output files
 f_specs = {}
-for category in ("IMPORT","EXPORT","INTERNAL"):
+for category in categories:
     option = args.__dict__[category.lower()+"_specs"]
     if option:
         fname = option.format(component=component)
@@ -322,7 +322,7 @@ else:
     f_get_pointers = None
 
 # Generate code from specs (processed above)
-for category in ("IMPORT","EXPORT","INTERNAL"):
+for category in categories:
     for item in specs[category]:
         spec = MAPL_DataSpec(category.lower(), item)
         if f_specs[category]:
