@@ -24,15 +24,15 @@ contains
   module subroutine MAPL_AllocateCoupling(field, rc)
 
     type(ESMF_Field),  intent(INOUT) :: field
-    integer, optional, intent(  OUT) :: rc             
+    integer, optional, intent(  OUT) :: rc
 
     integer                                 :: status
     character(len=ESMF_MAXSTR), parameter   :: IAm='MAPL_AllocateCouplingFromField'
 
     type(ESMF_FieldStatus_Flag)             :: fieldStatus
 
-    integer          :: dims            
-    integer          :: location            
+    integer          :: dims
+    integer          :: location
     integer          :: knd
     integer, pointer :: ungrd(:)
     integer          :: hw
@@ -109,13 +109,13 @@ contains
   module subroutine MAPL_FieldAllocCommit(field, dims, location, typekind, &
        hw, ungrid, default_value, rc)
     type(ESMF_Field),               intent(INOUT) :: field
-    integer,                        intent(IN   ) :: dims            
-    integer,                        intent(IN   ) :: location            
+    integer,                        intent(IN   ) :: dims
+    integer,                        intent(IN   ) :: location
     integer,                        intent(IN   ) :: typekind
     integer,                        intent(IN   ) :: hw !halowidth
     integer,              optional, intent(IN   ) :: ungrid(:)
     real,                 optional, intent(IN   ) :: default_value
-    integer,              optional, intent(  OUT) :: rc             
+    integer,              optional, intent(  OUT) :: rc
 
 
     integer                               :: status
@@ -152,7 +152,7 @@ contains
     end do
     ! ALT: the next allocation should have been griddedDims,
     !      but this compilcates the code unnecessery
-    allocate(haloWidth(gridRank), stat=status) 
+    allocate(haloWidth(gridRank), stat=status)
     _VERIFY(STATUS)
     haloWidth = (/HW,HW,0/)
 
@@ -176,7 +176,7 @@ contains
        rank = szungrd
 
        !ALT: This is special case - array does not map any gridded dims
-       gridToFieldMap= 0 
+       gridToFieldMap= 0
        if (typekind == ESMF_KIND_R4) then
           select case (rank)
           case (1)
@@ -213,7 +213,7 @@ contains
 
     case(MAPL_DimsVertOnly)
        !ALT: This is special case - array does not map any gridded dims
-       gridToFieldMap = 0 
+       gridToFieldMap = 0
        rank=1
        lb1 = 1
        ub1 = COUNTS(3)
@@ -335,7 +335,7 @@ contains
        end if
        _VERIFY(STATUS)
 
-       ! Horz + Vert       
+       ! Horz + Vert
        ! -----------
     case(MAPL_DimsHorzVert)
        lb1 = 1-HW
@@ -417,7 +417,7 @@ contains
        end select RankCase3d
 
        ! Tiles
-       ! ----- 
+       ! -----
     case(MAPL_DimsTileOnly)
        rank = 1 + szungrd
        _ASSERT(gridRank == 1, 'gridRank /= 1')
@@ -513,7 +513,7 @@ contains
        ! Invalid dimensionality
        ! ----------------------
 
-    case default 
+    case default
        _RETURN(ESMF_FAILURE)
 
     end select Dimensionality
@@ -522,7 +522,7 @@ contains
     if (present(default_value)) then
        call MAPL_AttributeSet(field, NAME="MAPL_InitStatus", &
             VALUE=MAPL_InitialDefault, RC=STATUS)
-       _VERIFY(STATUS)      
+       _VERIFY(STATUS)
     end if
 
     ! Clean up
@@ -535,7 +535,7 @@ contains
 
   module subroutine MAPL_FieldF90Deallocate(field, rc)
     type(ESMF_Field),  intent(INOUT) :: field
-    integer, optional, intent(  OUT) :: rc             
+    integer, optional, intent(  OUT) :: rc
 
     integer                                 :: status
     character(len=ESMF_MAXSTR), parameter   :: IAm='MAPL_FieldF90Deallocate'
@@ -577,7 +577,7 @@ contains
     type(ESMF_State),               intent(INOUT) :: state
     real,                           pointer       :: ptr(:,:)
     character(len=*),               intent(IN   ) :: name
-    integer,              optional, intent(  OUT) :: rc             
+    integer,              optional, intent(  OUT) :: rc
 
 
     integer                               :: status
@@ -622,7 +622,7 @@ contains
     _ASSERT(size(ptr,2) == COUNTS(2), 'shape mismatch dim=2')
     call ESMF_GridGet(GRID, dimCount=gridRank, rc=status)
     _VERIFY(STATUS)
-    ! MAPL restriction (actually only the first 2 dims are distributted) 
+    ! MAPL restriction (actually only the first 2 dims are distributted)
     _ASSERT(gridRank <= 3, 'gridRank > 3 not supported')
     allocate(gridToFieldMap(gridRank), stat=status)
     _VERIFY(STATUS)
@@ -650,7 +650,7 @@ contains
     type(ESMF_State),               intent(INOUT) :: state
     real,                           pointer       :: ptr(:,:,:)
     character(len=*),               intent(IN   ) :: name
-    integer,              optional, intent(  OUT) :: rc             
+    integer,              optional, intent(  OUT) :: rc
 
 
     integer                               :: status
@@ -695,8 +695,8 @@ contains
     _ASSERT(size(ptr,2) == COUNTS(2), 'shape mismatch dim=2')
     call ESMF_GridGet(GRID, dimCount=gridRank, rc=status)
     _VERIFY(STATUS)
-    ! MAPL restriction (actually only the first 2 dims are distributted) 
-    _ASSERT(gridRank <= 3, 'gridRank > 3 not supported') 
+    ! MAPL restriction (actually only the first 2 dims are distributted)
+    _ASSERT(gridRank <= 3, 'gridRank > 3 not supported')
     allocate(gridToFieldMap(gridRank), stat=status)
     _VERIFY(STATUS)
     do I = 1, gridRank
@@ -865,13 +865,13 @@ contains
 
   module subroutine MAPL_Interp_Fac (TIME0, TIME1, TIME2, FAC1, FAC2, RC)
 
-    !------------------------------------------------------------        
+    !------------------------------------------------------------
 
     !  PURPOSE:
     !  ========
     !
-    !    Compute interpolation factors, fac, to be used 
-    !    in the calculation of the instantaneous boundary 
+    !    Compute interpolation factors, fac, to be used
+    !    in the calculation of the instantaneous boundary
     !    conditions, ie:
     !
     !     q(i,j) = fac1*q1(i,j) + (1.-fac1)*q2(i,j)
@@ -884,16 +884,16 @@ contains
     !  INPUT:
     !  ======
     !    time0    : Time of current timestep
-    !    time1    : Time of boundary data 1 
-    !    time2    : Time of boundary data 2 
+    !    time1    : Time of boundary data 1
+    !    time2    : Time of boundary data 2
 
     !  OUTPUT:
     !  =======
     !     fac1    : Interpolation factor for Boundary Data 1
     !
-    ! ------------------------------------------------------------        
-    !               GODDARD LABORATORY FOR ATMOSPHERES            
-    ! ------------------------------------------------------------        
+    ! ------------------------------------------------------------
+    !               GODDARD LABORATORY FOR ATMOSPHERES
+    ! ------------------------------------------------------------
 
     type(ESMF_Time),   intent(in ) :: TIME0, TIME1, TIME2
     real,              intent(out) :: FAC1
@@ -915,7 +915,7 @@ contains
 
   module subroutine MAPL_ClimInterpFac (CLOCK,I1,I2,FAC, RC)
 
-    !------------------------------------------------------------        
+    !------------------------------------------------------------
 
     type(ESMF_CLOCK),  intent(in ) :: CLOCK
     integer,           intent(OUT) :: I1, I2
@@ -1057,7 +1057,7 @@ contains
        ENDIF
        NHMS = MAPL_NHMSF (NSEC)
     ENDIF
-    RETURN  
+    RETURN
   end subroutine MAPL_tick
 
   integer module function MAPL_nsecf2 (nhhmmss,nmmdd,nymd)
@@ -1102,7 +1102,7 @@ contains
   end function MAPL_nhmsf
 
   ! A year is a leap year if
-  ! 1) it is divible by 4, and 
+  ! 1) it is divible by 4, and
   ! 2) it is not divisible by 100, unless
   ! 3) it is also divisible by 400.
   logical module function MAPL_LEAP(NY)
@@ -1113,34 +1113,34 @@ contains
   end function MAPL_LEAP
 
 
-  integer module function MAPL_incymd (NYMD,M)                                                  
+  integer module function MAPL_incymd (NYMD,M)
     integer nymd,ny,nm,nd,m
-    INTEGER NDPM(12)                                                          
-    DATA    NDPM /31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31/             
-    NY = NYMD / 10000                                                         
-    NM = MOD(NYMD,10000) / 100                                                
-    ND = MOD(NYMD,100) + M                                                    
-    IF (ND.EQ.0) THEN                                                         
-       NM = NM - 1                                                               
-       IF (NM.EQ.0) THEN                                                         
-          NM = 12                                                               
-          NY = NY - 1                                                           
+    INTEGER NDPM(12)
+    DATA    NDPM /31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31/
+    NY = NYMD / 10000
+    NM = MOD(NYMD,10000) / 100
+    ND = MOD(NYMD,100) + M
+    IF (ND.EQ.0) THEN
+       NM = NM - 1
+       IF (NM.EQ.0) THEN
+          NM = 12
+          NY = NY - 1
        ENDIF
-       ND = NDPM(NM)                                                             
-       IF (NM.EQ.2 .AND. MAPL_LEAP(NY))  ND = 29                                      
+       ND = NDPM(NM)
+       IF (NM.EQ.2 .AND. MAPL_LEAP(NY))  ND = 29
     ENDIF
-    IF (ND.EQ.29 .AND. NM.EQ.2 .AND. MAPL_LEAP(NY))  GO TO 20                      
-    IF (ND.GT.NDPM(NM)) THEN                                                  
-       ND = 1                                                                    
-       NM = NM + 1                                                               
-       IF (NM.GT.12) THEN                                                        
-          NM = 1                                                                
-          NY = NY + 1                                                           
+    IF (ND.EQ.29 .AND. NM.EQ.2 .AND. MAPL_LEAP(NY))  GO TO 20
+    IF (ND.GT.NDPM(NM)) THEN
+       ND = 1
+       NM = NM + 1
+       IF (NM.GT.12) THEN
+          NM = 1
+          NY = NY + 1
        ENDIF
     ENDIF
-20  CONTINUE                                                                  
-    MAPL_INCYMD = NY*10000 + NM*100 + ND                                           
-    RETURN                                                                    
+20  CONTINUE
+    MAPL_INCYMD = NY*10000 + NM*100 + ND
+    RETURN
   end function MAPL_incymd
 
 
@@ -1183,7 +1183,7 @@ contains
     enddo
 
 !!$   DO L=1,JM
-!!$      PRINT '(144L1)',MASK(:,L) 
+!!$      PRINT '(144L1)',MASK(:,L)
 !!$   ENDDO
 !!$
 !!$   PRINT *, COUNT, NN
@@ -1218,7 +1218,7 @@ contains
        call ESMF_InfoGet(infoh,'TimeStamp',TIMESTAMP,rc=status)
        _VERIFY(STATUS)
 
-       call MAPL_TimeStringGet    (TIMESTAMP, YY=YEAR, MM=MONTH,  DD=DAY,   & 
+       call MAPL_TimeStringGet    (TIMESTAMP, YY=YEAR, MM=MONTH,  DD=DAY,   &
             H =HOUR, M =MINUTE, S =SCND   )
        _VERIFY(STATUS)
        call ESMF_TimeSet          (TIME,      YY=YEAR, MM=MONTH,  DD=DAY,   &
@@ -1303,7 +1303,7 @@ contains
     type (ESMF_Field)                :: F
 
     !   we are creating new field so that we can change the name of the field;
-    !   the important thing is that the data (ESMF_Array) and the grid (ESMF_Grid) 
+    !   the important thing is that the data (ESMF_Array) and the grid (ESMF_Grid)
     !   are the SAME as the one in the original Field, if DoCopy flag is present
     !   and set to true we create a new array and copy the data, not just reference it
 
@@ -1352,7 +1352,7 @@ contains
        hasUngridDims = .true.
     endif
 
-    if (doCopy_) then 
+    if (doCopy_) then
        datacopy = ESMF_DATACOPY_VALUE
     else
        datacopy = ESMF_DATACOPY_REFERENCE
@@ -1456,13 +1456,13 @@ contains
     type (ESMF_Field)                :: F
     type (ESMF_Info)                 :: infoh
 
-    !   we are creating new field so that we can change the grid of the field 
+    !   we are creating new field so that we can change the grid of the field
     !   (and allocate array accordingly);
     !ALT: This function is currently used only in History for regridding on an output grid
 
     !ALT halowidth assumed 0
 
-    !      type(ESMF_FieldDataMap) :: datamap           
+    !      type(ESMF_FieldDataMap) :: datamap
     type (ESMF_Grid)        :: fGRID
     type(ESMF_Array)        :: array
     type (ESMF_LocalArray), target          :: larrayList(1)
@@ -1595,7 +1595,7 @@ contains
     type (ESMF_Field)                :: F
 
     !   we are creating new field so that we can change the name of the field;
-    !   the important thing is that the data (ESMF_Array) and the grid (ESMF_Grid) 
+    !   the important thing is that the data (ESMF_Array) and the grid (ESMF_Grid)
     !   are the SAME as the one in the original Field, if DoCopy flag is present
     !   and set to true we create a new array and copy the data, not just reference it
 
@@ -1714,13 +1714,13 @@ contains
     integer                          :: status
 
     type(ESMF_Info) :: info_in, info_out
-  
+
     call ESMF_InfoGetFromHost(field_in, info_in,_RC)
 
     call ESMF_InfoGetFromHost(field_out, info_out, _RC)
-      
+
     call ESMF_InfoSet(info_out, key="", value=info_in, _RC)
- 
+
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_FieldCopyAttributes
 
@@ -1730,7 +1730,7 @@ contains
     integer, optional, intent(  OUT) :: RC
 
     !   we are creating new field so that we can change the name of the field;
-    !   the important thing is that the data (ESMF_Array) and the grid (ESMF_Grid) 
+    !   the important thing is that the data (ESMF_Array) and the grid (ESMF_Grid)
     !   are the SAME as the one in the original Field, if DoCopy flag is present
     !   and set to true we create a new array and copy the data, not just reference it
 
@@ -1879,8 +1879,8 @@ contains
     !   There are 3 possibilities to provide the coordinate information:
 
     ! 1) Thru Config object:
-    type(ESMF_Config), OPTIONAL, target,     & 
-         intent(in)  :: Config 
+    type(ESMF_Config), OPTIONAL, target,     &
+         intent(in)  :: Config
 
     ! 2) Thru a resource file:
     character(len=*),  OPTIONAL, intent(in)  :: ConfigFile
@@ -1888,7 +1888,7 @@ contains
 
     ! 3) Thru argument list:
     integer,           OPTIONAL, intent(in)  :: Nx, Ny          ! Layout
-    integer,           OPTIONAL, intent(in)  :: IM_World        ! Zonal 
+    integer,           OPTIONAL, intent(in)  :: IM_World        ! Zonal
     real,              OPTIONAL, intent(in)  :: BegLon, DelLon  ! in degrees
 
     integer,           OPTIONAL, intent(in)  :: JM_World        ! Meridional
@@ -1903,11 +1903,11 @@ contains
 
 #ifdef ___PROTEX___
 
-    !DESCRIPTION: 
+    !DESCRIPTION:
 
     This routine creates a distributed ESMF grid where the horizontal
-    coordinates are regular longitudes and latitudes. The grid is 
-    created on the user specified {\bf VM}, or on the current VM if the user 
+    coordinates are regular longitudes and latitudes. The grid is
+    created on the user specified {\bf VM}, or on the current VM if the user
     does not specify one. The layout and the coordinate information can
     be provided with a {\tt ESMF\_Config attribute}, a resource file name
     or specified through the argument list.
@@ -1919,36 +1919,36 @@ contains
     grid with 72 layers:
     %
     \begin{verbatim}
-    GDEF: LatLon 
-    IDEF: 32  
-    JDEF: 16  
-    LDEF:  1  
+    GDEF: LatLon
+    IDEF: 32
+    JDEF: 16
+    LDEF:  1
     XDEF: 288 LINEAR -180. 1.25
     YDEF: 181 LINEAR -90. 1.
     ZDEF:  72 LINEAR 1 1
     \end{verbatim}
     %
-    More generally, 
+    More generally,
     \begin{verbatim}
-    GDEF: LatLon 
-    IDEF: Nx 
+    GDEF: LatLon
+    IDEF: Nx
     JDEF: Ny
     LDEF: Nz
     XDEF: IM_World XCoordType BegLon, DelLon
     YDEF: JM_World YCoordType BegLat, DelLat
     ZDEF: LM_World ZCoordType 1        1
     \end{verbatim}
-    The attribute {\bf GDEF} must always be {\tt LatLon} for  Lat/Lon grids. 
+    The attribute {\bf GDEF} must always be {\tt LatLon} for  Lat/Lon grids.
     The remaining parameters are:
     \bd
     \item[Nx] is the number of processors used to decompose the X dimension
     \item[Ny] is the number of processors used to decompose the Y dimension
     \item[Nz] is the number of processors used to decompose the Z dimension;
-    must be 1 for now.          
+    must be 1 for now.
     \item[IM\_World] is the number of longitudinal grid points; if {\tt IM\_World=0} then the
     grid has no zonal dimension.
     \item[XCoordType] must be set to LINEAR
-    \item[BegLon] is the longitude (in degrees) of the {\em center} of the first 
+    \item[BegLon] is the longitude (in degrees) of the {\em center} of the first
     gridbox
     \item[DelLon] is the constant mesh size (in degrees); if {\tt DelLon<1} then a
     global grid is assumed.
@@ -1956,7 +1956,7 @@ contains
     \item[JM\_World] is the number of meridional grid points if {\tt JM\_World=0} then
     the grid has no meridional dimension.
     \item[YCoordType] must be set to LINEAR
-    \item[BegLat] is the latitude (in degrees) of the {\em center} of the first 
+    \item[BegLat] is the latitude (in degrees) of the {\em center} of the first
     gridbox
     \item[DelLat] is the constant mesh size (in degrees); if {\tt DelLat<1} then a
     global grid is assumed.
@@ -1976,7 +1976,7 @@ contains
 
     Alternatively, one can specify coordinate information in the argument
     list; their units and meaning is as in the resource file above. In
-    this case you must specify at least {\tt Nx, Ny, IM\_World, JM\_World,} and 
+    this case you must specify at least {\tt Nx, Ny, IM\_World, JM\_World,} and
     {\tt LM\_World}. The other parameters have default values
     \bd
     \item[BegLon] defaults to -180. (the date line)
@@ -1987,11 +1987,11 @@ contains
 
     \subsubsection*{Restrictions}
 
-    The current implementation imposes the following 
+    The current implementation imposes the following
     restrictions:
     \begin{enumerate}
     \item Only uniform longitude/latitude grids are supported (no Gaussian grids).
-    \item Only 2D Lon-Lat or 3D Lon-Lat-Lev grids are currently supported 
+    \item Only 2D Lon-Lat or 3D Lon-Lat-Lev grids are currently supported
     (no Lat-Lev or Lon-Lev grids supprted yet).
     \item No vertical decomposition yet ({\tt Nz=1}).
     \end{enumerate}
@@ -2000,16 +2000,16 @@ contains
 
     The {\tt IDEF/JDEF/LDEF} records in the resource file should be
     extended as to allow specification of a more general distribution.
-    For consistency with the {\tt XDEF/YDEF/ZDEF} records a similar 
+    For consistency with the {\tt XDEF/YDEF/ZDEF} records a similar
     syntax could be adopted. For example,
     %
     \begin{verbatim}
-    IDEF 4   LEVELS  22 50 50 22 
-    XDEF 144 LINEAR -180 2.5 
+    IDEF 4   LEVELS  22 50 50 22
+    XDEF 144 LINEAR -180 2.5
     \end{verbatim}
     would indicate that longitudes would be decomposed in 4 PETs,
     with the first PET having 22 grid points, the second 50 gridpoints,
-    and so on. 
+    and so on.
 
 #endif
 
@@ -2021,13 +2021,13 @@ contains
     !   Internal version of the input arguments
     !   ---------------------------------------
     type(ESMF_Config), pointer :: Config_
-    integer           :: IM_World_      
+    integer           :: IM_World_
     real(kind=REAL64) :: BegLon_
-    real(kind=REAL64) :: DelLon_ 
-    integer           :: JM_World_      
+    real(kind=REAL64) :: DelLon_
+    integer           :: JM_World_
     real(kind=REAL64) :: BegLat_
     real(kind=REAL64) :: DelLat_
-    integer           :: LM_World_ 
+    integer           :: LM_World_
     integer           :: Nx_, Ny_, Nz_
 
     integer, allocatable            :: IMs(:), JMs(:), LMs(:)
@@ -2051,7 +2051,7 @@ contains
 
     !  Defaults
     !  --------
-    BegLon_ = -180.0  ! centered at date line  
+    BegLon_ = -180.0  ! centered at date line
     DelLon_ =   -1.0  ! means global grid
     BegLat_ =  -90.0  ! centered at south pole
     DelLat_ =   -1.0  ! means global grid
@@ -2132,14 +2132,14 @@ contains
     if ( DelLon_ < 0.0 ) then  ! convention for global grids
        if ( IM_World_ == 1 ) then
           DelLon_ = 0.0
-       else                  
+       else
           DelLon_ = 360.d0 / IM_World_
        end if
     end if
     if ( DelLat_ < 0.0 ) then  ! convention for global grids
        if ( JM_World_ == 1 ) then
           DelLat_ = 0.0
-       else                  
+       else
           DelLat_ = 180.d0 / ( JM_World_ - 1)
        end if
     end if
@@ -2147,7 +2147,7 @@ contains
     !  Give the IMs, JMs and LMs the MAPL default distribution
     !  -------------------------------------------------------
     allocate( IMs(0:Nx_-1), JMs(0:Ny_-1), LMs(0:Nz_-1), stat=STATUS)
-    _VERIFY(STATUS) 
+    _VERIFY(STATUS)
     call MAPL_DecomposeDim ( IM_World_, IMs, Nx_ )
     call MAPL_DecomposeDim ( JM_World_, JMs, Ny_ )
     call MAPL_DecomposeDim ( LM_World_, LMs, Nz_ )
@@ -2159,7 +2159,7 @@ contains
 
     !  3D Lat-Lon-Lev Grid
     !  -------------------
-    if ( LM_World_>0 .AND. IM_World_>0 .AND. JM_World_>0 ) then 
+    if ( LM_World_>0 .AND. IM_World_>0 .AND. JM_World_>0 ) then
        !ALT creat actually 2-d grid the SAME way MAPL_GridCreate
 #if 0
        Grid = ESMF_GridCreateShapeTile (     &
@@ -2196,7 +2196,7 @@ contains
 
        !  2D Lat-Lon Grid
        !  ---------------
-    else if ( LM_World_==0 .AND. IM_World_>0 .AND. JM_World>0 ) then 
+    else if ( LM_World_==0 .AND. IM_World_>0 .AND. JM_World>0 ) then
        Grid = ESMF_GridCreate(             &
             name=Name,                     &
             countsPerDEDim1=IMs,           &
@@ -2209,7 +2209,7 @@ contains
        _VERIFY(STATUS)
 
        !  Other possibilities not implemented yet
-       !  --------------------------------------- 
+       !  ---------------------------------------
     else
 
        STATUS = 300
@@ -2218,8 +2218,8 @@ contains
     endif
 
     !  -------------------------------------------------------------------
-    !  NOTE: In the remaining part of this routine it is assumed that the 
-    !        1st and 2nd axes correspond to lat/lon; revise this for other 
+    !  NOTE: In the remaining part of this routine it is assumed that the
+    !        1st and 2nd axes correspond to lat/lon; revise this for other
     !        arrangements (say, YZ grids)
     !  -------------------------------------------------------------------
 
@@ -2233,7 +2233,7 @@ contains
     deltaX      = MAPL_DEGREES_TO_RADIANS_R8 * DelLon_
     deltaY      = MAPL_DEGREES_TO_RADIANS_R8 * DelLat_
     minCoord(1) = MAPL_DEGREES_TO_RADIANS_R8 * BegLon_ - deltaX/2
-    minCoord(2) = MAPL_DEGREES_TO_RADIANS_R8 * BegLat_ - deltaY/2 
+    minCoord(2) = MAPL_DEGREES_TO_RADIANS_R8 * BegLat_ - deltaY/2
 
     allocate(cornerX(IM_World_+1),cornerY(JM_World_+1), stat=STATUS)
     _VERIFY(STATUS)
@@ -2263,7 +2263,7 @@ contains
     FirstOut(1)=BegLon_
     FirstOut(2)=-90.
     LastOut(1)=360.+BegLon_ - 360./im_world_
-    LastOut(2)=90. 
+    LastOut(2)=90.
 
     block
       use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
@@ -2294,7 +2294,7 @@ contains
     _VERIFY(STATUS)
 
     !  Clean up
-    !  --------   
+    !  --------
     deallocate(cornerY,cornerX)
     deallocate(IMs,JMs,LMs)
     if ( present(ConfigFile) ) deallocate(Config_)
@@ -2407,7 +2407,7 @@ contains
        gridCornerLats=ptr(1:im+1,1:jm+1)
 
        deallocate(ptr)
-       call ESMF_FieldDestroy(field,rc=status) 
+       call ESMF_FieldDestroy(field,rc=status)
        _VERIFY(status)
        call ESMF_FieldHaloRelease(rh,rc=status)
        _VERIFY(status)
@@ -2697,7 +2697,7 @@ contains
     integer                               :: STATUS
 
     real(kind=ESMF_KIND_R4), pointer      :: VAR_1D(:), VAR_2D(:,:), VAR_3D(:,:,:)
-    real(kind=ESMF_KIND_R8), pointer      :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:) 
+    real(kind=ESMF_KIND_R8), pointer      :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:)
     integer                      :: rank
     type(ESMF_TypeKind_Flag)     :: tk
 
@@ -2757,7 +2757,7 @@ contains
 
 
     isCreated = ESMF_FieldBundleIsCreated(bundle,rc=status)
-    _VERIFY(STATUS) 
+    _VERIFY(STATUS)
     if(isCreated) then
        call ESMF_FieldBundleGet(BUNDLE, FieldCount=FIELDCOUNT, RC=STATUS)
        _VERIFY(STATUS)
@@ -2793,7 +2793,6 @@ contains
     type(ESMF_Field)                        :: Fields(1)
     logical                                 :: haveAttr
     type(ESMF_Info)                         :: infoh
-
 
     fields(1) = field
     call ESMF_StateAdd(state, fields, RC=status)
@@ -3045,8 +3044,8 @@ contains
 
     !DESCRIPTION
     !    For a set of longitudes and latitudes in radians this routine will return the indexes for the domain
-    !    Depending on how it is invoked these will be the local domain or the global indices. 
-    !    If the Lat/Lon pair is not in the domain -1 is returned. 
+    !    Depending on how it is invoked these will be the local domain or the global indices.
+    !    If the Lat/Lon pair is not in the domain -1 is returned.
     !    The routine works for both the gmao cube and lat/lon grids.
     !    Currently the lat/lon grid is asumed to go from -180 to 180
     !EOPI
@@ -3065,11 +3064,13 @@ contains
     real(ESMF_KIND_R8), allocatable :: target_lons(:),target_lats(:)
     real(ESMF_KIND_R8), allocatable :: corner_lons(:,:),corner_lats(:,:),center_lats(:,:),center_lons(:,:)
     type(ESMF_CoordSys_Flag) :: coordSys
+    character(len=ESMF_MAXSTR) :: grid_type
+    type(ESMF_Info) :: infoh
 
     ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
     ! this also means we are running on a distributed grid
     ! if grid not present then the we just be running outside of ESMF and the user must
-    ! pass in the the dimensions of the grid and we must compute them 
+    ! pass in the the dimensions of the grid and we must compute them
     ! and assume search on the global domain
     if (present(Grid)) then
        call MAPL_GridGet(grid, localCellCountPerDim=counts,globalCellCountPerDim=dims,rc=status)
@@ -3091,9 +3092,12 @@ contains
        target_lats = latR8
     end if
 
-    _ASSERT(localSearch,"Global Search for IJ not implemented")   
+    _ASSERT(localSearch,"Global Search for IJ not implemented")
 
-    if (im_world*6==jm_world) then
+!AOO change tusing GridType atribute    if (im_world*6==jm_world) then
+    call ESMF_InfoGetFromHost(grid,infoh,_RC)
+    call ESMF_InfoGet(infoh, key='GridType', value=grid_type, _RC)
+    if(trim(grid_type) == "Cubed-Sphere") then
        call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
             staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lons, rc=status)
        _VERIFY(STATUS)
@@ -3267,7 +3271,7 @@ contains
              pole='PE'
           case (3)
              dateline='DE'
-             pole='PE'             
+             pole='PE'
           end select
        endif
 
@@ -3335,7 +3339,7 @@ contains
     character(len=8) :: imsz
     character(len=8) :: jmsz
 
-    ! Parse name for grid info 
+    ! Parse name for grid info
     !-------------------------
 
     Gridname = AdjustL(name)
@@ -3353,7 +3357,7 @@ contains
        write(name,'(a,i4.4,a,a,i4.4)') dateline,im,'x',pole,jm
     else
        ! Cubed-sphere
-       pole='6C'       
+       pole='6C'
        if (dateline=='CF') then
           write(name,'(a,i4.4,a,a)') dateline,im,'x',pole
        else
@@ -3397,7 +3401,7 @@ contains
        _ASSERT(size(fieldNames) == size(is2D),'inconsistent size of is2D array')
        localIs2D = is2D
     else
-       localIs2D = .false. 
+       localIs2D = .false.
     end if
     allocate(localIsEdge(size(fieldNames)),stat=status)
     _VERIFY(STATUS)
@@ -3405,7 +3409,7 @@ contains
        _ASSERT(size(fieldNames) == size(isEdge), 'inconsistent size of isEdge array')
        localIsEdge = isEdge
     else
-       localIsEdge = .false. 
+       localIsEdge = .false.
     end if
     if (present(long_names)) then
        _ASSERT(size(fieldNames) == size(long_names), 'inconsistent size of long_names array')
@@ -3484,7 +3488,7 @@ contains
           call ESMF_InfoSet(infoh,key='LONG_NAME',value=long_names(i),rc=status)
           _VERIFY(STATUS)
        else
-          call ESMF_InfoSet(infoh,key='LONG_NAME',value="UNKNOWN",rc=status)          
+          call ESMF_InfoSet(infoh,key='LONG_NAME',value="UNKNOWN",rc=status)
           _VERIFY(STATUS)
        end if
        if (present(units)) then
@@ -3757,7 +3761,7 @@ contains
       do i=nn+1,n
          write(splitNameArray(i),'(A,I3.3)') trim(name), i
       end do
-      
+
       _RETURN(ESMF_SUCCESS)
     end subroutine GenAlias
   end subroutine MAPL_FieldSplit
@@ -3766,7 +3770,7 @@ contains
      type(ESMF_GridComp), intent(inout) :: gc
      integer, optional, intent(out) :: rc
      integer :: phase
- 
+
      integer :: status
 
      call ESMF_GridCompGet(gc,currentPhase=phase,rc=status)

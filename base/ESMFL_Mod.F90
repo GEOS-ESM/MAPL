@@ -31,9 +31,6 @@ module ESMFL_MOD
 !ALT These need to be changed!!! values here are just to compile
 !
 
-  !DEFINED PARAMETERS:
-  integer, parameter, public :: ESMFL_UnitsRadians = 99
-
   !PUBLIC MEMBER FUNCTIONS:
   public ESMFL_StateGetField
   public ESMFL_StateGetFieldArray
@@ -1079,14 +1076,14 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call ESMFL_GridCoordGet(   DSTGRID, LATS                   , &
                               Name     = "Latitude"              , &
                               Location = ESMF_CELL_CENTER        , &
-                              Units    = ESMFL_UnitsRadians      , &
+                              Units    = MAPL_UnitsRadians      , &
                               RC       = STATUS                    )
    _VERIFY(STATUS)
 
    call ESMFL_GridCoordGet(   DSTGRID, LONS                   , &
                               Name     = "Longitude"             , &
                               Location = ESMF_CELL_CENTER        , &
-                              Units    = ESMFL_UnitsRadians      , &
+                              Units    = MAPL_UnitsRadians      , &
                               RC       = STATUS                    )
    _VERIFY(STATUS)
 
@@ -2141,7 +2138,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call ESMFL_GridCoordGet(   srcGrid, llats                     , &
                               Name     = "Latitude"              , &
                               Location = ESMF_STAGGERLOC_CENTER  , &
-                              Units    = ESMFL_UnitsRadians      , &
+                              Units    = MAPL_UnitsRadians      , &
                               RC       = STATUS                    )
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
    allocate(gLats(ims_world,jms_world), stat=status)
@@ -2158,7 +2155,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    call ESMFL_GridCoordGet(   srcGrid, llons                     , &
                               Name     = "Longitude"             , &
                               Location = ESMF_STAGGERLOC_CENTER  , &
-                              Units    = ESMFL_UnitsRadians      , &
+                              Units    = MAPL_UnitsRadians      , &
                               RC       = STATUS                    )
    if (status /= ESMF_SUCCESS) call ESMFL_FailedRC(mype,Iam)
    allocate(gLons(ims_world,jms_world), stat=status)

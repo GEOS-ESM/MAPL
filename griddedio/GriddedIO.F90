@@ -1000,7 +1000,7 @@ module MAPL_GriddedIOMod
      type(ESMF_Info) :: infoh
 
      collection => Datacollections%at(this%metadata_collection_id)
-     this%current_file_metadata => collection%find(filename, __RC__)
+     this%current_file_metadata => collection%find(filename, _RC)
      filegrid = collection%src_grid
      factory => get_factory(filegrid)
      hasDE=MAPL_GridHasDE(filegrid,rc=status)
