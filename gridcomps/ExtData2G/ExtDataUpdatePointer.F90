@@ -53,12 +53,12 @@ module MAPL_ExtDataPointerUpdate
          hour=int_time/10000
          minute=mod(int_time/100,100)
          second=mod(int_time,100)
-         call ESMF_TimeGet(time,yy=year,mm=month,dd=day,__RC__)
-         call ESMF_TimeSet(this%reference_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,__RC__)
+         call ESMF_TimeGet(time,yy=year,mm=month,dd=day,_RC)
+         call ESMF_TimeSet(this%reference_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
          this%last_ring = this%reference_time
-         this%update_freq = string_to_esmf_timeinterval(update_freq,__RC__)
+         this%update_freq = string_to_esmf_timeinterval(update_freq,_RC)
       end if
-      this%offset=string_to_esmf_timeinterval(update_offset,__RC__)
+      this%offset=string_to_esmf_timeinterval(update_offset,_RC)
       _RETURN(_SUCCESS)
 
    end subroutine create_from_parameters

@@ -109,7 +109,7 @@ module MAPL_ESMFFieldBundleWrite
 
          call this%cfio%bundlepost(this%file_name,oClients=o_clients,rc=status)
          _VERIFY(status)
-         call o_Clients%done_collective_stage(__RC__)
+         call o_Clients%done_collective_stage(_RC)
          call o_Clients%wait()
          _RETURN(_SUCCESS)
 

@@ -43,7 +43,7 @@ module MAPL_ExtDataMask
       i1 = index(mask_expression,"(")
       _ASSERT(i1 > 0,'Incorrect format for function expression: missing "("')
       function_name = adjustl(mask_expression(:i1-1))
-      function_name = ESMF_UtilStringLowerCase(function_name, __RC__)
+      function_name = ESMF_UtilStringLowerCase(function_name, _RC)
       
       if (index(function_name,"regionmask") /= 0) then 
          new_mask%mask_type = "regionmask"
@@ -80,12 +80,12 @@ module MAPL_ExtDataMask
       i2 = index(this%mask_arguments,";")
       if (twovar) then
          tmpstring1 = this%mask_arguments(1:i1-1)
+         variables_in_mask = parser_variables_in_expression(tmpstring1)
          tmpstring2 = this%mask_arguments(i1+1:i2-1)
-         call variables_in_mask%push_back(trim(tmpstring1))
          call variables_in_mask%push_back(trim(tmpstring2))
       else
        tmpstring1 = this%mask_arguments(1:i1-1)
-         call variables_in_mask%push_back(trim(tmpstring1))
+         variables_in_mask = parser_variables_in_expression(tmpstring1)
       end if
       _RETURN(_SUCCESS)
 
@@ -126,10 +126,11 @@ module MAPL_ExtDataMask
       real, pointer        :: var2d(:,:)   
       real, pointer        :: var3d(:,:,:) 
       integer              :: rank,ib,ie
-      type(ESMF_Field)     :: field
+      type(ESMF_Field)     :: field,temp_field
 
-      call ESMF_StateGet(state,var_name,field,__RC__)
-      call ESMF_FieldGet(field,rank=rank,__RC__)
+      call ESMF_StateGet(state,var_name,field,_RC)
+      call ESMF_FieldGet(field,rank=rank,_RC)
+      temp_field = create_field_from_Field(field,_RC)
 
        ! get mask string
        ib = index(this%mask_arguments,";")
@@ -140,13 +141,16 @@ module MAPL_ExtDataMask
        vartomask = this%mask_arguments(:ib-1)
        maskname = this%mask_arguments(ib+1:ie-1)
 
-       call MAPL_GetPointer(state,rmask,maskName,__RC__)
+       call MAPL_StateEval(state,vartomask,temp_field,_RC)
+       call MAPL_GetPointer(state,rmask,maskName,_RC)
        if (rank == 2) then
-          call MAPL_GetPointer(state,rvar2d,vartomask,__RC__)
-          call MAPL_GetPointer(state,var2d,var_name,__RC__)
+          !call MAPL_GetPointer(state,rvar2d,vartomask,_RC)
+          call ESMF_FieldGet(temp_field,0,farrayptr=rvar2d,_RC)
+          call MAPL_GetPointer(state,var2d,var_name,_RC)
        else if (rank == 3) then
-          call MAPL_GetPointer(state,rvar3d,vartomask,__RC__)
-          call MAPL_GetPointer(state,var3d,var_name,__RC__)
+          !call MAPL_GetPointer(state,rvar3d,vartomask,_RC)
+          call ESMF_FieldGet(temp_field,0,farrayptr=rvar3d,_RC)
+          call MAPL_GetPointer(state,var3d,var_name,_RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
@@ -203,13 +207,14 @@ module MAPL_ExtDataMask
        real, pointer        :: var3d(:,:,:) 
        real(REAL64), pointer :: lats(:,:)    
        real(REAL64)         :: limitS, limitN
-       type(ESMF_Field)     :: field
+       type(ESMF_Field)     :: field,temp_field
        type(ESMF_Grid)      :: grid
        integer              :: rank,ib,is
        type(ESMF_CoordSys_Flag) :: coordSys
 
-       call ESMF_StateGet(state,var_name,field,__RC__)
-       call ESMF_FieldGet(field,rank=rank,grid=grid,__RC__)
+       call ESMF_StateGet(state,var_name,field,_RC)
+       call ESMF_FieldGet(field,rank=rank,grid=grid,_RC)
+      temp_field = create_field_from_Field(field,_RC)
 
        ib = index(this%mask_arguments,",")
        vartomask = this%mask_arguments(:ib-1)
@@ -230,12 +235,15 @@ module MAPL_ExtDataMask
           limitS=limitS*MAPL_PI_R8/180.0d0
        end if
 
+       call MAPL_StateEval(state,vartomask,temp_field,_RC)
        if (rank == 2) then
-          call MAPL_GetPointer(state,rvar2d,vartomask,__RC__)
-          call MAPL_GetPointer(state,var2d,var_name,__RC__)
+          !call MAPL_GetPointer(state,rvar2d,vartomask,_RC)
+          call ESMF_FieldGet(temp_field,0,farrayptr=rvar2d,_RC)
+          call MAPL_GetPointer(state,var2d,var_name,_RC)
        else if (rank == 3) then
-          call MAPL_GetPointer(state,rvar3d,vartomask,__RC__)
-          call MAPL_GetPointer(state,var3d,var_name,__RC__)
+          !call MAPL_GetPointer(state,rvar3d,vartomask,_RC)
+          call ESMF_FieldGet(temp_field,0,farrayptr=rvar3d,_RC)
+          call MAPL_GetPointer(state,var3d,var_name,_RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
@@ -272,7 +280,7 @@ module MAPL_ExtDataMask
        real(REAL64)         :: limitS, limitN, limitE, limitW
        real(REAL64)         :: limitE1, limitW1
        real(REAL64)         :: limitE2, limitW2
-       type(ESMF_Field)     :: field
+       type(ESMF_Field)     :: field,temp_field
        type(ESMF_Grid)      :: grid
        integer              :: rank,is,nargs
        integer              :: counts(3)
@@ -281,9 +289,10 @@ module MAPL_ExtDataMask
        character(len=ESMF_MAXSTR) :: args(5)
        type(ESMF_CoordSys_Flag) :: coordSys
 
-       call ESMF_StateGet(state,var_name,field,__RC__)
-       call ESMF_FieldGet(field,rank=rank,grid=grid,__RC__)
+       call ESMF_StateGet(state,var_name,field,_RC)
+       call ESMF_FieldGet(field,rank=rank,grid=grid,_RC)
        call ESMF_GridGet(grid,coordsys=coordsys,_RC)
+      temp_field = create_field_from_Field(field,_RC)
 
        strtmp = this%mask_arguments
        do nargs=1,5
@@ -378,12 +387,14 @@ module MAPL_ExtDataMask
           limitN=limitN*MAPL_PI_R8/180.0d0
           limitS=limitS*MAPL_PI_R8/180.0d0
        end if
+
+       call MAPL_StateEval(state,varToMask,temp_field,_RC)
        if (rank == 2) then
-          call MAPL_GetPointer(state,rvar2d,vartomask,__RC__)
-          call MAPL_GetPointer(state,var2d,var_name,__RC__)
+          call ESMF_FieldGet(temp_field,0,farrayptr=rvar2d,_RC)
+          call MAPL_GetPointer(state,var2d,var_name,_RC)
        else if (rank == 3) then
-          call MAPL_GetPointer(state,rvar3d,vartomask,__RC__)
-          call MAPL_GetPointer(state,var3d,var_name,__RC__)
+          call ESMF_FieldGet(temp_field,0,farrayptr=rvar3d,_RC)
+          call MAPL_GetPointer(state,var3d,var_name,_RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
@@ -593,5 +604,25 @@ module MAPL_ExtDataMask
  _RETURN(ESMF_SUCCESS)
 
  END SUBROUTINE ExtDataExtractIntegers
+
+ function create_field_from_field(input_field,rc) result(output_field)
+    type(ESMF_Field) :: output_field
+    type(ESMF_Field), intent(in) :: input_field
+    integer, optional, intent(out) :: rc
+
+    integer :: status
+    type(ESMF_Grid) :: grid
+    integer :: rank
+    type(ESMF_TypeKind_Flag) :: typekind
+    integer :: lb(1),ub(1)
+
+    call ESMF_FieldGet(input_field,grid=grid,rank=rank,typekind=typekind,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+    if (rank==2) then
+       output_field = ESMF_FieldCreate(grid,typekind,_RC)
+    else if (rank==3) then
+       output_field = ESMF_FieldCreate(grid,typekind,ungriddedLBound=lb,ungriddedUBound=ub,name="temp_field",_RC)
+    end if
+    _RETURN(_SUCCESS)
+  end function
 
 end module MAPL_ExtDataMask

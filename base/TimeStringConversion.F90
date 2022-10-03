@@ -144,12 +144,12 @@ contains
       if (have_time) then
          time_string = input_string(tpos+1:)
          date_string = input_string(:tpos-1)
-         int_time = string_to_integer_time(time_string,__RC__)
+         int_time = string_to_integer_time(time_string,_RC)
       else
          date_string = trim(input_string) 
          int_time = 0
       end if
-      int_date = string_to_integer_date(date_string,__RC__)
+      int_date = string_to_integer_date(date_string,_RC)
 
       year=int_date/10000
       month=mod(int_date/100,100)
@@ -157,7 +157,7 @@ contains
       hour=int_time/10000
       min=mod(int_time/100,100)
       sec=mod(int_time,100)
-      call ESMF_TimeSet(time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,__RC__)
+      call ESMF_TimeSet(time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,_RC)
       _RETURN(_SUCCESS)
 
    end function string_to_esmf_time
@@ -234,7 +234,7 @@ contains
          end if
       end if
 
-      call ESMF_TimeIntervalSet(time_interval,yy=year,mm=month,d=day,h=hour,m=min,s=sec,__RC__)
+      call ESMF_TimeIntervalSet(time_interval,yy=year,mm=month,d=day,h=hour,m=min,s=sec,_RC)
       _RETURN(_SUCCESS)
 
    end function string_to_esmf_timeinterval

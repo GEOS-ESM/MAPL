@@ -82,24 +82,24 @@ contains
       character(len=32) :: data_label
  
       _UNUSED_DUMMY(unusable)
-      call ESMF_ConfigGetAttribute(config, num_levels,label='NUM_LEVELS:', __RC__ )
+      call ESMF_ConfigGetAttribute(config, num_levels,label='NUM_LEVELS:', _RC )
       call ESMF_ConfigGetAttribute(config, ref_pressure,label='REF_PRESSURE:', &
-                                   default = DEFAULT_REFERENCE_PRESSURE, __RC__ )
+                                   default = DEFAULT_REFERENCE_PRESSURE, _RC )
 
       data_label = "ak-bk:"
 
       allocate(ak(num_levels+1), bk(num_levels+1))
 
-      call ESMF_ConfigFindLabel(config, trim(data_label), __RC__ )
+      call ESMF_ConfigFindLabel(config, trim(data_label), _RC )
 
       ! get ak and bk
       do k = 1, num_levels+1
          call ESMF_ConfigNextLine(config, &
-            __RC__ )
+            _RC )
          call ESMF_ConfigGetAttribute(config, ak(k), &
-            __RC__ )
+            _RC )
          call ESMF_ConfigGetAttribute(config, bk(k), &
-            __RC__ )
+            _RC )
       enddo
 
       grid = EtaHybridVerticalCoordinate(ak, bk, ref_pressure=ref_pressure)
@@ -116,7 +116,7 @@ contains
       integer :: status
 
       _UNUSED_DUMMY(unusable)
-      call ESMF_ConfigLoadFile (config, filename, __RC__) 
+      call ESMF_ConfigLoadFile (config, filename, _RC) 
  
       grid = EtaHybridVerticalCoordinate(config)
 
@@ -202,7 +202,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       vgrid = EtaHybridVerticalCoordinate(filename)
-      call vgrid%get_eta(ptop, pint, ak, bk, __RC__ )
+      call vgrid%get_eta(ptop, pint, ak, bk, _RC )
 
    end subroutine get_eta_onestep_r4
 
@@ -219,7 +219,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
       vgrid = EtaHybridVerticalCoordinate(filename)
-      call vgrid%get_eta(ptop, pint, ak, bk, __RC__ )
+      call vgrid%get_eta(ptop, pint, ak, bk, _RC )
 
    end subroutine get_eta_onestep_r8
 
