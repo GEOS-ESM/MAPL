@@ -19,8 +19,8 @@ module MAPL_OpenMP_Support
     public :: make_subgridcomps
     public :: find_bounds
     public :: subset_array
-    public :: get_current_thread_id
-    public :: set_num_threads
+    public :: get_current_thread
+    public :: get_num_threads
 
     type :: Interval
         integer :: min
@@ -48,15 +48,15 @@ module MAPL_OpenMP_Support
 
     CONTAINS 
 
-    integer function get_current_thread_id() result(current_thread_id)
-        current_thread_id = 0  ! default if OpenMP is not used
-        !$ current_thread_id = omp_get_thread_num() ! get the actual thread id if OpenMP is used
-    end function get_current_thread_id
+    integer function get_current_thread() result(current_thread)
+        current_thread = 0  ! default if OpenMP is not used
+        !$ current_thread = omp_get_thread_num() ! get the actual thread id if OpenMP is used
+    end function get_current_thread
 
-    integer function set_num_threads() result(num_threads)
+    integer function get_num_threads() result(num_threads)
         num_threads = 1  ! default if OpenMP is not used
         !$ num_threads = omp_get_max_threads() ! get the actual number of threads if OpenMP is used
-    end function set_num_threads
+    end function get_num_threads
 
     function make_subgrids_from_num_grids(primary_grid, num_grids, unusable, rc) result(subgrids)
         type(ESMF_Grid), allocatable :: subgrids(:)
@@ -544,6 +544,7 @@ module MAPL_OpenMP_Support
            do i = 1, num_grids
               associate (gc => subgridcomps(i) )
                 if (has_private_state) then
+                   !print *, __FILE__, __LINE__, myPET, ilabel, i, trim(comp_name), trim(labels(ilabel)), has_private_state
                    call ESMF_UserCompSetInternalState(gc, trim(labels(ilabel)), wrap, status)
                    _VERIFY(status)
                 end if
