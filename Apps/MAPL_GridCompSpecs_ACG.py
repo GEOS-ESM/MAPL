@@ -261,7 +261,7 @@ def open_with_header(filename):
     f.write(header())
     return f
 
-
+categories = ("IMPORT","EXPORT","INTERNAL")
 
 #############################################
 # Main program begins here
@@ -288,7 +288,7 @@ parser.add_argument("-g", "--get-pointers", action="store", nargs='?',
                     help="override default output filename for get_pointer() code")
 parser.add_argument("-d", "--declare-pointers", action="store", nargs='?',
                     const="{component}_DeclarePointer___.h", default=None,
-                    help="override default output filename for AddSpec code")
+                    help="override default output filename for pointer declaration code")
 args = parser.parse_args()
 
 
@@ -304,7 +304,7 @@ else:
 
 # open all output files
 f_specs = {}
-for category in ("IMPORT","EXPORT","INTERNAL"):
+for category in categories:
     option = args.__dict__[category.lower()+"_specs"]
     if option:
         fname = option.format(component=component)
@@ -322,15 +322,16 @@ else:
     f_get_pointers = None
 
 # Generate code from specs (processed above)
-for category in ("IMPORT","EXPORT","INTERNAL"):
-    for item in specs[category]:
-        spec = MAPL_DataSpec(category.lower(), item)
-        if f_specs[category]:
-            f_specs[category].write(spec.emit_specs())
-        if f_declare_pointers:
-            f_declare_pointers.write(spec.emit_declare_pointers())
-        if f_get_pointers:
-            f_get_pointers.write(spec.emit_get_pointers())
+for category in categories:
+    if category in specs:
+        for item in specs[category]:
+            spec = MAPL_DataSpec(category.lower(), item)
+            if f_specs[category]:
+                f_specs[category].write(spec.emit_specs())
+            if f_declare_pointers:
+                f_declare_pointers.write(spec.emit_declare_pointers())
+            if f_get_pointers:
+                f_get_pointers.write(spec.emit_get_pointers())
 
 # Close output files
 for category, f in list(f_specs.items()):
