@@ -288,7 +288,7 @@ parser.add_argument("-g", "--get-pointers", action="store", nargs='?',
                     help="override default output filename for get_pointer() code")
 parser.add_argument("-d", "--declare-pointers", action="store", nargs='?',
                     const="{component}_DeclarePointer___.h", default=None,
-                    help="override default output filename for AddSpec code")
+                    help="override default output filename for pointer declaration code")
 args = parser.parse_args()
 
 
