@@ -31,6 +31,7 @@ module pFIO
    use pFIO_DownBitMod
    use pFIO_LocalMemReferenceMod
    use pFIO_FormatterPtrVectorMod
+   use pFIO_StringVectorUtilMod 
 
    integer, save :: debug_unit = 0
 
