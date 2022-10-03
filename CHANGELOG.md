@@ -8,25 +8,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- Removed ESMFL_UnitsRadians from ESMFL_Mod.F90 and replaced it with MAPL_UnitsRadians in InternalConstants.F90. Did a global search/replace. This avoid the circular dependency build error when ESMF_UnitsRadians is used in MaplGrid.F90
 
 ### Added
-- Changes consitent with MAPL for accessor functions to get number of threads and current thread
-- Several changes to support component level hybrid MPI/OpenMP.
-- See files OpenMP_Support.F90, EntryPointVector.F90, RunEntryPoint.F90, MaplGenericComponent.F90, MAPL_Generic.F90, and BaseProfiler.F90. The first three are new and the rest  are modified.
+
 - Implemented create from filemetdata for Tripolar Grid Factory and add corners to output when writing files on Tripolar grid
-
-
-## [hybrid-openmp] - 2022-09-14
-### Fixed
-
-### Added
 
 ### Changed
 
 ### Removed
 
 ### Deprecated
+
+## [2.27.0] - 2022-10-03
+
+### Fixed
+
+- Removed ESMFL_UnitsRadians from ESMFL_Mod.F90 and replaced it with MAPL_UnitsRadians in InternalConstants.F90. Did a global search/replace. This avoid the circular dependency build error when ESMF_UnitsRadians is used in MaplGrid.F90
+
+### Added
+
+- Changes consistent with MAPL for accessor functions to get number of threads and current thread
+- Several changes to support component level hybrid MPI/OpenMP.
+  - See files OpenMP_Support.F90, EntryPointVector.F90, RunEntryPoint.F90, MaplGenericComponent.F90, MAPL_Generic.F90, and BaseProfiler.F90. The first three are new and the rest  are modified.
+- Implement ISO 8601 (Date/Time) support for MAPL
+- Added ability to apply masks to expressions in ExtData2G
+- Added a subroutine that adds all exports from a child
 
 ## [2.26.0] - 2022-09-16
 
