@@ -4853,7 +4853,7 @@ contains
 
       call MAPL_InternalStateRetrieve(gc, meta, _RC)
 
-      AddChildFromDSO = AddChildFromDSOMeta(meta, name, userRoutine, grid=grid, sharedObj=sharedObj, petList=petList, configFile=configFile, _RC)
+      AddChildFromDSO = AddChildFromDSOMeta(meta, name, userRoutine, grid=grid, sharedObj=sharedObj, petList=petList, configFile=configFile, parentGC=gc, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end function AddChildFromDSO
