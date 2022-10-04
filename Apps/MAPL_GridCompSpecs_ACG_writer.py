@@ -4,32 +4,22 @@ import csv
 import argparse
 from functools import reduce
 
-# Characters for parsing and output
-DELIMITER = '|'
-LINE_CHAR = '-'
-CONTINUATION_CHARACTER = '&'
-OUTPUT_COMMENT = '#'
-
-# Keys for parsing
-CATEGORY_KEY = 'CATEGORY'
-
-# Leader for output of category
-CATEGORY_LEADER = 'category: '
-
 # Keys for required fields
 REQ_KEYS = [ 'SHORT_NAME', 'UNITS', 'DIMS', 'VLOCATION' ]
 
-FILE_HEADER = "schema_version: 2.0.0\ncomponent:"
+# Fortran continuation character
+CONTINUATION_CHARACTER = '&'
 
-# Headings for groups of fields
-SPECS_HEADINGS = ["VARIABLE", "DIMENSIONS", "ADDITIONAL METADATA"]
+#==============================================================================#
 
-# Missing header for specs that cannot be processed
-MISSING_HEADER = OUTPUT_COMMENT + " These specs are missing one or more required fields."
+def continued(line):
+    return line.find(CONTINUATION_CHARACTER) >= 0
 
-# Regular expression for parsing the beginning of MAPL_App calls
-# with group names to extract portions of the line
-call_re = re.compile('^call\s+MAPL_Add(?P<category>\w*?)Spec\s*\((?P<remainder>.*)$', re.I)
+#==============================================================================#
+
+def strip_continue(line):
+    """ Strip line continuation. """
+    return strip_char(line, CONTINUATION_CHARACTER)
 
 #==============================================================================#
 
@@ -44,12 +34,6 @@ def strip_char(line, char):
     # If char was found, strip to end; else line
     n = line.find(char)
     return line if n < 0 else line[:n]
-
-#==============================================================================#
-
-def strip_continue(line):
-    """ Strip line continuation. """
-    return strip_char(line, CONTINUATION_CHARACTER)
 
 #==============================================================================#
 
@@ -156,13 +140,31 @@ def write_lines(filename, lines):
 
 #==============================================================================#
 
-def parse_file(filename):
+def parse_component(filename):
+    DOT = '.'
+    if filename:
+        parts = filename.split(DOT)
+        component = parts[0]
+    else:
+        component = None
+#    component = filename.split(DOT)[0] if filename else None
+    return component
+
+#==============================================================================#
+
+def parse_file(args):
     """ Parse input source code file into dict of tuples of strings ."""
+
+    # Regular expression for parsing the beginning of MAPL_App calls
+    # with group names to extract portions of the line
+    call_re = re.compile('^call\s+MAPL_Add(?P<category>\w*?)Spec\s*\((?P<remainder>.*)$', re.I)
+
+    component = args.component if args.component else parse_component(args.input)
 
     # Dictionary of tuples
     records = {}
 
-    with open(filename, 'r') as code:
+    with open(args.input, 'r') as code:
 
         # This is line built by concatenating lines based on continuation.
         joined = ''
@@ -211,7 +213,7 @@ def parse_file(filename):
 
                 # If line DOES NOT have a continuation, add string (record).
                 # No continuation indicates end of (concatenated) line.
-                if line.find(CONTINUATION_CHARACTER) < 0:
+                if not continued(line):
                     joined = strip_parentheses(joined)
                     records = add_to_tuple_dict(joined, records, category)
 
@@ -222,7 +224,7 @@ def parse_file(filename):
             # Read next line from file
             line = code.readline()
 
-    return records
+    return (component, records)
 
 #==============================================================================#
 
@@ -231,6 +233,9 @@ def parse_records(records):
     """ dict's of fields {field name: field value} (specs), """
     """ unique field names by category """
     """ and specs missing required fields (missing) """
+
+    # Keys for parsing
+    CATEGORY_KEY = 'CATEGORY'
 
     # specs keyed by category
     specs = {}
@@ -311,13 +316,29 @@ def parse_records(records):
 
 #==============================================================================#
 
-def make_output(specs, all_keys, missing):
+def make_output(component, specs, all_keys, missing):
     """ Return string of lines from specs (dict's) and missing records (strings) """
+    # Output characters
+    OUTPUT_COMMENT = '#'
+    DELIMITER = '|'
+    LINE_CHAR = '-'
+
+    # Leader for output of category
+    CATEGORY_LEADER = 'category: '
+
+    # Header for file
+    FILE_HEADER = "schema_version: 2.0.0\ncomponent: "
+
+    # Missing header for specs that cannot be processed
+    MISSING_HEADER = OUTPUT_COMMENT + " These specs are missing one or more required fields."
+
+    # Headings for groups of fields
+    SPECS_HEADINGS = ["VARIABLE", "DIMENSIONS", "ADDITIONAL METADATA"]
 
     # These are the lines (strings) for the output.
     lines = []
 
-    lines.append(FILE_HEADER)
+    lines.append(FILE_HEADER + component)
     lines.append('')
 
     # For each category, get keys (field names) for the category.
@@ -383,16 +404,17 @@ description = 'Generate import/export/internal config specs file for MAPL Gridde
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument("input", action='store', help="source Gridded Component filename")
 parser.add_argument("-o", "--output", action='store', help="destination specs filename")
+parser.add_argument("-c", "--component", action='store', default=None, help="component name")
 
 # Parse command line
 args = parser.parse_args()
 
 # Build records from file
-records = parse_file(args.input)
+(component, records) = parse_file(args)
 
 # Process records to specs (dicts) for 1 spec per valid record
 (specs, all_keys, missing) = parse_records(records)
 
 # Print output
-output = make_output(specs, all_keys, missing)
+output = make_output(component, specs, all_keys, missing)
 write_lines(args.output, output)
