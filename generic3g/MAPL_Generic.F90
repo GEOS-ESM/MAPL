@@ -73,6 +73,7 @@ module mapl3g_Generic
 
    interface MAPL_AddImportSpec
       module procedure :: add_import_spec
+!!$      module procedure :: add_import_field_spec
    end interface MAPL_AddImportSpec
 
    interface MAPL_AddExportSpec
@@ -220,6 +221,29 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine add_import_spec
+
+!!$   subroutine add_import_field_spec(gridcomp, short_name, standard_name, typekind, grid, unusable, extra_dims, rc)
+!!$      type(ESMF_GridComp), intent(inout) :: gridcomp
+!!$      character(len=*), intent(in) :: short_name
+!!$      class(AbstractStateItemSpec), intent(in) :: spec
+!!$      class(KeywordEnforcer), optional, intent(in) :: unusable
+!!$      type(ExtraDimsSpec), intent(in) :: extra_dims
+!!$      integer, optional, intent(out) :: rc
+!!$
+!!$      integer :: status
+!!$      type(OuterMetaComponent), pointer :: outer_meta
+!!$
+!!$      field_dictionary => get_field_dictionary()
+!!$      _ASSERT(field_dictionary%count(standard_name) == 1, 'No such standard name: '//standard_name)
+!!$      units = field_dictionary%get_units(standard_name)
+!!$      long_name = field_dictionary%get_long_name(standard_name)
+!!$      
+!!$      call MAPL_add_import_spec(gridcomp, &
+!!$           FieldSpec(extra_dims, typekind, grid, units, long_name), &
+!!$           _RC)
+!!$      
+!!$      _RETURN(ESMF_SUCCESS)
+!!$   end subroutine add_import_field_spec
 
    subroutine add_export_spec(gridcomp, short_name, spec, unusable, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp

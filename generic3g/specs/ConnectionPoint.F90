@@ -76,14 +76,21 @@ contains
    logical function less(lhs, rhs)
       type(ConnectionPoint), intent(in) :: lhs, rhs
 
-      less = (.not. (rhs%relative_pt < lhs%relative_pt))
-      if (.not. less) return
+      logical :: greater
 
-      less = (lhs%component_name <= rhs%component_name)
-      if (.not. less) return
-
-      less = (lhs%state_intent < rhs%state_intent)
+      less = (lhs%component_name < rhs%component_name)
+      if (less) return
+      greater = (rhs%component_name < lhs%component_name)
+      if (greater) return
       
+      ! tie so far
+      less = (lhs%state_intent < rhs%state_intent)
+      if (less) return
+      greater = (rhs%state_intent < lhs%state_intent)
+      if (greater) return
+      
+      less = (lhs%relative_pt < rhs%relative_pt)
+
    end function less
 
    logical function equal_to(lhs, rhs)

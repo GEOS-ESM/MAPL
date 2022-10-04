@@ -1,0 +1,181 @@
+module Test_FieldRegistry
+   use funit
+   use MockItemSpecMod
+   use mapl3g_FieldRegistry
+   use mapl3g_AbstractStateItemSpec
+   use mapl3g_ConnectionPoint
+   use mapl3g_ConnectionSpec
+   implicit none
+
+contains
+
+   @test
+   ! Just a warmup
+   subroutine test_get_item_spec_not_found()
+
+      type(FieldRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+
+      spec => r%get_item_spec(ConnectionPoint('my_gc', 'import', 'a'))
+      @assert_that(associated(spec), is(false()))
+      
+   end subroutine test_get_item_spec_not_found
+   
+
+   @test
+   subroutine test_get_item_spec_found()
+
+      type(FieldRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+      type(ConnectionPoint) :: cp_1
+
+      cp_1 = ConnectionPoint('my_gc', 'import', 'a')
+      call r%add_item_spec(cp_1, MockItemSpec('A'))
+
+      spec => r%get_item_spec(cp_1)
+      @assert_that(associated(spec), is(true()))
+      select type(spec)
+      type is (MockItemSpec)
+         @assertEqual('A', spec%name)
+      class default
+         @assertfail('wrong class')
+      end select
+
+   end subroutine test_get_item_spec_found
+
+   @test
+   subroutine test_get_item_spec_multi()
+      type(FieldRegistry) :: r 
+      type(ConnectionPoint) :: cp_1, cp_2, cp_3
+      integer :: status
+
+      cp_1 = ConnectionPoint('grandchild_A', 'export', 'ae1')
+      cp_2 = ConnectionPoint('child_A', 'export', 'ae2')
+      cp_3 = ConnectionPoint('child_B', 'import', 'ai')
+
+      call r%add_item_spec(cp_1, MockItemSpec('AE1'))
+      call r%add_item_spec(cp_2, MockItemSpec('AE2'))
+      call r%add_item_spec(cp_3, MockItemSpec('AI'))
+
+      if (.not. check(r, cp_1, 'AE1')) return
+      if (.not. check(r, cp_2, 'AE2')) return
+      if (.not. check(r, cp_3, 'AI'))return
+
+   contains
+
+      
+      logical function check(r, conn_pt, expected)
+         type(FieldRegistry), intent(in) :: r 
+         type(ConnectionPoint), intent(in) :: conn_pt
+         character(*), intent(in) :: expected
+
+         class(AbstractStateItemSpec), pointer :: spec
+         check = .false.
+         spec => r%get_item_spec(conn_pt)
+         @assert_that(associated(spec), is(true()))
+         select type(spec)
+         type is (MockItemSpec)
+            @assertEqual(expected, spec%name)
+            check = .true.
+         class default
+            @assert_that(1,is(2))
+         end select
+      end function check
+
+   end subroutine test_get_item_spec_multi
+
+   @test
+   subroutine test_connect()
+      type(FieldRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+      type(ConnectionPoint) :: cp_1, cp_2
+
+      integer :: status
+
+      cp_1 = ConnectionPoint('child_A', 'export', 'ae')
+      cp_2 = ConnectionPoint('child_B', 'import', 'ai')
+
+      call r%add_item_spec(cp_1, MockItemSpec('AE'))
+      call r%add_item_spec(cp_2, MockItemSpec('AI'))
+
+      call r%add_connection(ConnectionSpec(cp_1, cp_2), rc=status)
+      @assert_that(status, is(0))
+
+      spec => r%get_item_spec(cp_2)
+      select type(spec)
+      type is (MockItemSpec)
+         @assertEqual('AE', spec%name)
+      class default
+         @assertfail('wrong class')
+      end select
+
+   end subroutine test_connect
+
+   @test
+   subroutine test_connect_chain()
+      type(FieldRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+      type(ConnectionPoint) :: cp_1, cp_2, cp_3
+
+      integer :: status
+
+      cp_1 = ConnectionPoint('grandchild_A', 'export', 'ae1')
+      cp_2 = ConnectionPoint('child_A', 'export', 'ae2')
+      cp_3 = ConnectionPoint('child_B', 'import', 'ai')
+
+      call r%add_item_spec(cp_1, MockItemSpec('AE1'))
+      call r%add_item_spec(cp_2, MockItemSpec('AE2'))
+      call r%add_item_spec(cp_3, MockItemSpec('AI'))
+
+      ! E-to-E
+      call r%add_connection(ConnectionSpec(cp_1, cp_2), rc=status)
+      @assert_that(status, is(0))
+      ! sibling
+      call r%add_connection(ConnectionSpec(cp_2, cp_3), rc=status)
+      @assert_that(status, is(0))
+
+      spec => r%get_item_spec(cp_3)
+      select type(spec)
+      type is (MockItemSpec)
+         @assertEqual('AE1', spec%name)
+      class default
+         @assertfail('wrong class')
+      end select
+
+   end subroutine test_connect_chain
+
+   @test
+   ! Verify that the order of connections does not matter
+   subroutine test_connect_chain_reverse()
+      type(FieldRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+      type(ConnectionPoint) :: cp_1, cp_2, cp_3
+
+      integer :: status
+
+      cp_1 = ConnectionPoint('grandchild_A', 'export', 'ae1')
+      cp_2 = ConnectionPoint('child_A', 'export', 'ae2')
+      cp_3 = ConnectionPoint('child_B', 'import', 'ai')
+
+      call r%add_item_spec(cp_1, MockItemSpec('AE1'))
+      call r%add_item_spec(cp_2, MockItemSpec('AE2'))
+      call r%add_item_spec(cp_3, MockItemSpec('AI'))
+
+      ! sibling
+      call r%add_connection(ConnectionSpec(cp_2, cp_3), rc=status)
+      @assert_that(status, is(0))
+      ! E-to-E
+      call r%add_connection(ConnectionSpec(cp_1, cp_2), rc=status)
+      @assert_that(status, is(0))
+
+      spec => r%get_item_spec(cp_3)
+      select type(spec)
+      type is (MockItemSpec)
+         @assertEqual('AE1', spec%name)
+      class default
+         @assertfail('wrong class')
+      end select
+
+   end subroutine test_connect_chain_reverse
+
+end module Test_FieldRegistry

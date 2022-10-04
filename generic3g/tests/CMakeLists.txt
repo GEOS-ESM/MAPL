@@ -13,8 +13,9 @@ set (test_srcs
   Test_AddFieldSpec.pf
   Test_ComponentSpecParser.pf
 
+  Test_ConnectionPoint.pf
   Test_FieldDictionary.pf
-
+  Test_FieldRegistry.pf
   Test_GenericInitialize.pf
   )
 
@@ -24,7 +25,7 @@ add_pfunit_ctest(MAPL.generic3g.tests
                 LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit scratchpad
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
-		OTHER_SOURCES MockUserGridComp.F90
+		OTHER_SOURCES MockUserGridComp.F90 MockItemSpec.F90
                 MAX_PES 4
                 )
 set_target_properties(MAPL.generic3g.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})

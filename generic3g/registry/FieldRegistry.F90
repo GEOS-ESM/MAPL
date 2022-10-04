@@ -16,17 +16,18 @@ module mapl3g_FieldRegistry
    type :: FieldRegistry
       private
       type(ConnPtStateItemSpecMap) :: specs_map
-!!$      type(ItemSpecRegistry) :: items_registry
       type(ConnectionSpecVector) :: connections
 
    contains
       procedure :: add_item_spec
       procedure :: get_item_spec
-      procedure :: connect
+      procedure :: has_item_spec
+      procedure :: add_connection
       procedure :: allocate
-
+ 
       ! helper
-      procedure :: update_specs
+      procedure :: update_spec
+      procedure :: propagate_specs
    end type FieldRegistry
 
    
@@ -52,33 +53,65 @@ contains
    end function get_item_spec
 
 
-   subroutine set_active(this, connection_pt)
+   logical function has_item_spec(this, conn_pt)
+      class(FieldRegistry), intent(in) :: this
+      type(ConnectionPoint), intent(in) :: conn_pt
+      has_item_spec = (this%specs_map%count(conn_pt) > 0)
+   end function has_item_spec
+
+   subroutine set_active(this, conn_pt)
       class(FieldRegistry), intent(inout) :: this
-      class(ConnectionPoint), intent(in) :: connection_pt
+      class(ConnectionPoint), intent(in) :: conn_pt
 
       class(AbstractStateItemSpec), pointer :: spec
 
-      spec => this%specs_map%of(connection_pt)
+      spec => this%specs_map%of(conn_pt)
       if (associated(spec)) call spec%set_active()
 
    end subroutine set_active
 
 
-   subroutine connect(this, connection, rc)
+   subroutine add_connection(this, connection, rc)
       class(FieldRegistry), intent(inout) :: this
       type(ConnectionSpec), intent(in) :: connection
       integer, optional, intent(out) :: rc
 
       integer :: status
 
+      _ASSERT(this%has_item_spec(connection%source),'Unknown source point for connection.')
+      _ASSERT(this%has_item_spec(connection%destination),'Unknown destination point for connection.')
+
       call this%connections%push_back(connection)
-      call this%update_specs(connection%source, connection%destination, _RC)
+      associate(src => connection%source, dst => connection%destination)
+        call this%update_spec(src, dst, _RC)
+        call this%propagate_specs(src, dst, _RC)
+      end associate
       
       _RETURN(_SUCCESS)
-   end subroutine connect
+   end subroutine add_connection
 
 
-   subroutine update_specs(this, src_pt, dst_pt, rc)
+   subroutine update_spec(this, src_pt, dst_pt, rc)
+      class(FieldRegistry), intent(inout) :: this
+      type(ConnectionPoint), intent(in) :: src_pt
+      type(ConnectionPoint), intent(in) :: dst_pt
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
+
+      dst_spec => this%specs_map%of(dst_pt)
+      src_spec => this%specs_map%of(src_pt)
+      call dst_spec%connect_to(src_spec, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine update_spec
+
+
+   ! Secondary consequences of a connection
+   ! Any items with new dst as a source should update
+   ! to have new src as their source.
+   subroutine propagate_specs(this, src_pt, dst_pt, rc)
       class(FieldRegistry), intent(inout) :: this
       type(ConnectionPoint), intent(in) :: src_pt
       type(ConnectionPoint), intent(in) :: dst_pt
@@ -91,6 +124,7 @@ contains
       integer :: status
 
       src_spec => this%specs_map%of(src_pt)
+
       associate (e => this%connections%end())
         iter = this%connections%begin()
         do while (iter /= e)
@@ -100,12 +134,12 @@ contains
            if (conn_src == dst_pt) then
               conn_spec => this%specs_map%of(conn_dst)
               call conn_spec%connect_to(src_spec, _RC)
-              call iter%next()
            end if
+           call iter%next()
         end do
       end associate
 
-   end subroutine update_specs
+   end subroutine propagate_specs
 
 
    subroutine allocate(this, rc)
