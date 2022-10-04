@@ -166,9 +166,6 @@ class MAPL_DataSpec:
         return text
 
 
-
-
-
 def read_specs(specs_filename):
     
     def csv_record_reader(csv_reader):
@@ -260,6 +257,7 @@ def open_with_header(filename):
     return f
 
 categories = ("IMPORT","EXPORT","INTERNAL")
+
 
 #############################################
 # Main program begins here
