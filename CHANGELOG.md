@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- Fixed a missing parentGC argument to addChildFromDSO
 
 ### Added
 
@@ -17,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.27.1] - 2022-10-04
+
+### Fixed
+
+- Fixed a missing parentGC argument to addChildFromDSO
 
 ## [2.27.0] - 2022-10-03
 
