@@ -193,9 +193,7 @@ def read_specs(specs_filename):
     # Python is case sensitive, so dict lookups are case sensitive.
     # The column names are Fortran identifiers, which are case insensitive.
     # So all lookups in the dict below should be converted to lowercase.
-    # New aliases should be UPPERCASE.
-
-    # The column aliases (keys of column_aliases dict) must be lowercase.
+    # Aliases must be lowercase.
     column_aliases = {
         'name'       : 'short_name',
         'long name'  : 'long_name',
