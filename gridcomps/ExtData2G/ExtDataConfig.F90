@@ -2,6 +2,7 @@
 module MAPL_ExtDataConfig
    use ESMF
    use yaFyaml
+   use PFIO
    use gFTL_StringVector
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
@@ -35,6 +36,7 @@ module MAPL_ExtDataConfig
          procedure :: count_rules_for_item
          procedure :: get_time_range
          procedure :: get_extra_derived_items
+         procedure :: has_rule_for
    end type
 
 contains
@@ -372,7 +374,9 @@ contains
       type(ExtDataDerived), pointer :: derived_item
       type(StringVector) :: variables_in_expression
       character(len=:), pointer :: sval,derived_name
+      character(len=:), allocatable :: base_name
       type(ExtDataRule), pointer :: rule
+      logical :: in_primary,found_rule
       integer :: i
 
       if (derived_items%size() ==0) then
@@ -390,9 +394,10 @@ contains
          ! wence to coppy them
          do i=1,variables_in_expression%size()
             sval => variables_in_expression%at(i)
-            if (.not.string_in_string_vector(sval,primary_items)) then
-               rule => this%rule_map%at(sval)
-               _ASSERT(associated(rule),"no rule for "//trim(sval)//" needed by "//trim(derived_name))
+            in_primary = string_in_stringVector(sval,primary_items)
+            if (.not.in_primary) then
+               found_rule = this%has_rule_for(sval,_RC)
+               _ASSERT(found_rule,"no rule for "//trim(sval)//" needed by "//trim(derived_name))
                call needed_vars%push_back(sval//","//derived_name)
             end if
          enddo
@@ -402,19 +407,30 @@ contains
       _RETURN(_SUCCESS)
    end function get_extra_derived_items
 
-   function string_in_string_vector(target_string,string_vector) result(in_vector)
-      logical :: in_vector
-      character(len=*), intent(in) :: target_string
-      type(StringVector), intent(in) :: string_vector
+   function has_rule_for(this,base_name,rc) result(found_rule)
+      logical :: found_rule
+      class(ExtDataConfig), intent(inout) :: This
+      character(len=*), intent(in) :: base_name
+      integer, optional, intent(out) :: rc
 
-      type(StringVectorIterator) :: iter
+      type(ExtDataRuleMapIterator) :: iter
+      character(len=:), pointer :: key
+      integer :: rule_sep_loc
 
-      in_vector = .false.
-      iter = string_vector%begin()
-      do while(iter /= string_vector%end())
-         if (trim(target_string) == iter%get()) in_vector = .true.
+      found_rule = .false.
+      iter = this%rule_map%begin()
+      do while(iter /= this%rule_map%end())
+         key => iter%key()
+         rule_sep_loc = index(key,rule_sep)
+         if (rule_sep_loc/=0) then
+            found_rule = (key(:rule_sep_loc-1) == base_name)
+         else
+            found_rule = (key == base_name)
+         end if 
+         if (found_rule) exit
          call iter%next()
       enddo
-   end function string_in_string_vector
+      _RETURN(_SUCCESS)
+   end function
 
 end module MAPL_ExtDataConfig

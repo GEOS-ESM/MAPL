@@ -259,6 +259,7 @@ module MAPL_GenericMod
    interface MAPL_AddExportSpec
       module procedure MAPL_StateAddExportSpec_
       module procedure MAPL_StateAddExportSpecFrmChld
+      module procedure MAPL_StateAddExportSpecFrmChld_all
       module procedure MAPL_StateAddExportSpecFrmAll
    end interface MAPL_AddExportSpec
 
@@ -1849,7 +1850,7 @@ contains
 
    ! !INTERFACE:
    subroutine omp_driver(GC, import, export, clock, RC)
-      use MAPL_OpenMP_Support, only : get_current_thread_id, set_num_threads
+      use MAPL_OpenMP_Support, only : get_current_thread,  get_num_threads
 
       type (ESMF_GridComp), intent(inout) :: GC     ! Gridded component
       type (ESMF_State),    intent(inout) :: import ! Import state
@@ -1865,16 +1866,13 @@ contains
       integer, allocatable :: statuses(:), user_statuses(:)
       integer :: num_threads
       character(len=ESMF_MAXSTR) :: Iam = "Run1"
-      type(ESMF_VM) :: vm
       type(ESMF_GridComp) :: thread_gc
-      integer :: i, me
       integer :: userRC
       character(len=ESMF_MAXSTR) :: comp_name
       integer :: phase
 
 
-      call ESMF_GridCompGet (GC, vm=vm, NAME=comp_name, currentPhase=phase, _RC)
-      call ESMF_VMGet(vm, localPet=me, _RC)
+      call ESMF_GridCompGet (GC, NAME=comp_name, currentPhase=phase, _RC)
 
       call MAPL_GetObjectFromGC (GC, MAPL, _RC)
       if(MAPL%is_threading_active()) then
@@ -1886,7 +1884,7 @@ contains
          _VERIFY(userRC)
       else
          !call start_global_time_profiler('activate_threads')
-         num_threads = set_num_threads()
+         num_threads = get_num_threads()
          call MAPL%activate_threading(num_threads, _RC)
          !call stop_global_time_profiler('activate_threads')
          !call start_global_time_profiler('parallel')
@@ -1899,7 +1897,7 @@ contains
          !$omp& private(thread, subimport, subexport, thread_gc), &
          !$omp& shared(gc, statuses, user_statuses, clock, PHASE, MAPL)
 
-         thread = get_current_thread_id()
+         thread = get_current_thread()
 
          subimport = MAPL%get_import_state()
          subexport = MAPL%get_export_state()
@@ -3394,6 +3392,41 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_StateAddExportSpec_
 
+   !BOPI
+   ! !IIROUTINE: MAPL_StateAddExportSpecFrmChld_all --- Add all \texttt{EXPORT} spec from a child
+
+   ! This is an odd procedure in that it not only adds an export spec, it also adds
+   ! a connectivity. All the names are the same
+   !INTERFACE:
+   subroutine MAPL_StateAddExportSpecFrmChld_All ( GC, CHILD_ID, RC)
+
+      !ARGUMENTS:
+      type(ESMF_GridComp),              intent(INOUT)   :: GC
+      integer                         , intent(IN)      :: CHILD_ID
+      integer            , optional   , intent(OUT)     :: RC
+
+      !EOPI
+      character (len=ESMF_MAXSTR)  :: SHORT_NAME ! NAME in CHILD
+      character (len=ESMF_MAXSTR), parameter :: IAm="MAPL_StateAddExportSpecFrmChld"
+      integer                               :: status
+      type (MAPL_VarSpec),      pointer     :: SPECS(:)
+      integer :: I
+      type(ESMF_GridComp), pointer :: gridcomp
+      type(MAPL_MetaComp), pointer :: maplobj
+
+      call MAPL_InternalStateRetrieve(gc, maplobj, _RC)
+
+      gridcomp => maplobj%GET_CHILD_GRIDCOMP(child_id)
+      call MAPL_GridCompGetVarSpecs(gridcomp, EXPORT=SPECS, _RC)
+       _VERIFY(status)
+
+      do I = 1, size(SPECS)
+         call MAPL_VarSpecGet(SPECS(I), SHORT_NAME=short_name, _RC)
+         call MAPL_StateAddExportSpecFrmChld(gc, short_name, child_id, _RC)
+      enddo
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine MAPL_StateAddExportSpecFrmChld_all
 
    !BOPI
    ! !IIROUTINE: MAPL_StateAddExportSpecFrmChld --- Add \texttt{EXPORT} spec from child
@@ -4200,13 +4233,11 @@ contains
       endif
 
       if(present(LONS    )) then
-         !LONS   =>STATE%GRID%LONS
          temp_grid => STATE%get_grid()
          LONS   => temp_grid%LONS
       endif
 
       if(present(LATS    )) then
-         !LATS   =>STATE%GRID%LATS
          temp_grid => STATE%get_grid()
          LATS   => temp_grid%LATS
       endif
