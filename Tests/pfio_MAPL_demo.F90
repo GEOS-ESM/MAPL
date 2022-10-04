@@ -26,15 +26,15 @@ program main
       implicit none
 
       ! PARAMETERS:
-      real,         PARAMETER ::             pfio_vmin = -MAPL_UNDEF
-      real,         PARAMETER ::             pfio_vmax =  MAPL_UNDEF
-      real,         PARAMETER ::    pfio_missing_value =  MAPL_UNDEF
-      real,         PARAMETER ::       pfio_fill_value =  MAPL_UNDEF
-      real,         DIMENSION(2) ::   pfio_valid_range = (/-MAPL_UNDEF, MAPL_UNDEF/)
-      integer,      parameter ::     MAX_STRING_LENGTH = 256
-      real(kind=8), parameter ::                    PI = 4.0d0*ATAN(1.0d0)
-      integer,      parameter ::      num_time_records = 6
-      integer,      parameter ::              num_dims = 2 ! number of dimension to decompose
+      real,              PARAMETER ::             pfio_vmin = -MAPL_UNDEF
+      real,              PARAMETER ::             pfio_vmax =  MAPL_UNDEF
+      real,              PARAMETER ::    pfio_missing_value =  MAPL_UNDEF
+      real,              PARAMETER ::       pfio_fill_value =  MAPL_UNDEF
+      real,           DIMENSION(2) ::      pfio_valid_range = (/-MAPL_UNDEF, MAPL_UNDEF/)
+      integer,           parameter ::     MAX_STRING_LENGTH = 256
+      real(kind=REAL64), parameter ::                    PI = 4.0d0*ATAN(1.0d0)
+      integer,           parameter ::      num_time_records = 6
+      integer,           parameter ::              num_dims = 2 ! number of dimension to decompose
 
       ! PFIO specific variables
       type(MAPL_FlapCLI)      :: cli
