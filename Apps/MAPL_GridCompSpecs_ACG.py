@@ -4,6 +4,7 @@ import sys
 import os
 import csv
 
+CATEGORIES = ("IMPORT","EXPORT","INTERNAL")
 
 ###############################################################
 class MAPL_DataSpec:
@@ -259,7 +260,6 @@ def open_with_header(filename):
     f.write(header())
     return f
 
-CATEGORIES = ("IMPORT","EXPORT","INTERNAL")
 
 #############################################
 # Main program begins here
