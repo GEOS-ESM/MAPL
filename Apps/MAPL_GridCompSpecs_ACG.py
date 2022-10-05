@@ -4,6 +4,7 @@ import sys
 import os
 import csv
 
+
 CATEGORIES = ("IMPORT","EXPORT","INTERNAL")
 
 ###############################################################
@@ -165,9 +166,6 @@ class MAPL_DataSpec:
         else:
             text = self.newline()
         return text
-
-
-
 
 
 def read_specs(specs_filename):
