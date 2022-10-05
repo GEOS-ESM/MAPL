@@ -62,7 +62,7 @@
 #  ifdef I_AM_MAIN
 #    define __return call MAPL_abort()
 #    define __rc(rc)
-#    define _RETURN(A)  Do NOT use "_RETURN" macro in main program.
+#    define _RETURN(A)  Illegal usage of "_RETURN" macro in main program.
 #  else
 #    define __return return
 #    define __rc(rc) ,rc
