@@ -1254,6 +1254,7 @@ contains
 
 
 
+#undef I_AM_MAIN
    subroutine check_resources(rc)
       use SupportMod
       integer, optional, intent(out) :: rc
