@@ -94,7 +94,9 @@
 #    elif defined(I_AM_PFUNIT)
 #       define _VERIFY(A)     call assert_that(A, is(0), SourceLocation(_FILE_,__LINE__));if(anyExceptions(this%context))return
 #    else
-#       if !defined(I_AM_MAIN)
+#       if defined(I_AM_MAIN)
+#          define _RETURN(A)  Do NOT use "_RETURN" macro in main program.
+#       else
 #          define _RETURN(A)     call MAPL_Return(A,_FILE_,__LINE__ __rc(rc)); __return
 #       endif
 #       define _VERIFY(A)     if(MAPL_Verify(A,_FILE_,__LINE__ __rc(rc))) __return
