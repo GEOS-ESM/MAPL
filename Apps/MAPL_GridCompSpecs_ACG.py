@@ -197,17 +197,14 @@ def read_specs(specs_filename):
         'name'       : 'short_name',
         'long name'  : 'long_name',
         'vloc'       : 'vlocation',
-        'units'      : 'units',
-        'dims'       : 'dims',
         'ungridded'  : 'ungridded_dims',
+        'ungrid'     : 'ungridded_dims',
         'prec'       : 'precision',
         'cond'       : 'condition',
-        'default'    : 'default',
-        'restart'    : 'restart',
-        'friendlyto' : 'friendlyto',
-        'add2export' : 'add2export',
-        'num_subtiles' : 'num_subtiles,',
-        'averaging_interval' : 'averaging_interval'
+        'friend2'    : 'friendlyto',
+        'addexp'     : 'add2export',
+        'numsubs '   : 'num_subtiles,',
+        'avint'      : 'averaging_interval'
     }
 
     specs = {}
