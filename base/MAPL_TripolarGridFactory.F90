@@ -351,25 +351,14 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: ncid,varid,status
-      character(len=:), allocatable :: input_file
-      class(*), pointer :: attr_val
-      type(Attribute), pointer :: attr
 
       this%im_world = file_metadata%get_dimension('Xdim',_RC)
       this%jm_world = file_Metadata%get_dimension('Ydim',_RC)
       if (file_metadata%has_dimension('lev')) then
          this%lm = file_metadata%get_dimension('lev',_RC)
       end if 
-
    
-      attr => file_metadata%get_attribute("original_file",_RC)
-      attr_val => attr%get_value()
-      select type(attr_val)
-      type is(character(*))
-         this%grid_file_name = attr_val
-      class default
-         _FAIL('origin file in metadata must be string')
-      end select 
+      this%grid_file_name=file_metadata%get_source_file()
 
       this%initialized_from_metadata = .true.
       call this%make_arbitrary_decomposition(this%nx, this%ny, rc=status)

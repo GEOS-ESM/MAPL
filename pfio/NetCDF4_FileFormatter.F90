@@ -813,7 +813,7 @@ contains
       call this%inq_attributes(cf, NF90_GLOBAL, rc=status)
       _VERIFY(status)
 
-      if (allocated(this%origin_file)) call cf%add_attribute('original_file', this%origin_file)
+      if (allocated(this%origin_file)) call cf%set_source_file(this%origin_file)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
