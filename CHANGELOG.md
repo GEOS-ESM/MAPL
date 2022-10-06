@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed URLs and emails from MAPL per request of NOAA
+
 ### Removed
 
 ### Deprecated
