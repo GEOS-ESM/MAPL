@@ -512,7 +512,7 @@ contains
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%references, &
                                    label ='REFERENCES:', default='see MAPL documentation', _RC)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%contact, &
-                                   label ='CONTACT:', default='http://gmao.gsfc.nasa.gov', _RC)
+                                   label ='CONTACT:', default='', _RC)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%comment, &
                                    label ='COMMENT:', default='NetCDF-4', _RC)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%conventions, &
