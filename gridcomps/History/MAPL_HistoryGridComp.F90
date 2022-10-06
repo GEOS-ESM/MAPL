@@ -510,7 +510,7 @@ contains
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%institution, &
                                    label ='INSTITUTION:', default='NASA Global Modeling and Assimilation Office', _RC)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%references, &
-                                   label ='REFERENCES:', default='', _RC)
+                                   label ='REFERENCES:', default='see MAPL documentation', _RC)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%contact, &
                                    label ='CONTACT:', default='', _RC)
     call ESMF_ConfigGetAttribute ( config, value=INTSTATE%global_atts%comment, &
