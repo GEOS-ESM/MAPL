@@ -13,7 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Removed URLs and emails from MAPL per request of NOAA
+- Removed URLs and emails from MAPL per request of NOAA.
+  - Changed the default `Contact:` and `Reference:` in History Gridded Component to be blank. To keep metadata the same in History
+    output, please set `CONTACT:` and `REFERENCE:` in your `HISTORY.rc` file.
 
 ### Removed
 
