@@ -9,6 +9,7 @@ module MockItemSpecMod
 
    public :: MockItemSpec
 
+   ! Note - this leaks memory
    type, extends(AbstractStateItemSpec) :: MockItemSpec
       character(len=:), allocatable :: name
    contains
@@ -83,6 +84,9 @@ contains
       class is (MockItemSpec)
          ! ok
          this%name = src_spec%name
+         print*,__FILE__,__LINE__, src_spec%is_active()
+         call this%set_active(src_spec%is_active())
+         print*,__FILE__,__LINE__, this%is_active()
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select

@@ -9,6 +9,27 @@ module Test_FieldRegistry
 
 contains
 
+   ! Helpful function to check expected state of registry.
+   logical function check(r, conn_pt, expected)
+      type(FieldRegistry), intent(in) :: r 
+      type(ConnectionPoint), intent(in) :: conn_pt
+      character(*), intent(in) :: expected
+
+      class(AbstractStateItemSpec), pointer :: spec
+      check = .false.
+      spec => r%get_item_spec(conn_pt)
+      @assert_that(associated(spec), is(true()))
+
+      select type(spec)
+      type is (MockItemSpec)
+         @assertEqual(expected, spec%name)
+         check = .true.
+      class default
+         @assert_that(1,is(2))
+      end select
+   end function check
+
+
    @test
    ! Just a warmup
    subroutine test_get_item_spec_not_found()
@@ -20,6 +41,21 @@ contains
       @assert_that(associated(spec), is(false()))
       
    end subroutine test_get_item_spec_not_found
+   
+   @test
+   subroutine test_add_item_duplicate()
+      type(FieldRegistry) :: r
+      integer :: status
+
+      associate (cp => ConnectionPoint('A','A','A'))
+        call r%add_item_spec(cp, MockItemSpec('A'), rc=status)
+        @assert_that(status, is(0))
+        call r%add_item_spec(cp, MockItemSpec('A'), rc=status)
+        @assertExceptionRaised('Duplicate registry entry.')
+        @assert_that(status, is(not(0)))
+      end associate
+
+   end subroutine test_add_item_duplicate
    
 
    @test
@@ -34,12 +70,7 @@ contains
 
       spec => r%get_item_spec(cp_1)
       @assert_that(associated(spec), is(true()))
-      select type(spec)
-      type is (MockItemSpec)
-         @assertEqual('A', spec%name)
-      class default
-         @assertfail('wrong class')
-      end select
+      if (.not. check(r, cp_1, 'A')) return
 
    end subroutine test_get_item_spec_found
 
@@ -61,28 +92,8 @@ contains
       if (.not. check(r, cp_2, 'AE2')) return
       if (.not. check(r, cp_3, 'AI'))return
 
-   contains
-
-      
-      logical function check(r, conn_pt, expected)
-         type(FieldRegistry), intent(in) :: r 
-         type(ConnectionPoint), intent(in) :: conn_pt
-         character(*), intent(in) :: expected
-
-         class(AbstractStateItemSpec), pointer :: spec
-         check = .false.
-         spec => r%get_item_spec(conn_pt)
-         @assert_that(associated(spec), is(true()))
-         select type(spec)
-         type is (MockItemSpec)
-            @assertEqual(expected, spec%name)
-            check = .true.
-         class default
-            @assert_that(1,is(2))
-         end select
-      end function check
-
    end subroutine test_get_item_spec_multi
+
 
    @test
    subroutine test_connect()
@@ -102,12 +113,7 @@ contains
       @assert_that(status, is(0))
 
       spec => r%get_item_spec(cp_2)
-      select type(spec)
-      type is (MockItemSpec)
-         @assertEqual('AE', spec%name)
-      class default
-         @assertfail('wrong class')
-      end select
+      if (.not. check(r, cp_2, 'AE')) return
 
    end subroutine test_connect
 
@@ -135,14 +141,30 @@ contains
       @assert_that(status, is(0))
 
       spec => r%get_item_spec(cp_3)
-      select type(spec)
-      type is (MockItemSpec)
-         @assertEqual('AE1', spec%name)
-      class default
-         @assertfail('wrong class')
-      end select
+      if (.not. check(r, cp_3, 'AE1')) return
 
    end subroutine test_connect_chain
+
+   !@test
+   subroutine test_add_connection_invalid()
+      type(FieldRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+      integer :: status
+
+        print*,__FILE__,__LINE__
+      associate ( &
+           cp_1 => ConnectionPoint('A', 'export', 'A'), &
+           cp_2 => ConnectionPoint('B', 'import', 'A'))
+
+        print*,__FILE__,__LINE__
+        call r%add_item_spec(cp_1, MockItemSpec('AE1'),rc=status)
+        call r%add_item_spec(cp_2, MockItemSpec('AE1'),rc=status)
+        print*,__FILE__,__LINE__
+        call r%add_connection(ConnectionSpec(cp_1, cp_2), rc=status)
+        @assert_that(status, is(not(0)))
+      end associate
+        
+   end subroutine test_add_connection_invalid
 
    @test
    ! Verify that the order of connections does not matter
@@ -169,13 +191,155 @@ contains
       @assert_that(status, is(0))
 
       spec => r%get_item_spec(cp_3)
-      select type(spec)
-      type is (MockItemSpec)
-         @assertEqual('AE1', spec%name)
-      class default
-         @assertfail('wrong class')
-      end select
+      if (.not. check(r, cp_3, 'AE1')) return
 
    end subroutine test_connect_chain_reverse
+
+
+   @test
+   ! Verify that sibling connections set active status, but not others.
+   subroutine test_sibling_activation()
+      type(FieldRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+
+      associate ( &
+           cp_1 => ConnectionPoint('A', 'export', 'A1'), &
+           cp_2 => ConnectionPoint('P', 'export', 'A2'), &
+           cp_3 => ConnectionPoint('B', 'import', 'A3'), &
+           cp_4 => ConnectionPoint('C', 'import', 'A4'))
+
+        call r%add_item_spec(cp_1, MockItemSpec('A1'))
+        call r%add_item_spec(cp_2, MockItemSpec('A2'))
+        call r%add_item_spec(cp_3, MockItemSpec('A3'))
+        call r%add_item_spec(cp_4, MockItemSpec('A4'))
+
+        !-------------------------------------------
+        !
+        !                    sib*
+        !             cp_2   --->    cp_3
+        !              ^              |
+        !     e2e      |              |     i2i
+        !              |              V
+        !             cp_1           cp_4
+        !
+        !-------------------------------------------
+        associate ( &
+             e2e => ConnectionSpec(cp_1, cp_2), &
+             i2i => ConnectionSpec(cp_3, cp_4), &
+             sib => ConnectionSpec(cp_2, cp_3) )
+
+          spec => r%get_item_spec(cp_1) ! ultimate export
+          @assert_that(spec%is_active(), is(false()))
+
+          call r%add_connection(e2e)
+          @assert_that(spec%is_active(), is(false()))
+          if (.not. check(r, cp_2, 'A1')) return
+
+          call r%add_connection(i2i)
+          @assert_that(spec%is_active(), is(false()))
+          if (.not. check(r, cp_4, 'A3')) return
+
+          print*,__FILE__,__LINE__, '**** SIBLING ****'
+          call r%add_connection(sib)
+          spec => r%get_item_spec(cp_3) ! ultimate export
+          @assert_that(spec%is_active(), is(true()))
+          spec => r%get_item_spec(cp_2) ! ultimate export
+          @assert_that(spec%is_active(), is(true()))
+          spec => r%get_item_spec(cp_4) ! ultimate export
+          @assert_that(spec%is_active(), is(true()))
+          spec => r%get_item_spec(cp_1) ! ultimate export
+          @assert_that(spec%is_active(), is(true()))
+
+        end associate
+      end associate
+   end subroutine test_sibling_activation
+          
+          
+       
+   @test
+   ! Internal state items are always active
+   subroutine test_internal_activation()
+      type(FieldRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+
+      associate ( &
+           cp_1 => ConnectionPoint('A', 'internal', 'A'), &
+           cp_2 => ConnectionPoint('A', 'export', 'A'), &
+           cp_3 => ConnectionPoint('A', 'import', 'A'))
+
+        call r%add_item_spec(cp_1, MockItemSpec('A1'))
+        call r%add_item_spec(cp_2, MockItemSpec('A2'))
+        call r%add_item_spec(cp_3, MockItemSpec('A3'))
+
+        spec => r%get_item_spec(cp_1)
+        @assert_that(spec%is_active(), is(true()))
+        
+        spec => r%get_item_spec(cp_2)
+        @assert_that(spec%is_active(), is(false()))
+        
+        spec => r%get_item_spec(cp_3)
+        @assert_that(spec%is_active(), is(false()))
+        
+      end associate
+      
+   end subroutine test_internal_activation
+          
+   @test
+   ! Terminate import must also set a spec to 'active'.
+   subroutine test_terminate_import()
+      type(FieldRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+
+      associate ( &
+           cp_3 => ConnectionPoint('A', 'import', 'A'))
+
+        call r%add_item_spec(cp_3, MockItemSpec('A3'))
+        call r%terminate_import(cp_3)
+        
+        spec => r%get_item_spec(cp_3)
+        @assert_that(spec%is_active(), is(true()))
+        
+      end associate
+      
+   end subroutine test_terminate_import
+          
+   @test
+   ! Verify that errors are properly trapped
+   subroutine test_terminate_import_not_import()
+      type(FieldRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+
+      integer :: status
+
+      associate ( &
+           cp_3 => ConnectionPoint('A', 'export', 'A'))
+
+        call r%add_item_spec(cp_3, MockItemSpec('A3'))
+        call r%terminate_import(cp_3, rc=status)
+        @assertExceptionRaised('Cannot terminate import on item that is not an import.')
+        @assert_that(status, is(not(0)))
+        
+      end associate
+      
+   end subroutine test_terminate_import_not_import
+
+   @test
+   ! Verify that errors are properly trapped
+   subroutine test_terminate_import_does_not_exist()
+      type(FieldRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+
+      integer :: status
+
+      associate ( &
+           cp_3 => ConnectionPoint('A', 'import', 'A'))
+
+        call r%terminate_import(cp_3, rc=status)
+        @assertExceptionRaised('Cannot terminate import on unregistered item.')
+        @assert_that(status, is(not(0)))
+        
+      end associate
+      
+   end subroutine test_terminate_import_does_not_exist
 
 end module Test_FieldRegistry

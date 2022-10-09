@@ -12,13 +12,9 @@ module mapl3g_ConnectionPoint
       character(:), allocatable :: state_intent
       type(RelativeConnectionPoint) :: relative_pt
    contains
-!!$      procedure :: component
-!!$      procedure :: state_intent
+      procedure :: is_import
+      procedure :: is_internal
       procedure :: short_name
-!!$
-!!$      procedure :: is_simple
-!!$      procedure :: extend
-      
    end type ConnectionPoint
 
    interface operator(<)
@@ -106,6 +102,11 @@ contains
       
    end function equal_to
 
+
+   pure logical function is_import(this)
+      class(ConnectionPoint), intent(in) :: this
+      is_import = (this%state_intent == 'import')
+   end function is_import
 
    pure logical function is_internal(this)
       class(ConnectionPoint), intent(in) :: this
