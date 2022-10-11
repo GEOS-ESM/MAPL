@@ -13,7 +13,7 @@ FROM ${BASE_IMAGE}
 
 ARG maplversion
 
-RUN git clone -b ${maplversion} https://github.com/GEOS-ESM/container-test.git /MAPL-src && \
+RUN git clone -b ${maplversion} https://github.com/GEOS-ESM/MAPL.git /MAPL-src && \
     cd /MAPL-src && \
     mepo init && mepo clone && \
     mkdir build && \
