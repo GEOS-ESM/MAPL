@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `Dockerfile` and GitHub Actions workflow to build and push container to both Docker Hub and GitHub Container Registry on
+  MAPL releases.
+
 ### Changed
 
 - Removed URLs and emails from MAPL per request of NOAA.
