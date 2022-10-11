@@ -30,12 +30,13 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine run_self
 
-   module subroutine initialize_self(this, clock, unusable, rc)
+   module subroutine initialize_self(this, clock, unusable, phase_name, rc)
       use mapl3g_OuterMetaComponent, only: get_outer_meta
       use mapl3g_OuterMetaComponent, only: OuterMetaComponent
       class(ChildComponent), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -45,7 +46,7 @@ contains
 
       call outer_meta%initialize( &
            importState=this%import_state, exportState=this%export_state, &
-           clock=clock, _RC)
+           clock=clock, phase_name=phase_name, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

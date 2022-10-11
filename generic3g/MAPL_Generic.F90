@@ -24,6 +24,7 @@ module mapl3g_Generic
    use :: mapl3g_ESMF_Interfaces, only: I_Run
    use :: mapl3g_AbstractStateItemSpec
    use :: esmf, only: ESMF_GridComp
+   use :: esmf, only: ESMF_Grid
    use :: esmf, only: ESMF_Clock
    use :: esmf, only: ESMF_SUCCESS
    use :: esmf, only: ESMF_Method_Flag
@@ -51,6 +52,8 @@ module mapl3g_Generic
 !!$   public :: MAPL_GetOrbit
 !!$   public :: MAPL_GetCoordinates
 !!$   public :: MAPL_GetLayout
+
+   public :: MAPL_SetGrid
 
 !!$   interface MAPL_GetInternalState
 !!$      module procedure :: get_internal_state
@@ -217,7 +220,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      call outer_meta%add_spec('import', short_name, spec, _RC)
+      call outer_meta%add_state_item_spec('import', short_name, spec, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine add_import_spec
@@ -256,7 +259,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      call outer_meta%add_spec('export', short_name, spec, _RC)
+      call outer_meta%add_state_item_spec('export', short_name, spec, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine add_export_spec
@@ -272,11 +275,25 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      call outer_meta%add_spec('internal', short_name, spec, _RC)
+      call outer_meta%add_state_item_spec('internal', short_name, spec, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine add_internal_spec
 
 
+
+   subroutine MAPL_SetGrid(gridcomp, primary_grid, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_Grid), intent(in) :: primary_grid
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      outer_meta => get_outer_meta(gridcomp, _RC)
+      call outer_meta%set_grid(primary_grid)
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_SetGrid
 
 end module mapl3g_Generic

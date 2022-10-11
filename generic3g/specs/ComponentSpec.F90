@@ -18,10 +18,10 @@ module mapl3g_ComponentSpec
 
    type :: ComponentSpec
 !!$      private
-      type(ConnPtStateItemSpecMap) :: item_specs
+      type(ConnPtStateItemSpecMap) :: state_item_specs
       type(ConnectionSpecVector) :: connections
    contains
-      procedure :: add_item_spec
+      procedure :: add_state_item_spec
       procedure :: add_connection
 
       procedure :: make_primary_states
@@ -35,22 +35,22 @@ module mapl3g_ComponentSpec
 
 contains
 
-   function new_ComponentSpec(item_specs, connections) result(spec)
+   function new_ComponentSpec(state_item_specs, connections) result(spec)
       type(ComponentSpec) :: spec
-      type(ConnPtStateItemSpecMap), optional, intent(in) :: item_specs
+      type(ConnPtStateItemSpecMap), optional, intent(in) :: state_item_specs
       type(ConnectionSpecVector), optional, intent(in) :: connections
 
-      if (present(item_specs)) spec%item_specs = item_specs
+      if (present(state_item_specs)) spec%state_item_specs = state_item_specs
       if (present(connections)) spec%connections = connections
    end function new_ComponentSpec
 
 
-   subroutine add_item_spec(this, conn_pt, spec)
+   subroutine add_state_item_spec(this, conn_pt, spec)
       class(ComponentSpec), intent(inout) :: this
       type(ConnectionPoint), intent(in) :: conn_pt
       class(AbstractStateItemSpec), intent(in) :: spec
-      call this%item_specs%insert(conn_pt, spec)
-   end subroutine add_item_spec
+      call this%state_item_specs%insert(conn_pt, spec)
+   end subroutine add_state_item_spec
 
 
    subroutine add_connection(this, connection)
@@ -69,10 +69,10 @@ contains
       integer :: status
       type(ConnPtStateItemSpecMapIterator) :: iter
 
-      associate (e => this%item_specs%end())
-        iter = this%item_specs%begin()
+      associate (e => this%state_item_specs%end())
+        iter = this%state_item_specs%begin()
         do while (iter /= e)
-           call add_state_item(iter, registry, comp_states, _RC)
+           call add_item_to_state(iter, registry, comp_states, _RC)
            call iter%next()
         end do
       end associate
@@ -80,7 +80,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_primary_states
 
-   subroutine add_state_item(iter, registry, comp_states, rc)
+   subroutine add_item_to_state(iter, registry, comp_states, rc)
       type(ConnPtStateItemSpecMapIterator), intent(in) :: iter
       type(FieldRegistry), intent(in) :: registry
       type(ESMF_State), intent(in) :: comp_states
@@ -99,7 +99,7 @@ contains
       call add_to_state(primary_state, conn_pt%relative_pt, spec, _RC)
       
       _RETURN(_SUCCESS)
-   end subroutine add_state_item
+   end subroutine add_item_to_state
 
 
    subroutine add_to_state(state, relative_pt, spec, rc)

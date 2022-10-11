@@ -160,6 +160,8 @@ contains
       integer, optional, intent(out) ::rc
 
       integer :: status
+      character(:), allocatable :: phase_name_
+
 
       call add_phase(this%phases_map, method_flag=method_flag, phase_name=phase_name, _RC)
 

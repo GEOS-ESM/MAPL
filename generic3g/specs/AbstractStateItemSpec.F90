@@ -20,6 +20,7 @@ module mapl3g_AbstractStateItemSpec
       procedure(I_connect), deferred :: connect_to
       procedure(I_can_connect), deferred :: can_connect_to
       procedure(I_can_connect), deferred :: requires_extension
+      procedure(I_make_extension), deferred :: make_extension
 
       procedure(I_add_to_state), deferred :: add_to_state
 
@@ -56,6 +57,15 @@ module mapl3g_AbstractStateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_make
 
+      function I_make_extension(this, src_spec, rc) result(action_spec)
+         use mapl3g_AbstractActionSpec
+         import AbstractStateItemSpec
+         class(AbstractActionSpec), allocatable :: action_spec
+         class(AbstractStateItemSpec), intent(in) :: this
+         class(AbstractStateItemSpec), intent(in) :: src_spec
+         integer, optional, intent(out) :: rc
+      end function I_make_extension
+         
       subroutine I_add_to_state(this, state, short_name, rc)
          use ESMF, only: ESMF_State
          import AbstractStateItemSpec

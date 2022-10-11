@@ -2,6 +2,7 @@
 
 module mapl3g_FieldSpec
    use mapl3g_AbstractStateItemSpec
+   use mapl3g_AbstractActionSpec
    use mapl3g_ExtraDimsSpec
    use mapl_ErrorHandling
    use esmf
@@ -32,6 +33,7 @@ module mapl3g_FieldSpec
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: requires_extension
+      procedure :: make_extension
       procedure :: add_to_state
    end type FieldSpec
 
@@ -214,5 +216,12 @@ contains
 !!$
 
    end subroutine add_to_state
+
+   function make_extension(this, src_spec, rc) result(action_spec)
+      class(AbstractActionSpec), allocatable :: action_spec
+      class(FieldSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc 
+   end function make_extension
 
 end module mapl3g_FieldSpec

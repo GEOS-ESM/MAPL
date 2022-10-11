@@ -110,7 +110,6 @@ contains
       call this%connections%push_back(connection)
       associate(src_pt => connection%source, dst_pt => connection%destination)
         if (connection%is_sibling()) then
-           print*,__FILE__,__LINE__, src_pt%short_name()
            call this%set_active(src_pt)
         end if
         call this%update_spec(src_pt, dst_pt, _RC)
@@ -135,10 +134,6 @@ contains
       src_wrap => this%specs_map%of(src_pt)
       dst_wrap = src_wrap
       
-!!$      dst_spec => this%get_item_spec(dst_pt)
-!!$      src_spec => this%get_item_spec(src_pt)
-!!$      call dst_spec%connect_to(src_spec, _RC)
-
       _RETURN(_SUCCESS)
    end subroutine update_spec
 

@@ -1,5 +1,14 @@
 #include "MAPL_ErrLog.h"
 
+! Each generic initialize phase can be supplemented by the user
+! gridcomp if necessary.   User phases are MAPL phases appended by
+! "_PRE" or "_POST".
+! 
+! Generic initialize phases:
+!     MAPL_PROPAGATE_GRID
+!     MAPL_ADVERTISE
+!     MAPL_REALIZE
+
 module mapl3g_GenericGridComp
    use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
@@ -11,15 +20,23 @@ module mapl3g_GenericGridComp
    implicit none
    private
 
+   ! Procedures
    public :: setServices
    public :: create_grid_comp
+
+   
+   ! Named constants
+   public :: GENERIC_INIT_ALL
+   public :: GENERIC_INIT_GRID
+   public :: GENERIC_INIT_USER
+   integer, parameter :: GENERIC_INIT_ALL = 3
+   integer, parameter :: GENERIC_INIT_GRID = 2
+   integer, parameter :: GENERIC_INIT_USER = 1 ! should be last
 
 
    interface create_grid_comp
       module procedure create_grid_comp_primary
    end interface create_grid_comp
-
-   public :: initialize
 
 contains
 
@@ -50,7 +67,10 @@ contains
            end do
          end associate
 
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE,   initialize,    _RC)
+         ! Mandatory generic initialize phases
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_GRID, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_USER, _RC)
+
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_FINALIZE,     finalize,      _RC)
 !!$         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_READRESTART,  read_restart,  _RC)
 !!$         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_WRITERESTART, write_restart, _RC)
@@ -105,6 +125,8 @@ contains
    end function make_basic_gridcomp
 
 
+   ! Generic initialize phases are always executed.  User component can specify
+   ! additional pre-action for each phase.
    recursive subroutine initialize(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gridcomp
       type(ESMF_State) :: importState
@@ -113,15 +135,25 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
+      integer :: phase
       type(OuterMetaComponent), pointer :: outer_meta
       
       outer_meta => get_outer_meta(gridcomp, _RC)
-      call outer_meta%initialize(importState, exportState, clock, _RC)
+
+      call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
+      select case (phase)
+      case (GENERIC_INIT_GRID)
+         call outer_meta%initialize_grid(importState, exportState, clock, _RC)
+      case (GENERIC_INIT_USER)
+         call outer_meta%initialize_user(importState, exportState, clock, _RC)
+      case default
+         _FAIL('Unknown generic phase ')
+      end select
 
       _RETURN(ESMF_SUCCESS)
    end subroutine initialize
 
-
+   ! The only run phases are those specified by the user component.
    recursive subroutine run(gridcomp, importState, exportState, clock, rc)
       use gFTL2_StringVector
       type(ESMF_GridComp) :: gridcomp

@@ -5,6 +5,7 @@ module Test_FieldRegistry
    use mapl3g_AbstractStateItemSpec
    use mapl3g_ConnectionPoint
    use mapl3g_ConnectionSpec
+   use mapl3g_AbstractActionSpec
    implicit none
 
 contains
@@ -151,15 +152,12 @@ contains
       class(AbstractStateItemSpec), pointer :: spec
       integer :: status
 
-        print*,__FILE__,__LINE__
       associate ( &
            cp_1 => ConnectionPoint('A', 'export', 'A'), &
            cp_2 => ConnectionPoint('B', 'import', 'A'))
 
-        print*,__FILE__,__LINE__
         call r%add_item_spec(cp_1, MockItemSpec('AE1'),rc=status)
         call r%add_item_spec(cp_2, MockItemSpec('AE1'),rc=status)
-        print*,__FILE__,__LINE__
         call r%add_connection(ConnectionSpec(cp_1, cp_2), rc=status)
         @assert_that(status, is(not(0)))
       end associate
@@ -239,7 +237,6 @@ contains
           @assert_that(spec%is_active(), is(false()))
           if (.not. check(r, cp_4, 'A3')) return
 
-          print*,__FILE__,__LINE__, '**** SIBLING ****'
           call r%add_connection(sib)
           spec => r%get_item_spec(cp_3) ! ultimate export
           @assert_that(spec%is_active(), is(true()))
@@ -327,8 +324,6 @@ contains
    ! Verify that errors are properly trapped
    subroutine test_terminate_import_does_not_exist()
       type(FieldRegistry) :: r
-      class(AbstractStateItemSpec), pointer :: spec
-
       integer :: status
 
       associate ( &
@@ -342,4 +337,39 @@ contains
       
    end subroutine test_terminate_import_does_not_exist
 
+
+   @test
+   ! Verify that an extension is created when an export is
+   ! semi-compatible with an import.
+   subroutine test_create_extension()
+      type(FieldRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
+      class(AbstractActionSpec), allocatable :: action_spec
+      integer :: status
+
+      associate ( &
+           e1 => ConnectionPoint('A', 'export', 'Q'), &
+           i1 => ConnectionPoint('B', 'import', 'Q'))
+        call r%add_item_spec(e1, MockItemSpec('E1','fruit'))
+        call r%add_item_spec(i1, MockItemSpec('I1','animal'))
+        src_spec => r%get_item_spec(e1)
+        dst_spec => r%get_item_spec(i1)
+
+        @assert_that(dst_spec%can_connect_to(src_spec), is(true()))
+        @assert_that(dst_spec%requires_extension(src_spec), is(true()))
+
+        action_spec = src_spec%make_extension(dst_spec)
+        select type (action_spec)
+        type is (MockActionSpec)
+           @assertEqual('fruit ==> animal', action_spec%details)
+        class default
+           @assert_that(1, is(2))
+        end select
+      
+      end associate
+
+   end subroutine test_create_extension
+
+
+   
 end module Test_FieldRegistry

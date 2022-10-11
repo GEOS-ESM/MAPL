@@ -14,6 +14,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ChildComponentMap, only: operator(/=)
    use mapl3g_AbstractStateItemSpec
    use mapl3g_ConnectionPoint
+   use mapl3g_ConnectionSpec
    use mapl3g_ESMF_Interfaces, only: I_Run
    use mapl_ErrorHandling
    use gFTL2_StringVector
@@ -34,6 +35,7 @@ module mapl3g_OuterMetaComponent
       
       type(ESMF_GridComp)                         :: self_gridcomp
       class(AbstractUserSetServices), allocatable :: user_setservices
+      type(ESMF_Grid), allocatable                :: primary_grid
       type(GenericConfig)                         :: config
       type(ChildComponentMap)                     :: children
       logical                                     :: is_root_ = .false.
@@ -61,7 +63,12 @@ module mapl3g_OuterMetaComponent
 
       ! Generic methods
       procedure :: setServices
-      procedure :: initialize
+
+      procedure :: initialize ! main/any phase
+      procedure :: initialize_user
+      procedure :: initialize_grid
+      procedure :: initialize_all
+
       procedure :: run
       procedure :: finalize
       procedure :: read_restart
@@ -79,10 +86,12 @@ module mapl3g_OuterMetaComponent
       generic :: run_children => run_children_
 
       ! Specs
-      procedure :: add_spec
+      procedure :: add_state_item_spec
+      procedure :: add_connection
 
       procedure :: traverse
 
+      procedure :: set_grid
       procedure :: get_name
       procedure :: get_gridcomp
       procedure :: is_root
@@ -312,7 +321,51 @@ contains
    end subroutine set_user_setservices
 
 
-   recursive subroutine initialize(this, importState, exportState, clock, unusable, rc)
+   ! ESMF initialize methods
+
+   ! initialize_grid() is responsible for passing grid down to
+   ! children.  User component can insert a different grid using
+   ! GENERIC_INIT_GRID phase in their component.
+   recursive subroutine initialize_grid(this, importState, exportState, clock, unusable, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      ! optional arguments
+      class(KE), optional, intent(in) :: unusable
+      type(ESMF_State), optional :: importState
+      type(ESMF_State), optional :: exportState
+      type(ESMF_Clock), optional :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status, userRC
+      type(ChildComponent), pointer :: child
+      type(OuterMetaComponent), pointer :: child_meta
+      type(ChildComponentMapIterator) :: iter
+
+      associate (phase => get_phase_index(this%phases_map%of(ESMF_METHOD_INITIALIZE), phase_name='GENERIC_INIT_GRID', rc=status))
+        if (status == _SUCCESS) then
+           call ESMF_GridCompInitialize(this%user_gridcomp, importState=importState, exportState=exportState, &
+                clock=clock, userRC=userRC, phase=phase, _RC)
+           _VERIFY(userRC)
+        end if
+      end associate
+
+      if (allocated(this%primary_grid)) then
+         associate(b => this%children%begin(), e => this%children%end())
+           iter = b
+           do while (iter /= e)
+              child => iter%second()
+              child_meta => get_outer_meta(child%gridcomp)
+              _ASSERT(.not. allocated(child_meta%primary_grid), 'premature definition of grid in gridcomp <'//iter%first()//'>')
+              call child_meta%set_grid(this%primary_grid)
+              call child%initialize(clock, phase_name='GENERIC_INIT_GRID', _RC)
+              call iter%next()
+           end do
+         end associate
+      end if
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine initialize_grid
+
+   recursive subroutine initialize_user(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
@@ -325,22 +378,73 @@ contains
       type(ChildComponent), pointer :: child
       type(ChildComponentMapIterator) :: iter
 
-
-      call ESMF_GridCompInitialize(this%user_gridcomp, importState=importState, exportState=exportState, &
-           clock=clock, userRC=userRC, _RC)
-      _VERIFY(userRC)
-
+      associate (phase => get_phase_index(this%phases_map%of(ESMF_METHOD_INITIALIZE), phase_name='DEFAULT', rc=status))
+        if (status == _SUCCESS) then
+           call ESMF_GridCompInitialize(this%user_gridcomp, importState=importState, exportState=exportState, &
+                clock=clock, userRC=userRC, phase=phase, _RC)
+           _VERIFY(userRC)
+        end if
+      end associate
+      
       associate(b => this%children%begin(), e => this%children%end())
         iter = b
         do while (iter /= e)
            child => iter%second()
-           call child%initialize(clock, _RC)
+           call child%initialize(clock, phase_name='DEFAULT', _RC)
            call iter%next()
         end do
       end associate
 
       _RETURN(ESMF_SUCCESS)
+   end subroutine initialize_user
+
+   recursive subroutine initialize(this, importState, exportState, clock, unusable, phase_name, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      ! optional arguments
+      class(KE), optional, intent(in) :: unusable
+      type(ESMF_State), optional :: importState
+      type(ESMF_State), optional :: exportState
+      type(ESMF_Clock), optional :: clock
+      character(len=*), optional, intent(in) :: phase_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status, userRC
+      type(ChildComponent), pointer :: child
+
+      if (present(phase_name)) then
+         _ASSERT(this%phases_map%count(ESMF_METHOD_RUN) > 0, "No phases registered for ESMF_METHOD_RUN.")
+         select case (phase_name)
+         case ('GENERIC_INIT_GRID')
+            call this%initialize_grid(importState, exportState, clock, _RC)
+         case ('DEFAULT')
+            call this%initialize_user(importState, exportState, clock, _RC)
+         case default
+            _FAIL('unsupported initialize phase: '// phase_name)
+         end select
+      else
+         call this%initialize_user(importState, exportState, clock, _RC)
+      end if
+
+      _RETURN(ESMF_SUCCESS)
    end subroutine initialize
+
+   recursive subroutine initialize_all(this, importState, exportState, clock, unusable, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      ! optional arguments
+      class(KE), optional, intent(in) :: unusable
+      type(ESMF_State), optional :: importState
+      type(ESMF_State), optional :: exportState
+      type(ESMF_Clock), optional :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status, userRC
+      type(ChildComponent), pointer :: child
+
+      call this%initialize_grid(importState, exportState, clock, _RC)
+      call this%initialize_user(importState, exportState, clock, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine initialize_all
 
    recursive subroutine run(this, importState, exportState, clock, unusable, phase_name, rc)
       class(OuterMetaComponent), intent(inout) :: this
@@ -509,7 +613,7 @@ contains
 !!$   end subroutine validate_user_short_name
 
 
-   subroutine add_spec(this, state_intent, short_name, spec, unusable, rc)
+   subroutine add_state_item_spec(this, state_intent, short_name, spec, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
       character(*), intent(in) :: state_intent
       character(*), intent(in) :: short_name
@@ -517,22 +621,44 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      integer :: status
       _ASSERT(count(state_intent == ['import  ' ,'export  ', 'internal']) == 1, 'invalid state intent')
       _ASSERT(is_valid_name(short_name), 'Short name <' // short_name //'> does not conform to GEOS standards.')
 
       associate(comp_name => this%get_name())
       
         associate (conn_pt => ConnectionPoint(comp_name, state_intent, short_name))
-          call this%component_spec%add_item_spec(conn_pt, spec)
+          call this%component_spec%add_state_item_spec(conn_pt, spec)
         end associate
 
       end associate
 
-   end subroutine add_spec
+      _RETURN(_SUCCESS)
+   end subroutine add_state_item_spec
+
+   subroutine add_connection(this, connection, unusable, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      type(ConnectionSpec), intent(in) :: connection
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(is_valid(connection),'unsupported connection type')
+      call this%component_spec%add_connection(connection)
+      _RETURN(_SUCCESS)
+   end subroutine add_connection
 
    pure logical function is_root(this)
       class(OuterMetaComponent), intent(in) :: this
       is_root = this%is_root_
    end function is_root
+
+   pure subroutine set_grid(this, primary_grid)
+      class(OuterMetaComponent), intent(inout) :: this
+      type(ESMF_Grid), intent(in) :: primary_grid
+
+      this%primary_grid = primary_grid
+   end subroutine set_grid
 
 end module mapl3g_OuterMetaComponent
