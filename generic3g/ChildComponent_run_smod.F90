@@ -33,20 +33,31 @@ contains
    module subroutine initialize_self(this, clock, unusable, phase_name, rc)
       use mapl3g_OuterMetaComponent, only: get_outer_meta
       use mapl3g_OuterMetaComponent, only: OuterMetaComponent
+      use mapl3g_GenericGridComp
       class(ChildComponent), intent(inout) :: this
       type(ESMF_Clock), intent(inout) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
-      integer :: status
+      integer :: status, userRC
+      integer :: phase
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta(this%gridcomp, _RC)
 
-      call outer_meta%initialize( &
-           importState=this%import_state, exportState=this%export_state, &
-           clock=clock, phase_name=phase_name, _RC)
+      select case (phase_name)
+      case ('GENERIC_INIT_GRID')
+         phase = GENERIC_INIT_GRID
+      case ('DEFAULT')
+         phase = GENERIC_INIT_USER
+      case default
+         _FAIL('Unsupported initialize phase: <'//phase_name//'>')
+      end select
+      call ESMF_GridCompInitialize(this%gridcomp, &
+           importState=this%import_state, exportState=this%export_state, clock=clock, &
+           phase=phase, userRC=userRC, _RC)
+      _VERIFY(userRC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

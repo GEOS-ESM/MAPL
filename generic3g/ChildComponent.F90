@@ -1,7 +1,5 @@
 module mapl3g_ChildComponent
-   use :: esmf, only: ESMF_GridComp
-   use :: esmf, only: ESMF_State
-   use :: esmf, only: ESMF_Clock
+   use :: esmf
    use yaFyaml, only: YAML_Node
    implicit none
    private
