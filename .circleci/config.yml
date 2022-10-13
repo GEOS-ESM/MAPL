@@ -18,6 +18,7 @@ parameters:
 os_version: &os_version ubuntu20
 baselibs_version: &baselibs_version v7.5.0
 bcs_version: &bcs_version v10.23.0
+tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
   ci: geos-esm/circleci-tools@1
@@ -174,15 +175,33 @@ workflows:
           filters:
             tags:
               only: /^v.*$/
-          name: publish-docker-image
+          name: publish-intel-docker-image
           context:
             - docker-hub-creds
             - ghcr-creds
           os_version: *os_version
           baselibs_version: *baselibs_version
-          container_name: container-test
+          container_name: mapl
           mpi_name: intelmpi
           mpi_version: 2021.6.0
           compiler_name: intel
           compiler_version: 2022.1.0
           image_name: geos-env
+          tag_build_arg_name: *tag_build_arg_name
+      - ci/publish-docker:
+          filters:
+            tags:
+              only: /^v.*$/
+          name: publish-gcc-docker-image
+          context:
+            - docker-hub-creds
+            - ghcr-creds
+          os_version: *os_version
+          baselibs_version: *baselibs_version
+          container_name: mapl
+          mpi_name: openmpi
+          mpi_version: 4.1.4
+          compiler_name: gcc
+          compiler_version: 12.1.0
+          image_name: geos-env-mkl
+          tag_build_arg_name: *tag_build_arg_name
