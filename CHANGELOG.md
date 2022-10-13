@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `Dockerfile` and GitHub Actions workflow to build and push container to both Docker Hub and GitHub Container Registry on
-  MAPL releases.
+- Added `Dockerfile` and CircleCI workflow to build and push container to both Docker Hub and GitHub Container Registry on
+  MAPL releases. Uses a GitHub Action to trigger CircleCI pipeline on releases.
 
 ### Changed
 
