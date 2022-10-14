@@ -82,7 +82,7 @@ module mapl3g_MethodPhasesMapUtils
       module procedure get_phase_index_
    end interface
 
-   character(len=*), parameter :: DEFAULT_PHASE_NAME = "DEFAULT"
+   character(len=*), parameter :: DEFAULT_PHASE_NAME = "GENERIC_INIT_USER"
 contains
 
    subroutine add_phase_(phases_map, method_flag, phase_name, unusable, rc)

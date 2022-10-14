@@ -21,6 +21,7 @@ module mapl3g_ChildComponent
       generic :: run => run_self
       generic :: initialize => initialize_self
       generic :: finalize => finalize_self
+
    end type ChildComponent
 
    interface ChildComponent

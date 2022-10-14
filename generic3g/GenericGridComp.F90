@@ -26,12 +26,18 @@ module mapl3g_GenericGridComp
 
    
    ! Named constants
-   public :: GENERIC_INIT_ALL
    public :: GENERIC_INIT_GRID
+   public :: GENERIC_INIT_ADVERTISE
+   public :: GENERIC_INIT_REALIZE
    public :: GENERIC_INIT_USER
-   integer, parameter :: GENERIC_INIT_ALL = 3
-   integer, parameter :: GENERIC_INIT_GRID = 2
-   integer, parameter :: GENERIC_INIT_USER = 1 ! should be last
+
+   enum, bind(c)
+      !!!! IMPORTANT: USER phase must be "1" !!!!
+      enumerator :: GENERIC_INIT_USER = 1
+      enumerator :: GENERIC_INIT_GRID
+      enumerator :: GENERIC_INIT_ADVERTISE
+      enumerator :: GENERIC_INIT_REALIZE
+   end enum
 
 
    interface create_grid_comp
@@ -69,6 +75,9 @@ contains
 
          ! Mandatory generic initialize phases
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_GRID, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ADVERTISE, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE, _RC)
+!!$         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_RESTORE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_USER, _RC)
 
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_FINALIZE,     finalize,      _RC)
@@ -144,6 +153,12 @@ contains
       select case (phase)
       case (GENERIC_INIT_GRID)
          call outer_meta%initialize_grid(importState, exportState, clock, _RC)
+      case (GENERIC_INIT_ADVERTISE)
+         call outer_meta%initialize_advertise(importState, exportState, clock, _RC)
+      case (GENERIC_INIT_REALIZE)
+         call outer_meta%initialize_realize(importState, exportState, clock, _RC)
+!!$      case (GENERIC_INIT_RESTORE)
+!!$         call outer_meta%initialize_realize(importState, exportState, clock, _RC)
       case (GENERIC_INIT_USER)
          call outer_meta%initialize_user(importState, exportState, clock, _RC)
       case default

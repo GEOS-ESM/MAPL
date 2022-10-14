@@ -67,7 +67,8 @@ module mapl3g_OuterMetaComponent
       procedure :: initialize ! main/any phase
       procedure :: initialize_user
       procedure :: initialize_grid
-      procedure :: initialize_all
+      procedure :: initialize_advertise
+      procedure :: initialize_realize
 
       procedure :: run
       procedure :: finalize
@@ -143,6 +144,16 @@ module mapl3g_OuterMetaComponent
    end interface OuterMetaComponent
 
 
+   abstract interface
+      subroutine I_child_op(this, child, rc)
+         use mapl3g_ChildComponent
+         import OuterMetaComponent
+         class(OuterMetaComponent), intent(inout) :: this
+         type(ChildComponent), intent(inout) :: child
+         integer, optional, intent(out) :: rc
+      end subroutine I_child_Op
+   end interface
+
 contains
 
 
@@ -210,7 +221,7 @@ contains
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
+      integer :: status
       type(ChildComponent), pointer :: child
       type(ChildComponentMapIterator) :: iter
 
@@ -335,35 +346,119 @@ contains
       type(ESMF_Clock), optional :: clock
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
-      type(ChildComponent), pointer :: child
-      type(OuterMetaComponent), pointer :: child_meta
-      type(ChildComponentMapIterator) :: iter
+      integer :: status
+      character(*), parameter :: PHASE_NAME = 'GENERIC_INIT_GRID'
 
-      associate (phase => get_phase_index(this%phases_map%of(ESMF_METHOD_INITIALIZE), phase_name='GENERIC_INIT_GRID', rc=status))
+      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
+      call apply_to_children(this, set_child_grid, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   contains
+
+      subroutine set_child_grid(this, child, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         type(ChildComponent), intent(inout) ::  child
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         class(OuterMetaComponent), pointer :: child_meta
+         
+         if (allocated(this%primary_grid)) then
+            child_meta => get_outer_meta(child%gridcomp, _RC)
+            call child_meta%set_grid(this%primary_grid)
+         end if
+         call child%initialize(clock, phase_name=PHASE_NAME, _RC)
+         
+         _RETURN(ESMF_SUCCESS)
+      end subroutine set_child_grid
+
+   end subroutine initialize_grid
+
+   recursive subroutine initialize_advertise(this, importState, exportState, clock, unusable, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      ! optional arguments
+      class(KE), optional, intent(in) :: unusable
+      type(ESMF_State), optional :: importState
+      type(ESMF_State), optional :: exportState
+      type(ESMF_Clock), optional :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(*), parameter :: PHASE_NAME = 'GENERIC_INIT_ADVERTISE'
+
+!!$      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
+!!$      call apply_to_children(this, set_child_grid, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   contains
+
+   end subroutine initialize_advertise
+
+   recursive subroutine initialize_realize(this, importState, exportState, clock, unusable, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      ! optional arguments
+      class(KE), optional, intent(in) :: unusable
+      type(ESMF_State), optional :: importState
+      type(ESMF_State), optional :: exportState
+      type(ESMF_Clock), optional :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(*), parameter :: PHASE_NAME = 'GENERIC_INIT_ADVERTISE'
+
+!!$      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
+!!$      call apply_to_children(this, set_child_grid, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   contains
+
+   end subroutine initialize_realize
+
+   subroutine run_user_phase(this, importState, exportState, clock, phase_name, unusable, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      type(ESMF_State), intent(inout) :: importState
+      type(ESMF_State), intent(inout) :: exportState
+      type(ESMF_Clock), intent(inout) :: clock
+      character(*), intent(in) :: phase_name
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status, userRC
+      type(StringVector), pointer :: init_phases
+
+      init_phases => this%phases_map%at(ESMF_METHOD_INITIALIZE, _RC)
+      ! User gridcomp may not have any given phase; not an error condition if not found.
+      associate (phase => get_phase_index(init_phases, phase_name=phase_name, rc=status))
         if (status == _SUCCESS) then
-           call ESMF_GridCompInitialize(this%user_gridcomp, importState=importState, exportState=exportState, &
+           call ESMF_GridCompInitialize(this%user_gridcomp, &
+                importState=importState, exportState=exportState, &
                 clock=clock, phase=phase, userRC=userRC, _RC)
            _VERIFY(userRC)
         end if
       end associate
-
-      if (allocated(this%primary_grid)) then
-         associate(b => this%children%begin(), e => this%children%end())
-           iter = b
-           do while (iter /= e)
-              child => iter%second()
-              child_meta => get_outer_meta(child%gridcomp)
-              _ASSERT(.not. allocated(child_meta%primary_grid), 'premature definition of grid in gridcomp <'//iter%first()//'>')
-              call child_meta%set_grid(this%primary_grid)
-              call child%initialize(clock, phase_name='GENERIC_INIT_GRID', _RC)
-              call iter%next()
-           end do
-         end associate
-      end if
-
       _RETURN(ESMF_SUCCESS)
-   end subroutine initialize_grid
+   end subroutine run_user_phase
+
+   subroutine apply_to_children(this, f, rc)
+      class(OuterMetaComponent), intent(inout) :: this
+      procedure(I_child_op) :: f
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ChildComponentMapIterator) :: iter
+      type(ChildComponent), pointer :: child
+
+      associate(b => this%children%begin(), e => this%children%end())
+        iter = b
+        do while (iter /= e)
+           child => iter%second()
+           call f(this, child, _RC)
+           !per_child_pre
+           call iter%next()
+        end do
+      end associate
+
+   end subroutine apply_to_children
 
    recursive subroutine initialize_user(this, importState, exportState, clock, unusable, rc)
       class(OuterMetaComponent), intent(inout) :: this
@@ -378,24 +473,24 @@ contains
       type(ChildComponent), pointer :: child
       type(ChildComponentMapIterator) :: iter
 
-      associate (phase => get_phase_index(this%phases_map%of(ESMF_METHOD_INITIALIZE), phase_name='DEFAULT', rc=status))
-        if (status == _SUCCESS) then
-           call ESMF_GridCompInitialize(this%user_gridcomp, importState=importState, exportState=exportState, &
-                clock=clock, userRC=userRC, phase=phase, _RC)
-           _VERIFY(userRC)
-        end if
-      end associate
-      
-      associate(b => this%children%begin(), e => this%children%end())
-        iter = b
-        do while (iter /= e)
-           child => iter%second()
-           call child%initialize(clock, phase_name='DEFAULT', _RC)
-           call iter%next()
-        end do
-      end associate
+      character(*), parameter :: PHASE_NAME = 'GENERIC_INIT_USER'
+
+      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
+      call apply_to_children(this, init_child, _RC)
 
       _RETURN(ESMF_SUCCESS)
+   contains
+
+      subroutine init_child(this, child, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         type(ChildComponent), intent(inout) ::  child
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         call child%initialize(clock, phase_name=PHASE_NAME, _RC)
+         _RETURN(ESMF_SUCCESS)
+      end subroutine init_child
+
    end subroutine initialize_user
 
    recursive subroutine initialize(this, importState, exportState, clock, unusable, phase_name, rc)
@@ -409,8 +504,18 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
+      integer :: phase
       type(ChildComponent), pointer :: child
 
+      
+      associate (phase => get_phase_index(this%phases_map%of(ESMF_METHOD_INITIALIZE), phase_name=phase_name, rc=status))
+        if (status == _SUCCESS) then
+           call ESMF_GridCompInitialize(this%user_gridcomp, importState=importState, exportState=exportState, &
+                clock=clock, userRC=userRC, phase=phase, _RC)
+           _VERIFY(userRC)
+        end if
+      end associate
+      
       if (present(phase_name)) then
          _ASSERT(this%phases_map%count(ESMF_METHOD_RUN) > 0, "No phases registered for ESMF_METHOD_RUN.")
          select case (phase_name)
@@ -428,23 +533,6 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine initialize
 
-   recursive subroutine initialize_all(this, importState, exportState, clock, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
-      ! optional arguments
-      class(KE), optional, intent(in) :: unusable
-      type(ESMF_State), optional :: importState
-      type(ESMF_State), optional :: exportState
-      type(ESMF_Clock), optional :: clock
-      integer, optional, intent(out) :: rc
-
-      integer :: status, userRC
-      type(ChildComponent), pointer :: child
-
-      call this%initialize_grid(importState, exportState, clock, _RC)
-      call this%initialize_user(importState, exportState, clock, _RC)
-
-      _RETURN(ESMF_SUCCESS)
-   end subroutine initialize_all
 
    recursive subroutine run(this, importState, exportState, clock, unusable, phase_name, rc)
       class(OuterMetaComponent), intent(inout) :: this
@@ -551,6 +639,7 @@ contains
 
 
 
+
    recursive subroutine traverse(this, unusable, pre, post, rc)
       class(OuterMetaComponent), intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
@@ -570,7 +659,6 @@ contains
       type(ChildComponentMapIterator) :: iter
       type(ChildComponent), pointer :: child
       class(OuterMetaComponent), pointer :: child_meta
-
 
       if (present(pre)) then
          call pre(this, _RC)
