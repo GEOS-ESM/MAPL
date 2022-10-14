@@ -457,8 +457,10 @@ contains
          attr => file_metadata%get_attribute('grid_type')
          attr_value => attr%get_value()
          select type (attr_value)
-         type is (StringWrap)
-            grid_type => attr_value%value
+         type is (character(*))
+            grid_type => attr_value
+         class default
+            _FAIL("grid_type attribute must be stringwrap") 
          end select
          allocate(factory,source=this%make_clone(grid_type))
       else if (hasXdim) then
