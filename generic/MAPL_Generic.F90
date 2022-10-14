@@ -8418,7 +8418,7 @@ contains
          _FAIL( "Unupported type")
       end select
 
-      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC)
+      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 1, _RC)
 
       ! Can set printrc to negative to not print at all
       if (MAPL_AM_I_Root() .and. printrc >= 0) then
@@ -8564,7 +8564,7 @@ contains
       end select
 
       ! Need a printer for arrays
-      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 0, _RC)
+      call ESMF_ConfigGetAttribute(config, printrc, label = 'PRINTRC:', default = 1, _RC)
 
       ! Can set printrc to negative to not print at all
       if (MAPL_AM_I_Root() .and. printrc >= 0) then
@@ -8647,17 +8647,22 @@ contains
          _FAIL("Unsupported type")
       end select
 
-      output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)"
-
-      ! printrc = 0 - Only print non-default values
-      ! printrc = 1 - Print all values
-      if (present(default)) then
-         if (trim(val_str) /= trim(default_str) .or. printrc == 1) then
-            print output_format, trim(label), trim(val_str)
-         end if
+      if(allocated(default_str)) then
+         output_parameter(printrc, type_str, val_str, default_str)
       else
-         print output_format, trim(label), trim(val_str)
+         output_parameter(printrc, type_str, val_str)
       end if
+!      output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)"
+!
+!      ! printrc = 0 - Only print non-default values
+!      ! printrc = 1 - Print all values
+!      if (present(default)) then
+!         if (trim(val_str) /= trim(default_str) .or. printrc == 1) then
+!            print output_format, trim(label), trim(val_str)
+!         end if
+!      else
+!         print output_format, trim(label), trim(val_str)
+!      end if
 
    contains
 
@@ -8716,10 +8721,13 @@ contains
       class(*), optional, intent(in) :: default(:)
       integer, optional, intent(out) :: rc
 
-      character(len=:), allocatable :: val_str, default_str, output_format, type_str, type_format
+      character(len=:), allocatable :: val_str, default_str, output_format
+      character(len=:), allocatable :: type_str, type_format
       type(StringVector), pointer, save :: already_printed_labels => null()
       integer :: i
       character(len=2) :: size_vals_str
+      logical :: value_equals_default
+      character(len=:), allocatable :: default_tag
 
       if (.not. associated(already_printed_labels)) then
          allocate(already_printed_labels)
@@ -8784,16 +8792,10 @@ contains
          _FAIL("Unsupported type")
       end select
 
-      output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a"// ", a)"
-
-      ! printrc = 0 - Only print non-default values
-      ! printrc = 1 - Print all values
-      if (present(default)) then
-         if (trim(val_str) /= trim(default_str) .or. printrc == 1) then
-            print output_format, trim(label), trim(val_str)
-         end if
+      if(allocated(default_str)) then
+         output_parameter(printrc, type_str, val_str, default_str)
       else
-         print output_format, trim(label), trim(val_str)
+         output_parameter(printrc, type_str, val_str)
       end if
 
    contains
@@ -8849,6 +8851,32 @@ contains
       end function intrinsic_to_string
    end subroutine print_resource_array
 
+   subroutine output_parameter(printrc, type_str, val_str, default_str)
+      character(len=*), intent(in) :: type_str
+      character(len=*), intent(in) :: val_str
+      character(len=*), intent(in), optional :: default_str
+      integer, intent(in) :: printrc
+      character(len=:), allocatable :: output_format
+      character(len=*), parameter :: DEFAULT_ = ", (default value)"
+      character(len=*), parameter :: NOT_DEFAULT = ''
+      character(len=*), parameter :: NO_DEFAULT = ''
+
+      output_format = "(1x, " // type_str // ", 'Resource Parameter: '" // ", a" // ", a" // "a)"
+
+      ! printrc = 0 - Only print non-default values
+      ! printrc = 1 - Print all values with label if default value
+      if (present(default_str)) then
+         if trim(val_str) == trim(default_str) then
+            if printrc == 1 then
+               print output_format, trim(label), trim(val_str), trim(DEFAULT_)
+            end if
+         else
+            print output_format, trim(label), trim(val_str), trim(NOT_DEFAULT)
+         end if 
+      else
+         print output_format, trim(label), trim(val_str), trim(NO_DEFAULT)
+      end if
+   end subroutine output_parameter
 
 
 
