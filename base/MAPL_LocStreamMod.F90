@@ -1039,14 +1039,14 @@ contains
           call ESMFL_GridCoordGet(GRID, LATS       , &
                Name     = "Latitude"              , &
                Location = ESMF_STAGGERLOC_CENTER  , &
-               Units    = ESMFL_UnitsRadians      , &
+               Units    = MAPL_UnitsRadians      , &
                RC       = STATUS                    )
           _VERIFY(STATUS)
 
           call ESMFL_GridCoordGet(GRID, LONS       , &
                Name     = "Longitude"             , &
                Location = ESMF_STAGGERLOC_CENTER  , &
-               Units    = ESMFL_UnitsRadians      , &
+               Units    = MAPL_UnitsRadians      , &
                RC       = STATUS                    )
           _VERIFY(STATUS)
           isc = lbound(LATS,1)

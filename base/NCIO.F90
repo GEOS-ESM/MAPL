@@ -3882,7 +3882,7 @@ module NCIOMod
     enddo
 
     if (arrdes%write_restart_by_oserver) then
-       call oClients%done_collective_stage(__RC__)
+       call oClients%done_collective_stage(_RC)
        call oClients%post_wait()
        call MPI_Info_free(info, status)
        _VERIFY(STATUS)
