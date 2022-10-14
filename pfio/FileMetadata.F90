@@ -29,6 +29,7 @@ module pFIO_FileMetadataMod
       type (Variable) :: global_var
       type (StringVariableMap) :: variables
       type (StringVector) :: order
+      character(len=:), allocatable :: source_file
    contains
 
       procedure :: get_dimensions
@@ -61,6 +62,8 @@ module pFIO_FileMetadataMod
 
       procedure :: serialize
       procedure :: is_coordinate_variable
+      procedure :: get_source_file
+      procedure :: set_source_file
 
    end type FileMetadata
 
@@ -627,5 +630,26 @@ contains
          _RETURN(_SUCCESS)
       end subroutine deserialize
    end subroutine FileMetadata_deserialize
+
+   subroutine set_source_file(this,source_file,rc)
+      class (FileMetadata), intent(inout) :: this
+      character(len=*), intent(in) :: source_file
+      integer, optional, intent(out) :: rc
+
+      this%source_file=source_file
+      _RETURN(_SUCCESS)
+   end subroutine
+
+   function get_source_file(this,rc) result(source_file)
+      character(len=:), allocatable :: source_file
+      class (FileMetadata), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      if (.not.allocated(this%source_file)) then
+         _FAIL("FileMetadata not created via a file, no source_file present")
+      end if
+      source_file=this%source_file
+      _RETURN(_SUCCESS)
+   end function
 
 end module pFIO_FileMetadataMod
