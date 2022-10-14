@@ -3,7 +3,9 @@ import argparse
 import sys
 import os
 import csv
+import warnings
 
+SUCCESS = 0
 
 CATEGORIES = ("IMPORT","EXPORT","INTERNAL")
 
@@ -51,6 +53,9 @@ class MAPL_DataSpec:
     # The following arguments must be placed within array brackets.
     arraylike_options = ['ungridded_dims']
 
+    ALLOC = 'alloc'
+    DELIMITER = ', '
+    TERMINATOR = '_RC)'
 
     def __init__(self, category, args, indent=3):
         self.category = category
@@ -107,12 +112,25 @@ class MAPL_DataSpec:
         return text
 
     def emit_get_pointers(self):
-        text = self.emit_header()
-        short_name = MAPL_DataSpec.internal_name(self.args['short_name'])
-        mangled_name = MAPL_DataSpec.mangled_name(self.args['short_name'])
-        text = text + "call MAPL_GetPointer(" + self.category + ', ' + short_name + ", " + mangled_name + ", _RC)"
-        text = text + self.emit_trailer(nullify=True)
-        return text
+        """ Generate MAPL_GetPointer calls for the MAPL_DataSpec (self) """
+        """ Creates string by joining list of generated and literal strings """
+        """ including if block (emit_header) and 'alloc = value' (emit_pointer_alloc """
+        return MAPL_DataSpec.DELIMITER.join(
+            [   self.emit_header() + "call MAPL_GetPointer(" + self.category,
+                MAPL_DataSpec.internal_name(self.args['short_name']),
+                MAPL_DataSpec.mangled_name(self.args['short_name']) ] + 
+            self.emit_pointer_alloc() +
+            [   MAPL_DataSpec.TERMINATOR + self.emit_trailer(nullify=True) ] )
+
+    def emit_pointer_alloc(self):
+        EMPTY_LIST = []
+        key = MAPL_DataSpec.ALLOC
+        if key in self.args:
+            value = self.args[key].strip().lower()
+            listout = [ key + '=' + get_fortran_logical(value) ] if len(value) > 0 else EMPTY_LIST
+        else:
+            listout = EMPTY_LIST
+        return listout
 
     def emit_header(self):
         text = self.newline()
@@ -126,7 +144,7 @@ class MAPL_DataSpec:
         text = "call MAPL_Add" + self.category.capitalize() + "Spec(gc," + self.continue_line()
         for option in MAPL_DataSpec.all_options:
             text = text + self.emit_arg(option)
-        text = text + '_RC)' + self.newline()
+        text = text + MAPL_DataSpec.TERMINATOR + self.newline()
         self.indent = self.indent - 5
         return text
 
@@ -151,7 +169,7 @@ class MAPL_DataSpec:
                     value = MAPL_DataSpec.entry_aliases[option][self.args[option]]
                 else:
                     value = self.args[option]
-            text = text + value + ", " + self.continue_line()
+            text = text + value + MAPL_DataSpec.DELIMITER + self.continue_line()
         return text
 
     def emit_trailer(self, nullify=False):
@@ -232,6 +250,23 @@ def getifin(dictionary, key):
     """ Return dictionary[key.lower()] if key.lower() in dictionary else key """ 
     return dictionary[key.lower()] if key.lower() in dictionary else key.lower()
 
+def get_fortran_logical(value_in):
+    """ Return string representing Fortran logical from an input string """
+    """ representing a logical value into """
+    TRUE_VALUE = '.true.'
+    FALSE_VALUE = '.false.'
+    TRUE_VALUES = {TRUE_VALUE, 't', 'true', '.t.', 'yes', 'y', 'si', 'oui', 'sim'}
+    FALSE_VALUES = {FALSE_VALUE, 'f', 'false', '.f.', 'no', 'n', 'no', 'non', 'nao'}
+    if value_in is None:
+        sys.exit("'None' is not valid for get_fortran_logical.")
+    if value_in.strip().lower() in TRUE_VALUES:
+        val_out = TRUE_VALUE
+    elif value_in.strip().lower() in FALSE_VALUES:
+        val_out = FALSE_VALUE
+    else:
+        sys.exit("Unrecognized logical: " + value_in)        
+    return val_out
+
 def header():
     """
     Returns a standard warning that can be placed at the top of each
@@ -254,8 +289,6 @@ def open_with_header(filename):
     f = open(filename,'w')
     f.write(header())
     return f
-
-
 
 #############################################
 # Main program begins here
@@ -335,3 +368,5 @@ if f_declare_pointers:
     f_declare_pointers.close()
 if f_get_pointers:
     f_get_pointers.close()
+
+sys.exit(SUCCESS)
