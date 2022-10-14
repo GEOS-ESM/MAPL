@@ -206,10 +206,9 @@ contains
 
       integer :: status, userRC
       type(ChildComponent) :: child
-      integer:: phase_idx
 
       child = this%get_child(child_name, _RC)
-      call child%run(clock, phase_name=phase_name, _RC)
+      call child%run(clock, phase_name=get_default_phase_name(ESMF_METHOD_RUN, phase_name), _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run_child_by_name
@@ -347,7 +346,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(*), parameter :: PHASE_NAME = 'GENERIC_INIT_GRID'
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_GRID'
 
       call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
       call apply_to_children(this, set_child_grid, _RC)
@@ -384,7 +383,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(*), parameter :: PHASE_NAME = 'GENERIC_INIT_ADVERTISE'
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
 !!$      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
 !!$      call apply_to_children(this, set_child_grid, _RC)
@@ -404,7 +403,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(*), parameter :: PHASE_NAME = 'GENERIC_INIT_ADVERTISE'
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
 
 !!$      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
 !!$      call apply_to_children(this, set_child_grid, _RC)
@@ -473,7 +472,7 @@ contains
       type(ChildComponent), pointer :: child
       type(ChildComponentMapIterator) :: iter
 
-      character(*), parameter :: PHASE_NAME = 'GENERIC_INIT_USER'
+      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
 
       call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
       call apply_to_children(this, init_child, _RC)
@@ -519,9 +518,9 @@ contains
       if (present(phase_name)) then
          _ASSERT(this%phases_map%count(ESMF_METHOD_RUN) > 0, "No phases registered for ESMF_METHOD_RUN.")
          select case (phase_name)
-         case ('GENERIC_INIT_GRID')
+         case ('GENERIC::INIT_GRID')
             call this%initialize_grid(importState, exportState, clock, _RC)
-         case ('DEFAULT')
+         case ('GENERIC::INIT_USER')
             call this%initialize_user(importState, exportState, clock, _RC)
          case default
             _FAIL('unsupported initialize phase: '// phase_name)
@@ -585,7 +584,7 @@ contains
         iter = b
         do while (iter /= e)
            child => iter%second()
-           call child%finalize(clock, _RC)
+           call child%finalize(clock, phase_name=get_default_phase_name(ESMF_METHOD_FINALIZE), _RC)
            call iter%next()
         end do
       end associate

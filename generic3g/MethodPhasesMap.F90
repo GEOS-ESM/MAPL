@@ -67,12 +67,16 @@ module mapl3g_MethodPhasesMapUtils
    use mapl_ErrorHandling
    use :: mapl_KeywordEnforcer
    use :: esmf, only: ESMF_Method_Flag
+   use :: esmf, only: ESMF_METHOD_INITIALIZE
+   use :: esmf, only: ESMF_METHOD_RUN
+   use :: esmf, only: ESMF_METHOD_FINALIZE
    use :: gftl2_StringVector
    implicit none
    private
 
    public :: add_phase
    public :: get_phase_index
+   public :: get_default_phase_name
 
    interface add_phase
       module procedure add_phase_
@@ -82,55 +86,44 @@ module mapl3g_MethodPhasesMapUtils
       module procedure get_phase_index_
    end interface
 
-   character(len=*), parameter :: DEFAULT_PHASE_NAME = "GENERIC_INIT_USER"
 contains
 
    subroutine add_phase_(phases_map, method_flag, phase_name, unusable, rc)
-      use :: esmf, only: operator(==)
       type(MethodPhasesMap), intent(inout) :: phases_map
       type(ESMF_Method_Flag), intent(in) :: method_flag
-      character(len=*), optional, intent(in) :: phase_name
+      character(len=*), intent(in) :: phase_name
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) ::rc
 
-      character(len=:), allocatable :: phase_name_
       type(StringVector), pointer :: phase_names
 
 
       _ASSERT(phases_map%count(method_flag) > 0, "Unsupported value for 'method_flag'.")
 
-      phase_name_ = DEFAULT_PHASE_NAME
-      if (present(phase_name)) phase_name_ = phase_name
-      
       if (phases_map%count(method_flag) == 0) then
          call phases_map%insert(method_flag, StringVector())
       end if
 
       phase_names => phases_map%of(method_flag)
-      _ASSERT(find(phase_names%begin(), phase_names%end(), phase_name_) == phase_names%end(), "duplicate phase name: " // phase_name_)
-      call phase_names%push_back(phase_name_)
+      _ASSERT(find(phase_names%begin(), phase_names%end(), phase_name) == phase_names%end(), "duplicate phase name: " // phase_name)
+      call phase_names%push_back(phase_name)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine add_phase_
 
 
-   integer function get_phase_index_(phases, unusable, phase_name, rc) result(phase_index)
+   integer function get_phase_index_(phases, phase_name, unusable, rc) result(phase_index)
       type(StringVector), intent(in) :: phases
+      character(len=*), intent(in) :: phase_name
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
-
-      character(:), allocatable :: phase_name_
-
-      phase_name_ = DEFAULT_PHASE_NAME
-      if (present(phase_name)) phase_name_ = phase_name
 
       phase_index = -1
 
       associate (b => phases%begin(), e => phases%end())
-        associate (iter => find(b, e, phase_name_))
-          _ASSERT(iter /= phases%end(), "phase <"//trim(phase_name_)//"> not found")
+        associate (iter => find(b, e, phase_name))
+          _ASSERT(iter /= phases%end(), "phase <"//trim(phase_name)//"> not found")
           phase_index = 1 + distance(b, iter)
         end associate
       end associate
@@ -138,6 +131,28 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function get_phase_index_
+
+   function get_default_phase_name(method_flag, use_name) result(phase_name)
+      use :: esmf, only: operator(==)
+      character(:), allocatable :: phase_name
+      type(ESMF_Method_Flag), intent(in) :: method_flag
+      character(*), optional, intent(in) :: use_name
+
+      if (present(use_name)) then
+         phase_name = use_name
+         return
+      end if
+
+      if (method_flag == ESMF_METHOD_INITIALIZE) then
+         phase_name = 'GENERIC::INIT_USER'
+      elseif (method_flag == ESMF_METHOD_RUN) then
+         phase_name = 'GENERIC::RUN_USER'
+      elseif (method_flag == ESMF_METHOD_FINALIZE) then
+         phase_name = 'GENERIC::FINALIZE_USER'
+      else
+         phase_name = '<unknown>'
+      end if
+   end function get_default_phase_name
 
 end module mapl3g_MethodPhasesMapUtils
 

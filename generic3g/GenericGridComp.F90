@@ -188,6 +188,7 @@ contains
 
       phases => outer_meta%get_phases(ESMF_METHOD_RUN)
       phase_name => phases%of(phase)
+      print*,__FILE__,__LINE__, phase_name
       call outer_meta%run(importState, exportState, clock, phase_name=phase_name, _RC)
 
       _RETURN(ESMF_SUCCESS)
