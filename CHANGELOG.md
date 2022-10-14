@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+ - Redefined _FAILURE from 1 to -1 in include/MAPL_ErrLog.h
+
 ### Added
 
 - Implemented create from filemetdata for Tripolar Grid Factory and add corners to output when writing files on Tripolar grid
