@@ -13,31 +13,31 @@ module MAPL_ErrorHandlingMod
    public :: MAPL_abort
 
 
-   public :: MAPL_UNKNOWN_ERROR
    public :: MAPL_SUCCESS
 
+   public :: MAPL_UNKNOWN_ERROR
    public :: MAPL_NO_SUCH_PROPERTY
    public :: MAPL_NO_SUCH_VARIABLE
    public :: MAPL_TYPE_MISMATCH
    public :: MAPL_UNSUPPORTED_TYPE
-   public :: MAPL_VALUE_NOT_SUPPORTED
 
+   public :: MAPL_VALUE_NOT_SUPPORTED
    public :: MAPL_NO_DEFAULT_VALUE
    public :: MAPL_DUPLICATE_KEY
    public :: MAPL_STRING_TOO_SHORT
 
    enum, bind(c)
-      enumerator :: MAPL_UNKNOWN_ERROR = -1
       enumerator :: MAPL_SUCCESS       = 0
 
       ! 001-005
+      enumerator :: MAPL_UNKNOWN_ERROR
       enumerator :: MAPL_NO_SUCH_PROPERTY
       enumerator :: MAPL_NO_SUCH_VARIABLE
       enumerator :: MAPL_TYPE_MISMATCH
       enumerator :: MAPL_UNSUPPORTED_TYPE
-      enumerator :: MAPL_VALUE_NOT_SUPPORTED
 
       ! 006-010
+      enumerator :: MAPL_VALUE_NOT_SUPPORTED
       enumerator :: MAPL_NO_DEFAULT_VALUE
       enumerator :: MAPL_DUPLICATE_KEY
       enumerator :: MAPL_STRING_TOO_SHORT
