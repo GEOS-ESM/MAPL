@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Implemented create from filemetdata for Tripolar Grid Factory and add corners to output when writing files on Tripolar grid
 - Added `Dockerfile` and CircleCI workflow to build and push container to both Docker Hub and GitHub Container Registry on
   MAPL releases. Uses a GitHub Action to trigger CircleCI pipeline on releases.
 

@@ -27,6 +27,7 @@ module pFIO_NetCDF4_FileFormatterMod
    include 'mpif.h'
    type :: NetCDF4_FileFormatter
 !$$      private
+      character(len=:), allocatable :: origin_file
       integer :: ncid = -1
       logical :: parallel = .false.
       integer :: comm = -1
@@ -277,6 +278,8 @@ contains
       end if
       !$omp end critical
       _VERIFY(status)
+
+      this%origin_file = file
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -809,6 +812,8 @@ contains
 
       call this%inq_attributes(cf, NF90_GLOBAL, rc=status)
       _VERIFY(status)
+
+      if (allocated(this%origin_file)) call cf%set_source_file(this%origin_file)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
