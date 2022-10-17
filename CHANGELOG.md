@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix checkpoint `target_lon` and `target_lat` to be in degrees rather than radians
+
 ### Added
 
 - Implemented create from filemetdata for Tripolar Grid Factory and add corners to output when writing files on Tripolar grid
