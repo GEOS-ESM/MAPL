@@ -56,11 +56,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.28.0] - 2022-10-17
+
+### Fixed
+
 - Fix checkpoint `target_lon` and `target_lat` to be in degrees rather than radians
 
 ### Added
 
 - Implemented create from filemetdata for Tripolar Grid Factory and add corners to output when writing files on Tripolar grid
+- Added `Dockerfile` and CircleCI workflow to build and push container to both Docker Hub and GitHub Container Registry on
+  MAPL releases. Uses a GitHub Action to trigger CircleCI pipeline on releases.
 
 ### Changed
 
@@ -72,12 +86,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add options (`MAPL_DataSpec`) / columns (`read_specs`)
   - Add constants for literals for uniformity (`CATEGORIES`, `ALLOC`, `DELIMITER`, `TERMINATOR`)
   - Fix lookups in aliases (dict) to find key (alias) or value (alias target) to allow unaliased options are possible
-  - Add the `alloc` option to `emit_get_pointers` 
+  - Add the `alloc` option to `emit_get_pointers`
   - Update outdated comments
-
-### Removed
-
-### Deprecated
 
 ## [2.27.1] - 2022-10-04
 
