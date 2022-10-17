@@ -182,6 +182,9 @@
       end select
     enddo
 
+    if (.not.allocated(this%tripolar_file_out)) then
+       this%tripolar_file_out = "empty"
+    end if
     this%regridMethod = get_regrid_method(regridMth)
     _ASSERT(this%regridMethod/=UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
 
@@ -229,13 +232,13 @@
     end if
     call UnpackGridName(Grid_name,im_world,jm_world,dateline,pole)
 
-    cfoutput = create_cf(grid_name,im_world,jm_world,this%nx,this%ny,lm_world,this%cs_stretch_param,this%lon_range,this%lat_range,_RC)
+    cfoutput = create_cf(grid_name,im_world,jm_world,this%nx,this%ny,lm_world,this%cs_stretch_param,this%lon_range,this%lat_range,this%tripolar_file_out,_RC)
     this%new_grid=grid_manager%make_grid(cfoutput,prefix=trim(grid_name)//".",_RC)
 
     _RETURN(_SUCCESS)
     end subroutine create_grid
 
-    function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,lon_range,lat_range,rc) result(cf)
+    function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,lon_range,lat_range,tripolar_file,rc) result(cf)
        use MAPL_ConfigMod
        type(ESMF_Config)              :: cf
        character(len=*), intent(in) :: grid_name
@@ -245,6 +248,7 @@
        real, intent(in)             :: cs_stretch_param(3)
        real, intent(in)             :: lon_range(2)
        real, intent(in)             :: lat_range(2)
+       character(len=*), intent(in) :: tripolar_file
        integer, optional, intent(out) :: rc
 
        integer :: status
@@ -258,7 +262,7 @@
        cf = MAPL_ConfigCreate(_RC)
        call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_RC)
        call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",_RC)
-       if (jm_world==6*im_world) then
+       if (dateline=='CF') then
           call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",_RC)
           call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",_RC)
           call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
@@ -268,7 +272,13 @@
              call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(2),label=trim(grid_name)//".TARGET_LON:",_RC)
              call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(3),label=trim(grid_name)//".TARGET_LAT:",_RC)
           end if
-     
+       else if (dateline=='TM') then
+          call MAPL_ConfigSetAttribute(cf,value="Tripolar", label=trim(grid_name)//".GRID_TYPE:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_RC)
+          _ASSERT(tripolar_file /= "empty","asked for tripolar output but did not specify the coordinate file")
+          call MAPL_ConfigSetAttribute(cf,value=tripolar_file,label=trim(grid_name)//".GRIDSPEC:",_RC)
        else
           call MAPL_ConfigSetAttribute(cf,value="LatLon", label=trim(grid_name)//".GRID_TYPE:",_RC)
           call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)

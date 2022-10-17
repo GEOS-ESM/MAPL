@@ -11,13 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Implemented create from filemetdata for Tripolar Grid Factory and add corners to output when writing files on Tripolar grid
+
 ### Changed
 
+- Removed URLs and emails from MAPL per request of NOAA.
+  - Changed the default `Contact:` in History Gridded Component to be blank. To keep metadata the same in History
+    output, please set `CONTACT:` in your `HISTORY.rc` file.
 - Reorganized the file `Tests/pfio_MAPL_demo.F90` to mimic the steps of `MAPL_Cap`.
 
 ### Removed
 
 ### Deprecated
+
+## [2.27.1] - 2022-10-04
+
+### Fixed
+
+- Fixed a missing parentGC argument to addChildFromDSO
 
 ## [2.27.0] - 2022-10-03
 
