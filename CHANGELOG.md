@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+- Error codes in `shared/MAPL_Error_Handling.F90` are now consistent with `_FAILURE = 1` in `include/MAPL_ErrLog.h`
 
 ### Removed
 
