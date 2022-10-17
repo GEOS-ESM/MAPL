@@ -20,6 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed URLs and emails from MAPL per request of NOAA.
   - Changed the default `Contact:` in History Gridded Component to be blank. To keep metadata the same in History
     output, please set `CONTACT:` in your `HISTORY.rc` file.
+- Reorganized the file `Tests/pfio_MAPL_demo.F90` to mimic the steps of `MAPL_Cap`.
+- Extend ACG
+  - Add options (`MAPL_DataSpec`) / columns (`read_specs`)
+  - Add constants for literals for uniformity (`CATEGORIES`, `ALLOC`, `DELIMITER`, `TERMINATOR`)
+  - Fix lookups in aliases (dict) to find key (alias) or value (alias target) to allow unaliased options are possible
+  - Add the `alloc` option to `emit_get_pointers` 
+  - Update outdated comments
 
 ### Removed
 
