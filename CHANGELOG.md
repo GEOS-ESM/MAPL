@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.28.0] - 2022-10-17
+
+### Fixed
+
 - Fix checkpoint `target_lon` and `target_lat` to be in degrees rather than radians
 
 ### Added
@@ -27,12 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add options (`MAPL_DataSpec`) / columns (`read_specs`)
   - Add constants for literals for uniformity (`CATEGORIES`, `ALLOC`, `DELIMITER`, `TERMINATOR`)
   - Fix lookups in aliases (dict) to find key (alias) or value (alias target) to allow unaliased options are possible
-  - Add the `alloc` option to `emit_get_pointers` 
+  - Add the `alloc` option to `emit_get_pointers`
   - Update outdated comments
-
-### Removed
-
-### Deprecated
 
 ## [2.27.1] - 2022-10-04
 
