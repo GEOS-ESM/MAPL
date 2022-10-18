@@ -37,7 +37,6 @@ program main
       integer,           parameter ::              num_dims = 2 ! number of dimension to decompose
 
       ! PFIO specific variables
-      type(MAPL_FlapCLI)      :: cli
       type(MAPL_CapOptions)   :: cap_options
       type(ServerManager)     :: ioserver_manager
       type(SplitCommunicator) :: split_comm
