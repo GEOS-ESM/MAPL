@@ -1,8 +1,24 @@
 version: 2.1
 
+parameters:
+  GHA_Actor:
+    type: string
+    default: ""
+  GHA_Action:
+    type: string
+    default: ""
+  GHA_Event:
+    type: string
+    default: ""
+  GHA_Meta:
+    type: string
+    default: ""
+
 # Anchors to prevent forgetting to update a version
+os_version: &os_version ubuntu20
 baselibs_version: &baselibs_version v7.5.0
 bcs_version: &bcs_version v10.23.0
+tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
   ci: geos-esm/circleci-tools@1
@@ -150,3 +166,42 @@ workflows:
           requires:
             - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
+
+  build-and-publish-docker:
+    when:
+      equal: [ "release", << pipeline.parameters.GHA_Event >> ]
+    jobs:
+      - ci/publish-docker:
+          filters:
+            tags:
+              only: /^v.*$/
+          name: publish-intel-docker-image
+          context:
+            - docker-hub-creds
+            - ghcr-creds
+          os_version: *os_version
+          baselibs_version: *baselibs_version
+          container_name: mapl
+          mpi_name: intelmpi
+          mpi_version: 2021.6.0
+          compiler_name: intel
+          compiler_version: 2022.1.0
+          image_name: geos-env
+          tag_build_arg_name: *tag_build_arg_name
+      - ci/publish-docker:
+          filters:
+            tags:
+              only: /^v.*$/
+          name: publish-gcc-docker-image
+          context:
+            - docker-hub-creds
+            - ghcr-creds
+          os_version: *os_version
+          baselibs_version: *baselibs_version
+          container_name: mapl
+          mpi_name: openmpi
+          mpi_version: 4.1.4
+          compiler_name: gcc
+          compiler_version: 12.1.0
+          image_name: geos-env-mkl
+          tag_build_arg_name: *tag_build_arg_name
