@@ -4,14 +4,14 @@ on:
       types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
 
 jobs:
-  # Enforces the update of a changelog file on every pull request 
+  # Enforces the update of a changelog file on every pull request
   changelog:
     runs-on: ubuntu-latest
     steps:
     - uses: dangoslen/changelog-enforcer@v3
       with:
         changeLogPath: 'CHANGELOG.md'
-        skipLabels: 'Skip Changelog,0 diff trivial,automatic'
+        skipLabels: 'Skip Changelog,0 diff trivial,automatic,dependencies'
         missingUpdateErrorMessage: >
             No update to CHANGELOG.md found! Please add a changelog
             entry to it describing your change.  Please note that the

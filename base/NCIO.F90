@@ -19,6 +19,7 @@ module NCIOMod
   !use MAPL_RangeMod
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling
+  use MAPL_Constants, only: MAPL_RADIANS_TO_DEGREES
   !use netcdf
   use pFIO
   !use pFIO_ClientManagerMod
@@ -3462,8 +3463,8 @@ module NCIOMod
              x0=1.0d0
              x1=dble(arrdes%IM_WORLD)
              if (is_stretched) then
-                call cf%add_attribute('TARGET_LON',target_lon)
-                call cf%add_attribute('TARGET_LAT',target_lat)
+                call cf%add_attribute('TARGET_LON',target_lon*MAPL_RADIANS_TO_DEGREES)
+                call cf%add_attribute('TARGET_LAT',target_lat*MAPL_RADIANS_TO_DEGREES)
                 call cf%add_attribute('STRETCH_FACTOR',stretch_factor)
              end if
           else
@@ -3882,7 +3883,7 @@ module NCIOMod
     enddo
 
     if (arrdes%write_restart_by_oserver) then
-       call oClients%done_collective_stage(__RC__)
+       call oClients%done_collective_stage(_RC)
        call oClients%post_wait()
        call MPI_Info_free(info, status)
        _VERIFY(STATUS)

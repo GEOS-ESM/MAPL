@@ -31,7 +31,7 @@ module MAPL_ExtDataFileStream
 contains
 
    function new_ExtDataFileStream(config,current_time,unusable,rc) result(data_set) 
-      type(Configuration), intent(in) :: config
+      class(Yaml_node), intent(in) :: config
       type(ESMF_Time), intent(in) :: current_time
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -68,19 +68,19 @@ contains
             token = data_set%file_template(last_token+1:last_token+2)
             select case(token)
             case("y4")
-               call ESMF_TimeIntervalSet(data_set%frequency,yy=1,__RC__)
+               call ESMF_TimeIntervalSet(data_set%frequency,yy=1,_RC)
             case("m2")
-               call ESMF_TimeIntervalSet(data_set%frequency,mm=1,__RC__)
+               call ESMF_TimeIntervalSet(data_set%frequency,mm=1,_RC)
             case("d2")
-               call ESMF_TimeIntervalSet(data_set%frequency,d=1,__RC__)
+               call ESMF_TimeIntervalSet(data_set%frequency,d=1,_RC)
             case("h2")
-               call ESMF_TimeIntervalSet(data_set%frequency,h=1,__RC__)
+               call ESMF_TimeIntervalSet(data_set%frequency,h=1,_RC)
             case("n2")
-               call ESMF_TimeIntervalSet(data_set%frequency,m=1,__RC__)
+               call ESMF_TimeIntervalSet(data_set%frequency,m=1,_RC)
             end select
          else
             ! couldn't find any tokens so all the data must be on one file
-            call ESMF_TimeIntervalSet(data_set%frequency,__RC__)
+            call ESMF_TimeIntervalSet(data_set%frequency,_RC)
          end if
       end if
 
@@ -89,19 +89,19 @@ contains
       else
          last_token = index(data_set%file_template,'%',back=.true.)
          if (last_token.gt.0) then
-            call ESMF_TimeGet(current_time, yy=iyy, mm=imm, dd=idd,h=ihh, m=imn, s=isc  ,__RC__)
+            call ESMF_TimeGet(current_time, yy=iyy, mm=imm, dd=idd,h=ihh, m=imn, s=isc  ,_RC)
             token = data_set%file_template(last_token+1:last_token+2)
             select case(token)
             case("y4")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=1,dd=1,h=0,m=0,s=0,__RC__)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=1,dd=1,h=0,m=0,s=0,_RC)
             case("m2")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=1,h=0,m=0,s=0,__RC__)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=1,h=0,m=0,s=0,_RC)
             case("d2")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=0,m=0,s=0,__RC__)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=0,m=0,s=0,_RC)
             case("h2")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,__RC__)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=0,s=0,_RC)
             case("n2")
-               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,__RC__)
+               call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,s=0,_RC)
             end select
          else
             data_set%reff_time = current_time
@@ -115,9 +115,9 @@ contains
          allocate(data_set%valid_range(2))
          data_set%valid_range(1)=string_to_esmf_time(range_str(:idx-1))
          data_set%valid_range(2)=string_to_esmf_time(range_str(idx+1:))
-         call ESMF_TimeGet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,__RC__)
-         call ESMF_TimeGet(data_set%valid_range(1),yy=iyy,__RC__)
-         call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,__RC__)
+         call ESMF_TimeGet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,_RC)
+         call ESMF_TimeGet(data_set%valid_range(1),yy=iyy,_RC)
+         call ESMF_TimeSet(data_set%reff_time,yy=iyy,mm=imm,dd=idd,h=ihh,m=imn,_RC)
       end if
       data_set%collection_id = MAPL_DataAddCollection(data_set%file_template)
 
@@ -126,7 +126,7 @@ contains
       contains
 
          function get_string_with_default(config,selector) result(string)
-            type(Configuration), intent(in) :: config
+            class(Yaml_Node), intent(in) :: config
             character(len=*), intent(In) :: selector
             character(len=:), allocatable :: string
 
@@ -168,7 +168,7 @@ contains
       if (get_range_ .and. (.not.allocated(this%valid_range))) then
          if (index('%',this%file_template) == 0) then
             metadata => collection%find(this%file_template)
-            call metadata%get_time_info(timeVector=time_series,__RC__)
+            call metadata%get_time_info(timeVector=time_series,_RC)
             allocate(this%valid_range(2))
             this%valid_range(1)=time_series(1)
             this%valid_range(2)=time_series(size(time_series))
@@ -176,11 +176,11 @@ contains
       end if
 
       if (get_range_ .or. multi_rule) then
-         call fill_grads_template(filename,this%file_template,time=this%valid_range(1),__RC__)
+         call fill_grads_template(filename,this%file_template,time=this%valid_range(1),_RC)
       else
-         call fill_grads_template(filename,this%file_template,time=time,__RC__)
+         call fill_grads_template(filename,this%file_template,time=time,_RC)
       end if
-      metadata => collection%find(filename,__RC__)
+      metadata => collection%find(filename,_RC)
       metadata_out = metadata
       _RETURN(_SUCCESS)
 

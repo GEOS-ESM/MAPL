@@ -6,7 +6,6 @@ set (srcs
      ExtDataDerived.F90
      ExtDataConfig.F90
      ExtDataGridCompNG.F90
-     TimeStringConversion.F90
      ExtDataTypeDef.F90
      ExtDataOldTypesCreator.F90
      ExtDataBracket.F90
@@ -20,7 +19,6 @@ set (srcs
      ExtDataSample.F90
      ExtData_IOBundleMod.F90
      ExtData_IOBundleVectorMod.F90
-     ExtDataYamlNodeStack.F90
      ExtDataMasking.F90
     )
 

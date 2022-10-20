@@ -3,7 +3,11 @@ import argparse
 import sys
 import os
 import csv
+import warnings
 
+SUCCESS = 0
+
+CATEGORIES = ("IMPORT","EXPORT","INTERNAL")
 
 ###############################################################
 class MAPL_DataSpec:
@@ -15,14 +19,18 @@ class MAPL_DataSpec:
                    'refresh_interval', 'averaging_interval', 'halowidth',
                    'precision','default','restart', 'ungridded_dims',
                    'field_type', 'staggering', 'rotation',
-                   'friendlyto', 'add2export']
+                   'friendlyto', 'add2export', 'datatype',
+                   'attr_inames', 'att_rnames', 'attr_ivalues', 'attr_rvalues',
+                   'ungridded_name', 'ungridded_unit', 'ungridded_coords']
 
     # The following arguments are skipped if value is empty string
     optional_options = [ 'dims', 'vlocation', 'num_subtiles',
                          'refresh_interval', 'averaging_interval', 'halowidth',
                          'precision','default','restart', 'ungridded_dims',
                          'field_type', 'staggering', 'rotation',
-                         'friendlyto', 'add2export']
+                         'friendlyto', 'add2export', 'datatype',
+                         'attr_inames', 'att_rnames', 'attr_ivalues', 'attr_rvalues',
+                         'ungridded_name', 'ungridded_unit', 'ungridded_coords']
 
     entry_aliases = {'dims': {'z'  : 'MAPL_DimsVertOnly',
                               'xy' : 'MAPL_DimsHorzOnly',
@@ -45,6 +53,9 @@ class MAPL_DataSpec:
     # The following arguments must be placed within array brackets.
     arraylike_options = ['ungridded_dims']
 
+    ALLOC = 'alloc'
+    DELIMITER = ', '
+    TERMINATOR = '_RC)'
 
     def __init__(self, category, args, indent=3):
         self.category = category
@@ -68,7 +79,10 @@ class MAPL_DataSpec:
             if ungridded:
                 extra_dims = ungridded.strip('][').split(',')
                 extra_rank = len(extra_dims)
-        dims = MAPL_DataSpec.entry_aliases['dims'][self.args['dims']]
+        aliases = MAPL_DataSpec.entry_aliases['dims']
+        dims = self.args['dims']
+        if dims in aliases:
+            dims = aliases[dims]
         return ranks[dims] + extra_rank
 
     @staticmethod
@@ -94,16 +108,29 @@ class MAPL_DataSpec:
         text = text + type
         if kind:
             text = text + '(kind=' + str(kind) + ')'
-        text = text +', pointer, ' + dimension + ' :: ' + MAPL_DataSpec.internal_name(self.args['short_name']) + ' => null()'
+        text = text +', pointer, ' + dimension + ' :: ' + MAPL_DataSpec.internal_name(self.args['short_name'])
         return text
 
     def emit_get_pointers(self):
-        text = self.emit_header()
-        short_name = MAPL_DataSpec.internal_name(self.args['short_name'])
-        mangled_name = MAPL_DataSpec.mangled_name(self.args['short_name'])
-        text = text + "call MAPL_GetPointer(" + self.category + ', ' + short_name + ", " + mangled_name + ", rc=status); VERIFY_(status)" 
-        text = text + self.emit_trailer(nullify=True)
-        return text
+        """ Generate MAPL_GetPointer calls for the MAPL_DataSpec (self) """
+        """ Creates string by joining list of generated and literal strings """
+        """ including if block (emit_header) and 'alloc = value' (emit_pointer_alloc """
+        return MAPL_DataSpec.DELIMITER.join(
+            [   self.emit_header() + "call MAPL_GetPointer(" + self.category,
+                MAPL_DataSpec.internal_name(self.args['short_name']),
+                MAPL_DataSpec.mangled_name(self.args['short_name']) ] + 
+            self.emit_pointer_alloc() +
+            [   MAPL_DataSpec.TERMINATOR + self.emit_trailer(nullify=True) ] )
+
+    def emit_pointer_alloc(self):
+        EMPTY_LIST = []
+        key = MAPL_DataSpec.ALLOC
+        if key in self.args:
+            value = self.args[key].strip().lower()
+            listout = [ key + '=' + get_fortran_logical(value) ] if len(value) > 0 else EMPTY_LIST
+        else:
+            listout = EMPTY_LIST
+        return listout
 
     def emit_header(self):
         text = self.newline()
@@ -117,9 +144,8 @@ class MAPL_DataSpec:
         text = "call MAPL_Add" + self.category.capitalize() + "Spec(gc," + self.continue_line()
         for option in MAPL_DataSpec.all_options:
             text = text + self.emit_arg(option)
-        text = text + 'rc=status)' + self.newline()
+        text = text + MAPL_DataSpec.TERMINATOR + self.newline()
         self.indent = self.indent - 5
-        text = text + 'VERIFY_(status)'
         return text
 
     def emit_arg(self, option):
@@ -143,7 +169,7 @@ class MAPL_DataSpec:
                     value = MAPL_DataSpec.entry_aliases[option][self.args[option]]
                 else:
                     value = self.args[option]
-            text = text + value + ", " + self.continue_line()
+            text = text + value + MAPL_DataSpec.DELIMITER + self.continue_line()
         return text
 
     def emit_trailer(self, nullify=False):
@@ -158,9 +184,6 @@ class MAPL_DataSpec:
         else:
             text = self.newline()
         return text
-
-
-
 
 
 def read_specs(specs_filename):
@@ -184,19 +207,22 @@ def read_specs(specs_filename):
             df.append(dict(zip(columns, row)))
         return df
 
+    # Python is case sensitive, so dict lookups are case sensitive.
+    # The column names are Fortran identifiers, which are case insensitive.
+    # So all lookups in the dict below should be converted to lowercase.
+    # Aliases must be lowercase.
     column_aliases = {
-        'NAME'       : 'short_name',
-        'LONG NAME'  : 'long_name',
-        'VLOC'       : 'vlocation',
-        'UNITS'      : 'units',
-        'DIMS'       : 'dims',
-        'UNGRIDDED'  : 'ungridded_dims',
-        'PREC'       : 'precision',
-        'COND'       : 'condition',
-        'DEFAULT'    : 'default',
-        'RESTART'    : 'restart',
-        'FRIENDLYTO' : 'friendlyto',
-        'ADD2EXPORT' : 'add2export'
+        'name'       : 'short_name',
+        'long name'  : 'long_name',
+        'vloc'       : 'vlocation',
+        'ungridded'  : 'ungridded_dims',
+        'ungrid'     : 'ungridded_dims',
+        'prec'       : 'precision',
+        'cond'       : 'condition',
+        'friend2'    : 'friendlyto',
+        'addexp'     : 'add2export',
+        'numsubs '   : 'num_subtiles,',
+        'avint'      : 'averaging_interval'
     }
 
     specs = {}
@@ -205,7 +231,6 @@ def read_specs(specs_filename):
         gen = csv_record_reader(specs_reader)
         schema_version = next(gen)[0].split(' ')[1]
         component = next(gen)[0].split(' ')[1]
-#        print("Generating specification code for component: ",component)
         while True:
             try:
                 gen = csv_record_reader(specs_reader)
@@ -214,17 +239,33 @@ def read_specs(specs_filename):
                 bare_columns = [c.strip() for c in bare_columns]
                 columns = []
                 for c in bare_columns:
-                    if c in column_aliases:
-                        columns.append(column_aliases[c])
-                    else:
-                        columns.append(c)
+                    columns.append(getifin(column_aliases, c))
                 specs[category] = dataframe(gen, columns)
             except StopIteration:
                 break
 
     return specs
 
+def getifin(dictionary, key):
+    """ Return dictionary[key.lower()] if key.lower() in dictionary else key """ 
+    return dictionary[key.lower()] if key.lower() in dictionary else key.lower()
 
+def get_fortran_logical(value_in):
+    """ Return string representing Fortran logical from an input string """
+    """ representing a logical value into """
+    TRUE_VALUE = '.true.'
+    FALSE_VALUE = '.false.'
+    TRUE_VALUES = {TRUE_VALUE, 't', 'true', '.t.', 'yes', 'y', 'si', 'oui', 'sim'}
+    FALSE_VALUES = {FALSE_VALUE, 'f', 'false', '.f.', 'no', 'n', 'no', 'non', 'nao'}
+    if value_in is None:
+        sys.exit("'None' is not valid for get_fortran_logical.")
+    if value_in.strip().lower() in TRUE_VALUES:
+        val_out = TRUE_VALUE
+    elif value_in.strip().lower() in FALSE_VALUES:
+        val_out = FALSE_VALUE
+    else:
+        sys.exit("Unrecognized logical: " + value_in)        
+    return val_out
 
 def header():
     """
@@ -248,8 +289,6 @@ def open_with_header(filename):
     f = open(filename,'w')
     f.write(header())
     return f
-
-
 
 #############################################
 # Main program begins here
@@ -276,11 +315,11 @@ parser.add_argument("-g", "--get-pointers", action="store", nargs='?',
                     help="override default output filename for get_pointer() code")
 parser.add_argument("-d", "--declare-pointers", action="store", nargs='?',
                     const="{component}_DeclarePointer___.h", default=None,
-                    help="override default output filename for AddSpec code")
+                    help="override default output filename for pointer declaration code")
 args = parser.parse_args()
 
 
-# Process blocked CSV input file using pandas
+# Process blocked CSV input file
 specs = read_specs(args.input)
 
 if args.name:
@@ -292,7 +331,7 @@ else:
 
 # open all output files
 f_specs = {}
-for category in ("IMPORT","EXPORT","INTERNAL"):
+for category in CATEGORIES:
     option = args.__dict__[category.lower()+"_specs"]
     if option:
         fname = option.format(component=component)
@@ -309,16 +348,17 @@ if args.get_pointers:
 else:
     f_get_pointers = None
 
-# Generate code from specs (processed above with pandas)
-for category in ("IMPORT","EXPORT","INTERNAL"):
-    for item in specs[category]:
-        spec = MAPL_DataSpec(category.lower(), item)
-        if f_specs[category]:
-            f_specs[category].write(spec.emit_specs())
-        if f_declare_pointers:
-            f_declare_pointers.write(spec.emit_declare_pointers())
-        if f_get_pointers:
-            f_get_pointers.write(spec.emit_get_pointers())
+# Generate code from specs (processed above)
+for category in CATEGORIES:
+    if category in specs:
+        for item in specs[category]:
+            spec = MAPL_DataSpec(category.lower(), item)
+            if f_specs[category]:
+                f_specs[category].write(spec.emit_specs())
+            if f_declare_pointers:
+                f_declare_pointers.write(spec.emit_declare_pointers())
+            if f_get_pointers:
+                f_get_pointers.write(spec.emit_get_pointers())
 
 # Close output files
 for category, f in list(f_specs.items()):
@@ -329,7 +369,4 @@ if f_declare_pointers:
 if f_get_pointers:
     f_get_pointers.close()
 
-
-
-            
-            
+sys.exit(SUCCESS)

@@ -27,6 +27,7 @@ module pFIO_NetCDF4_FileFormatterMod
    include 'mpif.h'
    type :: NetCDF4_FileFormatter
 !$$      private
+      character(len=:), allocatable :: origin_file
       integer :: ncid = -1
       logical :: parallel = .false.
       integer :: comm = -1
@@ -150,12 +151,21 @@ contains
 
       integer :: status
       integer :: mode_
+      integer :: pfio_mode
 
       if (present(mode)) then
-         mode_=mode
+         pfio_mode=mode
       else
-         mode_=NF90_CLOBBER
+         pfio_mode=PFIO_NOCLOBBER
       end if
+
+      select case (pfio_mode)
+      case (pFIO_CLOBBER)
+         mode_ = NF90_CLOBBER
+      case (pFIO_NOCLOBBER)
+         mode_ = NF90_NOCLOBBER
+      end select
+         
       !$omp critical
       status = nf90_create(file, IOR(mode_, NF90_NETCDF4), this%ncid)
       !$omp end critical
@@ -179,12 +189,20 @@ contains
       integer :: info_
       integer :: status
       integer :: mode_
+      integer :: pfio_mode
 
       if (present(mode)) then
-         mode_=mode
+         pfio_mode=mode
       else
-         mode_=NF90_CLOBBER
+         pfio_mode=PFIO_NOCLOBBER
       end if
+
+      select case (pfio_mode)
+      case (pFIO_CLOBBER)
+         mode_ = NF90_CLOBBER
+      case (pFIO_NOCLOBBER)
+         mode_ = NF90_NOCLOBBER
+      end select
 
       if (present(comm)) then
          comm_ = comm
@@ -260,6 +278,8 @@ contains
       end if
       !$omp end critical
       _VERIFY(status)
+
+      this%origin_file = file
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -792,6 +812,8 @@ contains
 
       call this%inq_attributes(cf, NF90_GLOBAL, rc=status)
       _VERIFY(status)
+
+      if (allocated(this%origin_file)) call cf%set_source_file(this%origin_file)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

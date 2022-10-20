@@ -51,6 +51,7 @@ module MAPL_CapGridCompMod
      private
      type (ESMF_GridComp)          :: gc
      procedure(), pointer, nopass  :: root_set_services => null()
+     character(len=:), allocatable :: root_dso
      character(len=:), allocatable :: final_file, name, cap_rc_file
      integer :: nsteps, heartbeat_dt, perpetual_year, perpetual_month, perpetual_day
      logical :: amiroot, started_loop_timer
@@ -107,13 +108,14 @@ module MAPL_CapGridCompMod
 contains
 
 
-   subroutine MAPL_CapGridCompCreate(cap, root_set_services, cap_rc, name, final_file, unusable, n_run_phases, rc)
+   subroutine MAPL_CapGridCompCreate(cap, cap_rc, name, final_file, unusable, n_run_phases, root_set_services, root_dso,  rc)
       use mapl_StubComponent
     type(MAPL_CapGridComp), intent(out), target :: cap
-    procedure() :: root_set_services
     character(*), intent(in) :: cap_rc, name
     character(len=*), optional, intent(in) :: final_file
     class(KeywordEnforcer), optional, intent(in) :: unusable
+    procedure(), optional :: root_set_services
+    character(len=*), optional, intent(in) :: root_dso
     integer, optional, intent(in)  :: n_run_phases
     integer, optional, intent(out) :: rc
 
@@ -126,24 +128,28 @@ contains
     _UNUSED_DUMMY(unusable)
 
     cap%cap_rc_file = cap_rc
-    cap%root_set_services => root_set_services
+    if (present(root_set_services)) cap%root_set_services => root_set_services
+    if (present(root_dso)) cap%root_dso = root_dso
+    if (present(root_dso) .and. present(root_set_services)) then
+       _FAIL("can only specify a setservice pointer or a dso to use")
+    end if
     if (present(final_file)) then
        allocate(cap%final_file, source=final_file)
     end if
     cap%n_run_phases = 1
     if (present(n_run_phases)) cap%n_run_phases = n_run_phases
 
-    cap%config = ESMF_ConfigCreate(__RC__)
-    call ESMF_ConfigLoadFile(cap%config, cap%cap_rc_file,__RC__)
+    cap%config = ESMF_ConfigCreate(_RC)
+    call ESMF_ConfigLoadFile(cap%config, cap%cap_rc_file,_RC)
 
     allocate(cap%name, source=name)
-    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, __RC__)
+    cap%gc = ESMF_GridCompCreate(name=cap_name, config=cap%config, _RC)
 
     meta => null()
-    call MAPL_InternalStateCreate(cap%gc, meta, __RC__)
-    call MAPL_Set(meta, CF=cap%config, __RC__)
+    call MAPL_InternalStateCreate(cap%gc, meta, _RC)
+    call MAPL_Set(meta, CF=cap%config, _RC)
 
-    call MAPL_Set(meta, name=cap_name, component=stub_component, __RC__)
+    call MAPL_Set(meta, name=cap_name, component=stub_component, _RC)
 
     cap_wrapper%ptr => cap
     call ESMF_UserCompSetInternalState(cap%gc, internal_cap_name, cap_wrapper, status)
@@ -208,6 +214,7 @@ contains
 
 
     type (MAPL_MetaComp), pointer :: maplobj, root_obj
+    character(len=ESMF_MAXSTR)         :: sharedObj
     type (ESMF_GridComp), pointer :: root_gc
     procedure(), pointer :: root_set_services
     type(MAPL_CapGridComp), pointer :: cap
@@ -510,7 +517,7 @@ contains
 
     ! Add a SINGLE_COLUMN flag in HISTORY.rc based on DYCORE value(from AGCM.rc)
     !---------------------------------------------------------------------------
-    call ESMF_ConfigGetAttribute(cap%cf_root, value=DYCORE,  Label="DYCORE:",  rc=status)
+    call ESMF_ConfigGetAttribute(cap%cf_root, value=DYCORE,  Label="DYCORE:",  default = 'FV3', rc=status)
     _VERIFY(STATUS)
     if (DYCORE == 'DATMO') then
        snglcol = 1
@@ -535,8 +542,14 @@ contains
     root_set_services => cap%root_set_services
 
     call t_p%start('SetService')
-    cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)
-    _VERIFY(status)
+    if (.not.allocated(cap%root_dso)) then
+       cap%root_id = MAPL_AddChild(MAPLOBJ, name = root_name, SS = root_set_services, rc = status)
+       _VERIFY(status)
+    else
+       sharedObj = trim(cap%root_dso)
+       cap%root_id = MAPL_AddChild(MAPLOBJ, root_name, 'setservices_', sharedObj=sharedObj, rc=status)
+       _VERIFY(status)
+    end if
     root_gc => maplobj%get_child_gridcomp(cap%root_id)
     call MAPL_GetObjectFromGC(root_gc, root_obj, rc=status)
     _ASSERT(cap%n_run_phases <= SIZE(root_obj%phase_run),"n_run_phases in cap_gc should not exceed n_run_phases in root")
@@ -607,7 +620,7 @@ contains
     !  Inject grid to root child if grid has been set externally
     !-----------------------------------------------------------
 
-    call cap%inject_external_grid(__RC__)
+    call cap%inject_external_grid(_RC)
 
     ! Run as usual unless PRINTSPEC> 0 as set in CAP.rc. If set then
     ! model will not run completely and instead it will simply run MAPL_SetServices
@@ -1333,7 +1346,7 @@ contains
                                       LOOP_THROUGHPUT,INST_THROUGHPUT,RUN_THROUGHPUT,HRS_R,MIN_R,SEC_R,&
                                       mem_committed_percent,mem_used_percent
     1000 format(1x,'AGCM Date: ',i4.4,'/',i2.2,'/',i2.2,2x,'Time: ',i2.2,':',i2.2,':',i2.2, &
-                2x,'Throughput(days/day)[Avg Tot Run]: ',f8.1,1x,f8.1,1x,f8.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x, &
+                2x,'Throughput(days/day)[Avg Tot Run]: ',f12.1,1x,f12.1,1x,f12.1,2x,'TimeRemaining(Est) ',i3.3,':'i2.2,':',i2.2,2x, &
                 f5.1,'% : ',f5.1,'% Mem Comm:Used')
 
         _RETURN(_SUCCESS)
@@ -1440,10 +1453,10 @@ contains
 
      _UNUSED_DUMMY(unusable)
 
-     external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, __RC__)
-     mapl_grid = grid_manager%make_grid(external_grid_factory, __RC__)
+     external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, _RC)
+     mapl_grid = grid_manager%make_grid(external_grid_factory, _RC)
 
-     call ESMF_GridCompSet(this%gc, grid=mapl_grid, __RC__)
+     call ESMF_GridCompSet(this%gc, grid=mapl_grid, _RC)
 
      _RETURN(_SUCCESS)
   end subroutine set_grid
@@ -1460,22 +1473,22 @@ contains
 
      _UNUSED_DUMMY(unusable)
 
-     call ESMF_GridCompGet(this%gc, gridIsPresent=cap_grid_is_present, __RC__)
+     call ESMF_GridCompGet(this%gc, gridIsPresent=cap_grid_is_present, _RC)
 
      if (cap_grid_is_present) then
-        call ESMF_GridCompGet(this%gc, grid=cap_grid, __RC__)
-        call ESMF_GridValidate(cap_grid, __RC__)
+        call ESMF_GridCompGet(this%gc, grid=cap_grid, _RC)
+        call ESMF_GridValidate(cap_grid, _RC)
 
-        call ESMF_GridCompGet(this%gcs(this%root_id), gridIsPresent=root_grid_is_present, __RC__)
+        call ESMF_GridCompGet(this%gcs(this%root_id), gridIsPresent=root_grid_is_present, _RC)
 
         if (root_grid_is_present) then
-           call ESMF_GridCompGet(this%gcs(this%root_id), grid=root_grid, __RC__)
-           call ESMF_GridValidate(root_grid, __RC__)
+           call ESMF_GridCompGet(this%gcs(this%root_id), grid=root_grid, _RC)
+           call ESMF_GridValidate(root_grid, _RC)
 
-           grid_match = ESMF_GridMatch(cap_grid, root_grid, __RC__)
+           grid_match = ESMF_GridMatch(cap_grid, root_grid, _RC)
            _ASSERT(grid_match == ESMF_GRIDMATCH_EXACT, "Attempting to override root grid with non-matching external grid")
         else
-            call ESMF_GridCompSet(this%gcs(this%root_id), grid=cap_grid, __RC__)
+            call ESMF_GridCompSet(this%gcs(this%root_id), grid=cap_grid, _RC)
         end if
      end if
 
@@ -1492,7 +1505,7 @@ contains
 
      _UNUSED_DUMMY(unusable)
 
-     call ESMF_GridCompSet(this%gc, clock=clock, __RC__)
+     call ESMF_GridCompSet(this%gc, clock=clock, _RC)
 
      _RETURN(_SUCCESS)
   end subroutine set_clock

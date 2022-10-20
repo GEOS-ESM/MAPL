@@ -26,12 +26,14 @@ module pFIO_FileMetadataMod
    type :: FileMetadata
       private
       type (StringIntegerMap) :: dimensions
-      type (Variable) :: global
+      type (Variable) :: global_var
       type (StringVariableMap) :: variables
       type (StringVector) :: order
+      character(len=:), allocatable :: source_file
    contains
 
       procedure :: get_dimensions
+      procedure :: get_global_var
       procedure :: add_dimension
       procedure :: get_dimension
       procedure :: modify_dimension
@@ -60,6 +62,8 @@ module pFIO_FileMetadataMod
 
       procedure :: serialize
       procedure :: is_coordinate_variable
+      procedure :: get_source_file
+      procedure :: set_source_file
 
    end type FileMetadata
 
@@ -82,8 +86,8 @@ contains
      fmd%dimensions = StringIntegerMap()
      if (present(dimensions)) fmd%dimensions = dimensions
 
-     fmd%global = Variable()
-     if (present(global)) fmd%global = global
+     fmd%global_var = Variable()
+     if (present(global)) fmd%global_var = global
 
      fmd%variables = StringVariableMap()
      if (present(variables)) fmd%variables = variables
@@ -100,6 +104,14 @@ contains
       dimensions => this%dimensions
 
    end function get_dimensions
+
+   function get_global_var(this) result(global_var)
+      type (Variable), pointer :: global_var
+      class (FileMetadata), target, intent(in) :: this
+
+      global_var => this%global_var
+
+   end function get_global_var
 
 
    subroutine add_dimension(this, dim_name, extent, unusable, rc)
@@ -175,7 +187,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      call this%global%add_attribute(attr_name, attr_value)
+      call this%global_var%add_attribute(attr_name, attr_value)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine add_attribute_0d
@@ -188,7 +200,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      call this%global%add_attribute(attr_name, values)
+      call this%global_var%add_attribute(attr_name, values)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine add_attribute_1d
@@ -201,7 +213,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      ref => this%global%get_attribute(attr_name)
+      ref => this%global_var%get_attribute(attr_name)
       _ASSERT(associated(ref),'FileMetadata::get_attribute() - no such attribute <'//attr_name//'>.')
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -213,7 +225,7 @@ contains
       class (FileMetadata), target, intent(in) :: this
       character(len=*), intent(in) :: attr_name
 
-      has_attribute = this%global%is_attribute_present(attr_name)
+      has_attribute = this%global_var%is_attribute_present(attr_name)
       
    end function has_attribute
 
@@ -223,7 +235,7 @@ contains
       class (FileMetadata), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      attributes => this%global%get_attributes()
+      attributes => this%global_var%get_attributes()
       _RETURN(_SUCCESS)
    end function get_attributes
 
@@ -393,7 +405,7 @@ contains
       _UNUSED_DUMMY(unusable)
       
    end subroutine add_variable
-
+   
    subroutine modify_variable(this, var_name, var, unusable, rc)
       class (FileMetadata), target, intent(inout) :: this
       character(len=*), intent(in) :: var_name
@@ -511,7 +523,7 @@ contains
          type (Attribute), pointer :: attr_a, attr_b
          character(len=:), pointer :: attr_name
 
-         equal = (a%global == b%global)
+         equal = (a%global_var == b%global_var)
 
       end function same_attributes
       
@@ -564,7 +576,7 @@ contains
             
       call StringIntegerMap_serialize(this%dimensions, tmp_buffer)
       buffer = [tmp_buffer]
-      call this%global%serialize(tmp_buffer)
+      call this%global_var%serialize(tmp_buffer)
       buffer = [buffer,tmp_buffer]
       call StringVariableMap_serialize(this%variables, tmp_buffer)
       buffer = [buffer,tmp_buffer]
@@ -606,7 +618,7 @@ contains
          call deserialize_intrinsic(buffer(n:),length)
          n = n + length
          call deserialize_intrinsic(buffer(n:),length)
-         call Variable_deserialize(buffer(n:n+length-1),this%global, status)
+         call Variable_deserialize(buffer(n:n+length-1),this%global_var, status)
          _VERIFY(status)
          n = n + length
          call StringVariableMap_deserialize(buffer(n:), this%variables, status)
@@ -618,5 +630,26 @@ contains
          _RETURN(_SUCCESS)
       end subroutine deserialize
    end subroutine FileMetadata_deserialize
+
+   subroutine set_source_file(this,source_file,rc)
+      class (FileMetadata), intent(inout) :: this
+      character(len=*), intent(in) :: source_file
+      integer, optional, intent(out) :: rc
+
+      this%source_file=source_file
+      _RETURN(_SUCCESS)
+   end subroutine
+
+   function get_source_file(this,rc) result(source_file)
+      character(len=:), allocatable :: source_file
+      class (FileMetadata), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      if (.not.allocated(this%source_file)) then
+         _FAIL("FileMetadata not created via a file, no source_file present")
+      end if
+      source_file=this%source_file
+      _RETURN(_SUCCESS)
+   end function
 
 end module pFIO_FileMetadataMod
