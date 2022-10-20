@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add Coupled GCM run to CI (ifort only)
+- Add Coupled MOM6 GCM run to CI (ifort only)
 
 ### Changed
 
