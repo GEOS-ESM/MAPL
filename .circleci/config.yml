@@ -147,6 +147,20 @@ workflows:
           baselibs_version: *baselibs_version
           bcs_version: *bcs_version
 
+      # Run Coupled GCM (1 hour, no ExtData)
+      - ci/run_gcm:
+          name: run-coupled-GCM-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [ifort]
+          requires:
+            - build-GEOSgcm-on-<< matrix.compiler >>
+          repo: GEOSgcm
+          baselibs_version: *baselibs_version
+          bcs_version: *bcs_version
+
       # Run MAPL Tutorials
       - ci/run_mapl_tutorial:
           name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
