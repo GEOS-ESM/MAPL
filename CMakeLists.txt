@@ -158,6 +158,8 @@ else ()
   add_subdirectory (pflogger_stub)
 endif ()
 
+add_definitions(-Dsys${CMAKE_SYSTEM_NAME})
+
 # Special case - MAPL_cfio is built twice with two different precisions.
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)
 add_subdirectory (MAPL_cfio MAPL_cfio_r8)

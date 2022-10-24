@@ -9,12 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Add define for `-Dsys${CMAKE_SYSTEM_NAME}` to fix build issue with macOS and Intel (#1695)
+
 ### Added
+
+- Add Coupled MOM6 GCM run to CI (ifort only)
 
 ### Changed
 
 - Change argument arrdes of MAPL_Read and Write NC Var 3d to optional
- 
+- Error codes in `shared/MAPL_Error_Handling.F90` are now consistent with `_FAILURE = 1` in `include/MAPL_ErrLog.h`
+
 ### Removed
 
 ### Deprecated
