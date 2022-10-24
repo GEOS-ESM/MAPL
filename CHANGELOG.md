@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Change argument arrdes of MAPL_Read and Write NC Var 3d to optional
+ 
 ### Removed
 
 ### Deprecated
