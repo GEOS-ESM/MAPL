@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add Coupled MOM6 GCM run to CI (ifort only)
+- Add fArgParse CLI argument parser
 
 ### Changed
 
