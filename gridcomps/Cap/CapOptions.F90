@@ -88,7 +88,6 @@ contains
    function new_CapOptions_copy(options) result(copy)
       type(MAPL_CapOptions) :: copy
       type(MAPL_CapOptions), intent(in) :: options
-      write (*,*) "No I am here"
       copy = options
    end function new_CapOptions_copy
 
