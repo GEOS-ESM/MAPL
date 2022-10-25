@@ -9,7 +9,7 @@ set (srcs
 if (BUILD_WITH_FLAP)
   list (APPEND srcs FlapCLI.F90)
 endif()
-if (FARGPARSE_FOUND)
+if (BUILD_WITH_FARGPARSE)
   list (APPEND srcs FargparseCLI.F90)
 endif()
 
@@ -19,7 +19,7 @@ esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants M
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared esmf NetCDF::NetCDF_Fortran
                                PRIVATE MPI::MPI_Fortran
                                $<$<BOOL:${BUILD_WITH_FLAP}>:FLAP::FLAP>
-                               $<$<BOOL:${FARGPARSE_FOUND}>:FARGPARSE::fargparse>)
+                               $<$<BOOL:${BUILD_WITH_FARGPARSE}>:FARGPARSE::fargparse>)
 
 target_compile_definitions (${this} PRIVATE $<$<BOOL:${USE_EXTDATA2G}>:BUILD_WITH_EXTDATA2G>)
 

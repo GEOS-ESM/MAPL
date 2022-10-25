@@ -30,7 +30,7 @@ if (BUILD_WITH_FLAP)
 
 endif ()
 
-if (FARGPARSE_FOUND)
+if (BUILD_WITH_FARGPARSE)
 
   ecbuild_add_executable (TARGET MAPL_demo_fargparse.x SOURCES MAPL_demo_fargparse.F90)
   target_link_libraries (MAPL_demo_fargparse.x PRIVATE MAPL FARGPARSE::fargparse esmf)
