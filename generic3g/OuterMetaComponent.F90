@@ -311,7 +311,7 @@ contains
       class(OuterMetaComponent), intent(inout) :: this
       class(YAML_Node), intent(in) :: config
 
-      this%config%yaml_cfg = config
+      allocate(this%config%yaml_cfg, source=config)
 
    end subroutine set_yaml_config
 
