@@ -382,7 +382,7 @@ contains
       associate (phase => get_phase_index(this%phases_map%of(ESMF_METHOD_INITIALIZE), phase_name='DEFAULT', rc=status))
         if (status == _SUCCESS) then
            call ESMF_GridCompInitialize(this%user_gridcomp, importState=importState, exportState=exportState, &
-                clock=clock, userRC=userRC, phase=phase, _RC)
+                clock=clock, phase=phase, userRC=userRC, _RC)
            _VERIFY(userRC)
         end if
       end associate
