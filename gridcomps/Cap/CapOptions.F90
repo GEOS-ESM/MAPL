@@ -28,7 +28,7 @@ module mapl_CapOptionsMod
       ! whether or not the nodes are padding with idle when mod(model total npes , each node npes) /=0
       logical              :: isolate_nodes = .true.
       ! whether or not copy the data before isend to the oserver
-      ! it is faster but demands more memory if it is true 
+      ! it is faster but demands more memory if it is true
       logical              :: fast_oclient  = .false.
       ! whether or not turn on the io profiler
       logical              :: with_io_profiler = .false.
@@ -59,7 +59,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: cap_rc_file
       character(*), optional, intent(in) :: egress_file
-      character(*), optional, intent(in) :: ensemble_subdir_prefix 
+      character(*), optional, intent(in) :: ensemble_subdir_prefix
       type(ESMF_LogKind_Flag), optional, intent(in) :: esmf_logging_mode
 
       integer, optional, intent(out) :: rc
@@ -88,6 +88,7 @@ contains
    function new_CapOptions_copy(options) result(copy)
       type(MAPL_CapOptions) :: copy
       type(MAPL_CapOptions), intent(in) :: options
+      write (*,*) "No I am here"
       copy = options
    end function new_CapOptions_copy
 

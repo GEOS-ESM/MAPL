@@ -5,6 +5,7 @@ module MAPL_FargparseCLIMod
    use MPI
    use ESMF
    use fArgParse
+   use gFTL_IntegerVector
    use mapl_KeywordEnforcerMod
    use mapl_ExceptionHandling
    use mapl_CapOptionsMod, only:  MAPL_CapOptions !Rename is for backward compatibility. Remove renaming for 3.0
@@ -31,14 +32,13 @@ module MAPL_FargparseCLIMod
       module procedure old_CapOptions_from_fargparse
    end interface MAPL_CapOptions
 
+   integer, parameter :: NO_VALUE_PASSED_IN = -999
 
 contains
 
-   function new_CapOptions_from_fargparse(unusable, description, authors, dummy, rc) result (cap_options)
+   function new_CapOptions_from_fargparse(unusable, dummy, rc) result (cap_options)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type (MAPL_CapOptions) :: cap_options
-      character(*), intent(in) :: description
-      character(*), intent(in) :: authors
       character(*), intent(in) :: dummy !Needed for backward compatibility. Remove after 3.0
       integer, optional, intent(out) :: rc
       integer :: status
@@ -57,11 +57,9 @@ contains
       _UNUSED_DUMMY(unusable)
    end function new_CapOptions_from_fargparse
 
-   function new_CapOptions_from_fargparse_back_comp(unusable, description, authors, rc) result (fargparsecap)
+   function new_CapOptions_from_fargparse_back_comp(unusable, rc) result (fargparsecap)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type (MAPL_FargparseCLI) :: fargparsecap
-      character(*), intent(in) :: description
-      character(*), intent(in) :: authors
       integer, optional, intent(out) :: rc
       integer :: status
 
@@ -81,6 +79,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
+      type(IntegerVector) :: intvec
       integer :: status
       _UNUSED_DUMMY(unusable)
 
@@ -113,13 +112,13 @@ contains
            help='Number of MPI processes used by model CapGridComp', &
            type='integer', &
            action='store', &
-           default='-1')
+           default=-1)
 
       call parser%add_argument('--n_members', &
            help='Number of MPI processes used by model CapGridComp1', &
            type='integer', &
            action='store', &
-           default='1')
+           default=1)
 
       call parser%add_argument('--use_sub_comm', &
            help='The model by default is using MPI_COMM_WORLD : .true. or .false.', &
@@ -137,32 +136,37 @@ contains
            action='store', &
            default='mem')
 
+      ! We create an IntegerVector with a bad value to test if the user
+      ! passed in anything
+
+      call intvec%push_back(NO_VALUE_PASSED_IN)
+
       call parser%add_argument('--npes_input_server', &
            help='Number of MPI processes used by input server', &
            type='integer', &
-           default='0', &
-           n_arguments ='*', &
+           n_arguments ='+', &
+           default = intvec, &
            action='store')
 
       call parser%add_argument('--npes_output_server', &
            help='Number of MPI processes used by output server', &
            type='integer', &
-           default='0', &
-           n_arguments ='*', &
+           n_arguments ='+', &
+           default = intvec, &
            action='store')
 
       call parser%add_argument('--nodes_input_server', &
            help='Number of nodes used by input server', &
            type='integer', &
-           default='0', &
-           n_arguments ='*', &
+           n_arguments ='+', &
+           default = intvec, &
            action='store')
 
       call parser%add_argument('--nodes_output_server', &
            help='Number of nodes used by output server', &
            type='integer',                    &
-           default='0', &
-           n_arguments ='*', &
+           n_arguments ='+', &
+           default = intvec, &
            action='store')
 
       call parser%add_argument('--logging_config', &
@@ -180,7 +184,7 @@ contains
       call parser%add_argument('--npes_backend_pernode', &
            help='Number of MPI processes used by the backend output', &
            type='integer',                    &
-           default='0', &
+           default=0, &
            action='store')
 
       call parser%add_argument('--compress_nodes', &
@@ -189,8 +193,7 @@ contains
 
       call parser%add_argument('--fast_oclient', &
            help='Copying data before isend. Client would wait until it is re-used', &
-           action='store_true', &
-           type='integer')
+           action='store_true')
 
      call parser%add_argument('--one_node_output', &
            help='Specify if each output server has only one nodes', &
@@ -213,12 +216,14 @@ contains
       type(MAPL_CapOptions), intent(out) :: cap_options
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status, n
       character(:), allocatable :: buffer
       logical :: one_node_output, compress_nodes, use_sub_comm
 
-      integer, allocatable :: nodes_output_server(:)
+      integer, allocatable :: tmp_int_array(:), nodes_output_server(:)
       class(*), pointer :: option, option_npes, option_nodes
+      type (IntegerVector) :: tmp_int_vector, tmp_npes_vector, tmp_nodes_vector
+      type (IntegerVectorIterator) :: iter
 
       option => fargparseCLI%options%at('root_dso')
       if (associated(option)) then
@@ -276,37 +281,59 @@ contains
 
       ! We only allow one of npes_input_server or nodes_input_server
       option_npes => fargparseCLI%options%at('npes_input_server')
+      call cast(option_npes, tmp_npes_vector, _RC)
       option_nodes => fargparseCLI%options%at('nodes_input_server')
-      _ASSERT(.not.(associated(option_npes) .and. associated(option_nodes)), 'Cannot specify both --npes_input_server and --nodes_input_server')
+      call cast(option_nodes, tmp_nodes_vector, _RC)
+      _ASSERT(.not.(tmp_npes_vector%of(1) /= NO_VALUE_PASSED_IN .and. tmp_nodes_vector%of(1) /= NO_VALUE_PASSED_IN), 'Cannot specify both --npes_input_server and --nodes_input_server')
 
+      ! npes_input_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('npes_input_server')
-      if (associated(option)) then
-         call cast(option, cap_options%npes_input_server, _RC)
+      call cast(option, tmp_int_vector, _RC)
+      if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
+         cap_options%npes_input_server = tmp_int_vector%get_data()
+      else
+         cap_options%npes_input_server = [0]
       end if
 
+      ! nodes_input_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('nodes_input_server')
-      if (associated(option)) then
-         call cast(option, cap_options%nodes_input_server, _RC)
+      call cast(option, tmp_int_vector, _RC)
+      if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
+         cap_options%nodes_input_server = tmp_int_vector%get_data()
+      else
+         cap_options%nodes_input_server = [0]
       end if
 
       ! We only allow one of npes_output_server or nodes_output_server
       option_npes => fargparseCLI%options%at('npes_output_server')
+      call cast(option_npes, tmp_npes_vector, _RC)
       option_nodes => fargparseCLI%options%at('nodes_output_server')
-      _ASSERT(.not.(associated(option_npes) .and. associated(option_nodes)), 'Cannot specify both --npes_output_server and --nodes_output_server')
+      call cast(option_nodes, tmp_nodes_vector, _RC)
+      _ASSERT(.not.(tmp_npes_vector%of(1) /= NO_VALUE_PASSED_IN .and. tmp_nodes_vector%of(1) /= NO_VALUE_PASSED_IN), 'Cannot specify both --npes_output_server and --nodes_output_server')
 
+      ! npes_output_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('npes_output_server')
-      if (associated(option)) then
-         call cast(option, cap_options%npes_output_server, _RC)
+      call cast(option, tmp_int_vector, _RC)
+      if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
+         cap_options%npes_output_server = tmp_int_vector%get_data()
+      else
+         cap_options%npes_output_server = [0]
       end if
 
+      ! nodes_output_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('nodes_output_server')
-      if (associated(option)) then
-         call cast(option, cap_options%nodes_output_server, _RC)
+      call cast(option, tmp_int_vector, _RC)
+      if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
+         nodes_output_server = tmp_int_vector%get_data()
+      else
+         nodes_output_server = [0]
       end if
 
       option => fargparseCLI%options%at('one_node_output')
       if (associated(option)) then
          call cast(option, one_node_output, _RC)
+      else
+         one_node_output = .false.
       end if
       if (one_node_output) then
          allocate(cap_options%nodes_output_server(sum(nodes_output_server)), source =1)
@@ -377,12 +404,14 @@ contains
       type (MAPL_FargparseCLI), intent(inout) :: fargparseCLI
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      integer :: status
+      integer :: status, n
       character(:), allocatable :: buffer
       logical :: one_node_output, compress_nodes, use_sub_comm
 
-      integer, allocatable :: nodes_output_server(:)
+      integer, allocatable :: tmp_int_array(:), nodes_output_server(:)
       class(*), pointer :: option, option_npes, option_nodes
+      type (IntegerVector) :: tmp_int_vector, tmp_npes_vector, tmp_nodes_vector
+      type (IntegerVectorIterator) :: iter
 
       option => fargparseCLI%options%at('root_dso')
       if (associated(option)) then
@@ -440,37 +469,59 @@ contains
 
       ! We only allow one of npes_input_server or nodes_input_server
       option_npes => fargparseCLI%options%at('npes_input_server')
+      call cast(option_npes, tmp_npes_vector, _RC)
       option_nodes => fargparseCLI%options%at('nodes_input_server')
-      _ASSERT(.not.(associated(option_npes) .and. associated(option_nodes)), 'Cannot specify both --npes_input_server and --nodes_input_server')
+      call cast(option_nodes, tmp_nodes_vector, _RC)
+      _ASSERT(.not.(tmp_npes_vector%of(1) /= NO_VALUE_PASSED_IN .and. tmp_nodes_vector%of(1) /= NO_VALUE_PASSED_IN), 'Cannot specify both --npes_input_server and --nodes_input_server')
 
+      ! npes_input_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('npes_input_server')
-      if (associated(option)) then
-         call cast(option, cap_options%npes_input_server, _RC)
+      call cast(option, tmp_int_vector, _RC)
+      if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
+         cap_options%npes_input_server = tmp_int_vector%get_data()
+      else
+         cap_options%npes_input_server = [0]
       end if
 
+      ! nodes_input_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('nodes_input_server')
-      if (associated(option)) then
-         call cast(option, cap_options%nodes_input_server, _RC)
+      call cast(option, tmp_int_vector, _RC)
+      if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
+         cap_options%nodes_input_server = tmp_int_vector%get_data()
+      else
+         cap_options%nodes_input_server = [0]
       end if
 
       ! We only allow one of npes_output_server or nodes_output_server
       option_npes => fargparseCLI%options%at('npes_output_server')
+      call cast(option_npes, tmp_npes_vector, _RC)
       option_nodes => fargparseCLI%options%at('nodes_output_server')
-      _ASSERT(.not.(associated(option_npes) .and. associated(option_nodes)), 'Cannot specify both --npes_output_server and --nodes_output_server')
+      call cast(option_nodes, tmp_nodes_vector, _RC)
+      _ASSERT(.not.(tmp_npes_vector%of(1) /= NO_VALUE_PASSED_IN .and. tmp_nodes_vector%of(1) /= NO_VALUE_PASSED_IN), 'Cannot specify both --npes_output_server and --nodes_output_server')
 
+      ! npes_output_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('npes_output_server')
-      if (associated(option)) then
-         call cast(option, cap_options%npes_output_server, _RC)
+      call cast(option, tmp_int_vector, _RC)
+      if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
+         cap_options%npes_output_server = tmp_int_vector%get_data()
+      else
+         cap_options%npes_output_server = [0]
       end if
 
+      ! nodes_output_server is a gFTL IntegerVector that we need to convert to an integer array
       option => fargparseCLI%options%at('nodes_output_server')
-      if (associated(option)) then
-         call cast(option, cap_options%nodes_output_server, _RC)
+      call cast(option, tmp_int_vector, _RC)
+      if (tmp_int_vector%of(1) /= NO_VALUE_PASSED_IN) then
+         nodes_output_server = tmp_int_vector%get_data()
+      else
+         nodes_output_server = [0]
       end if
 
       option => fargparseCLI%options%at('one_node_output')
       if (associated(option)) then
          call cast(option, one_node_output, _RC)
+      else
+         one_node_output = .false.
       end if
       if (one_node_output) then
          allocate(cap_options%nodes_output_server(sum(nodes_output_server)), source =1)
