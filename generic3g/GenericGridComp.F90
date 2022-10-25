@@ -95,15 +95,33 @@ contains
       integer, optional, intent(out) :: rc
       
       type(OuterMetaComponent), pointer :: outer_meta
+      type(OuterMetaComponent) :: outer_meta_tmp
       integer :: status
 
       gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist,  _RC)
       call attach_outer_meta(gridcomp, _RC)
       outer_meta => get_outer_meta(gridcomp, _RC)
+
+#ifdef __GFORTRAN__
+      ! GFortran 12. cannot directly assign to outer_meta.  But the
+      ! assignment works for an object without the POINTER attribute.
+      ! An internal procedure is a workaround, but ... ridiculous.
+      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, set_services, config))
+#else
       outer_meta = OuterMetaComponent(gridcomp, set_services, config)
+#endif
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
+#ifdef __GFORTRAN__
+   contains
+
+      subroutine ridiculous(a, b)
+         type(OuterMetaComponent), intent(out) :: a
+         type(OuterMetaComponent), intent(in) :: b
+         a = b
+      end subroutine ridiculous
+#endif
    end function create_grid_comp_primary
 
 

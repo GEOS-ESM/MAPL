@@ -155,6 +155,7 @@ contains
       outer_meta%self_gridcomp = gridcomp
       outer_meta%user_setservices = set_services
       outer_meta%config = config
+
       !TODO: this may be able to move outside of constructor
       call initialize_phases_map(outer_meta%phases_map)
 
