@@ -1,6 +1,8 @@
 module Test_SimpleLeafGridComp
+   use mapl3g_GenericConfig
+   use mapl3g_UserSetServices
+   use mapl3g_GenericGridComp, only: GENERIC_INIT_USER
    use mapl3g_GenericGridComp, only: create_grid_comp
-   use mapl3g_GenericGridComp, only: initialize_generic => initialize
    use mapl3g_GenericGridComp, only: setServices
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use mapl3g_OuterMetaComponent, only: get_outer_meta
@@ -16,14 +18,10 @@ contains
       type(ESMF_GridComp), intent(inout) :: outer_gc
       integer, intent(out) :: rc
       
-      class(YAML_Node), allocatable :: config
+      type(GenericConfig) :: config
       integer :: status, userRC
-      type(Parser) :: p
 
-      p = Parser('core')
-      config = p%load(TextStream('{setServices: {sharedObj: libsimple_leaf_gridcomp, userRoutine: setservices_}}'))
-
-      outer_gc = create_grid_comp('A', config, rc=status)
+      outer_gc = create_grid_comp('A', user_setservices('libsimple_leaf_gridcomp'), config, rc=status)
       @assert_that(status, is(0))
 
       call ESMF_GridCompSetServices(outer_gc, setServices, userRC=userRC, rc=status)
@@ -105,7 +103,7 @@ contains
       call setup(outer_gc, status)
       @assert_that(status, is(0))
 
-      call ESMF_GridCompInitialize(outer_gc, rc=status)
+      call ESMF_GridCompInitialize(outer_gc, phase=GENERIC_INIT_USER, rc=status)
       @assert_that(status, is(0))
       @assertEqual("wasInit_A", log)
 

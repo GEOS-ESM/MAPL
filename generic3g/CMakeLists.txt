@@ -8,6 +8,7 @@ set(srcs
   FieldDictionaryItemMap.F90
   FieldDictionary.F90 
 
+  GenericConfig.F90
   GenericGrid.F90
 
   ComponentSpecParser.F90
@@ -30,6 +31,7 @@ set(srcs
   GenericGridComp.F90
 
   MAPL_Generic.F90
+  Validation.F90
 
   # ComponentSpecBuilder.F90
   )

@@ -82,8 +82,7 @@ module mapl3g_MethodPhasesMapUtils
       module procedure get_phase_index_
    end interface
 
-   character(len=*), parameter :: DEFAULT_PHASE_NAME = "default"
-
+   character(len=*), parameter :: DEFAULT_PHASE_NAME = "DEFAULT"
 contains
 
    subroutine add_phase_(phases_map, method_flag, phase_name, unusable, rc)
@@ -97,6 +96,7 @@ contains
       character(len=:), allocatable :: phase_name_
       type(StringVector), pointer :: phase_names
 
+
       _ASSERT(phases_map%count(method_flag) > 0, "Unsupported value for 'method_flag'.")
 
       phase_name_ = DEFAULT_PHASE_NAME
@@ -105,14 +105,15 @@ contains
       if (phases_map%count(method_flag) == 0) then
          call phases_map%insert(method_flag, StringVector())
       end if
-      
+
       phase_names => phases_map%of(method_flag)
-      _ASSERT(find(phase_names%begin(), phase_names%end(), phase_name_) == phase_names%end(), "duplicate phase name")
+      _ASSERT(find(phase_names%begin(), phase_names%end(), phase_name_) == phase_names%end(), "duplicate phase name: " // phase_name_)
       call phase_names%push_back(phase_name_)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine add_phase_
+
 
    integer function get_phase_index_(phases, unusable, phase_name, rc) result(phase_index)
       type(StringVector), intent(in) :: phases

@@ -13,6 +13,7 @@ module mapl3g_ConnectionSpec
    contains
       procedure :: is_export_to_import
       procedure :: is_valid
+      procedure :: is_sibling
    end type ConnectionSpec
 
 
@@ -45,5 +46,15 @@ contains
 
       end associate
    end function is_valid
+
+   ! Only sibling connections trigger allocation of exports.
+   logical function is_sibling(this)
+      class(ConnectionSpec), intent(in) :: this
+
+      associate(src_intent => this%source%state_intent, dst_intent => this%destination%state_intent)
+        is_sibling = (src_intent == 'export' .and. dst_intent == 'import')
+      end associate
+
+   end function is_sibling
 
 end module mapl3g_ConnectionSpec

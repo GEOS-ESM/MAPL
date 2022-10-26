@@ -134,10 +134,15 @@ contains
       use mapl_DSO_Utilities
       type(DSOSetServices) :: dso_setservices
       character(len=*), intent(in) :: sharedObj
-      character(len=*), intent(in) :: userRoutine
+      character(len=*), optional, intent(in) :: userRoutine
 
+      character(:), allocatable :: userRoutine_
+
+      userRoutine_ = 'setservices_' ! unless
+      if (present(userRoutine)) userRoutine_ = userRoutine
+         
       dso_setservices%sharedObj   = sharedObj
-      dso_setservices%userRoutine = userRoutine
+      dso_setservices%userRoutine = userRoutine_
 
    end function new_DSOSetServices
 

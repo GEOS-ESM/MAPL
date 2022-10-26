@@ -1,26 +1,42 @@
 #include "MAPL_ErrLog.h"
 
+! Each generic initialize phase can be supplemented by the user
+! gridcomp if necessary.   User phases are MAPL phases appended by
+! "_PRE" or "_POST".
+! 
+! Generic initialize phases:
+!     MAPL_PROPAGATE_GRID
+!     MAPL_ADVERTISE
+!     MAPL_REALIZE
+
 module mapl3g_GenericGridComp
    use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_OuterMetaComponent, only: attach_outer_meta
+   use :: mapl3g_GenericConfig
    use esmf
    use :: mapl_KeywordEnforcer, only: KeywordEnforcer
    use :: mapl_ErrorHandling
    implicit none
    private
 
+   ! Procedures
    public :: setServices
    public :: create_grid_comp
 
+   
+   ! Named constants
+   public :: GENERIC_INIT_ALL
+   public :: GENERIC_INIT_GRID
+   public :: GENERIC_INIT_USER
+   integer, parameter :: GENERIC_INIT_ALL = 3
+   integer, parameter :: GENERIC_INIT_GRID = 2
+   integer, parameter :: GENERIC_INIT_USER = 1 ! should be last
+
 
    interface create_grid_comp
-      module procedure create_grid_comp_traditional
-      module procedure create_grid_comp_yaml_dso
-      module procedure create_grid_comp_yaml_userroutine
+      module procedure create_grid_comp_primary
    end interface create_grid_comp
-
-   public :: initialize
 
 contains
 
@@ -51,7 +67,10 @@ contains
            end do
          end associate
 
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE,   initialize,    _RC)
+         ! Mandatory generic initialize phases
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_GRID, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_USER, _RC)
+
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_FINALIZE,     finalize,      _RC)
 !!$         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_READRESTART,  read_restart,  _RC)
 !!$         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_WRITERESTART, write_restart, _RC)
@@ -60,81 +79,52 @@ contains
       end subroutine set_entry_points
 
    end subroutine setServices
+
+
+
    
+   type(ESMF_GridComp) function create_grid_comp_primary( &
+        name, set_services, config, unusable, petlist, rc) result(gridcomp)
+      use :: mapl3g_UserSetServices, only: AbstractUserSetServices
 
-   type(ESMF_GridComp) function create_grid_comp_traditional( &
-        name, userRoutine, unusable, config, petlist, rc) result(gridcomp)
-      use :: mapl3g_UserSetServices, only: user_setservices
-      use :: mapl3g_ESMF_Interfaces, only: I_SetServices
-      
-      character(len=*), intent(in) :: name
-      procedure(I_SetServices) :: userRoutine
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_config), optional, intent(inout) :: config
-      integer, optional, intent(in) :: petlist(:)
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
-
-      gridcomp = make_basic_gridcomp(name=name, petlist=petlist, _RC)
-      outer_meta => get_outer_meta(gridcomp, _RC)
-      if (present(config)) call outer_meta%set_esmf_config(config)
-      call outer_meta%set_user_setservices(user_setservices(userRoutine))
-
-      _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end function create_grid_comp_traditional
-
-
-   type(ESMF_GridComp) function create_grid_comp_yaml_dso( &
-        name, config, unusable, petlist, rc) result(gridcomp)
-      use :: mapl3g_UserSetServices, only: user_setservices
-      use :: yafyaml, only: YAML_Node
-
-      character(len=*), intent(in) :: name
-      class(YAML_Node), intent(inout) :: config
+      character(*), intent(in) :: name
+      class(AbstractUserSetServices), intent(in) :: set_services
+      type(GenericConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: petlist(:)
       integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
-!!$      class(YAML_Node), pointer :: dso_yaml
-!!$      character(:), allocatable :: sharedObj, userRoutine
       
-      gridcomp = make_basic_gridcomp(name=name, petlist=petlist, _RC)
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(OuterMetaComponent) :: outer_meta_tmp
+      integer :: status
+
+      gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist,  _RC)
+      call attach_outer_meta(gridcomp, _RC)
       outer_meta => get_outer_meta(gridcomp, _RC)
-      call outer_meta%set_config(config)
+
+#ifdef __GFORTRAN__
+      ! GFortran 12. cannot directly assign to outer_meta.  But the
+      ! assignment works for an object without the POINTER attribute.
+      ! An internal procedure is a workaround, but ... ridiculous.
+      call ridiculous(outer_meta, OuterMetaComponent(gridcomp, set_services, config))
+#else
+      outer_meta = OuterMetaComponent(gridcomp, set_services, config)
+#endif
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function create_grid_comp_yaml_dso
+#ifdef __GFORTRAN__
+   contains
 
-   type(ESMF_GridComp) function create_grid_comp_yaml_userroutine( &
-        name, config, userRoutine, unusable, petlist, rc) result(gridcomp)
-      use :: mapl3g_ESMF_Interfaces, only: I_SetServices
-      use :: mapl3g_UserSetServices, only: user_setservices
-      use :: yafyaml, only: YAML_Node
+      subroutine ridiculous(a, b)
+         type(OuterMetaComponent), intent(out) :: a
+         type(OuterMetaComponent), intent(in) :: b
+         a = b
+      end subroutine ridiculous
+#endif
+   end function create_grid_comp_primary
 
-      character(len=*), intent(in) :: name
-      class(YAML_Node), intent(inout) :: config
-      procedure(I_SetServices) :: userRoutine
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: petlist(:)
-      integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
-      
-      gridcomp = make_basic_gridcomp(name=name, petlist=petlist, _RC)
-      outer_meta => get_outer_meta(gridcomp, _RC)
-      call outer_meta%set_config(config)
-      call outer_meta%set_user_setservices(user_setservices(userRoutine))
-
-      _RETURN(ESMF_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end function create_grid_comp_yaml_userroutine
 
    ! Create ESMF GridComp, attach an internal state for meta, and a config.
    type(ESMF_GridComp) function make_basic_gridcomp(name, unusable, petlist, rc) result(gridcomp)
@@ -153,6 +143,8 @@ contains
    end function make_basic_gridcomp
 
 
+   ! Generic initialize phases are always executed.  User component can specify
+   ! additional pre-action for each phase.
    recursive subroutine initialize(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gridcomp
       type(ESMF_State) :: importState
@@ -161,15 +153,25 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
+      integer :: phase
       type(OuterMetaComponent), pointer :: outer_meta
       
       outer_meta => get_outer_meta(gridcomp, _RC)
-      call outer_meta%initialize(importState, exportState, clock, _RC)
+
+      call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
+      select case (phase)
+      case (GENERIC_INIT_GRID)
+         call outer_meta%initialize_grid(importState, exportState, clock, _RC)
+      case (GENERIC_INIT_USER)
+         call outer_meta%initialize_user(importState, exportState, clock, _RC)
+      case default
+         _FAIL('Unknown generic phase ')
+      end select
 
       _RETURN(ESMF_SUCCESS)
    end subroutine initialize
 
-
+   ! The only run phases are those specified by the user component.
    recursive subroutine run(gridcomp, importState, exportState, clock, rc)
       use gFTL2_StringVector
       type(ESMF_GridComp) :: gridcomp

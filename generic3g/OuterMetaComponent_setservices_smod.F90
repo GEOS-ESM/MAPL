@@ -63,6 +63,7 @@ contains
 
          class(NodeIterator), allocatable :: iter
          integer :: status
+         class(AbstractUserSetServices), allocatable :: setservices
 
          associate (b => children_config%begin(), e => children_config%end() )
 
@@ -72,7 +73,8 @@ contains
            do while (iter /= e)
               name => to_string(iter%first(), _RC)
               child_config => iter%second()
-              call this%add_child(name, child_config, _RC)
+              !TODO: get setservices from config
+              call this%add_child(name, setservices, GenericConfig(yaml_cfg=child_config), _RC)
               call iter%next()
            end do
 
@@ -90,7 +92,7 @@ contains
 
          this%user_gridcomp = create_user_gridcomp(this, _RC)
 !!$         call this%user_setServices%run(this%user_gridcomp, _RC)
-         call this%component_spec%user_setServices%run(this%user_gridcomp, _RC)
+         call this%user_setServices%run(this%user_gridcomp, _RC)
 
          _RETURN(ESMF_SUCCESS)
       end subroutine process_user_gridcomp
@@ -136,10 +138,11 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      character(ESMF_MAXSTR) :: name
+      character(:), allocatable :: name
       integer :: status
 
-      call ESMF_GridCompGet(this%self_gridcomp, name=name, _RC)
+
+      name = this%get_name()
       user_gridcomp = ESMF_GridCompCreate(name=name, _RC)
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
 
@@ -157,6 +160,8 @@ contains
       integer, optional, intent(out) ::rc
 
       integer :: status
+      character(:), allocatable :: phase_name_
+
 
       call add_phase(this%phases_map, method_flag=method_flag, phase_name=phase_name, _RC)
 

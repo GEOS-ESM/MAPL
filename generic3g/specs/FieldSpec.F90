@@ -2,6 +2,7 @@
 
 module mapl3g_FieldSpec
    use mapl3g_AbstractStateItemSpec
+   use mapl3g_AbstractActionSpec
    use mapl3g_ExtraDimsSpec
    use mapl_ErrorHandling
    use esmf
@@ -32,6 +33,7 @@ module mapl3g_FieldSpec
       procedure :: connect_to
       procedure :: can_connect_to
       procedure :: requires_extension
+      procedure :: make_extension
       procedure :: add_to_state
    end type FieldSpec
 
@@ -48,6 +50,11 @@ contains
       type(ExtraDimsSpec), intent(in) :: extra_dims
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       type(ESMF_Grid), intent(in) :: grid
+
+      field_spec%extra_dims = extra_dims
+      field_spec%typekind = typekind
+      field_spec%grid = grid
+      field_spec%units = 'unknown'
    end function new_FieldSpec_full
 
 
@@ -124,6 +131,7 @@ contains
       select type (src_spec)
       class is (FieldSpec)
          ! ok
+         this%payload = src_spec%payload
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select
@@ -141,11 +149,11 @@ contains
       class is (FieldSpec)
          can_connect_to = all ([ &
               this%typekind == src_spec%typekind,   &
-              this%extra_dims == src_spec%extra_dims, &
+              this%extra_dims == src_spec%extra_dims &
 !!$              this%freq_spec == src_spec%freq_spec,   &
 !!$              this%halo_width == src_spec%halo_width,  &
 !!$              this%vm == sourc%vm, &
-              can_convert_units(this, src_spec) &
+!!$              can_convert_units(this, src_spec) &
               ])
       class default
          can_connect_to = .false.
@@ -171,7 +179,7 @@ contains
 !!$              this%vm /= sourc%vm,               &
               this%grid /= src_spec%grid             &
               ])
-         requires_extension = .false.
+!!$         requires_extension = .false.
       end select
    end function requires_extension
 
@@ -208,5 +216,12 @@ contains
 !!$
 
    end subroutine add_to_state
+
+   function make_extension(this, src_spec, rc) result(action_spec)
+      class(AbstractActionSpec), allocatable :: action_spec
+      class(FieldSpec), intent(in) :: this
+      class(AbstractStateItemSpec), intent(in) :: src_spec
+      integer, optional, intent(out) :: rc 
+   end function make_extension
 
 end module mapl3g_FieldSpec
