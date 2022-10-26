@@ -559,7 +559,7 @@ module MAPL_FileMetadataUtilsMod
          endif
       end if 
 
-      if (present(coords)) then
+      if (present(coordinate_attr)) then
          if (this%var_has_attr(coordinate_name,"coordinate")) then
             attr => var%get_attribute('coordinate')
             coordUnitPtr => attr%get_value()

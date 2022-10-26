@@ -100,7 +100,7 @@ module MAPL_VerticalDataMod
         if (present(vunit)) then
            vdata%vunit=vunit
          else
-           vdata%vunit=""
+           vdata%vunit="layer"
         end if
 
         if (present(force_no_regrid)) then
