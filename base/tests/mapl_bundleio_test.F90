@@ -172,7 +172,6 @@ CONTAINS
 ! This is how you can "reset" the MAPL_Generic.h verify bits for a program.
 ! Program must be at the end of the file to do this and everything else in a module
 
-#undef MAPL_ErrLog_DONE
 #define I_AM_MAIN
 #include "MAPL_Generic.h"
 
