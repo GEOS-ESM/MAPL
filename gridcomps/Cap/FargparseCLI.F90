@@ -34,12 +34,20 @@ module MAPL_FargparseCLIMod
 
    integer, parameter :: NO_VALUE_PASSED_IN = -999
 
+   abstract interface
+      subroutine I_extraoptions(parser, rc)
+         import ArgParser
+         type(ArgParser), intent(inout) :: parser
+         integer, optional, intent(out) :: rc
+      end subroutine
+   end interface
 contains
 
-   function new_CapOptions_from_fargparse(unusable, dummy, rc) result (cap_options)
+   function new_CapOptions_from_fargparse(unusable, dummy, extra, rc) result (cap_options)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type (MAPL_CapOptions) :: cap_options
       character(*), intent(in) :: dummy !Needed for backward compatibility. Remove after 3.0
+      procedure(I_extraoptions), optional :: extra
       integer, optional, intent(out) :: rc
       integer :: status
 
@@ -49,6 +57,10 @@ contains
 
       call fargparse_cli%add_command_line_options(fargparse_cli%parser, _RC)
 
+      if (present(extra)) then
+         call extra(fargparse_cli%parser, _RC)
+      end if
+
       fargparse_cli%options = fargparse_cli%parser%parse_args()
 
       call fargparse_cli%fill_cap_options(cap_options, _RC)
@@ -57,15 +69,20 @@ contains
       _UNUSED_DUMMY(unusable)
    end function new_CapOptions_from_fargparse
 
-   function new_CapOptions_from_fargparse_back_comp(unusable, rc) result (fargparsecap)
+   function new_CapOptions_from_fargparse_back_comp(unusable, extra, rc) result (fargparsecap)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type (MAPL_FargparseCLI) :: fargparsecap
+      procedure(I_extraoptions), optional :: extra
       integer, optional, intent(out) :: rc
       integer :: status
 
       fargparsecap%parser = ArgParser()
 
       call fargparsecap%add_command_line_options(fargparsecap%parser, _RC)
+
+      if (present(extra)) then
+         call extra(fargparsecap%parser, _RC)
+      end if
 
       fargparsecap%options = fargparsecap%parser%parse_args()
 
