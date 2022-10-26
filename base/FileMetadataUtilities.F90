@@ -525,49 +525,49 @@ module MAPL_FileMetadataUtilsMod
          type is (character(*))
             coordUnits = trim(coordUnitPtr)
          class default
-            _FAIL('coordinate units must be string in '//fname)
+            _FAIL(trim(coordinate_name)//' units must be string in '//fname)
          end select
       end if 
 
-      if (present(coordUnits)) then
-         attr => var%get_attribute('long_name')
-         if (associated(attr)) then
+      if (present(long_name)) then
+         if (this%var_has_attr(coordinate_name,"long_name")) then
+            attr => var%get_attribute('long_name')
             coordUnitPtr => attr%get_value()
             select type(coordUnitPtr)
             type is (character(*))
                long_name = trim(coordUnitPtr)
             class default
-               _FAIL('coordinate units must be string in '//fname)
+               _FAIL(trim(coordinate_name)//' long_name must be string in '//fname)
             end select
          else
              long_name = 'not found'
          endif
       end if 
 
-      if (present(coordUnits)) then
-         attr => var%get_attribute('standard_name')
-         if (associated(attr)) then
+      if (present(standard_name)) then
+         if (this%var_has_attr(coordinate_name,"standard_name")) then
+            attr => var%get_attribute('standard_name')
             coordUnitPtr => attr%get_value()
             select type(coordUnitPtr)
             type is (character(*))
                standard_name = trim(coordUnitPtr)
             class default
-               _FAIL('coordinate units must be string in '//fname)
+               _FAIL(trim(coordinate_name)//' standard_name must be string in '//fname)
             end select
          else
              standard_name = 'not found'
          endif
       end if 
 
-      if (present(coordinate_attr)) then
-         attr => var%get_attribute('standard_name')
-         if (associated(attr)) then
+      if (present(coords)) then
+         if (this%var_has_attr(coordinate_name,"coordinate")) then
+            attr => var%get_attribute('coordinate')
             coordUnitPtr => attr%get_value()
             select type(coordUnitPtr)
             type is (character(*))
                coordinate_attr = trim(coordUnitPtr)
             class default
-               _FAIL('coordinate units must be string in '//fname)
+               _FAIL(trim(coordinate_name)//' name must be string in '//fname)
             end select
          else
              coordinate_attr = 'not found'
