@@ -28,6 +28,9 @@ module MAPL_VerticalDataMod
      character(len=:), allocatable :: func
      character(len=:), allocatable :: vvar
      character(len=:), allocatable :: positive
+     character(len=:), allocatable :: long_name
+     character(len=:), allocatable :: standard_name
+     character(len=:), allocatable :: vcoord
      real :: vscale
      real :: pow=0.0
      real, allocatable :: levs(:)
@@ -57,15 +60,19 @@ module MAPL_VerticalDataMod
 
   contains
 
-     function newVerticalData(levels,vcoord,vscale,vunit,positive,rc) result(vdata)
+     function newVerticalData(levels,vcoord,vscale,vunit,positive,long_name,standard_name,force_no_regrid,rc) result(vdata)
         type(VerticalData) :: vData
         real, pointer, intent(in), optional :: levels(:)
         real, intent(in), optional :: vscale
         character(len=*), optional, intent(in) :: vcoord
         character(len=*), optional, intent(in) :: vunit
         character(len=*), optional, intent(in) :: positive
+        character(len=*), optional, intent(in) :: long_name
+        character(len=*), optional, intent(in) :: standard_name
+        logical, optional, intent(in) :: force_no_regrid
         integer, optional, intent(Out) :: rc
 
+        logical :: local_force_no_regrid
 
         if (present(positive)) then
            _ASSERT(trim(positive)=='up'.or.trim(positive)=='down',trim(positive)//" not allowed for positive argument")
@@ -74,43 +81,73 @@ module MAPL_VerticalDataMod
            vdata%positive='down'
         end if
 
+        if (present(long_name)) then
+           vdata%long_name = long_name
+        else
+           vdata%long_name = 'vertical level'
+        end if
+        if (present(standard_name)) then
+           vdata%standard_name = standard_name
+        else
+           vdata%standard_name = 'model_layers'
+        end if
+        if (present(vcoord)) then
+           vdata%vcoord = vcoord
+        else
+           vdata%vcoord = 'eta'
+        endif
+
+        if (present(vunit)) then
+           vdata%vunit=vunit
+         else
+           vdata%vunit="layer"
+        end if
+
+        if (present(force_no_regrid)) then
+           local_force_no_regrid = force_no_regrid
+        else
+           local_force_no_regrid = .false. 
+        end if 
+
         if (.not.present(levels)) then
            if (trim(vdata%positive)=='down') then
               vdata%regrid_type = VERTICAL_METHOD_NONE
            else
               vdata%regrid_type = VERTICAL_METHOD_FLIP
            end if
-           _RETURN(ESMF_SUCCESS)
-        end if
-
-        allocate(vData%levs,source=levels)
-        allocate(vData%scaled_levels,source=levels)
-        if (present(vunit)) then
-           vdata%vunit=vunit
-         else
-           vdata%vunit=""
-        end if
-        if (present(vscale)) then
-           vdata%vscale=vscale
-           vData%scaled_levels = vData%scaled_levels*vdata%vscale
-        end if
-        if (present(vcoord)) then
-           allocate(vData%interp_levels(size(vData%levs)))
-           vdata%regrid_type = VERTICAL_METHOD_ETA2LEV
-           vdata%VVAR = adjustl(vcoord)
-           vdata%Func = vdata%Vvar(1:3)
-           if    (vdata%Func=='log') then
-              vdata%Vvar = adjustl(vdata%Vvar(index(vdata%Vvar,'(')+1:index(vdata%Vvar,')')-1))
-              vdata%interp_levels = log(vdata%scaled_levels)
-           elseif(vdata%Func=='pow') then
-              read( vdata%Vvar(index(vdata%Vvar,',')+1:index(vdata%Vvar,')')-1) , *) vdata%pow
-              vdata%Vvar = adjustl(vdata%Vvar(index(vdata%Vvar,'(')+1:index(vdata%Vvar,',')-1))
-              vdata%interp_levels =  (vdata%levs*vdata%scaled_levels)**vdata%pow
-           else
-              vdata%interp_levels = vdata%scaled_levels
-           endif
         else
-           vdata%regrid_type = VERTICAL_METHOD_SELECT
+           allocate(vData%levs,source=levels)
+           if (local_force_no_regrid) then
+              if (trim(vdata%positive)=='down') then
+                 vdata%regrid_type = VERTICAL_METHOD_NONE
+              else
+                 vdata%regrid_type = VERTICAL_METHOD_FLIP
+              end if
+              _RETURN(_SUCCESS)
+           end if
+           allocate(vData%scaled_levels,source=levels)
+           if (present(vscale)) then
+              vdata%vscale=vscale
+              vData%scaled_levels = vData%scaled_levels*vdata%vscale
+           end if
+           if (present(vcoord)) then
+              allocate(vData%interp_levels(size(vData%levs)))
+              vdata%regrid_type = VERTICAL_METHOD_ETA2LEV
+              vdata%VVAR = adjustl(vcoord)
+              vdata%Func = vdata%Vvar(1:3)
+              if    (vdata%Func=='log') then
+                 vdata%Vvar = adjustl(vdata%Vvar(index(vdata%Vvar,'(')+1:index(vdata%Vvar,')')-1))
+                 vdata%interp_levels = log(vdata%scaled_levels)
+              elseif(vdata%Func=='pow') then
+                 read( vdata%Vvar(index(vdata%Vvar,',')+1:index(vdata%Vvar,')')-1) , *) vdata%pow
+                 vdata%Vvar = adjustl(vdata%Vvar(index(vdata%Vvar,'(')+1:index(vdata%Vvar,',')-1))
+                 vdata%interp_levels =  (vdata%levs*vdata%scaled_levels)**vdata%pow
+              else
+                 vdata%interp_levels = vdata%scaled_levels
+              endif
+           else
+              vdata%regrid_type = VERTICAL_METHOD_SELECT
+           end if
         end if
      end function newVerticalData
 
@@ -476,11 +513,11 @@ module MAPL_VerticalDataMod
               else
                  call metadata%add_dimension('lev', lm, rc=status)
                  v = Variable(type=PFIO_REAL64, dimensions='lev')
-                 call v%add_attribute('long_name','vertical level')
-                 call v%add_attribute('units','layer')
+                 call v%add_attribute('long_name',this%long_name)
+                 call v%add_attribute('units',this%vunit)
                  call v%add_attribute('positive',trim(this%positive))
-                 call v%add_attribute('coordinate','eta')
-                 call v%add_attribute('standard_name','model_layers')
+                 call v%add_attribute('coordinate',this%vcoord)
+                 call v%add_attribute('standard_name',this%standard_name)
                  call v%add_const_value(UnlimitedEntity(this%levs))
                  call metadata%add_variable('lev',v,rc=status)
                  _VERIFY(status)

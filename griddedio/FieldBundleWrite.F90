@@ -6,6 +6,7 @@ module MAPL_ESMFFieldBundleWrite
    use MAPL_TimeDataMod
    use MAPL_GriddedIOitemVectorMod
    use MAPL_GriddedIOitemMod
+   use MAPL_VerticalDataMod
    use pFIO_ClientManagerMod, only: o_Clients
    use MAPL_ExceptionHandling
    implicit none
@@ -47,11 +48,12 @@ module MAPL_ESMFFieldBundleWrite
          _RETURN(_SUCCESS)
       end subroutine write_bundle_single_time
 
-      subroutine create_from_bundle(this,bundle,clock,output_file,n_steps,time_interval,nbits,deflate,rc)
+      subroutine create_from_bundle(this,bundle,clock,output_file,vertical_data,n_steps,time_interval,nbits,deflate,rc)
          class(FieldBundleWRiter), intent(inout) :: this
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
          character(len=*), optional, intent(in) :: output_file
+         type(VerticalData), optional, intent(inout) :: vertical_data
          integer, optional, intent(in)  :: n_steps
          integer, optional, intent(in)  :: time_interval
          integer, optional, intent(in)  :: nbits
@@ -92,8 +94,13 @@ module MAPL_ESMFFieldBundleWrite
             item%xname = trim(field_names(i))
             call items%push_back(item)
          enddo
-         call this%cfio%createFileMetadata(items,bundle,time_info,rc=status)
-         _VERIFY(status)
+         if (present(vertical_data)) then
+            call this%cfio%createFileMetadata(items,bundle,time_info,vdata=vertical_data,rc=status)
+            _VERIFY(status)
+         else
+            call this%cfio%createFileMetadata(items,bundle,time_info,rc=status)
+            _VERIFY(status)
+         end if
          if (present(output_file)) this%file_name = output_file
          collection_id = o_clients%add_hist_collection(this%cfio%metadata)
          call this%cfio%set_param(write_collection_id=collection_id)
