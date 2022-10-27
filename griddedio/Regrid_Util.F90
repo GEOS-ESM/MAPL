@@ -53,6 +53,7 @@
    contains
       procedure :: create_grid
       procedure :: process_command_line
+      procedure :: has_level
    end type regrid_support
 
    contains
@@ -239,6 +240,16 @@
     _RETURN(_SUCCESS)
     end subroutine create_grid
 
+    function has_level(this,rc) result(file_has_level)
+       logical :: file_has_level
+       class(regrid_support), intent(in) :: this
+       integer, intent(out), optional :: rc
+       integer :: global_dims(3),status
+       call MAPL_GridGet(this%new_grid,globalCellCountPerDim=global_dims,_RC)
+       file_has_level = (global_dims(3) /= 0)
+       _RETURN(_SUCCESS)
+    end function
+
     function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,lon_range,lat_range,tripolar_file,rc) result(cf)
        use MAPL_ConfigMod
        type(ESMF_Config)              :: cf
@@ -368,7 +379,7 @@ CONTAINS
    type(VerticalData) :: vertical_data
 
    type(FieldBundleWriter) :: newWriter
-   logical :: writer_created
+   logical :: writer_created, has_vertical_level
    type(ServerManager) :: io_server
 
  
@@ -388,7 +399,10 @@ CONTAINS
    filename = support%filenames%at(1)
    if (allocated(tSeries)) deallocate(tSeries)
    call get_file_times(filename,support%itime,support%allTimes,tseries,timeInterval,tint,tsteps,_RC)
-   call get_file_levels(filename,vertical_data,_RC)
+   has_vertical_level = support%has_level(_RC)
+   if (has_vertical_level) then
+      call get_file_levels(filename,vertical_data,_RC)
+   end if
 
    Clock = ESMF_ClockCreate ( name="Eric", timeStep=TimeInterval, &
                                startTime=tSeries(1), _RC )

@@ -49,6 +49,7 @@ module MAPLBase_Mod
   use MAPL_EtaHybridVerticalCoordinateMod
   use MAPL_ApplicationSupport
   use MAPL_ServerManager
+  use MAPL_FileMetadataUtilsMod
   logical, save, private :: mapl_is_initialized = .false.
 
 end module MAPLBase_Mod

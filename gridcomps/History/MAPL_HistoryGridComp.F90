@@ -3699,6 +3699,13 @@ ENDDO PARSER
          if (.not.list(n)%timeseries_output) then
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
 
+               block
+                  type(ESMF_VM) :: vvm
+                  call ESMF_VMGetCUrrent(vvm)
+                  if (MapL_am_i_root()) write(*,*)"bmaa writing ",trim(list(n)%currentFile)
+                  call ESMF_VMBarrier(vvm)
+               end block
+                  
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,rc=status)
                _VERIFY(status)
 
