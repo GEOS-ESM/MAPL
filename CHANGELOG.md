@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Coupled MOM6 GCM run to CI (ifort only)
 - Added ability to pass in extra options to FLAP CLI arguments
+- Added option to pass vertical metdata to FieldBundleWriter class for output file
+- Expose FileMetaUtilities class MAPL_VerticalDataMod vi "use MAPL"
 
 ### Changed
 
