@@ -4,9 +4,6 @@
 ! on the ESMF logger.  For now these macros provide simple
 ! traceback capability.
 
-#ifndef MAPL_ErrLog_DONE
-
-#  define MAPL_ErrLog_DONE
 #  ifdef RETURN_
 #    undef RETURN_
 #  endif
@@ -116,9 +113,6 @@
 #    define _FAIL(msg) _ASSERT(.false.,msg)
 
 #  endif
-
-
-#endif
 
 
 
