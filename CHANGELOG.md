@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.29.0] - 2022-10-28
+
+### Fixed
+
 - Add define for `-Dsys${CMAKE_SYSTEM_NAME}` to fix build issue with macOS and Intel (#1695)
 - Fix handling of return macros for programs and subroutines (#1194)
 
@@ -16,8 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Coupled MOM6 GCM run to CI (ifort only)
 - Added ability to pass in extra options to FLAP CLI arguments
-- Added option to pass vertical metdata to FieldBundleWriter class for output file
-- Expose FileMetaUtilities class MAPL_VerticalDataMod vi "use MAPL"
+- Added option to pass vertical metadata to FieldBundleWriter class for output file
+- Expose FileMetaUtilities class MAPL_VerticalDataMod via "use MAPL"
 
 ### Changed
 
@@ -26,10 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `components.yaml
   - ESMA_env v4.4.0 → v4.5.0 (Update for GMI builds)
   - ESMA_cmake v3.18.0 → v3.19.0 (Add `-save-temps` to GNU debug, check if install prefix is writable)
-
-### Removed
-
-### Deprecated
 
 ## [2.28.0] - 2022-10-17
 
