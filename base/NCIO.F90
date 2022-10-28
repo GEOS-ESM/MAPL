@@ -670,7 +670,7 @@ module NCIOMod
     type(Netcdf4_Fileformatter)           , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(IN   ) :: A(:,:,:)
-    type(ArrDescr)              , intent(INOUT) :: ARRDES
+    type(ArrDescr), optional    , intent(INOUT) :: ARRDES
     type (ClientManager), optional, intent(inout)  :: oClients
     integer,           optional , intent(  OUT) :: RC
 
@@ -679,24 +679,26 @@ module NCIOMod
     integer ::  i1, j1, in, jn,  global_dim(3)
     type(ArrayReference)     :: ref
 
-    if (arrdes%write_restart_by_oserver) then
-       _ASSERT(present(oClients), "output server is needed")
-       call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
-        _VERIFY(status)
-       call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
-       _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i not match")
-       _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j not match")
-       ref = ArrayReference(A)
-       _ASSERT( size(a,1) == in-i1+1, "size not match")
-       _ASSERT( size(a,2) == jn-j1+1, "size not match")
-       call oClients%collective_stage_data(arrdes%collection_id,trim(arrdes%filename),trim(name), &
+    if (present(arrdes)) then
+       if (arrdes%write_restart_by_oserver) then
+          _ASSERT(present(oClients), "output server is needed")
+          call MAPL_GridGet(arrdes%grid,globalCellCountPerDim=global_dim,rc=status)
+          _VERIFY(status)
+          call MAPL_Grid_interior(arrdes%grid,i1,in,j1,jn)
+          _ASSERT( i1 == arrdes%I1(arrdes%NX0), "interior starting i not match")
+          _ASSERT( j1 == arrdes%j1(arrdes%NY0), "interior starting j not match")
+          ref = ArrayReference(A)
+          _ASSERT( size(a,1) == in-i1+1, "size not match")
+          _ASSERT( size(a,2) == jn-j1+1, "size not match")
+          call oClients%collective_stage_data(arrdes%collection_id,trim(arrdes%filename),trim(name), &
                       ref,start=[i1,j1,1], &
                       global_start=[1,1,1], global_count=[global_dim(1),global_dim(2),size(a,3)])
-       _RETURN(_SUCCESS)
+          _RETURN(_SUCCESS)
+       endif
     endif
 
     do l=1,size(a,3)
-       call MAPL_VarWrite(formatter,name,A(:,:,l),arrdes,lev=l, rc=status)
+       call MAPL_VarWrite(formatter,name,A(:,:,l), arrdes=arrdes,lev=l, rc=status)
        _VERIFY(status)
     enddo
 
@@ -710,14 +712,14 @@ module NCIOMod
     type (Netcdf4_Fileformatter)          , intent(IN   ) :: formatter
     character(len=*)            , intent(IN   ) :: name
     real(kind=ESMF_KIND_R4)     , intent(INOUT) :: A(:,:,:)
-    type(ArrDescr)              , intent(INOUT) :: ARRDES
+    type(ArrDescr), optional    , intent(INOUT) :: ARRDES
     integer,           optional , intent(  OUT) :: RC
 
     integer                               :: status
     integer :: l
 
     do l=1,size(a,3)
-       call MAPL_VarRead(formatter,name,A(:,:,l),arrdes,lev=l, rc=status)
+       call MAPL_VarRead(formatter,name,A(:,:,l), arrdes=arrdes, lev=l, rc=status)
        _VERIFY(status)
     enddo
 
