@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Change argument arrdes of MAPL_Read and Write NC Var 3d to optional
 - Error codes in `shared/MAPL_Error_Handling.F90` are now consistent with `_FAILURE = 1` in `include/MAPL_ErrLog.h`
+- Updated `components.yaml
+  - ESMA_env v4.4.0 → v4.5.0 (Update for GMI builds)
+  - ESMA_cmake v3.18.0 → v3.19.0 (Add `-save-temps` to GNU debug, check if install prefix is writable)
 
 ### Removed
 
