@@ -9,6 +9,60 @@ SUCCESS = 0
 
 CATEGORIES = ("IMPORT","EXPORT","INTERNAL")
 
+def string_emit(value):
+    return "'"+value+"'"
+
+def mangled_name(name):
+    return "'" + name.replace("*","'//trim(comp_name)//'") + "'"
+    
+def internal_name(name):
+    return name.replace('*','')
+
+class Option(object):
+
+    def __init__(self, name, emit = None, optional = True):
+        self.is_optional = optional
+
+        if emit:
+            if isinstance(emit, dict):
+                self.emit = lambda key: emit[key]
+            else:
+                self.emit = emit
+        else:
+            self.emit = Option.default_emit
+
+        if isinstanceof(name, str):
+            self.name = name
+            self.aliases = {name}
+        elif isinstanceof(name, list):
+            self.name = name[0]
+            self.aliases = name[1:]
+
+    @staticmethod
+    def default_emit(value):
+        return value
+
+options_list = [ Option(['short_name', 'name'], mangled_name, False),
+    Option(['long_name', 'long name'], string_emit, False),
+    Option('units', optional = False),
+    Option('dims', emit = 
+        {'z'  : 'MAPL_DimsVertOnly', 'xy' : 'MAPL_DimsHorzOnly', 'xyz': 'MAPL_DimsHorzVert'}
+    Option(['vlocation', 'vloc'], emit =
+        {'C': 'MAPL_VlocationCenter', 'E': 'MAPL_VlocationEdge', 'N': 'MAPL_VlocationNone'} ), 
+    Option(['num_subtiles', 'numsubs']), Option('refresh_interval'), Option(['averaging_interval', 'avint']),  
+    Option('halowidth'), Option(['precision', 'prec']), Option('default'),
+    Option('restart', emit = {
+        'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_RestartSkip',
+        'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
+        'SKIPI': 'MAPL_RestartSkipInitial'}),
+    Option('field_type'), Option('staggering', Option('rotation'), Option(['friendlyto', 'friend2']),
+    Option(['add2export', 'addexp'],  {'T': '.true.', 'F': '.false.'}), Option('datatype'),
+    Option('attr_inames'), Option('att_rnames'), Option('attr_ivalues'), Option('attr_rvalues'),
+    Option('ungridded_name'), Option('ungridded_unit', Option('ungridded_coords'),
+    Option(['ungridded_dims', 'ungridded', 'ungrid']) ]
+
+options = dict(((opt.name, opt) for opt in options_list))
+
 ###############################################################
 class MAPL_DataSpec:
     """Declare and manipulate an import/export/internal specs for a 
