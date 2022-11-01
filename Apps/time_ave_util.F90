@@ -633,7 +633,7 @@ program  time_ave
       print *
    endif
 
-!call timeend(' initialize')
+  call t_prof%stop('initialize')
 
 ! **********************************************************************
 ! ****                      Read HDF Files                          ****
@@ -1086,9 +1086,6 @@ call t_prof%start('Write_AVE')
 ! **********************************************************************
 ! ****                     Timing Information                       ****
 ! **********************************************************************
-
-!call timeend ('main')
-!if( root ) call timepri (6)
 
    call io_server%finalize()
    call t_prof%stop()

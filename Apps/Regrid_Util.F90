@@ -3,34 +3,8 @@
    module regrid_util_support_mod
 
    use ESMF
-   use ESMFL_Mod
-   use MAPL_Profiler
-   use MAPL_ExceptionHandling
-   use MAPL_BaseMod
-   use MAPL_MemUtilsMod
-   use MAPL_CFIOMod
-   use MAPL_CommsMod
-   use MAPL_ShmemMod
-   use ESMF_CFIOMod
-   use ESMF_CFIOUtilMod
-   use ESMF_CFIOFileMod
-   use MAPL_NewRegridderManager
-   use MAPL_AbstractRegridderMod
-   use mapl_RegridMethods
-   use MAPL_GridManagerMod
-   use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
-   use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
-   use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
-   use MAPL_Constants, only: MAPL_PI_R8
-   use MAPL_ExceptionHandling
-   use MAPL_ApplicationSupport
-   use pFIO
-   use MAPL_ESMFFieldBundleWrite
-   use MAPL_ESMFFieldBundleRead
-   use MAPL_ServerManager
-   use MAPL_FileMetadataUtilsMod
+   use MAPL
    use gFTL_StringVector
-   use MAPL_VerticalDataMod
  
    implicit NONE
 
