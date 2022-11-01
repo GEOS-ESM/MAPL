@@ -3,6 +3,7 @@
 module mapl3g_InnerMetaComponent
    use :: mapl_ErrorHandling
    use :: mapl3_GenericGrid
+   use :: mapl3g_ESMF_Interfaces, only: ESMF_UserCompGetInternalState
    use esmf
    implicit none
    private

@@ -1186,7 +1186,6 @@ end module SupportMod
 ! throw an exception and RETURN.
 
 ! The main program.   Misleadingly simple.
-#undef MAPL_ErrLog_DONE
 #define I_AM_MAIN
 #include "MAPL_Generic.h"
 program main
@@ -1253,6 +1252,8 @@ program main
 contains
 
 
+#undef I_AM_MAIN
+#include "MAPL_Generic.h"
 
    subroutine check_resources(rc)
       use SupportMod

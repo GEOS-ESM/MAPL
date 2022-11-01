@@ -35,6 +35,9 @@ set(srcs
 
   # ComponentSpecBuilder.F90
   )
+# Workaround for strict NAG Fortran with ESMF implicit interface for private state.
+#set_property( SOURCE InnerMetaComponent.F90 OuterMetaComponent.F90
+#  PROPERTY COMPILE_FLAGS ${MISMATCH})
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 

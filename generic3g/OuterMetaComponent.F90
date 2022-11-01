@@ -15,7 +15,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_AbstractStateItemSpec
    use mapl3g_ConnectionPoint
    use mapl3g_ConnectionSpec
-   use mapl3g_ESMF_Interfaces, only: I_Run
+   use mapl3g_ESMF_Interfaces, only: I_Run, ESMF_UserCompGetInternalState
    use mapl_ErrorHandling
    use gFTL2_StringVector
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
@@ -154,6 +154,7 @@ module mapl3g_OuterMetaComponent
       end subroutine I_child_Op
    end interface
 
+      
 contains
 
 
@@ -166,6 +167,7 @@ contains
       outer_meta%self_gridcomp = gridcomp
       outer_meta%user_setservices = set_services
       outer_meta%config = config
+
       !TODO: this may be able to move outside of constructor
       call initialize_phases_map(outer_meta%phases_map)
 
@@ -321,7 +323,6 @@ contains
       class(YAML_Node), intent(in) :: config
 
       allocate(this%config%yaml_cfg, source=config)
-!!$      this%config%yaml_cfg = config
 
    end subroutine set_yaml_config
 
@@ -439,7 +440,7 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine run_user_phase
 
-   subroutine apply_to_children(this, f, rc)
+   recursive subroutine apply_to_children(this, f, rc)
       class(OuterMetaComponent), intent(inout) :: this
       procedure(I_child_op) :: f
       integer, optional, intent(out) :: rc

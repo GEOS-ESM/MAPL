@@ -10,46 +10,48 @@ contains
    ! This should already be covered by gFTL tests, but am troubleshooting
    ! problem with ordering of ConnectionPoint
    subroutine test_relative_less()
+      type(RelativeConnectionPoint) :: rcp_1, rcp_2
 
-      associate (rcp_1 => RelativeConnectionPoint('A'), rcp_2 => RelativeConnectionPoint('B'))
-        ! Identical
+      rcp_1 = RelativeConnectionPoint('A')
+      rcp_2 = RelativeConnectionPoint('B')
+
+      ! Identical
         @assert_that((rcp_1 < rcp_1), is(false()))
         @assert_that((rcp_2 < rcp_2), is(false()))
         ! Different
         @assert_that((rcp_1 < rcp_2), is(true()))
         @assert_that((rcp_2 < rcp_1), is(false()))
-      end associate
 
    end subroutine test_relative_less
    
    @test
    subroutine test_connectionpoint_less()
+      type(ConnectionPoint) :: cp_1, cp_2
 
-      associate (cp_1 => ConnectionPoint('A','A','A'), cp_2 => ConnectionPoint('B','B','B'))
+      cp_1 = ConnectionPoint('A','A','A')
+      cp_2 = ConnectionPoint('B','B','B')
         ! Identical
         @assert_that((cp_1 < cp_1), is(false()))
         @assert_that((cp_2 < cp_2), is(false()))
         ! Different
         @assert_that((cp_1 < cp_2), is(true()))
         @assert_that((cp_2 < cp_1), is(false()))
-      end associate
-      
+
    end subroutine test_connectionpoint_less
    
    @test
    subroutine test_connectionpoint_less_full()
-
+      type(ConnectionPoint) :: cp(2,2,2)
       integer :: i, j, k
-      associate (cp => reshape([ &
-           ConnectionPoint('A','A','A'), &
-           ConnectionPoint('A','A','B'), &
-           ConnectionPoint('A','B','A'), &
-           ConnectionPoint('A','B','B'), &
-           ConnectionPoint('B','A','A'), &
-           ConnectionPoint('B','A','B'), &
-           ConnectionPoint('B','B','A'), &
-           ConnectionPoint('B','B','B')],[2,2,2]))
 
+      cp(1,1,1) = ConnectionPoint('A','A','A')
+      cp(2,1,1) = ConnectionPoint('A','A','B')
+      cp(1,2,1) = ConnectionPoint('A','B','A')
+      cp(2,2,1) = ConnectionPoint('A','B','B')
+      cp(1,1,2) = ConnectionPoint('B','A','A')
+      cp(2,1,2) = ConnectionPoint('B','A','B')
+      cp(1,2,2) = ConnectionPoint('B','B','A')
+      cp(2,2,2) = ConnectionPoint('B','B','B')
         ! Identical points are neither less nor greater
         do k = 1, 2
            do j = 1, 2
@@ -81,18 +83,16 @@ contains
            end do
         end do
 
-      end associate
-      
    end subroutine test_connectionpoint_less_full
    
    @test
    ! Reproducer from failing registry test
    subroutine test_connectionpoint_less_registry()
 
-      associate ( &
-           cp_1 => ConnectionPoint('grandchild_A','export','ae1'), &
-           cp_2 => ConnectionPoint('child_A','export','ae2'), &
-           cp_3 => ConnectionPoint('child_B', 'import', 'ai'))
+      type(ConnectionPoint) :: cp_1, cp_2, cp_3
+      cp_1 = ConnectionPoint('grandchild_A','export','ae1')
+      cp_2 = ConnectionPoint('child_A','export','ae2')
+      cp_3 = ConnectionPoint('child_B', 'import', 'ai')
 
         ! Identical
         @assert_that((cp_1 < cp_1), is(false()))
@@ -104,7 +104,6 @@ contains
         @assert_that((cp_2 < cp_3), is(true()))
         @assert_that((cp_3 < cp_1), is(true()))
 
-      end associate
       
    end subroutine test_connectionpoint_less_registry
    

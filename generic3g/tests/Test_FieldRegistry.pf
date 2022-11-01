@@ -47,14 +47,13 @@ contains
    subroutine test_add_item_duplicate()
       type(FieldRegistry) :: r
       integer :: status
-
-      associate (cp => ConnectionPoint('A','A','A'))
+      type(ConnectionPoint) :: cp
+      cp = ConnectionPoint('A','A','A')
         call r%add_item_spec(cp, MockItemSpec('A'), rc=status)
         @assert_that(status, is(0))
         call r%add_item_spec(cp, MockItemSpec('A'), rc=status)
         @assertExceptionRaised('Duplicate registry entry.')
         @assert_that(status, is(not(0)))
-      end associate
 
    end subroutine test_add_item_duplicate
    
@@ -200,11 +199,12 @@ contains
       type(FieldRegistry) :: r
       class(AbstractStateItemSpec), pointer :: spec
 
-      associate ( &
-           cp_1 => ConnectionPoint('A', 'export', 'A1'), &
-           cp_2 => ConnectionPoint('P', 'export', 'A2'), &
-           cp_3 => ConnectionPoint('B', 'import', 'A3'), &
-           cp_4 => ConnectionPoint('C', 'import', 'A4'))
+      type(ConnectionPoint) :: cp_1, cp_2, cp_3, cp_4
+      type(ConnectionSpec) :: e2e, i2i, sib
+           cp_1 = ConnectionPoint('A', 'export', 'A1')
+           cp_2 = ConnectionPoint('P', 'export', 'A2')
+           cp_3 = ConnectionPoint('B', 'import', 'A3')
+           cp_4 = ConnectionPoint('C', 'import', 'A4')
 
         call r%add_item_spec(cp_1, MockItemSpec('A1'))
         call r%add_item_spec(cp_2, MockItemSpec('A2'))
@@ -221,10 +221,9 @@ contains
         !             cp_1           cp_4
         !
         !-------------------------------------------
-        associate ( &
-             e2e => ConnectionSpec(cp_1, cp_2), &
-             i2i => ConnectionSpec(cp_3, cp_4), &
-             sib => ConnectionSpec(cp_2, cp_3) )
+             e2e = ConnectionSpec(cp_1, cp_2)
+             i2i = ConnectionSpec(cp_3, cp_4)
+             sib = ConnectionSpec(cp_2, cp_3)
 
           spec => r%get_item_spec(cp_1) ! ultimate export
           @assert_that(spec%is_active(), is(false()))
@@ -247,8 +246,6 @@ contains
           spec => r%get_item_spec(cp_1) ! ultimate export
           @assert_that(spec%is_active(), is(true()))
 
-        end associate
-      end associate
    end subroutine test_sibling_activation
           
           
@@ -259,10 +256,10 @@ contains
       type(FieldRegistry) :: r
       class(AbstractStateItemSpec), pointer :: spec
 
-      associate ( &
-           cp_1 => ConnectionPoint('A', 'internal', 'A'), &
-           cp_2 => ConnectionPoint('A', 'export', 'A'), &
-           cp_3 => ConnectionPoint('A', 'import', 'A'))
+      type(ConnectionPoint) :: cp_1, cp_2, cp_3
+           cp_1 = ConnectionPoint('A', 'internal', 'A')
+           cp_2 = ConnectionPoint('A', 'export', 'A')
+           cp_3 = ConnectionPoint('A', 'import', 'A')
 
         call r%add_item_spec(cp_1, MockItemSpec('A1'))
         call r%add_item_spec(cp_2, MockItemSpec('A2'))
@@ -277,8 +274,6 @@ contains
         spec => r%get_item_spec(cp_3)
         @assert_that(spec%is_active(), is(false()))
         
-      end associate
-      
    end subroutine test_internal_activation
           
    @test
@@ -287,16 +282,14 @@ contains
       type(FieldRegistry) :: r
       class(AbstractStateItemSpec), pointer :: spec
 
-      associate ( &
-           cp_3 => ConnectionPoint('A', 'import', 'A'))
+      type (ConnectionPoint) :: cp_3
+      cp_3 = ConnectionPoint('A', 'import', 'A')
 
         call r%add_item_spec(cp_3, MockItemSpec('A3'))
         call r%terminate_import(cp_3)
         
         spec => r%get_item_spec(cp_3)
         @assert_that(spec%is_active(), is(true()))
-        
-      end associate
       
    end subroutine test_terminate_import
           
@@ -305,18 +298,16 @@ contains
    subroutine test_terminate_import_not_import()
       type(FieldRegistry) :: r
       class(AbstractStateItemSpec), pointer :: spec
-
+      type(ConnectionPoint) :: cp_3
       integer :: status
 
-      associate ( &
-           cp_3 => ConnectionPoint('A', 'export', 'A'))
+      cp_3 = ConnectionPoint('A', 'export', 'A')
 
         call r%add_item_spec(cp_3, MockItemSpec('A3'))
         call r%terminate_import(cp_3, rc=status)
         @assertExceptionRaised('Cannot terminate import on item that is not an import.')
         @assert_that(status, is(not(0)))
         
-      end associate
       
    end subroutine test_terminate_import_not_import
 
@@ -326,15 +317,13 @@ contains
       type(FieldRegistry) :: r
       integer :: status
 
-      associate ( &
-           cp_3 => ConnectionPoint('A', 'import', 'A'))
+      type(ConnectionPoint) :: cp_3
+      cp_3 = ConnectionPoint('A', 'import', 'A')
 
-        call r%terminate_import(cp_3, rc=status)
-        @assertExceptionRaised('Cannot terminate import on unregistered item.')
-        @assert_that(status, is(not(0)))
+      call r%terminate_import(cp_3, rc=status)
+      @assertExceptionRaised('Cannot terminate import on unregistered item.')
+      @assert_that(status, is(not(0)))
         
-      end associate
-      
    end subroutine test_terminate_import_does_not_exist
 
 
@@ -347,16 +336,16 @@ contains
       class(AbstractActionSpec), allocatable :: action_spec
       integer :: status
 
-      associate ( &
-           e1 => ConnectionPoint('A', 'export', 'Q'), &
-           i1 => ConnectionPoint('B', 'import', 'Q'))
+      type(ConnectionPoint) :: e1, i1
+      e1 = ConnectionPoint('A', 'export', 'Q')
+      i1 = ConnectionPoint('B', 'import', 'Q')
         call r%add_item_spec(e1, MockItemSpec('E1','fruit'))
         call r%add_item_spec(i1, MockItemSpec('I1','animal'))
         src_spec => r%get_item_spec(e1)
         dst_spec => r%get_item_spec(i1)
 
-        @assert_that(dst_spec%can_connect_to(src_spec), is(true()))
-        @assert_that(dst_spec%requires_extension(src_spec), is(true()))
+        @assert_that((dst_spec%can_connect_to(src_spec)), is(true()))
+        @assert_that((dst_spec%requires_extension(src_spec)), is(true()))
 
         action_spec = src_spec%make_extension(dst_spec)
         select type (action_spec)
@@ -366,8 +355,6 @@ contains
            @assert_that(1, is(2))
         end select
       
-      end associate
-
    end subroutine test_create_extension
 
 

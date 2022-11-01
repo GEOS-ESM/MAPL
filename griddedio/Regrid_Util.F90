@@ -30,6 +30,7 @@
    use MAPL_ServerManager
    use MAPL_FileMetadataUtilsMod
    use gFTL_StringVector
+   use MAPL_VerticalDataMod
  
    implicit NONE
 
@@ -52,6 +53,7 @@
    contains
       procedure :: create_grid
       procedure :: process_command_line
+      procedure :: has_level
    end type regrid_support
 
    contains
@@ -182,6 +184,9 @@
       end select
     enddo
 
+    if (.not.allocated(this%tripolar_file_out)) then
+       this%tripolar_file_out = "empty"
+    end if
     this%regridMethod = get_regrid_method(regridMth)
     _ASSERT(this%regridMethod/=UNSPECIFIED_REGRID_METHOD,"improper regrid method chosen")
 
@@ -229,13 +234,23 @@
     end if
     call UnpackGridName(Grid_name,im_world,jm_world,dateline,pole)
 
-    cfoutput = create_cf(grid_name,im_world,jm_world,this%nx,this%ny,lm_world,this%cs_stretch_param,this%lon_range,this%lat_range,_RC)
+    cfoutput = create_cf(grid_name,im_world,jm_world,this%nx,this%ny,lm_world,this%cs_stretch_param,this%lon_range,this%lat_range,this%tripolar_file_out,_RC)
     this%new_grid=grid_manager%make_grid(cfoutput,prefix=trim(grid_name)//".",_RC)
 
     _RETURN(_SUCCESS)
     end subroutine create_grid
 
-    function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,lon_range,lat_range,rc) result(cf)
+    function has_level(this,rc) result(file_has_level)
+       logical :: file_has_level
+       class(regrid_support), intent(in) :: this
+       integer, intent(out), optional :: rc
+       integer :: global_dims(3),status
+       call MAPL_GridGet(this%new_grid,globalCellCountPerDim=global_dims,_RC)
+       file_has_level = (global_dims(3) /= 0)
+       _RETURN(_SUCCESS)
+    end function
+
+    function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,lon_range,lat_range,tripolar_file,rc) result(cf)
        use MAPL_ConfigMod
        type(ESMF_Config)              :: cf
        character(len=*), intent(in) :: grid_name
@@ -245,6 +260,7 @@
        real, intent(in)             :: cs_stretch_param(3)
        real, intent(in)             :: lon_range(2)
        real, intent(in)             :: lat_range(2)
+       character(len=*), intent(in) :: tripolar_file
        integer, optional, intent(out) :: rc
 
        integer :: status
@@ -258,7 +274,7 @@
        cf = MAPL_ConfigCreate(_RC)
        call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_RC)
        call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",_RC)
-       if (jm_world==6*im_world) then
+       if (dateline=='CF') then
           call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",_RC)
           call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",_RC)
           call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
@@ -268,7 +284,13 @@
              call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(2),label=trim(grid_name)//".TARGET_LON:",_RC)
              call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(3),label=trim(grid_name)//".TARGET_LAT:",_RC)
           end if
-     
+       else if (dateline=='TM') then
+          call MAPL_ConfigSetAttribute(cf,value="Tripolar", label=trim(grid_name)//".GRID_TYPE:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_RC)
+          _ASSERT(tripolar_file /= "empty","asked for tripolar output but did not specify the coordinate file")
+          call MAPL_ConfigSetAttribute(cf,value=tripolar_file,label=trim(grid_name)//".GRIDSPEC:",_RC)
        else
           call MAPL_ConfigSetAttribute(cf,value="LatLon", label=trim(grid_name)//".GRID_TYPE:",_RC)
           call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
@@ -354,9 +376,10 @@ CONTAINS
    logical :: fileCreated,file_exists
 
    integer :: tsteps,i,j,tint
+   type(VerticalData) :: vertical_data
 
    type(FieldBundleWriter) :: newWriter
-   logical :: writer_created
+   logical :: writer_created, has_vertical_level
    type(ServerManager) :: io_server
 
  
@@ -376,6 +399,10 @@ CONTAINS
    filename = support%filenames%at(1)
    if (allocated(tSeries)) deallocate(tSeries)
    call get_file_times(filename,support%itime,support%allTimes,tseries,timeInterval,tint,tsteps,_RC)
+   has_vertical_level = support%has_level(_RC)
+   if (has_vertical_level) then
+      call get_file_levels(filename,vertical_data,_RC)
+   end if
 
    Clock = ESMF_ClockCreate ( name="Eric", timeStep=TimeInterval, &
                                startTime=tSeries(1), _RC )
@@ -417,7 +444,7 @@ CONTAINS
 
          call ESMF_ClockSet(clock,currtime=time,_RC)
          if (.not. writer_created) then
-            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits=support%shave,deflate=support%deflate,_RC)
+            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits=support%shave,deflate=support%deflate,vertical_data=vertical_data,_RC)
             writer_created=.true.
          end if
 
@@ -443,6 +470,38 @@ CONTAINS
    call ESMF_Finalize ( _RC )
 
    end subroutine main
+
+   subroutine get_file_levels(filename,vertical_data,rc)
+      character(len=*), intent(in) :: filename
+      type(VerticalData), intent(inout) :: vertical_data
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      type(NetCDF4_fileFormatter) :: formatter
+      type(FileMetadata) :: basic_metadata
+      type(FileMetadataUtils) :: metadata
+      character(len=:), allocatable :: lev_name
+      character(len=ESMF_MAXSTR) :: long_name
+      character(len=ESMF_MAXSTR) :: standard_name
+      character(len=ESMF_MAXSTR) :: vcoord
+      character(len=ESMF_MAXSTR) :: lev_units
+      real, allocatable, target :: levs(:)
+      real, pointer :: plevs(:)
+
+      call formatter%open(trim(filename),pFIO_Read,_RC)
+      basic_metadata=formatter%read(_RC)
+      call metadata%create(basic_metadata,trim(filename))
+      lev_name = metadata%get_level_name(_RC)
+      call metadata%get_coordinate_info(lev_name,coords=levs,coordUnits=lev_units,long_name=long_name,&
+           standard_name=standard_name,coordinate_attr=vcoord,_RC)
+      plevs => levs
+      vertical_data = VerticalData(levels=plevs,vunit=lev_units,vcoord=vcoord,standard_name=standard_name,long_name=long_name, &
+                      force_no_regrid=.true.,_RC)
+      nullify(plevs)    
+ 
+      _RETURN(_SUCCESS)
+
+   end subroutine get_file_levels
 
    subroutine get_file_times(filename,itime,alltimes,tseries,timeInterval,tint,tsteps,rc)
       character(len=*), intent(in) :: filename

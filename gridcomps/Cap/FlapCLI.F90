@@ -20,13 +20,22 @@ module MAPL_FlapCLIMod
       procedure :: fill_cap_options
    end type FlapCLI_Type
 
+   abstract interface
+      subroutine I_extraoptions(options, rc)
+         import command_line_interface
+         type(command_line_interface), intent(inout) :: options
+         integer, optional, intent(out) :: rc
+      end subroutine
+   end interface
+
 contains
 
-   function FlapCLI(unusable, description, authors, rc) result (cap_options)
+   function FlapCLI(unusable, description, authors, extra, rc) result (cap_options)
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type (MAPL_CapOptions) :: cap_options
       character(*), intent(in) :: description
       character(*), intent(in) :: authors
+      procedure(I_extraoptions), optional :: extra
       integer, optional, intent(out) :: rc
       integer :: status
 
@@ -38,6 +47,10 @@ contains
 
       call flap_cli%add_command_line_options(flap_cli%cli_options, rc=status)
       _VERIFY(status)
+
+      if (present(extra)) then
+         call extra(flap_cli%cli_options, _RC)
+      end if
 
       call flap_cli%cli_options%parse(error=status); _VERIFY(status)
 
