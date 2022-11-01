@@ -162,10 +162,15 @@ contains
       integer :: status
       character(:), allocatable :: phase_name_
 
+      if (present(phase_name)) then
+         phase_name_ = phase_name
+      else
+         phase_name_ = get_default_phase_name(method_flag)
+      end if
 
-      call add_phase(this%phases_map, method_flag=method_flag, phase_name=phase_name, _RC)
+      call add_phase(this%phases_map, method_flag=method_flag, phase_name=phase_name_, _RC)
 
-      associate(phase_idx => get_phase_index(this%phases_map%of(method_flag), phase_name=phase_name))
+      associate(phase_idx => get_phase_index(this%phases_map%of(method_flag), phase_name=phase_name_))
         call ESMF_GridCompSetEntryPoint(this%user_gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
       end associate
 

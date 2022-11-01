@@ -202,6 +202,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
 
       outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
+
       call outer_meta%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
 
       _RETURN(ESMF_SUCCESS)
