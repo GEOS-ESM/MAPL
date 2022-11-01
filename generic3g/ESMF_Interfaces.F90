@@ -18,9 +18,10 @@ module mapl3g_ESMF_Interfaces
    public :: I_CplSetServices
    public :: I_CplRun
 
-   public :: ESMF_UserCompGetInternalState
+   public :: MAPL_UserCompGetInternalState
+   public :: MAPL_UserCompSetInternalState
 
-   interface ESMF_UserCompGetInternalState
+   interface MAPL_UserCompGetInternalState
       subroutine ESMF_UserCompGetInternalState(gridcomp, name, wrapper, status)
          use ESMF, only: ESMF_GridComp
          type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -28,7 +29,17 @@ module mapl3g_ESMF_Interfaces
          type(*), intent(inout) :: wrapper
          integer, optional, intent(out) :: status
       end subroutine ESMF_UserCompGetInternalState
-   end interface ESMF_UserCompGetInternalState
+   end interface MAPL_UserCompGetInternalState
+
+   interface MAPL_UserCompSetInternalState
+      subroutine ESMF_UserCompSetInternalState(gridcomp, name, wrapper, status)
+         use ESMF, only: ESMF_GridComp
+         type(ESMF_GridComp), intent(inout) :: gridcomp
+         character(*), intent(in) :: name
+         type(*), intent(inout) :: wrapper
+         integer, optional, intent(out) :: status
+      end subroutine ESMF_UserCompSetInternalState
+   end interface MAPL_UserCompSetInternalState
 
    abstract interface
 

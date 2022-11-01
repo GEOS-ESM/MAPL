@@ -15,7 +15,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_AbstractStateItemSpec
    use mapl3g_ConnectionPoint
    use mapl3g_ConnectionSpec
-   use mapl3g_ESMF_Interfaces, only: I_Run, ESMF_UserCompGetInternalState
+   use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl_ErrorHandling
    use gFTL2_StringVector
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
@@ -273,7 +273,7 @@ contains
       integer :: status
       type(OuterMetaWrapper) :: wrapper
 
-      call ESMF_UserCompGetInternalState(gridcomp, OUTER_META_PRIVATE_STATE, wrapper, status)
+      call MAPL_UserCompGetInternalState(gridcomp, OUTER_META_PRIVATE_STATE, wrapper, status)
       _ASSERT(status==ESMF_SUCCESS, "OuterMetaComponent not created for this gridcomp")
 
       call free_inner_meta(wrapper%outer_meta%user_gridcomp)
