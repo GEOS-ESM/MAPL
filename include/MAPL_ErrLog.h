@@ -83,7 +83,7 @@
 
 ! New
 #    define _SUCCESS 0
-#    define _FAILURE -1
+#    define _FAILURE 1
 #    define _UNUSED_DUMMY(x) if (.false.) print*,shape(x)
 
 
