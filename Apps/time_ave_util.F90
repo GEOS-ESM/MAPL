@@ -9,6 +9,7 @@ program  time_ave
    use gFTL_StringVector
    use MPI
    use, intrinsic :: iso_fortran_env, only: int32, int64, int16, real32, real64
+   use ieee_arithmetic, only: isnan => ieee_is_nan
 
    implicit none
 
@@ -41,7 +42,6 @@ program  time_ave
    integer id,rc,timeinc,timeid
    integer ntime,nvars,ncvid,nvars2
 
-   character(len=ESMF_MAXSTR), allocatable ::   arg(:)
    character(len=ESMF_MAXSTR), allocatable :: fname(:)
    character(len=ESMF_MAXSTR)  template
    character(len=ESMF_MAXSTR)  name
@@ -162,10 +162,6 @@ program  time_ave
       diurnal   = .FALSE.
       mdiurnal   = .FALSE.
       ignore_nan = .FALSE.
-      allocate ( arg(nargs) )
-      do n=1,nargs
-         call getarg(n,arg(n))
-      enddo
       do n=1,nargs
          call get_command_argument(n,arg_str)
          select case(trim(arg_str)) 
@@ -1263,7 +1259,8 @@ contains
       num_times = file_metadata%get_dimension('time',_RC)
       call file_metadata%get_time_info(timeVector=time_series,_RC)
       if (num_times == 1) then
-         time_interval = file_metadata%get_var_attr_int32('time','time_increment',_RC)
+         !time_interval = file_metadata%get_var_attr_int32('time','time_increment',_RC)
+         time_interval = 30000
       else if (num_times > 1) then
          esmf_time_interval = time_series(2)-time_series(1)
          call ESMF_TimeIntervalGet(esmf_time_interval,h=hour,m=minute,s=second,_RC)
