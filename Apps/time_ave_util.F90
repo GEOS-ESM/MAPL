@@ -1259,8 +1259,7 @@ contains
       num_times = file_metadata%get_dimension('time',_RC)
       call file_metadata%get_time_info(timeVector=time_series,_RC)
       if (num_times == 1) then
-         !time_interval = file_metadata%get_var_attr_int32('time','time_increment',_RC)
-         time_interval = 30000
+         time_interval = file_metadata%get_var_attr_int32('time','time_increment',_RC)
       else if (num_times > 1) then
          esmf_time_interval = time_series(2)-time_series(1)
          call ESMF_TimeIntervalGet(esmf_time_interval,h=hour,m=minute,s=second,_RC)
