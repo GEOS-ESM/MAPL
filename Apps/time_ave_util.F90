@@ -75,7 +75,8 @@ program  time_ave
    real,    allocatable ::  dumz1(:,:)
    real,    allocatable ::  dumz2(:,:)
    real,    allocatable ::    dum(:,:,:)
-   real*8,  allocatable ::      q(:,:,:,:)
+   !real(REAL64),  allocatable ::  q(:,:,:,:)
+   real(REAL32),  allocatable ::  q(:,:,:,:)
    integer, allocatable :: ntimes(:,:,:,:)
 
    integer timinc,i,j,k,nmax,kbeg,kend,loc1,loc2
@@ -429,6 +430,7 @@ program  time_ave
       _ASSERT(undef == previous_undef,"conflicting undefined values in your variables")
       previous_undef = undef
    enddo
+   undef = previous_undef
 
 
 ! Set NDT for Strict Time Testing
