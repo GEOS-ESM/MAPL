@@ -3253,6 +3253,7 @@ contains
        II = ceiling((atan(y/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(z/sqr2) + alpha)/dalpha)
        where (JJ == 0) JJ =1
+       where (JJ == IM_WORLD+1) JJ = IM_WORLD
     endwhere
 
     ! face = 2
@@ -3263,6 +3264,7 @@ contains
        II = ceiling((atan(-x/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(z/sqr2) + alpha)/dalpha)
        where (JJ == 0) JJ =1
+       where (JJ == IM_WORLD+1) JJ = IM_WORLD
        JJ = JJ + IM_WORLD
     endwhere
 
@@ -3273,6 +3275,7 @@ contains
        II = ceiling((atan(-x/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(-y/sqr2) + alpha)/dalpha)
        where (JJ == 0) JJ =1
+       where (JJ == IM_WORLD+1) JJ = IM_WORLD
        JJ = JJ + IM_WORLD*2
     endwhere
     ! face = 4
@@ -3282,6 +3285,7 @@ contains
        II = ceiling((atan(-z/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(-y/sqr2) + alpha)/dalpha)
        where (JJ == 0) JJ =1
+       where (JJ == IM_WORLD+1) JJ = IM_WORLD
        JJ = JJ + IM_WORLD*3
     endwhere
 
@@ -3291,6 +3295,7 @@ contains
        II = ceiling((atan(-z/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(x/sqr2) + alpha)/dalpha)
        where (JJ == 0) JJ =1
+       where (JJ == IM_WORLD+1) JJ = IM_WORLD
        JJ = JJ + IM_WORLD*4
     endwhere
 
@@ -3299,10 +3304,12 @@ contains
        II = ceiling((atan(y/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(x/sqr2) + alpha)/dalpha)
        where (JJ == 0) JJ =1
+       where (JJ == IM_WORLD+1) JJ = IM_WORLD
        JJ = JJ + IM_WORLD*5
     endwhere
 
-    where(II==0) II = 1
+    where(II == 0) II = 1
+    where(II == IM_WORLD+1) II = IM_WORLD
 
      _RETURN(_SUCCESS)
   end subroutine MAPL_GetGlobalHorzIJIndex
