@@ -75,8 +75,7 @@ program  time_ave
    real,    allocatable ::  dumz1(:,:)
    real,    allocatable ::  dumz2(:,:)
    real,    allocatable ::    dum(:,:,:)
-   !real(REAL64),  allocatable ::  q(:,:,:,:)
-   real(REAL32),  allocatable ::  q(:,:,:,:)
+   real(REAL64),  allocatable ::  q(:,:,:,:)
    integer, allocatable :: ntimes(:,:,:,:)
 
    integer timinc,i,j,k,nmax,kbeg,kend,loc1,loc2
@@ -140,7 +139,7 @@ program  time_ave
    call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE,mpiCommunicator=MPI_COMM_WORLD, _RC)
    call MAPL_Initialize(_RC)
    t_prof = DistributedProfiler('time_ave_util',MpiTImerGauge(),MPI_COMM_WORLD)
-   call t_prof%start(_RC) 
+   call t_prof%start(_RC)
    call io_server%initialize(MPI_COMM_WORLD,_RC)
    root = myid.eq.0
    call ESMF_CalendarSetDefault(ESMF_CALKIND_GREGORIAN,_RC)
@@ -165,7 +164,7 @@ program  time_ave
       ignore_nan = .FALSE.
       do n=1,nargs
          call get_command_argument(n,arg_str)
-         select case(trim(arg_str)) 
+         select case(trim(arg_str))
          case('-template')
             call get_command_argument(n+1,template)
          case('-tag')
@@ -270,7 +269,7 @@ program  time_ave
       if( mdiurnal ) diurnal = .FALSE.
    endif
 
-   if (ignore_nan) print *,' ignore nan is true'
+   if (root .and. ignore_nan) print *,' ignore nan is true'
 
 
 ! Read RC Quadratics
@@ -401,8 +400,8 @@ program  time_ave
    allocate(vname(nvars))
    call ESMF_FieldBundleGet(primary_bundle,fieldNameList=vname,_RC)
    kmvar = get_level_info(primary_bundle,_RC)
-   vtitle = get_long_names(primary_bundle,_RC) 
-   vunits = get_units(primary_bundle,_RC) 
+   vtitle = get_long_names(primary_bundle,_RC)
+   vunits = get_units(primary_bundle,_RC)
 
    final_bundle = ESMF_FieldBundleCreate(name="first_file",_RC)
    call ESMF_FieldBundleSet(final_bundle,grid=output_grid,_RC)
@@ -703,7 +702,7 @@ program  time_ave
 ! Primary Fields
 ! --------------
 
-            etime = local_esmf_timeset(nymd,nhms,_RC) 
+            etime = local_esmf_timeset(nymd,nhms,_RC)
             call MAPL_Read_Bundle(primary_bundle,trim(fname(1)),time=etime,file_override=trim(fname(n)),_RC)
             do nv=1,nvars2
                call ESMF_FieldBundleGet(primary_bundle,trim(vname2(nv)),field=field,_RC)
@@ -727,7 +726,7 @@ program  time_ave
                      do i=1,im
                         if( isnan( dum(i,j,nloc(nv)+L-1) ) .or. ( dum(i,j,nloc(nv)+L-1).gt.HUGE(dum(i,j,nloc(nv)+L-1)) ) ) then
 !print *, 'Warning!  Nan or Infinity detected for ',trim(vname2(nv)),' at lat: ',lattice%jglobal(j),' lon: ',lattice%iglobal(i)
-                           if( ignore_nan ) then
+                           if( root .and. ignore_nan ) then
                               print *, 'Setting Nan or Infinity to UNDEF'
                               print *
                            else
@@ -873,7 +872,7 @@ call t_prof%start('Write_AVE')
          kbeg = 1
          kend = kmvar2(n)
          call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
-         ptr3d = q(:,:,nloc(n):nloc(n)+kend-1,0) 
+         ptr3d = q(:,:,nloc(n):nloc(n)+kend-1,0)
       endif
       if( root ) write(6,3001) trim(vname2(n)),nloc(n),trim(hdfile)
 3001  format(1x,'Writing ',a,' at location ',i6,' into File: ',a)
@@ -914,18 +913,18 @@ call t_prof%start('Write_AVE')
          else
             kend = kmvar2(qloc(1,nv))
             call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
-            ptr3d = dum(:,:,1:kend) 
+            ptr3d = dum(:,:,1:kend)
          endif
       endif
    enddo
 
    if( root ) then
-      print * 
+      print *
       print *, 'Created: ',trim(hdfile)
-      print * 
+      print *
    endif
    call t_prof%stop('Write_AVE')
-   etime = local_esmf_timeset(nymd0,nhms0,_RC) 
+   etime = local_esmf_timeset(nymd0,nhms0,_RC)
    call ESMF_ClockSet(clock,currTime=etime, _RC)
    call standard_writer%create_from_bundle(final_bundle,clock,n_steps=1,time_interval=timeinc,vertical_data=vertical_data,_RC)
    call standard_writer%start_new_file(trim(hdfile),_RC)
@@ -1023,7 +1022,7 @@ call t_prof%start('Write_AVE')
          endif
 
 
-         etime = local_esmf_timeset(nymd0,nhms0,_RC) 
+         etime = local_esmf_timeset(nymd0,nhms0,_RC)
          call ESMF_ClockSet(clock,currTime=etime, _RC)
          if (k==1 .or. mdiurnal) then
             if (mdiurnal) then
@@ -1046,7 +1045,7 @@ call t_prof%start('Write_AVE')
       if( root .and. diurnal ) then
          print *, 'Created: ',trim(hdfile)
       endif
-      if( root ) print * 
+      if( root ) print *
 
       call t_prof%stop('Write_Diurnal')
    endif
@@ -1061,7 +1060,7 @@ call t_prof%start('Write_AVE')
          if( kmvar2(n).eq.0 ) then
             plev = 0
          else
-            plev = lev(L) 
+            plev = lev(L)
          endif
 
          call mpi_reduce( qmin(nloc(n)+L-1),qming,1,mpi_real,mpi_min,0,comm,ierror )
@@ -1505,7 +1504,7 @@ contains
 
       type(ESMF_VM) :: vm
       integer :: status
-      type(ESMF_DistGrid) :: dist_grid 
+      type(ESMF_DistGrid) :: dist_grid
       integer, allocatable :: minindex(:,:),maxindex(:,:)
       integer :: dim_count, ndes
       integer, pointer :: ims(:),jms(:)
@@ -1619,24 +1618,24 @@ contains
       integer :: incymd
       integer, intent(in) :: nymd
       integer, intent(in) :: m
-!***********************************************************************        
-!  purpose                                                                      
-!     incymd:  nymd changed by one day                                          
-!     modymd:  nymd converted to julian date                                    
-!  description of parameters                                                    
-!     nymd     current date in yymmdd format                                    
-!     m        +/- 1 (day adjustment)                                           
-!                                                                               
-!***********************************************************************        
-!*                  goddard laboratory for atmospheres                 *        
-!***********************************************************************        
+!***********************************************************************
+!  purpose
+!     incymd:  nymd changed by one day
+!     modymd:  nymd converted to julian date
+!  description of parameters
+!     nymd     current date in yymmdd format
+!     m        +/- 1 (day adjustment)
+!
+!***********************************************************************
+!*                  goddard laboratory for atmospheres                 *
+!***********************************************************************
 
       integer ndpm(12)
       data    ndpm /31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31/
       logical leap
       integer :: ny,nm,nd
-      leap(ny) = mod(ny,4).eq.0 .and. (mod(ny,100).ne.0 .or. mod(ny,400).eq.0) 
-!***********************************************************************        
+      leap(ny) = mod(ny,4).eq.0 .and. (mod(ny,100).ne.0 .or. mod(ny,400).eq.0)
+!***********************************************************************
 !
       ny = nymd / 10000
       nm = mod(nymd,10000) / 100
