@@ -28,6 +28,7 @@ module MAPL_GridManager_private
    type :: GridManager
       private
       logical :: keep_grids = .false.
+      logical :: has_uninitialized_prototypes = .true.
       integer(kind=ESMF_KIND_I8) :: counter = 0
       type (StringGridFactoryMap) :: prototypes
       type (Integer64GridFactoryMap) :: factories
@@ -59,6 +60,8 @@ module MAPL_GridManager_private
       procedure :: make_clone
       procedure :: get_id
       procedure :: add_factory
+      procedure, private :: intialize_prototypes
+      procedure :: is_valid_prototype
 
    end type GridManager
 
@@ -78,14 +81,49 @@ contains
       
    end subroutine add_prototype
 
+   logical function is_valid_prototype(this, prototype_name)
+      class (GridManager), intent(inout) :: this
+      character(len=*), intent(in) :: prototype_name
+
+      if this%has_uninitialized_prototypes call initialize_prototypes(this, _RC)
+
+      is_valid_prototype = this%prototypes%contains(prototype_name)
+
+   end function is_valid_prototype
+
+   subroutine intialize_prototypes(this, unusable, rc)
+      use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
+      use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
+      use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
+      use MAPL_LlcGridFactoryMod, only: LlcGridFactory
+      use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
+
+      class (GridManager), intent(inout) :: this
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type (LatLonGridFactory) :: latlon_factory
+      type (CubedSphereGridFactory) :: cubed_factory
+      type (TripolarGridFactory) :: tripolar_factory
+      type (LlcGridFactory) :: llc_factory
+      type (ExternalGridFactory) :: external_factory
+ 
+      _UNUSED_DUMMY(unusable)
+
+      if this%has_uninitialized_prototypes then
+         call this%prototypes%insert('LatLon', latlon_factory)
+         call this%prototypes%insert('Cubed-Sphere', cubed_factory)
+         call this%prototypes%insert('Tripolar',  tripolar_factory)
+         call this%prototypes%insert('llc',  llc_factory)
+         call this%prototypes%insert('External', external_factory)
+         this%has_uninitialized_prototypes = .false.
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine intialize_prototypes
 
    function make_clone(this, grid_type, unusable, rc) result(factory)
-     use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
-     use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
-     use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
-     use MAPL_LlcGridFactoryMod, only: LlcGridFactory
-     use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
-     !use MAPL_OldCubedSphereGridFactoryMod, only: OldCubedSphereGridFactory
       class (AbstractGridFactory), allocatable :: factory
       class (GridManager), intent(inout) :: this
       character(len=*), intent(in) :: grid_type
@@ -102,26 +140,10 @@ contains
       ! a natural initialization.  Other grids can be added during
       ! setServices or initialize of the component that defines the grid.
       !---------------
-      logical, save :: initialized = .false.
-      type (LatLonGridFactory) :: latlon_factory
-      type (CubedSphereGridFactory) :: cubed_factory
-      !type (OldCubedSphereGridFactory) :: old_cubed_factory
-      type (TripolarGridFactory) :: tripolar_factory
-      type (LlcGridFactory) :: llc_factory
-      type (ExternalGridFactory) :: external_factory
 
       _UNUSED_DUMMY(unusable)
 
-      if (.not. initialized) then
-           call this%prototypes%insert('LatLon', latlon_factory)
-           call this%prototypes%insert('Cubed-Sphere', cubed_factory)
-           !call this%prototypes%insert('Old-Cubed-Sphere', old_cubed_factory)
-           call this%prototypes%insert('Tripolar',  tripolar_factory)
-           call this%prototypes%insert('llc',  llc_factory)
-           call this%prototypes%insert('External', external_factory)
-           initialized = .true.
-      end if
-
+      if this%has_uninitialized_prototypes call intialize_prototypes(this, _RC)
 
       prototype => this%prototypes%at(grid_type)
 
