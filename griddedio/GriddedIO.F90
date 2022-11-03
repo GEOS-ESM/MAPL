@@ -50,6 +50,7 @@ module MAPL_GriddedIOMod
      type(VerticalData) :: vdata
      type(GriddedIOitemVector) :: items
      integer :: deflateLevel = 0
+     integer :: quantizeLevel = 0
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
      integer :: fraction
@@ -205,9 +206,10 @@ module MAPL_GriddedIOMod
 
      end subroutine CreateFileMetaData
 
-     subroutine set_param(this,deflation,chunking,nbits,regrid_method,itemOrder,write_collection_id,rc)
+     subroutine set_param(this,deflation,quantize_level,chunking,nbits,regrid_method,itemOrder,write_collection_id,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
         integer, optional, intent(in) :: deflation
+        integer, optional, intent(in) :: quantize_level
         integer, optional, intent(in) :: chunking(:)
         integer, optional, intent(in) :: nbits
         integer, optional, intent(in) :: regrid_method
@@ -220,6 +222,7 @@ module MAPL_GriddedIOMod
         if (present(regrid_method)) this%regrid_method=regrid_method
         if (present(nbits)) this%nbits=nbits
         if (present(deflation)) this%deflateLevel = deflation
+        if (present(quantize_level)) this%quantizeLevel = quantize_level
         if (present(chunking)) then
            allocate(this%chunking,source=chunking,stat=status)
            _VERIFY(status)
@@ -348,7 +351,7 @@ module MAPL_GriddedIOMod
         else
            _FAIL( 'Unsupported field rank')
         end if
-        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel)
+        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_level=this%quantizeLevel)
         call v%add_attribute('units',trim(units))
         call v%add_attribute('long_name',trim(longName))
         call v%add_attribute('standard_name',trim(longName))

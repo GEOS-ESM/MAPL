@@ -91,6 +91,27 @@ set (srcs
   StringVectorUtil.F90
   )
 
+###############################################################
+# Check to see if quantize capability is present in netcdf-c. #
+###############################################################
+
+include(CheckCSourceCompiles)
+set(CMAKE_REQUIRED_INCLUDES ${NETCDF_INCLUDE_DIR})
+check_c_source_compiles("
+  #include <netcdf_meta.h>
+  #if !NC_HAS_QUANTIZE
+  choke me
+  #endif
+  int main(void) {
+    return 0;
+  }
+  "
+  NETCDF_HAS_QUANTIZE)
+if (NETCDF_HAS_QUANTIZE)
+  message(STATUS "netCDF has quantize capability")
+  add_definitions(-DNF_HAS_QUANTIZE)
+endif ()
+
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PRIVATE MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280

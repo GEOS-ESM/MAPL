@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add support for netCDF bitgrooming. Note this requires netCDF-C v4.9.0 and netCDF-Fortran v4.6.0, but our CMake does have a test
+  to make sure the netCDF library was compiled with support.
+
 ### Changed
 
 ### Removed

@@ -29,26 +29,27 @@ module MAPL_ESMFFieldBundleWrite
 
    contains
 
-      subroutine write_bundle_single_time(bundle,clock,output_file,nbits,deflate,rc)
+      subroutine write_bundle_single_time(bundle,clock,output_file,nbits,deflate,quantize_level,rc)
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
          character(len=*), intent(in) :: output_file
          integer, optional, intent(in)  :: nbits
          integer, optional, intent(in)  :: deflate
+         integer, optional, intent(in)  :: quantize_level
          integer, optional, intent(out) :: rc
 
          integer :: status
 
          type(FieldBundleWriter) :: newWriter
 
-         call newWriter%create_from_bundle(bundle,clock,output_file=output_File,n_steps=1,time_interval=0,nbits=nbits,deflate=deflate,rc=status)
+         call newWriter%create_from_bundle(bundle,clock,output_file=output_File,n_steps=1,time_interval=0,nbits=nbits,deflate=deflate,quantize_level=quantize_level,rc=status)
          _VERIFY(status)
          call newWriter%write_to_file(rc=status)
          _VERIFY(status)
          _RETURN(_SUCCESS)
       end subroutine write_bundle_single_time
 
-      subroutine create_from_bundle(this,bundle,clock,output_file,vertical_data,n_steps,time_interval,nbits,deflate,rc)
+      subroutine create_from_bundle(this,bundle,clock,output_file,vertical_data,n_steps,time_interval,nbits,deflate,quantize_level,rc)
          class(FieldBundleWRiter), intent(inout) :: this
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
@@ -58,6 +59,7 @@ module MAPL_ESMFFieldBundleWrite
          integer, optional, intent(in)  :: time_interval
          integer, optional, intent(in)  :: nbits
          integer, optional, intent(in)  :: deflate
+         integer, optional, intent(in)  :: quantize_level
          integer, optional, intent(out) :: rc
 
          type(TimeData) :: time_info
@@ -81,7 +83,7 @@ module MAPL_ESMFFieldBundleWrite
             time_interval_=0
          end if
 
-         call this%cfio%set_param(nbits=nbits,deflation=deflate)
+         call this%cfio%set_param(nbits=nbits,deflation=deflate,quantize_level=quantize_level)
          time_info = TimeData(clock,file_steps,time_interval_,offset)
          call ESMF_FieldBundleGet(bundle, fieldCount=num_fields,rc=status)
          _VERIFY(status)
