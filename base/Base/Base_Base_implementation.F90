@@ -3169,6 +3169,144 @@ contains
 
   end subroutine MAPL_GetHorzIJIndex
 
+  module subroutine MAPL_GetGlobalHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
+    implicit none
+    !ARGUMENTS:
+    integer,                      intent(in   ) :: npts ! number of points in lat and lon arrays
+    integer,                      intent(inout) :: II(npts) ! array of the first index for each lat and lon
+    integer,                      intent(inout) :: JJ(npts) ! array of the second index for each lat and lon
+    real, optional,               intent(in   ) :: lon(npts) ! array of longitudes in radians
+    real, optional,               intent(in   ) :: lat(npts) ! array of latitudes in radians
+    real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts) ! array of longitudes in radians
+    real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) ! array of latitudes in radians
+    type(ESMF_Grid),    optional, intent(inout) :: Grid ! ESMF grid
+    integer,            optional, intent(out  ) :: rc  ! return code
+
+    integer :: status
+    integer :: dims(3), IM_WORLD, JM_WORLD
+    real(ESMF_KIND_R8), allocatable, dimension (:,:) :: xyz
+    real(ESMF_KIND_R8), allocatable, dimension (:)   :: x,y,z
+    real(ESMF_KIND_R8), allocatable :: max_values(:)
+    real(ESMF_KIND_R8)              :: sqr2, alpha, dalpha, error, shift
+    real(ESMF_KIND_R8), allocatable :: lons(:), lats(:)
+
+!
+! TODO
+! 
+!   make sure the grid is generated with gnomonic_ed, i.e., equal distance of the edge on the sphere surface
+
+    if (npts == 0 ) then
+      _RETURN(_SUCCESS)
+    endif
+
+    if ( .not. present(grid)) then
+      _ASSERT(.false., "need cubed-sphere grid")
+    endif
+    call MAPL_GridGet(grid, globalCellCountPerDim=dims,rc=status)
+    _VERIFY(STATUS)
+    IM_World = dims(1)
+    JM_World = dims(2)
+
+    ! define constants
+    sqr2   = sqrt(2.0d0)
+    alpha  = asin(1.d0/sqrt(3.d0)) ! range [-alpha, alpha]
+    dalpha = 2.0d0*alpha/IM_WORLD
+
+    allocate(lons(npts),lats(npts))
+    if (present(lon) .and. present(lat)) then
+       lons = lon
+       lats = lat
+    else if (present(lonR8) .and. present(latR8)) then
+       lons = lonR8
+       lats = latR8
+    end if
+
+    ! get xyz from sphere surface
+    allocate(xyz(3, npts), max_values(npts))
+    xyz(1,:) = cos(lats)*cos(lons)
+    xyz(2,:) = cos(lats)*sin(lons)
+    xyz(3,:) = sin(lats)
+
+    ! project onto cube
+    max_values = maxval(abs(xyz), dim=1)
+
+    xyz(1,:) = xyz(1,:)/max_values
+    xyz(2,:) = xyz(2,:)/max_values
+    xyz(3,:) = xyz(3,:)/max_values
+
+    allocate(x, source=xyz(1,:))
+    allocate(y, source=xyz(2,:))
+    allocate(z, source=xyz(3,:))
+    II = -1
+    JJ = -1
+
+    ! Here the error and shift are used for edge points.
+    ! the edge points are assigned in the order of face 1,2,3,4,5,6
+    error = 1.0e-14
+    shift = 1.0e-13
+    ! face = 1
+    where ( abs(x-1.0d0) <= error )
+       where (abs(y - 1.0d0) <=error) y = y-shift
+       where (abs(y + 1.0d0) <=error) y = y+shift
+       where (abs(z - 1.0d0) <=error) z = z-shift
+       where (abs(z + 1.0d0) <=error) z = z+shift
+       II = ceiling((atan(y/sqr2) + alpha)/dalpha)
+       JJ = ceiling((atan(z/sqr2) + alpha)/dalpha)
+       where (JJ == 0) JJ =1
+    endwhere
+
+    ! face = 2
+    where (abs(y-1.0d0) <= error)
+       where (abs(x + 1.0d0) <=error) x = x+shift
+       where (abs(z - 1.0d0) <=error) z = z-shift
+       where (abs(z + 1.0d0) <=error) z = z+shift
+       II = ceiling((atan(-x/sqr2) + alpha)/dalpha)
+       JJ = ceiling((atan(z/sqr2) + alpha)/dalpha)
+       where (JJ == 0) JJ =1
+       JJ = JJ + IM_WORLD
+    endwhere
+
+    ! face = 3
+    where (abs(z-1.0d0) <= error)
+       where (abs(y +  1.0d0) <=error) y = y+shift
+       where (abs(x +  1.0d0) <=error) x = x+shift
+       II = ceiling((atan(-x/sqr2) + alpha)/dalpha)
+       JJ = ceiling((atan(-y/sqr2) + alpha)/dalpha)
+       where (JJ == 0) JJ =1
+       JJ = JJ + IM_WORLD*2
+    endwhere
+    ! face = 4
+    where (abs(x+1.0d0) <= error)
+       where (abs(y +  1.0d0) <=error) y = y+shift
+       where (abs(z +  1.0d0) <=error) z = z+shift
+       II = ceiling((atan(-z/sqr2) + alpha)/dalpha)
+       JJ = ceiling((atan(-y/sqr2) + alpha)/dalpha)
+       where (JJ == 0) JJ =1
+       JJ = JJ + IM_WORLD*3
+    endwhere
+
+    ! face = 5
+    where (abs(y+1.0d0) <= error)
+       where (abs(z +  1.0d0) <=error) z = z+shift
+       II = ceiling((atan(-z/sqr2) + alpha)/dalpha)
+       JJ = ceiling((atan(x/sqr2) + alpha)/dalpha)
+       where (JJ == 0) JJ =1
+       JJ = JJ + IM_WORLD*4
+    endwhere
+
+    ! face = 6
+    where (abs(z+1.0d0) <= error)
+       II = ceiling((atan(y/sqr2) + alpha)/dalpha)
+       JJ = ceiling((atan(x/sqr2) + alpha)/dalpha)
+       where (JJ == 0) JJ =1
+       JJ = JJ + IM_WORLD*5
+    endwhere
+
+    where(II==0) II = 1
+
+     _RETURN(_SUCCESS)
+  end subroutine MAPL_GetGlobalHorzIJIndex
+
   module subroutine MAPL_GenGridName(im, jm, lon, lat, xyoffset, gridname, geos_style)
     integer :: im, jm
     character (len=*) :: gridname
