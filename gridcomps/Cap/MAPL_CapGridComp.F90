@@ -1440,12 +1440,12 @@ contains
 
   end subroutine get_field_from_internal
 
-  subroutine set_grid(this, grid, unusable, lm, rc)
+  subroutine set_grid(this, grid, unusable, lm, grid_type, rc)
      class(MAPL_CapGridComp),          intent(inout) :: this
      type(ESMF_Grid),                  intent(in   ) :: grid
      class(KeywordEnforcer), optional, intent(in   ) :: unusable
      integer,                optional, intent(in   ) :: lm
-     character(len=*)        optional, intent(in)    :: grid_type
+     character(len=*),       optional, intent(in)    :: grid_type
      integer,                optional, intent(  out) :: rc
 
      type(ESMF_Grid)           :: mapl_grid
@@ -1456,8 +1456,8 @@ contains
 
      external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, _RC)
      mapl_grid = grid_manager%make_grid(external_grid_factory, _RC)
-     if present(grid_type) then
-        if grid_manager%is_valid_prototype(grid_type) then
+     if (present(grid_type)) then
+        if (grid_manager%is_valid_prototype(grid_type)) then
            call ESMF_AttributeSet(mapl_grid, 'GridType', grid_type, _RC)
         end if
      end if
