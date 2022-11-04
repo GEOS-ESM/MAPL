@@ -18,6 +18,10 @@ module mapl3g_FieldRegistry
    type :: FieldRegistry
       private
       type(StateItemVector) :: specs
+      ! This component was required so that things like "activated"
+      ! will propagate back to the original export when a sibling
+      ! connection is made.   I.e., the algorithm really wants to work
+      ! with pointers.
       type(ConnPtStateItemPtrMap) :: specs_map
       type(ConnectionSpecVector) :: connections
 
@@ -180,15 +184,13 @@ contains
       integer :: status
       class(AbstractStateItemSpec), pointer :: spec
       class(StateItemSpecPtr), pointer :: wrap
-      type(ConnPtStateItemPtrMapIterator) :: iter
+      type(StateItemVectorIterator) :: iter
 
-      
-      associate (e => this%specs_map%end())
-        iter = this%specs_map%begin()
+      associate (e => this%specs%end())
+        iter = this%specs%begin()
         do while (iter /= e)
-           wrap => iter%second()
-           _ASSERT(associated(wrap), 'internal inconsistency in FieldRegistry')
-           spec => wrap%ptr
+           spec => iter%of()
+           _ASSERT(associated(spec), 'internal inconsistency in FieldRegistry')
            if (spec%is_active()) then
               call spec%allocate(_RC)
            end if
