@@ -96,7 +96,7 @@ set (srcs
 ###############################################################
 
 include(CheckCSourceCompiles)
-set(CMAKE_REQUIRED_INCLUDES ${NETCDF_INCLUDE_DIR})
+set(CMAKE_REQUIRED_INCLUDES ${NETCDF_INCLUDE_DIRS})
 check_c_source_compiles("
   #include <netcdf_meta.h>
   #if !NC_HAS_QUANTIZE
@@ -110,6 +110,8 @@ check_c_source_compiles("
 if (NETCDF_HAS_QUANTIZE)
   message(STATUS "netCDF has quantize capability")
   add_definitions(-DNF_HAS_QUANTIZE)
+else ()
+  message(STATUS "netCDF does not have quantize capability")
 endif ()
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
