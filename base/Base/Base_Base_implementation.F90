@@ -3186,7 +3186,7 @@ contains
     integer :: dims(3), IM_WORLD, JM_WORLD
     real(ESMF_KIND_R8), allocatable, dimension (:,:) :: xyz
     real(ESMF_KIND_R8), allocatable, dimension (:)   :: x,y,z
-    real(ESMF_KIND_R8), allocatable :: max_values(:)
+    real(ESMF_KIND_R8), allocatable :: max_abs(:)
     real(ESMF_KIND_R8)              :: sqr2, alpha, dalpha, error, shift
     real(ESMF_KIND_R8), allocatable :: lons(:), lats(:)
 
@@ -3222,30 +3222,33 @@ contains
     end if
 
     ! get xyz from sphere surface
-    allocate(xyz(3, npts), max_values(npts))
+    allocate(xyz(3, npts), max_abs(npts))
     xyz(1,:) = cos(lats)*cos(lons)
     xyz(2,:) = cos(lats)*sin(lons)
     xyz(3,:) = sin(lats)
 
     ! project onto cube
-    max_values = maxval(abs(xyz), dim=1)
+    max_abs = maxval(abs(xyz), dim=1)
 
-    xyz(1,:) = xyz(1,:)/max_values
-    xyz(2,:) = xyz(2,:)/max_values
-    xyz(3,:) = xyz(3,:)/max_values
+    xyz(1,:) = xyz(1,:)/max_abs
+    xyz(2,:) = xyz(2,:)/max_abs
+    xyz(3,:) = xyz(3,:)/max_abs
 
     allocate(x, source=xyz(1,:))
     allocate(y, source=xyz(2,:))
     allocate(z, source=xyz(3,:))
+
     II = -1
     JJ = -1
 
     ! Here the error and shift are used for edge points.
     ! the edge points are assigned in the order of face 1,2,3,4,5,6
-    error = 1.0e-14
-    shift = 1.0e-13
+    error = epsilon(1.0d0)
+    shift = 10.0d0*error
+
     ! face = 1
     where ( abs(x-1.0d0) <= error )
+       ! Four edges assigned to face 1
        where (abs(y - 1.0d0) <=error) y = y-shift
        where (abs(y + 1.0d0) <=error) y = y+shift
        where (abs(z - 1.0d0) <=error) z = z-shift
@@ -3258,6 +3261,7 @@ contains
 
     ! face = 2
     where (abs(y-1.0d0) <= error)
+       ! Three edges assigned to face 2
        where (abs(x + 1.0d0) <=error) x = x+shift
        where (abs(z - 1.0d0) <=error) z = z-shift
        where (abs(z + 1.0d0) <=error) z = z+shift
@@ -3270,6 +3274,7 @@ contains
 
     ! face = 3
     where (abs(z-1.0d0) <= error)
+       ! Two edges assigned to face 3
        where (abs(y +  1.0d0) <=error) y = y+shift
        where (abs(x +  1.0d0) <=error) x = x+shift
        II = ceiling((atan(-x/sqr2) + alpha)/dalpha)
@@ -3278,8 +3283,10 @@ contains
        where (JJ == IM_WORLD+1) JJ = IM_WORLD
        JJ = JJ + IM_WORLD*2
     endwhere
+
     ! face = 4
     where (abs(x+1.0d0) <= error)
+       ! Two edges assigned to face 4
        where (abs(y +  1.0d0) <=error) y = y+shift
        where (abs(z +  1.0d0) <=error) z = z+shift
        II = ceiling((atan(-z/sqr2) + alpha)/dalpha)
@@ -3291,6 +3298,7 @@ contains
 
     ! face = 5
     where (abs(y+1.0d0) <= error)
+       ! One edge assigned to face 5
        where (abs(z +  1.0d0) <=error) z = z+shift
        II = ceiling((atan(-z/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(x/sqr2) + alpha)/dalpha)
