@@ -354,7 +354,7 @@ module MAPL_GriddedIOMod
         else
            _FAIL( 'Unsupported field rank')
         end if
-        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantize_algorthm,quantize_level=this%quantizeLevel)
+        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel)
         call v%add_attribute('units',trim(units))
         call v%add_attribute('long_name',trim(longName))
         call v%add_attribute('standard_name',trim(longName))

@@ -85,7 +85,7 @@ module MAPL_ESMFFieldBundleWrite
             time_interval_=0
          end if
 
-         call this%cfio%set_param(nbits=nbits,deflation=deflate,quantize_algorithm,quantize_level=quantize_level)
+         call this%cfio%set_param(nbits=nbits,deflation=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level)
          time_info = TimeData(clock,file_steps,time_interval_,offset)
          call ESMF_FieldBundleGet(bundle, fieldCount=num_fields,rc=status)
          _VERIFY(status)

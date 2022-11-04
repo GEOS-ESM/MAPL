@@ -286,7 +286,7 @@ contains
       class (Variable), target, intent(In) :: this
       integer :: quantizeAlgorithm
 
-      quantizeAlgorithm=this%quantizeAlgorithm
+      quantizeAlgorithm=this%quantize_algorithm
    end function get_quantize_algorithm
 
    function get_quantize_level(this) result(quantizeLevel)
