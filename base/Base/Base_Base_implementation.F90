@@ -3221,6 +3221,12 @@ contains
        lats = latR8
     end if
 
+    !shift the conner away from Japan Fuji Mt.
+
+    lons = lons + MAPL_PI/18
+    where (lons < -MAPL_PI) lons = lons + 2*MAPL_PI
+    where (lons >  MAPL_PI) lons = lons - 2*MAPL_PI
+
     ! get xyz from sphere surface
     allocate(xyz(3, npts), max_abs(npts))
     xyz(1,:) = cos(lats)*cos(lons)
