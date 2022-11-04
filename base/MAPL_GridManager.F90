@@ -1,4 +1,5 @@
 #include "MAPL_Generic.h"
+#include "unused_dummy.H"
 
 !!!  NOTE: This class implements the Singleton pattern - there should
 !!!        be only one GridManager for the application.  However,
@@ -28,7 +29,6 @@ module MAPL_GridManager_private
    type :: GridManager
       private
       logical :: keep_grids = .false.
-      logical :: has_uninitialized_prototypes = .true.
       integer(kind=ESMF_KIND_I8) :: counter = 0
       type (StringGridFactoryMap) :: prototypes
       type (Integer64GridFactoryMap) :: factories
@@ -60,7 +60,6 @@ module MAPL_GridManager_private
       procedure :: make_clone
       procedure :: get_id
       procedure :: add_factory
-      procedure, private :: intialize_prototypes
       procedure :: is_valid_prototype
 
    end type GridManager
@@ -81,17 +80,31 @@ contains
       
    end subroutine add_prototype
 
-   logical function is_valid_prototype(this, prototype_name)
+   logical function is_valid_prototype(this, prototype_name, unusable, rc)
       class (GridManager), intent(inout) :: this
       character(len=*), intent(in) :: prototype_name
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+      integer :: status
+      logical, save :: initialized
 
-      if this%has_uninitialized_prototypes call initialize_prototypes(this, _RC)
+      _UNUSED_DUMMY(unusable)
 
-      is_valid_prototype = this%prototypes%contains(prototype_name)
+      initialized = .false.
+
+      if (.not. initialized) then
+         call initialize_prototypes(this)
+         initialized = .true.
+      end if
+
+      is_valid_prototype = .not. this%prototypes%find(prototype_name) == this%prototypes%end()
+
+      _RETURN(_SUCCESS)
 
    end function is_valid_prototype
 
-   subroutine intialize_prototypes(this, unusable, rc)
+!   subroutine intialize_prototypes(this, unusable, rc) ! wdb todo
+   subroutine intialize_prototypes(this)
       use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
       use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
       use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
@@ -99,8 +112,8 @@ contains
       use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
 
       class (GridManager), intent(inout) :: this
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
+!      class (KeywordEnforcer), optional, intent(in) :: unusable ! wdb todo
+!      integer, optional, intent(out) :: rc
 
       integer :: status
       type (LatLonGridFactory) :: latlon_factory
@@ -109,18 +122,23 @@ contains
       type (LlcGridFactory) :: llc_factory
       type (ExternalGridFactory) :: external_factory
  
-      _UNUSED_DUMMY(unusable)
+      logical, save :: initialized
 
-      if this%has_uninitialized_prototypes then
+!      _UNUSED_DUMMY(unusable) ! wdb todo
+
+      initialized = .false.
+
+      if (.not. initialized) then
          call this%prototypes%insert('LatLon', latlon_factory)
          call this%prototypes%insert('Cubed-Sphere', cubed_factory)
          call this%prototypes%insert('Tripolar',  tripolar_factory)
          call this%prototypes%insert('llc',  llc_factory)
          call this%prototypes%insert('External', external_factory)
-         this%has_uninitialized_prototypes = .false.
+         initialized = .true. 
       end if
 
-      _RETURN(_SUCCESS)
+!      _RETURN(_SUCCESS) ! wdb todo
+
    end subroutine intialize_prototypes
 
    function make_clone(this, grid_type, unusable, rc) result(factory)
@@ -133,7 +151,8 @@ contains
       class (AbstractGridFactory), pointer :: prototype
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'make_clone'
-
+      logical, save :: initialized
+      initialized = .false.
       !---------------
       ! Note:
       ! We need to add LatLon prototype somewhere, and MAPL does not have
@@ -143,7 +162,10 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      if this%has_uninitialized_prototypes call intialize_prototypes(this, _RC)
+      if (.not. initialized) then
+         call initialize_prototypes(this)
+         initialized = .true.
+      end if
 
       prototype => this%prototypes%at(grid_type)
 
