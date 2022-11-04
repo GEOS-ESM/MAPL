@@ -64,6 +64,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.30.0] - 2022-11-03
+
+### Added
+
+- Introduced a new time averaging utility code to perform time averages of datasets
+
+### Changed
+
+- Moved Regrid_Util.F90 to the Apps directory
+
 ## [2.29.0] - 2022-10-28
 
 ### Fixed

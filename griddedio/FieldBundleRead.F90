@@ -106,17 +106,32 @@ module MAPL_ESMFFieldBundleRead
                       dims = MAPL_DimsHorzVert
                       field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
                         ungriddedUbound=[grid_size(3)],ungriddedLBound=[1], rc=status)
+                        block
+                           real, pointer :: ptr3d(:,:,:)
+                           call ESMF_FieldGEt(field,0,farrayPtr=ptr3d)
+                           ptr3d =0.0
+                        end block
                    else if (grid_size(3)+1 == lev_size) then
                       location=MAPL_VLocationEdge
                       dims = MAPL_DimsHorzVert
                       field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
                         ungriddedUbound=[grid_size(3)],ungriddedLBound=[0], rc=status)
+                        block
+                           real, pointer :: ptr3d(:,:,:)
+                           call ESMF_FieldGEt(field,0,farrayPtr=ptr3d)
+                           ptr3d =0.0
+                        end block
                   end if
                else
                    location=MAPL_VLocationNone
                    dims = MAPL_DimsHorzOnly
                    field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
                       rc=status)
+                        block
+                           real, pointer :: ptr2d(:,:)
+                           call ESMF_FieldGEt(field,0,farrayPtr=ptr2d)
+                           ptr2d =0.0
+                        end block
                end if
                call ESMF_InfoGetFromHost(field,infoh,rc=status)
                _VERIFY(status)
@@ -140,13 +155,14 @@ module MAPL_ESMFFieldBundleRead
 
       end subroutine MAPL_create_bundle_from_metdata_id
 
-      subroutine MAPL_read_bundle(bundle,file_tmpl,time,only_vars,regrid_method,noread,rc)
+      subroutine MAPL_read_bundle(bundle,file_tmpl,time,only_vars,regrid_method,noread,file_override,rc)
          type(ESMF_FieldBundle), intent(inout) :: bundle
          character(len=*), intent(in) :: file_tmpl
          type(ESMF_Time), intent(in) :: time
          character(len=*), optional, intent(in) :: only_vars
          integer, optional, intent(in) :: regrid_method
          logical, optional, intent(in) :: noread
+         character(len=*), optional, intent(in) :: file_override
          integer, optional, intent(out) :: rc
 
          integer :: status
@@ -167,6 +183,8 @@ module MAPL_ESMFFieldBundleRead
 
          metadata_id = MAPL_DataAddCollection(trim(file_tmpl))
          collection => DataCollections%at(metadata_id)
+         if (present(file_override)) file_name = file_override
+        
          metadata => collection%find(trim(file_name), _RC)
          call metadata%get_time_info(timeVector=time_series,rc=status)
          _VERIFY(status)
