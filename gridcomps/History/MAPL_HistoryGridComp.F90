@@ -866,6 +866,9 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%deflate, default=0, &
                                       label=trim(string) // 'deflate:' ,rc=status )
        _VERIFY(STATUS)
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_algorithm, default=1, &
+                                      label=trim(string) // 'quantize_algorithm:' ,rc=status )
+       _VERIFY(STATUS)
        call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_level, default=0, &
                                       label=trim(string) // 'quantize_level:' ,rc=status )
        _VERIFY(STATUS)
@@ -2492,6 +2495,8 @@ ENDDO PARSER
           end if
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,rc=status)
           _VERIFY(status)
+          call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,rc=status)
+          _VERIFY(status)
           call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,rc=status)
           _VERIFY(status)
           call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,rc=status)
@@ -2553,7 +2558,8 @@ ENDDO PARSER
          print *, '       Nbits: ',       list(n)%nbits
          print *, '      Slices: ',       list(n)%Slices
          print *, '     Deflate: ',       list(n)%deflate
-         print *, '    Quantize: ',       list(n)%quantize_level
+         print *, 'Quantize Alg: ',       list(n)%quantize_algorithm
+         print *, 'Quantize Lvl: ',       list(n)%quantize_level
          if (associated(list(n)%chunksize)) then
             print *, '   ChunkSize: ',       list(n)%chunksize
          end if

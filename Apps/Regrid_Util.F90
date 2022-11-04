@@ -24,6 +24,7 @@
       real :: cs_stretch_param(3)
       real :: lon_range(2), lat_range(2)
       integer :: deflate, shave
+      integer :: quantize_algorithm
       integer :: quantize_level
    contains
       procedure :: create_grid
@@ -94,6 +95,7 @@
     this%lat_range=uninit
     this%shave=64
     this%deflate=0
+    this%quantize_algorithm=1
     this%quantize_level=0
     nargs = command_argument_count()
     do i=1,nargs
@@ -151,6 +153,9 @@
       case('-deflate')
          call get_command_argument(i+1,astr)
          read(astr,*)this%deflate
+      case('-quantize_algorithm')
+         call get_command_argument(i+1,astr)
+         read(astr,*)this%quantize_algorithm
       case('-quantize_level')
          call get_command_argument(i+1,astr)
          read(astr,*)this%quantize_level
@@ -423,7 +428,7 @@ CONTAINS
 
          call ESMF_ClockSet(clock,currtime=time,_RC)
          if (.not. writer_created) then
-            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits=support%shave,deflate=support%deflate,vertical_data=vertical_data,quantize_level=support%quantize_level,_RC)
+            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits=support%shave,deflate=support%deflate,vertical_data=vertical_data,quantize_algorithm=support%quantize_algorithm,quantize_level=support%quantize_level,_RC)
             writer_created=.true.
          end if
 

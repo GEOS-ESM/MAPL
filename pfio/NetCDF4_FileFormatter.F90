@@ -672,6 +672,7 @@ contains
       integer, allocatable :: dimids(:)
       integer, pointer :: chunksizes(:)
       integer :: deflation
+      integer :: quantize_algorithm
       integer :: quantize_level
       character(len=:), pointer :: var_name
       character(len=:), pointer :: dim_name
@@ -730,11 +731,17 @@ contains
            _VERIFY(status)
          end if
 
+         quantize_algorithm = var%get_quantize_algorithm()
+         ! There are only three algorithms, 1,2,3 and currently netCDF-Fortran has
+         ! a named constant for one. But for now, we assert that quantize_algorithm
+         ! is between 1 and 3.
+         _ASSERT(quantize_algorithm >= 1 .and. quantize_algorithm <= 3, "quantize_algorithm must be between 1 and 3")
+
          quantize_level = var%get_quantize_level()
          if (quantize_level /= 0) then
 #ifdef NF_HAS_QUANTIZE
            !$omp critical
-           status = nf90_def_var_quantize(this%ncid, varid, NF90_QUANTIZE_BITGROOM, quantize_level)
+           status = nf90_def_var_quantize(this%ncid, varid, quantize_algorithm, quantize_level)
            !$omp end critical
            _VERIFY(status)
 #else

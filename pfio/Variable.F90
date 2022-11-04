@@ -30,6 +30,7 @@ module pFIO_VariableMod
       type (StringAttributeMap) :: attributes
       type (UnlimitedEntity) :: const_value
       integer :: deflation = 0 ! default no compression
+      integer :: quantize_algorithm = 1 ! default bitgroom
       integer :: quantize_level = 0 ! default no quantize_level
       integer, allocatable :: chunksizes(:)
    contains
@@ -48,6 +49,7 @@ module pFIO_VariableMod
 
       procedure :: get_chunksizes
       procedure :: get_deflation
+      procedure :: get_quantize_algorithm
       procedure :: get_quantize_level
       procedure :: is_attribute_present
       generic :: operator(==) => equal
@@ -67,7 +69,7 @@ module pFIO_VariableMod
 contains
 
 
-   function new_Variable(unusable, type, dimensions, chunksizes,const_value, deflation, quantize_level, rc) result(var)
+   function new_Variable(unusable, type, dimensions, chunksizes,const_value, deflation, quantize_algorithm, quantize_level, rc) result(var)
       type (Variable) :: var
       integer, optional, intent(in) :: type
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -75,6 +77,7 @@ contains
       integer, optional, intent(in) :: chunksizes(:)
       type (UnlimitedEntity), optional, intent(in) :: const_value
       integer, optional, intent(in) :: deflation
+      integer, optional, intent(in) :: quantize_algorithm
       integer, optional, intent(in) :: quantize_level
       integer, optional, intent(out) :: rc
 
@@ -82,6 +85,7 @@ contains
 
       var%type = -1
       var%deflation = 0
+      var%quantize_algorithm = 1
       var%quantize_level = 0
       var%chunksizes = empty
       var%dimensions = StringVector()
@@ -106,6 +110,10 @@ contains
 
       if (present(deflation)) then
          var%deflation = deflation
+      endif
+
+      if (present(quantize_algorithm)) then
+         var%quantize_algorithm = quantize_algorithm
       endif
 
       if (present(quantize_level)) then
@@ -274,6 +282,13 @@ contains
       deflateLevel=this%deflation
    end function get_deflation
 
+   function get_quantize_algorithm(this) result(quantizeAlgorithm)
+      class (Variable), target, intent(In) :: this
+      integer :: quantizeAlgorithm
+
+      quantizeAlgorithm=this%quantizeAlgorithm
+   end function get_quantize_algorithm
+
    function get_quantize_level(this) result(quantizeLevel)
       class (Variable), target, intent(In) :: this
       integer :: quantizeLevel
@@ -353,6 +368,7 @@ contains
       call this%const_value%serialize(tmp_buffer, status)
       _VERIFY(status)
       buffer = [buffer, tmp_buffer,serialize_intrinsic(this%deflation)]
+      buffer = [buffer, tmp_buffer,serialize_intrinsic(this%quantize_algorithm)]
       buffer = [buffer, tmp_buffer,serialize_intrinsic(this%quantize_level)]
 
       if( .not. allocated(this%chunksizes)) then
@@ -413,6 +429,9 @@ contains
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%deflation)
          length = serialize_buffer_length(this%deflation)
+         n = n + length
+         call deserialize_intrinsic(buffer(n:),this%quantize_algorithm)
+         length = serialize_buffer_length(this%quantize_algorithm)
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%quantize_level)
          length = serialize_buffer_length(this%quantize_level)
