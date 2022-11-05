@@ -103,8 +103,10 @@ contains
 
    end function is_valid_prototype
 
-!   subroutine intialize_prototypes(this, unusable, rc) ! wdb todo
-   subroutine intialize_prototypes(this)
+! wdb todo #mu These lines need to be implemented eventually as a unit.
+! wdb todo #mu In addition, the calling functions need to be updated.
+!   subroutine intialize_prototypes(this, unusable, rc) ! wdb todo #mu
+   subroutine intialize_prototypes(this) ! wdb todo #mu
       use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
       use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
       use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
@@ -112,8 +114,8 @@ contains
       use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
 
       class (GridManager), intent(inout) :: this
-!      class (KeywordEnforcer), optional, intent(in) :: unusable ! wdb todo
-!      integer, optional, intent(out) :: rc
+!      class (KeywordEnforcer), optional, intent(in) :: unusable ! wdb todo #mu
+!      integer, optional, intent(out) :: rc ! wdb todo #mu
 
       integer :: status
       type (LatLonGridFactory) :: latlon_factory
@@ -124,7 +126,7 @@ contains
  
       logical, save :: initialized
 
-!      _UNUSED_DUMMY(unusable) ! wdb todo
+!      _UNUSED_DUMMY(unusable) ! wdb todo #mu
 
       initialized = .false.
 
@@ -137,7 +139,7 @@ contains
          initialized = .true. 
       end if
 
-!      _RETURN(_SUCCESS) ! wdb todo
+!      _RETURN(_SUCCESS) ! wdb todo #mu
 
    end subroutine intialize_prototypes
 
