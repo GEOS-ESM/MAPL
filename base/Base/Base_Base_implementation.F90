@@ -3187,13 +3187,12 @@ contains
     real(ESMF_KIND_R8), allocatable, dimension (:,:) :: xyz
     real(ESMF_KIND_R8), allocatable, dimension (:)   :: x,y,z
     real(ESMF_KIND_R8), allocatable :: max_abs(:)
-    real(ESMF_KIND_R8)              :: sqr2, alpha, dalpha, error, shift
+    real(ESMF_KIND_R8)              :: sqr2, alpha, dalpha, error, shift, Japan_shift
     real(ESMF_KIND_R8), allocatable :: lons(:), lats(:)
+    real(ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
+    integer :: I1, I2, J1, J2
+    logical, save :: grid_is_ok = .false.
 
-!
-! TODO
-! 
-!   make sure the grid is generated with gnomonic_ed, i.e., equal distance of the edge on the sphere surface
 
     if (npts == 0 ) then
       _RETURN(_SUCCESS)
@@ -3211,6 +3210,22 @@ contains
     sqr2   = sqrt(2.0d0)
     alpha  = asin(1.d0/sqrt(3.d0)) ! range [-alpha, alpha]
     dalpha = 2.0d0*alpha/IM_WORLD
+    Japan_shift = MAPL_PI_R8/18
+
+!   make sure the grid is generated with gnomonic_ed with Japan mountain shift
+    if ( .not. grid_is_ok ) then
+       call MAPL_GridGetInterior(GRID,I1,I2,J1,J2)
+       if ( I1 <=1 .and. 1<=I2 .and. &
+            J1 <=1 .and. 1<=J2 ) then
+          allocate(corner_lons(I2-I1+2, J2-J1+2))
+          allocate(corner_lats(I2-I1+2, J2-J1+2))
+          call MAPL_GridGetCorners(Grid,corner_lons,corner_lats,rc=status)
+          _ASSERT( abs((1.750d0*MAPL_PI_R8 - Japan_shift) - corner_lons(1,1)) <= epsilon(1.0), "Grid should have pi/18 shift")
+          _ASSERT( abs(dalpha - (corner_lats(1,2) - corner_lats(1,1))) <= epsilon(1.0), "Grid should be gnomonic_ed")
+          deallocate(corner_lons, corner_lats)
+       endif
+       grid_is_ok = .true.
+    endif
 
     allocate(lons(npts),lats(npts))
     if (present(lon) .and. present(lat)) then
@@ -3222,7 +3237,7 @@ contains
     end if
 
     !shift the conner away from Japan Fuji Mt.
-    lons = lons + MAPL_PI/18
+    lons = lons + Japan_shift
 
     ! get xyz from sphere surface
     allocate(xyz(3, npts), max_abs(npts))
