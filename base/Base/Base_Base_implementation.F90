@@ -3190,7 +3190,7 @@ contains
     real(ESMF_KIND_R8)              :: sqr2, alpha, dalpha, error, shift, Japan_shift
     real(ESMF_KIND_R8), allocatable :: lons(:), lats(:)
     real(ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
-    integer :: I1, I2, J1, J2
+    integer :: I1, I2, J1, J2, j
     logical, save :: grid_is_ok = .false.
 
 
@@ -3221,7 +3221,9 @@ contains
           allocate(corner_lats(I2-I1+2, J2-J1+2))
           call MAPL_GridGetCorners(Grid,corner_lons,corner_lats,rc=status)
           _ASSERT( abs((1.750d0*MAPL_PI_R8 - Japan_shift) - corner_lons(1,1)) <= epsilon(1.0), "Grid should have pi/18 shift")
-          _ASSERT( abs(dalpha - (corner_lats(1,2) - corner_lats(1,1))) <= epsilon(1.0), "Grid should be gnomonic_ed")
+          do j = 2, J2-J1+2
+             _ASSERT( abs(dalpha - (corner_lats(1,j) - corner_lats(1,j-1))) <= epsilon(1.0), "Grid should be gnomonic_ed")
+          enddo
           deallocate(corner_lons, corner_lats)
        endif
        grid_is_ok = .true.
