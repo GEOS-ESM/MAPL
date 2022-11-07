@@ -1436,7 +1436,7 @@ contains
       real, allocatable ::   qg(:,:)
       real, allocatable :: buf(:,:)
       real :: qsum
-      integer :: mpi_status(mpi_status_size)
+      integer :: mpistatus(mpi_status_size)
       integer, allocatable :: ims(:),jms(:)
       integer j,n,peid,peid0,i1,j1,in,jn,mypet,i_start,i_end,isum
       type(ESMF_VM) :: vm
@@ -1461,7 +1461,7 @@ contains
          do n=1,nx-1
             allocate(buf(ims(n+1),jm))
             peid = mypet + n
-            call mpi_recv(buf,ims(n+1)*jm,MPI_FLOAT,peid,peid,MPI_COMM_WORLD,mpi_status,status)
+            call mpi_recv(buf,ims(n+1)*jm,MPI_FLOAT,peid,peid,MPI_COMM_WORLD,mpistatus,status)
             _VERIFY(status)
             i_start=i_end+1
             i_end = i_start+ims(n)-1
@@ -1492,7 +1492,7 @@ contains
             _VERIFY(status)
          enddo
       else
-         call mpi_recv(qz,jm,MPI_FLOAT,peid0,peid0,MPI_COMM_WORLD,mpi_status,status)
+         call mpi_recv(qz,jm,MPI_FLOAT,peid0,peid0,MPI_COMM_WORLD,mpistatus,status)
          _VERIFY(status)
       end if
 
