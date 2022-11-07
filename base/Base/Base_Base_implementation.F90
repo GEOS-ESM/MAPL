@@ -3187,7 +3187,7 @@ contains
     real(ESMF_KIND_R8), allocatable, dimension (:,:) :: xyz
     real(ESMF_KIND_R8), allocatable, dimension (:)   :: x,y,z
     real(ESMF_KIND_R8), allocatable :: max_abs(:)
-    real(ESMF_KIND_R8)              :: sqr2, alpha, dalpha, error, shift, Japan_shift
+    real(ESMF_KIND_R8)              :: sqr2, alpha, dalpha, error, shift, Japan_shift, c_lat
     real(ESMF_KIND_R8), allocatable :: lons(:), lats(:)
     real(ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
     integer :: I1, I2, J1, J2, j
@@ -3205,24 +3205,33 @@ contains
     _VERIFY(STATUS)
     IM_World = dims(1)
     JM_World = dims(2)
+    _ASSERT( IM_WORLD*6 == JM_WORLD, "it only works for cubed-sphere grid")
 
     ! define constants
-    sqr2   = sqrt(2.0d0)
-    alpha  = asin(1.d0/sqrt(3.d0)) ! range [-alpha, alpha]
-    dalpha = 2.0d0*alpha/IM_WORLD
-    Japan_shift = MAPL_PI_R8/18
+    sqr2   = sqrt(2.0d0) ! distance from center to the mid of an edge for a 2x2x2 cube
+    alpha  = asin(1.d0/sqrt(3.d0)) ! angle between the two lines(center to mid and center to end of an edge)
+    dalpha = 2.0d0*alpha/IM_WORLD  
+    Japan_shift = MAPL_PI_R8/18    
 
 !   make sure the grid is generated with gnomonic_ed with Japan mountain shift
     if ( .not. grid_is_ok ) then
        call MAPL_GridGetInterior(GRID,I1,I2,J1,J2)
-       if ( I1 <=1 .and. 1<=I2 .and. &
-            J1 <=1 .and. 1<=J2 ) then
+       ! edge of face 1 along longitude
+       if ( I1 ==1 .and. J2<=IM_WORLD ) then
           allocate(corner_lons(I2-I1+2, J2-J1+2))
           allocate(corner_lats(I2-I1+2, J2-J1+2))
           call MAPL_GridGetCorners(Grid,corner_lons,corner_lats,rc=status)
-          _ASSERT( abs((1.750d0*MAPL_PI_R8 - Japan_shift) - corner_lons(1,1)) <= epsilon(1.0), "Grid should have pi/18 shift")
-          do j = 2, J2-J1+2
-             _ASSERT( abs(dalpha - (corner_lats(1,j) - corner_lats(1,j-1))) <= epsilon(1.0), "Grid should be gnomonic_ed")
+          if ( J1 == 1) then
+             print*, "acurate corner lat lon: ", -alpha,  1.750d0*MAPL_PI_R8 - Japan_shift
+             print*, "from getCorner lat lon: ", corner_lats(1,1), corner_lons(1,1)
+             _ASSERT( abs((1.750d0*MAPL_PI_R8 - Japan_shift) - corner_lons(1,1)) <= epsilon(1.0), "Grid should have pi/18 shift")
+          endif
+          do j = J1, J2+1
+             c_lat = -alpha + (j-1)*dalpha 
+             if ( abs(c_lat - corner_lats(1,j-J1+1)) > epsilon(1.0)) then
+               print*, "Grid should be gnomonic_ed: ", c_lat, corner_lats(1,j-J1+1) , j
+             endif
+             !_ASSERT( abs(c_lat - corner_lats(1,j-J1+1)) <= epsilon(1.0), "Grid should be gnomonic_ed")
           enddo
           deallocate(corner_lons, corner_lats)
        endif
