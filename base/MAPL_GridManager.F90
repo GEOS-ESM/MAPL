@@ -93,7 +93,7 @@ contains
       initialized = .false.
 
       if (.not. initialized) then
-         call initialize_prototypes(this)
+         call initialize_prototypes(this, _RC)
          initialized = .true.
       end if
 
@@ -106,7 +106,7 @@ contains
 ! wdb todo #mu These lines need to be implemented eventually as a unit.
 ! wdb todo #mu In addition, the calling functions need to be updated.
 !   subroutine intialize_prototypes(this, unusable, rc) ! wdb todo #mu
-   subroutine intialize_prototypes(this) ! wdb todo #mu
+   subroutine initialize_prototypes(this, unusable, rc) ! wdb todo #mu
       use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
       use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
       use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
@@ -116,6 +116,8 @@ contains
       class (GridManager), intent(inout) :: this
 !      class (KeywordEnforcer), optional, intent(in) :: unusable ! wdb todo #mu
 !      integer, optional, intent(out) :: rc ! wdb todo #mu
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
 
       integer :: status
       type (LatLonGridFactory) :: latlon_factory
@@ -128,6 +130,7 @@ contains
 
 !      _UNUSED_DUMMY(unusable) ! wdb todo #mu
 
+      _UNUSED_DUMMY(unusable)
       initialized = .false.
 
       if (.not. initialized) then
@@ -141,7 +144,7 @@ contains
 
 !      _RETURN(_SUCCESS) ! wdb todo #mu
 
-   end subroutine intialize_prototypes
+   end subroutine initialize_prototypes
 
    function make_clone(this, grid_type, unusable, rc) result(factory)
       class (AbstractGridFactory), allocatable :: factory
@@ -165,7 +168,7 @@ contains
       _UNUSED_DUMMY(unusable)
 
       if (.not. initialized) then
-         call initialize_prototypes(this)
+         call initialize_prototypes(this, _RC)
          initialized = .true.
       end if
 
