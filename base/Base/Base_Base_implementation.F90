@@ -183,7 +183,7 @@ contains
                   gridToFieldMap=gridToFieldMap,                      &
                   rc = status)
           case default
-             _ASSERT(.false., 'unsupported rank > 1')
+             _FAIL( 'unsupported rank > 1')
           end select
 
        else
@@ -197,7 +197,7 @@ contains
                   gridToFieldMap=gridToFieldMap,                      &
                   rc = status)
           case default
-             _ASSERT(.false., 'unsupported rank > 1')
+             _FAIL( 'unsupported rank > 1')
           end select
 
        endif
@@ -290,7 +290,7 @@ contains
                   totalUWidth=haloWidth(1:griddedDims),     &
                   rc = status)
           case default
-             _ASSERT(.false., 'only up to 4D are supported')
+             _FAIL( 'only up to 4D are supported')
           end select RankCase2d
        else
           select case (rank)
@@ -325,7 +325,7 @@ contains
                   totalUWidth=haloWidth(1:griddedDims),     &
                   rc = status)
           case default
-             _ASSERT(.false., 'only up to 4D are supported')
+             _FAIL( 'only up to 4D are supported')
           end select
        end if
        _VERIFY(STATUS)
@@ -444,7 +444,7 @@ contains
                   datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
                   rc = status)
           case default
-             _ASSERT(.false., 'only 2D and 3D are supported')
+             _FAIL( 'only 2D and 3D are supported')
           end select
 
        else
@@ -474,7 +474,7 @@ contains
                   datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
                   rc = status)
           case default
-             _ASSERT(.false., 'only 2D and 3D are supported')
+             _FAIL( 'only 2D and 3D are supported')
           end select
 
        endif
@@ -1385,7 +1385,7 @@ contains
                rc = status)
           _VERIFY(STATUS)
        case default
-          _ASSERT(.false., 'only upto 4D are supported')
+          _FAIL( 'only upto 4D are supported')
        end select
     else if (tk == ESMF_TypeKind_R8) then
        select case (fieldRank)
@@ -1422,10 +1422,10 @@ contains
                rc = status)
           _VERIFY(STATUS)
        case default
-          _ASSERT(.false., 'only 2D and 3D are supported')
+          _FAIL( 'only 2D and 3D are supported')
        end select
     else
-       _ASSERT(.false., 'unsupported typekind')
+       _FAIL( 'unsupported typekind')
     endif
 
     deallocate(gridToFieldMap)
@@ -1560,7 +1560,7 @@ contains
           DIMS = MAPL_DimsHorzVert
        end if
     else
-       _ASSERT(.false., 'rank > 4 not supported')
+       _FAIL( 'rank > 4 not supported')
     end if
 
     deallocate(gridToFieldMap)
@@ -1660,7 +1660,7 @@ contains
             rc = status)
        _VERIFY(STATUS)
     case default
-       _ASSERT(.false., 'only 2D and 3D are supported')
+       _FAIL( 'only 2D and 3D are supported')
     end select
 
     deallocate(gridToFieldMap)
@@ -1762,7 +1762,7 @@ contains
        _VERIFY(STATUS)
        var_3d = vr8_3d
     case default
-       _ASSERT(.false., 'unsupported fieldRank (> 3)')
+       _FAIL( 'unsupported fieldRank (> 3)')
     end select
 
     _RETURN(ESMF_SUCCESS)
@@ -2701,7 +2701,7 @@ contains
        deallocate(VR8_3d,stat=status)
        _VERIFY(STATUS)
     else
-       _ASSERT(.false., 'unsupported typekind+rank')
+       _FAIL( 'unsupported typekind+rank')
     end if
     call ESMF_FieldDestroy(Field,rc=status)
     _VERIFY(STATUS)
@@ -3011,10 +3011,8 @@ contains
 
     integer                         :: IM_World, JM_World, dims(3)
     integer                         :: IM, JM, counts(3)
-    real(ESMF_KIND_R8), pointer     :: lons(:,:) => null()
-    real(ESMF_KIND_R8), pointer     :: lats(:,:) => null()
-    real(ESMF_KIND_R8), allocatable :: lons_1d(:)
-    real(ESMF_KIND_R8), allocatable :: lats_1d(:)
+    real(ESMF_KIND_R8), pointer     :: lons(:,:)
+    real(ESMF_KIND_R8), pointer     :: lats(:,:)
     real(ESMF_KIND_R8), allocatable :: elons(:)
     real(ESMF_KIND_R8), allocatable :: elats(:)
     integer :: i,iiloc,jjloc
@@ -3082,26 +3080,26 @@ contains
     else
        if (localSearch) then
           call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
-               staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lons, rc=status)
-          _VERIFY(STATUS)
+               staggerloc=ESMF_STAGGERLOC_CORNER, fArrayPtr = lons, _RC)
           call ESMF_GridGetCoord(grid,coordDim=2, localDe=0, &
-               staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lats, rc=status)
-          _VERIFY(STATUS)
+               staggerloc=ESMF_STAGGERLOC_CORNER, fArrayPtr = lats, _RC)
        else
-          _ASSERT(.false.,'if not isCubed, localSearch must be .true.')
+          _FAIL('if not isCubed, localSearch must be .true.')
        end if
-       allocate(lons_1d(im),stat=status)
-       _VERIFY(STATUS)
-       allocate(lats_1d(jm),stat=status)
-       _VERIFY(STATUS)
        allocate(elons(im+1),stat=status)
        _VERIFY(STATUS)
        allocate(elats(jm+1),stat=status)
        _VERIFY(STATUS)
-       lons_1d = lons(:,1)
-       lats_1d = lats(1,:)
-       call calc_edges_1d(elons,lons_1d,IM)
-       call calc_edges_1d(elats,lats_1d,JM)
+       call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
+       _VERIFY(STATUS)
+       elons = lons(:,1)
+       elats = lats(1,:)
+       if (coordSys==ESMF_COORDSYS_SPH_DEG) then
+          elons=elons*MAPL_DEGREES_TO_RADIANS_R8
+          elats=elats*MAPL_DEGREES_TO_RADIANS_R8
+       else if (coordSys==ESMF_COORDSYS_CART) then
+          _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
+       end if
        ! lat-lon grid goes from -180 to 180 shift if we must
        ! BMA this -180 to 180 might change at some point
        do i=1,npts
@@ -3113,7 +3111,7 @@ contains
           II(i) = IIloc
           JJ(i) = JJloc
        end do
-       deallocate(lons_1d,lats_1d,elons,elats)
+       deallocate(elons,elats)
     end if
 
     _RETURN(ESMF_SUCCESS)
@@ -3166,16 +3164,6 @@ contains
          end do
       endif
     end function ijsearch
-
-    subroutine calc_edges_1d(ecoords,coords,idim)
-      integer, intent(in) :: idim
-      real(ESMF_KIND_R8), intent(in)  :: coords(idim)
-      real(ESMF_KIND_R8), intent(out) :: ecoords(idim+1)
-      ecoords(1)  = coords(1) - 0.5 * ( coords(2) - coords(1) )
-      ecoords(2:idim) = 0.5 * ( coords(1:idim-1)+coords(2:idim) )
-      ecoords(idim+1) = coords(idim) + 0.5 * (coords(idim) - coords(idim-1))
-      return
-    end subroutine calc_edges_1d
 
   end subroutine MAPL_GetHorzIJIndex
 
@@ -3645,7 +3633,7 @@ contains
           end do
        end if
     else if (tk == ESMF_TYPEKIND_R8) then
-       _ASSERT(.false., "R8 overload not implemented yet")
+       _FAIL( "R8 overload not implemented yet")
     end if
 
     deallocate(gridToFieldMap)

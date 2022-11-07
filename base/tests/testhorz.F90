@@ -1,3 +1,5 @@
+program testhorz
+
 use MAPL_HorzTransformMod
 
 implicit none

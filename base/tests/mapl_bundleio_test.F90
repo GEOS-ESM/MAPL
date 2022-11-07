@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-   Program ut_ReGridding
+   module BundleTestSupport
 
    use mpi
    use ESMF
@@ -18,166 +18,12 @@
    use MAPL_ESMFFieldBundleRead
    use MAPL_ServerManager
    use MAPL_FileMetadataUtilsMod
- 
+
    implicit NONE
 
    real, parameter :: cs_stretch_uninit = -1.0
 
-   call main()
-    
 CONTAINS
- 
-    subroutine main()
-
-!CONTAINS
-
-!  Basic ESMF objects being used in this example
-!  ---------------------------------------------
-   type(ESMF_Grid)     :: grid_new
-   type(ESMF_VM)       :: vm             ! ESMF Virtual Machine
-
-!  Basic information about the parallel environment
-!         PET = Persistent Execution Threads
-!  In the current implementation, a PET is equivalent 
-!  to an MPI process
-!  ------------------------------------------------
-   integer :: myPET   ! The local PET number
-   integer :: nPET    ! The total number of PETs you are running on
-
-   integer :: status, rc
-   integer :: Nx,Ny,nargs
-   integer :: IM_World_new, JM_World_new, lm_world
-
-   type(ESMF_FieldBundle) :: bundle,bundle_new
-   type(ESMF_Field) :: field
-   type(ESMF_Time) :: time
-   type(ESMF_TimeInterval) :: timeInterval
-   type(ESMF_Clock) :: clock
-
-   character(len=ESMF_MAXSTR) :: Iam
-   character(len=ESMF_MAXSTR) :: filename
-
-   integer :: i
-
-   character(len=2) :: pole_new,dateline_new
-   character(len=ESMF_MAXSTR) :: gridname
-   character(len=ESMF_MAXPATHLEN) :: str,astr
-   type(ESMF_CONFIG) :: cfoutput
-
-   type(FieldBundleWriter) :: newWriter
-   type(ServerManager) :: io_server
-   real, pointer :: ptr2d(:,:),ptr3d(:,:,:)
-   real :: cs_stretch_param(3)
-   integer :: exit_code
- 
-    Iam = "ut_ReGridding"
-
-!   Initialize the ESMF. For performance reasons, it is important
-!    to turn OFF ESMF's automatic logging feature
-!   -------------------------------------------------------------
-    call ESMF_Initialize (LogKindFlag=ESMF_LOGKIND_NONE, vm=vm, rc=STATUS)
-    _VERIFY(STATUS)
-    call ESMF_VMGet(vm, localPET=myPET, petCount=nPet)
-    call MAPL_Initialize(__RC__)
- 
-    call io_server%initialize(mpi_comm_world)
-
-    nx=1
-    ny=6
-    cs_stretch_param=cs_stretch_uninit
-    nargs = command_argument_count()
-    do i=1,nargs
-      call get_command_argument(i,str)
-      select case(trim(str))
-      case('-ogrid')
-         call get_command_argument(i+1,Gridname)
-      case('-nx')
-         call get_command_argument(i+1,astr)
-         read(astr,*)nx
-      case('-ny')
-         call get_command_argument(i+1,astr)
-         read(astr,*)ny
-      end select
-    enddo
-
-    call MAPL_GetNodeInfo (comm=MPI_COMM_WORLD, rc=status)
-    _VERIFY(STATUS)
-
-    call ESMF_CalendarSetDefault ( ESMF_CALKIND_GREGORIAN, rc=status )
-    _VERIFY(STATUS)
-
-    call ESMF_TimeSet(time, yy=2000, mm=3, dd=15,  h=21,  m=0, s=0,__RC__)
-    call ESMF_TimeIntervalSet( TimeInterval, h=6, m=0, s=0, rc=status )
-    _VERIFY(STATUS)
-    Clock = ESMF_ClockCreate ( name="Eric", timeStep=TimeInterval, &
-                               startTime=time, rc=status )
-    _VERIFY(STATUS)
-
-    call UnpackGridName(Gridname,im_world_new,jm_world_new,dateline_new,pole_new)
-
-    lm_world=3
-    cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,__RC__)
-    grid_new=grid_manager%make_grid(cfoutput,prefix=trim(gridname)//".",__RC__)
-    bundle=ESMF_FieldBundleCreate(name="cfio_bundle",rc=status)
-    call ESMF_FieldBundleSet(bundle,grid=grid_new,rc=status)
-    _VERIFY(STATUS)
-    bundle_new=ESMF_FieldBundleCreate(name="cfio_bundle",rc=status)
-    call ESMF_FieldBundleSet(bundle_new,grid=grid_new,rc=status)
-    _VERIFY(STATUS)
-
-    field=ESMF_FieldCreate(grid=grid_new,typekind=ESMF_TYPEKIND_R4,name="f2d",rc=status)
-    _VERIFY(status)
-    call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE="what_am_i", RC=STATUS)
-    _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE="NA", RC=STATUS)
-    _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzOnly, RC=STATUS)
-    _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
-                                  VALUE=MAPL_VLocationNone, RC=STATUS)
-    _VERIFY(STATUS)
-    call ESMF_FieldGet(field,farrayPtr=ptr2d,__RC__)
-    ptr2d=17.0
-    call MAPL_FieldBundleAdd(bundle,field,__RC__)
-
-    field=ESMF_FieldCreate(grid=grid_new,typekind=ESMF_TYPEKIND_R4,name="f3d", &
-      ungriddedLBound=[1],ungriddedUBound=[lm_world],rc=status)
-    _VERIFY(status)
-    call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE="what_am_i", RC=STATUS)
-    _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE="NA", RC=STATUS)
-    _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME='DIMS', VALUE=MAPL_DimsHorzVert, RC=STATUS)
-    _VERIFY(STATUS)
-    call ESMF_AttributeSet(FIELD, NAME='VLOCATION', &
-                                  VALUE=MAPL_VLocationCenter, RC=STATUS)
-    _VERIFY(STATUS)
-    call ESMF_FieldGet(field,farrayPtr=ptr3d,__RC__)
-    ptr3d=17.0
-    call MAPL_FieldBundleAdd(bundle,field,__RC__)
-
-
-    filename="temp_file.nc4"
-    call newWriter%create_from_bundle(bundle,clock,filename,rc=status)
-    _VERIFY(status)
-    call newWriter%write_to_file(rc=status)
-    _VERIFY(status)
-    call MAPL_Read_bundle(bundle_new,trim(filename),time=time,rc=status)
-    _VERIFY(status)
-
-    call Compare_Bundle(bundle,bundle_new,1.0e6,rc=exit_code)
-
-    call io_server%finalize()
-    call MAPL_Finalize(__RC__)
-    call ESMF_Finalize ( rc=status )
-    _VERIFY(STATUS)
-    if (exit_code ==0) then
-       stop 0
-    else
-       stop 1
-    end if
-
-    end subroutine main
 
    subroutine compare_bundle(State1,State2,tol,rc)
       type(ESMF_FieldBundle), intent(inout) :: State1
@@ -196,22 +42,20 @@ CONTAINS
       logical, allocatable :: foundDiff(:)
       type(ESMF_Field) :: Field1,Field2
 
-      call ESMF_FieldBundleGet(State1,fieldcount=itemCount,__RC__)
-         allocate(NameList(itemCount),stat=status)
-         _VERIFY(status)
-         allocate(foundDiff(itemCount),stat=status)
-         _VERIFY(status)
-         call ESMF_FieldBundleGet(State1,fieldNameList=NameList,__RC__)
+      call ESMF_FieldBundleGet(State1,fieldcount=itemCount,_RC)
+         allocate(NameList(itemCount),_STAT)
+         allocate(foundDiff(itemCount),_STAT)
+         call ESMF_FieldBundleGet(State1,fieldNameList=NameList,_RC)
          do ii=1,itemCount
-            call ESMF_FieldBundleGet(State1,trim(nameList(ii)),field=field1,__RC__)
-            call ESMF_FieldBundleGet(State2,trim(nameList(ii)),field=field2,__RC__)
-            call ESMF_FieldGet(field1,rank=rank1,__RC__)
-            call ESMF_FieldGet(field1,rank=rank2,__RC__)
+            call ESMF_FieldBundleGet(State1,trim(nameList(ii)),field=field1,_RC)
+            call ESMF_FieldBundleGet(State2,trim(nameList(ii)),field=field2,_RC)
+            call ESMF_FieldGet(field1,rank=rank1,_RC)
+            call ESMF_FieldGet(field1,rank=rank2,_RC)
             _ASSERT(rank1==rank2,'needs informative message')
             foundDiff(ii)=.false.
             if (rank1==2) then
-               call ESMF_FieldGet(field1,farrayPtr=ptr2_1,__RC__)
-               call ESMF_FieldGet(field2,farrayPtr=ptr2_2,__RC__)
+               call ESMF_FieldGet(field1,farrayPtr=ptr2_1,_RC)
+               call ESMF_FieldGet(field2,farrayPtr=ptr2_2,_RC)
                do i=1,size(ptr2_1,1)
                   do j=1,size(ptr2_1,2)
                      if (abs(ptr2_1(i,j)-ptr2_2(i,j)) .gt. tol) then
@@ -221,8 +65,8 @@ CONTAINS
                   enddo
                enddo
             else if (rank1==3) then
-               call ESMF_FieldGet(field1,farrayPtr=ptr3_1,__RC__)
-               call ESMF_FieldGet(field2,farrayPtr=ptr3_2,__RC__)
+               call ESMF_FieldGet(field1,farrayPtr=ptr3_1,_RC)
+               call ESMF_FieldGet(field2,farrayPtr=ptr3_2,_RC)
                lb=lbound(ptr3_1)
                ub=ubound(ptr3_1)
                do i=1,size(ptr3_1,1)
@@ -237,7 +81,7 @@ CONTAINS
                enddo
             end if
             if (foundDiff(ii)) then
-               _ASSERT(.false.,'found difference when compare state')
+               _FAIL('found difference when compare state')
             end if
          enddo
 
@@ -275,7 +119,6 @@ CONTAINS
        real, intent(in)             :: cs_stretch_param(3)
        integer, optional, intent(out) :: rc
 
-       character(len=ESMF_MAXSTR),parameter :: Iam = "create_cf"
        integer :: status
        character(len=2) :: pole,dateline
        integer :: nn
@@ -284,44 +127,31 @@ CONTAINS
        dateline=grid_name(nn-1:nn)
        pole=grid_name(1:2)
 
-       cf = MAPL_ConfigCreate(__RC__)
-       call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",rc=status)
-       VERIFY_(status)
-       call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",rc=status)
-       VERIFY_(status)
+       cf = MAPL_ConfigCreate(_RC)
+       call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_RC)
+       call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",_RC)
        if (jm_world==6*im_world) then
-          call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",rc=status)
-          VERIFY_(status)
-          call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",rc=status)
-          VERIFY_(status)
-          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",rc=status)
-          VERIFY_(status)
-          call MAPL_ConfigSetAttribute(cf,value=ny/6, label=trim(grid_name)//".NY:",rc=status)
-          VERIFY_(status)
+          call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=ny/6, label=trim(grid_name)//".NY:",_RC)
           if (any(cs_stretch_param/=cs_stretch_uninit)) then
-             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(1),label=trim(grid_name)//".STRETCH_FACTOR:",rc=status)
-             VERIFY_(status)
-             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(2),label=trim(grid_name)//".TARGET_LON:",rc=status)
-             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(3),label=trim(grid_name)//".TARGET_LAT:",rc=status)
+             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(1),label=trim(grid_name)//".STRETCH_FACTOR:",_RC)
+             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(2),label=trim(grid_name)//".TARGET_LON:",_RC)
+             call MAPL_ConfigSetAttribute(cf,value=cs_stretch_param(3),label=trim(grid_name)//".TARGET_LAT:",_RC)
           end if
-     
+
        else
-          call MAPL_ConfigSetAttribute(cf,value="LatLon", label=trim(grid_name)//".GRID_TYPE:",rc=status)
-          VERIFY_(status)
-          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",rc=status)
-          VERIFY_(status)
-          call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",rc=status)
-          VERIFY_(status)
-          call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",rc=status)
-          VERIFY_(status)
-          call MAPL_ConfigSetAttribute(cf,value=pole, label=trim(grid_name)//".POLE:",rc=status)
-          VERIFY_(status)
-          call MAPL_ConfigSetAttribute(cf,value=dateline, label=trim(grid_name)//".DATELINE:",rc=status)
-          VERIFY_(status)
+          call MAPL_ConfigSetAttribute(cf,value="LatLon", label=trim(grid_name)//".GRID_TYPE:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=im_world,label=trim(grid_name)//".IM_WORLD:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=jm_world,label=trim(grid_name)//".JM_WORLD:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=pole, label=trim(grid_name)//".POLE:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=dateline, label=trim(grid_name)//".DATELINE:",_RC)
        end if
 
 
-     end function create_cf 
+     end function create_cf
 
     function create_gridname(im,jm,date,pole) result(gridname)
      integer, intent(in) :: im
@@ -337,4 +167,135 @@ CONTAINS
 
     end function create_gridname
 
-    end program ut_ReGridding 
+    end module BundleTestSupport
+
+! This is how you can "reset" the MAPL_Generic.h verify bits for a program.
+! Program must be at the end of the file to do this and everything else in a module
+
+#undef MAPL_ErrLog_DONE
+#define I_AM_MAIN
+#include "MAPL_Generic.h"
+
+    program ut_ReGridding
+
+       use BundleTestSupport
+       implicit none
+
+!CONTAINS
+
+!  Basic ESMF objects being used in this example
+!  ---------------------------------------------
+   type(ESMF_Grid)     :: grid_new
+   type(ESMF_VM)       :: vm             ! ESMF Virtual Machine
+
+!  Basic information about the parallel environment
+!         PET = Persistent Execution Threads
+!  In the current implementation, a PET is equivalent
+!  to an MPI process
+!  ------------------------------------------------
+   integer :: myPET   ! The local PET number
+   integer :: nPET    ! The total number of PETs you are running on
+
+   integer :: status
+   integer :: Nx,Ny,nargs
+   integer :: IM_World_new, JM_World_new, lm_world
+
+   type(ESMF_FieldBundle) :: bundle,bundle_new
+   type(ESMF_Field) :: field
+   type(ESMF_Time) :: time
+   type(ESMF_TimeInterval) :: timeInterval
+   type(ESMF_Clock) :: clock
+
+   character(len=ESMF_MAXSTR) :: filename
+
+   integer :: i
+
+   character(len=2) :: pole_new,dateline_new
+   character(len=ESMF_MAXSTR) :: gridname
+   character(len=ESMF_MAXPATHLEN) :: str,astr
+   type(ESMF_CONFIG) :: cfoutput
+
+   type(FieldBundleWriter) :: newWriter
+   type(ServerManager) :: io_server
+   real, pointer :: ptr2d(:,:),ptr3d(:,:,:)
+   real :: cs_stretch_param(3)
+
+!   Initialize the ESMF. For performance reasons, it is important
+!    to turn OFF ESMF's automatic logging feature
+!   -------------------------------------------------------------
+    call ESMF_Initialize (LogKindFlag=ESMF_LOGKIND_NONE, vm=vm, _RC)
+    call ESMF_VMGet(vm, localPET=myPET, petCount=nPet, _RC)
+    call MAPL_Initialize(_RC)
+
+    call io_server%initialize(mpi_comm_world)
+
+    nx=1
+    ny=6
+    cs_stretch_param=cs_stretch_uninit
+    nargs = command_argument_count()
+    do i=1,nargs
+      call get_command_argument(i,str)
+      select case(trim(str))
+      case('-ogrid')
+         call get_command_argument(i+1,Gridname)
+      case('-nx')
+         call get_command_argument(i+1,astr)
+         read(astr,*)nx
+      case('-ny')
+         call get_command_argument(i+1,astr)
+         read(astr,*)ny
+      case('-o')
+         call get_command_argument(i+1,filename)
+      end select
+    enddo
+
+    call MAPL_GetNodeInfo (comm=MPI_COMM_WORLD, _RC)
+
+    call ESMF_CalendarSetDefault ( ESMF_CALKIND_GREGORIAN, _RC )
+
+    call ESMF_TimeSet(time, yy=2000, mm=3, dd=15,  h=21,  m=0, s=0,_RC)
+    call ESMF_TimeIntervalSet( TimeInterval, h=6, m=0, s=0, _RC )
+    Clock = ESMF_ClockCreate ( name="Eric", timeStep=TimeInterval, &
+                               startTime=time, _RC )
+
+    call UnpackGridName(Gridname,im_world_new,jm_world_new,dateline_new,pole_new)
+
+    lm_world=3
+    cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,_RC)
+    grid_new=grid_manager%make_grid(cfoutput,prefix=trim(gridname)//".",_RC)
+    bundle=ESMF_FieldBundleCreate(name="cfio_bundle",_RC)
+    call ESMF_FieldBundleSet(bundle,grid=grid_new,_RC)
+    bundle_new=ESMF_FieldBundleCreate(name="cfio_bundle",_RC)
+    call ESMF_FieldBundleSet(bundle_new,grid=grid_new,_RC)
+
+    field=ESMF_FieldCreate(grid=grid_new,typekind=ESMF_TYPEKIND_R4,name="f2d",_RC)
+    call ESMF_AttributeSet(FIELD,'LONG_NAME','what_am_i',_RC)
+    call ESMF_AttributeSet(FIELD,'UNITS','NA',_RC)
+    call ESMF_AttributeSet(FIELD,'DIMS',MAPL_DimsHorzOnly,_RC)
+    call ESMF_AttributeSet(FIELD,'VLOCATION',MAPL_VLocationNone,_RC)
+    call ESMF_FieldGet(field,farrayPtr=ptr2d,_RC)
+    ptr2d=17.0
+    call MAPL_FieldBundleAdd(bundle,field,_RC)
+
+    field=ESMF_FieldCreate(grid=grid_new,typekind=ESMF_TYPEKIND_R4,name="f3d", &
+      ungriddedLBound=[1],ungriddedUBound=[lm_world],_RC)
+    call ESMF_AttributeSet(FIELD,'LONG_NAME','what_am_i',_RC)
+    call ESMF_AttributeSet(FIELD,'UNITS','NA',_RC)
+    call ESMF_AttributeSet(FIELD,'DIMS',MAPL_DimsHorzVert,_RC)
+    call ESMF_AttributeSet(FIELD,'VLOCATION',MAPL_VLocationCenter,_RC)
+    call ESMF_FieldGet(field,farrayPtr=ptr3d,_RC)
+    ptr3d=17.0
+    call MAPL_FieldBundleAdd(bundle,field,_RC)
+
+
+    call newWriter%create_from_bundle(bundle,clock,filename,_RC)
+    call newWriter%write_to_file(_RC)
+    call MAPL_Read_bundle(bundle_new,trim(filename),time=time,_RC)
+
+    call Compare_Bundle(bundle,bundle_new,1.0e6,_RC)
+
+    call io_server%finalize()
+    call MAPL_Finalize(_RC)
+    call ESMF_Finalize(_RC)
+
+    end program ut_ReGridding

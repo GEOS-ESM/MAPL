@@ -4,7 +4,10 @@
 module ExtData_DriverGridCompMod
   use ESMF
   use MAPL
-  use MAPL_ExtDataGridCompMod, only : ExtData_SetServices => SetServices
+#if defined(BUILD_WITH_EXTDATA2G)
+  use MAPL_ExtDataGridComp2G, only : ExtData2G_SetServices => SetServices
+#endif
+  use MAPL_ExtDataGridCompMod, only : ExtData1G_SetServices => SetServices
   use MAPL_HistoryGridCompMod, only : Hist_SetServices => SetServices
   use MAPL_Profiler, only : get_global_time_profiler, BaseProfiler
 
@@ -31,6 +34,7 @@ module ExtData_DriverGridCompMod
      type(ESMF_State),    allocatable :: imports(:), exports(:)
      type(ESMF_VM) :: vm
      type(ESMF_Time), allocatable :: times(:)
+     logical :: run_fbf = .false.
    contains
      procedure :: set_services
      procedure :: initialize
@@ -140,6 +144,7 @@ contains
     procedure(), pointer :: root_set_services
     type(ExtData_DriverGridComp), pointer :: cap
     class(BaseProfiler), pointer :: t_p
+    logical :: use_extdata2g
 
     _UNUSED_DUMMY(import_state)
     _UNUSED_DUMMY(export_state)
@@ -181,6 +186,7 @@ contains
     call MAPL_Set(MAPLOBJ, name = cap%name, cf = cap%config, rc = status)
     _VERIFY(status)
 
+    call ESMF_ConfigGetAttribute(cap%config,cap%run_fbf,label="RUN_FBF:",default=.false.)
     call ESMF_ConfigGetAttribute(cap%config,cap%run_hist,label="RUN_HISTORY:",default=.true.)
     call ESMF_ConfigGetAttribute(cap%config,cap%run_extdata,label="RUN_EXTDATA:",default=.true.)
 
@@ -212,6 +218,7 @@ contains
     !EOR
     enableTimers = ESMF_UtilStringUpperCase(enableTimers, rc = status)
     _VERIFY(status)
+    call MAPL_GetResource(maplobj,use_extdata2g,"USE_EXTDATA2G:",default=.false.,_RC)
 
     if (enableTimers /= 'YES') then
        call MAPL_ProfDisable(rc = status)
@@ -319,10 +326,16 @@ contains
 
        call MAPL_Set(MAPLOBJ, CF=CAP%CF_EXT, RC=STATUS)
        _VERIFY(STATUS)
-
-       cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData_SetServices, rc = status)
-       _VERIFY(status)
-    
+       if (use_extdata2g) then
+#if defined(BUILD_WITH_EXTDATA2G)
+          cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData2G_SetServices, _RC)
+#else
+          _FAIL('ExtData2G requested but not built')
+#endif
+       else
+          cap%extdata_id = MAPL_AddChild (MAPLOBJ, name = 'EXTDATA', SS = ExtData1G_SetServices, _RC)
+       end if
+      
     end if
 
     !  Query MAPL for the the children's for GCS, IMPORTS, EXPORTS
@@ -400,6 +413,9 @@ contains
 
     call cap%parseTimes(rc=status)
     _VERIFY(status)
+    if (allocated(cap%times) .and. cap%run_fbf ) then
+       _FAIL("can not run forwards and backwards with specific times")
+    end if
 
     _RETURN(ESMF_SUCCESS)
   end subroutine initialize_gc
@@ -592,6 +608,24 @@ contains
           call cap%run_one_step(status)
           _VERIFY(status)
        enddo
+    else if (cap%run_fbf) then
+       do n=1,cap%nsteps
+          call ESMF_ClockAdvance(cap%clock,rc=status)
+          _VERIFY(status)
+          call cap%run_one_step(status)
+          _VERIFY(status)
+       enddo
+       call ESMF_ClockSet(cap%clock,direction=ESMF_DIRECTION_REVERSE,_RC)
+       do n=1,cap%nsteps
+          call ESMF_ClockAdvance(cap%clock,rc=status)
+       enddo
+       call ESMF_ClockSet(cap%clock,direction=ESMF_DIRECTION_FORWARD,_RC)
+       do n=1,cap%nsteps
+          call ESMF_ClockAdvance(cap%clock,rc=status)
+          _VERIFY(status)
+          call cap%run_one_step(status)
+          _VERIFY(status)
+       enddo
     else
        do n=1,cap%nsteps
           call ESMF_ClockAdvance(cap%clock,rc=status)
@@ -709,7 +743,7 @@ contains
        call ESMF_CalendarSetDefault(ESMF_CALKIND_NOLEAP, RC=STATUS)
        _VERIFY(STATUS)
     else
-       _ASSERT(.false.,'needs informative message')
+       _FAIL('needs informative message')
     endif
 
     call ESMF_ConfigGetAttribute(cf, datetime, label='BEG_DATE:',rc=status)

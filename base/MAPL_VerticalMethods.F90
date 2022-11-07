@@ -36,7 +36,7 @@ module MAPL_VerticalDataMod
      real, allocatable :: surface_level(:,:)
      real, allocatable :: ple3d(:,:,:)
      real, allocatable :: pl3d(:,:,:)
-     integer :: lm
+     integer :: lm = 0
      integer :: regrid_type
      type(ESMF_Field) :: interp_var
      logical :: ascending
@@ -402,7 +402,7 @@ module MAPL_VerticalDataMod
                    unGrdCoordCheck = .false.
                 end if
                 if ( unGrdUnitCheck .or. unGrdNameCheck .or. unGrdCoordCheck) then
-                   _ASSERT(.false.,'Ungridded attributes for variables in collection do not match')
+                   _FAIL('Ungridded attributes for variables in collection do not match')
                 end if
              end if
           end do
