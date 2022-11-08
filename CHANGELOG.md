@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Fix bug #1747: when an external grid is set, the GridType is incorrect.
+-  When a grid is received from outside of MAPL (e.g., NOAA UFS), MAPL must provide a mechanism to specify a grid-type for internal processing.
 Add an option to set_grid to set GridType explicitly.
 
 ### Removed
