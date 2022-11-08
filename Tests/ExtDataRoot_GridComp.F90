@@ -639,7 +639,7 @@ MODULE ExtDataUtRoot_GridCompMod
       call ESMF_StateGet(State1,itemcount=itemCount,_RC)
          allocate(NameList(itemCount),stat=status)
          _VERIFY(status)
-         allocate(foundDiff(itemCount),stat=status)
+         allocate(foundDiff(itemCount),stat=status,source=.false.)
          _VERIFY(status)
          call ESMF_StateGet(State1,itemNameList=NameList,_RC)
          do ii=1,itemCount
@@ -652,6 +652,9 @@ MODULE ExtDataUtRoot_GridCompMod
             if (rank1==2) then
                call MAPL_GetPointer(state1,ptr2_1,trim(nameList(ii)),_RC)
                call MAPL_GetPointer(state2,ptr2_2,trim(nameList(ii)),_RC)
+               if (all(ptr2_1 == MAPL_UNDEF) .or. all(ptr2_2 == MAPL_UNDEF)) then
+                   exit
+               end if
                do i=1,size(ptr2_1,1) 
                   do j=1,size(ptr2_1,2)
                      if (abs(ptr2_1(i,j)-ptr2_2(i,j)) .gt. tol) then
@@ -663,6 +666,9 @@ MODULE ExtDataUtRoot_GridCompMod
             else if (rank1==3) then
                call MAPL_GetPointer(state1,ptr3_1,trim(nameList(ii)),_RC)
                call MAPL_GetPointer(state2,ptr3_2,trim(nameList(ii)),_RC)
+               if (all(ptr3_1 == MAPL_UNDEF) .or. all(ptr3_2 == MAPL_UNDEF)) then
+                   exit
+               end if
                lb=lbound(ptr3_1)
                ub=ubound(ptr3_1) 
                do i=1,size(ptr3_1,1) 

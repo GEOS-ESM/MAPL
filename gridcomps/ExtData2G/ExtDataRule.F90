@@ -21,7 +21,7 @@ module MAPL_ExtDataRule
       character(:), allocatable :: vector_component
       character(:), allocatable :: vector_file_partner
       logical :: multi_rule
-      logical :: fail_on_missing_file
+      logical :: fail_on_missing_file = .true.
       contains
          procedure :: set_defaults
          procedure :: split_vector

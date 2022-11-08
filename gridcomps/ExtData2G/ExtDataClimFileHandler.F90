@@ -45,7 +45,7 @@ contains
       integer :: target_year, original_year,clim_shift,valid_years(2)
       integer, allocatable :: source_years(:)
      
-    
+   
       _ASSERT(fail_on_missing_file,"Failure on missing file not allowed when rule is climatology") 
       if (bracket%time_in_bracket(input_time)) then
          _RETURN(_SUCCESS)
