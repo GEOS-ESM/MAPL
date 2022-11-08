@@ -367,9 +367,10 @@ contains
       buffer = [buffer, tmp_buffer]
       call this%const_value%serialize(tmp_buffer, status)
       _VERIFY(status)
-      buffer = [buffer, tmp_buffer,serialize_intrinsic(this%deflation)]
-      buffer = [buffer, tmp_buffer,serialize_intrinsic(this%quantize_algorithm)]
-      buffer = [buffer, tmp_buffer,serialize_intrinsic(this%quantize_level)]
+      buffer = [buffer, tmp_buffer]
+      buffer = [buffer, serialize_intrinsic(this%deflation)]
+      buffer = [buffer, serialize_intrinsic(this%quantize_algorithm)]
+      buffer = [buffer, serialize_intrinsic(this%quantize_level)]
 
       if( .not. allocated(this%chunksizes)) then
         buffer =[buffer,[1]]
