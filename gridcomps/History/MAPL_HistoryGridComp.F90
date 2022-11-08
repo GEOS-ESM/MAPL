@@ -2362,6 +2362,13 @@ ENDDO PARSER
                   if (allocated(ungridded_coord)) deallocate(ungridded_coord)
 
                else
+               
+                  if (.false. .and. MAPL_AM_I_ROOT()) THEN
+                     WRITE(*,*) 'REFRESH = ', REFRESH, ' AVGINT = ', AVGINT
+                     WRITE(*,*) 'acc_int = ', MAPL_nsecf(list(n)%acc_interval), &
+                          ' freq = ', MAPL_nsecf(list(n)%frequency)
+                  
+                  endif
 
                   call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,     &
                        SHORT_NAME = SHORT_NAME,                            &
