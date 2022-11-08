@@ -17,6 +17,7 @@ module MAPL_ExtdataSimpleFileHandler
    implicit none
    private
    public ExtDataSimpleFileHandler
+   character(len=14), parameter :: file_not_found = "file_not_found"
 
    type, extends(ExtDataAbstractFileHandler) :: ExtDataSimpleFileHandler
       contains
@@ -26,11 +27,12 @@ module MAPL_ExtdataSimpleFileHandler
 
 contains
 
-   subroutine get_file_bracket(this, input_time, source_time, bracket, rc)
+   subroutine get_file_bracket(this, input_time, source_time, bracket, fail_on_missing_file, rc)
       class(ExtdataSimpleFileHandler), intent(inout) :: this
       type(ESMF_Time), intent(in) :: input_time
       type(ESMF_Time), intent(in) :: source_time(:)
       type(ExtDataBracket), intent(inout) :: bracket
+      logical, intent(in) :: fail_on_missing_file
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_TimeInterval) :: zero
@@ -40,11 +42,15 @@ contains
       character(len=ESMF_MAXPATHLEN) :: current_file
       logical :: get_left, get_right,in_range,was_set
       type(ESMF_Time) :: target_time
+      logical :: allow_missing_file
 
       get_left=.true.
       get_right=.true.
       in_range=.true.
       target_time=input_time
+
+      allow_missing_file = .not.fail_on_missing_file
+
       call bracket%set_parameters(intermittent_disable=.false.)
       if (this%persist_closest) then
          if (input_time <= this%valid_range(1)) then
@@ -89,10 +95,20 @@ contains
          end if
       else
          if (get_left) then
-            call this%get_file(current_file,target_time,0,_RC)
+            call this%get_file(current_file,target_time,0,allow_missing_file,_RC)
+            if (trim(current_file) == file_not_found) then
+               call bracket%set_node('L',file=file_not_found,time=target_time,_RC)
+               bracket%new_file_left = .true.
+               _RETURN(_SUCCESS)
+            end if
             call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
             if (time_index == time_not_found) then
-               call this%get_file(current_file,target_time,-1,_RC)
+               call this%get_file(current_file,target_time,-1,allow_missing_file,_RC)
+               if (trim(current_file) == file_not_found) then
+                  call bracket%set_node('L',file=file_not_found,time=target_time,_RC)
+                  bracket%new_file_left = .true.
+                  _RETURN(_SUCCESS)
+               end if
                call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
                _ASSERT(time_index/=time_not_found,"Time not found in file")
             end if
@@ -107,10 +123,20 @@ contains
          end if
 
          if (get_right) then
-            call this%get_file(current_file,target_time,0,_RC)
+            call this%get_file(current_file,target_time,0,allow_missing_file,_RC)
+            if (trim(current_file) == file_not_found) then
+               call bracket%set_node('R',file=file_not_found,time=target_time,_RC)
+               bracket%new_file_right = .true.
+               _RETURN(_SUCCESS)
+            end if
             call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
             if (time_index == time_not_found) then
-               call this%get_file(current_file,target_time,1,_RC)
+               call this%get_file(current_file,target_time,1,allow_missing_file,_RC)
+               if (trim(current_file) == file_not_found) then
+                  call bracket%set_node('R',file=file_not_found,time=target_time,_RC)
+                  bracket%new_file_right = .true.
+                  _RETURN(_SUCCESS)
+               end if
                call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
                _ASSERT(time_index /= time_not_found,"Time not found in file")
             end if
@@ -123,11 +149,12 @@ contains
    
    end subroutine get_file_bracket
 
-   subroutine get_file(this,filename,input_time,shift,rc)
+   subroutine get_file(this,filename,input_time,shift,allow_missing_file,rc)
       class(ExtdataSimpleFileHandler), intent(inout) :: this
       character(len=*), intent(out) :: filename
       type(ESMF_Time) :: input_time
       integer, intent(in) :: shift
+      logical, intent(in) :: allow_missing_file
       integer, intent(out), optional :: rc
 
       type(ESMF_Time) :: ftime
@@ -150,7 +177,13 @@ contains
       end if
       call fill_grads_template(filename,this%file_template,time=ftime,_RC)
       inquire(file=trim(filename),exist=file_found)
-      _ASSERT(file_found,"get_file did not file a file using: "//trim(this%file_template))
+      if (.not.file_found) then
+         if (allow_Missing_file) then
+            filename = file_not_found 
+         else
+            _FAIL("get_file did not file a file using: "//trim(this%file_template))
+         end if
+      end if
       _RETURN(_SUCCESS)
 
    end subroutine get_file

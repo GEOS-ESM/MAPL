@@ -648,9 +648,9 @@ CONTAINS
 
          !call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template)
          call item%modelGridFields%comp1%reset()
-         call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp1,_RC)
+         call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp1,item%fail_on_missing_file, _RC)
          if (item%vartype == MAPL_VectorField) then
-            call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp2,_RC)
+            call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
          end if
          call IOBundle_Add_Entry(IOBundles,item,idx)
          useTime(i)=time
@@ -1547,26 +1547,90 @@ CONTAINS
 
      call item%modelGridFields%comp1%get_parameters('L',update=update,file=current_file,time_index=time_index)
      if (update) then
-        call itemsL%push_back(item%fileVars)
-        io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataLeft, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
-            item%pfioCollection_id,item%iclient_collection_id,itemsL,rc=status)
-        _VERIFY(status)
-        call IOBundles%push_back(io_bundle)
-        call extdata_lgr%info('%a updated L bracket with: %a at time index %i3 ',item%name, current_file, time_index)
+        if (trim(current_file)/=file_not_found) then
+           call itemsL%push_back(item%fileVars)
+           io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataLeft, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
+               item%pfioCollection_id,item%iclient_collection_id,itemsL,rc=status)
+           _VERIFY(status)
+           call IOBundles%push_back(io_bundle)
+           call extdata_lgr%info('%a updated L bracket with: %a at time index %i3 ',item%name, current_file, time_index)
+        else
+           call MAPL_ExtDataSetUndefField(item,MAPL_ExtDataLeft,_RC)
+        end if
      end if
      call item%modelGridFields%comp1%get_parameters('R',update=update,file=current_file,time_index=time_index)
      if (update) then
-        call itemsR%push_back(item%fileVars)
-        io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataRight, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
-            item%pfioCollection_id,item%iclient_collection_id,itemsR,rc=status)
-        _VERIFY(status)
-        call IOBundles%push_back(io_bundle)
-        call extdata_lgr%info('%a updated R bracket with: %a at time index %i3 ',item%name,current_file, time_index)
+        if (trim(current_file)/=file_not_found) then
+           call itemsR%push_back(item%fileVars)
+           io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataRight, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
+               item%pfioCollection_id,item%iclient_collection_id,itemsR,rc=status)
+           _VERIFY(status)
+           call IOBundles%push_back(io_bundle)
+           call extdata_lgr%info('%a updated R bracket with: %a at time index %i3 ',item%name,current_file, time_index)
+        else
+           call MAPL_ExtDataSetUndefField(item,MAPL_ExtDataRight,_RC)
+        end if
      end if
 
      _RETURN(ESMF_SUCCESS)
 
   end subroutine IOBundle_Add_Entry
+
+  subroutine MAPL_ExtDataSetUndefField(item,filec,rc)
+     type(PrimaryExport), intent(inout) :: item
+     integer, intent(in) :: filec
+     integer, optional, intent(out) :: rc
+
+     integer :: status
+
+      type(ESMF_Field) :: Field,field1,field2
+      real(real32), pointer :: ptr2d(:,:), ptr3d(:,:,:)
+      integer :: rank
+
+      if (item%isVector) then
+
+         if (item%do_Fill .or. item%do_VertInterp) then
+            call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,getRL=.true.,_RC)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,getRL=.true.,_RC)
+         else
+            call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,_RC)
+            call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,_RC)
+         end if
+         call ESMF_FieldGet(Field1,rank=rank,_RC)
+         if (rank==2) then
+            call ESMF_FieldGet(field1,0,farrayPtr=ptr2d,_RC)
+            ptr2d = MAPL_UNDEF
+            call ESMF_FieldGet(field2,0,farrayPtr=ptr2d,_RC)
+            ptr2d = MAPL_UNDEF
+         else if (rank==3) then
+            call ESMF_FieldGet(field1,0,farrayPtr=ptr3d,_RC)
+            ptr3d = MAPL_UNDEF
+            call ESMF_FieldGet(field2,0,farrayPtr=ptr3d,_RC)
+            ptr3d = MAPL_UNDEF
+         else
+            _FAIL("Unsupported field rank in ExtData")
+         end if
+      else
+         if (item%do_Fill .or. item%do_VertInterp) then
+            call MAPL_ExtDataGetBracket(item,filec,field=Field,getRL=.true.,_RC)
+         else
+            call MAPL_ExtDataGetBracket(item,filec,field=Field,_RC)
+         end if
+         call ESMF_FieldGet(Field,rank=rank,_RC)
+         if (rank==2) then
+            call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_RC)
+            ptr2d = MAPL_UNDEF
+         else if (rank==3) then
+            call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
+            ptr3d = MAPL_UNDEF
+         else
+            _FAIL("Unsupported field rank in ExtData")
+         end if
+
+      end if
+
+     _RETURN(_SUCCESS)
+  end subroutine
 
   subroutine set_constant_field(item,ExtDataState,rc)
      type(PrimaryExport), intent(inout) :: item

@@ -162,6 +162,8 @@ module MAPL_ExtDataOldTypesCreator
          end if
       end if
 
+      primary_item%fail_on_missing_file = rule%fail_on_missing_file
+
       _RETURN(_SUCCESS)
 
    end subroutine fillin_primary

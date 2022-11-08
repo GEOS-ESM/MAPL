@@ -73,6 +73,7 @@ module MAPL_ExtDataTypeDef
      ! for multiple collections
      type(ESMF_Time), allocatable :: start_end_time(:)
      logical :: initialized = .false.
+     logical :: fail_on_missing_file = .true.
   end type PrimaryExport
   
   type DerivedExport
