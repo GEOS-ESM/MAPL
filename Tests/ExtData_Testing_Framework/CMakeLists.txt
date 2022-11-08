@@ -5,11 +5,11 @@ if(MPI_Fortran_LIBRARY_VERSION_FIRSTWORD MATCHES "Open")
    list(APPEND MPIEXEC_PREFLAGS "-oversubscribe")
 endif()
 
-file(STRINGS "test_cases/cases.txt" TEST_CASES)
+file(STRINGS "test_cases/extdata_1g_cases.txt" TEST_CASES_1G)
 
 set(cutoff "7")
 
-foreach(TEST_CASE ${TEST_CASES})
+foreach(TEST_CASE ${TEST_CASES_1G})
   if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc)
      file(READ ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc num_procs)
   else()
@@ -31,6 +31,12 @@ foreach(TEST_CASE ${TEST_CASES})
   else()
      set_tests_properties ("ExtData1G_${TEST_CASE}" PROPERTIES LABELS "EXTDATA1G_BIG_TESTS")
   endif()
+
+endforeach()
+
+file(STRINGS "test_cases/extdata_2g_cases.txt" TEST_CASES_2G)
+
+foreach(TEST_CASE ${TEST_CASES_2G})
      
   add_test(
      NAME "ExtData2G_${TEST_CASE}"

@@ -13,6 +13,9 @@ macro(run_case CASE)
     if (${IS_EXTDATA2G} STREQUAL "YES")
        file(APPEND "${tempdir}/CAP1.rc" "USE_EXTDATA2G: .true.")
        file(APPEND "${tempdir}/CAP2.rc" "USE_EXTDATA2G: .true.")
+       if (EXISTS  "${tempdir}/CAP3.rc")
+          file(APPEND "${tempdir}/CAP3.rc" "USE_EXTDATA2G: .true.")
+       endif()
     endif()
     execute_process(
       COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${num_procs} ${MPIEXEC_PREFLAGS} ${MY_BINARY_DIR}/ExtDataDriver.x
