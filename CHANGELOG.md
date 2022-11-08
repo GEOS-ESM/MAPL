@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Fix bug #1747: when an external grid is set, the GridType is incorrect.
-This PR adds an option to set_grid to explicitly set the GridType
+Add an option to set_grid to set GridType explicitly.
 
 ### Removed
 
