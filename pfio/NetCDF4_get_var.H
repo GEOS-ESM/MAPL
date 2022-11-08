@@ -34,7 +34,7 @@
       status = nf90_get_var(this%ncid, varid, values, start, count)
 #endif
      !$omp end critical
-      _VERIFY(status)
+      _ASSERT(status==0,"Unable to get variable: "//trim(var_name))
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
