@@ -1547,7 +1547,7 @@ contains
      ! grid_type is an optional parameter that allows GridType to be set explicitly.
      if (present(grid_type)) then
         if (grid_manager%is_valid_prototype(grid_type)) then
-           call ESMF_InfoGetFromHosts(mapl_grid, infoh, _RC)
+           call ESMF_InfoGetFromHost(mapl_grid, infoh, _RC)
            call ESMF_InfoSet(infoh, 'GridType', grid_type, _RC)
         else
            _RETURN(_FAILURE)
