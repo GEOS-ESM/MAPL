@@ -1537,6 +1537,7 @@ contains
 
      type(ESMF_Grid)           :: mapl_grid
      type(ExternalGridFactory) :: external_grid_factory
+     type(ESMF_Info)           :: infoh
      integer                   :: status
 
      _UNUSED_DUMMY(unusable)
@@ -1546,7 +1547,8 @@ contains
      ! grid_type is an optional parameter that allows GridType to be set explicitly.
      if (present(grid_type)) then
         if (grid_manager%is_valid_prototype(grid_type)) then
-           call ESMF_AttributeSet(mapl_grid, 'GridType', grid_type, _RC)
+           call ESMF_InfoGetFromHosts(mapl_grid, infoh, _RC)
+           call ESMF_InfoSet(infoh, 'GridType', grid_type, _RC)
         else
            _RETURN(_FAILURE)
         end if
