@@ -38,6 +38,11 @@ file(STRINGS "test_cases/extdata_2g_cases.txt" TEST_CASES_2G)
 
 foreach(TEST_CASE ${TEST_CASES_2G})
      
+  if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc)
+     file(READ ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc num_procs)
+  else()
+     set(num_procs "1")
+  endif()
   add_test(
      NAME "ExtData2G_${TEST_CASE}"
      COMMAND ${CMAKE_COMMAND} 
