@@ -3205,7 +3205,7 @@ contains
     _VERIFY(STATUS)
     IM_World = dims(1)
     JM_World = dims(2)
-    _ASSERT( IM_WORLD*6 == JM_WORLD, "it only works for cubed-sphere grid")
+    _ASSERT( IM_WORLD*6 == JM_WORLD, "It only works for cubed-sphere grid")
 
     ! define constants
     sqr2   = sqrt(2.0d0) ! distance from center to the mid of an edge for a 2x2x2 cube
@@ -3214,6 +3214,7 @@ contains
     Japan_shift = MAPL_PI_R8/18    
 
 !   make sure the grid is generated with gnomonic_ed with Japan mountain shift
+!   
     if ( .not. grid_is_ok ) then
        call MAPL_GridGetInterior(GRID,I1,I2,J1,J2)
        ! edge of face 1 along longitude
@@ -3222,16 +3223,16 @@ contains
           allocate(corner_lats(I2-I1+2, J2-J1+2))
           call MAPL_GridGetCorners(Grid,corner_lons,corner_lats,rc=status)
           if ( J1 == 1) then
-             print*, "acurate corner lat lon: ", -alpha,  1.750d0*MAPL_PI_R8 - Japan_shift
-             print*, "from getCorner lat lon: ", corner_lats(1,1), corner_lons(1,1)
+             !print*, "acurate corner lat lon: ", -alpha,  1.750d0*MAPL_PI_R8 - Japan_shift
+             !print*, "from getCorner lat lon: ", corner_lats(1,1), corner_lons(1,1)
              _ASSERT( abs((1.750d0*MAPL_PI_R8 - Japan_shift) - corner_lons(1,1)) <= epsilon(1.0), "Grid should have pi/18 shift")
           endif
           do j = J1, J2+1
              c_lat = -alpha + (j-1)*dalpha 
-             if ( abs(c_lat - corner_lats(1,j-J1+1)) > epsilon(1.0)) then
-               print*, "Grid should be gnomonic_ed: ", c_lat, corner_lats(1,j-J1+1) , j
-             endif
-             !_ASSERT( abs(c_lat - corner_lats(1,j-J1+1)) <= epsilon(1.0), "Grid should be gnomonic_ed")
+             _ASSERT( abs(c_lat - corner_lats(1,j-J1+1)) <= 10.0*epsilon(1.0), "could be 1)Grid is NOT gnomonic_ed, 2)lats lons from MAPL_GridGetCorners are NOT accurate (single precision from ESMF)")
+             !if ( abs(c_lat - corner_lats(1,j-J1+1)) > epsilon(1.0)) then
+             !  print*, "Grid should be gnomonic_ed: ", c_lat, corner_lats(1,j-J1+1) , j
+             !endif
           enddo
           deallocate(corner_lons, corner_lats)
        endif
