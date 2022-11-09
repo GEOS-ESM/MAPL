@@ -3,11 +3,16 @@
 module MAPL
    use MAPLBase_mod
    use MAPL_GenericMod
-   use MAPL_VarSpecMod
-   use MAPL_ExtDataGridCompMod, only: T_EXTDATA_STATE, EXTDATA_WRAP
+   use MAPL_VarSpecMiscMod
    use ESMF_CFIOMod
    use pFIO
    use MAPL_GridCompsMod
+   use mapl_StubComponent
+   use MAPL_ESMFFieldBundleRead
+   use MAPL_ESMFFieldBundleWrite
+   use MAPL_OpenMP_Support, only : MAPL_get_current_thread => get_current_thread
+   use MAPL_OpenMP_Support, only : MAPL_get_num_threads => get_num_threads
+   use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
    implicit none
 end module MAPL
 

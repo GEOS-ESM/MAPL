@@ -13,6 +13,8 @@ set (TEST_SRCS
     Test_LatLon_Corners.pf
     Test_MAPL_Config.pf
     test_DirPath.pf
+    test_TimeStringConversion.pf
+#    test_MAPL_ISO8601_DateTime_ESMF.pf
   )
 
 # SRCS are mostly mocks to facilitate tests
@@ -53,10 +55,10 @@ ecbuild_add_executable (
 set_target_properties(${TESTIO} PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
 add_test(NAME bundleio_tests_latlon
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 2 -ny 1 -ogrid PC90x47-DE)
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 2 -ny 1 -ogrid PC90x47-DE -o file1_ll.nc4)
 
 add_test(NAME bundleio_tests_cube
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 6 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 1 -ny 6 -ogrid PE12x72-CF)
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 6 ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${TESTIO} -nx 1 -ny 6 -ogrid PE12x72-CF -o file_cs.nc4)
 
 add_dependencies(build-tests ${TESTIO})
 

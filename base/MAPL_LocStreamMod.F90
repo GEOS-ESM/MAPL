@@ -233,7 +233,7 @@ contains
 
     if (present(tilekind)) then
        PRINT *, 'IN LocStreamGet TILEKIND  NO LONGER VALID ARGUMENT'
-       _ASSERT(.false.,'needs informative message')
+       _FAIL('needs informative message')
 !       tilekind => locstream%Ptr%Local_GeoLocation(:)%u
     end if
 
@@ -1039,14 +1039,14 @@ contains
           call ESMFL_GridCoordGet(GRID, LATS       , &
                Name     = "Latitude"              , &
                Location = ESMF_STAGGERLOC_CENTER  , &
-               Units    = ESMFL_UnitsRadians      , &
+               Units    = MAPL_UnitsRadians      , &
                RC       = STATUS                    )
           _VERIFY(STATUS)
 
           call ESMFL_GridCoordGet(GRID, LONS       , &
                Name     = "Longitude"             , &
                Location = ESMF_STAGGERLOC_CENTER  , &
-               Units    = ESMFL_UnitsRadians      , &
+               Units    = MAPL_UnitsRadians      , &
                RC       = STATUS                    )
           _VERIFY(STATUS)
           isc = lbound(LATS,1)
@@ -1912,11 +1912,11 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
   end if
 
   if (computeVariance .and. usableTranspose) then
-     _ASSERT(.false.,"Can not compute variance and transpose in LocStream!")
+     _FAIL("Can not compute variance and transpose in LocStream!")
   end if
 
   if (computeVariance .and. uSample) then
-     _ASSERT(.false.,"Can not compute variance and sample in LocStream!")
+     _FAIL("Can not compute variance and sample in LocStream!")
   end if
 
 ! Compute weighted average over masked locations
@@ -2123,7 +2123,7 @@ subroutine MAPL_LocStreamTransformG2T ( LocStream, OUTPUT, INPUT,      &
 
   if (usableGLOBAL) then
      PRINT *, 'IN G2T GLOBAL NO LONGER VALID ARGUMENT'
-     _ASSERT(.FALSE.,'needs informative message')
+     _FAIL('needs informative message')
   else
      do N = 1, size(OUTPUT)
         if(usableMASK(N)) then

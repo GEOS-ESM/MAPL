@@ -139,7 +139,7 @@
 
       if(I>=NumSegments) then
          print *, 'MAPL_Alloc: Out of Segments. Need: ', I
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       end if
 
 ! If we are filling a gap, move trailing segments down
@@ -174,7 +174,7 @@
          do i=1,NumSegments
             print *,  i, heap%HP_start(i),  heap%HP_end(i)
          end do
-         _ASSERT(.false.,'needs informative message')
+         _FAIL('needs informative message')
       end if
  
       heap%ptrs(i)%a => heap%buffer(heap%HP_start(i):heap%HP_end(i))
@@ -216,7 +216,7 @@
          i = i+1
          if(i==NumSegments) then
             print *, 'MAPL_DeAlloc: Bad Pointer'
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
       end do
 
@@ -230,7 +230,7 @@
          i = i+1
          if(i==NumSegments-1) then
             print *, 'MAPL_DeAlloc: Something wrong. Missed bottom mark'
-            _ASSERT(.false.,'needs informative message')
+            _FAIL('needs informative message')
          end if
       end do
 

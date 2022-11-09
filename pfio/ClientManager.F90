@@ -38,7 +38,6 @@ module pFIO_ClientManagerMod
    contains
       procedure :: add_ext_collection
       procedure :: add_hist_collection
-      procedure :: replace_hist_collection
       procedure :: modify_metadata
       procedure :: modify_metadata_all
       procedure :: prefetch_data
@@ -94,7 +93,7 @@ contains
       if (present(n_client)) n = n_client
       fast_ = .false.
       if (present(fast_oclient)) fast_ = fast_oclient
-      c_manager%clients = ClientThreadVector()     
+      c_manager%clients = ClientThreadVector()
       do i = 1, n
         if (fast_) then
            allocate(clientPtr, source = FastClientThread())
@@ -130,45 +129,27 @@ contains
       _UNUSED_DUMMY(unusable)
    end function add_ext_collection
 
-   function add_hist_collection(this, fmd, unusable, rc) result(hist_collection_id)
+   function add_hist_collection(this, fmd, unusable,mode, rc) result(hist_collection_id)
       integer :: hist_collection_id
       class (ClientManager), intent(inout) :: this
       type(FileMetadata),intent(in) :: fmd
       class (KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(in) :: mode
       integer, optional, intent(out) :: rc
       class (ClientThread), pointer :: clientPtr
       integer :: i
-      
+
       do i = 1, this%size()
          ClientPtr => this%clients%at(i)
-         hist_collection_id = clientPtr%add_hist_collection(fmd)
+         hist_collection_id = clientPtr%add_hist_collection(fmd, mode=mode)
       enddo
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function add_hist_collection
 
-   subroutine replace_hist_collection(this, hist_collection_id, fmd, unusable, rc)
-      class (ClientManager), intent(inout) :: this
-      integer, intent(in) :: hist_collection_id
-      type(FileMetadata),intent(in) :: fmd
-      class (KeywordEnforcer), optional, intent(out) :: unusable
-      integer, optional, intent(out) :: rc
-
-      class (ClientThread), pointer :: clientPtr
-      integer :: i
-
-      do i = 1, this%size()
-         ClientPtr => this%clients%at(i)
-         call clientPtr%replace_hist_collection(hist_collection_id, fmd)
-      enddo
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine replace_hist_collection
-
    subroutine prefetch_data(this, collection_id, file_name, var_name, data_reference, &
-        & unusable, start, rc) 
+        & unusable, start, rc)
       class (ClientManager), intent(inout) :: this
       integer, intent(in) :: collection_id
       character(len=*), intent(in) :: file_name
@@ -197,7 +178,7 @@ contains
 
       class (ClientThread), pointer :: clientPtr
       integer :: status
-   
+
       ClientPtr => this%current()
       call clientPtr%modify_metadata(collection_id, var_map = var_map, rc=status)
       _VERIFY(status)
@@ -251,7 +232,7 @@ contains
    end subroutine collective_prefetch_data
 
    subroutine stage_data(this, collection_id, file_name, var_name, data_reference, &
-        & unusable, start, rc) 
+        & unusable, start, rc)
       class (ClientManager), intent(inout) :: this
       integer, intent(in) :: collection_id
       character(len=*), intent(in) :: file_name
@@ -295,7 +276,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine collective_stage_data
 
-   subroutine stage_nondistributed_data(this, collection_id, file_name, var_name, data_reference, unusable, rc) 
+   subroutine stage_nondistributed_data(this, collection_id, file_name, var_name, data_reference, unusable, rc)
       class (ClientManager), intent(inout) :: this
       integer, intent(in) :: collection_id
       character(len=*), intent(in) :: file_name
@@ -323,7 +304,7 @@ contains
 
       clientPtr =>this%current()
       call clientPtr%shake_hand()
- 
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine shake_hand
@@ -348,7 +329,7 @@ contains
       integer, optional, intent(out) :: rc
 
       class (ClientThread), pointer :: clientPtr
-   
+
       clientPtr =>this%current()
       call clientPtr%done_collective_prefetch()
 
@@ -362,7 +343,7 @@ contains
       integer, optional, intent(out) :: rc
 
       class (ClientThread), pointer :: clientPtr
-   
+
       clientPtr =>this%current()
       call clientPtr%done_stage()
 
@@ -376,9 +357,10 @@ contains
       integer, optional, intent(out) :: rc
 
       class (ClientThread), pointer :: clientPtr
-   
+      integer :: status
+
       clientPtr =>this%current()
-      call clientPtr%done_collective_stage()
+      call clientPtr%done_collective_stage(_RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -388,9 +370,9 @@ contains
       class (ClientManager), target, intent(inout) :: this
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
-   
+
       class (ClientThread), pointer :: clientPtr
-      
+
       clientPtr =>this%current()
       call clientPtr%wait_all()
 
@@ -402,9 +384,9 @@ contains
       class (ClientManager), target, intent(inout) :: this
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
-   
+
       class (ClientThread), pointer :: clientPtr
-      
+
       clientPtr =>this%current()
       call clientPtr%post_wait_all()
 
@@ -436,32 +418,33 @@ contains
       if (this%current_client > this%clients%size()) this%current_client = 1
    end subroutine next
 
-   subroutine set_current(this, ith, rc) 
+   subroutine set_current(this, ith, rc)
       class (ClientManager), intent(inout) :: this
       integer, optional, intent(in) :: ith
       integer, optional, intent(out) :: rc
       integer :: ith_
       ith_ = 1
       if (present(ith)) ith_ = ith
-      _ASSERT( 1<=ith_ .and. ith_<=this%size(), "exceeding the clients number")
+      _ASSERT( ith_>=1, 'needs at least one client number')
+      _ASSERT( ith_<=this%size(), "exceeding the clients number")
       this%current_client = ith_
       _RETURN(_SUCCESS)
    end subroutine set_current
 
-   function current(this) result(clientPtr) 
+   function current(this) result(clientPtr)
       class (ClientManager), target, intent(in) :: this
       class (ClientThread), pointer :: clientPtr
       clientPtr=> this%clients%at(this%current_client)
    end function current
 
-   subroutine set_optimal_server(this,nwriting,unusable,rc) 
+   subroutine set_optimal_server(this,nwriting,unusable,rc)
       class (ClientManager), intent(inout) :: this
       integer, intent(in) :: nwriting
       class (KeywordEnforcer),  optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-      integer, save, allocatable :: nwritings(:) ! saved the past nwritings 
-      integer, save, allocatable :: nwritings_large(:) ! saved the past large nwritings 
-      integer, save, allocatable :: nwritings_small(:) ! saved the past small nwritings 
+      integer, save, allocatable :: nwritings(:) ! saved the past nwritings
+      integer, save, allocatable :: nwritings_large(:) ! saved the past large nwritings
+      integer, save, allocatable :: nwritings_small(:) ! saved the past small nwritings
       integer :: Cuttoff, ssize, lsize, tsize, ith
       integer, allocatable :: nwritings_order(:)
       real :: l_ratio, s_ratio
@@ -502,10 +485,10 @@ contains
 
          if (s_ratio >= l_ratio ) then! .true. means small pool is busier
             Cuttoff = Cuttoff - 1 ! artificially decrease Cuttoff, so the next will go to large pool
-         else 
+         else
             Cuttoff = Cuttoff + 1 ! artificially increase Cuttoff, so the next will go to small pool
          endif
-      endif 
+      endif
 
       if (nwriting > Cuttoff) then
          this%largeCurrent=this%largeCurrent+1
@@ -560,7 +543,7 @@ contains
       enddo
       call MAPL_Sort(server_sizes, tmp_position)
       ! if nsplit is out of scope, pick the mid point
-      if (nsplit < server_sizes(1) .or. nsplit > server_sizes(tsize)) then 
+      if (nsplit < server_sizes(1) .or. nsplit > server_sizes(tsize)) then
          pos = tsize/2
       else
          pos = 0
@@ -584,7 +567,7 @@ contains
       do i = pos + 1, tsize
          call this%large_server_pool%push_back(tmp_position(i))
          this%large_total = this%large_total + this%server_sizes%at(tmp_position(i))
-      enddo  
+      enddo
 
       this%writeCutoff = 0
       if (present(n_hist_split)) this%writeCutoff = n_hist_split
@@ -610,9 +593,9 @@ contains
       call this%server_sizes%push_back(server_size)
 
       _RETURN(_SUCCESS)
-   end subroutine set_server_size 
+   end subroutine set_server_size
 
-   function size(this) result(n_client) 
+   function size(this) result(n_client)
       class (ClientManager), intent(in) :: this
       integer :: n_client
       n_client = this%clients%size()

@@ -1,12 +1,14 @@
 module mapl_VarSpecVector
-   use mapl_VariableSpecification, only: MAPL_VarSpec
+   use mapl_VarSpecMod, only: MAPL_VarSpec
 
-#define _type type(MAPL_VarSpec)
-#define _vector VarSpecVector
-#define _iterator VarSpecVectorIterator
-#include "templates/vector.inc"
-#undef _iterator
-#undef _vector
-#undef _type
+#define T MAPL_VarSpec
+#define Vector VarSpecVector
+#define VectorIterator VarSpecVectorIterator
+
+#include "vector/template.inc"
+
+#undef VectorIterator
+#undef Vector
+#undef T
    
 end module mapl_VarSpecVector

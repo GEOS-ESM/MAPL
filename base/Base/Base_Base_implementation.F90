@@ -1,3 +1,4 @@
+#include "MAPL_Exceptions.h"
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
@@ -182,7 +183,7 @@ contains
                   gridToFieldMap=gridToFieldMap,                      &
                   rc = status)
           case default
-             _ASSERT(.false., 'unsupported rank > 1')
+             _FAIL( 'unsupported rank > 1')
           end select
 
        else
@@ -196,7 +197,7 @@ contains
                   gridToFieldMap=gridToFieldMap,                      &
                   rc = status)
           case default
-             _ASSERT(.false., 'unsupported rank > 1')
+             _FAIL( 'unsupported rank > 1')
           end select
 
        endif
@@ -289,7 +290,7 @@ contains
                   totalUWidth=haloWidth(1:griddedDims),     &
                   rc = status)
           case default
-             _ASSERT(.false., 'only up to 4D are supported')
+             _FAIL( 'only up to 4D are supported')
           end select RankCase2d
        else
           select case (rank)
@@ -324,7 +325,7 @@ contains
                   totalUWidth=haloWidth(1:griddedDims),     &
                   rc = status)
           case default
-             _ASSERT(.false., 'only up to 4D are supported')
+             _FAIL( 'only up to 4D are supported')
           end select
        end if
        _VERIFY(STATUS)
@@ -443,7 +444,7 @@ contains
                   datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
                   rc = status)
           case default
-             _ASSERT(.false., 'only 2D and 3D are supported')
+             _FAIL( 'only 2D and 3D are supported')
           end select
 
        else
@@ -473,7 +474,7 @@ contains
                   datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
                   rc = status)
           case default
-             _ASSERT(.false., 'only 2D and 3D are supported')
+             _FAIL( 'only 2D and 3D are supported')
           end select
 
        endif
@@ -1384,7 +1385,7 @@ contains
                rc = status)
           _VERIFY(STATUS)
        case default
-          _ASSERT(.false., 'only upto 4D are supported')
+          _FAIL( 'only upto 4D are supported')
        end select
     else if (tk == ESMF_TypeKind_R8) then
        select case (fieldRank)
@@ -1421,10 +1422,10 @@ contains
                rc = status)
           _VERIFY(STATUS)
        case default
-          _ASSERT(.false., 'only 2D and 3D are supported')
+          _FAIL( 'only 2D and 3D are supported')
        end select
     else
-       _ASSERT(.false., 'unsupported typekind')
+       _FAIL( 'unsupported typekind')
     endif
 
     deallocate(gridToFieldMap)
@@ -1559,7 +1560,7 @@ contains
           DIMS = MAPL_DimsHorzVert
        end if
     else
-       _ASSERT(.false., 'rank > 4 not supported')
+       _FAIL( 'rank > 4 not supported')
     end if
 
     deallocate(gridToFieldMap)
@@ -1659,7 +1660,7 @@ contains
             rc = status)
        _VERIFY(STATUS)
     case default
-       _ASSERT(.false., 'only 2D and 3D are supported')
+       _FAIL( 'only 2D and 3D are supported')
     end select
 
     deallocate(gridToFieldMap)
@@ -1761,7 +1762,7 @@ contains
        _VERIFY(STATUS)
        var_3d = vr8_3d
     case default
-       _ASSERT(.false., 'unsupported fieldRank (> 3)')
+       _FAIL( 'unsupported fieldRank (> 3)')
     end select
 
     _RETURN(ESMF_SUCCESS)
@@ -2700,7 +2701,7 @@ contains
        deallocate(VR8_3d,stat=status)
        _VERIFY(STATUS)
     else
-       _ASSERT(.false., 'unsupported typekind+rank')
+       _FAIL( 'unsupported typekind+rank')
     end if
     call ESMF_FieldDestroy(Field,rc=status)
     _VERIFY(STATUS)
@@ -2758,7 +2759,6 @@ contains
     integer                                 :: na
     type(ESMF_Field)                        :: Fields(1)
     logical                                 :: haveAttr
-
 
     fields(1) = field
     call ESMF_StateAdd(state, fields, RC=status)
@@ -3010,10 +3010,8 @@ contains
 
     integer                         :: IM_World, JM_World, dims(3)
     integer                         :: IM, JM, counts(3)
-    real(ESMF_KIND_R8), pointer     :: lons(:,:) => null()
-    real(ESMF_KIND_R8), pointer     :: lats(:,:) => null()
-    real(ESMF_KIND_R8), allocatable :: lons_1d(:)
-    real(ESMF_KIND_R8), allocatable :: lats_1d(:)
+    real(ESMF_KIND_R8), pointer     :: lons(:,:)
+    real(ESMF_KIND_R8), pointer     :: lats(:,:)
     real(ESMF_KIND_R8), allocatable :: elons(:)
     real(ESMF_KIND_R8), allocatable :: elats(:)
     integer :: i,iiloc,jjloc
@@ -3022,6 +3020,7 @@ contains
     real(ESMF_KIND_R8), allocatable :: target_lons(:),target_lats(:)
     real(ESMF_KIND_R8), allocatable :: corner_lons(:,:),corner_lats(:,:),center_lats(:,:),center_lons(:,:)
     type(ESMF_CoordSys_Flag) :: coordSys
+    character(len=ESMF_MAXSTR) :: grid_type
 
     ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
     ! this also means we are running on a distributed grid
@@ -3050,7 +3049,9 @@ contains
 
     _ASSERT(localSearch,"Global Search for IJ not implemented")   
 
-    if (im_world*6==jm_world) then
+!AOO change tusing GridType atribute    if (im_world*6==jm_world) then
+    call ESMF_AttributeGet(grid, name='GridType', value=grid_type, _RC)
+    if(trim(grid_type) == "Cubed-Sphere") then
        call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
             staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lons, rc=status)
        _VERIFY(STATUS)
@@ -3081,26 +3082,26 @@ contains
     else
        if (localSearch) then
           call ESMF_GridGetCoord(grid,coordDim=1, localDe=0, &
-               staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lons, rc=status)
-          _VERIFY(STATUS)
+               staggerloc=ESMF_STAGGERLOC_CORNER, fArrayPtr = lons, _RC)
           call ESMF_GridGetCoord(grid,coordDim=2, localDe=0, &
-               staggerloc=ESMF_STAGGERLOC_CENTER, fArrayPtr = lats, rc=status)
-          _VERIFY(STATUS)
+               staggerloc=ESMF_STAGGERLOC_CORNER, fArrayPtr = lats, _RC)
        else
-          _ASSERT(.false.,'if not isCubed, localSearch must be .true.')
+          _FAIL('if not isCubed, localSearch must be .true.')
        end if
-       allocate(lons_1d(im),stat=status)
-       _VERIFY(STATUS)
-       allocate(lats_1d(jm),stat=status)
-       _VERIFY(STATUS)
        allocate(elons(im+1),stat=status)
        _VERIFY(STATUS)
        allocate(elats(jm+1),stat=status)
        _VERIFY(STATUS)
-       lons_1d = lons(:,1)
-       lats_1d = lats(1,:)
-       call calc_edges_1d(elons,lons_1d,IM)
-       call calc_edges_1d(elats,lats_1d,JM)
+       call ESMF_GridGet(grid,coordSys=coordSys,rc=status)
+       _VERIFY(STATUS)
+       elons = lons(:,1)
+       elats = lats(1,:)
+       if (coordSys==ESMF_COORDSYS_SPH_DEG) then
+          elons=elons*MAPL_DEGREES_TO_RADIANS_R8
+          elats=elats*MAPL_DEGREES_TO_RADIANS_R8
+       else if (coordSys==ESMF_COORDSYS_CART) then
+          _FAIL('Unsupported coordinate system:  ESMF_COORDSYS_CART')
+       end if
        ! lat-lon grid goes from -180 to 180 shift if we must
        ! BMA this -180 to 180 might change at some point
        do i=1,npts
@@ -3112,7 +3113,7 @@ contains
           II(i) = IIloc
           JJ(i) = JJloc
        end do
-       deallocate(lons_1d,lats_1d,elons,elats)
+       deallocate(elons,elats)
     end if
 
     _RETURN(ESMF_SUCCESS)
@@ -3165,16 +3166,6 @@ contains
          end do
       endif
     end function ijsearch
-
-    subroutine calc_edges_1d(ecoords,coords,idim)
-      integer, intent(in) :: idim
-      real(ESMF_KIND_R8), intent(in)  :: coords(idim)
-      real(ESMF_KIND_R8), intent(out) :: ecoords(idim+1)
-      ecoords(1)  = coords(1) - 0.5 * ( coords(2) - coords(1) )
-      ecoords(2:idim) = 0.5 * ( coords(1:idim-1)+coords(2:idim) )
-      ecoords(idim+1) = coords(idim) + 0.5 * (coords(idim) - coords(idim-1))
-      return
-    end subroutine calc_edges_1d
 
   end subroutine MAPL_GetHorzIJIndex
 
@@ -3644,7 +3635,7 @@ contains
           end do
        end if
     else if (tk == ESMF_TYPEKIND_R8) then
-       _ASSERT(.false., "R8 overload not implemented yet")
+       _FAIL( "R8 overload not implemented yet")
     end if
 
     deallocate(gridToFieldMap)
@@ -3662,50 +3653,56 @@ contains
 
       integer :: i, k
       integer :: k1, k2, kk, count
-      allocate(splitNameArray(n), stat=status)
-      _VERIFY(status)
+      integer :: nn
+      character(len=ESMF_MAXSTR), allocatable :: tmp(:)
+      character(len=ESMF_MAXSTR) :: aliasName_
+
       if (present(aliasName)) then
-         ! count the separators (";") in aliasName
-         ! if they match n (i.e. the count = n-1) use each
-         ! else if count is 0, append 00i to aliasName
-         ! else return an error
-
-         ! parse the aliasName
-         count = 0
-         k1 = 1
-         kk = len_trim(aliasName)
-         do k=1,kk
-            if (aliasName(k:k) == ";") then
-               count = count+1
-               k2=k-1
-               _ASSERT(count < n, 'Too many split separators')
-               splitNameArray(count) = aliasName(k1:k2)
-               k1 = k+1
-            end if
-         end do
-         if (count == 0) then
-            if (name == aliasName) then
-               do i=1,n
-                  write(splitNameArray(i),'(A,I3.3)') trim(aliasName), i
-               end do
-            else
-               count = count+1
-               splitNameArray(count) = aliasName
-            end if
-         else if(count == n-1) then
-            k2 = kk
-            count = count+1
-            splitNameArray(count) = aliasName(k1:k2)
-         else
-            _ASSERT(.false.,'Inconsistent number of split separators')
-         end if
-
+         aliasName_ = aliasName
       else
-         do i=1,n
-            write(splitNameArray(i),'(A,I3.3)') trim(name), i
-         end do
+         aliasName_ = name
       end if
 
+      allocate(splitNameArray(n), stat=status)
+      _VERIFY(status)
+
+      ! parse the aliasName
+      ! count the separators (";") in aliasName
+      count = 0
+      k1 = 1
+      kk = len_trim(aliasName_)
+      do k=1,kk
+         if (aliasName_(k:k) == ";") then
+            count = count+1
+         end if
+      end do
+      nn = count+1
+      allocate(tmp(nn), __STAT__)
+
+      count = 0
+      do k=1,kk
+         if (aliasName_(k:k) == ";") then
+            count = count+1
+            k2=k-1
+            if (count > n) exit ! use atmost n of the aliases
+            tmp(count) = aliasName_(k1:k2)
+            k1 = k+1
+         end if
+      end do
+      count = count+1
+      k2 = kk
+      tmp(count) = aliasName_(k1:k2)
+
+      do i=1,min(nn,n)
+         splitNameArray(i) = tmp(i)
+      end do
+      deallocate(tmp)
+      ! if the user did no supply enough separated alias field names,
+      ! append 00i to the original field name
+      do i=nn+1,n
+         write(splitNameArray(i),'(A,I3.3)') trim(name), i
+      end do
+      
       _RETURN(ESMF_SUCCESS)
     end subroutine GenAlias
   end subroutine MAPL_FieldSplit

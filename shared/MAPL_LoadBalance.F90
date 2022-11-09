@@ -5,6 +5,7 @@
 
 module MAPL_LoadBalanceMod
 
+  use MAPL_Constants, only : MAPL_R8
   use MAPL_SortMod
   use MAPL_ExceptionHandling
   use mpi
@@ -16,6 +17,10 @@ module MAPL_LoadBalanceMod
   public MAPL_BalanceDestroy
   public MAPL_BalanceGet
 
+  interface MAPL_BalanceWork
+     module procedure MAPL_BalanceWork4
+     module procedure MAPL_BalanceWork8
+  end interface MAPL_BalanceWork
   integer, public, parameter :: MAPL_Distribute = 1
   integer, public, parameter :: MAPL_Retrieve   = 2
 
@@ -78,7 +83,7 @@ module MAPL_LoadBalanceMod
 
 contains
 
-  subroutine MAPL_BalanceWork(A, Idim, Direction, Handle, rc)
+  subroutine MAPL_BalanceWork4(A, Idim, Direction, Handle, rc)
     real,              intent(INOUT) :: A(:)
     integer,           intent(IN   ) :: Idim, Direction
     integer, optional, intent(IN   ) :: Handle
@@ -178,7 +183,111 @@ contains
     end if
 
     _RETURN(LDB_SUCCESS)
-  end subroutine MAPL_BalanceWork
+  end subroutine MAPL_BalanceWork4
+
+!!!===============================================================
+
+  subroutine MAPL_BalanceWork8(A, Idim, Direction, Handle, rc)
+    real(kind=MAPL_R8), intent(INOUT) :: A(:)
+    integer,            intent(IN   ) :: Idim, Direction
+    integer, optional,  intent(IN   ) :: Handle
+    integer, optional,  intent(  OUT) :: rc
+
+    integer :: PASS, LENGTH, PROCESSOR, CURSOR, ISTRAT
+    integer :: COMM, Vtype, VLength, STATUS, K1, K2, K3, Jdim
+    logical :: SEND, RECV
+    integer, pointer :: NOP(:,:)
+
+! Depending on the argument "Direction", this performs the actual distribution
+!  of work or the gathering of results for a given strategy. The strategy has to
+!  have been predefined by a call to MAPL_BalanceCreate. A strategy "Handle"
+!  obtained from that call can be optionally used to specify the strategy. Otherwise,
+!  a default strategy is assumed (see MAPL_BalanceCreate for details).
+!  Work (Results) is distributed (retrieved) using the buffer A, which is assumed
+!  to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
+!  The blocksize of A (Idim) must be at least as large as the BufLen associated
+!  with the strategy. This size can be obtained by quering the strategy using 
+!  its handle or be saving it from the MAPL_BalanceCreate call. Again, see 
+!  MAPL_BalanceCreate for details.
+
+    Jdim = size(A)/Idim
+
+    if(present(Handle)) then
+       ISTRAT = Handle
+    else
+       ISTRAT = 0
+    endif
+
+    if(THE_STRATEGIES(ISTRAT)%PASSES>0) then ! We have a defined strategy
+       _ASSERT(associated(THE_STRATEGIES(ISTRAT)%NOP),'needs informative message')
+
+! Initialize CURSOR, which is the location in the first block of A where 
+! the next read or write is to occur. K1 and K2 are the limits
+
+       if (Direction==MAPL_Distribute) then
+          CURSOR = THE_STRATEGIES(ISTRAT)%UnBALANCED_LENGTH + 1
+          k1=1
+          k2=THE_STRATEGIES(ISTRAT)%PASSES
+          k3=1
+       else
+          CURSOR = THE_STRATEGIES(ISTRAT)%  BALANCED_LENGTH + 1
+          k1=THE_STRATEGIES(ISTRAT)%PASSES
+          k2=1
+          k3=-1
+       end if
+
+! NOP contains the communication pattern for the strategy, i.e,,
+!  who passes what to whom within COMM.
+
+       NOP  => THE_STRATEGIES(ISTRAT)%NOP
+       COMM =  THE_STRATEGIES(ISTRAT)%COMM
+
+       do PASS=K1,K2,K3
+          if(Direction==MAPL_Distribute) then
+             SEND   = NOP(1,PASS)>0
+             RECV   = NOP(1,PASS)<0
+          else
+             SEND   = NOP(1,PASS)<0
+             RECV   = NOP(1,PASS)>0
+          end if
+
+          LENGTH    = abs(NOP(1,PASS))
+          PROCESSOR = NOP(2,PASS)
+
+          if(Jdim==1) then
+             Vtype   = MPI_DOUBLE_PRECISION
+             VLength = LENGTH
+          else
+             call MPI_Type_VECTOR(Jdim, Length, Idim, MPI_DOUBLE_PRECISION, Vtype, STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             call MPI_TYPE_COMMIT(Vtype,STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             VLength = 1
+          end if
+
+          if(SEND) then ! -- SENDER
+             CURSOR = CURSOR - LENGTH
+             call MPI_SEND(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+          endif
+
+
+          if(RECV) then ! -- RECEIVER
+             call MPI_RECV(A(CURSOR), VLength, Vtype, PROCESSOR, PASS, COMM, &
+                                                          MPI_STATUS_IGNORE, STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+             CURSOR = CURSOR + LENGTH
+          endif
+
+          if(Jdim>1) then
+             call MPI_TYPE_FREE(Vtype,STATUS)
+             _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
+          end if
+       enddo
+    end if
+
+    _RETURN(LDB_SUCCESS)
+  end subroutine MAPL_BalanceWork8
 
 !!!===============================================================
 
@@ -373,7 +482,8 @@ contains
     integer :: Handle_
 
     if (present(Handle)) then 
-       _ASSERT(Handle>=0 .and. Handle<=MAX_NUM_STRATEGIES,'needs informative message')
+       _ASSERT(Handle>=0, 'Handle is less than 0')
+       _ASSERT(Handle<=MAX_NUM_STRATEGIES,'Handle is greater than MAX_NUM_STRATEGIES')
        Handle_ = Handle
     else
        ! If we do not pass in a Handle, assume we wish to destroy
@@ -402,8 +512,9 @@ contains
     integer, optional, intent(OUT) :: BalLen, BufLen, Passes, Comm
     integer, optional, intent(OUT) :: rc
 
-    _ASSERT(Handle>=0 .and. Handle<=MAX_NUM_STRATEGIES,'needs informative message')
-
+    _ASSERT(Handle>=0, 'Handle is less than 0') 
+    _ASSERT(Handle<=MAX_NUM_STRATEGIES,'Handle is greater than MAX_NUM_STATEGIES')
+    
     _ASSERT(associated(THE_STRATEGIES(Handle)%NOP),'needs informative message')
 
     if(present(BalLen)) &

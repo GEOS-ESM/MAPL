@@ -90,7 +90,7 @@ contains
          call c_f_pointer(reference%base_address, real64Ptr)
          real64Ptr = scalar
       class default
-         _ASSERT(.false., "LocalMemRef does not support this type")
+         _FAIL( "LocalMemRef does not support this type")
       end select
 
       _RETURN(_SUCCESS)
@@ -140,7 +140,7 @@ contains
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
-         _ASSERT(.false., "LocalMemRef does not support this type")
+         _FAIL( "LocalMemRef does not support this type")
       end select
 
       _RETURN(_SUCCESS)
@@ -191,7 +191,7 @@ contains
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
-         _ASSERT(.false., "LocalMemRef does not support this type")
+         _FAIL( "LocalMemRef does not support this type")
       end select
 
       _RETURN(_SUCCESS)
@@ -242,7 +242,7 @@ contains
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
-         _ASSERT(.false., "LocalMemRef does not support this type")
+         _FAIL( "LocalMemRef does not support this type")
       end select
 
       _RETURN(_SUCCESS)
@@ -293,7 +293,7 @@ contains
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
-         _ASSERT(.false., "LocalMemRef does not support this type")
+         _FAIL( "LocalMemRef does not support this type")
       end select
 
       _RETURN(_SUCCESS)
@@ -344,7 +344,7 @@ contains
          call c_f_pointer(reference%base_address, real64Ptr, shape=shape(array))
          real64Ptr = array
       class default
-         _ASSERT(.false., "LocalMemRef does not support this type")
+         _FAIL( "LocalMemRef does not support this type")
       end select
 
       _RETURN(_SUCCESS)

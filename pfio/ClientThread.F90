@@ -44,7 +44,7 @@ module pFIO_ClientThreadMod
    integer, parameter :: COLLECTIVE_MIN_ID = 10000
    integer, parameter :: COLLECTIVE_MAX_ID = 19999
 
-   
+
    type, extends(BaseThread) :: ClientThread
       private
 
@@ -56,12 +56,11 @@ module pFIO_ClientThreadMod
    contains
       procedure :: add_ext_collection
       procedure :: add_hist_collection
-      procedure :: replace_hist_collection
       procedure :: modify_metadata
       procedure :: prefetch_data
       procedure :: stage_data
-      procedure :: collective_prefetch_data 
-      procedure :: collective_stage_data 
+      procedure :: collective_prefetch_data
+      procedure :: collective_stage_data
       procedure :: stage_nondistributed_data
       procedure :: shake_hand
 
@@ -91,7 +90,7 @@ contains
    function new_ClientThread(sckt) result(c)
       type (ClientThread),target :: c
       class(AbstractSocket),optional,intent(in) :: sckt
-  
+
       if(present(sckt)) call c%set_connection(sckt)
 
    end function new_ClientThread
@@ -101,9 +100,9 @@ contains
       type (IdMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
       !this%collection_id = message%id
-      _RETURN(_SUCCESS) 
-      _UNUSED_DUMMY(this)  
-      _UNUSED_DUMMY(message)  
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(message)
    end subroutine handle_Id
 
    function add_ext_collection(this, template, rc) result(collection_id)
@@ -114,67 +113,45 @@ contains
 
       class (AbstractMessage), pointer :: message
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       connection=>this%get_connection()
-      call connection%send(AddExtCollectionMessage(template))
+      call connection%send(AddExtCollectionMessage(template),_RC)
       message => connection%receive()
       select type(message)
       type is(IDMessage)
         collection_id = message%id
       class default
-        _ASSERT(.false., " should get id message")
-      end select 
+        _FAIL( " should get id message")
+      end select
       _RETURN(_SUCCESS)
    end function add_ext_collection
 
-   function add_hist_collection(this, fmd, rc) result(hist_collection_id)
+   function add_hist_collection(this, fmd, unusable,  mode, rc) result(hist_collection_id)
       integer :: hist_collection_id
       class (ClientThread), intent(inout) :: this
       type(FileMetadata),intent(in) :: fmd
+      class (KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(in) :: mode
       integer, optional, intent(out) :: rc
 
       class (AbstractMessage), pointer :: message
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       connection=>this%get_connection()
-      call connection%send(AddHistCollectionMessage(fmd))
+      call connection%send(AddHistCollectionMessage(fmd, mode=mode))
 
       message => connection%receive()
       select type(message)
       type is(IDMessage)
         hist_collection_id = message%id
       class default
-        _ASSERT(.false., " should get id message")
-      end select 
+        _FAIL( " should get id message")
+      end select
 
       _RETURN(_SUCCESS)
    end function add_hist_collection
-
-   subroutine replace_hist_collection(this,hist_collection_id,fmd, rc)
-      class (ClientThread), intent(inout) :: this
-      integer, intent(in) :: hist_collection_id
-      type(FileMetadata),intent(in) :: fmd
-      integer, optional, intent(out) :: rc
-
-      integer :: return_id
-      
-      class (AbstractMessage), pointer :: message
-      class(AbstractSocket),pointer :: connection
-
-      connection=>this%get_connection()
-      call connection%send(AddHistCollectionMessage(fmd,hist_collection_id))
-
-      message => connection%receive()
-      select type(message)
-      type is(IDMessage)
-        return_id = message%id
-      class default
-        _ASSERT(.false., " should get id message")
-      end select 
-
-      _ASSERT( return_id == hist_collection_id, "return id should be the same as the collection_id")
-      _RETURN(_SUCCESS)
-   end subroutine replace_hist_collection
 
    function prefetch_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start, rc) result(request_id)
@@ -190,6 +167,7 @@ contains
       integer :: request_id
       class (AbstractMessage), pointer :: handshake_msg
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       request_id = this%get_unique_request_id()
       connection=>this%get_connection()
@@ -198,7 +176,7 @@ contains
            collection_id, &
            file_name, &
            var_name, &
-           data_reference,unusable=unusable,start=start))
+           data_reference,unusable=unusable,start=start),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -218,11 +196,12 @@ contains
 
       class (AbstractMessage), pointer :: handshake_msg
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       connection=>this%get_connection()
       call connection%send(ModifyMetadataMessage( &
            collection_id, &
-           var_map=var_map))
+           var_map=var_map),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -247,6 +226,7 @@ contains
 
       class (AbstractMessage), pointer :: handshake_msg
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       request_id = this%get_unique_collective_request_id()
       connection => this%get_connection()
@@ -257,7 +237,7 @@ contains
            file_name, &
            var_name, &
            data_reference,unusable=unusable, start=start,&
-           global_start=global_start,global_count=global_count))
+           global_start=global_start,global_count=global_count),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -283,6 +263,7 @@ contains
       integer :: request_id
       class (AbstractMessage), pointer :: handshake_msg
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       request_id = this%get_unique_request_id()
       connection=>this%get_connection()
@@ -291,7 +272,7 @@ contains
            collection_id, &
            file_name, &
            var_name, &
-           data_reference,unusable=unusable,start=start))
+           data_reference,unusable=unusable,start=start),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -319,6 +300,7 @@ contains
 
       class (AbstractMessage), pointer :: handshake_msg
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       request_id = this%get_unique_collective_request_id()
       connection => this%get_connection()
@@ -329,7 +311,7 @@ contains
            file_name, &
            var_name, &
            data_reference,unusable=unusable, start=start,&
-           global_start=global_start,global_count=global_count))
+           global_start=global_start,global_count=global_count),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
@@ -354,6 +336,7 @@ contains
 
       class (AbstractMessage), pointer :: handshake_msg
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       request_id = this%get_unique_collective_request_id()
       connection => this%get_connection()
@@ -373,60 +356,78 @@ contains
       _RETURN(_SUCCESS)
    end function stage_nondistributed_data
 
-   subroutine shake_hand(this)
+   subroutine shake_hand(this, rc)
       class (ClientThread), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
 
       class (AbstractMessage), pointer :: handshake_msg
-  
+      integer :: status
+
       connection=>this%get_connection()
-      call connection%send(HandShakeMessage())
+      call connection%send(HandShakeMessage(),_RC)
 
       handshake_msg => connection%receive()
       deallocate(handshake_msg)
 
+      _RETURN(_SUCCESS)
    end subroutine shake_hand
    ! Tell server that ClientThread is done making new requests for the
    ! moment.  This allows the server to be more responsive during the
    ! requests phase of operations.
-   subroutine done(this)
+   subroutine done(this, rc)
       class (ClientThread), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       connection=>this%get_connection()
-      call connection%send(DoneMessage())
+      call connection%send(DoneMessage(),_RC)
+      _RETURN(_SUCCESS)
    end subroutine done
 
-   subroutine done_prefetch(this)
+   subroutine done_prefetch(this, rc)
       class (ClientThread), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       connection=>this%get_connection()
-      call connection%send(PrefetchDoneMessage())
+      call connection%send(PrefetchDoneMessage(),_RC)
+      _RETURN(_SUCCESS)
    end subroutine done_prefetch
 
-   subroutine done_collective_prefetch(this)
+   subroutine done_collective_prefetch(this, rc)
       class (ClientThread), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       connection=>this%get_connection()
-      call connection%send(CollectivePrefetchDoneMessage())
+      call connection%send(CollectivePrefetchDoneMessage(),_RC)
+      _RETURN(_SUCCESS)
    end subroutine done_collective_prefetch
 
-   subroutine done_stage(this)
+   subroutine done_stage(this, rc)
       class (ClientThread), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       connection=>this%get_connection()
-      call connection%send(StageDoneMessage())
+      call connection%send(StageDoneMessage(),_RC)
+      _RETURN(_SUCCESS)
    end subroutine done_stage
 
-   subroutine done_collective_stage(this)
+   subroutine done_collective_stage(this, rc)
       class (ClientThread), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       connection=>this%get_connection()
-      call connection%send(CollectiveStageDoneMessage())
+      call connection%send(CollectiveStageDoneMessage(),_RC)
+      _RETURN(_SUCCESS)
    end subroutine done_collective_stage
 
    subroutine wait(this, request_id)
@@ -446,7 +447,7 @@ contains
       use pFIO_AbstractRequestHandleMod
       class (ClientThread), target, intent(inout) :: this
 
-      call this%clear_RequestHandle() 
+      call this%clear_RequestHandle()
       !call this%shake_hand()
 
    end subroutine wait_all
@@ -477,12 +478,15 @@ contains
       request_id = this%collective_counter
    end function get_unique_collective_request_id
 
-   subroutine terminate(this)
+   subroutine terminate(this, rc)
       class (ClientThread), intent(inout) :: this
+      integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
+      integer :: status
 
       connection=>this%get_connection()
-      call connection%send(TerminateMessage())
+      call connection%send(TerminateMessage(),_RC)
+      _RETURN(_SUCCESS)
    end subroutine terminate
 
 end module pFIO_ClientThreadMod

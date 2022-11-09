@@ -1,7 +1,7 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 ! Implements a socket with direct procedure call.
-! 
+!
 ! Data transfers are direct; put_data() immediately fills request.
 ! Asynchronous sockets will need additional interfaces to manage
 ! checking completion.
@@ -42,7 +42,7 @@ module pFIO_SimpleSocketMod
    contains
       procedure :: wait
    end type SimpleHandle
-   
+
    interface SimpleSocket
       module procedure new_SimpleSocket_visitor
       module procedure new_SimpleSocket
@@ -97,17 +97,19 @@ contains
       class (AbstractSocket),pointer :: connection
       integer, optional, intent(out) :: rc
 
+      integer :: status
+
       connection => this%visitor%get_connection()
       select type (connection)
       type is (SimpleSocket)
          if (allocated(connection%msg)) deallocate(connection%msg)
          allocate(connection%msg , source = message)
-         call connection%msg%dispatch(this%visitor)
+         call connection%msg%dispatch(this%visitor, _RC)
       class default
-         _ASSERT(.false.,"Simple should connect Simple")
+         _FAIL("Simple should connect Simple")
       end select
       _RETURN(_SUCCESS)
-     ! call message%dispatch(this%visitor)
+     ! call message%dispatch(this%visitor,_RC)
    end subroutine send
 
    function put(this, request_id, local_reference, rc) result(handle)
@@ -126,7 +128,7 @@ contains
       allocate(handle, source=SimpleHandle(local_reference))
       _RETURN(_SUCCESS)
    end function put
-      
+
    function get(this, request_id, local_reference, rc) result(handle)
       class (AbstractRequestHandle), allocatable :: handle
       class (SimpleSocket), intent(inout) :: this
@@ -145,7 +147,7 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
    end subroutine wait
-   
+
    function to_string(this) result(string)
       class (SimpleSocket), intent(in) :: this
       character(len=:), allocatable :: string

@@ -46,7 +46,7 @@ module pFIO_BaseServerMod
       procedure :: add_connection
       procedure :: clear_RequestHandle
       procedure :: get_dmessage ! get done or dummy message
-      procedure :: set_collective_request ! 
+      procedure :: set_collective_request !
       procedure :: create_remote_win
    end type BaseServer
 
@@ -70,7 +70,7 @@ contains
          _VERIFY(status)
      enddo
 
-     do i = 1, this%dataRefPtrs%size()   
+     do i = 1, this%dataRefPtrs%size()
         dataRefPtr => this%get_dataReference(i)
         call dataRefPtr%fence(rc=status)
          _VERIFY(status)
@@ -95,7 +95,7 @@ contains
      class (AbstractDataReference), pointer :: dataRefPtr
      class (RDMAReference), pointer :: remotePtr
      integer(kind=MPI_ADDRESS_KIND) :: offset, msize
-     integer :: num_clients 
+     integer :: num_clients, status
      !real(KIND=REAL64) :: t0, t1
 
      !t0 = 0.0d0
@@ -110,7 +110,7 @@ contains
      threadPtr=>this%threads%at(1)
 
      iter = threadPtr%request_backlog%begin()
-     ! t0 = mpi_wtime()         
+     ! t0 = mpi_wtime()
      do while (iter /= threadPtr%request_backlog%end())
         msg => iter%get()
         select type (q=>msg)
@@ -125,7 +125,7 @@ contains
            type is (RDMAReference)
               remotePtr=>dataRefPtr
            class default
-              _ASSERT(.false., "remote is a must")
+              _FAIL( "remote is a must")
            end select
 
            request_iter = this%stage_offset%find(i_to_string(q%request_id)//'done')
@@ -135,7 +135,7 @@ contains
               offset     = this%stage_offset%at(i_to_string(q%request_id))
               offset_address   = c_loc(i_ptr(offset+1))
              ! (2) write data
-              call threadPtr%put_DataToFile(q,offset_address)
+              call threadPtr%put_DataToFile(q,offset_address, _RC)
              ! (3) leave a mark, it has been written
               call this%stage_offset%insert(i_to_string(q%request_id)//'done',0_MPI_ADDRESS_KIND)
               !t1 = mpi_wtime()
@@ -192,7 +192,7 @@ contains
       nullify(thread_ptr)
 
       this%num_clients = this%num_clients + 1
-      
+
    end subroutine add_connection
 
    ! done message of dummy message
@@ -208,7 +208,7 @@ contains
       n = this%threads%size()
       if (n <= 0 ) then
          allocate(dmessage,source = DummyMessage())
-         print*, "WARNING: no serverthread" 
+         print*, "WARNING: no serverthread"
          _RETURN(_SUCCESS)
       endif
 
@@ -219,7 +219,7 @@ contains
       type is (MpiSocket)
          allocate(dmessage,source = DummyMessage())
       class default
-         _ASSERT(.false., "wrong socket type")
+         _FAIL( "wrong socket type")
       end select
 
       _RETURN(_SUCCESS)

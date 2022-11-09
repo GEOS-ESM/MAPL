@@ -17,6 +17,7 @@ module pFIO_NetCDF4_FileFormatterMod
    use gFTL_StringIntegerMap
    use pFIO_StringVariableMapMod
    use pFIO_StringAttributeMapMod
+   use pfio_NetCDF_Supplement
    use netcdf
    implicit none
    private
@@ -26,6 +27,7 @@ module pFIO_NetCDF4_FileFormatterMod
    include 'mpif.h'
    type :: NetCDF4_FileFormatter
 !$$      private
+      character(len=:), allocatable :: origin_file
       integer :: ncid = -1
       logical :: parallel = .false.
       integer :: comm = -1
@@ -149,12 +151,21 @@ contains
 
       integer :: status
       integer :: mode_
+      integer :: pfio_mode
 
       if (present(mode)) then
-         mode_=mode
+         pfio_mode=mode
       else
-         mode_=NF90_CLOBBER
+         pfio_mode=PFIO_NOCLOBBER
       end if
+
+      select case (pfio_mode)
+      case (pFIO_CLOBBER)
+         mode_ = NF90_CLOBBER
+      case (pFIO_NOCLOBBER)
+         mode_ = NF90_NOCLOBBER
+      end select
+         
       !$omp critical
       status = nf90_create(file, IOR(mode_, NF90_NETCDF4), this%ncid)
       !$omp end critical
@@ -178,12 +189,20 @@ contains
       integer :: info_
       integer :: status
       integer :: mode_
+      integer :: pfio_mode
 
       if (present(mode)) then
-         mode_=mode
+         pfio_mode=mode
       else
-         mode_=NF90_CLOBBER
+         pfio_mode=PFIO_NOCLOBBER
       end if
+
+      select case (pfio_mode)
+      case (pFIO_CLOBBER)
+         mode_ = NF90_CLOBBER
+      case (pFIO_NOCLOBBER)
+         mode_ = NF90_NOCLOBBER
+      end select
 
       if (present(comm)) then
          comm_ = comm
@@ -233,7 +252,7 @@ contains
       case (pFIO_WRITE)
          omode = NF90_WRITE
       case default
-         _ASSERT(.false.,"read or write mode")
+         _FAIL("read or write mode")
       end select
 
       if (present(comm)) then
@@ -259,6 +278,8 @@ contains
       end if
       !$omp end critical
       _VERIFY(status)
+
+      this%origin_file = file
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -737,8 +758,10 @@ contains
          xtype = NF90_FLOAT
       case (pFIO_REAL64)
          xtype = NF90_DOUBLE
-      case (pFIO_STRING)
+      case (pFIO_CHAR)
          xtype = NF90_CHAR
+      case (pFIO_STRING)
+         xtype = NF90_STRING
       case default
          rc = _FAILURE
       end select
@@ -763,6 +786,8 @@ contains
       case (NF90_DOUBLE)
          fio_type = pFIO_REAL64
       case (NF90_CHAR)
+         fio_type = pFIO_CHAR
+      case (NF90_STRING)
          fio_type = pFIO_STRING
       case default
          rc = _FAILURE
@@ -787,6 +812,8 @@ contains
 
       call this%inq_attributes(cf, NF90_GLOBAL, rc=status)
       _VERIFY(status)
+
+      if (allocated(this%origin_file)) call cf%set_source_file(this%origin_file)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -850,7 +877,6 @@ contains
       status = nf90_inquire(this%ncid, nAttributes=nAttributes)
       !$omp end critical
       _VERIFY(status)
-
       do attnum = 1, nAttributes
          !$omp critical
          status = nf90_inq_attname(this%ncid, varid, attnum, attr_name)
@@ -897,6 +923,15 @@ contains
             allocate(character(len=len) :: str)
             !$omp critical
             status = nf90_get_att(this%ncid, varid, trim(attr_name), str)
+            !$omp end critical
+            _VERIFY(status)
+            call cf%add_attribute(trim(attr_name), str)
+            deallocate(str)
+         case (NF90_STRING)
+            ! W.Y. Note: pfio only supports global string attributes.
+            ! varid is not passed in. NC_GLOBAL is used inside the call 
+            !$omp critical
+            status = pfio_get_att_string(this%ncid, trim(attr_name), str)
             !$omp end critical
             _VERIFY(status)
             call cf%add_attribute(trim(attr_name), str)
@@ -990,6 +1025,10 @@ contains
             _VERIFY(status)
             call var%add_attribute(trim(attr_name), str)
             deallocate(str)
+         case (NF90_STRING)
+            !W.Y. Note: pfio does not support variable's string attribute
+            !  It only supports global 1-d string attribute
+            cycle
          case default
             _RETURN(_FAILURE)
          end select

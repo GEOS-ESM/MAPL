@@ -6,6 +6,7 @@ module pFIO_ConstantsMod
    public :: pFIO_INT32, pFIO_INT64
    public :: pFIO_REAL32, pFIO_REAL64
    public :: pFIO_LOGICAL
+   public :: pFIO_CHAR
    public :: pFIO_STRING
    public :: pFIO_UNSUPPORTED_TYPE
 
@@ -23,6 +24,8 @@ module pFIO_ConstantsMod
    ! IO modes
    public :: pFIO_WRITE
    public :: pFIO_READ
+   public :: pFIO_CLOBBER
+   public :: pFIO_NOCLOBBER
    public :: pFIO_s_tag
    public :: pFIO_m_w_tag
    public :: pFIO_w_m_tag
@@ -33,6 +36,7 @@ module pFIO_ConstantsMod
       enumerator :: pFIO_INT32, pFIO_INT64
       enumerator :: pFIO_REAL32, pFIO_REAL64
       enumerator :: pFIO_LOGICAL
+      enumerator :: pFIO_CHAR
       enumerator :: pFIO_STRING
       enumerator :: pFIO_UNSUPPORTED_TYPE
    end enum
@@ -54,6 +58,11 @@ module pFIO_ConstantsMod
    enum, bind(C)
       enumerator :: pFIO_READ
       enumerator :: pFIO_WRITE
+   end enum
+
+   enum, bind(C)
+      enumerator :: pFIO_CLOBBER
+      enumerator :: pFIO_NOCLOBBER
    end enum
 
    integer, parameter :: pFIO_s_tag   = 9999

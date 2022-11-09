@@ -13,7 +13,7 @@
       character(len=*), intent(in) :: var_name
        _TYPEDECLARE, intent(in) :: values _DIMENSIONS
       class (KeywordEnforcer), optional, intent(in) :: unusable
-#if _RANK != 0      						 
+#if _RANK != 0
       integer, optional, intent(in) :: start(:)
       integer, optional, intent(in) :: count(:)
 #endif

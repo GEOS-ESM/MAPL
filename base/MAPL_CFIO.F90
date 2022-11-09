@@ -475,7 +475,7 @@ contains
        print*,'WARNING:   CFIO parameter "order" is no longer used.'
        print*,'           The new regrid facility uses ESMF parameters to'
        print*,'           specify the type of regridding to perform.'
-       _ASSERT(.false., 'Order must be present')
+       _FAIL( 'Order must be present')
        MCFIO%Order = Order
     else
        MCFIO%Order = -1
@@ -739,7 +739,7 @@ contains
                 unGrdCoordCheck = .false.
              end if
              if ( unGrdUnitCheck .or. unGrdNameCheck .or. unGrdCoordCheck) then
-                _ASSERT(.false., 'Ungridded attributes for variables in collection do not match') 
+                _FAIL( 'Ungridded attributes for variables in collection do not match') 
              end if    
           end if
        end do
@@ -807,7 +807,7 @@ contains
        LM = size(ULEVELS)
        HAVE_edge = .false.
        if (HAVE_ungrd) then
-          _ASSERT(.false., 'ERROR: Specifying LEVELS is not allowed for UNGRIDDED vars')
+          _FAIL( 'ERROR: Specifying LEVELS is not allowed for UNGRIDDED vars')
        end if
     else 
 
@@ -817,17 +817,17 @@ contains
           DO I = 1, NumVars
              IF (LOCATION(I)==MAPL_VLocationEdge) print*, mCFIO%VarName(I)
           ENDDO
-          _ASSERT(.false., 'ERROR: Mixed Vlocation in CFIO not allowed unless LEVELS is specified')
+          _FAIL( 'ERROR: Mixed Vlocation in CFIO not allowed unless LEVELS is specified')
        endif
 
        if( all(MCFIO%VarDims==2)) then
           LM = 1
        else if (HAVE_ungrd) then
           if (HAVE_center .or. HAVE_edge) then
-             _ASSERT(.false., 'ERROR: Mixed 3d and UNGRIDDED in CFIO not allowed')
+             _FAIL( 'ERROR: Mixed 3d and UNGRIDDED in CFIO not allowed')
           end if
           if (minval(vsize) /= maxval(vsize)) then
-             _ASSERT(.false., 'ERROR: Outputting variables with different ungridded sizes in one collection')
+             _FAIL( 'ERROR: Outputting variables with different ungridded sizes in one collection')
           end if 
           LM = maxval(vsize)
        else
@@ -958,7 +958,7 @@ contains
              exit
           end do
           if (.not.foundEmpty) then
-             _ASSERT(.false., 'ERROR: Need bigger table with storedCoords')
+             _FAIL( 'ERROR: Need bigger table with storedCoords')
           end if
        end if
     endif
@@ -995,7 +995,7 @@ contains
                 lons1d = MAPL_Range(-180.+(180./IMO), 180.-(180./IMO), IMO)
                 lats1d = MAPL_Range(-90.+(90./JMO), +90.-(90./JMO), JMO)
              case default
-                _ASSERT(.false.,'needs informative message')
+                _FAIL('needs informative message')
              end select
              mcfio%xyoffset = xyoffset
           else
@@ -1453,7 +1453,7 @@ contains
     deallocate(hasUngrid)
     deallocate(vsize)
     deallocate(location)
-!@    call ESMF_CFIOVarInfoDestroy(vars, __RC__)
+!@    call ESMF_CFIOVarInfoDestroy(vars, _RC)
     deallocate(vars)
 !ALT we should do this:    call ESMF_CFIOGridDestroy(cfiogrid)
     deallocate(cfiogrid)
@@ -2945,7 +2945,7 @@ contains
     cfioIsCreated = .false. 
     if (present(collection_id)) then
        collection => collections%at(collection_id)
-       cfio => collection%find(filename) 
+       cfio => collection%find(filename, _RC)
     else
        allocate(CFIO)
        cfio=ESMF_CFIOCreate(RC=status)
@@ -3580,7 +3580,7 @@ contains
 
     deallocate(LONSfile,LATSfile)
     deallocate(LONSbundle,LATSbundle)
-!@    call ESMF_CFIOVarInfoDestroy(vars, __RC__)
+!@    call ESMF_CFIOVarInfoDestroy(vars, _RC)
     deallocate(VARS)
 
     if (selectedLevels) then
@@ -4808,7 +4808,7 @@ CONTAINS
         cfio(n)%collection_id = MAPL_CFIOAddCollection(filelist(n))
         cfio(n)%fname = filelist(n)
         collection => collections%at(cfio(n)%collection_id)
-        pcfio => collection%find(cfio(n)%fname)
+        pcfio => collection%find(cfio(n)%fname, _RC)
         if (present(timelist)) then
           call getTIndex(pcfio,timelist(n),nn,rc=status)
         else
@@ -4958,7 +4958,7 @@ CONTAINS
     _VERIFY(STATUS)
 
     collection => collections%at(mcfio%collection_ID)
-    cfiop => collection%find(mcfio%fname)
+    cfiop => collection%find(mcfio%fname, _RC)
 
     call ESMF_CFIOGet       (cfiop,     grid=CFIOGRID,                     RC=STATUS)
     _VERIFY(STATUS)
@@ -5257,20 +5257,20 @@ CONTAINS
              end if
           else if (gridStagger == MAPL_DGrid) then
              if (rotation /= MAPL_RotateCube) then
-                _ASSERT(.false.,'must rotate LL')
+                _FAIL('must rotate LL')
              else
                 mCFIO%doRotate = .false.
              end if
           else if (gridStagger == MAPL_CGrid) then
              if (rotation /= MAPL_RotateCube) then
-               _ASSERT(.false.,'must rotate LL')
+               _FAIL('must rotate LL')
              else
                 mCFIO%doRotate = .false.
              end if
           end if
        end if
     end block
-!@    call ESMF_CFIOVarInfoDestroy(vars, __RC__)
+!@    call ESMF_CFIOVarInfoDestroy(vars, _RC)
     deallocate(vars)
     deallocate(LONSfile,LATSfile)
     if (associated(levsfile)) then
@@ -5319,7 +5319,7 @@ CONTAINS
     end if
 
     collection => collections%at(mcfio%collection_id)
-    cfiop => collection%find(trim(mcfio%fname))
+    cfiop => collection%find(trim(mcfio%fname), _RC)
 
     call MAPL_GridGet( MCFIO%GRID, globalCellCountPerDim=COUNTS, RC=STATUS)
     _VERIFY(STATUS)
@@ -5973,14 +5973,14 @@ CONTAINS
 
      tindex=-1
      allocate(tSeriesInt(cfio%tSteps))
-     call getDateTimeVec(cfio%fid,begDate,begTime,tSeriesInt,__RC__)
+     call getDateTimeVec(cfio%fid,begDate,begTime,tSeriesInt,_RC)
 
      do i=1,cfio%tSteps
         iCurrInterval = tSeriesInt(i)
         call GetDate ( begDate, begTime, iCurrInterval, nymdB, nhmsB, status )
         call MAPL_UnpackTime(nymdB,iyr,imm,idd)
         call MAPL_UnpackTime(nhmsB,ihr,imn,isc)
-        call ESMF_TimeSet(ctime, yy=iyr, mm=imm, dd=idd,  h=ihr,  m=imn, s=isc,__RC__)
+        call ESMF_TimeSet(ctime, yy=iyr, mm=imm, dd=idd,  h=ihr,  m=imn, s=isc,_RC)
         if (ctime == time) tindex =i
      enddo
 

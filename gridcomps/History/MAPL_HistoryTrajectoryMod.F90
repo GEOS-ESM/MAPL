@@ -596,7 +596,7 @@ module HistoryTrajectoryMod
               endif
             endif
          class default
-            _ASSERT(.false.,"Time unit must be character")
+            _FAIL("Time unit must be character")
          end select
          call ESMF_TimeSet(start_time,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,rc=status)
          _VERIFY(status)

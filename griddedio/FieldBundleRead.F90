@@ -10,7 +10,7 @@ module MAPL_ESMFFieldBundleRead
    use MAPL_ExceptionHandling
    use MAPL_AbstractGridFactoryMod
    use MAPL_AbstractRegridderMod
-   use MAPL_GridManagerMod 
+   use MAPL_GridManagerMod
    use MAPL_DataCollectionMod
    use MAPL_CollectionVectorMod
    use MAPL_DataCollectionManagerMod
@@ -24,9 +24,9 @@ module MAPL_ESMFFieldBundleRead
    use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
-  
+
    public MAPL_create_bundle_from_metdata_id
-   public MAPL_read_bundle 
+   public MAPL_read_bundle
    contains
 
       subroutine MAPL_create_bundle_from_metdata_id(bundle,metadata_id,file_name,only_vars,rc)
@@ -35,7 +35,7 @@ module MAPL_ESMFFieldBundleRead
          character(len=*), intent(in) :: file_name
          character(len=*), optional, intent(in) :: only_vars
          integer, optional, intent(out) :: rc
-         
+
          integer :: status
          type(MAPLDataCollection), pointer :: collection => null()
          type(fileMetaDataUtils), pointer :: metadata
@@ -53,12 +53,10 @@ module MAPL_ESMFFieldBundleRead
          type (StringVector), pointer :: dimensions
          type (StringVectorIterator) :: dim_iter
          integer :: lev_size, grid_size(3)
-         type(Attribute), pointer :: attr
-         class(*), pointer :: attr_val
          character(len=:), allocatable :: units,long_name
 
          collection => DataCollections%at(metadata_id)
-         metadata => collection%find(trim(file_name))
+         metadata => collection%find(trim(file_name), _RC)
          file_grid=collection%src_grid
          lev_name = metadata%get_level_name(rc=status)
          _VERIFY(status)
@@ -70,7 +68,7 @@ module MAPL_ESMFFieldBundleRead
 
          _ASSERT(num_fields == 0,"Trying to fill non-empty bundle")
          factory => get_factory(file_grid,rc=status)
-         _VERIFY(status) 
+         _VERIFY(status)
          grid_vars = factory%get_file_format_vars()
          exclude_vars = grid_vars//",lev,time,lons,lats"
          if (has_vertical_level) lev_size = metadata%get_dimension(trim(lev_name))
@@ -81,7 +79,7 @@ module MAPL_ESMFFieldBundleRead
             var_has_levels = .false.
             var_name => var_iter%key()
             this_variable => var_iter%value()
-            
+
             if (has_vertical_level) then
                dimensions => this_variable%get_dimensions()
                dim_iter = dimensions%begin()
@@ -99,67 +97,69 @@ module MAPL_ESMFFieldBundleRead
             create_variable = .true.
             if (present(only_vars)) then
                if (index(','//trim(only_vars)//',',','//trim(var_name)//',') < 1) create_variable = .false.
-            end if            
+            end if
             if (create_variable) then
-               if(var_has_levels) then 
+               if(var_has_levels) then
                    if (grid_size(3) == lev_size) then
                       location=MAPL_VLocationCenter
                       dims = MAPL_DimsHorzVert
                       field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
                         ungriddedUbound=[grid_size(3)],ungriddedLBound=[1], rc=status)
+                        block
+                           real, pointer :: ptr3d(:,:,:)
+                           call ESMF_FieldGEt(field,0,farrayPtr=ptr3d)
+                           ptr3d =0.0
+                        end block
                    else if (grid_size(3)+1 == lev_size) then
                       location=MAPL_VLocationEdge
                       dims = MAPL_DimsHorzVert
                       field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
                         ungriddedUbound=[grid_size(3)],ungriddedLBound=[0], rc=status)
+                        block
+                           real, pointer :: ptr3d(:,:,:)
+                           call ESMF_FieldGEt(field,0,farrayPtr=ptr3d)
+                           ptr3d =0.0
+                        end block
                   end if
                else
                    location=MAPL_VLocationNone
                    dims = MAPL_DimsHorzOnly
                    field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
                       rc=status)
+                        block
+                           real, pointer :: ptr2d(:,:)
+                           call ESMF_FieldGEt(field,0,farrayPtr=ptr2d)
+                           ptr2d =0.0
+                        end block
                end if
                call ESMF_AttributeSet(field,name='DIMS',value=dims,rc=status)
                _VERIFY(status)
                call ESMF_AttributeSet(field,name='VLOCATION',value=location,rc=status)
                _VERIFY(status)
-               attr => this_variable%get_attribute('units')
-               attr_val=>attr%get_value()
-               select type(attr_val)
-               type is (character(*))
-                  units=attr_val
-               class default
-                  _ASSERT(.false.,'unsupport subclass for units')
-               end select
+               units = metadata%get_var_attr_string(var_name,'units',_RC)
+               long_name = metadata%get_var_attr_string(var_name,'long_name',_RC)
                call ESMF_AttributeSet(field,name='UNITS',value=units,rc=status)
                _VERIFY(status)
-               attr => this_variable%get_attribute('long_name')
-               attr_val=>attr%get_value()
-               select type(attr_val)
-               type is (character(*))
-                  long_name=attr_val
-               class default
-                  _ASSERT(.false.,'unsupport subclass for units')
-               end select
                call ESMF_AttributeSet(field,name='LONG_NAME',value=long_name,rc=status)
                _VERIFY(status)
                call MAPL_FieldBundleAdd(bundle,field,rc=status)
-               _VERIFY(status)                  
+               _VERIFY(status)
             end if
             call var_iter%next()
          end do
 
          _RETURN(_SUCCESS)
- 
+
       end subroutine MAPL_create_bundle_from_metdata_id
 
-      subroutine MAPL_read_bundle(bundle,file_tmpl,time,only_vars,regrid_method,noread,rc)
+      subroutine MAPL_read_bundle(bundle,file_tmpl,time,only_vars,regrid_method,noread,file_override,rc)
          type(ESMF_FieldBundle), intent(inout) :: bundle
          character(len=*), intent(in) :: file_tmpl
          type(ESMF_Time), intent(in) :: time
          character(len=*), optional, intent(in) :: only_vars
          integer, optional, intent(in) :: regrid_method
          logical, optional, intent(in) :: noread
+         character(len=*), optional, intent(in) :: file_override
          integer, optional, intent(out) :: rc
 
          integer :: status
@@ -172,7 +172,7 @@ module MAPL_ESMFFieldBundleRead
          type(GriddedIOItemVector)            :: items
          character(len=ESMF_MAXSTR), allocatable :: field_names(:)
          type(GriddedIOitem) :: item
-        
+
          call fill_grads_template(file_name,file_tmpl,time=time,rc=status)
          _VERIFY(status)
 
@@ -180,7 +180,9 @@ module MAPL_ESMFFieldBundleRead
 
          metadata_id = MAPL_DataAddCollection(trim(file_tmpl))
          collection => DataCollections%at(metadata_id)
-         metadata => collection%find(trim(file_name))
+         if (present(file_override)) file_name = file_override
+        
+         metadata => collection%find(trim(file_name), _RC)
          call metadata%get_time_info(timeVector=time_series,rc=status)
          _VERIFY(status)
          time_index=-1
@@ -204,7 +206,7 @@ module MAPL_ESMFFieldBundleRead
                _RETURN(_SUCCESS)
             end if
          end if
-         
+
          call ESMF_FieldBundleGet(bundle,fieldCount=num_fields,rc=status)
          _VERIFY(status)
          allocate(field_names(num_fields))
@@ -215,7 +217,7 @@ module MAPL_ESMFFieldBundleRead
             item%xname=trim(field_names(i))
             call items%push_back(item)
          enddo
-        
+
 
          cfio=MAPL_GriddedIO(output_bundle=bundle,metadata_collection_id=metadata_id,read_collection_id=collection_id,items=items)
          call cfio%set_param(regrid_method=regrid_method)
@@ -226,6 +228,8 @@ module MAPL_ESMFFieldBundleRead
          call cfio%process_data_from_file(rc=status)
          _VERIFY(status)
 
-      end subroutine MAPL_read_bundle 
+         _RETURN(_SUCCESS)
+
+      end subroutine MAPL_read_bundle
 
 end module MAPL_ESMFFieldBundleRead

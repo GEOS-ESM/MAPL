@@ -13,31 +13,31 @@ module MAPL_ErrorHandlingMod
    public :: MAPL_abort
 
 
-   public :: MAPL_UNKNOWN_ERROR
    public :: MAPL_SUCCESS
 
+   public :: MAPL_UNKNOWN_ERROR
    public :: MAPL_NO_SUCH_PROPERTY
    public :: MAPL_NO_SUCH_VARIABLE
    public :: MAPL_TYPE_MISMATCH
    public :: MAPL_UNSUPPORTED_TYPE
-   public :: MAPL_VALUE_NOT_SUPPORTED
 
+   public :: MAPL_VALUE_NOT_SUPPORTED
    public :: MAPL_NO_DEFAULT_VALUE
    public :: MAPL_DUPLICATE_KEY
    public :: MAPL_STRING_TOO_SHORT
 
    enum, bind(c)
-      enumerator :: MAPL_UNKNOWN_ERROR = -1
       enumerator :: MAPL_SUCCESS       = 0
 
       ! 001-005
+      enumerator :: MAPL_UNKNOWN_ERROR
       enumerator :: MAPL_NO_SUCH_PROPERTY
       enumerator :: MAPL_NO_SUCH_VARIABLE
       enumerator :: MAPL_TYPE_MISMATCH
       enumerator :: MAPL_UNSUPPORTED_TYPE
-      enumerator :: MAPL_VALUE_NOT_SUPPORTED
 
       ! 006-010
+      enumerator :: MAPL_VALUE_NOT_SUPPORTED
       enumerator :: MAPL_NO_DEFAULT_VALUE
       enumerator :: MAPL_DUPLICATE_KEY
       enumerator :: MAPL_STRING_TOO_SHORT
@@ -78,7 +78,9 @@ contains
       fail = .not. condition
 
       if (fail) then
+         !$omp critical (MAPL_ErrorHandling1)
          call MAPL_throw_exception(filename, line, message=message)
+         !$omp end critical (MAPL_ErrorHandling1)
          if (present(rc)) rc = return_code
       end if
 
@@ -97,7 +99,9 @@ contains
 
       if (fail) then
          message = get_error_message(return_code)
+         !$omp critical (MAPL_ErrorHandling2)
          call MAPL_throw_exception(filename, line, message=message)
+         !$omp end critical (MAPL_ErrorHandling2)
          if (present(rc)) rc = return_code
       end if
 
@@ -120,7 +124,9 @@ contains
       if (fail) then
          write(status_string,'(i0)') status
          message = 'status=' // status_string
+         !$omp critical (MAPL_ErrorHandling3)
          call MAPL_throw_exception(filename, line, message=message)
+         !$omp end critical (MAPL_ErrorHandling3)
          if (present(rc)) rc = status
       end if
       
@@ -141,7 +147,9 @@ contains
 
       if (fail) then
          message = get_error_message(status)
+         !$omp critical (MAPL_ErrorHandling4)
          call MAPL_throw_exception(filename, line, message=message)
+         !$omp end critical (MAPL_ErrorHandling4)
       end if
       ! Regardless of error:
       if (present(rc)) rc = status 
@@ -155,7 +163,9 @@ contains
       integer, optional, intent(OUT) :: RC
 
         MAPL_RTRN = .true.
+        !$omp critical (MAPL_ErrorHandling5)
         if(A/=0) print '(A40,I10)',Iam,line
+        !$omp end critical (MAPL_ErrorHandling5)
         if(present(RC)) RC=A
    end function MAPL_RTRN
 
@@ -167,7 +177,9 @@ contains
         MAPL_VRFY = A/=0
         if(MAPL_VRFY)then
           if(present(RC)) then
+            !$omp critical (MAPL_ErrorHandling6)
             print '(A40,I10)',Iam,line
+            !$omp end critical (MAPL_ErrorHandling6)
             RC=A
           endif
         endif
@@ -181,7 +193,9 @@ contains
         MAPL_ASRT = .not.A
         if(MAPL_ASRT)then
           if(present(RC))then
+            !$omp critical (MAPL_ErrorHandling7)
             print '(A40,I10)',Iam,LINE
+            !$omp end critical (MAPL_ErrorHandling7)
             RC=1
           endif
         endif
@@ -193,7 +207,9 @@ contains
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_ASRTt =   MAPL_ASRT(A,iam,line,rc)
+        !$omp critical (MAPL_ErrorHandling8)
         if(MAPL_ASRTt) print *, text
+        !$omp end critical (MAPL_ErrorHandling8)
    end function MAPL_ASRTT
 
    logical function MAPL_RTRNt(A,text,iam,line,rc)
@@ -204,8 +220,10 @@ contains
 
         MAPL_RTRNt = .true.
         if(A/=0)then
+           !$omp critical (MAPL_ErrorHandling9)
            print '(A40,I10)',Iam,line
            print *, text
+           !$omp end critical (MAPL_ErrorHandling9)
         end if
         if(present(RC)) RC=A
 
@@ -217,7 +235,9 @@ contains
       integer,           intent(IN ) :: line
       integer, optional, intent(OUT) :: RC
         MAPL_VRFYt =  MAPL_VRFY(A,iam,line,rc)
+        !$omp critical (MAPL_ErrorHandling10)
         if(MAPL_VRFYt) print *, text
+        !$omp end critical (MAPL_ErrorHandling10)
    end function MAPL_VRFYT
 
    subroutine MAPL_abort

@@ -21,6 +21,14 @@ module MAPL_FileMetadataUtilsMod
       procedure :: get_level_name
       procedure :: is_var_present
       procedure :: get_file_name
+      procedure :: var_get_missing_value
+      procedure :: var_has_missing_value
+      procedure :: var_has_attr
+      procedure :: get_var_attr_real32
+      procedure :: get_var_attr_real64
+      procedure :: get_var_attr_int32
+      procedure :: get_var_attr_int64
+      procedure :: get_var_attr_string
    end type FileMetadataUtils
 
    interface FileMetadataUtils
@@ -46,6 +54,217 @@ module MAPL_FileMetadataUtilsMod
       this%filename = fName
    end subroutine create
 
+   function var_get_missing_value(this,var_name,rc) result(missing_value)
+      real(REAL32) :: missing_value
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: fname
+      type(Variable), pointer :: var
+
+      fname = this%get_file_name(_RC)
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      ! check _FillValue, we could do more, not sure what to do here like also check for missing_value ...
+      if (this%var_has_attr(var_name,"_FillValue")) then
+         missing_value = this%get_var_attr_real32(var_name,"_FillValue",_RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end function var_get_missing_value
+
+   logical function var_has_missing_value(this,var_name,rc)
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      integer, optional, intent(out) :: rc
+     
+      integer :: status
+      character(:), allocatable :: fname
+      type(Variable), pointer :: var
+
+      fname = this%get_file_name(_RC)
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      var_has_missing_value = var%is_attribute_present("_FillValue")
+
+      _RETURN(_SUCCESS)
+   end function var_has_missing_value
+
+   logical function var_has_attr(this,var_name,attr_name,rc)
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+     
+      integer :: status
+      character(:), allocatable :: fname
+      type(Variable), pointer :: var
+
+      fname = this%get_file_name(_RC)
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      var_has_attr = var%is_attribute_present(attr_name)
+      _RETURN(_SUCCESS)
+   end function var_has_attr
+
+   function get_var_attr_real32(this,var_name,attr_name,rc) result(attr_real32)
+      real(REAL32) :: attr_real32
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      real(REAL32) :: tmp(1)
+      real(REAL64) :: tmpd(1)
+      integer :: status
+      character(:), allocatable :: fname
+      type(Attribute), pointer :: attr
+      type(Variable), pointer :: var
+      class(*), pointer :: attr_val(:)
+
+      fname = this%get_file_name(_RC)
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      attr => var%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(real(kind=REAL32))
+         tmp = attr_val
+         attr_real32 = tmp(1)
+      type is(real(kind=REAL64))
+         tmpd = attr_val
+         attr_real32 = REAL(tmpd(1))
+      class default
+         _FAIL('unsupported subclass (not real32) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_var_attr_real32
+
+   function get_var_attr_real64(this,var_name,attr_name,rc) result(attr_real64)
+      real(REAL64) :: attr_real64
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      real(REAL64) :: tmp(1)
+      integer :: status
+      character(:), allocatable :: fname
+      type(Attribute), pointer :: attr
+      type(Variable), pointer :: var
+      class(*), pointer :: attr_val(:)
+
+      fname = this%get_file_name(_RC)
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      attr => var%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(real(kind=REAL64))
+         tmp = attr_val
+         attr_real64 = tmp(1)
+      class default
+         _FAIL('unsupported subclass (not real64) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_var_attr_real64
+
+   function get_var_attr_int32(this,var_name,attr_name,rc) result(attr_int32)
+      integer(INT32) :: attr_int32
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      integer(INT32) :: tmp(1)
+      integer :: status
+      character(:), allocatable :: fname
+      type(Attribute), pointer :: attr
+      type(Variable), pointer :: var
+      class(*), pointer :: attr_val(:)
+
+      fname = this%get_file_name(_RC)
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      attr => var%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(integer(kind=INT32))
+         tmp = attr_val
+         attr_int32 = tmp(1)
+      class default
+         _FAIL('unsupported subclass (not int32) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_var_attr_int32
+
+   function get_var_attr_int64(this,var_name,attr_name,rc) result(attr_int64)
+      integer(INT64) :: attr_int64
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      integer(INT64) :: tmp(1)
+      integer :: status
+      character(:), allocatable :: fname
+      type(Attribute), pointer :: attr
+      type(Variable), pointer :: var
+      class(*), pointer :: attr_val(:)
+
+      fname = this%get_file_name(_RC)
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      attr => var%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(integer(kind=INT64))
+         tmp = attr_val
+         attr_int64 = tmp(1)
+      class default
+         _FAIL('unsupported subclass (not int64) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_var_attr_int64
+
+   function get_var_attr_string(this,var_name,attr_name,rc) result(attr_string)
+      character(len=:), allocatable :: attr_string
+      class(FileMetadataUtils), intent(inout) :: this
+      character(len=*), intent(in) :: var_name
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: fname
+      type(Attribute), pointer :: attr
+      type(Variable), pointer :: var
+      class(*), pointer :: attr_val
+
+      fname = this%get_file_name(_RC)
+      var => this%get_variable(var_name,_RC)
+      _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
+      attr => var%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
+      attr_val => attr%get_value()
+      select type(attr_val)
+      type is(character(*))
+         attr_string = attr_val
+      class default
+         _FAIL('unsupported subclass (not string) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_var_attr_string
 
    subroutine get_time_info(this,startTime,startyear,startmonth,startday,starthour,startmin,startsec,units,timeVector,rc)
       class (FileMetadataUtils), intent(inout) :: this
@@ -62,6 +281,7 @@ module MAPL_FileMetadataUtilsMod
       integer, optional, intent(out) :: rc
 
       integer :: status
+      character(:), allocatable :: fname
       class(CoordinateVariable), pointer :: var
       type(Attribute), pointer :: attr
       class(*), pointer :: pTimeUnits
@@ -79,6 +299,7 @@ module MAPL_FileMetadataUtilsMod
       real(REAL64), allocatable :: tr_r64(:)
       type(ESMF_TimeInterval) :: tint
 
+      fname = this%get_file_name(_RC)
       var => this%get_coordinate_variable('time',rc=status)
       _VERIFY(status)
       attr => var%get_attribute('units')
@@ -157,7 +378,7 @@ module MAPL_FileMetadataUtilsMod
            endif
          endif
       class default
-         _ASSERT(.false.,"Time unit must be character")
+         _FAIL("Time unit must be character in "//fname)
       end select
       call ESMF_TimeSet(unmodStartTime,yy=year,mm=month,dd=day,h=hour,m=min,s=sec,rc=status)
       _VERIFY(status)
@@ -167,7 +388,7 @@ module MAPL_FileMetadataUtilsMod
       allocate(tr_r64(tsize))
       allocate(tvec(tsize))
       ptr => var%get_coordinate_data()
-      _ASSERT(associated(ptr),"time variable coordinate data not found")
+      _ASSERT(associated(ptr),"time variable coordinate data not found in "//fname)
       select type (ptr)
       type is (real(kind=REAL64))
          tr_r64=ptr
@@ -178,7 +399,7 @@ module MAPL_FileMetadataUtilsMod
       type is (integer(kind=INT32))
          tr_r64=ptr
       class default
-         _ASSERT(.false.,"unsupported time variable type")
+         _FAIL("unsupported time variable type in "//fname)
       end select
       do i=1,tsize
         select case (trim(tUnits))
@@ -199,7 +420,7 @@ module MAPL_FileMetadataUtilsMod
            _VERIFY(status)
            tvec(i)=unmodStartTime+tint
         case default
-           _ASSERT(.false.,"unsupported time unit")
+           _FAIL("unsupported time unit in "//fname)
         end select
       enddo
 
@@ -218,6 +439,7 @@ module MAPL_FileMetadataUtilsMod
          allocate(timeVector,source=tVec,stat=status)
          _VERIFY(status)
       end if
+      _RETURN(_SUCCESS)
 
    end subroutine get_time_info
  
@@ -240,7 +462,7 @@ module MAPL_FileMetadataUtilsMod
       character(len=*), intent(in) :: var_name
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
-
+      character(:), allocatable :: fname
       character(len=:), pointer :: units 
       type(Attribute), pointer :: attr => null()
       class(Variable), pointer :: var => null()
@@ -248,6 +470,7 @@ module MAPL_FileMetadataUtilsMod
       logical :: isPresent
       integer :: status
     
+      fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,rc=status)
       _VERIFY(status)
       isPresent = var%is_attribute_present(trim(attr_name))
@@ -258,7 +481,7 @@ module MAPL_FileMetadataUtilsMod
          type is (character(*))
             units => vunits
          class default
-            _ASSERT(.false.,'units must be string')
+            _FAIL('units must be string for '//var_name//' in '//fname)
          end select
       else
          units => null()
@@ -267,21 +490,26 @@ module MAPL_FileMetadataUtilsMod
 
    end function get_variable_attribute
 
-   subroutine get_coordinate_info(this,coordinate_name,coordSize,coordUnits,coords,rc)
+   subroutine get_coordinate_info(this,coordinate_name,coordSize,coordUnits,long_name,standard_name,coords,coordinate_attr,rc)
       class (FileMetadataUtils), intent(inout) :: this
       character(len=*), intent(in) :: coordinate_name
       integer, optional, intent(out) :: coordSize
       character(len=*), optional, intent(out) :: coordUnits
+      character(len=*), optional, intent(out) :: long_name
+      character(len=*), optional, intent(out) :: standard_name
+      character(len=*), optional, intent(out) :: coordinate_attr
       real, allocatable, optional,  intent(inout) :: coords(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
+      character(:), allocatable :: fname
       class(CoordinateVariable), pointer :: var
       type(Attribute), pointer :: attr
       character(len=:), pointer :: vdim
       class(*), pointer :: coordUnitPtr
       class(*), pointer :: ptr(:)
  
+      fname = this%get_file_name(_RC)
       var => this%get_coordinate_variable(trim(coordinate_name),rc=status)
       _VERIFY(status)
    
@@ -297,13 +525,58 @@ module MAPL_FileMetadataUtilsMod
          type is (character(*))
             coordUnits = trim(coordUnitPtr)
          class default
-            _ASSERT(.false.,'units must be string')
+            _FAIL(trim(coordinate_name)//' units must be string in '//fname)
          end select
+      end if 
+
+      if (present(long_name)) then
+         if (this%var_has_attr(coordinate_name,"long_name")) then
+            attr => var%get_attribute('long_name')
+            coordUnitPtr => attr%get_value()
+            select type(coordUnitPtr)
+            type is (character(*))
+               long_name = trim(coordUnitPtr)
+            class default
+               _FAIL(trim(coordinate_name)//' long_name must be string in '//fname)
+            end select
+         else
+             long_name = 'not found'
+         endif
+      end if 
+
+      if (present(standard_name)) then
+         if (this%var_has_attr(coordinate_name,"standard_name")) then
+            attr => var%get_attribute('standard_name')
+            coordUnitPtr => attr%get_value()
+            select type(coordUnitPtr)
+            type is (character(*))
+               standard_name = trim(coordUnitPtr)
+            class default
+               _FAIL(trim(coordinate_name)//' standard_name must be string in '//fname)
+            end select
+         else
+             standard_name = 'not found'
+         endif
+      end if 
+
+      if (present(coordinate_attr)) then
+         if (this%var_has_attr(coordinate_name,"coordinate")) then
+            attr => var%get_attribute('coordinate')
+            coordUnitPtr => attr%get_value()
+            select type(coordUnitPtr)
+            type is (character(*))
+               coordinate_attr = trim(coordUnitPtr)
+            class default
+               _FAIL(trim(coordinate_name)//' name must be string in '//fname)
+            end select
+         else
+             coordinate_attr = 'not found'
+         endif
       end if 
 
       if (present(coords)) then
          ptr => var%get_coordinate_data()
-         _ASSERT(associated(ptr),"coord variable coordinate data not found")
+         _ASSERT(associated(ptr),"coord variable coordinate data not found in "//fname)
          select type (ptr)
          type is (real(kind=REAL64))
             coords=ptr
@@ -314,9 +587,10 @@ module MAPL_FileMetadataUtilsMod
          type is (integer(kind=INT32))
             coords=ptr
          class default
-            _ASSERT(.false.,"unsupported coordel variable type")
+            _FAIL("unsupported coordinate variable type in "//fname)
          end select
       end if
+      _RETURN(_SUCCESS)
 
    end subroutine get_coordinate_info
 

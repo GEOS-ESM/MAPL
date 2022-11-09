@@ -27,7 +27,6 @@ module mapl_MaplComponent
 
       procedure :: run_child
 
-      procedure :: get_internal_state
    end type MaplComponent
 
 contains
@@ -63,12 +62,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine run_child
 
-   function get_internal_state(this) result(internal_state)
-      class(MaplComponent), target, intent(in) :: this
-      type(ESMF_State), pointer :: internal_state
-
-      internal_state => this%internal_state
-   end function get_internal_state
 
 
    subroutine set_logger(this, logger)

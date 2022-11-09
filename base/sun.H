@@ -108,7 +108,7 @@
             ! pmn: EOT will just displace sunlit period wrt mean noon,
             !      but the daily mean values will not change
 
-            _ASSERT(.FALSE.,'pmn: MAPL_SunDailyMean probably in error!') 
+            _FAIL('pmn: MAPL_SunDailyMean probably in error!') 
             _ASSERT(.NOT.ORBIT%ANAL2B,'not implemented for analytic two-body orbit') 
 
             SLR  = sin(LATS)*ORBIT%ZS(IDAY)
@@ -149,7 +149,7 @@
             !     its a mean over the whole currently fixed 4-year cycle.
 
             ! see above
-            _ASSERT(.FALSE.,'pmn: MAPL_SunAnnualMean probably in error!') 
+            _FAIL('pmn: MAPL_SunAnnualMean probably in error!') 
             _ASSERT(.NOT.ORBIT%ANAL2B,'not implemented for analytic two-body orbit') 
 
             SLR  = 0.0

@@ -18,11 +18,13 @@ set (srcs
   Variable.F90
   CoordinateVariable.F90
   StringVariableMap.F90
-  pfio_base.F90 
-  
+  pfio_base.F90
+
   FileMetadata.F90
   FileMetadataVector.F90
   NetCDF4_FileFormatter.F90
+  pfio_get_att_string.c
+  NetCDF_Supplement.F90
   pFIO_Utilities.F90
   pFIO.F90
 
@@ -89,7 +91,7 @@ set (srcs
   StringVectorUtil.F90
   )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PRIVATE MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
@@ -105,6 +107,12 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
 endforeach()
 
 ecbuild_add_executable (
+   TARGET pfio_open_close.x
+   SOURCES pfio_open_close.F90
+   LIBS ${this} )
+set_target_properties (pfio_open_close.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+
+ecbuild_add_executable (
    TARGET pfio_server_demo.x
    SOURCES pfio_server_demo.F90
    LIBS ${this} MPI::MPI_Fortran)
@@ -113,7 +121,7 @@ set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(pfio_server_demo.x OpenMP::OpenMP_Fortran)
 endif ()
-   
+
 ecbuild_add_executable (
    TARGET pfio_collective_demo.x
    SOURCES pfio_collective_demo.F90
@@ -127,7 +135,7 @@ endif ()
 ecbuild_add_executable (
   TARGET pfio_writer.x
   SOURCES pfio_writer.F90
-  LIBS ${this} NetCDF::NetCDF_Fortran MPI::MPI_Fortran)
+  LIBS ${this} NetCDF::NetCDF_Fortran NetCDF::NetCDF_C MPI::MPI_Fortran)
 set_target_properties (pfio_writer.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 #--------------------
@@ -136,7 +144,7 @@ set_target_properties (pfio_writer.x PROPERTIES Fortran_MODULE_DIRECTORY ${inclu
 # in the other libaries, but this make it explicit which aspects are externally
 # used.
 
-# Users guide 
+# Users guide
 if (LATEX_FOUND)
 #  add_subdirectory (TeX)
 endif ()
