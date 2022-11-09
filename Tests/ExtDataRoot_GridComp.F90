@@ -648,8 +648,8 @@ MODULE ExtDataUtRoot_GridCompMod
             call ESMF_StateGet(State2,trim(nameList(i)),field2,_RC)
             call ESMF_FieldGet(field1,rank=rank1,_RC)
             call ESMF_FieldGet(field2,rank=rank2,_RC)
-            all_undef1 = check_if_field_undef(field1,_RC)
-            all_undef2 = check_if_field_undef(field2,_RC)
+            all_undef1 = is_field_undef(field1,_RC)
+            all_undef2 = is_field_undef(field2,_RC)
             if (all_undef1 .or. all_undef2) then
                exit
             end if

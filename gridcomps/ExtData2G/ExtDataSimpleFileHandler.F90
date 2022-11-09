@@ -17,7 +17,6 @@ module MAPL_ExtdataSimpleFileHandler
    implicit none
    private
    public ExtDataSimpleFileHandler
-   character(len=14), parameter :: file_not_found = "file_not_found"
 
    type, extends(ExtDataAbstractFileHandler) :: ExtDataSimpleFileHandler
       contains

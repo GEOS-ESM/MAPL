@@ -8,11 +8,11 @@ use MAPL_ErrorHandlingMod
 implicit none
 private
 
-public check_if_field_undef
+public is_field_undef
 
 contains
 
-function check_if_field_undef(field,rc) result(field_is_undef)
+function is_field_undef(field,rc) result(field_is_undef)
    logical :: field_is_undef
    type(ESMF_Field), intent(in) :: field
    integer, optional, intent(out) :: rc
