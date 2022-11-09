@@ -57,8 +57,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Added
+- Added assert to NetCDF4_get_var.H to print variable name if data retrieval fails
 
 ### Changed
+
+-  When a grid is received from outside of MAPL (e.g., NOAA UFS), MAPL must provide a mechanism to specify a grid-type for internal processing.
+Add an option to set_grid to set GridType explicitly.
 
 ### Removed
 
