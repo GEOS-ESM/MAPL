@@ -29,6 +29,7 @@ module pFIO_NetCDF4_FileFormatterMod
       logical :: parallel = .false.
       integer :: comm = -1
       integer :: info = -1
+      !character(len=4096) :: filename
    contains
       procedure :: create
       procedure :: create_par
@@ -77,7 +78,7 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(put_var,real64,2)
       procedure :: ___SUB(put_var,real64,3)
       procedure :: ___SUB(put_var,real64,4)
-      
+
 
       generic :: get_var => ___SUB(get_var,int32,0)
       generic :: get_var => ___SUB(get_var,int32,1)
@@ -120,7 +121,7 @@ module pFIO_NetCDF4_FileFormatterMod
       generic :: put_var => ___SUB(put_var,real64,4)
 
 #include "undo_overload.macro"
-      
+
       procedure, private :: def_dimensions
       procedure, private :: put_attributes
       procedure, private :: put_var_attributes
@@ -246,6 +247,8 @@ contains
          this%info = MPI_INFO_NULL
       end if
 
+      !this%filename = trim(file)
+
       if (this%parallel) then
          !$omp critical
          status = nf90_open(file, IOR(omode, NF90_MPIIO), comm=this%comm, info=this%info, ncid=this%ncid)
@@ -292,10 +295,10 @@ contains
 
       call this%def_variables(cf, rc=status)
       _VERIFY(status)
-      
+
       call this%put_attributes(cf, NF90_GLOBAL, rc=status)
       _VERIFY(status)
- 
+
       !$omp critical
       status= nf90_enddef(this%ncid)
       !$omp end critical
@@ -324,7 +327,7 @@ contains
       integer, pointer :: dim_len
 
       integer :: nf90_len
-      
+
       dims => cf%get_dimensions()
       iter = dims%begin()
       do while (iter /= dims%end())
@@ -373,7 +376,7 @@ contains
          p_attribute => iter%value()
          shp = p_attribute%get_shape()
 
-         if (size(shp) > 0) then 
+         if (size(shp) > 0) then
            attr_values => p_attribute%get_values()
            _ASSERT(associated(attr_values), "should have values")
 
@@ -483,7 +486,7 @@ contains
                status = _FAILURE
             end select
          end if
-         call var_iter%next() 
+         call var_iter%next()
       enddo
 
       _UNUSED_DUMMY(unusable)
@@ -534,7 +537,7 @@ contains
                status = _FAILURE
             end select
          end if
-         call var_iter%next() 
+         call var_iter%next()
 
       enddo
 
@@ -590,7 +593,7 @@ contains
                !$omp critical
                status = nf90_put_att(this%ncid, varid, attr_name, q)
                !$omp end critical
-            type is (stringWrap) 
+            type is (stringWrap)
                !$omp critical
                status = nf90_put_att(this%ncid, varid, attr_name, q%value)
                !$omp end critical
@@ -699,7 +702,7 @@ contains
          end if
 
          deflation = var%get_deflation()
-         if (deflation > 0) then 
+         if (deflation > 0) then
             !$omp critical
            status = nf90_def_var_deflate(this%ncid, varid, 1, 1, deflation)
            !$omp end critical
@@ -708,7 +711,7 @@ contains
 
          call this%put_var_attributes(var, varid, rc=status)
          _VERIFY(status)
-         
+
          deallocate(dimids)
 
          call var_iter%next()
@@ -768,7 +771,7 @@ contains
 
       return
    end function get_fio_type
-   
+
    function read(this, unusable, rc) result(cf)
       type (FileMetadata), target :: cf
       class (NetCDF4_FileFormatter), intent(inout) :: this
@@ -831,7 +834,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       integer :: attnum, nAttributes
       integer :: xtype
       integer :: len
@@ -902,7 +905,7 @@ contains
          case default
             _RETURN(_FAILURE)
          end select
-            
+
       end do
 
       _RETURN(_SUCCESS)
@@ -918,7 +921,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
+
       integer :: attnum, nAttributes
       integer :: xtype
       integer :: len
@@ -928,11 +931,10 @@ contains
       real(kind=REAL32), allocatable :: r32(:)
       real(kind=REAL64), allocatable :: r64(:)
       character(len=:), allocatable :: str
-      character(len=NF90_MAX_NAME) :: attr_name
-
+      character(len=NF90_MAX_NAME) :: attr_name, variable_name
 
       !$omp critical
-      status = nf90_inquire_variable(this%ncid, varid, nAtts=nAttributes)
+      status = nf90_inquire_variable(this%ncid, varid, nAtts=nAttributes, name=variable_name)
       !$omp end critical
       _VERIFY(status)
 
@@ -989,6 +991,8 @@ contains
             call var%add_attribute(trim(attr_name), str)
             deallocate(str)
          case default
+            !write(*,'("Error getting information on attribute ", a, " for variable ", a, " in file ", a)') trim(attr_name), trim(variable_name), trim(this%filename)
+            write(*,'("Error getting information on attribute ", a, " for variable ", a)') trim(attr_name), trim(variable_name)
             _RETURN(_FAILURE)
          end select
 
@@ -998,7 +1002,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine inq_var_attributes
 
-   
+
    subroutine inq_variables(this, cf, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
       type (FileMetadata), target, intent(inout) :: cf
@@ -1036,7 +1040,7 @@ contains
          status = nf90_inquire_variable(this%ncid, varid, name=var_name, xtype=xtype, ndims=ndims)
          !$omp end critical
          _VERIFY(status)
-         
+
          allocate(dimids(ndims))
          !$omp critical
          status = nf90_inquire_variable(this%ncid, varid, dimids=dimids)
@@ -1185,7 +1189,7 @@ contains
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
 #undef _VARTYPE
-   
+
    ! REAL64
 #define _VARTYPE 5
 #  define _RANK 0
@@ -1209,8 +1213,8 @@ contains
 #    include "NetCDF4_put_var.H"
 #  undef _RANK
 #undef _VARTYPE
-   
-   
+
+
 #undef _TYPE
 
 
@@ -1229,7 +1233,7 @@ contains
       status = nf90_inq_dimid(this%ncid, name=dim_name, dimid=dimid)
       !$omp end critical
       _VERIFY(status)
-      
+
       length = 0
       !$omp critical
       status = nf90_inquire_dimension(this%ncid, dimid, len=length)
@@ -1255,7 +1259,7 @@ contains
 
       ! Sucess means that a dimension exists of the name name
       is_coordinate_dimension = (status == 0)
-      
+
    end function is_coordinate_dimension
 
 end module pFIO_NetCDF4_FileFormatterMod
