@@ -3187,19 +3187,27 @@ contains
     real(ESMF_KIND_R8), allocatable, dimension (:,:) :: xyz
     real(ESMF_KIND_R8), allocatable, dimension (:)   :: x,y,z
     real(ESMF_KIND_R8), allocatable :: max_abs(:)
-    real(ESMF_KIND_R8)              :: sqr2, alpha, dalpha, error, shift, Japan_shift, c_lat
+    real(ESMF_KIND_R8)              :: dalpha
     real(ESMF_KIND_R8), allocatable :: lons(:), lats(:)
-    real(ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
-    integer :: I1, I2, J1, J2, j
-    logical, save :: grid_is_ok = .false.
 
+    ! sqrt(2.0d0), distance from center to the mid of an edge for a 2x2x2 cube
+    real(ESMF_KIND_R8), parameter :: sqr2 = 1.41421356237310d0
+
+    ! asin(1.d0/sqrt(3.d0)),  angle between the two lines(center to the mid and center to the end of an edge)
+    real(ESMF_KIND_R8), parameter :: alpha= 0.615479708670387d0
+
+    ! MAPL_PI_R8/18, Japan Fuji mountain shift
+    real(ESMF_KIND_R8), parameter :: shift= 0.174532925199433d0
+
+    real    :: tolerance
+    logical :: good_grid
 
     if (npts == 0 ) then
       _RETURN(_SUCCESS)
     endif
 
     if ( .not. present(grid)) then
-      _ASSERT(.false., "need cubed-sphere grid")
+      _ASSERT(.false., "need a cubed-sphere grid")
     endif
     call MAPL_GridGet(grid, globalCellCountPerDim=dims,rc=status)
     _VERIFY(STATUS)
@@ -3207,37 +3215,11 @@ contains
     JM_World = dims(2)
     _ASSERT( IM_WORLD*6 == JM_WORLD, "It only works for cubed-sphere grid")
 
-    ! define constants
-    sqr2   = sqrt(2.0d0) ! distance from center to the mid of an edge for a 2x2x2 cube
-    alpha  = asin(1.d0/sqrt(3.d0)) ! angle between the two lines(center to mid and center to end of an edge)
     dalpha = 2.0d0*alpha/IM_WORLD  
-    Japan_shift = MAPL_PI_R8/18    
 
-!   make sure the grid is generated with gnomonic_ed with Japan mountain shift
-!   
-    if ( .not. grid_is_ok ) then
-       call MAPL_GridGetInterior(GRID,I1,I2,J1,J2)
-       ! edge of face 1 along longitude
-       if ( I1 ==1 .and. J2<=IM_WORLD ) then
-          allocate(corner_lons(I2-I1+2, J2-J1+2))
-          allocate(corner_lats(I2-I1+2, J2-J1+2))
-          call MAPL_GridGetCorners(Grid,corner_lons,corner_lats,rc=status)
-          if ( J1 == 1) then
-             !print*, "acurate corner lat lon: ", -alpha,  1.750d0*MAPL_PI_R8 - Japan_shift
-             !print*, "from getCorner lat lon: ", corner_lats(1,1), corner_lons(1,1)
-             _ASSERT( abs((1.750d0*MAPL_PI_R8 - Japan_shift) - corner_lons(1,1)) <= epsilon(1.0), "Grid should have pi/18 shift")
-          endif
-          do j = J1, J2+1
-             c_lat = -alpha + (j-1)*dalpha 
-             _ASSERT( abs(c_lat - corner_lats(1,j-J1+1)) <= 10.0*epsilon(1.0), "could be 1)Grid is NOT gnomonic_ed, 2)lats lons from MAPL_GridGetCorners are NOT accurate (single precision from ESMF)")
-             !if ( abs(c_lat - corner_lats(1,j-J1+1)) > epsilon(1.0)) then
-             !  print*, "Grid should be gnomonic_ed: ", c_lat, corner_lats(1,j-J1+1) , j
-             !endif
-          enddo
-          deallocate(corner_lons, corner_lats)
-       endif
-       grid_is_ok = .true.
-    endif
+    ! make sure the grid can be used in this subroutine
+    good_grid = grid_is_ok(grid)
+    _ASSERT( good_grid, "MAPL_GetGlobalHorzIJIndex cannot handle this grid")
 
     allocate(lons(npts),lats(npts))
     if (present(lon) .and. present(lat)) then
@@ -3248,8 +3230,8 @@ contains
        lats = latR8
     end if
 
-    !shift the conner away from Japan Fuji Mt.
-    lons = lons + Japan_shift
+    ! shift the grid away from Japan Fuji Mt.
+    lons = lons + shift
 
     ! get xyz from sphere surface
     allocate(xyz(3, npts), max_abs(npts))
@@ -3257,84 +3239,130 @@ contains
     xyz(2,:) = cos(lats)*sin(lons)
     xyz(3,:) = sin(lats)
 
-    ! project onto cube
+    ! project onto 2x2x2 cube
     max_abs = maxval(abs(xyz), dim=1)
 
     xyz(1,:) = xyz(1,:)/max_abs
     xyz(2,:) = xyz(2,:)/max_abs
     xyz(3,:) = xyz(3,:)/max_abs
 
-    allocate(x, source=xyz(1,:))
-    allocate(y, source=xyz(2,:))
-    allocate(z, source=xyz(3,:))
+    x = xyz(1,:)
+    y = xyz(2,:)
+    z = xyz(3,:)
 
     II = -1
     JJ = -1
 
-    ! Here the error and shift are used for edge points.
-    ! the edge points are assigned in the order of face 1,2,3,4,5,6
-    error = epsilon(1.0d0)
-    shift = 10.0d0*error
+    ! The calculation order of face 1,2,3,4,5,6 means
+    ! the edge points are assigned in the order of face 6,5,4,3,2,1
+
+    tolerance = epsilon(1.0d0)
 
     ! face = 1
-    where ( abs(x-1.0d0) <= error )
-       ! Four edges assigned to face 1
-       where (abs(y - 1.0d0) <=error) y = y-shift
-       where (abs(y + 1.0d0) <=error) y = y+shift
-       where (abs(z - 1.0d0) <=error) z = z-shift
-       where (abs(z + 1.0d0) <=error) z = z+shift
+    where ( abs(x-1.0d0) <= tolerance)
        II = ceiling((atan(y/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(z/sqr2) + alpha)/dalpha)
+       where (JJ == 0 ) JJ = 1
+       where (JJ == IM_WORLD+1 ) JJ = IM_WORLD
     endwhere
 
     ! face = 2
-    where (abs(y-1.0d0) <= error)
-       ! Three edges assigned to face 2
-       where (abs(x + 1.0d0) <=error) x = x+shift
-       where (abs(z - 1.0d0) <=error) z = z-shift
-       where (abs(z + 1.0d0) <=error) z = z+shift
+    where (abs(y-1.0d0) <= tolerance)
        II = ceiling((atan(-x/sqr2) + alpha)/dalpha)
-       JJ = ceiling((atan(z/sqr2) + alpha)/dalpha)
+       JJ = ceiling((atan( z/sqr2) + alpha)/dalpha)
+       where (JJ == 0 ) JJ = 1
+       where (JJ == IM_WORLD+1 ) JJ = IM_WORLD
        JJ = JJ + IM_WORLD
     endwhere
 
     ! face = 3
-    where (abs(z-1.0d0) <= error)
-       ! Two edges assigned to face 3
-       where (abs(y +  1.0d0) <=error) y = y+shift
-       where (abs(x +  1.0d0) <=error) x = x+shift
+    where (abs(z-1.0d0) <= tolerance)
        II = ceiling((atan(-x/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(-y/sqr2) + alpha)/dalpha)
+       where (JJ == 0 ) JJ = 1
+       where (JJ == IM_WORLD+1 ) JJ = IM_WORLD
        JJ = JJ + IM_WORLD*2
     endwhere
 
     ! face = 4
-    where (abs(x+1.0d0) <= error)
-       ! Two edges assigned to face 4
-       where (abs(y +  1.0d0) <=error) y = y+shift
-       where (abs(z +  1.0d0) <=error) z = z+shift
+    where (abs(x+1.0d0) <= tolerance)
        II = ceiling((atan(-z/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(-y/sqr2) + alpha)/dalpha)
+       where (JJ == 0 ) JJ = 1
+       where (JJ == IM_WORLD+1 ) JJ = IM_WORLD
        JJ = JJ + IM_WORLD*3
     endwhere
 
     ! face = 5
-    where (abs(y+1.0d0) <= error)
-       ! One edge assigned to face 5
-       where (abs(z +  1.0d0) <=error) z = z+shift
+    where (abs(y+1.0d0) <= tolerance)
        II = ceiling((atan(-z/sqr2) + alpha)/dalpha)
-       JJ = ceiling((atan(x/sqr2) + alpha)/dalpha)
+       JJ = ceiling((atan( x/sqr2) + alpha)/dalpha)
+       where (JJ == 0 ) JJ = 1
+       where (JJ == IM_WORLD+1 ) JJ = IM_WORLD
        JJ = JJ + IM_WORLD*4
     endwhere
 
     ! face = 6
-    where (abs(z+1.0d0) <= error)
+    where (abs(z+1.0d0) <= tolerance)
        II = ceiling((atan(y/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(x/sqr2) + alpha)/dalpha)
+       where (JJ == 0 ) JJ = 1
+       where (JJ == IM_WORLD+1 ) JJ = IM_WORLD
        JJ = JJ + IM_WORLD*5
     endwhere
 
-     _RETURN(_SUCCESS)
+    where (II == 0 ) II = 1
+    where (II == IM_WORLD+1 ) II = IM_WORLD
+
+    _RETURN(_SUCCESS)
+
+    contains
+
+      function grid_is_ok(grid) result(OK)
+         type(ESMF_Grid), intent(inout) :: grid
+         logical :: OK
+         integer :: I1, I2, J1, J2, j
+         real(ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
+         real(ESMF_KIND_R8) :: accurate_lat, accurate_lon
+         real :: tolerance
+ 
+         tolerance = epsilon(1.0)
+         call MAPL_GridGetInterior(grid,I1,I2,J1,J2)
+         OK = .true. 
+         ! check the edge of face 1 along longitude
+         if ( I1 ==1 .and. J2<=IM_WORLD ) then
+            allocate(corner_lons(I2-I1+2, J2-J1+2))
+            allocate(corner_lats(I2-I1+2, J2-J1+2))
+            call MAPL_GridGetCorners(Grid,corner_lons,corner_lats)
+            if (J1 == 1) then
+              accurate_lon = 1.750d0*MAPL_PI_R8 - shift
+              if (abs(accurate_lon - corner_lons(1,1)) > tolerance) then
+                 print*, "accurate_lon: ", accurate_lon
+                 print*, "corner_lon  : ", corner_lons(1,1)
+                 print*, "Error: Grid should have pi/18 shift"
+                 deallocate(corner_lons, corner_lats)
+                 OK = .false.
+                 return
+              endif
+            endif
+
+            do j = J1, J2+1
+               accurate_lat = -alpha + (j-1)*dalpha
+               if ( abs(accurate_lat - corner_lats(1,j-J1+1)) > 5.0*tolerance) then
+                  print*, "accurate_lat: ", accurate_lat
+                  print*, "edge_lat    : ", corner_lats(1,j-J1+1)
+                  print*, "edge point  : ", j
+                  print*, "Error: It could be "
+                  print*, "  1)Grid is NOT gnomonic_ed;"
+                  print*, "  2)lats lons from MAPL_GridGetCorners are NOT accurate (single precision from ESMF)"
+                  OK = .false.
+                  exit
+               endif
+            enddo
+            deallocate(corner_lons, corner_lats)
+         endif
+      end function
+
   end subroutine MAPL_GetGlobalHorzIJIndex
 
   module subroutine MAPL_GenGridName(im, jm, lon, lat, xyoffset, gridname, geos_style)
