@@ -59,6 +59,7 @@ module MAPL_GridManager_private
       procedure :: make_clone
       procedure :: get_id
       procedure :: add_factory
+      procedure :: is_valid_prototype
 
    end type GridManager
 
@@ -78,14 +79,83 @@ contains
       
    end subroutine add_prototype
 
+   ! Is prototype_name present in the prototypes map keys?
+   logical function is_valid_prototype(this, prototype_name, unusable, rc)
+      class (GridManager), intent(inout) :: this
+      character(len=*), intent(in) :: prototype_name
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+      integer :: status
+      logical, save :: initialized = .false.
+
+      _UNUSED_DUMMY(unusable)
+
+      ! This is a local variable to prevent the function from running
+      ! initialiazation twice. It avoids a shared state variable for
+      ! initialization status.
+      initialized = .false.
+
+      ! Do not initialize prototypes more than once.
+      if (.not. initialized) then
+         call initialize_prototypes(this, _RC)
+         initialized = .true.
+      end if
+
+      is_valid_prototype = .not. this%prototypes%find(prototype_name) == this%prototypes%end()
+
+      _RETURN(_SUCCESS)
+
+   end function is_valid_prototype
+
+   ! Add (name, GridFactory) items to prototypes map.
+   !---------------
+   ! Note:
+   ! We need to add LatLon prototype somewhere, and MAPL does not have
+   ! a natural initialization.  Other grids can be added during
+   ! setServices or initialize of the component that defines the grid.
+   !---------------
+   subroutine initialize_prototypes(this, unusable, rc)
+      use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
+      use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
+      use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
+      use MAPL_LlcGridFactoryMod, only: LlcGridFactory
+      use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
+
+      class (GridManager), intent(inout) :: this
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type (LatLonGridFactory) :: latlon_factory
+      type (CubedSphereGridFactory) :: cubed_factory
+      type (TripolarGridFactory) :: tripolar_factory
+      type (LlcGridFactory) :: llc_factory
+      type (ExternalGridFactory) :: external_factory
+ 
+      ! This is a local variable to prevent the subroutine from running
+      ! initialiazation twice. Calling functions have their own local variables
+      ! to prevent calling this subroutine twice, but the initialization status
+      ! is not shared. This guarantees it. It's a trade-off between efficiency
+      ! with a shared state variable with avoiding a shared state vartiable.
+      logical, save :: initialized = .false.
+
+      _UNUSED_DUMMY(unusable)
+
+      ! intialized check prevents adding same items twice
+      if (.not. initialized) then
+         call this%prototypes%insert('LatLon', latlon_factory)
+         call this%prototypes%insert('Cubed-Sphere', cubed_factory)
+         call this%prototypes%insert('Tripolar',  tripolar_factory)
+         call this%prototypes%insert('llc',  llc_factory)
+         call this%prototypes%insert('External', external_factory)
+         initialized = .true. 
+      end if
+
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_prototypes
 
    function make_clone(this, grid_type, unusable, rc) result(factory)
-     use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
-     use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
-     use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
-     use MAPL_LlcGridFactoryMod, only: LlcGridFactory
-     use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
-     !use MAPL_OldCubedSphereGridFactoryMod, only: OldCubedSphereGridFactory
       class (AbstractGridFactory), allocatable :: factory
       class (GridManager), intent(inout) :: this
       character(len=*), intent(in) :: grid_type
@@ -96,32 +166,17 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'make_clone'
 
-      !---------------
-      ! Note:
-      ! We need to add LatLon prototype somewhere, and MAPL does not have
-      ! a natural initialization.  Other grids can be added during
-      ! setServices or initialize of the component that defines the grid.
-      !---------------
+      ! This is a local variable to prevent the function from running
+      ! initialiazation twice.
       logical, save :: initialized = .false.
-      type (LatLonGridFactory) :: latlon_factory
-      type (CubedSphereGridFactory) :: cubed_factory
-      !type (OldCubedSphereGridFactory) :: old_cubed_factory
-      type (TripolarGridFactory) :: tripolar_factory
-      type (LlcGridFactory) :: llc_factory
-      type (ExternalGridFactory) :: external_factory
 
       _UNUSED_DUMMY(unusable)
 
+      ! Do not initialize prototypes more than once.
       if (.not. initialized) then
-           call this%prototypes%insert('LatLon', latlon_factory)
-           call this%prototypes%insert('Cubed-Sphere', cubed_factory)
-           !call this%prototypes%insert('Old-Cubed-Sphere', old_cubed_factory)
-           call this%prototypes%insert('Tripolar',  tripolar_factory)
-           call this%prototypes%insert('llc',  llc_factory)
-           call this%prototypes%insert('External', external_factory)
+           call initialize_prototypes(this, _RC)
            initialized = .true.
       end if
-
 
       prototype => this%prototypes%at(grid_type)
 

@@ -1527,22 +1527,32 @@ contains
 
   end subroutine get_field_from_internal
 
-  subroutine set_grid(this, grid, unusable, lm, rc)
+  subroutine set_grid(this, grid, unusable, lm, grid_type, rc)
      class(MAPL_CapGridComp),          intent(inout) :: this
      type(ESMF_Grid),                  intent(in   ) :: grid
      class(KeywordEnforcer), optional, intent(in   ) :: unusable
      integer,                optional, intent(in   ) :: lm
+     character(len=*),       optional, intent(in)    :: grid_type
      integer,                optional, intent(  out) :: rc
 
      type(ESMF_Grid)           :: mapl_grid
      type(ExternalGridFactory) :: external_grid_factory
+     type(ESMF_Info)           :: infoh
      integer                   :: status
 
      _UNUSED_DUMMY(unusable)
 
      external_grid_factory = ExternalGridFactory(grid=grid, lm=lm, _RC)
      mapl_grid = grid_manager%make_grid(external_grid_factory, _RC)
-
+     ! grid_type is an optional parameter that allows GridType to be set explicitly.
+     if (present(grid_type)) then
+        if (grid_manager%is_valid_prototype(grid_type)) then
+           call ESMF_InfoGetFromHost(mapl_grid, infoh, _RC)
+           call ESMF_InfoSet(infoh, 'GridType', grid_type, _RC)
+        else
+           _RETURN(_FAILURE)
+        end if
+     end if
      call ESMF_GridCompSet(this%gc, grid=mapl_grid, _RC)
 
      _RETURN(_SUCCESS)
