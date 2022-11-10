@@ -3253,8 +3253,7 @@ contains
     II = -1
     JJ = -1
 
-    ! The calculation order of face 1,2,3,4,5,6 means
-    ! the edge points are assigned in the order of face 6,5,4,3,2,1
+    ! The edge points are assigned in the order of face 1,2,3,4,5,6
 
     tolerance = epsilon(1.0d0)
 
@@ -3264,46 +3263,41 @@ contains
        JJ = ceiling((atan(z/sqr2) + alpha)/dalpha)
        where (JJ == 0 ) JJ = 1
        where (JJ == IM_WORLD+1 ) JJ = IM_WORLD
-    endwhere
 
     ! face = 2
-    where (abs(y-1.0d0) <= tolerance)
+    elsewhere (abs(y-1.0d0) <= tolerance)
        II = ceiling((atan(-x/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan( z/sqr2) + alpha)/dalpha)
        where (JJ == 0 ) JJ = 1
        where (JJ == IM_WORLD+1 ) JJ = IM_WORLD
        JJ = JJ + IM_WORLD
-    endwhere
 
     ! face = 3
-    where (abs(z-1.0d0) <= tolerance)
+    elsewhere (abs(z-1.0d0) <= tolerance)
        II = ceiling((atan(-x/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(-y/sqr2) + alpha)/dalpha)
        where (JJ == 0 ) JJ = 1
        where (JJ == IM_WORLD+1 ) JJ = IM_WORLD
        JJ = JJ + IM_WORLD*2
-    endwhere
 
     ! face = 4
-    where (abs(x+1.0d0) <= tolerance)
+    elsewhere (abs(x+1.0d0) <= tolerance)
        II = ceiling((atan(-z/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(-y/sqr2) + alpha)/dalpha)
        where (JJ == 0 ) JJ = 1
        where (JJ == IM_WORLD+1 ) JJ = IM_WORLD
        JJ = JJ + IM_WORLD*3
-    endwhere
 
     ! face = 5
-    where (abs(y+1.0d0) <= tolerance)
+    elsewhere (abs(y+1.0d0) <= tolerance)
        II = ceiling((atan(-z/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan( x/sqr2) + alpha)/dalpha)
        where (JJ == 0 ) JJ = 1
        where (JJ == IM_WORLD+1 ) JJ = IM_WORLD
        JJ = JJ + IM_WORLD*4
-    endwhere
 
     ! face = 6
-    where (abs(z+1.0d0) <= tolerance)
+    elsewhere (abs(z+1.0d0) <= tolerance)
        II = ceiling((atan(y/sqr2) + alpha)/dalpha)
        JJ = ceiling((atan(x/sqr2) + alpha)/dalpha)
        where (JJ == 0 ) JJ = 1
