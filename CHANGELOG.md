@@ -9,8 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed issues with alarms when clocks are run in reverse.
+
 ### Added
 - Added assert to NetCDF4_get_var.H to print variable name if data retrieval fails
+
+- Added option to run in reverse
 
 ### Changed
 
