@@ -72,8 +72,9 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: vvars(2)
      integer                            :: regrid_method
      integer                            :: voting
-     integer                            :: nbits
+     integer                            :: nbits_to_keep
      integer                            :: deflate
+     character(len=ESMF_MAXSTR)         :: quantize_algorithm_string
      integer                            :: quantize_algorithm
      integer                            :: quantize_level
      integer                            :: slices

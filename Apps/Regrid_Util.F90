@@ -428,7 +428,7 @@ CONTAINS
 
          call ESMF_ClockSet(clock,currtime=time,_RC)
          if (.not. writer_created) then
-            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits=support%shave,deflate=support%deflate,vertical_data=vertical_data,quantize_algorithm=support%quantize_algorithm,quantize_level=support%quantize_level,_RC)
+            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits_to_keep=support%shave,deflate=support%deflate,vertical_data=vertical_data,quantize_algorithm=support%quantize_algorithm,quantize_level=support%quantize_level,_RC)
             writer_created=.true.
          end if
 

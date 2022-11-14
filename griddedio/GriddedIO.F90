@@ -42,7 +42,7 @@ module MAPL_GriddedIOMod
      type(ESMF_FieldBundle) :: input_bundle
      type(ESMF_Time) :: startTime
      integer :: regrid_method = REGRID_METHOD_BILINEAR
-     integer :: nbits = 1000
+     integer :: nbits_to_keep = MAPL_NBITS_NOT_SET
      real, allocatable :: lons(:,:),lats(:,:)
      real, allocatable :: corner_lons(:,:),corner_lats(:,:)
      real, allocatable :: times(:)
@@ -207,13 +207,13 @@ module MAPL_GriddedIOMod
 
      end subroutine CreateFileMetaData
 
-     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits,regrid_method,itemOrder,write_collection_id,rc)
+     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
         integer, optional, intent(in) :: deflation
         integer, optional, intent(in) :: quantize_algorithm
         integer, optional, intent(in) :: quantize_level
         integer, optional, intent(in) :: chunking(:)
-        integer, optional, intent(in) :: nbits
+        integer, optional, intent(in) :: nbits_to_keep
         integer, optional, intent(in) :: regrid_method
         logical, optional, intent(in) :: itemOrder
         integer, optional, intent(in) :: write_collection_id
@@ -222,7 +222,7 @@ module MAPL_GriddedIOMod
         integer :: status
 
         if (present(regrid_method)) this%regrid_method=regrid_method
-        if (present(nbits)) this%nbits=nbits
+        if (present(nbits_to_keep)) this%nbits_to_keep=nbits_to_keep
         if (present(deflation)) this%deflateLevel = deflation
         if (present(quantize_algorithm)) this%quantizeAlgorithm = quantize_algorithm
         if (present(quantize_level)) this%quantizeLevel = quantize_level
@@ -880,8 +880,8 @@ module MAPL_GriddedIOMod
         if (hasDE) then
            call ESMF_FieldGet(Field,farrayPtr=ptr2d,rc=status)
            _VERIFY(status)
-           if (this%nbits < 24) then
-              call pFIO_DownBit(ptr2d,ptr2d,this%nbits,undef=MAPL_undef,rc=status)
+           if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
+              call pFIO_DownBit(ptr2d,ptr2d,this%nbits_to_keep,undef=MAPL_undef,rc=status)
               _VERIFY(status)
            end if
         else
@@ -895,8 +895,8 @@ module MAPL_GriddedIOMod
          if (HasDE) then
             call ESMF_FieldGet(field,farrayPtr=ptr3d,rc=status)
             _VERIFY(status)
-            if (this%nbits < 24) then
-               call pFIO_DownBit(ptr3d,ptr3d,this%nbits,undef=MAPL_undef,rc=status)
+            if (this%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) then
+               call pFIO_DownBit(ptr3d,ptr3d,this%nbits_to_keep,undef=MAPL_undef,rc=status)
                _VERIFY(status)
             end if
          else

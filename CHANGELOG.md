@@ -11,10 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add support for netCDF bitgrooming. Note this requires netCDF-C v4.9.0 and netCDF-Fortran v4.6.0, but our CMake does have a test
-  to make sure the netCDF library was compiled with support.
+- Add support for netCDF quantize.
+  - Note this requires netCDF-C v4.9.0 and netCDF-Fortran v4.6.0, but our CMake does have a test
+    to make sure the netCDF library was compiled with support. This test uses `NETCDF_INCLUDE_DIRS` and as such
+    within GEOS requires the use of ESMA_cmake v3.20.0 or later to (possibly) succeed.
 
 ### Changed
+
+- Updated to ESMA_cmake v3.20.0
+  - This is to support the `NETCDF_INCLUDE_DIRS` used in the quantize support test
+- Updated to ESMA_env v4.7.0
+  - This has many updates including moving to netCDF-C v4.9.0 and netCDF-Fortran v4.6.0. The other updates:
+    - Baselibs v7.6.0
+      - ESMF v8.4.0
+      - zlib 1.2.13
+      - curl 7.86.0
+      - netCDF-C 4.9.0
+      - netCDF-Fortran 4.6.0
+      - NCO 5.1.1
+      - CDO 2.1.0
+- Removed some unneeded `use` statements in `ExtDataGridCompNG.F90`. This seemed to let this new quantize support build with Intel
+- Changed `nbits` internally to be `nbits_to_keep`. Note that externally, you still use `nbits:` in `HISTORY.rc`
 
 ### Removed
 

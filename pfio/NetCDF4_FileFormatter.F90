@@ -732,11 +732,6 @@ contains
          end if
 
          quantize_algorithm = var%get_quantize_algorithm()
-         ! There are only three algorithms, 1,2,3 and currently netCDF-Fortran has
-         ! a named constant for one. But for now, we assert that quantize_algorithm
-         ! is between 1 and 3.
-         _ASSERT(quantize_algorithm >= 1 .and. quantize_algorithm <= 3, "quantize_algorithm must be between 1 and 3")
-
          quantize_level = var%get_quantize_level()
          if (quantize_level /= 0) then
 #ifdef NF_HAS_QUANTIZE
