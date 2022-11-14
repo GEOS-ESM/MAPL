@@ -4,7 +4,8 @@ import sys
 import os
 import csv
 from collections.abc import Sequence as sequence
-from enum import Enum, auto
+from collections import namedtuple
+from enum import Enum
 
 SUCCESS = 0
 
@@ -13,7 +14,7 @@ CATEGORIES = ("IMPORT","EXPORT","INTERNAL")
 FUNCTION_TYPE_NAME = 'function'
 
 # Names of options
-NAME = 'short_name'
+SHORT_NAME = 'short_name'
 CONDITION = 'condition'
 LONG_NAME = 'long_name'
 PRECISION = 'precision'
@@ -25,9 +26,49 @@ INTERNAL_NAME = 'internal_name'
 RANK = 'rank'
 ALLOC = 'alloc'
 
-class Option(Enum):
+Fields = namedtuple('Fields', 'emit mandatory extra')
 
-    (NAME, 'name', mangle_name, True),
+
+class Emitter:
+    identity = lambda a: a
+    _emit = identity
+
+    @property
+    def emit(self):
+        return self._emit
+    
+    @emit.setter
+    def emit(self, emit_):
+        self._emit = emit_
+
+class Mandatory:
+    MANDATORY = True
+    OPTIONAL = False
+    _mandatory = OPTIONAL
+
+    @property
+    def mandatory(self):
+        return self._mandatory
+
+    @property
+    def optional(self):
+        return not self._mandatory
+
+    def set_mandatory(self):
+        self._mandatory = MANDATORY
+
+    def set_optional(self):
+        self._mandatory = OPTIONAL
+
+class Option(Fields, Enum):
+
+    def __new__(cls, value, *args):
+        emit, mandatory, extra = args
+        obj = super().__new__(cls, emit, mandatory, extra)
+
+    SHORT_NAME = 'SHORT_NAME', mangle_name, True, {'mangle_name': mangle_name}
+    NAME = _make_alias('SHORT_NAME')
+    LONG_NAME = 'LONG_NAME'  string_emit, True, None
     (LONG_NAME, 'long name', string_emit, True),
     (UNITS, string_emit, True),
     (DIMS, {'z'  : 'MAPL_DimsVertOnly', 'xy' : 'MAPL_DimsHorzOnly', 'xyz': 'MAPL_DimsHorzVert'}),
@@ -141,7 +182,7 @@ class Option(Enum):
 class NameOption(Option):
 
     def __init__(self):
-        super().__init__(name = NAME, aliases = 'name', emit = mangle_name, is_mandatory = True)
+        super().__init__(name = SHORT_NAME, aliases = 'name', emit = mangle_name, is_mandatory = True)
 
     @property
     def mangled_name(self):
@@ -175,12 +216,12 @@ mangle_name = lambda name: string_emit(name.replace("*","'//trim(comp_name)//'")
 make_internal_name = lambda name: name.replace('*','') if value else None
 
 def parse_spec(spec):
-    name = spec.get(NAME)
+    name = spec.get(SHORT_NAME)
     if name:
         mangled_name = mangle_name(name)
         internal_name = make_internal_name(name)
     else:
-        raise Exception(NAME + " is mandatory.")
+        raise Exception(SHORT_NAME + " is mandatory.")
 
     condition = spec.get(CONDITION)
     precision = spec.get(PRECISION)
@@ -191,7 +232,7 @@ def parse_spec(spec):
 ranks = {'MAPL_DimsHorzVert':3, 'MAPL_DimsHorzOnly':2, 'MAPL_DimsVertOnly':1} #wdb deleteme this should not a second constant
 
 options = map(Option.make, (
-#    (NAME, 'name', mangle_name, True),
+#    (SHORT_NAME, 'name', mangle_name, True),
     (LONG_NAME, 'long name', string_emit, True),
     (UNITS, string_emit, True),
     (DIMS, {'z'  : 'MAPL_DimsVertOnly', 'xy' : 'MAPL_DimsHorzOnly', 'xyz': 'MAPL_DimsHorzVert'}),
@@ -235,7 +276,7 @@ def zipdict(*dicts, fillvalue = None):
     return zd(dicts, fillvalue) if dicts else None
 
 option_dict = dict(((option.name, option) for option in options))
-option_dict[NAME] = NameOption()
+option_dict[SHORT_NAME] = NameOption()
 
 #aliases_name_tuples = (make_aliases(option) for option in options)
 alias_name_tuples = list()
