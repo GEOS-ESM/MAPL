@@ -873,7 +873,7 @@ contains
        _VERIFY(STATUS)
 
        ! Uppercase the algorithm string just to allow for any case
-       uppercase_algorithm = ESMF_UtilStringUpperCase(list(n)%quantize_algorithm_string,rc=status)
+       uppercase_algorithm = ESMF_UtilStringUpperCase(list(n)%quantize_algorithm_string,_RC)
        select case (trim(uppercase_algorithm))
        case ('NONE')
           list(n)%quantize_algorithm = MAPL_Quantize_Disabled
