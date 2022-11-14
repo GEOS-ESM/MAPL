@@ -10,7 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Added
+
 - Added assert to NetCDF4_get_var.H to print variable name if data retrieval fails
+- Add to asserts in `NetCDF4_get_var.H` to print out file if there are error getting variables
 
 ### Changed
 
