@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.30.3] - 2022-11-15
+
+### Fixed
+
+- Fixed bug when writing fields in History with ungridded dimension when the split option is not requested
+
 ## [2.30.2] - 2022-11-09
 
 ### Fixed
