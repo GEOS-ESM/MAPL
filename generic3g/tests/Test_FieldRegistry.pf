@@ -145,24 +145,6 @@ contains
 
    end subroutine test_connect_chain
 
-   !@test
-   subroutine test_add_connection_invalid()
-      type(FieldRegistry) :: r
-      class(AbstractStateItemSpec), pointer :: spec
-      integer :: status
-
-      associate ( &
-           cp_1 => ConnectionPoint('A', 'export', 'A'), &
-           cp_2 => ConnectionPoint('B', 'import', 'A'))
-
-        call r%add_item_spec(cp_1, MockItemSpec('AE1'),rc=status)
-        call r%add_item_spec(cp_2, MockItemSpec('AE1'),rc=status)
-        call r%add_connection(ConnectionSpec(cp_1, cp_2), rc=status)
-        @assert_that(status, is(not(0)))
-      end associate
-        
-   end subroutine test_add_connection_invalid
-
 
    @test
    ! Verify that sibling connections set active status, but not others.

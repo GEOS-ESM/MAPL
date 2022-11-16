@@ -123,7 +123,7 @@ contains
 
       if (fail) then
          write(status_string,'(i0)') status
-         message = 'status=' // status_string
+         message = 'status=' // trim(status_string)
          !$omp critical (MAPL_ErrorHandling3)
          call MAPL_throw_exception(filename, line, message=message)
          !$omp end critical (MAPL_ErrorHandling3)

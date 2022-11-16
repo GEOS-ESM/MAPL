@@ -4,6 +4,7 @@ module mapl3g_ConnectionPoint
    private
 
    public :: ConnectionPoint
+   public :: SELF ! For EtoE and ItoI type connections
    public :: operator(<)
    public :: operator(==)
 
@@ -29,6 +30,8 @@ module mapl3g_ConnectionPoint
       module procedure new_connection_point_basic
       module procedure new_connection_point_simple
    end interface ConnectionPoint
+
+   character(*), parameter :: SELF = '_self_'
 
 contains
 

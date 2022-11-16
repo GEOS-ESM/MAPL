@@ -8,4 +8,9 @@ target_sources(MAPL.generic3g PRIVATE
 
   ItemSpecRegistry.F90
   FieldRegistry.F90
+
+  AbstractRegistry.F90
+  RegistryPtr.F90
+  RegistryPtrMap.F90
+  HierarchicalRegistry.F90
 )
