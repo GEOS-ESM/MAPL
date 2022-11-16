@@ -20,6 +20,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.30.3] - 2022-11-15
+
+### Fixed
+
+- Fixed bug when writing fields in History with ungridded dimension when the split option is not requested
+
+## [2.30.2] - 2022-11-09
+
+### Fixed
+
+-  When a grid is received from outside of MAPL (e.g., NOAA UFS), MAPL must provide a mechanism to specify a grid-type for internal processing.
+Add an option to set_grid to set GridType explicitly.
+
 ## [2.30.1] - 2022-11-07
 
 ### Fixed
