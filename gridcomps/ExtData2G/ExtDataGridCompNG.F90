@@ -560,12 +560,13 @@ CONTAINS
    type(DerivedExport), pointer      :: derivedItem
    integer                           :: i
 
-   type(ESMF_Time)                   :: time, time0
+   type(ESMF_Time)                   :: time, current_time
    type(MAPL_MetaComp), pointer      :: MAPLSTATE
 
    logical                           :: doUpdate_
    character(len=ESMF_MAXPATHLEN)    :: file_processed
-   logical, allocatable              :: doUpdate(:)
+   !logical, allocatable              :: doUpdate(:)
+   logical, allocatable              :: do_file_update(:), do_pointer_update(:)
    type(ESMF_Time), allocatable      :: useTime(:)
 
    integer                           :: bracket_side
@@ -576,6 +577,7 @@ CONTAINS
    character(len=:), pointer :: current_base_name
    integer :: idx,nitems
    type(ESMF_Config) :: cf_master
+   type(ESMF_Time) :: adjusted_time
 
    _UNUSED_DUMMY(IMPORT)
    _UNUSED_DUMMY(EXPORT)
@@ -597,14 +599,17 @@ CONTAINS
    call MAPL_TimerOn(MAPLSTATE,"TOTAL")
    call MAPL_TimerOn(MAPLSTATE,"Run")
 
-   call ESMF_ClockGet(CLOCK, currTIME=time0, _RC)
+   call ESMF_ClockGet(CLOCK, currTIME=current_time, _RC)
 
 !  Fill in the internal state with data from the files
 !  ---------------------------------------------------
 
-   allocate(doUpdate(self%primary%nitems),stat=status)
+   allocate(do_file_update(self%primary%nitems),stat=status)
    _VERIFY(STATUS)
-   doUpdate = .false.
+   do_file_update = .false.
+   allocate(do_pointer_update(self%primary%nitems),stat=status)
+   _VERIFY(STATUS)
+   do_pointer_update = .false.
    allocate(useTime(self%primary%nitems),stat=status)
    _VERIFY(STATUS)
 
@@ -616,7 +621,7 @@ CONTAINS
    READ_LOOP: do i=1,self%primary%import_names%size()
 
       current_base_name => self%primary%import_names%at(i)
-      idx = self%primary%get_item_index(current_base_name,time0,_RC)
+      idx = self%primary%get_item_index(current_base_name,current_time,_RC)
       item => self%primary%item(idx)
 
       if (.not.item%initialized) then
@@ -641,10 +646,12 @@ CONTAINS
 
       call MAPL_TimerOn(MAPLSTATE,"--CheckUpd")
 
-      call item%update_freq%check_update(doUpdate(i),time,time0,.not.hasRun,_RC)
+      call item%update_freq%check_update(do_pointer_update(i),time,current_time,.not.hasRun,_RC)
+      adjusted_time = item%update_freq%get_adjusted_time(current_time)
+      do_file_update(i) = do_pointer_update(i)
       call MAPL_TimerOff(MAPLSTATE,"--CheckUpd")
 
-      DO_UPDATE: if (doUpdate(i)) then
+      DO_UPDATE: if (do_file_update(i)) then ! do I really need this if bmaa
 
          !call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template)
          call item%modelGridFields%comp1%reset()
@@ -708,7 +715,7 @@ CONTAINS
       bracket_side = io_bundle%bracket_side
       entry_num = io_bundle%entry_index
       item => self%primary%item(entry_num)
-      call MAPL_ExtDataVerticalInterpolate(self,item,bracket_side,time0,rc=status)
+      call MAPL_ExtDataVerticalInterpolate(self,item,bracket_side,current_time,rc=status)
       _VERIFY(status)
       call bundle_iter%next()
    enddo
@@ -724,10 +731,10 @@ CONTAINS
    INTERP_LOOP: do i=1,self%primary%import_names%size()
 
       current_base_name => self%primary%import_names%at(i)
-      idx = self%primary%get_item_index(current_base_name,time0,_RC)
+      idx = self%primary%get_item_index(current_base_name,current_time,_RC)
       item => self%primary%item(idx)
 
-      if (doUpdate(i)) then
+      if (do_pointer_update(i)) then
 
          call extdata_lgr%debug('ExtData Run_: INTERP_LOOP: interpolating between bracket times, variable: %a, file: %a', &
               & trim(current_base_name), trim(item%file_template))
@@ -749,7 +756,7 @@ CONTAINS
 
       derivedItem => self%derived%item(i)
 
-      call derivedItem%update_freq%check_update(doUpdate_,time,time0,.not.hasRun,_RC)
+      call derivedItem%update_freq%check_update(doUpdate_,time,current_time,.not.hasRun,_RC)
 
       if (doUpdate_) then
 
@@ -763,7 +770,6 @@ CONTAINS
 
 !  All done
 !  --------
-   deallocate(doUpdate)
    deallocate(useTime)
 
    if (hasRun .eqv. .false.) hasRun = .true.
