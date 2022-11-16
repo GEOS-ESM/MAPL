@@ -452,22 +452,22 @@ CONTAINS
       call MAPL_StateAdd(self%ExtDataState,field,_RC)
    enddo
 
-   PrimaryLoop: do i=1,self%primary%import_names%size()
+   !PrimaryLoop: do i=1,self%primary%import_names%size()
 
-      current_base_name => self%primary%import_names%at(i)
-      idx = self%primary%get_item_index(current_base_name,time,_RC)
-      item => self%primary%item(idx)
-      item%initialized = .true.
+      !current_base_name => self%primary%import_names%at(i)
+      !idx = self%primary%get_item_index(current_base_name,time,_RC)
+      !item => self%primary%item(idx)
+      !item%initialized = .true.
 
-      item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
-      call create_primary_field(item,self%ExtDataState,_RC) 
-      if (item%isConst) then
-         call set_constant_field(item,self%extDataState,_RC)
-         cycle
-      end if
-      call create_bracketing_fields(item,self%ExtDataState,cf_master,_RC)
+      !item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
+      !call create_primary_field(item,self%ExtDataState,_RC) 
+      !if (item%isConst) then
+         !call set_constant_field(item,self%extDataState,_RC)
+         !cycle
+      !end if
+      !call create_bracketing_fields(item,self%ExtDataState,cf_master,_RC)
 
-   end do PrimaryLoop
+   !end do PrimaryLoop
 
 ! Check if we have any files that would need to be vertically interpolated
 ! if so ensure that PS is done first
@@ -565,8 +565,8 @@ CONTAINS
 
    logical                           :: doUpdate_
    character(len=ESMF_MAXPATHLEN)    :: file_processed
-   !logical, allocatable              :: doUpdate(:)
-   logical, allocatable              :: do_file_update(:), do_pointer_update(:)
+   !logical, allocatable              :: do_file_update(:), do_pointer_update(:)
+   logical, allocatable              :: do_pointer_update(:)
    type(ESMF_Time), allocatable      :: useTime(:)
 
    integer                           :: bracket_side
@@ -604,9 +604,9 @@ CONTAINS
 !  Fill in the internal state with data from the files
 !  ---------------------------------------------------
 
-   allocate(do_file_update(self%primary%nitems),stat=status)
-   _VERIFY(STATUS)
-   do_file_update = .false.
+   !allocate(do_file_update(self%primary%nitems),stat=status)
+   !_VERIFY(STATUS)
+   !do_file_update = .false.
    allocate(do_pointer_update(self%primary%nitems),stat=status)
    _VERIFY(STATUS)
    do_pointer_update = .false.
@@ -630,7 +630,7 @@ CONTAINS
             call set_constant_field(item,self%extDataState,_RC)
             cycle
          end if
-         call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
+         !call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
          item%initialized=.true.
       end if
 
@@ -648,10 +648,10 @@ CONTAINS
 
       call item%update_freq%check_update(do_pointer_update(i),time,current_time,.not.hasRun,_RC)
       adjusted_time = item%update_freq%get_adjusted_time(current_time)
-      do_file_update(i) = do_pointer_update(i)
+      !do_file_update(i) = do_pointer_update(i)
       call MAPL_TimerOff(MAPLSTATE,"--CheckUpd")
 
-      DO_UPDATE: if (do_file_update(i)) then ! do I really need this if bmaa
+      !DO_UPDATE: if (do_file_update(i)) then ! do I really need this if bmaa
 
          !call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template)
          call item%modelGridFields%comp1%reset()
@@ -659,10 +659,11 @@ CONTAINS
          if (item%vartype == MAPL_VectorField) then
             call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
          end if
+         call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
          call IOBundle_Add_Entry(IOBundles,item,idx)
          useTime(i)=time
 
-      end if DO_UPDATE
+      !end if DO_UPDATE
 
    end do READ_LOOP
 
@@ -999,11 +1000,6 @@ CONTAINS
 
      call ESMF_StateGet(state,item%vcomp1,field,_RC)
      call item%modelGridFields%comp1%interpolate_to_time(field,time,_RC)
-     block 
-        character(len=1024) :: fname
-        integer :: rank
-        call ESMF_FieldGet(field,name=fname,rank=rank,_RC)
-     end block
      if (item%vartype == MAPL_VectorField) then
         call ESMF_StateGet(state,item%vcomp2,field,_RC)
         call item%modelGridFields%comp2%interpolate_to_time(field,time,_RC)
@@ -1560,8 +1556,6 @@ CONTAINS
            _VERIFY(status)
            call IOBundles%push_back(io_bundle)
            call extdata_lgr%info('%a updated L bracket with: %a at time index %i3 ',item%name, current_file, time_index)
-        else
-           call MAPL_ExtDataSetUndefField(item,MAPL_ExtDataLeft,_RC)
         end if
      end if
      call item%modelGridFields%comp1%get_parameters('R',update=update,file=current_file,time_index=time_index)
@@ -1573,70 +1567,12 @@ CONTAINS
            _VERIFY(status)
            call IOBundles%push_back(io_bundle)
            call extdata_lgr%info('%a updated R bracket with: %a at time index %i3 ',item%name,current_file, time_index)
-        else
-           call MAPL_ExtDataSetUndefField(item,MAPL_ExtDataRight,_RC)
         end if
      end if
 
      _RETURN(ESMF_SUCCESS)
 
   end subroutine IOBundle_Add_Entry
-
-  subroutine MAPL_ExtDataSetUndefField(item,filec,rc)
-     type(PrimaryExport), intent(inout) :: item
-     integer, intent(in) :: filec
-     integer, optional, intent(out) :: rc
-
-     integer :: status
-
-      type(ESMF_Field) :: Field,field1,field2
-      real(real32), pointer :: ptr2d(:,:), ptr3d(:,:,:)
-      integer :: rank
-
-      if (item%isVector) then
-
-         if (item%do_Fill .or. item%do_VertInterp) then
-            call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,getRL=.true.,_RC)
-            call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,getRL=.true.,_RC)
-         else
-            call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,_RC)
-            call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,_RC)
-         end if
-         call ESMF_FieldGet(Field1,rank=rank,_RC)
-         if (rank==2) then
-            call ESMF_FieldGet(field1,0,farrayPtr=ptr2d,_RC)
-            ptr2d = MAPL_UNDEF
-            call ESMF_FieldGet(field2,0,farrayPtr=ptr2d,_RC)
-            ptr2d = MAPL_UNDEF
-         else if (rank==3) then
-            call ESMF_FieldGet(field1,0,farrayPtr=ptr3d,_RC)
-            ptr3d = MAPL_UNDEF
-            call ESMF_FieldGet(field2,0,farrayPtr=ptr3d,_RC)
-            ptr3d = MAPL_UNDEF
-         else
-            _FAIL("Unsupported field rank in ExtData")
-         end if
-      else
-         if (item%do_Fill .or. item%do_VertInterp) then
-            call MAPL_ExtDataGetBracket(item,filec,field=Field,getRL=.true.,_RC)
-         else
-            call MAPL_ExtDataGetBracket(item,filec,field=Field,_RC)
-         end if
-         call ESMF_FieldGet(Field,rank=rank,_RC)
-         if (rank==2) then
-            call ESMF_FieldGet(field,0,farrayPtr=ptr2d,_RC)
-            ptr2d = MAPL_UNDEF
-         else if (rank==3) then
-            call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
-            ptr3d = MAPL_UNDEF
-         else
-            _FAIL("Unsupported field rank in ExtData")
-         end if
-
-      end if
-
-     _RETURN(_SUCCESS)
-  end subroutine
 
   subroutine set_constant_field(item,ExtDataState,rc)
      type(PrimaryExport), intent(inout) :: item
@@ -1691,61 +1627,91 @@ CONTAINS
      type(ESMF_Field) :: field,left_field,right_field
      type(ESMF_Grid)  :: grid
      real(kind=REAL32), pointer :: ptr3d(:,:,:)
+     character(len=ESMF_MAXPATHLEN) :: file_left, file_right, filename
+     logical :: found_file
+     type(FileMetadataUtils), pointer :: metadata
+     type(MAPLDataCollection), pointer :: collection
 
-     call GetLevs(item,_RC)
-     item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file_template))
-     if (item%vartype == MAPL_FieldItem) then
-
-        call ESMF_StateGet(ExtDataState, trim(item%name), field,_RC)
-        call ESMF_FieldGet(field,grid=grid,rank=fieldRank,_RC)
-
-        lm=0
-        if (fieldRank==3) then
-           call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
-           lm = size(ptr3d,3)
+     if (item%modelGridFields%initialized) then
+        _RETURN(_SUCCESS)
+     else
+        found_file = .false.
+        call item%modelGridFields%comp1%get_parameters('L',file=file_left)
+        if (trim(file_left) /= file_not_found) then
+           filename = file_left
+           found_file = .true.
+        else
+           call item%modelGridFields%comp1%get_parameters('R',file=file_right)
+           if (trim(file_right) /= file_not_found) then
+              filename = file_left
+              found_file = .true.
+           end if
         end if
-        if (item%lm /= lm .and. lm /= 0 .and. item%havePressure) then
-           item%do_VertInterp = .true.
-        else if (item%lm /= lm .and. lm /= 0 .and. item%lm /= 0) then
-           item%do_Fill = .true.
+        if (found_file) then
+           collection => DataCollections%at(item%pfioCollection_id)
+           metadata => collection%find(filename,_RC)
+           item%file_metadata = metadata
+           item%modelGridFields%initialized = .true.
         end if
-        left_field = MAPL_FieldCreate(field,item%var,doCopy=.true.,_RC)
-        right_field = MAPL_FieldCreate(field,item%var,doCopy=.true.,_RC)
-        call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
-        if (item%do_fill .or. item%do_vertInterp) then
-           call createFileLevBracket(item,cf,_RC)
-        end if
+     end if
 
-     else if (item%vartype == MAPL_VectorField) then
+     if (found_file) then
+        call GetLevs(item,_RC)
+        item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file_template))
+        if (item%vartype == MAPL_FieldItem) then
 
-        if (item%Trans /= REGRID_METHOD_BILINEAR) then
-           _FAIL('No conservative re-gridding with vectors')
-        end if
+           call ESMF_StateGet(ExtDataState, trim(item%name), field,_RC)
+           call ESMF_FieldGet(field,grid=grid,rank=fieldRank,_RC)
 
-        call ESMF_StateGet(ExtDataState, trim(item%vcomp1), field,_RC)
-        call ESMF_FieldGet(field,grid=grid,rank=fieldRank,_RC)
+           lm=0
+           if (fieldRank==3) then
+              call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
+              lm = size(ptr3d,3)
+           end if
+           if (item%lm /= lm .and. lm /= 0 .and. item%havePressure) then
+              item%do_VertInterp = .true.
+           else if (item%lm /= lm .and. lm /= 0 .and. item%lm /= 0) then
+              item%do_Fill = .true.
+           end if
+           left_field = MAPL_FieldCreate(field,item%var,doCopy=.true.,_RC)
+           right_field = MAPL_FieldCreate(field,item%var,doCopy=.true.,_RC)
+           call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
+           if (item%do_fill .or. item%do_vertInterp) then
+              call createFileLevBracket(item,cf,_RC)
+           end if
 
-        lm = 0
-        if (fieldRank==3) then
-           call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
-           lm = size(ptr3d,3)
-        end if
-        if (item%lm /= lm .and. item%havePressure) then
-           item%do_VertInterp = .true.
-        else if (item%lm /= lm .and. lm /= 0) then
-           item%do_Fill = .true.
-        end if
+        else if (item%vartype == MAPL_VectorField) then
 
-        left_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,_RC)
-        right_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,_RC)
-        call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
-        call ESMF_StateGet(ExtDataState, trim(item%vcomp2), field,_RC)
-        left_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
-        right_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
-        call item%modelGridFields%comp2%set_parameters(left_field=left_field,right_field=right_field, _RC)
+           if (item%Trans /= REGRID_METHOD_BILINEAR) then
+              _FAIL('No conservative re-gridding with vectors')
+           end if
 
-        if (item%do_fill .or. item%do_vertInterp) then
-           call createFileLevBracket(item,cf,_RC)
+           call ESMF_StateGet(ExtDataState, trim(item%vcomp1), field,_RC)
+           call ESMF_FieldGet(field,grid=grid,rank=fieldRank,_RC)
+
+           lm = 0
+           if (fieldRank==3) then
+              call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
+              lm = size(ptr3d,3)
+           end if
+           if (item%lm /= lm .and. item%havePressure) then
+              item%do_VertInterp = .true.
+           else if (item%lm /= lm .and. lm /= 0) then
+              item%do_Fill = .true.
+           end if
+
+           left_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,_RC)
+           right_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,_RC)
+           call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
+           call ESMF_StateGet(ExtDataState, trim(item%vcomp2), field,_RC)
+           left_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
+           right_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
+           call item%modelGridFields%comp2%set_parameters(left_field=left_field,right_field=right_field, _RC)
+
+           if (item%do_fill .or. item%do_vertInterp) then
+              call createFileLevBracket(item,cf,_RC)
+           end if
+
         end if
 
      end if

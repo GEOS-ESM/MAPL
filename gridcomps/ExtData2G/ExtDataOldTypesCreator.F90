@@ -134,6 +134,11 @@ module MAPL_ExtDataOldTypesCreator
       disable_interpolation =  .not.time_sample%time_interpolation 
 
       call primary_item%modelGridFields%comp1%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation)
+               !if (trim(current_file) == file_not_found) then
+                  !call bracket%set_node('R',file=file_not_found,time=target_time,_RC)
+                  !bracket%new_file_right = .true.
+                  !_RETURN(_SUCCESS)
+               !end if
       call primary_item%modelGridFields%comp2%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation)
       call primary_item%modelGridFields%auxiliary1%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation)
       call primary_item%modelGridFields%auxiliary2%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation)

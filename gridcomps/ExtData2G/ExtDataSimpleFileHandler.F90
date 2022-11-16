@@ -100,19 +100,9 @@ contains
       else
          if (get_left) then
             call this%get_file(current_file,target_time,0,allow_missing_file,_RC)
-            if (trim(current_file) == file_not_found) then
-               call bracket%set_node('L',file=file_not_found,time=target_time,_RC)
-               bracket%new_file_left = .true.
-               _RETURN(_SUCCESS)
-            end if
             call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
             if (time_index == time_not_found) then
                call this%get_file(current_file,target_time,-1,allow_missing_file,_RC)
-               if (trim(current_file) == file_not_found) then
-                  call bracket%set_node('L',file=file_not_found,time=target_time,_RC)
-                  bracket%new_file_left = .true.
-                  _RETURN(_SUCCESS)
-               end if
                call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
                _ASSERT(time_index/=time_not_found,"Time not found in file")
             end if
@@ -127,19 +117,9 @@ contains
 
          if (get_right) then
             call this%get_file(current_file,target_time,0,allow_missing_file,_RC)
-            if (trim(current_file) == file_not_found) then
-               call bracket%set_node('R',file=file_not_found,time=target_time,_RC)
-               bracket%new_file_right = .true.
-               _RETURN(_SUCCESS)
-            end if
             call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
             if (time_index == time_not_found) then
                call this%get_file(current_file,target_time,1,allow_missing_file,_RC)
-               if (trim(current_file) == file_not_found) then
-                  call bracket%set_node('R',file=file_not_found,time=target_time,_RC)
-                  bracket%new_file_right = .true.
-                  _RETURN(_SUCCESS)
-               end if
                call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
                _ASSERT(time_index /= time_not_found,"Time not found in file")
             end if

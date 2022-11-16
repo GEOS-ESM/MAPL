@@ -101,6 +101,10 @@ contains
          wrap_=.false.
       end if
       time_index=time_not_found
+      if (trim(filename) == file_not_found) then
+         time_index = 1
+         _RETURN(_SUCCESS)
+      end if
 
       call this%make_metadata(filename,file_metadata,_RC) 
       call file_metadata%get_time_info(timeVector=time_series,_RC)

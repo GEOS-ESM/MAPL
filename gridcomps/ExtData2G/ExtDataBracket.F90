@@ -181,6 +181,12 @@ contains
       real, pointer              :: var3d_right(:,:,:) => null()
       integer                    :: field_rank
       integer :: status
+      logical :: right_node_set, left_node_set,was_filled
+      type(ESMF_Time) :: fill_time
+
+      right_node_set = this%right_node%check_if_initialized(_RC)
+      left_node_set = this%left_node%check_if_initialized(_RC)
+      was_filled = .false.
 
       call ESMF_FieldGet(field,dimCount=field_rank,_RC)
       alpha = 0.0
@@ -191,13 +197,23 @@ contains
       end if
       if (field_rank==2) then
          call ESMF_FieldGet(field,localDE=0,farrayPtr=var2d,_RC)
-         call ESMF_FieldGet(this%right_node%field,localDE=0,farrayPtr=var2d_right,_RC)
-         call ESMF_FieldGet(this%left_node%field,localDE=0,farrayPtr=var2d_left,_RC)
-         if (time == this%left_node%time .or. this%disable_interpolation) then
+         if (right_node_set) then
+            call ESMF_FieldGet(this%right_node%field,localDE=0,farrayPtr=var2d_right,_RC)
+         end if
+         if (left_node_set) then
+            call ESMF_FieldGet(this%left_node%field,localDE=0,farrayPtr=var2d_left,_RC)
+         end if
+         if ( (time == this%left_node%time .or. this%disable_interpolation) .and. left_node_set) then
             var2d = var2d_left
-         else if (time == this%right_node%time) then
+            fill_time = this%left_node%time
+            was_filled = .true.
+         else if (right_node_set .and. (time == this%right_node%time)) then
             var2d = var2d_right
-         else
+            fill_time = this%right_node%time
+            was_filled = .true.
+         else if (right_node_set .and. left_node_set) then
+            fill_time = time
+            was_filled = .true.
             where( (var2d_left /= MAPL_UNDEF) .and. (var2d_right /= MAPL_UNDEF))
                var2d = var2d_left + alpha*(var2d_right-var2d_left)
             elsewhere
@@ -217,13 +233,23 @@ contains
 
       else if (field_rank==3) then
          call ESMF_FieldGet(field,localDE=0,farrayPtr=var3d,_RC)
-         call ESMF_FieldGet(this%right_node%field,localDE=0,farrayPtr=var3d_right,_RC)
-         call ESMF_FieldGet(this%left_node%field,localDE=0,farrayPtr=var3d_left,_RC)
-         if (time == this%left_node%time .or. this%disable_interpolation) then
+         if (right_node_set) then
+            call ESMF_FieldGet(this%right_node%field,localDE=0,farrayPtr=var3d_right,_RC)
+         end if
+         if (left_node_set) then
+            call ESMF_FieldGet(this%left_node%field,localDE=0,farrayPtr=var3d_left,_RC)
+         end if
+         if ( (time == this%left_node%time .or. this%disable_interpolation) .and. left_node_set) then
             var3d = var3d_left
-         else if (time == this%right_node%time) then
+            fill_time = this%right_node%time
+            was_filled = .true.
+         else if (right_node_set .and. (time == this%right_node%time)) then
             var3d = var3d_right
-         else
+            fill_time = this%right_node%time
+            was_filled = .true.
+         else if (left_node_set .and. right_node_set) then
+            fill_time = time
+            was_filled = .true.
             where( (var3d_left /= MAPL_UNDEF) .and. (var3d_right /= MAPL_UNDEF))
                var3d = var3d_left + alpha*(var3d_right-var3d_left)
             elsewhere
@@ -242,7 +268,30 @@ contains
          end if
 
       end if
+
+      if (was_filled) then
+         call mark_update_time(field,fill_time,_RC)
+      end if
+      
       _RETURN(_SUCCESS)
+
+     contains 
+
+        subroutine mark_update_time(field,fill_time,rc)
+           type(ESMF_Field), intent(inout) :: field
+           type(ESMF_Time), intent(in) :: fill_time
+           integer, intent(out), optional :: rc
+
+           integer :: status,year,month,day,hour,minute,second,nhms,nymd
+
+           call ESMF_TimeGet(fill_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
+           nymd = 10000*year+100*month+day 
+           nhms = 10000*hour+100*minute+second
+           call ESMF_AttributeSet(field,name="update_time",itemcount=2,valuelist=[nymd,nhms],_RC)
+
+           _RETURN(_SUCCESS)
+
+       end subroutine       
 
    end subroutine interpolate_to_time
 
