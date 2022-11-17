@@ -192,7 +192,6 @@ contains
       call this%left_node%get(file=left_file)
       right_node_set = right_file /= file_not_found
       left_node_set = left_file /= file_not_found
-      write(*,*)"bmaa files ",trim(left_file)," ",trim(right_file)
       was_filled = .false.
 
       call ESMF_FieldGet(field,dimCount=field_rank,_RC)
@@ -294,7 +293,6 @@ contains
            call ESMF_TimeGet(fill_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
            nymd = 10000*year+100*month+day 
            nhms = 10000*hour+100*minute+second
-           write(*,*)"bmaa filling with ",nymd,nhms
            call ESMF_AttributeSet(field,name="update_time",itemcount=2,valuelist=[nymd,nhms],_RC)
 
            _RETURN(_SUCCESS)
