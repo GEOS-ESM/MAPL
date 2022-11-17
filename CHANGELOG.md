@@ -12,7 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Defined real64 constants in consistent way
 
 ### Added
+
 - Added assert to NetCDF4_get_var.H to print variable name if data retrieval fails
+- Add to asserts in `NetCDF4_get_var.H` to print out file if there are error getting variables
 
 - Add support for netCDF quantize.
   - Note this requires netCDF-C v4.9.0 and netCDF-Fortran v4.6.0, but our CMake does have a test
