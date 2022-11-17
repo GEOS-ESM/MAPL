@@ -452,23 +452,6 @@ CONTAINS
       call MAPL_StateAdd(self%ExtDataState,field,_RC)
    enddo
 
-   !PrimaryLoop: do i=1,self%primary%import_names%size()
-
-      !current_base_name => self%primary%import_names%at(i)
-      !idx = self%primary%get_item_index(current_base_name,time,_RC)
-      !item => self%primary%item(idx)
-      !item%initialized = .true.
-
-      !item%pfioCollection_id = MAPL_DataAddCollection(item%file_template)
-      !call create_primary_field(item,self%ExtDataState,_RC) 
-      !if (item%isConst) then
-         !call set_constant_field(item,self%extDataState,_RC)
-         !cycle
-      !end if
-      !call create_bracketing_fields(item,self%ExtDataState,cf_master,_RC)
-
-   !end do PrimaryLoop
-
 ! Check if we have any files that would need to be vertically interpolated
 ! if so ensure that PS is done first
 !!  check for PS
@@ -565,7 +548,6 @@ CONTAINS
 
    logical                           :: doUpdate_
    character(len=ESMF_MAXPATHLEN)    :: file_processed
-   !logical, allocatable              :: do_file_update(:), do_pointer_update(:)
    logical, allocatable              :: do_pointer_update(:)
    type(ESMF_Time), allocatable      :: useTime(:)
 
@@ -604,9 +586,6 @@ CONTAINS
 !  Fill in the internal state with data from the files
 !  ---------------------------------------------------
 
-   !allocate(do_file_update(self%primary%nitems),stat=status)
-   !_VERIFY(STATUS)
-   !do_file_update = .false.
    allocate(do_pointer_update(self%primary%nitems),stat=status)
    _VERIFY(STATUS)
    do_pointer_update = .false.
@@ -630,7 +609,6 @@ CONTAINS
             call set_constant_field(item,self%extDataState,_RC)
             cycle
          end if
-         !call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
          item%initialized=.true.
       end if
 
@@ -648,22 +626,17 @@ CONTAINS
 
       call item%update_freq%check_update(do_pointer_update(i),time,current_time,.not.hasRun,_RC)
       adjusted_time = item%update_freq%get_adjusted_time(current_time)
-      !do_file_update(i) = do_pointer_update(i)
       call MAPL_TimerOff(MAPLSTATE,"--CheckUpd")
 
-      !DO_UPDATE: if (do_file_update(i)) then ! do I really need this if bmaa
-
-         !call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template)
-         call item%modelGridFields%comp1%reset()
-         call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp1,item%fail_on_missing_file, _RC)
-         if (item%vartype == MAPL_VectorField) then
-            call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
-         end if
-         call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
-         call IOBundle_Add_Entry(IOBundles,item,idx)
-         useTime(i)=time
-
-      !end if DO_UPDATE
+      !call extdata_lgr%info('Going to update %a with file template: %a ',current_base_name, item%file_template)
+      call item%modelGridFields%comp1%reset()
+      call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp1,item%fail_on_missing_file, _RC)
+      if (item%vartype == MAPL_VectorField) then
+         call item%filestream%get_file_bracket(time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
+      end if
+      call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
+      call IOBundle_Add_Entry(IOBundles,item,idx)
+      useTime(i)=time
 
    end do READ_LOOP
 

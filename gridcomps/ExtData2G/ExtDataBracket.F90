@@ -6,6 +6,7 @@ module MAPL_ExtDataBracket
    use MAPL_ExceptionHandling
    use MAPL_BaseMod, only: MAPL_UNDEF
    use MAPL_ExtDataNode
+   use MAPL_ExtDataConstants
    implicit none
    private
 
@@ -183,9 +184,15 @@ contains
       integer :: status
       logical :: right_node_set, left_node_set,was_filled
       type(ESMF_Time) :: fill_time
+      character(len=ESMF_MAXPATHLEN) :: left_file, right_file
 
       right_node_set = this%right_node%check_if_initialized(_RC)
       left_node_set = this%left_node%check_if_initialized(_RC)
+      call this%right_node%get(file=right_file)
+      call this%left_node%get(file=left_file)
+      right_node_set = right_file /= file_not_found
+      left_node_set = left_file /= file_not_found
+      write(*,*)"bmaa files ",trim(left_file)," ",trim(right_file)
       was_filled = .false.
 
       call ESMF_FieldGet(field,dimCount=field_rank,_RC)
@@ -241,7 +248,7 @@ contains
          end if
          if ( (time == this%left_node%time .or. this%disable_interpolation) .and. left_node_set) then
             var3d = var3d_left
-            fill_time = this%right_node%time
+            fill_time = this%left_node%time
             was_filled = .true.
          else if (right_node_set .and. (time == this%right_node%time)) then
             var3d = var3d_right
@@ -287,6 +294,7 @@ contains
            call ESMF_TimeGet(fill_time,yy=year,mm=month,dd=day,h=hour,m=minute,s=second,_RC)
            nymd = 10000*year+100*month+day 
            nhms = 10000*hour+100*minute+second
+           write(*,*)"bmaa filling with ",nymd,nhms
            call ESMF_AttributeSet(field,name="update_time",itemcount=2,valuelist=[nymd,nhms],_RC)
 
            _RETURN(_SUCCESS)
