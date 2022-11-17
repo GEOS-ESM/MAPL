@@ -2061,7 +2061,11 @@ ENDDO PARSER
          call MAPL_StateGet( export(list(n)%expSTATE(m)), &
                              trim(field_name), field, _RC )
 
-         split = hasSplitField(field, _RC)
+         if (list(n)%splitField) then
+            split = hasSplitField(field, _RC)
+         else
+            split = .false.
+         end if
          ! check if split is needed
          if (.not. split) then
             allocate(splitFields(1), __STAT__)
