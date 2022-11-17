@@ -5,6 +5,7 @@
 submodule (MAPL_Shmem) Shmem_implementation
   use pflogger, only: logging, Logger
   use MAPL_ExceptionHandling
+  use MAPL_Constants
   implicit none
 
 contains
@@ -17,7 +18,7 @@ contains
         MAPL_NodeComm = getNodeComm(comm, rc=STATUS)
         _VERIFY(STATUS)
      end if
-     
+
      if (MAPL_NodeRootsComm == -1) then ! make sure that we do this only once
         MAPL_NodeRootsComm = getNodeRootsComm(comm, rc=STATUS)
         _VERIFY(STATUS)
@@ -31,7 +32,7 @@ contains
      integer :: STATUS
 
      _ASSERT(MAPL_NodeComm /= -1,'needs informative message')
-     
+
      allocate(Segs(CHUNK),stat=STATUS)
      _ASSERT(STATUS==0,'needs informative message')
      Segs(:)%shmid = -1
@@ -350,7 +351,7 @@ contains
       _VERIFY(STATUS)
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_DeAllocNodeArray_5DR8    
+    end procedure MAPL_DeAllocNodeArray_5DR8
 
     module procedure MAPL_DeAllocNodeArray_6DR8
 
@@ -680,7 +681,7 @@ contains
       if(present(lbd)) Ptr(lbd(1):,lbd(2):,lbd(3):,lbd(4):,lbd(5):) => Ptr
 
       _RETURN(SHM_SUCCESS)
-    end procedure MAPL_AllocNodeArray_5DR8    
+    end procedure MAPL_AllocNodeArray_5DR8
 
     module procedure MAPL_AllocNodeArray_6DR8
 
@@ -777,7 +778,7 @@ contains
       if(MAPL_ShmInitialized) then
          call MAPL_AllocNodeArray(Ptr, Shp, lbd, rc=STATUS)
          _VERIFY(STATUS)
-      else 
+      else
          if (TransRoot) then
             allocate(Ptr(Shp(1)),stat=status)
          else
@@ -949,7 +950,7 @@ contains
       _ASSERT(c_associated(Segs(pos)%addr),'needs informative message')
 
 !!! Return C address. It will be attached to a Fortran pointer
-!!!  with rank overloads 
+!!!  with rank overloads
 
       Caddr = Segs(pos)%addr
 
@@ -1194,7 +1195,7 @@ contains
          rank = 1
       end if
       MAPL_NodeRankList(node)%rankLastUsed=rank
- 
+
       _RETURN(SHM_SUCCESS)
 
     end procedure MAPL_GetNewRank
@@ -1208,7 +1209,7 @@ contains
 
       character(len=MPI_MAX_PROCESSOR_NAME) :: name
       character(len=MPI_MAX_PROCESSOR_NAME), allocatable :: names(:)
-    
+
       integer :: len, STATUS, MyColor, NumColors, npes, rank
       integer :: NumCores
       integer :: nodeRank
@@ -1218,7 +1219,7 @@ contains
       class(Logger), pointer :: lgr
 
       NodeComm=MPI_COMM_NULL
-      
+
       call MPI_Get_processor_name(name,len,STATUS)
       _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
 
@@ -1249,7 +1250,7 @@ contains
       do i=1,npes
          ranks(i) = i-1
       end do
-      
+
       call MPI_AllGather(myColor, 1, MPI_INTEGER,&
                          colors,  1, MPI_INTEGER,Comm,status)
       _ASSERT(STATUS==MPI_SUCCESS,'needs informative message')
@@ -1261,7 +1262,7 @@ contains
       _VERIFY(STATUS)
       newNode = 0
       do i=1,npes
-         if(last /= colors(i)) then 
+         if(last /= colors(i)) then
             last = colors(i)
             n = n + 1
             newNode(n) = i
@@ -1272,7 +1273,7 @@ contains
       NumColors = n
       MAPL_NumNodes = NumColors
       do i=1,size(ranks)
-         if (ranks(i) == rank) then 
+         if (ranks(i) == rank) then
             MAPL_MyNodeNum = colors(i)
             exit
          end if
@@ -1280,7 +1281,7 @@ contains
 
       newNode(NumColors+1) = npes+1
       allocate(MAPL_NodeRankList(NumColors), stat=status)
-      _VERIFY(STATUS) 
+      _VERIFY(STATUS)
       do i=1,NumColors
          i1=newNode(i)
          i2=newNode(i+1)-1
@@ -1318,7 +1319,7 @@ contains
       _VERIFY(STATUS)
 
       lgr => logging%get_logger('MAPL.SHMEM')
-      
+
       if(rank==0) then
          if (MAPL_CoresPerNodeMin == MAPL_CoresPerNodeMax) then
             call lgr%info("NumCores per Node = %i0", NumCores)
@@ -1332,16 +1333,16 @@ contains
 
       deallocate(names,stat=STATUS)
       _ASSERT(STATUS==0,'needs informative message')
-    
+
       _RETURN(SHM_SUCCESS)
     contains
       function getColor(name, sampleNames) result(color)
         character(len=*), intent(in) :: name
         character(len=*), intent(in) :: sampleNames(:)
         integer :: color
-        
+
         integer :: i
-        
+
         color = 0 ! unless
         do i = 1, size(sampleNames)
            if (trim(name) == trim(sampleNames(i))) then
@@ -1351,7 +1352,7 @@ contains
         end do
 
       end function getColor
-    
+
     end procedure getNodeComm
 
     module procedure getNodeRootsComm
@@ -1389,7 +1390,7 @@ contains
       endif
 
       lgr => logging%get_logger('MAPL.SHMEM')
-      
+
       if(rank==0) then
          call lgr%info("NumNodes in use  = %i0", NumNodes)
       end if
