@@ -1,0 +1,382 @@
+module Test_HierarchicalRegistry
+   use funit
+   use mapl3g_AbstractRegistry
+   use mapl3g_HierarchicalRegistry
+   use mapl3g_AbstractStateItemSpec
+   use mapl3g_ConnectionPoint
+   use mapl3g_ConnectionSpec
+   use mapl3g_AbstractActionSpec
+   use MockItemSpecMod
+   implicit none
+
+contains
+
+   ! Helpful function to check expected state of registry.
+   logical function check(r, conn_pt, expected)
+      type(HierarchicalRegistry), intent(in) :: r 
+      type(ConnectionPoint), intent(in) :: conn_pt
+      character(*), intent(in) :: expected
+
+      class(AbstractStateItemSpec), pointer :: spec
+      check = .false.
+      spec => r%get_item_spec(conn_pt)
+      @assert_that(associated(spec), is(true()))
+
+      select type(spec)
+      type is (MockItemSpec)
+         @assertEqual(expected, spec%name)
+         check = .true.
+      class default
+         @assert_that(1,is(2))
+      end select
+   end function check
+
+   @test
+   subroutine test_get_item_spec_not_found()
+
+      type(HierarchicalRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+
+      r = HierarchicalRegistry()
+      spec => r%get_item_spec(ConnectionPoint('my_gc', 'import', 'a'))
+      @assert_that(associated(spec), is(false()))
+      
+   end subroutine test_get_item_spec_not_found
+   
+   @test
+   subroutine test_add_item_duplicate_fail()
+      type(HierarchicalRegistry) :: r
+      integer :: status
+      type(ConnectionPoint) :: cp
+
+      r = HierarchicalRegistry()
+
+      cp = ConnectionPoint('A','A','A')
+      call r%add_item_spec(cp, MockItemSpec('A'), rc=status)
+      @assert_that(status, is(0))
+      call r%add_item_spec(cp, MockItemSpec('A'), rc=status)
+      @assertExceptionRaised('Duplicate item name.')
+      @assert_that(status, is(not(0)))
+
+   end subroutine test_add_item_duplicate_fail
+   
+
+   @test
+   subroutine test_get_item_spec_found()
+      type(HierarchicalRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+      type(ConnectionPoint) :: cp
+
+      r = HierarchicalRegistry()
+      cp = ConnectionPoint('my_gc', 'import', 'a')
+      call r%add_item_spec(cp, MockItemSpec('A'))
+
+      spec => r%get_item_spec(cp)
+      @assert_that(associated(spec), is(true()))
+      if (.not. check(r, cp, 'A')) return
+
+   end subroutine test_get_item_spec_found
+
+
+
+   @test
+   ! Add multiple specs and check that the correct spec is returned by
+   ! name.
+   subroutine test_get_item_spec_multi()
+      type(HierarchicalRegistry) :: r 
+      type(ConnectionPoint) :: cp_1, cp_2, cp_3
+      integer :: status
+
+      cp_1 = ConnectionPoint('A', 'export', 'ae1')
+      cp_2 = ConnectionPoint('A', 'export', 'ae2')
+      cp_3 = ConnectionPoint('A', 'import', 'ai')
+
+      r = HierarchicalRegistry()
+      call r%add_item_spec(cp_1, MockItemSpec('AE1'))
+      call r%add_item_spec(cp_2, MockItemSpec('AE2'))
+      call r%add_item_spec(cp_3, MockItemSpec('AI'))
+
+      if (.not. check(r, cp_1, 'AE1')) return
+      if (.not. check(r, cp_2, 'AE2')) return
+      if (.not. check(r, cp_3, 'AI'))return
+
+   end subroutine test_get_item_spec_multi
+
+   @test
+   subroutine test_get_subregistry()
+      type(HierarchicalRegistry), target :: child_registry
+      type(HierarchicalRegistry), target :: r
+      class(AbstractRegistry), pointer :: ptr
+      
+      child_registry = HierarchicalRegistry()
+      r = HierarchicalRegistry()
+      
+      call r%add_subregistry('child', child_registry)
+      ptr => r%get_subregistry('child')
+
+      @assert_that(associated(ptr), is(true()))
+
+   end subroutine test_get_subregistry
+
+
+   @test
+   ! Very simple sibling connection
+   subroutine test_connect()
+      type(HierarchicalRegistry) :: r
+      type(HierarchicalRegistry), target :: r_A, r_B ! child registries
+      type(ConnectionPoint) :: cp_A, cp_B
+
+      integer :: status
+      
+      call r%add_subregistry('child_A', r_a)
+      call r%add_subregistry('child_B', r_b)
+
+      cp_A = ConnectionPoint('child_A', 'export', 'ae')
+      cp_B = ConnectionPoint('child_B', 'import', 'ai')
+
+      r_a = HierarchicalRegistry()
+      r_b = HierarchicalRegistry()
+      call r_a%add_item_spec(cp_A, MockItemSpec('AE'))
+      call r_b%add_item_spec(cp_B, MockItemSpec('AI'))
+
+      r = HierarchicalRegistry()
+      call r%add_subregistry('child_A', r_a)
+      call r%add_subregistry('child_B', r_b)
+      call r%add_connection(ConnectionSpec(cp_A, cp_B), rc=status)
+      @assert_that(status, is(0))
+
+      if (.not. check(r_b, cp_B, 'AE')) return
+
+   end subroutine test_connect
+
+   @test
+   subroutine test_connect_chain()
+      type(HierarchicalRegistry) :: r
+      type(HierarchicalRegistry), target :: r_A, r_B, r_grandchild_A
+      class(AbstractStateItemSpec), pointer :: spec
+      type(ConnectionPoint) :: cp_1, cp_2, cp_3
+
+      integer :: status
+
+      cp_1 = ConnectionPoint('grandchild_A', 'export', 'ae1')
+      cp_2 = ConnectionPoint('child_A', 'export', 'ae2')
+      cp_3 = ConnectionPoint('child_B', 'import', 'ai')
+
+      call r_A%add_subregistry('grandchild_A', r_grandchild_A)
+      call r%add_subregistry('child_A', r_A)
+      call r%add_subregistry('child_B', r_B)
+      
+      call r_grandchild_A%add_item_spec(cp_1, MockItemSpec('AE1'))
+      call r_A%add_item_spec(cp_2, MockItemSpec('AE2'))
+      call r_B%add_item_spec(cp_3, MockItemSpec('AI'))
+
+      ! E-to-E
+      call r_A%add_connection(ConnectionSpec(cp_1, cp_2), rc=status)
+      @assert_that(status, is(0))
+      ! sibling
+      call r%add_connection(ConnectionSpec(cp_2, cp_3), rc=status)
+      @assert_that(status, is(0))
+
+      spec => r_B%get_item_spec(cp_3)
+      if (.not. check(r_B, cp_3, 'AE1')) return
+
+   end subroutine test_connect_chain
+
+
+   @test
+   ! Verify that sibling connections set active status, but not others.
+   subroutine test_sibling_activation()
+      type(HierarchicalRegistry) :: r
+      type(HierarchicalRegistry), target :: r_A, r_B, r_P, r_C
+      class(AbstractStateItemSpec), pointer :: spec
+
+      type(ConnectionPoint) :: cp_1, cp_2, cp_3, cp_4
+      type(ConnectionSpec) :: e2e, i2i, sib
+
+      call r%add_subregistry('P', r_P)
+      call r%add_subregistry('B', r_B)
+
+      call r_P%add_subregistry('A', r_A)
+      call r_B%add_subregistry('C', r_C)
+
+
+      cp_1 = ConnectionPoint('A', 'export', 'A1')
+      cp_2 = ConnectionPoint('P', 'export', 'A2')
+      cp_3 = ConnectionPoint('B', 'import', 'A3')
+      cp_4 = ConnectionPoint('C', 'import', 'A4')
+
+      call r_A%add_item_spec(cp_1, MockItemSpec('A1'))
+      call r_P%add_item_spec(cp_2, MockItemSpec('A2'))
+      call r_B%add_item_spec(cp_3, MockItemSpec('A3'))
+      call r_C%add_item_spec(cp_4, MockItemSpec('A4'))
+
+        !-------------------------------------------
+        !
+        !                    sib*
+        !             cp_2   --->    cp_3
+        !              ^              |
+        !     e2e      |              |     i2i
+        !              |              V
+        !             cp_1           cp_4
+        !
+        !-------------------------------------------
+      e2e = ConnectionSpec(cp_1, cp_2)
+      i2i = ConnectionSpec(cp_4, cp_3)
+      sib = ConnectionSpec(cp_2, cp_3)
+
+      spec => r_A%get_item_spec(cp_1) ! ultimate export
+      @assert_that(spec%is_active(), is(false()))
+
+      call r_P%add_connection(e2e)
+      @assert_that(spec%is_active(), is(false()))
+      if (.not. check(r_P, cp_2, 'A1')) return
+      ! 1 => A, 2 => A, 3 => C, 4 => D
+
+      call r_B%add_connection(i2i)
+      @assert_that(spec%is_active(), is(false()))
+      if (.not. check(r_B, cp_3, 'A4')) return
+      ! 1 => A, 2 => A, 3 => C, 4 => C
+
+      call r%add_connection(sib)
+
+      ! C = A
+      ! 1 => A, 2 => A, 3 => C, 4 => C
+      
+      spec => r_A%get_item_spec(cp_1)
+      @assert_that('cp_1', spec%is_active(), is(true()))
+      
+      spec => r_P%get_item_spec(cp_2)
+      @assert_that(spec%is_active(), is(true()))
+      
+      spec => r_B%get_item_spec(cp_3) 
+      @assert_that(spec%is_active(), is(true()))
+      
+      spec => r_C%get_item_spec(cp_4)
+      @assert_that('cp_4', spec%is_active(), is(true()))
+      
+   end subroutine test_sibling_activation
+          
+       
+   @test
+   ! Internal state items are always active
+   subroutine test_internal_activation()
+      type(HierarchicalRegistry) :: r
+      class(AbstractStateItemSpec), pointer :: spec
+
+      type(ConnectionPoint) :: cp_1, cp_2, cp_3
+           cp_1 = ConnectionPoint('A', 'internal', 'A')
+           cp_2 = ConnectionPoint('A', 'export', 'A')
+           cp_3 = ConnectionPoint('A', 'import', 'A')
+
+        call r%add_item_spec(cp_1, MockItemSpec('A1'))
+        call r%add_item_spec(cp_2, MockItemSpec('A2'))
+        call r%add_item_spec(cp_3, MockItemSpec('A3'))
+
+        spec => r%get_item_spec(cp_1)
+        @assert_that(spec%is_active(), is(true()))
+        
+        spec => r%get_item_spec(cp_2)
+        @assert_that(spec%is_active(), is(false()))
+        
+        spec => r%get_item_spec(cp_3)
+        @assert_that(spec%is_active(), is(false()))
+        
+   end subroutine test_internal_activation
+          
+   @test
+   ! Terminate import must also set a spec to 'active'.
+   subroutine test_terminate_import()
+      type(HierarchicalRegistry) :: r
+      type(HierarchicalRegistry), target :: r_child
+      class(AbstractStateItemSpec), pointer :: spec
+
+      type (ConnectionPoint) :: cp_3
+
+      cp_3 = ConnectionPoint('A', 'import', 'A')
+      call r_child%add_item_spec(cp_3, MockItemSpec('A3'))
+
+      call r%add_subregistry('A', r_child)
+      call r%terminate_import(cp_3)
+
+      spec => r_child%get_item_spec(cp_3)
+      @assert_that(spec%is_active(), is(true()))
+      
+   end subroutine test_terminate_import
+          
+   @test
+   ! Verify that errors are properly trapped
+   subroutine test_terminate_import_not_import()
+      type(HierarchicalRegistry) :: r
+      type(HierarchicalRegistry), target :: r_child
+      class(AbstractStateItemSpec), pointer :: spec
+
+      type (ConnectionPoint) :: cp_3
+      integer :: status
+
+      cp_3 = ConnectionPoint('A', 'export', 'A')
+      call r_child%add_item_spec(cp_3, MockItemSpec('A3'))
+
+      call r%add_subregistry('A', r_child)
+      call r%terminate_import(cp_3, rc=status)
+
+      @assertExceptionRaised('Cannot terminate import on item that is not an import.')
+      @assert_that(status, is(not(0)))
+        
+   end subroutine test_terminate_import_not_import
+
+   @test
+   ! Verify that errors are properly trapped
+   subroutine test_terminate_import_does_not_exist()
+      type(HierarchicalRegistry) :: r
+      type(HierarchicalRegistry), target :: r_child
+      class(AbstractStateItemSpec), pointer :: spec
+
+      type (ConnectionPoint) :: cp_3
+      integer :: status
+
+      cp_3 = ConnectionPoint('A', 'import', 'A')
+      call r%add_subregistry('A', r_child)
+      call r%terminate_import(cp_3, rc=status)
+      call assertExceptionRaised('status=1', &
+           SourceLocation(__FILE__,__LINE__))
+      @assertExceptionRaised('unknown connection point')
+      @assert_that(status, is(not(0)))
+        
+   end subroutine test_terminate_import_does_not_exist
+
+
+   @test
+   ! Verify that an extension is created when an export is
+   ! semi-compatible with an import.
+   subroutine test_create_extension()
+      type(HierarchicalRegistry), target :: r_A, r_B
+      class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
+      class(AbstractActionSpec), allocatable :: action_spec
+      integer :: status
+
+      type(ConnectionPoint) :: e1, i1
+
+      e1 = ConnectionPoint('A', 'export', 'Q')
+      i1 = ConnectionPoint('B', 'import', 'Q')
+      call r_A%add_item_spec(e1, MockItemSpec('E1','fruit'))
+      call r_B%add_item_spec(i1, MockItemSpec('I1','animal'))
+
+      src_spec => r_A%get_item_spec(e1)
+      dst_spec => r_B%get_item_spec(i1)
+
+      @assert_that((dst_spec%can_connect_to(src_spec)), is(true()))
+      @assert_that((dst_spec%requires_extension(src_spec)), is(true()))
+
+      action_spec = src_spec%make_extension(dst_spec)
+      select type (action_spec)
+      type is (MockActionSpec)
+         @assertEqual('fruit ==> animal', action_spec%details)
+      class default
+         @assert_that(1, is(2))
+      end select
+      
+   end subroutine test_create_extension
+
+
+
+end module Test_HierarchicalRegistry

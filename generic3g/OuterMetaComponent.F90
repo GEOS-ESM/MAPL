@@ -15,6 +15,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_AbstractStateItemSpec
    use mapl3g_ConnectionPoint
    use mapl3g_ConnectionSpec
+   use mapl3g_HierarchicalRegistry
    use mapl3g_ESMF_Interfaces, only: I_Run, MAPL_UserCompGetInternalState, MAPL_UserCompSetInternalState
    use mapl_ErrorHandling
    use gFTL2_StringVector
@@ -48,7 +49,7 @@ module mapl3g_OuterMetaComponent
 
       type(ComponentSpec)                         :: component_spec
       type(OuterMetaComponent), pointer           :: parent_private_state
-
+      type(HierarchicalRegistry) :: registry
 
    contains
       procedure :: set_esmf_config
@@ -96,6 +97,7 @@ module mapl3g_OuterMetaComponent
       procedure :: get_name
       procedure :: get_gridcomp
       procedure :: is_root
+      procedure :: get_registry
 
    end type OuterMetaComponent
 
@@ -749,5 +751,12 @@ contains
 
       this%primary_grid = primary_grid
    end subroutine set_grid
+
+   function get_registry(this) result(r)
+      type(HierarchicalRegistry), pointer :: r
+      class(OuterMetaComponent), target, intent(in) :: this
+
+      r => this%registry
+   end function get_registry
 
 end module mapl3g_OuterMetaComponent

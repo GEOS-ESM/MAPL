@@ -145,53 +145,6 @@ contains
 
    end subroutine test_connect_chain
 
-   !@test
-   subroutine test_add_connection_invalid()
-      type(FieldRegistry) :: r
-      class(AbstractStateItemSpec), pointer :: spec
-      integer :: status
-
-      associate ( &
-           cp_1 => ConnectionPoint('A', 'export', 'A'), &
-           cp_2 => ConnectionPoint('B', 'import', 'A'))
-
-        call r%add_item_spec(cp_1, MockItemSpec('AE1'),rc=status)
-        call r%add_item_spec(cp_2, MockItemSpec('AE1'),rc=status)
-        call r%add_connection(ConnectionSpec(cp_1, cp_2), rc=status)
-        @assert_that(status, is(not(0)))
-      end associate
-        
-   end subroutine test_add_connection_invalid
-
-   @test
-   ! Verify that the order of connections does not matter
-   subroutine test_connect_chain_reverse()
-      type(FieldRegistry) :: r
-      class(AbstractStateItemSpec), pointer :: spec
-      type(ConnectionPoint) :: cp_1, cp_2, cp_3
-
-      integer :: status
-
-      cp_1 = ConnectionPoint('grandchild_A', 'export', 'ae1')
-      cp_2 = ConnectionPoint('child_A', 'export', 'ae2')
-      cp_3 = ConnectionPoint('child_B', 'import', 'ai')
-
-      call r%add_item_spec(cp_1, MockItemSpec('AE1'))
-      call r%add_item_spec(cp_2, MockItemSpec('AE2'))
-      call r%add_item_spec(cp_3, MockItemSpec('AI'))
-
-      ! sibling
-      call r%add_connection(ConnectionSpec(cp_2, cp_3), rc=status)
-      @assert_that(status, is(0))
-      ! E-to-E
-      call r%add_connection(ConnectionSpec(cp_1, cp_2), rc=status)
-      @assert_that(status, is(0))
-
-      spec => r%get_item_spec(cp_3)
-      if (.not. check(r, cp_3, 'AE1')) return
-
-   end subroutine test_connect_chain_reverse
-
 
    @test
    ! Verify that sibling connections set active status, but not others.
@@ -232,19 +185,32 @@ contains
           @assert_that(spec%is_active(), is(false()))
           if (.not. check(r, cp_2, 'A1')) return
 
+
+          ! 1 => A, 2 => A, 3 => C, 4 => D
+
+
           call r%add_connection(i2i)
           @assert_that(spec%is_active(), is(false()))
           if (.not. check(r, cp_4, 'A3')) return
 
+          ! 1 => A, 2 => A, 3 => C, 4 => C
+
           call r%add_connection(sib)
-          spec => r%get_item_spec(cp_3) ! ultimate export
+
+          ! C = A
+          ! 1 => A, 2 => A, 3 => C, 4 => C
+
+          spec => r%get_item_spec(cp_1)! ultimate export
+          @assert_that('cp_1', spec%is_active(), is(true()))
+
+          spec => r%get_item_spec(cp_2)
           @assert_that(spec%is_active(), is(true()))
-          spec => r%get_item_spec(cp_2) ! ultimate export
+
+          spec => r%get_item_spec(cp_3) 
           @assert_that(spec%is_active(), is(true()))
-          spec => r%get_item_spec(cp_4) ! ultimate export
-          @assert_that(spec%is_active(), is(true()))
-          spec => r%get_item_spec(cp_1) ! ultimate export
-          @assert_that(spec%is_active(), is(true()))
+
+          spec => r%get_item_spec(cp_4)
+          @assert_that('cp_4', spec%is_active(), is(true()))
 
    end subroutine test_sibling_activation
           

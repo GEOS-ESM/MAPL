@@ -18,8 +18,12 @@ module mapl3g_FieldRegistry
    type :: FieldRegistry
       private
       type(StateItemVector) :: specs
+      ! This component was required so that things like "activated"
+      ! will propagate back to the original export when a sibling
+      ! connection is made.   I.e., the algorithm really wants to work
+      ! with pointers.
       type(ConnPtStateItemPtrMap) :: specs_map
-      type(ConnectionSpecVector) :: connections
+!!$      type(ConnectionSpecVector) :: connections
 
    contains
       procedure :: add_item_spec
@@ -31,7 +35,8 @@ module mapl3g_FieldRegistry
 
       ! helper
       procedure :: update_spec
-      procedure :: propagate_specs
+      procedure :: update_ptr
+!!$      procedure :: propagate_specs
       procedure :: set_active
    end type FieldRegistry
 
@@ -107,13 +112,16 @@ contains
       _ASSERT(this%has_item_spec(connection%source),'Unknown source point for connection.')
       _ASSERT(this%has_item_spec(connection%destination),'Unknown destination point for connection.')
 
-      call this%connections%push_back(connection)
+!!$      call this%connections%push_back(connection)
+
       associate(src_pt => connection%source, dst_pt => connection%destination)
         if (connection%is_sibling()) then
            call this%set_active(src_pt)
+           call this%update_spec(src_pt, dst_pt, _RC)
+        else
+           call this%update_ptr(src_pt, dst_pt, _RC)
         end if
-        call this%update_spec(src_pt, dst_pt, _RC)
-        call this%propagate_specs(src_pt, dst_pt, _RC)
+!!$        call this%propagate_specs(src_pt, dst_pt, _RC)
       end associate
       
       _RETURN(_SUCCESS)
@@ -132,45 +140,64 @@ contains
 
       dst_wrap => this%specs_map%of(dst_pt)
       src_wrap => this%specs_map%of(src_pt)
-      dst_wrap = src_wrap
+      call dst_wrap%ptr%connect_to(src_wrap%ptr, _RC)
+!!$      dst_wrap%ptr = src_wrap%ptr
       
       _RETURN(_SUCCESS)
    end subroutine update_spec
 
-
-   ! Secondary consequences of a connection
-   ! Any items with new dst as a source should update
-   ! to have new src as their source.
-   subroutine propagate_specs(this, src_pt, dst_pt, rc)
+   subroutine update_ptr(this, src_pt, dst_pt, rc)
       class(FieldRegistry), intent(inout) :: this
       type(ConnectionPoint), intent(in) :: src_pt
       type(ConnectionPoint), intent(in) :: dst_pt
       integer, optional, intent(out) :: rc
 
-      type(ConnectionSpec), pointer :: connection
-      type(ConnectionPoint), pointer :: conn_src, conn_dst
-      class(AbstractStateItemSpec), pointer :: conn_spec, src_spec
-      type(ConnectionSpecVectorIterator) :: iter
       integer :: status
+      class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
+      type(StateItemSpecPtr), pointer :: dst_wrap, src_wrap
 
-      src_spec => this%get_item_spec(src_pt)
+      dst_wrap => this%specs_map%of(dst_pt)
+      src_wrap => this%specs_map%of(src_pt)
+      dst_wrap = src_wrap
+      
+      _RETURN(_SUCCESS)
+   end subroutine update_ptr
 
-      associate (e => this%connections%end())
-        iter = this%connections%begin()
-        do while (iter /= e)
-           connection => iter%of()
-           conn_src => connection%source
-           conn_dst => connection%destination
-           if (conn_src == dst_pt) then
-              call this%update_spec(src_pt, conn_dst)
-!!$              conn_spec => this%get_item_spec(conn_dst)
-!!$              call conn_spec%connect_to(src_spec, _RC)
-           end if
-           call iter%next()
-        end do
-      end associate
 
-   end subroutine propagate_specs
+!!$   ! Secondary consequences of a connection
+!!$   ! Any items with new dst as a source should update
+!!$   ! to have new src as their source.
+!!$   subroutine propagate_specs(this, src_pt, dst_pt, rc)
+!!$      class(FieldRegistry), intent(inout) :: this
+!!$      type(ConnectionPoint), intent(in) :: src_pt
+!!$      type(ConnectionPoint), intent(in) :: dst_pt
+!!$      integer, optional, intent(out) :: rc
+!!$
+!!$      type(ConnectionSpec), pointer :: connection
+!!$      type(ConnectionPoint), pointer :: conn_src, conn_dst
+!!$      class(AbstractStateItemSpec), pointer :: conn_spec, src_spec
+!!$      type(ConnectionSpecVectorIterator) :: iter
+!!$      integer :: status
+!!$
+!!$      src_spec => this%get_item_spec(src_pt)
+!!$
+!!$      associate (e => this%connections%end())
+!!$        iter = this%connections%begin()
+!!$        do while (iter /= e)
+!!$           connection => iter%of()
+!!$           conn_src => connection%source
+!!$           conn_dst => connection%destination
+!!$           if (conn_src == dst_pt) then
+!!$              call this%update_spec(src_pt, conn_dst)
+!!$  !!$              conn_spec => this%get_item_spec(conn_dst)
+!!$  !!$              call conn_spec%connect_to(src_spec, _RC)
+!!$           end if
+!!$           call iter%next()
+!!$        end do
+!!$      end associate
+!!$
+!!$      _RETURN(_SUCCESS)
+!!$   end subroutine propagate_specs
 
 
    subroutine allocate(this, rc)
@@ -182,7 +209,6 @@ contains
       class(StateItemSpecPtr), pointer :: wrap
       type(ConnPtStateItemPtrMapIterator) :: iter
 
-      
       associate (e => this%specs_map%end())
         iter = this%specs_map%begin()
         do while (iter /= e)
