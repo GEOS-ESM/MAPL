@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Defined real64 constants in consistent way
-- Fixes for NVIDIA compiler
+- Workarounds for NVIDIA compiler
 
 ### Added
 
