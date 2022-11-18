@@ -3,300 +3,229 @@ import argparse
 import sys
 import os
 import csv
-from collections.abc import Sequence as sequence
 from collections import namedtuple
+import operator
+from functools import partial
+
 from enum import Enum
 
 SUCCESS = 0
 
 CATEGORIES = ("IMPORT","EXPORT","INTERNAL")
 
-FUNCTION_TYPE_NAME = 'function'
+"""Helper functions
+lambda (anonymous) functions are simple functions (usually one line),
+of the form:
+    lambda x, y, z, ...: <expression of x, y, z, ...>
+where 'x, y, z, ...' represents one or more arguments (It's a tuple.)
+They are quite handy for processing sequences (think: list, tuples, sets)
+They are used here for emitting values, as well.
+"""
 
-# Names of options
-SHORT_NAME = 'short_name'
-CONDITION = 'condition'
-LONG_NAME = 'long_name'
-PRECISION = 'precision'
-UNITS = 'units'
-DIMS = 'dims'
-UNGRIDDED = 'ungridded_dims'
-MANGLED_NAME = 'mangled_name'
-INTERNAL_NAME = 'internal_name'
-RANK = 'rank'
-ALLOC = 'alloc'
+# Return the value
+identity_emit = lambda value: value
+# Return value in quotes
+string_emit = lambda value: ("'" + value + "'") if value else None
+# Return value in brackets
+array_emit = lambda value: ('[' + value + ']') if value else None
 
-Fields = namedtuple('Fields', 'emit mandatory extra')
+mangle_name = lambda name: string_emit(name.replace("*","'//trim(comp_name)//'")) if name else None 
+make_internal_name = lambda name: name.replace('*','') if name else None
 
+def make_entry_emit(dictionary):
+    """ Returns a emit function that looks up the value in dictionary """
+    return lambda key: dictionary[key] if key in dictionary else None
 
-class Emitter:
-    identity = lambda a: a
-    _emit = identity
+# constants used for Option.DIMS
+DIMS_OPTIONS = [('MAPL_DimsVertOnly', 1, 'z'), ('MAPL_DimsHorzOnly', 2, 'xy'), ('MAPL_DimsHorzVert', 3, 'xyz')]
+DIMS_EMIT = make_entry_emit(dict([(alias, entry) for entry, _, alias in DIMS_OPTIONS]))
+RANKS = dict([(entry, rank) for entry, rank, _ in DIMS_OPTIONS])
 
-    @property
-    def emit(self):
-        return self._emit
+# emit function for Option.VLOCATION
+VLOCATION_EMIT = make_entry_emit({'C': 'MAPL_VlocationCenter', 'E': 'MAPL_VlocationEdge', 'N': 'MAPL_VlocationNone'})
+
+# emit function for Option.RESTART
+RESTART_EMIT = make_entry_emit({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_RestartSkip',
+        'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
+        'SKIPI': 'MAPL_RestartSkipInitial'})
+
+# emit function for Option.ADD2EXPORT
+ADD2EXPORT_EMIT = make_entry_emit({'T': '.true.', 'F': '.false.'})
+
+# parent class for class Option
+# defines a few methods
+class OptionType(Enum):
+    def __init__(self, name_key, emit = None, mandatory = False, output = True):
+        self.name_key = name_key
+        self.emit = emit if emit else identity_emit
+        self.mandatory = mandatory
+        self.output = output
+
+    def __call__(self, value):
+        return self.emit(value)
+
+    @classmethod
+    def get_mandatory_options(cls):
+        return list(filter(lambda m: m.mandatory, list(cls))) 
+
+# class for the possible options in a spec
+# uses functional API for creation of members (instances) with multiple word names
+Option = Enum(value = 'Option', names = {
+        'SHORT_NAME': ('short_name', mangle_name, True),
+        'NAME': ('short_name', mangle_name, True),
+        'LONG_NAME': ('long_name', string_emit, True),
+        'LONG NAME': ('long_name', string_emit, True),
+        'UNITS': ('units', string_emit, True),
+        'DIMS': ('dims', DIMS_EMIT, True),
+        'VLOCATION': ('vlocation', VLOCATION_EMIT),
+        'VLOC': ('vlocation', VLOCATION_EMIT),
+        'ADD2EXPORT': ('add2export', ADD2EXPORT_EMIT),
+        'ADDEXP': ('add2export', ADD2EXPORT_EMIT),
+        'RESTART': ('restart', RESTART_EMIT),
+        'UNGRIDDED': ('ungridded', array_emit),
+        'UNGRID': ('ungridded', array_emit),
+        'FRIENDLYTO': ('friendlyto', string_emit),
+        'FRIEND2': ('friendlyto', string_emit),
+        'PRECISION': ('precision',),
+        'PREC': ('precision',),
+        'NUM_SUBTILES': ('num_subtitles',),
+        'NUMSUBS': ('num_subtitles',),
+        'AVERAGING_INTERVAL': ('averaging_interval',),
+        'AVINT': ('averaging_interval',),
+        'REFRESH_INTERVAL': ('refresh_interval',),
+        'HALOWIDTH': ('halowidth',),
+        'DEFAULT': ('default',),
+        'FIELD_TYPE': ('field_type',),
+        'STAGGERING': ('staggering',),
+        'ROTATION': ('rotation',),
+        'DATATYPE': ('datatype',),
+        'ATTR_INAMES': ('attr_inames',),
+        'ATT_RNAMES': ('att_rnames',),
+        'ATTR_IVALUES': ('attr_ivalues',),
+        'ATTR_RVALUES': ('attr_rvalues',),
+        'UNGRIDDED_NAME': ('ungridded_name',),
+        'UNGRIDDED_UNIT': ('ungridded_unit',),
+        'UNGRIDDED_COORDS': ('ungridded_coords',),
+# these are Options that are not output but used to write 
+        'CONDITION': ('condition', identity_emit, False, False),
+        'COND': ('condition', identity_emit, False, False),
+        'ALLOC': ('alloc', identity_emit, False, False),
+        'MANGLED_NAME': ('mangled_name', mangle_name, False, False),
+        'INTERNAL_NAME': ('internal_name', make_internal_name, False, False),
+        'RANK': ('rank', None, False, False)
+    }, type = OptionType) 
+ 
+def relation(relop, lhs, rhs, values):
+    """ Returns the result of the relop relation of lhs and rhs using values for lookups """
+    l = values[lhs] if isinstance(lhs, Option) else lhs
+    r = values[rhs] if isinstance(rhs, Option) else rhs
+    return relop(l, r)
+        
+# define common relations
+equals = partial(relation, operator.eq)
+does_not_equal = partial(relation, operator.ne)
+
+# simple class to group information for a condition in a Rule
+# compare option value against expected, produce logical value and message
+condition = namedtuple('condition', 'option rel expected message')
+
+class Rule:
+    """ rule for testing conditions on Options  """
+
+    @classmethod
+    def predicate(cls, option, rel, expected):
+        return partial(rel, option, expected)
+
+    def __init__(self, conditions, joiner = all):
+        """ creates rule conditions from tuples (conditions) joined by joiner function """
+        """ set the check function (rule_check) """
+        joiners = {all: (' and ', False), any: (' or ', True)}
+
+        processed_conditions = tuple([condition(option, rel, expected, message) for option, rel, expected, message in conditions]) 
+
+        # break_on_true sets behavior one condition is met
+        try:
+            rule_joiner, break_on_true = joiners[joiner]
+        except KeyError:
+            raise ValueError("Invalid joiner")
+        
+        def rule_check(values):
+            messages = []
+            results = []
+            for next_condition in processed_conditions:
+                option, rel, expected, message = next_condition
+                test = Rule.predicate(option, rel, expected)
+                test_result = test(values)
+                results.append(test_result)
+                if test_result:
+                    # add message and break conditionally
+                    messages.append(option.name_key + " " + message) 
+                    if break_on_true:
+                        break
+                    
+            if joiner(results) == True:
+                raise RuntimeError(rule_joiner.join(messages))
+
+        self.rule = rule_check
     
-    @emit.setter
-    def emit(self, emit_):
-        self._emit = emit_
+    def check(self, values):
+        """ run rules on Option values """
+        return self.rule(values)
 
-class Mandatory:
-    MANDATORY = True
-    OPTIONAL = False
-    _mandatory = OPTIONAL
+def check_option_values(values):
 
-    @property
-    def mandatory(self):
-        return self._mandatory
+    rules = [Rule(conditions = [(Option.DIMS, equals, 'MAPL_DimsHorzVert', 'is equal to MAPL_DimsHorzVert'),
+            (Option.VLOCATION, equals, 'MAPL_VlocationNone', 'is equal to MAPL_VlocationNone')], joiner = all),
+            Rule([condition(Option.DIMS, equals, 'MAPL_DimsHorzOnly', 'is equal to MAPL_DimsHorzOnly'),
+            condition(Option.VLOCATION, does_not_equal, 'MAPL_VlocationNone', 'is not equal to MAPL_VlocationNone')])]
 
-    @property
-    def optional(self):
-        return not self._mandatory
-
-    def set_mandatory(self):
-        self._mandatory = MANDATORY
-
-    def set_optional(self):
-        self._mandatory = OPTIONAL
-
-class Option(Fields, Enum):
-
-    def __new__(cls, value, *args):
-        emit, mandatory, extra = args
-        obj = super().__new__(cls, emit, mandatory, extra)
-
-    SHORT_NAME = 'SHORT_NAME', mangle_name, True, {'mangle_name': mangle_name}
-    NAME = _make_alias('SHORT_NAME')
-    LONG_NAME = 'LONG_NAME'  string_emit, True, None
-    (LONG_NAME, 'long name', string_emit, True),
-    (UNITS, string_emit, True),
-    (DIMS, {'z'  : 'MAPL_DimsVertOnly', 'xy' : 'MAPL_DimsHorzOnly', 'xyz': 'MAPL_DimsHorzVert'}),
-    ('vlocation', 'vloc', {'C': 'MAPL_VlocationCenter', 'E': 'MAPL_VlocationEdge', 'N': 'MAPL_VlocationNone'}),
-    ('add2export', 'addexp',  {'T': '.true.', 'F': '.false.'}),
-    ('restart', {'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_RestartSkip',
-                 'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
-                 'SKIPI': 'MAPL_RestartSkipInitial'}),
-    (UNGRIDDED, {'ungridded', 'ungrid'}, array_emit),
-    ('friendlyto', 'friend2', string_emit),
-    (PRECISION, 'prec'),
-    ('num_subtiles', 'numsubs'),
-    ('averaging_interval', 'avint'),
-    'refresh_interval',
-    'halowidth',
-    'default',
-    'field_type',
-    'staggering',
-    'rotation',
-    'datatype',
-    'attr_inames',
-    'att_rnames',
-    'attr_ivalues',
-    'attr_rvalues',
-    'ungridded_name',
-    'ungridded_unit',
-    'ungridded_coords'
-    def __init__(self, name, aliases = set(), emit = None, is_mandatory = None):
-        self.name = name
-        self.aliases = aliases
-        self.emit = emit
-        self.is_mandatory = is_mandatory
-
-    @property
-    def name(self):
-        return self._name
-
-    @name.setter
-    def name(self, value):
-        self._name = value
-
-    @property
-    def aliases(self):
-        return self._aliases
-
-    @aliases.setter
-    def aliases(self, value):
-        if isinstance(value, str):
-            al = {value}
-        elif isinstance(value, sequence):
-            al = set(value)
-        elif isinstance(value, set):
-            al = value
-        else:
-            al = set()
-        al.add(self.name)
-        self._aliases = al
-
-    @property
-    def emit(self):
-        return self._emit
-
-    @emit.setter
-    def emit(self, value):
-        if value is None:
-            em = lambda x: x
-        elif isinstance(value, dict):
-            em = lambda x: value[k] if k in value else k
-        else:
-            em = value
-        self._emit = em
-
-    @property
-    def mandatory(self):
-        return self._is_mandatory
-
-    @mandatory.setter
-    def mandatory(self, value):
-        self._is_mandatory = value
-
-    @staticmethod
-    def make(args):
-        if isinstance(args, str):
-            name = args
-            remaining_args = ()
-        elif isinstance(args, sequence):
-            name = args[0]
-            remaining_args = args[1:]
-        else:
-            raise Exception('Option.make illegal argument type: ' + type(args).__name__)
-        aliases = set()
-        emit = None
-        is_mandatory = None
-        for arg in remaining_args:
-            if isinstance(arg, str):
-                aliases.add(arg)
-            elif isinstance(arg, set) or isinstance(arg, sequence):
-                aliases.update(arg)
-            elif isinstance(arg, dict) or type(arg).__name__ == FUNCTION_TYPE_NAME:
-                if emit is None:
-                    emit = arg
-            elif isinstance(arg, bool):
-                if is_mandatory is None:
-                    is_mandatory = arg
-        return Option(name, aliases, emit, is_mandatory)
-
-    def __call__(self, value):
-        return self.emit(value) if value else None
-
-
-class NameOption(Option):
-
-    def __init__(self):
-        super().__init__(name = SHORT_NAME, aliases = 'name', emit = mangle_name, is_mandatory = True)
-
-    @property
-    def mangled_name(self):
-        return self._mangled_name
-
-    @mangled_name.setter
-    def mangled_name(self, value):
-        self._mangled_name = mangle_name(value)
-
-    @property
-    def internal_name(self):
-        return self._internal_name
-
-    @internal_name.setter
-    def internal_name(self, value):
-        self._internal_name = make_internal_name(value)
-
-    def __call__(self, value):
-        if value:
-            self.mangled_name = value
-            self.internal_name = value
-        super().__call__(value) 
-
-    def make(name):
-        return NameOption()
-
-
-string_emit = lambda value: "'" + value + "'" if value else None
-array_emit = lambda value: '[' + value + ']' if value else None
-mangle_name = lambda name: string_emit(name.replace("*","'//trim(comp_name)//'")) if value else None 
-make_internal_name = lambda name: name.replace('*','') if value else None
-
-def parse_spec(spec):
-    name = spec.get(SHORT_NAME)
-    if name:
-        mangled_name = mangle_name(name)
-        internal_name = make_internal_name(name)
-    else:
-        raise Exception(SHORT_NAME + " is mandatory.")
-
-    condition = spec.get(CONDITION)
-    precision = spec.get(PRECISION)
-    dims = spec.get(DIMS)
-    ungridded = spec.get(UNGRIDDED)
-    rank = compute_rank(self.dims, self.ungridded)
-
-ranks = {'MAPL_DimsHorzVert':3, 'MAPL_DimsHorzOnly':2, 'MAPL_DimsVertOnly':1} #wdb deleteme this should not a second constant
-
-options = map(Option.make, (
-#    (SHORT_NAME, 'name', mangle_name, True),
-    (LONG_NAME, 'long name', string_emit, True),
-    (UNITS, string_emit, True),
-    (DIMS, {'z'  : 'MAPL_DimsVertOnly', 'xy' : 'MAPL_DimsHorzOnly', 'xyz': 'MAPL_DimsHorzVert'}),
-    ('vlocation', 'vloc', {'C': 'MAPL_VlocationCenter', 'E': 'MAPL_VlocationEdge', 'N': 'MAPL_VlocationNone'}),
-    ('add2export', 'addexp',  {'T': '.true.', 'F': '.false.'}),
-    ('restart', {'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_RestartSkip',
-                 'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
-                 'SKIPI': 'MAPL_RestartSkipInitial'}),
-    (UNGRIDDED, {'ungridded', 'ungrid'}, array_emit),
-    ('friendlyto', 'friend2', string_emit),
-    (PRECISION, 'prec'),
-    ('num_subtiles', 'numsubs'),
-    ('averaging_interval', 'avint'),
-    'refresh_interval',
-    'halowidth',
-    'default',
-    'field_type',
-    'staggering',
-    'rotation',
-    'datatype',
-    'attr_inames',
-    'att_rnames',
-    'attr_ivalues',
-    'attr_rvalues',
-    'ungridded_name',
-    'ungridded_unit',
-    'ungridded_coords'
-))
-
-#make_aliases
-def make_aliases(option):
-    result = (option.aliases, option.name)
-    return result
+    for rule in rules:
+        rule.check(values)
 
 def compute_rank(dims, ungridded):
     extra_rank = len(ungridded.strip('][').split(',')) if ungridded else 0
-    return ranks[dims] + extra_rank
+    return RANKS[dims] + extra_rank
 
-def zipdict(*dicts, fillvalue = None):
-    zd = lambda dicts_, fillvalue_: {k: tuple(d.get(k, fillvalue_) for d in dicts_) for k in dicts_[0].keys()}
-    return zd(dicts, fillvalue) if dicts else None
+def digest(specs):
+    """ Set Option values from parsed specs """
+    mandatory_options = Option.get_mandatory_options()
+    digested_specs = dict()
 
-option_dict = dict(((option.name, option) for option in options))
-option_dict[SHORT_NAME] = NameOption()
+    for category in specs:
+        category_specs = list() # All the specs for the category
+        for spec in specs[category]: # spec from list
+            dims = None
+            ungridded = None
+            option_values = dict() # dict of option values
+            for column in spec: # for spec emit value
+                column_value = spec[column]
+                option = Option[column.upper()] # use column name to find Option
+                option_value = option(column_value) # emit value
+                option_values[option] = option_value # add value to dict
+                if option == Option.SHORT_NAME:
+                    option_values[Option.MANGLED_NAME] = Option.MANGLED_NAME(column_value)
+                    option_values[Option.INTERNAL_NAME] = Option.INTERNAL_NAME(column_value)
+                elif option == Option.DIMS:
+                    dims = option_value
+                elif option == Option.UNGRIDDED:
+                    ungridded = option_value
+# MANDATORY
+            for option in mandatory_options:
+                if option not in option_values:
+                    raise RuntimeError(option.name + " is missing from spec.")
+# END MANDATORY
+            option_values[Option.RANK] = compute_rank(dims, ungridded)
+# CHECKS HERE
+            try:
+                check_option_values(option_values)
+            except Exception:
+                raise
+# END CHECKS
+            category_specs.append(option_values)
+        digested_specs[category] = category_specs 
 
-#aliases_name_tuples = (make_aliases(option) for option in options)
-alias_name_tuples = list()
-for option_name in option_dict:
-    option = option_dict[option_name]
-    pair = make_aliases(option)
-    aliases, name = pair
-    for alias in aliases:
-        t = (alias, name)
-        alias_name_tuples.append(t)
-column_names = dict(alias_name_tuples)
-column_names['cond'] = CONDITION
-column_names[ALLOC] = ALLOC
-
-#alias_name_tuples=((alias, name) for alias, name in aliases_name_tuples)
-
-#for option in options:
-#    for alias in option.aliases:
-#        column_names[alias] = name
-
+    return digested_specs
+    
 ###############################################################
 class MAPL_DataSpec:
     """Declare and manipulate an import/export/internal specs for a
@@ -305,14 +234,13 @@ class MAPL_DataSpec:
     DELIMITER = ', '
     TERMINATOR = '_RC)'
 
-    def __init__(self, category, args,  option_dict, indent=3):
+    def __init__(self, category, spec_values, indent=3):
         self.category = category
-        self.args = args
-        self.option_dict = option_dict
         self.indent = indent
-
-    def get_args(self):
-        return self.args
+        self.mangled_name = spec_values[Option.MANGLED_NAME]
+        self.internal_name = spec_values[Option.INTERNAL_NAME]
+        self.condition = spec_values.get(Option.CONDITION)
+        self.spec_values = spec_values
 
     def newline(self):
         return "\n" + " "*self.indent
@@ -327,10 +255,11 @@ class MAPL_DataSpec:
     # pointers should not be _referenced_ but such sections should still
     # compile, so we must declare the pointers
     def emit_declare_pointers(self):
-        dimension = 'dimension(:' + ',:'*(self.rank-1) + ')'
+        dimension = 'dimension(:' + ',:'*(self.spec_values[Option.RANK]-1) + ')'
         text = self.newline() + 'real'
-        if self.kind:
-            text = text + '(kind=' + str(self.kind) + ')'
+        if Option.PRECISION in self.spec_values:
+            kind = self.spec_values.get(Option.PRECISION)
+            text = text + '(kind=' + str(kind) + ')'
         text = text +', pointer, ' + dimension + ' :: ' + self.internal_name
         return text
 
@@ -345,18 +274,18 @@ class MAPL_DataSpec:
 
     def emit_pointer_alloc(self):
         EMPTY_LIST = []
-        key = MAPL_DataSpec.ALLOC
-        value = self.args.get(key)
+        key = Option.ALLOC
+        value = self.spec_values.get(key)
         if value:
             value = value.strip().lower()
-            listout = [ key + '=' + get_fortran_logical(value) ] if len(value) > 0 else EMPTY_LIST
+            listout = [ key.name_key + '=' + get_fortran_logical(value) ] if len(value) > 0 else EMPTY_LIST
         else:
             listout = EMPTY_LIST
         return listout
 
     def emit_header(self):
         text = self.newline()
-        condition = self.args.get(self.condition)
+        condition = self.condition
         if condition:
             self.indent = self.indent + 3
             text = text + "if (" + condition + ") then" + self.newline()
@@ -365,27 +294,23 @@ class MAPL_DataSpec:
     def emit_args(self):
         self.indent = self.indent + 5
         text = "call MAPL_Add" + self.category.capitalize() + "Spec(gc," + self.continue_line()
-        for option_name in self.option_dict: #wdb idea deleteme reduce?
-            text = text + self.emit_arg(option_name)
+        for option in self.spec_values: #wdb idea deleteme reduce?
+            if option.output:
+                text = text + self.emit_arg(option)
         text = text + MAPL_DataSpec.TERMINATOR + self.newline()
         self.indent = self.indent - 5
         return text
 
-    def emit_arg(self, option_name):
-        value = self.args.get(option_name)
-        if value is None:
-            text = ''
+    def emit_arg(self, option):
+        value = self.spec_values.get(option)
+        if value:
+            text = option.name_key + "=" + value + MAPL_DataSpec.DELIMITER + self.continue_line()
         else:
-            emit = self.option_dict[option_name].emit
-            if value:
-                text = option_name + "=" + emit(value) + MAPL_DataSpec.DELIMITER + self.continue_line()
-            elif option.is_mandatory:
-                raise Exception(option_name + ' must have a non-blank value.')
+            text = ''
         return text
 
     def emit_trailer(self, nullify=False):
-        condition = self.args.get(self.condition)
-        if condition:
+        if self.condition:
             self.indent = self.indent - 3
             name = self.internal_name
             text = self.newline()
@@ -397,8 +322,7 @@ class MAPL_DataSpec:
             text = self.newline()
         return text
 
-
-def read_specs(specs_filename, column_names):
+def read_specs(specs_filename):
     """Returns dict of (category: list of dict of (option name: option value) """
     def csv_record_reader(csv_reader):
         """ Read a csv reader iterator until a blank line is found. """
@@ -433,8 +357,8 @@ def read_specs(specs_filename, column_names):
                 gen = csv_record_reader(specs_reader)
                 category = next(gen)[0].split()[1]
                 bare_columns = next(gen)
-                bare_columns = [c.strip() for c in bare_columns]
-                columns = [column_names[c.lower()] for c in bare_columns]
+                bare_columns = [c.strip() for c in bare_columns] #wdb TODO DELETEME merge above and below
+                columns = [c.upper() for c in bare_columns]
                 specs[category] = dataframe(gen, columns)
             except StopIteration:
                 break
@@ -443,19 +367,24 @@ def read_specs(specs_filename, column_names):
 
 def get_fortran_logical(value_in):
     """ Return string representing Fortran logical from an input string """
-    """ representing a logical value into """
+    """ representing a logical value input """
     TRUE_VALUE = '.true.'
     FALSE_VALUE = '.false.'
     TRUE_VALUES = {TRUE_VALUE, 't', 'true', '.t.', 'yes', 'y', 'si', 'oui', 'sim'}
     FALSE_VALUES = {FALSE_VALUE, 'f', 'false', '.f.', 'no', 'n', 'no', 'non', 'nao'}
-    if value_in is None:
-        sys.exit("'None' is not valid for get_fortran_logical.")
-    if value_in.strip().lower() in TRUE_VALUES:
-        val_out = TRUE_VALUE
-    elif value_in.strip().lower() in FALSE_VALUES:
-        val_out = FALSE_VALUE
-    else:
-        sys.exit("Unrecognized logical: " + value_in)
+
+    try:
+        if value_in is None:
+            raise ValueError("'None' is not valid for get_fortran_logical.")
+        if value_in.strip().lower() in TRUE_VALUES:
+            val_out = TRUE_VALUE
+        elif value_in.strip().lower() in FALSE_VALUES:
+            val_out = FALSE_VALUE
+        else:
+            raise ValueError("Unrecognized logical: " + value_in)
+    except Exception:
+        raise
+
     return val_out
 
 def header():
@@ -481,23 +410,6 @@ def open_with_header(filename):
     f.write(header())
     return f
 
-def digest(zipped_dict, category):
-    result = dict()
-    for option_name, (option, value) in zipped_dict.items():
-        newvalue = option(value)
-        if isinstance(option, NameOption):
-            mangled_name = option.mangled_name
-            result[MANGLED_NAME] = mangled_name
-            internal_name = option.internald_name
-            result[INTERNAL_NAME] = internal_name
-
-    dims = result.get(DIMS)
-    ungridded = result.get(UNGRIDDED)
-    rank = compute_rank(self.dims, self.ungridded)
-    result[RANK] = rank
-
-    return result
-    
 #############################################
 # Main program begins here
 #############################################
@@ -528,7 +440,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 # Process blocked CSV input file
-    specs = read_specs(args.input, column_names)
+    parsed_specs = read_specs(args.input)
+
+# Emit values
+    try:
+        specs = digest(parsed_specs)
+    except Exception:
+        raise
 
     if args.name:
         component = args.name
@@ -559,9 +477,8 @@ if __name__ == "__main__":
 # Generate code from specs (processed above)
     for category in CATEGORIES:
         if category in specs:
-            for args in specs[category]:
-                zipped = zipdict(option_dict, args)
-                spec = MAPL_DataSpec(category.lower(), args, option_dict)
+            for spec_values in specs[category]:
+                spec = MAPL_DataSpec(category.lower(), spec_values)
                 if f_specs[category]:
                     f_specs[category].write(spec.emit_specs())
                 if f_declare_pointers:
@@ -579,3 +496,140 @@ if __name__ == "__main__":
         f_get_pointers.close()
 
     sys.exit(SUCCESS)
+
+
+#options = map(Option.make, (
+#    (SHORT_NAME, 'name', mangle_name, True),
+#    (LONG_NAME, 'long name', string_emit, True),
+#    (UNITS, string_emit, True),
+#    (DIMS, {'z'  : 'MAPL_DimsVertOnly', 'xy' : 'MAPL_DimsHorzOnly', 'xyz': 'MAPL_DimsHorzVert'}),
+#    ('vlocation', 'vloc', {'C': 'MAPL_VlocationCenter', 'E': 'MAPL_VlocationEdge', 'N': 'MAPL_VlocationNone'}),
+#    ('add2export', 'addexp',  {'T': '.true.', 'F': '.false.'}),
+#    ('restart', {'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_RestartSkip',
+#                 'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
+#                 'SKIPI': 'MAPL_RestartSkipInitial'}),
+#    (UNGRIDDED, {'ungridded', 'ungrid'}, array_emit),
+#    ('friendlyto', 'friend2', string_emit),
+#    (PRECISION, 'prec'),
+#    ('num_subtiles', 'numsubs'),
+#    ('averaging_interval', 'avint'),
+#    'refresh_interval',
+#    'halowidth',
+#    'default',
+#    'field_type',
+#    'staggering',
+#    'rotation',
+#    'datatype',
+#    'attr_inames',
+#    'att_rnames',
+#    'attr_ivalues',
+#    'attr_rvalues',
+#    'ungridded_name',
+#    'ungridded_unit',
+#    'ungridded_coords'
+#))
+
+#class OptionType(Fields, Enum):
+#
+#    def __new__(cls, strcode, mandatory, emit):
+#        obj = super().__new__(cls, strcode, emit, mandatory)
+#        return obj
+#
+#    @classmethod
+#    def process(t):
+#        name, entries = t
+#        namestr = t[0]
+#        emit = t[1] if len(t) > 1 else OptionType.identity_emit
+#        mandatory = t[2] if len(t) > 2 else False
+#        return (name, namestr, emit, mandatory)
+#
+#    @classmethod
+#    def process_list(lst):
+#        return [OptionType.process(t) for t in names]
+#        
+#
+#def parse_spec(spec):
+#    name = spec.get(SHORT_NAME)
+#    if name:
+#        mangled_name = mangle_name(name)
+#        internal_name = make_internal_name(name)
+#    else:
+#        raise Exception(SHORT_NAME + " is mandatory.")
+#
+#    condition = spec.get(CONDITION)
+#    precision = spec.get(PRECISION)
+#    dims = spec.get(DIMS)
+#    ungridded = spec.get(UNGRIDDED)
+#    rank = compute_rank(self.dims, self.ungridded)
+#def zipdict(*dicts, fillvalue = None):
+#    zd = lambda dicts_, fillvalue_: {k: tuple(d.get(k, fillvalue_) for d in dicts_) for k in dicts_[0].keys()}
+#    return zd(dicts, fillvalue) if dicts else None
+
+#option_map = {
+#    Option.SHORT_NAME: Fields(mangle, True),
+#    Option.LONG_NAME: Fields(string_emit, True),
+#    Option.UNITS: Fields(string_emit, True),
+#    Option.DIMS: Fields(DIMS_EMIT, False),
+#    Option.VLOCATION: Fields(VLOCATION_EMIT, False),
+#    Option.ADD2EXPORT: Fields(ADD2EXPORT_EMIT, False),
+#    Option.RESTART: Fields(RESTART_EMIT, False),
+#    Option.UNGRIDDED: Fields(array_emit, False),
+#    Option.FRIENDLYTO: Fields(string_emit, False),
+#    Option.PRECISION: Fields(identity_emit, False),
+#    Option.NUM_SUBTILES: Fields(identity_emit, False),
+#    Option.AVERAGING_INTERVAL: Fields(identity_emit, False),
+#    Option.REFRESH_INTERVAL: Fields(identity_emit, False),
+#    Option.HALOWIDTH: Fields(identity_emit, False),
+#    Option.DEFAULT: Fields(identity_emit, False),
+#    Option.FIELD_TYPE: Fields(identity_emit, False),
+#    Option.STAGGERING: Fields(identity_emit, False),
+#    Option.ROTATION: Fields(identity_emit, False),
+#    Option.DATATYPE: Fields(identity_emit, False),
+#    Option.ATTR_INAMES: Fields(identity_emit, False),
+#    Option.ATT_RNAMES: Fields(identity_emit, False),
+#    Option.ATTR_IVALUES: Fields(identity_emit, False),
+#    Option.ATTR_RVALUES: Fields(identity_emit, False),
+#    Option.UNGRIDDED_NAME: Fields(identity_emit, False),
+#    Option.UNGRIDDED_UNIT: Fields(identity_emit, False),
+#    Option.UNGRIDDED_COORDS: Fields(identity_emit, False),
+#    Option.CONDITION: Fields(identity_emit, False),
+#    Option.ALLOC: Fields(identity_emit, False)
+#}
+
+#def relation(relop, lhs, rhs, values):
+#        l = values[lhs] if isinstance(lhs, Option) else lhs
+#        r = values[rhs] if isinstance(rhs, Option) else rhs
+#        return relop(l, r)
+#    
+#equals = partial(relation, operator.eq)
+#does_not_equal = partial(relation, operator.ne)
+#
+#def predicate(option, rel, value):
+#    return partial(rel, option, value)
+#
+#condition = namedtuple('condition', 'option rel value message')
+#def make_rule(conditions, joiner = all):
+#    joiners = {all: (' and ', False), any: (' or ', True)}
+#
+#    try:
+#        rule_joiner, break_on_true = joiners[joiner]
+#    except KeyError:
+#        raise ValueError("Invalid joiner")
+#
+#    def check(values):
+#        messages = []
+#        results = []
+#        for condition in conditions:
+#            option, rel, value, message = condition
+#            test_result = predicate(option, rel, value)(values)
+#            results.append(test_result)
+#            if test_result:
+#                messages.append(option.name_key + " " + message) 
+#                if break_on_true:
+#                    break
+#                
+#        if joiner(results) == True:
+#            raise RuntimeError(rule_joiner.join(messages))
+#
+#    return check
+
