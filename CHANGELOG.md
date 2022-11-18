@@ -9,14 +9,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Defined real64 constants in consistent way
+- Workarounds for NVIDIA compiler
+
 ### Added
 
+- Added assert to NetCDF4_get_var.H to print variable name if data retrieval fails
+- Add to asserts in `NetCDF4_get_var.H` to print out file if there are error getting variables
+
 ### Changed
-- Error codes in `shared/MAPL_Error_Handling.F90` are now consistent with `_FAILURE = 1` in `include/MAPL_ErrLog.h`
 
 ### Removed
 
 ### Deprecated
+
+## [2.30.3] - 2022-11-15
+
+### Fixed
+
+- Fixed bug when writing fields in History with ungridded dimension when the split option is not requested
+
+## [2.30.2] - 2022-11-09
+
+### Fixed
+
+-  When a grid is received from outside of MAPL (e.g., NOAA UFS), MAPL must provide a mechanism to specify a grid-type for internal processing.
+Add an option to set_grid to set GridType explicitly.
+
+## [2.30.1] - 2022-11-07
+
+### Fixed
+
+- Fix for building `time_ave_util.x` at NAS using MPT
+
+## [2.30.0] - 2022-11-03
+
+### Added
+
+- Introduced a new time averaging utility code to perform time averages of datasets
+
+### Changed
+
+- Moved Regrid_Util.F90 to the Apps directory
+
+## [2.29.0] - 2022-10-28
+
+### Fixed
+
+- Add define for `-Dsys${CMAKE_SYSTEM_NAME}` to fix build issue with macOS and Intel (#1695)
+- Fix handling of return macros for programs and subroutines (#1194)
+
+### Added
+
+- Add Coupled MOM6 GCM run to CI (ifort only)
+- Added ability to pass in extra options to FLAP CLI arguments
+- Added option to pass vertical metadata to FieldBundleWriter class for output file
+- Expose FileMetaUtilities class MAPL_VerticalDataMod via "use MAPL"
+
+### Changed
+
+- Change argument arrdes of MAPL_Read and Write NC Var 3d to optional
+- Error codes in `shared/MAPL_Error_Handling.F90` are now consistent with `_FAILURE = 1` in `include/MAPL_ErrLog.h`
+- Updated `components.yaml
+  - ESMA_env v4.4.0 → v4.5.0 (Update for GMI builds)
+  - ESMA_cmake v3.18.0 → v3.19.0 (Add `-save-temps` to GNU debug, check if install prefix is writable)
 
 ## [2.28.0] - 2022-10-17
 

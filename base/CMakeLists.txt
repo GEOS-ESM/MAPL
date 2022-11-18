@@ -82,7 +82,7 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
 endforeach()
 
 ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90 DEPENDS esmf MAPL.shared)
-target_link_libraries (cub2latlon.x PRIVATE ${this} MAPL.pfio ${MPI_Fortran_LIBRARIES})
+target_link_libraries (cub2latlon.x PRIVATE ${this} MAPL.pfio MPI::MPI_Fortran)
 # CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
 if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
    target_link_libraries(cub2latlon.x PRIVATE OpenMP::OpenMP_Fortran)

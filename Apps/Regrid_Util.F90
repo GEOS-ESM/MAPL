@@ -3,32 +3,7 @@
    module regrid_util_support_mod
 
    use ESMF
-   use ESMFL_Mod
-   use MAPL_Profiler
-   use MAPL_ExceptionHandling
-   use MAPL_BaseMod
-   use MAPL_MemUtilsMod
-   use MAPL_CFIOMod
-   use MAPL_CommsMod
-   use MAPL_ShmemMod
-   use ESMF_CFIOMod
-   use ESMF_CFIOUtilMod
-   use ESMF_CFIOFileMod
-   use MAPL_NewRegridderManager
-   use MAPL_AbstractRegridderMod
-   use mapl_RegridMethods
-   use MAPL_GridManagerMod
-   use MAPL_LatLonGridFactoryMod, only: LatLonGridFactory
-   use MAPL_CubedSphereGridFactoryMod, only: CubedSphereGridFactory
-   use MAPL_TripolarGridFactoryMod, only: TripolarGridFactory
-   use MAPL_Constants, only: MAPL_PI_R8
-   use MAPL_ExceptionHandling
-   use MAPL_ApplicationSupport
-   use pFIO
-   use MAPL_ESMFFieldBundleWrite
-   use MAPL_ESMFFieldBundleRead
-   use MAPL_ServerManager
-   use MAPL_FileMetadataUtilsMod
+   use MAPL
    use gFTL_StringVector
  
    implicit NONE
@@ -52,6 +27,7 @@
    contains
       procedure :: create_grid
       procedure :: process_command_line
+      procedure :: has_level
    end type regrid_support
 
    contains
@@ -238,6 +214,16 @@
     _RETURN(_SUCCESS)
     end subroutine create_grid
 
+    function has_level(this,rc) result(file_has_level)
+       logical :: file_has_level
+       class(regrid_support), intent(in) :: this
+       integer, intent(out), optional :: rc
+       integer :: global_dims(3),status
+       call MAPL_GridGet(this%new_grid,globalCellCountPerDim=global_dims,_RC)
+       file_has_level = (global_dims(3) /= 0)
+       _RETURN(_SUCCESS)
+    end function
+
     function create_cf(grid_name,im_world,jm_world,nx,ny,lm,cs_stretch_param,lon_range,lat_range,tripolar_file,rc) result(cf)
        use MAPL_ConfigMod
        type(ESMF_Config)              :: cf
@@ -364,9 +350,10 @@ CONTAINS
    logical :: fileCreated,file_exists
 
    integer :: tsteps,i,j,tint
+   type(VerticalData) :: vertical_data
 
    type(FieldBundleWriter) :: newWriter
-   logical :: writer_created
+   logical :: writer_created, has_vertical_level
    type(ServerManager) :: io_server
 
  
@@ -386,6 +373,10 @@ CONTAINS
    filename = support%filenames%at(1)
    if (allocated(tSeries)) deallocate(tSeries)
    call get_file_times(filename,support%itime,support%allTimes,tseries,timeInterval,tint,tsteps,_RC)
+   has_vertical_level = support%has_level(_RC)
+   if (has_vertical_level) then
+      call get_file_levels(filename,vertical_data,_RC)
+   end if
 
    Clock = ESMF_ClockCreate ( name="Eric", timeStep=TimeInterval, &
                                startTime=tSeries(1), _RC )
@@ -427,7 +418,7 @@ CONTAINS
 
          call ESMF_ClockSet(clock,currtime=time,_RC)
          if (.not. writer_created) then
-            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits=support%shave,deflate=support%deflate,_RC)
+            call newWriter%create_from_bundle(bundle,clock,n_steps=tsteps,time_interval=tint,nbits=support%shave,deflate=support%deflate,vertical_data=vertical_data,_RC)
             writer_created=.true.
          end if
 
@@ -453,6 +444,38 @@ CONTAINS
    call ESMF_Finalize ( _RC )
 
    end subroutine main
+
+   subroutine get_file_levels(filename,vertical_data,rc)
+      character(len=*), intent(in) :: filename
+      type(VerticalData), intent(inout) :: vertical_data
+      integer, intent(out), optional :: rc
+
+      integer :: status
+      type(NetCDF4_fileFormatter) :: formatter
+      type(FileMetadata) :: basic_metadata
+      type(FileMetadataUtils) :: metadata
+      character(len=:), allocatable :: lev_name
+      character(len=ESMF_MAXSTR) :: long_name
+      character(len=ESMF_MAXSTR) :: standard_name
+      character(len=ESMF_MAXSTR) :: vcoord
+      character(len=ESMF_MAXSTR) :: lev_units
+      real, allocatable, target :: levs(:)
+      real, pointer :: plevs(:)
+
+      call formatter%open(trim(filename),pFIO_Read,_RC)
+      basic_metadata=formatter%read(_RC)
+      call metadata%create(basic_metadata,trim(filename))
+      lev_name = metadata%get_level_name(_RC)
+      call metadata%get_coordinate_info(lev_name,coords=levs,coordUnits=lev_units,long_name=long_name,&
+           standard_name=standard_name,coordinate_attr=vcoord,_RC)
+      plevs => levs
+      vertical_data = VerticalData(levels=plevs,vunit=lev_units,vcoord=vcoord,standard_name=standard_name,long_name=long_name, &
+                      force_no_regrid=.true.,_RC)
+      nullify(plevs)    
+ 
+      _RETURN(_SUCCESS)
+
+   end subroutine get_file_levels
 
    subroutine get_file_times(filename,itime,alltimes,tseries,timeInterval,tint,tsteps,rc)
       character(len=*), intent(in) :: filename
