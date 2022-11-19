@@ -218,7 +218,7 @@ contains
     !EOR
     enableTimers = ESMF_UtilStringUpperCase(enableTimers, rc = status)
     _VERIFY(status)
-    call MAPL_GetResource(maplobj,use_extdata2g,"USE_EXTDATA2G:",default=.false.,_RC)
+    call MAPL_GetResource(maplobj,use_extdata2g,"USE_EXTDATA2G:",default=.true.,_RC)
 
     if (enableTimers /= 'YES') then
        call MAPL_ProfDisable(rc = status)
@@ -246,6 +246,8 @@ contains
     call ESMF_ConfigGetAttribute(cap%config, value=HEARTBEAT_DT, Label="HEARTBEAT_DT:", default=900, rc=status)
     call ESMF_ConfigGetAttribute(cap%cf_root, value=run_dt, Label="RUN_DT:", default=heartbeat_dt, rc=status)
     call MAPL_ConfigSetAttribute(cap%cf_root, value=run_dt, Label="RUN_DT:", rc=status)
+    _VERIFY(STATUS)
+    call MAPL_ConfigSetAttribute(cap%cf_root, value=root_cf,  Label="source_file:",  rc=status)
     _VERIFY(STATUS)
 
     ! Add EXPID and EXPDSC from HISTORY.rc to AGCM.rc

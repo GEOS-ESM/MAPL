@@ -15,6 +15,7 @@ MODULE ExtDataUtRoot_GridCompMod
       use VarspecDescriptionVectorMod
       use netcdf
       use gFTL_StringStringMap
+      use yaFYAML
       !use m_set_eta, only: set_eta
       use, intrinsic :: iso_fortran_env, only: REAL64
 
@@ -83,6 +84,7 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_Config)          :: cf
          type(SyntheticFieldSupportWrapper) :: synthWrap
          type(SyntheticFieldSupport), pointer :: synth
+         character(len=ESMF_MAXPATHLEN) :: source_file
 
 !=============================================================================
 
@@ -111,10 +113,10 @@ MODULE ExtDataUtRoot_GridCompMod
 
 !   Add Import/Export
 !   -----------------
-         call AddState(GC,CF,"IMPORT",rc=status)
-         _VERIFY(status)
-         call AddState(GC,CF,"EXPORT",rc=status)
-         _VERIFY(status)
+         call ESMF_ConfigGetAttribute(cf,label="source_file:",value=source_file,_RC)
+         if (mapl_am_i_root()) write(*,*)"My source is ",trim(source_file)
+         call AddState(GC,source_file,"IMPORT",_RC)
+         call AddState(GC,source_file,"EXPORT",_RC)
          call MAPL_AddInternalSpec(GC,&
                short_name='time', &
                long_name='na' , &
@@ -204,7 +206,12 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_Time) :: currTime
          type(SyntheticFieldSupportWrapper) :: synthWrap
          type(SyntheticFieldSupport), pointer :: synth => null()
-         character(len=ESMF_MaxStr) :: key, keyVal
+         class(YAML_Node), allocatable :: config
+         class(YAML_Node), pointer :: fill_defs
+         class(NodeIterator), allocatable :: iter
+         type(Parser) :: p
+         character(len=ESMF_MAXPATHLEN) :: source_file
+         character(len=:), pointer :: key, keyVal
 
 !  Get my name and set-up traceback handle
 !  ---------------------------------------
@@ -219,18 +226,20 @@ MODULE ExtDataUtRoot_GridCompMod
          call ESMF_ClockGet(Clock,currTime=currTime,rc=status)
          _VERIFY(STATUS)
 
-         call ESMF_ConfigGetDim(cf,nrows,ncolumn,label="FILL_DEF::",rc=status)
-         if (status==ESMF_SUCCESS) then
-            call ESMF_ConfigFindLabel(cf,label="FILL_DEF::",rc=status)
-            _VERIFY(status)
-            do i=1,nrows
-               call ESMF_ConfigNextLine(cf,rc=status)
-               _VERIFY(status)
-               call ESMF_ConfigGetAttribute(cf,value=key,rc=status)
-               call ESMF_ConfigGetAttribute(cf,value=keyVal,rc=status)
+         call ESMF_ConfigGetAttribute(cf,label="source_file:",value=source_file,_RC)
+         p = Parser('core')
+         config = p%load(source_file,_RC)
+         if (config%has("FILL_DEF")) then
+            fill_defs => config%at("FILL_DEF")
+            iter = fill_defs%begin()
+            do while(iter /= fill_defs%end())
+               key => to_string(iter%first(),_RC)
+               keyVal => to_string(iter%second(),_RC)
                call synth%fillDefs%insert(trim(key),trim(keyVal))
+               call iter%next()
             enddo
          end if
+
          call synth%tFunc%initTime(cf,currTime,rc=status)
          _VERIFY(status)
 
@@ -238,37 +247,8 @@ MODULE ExtDataUtRoot_GridCompMod
          _VERIFY(status)
 !  Create grid for this GC
 !  ------------------------
-
-!_VERIFY(STATUS)
-         call ESMF_ConfigGetAttribute(cf, value=NX, &
-               Label="NX:", rc=status)
-         call ESMF_ConfigGetAttribute(cf, value=NY, &
-               Label="NY:", rc=status)
-         call ESMF_ConfigGetAttribute(cf, value=IM, &
-               Label="IM:", rc=status)
-         call ESMF_ConfigGetAttribute(cf, value=JM, &
-               Label="JM:", rc=status)
-         call ESMF_ConfigGetAttribute(cf, value=LM, &
-               Label="LM:", default=72, rc=status)
-         _VERIFY(STATUS)
-         !if (jm == 6*im) call GetWeights_init(6,1,IM,IM,LM,NX,NY,.true.,.false.,MPI_COMM_WORLD)
-
          call MAPL_GridCreate(GC, rc=status)
          _VERIFY(STATUS)
-         call ESMF_GridCompGet(GC, grid=grid, rc=status)
-         _VERIFY(STATUS)
-         !allocate(ak(lm+1),stat=status)
-         !_VERIFY(STATUS)
-         !allocate(bk(lm+1),stat=status)
-         !_VERIFY(STATUS)
-         !call set_eta(lm,ls,ptop,pint,ak,bk)
-         !call ESMF_AttributeSet(grid,name='GridAK', itemCount=LM+1, &
-               !valuelist=ak,rc=status)
-         !_VERIFY(STATUS)
-         !call ESMF_AttributeSet(grid,name='GridBK', itemCount=LM+1, &
-               !valuelist=bk,rc=status)
-         !_VERIFY(STATUS)
-
 !  Initialize MAPL Generic
 !  -----------------------
          call MAPL_GenericInitialize ( GC, IMPORT, EXPORT, clock, RC=status)
@@ -374,52 +354,44 @@ MODULE ExtDataUtRoot_GridCompMod
 
       END SUBROUTINE Run_
 
-   subroutine AddState(gc,cf,stateType,rc)
+   subroutine AddState(gc,input_file,state_type,rc)
       type(ESMF_GridComp), intent(inout) :: gc
-      type(ESMF_Config), intent(inout) :: cf
-      character(len=*), intent(in) :: stateType
+      character(len=*), intent(in) :: input_file
+      character(len=*), intent(in) :: state_type
       integer, intent(out), optional :: rc
 
-      character(len=*), parameter :: Iam = __FILE__//'::AddState'
       integer :: status
 
       type(VarspecDescriptionVector) :: VarspecVec
       type(VarspecDescriptionVectorIterator) :: Iter
       type(VarspecDescription) :: VarspecDescr
       type(VarspecDescription), pointer :: VarspecPtr
-      integer :: nrows,ncolumn,i
 
-      if (trim(stateType) == 'IMPORT') then
-         call ESMF_ConfigGetDim(cf,nrows,ncolumn,label="IMPORT_STATE::",rc=status)
-         if (status==ESMF_SUCCESS) then
-            call ESMF_ConfigFindLabel(cf,label="IMPORT_STATE::",rc=status)
-            do i=1,nrows
-               call ESMF_ConfigNextLine(cf,rc=status)
-               _VERIFY(status)
-               VarspecDescr = VarspecDescription(CF,ncolumn,rc)
-               _VERIFY(status)
-               call VarspecVec%push_back(VarspecDescr)
-            enddo
-         end if
+      type(parser) :: p
+      class(YAML_Node), allocatable :: config
+      class(YAML_Node), pointer :: state_map,current_spec
+      class(NodeIterator), allocatable :: spec_iter
+      character(len=:), pointer :: key
+
+      _ASSERT(state_type == "EXPORT" .or. state_type == "IMPORT","wrong type")
+      p = parser('core')
+      config = p%load(input_file,_RC)
+      if (config%has(trim(state_type))) then
+         state_map => config%of(trim(state_type))
+         spec_iter = state_map%begin()
+         do while (spec_iter /= state_map%end())
+            key => to_string(spec_iter%first(),_RC)
+            current_spec => spec_iter%second()
+            VarspecDescr = VarspecDescription(key,current_spec,_RC)
+            call VarspecVec%push_back(VarspecDescr)
+            call spec_iter%next()
+         enddo
       end if
-      if (trim(stateType) == 'EXPORT') then
-         call ESMF_ConfigGetDim(cf,nrows,ncolumn,label="EXPORT_STATE::",rc=status)
-         if (status==ESMF_SUCCESS) then
-         call ESMF_ConfigFindLabel(cf,label="EXPORT_STATE::",rc=status)
-            do i=1,nrows
-               call ESMF_ConfigNextLine(cf,rc=status)
-               _VERIFY(status)
-               VarspecDescr = VarspecDescription(CF,ncolumn,rc)
-               _VERIFY(status)
-               call VarspecVec%push_back(VarspecDescr)
-            enddo
-         endif
-      end if
+
       iter = VarspecVec%begin()
       do while (iter /= VarspecVec%end())
          VarspecPtr => iter%get()
-         call VarspecPtr%addNewSpec(gc,stateType,rc=status)
-         _VERIFY(status)
+         call VarspecPtr%addNewSpec(gc,state_type,_RC)
          call iter%next()
       end do
 

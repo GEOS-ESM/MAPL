@@ -8,6 +8,7 @@ module VarspecDescriptionMod
    use MAPL
    use ESMF
    use gFTL_StringVector
+   use yaFYaml
    implicit none
    private
 
@@ -26,69 +27,51 @@ contains
 
    ! have to pass in the number of words on the config line because
    ! of a config bug, config really sucks
-   function new_VarspecDescriptionFromConfig(cf,nwords,rc) result(VarspecDescr)
+   function new_VarspecDescriptionFromConfig(short_name,spec,rc) result(VarspecDescr)
       type(VarspecDescription) :: VarspecDescr
-      type(ESMF_Config), intent(inout) :: cf
-      integer, intent(in) :: nwords
-      logical :: lcomp
+      character(len=*), intent(in) :: short_name
+      class(YAML_Node), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
-      character(len=*), parameter :: Iam = 'new_VarspecDescriptionFromConfig'
       integer :: status
+      character(len=:), allocatable :: topology, levels, tempc
 
-      type(StringVector) :: svec
-      integer :: i
-      character(ESMF_MAXSTR) :: tmpstring
-
-      do i=1,nwords
-         call ESMF_ConfigGetAttribute(cf,tmpstring,rc=status)
-         _VERIFY(status)
-         if (trim(tmpstring)==',') cycle
-         call svec%push_back(trim(tmpstring))
-      enddo
-
-      lcomp = (svec%size()==5 .or. svec%size()==7)
-      _ASSERT(lcomp)
-      VarspecDescr%short_name = svec%at(1)
-      VarspecDescr%long_name = svec%at(2)
-      VarspecDescr%units = svec%at(3)
-      tmpstring = svec%at(4)
-      if (trim(tmpstring) == 'xy') then
-         VarspecDescr%dims = MAPL_DimsHorzOnly
-      else if (trim(tmpstring) == 'xyz') then
-         VarspecDescr%dims = MAPL_DimsHorzVert
-      end if
-      tmpstring = svec%at(5)
-      if (trim(tmpstring) == 'none') then
-         VarspecDescr%location = MAPL_VLocationNone
-      else if (trim(tmpstring) == 'c') then
-         VarspecDescr%location = MAPL_VLocationCenter
-      else if (trim(tmpstring) == 'e') then
-         VarspecDescr%location = MAPL_VLocationEdge
-      end if
-
-      if (svec%size() == 7) then
-         tmpstring = svec%at(6)
-         if (trim(tmpstring)== 'agrid') then
-            VarspecDescr%staggering = MAPL_AGrid
-         else if (trim(tmpstring)== 'cgrid') then
-            VarspecDescr%staggering = MAPL_CGrid
-         else if (trim(tmpstring)== 'dgrid') then
-            VarspecDescr%staggering = MAPL_DGrid
-         end if
-
-         tmpstring = svec%at(7)
-         if (trim(tmpstring)== 'grid_aligned') then
-            VarspecDescr%rotation = MAPL_RotateCube
-         else if (trim(tmpstring)== 'latlon_aligned') then
-            VarspecDescr%rotation = MAPL_RotateLL
-         end if
-
+      VarspecDescr%short_name = short_name
+      if (spec%has("LONG_NAME")) then
+         tempc = spec%of("LONG_NAME")
+         VarspecDescr%long_name = tempc
       else
-         VarspecDescr%staggering = MAPL_AGrid
-         VarspecDescr%rotation = MAPL_AGrid
+         VarspecDescr%long_name = "unknown"
       end if
- 
+      if (spec%has("UNITS")) then
+         tempc = spec%of("UNITS")
+         VarspecDescr%units = tempc
+      else
+         VarspecDescr%units = "unknown"
+      end if
+      if (spec%has("TOPOLOGY")) then
+         topology = spec%of("TOPOLOGY")
+      else
+         topology = "gridded"
+      end if
+      if (spec%has("LEVELS")) then
+         levels = spec%of("LEVELS")
+      else
+         levels = "none"
+      end if
+      if (trim(topology)=="gridded") then
+         if (levels == "none") then
+            VarspecDescr%dims = MAPL_DimsHorzOnly
+            VarspecDescr%location = MAPL_VLocationNone
+         else if (levels == "center") then
+            VarspecDescr%dims = MAPL_DimsHorzVert
+            VarspecDescr%location = MAPL_VLocationCenter
+         else if (levels == "edge") then
+            VarspecDescr%dims = MAPL_DimsHorzVert
+            VarspecDescr%location = MAPL_VLocationEdge
+         end if
+      end if 
+      _RETURN(_SUCCESS)
 
    end function new_VarspecDescriptionFromConfig
 
