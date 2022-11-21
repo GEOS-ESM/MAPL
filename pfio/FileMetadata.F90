@@ -443,10 +443,19 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type (StringVariableMapIterator) :: iter
+      type(StringVectorIterator)      :: viter
+      type(StringVariableMapIterator) :: miter
 
-      iter = this%variables%find(var_name)
-      call  this%variables%erase(iter)
+      viter = this%order%begin()
+      do while (viter /= this%order%end())
+         if ( var_name == viter%get() ) then
+           call  this%order%erase(viter)
+           exit
+         endif
+         call viter%next()
+      enddo
+      miter = this%variables%find(var_name)
+      call  this%variables%erase(miter)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
