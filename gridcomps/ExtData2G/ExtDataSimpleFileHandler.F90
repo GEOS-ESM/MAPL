@@ -65,7 +65,7 @@ contains
             target_time = this%valid_range(2)
             get_right = .false.
             in_range = .false.
-            if (right_was_set) get_left=.false.
+            if (left_was_set) get_left=.false.
             call bracket%set_parameters(intermittent_disable=.true.)
          end if
       else

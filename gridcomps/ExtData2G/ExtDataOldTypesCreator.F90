@@ -72,7 +72,7 @@ module MAPL_ExtDataOldTypesCreator
       type(ExtDataSimpleFileHandler) :: simple_handler
       type(ExtDataClimFileHandler) :: clim_handler
       integer :: status, semi_pos
-      logical :: disable_interpolation, get_range
+      logical :: disable_interpolation, get_range, exact
 
       _UNUSED_DUMMY(unusable)
       rule => this%rule_map%at(trim(item_name))
@@ -132,16 +132,12 @@ module MAPL_ExtDataOldTypesCreator
            time_sample%refresh_frequency, time_sample%refresh_offset, time, clock, _RC)
 
       disable_interpolation =  .not.time_sample%time_interpolation 
+      exact = time_sample%exact
 
-      call primary_item%modelGridFields%comp1%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation)
-               !if (trim(current_file) == file_not_found) then
-                  !call bracket%set_node('R',file=file_not_found,time=target_time,_RC)
-                  !bracket%new_file_right = .true.
-                  !_RETURN(_SUCCESS)
-               !end if
-      call primary_item%modelGridFields%comp2%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation)
-      call primary_item%modelGridFields%auxiliary1%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation)
-      call primary_item%modelGridFields%auxiliary2%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation)
+      call primary_item%modelGridFields%comp1%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation,exact=exact)
+      call primary_item%modelGridFields%comp2%set_parameters(linear_trans=rule%linear_trans,disable_interpolation=disable_interpolation,exact=exact)
+      call primary_item%modelGridFields%auxiliary1%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation,exact=exact)
+      call primary_item%modelGridFields%auxiliary2%set_parameters(linear_trans=rule%linear_trans, disable_interpolation=disable_interpolation,exact=exact)
 
       ! file_template
       primary_item%isConst = .false.
