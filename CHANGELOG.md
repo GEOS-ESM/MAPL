@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed the subroutine that removes a variable from FileMetadata Object
 - Defined real64 constants in consistent way
 - Workarounds for NVIDIA compiler
 
