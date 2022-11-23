@@ -49,7 +49,7 @@ contains
       if (config%has("exact")) then
          TimeSample%exact = config%of("exact")
       else
-         TimeSample%exact = .true.
+         TimeSample%exact = .false.
       end if
 
       if (config%has("update_reference_time")) TimeSample%refresh_time=config%of("update_reference_time")

@@ -102,7 +102,6 @@ contains
       end if
       time_index=time_not_found
       if (trim(filename) == file_not_found) then
-         time_index = 1
          _RETURN(_SUCCESS)
       end if
 
@@ -169,5 +168,4 @@ contains
 
   end subroutine make_metadata
  
-
 end module MAPL_ExtdataAbstractFileHandler

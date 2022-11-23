@@ -40,7 +40,7 @@ contains
       integer :: time_index
       character(len=ESMF_MAXPATHLEN) :: current_file
       logical :: get_left, get_right,in_range,left_was_set,right_was_set
-      type(ESMF_Time) :: target_time
+      type(ESMF_Time) :: target_time,ghost_time
       logical :: allow_missing_file
 
       get_left=.true.
@@ -99,18 +99,27 @@ contains
          end if
       else
          if (get_left) then
-            call this%get_file(current_file,target_time,0,allow_missing_file,_RC)
+            call this%get_file(current_file,target_time,0,allow_missing_file,ghost_time=ghost_time,_RC)
             call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
-            if (time_index == time_not_found) then
-               call this%get_file(current_file,target_time,-1,allow_missing_file,_RC)
-               call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
-               _ASSERT(time_index/=time_not_found,"Time not found in file")
-            end if
+            if (current_file == file_not_found) time=ghost_time
+
             call bracket%set_node('L',file=current_file,time_index=time_index,time=time,was_set=.true.,_RC)
             if (in_range .and. (bracket%left_node == bracket%right_node)) then
-               call bracket%swap_node_fields(rc=status)
-               _VERIFY(status)
+               call bracket%swap_node_fields(_RC)
+               bracket%new_file_left = .false.
             else
+               if (time_index == time_not_found ) then
+                  call this%get_file(current_file,target_time,-1,allow_missing_file,_RC)
+                  call this%get_time_on_file(current_file,target_time,'L',time_index,time,_RC)
+                  if (time_index == time_not_found) then
+                     if (allow_missing_file) then
+                        time = ghost_time
+                     else
+                        _FAIL("Time not found in file")
+                     end if
+                  end if
+               end if
+               call bracket%set_node('L',file=current_file,time_index=time_index,time=time,was_set=.true.,_RC)
                bracket%new_file_left=.true.
             end if
          end if
@@ -119,9 +128,15 @@ contains
             call this%get_file(current_file,target_time,0,allow_missing_file,_RC)
             call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
             if (time_index == time_not_found) then
-               call this%get_file(current_file,target_time,1,allow_missing_file,_RC)
+               call this%get_file(current_file,target_time,1,allow_missing_file,ghost_time,_RC)
                call this%get_time_on_file(current_file,target_time,'R',time_index,time,_RC)
-               _ASSERT(time_index /= time_not_found,"Time not found in file")
+               if (time_index == time_not_found) then
+                  if (allow_missing_file) then
+                     time = ghost_time
+                  else
+                     _FAIL("Time not found in file")
+                  end if
+               end if
             end if
             call bracket%set_node('R',file=current_file,time_index=time_index,time=time,was_set=.true.,_RC)
             bracket%new_file_right=.true.
@@ -133,12 +148,13 @@ contains
    
    end subroutine get_file_bracket
 
-   subroutine get_file(this,filename,input_time,shift,allow_missing_file,rc)
+   subroutine get_file(this,filename,input_time,shift,allow_missing_file,ghost_time,rc)
       class(ExtdataSimpleFileHandler), intent(inout) :: this
       character(len=*), intent(out) :: filename
       type(ESMF_Time) :: input_time
       integer, intent(in) :: shift
       logical, intent(in) :: allow_missing_file
+      type(ESMF_Time), intent(out), optional :: ghost_time
       integer, intent(out), optional :: rc
 
       type(ESMF_Time) :: ftime
@@ -164,6 +180,7 @@ contains
       if (.not.file_found) then
          if (allow_Missing_file) then
             filename = file_not_found 
+            if (present(ghost_time)) ghost_time = ftime
          else
             _FAIL("get_file did not file a file using: "//trim(this%file_template))
          end if

@@ -1616,7 +1616,7 @@ CONTAINS
         else
            call item%modelGridFields%comp1%get_parameters('R',file=file_right)
            if (trim(file_right) /= file_not_found) then
-              filename = file_left
+              filename = file_right
               found_file = .true.
            end if
         end if
