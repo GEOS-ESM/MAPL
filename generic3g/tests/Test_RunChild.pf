@@ -58,10 +58,9 @@ contains
    ! MAPL_run_child() is called from withis _user_ gridcomps.
    subroutine test_MAPL_run_child(this)
       class(MpiTestMethod), intent(inout) :: this
-      type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
 
-      integer :: status, rc
+      integer :: status
 
       call setup(this, rc=status)
       @assert_that(status, is(0))
@@ -76,10 +75,9 @@ contains
    @test(npes=[0])
    subroutine test_MAPL_Run_child_other_phase(this)
       class(MpiTestMethod), intent(inout) :: this
-      type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
 
-      integer :: status, rc
+      integer :: status
 
       call setup(this, rc=status)
       @assert_that(status, is(0))
@@ -98,7 +96,7 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
 
-      integer :: status, rc
+      integer :: status
 
       call setup(this, rc=status)
       @assert_that(status, is(0))
@@ -117,7 +115,7 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
 
-      integer :: status, rc
+      integer :: status
 
       call setup(this, rc=status)
       @assert_that(status, is(0))

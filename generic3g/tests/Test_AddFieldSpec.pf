@@ -15,7 +15,6 @@ contains
    ! is to pass.
    subroutine test_add_one_field()
       type(StateSpec) :: state_spec
-      type(ExtraDimsSpec) :: dims_spec
       type(ESMF_Grid) :: grid
       call state_spec%add_item('A', FieldSpec(ExtraDimsSpec(), grid))
    end subroutine test_add_one_field
@@ -30,7 +29,6 @@ contains
    subroutine test_get_item()
       use mapl3g_stateitemspecmap
       type(StateSpec) :: state_spec
-      type(ExtraDimsSpec) :: dims_spec
       class(AbstractStateItemSpec), pointer :: item_spec
 
       type(FieldSpec) :: field_spec

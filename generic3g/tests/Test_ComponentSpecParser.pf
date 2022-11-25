@@ -19,7 +19,6 @@ contains
    subroutine test_parse_setServices()
       type(Parser) :: p
       class(YAML_Node), allocatable :: config
-      integer :: status
       class(DSOSetServices), allocatable :: ss_expected
 
       p = Parser('core')
@@ -34,7 +33,6 @@ contains
    subroutine test_parse_setServices_default()
       type(Parser) :: p
       class(YAML_Node), allocatable :: config
-      integer :: status
       class(DSOSetServices), allocatable :: ss_expected
 
       p = Parser('core')
@@ -71,7 +69,6 @@ contains
    @test
    subroutine test_equal_child_spec_cfg_differs()
       class(AbstractUserSetServices), allocatable :: ss
-      class(AbstractUserSetServices), allocatable :: ss_B
 
       type(ChildSpec) :: a, b
       
@@ -120,8 +117,7 @@ contains
       type(Parser) :: p
       class(YAML_Node), allocatable :: config
       type(ChildSpec) :: found
-      integer :: status, rc
-
+      integer :: rc, status
       type(ChildSpec) :: expected
 
       p = Parser('core')
@@ -178,7 +174,6 @@ contains
    @test
    subroutine test_parse_ChildSpecMap_empty()
       type(ChildSpecMap) :: expected, found
-      class(YAML_Node), pointer :: config
       integer :: status, rc
 
       found = parse_ChildSpecMap(null(), _RC)
@@ -234,15 +229,15 @@ contains
       use mapl3g_ExtraDimsSpec
 
       type(Parser) :: p
-      class(YAML_Node), target, allocatable :: config
-      class(YAML_Node), pointer :: cfg_ptr
-      type(ChildSpecMap) :: expected, found
-      integer :: status, rc
-      type(ExtraDimsSpec) :: dims_spec
+!!$      class(YAML_Node), target, allocatable :: config
+!!$      class(YAML_Node), pointer :: cfg_ptr
+!!$      type(ChildSpecMap) :: expected, found
+!!$      integer :: status, rc
+!!$      type(ExtraDimsSpec) :: dims_spec
 
       p = Parser('core')
       ! Simulate usage for emtpy config
-      cfg_ptr => null()
+!!$      cfg_ptr => null()
 
 !!$      dims_spec = parse_ExtraDimsSpec(cfg_ptr, rc=status)
 !!$      @assert_that(status, is(0))
