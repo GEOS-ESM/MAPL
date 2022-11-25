@@ -67,7 +67,6 @@ contains
       type(ConnectionPoint), intent(in) :: conn_pt
 
       integer :: status
-      type(StateItemSpecPtr), pointer :: wrap
 
       ! failure is ok; return null ptr
       spec_ptr => this%specs_map%at(conn_pt, rc=status)
@@ -153,7 +152,6 @@ contains
       class(HierarchicalRegistry), target :: subregistry
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(RegistryPtr) :: wrap
 
       _ASSERT(.not. this%has_subregistry(name), 'Duplicate subregistry entry.')
@@ -190,8 +188,6 @@ contains
       class(HierarchicalRegistry), target, intent(in) :: this
       type(ConnectionPoint), intent(in) :: conn_pt
 
-      type(RegistryPtr), pointer :: wrap
-
       subregistry => this%get_subregistry(conn_pt%component_name)
 
    end function get_subregistry_conn
@@ -209,9 +205,9 @@ contains
       type(ConnectionSpec), intent(in) :: connection
       integer, optional, intent(out) :: rc
 
-      integer :: status
       class(AbstractRegistry), pointer :: src_registry, dst_registry
       class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
+      integer :: status
 
       associate(src_pt => connection%source, dst_pt => connection%destination)
         src_registry => this%get_subregistry(src_pt)
@@ -240,8 +236,8 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
       class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
+      integer :: status
       
       associate (src_pt => connection%source, dst_pt => connection%destination)
         dst_spec => this%get_item_spec(dst_pt)
@@ -265,8 +261,6 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
       type(StateItemSpecPtr), pointer :: dst_wrap, src_wrap
 
       associate (src_pt => connection%source, dst_pt => connection%destination)
@@ -290,8 +284,8 @@ contains
       type(ConnectionPoint), intent(in) :: conn_pt
       integer, optional, intent(out) :: rc
 
-      integer :: status
       class(AbstractRegistry), pointer :: subregistry
+      integer :: status
 
       _ASSERT(conn_pt%is_import(), 'Cannot terminate import on item that is not an import.')
 

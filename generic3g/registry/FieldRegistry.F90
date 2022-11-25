@@ -50,7 +50,6 @@ contains
       class(AbstractStateItemSpec), target, intent(in) :: spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(StateItemSpecPtr) :: wrap
 
 
@@ -70,8 +69,8 @@ contains
       class(FieldRegistry), intent(in) :: this
       type(ConnectionPoint), intent(in) :: conn_pt
 
-      integer :: status
       type(StateItemSpecPtr), pointer :: wrap
+      integer :: status
 
       ! failure is ok; return null ptr
       wrap => this%specs_map%at(conn_pt, rc=status)
@@ -135,13 +134,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
       type(StateItemSpecPtr), pointer :: dst_wrap, src_wrap
 
       dst_wrap => this%specs_map%of(dst_pt)
       src_wrap => this%specs_map%of(src_pt)
       call dst_wrap%ptr%connect_to(src_wrap%ptr, _RC)
-!!$      dst_wrap%ptr = src_wrap%ptr
       
       _RETURN(_SUCCESS)
    end subroutine update_spec
@@ -152,8 +149,6 @@ contains
       type(ConnectionPoint), intent(in) :: dst_pt
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
       type(StateItemSpecPtr), pointer :: dst_wrap, src_wrap
 
       dst_wrap => this%specs_map%of(dst_pt)

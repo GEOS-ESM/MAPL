@@ -126,10 +126,10 @@ contains
       integer, optional, intent(out) :: rc
 
 
-      type(StringVectorIterator) :: iter
-      character(:), pointer :: substate_name
-      integer :: itemcount
-      integer :: status
+!!$      type(StringVectorIterator) :: iter
+!!$      character(:), pointer :: substate_name
+!!$      integer :: itemcount
+!!$      integer :: status
 
 !!$      innermost_state = state
 !!$      associate (e => substates%end())
@@ -183,7 +183,7 @@ contains
       type(ConnectionSpec) :: conn
       integer, optional, intent(out) :: rc
 
-      integer :: status
+!!$      integer :: status
 
 !!$      src_comp => this%get_source_comp(connection)
 !!$      dst_comp => this%get_dest_comp(connection)

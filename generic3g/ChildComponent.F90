@@ -1,6 +1,5 @@
 module mapl3g_ChildComponent
    use :: esmf
-   use yaFyaml, only: YAML_Node
    implicit none
    private
 

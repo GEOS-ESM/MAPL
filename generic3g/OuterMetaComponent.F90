@@ -179,8 +179,6 @@ contains
       class(OuterMetaComponent), intent(out) :: this
       type(ESMF_GridComp), intent(inout) :: gridcomp
 
-      character(ESMF_MAXSTR) :: name
-
       this%self_gridcomp = gridcomp
       call initialize_phases_map(this%phases_map)
 
@@ -208,7 +206,7 @@ contains
       character(len=*), optional, intent(in) :: phase_name
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
+      integer :: status
       type(ChildComponent) :: child
 
       child = this%get_child(child_name, _RC)
@@ -387,8 +385,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
-
+!!$      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
+!!$
 !!$      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
 !!$      call apply_to_children(this, set_child_grid, _RC)
 
@@ -407,8 +405,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
-
+!!$      character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
+!!$
 !!$      call run_user_phase(this, importState, exportState, clock, PHASE_NAME, _RC)
 !!$      call apply_to_children(this, set_child_grid, _RC)
 
@@ -472,9 +470,7 @@ contains
       type(ESMF_Clock), optional :: clock
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
-      type(ChildComponent), pointer :: child
-      type(ChildComponentMapIterator) :: iter
+      integer :: status
 
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
 
@@ -507,9 +503,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, userRC
-      integer :: phase
-      type(ChildComponent), pointer :: child
-
       
       associate (phase => get_phase_index(this%phases_map%of(ESMF_METHOD_INITIALIZE), phase_name=phase_name, rc=status))
         if (status == _SUCCESS) then
@@ -605,7 +598,6 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status, userRC
 
       _RETURN(ESMF_SUCCESS)
    end subroutine read_restart
@@ -619,8 +611,6 @@ contains
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
-
-      integer :: status, userRC
 
       _RETURN(ESMF_SUCCESS)
    end subroutine write_restart
