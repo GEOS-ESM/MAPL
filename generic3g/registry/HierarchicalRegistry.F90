@@ -48,17 +48,21 @@ module mapl3g_HierarchicalRegistry
       module procedure new_HierarchicalRegistry_children
    end interface HierarchicalRegistry
 
+   ! Submodule implementations
+   interface
+      module function new_HierarchicalRegistry_children(children, rc) result(registry)
+         use mapl3g_ChildComponentMap
+         type(HierarchicalRegistry) :: registry
+         type(ChildComponentMap), intent(in) :: children
+         integer, optional, intent(out) :: rc
+      end function
+   end interface
+
 contains
 
    function new_HierarchicalRegistry_leaf() result(registry)
       type(HierarchicalRegistry) :: registry
    end function new_HierarchicalRegistry_leaf
-
-   function new_HierarchicalRegistry_children(subregistries) result(registry)
-      type(HierarchicalRegistry) :: registry
-      type(RegistryPtrMap), intent(in) :: subregistries
-      registry%subregistries = subregistries
-   end function new_HierarchicalRegistry_children
 
       
    function get_item_spec_ptr(this, conn_pt) result(spec_ptr)

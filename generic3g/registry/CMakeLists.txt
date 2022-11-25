@@ -13,4 +13,5 @@ target_sources(MAPL.generic3g PRIVATE
   RegistryPtr.F90
   RegistryPtrMap.F90
   HierarchicalRegistry.F90
+  HierarchicalRegistry_smod.F90
 )
