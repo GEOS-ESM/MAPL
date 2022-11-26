@@ -13,6 +13,7 @@ module mapl3g_OuterMetaComponent
    use mapl3g_ChildComponentMap, only: ChildComponentMapIterator
    use mapl3g_ChildComponentMap, only: operator(/=)
    use mapl3g_AbstractStateItemSpec
+   use mapl3g_RelativeConnectionPoint
    use mapl3g_ConnectionPoint
    use mapl3g_ConnectionSpec
    use mapl3g_HierarchicalRegistry
@@ -98,6 +99,7 @@ module mapl3g_OuterMetaComponent
       procedure :: get_gridcomp
       procedure :: is_root
       procedure :: get_registry
+      procedure :: get_subregistries
 
    end type OuterMetaComponent
 
@@ -706,12 +708,8 @@ contains
       _ASSERT(count(state_intent == ['import  ' ,'export  ', 'internal']) == 1, 'invalid state intent')
       _ASSERT(is_valid_name(short_name), 'Short name <' // short_name //'> does not conform to GEOS standards.')
 
-      associate(comp_name => this%get_name())
-      
-        associate (conn_pt => ConnectionPoint(comp_name, state_intent, short_name))
-          call this%component_spec%add_state_item_spec(conn_pt, spec)
-        end associate
-
+      associate (conn_pt => RelativeConnectionPoint(state_intent, short_name))
+        call this%component_spec%add_state_item_spec(conn_pt, spec)
       end associate
 
       _RETURN(_SUCCESS)
@@ -748,5 +746,37 @@ contains
 
       r => this%registry
    end function get_registry
+
+   subroutine get_subregistries(this, subregistries, rc)
+      use mapl3g_RegistryPtrMap
+      use mapl3g_RegistryPtr
+      class(OuterMetaComponent), intent(in) :: this
+      type(RegistryPtrMap), intent(out) :: subregistries
+      integer, optional, intent(out) :: rc
+
+      type(ChildComponentMapIterator) :: iter
+      character(:), pointer :: name
+      type(ChildComponent), pointer :: child
+      type(Outermetacomponent), pointer :: child_meta
+      type(RegistryPtr) :: wrap
+      
+      associate (e => this%children%end())
+        iter = this%children%begin()
+
+        do while (iter /= e)
+           name => iter%first()
+           child => iter%second()
+           child_meta => get_outer_meta(child%gridcomp)
+           wrap%registry => child_meta%get_registry()
+
+           call subregistries%insert(name, wrap)
+
+           call iter%next()
+        end do
+
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine get_subregistries
 
 end module mapl3g_OuterMetaComponent

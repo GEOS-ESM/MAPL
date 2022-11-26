@@ -4,8 +4,9 @@ module mapl3g_HierarchicalRegistry
    use mapl3g_AbstractRegistry
    use mapl3g_AbstractStateItemSpec
    use mapl3g_StateItemSpecPtr
-   use mapl3g_ConnPtStateItemPtrMap
+   use mapl3g_RelConnPtStateItemPtrMap
    use mapl3g_ConnectionPoint
+   use mapl3g_RelativeConnectionPoint
    use mapl3g_StateItemVector
    use mapl3g_RegistryPtr
    use mapl3g_RegistryPtrMap
@@ -20,8 +21,7 @@ module mapl3g_HierarchicalRegistry
    type, extends(AbstractRegistry) :: HierarchicalRegistry
       private
       type(StateItemVector) :: specs
-      type(ConnPtStateItemPtrMap) :: specs_map
-
+      type(RelConnPtStateItemPtrMap) :: specs_map
       type(RegistryPtrMap) :: subregistries
    contains
       procedure :: get_item_spec_ptr
@@ -45,7 +45,7 @@ module mapl3g_HierarchicalRegistry
 
    interface HierarchicalRegistry
       module procedure new_HierarchicalRegistry_leaf
-      module procedure new_HierarchicalRegistry_children
+      module procedure new_HierarchicalRegistry_subregistries
    end interface HierarchicalRegistry
 
    ! Submodule implementations
@@ -65,10 +65,18 @@ contains
    end function new_HierarchicalRegistry_leaf
 
       
+   function new_HierarchicalRegistry_subregistries(subregistries) result(registry)
+      type(HierarchicalRegistry) :: registry
+      type(RegistryPtrMap), intent(in) :: subregistries
+
+      registry%subregistries = subregistries
+   end function new_HierarchicalRegistry_subregistries
+
+      
    function get_item_spec_ptr(this, conn_pt) result(spec_ptr)
       class(StateItemSpecPtr), pointer :: spec_ptr
       class(HierarchicalRegistry), intent(in) :: this
-      type(ConnectionPoint), intent(in) :: conn_pt
+      type(RelativeConnectionPoint), intent(in) :: conn_pt
 
       integer :: status
 
@@ -80,7 +88,7 @@ contains
    function get_item_spec(this, conn_pt) result(spec)
       class(AbstractStateItemSpec), pointer :: spec
       class(HierarchicalRegistry), intent(in) :: this
-      type(ConnectionPoint), intent(in) :: conn_pt
+      type(RelativeConnectionPoint), intent(in) :: conn_pt
 
       integer :: status
       type(StateItemSpecPtr), pointer :: wrap
@@ -97,7 +105,7 @@ contains
 
    subroutine add_item_spec(this, conn_pt, spec, rc)
       class(HierarchicalRegistry), intent(inout) :: this
-      type(ConnectionPoint), intent(in) :: conn_pt
+      type(RelativeConnectionPoint), intent(in) :: conn_pt
       class(AbstractStateItemSpec), target, intent(in) :: spec
       integer, optional, intent(out) :: rc
 
@@ -119,13 +127,13 @@ contains
 
    logical function has_item_spec(this, conn_pt)
       class(HierarchicalRegistry), intent(in) :: this
-      type(ConnectionPoint), intent(in) :: conn_pt
+      type(RelativeConnectionPoint), intent(in) :: conn_pt
       has_item_spec = (this%specs_map%count(conn_pt) > 0)
    end function has_item_spec
 
    subroutine set_active(this, conn_pt, unusable, require_inactive, rc)
       class(HierarchicalRegistry), intent(inout) :: this
-      class(ConnectionPoint), intent(in) :: conn_pt
+      class(RelativeConnectionPoint), intent(in) :: conn_pt
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in) :: require_inactive
       integer, optional, intent(out) :: rc
@@ -159,13 +167,13 @@ contains
       type(RegistryPtr) :: wrap
 
       _ASSERT(.not. this%has_subregistry(name), 'Duplicate subregistry entry.')
-
       wrap%registry => subregistry
       call this%subregistries%insert(name, wrap)
 
       _RETURN(_SUCCESS)
    end subroutine add_subregistry
 
+   ! Returns null() if not found.
    function get_subregistry_comp(this, comp_name) result(subregistry)
       class(AbstractRegistry), pointer :: subregistry
       class(HierarchicalRegistry), target, intent(in) :: this
@@ -174,15 +182,20 @@ contains
       type(RegistryPtr), pointer :: wrap
       integer :: status
 
-      wrap => this%subregistries%at(comp_name,rc=status)
-      if (status /= 0) then
-         _HERE, 'dangerous temporary feature - fix!'
-         
+      if (comp_name == SELF) then
          subregistry => this
          return
       end if
+      
+      wrap => this%subregistries%at(comp_name,rc=status)
+      if (associated(wrap)) then
+         subregistry => wrap%registry
+         return
+      end if
 
-      subregistry => wrap%registry
+      subregistry => null()
+
+      
 
    end function get_subregistry_comp
 
@@ -244,10 +257,10 @@ contains
       integer :: status
       
       associate (src_pt => connection%source, dst_pt => connection%destination)
-        dst_spec => this%get_item_spec(dst_pt)
+        dst_spec => this%get_item_spec(dst_pt%relative_pt)
         _ASSERT(associated(dst_spec), 'no such dst pt')
         
-        src_spec => src_registry%get_item_spec(src_pt)
+        src_spec => src_registry%get_item_spec(src_pt%relative_pt)
         _ASSERT(associated(src_spec), 'no such src pt')
 
         call src_spec%set_active()
@@ -268,11 +281,12 @@ contains
       type(StateItemSpecPtr), pointer :: dst_wrap, src_wrap
 
       associate (src_pt => connection%source, dst_pt => connection%destination)
-        dst_wrap => this%get_item_spec_ptr(dst_pt)
+        dst_wrap => this%get_item_spec_ptr(dst_pt%relative_pt)
+        
         _ASSERT(associated(dst_wrap), 'no such dst pt')
         _ASSERT(associated(dst_wrap%ptr), 'uninitialized dst wrapper')
         
-        src_wrap => src_registry%get_item_spec_ptr(src_pt)
+        src_wrap => src_registry%get_item_spec_ptr(src_pt%relative_pt)
         _ASSERT(associated(src_wrap), 'no such src pt')
         _ASSERT(associated(src_wrap%ptr), 'uninitialized src wrapper')
         
@@ -296,7 +310,7 @@ contains
       subregistry => this%get_subregistry(conn_pt)
       _ASSERT(associated(subregistry), 'Cannot terminate import on unregistered item.')
 
-      call subregistry%set_active(conn_pt, require_inactive=.true., _RC)
+      call subregistry%set_active(conn_pt%relative_pt, require_inactive=.true., _RC)
 
       _RETURN(_SUCCESS)
    end subroutine terminate_import

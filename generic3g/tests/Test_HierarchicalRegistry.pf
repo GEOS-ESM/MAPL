@@ -4,6 +4,7 @@ module Test_HierarchicalRegistry
    use mapl3g_HierarchicalRegistry
    use mapl3g_AbstractStateItemSpec
    use mapl3g_ConnectionPoint
+   use mapl3g_RelativeConnectionPoint
    use mapl3g_ConnectionSpec
    use mapl3g_AbstractActionSpec
    use MockItemSpecMod
@@ -11,11 +12,12 @@ module Test_HierarchicalRegistry
 
 contains
 
-   ! Helpful function to check expected state of registry.
-   logical function check(r, conn_pt, expected)
+   ! Helpful function to check expected state of registry.  Inputs are
+   ! a registry, a connection point, and expected name of mock object.
+   logical function check(r, conn_pt, expected_name)
       type(HierarchicalRegistry), intent(in) :: r 
-      type(ConnectionPoint), intent(in) :: conn_pt
-      character(*), intent(in) :: expected
+      type(RelativeConnectionPoint), intent(in) :: conn_pt
+      character(*), intent(in) :: expected_name
 
       class(AbstractStateItemSpec), pointer :: spec
       check = .false.
@@ -24,7 +26,7 @@ contains
 
       select type(spec)
       type is (MockItemSpec)
-         @assertEqual(expected, spec%name)
+         @assertEqual(expected_name, spec%name)
          check = .true.
       class default
          @assert_that(1,is(2))
@@ -38,7 +40,7 @@ contains
       class(AbstractStateItemSpec), pointer :: spec
 
       r = HierarchicalRegistry()
-      spec => r%get_item_spec(ConnectionPoint('my_gc', 'import', 'a'))
+      spec => r%get_item_spec(RelativeConnectionPoint('import', 'a'))
       @assert_that(associated(spec), is(false()))
       
    end subroutine test_get_item_spec_not_found
@@ -47,11 +49,11 @@ contains
    subroutine test_add_item_duplicate_fail()
       type(HierarchicalRegistry) :: r
       integer :: status
-      type(ConnectionPoint) :: cp
+      type(RelativeConnectionPoint) :: cp
 
       r = HierarchicalRegistry()
 
-      cp = ConnectionPoint('A','A','A')
+      cp = RelativeConnectionPoint('A','A')
       call r%add_item_spec(cp, MockItemSpec('A'), rc=status)
       @assert_that(status, is(0))
       call r%add_item_spec(cp, MockItemSpec('A'), rc=status)
@@ -65,10 +67,10 @@ contains
    subroutine test_get_item_spec_found()
       type(HierarchicalRegistry) :: r
       class(AbstractStateItemSpec), pointer :: spec
-      type(ConnectionPoint) :: cp
+      type(RelativeConnectionPoint) :: cp
 
       r = HierarchicalRegistry()
-      cp = ConnectionPoint('my_gc', 'import', 'a')
+      cp = RelativeConnectionPoint('import', 'a')
       call r%add_item_spec(cp, MockItemSpec('A'))
 
       spec => r%get_item_spec(cp)
@@ -84,11 +86,11 @@ contains
    ! name.
    subroutine test_get_item_spec_multi()
       type(HierarchicalRegistry) :: r 
-      type(ConnectionPoint) :: cp_1, cp_2, cp_3
+      type(RelativeConnectionPoint) :: cp_1, cp_2, cp_3
 
-      cp_1 = ConnectionPoint('A', 'export', 'ae1')
-      cp_2 = ConnectionPoint('A', 'export', 'ae2')
-      cp_3 = ConnectionPoint('A', 'import', 'ai')
+      cp_1 = RelativeConnectionPoint('export', 'ae1')
+      cp_2 = RelativeConnectionPoint('export', 'ae2')
+      cp_3 = RelativeConnectionPoint('import', 'ai')
 
       r = HierarchicalRegistry()
       call r%add_item_spec(cp_1, MockItemSpec('AE1'))
@@ -119,19 +121,36 @@ contains
 
 
    @test
+   subroutine test_get_subregistry_fail_not_found()
+      type(HierarchicalRegistry), target :: child_registry
+      type(HierarchicalRegistry), target :: r
+      class(AbstractRegistry), pointer :: ptr
+      
+      child_registry = HierarchicalRegistry()
+      r = HierarchicalRegistry()
+      
+      call r%add_subregistry('A', child_registry)
+      ptr => r%get_subregistry('B')
+
+      @assert_that(associated(ptr), is(false()))
+      
+   end subroutine test_get_subregistry_fail_not_found
+
+
+   @test
    ! Very simple sibling connection
    subroutine test_connect()
       type(HierarchicalRegistry) :: r
       type(HierarchicalRegistry), target :: r_A, r_B ! child registries
-      type(ConnectionPoint) :: cp_A, cp_B
+      type(RelativeConnectionPoint) :: cp_A, cp_B
 
       integer :: status
       
       call r%add_subregistry('child_A', r_a)
       call r%add_subregistry('child_B', r_b)
 
-      cp_A = ConnectionPoint('child_A', 'export', 'ae')
-      cp_B = ConnectionPoint('child_B', 'import', 'ai')
+      cp_A = RelativeConnectionPoint('export', 'ae')
+      cp_B = RelativeConnectionPoint('import', 'ai')
 
       r_a = HierarchicalRegistry()
       r_b = HierarchicalRegistry()
@@ -141,7 +160,7 @@ contains
       r = HierarchicalRegistry()
       call r%add_subregistry('child_A', r_a)
       call r%add_subregistry('child_B', r_b)
-      call r%add_connection(ConnectionSpec(cp_A, cp_B), rc=status)
+      call r%add_connection(ConnectionSpec(ConnectionPoint('child_A', cp_A), ConnectionPoint('child_B', cp_B)), rc=status)
       @assert_that(status, is(0))
 
       if (.not. check(r_b, cp_B, 'AE')) return
@@ -151,28 +170,28 @@ contains
    @test
    subroutine test_connect_chain()
       type(HierarchicalRegistry) :: r
-      type(HierarchicalRegistry), target :: r_A, r_B, r_grandchild_A
-      type(ConnectionPoint) :: cp_1, cp_2, cp_3
+      type(HierarchicalRegistry), target :: r_A, r_B, r_grandchild
+      type(RelativeConnectionPoint) :: cp_1, cp_2, cp_3
 
       integer :: status
 
-      cp_1 = ConnectionPoint('grandchild_A', 'export', 'ae1')
-      cp_2 = ConnectionPoint('child_A', 'export', 'ae2')
-      cp_3 = ConnectionPoint('child_B', 'import', 'ai')
+      cp_1 = RelativeConnectionPoint('export', 'ae1')
+      cp_2 = RelativeConnectionPoint('export', 'ae2')
+      cp_3 = RelativeConnectionPoint('import', 'ai')
 
-      call r_A%add_subregistry('grandchild_A', r_grandchild_A)
-      call r%add_subregistry('child_A', r_A)
-      call r%add_subregistry('child_B', r_B)
+      call r_A%add_subregistry('grandchild', r_grandchild)
+      call r%add_subregistry('A', r_A)
+      call r%add_subregistry('B', r_B)
       
-      call r_grandchild_A%add_item_spec(cp_1, MockItemSpec('AE1'))
+      call r_grandchild%add_item_spec(cp_1, MockItemSpec('AE1'))
       call r_A%add_item_spec(cp_2, MockItemSpec('AE2'))
       call r_B%add_item_spec(cp_3, MockItemSpec('AI'))
 
       ! E-to-E
-      call r_A%add_connection(ConnectionSpec(cp_1, cp_2), rc=status)
+      call r_A%add_connection(ConnectionSpec(ConnectionPoint('grandchild',cp_1), ConnectionPoint(SELF,cp_2)), rc=status)
       @assert_that(status, is(0))
       ! sibling
-      call r%add_connection(ConnectionSpec(cp_2, cp_3), rc=status)
+      call r%add_connection(ConnectionSpec(ConnectionPoint('A',cp_2), ConnectionPoint('B', cp_3)), rc=status)
       @assert_that(status, is(0))
 
       if (.not. check(r_B, cp_3, 'AE1')) return
@@ -187,7 +206,7 @@ contains
       type(HierarchicalRegistry), target :: r_A, r_B, r_P, r_C
       class(AbstractStateItemSpec), pointer :: spec
 
-      type(ConnectionPoint) :: cp_1, cp_2, cp_3, cp_4
+      type(RelativeConnectionPoint) :: cp_1, cp_2, cp_3, cp_4
       type(ConnectionSpec) :: e2e, i2i, sib
 
       call r%add_subregistry('P', r_P)
@@ -197,10 +216,10 @@ contains
       call r_B%add_subregistry('C', r_C)
 
 
-      cp_1 = ConnectionPoint('A', 'export', 'A1')
-      cp_2 = ConnectionPoint('P', 'export', 'A2')
-      cp_3 = ConnectionPoint('B', 'import', 'A3')
-      cp_4 = ConnectionPoint('C', 'import', 'A4')
+      cp_1 = RelativeConnectionPoint('export', 'A1')
+      cp_2 = RelativeConnectionPoint('export', 'A2')
+      cp_3 = RelativeConnectionPoint('import', 'A3')
+      cp_4 = RelativeConnectionPoint('import', 'A4')
 
       call r_A%add_item_spec(cp_1, MockItemSpec('A1'))
       call r_P%add_item_spec(cp_2, MockItemSpec('A2'))
@@ -210,16 +229,16 @@ contains
         !-------------------------------------------
         !
         !                    sib*
-        !             cp_2   --->    cp_3
+        !          P  cp_2   --->    cp_3  B
         !              ^              |
         !     e2e      |              |     i2i
         !              |              V
-        !             cp_1           cp_4
+        !          A  cp_1           cp_4  C
         !
         !-------------------------------------------
-      e2e = ConnectionSpec(cp_1, cp_2)
-      i2i = ConnectionSpec(cp_4, cp_3)
-      sib = ConnectionSpec(cp_2, cp_3)
+      e2e = ConnectionSpec(ConnectionPoint('A',cp_1), ConnectionPoint(SELF,cp_2))
+      i2i = ConnectionSpec(ConnectionPoint('C',cp_4), ConnectionPoint(SELF,cp_3))
+      sib = ConnectionSpec(ConnectionPoint('P',cp_2), ConnectionPoint('B', cp_3))
 
       spec => r_A%get_item_spec(cp_1) ! ultimate export
       @assert_that(spec%is_active(), is(false()))
@@ -260,10 +279,10 @@ contains
       type(HierarchicalRegistry) :: r
       class(AbstractStateItemSpec), pointer :: spec
 
-      type(ConnectionPoint) :: cp_1, cp_2, cp_3
-           cp_1 = ConnectionPoint('A', 'internal', 'A')
-           cp_2 = ConnectionPoint('A', 'export', 'A')
-           cp_3 = ConnectionPoint('A', 'import', 'A')
+      type(RelativeConnectionPoint) :: cp_1, cp_2, cp_3
+           cp_1 = RelativeConnectionPoint('internal', 'A')
+           cp_2 = RelativeConnectionPoint('export', 'A')
+           cp_3 = RelativeConnectionPoint('import', 'A')
 
         call r%add_item_spec(cp_1, MockItemSpec('A1'))
         call r%add_item_spec(cp_2, MockItemSpec('A2'))
@@ -287,13 +306,13 @@ contains
       type(HierarchicalRegistry), target :: r_child
       class(AbstractStateItemSpec), pointer :: spec
 
-      type (ConnectionPoint) :: cp_3
+      type (RelativeConnectionPoint) :: cp_3
 
-      cp_3 = ConnectionPoint('A', 'import', 'A')
+      cp_3 = RelativeConnectionPoint('import', 'A')
       call r_child%add_item_spec(cp_3, MockItemSpec('A3'))
 
       call r%add_subregistry('A', r_child)
-      call r%terminate_import(cp_3)
+      call r%terminate_import(ConnectionPoint('A', cp_3))
 
       spec => r_child%get_item_spec(cp_3)
       @assert_that(spec%is_active(), is(true()))
@@ -306,14 +325,14 @@ contains
       type(HierarchicalRegistry) :: r
       type(HierarchicalRegistry), target :: r_child
 
-      type (ConnectionPoint) :: cp_3
+      type (RelativeConnectionPoint) :: cp_3
       integer :: status
 
-      cp_3 = ConnectionPoint('A', 'export', 'A')
+      cp_3 = RelativeConnectionPoint('export', 'A')
       call r_child%add_item_spec(cp_3, MockItemSpec('A3'))
 
       call r%add_subregistry('A', r_child)
-      call r%terminate_import(cp_3, rc=status)
+      call r%terminate_import(ConnectionPoint('A', cp_3), rc=status)
 
       @assertExceptionRaised('Cannot terminate import on item that is not an import.')
       @assert_that(status, is(not(0)))
@@ -326,12 +345,12 @@ contains
       type(HierarchicalRegistry) :: r
       type(HierarchicalRegistry), target :: r_child
 
-      type (ConnectionPoint) :: cp_3
+      type (RelativeConnectionPoint) :: cp_3
       integer :: status
 
-      cp_3 = ConnectionPoint('A', 'import', 'A')
+      cp_3 = RelativeConnectionPoint('import', 'A')
       call r%add_subregistry('A', r_child)
-      call r%terminate_import(cp_3, rc=status)
+      call r%terminate_import(ConnectionPoint('A',cp_3), rc=status)
       call assertExceptionRaised('status=1', &
            SourceLocation(__FILE__,__LINE__))
       @assertExceptionRaised('unknown connection point')
@@ -348,10 +367,10 @@ contains
       class(AbstractStateItemSpec), pointer :: dst_spec, src_spec
       class(AbstractActionSpec), allocatable :: action_spec
 
-      type(ConnectionPoint) :: e1, i1
+      type(RelativeConnectionPoint) :: e1, i1
 
-      e1 = ConnectionPoint('A', 'export', 'Q')
-      i1 = ConnectionPoint('B', 'import', 'Q')
+      e1 = RelativeConnectionPoint('export', 'Q')
+      i1 = RelativeConnectionPoint('import', 'Q')
       call r_A%add_item_spec(e1, MockItemSpec('E1','fruit'))
       call r_B%add_item_spec(i1, MockItemSpec('I1','animal'))
 

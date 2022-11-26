@@ -3,12 +3,10 @@
 module mapl3g_ComponentSpec
    use mapl3g_AbstractStateItemSpec
    use mapl3g_RelativeConnectionPoint
-   use mapl3g_ConnectionPoint
-   use mapl3g_ConnectionPointVector
    use mapl3g_ConnectionSpecVector
    use mapl3g_ConnectionSpec
-   use mapl3g_ConnPtStateItemSpecMap
-   use mapl3g_FieldRegistry
+   use mapl3g_RelConnPtStateItemSpecMap
+   use mapl3g_HierarchicalRegistry
    use mapl_ErrorHandling
    use ESMF
    implicit none
@@ -18,7 +16,7 @@ module mapl3g_ComponentSpec
 
    type :: ComponentSpec
 !!$      private
-      type(ConnPtStateItemSpecMap) :: state_item_specs
+      type(RelConnPtStateItemSpecMap) :: state_item_specs
       type(ConnectionSpecVector) :: connections
    contains
       procedure :: add_state_item_spec
@@ -37,7 +35,7 @@ contains
 
    function new_ComponentSpec(state_item_specs, connections) result(spec)
       type(ComponentSpec) :: spec
-      type(ConnPtStateItemSpecMap), optional, intent(in) :: state_item_specs
+      type(RelConnPtStateItemSpecMap), optional, intent(in) :: state_item_specs
       type(ConnectionSpecVector), optional, intent(in) :: connections
 
       if (present(state_item_specs)) spec%state_item_specs = state_item_specs
@@ -47,7 +45,7 @@ contains
 
    subroutine add_state_item_spec(this, conn_pt, spec)
       class(ComponentSpec), intent(inout) :: this
-      type(ConnectionPoint), intent(in) :: conn_pt
+      type(RelativeConnectionPoint), intent(in) :: conn_pt
       class(AbstractStateItemSpec), intent(in) :: spec
       call this%state_item_specs%insert(conn_pt, spec)
    end subroutine add_state_item_spec
@@ -62,12 +60,12 @@ contains
 
    subroutine make_primary_states(this, registry, comp_states, rc)
       class(ComponentSpec), intent(in) :: this
-      type(FieldRegistry), intent(in) :: registry
+      type(HierarchicalRegistry), intent(in) :: registry
       type(ESMF_State), intent(in) :: comp_states
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ConnPtStateItemSpecMapIterator) :: iter
+      type(RelConnPtStateItemSpecMapIterator) :: iter
 
       associate (e => this%state_item_specs%end())
         iter = this%state_item_specs%begin()
@@ -81,22 +79,22 @@ contains
    end subroutine make_primary_states
 
    subroutine add_item_to_state(iter, registry, comp_states, rc)
-      type(ConnPtStateItemSpecMapIterator), intent(in) :: iter
-      type(FieldRegistry), intent(in) :: registry
+      type(RelConnPtStateItemSpecMapIterator), intent(in) :: iter
+      type(HierarchicalRegistry), intent(in) :: registry
       type(ESMF_State), intent(in) :: comp_states
       integer, optional, intent(out) :: rc
 
       class(AbstractStateItemSpec), pointer :: spec
       integer :: status
       type(ESMF_State) :: primary_state
-      type(ConnectionPoint), pointer :: conn_pt
+      type(RelativeConnectionPoint), pointer :: conn_pt
       
       conn_pt => iter%first()
       spec => registry%get_item_spec(conn_pt)
       _ASSERT(associated(spec), 'invalid connection point')
 
-      call ESMF_StateGet(comp_states, itemName=conn_pt%state_intent, nestedState=primary_state, _RC)
-      call add_to_state(primary_state, conn_pt%relative_pt, spec, _RC)
+      call ESMF_StateGet(comp_states, itemName=conn_pt%state_intent(), nestedState=primary_state, _RC)
+      call add_to_state(primary_state, conn_pt, spec, _RC)
       
       _RETURN(_SUCCESS)
    end subroutine add_item_to_state

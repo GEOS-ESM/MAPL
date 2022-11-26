@@ -15,7 +15,6 @@ set (test_srcs
 
   Test_ConnectionPoint.pf
   Test_FieldDictionary.pf
-  Test_FieldRegistry.pf
   Test_GenericInitialize.pf
 
   Test_HierarchicalRegistry.pf

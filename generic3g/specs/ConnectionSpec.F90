@@ -5,6 +5,8 @@ module mapl3g_ConnectionSpec
 
    public :: ConnectionSpec
    public :: is_valid
+   public :: SELF ! For EtoE and ItoI type connections
+
 !!$   public :: can_share_pointer
 
    type :: ConnectionSpec
@@ -16,13 +18,16 @@ module mapl3g_ConnectionSpec
       procedure :: is_sibling
    end type ConnectionSpec
 
+   character(*), parameter :: SELF = '_self_'
 
 contains
 
-   pure logical function is_export_to_import(this)
+   logical function is_export_to_import(this)
       class(ConnectionSpec), intent(in) :: this
 
-      is_export_to_import = (this%source%state_intent == 'export' .and. this%destination%state_intent == 'import')
+      is_export_to_import = ( &
+           this%source%state_intent() == 'export' .and. &
+           this%destination%state_intent() == 'import' )
 
    end function is_export_to_import
 
@@ -35,7 +40,7 @@ contains
    logical function is_valid(this)
       class(ConnectionSpec), intent(in) :: this
 
-      associate (intents => [character(len=len('internal')) :: this%source%state_intent, this%destination%state_intent])
+      associate (intents => [character(len=len('internal')) :: this%source%state_intent(), this%destination%state_intent()])
         
         is_valid = any( [ &
              all( intents == ['export  ', 'import  '] ), &    ! E2I
@@ -51,7 +56,7 @@ contains
    logical function is_sibling(this)
       class(ConnectionSpec), intent(in) :: this
 
-      associate(src_intent => this%source%state_intent, dst_intent => this%destination%state_intent)
+      associate(src_intent => this%source%state_intent(), dst_intent => this%destination%state_intent())
         is_sibling = (src_intent == 'export' .and. dst_intent == 'import')
       end associate
 

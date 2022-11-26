@@ -1,5 +1,6 @@
 module mapl3g_AbstractRegistry
    use mapl3g_ConnectionPoint
+   use mapl3g_RelativeConnectionPoint
    use mapl3g_ConnectionSpec
    use mapl_KeywordEnforcer
    use mapl3g_AbstractStateItemSpec
@@ -28,27 +29,27 @@ module mapl3g_AbstractRegistry
          import AbstractRegistry
          import AbstractStateItemSpec
          import StateItemSpecPtr
-         import ConnectionPoint
+         import RelativeConnectionPoint
          class(StateItemSpecPtr), pointer :: spec_ptr
          class(AbstractRegistry), intent(in) :: this
-         type(ConnectionPoint), intent(in) :: conn_pt
+         type(RelativeConnectionPoint), intent(in) :: conn_pt
       end function I_get_item_spec_ptr
 
       function I_get_item_spec(this, conn_pt) result(spec)
          import AbstractRegistry
          import AbstractStateItemSpec
-         import ConnectionPoint
+         import RelativeConnectionPoint
          class(AbstractStateItemSpec), pointer :: spec
          class(AbstractRegistry), intent(in) :: this
-         type(ConnectionPoint), intent(in) :: conn_pt
+         type(RelativeConnectionPoint), intent(in) :: conn_pt
       end function I_get_item_spec
 
       subroutine I_add_item(this, conn_pt, spec, rc)
          import AbstractRegistry
          import AbstractStateItemSpec
-         import ConnectionPoint
+         import RelativeConnectionPoint
          class(AbstractRegistry), intent(inout) :: this
-         type(ConnectionPoint), intent(in) :: conn_pt
+         type(RelativeConnectionPoint), intent(in) :: conn_pt
          class(AbstractStateItemSpec), target, intent(in) :: spec
          integer, optional, intent(out) :: rc
       end subroutine I_add_item
@@ -56,17 +57,17 @@ module mapl3g_AbstractRegistry
       logical function I_has_item_spec(this, conn_pt)
          import AbstractRegistry
          import AbstractStateItemSpec
-         import ConnectionPoint
+         import RelativeConnectionPoint
          class(AbstractRegistry), intent(in) :: this
-         type(ConnectionPoint), intent(in) :: conn_pt
+         type(RelativeConnectionPoint), intent(in) :: conn_pt
       end function I_has_item_spec
 
       subroutine I_set_active(this, conn_pt, unusable, require_inactive, rc)
          import AbstractRegistry
-         import ConnectionPoint
+         import RelativeConnectionPoint
          import KeywordEnforcer
          class(AbstractRegistry), intent(inout) :: this
-         class(ConnectionPoint), intent(in) :: conn_pt
+         class(RelativeConnectionPoint), intent(in) :: conn_pt
          class(KeywordEnforcer), optional, intent(in) :: unusable
          logical, optional, intent(in) :: require_inactive
          integer, optional, intent(out) :: rc
