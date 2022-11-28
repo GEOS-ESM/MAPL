@@ -196,6 +196,7 @@ contains
       right_node_set = right_file /= file_not_found
       left_node_set = left_file /= file_not_found
 
+
       call ESMF_FieldGet(field,dimCount=field_rank,_RC)
       alpha = 0.0
       if ( (.not.this%disable_interpolation) .and. (.not.this%intermittent_disable) .and. right_node_set .and. left_node_set) then
@@ -244,8 +245,10 @@ contains
          if (left_node_set) then
             call esmf_fieldget(this%left_node%field,localde=0,farrayptr=var3d_left,_RC)
          end if
-         if ( right_node_set .and. (time == this%left_node%time .or. this%disable_interpolation) ) then
+         if ( left_node_set .and. (time == this%left_node%time .or. this%disable_interpolation) ) then
             var3d = var3d_left
+         else if ( right_node_set .and. (time == this%right_node%time) ) then
+            var3d = var3d_right
          else if (right_node_set .and. (time == this%right_node%time)) then
             var3d = var3d_right
          else if ( (left_node_set .and. right_node_set) .and. (.not.this%exact) )then
@@ -281,16 +284,21 @@ contains
       integer :: field_rank
       real, pointer :: var3d_left(:,:,:),var3d_right(:,:,:)
       real, pointer :: var2d_left(:,:),var2d_right(:,:)
+      logical :: left_created, right_created
 
-      call ESMF_FieldGet(this%left_node%field,dimCount=field_rank,_RC)
-      if (field_rank == 2) then
-         call ESMF_FieldGet(this%right_node%field,localDE=0,farrayPtr=var2d_right,_RC)
-         call ESMF_FieldGet(this%left_node%field,localDE=0,farrayPtr=var2d_left,_RC)
-         var2d_left = var2d_right
-      else if (field_rank ==3) then
-         call ESMF_FieldGet(this%right_node%field,localDE=0,farrayPtr=var3d_right,_RC)
-         call ESMF_FieldGet(this%left_node%field,localDE=0,farrayPtr=var3d_left,_RC)
-         var3d_left = var3d_right
+      left_created  = ESMF_FieldIsCreated(this%left_node%field,_RC)
+      right_created = ESMF_FieldIsCreated(this%right_node%field,_RC)
+      if (left_created .and. right_created) then     
+         call ESMF_FieldGet(this%left_node%field,dimCount=field_rank,_RC)
+         if (field_rank == 2) then
+            call ESMF_FieldGet(this%right_node%field,localDE=0,farrayPtr=var2d_right,_RC)
+            call ESMF_FieldGet(this%left_node%field,localDE=0,farrayPtr=var2d_left,_RC)
+            var2d_left = var2d_right
+         else if (field_rank ==3) then
+            call ESMF_FieldGet(this%right_node%field,localDE=0,farrayPtr=var3d_right,_RC)
+            call ESMF_FieldGet(this%left_node%field,localDE=0,farrayPtr=var3d_left,_RC)
+            var3d_left = var3d_right
+         end if
       end if
       _RETURN(_SUCCESS)
    end subroutine swap_node_fields
