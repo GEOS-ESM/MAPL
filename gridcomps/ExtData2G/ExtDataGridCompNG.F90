@@ -452,6 +452,17 @@ CONTAINS
       call MAPL_StateAdd(self%ExtDataState,field,_RC)
    enddo
 
+   PrimaryLoop: do i=1,self%primary%import_names%size()
+
+      current_base_name => self%primary%import_names%at(i)
+      idx = self%primary%get_item_index(current_base_name,time,_RC)
+      item => self%primary%item(idx)
+
+      item%pfioCOllection_id = MAPL_DataAddCollection(item%file_template)
+      call create_primary_field(item,self%ExtDataState,time,_RC)
+
+   end do PrimaryLoop
+
 ! Check if we have any files that would need to be vertically interpolated
 ! if so ensure that PS is done first
 !!  check for PS
@@ -1708,9 +1719,10 @@ CONTAINS
      _RETURN(_SUCCESS)
   end subroutine
 
-  subroutine create_primary_field(item,ExtDataState,rc)
+  subroutine create_primary_field(item,ExtDataState,current_time,rc)
      type(PrimaryExport), intent(inout) :: item
      type(ESMF_State), intent(inout) :: extDataState
+     type(ESMF_Time), intent(in) :: current_time
      integer, intent(out), optional :: rc
 
      integer :: status
@@ -1718,6 +1730,10 @@ CONTAINS
      type(ESMF_Grid)  :: grid
      logical :: must_create
      character(len=ESMF_MAXSTR) :: derived_field_name
+     type(FileMetadataUtils), pointer :: metadata 
+     type(MAPLDataCollection), pointer :: collection 
+     character(len=ESMF_MAXPATHLEN) :: filename
+     logical :: file_found
 
      call ESMF_StateGet(ExtDataState,trim(item%name),field,_RC)
      call ESMF_FieldValidate(field,rc=status)
@@ -1736,6 +1752,13 @@ CONTAINS
 
      call ESMF_StateRemove(ExtDataState,[trim(item%name)],_RC)
      call ESMF_FieldDestroy(field,noGarbage=.true.,_RC)
+
+     call fill_grads_template(filename,item%file_template,time=current_time,_RC )
+     inquire(file=trim(filename),exist=file_found)
+     _ASSERT(file_found,"Forcing extdata to allocate primary field but have gaps in data, not implemented currently")
+     collection => DataCollections%at(item%pfioCollection_id)
+     metadata => collection%find(filename,_RC)
+     item%file_metadata = metadata
 
      call GetLevs(item,_RC)
      if (item%vartype == MAPL_FieldItem) then
@@ -1760,10 +1783,15 @@ CONTAINS
         integer, optional, intent(out) :: rc
  
         integer :: status
+        real, pointer :: ptr2d(:,:), ptr3d(:,:,:)
         if (num_levels ==0) then
            new_field=ESMF_FieldCreate(grid,name=field_name,typekind=ESMF_TYPEKIND_R4,_RC)
+           call ESMF_FieldGet(new_field,0,farrayPtr=ptr2d,_RC)
+           ptr2d=0.0
         else
            new_field=ESMF_FieldCreate(grid,name=field_name,typekind=ESMF_TYPEKIND_R4,ungriddedLBound=[1],ungriddedUBound=[num_levels],_RC)
+           call ESMF_FieldGet(new_field,0,farrayPtr=ptr3d,_RC)
+           ptr3d=0.0
         end if
         _RETURN(_SUCCESS)
      end function
